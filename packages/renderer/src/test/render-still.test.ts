@@ -13,7 +13,7 @@ test('Need to pass valid metadata', () => {
 			},
 			frame: 0,
 			output: '/file/output.png',
-			serveUrl: '/hi/there',
+			serveUrl: 'https://silly-crostata-c4c336.netlify.app/',
 		})
 	).rejects.toThrow(/not be NaN, but is NaN/);
 });
@@ -31,7 +31,7 @@ test('Need to pass valid metadata', () => {
 			},
 			frame: 200,
 			output: '/file/output.png',
-			serveUrl: '/hi/there',
+			serveUrl: 'https://silly-crostata-c4c336.netlify.app/',
 		})
 	).rejects.toThrow(
 		/Cannot use frame 200: Duration of composition is 30, therefore the highest frame that can be rendered is 29/
@@ -53,7 +53,7 @@ test('Catches invalid image format', () => {
 			imageFormat: 'jjj',
 			frame: 200,
 			output: '/file/output.png',
-			serveUrl: '/hi/there',
+			serveUrl: 'https://silly-crostata-c4c336.netlify.app/',
 		})
 	).rejects.toThrow(/Image format should be either "png" or "jpeg"/);
 });
