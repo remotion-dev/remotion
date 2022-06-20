@@ -34,6 +34,7 @@ export const ensurePresentationTimestamps = async (src: string) => {
 			if (i === parts.length - 1) {
 				return `pts-${p}`;
 			}
+
 			return p;
 		})
 		.join(path.sep);
@@ -59,6 +60,7 @@ export const ensurePresentationTimestamps = async (src: string) => {
 			c.fn();
 			return false;
 		}
+
 		return true;
 	});
 	ensureFileHasPresentationTimestamp[src] = 'done';
