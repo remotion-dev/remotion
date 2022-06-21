@@ -49,16 +49,14 @@ export const ConnectionEmittedEvents = {
 export class Connection extends EventEmitter {
 	#url: string;
 	#transport: ConnectionTransport;
-	#delay: number;
 	#lastId = 0;
 	#sessions: Map<string, CDPSession> = new Map();
 	#closed = false;
 	#callbacks: Map<number, ConnectionCallback> = new Map();
 
-	constructor(url: string, transport: ConnectionTransport, delay = 0) {
+	constructor(url: string, transport: ConnectionTransport) {
 		super();
 		this.#url = url;
-		this.#delay = delay;
 
 		this.#transport = transport;
 		this.#transport.onmessage = this.#onMessage.bind(this);
@@ -122,12 +120,6 @@ export class Connection extends EventEmitter {
 	}
 
 	async #onMessage(message: string): Promise<void> {
-		if (this.#delay) {
-			await new Promise((f) => {
-				return setTimeout(f, this.#delay);
-			});
-		}
-
 		debugProtocolReceive(message);
 		const object = JSON.parse(message);
 		if (object.method === 'Target.attachedToTarget') {

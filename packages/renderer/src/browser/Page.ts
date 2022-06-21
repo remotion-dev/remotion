@@ -357,13 +357,11 @@ export class Page extends EventEmitter {
 	static async _create(
 		client: CDPSession,
 		target: Target,
-		defaultViewport: Viewport | null
+		defaultViewport: Viewport
 	): Promise<Page> {
 		const page = new Page(client, target);
 		await page.#initialize();
-		if (defaultViewport) {
-			await page.setViewport(defaultViewport);
-		}
+		await page.setViewport(defaultViewport);
 
 		return page;
 	}
@@ -395,6 +393,8 @@ export class Page extends EventEmitter {
 			(event: Protocol.Target.AttachedToTargetEvent) => {
 				switch (event.targetInfo.type) {
 					case 'iframe':
+						break;
+					case 'worker':
 						break;
 					default:
 						// If we don't detach from service workers, they will never die.

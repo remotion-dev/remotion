@@ -29,19 +29,9 @@ import {debugError} from './util';
  */
 export interface BrowserConnectOptions {
 	/**
-	 * Whether to ignore HTTPS errors during navigation.
-	 * @defaultValue false
-	 */
-	ignoreHTTPSErrors?: boolean;
-	/**
 	 * Sets the viewport for each page.
 	 */
 	defaultViewport: Viewport;
-	/**
-	 * Slows down Puppeteer operations by the specified amount of milliseconds to
-	 * aid debugging.
-	 */
-	slowMo?: number;
 	/**
 	 * Callback to decide if Puppeteer should connect to a given target or not.
 	 */
@@ -72,9 +62,8 @@ export async function _connectToBrowser(
 	const {
 		browserWSEndpoint,
 		browserURL,
-		defaultViewport = {width: 800, height: 600, deviceScaleFactor: 1},
+		defaultViewport,
 		transport,
-		slowMo = 0,
 		targetFilter,
 		_isPageTarget: isPageTarget,
 	} = options;
@@ -89,12 +78,12 @@ export async function _connectToBrowser(
 
 	let connection!: Connection;
 	if (transport) {
-		connection = new Connection('', transport, slowMo);
+		connection = new Connection('', transport);
 	} else if (browserWSEndpoint) {
 		const WebSocketClass = await getWebSocketTransportClass();
 		const connectionTransport: ConnectionTransport =
 			await WebSocketClass.create(browserWSEndpoint);
-		connection = new Connection(browserWSEndpoint, connectionTransport, slowMo);
+		connection = new Connection(browserWSEndpoint, connectionTransport);
 	} else if (browserURL) {
 		throw new Error('browser URL not supported');
 	}
