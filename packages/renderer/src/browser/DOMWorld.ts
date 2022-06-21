@@ -29,35 +29,7 @@ import {ExecutionContext} from './ExecutionContext';
 import {Frame} from './FrameManager';
 import {ElementHandle, JSHandle} from './JSHandle';
 import {TimeoutSettings} from './TimeoutSettings';
-import {
-	debugError,
-	isNumber,
-	isString,
-	makePredicateString,
-	pageBindingInitString,
-} from './util';
-
-// predicateQueryHandler and checkWaitForOptions are declared here so that
-// TypeScript knows about them when used in the predicate function below.
-declare const predicateQueryHandler: (
-	element: Element | Document,
-	selector: string
-) => Promise<Element | Element[] | NodeListOf<Element>>;
-declare const checkWaitForOptions: (
-	node: Node | null,
-	waitForVisible: boolean,
-	waitForHidden: boolean
-) => Element | null | boolean;
-
-/**
- * @public
- */
-interface WaitForSelectorOptions {
-	visible?: boolean;
-	hidden?: boolean;
-	timeout?: number;
-	root?: ElementHandle;
-}
+import {debugError, isString, pageBindingInitString} from './util';
 
 /**
  * @internal
@@ -244,12 +216,11 @@ export class DOMWorld {
 			return this._addBindingToContext(context, name);
 		}
 
-		const bind = async (name: string) => {
-			const expression = pageBindingInitString('internal', name);
+		const bind = async (_name: string) => {
+			const expression = pageBindingInitString('internal', _name);
 			try {
-				// TODO: In theory, it would be enough to call this just once
 				await context._client.send('Runtime.addBinding', {
-					name,
+					name: _name,
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 					executionContextName: context._contextName,
 				});
@@ -273,7 +244,7 @@ export class DOMWorld {
 			}
 
 			this.#ctxBindings.add(
-				DOMWorld.#bindingIdentifier(name, context._contextId)
+				DOMWorld.#bindingIdentifier(_name, context._contextId)
 			);
 		};
 
@@ -340,71 +311,16 @@ export class DOMWorld {
 		}
 	};
 
-	/**
-	 * @internal
-	 */
-	async _waitForSelectorInPage(
-		queryOne: Function,
-		selector: string,
-		options: WaitForSelectorOptions,
-		binding?: PageBinding
-	): Promise<ElementHandle | null> {
-		const {
-			visible: waitForVisible = false,
-			hidden: waitForHidden = false,
-			timeout = this.#timeoutSettings.timeout(),
-		} = options;
-		const polling = waitForVisible || waitForHidden ? 'raf' : 'mutation';
-		const title = `selector \`${selector}\`${
-			waitForHidden ? ' to be hidden' : ''
-		}`;
-		async function predicate(
-			root: Element | Document,
-			selector: string,
-			waitForVisible: boolean,
-			waitForHidden: boolean
-		): Promise<Node | null | boolean> {
-			const node = predicateQueryHandler
-				? ((await predicateQueryHandler(root, selector)) as Element)
-				: root.querySelector(selector);
-			return checkWaitForOptions(node, waitForVisible, waitForHidden);
-		}
-
-		const waitTaskOptions: WaitTaskOptions = {
-			domWorld: this,
-			predicateBody: makePredicateString(predicate, queryOne),
-			predicateAcceptsContextElement: true,
-			title,
-			polling,
-			timeout,
-			args: [selector, waitForVisible, waitForHidden],
-			binding,
-			root: options.root,
-		};
-		const waitTask = new WaitTask(waitTaskOptions);
-		const jsHandle = await waitTask.promise;
-		const elementHandle = jsHandle.asElement();
-		if (!elementHandle) {
-			await jsHandle.dispose();
-			return null;
-		}
-
-		return elementHandle;
-	}
-
 	waitForFunction(
 		pageFunction: Function | string,
-		options: {polling?: string | number; timeout?: number} = {},
 		...args: SerializableOrJSHandle[]
 	): Promise<JSHandle> {
-		const {polling = 'raf', timeout = this.#timeoutSettings.timeout()} =
-			options;
+		const timeout = this.#timeoutSettings.timeout();
 		const waitTaskOptions: WaitTaskOptions = {
 			domWorld: this,
 			predicateBody: pageFunction,
 			predicateAcceptsContextElement: false,
 			title: 'function',
-			polling,
 			timeout,
 			args,
 		};
@@ -427,21 +343,19 @@ interface WaitTaskOptions {
 	predicateBody: Function | string;
 	predicateAcceptsContextElement: boolean;
 	title: string;
-	polling: string | number;
 	timeout: number;
 	binding?: PageBinding;
 	args: SerializableOrJSHandle[];
 	root?: ElementHandle;
 }
 
-const noop = (): void => {};
+const noop = (): void => undefined;
 
 /**
  * @internal
  */
 class WaitTask {
 	#domWorld: DOMWorld;
-	#polling: string | number;
 	#timeout: number;
 	#predicateBody: string;
 	#predicateAcceptsContextElement: boolean;
@@ -457,20 +371,6 @@ class WaitTask {
 	promise: Promise<JSHandle>;
 
 	constructor(options: WaitTaskOptions) {
-		if (isString(options.polling)) {
-			assert(
-				options.polling === 'raf' || options.polling === 'mutation',
-				'Unknown polling option: ' + options.polling
-			);
-		} else if (isNumber(options.polling)) {
-			assert(
-				options.polling > 0,
-				'Cannot poll with non-positive interval: ' + options.polling
-			);
-		} else {
-			throw new Error('Unknown polling options: ' + options.polling);
-		}
-
 		function getPredicateBody(predicateBody: Function | string) {
 			if (isString(predicateBody)) {
 				return `return (${predicateBody});`;
@@ -480,7 +380,6 @@ class WaitTask {
 		}
 
 		this.#domWorld = options.domWorld;
-		this.#polling = options.polling;
 		this.#timeout = options.timeout;
 		this.#root = options.root || null;
 		this.#predicateBody = getPredicateBody(options.predicateBody);
@@ -544,7 +443,6 @@ class WaitTask {
 				this.#root || null,
 				this.#predicateBody,
 				this.#predicateAcceptsContextElement,
-				this.#polling,
 				this.#timeout,
 				...this.#args
 			);
@@ -625,7 +523,10 @@ class WaitTask {
 	}
 
 	#cleanup(): void {
-		this.#timeoutTimer !== undefined && clearTimeout(this.#timeoutTimer);
+		if (this.#timeoutTimer !== undefined) {
+			clearTimeout(this.#timeoutTimer);
+		}
+
 		this.#domWorld._waitTasks.delete(this);
 	}
 }
@@ -634,70 +535,24 @@ async function waitForPredicatePageFunction(
 	root: Element | Document | null,
 	predicateBody: string,
 	predicateAcceptsContextElement: boolean,
-	polling: 'raf' | 'mutation' | number,
 	timeout: number,
 	...args: unknown[]
 ): Promise<unknown> {
 	root = root || document;
+	// eslint-disable-next-line no-new-func
 	const predicate = new Function('...args', predicateBody);
 	let timedOut = false;
 	if (timeout) {
 		setTimeout(() => {
-			return (timedOut = true);
+			timedOut = true;
 		}, timeout);
 	}
 
-	switch (polling) {
-		case 'raf':
-			return await pollRaf();
-		case 'mutation':
-			return await pollMutation();
-		default:
-			return await pollInterval(polling);
-	}
-
-	async function pollMutation(): Promise<unknown> {
-		const success = predicateAcceptsContextElement
-			? await predicate(root, ...args)
-			: await predicate(...args);
-		if (success) {
-			return Promise.resolve(success);
-		}
-
-		let fulfill = (_?: unknown) => {};
+	return async function (): Promise<unknown> {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		let fulfill = (__?: unknown): void => undefined;
 		const result = new Promise((x) => {
-			return (fulfill = x);
-		});
-		const observer = new MutationObserver(async () => {
-			if (timedOut) {
-				observer.disconnect();
-				fulfill();
-			}
-
-			const success = predicateAcceptsContextElement
-				? await predicate(root, ...args)
-				: await predicate(...args);
-			if (success) {
-				observer.disconnect();
-				fulfill(success);
-			}
-		});
-		if (!root) {
-			throw new Error('Root element is not found.');
-		}
-
-		observer.observe(root, {
-			childList: true,
-			subtree: true,
-			attributes: true,
-		});
-		return result;
-	}
-
-	async function pollRaf(): Promise<unknown> {
-		let fulfill = (_?: unknown): void => {};
-		const result = new Promise((x) => {
-			return (fulfill = x);
+			fulfill = x;
 		});
 		await onRaf();
 		return result;
@@ -717,30 +572,5 @@ async function waitForPredicatePageFunction(
 				requestAnimationFrame(onRaf);
 			}
 		}
-	}
-
-	async function pollInterval(pollInterval: number): Promise<unknown> {
-		let fulfill = (_?: unknown): void => {};
-		const result = new Promise((x) => {
-			return (fulfill = x);
-		});
-		await onTimeout();
-		return result;
-
-		async function onTimeout(): Promise<void> {
-			if (timedOut) {
-				fulfill();
-				return;
-			}
-
-			const success = predicateAcceptsContextElement
-				? await predicate(root, ...args)
-				: await predicate(...args);
-			if (success) {
-				fulfill(success);
-			} else {
-				setTimeout(onTimeout, pollInterval);
-			}
-		}
-	}
+	};
 }

@@ -588,31 +588,6 @@ export class FrameManager extends EventEmitter {
 }
 
 /**
- * @public
- */
-interface FrameWaitForFunctionOptions {
-	/**
-	 * An interval at which the `pageFunction` is executed, defaults to `raf`. If
-	 * `polling` is a number, then it is treated as an interval in milliseconds at
-	 * which the function would be executed. If `polling` is a string, then it can
-	 * be one of the following values:
-	 *
-	 * - `raf` - to constantly execute `pageFunction` in `requestAnimationFrame`
-	 *   callback. This is the tightest polling mode which is suitable to observe
-	 *   styling changes.
-	 *
-	 * - `mutation` - to execute `pageFunction` on every DOM mutation.
-	 */
-	polling?: string | number;
-	/**
-	 * Maximum time to wait in milliseconds. Defaults to `30000` (30 seconds).
-	 * Pass `0` to disable the timeout. Puppeteer's default timeout can be changed
-	 * using {@link Page.setDefaultTimeout}.
-	 */
-	timeout?: number;
-}
-
-/**
  * At every point of time, page exposes its current frame tree via the
  * {@link Page.mainFrame | page.mainFrame} and
  * {@link Frame.childFrames | frame.childFrames} methods.
@@ -963,10 +938,9 @@ export class Frame {
 	 */
 	waitForFunction(
 		pageFunction: Function | string,
-		options: FrameWaitForFunctionOptions = {},
 		...args: SerializableOrJSHandle[]
 	): Promise<JSHandle> {
-		return this._mainWorld.waitForFunction(pageFunction, options, ...args);
+		return this._mainWorld.waitForFunction(pageFunction, ...args);
 	}
 
 	/**
