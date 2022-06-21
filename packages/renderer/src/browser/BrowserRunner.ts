@@ -26,7 +26,6 @@ import {debug} from './Debug';
 import {TimeoutError} from './Errors';
 import {LaunchOptions} from './LaunchOptions';
 import {NodeWebSocketTransport as WebSocketTransport} from './NodeWebSocketTransport';
-import {PipeTransport} from './PipeTransport';
 import {Product} from './Product';
 import {
 	addEventListener,
@@ -247,32 +246,20 @@ export class BrowserRunner {
 	}
 
 	async setupConnection(options: {
-		usePipe?: boolean;
 		timeout: number;
 		slowMo: number;
 		preferredRevision: string;
 	}): Promise<Connection> {
 		assert(this.proc, 'BrowserRunner not started.');
 
-		const {usePipe, timeout, slowMo, preferredRevision} = options;
-		if (!usePipe) {
-			const browserWSEndpoint = await waitForWSEndpoint(
-				this.proc,
-				timeout,
-				preferredRevision
-			);
-			const transport = await WebSocketTransport.create(browserWSEndpoint);
-			this.connection = new Connection(browserWSEndpoint, transport, slowMo);
-		} else {
-			// stdio was assigned during start(), and the 'pipe' option there adds the
-			// 4th and 5th items to stdio array
-			const {3: pipeWrite, 4: pipeRead} = this.proc.stdio;
-			const transport = new PipeTransport(
-				pipeWrite as NodeJS.WritableStream,
-				pipeRead as NodeJS.ReadableStream
-			);
-			this.connection = new Connection('', transport, slowMo);
-		}
+		const {timeout, slowMo, preferredRevision} = options;
+		const browserWSEndpoint = await waitForWSEndpoint(
+			this.proc,
+			timeout,
+			preferredRevision
+		);
+		const transport = await WebSocketTransport.create(browserWSEndpoint);
+		this.connection = new Connection(browserWSEndpoint, transport, slowMo);
 
 		return this.connection;
 	}
