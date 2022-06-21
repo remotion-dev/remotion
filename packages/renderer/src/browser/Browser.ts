@@ -280,7 +280,12 @@ export class Browser extends EventEmitter {
 		this.#process = process;
 		this.#screenshotTaskQueue = new TaskQueue();
 		this.#connection = connection;
-		this.#closeCallback = closeCallback || function (): void {};
+		this.#closeCallback =
+			closeCallback ||
+			function () {
+				return undefined;
+			};
+
 		this.#targetFilterCallback =
 			targetFilterCallback ||
 			((): boolean => {
@@ -365,7 +370,7 @@ export class Browser extends EventEmitter {
 			'Target.createBrowserContext',
 			{
 				proxyServer,
-				proxyBypassList: proxyBypassList && proxyBypassList.join(','),
+				proxyBypassList: proxyBypassList?.join(','),
 			}
 		);
 		const context = new BrowserContext(
@@ -520,7 +525,7 @@ export class Browser extends EventEmitter {
 	 * Promise which resolves to a new {@link Page} object. The Page is created in
 	 * a default browser context.
 	 */
-	async newPage(): Promise<Page> {
+	newPage(): Promise<Page> {
 		return this.#defaultContext.newPage();
 	}
 
@@ -598,7 +603,7 @@ export class Browser extends EventEmitter {
 		let resolve: (value: Target | PromiseLike<Target>) => void;
 		let isResolved = false;
 		const targetPromise = new Promise<Target>((x) => {
-			return (resolve = x);
+			resolve = x;
 		});
 		this.on(BrowserEmittedEvents.TargetCreated, check);
 		this.on(BrowserEmittedEvents.TargetChanged, check);

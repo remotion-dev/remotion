@@ -461,7 +461,7 @@ export class Page extends EventEmitter {
 	#coverage: Coverage;
 	#javascriptEnabled = true;
 	#viewport: Viewport | null;
-	#screenshotTaskQueue: TaskQueue;
+	screenshotTaskQueue: TaskQueue;
 	#workers = new Map<string, WebWorker>();
 	// TODO: improve this typedef - it's a function that takes a file chooser or
 	// something?
@@ -496,7 +496,7 @@ export class Page extends EventEmitter {
 		this.#emulationManager = new EmulationManager(client);
 		this.#tracing = new Tracing(client);
 		this.#coverage = new Coverage(client);
-		this.#screenshotTaskQueue = screenshotTaskQueue;
+		this.screenshotTaskQueue = screenshotTaskQueue;
 		this.#viewport = null;
 
 		client.on(
@@ -738,7 +738,7 @@ export class Page extends EventEmitter {
 		const {timeout = this.#timeoutSettings.timeout()} = options;
 		let callback!: (value: FileChooser | PromiseLike<FileChooser>) => void;
 		const promise = new Promise<FileChooser>((x) => {
-			return (callback = x);
+			callback = x;
 		});
 		this.#fileChooserInterceptors.add(callback);
 		return waitWithTimeout<FileChooser>(
@@ -2860,7 +2860,7 @@ export class Page extends EventEmitter {
 			);
 		}
 
-		return this.#screenshotTaskQueue.postTask(() => {
+		return this.screenshotTaskQueue.postTask(() => {
 			return this.#screenshotTask(screenshotType, options);
 		});
 	}

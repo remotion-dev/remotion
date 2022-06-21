@@ -100,26 +100,26 @@ const queryOne = async (
 	return exeCtx._adoptBackendNodeId(res[0].backendDOMNodeId);
 };
 
-const waitFor = async (
+const waitFor = (
 	domWorld: DOMWorld,
 	selector: string,
 	options: WaitForSelectorOptions
 ): Promise<ElementHandle<Element> | null> => {
 	const binding: PageBinding = {
 		name: 'ariaQuerySelector',
-		pptrFunction: async (selector: string) => {
+		pptrFunction: async (_selector: string) => {
 			const root = options.root || (await domWorld._document());
-			const element = await queryOne(root, selector);
+			const element = await queryOne(root, _selector);
 			return element;
 		},
 	};
 	return domWorld._waitForSelectorInPage(
-		(_: Element, selector: string) => {
+		(_: Element, _selector: string) => {
 			return (
 				globalThis as any as unknown as {
 					ariaQuerySelector(selector: string): void;
 				}
-			).ariaQuerySelector(selector);
+			).ariaQuerySelector(_selector);
 		},
 		selector,
 		options,

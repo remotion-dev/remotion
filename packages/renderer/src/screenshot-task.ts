@@ -1,16 +1,14 @@
 import fs from 'fs';
 import {Internals, StillImageFormat} from 'remotion';
-import {CDPSession} from './browser/Connection';
 import {Page, ScreenshotOptions} from './browser/Page';
-import {Target} from './browser/Target';
 
 export const _screenshotTask = async (
 	page: Page,
 	format: StillImageFormat,
 	options: ScreenshotOptions
 ): Promise<Buffer | string> => {
-	const client = (page as unknown as {_client: CDPSession})._client;
-	const target = (page as unknown as {_target: Target})._target;
+	const client = page._client();
+	const target = page.target();
 
 	const perfTarget = Internals.perf.startPerfMeasure('activate-target');
 

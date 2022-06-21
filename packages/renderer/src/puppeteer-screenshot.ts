@@ -91,8 +91,7 @@ export const screenshot = (
 		);
 	}
 
-	// @ts-expect-error
-	return (page as Page)._screenshotTaskQueue.postTask(() =>
+	return page.screenshotTaskQueue.postTask(() =>
 		_screenshotTask(page, screenshotType as StillImageFormat, options)
 	);
 };

@@ -1,6 +1,5 @@
 import Protocol from 'devtools-protocol';
 import {Internals} from 'remotion';
-import {CDPSession} from '../browser/Connection';
 import {Page} from '../browser/Page';
 import {UnsymbolicatedStackFrame} from '../parse-browser-error-stack';
 import {SymbolicatedStackFrame} from '../symbolicate-stacktrace';
@@ -79,7 +78,7 @@ export const handleJavascriptException = ({
 	frame: number | null;
 	onError: (err: Error) => void;
 }) => {
-	const client = (page as unknown as {_client: CDPSession})._client;
+	const client = page._client();
 
 	const handler = async (exception: Protocol.Runtime.ExceptionThrownEvent) => {
 		const rawErrorMessage = exception.exceptionDetails.exception
