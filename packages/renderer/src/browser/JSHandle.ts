@@ -873,10 +873,7 @@ interface Offset {
 	y: number;
 }
 
-/**
- * @public
- */
-export interface Point {
+interface Point {
 	x: number;
 	y: number;
 }
