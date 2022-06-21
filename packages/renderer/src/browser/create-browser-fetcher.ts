@@ -216,7 +216,7 @@ export async function downloadBrowser(): Promise<void> {
 	}
 }
 
-export function logPolitely(toBeLogged: unknown): void {
+function logPolitely(toBeLogged: unknown): void {
 	const logLevel = process.env.npm_config_loglevel || '';
 	const logLevelDisplay = ['silent', 'error', 'warn'].indexOf(logLevel) > -1;
 
