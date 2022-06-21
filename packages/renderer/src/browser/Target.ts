@@ -28,9 +28,6 @@ const isPagetTarget = (target: Protocol.Target.TargetInfo): boolean => {
 	);
 };
 
-/**
- * @public
- */
 export class Target {
 	#browserContext: BrowserContext;
 	#targetInfo: Protocol.Target.TargetInfo;

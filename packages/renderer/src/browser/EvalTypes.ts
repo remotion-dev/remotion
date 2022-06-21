@@ -16,34 +16,19 @@
 
 import {JSHandle} from './JSHandle';
 
-/**
- * @public
- */
 export type EvaluateFn<T = any, U = any, V = any> =
 	| string
 	| ((arg1: T, ...args: U[]) => V);
-/**
- * @public
- */
 export type UnwrapPromiseLike<T> = T extends PromiseLike<infer U> ? U : T;
 
-/**
- * @public
- */
 export type EvaluateFnReturnType<T extends EvaluateFn> = T extends (
 	...args: any[]
 ) => infer R
 	? R
 	: any;
 
-/**
- * @public
- */
 export type EvaluateHandleFn = string | ((...args: any[]) => any);
 
-/**
- * @public
- */
 type Serializable =
 	| number
 	| string
@@ -53,19 +38,10 @@ type Serializable =
 	| JSONArray
 	| JSONObject;
 
-/**
- * @public
- */
 type JSONArray = readonly Serializable[];
 
-/**
- * @public
- */
 interface JSONObject {
 	[key: string]: Serializable;
 }
 
-/**
- * @public
- */
 export type SerializableOrJSHandle = Serializable | JSHandle;

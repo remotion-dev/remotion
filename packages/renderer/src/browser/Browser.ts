@@ -24,11 +24,6 @@ import {Viewport} from './PuppeteerViewport';
 import {Target} from './Target';
 import {waitWithTimeout} from './util';
 
-/**
- * BrowserContext options.
- *
- * @public
- */
 interface BrowserContextOptions {
 	/**
 	 * Proxy server with optional port to use for all requests.
@@ -43,9 +38,6 @@ interface BrowserContextOptions {
 
 type BrowserCloseCallback = () => Promise<void> | void;
 
-/**
- * @public
- */
 interface WaitForTargetOptions {
 	/**
 	 * Maximum wait time in milliseconds. Pass `0` to disable the timeout.
@@ -54,11 +46,6 @@ interface WaitForTargetOptions {
 	timeout?: number;
 }
 
-/**
- * All the events a {@link Browser | browser instance} may emit.
- *
- * @public
- */
 const enum BrowserEmittedEvents {
 	TargetChanged = 'targetchanged',
 	TargetCreated = 'targetcreated',

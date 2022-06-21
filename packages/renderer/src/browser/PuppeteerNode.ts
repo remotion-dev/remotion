@@ -34,41 +34,6 @@ interface PuppeteerLaunchOptions
 	extraPrefsFirefox?: Record<string, unknown>;
 }
 
-/**
- * Extends the main {@link Puppeteer} class with Node specific behaviour for fetching and
- * downloading browsers.
- *
- * If you're using Puppeteer in a Node environment, this is the class you'll get
- * when you run `require('puppeteer')` (or the equivalent ES `import`).
- *
- * @remarks
- *
- * The most common method to use is {@link PuppeteerNode.launch | launch}, which
- * is used to launch and connect to a new browser instance.
- *
- * See {@link Puppeteer | the main Puppeteer class} for methods common to all
- * environments, such as {@link Puppeteer.connect}.
- *
- * @example
- * The following is a typical example of using Puppeteer to drive automation:
- * ```js
- * const puppeteer = require('puppeteer');
- *
- * (async () => {
- *   const browser = await puppeteer.launch();
- *   const page = await browser.newPage();
- *   await page.goto('https://www.google.com');
- *   // other actions...
- *   await browser.close();
- * })();
- * ```
- *
- * Once you have created a `page` you have access to a large API to interact
- * with the page, navigate, or find certain elements in that page.
- * The {@link Page | `page` documentation} lists all the available methods.
- *
- * @public
- */
 export class PuppeteerNode {
 	#lazyLauncher?: ProductLauncher;
 	#projectRoot?: string;

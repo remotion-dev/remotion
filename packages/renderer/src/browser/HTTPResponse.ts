@@ -20,9 +20,6 @@ import {ProtocolError} from './Errors';
 import {Frame} from './FrameManager';
 import {HTTPRequest} from './HTTPRequest';
 
-/**
- * @public
- */
 interface RemoteAddress {
 	ip?: string;
 	port?: number;
@@ -35,12 +32,6 @@ interface CDPSession {
 	): Promise<ProtocolMapping.Commands[T]['returnType']>;
 }
 
-/**
- * The HTTPResponse class represents responses which are received by the
- * {@link Page} class.
- *
- * @public
- */
 export class HTTPResponse {
 	#client: CDPSession;
 	#request: HTTPRequest;
