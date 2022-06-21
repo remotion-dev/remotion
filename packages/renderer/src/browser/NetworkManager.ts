@@ -24,15 +24,8 @@ import {HTTPResponse} from './HTTPResponse';
 import {FetchRequestId, NetworkEventManager} from './NetworkEventManager';
 import {debugError, isString} from './util';
 
-interface Credentials {
-	username: string;
-	password: string;
-}
-
 export const NetworkManagerEmittedEvents = {
 	Request: Symbol('NetworkManager.Request'),
-	Response: Symbol('NetworkManager.Response'),
-	RequestFailed: Symbol('NetworkManager.RequestFailed'),
 } as const;
 
 interface CDPSession extends EventEmitter {
@@ -54,7 +47,6 @@ export class NetworkManager extends EventEmitter {
 	#frameManager: FrameManager;
 	#networkEventManager = new NetworkEventManager();
 	#extraHTTPHeaders: Record<string, string> = {};
-	#credentials?: Credentials;
 	#attemptedAuthentications = new Set<string>();
 	constructor(client: CDPSession, frameManager: FrameManager) {
 		super();
@@ -121,19 +113,13 @@ export class NetworkManager extends EventEmitter {
 	}
 
 	#onAuthRequired(event: Protocol.Fetch.AuthRequiredEvent): void {
-		/* TODO(jacktfranklin): This is defined in protocol.d.ts but not
-		 * in an easily referrable way - we should look at exposing it.
-		 */
 		type AuthResponse = 'Default' | 'CancelAuth' | 'ProvideCredentials';
 		let response: AuthResponse = 'Default';
 		if (this.#attemptedAuthentications.has(event.requestId)) {
 			response = 'CancelAuth';
-		} else if (this.#credentials) {
-			response = 'ProvideCredentials';
-			this.#attemptedAuthentications.add(event.requestId);
 		}
 
-		const {username, password} = this.#credentials || {
+		const {username, password} = {
 			username: undefined,
 			password: undefined,
 		};
@@ -270,7 +256,6 @@ export class NetworkManager extends EventEmitter {
 			new Error('Response body is unavailable for redirect responses')
 		);
 		this.#forgetRequest(request, false);
-		this.emit(NetworkManagerEmittedEvents.Response, response);
 	}
 
 	#emitResponseEvent(
@@ -304,7 +289,6 @@ export class NetworkManager extends EventEmitter {
 			extraInfo
 		);
 		request._response = response;
-		this.emit(NetworkManagerEmittedEvents.Response, response);
 	}
 
 	#onResponseReceived(event: Protocol.Network.ResponseReceivedEvent): void {
@@ -432,6 +416,5 @@ export class NetworkManager extends EventEmitter {
 		}
 
 		this.#forgetRequest(request, true);
-		this.emit(NetworkManagerEmittedEvents.RequestFailed, request);
 	}
 }

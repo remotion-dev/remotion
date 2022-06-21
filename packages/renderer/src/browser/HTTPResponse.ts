@@ -17,7 +17,6 @@ import {ProtocolMapping} from 'devtools-protocol/types/protocol-mapping';
 
 import {Protocol} from 'devtools-protocol';
 import {ProtocolError} from './Errors';
-import {EventEmitter} from './EventEmitter';
 import {Frame} from './FrameManager';
 import {HTTPRequest} from './HTTPRequest';
 
@@ -29,7 +28,7 @@ interface RemoteAddress {
 	port?: number;
 }
 
-interface CDPSession extends EventEmitter {
+interface CDPSession {
 	send<T extends keyof ProtocolMapping.Commands>(
 		method: T,
 		...paramArgs: ProtocolMapping.Commands[T]['paramsType']
@@ -148,7 +147,6 @@ export class HTTPResponse {
 	 * @returns True if the response was successful (status in the range 200-299).
 	 */
 	ok(): boolean {
-		// TODO: document === 0 case?
 		return this.#status === 0 || (this.#status >= 200 && this.#status <= 299);
 	}
 
