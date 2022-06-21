@@ -32,7 +32,6 @@ import {FileChooser} from './FileChooser';
 import {Frame, FrameManager, FrameManagerEmittedEvents} from './FrameManager';
 import {HTTPRequest} from './HTTPRequest';
 import {HTTPResponse} from './HTTPResponse';
-import {Keyboard, Mouse, Touchscreen} from './Input';
 import {ElementHandle, JSHandle, _createJSHandle} from './JSHandle';
 import {PuppeteerLifeCycleEvent} from './LifecycleWatcher';
 import {NetworkConditions, NetworkManagerEmittedEvents} from './NetworkManager';
@@ -425,10 +424,7 @@ export class Page extends EventEmitter {
 	#closed = false;
 	#client: CDPSession;
 	#target: Target;
-	#keyboard: Keyboard;
-	#mouse: Mouse;
 	#timeoutSettings = new TimeoutSettings();
-	#touchscreen: Touchscreen;
 	#frameManager: FrameManager;
 	#emulationManager: EmulationManager;
 	#pageBindings = new Map<string, Function>();
@@ -455,9 +451,6 @@ export class Page extends EventEmitter {
 		super();
 		this.#client = client;
 		this.#target = target;
-		this.#keyboard = new Keyboard(client);
-		this.#mouse = new Mouse(client, this.#keyboard);
-		this.#touchscreen = new Touchscreen(client, this.#keyboard);
 		this.#frameManager = new FrameManager(
 			client,
 			this,
@@ -786,14 +779,6 @@ export class Page extends EventEmitter {
 	 */
 	mainFrame(): Frame {
 		return this.#frameManager.mainFrame();
-	}
-
-	get keyboard(): Keyboard {
-		return this.#keyboard;
-	}
-
-	get touchscreen(): Touchscreen {
-		return this.#touchscreen;
 	}
 
 	/**
@@ -2626,10 +2611,6 @@ export class Page extends EventEmitter {
 	 */
 	isClosed(): boolean {
 		return this.#closed;
-	}
-
-	get mouse(): Mouse {
-		return this.#mouse;
 	}
 
 	/**

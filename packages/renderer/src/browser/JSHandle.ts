@@ -26,9 +26,7 @@ import {
 } from './EvalTypes';
 import {ExecutionContext} from './ExecutionContext';
 import {Frame, FrameManager} from './FrameManager';
-import {MouseButton} from './Input';
 import {Page, ScreenshotOptions} from './Page';
-import {KeyInput} from './USKeyboardLayout';
 import {
 	debugError,
 	isString,
@@ -686,87 +684,6 @@ export class ElementHandle<
 	}
 
 	/**
-	 * This method scrolls element into view if needed, and then
-	 * uses {@link Page.mouse} to hover over the center of the element.
-	 * If the element is detached from DOM, the method throws an error.
-	 */
-	async hover(): Promise<void> {
-		await this.#scrollIntoViewIfNeeded();
-		const {x, y} = await this.clickablePoint();
-		await this.#page.mouse.move(x, y);
-	}
-
-	/**
-	 * This method scrolls element into view if needed, and then
-	 * uses {@link Page.mouse} to click in the center of the element.
-	 * If the element is detached from DOM, the method throws an error.
-	 */
-	async click(options: ClickOptions = {}): Promise<void> {
-		await this.#scrollIntoViewIfNeeded();
-		const {x, y} = await this.clickablePoint(options.offset);
-		await this.#page.mouse.click(x, y, options);
-	}
-
-	/**
-	 * This method creates and captures a dragevent from the element.
-	 */
-	async drag(target: Point): Promise<Protocol.Input.DragData> {
-		assert(
-			this.#page.isDragInterceptionEnabled(),
-			'Drag Interception is not enabled!'
-		);
-		await this.#scrollIntoViewIfNeeded();
-		const start = await this.clickablePoint();
-		return await this.#page.mouse.drag(start, target);
-	}
-
-	/**
-	 * This method creates a `dragenter` event on the element.
-	 */
-	async dragEnter(
-		data: Protocol.Input.DragData = {items: [], dragOperationsMask: 1}
-	): Promise<void> {
-		await this.#scrollIntoViewIfNeeded();
-		const target = await this.clickablePoint();
-		await this.#page.mouse.dragEnter(target, data);
-	}
-
-	/**
-	 * This method creates a `dragover` event on the element.
-	 */
-	async dragOver(
-		data: Protocol.Input.DragData = {items: [], dragOperationsMask: 1}
-	): Promise<void> {
-		await this.#scrollIntoViewIfNeeded();
-		const target = await this.clickablePoint();
-		await this.#page.mouse.dragOver(target, data);
-	}
-
-	/**
-	 * This method triggers a drop on the element.
-	 */
-	async drop(
-		data: Protocol.Input.DragData = {items: [], dragOperationsMask: 1}
-	): Promise<void> {
-		await this.#scrollIntoViewIfNeeded();
-		const destination = await this.clickablePoint();
-		await this.#page.mouse.drop(destination, data);
-	}
-
-	/**
-	 * This method triggers a dragenter, dragover, and drop on the element.
-	 */
-	async dragAndDrop(
-		target: ElementHandle,
-		options?: {delay: number}
-	): Promise<void> {
-		await this.#scrollIntoViewIfNeeded();
-		const startPoint = await this.clickablePoint();
-		const targetPoint = await target.clickablePoint();
-		await this.#page.mouse.dragAndDrop(startPoint, targetPoint, options);
-	}
-
-	/**
 	 * Triggers a `change` and `input` event once all the provided options have been
 	 * selected. If there's no `<select>` element matching `selector`, the method
 	 * throws an error.
@@ -901,69 +818,12 @@ export class ElementHandle<
 	}
 
 	/**
-	 * This method scrolls element into view if needed, and then uses
-	 * {@link Touchscreen.tap} to tap in the center of the element.
-	 * If the element is detached from DOM, the method throws an error.
-	 */
-	async tap(): Promise<void> {
-		await this.#scrollIntoViewIfNeeded();
-		const {x, y} = await this.clickablePoint();
-		await this.#page.touchscreen.tap(x, y);
-	}
-
-	/**
 	 * Calls {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus | focus} on the element.
 	 */
 	async focus(): Promise<void> {
 		await (this as ElementHandle<HTMLElement>).evaluate((element) => {
 			return element.focus();
 		});
-	}
-
-	/**
-	 * Focuses the element, and then sends a `keydown`, `keypress`/`input`, and
-	 * `keyup` event for each character in the text.
-	 *
-	 * To press a special key, like `Control` or `ArrowDown`,
-	 * use {@link ElementHandle.press}.
-	 *
-	 * @example
-	 * ```js
-	 * await elementHandle.type('Hello'); // Types instantly
-	 * await elementHandle.type('World', {delay: 100}); // Types slower, like a user
-	 * ```
-	 *
-	 * @example
-	 * An example of typing into a text field and then submitting the form:
-	 *
-	 * ```js
-	 * const elementHandle = await page.$('input');
-	 * await elementHandle.type('some text');
-	 * await elementHandle.press('Enter');
-	 * ```
-	 */
-	async type(text: string, options?: {delay: number}): Promise<void> {
-		await this.focus();
-		await this.#page.keyboard.type(text, options);
-	}
-
-	/**
-	 * Focuses the element, and then uses {@link Keyboard.down} and {@link Keyboard.up}.
-	 *
-	 * @remarks
-	 * If `key` is a single character and no modifier keys besides `Shift`
-	 * are being held down, a `keypress`/`input` event will also be generated.
-	 * The `text` option can be specified to force an input event to be generated.
-	 *
-	 * **NOTE** Modifier keys DO affect `elementHandle.press`. Holding down `Shift`
-	 * will type the text in upper case.
-	 *
-	 * @param key - Name of key to press, such as `ArrowLeft`.
-	 *    See {@link KeyInput} for a list of all key names.
-	 */
-	async press(key: KeyInput, options?: PressOptions): Promise<void> {
-		await this.focus();
-		await this.#page.keyboard.press(key, options);
 	}
 
 	/**
@@ -1156,44 +1016,6 @@ interface Offset {
 	 * y-offset for the clickable point relative to the top-left corder of the border box.
 	 */
 	y: number;
-}
-
-/**
- * @public
- */
-interface ClickOptions {
-	/**
-	 * Time to wait between `mousedown` and `mouseup` in milliseconds.
-	 *
-	 * @defaultValue 0
-	 */
-	delay?: number;
-	/**
-	 * @defaultValue 'left'
-	 */
-	button?: MouseButton;
-	/**
-	 * @defaultValue 1
-	 */
-	clickCount?: number;
-	/**
-	 * Offset for the clickable point relative to the top-left corder of the border box.
-	 */
-	offset?: Offset;
-}
-
-/**
- * @public
- */
-interface PressOptions {
-	/**
-	 * Time to wait between `keydown` and `keyup` in milliseconds. Defaults to 0.
-	 */
-	delay?: number;
-	/**
-	 * If specified, generates an input event with this text.
-	 */
-	text?: string;
 }
 
 /**
