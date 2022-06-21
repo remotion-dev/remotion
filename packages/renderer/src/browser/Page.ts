@@ -16,7 +16,6 @@
 
 import {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
-import {Browser, BrowserContext} from './Browser';
 import {CDPSession} from './Connection';
 import {ConsoleMessage, ConsoleMessageType} from './ConsoleMessage';
 import {EmulationManager} from './EmulationManager';
@@ -64,66 +63,6 @@ interface WaitForOptions {
 	waitUntil?: PuppeteerLifeCycleEvent | PuppeteerLifeCycleEvent[];
 }
 
-/**
- * @public
- */
-interface ScreenshotClip {
-	x: number;
-	y: number;
-	width: number;
-	height: number;
-}
-
-/**
- * @public
- */
-export interface ScreenshotOptions {
-	/**
-	 * @defaultValue 'png'
-	 */
-	type?: 'png' | 'jpeg' | 'webp';
-	/**
-	 * The file path to save the image to. The screenshot type will be inferred
-	 * from file extension. If path is a relative path, then it is resolved
-	 * relative to current working directory. If no path is provided, the image
-	 * won't be saved to the disk.
-	 */
-	path?: string;
-	/**
-	 * When true, takes a screenshot of the full page.
-	 * @defaultValue false
-	 */
-	fullPage?: boolean;
-	/**
-	 * An object which specifies the clipping region of the page.
-	 */
-	clip?: ScreenshotClip;
-	/**
-	 * Quality of the image, between 0-100. Not applicable to `png` images.
-	 */
-	quality?: number;
-	/**
-	 * Hides default white background and allows capturing screenshots with transparency.
-	 * @defaultValue false
-	 */
-	omitBackground?: boolean;
-	/**
-	 * Encoding of the image.
-	 * @defaultValue 'binary'
-	 */
-	encoding?: 'base64' | 'binary';
-	/**
-	 * If you need a screenshot bigger than the Viewport
-	 * @defaultValue true
-	 */
-	captureBeyondViewport?: boolean;
-}
-
-/**
- * All the events that a page instance may emit.
- *
- * @public
- */
 export const enum PageEmittedEvents {
 	Console = 'console',
 	Error = 'error',
@@ -264,20 +203,6 @@ export class Page extends EventEmitter {
 		return this.#client;
 	}
 
-	/**
-	 * Get the browser the page belongs to.
-	 */
-	browser(): Browser {
-		return this.#target.browser();
-	}
-
-	/**
-	 * Get the browser context that the page belongs to.
-	 */
-	browserContext(): BrowserContext {
-		return this.#target.browserContext();
-	}
-
 	#onTargetCrashed(): void {
 		this.emit('error', new Error('Page crashed!'));
 	}
@@ -307,94 +232,18 @@ export class Page extends EventEmitter {
 		return this.#frameManager.mainFrame();
 	}
 
-	/**
-	 * @returns An array of all frames attached to the page.
-	 */
-	frames(): Frame[] {
-		return this.#frameManager.frames();
-	}
-
 	async setViewport(viewport: Viewport): Promise<void> {
 		await this.#emulationManager.emulateViewport(viewport);
 	}
 
-	/**
-	 * This setting will change the default maximum navigation time for the
-	 * following methods and related shortcuts:
-	 *
-	 * - {@link Page.goBack | page.goBack(options)}
-	 *
-	 * - {@link Page.goForward | page.goForward(options)}
-	 *
-	 * - {@link Page.goto | page.goto(url,options)}
-	 *
-	 * - {@link Page.reload | page.reload(options)}
-	 *
-	 * - {@link Page.setContent | page.setContent(html,options)}
-	 *
-	 * - {@link Page.waitForNavigation | page.waitForNavigation(options)}
-	 * @param timeout - Maximum navigation time in milliseconds.
-	 */
 	setDefaultNavigationTimeout(timeout: number): void {
 		this.#timeoutSettings.setDefaultNavigationTimeout(timeout);
 	}
 
-	/**
-	 * @param timeout - Maximum time in milliseconds.
-	 */
 	setDefaultTimeout(timeout: number): void {
 		this.#timeoutSettings.setDefaultTimeout(timeout);
 	}
 
-	/**
-	 * @remarks
-	 *
-	 * The only difference between {@link Page.evaluate | page.evaluate} and
-	 * `page.evaluateHandle` is that `evaluateHandle` will return the value
-	 * wrapped in an in-page object.
-	 *
-	 * If the function passed to `page.evaluteHandle` returns a Promise, the
-	 * function will wait for the promise to resolve and return its value.
-	 *
-	 * You can pass a string instead of a function (although functions are
-	 * recommended as they are easier to debug and use with TypeScript):
-	 *
-	 * @example
-	 * ```
-	 * const aHandle = await page.evaluateHandle('document')
-	 * ```
-	 *
-	 * @example
-	 * {@link JSHandle} instances can be passed as arguments to the `pageFunction`:
-	 * ```
-	 * const aHandle = await page.evaluateHandle(() => document.body);
-	 * const resultHandle = await page.evaluateHandle(body => body.innerHTML, aHandle);
-	 * console.log(await resultHandle.jsonValue());
-	 * await resultHandle.dispose();
-	 * ```
-	 *
-	 * Most of the time this function returns a {@link JSHandle},
-	 * but if `pageFunction` returns a reference to an element,
-	 * you instead get an {@link ElementHandle} back:
-	 *
-	 * @example
-	 * ```
-	 * const button = await page.evaluateHandle(() => document.querySelector('button'));
-	 * // can call `click` because `button` is an `ElementHandle`
-	 * await button.click();
-	 * ```
-	 *
-	 * The TypeScript definitions assume that `evaluateHandle` returns
-	 *  a `JSHandle`, but if you know it's going to return an
-	 * `ElementHandle`, pass it as the generic argument:
-	 *
-	 * ```
-	 * const button = await page.evaluateHandle<ElementHandle>(...);
-	 * ```
-	 *
-	 * @param pageFunction - a function that is run within the page
-	 * @param args - arguments to be passed to the pageFunction
-	 */
 	async evaluateHandle<HandlerType extends JSHandle = JSHandle>(
 		pageFunction: EvaluateHandleFn,
 		...args: SerializableOrJSHandle[]
@@ -407,19 +256,6 @@ export class Page extends EventEmitter {
 		event: Protocol.Runtime.ConsoleAPICalledEvent
 	): Promise<void> {
 		if (event.executionContextId === 0) {
-			// DevTools protocol stores the last 1000 console messages. These
-			// messages are always reported even for removed execution contexts. In
-			// this case, they are marked with executionContextId = 0 and are
-			// reported upon enabling Runtime agent.
-			//
-			// Ignore these messages since:
-			// - there's no execution context we can use to operate with message
-			//   arguments
-			// - these messages are reported before Puppeteer clients can subscribe
-			//   to the 'console'
-			//   page event.
-			//
-			// @see https://github.com/puppeteer/puppeteer/issues/3865
 			return;
 		}
 
@@ -519,12 +355,6 @@ export class Page extends EventEmitter {
 		this.emit(PageEmittedEvents.Console, message);
 	}
 
-	/**
-	 *
-	 * @returns
-	 * @remarks Shortcut for
-	 * {@link Frame.url | page.mainFrame().url()}.
-	 */
 	url(): string {
 		return this.mainFrame().url();
 	}
@@ -536,9 +366,6 @@ export class Page extends EventEmitter {
 		return this.#frameManager.mainFrame().goto(url, options);
 	}
 
-	/**
-	 * Brings page to front (activates tab).
-	 */
 	async bringToFront(): Promise<void> {
 		await this.#client.send('Page.bringToFront');
 	}

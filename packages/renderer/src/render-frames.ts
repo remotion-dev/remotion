@@ -257,7 +257,7 @@ const innerRenderFrames = ({
 							quality,
 							options: {
 								frame,
-								output: undefined,
+								output: null,
 							},
 						});
 						Internals.perf.stopPerfMeasure(id);

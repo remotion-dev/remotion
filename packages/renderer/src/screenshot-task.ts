@@ -1,6 +1,7 @@
 import fs from 'fs';
 import {Internals, StillImageFormat} from 'remotion';
-import {Page, ScreenshotOptions} from './browser/Page';
+import {Page} from './browser/Page';
+import {ScreenshotOptions} from './browser/ScreenshotOptions';
 
 export const _screenshotTask = async (
 	page: Page,
@@ -35,12 +36,8 @@ export const _screenshotTask = async (
 		await client.send('Emulation.setDefaultBackgroundColorOverride');
 
 	const saveMarker = Internals.perf.startPerfMeasure('save');
-	const buffer =
-		options.encoding === 'base64'
-			? result.data
-			: Buffer.from(result.data, 'base64');
 
-	if (options.path) await fs.promises.writeFile(options.path, buffer);
+	if (options.path) await fs.promises.writeFile(options.path, result.data);
 	Internals.perf.stopPerfMeasure(saveMarker);
-	return buffer;
+	return result.data;
 };

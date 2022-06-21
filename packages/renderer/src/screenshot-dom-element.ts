@@ -7,20 +7,16 @@ export const screenshotDOMElement = async ({
 	page,
 	imageFormat,
 	quality,
-	opts = {},
+	opts,
 }: {
 	page: Page;
 	imageFormat: ImageFormat;
 	quality: number | undefined;
-	opts?: {
-		path?: string;
-		selector?: string;
+	opts: {
+		path: string | null;
 	};
 }): Promise<Buffer> => {
-	const path = 'path' in opts ? opts.path : undefined;
-	const {selector} = opts;
-
-	if (!selector) throw Error('Please provide a selector.');
+	const {path} = opts;
 
 	if (imageFormat === 'png') {
 		await puppeteerEvaluateWithCatch({
@@ -48,7 +44,7 @@ export const screenshotDOMElement = async ({
 
 	return screenshot(page, {
 		omitBackground: imageFormat === 'png',
-		path,
+		path: path ?? undefined,
 		type: imageFormat,
 		quality,
 	}) as Promise<Buffer>;
