@@ -18,7 +18,7 @@ import {Protocol} from 'devtools-protocol';
 import type {Readable} from 'stream';
 import {assert, assertNever} from './assert';
 import {Browser, BrowserContext} from './Browser';
-import {CDPSession, CDPSessionEmittedEvents, Connection} from './Connection';
+import {CDPSession, CDPSessionEmittedEvents} from './Connection';
 import {ConsoleMessage, ConsoleMessageType} from './ConsoleMessage';
 import {Coverage} from './Coverage';
 import {Dialog} from './Dialog';
@@ -67,7 +67,6 @@ import {
 	waitForEvent,
 	waitWithTimeout,
 } from './util';
-import {WebWorker} from './WebWorker';
 
 /**
  * @public
@@ -372,8 +371,6 @@ export interface PageEventObject {
 	requestfailed: HTTPRequest;
 	requestfinished: HTTPRequest;
 	requestservedfromcache: HTTPRequest;
-	workercreated: WebWorker;
-	workerdestroyed: WebWorker;
 }
 
 /**
@@ -459,7 +456,6 @@ export class Page extends EventEmitter {
 	#javascriptEnabled = true;
 	#viewport: Viewport | null;
 	screenshotTaskQueue: TaskQueue;
-	#workers = new Map<string, WebWorker>();
 	// TODO: improve this typedef - it's a function that takes a file chooser or
 	// something?
 	#fileChooserInterceptors = new Set<Function>();
@@ -499,20 +495,6 @@ export class Page extends EventEmitter {
 			'Target.attachedToTarget',
 			(event: Protocol.Target.AttachedToTargetEvent) => {
 				switch (event.targetInfo.type) {
-					case 'worker':
-						const connection = Connection.fromSession(client);
-						assert(connection);
-						const session = connection.session(event.sessionId);
-						assert(session);
-						const worker = new WebWorker(
-							session,
-							event.targetInfo.url,
-							this.#addConsoleMessage.bind(this),
-							this.#handleException.bind(this)
-						);
-						this.#workers.set(event.sessionId, worker);
-						this.emit(PageEmittedEvents.WorkerCreated, worker);
-						break;
 					case 'iframe':
 						break;
 					default:
@@ -530,15 +512,6 @@ export class Page extends EventEmitter {
 				}
 			}
 		);
-		client.on('Target.detachedFromTarget', (event) => {
-			const worker = this.#workers.get(event.sessionId);
-			if (!worker) {
-				return;
-			}
-
-			this.#workers.delete(event.sessionId);
-			this.emit(PageEmittedEvents.WorkerDestroyed, worker);
-		});
 
 		this.#frameManager.on(FrameManagerEmittedEvents.FrameAttached, (event) => {
 			return this.emit(PageEmittedEvents.FrameAttached, event);
@@ -862,18 +835,6 @@ export class Page extends EventEmitter {
 	 */
 	frames(): Frame[] {
 		return this.#frameManager.frames();
-	}
-
-	/**
-	 * @returns all of the dedicated
-	 * {@link https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API |
-	 * WebWorkers}
-	 * associated with the page.
-	 * @remarks
-	 * NOTE: This does not contain ServiceWorkers
-	 */
-	workers(): WebWorker[] {
-		return Array.from(this.#workers.values());
 	}
 
 	/**
