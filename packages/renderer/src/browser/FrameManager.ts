@@ -162,7 +162,6 @@ export class FrameManager extends EventEmitter {
 				client.send('Runtime.enable').then(() => {
 					return this._ensureIsolatedWorld(client, UTILITY_WORLD_NAME);
 				}),
-				// TODO: Network manager is not aware of OOP iframes yet.
 				client === this.#client
 					? this.#networkManager.initialize()
 					: Promise.resolve(),
