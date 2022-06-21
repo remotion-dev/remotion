@@ -15,39 +15,21 @@
  */
 
 import {assert} from './assert';
-import {Browser, IsPageTargetCallback} from './Browser';
+import {Browser} from './Browser';
 import {Connection} from './Connection';
 import {ConnectionTransport} from './ConnectionTransport';
 import {NodeWebSocketTransport} from './NodeWebSocketTransport';
 import {Viewport} from './PuppeteerViewport';
 import {debugError} from './util';
 
-/**
- * Generic browser options that can be passed when launching any browser or when
- * connecting to an existing browser instance.
- * @public
- */
 export interface BrowserConnectOptions {
-	/**
-	 * Sets the viewport for each page.
-	 */
 	defaultViewport: Viewport;
-	/**
-	 * @internal
-	 */
-	_isPageTarget?: IsPageTargetCallback;
 }
 
 const getWebSocketTransportClass = async () => {
 	return NodeWebSocketTransport;
 };
 
-/**
- * Users should never call this directly; it's called when calling
- * `puppeteer.connect`.
- *
- * @internal
- */
 export async function _connectToBrowser(
 	options: BrowserConnectOptions & {
 		browserWSEndpoint?: string;
@@ -55,13 +37,7 @@ export async function _connectToBrowser(
 		transport?: ConnectionTransport;
 	}
 ): Promise<Browser> {
-	const {
-		browserWSEndpoint,
-		browserURL,
-		defaultViewport,
-		transport,
-		_isPageTarget: isPageTarget,
-	} = options;
+	const {browserWSEndpoint, browserURL, defaultViewport, transport} = options;
 
 	assert(
 		Number(Boolean(browserWSEndpoint)) +
@@ -93,7 +69,6 @@ export async function _connectToBrowser(
 		undefined,
 		() => {
 			return connection.send('Browser.close').catch(debugError);
-		},
-		isPageTarget
+		}
 	);
 }

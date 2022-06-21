@@ -15,10 +15,18 @@
  */
 
 import {Protocol} from 'devtools-protocol';
-import {Browser, BrowserContext, IsPageTargetCallback} from './Browser';
+import {Browser, BrowserContext} from './Browser';
 import {CDPSession} from './Connection';
 import {Page, PageEmittedEvents} from './Page';
 import {Viewport} from './PuppeteerViewport';
+
+export const isPagetTarget = (target: Protocol.Target.TargetInfo): boolean => {
+	return (
+		target.type === 'page' ||
+		target.type === 'background_page' ||
+		target.type === 'webview'
+	);
+};
 
 /**
  * @public
@@ -54,10 +62,6 @@ export class Target {
 	 * @internal
 	 */
 	_targetId: string;
-	/**
-	 * @internal
-	 */
-	_isPageTargetCallback: IsPageTargetCallback;
 
 	/**
 	 * @internal
@@ -66,15 +70,13 @@ export class Target {
 		targetInfo: Protocol.Target.TargetInfo,
 		browserContext: BrowserContext,
 		sessionFactory: () => Promise<CDPSession>,
-		defaultViewport: Viewport,
-		isPageTargetCallback: IsPageTargetCallback
+		defaultViewport: Viewport
 	) {
 		this.#targetInfo = targetInfo;
 		this.#browserContext = browserContext;
 		this._targetId = targetInfo.targetId;
 		this.#sessionFactory = sessionFactory;
 		this.#defaultViewport = defaultViewport;
-		this._isPageTargetCallback = isPageTargetCallback;
 		this._initializedPromise = new Promise<boolean>((fulfill) => {
 			this._initializedCallback = fulfill;
 		}).then(async (success) => {
@@ -100,8 +102,7 @@ export class Target {
 			this._closedCallback = fulfill;
 		});
 		this._isInitialized =
-			!this._isPageTargetCallback(this.#targetInfo) ||
-			this.#targetInfo.url !== '';
+			!isPagetTarget(this.#targetInfo) || this.#targetInfo.url !== '';
 		if (this._isInitialized) {
 			this._initializedCallback(true);
 		}
@@ -125,7 +126,7 @@ export class Target {
 	 * If the target is not of type `"page"` or `"background_page"`, returns `null`.
 	 */
 	async page(): Promise<Page | null> {
-		if (this._isPageTargetCallback(this.#targetInfo) && !this.#pagePromise) {
+		if (isPagetTarget(this.#targetInfo) && !this.#pagePromise) {
 			this.#pagePromise = this.#sessionFactory().then((client) => {
 				return Page._create(client, this, this.#defaultViewport ?? null);
 			});
@@ -202,8 +203,7 @@ export class Target {
 
 		if (
 			!this._isInitialized &&
-			(!this._isPageTargetCallback(this.#targetInfo) ||
-				this.#targetInfo.url !== '')
+			(!isPagetTarget(this.#targetInfo) || this.#targetInfo.url !== '')
 		) {
 			this._isInitialized = true;
 			this._initializedCallback(true);

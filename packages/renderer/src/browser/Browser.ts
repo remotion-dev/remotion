@@ -47,13 +47,6 @@ interface BrowserContextOptions {
 type BrowserCloseCallback = () => Promise<void> | void;
 
 /**
- * @internal
- */
-export type IsPageTargetCallback = (
-	target: Protocol.Target.TargetInfo
-) => boolean;
-
-/**
  * @public
  */
 interface WaitForTargetOptions {
@@ -166,16 +159,14 @@ export class Browser extends EventEmitter {
 		contextIds: string[],
 		defaultViewport: Viewport,
 		process?: ChildProcess,
-		closeCallback?: BrowserCloseCallback,
-		isPageTargetCallback?: IsPageTargetCallback
+		closeCallback?: BrowserCloseCallback
 	): Promise<Browser> {
 		const browser = new Browser(
 			connection,
 			contextIds,
 			defaultViewport,
 			process,
-			closeCallback,
-			isPageTargetCallback
+			closeCallback
 		);
 		await connection.send('Target.setDiscoverTargets', {discover: true});
 		return browser;
@@ -185,7 +176,6 @@ export class Browser extends EventEmitter {
 	#process?: ChildProcess;
 	#connection: Connection;
 	#closeCallback: BrowserCloseCallback;
-	#isPageTargetCallback!: IsPageTargetCallback;
 	#defaultContext: BrowserContext;
 	#contexts: Map<string, BrowserContext>;
 	#targets: Map<string, Target>;
@@ -205,8 +195,7 @@ export class Browser extends EventEmitter {
 		contextIds: string[],
 		defaultViewport: Viewport,
 		process?: ChildProcess,
-		closeCallback?: BrowserCloseCallback,
-		isPageTargetCallback?: IsPageTargetCallback
+		closeCallback?: BrowserCloseCallback
 	) {
 		super();
 		this.#defaultViewport = defaultViewport;
@@ -217,8 +206,6 @@ export class Browser extends EventEmitter {
 			function () {
 				return undefined;
 			};
-
-		this.#setIsPageTargetCallback(isPageTargetCallback);
 
 		this.#defaultContext = new BrowserContext(this);
 		this.#contexts = new Map();
@@ -247,25 +234,6 @@ export class Browser extends EventEmitter {
 	 */
 	process(): ChildProcess | null {
 		return this.#process ?? null;
-	}
-
-	#setIsPageTargetCallback(isPageTargetCallback?: IsPageTargetCallback): void {
-		this.#isPageTargetCallback =
-			isPageTargetCallback ||
-			((target: Protocol.Target.TargetInfo): boolean => {
-				return (
-					target.type === 'page' ||
-					target.type === 'background_page' ||
-					target.type === 'webview'
-				);
-			});
-	}
-
-	/**
-	 * @internal
-	 */
-	_getIsPageTargetCallback(): IsPageTargetCallback | undefined {
-		return this.#isPageTargetCallback;
 	}
 
 	/**
@@ -351,8 +319,7 @@ export class Browser extends EventEmitter {
 			() => {
 				return this.#connection.createSession(targetInfo);
 			},
-			this.#defaultViewport ?? null,
-			this.#isPageTargetCallback
+			this.#defaultViewport ?? null
 		);
 		assert(
 			!this.#targets.has(event.targetInfo.targetId),
@@ -721,18 +688,8 @@ export class BrowserContext extends EventEmitter {
 	async pages(): Promise<Page[]> {
 		const pages = await Promise.all(
 			this.targets()
-				.filter((target) => {
-					return (
-						target.type() === 'page' ||
-						(target.type() === 'other' &&
-							this.#browser._getIsPageTargetCallback()?.(
-								target._getTargetInfo()
-							))
-					);
-				})
-				.map((target) => {
-					return target.page();
-				})
+				.filter((target) => target.type() === 'page')
+				.map((target) => target.page())
 		);
 		return pages.filter((page): page is Page => {
 			return Boolean(page);
