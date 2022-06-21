@@ -20,7 +20,6 @@ import * as http from 'http';
 import * as https from 'https';
 import * as os from 'os';
 import * as path from 'path';
-import * as util from 'util';
 
 import extractZip from 'extract-zip';
 
@@ -32,13 +31,12 @@ import {Product} from './Product';
 import {deleteDirectory} from '../delete-directory';
 import {getDownloadsCacheDir} from './get-download-destination';
 
-const {PUPPETEER_EXPERIMENTAL_CHROMIUM_MAC_ARM} = process.env;
-
 const downloadURLs: Record<Product, Partial<Record<Platform, string>>> = {
 	chrome: {
 		linux: '%s/chromium-browser-snapshots/Linux_x64/%d/%s.zip',
 		mac: '%s/chromium-browser-snapshots/Mac/%d/%s.zip',
-		mac_arm: '%s/chromium-browser-snapshots/Mac_Arm/%d/%s.zip',
+		mac_arm:
+			'https://github.com/Alex313031/Thorium-Special/releases/download/M103.0.5037.0-1/Thorium_MacOS_ARM64.dmg',
 		win32: '%s/chromium-browser-snapshots/Win/%d/%s.zip',
 		win64: '%s/chromium-browser-snapshots/Win_x64/%d/%s.zip',
 	},
@@ -93,18 +91,8 @@ function archiveName(
 	}
 }
 
-function _downloadURL(
-	product: Product,
-	platform: Platform,
-	host: string,
-	revision: string
-): string {
-	const url = util.format(
-		downloadURLs[product][platform],
-		host,
-		revision,
-		archiveName(product, platform, revision)
-	);
+function _downloadURL(product: Product, platform: Platform): string {
+	const url = downloadURLs[product][platform] as string;
 	return url;
 }
 
@@ -128,8 +116,8 @@ function handleArm64(): void {
 	throw new Error();
 }
 
-const readdirAsync = promisify(fs.readdir.bind(fs));
-const mkdirAsync = promisify(fs.mkdir.bind(fs));
+const readdirAsync = fs.promises.readdir;
+const mkdirAsync = fs.promises.mkdir;
 const unlinkAsync = promisify(fs.unlink.bind(fs));
 const chmodAsync = promisify(fs.chmod.bind(fs));
 
@@ -185,10 +173,7 @@ export class BrowserFetcher {
 				case 'darwin':
 					switch (this.#product) {
 						case 'chrome':
-							this.#platform =
-								os.arch() === 'arm64' && PUPPETEER_EXPERIMENTAL_CHROMIUM_MAC_ARM
-									? 'mac_arm'
-									: 'mac';
+							this.#platform = os.arch() === 'arm64' ? 'mac_arm' : 'mac';
 							break;
 						case 'firefox':
 							this.#platform = 'mac';
@@ -246,13 +231,8 @@ export class BrowserFetcher {
 	 * @returns A promise that resolves to `true` if the revision could be downloaded
 	 * from the host.
 	 */
-	canDownload(revision: string): Promise<boolean> {
-		const url = _downloadURL(
-			this.#product,
-			this.#platform,
-			this.#downloadHost,
-			revision
-		);
+	canDownload(): Promise<boolean> {
+		const url = _downloadURL(this.#product, this.#platform);
 		return new Promise((resolve) => {
 			const request = httpRequest(
 				url,
@@ -283,12 +263,7 @@ export class BrowserFetcher {
 		revision: string,
 		progressCallback: (x: number, y: number) => void = (): void => undefined
 	): Promise<BrowserFetcherRevisionInfo | undefined> {
-		const url = _downloadURL(
-			this.#product,
-			this.#platform,
-			this.#downloadHost,
-			revision
-		);
+		const url = _downloadURL(this.#product, this.#platform);
 		const fileName = url.split('/').pop();
 		assert(fileName, `A malformed download URL was found: ${url}.`);
 		const archivePath = path.join(this.#downloadsFolder, fileName);
@@ -298,7 +273,9 @@ export class BrowserFetcher {
 		}
 
 		if (!(await existsAsync(this.#downloadsFolder))) {
-			await mkdirAsync(this.#downloadsFolder);
+			await mkdirAsync(this.#downloadsFolder, {
+				recursive: true,
+			});
 		}
 
 		// Use system Chromium builds on Linux ARM devices
@@ -379,11 +356,10 @@ export class BrowserFetcher {
 			if (this.#platform === 'mac' || this.#platform === 'mac_arm') {
 				executablePath = path.join(
 					folderPath,
-					archiveName(this.#product, this.#platform, revision),
-					'Chromium.app',
+					'Thorium.app',
 					'Contents',
 					'MacOS',
-					'Chromium'
+					'Thorium'
 				);
 			} else if (this.#platform === 'linux') {
 				executablePath = path.join(
@@ -420,21 +396,8 @@ export class BrowserFetcher {
 			throw new Error('Unsupported product: ' + this.#product);
 		}
 
-		const url = _downloadURL(
-			this.#product,
-			this.#platform,
-			this.#downloadHost,
-			revision
-		);
+		const url = _downloadURL(this.#product, this.#platform);
 		const local = fs.existsSync(folderPath);
-		console.log({
-			revision,
-			executablePath,
-			folderPath,
-			local,
-			url,
-			product: this.#product,
-		});
 		return {
 			revision,
 			executablePath,
@@ -483,6 +446,7 @@ function _downloadFile(
 	let downloadedBytes = 0;
 	let totalBytes = 0;
 
+	console.log({url});
 	const request = httpRequest(url, 'GET', (response) => {
 		if (response.statusCode !== 200) {
 			const error = new Error(
