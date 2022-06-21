@@ -17,7 +17,7 @@
 import {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
 import {CDPSession, Connection} from './Connection';
-import {DOMWorld, WaitForSelectorOptions} from './DOMWorld';
+import {DOMWorld} from './DOMWorld';
 import {
 	EvaluateFn,
 	EvaluateFnReturnType,
@@ -28,7 +28,7 @@ import {
 import {EventEmitter} from './EventEmitter';
 import {EVALUATION_SCRIPT_URL, ExecutionContext} from './ExecutionContext';
 import {HTTPResponse} from './HTTPResponse';
-import {ElementHandle, JSHandle} from './JSHandle';
+import {JSHandle} from './JSHandle';
 import {LifecycleWatcher, PuppeteerLifeCycleEvent} from './LifecycleWatcher';
 import {NetworkManager} from './NetworkManager';
 import {Page} from './Page';
@@ -888,15 +888,6 @@ export class Frame {
 	}
 
 	/**
-	 * This method evaluates the given XPath expression and returns the results.
-	 *
-	 * @param expression - the XPath expression to evaluate.
-	 */
-	async $x(expression: string): Promise<ElementHandle[]> {
-		return this._mainWorld.$x(expression);
-	}
-
-	/**
 	 * @returns the full HTML contents of the frame, including the doctype.
 	 */
 	async content(): Promise<string> {
@@ -1019,60 +1010,6 @@ export class Frame {
 				'Unsupported target type: ' + typeof selectorOrFunctionOrTimeout
 			)
 		);
-	}
-
-	/**
-	 * Causes your script to wait for the given number of milliseconds.
-	 *
-	 * @remarks
-	 * It's generally recommended to not wait for a number of seconds, but instead
-	 * use {@link Frame.waitForSelector}, {@link Frame.waitForXPath} or
-	 * {@link Frame.waitForFunction} to wait for exactly the conditions you want.
-	 *
-	 * @example
-	 *
-	 * Wait for 1 second:
-	 *
-	 * ```
-	 * await frame.waitForTimeout(1000);
-	 * ```
-	 *
-	 * @param milliseconds - the number of milliseconds to wait.
-	 */
-	waitForTimeout(milliseconds: number): Promise<void> {
-		return new Promise((resolve) => {
-			setTimeout(resolve, milliseconds);
-		});
-	}
-
-	/**
-	 * @remarks
-	 * Wait for the `xpath` to appear in page. If at the moment of calling the
-	 * method the `xpath` already exists, the method will return immediately. If
-	 * the xpath doesn't appear after the `timeout` milliseconds of waiting, the
-	 * function will throw.
-	 *
-	 * For a code example, see the example for {@link Frame.waitForSelector}. That
-	 * function behaves identically other than taking a CSS selector rather than
-	 * an XPath.
-	 *
-	 * @param xpath - the XPath expression to wait for.
-	 * @param options  - options to configure the visiblity of the element and how
-	 * long to wait before timing out.
-	 */
-	async waitForXPath(
-		xpath: string,
-		options: WaitForSelectorOptions = {}
-	): Promise<ElementHandle | null> {
-		const handle = await this._secondaryWorld.waitForXPath(xpath, options);
-		if (!handle) {
-			return null;
-		}
-
-		const mainExecutionContext = await this._mainWorld.executionContext();
-		const result = await mainExecutionContext._adoptElementHandle(handle);
-		await handle.dispose();
-		return result;
 	}
 
 	/**
