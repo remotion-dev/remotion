@@ -26,7 +26,6 @@ import {
 } from './EvalTypes';
 import {ExecutionContext} from './ExecutionContext';
 import {Frame, FrameManager} from './FrameManager';
-import {Page} from './Page';
 import {
 	debugError,
 	isString,
@@ -61,7 +60,6 @@ export function _createJSHandle(
 			context._client,
 			remoteObject,
 			frame,
-			frameManager.page(),
 			frameManager
 		);
 	}
@@ -350,7 +348,6 @@ export class ElementHandle<
 	ElementType extends Element = Element
 > extends JSHandle<ElementType> {
 	#frame: Frame;
-	#page: Page;
 	#frameManager: FrameManager;
 
 	/**
@@ -361,12 +358,10 @@ export class ElementHandle<
 		client: CDPSession,
 		remoteObject: Protocol.Runtime.RemoteObject,
 		frame: Frame,
-		page: Page,
 		frameManager: FrameManager
 	) {
 		super(context, client, remoteObject);
 		this.#frame = frame;
-		this.#page = page;
 		this.#frameManager = frameManager;
 	}
 
@@ -505,84 +500,6 @@ export class ElementHandle<
 		return {offsetX, offsetY};
 	}
 
-	/**
-	 * Returns the middle point within an element unless a specific offset is provided.
-	 */
-	async clickablePoint(offset?: Offset): Promise<Point> {
-		const [result, layoutMetrics] = await Promise.all([
-			this._client
-				.send('DOM.getContentQuads', {
-					objectId: this._remoteObject.objectId,
-				})
-				.catch(debugError),
-			this.#page._client().send('Page.getLayoutMetrics'),
-		]);
-		if (!result || !result.quads.length) {
-			throw new Error('Node is either not clickable or not an HTMLElement');
-		}
-
-		// Filter out quads that have too small area to click into.
-		// Fallback to `layoutViewport` in case of using Firefox.
-		const {clientWidth, clientHeight} =
-			layoutMetrics.cssLayoutViewport || layoutMetrics.layoutViewport;
-		const {offsetX, offsetY} = await this.#getOOPIFOffsets(this.#frame);
-		const quads = result.quads
-			.map((quad) => {
-				return this.#fromProtocolQuad(quad);
-			})
-			.map((quad) => {
-				return applyOffsetsToQuad(quad, offsetX, offsetY);
-			})
-			.map((quad) => {
-				return this.#intersectQuadWithViewport(quad, clientWidth, clientHeight);
-			})
-			.filter((quad) => {
-				return computeQuadArea(quad) > 1;
-			});
-		if (!quads.length) {
-			throw new Error('Node is either not clickable or not an HTMLElement');
-		}
-
-		const quad = quads[0]!;
-		if (offset) {
-			// Return the point of the first quad identified by offset.
-			let minX = Number.MAX_SAFE_INTEGER;
-			let minY = Number.MAX_SAFE_INTEGER;
-			for (const point of quad) {
-				if (point.x < minX) {
-					minX = point.x;
-				}
-
-				if (point.y < minY) {
-					minY = point.y;
-				}
-			}
-
-			if (
-				minX !== Number.MAX_SAFE_INTEGER &&
-				minY !== Number.MAX_SAFE_INTEGER
-			) {
-				return {
-					x: minX + offset.x,
-					y: minY + offset.y,
-				};
-			}
-		}
-
-		// Return the middle point of the first quad.
-		let x = 0;
-		let y = 0;
-		for (const point of quad) {
-			x += point.x;
-			y += point.y;
-		}
-
-		return {
-			x: x / 4,
-			y: y / 4,
-		};
-	}
-
 	#getBoxModel(): Promise<void | Protocol.DOM.GetBoxModelResponse> {
 		const params: Protocol.DOM.GetBoxModelRequest = {
 			objectId: this._remoteObject.objectId,
@@ -599,19 +516,6 @@ export class ElementHandle<
 			{x: quad[4]!, y: quad[5]!},
 			{x: quad[6]!, y: quad[7]!},
 		];
-	}
-
-	#intersectQuadWithViewport(
-		quad: Point[],
-		width: number,
-		height: number
-	): Point[] {
-		return quad.map((point) => {
-			return {
-				x: Math.min(Math.max(point.x, 0), width),
-				y: Math.min(Math.max(point.y, 0), height),
-			};
-		});
 	}
 
 	/**
@@ -859,35 +763,7 @@ export class ElementHandle<
 	}
 }
 
-/**
- * @public
- */
-interface Offset {
-	/**
-	 * x-offset for the clickable point relative to the top-left corder of the border box.
-	 */
-	x: number;
-	/**
-	 * y-offset for the clickable point relative to the top-left corder of the border box.
-	 */
-	y: number;
-}
-
 interface Point {
 	x: number;
 	y: number;
-}
-
-function computeQuadArea(quad: Point[]): number {
-	/* Compute sum of all directed areas of adjacent triangles
-      https://en.wikipedia.org/wiki/Polygon#Simple_polygons
-    */
-	let area = 0;
-	for (let i = 0; i < quad.length; ++i) {
-		const p1 = quad[i]!;
-		const p2 = quad[(i + 1) % quad.length]!;
-		area += (p1.x * p2.y - p2.x * p1.y) / 2;
-	}
-
-	return Math.abs(area);
 }
