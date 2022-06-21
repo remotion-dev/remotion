@@ -15,7 +15,6 @@
  */
 
 import {Protocol} from 'devtools-protocol';
-import type {Readable} from 'stream';
 import {assert, assertNever} from './assert';
 import {Browser, BrowserContext} from './Browser';
 import {CDPSession, CDPSessionEmittedEvents} from './Connection';
@@ -43,7 +42,6 @@ import {
 	NetworkConditions,
 	NetworkManagerEmittedEvents,
 } from './NetworkManager';
-import {LowerCasePaperFormat, PDFOptions, _paperFormats} from './PDFOptions';
 import {Viewport} from './PuppeteerViewport';
 import {Target} from './Target';
 import {TaskQueue} from './TaskQueue';
@@ -53,10 +51,7 @@ import {
 	debugError,
 	evaluationString,
 	getExceptionMessage,
-	getReadableAsBuffer,
-	getReadableFromProtocolStream,
 	isErrorLike,
-	isNumber,
 	isString,
 	pageBindingDeliverErrorString,
 	pageBindingDeliverErrorValueString,
@@ -231,12 +226,6 @@ export const enum PageEmittedEvents {
 	 * ```
 	 */
 	Console = 'console',
-	/**
-	 * Emitted when a JavaScript dialog appears, such as `alert`, `prompt`,
-	 * `confirm` or `beforeunload`. Puppeteer can respond to the dialog via
-	 * {@link Dialog.accept} or {@link Dialog.dismiss}.
-	 */
-	Dialog = 'dialog',
 	/**
 	 * Emitted when the JavaScript
 	 * {@link https://developer.mozilla.org/en-US/docs/Web/Events/DOMContentLoaded | DOMContentLoaded } event is dispatched.
@@ -555,9 +544,6 @@ export class Page extends EventEmitter {
 		});
 		client.on('Runtime.bindingCalled', (event) => {
 			return this.#onBindingCalled(event);
-		});
-		client.on('Page.javascriptDialogOpening', (event) => {
-			return this.#onDialog(event);
 		});
 		client.on('Runtime.exceptionThrown', (exception) => {
 			return this.#handleException(exception.exceptionDetails);
@@ -1451,30 +1437,6 @@ export class Page extends EventEmitter {
 			stackTraceLocations
 		);
 		this.emit(PageEmittedEvents.Console, message);
-	}
-
-	#onDialog(event: Protocol.Page.JavascriptDialogOpeningEvent): void {
-		let dialogType = null;
-		const validDialogTypes = new Set<Protocol.Page.DialogType>([
-			'alert',
-			'confirm',
-			'prompt',
-			'beforeunload',
-		]);
-
-		if (validDialogTypes.has(event.type)) {
-			dialogType = event.type as Protocol.Page.DialogType;
-		}
-
-		assert(dialogType, 'Unknown javascript dialog type: ' + event.type);
-
-		const dialog = new Dialog(
-			this.#client,
-			dialogType,
-			event.message,
-			event.defaultPrompt
-		);
-		this.emit(PageEmittedEvents.Dialog, dialog);
 	}
 
 	/**
@@ -2709,106 +2671,6 @@ export class Page extends EventEmitter {
 	}
 
 	/**
-	 * Generates a PDF of the page with the `print` CSS media type.
-	 * @remarks
-	 *
-	 * NOTE: PDF generation is only supported in Chrome headless mode.
-	 *
-	 * To generate a PDF with the `screen` media type, call
-	 * {@link Page.emulateMediaType | `page.emulateMediaType('screen')`} before
-	 * calling `page.pdf()`.
-	 *
-	 * By default, `page.pdf()` generates a pdf with modified colors for printing.
-	 * Use the
-	 * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/-webkit-print-color-adjust | `-webkit-print-color-adjust`}
-	 * property to force rendering of exact colors.
-	 *
-	 *
-	 * @param options - options for generating the PDF.
-	 */
-	async createPDFStream(options: PDFOptions = {}): Promise<Readable> {
-		const {
-			scale = 1,
-			displayHeaderFooter = false,
-			headerTemplate = '',
-			footerTemplate = '',
-			printBackground = false,
-			landscape = false,
-			pageRanges = '',
-			preferCSSPageSize = false,
-			margin = {},
-			omitBackground = false,
-			timeout = 30000,
-		} = options;
-
-		let paperWidth = 8.5;
-		let paperHeight = 11;
-		if (options.format) {
-			const format =
-				_paperFormats[options.format.toLowerCase() as LowerCasePaperFormat];
-			assert(format, 'Unknown paper format: ' + options.format);
-			paperWidth = format.width;
-			paperHeight = format.height;
-		} else {
-			paperWidth = convertPrintParameterToInches(options.width) || paperWidth;
-			paperHeight =
-				convertPrintParameterToInches(options.height) || paperHeight;
-		}
-
-		const marginTop = convertPrintParameterToInches(margin.top) || 0;
-		const marginLeft = convertPrintParameterToInches(margin.left) || 0;
-		const marginBottom = convertPrintParameterToInches(margin.bottom) || 0;
-		const marginRight = convertPrintParameterToInches(margin.right) || 0;
-
-		if (omitBackground) {
-			await this.#setTransparentBackgroundColor();
-		}
-
-		const printCommandPromise = this.#client.send('Page.printToPDF', {
-			transferMode: 'ReturnAsStream',
-			landscape,
-			displayHeaderFooter,
-			headerTemplate,
-			footerTemplate,
-			printBackground,
-			scale,
-			paperWidth,
-			paperHeight,
-			marginTop,
-			marginBottom,
-			marginLeft,
-			marginRight,
-			pageRanges,
-			preferCSSPageSize,
-		});
-
-		const result = await waitWithTimeout(
-			printCommandPromise,
-			'Page.printToPDF',
-			timeout
-		);
-
-		if (omitBackground) {
-			await this.#resetDefaultBackgroundColor();
-		}
-
-		assert(result.stream, '`stream` is missing from `Page.printToPDF');
-		return getReadableFromProtocolStream(this.#client, result.stream);
-	}
-
-	/**
-	 * @param options -
-	 * @returns
-	 */
-	async pdf(options: PDFOptions = {}): Promise<Buffer> {
-		const {path = undefined} = options;
-		const readable = await this.createPDFStream(options);
-		const buffer = await getReadableAsBuffer(readable, path);
-		assert(buffer, 'Could not create buffer');
-		return buffer;
-	}
-
-	/**
 	 * @returns The page's title
 	 * @remarks
 	 * Shortcut for {@link Frame.title | page.mainFrame().title()}.
@@ -3065,46 +2927,3 @@ const supportedMetrics = new Set<string>([
 	'JSHeapUsedSize',
 	'JSHeapTotalSize',
 ]);
-
-const unitToPixels = {
-	px: 1,
-	in: 96,
-	cm: 37.8,
-	mm: 3.78,
-};
-
-function convertPrintParameterToInches(
-	parameter?: string | number
-): number | undefined {
-	if (typeof parameter === 'undefined') {
-		return undefined;
-	}
-
-	let pixels;
-	if (isNumber(parameter)) {
-		// Treat numbers as pixel values to be aligned with phantom's paperSize.
-		pixels = parameter;
-	} else if (isString(parameter)) {
-		const text = parameter;
-		let unit = text.substring(text.length - 2).toLowerCase();
-		let valueText = '';
-		if (unit in unitToPixels) {
-			valueText = text.substring(0, text.length - 2);
-		} else {
-			// In case of unknown unit try to parse the whole parameter as number of pixels.
-			// This is consistent with phantom's paperSize behavior.
-			unit = 'px';
-			valueText = text;
-		}
-
-		const value = Number(valueText);
-		assert(!isNaN(value), 'Failed to parse parameter value: ' + text);
-		pixels = value * unitToPixels[unit as keyof typeof unitToPixels];
-	} else {
-		throw new Error(
-			'page.pdf() Cannot handle parameter type: ' + typeof parameter
-		);
-	}
-
-	return pixels / 96;
-}
