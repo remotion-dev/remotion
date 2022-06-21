@@ -15,12 +15,15 @@
  */
 
 import {Browser} from './Browser';
-import {BrowserConnectOptions} from './BrowserConnector';
+import {
+	BrowserConnectOptions,
+	ConnectToBrowserOptions,
+	_connectToBrowser,
+} from './BrowserConnector';
 import {BrowserFetcher, BrowserFetcherOptions} from './BrowserFetcher';
 import Launcher, {ProductLauncher} from './Launcher';
 import {BrowserLaunchArgumentOptions, LaunchOptions} from './LaunchOptions';
 import {Product} from './Product';
-import {ConnectOptions, Puppeteer} from './Puppeteer';
 import {PUPPETEER_REVISIONS} from './revisions';
 
 interface PuppeteerLaunchOptions
@@ -66,23 +69,19 @@ interface PuppeteerLaunchOptions
  *
  * @public
  */
-export class PuppeteerNode extends Puppeteer {
+export class PuppeteerNode {
 	#lazyLauncher?: ProductLauncher;
 	#projectRoot?: string;
 	#productName?: Product;
 
 	_preferredRevision: string;
 
-	/**
-	 * @internal
-	 */
 	constructor(settings: {
 		projectRoot?: string;
 		preferredRevision: string;
 		productName?: Product;
 	}) {
 		const {projectRoot, preferredRevision, productName} = settings;
-		super();
 		this.#projectRoot = projectRoot;
 		this.#productName = productName;
 		this._preferredRevision = preferredRevision;
@@ -93,20 +92,16 @@ export class PuppeteerNode extends Puppeteer {
 		this.createBrowserFetcher = this.createBrowserFetcher.bind(this);
 	}
 
-	/**
-	 * This method attaches Puppeteer to an existing browser instance.
-	 *
-	 * @remarks
-	 *
-	 * @param options - Set of configurable options to set on the browser.
-	 * @returns Promise which resolves to browser instance.
-	 */
-	override connect(options: ConnectOptions): Promise<Browser> {
+	connect(
+		options: ConnectToBrowserOptions & {
+			product: Product;
+		}
+	): Promise<Browser> {
 		if (options.product) {
 			this._productName = options.product;
 		}
 
-		return super.connect(options);
+		return _connectToBrowser(options);
 	}
 
 	/**
@@ -120,10 +115,6 @@ export class PuppeteerNode extends Puppeteer {
 	 * @internal
 	 */
 	set _productName(name: Product | undefined) {
-		if (this.#productName !== name) {
-			this._changedProduct = true;
-		}
-
 		this.#productName = name;
 	}
 
@@ -180,8 +171,7 @@ export class PuppeteerNode extends Puppeteer {
 	get _launcher(): ProductLauncher {
 		if (
 			!this.#lazyLauncher ||
-			this.#lazyLauncher.product !== this._productName ||
-			this._changedProduct
+			this.#lazyLauncher.product !== this._productName
 		) {
 			switch (this._productName) {
 				case 'firefox':
@@ -192,7 +182,6 @@ export class PuppeteerNode extends Puppeteer {
 					this._preferredRevision = PUPPETEER_REVISIONS.chromium;
 			}
 
-			this._changedProduct = false;
 			// eslint-disable-next-line new-cap
 			this.#lazyLauncher = Launcher(
 				this.#projectRoot,
