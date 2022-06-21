@@ -690,38 +690,6 @@ export class Page extends EventEmitter {
 		return context.evaluateHandle<HandlerType>(pageFunction, ...args);
 	}
 
-	/**
-	 * This method iterates the JavaScript heap and finds all objects with the
-	 * given prototype.
-	 *
-	 * @remarks
-	 * Shortcut for
-	 * {@link ExecutionContext.queryObjects |
-	 * page.mainFrame().executionContext().queryObjects(prototypeHandle)}.
-	 *
-	 * @example
-	 *
-	 * ```js
-	 * // Create a Map object
-	 * await page.evaluate(() => window.map = new Map());
-	 * // Get a handle to the Map object prototype
-	 * const mapPrototype = await page.evaluateHandle(() => Map.prototype);
-	 * // Query all map instances into an array
-	 * const mapInstances = await page.queryObjects(mapPrototype);
-	 * // Count amount of map objects in heap
-	 * const count = await page.evaluate(maps => maps.length, mapInstances);
-	 * await mapInstances.dispose();
-	 * await mapPrototype.dispose();
-	 * ```
-	 * @param prototypeHandle - a handle to the object prototype.
-	 * @returns Promise which resolves to a handle to an array of objects with
-	 * this prototype.
-	 */
-	async queryObjects(prototypeHandle: JSHandle): Promise<JSHandle> {
-		const context = await this.mainFrame().executionContext();
-		return context.queryObjects(prototypeHandle);
-	}
-
 	#handleException(exceptionDetails: Protocol.Runtime.ExceptionDetails): void {
 		const message = getExceptionMessage(exceptionDetails);
 		const err = new Error(message);
