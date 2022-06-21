@@ -20,7 +20,7 @@ import {BrowserFetcher, BrowserFetcherOptions} from './BrowserFetcher';
 import Launcher, {ProductLauncher} from './Launcher';
 import {BrowserLaunchArgumentOptions, LaunchOptions} from './LaunchOptions';
 import {Product} from './Product';
-import {CommonPuppeteerSettings, ConnectOptions, Puppeteer} from './Puppeteer';
+import {ConnectOptions, Puppeteer} from './Puppeteer';
 import {PUPPETEER_REVISIONS} from './revisions';
 
 interface PuppeteerLaunchOptions
@@ -76,16 +76,13 @@ export class PuppeteerNode extends Puppeteer {
 	/**
 	 * @internal
 	 */
-	constructor(
-		settings: {
-			projectRoot?: string;
-			preferredRevision: string;
-			productName?: Product;
-		} & CommonPuppeteerSettings
-	) {
-		const {projectRoot, preferredRevision, productName, ...commonSettings} =
-			settings;
-		super(commonSettings);
+	constructor(settings: {
+		projectRoot?: string;
+		preferredRevision: string;
+		productName?: Product;
+	}) {
+		const {projectRoot, preferredRevision, productName} = settings;
+		super();
 		this.#projectRoot = projectRoot;
 		this.#productName = productName;
 		this._preferredRevision = preferredRevision;
@@ -201,7 +198,6 @@ export class PuppeteerNode extends Puppeteer {
 			this.#lazyLauncher = Launcher(
 				this.#projectRoot,
 				this._preferredRevision,
-				this._isPuppeteerCore,
 				this._productName
 			);
 		}
