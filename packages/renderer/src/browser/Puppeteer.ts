@@ -16,113 +16,28 @@
 import {Browser} from './Browser';
 import {BrowserConnectOptions, _connectToBrowser} from './BrowserConnector';
 import {ConnectionTransport} from './ConnectionTransport';
-import {puppeteerErrors, PuppeteerErrors} from './Errors';
-import {
-	networkConditions,
-	PredefinedNetworkConditions,
-} from './NetworkConditions';
 import {Product} from './Product';
 
-/**
- * Settings that are common to the Puppeteer class, regardless of environment.
- *
- * @internal
- */
-export interface CommonPuppeteerSettings {
-	isPuppeteerCore: boolean;
-}
 /**
  * @public
  */
 export interface ConnectOptions extends BrowserConnectOptions {
 	browserWSEndpoint?: string;
-	browserURL?: string;
 	transport?: ConnectionTransport;
 	product?: Product;
 }
 
-/**
- * The main Puppeteer class.
- *
- * IMPORTANT: if you are using Puppeteer in a Node environment, you will get an
- * instance of {@link PuppeteerNode} when you import or require `puppeteer`.
- * That class extends `Puppeteer`, so has all the methods documented below as
- * well as all that are defined on {@link PuppeteerNode}.
- * @public
- */
 export class Puppeteer {
-	protected _isPuppeteerCore: boolean;
 	protected _changedProduct = false;
 
 	/**
 	 * @internal
 	 */
-	constructor(settings: CommonPuppeteerSettings) {
-		this._isPuppeteerCore = settings.isPuppeteerCore;
-
+	constructor() {
 		this.connect = this.connect.bind(this);
 	}
 
-	/**
-	 * This method attaches Puppeteer to an existing browser instance.
-	 *
-	 * @remarks
-	 *
-	 * @param options - Set of configurable options to set on the browser.
-	 * @returns Promise which resolves to browser instance.
-	 */
 	connect(options: ConnectOptions): Promise<Browser> {
 		return _connectToBrowser(options);
-	}
-
-	/**
-	 * @remarks
-	 *
-	 * Puppeteer methods might throw errors if they are unable to fulfill a request.
-	 * For example, `page.waitForSelector(selector[, options])` might fail if
-	 * the selector doesn't match any nodes during the given timeframe.
-	 *
-	 * For certain types of errors Puppeteer uses specific error classes.
-	 * These classes are available via `puppeteer.errors`.
-	 *
-	 * @example
-	 * An example of handling a timeout error:
-	 * ```js
-	 * try {
-	 *   await page.waitForSelector('.foo');
-	 * } catch (e) {
-	 *   if (e instanceof puppeteer.errors.TimeoutError) {
-	 *     // Do something if this is a timeout.
-	 *   }
-	 * }
-	 * ```
-	 */
-	get errors(): PuppeteerErrors {
-		return puppeteerErrors;
-	}
-
-	/**
-	 * @remarks
-	 * Returns a list of network conditions to be used with `page.emulateNetworkConditions(networkConditions)`. Actual list of predefined conditions can be found in {@link https://github.com/puppeteer/puppeteer/blob/main/src/common/NetworkConditions.ts | src/common/NetworkConditions.ts}.
-	 *
-	 * @example
-	 *
-	 * ```js
-	 * const puppeteer = require('puppeteer');
-	 * const slow3G = puppeteer.networkConditions['Slow 3G'];
-	 *
-	 * (async () => {
-	 *   const browser = await puppeteer.launch();
-	 *   const page = await browser.newPage();
-	 *   await page.emulateNetworkConditions(slow3G);
-	 *   await page.goto('https://www.google.com');
-	 *   // other actions...
-	 *   await browser.close();
-	 * })();
-	 * ```
-	 *
-	 */
-	get networkConditions(): PredefinedNetworkConditions {
-		return networkConditions;
 	}
 }

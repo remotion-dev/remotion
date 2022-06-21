@@ -62,19 +62,10 @@ class ChromeLauncher implements ProductLauncher {
 	 * @internal
 	 */
 	_preferredRevision: string;
-	/**
-	 * @internal
-	 */
-	_isPuppeteerCore: boolean;
 
-	constructor(
-		projectRoot: string | undefined,
-		preferredRevision: string,
-		isPuppeteerCore: boolean
-	) {
+	constructor(projectRoot: string | undefined, preferredRevision: string) {
 		this._projectRoot = projectRoot;
 		this._preferredRevision = preferredRevision;
-		this._isPuppeteerCore = isPuppeteerCore;
 	}
 
 	async launch(options: PuppeteerNodeLaunchOptions): Promise<Browser> {
@@ -311,19 +302,10 @@ class FirefoxLauncher implements ProductLauncher {
 	 * @internal
 	 */
 	_preferredRevision: string;
-	/**
-	 * @internal
-	 */
-	_isPuppeteerCore: boolean;
 
-	constructor(
-		projectRoot: string | undefined,
-		preferredRevision: string,
-		isPuppeteerCore: boolean
-	) {
+	constructor(projectRoot: string | undefined, preferredRevision: string) {
 		this._projectRoot = projectRoot;
 		this._preferredRevision = preferredRevision;
-		this._isPuppeteerCore = isPuppeteerCore;
 	}
 
 	async launch(options: PuppeteerNodeLaunchOptions): Promise<Browser> {
@@ -858,38 +840,8 @@ function resolveExecutablePath(launcher: ChromeLauncher | FirefoxLauncher): {
 	executablePath: string;
 	missingText?: string;
 } {
-	const {product, _isPuppeteerCore, _projectRoot, _preferredRevision} =
-		launcher;
+	const {product, _projectRoot, _preferredRevision} = launcher;
 	let downloadPath: string | undefined;
-	// puppeteer-core doesn't take into account PUPPETEER_* env variables.
-	if (!_isPuppeteerCore) {
-		const executablePath =
-			process.env.PUPPETEER_EXECUTABLE_PATH ||
-			process.env.npm_config_puppeteer_executable_path ||
-			process.env.npm_package_config_puppeteer_executable_path;
-		if (executablePath) {
-			const missingText = !fs.existsSync(executablePath)
-				? 'Tried to use PUPPETEER_EXECUTABLE_PATH env variable to launch browser but did not find any executable at: ' +
-				  executablePath
-				: undefined;
-			return {executablePath, missingText};
-		}
-
-		const ubuntuChromiumPath = '/usr/bin/chromium-browser';
-		if (
-			product === 'chrome' &&
-			os.platform() !== 'darwin' &&
-			os.arch() === 'arm64' &&
-			fs.existsSync(ubuntuChromiumPath)
-		) {
-			return {executablePath: ubuntuChromiumPath, missingText: undefined};
-		}
-
-		downloadPath =
-			process.env.PUPPETEER_DOWNLOAD_PATH ||
-			process.env.npm_config_puppeteer_download_path ||
-			process.env.npm_package_config_puppeteer_download_path;
-	}
 
 	if (!_projectRoot) {
 		throw new Error(
@@ -901,18 +853,6 @@ function resolveExecutablePath(launcher: ChromeLauncher | FirefoxLauncher): {
 		product,
 		path: downloadPath,
 	});
-
-	if (!_isPuppeteerCore && product === 'chrome') {
-		const revision = process.env.PUPPETEER_CHROMIUM_REVISION;
-		if (revision) {
-			const revisionInfo = browserFetcher.revisionInfo(revision);
-			const missingText = !revisionInfo.local
-				? 'Tried to use PUPPETEER_CHROMIUM_REVISION env variable to launch browser but did not find executable at: ' +
-				  revisionInfo.executablePath
-				: undefined;
-			return {executablePath: revisionInfo.executablePath, missingText};
-		}
-	}
 
 	const revisionInfo = browserFetcher.revisionInfo(_preferredRevision);
 
@@ -932,24 +872,11 @@ function resolveExecutablePath(launcher: ChromeLauncher | FirefoxLauncher): {
 export default function Launcher(
 	projectRoot: string | undefined,
 	preferredRevision: string,
-	isPuppeteerCore: boolean,
 	product?: string
 ): ProductLauncher {
-	// puppeteer-core doesn't take into account PUPPETEER_* env variables.
-	if (!product && !isPuppeteerCore) {
-		product =
-			process.env.PUPPETEER_PRODUCT ||
-			process.env.npm_config_puppeteer_product ||
-			process.env.npm_package_config_puppeteer_product;
-	}
-
 	switch (product) {
 		case 'firefox':
-			return new FirefoxLauncher(
-				projectRoot,
-				preferredRevision,
-				isPuppeteerCore
-			);
+			return new FirefoxLauncher(projectRoot, preferredRevision);
 		case 'chrome':
 		default:
 			if (typeof product !== 'undefined' && product !== 'chrome') {
@@ -962,10 +889,6 @@ export default function Launcher(
 				);
 			}
 
-			return new ChromeLauncher(
-				projectRoot,
-				preferredRevision,
-				isPuppeteerCore
-			);
+			return new ChromeLauncher(projectRoot, preferredRevision);
 	}
 }
