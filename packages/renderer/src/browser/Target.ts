@@ -17,7 +17,7 @@
 import {Protocol} from 'devtools-protocol';
 import {Browser, BrowserContext} from './Browser';
 import {CDPSession} from './Connection';
-import {Page, PageEmittedEvents} from './Page';
+import {Page} from './Page';
 import {Viewport} from './PuppeteerViewport';
 
 export const isPagetTarget = (target: Protocol.Target.TargetInfo): boolean => {
@@ -89,13 +89,6 @@ export class Target {
 				return true;
 			}
 
-			const openerPage = await opener.#pagePromise;
-			if (!openerPage.listenerCount(PageEmittedEvents.Popup)) {
-				return true;
-			}
-
-			const popupPage = await this.page();
-			openerPage.emit(PageEmittedEvents.Popup, popupPage);
 			return true;
 		});
 		this._isClosedPromise = new Promise<void>((fulfill) => {
