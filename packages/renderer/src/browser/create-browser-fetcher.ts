@@ -15,10 +15,7 @@
  */
 
 import https, {RequestOptions} from 'https';
-import createHttpsProxyAgent, {HttpsProxyAgentOptions} from 'https-proxy-agent';
 import ProgressBar from 'progress';
-import {getProxyForUrl} from 'proxy-from-env';
-import URL from 'url';
 import {puppeteer} from './node';
 import {PuppeteerNode} from './PuppeteerNode';
 import {PUPPETEER_REVISIONS} from './revisions';
@@ -171,21 +168,7 @@ export async function downloadBrowser(): Promise<void> {
 		const firefoxVersionsUrl =
 			'https://product-details.mozilla.org/1.0/firefox_versions.json';
 
-		const proxyURL = getProxyForUrl(firefoxVersionsUrl);
-
 		const requestOptions: RequestOptions = {};
-
-		if (proxyURL) {
-			const parsedProxyURL = URL.parse(proxyURL);
-
-			const proxyOptions = {
-				...parsedProxyURL,
-				secureProxy: parsedProxyURL.protocol === 'https:',
-			} as HttpsProxyAgentOptions;
-
-			requestOptions.agent = createHttpsProxyAgent(proxyOptions);
-			requestOptions.rejectUnauthorized = false;
-		}
 
 		const promise = new Promise<string>((resolve, reject) => {
 			let data = '';
