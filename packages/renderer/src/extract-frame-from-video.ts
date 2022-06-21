@@ -1,6 +1,5 @@
 import execa from 'execa';
 import {FfmpegExecutable, Internals} from 'remotion';
-import {Readable} from 'stream';
 import {getAudioChannelsAndDuration} from './assets/get-audio-channels';
 import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
@@ -11,15 +10,6 @@ import {
 	setLastFrameInCache,
 } from './last-frame-from-video-cache';
 import {pLimit} from './p-limit';
-
-export function streamToString(stream: Readable) {
-	const chunks: Buffer[] = [];
-	return new Promise<string>((resolve, reject) => {
-		stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
-		stream.on('error', (err) => reject(err));
-		stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
-	});
-}
 
 const lastFrameLimit = pLimit(1);
 const mainLimit = pLimit(5);
@@ -197,7 +187,7 @@ type Options = {
 	ffprobeExecutable: FfmpegExecutable;
 };
 
-export const extractFrameFromVideoFn = async ({
+const extractFrameFromVideoFn = async ({
 	time,
 	src,
 	ffmpegExecutable,

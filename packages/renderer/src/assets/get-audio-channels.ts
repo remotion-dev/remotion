@@ -11,7 +11,7 @@ const durationOfAssetCache: Record<string, Result> = {};
 
 const limit = pLimit(1);
 
-export async function getAudioChannelsAndDurationUnlimited(
+async function getAudioChannelsAndDurationUnlimited(
 	src: string,
 	ffprobeExecutable: FfmpegExecutable
 ): Promise<Result> {
