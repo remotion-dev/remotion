@@ -91,7 +91,7 @@ export class FrameManager extends EventEmitter {
 		super();
 		this.#client = client;
 		this.#page = page;
-		this.#networkManager = new NetworkManager(client,  this);
+		this.#networkManager = new NetworkManager(client, this);
 		this.#timeoutSettings = timeoutSettings;
 		this.setupEventListeners(this.#client);
 	}
@@ -736,13 +736,11 @@ export class Frame {
 		this.#client = client;
 		this._mainWorld = new DOMWorld(
 			this.#client,
-			this._frameManager,
 			this,
 			this._frameManager._timeoutSettings
 		);
 		this._secondaryWorld = new DOMWorld(
 			this.#client,
-			this._frameManager,
 			this,
 			this._frameManager._timeoutSettings
 		);
@@ -884,30 +882,6 @@ export class Frame {
 		...args: SerializableOrJSHandle[]
 	): Promise<UnwrapPromiseLike<EvaluateFnReturnType<T>>> {
 		return this._mainWorld.evaluate<T>(pageFunction, ...args);
-	}
-
-	/**
-	 * @returns the full HTML contents of the frame, including the doctype.
-	 */
-	async content(): Promise<string> {
-		return this._secondaryWorld.content();
-	}
-
-	/**
-	 * Set the content of the frame.
-	 *
-	 * @param html - HTML markup to assign to the page.
-	 * @param options - options to configure how long before timing out and at
-	 * what point to consider the content setting successful.
-	 */
-	async setContent(
-		html: string,
-		options: {
-			timeout?: number;
-			waitUntil?: PuppeteerLifeCycleEvent | PuppeteerLifeCycleEvent[];
-		} = {}
-	): Promise<void> {
-		return this._secondaryWorld.setContent(html, options);
 	}
 
 	/**
