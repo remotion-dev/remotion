@@ -20,7 +20,6 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"cross-fetch": "3.1.5",
 		"debug": "^4.3.4",
 		"devtools-protocol": "0.0.1001819",
 		"execa": "5.1.1",
