@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
-import {CDPSession} from './Connection';
 import {TimeoutError} from './Errors';
 import {
 	EvaluateFn,
@@ -29,21 +27,12 @@ import {ExecutionContext} from './ExecutionContext';
 import {Frame} from './FrameManager';
 import {ElementHandle, JSHandle} from './JSHandle';
 import {TimeoutSettings} from './TimeoutSettings';
-import {debugError, isString, pageBindingInitString} from './util';
-
-/**
- * @internal
- */
-interface PageBinding {
-	name: string;
-	pptrFunction: Function;
-}
+import {isString} from './util';
 
 /**
  * @internal
  */
 export class DOMWorld {
-	#client: CDPSession;
 	#frame: Frame;
 	#timeoutSettings: TimeoutSettings;
 	#documentPromise: Promise<ElementHandle> | null = null;
@@ -51,11 +40,6 @@ export class DOMWorld {
 	#contextResolveCallback: ((x: ExecutionContext) => void) | null = null;
 	#detached = false;
 
-	// Set of bindings that have been registered in the current context.
-	#ctxBindings = new Set<string>();
-
-	// Contains mapping from functions that should be bound to Puppeteer functions.
-	#boundFunctions = new Map<string, Function>();
 	#waitTasks = new Set<WaitTask>();
 
 	/**
@@ -65,29 +49,12 @@ export class DOMWorld {
 		return this.#waitTasks;
 	}
 
-	/**
-	 * @internal
-	 */
-	get _boundFunctions(): Map<string, Function> {
-		return this.#boundFunctions;
-	}
-
-	static #bindingIdentifier = (name: string, contextId: number) => {
-		return `${name}_${contextId}`;
-	};
-
-	constructor(
-		client: CDPSession,
-		frame: Frame,
-		timeoutSettings: TimeoutSettings
-	) {
+	constructor(frame: Frame, timeoutSettings: TimeoutSettings) {
 		// Keep own reference to client because it might differ from the FrameManager's
 		// client for OOP iframes.
-		this.#client = client;
 		this.#frame = frame;
 		this.#timeoutSettings = timeoutSettings;
 		this._setContext(null);
-		this.#client.on('Runtime.bindingCalled', this.#onBindingCalled);
 	}
 
 	frame(): Frame {
@@ -103,7 +70,6 @@ export class DOMWorld {
 				this.#contextResolveCallback,
 				'Execution Context has already been set.'
 			);
-			this.#ctxBindings.clear();
 			this.#contextResolveCallback?.call(null, context);
 			this.#contextResolveCallback = null;
 			for (const waitTask of this._waitTasks) {
@@ -129,7 +95,6 @@ export class DOMWorld {
 	 */
 	_detach(): void {
 		this.#detached = true;
-		this.#client.off('Runtime.bindingCalled', this.#onBindingCalled);
 		for (const waitTask of this._waitTasks) {
 			waitTask.terminate(
 				new Error('waitForFunction failed: frame got detached.')
@@ -190,127 +155,6 @@ export class DOMWorld {
 		return this.#documentPromise;
 	}
 
-	// If multiple waitFor are set up asynchronously, we need to wait for the
-	// first one to set up the binding in the page before running the others.
-	#settingUpBinding: Promise<void> | null = null;
-
-	/**
-	 * @internal
-	 */
-	async _addBindingToContext(
-		context: ExecutionContext,
-		name: string
-	): Promise<void> {
-		// Previous operation added the binding so we are done.
-		if (
-			this.#ctxBindings.has(
-				DOMWorld.#bindingIdentifier(name, context._contextId)
-			)
-		) {
-			return;
-		}
-
-		// Wait for other operation to finish
-		if (this.#settingUpBinding) {
-			await this.#settingUpBinding;
-			return this._addBindingToContext(context, name);
-		}
-
-		const bind = async (_name: string) => {
-			const expression = pageBindingInitString('internal', _name);
-			try {
-				await context._client.send('Runtime.addBinding', {
-					name: _name,
-					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-					executionContextName: context._contextName,
-				});
-				await context.evaluate(expression);
-			} catch (error) {
-				// We could have tried to evaluate in a context which was already
-				// destroyed. This happens, for example, if the page is navigated while
-				// we are trying to add the binding
-				const ctxDestroyed = (error as Error).message.includes(
-					'Execution context was destroyed'
-				);
-				const ctxNotFound = (error as Error).message.includes(
-					'Cannot find context with specified id'
-				);
-				if (ctxDestroyed || ctxNotFound) {
-					return;
-				}
-
-				debugError(error);
-				return;
-			}
-
-			this.#ctxBindings.add(
-				DOMWorld.#bindingIdentifier(_name, context._contextId)
-			);
-		};
-
-		this.#settingUpBinding = bind(name);
-		await this.#settingUpBinding;
-		this.#settingUpBinding = null;
-	}
-
-	#onBindingCalled = async (
-		event: Protocol.Runtime.BindingCalledEvent
-	): Promise<void> => {
-		let payload: {type: string; name: string; seq: number; args: unknown[]};
-		if (!this._hasContext()) {
-			return;
-		}
-
-		const context = await this.executionContext();
-		try {
-			payload = JSON.parse(event.payload);
-		} catch {
-			// The binding was either called by something in the page or it was
-			// called before our wrapper was initialized.
-			return;
-		}
-
-		const {type, name, seq, args} = payload;
-		if (
-			type !== 'internal' ||
-			!this.#ctxBindings.has(
-				DOMWorld.#bindingIdentifier(name, context._contextId)
-			)
-		) {
-			return;
-		}
-
-		if (context._contextId !== event.executionContextId) {
-			return;
-		}
-
-		try {
-			const fn = this._boundFunctions.get(name);
-			if (!fn) {
-				throw new Error(`Bound function $name is not found`);
-			}
-
-			const result = await fn(...args);
-			await context.evaluate(deliverResult, name, seq, result);
-		} catch (error) {
-			// The WaitTask may already have been resolved by timing out, or the
-			// exection context may have been destroyed.
-			// In both caes, the promises above are rejected with a protocol error.
-			// We can safely ignores these, as the WaitTask is re-installed in
-			// the next execution context if needed.
-			if ((error as Error).message.includes('Protocol error')) {
-				return;
-			}
-
-			debugError(error);
-		}
-
-		function deliverResult(_name: string, _seq: number, result: unknown): void {
-			(globalThis as any)[_name].callbacks.get(_seq).resolve(result);
-			(globalThis as any)[_name].callbacks.delete(_seq);
-		}
-	};
-
 	waitForFunction(
 		pageFunction: Function | string,
 		...args: SerializableOrJSHandle[]
@@ -344,7 +188,6 @@ interface WaitTaskOptions {
 	predicateAcceptsContextElement: boolean;
 	title: string;
 	timeout: number;
-	binding?: PageBinding;
 	args: SerializableOrJSHandle[];
 }
 
@@ -359,7 +202,6 @@ class WaitTask {
 	#predicateBody: string;
 	#predicateAcceptsContextElement: boolean;
 	#args: SerializableOrJSHandle[];
-	#binding?: PageBinding;
 	#runCount = 0;
 	#resolve: (x: JSHandle) => void = noop;
 	#reject: (x: Error) => void = noop;
@@ -383,15 +225,8 @@ class WaitTask {
 		this.#predicateAcceptsContextElement =
 			options.predicateAcceptsContextElement;
 		this.#args = options.args;
-		this.#binding = options.binding;
 		this.#runCount = 0;
 		this.#domWorld._waitTasks.add(this);
-		if (this.#binding) {
-			this.#domWorld._boundFunctions.set(
-				this.#binding.name,
-				this.#binding.pptrFunction
-			);
-		}
 
 		this.promise = new Promise<JSHandle>((resolve, reject) => {
 			this.#resolve = resolve;
@@ -424,10 +259,6 @@ class WaitTask {
 		const context = await this.#domWorld.executionContext();
 		if (this.#terminated || runCount !== this.#runCount) {
 			return;
-		}
-
-		if (this.#binding) {
-			await this.#domWorld._addBindingToContext(context, this.#binding.name);
 		}
 
 		if (this.#terminated || runCount !== this.#runCount) {
