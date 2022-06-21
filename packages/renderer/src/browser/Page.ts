@@ -28,7 +28,6 @@ import {
 	UnwrapPromiseLike,
 } from './EvalTypes';
 import {EventEmitter, Handler} from './EventEmitter';
-import {FileChooser} from './FileChooser';
 import {Frame, FrameManager, FrameManagerEmittedEvents} from './FrameManager';
 import {HTTPRequest} from './HTTPRequest';
 import {HTTPResponse} from './HTTPResponse';
@@ -52,7 +51,6 @@ import {
 	releaseObject,
 	valueFromRemoteObject,
 	waitForEvent,
-	waitWithTimeout,
 } from './util';
 
 /**
@@ -77,21 +75,6 @@ interface Metrics {
 /**
  * @public
  */
-interface WaitTimeoutOptions {
-	/**
-	 * Maximum wait time in milliseconds, defaults to 30 seconds, pass `0` to
-	 * disable the timeout.
-	 *
-	 * @remarks
-	 * The default value can be changed by using the
-	 * {@link Page.setDefaultTimeout} method.
-	 */
-	timeout?: number;
-}
-
-/**
- * @public
- */
 interface WaitForOptions {
 	/**
 	 * Maximum wait time in milliseconds, defaults to 30 seconds, pass `0` to
@@ -104,24 +87,6 @@ interface WaitForOptions {
 	 */
 	timeout?: number;
 	waitUntil?: PuppeteerLifeCycleEvent | PuppeteerLifeCycleEvent[];
-}
-
-/**
- * @public
- */
-interface GeolocationOptions {
-	/**
-	 * Latitude between -90 and 90.
-	 */
-	longitude: number;
-	/**
-	 * Longitude between -180 and 180.
-	 */
-	latitude: number;
-	/**
-	 * Optional non-negative accuracy value.
-	 */
-	accuracy?: number;
 }
 
 /**
@@ -431,9 +396,6 @@ export class Page extends EventEmitter {
 	#javascriptEnabled = true;
 	#viewport: Viewport | null;
 	screenshotTaskQueue: TaskQueue;
-	// TODO: improve this typedef - it's a function that takes a file chooser or
-	// something?
-	#fileChooserInterceptors = new Set<Function>();
 
 	#disconnectPromise?: Promise<Error>;
 	#userDragInterceptionEnabled = false;
@@ -512,7 +474,6 @@ export class Page extends EventEmitter {
 		networkManager.on(NetworkManagerEmittedEvents.RequestFinished, (event) => {
 			return this.emit(PageEmittedEvents.RequestFinished, event);
 		});
-		this.#fileChooserInterceptors = new Set();
 
 		client.on('Page.domContentEventFired', () => {
 			return this.emit(PageEmittedEvents.DOMContentLoaded);
@@ -538,9 +499,6 @@ export class Page extends EventEmitter {
 		client.on('Log.entryAdded', (event) => {
 			return this.#onLogEntryAdded(event);
 		});
-		client.on('Page.fileChooserOpened', (event) => {
-			return this.#onFileChooser(event);
-		});
 		this.#target._isClosedPromise.then(() => {
 			this.emit(PageEmittedEvents.Close);
 			this.#closed = true;
@@ -558,25 +516,6 @@ export class Page extends EventEmitter {
 			this.#client.send('Performance.enable'),
 			this.#client.send('Log.enable'),
 		]);
-	}
-
-	async #onFileChooser(
-		event: Protocol.Page.FileChooserOpenedEvent
-	): Promise<void> {
-		if (!this.#fileChooserInterceptors.size) {
-			return;
-		}
-
-		const frame = this.#frameManager.frame(event.frameId);
-		assert(frame);
-		const context = await frame.executionContext();
-		const element = await context._adoptBackendNodeId(event.backendNodeId);
-		const interceptors = Array.from(this.#fileChooserInterceptors);
-		this.#fileChooserInterceptors.clear();
-		const fileChooser = new FileChooser(element, event);
-		for (const interceptor of interceptors) {
-			interceptor.call(null, fileChooser);
-		}
 	}
 
 	/**
@@ -638,90 +577,6 @@ export class Page extends EventEmitter {
 		}
 
 		return super.off(eventName, handler);
-	}
-
-	/**
-	 * This method is typically coupled with an action that triggers file
-	 * choosing. The following example clicks a button that issues a file chooser
-	 * and then responds with `/tmp/myfile.pdf` as if a user has selected this file.
-	 *
-	 * ```js
-	 * const [fileChooser] = await Promise.all([
-	 * page.waitForFileChooser(),
-	 * page.click('#upload-file-button'),
-	 * // some button that triggers file selection
-	 * ]);
-	 * await fileChooser.accept(['/tmp/myfile.pdf']);
-	 * ```
-	 *
-	 * NOTE: This must be called before the file chooser is launched. It will not
-	 * return a currently active file chooser.
-	 * @param options - Optional waiting parameters
-	 * @returns Resolves after a page requests a file picker.
-	 * @remarks
-	 * NOTE: In non-headless Chromium, this method results in the native file picker
-	 * dialog `not showing up` for the user.
-	 */
-	async waitForFileChooser(
-		options: WaitTimeoutOptions = {}
-	): Promise<FileChooser> {
-		if (!this.#fileChooserInterceptors.size) {
-			await this.#client.send('Page.setInterceptFileChooserDialog', {
-				enabled: true,
-			});
-		}
-
-		const {timeout = this.#timeoutSettings.timeout()} = options;
-		let callback!: (value: FileChooser | PromiseLike<FileChooser>) => void;
-		const promise = new Promise<FileChooser>((x) => {
-			callback = x;
-		});
-		this.#fileChooserInterceptors.add(callback);
-		return waitWithTimeout<FileChooser>(
-			promise,
-			'waiting for file chooser',
-			timeout
-		).catch((error) => {
-			this.#fileChooserInterceptors.delete(callback);
-			throw error;
-		});
-	}
-
-	/**
-	 * Sets the page's geolocation.
-	 * @remarks
-	 * NOTE: Consider using {@link BrowserContext.overridePermissions} to grant
-	 * permissions for the page to read its geolocation.
-	 * @example
-	 * ```js
-	 * await page.setGeolocation({latitude: 59.95, longitude: 30.31667});
-	 * ```
-	 */
-	async setGeolocation(options: GeolocationOptions): Promise<void> {
-		const {longitude, latitude, accuracy = 0} = options;
-		if (longitude < -180 || longitude > 180) {
-			throw new Error(
-				`Invalid longitude "${longitude}": precondition -180 <= LONGITUDE <= 180 failed.`
-			);
-		}
-
-		if (latitude < -90 || latitude > 90) {
-			throw new Error(
-				`Invalid latitude "${latitude}": precondition -90 <= LATITUDE <= 90 failed.`
-			);
-		}
-
-		if (accuracy < 0) {
-			throw new Error(
-				`Invalid accuracy "${accuracy}": precondition 0 <= ACCURACY failed.`
-			);
-		}
-
-		await this.#client.send('Emulation.setGeolocationOverride', {
-			longitude,
-			latitude,
-			accuracy,
-		});
 	}
 
 	/**
