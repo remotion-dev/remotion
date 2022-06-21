@@ -497,7 +497,7 @@ export class FrameManager extends EventEmitter {
 		const context = new ExecutionContext(
 			frame?._client() || this.#client,
 			contextPayload,
-			world
+			world as DOMWorld
 		);
 		if (world) {
 			world._setContext(context);
