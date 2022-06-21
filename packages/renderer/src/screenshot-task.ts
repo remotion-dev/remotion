@@ -1,6 +1,8 @@
 import fs from 'fs';
-import {CDPSession, Page, ScreenshotOptions, Target} from 'puppeteer-core';
 import {Internals, StillImageFormat} from 'remotion';
+import {CDPSession} from './browser/Connection';
+import {Page, ScreenshotOptions} from './browser/Page';
+import {Target} from './browser/Target';
 
 export const _screenshotTask = async (
 	page: Page,

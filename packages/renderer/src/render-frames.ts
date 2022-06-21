@@ -1,11 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import {
-	Browser as PuppeteerBrowser,
-	ConsoleMessage,
-	Page,
-} from 'puppeteer-core';
-import {
 	BrowserExecutable,
 	FfmpegExecutable,
 	FrameRange,
@@ -19,6 +14,9 @@ import {
 	RenderMediaOnDownload,
 } from './assets/download-and-map-assets-to-file';
 import {BrowserLog} from './browser-log';
+import {Browser as PuppeteerBrowser} from './browser/Browser';
+import {ConsoleMessage} from './browser/ConsoleMessage';
+import {Page} from './browser/Page';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {getActualConcurrency} from './get-concurrency';

@@ -1,6 +1,5 @@
 import fs, {statSync} from 'fs';
 import path from 'path';
-import {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {
 	BrowserExecutable,
 	FfmpegExecutable,
@@ -9,6 +8,7 @@ import {
 	StillImageFormat,
 } from 'remotion';
 import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import {Browser as PuppeteerBrowser} from './browser/Browser';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {

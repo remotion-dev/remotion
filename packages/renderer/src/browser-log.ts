@@ -1,4 +1,7 @@
-import {ConsoleMessageLocation, ConsoleMessageType} from 'puppeteer-core';
+import {
+	ConsoleMessageLocation,
+	ConsoleMessageType,
+} from './browser/ConsoleMessage';
 
 export type BrowserLog = {
 	text: string;

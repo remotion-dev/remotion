@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer-core';
+import {Page} from './browser/Page';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 
 export const seekToFrame = async ({
@@ -6,7 +6,7 @@ export const seekToFrame = async ({
 	page,
 }: {
 	frame: number;
-	page: puppeteer.Page;
+	page: Page;
 }) => {
 	await page.waitForFunction('window.ready === true');
 	await puppeteerEvaluateWithCatch({

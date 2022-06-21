@@ -1,6 +1,7 @@
-import {Browser, Page} from 'puppeteer-core';
 import {BrowserExecutable, FfmpegExecutable, TCompMetadata} from 'remotion';
 import {BrowserLog} from './browser-log';
+import {Browser} from './browser/Browser';
+import {Page} from './browser/Page';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';

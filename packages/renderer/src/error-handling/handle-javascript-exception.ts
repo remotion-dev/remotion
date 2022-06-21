@@ -1,5 +1,7 @@
-import {CDPSession, Page, Protocol} from 'puppeteer-core';
+import Protocol from 'devtools-protocol';
 import {Internals} from 'remotion';
+import {CDPSession} from '../browser/Connection';
+import {Page} from '../browser/Page';
 import {UnsymbolicatedStackFrame} from '../parse-browser-error-stack';
 import {SymbolicatedStackFrame} from '../symbolicate-stacktrace';
 import {SymbolicateableError} from './symbolicateable-error';

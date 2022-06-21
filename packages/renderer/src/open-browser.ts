@@ -1,8 +1,12 @@
 import fs from 'fs';
 import os from 'os';
-import path from 'path';
-import puppeteer from 'puppeteer-core';
+import path, {dirname} from 'path';
+import {sync} from 'pkg-dir';
+import {PUPPETEER_REVISIONS} from 'puppeteer-core/lib/cjs/puppeteer/revisions';
 import {Browser, Internals} from 'remotion';
+import {Browser as PuppeteerBrowser} from './browser/Browser';
+import {puppeteerDirname} from './browser/compat';
+import {PuppeteerNode} from './browser/PuppeteerNode';
 import {
 	ensureLocalBrowser,
 	getLocalBrowserExecutable,
@@ -33,7 +37,9 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	return [`--use-gl=${renderer}`];
 };
 
-const browserInstances: puppeteer.Browser[] = [];
+export const rootDirname = dirname(dirname(dirname(puppeteerDirname)));
+
+const browserInstances: PuppeteerBrowser[] = [];
 
 export const killAllBrowsers = async () => {
 	for (const browser of browserInstances) {
@@ -43,6 +49,13 @@ export const killAllBrowsers = async () => {
 	}
 };
 
+const puppeteer = new PuppeteerNode({
+	isPuppeteerCore: true,
+	preferredRevision: PUPPETEER_REVISIONS.chromium,
+	productName: undefined,
+	projectRoot: sync(rootDirname),
+});
+
 export const openBrowser = async (
 	browser: Browser,
 	options?: {
@@ -51,7 +64,7 @@ export const openBrowser = async (
 		chromiumOptions?: ChromiumOptions;
 		forceDeviceScaleFactor?: number;
 	}
-): Promise<puppeteer.Browser> => {
+): Promise<PuppeteerBrowser> => {
 	if (browser === 'firefox' && !Internals.FEATURE_FLAG_FIREFOX_SUPPORT) {
 		throw new TypeError(
 			'Firefox supported is not yet turned on. Stay tuned for the future.'
