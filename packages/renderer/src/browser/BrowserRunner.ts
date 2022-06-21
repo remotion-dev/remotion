@@ -22,14 +22,12 @@ import {promisify} from 'util';
 import {deleteDirectory} from '../delete-directory';
 import {assert} from './assert';
 import {Connection} from './Connection';
-import {debug} from './Debug';
 import {TimeoutError} from './Errors';
 import {LaunchOptions} from './LaunchOptions';
 import {NodeWebSocketTransport as WebSocketTransport} from './NodeWebSocketTransport';
 import {Product} from './Product';
 import {
 	addEventListener,
-	debugError,
 	isErrnoException,
 	isErrorLike,
 	PuppeteerEventListener,
@@ -38,8 +36,6 @@ import {
 
 const renameAsync = promisify(fs.rename);
 const unlinkAsync = promisify(fs.unlink);
-
-const debugLauncher = debug('puppeteer:launcher');
 
 const PROCESS_ERROR_EXPLANATION = `Puppeteer was unable to kill the process which ran the browser binary.
  This means that, on future Puppeteer launches, Puppeteer might not be able to launch the browser.
@@ -96,9 +92,6 @@ export class BrowserRunner {
 		}
 
 		assert(!this.proc, 'This process has previously been started.');
-		debugLauncher(
-			`Calling ${this.#executablePath} ${this.#processArguments.join(' ')}`
-		);
 		this.proc = childProcess.spawn(
 			this.#executablePath,
 			this.#processArguments,
@@ -127,7 +120,6 @@ export class BrowserRunner {
 						await deleteDirectory(this.#userDataDir);
 						fulfill();
 					} catch (error) {
-						debugError(error);
 						reject(error);
 					}
 				} else {
@@ -147,7 +139,6 @@ export class BrowserRunner {
 								await renameAsync(prefsBackupPath, prefsPath);
 							}
 						} catch (error) {
-							debugError(error);
 							reject(error);
 						}
 					}
@@ -188,8 +179,7 @@ export class BrowserRunner {
 			this.kill();
 		} else if (this.connection) {
 			// Attempt to close the browser gracefully
-			this.connection.send('Browser.close').catch((error) => {
-				debugError(error);
+			this.connection.send('Browser.close').catch(() => {
 				this.kill();
 			});
 		}

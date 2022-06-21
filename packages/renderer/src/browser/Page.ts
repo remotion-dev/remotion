@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {error} from 'console';
 import {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
 import {CDPSession} from './Connection';
@@ -36,7 +37,6 @@ import {Target} from './Target';
 import {TaskQueue} from './TaskQueue';
 import {TimeoutSettings} from './TimeoutSettings';
 import {
-	debugError,
 	evaluationString,
 	isErrorLike,
 	pageBindingDeliverErrorString,
@@ -110,7 +110,7 @@ export class Page extends EventEmitter {
 							.send('Target.detachFromTarget', {
 								sessionId: event.sessionId,
 							})
-							.catch(debugError);
+							.catch(() => console.log(error));
 				}
 			}
 		);
@@ -269,25 +269,23 @@ export class Page extends EventEmitter {
 			assert(pageBinding);
 			const result = await pageBinding(...args);
 			expression = pageBindingDeliverResultString(name, seq, result);
-		} catch (error) {
-			if (isErrorLike(error)) {
+		} catch (_error) {
+			if (isErrorLike(_error)) {
 				expression = pageBindingDeliverErrorString(
 					name,
 					seq,
-					error.message,
-					error.stack
+					_error.message,
+					_error.stack
 				);
 			} else {
-				expression = pageBindingDeliverErrorValueString(name, seq, error);
+				expression = pageBindingDeliverErrorValueString(name, seq, _error);
 			}
 		}
 
-		this.#client
-			.send('Runtime.evaluate', {
-				expression,
-				contextId: event.executionContextId,
-			})
-			.catch(debugError);
+		this.#client.send('Runtime.evaluate', {
+			expression,
+			contextId: event.executionContextId,
+		});
 	}
 
 	#addConsoleMessage(

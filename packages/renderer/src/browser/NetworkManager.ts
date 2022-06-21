@@ -22,7 +22,7 @@ import {Frame} from './FrameManager';
 import {HTTPRequest} from './HTTPRequest';
 import {HTTPResponse} from './HTTPResponse';
 import {FetchRequestId, NetworkEventManager} from './NetworkEventManager';
-import {debugError, isString} from './util';
+import {isString} from './util';
 
 export const NetworkManagerEmittedEvents = {
 	Request: Symbol('NetworkManager.Request'),
@@ -125,7 +125,7 @@ export class NetworkManager extends EventEmitter {
 				requestId: event.requestId,
 				authChallengeResponse: {response, username, password},
 			})
-			.catch(debugError);
+			.catch(() => undefined);
 	}
 
 	/**
@@ -271,7 +271,7 @@ export class NetworkManager extends EventEmitter {
 			responseReceived.requestId
 		);
 		if (extraInfos.length) {
-			debugError(
+			console.log(
 				new Error(
 					'Unexpected extraInfo events for request ' +
 						responseReceived.requestId

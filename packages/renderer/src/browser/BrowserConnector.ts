@@ -20,7 +20,6 @@ import {Connection} from './Connection';
 import {ConnectionTransport} from './ConnectionTransport';
 import {NodeWebSocketTransport} from './NodeWebSocketTransport';
 import {Viewport} from './PuppeteerViewport';
-import {debugError} from './util';
 
 export interface BrowserConnectOptions {
 	defaultViewport: Viewport;
@@ -64,7 +63,7 @@ export async function _connectToBrowser(
 		defaultViewport,
 		process: undefined,
 		closeCallback: () => {
-			return connection.send('Browser.close').catch(debugError);
+			return connection.send('Browser.close').catch(() => undefined);
 		},
 	});
 }

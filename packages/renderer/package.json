@@ -20,7 +20,6 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"debug": "^4.3.4",
 		"devtools-protocol": "0.0.1001819",
 		"execa": "5.1.1",
 		"mime-types": "2.1.35",
@@ -40,7 +39,6 @@
 		"@jonny/eslint-config": "3.0.259",
 		"@testing-library/dom": "^8.7.2",
 		"@testing-library/react": "13.1.1",
-		"@types/debug": "^4.1.7",
 		"@types/jest": "^27.4.0",
 		"@types/mime-types": "2.1.1",
 		"@types/node": "^16.7.5",
