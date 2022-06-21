@@ -85,7 +85,7 @@ export const webpackConfig = ({
 		entry: [
 			// Fast Refresh must come first,
 			// because setup-environment imports ReactDOM.
-			// If React DOM is imported before Fast Refresh, Fast Refresh does not works
+			// If React DOM is imported before Fast Refresh, Fast Refresh does not work
 			environment === 'development'
 				? require.resolve('./fast-refresh/runtime.js')
 				: null,
