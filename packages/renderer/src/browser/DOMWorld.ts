@@ -373,18 +373,10 @@ async function waitForPredicatePageFunction(
 		}, timeout);
 	}
 
-	return async function (): Promise<unknown> {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		let fulfill = (__?: unknown): void => undefined;
-		const result = new Promise((x) => {
-			fulfill = x;
-		});
-		await onRaf();
-		return result;
-
+	return new Promise<JSHandle | undefined>((resolve) => {
 		async function onRaf(): Promise<void> {
 			if (timedOut) {
-				fulfill();
+				resolve(undefined);
 				return;
 			}
 
@@ -392,10 +384,12 @@ async function waitForPredicatePageFunction(
 				? await predicate(document, ...args)
 				: await predicate(...args);
 			if (success) {
-				fulfill(success);
+				resolve(success);
 			} else {
 				requestAnimationFrame(onRaf);
 			}
 		}
-	};
+
+		onRaf();
+	});
 }
