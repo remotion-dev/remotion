@@ -1,20 +1,20 @@
 import {Protocol} from 'devtools-protocol';
 import {HTTPRequest} from './HTTPRequest';
 
-export type QueuedEventGroup = {
+type QueuedEventGroup = {
 	responseReceivedEvent: Protocol.Network.ResponseReceivedEvent;
 	loadingFinishedEvent?: Protocol.Network.LoadingFinishedEvent;
 	loadingFailedEvent?: Protocol.Network.LoadingFailedEvent;
 };
 
 export type FetchRequestId = string;
-export type NetworkRequestId = string;
+type NetworkRequestId = string;
 
 type RedirectInfo = {
 	event: Protocol.Network.RequestWillBeSentEvent;
 	fetchRequestId?: FetchRequestId;
 };
-export type RedirectInfoList = RedirectInfo[];
+type RedirectInfoList = RedirectInfo[];
 
 /**
  * @internal

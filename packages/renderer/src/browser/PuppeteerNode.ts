@@ -23,10 +23,7 @@ import {Product} from './Product';
 import {CommonPuppeteerSettings, ConnectOptions, Puppeteer} from './Puppeteer';
 import {PUPPETEER_REVISIONS} from './revisions';
 
-/**
- * @public
- */
-export interface PuppeteerLaunchOptions
+interface PuppeteerLaunchOptions
 	extends LaunchOptions,
 		BrowserLaunchArgumentOptions,
 		BrowserConnectOptions {

@@ -25,7 +25,7 @@ import {debugError, isString} from './util';
 /**
  * @public
  */
-export interface InterceptResolutionState {
+interface InterceptResolutionState {
 	action: InterceptResolutionAction;
 	priority?: number;
 }
@@ -35,7 +35,7 @@ export interface InterceptResolutionState {
  *
  * @public
  */
-export interface ResponseForRequest {
+interface ResponseForRequest {
 	status: number;
 	/**
 	 * Optional response headers. All values are converted to strings.
@@ -50,14 +50,7 @@ export interface ResponseForRequest {
  *
  * @public
  */
-export type ResourceType = Lowercase<Protocol.Network.ResourceType>;
-
-/**
- * The default cooperative request interception resolution priority
- *
- * @public
- */
-export const DEFAULT_INTERCEPT_RESOLUTION_PRIORITY = 0;
+type ResourceType = Lowercase<Protocol.Network.ResourceType>;
 
 interface CDPSession extends EventEmitter {
 	send<T extends keyof ProtocolMapping.Commands>(
@@ -495,7 +488,7 @@ export class HTTPRequest {
 /**
  * @public
  */
-export enum InterceptResolutionAction {
+enum InterceptResolutionAction {
 	Abort = 'abort',
 	Respond = 'respond',
 	Continue = 'continue',
@@ -506,15 +499,8 @@ export enum InterceptResolutionAction {
 
 /**
  * @public
- *
- * @deprecated please use {@link InterceptResolutionAction} instead.
  */
-export type InterceptResolutionStrategy = InterceptResolutionAction;
-
-/**
- * @public
- */
-export type ErrorCode =
+type ErrorCode =
 	| 'aborted'
 	| 'accessdenied'
 	| 'addressunreachable'
@@ -546,11 +532,6 @@ const errorReasons: Record<ErrorCode, Protocol.Network.ErrorReason> = {
 	timedout: 'TimedOut',
 	failed: 'Failed',
 } as const;
-
-/**
- * @public
- */
-export type ActionResult = 'continue' | 'abort' | 'respond';
 
 function headersArray(
 	headers: Record<string, string | string[]>

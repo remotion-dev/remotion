@@ -15,11 +15,9 @@
  */
 
 import {Protocol} from 'devtools-protocol';
-import type {Readable} from 'stream';
 import {assert} from './assert';
 import {CDPSession} from './Connection';
 import {debug} from './Debug';
-import {isNode} from './environment';
 import {TimeoutError} from './Errors';
 import {CommonEventEmitter} from './EventEmitter';
 
@@ -357,75 +355,6 @@ export async function waitWithTimeout<T>(
 			clearTimeout(timeoutTimer);
 		}
 	}
-}
-
-export async function getReadableAsBuffer(
-	readable: Readable,
-	path?: string
-): Promise<Buffer | null> {
-	const buffers = [];
-	if (path) {
-		let fs: typeof import('fs').promises;
-		try {
-			fs = (await import('fs')).promises;
-		} catch (error) {
-			if (error instanceof TypeError) {
-				throw new Error(
-					'Cannot write to a path outside of a Node-like environment.'
-				);
-			}
-
-			throw error;
-		}
-
-		const fileHandle = await fs.open(path, 'w+');
-		for await (const chunk of readable) {
-			buffers.push(chunk);
-			await fileHandle.writeFile(chunk);
-		}
-
-		await fileHandle.close();
-	} else {
-		for await (const chunk of readable) {
-			buffers.push(chunk);
-		}
-	}
-
-	try {
-		return Buffer.concat(buffers);
-	} catch (error) {
-		return null;
-	}
-}
-
-export async function getReadableFromProtocolStream(
-	client: CDPSession,
-	handle: string
-): Promise<Readable> {
-	// TODO: Once Node 18 becomes the lowest supported version, we can migrate to
-	// ReadableStream.
-	if (!isNode) {
-		throw new Error('Cannot create a stream outside of Node.js environment.');
-	}
-
-	const {Readable} = await import('stream');
-
-	let eof = false;
-	return new Readable({
-		async read(size: number) {
-			if (eof) {
-				return;
-			}
-
-			const response = await client.send('IO.read', {handle, size});
-			this.push(response.data, response.base64Encoded ? 'base64' : undefined);
-			if (response.eof) {
-				eof = true;
-				await client.send('IO.close', {handle});
-				this.push(null);
-			}
-		},
-	});
 }
 
 interface ErrorLike extends Error {

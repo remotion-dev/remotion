@@ -169,7 +169,7 @@ export interface BrowserFetcherOptions {
 /**
  * @public
  */
-export interface BrowserFetcherRevisionInfo {
+interface BrowserFetcherRevisionInfo {
 	folderPath: string;
 	executablePath: string;
 	url: string;

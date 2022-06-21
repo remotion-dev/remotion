@@ -38,7 +38,7 @@ export type PuppeteerLifeCycleEvent =
 /**
  * @public
  */
-export type ProtocolLifeCycleEvent =
+type ProtocolLifeCycleEvent =
 	| 'load'
 	| 'DOMContentLoaded'
 	| 'networkIdle'

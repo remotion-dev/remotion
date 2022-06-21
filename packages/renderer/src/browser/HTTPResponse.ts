@@ -24,7 +24,7 @@ import {HTTPRequest} from './HTTPRequest';
 /**
  * @public
  */
-export interface RemoteAddress {
+interface RemoteAddress {
 	ip?: string;
 	port?: number;
 }
