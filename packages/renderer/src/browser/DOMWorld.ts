@@ -163,7 +163,6 @@ export class DOMWorld {
 		const waitTaskOptions: WaitTaskOptions = {
 			domWorld: this,
 			predicateBody: pageFunction,
-			predicateAcceptsContextElement: false,
 			title: 'function',
 			timeout,
 			args,
@@ -185,7 +184,6 @@ export class DOMWorld {
 interface WaitTaskOptions {
 	domWorld: DOMWorld;
 	predicateBody: Function | string;
-	predicateAcceptsContextElement: boolean;
 	title: string;
 	timeout: number;
 	args: SerializableOrJSHandle[];
@@ -200,7 +198,6 @@ class WaitTask {
 	#domWorld: DOMWorld;
 	#timeout: number;
 	#predicateBody: string;
-	#predicateAcceptsContextElement: boolean;
 	#args: SerializableOrJSHandle[];
 	#runCount = 0;
 	#resolve: (x: JSHandle) => void = noop;
@@ -222,8 +219,6 @@ class WaitTask {
 		this.#domWorld = options.domWorld;
 		this.#timeout = options.timeout;
 		this.#predicateBody = getPredicateBody(options.predicateBody);
-		this.#predicateAcceptsContextElement =
-			options.predicateAcceptsContextElement;
 		this.#args = options.args;
 		this.#runCount = 0;
 		this.#domWorld._waitTasks.add(this);
@@ -269,7 +264,6 @@ class WaitTask {
 			success = await context.evaluateHandle(
 				waitForPredicatePageFunction,
 				this.#predicateBody,
-				this.#predicateAcceptsContextElement,
 				this.#timeout,
 				...this.#args
 			);
@@ -360,7 +354,6 @@ class WaitTask {
 
 async function waitForPredicatePageFunction(
 	predicateBody: string,
-	predicateAcceptsContextElement: boolean,
 	timeout: number,
 	...args: unknown[]
 ): Promise<unknown> {
@@ -373,29 +366,21 @@ async function waitForPredicatePageFunction(
 		}, timeout);
 	}
 
-	return async function (): Promise<unknown> {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		let fulfill = (__?: unknown): void => undefined;
-		const result = new Promise((x) => {
-			fulfill = x;
-		});
-		await onRaf();
-		return result;
-
+	return new Promise<JSHandle | undefined>((resolve) => {
 		async function onRaf(): Promise<void> {
 			if (timedOut) {
-				fulfill();
+				resolve(undefined);
 				return;
 			}
 
-			const success = predicateAcceptsContextElement
-				? await predicate(document, ...args)
-				: await predicate(...args);
+			const success = await predicate(...args);
 			if (success) {
-				fulfill(success);
+				resolve(success);
 			} else {
 				requestAnimationFrame(onRaf);
 			}
 		}
-	};
+
+		onRaf();
+	});
 }
