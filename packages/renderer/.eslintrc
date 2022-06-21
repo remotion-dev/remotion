@@ -3,13 +3,7 @@
 	"overrides": [
 		{
 			"files": "src/browser/**",
-			"rules": {
-				"@typescript-eslint/no-explicit-any": "off",
-				"max-params": "off",
-				"no-case-declarations": "off",
-				"require-await": "off",
-				"no-bitwise": "off"
-			}
+			"rules": {}
 		}
 	]
 }

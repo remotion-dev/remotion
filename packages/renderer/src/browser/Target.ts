@@ -20,7 +20,7 @@ import {CDPSession} from './Connection';
 import {Page} from './Page';
 import {Viewport} from './PuppeteerViewport';
 
-export const isPagetTarget = (target: Protocol.Target.TargetInfo): boolean => {
+const isPagetTarget = (target: Protocol.Target.TargetInfo): boolean => {
 	return (
 		target.type === 'page' ||
 		target.type === 'background_page' ||
@@ -79,7 +79,7 @@ export class Target {
 		this.#defaultViewport = defaultViewport;
 		this._initializedPromise = new Promise<boolean>((fulfill) => {
 			this._initializedCallback = fulfill;
-		}).then(async (success) => {
+		}).then((success) => {
 			if (!success) {
 				return false;
 			}
