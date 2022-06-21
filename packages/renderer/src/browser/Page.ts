@@ -27,9 +27,8 @@ import {
 	SerializableOrJSHandle,
 	UnwrapPromiseLike,
 } from './EvalTypes';
-import {EventEmitter, Handler} from './EventEmitter';
+import {EventEmitter} from './EventEmitter';
 import {Frame, FrameManager, FrameManagerEmittedEvents} from './FrameManager';
-import {HTTPRequest} from './HTTPRequest';
 import {HTTPResponse} from './HTTPResponse';
 import {JSHandle, _createJSHandle} from './JSHandle';
 import {PuppeteerLifeCycleEvent} from './LifecycleWatcher';
@@ -49,25 +48,6 @@ import {
 	releaseObject,
 	valueFromRemoteObject,
 } from './util';
-
-/**
- * @public
- */
-interface Metrics {
-	Timestamp?: number;
-	Documents?: number;
-	Frames?: number;
-	JSEventListeners?: number;
-	Nodes?: number;
-	LayoutCount?: number;
-	RecalcStyleCount?: number;
-	LayoutDuration?: number;
-	RecalcStyleDuration?: number;
-	ScriptDuration?: number;
-	TaskDuration?: number;
-	JSHeapUsedSize?: number;
-	JSHeapTotalSize?: number;
-}
 
 /**
  * @public
@@ -281,75 +261,11 @@ export const enum PageEmittedEvents {
 	WorkerDestroyed = 'workerdestroyed',
 }
 
-/**
- * Denotes the objects received by callback functions for page events.
- *
- * See {@link PageEmittedEvents} for more detail on the events and when they are
- * emitted.
- * @public
- */
 interface PageEventObject {
-	close: never;
 	console: ConsoleMessage;
-	domcontentloaded: never;
 	error: Error;
-	frameattached: Frame;
-	framedetached: Frame;
-	framenavigated: Frame;
-	load: never;
-	metrics: {title: string; metrics: Metrics};
-	pageerror: Error;
-	popup: Page;
-	request: HTTPRequest;
-	response: HTTPResponse;
-	requestfailed: HTTPRequest;
-	requestfinished: HTTPRequest;
-	requestservedfromcache: HTTPRequest;
 }
 
-/**
- * Page provides methods to interact with a single tab or
- * {@link https://developer.chrome.com/extensions/background_pages | extension background page} in Chromium.
- *
- * @remarks
- *
- * One Browser instance might have multiple Page instances.
- *
- * @example
- * This example creates a page, navigates it to a URL, and then * saves a screenshot:
- * ```js
- * const puppeteer = require('puppeteer');
- *
- * (async () => {
- *   const browser = await puppeteer.launch();
- *   const page = await browser.newPage();
- *   await page.goto('https://example.com');
- *   await page.screenshot({path: 'screenshot.png'});
- *   await browser.close();
- * })();
- * ```
- *
- * The Page class extends from Puppeteer's {@link EventEmitter} class and will
- * emit various events which are documented in the {@link PageEmittedEvents} enum.
- *
- * @example
- * This example logs a message for a single page `load` event:
- * ```js
- * page.once('load', () => console.log('Page loaded!'));
- * ```
- *
- * To unsubscribe from events use the `off` method:
- *
- * ```js
- * function logRequest(interceptedRequest) {
- *   console.log('A request was made:', interceptedRequest.url());
- * }
- * page.on('request', logRequest);
- * // Sometime later...
- * page.off('request', logRequest);
- * ```
- * @public
- */
 export class Page extends EventEmitter {
 	/**
 	 * @internal
@@ -374,8 +290,6 @@ export class Page extends EventEmitter {
 	#emulationManager: EmulationManager;
 	#pageBindings = new Map<string, Function>();
 	screenshotTaskQueue: TaskQueue;
-
-	#handlerMap = new WeakMap<Handler, Handler>();
 
 	/**
 	 * @internal
@@ -492,20 +406,6 @@ export class Page extends EventEmitter {
 		eventName: K,
 		handler: (event: PageEventObject[K]) => void
 	): EventEmitter {
-		if (eventName === 'request') {
-			const wrap =
-				this.#handlerMap.get(handler) ||
-				((event: HTTPRequest) => {
-					event.enqueueInterceptAction(() => {
-						return handler(event as PageEventObject[K]);
-					});
-				});
-
-			this.#handlerMap.set(handler, wrap);
-
-			return super.on(eventName, wrap);
-		}
-
 		return super.on(eventName, handler);
 	}
 
@@ -522,10 +422,6 @@ export class Page extends EventEmitter {
 		eventName: K,
 		handler: (event: PageEventObject[K]) => void
 	): EventEmitter {
-		if (eventName === 'request') {
-			handler = this.#handlerMap.get(handler) || handler;
-		}
-
 		return super.off(eventName, handler);
 	}
 
