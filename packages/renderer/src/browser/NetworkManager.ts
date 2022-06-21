@@ -86,8 +86,6 @@ export class NetworkManager extends EventEmitter {
 	#extraHTTPHeaders: Record<string, string> = {};
 	#credentials?: Credentials;
 	#attemptedAuthentications = new Set<string>();
-	#userRequestInterceptionEnabled = false;
-	#protocolRequestInterceptionEnabled = false;
 	#userCacheDisabled = false;
 	#emulatedNetworkConditions: InternalNetworkConditions = {
 		offline: false,
@@ -138,11 +136,6 @@ export class NetworkManager extends EventEmitter {
 				ignore: true,
 			});
 		}
-	}
-
-	async authenticate(credentials?: Credentials): Promise<void> {
-		this.#credentials = credentials;
-		await this.#updateProtocolRequestInterception();
 	}
 
 	async setExtraHTTPHeaders(
@@ -216,35 +209,6 @@ export class NetworkManager extends EventEmitter {
 		await this.#updateProtocolCacheDisabled();
 	}
 
-	async setRequestInterception(value: boolean): Promise<void> {
-		this.#userRequestInterceptionEnabled = value;
-		await this.#updateProtocolRequestInterception();
-	}
-
-	async #updateProtocolRequestInterception(): Promise<void> {
-		const enabled =
-			this.#userRequestInterceptionEnabled || Boolean(this.#credentials);
-		if (enabled === this.#protocolRequestInterceptionEnabled) {
-			return;
-		}
-
-		this.#protocolRequestInterceptionEnabled = enabled;
-		if (enabled) {
-			await Promise.all([
-				this.#updateProtocolCacheDisabled(),
-				this.#client.send('Fetch.enable', {
-					handleAuthRequests: true,
-					patterns: [{urlPattern: '*'}],
-				}),
-			]);
-		} else {
-			await Promise.all([
-				this.#updateProtocolCacheDisabled(),
-				this.#client.send('Fetch.disable'),
-			]);
-		}
-	}
-
 	#cacheDisabled(): boolean {
 		return this.#userCacheDisabled;
 	}
@@ -256,30 +220,6 @@ export class NetworkManager extends EventEmitter {
 	}
 
 	#onRequestWillBeSent(event: Protocol.Network.RequestWillBeSentEvent): void {
-		// Request interception doesn't happen for data URLs with Network Service.
-		if (
-			this.#userRequestInterceptionEnabled &&
-			!event.request.url.startsWith('data:')
-		) {
-			const {requestId: networkRequestId} = event;
-
-			this.#networkEventManager.storeRequestWillBeSent(networkRequestId, event);
-
-			/**
-			 * CDP may have sent a Fetch.requestPaused event already. Check for it.
-			 */
-			const requestPausedEvent =
-				this.#networkEventManager.getRequestPaused(networkRequestId);
-			if (requestPausedEvent) {
-				const {requestId: fetchRequestId} = requestPausedEvent;
-				this.#patchRequestEventHeaders(event, requestPausedEvent);
-				this.#onRequest(event, fetchRequestId);
-				this.#networkEventManager.forgetRequestPaused(networkRequestId);
-			}
-
-			return;
-		}
-
 		this.#onRequest(event, undefined);
 	}
 
@@ -316,17 +256,6 @@ export class NetworkManager extends EventEmitter {
 	 * for the same Network.requestWillBeSent.
 	 */
 	#onRequestPaused(event: Protocol.Fetch.RequestPausedEvent): void {
-		if (
-			!this.#userRequestInterceptionEnabled &&
-			this.#protocolRequestInterceptionEnabled
-		) {
-			this.#client
-				.send('Fetch.continueRequest', {
-					requestId: event.requestId,
-				})
-				.catch(debugError);
-		}
-
 		const {networkId: networkRequestId, requestId: fetchRequestId} = event;
 
 		if (!networkRequestId) {
@@ -413,17 +342,9 @@ export class NetworkManager extends EventEmitter {
 			? this.#frameManager.frame(event.frameId)
 			: null;
 
-		const request = new HTTPRequest(
-			this.#client,
-			frame,
-			fetchRequestId,
-			this.#userRequestInterceptionEnabled,
-			event,
-			redirectChain
-		);
+		const request = new HTTPRequest(this.#client, frame, event, redirectChain);
 		this.#networkEventManager.storeRequest(event.requestId, request);
 		this.emit(NetworkManagerEmittedEvents.Request, request);
-		request.finalizeInterceptions();
 	}
 
 	#onRequestServedFromCache(
@@ -551,11 +472,8 @@ export class NetworkManager extends EventEmitter {
 
 	#forgetRequest(request: HTTPRequest, events: boolean): void {
 		const requestId = request._requestId;
-		const interceptionId = request._interceptionId;
 
 		this.#networkEventManager.forgetRequest(requestId);
-		interceptionId !== undefined &&
-			this.#attemptedAuthentications.delete(interceptionId);
 
 		if (events) {
 			this.#networkEventManager.forget(requestId);

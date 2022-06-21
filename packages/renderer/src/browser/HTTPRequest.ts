@@ -25,19 +25,6 @@ import {debugError, isString} from './util';
 /**
  * @public
  */
-export interface ContinueRequestOverrides {
-	/**
-	 * If set, the request URL will change. This is not a redirect.
-	 */
-	url?: string;
-	method?: string;
-	postData?: string;
-	headers?: Record<string, string>;
-}
-
-/**
- * @public
- */
 export interface InterceptResolutionState {
 	action: InterceptResolutionAction;
 	priority?: number;
@@ -139,7 +126,6 @@ export class HTTPRequest {
 
 	#client: CDPSession;
 	#isNavigationRequest: boolean;
-	#allowInterception: boolean;
 	#interceptionHandled = false;
 	#url: string;
 	#resourceType: ResourceType;
@@ -148,9 +134,6 @@ export class HTTPRequest {
 	#postData?: string;
 	#headers: Record<string, string> = {};
 	#frame: Frame | null;
-	#continueRequestOverrides: ContinueRequestOverrides;
-	#responseForRequest: Partial<ResponseForRequest> | null = null;
-	#abortErrorReason: Protocol.Network.ErrorReason | null = null;
 	#interceptResolutionState: InterceptResolutionState = {
 		action: InterceptResolutionAction.None,
 	};
@@ -164,8 +147,6 @@ export class HTTPRequest {
 	constructor(
 		client: CDPSession,
 		frame: Frame | null,
-		interceptionId: string | undefined,
-		allowInterception: boolean,
 		event: Protocol.Network.RequestWillBeSentEvent,
 		redirectChain: HTTPRequest[]
 	) {
@@ -173,15 +154,12 @@ export class HTTPRequest {
 		this._requestId = event.requestId;
 		this.#isNavigationRequest =
 			event.requestId === event.loaderId && event.type === 'Document';
-		this._interceptionId = interceptionId;
-		this.#allowInterception = allowInterception;
 		this.#url = event.request.url;
 		this.#resourceType = (event.type || 'other').toLowerCase() as ResourceType;
 		this.#method = event.request.method;
 		this.#postData = event.request.postData;
 		this.#frame = frame;
 		this._redirectChain = redirectChain;
-		this.#continueRequestOverrides = {};
 		this.#interceptHandlers = [];
 		this.#initiator = event.initiator;
 
@@ -195,56 +173,6 @@ export class HTTPRequest {
 	 */
 	url(): string {
 		return this.#url;
-	}
-
-	/**
-	 * @returns the `ContinueRequestOverrides` that will be used
-	 * if the interception is allowed to continue (ie, `abort()` and
-	 * `respond()` aren't called).
-	 */
-	continueRequestOverrides(): ContinueRequestOverrides {
-		assert(this.#allowInterception, 'Request Interception is not enabled!');
-		return this.#continueRequestOverrides;
-	}
-
-	/**
-	 * @returns The `ResponseForRequest` that gets used if the
-	 * interception is allowed to respond (ie, `abort()` is not called).
-	 */
-	responseForRequest(): Partial<ResponseForRequest> | null {
-		assert(this.#allowInterception, 'Request Interception is not enabled!');
-		return this.#responseForRequest;
-	}
-
-	/**
-	 * @returns the most recent reason for aborting the request
-	 */
-	abortErrorReason(): Protocol.Network.ErrorReason | null {
-		assert(this.#allowInterception, 'Request Interception is not enabled!');
-		return this.#abortErrorReason;
-	}
-
-	/**
-	 * @returns An InterceptResolutionState object describing the current resolution
-	 *  action and priority.
-	 *
-	 *  InterceptResolutionState contains:
-	 *    action: InterceptResolutionAction
-	 *    priority?: number
-	 *
-	 *  InterceptResolutionAction is one of: `abort`, `respond`, `continue`,
-	 *  `disabled`, `none`, or `already-handled`.
-	 */
-	interceptResolutionState(): InterceptResolutionState {
-		if (!this.#allowInterception) {
-			return {action: InterceptResolutionAction.Disabled};
-		}
-
-		if (this.#interceptionHandled) {
-			return {action: InterceptResolutionAction.AlreadyHandled};
-		}
-
-		return {...this.#interceptResolutionState};
 	}
 
 	/**
@@ -265,29 +193,6 @@ export class HTTPRequest {
 		pendingHandler: () => void | PromiseLike<unknown>
 	): void {
 		this.#interceptHandlers.push(pendingHandler);
-	}
-
-	/**
-	 * Awaits pending interception handlers and then decides how to fulfill
-	 * the request interception.
-	 */
-	async finalizeInterceptions(): Promise<void> {
-		await this.#interceptHandlers.reduce((promiseChain, interceptAction) => {
-			return promiseChain.then(interceptAction);
-		}, Promise.resolve());
-		const {action} = this.interceptResolutionState();
-		switch (action) {
-			case 'abort':
-				return this.#abort(this.#abortErrorReason);
-			case 'respond':
-				if (this.#responseForRequest === null) {
-					throw new Error('Response is missing for the interception');
-				}
-
-				return this.#respond(this.#responseForRequest);
-			case 'continue':
-				return this.#continue(this.#continueRequestOverrides);
-		}
 	}
 
 	/**
@@ -412,102 +317,6 @@ export class HTTPRequest {
 	}
 
 	/**
-	 * Continues request with optional request overrides.
-	 *
-	 * @remarks
-	 *
-	 * To use this, request
-	 * interception should be enabled with {@link Page.setRequestInterception}.
-	 *
-	 * Exception is immediately thrown if the request interception is not enabled.
-	 *
-	 * @example
-	 * ```js
-	 * await page.setRequestInterception(true);
-	 * page.on('request', request => {
-	 *   // Override headers
-	 *   const headers = Object.assign({}, request.headers(), {
-	 *     foo: 'bar', // set "foo" header
-	 *     origin: undefined, // remove "origin" header
-	 *   });
-	 *   request.continue({headers});
-	 * });
-	 * ```
-	 *
-	 * @param overrides - optional overrides to apply to the request.
-	 * @param priority - If provided, intercept is resolved using
-	 * cooperative handling rules. Otherwise, intercept is resolved
-	 * immediately.
-	 */
-	async continue(
-		overrides: ContinueRequestOverrides = {},
-		priority?: number
-	): Promise<void> {
-		// Request interception is not supported for data: urls.
-		if (this.#url.startsWith('data:')) {
-			return;
-		}
-
-		assert(this.#allowInterception, 'Request Interception is not enabled!');
-		assert(!this.#interceptionHandled, 'Request is already handled!');
-		if (priority === undefined) {
-			return this.#continue(overrides);
-		}
-
-		this.#continueRequestOverrides = overrides;
-		if (
-			this.#interceptResolutionState.priority === undefined ||
-			priority > this.#interceptResolutionState.priority
-		) {
-			this.#interceptResolutionState = {
-				action: InterceptResolutionAction.Continue,
-				priority,
-			};
-			return;
-		}
-
-		if (priority === this.#interceptResolutionState.priority) {
-			if (
-				this.#interceptResolutionState.action === 'abort' ||
-				this.#interceptResolutionState.action === 'respond'
-			) {
-				return;
-			}
-
-			this.#interceptResolutionState.action =
-				InterceptResolutionAction.Continue;
-		}
-	}
-
-	async #continue(overrides: ContinueRequestOverrides = {}): Promise<void> {
-		const {url, method, postData, headers} = overrides;
-		this.#interceptionHandled = true;
-
-		const postDataBinaryBase64 = postData
-			? Buffer.from(postData).toString('base64')
-			: undefined;
-
-		if (this._interceptionId === undefined) {
-			throw new Error(
-				'HTTPRequest is missing _interceptionId needed for Fetch.continueRequest'
-			);
-		}
-
-		await this.#client
-			.send('Fetch.continueRequest', {
-				requestId: this._interceptionId,
-				url,
-				method,
-				postData: postDataBinaryBase64,
-				headers: headers ? headersArray(headers) : undefined,
-			})
-			.catch((error) => {
-				this.#interceptionHandled = false;
-				return handleError(error);
-			});
-	}
-
-	/**
 	 * Fulfills a request with the given response.
 	 *
 	 * @remarks
@@ -547,13 +356,11 @@ export class HTTPRequest {
 			return;
 		}
 
-		assert(this.#allowInterception, 'Request Interception is not enabled!');
 		assert(!this.#interceptionHandled, 'Request is already handled!');
 		if (priority === undefined) {
 			return this.#respond(response);
 		}
 
-		this.#responseForRequest = response;
 		if (
 			this.#interceptResolutionState.priority === undefined ||
 			priority > this.#interceptResolutionState.priority
@@ -650,13 +457,11 @@ export class HTTPRequest {
 
 		const errorReason = errorReasons[errorCode];
 		assert(errorReason, 'Unknown error code: ' + errorCode);
-		assert(this.#allowInterception, 'Request Interception is not enabled!');
 		assert(!this.#interceptionHandled, 'Request is already handled!');
 		if (priority === undefined) {
 			return this.#abort(errorReason);
 		}
 
-		this.#abortErrorReason = errorReason;
 		if (
 			this.#interceptResolutionState.priority === undefined ||
 			priority >= this.#interceptResolutionState.priority

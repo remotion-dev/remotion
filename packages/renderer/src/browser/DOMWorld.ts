@@ -628,7 +628,7 @@ export class DOMWorld {
 /**
  * @internal
  */
-export interface WaitTaskOptions {
+interface WaitTaskOptions {
 	domWorld: DOMWorld;
 	predicateBody: Function | string;
 	predicateAcceptsContextElement: boolean;
@@ -645,7 +645,7 @@ const noop = (): void => {};
 /**
  * @internal
  */
-export class WaitTask {
+class WaitTask {
 	#domWorld: DOMWorld;
 	#polling: string | number;
 	#timeout: number;

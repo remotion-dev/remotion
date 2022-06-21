@@ -3,7 +3,7 @@ import mitt, {Emitter, EventType, Handler} from './mitt';
 /**
  * @public
  */
-export {EventType, Handler};
+export {Handler};
 
 /**
  * @public

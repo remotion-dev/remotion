@@ -36,11 +36,7 @@ import {HTTPResponse} from './HTTPResponse';
 import {Keyboard, Mouse, Touchscreen} from './Input';
 import {ElementHandle, JSHandle, _createJSHandle} from './JSHandle';
 import {PuppeteerLifeCycleEvent} from './LifecycleWatcher';
-import {
-	Credentials,
-	NetworkConditions,
-	NetworkManagerEmittedEvents,
-} from './NetworkManager';
+import {NetworkConditions, NetworkManagerEmittedEvents} from './NetworkManager';
 import {Viewport} from './PuppeteerViewport';
 import {Target} from './Target';
 import {TaskQueue} from './TaskQueue';
@@ -817,42 +813,6 @@ export class Page extends EventEmitter {
 	}
 
 	/**
-	 * @param value - Whether to enable request interception.
-	 *
-	 * @remarks
-	 * Activating request interception enables {@link HTTPRequest.abort},
-	 * {@link HTTPRequest.continue} and {@link HTTPRequest.respond} methods.  This
-	 * provides the capability to modify network requests that are made by a page.
-	 *
-	 * Once request interception is enabled, every request will stall unless it's
-	 * continued, responded or aborted; or completed using the browser cache.
-	 *
-	 * @example
-	 * An example of a naïve request interceptor that aborts all image requests:
-	 * ```js
-	 * const puppeteer = require('puppeteer');
-	 * (async () => {
-	 *   const browser = await puppeteer.launch();
-	 *   const page = await browser.newPage();
-	 *   await page.setRequestInterception(true);
-	 *   page.on('request', interceptedRequest => {
-	 *     if (interceptedRequest.url().endsWith('.png') ||
-	 *         interceptedRequest.url().endsWith('.jpg'))
-	 *       interceptedRequest.abort();
-	 *     else
-	 *       interceptedRequest.continue();
-	 *     });
-	 *   await page.goto('https://example.com');
-	 *   await browser.close();
-	 * })();
-	 * ```
-	 * NOTE: Enabling request interception disables page caching.
-	 */
-	async setRequestInterception(value: boolean): Promise<void> {
-		return this.#frameManager.networkManager().setRequestInterception(value);
-	}
-
-	/**
 	 * @param enabled - Whether to enable drag interception.
 	 *
 	 * @remarks
@@ -1105,20 +1065,6 @@ export class Page extends EventEmitter {
 	}
 
 	/**
-	 * Adds a `<link rel="stylesheet">` tag into the page with the desired URL or a
-	 * `<style type="text/css">` tag with the content.
-	 * @returns Promise which resolves to the added tag when the stylesheet's
-	 * onload fires or when the CSS content was injected into frame.
-	 */
-	async addStyleTag(options: {
-		url?: string;
-		path?: string;
-		content?: string;
-	}): Promise<ElementHandle> {
-		return this.mainFrame().addStyleTag(options);
-	}
-
-	/**
 	 * The method adds a function called `name` on the page's `window` object. When
 	 * called, the function executes `puppeteerFunction` in node.js and returns a
 	 * `Promise` which resolves to the return value of `puppeteerFunction`.
@@ -1210,14 +1156,6 @@ export class Page extends EventEmitter {
 				return frame.evaluate(expression).catch(debugError);
 			})
 		);
-	}
-
-	/**
-	 * Provide credentials for `HTTP authentication`.
-	 * @remarks To disable authentication, pass `null`.
-	 */
-	async authenticate(credentials: Credentials): Promise<void> {
-		return this.#frameManager.networkManager().authenticate(credentials);
 	}
 
 	/**
