@@ -30,13 +30,13 @@ import createHttpsProxyAgent, {
 import {getProxyForUrl} from 'proxy-from-env';
 import * as URL from 'url';
 import {promisify} from 'util';
-import {assert} from './assert.js';
-import {debug} from './Debug.js';
-import {Product} from './Product.js';
+import {assert} from './assert';
+import {debug} from './Debug';
+import {Product} from './Product';
 
 import tar from 'tar-fs';
 import bzip from 'unbzip2-stream';
-import {deleteDirectory} from '../delete-directory.js';
+import {deleteDirectory} from '../delete-directory';
 
 const {PUPPETEER_EXPERIMENTAL_CHROMIUM_MAC_ARM} = process.env;
 

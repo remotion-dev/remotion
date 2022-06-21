@@ -16,7 +16,7 @@
 import {promises as dns} from 'dns';
 import {URL} from 'url';
 import NodeWebSocket from 'ws';
-import {ConnectionTransport} from './ConnectionTransport.js';
+import {ConnectionTransport} from './ConnectionTransport';
 
 export class NodeWebSocketTransport implements ConnectionTransport {
 	static async create(urlString: string): Promise<NodeWebSocketTransport> {

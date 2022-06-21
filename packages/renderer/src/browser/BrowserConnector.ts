@@ -19,13 +19,13 @@ import {
 	Browser,
 	IsPageTargetCallback,
 	TargetFilterCallback,
-} from './Browser.js';
-import {Connection} from './Connection.js';
-import {ConnectionTransport} from './ConnectionTransport.js';
-import {getFetch} from './fetch.js';
+} from './Browser';
+import {Connection} from './Connection';
+import {ConnectionTransport} from './ConnectionTransport';
+import {getFetch} from './fetch';
 import {NodeWebSocketTransport} from './NodeWebSocketTransport';
-import {Viewport} from './PuppeteerViewport.js';
-import {debugError, isErrorLike} from './util.js';
+import {Viewport} from './PuppeteerViewport';
+import {debugError, isErrorLike} from './util';
 
 /**
  * Generic browser options that can be passed when launching any browser or when

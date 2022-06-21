@@ -20,14 +20,14 @@ import * as path from 'path';
 import * as readline from 'readline';
 import {promisify} from 'util';
 import {deleteDirectory} from '../delete-directory';
-import {assert} from './assert.js';
-import {Connection} from './Connection.js';
-import {debug} from './Debug.js';
-import {TimeoutError} from './Errors.js';
+import {assert} from './assert';
+import {Connection} from './Connection';
+import {debug} from './Debug';
+import {TimeoutError} from './Errors';
 import {LaunchOptions} from './LaunchOptions';
-import {NodeWebSocketTransport as WebSocketTransport} from './NodeWebSocketTransport.js';
-import {PipeTransport} from './PipeTransport.js';
-import {Product} from './Product.js';
+import {NodeWebSocketTransport as WebSocketTransport} from './NodeWebSocketTransport';
+import {PipeTransport} from './PipeTransport';
+import {Product} from './Product';
 import {
 	addEventListener,
 	debugError,
@@ -35,7 +35,7 @@ import {
 	isErrorLike,
 	PuppeteerEventListener,
 	removeEventListeners,
-} from './util.js';
+} from './util';
 
 const renameAsync = promisify(fs.rename);
 const unlinkAsync = promisify(fs.unlink);

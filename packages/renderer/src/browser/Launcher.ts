@@ -18,8 +18,8 @@ import * as os from 'os';
 import * as path from 'path';
 
 import {promisify} from 'util';
-import {assert} from './assert.js';
-import {Browser} from './Browser.js';
+import {assert} from './assert';
+import {Browser} from './Browser';
 import {BrowserFetcher} from './BrowserFetcher';
 import {BrowserRunner} from './BrowserRunner';
 
@@ -31,7 +31,7 @@ import {
 	BrowserLaunchArgumentOptions,
 	ChromeReleaseChannel,
 	PuppeteerNodeLaunchOptions,
-} from './LaunchOptions.js';
+} from './LaunchOptions';
 
 import {Product} from './Product';
 
