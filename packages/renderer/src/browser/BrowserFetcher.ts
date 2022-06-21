@@ -23,11 +23,7 @@ import * as path from 'path';
 import * as util from 'util';
 
 import extractZip from 'extract-zip';
-import createHttpsProxyAgent, {
-	HttpsProxyAgent,
-	HttpsProxyAgentOptions,
-} from 'https-proxy-agent';
-import {getProxyForUrl} from 'proxy-from-env';
+
 import * as URL from 'url';
 import {promisify} from 'util';
 import {assert} from './assert';
@@ -618,12 +614,11 @@ function httpRequest(
 
 	type Options = Partial<URL.UrlWithStringQuery> & {
 		method?: string;
-		agent?: HttpsProxyAgent;
 		rejectUnauthorized?: boolean;
 		headers?: http.OutgoingHttpHeaders | undefined;
 	};
 
-	let options: Options = {
+	const options: Options = {
 		...urlParsed,
 		method,
 		headers: keepAlive
@@ -632,28 +627,6 @@ function httpRequest(
 			  }
 			: undefined,
 	};
-
-	const proxyURL = getProxyForUrl(url);
-	if (proxyURL) {
-		if (url.startsWith('http:')) {
-			const proxy = URL.parse(proxyURL);
-			options = {
-				path: options.href,
-				host: proxy.hostname,
-				port: proxy.port,
-			};
-		} else {
-			const parsedProxyURL = URL.parse(proxyURL);
-
-			const proxyOptions = {
-				...parsedProxyURL,
-				secureProxy: parsedProxyURL.protocol === 'https:',
-			} as HttpsProxyAgentOptions;
-
-			options.agent = createHttpsProxyAgent(proxyOptions);
-			options.rejectUnauthorized = false;
-		}
-	}
 
 	const requestCallback = (res: http.IncomingMessage): void => {
 		if (
