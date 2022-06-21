@@ -54,7 +54,7 @@ const puppeteerToProtocolLifecycle = new Map<
 	['networkidle2', 'networkAlmostIdle'],
 ]);
 
-const noop = (): void => {};
+const noop = (): void => undefined;
 
 /**
  * @internal
@@ -215,7 +215,7 @@ export class LifecycleWatcher {
 		const errorMessage =
 			'Navigation timeout of ' + this.#timeout + ' ms exceeded';
 		await new Promise((fulfill) => {
-			return (this.#maximumTimer = setTimeout(fulfill, this.#timeout));
+			this.#maximumTimer = setTimeout(fulfill, this.#timeout);
 		});
 		return new TimeoutError(errorMessage);
 	}
@@ -287,6 +287,8 @@ export class LifecycleWatcher {
 
 	dispose(): void {
 		removeEventListeners(this.#eventListeners);
-		this.#maximumTimer !== undefined && clearTimeout(this.#maximumTimer);
+		if (this.#maximumTimer !== undefined) {
+			clearTimeout(this.#maximumTimer);
+		}
 	}
 }

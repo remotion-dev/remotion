@@ -56,12 +56,6 @@ export default function mitt(all?: EventHandlerMap): Emitter {
 			}
 		},
 
-		/**
-		 * Remove an event handler for the given type.
-		 * @param {string|symbol} type Type of event to unregister `handler` from, or `"*"`
-		 * @param {Function} handler Handler function to remove
-		 * @memberOf mitt
-		 */
 		off<T = any>(type: EventType, handler: Handler<T>) {
 			const handlers = all?.get(type);
 			if (handlers) {
@@ -69,23 +63,15 @@ export default function mitt(all?: EventHandlerMap): Emitter {
 			}
 		},
 
-		/**
-		 * Invoke all handlers for the given type.
-		 * If present, `"*"` handlers are invoked after type-matched handlers.
-		 *
-		 * Note: Manually firing "*" handlers is not supported.
-		 *
-		 * @param {string|symbol} type The event type to invoke
-		 * @param {Any} [evt] Any value (object is recommended and powerful), passed to each handler
-		 * @memberOf mitt
-		 */
 		emit<T = any>(type: EventType, evt: T) {
-			((all?.get(type) || []) as EventHandlerList).slice().map((handler) => {
-				handler(evt);
-			});
+			((all?.get(type) || []) as EventHandlerList)
+				.slice()
+				.forEach((handler) => {
+					handler(evt);
+				});
 			((all?.get('*') || []) as WildCardEventHandlerList)
 				.slice()
-				.map((handler) => {
+				.forEach((handler) => {
 					handler(type, evt);
 				});
 		},
