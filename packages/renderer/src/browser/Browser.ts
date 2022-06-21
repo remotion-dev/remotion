@@ -22,7 +22,6 @@ import {EventEmitter} from './EventEmitter';
 import {Page} from './Page';
 import {Viewport} from './PuppeteerViewport';
 import {Target} from './Target';
-import {TaskQueue} from './TaskQueue';
 import {waitWithTimeout} from './util';
 
 /**
@@ -199,7 +198,6 @@ export class Browser extends EventEmitter {
 	#isPageTargetCallback!: IsPageTargetCallback;
 	#defaultContext: BrowserContext;
 	#contexts: Map<string, BrowserContext>;
-	#screenshotTaskQueue: TaskQueue;
 	#targets: Map<string, Target>;
 	#ignoredTargets = new Set<string>();
 
@@ -225,7 +223,6 @@ export class Browser extends EventEmitter {
 		super();
 		this.#defaultViewport = defaultViewport;
 		this.#process = process;
-		this.#screenshotTaskQueue = new TaskQueue();
 		this.#connection = connection;
 		this.#closeCallback =
 			closeCallback ||
@@ -378,7 +375,6 @@ export class Browser extends EventEmitter {
 				return this.#connection.createSession(targetInfo);
 			},
 			this.#defaultViewport ?? null,
-			this.#screenshotTaskQueue,
 			this.#isPageTargetCallback
 		);
 		assert(
