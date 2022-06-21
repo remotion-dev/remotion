@@ -23,13 +23,6 @@ import {
 	PredefinedNetworkConditions,
 } from './NetworkConditions';
 import {Product} from './Product';
-import {
-	CustomQueryHandler,
-	_clearCustomQueryHandlers,
-	_customQueryHandlerNames,
-	_registerCustomQueryHandler,
-	_unregisterCustomQueryHandler,
-} from './QueryHandler';
 
 /**
  * Settings that are common to the Puppeteer class, regardless of environment.
@@ -69,12 +62,6 @@ export class Puppeteer {
 		this._isPuppeteerCore = settings.isPuppeteerCore;
 
 		this.connect = this.connect.bind(this);
-		this.registerCustomQueryHandler =
-			this.registerCustomQueryHandler.bind(this);
-		this.unregisterCustomQueryHandler =
-			this.unregisterCustomQueryHandler.bind(this);
-		this.customQueryHandlerNames = this.customQueryHandlerNames.bind(this);
-		this.clearCustomQueryHandlers = this.clearCustomQueryHandlers.bind(this);
 	}
 
 	/**
@@ -163,47 +150,5 @@ export class Puppeteer {
 	 */
 	get networkConditions(): PredefinedNetworkConditions {
 		return networkConditions;
-	}
-
-	/**
-	 * Registers a {@link CustomQueryHandler | custom query handler}. After
-	 * registration, the handler can be used everywhere where a selector is
-	 * expected by prepending the selection string with `<name>/`. The name is
-	 * only allowed to consist of lower- and upper case latin letters.
-	 * @example
-	 * ```
-	 * puppeteer.registerCustomQueryHandler('text', { … });
-	 * const aHandle = await page.$('text/…');
-	 * ```
-	 * @param name - The name that the custom query handler will be registered under.
-	 * @param queryHandler - The {@link CustomQueryHandler | custom query handler} to
-	 * register.
-	 */
-	registerCustomQueryHandler(
-		name: string,
-		queryHandler: CustomQueryHandler
-	): void {
-		_registerCustomQueryHandler(name, queryHandler);
-	}
-
-	/**
-	 * @param name - The name of the query handler to unregistered.
-	 */
-	unregisterCustomQueryHandler(name: string): void {
-		_unregisterCustomQueryHandler(name);
-	}
-
-	/**
-	 * @returns a list with the names of all registered custom query handlers.
-	 */
-	customQueryHandlerNames(): string[] {
-		return _customQueryHandlerNames();
-	}
-
-	/**
-	 * Clears all registered handlers.
-	 */
-	clearCustomQueryHandlers(): void {
-		_clearCustomQueryHandlers();
 	}
 }

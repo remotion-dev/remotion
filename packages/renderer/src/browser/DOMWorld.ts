@@ -24,14 +24,11 @@ import {
 	EvaluateHandleFn,
 	SerializableOrJSHandle,
 	UnwrapPromiseLike,
-	WrapElementHandle,
 } from './EvalTypes';
 import {ExecutionContext} from './ExecutionContext';
 import {Frame, FrameManager} from './FrameManager';
-import {MouseButton} from './Input';
 import {ElementHandle, JSHandle} from './JSHandle';
 import {LifecycleWatcher, PuppeteerLifeCycleEvent} from './LifecycleWatcher';
-import {_getQueryHandlerAndSelector} from './QueryHandler';
 import {TimeoutSettings} from './TimeoutSettings';
 import {
 	debugError,
@@ -205,14 +202,6 @@ export class DOMWorld {
 		);
 	}
 
-	async $<T extends Element = Element>(
-		selector: string
-	): Promise<ElementHandle<T> | null> {
-		const document = await this._document();
-		const value = await document.$<T>(selector);
-		return value;
-	}
-
 	/**
 	 * @internal
 	 */
@@ -236,43 +225,6 @@ export class DOMWorld {
 	async $x(expression: string): Promise<ElementHandle[]> {
 		const document = await this._document();
 		const value = await document.$x(expression);
-		return value;
-	}
-
-	async $eval<ReturnType>(
-		selector: string,
-		pageFunction: (
-			element: Element,
-			...args: unknown[]
-		) => ReturnType | Promise<ReturnType>,
-		...args: SerializableOrJSHandle[]
-	): Promise<WrapElementHandle<ReturnType>> {
-		const document = await this._document();
-		return document.$eval<ReturnType>(selector, pageFunction, ...args);
-	}
-
-	async $$eval<ReturnType>(
-		selector: string,
-		pageFunction: (
-			elements: Element[],
-			...args: unknown[]
-		) => ReturnType | Promise<ReturnType>,
-		...args: SerializableOrJSHandle[]
-	): Promise<WrapElementHandle<ReturnType>> {
-		const document = await this._document();
-		const value = await document.$$eval<ReturnType>(
-			selector,
-			pageFunction,
-			...args
-		);
-		return value;
-	}
-
-	async $$<T extends Element = Element>(
-		selector: string
-	): Promise<Array<ElementHandle<T>>> {
-		const document = await this._document();
-		const value = await document.$$<T>(selector);
 		return value;
 	}
 
@@ -566,66 +518,6 @@ export class DOMWorld {
 			await promise;
 			return style;
 		}
-	}
-
-	async click(
-		selector: string,
-		options: {delay?: number; button?: MouseButton; clickCount?: number}
-	): Promise<void> {
-		const handle = await this.$(selector);
-		assert(handle, `No element found for selector: ${selector}`);
-		await handle.click(options);
-		await handle.dispose();
-	}
-
-	async focus(selector: string): Promise<void> {
-		const handle = await this.$(selector);
-		assert(handle, `No element found for selector: ${selector}`);
-		await handle.focus();
-		await handle.dispose();
-	}
-
-	async hover(selector: string): Promise<void> {
-		const handle = await this.$(selector);
-		assert(handle, `No element found for selector: ${selector}`);
-		await handle.hover();
-		await handle.dispose();
-	}
-
-	async select(selector: string, ...values: string[]): Promise<string[]> {
-		const handle = await this.$(selector);
-		assert(handle, `No element found for selector: ${selector}`);
-		const result = await handle.select(...values);
-		await handle.dispose();
-		return result;
-	}
-
-	async tap(selector: string): Promise<void> {
-		const handle = await this.$(selector);
-		assert(handle, `No element found for selector: ${selector}`);
-		await handle.tap();
-		await handle.dispose();
-	}
-
-	async type(
-		selector: string,
-		text: string,
-		options?: {delay: number}
-	): Promise<void> {
-		const handle = await this.$(selector);
-		assert(handle, `No element found for selector: ${selector}`);
-		await handle.type(text, options);
-		await handle.dispose();
-	}
-
-	async waitForSelector(
-		selector: string,
-		options: WaitForSelectorOptions
-	): Promise<ElementHandle | null> {
-		const {updatedSelector, queryHandler} =
-			_getQueryHandlerAndSelector(selector);
-		assert(queryHandler.waitFor, 'Query handler does not support waiting');
-		return queryHandler.waitFor(this, updatedSelector, options);
 	}
 
 	// If multiple waitFor are set up asynchronously, we need to wait for the
