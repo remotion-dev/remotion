@@ -1009,21 +1009,6 @@ export class Frame {
 	}
 
 	/**
-	 * Adds a `<script>` tag into the page with the desired url or content.
-	 *
-	 * @param options - configure the script to add to the page.
-	 *
-	 * @returns a promise that resolves to the added tag when the script's
-	 * `onload` event fires or when the script content was injected into the
-	 * frame.
-	 */
-	async addScriptTag(
-		options: FrameAddScriptTagOptions
-	): Promise<ElementHandle> {
-		return this._mainWorld.addScriptTag(options);
-	}
-
-	/**
 	 * Adds a `<link rel="stylesheet">` tag into the page with the desired url or
 	 * a `<style type="text/css">` tag with the content.
 	 *

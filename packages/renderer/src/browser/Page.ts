@@ -1165,23 +1165,6 @@ export class Page extends EventEmitter {
 	}
 
 	/**
-	 * Adds a `<script>` tag into the page with the desired URL or content.
-	 * @remarks
-	 * Shortcut for {@link Frame.addScriptTag | page.mainFrame().addScriptTag(options) }.
-	 * @returns Promise which resolves to the added tag when the script's onload fires or
-	 * when the script content was injected into frame.
-	 */
-	async addScriptTag(options: {
-		url?: string;
-		path?: string;
-		content?: string;
-		type?: string;
-		id?: string;
-	}): Promise<ElementHandle> {
-		return this.mainFrame().addScriptTag(options);
-	}
-
-	/**
 	 * Adds a `<link rel="stylesheet">` tag into the page with the desired URL or a
 	 * `<style type="text/css">` tag with the content.
 	 * @returns Promise which resolves to the added tag when the stylesheet's
