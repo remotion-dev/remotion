@@ -17,15 +17,14 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
-import {promisify} from 'util';
 import {assert} from './assert';
 import {Browser} from './Browser';
 import {BrowserFetcher} from './BrowserFetcher';
 import {BrowserRunner} from './BrowserRunner';
 
-const copyFileAsync = promisify(fs.copyFile);
-const mkdtempAsync = promisify(fs.mkdtemp);
-const writeFileAsync = promisify(fs.writeFile);
+const copyFileAsync = fs.promises.copyFile;
+const mkdtempAsync = fs.promises.mkdtemp;
+const writeFileAsync = fs.promises.writeFile;
 
 import {
 	BrowserLaunchArgumentOptions,
