@@ -41,7 +41,6 @@ import {Viewport} from './PuppeteerViewport';
 import {Target} from './Target';
 import {TaskQueue} from './TaskQueue';
 import {TimeoutSettings} from './TimeoutSettings';
-import {Tracing} from './Tracing';
 import {
 	debugError,
 	evaluationString,
@@ -434,7 +433,6 @@ export class Page extends EventEmitter {
 	#touchscreen: Touchscreen;
 	#frameManager: FrameManager;
 	#emulationManager: EmulationManager;
-	#tracing: Tracing;
 	#pageBindings = new Map<string, Function>();
 	#javascriptEnabled = true;
 	#viewport: Viewport | null;
@@ -469,7 +467,6 @@ export class Page extends EventEmitter {
 			this.#timeoutSettings
 		);
 		this.#emulationManager = new EmulationManager(client);
-		this.#tracing = new Tracing(client);
 		this.screenshotTaskQueue = screenshotTaskQueue;
 		this.#viewport = null;
 
@@ -799,10 +796,6 @@ export class Page extends EventEmitter {
 
 	get touchscreen(): Touchscreen {
 		return this.#touchscreen;
-	}
-
-	get tracing(): Tracing {
-		return this.#tracing;
 	}
 
 	/**
