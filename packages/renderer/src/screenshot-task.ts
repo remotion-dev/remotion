@@ -39,5 +39,5 @@ export const _screenshotTask = async (
 
 	if (options.path) await fs.promises.writeFile(options.path, result.data);
 	Internals.perf.stopPerfMeasure(saveMarker);
-	return result.data;
+	return Buffer.from(result.data, 'base64');
 };
