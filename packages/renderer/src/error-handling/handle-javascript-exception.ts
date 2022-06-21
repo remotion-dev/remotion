@@ -80,7 +80,7 @@ export const handleJavascriptException = ({
 }) => {
 	const client = page._client();
 
-	const handler = async (exception: Protocol.Runtime.ExceptionThrownEvent) => {
+	const handler = (exception: Protocol.Runtime.ExceptionThrownEvent) => {
 		const rawErrorMessage = exception.exceptionDetails.exception
 			?.description as string;
 		const cleanErrorMessage = cleanUpErrorMessage(exception);

@@ -1,8 +1,9 @@
 import fs from 'fs';
-import {downloadBrowser} from 'puppeteer-core/lib/cjs/puppeteer/node/install';
-import {PUPPETEER_REVISIONS} from 'puppeteer-core/lib/cjs/puppeteer/revisions';
 import {Browser, BrowserExecutable} from 'remotion';
+import {downloadBrowser} from './browser/create-browser-fetcher';
+import {puppeteer} from './browser/node';
 import {Product} from './browser/Product';
+import {PUPPETEER_REVISIONS} from './browser/revisions';
 
 const getSearchPathsForProduct = (product: Product) => {
 	if (product === 'chrome') {
@@ -32,9 +33,9 @@ const getSearchPathsForProduct = (product: Product) => {
 	throw new TypeError(`Unknown browser product: ${product}`);
 };
 
-const mapBrowserToProduct = (browser: Browser): puppeteer.Product => browser;
+const mapBrowserToProduct = (browser: Browser): Product => browser;
 
-const getLocalBrowser = (product: puppeteer.Product) => {
+const getLocalBrowser = (product: Product) => {
 	for (const p of getSearchPathsForProduct(product)) {
 		if (fs.existsSync(p)) {
 			return p;
@@ -44,9 +45,7 @@ const getLocalBrowser = (product: puppeteer.Product) => {
 	return null;
 };
 
-const getBrowserRevision = (
-	product: Product
-): puppeteer.BrowserFetcherRevisionInfo => {
+const getBrowserRevision = (product: Product) => {
 	const browserFetcher = puppeteer.createBrowserFetcher({
 		product,
 	});
@@ -77,7 +76,7 @@ type BrowserStatus =
 	  };
 
 const getBrowserStatus = (
-	product: puppeteer.Product,
+	product: Product,
 	browserExecutablePath: BrowserExecutable
 ): BrowserStatus => {
 	if (browserExecutablePath) {
