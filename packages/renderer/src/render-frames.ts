@@ -14,7 +14,7 @@ import {
 	RenderMediaOnDownload,
 } from './assets/download-and-map-assets-to-file';
 import {BrowserLog} from './browser-log';
-import {Browser as PuppeteerBrowser} from './browser/Browser';
+import {Browser as PuppeteerBrowser, BrowserContext} from './browser/Browser';
 import {ConsoleMessage} from './browser/ConsoleMessage';
 import {Page} from './browser/Page';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
@@ -88,10 +88,15 @@ const getComposition = (others: ConfigOrComposition) => {
 	return undefined;
 };
 
-const getPool = async (pages: Promise<Page>[]) => {
+const getPool = async (pages: Promise<PageAndContext>[]) => {
 	const puppeteerPages = await Promise.all(pages);
 	const pool = new Pool(puppeteerPages);
 	return pool;
+};
+
+type PageAndContext = {
+	page: Page;
+	context: BrowserContext;
 };
 
 const innerRenderFrames = ({
@@ -119,7 +124,7 @@ const innerRenderFrames = ({
 	cancelSignal,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
 	onError: (err: Error) => void;
-	pagesArray: Page[];
+	pagesArray: BrowserContext[];
 	serveUrl: string;
 	composition: SmallTCompMetadata;
 	actualParallelism: number;
@@ -152,8 +157,9 @@ const innerRenderFrames = ({
 	);
 
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
-		const page = await puppeteerInstance.newPage();
-		pagesArray.push(page);
+		const context = await puppeteerInstance.createIncognitoBrowserContext();
+		const page = await context.newPage();
+		pagesArray.push(context);
 		await page.setViewport({
 			width: composition.width,
 			height: composition.height,
@@ -203,7 +209,7 @@ const innerRenderFrames = ({
 		});
 
 		page.off('console', logCallback);
-		return page;
+		return {page, context};
 	});
 
 	const [firstFrameIndex, lastFrameIndex] = realFrameRange;
@@ -229,7 +235,7 @@ const innerRenderFrames = ({
 			.map(async (index) => {
 				const frame = realFrameRange[0] + index;
 				const pool = await poolPromise;
-				const freePage = await pool.acquire();
+				const freeContext = await pool.acquire();
 				if (stopped) {
 					throw new Error('Render was stopped');
 				}
@@ -241,18 +247,18 @@ const innerRenderFrames = ({
 				};
 
 				const cleanupPageError = handleJavascriptException({
-					page: freePage,
+					page: freeContext.page,
 					onError: errorCallbackOnFrame,
 					frame,
 				});
-				freePage.on('error', errorCallbackOnFrame);
-				await seekToFrame({frame, page: freePage});
+				freeContext.page.on('error', errorCallbackOnFrame);
+				await seekToFrame({frame, page: freeContext.page});
 
 				if (imageFormat !== 'none') {
 					if (onFrameBuffer) {
 						const id = Internals.perf.startPerfMeasure('save');
 						const buffer = await provideScreenshot({
-							page: freePage,
+							page: freeContext.page,
 							imageFormat,
 							quality,
 							options: {
@@ -275,7 +281,7 @@ const innerRenderFrames = ({
 							`element-${paddedIndex}.${imageFormat}`
 						);
 						await provideScreenshot({
-							page: freePage,
+							page: freeContext.page,
 							imageFormat,
 							quality,
 							options: {
@@ -292,8 +298,9 @@ const innerRenderFrames = ({
 					},
 					args: [],
 					frame,
-					page: freePage,
+					page: freeContext.page,
 				});
+				pool.release(freeContext);
 				const compressedAssets = collectedAssets.map((asset) =>
 					Internals.AssetCompression.compressAsset(
 						assets.filter(Internals.truthy).flat(1),
@@ -314,11 +321,10 @@ const innerRenderFrames = ({
 						);
 					});
 				});
-				pool.release(freePage);
 				framesRendered++;
 				onFrameUpdate(framesRendered, frame);
 				cleanupPageError();
-				freePage.off('error', errorCallbackOnFrame);
+				freeContext.page.off('error', errorCallbackOnFrame);
 				return compressedAssets;
 			})
 	);
@@ -403,7 +409,7 @@ export const renderFrames = (
 
 	const actualParallelism = getActualConcurrency(options.parallelism ?? null);
 
-	const openedPages: Page[] = [];
+	const openedPages: BrowserContext[] = [];
 
 	return new Promise<RenderFramesOutput>((resolve, reject) => {
 		const cleanup: CleanupFn[] = [];
