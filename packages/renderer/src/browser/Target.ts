@@ -28,7 +28,6 @@ export class Target {
 	#browserContext: BrowserContext;
 	#targetInfo: Protocol.Target.TargetInfo;
 	#sessionFactory: () => Promise<CDPSession>;
-	#ignoreHTTPSErrors: boolean;
 	#defaultViewport: Viewport;
 	#pagePromise?: Promise<Page>;
 	#screenshotTaskQueue: TaskQueue;
@@ -69,7 +68,6 @@ export class Target {
 		targetInfo: Protocol.Target.TargetInfo,
 		browserContext: BrowserContext,
 		sessionFactory: () => Promise<CDPSession>,
-		ignoreHTTPSErrors: boolean,
 		defaultViewport: Viewport,
 		screenshotTaskQueue: TaskQueue,
 		isPageTargetCallback: IsPageTargetCallback
@@ -78,7 +76,6 @@ export class Target {
 		this.#browserContext = browserContext;
 		this._targetId = targetInfo.targetId;
 		this.#sessionFactory = sessionFactory;
-		this.#ignoreHTTPSErrors = ignoreHTTPSErrors;
 		this.#defaultViewport = defaultViewport;
 		this.#screenshotTaskQueue = screenshotTaskQueue;
 		this._isPageTargetCallback = isPageTargetCallback;
@@ -137,7 +134,6 @@ export class Target {
 				return Page._create(
 					client,
 					this,
-					this.#ignoreHTTPSErrors,
 					this.#defaultViewport ?? null,
 					this.#screenshotTaskQueue
 				);

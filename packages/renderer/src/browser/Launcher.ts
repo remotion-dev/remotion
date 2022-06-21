@@ -79,7 +79,6 @@ class ChromeLauncher implements ProductLauncher {
 			handleSIGINT = true,
 			handleSIGTERM = true,
 			handleSIGHUP = true,
-			ignoreHTTPSErrors = false,
 			defaultViewport,
 			slowMo = 0,
 			timeout = 30000,
@@ -181,7 +180,6 @@ class ChromeLauncher implements ProductLauncher {
 			browser = await Browser._create(
 				connection,
 				[],
-				ignoreHTTPSErrors,
 				defaultViewport,
 				runner.proc,
 				runner.close.bind(runner)
@@ -317,7 +315,6 @@ class FirefoxLauncher implements ProductLauncher {
 			handleSIGINT = true,
 			handleSIGTERM = true,
 			handleSIGHUP = true,
-			ignoreHTTPSErrors = false,
 			defaultViewport,
 			slowMo = 0,
 			timeout = 30000,
@@ -413,7 +410,6 @@ class FirefoxLauncher implements ProductLauncher {
 			browser = await Browser._create(
 				connection,
 				[],
-				ignoreHTTPSErrors,
 				defaultViewport,
 				runner.proc,
 				runner.close.bind(runner)

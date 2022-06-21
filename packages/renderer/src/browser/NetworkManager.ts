@@ -74,20 +74,14 @@ interface FrameManager {
  */
 export class NetworkManager extends EventEmitter {
 	#client: CDPSession;
-	#ignoreHTTPSErrors: boolean;
 	#frameManager: FrameManager;
 	#networkEventManager = new NetworkEventManager();
 	#extraHTTPHeaders: Record<string, string> = {};
 	#credentials?: Credentials;
 	#attemptedAuthentications = new Set<string>();
-	constructor(
-		client: CDPSession,
-		ignoreHTTPSErrors: boolean,
-		frameManager: FrameManager
-	) {
+	constructor(client: CDPSession, frameManager: FrameManager) {
 		super();
 		this.#client = client;
-		this.#ignoreHTTPSErrors = ignoreHTTPSErrors;
 		this.#frameManager = frameManager;
 
 		this.#client.on('Fetch.requestPaused', this.#onRequestPaused.bind(this));
@@ -117,11 +111,6 @@ export class NetworkManager extends EventEmitter {
 
 	async initialize(): Promise<void> {
 		await this.#client.send('Network.enable');
-		if (this.#ignoreHTTPSErrors) {
-			await this.#client.send('Security.setIgnoreCertificateErrors', {
-				ignore: true,
-			});
-		}
 	}
 
 	async setExtraHTTPHeaders(

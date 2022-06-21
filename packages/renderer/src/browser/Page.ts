@@ -359,16 +359,10 @@ export class Page extends EventEmitter {
 	static async _create(
 		client: CDPSession,
 		target: Target,
-		ignoreHTTPSErrors: boolean,
 		defaultViewport: Viewport | null,
 		screenshotTaskQueue: TaskQueue
 	): Promise<Page> {
-		const page = new Page(
-			client,
-			target,
-			ignoreHTTPSErrors,
-			screenshotTaskQueue
-		);
+		const page = new Page(client, target, screenshotTaskQueue);
 		await page.#initialize();
 		if (defaultViewport) {
 			await page.setViewport(defaultViewport);
@@ -395,18 +389,12 @@ export class Page extends EventEmitter {
 	constructor(
 		client: CDPSession,
 		target: Target,
-		ignoreHTTPSErrors: boolean,
 		screenshotTaskQueue: TaskQueue
 	) {
 		super();
 		this.#client = client;
 		this.#target = target;
-		this.#frameManager = new FrameManager(
-			client,
-			this,
-			ignoreHTTPSErrors,
-			this.#timeoutSettings
-		);
+		this.#frameManager = new FrameManager(client, this, this.#timeoutSettings);
 		this.#emulationManager = new EmulationManager(client);
 		this.screenshotTaskQueue = screenshotTaskQueue;
 

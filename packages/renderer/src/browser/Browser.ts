@@ -220,7 +220,6 @@ export class Browser extends EventEmitter {
 	static async _create(
 		connection: Connection,
 		contextIds: string[],
-		ignoreHTTPSErrors: boolean,
 		defaultViewport: Viewport,
 		process?: ChildProcess,
 		closeCallback?: BrowserCloseCallback,
@@ -230,7 +229,6 @@ export class Browser extends EventEmitter {
 		const browser = new Browser(
 			connection,
 			contextIds,
-			ignoreHTTPSErrors,
 			defaultViewport,
 			process,
 			closeCallback,
@@ -241,7 +239,6 @@ export class Browser extends EventEmitter {
 		return browser;
 	}
 
-	#ignoreHTTPSErrors: boolean;
 	#defaultViewport: Viewport;
 	#process?: ChildProcess;
 	#connection: Connection;
@@ -267,7 +264,6 @@ export class Browser extends EventEmitter {
 	constructor(
 		connection: Connection,
 		contextIds: string[],
-		ignoreHTTPSErrors: boolean,
 		defaultViewport: Viewport,
 		process?: ChildProcess,
 		closeCallback?: BrowserCloseCallback,
@@ -275,7 +271,6 @@ export class Browser extends EventEmitter {
 		isPageTargetCallback?: IsPageTargetCallback
 	) {
 		super();
-		this.#ignoreHTTPSErrors = ignoreHTTPSErrors;
 		this.#defaultViewport = defaultViewport;
 		this.#process = process;
 		this.#screenshotTaskQueue = new TaskQueue();
@@ -437,7 +432,6 @@ export class Browser extends EventEmitter {
 			() => {
 				return this.#connection.createSession(targetInfo);
 			},
-			this.#ignoreHTTPSErrors,
 			this.#defaultViewport ?? null,
 			this.#screenshotTaskQueue,
 			this.#isPageTargetCallback
