@@ -72,7 +72,6 @@ export async function _connectToBrowser(
 	const {
 		browserWSEndpoint,
 		browserURL,
-		ignoreHTTPSErrors = false,
 		defaultViewport = {width: 800, height: 600, deviceScaleFactor: 1},
 		transport,
 		slowMo = 0,
@@ -106,7 +105,6 @@ export async function _connectToBrowser(
 	return Browser._create(
 		connection,
 		browserContextIds,
-		ignoreHTTPSErrors,
 		defaultViewport,
 		undefined,
 		() => {

@@ -86,13 +86,12 @@ export class FrameManager extends EventEmitter {
 	constructor(
 		client: CDPSession,
 		page: Page,
-		ignoreHTTPSErrors: boolean,
 		timeoutSettings: TimeoutSettings
 	) {
 		super();
 		this.#client = client;
 		this.#page = page;
-		this.#networkManager = new NetworkManager(client, ignoreHTTPSErrors, this);
+		this.#networkManager = new NetworkManager(client,  this);
 		this.#timeoutSettings = timeoutSettings;
 		this.setupEventListeners(this.#client);
 	}
