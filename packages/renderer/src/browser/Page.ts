@@ -28,11 +28,10 @@ import {
 	UnwrapPromiseLike,
 } from './EvalTypes';
 import {EventEmitter} from './EventEmitter';
-import {Frame, FrameManager, FrameManagerEmittedEvents} from './FrameManager';
+import {Frame, FrameManager} from './FrameManager';
 import {HTTPResponse} from './HTTPResponse';
 import {JSHandle, _createJSHandle} from './JSHandle';
 import {PuppeteerLifeCycleEvent} from './LifecycleWatcher';
-import {NetworkManagerEmittedEvents} from './NetworkManager';
 import {Viewport} from './PuppeteerViewport';
 import {Target} from './Target';
 import {TaskQueue} from './TaskQueue';
@@ -40,7 +39,6 @@ import {TimeoutSettings} from './TimeoutSettings';
 import {
 	debugError,
 	evaluationString,
-	getExceptionMessage,
 	isErrorLike,
 	pageBindingDeliverErrorString,
 	pageBindingDeliverErrorValueString,
@@ -129,104 +127,6 @@ export interface ScreenshotOptions {
 export const enum PageEmittedEvents {
 	Console = 'console',
 	Error = 'error',
-	/** Emitted when a frame is attached. Will contain a {@link Frame}. */
-	FrameAttached = 'frameattached',
-	/** Emitted when a frame is detached. Will contain a {@link Frame}. */
-	FrameDetached = 'framedetached',
-	/** Emitted when a frame is navigated to a new URL. Will contain a {@link Frame}. */
-	FrameNavigated = 'framenavigated',
-	/**
-	 * Emitted when the JavaScript
-	 * {@link https://developer.mozilla.org/en-US/docs/Web/Events/load | load}
-	 * event is dispatched.
-	 */
-	Load = 'load',
-	/**
-	 * Emitted when the JavaScript code makes a call to `console.timeStamp`. For
-	 * the list of metrics see {@link Page.metrics | page.metrics}.
-	 *
-	 * @remarks
-	 * Contains an object with two properties:
-	 * - `title`: the title passed to `console.timeStamp`
-	 * - `metrics`: objec containing metrics as key/value pairs. The values will
-	 *   be `number`s.
-	 */
-	Metrics = 'metrics',
-	/**
-	 * Emitted when an uncaught exception happens within the page.
-	 * Contains an `Error`.
-	 */
-	PageError = 'pageerror',
-	/**
-	 * Emitted when the page opens a new tab or window.
-	 *
-	 * Contains a {@link Page} corresponding to the popup window.
-	 *
-	 * @example
-	 *
-	 * ```js
-	 * const [popup] = await Promise.all([
-	 *   new Promise(resolve => page.once('popup', resolve)),
-	 *   page.click('a[target=_blank]'),
-	 * ]);
-	 * ```
-	 *
-	 * ```js
-	 * const [popup] = await Promise.all([
-	 *   new Promise(resolve => page.once('popup', resolve)),
-	 *   page.evaluate(() => window.open('https://example.com')),
-	 * ]);
-	 * ```
-	 */
-	Popup = 'popup',
-	/**
-	 * Emitted when a page issues a request and contains a {@link HTTPRequest}.
-	 *
-	 * @remarks
-	 * The object is readonly. See {@link Page.setRequestInterception} for intercepting
-	 * and mutating requests.
-	 */
-	Request = 'request',
-	/**
-	 * Emitted when a request ended up loading from cache. Contains a {@link HTTPRequest}.
-	 *
-	 * @remarks
-	 * For certain requests, might contain undefined.
-	 * {@link https://crbug.com/750469}
-	 */
-	RequestServedFromCache = 'requestservedfromcache',
-	/**
-	 * Emitted when a request fails, for example by timing out.
-	 *
-	 * Contains a {@link HTTPRequest}.
-	 *
-	 * @remarks
-	 *
-	 * NOTE: HTTP Error responses, such as 404 or 503, are still successful
-	 * responses from HTTP standpoint, so request will complete with
-	 * `requestfinished` event and not with `requestfailed`.
-	 */
-	RequestFailed = 'requestfailed',
-	/**
-	 * Emitted when a request finishes successfully. Contains a {@link HTTPRequest}.
-	 */
-	RequestFinished = 'requestfinished',
-	/**
-	 * Emitted when a response is received. Contains a {@link HTTPResponse}.
-	 */
-	Response = 'response',
-	/**
-	 * Emitted when a dedicated
-	 * {@link https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API | WebWorker}
-	 * is spawned by the page.
-	 */
-	WorkerCreated = 'workercreated',
-	/**
-	 * Emitted when a dedicated
-	 * {@link https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API | WebWorker}
-	 * is destroyed by the page.
-	 */
-	WorkerDestroyed = 'workerdestroyed',
 }
 
 interface PageEventObject {
@@ -294,47 +194,11 @@ export class Page extends EventEmitter {
 			}
 		);
 
-		this.#frameManager.on(FrameManagerEmittedEvents.FrameAttached, (event) => {
-			return this.emit(PageEmittedEvents.FrameAttached, event);
-		});
-		this.#frameManager.on(FrameManagerEmittedEvents.FrameDetached, (event) => {
-			return this.emit(PageEmittedEvents.FrameDetached, event);
-		});
-		this.#frameManager.on(FrameManagerEmittedEvents.FrameNavigated, (event) => {
-			return this.emit(PageEmittedEvents.FrameNavigated, event);
-		});
-
-		const networkManager = this.#frameManager.networkManager();
-		networkManager.on(NetworkManagerEmittedEvents.Request, (event) => {
-			return this.emit(PageEmittedEvents.Request, event);
-		});
-		networkManager.on(
-			NetworkManagerEmittedEvents.RequestServedFromCache,
-			(event) => {
-				return this.emit(PageEmittedEvents.RequestServedFromCache, event);
-			}
-		);
-		networkManager.on(NetworkManagerEmittedEvents.Response, (event) => {
-			return this.emit(PageEmittedEvents.Response, event);
-		});
-		networkManager.on(NetworkManagerEmittedEvents.RequestFailed, (event) => {
-			return this.emit(PageEmittedEvents.RequestFailed, event);
-		});
-		networkManager.on(NetworkManagerEmittedEvents.RequestFinished, (event) => {
-			return this.emit(PageEmittedEvents.RequestFinished, event);
-		});
-
-		client.on('Page.loadEventFired', () => {
-			return this.emit(PageEmittedEvents.Load);
-		});
 		client.on('Runtime.consoleAPICalled', (event) => {
 			return this.#onConsoleAPI(event);
 		});
 		client.on('Runtime.bindingCalled', (event) => {
 			return this.#onBindingCalled(event);
-		});
-		client.on('Runtime.exceptionThrown', (exception) => {
-			return this.#handleException(exception.exceptionDetails);
 		});
 		client.on('Inspector.targetCrashed', () => {
 			return this.#onTargetCrashed();
@@ -537,13 +401,6 @@ export class Page extends EventEmitter {
 	): Promise<HandlerType> {
 		const context = await this.mainFrame().executionContext();
 		return context.evaluateHandle<HandlerType>(pageFunction, ...args);
-	}
-
-	#handleException(exceptionDetails: Protocol.Runtime.ExceptionDetails): void {
-		const message = getExceptionMessage(exceptionDetails);
-		const err = new Error(message);
-		err.stack = ''; // Don't report clientside error with a node stack attached
-		this.emit(PageEmittedEvents.PageError, err);
 	}
 
 	async #onConsoleAPI(
