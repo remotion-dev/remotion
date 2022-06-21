@@ -17,11 +17,8 @@
 import {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
 import {CDPSession} from './Connection';
-import {debug} from './Debug';
 import {TimeoutError} from './Errors';
 import {CommonEventEmitter} from './EventEmitter';
-
-export const debugError = debug('puppeteer:error');
 
 export function getExceptionMessage(
 	exceptionDetails: Protocol.Runtime.ExceptionDetails
@@ -88,10 +85,9 @@ export async function releaseObject(
 
 	await client
 		.send('Runtime.releaseObject', {objectId: remoteObject.objectId})
-		.catch((error) => {
+		.catch(() => {
 			// Exceptions might happen in case of a page been navigated or closed.
 			// Swallow these since they are harmless and we don't leak anything in this case.
-			debugError(error);
 		});
 }
 

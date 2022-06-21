@@ -27,7 +27,6 @@ import extractZip from 'extract-zip';
 import * as URL from 'url';
 import {promisify} from 'util';
 import {assert} from './assert';
-import {debug} from './Debug';
 import {Product} from './Product';
 
 import tar from 'tar-fs';
@@ -35,8 +34,6 @@ import bzip from 'unbzip2-stream';
 import {deleteDirectory} from '../delete-directory';
 
 const {PUPPETEER_EXPERIMENTAL_CHROMIUM_MAC_ARM} = process.env;
-
-const debugFetcher = debug('puppeteer:fetcher');
 
 const downloadURLs: Record<Product, Partial<Record<Platform, string>>> = {
 	chrome: {
@@ -429,7 +426,7 @@ export class BrowserFetcher {
 			revision
 		);
 		const local = fs.existsSync(folderPath);
-		debugFetcher({
+		console.log({
 			revision,
 			executablePath,
 			folderPath,
@@ -475,7 +472,6 @@ function _downloadFile(
 	destinationPath: string,
 	progressCallback: (x: number, y: number) => void
 ): Promise<void> {
-	debugFetcher(`Downloading binary from ${url}`);
 	let fulfill: (value: void | PromiseLike<void>) => void;
 	let reject: (err: Error) => void;
 	const promise = new Promise<void>((x, y) => {
@@ -520,7 +516,6 @@ function _downloadFile(
 }
 
 function install(archivePath: string, folderPath: string): Promise<unknown> {
-	debugFetcher(`Installing ${archivePath} to ${folderPath}`);
 	if (archivePath.endsWith('.zip')) {
 		return extractZip(archivePath, {dir: folderPath});
 	}
@@ -574,7 +569,6 @@ function _installDMG(dmgPath: string, folderPath: string): Promise<void> {
 					}
 
 					const copyPath = path.join(mountPath as string, appName);
-					debugFetcher(`Copying ${copyPath} to ${folderPath}`);
 					childProcess.exec(`cp -R "${copyPath}" "${folderPath}"`, (_err) => {
 						if (_err) {
 							reject(_err);
@@ -595,7 +589,6 @@ function _installDMG(dmgPath: string, folderPath: string): Promise<void> {
 			}
 
 			const unmountCommand = `hdiutil detach "${mountPath}" -quiet`;
-			debugFetcher(`Unmounting ${mountPath}`);
 			childProcess.exec(unmountCommand, (err) => {
 				if (err) {
 					console.error(`Error unmounting dmg: ${err}`);

@@ -33,7 +33,7 @@ import {LifecycleWatcher, PuppeteerLifeCycleEvent} from './LifecycleWatcher';
 import {NetworkManager} from './NetworkManager';
 import {Page} from './Page';
 import {TimeoutSettings} from './TimeoutSettings';
-import {debugError, isErrorLike} from './util';
+import {isErrorLike} from './util';
 
 const UTILITY_WORLD_NAME = '__puppeteer_utility_world__';
 
@@ -415,7 +415,7 @@ export class FrameManager extends EventEmitter {
 							worldName: name,
 							grantUniveralAccess: true,
 						})
-						.catch(debugError);
+						.catch(() => undefined);
 				})
 		);
 	}

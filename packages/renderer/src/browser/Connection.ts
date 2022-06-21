@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 import {assert} from './assert';
-import {debug} from './Debug';
-const debugProtocolSend = debug('puppeteer:protocol:SEND ►');
-const debugProtocolReceive = debug('puppeteer:protocol:RECV ◀');
 
 import {Protocol} from 'devtools-protocol';
 import {ProtocolMapping} from 'devtools-protocol/types/protocol-mapping';
@@ -97,13 +94,11 @@ export class Connection extends EventEmitter {
 	_rawSend(message: Record<string, unknown>): number {
 		const id = ++this.#lastId;
 		const stringifiedMessage = JSON.stringify({...message, id});
-		debugProtocolSend(stringifiedMessage);
 		this.#transport.send(stringifiedMessage);
 		return id;
 	}
 
 	#onMessage(message: string): void {
-		debugProtocolReceive(message);
 		const object = JSON.parse(message);
 		if (object.method === 'Target.attachedToTarget') {
 			const {sessionId} = object.params;
