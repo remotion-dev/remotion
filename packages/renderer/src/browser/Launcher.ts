@@ -117,7 +117,10 @@ class ChromeLauncher implements ProductLauncher {
 			userDataDirIndex = chromeArguments.length - 1;
 		}
 
-		const userDataDir = chromeArguments[userDataDirIndex]!.split('=', 2)[1];
+		const userDataDir = (chromeArguments[userDataDirIndex] as string).split(
+			'=',
+			2
+		)[1];
 		assert(typeof userDataDir === 'string', '`--user-data-dir` is malformed');
 
 		isTempUserDataDir = false;
@@ -132,12 +135,12 @@ class ChromeLauncher implements ProductLauncher {
 
 			chromeExecutable = executablePathForChannel(channel);
 		} else if (!chromeExecutable) {
-			const {missingText, executablePath} = resolveExecutablePath(this);
+			const {missingText, executablePath: exPath} = resolveExecutablePath(this);
 			if (missingText) {
 				throw new Error(missingText);
 			}
 
-			chromeExecutable = executablePath;
+			chromeExecutable = exPath;
 		}
 
 		const runner = new BrowserRunner(
@@ -270,7 +273,11 @@ class FirefoxLauncher implements ProductLauncher {
 			return ['-profile', '--profile'].includes(arg);
 		});
 
-		if (profileArgIndex !== -1) {
+		if (profileArgIndex === -1) {
+			userDataDir = await this._createProfile(extraPrefsFirefox);
+			firefoxArguments.push('--profile');
+			firefoxArguments.push(userDataDir);
+		} else {
 			userDataDir = firefoxArguments[profileArgIndex + 1];
 			if (!userDataDir || !fs.existsSync(userDataDir)) {
 				throw new Error(`Firefox profile not found at '${userDataDir}'`);
@@ -281,21 +288,17 @@ class FirefoxLauncher implements ProductLauncher {
 			isTempUserDataDir = false;
 			const prefs = this.defaultPreferences(extraPrefsFirefox);
 			this.writePreferences(prefs, userDataDir);
-		} else {
-			userDataDir = await this._createProfile(extraPrefsFirefox);
-			firefoxArguments.push('--profile');
-			firefoxArguments.push(userDataDir);
 		}
 
 		await this._updateRevision();
 		let firefoxExecutable = executablePath;
 		if (!executablePath) {
-			const {missingText, executablePath} = resolveExecutablePath(this);
+			const {missingText, executablePath: exPath} = resolveExecutablePath(this);
 			if (missingText) {
 				throw new Error(missingText);
 			}
 
-			firefoxExecutable = executablePath;
+			firefoxExecutable = exPath;
 		}
 
 		if (!firefoxExecutable) {
@@ -689,6 +692,8 @@ function executablePathForChannel(channel: ChromeReleaseChannel): string {
 				case 'chrome-dev':
 					chromePath = `${process.env.PROGRAMFILES}\\Google\\Chrome Dev\\Application\\chrome.exe`;
 					break;
+				default:
+					throw new Error('unknown chrome release channel');
 			}
 
 			break;
@@ -710,6 +715,8 @@ function executablePathForChannel(channel: ChromeReleaseChannel): string {
 					chromePath =
 						'/Applications/Google Chrome Dev.app/Contents/MacOS/Google Chrome Dev';
 					break;
+				default:
+					throw new Error('unknown chrome release channel');
 			}
 
 			break;
@@ -724,9 +731,13 @@ function executablePathForChannel(channel: ChromeReleaseChannel): string {
 				case 'chrome-dev':
 					chromePath = '/opt/google/chrome-unstable/chrome';
 					break;
+				default:
+					throw new Error('unknown chrome release channel');
 			}
 
 			break;
+		default:
+			throw new Error('unknown OS');
 	}
 
 	if (!chromePath) {
@@ -769,11 +780,11 @@ function resolveExecutablePath(launcher: ChromeLauncher | FirefoxLauncher): {
 
 	const firefoxHelp = `Run \`PUPPETEER_PRODUCT=firefox npm install\` to download a supported Firefox browser binary.`;
 	const chromeHelp = `Run \`npm install\` to download the correct Chromium revision (${launcher._preferredRevision}).`;
-	const missingText = !revisionInfo.local
-		? `Could not find expected browser (${product}) locally. ${
+	const missingText = revisionInfo.local
+		? undefined
+		: `Could not find expected browser (${product}) locally. ${
 				product === 'chrome' ? chromeHelp : firefoxHelp
-		  }`
-		: undefined;
+		  }`;
 	return {executablePath: revisionInfo.executablePath, missingText};
 }
 

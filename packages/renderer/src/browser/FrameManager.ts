@@ -37,14 +37,7 @@ import {debugError, isErrorLike} from './util';
 
 const UTILITY_WORLD_NAME = '__puppeteer_utility_world__';
 
-/**
- * We use symbols to prevent external parties listening to these events.
- * They are internal to Puppeteer.
- *
- * @internal
- */
 export const FrameManagerEmittedEvents = {
-	FrameAttached: Symbol('FrameManager.FrameAttached'),
 	FrameNavigated: Symbol('FrameManager.FrameNavigated'),
 	FrameDetached: Symbol('FrameManager.FrameDetached'),
 	FrameSwapped: Symbol('FrameManager.FrameSwapped'),
@@ -365,7 +358,6 @@ export class FrameManager extends EventEmitter {
 		assert(parentFrame);
 		const frame = new Frame(this, parentFrame, frameId, session);
 		this.#frames.set(frame._id, frame);
-		this.emit(FrameManagerEmittedEvents.FrameAttached, frame);
 	}
 
 	#onFrameNavigated(framePayload: Protocol.Page.Frame): void {

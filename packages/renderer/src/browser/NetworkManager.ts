@@ -24,26 +24,15 @@ import {HTTPResponse} from './HTTPResponse';
 import {FetchRequestId, NetworkEventManager} from './NetworkEventManager';
 import {debugError, isString} from './util';
 
-/**
- * @public
- */
 interface Credentials {
 	username: string;
 	password: string;
 }
 
-/**
- * We use symbols to prevent any external parties listening to these events.
- * They are internal to Puppeteer.
- *
- * @internal
- */
 export const NetworkManagerEmittedEvents = {
 	Request: Symbol('NetworkManager.Request'),
-	RequestServedFromCache: Symbol('NetworkManager.RequestServedFromCache'),
 	Response: Symbol('NetworkManager.Response'),
 	RequestFailed: Symbol('NetworkManager.RequestFailed'),
-	RequestFinished: Symbol('NetworkManager.RequestFinished'),
 } as const;
 
 interface CDPSession extends EventEmitter {
@@ -171,20 +160,20 @@ export class NetworkManager extends EventEmitter {
 		}
 
 		const requestWillBeSentEvent = (() => {
-			const requestWillBeSentEvent =
+			const _requestWillBeSentEvent =
 				this.#networkEventManager.getRequestWillBeSent(networkRequestId);
 
 			// redirect requests have the same `requestId`,
 			if (
-				requestWillBeSentEvent &&
-				(requestWillBeSentEvent.request.url !== event.request.url ||
-					requestWillBeSentEvent.request.method !== event.request.method)
+				_requestWillBeSentEvent &&
+				(_requestWillBeSentEvent.request.url !== event.request.url ||
+					_requestWillBeSentEvent.request.method !== event.request.method)
 			) {
 				this.#networkEventManager.forgetRequestWillBeSent(networkRequestId);
 				return;
 			}
 
-			return requestWillBeSentEvent;
+			return _requestWillBeSentEvent;
 		})();
 
 		if (requestWillBeSentEvent) {
@@ -233,16 +222,16 @@ export class NetworkManager extends EventEmitter {
 				}
 			}
 
-			const request = this.#networkEventManager.getRequest(event.requestId);
+			const _request = this.#networkEventManager.getRequest(event.requestId);
 			// If we connect late to the target, we could have missed the
 			// requestWillBeSent event.
-			if (request) {
+			if (_request) {
 				this.#handleRequestRedirect(
-					request,
+					_request,
 					event.redirectResponse,
 					redirectResponseExtraInfo
 				);
-				redirectChain = request._redirectChain;
+				redirectChain = _request._redirectChain;
 			}
 		}
 
@@ -262,8 +251,6 @@ export class NetworkManager extends EventEmitter {
 		if (request) {
 			request._fromMemoryCache = true;
 		}
-
-		this.emit(NetworkManagerEmittedEvents.RequestServedFromCache, request);
 	}
 
 	#handleRequestRedirect(
@@ -284,7 +271,6 @@ export class NetworkManager extends EventEmitter {
 		);
 		this.#forgetRequest(request, false);
 		this.emit(NetworkManagerEmittedEvents.Response, response);
-		this.emit(NetworkManagerEmittedEvents.RequestFinished, request);
 	}
 
 	#emitResponseEvent(
@@ -416,7 +402,6 @@ export class NetworkManager extends EventEmitter {
 		}
 
 		this.#forgetRequest(request, true);
-		this.emit(NetworkManagerEmittedEvents.RequestFinished, request);
 	}
 
 	#onLoadingFailed(event: Protocol.Network.LoadingFailedEvent): void {

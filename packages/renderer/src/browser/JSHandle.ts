@@ -148,61 +148,30 @@ export class JSHandle<HandleObjectType = unknown> {
 		return this.#context;
 	}
 
-	/**
-	 * This method passes this handle as the first argument to `pageFunction`.
-	 * If `pageFunction` returns a Promise, then `handle.evaluate` would wait
-	 * for the promise to resolve and return its value.
-	 *
-	 * @example
-	 * ```js
-	 * const tweetHandle = await page.$('.tweet .retweets');
-	 * expect(await tweetHandle.evaluate(node => node.innerText)).toBe('10');
-	 * ```
-	 */
-
 	async evaluate<T extends EvaluateFn<HandleObjectType>>(
 		pageFunction: T | string,
 		...args: SerializableOrJSHandle[]
 	): Promise<UnwrapPromiseLike<EvaluateFnReturnType<T>>> {
-		return await this.executionContext().evaluate<
+		return this.executionContext().evaluate<
 			UnwrapPromiseLike<EvaluateFnReturnType<T>>
 		>(pageFunction, this, ...args);
 	}
 
-	/**
-	 * This method passes this handle as the first argument to `pageFunction`.
-	 *
-	 * @remarks
-	 *
-	 * The only difference between `jsHandle.evaluate` and
-	 * `jsHandle.evaluateHandle` is that `jsHandle.evaluateHandle`
-	 * returns an in-page object (JSHandle).
-	 *
-	 * If the function passed to `jsHandle.evaluateHandle` returns a Promise,
-	 * then `evaluateHandle.evaluateHandle` waits for the promise to resolve and
-	 * returns its value.
-	 *
-	 * See {@link Page.evaluateHandle} for more details.
-	 */
 	async evaluateHandle<HandleType extends JSHandle = JSHandle>(
 		pageFunction: EvaluateHandleFn,
 		...args: SerializableOrJSHandle[]
 	): Promise<HandleType> {
-		return await this.executionContext().evaluateHandle(
-			pageFunction,
-			this,
-			...args
-		);
+		return this.executionContext().evaluateHandle(pageFunction, this, ...args);
 	}
 
 	/** Fetches a single property from the referenced object.
 	 */
 	async getProperty(propertyName: string): Promise<JSHandle> {
 		const objectHandle = await this.evaluateHandle(
-			(object: Element, propertyName: keyof Element) => {
-				const result: Record<string, unknown> = {__proto__: null};
-				result[propertyName] = object[propertyName];
-				return result;
+			(object: Element, _propertyName: keyof Element) => {
+				const _result: Record<string, unknown> = {__proto__: null};
+				_result[_propertyName] = object[_propertyName];
+				return _result;
 			},
 			propertyName
 		);
@@ -435,20 +404,6 @@ export class ElementHandle<
 		];
 	}
 
-	/**
-	 * Triggers a `change` and `input` event once all the provided options have been
-	 * selected. If there's no `<select>` element matching `selector`, the method
-	 * throws an error.
-	 *
-	 * @example
-	 * ```js
-	 * handle.select('blue'); // single selection
-	 * handle.select('red', 'green', 'blue'); // multiple selections
-	 * ```
-	 * @param values - Values of options to select. If the `<select>` has the
-	 *    `multiple` attribute, all values are considered, otherwise only the first
-	 *    one is taken into account.
-	 */
 	async select(...values: string[]): Promise<string[]> {
 		for (const value of values) {
 			assert(

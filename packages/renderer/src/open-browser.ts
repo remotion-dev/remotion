@@ -82,7 +82,7 @@ export const openBrowser = async (
 		ignoreDefaultArgs: true,
 		args: [
 			'about:blank',
-			'--allow-pre-commit-input', // TODO(crbug.com/1320996): neither headful nor headless should rely on this flag.
+			'--allow-pre-commit-input',
 			'--disable-background-networking',
 			'--enable-features=NetworkService,NetworkServiceInProcess',
 			'--disable-background-timer-throttling',
@@ -96,8 +96,6 @@ export const openBrowser = async (
 			'--no-proxy-server',
 			"--proxy-server='direct://'",
 			'--proxy-bypass-list=*',
-			// TODO: remove AvoidUnnecessaryBeforeUnloadCheckSync below
-			// once crbug.com/1324138 is fixed and released.
 			'--disable-hang-monitor',
 			'--disable-ipc-flooding-protection',
 			'--disable-popup-blocking',
@@ -111,8 +109,6 @@ export const openBrowser = async (
 			'--enable-automation',
 			'--password-store=basic',
 			'--use-mock-keychain',
-			// TODO(sadym): remove '--enable-blink-features=IdleDetection'
-			// once IdleDetection is turned on by default.
 			'--enable-blink-features=IdleDetection',
 			'--export-tagged-pdf',
 			'--intensive-wake-up-throttling-policy=0',
