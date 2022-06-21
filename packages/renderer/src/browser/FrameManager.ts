@@ -146,13 +146,13 @@ export class FrameManager extends EventEmitter {
 			const result = await Promise.all([
 				client.send('Page.enable'),
 				client.send('Page.getFrameTree'),
-				client !== this.#client
-					? client.send('Target.setAutoAttach', {
+				client === this.#client
+					? Promise.resolve()
+					: client.send('Target.setAutoAttach', {
 							autoAttach: true,
 							waitForDebuggerOnStart: false,
 							flatten: true,
-					  })
-					: Promise.resolve(),
+					  }),
 			]);
 
 			const {frameTree} = result[1];
@@ -194,7 +194,6 @@ export class FrameManager extends EventEmitter {
 			waitUntil?: PuppeteerLifeCycleEvent | PuppeteerLifeCycleEvent[];
 		} = {}
 	): Promise<HTTPResponse | null> {
-		assertNoLegacyNavigationOptions(options);
 		const {
 			referer = this.#networkManager.extraHTTPHeaders().referer,
 			waitUntil = ['load'],
@@ -219,29 +218,29 @@ export class FrameManager extends EventEmitter {
 			throw error;
 		}
 
-		return await watcher.navigationResponse();
+		return watcher.navigationResponse();
 
 		async function navigate(
 			client: CDPSession,
-			url: string,
+			_url: string,
 			referrer: string | undefined,
 			frameId: string
 		): Promise<Error | null> {
 			try {
 				const response = await client.send('Page.navigate', {
-					url,
+					url: _url,
 					referrer,
 					frameId,
 				});
 				return response.errorText
-					? new Error(`${response.errorText} at ${url}`)
+					? new Error(`${response.errorText} at ${_url}`)
 					: null;
-			} catch (error) {
-				if (isErrorLike(error)) {
-					return error;
+			} catch (_error) {
+				if (isErrorLike(_error)) {
+					return _error;
 				}
 
-				throw error;
+				throw _error;
 			}
 		}
 	}
@@ -253,7 +252,6 @@ export class FrameManager extends EventEmitter {
 			waitUntil?: PuppeteerLifeCycleEvent | PuppeteerLifeCycleEvent[];
 		} = {}
 	): Promise<HTTPResponse | null> {
-		assertNoLegacyNavigationOptions(options);
 		const {
 			waitUntil = ['load'],
 			timeout = this.#timeoutSettings.navigationTimeout(),
@@ -269,7 +267,7 @@ export class FrameManager extends EventEmitter {
 			throw error;
 		}
 
-		return await watcher.navigationResponse();
+		return watcher.navigationResponse();
 	}
 
 	async #onAttachedToTarget(event: Protocol.Target.AttachedToTargetEvent) {
@@ -296,7 +294,7 @@ export class FrameManager extends EventEmitter {
 		}
 
 		const frame = this.#frames.get(event.targetId);
-		if (frame && frame.isOOPFrame()) {
+		if (frame?.isOOPFrame()) {
 			// When an OOP iframe is removed from the page, it
 			// will only get a Target.detachedFromTarget event.
 			this.#removeFramesRecursively(frame);
@@ -377,12 +375,12 @@ export class FrameManager extends EventEmitter {
 		parentFrameId?: string
 	): void {
 		if (this.#frames.has(frameId)) {
-			const frame = this.#frames.get(frameId)!;
-			if (session && frame.isOOPFrame()) {
+			const _frame = this.#frames.get(frameId) as Frame;
+			if (session && _frame.isOOPFrame()) {
 				// If an OOP iframes becomes a normal iframe again
 				// it is first attached to the parent page before
 				// the target is removed.
-				frame._updateClient(session);
+				_frame._updateClient(session);
 			}
 
 			return;
@@ -498,7 +496,7 @@ export class FrameManager extends EventEmitter {
 		session: CDPSession
 	): void {
 		const auxData = contextPayload.auxData as {frameId?: string} | undefined;
-		const frameId = auxData && auxData.frameId;
+		const frameId = auxData?.frameId;
 		const frame =
 			typeof frameId === 'string' ? this.#frames.get(frameId) : undefined;
 		let world: DOMWorld | undefined;
@@ -871,21 +869,4 @@ export class Frame {
 
 		this.#parentFrame = null;
 	}
-}
-
-function assertNoLegacyNavigationOptions(options: {
-	[optionName: string]: unknown;
-}): void {
-	assert(
-		options.networkIdleTimeout === undefined,
-		'ERROR: networkIdleTimeout option is no longer supported.'
-	);
-	assert(
-		options.networkIdleInflight === undefined,
-		'ERROR: networkIdleInflight option is no longer supported.'
-	);
-	assert(
-		options.waitUntil !== 'networkidle',
-		'ERROR: "networkidle" option is no longer supported. Use "networkidle2" instead'
-	);
 }
