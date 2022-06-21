@@ -15,17 +15,12 @@
  */
 
 import {assert} from './assert';
-import {
-	Browser,
-	IsPageTargetCallback,
-	TargetFilterCallback,
-} from './Browser';
+import {Browser, IsPageTargetCallback, TargetFilterCallback} from './Browser';
 import {Connection} from './Connection';
 import {ConnectionTransport} from './ConnectionTransport';
-import {getFetch} from './fetch';
 import {NodeWebSocketTransport} from './NodeWebSocketTransport';
 import {Viewport} from './PuppeteerViewport';
-import {debugError, isErrorLike} from './util';
+import {debugError} from './util';
 
 /**
  * Generic browser options that can be passed when launching any browser or when
@@ -102,11 +97,7 @@ export async function _connectToBrowser(
 			await WebSocketClass.create(browserWSEndpoint);
 		connection = new Connection(browserWSEndpoint, connectionTransport, slowMo);
 	} else if (browserURL) {
-		const connectionURL = await getWSEndpoint(browserURL);
-		const WebSocketClass = await getWebSocketTransportClass();
-		const connectionTransport: ConnectionTransport =
-			await WebSocketClass.create(connectionURL);
-		connection = new Connection(connectionURL, connectionTransport, slowMo);
+		throw new Error('browser URL not supported');
 	}
 
 	const {browserContextIds} = await connection.send(
@@ -124,29 +115,4 @@ export async function _connectToBrowser(
 		targetFilter,
 		isPageTarget
 	);
-}
-
-async function getWSEndpoint(browserURL: string): Promise<string> {
-	const endpointURL = new URL('/json/version', browserURL);
-
-	const fetch = await getFetch();
-	try {
-		const result = await fetch(endpointURL.toString(), {
-			method: 'GET',
-		});
-		if (!result.ok) {
-			throw new Error(`HTTP ${result.statusText}`);
-		}
-
-		const data = await result.json();
-		return data.webSocketDebuggerUrl;
-	} catch (error) {
-		if (isErrorLike(error)) {
-			error.message =
-				`Failed to fetch browser webSocket URL from ${endpointURL}: ` +
-				error.message;
-		}
-
-		throw error;
-	}
 }
