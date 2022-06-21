@@ -27,8 +27,6 @@
 		"source-map": "^0.8.0-beta.0",
 		"ws": "8.7.0",
 		"extract-zip": "2.0.1",
-		"tar-fs": "2.1.1",
-		"unbzip2-stream": "1.4.3",
 		"progress": "2.0.3"
 	},
 	"peerDependencies": {
@@ -46,8 +44,6 @@
 		"@types/react-dom": "18.0.0",
 		"@types/progress": "2.0.5",
 		"@types/ws": "8.5.3",
-		"@types/tar-fs": "2.0.1",
-		"@types/unbzip2-stream": "1.4.0",
 		"eslint": "8.13.0",
 		"jest": "^27.2.4",
 		"pkg-dir": "4.2.0",
