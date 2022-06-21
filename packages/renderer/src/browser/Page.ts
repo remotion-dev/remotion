@@ -17,7 +17,7 @@
 import {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
 import {Browser, BrowserContext} from './Browser';
-import {CDPSession, CDPSessionEmittedEvents} from './Connection';
+import {CDPSession} from './Connection';
 import {ConsoleMessage, ConsoleMessageType} from './ConsoleMessage';
 import {EmulationManager} from './EmulationManager';
 import {
@@ -43,13 +43,11 @@ import {
 	evaluationString,
 	getExceptionMessage,
 	isErrorLike,
-	isString,
 	pageBindingDeliverErrorString,
 	pageBindingDeliverErrorValueString,
 	pageBindingDeliverResultString,
 	releaseObject,
 	valueFromRemoteObject,
-	waitForEvent,
 } from './util';
 
 /**
@@ -380,7 +378,6 @@ export class Page extends EventEmitter {
 	#pageBindings = new Map<string, Function>();
 	screenshotTaskQueue: TaskQueue;
 
-	#disconnectPromise?: Promise<Error>;
 	#handlerMap = new WeakMap<Handler, Handler>();
 
 	/**
@@ -884,260 +881,6 @@ export class Page extends EventEmitter {
 		options: WaitForOptions & {referer?: string} = {}
 	): Promise<HTTPResponse | null> {
 		return await this.#frameManager.mainFrame().goto(url, options);
-	}
-
-	#sessionClosePromise(): Promise<Error> {
-		if (!this.#disconnectPromise) {
-			this.#disconnectPromise = new Promise((fulfill) => {
-				return this.#client.once(CDPSessionEmittedEvents.Disconnected, () => {
-					return fulfill(new Error('Target closed'));
-				});
-			});
-		}
-
-		return this.#disconnectPromise;
-	}
-
-	/**
-	 * @param urlOrPredicate - A URL or predicate to wait for
-	 * @param options - Optional waiting parameters
-	 * @returns Promise which resolves to the matched response
-	 * @example
-	 * ```js
-	 * const firstResponse = await page.waitForResponse(
-	 * 'https://example.com/resource'
-	 * );
-	 * const finalResponse = await page.waitForResponse(
-	 * (response) =>
-	 * response.url() === 'https://example.com' && response.status() === 200
-	 * );
-	 * const finalResponse = await page.waitForResponse(async (response) => {
-	 * return (await response.text()).includes('<html>');
-	 * });
-	 * return finalResponse.ok();
-	 * ```
-	 * @remarks
-	 * Optional Waiting Parameters have:
-	 *
-	 * - `timeout`: Maximum wait time in milliseconds, defaults to `30` seconds, pass
-	 * `0` to disable the timeout. The default value can be changed by using the
-	 * {@link Page.setDefaultTimeout} method.
-	 */
-	async waitForRequest(
-		urlOrPredicate: string | ((req: HTTPRequest) => boolean | Promise<boolean>),
-		options: {timeout?: number} = {}
-	): Promise<HTTPRequest> {
-		const {timeout = this.#timeoutSettings.timeout()} = options;
-		return waitForEvent(
-			this.#frameManager.networkManager(),
-			NetworkManagerEmittedEvents.Request,
-			(request) => {
-				if (isString(urlOrPredicate)) {
-					return urlOrPredicate === request.url();
-				}
-
-				if (typeof urlOrPredicate === 'function') {
-					return Boolean(urlOrPredicate(request));
-				}
-
-				return false;
-			},
-			timeout,
-			this.#sessionClosePromise()
-		);
-	}
-
-	/**
-	 * @param urlOrPredicate - A URL or predicate to wait for.
-	 * @param options - Optional waiting parameters
-	 * @returns Promise which resolves to the matched response.
-	 * @example
-	 * ```js
-	 * const firstResponse = await page.waitForResponse(
-	 * 'https://example.com/resource'
-	 * );
-	 * const finalResponse = await page.waitForResponse(
-	 * (response) =>
-	 * response.url() === 'https://example.com' && response.status() === 200
-	 * );
-	 * const finalResponse = await page.waitForResponse(async (response) => {
-	 * return (await response.text()).includes('<html>');
-	 * });
-	 * return finalResponse.ok();
-	 * ```
-	 * @remarks
-	 * Optional Parameter have:
-	 *
-	 * - `timeout`: Maximum wait time in milliseconds, defaults to `30` seconds,
-	 * pass `0` to disable the timeout. The default value can be changed by using
-	 * the {@link Page.setDefaultTimeout} method.
-	 */
-	async waitForResponse(
-		urlOrPredicate:
-			| string
-			| ((res: HTTPResponse) => boolean | Promise<boolean>),
-		options: {timeout?: number} = {}
-	): Promise<HTTPResponse> {
-		const {timeout = this.#timeoutSettings.timeout()} = options;
-		return waitForEvent(
-			this.#frameManager.networkManager(),
-			NetworkManagerEmittedEvents.Response,
-			async (response) => {
-				if (isString(urlOrPredicate)) {
-					return urlOrPredicate === response.url();
-				}
-
-				if (typeof urlOrPredicate === 'function') {
-					return Boolean(await urlOrPredicate(response));
-				}
-
-				return false;
-			},
-			timeout,
-			this.#sessionClosePromise()
-		);
-	}
-
-	/**
-	 * @param options - Optional waiting parameters
-	 * @returns Promise which resolves when network is idle
-	 */
-	async waitForNetworkIdle(
-		options: {idleTime?: number; timeout?: number} = {}
-	): Promise<void> {
-		const {idleTime = 500, timeout = this.#timeoutSettings.timeout()} = options;
-
-		const networkManager = this.#frameManager.networkManager();
-
-		let idleResolveCallback: () => void;
-		const idlePromise = new Promise<void>((resolve) => {
-			idleResolveCallback = resolve;
-		});
-
-		let abortRejectCallback: (error: Error) => void;
-		const abortPromise = new Promise<Error>((_, reject) => {
-			abortRejectCallback = reject;
-		});
-
-		let idleTimer: NodeJS.Timeout;
-		const onIdle = () => {
-			return idleResolveCallback();
-		};
-
-		const cleanup = () => {
-			idleTimer && clearTimeout(idleTimer);
-			abortRejectCallback(new Error('abort'));
-		};
-
-		const evaluate = () => {
-			idleTimer && clearTimeout(idleTimer);
-			if (networkManager.numRequestsInProgress() === 0) {
-				idleTimer = setTimeout(onIdle, idleTime);
-			}
-		};
-
-		evaluate();
-
-		const eventHandler = () => {
-			evaluate();
-			return false;
-		};
-
-		const listenToEvent = (event: symbol) => {
-			return waitForEvent(
-				networkManager,
-				event,
-				eventHandler,
-				timeout,
-				abortPromise
-			);
-		};
-
-		const eventPromises = [
-			listenToEvent(NetworkManagerEmittedEvents.Request),
-			listenToEvent(NetworkManagerEmittedEvents.Response),
-		];
-
-		await Promise.race([
-			idlePromise,
-			...eventPromises,
-			this.#sessionClosePromise(),
-		]).then(
-			(r) => {
-				cleanup();
-				return r;
-			},
-			(error) => {
-				cleanup();
-				throw error;
-			}
-		);
-	}
-
-	/**
-	 * @param urlOrPredicate - A URL or predicate to wait for.
-	 * @param options - Optional waiting parameters
-	 * @returns Promise which resolves to the matched frame.
-	 * @example
-	 * ```js
-	 * const frame = await page.waitForFrame(async (frame) => {
-	 *   return frame.name() === 'Test';
-	 * });
-	 * ```
-	 * @remarks
-	 * Optional Parameter have:
-	 *
-	 * - `timeout`: Maximum wait time in milliseconds, defaults to `30` seconds,
-	 * pass `0` to disable the timeout. The default value can be changed by using
-	 * the {@link Page.setDefaultTimeout} method.
-	 */
-	async waitForFrame(
-		urlOrPredicate: string | ((frame: Frame) => boolean | Promise<boolean>),
-		options: {timeout?: number} = {}
-	): Promise<Frame> {
-		const {timeout = this.#timeoutSettings.timeout()} = options;
-
-		let predicate: (frame: Frame) => Promise<boolean>;
-		if (isString(urlOrPredicate)) {
-			predicate = (frame: Frame) => {
-				return Promise.resolve(urlOrPredicate === frame.url());
-			};
-		} else {
-			predicate = (frame: Frame) => {
-				const value = urlOrPredicate(frame);
-				if (typeof value === 'boolean') {
-					return Promise.resolve(value);
-				}
-
-				return value;
-			};
-		}
-
-		const eventRace: Promise<Frame> = Promise.race([
-			waitForEvent(
-				this.#frameManager,
-				FrameManagerEmittedEvents.FrameAttached,
-				predicate,
-				timeout,
-				this.#sessionClosePromise()
-			),
-			waitForEvent(
-				this.#frameManager,
-				FrameManagerEmittedEvents.FrameNavigated,
-				predicate,
-				timeout,
-				this.#sessionClosePromise()
-			),
-			...this.frames().map(async (frame) => {
-				if (await predicate(frame)) {
-					return frame;
-				}
-
-				return await eventRace;
-			}),
-		]);
-
-		return eventRace;
 	}
 
 	/**

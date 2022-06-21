@@ -33,18 +33,6 @@ interface Credentials {
 }
 
 /**
- * @public
- */
-export interface NetworkConditions {
-	// Download speed (bytes/s)
-	download: number;
-	// Upload speed (bytes/s)
-	upload: number;
-	// Latency (ms)
-	latency: number;
-}
-
-/**
  * We use symbols to prevent any external parties listening to these events.
  * They are internal to Puppeteer.
  *

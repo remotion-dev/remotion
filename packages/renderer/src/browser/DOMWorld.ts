@@ -52,7 +52,7 @@ declare const checkWaitForOptions: (
 /**
  * @public
  */
-export interface WaitForSelectorOptions {
+interface WaitForSelectorOptions {
 	visible?: boolean;
 	hidden?: boolean;
 	timeout?: number;
