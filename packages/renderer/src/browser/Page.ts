@@ -412,12 +412,8 @@ export class Page extends EventEmitter {
 
 	waitForFunction(
 		pageFunction: Function | string,
-		options: {
-			timeout?: number;
-			polling?: string | number;
-		} = {},
 		...args: SerializableOrJSHandle[]
 	): Promise<JSHandle> {
-		return this.mainFrame().waitForFunction(pageFunction, options, ...args);
+		return this.mainFrame().waitForFunction(pageFunction, ...args);
 	}
 }
