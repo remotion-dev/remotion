@@ -33,7 +33,7 @@ import {LifecycleWatcher, PuppeteerLifeCycleEvent} from './LifecycleWatcher';
 import {NetworkManager} from './NetworkManager';
 import {Page} from './Page';
 import {TimeoutSettings} from './TimeoutSettings';
-import {debugError, isErrorLike, isNumber, isString} from './util';
+import {debugError, isErrorLike} from './util';
 
 const UTILITY_WORLD_NAME = '__puppeteer_utility_world__';
 
@@ -924,65 +924,6 @@ export class Frame {
 	 */
 	isDetached(): boolean {
 		return this.#detached;
-	}
-
-	/**
-	 * @remarks
-	 *
-	 * This method behaves differently depending on the first parameter. If it's a
-	 * `string`, it will be treated as a `selector` or `xpath` (if the string
-	 * starts with `//`). This method then is a shortcut for
-	 * {@link Frame.waitForSelector} or {@link Frame.waitForXPath}.
-	 *
-	 * If the first argument is a function this method is a shortcut for
-	 * {@link Frame.waitForFunction}.
-	 *
-	 * If the first argument is a `number`, it's treated as a timeout in
-	 * milliseconds and the method returns a promise which resolves after the
-	 * timeout.
-	 *
-	 * @param selectorOrFunctionOrTimeout - a selector, predicate or timeout to
-	 * wait for.
-	 * @param options - optional waiting parameters.
-	 * @param args - arguments to pass to `pageFunction`.
-	 *
-	 * @deprecated Don't use this method directly. Instead use the more explicit
-	 * methods available: {@link Frame.waitForSelector},
-	 * {@link Frame.waitForXPath}, {@link Frame.waitForFunction} or
-	 * {@link Frame.waitForTimeout}.
-	 */
-	waitFor(
-		selectorOrFunctionOrTimeout: string | number | Function,
-		options: Record<string, unknown> = {},
-		...args: SerializableOrJSHandle[]
-	): Promise<JSHandle | null> {
-		console.warn(
-			'waitFor is deprecated and will be removed in a future release. See https://github.com/puppeteer/puppeteer/issues/6214 for details and how to migrate your code.'
-		);
-
-		if (isString(selectorOrFunctionOrTimeout)) {
-			throw new Error('wait for selector not supported');
-		}
-
-		if (isNumber(selectorOrFunctionOrTimeout)) {
-			return new Promise((fulfill) => {
-				setTimeout(fulfill, selectorOrFunctionOrTimeout);
-			});
-		}
-
-		if (typeof selectorOrFunctionOrTimeout === 'function') {
-			return this.waitForFunction(
-				selectorOrFunctionOrTimeout,
-				options,
-				...args
-			);
-		}
-
-		return Promise.reject(
-			new Error(
-				'Unsupported target type: ' + typeof selectorOrFunctionOrTimeout
-			)
-		);
 	}
 
 	/**
