@@ -22,9 +22,9 @@ import {Product} from './Product';
  * @public
  */
 export interface ConnectOptions extends BrowserConnectOptions {
-	browserWSEndpoint?: string;
-	transport?: ConnectionTransport;
-	product?: Product;
+	browserWSEndpoint: string;
+	transport: ConnectionTransport;
+	product: Product;
 }
 
 export class Puppeteer {

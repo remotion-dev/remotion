@@ -32,18 +32,14 @@ const getWebSocketTransportClass = async () => {
 
 export async function _connectToBrowser(
 	options: BrowserConnectOptions & {
-		browserWSEndpoint?: string;
-		browserURL?: string;
-		transport?: ConnectionTransport;
+		browserWSEndpoint: string;
+		transport: ConnectionTransport;
 	}
 ): Promise<Browser> {
-	const {browserWSEndpoint, browserURL, defaultViewport, transport} = options;
+	const {browserWSEndpoint, defaultViewport, transport} = options;
 
 	assert(
-		Number(Boolean(browserWSEndpoint)) +
-			Number(Boolean(browserURL)) +
-			Number(Boolean(transport)) ===
-			1,
+		Number(Boolean(browserWSEndpoint)) + Number(Boolean(transport)) === 1,
 		'Exactly one of browserWSEndpoint, browserURL or transport must be passed to puppeteer.connect'
 	);
 
@@ -55,8 +51,6 @@ export async function _connectToBrowser(
 		const connectionTransport: ConnectionTransport =
 			await WebSocketClass.create(browserWSEndpoint);
 		connection = new Connection(browserWSEndpoint, connectionTransport);
-	} else if (browserURL) {
-		throw new Error('browser URL not supported');
 	}
 
 	const {browserContextIds} = await connection.send(
