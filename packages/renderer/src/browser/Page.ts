@@ -944,48 +944,6 @@ export class Page extends EventEmitter {
 	}
 
 	/**
-	 * @remarks
-	 *
-	 * This method behaves differently depending on the first parameter. If it's a
-	 * `string`, it will be treated as a `selector` or `xpath` (if the string
-	 * starts with `//`). This method then is a shortcut for
-	 * {@link Page.waitForSelector} or {@link Page.waitForXPath}.
-	 *
-	 * If the first argument is a function this method is a shortcut for
-	 * {@link Page.waitForFunction}.
-	 *
-	 * If the first argument is a `number`, it's treated as a timeout in
-	 * milliseconds and the method returns a promise which resolves after the
-	 * timeout.
-	 *
-	 * @param selectorOrFunctionOrTimeout - a selector, predicate or timeout to
-	 * wait for.
-	 * @param options - optional waiting parameters.
-	 * @param args - arguments to pass to `pageFunction`.
-	 *
-	 * @deprecated Don't use this method directly. Instead use the more explicit
-	 * methods available: {@link Page.waitForSelector},
-	 * {@link Page.waitForXPath}, {@link Page.waitForFunction} or
-	 * {@link Page.waitForTimeout}.
-	 */
-	waitFor(
-		selectorOrFunctionOrTimeout: string | number | Function,
-		options: {
-			visible?: boolean;
-			hidden?: boolean;
-			timeout?: number;
-			polling?: string | number;
-		} = {},
-		...args: SerializableOrJSHandle[]
-	): Promise<JSHandle | null> {
-		return this.mainFrame().waitFor(
-			selectorOrFunctionOrTimeout,
-			options,
-			...args
-		);
-	}
-
-	/**
 	 * The `waitForFunction` can be used to observe viewport size change:
 	 *
 	 * ```
