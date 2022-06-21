@@ -20,7 +20,6 @@ import {CDPSession} from './Connection';
 import {Page, PageEmittedEvents} from './Page';
 import {Viewport} from './PuppeteerViewport';
 import {TaskQueue} from './TaskQueue';
-import {WebWorker} from './WebWorker';
 
 /**
  * @public
@@ -32,7 +31,6 @@ export class Target {
 	#ignoreHTTPSErrors: boolean;
 	#defaultViewport?: Viewport;
 	#pagePromise?: Promise<Page>;
-	#workerPromise?: Promise<WebWorker>;
 	#screenshotTaskQueue: TaskQueue;
 
 	/**
@@ -147,32 +145,6 @@ export class Target {
 		}
 
 		return (await this.#pagePromise) ?? null;
-	}
-
-	/**
-	 * If the target is not of type `"service_worker"` or `"shared_worker"`, returns `null`.
-	 */
-	async worker(): Promise<WebWorker | null> {
-		if (
-			this.#targetInfo.type !== 'service_worker' &&
-			this.#targetInfo.type !== 'shared_worker'
-		) {
-			return null;
-		}
-
-		if (!this.#workerPromise) {
-			// TODO(einbinder): Make workers send their console logs.
-			this.#workerPromise = this.#sessionFactory().then((client) => {
-				return new WebWorker(
-					client,
-					this.#targetInfo.url,
-					() => undefined /* consoleAPICalled */,
-					() => undefined /* exceptionThrown */
-				);
-			});
-		}
-
-		return this.#workerPromise;
 	}
 
 	url(): string {
