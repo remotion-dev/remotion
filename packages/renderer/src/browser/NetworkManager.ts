@@ -250,7 +250,7 @@ export class NetworkManager extends EventEmitter {
 			? this.#frameManager.frame(event.frameId)
 			: null;
 
-		const request = new HTTPRequest(this.#client, frame, event, redirectChain);
+		const request = new HTTPRequest(frame, event, redirectChain);
 		this.#networkEventManager.storeRequest(event.requestId, request);
 		this.emit(NetworkManagerEmittedEvents.Request, request);
 	}
