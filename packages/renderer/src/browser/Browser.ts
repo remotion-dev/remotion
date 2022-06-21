@@ -47,13 +47,6 @@ interface BrowserContextOptions {
 type BrowserCloseCallback = () => Promise<void> | void;
 
 /**
- * @public
- */
-export type TargetFilterCallback = (
-	target: Protocol.Target.TargetInfo
-) => boolean;
-
-/**
  * @internal
  */
 export type IsPageTargetCallback = (
@@ -174,7 +167,6 @@ export class Browser extends EventEmitter {
 		defaultViewport: Viewport,
 		process?: ChildProcess,
 		closeCallback?: BrowserCloseCallback,
-		targetFilterCallback?: TargetFilterCallback,
 		isPageTargetCallback?: IsPageTargetCallback
 	): Promise<Browser> {
 		const browser = new Browser(
@@ -183,7 +175,6 @@ export class Browser extends EventEmitter {
 			defaultViewport,
 			process,
 			closeCallback,
-			targetFilterCallback,
 			isPageTargetCallback
 		);
 		await connection.send('Target.setDiscoverTargets', {discover: true});
@@ -194,12 +185,10 @@ export class Browser extends EventEmitter {
 	#process?: ChildProcess;
 	#connection: Connection;
 	#closeCallback: BrowserCloseCallback;
-	#targetFilterCallback: TargetFilterCallback;
 	#isPageTargetCallback!: IsPageTargetCallback;
 	#defaultContext: BrowserContext;
 	#contexts: Map<string, BrowserContext>;
 	#targets: Map<string, Target>;
-	#ignoredTargets = new Set<string>();
 
 	/**
 	 * @internal
@@ -217,7 +206,6 @@ export class Browser extends EventEmitter {
 		defaultViewport: Viewport,
 		process?: ChildProcess,
 		closeCallback?: BrowserCloseCallback,
-		targetFilterCallback?: TargetFilterCallback,
 		isPageTargetCallback?: IsPageTargetCallback
 	) {
 		super();
@@ -230,11 +218,6 @@ export class Browser extends EventEmitter {
 				return undefined;
 			};
 
-		this.#targetFilterCallback =
-			targetFilterCallback ||
-			((): boolean => {
-				return true;
-			});
 		this.#setIsPageTargetCallback(isPageTargetCallback);
 
 		this.#defaultContext = new BrowserContext(this);
@@ -362,12 +345,6 @@ export class Browser extends EventEmitter {
 			throw new Error('Missing browser context');
 		}
 
-		const shouldAttachToTarget = this.#targetFilterCallback(targetInfo);
-		if (!shouldAttachToTarget) {
-			this.#ignoredTargets.add(targetInfo.targetId);
-			return;
-		}
-
 		const target = new Target(
 			targetInfo,
 			context,
@@ -390,10 +367,6 @@ export class Browser extends EventEmitter {
 	}
 
 	async #targetDestroyed(event: {targetId: string}): Promise<void> {
-		if (this.#ignoredTargets.has(event.targetId)) {
-			return;
-		}
-
 		const target = this.#targets.get(event.targetId);
 		if (!target) {
 			throw new Error(
@@ -413,10 +386,6 @@ export class Browser extends EventEmitter {
 	}
 
 	#targetInfoChanged(event: Protocol.Target.TargetInfoChangedEvent): void {
-		if (this.#ignoredTargets.has(event.targetInfo.targetId)) {
-			return;
-		}
-
 		const target = this.#targets.get(event.targetInfo.targetId);
 		if (!target) {
 			throw new Error(

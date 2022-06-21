@@ -15,7 +15,7 @@
  */
 
 import {assert} from './assert';
-import {Browser, IsPageTargetCallback, TargetFilterCallback} from './Browser';
+import {Browser, IsPageTargetCallback} from './Browser';
 import {Connection} from './Connection';
 import {ConnectionTransport} from './ConnectionTransport';
 import {NodeWebSocketTransport} from './NodeWebSocketTransport';
@@ -32,10 +32,6 @@ export interface BrowserConnectOptions {
 	 * Sets the viewport for each page.
 	 */
 	defaultViewport: Viewport;
-	/**
-	 * Callback to decide if Puppeteer should connect to a given target or not.
-	 */
-	targetFilter?: TargetFilterCallback;
 	/**
 	 * @internal
 	 */
@@ -64,7 +60,6 @@ export async function _connectToBrowser(
 		browserURL,
 		defaultViewport,
 		transport,
-		targetFilter,
 		_isPageTarget: isPageTarget,
 	} = options;
 
@@ -99,7 +94,6 @@ export async function _connectToBrowser(
 		() => {
 			return connection.send('Browser.close').catch(debugError);
 		},
-		targetFilter,
 		isPageTarget
 	);
 }
