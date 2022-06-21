@@ -23,13 +23,11 @@ import {
 	EvaluateHandleFn,
 	SerializableOrJSHandle,
 	UnwrapPromiseLike,
-	WrapElementHandle,
 } from './EvalTypes';
 import {ExecutionContext} from './ExecutionContext';
 import {Frame, FrameManager} from './FrameManager';
 import {MouseButton} from './Input';
 import {Page, ScreenshotOptions} from './Page';
-import {_getQueryHandlerAndSelector} from './QueryHandler';
 import {KeyInput} from './USKeyboardLayout';
 import {
 	debugError,
@@ -386,63 +384,6 @@ export class ElementHandle<
 		this.#frame = frame;
 		this.#page = page;
 		this.#frameManager = frameManager;
-	}
-
-	/**
-	 * Wait for the `selector` to appear within the element. If at the moment of calling the
-	 * method the `selector` already exists, the method will return immediately. If
-	 * the `selector` doesn't appear after the `timeout` milliseconds of waiting, the
-	 * function will throw.
-	 *
-	 * This method does not work across navigations or if the element is detached from DOM.
-	 *
-	 * @param selector - A
-	 * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | selector}
-	 * of an element to wait for
-	 * @param options - Optional waiting parameters
-	 * @returns Promise which resolves when element specified by selector string
-	 * is added to DOM. Resolves to `null` if waiting for hidden: `true` and
-	 * selector is not found in DOM.
-	 * @remarks
-	 * The optional parameters in `options` are:
-	 *
-	 * - `visible`: wait for the selected element to be present in DOM and to be
-	 * visible, i.e. to not have `display: none` or `visibility: hidden` CSS
-	 * properties. Defaults to `false`.
-	 *
-	 * - `hidden`: wait for the selected element to not be found in the DOM or to be hidden,
-	 * i.e. have `display: none` or `visibility: hidden` CSS properties. Defaults to
-	 * `false`.
-	 *
-	 * - `timeout`: maximum time to wait in milliseconds. Defaults to `30000`
-	 * (30 seconds). Pass `0` to disable timeout. The default value can be changed
-	 * by using the {@link Page.setDefaultTimeout} method.
-	 */
-	async waitForSelector(
-		selector: string,
-		options: {
-			visible?: boolean;
-			hidden?: boolean;
-			timeout?: number;
-		} = {}
-	): Promise<ElementHandle | null> {
-		const frame = this._context.frame();
-		assert(frame);
-		const secondaryContext = await frame._secondaryWorld.executionContext();
-		const adoptedRoot = await secondaryContext._adoptElementHandle(this);
-		const handle = await frame._secondaryWorld.waitForSelector(selector, {
-			...options,
-			root: adoptedRoot,
-		});
-		await adoptedRoot.dispose();
-		if (!handle) {
-			return null;
-		}
-
-		const mainExecutionContext = await frame._mainWorld.executionContext();
-		const result = await mainExecutionContext._adoptElementHandle(handle);
-		await handle.dispose();
-		return result;
 	}
 
 	/**
@@ -1143,144 +1084,6 @@ export class ElementHandle<
 		}
 
 		return imageData;
-	}
-
-	/**
-	 * Runs `element.querySelector` within the page.
-	 *
-	 * @param selector - The selector to query with.
-	 * @returns `null` if no element matches the selector.
-	 * @throws `Error` if the selector has no associated query handler.
-	 */
-	async $<T extends Element = Element>(
-		selector: string
-	): Promise<ElementHandle<T> | null> {
-		const {updatedSelector, queryHandler} =
-			_getQueryHandlerAndSelector(selector);
-		assert(
-			queryHandler.queryOne,
-			'Cannot handle queries for a single element with the given selector'
-		);
-		return queryHandler.queryOne(this, updatedSelector);
-	}
-
-	/**
-	 * Runs `element.querySelectorAll` within the page. If no elements match the selector,
-	 * the return value resolves to `[]`.
-	 */
-	/**
-	 * Runs `element.querySelectorAll` within the page.
-	 *
-	 * @param selector - The selector to query with.
-	 * @returns `[]` if no element matches the selector.
-	 * @throws `Error` if the selector has no associated query handler.
-	 */
-	async $$<T extends Element = Element>(
-		selector: string
-	): Promise<Array<ElementHandle<T>>> {
-		const {updatedSelector, queryHandler} =
-			_getQueryHandlerAndSelector(selector);
-		assert(
-			queryHandler.queryAll,
-			'Cannot handle queries for a multiple element with the given selector'
-		);
-		return queryHandler.queryAll(this, updatedSelector);
-	}
-
-	/**
-	 * This method runs `document.querySelector` within the element and passes it as
-	 * the first argument to `pageFunction`. If there's no element matching `selector`,
-	 * the method throws an error.
-	 *
-	 * If `pageFunction` returns a Promise, then `frame.$eval` would wait for the promise
-	 * to resolve and return its value.
-	 *
-	 * @example
-	 * ```js
-	 * const tweetHandle = await page.$('.tweet');
-	 * expect(await tweetHandle.$eval('.like', node => node.innerText)).toBe('100');
-	 * expect(await tweetHandle.$eval('.retweets', node => node.innerText)).toBe('10');
-	 * ```
-	 */
-	async $eval<ReturnType>(
-		selector: string,
-		pageFunction: (
-			element: Element,
-			...args: unknown[]
-		) => ReturnType | Promise<ReturnType>,
-		...args: SerializableOrJSHandle[]
-	): Promise<WrapElementHandle<ReturnType>> {
-		const elementHandle = await this.$(selector);
-		if (!elementHandle) {
-			throw new Error(
-				`Error: failed to find element matching selector "${selector}"`
-			);
-		}
-
-		const result = await elementHandle.evaluate<
-			(
-				element: Element,
-				...args: SerializableOrJSHandle[]
-			) => ReturnType | Promise<ReturnType>
-		>(pageFunction, ...args);
-		await elementHandle.dispose();
-
-		/**
-		 * This `as` is a little unfortunate but helps TS understand the behavior of
-		 * `elementHandle.evaluate`. If evaluate returns an element it will return an
-		 * ElementHandle instance, rather than the plain object. All the
-		 * WrapElementHandle type does is wrap ReturnType into
-		 * ElementHandle<ReturnType> if it is an ElementHandle, or leave it alone as
-		 * ReturnType if it isn't.
-		 */
-		return result as WrapElementHandle<ReturnType>;
-	}
-
-	/**
-	 * This method runs `document.querySelectorAll` within the element and passes it as
-	 * the first argument to `pageFunction`. If there's no element matching `selector`,
-	 * the method throws an error.
-	 *
-	 * If `pageFunction` returns a Promise, then `frame.$$eval` would wait for the
-	 * promise to resolve and return its value.
-	 *
-	 * @example
-	 * ```html
-	 * <div class="feed">
-	 *   <div class="tweet">Hello!</div>
-	 *   <div class="tweet">Hi!</div>
-	 * </div>
-	 * ```
-	 *
-	 * @example
-	 * ```js
-	 * const feedHandle = await page.$('.feed');
-	 * expect(await feedHandle.$$eval('.tweet', nodes => nodes.map(n => n.innerText)))
-	 *  .toEqual(['Hello!', 'Hi!']);
-	 * ```
-	 */
-	async $$eval<ReturnType>(
-		selector: string,
-		pageFunction: EvaluateFn<
-			Element[],
-			unknown,
-			ReturnType | Promise<ReturnType>
-		>,
-		...args: SerializableOrJSHandle[]
-	): Promise<WrapElementHandle<ReturnType>> {
-		const {updatedSelector, queryHandler} =
-			_getQueryHandlerAndSelector(selector);
-		assert(queryHandler.queryAllArray);
-		const arrayHandle = await queryHandler.queryAllArray(this, updatedSelector);
-		const result = await arrayHandle.evaluate<EvaluateFn<Element[]>>(
-			pageFunction,
-			...args
-		);
-		await arrayHandle.dispose();
-		/* This `as` exists for the same reason as the `as` in $eval above.
-		 * See the comment there for a full explanation.
-		 */
-		return result as WrapElementHandle<ReturnType>;
 	}
 
 	/**

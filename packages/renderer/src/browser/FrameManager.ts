@@ -24,12 +24,10 @@ import {
 	EvaluateHandleFn,
 	SerializableOrJSHandle,
 	UnwrapPromiseLike,
-	WrapElementHandle,
 } from './EvalTypes';
 import {EventEmitter} from './EventEmitter';
 import {EVALUATION_SCRIPT_URL, ExecutionContext} from './ExecutionContext';
 import {HTTPResponse} from './HTTPResponse';
-import {MouseButton} from './Input';
 import {ElementHandle, JSHandle} from './JSHandle';
 import {LifecycleWatcher, PuppeteerLifeCycleEvent} from './LifecycleWatcher';
 import {NetworkManager} from './NetworkManager';
@@ -38,7 +36,6 @@ import {TimeoutSettings} from './TimeoutSettings';
 import {debugError, isErrorLike, isNumber, isString} from './util';
 
 const UTILITY_WORLD_NAME = '__puppeteer_utility_world__';
-const xPathPattern = /^\(\/\/[^\)]+\)|^\/\//;
 
 /**
  * We use symbols to prevent external parties listening to these events.
@@ -937,97 +934,12 @@ export class Frame {
 	}
 
 	/**
-	 * This method queries the frame for the given selector.
-	 *
-	 * @param selector - a selector to query for.
-	 * @returns A promise which resolves to an `ElementHandle` pointing at the
-	 * element, or `null` if it was not found.
-	 */
-	async $<T extends Element = Element>(
-		selector: string
-	): Promise<ElementHandle<T> | null> {
-		return this._mainWorld.$<T>(selector);
-	}
-
-	/**
 	 * This method evaluates the given XPath expression and returns the results.
 	 *
 	 * @param expression - the XPath expression to evaluate.
 	 */
 	async $x(expression: string): Promise<ElementHandle[]> {
 		return this._mainWorld.$x(expression);
-	}
-
-	/**
-	 * @remarks
-	 *
-	 * This method runs `document.querySelector` within
-	 * the frame and passes it as the first argument to `pageFunction`.
-	 *
-	 * If `pageFunction` returns a Promise, then `frame.$eval` would wait for
-	 * the promise to resolve and return its value.
-	 *
-	 * @example
-	 *
-	 * ```js
-	 * const searchValue = await frame.$eval('#search', el => el.value);
-	 * ```
-	 *
-	 * @param selector - the selector to query for
-	 * @param pageFunction - the function to be evaluated in the frame's context
-	 * @param args - additional arguments to pass to `pageFunction`
-	 */
-	async $eval<ReturnType>(
-		selector: string,
-		pageFunction: (
-			element: Element,
-			...args: unknown[]
-		) => ReturnType | Promise<ReturnType>,
-		...args: SerializableOrJSHandle[]
-	): Promise<WrapElementHandle<ReturnType>> {
-		return this._mainWorld.$eval<ReturnType>(selector, pageFunction, ...args);
-	}
-
-	/**
-	 * @remarks
-	 *
-	 * This method runs `Array.from(document.querySelectorAll(selector))` within
-	 * the frame and passes it as the first argument to `pageFunction`.
-	 *
-	 * If `pageFunction` returns a Promise, then `frame.$$eval` would wait for
-	 * the promise to resolve and return its value.
-	 *
-	 * @example
-	 *
-	 * ```js
-	 * const divsCounts = await frame.$$eval('div', divs => divs.length);
-	 * ```
-	 *
-	 * @param selector - the selector to query for
-	 * @param pageFunction - the function to be evaluated in the frame's context
-	 * @param args - additional arguments to pass to `pageFunction`
-	 */
-	async $$eval<ReturnType>(
-		selector: string,
-		pageFunction: (
-			elements: Element[],
-			...args: unknown[]
-		) => ReturnType | Promise<ReturnType>,
-		...args: SerializableOrJSHandle[]
-	): Promise<WrapElementHandle<ReturnType>> {
-		return this._mainWorld.$$eval<ReturnType>(selector, pageFunction, ...args);
-	}
-
-	/**
-	 * This runs `document.querySelectorAll` in the frame and returns the result.
-	 *
-	 * @param selector - a selector to search for
-	 * @returns An array of element handles pointing to the found frame elements.
-	 */
-	async $$<T extends Element = Element>(
-		selector: string
-	): Promise<Array<ElementHandle<T>>> {
-		return this._mainWorld.$$<T>(selector);
 	}
 
 	/**
@@ -1126,140 +1038,6 @@ export class Frame {
 	}
 
 	/**
-	 *
-	 * This method clicks the first element found that matches `selector`.
-	 *
-	 * @remarks
-	 *
-	 * This method scrolls the element into view if needed, and then uses
-	 * {@link Page.mouse} to click in the center of the element. If there's no
-	 * element matching `selector`, the method throws an error.
-	 *
-	 * Bear in mind that if `click()` triggers a navigation event and there's a
-	 * separate `page.waitForNavigation()` promise to be resolved, you may end up
-	 * with a race condition that yields unexpected results. The correct pattern
-	 * for click and wait for navigation is the following:
-	 *
-	 * ```javascript
-	 * const [response] = await Promise.all([
-	 *   page.waitForNavigation(waitOptions),
-	 *   frame.click(selector, clickOptions),
-	 * ]);
-	 * ```
-	 * @param selector - the selector to search for to click. If there are
-	 * multiple elements, the first will be clicked.
-	 */
-	async click(
-		selector: string,
-		options: {
-			delay?: number;
-			button?: MouseButton;
-			clickCount?: number;
-		} = {}
-	): Promise<void> {
-		return this._secondaryWorld.click(selector, options);
-	}
-
-	/**
-	 * This method fetches an element with `selector` and focuses it.
-	 *
-	 * @remarks
-	 * If there's no element matching `selector`, the method throws an error.
-	 *
-	 * @param selector - the selector for the element to focus. If there are
-	 * multiple elements, the first will be focused.
-	 */
-	async focus(selector: string): Promise<void> {
-		return this._secondaryWorld.focus(selector);
-	}
-
-	/**
-	 * This method fetches an element with `selector`, scrolls it into view if
-	 * needed, and then uses {@link Page.mouse} to hover over the center of the
-	 * element.
-	 *
-	 * @remarks
-	 * If there's no element matching `selector`, the method throws an
-	 *
-	 * @param selector - the selector for the element to hover. If there are
-	 * multiple elements, the first will be hovered.
-	 */
-	async hover(selector: string): Promise<void> {
-		return this._secondaryWorld.hover(selector);
-	}
-
-	/**
-	 * Triggers a `change` and `input` event once all the provided options have
-	 * been selected.
-	 *
-	 * @remarks
-	 *
-	 * If there's no `<select>` element matching `selector`, the
-	 * method throws an error.
-	 *
-	 * @example
-	 * ```js
-	 * frame.select('select#colors', 'blue'); // single selection
-	 * frame.select('select#colors', 'red', 'green', 'blue'); // multiple selections
-	 * ```
-	 *
-	 * @param selector - a selector to query the frame for
-	 * @param values - an array of values to select. If the `<select>` has the
-	 * `multiple` attribute, all values are considered, otherwise only the first
-	 * one is taken into account.
-	 * @returns the list of values that were successfully selected.
-	 */
-	select(selector: string, ...values: string[]): Promise<string[]> {
-		return this._secondaryWorld.select(selector, ...values);
-	}
-
-	/**
-	 * This method fetches an element with `selector`, scrolls it into view if
-	 * needed, and then uses {@link Page.touchscreen} to tap in the center of the
-	 * element.
-	 *
-	 * @remarks
-	 *
-	 * If there's no element matching `selector`, the method throws an error.
-	 *
-	 * @param selector - the selector to tap.
-	 * @returns a promise that resolves when the element has been tapped.
-	 */
-	async tap(selector: string): Promise<void> {
-		return this._secondaryWorld.tap(selector);
-	}
-
-	/**
-	 * Sends a `keydown`, `keypress`/`input`, and `keyup` event for each character
-	 * in the text.
-	 *
-	 * @remarks
-	 * To press a special key, like `Control` or `ArrowDown`, use
-	 * {@link Keyboard.press}.
-	 *
-	 * @example
-	 * ```js
-	 * await frame.type('#mytextarea', 'Hello'); // Types instantly
-	 * await frame.type('#mytextarea', 'World', {delay: 100}); // Types slower, like a user
-	 * ```
-	 *
-	 * @param selector - the selector for the element to type into. If there are
-	 * multiple the first will be used.
-	 * @param text - text to type into the element
-	 * @param options - takes one option, `delay`, which sets the time to wait
-	 * between key presses in milliseconds. Defaults to `0`.
-	 *
-	 * @returns a promise that resolves when the typing is complete.
-	 */
-	async type(
-		selector: string,
-		text: string,
-		options?: {delay: number}
-	): Promise<void> {
-		return this._mainWorld.type(selector, text, options);
-	}
-
-	/**
 	 * @remarks
 	 *
 	 * This method behaves differently depending on the first parameter. If it's a
@@ -1294,17 +1072,12 @@ export class Frame {
 		);
 
 		if (isString(selectorOrFunctionOrTimeout)) {
-			const string = selectorOrFunctionOrTimeout;
-			if (xPathPattern.test(string)) {
-				return this.waitForXPath(string, options);
-			}
-
-			return this.waitForSelector(string, options);
+			throw new Error('wait for selector not supported');
 		}
 
 		if (isNumber(selectorOrFunctionOrTimeout)) {
 			return new Promise((fulfill) => {
-				return setTimeout(fulfill, selectorOrFunctionOrTimeout);
+				setTimeout(fulfill, selectorOrFunctionOrTimeout);
 			});
 		}
 
@@ -1345,59 +1118,6 @@ export class Frame {
 		return new Promise((resolve) => {
 			setTimeout(resolve, milliseconds);
 		});
-	}
-
-	/**
-	 * @remarks
-	 *
-	 *
-	 * Wait for the `selector` to appear in page. If at the moment of calling the
-	 * method the `selector` already exists, the method will return immediately.
-	 * If the selector doesn't appear after the `timeout` milliseconds of waiting,
-	 * the function will throw.
-	 *
-	 * This method works across navigations.
-	 *
-	 * @example
-	 * ```js
-	 * const puppeteer = require('puppeteer');
-	 *
-	 * (async () => {
-	 *   const browser = await puppeteer.launch();
-	 *   const page = await browser.newPage();
-	 *   let currentURL;
-	 *   page.mainFrame()
-	 *   .waitForSelector('img')
-	 *   .then(() => console.log('First URL with image: ' + currentURL));
-	 *
-	 *   for (currentURL of ['https://example.com', 'https://google.com', 'https://bbc.com']) {
-	 *     await page.goto(currentURL);
-	 *   }
-	 *   await browser.close();
-	 * })();
-	 * ```
-	 * @param selector - the selector to wait for.
-	 * @param options - options to define if the element should be visible and how
-	 * long to wait before timing out.
-	 * @returns a promise which resolves when an element matching the selector
-	 * string is added to the DOM.
-	 */
-	async waitForSelector(
-		selector: string,
-		options: WaitForSelectorOptions = {}
-	): Promise<ElementHandle | null> {
-		const handle = await this._secondaryWorld.waitForSelector(
-			selector,
-			options
-		);
-		if (!handle) {
-			return null;
-		}
-
-		const mainExecutionContext = await this._mainWorld.executionContext();
-		const result = await mainExecutionContext._adoptElementHandle(handle);
-		await handle.dispose();
-		return result;
 	}
 
 	/**
