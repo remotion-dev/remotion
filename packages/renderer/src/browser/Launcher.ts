@@ -45,7 +45,6 @@ const tmpDir = () => {
 export interface ProductLauncher {
 	launch(object: PuppeteerNodeLaunchOptions): Promise<Browser>;
 	executablePath: (path?: any) => string;
-	defaultArgs(object: BrowserLaunchArgumentOptions): string[];
 	product: Product;
 }
 
@@ -69,7 +68,6 @@ class ChromeLauncher implements ProductLauncher {
 
 	async launch(options: PuppeteerNodeLaunchOptions): Promise<Browser> {
 		const {
-			ignoreDefaultArgs = false,
 			args = [],
 			dumpio = false,
 			channel,
@@ -86,18 +84,7 @@ class ChromeLauncher implements ProductLauncher {
 			debuggingPort,
 		} = options;
 
-		const chromeArguments = [];
-		if (!ignoreDefaultArgs) {
-			chromeArguments.push(...this.defaultArgs(options));
-		} else if (Array.isArray(ignoreDefaultArgs)) {
-			chromeArguments.push(
-				...this.defaultArgs(options).filter((arg) => {
-					return !ignoreDefaultArgs.includes(arg);
-				})
-			);
-		} else {
-			chromeArguments.push(...args);
-		}
+		const chromeArguments = args;
 
 		if (
 			!chromeArguments.some((argument) => {
@@ -204,73 +191,6 @@ class ChromeLauncher implements ProductLauncher {
 		}
 
 		return browser;
-	}
-
-	defaultArgs(options: BrowserLaunchArgumentOptions = {}): string[] {
-		const chromeArguments = [
-			'--allow-pre-commit-input', // TODO(crbug.com/1320996): neither headful nor headless should rely on this flag.
-			'--disable-background-networking',
-			'--enable-features=NetworkServiceInProcess2',
-			'--disable-background-timer-throttling',
-			'--disable-backgrounding-occluded-windows',
-			'--disable-breakpad',
-			'--disable-client-side-phishing-detection',
-			'--disable-component-extensions-with-background-pages',
-			'--disable-default-apps',
-			'--disable-dev-shm-usage',
-			'--disable-extensions',
-			// TODO: remove AvoidUnnecessaryBeforeUnloadCheckSync below
-			// once crbug.com/1324138 is fixed and released.
-			'--disable-features=Translate,BackForwardCache,AvoidUnnecessaryBeforeUnloadCheckSync',
-			'--disable-hang-monitor',
-			'--disable-ipc-flooding-protection',
-			'--disable-popup-blocking',
-			'--disable-prompt-on-repost',
-			'--disable-renderer-backgrounding',
-			'--disable-sync',
-			'--force-color-profile=srgb',
-			'--metrics-recording-only',
-			'--no-first-run',
-			'--enable-automation',
-			'--password-store=basic',
-			'--use-mock-keychain',
-			// TODO(sadym): remove '--enable-blink-features=IdleDetection'
-			// once IdleDetection is turned on by default.
-			'--enable-blink-features=IdleDetection',
-			'--export-tagged-pdf',
-		];
-		const {
-			devtools = false,
-			headless = !devtools,
-			args = [],
-			userDataDir,
-		} = options;
-		if (userDataDir) {
-			chromeArguments.push(`--user-data-dir=${path.resolve(userDataDir)}`);
-		}
-
-		if (devtools) {
-			chromeArguments.push('--auto-open-devtools-for-tabs');
-		}
-
-		if (headless) {
-			chromeArguments.push(
-				headless === 'chrome' ? '--headless=chrome' : '--headless',
-				'--hide-scrollbars',
-				'--mute-audio'
-			);
-		}
-
-		if (
-			args.every((arg) => {
-				return arg.startsWith('-');
-			})
-		) {
-			chromeArguments.push('about:blank');
-		}
-
-		chromeArguments.push(...args);
-		return chromeArguments;
 	}
 
 	executablePath(channel?: ChromeReleaseChannel): string {
@@ -463,7 +383,7 @@ class FirefoxLauncher implements ProductLauncher {
 		return 'firefox';
 	}
 
-	defaultArgs(options: BrowserLaunchArgumentOptions = {}): string[] {
+	defaultArgs(options: BrowserLaunchArgumentOptions): string[] {
 		const {
 			devtools = false,
 			headless = !devtools,
