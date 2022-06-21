@@ -132,57 +132,6 @@ export const isNumber = (obj: unknown): obj is number => {
 	return typeof obj === 'number' || obj instanceof Number;
 };
 
-export async function waitForEvent<T>(
-	emitter: CommonEventEmitter,
-	eventName: string | symbol,
-	predicate: (event: T) => Promise<boolean> | boolean,
-	timeout: number,
-	abortPromise: Promise<Error>
-): Promise<T> {
-	let eventTimeout: NodeJS.Timeout;
-	let resolveCallback: (value: T | PromiseLike<T>) => void;
-	let rejectCallback: (value: Error) => void;
-	const promise = new Promise<T>((resolve, reject) => {
-		resolveCallback = resolve;
-		rejectCallback = reject;
-	});
-	const listener = addEventListener(emitter, eventName, async (event) => {
-		if (!(await predicate(event))) {
-			return;
-		}
-
-		resolveCallback(event);
-	});
-	if (timeout) {
-		eventTimeout = setTimeout(() => {
-			rejectCallback(
-				new TimeoutError('Timeout exceeded while waiting for event')
-			);
-		}, timeout);
-	}
-
-	function cleanup(): void {
-		removeEventListeners([listener]);
-		clearTimeout(eventTimeout);
-	}
-
-	const result = await Promise.race([promise, abortPromise]).then(
-		(r) => {
-			cleanup();
-			return r;
-		},
-		(error) => {
-			cleanup();
-			throw error;
-		}
-	);
-	if (isErrorLike(result)) {
-		throw result;
-	}
-
-	return result;
-}
-
 export function evaluationString(
 	fun: Function | string,
 	...args: unknown[]

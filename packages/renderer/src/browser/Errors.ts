@@ -46,19 +46,3 @@ export class ProtocolError extends CustomError {
 	public code?: number;
 	public originalMessage = '';
 }
-
-/**
- * @public
- */
-export interface PuppeteerErrors {
-	TimeoutError: typeof TimeoutError;
-	ProtocolError: typeof ProtocolError;
-}
-
-/**
- * @public
- */
-export const puppeteerErrors: PuppeteerErrors = Object.freeze({
-	TimeoutError,
-	ProtocolError,
-});
