@@ -16,7 +16,6 @@
 import {Browser} from './Browser';
 import {BrowserConnectOptions, _connectToBrowser} from './BrowserConnector';
 import {ConnectionTransport} from './ConnectionTransport';
-import {DevicesMap, _devicesMap} from './DeviceDescriptors';
 import {puppeteerErrors, PuppeteerErrors} from './Errors';
 import {
 	networkConditions,
@@ -74,31 +73,6 @@ export class Puppeteer {
 	 */
 	connect(options: ConnectOptions): Promise<Browser> {
 		return _connectToBrowser(options);
-	}
-
-	/**
-	 * @remarks
-	 * A list of devices to be used with `page.emulate(options)`. Actual list of devices can be found in {@link https://github.com/puppeteer/puppeteer/blob/main/src/common/DeviceDescriptors.ts | src/common/DeviceDescriptors.ts}.
-	 *
-	 * @example
-	 *
-	 * ```js
-	 * const puppeteer = require('puppeteer');
-	 * const iPhone = puppeteer.devices['iPhone 6'];
-	 *
-	 * (async () => {
-	 *   const browser = await puppeteer.launch();
-	 *   const page = await browser.newPage();
-	 *   await page.emulate(iPhone);
-	 *   await page.goto('https://www.google.com');
-	 *   // other actions...
-	 *   await browser.close();
-	 * })();
-	 * ```
-	 *
-	 */
-	get devices(): DevicesMap {
-		return _devicesMap;
 	}
 
 	/**
