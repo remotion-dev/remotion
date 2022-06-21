@@ -83,12 +83,11 @@ export const webpackConfig = ({
 				? 'cheap-module-source-map'
 				: 'cheap-module-source-map',
 		entry: [
-			require.resolve('./setup-environment'),
-			...entryPoints,
 			environment === 'development'
 				? require.resolve('./fast-refresh/runtime.js')
 				: null,
-
+			require.resolve('./setup-environment'),
+			...entryPoints,
 			userDefinedComponent,
 			require.resolve('../react-shim.js'),
 			entry,
