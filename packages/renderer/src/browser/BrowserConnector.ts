@@ -30,11 +30,13 @@ const getWebSocketTransportClass = async () => {
 	return NodeWebSocketTransport;
 };
 
+export type ConnectToBrowserOptions = BrowserConnectOptions & {
+	browserWSEndpoint: string;
+	transport: ConnectionTransport;
+};
+
 export async function _connectToBrowser(
-	options: BrowserConnectOptions & {
-		browserWSEndpoint: string;
-		transport: ConnectionTransport;
-	}
+	options: ConnectToBrowserOptions
 ): Promise<Browser> {
 	const {browserWSEndpoint, defaultViewport, transport} = options;
 
