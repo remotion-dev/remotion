@@ -165,7 +165,6 @@ class ChromeLauncher implements ProductLauncher {
 			chromeExecutable = executablePath;
 		}
 
-		const usePipe = chromeArguments.includes('--remote-debugging-pipe');
 		const runner = new BrowserRunner(
 			this.product,
 			chromeExecutable,
@@ -179,13 +178,12 @@ class ChromeLauncher implements ProductLauncher {
 			handleSIGINT,
 			dumpio,
 			env,
-			pipe: usePipe,
+			pipe: false,
 		});
 
 		let browser;
 		try {
 			const connection = await runner.setupConnection({
-				usePipe,
 				timeout,
 				slowMo,
 				preferredRevision: this._preferredRevision,
@@ -334,7 +332,6 @@ class FirefoxLauncher implements ProductLauncher {
 			args = [],
 			dumpio = false,
 			executablePath = null,
-			pipe = false,
 			env = process.env,
 			handleSIGINT = true,
 			handleSIGTERM = true,
@@ -366,13 +363,6 @@ class FirefoxLauncher implements ProductLauncher {
 				return argument.startsWith('--remote-debugging-');
 			})
 		) {
-			if (pipe) {
-				assert(
-					debuggingPort === null,
-					'Browser should be launched with either pipe or debugging port - not both.'
-				);
-			}
-
 			firefoxArguments.push(`--remote-debugging-port=${debuggingPort || 0}`);
 		}
 
@@ -430,13 +420,11 @@ class FirefoxLauncher implements ProductLauncher {
 			handleSIGINT,
 			dumpio,
 			env,
-			pipe,
 		});
 
 		let browser;
 		try {
 			const connection = await runner.setupConnection({
-				usePipe: pipe,
 				timeout,
 				slowMo,
 				preferredRevision: this._preferredRevision,
