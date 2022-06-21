@@ -83,12 +83,14 @@ export const webpackConfig = ({
 				? 'cheap-module-source-map'
 				: 'cheap-module-source-map',
 		entry: [
-			require.resolve('./setup-environment'),
-			...entryPoints,
+			// Fast Refresh must come first,
+			// because setup-environment imports ReactDOM.
+			// If React DOM is imported before Fast Refresh, Fast Refresh does not work
 			environment === 'development'
 				? require.resolve('./fast-refresh/runtime.js')
 				: null,
-
+			require.resolve('./setup-environment'),
+			...entryPoints,
 			userDefinedComponent,
 			require.resolve('../react-shim.js'),
 			entry,
