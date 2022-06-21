@@ -425,64 +425,6 @@ export class HTTPRequest {
 				return handleError(error);
 			});
 	}
-
-	/**
-	 * Aborts a request.
-	 *
-	 * @remarks
-	 * To use this, request interception should be enabled with
-	 * {@link Page.setRequestInterception}. If it is not enabled, this method will
-	 * throw an exception immediately.
-	 *
-	 * @param errorCode - optional error code to provide.
-	 * @param priority - If provided, intercept is resolved using
-	 * cooperative handling rules. Otherwise, intercept is resolved
-	 * immediately.
-	 */
-	async abort(
-		errorCode: ErrorCode = 'failed',
-		priority?: number
-	): Promise<void> {
-		// Request interception is not supported for data: urls.
-		if (this.#url.startsWith('data:')) {
-			return;
-		}
-
-		const errorReason = errorReasons[errorCode];
-		assert(errorReason, 'Unknown error code: ' + errorCode);
-		assert(!this.#interceptionHandled, 'Request is already handled!');
-		if (priority === undefined) {
-			return this.#abort(errorReason);
-		}
-
-		if (
-			this.#interceptResolutionState.priority === undefined ||
-			priority >= this.#interceptResolutionState.priority
-		) {
-			this.#interceptResolutionState = {
-				action: InterceptResolutionAction.Abort,
-				priority,
-			};
-		}
-	}
-
-	async #abort(
-		errorReason: Protocol.Network.ErrorReason | null
-	): Promise<void> {
-		this.#interceptionHandled = true;
-		if (this._interceptionId === undefined) {
-			throw new Error(
-				'HTTPRequest is missing _interceptionId needed for Fetch.failRequest'
-			);
-		}
-
-		await this.#client
-			.send('Fetch.failRequest', {
-				requestId: this._interceptionId,
-				errorReason: errorReason || 'Failed',
-			})
-			.catch(handleError);
-	}
 }
 
 /**
@@ -496,42 +438,6 @@ enum InterceptResolutionAction {
 	None = 'none',
 	AlreadyHandled = 'already-handled',
 }
-
-/**
- * @public
- */
-type ErrorCode =
-	| 'aborted'
-	| 'accessdenied'
-	| 'addressunreachable'
-	| 'blockedbyclient'
-	| 'blockedbyresponse'
-	| 'connectionaborted'
-	| 'connectionclosed'
-	| 'connectionfailed'
-	| 'connectionrefused'
-	| 'connectionreset'
-	| 'internetdisconnected'
-	| 'namenotresolved'
-	| 'timedout'
-	| 'failed';
-
-const errorReasons: Record<ErrorCode, Protocol.Network.ErrorReason> = {
-	aborted: 'Aborted',
-	accessdenied: 'AccessDenied',
-	addressunreachable: 'AddressUnreachable',
-	blockedbyclient: 'BlockedByClient',
-	blockedbyresponse: 'BlockedByResponse',
-	connectionaborted: 'ConnectionAborted',
-	connectionclosed: 'ConnectionClosed',
-	connectionfailed: 'ConnectionFailed',
-	connectionrefused: 'ConnectionRefused',
-	connectionreset: 'ConnectionReset',
-	internetdisconnected: 'InternetDisconnected',
-	namenotresolved: 'NameNotResolved',
-	timedout: 'TimedOut',
-	failed: 'Failed',
-} as const;
 
 function headersArray(
 	headers: Record<string, string | string[]>
