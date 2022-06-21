@@ -61,54 +61,6 @@ export type IsPageTargetCallback = (
 	target: Protocol.Target.TargetInfo
 ) => boolean;
 
-const WEB_PERMISSION_TO_PROTOCOL_PERMISSION = new Map<
-	Permission,
-	Protocol.Browser.PermissionType
->([
-	['geolocation', 'geolocation'],
-	['midi', 'midi'],
-	['notifications', 'notifications'],
-	// TODO: push isn't a valid type?
-	// ['push', 'push'],
-	['camera', 'videoCapture'],
-	['microphone', 'audioCapture'],
-	['background-sync', 'backgroundSync'],
-	['ambient-light-sensor', 'sensors'],
-	['accelerometer', 'sensors'],
-	['gyroscope', 'sensors'],
-	['magnetometer', 'sensors'],
-	['accessibility-events', 'accessibilityEvents'],
-	['clipboard-read', 'clipboardReadWrite'],
-	['clipboard-write', 'clipboardReadWrite'],
-	['payment-handler', 'paymentHandler'],
-	['persistent-storage', 'durableStorage'],
-	['idle-detection', 'idleDetection'],
-	// chrome-specific permissions we have.
-	['midi-sysex', 'midiSysex'],
-]);
-
-/**
- * @public
- */
-type Permission =
-	| 'geolocation'
-	| 'midi'
-	| 'notifications'
-	| 'camera'
-	| 'microphone'
-	| 'background-sync'
-	| 'ambient-light-sensor'
-	| 'accelerometer'
-	| 'gyroscope'
-	| 'magnetometer'
-	| 'accessibility-events'
-	| 'clipboard-read'
-	| 'clipboard-write'
-	| 'payment-handler'
-	| 'persistent-storage'
-	| 'idle-detection'
-	| 'midi-sysex';
-
 /**
  * @public
  */
@@ -288,13 +240,10 @@ export class Browser extends EventEmitter {
 			});
 		this.#setIsPageTargetCallback(isPageTargetCallback);
 
-		this.#defaultContext = new BrowserContext(this.#connection, this);
+		this.#defaultContext = new BrowserContext(this);
 		this.#contexts = new Map();
 		for (const contextId of contextIds) {
-			this.#contexts.set(
-				contextId,
-				new BrowserContext(this.#connection, this, contextId)
-			);
+			this.#contexts.set(contextId, new BrowserContext(this, contextId));
 		}
 
 		this.#targets = new Map();
@@ -368,11 +317,7 @@ export class Browser extends EventEmitter {
 				proxyBypassList: proxyBypassList?.join(','),
 			}
 		);
-		const context = new BrowserContext(
-			this.#connection,
-			this,
-			browserContextId
-		);
+		const context = new BrowserContext(this, browserContextId);
 		this.#contexts.set(browserContextId, context);
 		return context;
 	}
@@ -754,16 +699,14 @@ const enum BrowserContextEmittedEvents {
  * @public
  */
 export class BrowserContext extends EventEmitter {
-	#connection: Connection;
 	#browser: Browser;
 	#id?: string;
 
 	/**
 	 * @internal
 	 */
-	constructor(connection: Connection, browser: Browser, contextId?: string) {
+	constructor(browser: Browser, contextId?: string) {
 		super();
-		this.#connection = connection;
 		this.#browser = browser;
 		this.#id = contextId;
 	}
@@ -840,54 +783,6 @@ export class BrowserContext extends EventEmitter {
 	 */
 	isIncognito(): boolean {
 		return Boolean(this.#id);
-	}
-
-	/**
-	 * @example
-	 * ```js
-	 * const context = browser.defaultBrowserContext();
-	 * await context.overridePermissions('https://html5demos.com', ['geolocation']);
-	 * ```
-	 *
-	 * @param origin - The origin to grant permissions to, e.g. "https://example.com".
-	 * @param permissions - An array of permissions to grant.
-	 * All permissions that are not listed here will be automatically denied.
-	 */
-	async overridePermissions(
-		origin: string,
-		permissions: Permission[]
-	): Promise<void> {
-		const protocolPermissions = permissions.map((permission) => {
-			const protocolPermission =
-				WEB_PERMISSION_TO_PROTOCOL_PERMISSION.get(permission);
-			if (!protocolPermission) {
-				throw new Error('Unknown permission: ' + permission);
-			}
-
-			return protocolPermission;
-		});
-		await this.#connection.send('Browser.grantPermissions', {
-			origin,
-			browserContextId: this.#id || undefined,
-			permissions: protocolPermissions,
-		});
-	}
-
-	/**
-	 * Clears all permission overrides for the browser context.
-	 *
-	 * @example
-	 * ```js
-	 * const context = browser.defaultBrowserContext();
-	 * context.overridePermissions('https://example.com', ['clipboard-read']);
-	 * // do stuff ..
-	 * context.clearPermissionOverrides();
-	 * ```
-	 */
-	async clearPermissionOverrides(): Promise<void> {
-		await this.#connection.send('Browser.resetPermissions', {
-			browserContextId: this.#id || undefined,
-		});
 	}
 
 	/**

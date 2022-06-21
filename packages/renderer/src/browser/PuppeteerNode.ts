@@ -90,7 +90,6 @@ export class PuppeteerNode extends Puppeteer {
 		this.connect = this.connect.bind(this);
 		this.launch = this.launch.bind(this);
 		this.executablePath = this.executablePath.bind(this);
-		this.defaultArgs = this.defaultArgs.bind(this);
 		this.createBrowserFetcher = this.createBrowserFetcher.bind(this);
 	}
 
@@ -215,15 +214,6 @@ export class PuppeteerNode extends Puppeteer {
 	 */
 	get product(): string {
 		return this._launcher.product;
-	}
-
-	/**
-	 *
-	 * @param options - Set of configurable options to set on the browser.
-	 * @returns The default flags that Chromium will be launched with.
-	 */
-	defaultArgs(options: BrowserLaunchArgumentOptions = {}): string[] {
-		return this._launcher.defaultArgs(options);
 	}
 
 	/**

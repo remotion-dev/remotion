@@ -47,7 +47,7 @@ export interface BrowserLaunchArgumentOptions {
 	/**
 	 * Additional command line arguments to pass to the browser instance.
 	 */
-	args?: string[];
+	args: string[];
 }
 /**
  * @public
