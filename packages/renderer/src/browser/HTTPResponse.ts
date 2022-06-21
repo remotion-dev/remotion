@@ -20,7 +20,6 @@ import {ProtocolError} from './Errors';
 import {EventEmitter} from './EventEmitter';
 import {Frame} from './FrameManager';
 import {HTTPRequest} from './HTTPRequest';
-import {SecurityDetails} from './SecurityDetails';
 
 /**
  * @public
@@ -48,7 +47,7 @@ export class HTTPResponse {
 	#request: HTTPRequest;
 	#contentPromise: Promise<Buffer> | null = null;
 	#bodyLoadedPromise: Promise<Error | void>;
-	#bodyLoadedPromiseFulfill: (err: Error | void) => void = () => {};
+	#bodyLoadedPromiseFulfill: (err: Error | void) => void = () => undefined;
 	#remoteAddress: RemoteAddress;
 	#status: number;
 	#statusText: string;
@@ -56,7 +55,6 @@ export class HTTPResponse {
 	#fromDiskCache: boolean;
 	#fromServiceWorker: boolean;
 	#headers: Record<string, string> = {};
-	#securityDetails: SecurityDetails | null;
 	#timing: Protocol.Network.ResourceTiming | null;
 
 	/**
@@ -92,9 +90,6 @@ export class HTTPResponse {
 			this.#headers[key.toLowerCase()] = value;
 		}
 
-		this.#securityDetails = responsePayload.securityDetails
-			? new SecurityDetails(responsePayload.securityDetails)
-			: null;
 		this.#timing = responsePayload.timing || null;
 	}
 
@@ -181,14 +176,6 @@ export class HTTPResponse {
 	}
 
 	/**
-	 * @returns {@link SecurityDetails} if the response was received over the
-	 * secure connection, or `null` otherwise.
-	 */
-	securityDetails(): SecurityDetails | null {
-		return this.#securityDetails;
-	}
-
-	/**
 	 * @returns Timing information related to the response.
 	 */
 	timing(): Protocol.Network.ResourceTiming | null {
@@ -213,17 +200,17 @@ export class HTTPResponse {
 						response.body,
 						response.base64Encoded ? 'base64' : 'utf8'
 					);
-				} catch (error) {
+				} catch (_error) {
 					if (
-						error instanceof ProtocolError &&
-						error.originalMessage === 'No resource with given identifier found'
+						_error instanceof ProtocolError &&
+						_error.originalMessage === 'No resource with given identifier found'
 					) {
 						throw new ProtocolError(
 							'Could not load body for this request. This might happen if the request is a preflight request.'
 						);
 					}
 
-					throw error;
+					throw _error;
 				}
 			});
 		}
