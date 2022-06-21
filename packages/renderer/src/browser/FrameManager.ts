@@ -704,28 +704,15 @@ export class Frame {
 		this._updateClient(client);
 	}
 
-	/**
-	 * @internal
-	 */
 	_updateClient(client: CDPSession): void {
 		this.#client = client;
-		this._mainWorld = new DOMWorld(
-			this.#client,
-			this,
-			this._frameManager._timeoutSettings
-		);
+		this._mainWorld = new DOMWorld(this, this._frameManager._timeoutSettings);
 		this._secondaryWorld = new DOMWorld(
-			this.#client,
 			this,
 			this._frameManager._timeoutSettings
 		);
 	}
 
-	/**
-	 * @remarks
-	 *
-	 * @returns `true` if the frame is an OOP frame, or `false` otherwise.
-	 */
 	isOOPFrame(): boolean {
 		return this.#client !== this._frameManager._client;
 	}
@@ -776,37 +763,16 @@ export class Frame {
 			waitUntil?: PuppeteerLifeCycleEvent | PuppeteerLifeCycleEvent[];
 		} = {}
 	): Promise<HTTPResponse | null> {
-		return await this._frameManager.navigateFrame(this, url, options);
+		return this._frameManager.navigateFrame(this, url, options);
 	}
 
-	/**
-	 * @remarks
-	 *
-	 * This resolves when the frame navigates to a new URL. It is useful for when
-	 * you run code which will indirectly cause the frame to navigate. Consider
-	 * this example:
-	 *
-	 * ```js
-	 * const [response] = await Promise.all([
-	 *   // The navigation promise resolves after navigation has finished
-	 *   frame.waitForNavigation(),
-	 *   // Clicking the link will indirectly cause a navigation
-	 *   frame.click('a.my-link'),
-	 * ]);
-	 * ```
-	 *
-	 * Usage of the {@link https://developer.mozilla.org/en-US/docs/Web/API/History_API | History API} to change the URL is considered a navigation.
-	 *
-	 * @param options - options to configure when the navigation is consided finished.
-	 * @returns a promise that resolves when the frame navigates to a new URL.
-	 */
 	async waitForNavigation(
 		options: {
 			timeout?: number;
 			waitUntil?: PuppeteerLifeCycleEvent | PuppeteerLifeCycleEvent[];
 		} = {}
 	): Promise<HTTPResponse | null> {
-		return await this._frameManager.waitForFrameNavigation(this, options);
+		return this._frameManager.waitForFrameNavigation(this, options);
 	}
 
 	/**
@@ -823,19 +789,6 @@ export class Frame {
 		return this._mainWorld.executionContext();
 	}
 
-	/**
-	 * @remarks
-	 *
-	 * The only difference between {@link Frame.evaluate} and
-	 * `frame.evaluateHandle` is that `evaluateHandle` will return the value
-	 * wrapped in an in-page object.
-	 *
-	 * This method behaves identically to {@link Page.evaluateHandle} except it's
-	 * run within the context of the `frame`, rather than the entire page.
-	 *
-	 * @param pageFunction - a function that is run within the frame
-	 * @param args - arguments to be passed to the pageFunction
-	 */
 	async evaluateHandle<HandlerType extends JSHandle = JSHandle>(
 		pageFunction: EvaluateHandleFn,
 		...args: SerializableOrJSHandle[]
@@ -843,15 +796,6 @@ export class Frame {
 		return this._mainWorld.evaluateHandle<HandlerType>(pageFunction, ...args);
 	}
 
-	/**
-	 * @remarks
-	 *
-	 * This method behaves identically to {@link Page.evaluate} except it's run
-	 * within the context of the `frame`, rather than the entire page.
-	 *
-	 * @param pageFunction - a function that is run within the frame
-	 * @param args - arguments to be passed to the pageFunction
-	 */
 	async evaluate<T extends EvaluateFn>(
 		pageFunction: T,
 		...args: SerializableOrJSHandle[]
@@ -859,83 +803,26 @@ export class Frame {
 		return this._mainWorld.evaluate<T>(pageFunction, ...args);
 	}
 
-	/**
-	 * @remarks
-	 *
-	 * If the name is empty, it returns the `id` attribute instead.
-	 *
-	 * Note: This value is calculated once when the frame is created, and will not
-	 * update if the attribute is changed later.
-	 *
-	 * @returns the frame's `name` attribute as specified in the tag.
-	 */
 	name(): string {
 		return this._name || '';
 	}
 
-	/**
-	 * @returns the frame's URL.
-	 */
 	url(): string {
 		return this.#url;
 	}
 
-	/**
-	 * @returns the parent `Frame`, if any. Detached and main frames return `null`.
-	 */
 	parentFrame(): Frame | null {
 		return this.#parentFrame;
 	}
 
-	/**
-	 * @returns an array of child frames.
-	 */
 	childFrames(): Frame[] {
 		return Array.from(this._childFrames);
 	}
 
-	/**
-	 * @returns `true` if the frame has been detached, or `false` otherwise.
-	 */
 	isDetached(): boolean {
 		return this.#detached;
 	}
 
-	/**
-	 * @remarks
-	 *
-	 * @example
-	 *
-	 * The `waitForFunction` can be used to observe viewport size change:
-	 * ```js
-	 * const puppeteer = require('puppeteer');
-	 *
-	 * (async () => {
-	 * .  const browser = await puppeteer.launch();
-	 * .  const page = await browser.newPage();
-	 * .  const watchDog = page.mainFrame().waitForFunction('window.innerWidth < 100');
-	 * .  page.setViewport({width: 50, height: 50});
-	 * .  await watchDog;
-	 * .  await browser.close();
-	 * })();
-	 * ```
-	 *
-	 * To pass arguments from Node.js to the predicate of `page.waitForFunction` function:
-	 *
-	 * ```js
-	 * const selector = '.foo';
-	 * await frame.waitForFunction(
-	 *   selector => !!document.querySelector(selector),
-	 *   {}, // empty options object
-	 *   selector
-	 *);
-	 * ```
-	 *
-	 * @param pageFunction - the function to evaluate in the frame context.
-	 * @param options - options to configure the polling method and timeout.
-	 * @param args - arguments to pass to the `pageFunction`.
-	 * @returns the promise which resolve when the `pageFunction` returns a truthy value.
-	 */
 	waitForFunction(
 		pageFunction: Function | string,
 		...args: SerializableOrJSHandle[]
@@ -943,31 +830,19 @@ export class Frame {
 		return this._mainWorld.waitForFunction(pageFunction, ...args);
 	}
 
-	/**
-	 * @returns the frame's title.
-	 */
 	async title(): Promise<string> {
 		return this._secondaryWorld.title();
 	}
 
-	/**
-	 * @internal
-	 */
 	_navigated(framePayload: Protocol.Page.Frame): void {
 		this._name = framePayload.name;
 		this.#url = `${framePayload.url}${framePayload.urlFragment || ''}`;
 	}
 
-	/**
-	 * @internal
-	 */
 	_navigatedWithinDocument(url: string): void {
 		this.#url = url;
 	}
 
-	/**
-	 * @internal
-	 */
 	_onLifecycleEvent(loaderId: string, name: string): void {
 		if (name === 'init') {
 			this._loaderId = loaderId;
@@ -977,24 +852,15 @@ export class Frame {
 		this._lifecycleEvents.add(name);
 	}
 
-	/**
-	 * @internal
-	 */
 	_onLoadingStopped(): void {
 		this._lifecycleEvents.add('DOMContentLoaded');
 		this._lifecycleEvents.add('load');
 	}
 
-	/**
-	 * @internal
-	 */
 	_onLoadingStarted(): void {
 		this._hasStartedLoading = true;
 	}
 
-	/**
-	 * @internal
-	 */
 	_detach(): void {
 		this.#detached = true;
 		this._mainWorld._detach();
