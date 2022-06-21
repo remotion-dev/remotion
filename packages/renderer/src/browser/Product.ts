@@ -14,8 +14,4 @@
  * limitations under the License.
  */
 
-/**
- * Supported products.
- * @public
- */
 export type Product = 'chrome' | 'firefox';

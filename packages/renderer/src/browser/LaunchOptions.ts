@@ -17,11 +17,6 @@
 import {BrowserConnectOptions} from './BrowserConnector';
 import {Product} from './Product';
 
-/**
- * Launcher options that only apply to Chrome.
- *
- * @public
- */
 export interface BrowserLaunchArgumentOptions {
 	/**
 	 * Whether to run the browser in headless mode.
@@ -49,19 +44,12 @@ export interface BrowserLaunchArgumentOptions {
 	 */
 	args: string[];
 }
-/**
- * @public
- */
 export type ChromeReleaseChannel =
 	| 'chrome'
 	| 'chrome-beta'
 	| 'chrome-canary'
 	| 'chrome-dev';
 
-/**
- * Generic launch options that can be passed when launching any browser.
- * @public
- */
 export interface LaunchOptions {
 	/**
 	 * Chrome Release Channel
@@ -134,11 +122,6 @@ export interface LaunchOptions {
 	waitForInitialPage?: boolean;
 }
 
-/**
- * Utility type exposed to enable users to define options that can be passed to
- * `puppeteer.launch` without having to list the set of all types.
- * @public
- */
 export type PuppeteerNodeLaunchOptions = BrowserLaunchArgumentOptions &
 	LaunchOptions &
 	BrowserConnectOptions;

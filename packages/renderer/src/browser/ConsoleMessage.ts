@@ -16,9 +16,6 @@
 
 import {JSHandle} from './JSHandle';
 
-/**
- * @public
- */
 export interface ConsoleMessageLocation {
 	/**
 	 * URL of the resource if known or `undefined` otherwise.
@@ -36,10 +33,6 @@ export interface ConsoleMessageLocation {
 	columnNumber?: number;
 }
 
-/**
- * The supported types for console messages.
- * @public
- */
 export type ConsoleMessageType =
 	| 'log'
 	| 'debug'
@@ -61,19 +54,12 @@ export type ConsoleMessageType =
 	| 'timeEnd'
 	| 'verbose';
 
-/**
- * ConsoleMessage objects are dispatched by page via the 'console' event.
- * @public
- */
 export class ConsoleMessage {
 	#type: ConsoleMessageType;
 	#text: string;
 	#args: JSHandle[];
 	#stackTraceLocations: ConsoleMessageLocation[];
 
-	/**
-	 * @public
-	 */
 	constructor(
 		type: ConsoleMessageType,
 		text: string,

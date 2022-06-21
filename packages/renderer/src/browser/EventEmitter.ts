@@ -16,18 +16,6 @@ export interface CommonEventEmitter {
 	removeAllListeners(event?: EventType): CommonEventEmitter;
 }
 
-/**
- * The EventEmitter class that many Puppeteer classes extend.
- *
- * @remarks
- *
- * This allows you to listen to events that Puppeteer classes fire and act
- * accordingly. Therefore you'll mostly use {@link EventEmitter.on | on} and
- * {@link EventEmitter.off | off} to bind
- * and unbind to event listeners.
- *
- * @public
- */
 export class EventEmitter implements CommonEventEmitter {
 	private emitter: Emitter;
 	private eventsMap = new Map<EventType, Handler[]>();

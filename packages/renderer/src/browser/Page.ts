@@ -46,19 +46,7 @@ import {
 	valueFromRemoteObject,
 } from './util';
 
-/**
- * @public
- */
 interface WaitForOptions {
-	/**
-	 * Maximum wait time in milliseconds, defaults to 30 seconds, pass `0` to
-	 * disable the timeout.
-	 *
-	 * @remarks
-	 * The default value can be changed by using the
-	 * {@link Page.setDefaultTimeout} or {@link Page.setDefaultNavigationTimeout}
-	 * methods.
-	 */
 	timeout?: number;
 	waitUntil?: PuppeteerLifeCycleEvent | PuppeteerLifeCycleEvent[];
 }

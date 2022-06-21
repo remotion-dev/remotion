@@ -25,9 +25,6 @@ import {Frame} from './FrameManager';
 import {ElementHandle, JSHandle, _createJSHandle} from './JSHandle';
 import {getExceptionMessage, isString, valueFromRemoteObject} from './util';
 
-/**
- * @public
- */
 export const EVALUATION_SCRIPT_URL = 'pptr://__puppeteer_evaluation_script__';
 const SOURCE_URL_REGEX = /^[\040\t]*\/\/[@#] sourceURL=\s*(\S*?)\s*$/m;
 

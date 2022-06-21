@@ -26,18 +26,12 @@ import {
 	PuppeteerEventListener,
 	removeEventListeners,
 } from './util';
-/**
- * @public
- */
 export type PuppeteerLifeCycleEvent =
 	| 'load'
 	| 'domcontentloaded'
 	| 'networkidle0'
 	| 'networkidle2';
 
-/**
- * @public
- */
 type ProtocolLifeCycleEvent =
 	| 'load'
 	| 'DOMContentLoaded'

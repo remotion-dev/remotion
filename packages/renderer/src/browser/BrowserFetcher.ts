@@ -69,10 +69,6 @@ const browserConfig = {
 	},
 } as const;
 
-/**
- * Supported platforms.
- * @public
- */
 type Platform = 'linux' | 'mac' | 'mac_arm' | 'win32' | 'win64';
 
 function archiveName(
@@ -153,9 +149,6 @@ function existsAsync(filePath: string): Promise<boolean> {
 	});
 }
 
-/**
- * @public
- */
 export interface BrowserFetcherOptions {
 	platform?: Platform;
 	product?: string;
@@ -163,9 +156,6 @@ export interface BrowserFetcherOptions {
 	host?: string;
 }
 
-/**
- * @public
- */
 interface BrowserFetcherRevisionInfo {
 	folderPath: string;
 	executablePath: string;
@@ -174,29 +164,6 @@ interface BrowserFetcherRevisionInfo {
 	revision: string;
 	product: string;
 }
-/**
- * BrowserFetcher can download and manage different versions of Chromium and Firefox.
- *
- * @remarks
- * BrowserFetcher operates on revision strings that specify a precise version of Chromium, e.g. `"533271"`. Revision strings can be obtained from {@link http://omahaproxy.appspot.com/ | omahaproxy.appspot.com}.
- * In the Firefox case, BrowserFetcher downloads Firefox Nightly and
- * operates on version numbers such as `"75"`.
- *
- * @example
- * An example of using BrowserFetcher to download a specific version of Chromium
- * and running Puppeteer against it:
- *
- * ```js
- * const browserFetcher = puppeteer.createBrowserFetcher();
- * const revisionInfo = await browserFetcher.download('533271');
- * const browser = await puppeteer.launch({executablePath: revisionInfo.executablePath})
- * ```
- *
- * **NOTE** BrowserFetcher is not designed to work concurrently with other
- * instances of BrowserFetcher that share the same downloads directory.
- *
- * @public
- */
 
 export class BrowserFetcher {
 	#product: Product;

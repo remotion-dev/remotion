@@ -24,9 +24,6 @@ import {ConnectionTransport} from './ConnectionTransport';
 import {ProtocolError} from './Errors';
 import {EventEmitter} from './EventEmitter';
 
-/**
- * @public
- */
 interface ConnectionCallback {
 	resolve: Function;
 	reject: Function;
@@ -38,9 +35,6 @@ const ConnectionEmittedEvents = {
 	Disconnected: Symbol('Connection.Disconnected'),
 } as const;
 
-/**
- * @public
- */
 export class Connection extends EventEmitter {
 	#url: string;
 	#transport: ConnectionTransport;

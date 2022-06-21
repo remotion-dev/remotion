@@ -38,10 +38,6 @@ const tmpDir = () => {
 	return process.env.PUPPETEER_TMP_DIR || os.tmpdir();
 };
 
-/**
- * Describes a launcher - a class that is able to create and launch a browser instance.
- * @public
- */
 export interface ProductLauncher {
 	launch(object: PuppeteerNodeLaunchOptions): Promise<Browser>;
 	executablePath: (path?: any) => string;
