@@ -19,9 +19,9 @@ import createHttpsProxyAgent, {HttpsProxyAgentOptions} from 'https-proxy-agent';
 import ProgressBar from 'progress';
 import {getProxyForUrl} from 'proxy-from-env';
 import URL from 'url';
-import {puppeteer} from './node.js';
-import {PuppeteerNode} from './PuppeteerNode.js';
-import {PUPPETEER_REVISIONS} from './revisions.js';
+import {puppeteer} from './node';
+import {PuppeteerNode} from './PuppeteerNode';
+import {PUPPETEER_REVISIONS} from './revisions';
 
 const supportedProducts = {
 	chrome: 'Chromium',

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assert} from './assert.js';
+import {assert} from './assert';
 import {ConnectionTransport} from './ConnectionTransport';
 import {
 	addEventListener,

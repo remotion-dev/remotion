@@ -16,9 +16,9 @@
 
 import {Browser} from './Browser';
 import {BrowserConnectOptions} from './BrowserConnector';
-import {BrowserFetcher, BrowserFetcherOptions} from './BrowserFetcher.js';
+import {BrowserFetcher, BrowserFetcherOptions} from './BrowserFetcher';
 import Launcher, {ProductLauncher} from './Launcher';
-import {BrowserLaunchArgumentOptions, LaunchOptions} from './LaunchOptions.js';
+import {BrowserLaunchArgumentOptions, LaunchOptions} from './LaunchOptions';
 import {Product} from './Product';
 import {CommonPuppeteerSettings, ConnectOptions, Puppeteer} from './Puppeteer';
 import {PUPPETEER_REVISIONS} from './revisions';

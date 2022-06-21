@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {NetworkConditions} from './NetworkManager.js';
+import {NetworkConditions} from './NetworkManager';
 
 /**
  * @public
