@@ -33,7 +33,7 @@ import {HTTPRequest} from './HTTPRequest';
 import {HTTPResponse} from './HTTPResponse';
 import {ElementHandle, JSHandle, _createJSHandle} from './JSHandle';
 import {PuppeteerLifeCycleEvent} from './LifecycleWatcher';
-import {NetworkConditions, NetworkManagerEmittedEvents} from './NetworkManager';
+import {NetworkManagerEmittedEvents} from './NetworkManager';
 import {Viewport} from './PuppeteerViewport';
 import {Target} from './Target';
 import {TaskQueue} from './TaskQueue';
@@ -388,7 +388,6 @@ export class Page extends EventEmitter {
 	screenshotTaskQueue: TaskQueue;
 
 	#disconnectPromise?: Promise<Error>;
-	#userDragInterceptionEnabled = false;
 	#handlerMap = new WeakMap<Handler, Handler>();
 
 	/**
@@ -508,13 +507,6 @@ export class Page extends EventEmitter {
 	}
 
 	/**
-	 * @returns `true` if drag events are being intercepted, `false` otherwise.
-	 */
-	isDragInterceptionEnabled(): boolean {
-		return this.#userDragInterceptionEnabled;
-	}
-
-	/**
 	 * Listen to page events.
 	 */
 	// Note: this method exists to define event typings and handle
@@ -627,59 +619,6 @@ export class Page extends EventEmitter {
 
 	async setViewport(viewport: Viewport): Promise<void> {
 		await this.#emulationManager.emulateViewport(viewport);
-	}
-
-	/**
-	 * @param enabled - Whether to enable drag interception.
-	 *
-	 * @remarks
-	 * Activating drag interception enables the `Input.drag`,
-	 * methods  This provides the capability to capture drag events emitted
-	 * on the page, which can then be used to simulate drag-and-drop.
-	 */
-	async setDragInterception(enabled: boolean): Promise<void> {
-		this.#userDragInterceptionEnabled = enabled;
-		return this.#client.send('Input.setInterceptDrags', {enabled});
-	}
-
-	/**
-	 * @param enabled - When `true`, enables offline mode for the page.
-	 * @remarks
-	 * NOTE: while this method sets the network connection to offline, it does
-	 * not change the parameters used in [page.emulateNetworkConditions(networkConditions)]
-	 * (#pageemulatenetworkconditionsnetworkconditions)
-	 */
-	setOfflineMode(enabled: boolean): Promise<void> {
-		return this.#frameManager.networkManager().setOfflineMode(enabled);
-	}
-
-	/**
-	 * @param networkConditions - Passing `null` disables network condition emulation.
-	 * @example
-	 * ```js
-	 * const puppeteer = require('puppeteer');
-	 * const slow3G = puppeteer.networkConditions['Slow 3G'];
-	 *
-	 * (async () => {
-	 * const browser = await puppeteer.launch();
-	 * const page = await browser.newPage();
-	 * await page.emulateNetworkConditions(slow3G);
-	 * await page.goto('https://www.google.com');
-	 * // other actions...
-	 * await browser.close();
-	 * })();
-	 * ```
-	 * @remarks
-	 * NOTE: This does not affect WebSockets and WebRTC PeerConnections (see
-	 * https://crbug.com/563644). To set the page offline, you can use
-	 * [page.setOfflineMode(enabled)](#pagesetofflinemodeenabled).
-	 */
-	emulateNetworkConditions(
-		networkConditions: NetworkConditions | null
-	): Promise<void> {
-		return this.#frameManager
-			.networkManager()
-			.emulateNetworkConditions(networkConditions);
 	}
 
 	/**
