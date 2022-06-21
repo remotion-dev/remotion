@@ -43,12 +43,6 @@ export interface NetworkConditions {
 	// Latency (ms)
 	latency: number;
 }
-/**
- * @public
- */
-interface InternalNetworkConditions extends NetworkConditions {
-	offline: boolean;
-}
 
 /**
  * We use symbols to prevent any external parties listening to these events.
@@ -86,13 +80,6 @@ export class NetworkManager extends EventEmitter {
 	#extraHTTPHeaders: Record<string, string> = {};
 	#credentials?: Credentials;
 	#attemptedAuthentications = new Set<string>();
-	#emulatedNetworkConditions: InternalNetworkConditions = {
-		offline: false,
-		upload: -1,
-		download: -1,
-		latency: 0,
-	};
-
 	constructor(
 		client: CDPSession,
 		ignoreHTTPSErrors: boolean,
@@ -161,36 +148,6 @@ export class NetworkManager extends EventEmitter {
 
 	numRequestsInProgress(): number {
 		return this.#networkEventManager.numRequestsInProgress();
-	}
-
-	async setOfflineMode(value: boolean): Promise<void> {
-		this.#emulatedNetworkConditions.offline = value;
-		await this.#updateNetworkConditions();
-	}
-
-	async emulateNetworkConditions(
-		networkConditions: NetworkConditions | null
-	): Promise<void> {
-		this.#emulatedNetworkConditions.upload = networkConditions
-			? networkConditions.upload
-			: -1;
-		this.#emulatedNetworkConditions.download = networkConditions
-			? networkConditions.download
-			: -1;
-		this.#emulatedNetworkConditions.latency = networkConditions
-			? networkConditions.latency
-			: 0;
-
-		await this.#updateNetworkConditions();
-	}
-
-	async #updateNetworkConditions(): Promise<void> {
-		await this.#client.send('Network.emulateNetworkConditions', {
-			offline: this.#emulatedNetworkConditions.offline,
-			latency: this.#emulatedNetworkConditions.latency,
-			uploadThroughput: this.#emulatedNetworkConditions.upload,
-			downloadThroughput: this.#emulatedNetworkConditions.download,
-		});
 	}
 
 	#onRequestWillBeSent(event: Protocol.Network.RequestWillBeSentEvent): void {
