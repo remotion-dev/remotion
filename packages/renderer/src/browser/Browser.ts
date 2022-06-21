@@ -17,7 +17,7 @@
 import {ChildProcess} from 'child_process';
 import {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
-import {Connection, ConnectionEmittedEvents} from './Connection';
+import {Connection} from './Connection';
 import {EventEmitter} from './EventEmitter';
 import {Page} from './Page';
 import {Viewport} from './PuppeteerViewport';
@@ -63,7 +63,6 @@ interface WaitForTargetOptions {
  * @public
  */
 const enum BrowserEmittedEvents {
-	Disconnected = 'disconnected',
 	TargetChanged = 'targetchanged',
 	TargetCreated = 'targetcreated',
 }
@@ -129,9 +128,6 @@ export class Browser extends EventEmitter {
 		}
 
 		this.#targets = new Map();
-		this.#connection.on(ConnectionEmittedEvents.Disconnected, () => {
-			return this.emit(BrowserEmittedEvents.Disconnected);
-		});
 		this.#connection.on('Target.targetCreated', this.#targetCreated.bind(this));
 		this.#connection.on(
 			'Target.targetDestroyed',
@@ -244,7 +240,6 @@ export class Browser extends EventEmitter {
 
 		if (await target._initializedPromise) {
 			this.emit(BrowserEmittedEvents.TargetCreated, target);
-			context.emit(BrowserContextEmittedEvents.TargetCreated, target);
 		}
 	}
 
@@ -259,11 +254,6 @@ export class Browser extends EventEmitter {
 		target._initializedCallback(false);
 		this.#targets.delete(event.targetId);
 		target._closedCallback();
-		if (await target._initializedPromise) {
-			target
-				.browserContext()
-				.emit(BrowserContextEmittedEvents.TargetDestroyed, target);
-		}
 	}
 
 	#targetInfoChanged(event: Protocol.Target.TargetInfoChangedEvent): void {
@@ -279,9 +269,6 @@ export class Browser extends EventEmitter {
 		target._targetInfoChanged(event.targetInfo);
 		if (wasInitialized && previousURL !== target.url()) {
 			this.emit(BrowserEmittedEvents.TargetChanged, target);
-			target
-				.browserContext()
-				.emit(BrowserContextEmittedEvents.TargetChanged, target);
 		}
 	}
 
@@ -486,86 +473,22 @@ export class Browser extends EventEmitter {
 		return this.#connection.send('Browser.getVersion');
 	}
 }
-/**
- * @public
- */
-const enum BrowserContextEmittedEvents {
-	TargetChanged = 'targetchanged',
-	TargetCreated = 'targetcreated',
-	TargetDestroyed = 'targetdestroyed',
-}
-
-/**
- * BrowserContexts provide a way to operate multiple independent browser
- * sessions. When a browser is launched, it has a single BrowserContext used by
- * default. The method {@link Browser.newPage | Browser.newPage} creates a page
- * in the default browser context.
- *
- * @remarks
- *
- * The Browser class extends from Puppeteer's {@link EventEmitter} class and
- * will emit various events which are documented in the
- * {@link BrowserContextEmittedEvents} enum.
- *
- * If a page opens another page, e.g. with a `window.open` call, the popup will
- * belong to the parent page's browser context.
- *
- * Puppeteer allows creation of "incognito" browser contexts with
- * {@link Browser.createIncognitoBrowserContext | Browser.createIncognitoBrowserContext}
- * method. "Incognito" browser contexts don't write any browsing data to disk.
- *
- * @example
- * ```js
- * // Create a new incognito browser context
- * const context = await browser.createIncognitoBrowserContext();
- * // Create a new page inside context.
- * const page = await context.newPage();
- * // ... do stuff with page ...
- * await page.goto('https://example.com');
- * // Dispose context once it's no longer needed.
- * await context.close();
- * ```
- * @public
- */
 export class BrowserContext extends EventEmitter {
 	#browser: Browser;
 	#id?: string;
 
-	/**
-	 * @internal
-	 */
 	constructor(browser: Browser, contextId?: string) {
 		super();
 		this.#browser = browser;
 		this.#id = contextId;
 	}
 
-	/**
-	 * An array of all active targets inside the browser context.
-	 */
 	targets(): Target[] {
 		return this.#browser.targets().filter((target) => {
 			return target.browserContext() === this;
 		});
 	}
 
-	/**
-	 * This searches for a target in this specific browser context.
-	 *
-	 * @example
-	 * An example of finding a target for a page opened via `window.open`:
-	 * ```js
-	 * await page.evaluate(() => window.open('https://www.example.com/'));
-	 * const newWindowTarget = await browserContext.waitForTarget(target => target.url() === 'https://www.example.com/');
-	 * ```
-	 *
-	 * @param predicate - A function to be run for every target
-	 * @param options - An object of options. Accepts a timout,
-	 * which is the maximum wait time in milliseconds.
-	 * Pass `0` to disable the timeout. Defaults to 30 seconds.
-	 * @returns Promise which resolves to the first target found
-	 * that matches the `predicate` function.
-	 */
 	waitForTarget(
 		predicate: (x: Target) => boolean | Promise<boolean>,
 		options: {timeout?: number} = {}
@@ -575,13 +498,6 @@ export class BrowserContext extends EventEmitter {
 		}, options);
 	}
 
-	/**
-	 * An array of all pages inside the browser context.
-	 *
-	 * @returns Promise which resolves to an array of all open pages.
-	 * Non visible pages, such as `"background_page"`, will not be listed here.
-	 * You can find them using {@link Target.page | the target page}.
-	 */
 	async pages(): Promise<Page[]> {
 		const pages = await Promise.all(
 			this.targets()
