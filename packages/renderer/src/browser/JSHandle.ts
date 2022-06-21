@@ -26,7 +26,7 @@ import {
 } from './EvalTypes';
 import {ExecutionContext} from './ExecutionContext';
 import {Frame, FrameManager} from './FrameManager';
-import {Page, ScreenshotOptions} from './Page';
+import {Page} from './Page';
 import {
 	debugError,
 	isString,
@@ -43,20 +43,6 @@ interface BoxModel {
 	border: Point[];
 	margin: Point[];
 	width: number;
-	height: number;
-}
-
-/**
- * @public
- */
-interface BoundingBox extends Point {
-	/**
-	 * the width of the element in pixels.
-	 */
-	width: number;
-	/**
-	 * the height of the element in pixels.
-	 */
 	height: number;
 }
 
@@ -486,68 +472,13 @@ export class ElementHandle<
 		return this.#frameManager.frame(nodeInfo.node.frameId);
 	}
 
-	async #scrollIntoViewIfNeeded(): Promise<void> {
-		const error = await this.evaluate(
-			async (
-				element: Element,
-				pageJavascriptEnabled: boolean
-			): Promise<string | false> => {
-				if (!element.isConnected) {
-					return 'Node is detached from document';
-				}
-
-				if (element.nodeType !== Node.ELEMENT_NODE) {
-					return 'Node is not of type HTMLElement';
-				}
-
-				// force-scroll if page's javascript is disabled.
-				if (!pageJavascriptEnabled) {
-					element.scrollIntoView({
-						block: 'center',
-						inline: 'center',
-						// @ts-expect-error Chrome still supports behavior: instant but
-						// it's not in the spec so TS shouts We don't want to make this
-						// breaking change in Puppeteer yet so we'll ignore the line.
-						behavior: 'instant',
-					});
-					return false;
-				}
-
-				const visibleRatio = await new Promise((resolve) => {
-					const observer = new IntersectionObserver((entries) => {
-						resolve(entries[0]!.intersectionRatio);
-						observer.disconnect();
-					});
-					observer.observe(element);
-				});
-				if (visibleRatio !== 1.0) {
-					element.scrollIntoView({
-						block: 'center',
-						inline: 'center',
-						// @ts-expect-error Chrome still supports behavior: instant but
-						// it's not in the spec so TS shouts We don't want to make this
-						// breaking change in Puppeteer yet so we'll ignore the line.
-						behavior: 'instant',
-					});
-				}
-
-				return false;
-			},
-			this.#page.isJavaScriptEnabled()
-		);
-
-		if (error) {
-			throw new Error(error);
-		}
-	}
-
 	async #getOOPIFOffsets(
 		frame: Frame
 	): Promise<{offsetX: number; offsetY: number}> {
 		let offsetX = 0;
 		let offsetY = 0;
 		let currentFrame: Frame | null = frame;
-		while (currentFrame && currentFrame.parentFrame()) {
+		while (currentFrame?.parentFrame()) {
 			const parent = currentFrame.parentFrame();
 			if (!currentFrame.isOOPFrame() || !parent) {
 				currentFrame = parent;
@@ -827,27 +758,6 @@ export class ElementHandle<
 	}
 
 	/**
-	 * This method returns the bounding box of the element (relative to the main frame),
-	 * or `null` if the element is not visible.
-	 */
-	async boundingBox(): Promise<BoundingBox | null> {
-		const result = await this.#getBoxModel();
-
-		if (!result) {
-			return null;
-		}
-
-		const {offsetX, offsetY} = await this.#getOOPIFOffsets(this.#frame);
-		const quad = result.model.border;
-		const x = Math.min(quad[0]!, quad[2]!, quad[4]!, quad[6]!);
-		const y = Math.min(quad[1]!, quad[3]!, quad[5]!, quad[7]!);
-		const width = Math.max(quad[0]!, quad[2]!, quad[4]!, quad[6]!) - x;
-		const height = Math.max(quad[1]!, quad[3]!, quad[5]!, quad[7]!) - y;
-
-		return {x: x + offsetX, y: y + offsetY, width, height};
-	}
-
-	/**
 	 * This method returns boxes of the element, or `null` if the element is not visible.
 	 *
 	 * @remarks
@@ -889,61 +799,6 @@ export class ElementHandle<
 			width,
 			height,
 		};
-	}
-
-	/**
-	 * This method scrolls element into view if needed, and then uses
-	 * {@link Page.screenshot} to take a screenshot of the element.
-	 * If the element is detached from DOM, the method throws an error.
-	 */
-	async screenshot(options: ScreenshotOptions = {}): Promise<string | Buffer> {
-		let needsViewportReset = false;
-
-		let boundingBox = await this.boundingBox();
-		assert(boundingBox, 'Node is either not visible or not an HTMLElement');
-
-		const viewport = this.#page.viewport();
-		assert(viewport);
-
-		if (
-			boundingBox.width > viewport.width ||
-			boundingBox.height > viewport.height
-		) {
-			const newViewport = {
-				width: Math.max(viewport.width, Math.ceil(boundingBox.width)),
-				height: Math.max(viewport.height, Math.ceil(boundingBox.height)),
-			};
-			await this.#page.setViewport({...viewport, ...newViewport});
-
-			needsViewportReset = true;
-		}
-
-		await this.#scrollIntoViewIfNeeded();
-
-		boundingBox = await this.boundingBox();
-		assert(boundingBox, 'Node is either not visible or not an HTMLElement');
-		assert(boundingBox.width !== 0, 'Node has 0 width.');
-		assert(boundingBox.height !== 0, 'Node has 0 height.');
-
-		const layoutMetrics = await this._client.send('Page.getLayoutMetrics');
-		// Fallback to `layoutViewport` in case of using Firefox.
-		const {pageX, pageY} =
-			layoutMetrics.cssVisualViewport || layoutMetrics.layoutViewport;
-
-		const clip = {...boundingBox};
-		clip.x += pageX;
-		clip.y += pageY;
-
-		const imageData = await this.#page.screenshot({
-			clip,
-			...options,
-		});
-
-		if (needsViewportReset) {
-			await this.#page.setViewport(viewport);
-		}
-
-		return imageData;
 	}
 
 	/**
