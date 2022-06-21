@@ -361,40 +361,6 @@ export class ExecutionContext {
 	}
 
 	/**
-	 * This method iterates the JavaScript heap and finds all the objects with the
-	 * given prototype.
-	 * @remarks
-	 * @example
-	 * ```js
-	 * // Create a Map object
-	 * await page.evaluate(() => window.map = new Map());
-	 * // Get a handle to the Map object prototype
-	 * const mapPrototype = await page.evaluateHandle(() => Map.prototype);
-	 * // Query all map instances into an array
-	 * const mapInstances = await page.queryObjects(mapPrototype);
-	 * // Count amount of map objects in heap
-	 * const count = await page.evaluate(maps => maps.length, mapInstances);
-	 * await mapInstances.dispose();
-	 * await mapPrototype.dispose();
-	 * ```
-	 *
-	 * @param prototypeHandle - a handle to the object prototype
-	 *
-	 * @returns A handle to an array of objects with the given prototype.
-	 */
-	async queryObjects(prototypeHandle: JSHandle): Promise<JSHandle> {
-		assert(!prototypeHandle._disposed, 'Prototype JSHandle is disposed!');
-		assert(
-			prototypeHandle._remoteObject.objectId,
-			'Prototype JSHandle must not be referencing primitive value'
-		);
-		const response = await this._client.send('Runtime.queryObjects', {
-			prototypeObjectId: prototypeHandle._remoteObject.objectId,
-		});
-		return _createJSHandle(this, response.objects);
-	}
-
-	/**
 	 * @internal
 	 */
 	async _adoptBackendNodeId(
