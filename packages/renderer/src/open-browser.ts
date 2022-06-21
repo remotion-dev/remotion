@@ -5,6 +5,7 @@ import {Browser, Internals} from 'remotion';
 import {Browser as PuppeteerBrowser} from './browser/Browser';
 import {puppeteerDirname} from './browser/compat';
 import {puppeteer} from './browser/node';
+import {Viewport} from './browser/PuppeteerViewport';
 import {
 	ensureLocalBrowser,
 	getLocalBrowserExecutable,
@@ -54,6 +55,7 @@ export const openBrowser = async (
 		browserExecutable?: string | null;
 		chromiumOptions?: ChromiumOptions;
 		forceDeviceScaleFactor?: number;
+		viewport?: Viewport;
 	}
 ): Promise<PuppeteerBrowser> => {
 	if (browser === 'firefox' && !Internals.FEATURE_FLAG_FIREFOX_SUPPORT) {
@@ -148,6 +150,11 @@ export const openBrowser = async (
 				  ]
 				: []),
 		].filter(Boolean) as string[],
+		defaultViewport: options?.viewport ?? {
+			height: 720,
+			width: 1280,
+			deviceScaleFactor: 1,
+		},
 	});
 	const pages = await browserInstance.pages();
 	await pages[0].close();

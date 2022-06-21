@@ -1790,11 +1790,8 @@ export class Page extends EventEmitter {
 	 * set the isMobile or hasTouch properties.
 	 */
 	async setViewport(viewport: Viewport): Promise<void> {
-		const needsReload = await this.#emulationManager.emulateViewport(viewport);
+		await this.#emulationManager.emulateViewport(viewport);
 		this.#viewport = viewport;
-		if (needsReload) {
-			await this.reload();
-		}
 	}
 
 	/**
@@ -2085,17 +2082,13 @@ export class Page extends EventEmitter {
 			clip = {x: 0, y: 0, width, height, scale: 1};
 
 			if (!captureBeyondViewport) {
-				const {
-					isMobile = false,
-					deviceScaleFactor = 1,
-					isLandscape = false,
-				} = this.#viewport || {};
-				const screenOrientation: Protocol.Emulation.ScreenOrientation =
-					isLandscape
-						? {angle: 90, type: 'landscapePrimary'}
-						: {angle: 0, type: 'portraitPrimary'};
+				const {deviceScaleFactor = 1} = this.#viewport || {};
+				const screenOrientation: Protocol.Emulation.ScreenOrientation = {
+					angle: 0,
+					type: 'portraitPrimary',
+				};
 				await this.#client.send('Emulation.setDeviceMetricsOverride', {
-					mobile: isMobile,
+					mobile: false,
 					width,
 					height,
 					deviceScaleFactor,

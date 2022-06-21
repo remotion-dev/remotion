@@ -19,41 +19,27 @@ import {Viewport} from './PuppeteerViewport';
 
 export class EmulationManager {
 	#client: CDPSession;
-	#emulatingMobile = false;
-	#hasTouch = false;
 
 	constructor(client: CDPSession) {
 		this.#client = client;
 	}
 
-	async emulateViewport(viewport: Viewport): Promise<boolean> {
-		const mobile = viewport.isMobile || false;
-		const {width} = viewport;
-		const {height} = viewport;
-		const deviceScaleFactor = viewport.deviceScaleFactor || 1;
-		const screenOrientation: Protocol.Emulation.ScreenOrientation =
-			viewport.isLandscape
-				? {angle: 90, type: 'landscapePrimary'}
-				: {angle: 0, type: 'portraitPrimary'};
-		const hasTouch = viewport.hasTouch || false;
+	async emulateViewport(viewport: Viewport): Promise<void> {
+		const {height, width} = viewport;
+		const {deviceScaleFactor} = viewport;
+		const screenOrientation: Protocol.Emulation.ScreenOrientation = {
+			angle: 0,
+			type: 'portraitPrimary',
+		};
 
 		await Promise.all([
 			this.#client.send('Emulation.setDeviceMetricsOverride', {
-				mobile,
+				mobile: false,
 				width,
 				height,
 				deviceScaleFactor,
 				screenOrientation,
 			}),
-			this.#client.send('Emulation.setTouchEmulationEnabled', {
-				enabled: hasTouch,
-			}),
 		]);
-
-		const reloadNeeded =
-			this.#emulatingMobile !== mobile || this.#hasTouch !== hasTouch;
-		this.#emulatingMobile = mobile;
-		this.#hasTouch = hasTouch;
-		return reloadNeeded;
 	}
 }

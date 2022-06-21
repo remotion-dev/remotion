@@ -156,7 +156,7 @@ export class PuppeteerNode extends Puppeteer {
 	 * @param options - Set of configurable options to set on the browser.
 	 * @returns Promise which resolves to browser instance.
 	 */
-	launch(options: PuppeteerLaunchOptions = {}): Promise<Browser> {
+	launch(options: PuppeteerLaunchOptions): Promise<Browser> {
 		if (options.product) {
 			this._productName = options.product;
 		}
