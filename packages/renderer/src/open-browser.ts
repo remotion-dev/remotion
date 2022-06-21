@@ -156,6 +156,7 @@ export const openBrowser = async (
 			deviceScaleFactor: 1,
 		},
 	});
+
 	const pages = await browserInstance.pages();
 	await pages[0].close();
 

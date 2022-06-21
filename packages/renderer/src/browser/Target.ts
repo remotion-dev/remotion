@@ -19,7 +19,6 @@ import {Browser, BrowserContext, IsPageTargetCallback} from './Browser';
 import {CDPSession} from './Connection';
 import {Page, PageEmittedEvents} from './Page';
 import {Viewport} from './PuppeteerViewport';
-import {TaskQueue} from './TaskQueue';
 
 /**
  * @public
@@ -30,7 +29,6 @@ export class Target {
 	#sessionFactory: () => Promise<CDPSession>;
 	#defaultViewport: Viewport;
 	#pagePromise?: Promise<Page>;
-	#screenshotTaskQueue: TaskQueue;
 
 	/**
 	 * @internal
@@ -69,7 +67,6 @@ export class Target {
 		browserContext: BrowserContext,
 		sessionFactory: () => Promise<CDPSession>,
 		defaultViewport: Viewport,
-		screenshotTaskQueue: TaskQueue,
 		isPageTargetCallback: IsPageTargetCallback
 	) {
 		this.#targetInfo = targetInfo;
@@ -77,7 +74,6 @@ export class Target {
 		this._targetId = targetInfo.targetId;
 		this.#sessionFactory = sessionFactory;
 		this.#defaultViewport = defaultViewport;
-		this.#screenshotTaskQueue = screenshotTaskQueue;
 		this._isPageTargetCallback = isPageTargetCallback;
 		this._initializedPromise = new Promise<boolean>((fulfill) => {
 			this._initializedCallback = fulfill;
@@ -131,12 +127,7 @@ export class Target {
 	async page(): Promise<Page | null> {
 		if (this._isPageTargetCallback(this.#targetInfo) && !this.#pagePromise) {
 			this.#pagePromise = this.#sessionFactory().then((client) => {
-				return Page._create(
-					client,
-					this,
-					this.#defaultViewport ?? null,
-					this.#screenshotTaskQueue
-				);
+				return Page._create(client, this, this.#defaultViewport ?? null);
 			});
 		}
 
