@@ -127,39 +127,7 @@ export interface ScreenshotOptions {
  * @public
  */
 export const enum PageEmittedEvents {
-	/** Emitted when the page closes.
-	 * @eventProperty
-	 */
-	Close = 'close',
-	/**
-	 * Emitted when JavaScript within the page calls one of console API methods,
-	 * e.g. `console.log` or `console.dir`. Also emitted if the page throws an
-	 * error or a warning.
-	 *
-	 * @remarks
-	 *
-	 * A `console` event provides a {@link ConsoleMessage} representing the
-	 * console message that was logged.
-	 *
-	 * @example
-	 * An example of handling `console` event:
-	 * ```js
-	 * page.on('console', msg => {
-	 *   for (let i = 0; i < msg.args().length; ++i)
-	 *    console.log(`${i}: ${msg.args()[i]}`);
-	 *  });
-	 *  page.evaluate(() => console.log('hello', 5, {foo: 'bar'}));
-	 * ```
-	 */
 	Console = 'console',
-	/**
-	 * Emitted when the JavaScript
-	 * {@link https://developer.mozilla.org/en-US/docs/Web/Events/DOMContentLoaded | DOMContentLoaded } event is dispatched.
-	 */
-	DOMContentLoaded = 'domcontentloaded',
-	/**
-	 * Emitted when the page crashes. Will contain an `Error`.
-	 */
 	Error = 'error',
 	/** Emitted when a frame is attached. Will contain a {@link Frame}. */
 	FrameAttached = 'frameattached',
@@ -356,9 +324,6 @@ export class Page extends EventEmitter {
 			return this.emit(PageEmittedEvents.RequestFinished, event);
 		});
 
-		client.on('Page.domContentEventFired', () => {
-			return this.emit(PageEmittedEvents.DOMContentLoaded);
-		});
 		client.on('Page.loadEventFired', () => {
 			return this.emit(PageEmittedEvents.Load);
 		});
@@ -376,10 +341,6 @@ export class Page extends EventEmitter {
 		});
 		client.on('Log.entryAdded', (event) => {
 			return this.#onLogEntryAdded(event);
-		});
-		this.#target._isClosedPromise.then(() => {
-			this.emit(PageEmittedEvents.Close);
-			this.#closed = true;
 		});
 	}
 
@@ -711,67 +672,11 @@ export class Page extends EventEmitter {
 		return this.mainFrame().url();
 	}
 
-	/**
-	 * @param url - URL to navigate page to. The URL should include scheme, e.g.
-	 * `https://`
-	 * @param options - Navigation Parameter
-	 * @returns Promise which resolves to the main resource response. In case of
-	 * multiple redirects, the navigation will resolve with the response of the
-	 * last redirect.
-	 * @remarks
-	 * The argument `options` might have the following properties:
-	 *
-	 * - `timeout` : Maximum navigation time in milliseconds, defaults to 30
-	 *   seconds, pass 0 to disable timeout. The default value can be changed by
-	 *   using the
-	 *   {@link Page.setDefaultNavigationTimeout |
-	 *   page.setDefaultNavigationTimeout(timeout)}
-	 *   or {@link Page.setDefaultTimeout | page.setDefaultTimeout(timeout)}
-	 *   methods.
-	 *
-	 * - `waitUntil`:When to consider navigation succeeded, defaults to `load`.
-	 *    Given an array of event strings, navigation is considered to be successful
-	 *    after all events have been fired. Events can be either:<br/>
-	 *  - `load` : consider navigation to be finished when the load event is
-	 *    fired.<br/>
-	 *  - `domcontentloaded` : consider navigation to be finished when the
-	 *    DOMContentLoaded event is fired.<br/>
-	 *  - `networkidle0` : consider navigation to be finished when there are no
-	 *    more than 0 network connections for at least `500` ms.<br/>
-	 *  - `networkidle2` : consider navigation to be finished when there are no
-	 *    more than 2 network connections for at least `500` ms.
-	 *
-	 * - `referer` : Referer header value. If provided it will take preference
-	 *   over the referer header value set by
-	 *   {@link Page.setExtraHTTPHeaders |page.setExtraHTTPHeaders()}.
-	 *
-	 * `page.goto` will throw an error if:
-	 * - there's an SSL error (e.g. in case of self-signed certificates).
-	 * - target URL is invalid.
-	 * - the timeout is exceeded during navigation.
-	 * - the remote server does not respond or is unreachable.
-	 * - the main resource failed to load.
-	 *
-	 * `page.goto` will not throw an error when any valid HTTP status code is
-	 *   returned by the remote server, including 404 "Not Found" and 500
-	 *   "Internal Server Error". The status code for such responses can be
-	 *   retrieved by calling response.status().
-	 *
-	 * NOTE: `page.goto` either throws an error or returns a main resource
-	 * response. The only exceptions are navigation to about:blank or navigation
-	 * to the same URL with a different hash, which would succeed and return null.
-	 *
-	 * NOTE: Headless mode doesn't support navigation to a PDF document. See the
-	 * {@link https://bugs.chromium.org/p/chromium/issues/detail?id=761295
-	 * | upstream issue}.
-	 *
-	 * Shortcut for {@link Frame.goto | page.mainFrame().goto(url, options)}.
-	 */
 	async goto(
 		url: string,
 		options: WaitForOptions & {referer?: string} = {}
 	): Promise<HTTPResponse | null> {
-		return await this.#frameManager.mainFrame().goto(url, options);
+		return this.#frameManager.mainFrame().goto(url, options);
 	}
 
 	/**
@@ -798,15 +703,6 @@ export class Page extends EventEmitter {
 		});
 	}
 
-	/**
-	 * @returns The page's title
-	 * @remarks
-	 * Shortcut for {@link Frame.title | page.mainFrame().title()}.
-	 */
-	async title(): Promise<string> {
-		return this.mainFrame().title();
-	}
-
 	async close(
 		options: {runBeforeUnload?: boolean} = {runBeforeUnload: undefined}
 	): Promise<void> {
@@ -826,80 +722,10 @@ export class Page extends EventEmitter {
 		}
 	}
 
-	/**
-	 * Indicates that the page has been closed.
-	 * @returns
-	 */
 	isClosed(): boolean {
 		return this.#closed;
 	}
 
-	/**
-	 * The `waitForFunction` can be used to observe viewport size change:
-	 *
-	 * ```
-	 * const puppeteer = require('puppeteer');
-	 * (async () => {
-	 * const browser = await puppeteer.launch();
-	 * const page = await browser.newPage();
-	 * const watchDog = page.waitForFunction('window.innerWidth < 100');
-	 * await page.setViewport({ width: 50, height: 50 });
-	 * await watchDog;
-	 * await browser.close();
-	 * })();
-	 * ```
-	 * To pass arguments from node.js to the predicate of `page.waitForFunction` function:
-	 * ```
-	 * const selector = '.foo';
-	 * await page.waitForFunction(
-	 * (selector) => !!document.querySelector(selector),
-	 * {},
-	 * selector
-	 * );
-	 * ```
-	 * The predicate of `page.waitForFunction` can be asynchronous too:
-	 * ```
-	 * const username = 'github-username';
-	 * await page.waitForFunction(
-	 * async (username) => {
-	 * const githubResponse = await fetch(
-	 *  `https://api.github.com/users/${username}`
-	 * );
-	 * const githubUser = await githubResponse.json();
-	 * // show the avatar
-	 * const img = document.createElement('img');
-	 * img.src = githubUser.avatar_url;
-	 * // wait 3 seconds
-	 * await new Promise((resolve, reject) => setTimeout(resolve, 3000));
-	 * img.remove();
-	 * },
-	 * {},
-	 * username
-	 * );
-	 * ```
-	 * @param pageFunction - Function to be evaluated in browser context
-	 * @param options - Optional waiting parameters
-	 * @param args -  Arguments to pass to `pageFunction`
-	 * @returns Promise which resolves when the `pageFunction` returns a truthy
-	 * value. It resolves to a JSHandle of the truthy value.
-	 *
-	 * The optional waiting parameter can be:
-	 *
-	 * - `Polling`: An interval at which the `pageFunction` is executed, defaults to
-	 *   `raf`. If `polling` is a number, then it is treated as an interval in
-	 *   milliseconds at which the function would be executed. If polling is a
-	 *   string, then it can be one of the following values:<br/>
-	 *    - `raf`: to constantly execute `pageFunction` in `requestAnimationFrame`
-	 *      callback. This is the tightest polling mode which is suitable to
-	 *      observe styling changes.<br/>
-	 *    - `mutation`: to execute pageFunction on every DOM mutation.
-	 *
-	 * - `timeout`: maximum time to wait for in milliseconds. Defaults to `30000`
-	 * (30 seconds). Pass `0` to disable timeout. The default value can be changed
-	 * by using the
-	 * {@link Page.setDefaultTimeout | page.setDefaultTimeout(timeout)} method.
-	 *
-	 */
 	waitForFunction(
 		pageFunction: Function | string,
 		options: {
