@@ -113,7 +113,7 @@ export class BrowserRunner {
 
 		this.#closed = false;
 		this.#processClosing = new Promise((fulfill, reject) => {
-			this.proc!.once('exit', async () => {
+			(this.proc as childProcess.ChildProcess).once('exit', async () => {
 				this.#closed = true;
 				// Cleanup as processes exit.
 				if (this.#isTempUserDataDir) {
@@ -198,7 +198,7 @@ export class BrowserRunner {
 		// If the process failed to launch (for example if the browser executable path
 		// is invalid), then the process does not get a pid assigned. A call to
 		// `proc.kill` would error, as the `pid` to-be-killed can not be found.
-		if (this.proc && this.proc.pid && pidExists(this.proc.pid)) {
+		if (this.proc?.pid && pidExists(this.proc.pid)) {
 			const {proc} = this;
 			try {
 				if (process.platform === 'win32') {
@@ -247,19 +247,18 @@ export class BrowserRunner {
 
 	async setupConnection(options: {
 		timeout: number;
-		slowMo: number;
 		preferredRevision: string;
 	}): Promise<Connection> {
 		assert(this.proc, 'BrowserRunner not started.');
 
-		const {timeout, slowMo, preferredRevision} = options;
+		const {timeout, preferredRevision} = options;
 		const browserWSEndpoint = await waitForWSEndpoint(
 			this.proc,
 			timeout,
 			preferredRevision
 		);
 		const transport = await WebSocketTransport.create(browserWSEndpoint);
-		this.connection = new Connection(browserWSEndpoint, transport, slowMo);
+		this.connection = new Connection(browserWSEndpoint, transport);
 
 		return this.connection;
 	}
@@ -323,7 +322,7 @@ function waitForWSEndpoint(
 
 			cleanup();
 			// The RegExp matches, so this will obviously exist.
-			resolve(match[1]!);
+			resolve(match[1] as string);
 		}
 
 		function cleanup(): void {

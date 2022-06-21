@@ -78,7 +78,6 @@ class ChromeLauncher implements ProductLauncher {
 			handleSIGTERM = true,
 			handleSIGHUP = true,
 			defaultViewport,
-			slowMo = 0,
 			timeout = 30000,
 			waitForInitialPage = true,
 			debuggingPort,
@@ -161,7 +160,6 @@ class ChromeLauncher implements ProductLauncher {
 		try {
 			const connection = await runner.setupConnection({
 				timeout,
-				slowMo,
 				preferredRevision: this._preferredRevision,
 			});
 			browser = await Browser._create(
@@ -236,7 +234,6 @@ class FirefoxLauncher implements ProductLauncher {
 			handleSIGTERM = true,
 			handleSIGHUP = true,
 			defaultViewport,
-			slowMo = 0,
 			timeout = 30000,
 			extraPrefsFirefox = {},
 			waitForInitialPage = true,
@@ -324,7 +321,6 @@ class FirefoxLauncher implements ProductLauncher {
 		try {
 			const connection = await runner.setupConnection({
 				timeout,
-				slowMo,
 				preferredRevision: this._preferredRevision,
 			});
 			browser = await Browser._create(

@@ -238,6 +238,8 @@ export class BrowserFetcher {
 						case 'firefox':
 							this.#platform = 'mac';
 							break;
+						default:
+							throw new Error('unknown browser');
 					}
 
 					break;
@@ -324,7 +326,7 @@ export class BrowserFetcher {
 	 */
 	async download(
 		revision: string,
-		progressCallback: (x: number, y: number) => void = (): void => {}
+		progressCallback: (x: number, y: number) => void = (): void => undefined
 	): Promise<BrowserFetcherRevisionInfo | undefined> {
 		const url = _downloadURL(
 			this.#product,
@@ -517,7 +519,7 @@ function parseFolderPath(
 function _downloadFile(
 	url: string,
 	destinationPath: string,
-	progressCallback?: (x: number, y: number) => void
+	progressCallback: (x: number, y: number) => void
 ): Promise<void> {
 	debugFetcher(`Downloading binary from ${url}`);
 	let fulfill: (value: void | PromiseLike<void>) => void;
@@ -550,9 +552,7 @@ function _downloadFile(
 		});
 		response.pipe(file);
 		totalBytes = parseInt(response.headers['content-length'] as string, 10);
-		if (progressCallback) {
-			response.on('data', onData);
-		}
+		response.on('data', onData);
 	});
 	request.on('error', (error) => {
 		return reject(error);
@@ -561,7 +561,7 @@ function _downloadFile(
 
 	function onData(chunk: string): void {
 		downloadedBytes += chunk.length;
-		progressCallback!(downloadedBytes, totalBytes);
+		progressCallback(downloadedBytes, totalBytes);
 	}
 }
 
@@ -597,9 +597,6 @@ function _extractTar(tarPath: string, folderPath: string): Promise<unknown> {
 	});
 }
 
-/**
- * @internal
- */
 function _installDMG(dmgPath: string, folderPath: string): Promise<void> {
 	let mountPath: string | undefined;
 
@@ -615,7 +612,7 @@ function _installDMG(dmgPath: string, folderPath: string): Promise<void> {
 				return reject(new Error(`Could not find volume path in ${stdout}`));
 			}
 
-			mountPath = volumes[0]!;
+			mountPath = volumes[0] as string;
 			readdirAsync(mountPath)
 				.then((fileNames) => {
 					const appName = fileNames.find((item) => {
@@ -625,11 +622,11 @@ function _installDMG(dmgPath: string, folderPath: string): Promise<void> {
 						return reject(new Error(`Cannot find app in ${mountPath}`));
 					}
 
-					const copyPath = path.join(mountPath!, appName);
+					const copyPath = path.join(mountPath as string, appName);
 					debugFetcher(`Copying ${copyPath} to ${folderPath}`);
-					childProcess.exec(`cp -R "${copyPath}" "${folderPath}"`, (err) => {
-						if (err) {
-							reject(err);
+					childProcess.exec(`cp -R "${copyPath}" "${folderPath}"`, (_err) => {
+						if (_err) {
+							reject(_err);
 						} else {
 							fulfill();
 						}
