@@ -716,7 +716,6 @@ importers:
       extract-zip: 2.0.1
       jest: ^27.2.4
       mime-types: 2.1.35
-      pkg-dir: 4.2.0
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
       progress: 2.0.3
@@ -749,7 +748,6 @@ importers:
       '@types/ws': 8.5.3
       eslint: 8.13.0
       jest: 27.2.4
-      pkg-dir: 4.2.0
       prettier: 2.4.1
       prettier-plugin-organize-imports: 2.3.4_pxx7xhvr2bexxfjjff3nukai7m
       react: 18.0.0

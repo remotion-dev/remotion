@@ -48,6 +48,8 @@ const getLocalBrowser = (product: Product) => {
 const getBrowserRevision = (product: Product) => {
 	const browserFetcher = puppeteer.createBrowserFetcher({
 		product,
+		path: null,
+		platform: null,
 	});
 	const revisionInfo = browserFetcher.revisionInfo(
 		product === 'firefox'
@@ -114,7 +116,7 @@ export const ensureLocalBrowser = async (
 		console.log(
 			'No local browser could be found. Downloading one from the internet...'
 		);
-		await downloadBrowser();
+		await downloadBrowser(browser);
 	}
 };
 

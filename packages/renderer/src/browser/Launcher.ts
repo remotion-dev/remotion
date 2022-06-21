@@ -45,11 +45,9 @@ export interface ProductLauncher {
 }
 
 class ChromeLauncher implements ProductLauncher {
-	_projectRoot: string | undefined;
 	_preferredRevision: string;
 
-	constructor(projectRoot: string | undefined, preferredRevision: string) {
-		this._projectRoot = projectRoot;
+	constructor(preferredRevision: string) {
 		this._preferredRevision = preferredRevision;
 	}
 
@@ -196,11 +194,9 @@ class ChromeLauncher implements ProductLauncher {
 }
 
 class FirefoxLauncher implements ProductLauncher {
-	_projectRoot: string | undefined;
 	_preferredRevision: string;
 
-	constructor(projectRoot: string | undefined, preferredRevision: string) {
-		this._projectRoot = projectRoot;
+	constructor(preferredRevision: string) {
 		this._preferredRevision = preferredRevision;
 	}
 
@@ -340,14 +336,10 @@ class FirefoxLauncher implements ProductLauncher {
 	async _updateRevision(): Promise<void> {
 		// replace 'latest' placeholder with actual downloaded revision
 		if (this._preferredRevision === 'latest') {
-			if (!this._projectRoot) {
-				throw new Error(
-					'_projectRoot is undefined. Unable to create a BrowserFetcher.'
-				);
-			}
-
-			const browserFetcher = new BrowserFetcher(this._projectRoot, {
+			const browserFetcher = new BrowserFetcher({
 				product: this.product,
+				path: null,
+				platform: null,
 			});
 			const localRevisions = await browserFetcher.localRevisions();
 			if (localRevisions[0]) {
@@ -740,18 +732,12 @@ function resolveExecutablePath(launcher: ChromeLauncher | FirefoxLauncher): {
 	executablePath: string;
 	missingText?: string;
 } {
-	const {product, _projectRoot, _preferredRevision} = launcher;
-	let downloadPath: string | undefined;
+	const {product, _preferredRevision} = launcher;
 
-	if (!_projectRoot) {
-		throw new Error(
-			'_projectRoot is undefined. Unable to create a BrowserFetcher.'
-		);
-	}
-
-	const browserFetcher = new BrowserFetcher(_projectRoot, {
+	const browserFetcher = new BrowserFetcher({
 		product,
-		path: downloadPath,
+		path: null,
+		platform: null,
 	});
 
 	const revisionInfo = browserFetcher.revisionInfo(_preferredRevision);
@@ -767,13 +753,12 @@ function resolveExecutablePath(launcher: ChromeLauncher | FirefoxLauncher): {
 }
 
 export default function Launcher(
-	projectRoot: string | undefined,
 	preferredRevision: string,
 	product?: string
 ): ProductLauncher {
 	switch (product) {
 		case 'firefox':
-			return new FirefoxLauncher(projectRoot, preferredRevision);
+			return new FirefoxLauncher(preferredRevision);
 		case 'chrome':
 		default:
 			if (typeof product !== 'undefined' && product !== 'chrome') {
@@ -786,6 +771,6 @@ export default function Launcher(
 				);
 			}
 
-			return new ChromeLauncher(projectRoot, preferredRevision);
+			return new ChromeLauncher(preferredRevision);
 	}
 }

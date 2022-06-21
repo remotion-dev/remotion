@@ -17,6 +17,7 @@
 import https, {RequestOptions} from 'https';
 import ProgressBar from 'progress';
 import {puppeteer} from './node';
+import {Product} from './Product';
 import {PuppeteerNode} from './PuppeteerNode';
 import {PUPPETEER_REVISIONS} from './revisions';
 
@@ -25,33 +26,11 @@ const supportedProducts = {
 	firefox: 'Firefox Nightly',
 } as const;
 
-function getProduct(input: string): 'chrome' | 'firefox' {
-	if (input !== 'chrome' && input !== 'firefox') {
-		throw new Error(`Unsupported product ${input}`);
-	}
-
-	return input;
-}
-
-export async function downloadBrowser(): Promise<void> {
-	const downloadHost =
-		process.env.PUPPETEER_DOWNLOAD_HOST ||
-		process.env.npm_config_puppeteer_download_host ||
-		process.env.npm_package_config_puppeteer_download_host;
-	const product = getProduct(
-		process.env.PUPPETEER_PRODUCT ||
-			process.env.npm_config_puppeteer_product ||
-			process.env.npm_package_config_puppeteer_product ||
-			'chrome'
-	);
-	const downloadPath =
-		process.env.PUPPETEER_DOWNLOAD_PATH ||
-		process.env.npm_config_puppeteer_download_path ||
-		process.env.npm_package_config_puppeteer_download_path;
+export async function downloadBrowser(product: Product): Promise<void> {
 	const browserFetcher = puppeteer.createBrowserFetcher({
 		product,
-		host: downloadHost,
-		path: downloadPath,
+		path: null,
+		platform: null,
 	});
 	const revision = await getRevision();
 	await fetchBinary(revision);

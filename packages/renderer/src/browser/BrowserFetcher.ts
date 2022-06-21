@@ -30,6 +30,7 @@ import {assert} from './assert';
 import {Product} from './Product';
 
 import {deleteDirectory} from '../delete-directory';
+import {getDownloadsCacheDir} from './get-download-destination';
 
 const {PUPPETEER_EXPERIMENTAL_CHROMIUM_MAC_ARM} = process.env;
 
@@ -52,11 +53,11 @@ const downloadURLs: Record<Product, Partial<Record<Platform, string>>> = {
 const browserConfig = {
 	chrome: {
 		host: 'https://storage.googleapis.com',
-		destination: '.local-chromium',
+		destination: '.chromium',
 	},
 	firefox: {
 		host: 'https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central',
-		destination: '.local-firefox',
+		destination: '.firefox',
 	},
 } as const;
 
@@ -141,10 +142,9 @@ function existsAsync(filePath: string): Promise<boolean> {
 }
 
 export interface BrowserFetcherOptions {
-	platform?: Platform;
-	product?: string;
-	path?: string;
-	host?: string;
+	platform: Platform | null;
+	product: Product;
+	path: string | null;
 }
 
 interface BrowserFetcherRevisionInfo {
@@ -162,8 +162,8 @@ export class BrowserFetcher {
 	#downloadHost: string;
 	#platform: Platform;
 
-	constructor(projectRoot: string, options: BrowserFetcherOptions = {}) {
-		this.#product = (options.product || 'chrome').toLowerCase() as Product;
+	constructor(options: BrowserFetcherOptions) {
+		this.#product = options.product.toLowerCase() as Product;
 		assert(
 			this.#product === 'chrome' || this.#product === 'firefox',
 			`Unknown product: "${options.product}"`
@@ -171,8 +171,11 @@ export class BrowserFetcher {
 
 		this.#downloadsFolder =
 			options.path ||
-			path.join(projectRoot, browserConfig[this.#product].destination);
-		this.#downloadHost = options.host || browserConfig[this.#product].host;
+			path.join(
+				getDownloadsCacheDir(),
+				browserConfig[this.#product].destination
+			);
+		this.#downloadHost = browserConfig[this.#product].host;
 
 		if (options.platform) {
 			this.#platform = options.platform;
