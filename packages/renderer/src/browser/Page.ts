@@ -252,9 +252,7 @@ export class Page extends EventEmitter {
 		return context.evaluateHandle<HandlerType>(pageFunction, ...args);
 	}
 
-	async #onConsoleAPI(
-		event: Protocol.Runtime.ConsoleAPICalledEvent
-	): Promise<void> {
+	#onConsoleAPI(event: Protocol.Runtime.ConsoleAPICalledEvent): void {
 		if (event.executionContextId === 0) {
 			return;
 		}
@@ -359,7 +357,7 @@ export class Page extends EventEmitter {
 		return this.mainFrame().url();
 	}
 
-	async goto(
+	goto(
 		url: string,
 		options: WaitForOptions & {referer?: string} = {}
 	): Promise<HTTPResponse | null> {
@@ -370,7 +368,7 @@ export class Page extends EventEmitter {
 		await this.#client.send('Page.bringToFront');
 	}
 
-	async evaluate<T extends EvaluateFn>(
+	evaluate<T extends EvaluateFn>(
 		pageFunction: T,
 		...args: SerializableOrJSHandle[]
 	): Promise<UnwrapPromiseLike<EvaluateFnReturnType<T>>> {

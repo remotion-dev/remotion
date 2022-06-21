@@ -39,7 +39,7 @@ interface ConnectionCallback {
  *
  * @internal
  */
-export const ConnectionEmittedEvents = {
+const ConnectionEmittedEvents = {
 	Disconnected: Symbol('Connection.Disconnected'),
 } as const;
 
@@ -67,9 +67,6 @@ export class Connection extends EventEmitter {
 		return session.connection();
 	}
 
-	/**
-	 * @internal
-	 */
 	get _closed(): boolean {
 		return this.#closed;
 	}
@@ -108,9 +105,6 @@ export class Connection extends EventEmitter {
 		});
 	}
 
-	/**
-	 * @internal
-	 */
 	_rawSend(message: Record<string, unknown>): number {
 		const id = ++this.#lastId;
 		const stringifiedMessage = JSON.stringify({...message, id});
@@ -230,49 +224,16 @@ interface CDPSessionOnMessageObject {
 	result?: any;
 }
 
-/**
- * Internal events that the CDPSession class emits.
- *
- * @internal
- */
 export const CDPSessionEmittedEvents = {
 	Disconnected: Symbol('CDPSession.Disconnected'),
 } as const;
 
-/**
- * The `CDPSession` instances are used to talk raw Chrome Devtools Protocol.
- *
- * @remarks
- *
- * Protocol methods can be called with {@link CDPSession.send} method and protocol
- * events can be subscribed to with `CDPSession.on` method.
- *
- * Useful links: {@link https://chromedevtools.github.io/devtools-protocol/ | DevTools Protocol Viewer}
- * and {@link https://github.com/aslushnikov/getting-started-with-cdp/blob/HEAD/README.md | Getting Started with DevTools Protocol}.
- *
- * @example
- * ```js
- * const client = await page.target().createCDPSession();
- * await client.send('Animation.enable');
- * client.on('Animation.animationCreated', () => console.log('Animation created!'));
- * const response = await client.send('Animation.getPlaybackRate');
- * console.log('playback rate is ' + response.playbackRate);
- * await client.send('Animation.setPlaybackRate', {
- *   playbackRate: response.playbackRate / 2
- * });
- * ```
- *
- * @public
- */
 export class CDPSession extends EventEmitter {
 	#sessionId: string;
 	#targetType: string;
 	#callbacks: Map<number, ConnectionCallback> = new Map();
 	#connection?: Connection;
 
-	/**
-	 * @internal
-	 */
 	constructor(connection: Connection, targetType: string, sessionId: string) {
 		super();
 		this.#connection = connection;
@@ -317,9 +278,6 @@ export class CDPSession extends EventEmitter {
 		});
 	}
 
-	/**
-	 * @internal
-	 */
 	_onMessage(object: CDPSessionOnMessageObject): void {
 		const callback = object.id ? this.#callbacks.get(object.id) : undefined;
 		if (object.id && callback) {
@@ -337,10 +295,6 @@ export class CDPSession extends EventEmitter {
 		}
 	}
 
-	/**
-	 * Detaches the cdpSession from the target. Once detached, the cdpSession object
-	 * won't emit any events and can't be used to send messages.
-	 */
 	async detach(): Promise<void> {
 		if (!this.#connection) {
 			throw new Error(
@@ -355,9 +309,6 @@ export class CDPSession extends EventEmitter {
 		});
 	}
 
-	/**
-	 * @internal
-	 */
 	_onClosed(): void {
 		for (const callback of this.#callbacks.values()) {
 			callback.reject(
@@ -373,9 +324,6 @@ export class CDPSession extends EventEmitter {
 		this.emit(CDPSessionEmittedEvents.Disconnected);
 	}
 
-	/**
-	 * Returns the session's id.
-	 */
 	id(): string {
 		return this.#sessionId;
 	}

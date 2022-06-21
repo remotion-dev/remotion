@@ -51,7 +51,7 @@ export function getExceptionMessage(
 
 export function valueFromRemoteObject(
 	remoteObject: Protocol.Runtime.RemoteObject
-): any {
+) {
 	assert(!remoteObject.objectId, 'Cannot extract value when objectId is given');
 	if (remoteObject.unserializableValue) {
 		if (remoteObject.type === 'bigint' && typeof BigInt !== 'undefined') {
@@ -128,10 +128,6 @@ export const isString = (obj: unknown): obj is string => {
 	return typeof obj === 'string' || obj instanceof String;
 };
 
-export const isNumber = (obj: unknown): obj is number => {
-	return typeof obj === 'number' || obj instanceof Number;
-};
-
 export function evaluationString(
 	fun: Function | string,
 	...args: unknown[]
@@ -150,35 +146,6 @@ export function evaluationString(
 	}
 
 	return `(${fun})(${args.map(serializeArgument).join(',')})`;
-}
-
-export function pageBindingInitString(type: string, name: string): string {
-	function addPageBinding(_type: string, bindingName: string): void {
-		/* Cast window to any here as we're about to add properties to it
-		 * via win[bindingName] which TypeScript doesn't like.
-		 */
-		const win = window as any;
-		const binding = win[bindingName];
-
-		win[bindingName] = (...args: unknown[]): Promise<unknown> => {
-			const me = (window as any)[bindingName];
-			let {callbacks} = me;
-			if (!callbacks) {
-				callbacks = new Map();
-				me.callbacks = callbacks;
-			}
-
-			const seq = (me.lastSeq || 0) + 1;
-			me.lastSeq = seq;
-			const promise = new Promise((resolve, reject) => {
-				callbacks.set(seq, {resolve, reject});
-			});
-			binding(JSON.stringify({type: _type, name: bindingName, seq, args}));
-			return promise;
-		};
-	}
-
-	return evaluationString(addPageBinding, type, name);
 }
 
 export function pageBindingDeliverResultString(
@@ -230,52 +197,6 @@ export function pageBindingDeliverErrorValueString(
 	}
 
 	return evaluationString(deliverErrorValue, name, seq, value);
-}
-
-export function makePredicateString(
-	predicate: Function,
-	predicateQueryHandler?: Function
-): string {
-	function checkWaitForOptions(
-		node: Node | null,
-		waitForVisible: boolean,
-		waitForHidden: boolean
-	): Node | null | boolean {
-		if (!node) {
-			return waitForHidden;
-		}
-
-		if (!waitForVisible && !waitForHidden) {
-			return node;
-		}
-
-		const element =
-			node.nodeType === Node.TEXT_NODE
-				? (node.parentElement as Element)
-				: (node as Element);
-
-		const style = window.getComputedStyle(element);
-		const isVisible =
-			style && style.visibility !== 'hidden' && hasVisibleBoundingBox();
-		const success =
-			waitForVisible === isVisible || waitForHidden === !isVisible;
-		return success ? node : null;
-
-		function hasVisibleBoundingBox(): boolean {
-			const rect = element.getBoundingClientRect();
-			return Boolean(rect.top || rect.bottom || rect.width || rect.height);
-		}
-	}
-
-	const predicateQueryHandlerDef = predicateQueryHandler
-		? `const predicateQueryHandler = ${predicateQueryHandler};`
-		: '';
-	return `
-     (() => {
-       ${predicateQueryHandlerDef}
-       const checkWaitForOptions = ${checkWaitForOptions};
-       return (${predicate})(...args)
-     })() `;
 }
 
 export async function waitWithTimeout<T>(
