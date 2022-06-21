@@ -1,10 +1,10 @@
 import fs from 'fs';
-import puppeteer, {Product, PuppeteerNode} from 'puppeteer-core';
 import {downloadBrowser} from 'puppeteer-core/lib/cjs/puppeteer/node/install';
 import {PUPPETEER_REVISIONS} from 'puppeteer-core/lib/cjs/puppeteer/revisions';
 import {Browser, BrowserExecutable} from 'remotion';
+import {Product} from './browser/Product';
 
-const getSearchPathsForProduct = (product: puppeteer.Product) => {
+const getSearchPathsForProduct = (product: Product) => {
 	if (product === 'chrome') {
 		return [
 			process.env.PUPPETEER_EXECUTABLE_PATH ?? null,
@@ -47,9 +47,7 @@ const getLocalBrowser = (product: puppeteer.Product) => {
 const getBrowserRevision = (
 	product: Product
 ): puppeteer.BrowserFetcherRevisionInfo => {
-	const browserFetcher = (
-		puppeteer as unknown as PuppeteerNode
-	).createBrowserFetcher({
+	const browserFetcher = puppeteer.createBrowserFetcher({
 		product,
 	});
 	const revisionInfo = browserFetcher.revisionInfo(

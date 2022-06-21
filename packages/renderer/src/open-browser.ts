@@ -1,12 +1,10 @@
 import fs from 'fs';
 import os from 'os';
 import path, {dirname} from 'path';
-import {sync} from 'pkg-dir';
-import {PUPPETEER_REVISIONS} from 'puppeteer-core/lib/cjs/puppeteer/revisions';
 import {Browser, Internals} from 'remotion';
 import {Browser as PuppeteerBrowser} from './browser/Browser';
 import {puppeteerDirname} from './browser/compat';
-import {PuppeteerNode} from './browser/PuppeteerNode';
+import {puppeteer} from './browser/node';
 import {
 	ensureLocalBrowser,
 	getLocalBrowserExecutable,
@@ -48,13 +46,6 @@ export const killAllBrowsers = async () => {
 		} catch (err) {}
 	}
 };
-
-const puppeteer = new PuppeteerNode({
-	isPuppeteerCore: true,
-	preferredRevision: PUPPETEER_REVISIONS.chromium,
-	productName: undefined,
-	projectRoot: sync(rootDirname),
-});
 
 export const openBrowser = async (
 	browser: Browser,

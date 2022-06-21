@@ -85,7 +85,7 @@ export class Target {
 		this.#screenshotTaskQueue = screenshotTaskQueue;
 		this._isPageTargetCallback = isPageTargetCallback;
 		this._initializedPromise = new Promise<boolean>((fulfill) => {
-			return (this._initializedCallback = fulfill);
+			this._initializedCallback = fulfill;
 		}).then(async (success) => {
 			if (!success) {
 				return false;
@@ -106,7 +106,7 @@ export class Target {
 			return true;
 		});
 		this._isClosedPromise = new Promise<void>((fulfill) => {
-			return (this._closedCallback = fulfill);
+			this._closedCallback = fulfill;
 		});
 		this._isInitialized =
 			!this._isPageTargetCallback(this.#targetInfo) ||
@@ -166,8 +166,8 @@ export class Target {
 				return new WebWorker(
 					client,
 					this.#targetInfo.url,
-					() => {} /* consoleAPICalled */,
-					() => {} /* exceptionThrown */
+					() => undefined /* consoleAPICalled */,
+					() => undefined /* exceptionThrown */
 				);
 			});
 		}

@@ -1,6 +1,5 @@
 /* eslint-disable no-new */
 import Protocol from 'devtools-protocol';
-import {CDPSession} from './browser/Connection';
 import {JSHandle} from './browser/JSHandle';
 import {Page} from './browser/Page';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
@@ -49,7 +48,7 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 	args: unknown[];
 }): Promise<ReturnType> {
 	const contextId = (await page.mainFrame().executionContext())._contextId;
-	const client = (page as unknown as {_client: CDPSession})._client;
+	const client = page._client();
 
 	const suffix = `//# sourceURL=${EVALUATION_SCRIPT_URL}`;
 

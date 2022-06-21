@@ -80,7 +80,7 @@ export class WebWorker extends EventEmitter {
 		this.#client = client;
 		this.#url = url;
 		this.#executionContextPromise = new Promise<ExecutionContext>((x) => {
-			return (this.#executionContextCallback = x);
+			this.#executionContextCallback = x;
 		});
 
 		let jsHandleFactory: JSHandleFactory;

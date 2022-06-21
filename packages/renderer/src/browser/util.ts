@@ -206,7 +206,7 @@ export function evaluationString(
 }
 
 export function pageBindingInitString(type: string, name: string): string {
-	function addPageBinding(type: string, bindingName: string): void {
+	function addPageBinding(_type: string, bindingName: string): void {
 		/* Cast window to any here as we're about to add properties to it
 		 * via win[bindingName] which TypeScript doesn't like.
 		 */
@@ -224,9 +224,9 @@ export function pageBindingInitString(type: string, name: string): string {
 			const seq = (me.lastSeq || 0) + 1;
 			me.lastSeq = seq;
 			const promise = new Promise((resolve, reject) => {
-				return callbacks.set(seq, {resolve, reject});
+				callbacks.set(seq, {resolve, reject});
 			});
-			binding(JSON.stringify({type, name: bindingName, seq, args}));
+			binding(JSON.stringify({type: _type, name: bindingName, seq, args}));
 			return promise;
 		};
 	}
@@ -239,9 +239,9 @@ export function pageBindingDeliverResultString(
 	seq: number,
 	result: unknown
 ): string {
-	function deliverResult(name: string, seq: number, result: unknown): void {
-		(window as any)[name].callbacks.get(seq).resolve(result);
-		(window as any)[name].callbacks.delete(seq);
+	function deliverResult(_name: string, _seq: number, _result: unknown): void {
+		(window as any)[_name].callbacks.get(_seq).resolve(_result);
+		(window as any)[_name].callbacks.delete(_seq);
 	}
 
 	return evaluationString(deliverResult, name, seq, result);
@@ -254,15 +254,15 @@ export function pageBindingDeliverErrorString(
 	stack?: string
 ): string {
 	function deliverError(
-		name: string,
-		seq: number,
-		message: string,
-		stack?: string
+		_name: string,
+		_seq: number,
+		_message: string,
+		_stack?: string
 	): void {
-		const error = new Error(message);
-		error.stack = stack;
-		(window as any)[name].callbacks.get(seq).reject(error);
-		(window as any)[name].callbacks.delete(seq);
+		const error = new Error(_message);
+		error.stack = _stack;
+		(window as any)[_name].callbacks.get(_seq).reject(error);
+		(window as any)[_name].callbacks.delete(_seq);
 	}
 
 	return evaluationString(deliverError, name, seq, message, stack);
@@ -273,9 +273,13 @@ export function pageBindingDeliverErrorValueString(
 	seq: number,
 	value: unknown
 ): string {
-	function deliverErrorValue(name: string, seq: number, value: unknown): void {
-		(window as any)[name].callbacks.get(seq).reject(value);
-		(window as any)[name].callbacks.delete(seq);
+	function deliverErrorValue(
+		_name: string,
+		_seq: number,
+		_value: unknown
+	): void {
+		(window as any)[_name].callbacks.get(_seq).reject(_value);
+		(window as any)[_name].callbacks.delete(_seq);
 	}
 
 	return evaluationString(deliverErrorValue, name, seq, value);
@@ -337,7 +341,7 @@ export async function waitWithTimeout<T>(
 		`waiting for ${taskName} failed: timeout ${timeout}ms exceeded`
 	);
 	const timeoutPromise = new Promise<T>((_res, rej) => {
-		return (reject = rej);
+		reject = rej;
 	});
 	let timeoutTimer = null;
 	if (timeout) {
