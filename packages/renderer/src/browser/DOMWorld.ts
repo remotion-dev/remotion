@@ -346,7 +346,6 @@ interface WaitTaskOptions {
 	timeout: number;
 	binding?: PageBinding;
 	args: SerializableOrJSHandle[];
-	root?: ElementHandle;
 }
 
 const noop = (): void => undefined;
@@ -366,7 +365,6 @@ class WaitTask {
 	#reject: (x: Error) => void = noop;
 	#timeoutTimer?: NodeJS.Timeout;
 	#terminated = false;
-	#root: ElementHandle | null = null;
 
 	promise: Promise<JSHandle>;
 
@@ -381,7 +379,6 @@ class WaitTask {
 
 		this.#domWorld = options.domWorld;
 		this.#timeout = options.timeout;
-		this.#root = options.root || null;
 		this.#predicateBody = getPredicateBody(options.predicateBody);
 		this.#predicateAcceptsContextElement =
 			options.predicateAcceptsContextElement;
@@ -440,7 +437,6 @@ class WaitTask {
 		try {
 			success = await context.evaluateHandle(
 				waitForPredicatePageFunction,
-				this.#root || null,
 				this.#predicateBody,
 				this.#predicateAcceptsContextElement,
 				this.#timeout,
@@ -532,13 +528,11 @@ class WaitTask {
 }
 
 async function waitForPredicatePageFunction(
-	root: Element | Document | null,
 	predicateBody: string,
 	predicateAcceptsContextElement: boolean,
 	timeout: number,
 	...args: unknown[]
 ): Promise<unknown> {
-	root = root || document;
 	// eslint-disable-next-line no-new-func
 	const predicate = new Function('...args', predicateBody);
 	let timedOut = false;
@@ -564,7 +558,7 @@ async function waitForPredicatePageFunction(
 			}
 
 			const success = predicateAcceptsContextElement
-				? await predicate(root, ...args)
+				? await predicate(document, ...args)
 				: await predicate(...args);
 			if (success) {
 				fulfill(success);
