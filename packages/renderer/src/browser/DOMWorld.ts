@@ -229,7 +229,7 @@ export class DOMWorld {
 	}
 
 	async content(): Promise<string> {
-		return await this.evaluate(() => {
+		return this.evaluate(() => {
 			let retVal = '';
 			if (document.doctype) {
 				retVal = new XMLSerializer().serializeToString(document.doctype);
@@ -256,9 +256,9 @@ export class DOMWorld {
 		} = options;
 		// We rely upon the fact that document.open() will reset frame lifecycle with "init"
 		// lifecycle event. @see https://crrev.com/608658
-		await this.evaluate<(x: string) => void>((html) => {
+		await this.evaluate<(x: string) => void>((_html) => {
 			document.open();
-			document.write(html);
+			document.write(_html);
 			document.close();
 		}, html);
 		const watcher = new LifecycleWatcher(
@@ -274,150 +274,6 @@ export class DOMWorld {
 		watcher.dispose();
 		if (error) {
 			throw error;
-		}
-	}
-
-	/**
-	 * Adds a script tag into the current context.
-	 *
-	 * @remarks
-	 *
-	 * You can pass a URL, filepath or string of contents. Note that when running Puppeteer
-	 * in a browser environment you cannot pass a filepath and should use either
-	 * `url` or `content`.
-	 */
-	async addScriptTag(options: {
-		url?: string;
-		path?: string;
-		content?: string;
-		id?: string;
-		type?: string;
-	}): Promise<ElementHandle> {
-		const {
-			url = null,
-			path = null,
-			content = null,
-			id = '',
-			type = '',
-		} = options;
-		if (url !== null) {
-			try {
-				const context = await this.executionContext();
-				const handle = await context.evaluateHandle(
-					addScriptUrl,
-					url,
-					id,
-					type
-				);
-				const elementHandle = handle.asElement();
-				if (elementHandle === null) {
-					throw new Error('Script element is not found');
-				}
-
-				return elementHandle;
-			} catch (error) {
-				throw new Error(`Loading script from ${url} failed`);
-			}
-		}
-
-		if (path !== null) {
-			let fs;
-			try {
-				fs = (await import('fs')).promises;
-			} catch (error) {
-				if (error instanceof TypeError) {
-					throw new Error(
-						'Can only pass a filepath to addScriptTag in a Node-like environment.'
-					);
-				}
-
-				throw error;
-			}
-
-			let contents = await fs.readFile(path, 'utf8');
-			contents += '//# sourceURL=' + path.replace(/\n/g, '');
-			const context = await this.executionContext();
-			const handle = await context.evaluateHandle(
-				addScriptContent,
-				contents,
-				id,
-				type
-			);
-			const elementHandle = handle.asElement();
-			if (elementHandle === null) {
-				throw new Error('Script element is not found');
-			}
-
-			return elementHandle;
-		}
-
-		if (content !== null) {
-			const context = await this.executionContext();
-			const handle = await context.evaluateHandle(
-				addScriptContent,
-				content,
-				id,
-				type
-			);
-			const elementHandle = handle.asElement();
-			if (elementHandle === null) {
-				throw new Error('Script element is not found');
-			}
-
-			return elementHandle;
-		}
-
-		throw new Error(
-			'Provide an object with a `url`, `path` or `content` property'
-		);
-
-		async function addScriptUrl(
-			url: string,
-			id: string,
-			type: string
-		): Promise<HTMLElement> {
-			const script = document.createElement('script');
-			script.src = url;
-			if (id) {
-				script.id = id;
-			}
-
-			if (type) {
-				script.type = type;
-			}
-
-			const promise = new Promise((res, rej) => {
-				script.onload = res;
-				script.onerror = rej;
-			});
-			document.head.appendChild(script);
-			await promise;
-			return script;
-		}
-
-		function addScriptContent(
-			content: string,
-			id: string,
-			type = 'text/javascript'
-		): HTMLElement {
-			const script = document.createElement('script');
-			script.type = type;
-			script.text = content;
-			if (id) {
-				script.id = id;
-			}
-
-			let error = null;
-			script.onerror = (e) => {
-				return (error = e);
-			};
-
-			document.head.appendChild(script);
-			if (error) {
-				throw error;
-			}
-
-			return script;
 		}
 	}
 

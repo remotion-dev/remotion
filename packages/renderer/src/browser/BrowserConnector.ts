@@ -23,6 +23,7 @@ import {
 import {Connection} from './Connection.js';
 import {ConnectionTransport} from './ConnectionTransport.js';
 import {getFetch} from './fetch.js';
+import {NodeWebSocketTransport} from './NodeWebSocketTransport';
 import {Viewport} from './PuppeteerViewport.js';
 import {debugError, isErrorLike} from './util.js';
 
@@ -57,7 +58,7 @@ export interface BrowserConnectOptions {
 }
 
 const getWebSocketTransportClass = async () => {
-	return (await import('./NodeWebSocketTransport.js')).NodeWebSocketTransport;
+	return NodeWebSocketTransport;
 };
 
 /**
