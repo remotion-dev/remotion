@@ -16,7 +16,6 @@
 
 import {Protocol} from 'devtools-protocol';
 import type {Readable} from 'stream';
-import {Accessibility} from './Accessibility';
 import {assert, assertNever} from './assert';
 import {Browser, BrowserContext} from './Browser';
 import {CDPSession, CDPSessionEmittedEvents, Connection} from './Connection';
@@ -453,7 +452,6 @@ export class Page extends EventEmitter {
 	#mouse: Mouse;
 	#timeoutSettings = new TimeoutSettings();
 	#touchscreen: Touchscreen;
-	#accessibility: Accessibility;
 	#frameManager: FrameManager;
 	#emulationManager: EmulationManager;
 	#tracing: Tracing;
@@ -486,7 +484,6 @@ export class Page extends EventEmitter {
 		this.#keyboard = new Keyboard(client);
 		this.#mouse = new Mouse(client, this.#keyboard);
 		this.#touchscreen = new Touchscreen(client, this.#keyboard);
-		this.#accessibility = new Accessibility(client);
 		this.#frameManager = new FrameManager(
 			client,
 			this,
@@ -859,10 +856,6 @@ export class Page extends EventEmitter {
 
 	get tracing(): Tracing {
 		return this.#tracing;
-	}
-
-	get accessibility(): Accessibility {
-		return this.#accessibility;
 	}
 
 	/**
