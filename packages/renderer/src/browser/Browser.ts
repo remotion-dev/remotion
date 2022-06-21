@@ -63,97 +63,12 @@ interface WaitForTargetOptions {
  * @public
  */
 const enum BrowserEmittedEvents {
-	/**
-	 * Emitted when Puppeteer gets disconnected from the Chromium instance. This
-	 * might happen because of one of the following:
-	 *
-	 * - Chromium is closed or crashed
-	 *
-	 * - The {@link Browser.disconnect | browser.disconnect } method was called.
-	 */
 	Disconnected = 'disconnected',
-
-	/**
-	 * Emitted when the url of a target changes. Contains a {@link Target} instance.
-	 *
-	 * @remarks
-	 *
-	 * Note that this includes target changes in incognito browser contexts.
-	 */
 	TargetChanged = 'targetchanged',
-
-	/**
-	 * Emitted when a target is created, for example when a new page is opened by
-	 * {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/open | window.open}
-	 * or by {@link Browser.newPage | browser.newPage}
-	 *
-	 * Contains a {@link Target} instance.
-	 *
-	 * @remarks
-	 *
-	 * Note that this includes target creations in incognito browser contexts.
-	 */
 	TargetCreated = 'targetcreated',
-	/**
-	 * Emitted when a target is destroyed, for example when a page is closed.
-	 * Contains a {@link Target} instance.
-	 *
-	 * @remarks
-	 *
-	 * Note that this includes target destructions in incognito browser contexts.
-	 */
-	TargetDestroyed = 'targetdestroyed',
 }
 
-/**
- * A Browser is created when Puppeteer connects to a Chromium instance, either through
- * {@link PuppeteerNode.launch} or {@link Puppeteer.connect}.
- *
- * @remarks
- *
- * The Browser class extends from Puppeteer's {@link EventEmitter} class and will
- * emit various events which are documented in the {@link BrowserEmittedEvents} enum.
- *
- * @example
- *
- * An example of using a {@link Browser} to create a {@link Page}:
- * ```js
- * const puppeteer = require('puppeteer');
- *
- * (async () => {
- *   const browser = await puppeteer.launch();
- *   const page = await browser.newPage();
- *   await page.goto('https://example.com');
- *   await browser.close();
- * })();
- * ```
- *
- * @example
- *
- * An example of disconnecting from and reconnecting to a {@link Browser}:
- * ```js
- * const puppeteer = require('puppeteer');
- *
- * (async () => {
- *   const browser = await puppeteer.launch();
- *   // Store the endpoint to be able to reconnect to Chromium
- *   const browserWSEndpoint = browser.wsEndpoint();
- *   // Disconnect puppeteer from Chromium
- *   browser.disconnect();
- *
- *   // Use the endpoint to reestablish a connection
- *   const browser2 = await puppeteer.connect({browserWSEndpoint});
- *   // Close Chromium
- *   await browser2.close();
- * })();
- * ```
- *
- * @public
- */
 export class Browser extends EventEmitter {
-	/**
-	 * @internal
-	 */
 	static async _create(
 		connection: Connection,
 		contextIds: string[],
@@ -345,7 +260,6 @@ export class Browser extends EventEmitter {
 		this.#targets.delete(event.targetId);
 		target._closedCallback();
 		if (await target._initializedPromise) {
-			this.emit(BrowserEmittedEvents.TargetDestroyed, target);
 			target
 				.browserContext()
 				.emit(BrowserContextEmittedEvents.TargetDestroyed, target);
@@ -576,25 +490,8 @@ export class Browser extends EventEmitter {
  * @public
  */
 const enum BrowserContextEmittedEvents {
-	/**
-	 * Emitted when the url of a target inside the browser context changes.
-	 * Contains a {@link Target} instance.
-	 */
 	TargetChanged = 'targetchanged',
-
-	/**
-	 * Emitted when a target is created within the browser context, for example
-	 * when a new page is opened by
-	 * {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/open | window.open}
-	 * or by {@link BrowserContext.newPage | browserContext.newPage}
-	 *
-	 * Contains a {@link Target} instance.
-	 */
 	TargetCreated = 'targetcreated',
-	/**
-	 * Emitted when a target is destroyed within the browser context, for example
-	 * when a page is closed. Contains a {@link Target} instance.
-	 */
 	TargetDestroyed = 'targetdestroyed',
 }
 
