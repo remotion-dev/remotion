@@ -15,7 +15,7 @@
  */
 
 import {Protocol} from 'devtools-protocol';
-import {assert, assertNever} from './assert';
+import {assert} from './assert';
 import {Browser, BrowserContext} from './Browser';
 import {CDPSession, CDPSessionEmittedEvents} from './Connection';
 import {ConsoleMessage, ConsoleMessageType} from './ConsoleMessage';
@@ -385,7 +385,6 @@ export class Page extends EventEmitter {
 	#frameManager: FrameManager;
 	#emulationManager: EmulationManager;
 	#pageBindings = new Map<string, Function>();
-	#viewport: Viewport | null;
 	screenshotTaskQueue: TaskQueue;
 
 	#disconnectPromise?: Promise<Error>;
@@ -412,7 +411,6 @@ export class Page extends EventEmitter {
 		);
 		this.#emulationManager = new EmulationManager(client);
 		this.screenshotTaskQueue = screenshotTaskQueue;
-		this.#viewport = null;
 
 		client.on(
 			'Target.attachedToTarget',
@@ -625,6 +623,10 @@ export class Page extends EventEmitter {
 	 */
 	frames(): Frame[] {
 		return this.#frameManager.frames();
+	}
+
+	async setViewport(viewport: Viewport): Promise<void> {
+		await this.#emulationManager.emulateViewport(viewport);
 	}
 
 	/**
@@ -988,21 +990,6 @@ export class Page extends EventEmitter {
 	}
 
 	/**
-	 * @param userAgent - Specific user agent to use in this page
-	 * @param userAgentData - Specific user agent client hint data to use in this
-	 * page
-	 * @returns Promise which resolves when the user agent is set.
-	 */
-	async setUserAgent(
-		userAgent: string,
-		userAgentMetadata?: Protocol.Emulation.UserAgentMetadata
-	): Promise<void> {
-		return this.#frameManager
-			.networkManager()
-			.setUserAgent(userAgent, userAgentMetadata);
-	}
-
-	/**
 	 * @returns Object containing metrics as key/value pairs.
 	 *
 	 * - `Timestamp` : The timestamp when the metrics sample was taken.
@@ -1186,22 +1173,6 @@ export class Page extends EventEmitter {
 	}
 
 	/**
-	 * Resets default white background
-	 */
-	async #resetDefaultBackgroundColor() {
-		await this.#client.send('Emulation.setDefaultBackgroundColorOverride');
-	}
-
-	/**
-	 * Hides default white background
-	 */
-	async #setTransparentBackgroundColor(): Promise<void> {
-		await this.#client.send('Emulation.setDefaultBackgroundColorOverride', {
-			color: {r: 0, g: 0, b: 0, a: 0},
-		});
-	}
-
-	/**
 	 *
 	 * @returns
 	 * @remarks Shortcut for
@@ -1209,10 +1180,6 @@ export class Page extends EventEmitter {
 	 */
 	url(): string {
 		return this.mainFrame().url();
-	}
-
-	async content(): Promise<string> {
-		return await this.#frameManager.mainFrame().content();
 	}
 
 	/**
@@ -1306,73 +1273,6 @@ export class Page extends EventEmitter {
 		options: WaitForOptions & {referer?: string} = {}
 	): Promise<HTTPResponse | null> {
 		return await this.#frameManager.mainFrame().goto(url, options);
-	}
-
-	/**
-	 * @param options - Navigation parameters which might have the following
-	 * properties:
-	 * @returns Promise which resolves to the main resource response. In case of
-	 * multiple redirects, the navigation will resolve with the response of the
-	 * last redirect.
-	 * @remarks
-	 * The argument `options` might have the following properties:
-	 *
-	 * - `timeout` : Maximum navigation time in milliseconds, defaults to 30
-	 *   seconds, pass 0 to disable timeout. The default value can be changed by
-	 *   using the
-	 *   {@link Page.setDefaultNavigationTimeout |
-	 *   page.setDefaultNavigationTimeout(timeout)}
-	 *   or {@link Page.setDefaultTimeout | page.setDefaultTimeout(timeout)}
-	 *   methods.
-	 *
-	 * - `waitUntil`: When to consider navigation succeeded, defaults to `load`.
-	 *    Given an array of event strings, navigation is considered to be
-	 *    successful after all events have been fired. Events can be either:<br/>
-	 *  - `load` : consider navigation to be finished when the load event is fired.<br/>
-	 *  - `domcontentloaded` : consider navigation to be finished when the
-	 *   DOMContentLoaded event is fired.<br/>
-	 *  - `networkidle0` : consider navigation to be finished when there are no
-	 *   more than 0 network connections for at least `500` ms.<br/>
-	 *  - `networkidle2` : consider navigation to be finished when there are no
-	 *   more than 2 network connections for at least `500` ms.
-	 */
-	async reload(options?: WaitForOptions): Promise<HTTPResponse | null> {
-		const result = await Promise.all([
-			this.waitForNavigation(options),
-			this.#client.send('Page.reload'),
-		]);
-
-		return result[0];
-	}
-
-	/**
-	 * This resolves when the page navigates to a new URL or reloads. It is useful
-	 * when you run code that will indirectly cause the page to navigate. Consider
-	 * this example:
-	 * ```js
-	 * const [response] = await Promise.all([
-	 * page.waitForNavigation(), // The promise resolves after navigation has finished
-	 * page.click('a.my-link'), // Clicking the link will indirectly cause a navigation
-	 * ]);
-	 * ```
-	 *
-	 * @param options - Navigation parameters which might have the following properties:
-	 * @returns Promise which resolves to the main resource response. In case of
-	 * multiple redirects, the navigation will resolve with the response of the
-	 * last redirect. In case of navigation to a different anchor or navigation
-	 * due to History API usage, the navigation will resolve with `null`.
-	 * @remarks
-	 * NOTE: Usage of the
-	 * {@link https://developer.mozilla.org/en-US/docs/Web/API/History_API | History API}
-	 * to change the URL is considered a navigation.
-	 *
-	 * Shortcut for
-	 * {@link Frame.waitForNavigation | page.mainFrame().waitForNavigation(options)}.
-	 */
-	async waitForNavigation(
-		options: WaitForOptions = {}
-	): Promise<HTTPResponse | null> {
-		return await this.#frameManager.mainFrame().waitForNavigation(options);
 	}
 
 	#sessionClosePromise(): Promise<Error> {
@@ -1630,241 +1530,12 @@ export class Page extends EventEmitter {
 	}
 
 	/**
-	 * This method navigate to the previous page in history.
-	 * @param options - Navigation parameters
-	 * @returns Promise which resolves to the main resource response. In case of
-	 * multiple redirects, the navigation will resolve with the response of the
-	 * last redirect. If can not go back, resolves to `null`.
-	 * @remarks
-	 * The argument `options` might have the following properties:
-	 *
-	 * - `timeout` : Maximum navigation time in milliseconds, defaults to 30
-	 *   seconds, pass 0 to disable timeout. The default value can be changed by
-	 *   using the
-	 *   {@link Page.setDefaultNavigationTimeout
-	 *   | page.setDefaultNavigationTimeout(timeout)}
-	 *   or {@link Page.setDefaultTimeout | page.setDefaultTimeout(timeout)}
-	 *   methods.
-	 *
-	 * - `waitUntil` : When to consider navigation succeeded, defaults to `load`.
-	 *    Given an array of event strings, navigation is considered to be
-	 *    successful after all events have been fired. Events can be either:<br/>
-	 *  - `load` : consider navigation to be finished when the load event is fired.<br/>
-	 *  - `domcontentloaded` : consider navigation to be finished when the
-	 *   DOMContentLoaded event is fired.<br/>
-	 *  - `networkidle0` : consider navigation to be finished when there are no
-	 *   more than 0 network connections for at least `500` ms.<br/>
-	 *  - `networkidle2` : consider navigation to be finished when there are no
-	 *   more than 2 network connections for at least `500` ms.
-	 */
-	async goBack(options: WaitForOptions = {}): Promise<HTTPResponse | null> {
-		return this.#go(-1, options);
-	}
-
-	/**
-	 * This method navigate to the next page in history.
-	 * @param options - Navigation Parameter
-	 * @returns Promise which resolves to the main resource response. In case of
-	 * multiple redirects, the navigation will resolve with the response of the
-	 * last redirect. If can not go forward, resolves to `null`.
-	 * @remarks
-	 * The argument `options` might have the following properties:
-	 *
-	 * - `timeout` : Maximum navigation time in milliseconds, defaults to 30
-	 *   seconds, pass 0 to disable timeout. The default value can be changed by
-	 *   using the
-	 *   {@link Page.setDefaultNavigationTimeout
-	 *   | page.setDefaultNavigationTimeout(timeout)}
-	 *   or {@link Page.setDefaultTimeout | page.setDefaultTimeout(timeout)}
-	 *   methods.
-	 *
-	 * - `waitUntil`: When to consider navigation succeeded, defaults to `load`.
-	 *    Given an array of event strings, navigation is considered to be
-	 *    successful after all events have been fired. Events can be either:<br/>
-	 *  - `load` : consider navigation to be finished when the load event is fired.<br/>
-	 *  - `domcontentloaded` : consider navigation to be finished when the
-	 *   DOMContentLoaded event is fired.<br/>
-	 *  - `networkidle0` : consider navigation to be finished when there are no
-	 *   more than 0 network connections for at least `500` ms.<br/>
-	 *  - `networkidle2` : consider navigation to be finished when there are no
-	 *   more than 2 network connections for at least `500` ms.
-	 */
-	async goForward(options: WaitForOptions = {}): Promise<HTTPResponse | null> {
-		return this.#go(+1, options);
-	}
-
-	async #go(
-		delta: number,
-		options: WaitForOptions
-	): Promise<HTTPResponse | null> {
-		const history = await this.#client.send('Page.getNavigationHistory');
-		const entry = history.entries[history.currentIndex + delta];
-		if (!entry) {
-			return null;
-		}
-
-		const result = await Promise.all([
-			this.waitForNavigation(options),
-			this.#client.send('Page.navigateToHistoryEntry', {entryId: entry.id}),
-		]);
-		return result[0];
-	}
-
-	/**
 	 * Brings page to front (activates tab).
 	 */
 	async bringToFront(): Promise<void> {
 		await this.#client.send('Page.bringToFront');
 	}
 
-	/**
-	 * Emulates given device metrics and user agent. This method is a shortcut for
-	 * calling two methods: {@link Page.setUserAgent} and {@link Page.setViewport}
-	 * To aid emulation, Puppeteer provides a list of device descriptors that can
-	 * be obtained via the {@link Puppeteer.devices} `page.emulate` will resize
-	 * the page. A lot of websites don't expect phones to change size, so you
-	 * should emulate before navigating to the page.
-	 * @example
-	 * ```js
-	 * const puppeteer = require('puppeteer');
-	 * const iPhone = puppeteer.devices['iPhone 6'];
-	 * (async () => {
-	 * const browser = await puppeteer.launch();
-	 * const page = await browser.newPage();
-	 * await page.emulate(iPhone);
-	 * await page.goto('https://www.google.com');
-	 * // other actions...
-	 * await browser.close();
-	 * })();
-	 * ```
-	 * @remarks List of all available devices is available in the source code:
-	 * {@link https://github.com/puppeteer/puppeteer/blob/main/src/common/DeviceDescriptors.ts | src/common/DeviceDescriptors.ts}.
-	 */
-	async emulate(options: {
-		viewport: Viewport;
-		userAgent: string;
-	}): Promise<void> {
-		await Promise.all([
-			this.setViewport(options.viewport),
-			this.setUserAgent(options.userAgent),
-		]);
-	}
-
-	/**
-	 * `page.setViewport` will resize the page. A lot of websites don't expect
-	 * phones to change size, so you should set the viewport before navigating to
-	 * the page.
-	 *
-	 * In the case of multiple pages in a single browser, each page can have its
-	 * own viewport size.
-	 * @example
-	 * ```js
-	 * const page = await browser.newPage();
-	 * await page.setViewport({
-	 * width: 640,
-	 * height: 480,
-	 * deviceScaleFactor: 1,
-	 * });
-	 * await page.goto('https://example.com');
-	 * ```
-	 *
-	 * @param viewport -
-	 * @remarks
-	 * Argument viewport have following properties:
-	 *
-	 * - `width`: page width in pixels. required
-	 *
-	 * - `height`: page height in pixels. required
-	 *
-	 * - `deviceScaleFactor`: Specify device scale factor (can be thought of as
-	 *   DPR). Defaults to `1`.
-	 *
-	 * - `isMobile`: Whether the meta viewport tag is taken into account. Defaults
-	 *   to `false`.
-	 *
-	 * - `hasTouch`: Specifies if viewport supports touch events. Defaults to `false`
-	 *
-	 * - `isLandScape`: Specifies if viewport is in landscape mode. Defaults to false.
-	 *
-	 * NOTE: in certain cases, setting viewport will reload the page in order to
-	 * set the isMobile or hasTouch properties.
-	 */
-	async setViewport(viewport: Viewport): Promise<void> {
-		await this.#emulationManager.emulateViewport(viewport);
-		this.#viewport = viewport;
-	}
-
-	/**
-	 * @returns
-	 *
-	 * - `width`: page's width in pixels
-	 *
-	 * - `height`: page's height in pixels
-	 *
-	 * - `deviceScalarFactor`: Specify device scale factor (can be though of as
-	 *   dpr). Defaults to `1`.
-	 *
-	 * - `isMobile`: Whether the meta viewport tag is taken into account. Defaults
-	 *   to `false`.
-	 *
-	 * - `hasTouch`: Specifies if viewport supports touch events. Defaults to
-	 *   `false`.
-	 *
-	 * - `isLandScape`: Specifies if viewport is in landscape mode. Defaults to
-	 *   `false`.
-	 */
-	viewport(): Viewport | null {
-		return this.#viewport;
-	}
-
-	/**
-	 * @remarks
-	 *
-	 * Evaluates a function in the page's context and returns the result.
-	 *
-	 * If the function passed to `page.evaluteHandle` returns a Promise, the
-	 * function will wait for the promise to resolve and return its value.
-	 *
-	 * @example
-	 *
-	 * ```js
-	 * const result = await frame.evaluate(() => {
-	 *   return Promise.resolve(8 * 7);
-	 * });
-	 * console.log(result); // prints "56"
-	 * ```
-	 *
-	 * You can pass a string instead of a function (although functions are
-	 * recommended as they are easier to debug and use with TypeScript):
-	 *
-	 * @example
-	 * ```
-	 * const aHandle = await page.evaluate('1 + 2');
-	 * ```
-	 *
-	 * To get the best TypeScript experience, you should pass in as the
-	 * generic the type of `pageFunction`:
-	 *
-	 * ```
-	 * const aHandle = await page.evaluate<() => number>(() => 2);
-	 * ```
-	 *
-	 * @example
-	 *
-	 * {@link ElementHandle} instances (including {@link JSHandle}s) can be passed
-	 * as arguments to the `pageFunction`:
-	 *
-	 * ```
-	 * const bodyHandle = await page.$('body');
-	 * const html = await page.evaluate(body => body.innerHTML, bodyHandle);
-	 * await bodyHandle.dispose();
-	 * ```
-	 *
-	 * @param pageFunction - a function that is run within the page
-	 * @param args - arguments to be passed to the pageFunction
-	 *
-	 * @returns the return value of `pageFunction`.
-	 */
 	async evaluate<T extends EvaluateFn>(
 		pageFunction: T,
 		...args: SerializableOrJSHandle[]
@@ -1872,37 +1543,6 @@ export class Page extends EventEmitter {
 		return this.#frameManager.mainFrame().evaluate<T>(pageFunction, ...args);
 	}
 
-	/**
-	 * Adds a function which would be invoked in one of the following scenarios:
-	 *
-	 * - whenever the page is navigated
-	 *
-	 * - whenever the child frame is attached or navigated. In this case, the
-	 * function is invoked in the context of the newly attached frame.
-	 *
-	 * The function is invoked after the document was created but before any of
-	 * its scripts were run. This is useful to amend the JavaScript environment,
-	 * e.g. to seed `Math.random`.
-	 * @param pageFunction - Function to be evaluated in browser context
-	 * @param args - Arguments to pass to `pageFunction`
-	 * @example
-	 * An example of overriding the navigator.languages property before the page loads:
-	 * ```js
-	 * // preload.js
-	 *
-	 * // overwrite the `languages` property to use a custom getter
-	 * Object.defineProperty(navigator, 'languages', {
-	 * get: function () {
-	 * return ['en-US', 'en', 'bn'];
-	 * },
-	 * });
-	 *
-	 * // In your puppeteer script, assuming the preload.js file is
-	 * in same folder of our script
-	 * const preloadFile = fs.readFileSync('./preload.js', 'utf8');
-	 * await page.evaluateOnNewDocument(preloadFile);
-	 * ```
-	 */
 	async evaluateOnNewDocument(
 		pageFunction: Function | string,
 		...args: unknown[]
@@ -1911,243 +1551,6 @@ export class Page extends EventEmitter {
 		await this.#client.send('Page.addScriptToEvaluateOnNewDocument', {
 			source,
 		});
-	}
-
-	/**
-	 * Toggles ignoring cache for each request based on the enabled state. By
-	 * default, caching is enabled.
-	 * @param enabled - sets the `enabled` state of cache
-	 */
-	async setCacheEnabled(enabled = true): Promise<void> {
-		await this.#frameManager.networkManager().setCacheEnabled(enabled);
-	}
-
-	/**
-	 * @remarks
-	 * Options object which might have the following properties:
-	 *
-	 * - `path` : The file path to save the image to. The screenshot type
-	 *   will be inferred from file extension. If `path` is a relative path, then
-	 *   it is resolved relative to
-	 *   {@link https://nodejs.org/api/process.html#process_process_cwd
-	 *   | current working directory}.
-	 *   If no path is provided, the image won't be saved to the disk.
-	 *
-	 * - `type` : Specify screenshot type, can be either `jpeg` or `png`.
-	 *   Defaults to 'png'.
-	 *
-	 * - `quality` : The quality of the image, between 0-100. Not
-	 *   applicable to `png` images.
-	 *
-	 * - `fullPage` : When true, takes a screenshot of the full
-	 *   scrollable page. Defaults to `false`
-	 *
-	 * - `clip` : An object which specifies clipping region of the page.
-	 *   Should have the following fields:<br/>
-	 *  - `x` : x-coordinate of top-left corner of clip area.<br/>
-	 *  - `y` :  y-coordinate of top-left corner of clip area.<br/>
-	 *  - `width` : width of clipping area.<br/>
-	 *  - `height` : height of clipping area.
-	 *
-	 * - `omitBackground` : Hides default white background and allows
-	 *   capturing screenshots with transparency. Defaults to `false`
-	 *
-	 * - `encoding` : The encoding of the image, can be either base64 or
-	 *   binary. Defaults to `binary`.
-	 *
-	 *
-	 * NOTE: Screenshots take at least 1/6 second on OS X. See
-	 * {@link https://crbug.com/741689} for discussion.
-	 * @returns Promise which resolves to buffer or a base64 string (depending on
-	 * the value of `encoding`) with captured screenshot.
-	 */
-	async screenshot(options: ScreenshotOptions = {}): Promise<Buffer | string> {
-		let screenshotType = Protocol.Page.CaptureScreenshotRequestFormat.Png;
-		// options.type takes precedence over inferring the type from options.path
-		// because it may be a 0-length file with no extension created beforehand
-		// (i.e. as a temp file).
-		if (options.type) {
-			const {type} = options;
-			if (type !== 'png' && type !== 'jpeg' && type !== 'webp') {
-				assertNever(type, 'Unknown options.type value: ' + type);
-			}
-
-			screenshotType =
-				options.type as Protocol.Page.CaptureScreenshotRequestFormat;
-		} else if (options.path) {
-			const filePath = options.path;
-			const extension = filePath
-				.slice(filePath.lastIndexOf('.') + 1)
-				.toLowerCase();
-			switch (extension) {
-				case 'png':
-					screenshotType = Protocol.Page.CaptureScreenshotRequestFormat.Png;
-					break;
-				case 'jpeg':
-				case 'jpg':
-					screenshotType = Protocol.Page.CaptureScreenshotRequestFormat.Jpeg;
-					break;
-				case 'webp':
-					screenshotType = Protocol.Page.CaptureScreenshotRequestFormat.Webp;
-					break;
-				default:
-					throw new Error(
-						`Unsupported screenshot type for extension \`.${extension}\``
-					);
-			}
-		}
-
-		if (options.quality) {
-			assert(
-				screenshotType === Protocol.Page.CaptureScreenshotRequestFormat.Jpeg ||
-					screenshotType === Protocol.Page.CaptureScreenshotRequestFormat.Webp,
-				'options.quality is unsupported for the ' +
-					screenshotType +
-					' screenshots'
-			);
-			assert(
-				typeof options.quality === 'number',
-				'Expected options.quality to be a number but found ' +
-					typeof options.quality
-			);
-			assert(
-				Number.isInteger(options.quality),
-				'Expected options.quality to be an integer'
-			);
-			assert(
-				options.quality >= 0 && options.quality <= 100,
-				'Expected options.quality to be between 0 and 100 (inclusive), got ' +
-					options.quality
-			);
-		}
-
-		assert(
-			!options.clip || !options.fullPage,
-			'options.clip and options.fullPage are exclusive'
-		);
-		if (options.clip) {
-			assert(
-				typeof options.clip.x === 'number',
-				'Expected options.clip.x to be a number but found ' +
-					typeof options.clip.x
-			);
-			assert(
-				typeof options.clip.y === 'number',
-				'Expected options.clip.y to be a number but found ' +
-					typeof options.clip.y
-			);
-			assert(
-				typeof options.clip.width === 'number',
-				'Expected options.clip.width to be a number but found ' +
-					typeof options.clip.width
-			);
-			assert(
-				typeof options.clip.height === 'number',
-				'Expected options.clip.height to be a number but found ' +
-					typeof options.clip.height
-			);
-			assert(
-				options.clip.width !== 0,
-				'Expected options.clip.width not to be 0.'
-			);
-			assert(
-				options.clip.height !== 0,
-				'Expected options.clip.height not to be 0.'
-			);
-		}
-
-		return this.screenshotTaskQueue.postTask(() => {
-			return this.#screenshotTask(screenshotType, options);
-		});
-	}
-
-	async #screenshotTask(
-		format: Protocol.Page.CaptureScreenshotRequestFormat,
-		options: ScreenshotOptions = {}
-	): Promise<Buffer | string> {
-		await this.#client.send('Target.activateTarget', {
-			targetId: this.#target._targetId,
-		});
-		let clip = options.clip ? processClip(options.clip) : undefined;
-		let {captureBeyondViewport = true} = options;
-		captureBeyondViewport =
-			typeof captureBeyondViewport === 'boolean' ? captureBeyondViewport : true;
-
-		if (options.fullPage) {
-			const metrics = await this.#client.send('Page.getLayoutMetrics');
-			// Fallback to `contentSize` in case of using Firefox.
-			const {width, height} = metrics.cssContentSize || metrics.contentSize;
-
-			// Overwrite clip for full page.
-			clip = {x: 0, y: 0, width, height, scale: 1};
-
-			if (!captureBeyondViewport) {
-				const {deviceScaleFactor = 1} = this.#viewport || {};
-				const screenOrientation: Protocol.Emulation.ScreenOrientation = {
-					angle: 0,
-					type: 'portraitPrimary',
-				};
-				await this.#client.send('Emulation.setDeviceMetricsOverride', {
-					mobile: false,
-					width,
-					height,
-					deviceScaleFactor,
-					screenOrientation,
-				});
-			}
-		}
-
-		const shouldSetDefaultBackground =
-			options.omitBackground && (format === 'png' || format === 'webp');
-		if (shouldSetDefaultBackground) {
-			await this.#setTransparentBackgroundColor();
-		}
-
-		const result = await this.#client.send('Page.captureScreenshot', {
-			format,
-			quality: options.quality,
-			clip,
-			captureBeyondViewport,
-		});
-		if (shouldSetDefaultBackground) {
-			await this.#resetDefaultBackgroundColor();
-		}
-
-		if (options.fullPage && this.#viewport) {
-			await this.setViewport(this.#viewport);
-		}
-
-		const buffer =
-			options.encoding === 'base64'
-				? result.data
-				: Buffer.from(result.data, 'base64');
-
-		if (options.path) {
-			try {
-				const fs = (await import('fs')).promises;
-				await fs.writeFile(options.path, buffer);
-			} catch (error) {
-				if (error instanceof TypeError) {
-					throw new Error(
-						'Screenshots can only be written to a file path in a Node-like environment.'
-					);
-				}
-
-				throw error;
-			}
-		}
-
-		return buffer;
-
-		function processClip(
-			clip: ScreenshotClip
-		): ScreenshotClip & {scale: number} {
-			const x = Math.round(clip.x);
-			const y = Math.round(clip.y);
-			const width = Math.round(clip.width + clip.x - x);
-			const height = Math.round(clip.height + clip.y - y);
-			return {x, y, width, height, scale: 1};
-		}
 	}
 
 	/**
