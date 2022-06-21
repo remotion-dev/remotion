@@ -59,13 +59,19 @@ export class BrowserRunner {
 	proc?: childProcess.ChildProcess;
 	connection?: Connection;
 
-	constructor(
-		product: Product,
-		executablePath: string,
-		processArguments: string[],
-		userDataDir: string,
-		isTempUserDataDir?: boolean
-	) {
+	constructor({
+		product,
+		executablePath,
+		processArguments,
+		userDataDir,
+		isTempUserDataDir,
+	}: {
+		product: Product;
+		executablePath: string;
+		processArguments: string[];
+		userDataDir: string;
+		isTempUserDataDir?: boolean;
+	}) {
 		this.#product = product;
 		this.#executablePath = executablePath;
 		this.#processArguments = processArguments;

@@ -3,7 +3,9 @@
 	"overrides": [
 		{
 			"files": "src/browser/**",
-			"rules": {}
+			"rules": {
+				"@typescript-eslint/no-explicit-any": "off"
+			}
 		}
 	]
 }

@@ -34,11 +34,6 @@ interface ConnectionCallback {
 	method: string;
 }
 
-/**
- * Internal events that the Connection class emits.
- *
- * @internal
- */
 const ConnectionEmittedEvents = {
 	Disconnected: Symbol('Connection.Disconnected'),
 } as const;
@@ -113,7 +108,7 @@ export class Connection extends EventEmitter {
 		return id;
 	}
 
-	async #onMessage(message: string): Promise<void> {
+	#onMessage(message: string): void {
 		debugProtocolReceive(message);
 		const object = JSON.parse(message);
 		if (object.method === 'Target.attachedToTarget') {
@@ -170,7 +165,6 @@ export class Connection extends EventEmitter {
 			return;
 		}
 
-		this.#closed = true;
 		this.#transport.onmessage = undefined;
 		this.#transport.onclose = undefined;
 		for (const callback of this.#callbacks.values()) {

@@ -59,12 +59,12 @@ export async function downloadBrowser(): Promise<void> {
 	const revision = await getRevision();
 	await fetchBinary(revision);
 
-	async function getRevision(): Promise<string> {
+	function getRevision(): Promise<string> {
 		if (product === 'chrome') {
-			return (
+			return Promise.resolve(
 				process.env.PUPPETEER_CHROMIUM_REVISION ||
-				process.env.npm_config_puppeteer_chromium_revision ||
-				PUPPETEER_REVISIONS.chromium
+					process.env.npm_config_puppeteer_chromium_revision ||
+					PUPPETEER_REVISIONS.chromium
 			);
 		}
 
@@ -167,7 +167,7 @@ export async function downloadBrowser(): Promise<void> {
 		return `${Math.round(mb * 10) / 10} Mb`;
 	}
 
-	async function getFirefoxNightlyVersion(): Promise<string> {
+	function getFirefoxNightlyVersion(): Promise<string> {
 		const firefoxVersionsUrl =
 			'https://product-details.mozilla.org/1.0/firefox_versions.json';
 

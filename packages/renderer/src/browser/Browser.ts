@@ -41,9 +41,6 @@ interface BrowserContextOptions {
 	proxyBypassList?: string[];
 }
 
-/**
- * @internal
- */
 type BrowserCloseCallback = () => Promise<void> | void;
 
 /**
@@ -68,13 +65,19 @@ const enum BrowserEmittedEvents {
 }
 
 export class Browser extends EventEmitter {
-	static async _create(
-		connection: Connection,
-		contextIds: string[],
-		defaultViewport: Viewport,
-		process?: ChildProcess,
-		closeCallback?: BrowserCloseCallback
-	): Promise<Browser> {
+	static async _create({
+		connection,
+		contextIds,
+		defaultViewport,
+		process,
+		closeCallback,
+	}: {
+		connection: Connection;
+		contextIds: string[];
+		defaultViewport: Viewport;
+		process?: ChildProcess;
+		closeCallback?: BrowserCloseCallback;
+	}): Promise<Browser> {
 		const browser = new Browser(
 			connection,
 			contextIds,
@@ -94,16 +97,11 @@ export class Browser extends EventEmitter {
 	#contexts: Map<string, BrowserContext>;
 	#targets: Map<string, Target>;
 
-	/**
-	 * @internal
-	 */
 	get _targets(): Map<string, Target> {
 		return this.#targets;
 	}
 
-	/**
-	 * @internal
-	 */
+	// eslint-disable-next-line max-params
 	constructor(
 		connection: Connection,
 		contextIds: string[],
@@ -196,9 +194,6 @@ export class Browser extends EventEmitter {
 		return this.#defaultContext;
 	}
 
-	/**
-	 * @internal
-	 */
 	async _disposeContext(contextId?: string): Promise<void> {
 		if (!contextId) {
 			return;
@@ -243,7 +238,7 @@ export class Browser extends EventEmitter {
 		}
 	}
 
-	async #targetDestroyed(event: {targetId: string}): Promise<void> {
+	#targetDestroyed(event: {targetId: string}): void {
 		const target = this.#targets.get(event.targetId);
 		if (!target) {
 			throw new Error(
@@ -301,9 +296,6 @@ export class Browser extends EventEmitter {
 		return this.#defaultContext.newPage();
 	}
 
-	/**
-	 * @internal
-	 */
 	async _createPageInContext(contextId?: string): Promise<Page> {
 		const {targetId} = await this.#connection.send('Target.createTarget', {
 			url: 'about:blank',

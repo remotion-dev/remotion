@@ -38,34 +38,13 @@ export class Target {
 	#defaultViewport: Viewport;
 	#pagePromise?: Promise<Page>;
 
-	/**
-	 * @internal
-	 */
 	_initializedPromise: Promise<boolean>;
-	/**
-	 * @internal
-	 */
 	_initializedCallback!: (x: boolean) => void;
-	/**
-	 * @internal
-	 */
 	_isClosedPromise: Promise<void>;
-	/**
-	 * @internal
-	 */
 	_closedCallback!: () => void;
-	/**
-	 * @internal
-	 */
 	_isInitialized: boolean;
-	/**
-	 * @internal
-	 */
 	_targetId: string;
 
-	/**
-	 * @internal
-	 */
 	constructor(
 		targetInfo: Protocol.Target.TargetInfo,
 		browserContext: BrowserContext,
@@ -108,9 +87,6 @@ export class Target {
 		return this.#sessionFactory();
 	}
 
-	/**
-	 * @internal
-	 */
 	_getTargetInfo(): Protocol.Target.TargetInfo {
 		return this.#targetInfo;
 	}
@@ -188,9 +164,6 @@ export class Target {
 		return this.browser()._targets.get(openerId);
 	}
 
-	/**
-	 * @internal
-	 */
 	_targetInfoChanged(targetInfo: Protocol.Target.TargetInfo): void {
 		this.#targetInfo = targetInfo;
 

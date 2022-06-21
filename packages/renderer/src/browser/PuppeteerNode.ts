@@ -104,16 +104,10 @@ export class PuppeteerNode {
 		return _connectToBrowser(options);
 	}
 
-	/**
-	 * @internal
-	 */
 	get _productName(): Product | undefined {
 		return this.#productName;
 	}
 
-	/**
-	 * @internal
-	 */
 	set _productName(name: Product | undefined) {
 		this.#productName = name;
 	}
@@ -165,9 +159,6 @@ export class PuppeteerNode {
 		return this._launcher.executablePath(channel);
 	}
 
-	/**
-	 * @internal
-	 */
 	get _launcher(): ProductLauncher {
 		if (
 			!this.#lazyLauncher ||

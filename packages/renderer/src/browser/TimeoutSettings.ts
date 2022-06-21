@@ -16,9 +16,6 @@
 
 const DEFAULT_TIMEOUT = 30000;
 
-/**
- * @internal
- */
 export class TimeoutSettings {
 	#defaultTimeout: number | null;
 	#defaultNavigationTimeout: number | null;

@@ -56,9 +56,6 @@ const puppeteerToProtocolLifecycle = new Map<
 
 const noop = (): void => undefined;
 
-/**
- * @internal
- */
 export class LifecycleWatcher {
 	#expectedLifecycle: ProtocolLifeCycleEvent[];
 	#frameManager: FrameManager;
@@ -182,9 +179,13 @@ export class LifecycleWatcher {
 		this.#checkLifecycleComplete();
 	}
 
-	async navigationResponse(): Promise<HTTPResponse | null> {
-		// We may need to wait for ExtraInfo events before the request is complete.
-		return this.#navigationRequest ? this.#navigationRequest.response() : null;
+	navigationResponse(): HTTPResponse | null {
+		if (!this.#navigationRequest) {
+			return null;
+		}
+
+		const res = this.#navigationRequest.response();
+		return res;
 	}
 
 	#terminate(error: Error): void {

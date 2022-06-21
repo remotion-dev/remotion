@@ -74,9 +74,6 @@ interface PageEventObject {
 }
 
 export class Page extends EventEmitter {
-	/**
-	 * @internal
-	 */
 	static async _create(
 		client: CDPSession,
 		target: Target,
@@ -98,9 +95,6 @@ export class Page extends EventEmitter {
 	#pageBindings = new Map<string, Function>();
 	screenshotTaskQueue: TaskQueue;
 
-	/**
-	 * @internal
-	 */
 	constructor(client: CDPSession, target: Target) {
 		super();
 		this.#client = client;
@@ -196,9 +190,6 @@ export class Page extends EventEmitter {
 		return this.#target;
 	}
 
-	/**
-	 * @internal
-	 */
 	_client(): CDPSession {
 		return this.#client;
 	}

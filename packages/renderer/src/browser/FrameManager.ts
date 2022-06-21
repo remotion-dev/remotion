@@ -49,9 +49,6 @@ export const FrameManagerEmittedEvents = {
 	ExecutionContextDestroyed: Symbol('FrameManager.ExecutionContextDestroyed'),
 };
 
-/**
- * @internal
- */
 export class FrameManager extends EventEmitter {
 	#page: Page;
 	#networkManager: NetworkManager;
@@ -62,16 +59,10 @@ export class FrameManager extends EventEmitter {
 	#mainFrame?: Frame;
 	#client: CDPSession;
 
-	/**
-	 * @internal
-	 */
 	get _timeoutSettings(): TimeoutSettings {
 		return this.#timeoutSettings;
 	}
 
-	/**
-	 * @internal
-	 */
 	get _client(): CDPSession {
 		return this.#client;
 	}
@@ -126,10 +117,10 @@ export class FrameManager extends EventEmitter {
 		session.on('Page.lifecycleEvent', (event) => {
 			this.#onLifecycleEvent(event);
 		});
-		session.on('Target.attachedToTarget', async (event) => {
+		session.on('Target.attachedToTarget', (event) => {
 			this.#onAttachedToTarget(event);
 		});
-		session.on('Target.detachedFromTarget', async (event) => {
+		session.on('Target.detachedFromTarget', (event) => {
 			this.#onDetachedFromTarget(event);
 		});
 	}
@@ -255,7 +246,7 @@ export class FrameManager extends EventEmitter {
 		await this.initialize(session);
 	}
 
-	async #onDetachedFromTarget(event: Protocol.Target.DetachedFromTargetEvent) {
+	#onDetachedFromTarget(event: Protocol.Target.DetachedFromTargetEvent) {
 		if (!event.targetId) {
 			return;
 		}
@@ -551,101 +542,22 @@ export class FrameManager extends EventEmitter {
 	}
 }
 
-/**
- * At every point of time, page exposes its current frame tree via the
- * {@link Page.mainFrame | page.mainFrame} and
- * {@link Frame.childFrames | frame.childFrames} methods.
- *
- * @remarks
- *
- * `Frame` object lifecycles are controlled by three events that are all
- * dispatched on the page object:
- *
- * - {@link PageEmittedEvents.FrameAttached}
- *
- * - {@link PageEmittedEvents.FrameNavigated}
- *
- * - {@link PageEmittedEvents.FrameDetached}
- *
- * @Example
- * An example of dumping frame tree:
- *
- * ```js
- * const puppeteer = require('puppeteer');
- *
- * (async () => {
- *   const browser = await puppeteer.launch();
- *   const page = await browser.newPage();
- *   await page.goto('https://www.google.com/chrome/browser/canary.html');
- *   dumpFrameTree(page.mainFrame(), '');
- *   await browser.close();
- *
- *   function dumpFrameTree(frame, indent) {
- *     console.log(indent + frame.url());
- *     for (const child of frame.childFrames()) {
- *     dumpFrameTree(child, indent + '  ');
- *     }
- *   }
- * })();
- * ```
- *
- * @Example
- * An example of getting text from an iframe element:
- *
- * ```js
- * const frame = page.frames().find(frame => frame.name() === 'myframe');
- * const text = await frame.$eval('.selector', element => element.textContent);
- * console.log(text);
- * ```
- *
- * @public
- */
 export class Frame {
 	#parentFrame: Frame | null;
 	#url = '';
 	#detached = false;
 	#client!: CDPSession;
 
-	/**
-	 * @internal
-	 */
 	_frameManager: FrameManager;
-	/**
-	 * @internal
-	 */
 	_id: string;
-	/**
-	 * @internal
-	 */
 	_loaderId = '';
-	/**
-	 * @internal
-	 */
 	_name?: string;
-	/**
-	 * @internal
-	 */
 	_hasStartedLoading = false;
-	/**
-	 * @internal
-	 */
 	_lifecycleEvents = new Set<string>();
-	/**
-	 * @internal
-	 */
 	_mainWorld!: DOMWorld;
-	/**
-	 * @internal
-	 */
 	_secondaryWorld!: DOMWorld;
-	/**
-	 * @internal
-	 */
 	_childFrames: Set<Frame>;
 
-	/**
-	 * @internal
-	 */
 	constructor(
 		frameManager: FrameManager,
 		parentFrame: Frame | null,
@@ -681,45 +593,7 @@ export class Frame {
 		return this.#client !== this._frameManager._client;
 	}
 
-	/**
-	 * @remarks
-	 *
-	 * `frame.goto` will throw an error if:
-	 * - there's an SSL error (e.g. in case of self-signed certificates).
-	 *
-	 * - target URL is invalid.
-	 *
-	 * - the `timeout` is exceeded during navigation.
-	 *
-	 * - the remote server does not respond or is unreachable.
-	 *
-	 * - the main resource failed to load.
-	 *
-	 * `frame.goto` will not throw an error when any valid HTTP status code is
-	 * returned by the remote server, including 404 "Not Found" and 500 "Internal
-	 * Server Error".  The status code for such responses can be retrieved by
-	 * calling {@link HTTPResponse.status}.
-	 *
-	 * NOTE: `frame.goto` either throws an error or returns a main resource
-	 * response. The only exceptions are navigation to `about:blank` or
-	 * navigation to the same URL with a different hash, which would succeed and
-	 * return `null`.
-	 *
-	 * NOTE: Headless mode doesn't support navigation to a PDF document. See
-	 * the {@link https://bugs.chromium.org/p/chromium/issues/detail?id=761295 | upstream
-	 * issue}.
-	 *
-	 * @param url - the URL to navigate the frame to. This should include the
-	 * scheme, e.g. `https://`.
-	 * @param options - navigation options. `waitUntil` is useful to define when
-	 * the navigation should be considered successful - see the docs for
-	 * {@link PuppeteerLifeCycleEvent} for more details.
-	 *
-	 * @returns A promise which resolves to the main resource response. In case of
-	 * multiple redirects, the navigation will resolve with the response of the
-	 * last redirect.
-	 */
-	async goto(
+	goto(
 		url: string,
 		options: {
 			referer?: string;
@@ -730,9 +604,6 @@ export class Frame {
 		return this._frameManager.navigateFrame(this, url, options);
 	}
 
-	/**
-	 * @internal
-	 */
 	_client(): CDPSession {
 		return this.#client;
 	}
@@ -744,14 +615,14 @@ export class Frame {
 		return this._mainWorld.executionContext();
 	}
 
-	async evaluateHandle<HandlerType extends JSHandle = JSHandle>(
+	evaluateHandle<HandlerType extends JSHandle = JSHandle>(
 		pageFunction: EvaluateHandleFn,
 		...args: SerializableOrJSHandle[]
 	): Promise<HandlerType> {
 		return this._mainWorld.evaluateHandle<HandlerType>(pageFunction, ...args);
 	}
 
-	async evaluate<T extends EvaluateFn>(
+	evaluate<T extends EvaluateFn>(
 		pageFunction: T,
 		...args: SerializableOrJSHandle[]
 	): Promise<UnwrapPromiseLike<EvaluateFnReturnType<T>>> {
@@ -785,7 +656,7 @@ export class Frame {
 		return this._mainWorld.waitForFunction(pageFunction, ...args);
 	}
 
-	async title(): Promise<string> {
+	title(): Promise<string> {
 		return this._secondaryWorld.title();
 	}
 

@@ -16,11 +16,6 @@ type RedirectInfo = {
 };
 type RedirectInfoList = RedirectInfo[];
 
-/**
- * @internal
- *
- * Helper class to track network events by request ID
- */
 export class NetworkEventManager {
 	/*
 	 * There are four possible orders of events:

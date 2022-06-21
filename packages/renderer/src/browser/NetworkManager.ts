@@ -39,9 +39,6 @@ interface FrameManager {
 	frame(frameId: string): Frame | null;
 }
 
-/**
- * @internal
- */
 export class NetworkManager extends EventEmitter {
 	#client: CDPSession;
 	#frameManager: FrameManager;
