@@ -34,6 +34,7 @@ import {getDownloadsCacheDir} from './get-download-destination';
 const downloadURLs: Record<Product, Partial<Record<Platform, string>>> = {
 	chrome: {
 		linux: '%s/chromium-browser-snapshots/Linux_x64/%d/%s.zip',
+		linux_arm: '%s/chromium-browser-snapshots/Linux_x64/%d/%s.zip',
 		mac: '%s/chromium-browser-snapshots/Mac/%d/%s.zip',
 		mac_arm:
 			'https://github.com/Alex313031/Thorium-Special/releases/download/M103.0.5037.0-1/Thorium_MacOS_ARM64.dmg',
@@ -42,7 +43,11 @@ const downloadURLs: Record<Product, Partial<Record<Platform, string>>> = {
 	},
 	firefox: {
 		linux: '%s/firefox-%s.en-US.%s-x86_64.tar.bz2',
+		// TODO
+		linux_arm: '%s/firefox-%s.en-US.%s-x86_64.tar.bz2',
 		mac: '%s/firefox-%s.en-US.%s.dmg',
+		// TODO
+		mac_arm: '%s/firefox-%s.en-US.%s.dmg',
 		win32: '%s/firefox-%s.en-US.%s.zip',
 		win64: '%s/firefox-%s.en-US.%s.zip',
 	},
@@ -59,7 +64,7 @@ const browserConfig = {
 	},
 } as const;
 
-type Platform = 'linux' | 'mac' | 'mac_arm' | 'win32' | 'win64';
+type Platform = 'linux' | 'linux_arm' | 'mac' | 'mac_arm' | 'win32' | 'win64';
 
 function archiveName(
 	product: Product,
@@ -69,6 +74,7 @@ function archiveName(
 	switch (product) {
 		case 'chrome':
 			switch (platform) {
+				case 'linux_arm':
 				case 'linux':
 					return 'chrome-linux';
 				case 'mac_arm':
@@ -94,26 +100,6 @@ function archiveName(
 function _downloadURL(product: Product, platform: Platform): string {
 	const url = downloadURLs[product][platform] as string;
 	return url;
-}
-
-function handleArm64(): void {
-	let exists = fs.existsSync('/usr/bin/chromium-browser');
-	if (exists) {
-		return;
-	}
-
-	exists = fs.existsSync('/usr/bin/chromium');
-	if (exists) {
-		return;
-	}
-
-	console.error(
-		'The chromium binary is not available for arm64.' +
-			'\nIf you are on Ubuntu, you can install with: ' +
-			'\n\n sudo apt install chromium\n' +
-			'\n\n sudo apt install chromium-browser\n'
-	);
-	throw new Error();
 }
 
 const readdirAsync = fs.promises.readdir;
@@ -184,7 +170,7 @@ export class BrowserFetcher {
 
 					break;
 				case 'linux':
-					this.#platform = 'linux';
+					this.#platform = os.arch() === 'arm64' ? 'linux_arm' : 'linux';
 					break;
 				case 'win32':
 					this.#platform = os.arch() === 'x64' ? 'win64' : 'win32';
@@ -278,12 +264,6 @@ export class BrowserFetcher {
 			});
 		}
 
-		// Use system Chromium builds on Linux ARM devices
-		if (os.platform() !== 'darwin' && os.arch() === 'arm64') {
-			handleArm64();
-			return;
-		}
-
 		try {
 			await _downloadFile(url, archivePath, progressCallback);
 			await install(archivePath, outputPath);
@@ -361,7 +341,7 @@ export class BrowserFetcher {
 					'MacOS',
 					'Thorium'
 				);
-			} else if (this.#platform === 'linux') {
+			} else if (this.#platform === 'linux' || this.#platform === 'linux_arm') {
 				executablePath = path.join(
 					folderPath,
 					archiveName(this.#product, this.#platform, revision),
@@ -385,7 +365,7 @@ export class BrowserFetcher {
 					'MacOS',
 					'firefox'
 				);
-			} else if (this.#platform === 'linux') {
+			} else if (this.#platform === 'linux' || this.#platform === 'linux_arm') {
 				executablePath = path.join(folderPath, 'firefox', 'firefox');
 			} else if (this.#platform === 'win32' || this.#platform === 'win64') {
 				executablePath = path.join(folderPath, 'firefox', 'firefox.exe');
