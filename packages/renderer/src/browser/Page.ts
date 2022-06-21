@@ -19,7 +19,6 @@ import {assert, assertNever} from './assert';
 import {Browser, BrowserContext} from './Browser';
 import {CDPSession, CDPSessionEmittedEvents} from './Connection';
 import {ConsoleMessage, ConsoleMessageType} from './ConsoleMessage';
-import {Dialog} from './Dialog';
 import {EmulationManager} from './EmulationManager';
 import {
 	EvaluateFn,
@@ -339,7 +338,6 @@ export const enum PageEmittedEvents {
 interface PageEventObject {
 	close: never;
 	console: ConsoleMessage;
-	dialog: Dialog;
 	domcontentloaded: never;
 	error: Error;
 	frameattached: Frame;
