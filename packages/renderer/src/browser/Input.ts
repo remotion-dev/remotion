@@ -334,7 +334,7 @@ export type MouseButton = 'left' | 'right' | 'middle' | 'back' | 'forward';
 /**
  * @public
  */
-export interface MouseOptions {
+interface MouseOptions {
 	button?: MouseButton;
 	clickCount?: number;
 }
@@ -342,7 +342,7 @@ export interface MouseOptions {
 /**
  * @public
  */
-export interface MouseWheelOptions {
+interface MouseWheelOptions {
 	deltaX?: number;
 	deltaY?: number;
 }

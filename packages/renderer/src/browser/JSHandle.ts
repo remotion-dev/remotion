@@ -39,7 +39,7 @@ import {
 /**
  * @public
  */
-export interface BoxModel {
+interface BoxModel {
 	content: Point[];
 	padding: Point[];
 	border: Point[];
@@ -51,7 +51,7 @@ export interface BoxModel {
 /**
  * @public
  */
-export interface BoundingBox extends Point {
+interface BoundingBox extends Point {
 	/**
 	 * the width of the element in pixels.
 	 */
@@ -1147,7 +1147,7 @@ export class ElementHandle<
 /**
  * @public
  */
-export interface Offset {
+interface Offset {
 	/**
 	 * x-offset for the clickable point relative to the top-left corder of the border box.
 	 */
@@ -1161,7 +1161,7 @@ export interface Offset {
 /**
  * @public
  */
-export interface ClickOptions {
+interface ClickOptions {
 	/**
 	 * Time to wait between `mousedown` and `mouseup` in milliseconds.
 	 *
@@ -1185,7 +1185,7 @@ export interface ClickOptions {
 /**
  * @public
  */
-export interface PressOptions {
+interface PressOptions {
 	/**
 	 * Time to wait between `keydown` and `keyup` in milliseconds. Defaults to 0.
 	 */

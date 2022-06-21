@@ -60,7 +60,7 @@ import {
 /**
  * @public
  */
-export interface Metrics {
+interface Metrics {
 	Timestamp?: number;
 	Documents?: number;
 	Frames?: number;
@@ -79,7 +79,7 @@ export interface Metrics {
 /**
  * @public
  */
-export interface WaitTimeoutOptions {
+interface WaitTimeoutOptions {
 	/**
 	 * Maximum wait time in milliseconds, defaults to 30 seconds, pass `0` to
 	 * disable the timeout.
@@ -94,7 +94,7 @@ export interface WaitTimeoutOptions {
 /**
  * @public
  */
-export interface WaitForOptions {
+interface WaitForOptions {
 	/**
 	 * Maximum wait time in milliseconds, defaults to 30 seconds, pass `0` to
 	 * disable the timeout.
@@ -111,7 +111,7 @@ export interface WaitForOptions {
 /**
  * @public
  */
-export interface GeolocationOptions {
+interface GeolocationOptions {
 	/**
 	 * Latitude between -90 and 90.
 	 */
@@ -129,7 +129,7 @@ export interface GeolocationOptions {
 /**
  * @public
  */
-export interface MediaFeature {
+interface MediaFeature {
 	name: string;
 	value: string;
 }
@@ -137,7 +137,7 @@ export interface MediaFeature {
 /**
  * @public
  */
-export interface ScreenshotClip {
+interface ScreenshotClip {
 	x: number;
 	y: number;
 	width: number;
@@ -336,7 +336,7 @@ export const enum PageEmittedEvents {
  * emitted.
  * @public
  */
-export interface PageEventObject {
+interface PageEventObject {
 	close: never;
 	console: ConsoleMessage;
 	dialog: Dialog;

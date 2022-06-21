@@ -63,7 +63,7 @@ export interface WaitForSelectorOptions {
 /**
  * @internal
  */
-export interface PageBinding {
+interface PageBinding {
 	name: string;
 	pptrFunction: Function;
 }

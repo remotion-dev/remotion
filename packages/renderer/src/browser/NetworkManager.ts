@@ -27,7 +27,7 @@ import {debugError, isString} from './util';
 /**
  * @public
  */
-export interface Credentials {
+interface Credentials {
 	username: string;
 	password: string;
 }
@@ -46,7 +46,7 @@ export interface NetworkConditions {
 /**
  * @public
  */
-export interface InternalNetworkConditions extends NetworkConditions {
+interface InternalNetworkConditions extends NetworkConditions {
 	offline: boolean;
 }
 

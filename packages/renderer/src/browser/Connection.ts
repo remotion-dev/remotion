@@ -27,12 +27,7 @@ import {EventEmitter} from './EventEmitter';
 /**
  * @public
  */
-export {ConnectionTransport, ProtocolMapping};
-
-/**
- * @public
- */
-export interface ConnectionCallback {
+interface ConnectionCallback {
 	resolve: Function;
 	reject: Function;
 	error: ProtocolError;
@@ -235,10 +230,7 @@ export class Connection extends EventEmitter {
 	}
 }
 
-/**
- * @public
- */
-export interface CDPSessionOnMessageObject {
+interface CDPSessionOnMessageObject {
 	id?: number;
 	method: string;
 	params: Record<string, unknown>;
