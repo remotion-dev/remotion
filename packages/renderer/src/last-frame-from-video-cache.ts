@@ -46,7 +46,7 @@ export const getLastFrameFromCache = (
 	return map[key].data ?? null;
 };
 
-export const removedLastFrameFromCache = (key: string) => {
+const removedLastFrameFromCache = (key: string) => {
 	if (!map[key]) {
 		return;
 	}
@@ -56,7 +56,7 @@ export const removedLastFrameFromCache = (key: string) => {
 	delete map[key];
 };
 
-export const ensureMaxSize = () => {
+const ensureMaxSize = () => {
 	// eslint-disable-next-line no-unmodified-loop-condition
 	while (bufferSize > MAX_CACHE_SIZE) {
 		const earliest = Object.entries(map).sort((a, b) => {
