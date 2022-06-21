@@ -36,18 +36,12 @@ interface PuppeteerLaunchOptions
 
 export class PuppeteerNode {
 	#lazyLauncher?: ProductLauncher;
-	#projectRoot?: string;
 	#productName?: Product;
 
 	_preferredRevision: string;
 
-	constructor(settings: {
-		projectRoot?: string;
-		preferredRevision: string;
-		productName?: Product;
-	}) {
-		const {projectRoot, preferredRevision, productName} = settings;
-		this.#projectRoot = projectRoot;
+	constructor(settings: {preferredRevision: string; productName?: Product}) {
+		const {preferredRevision, productName} = settings;
 		this.#productName = productName;
 		this._preferredRevision = preferredRevision;
 
@@ -139,11 +133,7 @@ export class PuppeteerNode {
 			}
 
 			// eslint-disable-next-line new-cap
-			this.#lazyLauncher = Launcher(
-				this.#projectRoot,
-				this._preferredRevision,
-				this._productName
-			);
+			this.#lazyLauncher = Launcher(this._preferredRevision, this._productName);
 		}
 
 		return this.#lazyLauncher;
@@ -167,12 +157,6 @@ export class PuppeteerNode {
 	 * @returns A new BrowserFetcher instance.
 	 */
 	createBrowserFetcher(options: BrowserFetcherOptions): BrowserFetcher {
-		if (!this.#projectRoot) {
-			throw new Error(
-				'_projectRoot is undefined. Unable to create a BrowserFetcher.'
-			);
-		}
-
-		return new BrowserFetcher(this.#projectRoot, options);
+		return new BrowserFetcher(options);
 	}
 }
