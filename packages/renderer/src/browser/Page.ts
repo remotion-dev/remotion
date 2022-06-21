@@ -19,7 +19,6 @@ import {assert, assertNever} from './assert';
 import {Browser, BrowserContext} from './Browser';
 import {CDPSession, CDPSessionEmittedEvents} from './Connection';
 import {ConsoleMessage, ConsoleMessageType} from './ConsoleMessage';
-import {Coverage} from './Coverage';
 import {Dialog} from './Dialog';
 import {EmulationManager} from './EmulationManager';
 import {
@@ -441,7 +440,6 @@ export class Page extends EventEmitter {
 	#emulationManager: EmulationManager;
 	#tracing: Tracing;
 	#pageBindings = new Map<string, Function>();
-	#coverage: Coverage;
 	#javascriptEnabled = true;
 	#viewport: Viewport | null;
 	screenshotTaskQueue: TaskQueue;
@@ -476,7 +474,6 @@ export class Page extends EventEmitter {
 		);
 		this.#emulationManager = new EmulationManager(client);
 		this.#tracing = new Tracing(client);
-		this.#coverage = new Coverage(client);
 		this.screenshotTaskQueue = screenshotTaskQueue;
 		this.#viewport = null;
 
@@ -806,10 +803,6 @@ export class Page extends EventEmitter {
 
 	get touchscreen(): Touchscreen {
 		return this.#touchscreen;
-	}
-
-	get coverage(): Coverage {
-		return this.#coverage;
 	}
 
 	get tracing(): Tracing {
