@@ -26,9 +26,8 @@ import {
 	UnwrapPromiseLike,
 } from './EvalTypes';
 import {ExecutionContext} from './ExecutionContext';
-import {Frame, FrameManager} from './FrameManager';
+import {Frame} from './FrameManager';
 import {ElementHandle, JSHandle} from './JSHandle';
-import {LifecycleWatcher, PuppeteerLifeCycleEvent} from './LifecycleWatcher';
 import {TimeoutSettings} from './TimeoutSettings';
 import {
 	debugError,
@@ -72,7 +71,6 @@ interface PageBinding {
  * @internal
  */
 export class DOMWorld {
-	#frameManager: FrameManager;
 	#client: CDPSession;
 	#frame: Frame;
 	#timeoutSettings: TimeoutSettings;
@@ -108,14 +106,12 @@ export class DOMWorld {
 
 	constructor(
 		client: CDPSession,
-		frameManager: FrameManager,
 		frame: Frame,
 		timeoutSettings: TimeoutSettings
 	) {
 		// Keep own reference to client because it might differ from the FrameManager's
 		// client for OOP iframes.
 		this.#client = client;
-		this.#frameManager = frameManager;
 		this.#frame = frame;
 		this.#timeoutSettings = timeoutSettings;
 		this._setContext(null);
@@ -220,160 +216,6 @@ export class DOMWorld {
 			return element;
 		});
 		return this.#documentPromise;
-	}
-
-	async $x(expression: string): Promise<ElementHandle[]> {
-		const document = await this._document();
-		const value = await document.$x(expression);
-		return value;
-	}
-
-	async content(): Promise<string> {
-		return this.evaluate(() => {
-			let retVal = '';
-			if (document.doctype) {
-				retVal = new XMLSerializer().serializeToString(document.doctype);
-			}
-
-			if (document.documentElement) {
-				retVal += document.documentElement.outerHTML;
-			}
-
-			return retVal;
-		});
-	}
-
-	async setContent(
-		html: string,
-		options: {
-			timeout?: number;
-			waitUntil?: PuppeteerLifeCycleEvent | PuppeteerLifeCycleEvent[];
-		} = {}
-	): Promise<void> {
-		const {
-			waitUntil = ['load'],
-			timeout = this.#timeoutSettings.navigationTimeout(),
-		} = options;
-		// We rely upon the fact that document.open() will reset frame lifecycle with "init"
-		// lifecycle event. @see https://crrev.com/608658
-		await this.evaluate<(x: string) => void>((_html) => {
-			document.open();
-			document.write(_html);
-			document.close();
-		}, html);
-		const watcher = new LifecycleWatcher(
-			this.#frameManager,
-			this.#frame,
-			waitUntil,
-			timeout
-		);
-		const error = await Promise.race([
-			watcher.timeoutOrTerminationPromise(),
-			watcher.lifecyclePromise(),
-		]);
-		watcher.dispose();
-		if (error) {
-			throw error;
-		}
-	}
-
-	/**
-	 * Adds a style tag into the current context.
-	 *
-	 * @remarks
-	 *
-	 * You can pass a URL, filepath or string of contents. Note that when running Puppeteer
-	 * in a browser environment you cannot pass a filepath and should use either
-	 * `url` or `content`.
-	 *
-	 */
-	async addStyleTag(options: {
-		url?: string;
-		path?: string;
-		content?: string;
-	}): Promise<ElementHandle> {
-		const {url = null, path = null, content = null} = options;
-		if (url !== null) {
-			try {
-				const context = await this.executionContext();
-				const handle = await context.evaluateHandle(addStyleUrl, url);
-				const elementHandle = handle.asElement();
-				if (elementHandle === null) {
-					throw new Error('Style element is not found');
-				}
-
-				return elementHandle;
-			} catch (error) {
-				throw new Error(`Loading style from ${url} failed`);
-			}
-		}
-
-		if (path !== null) {
-			let fs: typeof import('fs').promises;
-			try {
-				fs = (await import('fs')).promises;
-			} catch (error) {
-				if (error instanceof TypeError) {
-					throw new Error(
-						'Cannot pass a filepath to addStyleTag in the browser environment.'
-					);
-				}
-
-				throw error;
-			}
-
-			let contents = await fs.readFile(path, 'utf8');
-			contents += '/*# sourceURL=' + path.replace(/\n/g, '') + '*/';
-			const context = await this.executionContext();
-			const handle = await context.evaluateHandle(addStyleContent, contents);
-			const elementHandle = handle.asElement();
-			if (elementHandle === null) {
-				throw new Error('Style element is not found');
-			}
-
-			return elementHandle;
-		}
-
-		if (content !== null) {
-			const context = await this.executionContext();
-			const handle = await context.evaluateHandle(addStyleContent, content);
-			const elementHandle = handle.asElement();
-			if (elementHandle === null) {
-				throw new Error('Style element is not found');
-			}
-
-			return elementHandle;
-		}
-
-		throw new Error(
-			'Provide an object with a `url`, `path` or `content` property'
-		);
-
-		async function addStyleUrl(url: string): Promise<HTMLElement> {
-			const link = document.createElement('link');
-			link.rel = 'stylesheet';
-			link.href = url;
-			const promise = new Promise((res, rej) => {
-				link.onload = res;
-				link.onerror = rej;
-			});
-			document.head.appendChild(link);
-			await promise;
-			return link;
-		}
-
-		async function addStyleContent(content: string): Promise<HTMLElement> {
-			const style = document.createElement('style');
-			style.type = 'text/css';
-			style.appendChild(document.createTextNode(content));
-			const promise = new Promise((res, rej) => {
-				style.onload = res;
-				style.onerror = rej;
-			});
-			document.head.appendChild(style);
-			await promise;
-			return style;
-		}
 	}
 
 	// If multiple waitFor are set up asynchronously, we need to wait for the
