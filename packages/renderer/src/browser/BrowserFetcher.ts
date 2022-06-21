@@ -73,7 +73,7 @@ const browserConfig = {
  * Supported platforms.
  * @public
  */
-export type Platform = 'linux' | 'mac' | 'mac_arm' | 'win32' | 'win64';
+type Platform = 'linux' | 'mac' | 'mac_arm' | 'win32' | 'win64';
 
 function archiveName(
 	product: Product,
@@ -94,10 +94,14 @@ function archiveName(
 					return parseInt(revision, 10) > 591479
 						? 'chrome-win'
 						: 'chrome-win32';
+				default:
+					throw new Error('unknown browser');
 			}
 
 		case 'firefox':
 			return platform;
+		default:
+			throw new Error('unknown browser');
 	}
 }
 

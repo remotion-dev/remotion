@@ -30,7 +30,7 @@ import {waitWithTimeout} from './util';
  *
  * @public
  */
-export interface BrowserContextOptions {
+interface BrowserContextOptions {
 	/**
 	 * Proxy server with optional port to use for all requests.
 	 * Username and password can be set in `Page.authenticate`.
@@ -45,7 +45,7 @@ export interface BrowserContextOptions {
 /**
  * @internal
  */
-export type BrowserCloseCallback = () => Promise<void> | void;
+type BrowserCloseCallback = () => Promise<void> | void;
 
 /**
  * @public
@@ -90,7 +90,7 @@ const WEB_PERMISSION_TO_PROTOCOL_PERMISSION = new Map<
 /**
  * @public
  */
-export type Permission =
+type Permission =
 	| 'geolocation'
 	| 'midi'
 	| 'notifications'
@@ -112,7 +112,7 @@ export type Permission =
 /**
  * @public
  */
-export interface WaitForTargetOptions {
+interface WaitForTargetOptions {
 	/**
 	 * Maximum wait time in milliseconds. Pass `0` to disable the timeout.
 	 * @defaultValue 30 seconds.
@@ -125,7 +125,7 @@ export interface WaitForTargetOptions {
  *
  * @public
  */
-export const enum BrowserEmittedEvents {
+const enum BrowserEmittedEvents {
 	/**
 	 * Emitted when Puppeteer gets disconnected from the Chromium instance. This
 	 * might happen because of one of the following:
@@ -704,7 +704,7 @@ export class Browser extends EventEmitter {
 /**
  * @public
  */
-export const enum BrowserContextEmittedEvents {
+const enum BrowserContextEmittedEvents {
 	/**
 	 * Emitted when the url of a target inside the browser context changes.
 	 * Contains a {@link Target} instance.

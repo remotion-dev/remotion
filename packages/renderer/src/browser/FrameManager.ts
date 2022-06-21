@@ -591,7 +591,7 @@ export class FrameManager extends EventEmitter {
 /**
  * @public
  */
-export interface FrameWaitForFunctionOptions {
+interface FrameWaitForFunctionOptions {
 	/**
 	 * An interval at which the `pageFunction` is executed, defaults to `raf`. If
 	 * `polling` is a number, then it is treated as an interval in milliseconds at
@@ -611,52 +611,6 @@ export interface FrameWaitForFunctionOptions {
 	 * using {@link Page.setDefaultTimeout}.
 	 */
 	timeout?: number;
-}
-
-/**
- * @public
- */
-export interface FrameAddScriptTagOptions {
-	/**
-	 * the URL of the script to be added.
-	 */
-	url?: string;
-	/**
-	 * The path to a JavaScript file to be injected into the frame.
-	 * @remarks
-	 * If `path` is a relative path, it is resolved relative to the current
-	 * working directory (`process.cwd()` in Node.js).
-	 */
-	path?: string;
-	/**
-	 * Raw JavaScript content to be injected into the frame.
-	 */
-	content?: string;
-	/**
-	 * Set the script's `type`. Use `module` in order to load an ES2015 module.
-	 */
-	type?: string;
-}
-
-/**
- * @public
- */
-export interface FrameAddStyleTagOptions {
-	/**
-	 * the URL of the CSS file to be added.
-	 */
-	url?: string;
-	/**
-	 * The path to a CSS file to be injected into the frame.
-	 * @remarks
-	 * If `path` is a relative path, it is resolved relative to the current
-	 * working directory (`process.cwd()` in Node.js).
-	 */
-	path?: string;
-	/**
-	 * Raw CSS content to be injected into the frame.
-	 */
-	content?: string;
 }
 
 /**
@@ -1006,20 +960,6 @@ export class Frame {
 	 */
 	isDetached(): boolean {
 		return this.#detached;
-	}
-
-	/**
-	 * Adds a `<link rel="stylesheet">` tag into the page with the desired url or
-	 * a `<style type="text/css">` tag with the content.
-	 *
-	 * @param options - configure the CSS to add to the page.
-	 *
-	 * @returns a promise that resolves to the added tag when the stylesheets's
-	 * `onload` event fires or when the CSS content was injected into the
-	 * frame.
-	 */
-	async addStyleTag(options: FrameAddStyleTagOptions): Promise<ElementHandle> {
-		return this._mainWorld.addStyleTag(options);
 	}
 
 	/**
