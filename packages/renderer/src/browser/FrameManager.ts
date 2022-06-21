@@ -245,31 +245,6 @@ export class FrameManager extends EventEmitter {
 		}
 	}
 
-	async waitForFrameNavigation(
-		frame: Frame,
-		options: {
-			timeout?: number;
-			waitUntil?: PuppeteerLifeCycleEvent | PuppeteerLifeCycleEvent[];
-		} = {}
-	): Promise<HTTPResponse | null> {
-		const {
-			waitUntil = ['load'],
-			timeout = this.#timeoutSettings.navigationTimeout(),
-		} = options;
-		const watcher = new LifecycleWatcher(this, frame, waitUntil, timeout);
-		const error = await Promise.race([
-			watcher.timeoutOrTerminationPromise(),
-			watcher.sameDocumentNavigationPromise(),
-			watcher.newDocumentNavigationPromise(),
-		]);
-		watcher.dispose();
-		if (error) {
-			throw error;
-		}
-
-		return watcher.navigationResponse();
-	}
-
 	async #onAttachedToTarget(event: Protocol.Target.AttachedToTargetEvent) {
 		if (event.targetInfo.type !== 'iframe') {
 			return;
@@ -762,15 +737,6 @@ export class Frame {
 		} = {}
 	): Promise<HTTPResponse | null> {
 		return this._frameManager.navigateFrame(this, url, options);
-	}
-
-	async waitForNavigation(
-		options: {
-			timeout?: number;
-			waitUntil?: PuppeteerLifeCycleEvent | PuppeteerLifeCycleEvent[];
-		} = {}
-	): Promise<HTTPResponse | null> {
-		return this._frameManager.waitForFrameNavigation(this, options);
 	}
 
 	/**
