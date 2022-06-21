@@ -18,7 +18,6 @@ import https, {RequestOptions} from 'https';
 import ProgressBar from 'progress';
 import {puppeteer} from './node';
 import {Product} from './Product';
-import {PuppeteerNode} from './PuppeteerNode';
 import {PUPPETEER_REVISIONS} from './revisions';
 
 const supportedProducts = {
@@ -35,22 +34,19 @@ export async function downloadBrowser(product: Product): Promise<void> {
 	const revision = await getRevision();
 	await fetchBinary(revision);
 
-	function getRevision(): Promise<string> {
+	async function getRevision(): Promise<string> {
 		if (product === 'chrome') {
-			return Promise.resolve(
-				process.env.PUPPETEER_CHROMIUM_REVISION ||
-					process.env.npm_config_puppeteer_chromium_revision ||
-					PUPPETEER_REVISIONS.chromium
-			);
+			return Promise.resolve(PUPPETEER_REVISIONS.chromium);
 		}
 
 		if (product === 'firefox') {
-			(puppeteer as PuppeteerNode)._preferredRevision =
-				PUPPETEER_REVISIONS.firefox;
-			return getFirefoxNightlyVersion().catch((error) => {
+			puppeteer._preferredRevision = PUPPETEER_REVISIONS.firefox;
+			try {
+				return await getFirefoxNightlyVersion();
+			} catch (error) {
 				console.error(error);
 				process.exit(1);
-			});
+			}
 		}
 
 		throw new Error(`Unsupported product ${product}`);
