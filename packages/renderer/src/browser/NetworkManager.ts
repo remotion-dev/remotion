@@ -86,7 +86,6 @@ export class NetworkManager extends EventEmitter {
 	#extraHTTPHeaders: Record<string, string> = {};
 	#credentials?: Credentials;
 	#attemptedAuthentications = new Set<string>();
-	#userCacheDisabled = false;
 	#emulatedNetworkConditions: InternalNetworkConditions = {
 		offline: false,
 		upload: -1,
@@ -191,31 +190,6 @@ export class NetworkManager extends EventEmitter {
 			latency: this.#emulatedNetworkConditions.latency,
 			uploadThroughput: this.#emulatedNetworkConditions.upload,
 			downloadThroughput: this.#emulatedNetworkConditions.download,
-		});
-	}
-
-	async setUserAgent(
-		userAgent: string,
-		userAgentMetadata?: Protocol.Emulation.UserAgentMetadata
-	): Promise<void> {
-		await this.#client.send('Network.setUserAgentOverride', {
-			userAgent,
-			userAgentMetadata,
-		});
-	}
-
-	async setCacheEnabled(enabled: boolean): Promise<void> {
-		this.#userCacheDisabled = !enabled;
-		await this.#updateProtocolCacheDisabled();
-	}
-
-	#cacheDisabled(): boolean {
-		return this.#userCacheDisabled;
-	}
-
-	async #updateProtocolCacheDisabled(): Promise<void> {
-		await this.#client.send('Network.setCacheDisabled', {
-			cacheDisabled: this.#cacheDisabled(),
 		});
 	}
 
