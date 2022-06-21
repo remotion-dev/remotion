@@ -26,7 +26,7 @@ export interface BrowserConnectOptions {
 	defaultViewport: Viewport;
 }
 
-const getWebSocketTransportClass = async () => {
+const getWebSocketTransportClass = () => {
 	return NodeWebSocketTransport;
 };
 
@@ -49,7 +49,7 @@ export async function _connectToBrowser(
 	if (transport) {
 		connection = new Connection('', transport);
 	} else if (browserWSEndpoint) {
-		const WebSocketClass = await getWebSocketTransportClass();
+		const WebSocketClass = getWebSocketTransportClass();
 		const connectionTransport: ConnectionTransport =
 			await WebSocketClass.create(browserWSEndpoint);
 		connection = new Connection(browserWSEndpoint, connectionTransport);
@@ -58,13 +58,13 @@ export async function _connectToBrowser(
 	const {browserContextIds} = await connection.send(
 		'Target.getBrowserContexts'
 	);
-	return Browser._create(
+	return Browser._create({
 		connection,
-		browserContextIds,
+		contextIds: browserContextIds,
 		defaultViewport,
-		undefined,
-		() => {
+		process: undefined,
+		closeCallback: () => {
 			return connection.send('Browser.close').catch(debugError);
-		}
-	);
+		},
+	});
 }

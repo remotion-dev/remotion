@@ -105,9 +105,6 @@ function archiveName(
 	}
 }
 
-/**
- * @internal
- */
 function _downloadURL(
 	product: Product,
 	platform: Platform,
@@ -207,9 +204,6 @@ export class BrowserFetcher {
 	#downloadHost: string;
 	#platform: Platform;
 
-	/**
-	 * @internal
-	 */
 	constructor(projectRoot: string, options: BrowserFetcherOptions = {}) {
 		this.#product = (options.product || 'chrome').toLowerCase() as Product;
 		assert(
@@ -513,9 +507,6 @@ function parseFolderPath(
 	return {product, platform, revision};
 }
 
-/**
- * @internal
- */
 function _downloadFile(
 	url: string,
 	destinationPath: string,
@@ -584,9 +575,6 @@ function install(archivePath: string, folderPath: string): Promise<unknown> {
 	throw new Error(`Unsupported archive format: ${archivePath}`);
 }
 
-/**
- * @internal
- */
 function _extractTar(tarPath: string, folderPath: string): Promise<unknown> {
 	return new Promise((fulfill, reject) => {
 		const tarStream = tar.extract(folderPath);

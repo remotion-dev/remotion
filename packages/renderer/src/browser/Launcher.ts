@@ -48,17 +48,8 @@ export interface ProductLauncher {
 	product: Product;
 }
 
-/**
- * @internal
- */
 class ChromeLauncher implements ProductLauncher {
-	/**
-	 * @internal
-	 */
 	_projectRoot: string | undefined;
-	/**
-	 * @internal
-	 */
 	_preferredRevision: string;
 
 	constructor(projectRoot: string | undefined, preferredRevision: string) {
@@ -143,13 +134,13 @@ class ChromeLauncher implements ProductLauncher {
 			chromeExecutable = exPath;
 		}
 
-		const runner = new BrowserRunner(
-			this.product,
-			chromeExecutable,
-			chromeArguments,
+		const runner = new BrowserRunner({
+			product: this.product,
+			executablePath: chromeExecutable,
+			processArguments: chromeArguments,
 			userDataDir,
-			isTempUserDataDir
-		);
+			isTempUserDataDir,
+		});
 		runner.start({
 			handleSIGHUP,
 			handleSIGTERM,
@@ -165,13 +156,13 @@ class ChromeLauncher implements ProductLauncher {
 				timeout,
 				preferredRevision: this._preferredRevision,
 			});
-			browser = await Browser._create(
+			browser = await Browser._create({
 				connection,
-				[],
+				contextIds: [],
 				defaultViewport,
-				runner.proc,
-				runner.close.bind(runner)
-			);
+				process: runner.proc,
+				closeCallback: runner.close.bind(runner),
+			});
 		} catch (error) {
 			runner.kill();
 			throw error;
@@ -208,17 +199,8 @@ class ChromeLauncher implements ProductLauncher {
 	}
 }
 
-/**
- * @internal
- */
 class FirefoxLauncher implements ProductLauncher {
-	/**
-	 * @internal
-	 */
 	_projectRoot: string | undefined;
-	/**
-	 * @internal
-	 */
 	_preferredRevision: string;
 
 	constructor(projectRoot: string | undefined, preferredRevision: string) {
@@ -305,13 +287,13 @@ class FirefoxLauncher implements ProductLauncher {
 			throw new Error('firefoxExecutable is not found.');
 		}
 
-		const runner = new BrowserRunner(
-			this.product,
-			firefoxExecutable,
-			firefoxArguments,
+		const runner = new BrowserRunner({
+			product: this.product,
+			executablePath: firefoxExecutable,
+			processArguments: firefoxArguments,
 			userDataDir,
-			isTempUserDataDir
-		);
+			isTempUserDataDir,
+		});
 		runner.start({
 			handleSIGHUP,
 			handleSIGTERM,
@@ -326,13 +308,13 @@ class FirefoxLauncher implements ProductLauncher {
 				timeout,
 				preferredRevision: this._preferredRevision,
 			});
-			browser = await Browser._create(
+			browser = await Browser._create({
 				connection,
-				[],
+				contextIds: [],
 				defaultViewport,
-				runner.proc,
-				runner.close.bind(runner)
-			);
+				process: runner.proc,
+				closeCallback: runner.close.bind(runner),
+			});
 		} catch (error) {
 			runner.kill();
 			throw error;
@@ -788,9 +770,6 @@ function resolveExecutablePath(launcher: ChromeLauncher | FirefoxLauncher): {
 	return {executablePath: revisionInfo.executablePath, missingText};
 }
 
-/**
- * @internal
- */
 export default function Launcher(
 	projectRoot: string | undefined,
 	preferredRevision: string,

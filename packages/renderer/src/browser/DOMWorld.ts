@@ -29,9 +29,6 @@ import {ElementHandle, JSHandle} from './JSHandle';
 import {TimeoutSettings} from './TimeoutSettings';
 import {isString} from './util';
 
-/**
- * @internal
- */
 export class DOMWorld {
 	#frame: Frame;
 	#timeoutSettings: TimeoutSettings;
@@ -42,9 +39,6 @@ export class DOMWorld {
 
 	#waitTasks = new Set<WaitTask>();
 
-	/**
-	 * @internal
-	 */
 	get _waitTasks(): Set<WaitTask> {
 		return this.#waitTasks;
 	}
@@ -61,10 +55,7 @@ export class DOMWorld {
 		return this.#frame;
 	}
 
-	/**
-	 * @internal
-	 */
-	async _setContext(context: ExecutionContext | null): Promise<void> {
+	_setContext(context: ExecutionContext | null): void {
 		if (context) {
 			assert(
 				this.#contextResolveCallback,
@@ -83,16 +74,10 @@ export class DOMWorld {
 		}
 	}
 
-	/**
-	 * @internal
-	 */
 	_hasContext(): boolean {
 		return !this.#contextResolveCallback;
 	}
 
-	/**
-	 * @internal
-	 */
 	_detach(): void {
 		this.#detached = true;
 		for (const waitTask of this._waitTasks) {
@@ -135,10 +120,7 @@ export class DOMWorld {
 		);
 	}
 
-	/**
-	 * @internal
-	 */
-	async _document(): Promise<ElementHandle> {
+	_document(): Promise<ElementHandle> {
 		if (this.#documentPromise) {
 			return this.#documentPromise;
 		}
@@ -171,16 +153,13 @@ export class DOMWorld {
 		return waitTask.promise;
 	}
 
-	async title(): Promise<string> {
+	title(): Promise<string> {
 		return this.evaluate(() => {
 			return document.title;
 		});
 	}
 }
 
-/**
- * @internal
- */
 interface WaitTaskOptions {
 	domWorld: DOMWorld;
 	predicateBody: Function | string;
@@ -191,9 +170,6 @@ interface WaitTaskOptions {
 
 const noop = (): void => undefined;
 
-/**
- * @internal
- */
 class WaitTask {
 	#domWorld: DOMWorld;
 	#timeout: number;
@@ -352,7 +328,7 @@ class WaitTask {
 	}
 }
 
-async function waitForPredicatePageFunction(
+function waitForPredicatePageFunction(
 	predicateBody: string,
 	timeout: number,
 	...args: unknown[]

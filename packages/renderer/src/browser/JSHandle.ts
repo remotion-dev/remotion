@@ -68,7 +68,7 @@ export class JSHandle {
 		return this.#context;
 	}
 
-	async evaluateHandle<HandleType extends JSHandle = JSHandle>(
+	evaluateHandle<HandleType extends JSHandle = JSHandle>(
 		pageFunction: EvaluateHandleFn,
 		...args: SerializableOrJSHandle[]
 	): Promise<HandleType> {

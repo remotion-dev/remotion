@@ -59,6 +59,7 @@ export default function mitt(all?: EventHandlerMap): Emitter {
 		off<T = any>(type: EventType, handler: Handler<T>) {
 			const handlers = all?.get(type);
 			if (handlers) {
+				// eslint-disable-next-line no-bitwise
 				handlers.splice(handlers.indexOf(handler) >>> 0, 1);
 			}
 		},

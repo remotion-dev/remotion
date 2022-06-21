@@ -52,14 +52,14 @@ export class ExecutionContext {
 		return this._world ? this._world.frame() : null;
 	}
 
-	async evaluate<ReturnType>(
+	evaluate<ReturnType>(
 		pageFunction: Function | string,
 		...args: unknown[]
 	): Promise<ReturnType> {
 		return this.#evaluate<ReturnType>(true, pageFunction, ...args);
 	}
 
-	async evaluateHandle<HandleType extends JSHandle | ElementHandle = JSHandle>(
+	evaluateHandle<HandleType extends JSHandle | ElementHandle = JSHandle>(
 		pageFunction: EvaluateHandleFn,
 		...args: SerializableOrJSHandle[]
 	): Promise<HandleType> {
@@ -235,9 +235,6 @@ export class ExecutionContext {
 		}
 	}
 
-	/**
-	 * @internal
-	 */
 	async _adoptBackendNodeId(
 		backendNodeId?: Protocol.DOM.BackendNodeId
 	): Promise<ElementHandle> {
@@ -248,9 +245,6 @@ export class ExecutionContext {
 		return _createJSHandle(this, object) as ElementHandle;
 	}
 
-	/**
-	 * @internal
-	 */
 	async _adoptElementHandle(
 		elementHandle: ElementHandle
 	): Promise<ElementHandle> {

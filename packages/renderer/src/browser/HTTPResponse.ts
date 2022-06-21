@@ -56,9 +56,6 @@ export class HTTPResponse {
 	#headers: Record<string, string> = {};
 	#timing: Protocol.Network.ResourceTiming | null;
 
-	/**
-	 * @internal
-	 */
 	constructor(
 		client: CDPSession,
 		request: HTTPRequest,
@@ -117,9 +114,6 @@ export class HTTPResponse {
 		return statusText;
 	}
 
-	/**
-	 * @internal
-	 */
 	_resolveBody(err: Error | null): void {
 		if (err) {
 			return this.#bodyLoadedPromiseFulfill(err);
