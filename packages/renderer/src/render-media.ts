@@ -2,7 +2,6 @@ import {ExecaChildProcess} from 'execa';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import type {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {
 	BrowserExecutable,
 	Codec,
@@ -15,6 +14,7 @@ import {
 } from 'remotion';
 import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {BrowserLog} from './browser-log';
+import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';

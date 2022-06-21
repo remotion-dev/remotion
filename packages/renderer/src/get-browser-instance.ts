@@ -1,5 +1,6 @@
-import {Browser, Page} from 'puppeteer-core';
 import {BrowserExecutable, Internals} from 'remotion';
+import {Browser} from './browser/Browser';
+import {Page} from './browser/Page';
 import {ChromiumOptions, openBrowser} from './open-browser';
 
 export const getPageAndCleanupFn = async ({

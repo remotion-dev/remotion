@@ -1,5 +1,5 @@
-import puppeteer from 'puppeteer-core';
 import {ImageFormat} from 'remotion';
+import {Page} from './browser/Page';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {screenshot} from './puppeteer-screenshot';
 
@@ -9,7 +9,7 @@ export const screenshotDOMElement = async ({
 	quality,
 	opts = {},
 }: {
-	page: puppeteer.Page;
+	page: Page;
 	imageFormat: ImageFormat;
 	quality: number | undefined;
 	opts?: {

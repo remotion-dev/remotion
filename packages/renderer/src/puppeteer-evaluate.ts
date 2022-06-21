@@ -1,5 +1,8 @@
 /* eslint-disable no-new */
-import {CDPSession, JSHandle, Page, Protocol} from 'puppeteer-core';
+import Protocol from 'devtools-protocol';
+import {CDPSession} from './browser/Connection';
+import {JSHandle} from './browser/JSHandle';
+import {Page} from './browser/Page';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
 import {parseStack} from './parse-browser-error-stack';
 

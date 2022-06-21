@@ -1,5 +1,5 @@
-import puppeteer from 'puppeteer-core';
 import {ImageFormat} from 'remotion';
+import {Page} from './browser/Page';
 import {screenshotDOMElement} from './screenshot-dom-element';
 
 export const provideScreenshot = ({
@@ -8,7 +8,7 @@ export const provideScreenshot = ({
 	options,
 	quality,
 }: {
-	page: puppeteer.Page;
+	page: Page;
 	imageFormat: ImageFormat;
 	quality: number | undefined;
 	options: {

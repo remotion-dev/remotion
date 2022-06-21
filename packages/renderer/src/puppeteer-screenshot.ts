@@ -1,6 +1,6 @@
 import * as assert from 'assert';
-import {Page, ScreenshotOptions} from 'puppeteer-core';
 import {StillImageFormat} from 'remotion';
+import {Page, ScreenshotOptions} from './browser/Page';
 import {_screenshotTask} from './screenshot-task';
 
 export const screenshot = (
