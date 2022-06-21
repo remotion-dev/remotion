@@ -77,7 +77,7 @@ class ChromeLauncher implements ProductLauncher {
 		this._isPuppeteerCore = isPuppeteerCore;
 	}
 
-	async launch(options: PuppeteerNodeLaunchOptions = {}): Promise<Browser> {
+	async launch(options: PuppeteerNodeLaunchOptions): Promise<Browser> {
 		const {
 			ignoreDefaultArgs = false,
 			args = [],
@@ -90,7 +90,7 @@ class ChromeLauncher implements ProductLauncher {
 			handleSIGTERM = true,
 			handleSIGHUP = true,
 			ignoreHTTPSErrors = false,
-			defaultViewport = {width: 800, height: 600},
+			defaultViewport,
 			slowMo = 0,
 			timeout = 30000,
 			waitForInitialPage = true,
@@ -326,7 +326,7 @@ class FirefoxLauncher implements ProductLauncher {
 		this._isPuppeteerCore = isPuppeteerCore;
 	}
 
-	async launch(options: PuppeteerNodeLaunchOptions = {}): Promise<Browser> {
+	async launch(options: PuppeteerNodeLaunchOptions): Promise<Browser> {
 		const {
 			ignoreDefaultArgs = false,
 			args = [],
@@ -337,7 +337,7 @@ class FirefoxLauncher implements ProductLauncher {
 			handleSIGTERM = true,
 			handleSIGHUP = true,
 			ignoreHTTPSErrors = false,
-			defaultViewport = {width: 800, height: 600},
+			defaultViewport,
 			slowMo = 0,
 			timeout = 30000,
 			extraPrefsFirefox = {},

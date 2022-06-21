@@ -221,7 +221,7 @@ export class Browser extends EventEmitter {
 		connection: Connection,
 		contextIds: string[],
 		ignoreHTTPSErrors: boolean,
-		defaultViewport?: Viewport | null,
+		defaultViewport: Viewport,
 		process?: ChildProcess,
 		closeCallback?: BrowserCloseCallback,
 		targetFilterCallback?: TargetFilterCallback,
@@ -242,7 +242,7 @@ export class Browser extends EventEmitter {
 	}
 
 	#ignoreHTTPSErrors: boolean;
-	#defaultViewport?: Viewport | null;
+	#defaultViewport: Viewport;
 	#process?: ChildProcess;
 	#connection: Connection;
 	#closeCallback: BrowserCloseCallback;
@@ -268,7 +268,7 @@ export class Browser extends EventEmitter {
 		connection: Connection,
 		contextIds: string[],
 		ignoreHTTPSErrors: boolean,
-		defaultViewport?: Viewport | null,
+		defaultViewport: Viewport,
 		process?: ChildProcess,
 		closeCallback?: BrowserCloseCallback,
 		targetFilterCallback?: TargetFilterCallback,

@@ -36,7 +36,7 @@ export interface BrowserConnectOptions {
 	/**
 	 * Sets the viewport for each page.
 	 */
-	defaultViewport?: Viewport | null;
+	defaultViewport: Viewport;
 	/**
 	 * Slows down Puppeteer operations by the specified amount of milliseconds to
 	 * aid debugging.
@@ -73,7 +73,7 @@ export async function _connectToBrowser(
 		browserWSEndpoint,
 		browserURL,
 		ignoreHTTPSErrors = false,
-		defaultViewport = {width: 800, height: 600},
+		defaultViewport = {width: 800, height: 600, deviceScaleFactor: 1},
 		transport,
 		slowMo = 0,
 		targetFilter,

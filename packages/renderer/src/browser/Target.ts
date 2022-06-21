@@ -29,7 +29,7 @@ export class Target {
 	#targetInfo: Protocol.Target.TargetInfo;
 	#sessionFactory: () => Promise<CDPSession>;
 	#ignoreHTTPSErrors: boolean;
-	#defaultViewport?: Viewport;
+	#defaultViewport: Viewport;
 	#pagePromise?: Promise<Page>;
 	#screenshotTaskQueue: TaskQueue;
 
@@ -70,7 +70,7 @@ export class Target {
 		browserContext: BrowserContext,
 		sessionFactory: () => Promise<CDPSession>,
 		ignoreHTTPSErrors: boolean,
-		defaultViewport: Viewport | null,
+		defaultViewport: Viewport,
 		screenshotTaskQueue: TaskQueue,
 		isPageTargetCallback: IsPageTargetCallback
 	) {
@@ -79,7 +79,7 @@ export class Target {
 		this._targetId = targetInfo.targetId;
 		this.#sessionFactory = sessionFactory;
 		this.#ignoreHTTPSErrors = ignoreHTTPSErrors;
-		this.#defaultViewport = defaultViewport ?? undefined;
+		this.#defaultViewport = defaultViewport;
 		this.#screenshotTaskQueue = screenshotTaskQueue;
 		this._isPageTargetCallback = isPageTargetCallback;
 		this._initializedPromise = new Promise<boolean>((fulfill) => {
