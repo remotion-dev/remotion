@@ -29,8 +29,6 @@ import {promisify} from 'util';
 import {assert} from './assert';
 import {Product} from './Product';
 
-import tar from 'tar-fs';
-import bzip from 'unbzip2-stream';
 import {deleteDirectory} from '../delete-directory';
 
 const {PUPPETEER_EXPERIMENTAL_CHROMIUM_MAC_ARM} = process.env;
@@ -521,7 +519,7 @@ function install(archivePath: string, folderPath: string): Promise<unknown> {
 	}
 
 	if (archivePath.endsWith('.tar.bz2')) {
-		return _extractTar(archivePath, folderPath);
+		throw new Error('bz2 currently not implemented');
 	}
 
 	if (archivePath.endsWith('.dmg')) {
@@ -531,16 +529,6 @@ function install(archivePath: string, folderPath: string): Promise<unknown> {
 	}
 
 	throw new Error(`Unsupported archive format: ${archivePath}`);
-}
-
-function _extractTar(tarPath: string, folderPath: string): Promise<unknown> {
-	return new Promise((fulfill, reject) => {
-		const tarStream = tar.extract(folderPath);
-		tarStream.on('error', reject);
-		tarStream.on('finish', fulfill);
-		const readStream = fs.createReadStream(tarPath);
-		readStream.pipe(bzip()).pipe(tarStream);
-	});
 }
 
 function _installDMG(dmgPath: string, folderPath: string): Promise<void> {

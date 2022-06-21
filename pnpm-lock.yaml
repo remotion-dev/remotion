@@ -709,8 +709,6 @@ importers:
       '@types/progress': 2.0.5
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
-      '@types/tar-fs': 2.0.1
-      '@types/unbzip2-stream': 1.4.0
       '@types/ws': 8.5.3
       devtools-protocol: 0.0.1001819
       eslint: 8.13.0
@@ -726,10 +724,8 @@ importers:
       react-dom: 18.0.0
       remotion: 3.0.20
       source-map: ^0.8.0-beta.0
-      tar-fs: 2.1.1
       ts-jest: ^27.0.5
       typescript: ^4.7.0
-      unbzip2-stream: 1.4.3
       ws: 8.7.0
     dependencies:
       devtools-protocol: 0.0.1001819
@@ -739,8 +735,6 @@ importers:
       progress: 2.0.3
       remotion: link:../core
       source-map: 0.8.0-beta.0
-      tar-fs: 2.1.1
-      unbzip2-stream: 1.4.3
       ws: 8.7.0
     devDependencies:
       '@jonny/eslint-config': 3.0.259_6hvhxfirl4y3p6nuemvvvbadcu
@@ -752,8 +746,6 @@ importers:
       '@types/progress': 2.0.5
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
-      '@types/tar-fs': 2.0.1
-      '@types/unbzip2-stream': 1.4.0
       '@types/ws': 8.5.3
       eslint: 8.13.0
       jest: 27.2.4
@@ -7936,19 +7928,6 @@ packages:
       csstype: 3.0.9
     dev: false
 
-  /@types/tar-fs/2.0.1:
-    resolution: {integrity: sha512-qlsQyIY9sN7p221xHuXKNoMfUenOcvEBN4zI8dGsYbYCqHtTarXOEXSIgUnK+GcR0fZDse6pAIc5pIrCh9NefQ==}
-    dependencies:
-      '@types/node': 17.0.17
-      '@types/tar-stream': 2.2.2
-    dev: true
-
-  /@types/tar-stream/2.2.2:
-    resolution: {integrity: sha512-1AX+Yt3icFuU6kxwmPakaiGrJUwG44MpuiqPg4dSolRFk6jmvs4b3IbUol9wKDLIgU76gevn3EwE8y/DkSJCZQ==}
-    dependencies:
-      '@types/node': 17.0.17
-    dev: true
-
   /@types/tar/6.1.1:
     resolution: {integrity: sha512-8mto3YZfVpqB1CHMaYz1TUYIQfZFbh/QbEq5Hsn6D0ilCfqRVCdalmc89B7vi3jhl9UYIk+dWDABShNfOkv5HA==}
     dependencies:
@@ -7958,18 +7937,6 @@ packages:
 
   /@types/three/0.134.0:
     resolution: {integrity: sha512-4YB+99Rgqq27EjiYTItEoZtdjLnTh8W9LxowgpC9eWsjaQJIL4Kn/ZcUKAnW3gB/jS4hqGN8iqmid+RcUZDzpA==}
-    dev: true
-
-  /@types/through/0.0.30:
-    resolution: {integrity: sha512-FvnCJljyxhPM3gkRgWmxmDZyAQSiBQQWLI0A0VFL0K7W1oRUrPJSqNO0NvTnLkBcotdlp3lKvaT0JrnyRDkzOg==}
-    dependencies:
-      '@types/node': 17.0.17
-    dev: true
-
-  /@types/unbzip2-stream/1.4.0:
-    resolution: {integrity: sha512-4ZM9zX+6BbEVgo3xCmsM9PXPz94jl1XM0e8dCg3gNn3xPsxYoqxi/A1/WtpIA9FW2BL65eZhlJrHOtKLZP/RPg==}
-    dependencies:
-      '@types/through': 0.0.30
     dev: true
 
   /@types/unist/2.0.6:
@@ -9107,6 +9074,7 @@ packages:
       buffer: 5.7.1
       inherits: 2.0.4
       readable-stream: 3.6.0
+    dev: true
 
   /bluebird/3.7.2:
     resolution: {integrity: sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==}
@@ -9270,6 +9238,7 @@ packages:
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
+    dev: true
 
   /builtins/1.0.3:
     resolution: {integrity: sha1-y5T662HIaWRR2zZTThQi+U8K7og=}
@@ -11895,6 +11864,7 @@ packages:
 
   /fs-constants/1.0.0:
     resolution: {integrity: sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==}
+    dev: true
 
   /fs-extra/10.1.0:
     resolution: {integrity: sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==}
@@ -14886,6 +14856,7 @@ packages:
 
   /mkdirp-classic/0.5.3:
     resolution: {integrity: sha512-gKLcREMhtuZRwRAfqP3RFW+TK4JqApVBtOIftVgjuABpAtpxhPGaDcfvbhNvD0B8iD1oUr/txX35NjcaY6Ns/A==}
+    dev: true
 
   /mkdirp-infer-owner/2.0.0:
     resolution: {integrity: sha512-sdqtiFt3lkOaYvTXSRIUjkIdPTcxgv5+fgqYE/5qgwdw12cOrAuzzgzvVExIkH/ul1oeHN3bCLOWSG3XOqbKKw==}
@@ -18611,6 +18582,7 @@ packages:
       mkdirp-classic: 0.5.3
       pump: 3.0.0
       tar-stream: 2.2.0
+    dev: true
 
   /tar-stream/2.2.0:
     resolution: {integrity: sha512-ujeqbceABgwMZxEJnk2HDY2DlnUZ+9oEcb1KzTVfYHio0UE6dG71n60d8D2I4qNvleWrrXpmjpt7vZeF1LnMZQ==}
@@ -18621,6 +18593,7 @@ packages:
       fs-constants: 1.0.0
       inherits: 2.0.4
       readable-stream: 3.6.0
+    dev: true
 
   /tar/4.4.19:
     resolution: {integrity: sha512-a20gEsvHnWe0ygBY8JbxoM4w3SJdhc7ZAuxkLqh+nvNQN2IOt0B5lLgM490X5Hl8FF0dl0tOf2ewFYAlIFgzVA==}
@@ -19401,13 +19374,6 @@ packages:
       has-bigints: 1.0.1
       has-symbols: 1.0.2
       which-boxed-primitive: 1.0.2
-
-  /unbzip2-stream/1.4.3:
-    resolution: {integrity: sha512-mlExGW4w71ebDJviH16lQLtZS32VKqsSfk80GCfUlwT/4/hNRFsoscrF/c++9xinkMzECL1uL9DDwXqFWkruPg==}
-    dependencies:
-      buffer: 5.7.1
-      through: 2.3.8
-    dev: false
 
   /unherit/1.1.3:
     resolution: {integrity: sha512-Ft16BJcnapDKp0+J/rqFC3Rrk6Y/Ng4nzsC028k2jdDII/rdZ7Wd3pPT/6+vIIxRagwRc9K0IUX0Ra4fKvw+WQ==}
