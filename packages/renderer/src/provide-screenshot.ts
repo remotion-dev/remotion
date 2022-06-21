@@ -13,14 +13,13 @@ export const provideScreenshot = ({
 	quality: number | undefined;
 	options: {
 		frame: number;
-		output?: string;
+		output: string | null;
 	};
 }): Promise<Buffer> => {
 	return screenshotDOMElement({
 		page,
 		opts: {
 			path: options.output,
-			selector: '#remotion-canvas',
 		},
 		imageFormat,
 		quality,
