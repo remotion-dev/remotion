@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {ProtocolMapping} from 'devtools-protocol/types/protocol-mapping';
-
-import {Protocol} from 'devtools-protocol';
+import type {Protocol} from 'devtools-protocol';
+import type {ProtocolMapping} from 'devtools-protocol/types/protocol-mapping';
 import {ProtocolError} from './Errors';
 import {Frame} from './FrameManager';
 import {HTTPRequest} from './HTTPRequest';

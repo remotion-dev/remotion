@@ -1,4 +1,4 @@
-import Protocol from 'devtools-protocol';
+import type Protocol from 'devtools-protocol';
 import {Internals} from 'remotion';
 import {Page} from '../browser/Page';
 import {UnsymbolicatedStackFrame} from '../parse-browser-error-stack';

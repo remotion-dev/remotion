@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {Protocol} from 'devtools-protocol';
-import {ProtocolMapping} from 'devtools-protocol/types/protocol-mapping';
+import type {Protocol} from 'devtools-protocol';
+import type {ProtocolMapping} from 'devtools-protocol/types/protocol-mapping';
 import {assert} from './assert';
 import {EventEmitter} from './EventEmitter';
 import {Frame} from './FrameManager';
