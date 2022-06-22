@@ -9,7 +9,7 @@ import React, {
 import {getAbsoluteSrc} from '../absolute-src';
 import {CompositionManager} from '../CompositionManager';
 import {random} from '../random';
-import {SequenceContext} from '../sequencing';
+import {SequenceContext} from '../Sequence';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-current-frame';
 import {evaluateVolume} from '../volume-prop';
 import {RemotionAudioProps} from './props';

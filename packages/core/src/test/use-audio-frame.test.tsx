@@ -4,7 +4,7 @@ import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from '../audio/use-audio-frame';
-import {SequenceContext, SequenceContextType} from '../sequencing';
+import {SequenceContext, SequenceContextType} from '../Sequence';
 import * as useFrameModule from '../use-current-frame';
 import {renderHook} from './render-hook';
 

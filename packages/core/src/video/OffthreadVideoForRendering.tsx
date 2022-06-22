@@ -7,7 +7,7 @@ import {
 import {CompositionManager} from '../CompositionManager';
 import {Img} from '../Img';
 import {random} from '../random';
-import {SequenceContext} from '../sequencing';
+import {SequenceContext} from '../Sequence';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-current-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
