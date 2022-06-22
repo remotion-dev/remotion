@@ -32,6 +32,15 @@ export type RenderLoading = (canvas: {
 	width: number;
 }) => React.ReactChild;
 
+const reactVersion = React.version.split('.')[0];
+if (reactVersion === '0') {
+	throw new Error(
+		`Version ${reactVersion} of "react" is not supported by Remotion`
+	);
+}
+
+const doesReactVersionSupportSuspense = parseInt(reactVersion, 10) >= 18;
+
 const PlayerUI: React.ForwardRefRenderFunction<
 	PlayerRef,
 	{
@@ -414,8 +423,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			) : null}
 		</>
 	);
-	// Don't render suspense on Node.js
-	if (IS_NODE) {
+	if (IS_NODE && !doesReactVersionSupportSuspense) {
 		return (
 			<div ref={container} style={outerStyle}>
 				{content}
