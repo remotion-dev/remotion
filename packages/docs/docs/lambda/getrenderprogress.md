@@ -124,6 +124,14 @@ An object describing the costs of the render so far. The cost may increase if th
 - `displayCost`: The cost formatted as a string.
 - `disclaimer`: Textual disclaimer removing any doubt that there is no guarantee.
 
+### `mostExpensiveFrameRanges`
+
+If the render is in progress, this is `null`. If the render is done, it is an array of the 5 most expensive chunks in the following shape:
+
+- `chunk`: The index of the chunk (starting from 0)
+- `timeInMilliseconds`: The time it took the render that chunk
+- `frameRange`: A tuple containing the first and last frame that was rendered in that chunk.
+
 ## See also
 
 - [renderMediaOnLambda()](/docs/lambda/rendermediaonlambda)
