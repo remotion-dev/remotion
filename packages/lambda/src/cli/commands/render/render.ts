@@ -226,12 +226,14 @@ export const renderCommand = async (args: string[]) => {
 					.join(', ')
 			);
 			if (newStatus.mostExpensiveFrameRanges) {
-				Log.verbose('Most expensive chunks:');
-				newStatus.mostExpensiveFrameRanges.forEach((f) => {
-					Log.verbose(
-						`Frames ${f.frameRange[0]}-${f.frameRange[1]}: ${f.timeInMilliseconds}ms`
-					);
-				});
+				Log.verbose('Most expensive frame ranges:');
+				Log.verbose(
+					newStatus.mostExpensiveFrameRanges
+						.map((f) => {
+							return `${f.frameRange[0]}-${f.frameRange[1]} (${f.timeInMilliseconds}ms)`;
+						})
+						.join(', ')
+				);
 			}
 
 			quit(0);
