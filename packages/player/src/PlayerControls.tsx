@@ -139,8 +139,8 @@ export const Controls: React.FC<{
 					<div style={xSpacer} />
 				</div>
 				<div style={flex1} />
-				{browserSupportsFullscreen && allowFullscreen ? (
-					<div style={fullscreen}>
+				<div style={fullscreen} suppressHydrationWarning>
+					{browserSupportsFullscreen && allowFullscreen ? (
 						<button
 							type="button"
 							aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter Fullscreen'}
@@ -154,8 +154,8 @@ export const Controls: React.FC<{
 						>
 							<FullscreenIcon minimized={!isFullscreen} />
 						</button>
-					</div>
-				) : null}
+					) : null}
+				</div>
 			</div>
 			<div style={ySpacer} />
 			<PlayerSeekBar durationInFrames={durationInFrames} />
