@@ -8,6 +8,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
+import {TFolder} from './Folder';
 
 export type TComposition<T = unknown> = {
 	width: number;
@@ -122,11 +123,6 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 export const compositionsRef = React.createRef<{
 	getCompositions: () => TCompMetadata[];
 }>();
-
-export type TFolder = {
-	name: string;
-	parent: string | null;
-};
 
 export const CompositionManagerProvider: React.FC<{
 	children: React.ReactNode;
