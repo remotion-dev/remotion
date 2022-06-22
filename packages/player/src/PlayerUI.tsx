@@ -20,7 +20,6 @@ import {Controls} from './PlayerControls';
 import {useHoverState} from './use-hover-state';
 import {usePlayback} from './use-playback';
 import {usePlayer} from './use-player';
-import {browserSupportsFullscreen} from './utils/browser-supports-fullscreen';
 import {calculatePlayerSize} from './utils/calculate-player-size';
 import {IS_NODE} from './utils/is-node';
 import {useClickPreventionOnDoubleClick} from './utils/use-click-prevention-on-double-click';
@@ -147,7 +146,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			throw new Error('allowFullscreen is false');
 		}
 
-		if (!browserSupportsFullscreen) {
+		const supportsFullScreen =
+			document.fullscreenEnabled || document.webkitFullscreenEnabled;
+
+		if (!supportsFullScreen) {
 			throw new Error('Browser doesnt support fullscreen');
 		}
 
