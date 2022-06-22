@@ -93,6 +93,7 @@ export const getProgress = async ({
 			retriesInfo: postRenderData.retriesInfo,
 			outKey: outData.key,
 			outBucket: outData.renderBucketName,
+			mostExpensiveFrameRanges: postRenderData.mostExpensiveFrameRanges ?? null,
 		};
 	}
 
@@ -270,5 +271,6 @@ export const getProgress = async ({
 			outputFile && renderMetadata
 				? getExpectedOutName(renderMetadata, bucketName).renderBucketName
 				: null,
+		mostExpensiveFrameRanges: null,
 	};
 };
