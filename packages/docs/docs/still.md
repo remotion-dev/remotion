@@ -38,5 +38,5 @@ export const MyVideo = () => {
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Still.tsx)
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Still.tsx)
 - [`<Composition />`](/docs/composition)

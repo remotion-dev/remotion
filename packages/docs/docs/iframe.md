@@ -18,5 +18,5 @@ export const MyComp: React.FC = () => {
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/IFrame.tsx)
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/IFrame.tsx)
 - [Use `<Img>` and `<IFrame>` tags](/docs/use-img-and-iframe)

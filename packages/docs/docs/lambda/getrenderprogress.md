@@ -134,4 +134,5 @@ If the render is in progress, this is `null`. If the render is done, it is an ar
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/get-render-progress.ts)
 - [renderMediaOnLambda()](/docs/lambda/rendermediaonlambda)

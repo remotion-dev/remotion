@@ -14,16 +14,16 @@ To retrieve a list of functions, call [`getFunctions()`](/docs/lambda/getfunctio
 // @module: esnext
 // @target: es2017
 
-import {deleteFunction, getFunctions} from '@remotion/lambda';
+import { deleteFunction, getFunctions } from "@remotion/lambda";
 
 const functions = await getFunctions({
-  region: 'us-east-1',
-  compatibleOnly: false
+  region: "us-east-1",
+  compatibleOnly: false,
 });
 for (const fn of functions) {
   await deleteFunction({
-    region: 'us-east-1',
-    functionName: fn.functionName
+    region: "us-east-1",
+    functionName: fn.functionName,
   });
 }
 ```
@@ -46,5 +46,6 @@ Nothing. If the deletion failed, the function rejects with an error.
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/delete-function.ts)
 - [deployFunction()](/docs/lambda/deployfunction)
 - [getFunctions()](/docs/lambda/getfunctions)
