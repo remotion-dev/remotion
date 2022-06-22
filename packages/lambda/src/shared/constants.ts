@@ -11,6 +11,7 @@ import {
 import {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import {AwsRegion} from '../pricing/aws-regions';
+import {ExpensiveChunk} from './get-most-expensive-chunks';
 import {LambdaArchitecture} from './validate-architecture';
 
 export const MIN_MEMORY = 512;
@@ -402,6 +403,7 @@ export type PostRenderData = {
 	timeToRenderChunks: number;
 	timeToInvokeLambdas: number;
 	retriesInfo: ChunkRetry[];
+	mostExpensiveFrameRanges: ExpensiveChunk[] | undefined;
 };
 
 export type CostsInfo = {
@@ -439,6 +441,7 @@ export type RenderProgress = {
 	timeToInvokeLambdas: number | null;
 	overallProgress: number;
 	retriesInfo: ChunkRetry[];
+	mostExpensiveFrameRanges: ExpensiveChunk[] | null;
 };
 
 export type Privacy = 'public' | 'private';
