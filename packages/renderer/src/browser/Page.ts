@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {error} from 'console';
-import {Protocol} from 'devtools-protocol';
+import type {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
 import {CDPSession} from './Connection';
 import {ConsoleMessage, ConsoleMessageType} from './ConsoleMessage';
@@ -110,7 +109,7 @@ export class Page extends EventEmitter {
 							.send('Target.detachFromTarget', {
 								sessionId: event.sessionId,
 							})
-							.catch(() => console.log(error));
+							.catch((err) => console.log(err));
 				}
 			}
 		);

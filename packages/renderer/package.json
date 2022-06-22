@@ -20,7 +20,6 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"devtools-protocol": "0.0.1001819",
 		"execa": "5.1.1",
 		"mime-types": "2.1.35",
 		"remotion": "3.0.20",
@@ -51,7 +50,8 @@
 		"react": "18.0.0",
 		"react-dom": "18.0.0",
 		"ts-jest": "^27.0.5",
-		"typescript": "^4.7.0"
+		"typescript": "^4.7.0",
+		"devtools-protocol": "0.0.1001819"
 	},
 	"keywords": [
 		"remotion",

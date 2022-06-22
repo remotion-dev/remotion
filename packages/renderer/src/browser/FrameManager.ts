@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Protocol} from 'devtools-protocol';
+import type {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
 import {CDPSession, Connection} from './Connection';
 import {DOMWorld} from './DOMWorld';

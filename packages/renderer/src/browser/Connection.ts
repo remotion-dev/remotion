@@ -15,8 +15,8 @@
  */
 import {assert} from './assert';
 
-import {Protocol} from 'devtools-protocol';
-import {ProtocolMapping} from 'devtools-protocol/types/protocol-mapping';
+import type {Protocol} from 'devtools-protocol';
+import type {ProtocolMapping} from 'devtools-protocol/types/protocol-mapping';
 import {ConnectionTransport} from './ConnectionTransport';
 import {ProtocolError} from './Errors';
 import {EventEmitter} from './EventEmitter';
