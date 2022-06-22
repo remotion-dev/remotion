@@ -27,5 +27,5 @@ Don't use the `<Img>` tag for GIFs, use [`@remotion/gif`](/docs/gif) instead.
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Img.tsx)
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Img.tsx)
 - [Use `<Img>` and `<IFrame>` tags](/docs/use-img-and-iframe)

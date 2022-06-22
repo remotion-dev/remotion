@@ -41,6 +41,6 @@ Avoid embedding a video beyond it's end (for example: Rendering a 5 second video
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/video/OffthreadVideo.tsx)
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/video/OffthreadVideo.tsx)
 - [`<Video />`](/docs/video)
 - [`<Video>` vs `<OffthreadVideo>`](/docs/video-vs-offthreadvideo)

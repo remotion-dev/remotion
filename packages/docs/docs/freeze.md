@@ -47,6 +47,6 @@ const MyVideo = () => {
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/freeze.tsx)
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/freeze.tsx)
 - [`<Video/>` Playback speed](/docs/video#controlling-playback-speed)
 - [`useCurrentFrame()`](/docs/use-current-frame)

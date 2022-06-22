@@ -139,7 +139,7 @@ See the [`<Series />`](/docs/series) helper component, which helps you calculate
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Sequence.tsx)
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Sequence.tsx)
 - [Reuse components using Sequences](/docs/reusability)
 - [`<Composition />`](/docs/composition)
 - [`<Series />`](/docs/series)
