@@ -180,6 +180,7 @@ interpolate(frame, [0, 10, 40, 100], [0, 0.2, 0.6, 1], {
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/interpolate.ts)
 - [Easing](/docs/easing)
 - [spring()](/docs/spring)
 - [interpolateColors()](/docs/interpolate-colors)
