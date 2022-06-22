@@ -58,7 +58,7 @@ export * from './IFrame';
 export * from './Img';
 export * from './internals';
 export * from './interpolate';
-export {interpolateColors} from './interpolateColors';
+export {interpolateColors} from './interpolate-colors';
 export {Loop} from './loop';
 export * from './random';
 export {registerRoot} from './register-root';
