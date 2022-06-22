@@ -104,7 +104,7 @@ import {
 } from './timeline-position-state';
 import {DEFAULT_PUPPETEER_TIMEOUT, setupPuppeteerTimeout} from './timeout';
 import {truthy} from './truthy';
-import {useAbsoluteCurrentFrame} from './use-frame';
+import {useAbsoluteCurrentFrame} from './use-current-frame';
 import {useLazyComponent} from './use-lazy-component';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';

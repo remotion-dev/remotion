@@ -8,7 +8,7 @@ import {CompositionManager} from '../CompositionManager';
 import {Img} from '../Img';
 import {random} from '../random';
 import {SequenceContext} from '../sequencing';
-import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
+import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-current-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
 import {getExpectedMediaFrameUncorrected} from './get-current-time';

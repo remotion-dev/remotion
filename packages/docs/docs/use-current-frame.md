@@ -67,5 +67,6 @@ const MyVideo = () => {
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/use-current-frame.ts)
 - [useVideoConfig()](/docs/use-video-config)
 - [`<Sequence />`](/docs/sequence)
