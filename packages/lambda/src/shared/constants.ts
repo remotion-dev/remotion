@@ -403,7 +403,7 @@ export type PostRenderData = {
 	timeToRenderChunks: number;
 	timeToInvokeLambdas: number;
 	retriesInfo: ChunkRetry[];
-	mostExpensiveFrameRanges: ExpensiveChunk[];
+	mostExpensiveFrameRanges: ExpensiveChunk[] | undefined;
 };
 
 export type CostsInfo = {
@@ -441,6 +441,7 @@ export type RenderProgress = {
 	timeToInvokeLambdas: number | null;
 	overallProgress: number;
 	retriesInfo: ChunkRetry[];
+	mostExpensiveFrameRanges: ExpensiveChunk[] | null;
 };
 
 export type Privacy = 'public' | 'private';
