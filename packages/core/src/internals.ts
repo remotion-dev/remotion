@@ -90,7 +90,7 @@ import * as perf from './perf';
 import {portalNode} from './portal-node';
 import {getRoot, waitForRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
-import {SequenceContext} from './sequencing';
+import {SequenceContext} from './Sequence';
 import {ENV_VARIABLES_ENV_NAME, setupEnvVariables} from './setup-env-variables';
 import * as TimelineInOutPosition from './timeline-inout-position-state';
 import {

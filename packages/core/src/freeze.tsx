@@ -1,5 +1,5 @@
 import React, {useContext, useMemo} from 'react';
-import {SequenceContext} from './sequencing';
+import {SequenceContext} from './Sequence';
 import {TimelineContext, TimelineContextValue} from './timeline-position-state';
 
 type FreezeProps = {

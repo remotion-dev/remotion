@@ -62,7 +62,7 @@ export {interpolateColors} from './interpolate-colors';
 export {Loop} from './loop';
 export * from './random';
 export {registerRoot} from './register-root';
-export {Sequence} from './sequencing';
+export {Sequence} from './Sequence';
 export {Series} from './series';
 export * from './spring';
 export {staticFile} from './static-file';
