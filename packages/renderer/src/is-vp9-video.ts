@@ -2,7 +2,7 @@ import execa from 'execa';
 import {FfmpegExecutable} from 'remotion';
 import {pLimit} from './p-limit';
 
-const durationOfAssetCache: Record<string, boolean> = {};
+const isVp9VideoCache: Record<string, boolean> = {};
 
 const limit = pLimit(1);
 
@@ -10,15 +10,15 @@ async function isVp9VideoUnlimited(
 	src: string,
 	ffprobeExecutable: FfmpegExecutable
 ): Promise<boolean> {
-	if (typeof durationOfAssetCache[src] !== 'undefined') {
-		return durationOfAssetCache[src];
+	if (typeof isVp9VideoCache[src] !== 'undefined') {
+		return isVp9VideoCache[src];
 	}
 
 	const task = await execa(ffprobeExecutable ?? 'ffprobe', [src]);
 
-	const result = task.stdout.includes('Video: vp9');
+	const result = task.stderr.includes('Video: vp9');
 
-	durationOfAssetCache[src] = result;
+	isVp9VideoCache[src] = result;
 
 	return result;
 }

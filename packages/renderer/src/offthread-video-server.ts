@@ -1,5 +1,5 @@
 import {RequestListener} from 'http';
-import {FfmpegExecutable, OffthreadVideoImageFormat} from 'remotion';
+import {FfmpegExecutable, Internals, OffthreadVideoImageFormat} from 'remotion';
 import {URLSearchParams} from 'url';
 import {
 	getSanitizedFilenameForAssetUrl,
@@ -29,7 +29,19 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 		throw new Error('Did not get `time` parameter');
 	}
 
-	return {src, time: parseFloat(time)};
+	const imageFormat = params.get('imageFormat');
+
+	if (!imageFormat) {
+		throw new TypeError('Did not get `imageFormat` parameter');
+	}
+
+	Internals.validateOffthreadVideoImageFormat(imageFormat);
+
+	return {
+		src,
+		time: parseFloat(time),
+		imageFormat: imageFormat as OffthreadVideoImageFormat,
+	};
 };
 
 export const startOffthreadVideoServer = ({
@@ -38,14 +50,12 @@ export const startOffthreadVideoServer = ({
 	downloadDir,
 	onDownload,
 	onError,
-	imageFormat,
 }: {
 	ffmpegExecutable: FfmpegExecutable;
 	ffprobeExecutable: FfmpegExecutable;
 	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
-	imageFormat: OffthreadVideoImageFormat;
 }): RequestListener => {
 	return (req, res) => {
 		if (!req.url) {
@@ -58,13 +68,12 @@ export const startOffthreadVideoServer = ({
 			return;
 		}
 
+		const {src, time, imageFormat} = extractUrlAndSourceFromUrl(req.url);
 		res.setHeader('access-control-allow-origin', '*');
 		res.setHeader(
 			'content-type',
 			`image/${imageFormat === 'jpeg' ? 'jpg' : 'png'}`
 		);
-
-		const {src, time} = extractUrlAndSourceFromUrl(req.url);
 
 		const to = getSanitizedFilenameForAssetUrl({downloadDir, src});
 
