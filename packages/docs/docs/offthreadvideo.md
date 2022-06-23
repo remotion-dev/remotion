@@ -40,7 +40,7 @@ The props `onError`, `className` and `style` are supported and get passed to the
 _Available since v3.0.22_
 
 Either `jpeg` or `png`. Default `jpeg`.  
-With `png`, transparent videos can be displayed, however it is around 40% slower, with VP8 videos being [much slower](/docs/slow-method-to-extract-frame).
+With `png`, transparent videos (VP8, VP9, ProRes) can be displayed, however it is around 40% slower, with VP8 videos being [much slower](/docs/slow-method-to-extract-frame).
 
 ## Performance tips
 
