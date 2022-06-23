@@ -4,7 +4,10 @@ import {getAudioChannelsAndDuration} from './assets/get-audio-channels';
 import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
 import {isBeyondLastFrame, markAsBeyondLastFrame} from './is-beyond-last-frame';
-import {checkIfIsVp9Video} from './is-vp9-video';
+import {
+	getSpecialVCodecForTransparency,
+	SpecialVCodecForTransparency,
+} from './is-vp9-video';
 import {
 	getLastFrameFromCache,
 	LastFrameOptions,
@@ -15,31 +18,41 @@ import {pLimit} from './p-limit';
 const lastFrameLimit = pLimit(1);
 const mainLimit = pLimit(5);
 
+export const determineVcodecFfmepgFlags = (
+	vcodecFlag: SpecialVCodecForTransparency
+) => {
+	return [
+		vcodecFlag === 'vp9' ? '-vcodec' : null,
+		vcodecFlag === 'vp9' ? 'libvpx-vp9' : null,
+		vcodecFlag === 'vp8' ? '-vcodec' : null,
+		vcodecFlag === 'vp8' ? 'libvpx' : null,
+	].filter(Internals.truthy);
+};
+
 // Uses no seeking, therefore the whole video has to be decoded. This is a last resort and should only happen
 // if the video is corrupted
-const getLastFrameOfVideoSlow = async ({
+const getFrameOfVideoSlow = async ({
 	src,
-	duration,
+	timestamp,
 	ffmpegExecutable,
 	imageFormat,
-	isVp9Video,
+	specialVCodecForTransparency,
 }: {
 	ffmpegExecutable: FfmpegExecutable;
 	src: string;
-	duration: number;
+	timestamp: number;
 	imageFormat: OffthreadVideoImageFormat;
-	isVp9Video: boolean;
+	specialVCodecForTransparency: SpecialVCodecForTransparency;
 }) => {
 	console.warn(
-		`\nUsing a slow method to determine the last frame of ${src}. The render can be sped up by re-encoding the video properly.`
+		`\nUsing a slow method to extract the frame at ${timestamp}ms of ${src}. See https://remotion.dev/docs/slow-method-to-extract-frame for advice`
 	);
 
-	const actualOffset = `-${duration * 1000}ms`;
+	const actualOffset = `-${timestamp * 1000}ms`;
 	const command = [
 		'-itsoffset',
 		actualOffset,
-		isVp9Video ? '-vcodec' : null,
-		isVp9Video ? 'libvpx-vp9' : null,
+		...determineVcodecFfmepgFlags(specialVCodecForTransparency),
 		'-i',
 		src,
 		'-frames:v',
@@ -108,13 +121,13 @@ const getLastFrameOfVideoFastUnlimited = async (
 		);
 	}
 
-	if (offset > 40) {
-		const last = await getLastFrameOfVideoSlow({
-			duration,
+	if (options.specialVCodecForTransparency === 'vp8' || offset > 40) {
+		const last = await getFrameOfVideoSlow({
+			timestamp: duration,
 			ffmpegExecutable,
 			src,
 			imageFormat: options.imageFormat,
-			isVp9Video: options.isVp9Video,
+			specialVCodecForTransparency: options.specialVCodecForTransparency,
 		});
 		return last;
 	}
@@ -125,8 +138,7 @@ const getLastFrameOfVideoFastUnlimited = async (
 		[
 			'-ss',
 			actualOffset,
-			options.isVp9Video ? '-vcodec' : null,
-			options.isVp9Video ? 'libvpx-vp9' : null,
+			...determineVcodecFfmepgFlags(options.specialVCodecForTransparency),
 			'-i',
 			src,
 			'-frames:v',
@@ -180,7 +192,7 @@ const getLastFrameOfVideoFastUnlimited = async (
 			src,
 			ffprobeExecutable,
 			imageFormat: options.imageFormat,
-			isVp9Video: options.isVp9Video,
+			specialVCodecForTransparency: options.specialVCodecForTransparency,
 		});
 
 		return unlimited;
@@ -217,7 +229,20 @@ const extractFrameFromVideoFn = async ({
 	imageFormat,
 }: Options): Promise<Buffer> => {
 	await ensurePresentationTimestamps(src);
-	const isVp9Video = await checkIfIsVp9Video(src, ffprobeExecutable);
+	const specialVCodecForTransparency: SpecialVCodecForTransparency =
+		imageFormat === 'jpeg'
+			? 'none'
+			: await getSpecialVCodecForTransparency(src, ffprobeExecutable);
+
+	if (specialVCodecForTransparency === 'vp8') {
+		return getFrameOfVideoSlow({
+			ffmpegExecutable,
+			imageFormat,
+			specialVCodecForTransparency,
+			src,
+			timestamp: time,
+		});
+	}
 
 	if (isBeyondLastFrame(src, time)) {
 		const lastFrame = await getLastFrameOfVideo({
@@ -226,7 +251,7 @@ const extractFrameFromVideoFn = async ({
 			offset: 0,
 			src,
 			imageFormat,
-			isVp9Video,
+			specialVCodecForTransparency,
 		});
 		return lastFrame;
 	}
@@ -237,8 +262,7 @@ const extractFrameFromVideoFn = async ({
 		[
 			'-ss',
 			ffmpegTimestamp,
-			isVp9Video ? '-vcodec' : null,
-			isVp9Video ? 'libvpx-vp9' : null,
+			...determineVcodecFfmepgFlags(specialVCodecForTransparency),
 			'-i',
 			src,
 			'-frames:v',
@@ -292,7 +316,7 @@ const extractFrameFromVideoFn = async ({
 			offset: 0,
 			src,
 			imageFormat,
-			isVp9Video,
+			specialVCodecForTransparency,
 		});
 
 		return last;
