@@ -241,12 +241,7 @@ export class NetworkManager extends EventEmitter {
 		responsePayload: Protocol.Network.Response,
 		extraInfo: Protocol.Network.ResponseReceivedExtraInfoEvent | null
 	): void {
-		const response = new HTTPResponse(
-			this.#client,
-			request,
-			responsePayload,
-			extraInfo
-		);
+		const response = new HTTPResponse(responsePayload, extraInfo);
 		request._response = response;
 		request._redirectChain.push(request);
 		response._resolveBody(
@@ -279,12 +274,7 @@ export class NetworkManager extends EventEmitter {
 			);
 		}
 
-		const response = new HTTPResponse(
-			this.#client,
-			request,
-			responseReceived.response,
-			extraInfo
-		);
+		const response = new HTTPResponse(responseReceived.response, extraInfo);
 		request._response = response;
 	}
 

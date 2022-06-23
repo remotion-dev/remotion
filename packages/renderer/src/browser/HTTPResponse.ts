@@ -14,94 +14,16 @@
  * limitations under the License.
  */
 import type {Protocol} from 'devtools-protocol';
-import type {ProtocolMapping} from 'devtools-protocol/types/protocol-mapping';
-import {ProtocolError} from './Errors';
-import {Frame} from './FrameManager';
-import {HTTPRequest} from './HTTPRequest';
-
-interface RemoteAddress {
-	ip?: string;
-	port?: number;
-}
-
-interface CDPSession {
-	send<T extends keyof ProtocolMapping.Commands>(
-		method: T,
-		...paramArgs: ProtocolMapping.Commands[T]['paramsType']
-	): Promise<ProtocolMapping.Commands[T]['returnType']>;
-}
 
 export class HTTPResponse {
-	#client: CDPSession;
-	#request: HTTPRequest;
-	#contentPromise: Promise<Buffer> | null = null;
-	#bodyLoadedPromise: Promise<Error | void>;
 	#bodyLoadedPromiseFulfill: (err: Error | void) => void = () => undefined;
-	#remoteAddress: RemoteAddress;
 	#status: number;
-	#statusText: string;
-	#url: string;
-	#fromDiskCache: boolean;
-	#fromServiceWorker: boolean;
-	#headers: Record<string, string> = {};
-	#timing: Protocol.Network.ResourceTiming | null;
 
 	constructor(
-		client: CDPSession,
-		request: HTTPRequest,
 		responsePayload: Protocol.Network.Response,
 		extraInfo: Protocol.Network.ResponseReceivedExtraInfoEvent | null
 	) {
-		this.#client = client;
-		this.#request = request;
-
-		this.#bodyLoadedPromise = new Promise((fulfill) => {
-			this.#bodyLoadedPromiseFulfill = fulfill;
-		});
-
-		this.#remoteAddress = {
-			ip: responsePayload.remoteIPAddress,
-			port: responsePayload.remotePort,
-		};
-		this.#statusText =
-			this.#parseStatusTextFromExtrInfo(extraInfo) ||
-			responsePayload.statusText;
-		this.#url = request.url();
-		this.#fromDiskCache = Boolean(responsePayload.fromDiskCache);
-		this.#fromServiceWorker = Boolean(responsePayload.fromServiceWorker);
-
 		this.#status = extraInfo ? extraInfo.statusCode : responsePayload.status;
-		const headers = extraInfo ? extraInfo.headers : responsePayload.headers;
-		for (const [key, value] of Object.entries(headers)) {
-			this.#headers[key.toLowerCase()] = value;
-		}
-
-		this.#timing = responsePayload.timing || null;
-	}
-
-	#parseStatusTextFromExtrInfo(
-		extraInfo: Protocol.Network.ResponseReceivedExtraInfoEvent | null
-	): string | undefined {
-		if (!extraInfo || !extraInfo.headersText) {
-			return;
-		}
-
-		const firstLine = extraInfo.headersText.split('\r', 1)[0];
-		if (!firstLine) {
-			return;
-		}
-
-		const match = firstLine.match(/[^ ]* [^ ]* (.*)/);
-		if (!match) {
-			return;
-		}
-
-		const statusText = match[1];
-		if (!statusText) {
-			return;
-		}
-
-		return statusText;
 	}
 
 	_resolveBody(err: Error | null): void {
@@ -112,143 +34,7 @@ export class HTTPResponse {
 		return this.#bodyLoadedPromiseFulfill();
 	}
 
-	/**
-	 * @returns The IP address and port number used to connect to the remote
-	 * server.
-	 */
-	remoteAddress(): RemoteAddress {
-		return this.#remoteAddress;
-	}
-
-	/**
-	 * @returns The URL of the response.
-	 */
-	url(): string {
-		return this.#url;
-	}
-
-	/**
-	 * @returns True if the response was successful (status in the range 200-299).
-	 */
-	ok(): boolean {
-		return this.#status === 0 || (this.#status >= 200 && this.#status <= 299);
-	}
-
-	/**
-	 * @returns The status code of the response (e.g., 200 for a success).
-	 */
 	status(): number {
 		return this.#status;
-	}
-
-	/**
-	 * @returns  The status text of the response (e.g. usually an "OK" for a
-	 * success).
-	 */
-	statusText(): string {
-		return this.#statusText;
-	}
-
-	/**
-	 * @returns An object with HTTP headers associated with the response. All
-	 * header names are lower-case.
-	 */
-	headers(): Record<string, string> {
-		return this.#headers;
-	}
-
-	/**
-	 * @returns Timing information related to the response.
-	 */
-	timing(): Protocol.Network.ResourceTiming | null {
-		return this.#timing;
-	}
-
-	/**
-	 * @returns Promise which resolves to a buffer with response body.
-	 */
-	buffer(): Promise<Buffer> {
-		if (!this.#contentPromise) {
-			this.#contentPromise = this.#bodyLoadedPromise.then(async (error) => {
-				if (error) {
-					throw error;
-				}
-
-				try {
-					const response = await this.#client.send('Network.getResponseBody', {
-						requestId: this.#request._requestId,
-					});
-					return Buffer.from(
-						response.body,
-						response.base64Encoded ? 'base64' : 'utf8'
-					);
-				} catch (_error) {
-					if (
-						_error instanceof ProtocolError &&
-						_error.originalMessage === 'No resource with given identifier found'
-					) {
-						throw new ProtocolError(
-							'Could not load body for this request. This might happen if the request is a preflight request.'
-						);
-					}
-
-					throw _error;
-				}
-			});
-		}
-
-		return this.#contentPromise;
-	}
-
-	/**
-	 * @returns Promise which resolves to a text representation of response body.
-	 */
-	async text(): Promise<string> {
-		const content = await this.buffer();
-		return content.toString('utf8');
-	}
-
-	/**
-	 *
-	 * @returns Promise which resolves to a JSON representation of response body.
-	 *
-	 * @remarks
-	 *
-	 * This method will throw if the response body is not parsable via
-	 * `JSON.parse`.
-	 */
-	async json(): Promise<any> {
-		const content = await this.text();
-		return JSON.parse(content);
-	}
-
-	/**
-	 * @returns A matching {@link HTTPRequest} object.
-	 */
-	request(): HTTPRequest {
-		return this.#request;
-	}
-
-	/**
-	 * @returns True if the response was served from either the browser's disk
-	 * cache or memory cache.
-	 */
-	fromCache(): boolean {
-		return this.#fromDiskCache || this.#request._fromMemoryCache;
-	}
-
-	/**
-	 * @returns True if the response was served by a service worker.
-	 */
-	fromServiceWorker(): boolean {
-		return this.#fromServiceWorker;
-	}
-
-	/**
-	 * @returns A {@link Frame} that initiated this response, or `null` if
-	 * navigating to error pages.
-	 */
-	frame(): Frame | null {
-		return this.#request.frame();
 	}
 }
