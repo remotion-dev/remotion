@@ -43,32 +43,28 @@ checkMultipleRemotionVersions();
 export * from './AbsoluteFill';
 export * from './audio';
 export * from './Composition';
-export {
-	SmallTCompMetadata,
-	TAsset,
-	TCompMetadata,
-	TFolder,
-} from './CompositionManager';
+export {SmallTCompMetadata, TAsset, TCompMetadata} from './CompositionManager';
 export * from './config';
 export {getInputProps} from './config/input-props';
 export * from './delay-render';
 export * from './easing';
+export * from './Folder';
 export * from './freeze';
 export * from './IFrame';
 export * from './Img';
 export * from './internals';
 export * from './interpolate';
-export {interpolateColors} from './interpolateColors';
+export {interpolateColors} from './interpolate-colors';
 export {Loop} from './loop';
 export * from './random';
 export {registerRoot} from './register-root';
-export {Sequence} from './sequencing';
+export {Sequence} from './Sequence';
 export {Series} from './series';
 export * from './spring';
 export {staticFile} from './static-file';
 export * from './Still';
 export type {PlayableMediaTag} from './timeline-position-state';
-export {useCurrentFrame} from './use-frame';
+export {useCurrentFrame} from './use-current-frame';
 export * from './use-video-config';
 export * from './video';
 export * from './video-config';

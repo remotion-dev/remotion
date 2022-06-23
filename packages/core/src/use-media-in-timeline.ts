@@ -4,7 +4,7 @@ import {CompositionManager} from './CompositionManager';
 import {getAssetDisplayName} from './get-asset-file-name';
 import {useNonce} from './nonce';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error';
-import {SequenceContext} from './sequencing';
+import {SequenceContext} from './Sequence';
 import {
 	PlayableMediaTag,
 	TimelineContext,

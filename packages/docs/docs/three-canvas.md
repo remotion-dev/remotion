@@ -55,3 +55,7 @@ const ThreeBasic: React.FC = () => {
 
 export default ThreeBasic;
 ```
+
+## See also
+
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/three/src/ThreeCanvas.tsx)

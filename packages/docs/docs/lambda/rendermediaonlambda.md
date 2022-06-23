@@ -180,4 +180,5 @@ The S3 bucket name in which all files are being saved.
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/render-media-on-lambda.ts)
 - [getRenderProgress()](/docs/lambda/getrenderprogress)

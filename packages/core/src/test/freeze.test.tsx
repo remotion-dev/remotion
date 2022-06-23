@@ -6,7 +6,7 @@ import {
 	TimelineContext,
 	TimelineContextValue,
 } from '../timeline-position-state';
-import {useCurrentFrame} from '../use-frame';
+import {useCurrentFrame} from '../use-current-frame';
 import {expectToThrow} from './expect-to-throw';
 
 describe('Prop validation', () => {
