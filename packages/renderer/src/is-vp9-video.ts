@@ -6,7 +6,7 @@ const durationOfAssetCache: Record<string, boolean> = {};
 
 const limit = pLimit(1);
 
-async function isVp9Videounlimited(
+async function isVp9VideoUnlimited(
 	src: string,
 	ffprobeExecutable: FfmpegExecutable
 ): Promise<boolean> {
@@ -27,5 +27,5 @@ export const checkIfIsVp9Video = (
 	src: string,
 	ffprobeExecutable: FfmpegExecutable
 ): Promise<boolean> => {
-	return limit(() => isVp9Videounlimited(src, ffprobeExecutable));
+	return limit(() => isVp9VideoUnlimited(src, ffprobeExecutable));
 };
