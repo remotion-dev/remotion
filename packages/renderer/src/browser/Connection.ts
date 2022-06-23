@@ -17,9 +17,9 @@ import {assert} from './assert';
 
 import type {Protocol} from 'devtools-protocol';
 import type {ProtocolMapping} from 'devtools-protocol/types/protocol-mapping';
-import {ConnectionTransport} from './ConnectionTransport';
 import {ProtocolError} from './Errors';
 import {EventEmitter} from './EventEmitter';
+import {NodeWebSocketTransport} from './NodeWebSocketTransport';
 
 interface ConnectionCallback {
 	resolve: Function;
@@ -34,13 +34,13 @@ const ConnectionEmittedEvents = {
 
 export class Connection extends EventEmitter {
 	#url: string;
-	#transport: ConnectionTransport;
+	#transport: NodeWebSocketTransport;
 	#lastId = 0;
 	#sessions: Map<string, CDPSession> = new Map();
 	#closed = false;
 	#callbacks: Map<number, ConnectionCallback> = new Map();
 
-	constructor(url: string, transport: ConnectionTransport) {
+	constructor(url: string, transport: NodeWebSocketTransport) {
 		super();
 		this.#url = url;
 
