@@ -50,7 +50,7 @@ interface WaitForOptions {
 	waitUntil?: PuppeteerLifeCycleEvent | PuppeteerLifeCycleEvent[];
 }
 
-export const enum PageEmittedEvents {
+const enum PageEmittedEvents {
 	Console = 'console',
 	Error = 'error',
 }

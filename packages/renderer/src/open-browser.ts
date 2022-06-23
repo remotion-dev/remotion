@@ -1,9 +1,8 @@
 import fs from 'fs';
 import os from 'os';
-import path, {dirname} from 'path';
+import path from 'path';
 import {Browser, Internals} from 'remotion';
 import {Browser as PuppeteerBrowser} from './browser/Browser';
-import {puppeteerDirname} from './browser/compat';
 import {puppeteer} from './browser/node';
 import {Viewport} from './browser/PuppeteerViewport';
 import {
@@ -35,8 +34,6 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 
 	return [`--use-gl=${renderer}`];
 };
-
-export const rootDirname = dirname(dirname(dirname(puppeteerDirname)));
 
 const browserInstances: PuppeteerBrowser[] = [];
 

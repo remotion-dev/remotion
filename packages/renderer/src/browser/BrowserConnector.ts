@@ -14,56 +14,8 @@
  * limitations under the License.
  */
 
-import {assert} from './assert';
-import {Browser} from './Browser';
-import {Connection} from './Connection';
-import {ConnectionTransport} from './ConnectionTransport';
-import {NodeWebSocketTransport} from './NodeWebSocketTransport';
 import {Viewport} from './PuppeteerViewport';
 
 export interface BrowserConnectOptions {
 	defaultViewport: Viewport;
-}
-
-const getWebSocketTransportClass = () => {
-	return NodeWebSocketTransport;
-};
-
-export type ConnectToBrowserOptions = BrowserConnectOptions & {
-	browserWSEndpoint: string;
-	transport: ConnectionTransport;
-};
-
-export async function _connectToBrowser(
-	options: ConnectToBrowserOptions
-): Promise<Browser> {
-	const {browserWSEndpoint, defaultViewport, transport} = options;
-
-	assert(
-		Number(Boolean(browserWSEndpoint)) + Number(Boolean(transport)) === 1,
-		'Exactly one of browserWSEndpoint, browserURL or transport must be passed to puppeteer.connect'
-	);
-
-	let connection!: Connection;
-	if (transport) {
-		connection = new Connection('', transport);
-	} else if (browserWSEndpoint) {
-		const WebSocketClass = getWebSocketTransportClass();
-		const connectionTransport: ConnectionTransport =
-			await WebSocketClass.create(browserWSEndpoint);
-		connection = new Connection(browserWSEndpoint, connectionTransport);
-	}
-
-	const {browserContextIds} = await connection.send(
-		'Target.getBrowserContexts'
-	);
-	return Browser._create({
-		connection,
-		contextIds: browserContextIds,
-		defaultViewport,
-		process: undefined,
-		closeCallback: () => {
-			return connection.send('Browser.close').catch(() => undefined);
-		},
-	});
 }
