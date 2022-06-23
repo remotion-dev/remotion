@@ -18,7 +18,6 @@ import type {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
 import {CDPSession} from './Connection';
 import {ConsoleMessage, ConsoleMessageType} from './ConsoleMessage';
-import {EmulationManager} from './EmulationManager';
 import {
 	EvaluateFn,
 	EvaluateFnReturnType,
@@ -78,7 +77,6 @@ export class Page extends EventEmitter {
 	#target: Target;
 	#timeoutSettings = new TimeoutSettings();
 	#frameManager: FrameManager;
-	#emulationManager: EmulationManager;
 	#pageBindings = new Map<string, Function>();
 	screenshotTaskQueue: TaskQueue;
 
@@ -87,7 +85,6 @@ export class Page extends EventEmitter {
 		this.#client = client;
 		this.#target = target;
 		this.#frameManager = new FrameManager(client, this, this.#timeoutSettings);
-		this.#emulationManager = new EmulationManager(client);
 		this.screenshotTaskQueue = new TaskQueue();
 
 		client.on(
@@ -210,8 +207,17 @@ export class Page extends EventEmitter {
 		return this.#frameManager.mainFrame();
 	}
 
-	async setViewport(viewport: Viewport): Promise<void> {
-		await this.#emulationManager.emulateViewport(viewport);
+	setViewport(viewport: Viewport): Promise<void> {
+		return this.#client.send('Emulation.setDeviceMetricsOverride', {
+			mobile: false,
+			width: viewport.width,
+			height: viewport.height,
+			deviceScaleFactor: viewport.deviceScaleFactor,
+			screenOrientation: {
+				angle: 0,
+				type: 'portraitPrimary',
+			},
+		});
 	}
 
 	setDefaultNavigationTimeout(timeout: number): void {
