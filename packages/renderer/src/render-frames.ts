@@ -163,8 +163,8 @@ const innerRenderFrames = ({
 		const logCallback = (log: ConsoleMessage) => {
 			onBrowserLog?.({
 				stackTrace: log.stackTrace(),
-				text: log.text(),
-				type: log.type(),
+				text: log.text,
+				type: log.type,
 			});
 		};
 

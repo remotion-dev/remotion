@@ -141,6 +141,7 @@ A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/doc
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/stitch-frames-to-video.ts)
 - [bundle()](/docs/bundle)
 - [Server-Side rendering](/docs/ssr)
 - [getCompositions()](/docs/renderer/get-compositions)

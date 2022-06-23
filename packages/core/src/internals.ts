@@ -90,7 +90,7 @@ import * as perf from './perf';
 import {portalNode} from './portal-node';
 import {getRoot, waitForRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
-import {SequenceContext} from './sequencing';
+import {SequenceContext} from './Sequence';
 import {ENV_VARIABLES_ENV_NAME, setupEnvVariables} from './setup-env-variables';
 import * as TimelineInOutPosition from './timeline-inout-position-state';
 import {
@@ -104,7 +104,7 @@ import {
 } from './timeline-position-state';
 import {DEFAULT_PUPPETEER_TIMEOUT, setupPuppeteerTimeout} from './timeout';
 import {truthy} from './truthy';
-import {useAbsoluteCurrentFrame} from './use-frame';
+import {useAbsoluteCurrentFrame} from './use-current-frame';
 import {useLazyComponent} from './use-lazy-component';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';

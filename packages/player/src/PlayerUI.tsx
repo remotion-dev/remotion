@@ -20,7 +20,6 @@ import {Controls} from './PlayerControls';
 import {useHoverState} from './use-hover-state';
 import {usePlayback} from './use-playback';
 import {usePlayer} from './use-player';
-import {browserSupportsFullscreen} from './utils/browser-supports-fullscreen';
 import {calculatePlayerSize} from './utils/calculate-player-size';
 import {IS_NODE} from './utils/is-node';
 import {useClickPreventionOnDoubleClick} from './utils/use-click-prevention-on-double-click';
@@ -31,6 +30,15 @@ export type RenderLoading = (canvas: {
 	height: number;
 	width: number;
 }) => React.ReactChild;
+
+const reactVersion = React.version.split('.')[0];
+if (reactVersion === '0') {
+	throw new Error(
+		`Version ${reactVersion} of "react" is not supported by Remotion`
+	);
+}
+
+const doesReactVersionSupportSuspense = parseInt(reactVersion, 10) >= 18;
 
 const PlayerUI: React.ForwardRefRenderFunction<
 	PlayerRef,
@@ -138,7 +146,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			throw new Error('allowFullscreen is false');
 		}
 
-		if (!browserSupportsFullscreen) {
+		const supportsFullScreen =
+			document.fullscreenEnabled || document.webkitFullscreenEnabled;
+
+		if (!supportsFullScreen) {
 			throw new Error('Browser doesnt support fullscreen');
 		}
 
@@ -414,8 +425,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			) : null}
 		</>
 	);
-	// Don't render suspense on Node.js
-	if (IS_NODE) {
+	if (IS_NODE && !doesReactVersionSupportSuspense) {
 		return (
 			<div ref={container} style={outerStyle}>
 				{content}

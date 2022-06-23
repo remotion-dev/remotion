@@ -15,11 +15,7 @@
  */
 
 import {Browser} from './Browser';
-import {
-	BrowserConnectOptions,
-	ConnectToBrowserOptions,
-	_connectToBrowser,
-} from './BrowserConnector';
+import {BrowserConnectOptions} from './BrowserConnector';
 import {BrowserFetcher, BrowserFetcherOptions} from './BrowserFetcher';
 import Launcher, {ProductLauncher} from './Launcher';
 import {BrowserLaunchArgumentOptions, LaunchOptions} from './LaunchOptions';
@@ -45,22 +41,9 @@ export class PuppeteerNode {
 		this.#productName = productName;
 		this._preferredRevision = preferredRevision;
 
-		this.connect = this.connect.bind(this);
 		this.launch = this.launch.bind(this);
 		this.executablePath = this.executablePath.bind(this);
 		this.createBrowserFetcher = this.createBrowserFetcher.bind(this);
-	}
-
-	connect(
-		options: ConnectToBrowserOptions & {
-			product: Product;
-		}
-	): Promise<Browser> {
-		if (options.product) {
-			this._productName = options.product;
-		}
-
-		return _connectToBrowser(options);
 	}
 
 	get _productName(): Product | undefined {

@@ -34,4 +34,5 @@ export const MyComp: React.FC = () => {
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/use-video-config.ts)
 - [useCurrentFrame()](/docs/use-current-frame)

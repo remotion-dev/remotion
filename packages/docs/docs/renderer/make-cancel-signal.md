@@ -56,6 +56,7 @@ Calling `makeCancelSignal` returns an object with two properties:
 
 ## See also
 
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/make-cancel-signal.ts)
 - [`renderMedia()`](/docs/renderer/render-media)
 - [`renderStill()`](/docs/renderer/render-still)
 - [`renderFrames()`](/docs/renderer/render-frames)

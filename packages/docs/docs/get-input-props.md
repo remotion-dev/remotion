@@ -33,4 +33,5 @@ In this example, the props also get passed to the component of the composition w
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/config/input-props.ts)
 - [Dynamic duration, FPS & dimensions](/docs/dynamic-metadata)

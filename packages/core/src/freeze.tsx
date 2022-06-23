@@ -1,5 +1,5 @@
 import React, {useContext, useMemo} from 'react';
-import {SequenceContext} from './sequencing';
+import {SequenceContext} from './Sequence';
 import {TimelineContext, TimelineContextValue} from './timeline-position-state';
 
 type FreezeProps = {
@@ -7,7 +7,7 @@ type FreezeProps = {
 	children: React.ReactNode;
 };
 
-const Freeze: React.FC<FreezeProps> = ({frame, children}) => {
+export const Freeze: React.FC<FreezeProps> = ({frame, children}) => {
 	if (typeof frame === 'undefined') {
 		throw new Error(
 			`The <Freeze /> component requires a 'frame' prop, but none was passed.`
@@ -52,5 +52,3 @@ const Freeze: React.FC<FreezeProps> = ({frame, children}) => {
 		</TimelineContext.Provider>
 	);
 };
-
-export {Freeze};

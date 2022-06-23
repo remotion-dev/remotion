@@ -92,6 +92,7 @@ Use the [`useAudioData()`](/docs/use-audio-data) helper hook to not have to do s
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/get-audio-data.ts)
 - [Using audio](/docs/using-audio)
 - [Audio visualization](/docs/audio-visualization)
 - [`<Audio/>`](/docs/audio)

@@ -1,5 +1,5 @@
 /* eslint-disable no-new */
-import Protocol from 'devtools-protocol';
+import type {Protocol} from 'devtools-protocol';
 import {JSHandle} from './browser/JSHandle';
 import {Page} from './browser/Page';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';

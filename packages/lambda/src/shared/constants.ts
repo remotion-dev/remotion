@@ -11,6 +11,7 @@ import {
 import {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import {AwsRegion} from '../pricing/aws-regions';
+import {ExpensiveChunk} from './get-most-expensive-chunks';
 import {LambdaArchitecture} from './validate-architecture';
 
 export const MIN_MEMORY = 512;
@@ -302,6 +303,7 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2022-06-22'
 	| '2022-06-21'
 	| '2022-06-14'
 	| '2022-06-08'
@@ -379,7 +381,7 @@ export type LambdaVersions =
 	| '2021-06-23'
 	| 'n/a';
 
-export const CURRENT_VERSION: LambdaVersions = '2022-06-21';
+export const CURRENT_VERSION: LambdaVersions = '2022-06-22';
 
 export type PostRenderData = {
 	cost: {
@@ -402,6 +404,7 @@ export type PostRenderData = {
 	timeToRenderChunks: number;
 	timeToInvokeLambdas: number;
 	retriesInfo: ChunkRetry[];
+	mostExpensiveFrameRanges: ExpensiveChunk[] | undefined;
 };
 
 export type CostsInfo = {
@@ -439,6 +442,7 @@ export type RenderProgress = {
 	timeToInvokeLambdas: number | null;
 	overallProgress: number;
 	retriesInfo: ChunkRetry[];
+	mostExpensiveFrameRanges: ExpensiveChunk[] | null;
 };
 
 export type Privacy = 'public' | 'private';
