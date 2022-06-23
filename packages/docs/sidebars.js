@@ -262,6 +262,7 @@ module.exports = {
         "flickering",
         "version-mismatch",
         "enametoolong",
+        "slow-method-to-extract-frame",
       ],
     },
     {

@@ -117,6 +117,7 @@ import {validateDurationInFrames} from './validation/validate-duration-in-frames
 import {validateFps} from './validation/validate-fps';
 import {validateFrame} from './validation/validate-frame';
 import {validateNonNullImageFormat} from './validation/validate-image-format';
+import {validateOffthreadVideoImageFormat} from './validation/validate-offthreadvideo-image-format';
 import {
 	OpenGlRenderer,
 	validateOpenGlRenderer,
@@ -226,6 +227,7 @@ export const Internals = {
 	useAbsoluteCurrentFrame,
 	portalNode,
 	waitForRoot,
+	validateOffthreadVideoImageFormat,
 };
 
 export type {
