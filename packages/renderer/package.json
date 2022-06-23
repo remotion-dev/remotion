@@ -25,8 +25,7 @@
 		"remotion": "3.0.21",
 		"source-map": "^0.8.0-beta.0",
 		"ws": "8.7.0",
-		"extract-zip": "2.0.1",
-		"progress": "2.0.3"
+		"extract-zip": "2.0.1"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
