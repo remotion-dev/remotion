@@ -5,7 +5,9 @@ import {
 	useMediaStartsAt,
 } from '../audio/use-audio-frame';
 import {CompositionManager} from '../CompositionManager';
+import {OFFTHREAD_VIDEO_CLASS_NAME} from '../default-css';
 import {Img} from '../Img';
+import {Internals} from '../internals';
 import {random} from '../random';
 import {SequenceContext} from '../Sequence';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-current-frame';
@@ -22,7 +24,6 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	playbackRate,
 	src,
 	muted,
-	style,
 	imageFormat,
 	...props
 }) => {
@@ -126,12 +127,13 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			[onError]
 		);
 
-	const actualStyle: React.CSSProperties = useMemo(() => {
-		return {
-			objectFit: 'contain',
-			...(style ?? {}),
-		};
-	}, [style]);
+	const className = useMemo(() => {
+		return [OFFTHREAD_VIDEO_CLASS_NAME, props.className]
+			.filter(Internals.truthy)
+			.join(' ');
+	}, [props.className]);
 
-	return <Img src={actualSrc} style={actualStyle} {...props} onError={onErr} />;
+	return (
+		<Img src={actualSrc} className={className} {...props} onError={onErr} />
+	);
 };
