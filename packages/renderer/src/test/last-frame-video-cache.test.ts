@@ -12,6 +12,8 @@ const makeKey = (id: string): LastFrameOptions => {
 		ffprobeExecutable: null,
 		offset: 10,
 		src: id,
+		imageFormat: 'jpeg',
+		specialVCodecForTransparency: 'none',
 	};
 };
 

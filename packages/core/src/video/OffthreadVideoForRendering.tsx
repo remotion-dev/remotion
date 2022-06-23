@@ -12,7 +12,9 @@ import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-current-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
 import {getExpectedMediaFrameUncorrected} from './get-current-time';
-import {OffthreadVideoProps} from './props';
+import {OffthreadVideoImageFormat, OffthreadVideoProps} from './props';
+
+const DEFAULT_IMAGE_FORMAT: OffthreadVideoImageFormat = 'jpeg';
 
 export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	onError,
@@ -21,6 +23,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	src,
 	muted,
 	style,
+	imageFormat,
 	...props
 }) => {
 	const absoluteFrame = useAbsoluteCurrentFrame();
@@ -110,8 +113,10 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			window.remotion_proxyPort
 		}/proxy?src=${encodeURIComponent(
 			getAbsoluteSrc(src)
-		)}&time=${encodeURIComponent(currentTime)}`;
-	}, [currentTime, src]);
+		)}&time=${encodeURIComponent(currentTime)}&imageFormat=${
+			imageFormat ?? DEFAULT_IMAGE_FORMAT
+		}`;
+	}, [currentTime, imageFormat, src]);
 
 	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
 		useCallback(

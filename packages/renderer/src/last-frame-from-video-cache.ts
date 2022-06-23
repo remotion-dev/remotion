@@ -1,12 +1,15 @@
 // OffthreadVideo requires sometimes that the last frame of a video gets extracted, however, this can be slow. We allocate a cache for it but that can be garbage collected
 
-import {FfmpegExecutable} from 'remotion';
+import {FfmpegExecutable, OffthreadVideoImageFormat} from 'remotion';
+import {SpecialVCodecForTransparency} from './is-vp9-video';
 
 export type LastFrameOptions = {
 	ffmpegExecutable: FfmpegExecutable;
 	ffprobeExecutable: FfmpegExecutable;
 	offset: number;
 	src: string;
+	specialVCodecForTransparency: SpecialVCodecForTransparency;
+	imageFormat: OffthreadVideoImageFormat;
 };
 
 let map: Record<string, {lastAccessed: number; data: Buffer}> = {};
@@ -16,7 +19,12 @@ const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
 let bufferSize = 0;
 
 const makeLastFrameCacheKey = (options: LastFrameOptions) => {
-	return [options.ffmpegExecutable, options.offset, options.src].join('-');
+	return [
+		options.ffmpegExecutable,
+		options.offset,
+		options.src,
+		options.imageFormat,
+	].join('-');
 };
 
 export const setLastFrameInCache = (
