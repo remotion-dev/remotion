@@ -1,9 +1,18 @@
+const urlEncodeParts = (path: string) => {
+	const parts = path.split('/');
+	return parts
+		.map((p) => {
+			return encodeURIComponent(decodeURIComponent(p));
+		})
+		.join('/');
+};
+
 const trimLeadingSlash = (path: string): string => {
 	if (path.startsWith('/')) {
 		return trimLeadingSlash(path.substr(1));
 	}
 
-	return path;
+	return urlEncodeParts(path);
 };
 
 const inner = (path: string): string => {
