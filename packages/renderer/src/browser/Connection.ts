@@ -160,7 +160,7 @@ export class Connection extends EventEmitter {
 			callback.reject(
 				rewriteError(
 					callback.error,
-					`Protocol error (${callback.method}): Target closed.`
+					`Protocol error (${callback.method}): Target closed. https://www.remotion.dev/docs/target-closed`
 				)
 			);
 		}
@@ -297,7 +297,7 @@ export class CDPSession extends EventEmitter {
 			callback.reject(
 				rewriteError(
 					callback.error,
-					`Protocol error (${callback.method}): Target closed.`
+					`Protocol error (${callback.method}): Target closed. https://www.remotion.dev/docs/target-closed`
 				)
 			);
 		}
