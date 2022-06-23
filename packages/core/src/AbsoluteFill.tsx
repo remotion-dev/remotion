@@ -1,5 +1,9 @@
 import React, {HTMLAttributes, useMemo} from 'react';
 
+/**
+ * An absolutely positioned <div> element with 100% width, height, and a column flex style
+ * @link https://www.remotion.dev/docs/absolute-fill
+ */
 export const AbsoluteFill: React.FC<HTMLAttributes<HTMLDivElement>> = (
 	props
 ) => {

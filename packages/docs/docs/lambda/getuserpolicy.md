@@ -11,11 +11,9 @@ See [Setup tutorial](/docs/lambda/setup) for setting up Lambda from scratch or [
 ## Example
 
 ```ts twoslash
-import {getUserPolicy} from '@remotion/lambda';
+import { getUserPolicy } from "@remotion/lambda";
 
-console.log(
-  getUserPolicy()
-); /* `
+console.log(getUserPolicy()); /* `
 {
   "Version": "2012-10-17",
   "Statements": [
@@ -27,5 +25,6 @@ console.log(
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/iam-validation/user-permissions.ts)
 - [getRolePolicy()](/docs/lambda/getrolepolicy)
 - [Permissions](/docs/lambda/permissions)

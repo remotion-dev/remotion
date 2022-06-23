@@ -1,6 +1,6 @@
 import React from 'react';
 import {getRemotionEnvironment} from '../get-environment';
-import {Sequence} from '../sequencing';
+import {Sequence} from '../Sequence';
 import {validateMediaProps} from '../validate-media-props';
 import {validateStartFromProps} from '../validate-start-from-props';
 import {OffthreadVideoForRendering} from './OffthreadVideoForRendering';

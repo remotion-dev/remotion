@@ -1,5 +1,5 @@
 import {useContext} from 'react';
-import {SequenceContext} from './sequencing';
+import {SequenceContext} from './Sequence';
 import {useTimelinePosition} from './timeline-position-state';
 
 export const useAbsoluteCurrentFrame = (): number => {

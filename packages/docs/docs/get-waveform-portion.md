@@ -59,5 +59,8 @@ console.log(waveformPortion.length); // 10
 
 The [`visualizeAudio()`](/docs/visualize-audio) function is more suitable for visualizing audio based on frequency properties of the audio (bass, mids, highs, etc).
 
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/get-waveform-portion.ts)
 - [Using audio](/docs/using-audio)
 - [`<Audio/>`](/docs/audio)

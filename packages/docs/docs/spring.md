@@ -86,5 +86,6 @@ This function was taken from [Reanimated 2](https://github.com/software-mansion/
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/spring/index.ts)
 - [interpolate()](/docs/interpolate)
 - [measureSpring()](/docs/measure-spring)
