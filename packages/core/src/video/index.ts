@@ -1,5 +1,6 @@
-export {OffthreadVideo, OffthreadVideoImageFormat} from './OffthreadVideo';
+export {OffthreadVideo} from './OffthreadVideo';
 export {
+	OffthreadVideoImageFormat,
 	OffthreadVideoProps as RemotionOffthreadVideoProps,
 	RemotionMainVideoProps,
 	RemotionVideoProps,
