@@ -718,7 +718,6 @@ importers:
       mime-types: 2.1.35
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
-      progress: 2.0.3
       react: 18.0.0
       react-dom: 18.0.0
       remotion: 3.0.21
@@ -730,7 +729,6 @@ importers:
       execa: 5.1.1
       extract-zip: 2.0.1
       mime-types: 2.1.35
-      progress: 2.0.3
       remotion: link:../core
       source-map: 0.8.0-beta.0
       ws: 8.7.0
@@ -16460,11 +16458,6 @@ packages:
 
   /process-nextick-args/2.0.1:
     resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}
-
-  /progress/2.0.3:
-    resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
-    engines: {node: '>=0.4.0'}
-    dev: false
 
   /promise-inflight/1.0.1:
     resolution: {integrity: sha1-mEcocL8igTL8vdhoEputEsPAKeM=}
