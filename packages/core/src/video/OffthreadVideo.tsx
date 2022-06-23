@@ -7,6 +7,8 @@ import {OffthreadVideoForRendering} from './OffthreadVideoForRendering';
 import {OffthreadVideoProps, RemotionMainVideoProps} from './props';
 import {VideoForDevelopment} from './VideoForDevelopment';
 
+export type OffthreadVideoImageFormat = 'png' | 'jpeg';
+
 export const OffthreadVideo: React.FC<
 	OffthreadVideoProps & RemotionMainVideoProps
 > = (props) => {

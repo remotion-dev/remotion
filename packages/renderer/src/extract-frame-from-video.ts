@@ -1,9 +1,10 @@
 import execa from 'execa';
-import {FfmpegExecutable, Internals} from 'remotion';
+import {FfmpegExecutable, Internals, OffthreadVideoImageFormat} from 'remotion';
 import {getAudioChannelsAndDuration} from './assets/get-audio-channels';
 import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
 import {isBeyondLastFrame, markAsBeyondLastFrame} from './is-beyond-last-frame';
+import {checkIfIsVp9Video} from './is-vp9-video';
 import {
 	getLastFrameFromCache,
 	LastFrameOptions,
@@ -20,10 +21,14 @@ const getLastFrameOfVideoSlow = async ({
 	src,
 	duration,
 	ffmpegExecutable,
+	imageFormat,
+	isVp9Video,
 }: {
 	ffmpegExecutable: FfmpegExecutable;
 	src: string;
 	duration: number;
+	imageFormat: OffthreadVideoImageFormat;
+	isVp9Video: boolean;
 }) => {
 	console.warn(
 		`\nUsing a slow method to determine the last frame of ${src}. The render can be sped up by re-encoding the video properly.`
@@ -33,14 +38,19 @@ const getLastFrameOfVideoSlow = async ({
 	const command = [
 		'-itsoffset',
 		actualOffset,
+		isVp9Video ? '-vcodec' : null,
+		isVp9Video ? 'libvpx-vp9' : null,
 		'-i',
 		src,
 		'-frames:v',
 		'1',
+		'-c:v',
+		imageFormat === 'jpeg' ? 'mjpeg' : 'png',
 		'-f',
 		'image2pipe',
 		'-',
-	];
+	].filter(Internals.truthy);
+
 	const {stdout, stderr} = execa(ffmpegExecutable ?? 'ffmpeg', command);
 
 	if (!stderr) {
@@ -103,22 +113,31 @@ const getLastFrameOfVideoFastUnlimited = async (
 			duration,
 			ffmpegExecutable,
 			src,
+			imageFormat: options.imageFormat,
+			isVp9Video: options.isVp9Video,
 		});
 		return last;
 	}
 
 	const actualOffset = `${duration * 1000 - offset - 10}ms`;
-	const {stdout, stderr} = execa(ffmpegExecutable ?? 'ffmpeg', [
-		'-ss',
-		actualOffset,
-		'-i',
-		src,
-		'-frames:v',
-		'1',
-		'-f',
-		'image2pipe',
-		'-',
-	]);
+	const {stdout, stderr} = execa(
+		ffmpegExecutable ?? 'ffmpeg',
+		[
+			'-ss',
+			actualOffset,
+			options.isVp9Video ? '-vcodec' : null,
+			options.isVp9Video ? 'libvpx-vp9' : null,
+			'-i',
+			src,
+			'-frames:v',
+			'1',
+			'-c:v',
+			options.imageFormat === 'jpeg' ? 'mjpeg' : 'png',
+			'-f',
+			'image2pipe',
+			'-',
+		].filter(Internals.truthy)
+	);
 
 	if (!stderr) {
 		throw new Error('unexpectedly did not get stderr');
@@ -160,6 +179,8 @@ const getLastFrameOfVideoFastUnlimited = async (
 			offset: offset + 10,
 			src,
 			ffprobeExecutable,
+			imageFormat: options.imageFormat,
+			isVp9Video: options.isVp9Video,
 		});
 
 		return unlimited;
@@ -185,6 +206,7 @@ type Options = {
 	src: string;
 	ffmpegExecutable: FfmpegExecutable;
 	ffprobeExecutable: FfmpegExecutable;
+	imageFormat: OffthreadVideoImageFormat;
 };
 
 const extractFrameFromVideoFn = async ({
@@ -192,8 +214,10 @@ const extractFrameFromVideoFn = async ({
 	src,
 	ffmpegExecutable,
 	ffprobeExecutable,
+	imageFormat,
 }: Options): Promise<Buffer> => {
 	await ensurePresentationTimestamps(src);
+	const isVp9Video = await checkIfIsVp9Video(src, ffprobeExecutable);
 
 	if (isBeyondLastFrame(src, time)) {
 		const lastFrame = await getLastFrameOfVideo({
@@ -201,6 +225,8 @@ const extractFrameFromVideoFn = async ({
 			ffprobeExecutable,
 			offset: 0,
 			src,
+			imageFormat,
+			isVp9Video,
 		});
 		return lastFrame;
 	}
@@ -217,6 +243,8 @@ const extractFrameFromVideoFn = async ({
 			'1',
 			'-f',
 			'image2pipe',
+			'-vcodec',
+			imageFormat === 'jpeg' ? 'mjpeg' : 'png',
 			'-',
 		],
 		{
@@ -261,6 +289,8 @@ const extractFrameFromVideoFn = async ({
 			ffprobeExecutable,
 			offset: 0,
 			src,
+			imageFormat,
+			isVp9Video,
 		});
 
 		return last;

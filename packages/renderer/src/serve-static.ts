@@ -31,6 +31,8 @@ export const serveStatic = async (
 		downloadDir: options.downloadDir,
 		onDownload: options.onDownload,
 		onError: options.onError,
+		// TODO
+		imageFormat: 'png',
 	});
 
 	try {

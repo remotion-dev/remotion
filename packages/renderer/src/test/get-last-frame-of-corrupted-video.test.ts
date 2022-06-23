@@ -15,5 +15,7 @@ test('Get last frame of corrupted video', async () => {
 			'public',
 			'corrupted.mp4'
 		),
+		imageFormat: 'png',
+		isVp9Video: false,
 	});
 }, 90000);

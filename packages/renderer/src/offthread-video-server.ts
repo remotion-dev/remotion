@@ -1,5 +1,5 @@
 import {RequestListener} from 'http';
-import {FfmpegExecutable} from 'remotion';
+import {FfmpegExecutable, OffthreadVideoImageFormat} from 'remotion';
 import {URLSearchParams} from 'url';
 import {
 	getSanitizedFilenameForAssetUrl,
@@ -38,12 +38,14 @@ export const startOffthreadVideoServer = ({
 	downloadDir,
 	onDownload,
 	onError,
+	imageFormat,
 }: {
 	ffmpegExecutable: FfmpegExecutable;
 	ffprobeExecutable: FfmpegExecutable;
 	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
+	imageFormat: OffthreadVideoImageFormat;
 }): RequestListener => {
 	return (req, res) => {
 		if (!req.url) {
@@ -57,7 +59,10 @@ export const startOffthreadVideoServer = ({
 		}
 
 		res.setHeader('access-control-allow-origin', '*');
-		res.setHeader('content-type', 'image/jpg');
+		res.setHeader(
+			'content-type',
+			`image/${imageFormat === 'jpeg' ? 'jpg' : 'png'}`
+		);
 
 		const {src, time} = extractUrlAndSourceFromUrl(req.url);
 
@@ -76,6 +81,7 @@ export const startOffthreadVideoServer = ({
 					src: to,
 					ffmpegExecutable,
 					ffprobeExecutable,
+					imageFormat,
 				});
 			})
 			.then((readable) => {
