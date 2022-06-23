@@ -1,13 +1,14 @@
 // OffthreadVideo requires sometimes that the last frame of a video gets extracted, however, this can be slow. We allocate a cache for it but that can be garbage collected
 
 import {FfmpegExecutable, OffthreadVideoImageFormat} from 'remotion';
+import {SpecialVCodecForTransparency} from './is-vp9-video';
 
 export type LastFrameOptions = {
 	ffmpegExecutable: FfmpegExecutable;
 	ffprobeExecutable: FfmpegExecutable;
 	offset: number;
 	src: string;
-	isVp9Video: boolean;
+	specialVCodecForTransparency: SpecialVCodecForTransparency;
 	imageFormat: OffthreadVideoImageFormat;
 };
 

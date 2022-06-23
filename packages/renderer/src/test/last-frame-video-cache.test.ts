@@ -13,7 +13,7 @@ const makeKey = (id: string): LastFrameOptions => {
 		offset: 10,
 		src: id,
 		imageFormat: 'jpeg',
-		isVp9Video: false,
+		specialVCodecForTransparency: 'none',
 	};
 };
 

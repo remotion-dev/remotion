@@ -16,6 +16,6 @@ test('Get last frame of corrupted video', async () => {
 			'corrupted.mp4'
 		),
 		imageFormat: 'png',
-		isVp9Video: false,
+		specialVCodecForTransparency: 'none',
 	});
 }, 90000);

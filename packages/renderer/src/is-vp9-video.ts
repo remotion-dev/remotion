@@ -2,30 +2,35 @@ import execa from 'execa';
 import {FfmpegExecutable} from 'remotion';
 import {pLimit} from './p-limit';
 
-const isVp9VideoCache: Record<string, boolean> = {};
+export type SpecialVCodecForTransparency = 'vp9' | 'vp8' | 'none';
+
+const isVp9VideoCache: Record<string, SpecialVCodecForTransparency> = {};
 
 const limit = pLimit(1);
 
-async function isVp9VideoUnlimited(
+async function getSpecialVCodecForTransparencyUnlimited(
 	src: string,
 	ffprobeExecutable: FfmpegExecutable
-): Promise<boolean> {
+): Promise<SpecialVCodecForTransparency> {
 	if (typeof isVp9VideoCache[src] !== 'undefined') {
 		return isVp9VideoCache[src];
 	}
 
 	const task = await execa(ffprobeExecutable ?? 'ffprobe', [src]);
 
-	const result = task.stderr.includes('Video: vp9');
+	const isVp9 = task.stderr.includes('Video: vp9');
+	const isVp8 = task.stderr.includes('Video: vp8');
 
-	isVp9VideoCache[src] = result;
+	isVp9VideoCache[src] = isVp9 ? 'vp9' : isVp8 ? 'vp8' : 'none';
 
-	return result;
+	return isVp9VideoCache[src];
 }
 
-export const checkIfIsVp9Video = (
+export const getSpecialVCodecForTransparency = (
 	src: string,
 	ffprobeExecutable: FfmpegExecutable
-): Promise<boolean> => {
-	return limit(() => isVp9VideoUnlimited(src, ffprobeExecutable));
+): Promise<SpecialVCodecForTransparency> => {
+	return limit(() =>
+		getSpecialVCodecForTransparencyUnlimited(src, ffprobeExecutable)
+	);
 };
