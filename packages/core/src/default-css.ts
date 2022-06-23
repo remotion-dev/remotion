@@ -34,9 +34,9 @@ export const makeDefaultCSS = (
       margin: 0;
 	    background-color: ${backgroundColor};
     }
-		.${OFFTHREAD_VIDEO_CLASS_NAME} {
-			object-fit: contain;
-		}
+    .${OFFTHREAD_VIDEO_CLASS_NAME} {
+      object-fit: contain;
+    }
     `;
 	}
 
@@ -48,8 +48,8 @@ export const makeDefaultCSS = (
       width: 100%;
       height: 100%;
     }
-		${scope} .${OFFTHREAD_VIDEO_CLASS_NAME} {
-			object-fit: contain;
-		}
+    ${scope} .${OFFTHREAD_VIDEO_CLASS_NAME} {
+      object-fit: contain;
+    }
   `;
 };
