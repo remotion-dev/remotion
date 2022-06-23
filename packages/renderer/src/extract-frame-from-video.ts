@@ -237,6 +237,8 @@ const extractFrameFromVideoFn = async ({
 		[
 			'-ss',
 			ffmpegTimestamp,
+			isVp9Video ? '-vcodec' : null,
+			isVp9Video ? 'libvpx-vp9' : null,
 			'-i',
 			src,
 			'-frames:v',
@@ -246,7 +248,7 @@ const extractFrameFromVideoFn = async ({
 			'-vcodec',
 			imageFormat === 'jpeg' ? 'mjpeg' : 'png',
 			'-',
-		],
+		].filter(Internals.truthy),
 		{
 			buffer: false,
 		}
