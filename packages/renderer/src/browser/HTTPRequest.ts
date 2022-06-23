@@ -17,65 +17,22 @@ import type {Protocol} from 'devtools-protocol';
 import {Frame} from './FrameManager';
 import {HTTPResponse} from './HTTPResponse';
 
-type ResourceType = Lowercase<Protocol.Network.ResourceType>;
-
 export class HTTPRequest {
 	_requestId: string;
-	_failureText: string | null = null;
 	_response: HTTPResponse | null = null;
 	_fromMemoryCache = false;
-	_redirectChain: HTTPRequest[];
 
 	#isNavigationRequest: boolean;
-	#url: string;
-	#resourceType: ResourceType;
-
-	#method: string;
-	#postData?: string;
-	#headers: Record<string, string> = {};
 	#frame: Frame | null;
-
-	#initiator: Protocol.Network.Initiator;
 
 	constructor(
 		frame: Frame | null,
-		event: Protocol.Network.RequestWillBeSentEvent,
-		redirectChain: HTTPRequest[]
+		event: Protocol.Network.RequestWillBeSentEvent
 	) {
 		this._requestId = event.requestId;
 		this.#isNavigationRequest =
 			event.requestId === event.loaderId && event.type === 'Document';
-		this.#url = event.request.url;
-		this.#resourceType = (event.type || 'other').toLowerCase() as ResourceType;
-		this.#method = event.request.method;
-		this.#postData = event.request.postData;
 		this.#frame = frame;
-		this._redirectChain = redirectChain;
-		this.#initiator = event.initiator;
-
-		for (const [key, value] of Object.entries(event.request.headers)) {
-			this.#headers[key.toLowerCase()] = value;
-		}
-	}
-
-	url(): string {
-		return this.#url;
-	}
-
-	resourceType(): ResourceType {
-		return this.#resourceType;
-	}
-
-	method(): string {
-		return this.#method;
-	}
-
-	postData(): string | undefined {
-		return this.#postData;
-	}
-
-	headers(): Record<string, string> {
-		return this.#headers;
 	}
 
 	response(): HTTPResponse | null {
@@ -88,23 +45,5 @@ export class HTTPRequest {
 
 	isNavigationRequest(): boolean {
 		return this.#isNavigationRequest;
-	}
-
-	initiator(): Protocol.Network.Initiator {
-		return this.#initiator;
-	}
-
-	redirectChain(): HTTPRequest[] {
-		return this._redirectChain.slice();
-	}
-
-	failure(): {errorText: string} | null {
-		if (!this._failureText) {
-			return null;
-		}
-
-		return {
-			errorText: this._failureText,
-		};
 	}
 }
