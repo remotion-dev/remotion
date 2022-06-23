@@ -34,6 +34,7 @@ A more sophisticated way of embedding a video, which:
 
 ✅ &nbsp; More videos can be displayed simulatenously as Chrome will not apply throttling  
 ✅ &nbsp; No flickers or duplicate frames in the output video can occur.
+✅ &nbsp; Supports more codecs such as ProRes (only during render-time)
 
 **Cons**
 
