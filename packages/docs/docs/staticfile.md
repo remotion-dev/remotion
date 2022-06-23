@@ -63,4 +63,5 @@ If you are a Create React App or Next.JS user, you might be used to just to be a
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/static-file.ts)
 - [Loading assets](/docs/assets)

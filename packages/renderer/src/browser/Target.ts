@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Protocol} from 'devtools-protocol';
+import type {Protocol} from 'devtools-protocol';
 import {Browser, BrowserContext} from './Browser';
 import {CDPSession} from './Connection';
 import {Page} from './Page';

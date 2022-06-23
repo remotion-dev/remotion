@@ -4,8 +4,8 @@ import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from '../audio/use-audio-frame';
-import {SequenceContext, SequenceContextType} from '../sequencing';
-import * as useFrameModule from '../use-frame';
+import {SequenceContext, SequenceContextType} from '../Sequence';
+import * as useFrameModule from '../use-current-frame';
 import {renderHook} from './render-hook';
 
 test('Media starts at 0 if it is outside a sequence', () => {

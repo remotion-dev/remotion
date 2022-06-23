@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {Protocol} from 'devtools-protocol';
-import {ProtocolMapping} from 'devtools-protocol/types/protocol-mapping';
+import type {Protocol} from 'devtools-protocol';
+import type {ProtocolMapping} from 'devtools-protocol/types/protocol-mapping';
 import {assert} from './assert';
 import {EventEmitter} from './EventEmitter';
 import {Frame} from './FrameManager';
@@ -182,7 +182,6 @@ export class NetworkManager extends EventEmitter {
 		event: Protocol.Network.RequestWillBeSentEvent,
 		fetchRequestId?: FetchRequestId
 	): void {
-		let redirectChain: HTTPRequest[] = [];
 		if (event.redirectResponse) {
 			// We want to emit a response and requestfinished for the
 			// redirectResponse, but we can't do so unless we have a
@@ -214,7 +213,6 @@ export class NetworkManager extends EventEmitter {
 					event.redirectResponse,
 					redirectResponseExtraInfo
 				);
-				redirectChain = _request._redirectChain;
 			}
 		}
 
@@ -222,7 +220,7 @@ export class NetworkManager extends EventEmitter {
 			? this.#frameManager.frame(event.frameId)
 			: null;
 
-		const request = new HTTPRequest(frame, event, redirectChain);
+		const request = new HTTPRequest(frame, event);
 		this.#networkEventManager.storeRequest(event.requestId, request);
 		this.emit(NetworkManagerEmittedEvents.Request, request);
 	}
@@ -241,14 +239,8 @@ export class NetworkManager extends EventEmitter {
 		responsePayload: Protocol.Network.Response,
 		extraInfo: Protocol.Network.ResponseReceivedExtraInfoEvent | null
 	): void {
-		const response = new HTTPResponse(
-			this.#client,
-			request,
-			responsePayload,
-			extraInfo
-		);
+		const response = new HTTPResponse(responsePayload, extraInfo);
 		request._response = response;
-		request._redirectChain.push(request);
 		response._resolveBody(
 			new Error('Response body is unavailable for redirect responses')
 		);
@@ -279,12 +271,7 @@ export class NetworkManager extends EventEmitter {
 			);
 		}
 
-		const response = new HTTPResponse(
-			this.#client,
-			request,
-			responseReceived.response,
-			extraInfo
-		);
+		const response = new HTTPResponse(responseReceived.response, extraInfo);
 		request._response = response;
 	}
 
@@ -406,7 +393,6 @@ export class NetworkManager extends EventEmitter {
 			return;
 		}
 
-		request._failureText = event.errorText;
 		const response = request.response();
 		if (response) {
 			response._resolveBody(null);

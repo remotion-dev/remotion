@@ -83,5 +83,6 @@ An object with the following values:
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/deploy-function.ts)
 - [deleteFunction()](/docs/lambda/deletefunction)
 - [getFunctions()](/docs/lambda/getfunctions)

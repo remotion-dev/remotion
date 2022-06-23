@@ -1,5 +1,5 @@
 import {Children, FC, PropsWithChildren, useMemo} from 'react';
-import {Sequence, SequenceProps} from '../sequencing';
+import {Sequence, SequenceProps} from '../Sequence';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames';
 import {flattenChildren} from './flatten-children';
 

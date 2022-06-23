@@ -53,4 +53,5 @@ will create a tree structure in the sidebar that looks like this:
 
 ## See also
 
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Folder.tsx)
 - [`<Composition />`](/docs/composition)

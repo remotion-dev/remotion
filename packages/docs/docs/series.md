@@ -66,4 +66,5 @@ This component is a high order component, and accepts, besides it's children, th
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/series/index.tsx)
 - [`<Sequence />`](/docs/sequence)

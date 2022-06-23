@@ -16,8 +16,7 @@
  * limitations under the License.
  */
 
-import {Protocol} from 'devtools-protocol';
-import {assert} from './assert';
+import type {Protocol} from 'devtools-protocol';
 import {CDPSession} from './Connection';
 import {DOMWorld} from './DOMWorld';
 import {EvaluateHandleFn, SerializableOrJSHandle} from './EvalTypes';
@@ -230,29 +229,5 @@ export class ExecutionContext {
 
 			throw error;
 		}
-	}
-
-	async _adoptBackendNodeId(
-		backendNodeId?: Protocol.DOM.BackendNodeId
-	): Promise<ElementHandle> {
-		const {object} = await this._client.send('DOM.resolveNode', {
-			backendNodeId,
-			executionContextId: this._contextId,
-		});
-		return _createJSHandle(this, object) as ElementHandle;
-	}
-
-	async _adoptElementHandle(
-		elementHandle: ElementHandle
-	): Promise<ElementHandle> {
-		assert(
-			elementHandle.executionContext() !== this,
-			'Cannot adopt handle that already belongs to this execution context'
-		);
-		assert(this._world, 'Cannot adopt handle without DOMWorld');
-		const nodeInfo = await this._client.send('DOM.describeNode', {
-			objectId: elementHandle._remoteObject.objectId,
-		});
-		return this._adoptBackendNodeId(nodeInfo.node.backendNodeId);
 	}
 }

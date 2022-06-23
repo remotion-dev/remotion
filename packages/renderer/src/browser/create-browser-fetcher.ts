@@ -15,7 +15,6 @@
  */
 
 import https, {RequestOptions} from 'https';
-import ProgressBar from 'progress';
 import {puppeteer} from './node';
 import {Product} from './Product';
 import {PUPPETEER_REVISIONS} from './revisions';
@@ -84,26 +83,12 @@ export async function downloadBrowser(product: Product): Promise<void> {
 			process.exit(1);
 		}
 
-		let progressBar: ProgressBar | null = null;
-		let lastDownloadedBytes = 0;
 		function onProgress(downloadedBytes: number, totalBytes: number) {
-			if (!progressBar) {
-				progressBar = new ProgressBar(
-					`Downloading ${
-						supportedProducts[product]
-					} r${_revision} - ${toMegabytes(totalBytes)} [:bar] :percent :etas `,
-					{
-						complete: '=',
-						incomplete: ' ',
-						width: 20,
-						total: totalBytes,
-					}
-				);
-			}
-
-			const delta = downloadedBytes - lastDownloadedBytes;
-			lastDownloadedBytes = downloadedBytes;
-			progressBar.tick(delta);
+			console.log(
+				'Downloading',
+				supportedProducts[product],
+				toMegabytes(downloadedBytes) + '/' + toMegabytes(totalBytes)
+			);
 		}
 
 		return browserFetcher

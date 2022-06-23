@@ -1,4 +1,4 @@
-import {Protocol} from 'devtools-protocol';
+import type {Protocol} from 'devtools-protocol';
 import {HTTPRequest} from './HTTPRequest';
 
 type QueuedEventGroup = {

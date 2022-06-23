@@ -16,11 +16,17 @@
 import {promises as dns} from 'dns';
 import {URL} from 'url';
 import NodeWebSocket from 'ws';
-import {ConnectionTransport} from './ConnectionTransport';
+
+interface ConnectionTransport {
+	send(message: string): void;
+	close(): void;
+	onmessage?: (message: string) => void;
+	onclose?: () => void;
+}
 
 export class NodeWebSocketTransport implements ConnectionTransport {
 	static async create(urlString: string): Promise<NodeWebSocketTransport> {
-		// TODO(jrandolf): Starting in Node 17, IPv6 is favoured over IPv4 due to a change
+		// Starting in Node 17, IPv6 is favoured over IPv4 due to a change
 		// in a default option:
 		// - https://github.com/nodejs/node/issues/40537,
 		// Due to this, for Firefox, we must parse and resolve the `localhost` hostname
@@ -51,14 +57,14 @@ export class NodeWebSocketTransport implements ConnectionTransport {
 	}
 
 	#ws: NodeWebSocket;
-	onmessage?: (message: NodeWebSocket.Data) => void;
+	onmessage?: (message: string) => void;
 	onclose?: () => void;
 
 	constructor(ws: NodeWebSocket) {
 		this.#ws = ws;
 		this.#ws.addEventListener('message', (event) => {
 			if (this.onmessage) {
-				this.onmessage.call(null, event.data);
+				this.onmessage.call(null, event.data as string);
 			}
 		});
 		this.#ws.addEventListener('close', () => {

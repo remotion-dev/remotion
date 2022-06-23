@@ -426,7 +426,8 @@ function _downloadFile(
 	let downloadedBytes = 0;
 	let totalBytes = 0;
 
-	console.log({url});
+	let lastProgress = Date.now();
+
 	const request = httpRequest(url, 'GET', (response) => {
 		if (response.statusCode !== 200) {
 			const error = new Error(
@@ -456,7 +457,10 @@ function _downloadFile(
 
 	function onData(chunk: string): void {
 		downloadedBytes += chunk.length;
-		progressCallback(downloadedBytes, totalBytes);
+		if (Date.now() - lastProgress > 1000) {
+			progressCallback(downloadedBytes, totalBytes);
+			lastProgress = Date.now();
+		}
 	}
 }
 

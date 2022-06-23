@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Protocol} from 'devtools-protocol';
+import type {Protocol} from 'devtools-protocol';
 import {CDPSession} from './Connection';
 import {EvaluateHandleFn, SerializableOrJSHandle} from './EvalTypes';
 import {ExecutionContext} from './ExecutionContext';

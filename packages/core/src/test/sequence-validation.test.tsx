@@ -1,5 +1,5 @@
 import {render} from '@testing-library/react';
-import {Sequence} from '../sequencing';
+import {Sequence} from '../Sequence';
 import {expectToThrow} from './expect-to-throw';
 
 describe('Composition-validation render should throw with invalid props', () => {
