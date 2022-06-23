@@ -34,8 +34,8 @@ const innerGetCompositions = async (
 		page.on('console', (log) => {
 			config.onBrowserLog?.({
 				stackTrace: log.stackTrace(),
-				text: log.text(),
-				type: log.type(),
+				text: log.text,
+				type: log.type,
 			});
 		});
 	}
