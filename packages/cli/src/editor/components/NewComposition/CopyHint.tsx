@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {ProjectInfo} from '../../../preview-server/project-info';
+import type {ProjectInfo} from '../../../preview-server/project-info';
 import {LIGHT_TEXT} from '../../helpers/colors';
 
 const style: React.CSSProperties = {

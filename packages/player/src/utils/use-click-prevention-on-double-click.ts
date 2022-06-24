@@ -1,4 +1,5 @@
-import {SyntheticEvent, useCallback, useMemo} from 'react';
+import type {SyntheticEvent} from 'react';
+import { useCallback, useMemo} from 'react';
 import {cancellablePromise} from './cancellable-promise';
 import {delay} from './delay';
 import {useCancellablePromises} from './use-cancellable-promises';

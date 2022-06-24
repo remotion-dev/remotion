@@ -1,4 +1,4 @@
-import {TSequence} from 'remotion';
+import type {TSequence} from 'remotion';
 
 export const getTimelineNestedLevel = (
 	sequence: TSequence,

@@ -1,8 +1,9 @@
+import type {
+	RenderMediaOnDownload} from '@remotion/renderer';
 import {
 	getCompositions,
 	openBrowser,
 	RenderInternals,
-	RenderMediaOnDownload,
 	renderStill,
 } from '@remotion/renderer';
 import chalk from 'chalk';
@@ -14,13 +15,14 @@ import {getCompositionId} from './get-composition-id';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
+import type {
+	DownloadProgress} from './progress-bar';
 import {
 	createOverwriteableCliOutput,
-	DownloadProgress,
 	makeRenderingAndStitchingProgress,
 } from './progress-bar';
 import {bundleOnCli} from './setup-cache';
-import {RenderStep} from './step';
+import type {RenderStep} from './step';
 import {getUserPassedOutputLocation} from './user-passed-output-location';
 
 export const still = async () => {

@@ -1,4 +1,4 @@
-import {ComponentType} from 'react';
+import type {ComponentType} from 'react';
 import {Composition} from 'remotion';
 import {Player} from '../index';
 import {HelloWorld, render} from './test-utils';

@@ -1,4 +1,4 @@
-import {Codec} from 'remotion';
+import type {Codec} from 'remotion';
 
 export const validateOutputFilename = (
 	codec: Codec,

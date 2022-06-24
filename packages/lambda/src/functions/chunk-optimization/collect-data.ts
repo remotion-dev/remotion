@@ -1,8 +1,8 @@
-import {AwsRegion} from '../../pricing/aws-regions';
+import type {AwsRegion} from '../../pricing/aws-regions';
 import {lambdaTimingsPrefix} from '../../shared/constants';
 import {streamToString} from '../../shared/stream-to-string';
 import {lambdaLs, lambdaReadFile} from '../helpers/io';
-import {ChunkTimingData} from './types';
+import type {ChunkTimingData} from './types';
 
 export const collectChunkInformation = async ({
 	bucketName,

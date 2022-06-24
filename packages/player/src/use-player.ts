@@ -1,7 +1,8 @@
-import {SyntheticEvent, useCallback, useContext, useMemo, useRef} from 'react';
+import type {SyntheticEvent} from 'react';
+import { useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context';
-import {PlayerEmitter} from './event-emitter';
+import type {PlayerEmitter} from './event-emitter';
 
 export const usePlayer = (): {
 	frameBack: (frames: number) => void;

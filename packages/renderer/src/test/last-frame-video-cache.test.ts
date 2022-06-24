@@ -1,8 +1,9 @@
 import crypto from 'crypto';
+import type {
+	LastFrameOptions} from '../last-frame-from-video-cache';
 import {
 	clearLastFileCache,
 	getLastFrameFromCache,
-	LastFrameOptions,
 	setLastFrameInCache,
 } from '../last-frame-from-video-cache';
 

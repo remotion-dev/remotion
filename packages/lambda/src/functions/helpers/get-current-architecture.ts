@@ -1,5 +1,5 @@
 import {isInsideLambda} from '../../shared/is-in-lambda';
-import {LambdaArchitecture} from '../../shared/validate-architecture';
+import type {LambdaArchitecture} from '../../shared/validate-architecture';
 
 export const getCurrentArchitecture = (): LambdaArchitecture => {
 	if (!isInsideLambda()) {

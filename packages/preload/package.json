@@ -20,7 +20,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.259",
+		"@jonny/eslint-config": "3.0.266",
 		"eslint": "8.13.0",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^2.3.4",

@@ -1,9 +1,9 @@
 import React from 'react';
 import {noop} from '../../helpers/noop';
 import {HigherZIndex} from '../../state/z-index';
-import {SubMenu} from '../NewComposition/ComboBox';
+import type {SubMenu} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';
-import {SubMenuActivated} from './MenuSubItem';
+import type {SubMenuActivated} from './MenuSubItem';
 
 export const SubMenuComponent: React.FC<{
 	portalStyle: React.CSSProperties;

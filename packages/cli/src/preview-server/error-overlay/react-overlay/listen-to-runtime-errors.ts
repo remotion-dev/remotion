@@ -24,7 +24,7 @@ import {
 	unregister as unregisterPromise,
 } from './effects/unhandled-rejection';
 import {getStackFrames} from './utils/get-stack-frames';
-import {SymbolicatedStackFrame} from './utils/stack-frame';
+import type {SymbolicatedStackFrame} from './utils/stack-frame';
 
 export type ErrorRecord = {
 	error: Error;

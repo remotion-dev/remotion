@@ -1,7 +1,7 @@
 import {existsSync} from 'fs';
 import path from 'path';
-import {FfmpegExecutable} from 'remotion';
-import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import type {FfmpegExecutable} from 'remotion';
+import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {isServeUrl} from './is-serve-url';
 import {serveStatic} from './serve-static';
 

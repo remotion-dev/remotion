@@ -1,5 +1,5 @@
-import {SymbolicatedStackFrame} from '../utils/stack-frame';
-import {ErrorLocation} from './map-error-to-react-stack';
+import type {SymbolicatedStackFrame} from '../utils/stack-frame';
+import type {ErrorLocation} from './map-error-to-react-stack';
 
 export const resolveFileSource = async (
 	location: ErrorLocation,
