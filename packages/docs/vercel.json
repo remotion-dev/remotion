@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/changelog",
+      "destination": "https://github.com/remotion-dev/remotion/releases",
+      "permanent": false
+    }
+  ]
+}
