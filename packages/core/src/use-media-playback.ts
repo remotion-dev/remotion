@@ -1,4 +1,5 @@
-import {RefObject, useContext, useEffect} from 'react';
+import type {RefObject} from 'react';
+import { useContext, useEffect} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error';
 import {TimelineContext, usePlayingState} from './timeline-position-state';

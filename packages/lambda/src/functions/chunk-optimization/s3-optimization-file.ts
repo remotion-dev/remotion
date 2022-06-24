@@ -1,8 +1,8 @@
-import {AwsRegion} from '../../pricing/aws-regions';
+import type {AwsRegion} from '../../pricing/aws-regions';
 import {optimizationProfile} from '../../shared/constants';
 import {streamToString} from '../../shared/stream-to-string';
 import {lambdaLs, lambdaReadFile, lambdaWriteFile} from '../helpers/io';
-import {OptimizationProfile} from './types';
+import type {OptimizationProfile} from './types';
 
 export const writeOptimization = async ({
 	bucketName,

@@ -1,6 +1,7 @@
 import semver from 'semver';
 import {getLatestRemotionVersion} from '../get-latest-remotion-version';
-import {getPackageManager, PackageManager} from './get-package-manager';
+import type { PackageManager} from './get-package-manager';
+import {getPackageManager} from './get-package-manager';
 
 type Info = {
 	currentVersion: string;

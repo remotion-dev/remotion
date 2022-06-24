@@ -1,5 +1,5 @@
 import './asset-types';
-import {TAsset, TCompMetadata} from './CompositionManager';
+import type {TAsset, TCompMetadata} from './CompositionManager';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning';
 
 declare global {

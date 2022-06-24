@@ -1,5 +1,5 @@
 import {sortProfileByDuration} from './sort-by-duration';
-import {TimingProfile} from './types';
+import type {TimingProfile} from './types';
 
 export const optimizeInvocationOrder = (
 	profile: TimingProfile

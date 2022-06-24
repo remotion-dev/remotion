@@ -1,8 +1,9 @@
+import type {
+	LambdaPayload,
+	LambdaVersions} from '../shared/constants';
 import {
 	CURRENT_VERSION,
-	LambdaPayload,
-	LambdaRoutines,
-	LambdaVersions,
+	LambdaRoutines
 } from '../shared/constants';
 
 export const infoHandler = (lambdaParams: LambdaPayload) => {

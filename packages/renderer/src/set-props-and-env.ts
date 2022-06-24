@@ -1,4 +1,4 @@
-import {Page} from 'puppeteer-core';
+import type {Page} from 'puppeteer-core';
 import {Internals} from 'remotion';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';

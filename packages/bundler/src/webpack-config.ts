@@ -1,7 +1,8 @@
 import ReactDOM from 'react-dom';
-import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
+import type {WebpackConfiguration, WebpackOverrideFn} from 'remotion';
+import {Internals} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
-import {LoaderOptions} from './esbuild-loader/interfaces';
+import type {LoaderOptions} from './esbuild-loader/interfaces';
 import {ReactFreshWebpackPlugin} from './fast-refresh';
 import {getWebpackCacheName} from './webpack-cache';
 import esbuild = require('esbuild');

@@ -1,4 +1,4 @@
-import {ErrorWithStackFrame, SymbolicatedStackFrame} from '@remotion/renderer';
+import type {ErrorWithStackFrame, SymbolicatedStackFrame} from '@remotion/renderer';
 import chalk from 'chalk';
 import {Internals} from 'remotion';
 import {Log} from './log';

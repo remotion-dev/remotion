@@ -1,5 +1,5 @@
 import React from 'react';
-import {ScriptLine} from '../react-overlay/utils/stack-frame';
+import type {ScriptLine} from '../react-overlay/utils/stack-frame';
 
 const frame: React.CSSProperties = {
 	backgroundColor: '#070707',

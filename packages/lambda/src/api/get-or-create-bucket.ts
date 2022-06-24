@@ -1,4 +1,4 @@
-import {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../pricing/aws-regions';
 import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
 import {randomHash} from '../shared/random-hash';
 import {createBucket} from './create-bucket';

@@ -1,4 +1,4 @@
-import {RenderMetadata} from '../../defaults';
+import type {RenderMetadata} from '../../defaults';
 
 export const getTimeToFinish = ({
 	renderMetadata,

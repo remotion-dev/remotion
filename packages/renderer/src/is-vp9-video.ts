@@ -1,5 +1,5 @@
 import execa from 'execa';
-import {FfmpegExecutable} from 'remotion';
+import type {FfmpegExecutable} from 'remotion';
 import {pLimit} from './p-limit';
 
 export type SpecialVCodecForTransparency = 'vp9' | 'vp8' | 'none';

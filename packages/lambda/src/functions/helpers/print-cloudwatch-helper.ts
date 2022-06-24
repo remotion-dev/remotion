@@ -1,4 +1,4 @@
-import {LambdaRoutines} from '../../defaults';
+import type {LambdaRoutines} from '../../defaults';
 
 export const printCloudwatchHelper = (
 	type: LambdaRoutines,

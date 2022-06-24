@@ -4,15 +4,16 @@
  * and rewritten in TypeScript. This file is MIT licensed
  */
 
-import {webpack} from '@remotion/bundler';
-import {IncomingMessage, ServerResponse} from 'http';
+import type {webpack} from '@remotion/bundler';
+import type {IncomingMessage, ServerResponse} from 'http';
 import {parse} from 'url';
 import {Log} from '../../log';
-import {
+import type {
 	HotMiddlewareMessage,
-	hotMiddlewareOptions,
 	ModuleMap,
-	WebpackStats,
+	WebpackStats} from './types';
+import {
+	hotMiddlewareOptions
 } from './types';
 
 const pathMatch = function (url: string, path: string) {

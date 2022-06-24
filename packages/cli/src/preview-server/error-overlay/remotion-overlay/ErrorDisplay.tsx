@@ -1,6 +1,6 @@
 import React, {useMemo} from 'react';
 import {getLocationFromBuildError} from '../react-overlay/effects/map-error-to-react-stack';
-import {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
+import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {AskOnDiscord} from './AskOnDiscord';
 import {ErrorTitle} from './ErrorTitle';
 import {OpenInEditor} from './OpenInEditor';

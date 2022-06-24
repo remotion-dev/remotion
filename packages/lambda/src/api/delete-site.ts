@@ -1,6 +1,6 @@
 import {getSitesKey} from '../defaults';
 import {lambdaLs} from '../functions/helpers/io';
-import {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../pricing/aws-regions';
 import {getAccountId} from '../shared/get-account-id';
 import {cleanItems} from './clean-items';
 

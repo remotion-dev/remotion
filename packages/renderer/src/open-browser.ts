@@ -2,7 +2,8 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import puppeteer from 'puppeteer-core';
-import {Browser, Internals} from 'remotion';
+import type {Browser} from 'remotion';
+import { Internals} from 'remotion';
 import {
 	ensureLocalBrowser,
 	getLocalBrowserExecutable,
