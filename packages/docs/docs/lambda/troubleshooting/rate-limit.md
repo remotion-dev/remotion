@@ -45,4 +45,4 @@ npx remotion lambda quotas increase
 
 ## Unhelpful?
 
-Contact the Remotion team, preferrably via [Discord](https://discord.gg/6VzzNDwUwV) and we will be happy to help you with your rate limit problem.
+Contact the Remotion team, preferrably via [Discord](https://remotion.dev/discord) and we will be happy to help you with your rate limit problem.
