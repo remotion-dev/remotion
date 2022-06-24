@@ -1,4 +1,4 @@
-import {TSequence} from 'remotion';
+import type {TSequence} from 'remotion';
 import {calculateTimeline} from '../editor/helpers/calculate-timeline';
 
 test('Should calculate sequences correctly', () => {

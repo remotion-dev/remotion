@@ -1,5 +1,5 @@
-import {_Object} from '@aws-sdk/client-s3';
-import {CleanupInfo} from '../../shared/constants';
+import type {_Object} from '@aws-sdk/client-s3';
+import type {CleanupInfo} from '../../shared/constants';
 import {getFilesToDelete} from './get-files-to-delete';
 
 export const getCleanupProgress = ({

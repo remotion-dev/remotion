@@ -1,10 +1,10 @@
-import {Browser, Page} from 'puppeteer-core';
-import {BrowserExecutable, FfmpegExecutable, TCompMetadata} from 'remotion';
-import {BrowserLog} from './browser-log';
+import type {Browser, Page} from 'puppeteer-core';
+import type {BrowserExecutable, FfmpegExecutable, TCompMetadata} from 'remotion';
+import type {BrowserLog} from './browser-log';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
-import {ChromiumOptions} from './open-browser';
+import type {ChromiumOptions} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {setPropsAndEnv} from './set-props-and-env';

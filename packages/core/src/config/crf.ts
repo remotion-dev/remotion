@@ -1,5 +1,5 @@
 import {isAudioCodec} from '../is-audio-codec';
-import {Codec} from './codec';
+import type {Codec} from './codec';
 
 type Crf = number | undefined;
 

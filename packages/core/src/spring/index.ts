@@ -1,4 +1,5 @@
-import {springCalculation, SpringConfig} from './spring-utils';
+import type { SpringConfig} from './spring-utils';
+import {springCalculation} from './spring-utils';
 
 /**
  * Calculates a position based on physical parameters, start and end value, and time.

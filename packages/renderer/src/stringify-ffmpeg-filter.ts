@@ -1,7 +1,7 @@
 import {Internals} from 'remotion';
 import {calculateATempo} from './assets/calculate-atempo';
 import {ffmpegVolumeExpression} from './assets/ffmpeg-volume-expression';
-import {AssetVolume} from './assets/types';
+import type {AssetVolume} from './assets/types';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 export const stringifyFfmpegFilter = ({

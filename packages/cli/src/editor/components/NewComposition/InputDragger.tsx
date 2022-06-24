@@ -1,7 +1,8 @@
-import React, {
+import type {
 	InputHTMLAttributes,
 	MouseEventHandler,
-	PointerEventHandler,
+	PointerEventHandler} from 'react';
+import React, {
 	useCallback,
 	useEffect,
 	useMemo,

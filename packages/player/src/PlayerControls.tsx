@@ -1,5 +1,6 @@
+import type {
+	MouseEventHandler} from 'react';
 import React, {
-	MouseEventHandler,
 	useEffect,
 	useMemo,
 	useRef,
@@ -10,7 +11,7 @@ import {formatTime} from './format-time';
 import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
 import {MediaVolumeSlider} from './MediaVolumeSlider';
 import {PlayerSeekBar} from './PlayerSeekBar';
-import {usePlayer} from './use-player';
+import type {usePlayer} from './use-player';
 
 const containerStyle: React.CSSProperties = {
 	boxSizing: 'border-box',

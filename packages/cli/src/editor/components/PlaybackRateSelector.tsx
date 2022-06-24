@@ -2,7 +2,8 @@ import React, {useMemo} from 'react';
 import {Checkmark} from '../icons/Checkmark';
 import {persistPlaybackRate} from '../state/playbackrate';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';
-import {Combobox, ComboboxValue} from './NewComposition/ComboBox';
+import type { ComboboxValue} from './NewComposition/ComboBox';
+import {Combobox} from './NewComposition/ComboBox';
 
 export const commonPlaybackRates: number[] = [
 	-4, -2, -1, -0.5, -0.25, 0.25, 0.5, 1, 2, 4,

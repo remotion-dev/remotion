@@ -1,5 +1,6 @@
 import {render} from '@testing-library/react';
-import React, {ComponentType, useContext} from 'react';
+import type {ComponentType} from 'react';
+import React, { useContext} from 'react';
 import {Audio} from '../audio';
 import {Internals} from '../internals';
 

@@ -1,11 +1,11 @@
 import {RenderInternals} from '@remotion/renderer';
-import {ReadStream} from 'fs';
-import {IncomingMessage, ServerResponse} from 'http';
+import type {ReadStream} from 'fs';
+import type {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';
 import {send, setHeaderForResponse} from './compatible-api';
 import {parseRange} from './range-parser';
 import {ready} from './ready';
-import {DevMiddlewareContext} from './types';
+import type {DevMiddlewareContext} from './types';
 // eslint-disable-next-line no-restricted-imports
 import querystring from 'querystring';
 import {parse} from 'url';

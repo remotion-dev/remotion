@@ -1,7 +1,7 @@
 import {HeadObjectCommand} from '@aws-sdk/client-s3';
-import {AwsRegion} from '../..';
+import type {AwsRegion} from '../..';
 import {getS3Client} from '../../shared/aws-clients';
-import {RenderMetadata} from '../../shared/constants';
+import type {RenderMetadata} from '../../shared/constants';
 import {getExpectedOutName} from './expected-out-name';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
 

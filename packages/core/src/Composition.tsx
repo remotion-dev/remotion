@@ -1,4 +1,5 @@
-import React, {ComponentType, Suspense, useContext, useEffect} from 'react';
+import type {ComponentType} from 'react';
+import React, { Suspense, useContext, useEffect} from 'react';
 import {createPortal} from 'react-dom';
 import {CompositionManager} from './CompositionManager';
 import {getInputProps} from './config/input-props';

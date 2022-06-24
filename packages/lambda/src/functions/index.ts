@@ -1,10 +1,11 @@
 import {Internals} from 'remotion';
+import type {
+	LambdaPayload} from '../shared/constants';
 import {
 	COMMAND_NOT_FOUND,
-	LambdaPayload,
 	LambdaRoutines,
 } from '../shared/constants';
-import {LambdaReturnValues} from '../shared/return-values';
+import type {LambdaReturnValues} from '../shared/return-values';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getWarm, setWarm} from './helpers/is-warm';
 import {printCloudwatchHelper} from './helpers/print-cloudwatch-helper';

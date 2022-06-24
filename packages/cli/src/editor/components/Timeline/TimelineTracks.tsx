@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
@@ -7,7 +7,7 @@ import {
 } from '../../helpers/timeline-layout';
 import {isTrackHidden} from './is-collapsed';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
-import {TimelineViewState} from './timeline-state-reducer';
+import type {TimelineViewState} from './timeline-state-reducer';
 import {TimelineSequence} from './TimelineSequence';
 
 const content: React.CSSProperties = {

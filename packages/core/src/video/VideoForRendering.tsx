@@ -20,7 +20,7 @@ import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-current-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
 import {getMediaTime} from './get-current-time';
-import {RemotionVideoProps} from './props';
+import type {RemotionVideoProps} from './props';
 
 const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,

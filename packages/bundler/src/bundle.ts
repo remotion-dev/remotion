@@ -1,7 +1,8 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import {Internals, WebpackOverrideFn} from 'remotion';
+import type {WebpackOverrideFn} from 'remotion';
+import {Internals} from 'remotion';
 import {promisify} from 'util';
 import webpack from 'webpack';
 import {copyDir} from './copy-dir';
