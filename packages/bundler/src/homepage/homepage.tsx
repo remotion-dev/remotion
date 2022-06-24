@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {TCompMetadata} from 'remotion';
+import type {TCompMetadata} from 'remotion';
 import {getBundleMode} from '../bundle-mode';
 import {setBundleModeAndUpdate} from '../renderEntry';
 

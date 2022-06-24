@@ -1,8 +1,9 @@
 import {MIN_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
-import {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../pricing/aws-regions';
 import {pricing} from '../pricing/price-per-1-s';
+import type {
+	LambdaArchitecture} from '../shared/validate-architecture';
 import {
-	LambdaArchitecture,
 	validateArchitecture,
 } from '../shared/validate-architecture';
 import {validateAwsRegion} from '../shared/validate-aws-region';

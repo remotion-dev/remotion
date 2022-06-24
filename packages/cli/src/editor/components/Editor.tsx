@@ -1,13 +1,15 @@
-import {PlayerInternals, PreviewSize} from '@remotion/player';
+import type { PreviewSize} from '@remotion/player';
+import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {
-	continueRender,
-	delayRender,
-	Internals,
+import type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
 	SetTimelineInOutContextValue,
-	TimelineInOutContextValue,
+	TimelineInOutContextValue} from 'remotion';
+import {
+	continueRender,
+	delayRender,
+	Internals
 } from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
@@ -19,7 +21,8 @@ import {
 import {FolderContextProvider} from '../state/folders';
 import {HighestZIndexProvider} from '../state/highest-z-index';
 import {KeybindingContextProvider} from '../state/keybindings';
-import {ModalContextType, ModalsContext, ModalState} from '../state/modals';
+import type {ModalContextType, ModalState} from '../state/modals';
+import { ModalsContext} from '../state/modals';
 import {loadMuteOption} from '../state/mute';
 import {
 	loadPreviewSizeOption,

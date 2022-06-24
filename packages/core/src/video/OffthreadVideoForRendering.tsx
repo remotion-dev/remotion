@@ -14,7 +14,7 @@ import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-current-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
 import {getExpectedMediaFrameUncorrected} from './get-current-time';
-import {OffthreadVideoImageFormat, OffthreadVideoProps} from './props';
+import type {OffthreadVideoImageFormat, OffthreadVideoProps} from './props';
 
 const DEFAULT_IMAGE_FORMAT: OffthreadVideoImageFormat = 'jpeg';
 

@@ -1,7 +1,7 @@
-import {webpack} from '@remotion/bundler';
+import type {webpack} from '@remotion/bundler';
 import {Log} from '../../log';
 import {isColorSupported} from './is-color-supported';
-import {DevMiddlewareContext} from './types';
+import type {DevMiddlewareContext} from './types';
 
 export function setupHooks(context: DevMiddlewareContext) {
 	function invalid() {

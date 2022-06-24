@@ -1,6 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
 import {canUseOptimization} from './can-use-optimization';
-import {OptimizationProfile} from './types';
+import type {OptimizationProfile} from './types';
 
 export const planFrameRanges = ({
 	chunkCount,

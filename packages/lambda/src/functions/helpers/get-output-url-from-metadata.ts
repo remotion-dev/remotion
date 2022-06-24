@@ -1,4 +1,4 @@
-import {RenderMetadata} from '../../defaults';
+import type {RenderMetadata} from '../../defaults';
 import {getExpectedOutName} from './expected-out-name';
 import {getCurrentRegionInFunction} from './get-current-region';
 

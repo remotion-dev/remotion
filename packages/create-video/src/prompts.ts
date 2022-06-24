@@ -1,4 +1,5 @@
-import prompts, {Options, PromptObject} from 'prompts';
+import type {Options, PromptObject} from 'prompts';
+import prompts from 'prompts';
 
 export type Question<V extends string = string> = PromptObject<V> & {
 	optionsPerPage?: number;

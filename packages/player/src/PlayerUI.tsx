@@ -1,9 +1,10 @@
-import {StandardLonghandProperties} from 'csstype';
+import type {StandardLonghandProperties} from 'csstype';
+import type {
+	MouseEventHandler,
+	SyntheticEvent} from 'react';
 import React, {
 	forwardRef,
-	MouseEventHandler,
 	Suspense,
-	SyntheticEvent,
 	useCallback,
 	useEffect,
 	useImperativeHandle,
@@ -15,7 +16,7 @@ import {Internals} from 'remotion';
 import {calculateScale} from './calculate-scale';
 import {ErrorBoundary} from './error-boundary';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
-import {PlayerMethods, PlayerRef} from './player-methods';
+import type {PlayerMethods, PlayerRef} from './player-methods';
 import {Controls} from './PlayerControls';
 import {useHoverState} from './use-hover-state';
 import {usePlayback} from './use-playback';

@@ -1,4 +1,4 @@
-import {BucketWithLocation} from '../get-buckets';
+import type {BucketWithLocation} from '../get-buckets';
 
 export const mockBucketStore: BucketWithLocation[] = [];
 

@@ -1,7 +1,7 @@
-import {CDPSession, Page, Protocol} from 'puppeteer-core';
+import type {CDPSession, Page, Protocol} from 'puppeteer-core';
 import {Internals} from 'remotion';
-import {UnsymbolicatedStackFrame} from '../parse-browser-error-stack';
-import {SymbolicatedStackFrame} from '../symbolicate-stacktrace';
+import type {UnsymbolicatedStackFrame} from '../parse-browser-error-stack';
+import type {SymbolicatedStackFrame} from '../symbolicate-stacktrace';
 import {SymbolicateableError} from './symbolicateable-error';
 
 export class ErrorWithStackFrame extends Error {

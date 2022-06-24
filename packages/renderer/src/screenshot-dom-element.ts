@@ -1,5 +1,5 @@
-import puppeteer from 'puppeteer-core';
-import {ImageFormat} from 'remotion';
+import type puppeteer from 'puppeteer-core';
+import type {ImageFormat} from 'remotion';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {screenshot} from './puppeteer-screenshot';
 

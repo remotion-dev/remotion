@@ -1,5 +1,5 @@
-import {WebpackConfiguration} from 'remotion';
-import {RuleSetUseItem} from 'webpack';
+import type {WebpackConfiguration} from 'remotion';
+import type {RuleSetUseItem} from 'webpack';
 
 const envPreset = [
 	require.resolve('@babel/preset-env'),

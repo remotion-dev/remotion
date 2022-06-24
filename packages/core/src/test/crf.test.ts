@@ -1,4 +1,4 @@
-import {Codec} from '../config';
+import type {Codec} from '../config';
 import {
 	getActualCrf,
 	getDefaultCrfForCodec,

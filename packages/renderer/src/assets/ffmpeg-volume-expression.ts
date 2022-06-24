@@ -4,7 +4,7 @@
 // If once, ffmpeg evaluates volume expression once.
 // If frame, it evaluates it for each frame
 import {roundVolumeToAvoidStackOverflow} from './round-volume-to-avoid-stack-overflow';
-import {AssetVolume} from './types';
+import type {AssetVolume} from './types';
 
 type FfmpegEval = 'once' | 'frame';
 

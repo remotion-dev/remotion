@@ -1,16 +1,17 @@
 import minimist from 'minimist';
 import {resolve} from 'path';
-import {
+import type {
 	BrowserExecutable,
 	Codec,
-	Config,
 	FfmpegExecutable,
 	ImageFormat,
-	Internals,
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
-	ProResProfile,
+	ProResProfile} from 'remotion';
+import {
+	Config,
+	Internals
 } from 'remotion';
 import {Log} from './log';
 

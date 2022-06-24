@@ -1,7 +1,7 @@
 import {transform as defaultEsbuildTransform} from 'esbuild';
 import path from 'path';
-import webpack from 'webpack';
-import {LoaderOptions} from './interfaces';
+import type webpack from 'webpack';
+import type {LoaderOptions} from './interfaces';
 
 const tsConfigPath = path.join(process.cwd(), 'tsconfig.json');
 
@@ -45,6 +45,7 @@ async function ESBuildLoader(
 	};
 
 	if (!('tsconfigRaw' in transformOptions) && isTypescriptInstalled()) {
+		// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 		const typescript = require('typescript') as typeof import('typescript');
 		const tsConfig = typescript.readConfigFile(
 			tsConfigPath,

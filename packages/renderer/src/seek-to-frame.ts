@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer-core';
+import type puppeteer from 'puppeteer-core';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 
 export const seekToFrame = async ({

@@ -1,15 +1,16 @@
 import execa from 'execa';
-import {
+import type {
 	Codec,
 	FfmpegExecutable,
 	ImageFormat,
-	Internals,
 	PixelFormat,
-	ProResProfile,
+	ProResProfile} from 'remotion';
+import {
+	Internals
 } from 'remotion';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
-import {CancelSignal} from './make-cancel-signal';
+import type {CancelSignal} from './make-cancel-signal';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';

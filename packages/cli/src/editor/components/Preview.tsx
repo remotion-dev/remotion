@@ -1,4 +1,5 @@
-import {PlayerInternals, Size} from '@remotion/player';
+import type { Size} from '@remotion/player';
+import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {
