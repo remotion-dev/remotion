@@ -19,7 +19,7 @@ import type {Protocol} from 'devtools-protocol';
 import type {ProtocolMapping} from 'devtools-protocol/types/protocol-mapping';
 import {ProtocolError} from './Errors';
 import {EventEmitter} from './EventEmitter';
-import {NodeWebSocketTransport} from './NodeWebSocketTransport';
+import type {NodeWebSocketTransport} from './NodeWebSocketTransport';
 
 interface ConnectionCallback {
 	resolve: Function;

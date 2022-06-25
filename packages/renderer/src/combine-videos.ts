@@ -4,7 +4,7 @@ import execa from 'execa';
 import {rmdirSync, rmSync, writeFileSync} from 'fs';
 import {join} from 'path';
 import type {Codec} from 'remotion';
-import { Internals} from 'remotion';
+import {Internals} from 'remotion';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 

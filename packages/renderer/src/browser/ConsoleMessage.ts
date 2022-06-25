@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {JSHandle} from './JSHandle';
+import type {JSHandle} from './JSHandle';
 
 export interface ConsoleMessageLocation {
 	url?: string;

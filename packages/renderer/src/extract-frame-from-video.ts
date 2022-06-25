@@ -1,17 +1,13 @@
 import execa from 'execa';
 import type {FfmpegExecutable, OffthreadVideoImageFormat} from 'remotion';
-import { Internals} from 'remotion';
+import {Internals} from 'remotion';
 import {getAudioChannelsAndDuration} from './assets/get-audio-channels';
 import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
 import {isBeyondLastFrame, markAsBeyondLastFrame} from './is-beyond-last-frame';
-import type {
-	SpecialVCodecForTransparency} from './is-vp9-video';
-import {
-	getSpecialVCodecForTransparency
-} from './is-vp9-video';
-import type {
-	LastFrameOptions} from './last-frame-from-video-cache';
+import type {SpecialVCodecForTransparency} from './is-vp9-video';
+import {getSpecialVCodecForTransparency} from './is-vp9-video';
+import type {LastFrameOptions} from './last-frame-from-video-cache';
 import {
 	getLastFrameFromCache,
 	setLastFrameInCache,

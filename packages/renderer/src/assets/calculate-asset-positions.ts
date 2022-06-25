@@ -2,7 +2,7 @@ import type {TAsset} from 'remotion';
 import {resolveAssetSrc} from '../resolve-asset-src';
 import {convertAssetToFlattenedVolume} from './flatten-volume-array';
 import type {Assets, MediaAsset, UnsafeAsset} from './types';
-import { uncompressMediaAsset} from './types';
+import {uncompressMediaAsset} from './types';
 
 const areEqual = (a: TAsset | UnsafeAsset, b: TAsset) => {
 	return a.id === b.id;

@@ -1,5 +1,5 @@
 import type {Protocol} from 'devtools-protocol';
-import {HTTPRequest} from './HTTPRequest';
+import type {HTTPRequest} from './HTTPRequest';
 
 type QueuedEventGroup = {
 	responseReceivedEvent: Protocol.Network.ResponseReceivedEvent;

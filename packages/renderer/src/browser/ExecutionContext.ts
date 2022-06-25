@@ -17,11 +17,12 @@
  */
 
 import type {Protocol} from 'devtools-protocol';
-import {CDPSession} from './Connection';
-import {DOMWorld} from './DOMWorld';
-import {EvaluateHandleFn, SerializableOrJSHandle} from './EvalTypes';
-import {Frame} from './FrameManager';
-import {ElementHandle, JSHandle, _createJSHandle} from './JSHandle';
+import type {CDPSession} from './Connection';
+import type {DOMWorld} from './DOMWorld';
+import type {EvaluateHandleFn, SerializableOrJSHandle} from './EvalTypes';
+import type {Frame} from './FrameManager';
+import type {ElementHandle} from './JSHandle';
+import {JSHandle, _createJSHandle} from './JSHandle';
 import {getExceptionMessage, isString, valueFromRemoteObject} from './util';
 
 export const EVALUATION_SCRIPT_URL = 'pptr://__puppeteer_evaluation_script__';

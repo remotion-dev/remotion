@@ -18,10 +18,11 @@ import type {Protocol} from 'devtools-protocol';
 import type {ProtocolMapping} from 'devtools-protocol/types/protocol-mapping';
 import {assert} from './assert';
 import {EventEmitter} from './EventEmitter';
-import {Frame} from './FrameManager';
+import type {Frame} from './FrameManager';
 import {HTTPRequest} from './HTTPRequest';
 import {HTTPResponse} from './HTTPResponse';
-import {FetchRequestId, NetworkEventManager} from './NetworkEventManager';
+import type {FetchRequestId} from './NetworkEventManager';
+import {NetworkEventManager} from './NetworkEventManager';
 import {isString} from './util';
 
 export const NetworkManagerEmittedEvents = {

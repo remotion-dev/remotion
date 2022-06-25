@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 import type {Protocol} from 'devtools-protocol';
-import {Frame} from './FrameManager';
-import {HTTPResponse} from './HTTPResponse';
+import type {Frame} from './FrameManager';
+import type {HTTPResponse} from './HTTPResponse';
 
 export class HTTPRequest {
 	_requestId: string;

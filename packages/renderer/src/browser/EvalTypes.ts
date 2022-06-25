@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {JSHandle} from './JSHandle';
+import type {JSHandle} from './JSHandle';
 
 export type EvaluateFn<T = any, U = any, V = any> =
 	| string

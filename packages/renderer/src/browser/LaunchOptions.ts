@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {BrowserConnectOptions} from './BrowserConnector';
-import {Product} from './Product';
+import type {BrowserConnectOptions} from './BrowserConnector';
+import type {Product} from './Product';
 
 export interface BrowserLaunchArgumentOptions {
 	/**

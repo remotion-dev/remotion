@@ -1,4 +1,5 @@
-import mitt, {Emitter, EventType, Handler} from './mitt';
+import type {Emitter, EventType, Handler} from './mitt';
+import mitt from './mitt';
 
 export interface CommonEventEmitter {
 	on(event: EventType, handler: Handler): CommonEventEmitter;

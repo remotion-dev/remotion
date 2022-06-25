@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import {ChildProcess} from 'child_process';
+import type {ChildProcess} from 'child_process';
 import type {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
-import {Connection} from './Connection';
+import type {Connection} from './Connection';
 import {EventEmitter} from './EventEmitter';
-import {Page} from './Page';
-import {Viewport} from './PuppeteerViewport';
+import type {Page} from './Page';
+import type {Viewport} from './PuppeteerViewport';
 import {Target} from './Target';
 import {waitWithTimeout} from './util';
 
