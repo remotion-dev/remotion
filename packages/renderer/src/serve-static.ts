@@ -1,6 +1,6 @@
 import http from 'http';
 import type {FfmpegExecutable} from 'remotion';
-import { Internals} from 'remotion';
+import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {getDesiredPort} from './get-port';
 import {startOffthreadVideoServer} from './offthread-video-server';

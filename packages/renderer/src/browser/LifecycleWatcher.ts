@@ -17,15 +17,13 @@
 import {assert} from './assert';
 import {CDPSessionEmittedEvents} from './Connection';
 import {TimeoutError} from './Errors';
-import {Frame, FrameManager, FrameManagerEmittedEvents} from './FrameManager';
-import {HTTPRequest} from './HTTPRequest';
-import {HTTPResponse} from './HTTPResponse';
+import type {Frame, FrameManager} from './FrameManager';
+import {FrameManagerEmittedEvents} from './FrameManager';
+import type {HTTPRequest} from './HTTPRequest';
+import type {HTTPResponse} from './HTTPResponse';
 import {NetworkManagerEmittedEvents} from './NetworkManager';
-import {
-	addEventListener,
-	PuppeteerEventListener,
-	removeEventListeners,
-} from './util';
+import type {PuppeteerEventListener} from './util';
+import {addEventListener, removeEventListeners} from './util';
 export type PuppeteerLifeCycleEvent =
 	| 'load'
 	| 'domcontentloaded'

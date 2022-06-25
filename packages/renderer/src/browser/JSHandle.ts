@@ -15,9 +15,9 @@
  */
 
 import type {Protocol} from 'devtools-protocol';
-import {CDPSession} from './Connection';
-import {EvaluateHandleFn, SerializableOrJSHandle} from './EvalTypes';
-import {ExecutionContext} from './ExecutionContext';
+import type {CDPSession} from './Connection';
+import type {EvaluateHandleFn, SerializableOrJSHandle} from './EvalTypes';
+import type {ExecutionContext} from './ExecutionContext';
 import {releaseObject, valueFromRemoteObject} from './util';
 
 export function _createJSHandle(

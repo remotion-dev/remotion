@@ -23,14 +23,14 @@ import {deleteDirectory} from '../delete-directory';
 import {assert} from './assert';
 import {Connection} from './Connection';
 import {TimeoutError} from './Errors';
-import {LaunchOptions} from './LaunchOptions';
+import type {LaunchOptions} from './LaunchOptions';
 import {NodeWebSocketTransport as WebSocketTransport} from './NodeWebSocketTransport';
-import {Product} from './Product';
+import type {Product} from './Product';
+import type {PuppeteerEventListener} from './util';
 import {
 	addEventListener,
 	isErrnoException,
 	isErrorLike,
-	PuppeteerEventListener,
 	removeEventListeners,
 } from './util';
 

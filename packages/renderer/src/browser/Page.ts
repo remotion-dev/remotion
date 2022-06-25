@@ -16,9 +16,10 @@
 
 import type {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
-import {CDPSession} from './Connection';
-import {ConsoleMessage, ConsoleMessageType} from './ConsoleMessage';
-import {
+import type {CDPSession} from './Connection';
+import type {ConsoleMessageType} from './ConsoleMessage';
+import {ConsoleMessage} from './ConsoleMessage';
+import type {
 	EvaluateFn,
 	EvaluateFnReturnType,
 	EvaluateHandleFn,
@@ -26,12 +27,14 @@ import {
 	UnwrapPromiseLike,
 } from './EvalTypes';
 import {EventEmitter} from './EventEmitter';
-import {Frame, FrameManager} from './FrameManager';
-import {HTTPResponse} from './HTTPResponse';
-import {JSHandle, _createJSHandle} from './JSHandle';
-import {PuppeteerLifeCycleEvent} from './LifecycleWatcher';
-import {Viewport} from './PuppeteerViewport';
-import {Target} from './Target';
+import type {Frame} from './FrameManager';
+import {FrameManager} from './FrameManager';
+import type {HTTPResponse} from './HTTPResponse';
+import type {JSHandle} from './JSHandle';
+import {_createJSHandle} from './JSHandle';
+import type {PuppeteerLifeCycleEvent} from './LifecycleWatcher';
+import type {Viewport} from './PuppeteerViewport';
+import type {Target} from './Target';
 import {TaskQueue} from './TaskQueue';
 import {TimeoutSettings} from './TimeoutSettings';
 import {

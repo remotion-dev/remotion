@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import https, {RequestOptions} from 'https';
+import type {RequestOptions} from 'https';
+import https from 'https';
 import {puppeteer} from './node';
-import {Product} from './Product';
+import type {Product} from './Product';
 import {PUPPETEER_REVISIONS} from './revisions';
 
 const supportedProducts = {

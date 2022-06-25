@@ -16,9 +16,10 @@
 
 import type {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
-import {CDPSession, Connection} from './Connection';
+import type {CDPSession} from './Connection';
+import {Connection} from './Connection';
 import {DOMWorld} from './DOMWorld';
-import {
+import type {
 	EvaluateFn,
 	EvaluateFnReturnType,
 	EvaluateHandleFn,
@@ -27,12 +28,13 @@ import {
 } from './EvalTypes';
 import {EventEmitter} from './EventEmitter';
 import {EVALUATION_SCRIPT_URL, ExecutionContext} from './ExecutionContext';
-import {HTTPResponse} from './HTTPResponse';
-import {JSHandle} from './JSHandle';
-import {LifecycleWatcher, PuppeteerLifeCycleEvent} from './LifecycleWatcher';
+import type {HTTPResponse} from './HTTPResponse';
+import type {JSHandle} from './JSHandle';
+import type {PuppeteerLifeCycleEvent} from './LifecycleWatcher';
+import {LifecycleWatcher} from './LifecycleWatcher';
 import {NetworkManager} from './NetworkManager';
-import {Page} from './Page';
-import {TimeoutSettings} from './TimeoutSettings';
+import type {Page} from './Page';
+import type {TimeoutSettings} from './TimeoutSettings';
 import {isErrorLike} from './util';
 
 const UTILITY_WORLD_NAME = '__puppeteer_utility_world__';

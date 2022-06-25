@@ -16,9 +16,9 @@
 
 import type {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
-import {CDPSession} from './Connection';
+import type {CDPSession} from './Connection';
 import {TimeoutError} from './Errors';
-import {CommonEventEmitter} from './EventEmitter';
+import type {CommonEventEmitter} from './EventEmitter';
 
 export function getExceptionMessage(
 	exceptionDetails: Protocol.Runtime.ExceptionDetails

@@ -16,17 +16,17 @@
 
 import {assert} from './assert';
 import {TimeoutError} from './Errors';
-import {
+import type {
 	EvaluateFn,
 	EvaluateFnReturnType,
 	EvaluateHandleFn,
 	SerializableOrJSHandle,
 	UnwrapPromiseLike,
 } from './EvalTypes';
-import {ExecutionContext} from './ExecutionContext';
-import {Frame} from './FrameManager';
-import {ElementHandle, JSHandle} from './JSHandle';
-import {TimeoutSettings} from './TimeoutSettings';
+import type {ExecutionContext} from './ExecutionContext';
+import type {Frame} from './FrameManager';
+import type {ElementHandle, JSHandle} from './JSHandle';
+import type {TimeoutSettings} from './TimeoutSettings';
 import {isString} from './util';
 
 export class DOMWorld {

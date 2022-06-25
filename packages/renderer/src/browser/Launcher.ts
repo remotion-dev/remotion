@@ -26,13 +26,13 @@ const copyFileAsync = fs.promises.copyFile;
 const mkdtempAsync = fs.promises.mkdtemp;
 const writeFileAsync = fs.promises.writeFile;
 
-import {
+import type {
 	BrowserLaunchArgumentOptions,
 	ChromeReleaseChannel,
 	PuppeteerNodeLaunchOptions,
 } from './LaunchOptions';
 
-import {Product} from './Product';
+import type {Product} from './Product';
 
 const tmpDir = () => {
 	return process.env.PUPPETEER_TMP_DIR || os.tmpdir();

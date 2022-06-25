@@ -1,6 +1,5 @@
 import {render} from '@testing-library/react';
-import type {
-	ComponentType} from 'react';
+import type {ComponentType} from 'react';
 import React, {
 	useCallback,
 	useContext,
@@ -10,7 +9,7 @@ import React, {
 } from 'react';
 import {act} from 'react-dom/test-utils';
 import type {CompositionManagerContext, TAsset} from 'remotion';
-import { Internals} from 'remotion';
+import {Internals} from 'remotion';
 
 let collectAssets = (): TAsset[] => [];
 

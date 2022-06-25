@@ -15,10 +15,10 @@
  */
 
 import type {Protocol} from 'devtools-protocol';
-import {Browser, BrowserContext} from './Browser';
-import {CDPSession} from './Connection';
+import type {Browser, BrowserContext} from './Browser';
+import type {CDPSession} from './Connection';
 import {Page} from './Page';
-import {Viewport} from './PuppeteerViewport';
+import type {Viewport} from './PuppeteerViewport';
 
 const isPagetTarget = (target: Protocol.Target.TargetInfo): boolean => {
 	return (

@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-import {Browser} from './Browser';
-import {BrowserConnectOptions} from './BrowserConnector';
-import {BrowserFetcher, BrowserFetcherOptions} from './BrowserFetcher';
-import Launcher, {ProductLauncher} from './Launcher';
-import {BrowserLaunchArgumentOptions, LaunchOptions} from './LaunchOptions';
-import {Product} from './Product';
+import type {Browser} from './Browser';
+import type {BrowserConnectOptions} from './BrowserConnector';
+import type {BrowserFetcherOptions} from './BrowserFetcher';
+import {BrowserFetcher} from './BrowserFetcher';
+import type {ProductLauncher} from './Launcher';
+import Launcher from './Launcher';
+import type {
+	BrowserLaunchArgumentOptions,
+	LaunchOptions,
+} from './LaunchOptions';
+import type {Product} from './Product';
 import {PUPPETEER_REVISIONS} from './revisions';
 
 interface PuppeteerLaunchOptions
