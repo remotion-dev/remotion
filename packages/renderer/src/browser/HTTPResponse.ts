@@ -16,7 +16,6 @@
 import type {Protocol} from 'devtools-protocol';
 
 export class HTTPResponse {
-	#bodyLoadedPromiseFulfill: (err: Error | void) => void = () => undefined;
 	#status: number;
 
 	constructor(
@@ -24,14 +23,6 @@ export class HTTPResponse {
 		extraInfo: Protocol.Network.ResponseReceivedExtraInfoEvent | null
 	) {
 		this.#status = extraInfo ? extraInfo.statusCode : responsePayload.status;
-	}
-
-	_resolveBody(err: Error | null): void {
-		if (err) {
-			return this.#bodyLoadedPromiseFulfill(err);
-		}
-
-		return this.#bodyLoadedPromiseFulfill();
 	}
 
 	status(): number {
