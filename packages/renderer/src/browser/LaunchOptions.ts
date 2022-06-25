@@ -32,7 +32,6 @@ export type ChromeReleaseChannel =
 
 export interface LaunchOptions {
 	executablePath?: string;
-	ignoreDefaultArgs?: boolean | string[];
 	handleSIGINT?: boolean;
 	handleSIGTERM?: boolean;
 	handleSIGHUP?: boolean;

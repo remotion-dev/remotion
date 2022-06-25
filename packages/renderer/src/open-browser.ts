@@ -77,7 +77,6 @@ export const openBrowser = async (
 		executablePath,
 		product: browser,
 		dumpio: options?.shouldDumpIo ?? false,
-		ignoreDefaultArgs: true,
 		args: [
 			'about:blank',
 			'--allow-pre-commit-input',
