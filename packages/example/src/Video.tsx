@@ -92,19 +92,19 @@ export const Index: React.FC = () => {
 				<Composition
 					id="ten-frame-tester"
 					component={TenFrameTester}
-					width={1080}
-					height={1080}
+					width={200}
+					height={200}
 					fps={30}
-					durationInFrames={10}
+					durationInFrames={3000}
 				/>
 
 				<Composition
 					id="framer"
 					component={Framer}
-					width={1080}
-					height={1080}
+					width={100}
+					height={100}
 					fps={30}
-					durationInFrames={100}
+					durationInFrames={1000}
 				/>
 				<Composition
 					id="skip-zero-frame"
@@ -207,12 +207,12 @@ export const Index: React.FC = () => {
 				<Composition
 					id="video-testing-mp4"
 					component={VideoTesting}
-					width={1080}
-					height={1080}
+					width={300}
+					height={300}
 					fps={30}
 					durationInFrames={100}
 					defaultProps={{
-						offthread: false,
+						offthread: true,
 						codec: 'mp4' as const,
 					}}
 				/>
