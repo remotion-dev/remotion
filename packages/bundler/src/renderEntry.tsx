@@ -1,4 +1,3 @@
-import type {RefObject} from 'react';
 import React, {createRef, useContext, useEffect, useState} from 'react';
 import type {render, unmountComponentAtNode} from 'react-dom';
 // In React 18, you should use createRoot() from "react-dom/client".
@@ -13,16 +12,17 @@ import {Homepage} from './homepage/homepage';
 
 Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null, '#fff'));
 
-const CONCURRENCY = 4;
-
-const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
+const GetVideo: React.FC<{state: BundleState; concurrency: number}> = ({
+	state,
+	concurrency,
+}) => {
 	const video = Internals.useVideo();
 	const compositions = useContext(Internals.CompositionManager);
 
-	const [portalContainers] = useState<RefObject<HTMLDivElement>[]>(() => {
-		return new Array(CONCURRENCY)
-			.fill(true)
-			.map(() => createRef<HTMLDivElement>());
+	const [portalContainer] = useState(() => {
+		return new Array(concurrency).fill(true).map(() => {
+			return createRef<HTMLDivElement>();
+		});
 	});
 	const [handle] = useState(() =>
 		delayRender('Wait for Composition' + JSON.stringify(state))
@@ -64,9 +64,8 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 			return;
 		}
 
-		for (let i = 0; i < portalContainers.length; i++) {
-			const portalContainer = portalContainers[i];
-			const {current} = portalContainer;
+		for (let i = 0; i < portalContainer.length; i++) {
+			const {current} = portalContainer[i];
 			if (!current) {
 				throw new Error('portal did not render');
 			}
@@ -75,17 +74,17 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 		}
 
 		return () => {
-			for (let i = 0; i < portalContainers.length; i++) {
-				const portalContainer = portalContainers[i];
-				const {current} = portalContainer;
+			// TODO: curent could have changed
+			for (let i = 0; i < portalContainer.length; i++) {
+				const {current} = portalContainer[i];
 				if (!current) {
 					throw new Error('portal did not render');
 				}
 
-				current.removeChild(Internals.portalNode(i));
+				// current.removeChild(Internals.portalNode(i));
 			}
 		};
-	}, [portalContainers, video]);
+	}, [portalContainer, video]);
 
 	if (!video) {
 		return null;
@@ -93,27 +92,20 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 
 	return (
 		<>
-			{portalContainers.map((p, i) => {
+			{new Array(concurrency).fill(true).map((_, i) => {
 				return (
-					<Internals.AssetRoot
-						// eslint-disable-next-line react/no-array-index-key
+					<div
 						key={i}
-						pageIndex={i}
-					>
-						<Internals.TimelineRoot pageIndex={i}>
-							<div
-								ref={p}
-								style={{
-									width: video.width,
-									height: video.height,
-									display: 'flex',
-									backgroundColor: 'transparent',
-									overflow: 'hidden',
-									position: 'relative',
-								}}
-							/>
-						</Internals.TimelineRoot>
-					</Internals.AssetRoot>
+						ref={portalContainer[i]}
+						style={{
+							width: video.width,
+							height: video.height,
+							display: 'flex',
+							backgroundColor: 'transparent',
+							position: 'absolute',
+							top: video.height * i,
+						}}
+					/>
 				);
 			})}
 		</>
@@ -161,14 +153,24 @@ const WaitForRoot: React.FC = () => {
 	return <Root />;
 };
 
+const CONCURRENCY = 4;
+
 const renderContent = () => {
 	const bundleMode = getBundleMode();
 
 	if (bundleMode.type === 'composition' || bundleMode.type === 'evaluation') {
 		const markup = (
 			<Internals.RemotionRoot>
+				{new Array(CONCURRENCY).fill(true).map((c, pageIndex) => {
+					return (
+						<GetVideo
+							key={pageIndex}
+							concurrency={CONCURRENCY}
+							state={bundleMode}
+						/>
+					);
+				})}
 				<WaitForRoot />
-				<GetVideo state={bundleMode} />
 			</Internals.RemotionRoot>
 		);
 

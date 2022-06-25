@@ -204,6 +204,9 @@ const innerRenderStill = async ({
 			frame,
 			output,
 		},
+		height: composition.height,
+		width: composition.width,
+		pageIndex: 0,
 	});
 
 	await cleanup();

@@ -12,10 +12,10 @@ export const seekToFrame = async ({
 }) => {
 	await page.waitForFunction('window.ready === true');
 	await puppeteerEvaluateWithCatch({
-		pageFunction: (f: number) => {
-			window.remotion_setFrame[pageIndex](f);
+		pageFunction: (f: number, index: number) => {
+			window.remotion_setFrame[index](f);
 		},
-		args: [frame],
+		args: [frame, pageIndex],
 		frame,
 		page,
 	});

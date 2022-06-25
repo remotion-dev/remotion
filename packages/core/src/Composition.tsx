@@ -6,6 +6,7 @@ import {getInputProps} from './config/input-props';
 import {continueRender, delayRender} from './delay-render';
 import {FolderContext} from './Folder';
 import {getRemotionEnvironment} from './get-environment';
+import {Internals} from './internals';
 import {Loading} from './loading-indicator';
 import {useNonce} from './nonce';
 import {portalNode} from './portal-node';
@@ -131,22 +132,24 @@ export const Composition = <T,>({
 					.map((_, i) => {
 						return (
 							// eslint-disable-next-line react/no-array-index-key
-							<React.Fragment key={i}>
-								{createPortal(
-									<Suspense
-										fallback={
-											getRemotionEnvironment() === 'preview' ? (
-												<Loading />
-											) : (
-												<Fallback />
-											)
-										}
-									>
-										<Comp {...defaultProps} {...inputProps} />
-									</Suspense>,
-									portalNode(i)
-								)}
-							</React.Fragment>
+							<Internals.TimelineRoot key={i} pageIndex={i}>
+								<Internals.AssetRoot pageIndex={i}>
+									{createPortal(
+										<Suspense
+											fallback={
+												getRemotionEnvironment() === 'preview' ? (
+													<Loading />
+												) : (
+													<Fallback />
+												)
+											}
+										>
+											<Comp {...defaultProps} {...inputProps} />
+										</Suspense>,
+										portalNode(i)
+									)}
+								</Internals.AssetRoot>
+							</Internals.TimelineRoot>
 						);
 					})}
 			</>

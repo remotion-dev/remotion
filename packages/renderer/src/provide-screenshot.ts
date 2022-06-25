@@ -7,10 +7,16 @@ export const provideScreenshot = ({
 	imageFormat,
 	options,
 	quality,
+	height,
+	pageIndex,
+	width,
 }: {
 	page: puppeteer.Page;
 	imageFormat: ImageFormat;
 	quality: number | undefined;
+	height: number;
+	width: number;
+	pageIndex: number;
 	options: {
 		frame: number;
 		output?: string;
@@ -24,5 +30,8 @@ export const provideScreenshot = ({
 		},
 		imageFormat,
 		quality,
+		height,
+		pageIndex,
+		width,
 	});
 };

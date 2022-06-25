@@ -123,7 +123,7 @@ export const setPropsAndEnv = async ({
 		);
 	}
 
-	const siteVersion = await puppeteerEvaluateWithCatch<'3'>({
+	const siteVersion = await puppeteerEvaluateWithCatch<'4'>({
 		pageFunction: () => {
 			return window.siteVersion;
 		},
@@ -132,7 +132,7 @@ export const setPropsAndEnv = async ({
 		page,
 	});
 
-	if (siteVersion !== '3') {
+	if (siteVersion !== '4') {
 		throw new Error(
 			`Incompatible site: When visiting ${urlToVisit}, a bundle was found, but one that is not compatible with this version of Remotion. The bundle format changed in version 3.0.11. To resolve this error, please bundle and deploy again.`
 		);

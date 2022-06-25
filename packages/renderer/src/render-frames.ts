@@ -152,7 +152,7 @@ const innerRenderFrames = ({
 		pagesArray.push(page);
 		await page.setViewport({
 			width: composition.width,
-			height: composition.height,
+			height: composition.height * actualParallelism,
 			deviceScaleFactor: scale ?? 1,
 		});
 
@@ -259,6 +259,9 @@ const innerRenderFrames = ({
 								frame,
 								output: undefined,
 							},
+							height: composition.height,
+							pageIndex,
+							width: composition.width,
 						});
 						Internals.perf.stopPerfMeasure(id);
 
@@ -275,7 +278,6 @@ const innerRenderFrames = ({
 							`element-${paddedIndex}.${imageFormat}`
 						);
 
-						// TODO Crop
 						await provideScreenshot({
 							page,
 							imageFormat,
@@ -284,15 +286,18 @@ const innerRenderFrames = ({
 								frame,
 								output,
 							},
+							height: composition.height,
+							width: composition.width,
+							pageIndex,
 						});
 					}
 				}
 
 				const collectedAssets = await puppeteerEvaluateWithCatch<TAsset[]>({
-					pageFunction: () => {
-						return window.remotion_collectAssets[pageIndex]();
+					pageFunction: (i: number) => {
+						return window.remotion_collectAssets[i]();
 					},
-					args: [],
+					args: [pageIndex],
 					frame,
 					page,
 				});

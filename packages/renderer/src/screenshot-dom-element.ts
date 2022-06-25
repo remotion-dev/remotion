@@ -8,10 +8,16 @@ export const screenshotDOMElement = async ({
 	imageFormat,
 	quality,
 	opts = {},
+	height,
+	pageIndex,
+	width,
 }: {
 	page: puppeteer.Page;
 	imageFormat: ImageFormat;
 	quality: number | undefined;
+	width: number;
+	height: number;
+	pageIndex: number;
 	opts?: {
 		path?: string;
 		selector?: string;
@@ -51,5 +57,12 @@ export const screenshotDOMElement = async ({
 		path,
 		type: imageFormat,
 		quality,
+		clip: {
+			height,
+			width,
+			x: 0,
+			y: pageIndex * height,
+			scale: 1,
+		},
 	}) as Promise<Buffer>;
 };

@@ -2,6 +2,7 @@ import {
 	OffthreadVideo,
 	Sequence,
 	staticFile,
+	useCurrentFrame,
 	useVideoConfig,
 	Video,
 } from 'remotion';
@@ -16,6 +17,7 @@ export const VideoTesting: React.FC<{
 
 	const Comp = offthread ? OffthreadVideo : Video;
 
+	console.log(JSON.stringify({frame: useCurrentFrame()}));
 	return (
 		<div>
 			<Sequence from={0} durationInFrames={durationInFrames}>

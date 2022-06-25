@@ -1,4 +1,4 @@
-import type { MutableRefObject} from 'react';
+import type {MutableRefObject} from 'react';
 import {createContext, useContext, useMemo} from 'react';
 
 export type PlayableMediaTag = {
@@ -22,7 +22,7 @@ export type SetTimelineContextValue = {
 };
 
 export const TimelineContext = createContext<TimelineContextValue>({
-	frame: 0,
+	frame: -1000,
 	playing: false,
 	playbackRate: 1,
 	rootId: '',
