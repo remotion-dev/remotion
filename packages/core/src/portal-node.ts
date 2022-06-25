@@ -1,24 +1,24 @@
-let _portalNode: null | HTMLElement = null;
+const _portalNodes: HTMLElement[] = [];
 
-export const portalNode = () => {
-	if (!_portalNode) {
+export const portalNode = (index: number) => {
+	if (!_portalNodes[index]) {
 		if (typeof document === 'undefined') {
 			throw new Error(
 				'Tried to call an API that only works in the browser from outside the browser'
 			);
 		}
 
-		_portalNode = document.createElement('div');
-		_portalNode.style.position = 'absolute';
-		_portalNode.style.top = '0px';
-		_portalNode.style.left = '0px';
-		_portalNode.style.right = '0px';
-		_portalNode.style.bottom = '0px';
-		_portalNode.style.width = '100%';
-		_portalNode.style.height = '100%';
-		_portalNode.style.display = 'flex';
-		_portalNode.style.flexDirection = 'column';
+		_portalNodes[index] = document.createElement('div');
+		_portalNodes[index].style.position = 'absolute';
+		_portalNodes[index].style.top = '0px';
+		_portalNodes[index].style.left = '0px';
+		_portalNodes[index].style.right = '0px';
+		_portalNodes[index].style.bottom = '0px';
+		_portalNodes[index].style.width = '100%';
+		_portalNodes[index].style.height = '100%';
+		_portalNodes[index].style.display = 'flex';
+		_portalNodes[index].style.flexDirection = 'column';
 	}
 
-	return _portalNode;
+	return _portalNodes[index];
 };

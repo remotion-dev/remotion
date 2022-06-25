@@ -1,5 +1,5 @@
 import type {ComponentType} from 'react';
-import React, { Suspense, useContext, useEffect} from 'react';
+import React, {Suspense, useContext, useEffect} from 'react';
 import {createPortal} from 'react-dom';
 import {CompositionManager} from './CompositionManager';
 import {getInputProps} from './config/input-props';
@@ -45,6 +45,10 @@ const Fallback: React.FC = () => {
 	}, []);
 	return null;
 };
+
+// TODO Unhardcode
+// TODO should be 1 in preview
+const CONCURRENCY = 4;
 
 export const Composition = <T,>({
 	width,
@@ -110,35 +114,42 @@ export const Composition = <T,>({
 		parentName,
 	]);
 
+	const env = getRemotionEnvironment();
+
 	if (
-		getRemotionEnvironment() === 'preview' &&
+		(env === 'preview' || env === 'rendering') &&
 		video &&
 		video.component === lazy
 	) {
 		const Comp = lazy;
 		const inputProps = getInputProps();
 
-		return createPortal(
-			<Suspense fallback={<Loading />}>
-				<Comp {...defaultProps} {...inputProps} />
-			</Suspense>,
-			portalNode()
-		);
-	}
-
-	if (
-		getRemotionEnvironment() === 'rendering' &&
-		video &&
-		video.component === lazy
-	) {
-		const Comp = lazy;
-		const inputProps = getInputProps();
-
-		return createPortal(
-			<Suspense fallback={<Fallback />}>
-				<Comp {...defaultProps} {...inputProps} />
-			</Suspense>,
-			portalNode()
+		return (
+			<>
+				{new Array(env === 'preview' ? 1 : CONCURRENCY)
+					.fill(true)
+					.map((_, i) => {
+						return (
+							// eslint-disable-next-line react/no-array-index-key
+							<React.Fragment key={i}>
+								{createPortal(
+									<Suspense
+										fallback={
+											getRemotionEnvironment() === 'preview' ? (
+												<Loading />
+											) : (
+												<Fallback />
+											)
+										}
+									>
+										<Comp {...defaultProps} {...inputProps} />
+									</Suspense>,
+									portalNode(i)
+								)}
+							</React.Fragment>
+						);
+					})}
+			</>
 		);
 	}
 

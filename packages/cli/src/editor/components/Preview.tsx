@@ -1,4 +1,4 @@
-import type { Size} from '@remotion/player';
+import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
@@ -91,9 +91,9 @@ const Inner: React.FC<{
 
 	useEffect(() => {
 		const {current} = portalContainer;
-		current?.appendChild(Internals.portalNode());
+		current?.appendChild(Internals.portalNode(0));
 		return () => {
-			current?.removeChild(Internals.portalNode());
+			current?.removeChild(Internals.portalNode(0));
 		};
 	}, []);
 

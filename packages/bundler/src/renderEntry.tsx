@@ -1,4 +1,5 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import type {RefObject} from 'react';
+import React, {createRef, useContext, useEffect, useState} from 'react';
 import type {render, unmountComponentAtNode} from 'react-dom';
 // In React 18, you should use createRoot() from "react-dom/client".
 // In React 18, you should use render from "react-dom".
@@ -12,11 +13,17 @@ import {Homepage} from './homepage/homepage';
 
 Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null, '#fff'));
 
+const CONCURRENCY = 4;
+
 const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	const video = Internals.useVideo();
 	const compositions = useContext(Internals.CompositionManager);
 
-	const portalContainer = useRef<HTMLDivElement>(null);
+	const [portalContainers] = useState<RefObject<HTMLDivElement>[]>(() => {
+		return new Array(CONCURRENCY)
+			.fill(true)
+			.map(() => createRef<HTMLDivElement>());
+	});
 	const [handle] = useState(() =>
 		delayRender('Wait for Composition' + JSON.stringify(state))
 	);
@@ -57,32 +64,51 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 			return;
 		}
 
-		const {current} = portalContainer;
-		if (!current) {
-			throw new Error('portal did not render');
+		for (let i = 0; i < portalContainers.length; i++) {
+			const portalContainer = portalContainers[i];
+			const {current} = portalContainer;
+			if (!current) {
+				throw new Error('portal did not render');
+			}
+
+			current.appendChild(Internals.portalNode(i));
 		}
 
-		current.appendChild(Internals.portalNode());
 		return () => {
-			current.removeChild(Internals.portalNode());
+			for (let i = 0; i < portalContainers.length; i++) {
+				const portalContainer = portalContainers[i];
+				const {current} = portalContainer;
+				if (!current) {
+					throw new Error('portal did not render');
+				}
+
+				current.removeChild(Internals.portalNode(i));
+			}
 		};
-	}, [video]);
+	}, [portalContainers, video]);
 
 	if (!video) {
 		return null;
 	}
 
 	return (
-		<div
-			ref={portalContainer}
-			id="remotion-canvas"
-			style={{
-				width: video.width,
-				height: video.height,
-				display: 'flex',
-				backgroundColor: 'transparent',
-			}}
-		/>
+		<>
+			{portalContainers.map((p, i) => {
+				return (
+					<div
+						// eslint-disable-next-line react/no-array-index-key
+						key={i}
+						ref={p}
+						style={{
+							width: video.width,
+							height: video.height,
+							display: 'flex',
+							backgroundColor: 'transparent',
+						}}
+					/>
+				);
+			})}
+		</>
 	);
 };
 
