@@ -254,7 +254,7 @@ export class BrowserRunner {
 			preferredRevision
 		);
 		const transport = await WebSocketTransport.create(browserWSEndpoint);
-		this.connection = new Connection(browserWSEndpoint, transport);
+		this.connection = new Connection(transport);
 
 		return this.connection;
 	}

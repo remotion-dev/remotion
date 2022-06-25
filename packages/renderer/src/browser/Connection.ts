@@ -33,16 +33,14 @@ const ConnectionEmittedEvents = {
 } as const;
 
 export class Connection extends EventEmitter {
-	#url: string;
 	#transport: NodeWebSocketTransport;
 	#lastId = 0;
 	#sessions: Map<string, CDPSession> = new Map();
 	#closed = false;
 	#callbacks: Map<number, ConnectionCallback> = new Map();
 
-	constructor(url: string, transport: NodeWebSocketTransport) {
+	constructor(transport: NodeWebSocketTransport) {
 		super();
-		this.#url = url;
 
 		this.#transport = transport;
 		this.#transport.onmessage = this.#onMessage.bind(this);
@@ -53,20 +51,8 @@ export class Connection extends EventEmitter {
 		return session.connection();
 	}
 
-	get _closed(): boolean {
-		return this.#closed;
-	}
-
-	/**
-	 * @param sessionId - The session id
-	 * @returns The current CDP session if it exists
-	 */
 	session(sessionId: string): CDPSession | null {
 		return this.#sessions.get(sessionId) || null;
-	}
-
-	url(): string {
-		return this.#url;
 	}
 
 	send<T extends keyof ProtocolMapping.Commands>(
@@ -276,20 +262,6 @@ export class CDPSession extends EventEmitter {
 			assert(!object.id);
 			this.emit(object.method, object.params);
 		}
-	}
-
-	async detach(): Promise<void> {
-		if (!this.#connection) {
-			throw new Error(
-				`Session already detached. Most likely the ${
-					this.#targetType
-				} has been closed.`
-			);
-		}
-
-		await this.#connection.send('Target.detachFromTarget', {
-			sessionId: this.#sessionId,
-		});
 	}
 
 	_onClosed(): void {
