@@ -57,14 +57,14 @@ export async function downloadBrowser(product: Product): Promise<void> {
 
 		// Do nothing if the revision is already downloaded.
 		if (revisionInfo.local) {
-			logPolitely(
+			console.log(
 				`${supportedProducts[product]} is already in ${revisionInfo.folderPath}; skipping download.`
 			);
 			return;
 		}
 
 		function onSuccess(localRevisions: string[]): void {
-			logPolitely(
+			console.log(
 				`${supportedProducts[product]} (${revisionInfo.revision}) downloaded to ${revisionInfo.folderPath}`
 			);
 			localRevisions = localRevisions.filter((__revision) => {
@@ -114,7 +114,7 @@ export async function downloadBrowser(product: Product): Promise<void> {
 
 		const promise = new Promise<string>((resolve, reject) => {
 			let data = '';
-			logPolitely(
+			console.log(
 				`Requesting latest Firefox Nightly version from ${firefoxVersionsUrl}`
 			);
 			https
@@ -138,15 +138,5 @@ export async function downloadBrowser(product: Product): Promise<void> {
 				.on('error', reject);
 		});
 		return promise;
-	}
-}
-
-function logPolitely(toBeLogged: unknown): void {
-	const logLevel = process.env.npm_config_loglevel || '';
-	const logLevelDisplay = ['silent', 'error', 'warn'].indexOf(logLevel) > -1;
-
-	// eslint-disable-next-line no-console
-	if (!logLevelDisplay) {
-		console.log(toBeLogged);
 	}
 }
