@@ -213,9 +213,6 @@ export class NetworkManager extends EventEmitter {
 	): void {
 		const response = new HTTPResponse(responsePayload, extraInfo);
 		request._response = response;
-		response._resolveBody(
-			new Error('Response body is unavailable for redirect responses')
-		);
 		this.#forgetRequest(request, false);
 	}
 
@@ -335,12 +332,6 @@ export class NetworkManager extends EventEmitter {
 			return;
 		}
 
-		// Under certain conditions we never get the Network.responseReceived
-		// event from protocol. @see https://crbug.com/883475
-		if (request.response()) {
-			request.response()?._resolveBody(null);
-		}
-
 		this.#forgetRequest(request, true);
 	}
 
@@ -363,11 +354,6 @@ export class NetworkManager extends EventEmitter {
 		// @see https://crbug.com/750469
 		if (!request) {
 			return;
-		}
-
-		const response = request.response();
-		if (response) {
-			response._resolveBody(null);
 		}
 
 		this.#forgetRequest(request, true);
