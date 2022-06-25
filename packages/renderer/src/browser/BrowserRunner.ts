@@ -76,8 +76,7 @@ export class BrowserRunner {
 	}
 
 	start(options: LaunchOptions): void {
-		const {handleSIGINT, handleSIGTERM, handleSIGHUP, dumpio, env, pipe} =
-			options;
+		const {handleSIGINT, handleSIGTERM, handleSIGHUP, dumpio, pipe} = options;
 		let stdio: Array<'ignore' | 'pipe'>;
 		if (pipe) {
 			if (dumpio) {
@@ -101,8 +100,8 @@ export class BrowserRunner {
 				// process tree with `.kill(-pid)` command. @see
 				// https://nodejs.org/api/child_process.html#child_process_options_detached
 				detached: process.platform !== 'win32',
-				env,
 				stdio,
+				env: process.env,
 			}
 		);
 		if (dumpio) {

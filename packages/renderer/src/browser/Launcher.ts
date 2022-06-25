@@ -56,13 +56,11 @@ class ChromeLauncher implements ProductLauncher {
 			dumpio = false,
 			executablePath,
 			pipe = false,
-			env = process.env,
 			handleSIGINT = true,
 			handleSIGTERM = true,
 			handleSIGHUP = true,
 			defaultViewport,
 			timeout = 30000,
-			debuggingPort,
 		} = options;
 
 		const chromeArguments = args;
@@ -73,13 +71,7 @@ class ChromeLauncher implements ProductLauncher {
 			})
 		) {
 			if (pipe) {
-				assert(
-					!debuggingPort,
-					'Browser should be launched with either pipe or debugging port - not both.'
-				);
 				chromeArguments.push('--remote-debugging-pipe');
-			} else {
-				chromeArguments.push(`--remote-debugging-port=${debuggingPort || 0}`);
 			}
 		}
 
@@ -129,7 +121,6 @@ class ChromeLauncher implements ProductLauncher {
 			handleSIGTERM,
 			handleSIGINT,
 			dumpio,
-			env,
 			pipe: false,
 		});
 
@@ -186,14 +177,12 @@ class FirefoxLauncher implements ProductLauncher {
 		const {
 			dumpio = false,
 			executablePath = null,
-			env = process.env,
 			handleSIGINT = true,
 			handleSIGTERM = true,
 			handleSIGHUP = true,
 			defaultViewport,
 			timeout = 30000,
 			extraPrefsFirefox = {},
-			debuggingPort = null,
 		} = options;
 
 		const firefoxArguments = [];
@@ -204,7 +193,7 @@ class FirefoxLauncher implements ProductLauncher {
 				return argument.startsWith('--remote-debugging-');
 			})
 		) {
-			firefoxArguments.push(`--remote-debugging-port=${debuggingPort || 0}`);
+			firefoxArguments.push(`--remote-debugging-port=0`);
 		}
 
 		let userDataDir: string | undefined;
@@ -260,7 +249,6 @@ class FirefoxLauncher implements ProductLauncher {
 			handleSIGTERM,
 			handleSIGINT,
 			dumpio,
-			env,
 		});
 
 		let browser;
@@ -319,12 +307,7 @@ class FirefoxLauncher implements ProductLauncher {
 	}
 
 	defaultArgs(options: BrowserLaunchArgumentOptions): string[] {
-		const {
-			devtools = false,
-			headless = !devtools,
-			args = [],
-			userDataDir = null,
-		} = options;
+		const {headless = true, args = []} = options;
 
 		const firefoxArguments = ['--no-remote'];
 
@@ -334,17 +317,8 @@ class FirefoxLauncher implements ProductLauncher {
 			firefoxArguments.push('--wait-for-browser');
 		}
 
-		if (userDataDir) {
-			firefoxArguments.push('--profile');
-			firefoxArguments.push(userDataDir);
-		}
-
 		if (headless) {
 			firefoxArguments.push('--headless');
-		}
-
-		if (devtools) {
-			firefoxArguments.push('--devtools');
 		}
 
 		if (
