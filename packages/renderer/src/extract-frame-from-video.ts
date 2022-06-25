@@ -17,7 +17,7 @@ import {pLimit} from './p-limit';
 const lastFrameLimit = pLimit(1);
 const mainLimit = pLimit(5);
 
-export const determineVcodecFfmepgFlags = (
+const determineVcodecFfmepgFlags = (
 	vcodecFlag: SpecialVCodecForTransparency
 ) => {
 	return [
