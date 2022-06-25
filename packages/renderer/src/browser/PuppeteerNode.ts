@@ -51,57 +51,14 @@ export class PuppeteerNode {
 		this.createBrowserFetcher = this.createBrowserFetcher.bind(this);
 	}
 
-	get _productName(): Product | undefined {
-		return this.#productName;
-	}
-
-	set _productName(name: Product | undefined) {
-		this.#productName = name;
-	}
-
-	/**
-	 * Launches puppeteer and launches a browser instance with given arguments
-	 * and options when specified.
-	 *
-	 * @remarks
-	 *
-	 * @example
-	 * You can use `ignoreDefaultArgs` to filter out `--mute-audio` from default arguments:
-	 * ```js
-	 * const browser = await puppeteer.launch({
-	 *   ignoreDefaultArgs: ['--mute-audio']
-	 * });
-	 * ```
-	 *
-	 * **NOTE** Puppeteer can also be used to control the Chrome browser,
-	 * but it works best with the version of Chromium it is bundled with.
-	 * There is no guarantee it will work with any other version.
-	 * Use `executablePath` option with extreme caution.
-	 * If Google Chrome (rather than Chromium) is preferred, a {@link https://www.google.com/chrome/browser/canary.html | Chrome Canary} or {@link https://www.chromium.org/getting-involved/dev-channel | Dev Channel} build is suggested.
-	 * In `puppeteer.launch([options])`, any mention of Chromium also applies to Chrome.
-	 * See {@link https://www.howtogeek.com/202825/what%E2%80%99s-the-difference-between-chromium-and-chrome/ | this article} for a description of the differences between Chromium and Chrome. {@link https://chromium.googlesource.com/chromium/src/+/lkgr/docs/chromium_browser_vs_google_chrome.md | This article} describes some differences for Linux users.
-	 *
-	 * @param options - Set of configurable options to set on the browser.
-	 * @returns Promise which resolves to browser instance.
-	 */
 	launch(options: PuppeteerLaunchOptions): Promise<Browser> {
 		if (options.product) {
-			this._productName = options.product;
+			this.#productName = options.product;
 		}
 
 		return this._launcher.launch(options);
 	}
 
-	/**
-	 * @remarks
-	 *
-	 * **NOTE** `puppeteer.executablePath()` is affected by the `PUPPETEER_EXECUTABLE_PATH`
-	 * and `PUPPETEER_CHROMIUM_REVISION` environment variables.
-	 *
-	 * @returns A path where Puppeteer expects to find the bundled browser.
-	 * The browser binary might not be there if the download was skipped with
-	 * the `PUPPETEER_SKIP_DOWNLOAD` environment variable.
-	 */
 	executablePath(channel?: string): string {
 		return this._launcher.executablePath(channel);
 	}
@@ -109,9 +66,9 @@ export class PuppeteerNode {
 	get _launcher(): ProductLauncher {
 		if (
 			!this.#lazyLauncher ||
-			this.#lazyLauncher.product !== this._productName
+			this.#lazyLauncher.product !== this.#productName
 		) {
-			switch (this._productName) {
+			switch (this.#productName) {
 				case 'firefox':
 					this._preferredRevision = PUPPETEER_REVISIONS.firefox;
 					break;
@@ -121,29 +78,16 @@ export class PuppeteerNode {
 			}
 
 			// eslint-disable-next-line new-cap
-			this.#lazyLauncher = Launcher(this._preferredRevision, this._productName);
+			this.#lazyLauncher = Launcher(this._preferredRevision, this.#productName);
 		}
 
 		return this.#lazyLauncher;
 	}
 
-	/**
-	 * The name of the browser that is under automation (`"chrome"` or `"firefox"`)
-	 *
-	 * @remarks
-	 * The product is set by the `PUPPETEER_PRODUCT` environment variable or the `product`
-	 * option in `puppeteer.launch([options])` and defaults to `chrome`.
-	 * Firefox support is experimental.
-	 */
 	get product(): string {
 		return this._launcher.product;
 	}
 
-	/**
-	 * @param options - Set of configurable options to specify the settings
-	 * of the BrowserFetcher.
-	 * @returns A new BrowserFetcher instance.
-	 */
 	createBrowserFetcher(options: BrowserFetcherOptions): BrowserFetcher {
 		return new BrowserFetcher(options);
 	}
