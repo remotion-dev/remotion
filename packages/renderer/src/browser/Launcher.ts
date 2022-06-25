@@ -154,7 +154,6 @@ class ChromeLauncher implements ProductLauncher {
 				connection,
 				contextIds: [],
 				defaultViewport,
-				process: runner.proc,
 				closeCallback: runner.close.bind(runner),
 			});
 		} catch (error) {
@@ -304,7 +303,6 @@ class FirefoxLauncher implements ProductLauncher {
 				connection,
 				contextIds: [],
 				defaultViewport,
-				process: runner.proc,
 				closeCallback: runner.close.bind(runner),
 			});
 		} catch (error) {
