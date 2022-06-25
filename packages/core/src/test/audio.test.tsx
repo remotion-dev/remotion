@@ -1,6 +1,7 @@
 import {render} from '@testing-library/react';
 import type {ComponentType} from 'react';
 import React, {useContext} from 'react';
+import {AssetRoot} from '../AssetRoot';
 import {Audio} from '../audio';
 import {Internals} from '../internals';
 import {TimelineRoot} from '../TimelineRoot';
@@ -10,37 +11,39 @@ const Wrapper: React.FC<{
 }> = ({children}) => {
 	const compositions = useContext(Internals.CompositionManager);
 	return (
-		<TimelineRoot>
-			<Internals.RemotionRoot>
-				<Internals.CompositionManager.Provider
-					// eslint-disable-next-line react/jsx-no-constructed-context-values
-					value={{
-						...compositions,
-						compositions: [
-							{
-								height: 1080,
-								width: 1080,
-								fps: 30,
-								durationInFrames: 30,
-								id: 'markup',
-								nonce: 0,
-								component: React.lazy(() =>
-									Promise.resolve({
-										default: (() => null) as ComponentType<unknown>,
-									})
-								),
-								defaultProps: undefined,
-								folderName: null,
-								parentFolderName: null,
-							},
-						],
-						currentComposition: 'markup',
-					}}
-				>
-					{children}
-				</Internals.CompositionManager.Provider>
-			</Internals.RemotionRoot>
-		</TimelineRoot>
+		<AssetRoot pageIndex={0}>
+			<TimelineRoot pageIndex={0}>
+				<Internals.RemotionRoot>
+					<Internals.CompositionManager.Provider
+						// eslint-disable-next-line react/jsx-no-constructed-context-values
+						value={{
+							...compositions,
+							compositions: [
+								{
+									height: 1080,
+									width: 1080,
+									fps: 30,
+									durationInFrames: 30,
+									id: 'markup',
+									nonce: 0,
+									component: React.lazy(() =>
+										Promise.resolve({
+											default: (() => null) as ComponentType<unknown>,
+										})
+									),
+									defaultProps: undefined,
+									folderName: null,
+									parentFolderName: null,
+								},
+							],
+							currentComposition: 'markup',
+						}}
+					>
+						{children}
+					</Internals.CompositionManager.Provider>
+				</Internals.RemotionRoot>
+			</TimelineRoot>
+		</AssetRoot>
 	);
 };
 

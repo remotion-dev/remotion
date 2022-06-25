@@ -1,3 +1,4 @@
+import {AssetRoot} from './AssetRoot';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -147,6 +148,7 @@ export const Internals = {
 	CompositionManager,
 	RemotionRoot,
 	TimelineRoot,
+	AssetRoot,
 	useVideo,
 	getRoot,
 	getBrowserExecutable,

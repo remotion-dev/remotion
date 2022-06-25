@@ -7,11 +7,11 @@ import React, {
 	useRef,
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src';
+import {AssetManager} from '../AssetRoot';
 import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from '../audio/use-audio-frame';
-import {CompositionManager} from '../CompositionManager';
 import {continueRender, delayRender} from '../delay-render';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {random} from '../random';
@@ -35,7 +35,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
 
-	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
+	const {registerAsset, unregisterAsset} = useContext(AssetManager);
 
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads

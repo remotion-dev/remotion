@@ -1,6 +1,7 @@
 import {render} from '@testing-library/react';
 import React from 'react';
 import {Composition} from '..';
+import {AssetRoot} from '../AssetRoot';
 import {RemotionRoot} from '../RemotionRoot';
 import {TimelineRoot} from '../TimelineRoot';
 import {expectToThrow} from './expect-to-throw';
@@ -46,26 +47,28 @@ describe('Render composition-rules should throw with invalid props', () => {
 		expectToThrow(
 			() =>
 				render(
-					<TimelineRoot>
-						<RemotionRoot>
-							<Composition
-								lazyComponent={() => Promise.resolve({default: AnyComp})}
-								durationInFrames={100}
-								fps={30}
-								height={100}
-								width={100}
-								id="id"
-							/>
-							<Composition
-								lazyComponent={() => Promise.resolve({default: AnyComp})}
-								durationInFrames={100}
-								fps={30}
-								height={100}
-								width={100}
-								id="id"
-							/>
-						</RemotionRoot>
-					</TimelineRoot>
+					<AssetRoot pageIndex={0}>
+						<TimelineRoot pageIndex={0}>
+							<RemotionRoot>
+								<Composition
+									lazyComponent={() => Promise.resolve({default: AnyComp})}
+									durationInFrames={100}
+									fps={30}
+									height={100}
+									width={100}
+									id="id"
+								/>
+								<Composition
+									lazyComponent={() => Promise.resolve({default: AnyComp})}
+									durationInFrames={100}
+									fps={30}
+									height={100}
+									width={100}
+									id="id"
+								/>
+							</RemotionRoot>
+						</TimelineRoot>
+					</AssetRoot>
 				),
 			/Multiple composition with id id/
 		);

@@ -1,7 +1,6 @@
 import type {render} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import {Internals} from 'remotion';
-import {TimelineRoot} from 'remotion/src/TimelineRoot';
 import '../styles/styles.css';
 import {Editor} from './editor/components/Editor';
 
@@ -10,11 +9,13 @@ Internals.CSSUtils.injectCSS(
 );
 
 const content = (
-	<TimelineRoot>
-		<Internals.RemotionRoot>
-			<Editor />
-		</Internals.RemotionRoot>
-	</TimelineRoot>
+	<Internals.AssetRoot pageIndex={0}>
+		<Internals.TimelineRoot pageIndex={0}>
+			<Internals.RemotionRoot>
+				<Editor />
+			</Internals.RemotionRoot>
+		</Internals.TimelineRoot>
+	</Internals.AssetRoot>
 );
 
 if (ReactDOM.createRoot) {

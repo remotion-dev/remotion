@@ -11,13 +11,13 @@ declare global {
 		remotion_editorName: string | null;
 		remotion_projectName: string;
 		remotion_cwd: string;
-		remotion_setFrame: (index: number, frame: number) => void;
+		remotion_setFrame: ((frame: number) => void)[];
 		remotion_initialFrame: number;
 		remotion_proxyPort: number;
 		remotion_puppeteerTimeout: number;
 		remotion_inputProps: string;
 		remotion_envVariables: string;
-		remotion_collectAssets: (index: number) => TAsset[];
+		remotion_collectAssets: (() => TAsset[])[];
 		remotion_isPlayer: boolean;
 		remotion_imported: boolean;
 		remotion_isBuilding: undefined | (() => void);

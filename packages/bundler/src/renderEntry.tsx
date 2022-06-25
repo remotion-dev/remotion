@@ -95,22 +95,25 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 		<>
 			{portalContainers.map((p, i) => {
 				return (
-					<Internals.TimelineRoot
+					<Internals.AssetRoot
 						// eslint-disable-next-line react/no-array-index-key
 						key={i}
+						pageIndex={i}
 					>
-						<div
-							ref={p}
-							style={{
-								width: video.width,
-								height: video.height,
-								display: 'flex',
-								backgroundColor: 'transparent',
-								overflow: 'hidden',
-								position: 'relative',
-							}}
-						/>
-					</Internals.TimelineRoot>
+						<Internals.TimelineRoot pageIndex={i}>
+							<div
+								ref={p}
+								style={{
+									width: video.width,
+									height: video.height,
+									display: 'flex',
+									backgroundColor: 'transparent',
+									overflow: 'hidden',
+									position: 'relative',
+								}}
+							/>
+						</Internals.TimelineRoot>
+					</Internals.AssetRoot>
 				);
 			})}
 		</>
@@ -253,6 +256,6 @@ if (typeof window !== 'undefined') {
 			});
 	};
 
-	window.siteVersion = '3';
+	window.siteVersion = '4';
 	window.setBundleMode = setBundleModeAndUpdate;
 }

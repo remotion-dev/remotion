@@ -89,7 +89,7 @@ export const getAssetsForMarkup = async (
 		}, [assets, compositions, registerAsset, unregisterAsset]);
 
 		return (
-			<Internals.TimelineRoot>
+			<Internals.TimelineRoot pageIndex={0}>
 				<Internals.RemotionRoot>
 					<Internals.CompositionManager.Provider value={value}>
 						<Markup />
@@ -106,7 +106,7 @@ export const getAssetsForMarkup = async (
 		currentFrame++
 	) {
 		act(() => {
-			window.remotion_setFrame(0, currentFrame);
+			window.remotion_setFrame[0](currentFrame);
 		});
 		await waitForWindowToBeReady();
 		collectedAssets.push(collectAssets());

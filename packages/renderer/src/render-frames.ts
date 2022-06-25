@@ -86,10 +86,8 @@ const getComposition = (others: ConfigOrComposition) => {
 	return undefined;
 };
 
-const getPool = async (pages: Promise<Page>[]) => {
-	const puppeteerPages = await Promise.all(pages);
-	const pool = new Pool(puppeteerPages);
-	return pool;
+const getPool = async (pages: number[]) => {
+	return new Pool(pages);
 };
 
 const innerRenderFrames = ({
@@ -149,7 +147,7 @@ const innerRenderFrames = ({
 		composition.durationInFrames
 	);
 
-	const pages = new Array(actualParallelism).fill(true).map(async () => {
+	const singlePage = (async () => {
 		const page = await puppeteerInstance.newPage();
 		pagesArray.push(page);
 		await page.setViewport({
@@ -202,7 +200,7 @@ const innerRenderFrames = ({
 
 		page.off('console', logCallback);
 		return page;
-	});
+	})();
 
 	const [firstFrameIndex, lastFrameIndex] = realFrameRange;
 	// Substract one because 100 frames will be 00-99
@@ -210,7 +208,9 @@ const innerRenderFrames = ({
 	const filePadLength = String(lastFrameIndex).length;
 	let framesRendered = 0;
 
-	const poolPromise = getPool(pages);
+	const poolPromise = getPool(
+		new Array(actualParallelism).fill(true).map((_, i) => i)
+	);
 
 	onStart({
 		frameCount,
@@ -227,7 +227,9 @@ const innerRenderFrames = ({
 			.map(async (index) => {
 				const frame = realFrameRange[0] + index;
 				const pool = await poolPromise;
-				const freePage = await pool.acquire();
+
+				const page = await singlePage;
+				const pageIndex = await pool.acquire();
 				if (stopped) {
 					throw new Error('Render was stopped');
 				}
@@ -239,18 +241,18 @@ const innerRenderFrames = ({
 				};
 
 				const cleanupPageError = handleJavascriptException({
-					page: freePage,
+					page,
 					onError: errorCallbackOnFrame,
 					frame,
 				});
-				freePage.on('error', errorCallbackOnFrame);
-				await seekToFrame({frame, page: freePage});
+				page.on('error', errorCallbackOnFrame);
+				await seekToFrame({frame, pageIndex, page});
 
 				if (imageFormat !== 'none') {
 					if (onFrameBuffer) {
 						const id = Internals.perf.startPerfMeasure('save');
 						const buffer = await provideScreenshot({
-							page: freePage,
+							page,
 							imageFormat,
 							quality,
 							options: {
@@ -272,8 +274,10 @@ const innerRenderFrames = ({
 							outputDir,
 							`element-${paddedIndex}.${imageFormat}`
 						);
+
+						// TODO Crop
 						await provideScreenshot({
-							page: freePage,
+							page,
 							imageFormat,
 							quality,
 							options: {
@@ -286,11 +290,11 @@ const innerRenderFrames = ({
 
 				const collectedAssets = await puppeteerEvaluateWithCatch<TAsset[]>({
 					pageFunction: () => {
-						return window.remotion_collectAssets();
+						return window.remotion_collectAssets[pageIndex]();
 					},
 					args: [],
 					frame,
-					page: freePage,
+					page,
 				});
 				const compressedAssets = collectedAssets.map((asset) =>
 					Internals.AssetCompression.compressAsset(
@@ -312,11 +316,12 @@ const innerRenderFrames = ({
 						);
 					});
 				});
-				pool.release(freePage);
+				pool.release(pageIndex);
 				framesRendered++;
 				onFrameUpdate(framesRendered, frame);
 				cleanupPageError();
-				freePage.off('error', errorCallbackOnFrame);
+				// TODO: Error handling is sketch here
+				page.off('error', errorCallbackOnFrame);
 				return compressedAssets;
 			})
 	);

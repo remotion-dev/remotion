@@ -12,7 +12,7 @@ const Wrapper: React.FC<{
 }> = ({children}) => {
 	const compositions = useContext(CompositionManager);
 	return (
-		<TimelineRoot>
+		<TimelineRoot pageIndex={0}>
 			<RemotionRoot>
 				<CompositionManager.Provider
 					// eslint-disable-next-line react/jsx-no-constructed-context-values

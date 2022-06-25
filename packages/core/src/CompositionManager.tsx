@@ -1,11 +1,8 @@
-import type {
-	ComponentType,
-	LazyExoticComponent} from 'react';
+import type {ComponentType, LazyExoticComponent} from 'react';
 import React, {
 	createContext,
 	useCallback,
 	useImperativeHandle,
-	useLayoutEffect,
 	useMemo,
 	useState,
 } from 'react';
@@ -97,10 +94,7 @@ export type CompositionManagerContext = {
 	setCurrentComposition: (curr: string) => void;
 	registerSequence: (seq: TSequence) => void;
 	unregisterSequence: (id: string) => void;
-	registerAsset: (asset: TAsset) => void;
-	unregisterAsset: (id: string) => void;
 	sequences: TSequence[];
-	assets: TAsset[];
 	folders: TFolder[];
 };
 
@@ -114,10 +108,7 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	setCurrentComposition: () => undefined,
 	registerSequence: () => undefined,
 	unregisterSequence: () => undefined,
-	registerAsset: () => undefined,
-	unregisterAsset: () => undefined,
 	sequences: [],
-	assets: [],
 	folders: [],
 });
 
@@ -134,7 +125,6 @@ export const CompositionManagerProvider: React.FC<{
 	const [currentComposition, setCurrentComposition] = useState<string | null>(
 		null
 	);
-	const [assets, setAssets] = useState<TAsset[]>([]);
 	const [folders, setFolders] = useState<TFolder[]>([]);
 
 	const [sequences, setSequences] = useState<TSequence[]>([]);
@@ -167,18 +157,6 @@ export const CompositionManagerProvider: React.FC<{
 		setSequences((seqs) => seqs.filter((s) => s.id !== seq));
 	}, []);
 
-	const registerAsset = useCallback((asset: TAsset) => {
-		setAssets((assts) => {
-			return [...assts, asset];
-		});
-	}, []);
-
-	const unregisterAsset = useCallback((id: string) => {
-		setAssets((assts) => {
-			return assts.filter((a) => a.id !== id);
-		});
-	}, []);
-
 	const registerFolder = useCallback((name: string, parent: string | null) => {
 		setFolders((prevFolders) => {
 			return [
@@ -202,15 +180,6 @@ export const CompositionManagerProvider: React.FC<{
 		[]
 	);
 
-	useLayoutEffect(() => {
-		if (typeof window !== 'undefined') {
-			window.remotion_collectAssets = () => {
-				setAssets([]); // clear assets at next render
-				return assets;
-			};
-		}
-	}, [assets]);
-
 	useImperativeHandle(
 		compositionsRef,
 		() => {
@@ -230,10 +199,7 @@ export const CompositionManagerProvider: React.FC<{
 			setCurrentComposition,
 			registerSequence,
 			unregisterSequence,
-			registerAsset,
-			unregisterAsset,
 			sequences,
-			assets,
 			folders,
 			registerFolder,
 			unregisterFolder,
@@ -245,10 +211,7 @@ export const CompositionManagerProvider: React.FC<{
 		registerSequence,
 		unregisterComposition,
 		unregisterSequence,
-		registerAsset,
-		unregisterAsset,
 		sequences,
-		assets,
 		registerFolder,
 		unregisterFolder,
 		folders,

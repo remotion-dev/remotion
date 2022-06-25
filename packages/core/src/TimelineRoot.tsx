@@ -10,7 +10,8 @@ import {SetTimelineContext, TimelineContext} from './timeline-position-state';
 
 export const TimelineRoot: React.FC<{
 	children: React.ReactNode;
-}> = ({children}) => {
+	pageIndex: number;
+}> = ({children, pageIndex}) => {
 	const [remotionRootId] = useState(() => String(random(null)));
 	const [frame, setFrame] = useState<number>(() => {
 		return window.remotion_initialFrame ?? 0;
@@ -22,9 +23,12 @@ export const TimelineRoot: React.FC<{
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 
 	useLayoutEffect(() => {
-		// TODO parallelize
 		if (typeof window !== 'undefined') {
-			window.remotion_setFrame = (f: number) => {
+			if (typeof window.remotion_setFrame === 'undefined') {
+				window.remotion_setFrame = [];
+			}
+
+			window.remotion_setFrame[pageIndex] = (f: number) => {
 				const id = delayRender(`Setting the current frame to ${f}`);
 				setFrame(f);
 				requestAnimationFrame(() => continueRender(id));
@@ -32,7 +36,7 @@ export const TimelineRoot: React.FC<{
 
 			window.remotion_isPlayer = false;
 		}
-	}, []);
+	}, [pageIndex]);
 
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {

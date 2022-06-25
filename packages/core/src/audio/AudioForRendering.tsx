@@ -7,7 +7,7 @@ import React, {
 	useRef,
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src';
-import {CompositionManager} from '../CompositionManager';
+import {AssetManager} from '../AssetRoot';
 import {random} from '../random';
 import {SequenceContext} from '../Sequence';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-current-frame';
@@ -25,7 +25,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	const volumePropFrame = useFrameForVolumeProp();
 	const frame = useCurrentFrame();
 	const sequenceContext = useContext(SequenceContext);
-	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
+	const {registerAsset, unregisterAsset} = useContext(AssetManager);
 
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads
