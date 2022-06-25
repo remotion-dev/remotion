@@ -31,7 +31,6 @@ export type ChromeReleaseChannel =
 	| 'chrome-dev';
 
 export interface LaunchOptions {
-	channel?: ChromeReleaseChannel;
 	executablePath?: string;
 	ignoreDefaultArgs?: boolean | string[];
 	handleSIGINT?: boolean;
