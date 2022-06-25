@@ -64,7 +64,6 @@ class ChromeLauncher implements ProductLauncher {
 			handleSIGHUP = true,
 			defaultViewport,
 			timeout = 30000,
-			waitForInitialPage = true,
 			debuggingPort,
 		} = options;
 
@@ -161,18 +160,16 @@ class ChromeLauncher implements ProductLauncher {
 			throw error;
 		}
 
-		if (waitForInitialPage) {
-			try {
-				await browser.waitForTarget(
-					(t) => {
-						return t.type() === 'page';
-					},
-					{timeout}
-				);
-			} catch (error) {
-				await browser.close();
-				throw error;
-			}
+		try {
+			await browser.waitForTarget(
+				(t) => {
+					return t.type() === 'page';
+				},
+				{timeout}
+			);
+		} catch (error) {
+			await browser.close();
+			throw error;
 		}
 
 		return browser;
@@ -212,7 +209,6 @@ class FirefoxLauncher implements ProductLauncher {
 			defaultViewport,
 			timeout = 30000,
 			extraPrefsFirefox = {},
-			waitForInitialPage = true,
 			debuggingPort = null,
 		} = options;
 
@@ -310,18 +306,16 @@ class FirefoxLauncher implements ProductLauncher {
 			throw error;
 		}
 
-		if (waitForInitialPage) {
-			try {
-				await browser.waitForTarget(
-					(t) => {
-						return t.type() === 'page';
-					},
-					{timeout}
-				);
-			} catch (error) {
-				await browser.close();
-				throw error;
-			}
+		try {
+			await browser.waitForTarget(
+				(t) => {
+					return t.type() === 'page';
+				},
+				{timeout}
+			);
+		} catch (error) {
+			await browser.close();
+			throw error;
 		}
 
 		return browser;
