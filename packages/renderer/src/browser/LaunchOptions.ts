@@ -19,8 +19,16 @@ import type {Product} from './Product';
 
 export interface BrowserLaunchArgumentOptions {
 	headless?: boolean | 'chrome';
+	userDataDir?: string;
+	devtools?: boolean;
+	debuggingPort?: number;
 	args: string[];
 }
+export type ChromeReleaseChannel =
+	| 'chrome'
+	| 'chrome-beta'
+	| 'chrome-canary'
+	| 'chrome-dev';
 
 export interface LaunchOptions {
 	executablePath?: string;
@@ -29,6 +37,7 @@ export interface LaunchOptions {
 	handleSIGHUP?: boolean;
 	timeout?: number;
 	dumpio?: boolean;
+	env?: Record<string, string | undefined>;
 	pipe?: boolean;
 	product?: Product;
 	extraPrefsFirefox?: Record<string, unknown>;
