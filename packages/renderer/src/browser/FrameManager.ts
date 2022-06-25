@@ -176,12 +176,12 @@ export class FrameManager extends EventEmitter {
 		options: {
 			referer?: string;
 			timeout?: number;
-			waitUntil?: PuppeteerLifeCycleEvent | PuppeteerLifeCycleEvent[];
+			waitUntil?: PuppeteerLifeCycleEvent;
 		} = {}
 	): Promise<HTTPResponse | null> {
 		const {
 			referer = this.#networkManager.extraHTTPHeaders().referer,
-			waitUntil = ['load'],
+			waitUntil = 'load',
 			timeout = this.#timeoutSettings.navigationTimeout(),
 		} = options;
 
@@ -598,7 +598,7 @@ export class Frame {
 		options: {
 			referer?: string;
 			timeout?: number;
-			waitUntil?: PuppeteerLifeCycleEvent | PuppeteerLifeCycleEvent[];
+			waitUntil?: PuppeteerLifeCycleEvent;
 		} = {}
 	): Promise<HTTPResponse | null> {
 		return this._frameManager.navigateFrame(this, url, options);
@@ -663,7 +663,6 @@ export class Frame {
 	}
 
 	_onLoadingStopped(): void {
-		this._lifecycleEvents.add('DOMContentLoaded');
 		this._lifecycleEvents.add('load');
 	}
 

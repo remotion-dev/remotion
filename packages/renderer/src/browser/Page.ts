@@ -32,7 +32,6 @@ import {FrameManager} from './FrameManager';
 import type {HTTPResponse} from './HTTPResponse';
 import type {JSHandle} from './JSHandle';
 import {_createJSHandle} from './JSHandle';
-import type {PuppeteerLifeCycleEvent} from './LifecycleWatcher';
 import type {Viewport} from './PuppeteerViewport';
 import type {Target} from './Target';
 import {TaskQueue} from './TaskQueue';
@@ -49,7 +48,6 @@ import {
 
 interface WaitForOptions {
 	timeout?: number;
-	waitUntil?: PuppeteerLifeCycleEvent | PuppeteerLifeCycleEvent[];
 }
 
 const enum PageEmittedEvents {
