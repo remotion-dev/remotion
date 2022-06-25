@@ -180,7 +180,7 @@ export class FrameManager extends EventEmitter {
 		} = {}
 	): Promise<HTTPResponse | null> {
 		const {
-			referer = this.#networkManager.extraHTTPHeaders().referer,
+			referer = undefined,
 			waitUntil = 'load',
 			timeout = this.#timeoutSettings.navigationTimeout(),
 		} = options;

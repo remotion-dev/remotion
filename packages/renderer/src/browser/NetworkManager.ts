@@ -16,14 +16,12 @@
 
 import type {Protocol} from 'devtools-protocol';
 import type {ProtocolMapping} from 'devtools-protocol/types/protocol-mapping';
-import {assert} from './assert';
 import {EventEmitter} from './EventEmitter';
 import type {Frame} from './FrameManager';
 import {HTTPRequest} from './HTTPRequest';
 import {HTTPResponse} from './HTTPResponse';
 import type {FetchRequestId} from './NetworkEventManager';
 import {NetworkEventManager} from './NetworkEventManager';
-import {isString} from './util';
 
 export const NetworkManagerEmittedEvents = {
 	Request: Symbol('NetworkManager.Request'),
@@ -44,8 +42,6 @@ export class NetworkManager extends EventEmitter {
 	#client: CDPSession;
 	#frameManager: FrameManager;
 	#networkEventManager = new NetworkEventManager();
-	#extraHTTPHeaders: Record<string, string> = {};
-	#attemptedAuthentications = new Set<string>();
 	constructor(client: CDPSession, frameManager: FrameManager) {
 		super();
 		this.#client = client;
@@ -80,28 +76,6 @@ export class NetworkManager extends EventEmitter {
 		await this.#client.send('Network.enable');
 	}
 
-	async setExtraHTTPHeaders(
-		extraHTTPHeaders: Record<string, string>
-	): Promise<void> {
-		this.#extraHTTPHeaders = {};
-		for (const key of Object.keys(extraHTTPHeaders)) {
-			const value = extraHTTPHeaders[key];
-			assert(
-				isString(value),
-				`Expected value of header "${key}" to be String, but "${typeof value}" is found.`
-			);
-			this.#extraHTTPHeaders[key.toLowerCase()] = value;
-		}
-
-		await this.#client.send('Network.setExtraHTTPHeaders', {
-			headers: this.#extraHTTPHeaders,
-		});
-	}
-
-	extraHTTPHeaders(): Record<string, string> {
-		return {...this.#extraHTTPHeaders};
-	}
-
 	numRequestsInProgress(): number {
 		return this.#networkEventManager.numRequestsInProgress();
 	}
@@ -112,10 +86,7 @@ export class NetworkManager extends EventEmitter {
 
 	#onAuthRequired(event: Protocol.Fetch.AuthRequiredEvent): void {
 		type AuthResponse = 'Default' | 'CancelAuth' | 'ProvideCredentials';
-		let response: AuthResponse = 'Default';
-		if (this.#attemptedAuthentications.has(event.requestId)) {
-			response = 'CancelAuth';
-		}
+		const response: AuthResponse = 'Default';
 
 		const {username, password} = {
 			username: undefined,
