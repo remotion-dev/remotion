@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import type {ChildProcess} from 'child_process';
 import type {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
 import type {Connection} from './Connection';
@@ -24,25 +23,9 @@ import type {Viewport} from './PuppeteerViewport';
 import {Target} from './Target';
 import {waitWithTimeout} from './util';
 
-interface BrowserContextOptions {
-	/**
-	 * Proxy server with optional port to use for all requests.
-	 * Username and password can be set in `Page.authenticate`.
-	 */
-	proxyServer?: string;
-	/**
-	 * Bypass the proxy for the given semi-colon-separated list of hosts.
-	 */
-	proxyBypassList?: string[];
-}
-
 type BrowserCloseCallback = () => Promise<void> | void;
 
 interface WaitForTargetOptions {
-	/**
-	 * Maximum wait time in milliseconds. Pass `0` to disable the timeout.
-	 * @defaultValue 30 seconds.
-	 */
 	timeout?: number;
 }
 
@@ -56,20 +39,17 @@ export class Browser extends EventEmitter {
 		connection,
 		contextIds,
 		defaultViewport,
-		process,
 		closeCallback,
 	}: {
 		connection: Connection;
 		contextIds: string[];
 		defaultViewport: Viewport;
-		process?: ChildProcess;
 		closeCallback?: BrowserCloseCallback;
 	}): Promise<Browser> {
 		const browser = new Browser(
 			connection,
 			contextIds,
 			defaultViewport,
-			process,
 			closeCallback
 		);
 		await connection.send('Target.setDiscoverTargets', {discover: true});
@@ -77,7 +57,6 @@ export class Browser extends EventEmitter {
 	}
 
 	#defaultViewport: Viewport;
-	#process?: ChildProcess;
 	#connection: Connection;
 	#closeCallback: BrowserCloseCallback;
 	#defaultContext: BrowserContext;
@@ -93,12 +72,10 @@ export class Browser extends EventEmitter {
 		connection: Connection,
 		contextIds: string[],
 		defaultViewport: Viewport,
-		process?: ChildProcess,
 		closeCallback?: BrowserCloseCallback
 	) {
 		super();
 		this.#defaultViewport = defaultViewport;
-		this.#process = process;
 		this.#connection = connection;
 		this.#closeCallback =
 			closeCallback ||
@@ -124,72 +101,8 @@ export class Browser extends EventEmitter {
 		);
 	}
 
-	/**
-	 * The spawned browser process. Returns `null` if the browser instance was created with
-	 * {@link Puppeteer.connect}.
-	 */
-	process(): ChildProcess | null {
-		return this.#process ?? null;
-	}
-
-	/**
-	 * Creates a new incognito browser context. This won't share cookies/cache with other
-	 * browser contexts.
-	 *
-	 * @example
-	 * ```js
-	 * (async () => {
-	 *  const browser = await puppeteer.launch();
-	 *   // Create a new incognito browser context.
-	 *   const context = await browser.createIncognitoBrowserContext();
-	 *   // Create a new page in a pristine context.
-	 *   const page = await context.newPage();
-	 *   // Do stuff
-	 *   await page.goto('https://example.com');
-	 * })();
-	 * ```
-	 */
-	async createIncognitoBrowserContext(
-		options: BrowserContextOptions = {}
-	): Promise<BrowserContext> {
-		const {proxyServer, proxyBypassList} = options;
-
-		const {browserContextId} = await this.#connection.send(
-			'Target.createBrowserContext',
-			{
-				proxyServer,
-				proxyBypassList: proxyBypassList?.join(','),
-			}
-		);
-		const context = new BrowserContext(this, browserContextId);
-		this.#contexts.set(browserContextId, context);
-		return context;
-	}
-
-	/**
-	 * Returns an array of all open browser contexts. In a newly created browser, this will
-	 * return a single instance of {@link BrowserContext}.
-	 */
 	browserContexts(): BrowserContext[] {
 		return [this.#defaultContext, ...Array.from(this.#contexts.values())];
-	}
-
-	/**
-	 * Returns the default browser context. The default browser context cannot be closed.
-	 */
-	defaultBrowserContext(): BrowserContext {
-		return this.#defaultContext;
-	}
-
-	async _disposeContext(contextId?: string): Promise<void> {
-		if (!contextId) {
-			return;
-		}
-
-		await this.#connection.send('Target.disposeBrowserContext', {
-			browserContextId: contextId,
-		});
-		this.#contexts.delete(contextId);
 	}
 
 	async #targetCreated(
@@ -254,31 +167,6 @@ export class Browser extends EventEmitter {
 		}
 	}
 
-	/**
-	 * The browser websocket endpoint which can be used as an argument to
-	 * {@link Puppeteer.connect}.
-	 *
-	 * @returns The Browser websocket url.
-	 *
-	 * @remarks
-	 *
-	 * The format is `ws://${host}:${port}/devtools/browser/<id>`.
-	 *
-	 * You can find the `webSocketDebuggerUrl` from `http://${host}:${port}/json/version`.
-	 * Learn more about the
-	 * {@link https://chromedevtools.github.io/devtools-protocol | devtools protocol} and
-	 * the {@link
-	 * https://chromedevtools.github.io/devtools-protocol/#how-do-i-access-the-browser-target
-	 * | browser endpoint}.
-	 */
-	wsEndpoint(): string {
-		return this.#connection.url();
-	}
-
-	/**
-	 * Promise which resolves to a new {@link Page} object. The Page is created in
-	 * a default browser context.
-	 */
 	newPage(): Promise<Page> {
 		return this.#defaultContext.newPage();
 	}
@@ -308,44 +196,12 @@ export class Browser extends EventEmitter {
 		return page;
 	}
 
-	/**
-	 * All active targets inside the Browser. In case of multiple browser contexts, returns
-	 * an array with all the targets in all browser contexts.
-	 */
 	targets(): Target[] {
 		return Array.from(this.#targets.values()).filter((target) => {
 			return target._isInitialized;
 		});
 	}
 
-	/**
-	 * The target associated with the browser.
-	 */
-	target(): Target {
-		const browserTarget = this.targets().find((target) => {
-			return target.type() === 'browser';
-		});
-		if (!browserTarget) {
-			throw new Error('Browser target is not found');
-		}
-
-		return browserTarget;
-	}
-
-	/**
-	 * Searches for a target in all browser contexts.
-	 *
-	 * @param predicate - A function to be run for every target.
-	 * @returns The first target found that matches the `predicate` function.
-	 *
-	 * @example
-	 *
-	 * An example of finding a target for a page opened via `window.open`:
-	 * ```js
-	 * await page.evaluate(() => window.open('https://www.example.com/'));
-	 * const newWindowTarget = await browser.waitForTarget(target => target.url() === 'https://www.example.com/');
-	 * ```
-	 */
 	async waitForTarget(
 		predicate: (x: Target) => boolean | Promise<boolean>,
 		options: WaitForTargetOptions = {}
@@ -378,15 +234,6 @@ export class Browser extends EventEmitter {
 		}
 	}
 
-	/**
-	 * An array of all open pages inside the Browser.
-	 *
-	 * @remarks
-	 *
-	 * In case of multiple browser contexts, returns an array with all the pages in all
-	 * browser contexts. Non-visible pages, such as `"background_page"`, will not be listed
-	 * here. You can find them using {@link Target.page}.
-	 */
 	async pages(): Promise<Page[]> {
 		const contextPages = await Promise.all(
 			this.browserContexts().map((context) => {
@@ -399,59 +246,16 @@ export class Browser extends EventEmitter {
 		}, []);
 	}
 
-	/**
-	 * A string representing the browser name and version.
-	 *
-	 * @remarks
-	 *
-	 * For headless Chromium, this is similar to `HeadlessChrome/61.0.3153.0`. For
-	 * non-headless, this is similar to `Chrome/61.0.3153.0`.
-	 *
-	 * The format of browser.version() might change with future releases of Chromium.
-	 */
-	async version(): Promise<string> {
-		const version = await this.#getVersion();
-		return version.product;
-	}
-
-	/**
-	 * The browser's original user agent. Pages can override the browser user agent with
-	 * {@link Page.setUserAgent}.
-	 */
-	async userAgent(): Promise<string> {
-		const version = await this.#getVersion();
-		return version.userAgent;
-	}
-
-	/**
-	 * Closes Chromium and all of its pages (if any were opened). The {@link Browser} object
-	 * itself is considered to be disposed and cannot be used anymore.
-	 */
 	async close(): Promise<void> {
 		await this.#closeCallback.call(null);
 		this.disconnect();
 	}
 
-	/**
-	 * Disconnects Puppeteer from the browser, but leaves the Chromium process running.
-	 * After calling `disconnect`, the {@link Browser} object is considered disposed and
-	 * cannot be used anymore.
-	 */
 	disconnect(): void {
 		this.#connection.dispose();
 	}
-
-	/**
-	 * Indicates that the browser is connected.
-	 */
-	isConnected(): boolean {
-		return !this.#connection._closed;
-	}
-
-	#getVersion(): Promise<Protocol.Browser.GetVersionResponse> {
-		return this.#connection.send('Browser.getVersion');
-	}
 }
+
 export class BrowserContext extends EventEmitter {
 	#browser: Browser;
 	#id?: string;
@@ -488,40 +292,11 @@ export class BrowserContext extends EventEmitter {
 		});
 	}
 
-	/**
-	 * Returns whether BrowserContext is incognito.
-	 * The default browser context is the only non-incognito browser context.
-	 *
-	 * @remarks
-	 * The default browser context cannot be closed.
-	 */
-	isIncognito(): boolean {
-		return Boolean(this.#id);
-	}
-
-	/**
-	 * Creates a new page in the browser context.
-	 */
 	newPage(): Promise<Page> {
 		return this.#browser._createPageInContext(this.#id);
 	}
 
-	/**
-	 * The browser this browser context belongs to.
-	 */
 	browser(): Browser {
 		return this.#browser;
-	}
-
-	/**
-	 * Closes the browser context. All the targets that belong to the browser context
-	 * will be closed.
-	 *
-	 * @remarks
-	 * Only incognito browser contexts can be closed.
-	 */
-	async close(): Promise<void> {
-		assert(this.#id, 'Non-incognito profiles cannot be closed!');
-		await this.#browser._disposeContext(this.#id);
 	}
 }

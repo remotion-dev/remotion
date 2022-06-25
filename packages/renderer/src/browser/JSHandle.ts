@@ -38,10 +38,6 @@ export class JSHandle {
 	#context: ExecutionContext;
 	#remoteObject: Protocol.Runtime.RemoteObject;
 
-	get _client(): CDPSession {
-		return this.#client;
-	}
-
 	get _disposed(): boolean {
 		return this.#disposed;
 	}
