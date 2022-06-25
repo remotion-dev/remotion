@@ -1,8 +1,8 @@
 import fs from 'fs';
-import {Browser, BrowserExecutable} from 'remotion';
+import type {Browser, BrowserExecutable} from 'remotion';
 import {downloadBrowser} from './browser/create-browser-fetcher';
 import {puppeteer} from './browser/node';
-import {Product} from './browser/Product';
+import type {Product} from './browser/Product';
 import {PUPPETEER_REVISIONS} from './browser/revisions';
 
 const getSearchPathsForProduct = (product: Product) => {

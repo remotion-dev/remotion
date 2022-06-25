@@ -1,4 +1,5 @@
-import {Codec, Internals} from 'remotion';
+import type {Codec} from 'remotion';
+import { Internals} from 'remotion';
 
 export const getCodecName = (codec: Codec): string | null => {
 	if (Internals.isAudioCodec(codec)) {

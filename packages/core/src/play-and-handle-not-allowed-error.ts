@@ -1,4 +1,4 @@
-import {RefObject} from 'react';
+import type {RefObject} from 'react';
 
 export const playAndHandleNotAllowedError = (
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>,

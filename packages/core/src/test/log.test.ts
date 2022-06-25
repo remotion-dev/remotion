@@ -1,8 +1,9 @@
+import type {
+	LogLevel} from '../config/log';
 import {
 	getLogLevel,
 	isEqualOrBelowLogLevel,
 	isValidLogLevel,
-	LogLevel,
 	setLogLevel,
 } from '../config/log';
 describe('test loglevel getter and setter', () => {

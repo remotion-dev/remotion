@@ -2,7 +2,8 @@ import chalk from 'chalk';
 import minimist from 'minimist';
 import prompts, {selectAsync} from './prompts';
 import {stripAnsi} from './strip-ansi';
-import {FEATURED_TEMPLATES, Template} from './templates';
+import type {Template} from './templates';
+import {FEATURED_TEMPLATES} from './templates';
 
 const parsed = minimist(process.argv.slice(2), {
 	boolean: FEATURED_TEMPLATES.map((f) => f.cliId),

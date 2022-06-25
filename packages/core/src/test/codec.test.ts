@@ -1,5 +1,6 @@
+import type {
+	CodecOrUndefined} from '../config/codec';
 import {
-	CodecOrUndefined,
 	getFinalOutputCodec,
 	getOutputCodecOrUndefined,
 	setCodec,

@@ -1,19 +1,19 @@
-import {ExecaChildProcess} from 'execa';
+import type {ExecaChildProcess} from 'execa';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import {
+import type {
 	BrowserExecutable,
 	Codec,
 	FfmpegExecutable,
 	FrameRange,
-	Internals,
 	PixelFormat,
 	ProResProfile,
 	SmallTCompMetadata,
 } from 'remotion';
-import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import {BrowserLog} from './browser-log';
+import {Internals} from 'remotion';
+import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import type {BrowserLog} from './browser-log';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
@@ -22,17 +22,16 @@ import {getDurationFromFrameRange} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
-import {
-	getServeUrlWithFallback,
-	ServeUrlOrWebpackBundle,
-} from './legacy-webpack-config';
-import {CancelSignal, makeCancelSignal} from './make-cancel-signal';
-import {ChromiumOptions} from './open-browser';
+import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
+import {getServeUrlWithFallback} from './legacy-webpack-config';
+import type {CancelSignal} from './make-cancel-signal';
+import {makeCancelSignal} from './make-cancel-signal';
+import type {ChromiumOptions} from './open-browser';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {renderFrames} from './render-frames';
 import {stitchFramesToVideo} from './stitch-frames-to-video';
 import {tmpDir} from './tmp-dir';
-import {OnStartData} from './types';
+import type {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';

@@ -1,7 +1,8 @@
-import {_Object} from '@aws-sdk/client-s3';
+import type {_Object} from '@aws-sdk/client-s3';
 import {lambdaTimingsPrefix} from '../../shared/constants';
+import type {
+	ParsedTiming} from '../../shared/parse-lambda-timings-key';
 import {
-	ParsedTiming,
 	parseLambdaTimingsKey,
 } from '../../shared/parse-lambda-timings-key';
 import {max, min} from './min-max';

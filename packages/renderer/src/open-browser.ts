@@ -1,10 +1,11 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import {Browser, Internals} from 'remotion';
-import {Browser as PuppeteerBrowser} from './browser/Browser';
+import type {Browser} from 'remotion';
+import {Internals} from 'remotion';
+import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {puppeteer} from './browser/node';
-import {Viewport} from './browser/PuppeteerViewport';
+import type {Viewport} from './browser/PuppeteerViewport';
 import {
 	ensureLocalBrowser,
 	getLocalBrowserExecutable,

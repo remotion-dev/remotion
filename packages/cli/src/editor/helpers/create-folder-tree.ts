@@ -1,5 +1,5 @@
-import {TComposition, TFolder} from 'remotion';
-import {CompositionSelectorItemType} from '../components/CompositionSelectorItem';
+import type {TComposition, TFolder} from 'remotion';
+import type {CompositionSelectorItemType} from '../components/CompositionSelectorItem';
 import {openFolderKey} from './persist-open-folders';
 
 export const splitParentIntoNameAndParent = (

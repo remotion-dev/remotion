@@ -1,5 +1,5 @@
 import {makeProgressBar} from './make-progress-bar';
-import {DownloadProgress} from './progress-bar';
+import type {DownloadProgress} from './progress-bar';
 
 export const makeMultiDownloadProgress = (progresses: DownloadProgress[]) => {
 	if (progresses.length === 0) {

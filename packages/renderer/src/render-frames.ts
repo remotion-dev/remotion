@@ -1,42 +1,39 @@
 import fs from 'fs';
 import path from 'path';
-import {
+import type {
 	BrowserExecutable,
 	FfmpegExecutable,
 	FrameRange,
 	ImageFormat,
-	Internals,
 	SmallTCompMetadata,
 	TAsset,
 } from 'remotion';
-import {
-	downloadAndMapAssetsToFileUrl,
-	RenderMediaOnDownload,
-} from './assets/download-and-map-assets-to-file';
-import {BrowserLog} from './browser-log';
-import {Browser as PuppeteerBrowser} from './browser/Browser';
-import {ConsoleMessage} from './browser/ConsoleMessage';
-import {Page} from './browser/Page';
+import {Internals} from 'remotion';
+import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
+import type {BrowserLog} from './browser-log';
+import type {Browser} from './browser/Browser';
+import type {ConsoleMessage} from './browser/ConsoleMessage';
+import type {Page} from './browser/Page';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {getActualConcurrency} from './get-concurrency';
 import {getDurationFromFrameRange} from './get-duration-from-frame-range';
 import {getRealFrameRange} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
-import {
-	getServeUrlWithFallback,
-	ServeUrlOrWebpackBundle,
-} from './legacy-webpack-config';
+import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
+import {getServeUrlWithFallback} from './legacy-webpack-config';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
-import {CancelSignal} from './make-cancel-signal';
-import {ChromiumOptions, openBrowser} from './open-browser';
+import type {CancelSignal} from './make-cancel-signal';
+import type {ChromiumOptions} from './open-browser';
+import {openBrowser} from './open-browser';
 import {Pool} from './pool';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
-import {OnStartData, RenderFramesOutput} from './types';
+import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
 
 type ConfigOrComposition =
@@ -61,7 +58,7 @@ type RenderFramesOptions = {
 	quality?: number;
 	frameRange?: FrameRange | null;
 	dumpBrowserLogs?: boolean;
-	puppeteerInstance?: PuppeteerBrowser;
+	puppeteerInstance?: Browser;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
 	onFrameBuffer?: (buffer: Buffer, frame: number) => void;

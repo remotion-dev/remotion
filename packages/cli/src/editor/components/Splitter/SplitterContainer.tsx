@@ -1,10 +1,11 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {useTimelineFlex} from '../../state/timeline';
-import {
-	SplitterContext,
+import type {
 	SplitterDragState,
 	SplitterOrientation,
-	TSplitterContext,
+	TSplitterContext} from './SplitterContext';
+import {
+	SplitterContext
 } from './SplitterContext';
 
 const containerRow: React.CSSProperties = {

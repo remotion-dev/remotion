@@ -1,7 +1,8 @@
-import {Codec} from '../config';
+import type {Codec} from '../config';
+import type {
+	PixelFormat} from '../config/pixel-format';
 import {
 	getPixelFormat,
-	PixelFormat,
 	setPixelFormat,
 	validateSelectedPixelFormatAndCodecCombination,
 } from '../config/pixel-format';

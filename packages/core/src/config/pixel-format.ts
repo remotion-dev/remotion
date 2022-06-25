@@ -1,4 +1,4 @@
-import {Codec} from './codec';
+import type {Codec} from './codec';
 
 const validOptions = [
 	'yuv420p',

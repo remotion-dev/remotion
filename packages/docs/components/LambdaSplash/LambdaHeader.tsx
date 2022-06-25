@@ -51,7 +51,7 @@ export const LambdaHeader: React.FC = () => {
               width: 10,
             }}
           />
-          <a className={styles.a} href="https://discord.gg/6VzzNDwUwV">
+          <a className={styles.a} href="https://remotion.dev/discord">
             <BlueButton size="sm" loading={false} fullWidth={false}>
               <DiscordLogo /> Chat in #lambda
             </BlueButton>

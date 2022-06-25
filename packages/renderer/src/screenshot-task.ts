@@ -1,7 +1,8 @@
 import fs from 'fs';
-import {Internals, StillImageFormat} from 'remotion';
-import {Page} from './browser/Page';
-import {ScreenshotOptions} from './browser/ScreenshotOptions';
+import type {StillImageFormat} from 'remotion';
+import {Internals} from 'remotion';
+import type {Page} from './browser/Page';
+import type {ScreenshotOptions} from './browser/ScreenshotOptions';
 
 export const _screenshotTask = async (
 	page: Page,

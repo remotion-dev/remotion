@@ -8,7 +8,7 @@ import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state';
-import {RemotionVideoProps} from './props';
+import type {RemotionVideoProps} from './props';
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,

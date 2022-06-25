@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {continueRender, delayRender} from 'remotion';
 import {getAudioData} from './get-audio-data';
-import {AudioData} from './types';
+import type {AudioData} from './types';
 
 export const useAudioData = (src: string): AudioData | null => {
 	if (!src) {

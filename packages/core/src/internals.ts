@@ -2,16 +2,17 @@ import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
 } from './audio/shared-audio-tags';
-import {CompProps} from './Composition';
-import {
-	CompositionManager,
+import type {CompProps} from './Composition';
+import type {
 	CompositionManagerContext,
-	compositionsRef,
 	RenderAssetInfo,
 	TAsset,
 	TCompMetadata,
 	TComposition,
-	TSequence,
+	TSequence} from './CompositionManager';
+import {
+	CompositionManager,
+	compositionsRef
 } from './CompositionManager';
 import * as AssetCompression from './compress-assets';
 import {DEFAULT_BROWSER, getBrowser} from './config/browser';
@@ -51,10 +52,11 @@ import {
 import {getShouldOutputImageSequence} from './config/image-sequence';
 import * as Logging from './config/log';
 import {getMaxTimelineTracks} from './config/max-timeline-tracks';
+import type {
+	WebpackOverrideFn} from './config/override-webpack';
 import {
 	defaultOverrideFunction,
-	getWebpackOverrideFn,
-	WebpackOverrideFn,
+	getWebpackOverrideFn
 } from './config/override-webpack';
 import {DEFAULT_OVERWRITE, getShouldOverwrite} from './config/overwrite';
 import {
@@ -63,9 +65,10 @@ import {
 	validateSelectedPixelFormatAndCodecCombination,
 } from './config/pixel-format';
 import {getServerPort} from './config/preview-server';
+import type {
+	ProResProfile} from './config/prores-profile';
 import {
 	getProResProfile,
-	ProResProfile,
 	setProResProfile,
 	validateSelectedCodecAndProResCombination,
 } from './config/prores-profile';
@@ -83,7 +86,8 @@ import {
 import * as CSSUtils from './default-css';
 import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render';
 import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
-import {getRemotionEnvironment, RemotionEnvironment} from './get-environment';
+import type { RemotionEnvironment} from './get-environment';
+import {getRemotionEnvironment} from './get-environment';
 import {getPreviewDomElement} from './get-preview-dom-element';
 import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
@@ -93,12 +97,12 @@ import {RemotionRoot} from './RemotionRoot';
 import {SequenceContext} from './Sequence';
 import {ENV_VARIABLES_ENV_NAME, setupEnvVariables} from './setup-env-variables';
 import * as TimelineInOutPosition from './timeline-inout-position-state';
-import {
+import type {
 	SetTimelineInOutContextValue,
 	TimelineInOutContextValue,
 } from './timeline-inout-position-state';
 import * as TimelinePosition from './timeline-position-state';
-import {
+import type {
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from './timeline-position-state';
@@ -117,16 +121,19 @@ import {validateDurationInFrames} from './validation/validate-duration-in-frames
 import {validateFps} from './validation/validate-fps';
 import {validateFrame} from './validation/validate-frame';
 import {validateNonNullImageFormat} from './validation/validate-image-format';
+import {validateOffthreadVideoImageFormat} from './validation/validate-offthreadvideo-image-format';
+import type {
+	OpenGlRenderer} from './validation/validate-opengl-renderer';
 import {
-	OpenGlRenderer,
 	validateOpenGlRenderer,
 } from './validation/validate-opengl-renderer';
 import {validateQuality} from './validation/validate-quality';
+import type {
+	MediaVolumeContextValue,
+	SetMediaVolumeContextValue} from './volume-position-state';
 import {
 	MediaVolumeContext,
-	MediaVolumeContextValue,
 	SetMediaVolumeContext,
-	SetMediaVolumeContextValue,
 	useMediaMutedState,
 	useMediaVolumeState,
 } from './volume-position-state';
@@ -226,6 +233,7 @@ export const Internals = {
 	useAbsoluteCurrentFrame,
 	portalNode,
 	waitForRoot,
+	validateOffthreadVideoImageFormat,
 };
 
 export type {

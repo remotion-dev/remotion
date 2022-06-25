@@ -1,9 +1,10 @@
-import {RefObject} from 'react';
+import type {RefObject} from 'react';
+import type {
+	UseSyncVolumeWithMediaTagOptions} from '../use-sync-volume-with-media-tag';
 import {
-	useSyncVolumeWithMediaTag,
-	UseSyncVolumeWithMediaTagOptions,
+	useSyncVolumeWithMediaTag
 } from '../use-sync-volume-with-media-tag';
-import {VolumeProp} from '../volume-prop';
+import type {VolumeProp} from '../volume-prop';
 import {renderHook} from './render-hook';
 
 test('has the volume been adapted', () => {
