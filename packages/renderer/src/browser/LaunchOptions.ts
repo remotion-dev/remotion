@@ -43,7 +43,6 @@ export interface LaunchOptions {
 	pipe?: boolean;
 	product?: Product;
 	extraPrefsFirefox?: Record<string, unknown>;
-	waitForInitialPage?: boolean;
 }
 
 export type PuppeteerNodeLaunchOptions = BrowserLaunchArgumentOptions &
