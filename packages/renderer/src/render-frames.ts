@@ -11,31 +11,23 @@ import type {
 	FrameRange,
 	ImageFormat,
 	SmallTCompMetadata,
-	TAsset} from 'remotion';
-import {
-	Internals
+	TAsset,
 } from 'remotion';
-import type {
-	RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import {
-	downloadAndMapAssetsToFileUrl
-} from './assets/download-and-map-assets-to-file';
+import {Internals} from 'remotion';
+import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
 import type {BrowserLog} from './browser-log';
-import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {getActualConcurrency} from './get-concurrency';
 import {getDurationFromFrameRange} from './get-duration-from-frame-range';
 import {getRealFrameRange} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
-import type {
-	ServeUrlOrWebpackBundle} from './legacy-webpack-config';
-import {
-	getServeUrlWithFallback
-} from './legacy-webpack-config';
+import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
+import {getServeUrlWithFallback} from './legacy-webpack-config';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import type {CancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
-import { openBrowser} from './open-browser';
+import {openBrowser} from './open-browser';
 import {Pool} from './pool';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
@@ -428,15 +420,7 @@ export const renderFrames = (
 			browserInstance,
 		])
 			.then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {
-				const {stopCycling} = cycleBrowserTabs(
-					puppeteerInstance,
-					actualParallelism
-				);
-
-				cleanup.push(stopCycling);
-
 				options.cancelSignal?.(() => {
-					stopCycling();
 					closeServer();
 				});
 

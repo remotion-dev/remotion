@@ -95,17 +95,22 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 		<>
 			{portalContainers.map((p, i) => {
 				return (
-					<div
+					<Internals.TimelineRoot
 						// eslint-disable-next-line react/no-array-index-key
 						key={i}
-						ref={p}
-						style={{
-							width: video.width,
-							height: video.height,
-							display: 'flex',
-							backgroundColor: 'transparent',
-						}}
-					/>
+					>
+						<div
+							ref={p}
+							style={{
+								width: video.width,
+								height: video.height,
+								display: 'flex',
+								backgroundColor: 'transparent',
+								overflow: 'hidden',
+								position: 'relative',
+							}}
+						/>
+					</Internals.TimelineRoot>
 				);
 			})}
 		</>

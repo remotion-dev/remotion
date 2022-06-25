@@ -2,6 +2,7 @@ import {render} from '@testing-library/react';
 import React from 'react';
 import {Composition} from '..';
 import {RemotionRoot} from '../RemotionRoot';
+import {TimelineRoot} from '../TimelineRoot';
 import {expectToThrow} from './expect-to-throw';
 
 const AnyComp: React.FC = () => null;
@@ -11,17 +12,19 @@ describe('Composition-validation render should throw with invalid props', () => 
 		expectToThrow(
 			() =>
 				render(
-					<RemotionRoot>
-						{/**
+					<TimelineRoot>
+						<RemotionRoot>
+							{/**
 						 // @ts-expect-error */}
-						<Composition
-							lazyComponent={() => Promise.resolve({default: AnyComp})}
-							durationInFrames={100}
-							fps={30}
-							height={100}
-							id="id"
-						/>
-					</RemotionRoot>
+							<Composition
+								lazyComponent={() => Promise.resolve({default: AnyComp})}
+								durationInFrames={100}
+								fps={30}
+								height={100}
+								id="id"
+							/>
+						</RemotionRoot>
+					</TimelineRoot>
 				),
 			/The "width/
 		);
@@ -31,16 +34,18 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
-							<Composition
-								lazyComponent={() => Promise.resolve({default: AnyComp})}
-								durationInFrames={100}
-								fps={30}
-								height={-100}
-								width={100}
-								id="id"
-							/>
-						</RemotionRoot>
+						<TimelineRoot>
+							<RemotionRoot>
+								<Composition
+									lazyComponent={() => Promise.resolve({default: AnyComp})}
+									durationInFrames={100}
+									fps={30}
+									height={-100}
+									width={100}
+									id="id"
+								/>
+							</RemotionRoot>
+						</TimelineRoot>
 					),
 				/The "height" prop of the <Composition\/> component must be positive, but got -100./
 			);
@@ -49,16 +54,18 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
-							<Composition
-								lazyComponent={() => Promise.resolve({default: AnyComp})}
-								durationInFrames={100}
-								fps={30}
-								height={0}
-								width={100}
-								id="id"
-							/>
-						</RemotionRoot>
+						<TimelineRoot>
+							<RemotionRoot>
+								<Composition
+									lazyComponent={() => Promise.resolve({default: AnyComp})}
+									durationInFrames={100}
+									fps={30}
+									height={0}
+									width={100}
+									id="id"
+								/>
+							</RemotionRoot>
+						</TimelineRoot>
 					),
 				/The "height" prop of the <Composition\/> component must be positive, but got 0./
 			);
@@ -67,17 +74,19 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
-							<Composition
-								lazyComponent={() => Promise.resolve({default: AnyComp})}
-								durationInFrames={100}
-								fps={30}
-								// @ts-expect-error
-								height={'100'}
-								width={100}
-								id="id"
-							/>
-						</RemotionRoot>
+						<TimelineRoot>
+							<RemotionRoot>
+								<Composition
+									lazyComponent={() => Promise.resolve({default: AnyComp})}
+									durationInFrames={100}
+									fps={30}
+									// @ts-expect-error
+									height={'100'}
+									width={100}
+									id="id"
+								/>
+							</RemotionRoot>
+						</TimelineRoot>
 					),
 				/The "height" prop of the <Composition\/> component must be a number, but you passed a value of type string/
 			);
@@ -86,16 +95,18 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
-							<Composition
-								lazyComponent={() => Promise.resolve({default: AnyComp})}
-								durationInFrames={100}
-								fps={30}
-								height={100.01}
-								width={100}
-								id="id"
-							/>
-						</RemotionRoot>
+						<TimelineRoot>
+							<RemotionRoot>
+								<Composition
+									lazyComponent={() => Promise.resolve({default: AnyComp})}
+									durationInFrames={100}
+									fps={30}
+									height={100.01}
+									width={100}
+									id="id"
+								/>
+							</RemotionRoot>
+						</TimelineRoot>
 					),
 				/The "height" prop of the <Composition\/> component must be an integer, but is 100.01/
 			);
@@ -106,16 +117,18 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
-							<Composition
-								lazyComponent={() => Promise.resolve({default: AnyComp})}
-								durationInFrames={100}
-								fps={30}
-								height={100}
-								width={-100}
-								id="id"
-							/>
-						</RemotionRoot>
+						<TimelineRoot>
+							<RemotionRoot>
+								<Composition
+									lazyComponent={() => Promise.resolve({default: AnyComp})}
+									durationInFrames={100}
+									fps={30}
+									height={100}
+									width={-100}
+									id="id"
+								/>
+							</RemotionRoot>
+						</TimelineRoot>
 					),
 				/The "width" prop of the <Composition\/> component must be positive, but got -100./
 			);
@@ -124,16 +137,18 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
-							<Composition
-								lazyComponent={() => Promise.resolve({default: AnyComp})}
-								durationInFrames={100}
-								fps={30}
-								height={100}
-								width={0}
-								id="id"
-							/>
-						</RemotionRoot>
+						<TimelineRoot>
+							<RemotionRoot>
+								<Composition
+									lazyComponent={() => Promise.resolve({default: AnyComp})}
+									durationInFrames={100}
+									fps={30}
+									height={100}
+									width={0}
+									id="id"
+								/>
+							</RemotionRoot>
+						</TimelineRoot>
 					),
 				/The "width" prop of the <Composition\/> component must be positive, but got 0./
 			);
@@ -142,17 +157,19 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
-							<Composition
-								lazyComponent={() => Promise.resolve({default: AnyComp})}
-								durationInFrames={100}
-								fps={30}
-								height={100}
-								// @ts-expect-error
-								width={'100'}
-								id="id"
-							/>
-						</RemotionRoot>
+						<TimelineRoot>
+							<RemotionRoot>
+								<Composition
+									lazyComponent={() => Promise.resolve({default: AnyComp})}
+									durationInFrames={100}
+									fps={30}
+									height={100}
+									// @ts-expect-error
+									width={'100'}
+									id="id"
+								/>
+							</RemotionRoot>
+						</TimelineRoot>
 					),
 				/The "width" prop of the <Composition\/> component must be a number, but you passed a value of type string/
 			);
@@ -163,16 +180,18 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
-							<Composition
-								lazyComponent={() => Promise.resolve({default: AnyComp})}
-								durationInFrames={-100}
-								fps={30}
-								height={100}
-								width={100}
-								id="id"
-							/>
-						</RemotionRoot>
+						<TimelineRoot>
+							<RemotionRoot>
+								<Composition
+									lazyComponent={() => Promise.resolve({default: AnyComp})}
+									durationInFrames={-100}
+									fps={30}
+									height={100}
+									width={100}
+									id="id"
+								/>
+							</RemotionRoot>
+						</TimelineRoot>
 					),
 				/The "durationInFrames" prop of the <Composition\/> component must be positive, but got -100./
 			);
@@ -181,16 +200,18 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
-							<Composition
-								lazyComponent={() => Promise.resolve({default: AnyComp})}
-								durationInFrames={0}
-								fps={30}
-								height={100}
-								width={100}
-								id="id"
-							/>
-						</RemotionRoot>
+						<TimelineRoot>
+							<RemotionRoot>
+								<Composition
+									lazyComponent={() => Promise.resolve({default: AnyComp})}
+									durationInFrames={0}
+									fps={30}
+									height={100}
+									width={100}
+									id="id"
+								/>
+							</RemotionRoot>
+						</TimelineRoot>
 					),
 				/The "durationInFrames" prop of the <Composition\/> component must be positive, but got 0./
 			);
@@ -199,16 +220,18 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
-							<Composition
-								lazyComponent={() => Promise.resolve({default: AnyComp})}
-								durationInFrames={0.11}
-								fps={30}
-								height={100}
-								width={100}
-								id="id"
-							/>
-						</RemotionRoot>
+						<TimelineRoot>
+							<RemotionRoot>
+								<Composition
+									lazyComponent={() => Promise.resolve({default: AnyComp})}
+									durationInFrames={0.11}
+									fps={30}
+									height={100}
+									width={100}
+									id="id"
+								/>
+							</RemotionRoot>
+						</TimelineRoot>
 					),
 				/The "durationInFrames" prop of the <Composition\/> component must be an integer, but got 0.11./
 			);
@@ -217,17 +240,19 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
-							<Composition
-								lazyComponent={() => Promise.resolve({default: AnyComp})}
-								// @ts-expect-error
-								durationInFrames={'100'}
-								fps={30}
-								height={100}
-								width={100}
-								id="id"
-							/>
-						</RemotionRoot>
+						<TimelineRoot>
+							<RemotionRoot>
+								<Composition
+									lazyComponent={() => Promise.resolve({default: AnyComp})}
+									// @ts-expect-error
+									durationInFrames={'100'}
+									fps={30}
+									height={100}
+									width={100}
+									id="id"
+								/>
+							</RemotionRoot>
+						</TimelineRoot>
 					),
 				/The "durationInFrames" prop of the <Composition\/> component must be a number, but you passed a value of type string/
 			);
@@ -238,16 +263,18 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
-							<Composition
-								lazyComponent={() => Promise.resolve({default: AnyComp})}
-								durationInFrames={100}
-								fps={-30}
-								height={100}
-								width={100}
-								id="id"
-							/>
-						</RemotionRoot>
+						<TimelineRoot>
+							<RemotionRoot>
+								<Composition
+									lazyComponent={() => Promise.resolve({default: AnyComp})}
+									durationInFrames={100}
+									fps={-30}
+									height={100}
+									width={100}
+									id="id"
+								/>
+							</RemotionRoot>
+						</TimelineRoot>
 					),
 				/"fps" must be positive, but got -30./
 			);
@@ -256,16 +283,18 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
-							<Composition
-								lazyComponent={() => Promise.resolve({default: AnyComp})}
-								durationInFrames={100}
-								fps={0}
-								height={100}
-								width={100}
-								id="id"
-							/>
-						</RemotionRoot>
+						<TimelineRoot>
+							<RemotionRoot>
+								<Composition
+									lazyComponent={() => Promise.resolve({default: AnyComp})}
+									durationInFrames={100}
+									fps={0}
+									height={100}
+									width={100}
+									id="id"
+								/>
+							</RemotionRoot>
+						</TimelineRoot>
 					),
 				/"fps" must be positive, but got 0./
 			);
@@ -275,17 +304,19 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
-							<Composition
-								lazyComponent={() => Promise.resolve({default: AnyComp})}
-								durationInFrames={100}
-								// @ts-expect-error
-								fps={'30'}
-								height={100}
-								width={100}
-								id="id"
-							/>
-						</RemotionRoot>
+						<TimelineRoot>
+							<RemotionRoot>
+								<Composition
+									lazyComponent={() => Promise.resolve({default: AnyComp})}
+									durationInFrames={100}
+									// @ts-expect-error
+									fps={'30'}
+									height={100}
+									width={100}
+									id="id"
+								/>
+							</RemotionRoot>
+						</TimelineRoot>
 					),
 				/"fps" must be a number, but you passed a value of type string/
 			);

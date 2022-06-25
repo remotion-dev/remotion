@@ -1,6 +1,6 @@
 import fs from 'fs';
-import type {CDPSession, Page, ScreenshotOptions, Target} from 'puppeteer-core';
-import type { StillImageFormat} from 'remotion';
+import type {CDPSession, Page, ScreenshotOptions} from 'puppeteer-core';
+import type {StillImageFormat} from 'remotion';
 import {Internals} from 'remotion';
 
 export const _screenshotTask = async (
@@ -9,14 +9,6 @@ export const _screenshotTask = async (
 	options: ScreenshotOptions
 ): Promise<Buffer | string> => {
 	const client = (page as unknown as {_client: CDPSession})._client;
-	const target = (page as unknown as {_target: Target})._target;
-
-	const perfTarget = Internals.perf.startPerfMeasure('activate-target');
-
-	await client.send('Target.activateTarget', {
-		targetId: target._targetId,
-	});
-	Internals.perf.stopPerfMeasure(perfTarget);
 
 	const shouldSetDefaultBackground = options.omitBackground && format === 'png';
 	if (shouldSetDefaultBackground)

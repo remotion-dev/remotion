@@ -1,6 +1,5 @@
 import {render} from '@testing-library/react';
-import type {
-	ComponentType} from 'react';
+import type {ComponentType} from 'react';
 import React, {
 	useCallback,
 	useContext,
@@ -10,7 +9,7 @@ import React, {
 } from 'react';
 import {act} from 'react-dom/test-utils';
 import type {CompositionManagerContext, TAsset} from 'remotion';
-import { Internals} from 'remotion';
+import {Internals} from 'remotion';
 
 let collectAssets = (): TAsset[] => [];
 
@@ -90,11 +89,13 @@ export const getAssetsForMarkup = async (
 		}, [assets, compositions, registerAsset, unregisterAsset]);
 
 		return (
-			<Internals.RemotionRoot>
-				<Internals.CompositionManager.Provider value={value}>
-					<Markup />
-				</Internals.CompositionManager.Provider>
-			</Internals.RemotionRoot>
+			<Internals.TimelineRoot>
+				<Internals.RemotionRoot>
+					<Internals.CompositionManager.Provider value={value}>
+						<Markup />
+					</Internals.CompositionManager.Provider>
+				</Internals.RemotionRoot>
+			</Internals.TimelineRoot>
 		);
 	};
 
@@ -105,7 +106,7 @@ export const getAssetsForMarkup = async (
 		currentFrame++
 	) {
 		act(() => {
-			window.remotion_setFrame(currentFrame);
+			window.remotion_setFrame(0, currentFrame);
 		});
 		await waitForWindowToBeReady();
 		collectedAssets.push(collectAssets());

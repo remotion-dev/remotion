@@ -1,7 +1,9 @@
 import {render} from '@testing-library/react';
 import type {ComponentType} from 'react';
-import React, { useContext} from 'react';
+import React, {useContext} from 'react';
+import {CompositionManager} from '../CompositionManager';
 import {Internals} from '../internals';
+import {RemotionRoot} from '../RemotionRoot';
 import {Video} from '../video';
 import {expectToThrow} from './expect-to-throw';
 
@@ -10,8 +12,8 @@ const Wrapper: React.FC<{
 }> = ({children}) => {
 	const compositions = useContext(Internals.CompositionManager);
 	return (
-		<Internals.RemotionRoot>
-			<Internals.CompositionManager.Provider
+		<RemotionRoot>
+			<CompositionManager.Provider
 				// eslint-disable-next-line react/jsx-no-constructed-context-values
 				value={{
 					...compositions,
@@ -37,8 +39,8 @@ const Wrapper: React.FC<{
 				}}
 			>
 				{children}
-			</Internals.CompositionManager.Provider>
-		</Internals.RemotionRoot>
+			</CompositionManager.Provider>
+		</RemotionRoot>
 	);
 };
 

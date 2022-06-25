@@ -1,6 +1,7 @@
 import type {render} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import {Internals} from 'remotion';
+import {TimelineRoot} from 'remotion/src/TimelineRoot';
 import '../styles/styles.css';
 import {Editor} from './editor/components/Editor';
 
@@ -9,9 +10,11 @@ Internals.CSSUtils.injectCSS(
 );
 
 const content = (
-	<Internals.RemotionRoot>
-		<Editor />
-	</Internals.RemotionRoot>
+	<TimelineRoot>
+		<Internals.RemotionRoot>
+			<Editor />
+		</Internals.RemotionRoot>
+	</TimelineRoot>
 );
 
 if (ReactDOM.createRoot) {
@@ -20,9 +23,7 @@ if (ReactDOM.createRoot) {
 	);
 } else {
 	(ReactDOM as unknown as {render: typeof render}).render(
-		<Internals.RemotionRoot>
-			<Editor />
-		</Internals.RemotionRoot>,
+		content,
 		Internals.getPreviewDomElement()
 	);
 }
