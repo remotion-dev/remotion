@@ -24,7 +24,7 @@ import {assert} from './assert';
 import {Connection} from './Connection';
 import {TimeoutError} from './Errors';
 import type {LaunchOptions} from './LaunchOptions';
-import {NodeWebSocketTransport as WebSocketTransport} from './NodeWebSocketTransport';
+import {NodeWebSocketTransport} from './NodeWebSocketTransport';
 import type {Product} from './Product';
 import type {PuppeteerEventListener} from './util';
 import {
@@ -253,7 +253,7 @@ export class BrowserRunner {
 			timeout,
 			preferredRevision
 		);
-		const transport = await WebSocketTransport.create(browserWSEndpoint);
+		const transport = await NodeWebSocketTransport.create(browserWSEndpoint);
 		this.connection = new Connection(transport);
 
 		return this.connection;
