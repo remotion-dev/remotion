@@ -184,8 +184,6 @@ class FirefoxLauncher implements ProductLauncher {
 
 	async launch(options: PuppeteerNodeLaunchOptions): Promise<Browser> {
 		const {
-			ignoreDefaultArgs = false,
-			args = [],
 			dumpio = false,
 			executablePath = null,
 			env = process.env,
@@ -199,17 +197,7 @@ class FirefoxLauncher implements ProductLauncher {
 		} = options;
 
 		const firefoxArguments = [];
-		if (!ignoreDefaultArgs) {
-			firefoxArguments.push(...this.defaultArgs(options));
-		} else if (Array.isArray(ignoreDefaultArgs)) {
-			firefoxArguments.push(
-				...this.defaultArgs(options).filter((arg) => {
-					return !ignoreDefaultArgs.includes(arg);
-				})
-			);
-		} else {
-			firefoxArguments.push(...args);
-		}
+		firefoxArguments.push(...this.defaultArgs(options));
 
 		if (
 			!firefoxArguments.some((argument) => {
