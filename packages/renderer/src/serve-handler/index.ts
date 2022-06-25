@@ -1,6 +1,7 @@
 // Native
-import {createReadStream, promises, Stats} from 'fs';
-import {IncomingMessage, ServerResponse} from 'http';
+import type { Stats} from 'fs';
+import {createReadStream, promises} from 'fs';
+import type {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';
 import url from 'url';
 // Packages

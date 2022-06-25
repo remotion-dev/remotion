@@ -1,14 +1,15 @@
-import React, {
+import type {
 	ComponentType,
+	LazyExoticComponent} from 'react';
+import React, {
 	createContext,
-	LazyExoticComponent,
 	useCallback,
 	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
 	useState,
 } from 'react';
-import {TFolder} from './Folder';
+import type {TFolder} from './Folder';
 
 export type TComposition<T = unknown> = {
 	width: number;

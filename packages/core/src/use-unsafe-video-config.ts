@@ -1,7 +1,7 @@
 import {useContext, useMemo} from 'react';
 import {SequenceContext} from './Sequence';
 import {useVideo} from './use-video';
-import {VideoConfig} from './video-config';
+import type {VideoConfig} from './video-config';
 
 export const useUnsafeVideoConfig = (): VideoConfig | null => {
 	const context = useContext(SequenceContext);

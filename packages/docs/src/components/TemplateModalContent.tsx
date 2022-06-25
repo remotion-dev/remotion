@@ -1,4 +1,4 @@
-import { Template } from "create-video";
+import type { Template } from "create-video";
 import React, { useCallback, useMemo, useState } from "react";
 import { useElementSize } from "../helpers/use-el-size";
 import { CommandCopyButton } from "./CommandCopyButton";

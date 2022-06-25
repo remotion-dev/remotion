@@ -5,14 +5,8 @@ import type {render, unmountComponentAtNode} from 'react-dom';
 // We support both, but Webpack chooses both of them and normalizes them to "react-dom/client",
 // hence why we import the right thing all the time but need to differentiate here
 import ReactDOM from 'react-dom/client';
-import {
-	BundleState,
-	continueRender,
-	delayRender,
-	Internals,
-	TCompMetadata,
-	TComposition,
-} from 'remotion';
+import type {BundleState, TCompMetadata, TComposition} from 'remotion';
+import {continueRender, delayRender, Internals} from 'remotion';
 import {getBundleMode, setBundleMode} from './bundle-mode';
 import {Homepage} from './homepage/homepage';
 

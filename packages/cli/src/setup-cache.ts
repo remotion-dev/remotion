@@ -6,7 +6,7 @@ import {
 	createOverwriteableCliOutput,
 	makeBundlingProgress,
 } from './progress-bar';
-import {RenderStep} from './step';
+import type {RenderStep} from './step';
 
 export const bundleOnCli = async (fullPath: string, steps: RenderStep[]) => {
 	const shouldCache = Internals.getWebpackCaching();

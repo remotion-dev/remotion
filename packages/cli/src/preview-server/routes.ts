@@ -1,6 +1,6 @@
 import {BundlerInternals} from '@remotion/bundler';
 import {createReadStream, statSync} from 'fs';
-import {IncomingMessage, ServerResponse} from 'http';
+import type {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';
 import {URLSearchParams} from 'url';
 import {getFileSource} from './error-overlay/react-overlay/utils/get-file-source';
@@ -9,7 +9,7 @@ import {
 	guessEditor,
 	launchEditor,
 } from './error-overlay/react-overlay/utils/open-in-editor';
-import {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
+import type {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
 import {getProjectInfo} from './project-info';
 import {serveStatic} from './serve-static';
 import {isUpdateAvailableWithTimeout} from './update-available';

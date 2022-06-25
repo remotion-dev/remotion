@@ -1,5 +1,6 @@
 import React, {useCallback, useState} from 'react';
-import {continueRender, delayRender, useCurrentFrame, Video} from 'remotion';
+import type {Video} from 'remotion';
+import {continueRender, delayRender, useCurrentFrame} from 'remotion';
 import {VideoTexture} from 'three';
 
 export type UseVideoTextureOptions = React.ComponentProps<typeof Video>;

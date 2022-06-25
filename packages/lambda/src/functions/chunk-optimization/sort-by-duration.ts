@@ -1,5 +1,5 @@
 import {getTimingEndTimestamps} from './get-profile-duration';
-import {ChunkTimingData, TimingProfile} from './types';
+import type {ChunkTimingData, TimingProfile} from './types';
 
 const durationCache = new Map<ChunkTimingData, number>();
 

@@ -1,7 +1,9 @@
-import {BrowserExecutable, Internals} from 'remotion';
-import {Browser} from './browser/Browser';
-import {Page} from './browser/Page';
-import {ChromiumOptions, openBrowser} from './open-browser';
+import type {BrowserExecutable} from 'remotion';
+import {Internals} from 'remotion';
+import type {Browser} from './browser/Browser';
+import type {Page} from './browser/Page';
+import type {ChromiumOptions} from './open-browser';
+import {openBrowser} from './open-browser';
 
 export const getPageAndCleanupFn = async ({
 	passedInInstance,

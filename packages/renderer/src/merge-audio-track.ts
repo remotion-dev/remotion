@@ -1,6 +1,7 @@
 import execa from 'execa';
 import path from 'path';
-import {FfmpegExecutable, Internals} from 'remotion';
+import type {FfmpegExecutable} from 'remotion';
+import { Internals} from 'remotion';
 import {chunk} from './chunk';
 import {convertToPcm} from './convert-to-pcm';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';

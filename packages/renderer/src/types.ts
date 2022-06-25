@@ -1,4 +1,4 @@
-import {RenderAssetInfo} from 'remotion';
+import type {RenderAssetInfo} from 'remotion';
 
 export type RenderFramesOutput = {
 	frameCount: number;

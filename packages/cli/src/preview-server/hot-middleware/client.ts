@@ -6,7 +6,8 @@
  */
 import {processUpdate} from './process-update';
 import {stripAnsi} from './strip-ansi';
-import {HotMiddlewareMessage, hotMiddlewareOptions} from './types';
+import type {HotMiddlewareMessage} from './types';
+import { hotMiddlewareOptions} from './types';
 
 if (typeof window === 'undefined') {
 	// do nothing

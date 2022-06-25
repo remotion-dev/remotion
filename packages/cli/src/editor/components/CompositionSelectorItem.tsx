@@ -1,5 +1,6 @@
-import React, {MouseEventHandler, useCallback, useMemo, useState} from 'react';
-import {TComposition} from 'remotion';
+import type {MouseEventHandler} from 'react';
+import React, { useCallback, useMemo, useState} from 'react';
+import type {TComposition} from 'remotion';
 import {CLEAR_HOVER, LIGHT_TEXT, SELECTED_BACKGROUND} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {FilmIcon} from '../icons/film';

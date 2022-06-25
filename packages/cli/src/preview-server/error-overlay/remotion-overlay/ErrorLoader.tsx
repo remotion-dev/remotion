@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
+import type {
+	ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {
-	ErrorRecord,
 	getErrorRecord,
 } from '../react-overlay/listen-to-runtime-errors';
 import {ErrorDisplay} from './ErrorDisplay';

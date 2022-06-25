@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/renderer",
-	"version": "3.0.21",
+	"version": "3.0.23",
 	"description": "Renderer for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -22,7 +22,7 @@
 	"dependencies": {
 		"execa": "5.1.1",
 		"mime-types": "2.1.35",
-		"remotion": "3.0.21",
+		"remotion": "3.0.23",
 		"source-map": "^0.8.0-beta.0",
 		"ws": "8.7.0",
 		"extract-zip": "2.0.1"
@@ -32,7 +32,7 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.259",
+		"@jonny/eslint-config": "3.0.266",
 		"@testing-library/dom": "^8.7.2",
 		"@testing-library/react": "13.1.1",
 		"@types/jest": "^27.4.0",

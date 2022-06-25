@@ -4,7 +4,7 @@
   </a>
 </p>
 
-[![Discord Shield](https://discordapp.com/api/guilds/809501355504959528/widget.png?style=shield)](https://discord.gg/6VzzNDwUwV)
+[![Discord Shield](https://discordapp.com/api/guilds/809501355504959528/widget.png?style=shield)](https://remotion.dev/discord)
 [![NPM Version](http://img.shields.io/npm/v/remotion.svg?style=flat)](https://www.npmjs.org/package/remotion)
 [![NPM Downloads](https://img.shields.io/npm/dm/remotion.svg?style=flat)](https://npmcharts.com/compare/remotion?minimal=true)
 [![Install Size](https://packagephobia.now.sh/badge?p=remotion)](https://packagephobia.now.sh/result?p=remotion)

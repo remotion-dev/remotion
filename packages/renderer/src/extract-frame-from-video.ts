@@ -1,12 +1,19 @@
 import execa from 'execa';
-import {FfmpegExecutable, Internals} from 'remotion';
+import type {FfmpegExecutable, OffthreadVideoImageFormat} from 'remotion';
+import { Internals} from 'remotion';
 import {getAudioChannelsAndDuration} from './assets/get-audio-channels';
 import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
 import {isBeyondLastFrame, markAsBeyondLastFrame} from './is-beyond-last-frame';
+import type {
+	SpecialVCodecForTransparency} from './is-vp9-video';
+import {
+	getSpecialVCodecForTransparency
+} from './is-vp9-video';
+import type {
+	LastFrameOptions} from './last-frame-from-video-cache';
 import {
 	getLastFrameFromCache,
-	LastFrameOptions,
 	setLastFrameInCache,
 } from './last-frame-from-video-cache';
 import {pLimit} from './p-limit';
@@ -14,33 +21,52 @@ import {pLimit} from './p-limit';
 const lastFrameLimit = pLimit(1);
 const mainLimit = pLimit(5);
 
+export const determineVcodecFfmepgFlags = (
+	vcodecFlag: SpecialVCodecForTransparency
+) => {
+	return [
+		vcodecFlag === 'vp9' ? '-vcodec' : null,
+		vcodecFlag === 'vp9' ? 'libvpx-vp9' : null,
+		vcodecFlag === 'vp8' ? '-vcodec' : null,
+		vcodecFlag === 'vp8' ? 'libvpx' : null,
+	].filter(Internals.truthy);
+};
+
 // Uses no seeking, therefore the whole video has to be decoded. This is a last resort and should only happen
 // if the video is corrupted
-const getLastFrameOfVideoSlow = async ({
+const getFrameOfVideoSlow = async ({
 	src,
-	duration,
+	timestamp,
 	ffmpegExecutable,
+	imageFormat,
+	specialVCodecForTransparency,
 }: {
 	ffmpegExecutable: FfmpegExecutable;
 	src: string;
-	duration: number;
+	timestamp: number;
+	imageFormat: OffthreadVideoImageFormat;
+	specialVCodecForTransparency: SpecialVCodecForTransparency;
 }) => {
 	console.warn(
-		`\nUsing a slow method to determine the last frame of ${src}. The render can be sped up by re-encoding the video properly.`
+		`\nUsing a slow method to extract the frame at ${timestamp}ms of ${src}. See https://remotion.dev/docs/slow-method-to-extract-frame for advice`
 	);
 
-	const actualOffset = `-${duration * 1000}ms`;
+	const actualOffset = `-${timestamp * 1000}ms`;
 	const command = [
 		'-itsoffset',
 		actualOffset,
+		...determineVcodecFfmepgFlags(specialVCodecForTransparency),
 		'-i',
 		src,
 		'-frames:v',
 		'1',
+		'-c:v',
+		imageFormat === 'jpeg' ? 'mjpeg' : 'png',
 		'-f',
 		'image2pipe',
 		'-',
-	];
+	].filter(Internals.truthy);
+
 	const {stdout, stderr} = execa(ffmpegExecutable ?? 'ffmpeg', command);
 
 	if (!stderr) {
@@ -98,27 +124,35 @@ const getLastFrameOfVideoFastUnlimited = async (
 		);
 	}
 
-	if (offset > 40) {
-		const last = await getLastFrameOfVideoSlow({
-			duration,
+	if (options.specialVCodecForTransparency === 'vp8' || offset > 40) {
+		const last = await getFrameOfVideoSlow({
+			timestamp: duration,
 			ffmpegExecutable,
 			src,
+			imageFormat: options.imageFormat,
+			specialVCodecForTransparency: options.specialVCodecForTransparency,
 		});
 		return last;
 	}
 
 	const actualOffset = `${duration * 1000 - offset - 10}ms`;
-	const {stdout, stderr} = execa(ffmpegExecutable ?? 'ffmpeg', [
-		'-ss',
-		actualOffset,
-		'-i',
-		src,
-		'-frames:v',
-		'1',
-		'-f',
-		'image2pipe',
-		'-',
-	]);
+	const {stdout, stderr} = execa(
+		ffmpegExecutable ?? 'ffmpeg',
+		[
+			'-ss',
+			actualOffset,
+			...determineVcodecFfmepgFlags(options.specialVCodecForTransparency),
+			'-i',
+			src,
+			'-frames:v',
+			'1',
+			'-c:v',
+			options.imageFormat === 'jpeg' ? 'mjpeg' : 'png',
+			'-f',
+			'image2pipe',
+			'-',
+		].filter(Internals.truthy)
+	);
 
 	if (!stderr) {
 		throw new Error('unexpectedly did not get stderr');
@@ -160,6 +194,8 @@ const getLastFrameOfVideoFastUnlimited = async (
 			offset: offset + 10,
 			src,
 			ffprobeExecutable,
+			imageFormat: options.imageFormat,
+			specialVCodecForTransparency: options.specialVCodecForTransparency,
 		});
 
 		return unlimited;
@@ -185,6 +221,7 @@ type Options = {
 	src: string;
 	ffmpegExecutable: FfmpegExecutable;
 	ffprobeExecutable: FfmpegExecutable;
+	imageFormat: OffthreadVideoImageFormat;
 };
 
 const extractFrameFromVideoFn = async ({
@@ -192,8 +229,23 @@ const extractFrameFromVideoFn = async ({
 	src,
 	ffmpegExecutable,
 	ffprobeExecutable,
+	imageFormat,
 }: Options): Promise<Buffer> => {
 	await ensurePresentationTimestamps(src);
+	const specialVCodecForTransparency: SpecialVCodecForTransparency =
+		imageFormat === 'jpeg'
+			? 'none'
+			: await getSpecialVCodecForTransparency(src, ffprobeExecutable);
+
+	if (specialVCodecForTransparency === 'vp8') {
+		return getFrameOfVideoSlow({
+			ffmpegExecutable,
+			imageFormat,
+			specialVCodecForTransparency,
+			src,
+			timestamp: time,
+		});
+	}
 
 	if (isBeyondLastFrame(src, time)) {
 		const lastFrame = await getLastFrameOfVideo({
@@ -201,6 +253,8 @@ const extractFrameFromVideoFn = async ({
 			ffprobeExecutable,
 			offset: 0,
 			src,
+			imageFormat,
+			specialVCodecForTransparency,
 		});
 		return lastFrame;
 	}
@@ -211,14 +265,17 @@ const extractFrameFromVideoFn = async ({
 		[
 			'-ss',
 			ffmpegTimestamp,
+			...determineVcodecFfmepgFlags(specialVCodecForTransparency),
 			'-i',
 			src,
 			'-frames:v',
 			'1',
 			'-f',
 			'image2pipe',
+			'-vcodec',
+			imageFormat === 'jpeg' ? 'mjpeg' : 'png',
 			'-',
-		],
+		].filter(Internals.truthy),
 		{
 			buffer: false,
 		}
@@ -261,6 +318,8 @@ const extractFrameFromVideoFn = async ({
 			ffprobeExecutable,
 			offset: 0,
 			src,
+			imageFormat,
+			specialVCodecForTransparency,
 		});
 
 		return last;

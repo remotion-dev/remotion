@@ -1,8 +1,9 @@
 import crypto from 'crypto';
+import type {
+	LastFrameOptions} from '../last-frame-from-video-cache';
 import {
 	clearLastFileCache,
 	getLastFrameFromCache,
-	LastFrameOptions,
 	setLastFrameInCache,
 } from '../last-frame-from-video-cache';
 
@@ -12,6 +13,8 @@ const makeKey = (id: string): LastFrameOptions => {
 		ffprobeExecutable: null,
 		offset: 10,
 		src: id,
+		imageFormat: 'jpeg',
+		specialVCodecForTransparency: 'none',
 	};
 };
 

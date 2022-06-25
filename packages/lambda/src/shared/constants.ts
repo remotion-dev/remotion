@@ -1,5 +1,5 @@
-import {ChromiumOptions} from '@remotion/renderer';
-import {
+import type {ChromiumOptions} from '@remotion/renderer';
+import type {
 	Codec,
 	FrameRange,
 	ImageFormat,
@@ -8,11 +8,11 @@ import {
 	ProResProfile,
 	VideoConfig,
 } from 'remotion';
-import {ChunkRetry} from '../functions/helpers/get-retry-stats';
-import {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
-import {AwsRegion} from '../pricing/aws-regions';
-import {ExpensiveChunk} from './get-most-expensive-chunks';
-import {LambdaArchitecture} from './validate-architecture';
+import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
+import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
+import type {AwsRegion} from '../pricing/aws-regions';
+import type {ExpensiveChunk} from './get-most-expensive-chunks';
+import type {LambdaArchitecture} from './validate-architecture';
 
 export const MIN_MEMORY = 512;
 export const MAX_MEMORY = 10240;
@@ -303,6 +303,7 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2022-06-25'
 	| '2022-06-22'
 	| '2022-06-21'
 	| '2022-06-14'
@@ -381,7 +382,7 @@ export type LambdaVersions =
 	| '2021-06-23'
 	| 'n/a';
 
-export const CURRENT_VERSION: LambdaVersions = '2022-06-22';
+export const CURRENT_VERSION: LambdaVersions = '2022-06-25';
 
 export type PostRenderData = {
 	cost: {

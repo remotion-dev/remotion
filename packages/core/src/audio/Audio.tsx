@@ -5,7 +5,7 @@ import {validateMediaProps} from '../validate-media-props';
 import {validateStartFromProps} from '../validate-start-from-props';
 import {AudioForDevelopment} from './AudioForDevelopment';
 import {AudioForRendering} from './AudioForRendering';
-import {RemotionAudioProps, RemotionMainAudioProps} from './props';
+import type {RemotionAudioProps, RemotionMainAudioProps} from './props';
 import {SharedAudioContext} from './shared-audio-tags';
 
 const AudioRefForwardingFunction: React.ForwardRefRenderFunction<

@@ -1,8 +1,8 @@
 import type Protocol from 'devtools-protocol';
 import {Internals} from 'remotion';
-import {Page} from '../browser/Page';
-import {UnsymbolicatedStackFrame} from '../parse-browser-error-stack';
-import {SymbolicatedStackFrame} from '../symbolicate-stacktrace';
+import type {Page} from '../browser/Page';
+import type {UnsymbolicatedStackFrame} from '../parse-browser-error-stack';
+import type {SymbolicatedStackFrame} from '../symbolicate-stacktrace';
 import {SymbolicateableError} from './symbolicateable-error';
 
 export class ErrorWithStackFrame extends Error {
