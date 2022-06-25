@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/renderer",
-	"version": "3.0.22",
+	"version": "3.0.23",
 	"description": "Renderer for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -23,7 +23,7 @@
 		"execa": "5.1.1",
 		"mime-types": "2.1.35",
 		"puppeteer-core": "13.5.1",
-		"remotion": "3.0.22",
+		"remotion": "3.0.23",
 		"source-map": "^0.8.0-beta.0"
 	},
 	"peerDependencies": {
