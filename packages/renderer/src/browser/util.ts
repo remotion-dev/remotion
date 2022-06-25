@@ -114,7 +114,7 @@ export function removeEventListeners(
 	}>
 ): void {
 	for (const listener of listeners) {
-		listener.emitter.removeListener(listener.eventName, listener.handler);
+		listener.emitter.off(listener.eventName, listener.handler);
 	}
 
 	listeners.length = 0;

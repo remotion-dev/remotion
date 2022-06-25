@@ -25,14 +25,13 @@ import type {
 } from './EvalTypes';
 import type {ExecutionContext} from './ExecutionContext';
 import type {Frame} from './FrameManager';
-import type {ElementHandle, JSHandle} from './JSHandle';
+import type {JSHandle} from './JSHandle';
 import type {TimeoutSettings} from './TimeoutSettings';
 import {isString} from './util';
 
 export class DOMWorld {
 	#frame: Frame;
 	#timeoutSettings: TimeoutSettings;
-	#documentPromise: Promise<ElementHandle> | null = null;
 	#contextPromise: Promise<ExecutionContext> | null = null;
 	#contextResolveCallback: ((x: ExecutionContext) => void) | null = null;
 	#detached = false;
@@ -67,7 +66,6 @@ export class DOMWorld {
 				waitTask.rerun();
 			}
 		} else {
-			this.#documentPromise = null;
 			this.#contextPromise = new Promise((fulfill) => {
 				this.#contextResolveCallback = fulfill;
 			});
@@ -118,23 +116,6 @@ export class DOMWorld {
 			pageFunction,
 			...args
 		);
-	}
-
-	_document(): Promise<ElementHandle> {
-		if (this.#documentPromise) {
-			return this.#documentPromise;
-		}
-
-		this.#documentPromise = this.executionContext().then(async (context) => {
-			const document = await context.evaluateHandle('document');
-			const element = document.asElement();
-			if (element === null) {
-				throw new Error('Document is null');
-			}
-
-			return element;
-		});
-		return this.#documentPromise;
 	}
 
 	waitForFunction(
