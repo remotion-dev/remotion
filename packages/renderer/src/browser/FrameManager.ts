@@ -547,7 +547,6 @@ export class FrameManager extends EventEmitter {
 export class Frame {
 	#parentFrame: Frame | null;
 	#url = '';
-	#detached = false;
 	#client!: CDPSession;
 
 	_frameManager: FrameManager;
@@ -570,7 +569,6 @@ export class Frame {
 		this.#parentFrame = parentFrame ?? null;
 		this.#url = '';
 		this._id = frameId;
-		this.#detached = false;
 
 		this._loaderId = '';
 
@@ -631,24 +629,12 @@ export class Frame {
 		return this._mainWorld.evaluate<T>(pageFunction, ...args);
 	}
 
-	name(): string {
-		return this._name || '';
-	}
-
 	url(): string {
 		return this.#url;
 	}
 
-	parentFrame(): Frame | null {
-		return this.#parentFrame;
-	}
-
 	childFrames(): Frame[] {
 		return Array.from(this._childFrames);
-	}
-
-	isDetached(): boolean {
-		return this.#detached;
 	}
 
 	waitForFunction(
@@ -656,10 +642,6 @@ export class Frame {
 		...args: SerializableOrJSHandle[]
 	): Promise<JSHandle> {
 		return this._mainWorld.waitForFunction(pageFunction, ...args);
-	}
-
-	title(): Promise<string> {
-		return this._secondaryWorld.title();
 	}
 
 	_navigated(framePayload: Protocol.Page.Frame): void {
@@ -690,7 +672,6 @@ export class Frame {
 	}
 
 	_detach(): void {
-		this.#detached = true;
 		this._mainWorld._detach();
 		this._secondaryWorld._detach();
 		if (this.#parentFrame) {
