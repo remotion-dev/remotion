@@ -2,7 +2,6 @@ import type {ExecaChildProcess} from 'execa';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import type {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import type {
 	BrowserExecutable,
 	Codec,
@@ -10,12 +9,12 @@ import type {
 	FrameRange,
 	PixelFormat,
 	ProResProfile,
-	SmallTCompMetadata} from 'remotion';
-import {
-	Internals
+	SmallTCompMetadata,
 } from 'remotion';
+import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {BrowserLog} from './browser-log';
+import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
@@ -23,13 +22,10 @@ import {getDurationFromFrameRange} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
-import type {
-	ServeUrlOrWebpackBundle} from './legacy-webpack-config';
-import {
-	getServeUrlWithFallback
-} from './legacy-webpack-config';
+import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
+import {getServeUrlWithFallback} from './legacy-webpack-config';
 import type {CancelSignal} from './make-cancel-signal';
-import { makeCancelSignal} from './make-cancel-signal';
+import {makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {renderFrames} from './render-frames';

@@ -14,7 +14,7 @@ describe('Should validate invalid data passed to stitchFramesToVideo', () => {
 		);
 	});
 
-	test('Invalid height', async () => {
+	test('Invalid height', () => {
 		return expect(
 			// @ts-expect-error
 			stitchFramesToVideo({
@@ -26,7 +26,7 @@ describe('Should validate invalid data passed to stitchFramesToVideo', () => {
 			/The "height" prop passed to `stitchFramesToVideo\(\)` must be an integer, but is 1000.5./
 		);
 	});
-	test('Invalid width', async () => {
+	test('Invalid width', () => {
 		return expect(
 			// @ts-expect-error
 			stitchFramesToVideo({

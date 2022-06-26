@@ -1,9 +1,11 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import puppeteer from 'puppeteer-core';
 import type {Browser} from 'remotion';
-import { Internals} from 'remotion';
+import {Internals} from 'remotion';
+import type {Browser as PuppeteerBrowser} from './browser/Browser';
+import {puppeteer} from './browser/node';
+import type {Viewport} from './browser/PuppeteerViewport';
 import {
 	ensureLocalBrowser,
 	getLocalBrowserExecutable,
@@ -34,7 +36,7 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	return [`--use-gl=${renderer}`];
 };
 
-const browserInstances: puppeteer.Browser[] = [];
+const browserInstances: PuppeteerBrowser[] = [];
 
 export const killAllBrowsers = async () => {
 	for (const browser of browserInstances) {
@@ -51,8 +53,9 @@ export const openBrowser = async (
 		browserExecutable?: string | null;
 		chromiumOptions?: ChromiumOptions;
 		forceDeviceScaleFactor?: number;
+		viewport?: Viewport;
 	}
-): Promise<puppeteer.Browser> => {
+): Promise<PuppeteerBrowser> => {
 	if (browser === 'firefox' && !Internals.FEATURE_FLAG_FIREFOX_SUPPORT) {
 		throw new TypeError(
 			'Firefox supported is not yet turned on. Stay tuned for the future.'
@@ -74,10 +77,9 @@ export const openBrowser = async (
 		executablePath,
 		product: browser,
 		dumpio: options?.shouldDumpIo ?? false,
-		ignoreDefaultArgs: true,
 		args: [
 			'about:blank',
-			'--allow-pre-commit-input', // TODO(crbug.com/1320996): neither headful nor headless should rely on this flag.
+			'--allow-pre-commit-input',
 			'--disable-background-networking',
 			'--enable-features=NetworkService,NetworkServiceInProcess',
 			'--disable-background-timer-throttling',
@@ -91,8 +93,6 @@ export const openBrowser = async (
 			'--no-proxy-server',
 			"--proxy-server='direct://'",
 			'--proxy-bypass-list=*',
-			// TODO: remove AvoidUnnecessaryBeforeUnloadCheckSync below
-			// once crbug.com/1324138 is fixed and released.
 			'--disable-hang-monitor',
 			'--disable-ipc-flooding-protection',
 			'--disable-popup-blocking',
@@ -106,8 +106,6 @@ export const openBrowser = async (
 			'--enable-automation',
 			'--password-store=basic',
 			'--use-mock-keychain',
-			// TODO(sadym): remove '--enable-blink-features=IdleDetection'
-			// once IdleDetection is turned on by default.
 			'--enable-blink-features=IdleDetection',
 			'--export-tagged-pdf',
 			'--intensive-wake-up-throttling-policy=0',
@@ -145,7 +143,13 @@ export const openBrowser = async (
 				  ]
 				: []),
 		].filter(Boolean) as string[],
+		defaultViewport: options?.viewport ?? {
+			height: 720,
+			width: 1280,
+			deviceScaleFactor: 1,
+		},
 	});
+
 	const pages = await browserInstance.pages();
 	await pages[0].close();
 

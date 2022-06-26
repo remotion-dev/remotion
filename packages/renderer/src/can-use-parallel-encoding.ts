@@ -1,5 +1,5 @@
 import type {Codec} from 'remotion';
-import { Internals} from 'remotion';
+import {Internals} from 'remotion';
 
 export const canUseParallelEncoding = (codec: Codec) => {
 	if (Internals.isAudioCodec(codec)) {

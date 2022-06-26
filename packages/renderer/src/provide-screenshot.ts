@@ -1,5 +1,5 @@
-import type puppeteer from 'puppeteer-core';
 import type {ImageFormat} from 'remotion';
+import type {Page} from './browser/Page';
 import {screenshotDOMElement} from './screenshot-dom-element';
 
 export const provideScreenshot = ({
@@ -8,19 +8,18 @@ export const provideScreenshot = ({
 	options,
 	quality,
 }: {
-	page: puppeteer.Page;
+	page: Page;
 	imageFormat: ImageFormat;
 	quality: number | undefined;
 	options: {
 		frame: number;
-		output?: string;
+		output: string | null;
 	};
 }): Promise<Buffer> => {
 	return screenshotDOMElement({
 		page,
 		opts: {
 			path: options.output,
-			selector: '#remotion-canvas',
 		},
 		imageFormat,
 		quality,

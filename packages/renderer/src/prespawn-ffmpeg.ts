@@ -4,10 +4,9 @@ import type {
 	FfmpegExecutable,
 	ImageFormat,
 	PixelFormat,
-	ProResProfile} from 'remotion';
-import {
-	Internals
+	ProResProfile,
 } from 'remotion';
+import {Internals} from 'remotion';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
 import type {CancelSignal} from './make-cancel-signal';

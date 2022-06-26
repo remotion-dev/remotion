@@ -1,41 +1,32 @@
 import fs from 'fs';
 import path from 'path';
 import type {
-	Browser as PuppeteerBrowser,
-	ConsoleMessage,
-	Page,
-} from 'puppeteer-core';
-import type {
 	BrowserExecutable,
 	FfmpegExecutable,
 	FrameRange,
 	ImageFormat,
 	SmallTCompMetadata,
-	TAsset} from 'remotion';
-import {
-	Internals
+	TAsset,
 } from 'remotion';
-import type {
-	RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import {
-	downloadAndMapAssetsToFileUrl
-} from './assets/download-and-map-assets-to-file';
+import {Internals} from 'remotion';
+import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
 import type {BrowserLog} from './browser-log';
+import type {Browser} from './browser/Browser';
+import type {ConsoleMessage} from './browser/ConsoleMessage';
+import type {Page} from './browser/Page';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {getActualConcurrency} from './get-concurrency';
 import {getDurationFromFrameRange} from './get-duration-from-frame-range';
 import {getRealFrameRange} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
-import type {
-	ServeUrlOrWebpackBundle} from './legacy-webpack-config';
-import {
-	getServeUrlWithFallback
-} from './legacy-webpack-config';
+import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
+import {getServeUrlWithFallback} from './legacy-webpack-config';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import type {CancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
-import { openBrowser} from './open-browser';
+import {openBrowser} from './open-browser';
 import {Pool} from './pool';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
@@ -67,7 +58,7 @@ type RenderFramesOptions = {
 	quality?: number;
 	frameRange?: FrameRange | null;
 	dumpBrowserLogs?: boolean;
-	puppeteerInstance?: PuppeteerBrowser;
+	puppeteerInstance?: Browser;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
 	onFrameBuffer?: (buffer: Buffer, frame: number) => void;
@@ -147,6 +138,8 @@ const innerRenderFrames = ({
 		}
 	}
 
+	const downloadPromises: Promise<unknown>[] = [];
+
 	const realFrameRange = getRealFrameRange(
 		composition.durationInFrames,
 		frameRange ?? null
@@ -169,8 +162,8 @@ const innerRenderFrames = ({
 		const logCallback = (log: ConsoleMessage) => {
 			onBrowserLog?.({
 				stackTrace: log.stackTrace(),
-				text: log.text(),
-				type: log.type(),
+				text: log.text,
+				type: log.type,
 			});
 		};
 
@@ -263,7 +256,7 @@ const innerRenderFrames = ({
 							quality,
 							options: {
 								frame,
-								output: undefined,
+								output: null,
 							},
 						});
 						Internals.perf.stopPerfMeasure(id);
@@ -308,17 +301,19 @@ const innerRenderFrames = ({
 				);
 				assets[index] = compressedAssets;
 				compressedAssets.forEach((asset) => {
-					downloadAndMapAssetsToFileUrl({
-						asset,
-						downloadDir,
-						onDownload,
-					}).catch((err) => {
-						onError(
-							new Error(
-								`Error while downloading asset: ${(err as Error).stack}`
-							)
-						);
-					});
+					downloadPromises.push(
+						downloadAndMapAssetsToFileUrl({
+							asset,
+							downloadDir,
+							onDownload,
+						}).catch((err) => {
+							onError(
+								new Error(
+									`Error while downloading asset: ${(err as Error).stack}`
+								)
+							);
+						})
+					);
 				});
 				pool.release(freePage);
 				framesRendered++;
@@ -343,7 +338,11 @@ const innerRenderFrames = ({
 	});
 
 	return Promise.race([
-		happyPath,
+		happyPath
+			.then(() => {
+				return Promise.all(downloadPromises);
+			})
+			.then(() => happyPath),
 		new Promise<RenderFramesOutput>((_resolve, reject) => {
 			cancelSignal?.(() => {
 				reject(new Error('renderFrames() got cancelled'));
@@ -413,7 +412,9 @@ export const renderFrames = (
 
 	return new Promise<RenderFramesOutput>((resolve, reject) => {
 		const cleanup: CleanupFn[] = [];
-		const onError = (err: Error) => reject(err);
+		const onError = (err: Error) => {
+			reject(err);
+		};
 
 		Promise.all([
 			prepareServer({
@@ -441,7 +442,7 @@ export const renderFrames = (
 				});
 
 				cleanup.push(closeServer);
-				const renderFramesProm = innerRenderFrames({
+				return innerRenderFrames({
 					...options,
 					puppeteerInstance,
 					onError,
@@ -453,9 +454,10 @@ export const renderFrames = (
 					downloadDir,
 					proxyPort: offthreadPort,
 				});
-				return renderFramesProm;
 			})
-			.then((res) => resolve(res))
+			.then((res) => {
+				return resolve(res);
+			})
 			.catch((err) => reject(err))
 			.finally(() => {
 				// If browser instance was passed in, we close all the pages

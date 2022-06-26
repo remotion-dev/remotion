@@ -1,9 +1,8 @@
 import type {RequestListener} from 'http';
 import type {FfmpegExecutable, OffthreadVideoImageFormat} from 'remotion';
-import { Internals} from 'remotion';
+import {Internals} from 'remotion';
 import {URLSearchParams} from 'url';
-import type {
-	RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {
 	getSanitizedFilenameForAssetUrl,
 	startDownloadForSrc,
