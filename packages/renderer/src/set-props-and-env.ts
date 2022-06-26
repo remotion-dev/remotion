@@ -1,5 +1,5 @@
-import type {Page} from 'puppeteer-core';
 import {Internals} from 'remotion';
+import type {Page} from './browser/Page';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
@@ -71,6 +71,10 @@ export const setPropsAndEnv = async ({
 	);
 
 	const pageRes = await page.goto(urlToVisit);
+
+	if (pageRes === null) {
+		throw new Error(`Visited "${urlToVisit}" but got no response.`);
+	}
 
 	const status = pageRes.status();
 

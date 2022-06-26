@@ -1,4 +1,4 @@
-import type { TAsset} from 'remotion';
+import type {TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
 

@@ -1,6 +1,6 @@
 import {Internals} from 'remotion';
 import type {RawSourceMap} from 'source-map';
-import { SourceMapConsumer} from 'source-map';
+import {SourceMapConsumer} from 'source-map';
 import {readFile} from './assets/read-file';
 import type {UnsymbolicatedStackFrame} from './parse-browser-error-stack';
 

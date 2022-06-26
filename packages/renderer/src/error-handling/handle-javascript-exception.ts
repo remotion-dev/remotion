@@ -1,5 +1,6 @@
-import type {CDPSession, Page, Protocol} from 'puppeteer-core';
+import type Protocol from 'devtools-protocol';
 import {Internals} from 'remotion';
+import type {Page} from '../browser/Page';
 import type {UnsymbolicatedStackFrame} from '../parse-browser-error-stack';
 import type {SymbolicatedStackFrame} from '../symbolicate-stacktrace';
 import {SymbolicateableError} from './symbolicateable-error';
@@ -77,9 +78,9 @@ export const handleJavascriptException = ({
 	frame: number | null;
 	onError: (err: Error) => void;
 }) => {
-	const client = (page as unknown as {_client: CDPSession})._client;
+	const client = page._client();
 
-	const handler = async (exception: Protocol.Runtime.ExceptionThrownEvent) => {
+	const handler = (exception: Protocol.Runtime.ExceptionThrownEvent) => {
 		const rawErrorMessage = exception.exceptionDetails.exception
 			?.description as string;
 		const cleanErrorMessage = cleanUpErrorMessage(exception);

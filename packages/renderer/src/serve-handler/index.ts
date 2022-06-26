@@ -1,5 +1,5 @@
 // Native
-import type { Stats} from 'fs';
+import type {Stats} from 'fs';
 import {createReadStream, promises} from 'fs';
 import type {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';

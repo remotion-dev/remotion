@@ -1,26 +1,22 @@
 import fs, {statSync} from 'fs';
 import path from 'path';
-import type {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import type {
 	BrowserExecutable,
 	FfmpegExecutable,
 	SmallTCompMetadata,
-	StillImageFormat} from 'remotion';
-import {
-	Internals
+	StillImageFormat,
 } from 'remotion';
+import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
-import type {
-	ServeUrlOrWebpackBundle} from './legacy-webpack-config';
-import {
-	getServeUrlWithFallback
-} from './legacy-webpack-config';
+import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
+import {getServeUrlWithFallback} from './legacy-webpack-config';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import type {CancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
-import { openBrowser} from './open-browser';
+import {openBrowser} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';

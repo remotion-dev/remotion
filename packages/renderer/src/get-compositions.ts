@@ -1,6 +1,11 @@
-import type {Browser, Page} from 'puppeteer-core';
-import type {BrowserExecutable, FfmpegExecutable, TCompMetadata} from 'remotion';
+import type {
+	BrowserExecutable,
+	FfmpegExecutable,
+	TCompMetadata,
+} from 'remotion';
 import type {BrowserLog} from './browser-log';
+import type {Browser} from './browser/Browser';
+import type {Page} from './browser/Page';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
@@ -33,8 +38,8 @@ const innerGetCompositions = async (
 		page.on('console', (log) => {
 			config.onBrowserLog?.({
 				stackTrace: log.stackTrace(),
-				text: log.text(),
-				type: log.type(),
+				text: log.text,
+				type: log.type,
 			});
 		});
 	}

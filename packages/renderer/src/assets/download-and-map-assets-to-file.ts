@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import type { TAsset} from 'remotion';
+import type {TAsset} from 'remotion';
 import {Internals, random} from 'remotion';
 import {ensureOutputDirectory} from '../ensure-output-directory';
 import {downloadFile} from './download-file';
