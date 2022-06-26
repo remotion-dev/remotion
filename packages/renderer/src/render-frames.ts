@@ -138,6 +138,8 @@ const innerRenderFrames = ({
 		}
 	}
 
+	const downloadPromises: Promise<unknown>[] = [];
+
 	const realFrameRange = getRealFrameRange(
 		composition.durationInFrames,
 		frameRange ?? null
@@ -299,17 +301,19 @@ const innerRenderFrames = ({
 				);
 				assets[index] = compressedAssets;
 				compressedAssets.forEach((asset) => {
-					downloadAndMapAssetsToFileUrl({
-						asset,
-						downloadDir,
-						onDownload,
-					}).catch((err) => {
-						onError(
-							new Error(
-								`Error while downloading asset: ${(err as Error).stack}`
-							)
-						);
-					});
+					downloadPromises.push(
+						downloadAndMapAssetsToFileUrl({
+							asset,
+							downloadDir,
+							onDownload,
+						}).catch((err) => {
+							onError(
+								new Error(
+									`Error while downloading asset: ${(err as Error).stack}`
+								)
+							);
+						})
+					);
 				});
 				pool.release(freePage);
 				framesRendered++;
@@ -334,7 +338,11 @@ const innerRenderFrames = ({
 	});
 
 	return Promise.race([
-		happyPath,
+		happyPath
+			.then(() => {
+				return Promise.all(downloadPromises);
+			})
+			.then(() => happyPath),
 		new Promise<RenderFramesOutput>((_resolve, reject) => {
 			cancelSignal?.(() => {
 				reject(new Error('renderFrames() got cancelled'));
@@ -404,7 +412,9 @@ export const renderFrames = (
 
 	return new Promise<RenderFramesOutput>((resolve, reject) => {
 		const cleanup: CleanupFn[] = [];
-		const onError = (err: Error) => reject(err);
+		const onError = (err: Error) => {
+			reject(err);
+		};
 
 		Promise.all([
 			prepareServer({
@@ -432,7 +442,7 @@ export const renderFrames = (
 				});
 
 				cleanup.push(closeServer);
-				const renderFramesProm = innerRenderFrames({
+				return innerRenderFrames({
 					...options,
 					puppeteerInstance,
 					onError,
@@ -444,9 +454,10 @@ export const renderFrames = (
 					downloadDir,
 					proxyPort: offthreadPort,
 				});
-				return renderFramesProm;
 			})
-			.then((res) => resolve(res))
+			.then((res) => {
+				return resolve(res);
+			})
 			.catch((err) => reject(err))
 			.finally(() => {
 				// If browser instance was passed in, we close all the pages
