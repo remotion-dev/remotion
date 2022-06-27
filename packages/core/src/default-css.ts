@@ -15,7 +15,7 @@ export const injectCSS = (css: string) => {
 
 	style.appendChild(document.createTextNode(css));
 
-	head.appendChild(style);
+	head.prepend(style);
 	injected[css] = true;
 };
 
