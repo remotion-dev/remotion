@@ -113,7 +113,6 @@ importers:
       '@typescript-eslint/eslint-plugin': 5.18.0
       '@typescript-eslint/parser': 5.18.0
       better-opn: 2.1.1
-      chalk: 4.1.2
       dotenv: 9.0.2
       eslint: 8.13.0
       eslint-plugin-10x: 1.5.2
@@ -137,7 +136,6 @@ importers:
       '@remotion/player': link:../player
       '@remotion/renderer': link:../renderer
       better-opn: 2.1.1
-      chalk: 4.1.2
       dotenv: 9.0.2
       memfs: 3.4.3
       minimist: 1.2.6
@@ -203,7 +201,7 @@ importers:
       react-dom: 18.0.0_react@18.0.0
       react-test-renderer: 18.0.0_react@18.0.0
       rimraf: 3.0.2
-      ts-jest: 27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm
+      ts-jest: 27.0.5_f7drhotxik6wwmizpivq74sxca
       typescript: 4.7.2
       webpack: 5.72.0
 
@@ -362,7 +360,7 @@ importers:
     devDependencies:
       eslint: 8.13.0
       jest: 27.2.4
-      ts-jest: 27.0.5_zwhdjizg2b4clj63vswakbrchm
+      ts-jest: 27.0.5_xnn4tb2boqbkyhoppxe3xlcolq
       typescript: 4.7.2
 
   packages/example:
@@ -19287,7 +19285,7 @@ packages:
       yargs-parser: 20.2.9
     dev: true
 
-  /ts-jest/27.0.5_zwhdjizg2b4clj63vswakbrchm:
+  /ts-jest/27.0.5_xnn4tb2boqbkyhoppxe3xlcolq:
     resolution: {integrity: sha512-lIJApzfTaSSbtlksfFNHkWOzLJuuSm4faFAfo5kvzOiRAuoN4/eKxVJ2zEAho8aecE04qX6K1pAzfH5QHL1/8w==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     hasBin: true
@@ -19305,7 +19303,6 @@ packages:
       babel-jest:
         optional: true
     dependencies:
-      '@babel/core': 7.17.9
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
       jest: 27.2.4
