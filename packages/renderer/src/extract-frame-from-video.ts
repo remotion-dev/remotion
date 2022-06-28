@@ -76,8 +76,6 @@ const getFrameOfVideoSlow = async ({
 		'-',
 	].filter(Internals.truthy);
 
-	console.log({command});
-
 	const {stdout, stderr} = execa(ffmpegExecutable ?? 'ffmpeg', command);
 
 	if (!stderr) {
@@ -162,8 +160,7 @@ const getLastFrameOfVideoFastUnlimited = async (
 			options.imageFormat === 'jpeg' ? 'mjpeg' : 'png',
 			'-f',
 			'image2pipe',
-			'-s',
-			'720x1280',
+			...determineResizeParams(options.needsResize),
 			'-',
 		].filter(Internals.truthy)
 	);
