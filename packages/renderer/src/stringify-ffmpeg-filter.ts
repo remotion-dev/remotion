@@ -24,8 +24,12 @@ export const stringifyFfmpegFilter = ({
 	durationInFrames: number;
 	playbackRate: number;
 	assetDuration: number | null;
-}) => {
+}): string | null => {
 	const startInVideoSeconds = startInVideo / fps;
+
+	if (assetDuration && trimLeft >= assetDuration) {
+		return null;
+	}
 
 	const volumeFilter = ffmpegVolumeExpression({
 		volume,

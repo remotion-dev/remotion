@@ -1,7 +1,7 @@
 // OffthreadVideo requires sometimes that the last frame of a video gets extracted, however, this can be slow. We allocate a cache for it but that can be garbage collected
 
 import type {FfmpegExecutable, OffthreadVideoImageFormat} from 'remotion';
-import type {SpecialVCodecForTransparency} from './is-vp9-video';
+import type {SpecialVCodecForTransparency} from './get-video-info';
 
 export type LastFrameOptions = {
 	ffmpegExecutable: FfmpegExecutable;
@@ -10,6 +10,7 @@ export type LastFrameOptions = {
 	src: string;
 	specialVCodecForTransparency: SpecialVCodecForTransparency;
 	imageFormat: OffthreadVideoImageFormat;
+	needsResize: [number, number] | null;
 };
 
 let map: Record<string, {lastAccessed: number; data: Buffer}> = {};
