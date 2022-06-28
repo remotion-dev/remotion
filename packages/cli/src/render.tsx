@@ -6,11 +6,11 @@ import {
 	RenderInternals,
 	renderMedia,
 } from '@remotion/renderer';
-import chalk from 'chalk';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {Internals} from 'remotion';
+import {chalk} from './chalk';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {initializeRenderCli} from './initialize-render-cli';
