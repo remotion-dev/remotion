@@ -10,7 +10,7 @@ import {webpackOverride} from './webpack-override';
 
 const start = async () => {
 	const bundled = await bundle('./src/index.tsx', () => undefined, {
-		webpackOverride: webpackOverride,
+		webpackOverride,
 	});
 
 	const comps = await getCompositions(bundled);
