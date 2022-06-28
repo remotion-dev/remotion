@@ -4,9 +4,9 @@ import {Internals} from 'remotion';
 import {getAudioChannelsAndDuration} from './assets/get-audio-channels';
 import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
+import type {SpecialVCodecForTransparency} from './get-video-info';
+import {getVideoInfo} from './get-video-info';
 import {isBeyondLastFrame, markAsBeyondLastFrame} from './is-beyond-last-frame';
-import type {SpecialVCodecForTransparency} from './is-vp9-video';
-import {getSpecialVCodecForTransparency} from './is-vp9-video';
 import type {LastFrameOptions} from './last-frame-from-video-cache';
 import {
 	getLastFrameFromCache,
@@ -28,6 +28,16 @@ const determineVcodecFfmepgFlags = (
 	].filter(Internals.truthy);
 };
 
+export const determineResizeParams = (
+	needsResize: [number, number] | null
+): string[] => {
+	if (needsResize === null) {
+		return [];
+	}
+
+	return ['-s', `${needsResize[0]}x${needsResize[1]}`];
+};
+
 // Uses no seeking, therefore the whole video has to be decoded. This is a last resort and should only happen
 // if the video is corrupted
 const getFrameOfVideoSlow = async ({
@@ -36,12 +46,14 @@ const getFrameOfVideoSlow = async ({
 	ffmpegExecutable,
 	imageFormat,
 	specialVCodecForTransparency,
+	needsResize,
 }: {
 	ffmpegExecutable: FfmpegExecutable;
 	src: string;
 	timestamp: number;
 	imageFormat: OffthreadVideoImageFormat;
 	specialVCodecForTransparency: SpecialVCodecForTransparency;
+	needsResize: [number, number] | null;
 }) => {
 	console.warn(
 		`\nUsing a slow method to extract the frame at ${timestamp}ms of ${src}. See https://remotion.dev/docs/slow-method-to-extract-frame for advice`
@@ -60,8 +72,11 @@ const getFrameOfVideoSlow = async ({
 		imageFormat === 'jpeg' ? 'mjpeg' : 'png',
 		'-f',
 		'image2pipe',
+		...determineResizeParams(needsResize),
 		'-',
 	].filter(Internals.truthy);
+
+	console.log({command});
 
 	const {stdout, stderr} = execa(ffmpegExecutable ?? 'ffmpeg', command);
 
@@ -127,6 +142,7 @@ const getLastFrameOfVideoFastUnlimited = async (
 			src,
 			imageFormat: options.imageFormat,
 			specialVCodecForTransparency: options.specialVCodecForTransparency,
+			needsResize: options.needsResize,
 		});
 		return last;
 	}
@@ -146,6 +162,8 @@ const getLastFrameOfVideoFastUnlimited = async (
 			options.imageFormat === 'jpeg' ? 'mjpeg' : 'png',
 			'-f',
 			'image2pipe',
+			'-s',
+			'720x1280',
 			'-',
 		].filter(Internals.truthy)
 	);
@@ -192,6 +210,7 @@ const getLastFrameOfVideoFastUnlimited = async (
 			ffprobeExecutable,
 			imageFormat: options.imageFormat,
 			specialVCodecForTransparency: options.specialVCodecForTransparency,
+			needsResize: options.needsResize,
 		});
 
 		return unlimited;
@@ -228,18 +247,19 @@ const extractFrameFromVideoFn = async ({
 	imageFormat,
 }: Options): Promise<Buffer> => {
 	await ensurePresentationTimestamps(src);
-	const specialVCodecForTransparency: SpecialVCodecForTransparency =
-		imageFormat === 'jpeg'
-			? 'none'
-			: await getSpecialVCodecForTransparency(src, ffprobeExecutable);
+	const {specialVcodec, needsResize} = await getVideoInfo(
+		src,
+		ffprobeExecutable
+	);
 
-	if (specialVCodecForTransparency === 'vp8') {
+	if (specialVcodec === 'vp8') {
 		return getFrameOfVideoSlow({
 			ffmpegExecutable,
 			imageFormat,
-			specialVCodecForTransparency,
+			specialVCodecForTransparency: specialVcodec,
 			src,
 			timestamp: time,
+			needsResize,
 		});
 	}
 
@@ -250,7 +270,8 @@ const extractFrameFromVideoFn = async ({
 			offset: 0,
 			src,
 			imageFormat,
-			specialVCodecForTransparency,
+			specialVCodecForTransparency: specialVcodec,
+			needsResize,
 		});
 		return lastFrame;
 	}
@@ -261,7 +282,7 @@ const extractFrameFromVideoFn = async ({
 		[
 			'-ss',
 			ffmpegTimestamp,
-			...determineVcodecFfmepgFlags(specialVCodecForTransparency),
+			...determineVcodecFfmepgFlags(specialVcodec),
 			'-i',
 			src,
 			'-frames:v',
@@ -270,6 +291,7 @@ const extractFrameFromVideoFn = async ({
 			'image2pipe',
 			'-vcodec',
 			imageFormat === 'jpeg' ? 'mjpeg' : 'png',
+			...determineResizeParams(needsResize),
 			'-',
 		].filter(Internals.truthy),
 		{
@@ -315,7 +337,8 @@ const extractFrameFromVideoFn = async ({
 			offset: 0,
 			src,
 			imageFormat,
-			specialVCodecForTransparency,
+			specialVCodecForTransparency: specialVcodec,
+			needsResize,
 		});
 
 		return last;
