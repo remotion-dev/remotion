@@ -9,29 +9,38 @@ import path from 'path';
 import {webpackOverride} from './webpack-override';
 
 const start = async () => {
-	const bundled = await bundle('src/index.tsx', () => undefined, {
+	const bundled = await bundle('./src/index.tsx', () => undefined, {
 		webpackOverride: webpackOverride,
 	});
 
 	const comps = await getCompositions(bundled);
 
-	for (let i = 0; i < 6; i++) {
+	const filelistDir = RenderInternals.tmpDir('remotion-file-lists');
+
+	const dur = 600;
+	const framesPerLambda = 24;
+
+	console.log(filelistDir);
+	for (let i = 0; i < dur / framesPerLambda; i++) {
 		await renderMedia({
 			codec: 'h264-mkv',
 			composition: comps.find((c) => c.id === 'remote-video')!,
-			outputLocation: path.join('out/there' + i + '.mkv'),
+			outputLocation: path.join(filelistDir, 'out/there' + i + '.mkv'),
 			serveUrl: bundled,
+			frameRange: [i * framesPerLambda, (i + 1) * framesPerLambda - 1],
+			parallelism: 1,
 		});
+		console.log({i});
 	}
 
 	await combineVideos({
 		codec: 'h264',
-		filelistDir: RenderInternals.tmpDir('remotion-file-lists'),
-		files: new Array(6).fill(true).map((_, i) => {
-			return path.join('out/there' + i + '.mkv');
+		filelistDir,
+		files: new Array(dur / framesPerLambda).fill(true).map((_, i) => {
+			return path.join(filelistDir, 'out/there' + i + '.mkv');
 		}),
 		fps: 30,
-		numberOfFrames: 300,
+		numberOfFrames: dur,
 		onProgress: () => console.log('progress'),
 		output: 'out/combined.mp4',
 	});
