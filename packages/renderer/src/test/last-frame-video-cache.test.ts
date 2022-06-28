@@ -14,6 +14,7 @@ const makeKey = (id: string): LastFrameOptions => {
 		src: id,
 		imageFormat: 'jpeg',
 		specialVCodecForTransparency: 'none',
+		needsResize: null,
 	};
 };
 
