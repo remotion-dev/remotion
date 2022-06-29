@@ -1,6 +1,9 @@
-import type {ErrorWithStackFrame, SymbolicatedStackFrame} from '@remotion/renderer';
-import chalk from 'chalk';
+import type {
+	ErrorWithStackFrame,
+	SymbolicatedStackFrame,
+} from '@remotion/renderer';
 import {Internals} from 'remotion';
+import {chalk} from './chalk';
 import {Log} from './log';
 
 const makeFileName = (firstFrame: SymbolicatedStackFrame) => {

@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import {chalk} from './chalk';
 import {Log} from './log';
 import {VERSIONS_COMMAND} from './versions';
 
