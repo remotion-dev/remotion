@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import chalk from 'chalk';
+import {chalk} from './chalk';
 import {printCodeFrameAndStack} from './code-frame';
 import {Log} from './log';
 import {createOverwriteableCliOutput} from './progress-bar';
