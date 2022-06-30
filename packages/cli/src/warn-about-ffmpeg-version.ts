@@ -1,4 +1,4 @@
-import {FfmpegVersion} from '@remotion/renderer';
+import type {FfmpegVersion} from '@remotion/renderer';
 import {Log} from './log';
 
 const printMessage = (ffmpegVersion: NonNullable<FfmpegVersion>) => {

@@ -1,29 +1,28 @@
+import type {RenderMediaOnDownload, StitchingState} from '@remotion/renderer';
 import {
 	getCompositions,
 	openBrowser,
 	renderFrames,
 	RenderInternals,
 	renderMedia,
-	RenderMediaOnDownload,
-	StitchingState,
 } from '@remotion/renderer';
-import chalk from 'chalk';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {Internals} from 'remotion';
+import {chalk} from './chalk';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
+import type {DownloadProgress} from './progress-bar';
 import {
 	createOverwriteableCliOutput,
-	DownloadProgress,
 	makeRenderingAndStitchingProgress,
 } from './progress-bar';
 import {bundleOnCli} from './setup-cache';
-import {RenderStep} from './step';
+import type {RenderStep} from './step';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
 export const render = async () => {
@@ -110,7 +109,6 @@ export const render = async () => {
 		};
 		downloads.push(download);
 		updateRenderProgress();
-
 		return ({percent}) => {
 			download.progress = percent;
 			updateRenderProgress();

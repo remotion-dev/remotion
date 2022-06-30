@@ -1,8 +1,9 @@
-import {webpack} from '@remotion/bundler';
-import {MiddleWare, middleware} from './middleware';
+import type {webpack} from '@remotion/bundler';
+import type {MiddleWare} from './middleware';
+import { middleware} from './middleware';
 import {setupHooks} from './setup-hooks';
 import {setupOutputFileSystem} from './setup-output-filesystem';
-import {DevMiddlewareContext} from './types';
+import type {DevMiddlewareContext} from './types';
 
 export const wdm = (compiler: webpack.Compiler): MiddleWare => {
 	const context: DevMiddlewareContext = {

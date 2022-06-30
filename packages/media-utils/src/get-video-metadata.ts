@@ -1,6 +1,6 @@
 import {isRemoteAsset} from './is-remote-asset';
 import {pLimit} from './p-limit';
-import {VideoMetadata} from './types';
+import type {VideoMetadata} from './types';
 
 const cache: {[key: string]: VideoMetadata} = {};
 

@@ -5,7 +5,7 @@
 import React, {useMemo} from 'react';
 import {CompositionManager} from './CompositionManager';
 import {NonceContext} from './nonce';
-import {SequenceContext} from './sequencing';
+import {SequenceContext} from './Sequence';
 import {SetTimelineContext, TimelineContext} from './timeline-position-state';
 
 export function useRemotionContexts() {

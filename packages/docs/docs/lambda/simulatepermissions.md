@@ -73,6 +73,7 @@ The identifier of the required permission. See the [Permissions page](/docs/lamb
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/iam-validation/simulate.ts)
 - [getUserPolicy()](/docs/lambda/getuserpolicy)
 - [getRolePolicy()](/docs/lambda/getrolepolicy)
 - [Permissions](/docs/lambda/permissions)

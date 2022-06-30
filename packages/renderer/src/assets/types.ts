@@ -1,4 +1,4 @@
-import {TAsset} from 'remotion';
+import type {TAsset} from 'remotion';
 
 // An unsafe asset is an asset with looser types, which occurs
 // during construction of the asset list. Prefer the MediaAsset

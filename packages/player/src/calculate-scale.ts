@@ -1,5 +1,5 @@
-import {PreviewSize} from './utils/preview-size';
-import {Size} from './utils/use-element-size';
+import type {PreviewSize} from './utils/preview-size';
+import type {Size} from './utils/use-element-size';
 
 export const calculateScale = ({
 	previewSize,

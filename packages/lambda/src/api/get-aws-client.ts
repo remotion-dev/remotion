@@ -3,8 +3,9 @@ import * as IamSdk from '@aws-sdk/client-iam';
 import * as LambdaSDK from '@aws-sdk/client-lambda';
 import * as S3SDK from '@aws-sdk/client-s3';
 import * as ServiceQuotasSDK from '@aws-sdk/client-service-quotas';
-import {AwsRegion} from '../client';
-import {getServiceClient, ServiceMapping} from '../shared/aws-clients';
+import type {AwsRegion} from '../client';
+import type { ServiceMapping} from '../shared/aws-clients';
+import {getServiceClient} from '../shared/aws-clients';
 
 export type GetAwsClientInput<T extends keyof ServiceMapping> = {
 	region: AwsRegion;

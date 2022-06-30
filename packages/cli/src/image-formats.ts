@@ -1,4 +1,5 @@
-import {ImageFormat, Internals} from 'remotion';
+import type {ImageFormat} from 'remotion';
+import { Internals} from 'remotion';
 
 export const getImageFormat = (
 	codec: ReturnType<typeof Internals.getOutputCodecOrUndefined>

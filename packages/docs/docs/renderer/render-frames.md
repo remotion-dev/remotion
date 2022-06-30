@@ -307,6 +307,7 @@ A promise resolving to an object containing the following properties:
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/render-frames.ts)
 - [renderMedia()](/docs/renderer/render-media)
 - [bundle()](/docs/bundle)
 - [Server-Side rendering](/docs/ssr)

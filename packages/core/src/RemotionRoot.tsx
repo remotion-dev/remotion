@@ -8,14 +8,16 @@ import React, {
 import {SharedAudioContextProvider} from './audio/shared-audio-tags';
 import {CompositionManagerProvider} from './CompositionManager';
 import {continueRender, delayRender} from './delay-render';
-import {NonceContext, TNonceContext} from './nonce';
+import type { TNonceContext} from './nonce';
+import {NonceContext} from './nonce';
 import {random} from './random';
-import {
+import type {
 	PlayableMediaTag,
-	SetTimelineContext,
 	SetTimelineContextValue,
-	TimelineContext,
-	TimelineContextValue,
+	TimelineContextValue} from './timeline-position-state';
+import {
+	SetTimelineContext,
+	TimelineContext
 } from './timeline-position-state';
 
 export const RemotionRoot: React.FC<{

@@ -1,8 +1,9 @@
-import {RefObject, useContext, useEffect} from 'react';
+import type {RefObject} from 'react';
+import { useContext, useEffect} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error';
 import {TimelineContext, usePlayingState} from './timeline-position-state';
-import {useAbsoluteCurrentFrame, useCurrentFrame} from './use-frame';
+import {useAbsoluteCurrentFrame, useCurrentFrame} from './use-current-frame';
 import {useVideoConfig} from './use-video-config';
 import {getMediaTime} from './video/get-current-time';
 import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media';

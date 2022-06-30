@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {TimingProfile} from './types';
+import type {TimingProfile} from './types';
 
 export const isValidOptimizationProfile = (profile: TimingProfile) => {
 	return profile.every((timing) => {

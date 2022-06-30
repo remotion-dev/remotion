@@ -7,8 +7,8 @@ import {getRegions} from '..';
 import {quit} from '../cli/helpers/quit';
 import {getLambdaClient} from '../shared/aws-clients';
 import {CURRENT_VERSION} from '../shared/constants';
-import {HostedLayers} from '../shared/hosted-layers';
-import {LambdaArchitecture} from '../shared/validate-architecture';
+import type {HostedLayers} from '../shared/hosted-layers';
+import type {LambdaArchitecture} from '../shared/validate-architecture';
 
 const runtimes: string[] = ['nodejs14.x'];
 

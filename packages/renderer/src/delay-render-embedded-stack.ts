@@ -1,8 +1,6 @@
 import {Internals} from 'remotion';
-import {
-	parseStack,
-	UnsymbolicatedStackFrame,
-} from './parse-browser-error-stack';
+import type {UnsymbolicatedStackFrame} from './parse-browser-error-stack';
+import {parseStack} from './parse-browser-error-stack';
 
 export const parseDelayRenderEmbeddedStack = (
 	message: string

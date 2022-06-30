@@ -1,4 +1,4 @@
-import {FrameRange} from './frame-range';
+import type {FrameRange} from './frame-range';
 
 let imageSequence = false;
 

@@ -1,7 +1,7 @@
 import {Internals} from 'remotion';
 import {calculateATempo} from './assets/calculate-atempo';
 import {ffmpegVolumeExpression} from './assets/ffmpeg-volume-expression';
-import {AssetVolume} from './assets/types';
+import type {AssetVolume} from './assets/types';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 export const stringifyFfmpegFilter = ({
@@ -24,8 +24,12 @@ export const stringifyFfmpegFilter = ({
 	durationInFrames: number;
 	playbackRate: number;
 	assetDuration: number | null;
-}) => {
+}): string | null => {
 	const startInVideoSeconds = startInVideo / fps;
+
+	if (assetDuration && trimLeft >= assetDuration) {
+		return null;
+	}
 
 	const volumeFilter = ffmpegVolumeExpression({
 		volume,

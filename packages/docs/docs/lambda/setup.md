@@ -9,8 +9,6 @@ import TabItem from '@theme/TabItem';
 
 ## 1. Install `@remotion/lambda`
 
-Check the newest version number in the [#lambda Discord channel](https://discord.gg/PzjkKS8S5S)
-
 <Tabs
 defaultValue="npm"
 values={[
@@ -58,10 +56,6 @@ Your package.json should look like the following:
   // ...
   "remotion": "3.0.0",
 ```
-
-:::note
-You can install `@remotion/lambda` in any Node.JS project to trigger a render, but remember to also install `react` and `react-dom` as they are peer dependencies.
-:::
 
 ## 2. Create role policy
 
@@ -129,7 +123,7 @@ values={[
 }>
 <TabItem value="cli">
 
-Deploy a function by executing the following command:
+Deploy a function that can render videos into your AWS account by executing the following command:
 
 ```bash
 npx remotion lambda functions deploy
@@ -138,7 +132,7 @@ npx remotion lambda functions deploy
 </TabItem>
 <TabItem value="node">
 
-You can deploy a function using [`deployFunction()`](/docs/lambda/deployfunction).
+You can deploy a function that can render videos into your AWS account using [`deployFunction()`](/docs/lambda/deployfunction).
 
 ```ts twoslash
 // @module: ESNext
@@ -239,7 +233,7 @@ values={[
 }>
 <TabItem value="cli">
 
-Take the URL you received from the previous step and run the following command. Also pass in the ID of the composition you'd like to render.
+Take the URL you received from the step 8 - your "serve URL" - and run the following command. Also pass in the [ID of the composition](/docs/composition) you'd like to render.
 
 ```bash
 npx remotion lambda render <serve-url> <composition-id>
@@ -365,4 +359,4 @@ This code will poll every second to check the progress of the video and exit the
 - Familiarize yourself with the CLI and the Node.JS APIs (list in sidebar).
 - Learn how to [upgrade Remotion Lambda](/docs/lambda/upgrading).
 - Before going live, go through the [Production checklist](/docs/lambda/checklist).
-- If you have any questions, go through the [FAQ](/docs/lambda/faq) or ask in our [Discord channel](https://discord.gg/PzjkKS8S5S)
+- If you have any questions, go through the [FAQ](/docs/lambda/faq) or ask in our [Discord channel](https://remotion.dev/discord)

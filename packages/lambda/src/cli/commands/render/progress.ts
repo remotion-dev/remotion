@@ -1,7 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {Internals} from 'remotion';
-import {CleanupInfo, EncodingProgress, RenderProgress} from '../../../defaults';
-import {ChunkRetry} from '../../../functions/helpers/get-retry-stats';
+import type {CleanupInfo, EncodingProgress, RenderProgress} from '../../../defaults';
+import type {ChunkRetry} from '../../../functions/helpers/get-retry-stats';
 import {formatBytes} from '../../helpers/format-bytes';
 
 type LambdaInvokeProgress = {

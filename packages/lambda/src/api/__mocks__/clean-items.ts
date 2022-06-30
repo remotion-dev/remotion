@@ -1,4 +1,4 @@
-import {cleanItems as original} from '../clean-items';
+import type {cleanItems as original} from '../clean-items';
 import {mockDeleteS3File} from './mock-s3';
 
 export const cleanItems: typeof original = (input) => {

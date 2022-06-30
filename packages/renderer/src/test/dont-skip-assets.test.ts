@@ -1,4 +1,4 @@
-import {TAsset} from 'remotion';
+import type {TAsset} from 'remotion';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T; // from lodash

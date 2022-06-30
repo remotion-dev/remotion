@@ -3,7 +3,7 @@ import {render} from '@testing-library/react';
 import React from 'react';
 import {Series} from '../index';
 import {TimelineContext} from '../timeline-position-state';
-import {useCurrentFrame} from '../use-frame';
+import {useCurrentFrame} from '../use-current-frame';
 import {expectToThrow} from './expect-to-throw';
 
 const First = () => {

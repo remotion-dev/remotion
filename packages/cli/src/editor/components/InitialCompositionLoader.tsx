@@ -1,6 +1,8 @@
-import React, {useContext, useEffect} from 'react';
-import {Internals, TComposition} from 'remotion';
-import {ExpandedFoldersState} from '../helpers/persist-open-folders';
+import type React from 'react';
+import {useContext, useEffect} from 'react';
+import type { TComposition} from 'remotion';
+import {Internals} from 'remotion';
+import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {FolderContext} from '../state/folders';
 import {loadMarks} from '../state/marks';
 import {getKeysToExpand} from './CompositionSelector';

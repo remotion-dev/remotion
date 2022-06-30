@@ -4,10 +4,11 @@ import path from 'path';
 import {Internals} from 'remotion';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
 import {Log} from './log';
+import type {
+	PackageManager} from './preview-server/get-package-manager';
 import {
 	getPackageManager,
-	lockFilePaths,
-	PackageManager,
+	lockFilePaths
 } from './preview-server/get-package-manager';
 
 const getUpgradeCommand = ({

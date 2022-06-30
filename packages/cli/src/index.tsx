@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import {chalk} from './chalk';
 import {checkNodeVersion} from './check-version';
 import {listCompositionsCommand} from './compositions';
 import {getCliOptions} from './get-cli-options';
