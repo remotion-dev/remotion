@@ -66,6 +66,7 @@ export const renderCommand = async (args: string[]) => {
 		quality,
 		scale,
 		everyNthFrame,
+		// loop=0 results in infinite
 		loop,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
