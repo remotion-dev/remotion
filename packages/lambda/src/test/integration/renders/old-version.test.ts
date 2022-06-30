@@ -4,7 +4,7 @@ import {handler} from '../../../functions';
 import type {LambdaReturnValues} from '../../../shared/return-values';
 import {disableLogs, enableLogs} from '../../disable-logs';
 
-jest.setTimeout(30000);
+jest.setTimeout(90000);
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
