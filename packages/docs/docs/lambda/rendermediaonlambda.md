@@ -12,10 +12,10 @@ Triggers a render on a lambda given a composition and a lambda function.
 ```tsx twoslash
 // @module: esnext
 // @target: es2017
-import { renderVideoOnLambda } from "@remotion/lambda";
+import { renderMediaOnLambda } from "@remotion/lambda";
 // ---cut---
 
-const { bucketName, renderId } = await renderVideoOnLambda({
+const { bucketName, renderId } = await renderMediaOnLambda({
   region: "us-east-1",
   functionName: "remotion-render-bds9aab",
   composition: "MyVideo",
