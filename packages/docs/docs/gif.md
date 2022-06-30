@@ -18,7 +18,21 @@ _required_
 
 The source of the GIF. Can be an URL or a local image - see [Importing assets](/docs/assets).
 
-> If you pass a remote URL, it must be [CORS-enabled](https://enable-cors.org/).
+:::info
+Remote GIFs need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
+
+<details>
+<summary>More info</summary>
+<ul>
+<li>
+Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
+</li>
+<li>
+You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
+</li>
+</ul>
+</details>
+:::
 
 ### `width`
 

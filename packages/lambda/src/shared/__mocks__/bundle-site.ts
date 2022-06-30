@@ -1,4 +1,4 @@
-import {bundle} from '@remotion/bundler';
+import type {bundle} from '@remotion/bundler';
 
 export const bundleSite: typeof bundle = (entry: string) => {
 	if (entry === 'first') {

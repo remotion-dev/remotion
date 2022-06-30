@@ -1,28 +1,26 @@
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
-import {
+import type {
 	Codec,
 	FfmpegExecutable,
 	ImageFormat,
-	Internals,
 	PixelFormat,
 	ProResProfile,
 	RenderAssetInfo,
 	TAsset,
 } from 'remotion';
+import {Internals} from 'remotion';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
-import {
-	markAllAssetsAsDownloaded,
-	RenderMediaOnDownload,
-} from './assets/download-and-map-assets-to-file';
-import {Assets} from './assets/types';
+import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
+import type {Assets} from './assets/types';
 import {deleteDirectory} from './delete-directory';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
-import {CancelSignal} from './make-cancel-signal';
+import type {CancelSignal} from './make-cancel-signal';
 import {mergeAudioTrack} from './merge-audio-track';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {preprocessAudioTrack} from './preprocess-audio-track';

@@ -160,6 +160,7 @@ export const MyVideo = () => {
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/video/Video.tsx)
 - [`<Audio />`](/docs/audio)
 - [`<OffthreadVideo />`](/docs/offthreadvideo)
 - [`<Video>` vs `<OffthreadVideo>`](/docs/video-vs-offthreadvideo)

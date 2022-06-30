@@ -1,4 +1,4 @@
-import {getRemotionS3Buckets as original} from '../get-buckets';
+import type {getRemotionS3Buckets as original} from '../get-buckets';
 import {getMockBuckets} from './mock-store';
 
 export const getRemotionS3Buckets = (): ReturnType<typeof original> => {

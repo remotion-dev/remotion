@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import {LIGHT_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 
 export const leftLabel: React.CSSProperties = {

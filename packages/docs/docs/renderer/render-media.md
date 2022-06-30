@@ -312,6 +312,7 @@ Accepted values:
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/render-media.ts)
 - [Server-Side rendering](/docs/ssr)
 - [getCompositions()](/docs/renderer/get-compositions)
 - [renderStill()](/docs/renderer/stitch-frames-to-video)

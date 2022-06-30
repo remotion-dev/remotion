@@ -1,63 +1,78 @@
-import {deleteFunction, DeleteFunctionInput} from './api/delete-function';
-import {deleteSite, DeleteSiteInput, DeleteSiteOutput} from './api/delete-site';
-import {
-	deployFunction,
+import type { DeleteFunctionInput} from './api/delete-function';
+import {deleteFunction} from './api/delete-function';
+import type { DeleteSiteInput, DeleteSiteOutput} from './api/delete-site';
+import {deleteSite} from './api/delete-site';
+import type {
 	DeployFunctionInput,
-	DeployFunctionOutput,
+	DeployFunctionOutput} from './api/deploy-function';
+import {
+	deployFunction
 } from './api/deploy-function';
-import {deploySite, DeploySiteInput, DeploySiteOutput} from './api/deploy-site';
+import type { DeploySiteInput, DeploySiteOutput} from './api/deploy-site';
+import {deploySite} from './api/deploy-site';
+import type {
+	DownloadMediaInput,
+	DownloadMediaOutput} from './api/download-media';
 import {
 	downloadMedia,
-	DownloadMediaInput,
-	DownloadMediaOutput,
 	downloadVideo,
 } from './api/download-media';
-import {estimatePrice, EstimatePriceInput} from './api/estimate-price';
-import {
-	getAwsClient,
+import type { EstimatePriceInput} from './api/estimate-price';
+import {estimatePrice} from './api/estimate-price';
+import type {
 	GetAwsClientInput,
-	GetAwsClientOutput,
+	GetAwsClientOutput} from './api/get-aws-client';
+import {
+	getAwsClient
 } from './api/get-aws-client';
-import {
+import type {
 	FunctionInfo,
-	getFunctionInfo,
-	GetFunctionInfoInput,
-} from './api/get-function-info';
-import {getFunctions, GetFunctionsInput} from './api/get-functions';
+	GetFunctionInfoInput} from './api/get-function-info';
 import {
-	getOrCreateBucket,
+	getFunctionInfo
+} from './api/get-function-info';
+import type { GetFunctionsInput} from './api/get-functions';
+import {getFunctions} from './api/get-functions';
+import type {
 	GetOrCreateBucketInput,
-	GetOrCreateBucketOutput,
+	GetOrCreateBucketOutput} from './api/get-or-create-bucket';
+import {
+	getOrCreateBucket
 } from './api/get-or-create-bucket';
 import {getRegions} from './api/get-regions';
-import {GetRenderInput, getRenderProgress} from './api/get-render-progress';
-import {getSites, GetSitesInput, GetSitesOutput} from './api/get-sites';
-import {
-	simulatePermissions,
+import type {GetRenderInput} from './api/get-render-progress';
+import { getRenderProgress} from './api/get-render-progress';
+import type { GetSitesInput, GetSitesOutput} from './api/get-sites';
+import {getSites} from './api/get-sites';
+import type {
 	SimulatePermissionsInput,
-	SimulatePermissionsOutput,
+	SimulatePermissionsOutput} from './api/iam-validation/simulate';
+import {
+	simulatePermissions
 } from './api/iam-validation/simulate';
 import {
 	getRolePolicy,
 	getUserPolicy,
 } from './api/iam-validation/suggested-policy';
 import {presignUrl} from './api/presign-url';
+import type {
+	RenderMediaOnLambdaInput,
+	RenderMediaOnLambdaOutput} from './api/render-media-on-lambda';
 import {
 	renderMediaOnLambda,
-	RenderMediaOnLambdaInput,
-	RenderMediaOnLambdaOutput,
 	renderVideoOnLambda,
 } from './api/render-media-on-lambda';
-import {
-	renderStillOnLambda,
+import type {
 	RenderStillOnLambdaInput,
-	RenderStillOnLambdaOutput,
+	RenderStillOnLambdaOutput} from './api/render-still-on-lambda';
+import {
+	renderStillOnLambda
 } from './api/render-still-on-lambda';
-import {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
+import type {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
 import {LambdaInternals} from './internals';
-import {AwsRegion} from './pricing/aws-regions';
+import type {AwsRegion} from './pricing/aws-regions';
 import type {RenderProgress} from './shared/constants';
-import {LambdaArchitecture} from './shared/validate-architecture';
+import type {LambdaArchitecture} from './shared/validate-architecture';
 
 export {
 	deleteSite,

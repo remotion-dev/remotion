@@ -1,4 +1,5 @@
-import React, {RefObject} from 'react';
+import type {RefObject} from 'react';
+import React from 'react';
 import {useMediaTagVolume} from '../use-media-tag-volume';
 import {renderHook} from './render-hook';
 

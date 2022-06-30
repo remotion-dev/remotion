@@ -1,6 +1,6 @@
-import {InvokeCommand, LambdaClient} from '@aws-sdk/client-lambda';
+import type {InvokeCommand, LambdaClient} from '@aws-sdk/client-lambda';
 import {handler} from '../../functions/index';
-import {getLambdaClient as original} from '../../shared/aws-clients';
+import type {getLambdaClient as original} from '../../shared/aws-clients';
 
 export const getLambdaClient: typeof original = () => {
 	return {

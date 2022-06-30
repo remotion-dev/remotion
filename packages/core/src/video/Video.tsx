@@ -1,9 +1,9 @@
 import React, {forwardRef} from 'react';
 import {getRemotionEnvironment} from '../get-environment';
-import {Sequence} from '../sequencing';
+import {Sequence} from '../Sequence';
 import {validateMediaProps} from '../validate-media-props';
 import {validateStartFromProps} from '../validate-start-from-props';
-import {RemotionMainVideoProps, RemotionVideoProps} from './props';
+import type {RemotionMainVideoProps, RemotionVideoProps} from './props';
 import {VideoForDevelopment} from './VideoForDevelopment';
 import {VideoForRendering} from './VideoForRendering';
 

@@ -1,17 +1,20 @@
-import {RefObject, useContext, useEffect, useMemo, useState} from 'react';
+import type {RefObject} from 'react';
+import { useContext, useEffect, useMemo, useState} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame';
 import {CompositionManager} from './CompositionManager';
 import {getAssetDisplayName} from './get-asset-file-name';
 import {useNonce} from './nonce';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error';
-import {SequenceContext} from './sequencing';
+import {SequenceContext} from './Sequence';
+import type {
+	PlayableMediaTag} from './timeline-position-state';
 import {
-	PlayableMediaTag,
 	TimelineContext,
 	usePlayingState,
 } from './timeline-position-state';
 import {useVideoConfig} from './use-video-config';
-import {evaluateVolume, VolumeProp} from './volume-prop';
+import type { VolumeProp} from './volume-prop';
+import {evaluateVolume} from './volume-prop';
 
 const didWarn: {[key: string]: boolean} = {};
 

@@ -1,5 +1,6 @@
-import {AwsRegion} from '../../pricing/aws-regions';
-import {PostRenderData, postRenderDataKey} from '../../shared/constants';
+import type {AwsRegion} from '../../pricing/aws-regions';
+import type {PostRenderData} from '../../shared/constants';
+import { postRenderDataKey} from '../../shared/constants';
 import {streamToString} from '../../shared/stream-to-string';
 import {lambdaReadFile} from './io';
 

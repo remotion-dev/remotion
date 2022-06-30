@@ -1,44 +1,39 @@
 import fs from 'fs';
 import path from 'path';
-import {
-	Browser as PuppeteerBrowser,
-	ConsoleMessage,
-	Page,
-} from 'puppeteer-core';
-import {
+import type {
 	BrowserExecutable,
 	FfmpegExecutable,
 	FrameRange,
 	ImageFormat,
-	Internals,
 	SmallTCompMetadata,
 	TAsset,
 } from 'remotion';
-import {
-	downloadAndMapAssetsToFileUrl,
-	RenderMediaOnDownload,
-} from './assets/download-and-map-assets-to-file';
-import {BrowserLog} from './browser-log';
+import {Internals} from 'remotion';
+import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
+import type {BrowserLog} from './browser-log';
+import type {Browser} from './browser/Browser';
+import type {ConsoleMessage} from './browser/ConsoleMessage';
+import type {Page} from './browser/Page';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getRealFrameRange} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
-import {
-	getServeUrlWithFallback,
-	ServeUrlOrWebpackBundle,
-} from './legacy-webpack-config';
+import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
+import {getServeUrlWithFallback} from './legacy-webpack-config';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
-import {CancelSignal} from './make-cancel-signal';
-import {ChromiumOptions, openBrowser} from './open-browser';
+import type {CancelSignal} from './make-cancel-signal';
+import type {ChromiumOptions} from './open-browser';
+import {openBrowser} from './open-browser';
 import {Pool} from './pool';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
-import {OnStartData, RenderFramesOutput} from './types';
+import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
 
 type ConfigOrComposition =
@@ -64,7 +59,7 @@ type RenderFramesOptions = {
 	frameRange?: FrameRange | null;
 	everyNthFrame: number;
 	dumpBrowserLogs?: boolean;
-	puppeteerInstance?: PuppeteerBrowser;
+	puppeteerInstance?: Browser;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
 	onFrameBuffer?: (buffer: Buffer, frame: number) => void;
@@ -145,6 +140,8 @@ const innerRenderFrames = ({
 		}
 	}
 
+	const downloadPromises: Promise<unknown>[] = [];
+
 	const realFrameRange = getRealFrameRange(
 		composition.durationInFrames,
 		frameRange ?? null
@@ -168,8 +165,8 @@ const innerRenderFrames = ({
 		const logCallback = (log: ConsoleMessage) => {
 			onBrowserLog?.({
 				stackTrace: log.stackTrace(),
-				text: log.text(),
-				type: log.type(),
+				text: log.text,
+				type: log.type,
 			});
 		};
 
@@ -335,7 +332,11 @@ const innerRenderFrames = ({
 	});
 
 	return Promise.race([
-		happyPath,
+		happyPath
+			.then(() => {
+				return Promise.all(downloadPromises);
+			})
+			.then(() => happyPath),
 		new Promise<RenderFramesOutput>((_resolve, reject) => {
 			cancelSignal?.(() => {
 				reject(new Error('renderFrames() got cancelled'));
@@ -405,7 +406,9 @@ export const renderFrames = (
 
 	return new Promise<RenderFramesOutput>((resolve, reject) => {
 		const cleanup: CleanupFn[] = [];
-		const onError = (err: Error) => reject(err);
+		const onError = (err: Error) => {
+			reject(err);
+		};
 
 		Promise.all([
 			prepareServer({
@@ -433,7 +436,7 @@ export const renderFrames = (
 				});
 
 				cleanup.push(closeServer);
-				const renderFramesProm = innerRenderFrames({
+				return innerRenderFrames({
 					...options,
 					puppeteerInstance,
 					onError,
@@ -445,9 +448,10 @@ export const renderFrames = (
 					downloadDir,
 					proxyPort: offthreadPort,
 				});
-				return renderFramesProm;
 			})
-			.then((res) => resolve(res))
+			.then((res) => {
+				return resolve(res);
+			})
 			.catch((err) => reject(err))
 			.finally(() => {
 				// If browser instance was passed in, we close all the pages

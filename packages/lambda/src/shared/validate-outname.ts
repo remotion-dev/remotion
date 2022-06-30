@@ -1,4 +1,4 @@
-import {OutNameInput} from './constants';
+import type {OutNameInput} from './constants';
 import {validateBucketName} from './validate-bucketname';
 
 const validateS3Key = (s3Key: string) => {

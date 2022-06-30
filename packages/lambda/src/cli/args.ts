@@ -1,8 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import minimist from 'minimist';
-import {AwsRegion} from '../pricing/aws-regions';
-import {Privacy} from '../shared/constants';
-import {LambdaArchitecture} from '../shared/validate-architecture';
+import type {AwsRegion} from '../pricing/aws-regions';
+import type {Privacy} from '../shared/constants';
+import type {LambdaArchitecture} from '../shared/validate-architecture';
 
 type LambdaCommandLineOptions = {
 	help: boolean;

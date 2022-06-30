@@ -63,6 +63,7 @@ export const MyComponent: React.FC = () => {
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/use-audio-data.ts)
 - [`getAudioData()`](/docs/get-audio-data)
 - [`visualizeAudio()`](/docs/visualize-audio)
 - [Audio visualization](/docs/audio-visualization)

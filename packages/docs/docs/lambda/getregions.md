@@ -28,4 +28,5 @@ An array of supported regions by this release of Remotion Lambda.
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/get-regions.ts)
 - [Region selection](/docs/lambda/region-selection)
