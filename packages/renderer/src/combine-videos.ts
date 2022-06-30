@@ -16,6 +16,7 @@ export const combineVideos = async ({
 	numberOfFrames,
 	codec,
 	fps,
+	numberOfGifLoops,
 }: {
 	files: string[];
 	filelistDir: string;
@@ -24,6 +25,7 @@ export const combineVideos = async ({
 	numberOfFrames: number;
 	codec: Codec;
 	fps: number;
+	numberOfGifLoops: number | null;
 }) => {
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 
@@ -42,8 +44,14 @@ export const combineVideos = async ({
 				'0',
 				'-i',
 				fileListTxt,
+				numberOfGifLoops === null ? null : '-loop',
+				numberOfGifLoops === null
+					? null
+					: typeof numberOfGifLoops === 'number'
+					? String(numberOfGifLoops)
+					: '-1',
 				Internals.isAudioCodec(codec) ? null : '-c:v',
-				Internals.isAudioCodec(codec) ? null : 'copy',
+				Internals.isAudioCodec(codec) ? null : codec === 'gif' ? 'gif' : 'copy',
 				'-c:a',
 				getAudioCodecName(codec),
 				// Set max bitrate up to 1024kbps, will choose lower if that's too much

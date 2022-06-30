@@ -52,7 +52,7 @@ test('Should make a transparent video', async () => {
 			quality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,
-			loop: null,
+			numberOfGifLoops: null,
 			everyNthFrame: 1,
 		},
 		extraContext

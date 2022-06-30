@@ -1,10 +1,9 @@
 import {RenderInternals} from '@remotion/renderer';
-import execa from 'execa';
 import {createWriteStream} from 'fs';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
-import {LambdaReturnValues} from '../../../shared/return-values';
+import type {LambdaReturnValues} from '../../../shared/return-values';
 
 jest.setTimeout(30000);
 
@@ -51,7 +50,7 @@ test('Should make a distributed GIF', async () => {
 			quality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,
-			loop: null,
+			numberOfGifLoops: null,
 			everyNthFrame: 1,
 		},
 		extraContext
@@ -76,6 +75,6 @@ test('Should make a distributed GIF', async () => {
 	await new Promise<void>((resolve) => {
 		file.pipe(createWriteStream('gif.gif')).on('close', () => resolve());
 	});
-	const probe = await execa('ffprobe', ['gif.gif']);
+	const probe = await RenderInternals.execa('ffprobe', ['gif.gif']);
 	expect(probe.stderr).toMatch(/Video: gif, bgra, 1080x1080/);
 });
