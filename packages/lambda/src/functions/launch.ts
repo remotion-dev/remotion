@@ -6,7 +6,8 @@ import {getLambdaClient} from '../shared/aws-clients';
 import type {
 	EncodingProgress,
 	LambdaPayload,
-	RenderMetadata} from '../shared/constants';
+	RenderMetadata,
+} from '../shared/constants';
 import {
 	CURRENT_VERSION,
 	encodingProgressKey,
@@ -171,7 +172,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			timeoutInMilliseconds: params.timeoutInMilliseconds,
 			chromiumOptions: params.chromiumOptions,
 			scale: params.scale,
-			loop: params.loop,
 			everyNthFrame: params.everyNthFrame,
 		};
 		return payload;
@@ -294,6 +294,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		codec: params.codec,
 		expectedBucketOwner: options.expectedBucketOwner,
 		fps: comp.fps,
+		numberOfGifLoops: params.numberOfGifLoops,
 	});
 	if (!encodingStop) {
 		encodingStop = Date.now();

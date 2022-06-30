@@ -61,7 +61,8 @@ export type RenderMediaOptions = {
 	quality?: number;
 	frameRange?: FrameRange | null;
 	everyNthFrame: number;
-	loop: number | null;
+	// TODO: Make optional at the end
+	numberOfGifLoops: number | null;
 	puppeteerInstance?: PuppeteerBrowser;
 	overwrite?: boolean;
 	onProgress?: RenderMediaOnProgress;
@@ -114,6 +115,7 @@ export const renderMedia = ({
 	browserExecutable,
 	port,
 	cancelSignal,
+	numberOfGifLoops,
 	...options
 }: RenderMediaOptions): Promise<void> => {
 	Internals.validateQuality(quality);
@@ -312,7 +314,7 @@ export const renderMedia = ({
 						callUpdate();
 					},
 					onDownload,
-					loop: null,
+					numberOfGifLoops,
 					verbose: Internals.Logging.isEqualOrBelowLogLevel(
 						Internals.Logging.getLogLevel(),
 						'verbose'

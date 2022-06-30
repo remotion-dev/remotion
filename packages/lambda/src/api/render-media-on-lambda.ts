@@ -4,13 +4,12 @@ import type {
 	ImageFormat,
 	LogLevel,
 	PixelFormat,
-	ProResProfile} from 'remotion';
-import {
-	Internals
+	ProResProfile,
 } from 'remotion';
+import {Internals} from 'remotion';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
-import type { Privacy} from '../shared/constants';
+import type {Privacy} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
@@ -119,7 +118,7 @@ export const renderMediaOnLambda = async ({
 			chromiumOptions: chromiumOptions ?? {},
 			scale: scale ?? 1,
 			everyNthFrame,
-			loop,
+			numberOfGifLoops: loop,
 		},
 		region,
 	});

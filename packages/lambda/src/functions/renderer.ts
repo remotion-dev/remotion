@@ -1,13 +1,12 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {BrowserLog} from '@remotion/renderer';
-import { RenderInternals, renderMedia} from '@remotion/renderer';
+import {RenderInternals, renderMedia} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
+import type {Codec} from 'remotion';
 import {Internals} from 'remotion';
 import {getLambdaClient} from '../shared/aws-clients';
-import type {
-	LambdaPayload,
-	LambdaPayloads} from '../shared/constants';
+import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
 import {
 	chunkKeyForIndex,
 	lambdaInitializedKey,
@@ -79,6 +78,8 @@ const renderHandler = async (
 		)}.${RenderInternals.getFileExtensionFromCodec(params.codec, 'chunk')}`
 	);
 
+	const chunkCodec: Codec = params.codec === 'gif' ? 'h264-mkv' : params.codec;
+
 	await renderMedia({
 		composition: {
 			id: params.composition,
@@ -146,7 +147,7 @@ const renderHandler = async (
 			logs.push(log);
 		},
 		outputLocation,
-		codec: params.codec,
+		codec: chunkCodec,
 		crf: params.crf ?? undefined,
 		ffmpegExecutable:
 			process.env.NODE_ENV === 'test' ? null : '/opt/bin/ffmpeg',
@@ -162,8 +163,8 @@ const renderHandler = async (
 		scale: params.scale,
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		port: null,
-		loop: params.loop,
 		everyNthFrame: params.everyNthFrame,
+		numberOfGifLoops: null,
 	});
 
 	const endRendered = Date.now();

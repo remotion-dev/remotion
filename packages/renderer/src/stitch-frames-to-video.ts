@@ -42,7 +42,7 @@ export type StitcherOptions = {
 	force: boolean;
 	assetsInfo: RenderAssetInfo;
 	pixelFormat?: PixelFormat;
-	loop: number | null;
+	numberOfGifLoops: number | null;
 	codec?: Codec;
 	crf?: number | null;
 	onProgress?: (progress: number) => void;
@@ -261,9 +261,14 @@ export const spawnFfmpeg = async (
 			  ]),
 		['-i', audio],
 		// TODO: Infinite loop
-		options.loop === null
+		options.numberOfGifLoops === null
 			? null
-			: ['-loop', typeof options.loop === 'number' ? options.loop : '-1'],
+			: [
+					'-loop',
+					typeof options.numberOfGifLoops === 'number'
+						? options.numberOfGifLoops
+						: '-1',
+			  ],
 		// -c:v is the same as -vcodec as -codec:video
 		// and specified the video codec.
 		['-c:v', encoderName],

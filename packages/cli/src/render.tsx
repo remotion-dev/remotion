@@ -283,7 +283,7 @@ export const render = async () => {
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 		scale,
 		port,
-		loop,
+		numberOfGifLoops: loop,
 		everyNthFrame,
 	});
 

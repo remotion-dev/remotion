@@ -195,7 +195,7 @@ export type LambdaPayloads = {
 		chromiumOptions: ChromiumOptions;
 		scale: number;
 		everyNthFrame: number;
-		loop: number | null;
+		numberOfGifLoops: number | null;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -221,7 +221,7 @@ export type LambdaPayloads = {
 		chromiumOptions: ChromiumOptions;
 		scale: number;
 		everyNthFrame: number;
-		loop: number | null;
+		numberOfGifLoops: number | null;
 	};
 	status: {
 		type: LambdaRoutines.status;
@@ -256,7 +256,6 @@ export type LambdaPayloads = {
 		chromiumOptions: ChromiumOptions;
 		scale: number;
 		everyNthFrame: number;
-		loop: number | null;
 	};
 	still: {
 		type: LambdaRoutines.still;
