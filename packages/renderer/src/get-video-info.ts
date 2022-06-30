@@ -1,5 +1,6 @@
 import execa from 'execa';
 import type {FfmpegExecutable} from 'remotion';
+import {calculateDisplayVideoSize} from './calculate-sar-dar-pixels';
 import {pLimit} from './p-limit';
 
 type Result = {
@@ -40,8 +41,13 @@ async function getVideoInfoUnlimited(
 		const darWidth = parseInt(dar[1], 10);
 		const darHeight = parseInt(dar[2], 10);
 
-		const actualWidth = Math.round(width * (darWidth / darHeight));
-		const actualHeight = Math.round(height * (darHeight / darWidth));
+		const {width: actualWidth, height: actualHeight} =
+			calculateDisplayVideoSize({
+				darX: darWidth,
+				darY: darHeight,
+				x: width,
+				y: height,
+			});
 
 		if (actualWidth !== width || actualHeight !== height) {
 			needsResize = [actualWidth, actualHeight];
