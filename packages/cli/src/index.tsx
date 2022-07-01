@@ -1,3 +1,4 @@
+import {RenderInternals} from '@remotion/renderer';
 import {chalk} from './chalk';
 import {checkNodeVersion} from './check-version';
 import {listCompositionsCommand} from './compositions';
@@ -42,6 +43,9 @@ export const cli = async () => {
 		await validateVersionsBeforeCommand();
 	}
 
+	const errorSymbolicationLock =
+		RenderInternals.registerErrorSymbolicationLock();
+
 	try {
 		if (command === 'compositions') {
 			await listCompositionsCommand();
@@ -69,6 +73,8 @@ export const cli = async () => {
 		Log.info();
 		await handleCommonError(err as Error);
 		process.exit(1);
+	} finally {
+		RenderInternals.unlockErrorSymbolicationLock(errorSymbolicationLock);
 	}
 };
 
