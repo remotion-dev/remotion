@@ -1,5 +1,6 @@
 import execa from 'execa';
 import fs from 'fs';
+import {readFile} from 'fs/promises';
 import path from 'path';
 import type {
 	Codec,
@@ -19,6 +20,7 @@ import type {Assets} from './assets/types';
 import {deleteDirectory} from './delete-directory';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
+import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getProResProfileName} from './get-prores-profile-name';
 import type {CancelSignal} from './make-cancel-signal';
 import {mergeAudioTrack} from './merge-audio-track';
@@ -176,6 +178,13 @@ export const spawnFfmpeg = async (
 	const isAudioOnly = encoderName === null;
 	const supportsCrf = encoderName && codec !== 'prores';
 
+	const tempFile = options.outputLocation
+		? null
+		: path.join(
+				tmpDir('remotion-stitch-temp-dir'),
+				`out.${getFileExtensionFromCodec(codec, 'final')}`
+		  );
+
 	if (options.verbose) {
 		console.log(
 			'[verbose] ffmpeg',
@@ -216,8 +225,6 @@ export const spawnFfmpeg = async (
 		onProgress: (prog) => updateProgress(prog, 0),
 	});
 
-	const buffer: Buffer[] = [];
-
 	if (isAudioOnly) {
 		if (!audioCodecName) {
 			throw new TypeError(
@@ -236,20 +243,16 @@ export const spawnFfmpeg = async (
 				'-b:a',
 				'320k',
 				options.force ? '-y' : null,
-				options.outputLocation ?? '-',
+				options.outputLocation ?? tempFile,
 			].filter(Internals.truthy)
 		);
-
-		ffmpegTask.stdout?.on('data', (data: Buffer) => {
-			buffer.push(data);
-		});
 
 		options.cancelSignal?.(() => {
 			ffmpegTask.kill();
 		});
 		await ffmpegTask;
 		options.onProgress?.(expectedFrames);
-		const file = options.outputLocation ? null : Buffer.concat(buffer);
+		const file = tempFile ? await readFile(tempFile) : null;
 		return {
 			getLogs: () => '',
 			task: Promise.resolve(file),
@@ -296,7 +299,7 @@ export const spawnFfmpeg = async (
 				),
 		],
 		options.force ? '-y' : null,
-		options.outputLocation ?? '-',
+		options.outputLocation ?? tempFile,
 	];
 
 	if (options.verbose) {
@@ -314,9 +317,6 @@ export const spawnFfmpeg = async (
 	});
 	let ffmpegOutput = '';
 	let isFinished = false;
-	task.stdout?.on('data', (data: Buffer) => {
-		buffer.push(data);
-	});
 	task.stderr?.on('data', (data: Buffer) => {
 		const str = data.toString();
 		ffmpegOutput += str;
@@ -345,7 +345,7 @@ export const spawnFfmpeg = async (
 				return null;
 			}
 
-			return Buffer.concat(buffer);
+			return readFile(tempFile as string);
 		}),
 		getLogs: () => ffmpegOutput,
 	};
