@@ -38,7 +38,7 @@ export type StitcherOptions = {
 	fps: number;
 	width: number;
 	height: number;
-	outputLocation: string | null;
+	outputLocation?: string | null;
 	force: boolean;
 	assetsInfo: RenderAssetInfo;
 	pixelFormat?: PixelFormat;
