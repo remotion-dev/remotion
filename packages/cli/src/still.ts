@@ -164,6 +164,8 @@ export const still = async () => {
 			id,
 			name: src,
 			progress: 0,
+			downloaded: 0,
+			totalBytes: null,
 		};
 		downloads.push(download);
 		updateProgress();
