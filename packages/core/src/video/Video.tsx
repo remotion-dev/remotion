@@ -40,7 +40,13 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		return <VideoForRendering {...otherProps} ref={ref} />;
 	}
 
-	return <VideoForDevelopment {...otherProps} ref={ref} />;
+	return (
+		<VideoForDevelopment
+			onlyWarnForMediaSeekingError={false}
+			{...otherProps}
+			ref={ref}
+		/>
+	);
 };
 
 export const Video = forwardRef(VideoForwardingFunction);
