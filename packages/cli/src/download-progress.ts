@@ -5,7 +5,7 @@ import type {DownloadProgress} from './progress-bar';
 export const getFileSizeDownloadBar = (downloaded: number) => {
 	const desiredLength = makeProgressBar(0).length;
 
-	return formatBytes(downloaded).padEnd(desiredLength, ' ');
+	return `[${formatBytes(downloaded).padEnd(desiredLength - 2, ' ')}]`;
 };
 
 export const makeMultiDownloadProgress = (progresses: DownloadProgress[]) => {
@@ -16,8 +16,8 @@ export const makeMultiDownloadProgress = (progresses: DownloadProgress[]) => {
 	if (progresses.length === 1) {
 		const [progress] = progresses;
 		const truncatedFileName =
-			progress.name.length >= 100
-				? progress.name.substring(0, 97) + '...'
+			progress.name.length >= 60
+				? progress.name.substring(0, 57) + '...'
 				: progress.name;
 		return [
 			`    +`,
