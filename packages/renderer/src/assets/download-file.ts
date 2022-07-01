@@ -34,7 +34,14 @@ export const downloadFile = ({
 				// Listen to 'close' event instead of more
 				// concise method to avoid this problem
 				// https://github.com/remotion-dev/remotion/issues/384#issuecomment-844398183
-				writeStream.on('close', () => resolve({sizeInBytes: downloaded, to}));
+				writeStream.on('close', () => {
+					onProgress?.({
+						downloaded,
+						percent: 1,
+						totalSize: downloaded,
+					});
+					return resolve({sizeInBytes: downloaded, to});
+				});
 				writeStream.on('error', (err) => reject(err));
 				res.pipe(writeStream).on('error', (err) => reject(err));
 				res.on('data', (d) => {
