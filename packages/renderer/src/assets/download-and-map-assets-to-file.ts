@@ -8,7 +8,14 @@ import {sanitizeFilePath} from './sanitize-filepath';
 
 export type RenderMediaOnDownload = (
 	src: string
-) => ((progress: {percent: number}) => void) | undefined | void;
+) =>
+	| ((progress: {
+			percent: number | null;
+			downloaded: number;
+			totalSize: number | null;
+	  }) => void)
+	| undefined
+	| void;
 
 const isDownloadingMap: {
 	[src: string]: {[downloadDir: string]: boolean} | undefined;
@@ -192,12 +199,11 @@ export const downloadAsset = async ({
 
 	const {to} = await downloadFile({
 		url: src,
-		downloadDir,
-		onProgress: ({progress}) => {
-			onProgress?.({
-				percent: progress,
-			});
+		onProgress: (progress) => {
+			onProgress?.(progress);
 		},
+		to: (contentDisposition) =>
+			getSanitizedFilenameForAssetUrl({contentDisposition, downloadDir, src}),
 	});
 	notifyAssetIsDownloaded({src, downloadDir, to});
 

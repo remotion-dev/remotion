@@ -2,11 +2,8 @@ import {RenderInternals} from '@remotion/renderer';
 import path from 'path';
 import {getExpectedOutName} from '../functions/helpers/expected-out-name';
 import {getRenderMetadata} from '../functions/helpers/get-render-metadata';
-import type {
-	LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
-import {
-	lambdaDownloadFileWithProgress
-} from '../functions/helpers/read-with-progress';
+import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
+import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getAccountId} from '../shared/get-account-id';
 
