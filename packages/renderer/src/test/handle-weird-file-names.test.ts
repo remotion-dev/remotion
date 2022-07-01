@@ -1,3 +1,4 @@
+import path from 'path';
 import {getSanitizedFilenameForAssetUrl} from '../assets/download-and-map-assets-to-file';
 
 test('Should sanitize weird file names when downloading', () => {
@@ -40,12 +41,12 @@ test('Should give different file names based on different url query parameters',
 		contentDisposition:
 			'attachment; filename=notjacksondatiras_1656689770_musicaldown.com.mp4; otherstuff',
 	});
-	expect(asset1).toEqual('dl/2276125883217901.mp4');
+	expect(asset1).toEqual(`dl${path.sep}2276125883217901.mp4`);
 	const asset2 = getSanitizedFilenameForAssetUrl({
 		src: 'https://gtts-api.miniggiodev.fr/Ici+Japon+Corp.mp4?hi=1',
 		downloadDir: 'dl',
 		contentDisposition:
 			'attachment; filename=notjacksondatiras_1656689770_musicaldown.com.mp4',
 	});
-	expect(asset2).toEqual('dl/2276125883217901.mp4');
+	expect(asset2).toEqual(`dl${path.sep}2276125883217901.mp4`);
 });
