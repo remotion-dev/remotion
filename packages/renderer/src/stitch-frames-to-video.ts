@@ -1,6 +1,6 @@
 import execa from 'execa';
 import fs from 'fs';
-import {readFile} from 'fs/promises';
+import {readFile, unlink} from 'fs/promises';
 import path from 'path';
 import type {
 	Codec,
@@ -345,7 +345,11 @@ export const spawnFfmpeg = async (
 				return null;
 			}
 
-			return readFile(tempFile as string);
+			return readFile(tempFile as string)
+				.then((file) => {
+					return Promise.all([file, unlink(tempFile as string)]);
+				})
+				.then(([file]) => file);
 		}),
 		getLogs: () => ffmpegOutput,
 	};
