@@ -337,18 +337,11 @@ const innerRenderFrames = ({
 		return returnValue;
 	});
 
-	return Promise.race([
-		happyPath
-			.then(() => {
-				return Promise.all(downloadPromises);
-			})
-			.then(() => happyPath),
-		new Promise<RenderFramesOutput>((_resolve, reject) => {
-			cancelSignal?.(() => {
-				reject(new Error('renderFrames() got cancelled'));
-			});
-		}),
-	]);
+	return happyPath
+		.then(() => {
+			return Promise.all(downloadPromises);
+		})
+		.then(() => happyPath);
 };
 
 type CleanupFn = () => void;
