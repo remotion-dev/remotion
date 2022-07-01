@@ -47,7 +47,7 @@ export type RenderMediaOnProgress = (progress: {
 }) => void;
 
 export type RenderMediaOptions = {
-	outputLocation: string;
+	outputLocation?: string | null;
 	codec: Codec;
 	composition: SmallTCompMetadata;
 	inputProps?: unknown;
@@ -118,7 +118,9 @@ export const renderMedia = ({
 		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
 	}
 
-	validateOutputFilename(codec, getExtensionOfFilename(outputLocation));
+	if (outputLocation) {
+		validateOutputFilename(codec, getExtensionOfFilename(outputLocation));
+	}
 
 	validateScale(scale);
 
@@ -279,7 +281,9 @@ export const renderMedia = ({
 			renderedDoneIn = Date.now() - renderStart;
 			callUpdate();
 
-			ensureOutputDirectory(outputLocation);
+			if (outputLocation) {
+				ensureOutputDirectory(outputLocation);
+			}
 
 			const stitchStart = Date.now();
 			return Promise.all([
