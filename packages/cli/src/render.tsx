@@ -105,11 +105,15 @@ export const render = async () => {
 			id,
 			name: src,
 			progress: 0,
+			downloaded: 0,
+			totalBytes: null,
 		};
 		downloads.push(download);
 		updateRenderProgress();
-		return ({percent}) => {
+		return ({percent, downloaded, totalSize}) => {
 			download.progress = percent;
+			download.totalBytes = totalSize;
+			download.downloaded = downloaded;
 			updateRenderProgress();
 		};
 	};

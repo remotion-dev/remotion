@@ -1,20 +1,19 @@
 import {createWriteStream} from 'fs';
 import {ensureOutputDirectory} from '../ensure-output-directory';
-import {getSanitizedFilenameForAssetUrl} from './download-and-map-assets-to-file';
 import {readFile} from './read-file';
 
 export const downloadFile = ({
 	onProgress,
 	url,
-	downloadDir,
+	to: toFn,
 }: {
 	url: string;
-	downloadDir: string;
+	to: (contentDisposition: string | null) => string;
 	onProgress:
 		| ((progress: {
-				progress: number;
+				percent: number | null;
 				downloaded: number;
-				totalSize: number;
+				totalSize: number | null;
 		  }) => void)
 		| undefined;
 }) => {
@@ -22,28 +21,27 @@ export const downloadFile = ({
 		readFile(url)
 			.then((res) => {
 				const contentDisposition = res.headers['content-disposition'] ?? null;
-				const to = getSanitizedFilenameForAssetUrl({
-					downloadDir,
-					src: url,
-					contentDisposition,
-				});
+				const to = toFn(contentDisposition);
 				ensureOutputDirectory(to);
 
-				const totalSize = Number(res.headers['content-length']);
+				const sizeHeader = res.headers['content-length'];
+
+				const totalSize =
+					typeof sizeHeader === 'undefined' ? null : Number(sizeHeader);
 				const writeStream = createWriteStream(to);
 
+				let downloaded = 0;
 				// Listen to 'close' event instead of more
 				// concise method to avoid this problem
 				// https://github.com/remotion-dev/remotion/issues/384#issuecomment-844398183
-				writeStream.on('close', () => resolve({sizeInBytes: totalSize, to}));
+				writeStream.on('close', () => resolve({sizeInBytes: downloaded, to}));
 				writeStream.on('error', (err) => reject(err));
-				let downloaded = 0;
 				res.pipe(writeStream).on('error', (err) => reject(err));
 				res.on('data', (d) => {
 					downloaded += d.length;
 					onProgress?.({
 						downloaded,
-						progress: downloaded / totalSize,
+						percent: totalSize === null ? null : downloaded / totalSize,
 						totalSize,
 					});
 				});
