@@ -1,6 +1,5 @@
 import execa from 'execa';
 import fs from 'fs';
-import {readFile} from 'fs/promises';
 import path from 'path';
 import type {
 	Codec,
@@ -39,7 +38,7 @@ export type StitcherOptions = {
 	fps: number;
 	width: number;
 	height: number;
-	outputLocation: string;
+	outputLocation: string | null;
 	force: boolean;
 	assetsInfo: RenderAssetInfo;
 	pixelFormat?: PixelFormat;
@@ -60,7 +59,7 @@ export type StitcherOptions = {
 };
 
 type ReturnType = {
-	task: Promise<Buffer>;
+	task: Promise<Buffer | null>;
 	getLogs: () => string;
 };
 
@@ -217,6 +216,8 @@ export const spawnFfmpeg = async (
 		onProgress: (prog) => updateProgress(prog, 0),
 	});
 
+	const buffer: Buffer[] = [];
+
 	if (isAudioOnly) {
 		if (!audioCodecName) {
 			throw new TypeError(
@@ -235,15 +236,20 @@ export const spawnFfmpeg = async (
 				'-b:a',
 				'320k',
 				options.force ? '-y' : null,
-				options.outputLocation,
+				options.outputLocation ?? '-',
 			].filter(Internals.truthy)
 		);
+
+		ffmpegTask.stdout?.on('data', (data: Buffer) => {
+			buffer.push(data);
+		});
+
 		options.cancelSignal?.(() => {
 			ffmpegTask.kill();
 		});
 		await ffmpegTask;
 		options.onProgress?.(expectedFrames);
-		const file = await readFile(options.outputLocation);
+		const file = options.outputLocation ? null : Buffer.concat(buffer);
 		return {
 			getLogs: () => '',
 			task: Promise.resolve(file),
@@ -290,7 +296,7 @@ export const spawnFfmpeg = async (
 				),
 		],
 		options.force ? '-y' : null,
-		options.outputLocation,
+		options.outputLocation ?? '-',
 	];
 
 	if (options.verbose) {
@@ -308,6 +314,9 @@ export const spawnFfmpeg = async (
 	});
 	let ffmpegOutput = '';
 	let isFinished = false;
+	task.stdout?.on('data', (data: Buffer) => {
+		buffer.push(data);
+	});
 	task.stderr?.on('data', (data: Buffer) => {
 		const str = data.toString();
 		ffmpegOutput += str;
@@ -331,14 +340,20 @@ export const spawnFfmpeg = async (
 	});
 
 	return {
-		task: task.then(() => readFile(options.outputLocation)),
+		task: task.then(() => {
+			if (options.outputLocation) {
+				return null;
+			}
+
+			return Buffer.concat(buffer);
+		}),
 		getLogs: () => ffmpegOutput,
 	};
 };
 
 export const stitchFramesToVideo = async (
 	options: StitcherOptions
-): Promise<Buffer> => {
+): Promise<Buffer | null> => {
 	const {task, getLogs} = await spawnFfmpeg(options);
 
 	const happyPath = task.catch(() => {
@@ -347,7 +362,7 @@ export const stitchFramesToVideo = async (
 
 	return Promise.race([
 		happyPath,
-		new Promise<Buffer>((_resolve, reject) => {
+		new Promise<Buffer | null>((_resolve, reject) => {
 			options.cancelSignal?.(() => {
 				reject(new Error('stitchFramesToVideo() got cancelled'));
 			});
