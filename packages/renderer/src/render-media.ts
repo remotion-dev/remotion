@@ -47,7 +47,7 @@ export type RenderMediaOnProgress = (progress: {
 }) => void;
 
 export type RenderMediaOptions = {
-	outputLocation: string;
+	outputLocation?: string | null;
 	codec: Codec;
 	composition: SmallTCompMetadata;
 	inputProps?: unknown;
@@ -112,13 +112,15 @@ export const renderMedia = ({
 	port,
 	cancelSignal,
 	...options
-}: RenderMediaOptions): Promise<void> => {
+}: RenderMediaOptions): Promise<Buffer | null> => {
 	Internals.validateQuality(quality);
 	if (typeof crf !== 'undefined' && crf !== null) {
 		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
 	}
 
-	validateOutputFilename(codec, getExtensionOfFilename(outputLocation));
+	if (outputLocation) {
+		validateOutputFilename(codec, getExtensionOfFilename(outputLocation));
+	}
 
 	validateScale(scale);
 
@@ -279,7 +281,9 @@ export const renderMedia = ({
 			renderedDoneIn = Date.now() - renderStart;
 			callUpdate();
 
-			ensureOutputDirectory(outputLocation);
+			if (outputLocation) {
+				ensureOutputDirectory(outputLocation);
+			}
 
 			const stitchStart = Date.now();
 			return Promise.all([
@@ -316,13 +320,14 @@ export const renderMedia = ({
 				stitchStart,
 			]);
 		})
-		.then(([, stitchStart]) => {
+		.then(([buffer, stitchStart]) => {
 			encodedFrames = getDurationFromFrameRange(
 				frameRange ?? null,
 				composition.durationInFrames
 			);
 			encodedDoneIn = Date.now() - stitchStart;
 			callUpdate();
+			return buffer;
 		})
 		.catch((err) => {
 			/**
@@ -359,7 +364,7 @@ export const renderMedia = ({
 
 	return Promise.race([
 		happyPath,
-		new Promise<void>((_resolve, reject) => {
+		new Promise<Buffer | null>((_resolve, reject) => {
 			cancelSignal?.(() => {
 				reject(new Error('renderMedia() got cancelled'));
 			});
