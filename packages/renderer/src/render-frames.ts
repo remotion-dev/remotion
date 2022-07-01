@@ -419,7 +419,7 @@ export const renderFrames = (
 		Promise.race([
 			new Promise<RenderFramesOutput>((_, rej) => {
 				options.cancelSignal?.(() => {
-					rej(new Error('Cancelled renderFrames()'));
+					rej(new Error('renderFrames() got cancelled'));
 				});
 			}),
 			Promise.all([
