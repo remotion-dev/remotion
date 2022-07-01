@@ -1,5 +1,6 @@
 import execa from 'execa';
 import fs from 'fs';
+import {readFile} from 'fs/promises';
 import path from 'path';
 import type {
 	Codec,
@@ -59,7 +60,7 @@ export type StitcherOptions = {
 };
 
 type ReturnType = {
-	task: Promise<void>;
+	task: Promise<Buffer>;
 	getLogs: () => string;
 };
 
@@ -242,9 +243,10 @@ export const spawnFfmpeg = async (
 		});
 		await ffmpegTask;
 		options.onProgress?.(expectedFrames);
+		const file = await readFile(options.outputLocation);
 		return {
 			getLogs: () => '',
-			task: Promise.resolve(),
+			task: Promise.resolve(file),
 		};
 	}
 
@@ -327,12 +329,16 @@ export const spawnFfmpeg = async (
 			}
 		}
 	});
-	return {task: task.then(() => undefined), getLogs: () => ffmpegOutput};
+
+	return {
+		task: task.then(() => readFile(options.outputLocation)),
+		getLogs: () => ffmpegOutput,
+	};
 };
 
 export const stitchFramesToVideo = async (
 	options: StitcherOptions
-): Promise<void> => {
+): Promise<Buffer> => {
 	const {task, getLogs} = await spawnFfmpeg(options);
 
 	const happyPath = task.catch(() => {
@@ -341,7 +347,7 @@ export const stitchFramesToVideo = async (
 
 	return Promise.race([
 		happyPath,
-		new Promise<void>((_resolve, reject) => {
+		new Promise<Buffer>((_resolve, reject) => {
 			options.cancelSignal?.(() => {
 				reject(new Error('stitchFramesToVideo() got cancelled'));
 			});

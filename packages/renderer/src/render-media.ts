@@ -112,7 +112,7 @@ export const renderMedia = ({
 	port,
 	cancelSignal,
 	...options
-}: RenderMediaOptions): Promise<void> => {
+}: RenderMediaOptions): Promise<Buffer> => {
 	Internals.validateQuality(quality);
 	if (typeof crf !== 'undefined' && crf !== null) {
 		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
@@ -316,13 +316,14 @@ export const renderMedia = ({
 				stitchStart,
 			]);
 		})
-		.then(([, stitchStart]) => {
+		.then(([buffer, stitchStart]) => {
 			encodedFrames = getDurationFromFrameRange(
 				frameRange ?? null,
 				composition.durationInFrames
 			);
 			encodedDoneIn = Date.now() - stitchStart;
 			callUpdate();
+			return buffer;
 		})
 		.catch((err) => {
 			/**
@@ -359,7 +360,7 @@ export const renderMedia = ({
 
 	return Promise.race([
 		happyPath,
-		new Promise<void>((_resolve, reject) => {
+		new Promise<Buffer>((_resolve, reject) => {
 			cancelSignal?.(() => {
 				reject(new Error('renderMedia() got cancelled'));
 			});
