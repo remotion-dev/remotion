@@ -112,7 +112,7 @@ export const renderMedia = ({
 	port,
 	cancelSignal,
 	...options
-}: RenderMediaOptions): Promise<Buffer> => {
+}: RenderMediaOptions): Promise<Buffer | null> => {
 	Internals.validateQuality(quality);
 	if (typeof crf !== 'undefined' && crf !== null) {
 		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
@@ -360,7 +360,7 @@ export const renderMedia = ({
 
 	return Promise.race([
 		happyPath,
-		new Promise<Buffer>((_resolve, reject) => {
+		new Promise<Buffer | null>((_resolve, reject) => {
 			cancelSignal?.(() => {
 				reject(new Error('renderMedia() got cancelled'));
 			});
