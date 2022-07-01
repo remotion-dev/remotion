@@ -1,8 +1,11 @@
 import {CliInternals} from '@remotion/cli';
 import {Internals} from 'remotion';
-import type {CleanupInfo, EncodingProgress, RenderProgress} from '../../../defaults';
+import type {
+	CleanupInfo,
+	EncodingProgress,
+	RenderProgress,
+} from '../../../defaults';
 import type {ChunkRetry} from '../../../functions/helpers/get-retry-stats';
-import {formatBytes} from '../../helpers/format-bytes';
 
 type LambdaInvokeProgress = {
 	totalLambdas: number | null;
@@ -130,14 +133,21 @@ const makeDownloadProgress = (
 	return [
 		'💾',
 		`(5/${totalSteps})`,
-		CliInternals.makeProgressBar(
-			downloadInfo.downloaded / downloadInfo.totalSize
-		),
+		downloadInfo.totalSize === null
+			? CliInternals.getFileSizeDownloadBar(downloadInfo.downloaded)
+			: CliInternals.makeProgressBar(
+					downloadInfo.downloaded / downloadInfo.totalSize
+			  ),
 		`${downloadInfo.doneIn === null ? 'Downloading' : 'Downloaded'} video`,
 		downloadInfo.doneIn === null
-			? `${formatBytes(downloadInfo.downloaded)}/${formatBytes(
-					downloadInfo.totalSize
-			  )}`
+			? [
+					`${CliInternals.formatBytes(downloadInfo.downloaded)}`,
+					downloadInfo.totalSize === null
+						? null
+						: `${CliInternals.formatBytes(downloadInfo.totalSize)}`,
+			  ]
+					.filter(Internals.truthy)
+					.join('/')
 			: CliInternals.chalk.gray(`${downloadInfo.doneIn}ms`),
 	].join(' ');
 };
@@ -168,7 +178,7 @@ export const makeMultiProgressFromStatus = (
 };
 
 type DownloadedInfo = {
-	totalSize: number;
+	totalSize: number | null;
 	downloaded: number;
 	doneIn: number | null;
 };

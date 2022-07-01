@@ -8,46 +8,67 @@ import {sanitizeFilePath} from './sanitize-filepath';
 
 export type RenderMediaOnDownload = (
 	src: string
-) => ((progress: {percent: number}) => void) | undefined | void;
+) =>
+	| ((progress: {
+			percent: number | null;
+			downloaded: number;
+			totalSize: number | null;
+	  }) => void)
+	| undefined
+	| void;
 
-const isDownloadingMap: {[src: string]: {[to: string]: boolean} | undefined} =
-	{};
-const hasBeenDownloadedMap: {
-	[src: string]: {[to: string]: boolean} | undefined;
+const isDownloadingMap: {
+	[src: string]: {[downloadDir: string]: boolean} | undefined;
 } = {};
-const listeners: {[key: string]: {[to: string]: (() => void)[]}} = {};
+const hasBeenDownloadedMap: {
+	[src: string]: {[downloadDir: string]: string | null} | undefined;
+} = {};
+const listeners: {[key: string]: {[downloadDir: string]: (() => void)[]}} = {};
 
-export const waitForAssetToBeDownloaded = (
-	src: string,
-	to: string
-): Promise<void> => {
-	if (hasBeenDownloadedMap[src]?.[to]) {
-		return Promise.resolve();
+export const waitForAssetToBeDownloaded = ({
+	src,
+	downloadDir,
+}: {
+	src: string;
+	downloadDir: string;
+}): Promise<string> => {
+	if (hasBeenDownloadedMap[src]?.[downloadDir]) {
+		return Promise.resolve(hasBeenDownloadedMap[src]?.[downloadDir] as string);
 	}
 
 	if (!listeners[src]) {
 		listeners[src] = {};
 	}
 
-	if (!listeners[src][to]) {
-		listeners[src][to] = [];
+	if (!listeners[src][downloadDir]) {
+		listeners[src][downloadDir] = [];
 	}
 
-	return new Promise<void>((resolve) => {
-		listeners[src][to].push(() => resolve());
+	return new Promise<string>((resolve) => {
+		listeners[src][downloadDir].push(() => {
+			resolve(hasBeenDownloadedMap[src]?.[downloadDir] as string);
+		});
 	});
 };
 
-const notifyAssetIsDownloaded = (src: string, to: string) => {
+const notifyAssetIsDownloaded = ({
+	src,
+	downloadDir,
+	to,
+}: {
+	src: string;
+	downloadDir: string;
+	to: string;
+}) => {
 	if (!listeners[src]) {
 		listeners[src] = {};
 	}
 
-	if (!listeners[src][to]) {
-		listeners[src][to] = [];
+	if (!listeners[src][downloadDir]) {
+		listeners[src][downloadDir] = [];
 	}
 
-	listeners[src][to].forEach((fn) => fn());
+	listeners[src][downloadDir].forEach((fn) => fn());
 
 	if (!isDownloadingMap[src]) {
 		isDownloadingMap[src] = {};
@@ -55,9 +76,9 @@ const notifyAssetIsDownloaded = (src: string, to: string) => {
 
 	(
 		isDownloadingMap[src] as {
-			[to: string]: boolean;
+			[downloadDir: string]: boolean;
 		}
-	)[to] = false;
+	)[downloadDir] = true;
 
 	if (!hasBeenDownloadedMap[src]) {
 		hasBeenDownloadedMap[src] = {};
@@ -65,9 +86,9 @@ const notifyAssetIsDownloaded = (src: string, to: string) => {
 
 	(
 		hasBeenDownloadedMap[src] as {
-			[to: string]: boolean;
+			[downloadDir: string]: string | null;
 		}
-	)[to] = true;
+	)[downloadDir] = to;
 };
 
 const validateMimeType = (mimeType: string, src: string) => {
@@ -114,17 +135,25 @@ function validateBufferEncoding(
 	}
 }
 
-const downloadAsset = async (
-	src: string,
-	to: string,
-	onDownload: RenderMediaOnDownload
-) => {
-	if (hasBeenDownloadedMap[src]?.[to]) {
-		return;
+export const downloadAsset = async ({
+	src,
+	onDownload,
+	downloadDir,
+}: {
+	src: string;
+	onDownload: RenderMediaOnDownload;
+	downloadDir: string;
+}): Promise<string> => {
+	if (Internals.AssetCompression.isAssetCompressed(src)) {
+		return src;
 	}
 
-	if (isDownloadingMap[src]?.[to]) {
-		return waitForAssetToBeDownloaded(src, to);
+	if (hasBeenDownloadedMap[src]?.[downloadDir]) {
+		return hasBeenDownloadedMap[src]?.[downloadDir] as string;
+	}
+
+	if (isDownloadingMap[src]?.[downloadDir]) {
+		return waitForAssetToBeDownloaded({src, downloadDir});
 	}
 
 	if (!isDownloadingMap[src]) {
@@ -133,14 +162,19 @@ const downloadAsset = async (
 
 	(
 		isDownloadingMap[src] as {
-			[to: string]: boolean;
+			[downloadDir: string]: boolean;
 		}
-	)[to] = true;
+	)[downloadDir] = true;
 
 	const onProgress = onDownload(src);
-	ensureOutputDirectory(to);
 
 	if (src.startsWith('data:')) {
+		const output = getSanitizedFilenameForAssetUrl({
+			contentDisposition: null,
+			downloadDir,
+			src,
+		});
+		ensureOutputDirectory(output);
 		const [assetDetails, assetData] = src.substring('data:'.length).split(',');
 		if (!assetDetails.includes(';')) {
 			const errMessage = [
@@ -158,17 +192,22 @@ const downloadAsset = async (
 		validateBufferEncoding(encoding, src);
 
 		const buff = Buffer.from(assetData, encoding);
-		await fs.promises.writeFile(to, buff);
-		notifyAssetIsDownloaded(src, to);
-		return;
+		await fs.promises.writeFile(output, buff);
+		notifyAssetIsDownloaded({src, downloadDir, to: output});
+		return output;
 	}
 
-	await downloadFile(src, to, ({progress}) => {
-		onProgress?.({
-			percent: progress,
-		});
+	const {to} = await downloadFile({
+		url: src,
+		onProgress: (progress) => {
+			onProgress?.(progress);
+		},
+		to: (contentDisposition) =>
+			getSanitizedFilenameForAssetUrl({contentDisposition, downloadDir, src}),
 	});
-	notifyAssetIsDownloaded(src, to);
+	notifyAssetIsDownloaded({src, downloadDir, to});
+
+	return to;
 };
 
 export const markAllAssetsAsDownloaded = () => {
@@ -181,18 +220,50 @@ export const markAllAssetsAsDownloaded = () => {
 	});
 };
 
+export const getFilename = ({
+	contentDisposition,
+	src,
+}: {
+	src: string;
+	contentDisposition: string | null;
+}): {pathname: string; search: string} => {
+	const filenameProbe = 'filename=';
+	if (contentDisposition?.includes(filenameProbe)) {
+		const start = contentDisposition.indexOf(filenameProbe);
+		const onlyFromFileName = contentDisposition.substring(
+			start + filenameProbe.length
+		);
+
+		const hasSemi = onlyFromFileName.indexOf(';');
+		if (hasSemi === -1) {
+			return {pathname: onlyFromFileName.trim(), search: ''};
+		}
+
+		return {
+			search: '',
+			pathname: onlyFromFileName.substring(0, hasSemi).trim(),
+		};
+	}
+
+	const {pathname, search} = new URL(src);
+
+	return {pathname, search};
+};
+
 export const getSanitizedFilenameForAssetUrl = ({
 	src,
 	downloadDir,
+	contentDisposition,
 }: {
 	src: string;
 	downloadDir: string;
+	contentDisposition: string | null;
 }) => {
 	if (Internals.AssetCompression.isAssetCompressed(src)) {
 		return src;
 	}
 
-	const {pathname, search} = new URL(src);
+	const {pathname, search} = getFilename({contentDisposition, src});
 
 	const split = pathname.split('.');
 	const fileExtension =
@@ -203,10 +274,10 @@ export const getSanitizedFilenameForAssetUrl = ({
 		'0.',
 		''
 	);
-	return path.join(
-		downloadDir,
-		sanitizeFilePath(hashedFileName + fileExtension)
-	);
+
+	const filename = hashedFileName + fileExtension;
+
+	return path.join(downloadDir, sanitizeFilePath(filename));
 };
 
 export const downloadAndMapAssetsToFileUrl = async ({
@@ -218,7 +289,7 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 }): Promise<TAsset> => {
-	const newSrc = await startDownloadForSrc({
+	const newSrc = await downloadAsset({
 		src: asset.src,
 		downloadDir,
 		onDownload,
@@ -228,21 +299,4 @@ export const downloadAndMapAssetsToFileUrl = async ({
 		...asset,
 		src: newSrc,
 	};
-};
-
-export const startDownloadForSrc = async ({
-	src,
-	downloadDir,
-	onDownload,
-}: {
-	src: string;
-	downloadDir: string;
-	onDownload: RenderMediaOnDownload;
-}) => {
-	const newSrc = getSanitizedFilenameForAssetUrl({downloadDir, src});
-	if (!Internals.AssetCompression.isAssetCompressed(newSrc)) {
-		await downloadAsset(src, newSrc, onDownload);
-	}
-
-	return newSrc;
 };

@@ -16,7 +16,6 @@ import {validateMaxRetries} from '../../../shared/validate-retries';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
-import {formatBytes} from '../../helpers/format-bytes';
 import {getCloudwatchStreamUrl} from '../../helpers/get-cloudwatch-stream-url';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
@@ -205,7 +204,7 @@ export const renderCommand = async (args: string[]) => {
 				);
 				Log.info();
 				Log.info();
-				Log.info('Done!', outputPath, formatBytes(sizeInBytes));
+				Log.info('Done!', outputPath, CliInternals.formatBytes(sizeInBytes));
 			} else {
 				Log.info();
 				Log.info();
