@@ -1,6 +1,7 @@
 import React, {createContext, useMemo, useState} from 'react';
+import type {
+	ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {
-	ExpandedFoldersState,
 	loadExpandedFolders,
 } from '../helpers/persist-open-folders';
 

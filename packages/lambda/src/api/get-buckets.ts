@@ -1,5 +1,5 @@
 import {GetBucketLocationCommand, ListBucketsCommand} from '@aws-sdk/client-s3';
-import {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
 import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
 

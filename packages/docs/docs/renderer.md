@@ -10,6 +10,10 @@ import TabItem from '@theme/TabItem';
 The `@remotion/renderer` package provides APIs for rendering video server-side.
 The package is also internally used by the Remotion CLI and [Remotion Lambda](/docs/lambda).
 
+:::warning
+The configuration file has no effect when using these APIs.
+:::warn
+
 ## Installation
 
 <Tabs

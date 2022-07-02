@@ -1,4 +1,4 @@
-import {openBrowser} from './open-browser';
+import type {openBrowser} from './open-browser';
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 type Browser = Await<ReturnType<typeof openBrowser>>;

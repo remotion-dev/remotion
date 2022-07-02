@@ -3,7 +3,7 @@ import React, {useCallback, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
-import {ComboboxValue} from '../NewComposition/ComboBox';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';
 import {getPortal} from './portals';
 import {menuContainer, outerPortal} from './styles';

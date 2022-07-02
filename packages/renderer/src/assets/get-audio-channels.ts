@@ -1,5 +1,5 @@
 import execa from 'execa';
-import {FfmpegExecutable} from 'remotion';
+import type {FfmpegExecutable} from 'remotion';
 import {pLimit} from '../p-limit';
 
 type Result = {
@@ -11,7 +11,7 @@ const durationOfAssetCache: Record<string, Result> = {};
 
 const limit = pLimit(1);
 
-export async function getAudioChannelsAndDurationUnlimited(
+async function getAudioChannelsAndDurationUnlimited(
 	src: string,
 	ffprobeExecutable: FfmpegExecutable
 ): Promise<Result> {

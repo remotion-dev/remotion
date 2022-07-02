@@ -1,4 +1,4 @@
-import {PixelFormat} from './pixel-format';
+import type {PixelFormat} from './pixel-format';
 
 const validOptions = ['png', 'jpeg', 'none'] as const;
 

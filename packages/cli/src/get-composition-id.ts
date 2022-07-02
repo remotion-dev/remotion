@@ -1,4 +1,4 @@
-import {TCompMetadata} from 'remotion';
+import type {TCompMetadata} from 'remotion';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 

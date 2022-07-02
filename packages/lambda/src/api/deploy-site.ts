@@ -1,8 +1,9 @@
 import {stat} from 'fs/promises';
 import path from 'path';
-import {Internals, WebpackOverrideFn} from 'remotion';
+import type {WebpackOverrideFn} from 'remotion';
+import {Internals} from 'remotion';
 import {deleteSite} from '../api/delete-site';
-import {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../pricing/aws-regions';
 import {bundleSite} from '../shared/bundle-site';
 import {getSitesKey} from '../shared/constants';
 import {getAccountId} from '../shared/get-account-id';
@@ -13,7 +14,8 @@ import {validateBucketName} from '../shared/validate-bucketname';
 import {validateSiteName} from '../shared/validate-site-name';
 import {bucketExistsInRegion} from './bucket-exists';
 import {enableS3Website} from './enable-s3-website';
-import {uploadDir, UploadDirProgress} from './upload-dir';
+import type {UploadDirProgress} from './upload-dir';
+import {uploadDir} from './upload-dir';
 
 export type DeploySiteInput = {
 	entryPoint: string;

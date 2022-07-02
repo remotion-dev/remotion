@@ -14,10 +14,10 @@ let callbacks: Callback[] = [];
 
 export const ensurePresentationTimestamps = async (src: string) => {
 	if (ensureFileHasPresentationTimestamp[src] === 'encoding') {
-		return new Promise((resolve) => {
+		return new Promise<void>((resolve) => {
 			callbacks.push({
 				src,
-				fn: () => resolve,
+				fn: () => resolve(),
 			});
 		});
 	}

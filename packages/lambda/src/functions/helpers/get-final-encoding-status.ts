@@ -1,5 +1,5 @@
-import {EncodingProgress, RenderMetadata} from '../../shared/constants';
-import {LambdaInvokeStats} from './get-lambdas-invoked-stats';
+import type {EncodingProgress, RenderMetadata} from '../../shared/constants';
+import type {LambdaInvokeStats} from './get-lambdas-invoked-stats';
 
 export const getFinalEncodingStatus = ({
 	encodingStatus: encodingProgress,

@@ -67,6 +67,7 @@ The timeout that has been assigned to the Lambda function.
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/get-function-info.ts)
 - [`getFunctions()`](/docs/lambda/getfunctions)
 - [`deployFunction()`](/docs/lambda/deployfunction)
 - [`deleteFunction()`](/docs/lambda/deletefunction)

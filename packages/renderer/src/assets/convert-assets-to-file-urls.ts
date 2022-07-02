@@ -1,8 +1,6 @@
-import {TAsset} from 'remotion';
-import {
-	downloadAndMapAssetsToFileUrl,
-	RenderMediaOnDownload,
-} from './download-and-map-assets-to-file';
+import type {TAsset} from 'remotion';
+import type {RenderMediaOnDownload} from './download-and-map-assets-to-file';
+import {downloadAndMapAssetsToFileUrl} from './download-and-map-assets-to-file';
 
 const chunk = <T>(input: T[], size: number) => {
 	return input.reduce<T[][]>((arr, item, idx) => {

@@ -1,5 +1,6 @@
-import React, {createContext} from 'react';
-import {UpdateInfo} from '../components/UpdateCheck';
+import type React from 'react';
+import {createContext} from 'react';
+import type {UpdateInfo} from '../components/UpdateCheck';
 
 export type CompType = 'composition' | 'still';
 

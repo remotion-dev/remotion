@@ -1,4 +1,4 @@
-import {LambdaVersions} from '../../shared/constants';
+import type {LambdaVersions} from '../../shared/constants';
 
 export type ObjectChunkTimingData = {
 	chunk: number;

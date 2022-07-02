@@ -1,4 +1,4 @@
-import {FrameRange} from 'remotion';
+import type {FrameRange} from 'remotion';
 
 export const getDurationFromFrameRange = (
 	frameRange: FrameRange | null,

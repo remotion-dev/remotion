@@ -98,4 +98,5 @@ A UNIX timestamp of the point when the bucket was first created.
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/get-sites.ts)
 - [deleteSite()](/docs/lambda/deletesite)

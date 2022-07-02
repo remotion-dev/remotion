@@ -79,4 +79,4 @@ const DynamicAsset: React.FC = () => {
 
 ## Struggling?
 
-If you still have troubles importing your assets, hit us up on [Discord](https://discord.gg/6VzzNDwUwV) or file an issue. We'd love to hear your input about how we can improve and will help you out.
+If you still have troubles importing your assets, hit us up on [Discord](https://remotion.dev/discord) or file an issue. We'd love to hear your input about how we can improve and will help you out.

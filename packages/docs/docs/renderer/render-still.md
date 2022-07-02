@@ -187,6 +187,7 @@ Default: `null`.
 
 A promise with no value. If the render succeeded, the still has been saved to `output`. If the render failed, the promise rejects.
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/render-still.ts)
 - [bundle()](/docs/bundle)
 - [Server-Side rendering](/docs/ssr)
 - [getCompositions()](/docs/renderer/get-compositions)

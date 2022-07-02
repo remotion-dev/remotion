@@ -9,7 +9,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {ReactFrame} from './proxy-console';
+import type {ReactFrame} from './proxy-console';
 
 function stripInlineStacktrace(message: string): string {
 	return message

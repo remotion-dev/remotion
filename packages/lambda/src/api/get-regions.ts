@@ -1,4 +1,4 @@
-import {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../pricing/aws-regions';
 import {AWS_REGIONS} from '../regions';
 
 /**
