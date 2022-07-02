@@ -1,5 +1,5 @@
 import type {RefObject} from 'react';
-import { useContext, useEffect} from 'react';
+import {useContext, useEffect} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error';
 import {TimelineContext, usePlayingState} from './timeline-position-state';
@@ -13,11 +13,13 @@ export const useMediaPlayback = ({
 	src,
 	mediaType,
 	playbackRate: localPlaybackRate,
+	onlyWarnForMediaSeekingError,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
 	playbackRate: number;
+	onlyWarnForMediaSeekingError: boolean;
 }) => {
 	const {playbackRate: globalPlaybackRate} = useContext(TimelineContext);
 	const frame = useCurrentFrame();
@@ -68,7 +70,12 @@ export const useMediaPlayback = ({
 			// If scrubbing around, adjust timing
 			// or if time shift is bigger than 0.2sec
 			mediaRef.current.currentTime = shouldBeTime;
-			warnAboutNonSeekableMedia(mediaRef.current);
+			if (!onlyWarnForMediaSeekingError) {
+				warnAboutNonSeekableMedia(
+					mediaRef.current,
+					onlyWarnForMediaSeekingError ? 'console-warning' : 'console-error'
+				);
+			}
 		}
 
 		if (!playing || absoluteFrame === 0) {
@@ -91,5 +98,6 @@ export const useMediaPlayback = ({
 		src,
 		mediaStartsAt,
 		localPlaybackRate,
+		onlyWarnForMediaSeekingError,
 	]);
 };
