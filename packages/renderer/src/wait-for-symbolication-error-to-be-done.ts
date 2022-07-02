@@ -20,7 +20,11 @@ const resolveWaiters = () => {
 	waiters.forEach((w) => w());
 };
 
-export const waitForSymbolicationToBeDone = () => {
+export const waitForSymbolicationToBeDone = (): Promise<unknown> => {
+	if (waiters.length === 0) {
+		return Promise.resolve(null);
+	}
+
 	const success = new Promise<void>((resolve) => {
 		waiters.push(() => {
 			resolve();
