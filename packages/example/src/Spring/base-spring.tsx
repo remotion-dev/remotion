@@ -21,7 +21,7 @@ export const BaseSpring: React.FC = () => {
 						frame,
 						fps,
 						config: {},
-						duration: 90,
+						durationInFrames: 90,
 					})})`,
 				}}
 			/>
