@@ -44,3 +44,13 @@ describe('Spring should go to 1', () => {
 		).toBeCloseTo(1);
 	});
 });
+
+describe('Should be able to set duration for spring', () => {
+	expect(
+		spring({
+			fps: 30,
+			frame: 5,
+			duration: 5,
+		})
+	).toBe(1);
+});

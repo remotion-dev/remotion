@@ -1,4 +1,5 @@
-import type { SpringConfig} from './spring-utils';
+import {measureSpring} from './measure-spring';
+import type {SpringConfig} from './spring-utils';
 import {springCalculation} from './spring-utils';
 
 /**
@@ -11,8 +12,8 @@ import {springCalculation} from './spring-utils';
  * @param {number} [config.damping=10] How hard the animation decelerates.
  * @param {number} [config.stiffness=100] Affects bounciness of the animation.
  * @param {boolean} [config.overshootClamping=false] Whether to prevent the animation going beyond the target value.
- * @param {?number} from The initial value of the animation. Default `0`
- * @param {?number} to The end value of the animation. Default `1`
+ * @param {?number} [config.from] The initial value of the animation. Default `0`
+ * @param {?number} [config.to] The end value of the animation. Default `1`
  */
 export function spring({
 	frame,
@@ -20,20 +21,30 @@ export function spring({
 	config = {},
 	from = 0,
 	to = 1,
+	duration,
+	durationThreshold,
 }: {
 	frame: number;
 	fps: number;
 	config?: Partial<SpringConfig>;
 	from?: number;
 	to?: number;
+	duration?: number;
+	durationThreshold?: number;
 }): number {
+	const durationRatio = duration
+		? duration /
+		  measureSpring({fps, config, from, to, threshold: durationThreshold})
+		: 1;
+
 	const spr = springCalculation({
 		fps,
-		frame,
+		frame: frame / durationRatio,
 		config,
 		from,
 		to,
 	});
+
 	if (!config.overshootClamping) {
 		return spr.current;
 	}
