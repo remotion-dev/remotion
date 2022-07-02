@@ -56,7 +56,7 @@ export const MyComposition = () => {
 };
 ```
 
-```tsx twoslash title="remotion/index.ts"
+```tsx twoslash title="remotion/Video.tsx"
 // @filename: Composition.tsx
 export const MyComposition: React.FC = () => {
   return null;

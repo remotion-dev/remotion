@@ -1,16 +1,16 @@
-import {_Object} from '@aws-sdk/client-s3';
+import type {_Object} from '@aws-sdk/client-s3';
 import {Readable} from 'stream';
 import {
 	getS3FilesInBucket,
 	readMockS3File,
 	writeMockS3File,
 } from '../../../api/__mocks__/mock-s3';
-import {
+import type {
 	lambdaLs as lsOriginal,
 	lambdaReadFile as readOriginal,
 	lambdaWriteFile as writeOriginal,
 } from '../../../functions/helpers/io';
-import {LambdaLSInput, LambdaLsReturnType} from '../io';
+import type {LambdaLSInput, LambdaLsReturnType} from '../io';
 
 export const lambdaReadFile: typeof readOriginal = ({
 	bucketName,

@@ -1,12 +1,14 @@
-import {ChromiumOptions, RenderInternals} from '@remotion/renderer';
+import type {ChromiumOptions} from '@remotion/renderer';
+import { RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import {
+import type {
 	BrowserExecutable,
 	Codec,
 	FrameRange,
-	Internals,
-	PixelFormat,
+	PixelFormat} from 'remotion';
+import {
+	Internals
 } from 'remotion';
 import {getEnvironmentVariables} from './get-env';
 import {getOutputFilename} from './get-filename';

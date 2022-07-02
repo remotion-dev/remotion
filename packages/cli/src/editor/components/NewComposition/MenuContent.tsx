@@ -2,9 +2,10 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {INPUT_BORDER_COLOR_UNHOVERED} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {MenuDivider} from '../Menu/MenuDivider';
-import {MenuSubItem, SubMenuActivated} from '../Menu/MenuSubItem';
+import type { SubMenuActivated} from '../Menu/MenuSubItem';
+import {MenuSubItem} from '../Menu/MenuSubItem';
 import {MENU_VERTICAL_PADDING} from '../Menu/styles';
-import {ComboboxValue} from './ComboBox';
+import type {ComboboxValue} from './ComboBox';
 
 const BORDER_SIZE = 1;
 const container: React.CSSProperties = {

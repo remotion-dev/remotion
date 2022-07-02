@@ -1,10 +1,10 @@
 import React from 'react';
 import {Audio, interpolate, Sequence, useCurrentFrame, Video} from 'remotion';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
-import {MediaAsset} from '../assets/types';
+import type {MediaAsset} from '../assets/types';
 import {getAssetsForMarkup} from './get-assets-for-markup';
 
-jest.setTimeout(30000);
+jest.setTimeout(90000);
 
 const basicConfig = {
 	width: 1080,

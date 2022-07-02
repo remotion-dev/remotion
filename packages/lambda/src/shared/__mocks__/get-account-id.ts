@@ -1,4 +1,4 @@
-import {getAccountId as original} from '../get-account-id';
+import type {getAccountId as original} from '../get-account-id';
 
 export const getAccountId: typeof original = () => {
 	const accountId = 'aws:iam::123456789'.match(/aws:iam::([0-9]+)/);

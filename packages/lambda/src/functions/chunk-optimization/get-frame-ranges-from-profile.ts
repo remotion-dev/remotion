@@ -1,4 +1,4 @@
-import {TimingProfile} from './types';
+import type {TimingProfile} from './types';
 
 export const getFrameRangesFromProfile = (
 	profile: TimingProfile

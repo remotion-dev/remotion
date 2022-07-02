@@ -54,4 +54,5 @@ Chromium flags need to be set at browser launch. If you pass an instance to SSR 
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/open-browser.ts)
 - [Server-Side rendering](/docs/ssr)

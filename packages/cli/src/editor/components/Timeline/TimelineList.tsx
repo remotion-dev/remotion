@@ -1,7 +1,7 @@
 import React from 'react';
-import {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {isTrackCollapsed} from './is-collapsed';
-import {TimelineActionState, TimelineViewState} from './timeline-state-reducer';
+import type {TimelineActionState, TimelineViewState} from './timeline-state-reducer';
 import {TimelineListItem} from './TimelineListItem';
 
 const container: React.CSSProperties = {

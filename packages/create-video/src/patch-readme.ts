@@ -1,11 +1,11 @@
 import fs from 'fs';
 import path from 'path';
+import type {PackageManager} from './pkg-managers';
 import {
 	getInstallCommand,
 	getRenderCommand,
 	getStartCommand,
 	getUpgradeCommand,
-	PackageManager,
 } from './pkg-managers';
 
 export const patchReadmeMd = (

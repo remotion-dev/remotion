@@ -5,6 +5,8 @@ title: "@remotion/lambda - CLI"
 slug: /lambda/cli
 ---
 
+To use the Remotion Lambda CLI, you first need to [install it](/docs/lambda/setup).
+
 ## Commands
 
 - [sites](/docs/lambda/cli/sites)

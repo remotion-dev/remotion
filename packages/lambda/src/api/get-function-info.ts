@@ -1,9 +1,10 @@
 import {GetFunctionCommand} from '@aws-sdk/client-lambda';
-import {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from '../shared/aws-clients';
+import type {
+	LambdaVersions} from '../shared/constants';
 import {
-	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
-	LambdaVersions,
+	DEFAULT_EPHEMERAL_STORAGE_IN_MB
 } from '../shared/constants';
 import {getFunctionVersion} from '../shared/get-function-version';
 import {validateAwsRegion} from '../shared/validate-aws-region';

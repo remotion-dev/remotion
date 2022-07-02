@@ -9,8 +9,6 @@ import TabItem from '@theme/TabItem';
 
 ## 1. Install `@remotion/lambda`
 
-Check the newest version number in the [#lambda Discord channel](https://discord.gg/PzjkKS8S5S)
-
 <Tabs
 defaultValue="npm"
 values={[
@@ -58,10 +56,6 @@ Your package.json should look like the following:
   // ...
   "remotion": "3.0.0",
 ```
-
-:::note
-You can install `@remotion/lambda` in any Node.JS project to trigger a render, but remember to also install `react` and `react-dom` as they are peer dependencies.
-:::
 
 ## 2. Create role policy
 
@@ -365,4 +359,4 @@ This code will poll every second to check the progress of the video and exit the
 - Familiarize yourself with the CLI and the Node.JS APIs (list in sidebar).
 - Learn how to [upgrade Remotion Lambda](/docs/lambda/upgrading).
 - Before going live, go through the [Production checklist](/docs/lambda/checklist).
-- If you have any questions, go through the [FAQ](/docs/lambda/faq) or ask in our [Discord channel](https://discord.gg/PzjkKS8S5S)
+- If you have any questions, go through the [FAQ](/docs/lambda/faq) or ask in our [Discord channel](https://remotion.dev/discord)

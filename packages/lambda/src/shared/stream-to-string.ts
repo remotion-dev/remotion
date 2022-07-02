@@ -1,4 +1,4 @@
-import {Readable} from 'stream';
+import type {Readable} from 'stream';
 
 export function streamToString(stream: Readable | Buffer) {
 	if (Buffer.isBuffer(stream)) {

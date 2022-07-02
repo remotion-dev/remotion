@@ -5,7 +5,7 @@ title: Still images
 
 _Available from v2.3_
 
-Remotion is a great solution for rendering dynamic still images too. See our [Still template](https://github.com/remotion-dev/template-still) for an easy way to get started.
+Remotion is a great solution for rendering thumbnails of videos or dynamic still images too. See our [Still template](https://github.com/remotion-dev/template-still) for an easy way to get started.
 
 If you already have a Remotion project, read on how you can render stills.
 

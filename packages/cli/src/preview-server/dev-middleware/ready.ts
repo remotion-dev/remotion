@@ -1,5 +1,5 @@
-import {webpack} from '@remotion/bundler';
-import {DevMiddlewareContext} from './types';
+import type {webpack} from '@remotion/bundler';
+import type {DevMiddlewareContext} from './types';
 
 export function ready(
 	context: DevMiddlewareContext,

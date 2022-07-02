@@ -12,10 +12,10 @@ Triggers a render on a lambda given a composition and a lambda function.
 ```tsx twoslash
 // @module: esnext
 // @target: es2017
-import { renderVideoOnLambda } from "@remotion/lambda";
+import { renderMediaOnLambda } from "@remotion/lambda";
 // ---cut---
 
-const { bucketName, renderId } = await renderVideoOnLambda({
+const { bucketName, renderId } = await renderMediaOnLambda({
   region: "us-east-1",
   functionName: "remotion-render-bds9aab",
   composition: "MyVideo",
@@ -180,4 +180,5 @@ The S3 bucket name in which all files are being saved.
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/render-media-on-lambda.ts)
 - [getRenderProgress()](/docs/lambda/getrenderprogress)

@@ -17,7 +17,7 @@ The easiest and fastest way to render videos in the cloud is to use `@remotion/l
 
 ## Render a video using Node.JS APIs
 
-The NPM package `@remotion/renderer` provides you with an API for rendering the videos programmatically. You can make a video in three steps: creating a Webpack bundle, rendering the frames, and stitching them together to an MP4. This gives you more independence and allows you to for example skip the stitching process, if you just want a PNG sequence.
+The NPM package `@remotion/renderer` provides you with an API for rendering the videos programmatically. You can make a video in two steps: 1. Creating a Webpack bundle, then 2. rendering and stitching them together to an MP4.
 
 Follow this commented example to see how to render a video:
 

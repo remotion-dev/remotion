@@ -5,12 +5,12 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import {CompositionManager} from '../CompositionManager';
-import {getTimelineClipName} from '../get-timeline-clip-name';
-import {useNonce} from '../nonce';
-import {TimelineContext} from '../timeline-position-state';
-import {useAbsoluteCurrentFrame} from '../use-frame';
-import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
+import {CompositionManager} from './CompositionManager';
+import {getTimelineClipName} from './get-timeline-clip-name';
+import {useNonce} from './nonce';
+import {TimelineContext} from './timeline-position-state';
+import {useAbsoluteCurrentFrame} from './use-current-frame';
+import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 
 export type SequenceContextType = {
 	cumulatedFrom: number;

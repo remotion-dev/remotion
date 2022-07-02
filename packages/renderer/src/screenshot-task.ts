@@ -1,14 +1,16 @@
 import fs from 'fs';
-import {CDPSession, Page, ScreenshotOptions, Target} from 'puppeteer-core';
-import {Internals, StillImageFormat} from 'remotion';
+import type {StillImageFormat} from 'remotion';
+import {Internals} from 'remotion';
+import type {Page} from './browser/Page';
+import type {ScreenshotOptions} from './browser/ScreenshotOptions';
 
 export const _screenshotTask = async (
 	page: Page,
 	format: StillImageFormat,
 	options: ScreenshotOptions
 ): Promise<Buffer | string> => {
-	const client = (page as unknown as {_client: CDPSession})._client;
-	const target = (page as unknown as {_target: Target})._target;
+	const client = page._client();
+	const target = page.target();
 
 	const perfTarget = Internals.perf.startPerfMeasure('activate-target');
 
@@ -35,11 +37,8 @@ export const _screenshotTask = async (
 		await client.send('Emulation.setDefaultBackgroundColorOverride');
 
 	const saveMarker = Internals.perf.startPerfMeasure('save');
-	const buffer =
-		options.encoding === 'base64'
-			? result.data
-			: Buffer.from(result.data, 'base64');
 
+	const buffer = Buffer.from(result.data, 'base64');
 	if (options.path) await fs.promises.writeFile(options.path, buffer);
 	Internals.perf.stopPerfMeasure(saveMarker);
 	return buffer;

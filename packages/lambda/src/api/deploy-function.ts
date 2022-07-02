@@ -1,5 +1,5 @@
 import {getFunctions} from '../api/get-functions';
-import {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../pricing/aws-regions';
 import {
 	CURRENT_VERSION,
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
@@ -8,8 +8,9 @@ import {
 } from '../shared/constants';
 import {FUNCTION_ZIP} from '../shared/function-zip-path';
 import {getAccountId} from '../shared/get-account-id';
+import type {
+	LambdaArchitecture} from '../shared/validate-architecture';
 import {
-	LambdaArchitecture,
 	validateArchitecture,
 } from '../shared/validate-architecture';
 import {validateAwsRegion} from '../shared/validate-aws-region';

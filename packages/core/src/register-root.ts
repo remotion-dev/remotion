@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 
 let Root: React.FC | null = null;
 

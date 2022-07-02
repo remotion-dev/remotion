@@ -1,4 +1,4 @@
-import {transform, TransformOptions} from 'esbuild';
+import type {transform, TransformOptions} from 'esbuild';
 
 type Implementation = {
 	transform: typeof transform;

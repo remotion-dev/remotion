@@ -8,7 +8,7 @@
 
 import {RenderInternals} from '@remotion/renderer';
 import {createReadStream, existsSync, promises} from 'fs';
-import {IncomingMessage, ServerResponse} from 'http';
+import type {IncomingMessage, ServerResponse} from 'http';
 import {join} from 'path';
 import {getValueContentRangeHeader} from './dev-middleware/middleware';
 import {parseRange} from './dev-middleware/range-parser';

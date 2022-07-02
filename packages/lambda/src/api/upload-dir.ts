@@ -3,8 +3,8 @@ import {Upload} from '@aws-sdk/lib-storage';
 import {createReadStream, promises as fs} from 'fs';
 import mimeTypes from 'mime-types';
 import path from 'path';
-import {Privacy} from '../defaults';
-import {AwsRegion} from '../pricing/aws-regions';
+import type {Privacy} from '../defaults';
+import type {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
 import {makeS3Key} from '../shared/make-s3-key';
 

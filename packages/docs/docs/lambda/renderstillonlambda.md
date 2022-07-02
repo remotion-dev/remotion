@@ -173,5 +173,6 @@ A unique alphanumeric identifier for this render. Useful for obtaining status an
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/render-still-on-lambda.ts)
 - [renderMediaOnLambda()](/docs/lambda/rendermediaonlambda)
 - [renderStill()](/docs/renderer/render-still)

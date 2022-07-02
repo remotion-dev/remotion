@@ -9,10 +9,11 @@ import {BINARY_NAME} from '../../../shared/constants';
 import {validateSiteName} from '../../../shared/validate-site-name';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
-import {
+import type {
 	BucketCreationProgress,
 	BundleProgress,
-	DeployToS3Progress,
+	DeployToS3Progress} from '../../helpers/progress-bar';
+import {
 	makeBucketProgress,
 	makeBundleProgress,
 	makeDeployProgressBar,

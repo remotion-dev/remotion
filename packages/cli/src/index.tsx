@@ -1,7 +1,9 @@
-import chalk from 'chalk';
 import {bundleCommand} from './bundle';
+import {chalk} from './chalk';
 import {checkNodeVersion} from './check-version';
 import {listCompositionsCommand} from './compositions';
+import {getFileSizeDownloadBar} from './download-progress';
+import {formatBytes} from './format-bytes';
 import {getCliOptions} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
 import {handleCommonError} from './handle-common-errors';
@@ -91,4 +93,6 @@ export const CliInternals = {
 	quietFlagProvided,
 	parsedCli,
 	handleCommonError,
+	formatBytes,
+	getFileSizeDownloadBar,
 };

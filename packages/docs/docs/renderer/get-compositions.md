@@ -218,6 +218,7 @@ The `defaultProps` only get returned since v2.5.7.
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/get-compositions.ts)
 - [Server-Side rendering](/docs/ssr)
 - [bundle()](/docs/bundle)
 - [renderMedia()](/docs/renderer/render-media)

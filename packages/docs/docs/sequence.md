@@ -11,7 +11,7 @@ const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
 ```
 
-Sequences are small individual sections in finite time that make up your video clip. By using a sequence, you can time-shift the display of your components or parts of your animation in the video. 
+Sequences are small individual sections in finite time that make up your video clip. By using a sequence, you can time-shift the display of your components or parts of your animation in the video.
 
 _For example, in a video trailer composed of an intro, a video clip and an outro, each part of it will be a Sequence, as each represents a sub-part of the video that should be displayed with a time-shift. (The intro should be displayed at the beginning plus disappear, same for the outro at the end...)_
 
@@ -139,6 +139,7 @@ See the [`<Series />`](/docs/series) helper component, which helps you calculate
 
 ## See also
 
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Sequence.tsx)
 - [Reuse components using Sequences](/docs/reusability)
 - [`<Composition />`](/docs/composition)
 - [`<Series />`](/docs/series)

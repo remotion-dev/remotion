@@ -8,8 +8,8 @@ import fs, {
 	rmSync,
 } from 'fs';
 import path, {join} from 'path';
-import {Codec} from 'remotion';
-import {AwsRegion} from '../../pricing/aws-regions';
+import type {Codec} from 'remotion';
+import type {AwsRegion} from '../../pricing/aws-regions';
 import {
 	chunkKey,
 	CONCAT_FOLDER_TOKEN,
