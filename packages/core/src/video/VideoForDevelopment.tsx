@@ -12,7 +12,9 @@ import type {RemotionVideoProps} from './props';
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
-	RemotionVideoProps
+	RemotionVideoProps & {
+		onlyWarnForMediaSeekingError: boolean;
+	}
 > = (props, ref) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -46,6 +48,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		src: nativeProps.src,
 		mediaType: 'video',
 		playbackRate: props.playbackRate ?? 1,
+		onlyWarnForMediaSeekingError: props.onlyWarnForMediaSeekingError,
 	});
 
 	useImperativeHandle(ref, () => {

@@ -37,5 +37,5 @@ export const OffthreadVideo: React.FC<
 		return <OffthreadVideoForRendering {...otherProps} />;
 	}
 
-	return <VideoForDevelopment {...otherProps} />;
+	return <VideoForDevelopment onlyWarnForMediaSeekingError {...otherProps} />;
 };

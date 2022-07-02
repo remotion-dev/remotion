@@ -337,18 +337,11 @@ const innerRenderFrames = ({
 		return returnValue;
 	});
 
-	return Promise.race([
-		happyPath
-			.then(() => {
-				return Promise.all(downloadPromises);
-			})
-			.then(() => happyPath),
-		new Promise<RenderFramesOutput>((_resolve, reject) => {
-			cancelSignal?.(() => {
-				reject(new Error('renderFrames() got cancelled'));
-			});
-		}),
-	]);
+	return happyPath
+		.then(() => {
+			return Promise.all(downloadPromises);
+		})
+		.then(() => happyPath);
 };
 
 type CleanupFn = () => void;
@@ -416,32 +409,32 @@ export const renderFrames = (
 			reject(err);
 		};
 
-		Promise.all([
-			prepareServer({
-				webpackConfigOrServeUrl: selectedServeUrl,
-				downloadDir,
-				onDownload,
-				onError,
-				ffmpegExecutable: options.ffmpegExecutable ?? null,
-				ffprobeExecutable: options.ffprobeExecutable ?? null,
-				port: options.port ?? null,
+		Promise.race([
+			new Promise<RenderFramesOutput>((_, rej) => {
+				options.cancelSignal?.(() => {
+					rej(new Error('renderFrames() got cancelled'));
+				});
 			}),
-			browserInstance,
-		])
-			.then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {
+			Promise.all([
+				prepareServer({
+					webpackConfigOrServeUrl: selectedServeUrl,
+					downloadDir,
+					onDownload,
+					onError,
+					ffmpegExecutable: options.ffmpegExecutable ?? null,
+					ffprobeExecutable: options.ffprobeExecutable ?? null,
+					port: options.port ?? null,
+				}),
+				browserInstance,
+			]).then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {
 				const {stopCycling} = cycleBrowserTabs(
 					puppeteerInstance,
 					actualParallelism
 				);
 
 				cleanup.push(stopCycling);
-
-				options.cancelSignal?.(() => {
-					stopCycling();
-					closeServer();
-				});
-
 				cleanup.push(closeServer);
+
 				return innerRenderFrames({
 					...options,
 					puppeteerInstance,
@@ -454,7 +447,8 @@ export const renderFrames = (
 					downloadDir,
 					proxyPort: offthreadPort,
 				});
-			})
+			}),
+		])
 			.then((res) => {
 				return resolve(res);
 			})
