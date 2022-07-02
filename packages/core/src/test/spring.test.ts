@@ -50,7 +50,7 @@ describe('Should be able to set duration for spring', () => {
 		spring({
 			fps: 30,
 			frame: 5,
-			duration: 5,
+			durationInFrames: 5,
 		})
 	).toBe(1);
 });

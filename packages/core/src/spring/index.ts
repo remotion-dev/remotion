@@ -15,7 +15,7 @@ import {springCalculation} from './spring-utils';
  * @param {boolean} [config.overshootClamping=false] Whether to prevent the animation going beyond the target value.
  * @param {?number} [config.from] The initial value of the animation. Default `0`
  * @param {?number} [config.to] The end value of the animation. Default `1`
- * @param {?number} [config.duration] Stretch the duration of an animation to  a set value.. Default `undefined`
+ * @param {?number} [config.durationInFrames] Stretch the duration of an animation to  a set value.. Default `undefined`
  * @param {?number} [config.durationThreshold] How close to the end the animation is considered to be done. Default `0.005`
  */
 export function spring({
@@ -24,7 +24,7 @@ export function spring({
 	config = {},
 	from = 0,
 	to = 1,
-	duration,
+	durationInFrames,
 	durationThreshold,
 }: {
 	frame: number;
@@ -32,12 +32,12 @@ export function spring({
 	config?: Partial<SpringConfig>;
 	from?: number;
 	to?: number;
-	duration?: number;
+	durationInFrames?: number;
 	durationThreshold?: number;
 }): number {
-	validateSpringDuration(duration);
-	const durationRatio = duration
-		? duration /
+	validateSpringDuration(durationInFrames);
+	const durationRatio = durationInFrames
+		? durationInFrames /
 		  measureSpring({fps, config, from, to, threshold: durationThreshold})
 		: 1;
 
