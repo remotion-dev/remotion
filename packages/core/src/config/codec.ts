@@ -22,18 +22,15 @@ export const getOutputCodecOrUndefined = (): CodecOrUndefined => {
 };
 
 export const DEFAULT_CODEC: Codec = 'h264';
-const DEFAULT_LAMBDA_CODEC: Codec = 'h264-mkv';
 
 export const getFinalOutputCodec = ({
 	codec: inputCodec,
 	fileExtension,
 	emitWarning,
-	isLambda,
 }: {
 	codec: CodecOrUndefined;
 	fileExtension: string | null;
 	emitWarning: boolean;
-	isLambda: boolean;
 }): Codec => {
 	if (inputCodec === undefined && fileExtension === 'webm') {
 		if (emitWarning) {
@@ -115,7 +112,7 @@ export const getFinalOutputCodec = ({
 		return 'h264-mkv';
 	}
 
-	return inputCodec ?? (isLambda ? DEFAULT_LAMBDA_CODEC : DEFAULT_CODEC);
+	return inputCodec ?? DEFAULT_CODEC;
 };
 
 export const setOutputFormat = (newLegacyFormat: LegacyFormat) => {

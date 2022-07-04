@@ -33,7 +33,7 @@ test('Should add silent audio if there is no audio', async () => {
 			serveUrl:
 				'https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/',
 			chromiumOptions: {},
-			codec: 'h264-mkv',
+			codec: 'h264',
 			composition: 'react-svg',
 			crf: 9,
 			envVariables: {},
