@@ -11,20 +11,16 @@ export const registerErrorSymbolicationLock = () => {
 
 export const unlockErrorSymbolicationLock = (id: number) => {
 	locks = locks.filter((l) => l !== id);
-	if (locks.length === 0) {
-		resolveWaiters();
-	}
+	resolveWaiters();
 };
 
 const resolveWaiters = () => {
-	waiters.forEach((w) => w());
+	if (locks.length === 0) {
+		waiters.forEach((w) => w());
+	}
 };
 
 export const waitForSymbolicationToBeDone = (): Promise<unknown> => {
-	if (waiters.length === 0) {
-		return Promise.resolve(null);
-	}
-
 	const success = new Promise<void>((resolve) => {
 		waiters.push(() => {
 			resolve();
@@ -33,6 +29,8 @@ export const waitForSymbolicationToBeDone = (): Promise<unknown> => {
 	const timeout = new Promise<void>((resolve) => {
 		setTimeout(() => resolve(), 5000);
 	});
+
+	resolveWaiters();
 
 	return Promise.all([success, timeout]);
 };
