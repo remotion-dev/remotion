@@ -13,7 +13,7 @@ const getAvailablePort = (portToTry: number) =>
 			socket.destroy();
 		});
 
-		socket.setTimeout(1000);
+		socket.setTimeout(3000);
 		socket.on('timeout', () => {
 			status = 'unavailable';
 			socket.destroy();
