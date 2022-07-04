@@ -8,11 +8,9 @@ import type {
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
-	ProResProfile} from 'remotion';
-import {
-	Config,
-	Internals
+	ProResProfile,
 } from 'remotion';
+import {Config, Internals} from 'remotion';
 import {Log} from './log';
 
 export type CommandLineOptions = {
@@ -95,8 +93,11 @@ export const parseCommandLine = (
 		);
 	}
 
-	if (parsedCli.loop) {
+	if (parsedCli.loop && parsedCli.codec === 'gif') {
 		Config.Rendering.setLoop(parsedCli.loop);
+	} else if (parsedCli.loop && parsedCli.codec !== 'gif') {
+		Log.error('--loop is olny valid for --codec=gif');
+		process.exit(1);
 	}
 
 	if (parsedCli['ffprobe-executable']) {
@@ -121,8 +122,11 @@ export const parseCommandLine = (
 		Config.Puppeteer.setChromiumHeadlessMode(false);
 	}
 
-	if (parsedCli['every-nth-frame']) {
+	if (parsedCli['every-nth-frame'] && parsedCli.codec === 'gif') {
 		Config.Rendering.setEveryNthFrame(parsedCli['every-nth-frame']);
+	} else if (parsedCli['every-nth-frame'] && parsedCli.codec !== 'gif') {
+		Log.error('--every-nth-frame is olny valid for --codec=gif');
+		process.exit(1);
 	}
 
 	if (parsedCli.gl) {
