@@ -95,7 +95,7 @@ test("should fail on invalid CRF", async () => {
   await browserInstance.close();
 });
 
-test.only("Render video to a buffer", async () => {
+test("Render video to a buffer", async () => {
   const compositions = await getCompositions(
     "https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/"
   );
