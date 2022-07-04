@@ -33,7 +33,6 @@ export const stringifyFfmpegFilter = ({
 
 	const volumeFilter = ffmpegVolumeExpression({
 		volume,
-		startInVideo,
 		fps,
 		trimLeft,
 	});
@@ -57,6 +56,12 @@ export const stringifyFfmpegFilter = ({
 			`atrim=${trimLeft.toFixed(6)}:${actualTrimRight.toFixed(6)}`,
 			// then set the tempo
 			calculateATempo(playbackRate),
+			// set the volume if needed
+			// The timings for volume must include whatever is in atrim, unless the volume
+			// filter gets applied before atrim
+			volumeFilter.value === '1'
+				? null
+				: `volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
 			// For n channels, we delay n + 1 channels.
 			// This is because `ffprobe` for some audio files reports the wrong amount
 			// of channels.
@@ -68,12 +73,6 @@ export const stringifyFfmpegFilter = ({
 				: `adelay=${new Array(channels + 1)
 						.fill((startInVideoSeconds * 1000).toFixed(0))
 						.join('|')}`,
-			// set the volume if needed
-			// The timings for volume must include whatever is in atrim, unless the volume
-			// filter gets applied before atrim
-			volumeFilter.value === '1'
-				? null
-				: `volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
 			// Only in the end, we pad to the full length.
 			padAtEnd > 0.0000001
 				? 'apad=pad_len=' + Math.round(padAtEnd * DEFAULT_SAMPLE_RATE)
