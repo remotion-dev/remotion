@@ -11,6 +11,7 @@ import {
 } from '../../../shared/constants';
 import {sleep} from '../../../shared/sleep';
 import {validateFramesPerLambda} from '../../../shared/validate-frames-per-lambda';
+import type {LambdaCodec} from '../../../shared/validate-lambda-codec';
 import {validatePrivacy} from '../../../shared/validate-privacy';
 import {validateMaxRetries} from '../../../shared/validate-retries';
 import {parsedLambdaCli} from '../../args';
@@ -85,7 +86,7 @@ export const renderCommand = async (args: string[]) => {
 		functionName,
 		serveUrl,
 		inputProps,
-		codec: codec as 'h264-mkv' | 'mp3' | 'aac' | 'wav',
+		codec: codec as LambdaCodec,
 		imageFormat,
 		crf: crf ?? undefined,
 		envVariables,
