@@ -1,15 +1,9 @@
 import type {ChromiumOptions} from '@remotion/renderer';
-import { RenderInternals} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import type {
-	BrowserExecutable,
-	Codec,
-	FrameRange,
-	PixelFormat} from 'remotion';
-import {
-	Internals
-} from 'remotion';
+import type {BrowserExecutable, Codec, FrameRange, PixelFormat} from 'remotion';
+import {Internals} from 'remotion';
 import {getEnvironmentVariables} from './get-env';
 import {getOutputFilename} from './get-filename';
 import {getInputProps} from './get-input-props';
@@ -39,7 +33,6 @@ const getFinalCodec = async (options: {isLambda: boolean}) => {
 			? null
 			: RenderInternals.getExtensionOfFilename(getUserPassedOutputLocation()),
 		emitWarning: true,
-		isLambda: options.isLambda,
 	});
 	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
 	if (
