@@ -102,7 +102,7 @@ The `framesPerLambda` parameter cannot result in more than 200 functions being s
 
 ### `--codec`
 
-[`h264` or `h265` or `png` or `vp8` or `vp9` or `mp3` or `aac` or `wav` or `prores` or `h264-mkv`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264-mkv`.
+[`h264` or `h265` or `png` or `vp8` or `mp3` or `aac` or `wav` or `prores`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264`.
 
 ### `--prores-profile`
 

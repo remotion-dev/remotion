@@ -80,12 +80,10 @@ type FfmpegVolumeExpression = {
 
 export const ffmpegVolumeExpression = ({
 	volume,
-	startInVideo,
 	fps,
 	trimLeft,
 }: {
 	volume: AssetVolume;
-	startInVideo: number;
 	trimLeft: number;
 	fps: number;
 }): FfmpegVolumeExpression => {
@@ -101,7 +99,6 @@ export const ffmpegVolumeExpression = ({
 	if ([...new Set(volume)].length === 1) {
 		return ffmpegVolumeExpression({
 			volume: volume[0],
-			startInVideo,
 			fps,
 			trimLeft,
 		});
@@ -127,7 +124,7 @@ export const ffmpegVolumeExpression = ({
 			volumeMap[actualVolume] = [];
 		}
 
-		volumeMap[actualVolume].push(frame + startInVideo);
+		volumeMap[actualVolume].push(frame);
 	});
 
 	// Sort the map so that the most common volume is last
