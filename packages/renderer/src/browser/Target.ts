@@ -94,7 +94,12 @@ export class Target {
 	async page(): Promise<Page | null> {
 		if (isPagetTarget(this.#targetInfo) && !this.#pagePromise) {
 			this.#pagePromise = this.#sessionFactory().then((client) => {
-				return Page._create(client, this, this.#defaultViewport ?? null);
+				return Page._create(
+					client,
+					this,
+					this.#defaultViewport ?? null,
+					this.browser()
+				);
 			});
 		}
 
