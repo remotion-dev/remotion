@@ -29,18 +29,10 @@ const getAvailablePort = (portToTry: number) =>
 		socket.connect(portToTry, host);
 	});
 
-const portCheckSequence = function* (ports: Generator<number, void, unknown>) {
-	if (ports) {
-		yield* ports;
-	}
-
-	yield 0; // Fall back to 0 if anything else failed
-};
-
 const getPort = async (from: number, to: number) => {
 	const ports = makeRange(from, to);
 
-	for (const port of portCheckSequence(ports)) {
+	for (const port of ports) {
 		if ((await getAvailablePort(port)) === 'available') {
 			return port;
 		}
@@ -82,7 +74,7 @@ export const getDesiredPort = (
 	return limit(() => getDesiredPortUnlimited(desiredPort, from, to));
 };
 
-const makeRange = (from: number, to: number) => {
+const makeRange = (from: number, to: number): number[] => {
 	if (!Number.isInteger(from) || !Number.isInteger(to)) {
 		throw new TypeError('`from` and `to` must be integer numbers');
 	}
@@ -99,11 +91,7 @@ const makeRange = (from: number, to: number) => {
 		throw new RangeError('`to` must be greater than or equal to `from`');
 	}
 
-	const generator = function* (f: number, t: number) {
-		for (let port = f; port <= t; port++) {
-			yield port;
-		}
-	};
-
-	return generator(from, to);
+	return new Array(to - from + 1).fill(true).map((_, i) => {
+		return i + from;
+	});
 };
