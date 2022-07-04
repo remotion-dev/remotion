@@ -33,7 +33,6 @@ export const stringifyFfmpegFilter = ({
 
 	const volumeFilter = ffmpegVolumeExpression({
 		volume,
-		startInVideo,
 		fps,
 		trimLeft,
 	});
