@@ -57,7 +57,7 @@ type RenderFramesOptions = {
 	parallelism?: number | null;
 	quality?: number;
 	frameRange?: FrameRange | null;
-	everyNthFrame: number;
+	everyNthFrame?: number;
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance?: Browser;
 	browserExecutable?: BrowserExecutable;
@@ -113,7 +113,7 @@ const innerRenderFrames = ({
 	scale,
 	actualParallelism,
 	downloadDir,
-	everyNthFrame,
+	everyNthFrame = 1,
 	proxyPort,
 	cancelSignal,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {

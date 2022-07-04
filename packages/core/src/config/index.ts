@@ -13,7 +13,7 @@ import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
 import {setCrf} from './crf';
 import {setDotEnvLocation} from './env-file';
-import {setEveryNthFrame} from './every-nth-file';
+import {setEveryNthFrame} from './every-nth-frame';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {setFfmpegExecutable, setFfprobeExecutable} from './ffmpeg-executable';
 import type {FrameRange} from './frame-range';
