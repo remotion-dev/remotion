@@ -16,6 +16,8 @@
 
 import type {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
+import type {Browser} from './Browser';
+import {BrowserEmittedEvents} from './Browser';
 import type {CDPSession} from './Connection';
 import {TimeoutError} from './Errors';
 import type {CommonEventEmitter} from './EventEmitter';
@@ -198,7 +200,8 @@ export function pageBindingDeliverErrorValueString(
 export async function waitWithTimeout<T>(
 	promise: Promise<T>,
 	taskName: string,
-	timeout: number
+	timeout: number,
+	browser: Browser
 ): Promise<T> {
 	let reject: (reason?: Error) => void;
 	const timeoutError = new TimeoutError(
@@ -215,7 +218,15 @@ export async function waitWithTimeout<T>(
 	}
 
 	try {
-		return await Promise.race([promise, timeoutPromise]);
+		return await Promise.race([
+			new Promise<T>((_, rej) => {
+				browser.once(BrowserEmittedEvents.Closed, () => {
+					return rej();
+				});
+			}),
+			promise,
+			timeoutPromise,
+		]);
 	} finally {
 		if (timeoutTimer) {
 			clearTimeout(timeoutTimer);
