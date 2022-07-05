@@ -66,6 +66,11 @@ export const Sequence: React.FC<SequenceProps> = ({
 		);
 	}
 
+	// @ts-expect-error
+	if (layout === 'none' && typeof other.style !== 'undefined') {
+		throw new TypeError('If layout="none", you may not pass a style.');
+	}
+
 	if (typeof durationInFrames !== 'number') {
 		throw new TypeError(
 			`You passed to durationInFrames an argument of type ${typeof durationInFrames}, but it must be a number.`
