@@ -36,6 +36,7 @@ if (alias !== 'alias') {
 
 export const Index: React.FC = () => {
 	const inputProps = getInputProps();
+	console.log(JSON.stringify({inputProps}));
 	return (
 		<>
 			<Folder name="components">

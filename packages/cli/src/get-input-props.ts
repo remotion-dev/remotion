@@ -4,7 +4,7 @@ import path from 'path';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 
-export const getInputProps = (): object => {
+export const getInputProps = (onUpdate: (newProps: object) => void): object => {
 	if (!parsedCli.props) {
 		return {};
 	}
@@ -13,6 +13,10 @@ export const getInputProps = (): object => {
 	try {
 		if (fs.existsSync(jsonFile)) {
 			const rawJsonData = fs.readFileSync(jsonFile, 'utf-8');
+
+			fs.watchFile(jsonFile, {interval: 100}, () => {
+				onUpdate(JSON.parse(fs.readFileSync(jsonFile, 'utf-8')));
+			});
 			return JSON.parse(rawJsonData);
 		}
 
