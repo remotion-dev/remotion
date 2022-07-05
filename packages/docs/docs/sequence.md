@@ -11,9 +11,7 @@ const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
 ```
 
-Sequences are small individual sections in finite time that make up your video clip. By using a sequence, you can time-shift the display of your components or parts of your animation in the video.
-
-_For example, in a video trailer composed of an intro, a video clip and an outro, each part of it will be a Sequence, as each represents a sub-part of the video that should be displayed with a time-shift. (The intro should be displayed at the beginning plus disappear, same for the outro at the end...)_
+By using a sequence, you can time-shift the display of your components or parts of your animation in the video.
 
 ```tsx twoslash
 import { Sequence } from "remotion";
@@ -27,7 +25,7 @@ export const Outro = () => <></>;
 const MyTrailer = () => {
   return (
     <>
-      <Sequence from={0}>
+      <Sequence from={0} durationInFrames={10}>
         <Intro />
       </Sequence>
       <Sequence from={10}>
@@ -41,7 +39,11 @@ const MyTrailer = () => {
 };
 ```
 
-Sequences usually appear as subparts of a composition, they are also displayed on the timeline on the Remotion development interface and help you to visually understand the structure of your video.
+All child components inside a `<Sequence>` will have their value of [`useCurrentFrame()`](/docs/usecurrentframe) shifted by the `from` value.
+
+Using the `durationInFrames` prop, you can define for how long the children of a `<Sequence>` should be mounted....
+
+By default, the children of a `<Sequence>` are wrapped in an [`<AbsoluteFill>`](/docs/absolutefill) component. If you don't want this behavior, add `layout="none"` as a prop.
 
 ## Props
 
@@ -73,7 +75,9 @@ Either `"absolute-fill"` _(default)_ or `"none"` By default, your sequences will
 
 ### `style`
 
-CSS styles in React `style` notation to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
+_optional_
+
+CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
 
 ## Cascading
 
