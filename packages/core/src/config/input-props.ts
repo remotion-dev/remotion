@@ -16,26 +16,25 @@ const warnOnceSSRImport = () => {
 };
 
 export const getInputProps = () => {
-	if (getRemotionEnvironment() === 'rendering') {
-		if (typeof window === 'undefined') {
-			warnOnceSSRImport();
-			return {};
-		}
-
-		const param = window.remotion_inputProps;
-		if (!param) {
-			return {};
-		}
-
-		const parsed = JSON.parse(param);
-		return parsed;
+	if (typeof window === 'undefined') {
+		warnOnceSSRImport();
+		return {};
 	}
 
-	if (getRemotionEnvironment() === 'preview') {
-		return process.env.INPUT_PROPS as unknown as object | null;
+	if (
+		getRemotionEnvironment() === 'player-development' ||
+		getRemotionEnvironment() === 'player-production'
+	) {
+		throw new Error(
+			'You cannot call `getInputProps()` from a <Player>. Instead, the props are available as React props from component that you passed as `component` prop.'
+		);
 	}
 
-	throw new Error(
-		'You cannot call `getInputProps()` from a <Player>. Instead, the props are available as React props from component that you passed as `component` prop.'
-	);
+	const param = window.remotion_inputProps;
+	if (!param) {
+		return {};
+	}
+
+	const parsed = JSON.parse(param);
+	return parsed;
 };
