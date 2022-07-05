@@ -238,7 +238,7 @@ export const getCliOptions = async (options: {
 		shouldOutputImageSequence,
 		codec,
 		overwrite: Internals.getShouldOverwrite(),
-		inputProps: getInputProps(),
+		inputProps: getInputProps(() => undefined),
 		envVariables: await getEnvironmentVariables(),
 		quality: Internals.getQuality(),
 		absoluteOutputFile: outputFile

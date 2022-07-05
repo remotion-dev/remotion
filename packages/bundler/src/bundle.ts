@@ -63,7 +63,6 @@ export const bundle = async (
 			maxTimelineTracks: 15,
 			// For production, the variables are set dynamically
 			envVariables: {},
-			inputProps: {},
 			entryPoints: [],
 		}),
 	]);
@@ -89,7 +88,7 @@ export const bundle = async (
 		await copyDir(from, to);
 	}
 
-	const html = indexHtml(publicDir, baseDir, null);
+	const html = indexHtml(publicDir, baseDir, null, null);
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 
 	return outDir;
