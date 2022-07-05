@@ -18,7 +18,7 @@ import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import {Scripts} from './Scripts';
 import {SkipZeroFrame} from './SkipZeroFrame';
-import {BaseSpring} from './Spring/base-spring';
+import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
 import {TenFrameTester} from './TenFrameTester';
@@ -85,6 +85,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="base-spring"
 					component={BaseSpring}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+				/>
+				<Composition
+					id="spring-with-duration"
+					component={SpringWithDuration}
 					width={1080}
 					height={1080}
 					fps={30}
