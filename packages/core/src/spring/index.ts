@@ -25,7 +25,7 @@ export function spring({
 	from = 0,
 	to = 1,
 	durationInFrames,
-	durationThreshold,
+	durationRestThreshold,
 }: {
 	frame: number;
 	fps: number;
@@ -33,14 +33,22 @@ export function spring({
 	from?: number;
 	to?: number;
 	durationInFrames?: number;
-	durationThreshold?: number;
+	durationRestThreshold?: number;
 }): number {
 	validateSpringDuration(durationInFrames);
+
 	const durationRatio =
 		durationInFrames === undefined
 			? 1
 			: durationInFrames /
-			  measureSpring({fps, config, from, to, threshold: durationThreshold});
+			  measureSpring({
+					fps,
+					config,
+					from,
+					to,
+					threshold: durationRestThreshold,
+			  });
+
 	const spr = springCalculation({
 		fps,
 		frame: frame / durationRatio,
