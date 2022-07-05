@@ -74,7 +74,7 @@ Determines whether the animation can shoot over the `to` value. If set to true, 
 
 ### durationInFrames
 
-_Available from v3.0.26_
+_Available from v3.0.27_
 
 Stretches the animation curve so it is exactly as long as you specify.
 
