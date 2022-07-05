@@ -39,11 +39,11 @@ const MyTrailer = () => {
 };
 ```
 
-All child components inside a `<Sequence>` will have their value of [`useCurrentFrame()`](/docs/usecurrentframe) shifted by the `from` value.
+All child components inside a `<Sequence>` will have their value of [`useCurrentFrame()`](/docs/use-current-frame) shifted by the `from` value.
 
 Using the `durationInFrames` prop, you can define for how long the children of a `<Sequence>` should be mounted....
 
-By default, the children of a `<Sequence>` are wrapped in an [`<AbsoluteFill>`](/docs/absolutefill) component. If you don't want this behavior, add `layout="none"` as a prop.
+By default, the children of a `<Sequence>` are wrapped in an [`<AbsoluteFill>`](/docs/absolute-fill) component. If you don't want this behavior, add `layout="none"` as a prop.
 
 ## Props
 
