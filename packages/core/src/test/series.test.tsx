@@ -100,7 +100,7 @@ test('Should allow layout prop', () => {
 		</Series>
 	);
 	expect(container.outerHTML).toBe(
-		'<div><div style="position: absolute; display: flex; width: 100%; height: 100%; top: 0px; bottom: 0px; left: 0px; right: 0px;"><div>first 0</div></div></div>'
+		'<div><div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; width: 100%; height: 100%; display: flex;"><div>first 0</div></div></div>'
 	);
 
 	const {container: withoutLayoutContainer} = renderForFrame(
