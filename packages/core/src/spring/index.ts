@@ -36,11 +36,11 @@ export function spring({
 	durationThreshold?: number;
 }): number {
 	validateSpringDuration(durationInFrames);
-	const durationRatio = durationInFrames
-		? durationInFrames /
-		  measureSpring({fps, config, from, to, threshold: durationThreshold})
-		: 1;
-
+	const durationRatio =
+		durationInFrames === undefined
+			? 1
+			: durationInFrames /
+			  measureSpring({fps, config, from, to, threshold: durationThreshold});
 	const spr = springCalculation({
 		fps,
 		frame: frame / durationRatio,
