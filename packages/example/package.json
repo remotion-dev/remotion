@@ -10,7 +10,7 @@
 		"dist"
 	],
 	"scripts": {
-		"start": "remotion preview src/index.tsx",
+		"start": "remotion preview src/index.tsx --props src/my-props.json",
 		"start-js": "remotion preview src/entry.jsx",
 		"comps": "remotion compositions src/index.tsx",
 		"lint": "eslint src --ext ts,tsx,js,jsx",
