@@ -3,7 +3,8 @@ import path from 'path';
 export const indexHtml = (
 	staticHash: string,
 	baseDir: string,
-	editorName: string | null
+	editorName: string | null,
+	inputProps: object | null
 ) =>
 	`
 <!DOCTYPE html>
@@ -28,6 +29,14 @@ export const indexHtml = (
 			path.basename(process.cwd())
 		)};</script>
 		<script>window.remotion_cwd = ${JSON.stringify(process.cwd())};</script>
+		${
+			inputProps
+				? `		<script>window.remotion_inputProps = ${JSON.stringify(
+						JSON.stringify(inputProps)
+				  )};</script>
+			`
+				: ''
+		}
 		
 		<div id="container"></div>
 		<div id="menuportal-0"></div>
