@@ -4,9 +4,7 @@
 		"composite": true,
 		"rootDir": "src",
 		"outDir": "dist",
-		"typeRoots": ["./node_modules/@types/", "./types/"],
 		"paths": {
-			"mime-types": ["./types/mime-types"],
 			"ws": ["./types/ws"]
 		}
 	},

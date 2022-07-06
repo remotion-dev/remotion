@@ -4,7 +4,7 @@ import {createReadStream, promises} from 'fs';
 import type {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';
 import url from 'url';
-import {contentType} from '../mime-types';
+import {mimeContentType} from '../mime-types';
 // Packages
 import {isPathInside} from './is-path-inside';
 import {rangeParser} from './range-parser';
@@ -22,7 +22,7 @@ const getHeaders = (absolutePath: string, stats: Stats | null) => {
 
 		defaultHeaders['Last-Modified'] = stats.mtime.toUTCString();
 
-		const _contentType = contentType(base);
+		const _contentType = mimeContentType(base);
 
 		if (_contentType) {
 			defaultHeaders['Content-Type'] = _contentType;

@@ -1,5 +1,4 @@
 import execa from 'execa';
-import mime from 'mime-types';
 import {downloadFile} from './assets/download-file';
 import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
@@ -18,6 +17,7 @@ import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
 import {getDesiredPort} from './get-port';
 import {isServeUrl} from './is-serve-url';
+import {mimeContentType, mimeLookup} from './mime-types';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {killAllBrowsers} from './open-browser';
 import {parseStack} from './parse-browser-error-stack';
@@ -82,9 +82,10 @@ export const RenderInternals = {
 	getDurationFromFrameRange,
 	getExtensionOfFilename,
 	getDesiredPort,
-	mime,
 	isPathInside,
 	execa,
 	registerErrorSymbolicationLock,
 	unlockErrorSymbolicationLock,
+	mimeContentType,
+	mimeLookup,
 };
