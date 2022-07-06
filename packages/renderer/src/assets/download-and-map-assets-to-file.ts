@@ -25,7 +25,7 @@ const hasBeenDownloadedMap: {
 } = {};
 const listeners: {[key: string]: {[downloadDir: string]: (() => void)[]}} = {};
 
-export const waitForAssetToBeDownloaded = ({
+const waitForAssetToBeDownloaded = ({
 	src,
 	downloadDir,
 }: {
@@ -220,7 +220,7 @@ export const markAllAssetsAsDownloaded = () => {
 	});
 };
 
-export const getFilename = ({
+const getFilename = ({
 	contentDisposition,
 	src,
 }: {

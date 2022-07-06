@@ -239,7 +239,7 @@ export interface CallFrame {
 	columnNumber: number;
 }
 
-export interface StackTraceId {
+interface StackTraceId {
 	id: string;
 	debuggerId?: string;
 }
@@ -329,7 +329,7 @@ export interface CallFunctionOnResponse {
 	exceptionDetails?: ExceptionDetails;
 }
 
-export type ExecutionContextId = number;
+type ExecutionContextId = number;
 
 export interface EvaluateResponse {
 	/**
@@ -360,8 +360,8 @@ export interface FrameTree {
 	childFrames?: FrameTree[];
 }
 
-export type FrameId = string;
-export type LoaderId = string;
+type FrameId = string;
+type LoaderId = string;
 
 export interface Frame {
 	/**
@@ -497,7 +497,7 @@ export interface AttachedToTargetEvent {
 	waitingForDebugger: boolean;
 }
 
-export type SessionID = string;
+type SessionID = string;
 
 export interface DetachedFromTargetEvent {
 	/**
@@ -545,7 +545,7 @@ export interface AddScriptToEvaluateOnNewDocumentResponse {
 	identifier: ScriptIdentifier;
 }
 
-export type ScriptIdentifier = string;
+type ScriptIdentifier = string;
 
 export interface CreateIsolatedWorldRequest {
 	/**
@@ -674,7 +674,7 @@ export interface RequestWillBeSentEvent {
 	hasUserGesture?: boolean;
 }
 
-export interface Initiator {
+interface Initiator {
 	/**
 	 * Type of this initiator. (InitiatorType enum)
 	 */
@@ -709,7 +709,7 @@ export interface Initiator {
 	requestId?: RequestId;
 }
 
-export type ResourceType =
+type ResourceType =
 	| 'Document'
 	| 'Stylesheet'
 	| 'Image'
@@ -728,7 +728,7 @@ export type ResourceType =
 	| 'Preflight'
 	| 'Other';
 
-export type RequestId = string;
+type RequestId = string;
 
 export interface ActivateTargetRequest {
 	targetId: TargetID;
@@ -741,7 +741,7 @@ export interface SetDefaultBackgroundColorOverrideRequest {
 	color?: RGBA;
 }
 
-export interface RGBA {
+interface RGBA {
 	/**
 	 * The red component, in the [0-255] range.
 	 */
@@ -864,7 +864,7 @@ export interface ResponseReceivedExtraInfoEvent {
 	headersText?: string;
 }
 
-export interface Request {
+interface Request {
 	/**
 	 * Request URL (without fragment).
 	 */
@@ -1122,7 +1122,7 @@ export interface SetDeviceMetricsOverrideRequest {
 	displayFeature?: DisplayFeature;
 }
 
-export interface DisplayFeature {
+interface DisplayFeature {
 	/**
 	 * Orientation of a display feature in relation to screen (DisplayFeatureOrientation enum)
 	 */
@@ -1147,7 +1147,7 @@ export interface EntryAddedEvent {
 	entry: LogEntry;
 }
 
-export interface LogEntry {
+interface LogEntry {
 	/**
 	 * Log entry source. (LogEntrySource enum)
 	 */
@@ -1207,26 +1207,6 @@ export interface LogEntry {
 	args?: DevtoolsRemoteObject[];
 }
 
-export const enum ConsoleAPICalledEventType {
-	Log = 'log',
-	Debug = 'debug',
-	Info = 'info',
-	Error = 'error',
-	Warning = 'warning',
-	Dir = 'dir',
-	DirXML = 'dirxml',
-	Table = 'table',
-	Trace = 'trace',
-	Clear = 'clear',
-	StartGroup = 'startGroup',
-	StartGroupCollapsed = 'startGroupCollapsed',
-	EndGroup = 'endGroup',
-	Assert = 'assert',
-	Profile = 'profile',
-	ProfileEnd = 'profileEnd',
-	Count = 'count',
-	TimeEnd = 'timeEnd',
-}
 export interface ConsoleAPICalledEvent {
 	/**
 	 * Type of the call. (ConsoleAPICalledEventType enum)
@@ -1285,7 +1265,7 @@ export interface BindingCalledEvent {
 	executionContextId: ExecutionContextId;
 }
 
-export interface ScreenOrientation {
+interface ScreenOrientation {
 	/**
 	 * Orientation type. (ScreenOrientationType enum)
 	 */

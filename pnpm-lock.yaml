@@ -201,7 +201,7 @@ importers:
       react-dom: 18.0.0_react@18.0.0
       react-test-renderer: 18.2.0_react@18.0.0
       rimraf: 3.0.2
-      ts-jest: 27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm
+      ts-jest: 27.0.5_f7drhotxik6wwmizpivq74sxca
       typescript: 4.7.2
       webpack: 5.72.0
 
@@ -710,7 +710,6 @@ importers:
       execa: 5.1.1
       extract-zip: 2.0.1
       jest: ^27.2.4
-      mime-types: 2.1.35
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
@@ -723,7 +722,6 @@ importers:
     dependencies:
       execa: 5.1.1
       extract-zip: 2.0.1
-      mime-types: 2.1.35
       remotion: link:../core
       source-map: 0.8.0-beta.0
       ws: 8.7.0
@@ -742,7 +740,7 @@ importers:
       prettier-plugin-organize-imports: 2.3.4_pxx7xhvr2bexxfjjff3nukai7m
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
-      ts-jest: 27.0.5_f7drhotxik6wwmizpivq74sxca
+      ts-jest: 27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm
       typescript: 4.7.2
 
   packages/three:
