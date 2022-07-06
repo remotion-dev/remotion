@@ -14,8 +14,17 @@
  * limitations under the License.
  */
 
-import type {Protocol} from 'devtools-protocol';
-import type {ProtocolMapping} from 'devtools-protocol/types/protocol-mapping';
+import type {Commands} from './devtools-commands';
+import type {
+	LoadingFailedEvent,
+	LoadingFinishedEvent,
+	RequestPausedEvent,
+	RequestServedFromCacheEvent,
+	RequestWillBeSentEvent,
+	Response,
+	ResponseReceivedEvent,
+	ResponseReceivedExtraInfoEvent,
+} from './devtools-types';
 import {EventEmitter} from './EventEmitter';
 import type {Frame} from './FrameManager';
 import {HTTPRequest} from './HTTPRequest';
@@ -28,10 +37,10 @@ export const NetworkManagerEmittedEvents = {
 } as const;
 
 interface CDPSession extends EventEmitter {
-	send<T extends keyof ProtocolMapping.Commands>(
+	send<T extends keyof Commands>(
 		method: T,
-		...paramArgs: ProtocolMapping.Commands[T]['paramsType']
-	): Promise<ProtocolMapping.Commands[T]['returnType']>;
+		...paramArgs: Commands[T]['paramsType']
+	): Promise<Commands[T]['returnType']>;
 }
 
 interface FrameManager {
@@ -48,7 +57,6 @@ export class NetworkManager extends EventEmitter {
 		this.#frameManager = frameManager;
 
 		this.#client.on('Fetch.requestPaused', this.#onRequestPaused.bind(this));
-		this.#client.on('Fetch.authRequired', this.#onAuthRequired.bind(this));
 		this.#client.on(
 			'Network.requestWillBeSent',
 			this.#onRequestWillBeSent.bind(this)
@@ -80,24 +88,8 @@ export class NetworkManager extends EventEmitter {
 		return this.#networkEventManager.numRequestsInProgress();
 	}
 
-	#onRequestWillBeSent(event: Protocol.Network.RequestWillBeSentEvent): void {
+	#onRequestWillBeSent(event: RequestWillBeSentEvent): void {
 		this.#onRequest(event, undefined);
-	}
-
-	#onAuthRequired(event: Protocol.Fetch.AuthRequiredEvent): void {
-		type AuthResponse = 'Default' | 'CancelAuth' | 'ProvideCredentials';
-		const response: AuthResponse = 'Default';
-
-		const {username, password} = {
-			username: undefined,
-			password: undefined,
-		};
-		this.#client
-			.send('Fetch.continueWithAuth', {
-				requestId: event.requestId,
-				authChallengeResponse: {response, username, password},
-			})
-			.catch(() => undefined);
 	}
 
 	/**
@@ -107,7 +99,7 @@ export class NetworkManager extends EventEmitter {
 	 * CDP may send multiple Fetch.requestPaused
 	 * for the same Network.requestWillBeSent.
 	 */
-	#onRequestPaused(event: Protocol.Fetch.RequestPausedEvent): void {
+	#onRequestPaused(event: RequestPausedEvent): void {
 		const {networkId: networkRequestId, requestId: fetchRequestId} = event;
 
 		if (!networkRequestId) {
@@ -140,8 +132,8 @@ export class NetworkManager extends EventEmitter {
 	}
 
 	#patchRequestEventHeaders(
-		requestWillBeSentEvent: Protocol.Network.RequestWillBeSentEvent,
-		requestPausedEvent: Protocol.Fetch.RequestPausedEvent
+		requestWillBeSentEvent: RequestWillBeSentEvent,
+		requestPausedEvent: RequestPausedEvent
 	): void {
 		requestWillBeSentEvent.request.headers = {
 			...requestWillBeSentEvent.request.headers,
@@ -151,7 +143,7 @@ export class NetworkManager extends EventEmitter {
 	}
 
 	#onRequest(
-		event: Protocol.Network.RequestWillBeSentEvent,
+		event: RequestWillBeSentEvent,
 		fetchRequestId?: FetchRequestId
 	): void {
 		if (event.redirectResponse) {
@@ -197,9 +189,7 @@ export class NetworkManager extends EventEmitter {
 		this.emit(NetworkManagerEmittedEvents.Request, request);
 	}
 
-	#onRequestServedFromCache(
-		event: Protocol.Network.RequestServedFromCacheEvent
-	): void {
+	#onRequestServedFromCache(event: RequestServedFromCacheEvent): void {
 		const request = this.#networkEventManager.getRequest(event.requestId);
 		if (request) {
 			request._fromMemoryCache = true;
@@ -208,8 +198,8 @@ export class NetworkManager extends EventEmitter {
 
 	#handleRequestRedirect(
 		request: HTTPRequest,
-		responsePayload: Protocol.Network.Response,
-		extraInfo: Protocol.Network.ResponseReceivedExtraInfoEvent | null
+		responsePayload: Response,
+		extraInfo: ResponseReceivedExtraInfoEvent | null
 	): void {
 		const response = new HTTPResponse(responsePayload, extraInfo);
 		request._response = response;
@@ -217,8 +207,8 @@ export class NetworkManager extends EventEmitter {
 	}
 
 	#emitResponseEvent(
-		responseReceived: Protocol.Network.ResponseReceivedEvent,
-		extraInfo: Protocol.Network.ResponseReceivedExtraInfoEvent | null
+		responseReceived: ResponseReceivedEvent,
+		extraInfo: ResponseReceivedExtraInfoEvent | null
 	): void {
 		const request = this.#networkEventManager.getRequest(
 			responseReceived.requestId
@@ -244,7 +234,7 @@ export class NetworkManager extends EventEmitter {
 		request._response = response;
 	}
 
-	#onResponseReceived(event: Protocol.Network.ResponseReceivedEvent): void {
+	#onResponseReceived(event: ResponseReceivedEvent): void {
 		const request = this.#networkEventManager.getRequest(event.requestId);
 		let extraInfo = null;
 		if (request && !request._fromMemoryCache && event.hasExtraInfo) {
@@ -263,9 +253,7 @@ export class NetworkManager extends EventEmitter {
 		this.#emitResponseEvent(event, extraInfo);
 	}
 
-	#onResponseReceivedExtraInfo(
-		event: Protocol.Network.ResponseReceivedExtraInfoEvent
-	): void {
+	#onResponseReceivedExtraInfo(event: ResponseReceivedExtraInfoEvent): void {
 		// We may have skipped a redirect response/request pair due to waiting for
 		// this ExtraInfo event. If so, continue that work now that we have the
 		// request.
@@ -311,7 +299,7 @@ export class NetworkManager extends EventEmitter {
 		}
 	}
 
-	#onLoadingFinished(event: Protocol.Network.LoadingFinishedEvent): void {
+	#onLoadingFinished(event: LoadingFinishedEvent): void {
 		// If the response event for this request is still waiting on a
 		// corresponding ExtraInfo event, then wait to emit this event too.
 		const queuedEvents = this.#networkEventManager.getQueuedEventGroup(
@@ -324,7 +312,7 @@ export class NetworkManager extends EventEmitter {
 		}
 	}
 
-	#emitLoadingFinished(event: Protocol.Network.LoadingFinishedEvent): void {
+	#emitLoadingFinished(event: LoadingFinishedEvent): void {
 		const request = this.#networkEventManager.getRequest(event.requestId);
 		// For certain requestIds we never receive requestWillBeSent event.
 		// @see https://crbug.com/750469
@@ -335,7 +323,7 @@ export class NetworkManager extends EventEmitter {
 		this.#forgetRequest(request, true);
 	}
 
-	#onLoadingFailed(event: Protocol.Network.LoadingFailedEvent): void {
+	#onLoadingFailed(event: LoadingFailedEvent): void {
 		// If the response event for this request is still waiting on a
 		// corresponding ExtraInfo event, then wait to emit this event too.
 		const queuedEvents = this.#networkEventManager.getQueuedEventGroup(
@@ -348,7 +336,7 @@ export class NetworkManager extends EventEmitter {
 		}
 	}
 
-	#emitLoadingFailed(event: Protocol.Network.LoadingFailedEvent): void {
+	#emitLoadingFailed(event: LoadingFailedEvent): void {
 		const request = this.#networkEventManager.getRequest(event.requestId);
 		// For certain requestIds we never receive requestWillBeSent event.
 		// @see https://crbug.com/750469

@@ -3,8 +3,12 @@
 	"compilerOptions": {
 		"composite": true,
 		"rootDir": "src",
-		"outDir": "dist"
+		"outDir": "dist",
+		"typeRoots": ["./node_modules/@types/", "./types/"],
+		"paths": {
+			"mime-types": ["./types/mime-types"],
+			"ws": ["./types/ws"]
+		}
 	},
-	"include": ["src"],
 	"references": [{"path": "../core"}, {"path": "../bundler"}]
 }
