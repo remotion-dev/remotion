@@ -20,7 +20,13 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const volumePropFrame = useFrameForVolumeProp();
 
-	const {volume, muted, playbackRate, ...nativeProps} = props;
+	const {
+		volume,
+		muted,
+		playbackRate,
+		onlyWarnForMediaSeekingError,
+		...nativeProps
+	} = props;
 
 	const actualVolume = useMediaTagVolume(videoRef);
 
@@ -48,7 +54,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		src: nativeProps.src,
 		mediaType: 'video',
 		playbackRate: props.playbackRate ?? 1,
-		onlyWarnForMediaSeekingError: props.onlyWarnForMediaSeekingError,
+		onlyWarnForMediaSeekingError,
 	});
 
 	useImperativeHandle(ref, () => {
