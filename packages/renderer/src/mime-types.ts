@@ -76,16 +76,39 @@ export function mimeContentType(str: string) {
 		return false;
 	}
 
-	let mime = str.indexOf('/') === -1 ? exports.lookup(str) : str;
+	let mime = str.indexOf('/') === -1 ? mimeLookup(str) : str;
 
 	if (!mime) {
 		return false;
 	}
 
 	if (mime.indexOf('charset') === -1) {
-		const _charset = exports.charset(mime);
+		const _charset = charset(mime);
 		if (_charset) mime += '; charset=' + _charset.toLowerCase();
 	}
 
 	return mime;
+}
+
+const EXTRACT_TYPE_REGEXP = /^\s*([^;\s]*)(?:;|\s|$)/;
+const TEXT_TYPE_REGEXP = /^text\//i;
+
+function charset(type: string) {
+	if (!type || typeof type !== 'string') {
+		return false;
+	}
+
+	const match = EXTRACT_TYPE_REGEXP.exec(type);
+	const mime = match && mimeDb[match[1].toLowerCase()];
+
+	if (mime?.charset) {
+		return mime.charset;
+	}
+
+	// default text/* to utf-8
+	if (match && TEXT_TYPE_REGEXP.test(match[1])) {
+		return 'UTF-8';
+	}
+
+	return false;
 }
