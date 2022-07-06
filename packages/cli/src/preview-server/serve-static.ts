@@ -66,7 +66,7 @@ export const serveStatic = async function (
 		const readStream = createReadStream(path);
 		res.setHeader(
 			'content-type',
-			RenderInternals.mime.lookup(path) || 'application/octet-stream'
+			RenderInternals.mimeLookup(path) || 'application/octet-stream'
 		);
 		res.setHeader('content-length', lstat.size);
 		res.writeHead(200);
@@ -81,7 +81,7 @@ export const serveStatic = async function (
 
 		res.setHeader(
 			'content-type',
-			RenderInternals.mime.lookup(path) || 'application/octet-stream'
+			RenderInternals.mimeLookup(path) || 'application/octet-stream'
 		);
 		res.setHeader(
 			'content-range',

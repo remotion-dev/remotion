@@ -191,7 +191,7 @@ export function middleware(context: DevMiddlewareContext) {
 
 			if (!res.getHeader('Content-Type')) {
 				// content-type name(like application/javascript; charset=utf-8) or false
-				const contentType = RenderInternals.mime.contentType(
+				const contentType = RenderInternals.mimeContentType(
 					path.extname(filename)
 				);
 

@@ -1,9 +1,33 @@
+import {extname} from 'path';
 import {mimeDb} from './mime-db';
 
 const extensions: Record<string, string[]> = {};
+const types: Record<string, string> = {};
 
 // Populate the extensions/types maps
 populateMaps(extensions, {});
+
+export function mimeLookup(path: string) {
+	if (!path || typeof path !== 'string') {
+		return false;
+	}
+
+	// get the extension ("ext" or ".ext" or full path)
+	const ext = extname('x.' + path)
+		.toLowerCase()
+		.substr(1);
+
+	if (!ext) {
+		return false;
+	}
+
+	return types[ext] || false;
+}
+
+/**
+ * Populate the extensions and types maps.
+ * @private
+ */
 
 function populateMaps(
 	exts: Record<string, string[]>,
@@ -47,7 +71,7 @@ function populateMaps(
 	});
 }
 
-export function contentType(str: string) {
+export function mimeContentType(str: string) {
 	if (!str || typeof str !== 'string') {
 		return false;
 	}
