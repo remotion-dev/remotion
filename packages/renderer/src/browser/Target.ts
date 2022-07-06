@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import type {Protocol} from 'devtools-protocol';
 import type {Browser, BrowserContext} from './Browser';
 import type {CDPSession} from './Connection';
+import type {TargetInfo} from './devtools-types';
 import {Page} from './Page';
 import type {Viewport} from './PuppeteerViewport';
 
-const isPagetTarget = (target: Protocol.Target.TargetInfo): boolean => {
+const isPagetTarget = (target: TargetInfo): boolean => {
 	return (
 		target.type === 'page' ||
 		target.type === 'background_page' ||
@@ -30,7 +30,7 @@ const isPagetTarget = (target: Protocol.Target.TargetInfo): boolean => {
 
 export class Target {
 	#browserContext: BrowserContext;
-	#targetInfo: Protocol.Target.TargetInfo;
+	#targetInfo: TargetInfo;
 	#sessionFactory: () => Promise<CDPSession>;
 	#defaultViewport: Viewport;
 	#pagePromise?: Promise<Page>;
@@ -43,7 +43,7 @@ export class Target {
 	_targetId: string;
 
 	constructor(
-		targetInfo: Protocol.Target.TargetInfo,
+		targetInfo: TargetInfo,
 		browserContext: BrowserContext,
 		sessionFactory: () => Promise<CDPSession>,
 		defaultViewport: Viewport
@@ -84,7 +84,7 @@ export class Target {
 		return this.#sessionFactory();
 	}
 
-	_getTargetInfo(): Protocol.Target.TargetInfo {
+	_getTargetInfo(): TargetInfo {
 		return this.#targetInfo;
 	}
 
@@ -166,7 +166,7 @@ export class Target {
 		return this.browser()._targets.get(openerId);
 	}
 
-	_targetInfoChanged(targetInfo: Protocol.Target.TargetInfo): void {
+	_targetInfoChanged(targetInfo: TargetInfo): void {
 		this.#targetInfo = targetInfo;
 
 		if (
