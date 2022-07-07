@@ -5,9 +5,9 @@ import type {AwsRegion} from '../../pricing/aws-regions';
 import {getS3Client} from '../../shared/aws-clients';
 
 export type LambdaReadFileProgress = (progress: {
-	totalSize: number | null;
+	totalSize: number;
 	downloaded: number;
-	percent: number | null;
+	percent: number;
 }) => unknown;
 
 export const lambdaDownloadFileWithProgress = async ({
@@ -36,7 +36,14 @@ export const lambdaDownloadFileWithProgress = async ({
 
 	const {to, sizeInBytes} = await RenderInternals.downloadFile({
 		url: presigned,
-		onProgress,
+		onProgress: ({downloaded, percent, totalSize}) => {
+			// On Lambda, it should always be a number
+			onProgress({
+				downloaded,
+				percent: percent as number,
+				totalSize: totalSize as number,
+			});
+		},
 		to: () => outputPath,
 	});
 

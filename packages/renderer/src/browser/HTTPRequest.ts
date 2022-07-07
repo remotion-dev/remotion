@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type {Protocol} from 'devtools-protocol';
+import type {RequestWillBeSentEvent} from './devtools-types';
 import type {Frame} from './FrameManager';
 import type {HTTPResponse} from './HTTPResponse';
 
@@ -25,10 +25,7 @@ export class HTTPRequest {
 	#isNavigationRequest: boolean;
 	#frame: Frame | null;
 
-	constructor(
-		frame: Frame | null,
-		event: Protocol.Network.RequestWillBeSentEvent
-	) {
+	constructor(frame: Frame | null, event: RequestWillBeSentEvent) {
 		this._requestId = event.requestId;
 		this.#isNavigationRequest =
 			event.requestId === event.loaderId && event.type === 'Document';

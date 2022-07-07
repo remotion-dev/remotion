@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import type {Protocol} from 'devtools-protocol';
 import type {CDPSession} from './Connection';
+import type {DevtoolsRemoteObject} from './devtools-types';
 import type {EvaluateHandleFn, SerializableOrJSHandle} from './EvalTypes';
 import type {ExecutionContext} from './ExecutionContext';
 import {releaseObject, valueFromRemoteObject} from './util';
 
 export function _createJSHandle(
 	context: ExecutionContext,
-	remoteObject: Protocol.Runtime.RemoteObject
+	remoteObject: DevtoolsRemoteObject
 ): JSHandle {
 	const frame = context.frame();
 	if (remoteObject.subtype === 'node' && frame) {
@@ -36,13 +36,13 @@ export class JSHandle {
 	#client: CDPSession;
 	#disposed = false;
 	#context: ExecutionContext;
-	#remoteObject: Protocol.Runtime.RemoteObject;
+	#remoteObject: DevtoolsRemoteObject;
 
 	get _disposed(): boolean {
 		return this.#disposed;
 	}
 
-	get _remoteObject(): Protocol.Runtime.RemoteObject {
+	get _remoteObject(): DevtoolsRemoteObject {
 		return this.#remoteObject;
 	}
 
@@ -53,7 +53,7 @@ export class JSHandle {
 	constructor(
 		context: ExecutionContext,
 		client: CDPSession,
-		remoteObject: Protocol.Runtime.RemoteObject
+		remoteObject: DevtoolsRemoteObject
 	) {
 		this.#context = context;
 		this.#client = client;

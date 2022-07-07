@@ -16,8 +16,12 @@
  * limitations under the License.
  */
 
-import type {Protocol} from 'devtools-protocol';
 import type {CDPSession} from './Connection';
+import type {
+	CallArgument,
+	EvaluateResponse,
+	ExecutionContextDescription,
+} from './devtools-types';
 import type {DOMWorld} from './DOMWorld';
 import type {EvaluateHandleFn, SerializableOrJSHandle} from './EvalTypes';
 import type {Frame} from './FrameManager';
@@ -36,7 +40,7 @@ export class ExecutionContext {
 
 	constructor(
 		client: CDPSession,
-		contextPayload: Protocol.Runtime.ExecutionContextDescription,
+		contextPayload: ExecutionContextDescription,
 		world: DOMWorld
 	) {
 		this._client = client;
@@ -160,7 +164,7 @@ export class ExecutionContext {
 		function convertArgument(
 			this: ExecutionContext,
 			arg: unknown
-		): Protocol.Runtime.CallArgument {
+		): CallArgument {
 			if (typeof arg === 'bigint') {
 				// eslint-disable-line valid-typeof
 				return {unserializableValue: `${arg.toString()}n`};
@@ -210,7 +214,7 @@ export class ExecutionContext {
 			return {value: arg};
 		}
 
-		function rewriteError(error: Error): Protocol.Runtime.EvaluateResponse {
+		function rewriteError(error: Error): EvaluateResponse {
 			if (error.message.includes('Object reference chain is too long')) {
 				return {result: {type: 'undefined'}};
 			}
