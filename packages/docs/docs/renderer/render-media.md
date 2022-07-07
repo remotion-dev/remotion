@@ -225,9 +225,9 @@ const onDownload: RenderMediaOnDownload = (src) => {
     // percent and totalSize can be `null` if the downloaded resource
     // does not havea `Content-Length` header
     if (percent === null) {
-      console.log(`${Math.round(percent * 100)}% done)`);
-    } else {
       console.log(`${downloaded} bytes downloded`);
+    } else {
+      console.log(`${Math.round(percent * 100)}% done)`);
     }
   };
 };
