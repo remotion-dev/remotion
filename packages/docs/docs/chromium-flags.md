@@ -21,7 +21,7 @@ In [`getCompositions()`](/docs/renderer/get-compositions#disablewebsecurity), [`
 
 ### Via CLI flag
 
-Pass [`--disable-web-security`](/docs/cli#--disable-web-security) in one of the following commands: `remotion render`, `remotion still`, `remotion lambda render`, `remotion lambda still`.
+Pass [`--disable-web-security`](/docs/cli/render#--disable-web-security) in one of the following commands: `remotion render`, `remotion still`, `remotion lambda render`, `remotion lambda still`.
 
 ### Via config file
 
@@ -45,7 +45,7 @@ In [`getCompositions()`](/docs/renderer/get-compositions#ignorecertificateerrors
 
 ### Via CLI flag
 
-Pass [`--ignore-certificate-errors`](/docs/cli#--ignore-certificate-errors) in one of the following commands: `remotion render`, `remotion still`, `remotion lambda render`, `remotion lambda still`.
+Pass [`--ignore-certificate-errors`](/docs/cli/render#--ignore-certificate-errors) in one of the following commands: `remotion render`, `remotion still`, `remotion lambda render`, `remotion lambda still`.
 
 ### Via config file
 
@@ -69,7 +69,7 @@ In [`getCompositions()`](/docs/renderer/get-compositions#headless), [`renderStil
 
 ### Via CLI flag
 
-Pass [`--disable-headless`](/docs/cli#--disable-headless) in one of the following commands: `remotion render`, `remotion still`.
+Pass [`--disable-headless`](/docs/cli/render#--disable-headless) in one of the following commands: `remotion render`, `remotion still`.
 
 ### Via config file
 

@@ -154,7 +154,7 @@ You can [set a CRF in the config file using the `Config.Output.setCrf()`](/docs/
 
 _Applies only to `prores` codec_.
 
-For ProRes, there is no CRF option, but there are profiles which you can set using the [`--prores-profile` flag](/docs/cli#--prores-profile) or the [`setProResProfile`](/docs/config#setproresprofile) config file option.
+For ProRes, there is no CRF option, but there are profiles which you can set using the [`--prores-profile` flag](/docs/cli/render#--prores-profile) or the [`setProResProfile`](/docs/config#setproresprofile) config file option.
 
 <table>
   <tr>
