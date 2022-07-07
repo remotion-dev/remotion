@@ -16,6 +16,7 @@
 
 import type {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
+import type {Browser} from './Browser';
 import type {CDPSession} from './Connection';
 import type {ConsoleMessageType} from './ConsoleMessage';
 import {ConsoleMessage} from './ConsoleMessage';
@@ -64,9 +65,10 @@ export class Page extends EventEmitter {
 	static async _create(
 		client: CDPSession,
 		target: Target,
-		defaultViewport: Viewport
+		defaultViewport: Viewport,
+		browser: Browser
 	): Promise<Page> {
-		const page = new Page(client, target);
+		const page = new Page(client, target, browser);
 		await page.#initialize();
 		await page.setViewport(defaultViewport);
 
@@ -79,14 +81,16 @@ export class Page extends EventEmitter {
 	#timeoutSettings = new TimeoutSettings();
 	#frameManager: FrameManager;
 	#pageBindings = new Map<string, Function>();
+	browser: Browser;
 	screenshotTaskQueue: TaskQueue;
 
-	constructor(client: CDPSession, target: Target) {
+	constructor(client: CDPSession, target: Target, browser: Browser) {
 		super();
 		this.#client = client;
 		this.#target = target;
 		this.#frameManager = new FrameManager(client, this, this.#timeoutSettings);
 		this.screenshotTaskQueue = new TaskQueue();
+		this.browser = browser;
 
 		client.on(
 			'Target.attachedToTarget',
@@ -392,9 +396,10 @@ export class Page extends EventEmitter {
 	}
 
 	waitForFunction(
+		browser: Browser,
 		pageFunction: Function | string,
 		...args: SerializableOrJSHandle[]
 	): Promise<JSHandle> {
-		return this.mainFrame().waitForFunction(pageFunction, ...args);
+		return this.mainFrame().waitForFunction(browser, pageFunction, ...args);
 	}
 }

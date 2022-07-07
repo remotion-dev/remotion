@@ -13,6 +13,8 @@ import type {Privacy} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
+import type {LambdaCodec} from '../shared/validate-lambda-codec';
+import {validateLambdaCodec} from '../shared/validate-lambda-codec';
 import {validateServeUrl} from '../shared/validate-serveurl';
 
 export type RenderMediaOnLambdaInput = {
@@ -21,7 +23,7 @@ export type RenderMediaOnLambdaInput = {
 	serveUrl: string;
 	composition: string;
 	inputProps: unknown;
-	codec: 'gif' | 'h264-mkv' | 'mp3' | 'aac' | 'wav';
+	codec: LambdaCodec;
 	imageFormat: ImageFormat;
 	crf?: number | undefined;
 	envVariables?: Record<string, string>;
@@ -90,6 +92,7 @@ export const renderMediaOnLambda = async ({
 	loop,
 	everyNthFrame,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
+	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
 	validateFramesPerLambda(framesPerLambda ?? null);
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
@@ -101,7 +104,7 @@ export const renderMediaOnLambda = async ({
 			composition,
 			serveUrl: realServeUrl,
 			inputProps,
-			codec,
+			codec: actualCodec,
 			imageFormat,
 			crf,
 			envVariables,

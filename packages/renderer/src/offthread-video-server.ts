@@ -3,11 +3,7 @@ import type {FfmpegExecutable, OffthreadVideoImageFormat} from 'remotion';
 import {Internals} from 'remotion';
 import {URLSearchParams} from 'url';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import {
-	getSanitizedFilenameForAssetUrl,
-	startDownloadForSrc,
-	waitForAssetToBeDownloaded,
-} from './assets/download-and-map-assets-to-file';
+import {downloadAsset} from './assets/download-and-map-assets-to-file';
 import {extractFrameFromVideo} from './extract-frame-from-video';
 
 export const extractUrlAndSourceFromUrl = (url: string) => {
@@ -76,16 +72,8 @@ export const startOffthreadVideoServer = ({
 			`image/${imageFormat === 'jpeg' ? 'jpg' : 'png'}`
 		);
 
-		const to = getSanitizedFilenameForAssetUrl({downloadDir, src});
-
-		startDownloadForSrc({src, downloadDir, onDownload}).catch((err) => {
-			onError(
-				new Error(`Error while downloading asset: ${(err as Error).stack}`)
-			);
-		});
-
-		waitForAssetToBeDownloaded(src, to)
-			.then(() => {
+		downloadAsset({src, downloadDir, onDownload})
+			.then((to) => {
 				return extractFrameFromVideo({
 					time,
 					src: to,

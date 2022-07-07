@@ -30,6 +30,10 @@ import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
 import {validateFpsForGif} from './validate-fps-for-gif';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
+import {
+	registerErrorSymbolicationLock,
+	unlockErrorSymbolicationLock,
+} from './wait-for-symbolication-error-to-be-done';
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 export {BrowserLog} from './browser-log';
 export {combineVideos} from './combine-videos';
@@ -83,4 +87,6 @@ export const RenderInternals = {
 	mime,
 	isPathInside,
 	execa,
+	registerErrorSymbolicationLock,
+	unlockErrorSymbolicationLock,
 };

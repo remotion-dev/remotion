@@ -114,7 +114,9 @@ export const makeStitchingProgress = ({
 export type DownloadProgress = {
 	name: string;
 	id: number;
-	progress: number;
+	progress: number | null;
+	totalBytes: number | null;
+	downloaded: number;
 };
 
 export const makeRenderingAndStitchingProgress = ({

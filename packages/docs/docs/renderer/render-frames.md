@@ -75,7 +75,7 @@ const onFrameUpdate = (frame: number) => {
 
 ### `outputDir`
 
-A `string` specifying the directory (absolute path) to which frames should be saved. Pass `null` and a `onFrameBuffer` callback instead to get a `Buffer` of the frame rather than to write it to any location-
+A `string` specifying the directory (absolute path) to which frames should be saved. Pass `null` to this option and use the `onFrameBuffer` callback instead to get a `Buffer` of the frame rather than to write it to any location.
 
 ### `inputProps`
 

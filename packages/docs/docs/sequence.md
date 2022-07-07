@@ -11,9 +11,7 @@ const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
 ```
 
-Sequences are small individual sections in finite time that make up your video clip. By using a sequence, you can time-shift the display of your components or parts of your animation in the video.
-
-_For example, in a video trailer composed of an intro, a video clip and an outro, each part of it will be a Sequence, as each represents a sub-part of the video that should be displayed with a time-shift. (The intro should be displayed at the beginning plus disappear, same for the outro at the end...)_
+By using a sequence, you can time-shift the display of your components or parts of your animation in the video.
 
 ```tsx twoslash
 import { Sequence } from "remotion";
@@ -27,7 +25,7 @@ export const Outro = () => <></>;
 const MyTrailer = () => {
   return (
     <>
-      <Sequence from={0}>
+      <Sequence from={0} durationInFrames={10}>
         <Intro />
       </Sequence>
       <Sequence from={10}>
@@ -41,23 +39,50 @@ const MyTrailer = () => {
 };
 ```
 
-Sequences usually appear as subparts of a composition, they are also displayed on the timeline on the Remotion development interface and help you to visually understand the structure of your video.
+All child components inside a `<Sequence>` will have their value of [`useCurrentFrame()`](/docs/use-current-frame) shifted by the `from` value.
 
-## API
+Using the `durationInFrames` prop, you can define for how long the children of a `<Sequence>` should be mounted....
 
-The Sequence component is a high order component and accepts, besides it's children, the following props:
+By default, the children of a `<Sequence>` are wrapped in an [`<AbsoluteFill>`](/docs/absolute-fill) component. If you don't want this behavior, add `layout="none"` as a prop.
 
-- `from` _(required)_: At which frame it's children should assume the video starts. When the sequence is at `frame`, it's children are at frame `0`.
+## Props
 
-- `durationInFrames` _(optional)_: For how many frames the sequence should be displayed. Children are unmounted if they are not within the time range of display. By default it will be `Infinity` to avoid limit the duration of the sequence.
+The Sequence component is a high order component and accepts, besides children, the following props:
 
-- `name` _(optional)_: You can give your sequence a name and it will be shown as the label of the sequence in the timeline of the Remotion preview. This property is purely for helping you keep track of sequences in the timeline.
+### `from`
 
-- `layout`: _(optional)_: Either `"absolute-fill"` _(default)_ or `"none"` By default, your sequences will be absolutely positioned, so they will overlay each other. If you would like to opt out of it and handle layouting yourself, pass `layout="none"`. Available since v1.4.
+_required_
 
-:::info
-Good to know: You can nest sequences within each other and they will cascade. For example, a sequence that starts at frame 60 which is inside a sequence that starts at frame 30 will have it's children start at frame 90. However, nested sequences are not currently displayed in the timeline.
-:::
+At which frame it's children should assume the video starts. When the sequence is at `frame`, it's children are at frame `0`.
+
+### `durationInFrames`
+
+_optional_
+
+For how many frames the sequence should be displayed. Children are unmounted if they are not within the time range of display. By default it will be `Infinity` to avoid limit the duration of the sequence.
+
+### `name`
+
+_optional_
+
+You can give your sequence a name and it will be shown as the label of the sequence in the timeline of the Remotion preview. This property is purely for helping you keep track of sequences in the timeline.
+
+### `layout`
+
+_optional_
+
+Either `"absolute-fill"` _(default)_ or `"none"` By default, your sequences will be absolutely positioned, so they will overlay each other. If you would like to opt out of it and handle layouting yourself, pass `layout="none"`. Available since v1.4.
+
+### `style`
+
+_optional_
+
+CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
+
+## Cascading
+
+You can nest sequences within each other and they will cascade.  
+For example, a sequence that starts at frame 60 which is inside a sequence that starts at frame 30 will have it's children start at frame 90.
 
 ## Examples
 
