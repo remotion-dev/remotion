@@ -104,7 +104,9 @@ export const setPropsAndEnv = async ({
 		status !== 301 &&
 		status !== 302 &&
 		status !== 303 &&
-		status !== 304
+		status !== 304 &&
+		status !== 307 &&
+		status !== 308
 	) {
 		throw new Error(
 			`Error while getting compositions: Tried to go to ${urlToVisit} but the status code was ${status} instead of 200. Does the site you specified exist?`

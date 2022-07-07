@@ -61,7 +61,7 @@ class ChromeLauncher implements ProductLauncher {
 			handleSIGTERM = true,
 			handleSIGHUP = true,
 			defaultViewport,
-			timeout = 30000,
+			timeout = 60000,
 			debuggingPort,
 		} = options;
 

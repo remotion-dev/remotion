@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import type {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
 import type {Browser} from './Browser';
 import {BrowserEmittedEvents} from './Browser';
 import type {CDPSession} from './Connection';
+import type {DevtoolsRemoteObject, ExceptionDetails} from './devtools-types';
 import {TimeoutError} from './Errors';
 import type {CommonEventEmitter} from './EventEmitter';
 
 export function getExceptionMessage(
-	exceptionDetails: Protocol.Runtime.ExceptionDetails
+	exceptionDetails: ExceptionDetails
 ): string {
 	if (exceptionDetails.exception) {
 		return (
@@ -48,9 +48,7 @@ export function getExceptionMessage(
 	return message;
 }
 
-export function valueFromRemoteObject(
-	remoteObject: Protocol.Runtime.RemoteObject
-) {
+export function valueFromRemoteObject(remoteObject: DevtoolsRemoteObject) {
 	assert(!remoteObject.objectId, 'Cannot extract value when objectId is given');
 	if (remoteObject.unserializableValue) {
 		if (remoteObject.type === 'bigint' && typeof BigInt !== 'undefined') {
@@ -79,7 +77,7 @@ export function valueFromRemoteObject(
 
 export async function releaseObject(
 	client: CDPSession,
-	remoteObject: Protocol.Runtime.RemoteObject
+	remoteObject: DevtoolsRemoteObject
 ): Promise<void> {
 	if (!remoteObject.objectId) {
 		return;
