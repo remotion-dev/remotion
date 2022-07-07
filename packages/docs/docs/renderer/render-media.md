@@ -221,8 +221,14 @@ import { RenderMediaOnDownload } from "@remotion/renderer";
 
 const onDownload: RenderMediaOnDownload = (src) => {
   console.log(`Downloading ${src}...`);
-  return ({ percent }) => {
-    console.log(`${Math.round(percent * 100)}% done`);
+  return ({ percent, downloaded, totalSize }) => {
+    // percent and totalSize can be `null` if the downloaded resource
+    // does not havea `Content-Length` header
+    if (percent === null) {
+      console.log(`${Math.round(percent * 100)}% done)`);
+    } else {
+      console.log(`${downloaded} bytes downloded`);
+    }
   };
 };
 ```
