@@ -61,12 +61,6 @@ export const useMediaPlayback = ({
 		const isTime = mediaRef.current.currentTime;
 		const timeShift = Math.abs(shouldBeTime - isTime);
 		if (timeShift > 0.45 && !mediaRef.current.ended) {
-			console.log(
-				'Time has shifted by',
-				timeShift,
-				'sec. Fixing...',
-				`(isTime=${isTime},shouldBeTime=${shouldBeTime})`
-			);
 			// If scrubbing around, adjust timing
 			// or if time shift is bigger than 0.2sec
 			mediaRef.current.currentTime = shouldBeTime;
