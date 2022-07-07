@@ -1,0 +1,24 @@
+on:
+  push:
+    branches:
+      - main
+  release:
+    types: [edited, published]
+  workflow_dispatch:
+name: Publish latest release
+
+jobs:
+  post:
+    name: Post on Discord
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node_version }}
+      - name: Push changelog
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+        run: |
+          cd packages/discord-poster
+          node post.mjs
