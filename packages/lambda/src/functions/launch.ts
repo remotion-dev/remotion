@@ -160,7 +160,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			inputProps: params.inputProps,
 			renderId: params.renderId,
 			imageFormat: params.imageFormat,
-			codec: params.codec,
+			codec: params.codec === 'h264' ? 'h264-mkv' : params.codec,
 			crf: params.crf,
 			envVariables: params.envVariables,
 			pixelFormat: params.pixelFormat,

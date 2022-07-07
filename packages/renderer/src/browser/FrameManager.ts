@@ -16,6 +16,7 @@
 
 import type {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
+import type {Browser} from './Browser';
 import type {CDPSession} from './Connection';
 import {Connection} from './Connection';
 import {DOMWorld} from './DOMWorld';
@@ -638,10 +639,11 @@ export class Frame {
 	}
 
 	waitForFunction(
+		browser: Browser,
 		pageFunction: Function | string,
 		...args: SerializableOrJSHandle[]
 	): Promise<JSHandle> {
-		return this._mainWorld.waitForFunction(pageFunction, ...args);
+		return this._mainWorld.waitForFunction(browser, pageFunction, ...args);
 	}
 
 	_navigated(framePayload: Protocol.Page.Frame): void {

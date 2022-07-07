@@ -1,7 +1,7 @@
 import path from 'path';
 import {extractFrameFromVideo} from '../extract-frame-from-video';
 
-jest.setTimeout(30000);
+jest.setTimeout(90000);
 
 const src = path.join(
 	__dirname,

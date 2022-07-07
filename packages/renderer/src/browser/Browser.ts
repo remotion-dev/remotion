@@ -29,9 +29,10 @@ interface WaitForTargetOptions {
 	timeout?: number;
 }
 
-const enum BrowserEmittedEvents {
+export const enum BrowserEmittedEvents {
 	TargetChanged = 'targetchanged',
 	TargetCreated = 'targetcreated',
+	Closed = 'closed',
 }
 
 export class Browser extends EventEmitter {
@@ -220,7 +221,7 @@ export class Browser extends EventEmitter {
 			}
 
 			this.targets().forEach(check);
-			return await waitWithTimeout(targetPromise, 'target', timeout);
+			return await waitWithTimeout(targetPromise, 'target', timeout, this);
 		} finally {
 			this.off(BrowserEmittedEvents.TargetCreated, check);
 			this.off(BrowserEmittedEvents.TargetChanged, check);
@@ -249,6 +250,7 @@ export class Browser extends EventEmitter {
 	async close(): Promise<void> {
 		await this.#closeCallback.call(null);
 		this.disconnect();
+		this.emit(BrowserEmittedEvents.Closed);
 	}
 
 	disconnect(): void {
