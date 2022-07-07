@@ -34,7 +34,7 @@ import {
 	validateSelectedCrfAndCodecCombination,
 } from './config/crf';
 import {getDotEnvLocation} from './config/env-file';
-import {getEveryNthFrame} from './config/every-nth-frame';
+import {getAndValidateEveryNthFrame} from './config/every-nth-frame';
 import {
 	getCustomFfmpegExecutable,
 	getCustomFfprobeExecutable,
@@ -159,7 +159,7 @@ export const Internals = {
 	getOutputCodecOrUndefined,
 	getWebpackOverrideFn,
 	getQuality,
-	getEveryNthFrame,
+	getEveryNthFrame: getAndValidateEveryNthFrame,
 	getLoop,
 	getScale,
 	getShouldOutputImageSequence,

@@ -1,4 +1,5 @@
 import {validateEveryNthFrame} from '../validation/validate-every-nth-frame';
+import type {Codec} from './codec';
 
 let everyNthFrame = 1;
 
@@ -7,4 +8,16 @@ export const setEveryNthFrame = (frame: number) => {
 	everyNthFrame = frame;
 };
 
-export const getEveryNthFrame = () => everyNthFrame;
+export const getAndValidateEveryNthFrame = (codec: Codec) => {
+	if (everyNthFrame === 1) {
+		return everyNthFrame;
+	}
+
+	if (codec !== 'gif') {
+		throw new Error(
+			`"everyNthFrame" can only be set if "codec" is set to "gif"`
+		);
+	}
+
+	return everyNthFrame;
+};

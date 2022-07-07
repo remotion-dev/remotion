@@ -96,7 +96,7 @@ export const parseCommandLine = (
 	if (parsedCli.loop && parsedCli.codec === 'gif') {
 		Config.Rendering.setLoop(parsedCli.loop);
 	} else if (parsedCli.loop && parsedCli.codec !== 'gif') {
-		Log.error('--loop is olny valid for --codec=gif');
+		Log.error('--loop is only valid for --codec=gif');
 		process.exit(1);
 	}
 
@@ -120,17 +120,6 @@ export const parseCommandLine = (
 
 	if (parsedCli['disable-headless']) {
 		Config.Puppeteer.setChromiumHeadlessMode(false);
-	}
-
-	if (parsedCli['every-nth-frame'] && parsedCli.codec === 'gif') {
-		Config.Rendering.setEveryNthFrame(parsedCli['every-nth-frame']);
-	} else if (parsedCli['every-nth-frame'] && parsedCli.codec !== 'gif') {
-		Log.error('--every-nth-frame is olny valid for --codec=gif');
-		process.exit(1);
-	}
-
-	if (parsedCli.gl) {
-		Config.Puppeteer.setChromiumOpenGlRenderer(parsedCli.gl);
 	}
 
 	if (parsedCli.log) {
@@ -195,6 +184,14 @@ export const parseCommandLine = (
 
 	if (parsedCli.codec) {
 		Config.Output.setCodec(parsedCli.codec);
+	}
+
+	if (parsedCli['every-nth-frame']) {
+		Config.Rendering.setEveryNthFrame(parsedCli['every-nth-frame']);
+	}
+
+	if (parsedCli.gl) {
+		Config.Puppeteer.setChromiumOpenGlRenderer(parsedCli.gl);
 	}
 
 	if (parsedCli['prores-profile']) {
