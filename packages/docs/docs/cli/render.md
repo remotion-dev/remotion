@@ -79,6 +79,12 @@ Specify a location for a dotenv file. Default `.env`. Available in v2.2 and late
 
 [Render a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` to select the first 10 frames. To render a still, use the `still` command. Available since v2.0.
 
+### `--every-nth-frame`
+
+[Render only every nth frame.](/docs/config#seteverynthframe) This option may only be set when rendering GIFs. This allows you to lower the FPS of the GIF.
+
+For example, if the `fps` is 30, and `--every-nth-frame` is 2, the FPS of the GIF is `15`.
+
 ### `--bundle-cache`
 
 [Enable or disable Webpack caching](/docs/config#setcachingenabled). This flag is enabled by default, use `--bundle-cache=false` to disable caching. Available since v2.0.
