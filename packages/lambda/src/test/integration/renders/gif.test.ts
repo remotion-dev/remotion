@@ -37,7 +37,7 @@ test('Should make a distributed GIF', async () => {
 			composition: 'framer',
 			crf: 9,
 			envVariables: {},
-			frameRange: [0, 12],
+			frameRange: [0, 60],
 			framesPerLambda: 8,
 			imageFormat: 'png',
 			inputProps: {},
@@ -51,7 +51,7 @@ test('Should make a distributed GIF', async () => {
 			scale: 1,
 			timeoutInMilliseconds: 12000,
 			numberOfGifLoops: null,
-			everyNthFrame: 1,
+			everyNthFrame: 2,
 		},
 		extraContext
 	);
@@ -77,4 +77,4 @@ test('Should make a distributed GIF', async () => {
 	});
 	const probe = await RenderInternals.execa('ffprobe', ['gif.gif']);
 	expect(probe.stderr).toMatch(/Video: gif, bgra, 1080x1080/);
-});
+}, 90000);
