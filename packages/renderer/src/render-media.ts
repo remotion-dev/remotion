@@ -60,6 +60,7 @@ export type RenderMediaOptions = {
 	envVariables?: Record<string, string>;
 	quality?: number;
 	frameRange?: FrameRange | null;
+	// TODO: Make every nth frame optional
 	everyNthFrame: number;
 	// TODO: Make optional at the end
 	numberOfGifLoops: number | null;
