@@ -17,6 +17,7 @@ import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
 import type {Assets} from './assets/types';
+import {codecSupportsMedia} from './codec-supports-media';
 import {deleteDirectory} from './delete-directory';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
@@ -176,7 +177,8 @@ export const spawnFfmpeg = async (
 	const audioCodecName = getAudioCodecName(codec);
 	const proResProfileName = getProResProfileName(codec, options.proResProfile);
 
-	const isAudioOnly = encoderName === null;
+	const mediaSupport = codecSupportsMedia(codec);
+
 	const supportsCrf = encoderName && codec !== 'prores';
 
 	const tempFile = options.outputLocation
@@ -199,7 +201,10 @@ export const spawnFfmpeg = async (
 		}
 
 		console.log('[verbose] codec', codec);
-		console.log('[verbose] isAudioOnly', isAudioOnly);
+		console.log(
+			'[verbose] isAudioOnly',
+			mediaSupport.audio && !mediaSupport.video
+		);
 		console.log('[verbose] proResProfileName', proResProfileName);
 	}
 
@@ -214,20 +219,21 @@ export const spawnFfmpeg = async (
 		options.onProgress?.(Math.round(totalFrameProgress));
 	};
 
-	// TODO: Don't render audio if GIF
-	const audio = await getAssetsData({
-		assets: options.assetsInfo.assets,
-		downloadDir: options.assetsInfo.downloadDir,
-		onDownload: options.onDownload,
-		fps: options.fps,
-		expectedFrames,
-		verbose: options.verbose ?? false,
-		ffmpegExecutable: options.ffmpegExecutable ?? null,
-		ffprobeExecutable: options.ffprobeExecutable ?? null,
-		onProgress: (prog) => updateProgress(prog, 0),
-	});
+	const audio = mediaSupport.audio
+		? await getAssetsData({
+				assets: options.assetsInfo.assets,
+				downloadDir: options.assetsInfo.downloadDir,
+				onDownload: options.onDownload,
+				fps: options.fps,
+				expectedFrames,
+				verbose: options.verbose ?? false,
+				ffmpegExecutable: options.ffmpegExecutable ?? null,
+				ffprobeExecutable: options.ffprobeExecutable ?? null,
+				onProgress: (prog) => updateProgress(prog, 0),
+		  })
+		: null;
 
-	if (isAudioOnly) {
+	if (mediaSupport.audio && !mediaSupport.video) {
 		if (!audioCodecName) {
 			throw new TypeError(
 				'exporting audio but has no audio codec name. Report this in the Remotion repo.'
@@ -270,7 +276,7 @@ export const spawnFfmpeg = async (
 					['-s', `${options.width}x${options.height}`],
 					['-i', options.assetsInfo.imageSequenceName],
 			  ]),
-		['-i', audio],
+		audio ? ['-i', audio] : null,
 		// TODO: Infinite loop
 		options.numberOfGifLoops === null
 			? null
