@@ -55,7 +55,7 @@ Callback function that gets called with the following properties:
 
 - `totalSize` in bytes
 - `downloaded` number of bytes downloaded
-- `progress` relative progress between 0 and 1
+- `percent` relative progress between 0 and 1
 
 ## Return value
 
