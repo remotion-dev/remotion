@@ -1,4 +1,5 @@
 import type {StitchingState} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import type {Codec} from 'remotion';
 import {Internals} from 'remotion';
 import {AnsiDiff} from './ansi/ansi-diff';
@@ -102,7 +103,7 @@ export const makeStitchingProgress = ({
 	return [
 		`(${steps.indexOf('stitching') + 1}/${steps.length})`,
 		makeProgressBar(progress),
-		stage === 'muxing'
+		stage === 'muxing' && RenderInternals.canUseParallelEncoding(codec)
 			? `${doneIn ? 'Muxed' : 'Muxing'} audio`
 			: `${doneIn ? 'Encoded' : 'Encoding'} ${
 					codec === 'gif' ? 'GIF' : 'video'

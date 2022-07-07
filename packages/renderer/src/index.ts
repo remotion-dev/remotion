@@ -1,6 +1,7 @@
 import execa from 'execa';
 import mime from 'mime-types';
 import {downloadFile} from './assets/download-file';
+import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
@@ -89,4 +90,5 @@ export const RenderInternals = {
 	execa,
 	registerErrorSymbolicationLock,
 	unlockErrorSymbolicationLock,
+	canUseParallelEncoding,
 };
