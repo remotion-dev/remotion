@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type {Protocol} from 'devtools-protocol';
+
+import type {Response, ResponseReceivedExtraInfoEvent} from './devtools-types';
 
 export class HTTPResponse {
 	#status: number;
 
 	constructor(
-		responsePayload: Protocol.Network.Response,
-		extraInfo: Protocol.Network.ResponseReceivedExtraInfoEvent | null
+		responsePayload: Response,
+		extraInfo: ResponseReceivedExtraInfoEvent | null
 	) {
 		this.#status = extraInfo ? extraInfo.statusCode : responsePayload.status;
 	}
