@@ -6,7 +6,7 @@
   "scripts": {
     "test": "turbo run lint test",
     "lint": "turbo run lint",
-    "build": "turbo run build --force",
+    "build": "turbo run build",
     "ci": "turbo run build lint test",
     "watch": "pnpm run --recursive --stream --parallel watch",
     "release": "lerna publish --force-publish",
