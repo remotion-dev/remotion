@@ -11,7 +11,7 @@ This package provides utilities useful for integrating [React Native Skia](https
 
 ## Installation
 
-Install both `@remotion/skia` as well as `@shopify/react-native-skia`.
+Install, `@remotion/skia` as well as `@shopify/react-native-skia` and `react-native-web`.
 
 <Tabs
 defaultValue="npm"
@@ -24,7 +24,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i @remotion/skia @shopify/react-native-skia
+npm i @remotion/skia @shopify/react-native-skia react-native-web
 ```
 
   </TabItem>
@@ -32,7 +32,7 @@ npm i @remotion/skia @shopify/react-native-skia
   <TabItem value="yarn">
 
 ```bash
-yarn add @remotion/skia @shopify/react-native-skia
+yarn add @remotion/skia @shopify/react-native-skia react-native-web
 ```
 
   </TabItem>
@@ -40,7 +40,7 @@ yarn add @remotion/skia @shopify/react-native-skia
   <TabItem value="pnpm">
 
 ```bash
-pnpm i @remotion/skia @shopify/react-native-skia
+pnpm i @remotion/skia @shopify/react-native-skia react-native-web
 ```
 
   </TabItem>
