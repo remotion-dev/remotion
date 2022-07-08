@@ -1,5 +1,6 @@
 import type { Template } from "create-video";
 import React, { useCallback, useMemo, useState } from "react";
+import { useMobileLayout } from "../helpers/mobile-layout";
 import { useElementSize } from "../helpers/use-el-size";
 import { CommandCopyButton } from "./CommandCopyButton";
 import { MuxVideo } from "./MuxVideo";
@@ -108,7 +109,7 @@ export const TemplateModalContent: React.FC<{
   const containerSize = useElementSize(
     typeof document === "undefined" ? null : document.body
   );
-  const mobileLayout = (containerSize?.width ?? Infinity) < 900;
+  const mobileLayout = useMobileLayout();
 
   const containerCss: React.CSSProperties = useMemo(() => {
     return {
