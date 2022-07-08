@@ -9,4 +9,5 @@ Using `continueRender`, you can unblock a rendering that has been deferred using
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/delay-render.ts)
 - [Data fetching](/docs/data-fetching)

@@ -15,9 +15,11 @@ export const injectCSS = (css: string) => {
 
 	style.appendChild(document.createTextNode(css));
 
-	head.appendChild(style);
+	head.prepend(style);
 	injected[css] = true;
 };
+
+export const OFFTHREAD_VIDEO_CLASS_NAME = '__remotion_offthreadvideo';
 
 export const makeDefaultCSS = (
 	scope: string | null,
@@ -32,6 +34,9 @@ export const makeDefaultCSS = (
       margin: 0;
 	    background-color: ${backgroundColor};
     }
+    .${OFFTHREAD_VIDEO_CLASS_NAME} {
+      object-fit: contain;
+    }
     `;
 	}
 
@@ -42,6 +47,9 @@ export const makeDefaultCSS = (
     ${scope} *:-webkit-full-screen {
       width: 100%;
       height: 100%;
+    }
+    ${scope} .${OFFTHREAD_VIDEO_CLASS_NAME} {
+      object-fit: contain;
     }
   `;
 };

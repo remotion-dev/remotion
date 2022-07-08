@@ -65,3 +65,7 @@ The amount of disk space allocated in megabytes.
 ## Return value
 
 The estimated cost in USD as a `number`.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/estimate-price.ts)

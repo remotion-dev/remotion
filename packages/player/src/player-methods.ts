@@ -1,5 +1,5 @@
-import {SyntheticEvent} from 'react';
-import {PlayerEmitter} from './event-emitter';
+import type {SyntheticEvent} from 'react';
+import type {PlayerEmitter} from './event-emitter';
 
 export type PlayerMethods = {
 	play: (e?: SyntheticEvent) => void;

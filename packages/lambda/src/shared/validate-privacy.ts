@@ -1,4 +1,4 @@
-import {Privacy} from './constants';
+import type {Privacy} from './constants';
 
 export function validatePrivacy(privacy: unknown): asserts privacy is Privacy {
 	if (typeof privacy !== 'string') {

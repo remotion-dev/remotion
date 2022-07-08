@@ -101,3 +101,7 @@ The full SDK JavaScript module for the service you specified.
 :::note
 You don't need to create a new client from the SDK and should instead reuse the `client` that is also returned and being used by Remotion, in order to save memory.
 :::
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/get-aws-client.ts)

@@ -1,3 +1,4 @@
+import execa from 'execa';
 import {downloadFile} from './assets/download-file';
 import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
@@ -14,10 +15,13 @@ import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
+import {getDesiredPort} from './get-port';
 import {isServeUrl} from './is-serve-url';
+import {mimeContentType, mimeLookup} from './mime-types';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {killAllBrowsers} from './open-browser';
 import {parseStack} from './parse-browser-error-stack';
+import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
 import {spawnFfmpeg} from './stitch-frames-to-video';
 import {tmpDir} from './tmp-dir';
@@ -25,6 +29,10 @@ import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-c
 import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
+import {
+	registerErrorSymbolicationLock,
+	unlockErrorSymbolicationLock,
+} from './wait-for-symbolication-error-to-be-done';
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 export {BrowserLog} from './browser-log';
 export {combineVideos} from './combine-videos';
@@ -73,4 +81,11 @@ export const RenderInternals = {
 	SymbolicateableError,
 	getDurationFromFrameRange,
 	getExtensionOfFilename,
+	getDesiredPort,
+	isPathInside,
+	execa,
+	registerErrorSymbolicationLock,
+	unlockErrorSymbolicationLock,
+	mimeContentType,
+	mimeLookup,
 };

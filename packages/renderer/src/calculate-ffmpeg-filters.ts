@@ -1,5 +1,5 @@
 import {flattenVolumeArray} from './assets/flatten-volume-array';
-import {MediaAsset} from './assets/types';
+import type {MediaAsset} from './assets/types';
 import {stringifyFfmpegFilter} from './stringify-ffmpeg-filter';
 
 export const calculateFfmpegFilter = ({
@@ -19,10 +19,9 @@ export const calculateFfmpegFilter = ({
 		return null;
 	}
 
-	const assetTrimLeft = asset.trimLeft / fps;
+	const assetTrimLeft = (asset.trimLeft * asset.playbackRate) / fps;
 	const assetTrimRight =
-		(asset.trimLeft + asset.duration * asset.playbackRate) / fps;
-
+		assetTrimLeft + (asset.duration * asset.playbackRate) / fps;
 	return stringifyFfmpegFilter({
 		channels,
 		startInVideo: asset.startInVideo,

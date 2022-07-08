@@ -1,4 +1,4 @@
-import {deleteFunction as original} from '../delete-function';
+import type {deleteFunction as original} from '../delete-function';
 import {deleteMockFunction} from '../mock-functions';
 
 export const deleteFunction: typeof original = ({region, functionName}) => {

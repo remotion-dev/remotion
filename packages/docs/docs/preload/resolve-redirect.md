@@ -59,6 +59,7 @@ const MyComp: React.FC = () => {
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/preload/src/resolve-redirect.ts)
 - [Installing `@remotion/preload`](/docs/preload)
 - [preloadAudio()](/docs/preload/preload-audio)
 - [preloadVideo()](/docs/preload/preload-video)

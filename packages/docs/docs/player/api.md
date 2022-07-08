@@ -472,3 +472,7 @@ const MyApp: React.FC = () => {
   );
 };
 ```
+
+## See also
+
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/player/src/Player.tsx)

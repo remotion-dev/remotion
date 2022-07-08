@@ -15,12 +15,13 @@ import {CompositionManager} from '../CompositionManager';
 import {continueRender, delayRender} from '../delay-render';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {random} from '../random';
-import {SequenceContext} from '../sequencing';
-import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
+import {SequenceContext} from '../Sequence';
+import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-current-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
+import {warnAboutNonSeekableMedia} from '../warn-about-non-seekable-media';
 import {getMediaTime} from './get-current-time';
-import {RemotionVideoProps} from './props';
+import type {RemotionVideoProps} from './props';
 
 const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
@@ -140,6 +141,11 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		videoRef.current.addEventListener(
 			'seeked',
 			() => {
+				warnAboutNonSeekableMedia(
+					videoRef.current as HTMLVideoElement,
+					'exception'
+				);
+
 				if (window.navigator.platform.startsWith('Mac')) {
 					// Improve me: This is ensures frame perfectness but slows down render.
 					// Please see this issue for context: https://github.com/remotion-dev/remotion/issues/200
@@ -170,7 +176,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 						`The browser threw an error while playing the video: ${videoRef.current?.error?.message}`
 					);
 				} else {
-					throw new Error('The browser threw an errir');
+					throw new Error('The browser threw an error');
 				}
 			},
 			{once: true}

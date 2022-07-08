@@ -1,12 +1,16 @@
 // OffthreadVideo requires sometimes that the last frame of a video gets extracted, however, this can be slow. We allocate a cache for it but that can be garbage collected
 
-import {FfmpegExecutable} from 'remotion';
+import type {FfmpegExecutable, OffthreadVideoImageFormat} from 'remotion';
+import type {SpecialVCodecForTransparency} from './get-video-info';
 
 export type LastFrameOptions = {
 	ffmpegExecutable: FfmpegExecutable;
 	ffprobeExecutable: FfmpegExecutable;
 	offset: number;
 	src: string;
+	specialVCodecForTransparency: SpecialVCodecForTransparency;
+	imageFormat: OffthreadVideoImageFormat;
+	needsResize: [number, number] | null;
 };
 
 let map: Record<string, {lastAccessed: number; data: Buffer}> = {};
@@ -16,7 +20,12 @@ const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
 let bufferSize = 0;
 
 const makeLastFrameCacheKey = (options: LastFrameOptions) => {
-	return [options.ffmpegExecutable, options.offset, options.src].join('-');
+	return [
+		options.ffmpegExecutable,
+		options.offset,
+		options.src,
+		options.imageFormat,
+	].join('-');
 };
 
 export const setLastFrameInCache = (
@@ -46,7 +55,7 @@ export const getLastFrameFromCache = (
 	return map[key].data ?? null;
 };
 
-export const removedLastFrameFromCache = (key: string) => {
+const removedLastFrameFromCache = (key: string) => {
 	if (!map[key]) {
 		return;
 	}
@@ -56,7 +65,7 @@ export const removedLastFrameFromCache = (key: string) => {
 	delete map[key];
 };
 
-export const ensureMaxSize = () => {
+const ensureMaxSize = () => {
 	// eslint-disable-next-line no-unmodified-loop-condition
 	while (bufferSize > MAX_CACHE_SIZE) {
 		const earliest = Object.entries(map).sort((a, b) => {

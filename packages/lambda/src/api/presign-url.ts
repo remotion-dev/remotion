@@ -1,6 +1,6 @@
 import {GetObjectCommand, HeadObjectCommand} from '@aws-sdk/client-s3';
 import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
-import {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
 import {validateBucketName} from '../shared/validate-bucketname';
 import {validatePresignExpiration} from '../shared/validate-presign-expiration';

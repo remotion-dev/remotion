@@ -6,7 +6,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
-import {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,

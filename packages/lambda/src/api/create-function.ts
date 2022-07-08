@@ -8,10 +8,10 @@ import {
 } from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
 import {LOG_GROUP_PREFIX} from '../defaults';
-import {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../pricing/aws-regions';
 import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';
 import {hostedLayers} from '../shared/hosted-layers';
-import {LambdaArchitecture} from '../shared/validate-architecture';
+import type {LambdaArchitecture} from '../shared/validate-architecture';
 import {ROLE_NAME} from './iam-validation/suggested-policy';
 
 export const createFunction = async ({

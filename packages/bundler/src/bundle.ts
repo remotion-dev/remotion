@@ -1,11 +1,12 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import {Internals, WebpackOverrideFn} from 'remotion';
+import type {WebpackOverrideFn} from 'remotion';
+import {Internals} from 'remotion';
 import {promisify} from 'util';
 import webpack from 'webpack';
 import {copyDir} from './copy-dir';
-import {indexHtml} from './static-preview';
+import {indexHtml} from './index-html';
 import {webpackConfig} from './webpack-config';
 
 const entry = require.resolve('./renderEntry');
@@ -62,7 +63,7 @@ export const bundle = async (
 			maxTimelineTracks: 15,
 			// For production, the variables are set dynamically
 			envVariables: {},
-			inputProps: {},
+			entryPoints: [],
 		}),
 	]);
 	if (!output) {
@@ -87,7 +88,7 @@ export const bundle = async (
 		await copyDir(from, to);
 	}
 
-	const html = indexHtml(publicDir, baseDir, null);
+	const html = indexHtml(publicDir, baseDir, null, null);
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 
 	return outDir;

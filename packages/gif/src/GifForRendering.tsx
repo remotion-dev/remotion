@@ -1,7 +1,7 @@
 import {Canvas, useParser} from '@react-gifs/tools';
 import {forwardRef, useState} from 'react';
 import {continueRender, delayRender} from 'remotion';
-import {GifState, RemotionGifProps} from './props';
+import type {GifState, RemotionGifProps} from './props';
 import {useCurrentGifIndex} from './useCurrentGifIndex';
 
 export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(

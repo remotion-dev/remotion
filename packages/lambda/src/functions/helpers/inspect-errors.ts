@@ -1,6 +1,6 @@
-import {_Object} from '@aws-sdk/client-s3';
+import type {_Object} from '@aws-sdk/client-s3';
 import {Internals} from 'remotion';
-import {AwsRegion} from '../../pricing/aws-regions';
+import type {AwsRegion} from '../../pricing/aws-regions';
 import {getErrorKeyPrefix} from '../../shared/constants';
 import {DOCS_URL} from '../../shared/docs-url';
 import {streamToString} from '../../shared/stream-to-string';
@@ -10,7 +10,7 @@ import {
 	isBrowserCrashedError,
 	isErrInsufficientResourcesErr,
 } from './is-enosp-err';
-import {EnhancedErrorInfo, LambdaErrorInfo} from './write-lambda-error';
+import type {EnhancedErrorInfo, LambdaErrorInfo} from './write-lambda-error';
 
 const FAILED_TO_LAUNCH_TOKEN = 'Failed to launch browser.';
 

@@ -94,3 +94,25 @@ test("should fail on invalid CRF", async () => {
 
   await browserInstance.close();
 });
+
+test("Render video to a buffer", async () => {
+  const compositions = await getCompositions(
+    "https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/"
+  );
+
+  const reactSvg = compositions.find((c) => c.id === "react-svg");
+
+  if (!reactSvg) {
+    throw new Error("not found");
+  }
+
+  const buffer = await renderMedia({
+    codec: "h264",
+    serveUrl:
+      "https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/",
+    composition: reactSvg,
+    frameRange: [0, 2],
+  });
+
+  expect(buffer?.length).toBeGreaterThan(2000);
+});

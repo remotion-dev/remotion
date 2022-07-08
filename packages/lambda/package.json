@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/lambda",
-	"version": "3.0.18",
+	"version": "3.0.27",
 	"description": "Distributed renderer for Remotion based on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -31,28 +31,25 @@
 		"@aws-sdk/client-service-quotas": "3.58.0",
 		"@aws-sdk/lib-storage": "3.58.0",
 		"@aws-sdk/s3-request-presigner": "3.58.0",
-		"@remotion/bundler": "3.0.18",
-		"@remotion/cli": "3.0.18",
-		"@remotion/renderer": "3.0.18",
+		"@remotion/bundler": "3.0.27",
+		"@remotion/cli": "3.0.27",
+		"@remotion/renderer": "3.0.27",
 		"aws-policies": "^1.0.1",
-		"dotenv": "^10.0.0",
 		"mime-types": "2.1.34",
-		"minimist": "1.2.6",
-		"remotion": "3.0.18"
+		"remotion": "3.0.27"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.259",
+		"@jonny/eslint-config": "3.0.266",
 		"@types/jest": "^27.0.2",
 		"@types/mime-types": "2.1.1",
 		"@types/minimist": "1.2.2",
 		"@types/node": "^14.14.14",
 		"@types/prompt": "^1.1.0",
 		"eslint": "8.13.0",
-		"execa": "5.1.1",
 		"jest": "^27.2.4",
 		"prettier": "^2.4.1",
 		"prettier-plugin-organize-imports": "^2.3.4",

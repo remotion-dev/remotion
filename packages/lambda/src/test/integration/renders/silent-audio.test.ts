@@ -1,12 +1,11 @@
 import {RenderInternals} from '@remotion/renderer';
-import execa from 'execa';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
-import {LambdaReturnValues} from '../../../shared/return-values';
+import type {LambdaReturnValues} from '../../../shared/return-values';
 import {disableLogs, enableLogs} from '../../disable-logs';
 
-jest.setTimeout(30000);
+jest.setTimeout(90000);
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
@@ -34,7 +33,7 @@ test('Should add silent audio if there is no audio', async () => {
 			serveUrl:
 				'https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/',
 			chromiumOptions: {},
-			codec: 'h264-mkv',
+			codec: 'h264',
 			composition: 'react-svg',
 			crf: 9,
 			envVariables: {},
@@ -71,7 +70,7 @@ test('Should add silent audio if there is no audio', async () => {
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 	});
-	const probe = await execa('ffprobe', ['-'], {
+	const probe = await RenderInternals.execa('ffprobe', ['-'], {
 		stdin: file,
 	});
 	expect(probe.stderr).toMatch(/Stream #0:0/);

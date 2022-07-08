@@ -18,13 +18,15 @@ describe('input props', () => {
 			firstProperty: 'firstProperty',
 			secondProperty: 'secondProperty',
 		};
-		process.env.INPUT_PROPS = JSON.stringify(inputProps);
+		window.remotion_inputProps = JSON.stringify(JSON.stringify(inputProps));
 
 		expect(getInputProps()).toEqual(JSON.stringify(inputProps));
 	});
 
-	test('input props in production env - empty localstorage', () => {
+	test('input props in production env', () => {
 		process.env.NODE_ENV = 'production';
+		window.remotion_inputProps = JSON.stringify({});
+
 		expect(getInputProps()).toEqual({});
 	});
 });

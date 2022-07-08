@@ -1,5 +1,5 @@
 import {DeleteFunctionCommand} from '@aws-sdk/client-lambda';
-import {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from '../shared/aws-clients';
 
 export type DeleteFunctionInput = {

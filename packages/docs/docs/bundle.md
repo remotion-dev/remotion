@@ -81,6 +81,7 @@ A promise which will resolve into a `string` specifying the output directory.
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/bundle.ts)
 - [Server-Side rendering](/docs/ssr)
 - [getCompositions()](/docs/renderer/get-compositions)
 - [renderMedia()](/docs/renderer/render-media)

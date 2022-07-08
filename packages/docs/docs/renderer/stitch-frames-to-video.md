@@ -17,7 +17,7 @@ const stitchFramesToVideo: (options: {
   fps: number;
   width: number;
   height: number;
-  outputLocation: string;
+  outputLocation?: string | null;
   force: boolean;
   assetsInfo: RenderAssetInfo;
   pixelFormat?: PixelFormat;
@@ -28,7 +28,7 @@ const stitchFramesToVideo: (options: {
   verbose?: boolean;
   ffmpegExecutable?: FfmpegExecutable;
   cancelSignal?: CancelSignal;
-}) => Promise<void>;
+}) => Promise<Buffer | null>;
 ```
 
 ## Arguments
@@ -53,7 +53,11 @@ A `number` specifying the desired output height in pixels for the video.
 
 ### `outputLocation`
 
+_optional since v3.0.26_
+
 An absolute path specify where the output file should be written to.
+
+If not specified or set to `null`, the file will be returned in-memory as a buffer.
 
 ### `force`
 
@@ -141,6 +145,7 @@ A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/doc
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/stitch-frames-to-video.ts)
 - [bundle()](/docs/bundle)
 - [Server-Side rendering](/docs/ssr)
 - [getCompositions()](/docs/renderer/get-compositions)

@@ -1,10 +1,11 @@
-import {
+import type {
 	ChromiumOptions,
-	getCompositions,
-	openBrowser,
+	openBrowser} from '@remotion/renderer';
+import {
+	getCompositions
 } from '@remotion/renderer';
-import {FfmpegExecutable, TCompMetadata} from 'remotion';
-import {Await} from '../../shared/await';
+import type {FfmpegExecutable, TCompMetadata} from 'remotion';
+import type {Await} from '../../shared/await';
 
 type ValidateCompositionOptions = {
 	serveUrl: string;

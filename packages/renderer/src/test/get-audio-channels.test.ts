@@ -2,8 +2,6 @@ import {existsSync} from 'fs';
 import path from 'path';
 import {getAudioChannelsAndDuration} from '../assets/get-audio-channels';
 
-jest.setTimeout(30000);
-
 test('Get audio channels for video', async () => {
 	const videoWithoutAudio = path.join(
 		__dirname,
@@ -18,7 +16,7 @@ test('Get audio channels for video', async () => {
 	expect(existsSync(videoWithoutAudio)).toEqual(true);
 	const channels = await getAudioChannelsAndDuration(videoWithoutAudio, null);
 	expect(channels).toEqual({channels: 2, duration: 10});
-});
+}, 90000);
 
 test('Get audio channels for video without music', async () => {
 	const videoWithAudio = path.join(
@@ -34,7 +32,7 @@ test('Get audio channels for video without music', async () => {
 	expect(existsSync(videoWithAudio)).toEqual(true);
 	const channels = await getAudioChannelsAndDuration(videoWithAudio, null);
 	expect(channels).toEqual({channels: 0, duration: 3.334});
-});
+}, 90000);
 
 test('Get audio channels for video with music', async () => {
 	const audio = path.join(
@@ -50,7 +48,7 @@ test('Get audio channels for video with music', async () => {
 	expect(existsSync(audio)).toEqual(true);
 	const channels = await getAudioChannelsAndDuration(audio, null);
 	expect(channels).toEqual({channels: 2, duration: 56.529});
-});
+}, 90000);
 
 test('Throw error if parsing a non video file', () => {
 	const tsFile = path.join(__dirname, '..', 'ffmpeg-flags.ts');

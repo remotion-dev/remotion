@@ -2,11 +2,12 @@ import {render} from '@testing-library/react';
 import React from 'react';
 import {Freeze} from '../freeze';
 import {Sequence} from '../index';
+import type {
+	TimelineContextValue} from '../timeline-position-state';
 import {
-	TimelineContext,
-	TimelineContextValue,
+	TimelineContext
 } from '../timeline-position-state';
-import {useCurrentFrame} from '../use-frame';
+import {useCurrentFrame} from '../use-current-frame';
 import {expectToThrow} from './expect-to-throw';
 
 describe('Prop validation', () => {

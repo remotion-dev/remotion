@@ -33,7 +33,7 @@ module.exports = {
         { to: "showcase", label: "Showcase", position: "left" },
         { to: "/docs/license", label: "Licensing", position: "left" },
         {
-          href: "https://discord.gg/6VzzNDwUwV",
+          href: "https://remotion.dev/discord",
           label: "Discord",
           position: "right",
           "data-splitbee-event": "External Link",
@@ -91,7 +91,7 @@ module.exports = {
             },
             {
               label: "Discord",
-              href: "https://discord.gg/6VzzNDwUwV",
+              href: "https://remotion.dev/discord",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Discord",
             },

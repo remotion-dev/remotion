@@ -1,23 +1,22 @@
 import fs, {statSync} from 'fs';
 import path from 'path';
-import {Browser as PuppeteerBrowser} from 'puppeteer-core';
-import {
+import type {
 	BrowserExecutable,
 	FfmpegExecutable,
-	Internals,
 	SmallTCompMetadata,
 	StillImageFormat,
 } from 'remotion';
-import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import {Internals} from 'remotion';
+import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
-import {
-	getServeUrlWithFallback,
-	ServeUrlOrWebpackBundle,
-} from './legacy-webpack-config';
+import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
+import {getServeUrlWithFallback} from './legacy-webpack-config';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
-import {CancelSignal} from './make-cancel-signal';
-import {ChromiumOptions, openBrowser} from './open-browser';
+import type {CancelSignal} from './make-cancel-signal';
+import type {ChromiumOptions} from './open-browser';
+import {openBrowser} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
@@ -211,7 +210,9 @@ const innerRenderStill = async ({
 };
 
 /**
- * @description Render a still frame from a composition and returns an image path
+ *
+ * @description Render a still frame from a composition
+ * @link https://www.remotion.dev/docs/renderer/render-still
  */
 export const renderStill = (options: RenderStillOptions): Promise<void> => {
 	const selectedServeUrl = getServeUrlWithFallback(options);

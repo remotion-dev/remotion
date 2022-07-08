@@ -16,10 +16,10 @@ const { outputPath, sizeInBytes } = await downloadMedia({
   region: "us-east-1",
   renderId: "8hfxlw",
   outPath: "out.mp4",
-  onProgress: ({ totalSize, downloaded, progress }) => {
+  onProgress: ({ totalSize, downloaded, percent }) => {
     console.log(
       `Download progress: ${totalSize}/${downloaded} bytes (${(
-        progress * 100
+        percent * 100
       ).toFixed(0)}%)`
     );
   },
@@ -49,6 +49,14 @@ The ID of the render. You can retrieve this ID by calling [`renderMediaOnLambda(
 
 Where the video should be saved. Pass an absolute path, or it will be resolved relative to your current working directory.
 
+### `onProgress`
+
+Callback function that gets called with the following properties:
+
+- `totalSize` in bytes
+- `downloaded` number of bytes downloaded
+- `percent` relative progress between 0 and 1
+
 ## Return value
 
 Returns a promise resolving to an object with the following properties:
@@ -61,9 +69,8 @@ The absolute path of where the file got saved.
 
 The size of the file in bytes.
 
-### `onProgress`
-
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/download-media.ts)
 - [renderMediaOnLambda()](/docs/lambda/rendermediaonlambda)
 - [renderStillOnLambda()](/docs/lambda/renderstillonlambda)

@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from "react";
-import { CreateVideoInternals, Template } from "create-video";
+import type { Template } from "create-video";
+import { CreateVideoInternals } from "create-video";
 import { TemplateModal } from "./TemplateModal";
 import { Blank } from "./icons/blank";
 import { Cubes } from "./icons/cubes";
