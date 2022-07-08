@@ -59,6 +59,8 @@ export const LambdaHeader: React.FC = () => {
         <div>
           <div className={styles.spacer} />
           <div className={styles.writeright} />
+          <div className={styles.writeright} />
+          <div className={styles.writeright} />
           <PlayerPreview />
           <div className={styles.spacer} />
           <PlayerPreview />
