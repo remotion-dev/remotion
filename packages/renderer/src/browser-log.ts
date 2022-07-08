@@ -1,4 +1,4 @@
-import {
+import type {
 	ConsoleMessageLocation,
 	ConsoleMessageType,
 } from './browser/ConsoleMessage';

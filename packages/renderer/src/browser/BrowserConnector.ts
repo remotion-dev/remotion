@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Viewport} from './PuppeteerViewport';
+import type {Viewport} from './PuppeteerViewport';
 
 export interface BrowserConnectOptions {
 	defaultViewport: Viewport;

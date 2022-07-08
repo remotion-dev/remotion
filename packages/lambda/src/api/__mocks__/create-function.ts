@@ -3,7 +3,7 @@ import {
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	DEFAULT_MEMORY_SIZE,
 } from '../../defaults';
-import {createFunction as original} from '../create-function';
+import type {createFunction as original} from '../create-function';
 import {addFunction} from '../mock-functions';
 
 export const createFunction: typeof original = (input) => {

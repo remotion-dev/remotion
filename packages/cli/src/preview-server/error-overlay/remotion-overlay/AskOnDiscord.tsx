@@ -1,4 +1,4 @@
-const DISCORD_LINK = 'https://discord.gg/6VzzNDwUwV';
+const DISCORD_LINK = 'https://remotion.dev/discord';
 
 import React, {useCallback} from 'react';
 import {Button} from './Button';

@@ -1,7 +1,8 @@
 import ReactDOM from 'react-dom';
-import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
+import type {WebpackConfiguration, WebpackOverrideFn} from 'remotion';
+import {Internals} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
-import {LoaderOptions} from './esbuild-loader/interfaces';
+import type {LoaderOptions} from './esbuild-loader/interfaces';
 import {ReactFreshWebpackPlugin} from './fast-refresh';
 import {getWebpackCacheName} from './webpack-cache';
 import esbuild = require('esbuild');
@@ -39,7 +40,6 @@ export const webpackConfig = ({
 	webpackOverride = (f) => f,
 	onProgressUpdate,
 	enableCaching = Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
-	inputProps,
 	envVariables,
 	maxTimelineTracks,
 	entryPoints,
@@ -51,7 +51,6 @@ export const webpackConfig = ({
 	webpackOverride: WebpackOverrideFn;
 	onProgressUpdate?: (f: number) => void;
 	enableCaching?: boolean;
-	inputProps: object;
 	envVariables: Record<string, string>;
 	maxTimelineTracks: number;
 	entryPoints: string[];
@@ -75,7 +74,7 @@ export const webpackConfig = ({
 		cache: enableCaching
 			? {
 					type: 'filesystem',
-					name: getWebpackCacheName(environment, inputProps ?? {}),
+					name: getWebpackCacheName(environment),
 			  }
 			: false,
 		devtool:
@@ -103,7 +102,6 @@ export const webpackConfig = ({
 						new webpack.HotModuleReplacementPlugin(),
 						new webpack.DefinePlugin({
 							'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
-							'process.env.INPUT_PROPS': JSON.stringify(inputProps ?? {}),
 							[`process.env.${Internals.ENV_VARIABLES_ENV_NAME}`]:
 								JSON.stringify(envVariables),
 						}),

@@ -8,14 +8,15 @@ import fs, {
 	rmSync,
 } from 'fs';
 import path, {join} from 'path';
-import {Codec} from 'remotion';
-import {AwsRegion} from '../../pricing/aws-regions';
+import type {Codec} from 'remotion';
+import type {AwsRegion} from '../../pricing/aws-regions';
 import {
 	chunkKey,
 	CONCAT_FOLDER_TOKEN,
 	REMOTION_CONCATED_TOKEN,
 	REMOTION_FILELIST_TOKEN,
 } from '../../shared/constants';
+import type {LambdaCodec} from '../../shared/validate-lambda-codec';
 import {lambdaLs, lambdaReadFile} from './io';
 import {timer} from './timer';
 
@@ -170,7 +171,7 @@ export const concatVideosS3 = async ({
 	numberOfFrames: number;
 	renderId: string;
 	region: AwsRegion;
-	codec: Codec;
+	codec: LambdaCodec;
 	expectedBucketOwner: string;
 	fps: number;
 }) => {

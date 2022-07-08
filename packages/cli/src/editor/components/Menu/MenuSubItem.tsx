@@ -5,7 +5,7 @@ import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
 import {CaretRight} from '../../icons/caret';
 import {useZIndex} from '../../state/z-index';
 import {Flex, Row, Spacing} from '../layout';
-import {SubMenu} from '../NewComposition/ComboBox';
+import type {SubMenu} from '../NewComposition/ComboBox';
 import {getPortal} from './portals';
 import {
 	menuContainer,

@@ -1,5 +1,6 @@
-import {queries, render, RenderOptions} from '@testing-library/react';
-import {FC, ReactElement} from 'react';
+import type {queries, RenderOptions} from '@testing-library/react';
+import { render} from '@testing-library/react';
+import type {FC, ReactElement} from 'react';
 
 const HelloWorld: FC = () => {
 	return <div>Hello World</div>;

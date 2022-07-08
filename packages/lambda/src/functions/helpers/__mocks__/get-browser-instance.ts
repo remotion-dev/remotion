@@ -1,6 +1,6 @@
 import {openBrowser} from '@remotion/renderer';
-import {Await} from '../../../shared/await';
-import {getBrowserInstance as original} from '../../helpers/get-browser-instance';
+import type {Await} from '../../../shared/await';
+import type {getBrowserInstance as original} from '../../helpers/get-browser-instance';
 
 let _browserInstance: Await<ReturnType<typeof openBrowser>> | null;
 

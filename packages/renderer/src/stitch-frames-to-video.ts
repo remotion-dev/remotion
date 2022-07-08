@@ -1,28 +1,28 @@
 import execa from 'execa';
 import fs from 'fs';
+import {readFile, unlink} from 'fs/promises';
 import path from 'path';
-import {
+import type {
 	Codec,
 	FfmpegExecutable,
 	ImageFormat,
-	Internals,
 	PixelFormat,
 	ProResProfile,
 	RenderAssetInfo,
 	TAsset,
 } from 'remotion';
+import {Internals} from 'remotion';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
-import {
-	markAllAssetsAsDownloaded,
-	RenderMediaOnDownload,
-} from './assets/download-and-map-assets-to-file';
-import {Assets} from './assets/types';
+import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
+import type {Assets} from './assets/types';
 import {deleteDirectory} from './delete-directory';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
+import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getProResProfileName} from './get-prores-profile-name';
-import {CancelSignal} from './make-cancel-signal';
+import type {CancelSignal} from './make-cancel-signal';
 import {mergeAudioTrack} from './merge-audio-track';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {preprocessAudioTrack} from './preprocess-audio-track';
@@ -40,7 +40,7 @@ export type StitcherOptions = {
 	fps: number;
 	width: number;
 	height: number;
-	outputLocation: string;
+	outputLocation?: string | null;
 	force: boolean;
 	assetsInfo: RenderAssetInfo;
 	pixelFormat?: PixelFormat;
@@ -61,7 +61,7 @@ export type StitcherOptions = {
 };
 
 type ReturnType = {
-	task: Promise<void>;
+	task: Promise<Buffer | null>;
 	getLogs: () => string;
 };
 
@@ -178,6 +178,13 @@ export const spawnFfmpeg = async (
 	const isAudioOnly = encoderName === null;
 	const supportsCrf = encoderName && codec !== 'prores';
 
+	const tempFile = options.outputLocation
+		? null
+		: path.join(
+				tmpDir('remotion-stitch-temp-dir'),
+				`out.${getFileExtensionFromCodec(codec, 'final')}`
+		  );
+
 	if (options.verbose) {
 		console.log(
 			'[verbose] ffmpeg',
@@ -236,17 +243,19 @@ export const spawnFfmpeg = async (
 				'-b:a',
 				'320k',
 				options.force ? '-y' : null,
-				options.outputLocation,
+				options.outputLocation ?? tempFile,
 			].filter(Internals.truthy)
 		);
+
 		options.cancelSignal?.(() => {
 			ffmpegTask.kill();
 		});
 		await ffmpegTask;
 		options.onProgress?.(expectedFrames);
+		const file = tempFile ? await readFile(tempFile) : null;
 		return {
 			getLogs: () => '',
-			task: Promise.resolve(),
+			task: Promise.resolve(file),
 		};
 	}
 
@@ -290,7 +299,7 @@ export const spawnFfmpeg = async (
 				),
 		],
 		options.force ? '-y' : null,
-		options.outputLocation,
+		options.outputLocation ?? tempFile,
 	];
 
 	if (options.verbose) {
@@ -329,12 +338,26 @@ export const spawnFfmpeg = async (
 			}
 		}
 	});
-	return {task: task.then(() => undefined), getLogs: () => ffmpegOutput};
+
+	return {
+		task: task.then(() => {
+			if (options.outputLocation) {
+				return null;
+			}
+
+			return readFile(tempFile as string)
+				.then((file) => {
+					return Promise.all([file, unlink(tempFile as string)]);
+				})
+				.then(([file]) => file);
+		}),
+		getLogs: () => ffmpegOutput,
+	};
 };
 
 export const stitchFramesToVideo = async (
 	options: StitcherOptions
-): Promise<void> => {
+): Promise<Buffer | null> => {
 	const {task, getLogs} = await spawnFfmpeg(options);
 
 	const happyPath = task.catch(() => {
@@ -343,7 +366,7 @@ export const stitchFramesToVideo = async (
 
 	return Promise.race([
 		happyPath,
-		new Promise<void>((_resolve, reject) => {
+		new Promise<Buffer | null>((_resolve, reject) => {
 			options.cancelSignal?.(() => {
 				reject(new Error('stitchFramesToVideo() got cancelled'));
 			});

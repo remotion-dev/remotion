@@ -1,12 +1,12 @@
 import React, {useCallback, useMemo} from 'react';
-import {TSequence} from 'remotion';
+import type {TSequence} from 'remotion';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import {useZIndex} from '../../state/z-index';
-import {TimelineActionState} from './timeline-state-reducer';
+import type {TimelineActionState} from './timeline-state-reducer';
 import {TimelineCollapseToggle} from './TimelineCollapseToggle';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 

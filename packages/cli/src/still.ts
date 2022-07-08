@@ -1,26 +1,26 @@
+import type {RenderMediaOnDownload} from '@remotion/renderer';
 import {
 	getCompositions,
 	openBrowser,
 	RenderInternals,
-	RenderMediaOnDownload,
 	renderStill,
 } from '@remotion/renderer';
-import chalk from 'chalk';
 import {mkdirSync} from 'fs';
 import path from 'path';
 import {Config, Internals} from 'remotion';
+import {chalk} from './chalk';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
+import type {DownloadProgress} from './progress-bar';
 import {
 	createOverwriteableCliOutput,
-	DownloadProgress,
 	makeRenderingAndStitchingProgress,
 } from './progress-bar';
 import {bundleOnCli} from './setup-cache';
-import {RenderStep} from './step';
+import type {RenderStep} from './step';
 import {getUserPassedOutputLocation} from './user-passed-output-location';
 
 export const still = async () => {
@@ -164,6 +164,8 @@ export const still = async () => {
 			id,
 			name: src,
 			progress: 0,
+			downloaded: 0,
+			totalBytes: null,
 		};
 		downloads.push(download);
 		updateProgress();

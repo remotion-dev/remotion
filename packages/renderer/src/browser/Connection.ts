@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 import {assert} from './assert';
+import type {Commands} from './devtools-commands';
+import type {TargetInfo} from './devtools-types';
 
-import type {Protocol} from 'devtools-protocol';
-import type {ProtocolMapping} from 'devtools-protocol/types/protocol-mapping';
 import {ProtocolError} from './Errors';
 import {EventEmitter} from './EventEmitter';
-import {NodeWebSocketTransport} from './NodeWebSocketTransport';
+import type {NodeWebSocketTransport} from './NodeWebSocketTransport';
 
 interface ConnectionCallback {
 	resolve: Function;
@@ -33,16 +33,14 @@ const ConnectionEmittedEvents = {
 } as const;
 
 export class Connection extends EventEmitter {
-	#url: string;
 	#transport: NodeWebSocketTransport;
 	#lastId = 0;
 	#sessions: Map<string, CDPSession> = new Map();
 	#closed = false;
 	#callbacks: Map<number, ConnectionCallback> = new Map();
 
-	constructor(url: string, transport: NodeWebSocketTransport) {
+	constructor(transport: NodeWebSocketTransport) {
 		super();
-		this.#url = url;
 
 		this.#transport = transport;
 		this.#transport.onmessage = this.#onMessage.bind(this);
@@ -53,26 +51,14 @@ export class Connection extends EventEmitter {
 		return session.connection();
 	}
 
-	get _closed(): boolean {
-		return this.#closed;
-	}
-
-	/**
-	 * @param sessionId - The session id
-	 * @returns The current CDP session if it exists
-	 */
 	session(sessionId: string): CDPSession | null {
 		return this.#sessions.get(sessionId) || null;
 	}
 
-	url(): string {
-		return this.#url;
-	}
-
-	send<T extends keyof ProtocolMapping.Commands>(
+	send<T extends keyof Commands>(
 		method: T,
-		...paramArgs: ProtocolMapping.Commands[T]['paramsType']
-	): Promise<ProtocolMapping.Commands[T]['returnType']> {
+		...paramArgs: Commands[T]['paramsType']
+	): Promise<Commands[T]['returnType']> {
 		// There is only ever 1 param arg passed, but the Protocol defines it as an
 		// array of 0 or 1 items See this comment:
 		// https://github.com/ChromeDevTools/devtools-protocol/pull/113#issuecomment-412603285
@@ -183,9 +169,7 @@ export class Connection extends EventEmitter {
 	 * @param targetInfo - The target info
 	 * @returns The CDP session that is created
 	 */
-	async createSession(
-		targetInfo: Protocol.Target.TargetInfo
-	): Promise<CDPSession> {
+	async createSession(targetInfo: TargetInfo): Promise<CDPSession> {
 		const {sessionId} = await this.send('Target.attachToTarget', {
 			targetId: targetInfo.targetId,
 			flatten: true,
@@ -228,10 +212,10 @@ export class CDPSession extends EventEmitter {
 		return this.#connection;
 	}
 
-	send<T extends keyof ProtocolMapping.Commands>(
+	send<T extends keyof Commands>(
 		method: T,
-		...paramArgs: ProtocolMapping.Commands[T]['paramsType']
-	): Promise<ProtocolMapping.Commands[T]['returnType']> {
+		...paramArgs: Commands[T]['paramsType']
+	): Promise<Commands[T]['returnType']> {
 		if (!this.#connection) {
 			return Promise.reject(
 				new Error(
@@ -276,20 +260,6 @@ export class CDPSession extends EventEmitter {
 			assert(!object.id);
 			this.emit(object.method, object.params);
 		}
-	}
-
-	async detach(): Promise<void> {
-		if (!this.#connection) {
-			throw new Error(
-				`Session already detached. Most likely the ${
-					this.#targetType
-				} has been closed.`
-			);
-		}
-
-		await this.#connection.send('Target.detachFromTarget', {
-			sessionId: this.#sessionId,
-		});
 	}
 
 	_onClosed(): void {

@@ -11,7 +11,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {RawSourceMap, SourceMapConsumer} from 'source-map';
+import type {RawSourceMap} from 'source-map';
+import { SourceMapConsumer} from 'source-map';
 
 export const getOriginalPosition = (
 	source_map: SourceMapConsumer,

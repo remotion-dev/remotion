@@ -4,8 +4,9 @@ import clsx from "clsx";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { VideoPlayer } from "../../components/VideoPlayer";
 import { VideoPreview } from "../../components/VideoPreview";
+import type {
+  ShowcaseVideo} from "../../data/showcase-videos";
 import {
-  ShowcaseVideo,
   showcaseVideos,
   shuffledShowcaseVideos,
 } from "../../data/showcase-videos";

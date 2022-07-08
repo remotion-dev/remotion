@@ -1,11 +1,12 @@
 import {RenderInternals} from '@remotion/renderer';
-import {Codec} from 'remotion';
+import type {Codec} from 'remotion';
+import type {
+	OutNameOutput,
+	RenderMetadata} from '../../defaults';
 import {
 	customOutName,
 	outName,
-	OutNameOutput,
-	outStillName,
-	RenderMetadata,
+	outStillName
 } from '../../defaults';
 import {validateOutname} from '../../shared/validate-outname';
 

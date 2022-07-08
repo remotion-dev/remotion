@@ -14,11 +14,22 @@
  * limitations under the License.
  */
 
-import type {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
-import {CDPSession, Connection} from './Connection';
+import type {Browser} from './Browser';
+import type {CDPSession} from './Connection';
+import {Connection} from './Connection';
+import type {
+	AttachedToTargetEvent,
+	DetachedFromTargetEvent,
+	ExecutionContextDescription,
+	Frame as TFrame,
+	FrameDetachedEvent,
+	FrameDetachedEventReason,
+	FrameTree,
+	LifecycleEventEvent,
+} from './devtools-types';
 import {DOMWorld} from './DOMWorld';
-import {
+import type {
 	EvaluateFn,
 	EvaluateFnReturnType,
 	EvaluateHandleFn,
@@ -27,12 +38,13 @@ import {
 } from './EvalTypes';
 import {EventEmitter} from './EventEmitter';
 import {EVALUATION_SCRIPT_URL, ExecutionContext} from './ExecutionContext';
-import {HTTPResponse} from './HTTPResponse';
-import {JSHandle} from './JSHandle';
-import {LifecycleWatcher, PuppeteerLifeCycleEvent} from './LifecycleWatcher';
+import type {HTTPResponse} from './HTTPResponse';
+import type {JSHandle} from './JSHandle';
+import type {PuppeteerLifeCycleEvent} from './LifecycleWatcher';
+import {LifecycleWatcher} from './LifecycleWatcher';
 import {NetworkManager} from './NetworkManager';
-import {Page} from './Page';
-import {TimeoutSettings} from './TimeoutSettings';
+import type {Page} from './Page';
+import type {TimeoutSettings} from './TimeoutSettings';
 import {isErrorLike} from './util';
 
 const UTILITY_WORLD_NAME = '__puppeteer_utility_world__';
@@ -90,15 +102,12 @@ export class FrameManager extends EventEmitter {
 		session.on('Page.navigatedWithinDocument', (event) => {
 			this.#onFrameNavigatedWithinDocument(event.frameId, event.url);
 		});
-		session.on(
-			'Page.frameDetached',
-			(event: Protocol.Page.FrameDetachedEvent) => {
-				this.#onFrameDetached(
-					event.frameId,
-					event.reason as Protocol.Page.FrameDetachedEventReason
-				);
-			}
-		);
+		session.on('Page.frameDetached', (event: FrameDetachedEvent) => {
+			this.#onFrameDetached(
+				event.frameId,
+				event.reason as FrameDetachedEventReason
+			);
+		});
 		session.on('Page.frameStartedLoading', (event) => {
 			this.#onFrameStartedLoading(event.frameId);
 		});
@@ -174,12 +183,12 @@ export class FrameManager extends EventEmitter {
 		options: {
 			referer?: string;
 			timeout?: number;
-			waitUntil?: PuppeteerLifeCycleEvent | PuppeteerLifeCycleEvent[];
+			waitUntil?: PuppeteerLifeCycleEvent;
 		} = {}
 	): Promise<HTTPResponse | null> {
 		const {
-			referer = this.#networkManager.extraHTTPHeaders().referer,
-			waitUntil = ['load'],
+			referer = undefined,
+			waitUntil = 'load',
 			timeout = this.#timeoutSettings.navigationTimeout(),
 		} = options;
 
@@ -228,7 +237,7 @@ export class FrameManager extends EventEmitter {
 		}
 	}
 
-	async #onAttachedToTarget(event: Protocol.Target.AttachedToTargetEvent) {
+	async #onAttachedToTarget(event: AttachedToTargetEvent) {
 		if (event.targetInfo.type !== 'iframe') {
 			return;
 		}
@@ -246,7 +255,7 @@ export class FrameManager extends EventEmitter {
 		await this.initialize(session);
 	}
 
-	#onDetachedFromTarget(event: Protocol.Target.DetachedFromTargetEvent) {
+	#onDetachedFromTarget(event: DetachedFromTargetEvent) {
 		if (!event.targetId) {
 			return;
 		}
@@ -259,7 +268,7 @@ export class FrameManager extends EventEmitter {
 		}
 	}
 
-	#onLifecycleEvent(event: Protocol.Page.LifecycleEventEvent): void {
+	#onLifecycleEvent(event: LifecycleEventEvent): void {
 		const frame = this.#frames.get(event.frameId);
 		if (!frame) {
 			return;
@@ -288,10 +297,7 @@ export class FrameManager extends EventEmitter {
 		this.emit(FrameManagerEmittedEvents.LifecycleEvent, frame);
 	}
 
-	#handleFrameTree(
-		session: CDPSession,
-		frameTree: Protocol.Page.FrameTree
-	): void {
+	#handleFrameTree(session: CDPSession, frameTree: FrameTree): void {
 		if (frameTree.frame.parentId) {
 			this.#onFrameAttached(
 				session,
@@ -351,7 +357,7 @@ export class FrameManager extends EventEmitter {
 		this.#frames.set(frame._id, frame);
 	}
 
-	#onFrameNavigated(framePayload: Protocol.Page.Frame): void {
+	#onFrameNavigated(framePayload: TFrame): void {
 		const isMainFrame = !framePayload.parentId;
 		let frame = isMainFrame
 			? this.#mainFrame
@@ -431,10 +437,7 @@ export class FrameManager extends EventEmitter {
 		this.emit(FrameManagerEmittedEvents.FrameNavigated, frame);
 	}
 
-	#onFrameDetached(
-		frameId: string,
-		reason: Protocol.Page.FrameDetachedEventReason
-	): void {
+	#onFrameDetached(frameId: string, reason: FrameDetachedEventReason): void {
 		const frame = this.#frames.get(frameId);
 		if (reason === 'remove') {
 			// Only remove the frame if the reason for the detached event is
@@ -449,7 +452,7 @@ export class FrameManager extends EventEmitter {
 	}
 
 	#onExecutionContextCreated(
-		contextPayload: Protocol.Runtime.ExecutionContextDescription,
+		contextPayload: ExecutionContextDescription,
 		session: CDPSession
 	): void {
 		const auxData = contextPayload.auxData as {frameId?: string} | undefined;
@@ -545,7 +548,6 @@ export class FrameManager extends EventEmitter {
 export class Frame {
 	#parentFrame: Frame | null;
 	#url = '';
-	#detached = false;
 	#client!: CDPSession;
 
 	_frameManager: FrameManager;
@@ -568,7 +570,6 @@ export class Frame {
 		this.#parentFrame = parentFrame ?? null;
 		this.#url = '';
 		this._id = frameId;
-		this.#detached = false;
 
 		this._loaderId = '';
 
@@ -598,7 +599,7 @@ export class Frame {
 		options: {
 			referer?: string;
 			timeout?: number;
-			waitUntil?: PuppeteerLifeCycleEvent | PuppeteerLifeCycleEvent[];
+			waitUntil?: PuppeteerLifeCycleEvent;
 		} = {}
 	): Promise<HTTPResponse | null> {
 		return this._frameManager.navigateFrame(this, url, options);
@@ -629,38 +630,23 @@ export class Frame {
 		return this._mainWorld.evaluate<T>(pageFunction, ...args);
 	}
 
-	name(): string {
-		return this._name || '';
-	}
-
 	url(): string {
 		return this.#url;
-	}
-
-	parentFrame(): Frame | null {
-		return this.#parentFrame;
 	}
 
 	childFrames(): Frame[] {
 		return Array.from(this._childFrames);
 	}
 
-	isDetached(): boolean {
-		return this.#detached;
-	}
-
 	waitForFunction(
+		browser: Browser,
 		pageFunction: Function | string,
 		...args: SerializableOrJSHandle[]
 	): Promise<JSHandle> {
-		return this._mainWorld.waitForFunction(pageFunction, ...args);
+		return this._mainWorld.waitForFunction(browser, pageFunction, ...args);
 	}
 
-	title(): Promise<string> {
-		return this._secondaryWorld.title();
-	}
-
-	_navigated(framePayload: Protocol.Page.Frame): void {
+	_navigated(framePayload: TFrame): void {
 		this._name = framePayload.name;
 		this.#url = `${framePayload.url}${framePayload.urlFragment || ''}`;
 	}
@@ -679,7 +665,6 @@ export class Frame {
 	}
 
 	_onLoadingStopped(): void {
-		this._lifecycleEvents.add('DOMContentLoaded');
 		this._lifecycleEvents.add('load');
 	}
 
@@ -688,7 +673,6 @@ export class Frame {
 	}
 
 	_detach(): void {
-		this.#detached = true;
 		this._mainWorld._detach();
 		this._secondaryWorld._detach();
 		if (this.#parentFrame) {

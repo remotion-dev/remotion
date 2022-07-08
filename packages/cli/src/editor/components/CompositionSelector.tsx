@@ -4,8 +4,9 @@ import {
 	createFolderTree,
 	splitParentIntoNameAndParent,
 } from '../helpers/create-folder-tree';
+import type {
+	ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {
-	ExpandedFoldersState,
 	loadExpandedFolders,
 	openFolderKey,
 	persistExpandedFolders,

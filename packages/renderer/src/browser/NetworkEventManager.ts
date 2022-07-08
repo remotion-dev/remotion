@@ -1,78 +1,38 @@
-import type {Protocol} from 'devtools-protocol';
-import {HTTPRequest} from './HTTPRequest';
+import type {
+	LoadingFailedEvent,
+	LoadingFinishedEvent,
+	RequestPausedEvent,
+	RequestWillBeSentEvent,
+	ResponseReceivedEvent,
+	ResponseReceivedExtraInfoEvent,
+} from './devtools-types';
+import type {HTTPRequest} from './HTTPRequest';
 
 type QueuedEventGroup = {
-	responseReceivedEvent: Protocol.Network.ResponseReceivedEvent;
-	loadingFinishedEvent?: Protocol.Network.LoadingFinishedEvent;
-	loadingFailedEvent?: Protocol.Network.LoadingFailedEvent;
+	responseReceivedEvent: ResponseReceivedEvent;
+	loadingFinishedEvent?: LoadingFinishedEvent;
+	loadingFailedEvent?: LoadingFailedEvent;
 };
 
 export type FetchRequestId = string;
 type NetworkRequestId = string;
 
 type RedirectInfo = {
-	event: Protocol.Network.RequestWillBeSentEvent;
+	event: RequestWillBeSentEvent;
 	fetchRequestId?: FetchRequestId;
 };
 type RedirectInfoList = RedirectInfo[];
 
 export class NetworkEventManager {
-	/*
-	 * There are four possible orders of events:
-	 *  A. `_onRequestWillBeSent`
-	 *  B. `_onRequestWillBeSent`, `_onRequestPaused`
-	 *  C. `_onRequestPaused`, `_onRequestWillBeSent`
-	 *  D. `_onRequestPaused`, `_onRequestWillBeSent`, `_onRequestPaused`,
-	 *     `_onRequestWillBeSent`, `_onRequestPaused`, `_onRequestPaused`
-	 *     (see crbug.com/1196004)
-	 *
-	 * For `_onRequest` we need the event from `_onRequestWillBeSent` and
-	 * optionally the `interceptionId` from `_onRequestPaused`.
-	 *
-	 * If request interception is disabled, call `_onRequest` once per call to
-	 * `_onRequestWillBeSent`.
-	 * If request interception is enabled, call `_onRequest` once per call to
-	 * `_onRequestPaused` (once per `interceptionId`).
-	 *
-	 * Events are stored to allow for subsequent events to call `_onRequest`.
-	 *
-	 * Note that (chains of) redirect requests have the same `requestId` (!) as
-	 * the original request. We have to anticipate series of events like these:
-	 *  A. `_onRequestWillBeSent`,
-	 *     `_onRequestWillBeSent`, ...
-	 *  B. `_onRequestWillBeSent`, `_onRequestPaused`,
-	 *     `_onRequestWillBeSent`, `_onRequestPaused`, ...
-	 *  C. `_onRequestWillBeSent`, `_onRequestPaused`,
-	 *     `_onRequestPaused`, `_onRequestWillBeSent`, ...
-	 *  D. `_onRequestPaused`, `_onRequestWillBeSent`,
-	 *     `_onRequestPaused`, `_onRequestWillBeSent`, `_onRequestPaused`,
-	 *     `_onRequestWillBeSent`, `_onRequestPaused`, `_onRequestPaused`, ...
-	 *     (see crbug.com/1196004)
-	 */
-	#requestWillBeSentMap = new Map<
-		NetworkRequestId,
-		Protocol.Network.RequestWillBeSentEvent
-	>();
+	#requestWillBeSentMap = new Map<NetworkRequestId, RequestWillBeSentEvent>();
 
-	#requestPausedMap = new Map<
-		NetworkRequestId,
-		Protocol.Fetch.RequestPausedEvent
-	>();
+	#requestPausedMap = new Map<NetworkRequestId, RequestPausedEvent>();
 
 	#httpRequestsMap = new Map<NetworkRequestId, HTTPRequest>();
 
-	/*
-	 * The below maps are used to reconcile Network.responseReceivedExtraInfo
-	 * events with their corresponding request. Each response and redirect
-	 * response gets an ExtraInfo event, and we don't know which will come first.
-	 * This means that we have to store a Response or an ExtraInfo for each
-	 * response, and emit the event when we get both of them. In addition, to
-	 * handle redirects, we have to make them Arrays to represent the chain of
-	 * events.
-	 */
 	#responseReceivedExtraInfoMap = new Map<
 		NetworkRequestId,
-		Protocol.Network.ResponseReceivedExtraInfoEvent[]
+		ResponseReceivedExtraInfoEvent[]
 	>();
 
 	#queuedRedirectInfoMap = new Map<NetworkRequestId, RedirectInfoList>();
@@ -88,14 +48,14 @@ export class NetworkEventManager {
 
 	responseExtraInfo(
 		networkRequestId: NetworkRequestId
-	): Protocol.Network.ResponseReceivedExtraInfoEvent[] {
+	): ResponseReceivedExtraInfoEvent[] {
 		if (!this.#responseReceivedExtraInfoMap.has(networkRequestId)) {
 			this.#responseReceivedExtraInfoMap.set(networkRequestId, []);
 		}
 
 		return this.#responseReceivedExtraInfoMap.get(
 			networkRequestId
-		) as Protocol.Network.ResponseReceivedExtraInfoEvent[];
+		) as ResponseReceivedExtraInfoEvent[];
 	}
 
 	private queuedRedirectInfo(fetchRequestId: FetchRequestId): RedirectInfoList {
@@ -127,14 +87,14 @@ export class NetworkEventManager {
 
 	storeRequestWillBeSent(
 		networkRequestId: NetworkRequestId,
-		event: Protocol.Network.RequestWillBeSentEvent
+		event: RequestWillBeSentEvent
 	): void {
 		this.#requestWillBeSentMap.set(networkRequestId, event);
 	}
 
 	getRequestWillBeSent(
 		networkRequestId: NetworkRequestId
-	): Protocol.Network.RequestWillBeSentEvent | undefined {
+	): RequestWillBeSentEvent | undefined {
 		return this.#requestWillBeSentMap.get(networkRequestId);
 	}
 
@@ -142,19 +102,9 @@ export class NetworkEventManager {
 		this.#requestWillBeSentMap.delete(networkRequestId);
 	}
 
-	getRequestPaused(
-		networkRequestId: NetworkRequestId
-	): Protocol.Fetch.RequestPausedEvent | undefined {
-		return this.#requestPausedMap.get(networkRequestId);
-	}
-
-	forgetRequestPaused(networkRequestId: NetworkRequestId): void {
-		this.#requestPausedMap.delete(networkRequestId);
-	}
-
 	storeRequestPaused(
 		networkRequestId: NetworkRequestId,
-		event: Protocol.Fetch.RequestPausedEvent
+		event: RequestPausedEvent
 	): void {
 		this.#requestPausedMap.set(networkRequestId, event);
 	}

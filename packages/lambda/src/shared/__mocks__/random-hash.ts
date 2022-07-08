@@ -1,4 +1,4 @@
-import {randomHash as original} from '../random-hash';
+import type {randomHash as original} from '../random-hash';
 
 export const randomHash: typeof original = (options?: {
 	randomInTests: boolean;

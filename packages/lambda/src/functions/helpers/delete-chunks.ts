@@ -1,7 +1,7 @@
-import {_Object} from '@aws-sdk/client-s3';
+import type {_Object} from '@aws-sdk/client-s3';
 import {cleanItems} from '../../api/clean-items';
-import {AwsRegion} from '../../pricing/aws-regions';
-import {CleanupJob} from './get-files-to-delete';
+import type {AwsRegion} from '../../pricing/aws-regions';
+import type {CleanupJob} from './get-files-to-delete';
 
 export const cleanupFiles = async ({
 	bucket,

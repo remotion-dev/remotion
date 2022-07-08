@@ -23,14 +23,14 @@ import {deleteDirectory} from '../delete-directory';
 import {assert} from './assert';
 import {Connection} from './Connection';
 import {TimeoutError} from './Errors';
-import {LaunchOptions} from './LaunchOptions';
-import {NodeWebSocketTransport as WebSocketTransport} from './NodeWebSocketTransport';
-import {Product} from './Product';
+import type {LaunchOptions} from './LaunchOptions';
+import {NodeWebSocketTransport} from './NodeWebSocketTransport';
+import type {Product} from './Product';
+import type {PuppeteerEventListener} from './util';
 import {
 	addEventListener,
 	isErrnoException,
 	isErrorLike,
-	PuppeteerEventListener,
 	removeEventListeners,
 } from './util';
 
@@ -253,8 +253,8 @@ export class BrowserRunner {
 			timeout,
 			preferredRevision
 		);
-		const transport = await WebSocketTransport.create(browserWSEndpoint);
-		this.connection = new Connection(browserWSEndpoint, transport);
+		const transport = await NodeWebSocketTransport.create(browserWSEndpoint);
+		this.connection = new Connection(transport);
 
 		return this.connection;
 	}

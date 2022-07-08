@@ -1,4 +1,4 @@
-import {DevMiddlewareContext} from './types';
+import type {DevMiddlewareContext} from './types';
 
 type PublicPath = {
 	outputPath: string;

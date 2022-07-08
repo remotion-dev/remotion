@@ -12,10 +12,10 @@
  */
 
 import {Internals} from 'remotion';
-import {SourceMapConsumer} from 'source-map';
+import type {SourceMapConsumer} from 'source-map';
 import {getLinesAround} from './get-lines-around';
 import {getOriginalPosition, getSourceMap} from './get-source-map';
-import {
+import type {
 	SomeStackFrame,
 	StackFrame,
 	SymbolicatedStackFrame,

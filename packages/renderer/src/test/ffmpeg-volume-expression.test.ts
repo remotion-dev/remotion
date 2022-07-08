@@ -5,7 +5,6 @@ test('Simple expression', () => {
 	expect(
 		ffmpegVolumeExpression({
 			volume: 0.5,
-			startInVideo: 0,
 			fps: 30,
 			trimLeft: 0,
 		})
@@ -19,7 +18,6 @@ test('Simple expression with volume multiplier', () => {
 	expect(
 		ffmpegVolumeExpression({
 			volume: 0.5,
-			startInVideo: 0,
 			fps: 30,
 			trimLeft: 0,
 		})
@@ -33,7 +31,6 @@ test('Complex expression with volume multiplier', () => {
 	expect(
 		ffmpegVolumeExpression({
 			volume: [0, 1],
-			startInVideo: 0,
 			fps: 30,
 			trimLeft: 0,
 		})
@@ -47,7 +44,6 @@ test('Should respect trimLeft multiplier', () => {
 	expect(
 		ffmpegVolumeExpression({
 			volume: [0, 1],
-			startInVideo: 0,
 			fps: 30,
 			trimLeft: 0.5,
 		})
@@ -64,7 +60,6 @@ test('Really complex volume expression', () => {
 	expect(
 		ffmpegVolumeExpression({
 			volume: [0, 0.25, 0.5, 0.99, 0.99, 0.99, 0.99, 1, 1, 1, 1, 1],
-			startInVideo: 0,
 			fps: 30,
 			trimLeft: 0,
 		})
@@ -78,7 +73,6 @@ test('Should use 0 as else statement', () => {
 	expect(
 		ffmpegVolumeExpression({
 			volume: [0, 0, 0, 1, 1],
-			startInVideo: 0,
 			fps: 30,
 			trimLeft: 0,
 		})
@@ -89,9 +83,7 @@ test('Should use 0 as else statement', () => {
 });
 
 test('Simple expression - should not be higher than 1', () => {
-	expect(
-		ffmpegVolumeExpression({volume: 2, startInVideo: 0, fps: 30, trimLeft: 0})
-	).toEqual({
+	expect(ffmpegVolumeExpression({volume: 2, fps: 30, trimLeft: 0})).toEqual({
 		eval: 'once',
 		value: '1',
 	});
@@ -101,7 +93,6 @@ test('Complex expression - should not be higher than 1', () => {
 	expect(
 		ffmpegVolumeExpression({
 			volume: [0.5, 2],
-			startInVideo: 0,
 			fps: 30,
 			trimLeft: 0,
 		})
@@ -115,7 +106,6 @@ test('Should simplify an expression', () => {
 	expect(
 		ffmpegVolumeExpression({
 			volume: [0, 1, 1, 1, 0, 1],
-			startInVideo: 0,
 			fps: 30,
 			trimLeft: 0,
 		})
@@ -134,7 +124,6 @@ test('Should stay under half 8000 windows character limit', () => {
 
 			return (i - 500) / 100;
 		}),
-		startInVideo: 0,
 		fps: 30,
 		trimLeft: 0,
 	});
@@ -150,7 +139,6 @@ test('Last volume should be default case', () => {
 			});
 		}),
 		fps: 30,
-		startInVideo: 0,
 		trimLeft: 0,
 	});
 	expect(expression).toEqual({

@@ -26,7 +26,7 @@ import extractZip from 'extract-zip';
 import * as URL from 'url';
 import {promisify} from 'util';
 import {assert} from './assert';
-import {Product} from './Product';
+import type {Product} from './Product';
 
 import {deleteDirectory} from '../delete-directory';
 import {getDownloadsCacheDir} from './get-download-destination';

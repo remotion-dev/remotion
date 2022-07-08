@@ -1,7 +1,8 @@
 import fs from 'fs';
-import {Internals, StillImageFormat} from 'remotion';
-import {Page} from './browser/Page';
-import {ScreenshotOptions} from './browser/ScreenshotOptions';
+import type {StillImageFormat} from 'remotion';
+import {Internals} from 'remotion';
+import type {Page} from './browser/Page';
+import type {ScreenshotOptions} from './browser/ScreenshotOptions';
 
 export const _screenshotTask = async (
 	page: Page,
@@ -37,7 +38,8 @@ export const _screenshotTask = async (
 
 	const saveMarker = Internals.perf.startPerfMeasure('save');
 
-	if (options.path) await fs.promises.writeFile(options.path, result.data);
+	const buffer = Buffer.from(result.data, 'base64');
+	if (options.path) await fs.promises.writeFile(options.path, buffer);
 	Internals.perf.stopPerfMeasure(saveMarker);
-	return Buffer.from(result.data, 'base64');
+	return buffer;
 };
