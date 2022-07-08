@@ -6,7 +6,7 @@ A function that modifies the default Webpack configuration to make the necessary
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "remotion";
-import { enableSkia } from "@remotion/skia";
+import { enableSkia } from "@remotion/skia/enable";
 
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
   return enableSkia(currentConfiguration);
@@ -17,7 +17,7 @@ If you want to make other configuration changes, you can do so by doing them red
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "remotion";
-import { enableSkia } from "@remotion/skia";
+import { enableSkia } from "@remotion/skia/enable";
 
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
   const newConfig = enableSkia(currentConfiguration);
