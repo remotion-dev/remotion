@@ -13,8 +13,8 @@ import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-fi
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
 import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
+import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
-import type {Page} from './browser/Page';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {getActualConcurrency} from './get-concurrency';

@@ -15,10 +15,10 @@
  */
 
 import {assert} from './assert';
+import type {Page} from './BrowserPage';
 import type {Connection} from './Connection';
 import type {DevtoolsTargetCreatedEvent} from './devtools-types';
 import {EventEmitter} from './EventEmitter';
-import type {Page} from './Page';
 import type {Viewport} from './PuppeteerViewport';
 import {Target} from './Target';
 import {waitWithTimeout} from './util';

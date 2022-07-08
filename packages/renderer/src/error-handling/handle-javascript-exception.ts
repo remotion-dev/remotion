@@ -1,6 +1,6 @@
 import {Internals} from 'remotion';
+import type {Page} from '../browser/BrowserPage';
 import type {CallFrame, ExceptionThrownEvent} from '../browser/devtools-types';
-import type {Page} from '../browser/Page';
 import type {UnsymbolicatedStackFrame} from '../parse-browser-error-stack';
 import type {SymbolicatedStackFrame} from '../symbolicate-stacktrace';
 import {SymbolicateableError} from './symbolicateable-error';

@@ -1,4 +1,4 @@
-import type {Page} from './browser/Page';
+import type {Page} from './browser/BrowserPage';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 
 export const seekToFrame = async ({
