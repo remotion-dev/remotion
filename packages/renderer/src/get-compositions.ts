@@ -68,7 +68,7 @@ const innerGetCompositions = async (
 		args: [],
 	});
 
-	await page.waitForFunction('window.ready === true');
+	await page.waitForFunction(page.browser, 'window.ready === true');
 	const result = await puppeteerEvaluateWithCatch({
 		pageFunction: () => {
 			return window.getStaticCompositions();

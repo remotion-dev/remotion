@@ -24,11 +24,6 @@ export interface BrowserLaunchArgumentOptions {
 	debuggingPort?: number;
 	args: string[];
 }
-export type ChromeReleaseChannel =
-	| 'chrome'
-	| 'chrome-beta'
-	| 'chrome-canary'
-	| 'chrome-dev';
 
 export interface LaunchOptions {
 	executablePath?: string;

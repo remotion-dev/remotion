@@ -28,7 +28,7 @@ const determineVcodecFfmepgFlags = (
 	].filter(Internals.truthy);
 };
 
-export const determineResizeParams = (
+const determineResizeParams = (
 	needsResize: [number, number] | null
 ): string[] => {
 	if (needsResize === null) {

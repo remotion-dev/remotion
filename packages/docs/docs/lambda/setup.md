@@ -70,11 +70,9 @@ Your package.json should look like the following:
 
 - Go to [AWS account IAM Roles section](https://console.aws.amazon.com/iamv2/home#/roles)
 - Click "Create role".
-- Under "Common use cases", select "Lambda". Click next.
-- Under "Attach permissions policies", filter for `remotion-lambda-policy` and click the checkbox to assign this policy.
-- Click next. No need to add tags. Click next again.
-- Tags: Skip it
-- In the final screen, name the role `remotion-lambda-role` **exactly**. You can leave the other fields as is.
+- Under "Use cases", select "Lambda". Click next.
+- Under "Attach permissions policies", filter for `remotion-lambda-policy` and click the checkbox to assign this policy. Click next.
+- In the final step, name the role `remotion-lambda-role` **exactly**. You can leave the other fields as is.
 - Click "Create role" to confirm.
 
 ## 4. Create a user
@@ -98,7 +96,7 @@ REMOTION_AWS_SECRET_ACCESS_KEY=<Secret access key>
 
 - Go to [AWS account IAM Users section](https://console.aws.amazon.com/iamv2/home#/users)
 - Select the user you just created.
-- Click "Add inline policy" on the right of the screen.
+- Click "Add inline policy" on the right of the screen under "Permissions policies".
 - Click the tab "JSON".
 - Enter in your terminal: `npx remotion lambda policies user` and copy into the AWS text field what gets printed.
 - Give the policy a name. For example `remotion-user-policy`, but it can be anything..
@@ -289,7 +287,7 @@ const { renderId, bucketName } = await renderMediaOnLambda({
   serveUrl: url,
   composition: "HelloWorld",
   inputProps: {},
-  codec: "h264-mkv",
+  codec: "h264",
   imageFormat: "jpeg",
   maxRetries: 1,
   framesPerLambda: 20,
@@ -322,7 +320,7 @@ const { renderId, bucketName } = await renderMediaOnLambda({
   serveUrl: url,
   composition: "HelloWorld",
   inputProps: {},
-  codec: "h264-mkv",
+  codec: "h264",
   imageFormat: "jpeg",
   maxRetries: 1,
   framesPerLambda: 20,

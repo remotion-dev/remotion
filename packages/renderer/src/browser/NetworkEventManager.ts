@@ -1,37 +1,38 @@
-import type {Protocol} from 'devtools-protocol';
+import type {
+	LoadingFailedEvent,
+	LoadingFinishedEvent,
+	RequestPausedEvent,
+	RequestWillBeSentEvent,
+	ResponseReceivedEvent,
+	ResponseReceivedExtraInfoEvent,
+} from './devtools-types';
 import type {HTTPRequest} from './HTTPRequest';
 
 type QueuedEventGroup = {
-	responseReceivedEvent: Protocol.Network.ResponseReceivedEvent;
-	loadingFinishedEvent?: Protocol.Network.LoadingFinishedEvent;
-	loadingFailedEvent?: Protocol.Network.LoadingFailedEvent;
+	responseReceivedEvent: ResponseReceivedEvent;
+	loadingFinishedEvent?: LoadingFinishedEvent;
+	loadingFailedEvent?: LoadingFailedEvent;
 };
 
 export type FetchRequestId = string;
 type NetworkRequestId = string;
 
 type RedirectInfo = {
-	event: Protocol.Network.RequestWillBeSentEvent;
+	event: RequestWillBeSentEvent;
 	fetchRequestId?: FetchRequestId;
 };
 type RedirectInfoList = RedirectInfo[];
 
 export class NetworkEventManager {
-	#requestWillBeSentMap = new Map<
-		NetworkRequestId,
-		Protocol.Network.RequestWillBeSentEvent
-	>();
+	#requestWillBeSentMap = new Map<NetworkRequestId, RequestWillBeSentEvent>();
 
-	#requestPausedMap = new Map<
-		NetworkRequestId,
-		Protocol.Fetch.RequestPausedEvent
-	>();
+	#requestPausedMap = new Map<NetworkRequestId, RequestPausedEvent>();
 
 	#httpRequestsMap = new Map<NetworkRequestId, HTTPRequest>();
 
 	#responseReceivedExtraInfoMap = new Map<
 		NetworkRequestId,
-		Protocol.Network.ResponseReceivedExtraInfoEvent[]
+		ResponseReceivedExtraInfoEvent[]
 	>();
 
 	#queuedRedirectInfoMap = new Map<NetworkRequestId, RedirectInfoList>();
@@ -47,14 +48,14 @@ export class NetworkEventManager {
 
 	responseExtraInfo(
 		networkRequestId: NetworkRequestId
-	): Protocol.Network.ResponseReceivedExtraInfoEvent[] {
+	): ResponseReceivedExtraInfoEvent[] {
 		if (!this.#responseReceivedExtraInfoMap.has(networkRequestId)) {
 			this.#responseReceivedExtraInfoMap.set(networkRequestId, []);
 		}
 
 		return this.#responseReceivedExtraInfoMap.get(
 			networkRequestId
-		) as Protocol.Network.ResponseReceivedExtraInfoEvent[];
+		) as ResponseReceivedExtraInfoEvent[];
 	}
 
 	private queuedRedirectInfo(fetchRequestId: FetchRequestId): RedirectInfoList {
@@ -86,14 +87,14 @@ export class NetworkEventManager {
 
 	storeRequestWillBeSent(
 		networkRequestId: NetworkRequestId,
-		event: Protocol.Network.RequestWillBeSentEvent
+		event: RequestWillBeSentEvent
 	): void {
 		this.#requestWillBeSentMap.set(networkRequestId, event);
 	}
 
 	getRequestWillBeSent(
 		networkRequestId: NetworkRequestId
-	): Protocol.Network.RequestWillBeSentEvent | undefined {
+	): RequestWillBeSentEvent | undefined {
 		return this.#requestWillBeSentMap.get(networkRequestId);
 	}
 
@@ -103,7 +104,7 @@ export class NetworkEventManager {
 
 	storeRequestPaused(
 		networkRequestId: NetworkRequestId,
-		event: Protocol.Fetch.RequestPausedEvent
+		event: RequestPausedEvent
 	): void {
 		this.#requestPausedMap.set(networkRequestId, event);
 	}
