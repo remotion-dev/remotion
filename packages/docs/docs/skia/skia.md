@@ -63,6 +63,24 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 });
 ```
 
+Next, you need to refactor entrypoint file (most commonly `src/index.ts`) to first load the Skia WebAssembly binary before calling registerRoot():
+
+```ts twoslash title="src/index.ts"
+// @filename: ./Video.tsx
+export const RemotionVideo = () => <></>;
+
+// @filename: index.tsx
+// ---cut---
+import { LoadSkia } from "@shopify/react-native-skia/src/web";
+import { registerRoot } from "remotion";
+
+(async () => {
+  await LoadSkia();
+  const { RemotionVideo } = await import("./Video");
+  registerRoot(RemotionVideo);
+})();
+```
+
 You can now start using the [`<SkiaCanvas>`](/docs/skia/skia-canvas) in your Remotion project.
 
 ## APIs
