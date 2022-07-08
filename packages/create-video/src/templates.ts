@@ -119,4 +119,18 @@ export const FEATURED_TEMPLATES: Template[] = [
 		},
 		cliId: 'audiogram',
 	},
+	{
+		homePageLabel: 'Skia',
+		shortName: 'Skia',
+		org: 'remotion-dev',
+		repoName: 'template-skia',
+		description: 'React Native Skia starter',
+		longerDescription: 'A template with React Native Skia already setup.',
+		promoVideo: {
+			muxId: 'A3ei3bzeT00Z1JCXmykOXD9v01V02HWZkc4jmmDaBiW01rE',
+			height: 1080,
+			width: 1920,
+		},
+		cliId: 'skia',
+	},
 ];
