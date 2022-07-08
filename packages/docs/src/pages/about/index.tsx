@@ -34,27 +34,25 @@ export default () => {
         <meta property="twitter:image" content="/img/lambda-og.png" />
       </Head>
       <div style={container}>
+        <br/>
+      <div/>
         <br />
-        <Header />
-      </div>
-      <div>
+        <p>Remotion is from developers for developers.</p>
         <br />
         <LambdaHeader />
 
         <div>
           <Header/> 
         </div>
-
-        <div>
-          <Header1 /> <Header2 /> <Header3 />
-        </div>
-
-        <div>
-          <RenderTimes />
-        </div>
-
-        <br />
+        <br/>
+        <Header1 /> <Header2 /> <Header3 />
         
+        <br />
+        <br />
+        <div>
+        <RenderTimes />
+        </div>
+        <br />
         <div>
           <LambdaFast />
           <br />
