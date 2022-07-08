@@ -16,6 +16,7 @@
 
 import {assert} from './assert';
 import type {Browser} from './Browser';
+import type {Page} from './BrowserPage';
 import type {CDPSession} from './Connection';
 import {Connection} from './Connection';
 import type {
@@ -43,7 +44,6 @@ import type {JSHandle} from './JSHandle';
 import type {PuppeteerLifeCycleEvent} from './LifecycleWatcher';
 import {LifecycleWatcher} from './LifecycleWatcher';
 import {NetworkManager} from './NetworkManager';
-import type {Page} from './Page';
 import type {TimeoutSettings} from './TimeoutSettings';
 import {isErrorLike} from './util';
 

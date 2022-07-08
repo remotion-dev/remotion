@@ -1,5 +1,5 @@
 import {Internals} from 'remotion';
-import type {Page} from './browser/Page';
+import type {Page} from './browser/BrowserPage';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';

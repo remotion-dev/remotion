@@ -15,9 +15,9 @@
  */
 
 import type {Browser, BrowserContext} from './Browser';
+import {Page} from './BrowserPage';
 import type {CDPSession} from './Connection';
 import type {TargetInfo} from './devtools-types';
-import {Page} from './Page';
 import type {Viewport} from './PuppeteerViewport';
 
 const isPagetTarget = (target: TargetInfo): boolean => {
