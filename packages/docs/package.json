@@ -28,6 +28,7 @@
     "@remotion/gif": "3.0.28",
     "@remotion/lambda": "3.0.28",
     "@remotion/media-utils": "3.0.28",
+    "@shopify/react-native-skia": "^0.1.136",
     "@remotion/player": "3.0.28",
     "@remotion/preload": "3.0.28",
     "@remotion/renderer": "3.0.28",
