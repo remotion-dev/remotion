@@ -123,13 +123,13 @@ export const ChooseTemplate: React.FC = () => {
       {modal ? (
         <TemplateModal selectedTemplate={modal} onDismiss={onDismiss} />
       ) : null}
-      <div style={{ flex: 1 }} />
       <div
         style={{
           display: "flex",
           flexDirection: "row",
-          justifyContent: "center",
-          alignItems: "center",
+          justifyContent: mobileLayout ? "flex-start" : "center",
+          maxWidth: "100%",
+          overflowX: "auto",
         }}
       >
         {chunks.map((c) => {
