@@ -52,7 +52,7 @@ Also update **all the other Remotion packages** to have the same version: `remot
 Make sure no package version number has a `^` character in front of it as it can lead to a version conflict.
 :::
 
-[Override the Webpack config](/docs/webpack) by using `enableSkia()`.
+[Override the Webpack config](/docs/webpack) by using [`enableSkia()`](/docs/skia/enable-skia).
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "remotion";
@@ -62,3 +62,10 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
   return enableSkia(currentConfiguration);
 });
 ```
+
+You can now start using the [`<SkiaCanvas>`](/docs/skia/skia-canvas) in your Remotion project.
+
+## APIs
+
+- [`enableSkia()`](/docs/skia/enable-skia)
+- [`<SkiaCanvas />`](/docs/skia/skia-canvas)

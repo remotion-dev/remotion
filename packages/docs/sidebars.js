@@ -225,7 +225,7 @@ module.exports = {
         type: "doc",
         id: "skia/skia",
       },
-      items: ["skia/skia"],
+      items: ["skia/enable-skia", "skia/skia-canvas"],
     },
     {
       type: "category",
