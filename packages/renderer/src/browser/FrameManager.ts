@@ -14,11 +14,20 @@
  * limitations under the License.
  */
 
-import type {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
 import type {Browser} from './Browser';
 import type {CDPSession} from './Connection';
 import {Connection} from './Connection';
+import type {
+	AttachedToTargetEvent,
+	DetachedFromTargetEvent,
+	ExecutionContextDescription,
+	Frame as TFrame,
+	FrameDetachedEvent,
+	FrameDetachedEventReason,
+	FrameTree,
+	LifecycleEventEvent,
+} from './devtools-types';
 import {DOMWorld} from './DOMWorld';
 import type {
 	EvaluateFn,
@@ -93,15 +102,12 @@ export class FrameManager extends EventEmitter {
 		session.on('Page.navigatedWithinDocument', (event) => {
 			this.#onFrameNavigatedWithinDocument(event.frameId, event.url);
 		});
-		session.on(
-			'Page.frameDetached',
-			(event: Protocol.Page.FrameDetachedEvent) => {
-				this.#onFrameDetached(
-					event.frameId,
-					event.reason as Protocol.Page.FrameDetachedEventReason
-				);
-			}
-		);
+		session.on('Page.frameDetached', (event: FrameDetachedEvent) => {
+			this.#onFrameDetached(
+				event.frameId,
+				event.reason as FrameDetachedEventReason
+			);
+		});
 		session.on('Page.frameStartedLoading', (event) => {
 			this.#onFrameStartedLoading(event.frameId);
 		});
@@ -231,7 +237,7 @@ export class FrameManager extends EventEmitter {
 		}
 	}
 
-	async #onAttachedToTarget(event: Protocol.Target.AttachedToTargetEvent) {
+	async #onAttachedToTarget(event: AttachedToTargetEvent) {
 		if (event.targetInfo.type !== 'iframe') {
 			return;
 		}
@@ -249,7 +255,7 @@ export class FrameManager extends EventEmitter {
 		await this.initialize(session);
 	}
 
-	#onDetachedFromTarget(event: Protocol.Target.DetachedFromTargetEvent) {
+	#onDetachedFromTarget(event: DetachedFromTargetEvent) {
 		if (!event.targetId) {
 			return;
 		}
@@ -262,7 +268,7 @@ export class FrameManager extends EventEmitter {
 		}
 	}
 
-	#onLifecycleEvent(event: Protocol.Page.LifecycleEventEvent): void {
+	#onLifecycleEvent(event: LifecycleEventEvent): void {
 		const frame = this.#frames.get(event.frameId);
 		if (!frame) {
 			return;
@@ -291,10 +297,7 @@ export class FrameManager extends EventEmitter {
 		this.emit(FrameManagerEmittedEvents.LifecycleEvent, frame);
 	}
 
-	#handleFrameTree(
-		session: CDPSession,
-		frameTree: Protocol.Page.FrameTree
-	): void {
+	#handleFrameTree(session: CDPSession, frameTree: FrameTree): void {
 		if (frameTree.frame.parentId) {
 			this.#onFrameAttached(
 				session,
@@ -354,7 +357,7 @@ export class FrameManager extends EventEmitter {
 		this.#frames.set(frame._id, frame);
 	}
 
-	#onFrameNavigated(framePayload: Protocol.Page.Frame): void {
+	#onFrameNavigated(framePayload: TFrame): void {
 		const isMainFrame = !framePayload.parentId;
 		let frame = isMainFrame
 			? this.#mainFrame
@@ -434,10 +437,7 @@ export class FrameManager extends EventEmitter {
 		this.emit(FrameManagerEmittedEvents.FrameNavigated, frame);
 	}
 
-	#onFrameDetached(
-		frameId: string,
-		reason: Protocol.Page.FrameDetachedEventReason
-	): void {
+	#onFrameDetached(frameId: string, reason: FrameDetachedEventReason): void {
 		const frame = this.#frames.get(frameId);
 		if (reason === 'remove') {
 			// Only remove the frame if the reason for the detached event is
@@ -452,7 +452,7 @@ export class FrameManager extends EventEmitter {
 	}
 
 	#onExecutionContextCreated(
-		contextPayload: Protocol.Runtime.ExecutionContextDescription,
+		contextPayload: ExecutionContextDescription,
 		session: CDPSession
 	): void {
 		const auxData = contextPayload.auxData as {frameId?: string} | undefined;
@@ -646,7 +646,7 @@ export class Frame {
 		return this._mainWorld.waitForFunction(browser, pageFunction, ...args);
 	}
 
-	_navigated(framePayload: Protocol.Page.Frame): void {
+	_navigated(framePayload: TFrame): void {
 		this._name = framePayload.name;
 		this.#url = `${framePayload.url}${framePayload.urlFragment || ''}`;
 	}

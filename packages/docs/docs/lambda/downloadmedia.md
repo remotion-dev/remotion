@@ -16,10 +16,10 @@ const { outputPath, sizeInBytes } = await downloadMedia({
   region: "us-east-1",
   renderId: "8hfxlw",
   outPath: "out.mp4",
-  onProgress: ({ totalSize, downloaded, progress }) => {
+  onProgress: ({ totalSize, downloaded, percent }) => {
     console.log(
       `Download progress: ${totalSize}/${downloaded} bytes (${(
-        progress * 100
+        percent * 100
       ).toFixed(0)}%)`
     );
   },
@@ -55,7 +55,7 @@ Callback function that gets called with the following properties:
 
 - `totalSize` in bytes
 - `downloaded` number of bytes downloaded
-- `progress` relative progress between 0 and 1
+- `percent` relative progress between 0 and 1
 
 ## Return value
 
