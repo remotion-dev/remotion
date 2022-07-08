@@ -3,3 +3,62 @@ id: skia
 sidebar_label: Overview
 title: "@remotion/skia"
 ---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+This package provides utilities useful for integrating [React Native Skia](https://github.com/Shopify/react-native-skia) with Remotion.
+
+## Installation
+
+Install both `@remotion/skia` as well as `@shopify/react-native-skia`.
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm i @remotion/skia @shopify/react-native-skia
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn add @remotion/skia @shopify/react-native-skia
+```
+
+  </TabItem>
+
+  <TabItem value="pnpm">
+
+```bash
+pnpm i @remotion/skia @shopify/react-native-skia
+```
+
+  </TabItem>
+</Tabs>
+
+Also update **all the other Remotion packages** to have the same version: `remotion`, `@remotion/cli` and others.
+
+:::note
+Make sure no package version number has a `^` character in front of it as it can lead to a version conflict.
+:::
+
+[Override the Webpack config](/docs/webpack) by using `enableSkia()`.
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "remotion";
+import { enableSkia } from "@remotion/skia";
+
+Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+  return enableSkia(currentConfiguration);
+});
+```
