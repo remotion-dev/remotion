@@ -27,7 +27,7 @@ test('Get audio channels for video without music', async () => {
 		'example',
 		'src',
 		'resources',
-		'framermp4withoutfileextension'
+		'framer.mp4'
 	);
 	expect(existsSync(videoWithAudio)).toEqual(true);
 	const channels = await getAudioChannelsAndDuration(videoWithAudio, null);
