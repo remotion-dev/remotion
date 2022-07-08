@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import type { ShowcaseVideo } from "../data/showcase-videos";
 import { useMobileLayout } from "../helpers/mobile-layout";
-import { useElementSize } from "../helpers/use-el-size";
 import { CancelIcon, IconLeft, IconRight } from "../icons/arrows";
 import { VideoPlayerContent } from "./VideoPlayerContent";
 import { VidPlayerHeader } from "./VideoPlayerHeader";

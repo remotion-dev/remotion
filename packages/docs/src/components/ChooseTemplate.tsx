@@ -11,7 +11,6 @@ import { TTSIcon } from "./icons/tts";
 import { Waveform } from "./icons/waveform";
 import { TemplateIcon } from "./TemplateIcon";
 import { chunk } from "../helpers/chunk";
-import { useElementSize } from "../helpers/use-el-size";
 import { NavigateLeft, NavigateRight } from "./ArrowRight";
 import { useMobileLayout } from "../helpers/mobile-layout";
 
