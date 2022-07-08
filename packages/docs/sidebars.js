@@ -220,6 +220,15 @@ module.exports = {
     },
     {
       type: "category",
+      label: "API - @remotion/skia",
+      link: {
+        type: "doc",
+        id: "skia/skia",
+      },
+      items: ["skia/skia"],
+    },
+    {
+      type: "category",
       label: "API - @remotion/preload",
       link: {
         type: "doc",
