@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import type { Template } from "create-video";
 import { CreateVideoInternals } from "create-video";
 import { TemplateModal } from "./TemplateModal";
@@ -12,6 +12,8 @@ import { Waveform } from "./icons/waveform";
 import { TemplateIcon } from "./TemplateIcon";
 import { chunk } from "../helpers/chunk";
 import { useElementSize } from "../helpers/use-el-size";
+import { NavigateLeft, NavigateRight } from "./ArrowRight";
+import { useMobileLayout } from "../helpers/mobile-layout";
 
 const IconForTemplate: React.FC<{
   template: Template;
@@ -98,10 +100,7 @@ const IconForTemplate: React.FC<{
 export const ChooseTemplate: React.FC = () => {
   const [modal, setModal] = useState<Template | null>(null);
 
-  const containerSize = useElementSize(
-    typeof document === "undefined" ? null : document.body
-  );
-  const mobileLayout = (containerSize?.width ?? Infinity) < 900;
+  const mobileLayout = useMobileLayout();
 
   const onClick = useCallback((template: Template) => {
     setModal(template);
@@ -111,7 +110,44 @@ export const ChooseTemplate: React.FC = () => {
     setModal(null);
   }, []);
 
+  const [rightVisible, setRightVisible] = useState(true);
+  const [leftVisible, setLeftVisible] = useState(false);
+
   const chunks = chunk(CreateVideoInternals.FEATURED_TEMPLATES, 4);
+
+  const scrollable = useRef<HTMLDivElement>(null);
+  const inner = useRef<HTMLDivElement>(null);
+
+  const onClickRight = useCallback(() => {
+    scrollable.current.scrollTo({
+      left: 1000,
+    });
+  }, []);
+
+  const onClickLeft = useCallback(() => {
+    scrollable.current.scrollTo({
+      left: 0,
+    });
+  }, []);
+
+  useEffect(() => {
+    const listener = (e: Event) => {
+      const scrollLeft = (e.target as HTMLDivElement).scrollLeft as number;
+      const { width } = (e.target as HTMLDivElement).getClientRects()[0];
+      const { width: innerWidth } = inner.current.getClientRects()[0];
+      const fromRight = width - innerWidth - scrollLeft;
+      setRightVisible(fromRight > 40);
+      setLeftVisible(scrollLeft > 20);
+    };
+
+    const { current } = scrollable;
+
+    current.addEventListener("scroll", listener);
+
+    return () => {
+      current.removeEventListener("scroll", listener);
+    };
+  }, []);
 
   return (
     <div
@@ -125,38 +161,54 @@ export const ChooseTemplate: React.FC = () => {
       ) : null}
       <div
         style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: mobileLayout ? "flex-start" : "center",
-          maxWidth: "100%",
-          overflowX: "auto",
+          position: "relative",
         }}
       >
-        {chunks.map((c) => {
-          return (
-            <div
-              key={c.map((_) => _.cliId).join("-")}
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                marginBottom: mobileLayout ? 8 : 0,
-                marginTop: mobileLayout ? 8 : 0,
-              }}
-            >
-              {c.map((template) => {
-                return (
-                  <TemplateIcon
-                    key={template.cliId}
-                    onClick={() => onClick(template)}
-                    label={template.homePageLabel}
-                  >
-                    <IconForTemplate template={template} />
-                  </TemplateIcon>
-                );
-              })}
-            </div>
-          );
-        })}
+        <div
+          ref={scrollable}
+          className="no-scroll-bar"
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: mobileLayout ? "flex-start" : "center",
+            maxWidth: "100%",
+            overflowX: "auto",
+            scrollBehavior: "smooth",
+          }}
+        >
+          {chunks.map((c) => {
+            return (
+              <div
+                ref={inner}
+                key={c.map((_) => _.cliId).join("-")}
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  marginBottom: mobileLayout ? 8 : 0,
+                  marginTop: mobileLayout ? 8 : 0,
+                }}
+              >
+                {c.map((template) => {
+                  return (
+                    <TemplateIcon
+                      key={template.cliId}
+                      onClick={() => onClick(template)}
+                      label={template.homePageLabel}
+                    >
+                      <IconForTemplate template={template} />
+                    </TemplateIcon>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+        {mobileLayout ? (
+          <NavigateLeft visible={leftVisible} onClick={onClickLeft} />
+        ) : null}
+        {mobileLayout ? (
+          <NavigateRight visible={rightVisible} onClick={onClickRight} />
+        ) : null}
       </div>
     </div>
   );

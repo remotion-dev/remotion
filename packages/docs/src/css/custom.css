@@ -125,3 +125,7 @@ code {
   text-underline-position: under;
   text-decoration: underline;
 }
+
+.no-scroll-bar::-webkit-scrollbar {
+  display: none;
+}
