@@ -56,7 +56,7 @@ Make sure no package version number has a `^` character in front of it as it can
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "remotion";
-import { enableSkia } from "@remotion/skia";
+import { enableSkia } from "@remotion/skia/enable";
 
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
   return enableSkia(currentConfiguration);
