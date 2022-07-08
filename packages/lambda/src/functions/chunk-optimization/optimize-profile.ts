@@ -1,7 +1,7 @@
 import {getFrameRangesFromProfile} from './get-frame-ranges-from-profile';
 import {simulateFrameRanges} from './simulate-frame-ranges';
 import {sortProfileByDuration} from './sort-by-duration';
-import {TimingProfile} from './types';
+import type {TimingProfile} from './types';
 
 export const assignFrameToOther = ({
 	frameRanges,

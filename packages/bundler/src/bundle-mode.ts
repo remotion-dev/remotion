@@ -1,4 +1,4 @@
-import {BundleState} from 'remotion';
+import type {BundleState} from 'remotion';
 
 let bundleMode: BundleState = {
 	type: 'index',

@@ -4,7 +4,6 @@ import {getRemotionS3Buckets} from '../../../api/get-buckets';
 import {getSites} from '../../../api/get-sites';
 import {getAwsRegion} from '../../get-aws-region';
 import {confirmCli} from '../../helpers/confirm';
-import {formatBytes} from '../../helpers/format-bytes';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 
@@ -39,9 +38,9 @@ export const sitesRmallSubcommand = async () => {
 
 	for (const site of deployedSites.sites) {
 		await confirmCli({
-			delMessage: `Site ${site.id} in bucket ${site.bucketName} (${formatBytes(
-				site.sizeInBytes
-			)}): Delete? (Y/n)`,
+			delMessage: `Site ${site.id} in bucket ${
+				site.bucketName
+			} (${CliInternals.formatBytes(site.sizeInBytes)}): Delete? (Y/n)`,
 			allowForceFlag: true,
 		});
 
@@ -54,6 +53,10 @@ export const sitesRmallSubcommand = async () => {
 			},
 		});
 
-		Log.info(`Deleted site ${site.id} and freed up ${formatBytes(totalSize)}.`);
+		Log.info(
+			`Deleted site ${site.id} and freed up ${CliInternals.formatBytes(
+				totalSize
+			)}.`
+		);
 	}
 };

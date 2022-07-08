@@ -1,6 +1,6 @@
-import {AwsRegion} from '../pricing/aws-regions';
-import {LambdaVersions} from '../shared/constants';
-import {FunctionInfo} from './get-function-info';
+import type {AwsRegion} from '../pricing/aws-regions';
+import type {LambdaVersions} from '../shared/constants';
+import type {FunctionInfo} from './get-function-info';
 
 export let mockFunctionsStore: (FunctionInfo & {
 	region: AwsRegion;

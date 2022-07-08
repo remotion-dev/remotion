@@ -1,10 +1,10 @@
-import {infoHandler} from '../functions/info';
-import {launchHandler} from '../functions/launch';
-import {progressHandler} from '../functions/progress';
-import {rendererHandler} from '../functions/renderer';
-import {startHandler} from '../functions/start';
-import {stillHandler} from '../functions/still';
-import {LambdaRoutines} from './constants';
+import type {infoHandler} from '../functions/info';
+import type {launchHandler} from '../functions/launch';
+import type {progressHandler} from '../functions/progress';
+import type {rendererHandler} from '../functions/renderer';
+import type {startHandler} from '../functions/start';
+import type {stillHandler} from '../functions/still';
+import type {LambdaRoutines} from './constants';
 
 export interface LambdaReturnValues {
 	[LambdaRoutines.start]: ReturnType<typeof startHandler>;

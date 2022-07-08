@@ -1,5 +1,5 @@
 import {flattenVolumeArray} from './assets/flatten-volume-array';
-import {MediaAsset} from './assets/types';
+import type {MediaAsset} from './assets/types';
 import {stringifyFfmpegFilter} from './stringify-ffmpeg-filter';
 
 export const calculateFfmpegFilter = ({

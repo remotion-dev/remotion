@@ -1,4 +1,5 @@
-import {Canvas, RootState, useThree} from '@react-three/fiber';
+import type {RootState} from '@react-three/fiber';
+import {Canvas, useThree} from '@react-three/fiber';
 import React, {useCallback, useLayoutEffect, useState} from 'react';
 import {continueRender, delayRender, Internals} from 'remotion';
 import {SuspenseLoader} from './SuspenseLoader';

@@ -1,4 +1,4 @@
-import {ChunkTimingData, TimingProfile} from './types';
+import type {ChunkTimingData, TimingProfile} from './types';
 
 export const getTimingEndTimestamps = (chunk: ChunkTimingData): number[] => {
 	return chunk.timings.map((timing) => chunk.startDate + timing);

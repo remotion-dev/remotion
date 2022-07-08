@@ -3,7 +3,7 @@ import {getRemotionEnvironment} from '../get-environment';
 import {Sequence} from '../Sequence';
 import {validateMediaProps} from '../validate-media-props';
 import {validateStartFromProps} from '../validate-start-from-props';
-import {RemotionMainVideoProps, RemotionVideoProps} from './props';
+import type {RemotionMainVideoProps, RemotionVideoProps} from './props';
 import {VideoForDevelopment} from './VideoForDevelopment';
 import {VideoForRendering} from './VideoForRendering';
 
@@ -40,7 +40,13 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		return <VideoForRendering {...otherProps} ref={ref} />;
 	}
 
-	return <VideoForDevelopment {...otherProps} ref={ref} />;
+	return (
+		<VideoForDevelopment
+			onlyWarnForMediaSeekingError={false}
+			{...otherProps}
+			ref={ref}
+		/>
+	);
 };
 
 export const Video = forwardRef(VideoForwardingFunction);

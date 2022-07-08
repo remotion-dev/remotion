@@ -1,5 +1,6 @@
-import React, {RefObject} from 'react';
-import {CompositionManagerContext} from '../CompositionManager';
+import type {RefObject} from 'react';
+import React from 'react';
+import type {CompositionManagerContext} from '../CompositionManager';
 import {Internals} from '../internals';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import * as useVideoConfigModule from '../use-video-config';

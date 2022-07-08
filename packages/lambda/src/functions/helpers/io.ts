@@ -1,15 +1,16 @@
+import type {
+	_Object} from '@aws-sdk/client-s3';
 import {
 	GetObjectCommand,
 	ListObjectsV2Command,
-	PutObjectCommand,
-	_Object,
+	PutObjectCommand
 } from '@aws-sdk/client-s3';
-import {ReadStream} from 'fs';
+import type {ReadStream} from 'fs';
 import mimeTypes from 'mime-types';
-import {Readable} from 'stream';
-import {AwsRegion} from '../../pricing/aws-regions';
+import type {Readable} from 'stream';
+import type {AwsRegion} from '../../pricing/aws-regions';
 import {getS3Client} from '../../shared/aws-clients';
-import {Privacy} from '../../shared/constants';
+import type {Privacy} from '../../shared/constants';
 
 export type LambdaLSInput = {
 	bucketName: string;

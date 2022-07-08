@@ -1,9 +1,10 @@
-import {PreviewSize} from '@remotion/player';
+import type {PreviewSize} from '@remotion/player';
 import React, {useContext, useMemo} from 'react';
 import {Checkmark} from '../icons/Checkmark';
 import {PreviewSizeContext} from '../state/preview-size';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';
-import {Combobox, ComboboxValue} from './NewComposition/ComboBox';
+import type { ComboboxValue} from './NewComposition/ComboBox';
+import {Combobox} from './NewComposition/ComboBox';
 
 export const commonPreviewSizes: PreviewSize[] = ['auto', 0.25, 0.5, 1];
 

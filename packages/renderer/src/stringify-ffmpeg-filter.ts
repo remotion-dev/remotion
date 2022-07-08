@@ -1,7 +1,7 @@
 import {Internals} from 'remotion';
 import {calculateATempo} from './assets/calculate-atempo';
 import {ffmpegVolumeExpression} from './assets/ffmpeg-volume-expression';
-import {AssetVolume} from './assets/types';
+import type {AssetVolume} from './assets/types';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 export const stringifyFfmpegFilter = ({
@@ -24,12 +24,15 @@ export const stringifyFfmpegFilter = ({
 	durationInFrames: number;
 	playbackRate: number;
 	assetDuration: number | null;
-}) => {
+}): string | null => {
 	const startInVideoSeconds = startInVideo / fps;
+
+	if (assetDuration && trimLeft >= assetDuration) {
+		return null;
+	}
 
 	const volumeFilter = ffmpegVolumeExpression({
 		volume,
-		startInVideo,
 		fps,
 		trimLeft,
 	});
@@ -53,6 +56,12 @@ export const stringifyFfmpegFilter = ({
 			`atrim=${trimLeft.toFixed(6)}:${actualTrimRight.toFixed(6)}`,
 			// then set the tempo
 			calculateATempo(playbackRate),
+			// set the volume if needed
+			// The timings for volume must include whatever is in atrim, unless the volume
+			// filter gets applied before atrim
+			volumeFilter.value === '1'
+				? null
+				: `volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
 			// For n channels, we delay n + 1 channels.
 			// This is because `ffprobe` for some audio files reports the wrong amount
 			// of channels.
@@ -64,12 +73,6 @@ export const stringifyFfmpegFilter = ({
 				: `adelay=${new Array(channels + 1)
 						.fill((startInVideoSeconds * 1000).toFixed(0))
 						.join('|')}`,
-			// set the volume if needed
-			// The timings for volume must include whatever is in atrim, unless the volume
-			// filter gets applied before atrim
-			volumeFilter.value === '1'
-				? null
-				: `volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
 			// Only in the end, we pad to the full length.
 			padAtEnd > 0.0000001
 				? 'apad=pad_len=' + Math.round(padAtEnd * DEFAULT_SAMPLE_RATE)

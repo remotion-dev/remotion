@@ -1,7 +1,7 @@
 import * as assert from 'assert';
-import {StillImageFormat} from 'remotion';
-import {Page} from './browser/Page';
-import {ScreenshotOptions} from './browser/ScreenshotOptions';
+import type {StillImageFormat} from 'remotion';
+import type {Page} from './browser/Page';
+import type {ScreenshotOptions} from './browser/ScreenshotOptions';
 import {_screenshotTask} from './screenshot-task';
 
 export const screenshot = (

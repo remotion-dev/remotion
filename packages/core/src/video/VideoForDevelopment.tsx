@@ -8,17 +8,25 @@ import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state';
-import {RemotionVideoProps} from './props';
+import type {RemotionVideoProps} from './props';
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
-	RemotionVideoProps
+	RemotionVideoProps & {
+		onlyWarnForMediaSeekingError: boolean;
+	}
 > = (props, ref) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
 
 	const volumePropFrame = useFrameForVolumeProp();
 
-	const {volume, muted, playbackRate, ...nativeProps} = props;
+	const {
+		volume,
+		muted,
+		playbackRate,
+		onlyWarnForMediaSeekingError,
+		...nativeProps
+	} = props;
 
 	const actualVolume = useMediaTagVolume(videoRef);
 
@@ -46,6 +54,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		src: nativeProps.src,
 		mediaType: 'video',
 		playbackRate: props.playbackRate ?? 1,
+		onlyWarnForMediaSeekingError,
 	});
 
 	useImperativeHandle(ref, () => {

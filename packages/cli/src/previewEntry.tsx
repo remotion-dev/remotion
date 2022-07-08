@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import {Internals} from 'remotion';
 import '../styles/styles.css';
 import {Editor} from './editor/components/Editor';
+import {openEventSource} from './event-source';
 
 Internals.CSSUtils.injectCSS(
 	Internals.CSSUtils.makeDefaultCSS(null, '#1f2428')
@@ -26,3 +27,5 @@ if (ReactDOM.createRoot) {
 		Internals.getPreviewDomElement()
 	);
 }
+
+openEventSource();

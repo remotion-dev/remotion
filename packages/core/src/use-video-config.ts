@@ -1,5 +1,5 @@
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
-import {VideoConfig} from './video-config';
+import type {VideoConfig} from './video-config';
 
 /**
  * Get some info about the context of the video that you are making.

@@ -1,4 +1,5 @@
-import React, {SVGProps} from 'react';
+import type {SVGProps} from 'react';
+import React from 'react';
 import {LIGHT_COLOR} from '../../helpers/colors';
 
 const container: React.CSSProperties = {

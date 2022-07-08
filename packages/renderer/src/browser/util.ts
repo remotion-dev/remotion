@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-import type {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
-import {CDPSession} from './Connection';
+import type {Browser} from './Browser';
+import {BrowserEmittedEvents} from './Browser';
+import type {CDPSession} from './Connection';
+import type {DevtoolsRemoteObject, ExceptionDetails} from './devtools-types';
 import {TimeoutError} from './Errors';
-import {CommonEventEmitter} from './EventEmitter';
+import type {CommonEventEmitter} from './EventEmitter';
 
 export function getExceptionMessage(
-	exceptionDetails: Protocol.Runtime.ExceptionDetails
+	exceptionDetails: ExceptionDetails
 ): string {
 	if (exceptionDetails.exception) {
 		return (
@@ -46,9 +48,7 @@ export function getExceptionMessage(
 	return message;
 }
 
-export function valueFromRemoteObject(
-	remoteObject: Protocol.Runtime.RemoteObject
-) {
+export function valueFromRemoteObject(remoteObject: DevtoolsRemoteObject) {
 	assert(!remoteObject.objectId, 'Cannot extract value when objectId is given');
 	if (remoteObject.unserializableValue) {
 		if (remoteObject.type === 'bigint' && typeof BigInt !== 'undefined') {
@@ -77,7 +77,7 @@ export function valueFromRemoteObject(
 
 export async function releaseObject(
 	client: CDPSession,
-	remoteObject: Protocol.Runtime.RemoteObject
+	remoteObject: DevtoolsRemoteObject
 ): Promise<void> {
 	if (!remoteObject.objectId) {
 		return;
@@ -114,7 +114,7 @@ export function removeEventListeners(
 	}>
 ): void {
 	for (const listener of listeners) {
-		listener.emitter.removeListener(listener.eventName, listener.handler);
+		listener.emitter.off(listener.eventName, listener.handler);
 	}
 
 	listeners.length = 0;
@@ -198,7 +198,8 @@ export function pageBindingDeliverErrorValueString(
 export async function waitWithTimeout<T>(
 	promise: Promise<T>,
 	taskName: string,
-	timeout: number
+	timeout: number,
+	browser: Browser
 ): Promise<T> {
 	let reject: (reason?: Error) => void;
 	const timeoutError = new TimeoutError(
@@ -215,7 +216,15 @@ export async function waitWithTimeout<T>(
 	}
 
 	try {
-		return await Promise.race([promise, timeoutPromise]);
+		return await Promise.race([
+			new Promise<T>((_, rej) => {
+				browser.once(BrowserEmittedEvents.Closed, () => {
+					return rej();
+				});
+			}),
+			promise,
+			timeoutPromise,
+		]);
 	} finally {
 		if (timeoutTimer) {
 			clearTimeout(timeoutTimer);

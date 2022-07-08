@@ -26,13 +26,12 @@ const copyFileAsync = fs.promises.copyFile;
 const mkdtempAsync = fs.promises.mkdtemp;
 const writeFileAsync = fs.promises.writeFile;
 
-import {
+import type {
 	BrowserLaunchArgumentOptions,
-	ChromeReleaseChannel,
 	PuppeteerNodeLaunchOptions,
 } from './LaunchOptions';
 
-import {Product} from './Product';
+import type {Product} from './Product';
 
 const tmpDir = () => {
 	return process.env.PUPPETEER_TMP_DIR || os.tmpdir();
@@ -55,7 +54,6 @@ class ChromeLauncher implements ProductLauncher {
 		const {
 			args = [],
 			dumpio = false,
-			channel,
 			executablePath,
 			pipe = false,
 			env = process.env,
@@ -63,8 +61,7 @@ class ChromeLauncher implements ProductLauncher {
 			handleSIGTERM = true,
 			handleSIGHUP = true,
 			defaultViewport,
-			timeout = 30000,
-			waitForInitialPage = true,
+			timeout = 60000,
 			debuggingPort,
 		} = options;
 
@@ -111,15 +108,7 @@ class ChromeLauncher implements ProductLauncher {
 		isTempUserDataDir = false;
 
 		let chromeExecutable = executablePath;
-		if (channel) {
-			// executablePath is detected by channel, so it should not be specified by user.
-			assert(
-				!chromeExecutable,
-				'`executablePath` must not be specified when `channel` is given.'
-			);
-
-			chromeExecutable = executablePathForChannel(channel);
-		} else if (!chromeExecutable) {
+		if (!chromeExecutable) {
 			const {missingText, executablePath: exPath} = resolveExecutablePath(this);
 			if (missingText) {
 				throw new Error(missingText);
@@ -154,7 +143,6 @@ class ChromeLauncher implements ProductLauncher {
 				connection,
 				contextIds: [],
 				defaultViewport,
-				process: runner.proc,
 				closeCallback: runner.close.bind(runner),
 			});
 		} catch (error) {
@@ -162,28 +150,22 @@ class ChromeLauncher implements ProductLauncher {
 			throw error;
 		}
 
-		if (waitForInitialPage) {
-			try {
-				await browser.waitForTarget(
-					(t) => {
-						return t.type() === 'page';
-					},
-					{timeout}
-				);
-			} catch (error) {
-				await browser.close();
-				throw error;
-			}
+		try {
+			await browser.waitForTarget(
+				(t) => {
+					return t.type() === 'page';
+				},
+				{timeout}
+			);
+		} catch (error) {
+			await browser.close();
+			throw error;
 		}
 
 		return browser;
 	}
 
-	executablePath(channel?: ChromeReleaseChannel): string {
-		if (channel) {
-			return executablePathForChannel(channel);
-		}
-
+	executablePath(): string {
 		const results = resolveExecutablePath(this);
 		return results.executablePath;
 	}
@@ -202,8 +184,6 @@ class FirefoxLauncher implements ProductLauncher {
 
 	async launch(options: PuppeteerNodeLaunchOptions): Promise<Browser> {
 		const {
-			ignoreDefaultArgs = false,
-			args = [],
 			dumpio = false,
 			executablePath = null,
 			env = process.env,
@@ -213,22 +193,11 @@ class FirefoxLauncher implements ProductLauncher {
 			defaultViewport,
 			timeout = 30000,
 			extraPrefsFirefox = {},
-			waitForInitialPage = true,
 			debuggingPort = null,
 		} = options;
 
 		const firefoxArguments = [];
-		if (!ignoreDefaultArgs) {
-			firefoxArguments.push(...this.defaultArgs(options));
-		} else if (Array.isArray(ignoreDefaultArgs)) {
-			firefoxArguments.push(
-				...this.defaultArgs(options).filter((arg) => {
-					return !ignoreDefaultArgs.includes(arg);
-				})
-			);
-		} else {
-			firefoxArguments.push(...args);
-		}
+		firefoxArguments.push(...this.defaultArgs(options));
 
 		if (
 			!firefoxArguments.some((argument) => {
@@ -304,7 +273,6 @@ class FirefoxLauncher implements ProductLauncher {
 				connection,
 				contextIds: [],
 				defaultViewport,
-				process: runner.proc,
 				closeCallback: runner.close.bind(runner),
 			});
 		} catch (error) {
@@ -312,18 +280,16 @@ class FirefoxLauncher implements ProductLauncher {
 			throw error;
 		}
 
-		if (waitForInitialPage) {
-			try {
-				await browser.waitForTarget(
-					(t) => {
-						return t.type() === 'page';
-					},
-					{timeout}
-				);
-			} catch (error) {
-				await browser.close();
-				throw error;
-			}
+		try {
+			await browser.waitForTarget(
+				(t) => {
+					return t.type() === 'page';
+				},
+				{timeout}
+			);
+		} catch (error) {
+			await browser.close();
+			throw error;
 		}
 
 		return browser;
@@ -641,91 +607,6 @@ class FirefoxLauncher implements ProductLauncher {
 
 		return temporaryProfilePath;
 	}
-}
-
-function executablePathForChannel(channel: ChromeReleaseChannel): string {
-	const platform = os.platform();
-
-	let chromePath: string | undefined;
-	switch (platform) {
-		case 'win32':
-			switch (channel) {
-				case 'chrome':
-					chromePath = `${process.env.PROGRAMFILES}\\Google\\Chrome\\Application\\chrome.exe`;
-					break;
-				case 'chrome-beta':
-					chromePath = `${process.env.PROGRAMFILES}\\Google\\Chrome Beta\\Application\\chrome.exe`;
-					break;
-				case 'chrome-canary':
-					chromePath = `${process.env.PROGRAMFILES}\\Google\\Chrome SxS\\Application\\chrome.exe`;
-					break;
-				case 'chrome-dev':
-					chromePath = `${process.env.PROGRAMFILES}\\Google\\Chrome Dev\\Application\\chrome.exe`;
-					break;
-				default:
-					throw new Error('unknown chrome release channel');
-			}
-
-			break;
-		case 'darwin':
-			switch (channel) {
-				case 'chrome':
-					chromePath =
-						'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-					break;
-				case 'chrome-beta':
-					chromePath =
-						'/Applications/Google Chrome Beta.app/Contents/MacOS/Google Chrome Beta';
-					break;
-				case 'chrome-canary':
-					chromePath =
-						'/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary';
-					break;
-				case 'chrome-dev':
-					chromePath =
-						'/Applications/Google Chrome Dev.app/Contents/MacOS/Google Chrome Dev';
-					break;
-				default:
-					throw new Error('unknown chrome release channel');
-			}
-
-			break;
-		case 'linux':
-			switch (channel) {
-				case 'chrome':
-					chromePath = '/opt/google/chrome/chrome';
-					break;
-				case 'chrome-beta':
-					chromePath = '/opt/google/chrome-beta/chrome';
-					break;
-				case 'chrome-dev':
-					chromePath = '/opt/google/chrome-unstable/chrome';
-					break;
-				default:
-					throw new Error('unknown chrome release channel');
-			}
-
-			break;
-		default:
-			throw new Error('unknown OS');
-	}
-
-	if (!chromePath) {
-		throw new Error(
-			`Unable to detect browser executable path for '${channel}' on ${platform}.`
-		);
-	}
-
-	// Check if Chrome exists and is accessible.
-	try {
-		fs.accessSync(chromePath);
-	} catch (error) {
-		throw new Error(
-			`Could not find Google Chrome executable for channel '${channel}' at '${chromePath}'.`
-		);
-	}
-
-	return chromePath;
 }
 
 function resolveExecutablePath(launcher: ChromeLauncher | FirefoxLauncher): {

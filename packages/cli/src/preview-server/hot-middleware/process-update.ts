@@ -11,7 +11,7 @@
  * Original copyright Tobias Koppers @sokra (MIT license)
  */
 
-import {HotMiddlewareOptions, ModuleMap} from './types';
+import type {HotMiddlewareOptions, ModuleMap} from './types';
 
 /* global  __webpack_hash__ */
 

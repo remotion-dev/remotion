@@ -15,24 +15,25 @@
  */
 
 import {assert} from './assert';
+import type {Browser} from './Browser';
+import {BrowserEmittedEvents} from './Browser';
 import {TimeoutError} from './Errors';
-import {
+import type {
 	EvaluateFn,
 	EvaluateFnReturnType,
 	EvaluateHandleFn,
 	SerializableOrJSHandle,
 	UnwrapPromiseLike,
 } from './EvalTypes';
-import {ExecutionContext} from './ExecutionContext';
-import {Frame} from './FrameManager';
-import {ElementHandle, JSHandle} from './JSHandle';
-import {TimeoutSettings} from './TimeoutSettings';
+import type {ExecutionContext} from './ExecutionContext';
+import type {Frame} from './FrameManager';
+import type {JSHandle} from './JSHandle';
+import type {TimeoutSettings} from './TimeoutSettings';
 import {isString} from './util';
 
 export class DOMWorld {
 	#frame: Frame;
 	#timeoutSettings: TimeoutSettings;
-	#documentPromise: Promise<ElementHandle> | null = null;
 	#contextPromise: Promise<ExecutionContext> | null = null;
 	#contextResolveCallback: ((x: ExecutionContext) => void) | null = null;
 	#detached = false;
@@ -67,7 +68,6 @@ export class DOMWorld {
 				waitTask.rerun();
 			}
 		} else {
-			this.#documentPromise = null;
 			this.#contextPromise = new Promise((fulfill) => {
 				this.#contextResolveCallback = fulfill;
 			});
@@ -120,24 +120,8 @@ export class DOMWorld {
 		);
 	}
 
-	_document(): Promise<ElementHandle> {
-		if (this.#documentPromise) {
-			return this.#documentPromise;
-		}
-
-		this.#documentPromise = this.executionContext().then(async (context) => {
-			const document = await context.evaluateHandle('document');
-			const element = document.asElement();
-			if (element === null) {
-				throw new Error('Document is null');
-			}
-
-			return element;
-		});
-		return this.#documentPromise;
-	}
-
 	waitForFunction(
+		browser: Browser,
 		pageFunction: Function | string,
 		...args: SerializableOrJSHandle[]
 	): Promise<JSHandle> {
@@ -148,6 +132,7 @@ export class DOMWorld {
 			title: 'function',
 			timeout,
 			args,
+			browser,
 		};
 		const waitTask = new WaitTask(waitTaskOptions);
 		return waitTask.promise;
@@ -165,6 +150,7 @@ interface WaitTaskOptions {
 	predicateBody: Function | string;
 	title: string;
 	timeout: number;
+	browser: Browser;
 	args: SerializableOrJSHandle[];
 }
 
@@ -180,6 +166,7 @@ class WaitTask {
 	#reject: (x: Error) => void = noop;
 	#timeoutTimer?: NodeJS.Timeout;
 	#terminated = false;
+	#browser: Browser;
 
 	promise: Promise<JSHandle>;
 
@@ -214,8 +201,16 @@ class WaitTask {
 			}, options.timeout);
 		}
 
+		this.#browser = options.browser;
+
+		this.#browser.on(BrowserEmittedEvents.Closed, this.onBrowserClose);
+
 		this.rerun();
 	}
+
+	onBrowserClose = () => {
+		return this.terminate(new Error('Browser was closed'));
+	};
 
 	terminate(error: Error): void {
 		this.#terminated = true;
@@ -323,6 +318,8 @@ class WaitTask {
 		if (this.#timeoutTimer !== undefined) {
 			clearTimeout(this.#timeoutTimer);
 		}
+
+		this.#browser.off(BrowserEmittedEvents.Closed, this.onBrowserClose);
 
 		this.#domWorld._waitTasks.delete(this);
 	}

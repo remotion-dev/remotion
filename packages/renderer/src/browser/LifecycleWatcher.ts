@@ -17,36 +17,21 @@
 import {assert} from './assert';
 import {CDPSessionEmittedEvents} from './Connection';
 import {TimeoutError} from './Errors';
-import {Frame, FrameManager, FrameManagerEmittedEvents} from './FrameManager';
-import {HTTPRequest} from './HTTPRequest';
-import {HTTPResponse} from './HTTPResponse';
+import type {Frame, FrameManager} from './FrameManager';
+import {FrameManagerEmittedEvents} from './FrameManager';
+import type {HTTPRequest} from './HTTPRequest';
+import type {HTTPResponse} from './HTTPResponse';
 import {NetworkManagerEmittedEvents} from './NetworkManager';
-import {
-	addEventListener,
-	PuppeteerEventListener,
-	removeEventListeners,
-} from './util';
-export type PuppeteerLifeCycleEvent =
-	| 'load'
-	| 'domcontentloaded'
-	| 'networkidle0'
-	| 'networkidle2';
+import type {PuppeteerEventListener} from './util';
+import {addEventListener, removeEventListeners} from './util';
+export type PuppeteerLifeCycleEvent = 'load';
 
-type ProtocolLifeCycleEvent =
-	| 'load'
-	| 'DOMContentLoaded'
-	| 'networkIdle'
-	| 'networkAlmostIdle';
+type ProtocolLifeCycleEvent = 'load';
 
 const puppeteerToProtocolLifecycle = new Map<
 	PuppeteerLifeCycleEvent,
 	ProtocolLifeCycleEvent
->([
-	['load', 'load'],
-	['domcontentloaded', 'DOMContentLoaded'],
-	['networkidle0', 'networkIdle'],
-	['networkidle2', 'networkAlmostIdle'],
-]);
+>([['load', 'load']]);
 
 const noop = (): void => undefined;
 
@@ -90,20 +75,13 @@ export class LifecycleWatcher {
 	constructor(
 		frameManager: FrameManager,
 		frame: Frame,
-		waitUntil: PuppeteerLifeCycleEvent | PuppeteerLifeCycleEvent[],
+		waitUntil: PuppeteerLifeCycleEvent,
 		timeout: number
 	) {
-		if (Array.isArray(waitUntil)) {
-			waitUntil = waitUntil.slice();
-		} else if (typeof waitUntil === 'string') {
-			waitUntil = [waitUntil];
-		}
+		const protocolEvent = puppeteerToProtocolLifecycle.get(waitUntil);
+		assert(protocolEvent, 'Unknown value for options.waitUntil: ' + waitUntil);
 
-		this.#expectedLifecycle = waitUntil.map((value) => {
-			const protocolEvent = puppeteerToProtocolLifecycle.get(value);
-			assert(protocolEvent, 'Unknown value for options.waitUntil: ' + value);
-			return protocolEvent as ProtocolLifeCycleEvent;
-		});
+		this.#expectedLifecycle = [waitUntil as ProtocolLifeCycleEvent];
 
 		this.#frameManager = frameManager;
 		this.#frame = frame;
