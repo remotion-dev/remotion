@@ -63,9 +63,9 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 });
 ```
 
-Next, you need to refactor entrypoint file (most commonly `src/index.ts`) to first load the Skia WebAssembly binary before calling registerRoot():
+Next, you need to refactor entrypoint file (most commonly `src/index.tsx`) to first load the Skia WebAssembly binary before calling registerRoot():
 
-```ts twoslash title="src/index.ts"
+```ts twoslash title="src/index.tsx"
 // @filename: ./Video.tsx
 export const RemotionVideo = () => <></>;
 
