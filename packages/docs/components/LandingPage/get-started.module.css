@@ -7,6 +7,11 @@
   width: 100%;
 }
 
+.partialrow {
+  display: flex;
+  flex-direction: row;
+}
+
 .codeblock {
   background-color: #333;
   padding: 12px 16px;
