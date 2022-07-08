@@ -1,5 +1,4 @@
-import type {
-	CodecOrUndefined} from '../config/codec';
+import type {CodecOrUndefined} from '../config/codec';
 import {
 	getFinalOutputCodec,
 	getOutputCodecOrUndefined,
@@ -27,7 +26,6 @@ describe('Codec tests valid codec input', () => {
 					codec: entry,
 					emitWarning: false,
 					fileExtension: '',
-					isLambda: false,
 				})
 			).toEqual(entry))
 	);
@@ -55,7 +53,6 @@ describe('Codec tests undefined codec input with known extension', () => {
 							codec,
 							emitWarning: false,
 							fileExtension: entry[1],
-							isLambda: false,
 						})
 					).toEqual(codec ?? entry[0])
 			)
@@ -72,7 +69,6 @@ describe('Codec tests undefined codec input with unknown extension', () => {
 					codec: undefined,
 					emitWarning: false,
 					fileExtension: entry,
-					isLambda: false,
 				})
 			).toEqual('h264'))
 	);

@@ -14,11 +14,18 @@
  * limitations under the License.
  */
 
-import type {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
+import type {Browser} from './Browser';
 import type {CDPSession} from './Connection';
 import type {ConsoleMessageType} from './ConsoleMessage';
 import {ConsoleMessage} from './ConsoleMessage';
+import type {
+	AttachedToTargetEvent,
+	BindingCalledEvent,
+	ConsoleAPICalledEvent,
+	EntryAddedEvent,
+	StackTrace,
+} from './devtools-types';
 import type {
 	EvaluateFn,
 	EvaluateFnReturnType,
@@ -64,9 +71,10 @@ export class Page extends EventEmitter {
 	static async _create(
 		client: CDPSession,
 		target: Target,
-		defaultViewport: Viewport
+		defaultViewport: Viewport,
+		browser: Browser
 	): Promise<Page> {
-		const page = new Page(client, target);
+		const page = new Page(client, target, browser);
 		await page.#initialize();
 		await page.setViewport(defaultViewport);
 
@@ -79,38 +87,37 @@ export class Page extends EventEmitter {
 	#timeoutSettings = new TimeoutSettings();
 	#frameManager: FrameManager;
 	#pageBindings = new Map<string, Function>();
+	browser: Browser;
 	screenshotTaskQueue: TaskQueue;
 
-	constructor(client: CDPSession, target: Target) {
+	constructor(client: CDPSession, target: Target, browser: Browser) {
 		super();
 		this.#client = client;
 		this.#target = target;
 		this.#frameManager = new FrameManager(client, this, this.#timeoutSettings);
 		this.screenshotTaskQueue = new TaskQueue();
+		this.browser = browser;
 
-		client.on(
-			'Target.attachedToTarget',
-			(event: Protocol.Target.AttachedToTargetEvent) => {
-				switch (event.targetInfo.type) {
-					case 'iframe':
-						break;
-					case 'worker':
-						break;
-					default:
-						// If we don't detach from service workers, they will never die.
-						// We still want to attach to workers for emitting events.
-						// We still want to attach to iframes so sessions may interact with them.
-						// We detach from all other types out of an abundance of caution.
-						// See https://source.chromium.org/chromium/chromium/src/+/main:content/browser/devtools/devtools_agent_host_impl.cc?ss=chromium&q=f:devtools%20-f:out%20%22::kTypePage%5B%5D%22
-						// for the complete list of available types.
-						client
-							.send('Target.detachFromTarget', {
-								sessionId: event.sessionId,
-							})
-							.catch((err) => console.log(err));
-				}
+		client.on('Target.attachedToTarget', (event: AttachedToTargetEvent) => {
+			switch (event.targetInfo.type) {
+				case 'iframe':
+					break;
+				case 'worker':
+					break;
+				default:
+					// If we don't detach from service workers, they will never die.
+					// We still want to attach to workers for emitting events.
+					// We still want to attach to iframes so sessions may interact with them.
+					// We detach from all other types out of an abundance of caution.
+					// See https://source.chromium.org/chromium/chromium/src/+/main:content/browser/devtools/devtools_agent_host_impl.cc?ss=chromium&q=f:devtools%20-f:out%20%22::kTypePage%5B%5D%22
+					// for the complete list of available types.
+					client
+						.send('Target.detachFromTarget', {
+							sessionId: event.sessionId,
+						})
+						.catch((err) => console.log(err));
 			}
-		);
+		});
 
 		client.on('Runtime.consoleAPICalled', (event) => {
 			return this.#onConsoleAPI(event);
@@ -183,7 +190,7 @@ export class Page extends EventEmitter {
 		this.emit('error', new Error('Page crashed!'));
 	}
 
-	#onLogEntryAdded(event: Protocol.Log.EntryAddedEvent): void {
+	#onLogEntryAdded(event: EntryAddedEvent): void {
 		const {level, text, args, source, url, lineNumber} = event.entry;
 		if (args) {
 			args.map((arg) => {
@@ -237,7 +244,7 @@ export class Page extends EventEmitter {
 		return context.evaluateHandle<HandlerType>(pageFunction, ...args);
 	}
 
-	#onConsoleAPI(event: Protocol.Runtime.ConsoleAPICalledEvent): void {
+	#onConsoleAPI(event: ConsoleAPICalledEvent): void {
 		if (event.executionContextId === 0) {
 			return;
 		}
@@ -252,9 +259,7 @@ export class Page extends EventEmitter {
 		this.#addConsoleMessage(event.type, values, event.stackTrace);
 	}
 
-	async #onBindingCalled(
-		event: Protocol.Runtime.BindingCalledEvent
-	): Promise<void> {
+	async #onBindingCalled(event: BindingCalledEvent): Promise<void> {
 		let payload: {type: string; name: string; seq: number; args: unknown[]};
 		try {
 			payload = JSON.parse(event.payload);
@@ -297,7 +302,7 @@ export class Page extends EventEmitter {
 	#addConsoleMessage(
 		eventType: ConsoleMessageType,
 		args: JSHandle[],
-		stackTrace?: Protocol.Runtime.StackTrace
+		stackTrace?: StackTrace
 	): void {
 		if (!this.listenerCount(PageEmittedEvents.Console)) {
 			args.forEach((arg) => {
@@ -392,9 +397,10 @@ export class Page extends EventEmitter {
 	}
 
 	waitForFunction(
+		browser: Browser,
 		pageFunction: Function | string,
 		...args: SerializableOrJSHandle[]
 	): Promise<JSHandle> {
-		return this.mainFrame().waitForFunction(pageFunction, ...args);
+		return this.mainFrame().waitForFunction(browser, pageFunction, ...args);
 	}
 }

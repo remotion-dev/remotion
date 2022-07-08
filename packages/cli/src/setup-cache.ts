@@ -20,10 +20,10 @@ export const bundleOnCli = async ({
 	publicPath: string | null;
 }) => {
 	const shouldCache = Internals.getWebpackCaching();
-	const cacheExistedBefore = BundlerInternals.cacheExists('production', null);
+	const cacheExistedBefore = BundlerInternals.cacheExists('production');
 	if (cacheExistedBefore && !shouldCache) {
 		Log.info('🧹 Cache disabled but found. Deleting... ');
-		await BundlerInternals.clearCache('production', null);
+		await BundlerInternals.clearCache('production');
 	}
 
 	const bundleStartTime = Date.now();
@@ -55,7 +55,7 @@ export const bundleOnCli = async ({
 		}) + '\n'
 	);
 	Log.verbose('Bundled under', bundled);
-	const cacheExistedAfter = BundlerInternals.cacheExists('production', null);
+	const cacheExistedAfter = BundlerInternals.cacheExists('production');
 	if (cacheExistedAfter && !cacheExistedBefore) {
 		Log.info('⚡️ Cached bundle. Subsequent renders will be faster.');
 	}

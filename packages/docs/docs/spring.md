@@ -3,7 +3,7 @@ id: spring
 title: spring()
 ---
 
-Delightful and smooth animation primitive. Calculates a position based on physical parameters, start and end value, and time.
+A physics-based animation primitive.
 
 Example:
 
@@ -11,13 +11,11 @@ Example:
 import { spring, useCurrentFrame, useVideoConfig } from "remotion";
 // ---cut---
 const frame = useCurrentFrame();
-const videoConfig = useVideoConfig();
+const { fps } = useVideoConfig();
 
 const value = spring({
   frame,
-  from: 0,
-  to: 1,
-  fps: videoConfig.fps,
+  fps,
   config: {
     stiffness: 100,
   },
@@ -73,6 +71,36 @@ Spring stiffness coefficient. Play with this one and it will affect how bouncy y
 _Default_: `false`
 
 Determines whether the animation can shoot over the `to` value. If set to true, if the animation goes over `to`, it will just return the value of `to`.
+
+### durationInFrames
+
+_Available from v3.0.27 - optional_
+
+Stretches the animation curve so it is exactly as long as you specify.
+
+```tsx twoslash
+import { spring, useCurrentFrame, useVideoConfig } from "remotion";
+// ---cut---
+const frame = useCurrentFrame();
+const { fps } = useVideoConfig();
+
+const value = spring({
+  frame,
+  fps,
+  config: {
+    stiffness: 100,
+  },
+  durationInFrames: 40,
+});
+```
+
+## `durationRestThreshold`
+
+_Available from v3.0.27 - optional_
+
+How close the animation should be to the end in order to be considered finished for the calculation of the duration. Only has an effect if `durationInFrames` is also specified.
+
+For example, if a `durationRestThreshold` of `0.001` is given, and the durationOfFrames is `30`, it means that after 30 frames, the spring has reached 99.9% (`1 - 0.001 = 0.999`) of it's distance to the end value.
 
 ## YouTube video
 

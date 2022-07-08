@@ -13,6 +13,7 @@ import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';
 import type {ExpensiveChunk} from './get-most-expensive-chunks';
 import type {LambdaArchitecture} from './validate-architecture';
+import type {LambdaCodec} from './validate-lambda-codec';
 
 export const MIN_MEMORY = 512;
 export const MAX_MEMORY = 10240;
@@ -179,7 +180,7 @@ export type LambdaPayloads = {
 		composition: string;
 		framesPerLambda: number | null;
 		inputProps: unknown;
-		codec: Codec;
+		codec: LambdaCodec;
 		imageFormat: ImageFormat;
 		crf: number | undefined;
 		envVariables: Record<string, string> | undefined;
@@ -204,7 +205,7 @@ export type LambdaPayloads = {
 		inputProps: unknown;
 		renderId: string;
 		imageFormat: ImageFormat;
-		codec: Codec;
+		codec: LambdaCodec;
 		crf: number | undefined;
 		envVariables: Record<string, string> | undefined;
 		pixelFormat: PixelFormat | undefined;
@@ -239,7 +240,7 @@ export type LambdaPayloads = {
 		inputProps: unknown;
 		renderId: string;
 		imageFormat: ImageFormat;
-		codec: Codec;
+		codec: Exclude<Codec, 'h264'>;
 		crf: number | undefined;
 		proResProfile: ProResProfile | undefined;
 		pixelFormat: PixelFormat | undefined;
@@ -303,6 +304,7 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2022-07-04'
 	| '2022-06-30'
 	| '2022-06-29'
 	| '2022-06-25'
@@ -384,7 +386,7 @@ export type LambdaVersions =
 	| '2021-06-23'
 	| 'n/a';
 
-export const CURRENT_VERSION: LambdaVersions = '2022-06-30';
+export const CURRENT_VERSION: LambdaVersions = '2022-07-04';
 
 export type PostRenderData = {
 	cost: {

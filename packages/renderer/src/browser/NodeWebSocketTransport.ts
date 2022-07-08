@@ -15,7 +15,8 @@
  */
 import {promises as dns} from 'dns';
 import {URL} from 'url';
-import NodeWebSocket from 'ws';
+import type {WS} from '../ws/ws-types';
+import {ws as NodeWebSocket} from '../ws/ws-types';
 
 interface ConnectionTransport {
 	send(message: string): void;
@@ -56,11 +57,11 @@ export class NodeWebSocketTransport implements ConnectionTransport {
 		});
 	}
 
-	#ws: NodeWebSocket;
+	#ws: WS;
 	onmessage?: (message: string) => void;
 	onclose?: () => void;
 
-	constructor(ws: NodeWebSocket) {
+	constructor(ws: WS) {
 		this.#ws = ws;
 		this.#ws.addEventListener('message', (event) => {
 			if (this.onmessage) {

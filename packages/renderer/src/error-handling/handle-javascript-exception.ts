@@ -1,5 +1,5 @@
-import type Protocol from 'devtools-protocol';
 import {Internals} from 'remotion';
+import type {CallFrame, ExceptionThrownEvent} from '../browser/devtools-types';
 import type {Page} from '../browser/Page';
 import type {UnsymbolicatedStackFrame} from '../parse-browser-error-stack';
 import type {SymbolicatedStackFrame} from '../symbolicate-stacktrace';
@@ -32,9 +32,7 @@ export class ErrorWithStackFrame extends Error {
 	}
 }
 
-const cleanUpErrorMessage = (
-	exception: Protocol.Runtime.ExceptionThrownEvent
-) => {
+const cleanUpErrorMessage = (exception: ExceptionThrownEvent) => {
 	let errorMessage = exception.exceptionDetails.exception
 		?.description as string;
 	const errorType = exception.exceptionDetails.exception?.className as string;
@@ -59,7 +57,7 @@ const removeDelayRenderStack = (message: string) => {
 };
 
 const callFrameToStackFrame = (
-	callFrame: Protocol.Runtime.CallFrame
+	callFrame: CallFrame
 ): UnsymbolicatedStackFrame => {
 	return {
 		columnNumber: callFrame.columnNumber,
@@ -80,7 +78,7 @@ export const handleJavascriptException = ({
 }) => {
 	const client = page._client();
 
-	const handler = (exception: Protocol.Runtime.ExceptionThrownEvent) => {
+	const handler = (exception: ExceptionThrownEvent) => {
 		const rawErrorMessage = exception.exceptionDetails.exception
 			?.description as string;
 		const cleanErrorMessage = cleanUpErrorMessage(exception);
@@ -96,8 +94,7 @@ export const handleJavascriptException = ({
 		const symbolicatedErr = new SymbolicateableError({
 			message: removeDelayRenderStack(cleanErrorMessage),
 			stackFrame: (
-				exception.exceptionDetails.stackTrace
-					.callFrames as Protocol.Runtime.CallFrame[]
+				exception.exceptionDetails.stackTrace.callFrames as CallFrame[]
 			).map((f) => callFrameToStackFrame(f)),
 			frame,
 			name: errorType,

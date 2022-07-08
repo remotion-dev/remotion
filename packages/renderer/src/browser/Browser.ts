@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import type {Protocol} from 'devtools-protocol';
 import {assert} from './assert';
 import type {Connection} from './Connection';
+import type {DevtoolsTargetCreatedEvent} from './devtools-types';
 import {EventEmitter} from './EventEmitter';
 import type {Page} from './Page';
 import type {Viewport} from './PuppeteerViewport';
@@ -29,9 +29,10 @@ interface WaitForTargetOptions {
 	timeout?: number;
 }
 
-const enum BrowserEmittedEvents {
+export const enum BrowserEmittedEvents {
 	TargetChanged = 'targetchanged',
 	TargetCreated = 'targetcreated',
+	Closed = 'closed',
 }
 
 export class Browser extends EventEmitter {
@@ -105,9 +106,7 @@ export class Browser extends EventEmitter {
 		return [this.#defaultContext, ...Array.from(this.#contexts.values())];
 	}
 
-	async #targetCreated(
-		event: Protocol.Target.TargetCreatedEvent
-	): Promise<void> {
+	async #targetCreated(event: DevtoolsTargetCreatedEvent): Promise<void> {
 		const {targetInfo} = event;
 		const {browserContextId} = targetInfo;
 		const context =
@@ -151,7 +150,7 @@ export class Browser extends EventEmitter {
 		target._closedCallback();
 	}
 
-	#targetInfoChanged(event: Protocol.Target.TargetInfoChangedEvent): void {
+	#targetInfoChanged(event: DevtoolsTargetCreatedEvent): void {
 		const target = this.#targets.get(event.targetInfo.targetId);
 		if (!target) {
 			throw new Error(
@@ -220,7 +219,7 @@ export class Browser extends EventEmitter {
 			}
 
 			this.targets().forEach(check);
-			return await waitWithTimeout(targetPromise, 'target', timeout);
+			return await waitWithTimeout(targetPromise, 'target', timeout, this);
 		} finally {
 			this.off(BrowserEmittedEvents.TargetCreated, check);
 			this.off(BrowserEmittedEvents.TargetChanged, check);
@@ -249,6 +248,7 @@ export class Browser extends EventEmitter {
 	async close(): Promise<void> {
 		await this.#closeCallback.call(null);
 		this.disconnect();
+		this.emit(BrowserEmittedEvents.Closed);
 	}
 
 	disconnect(): void {

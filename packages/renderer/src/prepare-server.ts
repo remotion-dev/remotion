@@ -4,6 +4,7 @@ import type {FfmpegExecutable} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {isServeUrl} from './is-serve-url';
 import {serveStatic} from './serve-static';
+import {waitForSymbolicationToBeDone} from './wait-for-symbolication-error-to-be-done';
 
 export const prepareServer = async ({
 	downloadDir,
@@ -38,7 +39,9 @@ export const prepareServer = async ({
 
 		return Promise.resolve({
 			serveUrl: webpackConfigOrServeUrl,
-			closeServer: () => closeProxy(),
+			closeServer: () => {
+				return closeProxy();
+			},
 			offthreadPort,
 		});
 	}
@@ -62,7 +65,7 @@ export const prepareServer = async ({
 	});
 	return Promise.resolve({
 		closeServer: () => {
-			return close();
+			return waitForSymbolicationToBeDone().then(() => close());
 		},
 		serveUrl: `http://localhost:${serverPort}`,
 		offthreadPort: serverPort,

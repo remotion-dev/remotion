@@ -15,6 +15,8 @@
  */
 
 import {assert} from './assert';
+import type {Browser} from './Browser';
+import {BrowserEmittedEvents} from './Browser';
 import {TimeoutError} from './Errors';
 import type {
 	EvaluateFn,
@@ -119,6 +121,7 @@ export class DOMWorld {
 	}
 
 	waitForFunction(
+		browser: Browser,
 		pageFunction: Function | string,
 		...args: SerializableOrJSHandle[]
 	): Promise<JSHandle> {
@@ -129,6 +132,7 @@ export class DOMWorld {
 			title: 'function',
 			timeout,
 			args,
+			browser,
 		};
 		const waitTask = new WaitTask(waitTaskOptions);
 		return waitTask.promise;
@@ -146,6 +150,7 @@ interface WaitTaskOptions {
 	predicateBody: Function | string;
 	title: string;
 	timeout: number;
+	browser: Browser;
 	args: SerializableOrJSHandle[];
 }
 
@@ -161,6 +166,7 @@ class WaitTask {
 	#reject: (x: Error) => void = noop;
 	#timeoutTimer?: NodeJS.Timeout;
 	#terminated = false;
+	#browser: Browser;
 
 	promise: Promise<JSHandle>;
 
@@ -195,8 +201,16 @@ class WaitTask {
 			}, options.timeout);
 		}
 
+		this.#browser = options.browser;
+
+		this.#browser.on(BrowserEmittedEvents.Closed, this.onBrowserClose);
+
 		this.rerun();
 	}
+
+	onBrowserClose = () => {
+		return this.terminate(new Error('Browser was closed'));
+	};
 
 	terminate(error: Error): void {
 		this.#terminated = true;
@@ -304,6 +318,8 @@ class WaitTask {
 		if (this.#timeoutTimer !== undefined) {
 			clearTimeout(this.#timeoutTimer);
 		}
+
+		this.#browser.off(BrowserEmittedEvents.Closed, this.onBrowserClose);
 
 		this.#domWorld._waitTasks.delete(this);
 	}
