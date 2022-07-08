@@ -4,11 +4,10 @@ import path from 'path';
 import {Internals} from 'remotion';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
 import {Log} from './log';
-import type {
-	PackageManager} from './preview-server/get-package-manager';
+import type {PackageManager} from './preview-server/get-package-manager';
 import {
 	getPackageManager,
-	lockFilePaths
+	lockFilePaths,
 } from './preview-server/get-package-manager';
 
 const getUpgradeCommand = ({
@@ -59,6 +58,7 @@ export const upgrade = async () => {
 		'@remotion/cli',
 		'@remotion/eslint-config',
 		'@remotion/renderer',
+		'@remotion/skia',
 		'@remotion/media-utils',
 		'@remotion/babel-loader',
 		'@remotion/lambda',
