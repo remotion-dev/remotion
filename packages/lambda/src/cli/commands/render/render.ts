@@ -11,12 +11,12 @@ import {
 } from '../../../shared/constants';
 import {sleep} from '../../../shared/sleep';
 import {validateFramesPerLambda} from '../../../shared/validate-frames-per-lambda';
+import type {LambdaCodec} from '../../../shared/validate-lambda-codec';
 import {validatePrivacy} from '../../../shared/validate-privacy';
 import {validateMaxRetries} from '../../../shared/validate-retries';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
-import {formatBytes} from '../../helpers/format-bytes';
 import {getCloudwatchStreamUrl} from '../../helpers/get-cloudwatch-stream-url';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
@@ -86,7 +86,7 @@ export const renderCommand = async (args: string[]) => {
 		functionName,
 		serveUrl,
 		inputProps,
-		codec: codec as 'h264-mkv' | 'mp3' | 'aac' | 'wav',
+		codec: codec as LambdaCodec,
 		imageFormat,
 		crf: crf ?? undefined,
 		envVariables,
@@ -205,7 +205,7 @@ export const renderCommand = async (args: string[]) => {
 				);
 				Log.info();
 				Log.info();
-				Log.info('Done!', outputPath, formatBytes(sizeInBytes));
+				Log.info('Done!', outputPath, CliInternals.formatBytes(sizeInBytes));
 			} else {
 				Log.info();
 				Log.info();
@@ -225,6 +225,16 @@ export const renderCommand = async (args: string[]) => {
 					.filter(Boolean)
 					.join(', ')
 			);
+			if (newStatus.mostExpensiveFrameRanges) {
+				Log.verbose('Most expensive frame ranges:');
+				Log.verbose(
+					newStatus.mostExpensiveFrameRanges
+						.map((f) => {
+							return `${f.frameRange[0]}-${f.frameRange[1]} (${f.timeInMilliseconds}ms)`;
+						})
+						.join(', ')
+				);
+			}
 
 			quit(0);
 		}

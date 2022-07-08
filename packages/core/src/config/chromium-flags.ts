@@ -1,5 +1,6 @@
+import type {
+	OpenGlRenderer} from '../validation/validate-opengl-renderer';
 import {
-	OpenGlRenderer,
 	validateOpenGlRenderer,
 } from '../validation/validate-opengl-renderer';
 

@@ -1,5 +1,5 @@
 import {getWaveformSamples} from './get-wave-form-samples';
-import {AudioData} from './types';
+import type {AudioData} from './types';
 
 type Bar = {
 	index: number;

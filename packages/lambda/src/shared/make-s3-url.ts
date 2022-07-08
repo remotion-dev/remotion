@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../pricing/aws-regions';
 
 export const makeS3ServeUrl = ({
 	bucketName,

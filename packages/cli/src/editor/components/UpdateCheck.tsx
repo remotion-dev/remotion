@@ -1,5 +1,5 @@
-import {PackageManager} from '@remotion/bundler';
 import React, {useCallback, useContext, useEffect, useState} from 'react';
+import type {PackageManager} from '../../preview-server/get-package-manager';
 import {ModalsContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 

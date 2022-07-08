@@ -1,10 +1,10 @@
-import {StitchingState} from '@remotion/renderer';
-import chalk from 'chalk';
+import type {StitchingState} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {AnsiDiff} from './ansi/ansi-diff';
+import {chalk} from './chalk';
 import {makeMultiDownloadProgress} from './download-progress';
 import {makeProgressBar} from './make-progress-bar';
-import {RenderStep} from './step';
+import type {RenderStep} from './step';
 
 export const createProgressBar = (
 	quiet: boolean
@@ -109,7 +109,9 @@ export const makeStitchingProgress = ({
 export type DownloadProgress = {
 	name: string;
 	id: number;
-	progress: number;
+	progress: number | null;
+	totalBytes: number | null;
+	downloaded: number;
 };
 
 export const makeRenderingAndStitchingProgress = ({

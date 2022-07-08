@@ -1,5 +1,5 @@
 import {GetUserCommand} from '@aws-sdk/client-iam';
-import {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../pricing/aws-regions';
 import {getIamClient} from './aws-clients';
 import {validateAwsRegion} from './validate-aws-region';
 

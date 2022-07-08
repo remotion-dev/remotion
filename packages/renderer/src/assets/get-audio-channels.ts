@@ -1,18 +1,29 @@
 import execa from 'execa';
-import {FfmpegExecutable} from 'remotion';
+import type {FfmpegExecutable} from 'remotion';
+import {pLimit} from '../p-limit';
 
-export async function getAudioChannelsAndDuration(
-	path: string,
-	ffprobeExecutable: FfmpegExecutable
-): Promise<{
+type Result = {
 	channels: number;
 	duration: number | null;
-}> {
+};
+
+const durationOfAssetCache: Record<string, Result> = {};
+
+const limit = pLimit(1);
+
+async function getAudioChannelsAndDurationUnlimited(
+	src: string,
+	ffprobeExecutable: FfmpegExecutable
+): Promise<Result> {
+	if (durationOfAssetCache[src]) {
+		return durationOfAssetCache[src];
+	}
+
 	const args = [
 		['-v', 'error'],
 		['-show_entries', 'stream=channels:format=duration'],
 		['-of', 'default=nw=1'],
-		[path],
+		[src],
 	]
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
@@ -22,8 +33,21 @@ export async function getAudioChannelsAndDuration(
 	const channels = task.stdout.match(/channels=([0-9]+)/);
 	const duration = task.stdout.match(/duration=([0-9.]+)/);
 
-	return {
+	const result: Result = {
 		channels: channels ? parseInt(channels[1], 10) : 0,
 		duration: duration ? parseFloat(duration[1]) : null,
 	};
+
+	durationOfAssetCache[src] = result;
+
+	return result;
 }
+
+export const getAudioChannelsAndDuration = (
+	src: string,
+	ffprobeExecutable: FfmpegExecutable
+): Promise<Result> => {
+	return limit(() =>
+		getAudioChannelsAndDurationUnlimited(src, ffprobeExecutable)
+	);
+};

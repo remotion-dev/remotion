@@ -1,7 +1,7 @@
 import {render} from '@testing-library/react';
 import React from 'react';
 import {AudioForRendering} from '../audio/AudioForRendering';
-import {CompositionManagerContext} from '../CompositionManager';
+import type {CompositionManagerContext} from '../CompositionManager';
 import {Internals} from '../internals';
 import {expectToThrow} from './expect-to-throw';
 

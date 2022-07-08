@@ -1,4 +1,4 @@
-import {PreviewSize} from '@remotion/player';
+import type {PreviewSize} from '@remotion/player';
 import {createContext} from 'react';
 
 type PreviewSizeCtx = {

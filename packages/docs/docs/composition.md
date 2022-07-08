@@ -120,6 +120,7 @@ export const Video = () => {
 
 ## See also
 
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Composition.tsx)
 - [registerRoot()](/docs/register-root)
 - [The fundamentals](/docs/the-fundamentals)
 - [CLI options](/docs/cli)

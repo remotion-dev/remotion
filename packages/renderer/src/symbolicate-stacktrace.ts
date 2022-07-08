@@ -1,7 +1,8 @@
 import {Internals} from 'remotion';
-import {RawSourceMap, SourceMapConsumer} from 'source-map';
+import type {RawSourceMap} from 'source-map';
+import {SourceMapConsumer} from 'source-map';
 import {readFile} from './assets/read-file';
-import {UnsymbolicatedStackFrame} from './parse-browser-error-stack';
+import type {UnsymbolicatedStackFrame} from './parse-browser-error-stack';
 
 function extractSourceMapUrl(fileContents: string): string | null {
 	const regex = /\/\/[#@] ?sourceMappingURL=([^\s'"]+)\s*$/gm;

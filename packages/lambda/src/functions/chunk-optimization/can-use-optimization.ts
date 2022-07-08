@@ -1,5 +1,5 @@
 import {CURRENT_VERSION} from '../../defaults';
-import {OptimizationProfile} from './types';
+import type {OptimizationProfile} from './types';
 
 export const canUseOptimization = ({
 	optimization,

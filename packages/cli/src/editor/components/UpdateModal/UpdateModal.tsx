@@ -6,7 +6,7 @@ import {CopyButton} from '../CopyButton';
 import {Flex, Row, Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
-import {UpdateInfo} from '../UpdateCheck';
+import type {UpdateInfo} from '../UpdateCheck';
 
 const container: React.CSSProperties = {
 	padding: 20,

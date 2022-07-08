@@ -7,7 +7,7 @@ import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state';
-import {RemotionAudioProps} from './props';
+import type {RemotionAudioProps} from './props';
 import {useSharedAudio} from './shared-audio-tags';
 import {useFrameForVolumeProp} from './use-audio-frame';
 
@@ -66,6 +66,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		src: nativeProps.src,
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
+		onlyWarnForMediaSeekingError: false,
 	});
 
 	useImperativeHandle(ref, () => {

@@ -1,6 +1,6 @@
 import {getVisualization} from './fft/get-visualization';
 import {getMaxPossibleMagnitude} from './fft/max-value-cached';
-import {AudioData} from './types';
+import type {AudioData} from './types';
 
 const cache: {[key: string]: number[]} = {};
 

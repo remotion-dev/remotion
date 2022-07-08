@@ -100,4 +100,5 @@ const color = interpolateColors(frame, [0, 20], ["red", "yellow"]); // rgba(255,
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/interpolate-colors.ts)
 - [interpolate()](/docs/interpolate)

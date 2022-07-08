@@ -1,15 +1,15 @@
 // Native
-import {createReadStream, promises, Stats} from 'fs';
-import {IncomingMessage, ServerResponse} from 'http';
+import type {Stats} from 'fs';
+import {createReadStream, promises} from 'fs';
+import type {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';
 import url from 'url';
+import {mimeContentType} from '../mime-types';
 // Packages
-import mime from 'mime-types';
 import {isPathInside} from './is-path-inside';
 import {rangeParser} from './range-parser';
 
 const getHeaders = (absolutePath: string, stats: Stats | null) => {
-	const related = {};
 	const {base} = path.parse(absolutePath);
 
 	let defaultHeaders: Record<string, string> = {};
@@ -22,22 +22,14 @@ const getHeaders = (absolutePath: string, stats: Stats | null) => {
 
 		defaultHeaders['Last-Modified'] = stats.mtime.toUTCString();
 
-		const contentType = mime.contentType(base);
+		const _contentType = mimeContentType(base);
 
-		if (contentType) {
-			defaultHeaders['Content-Type'] = contentType;
+		if (_contentType) {
+			defaultHeaders['Content-Type'] = _contentType;
 		}
 	}
 
-	const headers = Object.assign(defaultHeaders, related);
-
-	for (const key in headers) {
-		if (headers[key] === null) {
-			delete headers[key];
-		}
-	}
-
-	return headers;
+	return defaultHeaders;
 };
 
 const getPossiblePaths = (relativePath: string, extension: string) =>
@@ -203,10 +195,10 @@ export const serveHandler = async (
 		const singleFile = null;
 
 		if (directory) {
-			const contentType = 'text/html; charset=utf-8';
+			const _contentType = 'text/html; charset=utf-8';
 
 			response.statusCode = 200;
-			response.setHeader('Content-Type', contentType);
+			response.setHeader('Content-Type', _contentType);
 			response.end('Is a directory');
 
 			return;

@@ -117,5 +117,6 @@ An object with the following values:
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/deploy-site.ts)
 - [getSites()](/docs/lambda/getsites)
 - [deleteSite()](/docs/lambda/deletesite)

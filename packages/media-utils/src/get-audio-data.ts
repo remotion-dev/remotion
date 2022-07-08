@@ -1,6 +1,6 @@
 import {isRemoteAsset} from './is-remote-asset';
 import {pLimit} from './p-limit';
-import {AudioData} from './types';
+import type {AudioData} from './types';
 
 const metadataCache: {[key: string]: AudioData} = {};
 

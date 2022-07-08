@@ -1,6 +1,7 @@
 import {calculateScale} from './calculate-scale';
 import {PlayerEventEmitterContext} from './emitter-context';
-import {CallbackListener, EventTypes, PlayerEmitter} from './event-emitter';
+import type {CallbackListener, EventTypes} from './event-emitter';
+import { PlayerEmitter} from './event-emitter';
 import {useHoverState} from './use-hover-state';
 import {usePlayback} from './use-playback';
 import {usePlayer} from './use-player';

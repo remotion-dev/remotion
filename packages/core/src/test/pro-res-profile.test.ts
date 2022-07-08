@@ -1,6 +1,7 @@
+import type {
+	ProResProfile} from '../config/prores-profile';
 import {
 	getProResProfile,
-	ProResProfile,
 	setProResProfile,
 	validateSelectedCodecAndProResCombination,
 } from '../config/prores-profile';

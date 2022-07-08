@@ -1,4 +1,4 @@
-import {MediaAsset} from '../assets/types';
+import type {MediaAsset} from '../assets/types';
 import {calculateFfmpegFilter} from '../calculate-ffmpeg-filters';
 
 const src =

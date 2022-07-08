@@ -39,4 +39,5 @@ random(null) === random(null); // false
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/random.ts)
 - [Using randomness](/docs/using-randomness)

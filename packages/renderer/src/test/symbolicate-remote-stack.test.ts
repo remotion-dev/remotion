@@ -16,7 +16,7 @@ at processTicksAndRejections (internal/process/task_queues.js:95:5)
 at async ExecutionContext.evaluate (/var/task/index.js:37902:16)
 at async innerGetCompositions (/var/task/index.js:76354:7)`;
 
-test('Should parse Lambda stack correctly', async () => {
+test('Should parse Lambda stack correctly', () => {
 	const st = parseStack(stack.split('\n'));
 
 	expect(st).toEqual([
