@@ -231,6 +231,10 @@ export const getCliOptions = async (options: {
 			Internals.DEFAULT_OPENGL_RENDERER,
 	};
 
+	const parallelism = Internals.getConcurrency();
+
+	RenderInternals.validateConcurrency(parallelism, 'concurrency');
+
 	return {
 		puppeteerTimeout: Internals.getCurrentPuppeteerTimeout(),
 		parallelism: Internals.getConcurrency(),
