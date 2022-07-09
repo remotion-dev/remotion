@@ -1,5 +1,4 @@
 import type {ChromiumOptions} from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
 import type {
 	FrameRange,
 	ImageFormat,
@@ -94,10 +93,6 @@ export const renderMediaOnLambda = async ({
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
 	validateFramesPerLambda(framesPerLambda ?? null);
-	RenderInternals.validateConcurrency(
-		concurrencyPerLambda,
-		'concurrencyPerLambda'
-	);
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
 	const res = await callLambda({
 		functionName,
