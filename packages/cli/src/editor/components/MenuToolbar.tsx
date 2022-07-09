@@ -1,6 +1,6 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
-import {copyText} from '../helpers/copy-text';
+import {pickColor} from '../helpers/pick-color';
 import {Checkmark} from '../icons/Checkmark';
 import {CheckerboardContext} from '../state/checkerboard';
 import {ModalsContext} from '../state/modals';
@@ -390,12 +390,7 @@ export const MenuToolbar: React.FC = () => {
 								id: 'color-picker',
 								value: 'color-picker',
 								label: 'Color Picker',
-								onClick: () => {
-									// @ts-expect-error
-									new EyeDropper().open().then((color) => {
-										copyText(color.sRGBHex);
-									});
-								},
+								onClick: () => pickColor(),
 								leftItem: null,
 								keyHint: null,
 								subMenu: null,
