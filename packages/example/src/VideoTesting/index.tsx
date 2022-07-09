@@ -11,7 +11,7 @@ export const VideoTesting: React.FC<{
 	offthread: boolean;
 }> = ({codec, offthread}) => {
 	const {durationInFrames} = useVideoConfig();
-	const videoMp4 = staticFile('./framer.mp4');
+	const videoMp4 = staticFile('./framermp4withoutfileextension');
 	const videoWebm = staticFile('./framer.webm');
 
 	const Comp = offthread ? OffthreadVideo : Video;
