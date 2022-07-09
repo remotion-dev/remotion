@@ -331,7 +331,7 @@ importers:
       '@types/react': 18.0.1
       eslint: 8.13.0
       typescript: 4.7.2
-      url-loader: 4.1.1_csgzzuwaerdr4d7s3u52mzcn7m
+      url-loader: 4.1.1_webpack@5.72.0
 
   packages/eslint-config:
     specifiers:
@@ -798,10 +798,10 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.0.19
+      remotion: 3.0.29
       typescript: ^4.5.5
     dependencies:
-      remotion: 3.0.19_zpnidt7m3osuk7shl3s4oenomq
+      remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.259_6hvhxfirl4y3p6nuemvvvbadcu
       '@types/react': 18.0.12
@@ -11866,6 +11866,7 @@ packages:
       loader-utils: 2.0.0
       schema-utils: 3.1.1
       webpack: 5.72.0
+    dev: false
 
   /filesize/6.1.0:
     resolution: {integrity: sha512-LpCHtPQ3sFx67z+uh2HnSyWSLLu5Jxo21795uRDuar/EOuYWXib5EmPaGIBuSnRqH2IODiKA2k5re/K9OnN/Yg==}
@@ -17692,16 +17693,6 @@ packages:
       unist-util-visit: 1.4.1
     dev: false
 
-  /remotion/3.0.19_zpnidt7m3osuk7shl3s4oenomq:
-    resolution: {integrity: sha512-Og9TKkvyJeujzY7g9WyHsdPu8LI1HFy7c+iWQHhnCAPlIdoMfZxLi29487xIC4+FE3rgQMnMuzN3ujq+Mdallg==}
-    peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
-    dependencies:
-      react: 18.0.0
-      react-dom: 18.0.0_react@18.0.0
-    dev: false
-
   /renderkid/3.0.0:
     resolution: {integrity: sha512-q/7VIQA8lmM1hF+jn+sFSPWGlMkSAeNYcPLmDQx2zzuiDfaLrOmumR8iaUKlenFgh0XRPIUeSPlH3A+AW3Z5pg==}
     dependencies:
@@ -19939,6 +19930,23 @@ packages:
       mime-types: 2.1.33
       schema-utils: 3.1.1
       webpack: 5.72.0
+    dev: false
+
+  /url-loader/4.1.1_webpack@5.72.0:
+    resolution: {integrity: sha512-3BTV812+AVHHOJQO8O5MkWgZ5aosP7GnROJwvzLS9hWDj00lZ6Z0wNak423Lp9PBZN05N+Jk/N5Si8jRAlGyWA==}
+    engines: {node: '>= 10.13.0'}
+    peerDependencies:
+      file-loader: '*'
+      webpack: ^4.0.0 || ^5.0.0
+    peerDependenciesMeta:
+      file-loader:
+        optional: true
+    dependencies:
+      loader-utils: 2.0.0
+      mime-types: 2.1.33
+      schema-utils: 3.1.1
+      webpack: 5.72.0
+    dev: true
 
   /url-parse-lax/3.0.0:
     resolution: {integrity: sha1-FrXK/Afb42dsGxmZF3gj1lA6yww=}
