@@ -140,6 +140,12 @@ export const KeyboardShortcuts: React.FC = () => {
 						</div>
 						<div style={right}>Play / Speed up</div>
 					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>Enter</kbd>
+						</div>
+						<div style={right}>Pause & return to playback start</div>
+					</Row>
 				</Column>
 				<Spacing x={8} />
 				<Column>
