@@ -1,4 +1,4 @@
-export const copyCmd = (cmd: string) => {
+export const copyText = (cmd: string) => {
 	const permissionName = 'clipboard-write' as PermissionName;
 	navigator.permissions
 		.query({name: permissionName})
@@ -8,6 +8,7 @@ export const copyCmd = (cmd: string) => {
 			}
 		})
 		.catch((err) => {
-			console.log('Could not copy command', err);
+			// eslint-disable-next-line no-alert
+			alert('Could not copy:' + err);
 		});
 };
