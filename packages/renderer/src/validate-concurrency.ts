@@ -3,6 +3,10 @@ export const validateConcurrency = (value: unknown, setting: string) => {
 		return;
 	}
 
+	if (value === null) {
+		return;
+	}
+
 	if (typeof value !== 'number') {
 		throw new Error(setting + ' must be a number but is ' + value);
 	}
