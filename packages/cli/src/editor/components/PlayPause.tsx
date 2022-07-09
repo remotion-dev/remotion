@@ -26,8 +26,16 @@ export const PlayPause: React.FC<{
 		playbackRate,
 	});
 
-	const {playing, play, pause, frameBack, seek, frameForward, isLastFrame} =
-		PlayerInternals.usePlayer();
+	const {
+		playing,
+		play,
+		pause,
+		pauseAndReturnToPlayStart,
+		frameBack,
+		seek,
+		frameForward,
+		isLastFrame,
+	} = PlayerInternals.usePlayer();
 
 	const isStill = useIsStill();
 
@@ -49,6 +57,18 @@ export const PlayPause: React.FC<{
 		},
 		[pause, play, playing]
 	);
+
+	const onEnter = useCallback(
+		(e: KeyboardEvent) => {
+			if (playing) {
+				pauseAndReturnToPlayStart();
+			}
+
+			e.preventDefault();
+		},
+		[pauseAndReturnToPlayStart, playing]
+	);
+
 	const videoFps = video?.fps ?? null;
 
 	const onArrowLeft = useCallback(
@@ -123,6 +143,7 @@ export const PlayPause: React.FC<{
 			onArrowRight
 		);
 		const space = keybindings.registerKeybinding('keydown', ' ', onSpace);
+		const enter = keybindings.registerKeybinding('keydown', 'enter', onEnter);
 		const a = keybindings.registerKeybinding('keydown', 'a', jumpToStart);
 		const e = keybindings.registerKeybinding('keydown', 'e', jumpToEnd);
 
@@ -130,10 +151,19 @@ export const PlayPause: React.FC<{
 			arrowLeft.unregister();
 			arrowRight.unregister();
 			space.unregister();
+			enter.unregister();
 			a.unregister();
 			e.unregister();
 		};
-	}, [jumpToEnd, jumpToStart, keybindings, onArrowLeft, onArrowRight, onSpace]);
+	}, [
+		jumpToEnd,
+		jumpToStart,
+		keybindings,
+		onArrowLeft,
+		onArrowRight,
+		onEnter,
+		onSpace,
+	]);
 
 	if (isStill) {
 		return null;
