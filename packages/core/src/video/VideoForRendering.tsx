@@ -112,6 +112,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				src: props.src as string,
 				playbackRate: playbackRate || 1,
 				startFrom: -mediaStartsAt,
+				mediaType: 'video',
 			});
 		})();
 		const handle = delayRender(`Rendering <Video /> with src="${props.src}"`);
