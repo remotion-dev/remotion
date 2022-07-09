@@ -237,7 +237,7 @@ export const getCliOptions = async (options: {
 
 	return {
 		puppeteerTimeout: Internals.getCurrentPuppeteerTimeout(),
-		parallelism: Internals.getConcurrency(),
+		parallelism,
 		frameRange,
 		shouldOutputImageSequence,
 		codec,
