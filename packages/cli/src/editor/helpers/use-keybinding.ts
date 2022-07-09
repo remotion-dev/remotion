@@ -1,10 +1,6 @@
 import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
-import type {
-	KeyEventType,
-	RegisteredKeybinding} from '../state/keybindings';
-import {
-	KeybindingContext
-} from '../state/keybindings';
+import type {KeyEventType, RegisteredKeybinding} from '../state/keybindings';
+import {KeybindingContext} from '../state/keybindings';
 import {useZIndex} from '../state/z-index';
 
 export const useKeybinding = () => {
