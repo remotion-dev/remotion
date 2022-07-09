@@ -1,6 +1,6 @@
 import React, {useRef, useState} from 'react';
 import {AbsoluteFill, random} from 'remotion';
-import {TransitionDirection} from './transition-direction';
+import type {TransitionDirection} from './transition-direction';
 
 export const TriangleTransition: React.FC<{
 	progress: number;
