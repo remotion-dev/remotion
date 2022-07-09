@@ -1,5 +1,6 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useEffect} from 'react';
+import type React from 'react';
+import {useCallback, useEffect} from 'react';
 import {useKeybinding} from '../helpers/use-keybinding';
 
 export const PlaybackKeyboardShortcutsManager: React.FC<{

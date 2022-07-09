@@ -1,4 +1,5 @@
-import React, {useContext, useEffect} from 'react';
+import type React from 'react';
+import {useContext, useEffect} from 'react';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {CheckerboardContext} from '../state/checkerboard';
 import {ModalsContext} from '../state/modals';

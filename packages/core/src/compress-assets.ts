@@ -1,4 +1,4 @@
-import {TAsset} from './CompositionManager';
+import type {TAsset} from './CompositionManager';
 
 /**
  * Since audio or video can be base64-encoded, those can be really long strings.

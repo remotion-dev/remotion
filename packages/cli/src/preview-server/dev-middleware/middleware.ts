@@ -1,11 +1,11 @@
 import {RenderInternals} from '@remotion/renderer';
-import {ReadStream} from 'fs';
-import {IncomingMessage, ServerResponse} from 'http';
+import type {ReadStream} from 'fs';
+import type {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';
 import {send, setHeaderForResponse} from './compatible-api';
 import {parseRange} from './range-parser';
 import {ready} from './ready';
-import {DevMiddlewareContext} from './types';
+import type {DevMiddlewareContext} from './types';
 // eslint-disable-next-line no-restricted-imports
 import querystring from 'querystring';
 import {parse} from 'url';
@@ -191,7 +191,7 @@ export function middleware(context: DevMiddlewareContext) {
 
 			if (!res.getHeader('Content-Type')) {
 				// content-type name(like application/javascript; charset=utf-8) or false
-				const contentType = RenderInternals.mime.contentType(
+				const contentType = RenderInternals.mimeContentType(
 					path.extname(filename)
 				);
 

@@ -5,12 +5,13 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import {CompositionManager} from '../CompositionManager';
-import {getTimelineClipName} from '../get-timeline-clip-name';
-import {useNonce} from '../nonce';
-import {TimelineContext} from '../timeline-position-state';
-import {useAbsoluteCurrentFrame} from '../use-frame';
-import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
+import {AbsoluteFill} from './AbsoluteFill';
+import {CompositionManager} from './CompositionManager';
+import {getTimelineClipName} from './get-timeline-clip-name';
+import {useNonce} from './nonce';
+import {TimelineContext} from './timeline-position-state';
+import {useAbsoluteCurrentFrame} from './use-current-frame';
+import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 
 export type SequenceContextType = {
 	cumulatedFrom: number;
@@ -22,25 +23,34 @@ export type SequenceContextType = {
 
 export const SequenceContext = createContext<SequenceContextType | null>(null);
 
+type LayoutAndStyle =
+	| {
+			layout: 'none';
+	  }
+	| {
+			layout?: 'absolute-fill';
+			style?: React.CSSProperties;
+	  };
+
 export type SequenceProps = {
 	children: React.ReactNode;
 	from: number;
 	durationInFrames?: number;
 	name?: string;
-	layout?: 'absolute-fill' | 'none';
 	showInTimeline?: boolean;
 	showLoopTimesInTimeline?: number;
-};
+} & LayoutAndStyle;
 
 export const Sequence: React.FC<SequenceProps> = ({
 	from,
 	durationInFrames = Infinity,
 	children,
 	name,
-	layout = 'absolute-fill',
 	showInTimeline = true,
 	showLoopTimesInTimeline,
+	...other
 }) => {
+	const {layout = 'absolute-fill'} = other;
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
 	const {rootId} = useContext(TimelineContext);
@@ -54,6 +64,11 @@ export const Sequence: React.FC<SequenceProps> = ({
 		throw new TypeError(
 			`The layout prop of <Sequence /> expects either "absolute-fill" or "none", but you passed: ${layout}`
 		);
+	}
+
+	// @ts-expect-error
+	if (layout === 'none' && typeof other.style !== 'undefined') {
+		throw new TypeError('If layout="none", you may not pass a style.');
 	}
 
 	if (typeof durationInFrames !== 'number') {
@@ -169,23 +184,19 @@ export const Sequence: React.FC<SequenceProps> = ({
 			? null
 			: children;
 
+	const styleIfThere = other.layout === 'none' ? undefined : other.style;
+
+	const defaultStyle: React.CSSProperties = useMemo(() => {
+		return {
+			flexDirection: undefined,
+			...(styleIfThere ?? {}),
+		};
+	}, [styleIfThere]);
+
 	return (
 		<SequenceContext.Provider value={contextValue}>
 			{content === null ? null : layout === 'absolute-fill' ? (
-				<div
-					style={{
-						position: 'absolute',
-						display: 'flex',
-						width: '100%',
-						height: '100%',
-						top: 0,
-						bottom: 0,
-						left: 0,
-						right: 0,
-					}}
-				>
-					{content}
-				</div>
+				<AbsoluteFill style={defaultStyle}>{content}</AbsoluteFill>
 			) : (
 				content
 			)}

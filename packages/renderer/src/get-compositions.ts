@@ -1,10 +1,15 @@
-import {Browser, Page} from 'puppeteer-core';
-import {BrowserExecutable, FfmpegExecutable, TCompMetadata} from 'remotion';
-import {BrowserLog} from './browser-log';
+import type {
+	BrowserExecutable,
+	FfmpegExecutable,
+	TCompMetadata,
+} from 'remotion';
+import type {BrowserLog} from './browser-log';
+import type {Browser} from './browser/Browser';
+import type {Page} from './browser/BrowserPage';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
-import {ChromiumOptions} from './open-browser';
+import type {ChromiumOptions} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {setPropsAndEnv} from './set-props-and-env';
@@ -33,8 +38,8 @@ const innerGetCompositions = async (
 		page.on('console', (log) => {
 			config.onBrowserLog?.({
 				stackTrace: log.stackTrace(),
-				text: log.text(),
-				type: log.type(),
+				text: log.text,
+				type: log.type,
 			});
 		});
 	}
@@ -63,7 +68,7 @@ const innerGetCompositions = async (
 		args: [],
 	});
 
-	await page.waitForFunction('window.ready === true');
+	await page.waitForFunction(page.browser, 'window.ready === true');
 	const result = await puppeteerEvaluateWithCatch({
 		pageFunction: () => {
 			return window.getStaticCompositions();

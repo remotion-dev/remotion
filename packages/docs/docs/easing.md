@@ -269,3 +269,7 @@ static inOut(easing)
 ```
 
 Makes any easing function symmetrical. The easing function will run forwards for half of the duration, then backwards for the rest of the duration.
+
+## See also
+
+- [Source code for this helper](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/easing.ts)

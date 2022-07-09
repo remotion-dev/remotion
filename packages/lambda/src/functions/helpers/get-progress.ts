@@ -1,11 +1,12 @@
 import {Internals} from 'remotion';
-import {AwsRegion} from '../../pricing/aws-regions';
+import type {AwsRegion} from '../../pricing/aws-regions';
+import type {
+	RenderProgress} from '../../shared/constants';
 import {
 	chunkKey,
 	encodingProgressKey,
 	MAX_EPHEMERAL_STORAGE_IN_MB,
 	renderMetadataKey,
-	RenderProgress,
 	rendersPrefix,
 } from '../../shared/constants';
 import {DOCS_URL} from '../../shared/docs-url';
@@ -27,7 +28,7 @@ import {getRetryStats} from './get-retry-stats';
 import {getTimeToFinish} from './get-time-to-finish';
 import {inspectErrors} from './inspect-errors';
 import {lambdaLs} from './io';
-import {EnhancedErrorInfo} from './write-lambda-error';
+import type {EnhancedErrorInfo} from './write-lambda-error';
 
 export const getProgress = async ({
 	bucketName,
@@ -93,6 +94,7 @@ export const getProgress = async ({
 			retriesInfo: postRenderData.retriesInfo,
 			outKey: outData.key,
 			outBucket: outData.renderBucketName,
+			mostExpensiveFrameRanges: postRenderData.mostExpensiveFrameRanges ?? null,
 		};
 	}
 
@@ -270,5 +272,6 @@ export const getProgress = async ({
 			outputFile && renderMetadata
 				? getExpectedOutName(renderMetadata, bucketName).renderBucketName
 				: null,
+		mostExpensiveFrameRanges: null,
 	};
 };

@@ -1,10 +1,11 @@
-import {_Object} from '@aws-sdk/client-s3';
+import type {_Object} from '@aws-sdk/client-s3';
 import {estimatePrice} from '../../api/estimate-price';
-import {lambdaTimingsPrefix, RenderMetadata} from '../../shared/constants';
+import type { RenderMetadata} from '../../shared/constants';
+import {lambdaTimingsPrefix} from '../../shared/constants';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
-import {LambdaArchitecture} from '../../shared/validate-architecture';
+import type {LambdaArchitecture} from '../../shared/validate-architecture';
 import {calculateChunkTimes} from './calculate-chunk-times';
-import {OutputFileMetadata} from './find-output-file-in-bucket';
+import type {OutputFileMetadata} from './find-output-file-in-bucket';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getTimeToFinish} from './get-time-to-finish';
 

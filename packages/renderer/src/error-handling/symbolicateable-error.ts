@@ -3,7 +3,7 @@
  */
 
 import {parseDelayRenderEmbeddedStack} from '../delay-render-embedded-stack';
-import {UnsymbolicatedStackFrame} from '../parse-browser-error-stack';
+import type {UnsymbolicatedStackFrame} from '../parse-browser-error-stack';
 
 export class SymbolicateableError extends Error {
 	stackFrame: UnsymbolicatedStackFrame[] | null;

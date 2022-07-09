@@ -1,6 +1,7 @@
+import type {
+	ImageFormat} from '../config/image-format';
 import {
 	getUserPreferredImageFormat,
-	ImageFormat,
 	setImageFormat,
 	validateSelectedPixelFormatAndImageFormatCombination,
 } from '../config/image-format';

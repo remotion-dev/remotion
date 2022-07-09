@@ -7,4 +7,4 @@ assignees: ""
 ---
 
 <!--- You may also open a discussion: https://github.com/remotion-dev/remotion/discussions -->
-<!--- Or chat with us: https://discord.gg/6VzzNDwUwV -->
+<!--- Or chat with us: https://remotion.dev/discord -->

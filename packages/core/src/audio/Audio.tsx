@@ -1,11 +1,11 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
 import {getRemotionEnvironment} from '../get-environment';
-import {Sequence} from '../sequencing';
+import {Sequence} from '../Sequence';
 import {validateMediaProps} from '../validate-media-props';
 import {validateStartFromProps} from '../validate-start-from-props';
 import {AudioForDevelopment} from './AudioForDevelopment';
 import {AudioForRendering} from './AudioForRendering';
-import {RemotionAudioProps, RemotionMainAudioProps} from './props';
+import type {RemotionAudioProps, RemotionMainAudioProps} from './props';
 import {SharedAudioContext} from './shared-audio-tags';
 
 const AudioRefForwardingFunction: React.ForwardRefRenderFunction<

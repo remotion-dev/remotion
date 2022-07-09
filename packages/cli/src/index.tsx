@@ -1,6 +1,9 @@
-import chalk from 'chalk';
+import {RenderInternals} from '@remotion/renderer';
+import {chalk} from './chalk';
 import {checkNodeVersion} from './check-version';
 import {listCompositionsCommand} from './compositions';
+import {getFileSizeDownloadBar} from './download-progress';
+import {formatBytes} from './format-bytes';
 import {getCliOptions} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
 import {handleCommonError} from './handle-common-errors';
@@ -42,6 +45,9 @@ export const cli = async () => {
 		await validateVersionsBeforeCommand();
 	}
 
+	const errorSymbolicationLock =
+		RenderInternals.registerErrorSymbolicationLock();
+
 	try {
 		if (command === 'compositions') {
 			await listCompositionsCommand();
@@ -69,6 +75,8 @@ export const cli = async () => {
 		Log.info();
 		await handleCommonError(err as Error);
 		process.exit(1);
+	} finally {
+		RenderInternals.unlockErrorSymbolicationLock(errorSymbolicationLock);
 	}
 };
 
@@ -88,4 +96,6 @@ export const CliInternals = {
 	quietFlagProvided,
 	parsedCli,
 	handleCommonError,
+	formatBytes,
+	getFileSizeDownloadBar,
 };

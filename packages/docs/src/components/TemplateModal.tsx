@@ -1,4 +1,4 @@
-import { Template } from "create-video";
+import type { Template } from "create-video";
 import React, { useEffect, useRef } from "react";
 import { TemplateModalContent } from "./TemplateModalContent";
 

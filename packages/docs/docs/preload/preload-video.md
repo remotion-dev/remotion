@@ -73,5 +73,5 @@ const MyComp: React.FC = () => {
 
 ## See also
 
-- [`resolveRedirect()`](/docs/preload/resolve-redirect)
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/preload/src/preload-video.ts)
+- [`resolveRedirect()`](/docs/preload/resolve-redirect)

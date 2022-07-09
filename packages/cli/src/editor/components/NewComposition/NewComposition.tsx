@@ -1,5 +1,6 @@
+import type {
+	ChangeEventHandler} from 'react';
 import React, {
-	ChangeEventHandler,
 	useCallback,
 	useContext,
 	useMemo,
@@ -15,12 +16,14 @@ import {
 	loadAspectRatioOption,
 	persistAspectRatioOption,
 } from '../../state/aspect-ratio-locked';
-import {CompType, ModalsContext} from '../../state/modals';
+import type {CompType} from '../../state/modals';
+import { ModalsContext} from '../../state/modals';
 import {CopyButton} from '../CopyButton';
 import {Flex, Row, Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
-import {Combobox, ComboboxValue} from './ComboBox';
+import type { ComboboxValue} from './ComboBox';
+import {Combobox} from './ComboBox';
 import {CopyHint} from './CopyHint';
 import {InputDragger} from './InputDragger';
 import {inputArea, leftLabel} from './new-comp-layout';

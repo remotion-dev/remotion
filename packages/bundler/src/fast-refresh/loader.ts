@@ -33,7 +33,7 @@
  * SOFTWARE.
  */
 
-import {LoaderDefinition} from 'webpack';
+import type {LoaderDefinition} from 'webpack';
 
 // This file is copied from the @vercel/next.js, with removed TS annotations
 //

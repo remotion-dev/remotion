@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
-import chalk from 'chalk';
 import {Internals} from 'remotion';
+import {chalk} from './chalk';
 
 export const Log = {
 	verbose: (...args: Parameters<typeof console.log>) => {
@@ -11,7 +11,7 @@ export const Log = {
 				'verbose'
 			)
 		) {
-			return console.log(chalk.blueBright(...args));
+			return console.log(...args.map((a) => chalk.blueBright(a)));
 		}
 	},
 	info: (...args: Parameters<typeof console.log>) => {
@@ -31,7 +31,7 @@ export const Log = {
 				'warn'
 			)
 		) {
-			return console.warn(chalk.yellow(...args));
+			return console.warn(...args.map((a) => chalk.yellow(a)));
 		}
 	},
 	error: (...args: Parameters<typeof console.log>) => {
@@ -41,7 +41,7 @@ export const Log = {
 				'error'
 			)
 		) {
-			return console.error(chalk.red(...args));
+			return console.error(...args.map((a) => chalk.red(a)));
 		}
 	},
 };

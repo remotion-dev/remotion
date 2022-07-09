@@ -1,4 +1,4 @@
-import {getFolderFiles as original} from '../get-files-in-folder';
+import type {getFolderFiles as original} from '../get-files-in-folder';
 
 export const getFolderFiles: typeof original = () => {
 	return [

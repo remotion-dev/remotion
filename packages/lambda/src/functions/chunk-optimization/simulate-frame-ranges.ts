@@ -1,4 +1,4 @@
-import {ChunkTimingData, TimingProfile} from './types';
+import type {ChunkTimingData, TimingProfile} from './types';
 
 export const getTimingForFrame = (profile: TimingProfile, frame: number) => {
 	for (const timingInfo of profile) {

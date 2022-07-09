@@ -3,14 +3,16 @@ import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import {Internals} from 'remotion';
 import {getLambdaClient} from '../shared/aws-clients';
+import type {
+	EncodingProgress,
+	LambdaPayload,
+	RenderMetadata,
+} from '../shared/constants';
 import {
 	CURRENT_VERSION,
-	EncodingProgress,
 	encodingProgressKey,
-	LambdaPayload,
 	LambdaRoutines,
 	MAX_FUNCTIONS_PER_RENDER,
-	RenderMetadata,
 	renderMetadataKey,
 	rendersPrefix,
 } from '../shared/constants';
@@ -153,7 +155,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			inputProps: params.inputProps,
 			renderId: params.renderId,
 			imageFormat: params.imageFormat,
-			codec: params.codec,
+			codec: params.codec === 'h264' ? 'h264-mkv' : params.codec,
 			crf: params.crf,
 			envVariables: params.envVariables,
 			pixelFormat: params.pixelFormat,

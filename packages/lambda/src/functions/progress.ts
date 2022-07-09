@@ -1,7 +1,8 @@
-import {
+import type {
 	LambdaPayload,
-	LambdaRoutines,
-	RenderProgress,
+	RenderProgress} from '../shared/constants';
+import {
+	LambdaRoutines
 } from '../shared/constants';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getProgress} from './helpers/get-progress';

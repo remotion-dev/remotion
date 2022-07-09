@@ -15,21 +15,21 @@ Gets all sites and deletes them.
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import {AwsRegion, deleteSite, getSites} from '@remotion/lambda';
+import { AwsRegion, deleteSite, getSites } from "@remotion/lambda";
 
-const region: AwsRegion = 'eu-central-1';
+const region: AwsRegion = "eu-central-1";
 
-const {sites} = await getSites({
-  region
+const { sites } = await getSites({
+  region,
 });
 
 for (const site of sites) {
   await deleteSite({
     bucketName: site.bucketName,
     siteName: site.id,
-    region
-  })
-  console.log(`Site ${site.id} deleted.`)
+    region,
+  });
+  console.log(`Site ${site.id} deleted.`);
 }
 ```
 
@@ -67,5 +67,6 @@ The amount of space that was freed by deleting the project.
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/delete-site.ts)
 - [getSites()](/docs/lambda/getsites)
 - [deploySite()](/docs/lambda/deploysite)

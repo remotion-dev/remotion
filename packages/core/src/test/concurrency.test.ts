@@ -1,5 +1,6 @@
+import type {
+	Concurrency} from '../config/concurrency';
 import {
-	Concurrency,
 	getConcurrency,
 	setConcurrency,
 } from '../config/concurrency';
