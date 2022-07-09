@@ -100,6 +100,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	Internals.validateDimension(comp.height, 'height', 'passed to <Component />');
 	Internals.validateDimension(comp.width, 'width', 'passed to <Component />');
 
+	RenderInternals.validateConcurrency(
+		params.concurrencyPerLambda,
+		'concurrencyPerLambda'
+	);
+
 	const realFrameRange = RenderInternals.getRealFrameRange(
 		comp.durationInFrames,
 		params.frameRange
