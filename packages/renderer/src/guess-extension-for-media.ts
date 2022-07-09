@@ -3,10 +3,6 @@ import execa from 'execa';
 export const guessExtensionForVideo = async (src: string) => {
 	const {stderr} = await execa('ffprobe', [src]);
 
-	if (stderr.includes('h264')) {
-		return 'mp4';
-	}
-
 	if (stderr.includes('mp3,')) {
 		return 'mp3';
 	}
@@ -21,6 +17,10 @@ export const guessExtensionForVideo = async (src: string) => {
 
 	if (stderr.includes('wav, ')) {
 		return 'wav';
+	}
+
+	if (stderr.includes('Video: h264')) {
+		return 'mp4';
 	}
 
 	throw new Error(
