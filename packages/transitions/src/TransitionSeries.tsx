@@ -179,15 +179,15 @@ const TransitionSeries: FC<{
 				  })
 				: null;
 
-			if (nextProgress !== null && prevProgress !== null) {
+			if (next && prev && nextProgress !== null && prevProgress !== null) {
 				return (
 					<GenericTransition
-						preset={next?.props.preset!}
+						preset={next.props.preset}
 						direction="out"
 						progress={nextProgress}
 					>
 						<GenericTransition
-							preset={prev?.props.preset!}
+							preset={prev.props.preset}
 							direction="in"
 							progress={prevProgress}
 						>
@@ -197,10 +197,10 @@ const TransitionSeries: FC<{
 				);
 			}
 
-			if (prevProgress !== null) {
+			if (prevProgress !== null && prev) {
 				return (
 					<GenericTransition
-						preset={prev?.props.preset!}
+						preset={prev.props.preset}
 						direction="in"
 						progress={prevProgress}
 					>
@@ -209,10 +209,10 @@ const TransitionSeries: FC<{
 				);
 			}
 
-			if (nextProgress !== null) {
+			if (nextProgress !== null && next) {
 				return (
 					<GenericTransition
-						preset={next?.props.preset!}
+						preset={next.props.preset}
 						direction="out"
 						progress={nextProgress}
 					>
