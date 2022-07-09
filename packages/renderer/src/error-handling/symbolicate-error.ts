@@ -1,6 +1,6 @@
 import {symbolicateStackTrace} from '../symbolicate-stacktrace';
 import {ErrorWithStackFrame} from './handle-javascript-exception';
-import {SymbolicateableError} from './symbolicateable-error';
+import type {SymbolicateableError} from './symbolicateable-error';
 
 export const symbolicateError = async (
 	symbolicateableError: SymbolicateableError

@@ -1,7 +1,8 @@
-import React, {
+import type {
 	ComponentType,
+	MutableRefObject} from 'react';
+import React, {
 	forwardRef,
-	MutableRefObject,
 	useCallback,
 	useEffect,
 	useImperativeHandle,
@@ -10,22 +11,24 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {
-	Composition,
+import type {
 	CompositionManagerContext,
 	CompProps,
-	Internals,
 	MediaVolumeContextValue,
 	PlayableMediaTag,
 	SetMediaVolumeContextValue,
 	SetTimelineContextValue,
-	TimelineContextValue,
+	TimelineContextValue} from 'remotion';
+import {
+	Composition,
+	Internals
 } from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
-import {PlayerRef} from './player-methods';
-import PlayerUI, {RenderLoading} from './PlayerUI';
+import type {PlayerRef} from './player-methods';
+import type {RenderLoading} from './PlayerUI';
+import PlayerUI from './PlayerUI';
 import {validatePlaybackRate} from './utils/validate-playbackrate';
 import {getPreferredVolume, persistVolume} from './volume-persistance';
 

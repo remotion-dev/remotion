@@ -34,7 +34,12 @@ export const readFile = async (
 	}
 
 	const file = await readFileWithoutRedirect(url);
-	if (file.statusCode === 302 || file.statusCode === 301) {
+	if (
+		file.statusCode === 302 ||
+		file.statusCode === 301 ||
+		file.statusCode === 307 ||
+		file.statusCode === 308
+	) {
 		if (!file.headers.location) {
 			throw new Error(
 				`Received a status code ${file.statusCode} but no "Location" header while calling ${file.headers.location}`

@@ -12,10 +12,10 @@ Triggers a render on a lambda given a composition and a lambda function.
 ```tsx twoslash
 // @module: esnext
 // @target: es2017
-import { renderVideoOnLambda } from "@remotion/lambda";
+import { renderMediaOnLambda } from "@remotion/lambda";
 // ---cut---
 
-const { bucketName, renderId } = await renderVideoOnLambda({
+const { bucketName, renderId } = await renderMediaOnLambda({
   region: "us-east-1",
   functionName: "remotion-render-bds9aab",
   composition: "MyVideo",
@@ -23,7 +23,7 @@ const { bucketName, renderId } = await renderVideoOnLambda({
   serveUrl:
     "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
   inputProps: {},
-  codec: "h264-mkv",
+  codec: "h264",
   imageFormat: "jpeg",
   maxRetries: 1,
   privacy: "public",
@@ -72,7 +72,9 @@ React props that are passed to your composition. You define the shape of the pro
 
 ### `codec`
 
-Which codec should be used to encode the video. At the moment the only supported video codec is `h264-mkv`, which will return a MP4 encoded using H.264, but where the chunks are encoded in the Matruska container. The reason Lambda has a special value is to allow audio to be stitched together seamlessly.
+Which codec should be used to encode the video.
+
+Video codecs `h264` and `vp8` are supported.
 
 Audio codecs `mp3`, `aac` and `wav` are also supported.
 
@@ -180,4 +182,5 @@ The S3 bucket name in which all files are being saved.
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/render-media-on-lambda.ts)
 - [getRenderProgress()](/docs/lambda/getrenderprogress)

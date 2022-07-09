@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { ShowcaseVideo } from "../data/showcase-videos";
+import type { ShowcaseVideo } from "../data/showcase-videos";
 import { useElementSize } from "../helpers/use-el-size";
 import { PausedIcon } from "../icons/arrows";
 import { MuxVideo } from "./MuxVideo";

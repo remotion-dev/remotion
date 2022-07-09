@@ -1,8 +1,4 @@
-import {
-	ContactShadows,
-	Environment,
-	MeshDistortMaterial,
-} from '@react-three/drei';
+import {ContactShadows, MeshDistortMaterial} from '@react-three/drei';
 
 export const Orb = () => {
 	return (
@@ -32,7 +28,6 @@ export const Orb = () => {
 				blur={2.5}
 				far={1.6}
 			/>
-			<Environment preset="sunset" />
 		</>
 	);
 };

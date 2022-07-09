@@ -1,7 +1,8 @@
-import {CDPSession, Page, Protocol} from 'puppeteer-core';
 import {Internals} from 'remotion';
-import {UnsymbolicatedStackFrame} from '../parse-browser-error-stack';
-import {SymbolicatedStackFrame} from '../symbolicate-stacktrace';
+import type {Page} from '../browser/BrowserPage';
+import type {CallFrame, ExceptionThrownEvent} from '../browser/devtools-types';
+import type {UnsymbolicatedStackFrame} from '../parse-browser-error-stack';
+import type {SymbolicatedStackFrame} from '../symbolicate-stacktrace';
 import {SymbolicateableError} from './symbolicateable-error';
 
 export class ErrorWithStackFrame extends Error {
@@ -31,9 +32,7 @@ export class ErrorWithStackFrame extends Error {
 	}
 }
 
-const cleanUpErrorMessage = (
-	exception: Protocol.Runtime.ExceptionThrownEvent
-) => {
+const cleanUpErrorMessage = (exception: ExceptionThrownEvent) => {
 	let errorMessage = exception.exceptionDetails.exception
 		?.description as string;
 	const errorType = exception.exceptionDetails.exception?.className as string;
@@ -58,7 +57,7 @@ const removeDelayRenderStack = (message: string) => {
 };
 
 const callFrameToStackFrame = (
-	callFrame: Protocol.Runtime.CallFrame
+	callFrame: CallFrame
 ): UnsymbolicatedStackFrame => {
 	return {
 		columnNumber: callFrame.columnNumber,
@@ -77,9 +76,9 @@ export const handleJavascriptException = ({
 	frame: number | null;
 	onError: (err: Error) => void;
 }) => {
-	const client = (page as unknown as {_client: CDPSession})._client;
+	const client = page._client();
 
-	const handler = async (exception: Protocol.Runtime.ExceptionThrownEvent) => {
+	const handler = (exception: ExceptionThrownEvent) => {
 		const rawErrorMessage = exception.exceptionDetails.exception
 			?.description as string;
 		const cleanErrorMessage = cleanUpErrorMessage(exception);
@@ -95,8 +94,7 @@ export const handleJavascriptException = ({
 		const symbolicatedErr = new SymbolicateableError({
 			message: removeDelayRenderStack(cleanErrorMessage),
 			stackFrame: (
-				exception.exceptionDetails.stackTrace
-					.callFrames as Protocol.Runtime.CallFrame[]
+				exception.exceptionDetails.stackTrace.callFrames as CallFrame[]
 			).map((f) => callFrameToStackFrame(f)),
 			frame,
 			name: errorType,

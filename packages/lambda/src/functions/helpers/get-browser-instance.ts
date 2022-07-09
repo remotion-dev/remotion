@@ -1,5 +1,6 @@
-import {ChromiumOptions, openBrowser} from '@remotion/renderer';
-import {Await} from '../../shared/await';
+import type {ChromiumOptions} from '@remotion/renderer';
+import { openBrowser} from '@remotion/renderer';
+import type {Await} from '../../shared/await';
 import {executablePath} from './get-chromium-executable-path';
 
 let _browserInstance: Await<ReturnType<typeof openBrowser>> | null;

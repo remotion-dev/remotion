@@ -1,4 +1,4 @@
-import {Codec} from './codec';
+import type {Codec} from './codec';
 
 const proResProfileOptions = [
 	'4444-xq',

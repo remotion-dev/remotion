@@ -1,4 +1,4 @@
-import {LambdaArchitecture} from '../..';
+import type {LambdaArchitecture} from '../..';
 import {
 	hostedLayers,
 	REMOTION_HOSTED_LAYER_ARN,

@@ -10,7 +10,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import child_process, {ChildProcess, exec} from 'child_process';
+import type {ChildProcess} from 'child_process';
+import child_process, {exec} from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';

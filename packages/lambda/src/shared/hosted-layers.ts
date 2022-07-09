@@ -1,5 +1,5 @@
-import {AwsRegion} from '../pricing/aws-regions';
-import {LambdaArchitecture} from './validate-architecture';
+import type {AwsRegion} from '../pricing/aws-regions';
+import type {LambdaArchitecture} from './validate-architecture';
 
 export const REMOTION_HOSTED_LAYER_ARN = `arn:aws:lambda:*:678892195805:layer:remotion-binaries-*`;
 

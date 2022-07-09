@@ -1,4 +1,4 @@
-import {Codec, ProResProfile} from 'remotion';
+import type {Codec, ProResProfile} from 'remotion';
 
 export const getProResProfileName = (
 	codec: Codec,

@@ -3,7 +3,7 @@ export {getAudioData} from './get-audio-data';
 export {
 	getAudioDuration,
 	getAudioDurationInSeconds,
-} from './get-audio-duration';
+} from './get-audio-duration-in-seconds';
 export {getVideoMetadata} from './get-video-metadata';
 export {getWaveformPortion} from './get-waveform-portion';
 export * from './types';

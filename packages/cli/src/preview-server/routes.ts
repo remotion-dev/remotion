@@ -1,6 +1,6 @@
 import {BundlerInternals} from '@remotion/bundler';
 import {createReadStream, statSync} from 'fs';
-import {IncomingMessage, ServerResponse} from 'http';
+import type {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';
 import {URLSearchParams} from 'url';
 import {getFileSource} from './error-overlay/react-overlay/utils/get-file-source';
@@ -9,7 +9,8 @@ import {
 	guessEditor,
 	launchEditor,
 } from './error-overlay/react-overlay/utils/open-in-editor';
-import {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
+import type {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
+import type {LiveEventsServer} from './live-events';
 import {getProjectInfo} from './project-info';
 import {serveStatic} from './serve-static';
 import {isUpdateAvailableWithTimeout} from './update-available';
@@ -33,14 +34,17 @@ const static404 = (response: ServerResponse) => {
 const handleFallback = async (
 	hash: string,
 	_: IncomingMessage,
-	response: ServerResponse
+	response: ServerResponse,
+	getCurrentInputProps: () => object
 ) => {
 	const edit = await editorGuess;
 	const displayName = getDisplayNameForEditor(edit[0]);
 
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
-	response.end(BundlerInternals.indexHtml(hash, '/', displayName));
+	response.end(
+		BundlerInternals.indexHtml(hash, '/', displayName, getCurrentInputProps())
+	);
 };
 
 const handleProjectInfo = async (
@@ -140,11 +144,15 @@ export const handleRoutes = ({
 	hashPrefix,
 	request,
 	response,
+	liveEventsServer,
+	getCurrentInputProps,
 }: {
 	hash: string;
 	hashPrefix: string;
 	request: IncomingMessage;
 	response: ServerResponse;
+	liveEventsServer: LiveEventsServer;
+	getCurrentInputProps: () => object;
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -168,6 +176,10 @@ export const handleRoutes = ({
 		return handleFavicon(request, response);
 	}
 
+	if (url.pathname === '/events') {
+		return liveEventsServer.router(request, response);
+	}
+
 	if (url.pathname.startsWith(hash)) {
 		const root = path.join(process.cwd(), 'public');
 		return serveStatic(root, hash, request, response);
@@ -177,5 +189,5 @@ export const handleRoutes = ({
 		return static404(response);
 	}
 
-	return handleFallback(hash, request, response);
+	return handleFallback(hash, request, response, getCurrentInputProps);
 };

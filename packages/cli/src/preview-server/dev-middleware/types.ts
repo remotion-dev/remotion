@@ -1,4 +1,4 @@
-import {webpack} from '@remotion/bundler';
+import type {webpack} from '@remotion/bundler';
 import type memfs from 'memfs';
 
 export type DevMiddlewareContext = {

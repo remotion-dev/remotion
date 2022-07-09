@@ -5,22 +5,28 @@ import fs from 'fs';
 import http from 'http';
 import os from 'os';
 import path from 'path';
-import {Internals, WebpackOverrideFn} from 'remotion';
+import type {WebpackOverrideFn} from 'remotion';
+import {Internals} from 'remotion';
 import {wdm} from './dev-middleware';
 import {webpackHotMiddleware} from './hot-middleware';
+import type {LiveEventsServer} from './live-events';
+import {makeLiveEventsRouter} from './live-events';
 import {handleRoutes} from './routes';
 
 export const startServer = async (
 	entry: string,
 	userDefinedComponent: string,
-	options?: {
+	options: {
 		webpackOverride?: WebpackOverrideFn;
-		inputProps?: object;
+		getCurrentInputProps: () => object;
 		envVariables?: Record<string, string>;
 		port: number | null;
 		maxTimelineTracks?: number;
 	}
-) => {
+): Promise<{
+	port: number;
+	liveEventsServer: LiveEventsServer;
+}> => {
 	const tmpDir = await fs.promises.mkdtemp(
 		path.join(os.tmpdir(), 'react-motion-graphics')
 	);
@@ -32,7 +38,6 @@ export const startServer = async (
 		environment: 'development',
 		webpackOverride:
 			options?.webpackOverride ?? Internals.getWebpackOverrideFn(),
-		inputProps: options?.inputProps ?? {},
 		envVariables: options?.envVariables ?? {},
 		maxTimelineTracks: options?.maxTimelineTracks ?? 15,
 		entryPoints: [
@@ -49,6 +54,8 @@ export const startServer = async (
 	const wdmMiddleware = wdm(compiler);
 	const whm = webpackHotMiddleware(compiler);
 
+	const liveEventsServer = makeLiveEventsRouter();
+
 	const server = http.createServer((request, response) => {
 		new Promise<void>((resolve) => {
 			wdmMiddleware(request, response, () => {
@@ -63,7 +70,14 @@ export const startServer = async (
 				});
 			})
 			.then(() => {
-				handleRoutes({hash, hashPrefix, request, response});
+				handleRoutes({
+					hash,
+					hashPrefix,
+					request,
+					response,
+					liveEventsServer,
+					getCurrentInputProps: options.getCurrentInputProps,
+				});
 			})
 			.catch((err) => {
 				response.setHeader('content-type', 'application/json');
@@ -81,5 +95,5 @@ export const startServer = async (
 	const port = await RenderInternals.getDesiredPort(desiredPort, 3000, 3100);
 
 	server.listen(port);
-	return port;
+	return {port, liveEventsServer};
 };
