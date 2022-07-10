@@ -52,6 +52,7 @@ test('Should make a transparent video', async () => {
 			quality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,
+			concurrencyPerLambda: 1,
 		},
 		extraContext
 	);

@@ -1,6 +1,6 @@
 import type {Browser} from './browser';
 import type {BrowserExecutable} from './browser-executable';
-import { setBrowserExecutable} from './browser-executable';
+import {setBrowserExecutable} from './browser-executable';
 import {
 	setChromiumDisableWebSecurity,
 	setChromiumHeadlessMode,
@@ -8,34 +8,26 @@ import {
 	setChromiumOpenGlRenderer,
 } from './chromium-flags';
 import type {Codec} from './codec';
-import { setCodec, setOutputFormat} from './codec';
+import {setCodec, setOutputFormat} from './codec';
 import type {Concurrency} from './concurrency';
-import { setConcurrency} from './concurrency';
+import {setConcurrency} from './concurrency';
 import {setCrf} from './crf';
 import {setDotEnvLocation} from './env-file';
-import type {
-	FfmpegExecutable} from './ffmpeg-executable';
-import {
-	setFfmpegExecutable,
-	setFfprobeExecutable,
-} from './ffmpeg-executable';
+import type {FfmpegExecutable} from './ffmpeg-executable';
+import {setFfmpegExecutable, setFfprobeExecutable} from './ffmpeg-executable';
 import type {FrameRange} from './frame-range';
-import { setFrameRange} from './frame-range';
+import {setFrameRange} from './frame-range';
 import type {ImageFormat, StillImageFormat} from './image-format';
-import { setImageFormat} from './image-format';
+import {setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import type {LogLevel} from './log';
-import { setLogLevel} from './log';
+import {setLogLevel} from './log';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
-import type {
-	WebpackConfiguration,
-	WebpackOverrideFn} from './override-webpack';
-import {
-	overrideWebpackConfig
-} from './override-webpack';
+import type {WebpackConfiguration, WebpackOverrideFn} from './override-webpack';
+import {overrideWebpackConfig} from './override-webpack';
 import {setOverwriteOutput} from './overwrite';
 import type {PixelFormat} from './pixel-format';
-import { setPixelFormat} from './pixel-format';
+import {setPixelFormat} from './pixel-format';
 import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {setQuality} from './quality';

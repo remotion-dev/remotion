@@ -104,6 +104,7 @@ export const renderCommand = async (args: string[]) => {
 		timeoutInMilliseconds: puppeteerTimeout,
 		chromiumOptions,
 		scale,
+		concurrencyPerLambda: parsedLambdaCli['concurrency-per-lambda'],
 	});
 
 	const totalSteps = outName ? 5 : 4;
