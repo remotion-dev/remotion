@@ -21,14 +21,6 @@ export const VideoautoplayDemo = () => {
 				backgroundColor: 'red',
 			}}
 		>
-			<Composition
-				id="test"
-				component={VideoautoplayDemo}
-				durationInFrames={300}
-				fps={30}
-				height={1080}
-				width={1080}
-			/>
 			<Sequence from={20}>
 				<Audio
 					src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
