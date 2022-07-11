@@ -4,6 +4,7 @@ import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {AskOnDiscord} from './AskOnDiscord';
 import {ErrorTitle} from './ErrorTitle';
 import {getHelpLink} from './get-help-link';
+import {HelpLink} from './HelpLink';
 import {OpenInEditor} from './OpenInEditor';
 import {SearchGithubIssues} from './SearchGitHubIssues';
 import {StackElement} from './StackFrame';
@@ -56,6 +57,15 @@ export const ErrorDisplay: React.FC<{
 				message={message}
 			/>
 
+			{helpLink ? (
+				<>
+					<HelpLink
+						link={helpLink}
+						canHaveKeyboardShortcuts={keyboardShortcuts}
+					/>
+					<div style={spacer} />
+				</>
+			) : null}
 			{display.stackFrames.length > 0 && window.remotion_editorName ? (
 				<>
 					<OpenInEditor
