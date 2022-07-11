@@ -1,6 +1,7 @@
 import {render} from '@testing-library/react';
 import React from 'react';
 import {AudioForRendering} from '../audio/AudioForRendering';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
 import type {CompositionManagerContext} from '../CompositionManager';
 import {Internals} from '../internals';
 import {expectToThrow} from './expect-to-throw';
@@ -20,17 +21,19 @@ describe('Register and unregister asset', () => {
 			children: React.ReactNode;
 		}> = ({children}) => {
 			return (
-				<Internals.CompositionManager.Provider
-					value={
-						// eslint-disable-next-line react/jsx-no-constructed-context-values
-						{
-							registerAsset,
-							unregisterAsset,
-						} as unknown as CompositionManagerContext
-					}
-				>
-					{children}
-				</Internals.CompositionManager.Provider>
+				<CanUseRemotionHooksProvider>
+					<Internals.CompositionManager.Provider
+						value={
+							// eslint-disable-next-line react/jsx-no-constructed-context-values
+							{
+								registerAsset,
+								unregisterAsset,
+							} as unknown as CompositionManagerContext
+						}
+					>
+						{children}
+					</Internals.CompositionManager.Provider>
+				</CanUseRemotionHooksProvider>
 			);
 		};
 
@@ -52,9 +55,11 @@ describe('Register and unregister asset', () => {
 			volume: 50,
 		};
 		const {unmount} = render(
-			<mockContext.MockProvider>
-				<AudioForRendering {...props} />
-			</mockContext.MockProvider>
+			<CanUseRemotionHooksProvider>
+				<mockContext.MockProvider>
+					<AudioForRendering {...props} />
+				</mockContext.MockProvider>
+			</CanUseRemotionHooksProvider>
 		);
 
 		expect(mockContext.registerAsset).toHaveBeenCalled();
@@ -70,9 +75,11 @@ describe('Register and unregister asset', () => {
 		};
 		expectToThrow(() => {
 			render(
-				<mockContext.MockProvider>
-					<AudioForRendering {...props} />
-				</mockContext.MockProvider>
+				<CanUseRemotionHooksProvider>
+					<mockContext.MockProvider>
+						<AudioForRendering {...props} />
+					</mockContext.MockProvider>
+				</CanUseRemotionHooksProvider>
 			);
 		}, /No src passed/);
 		expect(mockContext.registerAsset).not.toHaveBeenCalled();
@@ -98,7 +105,11 @@ describe('useEffect tests', () => {
 			muted: false,
 			volume: 50,
 		};
-		render(<AudioForRendering {...props} />);
+		render(
+			<CanUseRemotionHooksProvider>
+				<AudioForRendering {...props} />{' '}
+			</CanUseRemotionHooksProvider>
+		);
 		expect(mockUseEffect).toHaveBeenCalled();
 	});
 });
