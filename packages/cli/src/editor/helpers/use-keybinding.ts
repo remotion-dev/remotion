@@ -30,9 +30,8 @@ export const useKeybinding = () => {
 					options.commandCtrlKey === commandKey
 				) {
 					options.callback(e);
+					e.preventDefault();
 				}
-
-				e.preventDefault();
 			};
 
 			const toRegister: RegisteredKeybinding = {
