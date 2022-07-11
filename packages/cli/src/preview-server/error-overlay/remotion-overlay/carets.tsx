@@ -1,3 +1,5 @@
+import React from 'react';
+
 export const CaretRight = () => {
 	return (
 		<svg
@@ -15,7 +17,9 @@ export const CaretRight = () => {
 	);
 };
 
-export const CaretDown = () => {
+export const CaretDown: React.FC<{
+	invert: boolean;
+}> = ({invert}) => {
 	return (
 		<svg
 			aria-hidden="true"
@@ -23,7 +27,7 @@ export const CaretDown = () => {
 			role="img"
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 320 512"
-			style={{height: 20}}
+			style={{height: 20, transform: invert ? `rotate(180deg)` : ''}}
 		>
 			<path
 				fill="currentColor"
