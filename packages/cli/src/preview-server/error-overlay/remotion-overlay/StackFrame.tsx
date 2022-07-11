@@ -63,7 +63,7 @@ export const StackElement: React.FC<{
 				</div>
 				{s.originalScriptCode && s.originalScriptCode.length > 0 ? (
 					<Button onClick={toggleCodeFrame}>
-						{showCodeFrame ? <CaretDown /> : <CaretRight />}
+						{showCodeFrame ? <CaretDown invert={false} /> : <CaretRight />}
 					</Button>
 				) : null}
 			</div>

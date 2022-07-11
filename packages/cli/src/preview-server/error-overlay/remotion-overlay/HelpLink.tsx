@@ -1,17 +1,16 @@
-const DISCORD_LINK = 'https://remotion.dev/discord';
-
 import React, {useCallback, useEffect} from 'react';
 import {useKeybinding} from '../../../editor/helpers/use-keybinding';
 import {Button} from './Button';
+import type {THelpLink} from './get-help-link';
 import {ShortcutHint} from './ShortcutHint';
 
-export const AskOnDiscord: React.FC<{
+export const HelpLink: React.FC<{
 	canHaveKeyboardShortcuts: boolean;
-}> = ({canHaveKeyboardShortcuts}) => {
-	const openInBrowser = useCallback(() => {
-		window.open(DISCORD_LINK, '_blank');
-	}, []);
-
+	link: THelpLink;
+}> = ({canHaveKeyboardShortcuts, link}) => {
+	const openLink = useCallback(() => {
+		window.open(link.url, '_blank');
+	}, [link]);
 	const {registerKeybinding} = useKeybinding();
 
 	useEffect(() => {
@@ -20,23 +19,25 @@ export const AskOnDiscord: React.FC<{
 		}
 
 		const onEditor = () => {
-			openInBrowser();
+			openLink();
 		};
 
 		const {unregister} = registerKeybinding({
 			event: 'keydown',
-			key: 'd',
+			key: 'h',
 			callback: onEditor,
 			commandCtrlKey: true,
 		});
 		return () => unregister();
-	}, [canHaveKeyboardShortcuts, openInBrowser, registerKeybinding]);
+	}, [canHaveKeyboardShortcuts, openLink, registerKeybinding]);
 
 	return (
-		<Button onClick={openInBrowser}>
-			Ask on Discord{' '}
+		<Button onClick={openLink}>
+			Help: {'"'}
+			{link.title}
+			{'"'}
 			{canHaveKeyboardShortcuts ? (
-				<ShortcutHint keyToPress="d" cmdOrCtrl />
+				<ShortcutHint keyToPress="h" cmdOrCtrl />
 			) : null}
 		</Button>
 	);

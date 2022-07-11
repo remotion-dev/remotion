@@ -19,7 +19,9 @@ export type KeybindingContextType = {
 };
 
 export const KeybindingContext = createContext<KeybindingContextType>({
-	registerKeybinding: () => undefined,
+	registerKeybinding: () => {
+		throw new Error('Has no keybinding context');
+	},
 	unregisterKeybinding: () => undefined,
 	unregisterPane: () => undefined,
 });
