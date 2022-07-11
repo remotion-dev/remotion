@@ -5,6 +5,7 @@ import React, {
 	useState,
 } from 'react';
 import {AbsoluteFill} from 'remotion';
+import {KeybindingContextProvider} from '../../../editor/state/keybindings';
 import {ErrorLoader} from './ErrorLoader';
 
 type SetErrors = {
@@ -68,16 +69,24 @@ export const Overlay: React.FC = () => {
 	}
 
 	return (
-		<AbsoluteFill
-			style={{
-				backgroundColor: BACKGROUND_COLOR,
-				overflow: 'auto',
-				color: 'white',
-			}}
-		>
-			{errors.errors.map((err) => {
-				return <ErrorLoader key={err.stack} error={err} />;
-			})}
-		</AbsoluteFill>
+		<KeybindingContextProvider>
+			<AbsoluteFill
+				style={{
+					backgroundColor: BACKGROUND_COLOR,
+					overflow: 'auto',
+					color: 'white',
+				}}
+			>
+				{errors.errors.map((err, i) => {
+					return (
+						<ErrorLoader
+							key={err.stack}
+							keyboardShortcuts={i === 0}
+							error={err}
+						/>
+					);
+				})}
+			</AbsoluteFill>
+		</KeybindingContextProvider>
 	);
 };

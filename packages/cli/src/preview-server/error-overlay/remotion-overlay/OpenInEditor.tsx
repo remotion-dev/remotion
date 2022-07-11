@@ -6,6 +6,7 @@ import React, {
 	useReducer,
 	useRef,
 } from 'react';
+import {useKeybinding} from '../../../editor/helpers/use-keybinding';
 import type {SymbolicatedStackFrame} from '../react-overlay/utils/stack-frame';
 import {Button} from './Button';
 
@@ -69,9 +70,11 @@ const reducer = (state: State, action: Action): State => {
 
 export const OpenInEditor: React.FC<{
 	stack: SymbolicatedStackFrame;
-}> = ({stack}) => {
+	canHaveKeyboardShortcuts: boolean;
+}> = ({stack, canHaveKeyboardShortcuts}) => {
 	const isMounted = useRef(true);
 	const [state, dispatch] = useReducer(reducer, initialState);
+	const {registerKeybinding} = useKeybinding();
 
 	const dispatchIfMounted: typeof dispatch = useCallback((payload) => {
 		if (isMounted.current === false) return;
@@ -113,6 +116,19 @@ export const OpenInEditor: React.FC<{
 			isMounted.current = false;
 		};
 	}, []);
+
+	useEffect(() => {
+		if (!canHaveKeyboardShortcuts) {
+			return;
+		}
+
+		const onEditor = () => {
+			openInBrowser();
+		};
+
+		const {unregister} = registerKeybinding('keydown', 'o', onEditor);
+		return () => unregister();
+	}, [canHaveKeyboardShortcuts, openInBrowser, registerKeybinding]);
 
 	const label = useMemo(() => {
 		switch (state.type) {

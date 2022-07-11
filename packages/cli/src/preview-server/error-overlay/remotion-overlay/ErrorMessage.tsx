@@ -82,7 +82,7 @@ export const ErrorMessage: React.FC<{
 			<div style={style}>
 				<div ref={ref}>{message}</div>
 			</div>
-			{errorLines > maxLines ? (
+			{errorLines !== null && errorLines > maxLines ? (
 				<div style={moreLine}>
 					<button type="button" onClick={toggle} style={moreButton}>
 						<CaretDown invert={expanded} />
