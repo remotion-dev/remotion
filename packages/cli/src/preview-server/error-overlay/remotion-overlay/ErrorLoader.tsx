@@ -1,9 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import type {
-	ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
-import {
-	getErrorRecord,
-} from '../react-overlay/listen-to-runtime-errors';
+import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
+import {getErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {ErrorDisplay} from './ErrorDisplay';
 import {ErrorTitle} from './ErrorTitle';
 
@@ -42,7 +39,8 @@ type State =
 
 export const ErrorLoader: React.FC<{
 	error: Error;
-}> = ({error}) => {
+	keyboardShortcuts: boolean;
+}> = ({error, keyboardShortcuts}) => {
 	const [state, setState] = useState<State>({
 		type: 'loading',
 	});
@@ -111,7 +109,10 @@ export const ErrorLoader: React.FC<{
 
 	return (
 		<div style={container}>
-			<ErrorDisplay display={state.record} />
+			<ErrorDisplay
+				keyboardShortcuts={keyboardShortcuts}
+				display={state.record}
+			/>
 		</div>
 	);
 };

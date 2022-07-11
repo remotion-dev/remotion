@@ -20,7 +20,8 @@ const spacer: React.CSSProperties = {
 
 export const ErrorDisplay: React.FC<{
 	display: ErrorRecord;
-}> = ({display}) => {
+	keyboardShortcuts: boolean;
+}> = ({display, keyboardShortcuts}) => {
 	const highestLineNumber = Math.max(
 		...display.stackFrames
 			.map((s) => s.originalScriptCode)
@@ -53,7 +54,10 @@ export const ErrorDisplay: React.FC<{
 			/>
 			{display.stackFrames.length > 0 && window.remotion_editorName ? (
 				<>
-					<OpenInEditor stack={display.stackFrames[0]} />
+					<OpenInEditor
+						canHaveKeyboardShortcuts={keyboardShortcuts}
+						stack={display.stackFrames[0]}
+					/>
 					<div style={spacer} />
 				</>
 			) : null}
