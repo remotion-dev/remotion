@@ -1,5 +1,5 @@
 ---
-title: <Video />
+title: <Video>
 id: video
 ---
 
