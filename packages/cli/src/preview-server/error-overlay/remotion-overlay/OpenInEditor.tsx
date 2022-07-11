@@ -9,6 +9,7 @@ import React, {
 import {useKeybinding} from '../../../editor/helpers/use-keybinding';
 import type {SymbolicatedStackFrame} from '../react-overlay/utils/stack-frame';
 import {Button} from './Button';
+import {ShortcutHint} from './ShortcutHint';
 
 type State =
 	| {
@@ -126,7 +127,12 @@ export const OpenInEditor: React.FC<{
 			openInBrowser();
 		};
 
-		const {unregister} = registerKeybinding('keydown', 'o', onEditor);
+		const {unregister} = registerKeybinding({
+			event: 'keydown',
+			key: 'o',
+			callback: onEditor,
+			commandCtrlKey: true,
+		});
 		return () => unregister();
 	}, [canHaveKeyboardShortcuts, openInBrowser, registerKeybinding]);
 
@@ -148,6 +154,9 @@ export const OpenInEditor: React.FC<{
 	return (
 		<Button onClick={openInBrowser} disabled={state.type !== 'idle'}>
 			{label}
+			{canHaveKeyboardShortcuts ? (
+				<ShortcutHint keyToPress="o" cmdOrCtrl />
+			) : null}
 		</Button>
 	);
 };

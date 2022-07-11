@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {INPUT_BORDER_COLOR_UNHOVERED} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {MenuDivider} from '../Menu/MenuDivider';
-import type { SubMenuActivated} from '../Menu/MenuSubItem';
+import type {SubMenuActivated} from '../Menu/MenuSubItem';
 import {MenuSubItem} from '../Menu/MenuSubItem';
 import {MENU_VERTICAL_PADDING} from '../Menu/styles';
 import type {ComboboxValue} from './ComboBox';
@@ -145,37 +145,48 @@ export const MenuContent: React.FC<{
 	}, [onNextMenu, selectedItem, values]);
 
 	useEffect(() => {
-		const escapeBinding = keybindings.registerKeybinding(
-			'keydown',
-			'Escape',
-			onEscape
-		);
-		const rightBinding = keybindings.registerKeybinding(
-			'keydown',
-			'ArrowRight',
-			onArrowRight
-		);
-		const leftBinding = keybindings.registerKeybinding(
-			'keydown',
-			'ArrowLeft',
-			onPreviousMenu
-		);
-		const downBinding = keybindings.registerKeybinding(
-			'keydown',
-			'ArrowDown',
-			onArrowDown
-		);
-		const upBinding = keybindings.registerKeybinding(
-			'keydown',
-			'ArrowUp',
-			onArrowUp
-		);
-		const enterBinding = keybindings.registerKeybinding(
-			'keydown',
-			'Enter',
-			onEnter
-		);
-		const spaceBinding = keybindings.registerKeybinding('keyup', ' ', onEnter);
+		const escapeBinding = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'Escape',
+			callback: onEscape,
+			commandCtrlKey: false,
+		});
+		const rightBinding = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'ArrowRight',
+			commandCtrlKey: false,
+			callback: onArrowRight,
+		});
+		const leftBinding = keybindings.registerKeybinding({
+			event: 'keydown',
+			commandCtrlKey: false,
+			key: 'ArrowLeft',
+			callback: onPreviousMenu,
+		});
+		const downBinding = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'ArrowDown',
+			commandCtrlKey: false,
+			callback: onArrowDown,
+		});
+		const upBinding = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'ArrowUp',
+			callback: onArrowUp,
+			commandCtrlKey: false,
+		});
+		const enterBinding = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'Enter',
+			callback: onEnter,
+			commandCtrlKey: false,
+		});
+		const spaceBinding = keybindings.registerKeybinding({
+			event: 'keyup',
+			key: ' ',
+			callback: onEnter,
+			commandCtrlKey: false,
+		});
 		return () => {
 			escapeBinding.unregister();
 			leftBinding.unregister();

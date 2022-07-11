@@ -12,6 +12,7 @@ const button: React.CSSProperties = {
 	fontFamily: 'inherit',
 	fontSize: 14,
 	color: 'white',
+	flexDirection: 'row',
 };
 
 const buttonContainer: React.CSSProperties = {

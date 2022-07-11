@@ -23,11 +23,12 @@ const EscapeHook: React.FC<{
 	const keybindings = useKeybinding();
 
 	useEffect(() => {
-		const escape = keybindings.registerKeybinding(
-			'keydown',
-			'Escape',
-			onEscape
-		);
+		const escape = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'Escape',
+			callback: onEscape,
+			commandCtrlKey: false,
+		});
 
 		return () => {
 			escape.unregister();

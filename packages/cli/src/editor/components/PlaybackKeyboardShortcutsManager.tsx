@@ -74,9 +74,24 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 	}, [play, playing, setPlaybackRate]);
 
 	useEffect(() => {
-		const jKey = keybindings.registerKeybinding('keydown', 'j', onJKey);
-		const kKey = keybindings.registerKeybinding('keydown', 'k', onKKey);
-		const lKey = keybindings.registerKeybinding('keydown', 'l', onLKey);
+		const jKey = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'j',
+			callback: onJKey,
+			commandCtrlKey: false,
+		});
+		const kKey = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'k',
+			callback: onKKey,
+			commandCtrlKey: false,
+		});
+		const lKey = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'l',
+			callback: onLKey,
+			commandCtrlKey: false,
+		});
 
 		return () => {
 			jKey.unregister();

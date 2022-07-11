@@ -10,20 +10,35 @@ export const GlobalKeybindings: React.FC = () => {
 	const {setCheckerboard} = useContext(CheckerboardContext);
 
 	useEffect(() => {
-		const nKey = keybindings.registerKeybinding('keypress', 'n', () => {
-			setSelectedModal({
-				type: 'new-comp',
-				compType: 'composition',
-			});
+		const nKey = keybindings.registerKeybinding({
+			event: 'keypress',
+			key: 'n',
+			callback: () => {
+				setSelectedModal({
+					type: 'new-comp',
+					compType: 'composition',
+				});
+			},
+			commandCtrlKey: false,
 		});
 
-		const cKey = keybindings.registerKeybinding('keypress', 't', () => {
-			setCheckerboard((c) => !c);
+		const cKey = keybindings.registerKeybinding({
+			event: 'keypress',
+			key: 't',
+			callback: () => {
+				setCheckerboard((c) => !c);
+			},
+			commandCtrlKey: true,
 		});
-		const questionMark = keybindings.registerKeybinding('keypress', '?', () => {
-			setSelectedModal({
-				type: 'shortcuts',
-			});
+		const questionMark = keybindings.registerKeybinding({
+			event: 'keypress',
+			key: '?',
+			callback: () => {
+				setSelectedModal({
+					type: 'shortcuts',
+				});
+			},
+			commandCtrlKey: false,
 		});
 
 		return () => {
