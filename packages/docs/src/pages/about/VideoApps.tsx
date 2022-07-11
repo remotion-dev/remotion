@@ -68,19 +68,55 @@ const docsButton: React.CSSProperties = {
   textDecoration: "none",
 };
 
-const DiscordLogo: React.FC = () => {
+const TwitterLogo: React.FC = () => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 640 512"
+      viewBox="0 0 1059 1059"
       style={{
-        width: 54,
-        marginRight: 1,
+        width: 30,
+        marginRight: 10,
       }}
     >
       <path
-        fill="var(--blue-button-color)"
-        d="M524.531,69.836a1.5,1.5,0,0,0-.764-.7A485.065,485.065,0,0,0,404.081,32.03a1.816,1.816,0,0,0-1.923.91,337.461,337.461,0,0,0-14.9,30.6,447.848,447.848,0,0,0-134.426,0,309.541,309.541,0,0,0-15.135-30.6,1.89,1.89,0,0,0-1.924-.91A483.689,483.689,0,0,0,116.085,69.137a1.712,1.712,0,0,0-.788.676C39.068,183.651,18.186,294.69,28.43,404.354a2.016,2.016,0,0,0,.765,1.375A487.666,487.666,0,0,0,176.02,479.918a1.9,1.9,0,0,0,2.063-.676A348.2,348.2,0,0,0,208.12,430.4a1.86,1.86,0,0,0-1.019-2.588,321.173,321.173,0,0,1-45.868-21.853,1.885,1.885,0,0,1-.185-3.126c3.082-2.309,6.166-4.711,9.109-7.137a1.819,1.819,0,0,1,1.9-.256c96.229,43.917,200.41,43.917,295.5,0a1.812,1.812,0,0,1,1.924.233c2.944,2.426,6.027,4.851,9.132,7.16a1.884,1.884,0,0,1-.162,3.126,301.407,301.407,0,0,1-45.89,21.83,1.875,1.875,0,0,0-1,2.611,391.055,391.055,0,0,0,30.014,48.815,1.864,1.864,0,0,0,2.063.7A486.048,486.048,0,0,0,610.7,405.729a1.882,1.882,0,0,0,.765-1.352C623.729,277.594,590.933,167.465,524.531,69.836ZM222.491,337.58c-28.972,0-52.844-26.587-52.844-59.239S193.056,219.1,222.491,219.1c29.665,0,53.306,26.82,52.843,59.239C275.334,310.993,251.924,337.58,222.491,337.58Zm195.38,0c-28.971,0-52.843-26.587-52.843-59.239S388.437,219.1,417.871,219.1c29.667,0,53.307,26.82,52.844,59.239C470.715,310.993,447.538,337.58,417.871,337.58Z"
+        fill="var(--blue-button-color"
+        d="M529.5 0.5625C237.404 0.5625 0.5625 237.404 0.5625 529.5C0.5625 821.596 237.404 1058.44 529.5 1058.44C821.596 1058.44 1058.44 821.596 1058.44 529.5C1058.44 237.404 821.596 0.5625 529.5 0.5625ZM783.697 399.273C784.051 404.822 784.051 410.607 784.051 416.274C784.051 589.596 652.053 789.246 410.843 789.246C336.461 789.246 267.511 767.64 209.422 730.449C220.048 731.63 230.202 732.102 241.064 732.102C302.458 732.102 358.894 711.322 403.877 676.138C346.261 674.958 297.854 637.177 281.324 585.227C301.514 588.179 319.696 588.179 340.476 582.866C310.809 576.839 284.143 560.727 265.01 537.267C245.876 513.807 235.454 484.447 235.515 454.174V452.521C252.87 462.32 273.296 468.342 294.666 469.168C276.701 457.195 261.968 440.975 251.774 421.945C241.579 402.915 236.238 381.663 236.223 360.075C236.223 335.635 242.599 313.32 254.051 293.958C286.98 334.494 328.071 367.648 374.652 391.264C421.233 414.88 472.262 428.43 524.423 431.033C505.887 341.892 572.476 269.754 652.525 269.754C690.306 269.754 724.31 285.575 748.277 311.077C777.912 305.528 806.248 294.43 831.514 279.553C821.714 309.896 801.171 335.517 773.897 351.692C800.344 348.858 825.847 341.538 849.46 331.267C831.632 357.477 809.317 380.736 783.697 399.273V399.273Z"
+      />
+    </svg>
+  );
+};
+
+const LinkedInLogo: React.FC = () => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 1000 1000"
+      style={{
+        width: 30,
+        marginRight: 10,
+      }}
+    >
+      <path
+        fill="var(--blue-button-color"
+        d="M195.877 0C88.16 0 0 88.158 0 195.877V803.718C0 911.435 88.158 999.563 195.877 999.563H803.718C911.436 999.563 999.563 911.436 999.563 803.718V195.877C999.563 88.16 911.436 0 803.718 0H195.877ZM245.143 164.948C296.791 164.948 328.604 198.854 329.586 243.423C329.586 287.008 296.789 321.867 244.144 321.867H243.175C192.51 321.867 159.763 287.01 159.763 243.423C159.763 198.855 193.501 164.948 245.142 164.948H245.143ZM690.223 373.258C789.552 373.258 864.013 438.18 864.013 577.694V838.143H713.06V595.156C713.06 534.096 691.213 492.438 636.584 492.438C594.88 492.438 570.022 520.516 559.108 547.64C555.121 557.344 554.141 570.897 554.141 584.472V838.143H403.188C403.188 838.143 405.169 426.53 403.188 383.91H554.172V448.234C574.232 417.284 610.114 373.257 690.223 373.257V373.258ZM168.667 383.943H319.62V838.145H168.667V383.943V383.943Z"
+      />
+    </svg>
+  );
+};
+
+const GitHubLogo: React.FC = () => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 1084 1084"
+      style={{
+        width: 30,
+        marginRight: 10,
+      }}
+    >
+      <path
+        fill="var(--blue-button-color"
+        d="M542 0C242.545 0 0 242.545 0 542C0 781.835 155.147 984.408 370.592 1056.22C397.692 1060.97 407.855 1044.71 407.855 1030.48C407.855 1017.61 407.178 974.923 407.178 929.53C271 954.598 235.77 896.332 224.93 865.845C218.832 850.262 192.41 802.16 169.375 789.287C150.405 779.125 123.305 754.057 168.698 753.38C211.38 752.702 241.868 792.675 252.03 808.935C300.81 890.912 378.723 867.878 409.888 853.65C414.63 818.42 428.857 794.707 444.44 781.157C323.845 767.607 197.83 720.86 197.83 513.545C197.83 454.602 218.833 405.822 253.385 367.882C247.965 354.332 228.995 298.777 258.805 224.252C258.805 224.252 304.198 210.025 407.855 279.808C451.215 267.613 497.285 261.515 543.355 261.515C589.425 261.515 635.495 267.613 678.855 279.808C782.513 209.348 827.905 224.252 827.905 224.252C857.715 298.777 838.745 354.332 833.325 367.882C867.878 405.822 888.88 453.925 888.88 513.545C888.88 721.537 762.188 767.607 641.593 781.157C661.24 798.095 678.178 830.615 678.178 881.428C678.178 953.92 677.5 1012.19 677.5 1030.48C677.5 1044.71 687.663 1061.64 714.763 1056.22C822.365 1019.91 915.868 950.759 982.106 858.512C1048.34 766.264 1083.98 655.565 1084 542C1084 242.545 841.455 0 542 0Z"
       />
     </svg>
   );
@@ -115,20 +151,20 @@ export const VideoApps: React.FC<{
         <strong style={center}>Chief Hacker</strong>
 
         <ul style={list}>
-          <li>Use the Web to create graphics</li>
-          <hr style={hr} />
-          <li>Consume user input and APIs</li>
-          <hr style={hr} />
-          <li>Render real MP4 videos</li>
+          <li>
+            As a former indie hacker I loved working on projects that combine
+            engineering, art and business. At Remotion I bascially do the same
+            just together with an amazing community and team.
+          </li>
         </ul>
 
         <div style={row}>
           {active === "remotion" ? null : (
             <>
               <div style={flex}>
-                <a href="https://twitter.com/JNYBGR">
+                <a style={docsButton} href="https://twitter.com/JNYBGR">
                   <BlueButton loading={false} fullWidth size="sm">
-                    Twitter
+                    <TwitterLogo /> Twitter
                   </BlueButton>
                 </a>
               </div>
@@ -137,19 +173,35 @@ export const VideoApps: React.FC<{
             </>
           )}
           <div style={flex}>
-            <a style={docsButton} href="/docs">
+            <a
+              style={docsButton}
+              href="https://ch.linkedin.com/in/jonny-burger-4115109b"
+            >
               <BlueButton loading={false} fullWidth size="sm">
-                Read docs
+                <LinkedInLogo /> LinkedIn
               </BlueButton>
             </a>
           </div>
+        </div>
+        <div style={{ height: 10 }} />
+        <div style={row}>
+          {active === "remotion" ? null : (
+            <>
+              <div style={flex}>
+                <a style={docsButton} href="https://github.com/JonnyBurger">
+                  <BlueButton loading={false} fullWidth size="sm">
+                    <GitHubLogo /> GitHub
+                  </BlueButton>
+                </a>
+              </div>
+            </>
+          )}
         </div>
       </div>
       <Spacer />
       <Spacer />
       <Spacer />
       <div style={step}>
-        {active === "player" ? <YouAreHere /> : null}
         <div
           style={{
             display: "flex",
@@ -170,20 +222,17 @@ export const VideoApps: React.FC<{
         </div>
         <h2 style={stepTitle}>Mehmet</h2>
         <strong style={center}>Business Manager</strong>
+
         <ul style={list}>
           <li>Preview videos in the browser</li>
-          <hr style={hr} />
-          <li>React to user input</li>
-          <hr style={hr} />
-          <li>Customize look and behavior</li>
         </ul>
         <div style={row}>
-          {active === "player" ? null : (
+          {active === "remotion" ? null : (
             <>
               <div style={flex}>
-                <a style={docsButton} href="/player">
+                <a style={docsButton} href="https://twitter.com/MehmetAdemi">
                   <BlueButton loading={false} fullWidth size="sm">
-                    Learn more
+                    <TwitterLogo /> Twitter
                   </BlueButton>
                 </a>
               </div>
@@ -192,12 +241,29 @@ export const VideoApps: React.FC<{
             </>
           )}
           <div style={flex}>
-            <a style={docsButton} href="/docs/player">
+            <a
+              style={docsButton}
+              href="https://www.linkedin.com/in/mehmet-ademi/?locale=en_US"
+            >
               <BlueButton loading={false} fullWidth size="sm">
-                Read docs
+                <LinkedInLogo /> LinkedIn
               </BlueButton>
             </a>
           </div>
+        </div>
+        <div style={{ height: 10 }} />
+        <div style={row}>
+          {active === "remotion" ? null : (
+            <>
+              <div style={flex}>
+                <a style={docsButton} href="https://github.com/MehmetAdemi">
+                  <BlueButton loading={false} fullWidth size="sm">
+                    <GitHubLogo /> GitHub
+                  </BlueButton>
+                </a>
+              </div>
+            </>
+          )}
         </div>
       </div>
       <Spacer />
@@ -227,18 +293,14 @@ export const VideoApps: React.FC<{
 
         <ul style={list}>
           <li>Render videos in the cloud</li>
-          <hr style={hr} />
-          <li>Scale according to your volume</li>
-          <hr style={hr} />
-          <li>Fast because distributed</li>
         </ul>
         <div style={row}>
-          {active === "lambda" ? null : (
+          {active === "remotion" ? null : (
             <>
               <div style={flex}>
-                <a style={docsButton} href="/lambda">
+                <a style={docsButton} href="https://twitter.com/Salvispat">
                   <BlueButton loading={false} fullWidth size="sm">
-                    Learn more
+                    <TwitterLogo /> Twitter
                   </BlueButton>
                 </a>
               </div>
@@ -247,12 +309,29 @@ export const VideoApps: React.FC<{
             </>
           )}
           <div style={flex}>
-            <a style={docsButton} href="/docs/lambda">
+            <a
+              style={docsButton}
+              href="https://www.linkedin.com/in/patric-salvisberg-b73b51234/"
+            >
               <BlueButton loading={false} fullWidth size="sm">
-                Read docs
+                <LinkedInLogo /> LinkedIn
               </BlueButton>
             </a>
           </div>
+        </div>
+        <div style={{ height: 10 }} />
+        <div style={row}>
+          {active === "remotion" ? null : (
+            <>
+              <div style={flex}>
+                <a style={docsButton} href="https://github.com/JonnyBurger">
+                  <BlueButton loading={false} fullWidth size="sm">
+                    <GitHubLogo /> GitHub
+                  </BlueButton>
+                </a>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
