@@ -29,6 +29,7 @@ module.exports = {
     "lambda/disk-size",
     "lambda/faq",
     "lambda/light-client",
+    "lambda/custom-layers",
     {
       collapsed: false,
       type: "category",
@@ -110,7 +111,29 @@ module.exports = {
         "video-manipulation",
       ],
     },
-    "cli",
+    {
+      type: "category",
+      label: "CLI",
+      link: {
+        type: "doc",
+        id: "cli/cli",
+      },
+      collapsed: true,
+      items: [
+        "cli/preview",
+        "cli/render",
+        "cli/still",
+        "cli/compositions",
+        {
+          type: "link",
+          href: "/docs/lambda/cli",
+          label: "lambda ↗️",
+        },
+        "cli/versions",
+        "cli/upgrade",
+        "cli/help",
+      ],
+    },
     "config",
     {
       type: "category",
@@ -198,18 +221,32 @@ module.exports = {
     },
     {
       type: "category",
+      label: "API - @remotion/preload",
+      link: {
+        type: "doc",
+        id: "preload/preload",
+      },
+      items: [
+        "preload/preload-video",
+        "preload/preload-audio",
+        "preload/resolve-redirect",
+      ],
+    },
+    {
+      type: "category",
       link: {
         type: "doc",
         id: "renderer",
       },
       label: "API - @remotion/renderer",
       items: [
-        "get-compositions",
-        "render-media",
-        "render-frames",
-        "render-still",
-        "open-browser",
-        "stitch-frames-to-video",
+        "renderer/get-compositions",
+        "renderer/render-media",
+        "renderer/render-frames",
+        "renderer/render-still",
+        "renderer/stitch-frames-to-video",
+        "renderer/open-browser",
+        "renderer/make-cancel-signal",
       ],
     },
     {
@@ -226,6 +263,7 @@ module.exports = {
         "flickering",
         "version-mismatch",
         "enametoolong",
+        "slow-method-to-extract-frame",
       ],
     },
     {
@@ -239,6 +277,7 @@ module.exports = {
         "prereleases",
         "gpu",
         "react-18",
+        "miscellaneous/typescript-aliases",
       ],
     },
     "3-0-migration",

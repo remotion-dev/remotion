@@ -1,19 +1,19 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {BrowserLog, RenderInternals, renderMedia} from '@remotion/renderer';
+import type {BrowserLog} from '@remotion/renderer';
+import {RenderInternals, renderMedia} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {Internals} from 'remotion';
 import {getLambdaClient} from '../shared/aws-clients';
+import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
 import {
 	chunkKeyForIndex,
 	lambdaInitializedKey,
-	LambdaPayload,
-	LambdaPayloads,
 	LambdaRoutines,
 	lambdaTimingsKey,
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
-import {
+import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
 } from './chunk-optimization/types';
@@ -109,7 +109,7 @@ const renderHandler = async (
 
 			chunkTimingData.timings[renderedFrames] = Date.now() - start;
 		},
-		parallelism: 1,
+		parallelism: params.concurrencyPerLambda,
 		onStart: () => {
 			lambdaWriteFile({
 				privacy: 'private',

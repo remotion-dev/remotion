@@ -1,4 +1,3 @@
-import {BundlerInternals} from '@remotion/bundler';
 import betterOpn from 'better-opn';
 import path from 'path';
 import {Internals} from 'remotion';
@@ -7,8 +6,31 @@ import {getInputProps} from './get-input-props';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
+import type {LiveEventsServer} from './preview-server/live-events';
+import {startServer} from './preview-server/start-server';
 
 const noop = () => undefined;
+type Waiter = (list: LiveEventsServer) => void;
+
+let liveEventsListener: LiveEventsServer | null = null;
+const waiters: Waiter[] = [];
+
+const setLiveEventsListener = (listener: LiveEventsServer) => {
+	liveEventsListener = listener;
+	waiters.forEach((w) => w(listener));
+};
+
+const waitForLiveEventsListener = (): Promise<LiveEventsServer> => {
+	if (liveEventsListener) {
+		return Promise.resolve(liveEventsListener);
+	}
+
+	return new Promise<LiveEventsServer>((resolve) => {
+		waiters.push((list: LiveEventsServer) => {
+			resolve(list);
+		});
+	});
+};
 
 export const previewCommand = async () => {
 	const file = parsedCli._[1];
@@ -29,19 +51,29 @@ export const previewCommand = async () => {
 
 	await initializeRenderCli('preview');
 
-	const inputProps = getInputProps();
+	let inputProps = getInputProps((newProps) => {
+		waitForLiveEventsListener().then((listener) => {
+			inputProps = newProps;
+			listener.sendEventToClient({
+				type: 'new-input-props',
+				newProps,
+			});
+		});
+	});
 	const envVariables = await getEnvironmentVariables();
 
-	const port = await BundlerInternals.startServer(
+	const {port, liveEventsServer} = await startServer(
 		path.resolve(__dirname, 'previewEntry.js'),
 		fullPath,
 		{
-			inputProps,
+			getCurrentInputProps: () => inputProps,
 			envVariables,
 			port: desiredPort,
 			maxTimelineTracks: Internals.getMaxTimelineTracks(),
 		}
 	);
+
+	setLiveEventsListener(liveEventsServer);
 	betterOpn(`http://localhost:${port}`);
 	await new Promise(noop);
 };

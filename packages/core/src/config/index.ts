@@ -1,28 +1,33 @@
-import {Browser} from './browser';
-import {BrowserExecutable, setBrowserExecutable} from './browser-executable';
+import type {Browser} from './browser';
+import type {BrowserExecutable} from './browser-executable';
+import {setBrowserExecutable} from './browser-executable';
 import {
 	setChromiumDisableWebSecurity,
 	setChromiumHeadlessMode,
 	setChromiumIgnoreCertificateErrors,
 	setChromiumOpenGlRenderer,
 } from './chromium-flags';
-import {Codec, setCodec, setOutputFormat} from './codec';
-import {Concurrency, setConcurrency} from './concurrency';
+import type {Codec} from './codec';
+import {setCodec, setOutputFormat} from './codec';
+import type {Concurrency} from './concurrency';
+import {setConcurrency} from './concurrency';
 import {setCrf} from './crf';
 import {setDotEnvLocation} from './env-file';
-import {FfmpegExecutable, setFfmpegExecutable} from './ffmpeg-executable';
-import {FrameRange, setFrameRange} from './frame-range';
-import {ImageFormat, setImageFormat, StillImageFormat} from './image-format';
+import type {FfmpegExecutable} from './ffmpeg-executable';
+import {setFfmpegExecutable, setFfprobeExecutable} from './ffmpeg-executable';
+import type {FrameRange} from './frame-range';
+import {setFrameRange} from './frame-range';
+import type {ImageFormat, StillImageFormat} from './image-format';
+import {setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
-import {LogLevel, setLogLevel} from './log';
+import type {LogLevel} from './log';
+import {setLogLevel} from './log';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
-import {
-	overrideWebpackConfig,
-	WebpackConfiguration,
-	WebpackOverrideFn,
-} from './override-webpack';
+import type {WebpackConfiguration, WebpackOverrideFn} from './override-webpack';
+import {overrideWebpackConfig} from './override-webpack';
 import {setOverwriteOutput} from './overwrite';
-import {PixelFormat, setPixelFormat} from './pixel-format';
+import type {PixelFormat} from './pixel-format';
+import {setPixelFormat} from './pixel-format';
 import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {setQuality} from './quality';
@@ -135,6 +140,11 @@ export const Config = {
 		 * Default: null, which will use ffmpeg available in PATH.
 		 */
 		setFfmpegExecutable,
+		/**
+		 * Specify local ffprobe executable.
+		 * Default: null, which will use ffprobe available in PATH.
+		 */
+		setFfprobeExecutable,
 		/**
 		 * Scales the output dimensions by a factor.
 		 * Default: 1.

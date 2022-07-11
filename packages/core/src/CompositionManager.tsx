@@ -1,13 +1,15 @@
-import React, {
+import type {
 	ComponentType,
+	LazyExoticComponent} from 'react';
+import React, {
 	createContext,
-	LazyExoticComponent,
 	useCallback,
 	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
 	useState,
 } from 'react';
+import type {TFolder} from './Folder';
 
 export type TComposition<T = unknown> = {
 	width: number;
@@ -30,7 +32,8 @@ export type TCompMetadata = Pick<
 export type SmallTCompMetadata = Pick<
 	TComposition,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames'
->;
+> &
+	Partial<Pick<TComposition, 'defaultProps'>>;
 
 type EnhancedTSequenceData =
 	| {
@@ -121,11 +124,6 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 export const compositionsRef = React.createRef<{
 	getCompositions: () => TCompMetadata[];
 }>();
-
-export type TFolder = {
-	name: string;
-	parent: string | null;
-};
 
 export const CompositionManagerProvider: React.FC<{
 	children: React.ReactNode;

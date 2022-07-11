@@ -1,12 +1,11 @@
 import {RenderInternals} from '@remotion/renderer';
-import execa from 'execa';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
-import {LambdaReturnValues} from '../../../shared/return-values';
+import type {LambdaReturnValues} from '../../../shared/return-values';
 import {disableLogs, enableLogs} from '../../disable-logs';
 
-jest.setTimeout(30000);
+jest.setTimeout(90000);
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
@@ -31,9 +30,10 @@ test('Should be able to render to another bucket', async () => {
 	const res = await handler(
 		{
 			type: LambdaRoutines.start,
-			serveUrl: 'https://fascinating-selkie-c7398a.netlify.app/',
+			serveUrl:
+				'https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/',
 			chromiumOptions: {},
-			codec: 'h264-mkv',
+			codec: 'h264',
 			composition: 'react-svg',
 			crf: 9,
 			envVariables: {},
@@ -53,6 +53,7 @@ test('Should be able to render to another bucket', async () => {
 			quality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,
+			concurrencyPerLambda: 1,
 		},
 		extraContext
 	);
@@ -73,7 +74,7 @@ test('Should be able to render to another bucket', async () => {
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 	});
-	const probe = await execa('ffprobe', ['-'], {
+	const probe = await RenderInternals.execa('ffprobe', ['-'], {
 		stdin: file,
 	});
 	expect(probe.stderr).toMatch(/Stream #0:0/);

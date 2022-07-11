@@ -1,8 +1,9 @@
+import type {
+	FunctionConfiguration} from '@aws-sdk/client-lambda';
 import {
-	FunctionConfiguration,
 	ListFunctionsCommand,
 } from '@aws-sdk/client-lambda';
-import {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
 	CURRENT_VERSION,
@@ -10,7 +11,7 @@ import {
 	RENDER_FN_PREFIX,
 } from '../shared/constants';
 import {getFunctionVersion} from '../shared/get-function-version';
-import {FunctionInfo} from './get-function-info';
+import type {FunctionInfo} from './get-function-info';
 
 export type GetFunctionsInput = {
 	region: AwsRegion;

@@ -1,15 +1,14 @@
 import {RenderInternals} from '@remotion/renderer';
-import execa from 'execa';
 import fs, {createWriteStream} from 'fs';
 import os from 'os';
 import path from 'path';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
-import {LambdaReturnValues} from '../../../shared/return-values';
+import type {LambdaReturnValues} from '../../../shared/return-values';
 import {disableLogs, enableLogs} from '../../disable-logs';
 
-jest.setTimeout(30000);
+jest.setTimeout(90000);
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
@@ -33,7 +32,8 @@ test('Should make a transparent video', async () => {
 	const res = await handler(
 		{
 			type: LambdaRoutines.start,
-			serveUrl: 'https://fascinating-selkie-c7398a.netlify.app/',
+			serveUrl:
+				'https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/',
 			chromiumOptions: {},
 			codec: 'vp8',
 			composition: 'ten-frame-tester',
@@ -52,6 +52,7 @@ test('Should make a transparent video', async () => {
 			quality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,
+			concurrencyPerLambda: 1,
 		},
 		extraContext
 	);
@@ -83,7 +84,7 @@ test('Should make a transparent video', async () => {
 	await new Promise<void>((resolve) => {
 		file.on('close', () => resolve());
 	});
-	const probe = await execa('ffprobe', [out]);
+	const probe = await RenderInternals.execa('ffprobe', [out]);
 	expect(probe.stderr).toMatch(/ALPHA_MODE(\s+): 1/);
 	expect(probe.stderr).toMatch(/Video: vp8, yuv420p/);
 	expect(probe.stderr).toMatch(/Audio: opus, 48000 Hz/);

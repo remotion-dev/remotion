@@ -1,6 +1,5 @@
 import {CliInternals} from '@remotion/cli';
 import {Internals} from 'remotion';
-import {formatBytes} from './format-bytes';
 
 export type BundleProgress = {
 	progress: number;
@@ -64,7 +63,9 @@ export const makeDeployProgressBar = ({
 		`${doneIn === null ? 'Uploading' : 'Uploaded'} to S3`,
 		doneIn === null
 			? typeof totalSize === 'number'
-				? `${formatBytes(sizeUploaded)}/${formatBytes(totalSize)}`
+				? `${CliInternals.formatBytes(sizeUploaded)}/${CliInternals.formatBytes(
+						totalSize
+				  )}`
 				: ''
 			: CliInternals.chalk.gray(`${doneIn}ms`),
 	]

@@ -56,5 +56,6 @@ If you pass in the same argument to `src` multiple times, it will return a cache
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/get-video-metadata.ts)
 - [Using videos](/docs/assets#using-videos)
 - [`<Video/>`](/docs/video)

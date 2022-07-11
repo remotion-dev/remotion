@@ -1,20 +1,20 @@
-import {ExecaChildProcess} from 'execa';
+import type {ExecaChildProcess} from 'execa';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import type {Browser as PuppeteerBrowser} from 'puppeteer-core';
-import {
+import type {
 	BrowserExecutable,
 	Codec,
 	FfmpegExecutable,
 	FrameRange,
-	Internals,
 	PixelFormat,
 	ProResProfile,
 	SmallTCompMetadata,
 } from 'remotion';
-import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import {BrowserLog} from './browser-log';
+import {Internals} from 'remotion';
+import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import type {BrowserLog} from './browser-log';
+import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
@@ -22,16 +22,16 @@ import {getDurationFromFrameRange} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
-import {
-	getServeUrlWithFallback,
-	ServeUrlOrWebpackBundle,
-} from './legacy-webpack-config';
-import {ChromiumOptions} from './open-browser';
+import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
+import {getServeUrlWithFallback} from './legacy-webpack-config';
+import type {CancelSignal} from './make-cancel-signal';
+import {makeCancelSignal} from './make-cancel-signal';
+import type {ChromiumOptions} from './open-browser';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {renderFrames} from './render-frames';
 import {stitchFramesToVideo} from './stitch-frames-to-video';
 import {tmpDir} from './tmp-dir';
-import {OnStartData} from './types';
+import type {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
@@ -47,7 +47,7 @@ export type RenderMediaOnProgress = (progress: {
 }) => void;
 
 export type RenderMediaOptions = {
-	outputLocation: string;
+	outputLocation?: string | null;
 	codec: Codec;
 	composition: SmallTCompMetadata;
 	inputProps?: unknown;
@@ -55,6 +55,7 @@ export type RenderMediaOptions = {
 	crf?: number | null;
 	imageFormat?: 'png' | 'jpeg' | 'none';
 	ffmpegExecutable?: FfmpegExecutable;
+	ffprobeExecutable?: FfmpegExecutable;
 	pixelFormat?: PixelFormat;
 	envVariables?: Record<string, string>;
 	quality?: number;
@@ -71,18 +72,25 @@ export type RenderMediaOptions = {
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
 	port?: number | null;
+	cancelSignal?: CancelSignal;
 	browserExecutable?: BrowserExecutable;
 } & ServeUrlOrWebpackBundle;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
-export const renderMedia = async ({
+/**
+ *
+ * @description Render a video from a composition
+ * @link https://www.remotion.dev/docs/renderer/render-media
+ */
+export const renderMedia = ({
 	parallelism,
 	proResProfile,
 	crf,
 	composition,
 	imageFormat,
 	ffmpegExecutable,
+	ffprobeExecutable,
 	inputProps,
 	pixelFormat,
 	codec,
@@ -102,14 +110,17 @@ export const renderMedia = async ({
 	scale,
 	browserExecutable,
 	port,
+	cancelSignal,
 	...options
-}: RenderMediaOptions) => {
+}: RenderMediaOptions): Promise<Buffer | null> => {
 	Internals.validateQuality(quality);
 	if (typeof crf !== 'undefined' && crf !== null) {
 		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
 	}
 
-	validateOutputFilename(codec, getExtensionOfFilename(outputLocation));
+	if (outputLocation) {
+		validateOutputFilename(codec, getExtensionOfFilename(outputLocation));
+	}
 
 	validateScale(scale);
 
@@ -122,6 +133,8 @@ export const renderMedia = async ({
 	let renderedFrames = 0;
 	let renderedDoneIn: number | null = null;
 	let encodedDoneIn: number | null = null;
+	let cancelled = false;
+
 	const renderStart = Date.now();
 	const tmpdir = tmpDir('pre-encode');
 	const parallelEncoding = canUseParallelEncoding(codec);
@@ -136,7 +149,7 @@ export const renderMedia = async ({
 
 	const outputDir = parallelEncoding
 		? null
-		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
+		: fs.mkdtempSync(path.join(os.tmpdir(), 'react-motion-render'));
 
 	validateEvenDimensionsWithCodec({
 		codec,
@@ -145,17 +158,33 @@ export const renderMedia = async ({
 		width: composition.width,
 	});
 
-	try {
-		const callUpdate = () => {
-			onProgress?.({
-				encodedDoneIn,
-				encodedFrames,
-				renderedDoneIn,
-				renderedFrames,
-				stitchStage,
-			});
-		};
+	const callUpdate = () => {
+		onProgress?.({
+			encodedDoneIn,
+			encodedFrames,
+			renderedDoneIn,
+			renderedFrames,
+			stitchStage,
+		});
+	};
 
+	const realFrameRange = getRealFrameRange(
+		composition.durationInFrames,
+		frameRange ?? null
+	);
+
+	const cancelRenderFrames = makeCancelSignal();
+	const cancelPrestitcher = makeCancelSignal();
+	const cancelStitcher = makeCancelSignal();
+
+	cancelSignal?.(() => {
+		cancelRenderFrames.cancel();
+	});
+
+	const {waitForRightTimeOfFrameToBeInserted, setFrameToStitch, waitForFinish} =
+		ensureFramesInOrder(realFrameRange);
+
+	const createPrestitcherIfNecessary = async () => {
 		if (preEncodedFileLocation) {
 			preStitcher = await prespawnFfmpeg({
 				width: composition.width * (scale ?? 1),
@@ -176,59 +205,13 @@ export const renderMedia = async ({
 				),
 				ffmpegExecutable,
 				imageFormat: actualImageFormat,
+				signal: cancelPrestitcher.cancelSignal,
 			});
 			stitcherFfmpeg = preStitcher.task;
 		}
+	};
 
-		const realFrameRange = getRealFrameRange(
-			composition.durationInFrames,
-			frameRange ?? null
-		);
-
-		const {
-			waitForRightTimeOfFrameToBeInserted,
-			setFrameToStitch,
-			waitForFinish,
-		} = ensureFramesInOrder(realFrameRange);
-
-		const {assetsInfo} = await renderFrames({
-			config: composition,
-			onFrameUpdate: (frame: number) => {
-				renderedFrames = frame;
-				callUpdate();
-			},
-			parallelism,
-			outputDir,
-			onStart: (data) => {
-				renderedFrames = 0;
-				callUpdate();
-				onStart?.(data);
-			},
-			inputProps,
-			envVariables,
-			imageFormat: actualImageFormat,
-			quality,
-			frameRange: frameRange ?? null,
-			puppeteerInstance,
-			onFrameBuffer: parallelEncoding
-				? async (buffer, frame) => {
-						await waitForRightTimeOfFrameToBeInserted(frame);
-						stitcherFfmpeg?.stdin?.write(buffer);
-
-						setFrameToStitch(frame + 1);
-				  }
-				: undefined,
-			serveUrl,
-			dumpBrowserLogs,
-			onBrowserLog,
-			onDownload,
-			timeoutInMilliseconds,
-			chromiumOptions,
-			scale,
-			ffmpegExecutable,
-			browserExecutable,
-			port,
-		});
+	const waitForPrestitcherIfNecessary = async () => {
 		if (stitcherFfmpeg) {
 			await waitForFinish();
 			stitcherFfmpeg?.stdin?.end();
@@ -238,54 +221,153 @@ export const renderMedia = async ({
 				throw new Error(preStitcher?.getLogs());
 			}
 		}
+	};
 
-		renderedDoneIn = Date.now() - renderStart;
-		callUpdate();
-
-		ensureOutputDirectory(outputLocation);
-
-		const stitchStart = Date.now();
-
-		await stitchFramesToVideo({
-			width: composition.width * (scale ?? 1),
-			height: composition.height * (scale ?? 1),
-			fps: composition.fps,
-			outputLocation,
-			internalOptions: {
-				preEncodedFileLocation,
+	const happyPath = createPrestitcherIfNecessary()
+		.then(() => {
+			const renderFramesProc = renderFrames({
+				config: composition,
+				onFrameUpdate: (frame: number) => {
+					renderedFrames = frame;
+					callUpdate();
+				},
+				parallelism,
+				outputDir,
+				onStart: (data) => {
+					renderedFrames = 0;
+					callUpdate();
+					onStart?.(data);
+				},
+				inputProps,
+				envVariables,
 				imageFormat: actualImageFormat,
-			},
-			force: overwrite ?? Internals.DEFAULT_OVERWRITE,
-			pixelFormat,
-			codec,
-			proResProfile,
-			crf,
-			assetsInfo,
-			ffmpegExecutable,
-			onProgress: (frame: number) => {
-				stitchStage = 'muxing';
-				encodedFrames = frame;
-				callUpdate();
-			},
-			onDownload,
-			verbose: Internals.Logging.isEqualOrBelowLogLevel(
-				Internals.Logging.getLogLevel(),
-				'verbose'
-			),
-			dir: outputDir ?? undefined,
+				quality,
+				frameRange: frameRange ?? null,
+				puppeteerInstance,
+				onFrameBuffer: parallelEncoding
+					? async (buffer, frame) => {
+							await waitForRightTimeOfFrameToBeInserted(frame);
+							if (cancelled) {
+								return;
+							}
+
+							const id = Internals.perf.startPerfMeasure('piping');
+							stitcherFfmpeg?.stdin?.write(buffer);
+							Internals.perf.stopPerfMeasure(id);
+
+							setFrameToStitch(frame + 1);
+					  }
+					: undefined,
+				serveUrl,
+				dumpBrowserLogs,
+				onBrowserLog,
+				onDownload,
+				timeoutInMilliseconds,
+				chromiumOptions,
+				scale,
+				ffmpegExecutable,
+				ffprobeExecutable,
+				browserExecutable,
+				port,
+				cancelSignal: cancelRenderFrames.cancelSignal,
+			});
+
+			return renderFramesProc;
+		})
+		.then((renderFramesReturn) => {
+			return Promise.all([renderFramesReturn, waitForPrestitcherIfNecessary()]);
+		})
+		.then(([{assetsInfo}]) => {
+			renderedDoneIn = Date.now() - renderStart;
+			callUpdate();
+
+			if (outputLocation) {
+				ensureOutputDirectory(outputLocation);
+			}
+
+			const stitchStart = Date.now();
+			return Promise.all([
+				stitchFramesToVideo({
+					width: composition.width * (scale ?? 1),
+					height: composition.height * (scale ?? 1),
+					fps: composition.fps,
+					outputLocation,
+					internalOptions: {
+						preEncodedFileLocation,
+						imageFormat: actualImageFormat,
+					},
+					force: overwrite ?? Internals.DEFAULT_OVERWRITE,
+					pixelFormat,
+					codec,
+					proResProfile,
+					crf,
+					assetsInfo,
+					ffmpegExecutable,
+					ffprobeExecutable,
+					onProgress: (frame: number) => {
+						stitchStage = 'muxing';
+						encodedFrames = frame;
+						callUpdate();
+					},
+					onDownload,
+					verbose: Internals.Logging.isEqualOrBelowLogLevel(
+						Internals.Logging.getLogLevel(),
+						'verbose'
+					),
+					dir: outputDir ?? undefined,
+					cancelSignal: cancelStitcher.cancelSignal,
+				}),
+				stitchStart,
+			]);
+		})
+		.then(([buffer, stitchStart]) => {
+			encodedFrames = getDurationFromFrameRange(
+				frameRange ?? null,
+				composition.durationInFrames
+			);
+			encodedDoneIn = Date.now() - stitchStart;
+			callUpdate();
+			return buffer;
+		})
+		.catch((err) => {
+			/**
+			 * When an error is thrown in renderFrames(...) (e.g., when delayRender() is used incorrectly), fs.unlinkSync(...) throws an error that the file is locked because ffmpeg is still running, and renderMedia returns it.
+			 * Therefore we first kill the FFMPEG process before deleting the file
+			 */
+			cancelled = true;
+			cancelRenderFrames.cancel();
+			cancelStitcher.cancel();
+			cancelPrestitcher.cancel();
+			if (stitcherFfmpeg !== undefined && stitcherFfmpeg.exitCode === null) {
+				const promise = new Promise<void>((resolve) => {
+					setTimeout(() => {
+						resolve();
+					}, 2000);
+					(stitcherFfmpeg as ExecaChildProcess<string>).on('close', resolve);
+				});
+				stitcherFfmpeg.kill();
+				return promise.then(() => {
+					throw err;
+				});
+			}
+
+			throw err;
+		})
+		.finally(() => {
+			if (
+				preEncodedFileLocation !== null &&
+				fs.existsSync(preEncodedFileLocation)
+			) {
+				fs.unlinkSync(preEncodedFileLocation);
+			}
 		});
-		encodedFrames = getDurationFromFrameRange(
-			frameRange ?? null,
-			composition.durationInFrames
-		);
-		encodedDoneIn = Date.now() - stitchStart;
-		callUpdate();
-	} finally {
-		if (
-			preEncodedFileLocation !== null &&
-			fs.existsSync(preEncodedFileLocation)
-		) {
-			fs.unlinkSync(preEncodedFileLocation);
-		}
-	}
+
+	return Promise.race([
+		happyPath,
+		new Promise<Buffer | null>((_resolve, reject) => {
+			cancelSignal?.(() => {
+				reject(new Error('renderMedia() got cancelled'));
+			});
+		}),
+	]);
 };

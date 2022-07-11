@@ -2,7 +2,8 @@ import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {Internals} from 'remotion';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
-import {LambdaPayload, LambdaRoutines} from '../shared/constants';
+import type {LambdaPayload} from '../shared/constants';
+import {LambdaRoutines} from '../shared/constants';
 import {randomHash} from '../shared/random-hash';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 
@@ -39,6 +40,7 @@ export const startHandler = async (params: LambdaPayload) => {
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
 		scale: params.scale,
+		concurrencyPerLambda: params.concurrencyPerLambda,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({

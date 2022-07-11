@@ -3,14 +3,16 @@ import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import {Internals} from 'remotion';
 import {getLambdaClient} from '../shared/aws-clients';
+import type {
+	EncodingProgress,
+	LambdaPayload,
+	RenderMetadata,
+} from '../shared/constants';
 import {
 	CURRENT_VERSION,
-	EncodingProgress,
 	encodingProgressKey,
-	LambdaPayload,
 	LambdaRoutines,
 	MAX_FUNCTIONS_PER_RENDER,
-	RenderMetadata,
 	renderMetadataKey,
 	rendersPrefix,
 } from '../shared/constants';
@@ -85,6 +87,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		inputProps: params.inputProps,
 		envVariables: params.envVariables,
 		ffmpegExecutable: null,
+		ffprobeExecutable: null,
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
 		port: null,
@@ -96,6 +99,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	Internals.validateFps(comp.fps, 'passed to <Component />');
 	Internals.validateDimension(comp.height, 'height', 'passed to <Component />');
 	Internals.validateDimension(comp.width, 'width', 'passed to <Component />');
+
+	RenderInternals.validateConcurrency(
+		params.concurrencyPerLambda,
+		'concurrencyPerLambda'
+	);
 
 	const realFrameRange = RenderInternals.getRealFrameRange(
 		comp.durationInFrames,
@@ -152,7 +160,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			inputProps: params.inputProps,
 			renderId: params.renderId,
 			imageFormat: params.imageFormat,
-			codec: params.codec,
+			codec: params.codec === 'h264' ? 'h264-mkv' : params.codec,
 			crf: params.crf,
 			envVariables: params.envVariables,
 			pixelFormat: params.pixelFormat,
@@ -164,6 +172,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			timeoutInMilliseconds: params.timeoutInMilliseconds,
 			chromiumOptions: params.chromiumOptions,
 			scale: params.scale,
+			concurrencyPerLambda: params.concurrencyPerLambda,
 		};
 		return payload;
 	});
@@ -284,6 +293,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		codec: params.codec,
 		expectedBucketOwner: options.expectedBucketOwner,
+		fps: comp.fps,
 	});
 	if (!encodingStop) {
 		encodingStop = Date.now();

@@ -1,13 +1,9 @@
-import {ChromiumOptions, RenderInternals} from '@remotion/renderer';
+import type {ChromiumOptions} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import {
-	BrowserExecutable,
-	Codec,
-	FrameRange,
-	Internals,
-	PixelFormat,
-} from 'remotion';
+import type {BrowserExecutable, Codec, FrameRange, PixelFormat} from 'remotion';
+import {Internals} from 'remotion';
 import {getEnvironmentVariables} from './get-env';
 import {getOutputFilename} from './get-filename';
 import {getInputProps} from './get-input-props';
@@ -37,7 +33,6 @@ const getFinalCodec = async (options: {isLambda: boolean}) => {
 			? null
 			: RenderInternals.getExtensionOfFilename(getUserPassedOutputLocation()),
 		emitWarning: true,
-		isLambda: options.isLambda,
 	});
 	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
 	if (
@@ -192,7 +187,10 @@ export const getCliOptions = async (options: {
 }) => {
 	const frameRange = getAndValidateFrameRange();
 
-	const codec = await getFinalCodec({isLambda: options.isLambda});
+	const codec: Codec =
+		options.type === 'get-compositions'
+			? 'h264'
+			: await getFinalCodec({isLambda: options.isLambda});
 	const shouldOutputImageSequence =
 		options.type === 'still'
 			? true
@@ -220,6 +218,7 @@ export const getCliOptions = async (options: {
 	const proResProfile = getAndValidateProResProfile(codec);
 	const browserExecutable = Internals.getBrowserExecutable();
 	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
+	const ffprobeExecutable = Internals.getCustomFfprobeExecutable();
 	const scale = Internals.getScale();
 	const port = Internals.getServerPort();
 
@@ -232,14 +231,18 @@ export const getCliOptions = async (options: {
 			Internals.DEFAULT_OPENGL_RENDERER,
 	};
 
+	const parallelism = Internals.getConcurrency();
+
+	RenderInternals.validateConcurrency(parallelism, 'concurrency');
+
 	return {
 		puppeteerTimeout: Internals.getCurrentPuppeteerTimeout(),
-		parallelism: Internals.getConcurrency(),
+		parallelism,
 		frameRange,
 		shouldOutputImageSequence,
 		codec,
 		overwrite: Internals.getShouldOverwrite(),
-		inputProps: getInputProps(),
+		inputProps: getInputProps(() => undefined),
 		envVariables: await getEnvironmentVariables(),
 		quality: Internals.getQuality(),
 		absoluteOutputFile: outputFile
@@ -253,6 +256,7 @@ export const getCliOptions = async (options: {
 		stillFrame: Internals.getStillFrame(),
 		browserExecutable,
 		ffmpegExecutable,
+		ffprobeExecutable,
 		logLevel: Internals.Logging.getLogLevel(),
 		scale,
 		chromiumOptions,

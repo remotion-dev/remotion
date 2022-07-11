@@ -1,10 +1,10 @@
 import {RenderInternals} from '@remotion/renderer';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
-import {LambdaReturnValues} from '../../../shared/return-values';
+import type {LambdaReturnValues} from '../../../shared/return-values';
 import {disableLogs, enableLogs} from '../../disable-logs';
 
-jest.setTimeout(30000);
+jest.setTimeout(90000);
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
@@ -31,7 +31,7 @@ test('Should be able to render to another bucket', async () => {
 			type: LambdaRoutines.start,
 			serveUrl: 'https://competent-mccarthy-56f7c9.netlify.app/',
 			chromiumOptions: {},
-			codec: 'h264-mkv',
+			codec: 'h264',
 			composition: 'react-svg',
 			crf: 9,
 			envVariables: {},
@@ -48,6 +48,7 @@ test('Should be able to render to another bucket', async () => {
 			quality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,
+			concurrencyPerLambda: 1,
 		},
 		extraContext
 	);

@@ -8,10 +8,10 @@ import {
 } from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
 import {LOG_GROUP_PREFIX} from '../defaults';
-import {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../pricing/aws-regions';
 import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';
 import {hostedLayers} from '../shared/hosted-layers';
-import {LambdaArchitecture} from '../shared/validate-architecture';
+import type {LambdaArchitecture} from '../shared/validate-architecture';
 import {ROLE_NAME} from './iam-validation/suggested-policy';
 
 export const createFunction = async ({
@@ -26,6 +26,7 @@ export const createFunction = async ({
 	retentionInDays,
 	architecture,
 	ephemerealStorageInMb,
+	customRoleArn,
 }: {
 	createCloudWatchLogGroup: boolean;
 	region: AwsRegion;
@@ -38,6 +39,7 @@ export const createFunction = async ({
 	retentionInDays: number;
 	ephemerealStorageInMb: number;
 	architecture: LambdaArchitecture;
+	customRoleArn: string;
 }): Promise<{FunctionName: string}> => {
 	if (createCloudWatchLogGroup) {
 		try {
@@ -65,6 +67,8 @@ export const createFunction = async ({
 		return {FunctionName: functionName};
 	}
 
+	const defaultRoleName = `arn:aws:iam::${accountId}:role/${ROLE_NAME}`;
+
 	const {FunctionName} = await getLambdaClient(region).send(
 		new CreateFunctionCommand({
 			Code: {
@@ -72,7 +76,7 @@ export const createFunction = async ({
 			},
 			FunctionName: functionName,
 			Handler: 'index.handler',
-			Role: `arn:aws:iam::${accountId}:role/${ROLE_NAME}`,
+			Role: customRoleArn ?? defaultRoleName,
 			Runtime: 'nodejs14.x',
 			Description: 'Renders a Remotion video.',
 			MemorySize: memorySizeInMb,

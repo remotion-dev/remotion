@@ -1,17 +1,20 @@
 import type {ChromiumOptions} from '@remotion/renderer';
-import {
+import type {
 	FrameRange,
 	ImageFormat,
-	Internals,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
 } from 'remotion';
-import {AwsRegion} from '../pricing/aws-regions';
+import {Internals} from 'remotion';
+import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
-import {LambdaRoutines, Privacy} from '../shared/constants';
+import type {OutNameInput, Privacy} from '../shared/constants';
+import {LambdaRoutines} from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
+import type {LambdaCodec} from '../shared/validate-lambda-codec';
+import {validateLambdaCodec} from '../shared/validate-lambda-codec';
 import {validateServeUrl} from '../shared/validate-serveurl';
 
 export type RenderMediaOnLambdaInput = {
@@ -20,7 +23,7 @@ export type RenderMediaOnLambdaInput = {
 	serveUrl: string;
 	composition: string;
 	inputProps: unknown;
-	codec: 'h264-mkv' | 'mp3' | 'aac' | 'wav';
+	codec: LambdaCodec;
 	imageFormat: ImageFormat;
 	crf?: number | undefined;
 	envVariables?: Record<string, string>;
@@ -32,10 +35,11 @@ export type RenderMediaOnLambdaInput = {
 	framesPerLambda?: number;
 	logLevel?: LogLevel;
 	frameRange?: FrameRange;
-	outName?: string;
+	outName?: OutNameInput;
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
+	concurrencyPerLambda?: number;
 };
 
 export type RenderMediaOnLambdaOutput = {
@@ -84,7 +88,9 @@ export const renderMediaOnLambda = async ({
 	timeoutInMilliseconds,
 	chromiumOptions,
 	scale,
+	concurrencyPerLambda,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
+	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
 	validateFramesPerLambda(framesPerLambda ?? null);
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
@@ -96,7 +102,7 @@ export const renderMediaOnLambda = async ({
 			composition,
 			serveUrl: realServeUrl,
 			inputProps,
-			codec,
+			codec: actualCodec,
 			imageFormat,
 			crf,
 			envVariables,
@@ -112,6 +118,7 @@ export const renderMediaOnLambda = async ({
 				timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT,
 			chromiumOptions: chromiumOptions ?? {},
 			scale: scale ?? 1,
+			concurrencyPerLambda: concurrencyPerLambda ?? 1,
 		},
 		region,
 	});

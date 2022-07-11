@@ -1,12 +1,13 @@
-import {PlayerInternals, PreviewSize} from '@remotion/player';
-import React, {useCallback, useMemo, useState} from 'react';
-import {
-	Internals,
+import type {PreviewSize} from '@remotion/player';
+import {PlayerInternals} from '@remotion/player';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
 	SetTimelineInOutContextValue,
 	TimelineInOutContextValue,
 } from 'remotion';
+import {continueRender, delayRender, Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
 import {
@@ -14,9 +15,11 @@ import {
 	loadCheckerboardOption,
 	persistCheckerboardOption,
 } from '../state/checkerboard';
+import {FolderContextProvider} from '../state/folders';
 import {HighestZIndexProvider} from '../state/highest-z-index';
 import {KeybindingContextProvider} from '../state/keybindings';
-import {ModalContextType, ModalsContext, ModalState} from '../state/modals';
+import type {ModalContextType, ModalState} from '../state/modals';
+import {ModalsContext} from '../state/modals';
 import {loadMuteOption} from '../state/mute';
 import {
 	loadPreviewSizeOption,
@@ -28,12 +31,15 @@ import {
 	persistRichTimelineOption,
 	RichTimelineContext,
 } from '../state/rich-timeline';
+import {SidebarContextProvider} from '../state/sidebar';
 import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
 import {FramePersistor} from './FramePersistor';
 import {GlobalKeybindings} from './GlobalKeybindings';
 import {KeyboardShortcuts} from './KeyboardShortcutsModal';
 import NewComposition from './NewComposition/NewComposition';
+import {NoRegisterRoot} from './NoRegisterRoot';
+import {NotificationCenter} from './Notifications/NotificationCenter';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 
 const background: React.CSSProperties = {
@@ -45,11 +51,17 @@ const background: React.CSSProperties = {
 	position: 'absolute',
 };
 
-const Root = Internals.getRoot();
-
 export const Editor: React.FC = () => {
 	const [emitter] = useState(() => new PlayerInternals.PlayerEmitter());
 	const [size, setSizeState] = useState(() => loadPreviewSizeOption());
+	const [Root, setRoot] = useState<React.FC | null>(() => Internals.getRoot());
+	const [waitForRoot] = useState(() => {
+		if (Root) {
+			return 0;
+		}
+
+		return delayRender('Waiting for registerRoot()');
+	});
 	const [checkerboard, setCheckerboardState] = useState(() =>
 		loadCheckerboardOption()
 	);
@@ -148,9 +160,18 @@ export const Editor: React.FC = () => {
 		};
 	}, [modalContextType]);
 
-	if (!Root) {
-		throw new Error('Root has not been registered. ');
-	}
+	useEffect(() => {
+		if (Root) {
+			return;
+		}
+
+		const cleanup = Internals.waitForRoot((NewRoot) => {
+			setRoot(() => NewRoot);
+			continueRender(waitForRoot);
+		});
+
+		return () => cleanup();
+	}, [Root, waitForRoot]);
 
 	return (
 		<KeybindingContextProvider>
@@ -173,30 +194,44 @@ export const Editor: React.FC = () => {
 											<PlayerInternals.PlayerEventEmitterContext.Provider
 												value={emitter}
 											>
-												<HighestZIndexProvider>
-													<HigherZIndex onEscape={noop} onOutsideClick={noop}>
-														<div style={background}>
-															<Root />
-															<FramePersistor />
-															<EditorContent />
-															<GlobalKeybindings />
-														</div>
-														{modalContextType &&
-															modalContextType.type === 'new-comp' && (
-																<NewComposition
-																	initialCompType={modalContextType.compType}
-																/>
-															)}
-														{modalContextType &&
-															modalContextType.type === 'update' && (
-																<UpdateModal info={modalContextType.info} />
-															)}
-														{modalContextType &&
-															modalContextType.type === 'shortcuts' && (
-																<KeyboardShortcuts />
-															)}
-													</HigherZIndex>
-												</HighestZIndexProvider>
+												<SidebarContextProvider>
+													<FolderContextProvider>
+														<HighestZIndexProvider>
+															<HigherZIndex
+																onEscape={noop}
+																onOutsideClick={noop}
+															>
+																<div style={background}>
+																	{Root === null ? null : <Root />}
+																	<FramePersistor />
+																	{Root === null ? (
+																		<NoRegisterRoot />
+																	) : (
+																		<EditorContent />
+																	)}
+																	<GlobalKeybindings />
+																</div>
+																<NotificationCenter />
+																{modalContextType &&
+																	modalContextType.type === 'new-comp' && (
+																		<NewComposition
+																			initialCompType={
+																				modalContextType.compType
+																			}
+																		/>
+																	)}
+																{modalContextType &&
+																	modalContextType.type === 'update' && (
+																		<UpdateModal info={modalContextType.info} />
+																	)}
+																{modalContextType &&
+																	modalContextType.type === 'shortcuts' && (
+																		<KeyboardShortcuts />
+																	)}
+															</HigherZIndex>
+														</HighestZIndexProvider>
+													</FolderContextProvider>
+												</SidebarContextProvider>
 											</PlayerInternals.PlayerEventEmitterContext.Provider>
 										</Internals.SetMediaVolumeContext.Provider>
 									</Internals.MediaVolumeContext.Provider>

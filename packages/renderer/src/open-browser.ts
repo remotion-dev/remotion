@@ -1,8 +1,11 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import puppeteer from 'puppeteer-core';
-import {Browser, Internals} from 'remotion';
+import type {Browser} from 'remotion';
+import {Internals} from 'remotion';
+import type {Browser as PuppeteerBrowser} from './browser/Browser';
+import {puppeteer} from './browser/node';
+import type {Viewport} from './browser/PuppeteerViewport';
 import {
 	ensureLocalBrowser,
 	getLocalBrowserExecutable,
@@ -33,7 +36,7 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	return [`--use-gl=${renderer}`];
 };
 
-const browserInstances: puppeteer.Browser[] = [];
+const browserInstances: PuppeteerBrowser[] = [];
 
 export const killAllBrowsers = async () => {
 	for (const browser of browserInstances) {
@@ -50,8 +53,9 @@ export const openBrowser = async (
 		browserExecutable?: string | null;
 		chromiumOptions?: ChromiumOptions;
 		forceDeviceScaleFactor?: number;
+		viewport?: Viewport;
 	}
-): Promise<puppeteer.Browser> => {
+): Promise<PuppeteerBrowser> => {
 	if (browser === 'firefox' && !Internals.FEATURE_FLAG_FIREFOX_SUPPORT) {
 		throw new TypeError(
 			'Firefox supported is not yet turned on. Stay tuned for the future.'
@@ -73,10 +77,9 @@ export const openBrowser = async (
 		executablePath,
 		product: browser,
 		dumpio: options?.shouldDumpIo ?? false,
-		ignoreDefaultArgs: true,
 		args: [
 			'about:blank',
-			'--allow-pre-commit-input', // TODO(crbug.com/1320996): neither headful nor headless should rely on this flag.
+			'--allow-pre-commit-input',
 			'--disable-background-networking',
 			'--enable-features=NetworkService,NetworkServiceInProcess',
 			'--disable-background-timer-throttling',
@@ -90,9 +93,6 @@ export const openBrowser = async (
 			'--no-proxy-server',
 			"--proxy-server='direct://'",
 			'--proxy-bypass-list=*',
-			// TODO: remove AvoidUnnecessaryBeforeUnloadCheckSync below
-			// once crbug.com/1324138 is fixed and released.
-			'--disable-features=Translate,BackForwardCache,AvoidUnnecessaryBeforeUnloadCheckSync',
 			'--disable-hang-monitor',
 			'--disable-ipc-flooding-protection',
 			'--disable-popup-blocking',
@@ -106,8 +106,6 @@ export const openBrowser = async (
 			'--enable-automation',
 			'--password-store=basic',
 			'--use-mock-keychain',
-			// TODO(sadym): remove '--enable-blink-features=IdleDetection'
-			// once IdleDetection is turned on by default.
 			'--enable-blink-features=IdleDetection',
 			'--export-tagged-pdf',
 			'--intensive-wake-up-throttling-policy=0',
@@ -120,13 +118,14 @@ export const openBrowser = async (
 			'--allow-running-insecure-content', // https://source.chromium.org/search?q=lang:cpp+symbol:kAllowRunningInsecureContent&ss=chromium
 			'--disable-component-update', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableComponentUpdate&ss=chromium
 			'--disable-domain-reliability', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableDomainReliability&ss=chromium
-			'--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process', // https://source.chromium.org/search?q=file:content_features.cc&ss=chromium
+			'--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process,Translate,BackForwardCache,AvoidUnnecessaryBeforeUnloadCheckSync,IntensiveWakeUpThrottling', // https://source.chromium.org/search?q=file:content_features.cc&ss=chromium
 			'--disable-print-preview', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisablePrintPreview&ss=chromium
 			'--disable-site-isolation-trials', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableSiteIsolation&ss=chromium
 			'--disk-cache-size=268435456', // https://source.chromium.org/search?q=lang:cpp+symbol:kDiskCacheSize&ss=chromium
 			'--hide-scrollbars', // https://source.chromium.org/search?q=lang:cpp+symbol:kHideScrollbars&ss=chromium
 			'--no-default-browser-check', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoDefaultBrowserCheck&ss=chromium
 			'--no-pings', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoPings&ss=chromium
+			'--font-render-hinting=none',
 			'--no-zygote', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoZygote&ss=chromium,
 			options?.forceDeviceScaleFactor
 				? `--force-device-scale-factor=${options.forceDeviceScaleFactor}`
@@ -144,9 +143,16 @@ export const openBrowser = async (
 				  ]
 				: []),
 		].filter(Boolean) as string[],
+		defaultViewport: options?.viewport ?? {
+			height: 720,
+			width: 1280,
+			deviceScaleFactor: 1,
+		},
 	});
+
 	const pages = await browserInstance.pages();
-	pages.forEach((p) => p.close());
+	await pages[0].close();
+
 	browserInstances.push(browserInstance);
 	return browserInstance;
 };

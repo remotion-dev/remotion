@@ -1,5 +1,5 @@
-import {Page} from 'puppeteer-core';
 import {Internals} from 'remotion';
+import type {Page} from './browser/BrowserPage';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
@@ -12,6 +12,7 @@ export const setPropsAndEnv = async ({
 	initialFrame,
 	timeoutInMilliseconds,
 	proxyPort,
+	retriesRemaining,
 }: {
 	inputProps: unknown;
 	envVariables: Record<string, string> | undefined;
@@ -20,7 +21,8 @@ export const setPropsAndEnv = async ({
 	initialFrame: number;
 	timeoutInMilliseconds: number | undefined;
 	proxyPort: number;
-}) => {
+	retriesRemaining: number;
+}): Promise<void> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	const actualTimeout =
 		timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT;
@@ -70,13 +72,41 @@ export const setPropsAndEnv = async ({
 
 	const pageRes = await page.goto(urlToVisit);
 
+	if (pageRes === null) {
+		throw new Error(`Visited "${urlToVisit}" but got no response.`);
+	}
+
 	const status = pageRes.status();
+
+	// S3 in rare occasions returns a 500 or 503 error code for GET operations.
+	// Usually it is fixed by retrying.
+	if (status >= 500 && status <= 504 && retriesRemaining > 0) {
+		await new Promise<void>((resolve) => {
+			setTimeout(() => {
+				resolve();
+			}, 2000);
+		});
+
+		return setPropsAndEnv({
+			envVariables,
+			initialFrame,
+			inputProps,
+			page,
+			proxyPort,
+			retriesRemaining: retriesRemaining - 1,
+			serveUrl,
+			timeoutInMilliseconds,
+		});
+	}
+
 	if (
 		status !== 200 &&
 		status !== 301 &&
 		status !== 302 &&
 		status !== 303 &&
-		status !== 304
+		status !== 304 &&
+		status !== 307 &&
+		status !== 308
 	) {
 		throw new Error(
 			`Error while getting compositions: Tried to go to ${urlToVisit} but the status code was ${status} instead of 200. Does the site you specified exist?`

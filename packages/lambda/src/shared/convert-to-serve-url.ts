@@ -1,5 +1,5 @@
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
-import {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../pricing/aws-regions';
 import {DOCS_URL} from './docs-url';
 
 export const convertToServeUrl = async (urlOrId: string, region: AwsRegion) => {

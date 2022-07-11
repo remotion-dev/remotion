@@ -1,12 +1,18 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
+import {Internals} from 'remotion';
+import {pickColor} from '../helpers/pick-color';
 import {Checkmark} from '../icons/Checkmark';
 import {CheckerboardContext} from '../state/checkerboard';
 import {ModalsContext} from '../state/modals';
 import {PreviewSizeContext} from '../state/preview-size';
 import {RichTimelineContext} from '../state/rich-timeline';
+import type {SidebarCollapsedState} from '../state/sidebar';
+import {SidebarContext} from '../state/sidebar';
 import {timelineRef} from '../state/timeline-ref';
 import {Row} from './layout';
-import {Menu, MenuId, MenuItem} from './Menu/MenuItem';
+import type {Menu, MenuId} from './Menu/MenuItem';
+import {MenuItem} from './Menu/MenuItem';
+import {MenuBuildIndicator} from './MenuBuildIndicator';
 import {commonPreviewSizes, getPreviewSizeLabel} from './SizeSelector';
 import {inOutHandles} from './TimelineInOutToggle';
 import {UpdateCheck} from './UpdateCheck';
@@ -27,11 +33,6 @@ const flex: React.CSSProperties = {
 	flex: 1,
 };
 
-const cwd: React.CSSProperties = {
-	fontSize: 13,
-	opacity: 0.8,
-};
-
 type Structure = Menu[];
 
 const openExternal = (link: string) => {
@@ -49,6 +50,8 @@ export const MenuToolbar: React.FC = () => {
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 	const {richTimeline, setRichTimeline} = useContext(RichTimelineContext);
 	const {size, setSize} = useContext(PreviewSizeContext);
+	const {setSidebarCollapsedState, sidebarCollapsedState} =
+		useContext(SidebarContext);
 
 	const itemClicked = useCallback(
 		(itemId: MenuId) => {
@@ -71,9 +74,9 @@ export const MenuToolbar: React.FC = () => {
 	}, []);
 
 	const structure = useMemo((): Structure => {
-		return [
+		const struct: Structure = [
 			{
-				id: 'remotion',
+				id: 'remotion' as const,
 				label: (
 					<Row align="center" justify="center">
 						<svg
@@ -102,7 +105,7 @@ export const MenuToolbar: React.FC = () => {
 							close();
 							openExternal('https://remotion.dev');
 						},
-						type: 'item',
+						type: 'item' as const,
 						keyHint: null,
 						leftItem: null,
 						subMenu: null,
@@ -115,7 +118,7 @@ export const MenuToolbar: React.FC = () => {
 							close();
 							openExternal('https://github.com/remotion-dev/remotion/releases');
 						},
-						type: 'item',
+						type: 'item' as const,
 						keyHint: null,
 						leftItem: null,
 						subMenu: null,
@@ -130,7 +133,7 @@ export const MenuToolbar: React.FC = () => {
 								'https://github.com/remotion-dev/remotion/blob/main/LICENSE.md'
 							);
 						},
-						type: 'item',
+						type: 'item' as const,
 						keyHint: null,
 						leftItem: null,
 						subMenu: null,
@@ -138,10 +141,9 @@ export const MenuToolbar: React.FC = () => {
 				],
 			},
 			{
-				id: 'file',
+				id: 'file' as const,
 				label: 'File',
 				leaveLeftPadding: false,
-
 				items: [
 					{
 						id: 'new-sequence',
@@ -154,7 +156,7 @@ export const MenuToolbar: React.FC = () => {
 								type: 'new-comp',
 							});
 						},
-						type: 'item',
+						type: 'item' as const,
 						keyHint: 'N',
 						leftItem: null,
 						subMenu: null,
@@ -170,7 +172,7 @@ export const MenuToolbar: React.FC = () => {
 								type: 'new-comp',
 							});
 						},
-						type: 'item',
+						type: 'item' as const,
 						keyHint: null,
 						leftItem: null,
 						subMenu: null,
@@ -178,7 +180,7 @@ export const MenuToolbar: React.FC = () => {
 				],
 			},
 			{
-				id: 'view',
+				id: 'view' as const,
 				label: 'View',
 				leaveLeftPadding: true,
 				items: [
@@ -187,7 +189,7 @@ export const MenuToolbar: React.FC = () => {
 						keyHint: null,
 						label: 'Preview size',
 						onClick: () => undefined,
-						type: 'item',
+						type: 'item' as const,
 						value: 'preview-size',
 						leftItem: null,
 						subMenu: {
@@ -206,10 +208,76 @@ export const MenuToolbar: React.FC = () => {
 									setSize(() => newSize);
 								},
 								subMenu: null,
-								type: 'item',
+								type: 'item' as const,
 								value: newSize,
 							})),
 						},
+					},
+					{
+						id: 'timeline-divider',
+						type: 'divider' as const,
+					},
+					{
+						id: 'left-sidebar',
+						label: 'Sidebar',
+						keyHint: null,
+						type: 'item' as const,
+						value: 'preview-size',
+						leftItem: null,
+						subMenu: {
+							leaveLeftSpace: true,
+							preselectIndex: 0,
+							items: [
+								{
+									id: 'sidebar-responsive',
+									keyHint: null,
+									label: 'Responsive',
+									leftItem:
+										sidebarCollapsedState === 'responsive' ? (
+											<Checkmark />
+										) : null,
+									onClick: () => {
+										setSidebarCollapsedState('responsive');
+									},
+									subMenu: null,
+									type: 'item' as const,
+									value: 'responsive' as SidebarCollapsedState,
+								},
+								{
+									id: 'sidebar-expanded',
+									keyHint: null,
+									label: 'Expanded',
+									leftItem:
+										sidebarCollapsedState === 'expanded' ? <Checkmark /> : null,
+									onClick: () => {
+										setSidebarCollapsedState('expanded');
+									},
+									subMenu: null,
+									type: 'item' as const,
+									value: 'expanded' as SidebarCollapsedState,
+								},
+								{
+									id: 'sidebar-collapsed',
+									keyHint: null,
+									label: 'Collapsed',
+									leftItem:
+										sidebarCollapsedState === 'collapsed' ? (
+											<Checkmark />
+										) : null,
+									onClick: () => {
+										setSidebarCollapsedState('collapsed');
+									},
+									subMenu: null,
+									type: 'item' as const,
+									value: 'collapsed' as SidebarCollapsedState,
+								},
+							],
+						},
+						onClick: () => undefined,
+					},
+					{
+						id: 'timeline-divider',
+						type: 'divider' as const,
 					},
 					{
 						id: 'checkerboard',
@@ -219,14 +287,14 @@ export const MenuToolbar: React.FC = () => {
 							close();
 							setCheckerboard((c) => !c);
 						},
-						type: 'item',
+						type: 'item' as const,
 						value: 'checkerboard',
 						leftItem: checkerboard ? <Checkmark /> : null,
 						subMenu: null,
 					},
 					{
 						id: 'timeline-divider',
-						type: 'divider',
+						type: 'divider' as const,
 					},
 					{
 						id: 'rich-timeline',
@@ -236,7 +304,7 @@ export const MenuToolbar: React.FC = () => {
 							close();
 							setRichTimeline((r) => !r);
 						},
-						type: 'item',
+						type: 'item' as const,
 						value: 'rich-timeline',
 						leftItem: richTimeline ? <Checkmark /> : null,
 						subMenu: null,
@@ -249,7 +317,7 @@ export const MenuToolbar: React.FC = () => {
 							close();
 							timelineRef.current?.expandAll();
 						},
-						type: 'item',
+						type: 'item' as const,
 						value: 'expand-all',
 						leftItem: null,
 						subMenu: null,
@@ -262,14 +330,14 @@ export const MenuToolbar: React.FC = () => {
 							close();
 							timelineRef.current?.collapseAll();
 						},
-						type: 'item',
+						type: 'item' as const,
 						value: 'collapse-all',
 						leftItem: null,
 						subMenu: null,
 					},
 					{
 						id: 'in-out-divider',
-						type: 'divider',
+						type: 'divider' as const,
 					},
 					{
 						id: 'in-mark',
@@ -281,7 +349,7 @@ export const MenuToolbar: React.FC = () => {
 							inOutHandles.current?.inMarkClick();
 						},
 						subMenu: null,
-						type: 'item',
+						type: 'item' as const,
 						value: 'in-mark',
 					},
 					{
@@ -294,7 +362,7 @@ export const MenuToolbar: React.FC = () => {
 							inOutHandles.current?.outMarkClick();
 						},
 						subMenu: null,
-						type: 'item',
+						type: 'item' as const,
 						value: 'out-mark',
 					},
 					{
@@ -307,13 +375,32 @@ export const MenuToolbar: React.FC = () => {
 							inOutHandles.current?.clearMarks();
 						},
 						subMenu: null,
-						type: 'item',
+						type: 'item' as const,
 						value: 'clear-marks',
 					},
 				],
 			},
+			'EyeDropper' in window
+				? {
+						id: 'tools' as const,
+						label: 'Tools',
+						leaveLeftPadding: false,
+						items: [
+							{
+								id: 'color-picker',
+								value: 'color-picker',
+								label: 'Color Picker',
+								onClick: () => pickColor(),
+								leftItem: null,
+								keyHint: null,
+								subMenu: null,
+								type: 'item' as const,
+							},
+						],
+				  }
+				: null,
 			{
-				id: 'help',
+				id: 'help' as const,
 				label: 'Help',
 				leaveLeftPadding: false,
 				items: [
@@ -331,7 +418,7 @@ export const MenuToolbar: React.FC = () => {
 						keyHint: '?',
 						leftItem: null,
 						subMenu: null,
-						type: 'item',
+						type: 'item' as const,
 					},
 					{
 						id: 'docs',
@@ -341,7 +428,7 @@ export const MenuToolbar: React.FC = () => {
 							close();
 							openExternal('https://remotion.dev/docs');
 						},
-						type: 'item',
+						type: 'item' as const,
 						keyHint: null,
 						leftItem: null,
 						subMenu: null,
@@ -356,7 +443,7 @@ export const MenuToolbar: React.FC = () => {
 								'https://github.com/remotion-dev/remotion/issues/new/choose'
 							);
 						},
-						type: 'item',
+						type: 'item' as const,
 						keyHint: null,
 						leftItem: null,
 						subMenu: null,
@@ -369,14 +456,14 @@ export const MenuToolbar: React.FC = () => {
 							close();
 							openExternal('https://discord.com/invite/6VzzNDwUwV');
 						},
-						type: 'item',
+						type: 'item' as const,
 						keyHint: null,
 						leftItem: null,
 						subMenu: null,
 					},
 					{
 						id: 'help-divider',
-						type: 'divider',
+						type: 'divider' as const,
 					},
 					{
 						id: 'insta',
@@ -386,7 +473,7 @@ export const MenuToolbar: React.FC = () => {
 							close();
 							openExternal('https://instagram.com/remotion.dev');
 						},
-						type: 'item',
+						type: 'item' as const,
 						keyHint: null,
 						leftItem: null,
 						subMenu: null,
@@ -399,7 +486,7 @@ export const MenuToolbar: React.FC = () => {
 							close();
 							openExternal('https://twitter.com/remotion_dev');
 						},
-						type: 'item',
+						type: 'item' as const,
 						keyHint: null,
 						leftItem: null,
 						subMenu: null,
@@ -412,14 +499,16 @@ export const MenuToolbar: React.FC = () => {
 							close();
 							openExternal('https://www.tiktok.com/@remotion.dev');
 						},
-						type: 'item',
+						type: 'item' as const,
 						keyHint: null,
 						leftItem: null,
 						subMenu: null,
 					},
 				],
 			},
-		];
+		].filter(Internals.truthy);
+
+		return struct;
 	}, [
 		checkerboard,
 		close,
@@ -427,7 +516,9 @@ export const MenuToolbar: React.FC = () => {
 		setCheckerboard,
 		setRichTimeline,
 		setSelectedModal,
+		setSidebarCollapsedState,
 		setSize,
+		sidebarCollapsedState,
 		size,
 	]);
 
@@ -484,9 +575,7 @@ export const MenuToolbar: React.FC = () => {
 			})}
 			<UpdateCheck />
 			<div style={flex} />
-			<div style={cwd} title={window.remotion_cwd}>
-				{window.remotion_projectName}
-			</div>
+			<MenuBuildIndicator />
 		</Row>
 	);
 };

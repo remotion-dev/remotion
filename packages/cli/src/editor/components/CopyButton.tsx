@@ -3,7 +3,7 @@ import {
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_UNHOVERED,
 } from '../helpers/colors';
-import {copyCmd} from '../helpers/copy-text';
+import {copyText} from '../helpers/copy-text';
 import {Row, Spacing} from './layout';
 
 const iconStyle: React.CSSProperties = {
@@ -59,7 +59,7 @@ export const CopyButton: React.FC<{
 	const [copied, setCopied] = useState<false | number>(false);
 
 	const onClick = useCallback(() => {
-		copyCmd(textToCopy);
+		copyText(textToCopy);
 		setCopied(Date.now());
 	}, [textToCopy]);
 

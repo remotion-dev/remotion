@@ -1,8 +1,8 @@
-import path from 'path';
 import ReactDOM from 'react-dom';
-import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
+import type {WebpackConfiguration, WebpackOverrideFn} from 'remotion';
+import {Internals} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
-import {LoaderOptions} from './esbuild-loader/interfaces';
+import type {LoaderOptions} from './esbuild-loader/interfaces';
 import {ReactFreshWebpackPlugin} from './fast-refresh';
 import {getWebpackCacheName} from './webpack-cache';
 import esbuild = require('esbuild');
@@ -40,9 +40,9 @@ export const webpackConfig = ({
 	webpackOverride = (f) => f,
 	onProgressUpdate,
 	enableCaching = Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
-	inputProps,
 	envVariables,
 	maxTimelineTracks,
+	entryPoints,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -51,9 +51,9 @@ export const webpackConfig = ({
 	webpackOverride: WebpackOverrideFn;
 	onProgressUpdate?: (f: number) => void;
 	enableCaching?: boolean;
-	inputProps: object;
 	envVariables: Record<string, string>;
 	maxTimelineTracks: number;
+	entryPoints: string[];
 }): WebpackConfiguration => {
 	return webpackOverride({
 		optimization: {
@@ -74,7 +74,7 @@ export const webpackConfig = ({
 		cache: enableCaching
 			? {
 					type: 'filesystem',
-					name: getWebpackCacheName(environment, inputProps ?? {}),
+					name: getWebpackCacheName(environment),
 			  }
 			: false,
 		devtool:
@@ -82,17 +82,14 @@ export const webpackConfig = ({
 				? 'cheap-module-source-map'
 				: 'cheap-module-source-map',
 		entry: [
-			require.resolve('./setup-environment'),
-			environment === 'development'
-				? require.resolve('./hot-middleware/client')
-				: null,
+			// Fast Refresh must come first,
+			// because setup-environment imports ReactDOM.
+			// If React DOM is imported before Fast Refresh, Fast Refresh does not work
 			environment === 'development'
 				? require.resolve('./fast-refresh/runtime.js')
 				: null,
-			environment === 'development'
-				? require.resolve('./error-overlay/entry-basic.js')
-				: null,
-
+			require.resolve('./setup-environment'),
+			...entryPoints,
 			userDefinedComponent,
 			require.resolve('../react-shim.js'),
 			entry,
@@ -105,7 +102,6 @@ export const webpackConfig = ({
 						new webpack.HotModuleReplacementPlugin(),
 						new webpack.DefinePlugin({
 							'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
-							'process.env.INPUT_PROPS': JSON.stringify(inputProps ?? {}),
 							[`process.env.${Internals.ENV_VARIABLES_ENV_NAME}`]:
 								JSON.stringify(envVariables),
 						}),
@@ -125,11 +121,6 @@ export const webpackConfig = ({
 			devtoolModuleFilenameTemplate: '[resource-path]',
 			assetModuleFilename:
 				environment === 'development' ? '[path][name][ext]' : '[hash][ext]',
-		},
-		devServer: {
-			contentBase: path.resolve(__dirname, '..', 'web'),
-			historyApiFallback: true,
-			hot: true,
 		},
 		resolve: {
 			extensions: ['.ts', '.tsx', '.js', '.jsx'],
@@ -189,13 +180,7 @@ export const webpackConfig = ({
 							: null,
 					].filter(truthy),
 				},
-				{
-					test: /\.js$/,
-					enforce: 'pre',
-					use: [require.resolve('source-map-loader')],
-				},
 			],
 		},
-		ignoreWarnings: [/Failed to parse source map/],
 	});
 };

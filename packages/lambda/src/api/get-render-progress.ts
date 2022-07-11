@@ -1,6 +1,7 @@
-import {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
-import {LambdaRoutines, RenderProgress} from '../shared/constants';
+import type { RenderProgress} from '../shared/constants';
+import {LambdaRoutines} from '../shared/constants';
 
 export type GetRenderInput = {
 	functionName: string;

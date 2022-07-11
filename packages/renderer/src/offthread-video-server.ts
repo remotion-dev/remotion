@@ -1,11 +1,9 @@
-import {RequestListener} from 'http';
-import {FfmpegExecutable} from 'remotion';
+import type {RequestListener} from 'http';
+import type {FfmpegExecutable, OffthreadVideoImageFormat} from 'remotion';
+import {Internals} from 'remotion';
 import {URLSearchParams} from 'url';
-import {
-	RenderMediaOnDownload,
-	startDownloadForSrc,
-	waitForAssetToBeDownloaded,
-} from './assets/download-and-map-assets-to-file';
+import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import {downloadAsset} from './assets/download-and-map-assets-to-file';
 import {extractFrameFromVideo} from './extract-frame-from-video';
 
 export const extractUrlAndSourceFromUrl = (url: string) => {
@@ -28,16 +26,30 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 		throw new Error('Did not get `time` parameter');
 	}
 
-	return {src, time: parseFloat(time)};
+	const imageFormat = params.get('imageFormat');
+
+	if (!imageFormat) {
+		throw new TypeError('Did not get `imageFormat` parameter');
+	}
+
+	Internals.validateOffthreadVideoImageFormat(imageFormat);
+
+	return {
+		src,
+		time: parseFloat(time),
+		imageFormat: imageFormat as OffthreadVideoImageFormat,
+	};
 };
 
 export const startOffthreadVideoServer = ({
 	ffmpegExecutable,
+	ffprobeExecutable,
 	downloadDir,
 	onDownload,
 	onError,
 }: {
 	ffmpegExecutable: FfmpegExecutable;
+	ffprobeExecutable: FfmpegExecutable;
 	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
@@ -53,21 +65,21 @@ export const startOffthreadVideoServer = ({
 			return;
 		}
 
+		const {src, time, imageFormat} = extractUrlAndSourceFromUrl(req.url);
 		res.setHeader('access-control-allow-origin', '*');
-		res.setHeader('content-type', 'image/jpg');
+		res.setHeader(
+			'content-type',
+			`image/${imageFormat === 'jpeg' ? 'jpg' : 'png'}`
+		);
 
-		const {src, time} = extractUrlAndSourceFromUrl(req.url);
-		startDownloadForSrc({src, downloadDir, onDownload}).catch((err) => {
-			onError(
-				new Error(`Error while downloading asset: ${(err as Error).stack}`)
-			);
-		});
-		waitForAssetToBeDownloaded(src)
-			.then((newSrc) => {
+		downloadAsset({src, downloadDir, onDownload})
+			.then((to) => {
 				return extractFrameFromVideo({
 					time,
-					src: newSrc,
+					src: to,
 					ffmpegExecutable,
+					ffprobeExecutable,
+					imageFormat,
 				});
 			})
 			.then((readable) => {
@@ -82,6 +94,7 @@ export const startOffthreadVideoServer = ({
 			.catch((err) => {
 				res.writeHead(500);
 				res.end();
+				onError(err);
 				console.log('Error occurred', err);
 			});
 	};

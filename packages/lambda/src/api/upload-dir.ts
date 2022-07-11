@@ -3,9 +3,10 @@ import {Upload} from '@aws-sdk/lib-storage';
 import {createReadStream, promises as fs} from 'fs';
 import mimeTypes from 'mime-types';
 import path from 'path';
-import {Privacy} from '../defaults';
-import {AwsRegion} from '../pricing/aws-regions';
+import type {Privacy} from '../defaults';
+import type {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
+import {makeS3Key} from '../shared/make-s3-key';
 
 type FileInfo = {
 	name: string;
@@ -73,7 +74,7 @@ export const uploadDir = async ({
 	const client = getS3Client(region);
 
 	const uploads = files.map(async (filePath) => {
-		const Key = `${folder}/${path.relative(dir, filePath.name)}`;
+		const Key = makeS3Key(folder, dir, filePath.name);
 		const Body = createReadStream(filePath.name);
 		const ContentType = mimeTypes.lookup(Key) || 'application/octet-stream';
 		const ACL = privacy === 'private' ? 'private' : 'public-read';

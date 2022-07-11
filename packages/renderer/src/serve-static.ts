@@ -1,15 +1,17 @@
 import http from 'http';
-import {FfmpegExecutable, Internals} from 'remotion';
-import handler from 'serve-handler';
-import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import type {FfmpegExecutable} from 'remotion';
+import {Internals} from 'remotion';
+import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {getDesiredPort} from './get-port';
 import {startOffthreadVideoServer} from './offthread-video-server';
+import {serveHandler} from './serve-handler';
 
 export const serveStatic = async (
 	path: string | null,
 	options: {
 		port: number | null;
 		ffmpegExecutable: FfmpegExecutable;
+		ffprobeExecutable: FfmpegExecutable;
 		downloadDir: string;
 		onDownload: RenderMediaOnDownload;
 		onError: (err: Error) => void;
@@ -26,6 +28,7 @@ export const serveStatic = async (
 
 	const offthreadRequest = startOffthreadVideoServer({
 		ffmpegExecutable: options.ffmpegExecutable,
+		ffprobeExecutable: options.ffprobeExecutable,
 		downloadDir: options.downloadDir,
 		onDownload: options.onDownload,
 		onError: options.onError,
@@ -44,10 +47,8 @@ export const serveStatic = async (
 					return;
 				}
 
-				handler(request, response, {
+				serveHandler(request, response, {
 					public: path,
-					directoryListing: false,
-					cleanUrls: false,
 				}).catch(() => {
 					response.statusCode = 500;
 					response.end('Error serving file');
@@ -59,6 +60,12 @@ export const serveStatic = async (
 			return new Promise<void>((resolve, reject) => {
 				server.close((err) => {
 					if (err) {
+						if (
+							(err as Error & {code: string}).code === 'ERR_SERVER_NOT_RUNNING'
+						) {
+							return resolve();
+						}
+
 						reject(err);
 					} else {
 						resolve();

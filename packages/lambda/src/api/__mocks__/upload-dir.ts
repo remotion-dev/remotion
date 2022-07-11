@@ -1,4 +1,4 @@
-import {MockFile, uploadDir as original} from '../upload-dir';
+import type {MockFile, uploadDir as original} from '../upload-dir';
 import {mockS3Upload} from './mock-s3';
 
 export const getDirFiles = (dir: string): MockFile[] => {

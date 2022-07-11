@@ -1,5 +1,6 @@
-import {getWaveformSamples, SampleOutputRange} from './get-wave-form-samples';
-import {AudioData} from './types';
+import type {SampleOutputRange} from './get-wave-form-samples';
+import {getWaveformSamples} from './get-wave-form-samples';
+import type {AudioData} from './types';
 import {validateChannel} from './validate-channel';
 
 type Bar = {

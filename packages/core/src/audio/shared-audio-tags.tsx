@@ -8,7 +8,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {RemotionAudioProps} from './props';
+import type {RemotionAudioProps} from './props';
 
 /**
  * This functionality of Remotion will keep a certain amount

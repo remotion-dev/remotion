@@ -1,4 +1,5 @@
-import React, {ComponentType} from 'react';
+import type {ComponentType} from 'react';
+import React from 'react';
 import {createFolderTree} from '../editor/helpers/create-folder-tree';
 import {expectToThrow} from './expect-to-throw';
 

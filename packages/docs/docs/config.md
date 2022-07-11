@@ -5,7 +5,11 @@ title: Configuration file
 
 To configure Remotion, create a `remotion.config.ts` file in the root of your Remotion project.
 
-These options will apply to CLI commands such as `npm start` and `npm run build`, but have no effect in the Node.JS API.
+These options will apply to CLI commands such as `npm start` and `npm run build`.
+
+:::warning
+The configuration file has no effect when using [SSR](/docs/renderer) APIs.
+:::warn
 
 You can control several behaviors of Remotion here.
 
@@ -284,6 +288,16 @@ Allows you to use a custom FFMPEG binary. Must be an absolute path. By default, 
 import { Config } from "remotion";
 // ---cut---
 Config.Rendering.setFfmpegExecutable("/path/to/custom/ffmpeg");
+```
+
+### setFfprobeExecutable()
+
+Allows you to use a custom `ffprobe` binary. Must be an absolute path. By default, this is null and the `ffprobe` in `PATH` will be used.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Rendering.setFfprobeExecutable("/path/to/custom/ffprobe");
 ```
 
 The [command line flag](/docs/cli#--ffmpeg-executable) `--ffmpeg-executable` will take precedence over this option.

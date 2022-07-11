@@ -4,7 +4,7 @@
   </a>
 </p>
 
-[![Discord Shield](https://discordapp.com/api/guilds/809501355504959528/widget.png?style=shield)](https://discord.gg/6VzzNDwUwV)
+[![Discord Shield](https://discordapp.com/api/guilds/809501355504959528/widget.png?style=shield)](https://remotion.dev/discord)
 [![NPM Version](http://img.shields.io/npm/v/remotion.svg?style=flat)](https://www.npmjs.org/package/remotion)
 [![NPM Downloads](https://img.shields.io/npm/dm/remotion.svg?style=flat)](https://npmcharts.com/compare/remotion?minimal=true)
 [![Install Size](https://packagephobia.now.sh/badge?p=remotion)](https://packagephobia.now.sh/result?p=remotion)
@@ -32,17 +32,17 @@ See even more creations in the [Showcase](https://remotion.dev/showcase).
 
 ## Get started
 
-If you already have Yarn and FFMPEG installed, type
+If you already have Node.JS and FFMPEG installed, type
 
 ```console
-yarn create video
+npm init video
 ```
 
 to get started. Otherwise, read the [installation page](https://www.remotion.dev/docs/) in the documentation.
 
 ## Documentation
 
-Head to [**remotion.dev**](https://www.remotion.dev) to learn the in and outs of Remotion!
+Head to [**remotion.dev/docs**](https://www.remotion.dev/docs) to learn the in and outs of Remotion!
 
 ## License
 

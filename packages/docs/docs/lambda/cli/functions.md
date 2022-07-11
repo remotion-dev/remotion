@@ -63,7 +63,11 @@ Disk size in megabytes. Default: <DefaultEphemerealStorageInMb /> MB. See also: 
 
 ### `--timeout`
 
-Memory size in megabytes. Default: <DefaultTimeout /> seconds.
+Timeout of the Lambda function. Default: <DefaultTimeout /> seconds.
+
+:::info
+Not to be confused with the [`--timeout` flag when rendering which defines the timeout for `delayRender()`](/docs/cli/render#--timeout).
+:::
 
 ### `--architecture`
 
@@ -76,6 +80,10 @@ Does not create a CloudWatch log group.
 ### `--retention-period`
 
 Retention period for the CloudWatch Logs in days. Default: <DefaultLogRetention /> days.
+
+### `--custom-role-arn`
+
+Use a custom role for the function instead of the default (`arn:aws:iam::[aws-account-id]:role/remotion-lambda-role`)
 
 ### `--quiet`, `-q`
 

@@ -1,6 +1,6 @@
 import { ESLintUtils } from "@typescript-eslint/utils";
 
-const createRule = ESLintUtils.RuleCreator((name) => {
+const createRule = ESLintUtils.RuleCreator(() => {
   return `https://github.com/remotion-dev/remotion`;
 });
 

@@ -7,8 +7,8 @@ import {getRegions} from '..';
 import {quit} from '../cli/helpers/quit';
 import {getLambdaClient} from '../shared/aws-clients';
 import {CURRENT_VERSION} from '../shared/constants';
-import {HostedLayers} from '../shared/hosted-layers';
-import {LambdaArchitecture} from '../shared/validate-architecture';
+import type {HostedLayers} from '../shared/hosted-layers';
+import type {LambdaArchitecture} from '../shared/validate-architecture';
 
 const runtimes: string[] = ['nodejs14.x'];
 
@@ -42,7 +42,7 @@ const layerInfo: HostedLayers = {
 };
 
 const makeLayerPublic = async () => {
-	const layers = ['remotion', 'ffmpeg', 'chromium'] as const;
+	const layers = ['fonts', 'ffmpeg', 'chromium'] as const;
 	for (const architecture of archictures) {
 		for (const region of getRegions()) {
 			for (const layer of layers) {
@@ -51,7 +51,7 @@ const makeLayerPublic = async () => {
 					new PublishLayerVersionCommand({
 						Content: {
 							S3Bucket: 'remotionlambda-binaries-' + region,
-							S3Key: `remotion-layer-${layer}-v5-${architecture}.zip`,
+							S3Key: `remotion-layer-${layer}-v6-${architecture}.zip`,
 						},
 						LayerName: layerName,
 						LicenseInfo:
@@ -59,7 +59,7 @@ const makeLayerPublic = async () => {
 								? 'Chromium 101, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
 								: layer === 'ffmpeg'
 								? 'Compiled from FFMPEG source. Read FFMPEG license: https://ffmpeg.org/legal.html'
-								: 'Contains Amazon Linux .so files and Noto Sans font. Read Noto Sans License: https://fonts.google.com/noto/specimen/Noto+Sans/about',
+								: 'Contains Noto Sans font. Read Noto Sans License: https://fonts.google.com/noto/specimen/Noto+Sans/about',
 						CompatibleRuntimes: runtimes,
 						Description: CURRENT_VERSION,
 					})

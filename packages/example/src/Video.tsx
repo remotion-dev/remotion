@@ -1,11 +1,16 @@
+import {alias} from 'lib/alias';
 import React from 'react';
 import {Composition, Folder, getInputProps, Still} from 'remotion';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText from './BetaText';
 import {ColorInterpolation} from './ColorInterpolation';
+import {MyCtx, WrappedInContext} from './Context';
+import CorruptVideo from './CorruptVideo';
+import {ErrorOnFrame10} from './ErrorOnFrame10';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
+import {ManyAudio} from './ManyAudio';
 import {MissingImg} from './MissingImg';
 import {OffthreadRemoteVideo} from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OrbScene} from './Orb';
@@ -13,6 +18,7 @@ import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import {Scripts} from './Scripts';
 import {SkipZeroFrame} from './SkipZeroFrame';
+import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
 import {TenFrameTester} from './TenFrameTester';
@@ -22,6 +28,10 @@ import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 import {TwoChannelVoiceVisualization} from './voice-visualization/two-channel';
+
+if (alias !== 'alias') {
+	throw new Error('should support TS aliases');
+}
 
 // Use it to test that UI does not regress on weird CSS
 // import './weird-css.css';
@@ -72,6 +82,24 @@ export const Index: React.FC = () => {
 					durationInFrames={300}
 				/>
 			</Folder>
+			<Folder name="spring">
+				<Composition
+					id="base-spring"
+					component={BaseSpring}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+				/>
+				<Composition
+					id="spring-with-duration"
+					component={SpringWithDuration}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+				/>
+			</Folder>
 			<Folder name="regression-testing">
 				<Composition
 					id="missing-img"
@@ -98,7 +126,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 				/>
-
 				<Composition
 					id="skip-zero-frame"
 					component={SkipZeroFrame}
@@ -107,7 +134,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 				/>
-
 				<Composition
 					id="scripts"
 					component={Scripts}
@@ -116,6 +142,34 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 				/>
+				<Composition
+					id="many-audio"
+					component={ManyAudio}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={30}
+				/>
+				<Composition
+					id="error-on-frame-10"
+					component={ErrorOnFrame10}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={1000000}
+				/>
+				<MyCtx.Provider
+					value={{
+						hi: () => 'hithere',
+					}}
+				>
+					<Still
+						id="wrapped-in-context"
+						component={WrappedInContext}
+						width={1280}
+						height={720}
+					/>
+				</MyCtx.Provider>
 			</Folder>
 			<Folder name="creatives">
 				<Composition
@@ -235,6 +289,14 @@ export const Index: React.FC = () => {
 					durationInFrames={600}
 				/>
 				<Composition
+					id="corrupt-video"
+					component={CorruptVideo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={2000}
+				/>
+				<Composition
 					id="2hrvideo"
 					component={InfinityVideo}
 					width={1920}
@@ -339,6 +401,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="audio-testing"
 					lazyComponent={() => import('./AudioTesting')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={300}
+				/>
+				<Composition
+					id="audio-testing-base64"
+					lazyComponent={() => import('./AudioTesting/Base64')}
 					width={1080}
 					height={1080}
 					fps={30}

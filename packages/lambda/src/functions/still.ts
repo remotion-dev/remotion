@@ -2,17 +2,19 @@ import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals, renderStill} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import {Internals, StillImageFormat} from 'remotion';
+import type { StillImageFormat} from 'remotion';
+import {Internals} from 'remotion';
 import {estimatePrice} from '../api/estimate-price';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
-import {
-	CURRENT_VERSION,
+import type {
 	LambdaPayload,
 	LambdaPayloads,
+	RenderMetadata} from '../shared/constants';
+import {
+	CURRENT_VERSION,
 	LambdaRoutines,
 	MAX_EPHEMERAL_STORAGE_IN_MB,
-	RenderMetadata,
 	renderMetadataKey,
 } from '../shared/constants';
 import {getServeUrlHash} from '../shared/make-s3-url';
@@ -73,6 +75,7 @@ const innerStillHandler = async (
 		inputProps: lambdaParams.inputProps,
 		envVariables: lambdaParams.envVariables,
 		ffmpegExecutable: null,
+		ffprobeExecutable: null,
 		chromiumOptions: lambdaParams.chromiumOptions,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 		port: null,

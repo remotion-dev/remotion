@@ -1,4 +1,4 @@
-import {_Object} from '@aws-sdk/client-s3';
+import type {_Object} from '@aws-sdk/client-s3';
 import {lambdaInitializedPrefix} from '../../shared/constants';
 import {parseLambdaInitializedKey} from '../../shared/parse-lambda-initialized-key';
 

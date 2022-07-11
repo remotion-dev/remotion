@@ -1,6 +1,7 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useMemo, useState} from 'react';
-import {Internals, TSequence} from 'remotion';
+import type { TSequence} from 'remotion';
+import {Internals} from 'remotion';
 import {
 	getTimelineSequenceLayout,
 	SEQUENCE_BORDER_WIDTH,

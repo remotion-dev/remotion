@@ -1,10 +1,11 @@
-import {
+import type {
 	ChromiumOptions,
-	getCompositions,
-	openBrowser,
+	openBrowser} from '@remotion/renderer';
+import {
+	getCompositions
 } from '@remotion/renderer';
-import {FfmpegExecutable, TCompMetadata} from 'remotion';
-import {Await} from '../../shared/await';
+import type {FfmpegExecutable, TCompMetadata} from 'remotion';
+import type {Await} from '../../shared/await';
 
 type ValidateCompositionOptions = {
 	serveUrl: string;
@@ -13,6 +14,7 @@ type ValidateCompositionOptions = {
 	inputProps: unknown;
 	envVariables: Record<string, string> | undefined;
 	ffmpegExecutable: FfmpegExecutable;
+	ffprobeExecutable: FfmpegExecutable;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	port: number | null;
@@ -26,6 +28,7 @@ export const validateComposition = async ({
 	envVariables,
 	timeoutInMilliseconds,
 	ffmpegExecutable,
+	ffprobeExecutable,
 	chromiumOptions,
 	port,
 }: ValidateCompositionOptions): Promise<TCompMetadata> => {
@@ -34,6 +37,7 @@ export const validateComposition = async ({
 		inputProps: inputProps as object,
 		envVariables,
 		ffmpegExecutable,
+		ffprobeExecutable,
 		timeoutInMilliseconds,
 		chromiumOptions,
 		port,

@@ -1,6 +1,7 @@
 import execa from 'execa';
 import path from 'path';
-import {FfmpegExecutable, Internals} from 'remotion';
+import type {FfmpegExecutable} from 'remotion';
+import {Internals} from 'remotion';
 import {chunk} from './chunk';
 import {convertToPcm} from './convert-to-pcm';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
@@ -39,8 +40,8 @@ const mergeAudioTrackUnlimited = async ({
 		return;
 	}
 
-	// FFMPEG has a limit of 64 tracks that can be merged at once
-	if (files.length > 64) {
+	// In FFMPEG, the total number of left and right tracks that can be merged at one time is limited to 64
+	if (files.length >= 32) {
 		const chunked = chunk(files, 10);
 		const tempPath = tmpDir('remotion-large-audio-mixing');
 

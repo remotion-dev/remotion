@@ -1,6 +1,10 @@
-import React from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
+import {useCompactUI} from '../helpers/use-compact-ui';
+import {SidebarContext} from '../state/sidebar';
 import {Canvas} from './Canvas';
+import {CollapsedCompositionSelector} from './CollapsedCompositionSelector';
 import {CompositionSelector} from './CompositionSelector';
+import {InitialCompositionLoader} from './InitialCompositionLoader';
 import {MenuToolbar} from './MenuToolbar';
 import {PreviewToolbar} from './PreviewToolbar';
 import {SplitterContainer} from './Splitter/SplitterContainer';
@@ -9,6 +13,7 @@ import {SplitterHandle} from './Splitter/SplitterHandle';
 
 const container: React.CSSProperties = {
 	height: '100%',
+	width: '100%',
 	display: 'flex',
 	flexDirection: 'column',
 	flex: 1,
@@ -31,10 +36,38 @@ const leftContainer: React.CSSProperties = {
 };
 
 export const TopPanel: React.FC = () => {
+	const compactUi = useCompactUI();
+	const {setSidebarCollapsedState, sidebarCollapsedState} =
+		useContext(SidebarContext);
+
+	const actualState = useMemo((): 'expanded' | 'collapsed' => {
+		if (sidebarCollapsedState === 'collapsed') {
+			return 'collapsed';
+		}
+
+		if (sidebarCollapsedState === 'expanded') {
+			return 'expanded';
+		}
+
+		return compactUi ? 'collapsed' : 'expanded';
+	}, [compactUi, sidebarCollapsedState]);
+
+	const onCollapse = useCallback(() => {
+		setSidebarCollapsedState('collapsed');
+	}, [setSidebarCollapsedState]);
+
+	const onExpand = useCallback(() => {
+		setSidebarCollapsedState('expanded');
+	}, [setSidebarCollapsedState]);
+
 	return (
 		<div style={container}>
+			<InitialCompositionLoader />
 			<MenuToolbar />
 			<div style={row}>
+				{actualState === 'collapsed' ? (
+					<CollapsedCompositionSelector onExpand={onExpand} />
+				) : null}
 				<SplitterContainer
 					minFlex={0.15}
 					maxFlex={0.4}
@@ -42,12 +75,16 @@ export const TopPanel: React.FC = () => {
 					id="sidebar-to-preview"
 					orientation="vertical"
 				>
-					<SplitterElement type="flexer">
-						<div style={leftContainer} className="css-reset">
-							<CompositionSelector />
-						</div>
-					</SplitterElement>
-					<SplitterHandle />
+					{actualState === 'expanded' ? (
+						<SplitterElement type="flexer">
+							<div style={leftContainer} className="css-reset">
+								<CompositionSelector />
+							</div>
+						</SplitterElement>
+					) : null}
+					{actualState === 'expanded' ? (
+						<SplitterHandle allowToCollapse onCollapse={onCollapse} />
+					) : null}
 					<SplitterElement type="anti-flexer">
 						<div style={canvasContainer}>
 							<Canvas />

@@ -6,7 +6,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
-import {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
@@ -31,6 +31,8 @@ const container: React.CSSProperties = {
 	height: 0,
 	overflow: 'auto',
 };
+
+const noop = () => undefined;
 
 export const Timeline: React.FC = () => {
 	const {sequences} = useContext(Internals.CompositionManager);
@@ -105,7 +107,7 @@ export const Timeline: React.FC = () => {
 							timeline={shown}
 						/>
 					</SplitterElement>
-					<SplitterHandle />
+					<SplitterHandle onCollapse={noop} allowToCollapse={false} />
 					<SplitterElement type="anti-flexer">
 						<TimelineTracks
 							viewState={state}

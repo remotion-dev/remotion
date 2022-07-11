@@ -1,5 +1,6 @@
+import type {
+	AudioData} from '@remotion/media-utils';
 import {
-	AudioData,
 	getAudioData,
 	getWaveformPortion,
 } from '@remotion/media-utils';

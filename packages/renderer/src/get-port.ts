@@ -1,45 +1,39 @@
 import net from 'net';
+import {pLimit} from './p-limit';
 
 const getAvailablePort = (portToTry: number) =>
-	new Promise<number>((resolve, reject) => {
-		const server = net.createServer();
-		server.unref();
-		server.on('error', reject);
-		server.listen({port: portToTry}, () => {
-			const {port} = server.address() as net.AddressInfo;
-			server.close(() => {
-				resolve(port);
-			});
+	new Promise<'available' | 'unavailable'>((resolve) => {
+		let status: 'available' | 'unavailable' = 'unavailable';
+
+		const host = '127.0.0.1';
+		const socket = new net.Socket();
+
+		socket.on('connect', () => {
+			status = 'unavailable';
+			socket.destroy();
 		});
+
+		socket.setTimeout(3000);
+		socket.on('timeout', () => {
+			status = 'unavailable';
+			socket.destroy();
+			resolve(status);
+		});
+
+		socket.on('error', () => {
+			status = 'available';
+		});
+
+		socket.on('close', () => resolve(status));
+
+		socket.connect(portToTry, host);
 	});
-
-const portCheckSequence = function* (ports: Generator<number, void, unknown>) {
-	if (ports) {
-		yield* ports;
-	}
-
-	yield 0; // Fall back to 0 if anything else failed
-};
-
-const isPortAvailable = async (port: number) => {
-	try {
-		await getAvailablePort(port);
-
-		return true;
-	} catch (error) {
-		if (!['EADDRINUSE', 'EACCES'].includes((error as {code: string}).code)) {
-			throw error;
-		}
-
-		return false;
-	}
-};
 
 const getPort = async (from: number, to: number) => {
 	const ports = makeRange(from, to);
 
-	for (const port of portCheckSequence(ports)) {
-		if (await isPortAvailable(port)) {
+	for (const port of ports) {
+		if ((await getAvailablePort(port)) === 'available') {
 			return port;
 		}
 	}
@@ -47,14 +41,14 @@ const getPort = async (from: number, to: number) => {
 	throw new Error('No available ports found');
 };
 
-export const getDesiredPort = async (
+const getDesiredPortUnlimited = async (
 	desiredPort: number | undefined,
 	from: number,
 	to: number
 ) => {
 	if (
 		typeof desiredPort !== 'undefined' &&
-		(await isPortAvailable(desiredPort))
+		(await getAvailablePort(desiredPort)) === 'available'
 	) {
 		return desiredPort;
 	}
@@ -71,7 +65,16 @@ export const getDesiredPort = async (
 	return actualPort;
 };
 
-const makeRange = (from: number, to: number) => {
+const limit = pLimit(1);
+export const getDesiredPort = (
+	desiredPort: number | undefined,
+	from: number,
+	to: number
+) => {
+	return limit(() => getDesiredPortUnlimited(desiredPort, from, to));
+};
+
+const makeRange = (from: number, to: number): number[] => {
 	if (!Number.isInteger(from) || !Number.isInteger(to)) {
 		throw new TypeError('`from` and `to` must be integer numbers');
 	}
@@ -88,11 +91,7 @@ const makeRange = (from: number, to: number) => {
 		throw new RangeError('`to` must be greater than or equal to `from`');
 	}
 
-	const generator = function* (f: number, t: number) {
-		for (let port = f; port <= t; port++) {
-			yield port;
-		}
-	};
-
-	return generator(from, to);
+	return new Array(to - from + 1).fill(true).map((_, i) => {
+		return i + from;
+	});
 };

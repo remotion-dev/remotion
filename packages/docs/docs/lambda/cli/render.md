@@ -96,13 +96,19 @@ Minimum value: <MinimumFramesPerLambda />
 The `framesPerLambda` parameter cannot result in more than 200 functions being spawned. See: [Concurrency](/docs/lambda/concurrency)
 :::
 
+### `--concurrency-per-lambda`
+
+_Available from v3.0.30_
+
+By default, each Lambda function renders with concurrency 1 (one open browser tab). You may use the option to customize this value.
+
 ### `--quality`
 
 [Value between 0 and 100 for JPEG rendering quality](/docs/config#setquality). Doesn't work when PNG frames are rendered.
 
 ### `--codec`
 
-[`h264` or `h265` or `png` or `vp8` or `vp9` or `mp3` or `aac` or `wav` or `prores` or `h264-mkv`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264-mkv`.
+[`h264` or `h265` or `png` or `vp8` or `mp3` or `aac` or `wav` or `prores`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264`.
 
 ### `--prores-profile`
 

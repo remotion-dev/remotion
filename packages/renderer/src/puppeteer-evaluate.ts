@@ -1,12 +1,18 @@
 /* eslint-disable no-new */
-import {CDPSession, JSHandle, Page, Protocol} from 'puppeteer-core';
+import type {Page} from './browser/BrowserPage';
+import type {
+	CallArgument,
+	CallFunctionOnResponse,
+	DevtoolsRemoteObject,
+} from './browser/devtools-types';
+import {JSHandle} from './browser/JSHandle';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
 import {parseStack} from './parse-browser-error-stack';
 
 const EVALUATION_SCRIPT_URL = '__puppeteer_evaluation_script__';
 const SOURCE_URL_REGEX = /^[\040\t]*\/\/[@#] sourceURL=\s*(\S*?)\s*$/m;
 
-function valueFromRemoteObject(remoteObject: Protocol.Runtime.RemoteObject) {
+function valueFromRemoteObject(remoteObject: DevtoolsRemoteObject) {
 	if (remoteObject.unserializableValue) {
 		if (remoteObject.type === 'bigint' && typeof BigInt !== 'undefined')
 			return BigInt(remoteObject.unserializableValue.replace('n', ''));
@@ -46,7 +52,7 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 	args: unknown[];
 }): Promise<ReturnType> {
 	const contextId = (await page.mainFrame().executionContext())._contextId;
-	const client = (page as unknown as {_client: CDPSession})._client;
+	const client = page._client();
 
 	const suffix = `//# sourceURL=${EVALUATION_SCRIPT_URL}`;
 
@@ -63,7 +69,7 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 				returnByValue: true,
 				awaitPromise: true,
 				userGesture: true,
-			})) as Protocol.Runtime.CallFunctionOnResponse;
+			})) as CallFunctionOnResponse;
 
 		if (exceptDetails?.exception) {
 			const err = new SymbolicateableError({
@@ -113,9 +119,7 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 		callFunctionOnPromise = client.send('Runtime.callFunctionOn', {
 			functionDeclaration: functionText + '\n' + suffix + '\n',
 			executionContextId: contextId,
-			arguments: args.map(
-				(a) => convertArgument(a) as Protocol.Runtime.CallArgument
-			),
+			arguments: args.map((a) => convertArgument(a) as CallArgument),
 			returnByValue: true,
 			awaitPromise: true,
 			userGesture: true,

@@ -3,7 +3,6 @@ import {Log} from '@remotion/cli/dist/log';
 import {getSites} from '../../../api/get-sites';
 import {getAwsRegion} from '../../get-aws-region';
 import {dateString} from '../../helpers/date-string';
-import {formatBytes} from '../../helpers/format-bytes';
 
 export const SITES_LS_SUBCOMMAND = 'ls';
 
@@ -54,7 +53,7 @@ export const sitesLsSubcommand = async () => {
 			logRow([
 				site.id,
 				site.bucketName,
-				formatBytes(site.sizeInBytes),
+				CliInternals.formatBytes(site.sizeInBytes),
 				site.lastModified ? dateString(new Date(site.lastModified)) : 'n/a',
 			])
 		);

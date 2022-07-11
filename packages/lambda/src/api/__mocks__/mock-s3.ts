@@ -1,6 +1,6 @@
-import {ReadStream} from 'fs';
-import {Privacy} from '../../defaults';
-import {AwsRegion} from '../../pricing/aws-regions';
+import type {ReadStream} from 'fs';
+import type {Privacy} from '../../defaults';
+import type {AwsRegion} from '../../pricing/aws-regions';
 
 type S3MockFile = {
 	bucketName: string;

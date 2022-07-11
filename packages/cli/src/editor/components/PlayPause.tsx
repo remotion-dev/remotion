@@ -3,6 +3,7 @@ import React, {useCallback, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {JumpToStart} from '../icons/jump-to-start';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
 import {StepBack} from '../icons/step-back';
@@ -11,7 +12,6 @@ import {ControlButton} from './ControlButton';
 
 const forwardBackStyle = {
 	height: 16,
-	width: 16,
 	color: 'white',
 };
 
@@ -26,8 +26,16 @@ export const PlayPause: React.FC<{
 		playbackRate,
 	});
 
-	const {playing, play, pause, frameBack, frameForward, isLastFrame} =
-		PlayerInternals.usePlayer();
+	const {
+		playing,
+		play,
+		pause,
+		pauseAndReturnToPlayStart,
+		frameBack,
+		seek,
+		frameForward,
+		isLastFrame,
+	} = PlayerInternals.usePlayer();
 
 	const isStill = useIsStill();
 
@@ -49,6 +57,18 @@ export const PlayPause: React.FC<{
 		},
 		[pause, play, playing]
 	);
+
+	const onEnter = useCallback(
+		(e: KeyboardEvent) => {
+			if (playing) {
+				pauseAndReturnToPlayStart();
+			}
+
+			e.preventDefault();
+		},
+		[pauseAndReturnToPlayStart, playing]
+	);
+
 	const videoFps = video?.fps ?? null;
 
 	const onArrowLeft = useCallback(
@@ -57,22 +77,36 @@ export const PlayPause: React.FC<{
 				return null;
 			}
 
-			frameBack(e.shiftKey ? videoFps : 1);
 			e.preventDefault();
+
+			if (e.altKey) {
+				seek(0);
+			} else if (e.shiftKey) {
+				frameBack(videoFps);
+			} else {
+				frameBack(1);
+			}
 		},
-		[frameBack, videoFps]
+		[frameBack, seek, videoFps]
 	);
 
 	const onArrowRight = useCallback(
 		(e: KeyboardEvent) => {
-			if (!videoFps) {
+			if (!video) {
 				return null;
 			}
 
-			frameForward(e.shiftKey ? videoFps : 1);
+			if (e.altKey) {
+				seek(video.durationInFrames - 1);
+			} else if (e.shiftKey) {
+				frameForward(video.fps);
+			} else {
+				frameForward(1);
+			}
+
 			e.preventDefault();
 		},
-		[frameForward, videoFps]
+		[frameForward, seek, video]
 	);
 
 	const oneFrameBack = useCallback(() => {
@@ -82,6 +116,19 @@ export const PlayPause: React.FC<{
 	const oneFrameForward = useCallback(() => {
 		frameForward(1);
 	}, [frameForward]);
+
+	const jumpToStart = useCallback(() => {
+		seek(0);
+	}, [seek]);
+
+	const jumpToEnd = useCallback(() => {
+		if (!video) {
+			return;
+		}
+
+		seek(video.durationInFrames - 1);
+	}, [seek, video]);
+
 	const keybindings = useKeybinding();
 
 	useEffect(() => {
@@ -96,13 +143,27 @@ export const PlayPause: React.FC<{
 			onArrowRight
 		);
 		const space = keybindings.registerKeybinding('keydown', ' ', onSpace);
+		const enter = keybindings.registerKeybinding('keydown', 'enter', onEnter);
+		const a = keybindings.registerKeybinding('keydown', 'a', jumpToStart);
+		const e = keybindings.registerKeybinding('keydown', 'e', jumpToEnd);
 
 		return () => {
 			arrowLeft.unregister();
 			arrowRight.unregister();
 			space.unregister();
+			enter.unregister();
+			a.unregister();
+			e.unregister();
 		};
-	}, [keybindings, onArrowLeft, onArrowRight, onSpace]);
+	}, [
+		jumpToEnd,
+		jumpToStart,
+		keybindings,
+		onArrowLeft,
+		onArrowRight,
+		onEnter,
+		onSpace,
+	]);
 
 	if (isStill) {
 		return null;
@@ -110,6 +171,14 @@ export const PlayPause: React.FC<{
 
 	return (
 		<>
+			<ControlButton
+				aria-label="Jump to beginning"
+				title="Jump to beginning"
+				disabled={frame === 0}
+				onClick={jumpToStart}
+			>
+				<JumpToStart style={forwardBackStyle} />
+			</ControlButton>
 			<ControlButton
 				aria-label="Step back one frame"
 				title="Step back one frame"
