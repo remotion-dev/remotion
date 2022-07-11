@@ -263,6 +263,7 @@ module.exports = {
         "version-mismatch",
         "enametoolong",
         "slow-method-to-extract-frame",
+        "wrong-composition-mount",
       ],
     },
     {
