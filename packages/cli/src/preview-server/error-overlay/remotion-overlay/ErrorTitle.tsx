@@ -14,15 +14,14 @@ const left: React.CSSProperties = {
 	flex: 1,
 	paddingRight: 14,
 	lineHeight: 1.5,
-	whiteSpace: 'pre',
 	fontSize: '1.5em',
 	fontWeight: 'bold',
-	overflowX: 'auto',
+	maxWidth: '100%',
 };
 
 const errName: React.CSSProperties = {
 	fontSize: '0.8em',
-	background: 'linear-gradient(90deg,#4290f5,#42e9f5)',
+	background: '#4290f5',
 	WebkitBackgroundClip: 'text',
 	WebkitTextFillColor: 'transparent',
 	display: 'inline-block',
