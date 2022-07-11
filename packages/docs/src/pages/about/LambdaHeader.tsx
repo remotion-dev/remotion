@@ -11,7 +11,7 @@ const DiscordLogo: React.FC = () => {
       viewBox="0 0 640 512"
       style={{
         width: 54,
-        marginRight: 1,
+        marginRight: 0,
       }}
     >
       <path
