@@ -9,11 +9,12 @@ export const useKeybinding = () => {
 	const {isHighestContext} = useZIndex();
 
 	const registerKeybinding = useCallback(
-		(
-			event: KeyEventType,
-			key: string,
-			callback: (e: KeyboardEvent) => void
-		) => {
+		(options: {
+			event: KeyEventType;
+			key: string;
+			commandCtrlKey: boolean;
+			callback: (e: KeyboardEvent) => void;
+		}) => {
 			if (!isHighestContext) {
 				return {
 					unregister: () => undefined,
@@ -21,15 +22,22 @@ export const useKeybinding = () => {
 			}
 
 			const listener = (e: KeyboardEvent) => {
-				if (e.key.toLowerCase() === key.toLowerCase()) {
-					callback(e);
+				const commandKey = window.navigator.platform.startsWith('Mac')
+					? e.metaKey
+					: e.ctrlKey;
+				if (
+					e.key.toLowerCase() === options.key.toLowerCase() &&
+					options.commandCtrlKey === commandKey
+				) {
+					options.callback(e);
+					e.preventDefault();
 				}
 			};
 
 			const toRegister: RegisteredKeybinding = {
 				registeredFromPane: paneId,
-				event,
-				key,
+				event: options.event,
+				key: options.key,
 				callback: listener,
 				id: String(Math.random()),
 			};

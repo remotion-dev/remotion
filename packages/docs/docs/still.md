@@ -1,6 +1,6 @@
 ---
 id: still
-title: <Still />
+title: <Still>
 ---
 
 A `<Still />` is a [`<Composition />`](/docs/composition) that is only 1 frame long. It is a convienience component for defining a composition that is meant to be rendered an image rather than a video.
