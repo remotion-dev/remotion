@@ -269,7 +269,7 @@ export type LambdaPayloads = {
 		frame: number;
 		privacy: Privacy;
 		logLevel: LogLevel;
-		outName: string | null;
+		outName: OutNameInput | null;
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
