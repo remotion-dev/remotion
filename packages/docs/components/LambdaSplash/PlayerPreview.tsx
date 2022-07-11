@@ -17,7 +17,7 @@ export const PlayerPreview: React.FC = () => {
         <img
           style={{
             boxShadow: "var(--box-shadow)",
-            borderRadius: 100,
+            borderRadius: 12,
           }}
           src="/img/lambda-og.png"
         />

@@ -10,8 +10,8 @@ const DiscordLogo: React.FC = () => {
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 640 512"
       style={{
-        width: 24,
-        marginRight: 30
+        width: 54,
+        marginRight: 1,
       }}
     >
       <path
@@ -59,9 +59,8 @@ export const LambdaHeader: React.FC = () => {
         <div>
           <div className={styles.spacer} />
           <div className={styles.writeright} />
-          <div className={styles.writeright} />
-          <div className={styles.writeright} />
           <PlayerPreview />
+          <br />
           <div className={styles.spacer} />
           <PlayerPreview />
         </div>
