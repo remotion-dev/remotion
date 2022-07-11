@@ -68,11 +68,13 @@ export const Composition = <T,>({
 	if (canUseComposition) {
 		if (window.remotion_isPlayer) {
 			throw new Error(
-				'<Composition> was mounted inside the `component` that was passed to the <Player>.'
+				'<Composition> was mounted inside the `component` that was passed to the <Player>. See https://remotion.dev/docs/wrong-composition-mount for help.'
 			);
 		}
 
-		throw new Error('<Composition> mounted inside another composition.');
+		throw new Error(
+			'<Composition> mounted inside another composition. See https://remotion.dev/docs/wrong-composition-mount for help.'
+		);
 	}
 
 	const {folderName, parentName} = useContext(FolderContext);
