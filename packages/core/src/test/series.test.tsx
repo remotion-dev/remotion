@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-no-constructed-context-values */
 import {render} from '@testing-library/react';
 import React from 'react';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
 import {Series} from '../index';
 import {TimelineContext} from '../timeline-position-state';
 import {useCurrentFrame} from '../use-current-frame';
@@ -23,23 +24,25 @@ const Third = () => {
 
 const renderForFrame = (frame: number, markup: React.ReactNode) => {
 	return render(
-		<TimelineContext.Provider
-			value={{
-				rootId: '',
-				frame,
-				playing: false,
-				imperativePlaying: {
-					current: false,
-				},
-				playbackRate: 1,
-				setPlaybackRate: () => {
-					throw new Error('playback rate');
-				},
-				audioAndVideoTags: {current: []},
-			}}
-		>
-			{markup}
-		</TimelineContext.Provider>
+		<CanUseRemotionHooksProvider>
+			<TimelineContext.Provider
+				value={{
+					rootId: '',
+					frame,
+					playing: false,
+					imperativePlaying: {
+						current: false,
+					},
+					playbackRate: 1,
+					setPlaybackRate: () => {
+						throw new Error('playback rate');
+					},
+					audioAndVideoTags: {current: []},
+				}}
+			>
+				{markup}
+			</TimelineContext.Provider>
+		</CanUseRemotionHooksProvider>
 	);
 };
 

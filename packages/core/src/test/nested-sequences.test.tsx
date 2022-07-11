@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-no-constructed-context-values */
 import {render} from '@testing-library/react';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
 import {Sequence} from '../Sequence';
 import {TimelineContext} from '../timeline-position-state';
 import {useCurrentFrame} from '../use-current-frame';
@@ -27,27 +28,29 @@ test('It should calculate the correct offset in nested sequences', () => {
 	};
 
 	const {queryByText} = render(
-		<TimelineContext.Provider
-			value={{
-				rootId: 'hi',
-				frame: 40,
-				playing: false,
-				imperativePlaying: {
-					current: false,
-				},
-				playbackRate: 1,
-				setPlaybackRate: () => {
-					throw new Error('playback rate');
-				},
-				audioAndVideoTags: {
-					current: [],
-				},
-			}}
-		>
-			<Sequence from={20} durationInFrames={100}>
-				<Child />
-			</Sequence>
-		</TimelineContext.Provider>
+		<CanUseRemotionHooksProvider>
+			<TimelineContext.Provider
+				value={{
+					rootId: 'hi',
+					frame: 40,
+					playing: false,
+					imperativePlaying: {
+						current: false,
+					},
+					playbackRate: 1,
+					setPlaybackRate: () => {
+						throw new Error('playback rate');
+					},
+					audioAndVideoTags: {
+						current: [],
+					},
+				}}
+			>
+				<Sequence from={20} durationInFrames={100}>
+					<Child />
+				</Sequence>
+			</TimelineContext.Provider>
+		</CanUseRemotionHooksProvider>
 	);
 	expect(queryByText(/^frame9$/i)).not.toBe(null);
 });
@@ -59,31 +62,33 @@ test('Negative offset test', () => {
 	};
 
 	const {queryByText} = render(
-		<TimelineContext.Provider
-			value={{
-				frame: 40,
-				playing: false,
-				rootId: 'hi',
-				imperativePlaying: {
-					current: false,
-				},
-				playbackRate: 1,
-				setPlaybackRate: () => {
-					throw new Error('playback rate');
-				},
-				audioAndVideoTags: {
-					current: [],
-				},
-			}}
-		>
-			<Sequence from={-200} durationInFrames={300}>
-				<Sequence from={10} durationInFrames={300}>
+		<CanUseRemotionHooksProvider>
+			<TimelineContext.Provider
+				value={{
+					frame: 40,
+					playing: false,
+					rootId: 'hi',
+					imperativePlaying: {
+						current: false,
+					},
+					playbackRate: 1,
+					setPlaybackRate: () => {
+						throw new Error('playback rate');
+					},
+					audioAndVideoTags: {
+						current: [],
+					},
+				}}
+			>
+				<Sequence from={-200} durationInFrames={300}>
 					<Sequence from={10} durationInFrames={300}>
-						<NestedChild />
+						<Sequence from={10} durationInFrames={300}>
+							<NestedChild />
+						</Sequence>
 					</Sequence>
 				</Sequence>
-			</Sequence>
-		</TimelineContext.Provider>
+			</TimelineContext.Provider>
+		</CanUseRemotionHooksProvider>
 	);
 	const result = queryByText(/^frame220/i);
 	expect(result).not.toBe(null);
@@ -106,25 +111,27 @@ test('Nested negative offset test', () => {
 
 	const getForFrame = (frame: number) => {
 		const {queryByText} = render(
-			<TimelineContext.Provider
-				value={{
-					frame,
-					playing: false,
-					rootId: 'hi',
-					imperativePlaying: {
-						current: false,
-					},
-					playbackRate: 1,
-					setPlaybackRate: () => {
-						throw new Error('playback rate');
-					},
-					audioAndVideoTags: {
-						current: [],
-					},
-				}}
-			>
-				{content}
-			</TimelineContext.Provider>
+			<CanUseRemotionHooksProvider>
+				<TimelineContext.Provider
+					value={{
+						frame,
+						playing: false,
+						rootId: 'hi',
+						imperativePlaying: {
+							current: false,
+						},
+						playbackRate: 1,
+						setPlaybackRate: () => {
+							throw new Error('playback rate');
+						},
+						audioAndVideoTags: {
+							current: [],
+						},
+					}}
+				>
+					{content}
+				</TimelineContext.Provider>
+			</CanUseRemotionHooksProvider>
 		);
 		return queryByText;
 	};
@@ -156,25 +163,27 @@ test('Negative offset edge case', () => {
 
 	const getForFrame = (frame: number) => {
 		const {queryByText} = render(
-			<TimelineContext.Provider
-				value={{
-					frame,
-					playing: false,
-					rootId: 'hi',
-					imperativePlaying: {
-						current: false,
-					},
-					playbackRate: 1,
-					setPlaybackRate: () => {
-						throw new Error('playback rate');
-					},
-					audioAndVideoTags: {
-						current: [],
-					},
-				}}
-			>
-				{content}
-			</TimelineContext.Provider>
+			<CanUseRemotionHooksProvider>
+				<TimelineContext.Provider
+					value={{
+						frame,
+						playing: false,
+						rootId: 'hi',
+						imperativePlaying: {
+							current: false,
+						},
+						playbackRate: 1,
+						setPlaybackRate: () => {
+							throw new Error('playback rate');
+						},
+						audioAndVideoTags: {
+							current: [],
+						},
+					}}
+				>
+					{content}
+				</TimelineContext.Provider>
+			</CanUseRemotionHooksProvider>
 		);
 		return queryByText;
 	};
