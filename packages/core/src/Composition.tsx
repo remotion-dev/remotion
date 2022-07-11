@@ -7,6 +7,7 @@ import {getInputProps} from './config/input-props';
 import {continueRender, delayRender} from './delay-render';
 import {FolderContext} from './Folder';
 import {getRemotionEnvironment} from './get-environment';
+import {Internals} from './internals';
 import {Loading} from './loading-indicator';
 import {useNonce} from './nonce';
 import {portalNode} from './portal-node';
@@ -62,6 +63,17 @@ export const Composition = <T,>({
 
 	const lazy = useLazyComponent(compProps);
 	const nonce = useNonce();
+
+	const canUseComposition = useContext(Internals.CanUseRemotionHooks);
+	if (canUseComposition) {
+		if (window.remotion_isPlayer) {
+			throw new Error(
+				'<Composition> was mounted inside the `component` that was passed to the <Player>.'
+			);
+		}
+
+		throw new Error('<Composition> mounted inside another composition. ');
+	}
 
 	const {folderName, parentName} = useContext(FolderContext);
 
