@@ -66,7 +66,7 @@ export const ErrorDisplay: React.FC<{
 				message={display.error.message}
 			/>
 			<div style={spacer} />
-			<AskOnDiscord />
+			<AskOnDiscord canHaveKeyboardShortcuts={keyboardShortcuts} />
 			<div style={stack}>
 				{display.stackFrames.map((s, i) => {
 					return (
