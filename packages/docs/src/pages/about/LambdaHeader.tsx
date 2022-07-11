@@ -1,12 +1,10 @@
 import React from "react";
 import styles from "./lambdaheader.module.css";
-import { LambdaLogo } from "./LambdaLogo";
 
 export const LambdaHeader: React.FC = () => {
   return (
     <div className={styles.writeincss}>
       <div style={{ flex: 1 }}>
-        <LambdaLogo />
         <h1 className={styles.writeincsstitle}>
           Remotion. The programmatic video dream.
         </h1>

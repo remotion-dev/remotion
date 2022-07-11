@@ -4,12 +4,12 @@ import Jonny from "./Jonny Burger.jpg";
 import Mehmet from "./Mehmet Ademi.jpg";
 import Patric from "./Patric Salvisberg.jpg";
 
-export function Header() {
+export const Header = () => {
   // Import result is the URL of your image
   return <img src={logo} style={{ width: 300, height: 300 }} />;
-}
+};
 
-export function Header1() {
+export const Header1 = () => {
   // Import result is the URL of your image
   return (
     <img
@@ -22,9 +22,9 @@ export function Header1() {
       }}
     />
   );
-}
+};
 
-export function Header2() {
+export const Header2 = () => {
   // Import result is the URL of your image
   return (
     <img
@@ -37,9 +37,9 @@ export function Header2() {
       }}
     />
   );
-}
+};
 
-export function Header3() {
+export const Header3 = () => {
   // Import result is the URL of your image
   return (
     <img
@@ -52,4 +52,4 @@ export function Header3() {
       }}
     />
   );
-}
+};
