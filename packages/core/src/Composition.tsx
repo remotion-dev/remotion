@@ -72,7 +72,7 @@ export const Composition = <T,>({
 			);
 		}
 
-		throw new Error('<Composition> mounted inside another composition. ');
+		throw new Error('<Composition> mounted inside another composition.');
 	}
 
 	const {folderName, parentName} = useContext(FolderContext);
