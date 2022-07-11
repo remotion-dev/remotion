@@ -3,6 +3,7 @@ import {getLocationFromBuildError} from '../react-overlay/effects/map-error-to-r
 import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {AskOnDiscord} from './AskOnDiscord';
 import {ErrorTitle} from './ErrorTitle';
+import {getHelpLink} from './get-help-link';
 import {OpenInEditor} from './OpenInEditor';
 import {SearchGithubIssues} from './SearchGitHubIssues';
 import {StackElement} from './StackFrame';
@@ -45,6 +46,8 @@ export const ErrorDisplay: React.FC<{
 
 	const lineNumberWidth = String(highestLineNumber).length;
 
+	const helpLink = getHelpLink(message);
+
 	return (
 		<div>
 			<ErrorTitle
@@ -52,6 +55,7 @@ export const ErrorDisplay: React.FC<{
 				name={display.error.name}
 				message={message}
 			/>
+
 			{display.stackFrames.length > 0 && window.remotion_editorName ? (
 				<>
 					<OpenInEditor
