@@ -7,5 +7,5 @@ const align: React.CSSProperties = {
 };
 
 export const LambdaLogo: React.FC = () => {
-  return <div style={align}>@remotion/team</div>;
+  return <div style={align}>About Remotion</div>;
 };
