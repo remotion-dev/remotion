@@ -3,10 +3,25 @@ import React from "react";
 import { BlueButton } from "./Button";
 import { Spacer } from "./Spacer";
 import videoapps from "./videoapps.module.css";
-import { YouAreHere } from "./YouAreHere";
 import Jonny from "./Jonny Burger.png";
 import Mehmet from "./Mehmet Ademi.png";
 import Patric from "./Patric Salvisberg.png";
+
+const ButtonMailto = ({ mailto, label }) => {
+  return (
+    <Link
+      to="#"
+      onClick={(e) => {
+        window.location.href = mailto;
+        e.preventDefault();
+      }}
+    >
+      {label}
+    </Link>
+  );
+};
+
+export default ButtonMailto;
 
 const panel: React.CSSProperties = {
   backgroundColor: "var(--ifm-background-color)",
@@ -16,7 +31,7 @@ const panel: React.CSSProperties = {
   flex: 1,
   paddingTop: 30,
   paddingBottom: 10,
-  minHeight: 550,
+  minHeight: 600,
   display: "flex",
   flexDirection: "column",
 };
@@ -122,6 +137,24 @@ const GitHubLogo: React.FC = () => {
   );
 };
 
+const EmailLogo: React.FC = () => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 1299 1299"
+      style={{
+        width: 30,
+        marginRight: 10,
+      }}
+    >
+      <path
+        fill="var(--blue-button-color"
+        d="M1177.22 202.969H121.781C99.3278 202.969 81.1875 221.109 81.1875 243.562V1055.44C81.1875 1077.89 99.3278 1096.03 121.781 1096.03H1177.22C1199.67 1096.03 1217.81 1077.89 1217.81 1055.44V243.562C1217.81 221.109 1199.67 202.969 1177.22 202.969ZM1126.48 343.525V1004.7H172.523V343.525L137.511 316.251L187.366 252.189L241.66 294.432H1057.47L1111.76 252.189L1161.62 316.251L1126.48 343.525V343.525ZM1057.47 294.305L649.5 611.443L241.533 294.305L187.239 252.062L137.384 316.124L172.397 343.398L605.735 680.326C618.197 690.008 633.529 695.263 649.31 695.263C665.091 695.263 680.422 690.008 692.885 680.326L1126.48 343.525L1161.49 316.251L1111.63 252.189L1057.47 294.305Z"
+      />
+    </svg>
+  );
+};
+
 export const VideoApps: React.FC<{
   active: "remotion" | "player" | "lambda";
 }> = ({ active }) => {
@@ -134,7 +167,6 @@ export const VideoApps: React.FC<{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            flex: 1,
           }}
         >
           <img
@@ -150,7 +182,7 @@ export const VideoApps: React.FC<{
         <h2 style={stepTitle}>Jonny</h2>
         <strong style={center}>Chief Hacker</strong>
 
-        <ul style={list}>
+        <ul style={{ ...list, flex: 1 }}>
           <li>
             As a former indie hacker I loved working on projects that combine
             engineering, art and business. At Remotion I bascially do the same
@@ -158,7 +190,12 @@ export const VideoApps: React.FC<{
           </li>
         </ul>
 
-        <div style={row}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+          }}
+        >
           {active === "remotion" ? null : (
             <>
               <div style={flex}>
@@ -184,13 +221,28 @@ export const VideoApps: React.FC<{
           </div>
         </div>
         <div style={{ height: 10 }} />
-        <div style={row}>
+
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+          }}
+        >
           {active === "remotion" ? null : (
             <>
               <div style={flex}>
                 <a style={docsButton} href="https://github.com/JonnyBurger">
                   <BlueButton loading={false} fullWidth size="sm">
                     <GitHubLogo /> GitHub
+                  </BlueButton>
+                </a>
+              </div>
+              <Spacer />
+              <Spacer />
+              <div style={flex}>
+                <a style={docsButton} href="mailto:jonny@remotion.dev">
+                  <BlueButton loading={false} fullWidth size="sm">
+                    <EmailLogo /> E-Mail
                   </BlueButton>
                 </a>
               </div>
@@ -207,7 +259,6 @@ export const VideoApps: React.FC<{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            flex: 1,
           }}
         >
           <img
@@ -223,7 +274,7 @@ export const VideoApps: React.FC<{
         <h2 style={stepTitle}>Mehmet</h2>
         <strong style={center}>Business Manager</strong>
 
-        <ul style={list}>
+        <ul style={{ ...list, flex: 1 }}>
           <li>Preview videos in the browser</li>
         </ul>
         <div style={row}>
@@ -262,6 +313,15 @@ export const VideoApps: React.FC<{
                   </BlueButton>
                 </a>
               </div>
+              <Spacer />
+              <Spacer />
+              <div style={flex}>
+                <a style={docsButton} href="mailto:mehmet@remotion.dev">
+                  <BlueButton loading={false} fullWidth size="sm">
+                    <EmailLogo /> E-Mail
+                  </BlueButton>
+                </a>
+              </div>
             </>
           )}
         </div>
@@ -275,7 +335,6 @@ export const VideoApps: React.FC<{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            flex: 1,
           }}
         >
           <img
@@ -291,7 +350,7 @@ export const VideoApps: React.FC<{
         <h2 style={stepTitle}>Patric</h2>
         <strong style={center}>Intern</strong>
 
-        <ul style={list}>
+        <ul style={{ ...list, flex: 1 }}>
           <li>Render videos in the cloud</li>
         </ul>
         <div style={row}>
@@ -324,9 +383,18 @@ export const VideoApps: React.FC<{
           {active === "remotion" ? null : (
             <>
               <div style={flex}>
-                <a style={docsButton} href="https://github.com/JonnyBurger">
+                <a style={docsButton} href="https://github.com/patsalv">
                   <BlueButton loading={false} fullWidth size="sm">
                     <GitHubLogo /> GitHub
+                  </BlueButton>
+                </a>
+              </div>
+              <Spacer />
+              <Spacer />
+              <div style={flex}>
+                <a style={docsButton} href="mailto:patric@remotion.dev">
+                  <BlueButton loading={false} fullWidth size="sm">
+                    <EmailLogo /> E-Mail
                   </BlueButton>
                 </a>
               </div>
