@@ -66,7 +66,7 @@ export const Composition = <T,>({
 
 	const canUseComposition = useContext(Internals.CanUseRemotionHooks);
 	if (canUseComposition) {
-		if (window.remotion_isPlayer) {
+		if (typeof window !== 'undefined' && window.remotion_isPlayer) {
 			throw new Error(
 				'<Composition> was mounted inside the `component` that was passed to the <Player>. See https://remotion.dev/docs/wrong-composition-mount for help.'
 			);

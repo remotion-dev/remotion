@@ -17,8 +17,14 @@ export const useAbsoluteCurrentFrame = (): number => {
 export const useCurrentFrame = (): number => {
 	const canUseRemotionHooks = useContext(CanUseRemotionHooks);
 	if (!canUseRemotionHooks) {
+		if (typeof window !== 'undefined' && window.remotion_isPlayer) {
+			throw new Error(
+				`useCurrentFrame can only be called inside a component that was passed to <Player>. See: https://www.remotion.dev/docs/player/examples`
+			);
+		}
+
 		throw new Error(
-			`useCurrentFrame() was called outside a component that was registered as a composition.`
+			`useCurrentFrame() can only be called inside a component that was registered as a composition. See https://www.remotion.dev/docs/the-fundamentals#defining-compositions`
 		);
 	}
 
