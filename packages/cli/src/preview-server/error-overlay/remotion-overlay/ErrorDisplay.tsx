@@ -61,7 +61,10 @@ export const ErrorDisplay: React.FC<{
 					<div style={spacer} />
 				</>
 			) : null}
-			<SearchGithubIssues message={display.error.message} />
+			<SearchGithubIssues
+				canHaveKeyboardShortcuts={keyboardShortcuts}
+				message={display.error.message}
+			/>
 			<div style={spacer} />
 			<AskOnDiscord />
 			<div style={stack}>
