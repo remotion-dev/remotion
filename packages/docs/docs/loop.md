@@ -1,7 +1,6 @@
 ---
 id: loop
-title: <Loop />
-sidebar_label: <Loop />
+title: <Loop>
 ---
 
 import { LoopExamples, BlueSquare } from "../components/LoopExamples/LoopExamples";

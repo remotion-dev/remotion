@@ -1,7 +1,6 @@
 ---
 id: sequence
-title: <Sequence />
-sidebar_label: <Sequence />
+title: <Sequence>
 ---
 
 import { SequenceForwardExample } from "../components/SequenceExamples/SequenceForward";

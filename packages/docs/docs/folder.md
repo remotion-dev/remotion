@@ -1,5 +1,5 @@
 ---
-title: <Folder />
+title: <Folder>
 id: folder
 ---
 

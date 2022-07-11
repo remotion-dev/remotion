@@ -1,5 +1,5 @@
 ---
-title: <Img />
+title: <Img>
 id: img
 ---
 
