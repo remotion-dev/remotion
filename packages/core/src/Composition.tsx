@@ -1,6 +1,7 @@
 import type {ComponentType} from 'react';
-import React, { Suspense, useContext, useEffect} from 'react';
+import React, {Suspense, useContext, useEffect} from 'react';
 import {createPortal} from 'react-dom';
+import {CanUseRemotionHooksProvider} from './CanUseRemotionHooks';
 import {CompositionManager} from './CompositionManager';
 import {getInputProps} from './config/input-props';
 import {continueRender, delayRender} from './delay-render';
@@ -119,9 +120,12 @@ export const Composition = <T,>({
 		const inputProps = getInputProps();
 
 		return createPortal(
-			<Suspense fallback={<Loading />}>
-				<Comp {...defaultProps} {...inputProps} />
-			</Suspense>,
+			<CanUseRemotionHooksProvider>
+				<Suspense fallback={<Loading />}>
+					<Comp {...defaultProps} {...inputProps} />
+				</Suspense>
+			</CanUseRemotionHooksProvider>,
+
 			portalNode()
 		);
 	}
@@ -135,9 +139,12 @@ export const Composition = <T,>({
 		const inputProps = getInputProps();
 
 		return createPortal(
-			<Suspense fallback={<Fallback />}>
-				<Comp {...defaultProps} {...inputProps} />
-			</Suspense>,
+			<CanUseRemotionHooksProvider>
+				<Suspense fallback={<Fallback />}>
+					<Comp {...defaultProps} {...inputProps} />
+				</Suspense>
+			</CanUseRemotionHooksProvider>,
+
 			portalNode()
 		);
 	}

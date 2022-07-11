@@ -203,13 +203,15 @@ export const Editor: React.FC = () => {
 															>
 																<div style={background}>
 																	{Root === null ? null : <Root />}
-																	<FramePersistor />
-																	{Root === null ? (
-																		<NoRegisterRoot />
-																	) : (
-																		<EditorContent />
-																	)}
-																	<GlobalKeybindings />
+																	<Internals.CanUseRemotionHooksProvider>
+																		<FramePersistor />
+																		{Root === null ? (
+																			<NoRegisterRoot />
+																		) : (
+																			<EditorContent />
+																		)}
+																		<GlobalKeybindings />
+																	</Internals.CanUseRemotionHooksProvider>
 																</div>
 																<NotificationCenter />
 																{modalContextType &&
