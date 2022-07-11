@@ -1,4 +1,5 @@
 import {useContext} from 'react';
+import {CanUseRemotionHooks} from './CanUseRemotionHooks';
 import {SequenceContext} from './Sequence';
 import {useTimelinePosition} from './timeline-position-state';
 
@@ -14,6 +15,13 @@ export const useAbsoluteCurrentFrame = (): number => {
  * @link https://www.remotion.dev/docs/use-current-frame
  */
 export const useCurrentFrame = (): number => {
+	const canUseRemotionHooks = useContext(CanUseRemotionHooks);
+	if (!canUseRemotionHooks) {
+		throw new Error(
+			`useCurrentFrame() was called outside a component that was registered as a composition.`
+		);
+	}
+
 	const frame = useAbsoluteCurrentFrame();
 	const context = useContext(SequenceContext);
 

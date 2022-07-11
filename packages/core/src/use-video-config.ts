@@ -1,3 +1,5 @@
+import {useContext} from 'react';
+import {CanUseRemotionHooks} from './CanUseRemotionHooks';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import type {VideoConfig} from './video-config';
 
@@ -8,6 +10,7 @@ import type {VideoConfig} from './video-config';
  */
 export const useVideoConfig = (): VideoConfig => {
 	const videoConfig = useUnsafeVideoConfig();
+	const context = useContext(CanUseRemotionHooks);
 
 	if (!videoConfig) {
 		if (typeof window !== 'undefined' && window.remotion_isPlayer) {
@@ -19,6 +22,10 @@ export const useVideoConfig = (): VideoConfig => {
 		throw new Error(
 			'No video config found. You are probably calling useVideoConfig() from a component which has not been registered as a <Composition />. See https://www.remotion.dev/docs/the-fundamentals#defining-compositions for more information.'
 		);
+	}
+
+	if (!context) {
+		throw new Error('Called useVideoConfig() outside a Remotion composition.');
 	}
 
 	return videoConfig;
