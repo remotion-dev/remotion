@@ -89,11 +89,13 @@ export const getAssetsForMarkup = async (
 		}, [assets, compositions, registerAsset, unregisterAsset]);
 
 		return (
-			<Internals.RemotionRoot>
-				<Internals.CompositionManager.Provider value={value}>
-					<Markup />
-				</Internals.CompositionManager.Provider>
-			</Internals.RemotionRoot>
+			<Internals.CanUseRemotionHooksProvider>
+				<Internals.RemotionRoot>
+					<Internals.CompositionManager.Provider value={value}>
+						<Markup />
+					</Internals.CompositionManager.Provider>
+				</Internals.RemotionRoot>
+			</Internals.CanUseRemotionHooksProvider>
 		);
 	};
 
