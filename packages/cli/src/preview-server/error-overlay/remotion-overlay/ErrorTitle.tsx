@@ -1,6 +1,7 @@
 import React from 'react';
 import {didUnmountReactApp} from '../react-overlay';
 import {DismissButton} from './DismissButton';
+import {ErrorMessage} from './ErrorMessage';
 import {Symbolicating} from './Symbolicating';
 
 const title: React.CSSProperties = {
@@ -13,17 +14,13 @@ const title: React.CSSProperties = {
 const left: React.CSSProperties = {
 	flex: 1,
 	paddingRight: 14,
-	lineHeight: 1.5,
-	fontSize: '1.5em',
 	fontWeight: 'bold',
 	maxWidth: '100%',
 };
 
 const errName: React.CSSProperties = {
-	fontSize: '0.8em',
-	background: '#4290f5',
-	WebkitBackgroundClip: 'text',
-	WebkitTextFillColor: 'transparent',
+	fontSize: 18,
+	color: '#4290f5',
 	display: 'inline-block',
 };
 
@@ -54,7 +51,7 @@ export const ErrorTitle: React.FC<{
 							<div style={spacer} />
 						</>
 					) : null}
-					<div>{message}</div>
+					<ErrorMessage message={message} />
 				</div>
 			</div>
 			{didUnmountReactApp() ? null : <DismissButton />}
