@@ -2,7 +2,7 @@ import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals, renderStill} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import type { StillImageFormat} from 'remotion';
+import type {StillImageFormat} from 'remotion';
 import {Internals} from 'remotion';
 import {estimatePrice} from '../api/estimate-price';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
@@ -10,7 +10,8 @@ import {getLambdaClient} from '../shared/aws-clients';
 import type {
 	LambdaPayload,
 	LambdaPayloads,
-	RenderMetadata} from '../shared/constants';
+	RenderMetadata,
+} from '../shared/constants';
 import {
 	CURRENT_VERSION,
 	LambdaRoutines,
@@ -128,7 +129,7 @@ const innerStillHandler = async (
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 	});
 
-	const {key: outName, renderBucketName} = getExpectedOutName(
+	const {key, renderBucketName} = getExpectedOutName(
 		renderMetadata,
 		bucketName
 	);
@@ -137,7 +138,7 @@ const innerStillHandler = async (
 
 	await lambdaWriteFile({
 		bucketName: renderBucketName,
-		key: outName,
+		key,
 		privacy: lambdaParams.privacy,
 		body: fs.createReadStream(outputPath),
 		expectedBucketOwner: options.expectedBucketOwner,

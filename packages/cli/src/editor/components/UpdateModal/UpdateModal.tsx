@@ -1,6 +1,6 @@
 import React, {useCallback, useContext} from 'react';
 import {SELECTED_BACKGROUND} from '../../helpers/colors';
-import {copyCmd} from '../../helpers/copy-text';
+import {copyText} from '../../helpers/copy-text';
 import {ModalsContext} from '../../state/modals';
 import {CopyButton} from '../CopyButton';
 import {Flex, Row, Spacing} from '../layout';
@@ -54,7 +54,7 @@ export const UpdateModal: React.FC<{
 				</p>
 				<Row align="center">
 					<Flex>
-						<pre onClick={() => copyCmd(command)} style={code}>
+						<pre onClick={() => copyText(command)} style={code}>
 							{command}
 						</pre>
 					</Flex>

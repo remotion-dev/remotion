@@ -9,7 +9,7 @@ import type {
 import {Internals} from 'remotion';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
-import type {Privacy} from '../shared/constants';
+import type {OutNameInput, Privacy} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
@@ -35,10 +35,11 @@ export type RenderMediaOnLambdaInput = {
 	framesPerLambda?: number;
 	logLevel?: LogLevel;
 	frameRange?: FrameRange;
-	outName?: string;
+	outName?: OutNameInput;
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
+	concurrencyPerLambda?: number;
 };
 
 export type RenderMediaOnLambdaOutput = {
@@ -87,6 +88,7 @@ export const renderMediaOnLambda = async ({
 	timeoutInMilliseconds,
 	chromiumOptions,
 	scale,
+	concurrencyPerLambda,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
@@ -116,6 +118,7 @@ export const renderMediaOnLambda = async ({
 				timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT,
 			chromiumOptions: chromiumOptions ?? {},
 			scale: scale ?? 1,
+			concurrencyPerLambda: concurrencyPerLambda ?? 1,
 		},
 		region,
 	});

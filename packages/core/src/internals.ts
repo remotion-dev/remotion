@@ -2,6 +2,10 @@ import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
 } from './audio/shared-audio-tags';
+import {
+	CanUseRemotionHooks,
+	CanUseRemotionHooksProvider,
+} from './CanUseRemotionHooks';
 import type {CompProps} from './Composition';
 import type {
 	CompositionManagerContext,
@@ -9,11 +13,9 @@ import type {
 	TAsset,
 	TCompMetadata,
 	TComposition,
-	TSequence} from './CompositionManager';
-import {
-	CompositionManager,
-	compositionsRef
+	TSequence,
 } from './CompositionManager';
+import {CompositionManager, compositionsRef} from './CompositionManager';
 import * as AssetCompression from './compress-assets';
 import {DEFAULT_BROWSER, getBrowser} from './config/browser';
 import {getBrowserExecutable} from './config/browser-executable';
@@ -52,11 +54,10 @@ import {
 import {getShouldOutputImageSequence} from './config/image-sequence';
 import * as Logging from './config/log';
 import {getMaxTimelineTracks} from './config/max-timeline-tracks';
-import type {
-	WebpackOverrideFn} from './config/override-webpack';
+import type {WebpackOverrideFn} from './config/override-webpack';
 import {
 	defaultOverrideFunction,
-	getWebpackOverrideFn
+	getWebpackOverrideFn,
 } from './config/override-webpack';
 import {DEFAULT_OVERWRITE, getShouldOverwrite} from './config/overwrite';
 import {
@@ -65,8 +66,7 @@ import {
 	validateSelectedPixelFormatAndCodecCombination,
 } from './config/pixel-format';
 import {getServerPort} from './config/preview-server';
-import type {
-	ProResProfile} from './config/prores-profile';
+import type {ProResProfile} from './config/prores-profile';
 import {
 	getProResProfile,
 	setProResProfile,
@@ -86,7 +86,7 @@ import {
 import * as CSSUtils from './default-css';
 import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render';
 import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
-import type { RemotionEnvironment} from './get-environment';
+import type {RemotionEnvironment} from './get-environment';
 import {getRemotionEnvironment} from './get-environment';
 import {getPreviewDomElement} from './get-preview-dom-element';
 import {isAudioCodec} from './is-audio-codec';
@@ -96,16 +96,16 @@ import {getRoot, waitForRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
 import {SequenceContext} from './Sequence';
 import {ENV_VARIABLES_ENV_NAME, setupEnvVariables} from './setup-env-variables';
-import * as TimelineInOutPosition from './timeline-inout-position-state';
 import type {
 	SetTimelineInOutContextValue,
 	TimelineInOutContextValue,
 } from './timeline-inout-position-state';
-import * as TimelinePosition from './timeline-position-state';
+import * as TimelineInOutPosition from './timeline-inout-position-state';
 import type {
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from './timeline-position-state';
+import * as TimelinePosition from './timeline-position-state';
 import {DEFAULT_PUPPETEER_TIMEOUT, setupPuppeteerTimeout} from './timeout';
 import {truthy} from './truthy';
 import {useAbsoluteCurrentFrame} from './use-current-frame';
@@ -122,15 +122,13 @@ import {validateFps} from './validation/validate-fps';
 import {validateFrame} from './validation/validate-frame';
 import {validateNonNullImageFormat} from './validation/validate-image-format';
 import {validateOffthreadVideoImageFormat} from './validation/validate-offthreadvideo-image-format';
-import type {
-	OpenGlRenderer} from './validation/validate-opengl-renderer';
-import {
-	validateOpenGlRenderer,
-} from './validation/validate-opengl-renderer';
+import type {OpenGlRenderer} from './validation/validate-opengl-renderer';
+import {validateOpenGlRenderer} from './validation/validate-opengl-renderer';
 import {validateQuality} from './validation/validate-quality';
 import type {
 	MediaVolumeContextValue,
-	SetMediaVolumeContextValue} from './volume-position-state';
+	SetMediaVolumeContextValue,
+} from './volume-position-state';
 import {
 	MediaVolumeContext,
 	SetMediaVolumeContext,
@@ -234,6 +232,8 @@ export const Internals = {
 	portalNode,
 	waitForRoot,
 	validateOffthreadVideoImageFormat,
+	CanUseRemotionHooksProvider,
+	CanUseRemotionHooks,
 };
 
 export type {

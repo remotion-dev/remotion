@@ -96,6 +96,12 @@ Minimum value: <MinimumFramesPerLambda />
 The `framesPerLambda` parameter cannot result in more than 200 functions being spawned. See: [Concurrency](/docs/lambda/concurrency)
 :::
 
+### `--concurrency-per-lambda`
+
+_Available from v3.0.30_
+
+By default, each Lambda function renders with concurrency 1 (one open browser tab). You may use the option to customize this value.
+
 ### `--quality`
 
 [Value between 0 and 100 for JPEG rendering quality](/docs/config#setquality). Doesn't work when PNG frames are rendered.
