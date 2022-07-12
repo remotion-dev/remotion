@@ -218,17 +218,7 @@ export class NetworkManager extends EventEmitter {
 			return;
 		}
 
-		const extraInfos = this.#networkEventManager.responseExtraInfo(
-			responseReceived.requestId
-		);
-		if (extraInfos.length) {
-			console.log(
-				new Error(
-					'Unexpected extraInfo events for request ' +
-						responseReceived.requestId
-				)
-			);
-		}
+		this.#networkEventManager.responseExtraInfo(responseReceived.requestId);
 
 		const response = new HTTPResponse(responseReceived.response, extraInfo);
 		request._response = response;

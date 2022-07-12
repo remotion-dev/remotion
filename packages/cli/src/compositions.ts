@@ -74,10 +74,7 @@ export const listCompositionsCommand = async () => {
 	const thirdColumnLength = 15;
 
 	if (quietFlagProvided()) {
-		for (const composition of compositions) {
-			Log.info(composition.id);
-		}
-
+		Log.info(compositions.map((c) => c.id).join(' '));
 		return;
 	}
 

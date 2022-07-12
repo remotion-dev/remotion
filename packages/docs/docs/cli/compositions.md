@@ -75,4 +75,4 @@ Opens an actual browser to observe the composition fetching.
 
 ### `--quiet`, `--q`
 
-Only prints the composition ID, one per line, and nothing else.
+Only prints the composition IDs, separated by a space.
