@@ -39,7 +39,7 @@ export type RenderMediaOnLambdaInput = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
-	everyNthFrame: number;
+	everyNthFrame?: number;
 	loop: number | null;
 	concurrencyPerLambda?: number;
 };
@@ -122,7 +122,7 @@ export const renderMediaOnLambda = async ({
 				timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT,
 			chromiumOptions: chromiumOptions ?? {},
 			scale: scale ?? 1,
-			everyNthFrame,
+			everyNthFrame: everyNthFrame ?? 1,
 			numberOfGifLoops: loop,
 			concurrencyPerLambda: concurrencyPerLambda ?? 1,
 		},

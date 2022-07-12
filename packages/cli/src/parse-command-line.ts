@@ -94,9 +94,9 @@ export const parseCommandLine = (
 	}
 
 	if (parsedCli.loop && parsedCli.codec === 'gif') {
-		Config.Rendering.setLoop(parsedCli.loop);
+		Config.Rendering.setNumberOfGifLoops(parsedCli.loop);
 	} else if (parsedCli.loop && parsedCli.codec !== 'gif') {
-		Log.error('--loop is only valid for --codec=gif');
+		Log.error('--number-of-gif-loops is only valid for --codec=gif');
 		process.exit(1);
 	}
 
