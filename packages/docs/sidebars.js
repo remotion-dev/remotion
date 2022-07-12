@@ -72,7 +72,6 @@ module.exports = {
   ],
   someSidebar: [
     {
-      collapsed: false,
       type: "category",
       label: "Getting started",
       items: [
@@ -87,7 +86,6 @@ module.exports = {
     {
       type: "category",
       label: "Techniques",
-      collapsed: false,
       items: [
         "assets",
         "using-audio",
@@ -137,8 +135,7 @@ module.exports = {
     "config",
     {
       type: "category",
-      label: "API - Core",
-      collapsed: false,
+      label: "API - remotion",
       items: [
         "continue-render",
         "delay-render",
@@ -251,7 +248,6 @@ module.exports = {
     {
       type: "category",
       label: "Troubleshooting",
-      collapsed: false,
       items: [
         "timeout",
         "target-closed",
@@ -263,12 +259,12 @@ module.exports = {
         "version-mismatch",
         "enametoolong",
         "slow-method-to-extract-frame",
+        "wrong-composition-mount",
       ],
     },
     {
       type: "category",
       label: "Miscellaneous",
-      collapsed: false,
       items: [
         "brownfield",
         "chromium-flags",

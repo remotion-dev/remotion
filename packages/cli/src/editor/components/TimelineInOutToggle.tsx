@@ -117,14 +117,29 @@ export const TimelineInOutPointToggle: React.FC = () => {
 	}, [setInAndOutFrames]);
 
 	useEffect(() => {
-		const iKey = keybindings.registerKeybinding('keypress', 'i', () => {
-			onInMark();
+		const iKey = keybindings.registerKeybinding({
+			event: 'keypress',
+			key: 'i',
+			callback: () => {
+				onInMark();
+			},
+			commandCtrlKey: false,
 		});
-		const oKey = keybindings.registerKeybinding('keypress', 'o', () => {
-			onOutMark();
+		const oKey = keybindings.registerKeybinding({
+			event: 'keypress',
+			key: 'o',
+			callback: () => {
+				onOutMark();
+			},
+			commandCtrlKey: false,
 		});
-		const xKey = keybindings.registerKeybinding('keypress', 'x', () => {
-			onInOutClear();
+		const xKey = keybindings.registerKeybinding({
+			event: 'keypress',
+			key: 'x',
+			callback: () => {
+				onInOutClear();
+			},
+			commandCtrlKey: false,
 		});
 		return () => {
 			oKey.unregister();

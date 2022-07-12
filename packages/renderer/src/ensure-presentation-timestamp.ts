@@ -1,6 +1,8 @@
 import execa from 'execa';
 import {rename, unlink} from 'fs/promises';
 import path from 'path';
+import {Internals} from 'remotion';
+import {guessExtensionForVideo} from './guess-extension-for-media';
 
 const ensureFileHasPresentationTimestamp: Record<string, 'encoding' | 'done'> =
 	{};
@@ -11,6 +13,27 @@ type Callback = {
 };
 
 let callbacks: Callback[] = [];
+
+const getTemporaryOutputName = async (src: string) => {
+	const parts = src.split(path.sep);
+
+	// If there is no file extension for the video, then we need to temporarily add an extension
+
+	const lastPart = parts[parts.length - 1];
+	const extraExtension = lastPart.includes('.')
+		? null
+		: await guessExtensionForVideo(src);
+
+	return parts
+		.map((p, i) => {
+			if (i === parts.length - 1) {
+				return [`pts-${p}`, extraExtension].filter(Internals.truthy).join('.');
+			}
+
+			return p;
+		})
+		.join(path.sep);
+};
 
 export const ensurePresentationTimestamps = async (src: string) => {
 	if (ensureFileHasPresentationTimestamp[src] === 'encoding') {
@@ -28,16 +51,8 @@ export const ensurePresentationTimestamps = async (src: string) => {
 
 	ensureFileHasPresentationTimestamp[src] = 'encoding';
 
-	const parts = src.split(path.sep);
-	const output = parts
-		.map((p, i) => {
-			if (i === parts.length - 1) {
-				return `pts-${p}`;
-			}
-
-			return p;
-		})
-		.join(path.sep);
+	// If there is no file extension for the video, then we need to tempoa
+	const output = await getTemporaryOutputName(src);
 
 	await execa('ffmpeg', [
 		'-i',
