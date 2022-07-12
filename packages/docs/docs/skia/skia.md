@@ -6,8 +6,15 @@ title: "@remotion/skia"
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import {ExperimentalBadge} from '../../components/Experimental';
 
 This package provides utilities useful for integrating [React Native Skia](https://github.com/Shopify/react-native-skia) with Remotion.
+
+<ExperimentalBadge>
+This package is currently a proof of technology.
+
+It may change in minor version updates. Monitor this documentation page to see breaking changes when upgrading.
+</ExperimentalBadge>
 
 ## Installation
 
@@ -82,6 +89,52 @@ import { registerRoot } from "remotion";
 ```
 
 You can now start using the [`<SkiaCanvas>`](/docs/skia/skia-canvas) in your Remotion project.
+
+## Templates
+
+You can find the [starter template](https://github.com/remotion-dev/template-skia) here or install it using:
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npx create-video --skia
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+pnpm create video -- --skia
+```
+
+  </TabItem>
+
+  <TabItem value="pnpm">
+
+```bash
+yarn create video --skia
+```
+
+  </TabItem>
+</Tabs>
+
+## Known issues
+
+- A peer dependency conflict between `react-native` and `react-native-web` requires the `--force` for newer versions of npm.
+
+## Resources
+
+- [Example project by William Candillon](https://github.com/wcandillon/remotion-skia-tutorial)
+- [Tutorial for the example project](https://www.youtube.com/watch?v=-7MOoWN2_nk)
 
 ## APIs
 
