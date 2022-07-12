@@ -6,18 +6,14 @@ export const AboutUsHeader: React.FC = () => {
     <div className={styles.writeincss}>
       <div style={{ flex: 1 }}>
         <h1 className={styles.writeincsstitle}>
-          Remotion. The programmatic video dream.
+          The programmatic video dream.
         </h1>
         <p>
-          Remotion is from developers for developers. While the company was
-          founded in 2022, the idea of programmatic videos in React was born a
-          year before. Remotion combines qualities of programming and essential
-          features of traditional video editing programs. Our software is
-          source-available, meaning everyone can look at our code and
-          contribute. This allowed us to create a community of hundreds of
-          developers to fulfill the programmatic video dream. Remotion is free
-          for individuals and small teams, bigger companies will have to acquire
-          a company license to use Remotion.
+          Remotion was born from a desire to bring the benefits that we know
+          from programming - composability, version control, parametrization -
+          into video editing. Started as a side project, we are now a company in
+          Zürich, Switzerland and are pushing to combine the powers of video
+          editing and programming!
         </p>
       </div>
     </div>
