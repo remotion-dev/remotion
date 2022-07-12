@@ -16,14 +16,9 @@ export default () => {
   return (
     <Layout>
       <br />
-
       <Head>
         <title>Remotion | About</title>
         <meta name="description" content="Remotion's story." />
-        <meta name="og:image" content="/img/lambda-og.png" />
-        <meta name="twitter:image" content="/img/lambda-og.png" />
-        <meta property="og:image" content="/img/lambda-og.png" />
-        <meta property="twitter:image" content="/img/lambda-og.png" />
       </Head>
       <div style={container}>
         <br />
