@@ -187,6 +187,13 @@ export const parseCommandLine = (
 	}
 
 	if (parsedCli['every-nth-frame']) {
+		if (parsedCli.codec !== 'gif') {
+			Log.error(
+				`--every-nth-frame can only be specified if --codec is set to "gif."`
+			);
+			process.exit(1);
+		}
+
 		Config.Rendering.setEveryNthFrame(parsedCli['every-nth-frame']);
 	}
 
