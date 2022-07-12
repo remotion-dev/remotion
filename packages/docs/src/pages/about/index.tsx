@@ -1,9 +1,9 @@
 import React from "react";
 import Layout from "@theme/Layout";
-import { LambdaHeader } from "../../../src/pages/about/LambdaHeader";
+import { AboutUsHeader } from "./AboutUsHeader";
 
 import Head from "@docusaurus/Head";
-import { BuildApps } from "../../../src/pages/about/BuildApps";
+import { TitleTeamCards } from "./TitleTeamCards";
 
 const container: React.CSSProperties = {
   maxWidth: 1000,
@@ -16,7 +16,6 @@ export default () => {
   return (
     <Layout>
       <br />
-      <br />
 
       <Head>
         <title>Remotion | About</title>
@@ -28,9 +27,9 @@ export default () => {
       </Head>
       <div style={container}>
         <br />
-        <LambdaHeader />
+        <AboutUsHeader />
         <br />
-        <BuildApps />
+        <TitleTeamCards />
         <br />
       </div>
     </Layout>

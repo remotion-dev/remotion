@@ -1,15 +1,9 @@
 import React from "react";
-import logo from "./Remotion logo.png"; // Tell webpack this JS file uses this image
-import Jonny from "./Jonny Burger.jpg";
-import Mehmet from "./Mehmet Ademi.jpg";
-import Patric from "./Patric Salvisberg.jpg";
+import Jonny from "../about/images/Jonny Burger.png";
+import Mehmet from "../about/images/Mehmet Ademi.png";
+import Patric from "../about/images/Patric Salvisberg.png";
 
-export const Header = () => {
-  // Import result is the URL of your image
-  return <img src={logo} style={{ width: 300, height: 300 }} />;
-};
-
-export const Header1 = () => {
+export const JonnyImage = () => {
   // Import result is the URL of your image
   return (
     <img
@@ -24,7 +18,7 @@ export const Header1 = () => {
   );
 };
 
-export const Header2 = () => {
+export const MehmetImage = () => {
   // Import result is the URL of your image
   return (
     <img
@@ -39,7 +33,7 @@ export const Header2 = () => {
   );
 };
 
-export const Header3 = () => {
+export const PatricImage = () => {
   // Import result is the URL of your image
   return (
     <img
