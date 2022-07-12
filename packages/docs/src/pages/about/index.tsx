@@ -1,9 +1,9 @@
 import React from "react";
 import Layout from "@theme/Layout";
-import { AboutUsHeader } from "./AboutUsHeader";
+import { AboutUsHeader } from "../../components/AboutUsHeader";
 
 import Head from "@docusaurus/Head";
-import { TitleTeamCards } from "./TitleTeamCards";
+import { TitleTeamCards } from "../../components/TitleTeamCards";
 
 const container: React.CSSProperties = {
   maxWidth: 1000,
