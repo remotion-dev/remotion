@@ -22,6 +22,7 @@ Commonly a GIF has a lower frame rate than a video. For this, we support a param
 
 - in [`renderFrames()`](/docs/renderer/render-frames#everynthframe), [`renderMedia()`](/docs/renderer/render-media#everynthframe) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#everynthframe)
 - in the CLI using `--every-nth-frame=2` [locally](/docs/cli/render#--every-nth-frame) or [on Lambda](/docs/lambda/cli/render#--every-nth-frame).
+- in the config file using [`setEveryNthFrame()`](/docs/config#seteverynthframe).
 
 ## Changing the number of loops
 
@@ -38,7 +39,8 @@ The `numberOfGifLoops` option allows you to set the number of loops as follows:
 The `numberOfGifLoops` option can be set:
 
 - In the CLI using the `--number-of-gif-loops=0` flag when rendering [locally](/docs/cli/render#--number-of-gif-loops) or on [Lambda](/docs/lambda/cli/render#--number-of-gif-loops).
--
+- in [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#numberofgifloops), [`renderMedia()`](/docs/renderer/render-media#numberofgifloops) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#numberofgifloops)
+- in the config file using [`setNumberOfGifLoops()`](/docs/config#setnumberofgifloops).
 
 ## Importing GIFs
 
