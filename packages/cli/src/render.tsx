@@ -97,7 +97,7 @@ export const render = async () => {
 
 	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
 		? fullPath
-		: await bundleOnCli(fullPath, steps);
+		: await bundleOnCli({fullPath, steps});
 
 	const onDownload: RenderMediaOnDownload = (src) => {
 		const id = Math.random();
