@@ -8,7 +8,13 @@ import {
 } from './progress-bar';
 import type {RenderStep} from './step';
 
-export const bundleOnCli = async (fullPath: string, steps: RenderStep[]) => {
+export const bundleOnCli = async ({
+	fullPath,
+	steps,
+}: {
+	fullPath: string;
+	steps: RenderStep[];
+}) => {
 	const shouldCache = Internals.getWebpackCaching();
 	const cacheExistedBefore = BundlerInternals.cacheExists('production');
 	if (cacheExistedBefore && !shouldCache) {
