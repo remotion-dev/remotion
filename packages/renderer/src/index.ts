@@ -29,7 +29,6 @@ import {tmpDir} from './tmp-dir';
 import {validateConcurrency} from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
-import {validateFpsForGif} from './validate-fps-for-gif';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
 import {
@@ -76,7 +75,6 @@ export const RenderInternals = {
 	ensureOutputDirectory,
 	getRealFrameRange,
 	validatePuppeteerTimeout,
-	validateFpsForGif,
 	downloadFile,
 	validateScale,
 	killAllBrowsers,

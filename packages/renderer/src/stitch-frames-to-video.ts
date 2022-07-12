@@ -161,7 +161,6 @@ export const spawnFfmpeg = async (
 		'width',
 		'passed to `stitchFramesToVideo()`'
 	);
-	Internals.validateFps(options.fps, 'passed to `stitchFramesToVideo()`');
 	const codec = options.codec ?? Internals.DEFAULT_CODEC;
 	validateEvenDimensionsWithCodec({
 		width: options.width,
@@ -169,6 +168,7 @@ export const spawnFfmpeg = async (
 		codec,
 		scale: 1,
 	});
+	Internals.validateFps(options.fps, 'in `stitchFramesToVideo()`', codec);
 	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
 	const pixelFormat = options.pixelFormat ?? Internals.DEFAULT_PIXEL_FORMAT;
 	await validateFfmpeg(options.ffmpegExecutable ?? null);
