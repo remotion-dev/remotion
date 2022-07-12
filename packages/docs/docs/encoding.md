@@ -235,6 +235,10 @@ You can set the codec to `h264-mkv` to use the mkv container format together wit
 This preset was created for Remotion Lambda, and is optimal for when concatenating multiple video clips into one.
 :::
 
+## GIFs
+
+You can also [render you video as a GIF](/docs/render-as-gif).
+
 ## What other settings do you need?
 
 Which of the dozens of options that FFMPEG supports would you like to see exposed in Remotion? Let us know by opening an [issue on our issue tracker!](https://github.com/remotion-dev/remotion/issues)

@@ -163,7 +163,7 @@ export const Internals = {
 	getOutputCodecOrUndefined,
 	getWebpackOverrideFn,
 	getQuality,
-	getEveryNthFrame: getAndValidateEveryNthFrame,
+	getAndValidateEveryNthFrame,
 	getLoop,
 	getScale,
 	getShouldOutputImageSequence,
