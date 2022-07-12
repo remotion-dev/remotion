@@ -101,6 +101,7 @@ module.exports = {
         "dynamic-metadata",
         "ssr",
         "webpack",
+        "tailwind",
         "legacy-babel",
         "env-variables",
         "third-party",
