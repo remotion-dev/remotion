@@ -135,26 +135,22 @@ export const TeamCardsLayout: React.FC<{}> = () => {
             flexDirection: "row",
           }}
         >
-          {
-            <>
-              <div style={flex}>
-                <a style={docsButton} href="https://github.com/JonnyBurger">
-                  <BlueButton loading={false} fullWidth size="sm">
-                    <GitHubLogo /> GitHub
-                  </BlueButton>
-                </a>
-              </div>
-              <Spacer />
-              <Spacer />
-              <div style={flex}>
-                <a style={docsButton} href="mailto:jonny@remotion.dev">
-                  <BlueButton loading={false} fullWidth size="sm">
-                    <EmailLogo /> E-Mail
-                  </BlueButton>
-                </a>
-              </div>
-            </>
-          }
+          <div style={flex}>
+            <a style={docsButton} href="https://github.com/JonnyBurger">
+              <BlueButton loading={false} fullWidth size="sm">
+                <GitHubLogo /> GitHub
+              </BlueButton>
+            </a>
+          </div>
+          <Spacer />
+          <Spacer />
+          <div style={flex}>
+            <a style={docsButton} href="mailto:jonny@remotion.dev">
+              <BlueButton loading={false} fullWidth size="sm">
+                <EmailLogo /> E-Mail
+              </BlueButton>
+            </a>
+          </div>
         </div>
       </div>
       <Spacer />
