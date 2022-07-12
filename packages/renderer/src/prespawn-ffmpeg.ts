@@ -41,8 +41,8 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 		'width',
 		'passed to `stitchFramesToVideo()`'
 	);
-	Internals.validateFps(options.fps, 'passed to `stitchFramesToVideo()`');
 	const codec = options.codec ?? Internals.DEFAULT_CODEC;
+	Internals.validateFps(options.fps, 'in `stitchFramesToVideo()`', codec);
 	validateEvenDimensionsWithCodec({
 		width: options.width,
 		height: options.height,

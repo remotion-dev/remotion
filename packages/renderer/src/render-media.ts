@@ -191,6 +191,7 @@ export const renderMedia = ({
 		ensureFramesInOrder(realFrameRange);
 
 	const fps = composition.fps / everyNthFrame;
+	Internals.validateFps(fps, 'in "renderMedia()"', codec);
 
 	const createPrestitcherIfNecessary = async () => {
 		if (preEncodedFileLocation) {

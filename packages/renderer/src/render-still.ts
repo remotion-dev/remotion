@@ -87,7 +87,8 @@ const innerRenderStill = async ({
 	);
 	Internals.validateFps(
 		composition.fps,
-		'in the `config` object of `renderStill()`'
+		'in the `config` object of `renderStill()`',
+		null
 	);
 	Internals.validateDurationInFrames(
 		composition.durationInFrames,

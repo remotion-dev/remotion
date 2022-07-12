@@ -363,7 +363,8 @@ export const renderFrames = (
 	);
 	Internals.validateFps(
 		composition.fps,
-		'in the `config` object of `renderFrames()`'
+		'in the `config` object of `renderFrames()`',
+		null
 	);
 	Internals.validateDurationInFrames(
 		composition.durationInFrames,

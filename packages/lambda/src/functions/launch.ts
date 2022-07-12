@@ -96,7 +96,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		comp.durationInFrames,
 		'passed to <Component />'
 	);
-	Internals.validateFps(comp.fps, 'passed to <Component />');
+	Internals.validateFps(comp.fps, 'passed to <Component />', null);
 	Internals.validateDimension(comp.height, 'height', 'passed to <Component />');
 	Internals.validateDimension(comp.width, 'width', 'passed to <Component />');
 
