@@ -3,6 +3,8 @@ id: tailwind-legacy
 title: TailwindCSS v2 (Legacy)
 ---
 
+import Tabs from "@theme/Tabs";
+
 :::info
 This documentation concerns TailwindCSS v2. [See here for V3!](/docs/tailwind)
 :::

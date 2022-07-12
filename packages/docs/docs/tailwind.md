@@ -5,6 +5,45 @@ title: TailwindCSS
 
 import Tabs from "@theme/Tabs";
 
+## Using the template
+
+The easiest way to get started with Tailwind and Remotion is to [use the template by cloning it on GitHub](https://github.com/remotion-dev/template-tailwind/generate) or running the following:
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npx create-video --tailwind
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+pnpm create video -- --tailwind
+```
+
+  </TabItem>
+
+  <TabItem value="pnpm">
+
+```bash
+yarn create video --tailwind
+```
+
+  </TabItem>
+</Tabs>
+
+## Install in existing project
+
 1. Install the following dependencies:
 
 <Tabs
@@ -101,13 +140,20 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 import "./style.css";
 ```
 
-5.  Start using TailwindCSS! You can verify that it's working by adding `className="bg-red-900"` to any element.
+5.  Add a `tailwind.config.js` file to the root of your project:
 
-6.  _Optional_: Add a `tailwind.config.js` file to the root of your project. Add `/* eslint-env node */` to the top of the file to get rid of an ESLint rule complaining that `module` is not defined.
+```js
+/* eslint-env node */
+module.exports = {
+  content: ["./src/**/*.{ts,tsx}"],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+```
 
-:::warning
-Due to a caching bug, the config file might not be picked up until you remove the `node_modules/.cache` folder - watch this issue: https://github.com/remotion-dev/remotion/issues/315
-:::
+6.  Start using TailwindCSS! You can verify that it's working by adding `className="bg-red-900"` to any element.
 
 ## See also
 
