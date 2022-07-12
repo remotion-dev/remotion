@@ -208,6 +208,12 @@ The following methods are available on the player ref:
 
 Pause the video. Nothing happens if the video is already paused.
 
+### `pauseAndReturnToPlayStart()`
+
+_Availabe from v3.0.30_
+
+If the video is playing, pause it and return to the playback position where the video has last been played.
+
 ### `play()`
 
 Play the video. Nothing happens if the video is already playing.

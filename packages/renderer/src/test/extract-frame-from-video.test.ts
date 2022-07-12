@@ -10,7 +10,7 @@ const src = path.join(
 	'..',
 	'example',
 	'public',
-	'framer.mp4'
+	'framermp4withoutfileextension'
 );
 
 test('Should be able to extract a frame from a video', async () => {

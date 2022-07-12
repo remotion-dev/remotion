@@ -1,4 +1,11 @@
-import {Series, Video, AbsoluteFill, Audio, Sequence} from 'remotion';
+import {
+	Series,
+	Video,
+	AbsoluteFill,
+	Audio,
+	Sequence,
+	Composition,
+} from 'remotion';
 import {preloadAudio, preloadVideo} from '@remotion/preload';
 
 preloadVideo(
