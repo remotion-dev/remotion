@@ -1,4 +1,4 @@
-import {Codec} from 'remotion';
+import type {Codec} from 'remotion';
 
 export const validateFpsForGif = (codec: Codec, fps: number) => {
 	if (codec === 'gif' && (fps > 50 || fps < 1)) {
