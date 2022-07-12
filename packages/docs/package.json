@@ -11,7 +11,7 @@
     "deploy": "docusaurus deploy",
     "serve": "docusaurus serve",
     "clear": "docusaurus clear",
-    "lint": "eslint src",
+    "lint": "eslint src && eslint components",
     "test": "jest"
   },
   "dependencies": {
