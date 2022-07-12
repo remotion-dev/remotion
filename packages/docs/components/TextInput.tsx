@@ -1,4 +1,5 @@
-import React, { DetailedHTMLProps, useCallback, useState } from "react";
+import type { DetailedHTMLProps} from "react";
+import React, { useCallback, useState } from "react";
 
 const LIGHT_BLUE = "#42e9f5";
 const DARK_BLUE = "#4290f5";
