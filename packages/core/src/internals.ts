@@ -2,6 +2,10 @@ import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
 } from './audio/shared-audio-tags';
+import {
+	CanUseRemotionHooks,
+	CanUseRemotionHooksProvider,
+} from './CanUseRemotionHooks';
 import type {CompProps} from './Composition';
 import type {
 	CompositionManagerContext,
@@ -232,6 +236,8 @@ export const Internals = {
 	portalNode,
 	waitForRoot,
 	validateOffthreadVideoImageFormat,
+	CanUseRemotionHooksProvider,
+	CanUseRemotionHooks,
 };
 
 export type {

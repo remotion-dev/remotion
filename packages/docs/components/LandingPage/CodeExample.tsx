@@ -40,7 +40,7 @@ const Preview: React.FC = () => {
       style={container}
       controls
       fps={30}
-    ></Player>
+    />
   );
 };
 
@@ -60,6 +60,7 @@ export const CodeExample: React.FC = () => {
   return (
     <div style={{ flex: 1, textAlign: "left", maxWidth: 500 }}>
       <button
+        type="button"
         style={{ ...tabStyle, opacity: tab === "code" ? 1 : 0.5 }}
         onClick={() => setTab("code")}
       >
@@ -67,6 +68,7 @@ export const CodeExample: React.FC = () => {
       </button>
       |
       <button
+        type="button"
         style={{ ...tabStyle, opacity: tab === "preview" ? 1 : 0.5 }}
         onClick={() => setTab("preview")}
       >
@@ -75,10 +77,10 @@ export const CodeExample: React.FC = () => {
       <div>
         {tab === "code" && (
           <div style={container}>
-            <img src="/img/code-sample.png"></img>
+            <img src="/img/code-sample.png" />
           </div>
         )}
-        {tab === "preview" && <Preview></Preview>}
+        {tab === "preview" && <Preview />}
       </div>
     </div>
   );

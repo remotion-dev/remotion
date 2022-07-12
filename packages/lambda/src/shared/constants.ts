@@ -197,6 +197,7 @@ export type LambdaPayloads = {
 		scale: number;
 		everyNthFrame: number;
 		numberOfGifLoops: number | null;
+		concurrencyPerLambda: number;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -223,6 +224,7 @@ export type LambdaPayloads = {
 		scale: number;
 		everyNthFrame: number;
 		numberOfGifLoops: number | null;
+		concurrencyPerLambda: number;
 	};
 	status: {
 		type: LambdaRoutines.status;
@@ -230,6 +232,7 @@ export type LambdaPayloads = {
 		renderId: string;
 	};
 	renderer: {
+		concurrencyPerLambda: number;
 		type: LambdaRoutines.renderer;
 		serveUrl: string;
 		frameRange: [number, number];
@@ -271,7 +274,7 @@ export type LambdaPayloads = {
 		frame: number;
 		privacy: Privacy;
 		logLevel: LogLevel;
-		outName: string | null;
+		outName: OutNameInput | null;
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
@@ -309,6 +312,10 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2022-07-12'
+	| '2022-07-10'
+	| '2022-07-09'
+	| '2022-07-08'
 	| '2022-07-04'
 	| '2022-06-30'
 	| '2022-06-29'
@@ -391,7 +398,7 @@ export type LambdaVersions =
 	| '2021-06-23'
 	| 'n/a';
 
-export const CURRENT_VERSION: LambdaVersions = '2022-07-04';
+export const CURRENT_VERSION: LambdaVersions = '2022-07-12';
 
 export type PostRenderData = {
 	cost: {

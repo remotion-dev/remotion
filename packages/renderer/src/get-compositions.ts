@@ -5,7 +5,7 @@ import type {
 } from 'remotion';
 import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
-import type {Page} from './browser/Page';
+import type {Page} from './browser/BrowserPage';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
