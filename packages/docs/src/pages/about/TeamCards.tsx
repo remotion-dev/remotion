@@ -86,6 +86,11 @@ export const TeamCardsLayout: React.FC<{}> = () => {
             }}
           />
         </div>
+        <Spacer />
+        <Spacer />
+        <Spacer />
+        <Spacer />
+        <Spacer />
         <h2 style={stepTitle}>Jonny</h2>
         <strong style={center}>Chief Hacker</strong>
 
@@ -174,6 +179,12 @@ export const TeamCardsLayout: React.FC<{}> = () => {
             }}
           />
         </div>
+        <Spacer />
+        <Spacer />
+        <Spacer />
+        <Spacer />
+        <Spacer />
+
         <h2 style={stepTitle}>Mehmet</h2>
         <strong style={center}>Business Manager</strong>
 
@@ -254,6 +265,12 @@ export const TeamCardsLayout: React.FC<{}> = () => {
             }}
           />
         </div>
+        <Spacer />
+        <Spacer />
+        <Spacer />
+        <Spacer />
+        <Spacer />
+
         <h2 style={stepTitle}>Patric</h2>
         <strong style={center}>Intern</strong>
 
