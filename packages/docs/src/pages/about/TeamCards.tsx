@@ -96,9 +96,9 @@ export const TeamCardsLayout: React.FC<{}> = () => {
 
         <ul style={{ ...list, flex: 1 }}>
           <li>
-            As a former indie hacker I loved working on projects that combine
-            engineering, art and business. At Remotion I bascially do the same
-            just together with an amazing community and team.
+            {
+              "I'm interested in engineering, art and business - Remotion is my dream job because I get to combine the three of them!"
+            }{" "}
           </li>
         </ul>
 
