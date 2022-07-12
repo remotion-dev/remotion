@@ -272,7 +272,10 @@ export const TeamCardsLayout: React.FC<{}> = () => {
         <strong style={center}>Intern</strong>
 
         <ul style={{ ...list, flex: 1 }}>
-          <li>Render videos in the cloud</li>
+          <li>
+            My passion for programming and art led to Remotion. Where I'm able
+            to work with cutting-edge technology while I'm doing my CS degree.
+          </li>
         </ul>
         <div style={row}>
           {
