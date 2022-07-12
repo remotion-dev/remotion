@@ -40,7 +40,7 @@ export type RenderMediaOnLambdaInput = {
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
 	everyNthFrame?: number;
-	loop: number | null;
+	['number-of-gif-loops']: number | null;
 	concurrencyPerLambda?: number;
 };
 

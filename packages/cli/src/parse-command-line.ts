@@ -25,7 +25,7 @@ export type CommandLineOptions = {
 	['ignore-certificate-errors']: string;
 	['disable-web-security']: string;
 	['every-nth-frame']: number;
-	loop: number;
+	['number-of-gif-loops']: number;
 	codec: Codec;
 	concurrency: number;
 	timeout: number;
@@ -93,9 +93,9 @@ export const parseCommandLine = (
 		);
 	}
 
-	if (parsedCli.loop && parsedCli.codec === 'gif') {
-		Config.Rendering.setNumberOfGifLoops(parsedCli.loop);
-	} else if (parsedCli.loop && parsedCli.codec !== 'gif') {
+	if (parsedCli['number-of-gif-loops'] && parsedCli.codec === 'gif') {
+		Config.Rendering.setNumberOfGifLoops(parsedCli['number-of-gif-loops']);
+	} else if (parsedCli['number-of-gif-loops'] && parsedCli.codec !== 'gif') {
 		Log.error('--number-of-gif-loops is only valid for --codec=gif');
 		process.exit(1);
 	}
