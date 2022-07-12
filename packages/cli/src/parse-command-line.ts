@@ -93,11 +93,8 @@ export const parseCommandLine = (
 		);
 	}
 
-	if (parsedCli['number-of-gif-loops'] && parsedCli.codec === 'gif') {
+	if (parsedCli['number-of-gif-loops']) {
 		Config.Rendering.setNumberOfGifLoops(parsedCli['number-of-gif-loops']);
-	} else if (parsedCli['number-of-gif-loops'] && parsedCli.codec !== 'gif') {
-		Log.error('--number-of-gif-loops is only valid for --codec=gif');
-		process.exit(1);
 	}
 
 	if (parsedCli['ffprobe-executable']) {
@@ -187,13 +184,6 @@ export const parseCommandLine = (
 	}
 
 	if (parsedCli['every-nth-frame']) {
-		if (parsedCli.codec !== 'gif') {
-			Log.error(
-				`--every-nth-frame can only be specified if --codec is set to "gif."`
-			);
-			process.exit(1);
-		}
-
 		Config.Rendering.setEveryNthFrame(parsedCli['every-nth-frame']);
 	}
 

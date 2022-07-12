@@ -15,7 +15,7 @@ export const getAndValidateEveryNthFrame = (codec: Codec) => {
 
 	if (codec !== 'gif') {
 		throw new Error(
-			`"everyNthFrame" can only be set if "codec" is set to "gif"`
+			`"everyNthFrame" can only be set if "codec" is set to "gif". The codec is "${codec}"`
 		);
 	}
 
