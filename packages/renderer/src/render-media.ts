@@ -264,7 +264,7 @@ export const renderMedia = ({
 							stitcherFfmpeg?.stdin?.write(buffer);
 							Internals.perf.stopPerfMeasure(id);
 
-							setFrameToStitch(frame + 1);
+							setFrameToStitch(frame + everyNthFrame);
 					  }
 					: undefined,
 				serveUrl,

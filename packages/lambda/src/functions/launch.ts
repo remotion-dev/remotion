@@ -116,8 +116,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		params.everyNthFrame
 	);
 
-	// TODO: Validate if with everyNthFrame, this makes sense
-
 	const framesPerLambda =
 		params.framesPerLambda ?? bestFramesPerLambdaParam(frameCount.length);
 
@@ -136,7 +134,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 
 	const {chunks, didUseOptimization} = planFrameRanges({
-		chunkCount,
 		framesPerLambda,
 		optimization,
 		// TODO: Re-enable chunk optimization later
@@ -145,6 +142,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		durationInFrames: comp.durationInFrames,
 		everyNthFrame: params.everyNthFrame,
 	});
+
 	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
 	const invokers = Math.round(Math.sqrt(chunks.length));
 
@@ -234,6 +232,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			callingLambdaTimer.end();
 		})
 	);
+
 	reqSend.end();
 
 	let lastProgressUploaded = 0;
@@ -290,6 +289,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		});
 	};
 
+	const fps = comp.fps / params.everyNthFrame;
+
 	const {outfile, cleanupChunksProm, encodingStart} = await concatVideosS3({
 		bucket: params.bucketName,
 		expectedFiles: chunkCount,
@@ -299,7 +300,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		codec: params.codec,
 		expectedBucketOwner: options.expectedBucketOwner,
-		fps: comp.fps,
+		fps,
 		numberOfGifLoops: params.numberOfGifLoops,
 	});
 	if (!encodingStop) {
