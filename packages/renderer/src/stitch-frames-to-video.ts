@@ -18,6 +18,7 @@ import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-fi
 import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
 import type {Assets} from './assets/types';
 import {codecSupportsMedia} from './codec-supports-media';
+import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
 import {deleteDirectory} from './delete-directory';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
@@ -277,14 +278,11 @@ export const spawnFfmpeg = async (
 					['-i', options.assetsInfo.imageSequenceName],
 			  ]),
 		audio ? ['-i', audio] : null,
-		// TODO: Infinite loop
 		options.numberOfGifLoops === null
 			? null
 			: [
 					'-loop',
-					typeof options.numberOfGifLoops === 'number'
-						? options.numberOfGifLoops
-						: '-1',
+					convertNumberOfGifLoopsToFfmpegSyntax(options.numberOfGifLoops),
 			  ],
 		// -c:v is the same as -vcodec as -codec:video
 		// and specified the video codec.
