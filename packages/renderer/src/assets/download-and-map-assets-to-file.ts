@@ -46,7 +46,14 @@ const waitForAssetToBeDownloaded = ({
 
 	return new Promise<string>((resolve) => {
 		listeners[src][downloadDir].push(() => {
-			resolve(hasBeenDownloadedMap[src]?.[downloadDir] as string);
+			const srcMap = hasBeenDownloadedMap[src];
+			if (!srcMap || !srcMap[downloadDir]) {
+				throw new Error(
+					'Expected file for ' + src + 'to be available in ' + downloadDir
+				);
+			}
+
+			resolve(srcMap[downloadDir] as string);
 		});
 	});
 };
@@ -68,8 +75,6 @@ const notifyAssetIsDownloaded = ({
 		listeners[src][downloadDir] = [];
 	}
 
-	listeners[src][downloadDir].forEach((fn) => fn());
-
 	if (!isDownloadingMap[src]) {
 		isDownloadingMap[src] = {};
 	}
@@ -89,6 +94,8 @@ const notifyAssetIsDownloaded = ({
 			[downloadDir: string]: string | null;
 		}
 	)[downloadDir] = to;
+
+	listeners[src][downloadDir].forEach((fn) => fn());
 };
 
 const validateMimeType = (mimeType: string, src: string) => {

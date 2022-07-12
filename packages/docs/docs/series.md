@@ -1,7 +1,6 @@
 ---
 id: series
-title: <Series />
-sidebar_label: <Series />
+title: <Series>
 ---
 
 _Available from v.2.3.1_

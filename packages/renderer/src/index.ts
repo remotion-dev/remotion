@@ -26,6 +26,7 @@ import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
 import {spawnFfmpeg} from './stitch-frames-to-video';
 import {tmpDir} from './tmp-dir';
+import {validateConcurrency} from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
 import {validateFpsForGif} from './validate-fps-for-gif';
@@ -92,4 +93,5 @@ export const RenderInternals = {
 	canUseParallelEncoding,
 	mimeContentType,
 	mimeLookup,
+	validateConcurrency,
 };

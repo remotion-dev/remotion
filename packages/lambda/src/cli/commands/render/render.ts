@@ -109,6 +109,7 @@ export const renderCommand = async (args: string[]) => {
 		scale,
 		loop,
 		everyNthFrame,
+		concurrencyPerLambda: parsedLambdaCli['concurrency-per-lambda'],
 	});
 
 	const totalSteps = outName ? 5 : 4;

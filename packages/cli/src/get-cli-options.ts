@@ -233,9 +233,13 @@ export const getCliOptions = async (options: {
 	const everyNthFrame = Internals.getEveryNthFrame(codec);
 	const loop = Internals.getLoop();
 
+	const parallelism = Internals.getConcurrency();
+
+	RenderInternals.validateConcurrency(parallelism, 'concurrency');
+
 	return {
 		puppeteerTimeout: Internals.getCurrentPuppeteerTimeout(),
-		parallelism: Internals.getConcurrency(),
+		parallelism,
 		frameRange,
 		shouldOutputImageSequence,
 		codec,

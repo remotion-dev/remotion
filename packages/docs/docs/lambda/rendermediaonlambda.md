@@ -139,6 +139,12 @@ _optional, available from v2.6.5_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
+### `concurrencyPerLambda`
+
+_optional, available from v3.0.30_
+
+By default, each Lambda function renders with concurrency 1 (one open browser tab). You may use the option to customize this value.
+
 #### `disableWebSecurity`
 
 _boolean - default `false`_
