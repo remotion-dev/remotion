@@ -52,6 +52,7 @@ test('Should make a distributed GIF', async () => {
 			timeoutInMilliseconds: 12000,
 			numberOfGifLoops: null,
 			everyNthFrame: 2,
+			concurrencyPerLambda: 1,
 		},
 		extraContext
 	);
