@@ -40,7 +40,7 @@ export type RenderMediaOnLambdaInput = {
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
 	everyNthFrame?: number;
-	['number-of-gif-loops']: number | null;
+	numberOfGifLoops?: number | null;
 	concurrencyPerLambda?: number;
 };
 
@@ -90,7 +90,7 @@ export const renderMediaOnLambda = async ({
 	timeoutInMilliseconds,
 	chromiumOptions,
 	scale,
-	loop,
+	numberOfGifLoops,
 	everyNthFrame,
 	concurrencyPerLambda,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
@@ -123,7 +123,7 @@ export const renderMediaOnLambda = async ({
 			chromiumOptions: chromiumOptions ?? {},
 			scale: scale ?? 1,
 			everyNthFrame: everyNthFrame ?? 1,
-			numberOfGifLoops: loop,
+			numberOfGifLoops: numberOfGifLoops ?? 0,
 			concurrencyPerLambda: concurrencyPerLambda ?? 1,
 		},
 		region,

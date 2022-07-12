@@ -54,7 +54,7 @@ import {
 } from './config/image-format';
 import {getShouldOutputImageSequence} from './config/image-sequence';
 import * as Logging from './config/log';
-import {getLoop} from './config/loop';
+import {getNumberOfGifLoops} from './config/loop';
 import {getMaxTimelineTracks} from './config/max-timeline-tracks';
 import type {WebpackOverrideFn} from './config/override-webpack';
 import {
@@ -164,7 +164,7 @@ export const Internals = {
 	getWebpackOverrideFn,
 	getQuality,
 	getAndValidateEveryNthFrame,
-	getLoop,
+	getNumberOfGifLoops,
 	getScale,
 	getShouldOutputImageSequence,
 	validateSelectedCrfAndCodecCombination,

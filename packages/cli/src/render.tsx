@@ -64,7 +64,7 @@ export const render = async () => {
 		scale,
 		chromiumOptions,
 		port,
-		loop,
+		numberOfGifLoops,
 		everyNthFrame,
 	} = await getCliOptions({isLambda: false, type: 'series'});
 
@@ -287,7 +287,7 @@ export const render = async () => {
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 		scale,
 		port,
-		numberOfGifLoops: loop,
+		numberOfGifLoops,
 		everyNthFrame,
 	});
 

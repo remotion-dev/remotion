@@ -66,8 +66,7 @@ export const renderCommand = async (args: string[]) => {
 		quality,
 		scale,
 		everyNthFrame,
-		// loop=0 results in infinite
-		loop,
+		numberOfGifLoops,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -107,7 +106,7 @@ export const renderCommand = async (args: string[]) => {
 		timeoutInMilliseconds: puppeteerTimeout,
 		chromiumOptions,
 		scale,
-		loop,
+		numberOfGifLoops,
 		everyNthFrame,
 		concurrencyPerLambda: parsedLambdaCli['concurrency-per-lambda'],
 	});
