@@ -231,7 +231,7 @@ export const getCliOptions = async (options: {
 			Internals.DEFAULT_OPENGL_RENDERER,
 	};
 	const everyNthFrame = Internals.getAndValidateEveryNthFrame(codec);
-	const numberOfGifLoops = Internals.getNumberOfGifLoops();
+	const numberOfGifLoops = Internals.getAndValidateNumberOfGifLoops(codec);
 
 	const parallelism = Internals.getConcurrency();
 
