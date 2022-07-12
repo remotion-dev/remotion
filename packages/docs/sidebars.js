@@ -273,6 +273,7 @@ module.exports = {
         "gpu",
         "react-18",
         "miscellaneous/typescript-aliases",
+        "miscellaneous/render-all",
       ],
     },
     "3-0-migration",
