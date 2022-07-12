@@ -190,9 +190,9 @@ export const TeamCardsLayout: React.FC<{}> = () => {
 
         <ul style={{ ...list, flex: 1 }}>
           <li>
-            Coming from traditional business, I had the opportunity to join
-            Remotion. It allows me to express my passion for technology and
-            business, and uniquely combine these two.
+            {
+              "Coming from traditional business, I had the opportunity to join Remotion. It allows me to express my passion for technology and business, and uniquely combine these two."
+            }
           </li>
         </ul>
         <div style={row}>
@@ -277,7 +277,7 @@ export const TeamCardsLayout: React.FC<{}> = () => {
         <ul style={{ ...list, flex: 1 }}>
           <li>
             {
-              "My passion for programming and art led to Remotion. Where I'm able to work with cutting-edge technology while I'm doing my CS degree."
+              "My passion for programming and creative art led to Remotion, where I'm able to work with cutting-edge technology while I'm doing my CS degree."
             }
           </li>
         </ul>
