@@ -4,6 +4,7 @@ import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
 import type {LambdaReturnValues} from '../../../shared/return-values';
+import {disableLogs, enableLogs} from '../../disable-logs';
 
 jest.setTimeout(30000);
 
@@ -15,11 +16,11 @@ const extraContext = {
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
 beforeAll(() => {
-	//	disableLogs();
+	disableLogs();
 });
 
 afterAll(async () => {
-	//	enableLogs();
+	enableLogs();
 
 	await RenderInternals.killAllBrowsers();
 });
@@ -37,6 +38,7 @@ test('Should make a distributed GIF', async () => {
 			composition: 'framer',
 			crf: 9,
 			envVariables: {},
+			// 61 frames, which is uneven, to challenge the frame planner
 			frameRange: [0, 60],
 			framesPerLambda: 8,
 			imageFormat: 'png',
