@@ -54,8 +54,8 @@ import {
 } from './config/image-format';
 import {getShouldOutputImageSequence} from './config/image-sequence';
 import * as Logging from './config/log';
-import {getAndValidateNumberOfGifLoops} from './config/loop';
 import {getMaxTimelineTracks} from './config/max-timeline-tracks';
+import {getAndValidateNumberOfGifLoops} from './config/number-of-gif-loops';
 import type {WebpackOverrideFn} from './config/override-webpack';
 import {
 	defaultOverrideFunction,
