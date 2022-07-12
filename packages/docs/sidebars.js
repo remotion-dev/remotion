@@ -108,6 +108,7 @@ module.exports = {
         "stills",
         "scaling",
         "video-manipulation",
+        "render-as-gif",
       ],
     },
     {

@@ -81,9 +81,17 @@ Specify a location for a dotenv file. Default `.env`. Available in v2.2 and late
 
 ### `--every-nth-frame`
 
+_available from v3.1_
+
 [Render only every nth frame.](/docs/config#seteverynthframe) This option may only be set when rendering GIFs. This allows you to lower the FPS of the GIF.
 
-For example, if the `fps` is 30, and `--every-nth-frame` is 2, the FPS of the GIF is `15`.
+For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif#reducing-frame-rate)
+
+### `--loop`
+
+_available from v3.1_
+
+[Set the looping behavior.](/docs/config#setloop) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
 
 ### `--bundle-cache`
 

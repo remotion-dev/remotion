@@ -138,6 +138,20 @@ Specify a location for a dotenv file. Default `.env`.
 
 [Render a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` to select the first 10 frames. To render a still, use the [`still`](/docs/lambda/cli/still) command.
 
+### `--every-nth-frame`
+
+_available from v3.1_
+
+[Render only every nth frame.](/docs/config#seteverynthframe) This option may only be set when rendering GIFs. This allows you to lower the FPS of the GIF.
+
+For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif)
+
+### `--loop`
+
+_available from v3.1_
+
+[Set the looping behavior.](/docs/config#setloop) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
+
 ### `--out-name`
 
 The file name of the media output as stored in the S3 bucket. By default, it is `out` plus the appropriate file extension, for example: `out.mp4`. Must match `/([0-9a-zA-Z-!_.*'()]+)/g`.

@@ -252,6 +252,12 @@ _optional, available from v2.6.3_
 
 A number describing how long one frame may take to resolve all `delayRender()` calls before the render times out and fails. Default: `30000`
 
+### `everyNthFrame`
+
+_optional, available from v3.1_
+
+Renders only every nth frame. For example only every second frame, every third frame and so on. Only meant for rendering GIFs. [See here for more details.](/docs/render-as-gif)
+
 ### `chromiumOptions?`
 
 _optional, available from v2.6.5_

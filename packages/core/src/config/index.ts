@@ -154,7 +154,8 @@ export const Config = {
 		setScale,
 		/**
 		 * Specify which frames should be picked for rendering a GIF
-		 * Default: 1
+		 * Default: 1, which means every frame
+		 * https://remotion.dev/docs/render-as-gif
 		 */
 		setEveryNthFrame,
 		/**

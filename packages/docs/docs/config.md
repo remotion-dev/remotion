@@ -306,7 +306,7 @@ The [command line flag](/docs/cli/render#--ffprobe-executable) `--ffprobe-execut
 
 ### setEveryNthFrame()
 
-This option may only be set when rendering GIFs. It determines how many frames are rendered, while the other ones gets skipped in order to lower the FPS of the GIF.
+This option may only be set when rendering GIFs. [It determines how many frames are rendered, while the other ones gets skipped in order to lower the FPS of the GIF.](/docs/render-as-gif)
 
 For example, if the `fps` is 30, and `everyNthFrame` is 2, the FPS of the GIF is `15`.
 
@@ -320,7 +320,7 @@ The [command line flag](/docs/cli/render#--every-nth-frame) `--every-nth-frame` 
 
 ### setLoop()
 
-This option may only be set when rendering GIFs. If it is set, it will limit the amount of times a GIF will loop. If set to `0`, the GIF will play once, if set to `1`, it will play twice. If set to `null` or not set at all, it will play forever.
+This option may only be set when rendering GIFs. [If it is set, it will limit the amount of times a GIF will loop. If set to `0`, the GIF will play once, if set to `1`, it will play twice. If set to `null` or not set at all, it will play forever](/docs/render-as-gif).
 
 ```ts twoslash
 import { Config } from "remotion";
