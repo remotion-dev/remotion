@@ -1,6 +1,4 @@
-import type {
-	ComponentType,
-	MutableRefObject} from 'react';
+import type {ComponentType, MutableRefObject} from 'react';
 import React, {
 	forwardRef,
 	useCallback,
@@ -18,11 +16,9 @@ import type {
 	PlayableMediaTag,
 	SetMediaVolumeContextValue,
 	SetTimelineContextValue,
-	TimelineContextValue} from 'remotion';
-import {
-	Composition,
-	Internals
+	TimelineContextValue,
 } from 'remotion';
+import {Composition, Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
@@ -342,54 +338,56 @@ export const PlayerFn = <T,>(
 	}, [inputProps]);
 
 	return (
-		<Internals.Timeline.TimelineContext.Provider value={timelineContextValue}>
-			<Internals.Timeline.SetTimelineContext.Provider
-				value={setTimelineContextValue}
-			>
-				<Internals.CompositionManager.Provider
-					value={compositionManagerContext}
+		<Internals.CanUseRemotionHooksProvider>
+			<Internals.Timeline.TimelineContext.Provider value={timelineContextValue}>
+				<Internals.Timeline.SetTimelineContext.Provider
+					value={setTimelineContextValue}
 				>
-					<Internals.MediaVolumeContext.Provider
-						value={mediaVolumeContextValue}
+					<Internals.CompositionManager.Provider
+						value={compositionManagerContext}
 					>
-						<Internals.SetMediaVolumeContext.Provider
-							value={setMediaVolumeContextValue}
+						<Internals.MediaVolumeContext.Provider
+							value={mediaVolumeContextValue}
 						>
-							<Internals.SharedAudioContextProvider
-								numberOfAudioTags={numberOfSharedAudioTags}
+							<Internals.SetMediaVolumeContext.Provider
+								value={setMediaVolumeContextValue}
 							>
-								<PlayerEventEmitterContext.Provider value={emitter}>
-									<PlayerUI
-										ref={rootRef}
-										renderLoading={renderLoading}
-										autoPlay={Boolean(autoPlay)}
-										loop={Boolean(loop)}
-										controls={Boolean(controls)}
-										errorFallback={errorFallback}
-										style={style}
-										inputProps={passedInputProps}
-										allowFullscreen={Boolean(allowFullscreen)}
-										clickToPlay={
-											typeof clickToPlay === 'boolean'
-												? clickToPlay
-												: Boolean(controls)
-										}
-										showVolumeControls={Boolean(showVolumeControls)}
-										setMediaVolume={setMediaVolumeAndPersist}
-										mediaVolume={mediaVolume}
-										mediaMuted={mediaMuted}
-										doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
-										setMediaMuted={setMediaMuted}
-										spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
-										playbackRate={playbackRate}
-									/>
-								</PlayerEventEmitterContext.Provider>
-							</Internals.SharedAudioContextProvider>
-						</Internals.SetMediaVolumeContext.Provider>
-					</Internals.MediaVolumeContext.Provider>
-				</Internals.CompositionManager.Provider>
-			</Internals.Timeline.SetTimelineContext.Provider>
-		</Internals.Timeline.TimelineContext.Provider>
+								<Internals.SharedAudioContextProvider
+									numberOfAudioTags={numberOfSharedAudioTags}
+								>
+									<PlayerEventEmitterContext.Provider value={emitter}>
+										<PlayerUI
+											ref={rootRef}
+											renderLoading={renderLoading}
+											autoPlay={Boolean(autoPlay)}
+											loop={Boolean(loop)}
+											controls={Boolean(controls)}
+											errorFallback={errorFallback}
+											style={style}
+											inputProps={passedInputProps}
+											allowFullscreen={Boolean(allowFullscreen)}
+											clickToPlay={
+												typeof clickToPlay === 'boolean'
+													? clickToPlay
+													: Boolean(controls)
+											}
+											showVolumeControls={Boolean(showVolumeControls)}
+											setMediaVolume={setMediaVolumeAndPersist}
+											mediaVolume={mediaVolume}
+											mediaMuted={mediaMuted}
+											doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
+											setMediaMuted={setMediaMuted}
+											spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
+											playbackRate={playbackRate}
+										/>
+									</PlayerEventEmitterContext.Provider>
+								</Internals.SharedAudioContextProvider>
+							</Internals.SetMediaVolumeContext.Provider>
+						</Internals.MediaVolumeContext.Provider>
+					</Internals.CompositionManager.Provider>
+				</Internals.Timeline.SetTimelineContext.Provider>
+			</Internals.Timeline.TimelineContext.Provider>
+		</Internals.CanUseRemotionHooksProvider>
 	);
 };
 

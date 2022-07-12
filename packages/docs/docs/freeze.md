@@ -1,7 +1,6 @@
 ---
 id: freeze
-title: <Freeze />
-sidebar_label: <Freeze />
+title: <Freeze>
 ---
 
 import { FreezeExample } from "../components/FreezeExample/FreezeExample";

@@ -1,0 +1,44 @@
+import React, {useCallback, useEffect} from 'react';
+import {useKeybinding} from '../../../editor/helpers/use-keybinding';
+import {Button} from './Button';
+import type {THelpLink} from './get-help-link';
+import {ShortcutHint} from './ShortcutHint';
+
+export const HelpLink: React.FC<{
+	canHaveKeyboardShortcuts: boolean;
+	link: THelpLink;
+}> = ({canHaveKeyboardShortcuts, link}) => {
+	const openLink = useCallback(() => {
+		window.open(link.url, '_blank');
+	}, [link]);
+	const {registerKeybinding} = useKeybinding();
+
+	useEffect(() => {
+		if (!canHaveKeyboardShortcuts) {
+			return;
+		}
+
+		const onEditor = () => {
+			openLink();
+		};
+
+		const {unregister} = registerKeybinding({
+			event: 'keydown',
+			key: 'h',
+			callback: onEditor,
+			commandCtrlKey: true,
+		});
+		return () => unregister();
+	}, [canHaveKeyboardShortcuts, openLink, registerKeybinding]);
+
+	return (
+		<Button onClick={openLink}>
+			Help: {'"'}
+			{link.title}
+			{'"'}
+			{canHaveKeyboardShortcuts ? (
+				<ShortcutHint keyToPress="h" cmdOrCtrl />
+			) : null}
+		</Button>
+	);
+};

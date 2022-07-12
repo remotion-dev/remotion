@@ -1,6 +1,6 @@
 ---
 id: absolute-fill
-title: <AbsoluteFill />
+title: <AbsoluteFill>
 ---
 
 A helper component - it is an absolutely positioned `<div>` with the following styles:
