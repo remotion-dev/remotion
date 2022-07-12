@@ -20,9 +20,6 @@
   max-width: 1000px;
 }
 
-.writeright {
-  flex: 1;
-}
 
 @media screen and (max-width: 900px) {
   .writeincss {
@@ -31,16 +28,5 @@
   .writeincsstitle {
     font-size: 3.5em;
   }
-  .writeright {
-    margin-top: 30px;
-  }
 }
 
-.spacer {
-  height: 50px;
-  width: 50px;
-}
-
-.a:hover {
-  text-decoration: none;
-}
