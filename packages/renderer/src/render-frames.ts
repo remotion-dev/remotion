@@ -152,6 +152,7 @@ const innerRenderFrames = ({
 		composition.durationInFrames,
 		everyNthFrame
 	);
+	const lastFrame = framesToRender[framesToRender.length - 1];
 
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
 		const page = await puppeteerInstance.newPage();
@@ -210,7 +211,7 @@ const innerRenderFrames = ({
 
 	// Substract one because 100 frames will be 00-99
 	// --> 2 digits
-	const filePadLength = String(framesToRender.length - 1).length;
+	const filePadLength = String(String(lastFrame).length - 1).length;
 	let framesRendered = 0;
 
 	const poolPromise = getPool(pages);
@@ -232,7 +233,7 @@ const innerRenderFrames = ({
 				throw new Error('Render was stopped');
 			}
 
-			const paddedIndex = String(index).padStart(filePadLength, '0');
+			const paddedIndex = String(frame).padStart(filePadLength, '0');
 
 			const errorCallbackOnFrame = (err: Error) => {
 				onError(err);
