@@ -1,7 +1,7 @@
 import React from "react";
-import styles from "./lambdaheader.module.css";
+import styles from "./AboutUsHeader.module.css";
 
-export const LambdaHeader: React.FC = () => {
+export const AboutUsHeader: React.FC = () => {
   return (
     <div className={styles.writeincss}>
       <div style={{ flex: 1 }}>

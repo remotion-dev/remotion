@@ -1,11 +1,11 @@
 import React from "react";
-import { VideoApps } from "./VideoApps";
+import { TeamCardsLayout } from "./TeamCards";
 
 const center: React.CSSProperties = {
   textAlign: "center",
 };
 
-export const BuildApps: React.FC = () => {
+export const TitleTeamCards: React.FC = () => {
   return (
     <div>
       <h1 style={center}>
@@ -18,7 +18,7 @@ export const BuildApps: React.FC = () => {
           Team
         </span>
       </h1>
-      <VideoApps active="lambda" />
+      <TeamCardsLayout />
     </div>
   );
 };

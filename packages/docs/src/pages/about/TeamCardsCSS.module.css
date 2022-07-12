@@ -3,9 +3,8 @@
   flex-direction: row;
 }
 
-
 @media screen and (max-width: 900px) {
   .row {
-    flex-direction: column
+    flex-direction: column;
   }
 }
