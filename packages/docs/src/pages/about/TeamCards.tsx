@@ -1,12 +1,11 @@
-import { useColorMode } from "@docusaurus/theme-common";
 import React from "react";
-import { BlueButton } from "./Button";
 import { Spacer } from "./Spacer";
 import TeamCardsCSS from "./TeamCardsCSS.module.css";
 import Jonny from "../about/images/Jonny Burger.png";
 import Mehmet from "../about/images/Mehmet Ademi.png";
 import Patric from "../about/images/Patric Salvisberg.png";
 import { TwitterLogo, LinkedInLogo, GitHubLogo, EmailLogo } from "./icons";
+import { BlueButton } from "../../../components/layout/Button";
 
 const ButtonMailto = ({ mailto, label }) => {
   return <a href={mailto}>{label}</a>;
@@ -55,14 +54,6 @@ const list: React.CSSProperties = {
   fontWeight: 500,
 };
 
-const hr: React.CSSProperties = {
-  width: 20,
-  textAlign: "center",
-  borderTop: 0,
-  marginTop: 10,
-  marginBottom: 10,
-};
-
 const stepTitle: React.CSSProperties = {
   textAlign: "center",
   fontSize: "1.6em",
@@ -75,7 +66,6 @@ const docsButton: React.CSSProperties = {
 };
 
 export const TeamCardsLayout: React.FC<{}> = () => {
-  const { colorMode } = useColorMode();
   return (
     <div className={TeamCardsCSS.row}>
       <div style={step}>
@@ -273,8 +263,9 @@ export const TeamCardsLayout: React.FC<{}> = () => {
 
         <ul style={{ ...list, flex: 1 }}>
           <li>
-            My passion for programming and art led to Remotion. Where I'm able
-            to work with cutting-edge technology while I'm doing my CS degree.
+            {
+              "My passion for programming and art led to Remotion. Where I'm able to work with cutting-edge technology while I'm doing my CS degree."
+            }
           </li>
         </ul>
         <div style={row}>
