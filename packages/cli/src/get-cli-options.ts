@@ -230,7 +230,7 @@ export const getCliOptions = async (options: {
 			Internals.getChromiumOpenGlRenderer() ??
 			Internals.DEFAULT_OPENGL_RENDERER,
 	};
-	const everyNthFrame = Internals.getEveryNthFrame(codec);
+	const everyNthFrame = Internals.getAndValidateEveryNthFrame(codec);
 	const loop = Internals.getLoop();
 
 	const parallelism = Internals.getConcurrency();
