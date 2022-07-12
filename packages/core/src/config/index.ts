@@ -23,7 +23,7 @@ import {setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import type {LogLevel} from './log';
 import {setLogLevel} from './log';
-import {setLoop} from './loop';
+import {setNumberOfGifLoops} from './loop';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
 import type {WebpackConfiguration, WebpackOverrideFn} from './override-webpack';
 import {overrideWebpackConfig} from './override-webpack';
@@ -162,7 +162,7 @@ export const Config = {
 		 * Specify the number of Loop a GIF should have.
 		 * Default: null (means GIF will loop infinite)
 		 */
-		setLoop,
+		setNumberOfGifLoops,
 	},
 	Output: {
 		/**

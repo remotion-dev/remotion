@@ -318,17 +318,17 @@ Config.Rendering.setEveryNthFrame(2);
 
 The [command line flag](/docs/cli/render#--every-nth-frame) `--every-nth-frame` will take precedence over this option.
 
-### setLoop()
+### setNumberOfGifLoops()
 
 This option may only be set when rendering GIFs. [If it is set, it will limit the amount of times a GIF will loop. If set to `0`, the GIF will play once, if set to `1`, it will play twice. If set to `null` or not set at all, it will play forever](/docs/render-as-gif).
 
 ```ts twoslash
 import { Config } from "remotion";
 // ---cut---
-Config.Rendering.setLoop(2);
+Config.Rendering.setNumberOfGifLoops(2);
 ```
 
-The [command line flag](/docs/cli/render#--loop) `--loop` will take precedence over this option.
+The [command line flag](/docs/cli/render#--number-of-gif-loops) `--number-of-gif-loops` will take precedence over this option.
 
 ## Output
 

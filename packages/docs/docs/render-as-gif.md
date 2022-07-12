@@ -27,7 +27,7 @@ Commonly a GIF has a lower frame rate than a video. For this, we support a param
 
 <!-- Changing the title will change other links -->
 
-The `loop` option allows you to set the number of loops as follows:
+The `numberOfGifLoops` option allows you to set the number of loops as follows:
 
 - `null` (or omitting in the CLI) means to play the GIF indefinitely.
 - `0` disables looping.
@@ -35,9 +35,10 @@ The `loop` option allows you to set the number of loops as follows:
 - `2` loops the GIF twice (plays three times in total)
 - and so on.
 
-The `loop` option can be set:
+The `numberOfGifLoops` option can be set:
 
-- In the CLI using the `--loop=0` flag when rendering [locally](/docs/cli/render#--loop) or on [Lambda](/docs/lambda/cli/render#--loop).
+- In the CLI using the `--number-of-gif-loops=0` flag when rendering [locally](/docs/cli/render#--number-of-gif-loops) or on [Lambda](/docs/lambda/cli/render#--number-of-gif-loops).
+-
 
 ## Importing GIFs
 

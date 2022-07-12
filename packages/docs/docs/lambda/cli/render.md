@@ -146,11 +146,11 @@ _available from v3.1_
 
 For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif)
 
-### `--loop`
+### `--number-of-gif-loops`
 
 _available from v3.1_
 
-[Set the looping behavior.](/docs/config#setloop) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
+[Set the looping behavior.](/docs/config#setnumberofgifloops) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
 
 ### `--out-name`
 
