@@ -17,7 +17,10 @@ test('Can render a still using Node.JS APIs', async () => {
 		{webpackOverride}
 	);
 
+	console.log('DID BUNDLE');
+
 	const compositions = await getCompositions(bundled);
+	console.log('DID GETCOMPOSITIONS');
 
 	const composition = compositions.find(
 		(c) => c.id === 'react-svg'
@@ -37,6 +40,8 @@ test('Can render a still using Node.JS APIs', async () => {
 		ffmpegExecutable: null,
 		ffprobeExecutable: null,
 	});
+
+	console.log('DID SERVE');
 
 	const serveUrl = `http://localhost:${port}`;
 
@@ -70,15 +75,19 @@ test('Can render a still using Node.JS APIs', async () => {
 		/Cannot render still - "overwrite" option was set to false, but the output/
 	);
 
+	console.log('DID PASS UNHAPPY PATHS');
+
 	await renderStill({
 		composition,
 		output: testOut,
 		serveUrl,
 		frame: 100,
 	});
+	console.log('DID RENDERSTILL');
 
 	expect(existsSync(testOut)).toBe(true);
 	unlinkSync(testOut);
 
 	await close();
+	console.log('DID CLOSE');
 }, 90000);

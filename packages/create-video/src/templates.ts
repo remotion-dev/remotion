@@ -119,4 +119,19 @@ export const FEATURED_TEMPLATES: Template[] = [
 		},
 		cliId: 'audiogram',
 	},
+	{
+		homePageLabel: 'Tailwind',
+		shortName: 'Tailwind',
+		org: 'remotion-dev',
+		repoName: 'template-tailwind',
+		description: 'TypeScript and Tailwind starter',
+		longerDescription:
+			'A starter template with TypeScript and Tailwind already set up.',
+		promoVideo: {
+			muxId: 'OAe00WUpvsAyqAVSd4gehDCeWI81cI024RhTs9l2eB48w',
+			height: 720,
+			width: 1280,
+		},
+		cliId: 'tailwind',
+	},
 ];
