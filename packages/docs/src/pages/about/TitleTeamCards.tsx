@@ -8,16 +8,7 @@ const center: React.CSSProperties = {
 export const TitleTeamCards: React.FC = () => {
   return (
     <div>
-      <h1 style={center}>
-        Remotion{" "}
-        <span
-          style={{
-            color: "var(--ifm-color-primary)",
-          }}
-        >
-          Team
-        </span>
-      </h1>
+      <h1 style={center}>Team</h1>
       <TeamCardsLayout />
     </div>
   );
