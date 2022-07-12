@@ -10,6 +10,6 @@ export const setNumberOfGifLoops = (newLoop: Loop | null) => {
 	currentLoop = newLoop;
 };
 
-export const getLoop = () => {
+export const getNumberOfGifLoops = () => {
 	return currentLoop;
 };

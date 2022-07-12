@@ -60,10 +60,8 @@ export type RenderMediaOptions = {
 	envVariables?: Record<string, string>;
 	quality?: number;
 	frameRange?: FrameRange | null;
-	// TODO: Make every nth frame optional
-	everyNthFrame: number;
-	// TODO: Make optional at the end
-	numberOfGifLoops: number | null;
+	everyNthFrame?: number;
+	numberOfGifLoops?: number | null;
 	puppeteerInstance?: PuppeteerBrowser;
 	overwrite?: boolean;
 	onProgress?: RenderMediaOnProgress;
@@ -106,7 +104,6 @@ export const renderMedia = ({
 	onProgress,
 	overwrite,
 	onDownload,
-	everyNthFrame,
 	dumpBrowserLogs,
 	onBrowserLog,
 	onStart,
@@ -116,7 +113,6 @@ export const renderMedia = ({
 	browserExecutable,
 	port,
 	cancelSignal,
-	numberOfGifLoops,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
 	Internals.validateQuality(quality);
@@ -130,6 +126,8 @@ export const renderMedia = ({
 
 	validateScale(scale);
 
+	const everyNthFrame = options.everyNthFrame ?? 1;
+	const numberOfGifLoops = options.numberOfGifLoops ?? null;
 	const serveUrl = getServeUrlWithFallback(options);
 
 	let stitchStage: StitchingState = 'encoding';
@@ -190,7 +188,7 @@ export const renderMedia = ({
 	const {waitForRightTimeOfFrameToBeInserted, setFrameToStitch, waitForFinish} =
 		ensureFramesInOrder(realFrameRange);
 
-	const fps = composition.fps / everyNthFrame;
+	const fps = composition.fps / (everyNthFrame ?? 1);
 	Internals.validateFps(fps, 'in "renderMedia()"', codec);
 
 	const createPrestitcherIfNecessary = async () => {
