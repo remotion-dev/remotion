@@ -42,7 +42,6 @@ jobs:
           cd packages/lambda && pnpm run testintegration
   ssr-tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
     name: SSR integration
     steps:
       - uses: actions/checkout@main
@@ -68,6 +67,7 @@ jobs:
         run: |
           pnpm build
       - name: Test SSR
+        timeout-minutes: 5
         run: |
           cd packages/it-tests && pnpm run testssr
   build:
