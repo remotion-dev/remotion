@@ -66,6 +66,7 @@ export const render = async () => {
 		port,
 		numberOfGifLoops,
 		everyNthFrame,
+		puppeteerTimeout,
 	} = await getCliOptions({isLambda: false, type: 'series'});
 
 	if (!absoluteOutputFile) {
@@ -235,7 +236,7 @@ export const render = async () => {
 			parallelism,
 			puppeteerInstance,
 			quality,
-			timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+			timeoutInMilliseconds: puppeteerTimeout,
 			chromiumOptions,
 			scale,
 			ffmpegExecutable,
