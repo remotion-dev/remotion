@@ -21,6 +21,6 @@ export const ThreeDPlayer: React.FC = () => {
         videoSrc: phone,
         baseScale: 1,
       }}
-    ></Player>
+     />
   );
 };
