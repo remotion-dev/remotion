@@ -1,11 +1,11 @@
 import React from "react";
-import { Spacer } from "./Spacer";
 import TeamCardsCSS from "./TeamCardsCSS.module.css";
 import Jonny from "../about/images/Jonny Burger.png";
 import Mehmet from "../about/images/Mehmet Ademi.png";
 import Patric from "../about/images/Patric Salvisberg.png";
 import { TwitterLogo, LinkedInLogo, GitHubLogo, EmailLogo } from "./icons";
 import { BlueButton } from "../../../components/layout/Button";
+import { Spacer } from "../../../components/layout/Spacer";
 
 const ButtonMailto = ({ mailto, label }) => {
   return <a href={mailto}>{label}</a>;
