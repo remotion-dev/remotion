@@ -211,7 +211,7 @@ const innerRenderFrames = ({
 
 	// Substract one because 100 frames will be 00-99
 	// --> 2 digits
-	const filePadLength = String(String(lastFrame).length - 1).length;
+	const filePadLength = String(lastFrame).length;
 	let framesRendered = 0;
 
 	const poolPromise = getPool(pages);
