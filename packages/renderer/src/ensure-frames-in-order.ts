@@ -4,10 +4,7 @@ type Waiter = {
 	resolve: () => void;
 };
 
-export const ensureFramesInOrder = (
-	framesToRender: number[],
-	everyNthFrame: number
-) => {
+export const ensureFramesInOrder = (framesToRender: number[]) => {
 	let [frameToStitch] = framesToRender;
 	const finalFrame = framesToRender[framesToRender.length - 1];
 
