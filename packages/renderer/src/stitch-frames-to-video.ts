@@ -275,6 +275,7 @@ export const spawnFfmpeg = async (
 			: [
 					['-f', 'image2'],
 					['-s', `${options.width}x${options.height}`],
+					['-start_number', String(options.assetsInfo.firstFrameIndex)],
 					['-i', options.assetsInfo.imageSequenceName],
 			  ]),
 		audio ? ['-i', audio] : null,

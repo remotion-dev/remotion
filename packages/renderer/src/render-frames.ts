@@ -326,6 +326,7 @@ const innerRenderFrames = ({
 				assets,
 				downloadDir,
 				imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
+				firstFrameIndex: framesToRender[0],
 			},
 			frameCount: framesToRender.length,
 		};
