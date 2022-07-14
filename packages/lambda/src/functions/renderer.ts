@@ -3,6 +3,7 @@ import type {BrowserLog} from '@remotion/renderer';
 import {RenderInternals, renderMedia} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
+import type {Codec} from 'remotion';
 import {Internals} from 'remotion';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
@@ -77,6 +78,8 @@ const renderHandler = async (
 		)}.${RenderInternals.getFileExtensionFromCodec(params.codec, 'chunk')}`
 	);
 
+	const chunkCodec: Codec = params.codec === 'gif' ? 'h264-mkv' : params.codec;
+
 	await renderMedia({
 		composition: {
 			id: params.composition,
@@ -98,12 +101,12 @@ const renderHandler = async (
 				);
 			}
 
-			const duration = RenderInternals.getDurationFromFrameRange(
+			const allFrames = RenderInternals.getFramesToRender(
 				params.frameRange,
-				params.durationInFrames
+				params.everyNthFrame
 			);
 
-			if (renderedFrames === duration) {
+			if (renderedFrames === allFrames.length) {
 				console.log('Rendered all frames!');
 			}
 
@@ -143,7 +146,7 @@ const renderHandler = async (
 			logs.push(log);
 		},
 		outputLocation,
-		codec: params.codec,
+		codec: chunkCodec,
 		crf: params.crf ?? undefined,
 		ffmpegExecutable:
 			process.env.NODE_ENV === 'test' ? null : '/opt/bin/ffmpeg',
@@ -159,6 +162,8 @@ const renderHandler = async (
 		scale: params.scale,
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		port: null,
+		everyNthFrame: params.everyNthFrame,
+		numberOfGifLoops: null,
 	});
 
 	const endRendered = Date.now();

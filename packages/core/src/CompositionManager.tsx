@@ -1,6 +1,4 @@
-import type {
-	ComponentType,
-	LazyExoticComponent} from 'react';
+import type {ComponentType, LazyExoticComponent} from 'react';
 import React, {
 	createContext,
 	useCallback,
@@ -83,8 +81,8 @@ export type TAsset = {
 export type RenderAssetInfo = {
 	assets: TAsset[][];
 	imageSequenceName: string;
-	firstFrameIndex: number;
 	downloadDir: string;
+	firstFrameIndex: number;
 };
 
 export type CompositionManagerContext = {

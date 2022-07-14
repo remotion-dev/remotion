@@ -195,6 +195,8 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
+		everyNthFrame: number;
+		numberOfGifLoops: number | null;
 		concurrencyPerLambda: number;
 	};
 	launch: {
@@ -220,6 +222,8 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
+		everyNthFrame: number;
+		numberOfGifLoops: number | null;
 		concurrencyPerLambda: number;
 	};
 	status: {
@@ -255,6 +259,7 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
+		everyNthFrame: number;
 	};
 	still: {
 		type: LambdaRoutines.still;

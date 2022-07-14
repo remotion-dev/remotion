@@ -17,6 +17,8 @@ import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
 import type {Assets} from './assets/types';
+import {codecSupportsMedia} from './codec-supports-media';
+import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
 import {deleteDirectory} from './delete-directory';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
@@ -44,6 +46,7 @@ export type StitcherOptions = {
 	force: boolean;
 	assetsInfo: RenderAssetInfo;
 	pixelFormat?: PixelFormat;
+	numberOfGifLoops?: number | null;
 	codec?: Codec;
 	crf?: number | null;
 	onProgress?: (progress: number) => void;
@@ -159,7 +162,6 @@ export const spawnFfmpeg = async (
 		'width',
 		'passed to `stitchFramesToVideo()`'
 	);
-	Internals.validateFps(options.fps, 'passed to `stitchFramesToVideo()`');
 	const codec = options.codec ?? Internals.DEFAULT_CODEC;
 	validateEvenDimensionsWithCodec({
 		width: options.width,
@@ -167,6 +169,7 @@ export const spawnFfmpeg = async (
 		codec,
 		scale: 1,
 	});
+	Internals.validateFps(options.fps, 'in `stitchFramesToVideo()`', codec);
 	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
 	const pixelFormat = options.pixelFormat ?? Internals.DEFAULT_PIXEL_FORMAT;
 	await validateFfmpeg(options.ffmpegExecutable ?? null);
@@ -175,7 +178,8 @@ export const spawnFfmpeg = async (
 	const audioCodecName = getAudioCodecName(codec);
 	const proResProfileName = getProResProfileName(codec, options.proResProfile);
 
-	const isAudioOnly = encoderName === null;
+	const mediaSupport = codecSupportsMedia(codec);
+
 	const supportsCrf = encoderName && codec !== 'prores';
 
 	const tempFile = options.outputLocation
@@ -198,7 +202,10 @@ export const spawnFfmpeg = async (
 		}
 
 		console.log('[verbose] codec', codec);
-		console.log('[verbose] isAudioOnly', isAudioOnly);
+		console.log(
+			'[verbose] isAudioOnly',
+			mediaSupport.audio && !mediaSupport.video
+		);
 		console.log('[verbose] proResProfileName', proResProfileName);
 	}
 
@@ -213,19 +220,21 @@ export const spawnFfmpeg = async (
 		options.onProgress?.(Math.round(totalFrameProgress));
 	};
 
-	const audio = await getAssetsData({
-		assets: options.assetsInfo.assets,
-		downloadDir: options.assetsInfo.downloadDir,
-		onDownload: options.onDownload,
-		fps: options.fps,
-		expectedFrames,
-		verbose: options.verbose ?? false,
-		ffmpegExecutable: options.ffmpegExecutable ?? null,
-		ffprobeExecutable: options.ffprobeExecutable ?? null,
-		onProgress: (prog) => updateProgress(prog, 0),
-	});
+	const audio = mediaSupport.audio
+		? await getAssetsData({
+				assets: options.assetsInfo.assets,
+				downloadDir: options.assetsInfo.downloadDir,
+				onDownload: options.onDownload,
+				fps: options.fps,
+				expectedFrames,
+				verbose: options.verbose ?? false,
+				ffmpegExecutable: options.ffmpegExecutable ?? null,
+				ffprobeExecutable: options.ffprobeExecutable ?? null,
+				onProgress: (prog) => updateProgress(prog, 0),
+		  })
+		: null;
 
-	if (isAudioOnly) {
+	if (mediaSupport.audio && !mediaSupport.video) {
 		if (!audioCodecName) {
 			throw new TypeError(
 				'exporting audio but has no audio codec name. Report this in the Remotion repo.'
@@ -269,7 +278,15 @@ export const spawnFfmpeg = async (
 					['-start_number', String(options.assetsInfo.firstFrameIndex)],
 					['-i', options.assetsInfo.imageSequenceName],
 			  ]),
-		['-i', audio],
+		audio ? ['-i', audio] : null,
+		(options.numberOfGifLoops ?? null) === null
+			? null
+			: [
+					'-loop',
+					convertNumberOfGifLoopsToFfmpegSyntax(
+						options.numberOfGifLoops ?? null
+					),
+			  ],
 		// -c:v is the same as -vcodec as -codec:video
 		// and specified the video codec.
 		['-c:v', encoderName],

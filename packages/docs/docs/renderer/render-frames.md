@@ -15,32 +15,6 @@ If you want to render only a still image, use [renderStill()](/docs/renderer/ren
 In Remotion 3.0, we added the [`renderMedia()`](/docs/renderer/render-media) API which combines `renderFrames()` and `stitchFramesToVideo()` into one simplified step and performs the render faster. Prefer `renderMedia()` if you can.
 :::
 
-```ts
-const renderFrames: (options: {
-  composition: VideoConfig;
-  onFrameUpdate: (frame: number) => void;
-  onStart: (data: {
-    frameCount: number;
-  }) => void;
-  outputDir: string | null;
-  inputProps: unknown;
-  serveUrl: string;
-  imageFormat: "png" | "jpeg" | "none";
-  envVariables?: Record<string, string>;
-  parallelism?: number | null;
-  quality?: number;
-  frameRange?: number | [number, number] | null;
-  dumpBrowserLogs?: boolean;
-  puppeteerInstance?: puppeteer.Browser;
-  onFrameBuffer?: (buffer: Buffer, frame: number) => Promise<void>
-  onBrowserLog?: (log: BrowserLog) => void;
-  scale?: number;
-  ffmpegExecutable?: FfmpegExecutable;
-  browserExecutable?: BrowserExecutable;
-  cancelSignal?: CancelSignal;
-}): Promise<RenderFramesOutput>;
-```
-
 :::info
 Configuration in `remotion.config.ts` and CLI flags do not apply to this function. You must pass all options explicitly.
 :::
@@ -251,6 +225,12 @@ If you passed `null` to `outputDir`, this method will be called passing a buffer
 _optional, available from v2.6.3_
 
 A number describing how long one frame may take to resolve all `delayRender()` calls before the render times out and fails. Default: `30000`
+
+### `everyNthFrame`
+
+_optional, available from v3.1_
+
+Renders only every nth frame. For example only every second frame, every third frame and so on. Only meant for rendering GIFs. [See here for more details.](/docs/render-as-gif)
 
 ### `chromiumOptions?`
 
