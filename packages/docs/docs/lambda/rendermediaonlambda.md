@@ -139,11 +139,23 @@ _optional, available from v2.6.5_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
-### `concurrencyPerLambda`
+### `concurrencyPerLambda?`
 
 _optional, available from v3.0.30_
 
 By default, each Lambda function renders with concurrency 1 (one open browser tab). You may use the option to customize this value.
+
+### `everyNthFrame?`
+
+_optional, available from v3.1_
+
+Renders only every nth frame. For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif)
+
+### `numberOfGifLoops?`
+
+_optional, available since v3.1_
+
+[Set the looping behavior.](/docs/config#setnumberofgifloops) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
 
 #### `disableWebSecurity`
 

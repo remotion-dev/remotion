@@ -18,7 +18,7 @@ import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
-import {getDurationFromFrameRange} from './get-duration-from-frame-range';
+import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
@@ -60,6 +60,8 @@ export type RenderMediaOptions = {
 	envVariables?: Record<string, string>;
 	quality?: number;
 	frameRange?: FrameRange | null;
+	everyNthFrame?: number;
+	numberOfGifLoops?: number | null;
 	puppeteerInstance?: PuppeteerBrowser;
 	overwrite?: boolean;
 	onProgress?: RenderMediaOnProgress;
@@ -124,6 +126,8 @@ export const renderMedia = ({
 
 	validateScale(scale);
 
+	const everyNthFrame = options.everyNthFrame ?? 1;
+	const numberOfGifLoops = options.numberOfGifLoops ?? null;
 	const serveUrl = getServeUrlWithFallback(options);
 
 	let stitchStage: StitchingState = 'encoding';
@@ -184,12 +188,15 @@ export const renderMedia = ({
 	const {waitForRightTimeOfFrameToBeInserted, setFrameToStitch, waitForFinish} =
 		ensureFramesInOrder(realFrameRange);
 
+	const fps = composition.fps / (everyNthFrame ?? 1);
+	Internals.validateFps(fps, 'in "renderMedia()"', codec);
+
 	const createPrestitcherIfNecessary = async () => {
 		if (preEncodedFileLocation) {
 			preStitcher = await prespawnFfmpeg({
 				width: composition.width * (scale ?? 1),
 				height: composition.height * (scale ?? 1),
-				fps: composition.fps,
+				fps,
 				outputLocation: preEncodedFileLocation,
 				pixelFormat,
 				codec,
@@ -244,6 +251,7 @@ export const renderMedia = ({
 				quality,
 				frameRange: frameRange ?? null,
 				puppeteerInstance,
+				everyNthFrame,
 				onFrameBuffer: parallelEncoding
 					? async (buffer, frame) => {
 							await waitForRightTimeOfFrameToBeInserted(frame);
@@ -255,7 +263,9 @@ export const renderMedia = ({
 							stitcherFfmpeg?.stdin?.write(buffer);
 							Internals.perf.stopPerfMeasure(id);
 
-							setFrameToStitch(frame + 1);
+							setFrameToStitch(
+								Math.max(realFrameRange[1] + 1, frame + everyNthFrame)
+							);
 					  }
 					: undefined,
 				serveUrl,
@@ -290,7 +300,7 @@ export const renderMedia = ({
 				stitchFramesToVideo({
 					width: composition.width * (scale ?? 1),
 					height: composition.height * (scale ?? 1),
-					fps: composition.fps,
+					fps,
 					outputLocation,
 					internalOptions: {
 						preEncodedFileLocation,
@@ -310,6 +320,7 @@ export const renderMedia = ({
 						callUpdate();
 					},
 					onDownload,
+					numberOfGifLoops,
 					verbose: Internals.Logging.isEqualOrBelowLogLevel(
 						Internals.Logging.getLogLevel(),
 						'verbose'
@@ -321,10 +332,7 @@ export const renderMedia = ({
 			]);
 		})
 		.then(([buffer, stitchStart]) => {
-			encodedFrames = getDurationFromFrameRange(
-				frameRange ?? null,
-				composition.durationInFrames
-			);
+			encodedFrames = getFramesToRender(realFrameRange, everyNthFrame).length;
 			encodedDoneIn = Date.now() - stitchStart;
 			callUpdate();
 			return buffer;

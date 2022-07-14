@@ -166,7 +166,7 @@ export const PlayerFn = <T,>(
 		durationInFrames,
 		'of the <Player/> component'
 	);
-	Internals.validateFps(fps, 'as a prop of the <Player/> component');
+	Internals.validateFps(fps, 'as a prop of the <Player/> component', null);
 
 	if (typeof controls !== 'boolean' && typeof controls !== 'undefined') {
 		throw new TypeError(

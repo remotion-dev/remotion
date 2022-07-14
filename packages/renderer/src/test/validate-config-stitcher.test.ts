@@ -11,7 +11,7 @@ describe('Should validate invalid data passed to stitchFramesToVideo', () => {
 				width: 1000,
 			})
 		).rejects.toThrow(
-			/"fps" must be positive, but got -1 passed to `stitchFramesToVideo\(\)`/
+			/"fps" must be positive, but got -1 in `stitchFramesToVideo\(\)`/
 		);
 	});
 

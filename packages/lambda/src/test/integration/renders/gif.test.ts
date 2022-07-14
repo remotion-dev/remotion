@@ -1,11 +1,12 @@
 import {RenderInternals} from '@remotion/renderer';
+import {createWriteStream} from 'fs';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
 import type {LambdaReturnValues} from '../../../shared/return-values';
 import {disableLogs, enableLogs} from '../../disable-logs';
 
-jest.setTimeout(90000);
+jest.setTimeout(30000);
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
@@ -24,7 +25,7 @@ afterAll(async () => {
 	await RenderInternals.killAllBrowsers();
 });
 
-test('Should be able to render to another bucket', async () => {
+test('Should make a distributed GIF', async () => {
 	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
 	const res = await handler(
@@ -33,20 +34,18 @@ test('Should be able to render to another bucket', async () => {
 			serveUrl:
 				'https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/',
 			chromiumOptions: {},
-			codec: 'h264',
-			composition: 'react-svg',
+			codec: 'gif',
+			composition: 'framer',
 			crf: 9,
 			envVariables: {},
-			frameRange: [0, 12],
+			// 61 frames, which is uneven, to challenge the frame planner
+			frameRange: [0, 60],
 			framesPerLambda: 8,
 			imageFormat: 'png',
 			inputProps: {},
 			logLevel: 'warn',
 			maxRetries: 3,
-			outName: {
-				bucketName: 'my-other-bucket',
-				key: 'my-key',
-			},
+			outName: 'out.mp4',
 			pixelFormat: 'yuv420p',
 			privacy: 'public',
 			proResProfile: undefined,
@@ -54,7 +53,7 @@ test('Should be able to render to another bucket', async () => {
 			scale: 1,
 			timeoutInMilliseconds: 12000,
 			numberOfGifLoops: null,
-			everyNthFrame: 1,
+			everyNthFrame: 2,
 			concurrencyPerLambda: 1,
 		},
 		extraContext
@@ -76,11 +75,9 @@ test('Should be able to render to another bucket', async () => {
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 	});
-	const probe = await RenderInternals.execa('ffprobe', ['-'], {
-		stdin: file,
+	await new Promise<void>((resolve) => {
+		file.pipe(createWriteStream('gif.gif')).on('close', () => resolve());
 	});
-	expect(probe.stderr).toMatch(/Stream #0:0/);
-	expect(probe.stderr).toMatch(/Video: h264/);
-	expect(probe.stderr).toMatch(/Stream #0:1/);
-	expect(probe.stderr).toMatch(/Audio: aac/);
-});
+	const probe = await RenderInternals.execa('ffprobe', ['gif.gif']);
+	expect(probe.stderr).toMatch(/Video: gif, bgra, 1080x1080/);
+}, 90000);
