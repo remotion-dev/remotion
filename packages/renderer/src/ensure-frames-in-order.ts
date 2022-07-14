@@ -39,7 +39,7 @@ export const ensureFramesInOrder = (
 	};
 
 	const waitForFinish = async () => {
-		await waitForRightTimeOfFrameToBeInserted(finalFrame + everyNthFrame);
+		await waitForRightTimeOfFrameToBeInserted(finalFrame + 1);
 	};
 
 	return {
