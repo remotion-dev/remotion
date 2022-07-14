@@ -238,12 +238,14 @@ type Options = {
 
 const extractFrameFromVideoFn = async ({
 	time,
-	src,
 	ffmpegExecutable,
 	ffprobeExecutable,
 	imageFormat,
+	...options
 }: Options): Promise<Buffer> => {
-	await ensurePresentationTimestamps(src);
+	// We make a new copy of the video only for video because the conversion may affect
+	// audio rendering, so we work with 2 different files
+	const src = await ensurePresentationTimestamps(options.src);
 	const {specialVcodec, needsResize} = await getVideoInfo(
 		src,
 		ffprobeExecutable
