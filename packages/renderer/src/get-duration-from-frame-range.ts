@@ -1,16 +1,17 @@
-import type {FrameRange} from 'remotion';
-
-export const getDurationFromFrameRange = (
-	frameRange: FrameRange | null,
-	durationInFrames: number
-) => {
-	if (frameRange === null) {
-		return durationInFrames;
+export const getFramesToRender = (
+	frameRange: [number, number],
+	everyNthFrame: number
+): number[] => {
+	if (everyNthFrame === 0) {
+		throw new Error('everyNthFrame cannot be 0');
 	}
 
-	if (typeof frameRange === 'number') {
-		return 1;
-	}
-
-	return frameRange[1] - frameRange[0] + 1;
+	return new Array(frameRange[1] - frameRange[0] + 1)
+		.fill(true)
+		.map((_, index) => {
+			return index + frameRange[0];
+		})
+		.filter((index) => {
+			return index % everyNthFrame === 0;
+		});
 };

@@ -8,11 +8,9 @@ import type {
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
-	ProResProfile} from 'remotion';
-import {
-	Config,
-	Internals
+	ProResProfile,
 } from 'remotion';
+import {Config, Internals} from 'remotion';
 import {Log} from './log';
 
 export type CommandLineOptions = {
@@ -26,6 +24,8 @@ export type CommandLineOptions = {
 	['env-file']: string;
 	['ignore-certificate-errors']: string;
 	['disable-web-security']: string;
+	['every-nth-frame']: number;
+	['number-of-gif-loops']: number;
 	codec: Codec;
 	concurrency: number;
 	timeout: number;
@@ -93,6 +93,10 @@ export const parseCommandLine = (
 		);
 	}
 
+	if (parsedCli['number-of-gif-loops']) {
+		Config.Rendering.setNumberOfGifLoops(parsedCli['number-of-gif-loops']);
+	}
+
 	if (parsedCli['ffprobe-executable']) {
 		Config.Rendering.setFfprobeExecutable(
 			resolve(parsedCli['ffprobe-executable'])
@@ -113,10 +117,6 @@ export const parseCommandLine = (
 
 	if (parsedCli['disable-headless']) {
 		Config.Puppeteer.setChromiumHeadlessMode(false);
-	}
-
-	if (parsedCli.gl) {
-		Config.Puppeteer.setChromiumOpenGlRenderer(parsedCli.gl);
 	}
 
 	if (parsedCli.log) {
@@ -181,6 +181,14 @@ export const parseCommandLine = (
 
 	if (parsedCli.codec) {
 		Config.Output.setCodec(parsedCli.codec);
+	}
+
+	if (parsedCli['every-nth-frame']) {
+		Config.Rendering.setEveryNthFrame(parsedCli['every-nth-frame']);
+	}
+
+	if (parsedCli.gl) {
+		Config.Puppeteer.setChromiumOpenGlRenderer(parsedCli.gl);
 	}
 
 	if (parsedCli['prores-profile']) {

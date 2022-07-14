@@ -23,12 +23,14 @@ const start = async () => {
 	console.log(filelistDir);
 	for (let i = 0; i < dur / framesPerLambda; i++) {
 		await renderMedia({
-			codec: 'h264-mkv',
+			codec: 'h264',
 			composition: comps.find((c) => c.id === 'remote-video')!,
 			outputLocation: path.join(filelistDir, 'out/there' + i + '.mkv'),
 			serveUrl: bundled,
 			frameRange: [i * framesPerLambda, (i + 1) * framesPerLambda - 1],
 			parallelism: 1,
+			numberOfGifLoops: null,
+			everyNthFrame: 1,
 		});
 		console.log({i});
 	}
@@ -43,6 +45,7 @@ const start = async () => {
 		numberOfFrames: dur,
 		onProgress: () => console.log('progress'),
 		output: 'out/combined.mp4',
+		numberOfGifLoops: null,
 	});
 };
 
