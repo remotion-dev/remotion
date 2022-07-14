@@ -13,7 +13,7 @@ export function mimeLookup(path: string) {
 	}
 
 	// get the extension ("ext" or ".ext" or full path)
-	const ext = extname('x.' + path)
+	const ext = extname('.' + path)
 		.toLowerCase()
 		.substr(1);
 
@@ -66,12 +66,12 @@ function populateMaps(
 			}
 
 			// set the extension -> mime
-			_types[_ext] = type;
+			types[_ext] = type;
 		}
 	});
 }
 
-export function mimeContentType(str: string) {
+export function mimeContentType(str: string): false | string {
 	if (!str || typeof str !== 'string') {
 		return false;
 	}
