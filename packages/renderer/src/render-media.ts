@@ -330,11 +330,7 @@ export const renderMedia = ({
 			]);
 		})
 		.then(([buffer, stitchStart]) => {
-			encodedFrames = getFramesToRender(
-				frameRange ?? null,
-				composition.durationInFrames,
-				everyNthFrame
-			).length;
+			encodedFrames = getFramesToRender(realFrameRange, everyNthFrame).length;
 			encodedDoneIn = Date.now() - stitchStart;
 			callUpdate();
 			return buffer;
