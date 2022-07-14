@@ -186,7 +186,7 @@ export const renderMedia = ({
 	});
 
 	const {waitForRightTimeOfFrameToBeInserted, setFrameToStitch, waitForFinish} =
-		ensureFramesInOrder(realFrameRange);
+		ensureFramesInOrder(realFrameRange, everyNthFrame);
 
 	const fps = composition.fps / (everyNthFrame ?? 1);
 	Internals.validateFps(fps, 'in "renderMedia()"', codec);
