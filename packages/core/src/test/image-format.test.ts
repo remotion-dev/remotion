@@ -1,5 +1,5 @@
-import type {
-	ImageFormat} from '../config/image-format';
+import {describe, expect, test} from 'vitest';
+import type {ImageFormat} from '../config/image-format';
 import {
 	getUserPreferredImageFormat,
 	setImageFormat,

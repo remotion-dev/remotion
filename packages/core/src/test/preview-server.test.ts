@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest';
 import {getServerPort, setPort} from '../config/preview-server';
 import {expectToThrow} from './expect-to-throw';
 

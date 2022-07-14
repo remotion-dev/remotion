@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {validateNonNullImageFormat} from '../validation/validate-image-format';
 
 test('"none" is not a valid image format', () => {

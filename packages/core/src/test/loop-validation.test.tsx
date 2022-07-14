@@ -1,6 +1,10 @@
+/**
+ * @vitest-environment jsdom
+ */
 import {render} from '@testing-library/react';
 import type {ComponentType} from 'react';
 import React, {useContext} from 'react';
+import {describe, expect, test} from 'vitest';
 import {Internals} from '..';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
 import {Loop} from '../loop';
