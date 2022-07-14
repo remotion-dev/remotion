@@ -50,6 +50,8 @@ test('Should add silent audio if there is no audio', async () => {
 			quality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,
+			numberOfGifLoops: null,
+			everyNthFrame: 1,
 			concurrencyPerLambda: 1,
 		},
 		extraContext

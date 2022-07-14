@@ -26,5 +26,9 @@ export const getCodecName = (codec: Codec): string | null => {
 		return 'prores_ks';
 	}
 
+	if (codec === 'gif') {
+		return 'gif';
+	}
+
 	throw new TypeError(`Cannot find FFMPEG codec for ${codec}`);
 };
