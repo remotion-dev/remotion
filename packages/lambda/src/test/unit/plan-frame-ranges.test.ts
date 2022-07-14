@@ -4,7 +4,6 @@ test('Plan frame ranges should respect everyNthFrame', () => {
 	const planned = planFrameRanges({
 		framesPerLambda: 8,
 		shouldUseOptimization: false,
-		durationInFrames: 100,
 		everyNthFrame: 2,
 		frameRange: [0, 99],
 		optimization: null,
@@ -24,7 +23,6 @@ test('Should remove ranges that are not going to render', () => {
 	const planned = planFrameRanges({
 		framesPerLambda: 11,
 		shouldUseOptimization: false,
-		durationInFrames: 100,
 		everyNthFrame: 1,
 		frameRange: [0, 22],
 		optimization: null,
