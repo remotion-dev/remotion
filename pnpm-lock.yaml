@@ -703,9 +703,8 @@ importers:
   packages/renderer:
     specifiers:
       '@jonny/eslint-config': 3.0.266
-      '@testing-library/dom': ^8.7.2
-      '@testing-library/react': 13.1.1
-      '@types/jest': ^27.4.0
+      '@testing-library/dom': ^8.16.0
+      '@testing-library/react': 13.3.0
       '@types/node': ^16.7.5
       '@types/progress': 2.0.5
       '@types/react': 18.0.1
@@ -713,15 +712,14 @@ importers:
       eslint: 8.13.0
       execa: 5.1.1
       extract-zip: 2.0.1
-      jest: ^27.2.4
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
       remotion: 3.0.31
       source-map: ^0.8.0-beta.0
-      ts-jest: ^27.0.5
       typescript: ^4.7.0
+      vitest: ^0.18.0
       ws: 8.7.0
     dependencies:
       execa: 5.1.1
@@ -731,21 +729,19 @@ importers:
       ws: 8.7.0
     devDependencies:
       '@jonny/eslint-config': 3.0.266_6hvhxfirl4y3p6nuemvvvbadcu
-      '@testing-library/dom': 8.7.2
-      '@testing-library/react': 13.1.1_zpnidt7m3osuk7shl3s4oenomq
-      '@types/jest': 27.4.0
+      '@testing-library/dom': 8.16.0
+      '@testing-library/react': 13.3.0_zpnidt7m3osuk7shl3s4oenomq
       '@types/node': 16.10.2
       '@types/progress': 2.0.5
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
       eslint: 8.13.0
-      jest: 27.2.4
       prettier: 2.4.1
       prettier-plugin-organize-imports: 2.3.4_pxx7xhvr2bexxfjjff3nukai7m
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
-      ts-jest: 27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm
       typescript: 4.7.2
+      vitest: 0.18.0
 
   packages/three:
     specifiers:
@@ -7512,6 +7508,20 @@ packages:
       defer-to-connect: 1.1.3
     dev: false
 
+  /@testing-library/dom/8.16.0:
+    resolution: {integrity: sha512-uxF4zmnLHHDlmW4l+0WDjcgLVwCvH+OVLpD8Dfp+Bjfz85prwxWGbwXgJdLtkgjD0qfOzkJF9SmA6YZPsMYX4w==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/code-frame': 7.16.7
+      '@babel/runtime': 7.17.9
+      '@types/aria-query': 4.2.2
+      aria-query: 5.0.0
+      chalk: 4.1.2
+      dom-accessibility-api: 0.5.14
+      lz-string: 1.4.4
+      pretty-format: 27.2.4
+    dev: true
+
   /@testing-library/dom/8.7.2:
     resolution: {integrity: sha512-2zN0Zv9dMnaMAd4c/1E1ZChu4QrICyvWtkUvHFQBPhS1oG3VYGcM7SLGLYdda7187ILRXzIUOvOsbXQm4EASjA==}
     engines: {node: '>=12'}
@@ -7535,6 +7545,20 @@ packages:
     dependencies:
       '@babel/runtime': 7.15.4
       '@testing-library/dom': 8.7.2
+      '@types/react-dom': 18.0.0
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
+    dev: true
+
+  /@testing-library/react/13.3.0_zpnidt7m3osuk7shl3s4oenomq:
+    resolution: {integrity: sha512-DB79aA426+deFgGSjnf5grczDPiL4taK3hFaa+M5q7q20Kcve9eQottOG5kZ74KEr55v0tU2CQormSSDK87zYQ==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      react: ^18.0.0
+      react-dom: ^18.0.0
+    dependencies:
+      '@babel/runtime': 7.17.9
+      '@testing-library/dom': 8.16.0
       '@types/react-dom': 18.0.0
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
@@ -8757,6 +8781,11 @@ packages:
       '@babel/runtime-corejs3': 7.17.9
     dev: true
 
+  /aria-query/5.0.0:
+    resolution: {integrity: sha512-V+SM7AbUwJ+EBnB8+DXs0hPZHO0W6pqBcc0dW90OwtVG02PswOu/teuARoLQjdDOH+t9pJgGnW5/Qmouf3gPJg==}
+    engines: {node: '>=6.0'}
+    dev: true
+
   /arr-diff/4.0.0:
     resolution: {integrity: sha1-1kYQdP6/7HHn4VI1dhoyml3HxSA=}
     engines: {node: '>=0.10.0'}
@@ -9850,7 +9879,7 @@ packages:
       color-name: 1.1.4
 
   /color-name/1.1.3:
-    resolution: {integrity: sha1-p9BVi9icQveV3UIyj3QIMcpTvCU=}
+    resolution: {integrity: sha512-72fSenhMw2HZMTVHeCA9KCmpEIbzWiQsjN+BHcBbS9vr1mtt+vJjPdksIBNUmKAW8TFUDPJK5SUU3QhE9NEXDw==}
 
   /color-name/1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
@@ -10820,6 +10849,10 @@ packages:
     dependencies:
       esutils: 2.0.3
 
+  /dom-accessibility-api/0.5.14:
+    resolution: {integrity: sha512-NMt+m9zFMPZe0JcY9gN224Qvk6qLIdqex29clBvc/y75ZBX9YA9wNK3frsYvu2DI1xcCIwxwnX+TlsJ2DSOADg==}
+    dev: true
+
   /dom-accessibility-api/0.5.7:
     resolution: {integrity: sha512-ml3lJIq9YjUfM9TUnEPvEYWFSwivwIGBPKpewX7tii7fwCazA8yCioGdqQcNsItPpfFvSJ3VIdMQPj60LJhcQA==}
     dev: true
@@ -11561,7 +11594,7 @@ packages:
     dev: false
 
   /escape-string-regexp/1.0.5:
-    resolution: {integrity: sha1-G2HAViGQqN/2rjuyzwIAyhMLhtQ=}
+    resolution: {integrity: sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg==}
     engines: {node: '>=0.8.0'}
 
   /escape-string-regexp/2.0.0:
@@ -12741,7 +12774,7 @@ packages:
     resolution: {integrity: sha512-tSvCKtBr9lkF0Ex0aQiP9N+OpV4zi2r/Nee5VkRDbaqv35RLYMzbwQfFSZZH0kR+Rd6302UJZ2p/bJCEoR3VoQ==}
 
   /has-flag/3.0.0:
-    resolution: {integrity: sha1-tdRU3CGZriJWmfNGfloH87lVuv0=}
+    resolution: {integrity: sha512-sKJf1+ceQBr4SMkvQnBDNDtf4TXpVhVGateu0t918bl30FnbE2m4vNLX+VWe/dpjlb+HugGYzW7uQXH98HPEYw==}
     engines: {node: '>=4'}
 
   /has-flag/4.0.0:
@@ -14848,7 +14881,7 @@ packages:
     dev: false
 
   /lz-string/1.4.4:
-    resolution: {integrity: sha1-wNjq82BZ9wV5bh40SBHPTEmNOiY=}
+    resolution: {integrity: sha512-0ckx7ZHRPqb0oUm8zNr+90mtf9DQB60H1wMCjBtfi62Kl3a7JbHob6gA2bC+xRvZoOL+1hzUK8jeuEIQE8svEQ==}
     hasBin: true
 
   /make-dir/2.1.0:

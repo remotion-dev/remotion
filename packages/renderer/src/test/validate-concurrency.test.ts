@@ -1,13 +1,12 @@
+import {expect, test} from 'vitest';
 import {validateConcurrency} from '../validate-concurrency';
-import {expectToThrow} from './expect-to-throw';
 
 const invalidConcurrency: String = 'invalidConcurrency';
 
 test('setConcurrency should throw if concurrency is not a number', () => {
-	expectToThrow(
-		() => validateConcurrency(invalidConcurrency, 'concurrencyPerLambda'),
-		/concurrencyPerLambda must be a number but is/
-	);
+	expect(() =>
+		validateConcurrency(invalidConcurrency, 'concurrencyPerLambda')
+	).toThrow(/concurrencyPerLambda must be a number but is/);
 });
 
 test('setConcurrency should NOT throw if concurrency is a number', () => {
