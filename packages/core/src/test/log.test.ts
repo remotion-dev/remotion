@@ -1,5 +1,5 @@
-import type {
-	LogLevel} from '../config/log';
+import {describe, expect, test} from 'vitest';
+import type {LogLevel} from '../config/log';
 import {
 	getLogLevel,
 	isEqualOrBelowLogLevel,

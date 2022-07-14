@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest';
 import {validateMediaProps} from '../validate-media-props';
 import {expectToThrow} from './expect-to-throw';
 
