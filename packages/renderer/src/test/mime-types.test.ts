@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {mimeLookup} from '../mime-types';
 
 test('Should get mime types', () => {

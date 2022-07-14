@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest';
 import type {CodecOrUndefined} from '../config/codec';
 import {
 	getFinalOutputCodec,

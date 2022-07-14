@@ -1,4 +1,5 @@
 import path from 'path';
+import {expect, test} from 'vitest';
 import {guessExtensionForVideo} from '../guess-extension-for-media';
 
 test('Guess extension for media - H264', async () => {

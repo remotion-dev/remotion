@@ -1,10 +1,14 @@
+/**
+ * @vitest-environment jsdom
+ */
+import {afterAll, beforeEach, describe, expect, test, vitest} from 'vitest';
 import {getInputProps} from '../config/input-props';
 
 describe('input props', () => {
 	const OLD_ENV = process.env;
 
 	beforeEach(() => {
-		jest.resetModules(); // Most important - it clears the cache
+		vitest.resetModules(); // Most important - it clears the cache
 		process.env = {...OLD_ENV}; // Make a copy
 	});
 

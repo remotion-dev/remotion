@@ -1,4 +1,8 @@
+/**
+ * @vitest-environment jsdom
+ */
 import {render} from '@testing-library/react';
+import {describe, expect, test} from 'vitest';
 import {Sequence} from '../Sequence';
 import {expectToThrow} from './expect-to-throw';
 

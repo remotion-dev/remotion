@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {calculateDisplayVideoSize} from '../calculate-sar-dar-pixels';
 
 test('Should parse display dimensions based on SAR and DAR correctly', () => {

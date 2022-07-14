@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest';
 import {stitchFramesToVideo} from '../stitch-frames-to-video';
 
 describe('Should validate invalid data passed to stitchFramesToVideo', () => {
