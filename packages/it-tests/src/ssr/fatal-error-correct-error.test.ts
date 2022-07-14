@@ -1,4 +1,5 @@
 import { renderMedia } from "@remotion/renderer";
+import { expect, test } from "vitest";
 
 test("Fatal error on frame 10 should yield correct error", async () => {
   await expect(() => {
