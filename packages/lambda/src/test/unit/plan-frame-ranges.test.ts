@@ -16,21 +16,22 @@ test('Plan frame ranges should respect everyNthFrame', () => {
 		[48, 63],
 		[64, 79],
 		[80, 95],
-		[96, 97],
+		[96, 98],
 	]);
 });
 
 test('Should remove ranges that are not going to render', () => {
 	const planned = planFrameRanges({
-		framesPerLambda: 5,
+		framesPerLambda: 11,
 		shouldUseOptimization: false,
 		durationInFrames: 100,
-		everyNthFrame: 10,
-		frameRange: [0, 99],
+		everyNthFrame: 1,
+		frameRange: [0, 22],
 		optimization: null,
 	});
 	expect(planned.chunks).toEqual([
-		[0, 49],
-		[50, 89],
+		[0, 10],
+		[11, 21],
+		[22, 22],
 	]);
 });
