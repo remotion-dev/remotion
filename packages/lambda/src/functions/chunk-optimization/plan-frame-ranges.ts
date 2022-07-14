@@ -51,10 +51,8 @@ export const planFrameRanges = ({
 			const end =
 				Math.min(
 					framesToRender[framesToRender.length - 1],
-					(i + 1) * framesPerLambda * everyNthFrame
-				) -
-				1 +
-				firstFrame;
+					(i + 1) * framesPerLambda * everyNthFrame - 1
+				) + firstFrame;
 
 			return [start, end];
 		}),
