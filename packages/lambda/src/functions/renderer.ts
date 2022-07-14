@@ -103,7 +103,6 @@ const renderHandler = async (
 
 			const allFrames = RenderInternals.getFramesToRender(
 				params.frameRange,
-				params.durationInFrames,
 				params.everyNthFrame
 			);
 

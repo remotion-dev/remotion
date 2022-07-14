@@ -112,7 +112,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	const frameCount = RenderInternals.getFramesToRender(
 		realFrameRange,
-		comp.durationInFrames,
 		params.everyNthFrame
 	);
 
@@ -139,7 +138,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		// TODO: Re-enable chunk optimization later
 		shouldUseOptimization: false,
 		frameRange: realFrameRange,
-		durationInFrames: comp.durationInFrames,
 		everyNthFrame: params.everyNthFrame,
 	});
 

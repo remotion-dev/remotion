@@ -152,9 +152,12 @@ export const render = async () => {
 	Log.verbose('Output dir', outputDir);
 
 	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
-	const totalFrames: number[] = RenderInternals.getFramesToRender(
-		frameRange,
+	const realFrameRange = RenderInternals.getRealFrameRange(
 		config.durationInFrames,
+		frameRange
+	);
+	const totalFrames: number[] = RenderInternals.getFramesToRender(
+		realFrameRange,
 		everyNthFrame
 	);
 	let encodedFrames = 0;

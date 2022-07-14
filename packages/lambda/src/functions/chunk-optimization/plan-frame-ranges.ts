@@ -7,22 +7,19 @@ export const planFrameRanges = ({
 	optimization,
 	shouldUseOptimization,
 	frameRange,
-	durationInFrames,
 	everyNthFrame,
 }: {
 	framesPerLambda: number;
 	optimization: OptimizationProfile | null;
 	shouldUseOptimization: boolean;
 	frameRange: [number, number];
-	durationInFrames: number;
 	everyNthFrame: number;
 }): {chunks: [number, number][]; didUseOptimization: boolean} => {
-	const frameCount = RenderInternals.getFramesToRender(
+	const framesToRender = RenderInternals.getFramesToRender(
 		frameRange,
-		durationInFrames,
 		everyNthFrame
 	);
-	const chunkCount = Math.ceil(frameCount.length / framesPerLambda);
+	const chunkCount = Math.ceil(framesToRender.length / framesPerLambda);
 
 	if (
 		canUseOptimization({
@@ -37,12 +34,6 @@ export const planFrameRanges = ({
 			didUseOptimization: true,
 		};
 	}
-
-	const framesToRender = RenderInternals.getFramesToRender(
-		frameRange,
-		durationInFrames,
-		everyNthFrame
-	);
 
 	const firstFrame = frameRange[0];
 	return {
