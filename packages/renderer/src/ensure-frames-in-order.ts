@@ -4,7 +4,10 @@ type Waiter = {
 	resolve: () => void;
 };
 
-export const ensureFramesInOrder = (framesToRender: number[]) => {
+export const ensureFramesInOrder = (
+	framesToRender: number[],
+	everyNthFrame: number
+) => {
 	let [frameToStitch] = framesToRender;
 	const finalFrame = framesToRender[framesToRender.length - 1];
 
@@ -36,7 +39,7 @@ export const ensureFramesInOrder = (framesToRender: number[]) => {
 	};
 
 	const waitForFinish = async () => {
-		await waitForRightTimeOfFrameToBeInserted(finalFrame + 1);
+		await waitForRightTimeOfFrameToBeInserted(finalFrame + everyNthFrame);
 	};
 
 	return {

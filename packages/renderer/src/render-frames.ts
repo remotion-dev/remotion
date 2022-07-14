@@ -147,11 +147,7 @@ const innerRenderFrames = ({
 		frameRange ?? null
 	);
 
-	const framesToRender = getFramesToRender(
-		realFrameRange,
-		composition.durationInFrames,
-		everyNthFrame
-	);
+	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
