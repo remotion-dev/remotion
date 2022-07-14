@@ -1,15 +1,23 @@
 import execa from 'execa';
-import {rename, unlink} from 'fs/promises';
 import path from 'path';
 import {Internals} from 'remotion';
 import {guessExtensionForVideo} from './guess-extension-for-media';
 
-const ensureFileHasPresentationTimestamp: Record<string, 'encoding' | 'done'> =
-	{};
+type EncodingStatus =
+	| {
+			type: 'encoding';
+	  }
+	| {
+			type: 'done';
+			src: string;
+	  }
+	| undefined;
+
+const ensureFileHasPresentationTimestamp: Record<string, EncodingStatus> = {};
 
 type Callback = {
 	src: string;
-	fn: () => void;
+	fn: (newsrc: string) => void;
 };
 
 let callbacks: Callback[] = [];
@@ -35,21 +43,24 @@ const getTemporaryOutputName = async (src: string) => {
 		.join(path.sep);
 };
 
-export const ensurePresentationTimestamps = async (src: string) => {
-	if (ensureFileHasPresentationTimestamp[src] === 'encoding') {
-		return new Promise<void>((resolve) => {
+export const ensurePresentationTimestamps = async (
+	src: string
+): Promise<string> => {
+	const elem = ensureFileHasPresentationTimestamp[src];
+	if (elem?.type === 'encoding') {
+		return new Promise<string>((resolve) => {
 			callbacks.push({
 				src,
-				fn: () => resolve(),
+				fn: (newSrc: string) => resolve(newSrc),
 			});
 		});
 	}
 
-	if (ensureFileHasPresentationTimestamp[src] === 'done') {
-		return;
+	if (elem?.type === 'done') {
+		return elem.src;
 	}
 
-	ensureFileHasPresentationTimestamp[src] = 'encoding';
+	ensureFileHasPresentationTimestamp[src] = {type: 'encoding'};
 
 	// If there is no file extension for the video, then we need to tempoa
 	const output = await getTemporaryOutputName(src);
@@ -67,16 +78,14 @@ export const ensurePresentationTimestamps = async (src: string) => {
 		'-y',
 	]);
 
-	await unlink(src);
-	await rename(output, src);
-
 	callbacks = callbacks.filter((c) => {
 		if (c.src === src) {
-			c.fn();
+			c.fn(output);
 			return false;
 		}
 
 		return true;
 	});
-	ensureFileHasPresentationTimestamp[src] = 'done';
+	ensureFileHasPresentationTimestamp[src] = {type: 'done', src: output};
+	return output;
 };
