@@ -1,6 +1,6 @@
+import {describe, expect, test} from 'vitest';
 import type {Codec} from '../config';
-import type {
-	PixelFormat} from '../config/pixel-format';
+import type {PixelFormat} from '../config/pixel-format';
 import {
 	getPixelFormat,
 	setPixelFormat,

@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest';
 import {getMediaTime} from '../video/get-current-time';
 
 describe('correctly calculate media time of video element', () => {
