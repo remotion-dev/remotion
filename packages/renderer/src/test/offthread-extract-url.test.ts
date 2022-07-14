@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {extractUrlAndSourceFromUrl} from '../offthread-video-server';
 
 test('Extract URL correctly', () => {

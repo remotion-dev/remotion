@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import {expect, test} from 'vitest';
 import type {LastFrameOptions} from '../last-frame-from-video-cache';
 import {
 	clearLastFileCache,
