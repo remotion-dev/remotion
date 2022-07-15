@@ -36,18 +36,18 @@ npm init video
 ```
 
   </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm create video
+```
+
+  </TabItem>
 
   <TabItem value="yarn">
 
 ```bash
 yarn create video
-```
-
-  </TabItem>
-  <TabItem value="pnpm">
-
-```bash
-pnpm create video
 ```
 
   </TabItem>
