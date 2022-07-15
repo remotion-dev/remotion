@@ -7,6 +7,7 @@ import {
 } from "@remotion/renderer";
 import path from "path";
 import { existsSync } from "fs";
+import { afterEach, expect, test } from "vitest";
 
 afterEach(async () => {
   await RenderInternals.killAllBrowsers();

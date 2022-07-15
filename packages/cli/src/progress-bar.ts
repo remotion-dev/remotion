@@ -1,4 +1,6 @@
 import type {StitchingState} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
+import type {Codec} from 'remotion';
 import {Internals} from 'remotion';
 import {AnsiDiff} from './ansi/ansi-diff';
 import {chalk} from './chalk';
@@ -86,6 +88,7 @@ type StitchingProgressInput = {
 	steps: RenderStep[];
 	doneIn: number | null;
 	stage: StitchingState;
+	codec: Codec;
 };
 
 export const makeStitchingProgress = ({
@@ -94,14 +97,17 @@ export const makeStitchingProgress = ({
 	steps,
 	doneIn,
 	stage,
+	codec,
 }: StitchingProgressInput) => {
 	const progress = frames / totalFrames;
 	return [
 		`(${steps.indexOf('stitching') + 1}/${steps.length})`,
 		makeProgressBar(progress),
-		stage === 'muxing'
+		stage === 'muxing' && RenderInternals.canUseParallelEncoding(codec)
 			? `${doneIn ? 'Muxed' : 'Muxing'} audio`
-			: `${doneIn ? 'Encoded' : 'Encoding'} video`,
+			: `${doneIn ? 'Encoded' : 'Encoding'} ${
+					codec === 'gif' ? 'GIF' : 'video'
+			  }`,
 		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
 	].join(' ');
 };

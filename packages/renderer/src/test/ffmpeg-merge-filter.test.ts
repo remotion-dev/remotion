@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {createFfmpegMergeFilter} from '../create-ffmpeg-merge-filter';
 
 test('FFMPEG merge filters', () => {

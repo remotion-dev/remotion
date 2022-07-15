@@ -72,3 +72,7 @@ This will most notably disable CORS in Chrome among other security features.
 ### `--disable-headless`
 
 Opens an actual browser to observe the composition fetching.
+
+### `--quiet`, `--q`
+
+Only prints the composition IDs, separated by a space.

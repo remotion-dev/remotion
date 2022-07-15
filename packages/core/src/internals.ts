@@ -38,6 +38,7 @@ import {
 	validateSelectedCrfAndCodecCombination,
 } from './config/crf';
 import {getDotEnvLocation} from './config/env-file';
+import {getAndValidateEveryNthFrame} from './config/every-nth-frame';
 import {
 	getCustomFfmpegExecutable,
 	getCustomFfprobeExecutable,
@@ -54,6 +55,7 @@ import {
 import {getShouldOutputImageSequence} from './config/image-sequence';
 import * as Logging from './config/log';
 import {getMaxTimelineTracks} from './config/max-timeline-tracks';
+import {getAndValidateNumberOfGifLoops} from './config/number-of-gif-loops';
 import type {WebpackOverrideFn} from './config/override-webpack';
 import {
 	defaultOverrideFunction,
@@ -161,6 +163,8 @@ export const Internals = {
 	getOutputCodecOrUndefined,
 	getWebpackOverrideFn,
 	getQuality,
+	getAndValidateEveryNthFrame,
+	getAndValidateNumberOfGifLoops,
 	getScale,
 	getShouldOutputImageSequence,
 	validateSelectedCrfAndCodecCombination,

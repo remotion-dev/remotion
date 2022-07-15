@@ -53,6 +53,8 @@ test('Should be able to render to another bucket', async () => {
 			quality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,
+			numberOfGifLoops: null,
+			everyNthFrame: 1,
 			concurrencyPerLambda: 1,
 		},
 		extraContext

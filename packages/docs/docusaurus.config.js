@@ -119,6 +119,10 @@ module.exports = {
           title: "More",
           items: [
             {
+              label: "About us",
+              to: "about",
+            },
+            {
               label: "Blog",
               to: "blog",
             },

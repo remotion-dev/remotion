@@ -108,6 +108,7 @@ module.exports = {
         "stills",
         "scaling",
         "video-manipulation",
+        "render-as-gif",
       ],
     },
     {
@@ -283,6 +284,7 @@ module.exports = {
         "gpu",
         "react-18",
         "miscellaneous/typescript-aliases",
+        "miscellaneous/render-all",
       ],
     },
     "3-0-migration",
