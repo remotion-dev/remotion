@@ -28,7 +28,7 @@ npx create-video --tailwind
   <TabItem value="yarn">
 
 ```bash
-pnpm create video -- --tailwind
+yarn create video -- --tailwind
 ```
 
   </TabItem>
@@ -36,7 +36,7 @@ pnpm create video -- --tailwind
   <TabItem value="pnpm">
 
 ```bash
-yarn create video --tailwind
+pnpm create video --tailwind
 ```
 
   </TabItem>
