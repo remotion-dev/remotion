@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import type {MediaAsset} from '../assets/types';
 import {calculateFfmpegFilter} from '../calculate-ffmpeg-filters';
 

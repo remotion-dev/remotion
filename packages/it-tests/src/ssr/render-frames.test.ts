@@ -8,6 +8,7 @@ import {
   stitchFramesToVideo,
 } from "@remotion/renderer";
 import execa from "execa";
+import { expect, test } from "vitest";
 
 test("Legacy SSR way or rendering videos should still work", async () => {
   const puppeteerInstance = await openBrowser("chrome");

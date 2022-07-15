@@ -38,7 +38,7 @@ Instead of rendering a video, [you can also just export the audio.](/docs/encodi
 
 ### Image Sequence
 
-Instead of encoding as a video, you can use the [`--sequence`](/docs/cli#--sequence) command to output a series of image.
+Instead of encoding as a video, you can use the [`--sequence`](/docs/cli/render#--sequence) command to output a series of image.
 
 ### Still images
 

@@ -1,7 +1,6 @@
 import path from 'path';
+import {expect, test} from 'vitest';
 import {extractFrameFromVideo} from '../extract-frame-from-video';
-
-jest.setTimeout(90000);
 
 const src = path.join(
 	__dirname,

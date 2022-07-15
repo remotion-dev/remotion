@@ -1,3 +1,7 @@
+/**
+ * @vitest-environment jsdom
+ */
+import {describe, expect, test} from 'vitest';
 import {continueRender, delayRender} from '../delay-render';
 
 describe('Ready Manager tests', () => {

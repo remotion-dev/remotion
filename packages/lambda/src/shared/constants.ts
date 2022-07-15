@@ -195,6 +195,8 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
+		everyNthFrame: number;
+		numberOfGifLoops: number | null;
 		concurrencyPerLambda: number;
 	};
 	launch: {
@@ -220,6 +222,8 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
+		everyNthFrame: number;
+		numberOfGifLoops: number | null;
 		concurrencyPerLambda: number;
 	};
 	status: {
@@ -255,6 +259,7 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
+		everyNthFrame: number;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -307,6 +312,8 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2022-07-15'
+	| '2022-07-14'
 	| '2022-07-12'
 	| '2022-07-10'
 	| '2022-07-09'
@@ -393,7 +400,7 @@ export type LambdaVersions =
 	| '2021-06-23'
 	| 'n/a';
 
-export const CURRENT_VERSION: LambdaVersions = '2022-07-12';
+export const CURRENT_VERSION: LambdaVersions = '2022-07-15';
 
 export type PostRenderData = {
 	cost: {

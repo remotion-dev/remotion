@@ -11,36 +11,6 @@ Render a video or an audio programmatically.
 In Remotion 3.0, we added the [`renderMedia()`](/docs/renderer/render-media) API which combines `renderFrames()` and `stitchFramesToVideo()` into one simplified step and performs the render faster. Prefer `renderMedia()` if you can.
 :::
 
-```ts
-const renderMedia: (options: {
-  outputLocation?: string | undefined;
-  codec: Codec;
-  composition: SmallTCompMetadata;
-  inputProps?: unknown;
-  parallelism?: number | null;
-  crf?: number | null;
-  imageFormat?: "png" | "jpeg" | "none";
-  ffmpegExecutable?: FfmpegExecutable;
-  pixelFormat?: PixelFormat;
-  envVariables?: Record<string, string>;
-  quality?: number;
-  frameRange?: FrameRange | null;
-  puppeteerInstance?: PuppeteerBrowser;
-  overwrite?: boolean;
-  onProgress?: RenderMediaOnProgress;
-  onDownload?: RenderMediaOnDownload;
-  proResProfile?: ProResProfile;
-  dumpBrowserLogs?: boolean;
-  onBrowserLog?: ((log: BrowserLog) => void) | undefined;
-  onStart?: (data: OnStartData) => void;
-  timeoutInMilliseconds?: number;
-  chromiumOptions?: ChromiumOptions;
-  scale?: number;
-  cancelSignal?: CancelSignal;
-  serveUrl: string;
-}) => Promise<Buffer | null>;
-```
-
 ## Arguments
 
 An object with the following properties:
@@ -67,7 +37,7 @@ An object describing a composition using `id`, `width`, `height`, `fps` and `dur
 
 ### `codec`
 
-_"h264" (default) | "h265" | "vp8" | "vp9" | "mp3" | "aac" | "wav" | "prores" | "h264-mkv"_
+_"h264" (default) | "h265" | "vp8" | "vp9" | "mp3" | "aac" | "wav" | "prores" | "h264-mkv" | "gif"_
 
 Choose a suitable codec for your output media. Refer to the [Encoding guide](/docs/encoding) to find the best codec for your use case.
 
@@ -79,7 +49,7 @@ An object of arbitrary shape that will be passed as [props to your composition](
 
 ### `parallelism`
 
-_number | null - optional_
+_number | null - optional_
 
 How many threads should be used for rendering frames. By default `null`, which will use half of the threads that your CPU has.  
 Type `node -e "console.log(require('os').cpus().length)"` into your command line to find out how many threads your CPU has.
@@ -117,6 +87,18 @@ An absolute path overriding the `ffprobe` executable to use.
 _optional, available from v3.0.11_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
+
+### `everyNthFrame?`
+
+_optional, available from v3.1_
+
+Renders only every nth frame. For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif)
+
+### `numberOfGifLoops?`
+
+_optional, available since v3.1_
+
+[Set the looping behavior.](/docs/config#setnumberofgifloops) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
 
 ### `pixelFormat`
 

@@ -23,4 +23,5 @@ export type OptimizationProfile = {
 	createdFromRenderId: string;
 	framesPerLambda: number;
 	lambdaVersion: LambdaVersions;
+	everyNthFrame: number;
 };

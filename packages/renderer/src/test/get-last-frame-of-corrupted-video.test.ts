@@ -1,4 +1,5 @@
 import path from 'path';
+import {test} from 'vitest';
 import {getLastFrameOfVideo} from '../extract-frame-from-video';
 
 test('Get last frame of corrupted video', async () => {

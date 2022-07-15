@@ -8,6 +8,7 @@ const validCodecs = [
 	'wav',
 	'prores',
 	'h264-mkv',
+	'gif',
 ] as const;
 
 export type Codec = typeof validCodecs[number];
@@ -110,6 +111,14 @@ export const getFinalOutputCodec = ({
 		}
 
 		return 'h264-mkv';
+	}
+
+	if (inputCodec === undefined && fileExtension === 'gif') {
+		if (emitWarning) {
+			console.info('You have specified a .gif extension, rendering a GIF');
+		}
+
+		return 'gif';
 	}
 
 	return inputCodec ?? DEFAULT_CODEC;

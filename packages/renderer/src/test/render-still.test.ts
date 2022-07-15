@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {renderStill} from '../render-still';
 
 test('Need to pass valid metadata', () => {

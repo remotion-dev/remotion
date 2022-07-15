@@ -40,6 +40,8 @@ export const startHandler = async (params: LambdaPayload) => {
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
 		scale: params.scale,
+		numberOfGifLoops: params.numberOfGifLoops,
+		everyNthFrame: params.everyNthFrame,
 		concurrencyPerLambda: params.concurrencyPerLambda,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
