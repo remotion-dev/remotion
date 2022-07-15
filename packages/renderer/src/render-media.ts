@@ -264,7 +264,7 @@ export const renderMedia = ({
 							Internals.perf.stopPerfMeasure(id);
 
 							setFrameToStitch(
-								Math.max(realFrameRange[1] + 1, frame + everyNthFrame)
+								Math.min(realFrameRange[1] + 1, frame + everyNthFrame)
 							);
 					  }
 					: undefined,
