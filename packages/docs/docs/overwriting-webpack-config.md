@@ -110,18 +110,18 @@ npm i sass sass-loader
 ```
 
   </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i sass sass-loader
+```
+
+  </TabItem>
 
   <TabItem value="yarn">
 
 ```bash
 yarn add sass sass-loader
-```
-
-  </TabItem>
-  <TabItem value="pnpm">
-
-```bash
-pnpm i sass sass-loader
 ```
 
   </TabItem>
