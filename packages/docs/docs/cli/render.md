@@ -148,7 +148,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
-- `null` - Chromiums default
+- `null` - Chromium's default
 
 **Default for local rendering**: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
