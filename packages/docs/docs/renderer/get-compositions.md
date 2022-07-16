@@ -183,7 +183,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
-- `null` - Chromiums default
+- `null` - Chromium's default
 
 Default: `null`.
 
