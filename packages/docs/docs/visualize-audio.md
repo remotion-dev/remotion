@@ -5,7 +5,7 @@ id: visualize-audio
 
 _Part of the `@remotion/media-utils` package of helper functions._
 
-This function takes in `AudioData` (preferrably fetched by the [`useAudioData()`](/docs/use-audio-data) hook) and processes it in a way that makes visualizing the audio that is playing at the current frame easy.
+This function takes in `AudioData` (preferably fetched by the [`useAudioData()`](/docs/use-audio-data) hook) and processes it in a way that makes visualizing the audio that is playing at the current frame easy.
 
 ## Arguments
 
