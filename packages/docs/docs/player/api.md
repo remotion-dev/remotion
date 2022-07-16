@@ -228,7 +228,7 @@ If you play the video from a user gesture, pass the `SyntheticEvent` in as an ar
 
 ### `getCurrentFrame()`
 
-Gets the current postition expressed as the current frame. Divide by the `fps` you passed to get the time in seconds.
+Gets the current position expressed as the current frame. Divide by the `fps` you passed to get the time in seconds.
 
 ### `isPlaying()`
 
