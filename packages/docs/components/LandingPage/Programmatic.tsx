@@ -1,6 +1,6 @@
 import type { PlayerRef } from "@remotion/player";
 import { Player } from "@remotion/player";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { GithubResponse } from "./GithubDemo";
 import { GithubDemo } from "./GithubDemo";
 import styles from "./mobileplayer.module.css";
@@ -11,38 +11,38 @@ export const ProgrammaticContent: React.FC<{ data: GithubResponse | null }> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<PlayerRef>(null);
 
-  const [isIntersecting, setIsIntersecting] = useState(false);
+  const [isIntersecting] = useState(false);
 
-  const callback: IntersectionObserverCallback = useCallback(
-    (newData) => {
-      setIsIntersecting(newData[0].isIntersecting);
-      if (isIntersecting) {
-        playerRef.current?.play();
-      } else {
-        playerRef.current?.pause();
-      }
-    },
-    [isIntersecting]
-  );
+  // const callback: IntersectionObserverCallback = useCallback(
+  //   (newData) => {
+  //     setIsIntersecting(newData[0].isIntersecting);
+  //     if (isIntersecting) {
+  //       playerRef.current?.play();
+  //     } else {
+  //       playerRef.current?.pause();
+  //     }
+  //   },
+  //   [isIntersecting]
+  // );
 
-  useEffect(() => {
-    const { current } = containerRef;
-    if (!current) {
-      return;
-    }
+  // useEffect(() => {
+  //   const { current } = containerRef;
+  //   if (!current) {
+  //     return;
+  //   }
 
-    const observer = new IntersectionObserver(callback, {
-      root: null,
-      threshold: 1,
-    });
-    // Docusaurus sometimes has a layout shift that immediately focuses
-    // the video on page load
-    setTimeout(() => {
-      observer.observe(current);
-    }, 2000);
+  //   const observer = new IntersectionObserver(callback, {
+  //     root: null,
+  //     threshold: 1,
+  //   });
+  //   // Docusaurus sometimes has a layout shift that immediately focuses
+  //   // the video on page load
+  //   setTimeout(() => {
+  //     observer.observe(current);
+  //   }, 2000);
 
-    return () => observer.unobserve(current);
-  }, [callback]);
+  //   return () => observer.unobserve(current);
+  // }, [callback]);
 
   useEffect(() => {
     if (isIntersecting) {
