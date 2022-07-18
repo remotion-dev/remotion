@@ -24,6 +24,13 @@ npx create-video --tailwind
 ```
 
   </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm create video --tailwind
+```
+
+  </TabItem>
 
   <TabItem value="yarn">
 
@@ -33,13 +40,6 @@ yarn create video -- --tailwind
 
   </TabItem>
 
-  <TabItem value="pnpm">
-
-```bash
-pnpm create video --tailwind
-```
-
-  </TabItem>
 </Tabs>
 
 ## Install in existing project
