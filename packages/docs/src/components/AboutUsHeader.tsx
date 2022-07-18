@@ -12,7 +12,7 @@ export const AboutUsHeader: React.FC = () => {
           Remotion was born from a desire to bring the benefits that we know
           from programming - composability, version control, parametrization -
           into video editing. Started as a side project, we are now a company in
-          Zürich, Switzerland and are pushing to combine the powers of video
+          Zurich, Switzerland and are pushing to combine the powers of video
           editing and programming!
         </p>
       </div>
