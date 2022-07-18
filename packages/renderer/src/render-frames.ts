@@ -19,6 +19,11 @@ import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
+import type {CountType} from './get-frame-padded-index';
+import {
+	getFilePadLength,
+	getFrameOutputFileName,
+} from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
@@ -171,12 +176,7 @@ const innerRenderFrames = ({
 			page.on('console', logCallback);
 		}
 
-		const initialFrame =
-			typeof frameRange === 'number'
-				? frameRange
-				: frameRange === null || frameRange === undefined
-				? 0
-				: frameRange[0];
+		const initialFrame = realFrameRange[0];
 
 		await setPropsAndEnv({
 			inputProps,
@@ -205,9 +205,16 @@ const innerRenderFrames = ({
 		return page;
 	});
 
-	// Substract one because 100 frames will be 00-99
-	// --> 2 digits
-	const filePadLength = String(lastFrame).length;
+	// If rendering a GIF and skipping frames, we must ensure it starts from 0
+	// and then is consecutive so FFMPEG recognizes the sequence
+	const countType: CountType =
+		everyNthFrame === 1 ? 'actual-frames' : 'from-zero';
+
+	const filePadLength = getFilePadLength({
+		lastFrame,
+		totalFrames: framesToRender.length,
+		countType,
+	});
 	let framesRendered = 0;
 
 	const poolPromise = getPool(pages);
@@ -228,8 +235,6 @@ const innerRenderFrames = ({
 			if (stopped) {
 				throw new Error('Render was stopped');
 			}
-
-			const paddedIndex = String(frame).padStart(filePadLength, '0');
 
 			const errorCallbackOnFrame = (err: Error) => {
 				onError(err);
@@ -267,7 +272,14 @@ const innerRenderFrames = ({
 
 					const output = path.join(
 						outputDir,
-						`element-${paddedIndex}.${imageFormat}`
+						getFrameOutputFileName({
+							frame,
+							imageFormat,
+							index,
+							countType,
+							lastFrame,
+							totalFrames: framesToRender.length,
+						})
 					);
 					await provideScreenshot({
 						page: freePage,
