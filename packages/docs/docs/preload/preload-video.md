@@ -53,7 +53,7 @@ resolveRedirect(urlToLoad)
     urlToLoad = resolved;
   })
   .catch((err) => {
-    // Was unable to resolve redirect e.g. due to no CORS supoprt
+    // Was unable to resolve redirect e.g. due to no CORS support
     console.log("Could not resolve redirect", err);
   })
   .finally(() => {

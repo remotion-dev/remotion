@@ -39,7 +39,7 @@ export const ProgrammaticContent: React.FC<{ data: GithubResponse | null }> = ({
     // the video on page load
     setTimeout(() => {
       observer.observe(current);
-    }, 200);
+    }, 2000);
 
     return () => observer.unobserve(current);
   }, [callback]);
