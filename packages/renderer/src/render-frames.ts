@@ -19,6 +19,7 @@ import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
+import {getFrameOutputFileName} from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
@@ -229,8 +230,6 @@ const innerRenderFrames = ({
 				throw new Error('Render was stopped');
 			}
 
-			const paddedIndex = String(frame).padStart(filePadLength, '0');
-
 			const errorCallbackOnFrame = (err: Error) => {
 				onError(err);
 			};
@@ -267,7 +266,12 @@ const innerRenderFrames = ({
 
 					const output = path.join(
 						outputDir,
-						`element-${paddedIndex}.${imageFormat}`
+						getFrameOutputFileName({
+							filePadLength,
+							frame,
+							imageFormat,
+							index,
+						})
 					);
 					await provideScreenshot({
 						page: freePage,
