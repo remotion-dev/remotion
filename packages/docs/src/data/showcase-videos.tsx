@@ -1208,6 +1208,20 @@ export const showcaseVideos: ShowcaseVideo[] = [
       "name": "Kalle Chen"
     }
   },
+  {
+    title: "Video Ad",
+    type: "mux_video",
+    muxId: "kfl1VFbNcRFntVKhdkvTB6mBmcivDv82UX64Na4TMGw",
+    description: "A simple video ad",
+    height: 1920,
+    width: 1080,
+    submittedOn: new Date("07-18-2022"),
+    links: [],
+    author: {
+      "url": "https://www.linkedin.com/in/sepehrsafari/",
+      "name": "Sepehr Safari"
+    }
+  },
 ];
 
 const dateString = (date: Date) =>
