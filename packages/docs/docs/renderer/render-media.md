@@ -58,7 +58,7 @@ Type `node -e "console.log(require('os').cpus().length)"` into your command line
 
 _number | null - optional_
 
-The constant rate factor, controlling the quality. See: [Controllsing quality using the CRF setting.](/docs/encoding/#controlling-quality-using-the-crf-setting)
+The constant rate factor, controlling the quality. See: [Controlling quality using the CRF setting.](/docs/encoding/#controlling-quality-using-the-crf-setting)
 
 ### `imageFormat`
 
@@ -295,7 +295,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
-- `null` - Chromiums default
+- `null` - Chromium's default
 
 **Default for local rendering**: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
