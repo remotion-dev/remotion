@@ -1,6 +1,6 @@
 import execa from 'execa';
 import fs, {unlinkSync} from 'fs';
-import {readFile, unlink} from 'fs/promises';
+import {readFile} from 'fs/promises';
 import path from 'path';
 import type {
 	Codec,
@@ -380,13 +380,13 @@ export const spawnFfmpeg = async (
 
 	return {
 		task: task.then(() => {
-			if (options.outputLocation) {
+			if (tempFile === null) {
 				return null;
 			}
 
-			return readFile(tempFile as string)
+			return readFile(tempFile)
 				.then((file) => {
-					return Promise.all([file, unlink(tempFile as string)]);
+					return Promise.all([file, deleteDirectory(path.dirname(tempFile))]);
 				})
 				.then(([file]) => file);
 		}),
