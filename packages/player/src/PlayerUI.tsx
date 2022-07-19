@@ -60,6 +60,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		playbackRate: number;
 		renderLoading?: RenderLoading;
 		className: string | undefined;
+		moveToBeginningWhenEnded: boolean;
 	}
 > = (
 	{
@@ -81,6 +82,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		playbackRate,
 		renderLoading,
 		className,
+		moveToBeginningWhenEnded,
 	},
 	ref
 ) => {
@@ -96,7 +98,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [hasPausedToResume, setHasPausedToResume] = useState(false);
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
 	const [isFullscreen, setIsFullscreen] = useState(() => false);
-	usePlayback({loop, playbackRate});
+
+	usePlayback({loop, playbackRate, moveToBeginningWhenEnded});
 	const player = usePlayer();
 
 	useEffect(() => {
