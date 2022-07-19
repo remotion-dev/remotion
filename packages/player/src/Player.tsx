@@ -56,6 +56,7 @@ export type PlayerProps<T> = {
 	numberOfSharedAudioTags?: number;
 	playbackRate?: number;
 	renderLoading?: RenderLoading;
+	moveToBeginningWhenEnded?: boolean;
 	className?: string;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
@@ -90,6 +91,7 @@ export const PlayerFn = <T,>(
 		clickToPlay,
 		doubleClickToFullscreen = false,
 		spaceKeyToPlayOrPause = true,
+		moveToBeginningWhenEnded = true,
 		numberOfSharedAudioTags = 5,
 		errorFallback = () => '⚠️',
 		playbackRate = 1,
@@ -368,6 +370,9 @@ export const PlayerFn = <T,>(
 											style={style}
 											inputProps={passedInputProps}
 											allowFullscreen={Boolean(allowFullscreen)}
+											moveToBeginningWhenEnded={Boolean(
+												moveToBeginningWhenEnded
+											)}
 											clickToPlay={
 												typeof clickToPlay === 'boolean'
 													? clickToPlay
