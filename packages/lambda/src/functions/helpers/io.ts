@@ -1,9 +1,8 @@
-import type {
-	_Object} from '@aws-sdk/client-s3';
+import type {_Object} from '@aws-sdk/client-s3';
 import {
 	GetObjectCommand,
 	ListObjectsV2Command,
-	PutObjectCommand
+	PutObjectCommand,
 } from '@aws-sdk/client-s3';
 import type {ReadStream} from 'fs';
 import mimeTypes from 'mime-types';
@@ -11,6 +10,7 @@ import type {Readable} from 'stream';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import {getS3Client} from '../../shared/aws-clients';
 import type {Privacy} from '../../shared/constants';
+import type {DownloadBehavior} from '../../shared/content-disposition-header';
 
 export type LambdaLSInput = {
 	bucketName: string;
@@ -87,6 +87,7 @@ export const lambdaWriteFile = async ({
 	region: AwsRegion;
 	privacy: Privacy;
 	expectedBucketOwner: string | null;
+	downloadBehavior: DownloadBehavior | null;
 }): Promise<void> => {
 	await getS3Client(region).send(
 		new PutObjectCommand({

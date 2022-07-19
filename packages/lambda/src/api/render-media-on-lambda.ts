@@ -11,6 +11,7 @@ import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
+import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
@@ -42,6 +43,7 @@ export type RenderMediaOnLambdaInput = {
 	everyNthFrame?: number;
 	numberOfGifLoops?: number | null;
 	concurrencyPerLambda?: number;
+	downloadBehavior?: DownloadBehavior | null;
 };
 
 export type RenderMediaOnLambdaOutput = {
@@ -93,6 +95,7 @@ export const renderMediaOnLambda = async ({
 	numberOfGifLoops,
 	everyNthFrame,
 	concurrencyPerLambda,
+	downloadBehavior,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
@@ -125,6 +128,7 @@ export const renderMediaOnLambda = async ({
 			everyNthFrame: everyNthFrame ?? 1,
 			numberOfGifLoops: numberOfGifLoops ?? 0,
 			concurrencyPerLambda: concurrencyPerLambda ?? 1,
+			downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
 		},
 		region,
 	});

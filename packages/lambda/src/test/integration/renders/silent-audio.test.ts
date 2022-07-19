@@ -53,6 +53,9 @@ test('Should add silent audio if there is no audio', async () => {
 			numberOfGifLoops: null,
 			everyNthFrame: 1,
 			concurrencyPerLambda: 1,
+			downloadBehavior: {
+				type: 'play-in-browser',
+			},
 		},
 		extraContext
 	);
