@@ -6,6 +6,7 @@ import {chunk} from './chunk';
 import {convertToPcm} from './convert-to-pcm';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {createSilentAudio} from './create-silent-audio';
+import {deleteDirectory} from './delete-directory';
 import {pLimit} from './p-limit';
 import {tmpDir} from './tmp-dir';
 
@@ -57,6 +58,8 @@ const mergeAudioTrackUnlimited = async ({
 				return chunkOutname;
 			})
 		);
+
+		await deleteDirectory(tempPath);
 
 		return mergeAudioTrack({
 			ffmpegExecutable,

@@ -1,5 +1,5 @@
 import execa from 'execa';
-import fs from 'fs';
+import fs, {unlinkSync} from 'fs';
 import {readFile, unlink} from 'fs/promises';
 import path from 'path';
 import type {
@@ -131,14 +131,20 @@ const getAssetsData = async ({
 		)
 	).filter(Internals.truthy);
 
-	const outName = path.join(tempPath, `audio.wav`);
+	const outName = path.join(
+		tmpDir('remotion-audio-preprocessing'),
+		`audio.wav`
+	);
 
-	await mergeAudioTrack({
-		ffmpegExecutable: ffmpegExecutable ?? null,
-		files: preprocessed,
-		outName,
-		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
-	});
+	await Promise.all([
+		deleteDirectory(tempPath),
+		mergeAudioTrack({
+			ffmpegExecutable: ffmpegExecutable ?? null,
+			files: preprocessed,
+			outName,
+			numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
+		}),
+	]);
 
 	onProgress(1);
 
@@ -261,7 +267,23 @@ export const spawnFfmpeg = async (
 		});
 		await ffmpegTask;
 		options.onProgress?.(expectedFrames);
-		const file = tempFile ? await readFile(tempFile) : null;
+		if (audio) {
+			await deleteDirectory(path.dirname(audio));
+		}
+
+		const file = await new Promise<Buffer | null>((resolve, reject) => {
+			if (tempFile) {
+				readFile(tempFile)
+					.then((f) => {
+						unlinkSync(tempFile);
+						return resolve(f);
+					})
+					.catch((e) => reject(e));
+			} else {
+				resolve(null);
+			}
+		});
+
 		return {
 			getLogs: () => '',
 			task: Promise.resolve(file),
