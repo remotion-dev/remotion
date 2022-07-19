@@ -156,7 +156,22 @@ export const downloadAsset = async ({
 	}
 
 	if (hasBeenDownloadedMap[src]?.[downloadDir]) {
-		return hasBeenDownloadedMap[src]?.[downloadDir] as string;
+		const claimedDownloadLocation = hasBeenDownloadedMap[src]?.[
+			downloadDir
+		] as string;
+		// The OS might have deleted the file since even though we marked it as downloaded. In that case we reset the state and download it again
+		if (!fs.existsSync(claimedDownloadLocation)) {
+			return claimedDownloadLocation;
+		}
+
+		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+		hasBeenDownloadedMap[src]![downloadDir] = null;
+		if (!isDownloadingMap[src]) {
+			isDownloadingMap[src] = {};
+		}
+
+		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+		isDownloadingMap[src]![downloadDir] = false;
 	}
 
 	if (isDownloadingMap[src]?.[downloadDir]) {
