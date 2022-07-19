@@ -56,6 +56,7 @@ export type PlayerProps<T> = {
 	numberOfSharedAudioTags?: number;
 	playbackRate?: number;
 	renderLoading?: RenderLoading;
+	className?: string;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -93,6 +94,7 @@ export const PlayerFn = <T,>(
 		errorFallback = () => '⚠️',
 		playbackRate = 1,
 		renderLoading,
+		className,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -379,6 +381,7 @@ export const PlayerFn = <T,>(
 											setMediaMuted={setMediaMuted}
 											spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
 											playbackRate={playbackRate}
+											className={className ?? undefined}
 										/>
 									</PlayerEventEmitterContext.Provider>
 								</Internals.SharedAudioContextProvider>
