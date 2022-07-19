@@ -79,6 +79,12 @@ _optional_
 
 A boolean property defining whether you can play or pause a video using space key. If enabled, playing the video and subsequently pressing the space key pauses and resumes the video. Only works if `controls` is true. Default `true`.
 
+### `moveToBeginningWhenEnded`
+
+_optional, available from v3.1.3_
+
+A boolean property defining whether the video position should go back to zero once the video has ended. Only works if `loop` is disabled. Default `true`.
+
 ### `inputProps`
 
 _optional_
