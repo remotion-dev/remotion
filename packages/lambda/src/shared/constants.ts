@@ -11,6 +11,7 @@ import type {
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';
+import type {DownloadBehavior} from './content-disposition-header';
 import type {ExpensiveChunk} from './get-most-expensive-chunks';
 import type {LambdaArchitecture} from './validate-architecture';
 import type {LambdaCodec} from './validate-lambda-codec';
@@ -198,6 +199,7 @@ export type LambdaPayloads = {
 		everyNthFrame: number;
 		numberOfGifLoops: number | null;
 		concurrencyPerLambda: number;
+		downloadBehavior: DownloadBehavior;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -225,6 +227,7 @@ export type LambdaPayloads = {
 		everyNthFrame: number;
 		numberOfGifLoops: number | null;
 		concurrencyPerLambda: number;
+		downloadBehavior: DownloadBehavior;
 	};
 	status: {
 		type: LambdaRoutines.status;
@@ -278,6 +281,7 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
+		downloadBehavior: DownloadBehavior | null;
 	};
 };
 

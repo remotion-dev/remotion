@@ -55,6 +55,7 @@ test('Should make a distributed GIF', async () => {
 			numberOfGifLoops: null,
 			everyNthFrame: 2,
 			concurrencyPerLambda: 1,
+			downloadBehavior: {type: 'play-in-browser'},
 		},
 		extraContext
 	);

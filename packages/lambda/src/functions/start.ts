@@ -43,6 +43,7 @@ export const startHandler = async (params: LambdaPayload) => {
 		numberOfGifLoops: params.numberOfGifLoops,
 		everyNthFrame: params.everyNthFrame,
 		concurrencyPerLambda: params.concurrencyPerLambda,
+		downloadBehavior: params.downloadBehavior,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({
