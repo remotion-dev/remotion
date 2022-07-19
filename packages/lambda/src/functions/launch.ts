@@ -212,6 +212,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
+		downloadBehavior: null,
 	});
 
 	await Promise.all(
@@ -263,6 +264,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			region: getCurrentRegionInFunction(),
 			privacy: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
+			downloadBehavior: null,
 		}).catch((err) => {
 			writeLambdaError({
 				bucketName: params.bucketName,
@@ -319,6 +321,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		privacy: params.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
+		downloadBehavior: params.downloadBehavior,
 	});
 
 	let chunkProm: Promise<unknown> = Promise.resolve();
@@ -385,6 +388,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
+		downloadBehavior: null,
 	});
 
 	const errorExplanationsProm = inspectErrors({
