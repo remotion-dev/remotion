@@ -199,9 +199,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 					if (frameToSeekTo === lastFrame && !loop) {
 						player.emitter.dispatchEnded();
-					} else {
-						player.seek(frameToSeekTo);
 					}
+
+					player.seek(frameToSeekTo);
 				},
 				isFullscreen: () => isFullscreen,
 				requestFullscreen,
