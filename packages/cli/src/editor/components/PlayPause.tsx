@@ -24,6 +24,7 @@ export const PlayPause: React.FC<{
 	PlayerInternals.usePlayback({
 		loop,
 		playbackRate,
+		moveToBeginningWhenEnded: true,
 	});
 
 	const {
