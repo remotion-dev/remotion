@@ -59,14 +59,14 @@ const mergeAudioTrackUnlimited = async ({
 			})
 		);
 
-		await deleteDirectory(tempPath);
-
-		return mergeAudioTrack({
+		await mergeAudioTrack({
 			ffmpegExecutable,
 			files: chunkNames,
 			numberOfSeconds,
 			outName,
 		});
+		await deleteDirectory(tempPath);
+		return;
 	}
 
 	const {complexFilterFlag: mergeFilter, cleanup} =
