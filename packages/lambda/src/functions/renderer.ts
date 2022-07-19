@@ -132,6 +132,7 @@ const renderHandler = async (
 				}),
 				region: getCurrentRegionInFunction(),
 				expectedBucketOwner: options.expectedBucketOwner,
+				downloadBehavior: null,
 			});
 		},
 		puppeteerInstance: browserInstance,
@@ -185,6 +186,7 @@ const renderHandler = async (
 		region: getCurrentRegionInFunction(),
 		privacy: params.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
+		downloadBehavior: null,
 	});
 	await Promise.all([
 		fs.promises.rm(outputLocation, {recursive: true}),
@@ -192,15 +194,16 @@ const renderHandler = async (
 		lambdaWriteFile({
 			bucketName: params.bucketName,
 			body: JSON.stringify(condensedTimingData as ChunkTimingData, null, 2),
-			key: `${lambdaTimingsKey({
+			key: lambdaTimingsKey({
 				renderId: params.renderId,
 				chunk: params.chunk,
 				rendered: endRendered,
 				start,
-			})}`,
+			}),
 			region: getCurrentRegionInFunction(),
 			privacy: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
+			downloadBehavior: null,
 		}),
 	]);
 };
