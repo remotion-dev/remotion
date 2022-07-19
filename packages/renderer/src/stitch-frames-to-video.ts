@@ -136,15 +136,14 @@ const getAssetsData = async ({
 		`audio.wav`
 	);
 
-	await Promise.all([
-		deleteDirectory(tempPath),
-		mergeAudioTrack({
-			ffmpegExecutable: ffmpegExecutable ?? null,
-			files: preprocessed,
-			outName,
-			numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
-		}),
-	]);
+	await mergeAudioTrack({
+		ffmpegExecutable: ffmpegExecutable ?? null,
+		files: preprocessed,
+		outName,
+		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
+	});
+
+	deleteDirectory(tempPath);
 
 	onProgress(1);
 
