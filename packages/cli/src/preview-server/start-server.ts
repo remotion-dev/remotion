@@ -31,7 +31,7 @@ export const startServer = async (
 		path.join(os.tmpdir(), 'react-motion-graphics')
 	);
 
-	const config = BundlerInternals.webpackConfig({
+	const [, config] = BundlerInternals.webpackConfig({
 		entry,
 		userDefinedComponent,
 		outDir: tmpDir,
