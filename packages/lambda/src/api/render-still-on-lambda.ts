@@ -1,14 +1,11 @@
 import type {ChromiumOptions} from '@remotion/renderer';
-import type { LogLevel, StillImageFormat} from 'remotion';
+import type {LogLevel, StillImageFormat} from 'remotion';
 import {Internals} from 'remotion';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
-import type {
-	CostsInfo} from '../shared/constants';
-import {
-	DEFAULT_MAX_RETRIES,
-	LambdaRoutines,
-} from '../shared/constants';
+import type {CostsInfo, OutNameInput} from '../shared/constants';
+import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
+import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 
 export type RenderStillOnLambdaInput = {
@@ -24,10 +21,11 @@ export type RenderStillOnLambdaInput = {
 	quality?: number;
 	frame?: number;
 	logLevel?: LogLevel;
-	outName?: string;
+	outName?: OutNameInput;
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
+	downloadBehavior?: DownloadBehavior;
 };
 
 export type RenderStillOnLambdaOutput = {
@@ -72,6 +70,7 @@ export const renderStillOnLambda = async ({
 	timeoutInMilliseconds,
 	chromiumOptions,
 	scale,
+	downloadBehavior,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
 	const res = await callLambda({
@@ -94,6 +93,7 @@ export const renderStillOnLambda = async ({
 				timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT,
 			chromiumOptions: chromiumOptions ?? {},
 			scale: scale ?? 1,
+			downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
 		},
 		region,
 	});

@@ -1,13 +1,12 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {BrowserLog} from '@remotion/renderer';
-import { RenderInternals, renderMedia} from '@remotion/renderer';
+import {RenderInternals, renderMedia} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
+import type {Codec} from 'remotion';
 import {Internals} from 'remotion';
 import {getLambdaClient} from '../shared/aws-clients';
-import type {
-	LambdaPayload,
-	LambdaPayloads} from '../shared/constants';
+import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
 import {
 	chunkKeyForIndex,
 	lambdaInitializedKey,
@@ -79,6 +78,8 @@ const renderHandler = async (
 		)}.${RenderInternals.getFileExtensionFromCodec(params.codec, 'chunk')}`
 	);
 
+	const chunkCodec: Codec = params.codec === 'gif' ? 'h264-mkv' : params.codec;
+
 	await renderMedia({
 		composition: {
 			id: params.composition,
@@ -100,18 +101,18 @@ const renderHandler = async (
 				);
 			}
 
-			const duration = RenderInternals.getDurationFromFrameRange(
+			const allFrames = RenderInternals.getFramesToRender(
 				params.frameRange,
-				params.durationInFrames
+				params.everyNthFrame
 			);
 
-			if (renderedFrames === duration) {
+			if (renderedFrames === allFrames.length) {
 				console.log('Rendered all frames!');
 			}
 
 			chunkTimingData.timings[renderedFrames] = Date.now() - start;
 		},
-		parallelism: 1,
+		parallelism: params.concurrencyPerLambda,
 		onStart: () => {
 			lambdaWriteFile({
 				privacy: 'private',
@@ -131,6 +132,7 @@ const renderHandler = async (
 				}),
 				region: getCurrentRegionInFunction(),
 				expectedBucketOwner: options.expectedBucketOwner,
+				downloadBehavior: null,
 			});
 		},
 		puppeteerInstance: browserInstance,
@@ -145,7 +147,7 @@ const renderHandler = async (
 			logs.push(log);
 		},
 		outputLocation,
-		codec: params.codec,
+		codec: chunkCodec,
 		crf: params.crf ?? undefined,
 		ffmpegExecutable:
 			process.env.NODE_ENV === 'test' ? null : '/opt/bin/ffmpeg',
@@ -161,6 +163,8 @@ const renderHandler = async (
 		scale: params.scale,
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		port: null,
+		everyNthFrame: params.everyNthFrame,
+		numberOfGifLoops: null,
 	});
 
 	const endRendered = Date.now();
@@ -182,6 +186,7 @@ const renderHandler = async (
 		region: getCurrentRegionInFunction(),
 		privacy: params.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
+		downloadBehavior: null,
 	});
 	await Promise.all([
 		fs.promises.rm(outputLocation, {recursive: true}),
@@ -189,15 +194,16 @@ const renderHandler = async (
 		lambdaWriteFile({
 			bucketName: params.bucketName,
 			body: JSON.stringify(condensedTimingData as ChunkTimingData, null, 2),
-			key: `${lambdaTimingsKey({
+			key: lambdaTimingsKey({
 				renderId: params.renderId,
 				chunk: params.chunk,
 				rendered: endRendered,
 				start,
-			})}`,
+			}),
 			region: getCurrentRegionInFunction(),
 			privacy: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
+			downloadBehavior: null,
 		}),
 	]);
 };

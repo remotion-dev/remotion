@@ -14,9 +14,9 @@ export const TransparentVideoDemo: React.FC = () => {
         controls
         autoPlay
         loop
-      ></video>
+      />
       <p className="tr-centered" onClick={onClick}>
-        <button>Toggle transparency</button>
+        <button type="button">Toggle transparency</button>
       </p>
     </div>
   );

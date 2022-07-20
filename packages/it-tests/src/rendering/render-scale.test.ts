@@ -1,6 +1,7 @@
 import fs from "fs";
 import execa from "execa";
 import path from "path";
+import { beforeEach, expect, test } from "vitest";
 
 const outputPath = path.join(process.cwd(), "packages/example/out.mp4");
 

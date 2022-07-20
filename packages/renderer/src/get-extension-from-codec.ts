@@ -16,7 +16,6 @@ export const getFileExtensionFromCodec = (
 			}
 
 			return 'mp4';
-
 		case 'h265':
 			return 'mp4';
 		case 'mp3':
@@ -27,6 +26,12 @@ export const getFileExtensionFromCodec = (
 			return 'webm';
 		case 'vp9':
 			return 'webm';
+		case 'gif':
+			if (type === 'chunk') {
+				return 'mkv';
+			}
+
+			return 'gif';
 		case 'wav':
 			return 'wav';
 		default:

@@ -230,10 +230,16 @@ export const getCliOptions = async (options: {
 			Internals.getChromiumOpenGlRenderer() ??
 			Internals.DEFAULT_OPENGL_RENDERER,
 	};
+	const everyNthFrame = Internals.getAndValidateEveryNthFrame(codec);
+	const numberOfGifLoops = Internals.getAndValidateNumberOfGifLoops(codec);
+
+	const parallelism = Internals.getConcurrency();
+
+	RenderInternals.validateConcurrency(parallelism, 'concurrency');
 
 	return {
 		puppeteerTimeout: Internals.getCurrentPuppeteerTimeout(),
-		parallelism: Internals.getConcurrency(),
+		parallelism,
 		frameRange,
 		shouldOutputImageSequence,
 		codec,
@@ -249,6 +255,8 @@ export const getCliOptions = async (options: {
 		pixelFormat,
 		imageFormat,
 		proResProfile,
+		everyNthFrame,
+		numberOfGifLoops,
 		stillFrame: Internals.getStillFrame(),
 		browserExecutable,
 		ffmpegExecutable,

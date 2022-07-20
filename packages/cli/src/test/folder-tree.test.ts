@@ -1,7 +1,7 @@
 import type {ComponentType} from 'react';
 import React from 'react';
+import {expect, test} from 'vitest';
 import {createFolderTree} from '../editor/helpers/create-folder-tree';
-import {expectToThrow} from './expect-to-throw';
 
 const SampleComp: React.FC<{}> = () => null;
 const component = React.lazy(() =>
@@ -171,22 +171,22 @@ test('Should handle nested folders well', () => {
 });
 
 test('Should throw if two folders with the same name', () => {
-	expectToThrow(
-		() =>
-			createFolderTree(
-				[],
-				[
-					{
-						name: 'my-folder',
-						parent: null,
-					},
-					{
-						name: 'my-folder',
-						parent: null,
-					},
-				],
-				{}
-			),
+	expect(() =>
+		createFolderTree(
+			[],
+			[
+				{
+					name: 'my-folder',
+					parent: null,
+				},
+				{
+					name: 'my-folder',
+					parent: null,
+				},
+			],
+			{}
+		)
+	).toThrow(
 		/Multiple folders with the name my-folder exist. Folder names must be unique./
 	);
 });

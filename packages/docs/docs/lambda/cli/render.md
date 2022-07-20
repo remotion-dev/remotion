@@ -96,6 +96,12 @@ Minimum value: <MinimumFramesPerLambda />
 The `framesPerLambda` parameter cannot result in more than 200 functions being spawned. See: [Concurrency](/docs/lambda/concurrency)
 :::
 
+### `--concurrency-per-lambda`
+
+_Available from v3.0.30_
+
+By default, each Lambda function renders with concurrency 1 (one open browser tab). You may use the option to customize this value.
+
 ### `--quality`
 
 [Value between 0 and 100 for JPEG rendering quality](/docs/config#setquality). Doesn't work when PNG frames are rendered.
@@ -131,6 +137,20 @@ Specify a location for a dotenv file. Default `.env`.
 ### `--frames`
 
 [Render a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` to select the first 10 frames. To render a still, use the [`still`](/docs/lambda/cli/still) command.
+
+### `--every-nth-frame`
+
+_available from v3.1_
+
+[Render only every nth frame.](/docs/config#seteverynthframe) This option may only be set when rendering GIFs. This allows you to lower the FPS of the GIF.
+
+For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif)
+
+### `--number-of-gif-loops`
+
+_available from v3.1_
+
+[Set the looping behavior.](/docs/config#setnumberofgifloops) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
 
 ### `--out-name`
 

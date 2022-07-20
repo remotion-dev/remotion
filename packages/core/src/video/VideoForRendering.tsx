@@ -112,6 +112,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				src: props.src as string,
 				playbackRate: playbackRate || 1,
 				startFrom: -mediaStartsAt,
+				mediaType: 'video',
 			});
 		})();
 		const handle = delayRender(`Rendering <Video /> with src="${props.src}"`);
@@ -141,10 +142,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		videoRef.current.addEventListener(
 			'seeked',
 			() => {
-				warnAboutNonSeekableMedia(
-					videoRef.current as HTMLVideoElement,
-					'exception'
-				);
+				warnAboutNonSeekableMedia(videoRef.current, 'exception');
 
 				if (window.navigator.platform.startsWith('Mac')) {
 					// Improve me: This is ensures frame perfectness but slows down render.

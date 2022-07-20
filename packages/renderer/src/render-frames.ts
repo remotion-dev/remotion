@@ -13,12 +13,17 @@ import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-fi
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
 import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
+import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
-import type {Page} from './browser/Page';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {getActualConcurrency} from './get-concurrency';
-import {getDurationFromFrameRange} from './get-duration-from-frame-range';
+import {getFramesToRender} from './get-duration-from-frame-range';
+import type {CountType} from './get-frame-padded-index';
+import {
+	getFilePadLength,
+	getFrameOutputFileName,
+} from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
@@ -57,6 +62,7 @@ type RenderFramesOptions = {
 	parallelism?: number | null;
 	quality?: number;
 	frameRange?: FrameRange | null;
+	everyNthFrame?: number;
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance?: Browser;
 	browserExecutable?: BrowserExecutable;
@@ -112,6 +118,7 @@ const innerRenderFrames = ({
 	scale,
 	actualParallelism,
 	downloadDir,
+	everyNthFrame = 1,
 	proxyPort,
 	cancelSignal,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
@@ -145,10 +152,8 @@ const innerRenderFrames = ({
 		frameRange ?? null
 	);
 
-	const frameCount = getDurationFromFrameRange(
-		realFrameRange,
-		composition.durationInFrames
-	);
+	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
+	const lastFrame = framesToRender[framesToRender.length - 1];
 
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
 		const page = await puppeteerInstance.newPage();
@@ -171,12 +176,7 @@ const innerRenderFrames = ({
 			page.on('console', logCallback);
 		}
 
-		const initialFrame =
-			typeof frameRange === 'number'
-				? frameRange
-				: frameRange === null || frameRange === undefined
-				? 0
-				: frameRange[0];
+		const initialFrame = realFrameRange[0];
 
 		await setPropsAndEnv({
 			inputProps,
@@ -205,123 +205,127 @@ const innerRenderFrames = ({
 		return page;
 	});
 
-	const [firstFrameIndex, lastFrameIndex] = realFrameRange;
-	// Substract one because 100 frames will be 00-99
-	// --> 2 digits
-	const filePadLength = String(lastFrameIndex).length;
+	// If rendering a GIF and skipping frames, we must ensure it starts from 0
+	// and then is consecutive so FFMPEG recognizes the sequence
+	const countType: CountType =
+		everyNthFrame === 1 ? 'actual-frames' : 'from-zero';
+
+	const filePadLength = getFilePadLength({
+		lastFrame,
+		totalFrames: framesToRender.length,
+		countType,
+	});
 	let framesRendered = 0;
 
 	const poolPromise = getPool(pages);
 
 	onStart({
-		frameCount,
+		frameCount: framesToRender.length,
 	});
-	const assets: TAsset[][] = new Array(frameCount).fill(undefined);
+
+	const assets: TAsset[][] = new Array(framesToRender.length).fill(undefined);
 	let stopped = false;
 	cancelSignal?.(() => {
 		stopped = true;
 	});
 	const progress = Promise.all(
-		new Array(frameCount)
-			.fill(Boolean)
-			.map((_x, i) => i)
-			.map(async (index) => {
-				const frame = realFrameRange[0] + index;
-				const pool = await poolPromise;
-				const freePage = await pool.acquire();
-				if (stopped) {
-					throw new Error('Render was stopped');
-				}
+		framesToRender.map(async (frame, index) => {
+			const pool = await poolPromise;
+			const freePage = await pool.acquire();
+			if (stopped) {
+				throw new Error('Render was stopped');
+			}
 
-				const paddedIndex = String(frame).padStart(filePadLength, '0');
+			const errorCallbackOnFrame = (err: Error) => {
+				onError(err);
+			};
 
-				const errorCallbackOnFrame = (err: Error) => {
-					onError(err);
-				};
+			const cleanupPageError = handleJavascriptException({
+				page: freePage,
+				onError: errorCallbackOnFrame,
+				frame,
+			});
+			freePage.on('error', errorCallbackOnFrame);
+			await seekToFrame({frame, page: freePage});
 
-				const cleanupPageError = handleJavascriptException({
-					page: freePage,
-					onError: errorCallbackOnFrame,
-					frame,
-				});
-				freePage.on('error', errorCallbackOnFrame);
-				await seekToFrame({frame, page: freePage});
+			if (imageFormat !== 'none') {
+				if (onFrameBuffer) {
+					const id = Internals.perf.startPerfMeasure('save');
+					const buffer = await provideScreenshot({
+						page: freePage,
+						imageFormat,
+						quality,
+						options: {
+							frame,
+							output: null,
+						},
+					});
+					Internals.perf.stopPerfMeasure(id);
 
-				if (imageFormat !== 'none') {
-					if (onFrameBuffer) {
-						const id = Internals.perf.startPerfMeasure('save');
-						const buffer = await provideScreenshot({
-							page: freePage,
-							imageFormat,
-							quality,
-							options: {
-								frame,
-								output: null,
-							},
-						});
-						Internals.perf.stopPerfMeasure(id);
-
-						onFrameBuffer(buffer, frame);
-					} else {
-						if (!outputDir) {
-							throw new Error(
-								'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`'
-							);
-						}
-
-						const output = path.join(
-							outputDir,
-							`element-${paddedIndex}.${imageFormat}`
+					onFrameBuffer(buffer, frame);
+				} else {
+					if (!outputDir) {
+						throw new Error(
+							'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`'
 						);
-						await provideScreenshot({
-							page: freePage,
-							imageFormat,
-							quality,
-							options: {
-								frame,
-								output,
-							},
-						});
 					}
-				}
 
-				const collectedAssets = await puppeteerEvaluateWithCatch<TAsset[]>({
-					pageFunction: () => {
-						return window.remotion_collectAssets();
-					},
-					args: [],
-					frame,
-					page: freePage,
-				});
-				const compressedAssets = collectedAssets.map((asset) =>
-					Internals.AssetCompression.compressAsset(
-						assets.filter(Internals.truthy).flat(1),
-						asset
-					)
-				);
-				assets[index] = compressedAssets;
-				compressedAssets.forEach((asset) => {
-					downloadPromises.push(
-						downloadAndMapAssetsToFileUrl({
-							asset,
-							downloadDir,
-							onDownload,
-						}).catch((err) => {
-							onError(
-								new Error(
-									`Error while downloading asset: ${(err as Error).stack}`
-								)
-							);
+					const output = path.join(
+						outputDir,
+						getFrameOutputFileName({
+							frame,
+							imageFormat,
+							index,
+							countType,
+							lastFrame,
+							totalFrames: framesToRender.length,
 						})
 					);
+					await provideScreenshot({
+						page: freePage,
+						imageFormat,
+						quality,
+						options: {
+							frame,
+							output,
+						},
+					});
+				}
+			}
+
+			const collectedAssets = await puppeteerEvaluateWithCatch<TAsset[]>({
+				pageFunction: () => {
+					return window.remotion_collectAssets();
+				},
+				args: [],
+				frame,
+				page: freePage,
+			});
+			const compressedAssets = collectedAssets.map((asset) =>
+				Internals.AssetCompression.compressAsset(
+					assets.filter(Internals.truthy).flat(1),
+					asset
+				)
+			);
+			assets[index] = compressedAssets;
+			compressedAssets.forEach((asset) => {
+				downloadAndMapAssetsToFileUrl({
+					asset,
+					downloadDir,
+					onDownload,
+				}).catch((err) => {
+					onError(
+						new Error(`Error while downloading asset: ${(err as Error).stack}`)
+					);
 				});
-				pool.release(freePage);
-				framesRendered++;
-				onFrameUpdate(framesRendered, frame);
-				cleanupPageError();
-				freePage.off('error', errorCallbackOnFrame);
-				return compressedAssets;
-			})
+			});
+			pool.release(freePage);
+			framesRendered++;
+			onFrameUpdate(framesRendered, frame);
+			cleanupPageError();
+			freePage.off('error', errorCallbackOnFrame);
+			return compressedAssets;
+		})
 	);
 
 	const happyPath = progress.then(() => {
@@ -329,10 +333,10 @@ const innerRenderFrames = ({
 			assetsInfo: {
 				assets,
 				downloadDir,
-				firstFrameIndex,
 				imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
+				firstFrameIndex: framesToRender[0],
 			},
-			frameCount,
+			frameCount: framesToRender.length,
 		};
 		return returnValue;
 	});
@@ -369,7 +373,8 @@ export const renderFrames = (
 	);
 	Internals.validateFps(
 		composition.fps,
-		'in the `config` object of `renderFrames()`'
+		'in the `config` object of `renderFrames()`',
+		null
 	);
 	Internals.validateDurationInFrames(
 		composition.durationInFrames,

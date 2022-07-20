@@ -6,9 +6,11 @@ import {usePlayer} from './use-player';
 export const usePlayback = ({
 	loop,
 	playbackRate,
+	moveToBeginningWhenEnded,
 }: {
 	loop: boolean;
 	playbackRate: number;
+	moveToBeginningWhenEnded: boolean;
 }) => {
 	const frame = Internals.Timeline.useTimelinePosition();
 	const config = Internals.useUnsafeVideoConfig();
@@ -60,7 +62,10 @@ export const usePlayback = ({
 			});
 			framesAdvanced += framesToAdvance;
 
-			if (nextFrame !== frameRef.current) {
+			if (
+				nextFrame !== frameRef.current &&
+				(!hasEnded || moveToBeginningWhenEnded)
+			) {
 				setFrame(nextFrame);
 			}
 
@@ -91,6 +96,7 @@ export const usePlayback = ({
 		playbackRate,
 		inFrame,
 		outFrame,
+		moveToBeginningWhenEnded,
 	]);
 
 	useEffect(() => {

@@ -1,3 +1,6 @@
+/**
+ * @vitest-environment jsdom
+ */
 import {render} from '@testing-library/react';
 import type {ComponentType} from 'react';
 import React, {
@@ -10,6 +13,9 @@ import React, {
 import {act} from 'react-dom/test-utils';
 import type {CompositionManagerContext, TAsset} from 'remotion';
 import {Internals} from 'remotion';
+
+// @ts-expect-error
+global.IS_REACT_ACT_ENVIRONMENT = true;
 
 let collectAssets = (): TAsset[] => [];
 
@@ -89,11 +95,13 @@ export const getAssetsForMarkup = async (
 		}, [assets, compositions, registerAsset, unregisterAsset]);
 
 		return (
-			<Internals.RemotionRoot>
-				<Internals.CompositionManager.Provider value={value}>
-					<Markup />
-				</Internals.CompositionManager.Provider>
-			</Internals.RemotionRoot>
+			<Internals.CanUseRemotionHooksProvider>
+				<Internals.RemotionRoot>
+					<Internals.CompositionManager.Provider value={value}>
+						<Markup />
+					</Internals.CompositionManager.Provider>
+				</Internals.RemotionRoot>
+			</Internals.CanUseRemotionHooksProvider>
 		);
 	};
 

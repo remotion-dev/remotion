@@ -1,6 +1,6 @@
 ---
 id: three-canvas
-title: <ThreeCanvas />
+title: <ThreeCanvas>
 ---
 
 A wrapper for [React Three Fiber](https://github.com/pmndrs/react-three-fiber)'s `<Canvas />` which synchronizes with Remotions [`useCurrentFrame()`](/docs/use-current-frame).

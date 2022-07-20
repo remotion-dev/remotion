@@ -46,7 +46,14 @@ const waitForAssetToBeDownloaded = ({
 
 	return new Promise<string>((resolve) => {
 		listeners[src][downloadDir].push(() => {
-			resolve(hasBeenDownloadedMap[src]?.[downloadDir] as string);
+			const srcMap = hasBeenDownloadedMap[src];
+			if (!srcMap || !srcMap[downloadDir]) {
+				throw new Error(
+					'Expected file for ' + src + 'to be available in ' + downloadDir
+				);
+			}
+
+			resolve(srcMap[downloadDir] as string);
 		});
 	});
 };
@@ -68,8 +75,6 @@ const notifyAssetIsDownloaded = ({
 		listeners[src][downloadDir] = [];
 	}
 
-	listeners[src][downloadDir].forEach((fn) => fn());
-
 	if (!isDownloadingMap[src]) {
 		isDownloadingMap[src] = {};
 	}
@@ -89,6 +94,8 @@ const notifyAssetIsDownloaded = ({
 			[downloadDir: string]: string | null;
 		}
 	)[downloadDir] = to;
+
+	listeners[src][downloadDir].forEach((fn) => fn());
 };
 
 const validateMimeType = (mimeType: string, src: string) => {
@@ -149,7 +156,22 @@ export const downloadAsset = async ({
 	}
 
 	if (hasBeenDownloadedMap[src]?.[downloadDir]) {
-		return hasBeenDownloadedMap[src]?.[downloadDir] as string;
+		const claimedDownloadLocation = hasBeenDownloadedMap[src]?.[
+			downloadDir
+		] as string;
+		// The OS might have deleted the file since even though we marked it as downloaded. In that case we reset the state and download it again
+		if (!fs.existsSync(claimedDownloadLocation)) {
+			return claimedDownloadLocation;
+		}
+
+		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+		hasBeenDownloadedMap[src]![downloadDir] = null;
+		if (!isDownloadingMap[src]) {
+			isDownloadingMap[src] = {};
+		}
+
+		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+		isDownloadingMap[src]![downloadDir] = false;
 	}
 
 	if (isDownloadingMap[src]?.[downloadDir]) {

@@ -24,10 +24,19 @@ export const PlayPause: React.FC<{
 	PlayerInternals.usePlayback({
 		loop,
 		playbackRate,
+		moveToBeginningWhenEnded: true,
 	});
 
-	const {playing, play, pause, frameBack, seek, frameForward, isLastFrame} =
-		PlayerInternals.usePlayer();
+	const {
+		playing,
+		play,
+		pause,
+		pauseAndReturnToPlayStart,
+		frameBack,
+		seek,
+		frameForward,
+		isLastFrame,
+	} = PlayerInternals.usePlayer();
 
 	const isStill = useIsStill();
 
@@ -49,6 +58,18 @@ export const PlayPause: React.FC<{
 		},
 		[pause, play, playing]
 	);
+
+	const onEnter = useCallback(
+		(e: KeyboardEvent) => {
+			if (playing) {
+				pauseAndReturnToPlayStart();
+			}
+
+			e.preventDefault();
+		},
+		[pauseAndReturnToPlayStart, playing]
+	);
+
 	const videoFps = video?.fps ?? null;
 
 	const onArrowLeft = useCallback(
@@ -112,28 +133,60 @@ export const PlayPause: React.FC<{
 	const keybindings = useKeybinding();
 
 	useEffect(() => {
-		const arrowLeft = keybindings.registerKeybinding(
-			'keydown',
-			'ArrowLeft',
-			onArrowLeft
-		);
-		const arrowRight = keybindings.registerKeybinding(
-			'keydown',
-			'ArrowRight',
-			onArrowRight
-		);
-		const space = keybindings.registerKeybinding('keydown', ' ', onSpace);
-		const a = keybindings.registerKeybinding('keydown', 'a', jumpToStart);
-		const e = keybindings.registerKeybinding('keydown', 'e', jumpToEnd);
+		const arrowLeft = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'ArrowLeft',
+			callback: onArrowLeft,
+			commandCtrlKey: false,
+		});
+		const arrowRight = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'ArrowRight',
+			callback: onArrowRight,
+			commandCtrlKey: false,
+		});
+		const space = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: ' ',
+			callback: onSpace,
+			commandCtrlKey: false,
+		});
+		const enter = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'enter',
+			callback: onEnter,
+			commandCtrlKey: false,
+		});
+		const a = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'a',
+			callback: jumpToStart,
+			commandCtrlKey: false,
+		});
+		const e = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'e',
+			callback: jumpToEnd,
+			commandCtrlKey: false,
+		});
 
 		return () => {
 			arrowLeft.unregister();
 			arrowRight.unregister();
 			space.unregister();
+			enter.unregister();
 			a.unregister();
 			e.unregister();
 		};
-	}, [jumpToEnd, jumpToStart, keybindings, onArrowLeft, onArrowRight, onSpace]);
+	}, [
+		jumpToEnd,
+		jumpToStart,
+		keybindings,
+		onArrowLeft,
+		onArrowRight,
+		onEnter,
+		onSpace,
+	]);
 
 	if (isStill) {
 		return null;

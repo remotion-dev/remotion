@@ -26,7 +26,7 @@ Unlike Google Chrome, the Chromium Browser does not include proprietary codecs. 
 
 ## Invalid source
 
-Make sure you are trying to load a video that is either available locally or publicly on the internet. Typoing the `src` prop will lead to this error.
+Make sure you are trying to load a video that is either available locally or publicly on the internet. Typing the `src` prop will lead to this error.
 
 ## Other unsupported codecs
 

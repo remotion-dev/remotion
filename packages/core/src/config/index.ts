@@ -14,6 +14,7 @@ import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
 import {setCrf} from './crf';
 import {setDotEnvLocation} from './env-file';
+import {setEveryNthFrame} from './every-nth-frame';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {setFfmpegExecutable, setFfprobeExecutable} from './ffmpeg-executable';
 import type {FrameRange} from './frame-range';
@@ -24,6 +25,7 @@ import {setImageSequence} from './image-sequence';
 import type {LogLevel} from './log';
 import {setLogLevel} from './log';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
+import {setNumberOfGifLoops} from './number-of-gif-loops';
 import type {WebpackConfiguration, WebpackOverrideFn} from './override-webpack';
 import {overrideWebpackConfig} from './override-webpack';
 import {setOverwriteOutput} from './overwrite';
@@ -163,6 +165,17 @@ export const Config = {
 		 * Default: 1.
 		 */
 		setScale,
+		/**
+		 * Specify which frames should be picked for rendering a GIF
+		 * Default: 1, which means every frame
+		 * https://remotion.dev/docs/render-as-gif
+		 */
+		setEveryNthFrame,
+		/**
+		 * Specify the number of Loop a GIF should have.
+		 * Default: null (means GIF will loop infinite)
+		 */
+		setNumberOfGifLoops,
 	},
 	Output: {
 		/**

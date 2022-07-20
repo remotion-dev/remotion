@@ -2,6 +2,7 @@ import { RenderInternals } from "@remotion/renderer";
 import execa from "execa";
 import fs from "fs";
 import path from "path";
+import { beforeEach, expect, test } from "vitest";
 
 const outputPath = path.join(process.cwd(), "packages/example/out.mp4");
 
