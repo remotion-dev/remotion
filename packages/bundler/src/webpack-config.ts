@@ -56,7 +56,7 @@ export const webpackConfig = ({
 	maxTimelineTracks: number;
 	entryPoints: string[];
 }): [string, WebpackConfiguration] => {
-	const conf: webpack.Configuration = {
+	const conf: webpack.Configuration = webpackOverride({
 		optimization: {
 			minimize: false,
 		},
@@ -177,11 +177,11 @@ export const webpackConfig = ({
 				},
 			],
 		},
-	};
+	});
 	const hash = createHash('md5').update(JSON.stringify(conf)).digest('hex');
 	return [
 		hash,
-		webpackOverride({
+		{
 			...conf,
 			cache: enableCaching
 				? {
@@ -194,6 +194,6 @@ export const webpackConfig = ({
 				...conf.output,
 				path: outDir,
 			},
-		}),
+		},
 	];
 };
