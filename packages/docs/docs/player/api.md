@@ -79,6 +79,12 @@ _optional_
 
 A boolean property defining whether you can play or pause a video using space key. If enabled, playing the video and subsequently pressing the space key pauses and resumes the video. Only works if `controls` is true. Default `true`.
 
+### `moveToBeginningWhenEnded`
+
+_optional, available from v3.1.3_
+
+A boolean property defining whether the video position should go back to zero once the video has ended. Only works if `loop` is disabled. Default `true`.
+
 ### `inputProps`
 
 _optional_
@@ -90,6 +96,12 @@ Pass props to the component that you have specified using the `component` prop. 
 _optional_
 
 A regular `style` prop for a HTMLDivElement. You can pass a different height and width if you would like different dimensions for the player than the original composition dimensions.
+
+### `className`
+
+_optional - available since v3.1.3_
+
+A HTML class name to be applied to the conainer.
 
 ### `numberOfSharedAudioTags`
 
@@ -175,8 +187,8 @@ export const MyComposition: React.FC = () => null;
 
 // @filename: index.tsx
 // ---cut---
-import { useEffect, useRef } from "react";
 import { Player, PlayerRef } from "@remotion/player";
+import { useEffect, useRef } from "react";
 import { MyComposition } from "./MyComposition";
 
 const MyComp: React.FC = () => {
@@ -243,8 +255,8 @@ _Available from v2.4.2_
 Gets the container `HTMLDivElement` of the player. Useful if you'd like to manually attach listeners to the player element.
 
 ```tsx twoslash
-import { useRef, useEffect } from "react";
 import { PlayerRef } from "@remotion/player";
+import { useEffect, useRef } from "react";
 // ---cut---
 const playerRef = useRef<PlayerRef>(null);
 
@@ -327,8 +339,8 @@ Stop listening to an event. See the [Events](#events) section to see the functio
 Using a [player ref](#playerref), you can bind event listeners to get notified of certain events of the player.
 
 ```tsx twoslash
-import { useRef, useEffect } from "react";
 import { PlayerRef } from "@remotion/player";
+import { useEffect, useRef } from "react";
 // ---cut---
 const playerRef = useRef<PlayerRef>(null);
 
@@ -367,8 +379,8 @@ useEffect(() => {
 Fired when the time position changes. You may get the current frame by reading it from `e.detail.frame`.
 
 ```tsx twoslash
-import { useRef, useEffect } from "react";
 import { PlayerRef } from "@remotion/player";
+import { useRef } from "react";
 const playerRef = useRef<PlayerRef>(null);
 if (!playerRef.current) {
   throw new Error();
@@ -402,8 +414,8 @@ Fires when the video has paused or ended.
 Fires periodically when the video is playing. Unlike the [`seeked`](#seeked) event, frames are skipped, and the event is throttled to only fire a few times a second.
 
 ```tsx twoslash
-import { useRef, useEffect } from "react";
 import { PlayerRef } from "@remotion/player";
+import { useRef } from "react";
 const playerRef = useRef<PlayerRef>(null);
 if (!playerRef.current) {
   throw new Error();
@@ -421,8 +433,8 @@ Fires when an error or uncaught exception has happened in the video.
 You may get the error by reading the `e.detail.error` value:
 
 ```tsx twoslash
-import { useRef, useEffect } from "react";
 import { PlayerRef } from "@remotion/player";
+import { useRef } from "react";
 const ref = useRef<PlayerRef>(null);
 // ---cut---
 ref.current?.addEventListener("error", (e) => {
@@ -442,7 +454,7 @@ This feature is implemented using an [error boundary](https://reactjs.org/docs/e
 You can customize the error message that is shown if a video crashes:
 
 ```tsx twoslash
-import { Player, ErrorFallback } from "@remotion/player";
+import { ErrorFallback, Player } from "@remotion/player";
 import { useCallback } from "react";
 import { AbsoluteFill } from "remotion";
 

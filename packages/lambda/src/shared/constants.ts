@@ -11,6 +11,7 @@ import type {
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';
+import type {DownloadBehavior} from './content-disposition-header';
 import type {ExpensiveChunk} from './get-most-expensive-chunks';
 import type {LambdaArchitecture} from './validate-architecture';
 import type {LambdaCodec} from './validate-lambda-codec';
@@ -198,6 +199,7 @@ export type LambdaPayloads = {
 		everyNthFrame: number;
 		numberOfGifLoops: number | null;
 		concurrencyPerLambda: number;
+		downloadBehavior: DownloadBehavior;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -225,6 +227,7 @@ export type LambdaPayloads = {
 		everyNthFrame: number;
 		numberOfGifLoops: number | null;
 		concurrencyPerLambda: number;
+		downloadBehavior: DownloadBehavior;
 	};
 	status: {
 		type: LambdaRoutines.status;
@@ -278,6 +281,7 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
+		downloadBehavior: DownloadBehavior | null;
 	};
 };
 
@@ -312,6 +316,8 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2022-07-20'
+	| '2022-07-18'
 	| '2022-07-15'
 	| '2022-07-14'
 	| '2022-07-12'
@@ -400,7 +406,7 @@ export type LambdaVersions =
 	| '2021-06-23'
 	| 'n/a';
 
-export const CURRENT_VERSION: LambdaVersions = '2022-07-15';
+export const CURRENT_VERSION: LambdaVersions = '2022-07-20';
 
 export type PostRenderData = {
 	cost: {

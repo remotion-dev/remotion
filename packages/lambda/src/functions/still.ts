@@ -110,6 +110,7 @@ const innerStillHandler = async (
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
+		downloadBehavior: null,
 	});
 
 	await renderStill({
@@ -143,6 +144,7 @@ const innerStillHandler = async (
 		body: fs.createReadStream(outputPath),
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
+		downloadBehavior: lambdaParams.downloadBehavior,
 	});
 	await fs.promises.rm(outputPath, {recursive: true});
 

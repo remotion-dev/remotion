@@ -25,6 +25,13 @@ npm i @remotion/lambda
 
   </TabItem>
 
+  <TabItem value="pnpm">
+
+```bash
+pnpm i @remotion/lambda
+```
+
+  </TabItem>
   <TabItem value="yarn">
 
 ```bash
@@ -33,13 +40,6 @@ yarn add @remotion/lambda
 
   </TabItem>
 
-  <TabItem value="pnpm">
-
-```bash
-pnpm i @remotion/lambda
-```
-
-  </TabItem>
 </Tabs>
 
 Also update **all the other Remotion packages** to have the same version: `remotion`, `@remotion/cli` and others.

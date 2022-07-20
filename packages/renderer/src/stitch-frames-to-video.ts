@@ -1,6 +1,6 @@
 import execa from 'execa';
-import fs from 'fs';
-import {readFile, unlink} from 'fs/promises';
+import fs, {unlinkSync} from 'fs';
+import {readFile} from 'fs/promises';
 import path from 'path';
 import type {
 	Codec,
@@ -131,7 +131,10 @@ const getAssetsData = async ({
 		)
 	).filter(Internals.truthy);
 
-	const outName = path.join(tempPath, `audio.wav`);
+	const outName = path.join(
+		tmpDir('remotion-audio-preprocessing'),
+		`audio.wav`
+	);
 
 	await mergeAudioTrack({
 		ffmpegExecutable: ffmpegExecutable ?? null,
@@ -139,6 +142,8 @@ const getAssetsData = async ({
 		outName,
 		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
 	});
+
+	deleteDirectory(tempPath);
 
 	onProgress(1);
 
@@ -261,7 +266,23 @@ export const spawnFfmpeg = async (
 		});
 		await ffmpegTask;
 		options.onProgress?.(expectedFrames);
-		const file = tempFile ? await readFile(tempFile) : null;
+		if (audio) {
+			await deleteDirectory(path.dirname(audio));
+		}
+
+		const file = await new Promise<Buffer | null>((resolve, reject) => {
+			if (tempFile) {
+				readFile(tempFile)
+					.then((f) => {
+						unlinkSync(tempFile);
+						return resolve(f);
+					})
+					.catch((e) => reject(e));
+			} else {
+				resolve(null);
+			}
+		});
+
 		return {
 			getLogs: () => '',
 			task: Promise.resolve(file),
@@ -358,13 +379,13 @@ export const spawnFfmpeg = async (
 
 	return {
 		task: task.then(() => {
-			if (options.outputLocation) {
+			if (tempFile === null) {
 				return null;
 			}
 
-			return readFile(tempFile as string)
+			return readFile(tempFile)
 				.then((file) => {
-					return Promise.all([file, unlink(tempFile as string)]);
+					return Promise.all([file, deleteDirectory(path.dirname(tempFile))]);
 				})
 				.then(([file]) => file);
 		}),

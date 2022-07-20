@@ -33,17 +33,17 @@ npm i remotion @remotion/cli @remotion/player
 
   </TabItem>
 
-  <TabItem value="yarn">
-
-```bash
-yarn add remotion @remotion/cli @remotion/player
-```
-
-  </TabItem>
   <TabItem value="pnpm">
 
 ```bash
 pnpm i remotion @remotion/cli @remotion/player
+```
+
+  </TabItem>
+  <TabItem value="yarn">
+
+```bash
+yarn add remotion @remotion/cli @remotion/player
 ```
 
   </TabItem>
