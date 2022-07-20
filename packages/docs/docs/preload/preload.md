@@ -31,6 +31,13 @@ npm i @remotion/preload
 
   </TabItem>
 
+  <TabItem value="pnpm">
+
+```bash
+pnpm i @remotion/preload
+```
+
+  </TabItem>
   <TabItem value="yarn">
 
 ```bash
@@ -39,13 +46,6 @@ yarn add @remotion/preload
 
   </TabItem>
 
-  <TabItem value="pnpm">
-
-```bash
-pnpm i @remotion/preload
-```
-
-  </TabItem>
 </Tabs>
 
 Also update **all the other Remotion packages** to have the same version: `remotion`, `@remotion/cli` and others.

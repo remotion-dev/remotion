@@ -11,13 +11,13 @@ import {yesOrNo} from './yesno';
 
 export const openInEditorFlow = async (projectRoot: string) => {
 	const editors = await guessEditor();
-	const [guiEditor] = editors.filter((e) => !isTerminalEditor(e));
+	const [guiEditor] = editors.filter((e) => !isTerminalEditor(e.command));
 
 	if (!guiEditor) {
 		return;
 	}
 
-	const displayName = getDisplayNameForEditor(guiEditor);
+	const displayName = getDisplayNameForEditor(guiEditor.command);
 
 	const should = await yesOrNo({
 		defaultValue: true,
@@ -25,18 +25,18 @@ export const openInEditorFlow = async (projectRoot: string) => {
 	});
 
 	if (should) {
-		launchEditor({
+		await launchEditor({
 			colNumber: 1,
 			editor: guiEditor,
 			fileName: projectRoot,
 			vsCodeNewWindow: true,
 			lineNumber: 1,
 		});
-		if (isVsCodeDerivative(guiEditor)) {
+		if (isVsCodeDerivative(guiEditor.command)) {
 			await new Promise((resolve) => {
 				setTimeout(resolve, 1000);
 			});
-			launchEditor({
+			await launchEditor({
 				colNumber: 1,
 				editor: guiEditor,
 				fileName: path.join(projectRoot, 'README.md'),

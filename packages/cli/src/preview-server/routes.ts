@@ -38,7 +38,7 @@ const handleFallback = async (
 	getCurrentInputProps: () => object
 ) => {
 	const edit = await editorGuess;
-	const displayName = getDisplayNameForEditor(edit[0]);
+	const displayName = getDisplayNameForEditor(edit[0].command);
 
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);

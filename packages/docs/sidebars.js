@@ -285,6 +285,7 @@ module.exports = {
         "react-18",
         "miscellaneous/typescript-aliases",
         "miscellaneous/render-all",
+        "miscellaneous/render-in-browser",
       ],
     },
     "3-0-migration",

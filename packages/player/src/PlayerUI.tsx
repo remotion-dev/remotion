@@ -1,7 +1,5 @@
 import type {StandardLonghandProperties} from 'csstype';
-import type {
-	MouseEventHandler,
-	SyntheticEvent} from 'react';
+import type {MouseEventHandler, SyntheticEvent} from 'react';
 import React, {
 	forwardRef,
 	Suspense,
@@ -61,6 +59,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		errorFallback: ErrorFallback;
 		playbackRate: number;
 		renderLoading?: RenderLoading;
+		className: string | undefined;
+		moveToBeginningWhenEnded: boolean;
 	}
 > = (
 	{
@@ -81,6 +81,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		errorFallback,
 		playbackRate,
 		renderLoading,
+		className,
+		moveToBeginningWhenEnded,
 	},
 	ref
 ) => {
@@ -96,7 +98,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [hasPausedToResume, setHasPausedToResume] = useState(false);
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
 	const [isFullscreen, setIsFullscreen] = useState(() => false);
-	usePlayback({loop, playbackRate});
+
+	usePlayback({loop, playbackRate, moveToBeginningWhenEnded});
 	const player = usePlayer();
 
 	useEffect(() => {
@@ -428,7 +431,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	);
 	if (IS_NODE && !doesReactVersionSupportSuspense) {
 		return (
-			<div ref={container} style={outerStyle}>
+			<div ref={container} style={outerStyle} className={className}>
 				{content}
 			</div>
 		);
@@ -442,7 +445,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		: null;
 
 	return (
-		<div ref={container} style={outerStyle}>
+		<div ref={container} style={outerStyle} className={className}>
 			<Suspense fallback={loadingMarkup}>{content}</Suspense>
 		</div>
 	);

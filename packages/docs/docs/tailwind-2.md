@@ -26,18 +26,18 @@ npm i postcss-loader postcss postcss-preset-env tailwindcss@2 autoprefixer
 ```
 
   </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i postcss-loader postcss postcss-preset-env tailwindcss@2 autoprefixer
+```
+
+  </TabItem>
 
   <TabItem value="yarn">
 
 ```bash
 yarn add postcss-loader postcss postcss-preset-env tailwindcss@2 autoprefixer
-```
-
-  </TabItem>
-  <TabItem value="pnpm">
-
-```bash
-pnpm i postcss-loader postcss postcss-preset-env tailwindcss@2 autoprefixer
 ```
 
   </TabItem>
