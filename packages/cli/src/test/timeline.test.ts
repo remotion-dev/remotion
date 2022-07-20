@@ -26,7 +26,7 @@ test('Should calculate timeline with no sequences', () => {
 	]);
 });
 
-test('Should calculate a basic timline', () => {
+test('Should calculate a basic timeline', () => {
 	const calculated = calculateTimeline({
 		sequences: [
 			{
