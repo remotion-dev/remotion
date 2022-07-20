@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest';
 import {stitchFramesToVideo} from '../stitch-frames-to-video';
 
 describe('Should validate invalid data passed to stitchFramesToVideo', () => {
@@ -10,7 +11,7 @@ describe('Should validate invalid data passed to stitchFramesToVideo', () => {
 				width: 1000,
 			})
 		).rejects.toThrow(
-			/"fps" must be positive, but got -1 passed to `stitchFramesToVideo\(\)`/
+			/"fps" must be positive, but got -1 in `stitchFramesToVideo\(\)`/
 		);
 	});
 

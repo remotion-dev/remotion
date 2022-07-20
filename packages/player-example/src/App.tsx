@@ -1,9 +1,9 @@
 import {
+	CallbackListener,
+	ErrorFallback,
 	Player,
 	PlayerRef,
-	CallbackListener,
 	RenderLoading,
-	ErrorFallback,
 } from '@remotion/player';
 import {
 	ComponentType,
@@ -44,6 +44,8 @@ export default ({
 	const [clickToPlay, setClickToPlay] = useState(true);
 	const [logs, setLogs] = useState<string[]>(() => []);
 	const [spaceKeyToPlayOrPause, setspaceKeyToPlayOrPause] = useState(true);
+	const [moveToBeginningWhenEnded, setMoveToBeginningWhenEnded] =
+		useState(true);
 	const [playbackRate, setPlaybackRate] = useState(1);
 
 	const ref = useRef<PlayerRef>(null);
@@ -154,6 +156,7 @@ export default ({
 				errorFallback={errorFallback}
 				playbackRate={playbackRate}
 				spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
+				moveToBeginningWhenEnded={moveToBeginningWhenEnded}
 			/>
 			<div style={{paddingTop: '0.5rem'}}>
 				Enter Text{' '}
@@ -304,6 +307,13 @@ export default ({
 				spaceKeyToPlayOrPause = {String(spaceKeyToPlayOrPause)}
 			</button>
 			<br />
+
+			<button
+				type="button"
+				onClick={() => setMoveToBeginningWhenEnded((l) => !l)}
+			>
+				moveToBeginningWhenEnded = {String(moveToBeginningWhenEnded)}
+			</button>
 			<button
 				type="button"
 				onClick={() =>

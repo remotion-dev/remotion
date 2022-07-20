@@ -32,18 +32,18 @@ npm i @remotion/renderer
 
   </TabItem>
 
-  <TabItem value="yarn">
-
-```bash
-yarn add @remotion/renderer
-```
-
-  </TabItem>
-
   <TabItem value="pnpm">
 
 ```bash
 pnpm i @remotion/renderer
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn add @remotion/renderer
 ```
 
   </TabItem>

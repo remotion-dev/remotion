@@ -1,5 +1,6 @@
 import {existsSync} from 'fs';
 import path from 'path';
+import {expect, test} from 'vitest';
 import {getAudioChannelsAndDuration} from '../assets/get-audio-channels';
 
 test('Get audio channels for video', async () => {

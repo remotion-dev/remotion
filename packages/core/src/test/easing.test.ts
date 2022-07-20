@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest';
 import {Easing} from '../easing';
 
 const numbersToTest = [-0.5, 0, 0.4, 0.5, 0.7, 1, 1.5];

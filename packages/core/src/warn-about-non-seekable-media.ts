@@ -1,10 +1,14 @@
 const alreadyWarned: {[key: string]: boolean} = {};
 
 export const warnAboutNonSeekableMedia = (
-	ref: HTMLMediaElement,
+	ref: HTMLMediaElement | null,
 	type: 'console-warning' | 'console-error' | 'exception'
 ) => {
 	// Media is not loaded yet, but this does not yet mean something is wrong with the media
+
+	if (ref === null) {
+		return;
+	}
 
 	if (ref.seekable.length === 0) {
 		return;

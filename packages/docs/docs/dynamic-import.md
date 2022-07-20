@@ -36,7 +36,7 @@ We recommend that you put the asset inside the `public/` folder and use `staticF
 
 ## Write dynamic expressions correctly
 
-While the example at the top did not work, Webpck is smart enough to do so if you place your expression inside the `require()` or `import()` statement. In this case, Webpack will automatically bundle all `.png` files in the `assets/image` folder even if the asset is never used.
+While the example at the top did not work, Webpack is smart enough to do so if you place your expression inside the `require()` or `import()` statement. In this case, Webpack will automatically bundle all `.png` files in the `assets/image` folder even if the asset is never used.
 
 The following **does** work:
 

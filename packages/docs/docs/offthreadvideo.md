@@ -1,6 +1,6 @@
 ---
 id: offthreadvideo
-title: "<OffthreadVideo />"
+title: "<OffthreadVideo>"
 ---
 
 _Available from Remotion 3.0.11_

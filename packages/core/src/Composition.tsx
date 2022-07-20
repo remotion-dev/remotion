@@ -1,11 +1,13 @@
 import type {ComponentType} from 'react';
-import React, { Suspense, useContext, useEffect} from 'react';
+import React, {Suspense, useContext, useEffect} from 'react';
 import {createPortal} from 'react-dom';
+import {CanUseRemotionHooksProvider} from './CanUseRemotionHooks';
 import {CompositionManager} from './CompositionManager';
 import {getInputProps} from './config/input-props';
 import {continueRender, delayRender} from './delay-render';
 import {FolderContext} from './Folder';
 import {getRemotionEnvironment} from './get-environment';
+import {Internals} from './internals';
 import {Loading} from './loading-indicator';
 import {useNonce} from './nonce';
 import {portalNode} from './portal-node';
@@ -62,6 +64,19 @@ export const Composition = <T,>({
 	const lazy = useLazyComponent(compProps);
 	const nonce = useNonce();
 
+	const canUseComposition = useContext(Internals.CanUseRemotionHooks);
+	if (canUseComposition) {
+		if (typeof window !== 'undefined' && window.remotion_isPlayer) {
+			throw new Error(
+				'<Composition> was mounted inside the `component` that was passed to the <Player>. See https://remotion.dev/docs/wrong-composition-mount for help.'
+			);
+		}
+
+		throw new Error(
+			'<Composition> mounted inside another composition. See https://remotion.dev/docs/wrong-composition-mount for help.'
+		);
+	}
+
 	const {folderName, parentName} = useContext(FolderContext);
 
 	useEffect(() => {
@@ -78,7 +93,7 @@ export const Composition = <T,>({
 			'of the <Composition/> component'
 		);
 
-		validateFps(fps, 'as a prop of the <Composition/> component');
+		validateFps(fps, 'as a prop of the <Composition/> component', null);
 		registerComposition<T>({
 			durationInFrames,
 			fps,
@@ -119,9 +134,12 @@ export const Composition = <T,>({
 		const inputProps = getInputProps();
 
 		return createPortal(
-			<Suspense fallback={<Loading />}>
-				<Comp {...defaultProps} {...inputProps} />
-			</Suspense>,
+			<CanUseRemotionHooksProvider>
+				<Suspense fallback={<Loading />}>
+					<Comp {...defaultProps} {...inputProps} />
+				</Suspense>
+			</CanUseRemotionHooksProvider>,
+
 			portalNode()
 		);
 	}
@@ -135,9 +153,12 @@ export const Composition = <T,>({
 		const inputProps = getInputProps();
 
 		return createPortal(
-			<Suspense fallback={<Fallback />}>
-				<Comp {...defaultProps} {...inputProps} />
-			</Suspense>,
+			<CanUseRemotionHooksProvider>
+				<Suspense fallback={<Fallback />}>
+					<Comp {...defaultProps} {...inputProps} />
+				</Suspense>
+			</CanUseRemotionHooksProvider>,
+
 			portalNode()
 		);
 	}

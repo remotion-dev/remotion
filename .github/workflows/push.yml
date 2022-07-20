@@ -67,6 +67,7 @@ jobs:
         run: |
           pnpm build
       - name: Test SSR
+        timeout-minutes: 5
         run: |
           cd packages/it-tests && pnpm run testssr
   build:

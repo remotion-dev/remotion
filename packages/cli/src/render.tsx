@@ -60,6 +60,8 @@ export const render = async () => {
 		scale,
 		chromiumOptions,
 		port,
+		numberOfGifLoops,
+		everyNthFrame,
 		puppeteerTimeout,
 		bundleOutDir,
 		publicPath,
@@ -150,9 +152,13 @@ export const render = async () => {
 	Log.verbose('Output dir', outputDir);
 
 	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
-	let totalFrames: number | null = RenderInternals.getDurationFromFrameRange(
-		frameRange,
-		config.durationInFrames
+	const realFrameRange = RenderInternals.getRealFrameRange(
+		config.durationInFrames,
+		frameRange
+	);
+	const totalFrames: number[] = RenderInternals.getFramesToRender(
+		realFrameRange,
+		everyNthFrame
 	);
 	let encodedFrames = 0;
 	let renderedFrames = 0;
@@ -162,7 +168,7 @@ export const render = async () => {
 	const downloads: DownloadProgress[] = [];
 
 	const updateRenderProgress = () => {
-		if (totalFrames === null) {
+		if (totalFrames.length === 0) {
 			throw new Error('totalFrames should not be 0');
 		}
 
@@ -170,7 +176,7 @@ export const render = async () => {
 			makeRenderingAndStitchingProgress({
 				rendering: {
 					frames: renderedFrames,
-					totalFrames,
+					totalFrames: totalFrames.length,
 					concurrency: RenderInternals.getActualConcurrency(parallelism),
 					doneIn: renderedDoneIn,
 					steps,
@@ -182,7 +188,8 @@ export const render = async () => {
 							frames: encodedFrames,
 							stage: stitchStage,
 							steps,
-							totalFrames,
+							totalFrames: totalFrames.length,
+							codec,
 					  },
 				downloads,
 			})
@@ -209,11 +216,7 @@ export const render = async () => {
 				renderedFrames = rendered;
 				updateRenderProgress();
 			},
-			onStart: ({frameCount}) => {
-				totalFrames = frameCount;
-				return updateRenderProgress();
-			},
-
+			onStart: () => undefined,
 			onDownload: (src: string) => {
 				if (src.startsWith('data:')) {
 					Log.info(
@@ -230,6 +233,7 @@ export const render = async () => {
 				Internals.Logging.getLogLevel(),
 				'verbose'
 			),
+			everyNthFrame,
 			envVariables,
 			frameRange,
 			parallelism,
@@ -284,13 +288,12 @@ export const render = async () => {
 			Internals.Logging.getLogLevel(),
 			'verbose'
 		),
-		onStart: ({frameCount}) => {
-			totalFrames = frameCount;
-		},
 		chromiumOptions,
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 		scale,
 		port,
+		numberOfGifLoops,
+		everyNthFrame,
 	});
 
 	Log.info();
@@ -317,7 +320,9 @@ export const render = async () => {
 		}
 	}
 
-	Log.info(chalk.green('\nYour video is ready!'));
+	Log.info(
+		chalk.green(`\nYour ${codec === 'gif' ? 'GIF' : 'video'} is ready!`)
+	);
 
 	if (
 		Internals.Logging.isEqualOrBelowLogLevel(

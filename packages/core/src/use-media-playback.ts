@@ -56,6 +56,7 @@ export const useMediaPlayback = ({
 			src,
 			playbackRate: localPlaybackRate,
 			startFrom: -mediaStartsAt,
+			mediaType,
 		});
 
 		const isTime = mediaRef.current.currentTime;

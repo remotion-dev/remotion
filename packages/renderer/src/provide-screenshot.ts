@@ -1,5 +1,5 @@
 import type {ImageFormat} from 'remotion';
-import type {Page} from './browser/Page';
+import type {Page} from './browser/BrowserPage';
 import {screenshotDOMElement} from './screenshot-dom-element';
 
 export const provideScreenshot = ({

@@ -2,6 +2,7 @@ import path from "path";
 import { tmpdir } from "os";
 import fs from "fs";
 import { BundlerInternals } from "@remotion/bundler";
+import { describe, expect, test } from "vitest";
 
 test("Should not be able to bundle @remotion/lambda directly", async () => {
   expect(() =>

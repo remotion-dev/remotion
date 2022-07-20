@@ -1,11 +1,11 @@
 /* eslint-disable no-new */
+import type {Page} from './browser/BrowserPage';
 import type {
 	CallArgument,
 	CallFunctionOnResponse,
 	DevtoolsRemoteObject,
 } from './browser/devtools-types';
 import {JSHandle} from './browser/JSHandle';
-import type {Page} from './browser/Page';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
 import {parseStack} from './parse-browser-error-stack';
 

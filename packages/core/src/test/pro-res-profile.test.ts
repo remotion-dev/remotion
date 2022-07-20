@@ -1,5 +1,5 @@
-import type {
-	ProResProfile} from '../config/prores-profile';
+import {describe, expect, test} from 'vitest';
+import type {ProResProfile} from '../config/prores-profile';
 import {
 	getProResProfile,
 	setProResProfile,

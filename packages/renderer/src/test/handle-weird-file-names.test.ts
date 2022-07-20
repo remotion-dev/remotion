@@ -1,4 +1,5 @@
 import path from 'path';
+import {expect, test} from 'vitest';
 import {getSanitizedFilenameForAssetUrl} from '../assets/download-and-map-assets-to-file';
 
 test('Should sanitize weird file names when downloading', () => {

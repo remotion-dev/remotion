@@ -1,5 +1,6 @@
 import execa from 'execa';
 import {downloadFile} from './assets/download-file';
+import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
@@ -10,7 +11,7 @@ import {
 	getFfmpegVersion,
 } from './ffmpeg-flags';
 import {getActualConcurrency} from './get-concurrency';
-import {getDurationFromFrameRange} from './get-duration-from-frame-range';
+import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
@@ -25,6 +26,7 @@ import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
 import {spawnFfmpeg} from './stitch-frames-to-video';
 import {tmpDir} from './tmp-dir';
+import {validateConcurrency} from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
@@ -79,13 +81,15 @@ export const RenderInternals = {
 	parseStack,
 	symbolicateError,
 	SymbolicateableError,
-	getDurationFromFrameRange,
+	getFramesToRender,
 	getExtensionOfFilename,
 	getDesiredPort,
 	isPathInside,
 	execa,
 	registerErrorSymbolicationLock,
 	unlockErrorSymbolicationLock,
+	canUseParallelEncoding,
 	mimeContentType,
 	mimeLookup,
+	validateConcurrency,
 };

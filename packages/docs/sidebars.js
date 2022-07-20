@@ -72,7 +72,6 @@ module.exports = {
   ],
   someSidebar: [
     {
-      collapsed: false,
       type: "category",
       label: "Getting started",
       items: [
@@ -87,7 +86,6 @@ module.exports = {
     {
       type: "category",
       label: "Techniques",
-      collapsed: false,
       items: [
         "assets",
         "using-audio",
@@ -103,12 +101,14 @@ module.exports = {
         "dynamic-metadata",
         "ssr",
         "webpack",
+        "tailwind",
         "legacy-babel",
         "env-variables",
         "third-party",
         "stills",
         "scaling",
         "video-manipulation",
+        "render-as-gif",
       ],
     },
     {
@@ -137,8 +137,7 @@ module.exports = {
     "config",
     {
       type: "category",
-      label: "API - Core",
-      collapsed: false,
+      label: "API - remotion",
       items: [
         "continue-render",
         "delay-render",
@@ -251,7 +250,6 @@ module.exports = {
     {
       type: "category",
       label: "Troubleshooting",
-      collapsed: false,
       items: [
         "timeout",
         "target-closed",
@@ -263,12 +261,12 @@ module.exports = {
         "version-mismatch",
         "enametoolong",
         "slow-method-to-extract-frame",
+        "wrong-composition-mount",
       ],
     },
     {
       type: "category",
       label: "Miscellaneous",
-      collapsed: false,
       items: [
         "brownfield",
         "chromium-flags",
@@ -277,6 +275,8 @@ module.exports = {
         "gpu",
         "react-18",
         "miscellaneous/typescript-aliases",
+        "miscellaneous/render-all",
+        "miscellaneous/render-in-browser",
       ],
     },
     "3-0-migration",

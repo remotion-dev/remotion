@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {validateFrame} from '../validation/validate-frame';
 import {expectToThrow} from './expect-to-throw';
 
