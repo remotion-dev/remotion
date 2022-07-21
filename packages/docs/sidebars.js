@@ -219,6 +219,15 @@ module.exports = {
     },
     {
       type: "category",
+      label: "API - @remotion/skia",
+      link: {
+        type: "doc",
+        id: "skia/skia",
+      },
+      items: ["skia/enable-skia", "skia/skia-canvas"],
+    },
+    {
+      type: "category",
       label: "API - @remotion/preload",
       link: {
         type: "doc",
