@@ -16,14 +16,39 @@ export const bundleOnCli = async ({
 	steps: RenderStep[];
 }) => {
 	const shouldCache = Internals.getWebpackCaching();
-	const cacheExistedBefore = BundlerInternals.cacheExists('production');
-	if (cacheExistedBefore && !shouldCache) {
+
+	const onProgress = (progress: number) => {
+		bundlingProgress.update(
+			makeBundlingProgress({
+				progress: progress / 100,
+				steps,
+				doneIn: null,
+			})
+		);
+	};
+
+	const options = {
+		enableCaching: shouldCache,
+		webpackOverride:
+			Internals.getWebpackOverrideFn() ?? Internals.defaultOverrideFunction,
+	};
+
+	const [hash] = BundlerInternals.getConfig('', fullPath, onProgress, options);
+
+	const cacheExistedBefore = BundlerInternals.cacheExists('production', hash);
+	if (cacheExistedBefore !== 'does-not-exist' && !shouldCache) {
 		Log.info('🧹 Cache disabled but found. Deleting... ');
-		await BundlerInternals.clearCache('production');
+		await BundlerInternals.clearCache();
+	}
+
+	if (cacheExistedBefore === 'other-exists' && shouldCache) {
+		Log.info('🧹 Webpack config change detected. Clearing cache... ');
+		await BundlerInternals.clearCache();
 	}
 
 	const bundleStartTime = Date.now();
 	const bundlingProgress = createOverwriteableCliOutput(quietFlagProvided());
+
 	const bundled = await bundle(
 		fullPath,
 		(progress) => {
@@ -35,11 +60,7 @@ export const bundleOnCli = async ({
 				})
 			);
 		},
-		{
-			enableCaching: shouldCache,
-			webpackOverride:
-				Internals.getWebpackOverrideFn() ?? Internals.defaultOverrideFunction,
-		}
+		options
 	);
 	bundlingProgress.update(
 		makeBundlingProgress({
@@ -49,9 +70,16 @@ export const bundleOnCli = async ({
 		}) + '\n'
 	);
 	Log.verbose('Bundled under', bundled);
-	const cacheExistedAfter = BundlerInternals.cacheExists('production');
-	if (cacheExistedAfter && !cacheExistedBefore) {
-		Log.info('⚡️ Cached bundle. Subsequent renders will be faster.');
+	const cacheExistedAfter =
+		BundlerInternals.cacheExists('production', hash) === 'exists';
+
+	if (cacheExistedAfter) {
+		if (
+			cacheExistedBefore === 'does-not-exist' ||
+			cacheExistedBefore === 'other-exists'
+		) {
+			Log.info('⚡️ Cached bundle. Subsequent renders will be faster.');
+		}
 	}
 
 	return bundled;

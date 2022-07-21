@@ -1,3 +1,4 @@
+import {getConfig} from './bundle';
 import {indexHtml} from './index-html';
 import {cacheExists, clearCache} from './webpack-cache';
 import {webpackConfig} from './webpack-config';
@@ -10,6 +11,7 @@ export const BundlerInternals = {
 	indexHtml,
 	cacheExists,
 	clearCache,
+	getConfig,
 };
 
 export {bundle} from './bundle';

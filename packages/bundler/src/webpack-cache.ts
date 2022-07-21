@@ -3,6 +3,8 @@ import path from 'path';
 
 type Environment = 'development' | 'production';
 
+type CacheState = 'exists' | 'other-exists' | 'does-not-exist';
+
 declare global {
 	// eslint-disable-next-line @typescript-eslint/no-namespace
 	namespace NodeJS {
@@ -49,29 +51,61 @@ const getWebpackCacheDir = () => {
 	return path.resolve(dir, 'node_modules/.cache/webpack');
 };
 
-const remotionCacheLocation = (environment: Environment) => {
-	return path.join(getWebpackCacheDir(), getWebpackCacheName(environment));
-};
-
-export const clearCache = (environment: Environment) => {
-	return (fs.promises.rm ?? fs.promises.rmdir)(
-		remotionCacheLocation(environment),
-		{
-			recursive: true,
-		}
+const remotionCacheLocation = (environment: Environment, hash: string) => {
+	return path.join(
+		getWebpackCacheDir(),
+		getWebpackCacheName(environment, hash)
 	);
 };
 
-export const getWebpackCacheName = (environment: Environment) => {
+export const clearCache = () => {
+	return (fs.promises.rm ?? fs.promises.rmdir)(getWebpackCacheDir(), {
+		recursive: true,
+	});
+};
+
+const getPrefix = (environment: Environment) => {
+	return `remotion-v4-${environment}`;
+};
+
+export const getWebpackCacheName = (environment: Environment, hash: string) => {
 	if (environment === 'development') {
-		return `remotion-v3-${environment}`;
+		return `${getPrefix(environment)}-${hash}`;
 	}
 
 	// In production, the cache is independent from input props because
 	// they are passed over URL params. Speed is mostly important in production.
-	return `remotion-v3-${environment}`;
+	return `${getPrefix(environment)}-${hash}`;
 };
 
-export const cacheExists = (environment: Environment) => {
-	return fs.existsSync(remotionCacheLocation(environment));
+const hasOtherCache = (environment: Environment) => {
+	const cacheDir = fs.readdirSync(getWebpackCacheDir());
+	if (
+		cacheDir.find((c) => {
+			return c.startsWith(getPrefix(environment));
+		})
+	) {
+		return true;
+	}
+
+	return false;
+};
+
+export const cacheExists = (
+	environment: Environment,
+	hash: string
+): CacheState => {
+	if (fs.existsSync(remotionCacheLocation(environment, hash))) {
+		return 'exists';
+	}
+
+	if (!fs.existsSync(getWebpackCacheDir())) {
+		return 'does-not-exist';
+	}
+
+	if (hasOtherCache(environment)) {
+		return 'other-exists';
+	}
+
+	return 'does-not-exist';
 };
