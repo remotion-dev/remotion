@@ -127,7 +127,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		description: 'React Native Skia starter',
 		longerDescription: 'A template with React Native Skia already setup.',
 		promoVideo: {
-			muxId: 'A3ei3bzeT00Z1JCXmykOXD9v01V02HWZkc4jmmDaBiW01rE',
+			muxId: 'ecORcc01sP94IsTRGLwngxH4PC1r1kQq6iXpn00HqCIGI',
 			height: 1080,
 			width: 1920,
 		},
