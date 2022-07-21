@@ -38,34 +38,46 @@ const trimTrailingSlash = (p: string): string => {
 	return p;
 };
 
+type Options = {
+	webpackOverride?: WebpackOverrideFn;
+	outDir?: string;
+	enableCaching?: boolean;
+	publicPath?: string;
+};
+
+export const getConfig = (
+	outDir: string,
+	entryPoint: string,
+	onProgressUpdate?: (progress: number) => void,
+	options?: Options
+) => {
+	return webpackConfig({
+		entry,
+		userDefinedComponent: entryPoint,
+		outDir,
+		environment: 'production',
+		webpackOverride:
+			options?.webpackOverride ?? Internals.defaultOverrideFunction,
+		onProgressUpdate,
+		enableCaching:
+			options?.enableCaching ?? Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
+		maxTimelineTracks: 15,
+		// For production, the variables are set dynamically
+		envVariables: {},
+		entryPoints: [],
+	});
+};
+
 export const bundle = async (
 	entryPoint: string,
 	onProgressUpdate?: (progress: number) => void,
-	options?: {
-		webpackOverride?: WebpackOverrideFn;
-		outDir?: string;
-		enableCaching?: boolean;
-		publicPath?: string;
-	}
+	options?: Options
 ): Promise<string> => {
 	const outDir = await prepareOutDir(options?.outDir ?? null);
-	const output = await promisified([
-		webpackConfig({
-			entry,
-			userDefinedComponent: entryPoint,
-			outDir,
-			environment: 'production',
-			webpackOverride:
-				options?.webpackOverride ?? Internals.defaultOverrideFunction,
-			onProgressUpdate,
-			enableCaching:
-				options?.enableCaching ?? Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
-			maxTimelineTracks: 15,
-			// For production, the variables are set dynamically
-			envVariables: {},
-			entryPoints: [],
-		}),
-	]);
+
+	const [, config] = getConfig(outDir, entryPoint, onProgressUpdate, options);
+
+	const output = await promisified([config]);
 	if (!output) {
 		throw new Error('Expected webpack output');
 	}
