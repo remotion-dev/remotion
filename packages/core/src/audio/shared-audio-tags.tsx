@@ -41,11 +41,30 @@ type SharedContext = {
 
 export const SharedAudioContext = createContext<SharedContext | null>(null);
 
+const compareProps = (
+	obj1: Record<string, unknown>,
+	obj2: Record<string, unknown>
+) => {
+	const keysA = Object.keys(obj1).sort();
+	const keysB = Object.keys(obj2).sort();
+	if (keysA.length !== keysB.length) {
+		return false;
+	}
+
+	for (let i = 0; i < keysA.length; i++) {
+		if (keysA[i] !== keysB[i]) {
+			return false;
+		}
+	}
+
+	return true;
+};
+
 export const SharedAudioContextProvider: React.FC<{
 	numberOfAudioTags: number;
 	children: React.ReactNode;
 }> = ({children, numberOfAudioTags}) => {
-	const [audios, setAudios] = useState<AudioElem[]>([]);
+	const audios = useRef<AudioElem[]>([]);
 	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);
 
 	if (numberOfAudioTags !== initialNumberOfAudioTags) {
@@ -64,8 +83,35 @@ export const SharedAudioContextProvider: React.FC<{
 		new Array(numberOfAudioTags).fill(false)
 	);
 
+	const rerenderAudios = useCallback(() => {
+		refs.forEach(({ref, id}) => {
+			const data = audios.current?.find((a) => a.id === id);
+			const {current} = ref;
+			if (!current) {
+				throw new Error('Audio has no ref ' + id);
+			}
+
+			if (data === undefined) {
+				current.src = EMPTY_AUDIO;
+				return;
+			}
+
+			if (!data) {
+				throw new TypeError('Expected audio data to be there');
+			}
+
+			Object.assign(current, data.props);
+		});
+	}, [refs]);
+
 	const registerAudio = useCallback(
 		(aud: RemotionAudioProps) => {
+			const found = audios.current?.find((a) => compareProps(a.props, aud));
+			if (found) {
+				console.log('double register');
+				return found;
+			}
+
 			const firstFreeAudio = takenAudios.current.findIndex((a) => a === false);
 			if (firstFreeAudio === -1) {
 				throw new Error(
@@ -85,16 +131,11 @@ export const SharedAudioContextProvider: React.FC<{
 				id,
 				el: ref,
 			};
-			// We need a timeout because this state setting is triggered by another state being set, causing React to throw an error.
-			// By setting a timeout, we are bypassing the error and allowing the state
-			// to be updated in the next tick.
-			// This can lead to a tiny delay of audio playback, improvement ideas are welcome.
-			setTimeout(() => {
-				setAudios((prevAudios) => [...prevAudios, newElem]);
-			}, 4);
+			audios.current?.push(newElem);
+			rerenderAudios();
 			return newElem;
 		},
-		[numberOfAudioTags, refs]
+		[numberOfAudioTags, refs, rerenderAudios]
 	);
 
 	const unregisterAudio = useCallback(
@@ -108,17 +149,24 @@ export const SharedAudioContextProvider: React.FC<{
 			cloned[index] = false;
 
 			takenAudios.current = cloned;
-			setAudios((prevAudios) => {
-				return prevAudios.filter((a) => a.id !== id);
-			});
+			audios.current = audios.current?.filter((a) => a.id !== id);
+
+			rerenderAudios();
 		},
-		[refs]
+		[refs, rerenderAudios]
 	);
 
-	const updateAudio = useCallback((id: number, aud: RemotionAudioProps) => {
-		setAudios((prevAudios) => {
-			return prevAudios.map((prevA): AudioElem => {
+	const updateAudio = useCallback(
+		(id: number, aud: RemotionAudioProps) => {
+			let changed = false;
+			audios.current = audios.current?.map((prevA): AudioElem => {
 				if (prevA.id === id) {
+					const isTheSame = compareProps(aud, prevA.props);
+					if (isTheSame) {
+						return prevA;
+					}
+
+					changed = true;
 					return {
 						...prevA,
 						props: aud,
@@ -127,8 +175,12 @@ export const SharedAudioContextProvider: React.FC<{
 
 				return prevA;
 			});
-		});
-	}, []);
+			if (changed) {
+				rerenderAudios();
+			}
+		},
+		[rerenderAudios]
+	);
 
 	const playAllAudios = useCallback(() => {
 		refs.forEach((ref) => {
@@ -155,16 +207,7 @@ export const SharedAudioContextProvider: React.FC<{
 	return (
 		<SharedAudioContext.Provider value={value}>
 			{refs.map(({id, ref}) => {
-				const data = audios.find((a) => a.id === id);
-				if (data === undefined) {
-					return <audio key={id} ref={ref} src={EMPTY_AUDIO} />;
-				}
-
-				if (!data) {
-					throw new TypeError('Expected audio data to be there');
-				}
-
-				return <audio key={id} ref={ref} {...data.props} />;
+				return <audio key={id} ref={ref} src={EMPTY_AUDIO} />;
 			})}
 			{children}
 		</SharedAudioContext.Provider>
@@ -187,17 +230,15 @@ export const useSharedAudio = (aud: RemotionAudioProps) => {
 	});
 
 	useEffect(() => {
+		if (ctx && ctx.numberOfAudioTags > 0) {
+			ctx.updateAudio(elem.id, aud);
+		}
+
 		return () => {
 			if (ctx && ctx.numberOfAudioTags > 0) {
 				ctx.unregisterAudio(elem.id);
 			}
 		};
-	}, [ctx, elem.id]);
-
-	useEffect(() => {
-		if (ctx && ctx.numberOfAudioTags > 0) {
-			ctx.updateAudio(elem.id, aud);
-		}
 	}, [aud, ctx, elem.id]);
 
 	return elem;
