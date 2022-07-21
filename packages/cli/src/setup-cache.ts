@@ -36,9 +36,14 @@ export const bundleOnCli = async ({
 	const [hash] = BundlerInternals.getConfig('', fullPath, onProgress, options);
 
 	const cacheExistedBefore = BundlerInternals.cacheExists('production', hash);
-	if (cacheExistedBefore && !shouldCache) {
+	if (cacheExistedBefore !== 'does-not-exist' && !shouldCache) {
 		Log.info('🧹 Cache disabled but found. Deleting... ');
-		await BundlerInternals.clearCache('production', hash);
+		await BundlerInternals.clearCache();
+	}
+
+	if (cacheExistedBefore === 'other-exists' && shouldCache) {
+		Log.info('🧹 Webpack config change detected. Clearing cache... ');
+		await BundlerInternals.clearCache();
 	}
 
 	const bundleStartTime = Date.now();
@@ -65,9 +70,16 @@ export const bundleOnCli = async ({
 		}) + '\n'
 	);
 	Log.verbose('Bundled under', bundled);
-	const cacheExistedAfter = BundlerInternals.cacheExists('production', hash);
-	if (cacheExistedAfter && !cacheExistedBefore) {
-		Log.info('⚡️ Cached bundle. Subsequent renders will be faster.');
+	const cacheExistedAfter =
+		BundlerInternals.cacheExists('production', hash) === 'exists';
+
+	if (cacheExistedAfter) {
+		if (
+			cacheExistedBefore === 'does-not-exist' ||
+			cacheExistedBefore === 'other-exists'
+		) {
+			Log.info('⚡️ Cached bundle. Subsequent renders will be faster.');
+		}
 	}
 
 	return bundled;
