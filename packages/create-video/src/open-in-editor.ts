@@ -160,13 +160,7 @@ const displayNameForEditor: {[key in Editor]: string} = {
 	nano: 'nano',
 };
 
-export const getDisplayNameForEditor = (
-	editor: Editor | undefined
-): string | null => {
-	if (!editor) {
-		return null;
-	}
-
+export const getDisplayNameForEditor = (editor: Editor): string => {
 	const endsIn = Object.keys(displayNameForEditor).find((displayNameKey) => {
 		return editor.endsWith(displayNameKey);
 	});
@@ -352,11 +346,11 @@ export async function guessEditor(): Promise<ProcessAndCommand[]> {
 			const output = (await execProm('ps x')).stdout.toString();
 			const processNames = Object.keys(COMMON_EDITORS_OSX);
 			for (let i = 0; i < processNames.length; i++) {
-				const processName = processNames[i];
+				const processName = processNames[i] as string;
 				if (output.indexOf(processName) !== -1) {
 					availableEditors.push({
 						process: processName,
-						command: COMMON_EDITORS_OSX[processName],
+						command: COMMON_EDITORS_OSX[processName] as Editor,
 					});
 				}
 			}
@@ -374,7 +368,7 @@ export async function guessEditor(): Promise<ProcessAndCommand[]> {
 			).stdout.toString();
 			const runningProcesses = output.split('\r\n');
 			for (let i = 0; i < runningProcesses.length; i++) {
-				const processPath = runningProcesses[i].trim();
+				const processPath = (runningProcesses[i] as string).trim();
 				const processName = path.basename(processPath);
 				if (COMMON_EDITORS_WIN.indexOf(processName as Editor) !== -1) {
 					availableEditors.push({
@@ -396,11 +390,11 @@ export async function guessEditor(): Promise<ProcessAndCommand[]> {
 			).stdout.toString();
 			const processNames = Object.keys(COMMON_EDITORS_LINUX);
 			for (let i = 0; i < processNames.length; i++) {
-				const processName = processNames[i];
+				const processName = processNames[i] as string;
 				if (output.indexOf(processName) !== -1) {
 					availableEditors.push({
 						process: processName,
-						command: COMMON_EDITORS_LINUX[processName],
+						command: COMMON_EDITORS_LINUX[processName] as Editor,
 					});
 				}
 			}
