@@ -157,7 +157,7 @@ _optional, available since v3.1_
 
 [Set the looping behavior.](/docs/config#setnumberofgifloops) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
 
-### `downloadBehavior`
+### `downloadBehavior?`
 
 _optional, available since v3.1.3_
 
@@ -167,19 +167,19 @@ Either:
 - `{"type": "play-in-browser"}` - the default. The video will play in the browser.
 - `{"type": "download", fileName: null}` or `{"type": "download", fileName: "download.mp4"}` - a `Content-Disposiion` header will be added which makes the browser download the file. You can optionally override the filename.
 
-#### `disableWebSecurity`
+### `disableWebSecurity`
 
 _boolean - default `false`_
 
 This will most notably disable CORS among other security features.
 
-#### `ignoreCertificateErrors`
+### `ignoreCertificateErrors`
 
 _boolean - default `false`_
 
 Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
-#### `gl`
+### `gl`
 
 _string_
 
