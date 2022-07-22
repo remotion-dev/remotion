@@ -1,6 +1,4 @@
-export const DEFAULT_OUTPUT_LOCATION = 'out/video.mp4';
-
-let currentOutputLocation: string = DEFAULT_OUTPUT_LOCATION;
+let currentOutputLocation: string | null = null;
 
 export const setOutputLocation = (newOutputLocation: string) => {
 	if (typeof newOutputLocation !== 'string') {
@@ -11,7 +9,7 @@ export const setOutputLocation = (newOutputLocation: string) => {
 		);
 	}
 
-	if (newOutputLocation === '') {
+	if (newOutputLocation.trim() === '') {
 		throw new Error(`outputLocation must not be an empty string`);
 	}
 

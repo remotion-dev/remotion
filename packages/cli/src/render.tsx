@@ -67,7 +67,11 @@ export const render = async () => {
 		numberOfGifLoops,
 		everyNthFrame,
 		puppeteerTimeout,
-	} = await getCliOptions({isLambda: false, type: 'series'});
+	} = await getCliOptions({
+		isLambda: false,
+		type: 'series',
+		compositionName: getCompositionId([]),
+	});
 
 	if (!absoluteOutputFile) {
 		throw new Error(
