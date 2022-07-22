@@ -26,13 +26,14 @@ type AudioElem = {
 	id: number;
 	props: RemotionAudioProps;
 	el: React.RefObject<HTMLAudioElement>;
+	audioId: string;
 };
 
 const EMPTY_AUDIO =
 	'data:audio/mp3;base64,/+MYxAAJcAV8AAgAABn//////+/gQ5BAMA+D4Pg+BAQBAEAwD4Pg+D4EBAEAQDAPg++hYBH///hUFQVBUFREDQNHmf///////+MYxBUGkAGIMAAAAP/29Xt6lUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV/+MYxDUAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
 
 type SharedContext = {
-	registerAudio: (aud: RemotionAudioProps) => AudioElem;
+	registerAudio: (aud: RemotionAudioProps, audioId: string) => AudioElem;
 	unregisterAudio: (id: number) => void;
 	updateAudio: (id: number, aud: RemotionAudioProps) => void;
 	playAllAudios: () => void;
@@ -40,25 +41,6 @@ type SharedContext = {
 };
 
 export const SharedAudioContext = createContext<SharedContext | null>(null);
-
-const compareProps = (
-	obj1: Record<string, unknown>,
-	obj2: Record<string, unknown>
-) => {
-	const keysA = Object.keys(obj1).sort();
-	const keysB = Object.keys(obj2).sort();
-	if (keysA.length !== keysB.length) {
-		return false;
-	}
-
-	for (let i = 0; i < keysA.length; i++) {
-		if (keysA[i] !== keysB[i]) {
-			return false;
-		}
-	}
-
-	return true;
-};
 
 export const SharedAudioContextProvider: React.FC<{
 	numberOfAudioTags: number;
@@ -105,12 +87,13 @@ export const SharedAudioContextProvider: React.FC<{
 	}, [refs]);
 
 	const registerAudio = useCallback(
-		(aud: RemotionAudioProps) => {
-			const found = audios.current?.find((a) => compareProps(a.props, aud));
+		(aud: RemotionAudioProps, audioId: string) => {
+			const found = audios.current?.find((a) => a.audioId === audioId);
 			if (found) {
-				console.log('double register');
 				return found;
 			}
+
+			console.log('register', aud);
 
 			const firstFreeAudio = takenAudios.current.findIndex((a) => a === false);
 			if (firstFreeAudio === -1) {
@@ -130,6 +113,7 @@ export const SharedAudioContextProvider: React.FC<{
 				props: aud,
 				id,
 				el: ref,
+				audioId,
 			};
 			audios.current?.push(newElem);
 			rerenderAudios();
@@ -158,15 +142,8 @@ export const SharedAudioContextProvider: React.FC<{
 
 	const updateAudio = useCallback(
 		(id: number, aud: RemotionAudioProps) => {
-			let changed = false;
 			audios.current = audios.current?.map((prevA): AudioElem => {
 				if (prevA.id === id) {
-					const isTheSame = compareProps(aud, prevA.props);
-					if (isTheSame) {
-						return prevA;
-					}
-
-					changed = true;
 					return {
 						...prevA,
 						props: aud,
@@ -175,9 +152,7 @@ export const SharedAudioContextProvider: React.FC<{
 
 				return prevA;
 			});
-			if (changed) {
-				rerenderAudios();
-			}
+			rerenderAudios();
 		},
 		[rerenderAudios]
 	);
@@ -214,18 +189,19 @@ export const SharedAudioContextProvider: React.FC<{
 	);
 };
 
-export const useSharedAudio = (aud: RemotionAudioProps) => {
+export const useSharedAudio = (aud: RemotionAudioProps, audioId: string) => {
 	const ctx = useContext(SharedAudioContext);
 
 	const [elem] = useState((): AudioElem => {
 		if (ctx && ctx.numberOfAudioTags > 0) {
-			return ctx.registerAudio(aud);
+			return ctx.registerAudio(aud, audioId);
 		}
 
 		return {
 			el: React.createRef<HTMLAudioElement>(),
 			id: Math.random(),
 			props: aud,
+			audioId,
 		};
 	});
 
@@ -233,13 +209,15 @@ export const useSharedAudio = (aud: RemotionAudioProps) => {
 		if (ctx && ctx.numberOfAudioTags > 0) {
 			ctx.updateAudio(elem.id, aud);
 		}
+	}, [aud, ctx, elem.id]);
 
+	useEffect(() => {
 		return () => {
 			if (ctx && ctx.numberOfAudioTags > 0) {
 				ctx.unregisterAudio(elem.id);
 			}
 		};
-	}, [aud, ctx, elem.id]);
+	}, [ctx, elem.id]);
 
 	return elem;
 };

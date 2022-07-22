@@ -1,4 +1,12 @@
-import React, {forwardRef, useImperativeHandle, useMemo, useState} from 'react';
+import React, {
+	forwardRef,
+	useContext,
+	useImperativeHandle,
+	useMemo,
+	useState,
+} from 'react';
+import {random} from '../random';
+import {SequenceContext} from '../Sequence';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
@@ -41,7 +49,19 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		};
 	}, [mediaMuted, muted, nativeProps]);
 
-	const audioRef = useSharedAudio(propsToPass).el;
+	const sequenceContext = useContext(SequenceContext);
+
+	// Generate a string that's as unique as possible for this asset
+	// but at the same time the same on all threads
+	const id = useMemo(
+		() =>
+			`audio-${random(props.src ?? '')}-${sequenceContext?.relativeFrom}-${
+				sequenceContext?.cumulatedFrom
+			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
+		[props.muted, props.src, sequenceContext]
+	);
+
+	const audioRef = useSharedAudio(propsToPass, id).el;
 
 	const actualVolume = useMediaTagVolume(audioRef);
 
