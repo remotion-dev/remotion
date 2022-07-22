@@ -567,7 +567,7 @@ importers:
       jest: 27.2.4_ts-node@10.8.0
       prettier: 2.4.1
       prettier-plugin-organize-imports: 2.3.4_pxx7xhvr2bexxfjjff3nukai7m
-      ts-jest: 27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm
+      ts-jest: 27.0.5_g2mfyom6zaxqcgedxrl4lakegu
       ts-node: 10.8.0_ysvagj6uoj2jcpx4fli7niyicq
       typescript: 4.7.2
       zip-lib: 0.7.2
@@ -17732,7 +17732,7 @@ packages:
     dev: false
 
   /node-int64/0.4.0:
-    resolution: {integrity: sha1-h6kGXNs1XTGC2PlM4RGIuCXGijs=}
+    resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==}
 
   /node-modules-regexp/1.0.0:
     resolution: {integrity: sha1-jZ2+KJZKSsVxLpExZCEHxx6Q7EA=}
@@ -21944,37 +21944,6 @@ packages:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
       jest: 27.2.4
-      jest-util: 27.2.4
-      json5: 2.2.1
-      lodash: 4.17.21
-      make-error: 1.3.6
-      semver: 7.3.7
-      typescript: 4.7.2
-      yargs-parser: 20.2.9
-    dev: true
-
-  /ts-jest/27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm:
-    resolution: {integrity: sha512-lIJApzfTaSSbtlksfFNHkWOzLJuuSm4faFAfo5kvzOiRAuoN4/eKxVJ2zEAho8aecE04qX6K1pAzfH5QHL1/8w==}
-    engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
-    hasBin: true
-    peerDependencies:
-      '@babel/core': '>=7.0.0-beta.0 <8'
-      '@types/jest': ^27.0.0
-      babel-jest: '>=27.0.0 <28'
-      jest: ^27.0.0
-      typescript: '>=3.8 <5.0'
-    peerDependenciesMeta:
-      '@babel/core':
-        optional: true
-      '@types/jest':
-        optional: true
-      babel-jest:
-        optional: true
-    dependencies:
-      '@types/jest': 27.4.0
-      bs-logger: 0.2.6
-      fast-json-stable-stringify: 2.1.0
-      jest: 27.2.4_ts-node@10.8.0
       jest-util: 27.2.4
       json5: 2.2.1
       lodash: 4.17.21
