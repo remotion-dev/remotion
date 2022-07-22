@@ -113,7 +113,7 @@ npx create-video --skia
   <TabItem value="yarn">
 
 ```bash
-pnpm create video -- --skia
+yarn create video --skia
 ```
 
   </TabItem>
@@ -121,7 +121,7 @@ pnpm create video -- --skia
   <TabItem value="pnpm">
 
 ```bash
-yarn create video --skia
+pnpm create video -- --skia
 ```
 
   </TabItem>
