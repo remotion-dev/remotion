@@ -3,7 +3,8 @@ import React, {
 	createRef,
 	useCallback,
 	useContext,
-	useEffect,
+	useInsertionEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -38,6 +39,25 @@ type SharedContext = {
 	updateAudio: (id: number, aud: RemotionAudioProps) => void;
 	playAllAudios: () => void;
 	numberOfAudioTags: number;
+};
+
+const compareProps = (
+	obj1: Record<string, unknown>,
+	obj2: Record<string, unknown>
+) => {
+	const keysA = Object.keys(obj1).sort();
+	const keysB = Object.keys(obj2).sort();
+	if (keysA.length !== keysB.length) {
+		return false;
+	}
+
+	for (let i = 0; i < keysA.length; i++) {
+		if (keysA[i] !== keysB[i]) {
+			return false;
+		}
+	}
+
+	return true;
 };
 
 export const SharedAudioContext = createContext<SharedContext | null>(null);
@@ -93,8 +113,6 @@ export const SharedAudioContextProvider: React.FC<{
 				return found;
 			}
 
-			console.log('register', aud);
-
 			const firstFreeAudio = takenAudios.current.findIndex((a) => a === false);
 			if (firstFreeAudio === -1) {
 				throw new Error(
@@ -142,8 +160,16 @@ export const SharedAudioContextProvider: React.FC<{
 
 	const updateAudio = useCallback(
 		(id: number, aud: RemotionAudioProps) => {
+			let changed = false;
+
 			audios.current = audios.current?.map((prevA): AudioElem => {
 				if (prevA.id === id) {
+					const isTheSame = compareProps(aud, prevA.props);
+					if (isTheSame) {
+						return prevA;
+					}
+
+					changed = true;
 					return {
 						...prevA,
 						props: aud,
@@ -152,7 +178,9 @@ export const SharedAudioContextProvider: React.FC<{
 
 				return prevA;
 			});
-			rerenderAudios();
+			if (changed) {
+				rerenderAudios();
+			}
 		},
 		[rerenderAudios]
 	);
@@ -192,6 +220,9 @@ export const SharedAudioContextProvider: React.FC<{
 export const useSharedAudio = (aud: RemotionAudioProps, audioId: string) => {
 	const ctx = useContext(SharedAudioContext);
 
+	/**
+	 * We work around this in React 18 so an audio tag will only register itself once
+	 */
 	const [elem] = useState((): AudioElem => {
 		if (ctx && ctx.numberOfAudioTags > 0) {
 			return ctx.registerAudio(aud, audioId);
@@ -205,13 +236,20 @@ export const useSharedAudio = (aud: RemotionAudioProps, audioId: string) => {
 		};
 	});
 
-	useEffect(() => {
+	/**
+	 * Effects in React 18 fire twice, and we are looking for a way to only fire it once.
+	 * - useInsertionEffect only fires once. If it's available we are in React 18.
+	 * - useLayoutEffect only fires once in React 17.
+	 */
+	const effectToUse = useInsertionEffect ?? useLayoutEffect;
+
+	effectToUse(() => {
 		if (ctx && ctx.numberOfAudioTags > 0) {
 			ctx.updateAudio(elem.id, aud);
 		}
 	}, [aud, ctx, elem.id]);
 
-	useEffect(() => {
+	effectToUse(() => {
 		return () => {
 			if (ctx && ctx.numberOfAudioTags > 0) {
 				ctx.unregisterAudio(elem.id);
