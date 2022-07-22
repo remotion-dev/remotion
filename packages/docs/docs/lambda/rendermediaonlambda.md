@@ -167,19 +167,19 @@ Either:
 - `{"type": "play-in-browser"}` - the default. The video will play in the browser.
 - `{"type": "download", fileName: null}` or `{"type": "download", fileName: "download.mp4"}` - a `Content-Disposition` header will be added which makes the browser download the file. You can optionally override the filename.
 
-### `disableWebSecurity`
+#### `disableWebSecurity`
 
 _boolean - default `false`_
 
 This will most notably disable CORS among other security features.
 
-### `ignoreCertificateErrors`
+#### `ignoreCertificateErrors`
 
 _boolean - default `false`_
 
 Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
-### `gl`
+#### `gl`
 
 _string_
 
