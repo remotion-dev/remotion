@@ -532,6 +532,8 @@ importers:
       mime-types: 2.1.34
       prettier: ^2.4.1
       prettier-plugin-organize-imports: ^2.3.4
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
       remotion: 3.1.4
       ts-jest: ^27.0.5
       ts-node: ^10.8.0
@@ -551,6 +553,8 @@ importers:
       '@remotion/renderer': link:../renderer
       aws-policies: 1.0.1
       mime-types: 2.1.34
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_6hvhxfirl4y3p6nuemvvvbadcu
@@ -576,9 +580,13 @@ importers:
       eslint: 8.13.0
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
       remotion: 3.1.4
       typescript: ^4.7.0
     dependencies:
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_6hvhxfirl4y3p6nuemvvvbadcu
@@ -624,7 +632,7 @@ importers:
       prettier-plugin-organize-imports: 2.3.4_pxx7xhvr2bexxfjjff3nukai7m
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
-      ts-jest: 27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm
+      ts-jest: 27.0.5_g2mfyom6zaxqcgedxrl4lakegu
       typescript: 4.7.2
       webpack: 5.72.0
 
@@ -21913,6 +21921,38 @@ packages:
     resolution: {integrity: sha512-3IVX4nI6B5cc31/GFFE+i8ey/N2eA0CZDbo6n0yrz0zDX8ZJ8djmU1p+XRz7G3is0F3bB3pu2pAroFdAWQKU3w==}
     dev: false
 
+  /ts-jest/27.0.5_g2mfyom6zaxqcgedxrl4lakegu:
+    resolution: {integrity: sha512-lIJApzfTaSSbtlksfFNHkWOzLJuuSm4faFAfo5kvzOiRAuoN4/eKxVJ2zEAho8aecE04qX6K1pAzfH5QHL1/8w==}
+    engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
+    hasBin: true
+    peerDependencies:
+      '@babel/core': '>=7.0.0-beta.0 <8'
+      '@types/jest': ^27.0.0
+      babel-jest: '>=27.0.0 <28'
+      jest: ^27.0.0
+      typescript: '>=3.8 <5.0'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@types/jest':
+        optional: true
+      babel-jest:
+        optional: true
+    dependencies:
+      '@babel/core': 7.18.6
+      '@types/jest': 27.4.0
+      bs-logger: 0.2.6
+      fast-json-stable-stringify: 2.1.0
+      jest: 27.2.4
+      jest-util: 27.2.4
+      json5: 2.2.1
+      lodash: 4.17.21
+      make-error: 1.3.6
+      semver: 7.3.7
+      typescript: 4.7.2
+      yargs-parser: 20.2.9
+    dev: true
+
   /ts-jest/27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm:
     resolution: {integrity: sha512-lIJApzfTaSSbtlksfFNHkWOzLJuuSm4faFAfo5kvzOiRAuoN4/eKxVJ2zEAho8aecE04qX6K1pAzfH5QHL1/8w==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
@@ -21934,7 +21974,7 @@ packages:
       '@types/jest': 27.4.0
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 27.2.4
+      jest: 27.2.4_ts-node@10.8.0
       jest-util: 27.2.4
       json5: 2.2.1
       lodash: 4.17.21
