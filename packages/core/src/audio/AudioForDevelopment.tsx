@@ -52,7 +52,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	const sequenceContext = useContext(SequenceContext);
 
 	// Generate a string that's as unique as possible for this asset
-	// but at the same time the same on all threads
+	// but at the same time deterministic. We use it to combat strict mode issues.
 	const id = useMemo(
 		() =>
 			`audio-${random(props.src ?? '')}-${sequenceContext?.relativeFrom}-${
