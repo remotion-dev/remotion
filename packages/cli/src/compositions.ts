@@ -49,7 +49,12 @@ export const listCompositionsCommand = async () => {
 		inputProps,
 		puppeteerTimeout,
 		port,
-	} = await getCliOptions({isLambda: false, type: 'get-compositions'});
+		// TODO: Refactor compositionName out
+	} = await getCliOptions({
+		isLambda: false,
+		type: 'get-compositions',
+		compositionName: 'abc',
+	});
 
 	const bundled = await bundleOnCli({fullPath, steps: ['bundling']});
 

@@ -7,12 +7,17 @@ export const getOutputFilename = ({
 	codec,
 	imageSequence,
 	type,
+	compositionName,
 }: {
 	codec: Codec;
 	imageSequence: boolean;
 	type: 'still' | 'series';
+	compositionName: string;
 }): string => {
-	let filename = getUserPassedOutputLocation();
+	let filename = getUserPassedOutputLocation(
+		RenderInternals.getFileExtensionFromCodec(codec, 'final'),
+		compositionName
+	);
 	if (type === 'still') {
 		return filename;
 	}

@@ -24,14 +24,25 @@ const getAndValidateFrameRange = () => {
 	return frameRange;
 };
 
-const getFinalCodec = async (options: {isLambda: boolean}) => {
+const getFinalCodec = async (options: {
+	isLambda: boolean;
+	compositionName: string;
+}) => {
 	const userCodec = Internals.getOutputCodecOrUndefined();
 
 	const codec = Internals.getFinalOutputCodec({
 		codec: userCodec,
 		fileExtension: options.isLambda
 			? null
-			: RenderInternals.getExtensionOfFilename(getUserPassedOutputLocation()),
+			: RenderInternals.getExtensionOfFilename(
+					getUserPassedOutputLocation(
+						RenderInternals.getFileExtensionFromCodec(
+							userCodec ?? 'h264',
+							'final'
+						),
+						options.compositionName
+					)
+			  ),
 		emitWarning: true,
 	});
 	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
@@ -184,13 +195,17 @@ const getAndValidateBrowser = async (browserExecutable: BrowserExecutable) => {
 export const getCliOptions = async (options: {
 	isLambda: boolean;
 	type: 'still' | 'series' | 'get-compositions';
+	compositionName: string;
 }) => {
 	const frameRange = getAndValidateFrameRange();
 
 	const codec: Codec =
 		options.type === 'get-compositions'
 			? 'h264'
-			: await getFinalCodec({isLambda: options.isLambda});
+			: await getFinalCodec({
+					isLambda: options.isLambda,
+					compositionName: options.compositionName,
+			  });
 	const shouldOutputImageSequence =
 		options.type === 'still'
 			? true
@@ -205,6 +220,7 @@ export const getCliOptions = async (options: {
 					codec,
 					imageSequence: shouldOutputImageSequence,
 					type: options.type,
+					compositionName: options.compositionName,
 			  });
 
 	const overwrite = Internals.getShouldOverwrite();

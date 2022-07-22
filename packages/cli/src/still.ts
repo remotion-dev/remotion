@@ -32,22 +32,6 @@ export const still = async () => {
 
 	await initializeRenderCli('still');
 
-	const userOutput = path.resolve(process.cwd(), getUserPassedOutputLocation());
-
-	if (userOutput.endsWith('.jpeg') || userOutput.endsWith('.jpg')) {
-		Log.verbose(
-			'Output file has a JPEG extension, therefore setting the image format to JPEG.'
-		);
-		Config.Rendering.setImageFormat('jpeg');
-	}
-
-	if (userOutput.endsWith('.png')) {
-		Log.verbose(
-			'Output file has a PNG extension, therefore setting the image format to PNG.'
-		);
-		Config.Rendering.setImageFormat('png');
-	}
-
 	const {
 		inputProps,
 		envVariables,
@@ -63,7 +47,30 @@ export const still = async () => {
 		overwrite,
 		puppeteerTimeout,
 		port,
-	} = await getCliOptions({isLambda: false, type: 'still'});
+	} = await getCliOptions({
+		isLambda: false,
+		type: 'still',
+		compositionName: getCompositionId([]),
+	});
+
+	const userOutput = path.resolve(
+		process.cwd(),
+		getUserPassedOutputLocation(imageFormat, getCompositionId([]))
+	);
+
+	if (userOutput.endsWith('.jpeg') || userOutput.endsWith('.jpg')) {
+		Log.verbose(
+			'Output file has a JPEG extension, therefore setting the image format to JPEG.'
+		);
+		Config.Rendering.setImageFormat('jpeg');
+	}
+
+	if (userOutput.endsWith('.png')) {
+		Log.verbose(
+			'Output file has a PNG extension, therefore setting the image format to PNG.'
+		);
+		Config.Rendering.setImageFormat('png');
+	}
 
 	Log.verbose('Browser executable: ', browserExecutable);
 
