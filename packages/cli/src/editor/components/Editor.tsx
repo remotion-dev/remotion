@@ -4,8 +4,6 @@ import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
-	SetTimelineInOutContextValue,
-	TimelineInOutContextValue,
 } from 'remotion';
 import {continueRender, delayRender, Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
@@ -17,6 +15,11 @@ import {
 } from '../state/checkerboard';
 import {FolderContextProvider} from '../state/folders';
 import {HighestZIndexProvider} from '../state/highest-z-index';
+import type {
+	SetTimelineInOutContextValue,
+	TimelineInOutContextValue,
+} from '../state/in-out';
+import {SetTimelineInOutContext, TimelineInOutContext} from '../state/in-out';
 import {KeybindingContextProvider} from '../state/keybindings';
 import type {ModalContextType, ModalState} from '../state/modals';
 import {ModalsContext} from '../state/modals';
@@ -179,10 +182,8 @@ export const Editor: React.FC = () => {
 				<CheckerboardContext.Provider value={checkerboardCtx}>
 					<PreviewSizeContext.Provider value={previewSizeCtx}>
 						<ModalsContext.Provider value={modalsContext}>
-							<Internals.Timeline.TimelineInOutContext.Provider
-								value={timelineInOutContextValue}
-							>
-								<Internals.Timeline.SetTimelineInOutContext.Provider
+							<TimelineInOutContext.Provider value={timelineInOutContextValue}>
+								<SetTimelineInOutContext.Provider
 									value={setTimelineInOutContextValue}
 								>
 									<Internals.MediaVolumeContext.Provider
@@ -237,8 +238,8 @@ export const Editor: React.FC = () => {
 											</PlayerInternals.PlayerEventEmitterContext.Provider>
 										</Internals.SetMediaVolumeContext.Provider>
 									</Internals.MediaVolumeContext.Provider>
-								</Internals.Timeline.SetTimelineInOutContext.Provider>
-							</Internals.Timeline.TimelineInOutContext.Provider>
+								</SetTimelineInOutContext.Provider>
+							</TimelineInOutContext.Provider>
 						</ModalsContext.Provider>
 					</PreviewSizeContext.Provider>
 				</CheckerboardContext.Provider>

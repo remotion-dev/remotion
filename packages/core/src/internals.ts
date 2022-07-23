@@ -31,11 +31,6 @@ import {RemotionRoot} from './RemotionRoot';
 import {SequenceContext} from './Sequence';
 import {ENV_VARIABLES_ENV_NAME, setupEnvVariables} from './setup-env-variables';
 import type {
-	SetTimelineInOutContextValue,
-	TimelineInOutContextValue,
-} from './timeline-inout-position-state';
-import * as TimelineInOutPosition from './timeline-inout-position-state';
-import type {
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from './timeline-position-state';
@@ -67,7 +62,7 @@ import {
 	RemotionContextProvider,
 	useRemotionContexts,
 } from './wrap-remotion-context';
-const Timeline = {...TimelinePosition, ...TimelineInOutPosition};
+const Timeline = TimelinePosition;
 
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
@@ -128,8 +123,6 @@ export type {
 	RenderAssetInfo,
 	TimelineContextValue,
 	SetTimelineContextValue,
-	TimelineInOutContextValue,
-	SetTimelineInOutContextValue,
 	CompProps,
 	CompositionManagerContext,
 	MediaVolumeContextValue,
