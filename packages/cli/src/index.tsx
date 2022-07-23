@@ -1,3 +1,4 @@
+import {overrideRemotion} from '@remotion/config';
 import {RenderInternals} from '@remotion/renderer';
 import {chalk} from './chalk';
 import {checkNodeVersion} from './check-version';
@@ -31,6 +32,7 @@ import {
 } from './versions';
 
 export const cli = async () => {
+	overrideRemotion();
 	const args = process.argv;
 	const command = args[2];
 

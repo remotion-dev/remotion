@@ -225,4 +225,22 @@ export type ConfigType = {
 };
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 
-export const Conf = {} as unknown as ConfigType;
+const conf = {} as unknown as ConfigType;
+
+let enabled = false;
+
+export const Config = new Proxy(conf, {
+	get(target, prop, receiver) {
+		if (!enabled) {
+			throw new Error(
+				'To use the Remotion config file, you need to have @remotion/cli installed.\n- Make sure that all versions of Remotion are the same.\n- Make sure that @remotion/cli is installed.\n- Make sure Config is imported from "@remotion/cli", not "remotion".'
+			);
+		}
+
+		return Reflect.get(target, prop, receiver);
+	},
+});
+
+export const enableLegacyRemotionConfig = () => {
+	enabled = true;
+};
