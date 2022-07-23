@@ -31,6 +31,7 @@ import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import type {CancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {openBrowser} from './open-browser';
+import {startPerfMeasure, stopPerfMeasure} from './perf';
 import {Pool} from './pool';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
@@ -251,7 +252,7 @@ const innerRenderFrames = ({
 
 			if (imageFormat !== 'none') {
 				if (onFrameBuffer) {
-					const id = Internals.perf.startPerfMeasure('save');
+					const id = startPerfMeasure('save');
 					const buffer = await provideScreenshot({
 						page: freePage,
 						imageFormat,
@@ -261,7 +262,7 @@ const innerRenderFrames = ({
 							output: null,
 						},
 					});
-					Internals.perf.stopPerfMeasure(id);
+					stopPerfMeasure(id);
 
 					onFrameBuffer(buffer, frame);
 				} else {

@@ -352,6 +352,6 @@ export const render = async () => {
 			'verbose'
 		)
 	) {
-		Internals.perf.logPerf();
+		RenderInternals.perf.logPerf();
 	}
 };

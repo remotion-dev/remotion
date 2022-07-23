@@ -25,6 +25,7 @@ import type {CancelSignal} from './make-cancel-signal';
 import {makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {DEFAULT_OVERWRITE} from './overwrite';
+import {startPerfMeasure, stopPerfMeasure} from './perf';
 import type {PixelFormat} from './pixel-format';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import type {ProResProfile} from './prores-profile';
@@ -258,9 +259,9 @@ export const renderMedia = ({
 								return;
 							}
 
-							const id = Internals.perf.startPerfMeasure('piping');
+							const id = startPerfMeasure('piping');
 							stitcherFfmpeg?.stdin?.write(buffer);
-							Internals.perf.stopPerfMeasure(id);
+							stopPerfMeasure(id);
 
 							setFrameToStitch(
 								Math.min(realFrameRange[1] + 1, frame + everyNthFrame)
