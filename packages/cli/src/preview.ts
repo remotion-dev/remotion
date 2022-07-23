@@ -1,6 +1,6 @@
-import {ConfigInternals} from '@remotion/config';
 import betterOpn from 'better-opn';
 import path from 'path';
+import {ConfigInternals} from './config';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
 import {initializeRenderCli} from './initialize-render-cli';

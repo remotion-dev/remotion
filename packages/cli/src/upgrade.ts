@@ -1,7 +1,7 @@
-import {ConfigInternals} from '@remotion/config';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
+import {ConfigInternals} from './config';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
 import {Log} from './log';
 import type {PackageManager} from './preview-server/get-package-manager';

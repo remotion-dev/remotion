@@ -1,5 +1,4 @@
 import {BundlerInternals, webpack} from '@remotion/bundler';
-import {ConfigInternals} from '@remotion/config';
 import {RenderInternals} from '@remotion/renderer';
 import crypto from 'crypto';
 import fs from 'fs';
@@ -8,6 +7,7 @@ import os from 'os';
 import path from 'path';
 // eslint-disable-next-line no-restricted-imports
 import type {WebpackOverrideFn} from 'remotion';
+import {ConfigInternals} from '../config';
 import {wdm} from './dev-middleware';
 import {webpackHotMiddleware} from './hot-middleware';
 import type {LiveEventsServer} from './live-events';

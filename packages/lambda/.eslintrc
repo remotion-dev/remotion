@@ -3,7 +3,7 @@
 	"rules": {
 		"no-console": "off",
 		"arrow-body-style": "off",
-		"no-restricted-imports": ["error", "@remotion/config"]
+		"no-restricted-imports": ["error", "@remotion/cli"]
 	},
 	"overrides": [
 		{

@@ -1,4 +1,4 @@
-import {ConfigInternals} from '@remotion/config';
+import {ConfigInternals} from './config';
 import {parsedCli} from './parse-command-line';
 
 export const getUserPassedOutputLocation = () => {

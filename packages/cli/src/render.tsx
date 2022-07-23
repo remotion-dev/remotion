@@ -1,4 +1,3 @@
-import {ConfigInternals} from '@remotion/config';
 import type {RenderMediaOnDownload, StitchingState} from '@remotion/renderer';
 import {
 	getCompositions,
@@ -13,6 +12,7 @@ import path from 'path';
 // eslint-disable-next-line no-restricted-imports
 import {Internals} from 'remotion';
 import {chalk} from './chalk';
+import {ConfigInternals} from './config';
 import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,

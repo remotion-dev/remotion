@@ -1,3 +1,45 @@
+// eslint-disable-next-line no-restricted-imports
+import {Config as RemotionConfig, Internals} from 'remotion';
+import {getBrowser} from './browser';
+import {getBrowserExecutable} from './browser-executable';
+import {
+	getChromiumDisableWebSecurity,
+	getChromiumHeadlessMode,
+	getChromiumOpenGlRenderer,
+	getIgnoreCertificateErrors,
+} from './chromium-flags';
+import {getOutputCodecOrUndefined} from './codec';
+import {getConcurrency} from './concurrency';
+import {getActualCrf} from './crf';
+import {getDotEnvLocation} from './env-file';
+import {getAndValidateEveryNthFrame} from './every-nth-frame';
+import {
+	getCustomFfmpegExecutable,
+	getCustomFfprobeExecutable,
+} from './ffmpeg-executable';
+import {getRange, setFrameRangeFromCli} from './frame-range';
+import {getUserPreferredImageFormat} from './image-format';
+import {getShouldOutputImageSequence} from './image-sequence';
+import * as Logging from './log';
+import {getMaxTimelineTracks} from './max-timeline-tracks';
+import {getAndValidateNumberOfGifLoops} from './number-of-gif-loops';
+import {getOutputLocation} from './output-location';
+import {
+	defaultOverrideFunction,
+	getWebpackOverrideFn,
+} from './override-webpack';
+import {getShouldOverwrite} from './overwrite';
+import {getPixelFormat} from './pixel-format';
+import {getServerPort} from './preview-server';
+import {getProResProfile} from './prores-profile';
+import {getQuality} from './quality';
+import {getScale} from './scale';
+import {getStillFrame, setStillFrame} from './still-frame';
+import {getCurrentPuppeteerTimeout} from './timeout';
+import {getWebpackCaching} from './webpack-caching';
+
+import type {WebpackConfiguration} from '@remotion/bundler';
+// eslint-disable-next-line no-restricted-imports
 import type {ConfigType} from 'remotion';
 import {setBrowserExecutable} from './browser-executable';
 import {
@@ -20,7 +62,7 @@ import {setLogLevel} from './log';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
 import {setNumberOfGifLoops} from './number-of-gif-loops';
 import {setOutputLocation} from './output-location';
-import type {WebpackConfiguration, WebpackOverrideFn} from './override-webpack';
+import type {WebpackOverrideFn} from './override-webpack';
 import {overrideWebpackConfig} from './override-webpack';
 import {setOverwriteOutput} from './overwrite';
 import {setPixelFormat} from './pixel-format';
@@ -205,3 +247,46 @@ export const Config: ConfigType = {
 } as const;
 
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
+
+// eslint-disable-next-line no-restricted-imports
+
+export const ConfigInternals = {
+	getRange,
+	getOutputCodecOrUndefined,
+	getCustomFfmpegExecutable,
+	getBrowser,
+	getActualCrf,
+	getPixelFormat,
+	getProResProfile,
+	getShouldOverwrite,
+	getBrowserExecutable,
+	getCustomFfprobeExecutable,
+	getScale,
+	getServerPort,
+	getChromiumDisableWebSecurity,
+	getIgnoreCertificateErrors,
+	getChromiumHeadlessMode,
+	getChromiumOpenGlRenderer,
+	getAndValidateEveryNthFrame,
+	getAndValidateNumberOfGifLoops,
+	getConcurrency,
+	getCurrentPuppeteerTimeout,
+	getQuality,
+	getStillFrame,
+	getShouldOutputImageSequence,
+	getDotEnvLocation,
+	getUserPreferredImageFormat,
+	getWebpackOverrideFn,
+	getWebpackCaching,
+	getOutputLocation,
+	Logging,
+	setFrameRangeFromCli,
+	setStillFrame,
+	getMaxTimelineTracks,
+	defaultOverrideFunction,
+};
+
+export const overrideRemotion = () => {
+	Object.assign(RemotionConfig, Config);
+	Internals.enableLegacyRemotionConfig();
+};

@@ -1,7 +1,7 @@
-import {ConfigInternals} from '@remotion/config';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import {ConfigInternals} from './config';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 

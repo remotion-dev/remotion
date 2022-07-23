@@ -1,8 +1,8 @@
-import {overrideRemotion} from '@remotion/config';
 import {RenderInternals} from '@remotion/renderer';
 import {chalk} from './chalk';
 import {checkNodeVersion} from './check-version';
 import {listCompositionsCommand} from './compositions';
+import {overrideRemotion} from './config/index';
 import {getFileSizeDownloadBar} from './download-progress';
 import {formatBytes} from './format-bytes';
 import {getCliOptions} from './get-cli-options';
@@ -82,6 +82,7 @@ export const cli = async () => {
 	}
 };
 
+export {Config, ConfigInternals, overrideRemotion} from './config/index';
 export * from './render';
 
 export const CliInternals = {
