@@ -32,7 +32,7 @@ import {
 } from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
-import {isEqualOrBelowLogLevel, logLevels} from './log-level';
+import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
 import {mimeContentType, mimeLookup} from './mime-types';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {killAllBrowsers} from './open-browser';
@@ -158,4 +158,5 @@ export const RenderInternals = {
 	isAudioCodec,
 	logLevels,
 	isEqualOrBelowLogLevel,
+	isValidLogLevel,
 };

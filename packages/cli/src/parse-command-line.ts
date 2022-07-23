@@ -1,14 +1,15 @@
-import type {LogLevel} from '@remotion/config';
 import {Config, ConfigInternals} from '@remotion/config';
 import type {
 	BrowserExecutable,
 	Codec,
 	FfmpegExecutable,
 	ImageFormat,
+	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
 } from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import minimist from 'minimist';
 import {resolve} from 'path';
 import type {} from 'remotion';
@@ -121,10 +122,10 @@ export const parseCommandLine = (
 	}
 
 	if (parsedCli.log) {
-		if (!ConfigInternals.Logging.isValidLogLevel(parsedCli.log)) {
+		if (!RenderInternals.isValidLogLevel(parsedCli.log)) {
 			Log.error('Invalid `--log` value passed.');
 			Log.error(
-				`Accepted values: ${ConfigInternals.Logging.logLevels
+				`Accepted values: ${RenderInternals.logLevels
 					.map((l) => `'${l}'`)
 					.join(', ')}.`
 			);

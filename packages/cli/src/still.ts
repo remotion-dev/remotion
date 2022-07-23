@@ -123,7 +123,7 @@ export const still = async () => {
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
 		chromiumOptions,
-		shouldDumpIo: ConfigInternals.Logging.isEqualOrBelowLogLevel(
+		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(
 			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
@@ -210,7 +210,7 @@ export const still = async () => {
 		output: absoluteOutputLocation,
 		serveUrl: await urlOrBundle,
 		quality,
-		dumpBrowserLogs: ConfigInternals.Logging.isEqualOrBelowLogLevel(
+		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
 			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),

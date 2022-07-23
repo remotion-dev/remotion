@@ -256,6 +256,12 @@ _optional, available from v3.0.15_
 
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
+### `verbose`
+
+_optional, available from v3.1.6_
+
+Prints debugging output if set to true.
+
 ### `chromiumOptions?`
 
 _optional, available from v2.6.5_

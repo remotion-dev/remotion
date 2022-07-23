@@ -1,11 +1,7 @@
+import type {LogLevel} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {describe, expect, test} from 'vitest';
-import type {LogLevel} from '../config/log';
-import {
-	getLogLevel,
-	isEqualOrBelowLogLevel,
-	isValidLogLevel,
-	setLogLevel,
-} from '../config/log';
+import {getLogLevel, setLogLevel} from '../config/log';
 describe('test loglevel getter and setter', () => {
 	test('default log level', () => {
 		expect(getLogLevel()).toEqual('info');
@@ -15,21 +11,6 @@ describe('test loglevel getter and setter', () => {
 		(loglevel) => {
 			setLogLevel(loglevel);
 			expect(getLogLevel()).toEqual(loglevel);
-		}
-	);
-});
-
-describe('loglevel validity', () => {
-	test.each<string>(['abc', 'aalsadj', ''])(
-		'is %s an invalid level',
-		(level) => {
-			expect(isValidLogLevel(level)).toEqual(false);
-		}
-	);
-	test.each<string | LogLevel>(['verbose', 'info', 'warn', 'error'])(
-		'is %s a valid level',
-		(level) => {
-			expect(isValidLogLevel(level)).toEqual(true);
 		}
 	);
 });
@@ -48,7 +29,9 @@ describe('loglevel comparison', () => {
 		['error', 'error'],
 	])('%s is equal or below %s', (level1, level2) => {
 		setLogLevel(level1);
-		expect(isEqualOrBelowLogLevel(getLogLevel(), level2)).toEqual(true);
+		expect(
+			RenderInternals.isEqualOrBelowLogLevel(getLogLevel(), level2)
+		).toEqual(true);
 	});
 
 	test.each<[LogLevel, LogLevel]>([
@@ -60,6 +43,8 @@ describe('loglevel comparison', () => {
 		['error', 'warn'],
 	])('%s is not equal or below %s', (level1, level2) => {
 		setLogLevel(level1);
-		expect(isEqualOrBelowLogLevel(getLogLevel(), level2)).toEqual(false);
+		expect(
+			RenderInternals.isEqualOrBelowLogLevel(getLogLevel(), level2)
+		).toEqual(false);
 	});
 });

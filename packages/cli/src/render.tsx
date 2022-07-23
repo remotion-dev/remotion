@@ -104,7 +104,7 @@ export const render = async () => {
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
-		shouldDumpIo: ConfigInternals.Logging.isEqualOrBelowLogLevel(
+		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(
 			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
@@ -249,7 +249,7 @@ export const render = async () => {
 			},
 			outputDir,
 			serveUrl: urlOrBundle,
-			dumpBrowserLogs: ConfigInternals.Logging.isEqualOrBelowLogLevel(
+			dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
 				ConfigInternals.Logging.getLogLevel(),
 				'verbose'
 			),
@@ -303,7 +303,7 @@ export const render = async () => {
 		quality,
 		serveUrl: urlOrBundle,
 		onDownload,
-		dumpBrowserLogs: ConfigInternals.Logging.isEqualOrBelowLogLevel(
+		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
 			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
@@ -313,7 +313,7 @@ export const render = async () => {
 		port,
 		numberOfGifLoops,
 		everyNthFrame,
-		verbose: ConfigInternals.Logging.isEqualOrBelowLogLevel(
+		verbose: RenderInternals.isEqualOrBelowLogLevel(
 			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
@@ -346,7 +346,7 @@ export const render = async () => {
 	);
 
 	if (
-		ConfigInternals.Logging.isEqualOrBelowLogLevel(
+		RenderInternals.isEqualOrBelowLogLevel(
 			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		)

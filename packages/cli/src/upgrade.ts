@@ -80,7 +80,7 @@ export const upgrade = async () => {
 		}
 	);
 	if (
-		ConfigInternals.Logging.isEqualOrBelowLogLevel(
+		RenderInternals.isEqualOrBelowLogLevel(
 			ConfigInternals.Logging.getLogLevel(),
 			'info'
 		)
