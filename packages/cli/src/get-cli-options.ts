@@ -5,7 +5,6 @@ import path from 'path';
 import type {BrowserExecutable, Codec, FrameRange, PixelFormat} from 'remotion';
 import {Internals} from 'remotion';
 import {getEnvironmentVariables} from './get-env';
-import {getOutputFilename} from './get-filename';
 import {getInputProps} from './get-input-props';
 import {getImageFormat} from './image-formats';
 import {Log} from './log';
@@ -24,25 +23,14 @@ const getAndValidateFrameRange = () => {
 	return frameRange;
 };
 
-const getFinalCodec = async (options: {
-	isLambda: boolean;
-	compositionName: string;
-}) => {
+const getFinalCodec = async (options: {isLambda: boolean}) => {
 	const userCodec = Internals.getOutputCodecOrUndefined();
 
 	const codec = Internals.getFinalOutputCodec({
 		codec: userCodec,
 		fileExtension: options.isLambda
 			? null
-			: RenderInternals.getExtensionOfFilename(
-					getUserPassedOutputLocation(
-						RenderInternals.getFileExtensionFromCodec(
-							userCodec ?? 'h264',
-							'final'
-						),
-						options.compositionName
-					)
-			  ),
+			: RenderInternals.getExtensionOfFilename(getUserPassedOutputLocation()),
 		emitWarning: true,
 	});
 	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
@@ -99,11 +87,14 @@ const getFinalCodec = async (options: {
 
 const getBrowser = () => Internals.getBrowser() ?? Internals.DEFAULT_BROWSER;
 
-const getAndValidateAbsoluteOutputFile = (
-	outputFile: string,
+export const getAndValidateAbsoluteOutputFile = (
+	relativeOutputLocation: string,
 	overwrite: boolean
 ) => {
-	const absoluteOutputFile = path.resolve(process.cwd(), outputFile);
+	const absoluteOutputFile = path.resolve(
+		process.cwd(),
+		relativeOutputLocation
+	);
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
 		Log.error(
 			`File at ${absoluteOutputFile} already exists. Use --overwrite to overwrite.`
@@ -195,7 +186,6 @@ const getAndValidateBrowser = async (browserExecutable: BrowserExecutable) => {
 export const getCliOptions = async (options: {
 	isLambda: boolean;
 	type: 'still' | 'series' | 'get-compositions';
-	compositionName: string;
 }) => {
 	const frameRange = getAndValidateFrameRange();
 
@@ -204,7 +194,6 @@ export const getCliOptions = async (options: {
 			? 'h264'
 			: await getFinalCodec({
 					isLambda: options.isLambda,
-					compositionName: options.compositionName,
 			  });
 	const shouldOutputImageSequence =
 		options.type === 'still'
@@ -212,15 +201,6 @@ export const getCliOptions = async (options: {
 			: await getAndValidateShouldOutputImageSequence({
 					frameRange,
 					isLambda: options.isLambda,
-			  });
-	const outputFile =
-		options.isLambda || options.type === 'get-compositions'
-			? null
-			: getOutputFilename({
-					codec,
-					imageSequence: shouldOutputImageSequence,
-					type: options.type,
-					compositionName: options.compositionName,
 			  });
 
 	const overwrite = Internals.getShouldOverwrite();
@@ -259,13 +239,9 @@ export const getCliOptions = async (options: {
 		frameRange,
 		shouldOutputImageSequence,
 		codec,
-		overwrite: Internals.getShouldOverwrite(),
 		inputProps: getInputProps(() => undefined),
 		envVariables: await getEnvironmentVariables(),
 		quality: Internals.getQuality(),
-		absoluteOutputFile: outputFile
-			? getAndValidateAbsoluteOutputFile(outputFile, overwrite)
-			: null,
 		browser: await getAndValidateBrowser(browserExecutable),
 		crf,
 		pixelFormat,
@@ -280,6 +256,7 @@ export const getCliOptions = async (options: {
 		logLevel: Internals.Logging.getLogLevel(),
 		scale,
 		chromiumOptions,
+		overwrite,
 		port: port ?? null,
 	};
 };

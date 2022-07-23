@@ -11,8 +11,12 @@ import os from 'os';
 import path from 'path';
 import {Internals} from 'remotion';
 import {chalk} from './chalk';
-import {getCliOptions} from './get-cli-options';
+import {
+	getAndValidateAbsoluteOutputFile,
+	getCliOptions,
+} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
+import {getOutputFilename} from './get-filename';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
@@ -49,7 +53,6 @@ export const render = async () => {
 		parallelism,
 		frameRange,
 		shouldOutputImageSequence,
-		absoluteOutputFile,
 		overwrite,
 		inputProps,
 		envVariables,
@@ -70,14 +73,27 @@ export const render = async () => {
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
-		compositionName: getCompositionId([]),
 	});
 
-	if (!absoluteOutputFile) {
-		throw new Error(
-			'assertion error - expected absoluteOutputFile to not be null'
-		);
-	}
+	const relativeOutputLocation = getOutputFilename({
+		codec,
+		imageSequence: shouldOutputImageSequence,
+		compositionName: getCompositionId(),
+		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec, 'final'),
+	});
+
+	const absoluteOutputFile = getAndValidateAbsoluteOutputFile(
+		relativeOutputLocation,
+		overwrite
+	);
+
+	const compositionId = getCompositionId();
+
+	Log.info(
+		chalk.gray(
+			`Composition = ${compositionId}, Codec = ${codec}, Output = ${relativeOutputLocation}`
+		)
+	);
 
 	Log.verbose('Browser executable: ', browserExecutable);
 
@@ -134,7 +150,6 @@ export const render = async () => {
 		chromiumOptions,
 		browserExecutable,
 	});
-	const compositionId = getCompositionId(comps);
 
 	const config = comps.find((c) => c.id === compositionId);
 

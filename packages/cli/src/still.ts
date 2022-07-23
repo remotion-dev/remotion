@@ -9,7 +9,10 @@ import {mkdirSync} from 'fs';
 import path from 'path';
 import {Config, Internals} from 'remotion';
 import {chalk} from './chalk';
-import {getCliOptions} from './get-cli-options';
+import {
+	getAndValidateAbsoluteOutputFile,
+	getCliOptions,
+} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
@@ -21,7 +24,10 @@ import {
 } from './progress-bar';
 import {bundleOnCli} from './setup-cache';
 import type {RenderStep} from './step';
-import {getUserPassedOutputLocation} from './user-passed-output-location';
+import {
+	getOutputLocation,
+	getUserPassedOutputLocation,
+} from './user-passed-output-location';
 
 export const still = async () => {
 	const startTime = Date.now();
@@ -31,6 +37,24 @@ export const still = async () => {
 		: path.join(process.cwd(), file);
 
 	await initializeRenderCli('still');
+
+	const userPassedOutput = getUserPassedOutputLocation();
+	if (
+		userPassedOutput?.endsWith('.jpeg') ||
+		userPassedOutput?.endsWith('.jpg')
+	) {
+		Log.verbose(
+			'Output file has a JPEG extension, setting the image format to JPEG.'
+		);
+		Config.Rendering.setImageFormat('jpeg');
+	}
+
+	if (userPassedOutput?.endsWith('.png')) {
+		Log.verbose(
+			'Output file has a PNG extension, setting the image format to PNG.'
+		);
+		Config.Rendering.setImageFormat('png');
+	}
 
 	const {
 		inputProps,
@@ -50,29 +74,27 @@ export const still = async () => {
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'still',
-		compositionName: getCompositionId([]),
 	});
 
-	const userOutput = path.resolve(
-		process.cwd(),
-		getUserPassedOutputLocation(imageFormat, getCompositionId([]))
+	Log.verbose('Browser executable: ', browserExecutable);
+
+	const compositionId = getCompositionId();
+
+	const relativeOutputLocation = getOutputLocation({
+		compositionId,
+		defaultExtension: imageFormat,
+	});
+
+	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(
+		relativeOutputLocation,
+		overwrite
 	);
 
-	if (userOutput.endsWith('.jpeg') || userOutput.endsWith('.jpg')) {
-		Log.verbose(
-			'Output file has a JPEG extension, therefore setting the image format to JPEG.'
-		);
-		Config.Rendering.setImageFormat('jpeg');
-	}
-
-	if (userOutput.endsWith('.png')) {
-		Log.verbose(
-			'Output file has a PNG extension, therefore setting the image format to PNG.'
-		);
-		Config.Rendering.setImageFormat('png');
-	}
-
-	Log.verbose('Browser executable: ', browserExecutable);
+	Log.info(
+		chalk.gray(
+			`Output = ${relativeOutputLocation}, Format = ${imageFormat}, Composition = ${compositionId}`
+		)
+	);
 
 	if (imageFormat === 'none') {
 		Log.error(
@@ -81,19 +103,19 @@ export const still = async () => {
 		process.exit(1);
 	}
 
-	if (imageFormat === 'png' && !userOutput.endsWith('.png')) {
+	if (imageFormat === 'png' && !absoluteOutputLocation.endsWith('.png')) {
 		Log.warn(
-			`Rendering a PNG, expected a .png extension but got ${userOutput}`
+			`Rendering a PNG, expected a .png extension but got ${absoluteOutputLocation}`
 		);
 	}
 
 	if (
 		imageFormat === 'jpeg' &&
-		!userOutput.endsWith('.jpg') &&
-		!userOutput.endsWith('.jpeg')
+		!absoluteOutputLocation.endsWith('.jpg') &&
+		!absoluteOutputLocation.endsWith('.jpeg')
 	) {
 		Log.warn(
-			`Rendering a JPEG, expected a .jpg or .jpeg extension but got ${userOutput}`
+			`Rendering a JPEG, expected a .jpg or .jpeg extension but got ${absoluteOutputLocation}`
 		);
 	}
 
@@ -108,7 +130,7 @@ export const still = async () => {
 		forceDeviceScaleFactor: scale,
 	});
 
-	mkdirSync(path.join(userOutput, '..'), {
+	mkdirSync(path.join(absoluteOutputLocation, '..'), {
 		recursive: true,
 	});
 
@@ -133,7 +155,6 @@ export const still = async () => {
 		ffmpegExecutable,
 		ffprobeExecutable,
 	});
-	const compositionId = getCompositionId(comps);
 
 	const composition = comps.find((c) => c.id === compositionId);
 	if (!composition) {
@@ -186,7 +207,7 @@ export const still = async () => {
 	await renderStill({
 		composition,
 		frame: stillFrame,
-		output: userOutput,
+		output: absoluteOutputLocation,
 		serveUrl: await urlOrBundle,
 		quality,
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
@@ -222,6 +243,6 @@ export const still = async () => {
 		].join(' ')
 	);
 	Log.info('-', 'Output can be found at:');
-	Log.info(chalk.cyan(`▶️ ${userOutput}`));
+	Log.info(chalk.cyan(`▶️ ${absoluteOutputLocation}`));
 	await closeBrowserPromise;
 };

@@ -70,7 +70,6 @@ export const renderCommand = async (args: string[]) => {
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
-		compositionName: composition,
 	});
 
 	const functionName = await findFunctionName();
