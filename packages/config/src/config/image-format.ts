@@ -1,4 +1,5 @@
-import {ImageFormat, RenderInternals} from '@remotion/renderer';
+import type {ImageFormat} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 
 let currentImageFormat: ImageFormat | undefined;
 

@@ -1,4 +1,4 @@
-import {BrowserExecutable} from '@remotion/renderer';
+import type {BrowserExecutable} from '@remotion/renderer';
 
 let currentBrowserExecutablePath: BrowserExecutable = null;
 

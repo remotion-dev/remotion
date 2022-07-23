@@ -1,4 +1,4 @@
-import {PixelFormat} from '@remotion/renderer';
+import type {PixelFormat} from '@remotion/renderer';
 import {describe, expect, test} from 'vitest';
 import {getPixelFormat, setPixelFormat} from '../config/pixel-format';
 import {expectToThrow} from './expect-to-throw';

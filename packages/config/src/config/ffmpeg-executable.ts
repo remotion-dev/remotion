@@ -1,4 +1,4 @@
-import {FfmpegExecutable} from '@remotion/renderer';
+import type {FfmpegExecutable} from '@remotion/renderer';
 
 let currentFfmpegExecutablePath: FfmpegExecutable = null;
 let currentFfprobeExecutablePath: FfmpegExecutable = null;

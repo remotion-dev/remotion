@@ -1,4 +1,4 @@
-import {Codec} from '@remotion/renderer';
+import type {Codec} from '@remotion/renderer';
 import {describe, expect, test} from 'vitest';
 import {getActualCrf, setCrf} from '../config/crf';
 import {expectToThrow} from './expect-to-throw';
