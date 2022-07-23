@@ -16,7 +16,6 @@ import type {
 	TSequence,
 } from './CompositionManager';
 import {CompositionManager, compositionsRef} from './CompositionManager';
-import * as AssetCompression from './compress-assets';
 import * as CSSUtils from './default-css';
 import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render';
 import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
@@ -99,7 +98,6 @@ export const Internals = {
 	SharedAudioContextProvider,
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
-	AssetCompression,
 	getPreviewDomElement,
 	compositionsRef,
 	DELAY_RENDER_CALLSTACK_TOKEN,
