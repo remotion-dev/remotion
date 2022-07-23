@@ -1,5 +1,4 @@
 import {getRemotionEnvironment} from './get-environment';
-import {DEFAULT_PUPPETEER_TIMEOUT} from './timeout';
 import {truthy} from './truthy';
 
 if (typeof window !== 'undefined') {
@@ -31,7 +30,7 @@ export const delayRender = (label?: string): number => {
 	if (getRemotionEnvironment() === 'rendering') {
 		const timeoutToUse =
 			typeof window === 'undefined'
-				? DEFAULT_PUPPETEER_TIMEOUT
+				? 30000
 				: window.remotion_puppeteerTimeout - 2000;
 		timeouts[handle] = setTimeout(() => {
 			const message = [
