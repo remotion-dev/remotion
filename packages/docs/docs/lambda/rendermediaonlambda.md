@@ -159,7 +159,7 @@ _optional, available since v3.1_
 
 ### `downloadBehavior?`
 
-_optional, available since v3.1.3_
+_optional, available since v3.1.5_
 
 How the output file should behave when accessed through the S3 output link in the browser.  
 Either:

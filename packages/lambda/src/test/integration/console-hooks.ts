@@ -11,13 +11,6 @@ export const getProcessWriteOutput = () => {
 		.join('\n');
 };
 
-export const getProcessStdErrOutput = () => {
-	return stderrOutput
-		.filter(Internals.truthy)
-		.map((c) => c.toString())
-		.join('\n');
-};
-
 const originalStdout = process.stdout.write;
 const originalConsoleLog = console.log;
 const originalConsoleError = console.error;
