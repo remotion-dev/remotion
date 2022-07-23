@@ -6,6 +6,7 @@ import fs from 'fs';
 import http from 'http';
 import os from 'os';
 import path from 'path';
+// eslint-disable-next-line no-restricted-imports
 import type {WebpackOverrideFn} from 'remotion';
 import {wdm} from './dev-middleware';
 import {webpackHotMiddleware} from './hot-middleware';
