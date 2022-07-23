@@ -20,7 +20,7 @@ export type UploadDirProgress = {
 	sizeUploaded: number;
 };
 
-export type MockFile = {
+type MockFile = {
 	name: string;
 	content: string;
 };
