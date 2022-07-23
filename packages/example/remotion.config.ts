@@ -1,4 +1,4 @@
-import {Config} from '@remotion/cli';
+import {Config} from 'remotion';
 import {webpackOverride} from './src/webpack-override';
 
 Config.Output.setOverwriteOutput(true);

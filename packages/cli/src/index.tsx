@@ -82,7 +82,7 @@ export const cli = async () => {
 	}
 };
 
-export {Config, ConfigInternals, overrideRemotion} from './config/index';
+export {ConfigInternals, overrideRemotion} from './config/index';
 export * from './render';
 
 export const CliInternals = {
