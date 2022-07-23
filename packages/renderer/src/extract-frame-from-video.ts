@@ -76,7 +76,7 @@ const getFrameOfVideoSlow = async ({
 		'image2pipe',
 		...determineResizeParams(needsResize),
 		'-',
-	].filter(Internals.truthy);
+	].filter(truthy);
 
 	const {stdout, stderr} = execa(ffmpegExecutable ?? 'ffmpeg', command);
 
@@ -164,7 +164,7 @@ const getLastFrameOfVideoFastUnlimited = async (
 			'image2pipe',
 			...determineResizeParams(options.needsResize),
 			'-',
-		].filter(Internals.truthy)
+		].filter(truthy)
 	);
 
 	if (!stderr) {
@@ -294,7 +294,7 @@ const extractFrameFromVideoFn = async ({
 			imageFormat === 'jpeg' ? 'mjpeg' : 'png',
 			...determineResizeParams(needsResize),
 			'-',
-		].filter(Internals.truthy),
+		].filter(truthy),
 		{
 			buffer: false,
 		}

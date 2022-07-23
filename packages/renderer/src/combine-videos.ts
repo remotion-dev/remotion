@@ -3,11 +3,11 @@
 import execa from 'execa';
 import {rmdirSync, rmSync, writeFileSync} from 'fs';
 import {join} from 'path';
-import {Internals} from 'remotion';
 import type {Codec} from './codec';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {isAudioCodec} from './is-audio-codec';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
+import {truthy} from './truthy';
 
 export const combineVideos = async ({
 	files,
@@ -63,7 +63,7 @@ export const combineVideos = async ({
 				'-shortest',
 				'-y',
 				output,
-			].filter(Internals.truthy)
+			].filter(truthy)
 		);
 		task.stderr?.on('data', (data: Buffer) => {
 			if (onProgress) {
