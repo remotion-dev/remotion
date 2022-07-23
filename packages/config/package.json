@@ -21,6 +21,7 @@
 	"license": "SEE LICENSE IN LICENSE.md",
 	"peerDependencies": {},
 	"dependencies": {
+		"remotion": "3.1.5",
 		"@remotion/renderer": "^3.0.14"
 	},
 	"devDependencies": {
