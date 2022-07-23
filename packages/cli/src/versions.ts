@@ -9,6 +9,7 @@ const packages = [
 	'@remotion/cli',
 	'@remotion/eslint-config',
 	'@remotion/renderer',
+	'@remotion/skia',
 	'@remotion/media-utils',
 	'@remotion/babel-loader',
 	'@remotion/lambda',

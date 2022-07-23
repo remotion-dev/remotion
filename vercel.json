@@ -29,6 +29,11 @@
       "source": "/issue",
       "destination": "https://github.com/remotion-dev/remotion/issues/new/choose",
       "permanent": false
+    },
+    {
+      "source": "/skia",
+      "destination": "https://remotion.dev/docs/skia",
+      "permanent": false
     }
   ]
 }
