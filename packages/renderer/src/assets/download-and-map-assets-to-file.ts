@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import type {TAsset} from 'remotion';
-import {Internals, random} from 'remotion';
+import {random} from 'remotion';
+import {isAssetCompressed} from '../compress-assets';
 import {ensureOutputDirectory} from '../ensure-output-directory';
 import {downloadFile} from './download-file';
 import {sanitizeFilePath} from './sanitize-filepath';
@@ -151,7 +152,7 @@ export const downloadAsset = async ({
 	onDownload: RenderMediaOnDownload;
 	downloadDir: string;
 }): Promise<string> => {
-	if (Internals.AssetCompression.isAssetCompressed(src)) {
+	if (isAssetCompressed(src)) {
 		return src;
 	}
 
@@ -281,7 +282,7 @@ export const getSanitizedFilenameForAssetUrl = ({
 	downloadDir: string;
 	contentDisposition: string | null;
 }) => {
-	if (Internals.AssetCompression.isAssetCompressed(src)) {
+	if (isAssetCompressed(src)) {
 		return src;
 	}
 

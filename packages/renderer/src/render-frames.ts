@@ -10,6 +10,7 @@ import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
+import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import type {FfmpegExecutable} from './ffmpeg-executable';
@@ -301,10 +302,7 @@ const innerRenderFrames = ({
 				page: freePage,
 			});
 			const compressedAssets = collectedAssets.map((asset) =>
-				Internals.AssetCompression.compressAsset(
-					assets.filter(Internals.truthy).flat(1),
-					asset
-				)
+				compressAsset(assets.filter(Internals.truthy).flat(1), asset)
 			);
 			assets[index] = compressedAssets;
 			compressedAssets.forEach((asset) => {
