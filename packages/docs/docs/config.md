@@ -332,6 +332,20 @@ The [command line flag](/docs/cli/render#--number-of-gif-loops) `--number-of-gif
 
 ## Output
 
+### setOutputLocation()
+
+_Available from v3.1.6_
+
+Set the output location of the video or still, relative to the current working directory. The default is `out/{composition}.{container}`. For example, `out/HelloWorld.mp4`.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Output.setOutputLocation("out/video.mp4");
+```
+
+If you pass another argument to the render command, it will take precedence: `npx remotion render src/index.tsx HelloWorld out/video.mp4`.
+
 ### setOverwriteOutput()
 
 Set this to `false` to prevent overwriting Remotion outputs when they already exists.

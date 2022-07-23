@@ -167,7 +167,7 @@ export const Config = {
 	},
 	Output: {
 		/**
-		 * Set the output file location string. Default: `out/video.mp4`
+		 * Set the output file location string. Default: `out/{composition}.{codec}`
 		 */
 		setOutputLocation,
 		/**
