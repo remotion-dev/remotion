@@ -1,5 +1,5 @@
-import type {Codec} from 'remotion';
 import {Internals} from 'remotion';
+import type {Codec} from './codec';
 
 export const validateEvenDimensionsWithCodec = ({
 	width,

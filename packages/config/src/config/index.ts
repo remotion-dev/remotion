@@ -14,7 +14,6 @@ import { setConcurrency } from "./concurrency";
 import { setCrf } from "./crf";
 import { setDotEnvLocation } from "./env-file";
 import { setEveryNthFrame } from "./every-nth-frame";
-import type { FfmpegExecutable } from "./ffmpeg-executable";
 import { setFfmpegExecutable, setFfprobeExecutable } from "./ffmpeg-executable";
 import type { FrameRange } from "./frame-range";
 import { setFrameRange } from "./frame-range";
@@ -220,7 +219,6 @@ export type {
   WebpackConfiguration,
   WebpackOverrideFn,
   BrowserExecutable,
-  FfmpegExecutable,
   ImageFormat,
   Codec,
   Browser,

@@ -2,6 +2,8 @@ const validRenderers = ['swangle', 'angle', 'egl', 'swiftshader'] as const;
 
 export type OpenGlRenderer = typeof validRenderers[number];
 
+export const DEFAULT_OPENGL_RENDERER: OpenGlRenderer | null = null;
+
 export const validateOpenGlRenderer = (
 	option: OpenGlRenderer | null
 ): OpenGlRenderer | null => {

@@ -1,10 +1,11 @@
 import type {RequestListener} from 'http';
-import type {FfmpegExecutable, OffthreadVideoImageFormat} from 'remotion';
+import type {OffthreadVideoImageFormat} from 'remotion';
 import {Internals} from 'remotion';
 import {URLSearchParams} from 'url';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAsset} from './assets/download-and-map-assets-to-file';
 import {extractFrameFromVideo} from './extract-frame-from-video';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 
 export const extractUrlAndSourceFromUrl = (url: string) => {
 	const parsed = new URL(url, 'http://localhost');

@@ -1,20 +1,20 @@
-export type FfmpegExecutable = string | null;
+import { FfmpegExecutable } from "@remotion/renderer";
 
 let currentFfmpegExecutablePath: FfmpegExecutable = null;
 let currentFfprobeExecutablePath: FfmpegExecutable = null;
 
 export const setFfmpegExecutable = (ffmpegPath: FfmpegExecutable) => {
-	currentFfmpegExecutablePath = ffmpegPath;
+  currentFfmpegExecutablePath = ffmpegPath;
 };
 
 export const getCustomFfmpegExecutable = () => {
-	return currentFfmpegExecutablePath;
+  return currentFfmpegExecutablePath;
 };
 
 export const setFfprobeExecutable = (ffprobePath: FfmpegExecutable) => {
-	currentFfprobeExecutablePath = ffprobePath;
+  currentFfprobeExecutablePath = ffprobePath;
 };
 
 export const getCustomFfprobeExecutable = () => {
-	return currentFfprobeExecutablePath;
+  return currentFfprobeExecutablePath;
 };
