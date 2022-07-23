@@ -2,22 +2,19 @@ import type {ExecaChildProcess} from 'execa';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import type {
-	BrowserExecutable,
-	Codec,
-	FfmpegExecutable,
-	FrameRange,
-	PixelFormat,
-	ProResProfile,
-	SmallTCompMetadata,
-} from 'remotion';
+import type {SmallTCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
+import type {Codec} from './codec';
+import {validateSelectedCrfAndCodecCombination} from './crf';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
+import type {FfmpegExecutable} from './ffmpeg-executable';
+import type {FrameRange} from './frame-range';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
@@ -27,7 +24,11 @@ import {getServeUrlWithFallback} from './legacy-webpack-config';
 import type {CancelSignal} from './make-cancel-signal';
 import {makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
+import {DEFAULT_OVERWRITE} from './overwrite';
+import type {PixelFormat} from './pixel-format';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
+import type {ProResProfile} from './prores-profile';
+import {validateQuality} from './quality';
 import {renderFrames} from './render-frames';
 import {stitchFramesToVideo} from './stitch-frames-to-video';
 import {tmpDir} from './tmp-dir';
@@ -76,6 +77,8 @@ export type RenderMediaOptions = {
 	port?: number | null;
 	cancelSignal?: CancelSignal;
 	browserExecutable?: BrowserExecutable;
+	// TODO: Make optional
+	verbose: boolean;
 } & ServeUrlOrWebpackBundle;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -115,9 +118,9 @@ export const renderMedia = ({
 	cancelSignal,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
-	Internals.validateQuality(quality);
+	validateQuality(quality);
 	if (typeof crf !== 'undefined' && crf !== null) {
-		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
+		validateSelectedCrfAndCodecCombination(crf, codec);
 	}
 
 	if (outputLocation) {
@@ -189,7 +192,7 @@ export const renderMedia = ({
 		ensureFramesInOrder(realFrameRange);
 
 	const fps = composition.fps / (everyNthFrame ?? 1);
-	Internals.validateFps(fps, 'in "renderMedia()"', codec);
+	Internals.validateFps(fps, 'in "renderMedia()"', codec === 'gif');
 
 	const createPrestitcherIfNecessary = async () => {
 		if (preEncodedFileLocation) {
@@ -206,10 +209,7 @@ export const renderMedia = ({
 					encodedFrames = frame;
 					callUpdate();
 				},
-				verbose: Internals.Logging.isEqualOrBelowLogLevel(
-					Internals.Logging.getLogLevel(),
-					'verbose'
-				),
+				verbose: options.verbose,
 				ffmpegExecutable,
 				imageFormat: actualImageFormat,
 				signal: cancelPrestitcher.cancelSignal,
@@ -306,7 +306,7 @@ export const renderMedia = ({
 						preEncodedFileLocation,
 						imageFormat: actualImageFormat,
 					},
-					force: overwrite ?? Internals.DEFAULT_OVERWRITE,
+					force: overwrite ?? DEFAULT_OVERWRITE,
 					pixelFormat,
 					codec,
 					proResProfile,
@@ -321,10 +321,7 @@ export const renderMedia = ({
 					},
 					onDownload,
 					numberOfGifLoops,
-					verbose: Internals.Logging.isEqualOrBelowLogLevel(
-						Internals.Logging.getLogLevel(),
-						'verbose'
-					),
+					verbose: options.verbose,
 					dir: outputDir ?? undefined,
 					cancelSignal: cancelStitcher.cancelSignal,
 				}),

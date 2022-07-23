@@ -1,8 +1,6 @@
 import type { OpenGlRenderer } from "../validation/validate-opengl-renderer";
 import { validateOpenGlRenderer } from "../validation/validate-opengl-renderer";
 
-export const DEFAULT_OPENGL_RENDERER: OpenGlRenderer | null = null;
-
 let chromiumDisableWebSecurity = false;
 let ignoreCertificateErrors = false;
 let openGlRenderer: OpenGlRenderer | null = DEFAULT_OPENGL_RENDERER;

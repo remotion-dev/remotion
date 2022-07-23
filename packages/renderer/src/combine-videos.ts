@@ -3,9 +3,10 @@
 import execa from 'execa';
 import {rmdirSync, rmSync, writeFileSync} from 'fs';
 import {join} from 'path';
-import type {Codec} from 'remotion';
 import {Internals} from 'remotion';
+import type {Codec} from './codec';
 import {getAudioCodecName} from './get-audio-codec-name';
+import {isAudioCodec} from './is-audio-codec';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 
 export const combineVideos = async ({
@@ -36,8 +37,8 @@ export const combineVideos = async ({
 		const task = execa(
 			'ffmpeg',
 			[
-				Internals.isAudioCodec(codec) ? null : '-r',
-				Internals.isAudioCodec(codec) ? null : String(fps),
+				isAudioCodec(codec) ? null : '-r',
+				isAudioCodec(codec) ? null : String(fps),
 				'-f',
 				'concat',
 				'-safe',
@@ -50,8 +51,8 @@ export const combineVideos = async ({
 					: typeof numberOfGifLoops === 'number'
 					? String(numberOfGifLoops)
 					: '-1',
-				Internals.isAudioCodec(codec) ? null : '-c:v',
-				Internals.isAudioCodec(codec) ? null : codec === 'gif' ? 'gif' : 'copy',
+				isAudioCodec(codec) ? null : '-c:v',
+				isAudioCodec(codec) ? null : codec === 'gif' ? 'gif' : 'copy',
 				'-c:a',
 				getAudioCodecName(codec),
 				// Set max bitrate up to 1024kbps, will choose lower if that's too much

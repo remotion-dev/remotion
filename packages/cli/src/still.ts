@@ -224,6 +224,7 @@ export const still = async () => {
 		browserExecutable,
 		overwrite,
 		onDownload,
+		port,
 	});
 
 	frames = 1;

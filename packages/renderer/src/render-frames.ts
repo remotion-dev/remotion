@@ -1,22 +1,19 @@
 import fs from 'fs';
 import path from 'path';
-import type {
-	BrowserExecutable,
-	FfmpegExecutable,
-	FrameRange,
-	ImageFormat,
-	SmallTCompMetadata,
-	TAsset,
-} from 'remotion';
+import type {SmallTCompMetadata, TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
+import {DEFAULT_BROWSER} from './browser';
+import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
+import type {FfmpegExecutable} from './ffmpeg-executable';
+import type {FrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import type {CountType} from './get-frame-padded-index';
@@ -25,6 +22,7 @@ import {
 	getFrameOutputFileName,
 } from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
+import type {ImageFormat} from './image-format';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
 import {getServeUrlWithFallback} from './legacy-webpack-config';
@@ -36,6 +34,7 @@ import {Pool} from './pool';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
+import {validateQuality} from './quality';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import type {OnStartData, RenderFramesOutput} from './types';
@@ -374,7 +373,7 @@ export const renderFrames = (
 	Internals.validateFps(
 		composition.fps,
 		'in the `config` object of `renderFrames()`',
-		null
+		false
 	);
 	Internals.validateDurationInFrames(
 		composition.durationInFrames,
@@ -388,12 +387,12 @@ export const renderFrames = (
 
 	const selectedServeUrl = getServeUrlWithFallback(options);
 
-	Internals.validateQuality(options.quality);
+	validateQuality(options.quality);
 	validateScale(options.scale);
 
 	const browserInstance =
 		options.puppeteerInstance ??
-		openBrowser(Internals.DEFAULT_BROWSER, {
+		openBrowser(DEFAULT_BROWSER, {
 			shouldDumpIo: options.dumpBrowserLogs,
 			browserExecutable: options.browserExecutable,
 			chromiumOptions: options.chromiumOptions,

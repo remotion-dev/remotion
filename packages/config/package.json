@@ -20,6 +20,9 @@
   "author": "",
   "license": "SEE LICENSE IN LICENSE.md",
   "peerDependencies": {},
+  "dependencies": {
+    "@remotion/renderer": "^3.0.14"
+  },
   "devDependencies": {
     "@jonny/eslint-config": "3.0.266",
     "@types/node": "^16.7.5",

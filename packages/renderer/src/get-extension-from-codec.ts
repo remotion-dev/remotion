@@ -1,4 +1,4 @@
-import type {Codec} from 'remotion';
+import type {Codec} from './codec';
 
 export const getFileExtensionFromCodec = (
 	codec: Codec,

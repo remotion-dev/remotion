@@ -1,8 +1,9 @@
 import execa from 'execa';
-import type {FfmpegExecutable, OffthreadVideoImageFormat} from 'remotion';
+import type {OffthreadVideoImageFormat} from 'remotion';
 import {Internals} from 'remotion';
 import {getAudioChannelsAndDuration} from './assets/get-audio-channels';
 import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
 import type {SpecialVCodecForTransparency} from './get-video-info';
 import {getVideoInfo} from './get-video-info';

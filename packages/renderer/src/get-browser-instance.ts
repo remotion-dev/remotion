@@ -1,5 +1,5 @@
-import type {BrowserExecutable} from 'remotion';
-import {Internals} from 'remotion';
+import {DEFAULT_BROWSER} from './browser';
+import type {BrowserExecutable} from './browser-executable';
 import type {Browser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import type {ChromiumOptions} from './open-browser';
@@ -31,7 +31,7 @@ export const getPageAndCleanupFn = async ({
 		};
 	}
 
-	const browserInstance = await openBrowser(Internals.DEFAULT_BROWSER, {
+	const browserInstance = await openBrowser(DEFAULT_BROWSER, {
 		browserExecutable,
 		chromiumOptions,
 	});
