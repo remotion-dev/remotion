@@ -44,7 +44,6 @@ export * from './AbsoluteFill';
 export * from './audio';
 export * from './Composition';
 export {SmallTCompMetadata, TAsset, TCompMetadata} from './CompositionManager';
-export * from './config';
 export {getInputProps} from './config/input-props';
 export * from './delay-render';
 export * from './easing';
