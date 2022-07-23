@@ -229,6 +229,9 @@ const conf = {} as unknown as ConfigType;
 
 let enabled = false;
 
+/**
+ * @deprecated import {Config} from "@remotion/cli" instead.
+ */
 export const Config = new Proxy(conf, {
 	get(target, prop, receiver) {
 		if (!enabled) {

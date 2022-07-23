@@ -100,7 +100,6 @@ importers:
     specifiers:
       '@jonny/eslint-config': 3.0.266
       '@remotion/bundler': 3.1.5
-      '@remotion/config': 3.1.5
       '@remotion/media-utils': 3.1.5
       '@remotion/player': 3.1.5
       '@remotion/renderer': 3.1.5
@@ -131,7 +130,6 @@ importers:
       vitest: ^0.18.0
     dependencies:
       '@remotion/bundler': link:../bundler
-      '@remotion/config': link:../config
       '@remotion/media-utils': link:../media-utils
       '@remotion/player': link:../player
       '@remotion/renderer': link:../renderer
@@ -162,35 +160,6 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
       typescript: 4.7.2
-
-  packages/config:
-    specifiers:
-      '@jonny/eslint-config': 3.0.266
-      '@remotion/renderer': ^3.0.14
-      '@types/node': ^16.7.5
-      '@types/webpack-env': ^1.16.0
-      '@vitejs/plugin-react': ^2.0.0
-      eslint: 8.13.0
-      prettier: ^2.0.5
-      prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.1.5
-      typescript: ^4.7.0
-      vitest: ^0.18.0
-      webpack: 5.72.0
-    dependencies:
-      '@remotion/renderer': link:../renderer
-      remotion: link:../core
-    devDependencies:
-      '@jonny/eslint-config': 3.0.266_6hvhxfirl4y3p6nuemvvvbadcu
-      '@types/node': 16.10.2
-      '@types/webpack-env': 1.16.2
-      '@vitejs/plugin-react': 2.0.0_vite@3.0.0
-      eslint: 8.13.0
-      prettier: 2.6.2
-      prettier-plugin-organize-imports: 2.3.4_lbsuufegg2dnc4wh6qgf26kgdy
-      typescript: 4.7.2
-      vitest: 0.18.0
-      webpack: 5.72.0
 
   packages/core:
     specifiers:
@@ -356,7 +325,7 @@ importers:
       '@types/react': 18.0.1
       eslint: 8.13.0
       typescript: 4.7.2
-      url-loader: 4.1.1_csgzzuwaerdr4d7s3u52mzcn7m
+      url-loader: 4.1.1_webpack@5.72.0
 
   packages/eslint-config:
     specifiers:
@@ -551,7 +520,6 @@ importers:
       '@jonny/eslint-config': 3.0.266
       '@remotion/bundler': 3.1.5
       '@remotion/cli': 3.1.5
-      '@remotion/config': 3.1.5
       '@remotion/renderer': 3.1.5
       '@types/jest': ^27.0.2
       '@types/mime-types': 2.1.1
@@ -580,7 +548,6 @@ importers:
       '@aws-sdk/s3-request-presigner': 3.58.0
       '@remotion/bundler': link:../bundler
       '@remotion/cli': link:../cli
-      '@remotion/config': link:../config
       '@remotion/renderer': link:../renderer
       aws-policies: 1.0.1
       mime-types: 2.1.34
@@ -13789,6 +13756,7 @@ packages:
       loader-utils: 2.0.0
       schema-utils: 3.1.1
       webpack: 5.72.0
+    dev: false
 
   /filesize/6.1.0:
     resolution: {integrity: sha512-LpCHtPQ3sFx67z+uh2HnSyWSLLu5Jxo21795uRDuar/EOuYWXib5EmPaGIBuSnRqH2IODiKA2k5re/K9OnN/Yg==}
@@ -22626,6 +22594,23 @@ packages:
       mime-types: 2.1.33
       schema-utils: 3.1.1
       webpack: 5.72.0
+    dev: false
+
+  /url-loader/4.1.1_webpack@5.72.0:
+    resolution: {integrity: sha512-3BTV812+AVHHOJQO8O5MkWgZ5aosP7GnROJwvzLS9hWDj00lZ6Z0wNak423Lp9PBZN05N+Jk/N5Si8jRAlGyWA==}
+    engines: {node: '>= 10.13.0'}
+    peerDependencies:
+      file-loader: '*'
+      webpack: ^4.0.0 || ^5.0.0
+    peerDependenciesMeta:
+      file-loader:
+        optional: true
+    dependencies:
+      loader-utils: 2.0.0
+      mime-types: 2.1.33
+      schema-utils: 3.1.1
+      webpack: 5.72.0
+    dev: true
 
   /url-parse-lax/3.0.0:
     resolution: {integrity: sha1-FrXK/Afb42dsGxmZF3gj1lA6yww=}

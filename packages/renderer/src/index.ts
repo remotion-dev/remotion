@@ -51,6 +51,7 @@ import {spawnFfmpeg} from './stitch-frames-to-video';
 import {tmpDir} from './tmp-dir';
 import {validateConcurrency} from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
+import {validateEveryNthFrame} from './validate-every-nth-frame';
 import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
 import {validateFrame} from './validate-frame';
 import {
@@ -159,4 +160,5 @@ export const RenderInternals = {
 	logLevels,
 	isEqualOrBelowLogLevel,
 	isValidLogLevel,
+	validateEveryNthFrame,
 };

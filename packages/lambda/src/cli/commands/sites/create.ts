@@ -1,5 +1,4 @@
-import {CliInternals} from '@remotion/cli';
-import {ConfigInternals} from '@remotion/config';
+import {CliInternals, ConfigInternals} from '@remotion/cli';
 import {existsSync, lstatSync} from 'fs';
 import path from 'path';
 import {deploySite} from '../../../api/deploy-site';

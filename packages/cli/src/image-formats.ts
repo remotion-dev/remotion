@@ -1,6 +1,6 @@
-import {ConfigInternals} from '@remotion/config';
 import type {ImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {ConfigInternals} from './config';
 
 export const getImageFormat = (
 	codec: ReturnType<typeof ConfigInternals.getOutputCodecOrUndefined>

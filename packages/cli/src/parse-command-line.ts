@@ -1,4 +1,3 @@
-import {Config, ConfigInternals} from '@remotion/config';
 import type {
 	BrowserExecutable,
 	Codec,
@@ -12,6 +11,7 @@ import type {
 import {RenderInternals} from '@remotion/renderer';
 import minimist from 'minimist';
 import {resolve} from 'path';
+import {Config, ConfigInternals} from './config';
 import {Log} from './log';
 
 export type CommandLineOptions = {

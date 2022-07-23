@@ -1,6 +1,4 @@
-import type {Configuration} from 'webpack';
-
-export type WebpackConfiguration = Configuration;
+import type {WebpackConfiguration} from '@remotion/bundler';
 
 export type WebpackOverrideFn = (
 	currentConfiguration: WebpackConfiguration

@@ -1,4 +1,3 @@
-import {ConfigInternals} from '@remotion/config';
 import type {
 	BrowserExecutable,
 	ChromiumOptions,
@@ -9,6 +8,7 @@ import type {
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
+import {ConfigInternals} from './config';
 import {getEnvironmentVariables} from './get-env';
 import {getFinalOutputCodec} from './get-final-output-codec';
 import {getInputProps} from './get-input-props';

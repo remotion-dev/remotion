@@ -1,5 +1,5 @@
 import {bundle, BundlerInternals} from '@remotion/bundler';
-import {ConfigInternals} from '@remotion/config';
+import {ConfigInternals} from './config';
 import {Log} from './log';
 import {quietFlagProvided} from './parse-command-line';
 import {

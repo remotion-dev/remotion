@@ -1,8 +1,7 @@
 /* eslint-disable no-console */
-
-import {ConfigInternals} from '@remotion/config';
 import {RenderInternals} from '@remotion/renderer';
 import {chalk} from './chalk';
+import {ConfigInternals} from './config';
 
 export const Log = {
 	verbose: (...args: Parameters<typeof console.log>) => {

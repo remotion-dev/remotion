@@ -1,6 +1,6 @@
-import {ConfigInternals} from '@remotion/config';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
+import {ConfigInternals} from './config';
 import {Log} from './log';
 import {parseCommandLine} from './parse-command-line';
 import {resolveFrom} from './resolve-from';

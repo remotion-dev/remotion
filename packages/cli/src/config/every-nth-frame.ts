@@ -1,10 +1,10 @@
 import type {Codec} from '@remotion/renderer';
-import {validateEveryNthFrame} from '../validation/validate-every-nth-frame';
+import {RenderInternals} from '@remotion/renderer';
 
 let everyNthFrame = 1;
 
 export const setEveryNthFrame = (frame: number) => {
-	validateEveryNthFrame(frame);
+	RenderInternals.validateEveryNthFrame(frame);
 	everyNthFrame = frame;
 };
 

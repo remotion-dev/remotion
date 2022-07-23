@@ -1,4 +1,3 @@
-import {Config, ConfigInternals} from '@remotion/config';
 import type {RenderMediaOnDownload} from '@remotion/renderer';
 import {
 	getCompositions,
@@ -9,6 +8,7 @@ import {
 import {mkdirSync} from 'fs';
 import path from 'path';
 import {chalk} from './chalk';
+import {Config, ConfigInternals} from './config';
 import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,

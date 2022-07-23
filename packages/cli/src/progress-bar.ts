@@ -1,8 +1,8 @@
-import {ConfigInternals} from '@remotion/config';
 import type {Codec, StitchingState} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {AnsiDiff} from './ansi/ansi-diff';
 import {chalk} from './chalk';
+import {ConfigInternals} from './config';
 import {makeMultiDownloadProgress} from './download-progress';
 import {makeProgressBar} from './make-progress-bar';
 import type {RenderStep} from './step';
