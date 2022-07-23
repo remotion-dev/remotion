@@ -1,0 +1,1 @@
+export const DEFAULT_PUPPETEER_TIMEOUT = 30000;
