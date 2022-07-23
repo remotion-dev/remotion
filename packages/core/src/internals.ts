@@ -56,6 +56,7 @@ import {getShouldOutputImageSequence} from './config/image-sequence';
 import * as Logging from './config/log';
 import {getMaxTimelineTracks} from './config/max-timeline-tracks';
 import {getAndValidateNumberOfGifLoops} from './config/number-of-gif-loops';
+import {getOutputLocation} from './config/output-location';
 import type {WebpackOverrideFn} from './config/override-webpack';
 import {
 	defaultOverrideFunction,
@@ -158,6 +159,7 @@ export const Internals = {
 	getCustomFfprobeExecutable,
 	getPixelFormat,
 	getConcurrency,
+	getOutputLocation,
 	getRange,
 	getShouldOverwrite,
 	getOutputCodecOrUndefined,

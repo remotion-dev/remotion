@@ -1,21 +1,23 @@
 import {RenderInternals} from '@remotion/renderer';
 import type {Codec} from 'remotion';
 import {Log} from './log';
-import {getUserPassedOutputLocation} from './user-passed-output-location';
+import {getOutputLocation} from './user-passed-output-location';
 
 export const getOutputFilename = ({
 	codec,
 	imageSequence,
-	type,
+	compositionName,
+	defaultExtension,
 }: {
 	codec: Codec;
 	imageSequence: boolean;
-	type: 'still' | 'series';
+	compositionName: string;
+	defaultExtension: string;
 }): string => {
-	let filename = getUserPassedOutputLocation();
-	if (type === 'still') {
-		return filename;
-	}
+	let filename = getOutputLocation({
+		compositionId: compositionName,
+		defaultExtension,
+	});
 
 	let extension = RenderInternals.getExtensionOfFilename(filename);
 	if (imageSequence) {
