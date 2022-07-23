@@ -20,6 +20,7 @@ import {
 } from '../shared/constants';
 import {getServeUrlHash} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
+import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {getExpectedOutName} from './helpers/expected-out-name';
@@ -48,6 +49,7 @@ const innerStillHandler = async (
 		throw new TypeError('Expected still type');
 	}
 
+	validateDownloadBehavior(lambdaParams.downloadBehavior);
 	validatePrivacy(lambdaParams.privacy);
 	validateOutname(lambdaParams.outName);
 
