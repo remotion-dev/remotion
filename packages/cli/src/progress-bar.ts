@@ -14,7 +14,7 @@ export const createProgressBar = (
 	update: (str: string) => boolean;
 } => {
 	if (
-		!ConfigInternals.Logging.isEqualOrBelowLogLevel(
+		!RenderInternals.isEqualOrBelowLogLevel(
 			ConfigInternals.Logging.getLogLevel(),
 			'info'
 		)

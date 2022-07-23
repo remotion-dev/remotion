@@ -1,4 +1,5 @@
 import {ConfigInternals} from '@remotion/config';
+import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import {Log} from './log';
 import {parseCommandLine} from './parse-command-line';
@@ -88,7 +89,7 @@ export const validateVersionsBeforeCommand = async () => {
 		'- Remove the `^` character in front of a version to pin a package.'
 	);
 	if (
-		!ConfigInternals.Logging.isEqualOrBelowLogLevel(
+		!RenderInternals.isEqualOrBelowLogLevel(
 			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		)
@@ -135,7 +136,7 @@ export const versionsCommand = async () => {
 			'- Remove the `^` character in front of a version to pin a package.'
 		);
 		if (
-			!ConfigInternals.Logging.isEqualOrBelowLogLevel(
+			!RenderInternals.isEqualOrBelowLogLevel(
 				ConfigInternals.Logging.getLogLevel(),
 				'verbose'
 			)
