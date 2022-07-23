@@ -17,82 +17,12 @@ import type {
 } from './CompositionManager';
 import {CompositionManager, compositionsRef} from './CompositionManager';
 import * as AssetCompression from './compress-assets';
-import {DEFAULT_BROWSER, getBrowser} from './config/browser';
-import {getBrowserExecutable} from './config/browser-executable';
-import {
-	DEFAULT_OPENGL_RENDERER,
-	getChromiumDisableWebSecurity,
-	getChromiumHeadlessMode,
-	getChromiumOpenGlRenderer,
-	getIgnoreCertificateErrors,
-} from './config/chromium-flags';
-import {
-	DEFAULT_CODEC,
-	getFinalOutputCodec,
-	getOutputCodecOrUndefined,
-} from './config/codec';
-import {getConcurrency} from './config/concurrency';
-import {
-	getActualCrf,
-	getDefaultCrfForCodec,
-	validateSelectedCrfAndCodecCombination,
-} from './config/crf';
-import {getDotEnvLocation} from './config/env-file';
-import {getAndValidateEveryNthFrame} from './config/every-nth-frame';
-import {
-	getCustomFfmpegExecutable,
-	getCustomFfprobeExecutable,
-} from './config/ffmpeg-executable';
-import {
-	getRange,
-	setFrameRangeFromCli,
-	validateFrameRange,
-} from './config/frame-range';
-import {
-	getUserPreferredImageFormat,
-	validateSelectedPixelFormatAndImageFormatCombination,
-} from './config/image-format';
-import {getShouldOutputImageSequence} from './config/image-sequence';
-import * as Logging from './config/log';
-import {getMaxTimelineTracks} from './config/max-timeline-tracks';
-import {getAndValidateNumberOfGifLoops} from './config/number-of-gif-loops';
-import {getOutputLocation} from './config/output-location';
-import type {WebpackOverrideFn} from './config/override-webpack';
-import {
-	defaultOverrideFunction,
-	getWebpackOverrideFn,
-} from './config/override-webpack';
-import {DEFAULT_OVERWRITE, getShouldOverwrite} from './config/overwrite';
-import {
-	DEFAULT_PIXEL_FORMAT,
-	getPixelFormat,
-	validateSelectedPixelFormatAndCodecCombination,
-} from './config/pixel-format';
-import {getServerPort} from './config/preview-server';
-import type {ProResProfile} from './config/prores-profile';
-import {
-	getProResProfile,
-	setProResProfile,
-	validateSelectedCodecAndProResCombination,
-} from './config/prores-profile';
-import {getQuality} from './config/quality';
-import {getScale} from './config/scale';
-import {getStillFrame, setStillFrame} from './config/still-frame';
-import {
-	getCurrentPuppeteerTimeout,
-	setPuppeteerTimeout,
-} from './config/timeout';
-import {
-	DEFAULT_WEBPACK_CACHE_ENABLED,
-	getWebpackCaching,
-} from './config/webpack-caching';
 import * as CSSUtils from './default-css';
 import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render';
 import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
 import type {RemotionEnvironment} from './get-environment';
 import {getRemotionEnvironment} from './get-environment';
 import {getPreviewDomElement} from './get-preview-dom-element';
-import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
 import {portalNode} from './portal-node';
 import {getRoot, waitForRoot} from './register-root';
@@ -123,7 +53,6 @@ import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
 import {validateFrame} from './validation/validate-frame';
-import {validateNonNullImageFormat} from './validation/validate-image-format';
 import {validateOffthreadVideoImageFormat} from './validation/validate-offthreadvideo-image-format';
 import type {OpenGlRenderer} from './validation/validate-opengl-renderer';
 import {validateOpenGlRenderer} from './validation/validate-opengl-renderer';
@@ -154,83 +83,33 @@ export const Internals = {
 	RemotionRoot,
 	useVideo,
 	getRoot,
-	getBrowserExecutable,
-	getCustomFfmpegExecutable,
-	getCustomFfprobeExecutable,
-	getPixelFormat,
-	getConcurrency,
-	getOutputLocation,
-	getRange,
-	getShouldOverwrite,
-	getOutputCodecOrUndefined,
-	getWebpackOverrideFn,
-	getQuality,
-	getAndValidateEveryNthFrame,
-	getAndValidateNumberOfGifLoops,
-	getScale,
-	getShouldOutputImageSequence,
-	validateSelectedCrfAndCodecCombination,
-	getFinalOutputCodec,
 	useMediaVolumeState,
 	useMediaMutedState,
-	DEFAULT_CODEC,
-	DEFAULT_PIXEL_FORMAT,
 	FEATURE_FLAG_FIREFOX_SUPPORT,
-	DEFAULT_WEBPACK_CACHE_ENABLED,
-	getBrowser,
-	DEFAULT_BROWSER,
-	getDefaultCrfForCodec,
-	getActualCrf,
-	setFrameRangeFromCli,
-	getUserPreferredImageFormat,
-	validateSelectedPixelFormatAndImageFormatCombination,
-	validateSelectedPixelFormatAndCodecCombination,
-	validateFrameRange,
-	validateNonNullImageFormat,
-	getWebpackCaching,
 	useLazyComponent,
 	truthy,
-	isAudioCodec,
-	Logging,
 	SequenceContext,
 	useRemotionContexts,
 	RemotionContextProvider,
 	CSSUtils,
 	setupEnvVariables,
 	ENV_VARIABLES_ENV_NAME,
-	getDotEnvLocation,
-	getServerPort,
 	MediaVolumeContext,
 	SetMediaVolumeContext,
 	validateDurationInFrames,
 	validateFps,
 	validateDimension,
 	getRemotionEnvironment,
-	getProResProfile,
-	setProResProfile,
-	validateSelectedCodecAndProResCombination,
-	getMaxTimelineTracks,
 	SharedAudioContext,
 	SharedAudioContextProvider,
 	validateQuality,
 	validateFrame,
-	setStillFrame,
-	getStillFrame,
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
-	DEFAULT_OVERWRITE,
 	AssetCompression,
-	defaultOverrideFunction,
 	DEFAULT_PUPPETEER_TIMEOUT,
 	setupPuppeteerTimeout,
-	setPuppeteerTimeout,
-	getCurrentPuppeteerTimeout,
-	getChromiumDisableWebSecurity,
-	getIgnoreCertificateErrors,
 	validateOpenGlRenderer,
-	getChromiumOpenGlRenderer,
-	getChromiumHeadlessMode,
-	DEFAULT_OPENGL_RENDERER,
 	getPreviewDomElement,
 	compositionsRef,
 	DELAY_RENDER_CALLSTACK_TOKEN,
@@ -242,12 +121,21 @@ export const Internals = {
 	CanUseRemotionHooks,
 };
 
+import type {Configuration} from 'webpack';
+
+type WebpackConfiguration = Configuration;
+
+type WebpackOverrideFn = (
+	currentConfiguration: WebpackConfiguration
+) => WebpackConfiguration;
+
 export type {
 	TComposition,
 	Timeline,
 	TCompMetadata,
 	TSequence,
 	WebpackOverrideFn,
+	WebpackConfiguration,
 	TAsset,
 	RenderAssetInfo,
 	TimelineContextValue,
@@ -259,6 +147,5 @@ export type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
 	RemotionEnvironment,
-	ProResProfile,
 	OpenGlRenderer,
 };
