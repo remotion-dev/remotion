@@ -61,7 +61,6 @@ export const stillCommand = async (args: string[]) => {
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
-		compositionName: composition,
 	});
 
 	const functionName = await findFunctionName();
