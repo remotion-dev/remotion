@@ -9,6 +9,8 @@ let handles: number[] = [];
 const timeouts: {[key: string]: number | NodeJS.Timeout} = {};
 export const DELAY_RENDER_CALLSTACK_TOKEN = 'The delayRender was called:';
 
+const defaultTimeout = 30000;
+
 /**
  * Call this function to tell Remotion to wait before capturing this frame until data has loaded. Use continueRender() to unblock the render.
  * @param label _optional_ A label to identify the call in case it does time out.
@@ -30,8 +32,8 @@ export const delayRender = (label?: string): number => {
 	if (getRemotionEnvironment() === 'rendering') {
 		const timeoutToUse =
 			typeof window === 'undefined'
-				? 30000
-				: window.remotion_puppeteerTimeout - 2000;
+				? defaultTimeout
+				: (window.remotion_puppeteerTimeout ?? defaultTimeout) - 2000;
 		timeouts[handle] = setTimeout(() => {
 			const message = [
 				`A delayRender()`,
