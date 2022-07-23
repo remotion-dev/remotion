@@ -13,6 +13,7 @@ import type {OutNameInput, Privacy} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
+import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
 import {validateLambdaCodec} from '../shared/validate-lambda-codec';
@@ -100,6 +101,7 @@ export const renderMediaOnLambda = async ({
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
 	validateFramesPerLambda(framesPerLambda ?? null);
+	validateDownloadBehavior(downloadBehavior);
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
 	const res = await callLambda({
 		functionName,
