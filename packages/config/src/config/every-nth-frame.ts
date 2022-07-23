@@ -1,5 +1,5 @@
+import {Codec} from '@remotion/renderer';
 import {validateEveryNthFrame} from '../validation/validate-every-nth-frame';
-import type {Codec} from './codec';
 
 let everyNthFrame = 1;
 

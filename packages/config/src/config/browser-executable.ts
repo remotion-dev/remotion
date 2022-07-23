@@ -1,11 +1,13 @@
+import {BrowserExecutable} from '@remotion/renderer';
+
 let currentBrowserExecutablePath: BrowserExecutable = null;
 
 export const setBrowserExecutable = (
-  newBrowserExecutablePath: BrowserExecutable
+	newBrowserExecutablePath: BrowserExecutable
 ) => {
-  currentBrowserExecutablePath = newBrowserExecutablePath;
+	currentBrowserExecutablePath = newBrowserExecutablePath;
 };
 
 export const getBrowserExecutable = () => {
-  return currentBrowserExecutablePath;
+	return currentBrowserExecutablePath;
 };

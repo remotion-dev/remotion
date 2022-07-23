@@ -1,4 +1,4 @@
-import type {Codec} from './codec';
+import {Codec} from '@remotion/renderer';
 
 export type Loop = number | null;
 

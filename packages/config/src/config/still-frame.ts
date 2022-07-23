@@ -1,9 +1,9 @@
-import {validateFrame} from '../validation/validate-frame';
+import {RenderInternals} from '@remotion/renderer';
 
 let stillFrame = 0;
 
 export const setStillFrame = (frame: number) => {
-	validateFrame(frame, Infinity);
+	RenderInternals.validateFrame(frame, Infinity);
 	stillFrame = frame;
 };
 

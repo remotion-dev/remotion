@@ -1,6 +1,6 @@
-import {DEFAULT_PUPPETEER_TIMEOUT} from '../timeout';
+import {RenderInternals} from '@remotion/renderer';
 
-let currentTimeout: number = DEFAULT_PUPPETEER_TIMEOUT;
+let currentTimeout: number = RenderInternals.DEFAULT_TIMEOUT;
 
 export const setPuppeteerTimeout = (newPuppeteerTimeout: number) => {
 	if (typeof newPuppeteerTimeout !== 'number') {
