@@ -1,5 +1,6 @@
 import type {CodecOrUndefined} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {Log} from '../log';
 
 const validLegacyFormats = ['mp4', 'png-sequence'] as const;
 
@@ -42,7 +43,7 @@ export const setOutputFormat = (newLegacyFormat: LegacyFormat) => {
 		);
 	}
 
-	console.warn(
+	Log.warn(
 		'setOutputFormat() is deprecated. Use the setCodec() and setImageSequence() instead.'
 	);
 	if (newLegacyFormat === 'mp4') {
