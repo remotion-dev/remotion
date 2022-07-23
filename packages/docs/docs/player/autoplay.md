@@ -50,5 +50,5 @@ If your audio does not enter the video immediately (say the few seconds of the v
 You can have as many silent audio tags as you want. Set `numberOfSharedAudioTags={2}` to prepare two shared audio tags. Be mindful: If you set this props and you render more [`<Audio/>`](/docs/audio) than there are shared audio tags, an exception will be thrown.
 
 :::warning
-Due to a bug on our side, this prop does not work with React Strict Mode. If you use Next.JS, set `reactStrictMode: false,` in your `next.config.js` to `false`. Remove any `<React.StrictMode/>` tags in your app if you intend to use this prop. You can follow this bug on [GitHub](https://github.com/remotion-dev/remotion/issues/723).
+Due to a bug on our side, this prop does not work well [before Remotion v3.1.5](https://github.com/remotion-dev/remotion/issues/723). Upgrade to receive the bugfix.
 :::

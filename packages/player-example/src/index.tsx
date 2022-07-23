@@ -1,4 +1,4 @@
-import {ComponentType} from 'react';
+import React, {ComponentType} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App';
 import CarSlideshow from './CarSlideshow';
@@ -26,7 +26,9 @@ createRoot(rootElement as HTMLElement).render(
 			justifyContent: 'center',
 		}}
 	>
-		<App lazyComponent={Car} durationInFrames={500} />
-		<App component={VideoautoplayDemo} durationInFrames={2700} />
+		<React.StrictMode>
+			<App lazyComponent={Car} durationInFrames={500} />
+			<App component={VideoautoplayDemo} durationInFrames={2700} />
+		</React.StrictMode>
 	</div>
 );
