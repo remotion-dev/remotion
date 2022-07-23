@@ -38,6 +38,7 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {validateQuality} from './quality';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
+import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
 
@@ -302,7 +303,7 @@ const innerRenderFrames = ({
 				page: freePage,
 			});
 			const compressedAssets = collectedAssets.map((asset) =>
-				compressAsset(assets.filter(Internals.truthy).flat(1), asset)
+				compressAsset(assets.filter(truthy).flat(1), asset)
 			);
 			assets[index] = compressedAssets;
 			compressedAssets.forEach((asset) => {

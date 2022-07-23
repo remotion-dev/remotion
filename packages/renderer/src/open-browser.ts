@@ -1,7 +1,6 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import {Internals} from 'remotion';
 import type {Browser} from './browser';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {puppeteer} from './browser/node';
@@ -60,7 +59,7 @@ export const openBrowser = async (
 		viewport?: Viewport;
 	}
 ): Promise<PuppeteerBrowser> => {
-	if (browser === 'firefox' && !Internals.FEATURE_FLAG_FIREFOX_SUPPORT) {
+	if (browser === 'firefox') {
 		throw new TypeError(
 			'Firefox supported is not yet turned on. Stay tuned for the future.'
 		);

@@ -18,7 +18,6 @@ import type {
 import {CompositionManager, compositionsRef} from './CompositionManager';
 import * as CSSUtils from './default-css';
 import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render';
-import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
 import type {RemotionEnvironment} from './get-environment';
 import {getRemotionEnvironment} from './get-environment';
 import {getPreviewDomElement} from './get-preview-dom-element';
@@ -79,7 +78,6 @@ export const Internals = {
 	getRoot,
 	useMediaVolumeState,
 	useMediaMutedState,
-	FEATURE_FLAG_FIREFOX_SUPPORT,
 	useLazyComponent,
 	truthy,
 	SequenceContext,

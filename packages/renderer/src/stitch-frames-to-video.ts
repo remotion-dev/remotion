@@ -35,6 +35,7 @@ import {
 import {preprocessAudioTrack} from './preprocess-audio-track';
 import type {ProResProfile} from './prores-profile';
 import {tmpDir} from './tmp-dir';
+import {truthy} from './truthy';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
@@ -135,7 +136,7 @@ const getAssetsData = async ({
 				return result;
 			})
 		)
-	).filter(Internals.truthy);
+	).filter(truthy);
 
 	const outName = path.join(
 		tmpDir('remotion-audio-preprocessing'),
