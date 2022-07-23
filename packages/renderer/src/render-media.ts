@@ -77,8 +77,7 @@ export type RenderMediaOptions = {
 	port?: number | null;
 	cancelSignal?: CancelSignal;
 	browserExecutable?: BrowserExecutable;
-	// TODO: Make optional
-	verbose: boolean;
+	verbose?: boolean;
 } & ServeUrlOrWebpackBundle;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -209,7 +208,7 @@ export const renderMedia = ({
 					encodedFrames = frame;
 					callUpdate();
 				},
-				verbose: options.verbose,
+				verbose: options.verbose ?? false,
 				ffmpegExecutable,
 				imageFormat: actualImageFormat,
 				signal: cancelPrestitcher.cancelSignal,
