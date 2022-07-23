@@ -1,3 +1,6 @@
+import type {Configuration} from 'webpack';
+import {enableLegacyRemotionConfig} from './config';
+
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -105,9 +108,8 @@ export const Internals = {
 	validateOffthreadVideoImageFormat,
 	CanUseRemotionHooksProvider,
 	CanUseRemotionHooks,
+	enableLegacyRemotionConfig,
 };
-
-import type {Configuration} from 'webpack';
 
 type WebpackConfiguration = Configuration;
 

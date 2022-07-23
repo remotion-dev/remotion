@@ -1,3 +1,5 @@
+import {Config as RemotionConfig, Internals} from 'remotion';
+import {Config} from './config';
 import {getBrowser} from './config/browser';
 import {getBrowserExecutable} from './config/browser-executable';
 import {
@@ -36,7 +38,7 @@ import {getStillFrame, setStillFrame} from './config/still-frame';
 import {getCurrentPuppeteerTimeout} from './config/timeout';
 import {getWebpackCaching} from './config/webpack-caching';
 
-export {Config} from './config';
+export {Config};
 
 export const ConfigInternals = {
 	getRange,
@@ -72,4 +74,9 @@ export const ConfigInternals = {
 	setStillFrame,
 	getMaxTimelineTracks,
 	defaultOverrideFunction,
+};
+
+export const overrideRemotion = () => {
+	Object.assign(RemotionConfig, Config);
+	Internals.enableLegacyRemotionConfig();
 };
