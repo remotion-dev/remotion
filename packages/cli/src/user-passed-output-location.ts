@@ -1,12 +1,35 @@
-import {Log} from './log';
+import {Internals} from 'remotion';
 import {parsedCli} from './parse-command-line';
 
 export const getUserPassedOutputLocation = () => {
-	if (!parsedCli._[3]) {
-		Log.error('Pass an extra argument <output-filename>.');
-		process.exit(1);
-	}
+	const filename = parsedCli._[3]
+		? parsedCli._[3]
+		: Internals.getOutputLocation();
 
-	const filename = parsedCli._[3];
 	return filename;
+};
+
+const getDefaultOutLocation = ({
+	compositionName,
+	defaultExtension,
+}: {
+	compositionName: string;
+	defaultExtension: string;
+}) => {
+	const defaultName = `out/${compositionName}.${defaultExtension}`;
+
+	return defaultName;
+};
+
+export const getOutputLocation = ({
+	compositionId,
+	defaultExtension,
+}: {
+	compositionId: string;
+	defaultExtension: string;
+}) => {
+	return (
+		getUserPassedOutputLocation() ??
+		getDefaultOutLocation({compositionName: compositionId, defaultExtension})
+	);
 };

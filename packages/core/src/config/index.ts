@@ -25,6 +25,7 @@ import type {LogLevel} from './log';
 import {setLogLevel} from './log';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
 import {setNumberOfGifLoops} from './number-of-gif-loops';
+import {setOutputLocation} from './output-location';
 import type {WebpackConfiguration, WebpackOverrideFn} from './override-webpack';
 import {overrideWebpackConfig} from './override-webpack';
 import {setOverwriteOutput} from './overwrite';
@@ -165,6 +166,10 @@ export const Config = {
 		setNumberOfGifLoops,
 	},
 	Output: {
+		/**
+		 * Set the output file location string. Default: `out/{composition}.{codec}`
+		 */
+		setOutputLocation,
 		/**
 		 * If the video file already exists, should Remotion overwrite
 		 * the output? Default: true
