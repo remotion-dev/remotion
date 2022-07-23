@@ -1,5 +1,7 @@
+import {validateFrame} from '../../config/src/validation/validate-frame';
 import type {OpenGlRenderer} from '../../config/src/validation/validate-opengl-renderer';
 import {validateOpenGlRenderer} from '../../config/src/validation/validate-opengl-renderer';
+import {validateQuality} from '../../config/src/validation/validate-quality';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -54,9 +56,7 @@ import {
 import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
-import {validateFrame} from './validation/validate-frame';
 import {validateOffthreadVideoImageFormat} from './validation/validate-offthreadvideo-image-format';
-import {validateQuality} from './validation/validate-quality';
 import type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
