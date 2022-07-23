@@ -1,7 +1,7 @@
+import {ConfigInternals} from '@remotion/config';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
-import {Internals} from 'remotion';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 
@@ -51,7 +51,7 @@ export const getEnvironmentVariables = (): Promise<Record<string, string>> => {
 		return getEnvForEnvFile(processEnv, envFile);
 	}
 
-	const configFileSetting = Internals.getDotEnvLocation();
+	const configFileSetting = ConfigInternals.getDotEnvLocation();
 	if (configFileSetting) {
 		const envFile = path.resolve(process.cwd(), configFileSetting);
 		if (!fs.existsSync(envFile)) {

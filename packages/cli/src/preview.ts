@@ -1,6 +1,6 @@
+import {ConfigInternals} from '@remotion/config';
 import betterOpn from 'better-opn';
 import path from 'path';
-import {Internals} from 'remotion';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
 import {initializeRenderCli} from './initialize-render-cli';
@@ -69,7 +69,7 @@ export const previewCommand = async () => {
 			getCurrentInputProps: () => inputProps,
 			envVariables,
 			port: desiredPort,
-			maxTimelineTracks: Internals.getMaxTimelineTracks(),
+			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 		}
 	);
 

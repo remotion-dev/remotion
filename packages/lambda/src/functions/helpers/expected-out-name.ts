@@ -1,13 +1,7 @@
+import type {Codec} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {Codec} from 'remotion';
-import type {
-	OutNameOutput,
-	RenderMetadata} from '../../defaults';
-import {
-	customOutName,
-	outName,
-	outStillName
-} from '../../defaults';
+import type {OutNameOutput, RenderMetadata} from '../../defaults';
+import {customOutName, outName, outStillName} from '../../defaults';
 import {validateOutname} from '../../shared/validate-outname';
 
 export const getExpectedOutName = (

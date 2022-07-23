@@ -1,3 +1,4 @@
+import type {Codec} from '@remotion/renderer';
 import {combineVideos, RenderInternals} from '@remotion/renderer';
 import fs, {
 	createWriteStream,
@@ -8,7 +9,6 @@ import fs, {
 	rmSync,
 } from 'fs';
 import path, {join} from 'path';
-import type {Codec} from 'remotion';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import {
 	chunkKey,

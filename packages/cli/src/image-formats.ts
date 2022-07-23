@@ -1,16 +1,17 @@
-import type {ImageFormat} from 'remotion';
-import { Internals} from 'remotion';
+import {ConfigInternals} from '@remotion/config';
+import type {ImageFormat} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 
 export const getImageFormat = (
-	codec: ReturnType<typeof Internals.getOutputCodecOrUndefined>
+	codec: ReturnType<typeof ConfigInternals.getOutputCodecOrUndefined>
 ): ImageFormat => {
-	const userPreferred = Internals.getUserPreferredImageFormat();
+	const userPreferred = ConfigInternals.getUserPreferredImageFormat();
 
 	if (typeof userPreferred !== 'undefined') {
 		return userPreferred;
 	}
 
-	if (Internals.isAudioCodec(codec)) {
+	if (RenderInternals.isAudioCodec(codec)) {
 		return 'none';
 	}
 

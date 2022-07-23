@@ -1,16 +1,17 @@
-import minimist from 'minimist';
-import {resolve} from 'path';
+import type {LogLevel} from '@remotion/config';
+import {Config, ConfigInternals} from '@remotion/config';
 import type {
 	BrowserExecutable,
 	Codec,
 	FfmpegExecutable,
 	ImageFormat,
-	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
-} from 'remotion';
-import {Config, Internals} from 'remotion';
+} from '@remotion/renderer';
+import minimist from 'minimist';
+import {resolve} from 'path';
+import type {} from 'remotion';
 import {Log} from './log';
 
 export type CommandLineOptions = {
@@ -120,17 +121,17 @@ export const parseCommandLine = (
 	}
 
 	if (parsedCli.log) {
-		if (!Internals.Logging.isValidLogLevel(parsedCli.log)) {
+		if (!ConfigInternals.Logging.isValidLogLevel(parsedCli.log)) {
 			Log.error('Invalid `--log` value passed.');
 			Log.error(
-				`Accepted values: ${Internals.Logging.logLevels
+				`Accepted values: ${ConfigInternals.Logging.logLevels
 					.map((l) => `'${l}'`)
 					.join(', ')}.`
 			);
 			process.exit(1);
 		}
 
-		Internals.Logging.setLogLevel(parsedCli.log as LogLevel);
+		ConfigInternals.Logging.setLogLevel(parsedCli.log as LogLevel);
 	}
 
 	if (parsedCli.concurrency) {
@@ -149,7 +150,7 @@ export const parseCommandLine = (
 			process.exit(1);
 		}
 
-		Internals.setFrameRangeFromCli(parsedCli.frames);
+		ConfigInternals.setFrameRangeFromCli(parsedCli.frames);
 	}
 
 	if (parsedCli.frame) {
@@ -160,7 +161,7 @@ export const parseCommandLine = (
 			process.exit(1);
 		}
 
-		Internals.setStillFrame(Number(parsedCli.frame));
+		ConfigInternals.setStillFrame(Number(parsedCli.frame));
 	}
 
 	if (parsedCli.png) {

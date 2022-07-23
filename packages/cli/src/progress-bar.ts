@@ -1,6 +1,6 @@
-import type {StitchingState} from '@remotion/renderer';
+import {ConfigInternals} from '@remotion/config';
+import type {Codec, StitchingState} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {Codec} from 'remotion';
 import {Internals} from 'remotion';
 import {AnsiDiff} from './ansi/ansi-diff';
 import {chalk} from './chalk';
@@ -14,8 +14,8 @@ export const createProgressBar = (
 	update: (str: string) => boolean;
 } => {
 	if (
-		!Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		!ConfigInternals.Logging.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'info'
 		)
 	) {

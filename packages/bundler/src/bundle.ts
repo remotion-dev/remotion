@@ -2,7 +2,6 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import type {WebpackOverrideFn} from 'remotion';
-import {Internals} from 'remotion';
 import {promisify} from 'util';
 import webpack from 'webpack';
 import {copyDir} from './copy-dir';
@@ -56,11 +55,9 @@ export const getConfig = (
 		userDefinedComponent: entryPoint,
 		outDir,
 		environment: 'production',
-		webpackOverride:
-			options?.webpackOverride ?? Internals.defaultOverrideFunction,
+		webpackOverride: options?.webpackOverride ?? ((f) => f),
 		onProgressUpdate,
-		enableCaching:
-			options?.enableCaching ?? Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
+		enableCaching: options?.enableCaching ?? true,
 		maxTimelineTracks: 15,
 		// For production, the variables are set dynamically
 		envVariables: {},

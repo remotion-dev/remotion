@@ -1,7 +1,7 @@
+import {ConfigInternals} from '@remotion/config';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import {Internals} from 'remotion';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
 import {Log} from './log';
 import type {PackageManager} from './preview-server/get-package-manager';
@@ -80,8 +80,8 @@ export const upgrade = async () => {
 		}
 	);
 	if (
-		Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		ConfigInternals.Logging.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'info'
 		)
 	) {

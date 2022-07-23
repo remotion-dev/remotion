@@ -1,4 +1,5 @@
-import {FrameRange, RenderInternals} from '@remotion/renderer';
+import type {FrameRange} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 
 let range: FrameRange | null = null;
 
