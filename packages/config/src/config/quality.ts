@@ -1,10 +1,10 @@
-import {validateQuality} from '../validation/validate-quality';
+import {RenderInternals} from '@remotion/renderer';
 
 const defaultValue = undefined;
 let quality: number | undefined = defaultValue;
 
 export const setQuality = (q: number | undefined) => {
-	validateQuality(q);
+	RenderInternals.validateQuality(q);
 
 	if (q === 0 || q === undefined) {
 		quality = defaultValue;

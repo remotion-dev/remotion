@@ -3,7 +3,7 @@
 
 import type {PixelFormat} from './pixel-format';
 
-const validImageFormats = ['png', 'jpeg', 'none'] as const;
+export const validImageFormats = ['png', 'jpeg', 'none'] as const;
 
 export type ImageFormat = typeof validImageFormats[number];
 
