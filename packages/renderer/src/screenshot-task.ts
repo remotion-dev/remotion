@@ -1,8 +1,8 @@
 import fs from 'fs';
-import {Internals} from 'remotion';
 import type {Page} from './browser/BrowserPage';
 import type {ScreenshotOptions} from './browser/ScreenshotOptions';
 import type {StillImageFormat} from './image-format';
+import {startPerfMeasure, stopPerfMeasure} from './perf';
 
 export const _screenshotTask = async (
 	page: Page,
@@ -12,12 +12,12 @@ export const _screenshotTask = async (
 	const client = page._client();
 	const target = page.target();
 
-	const perfTarget = Internals.perf.startPerfMeasure('activate-target');
+	const perfTarget = startPerfMeasure('activate-target');
 
 	await client.send('Target.activateTarget', {
 		targetId: target._targetId,
 	});
-	Internals.perf.stopPerfMeasure(perfTarget);
+	stopPerfMeasure(perfTarget);
 
 	const shouldSetDefaultBackground = options.omitBackground && format === 'png';
 	if (shouldSetDefaultBackground)
@@ -25,21 +25,21 @@ export const _screenshotTask = async (
 			color: {r: 0, g: 0, b: 0, a: 0},
 		});
 
-	const cap = Internals.perf.startPerfMeasure('capture');
+	const cap = startPerfMeasure('capture');
 	const result = await client.send('Page.captureScreenshot', {
 		format,
 		quality: options.quality,
 		clip: undefined,
 		captureBeyondViewport: true,
 	});
-	Internals.perf.stopPerfMeasure(cap);
+	stopPerfMeasure(cap);
 	if (shouldSetDefaultBackground)
 		await client.send('Emulation.setDefaultBackgroundColorOverride');
 
-	const saveMarker = Internals.perf.startPerfMeasure('save');
+	const saveMarker = startPerfMeasure('save');
 
 	const buffer = Buffer.from(result.data, 'base64');
 	if (options.path) await fs.promises.writeFile(options.path, buffer);
-	Internals.perf.stopPerfMeasure(saveMarker);
+	stopPerfMeasure(saveMarker);
 	return buffer;
 };

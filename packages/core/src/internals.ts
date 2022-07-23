@@ -24,7 +24,6 @@ import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render';
 import type {RemotionEnvironment} from './get-environment';
 import {getRemotionEnvironment} from './get-environment';
 import {getPreviewDomElement} from './get-preview-dom-element';
-import * as perf from './perf';
 import {portalNode} from './portal-node';
 import {getRoot, waitForRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
@@ -67,7 +66,6 @@ const Timeline = TimelinePosition;
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
-	perf,
 	useUnsafeVideoConfig,
 	Timeline,
 	CompositionManager,

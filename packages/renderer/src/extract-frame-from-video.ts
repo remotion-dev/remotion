@@ -1,6 +1,5 @@
 import execa from 'execa';
 import type {OffthreadVideoImageFormat} from 'remotion';
-import {Internals} from 'remotion';
 import {getAudioChannelsAndDuration} from './assets/get-audio-channels';
 import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
 import type {FfmpegExecutable} from './ffmpeg-executable';
@@ -14,6 +13,7 @@ import {
 	setLastFrameInCache,
 } from './last-frame-from-video-cache';
 import {pLimit} from './p-limit';
+import {startPerfMeasure, stopPerfMeasure} from './perf';
 import {truthy} from './truthy';
 
 const lastFrameLimit = pLimit(1);
@@ -349,8 +349,8 @@ const extractFrameFromVideoFn = async ({
 };
 
 export const extractFrameFromVideo = async (options: Options) => {
-	const perf = Internals.perf.startPerfMeasure('extract-frame');
+	const perf = startPerfMeasure('extract-frame');
 	const res = await mainLimit(extractFrameFromVideoFn, options);
-	Internals.perf.stopPerfMeasure(perf);
+	stopPerfMeasure(perf);
 	return res;
 };

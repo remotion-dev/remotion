@@ -38,6 +38,7 @@ import {normalizeServeUrl} from './normalize-serve-url';
 import {killAllBrowsers} from './open-browser';
 import {DEFAULT_OVERWRITE} from './overwrite';
 import {parseStack} from './parse-browser-error-stack';
+import * as perf from './perf';
 import {
 	DEFAULT_PIXEL_FORMAT,
 	validateSelectedPixelFormatAndCodecCombination,
@@ -161,4 +162,5 @@ export const RenderInternals = {
 	isEqualOrBelowLogLevel,
 	isValidLogLevel,
 	validateEveryNthFrame,
+	perf,
 };
