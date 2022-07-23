@@ -9,7 +9,8 @@
 		{
 			"files": "./src/cli/**",
 			"rules": {
-				"no-console": "error"
+				"no-console": "error",
+				"no-restricted-imports": ["off"]
 			}
 		}
 	]
