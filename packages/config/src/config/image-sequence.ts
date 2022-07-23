@@ -1,4 +1,4 @@
-import {FrameRange} from '@remotion/renderer';
+import type {FrameRange} from '@remotion/renderer';
 
 let imageSequence = false;
 

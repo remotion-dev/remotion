@@ -12,7 +12,6 @@ import type {
 import {RenderInternals} from '@remotion/renderer';
 import minimist from 'minimist';
 import {resolve} from 'path';
-import type {} from 'remotion';
 import {Log} from './log';
 
 export type CommandLineOptions = {

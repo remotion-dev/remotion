@@ -1,4 +1,4 @@
-import {Browser} from '@remotion/renderer';
+import type {Browser} from '@remotion/renderer';
 
 let currentBrowser: Browser | null = null;
 

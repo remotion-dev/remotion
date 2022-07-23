@@ -1,4 +1,5 @@
-import {PixelFormat, RenderInternals} from '@remotion/renderer';
+import type {PixelFormat} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 
 let currentPixelFormat: PixelFormat = RenderInternals.DEFAULT_PIXEL_FORMAT;
 
