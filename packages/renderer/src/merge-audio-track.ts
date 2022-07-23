@@ -1,14 +1,14 @@
 import execa from 'execa';
 import path from 'path';
-import {Internals} from 'remotion';
 import {chunk} from './chunk';
 import {convertToPcm} from './convert-to-pcm';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {createSilentAudio} from './create-silent-audio';
 import {deleteDirectory} from './delete-directory';
-import type { FfmpegExecutable } from './ffmpeg-executable';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {pLimit} from './p-limit';
 import {tmpDir} from './tmp-dir';
+import {truthy} from './truthy';
 
 type Options = {
 	ffmpegExecutable: FfmpegExecutable;
@@ -79,7 +79,7 @@ const mergeAudioTrackUnlimited = async ({
 		['-map', '[a]'],
 		['-y', outName],
 	]
-		.filter(Internals.truthy)
+		.filter(truthy)
 		.flat(2);
 
 	const task = execa(ffmpegExecutable ?? 'ffmpeg', args);

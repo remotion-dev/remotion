@@ -1,5 +1,4 @@
 import execa from 'execa';
-import type {} from 'remotion';
 import {Internals} from 'remotion';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';

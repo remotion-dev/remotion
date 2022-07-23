@@ -1,8 +1,8 @@
-import {Internals} from 'remotion';
 import type {RawSourceMap} from 'source-map';
 import {SourceMapConsumer} from 'source-map';
 import {readFile} from './assets/read-file';
 import type {UnsymbolicatedStackFrame} from './parse-browser-error-stack';
+import {truthy} from './truthy';
 
 function extractSourceMapUrl(fileContents: string): string | null {
 	const regex = /\/\/[#@] ?sourceMappingURL=([^\s'"]+)\s*$/gm;
@@ -121,7 +121,7 @@ export const symbolicateStackTrace = async (
 			frames
 				.map((f) => f.fileName)
 				.filter((f) => f.startsWith('http://') || f.startsWith('https://'))
-				.filter(Internals.truthy)
+				.filter(truthy)
 		),
 	];
 	const maps = await Promise.all(
@@ -165,5 +165,5 @@ export const symbolicateStackTrace = async (
 				originalScriptCode: scriptCode,
 			};
 		})
-		.filter(Internals.truthy);
+		.filter(truthy);
 };

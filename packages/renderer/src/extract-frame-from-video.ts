@@ -14,6 +14,7 @@ import {
 	setLastFrameInCache,
 } from './last-frame-from-video-cache';
 import {pLimit} from './p-limit';
+import {truthy} from './truthy';
 
 const lastFrameLimit = pLimit(1);
 const mainLimit = pLimit(5);
@@ -26,7 +27,7 @@ const determineVcodecFfmepgFlags = (
 		vcodecFlag === 'vp9' ? 'libvpx-vp9' : null,
 		vcodecFlag === 'vp8' ? '-vcodec' : null,
 		vcodecFlag === 'vp8' ? 'libvpx' : null,
-	].filter(Internals.truthy);
+	].filter(truthy);
 };
 
 const determineResizeParams = (
