@@ -8,7 +8,6 @@ import {
 } from '@remotion/renderer';
 import {mkdirSync} from 'fs';
 import path from 'path';
-import {Internals} from 'remotion';
 import {chalk} from './chalk';
 import {
 	getAndValidateAbsoluteOutputFile,
@@ -25,6 +24,7 @@ import {
 } from './progress-bar';
 import {bundleOnCli} from './setup-cache';
 import type {RenderStep} from './step';
+import {truthy} from './truthy';
 import {
 	getOutputLocation,
 	getUserPassedOutputLocation,
@@ -137,7 +137,7 @@ export const still = async () => {
 	const steps: RenderStep[] = [
 		RenderInternals.isServeUrl(fullPath) ? null : ('bundling' as const),
 		'rendering' as const,
-	].filter(Internals.truthy);
+	].filter(truthy);
 
 	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
 		? Promise.resolve(fullPath)
