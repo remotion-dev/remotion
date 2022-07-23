@@ -1,17 +1,23 @@
-import type {ChromiumOptions} from '@remotion/renderer';
+import {ConfigInternals} from '@remotion/config';
+import type {
+	BrowserExecutable,
+	ChromiumOptions,
+	Codec,
+	FrameRange,
+	PixelFormat,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import type {BrowserExecutable, Codec, FrameRange, PixelFormat} from 'remotion';
-import {Internals} from 'remotion';
 import {getEnvironmentVariables} from './get-env';
+import {getFinalOutputCodec} from './get-final-output-codec';
 import {getInputProps} from './get-input-props';
 import {getImageFormat} from './image-formats';
 import {Log} from './log';
 import {getUserPassedOutputLocation} from './user-passed-output-location';
 
 const getAndValidateFrameRange = () => {
-	const frameRange = Internals.getRange();
+	const frameRange = ConfigInternals.getRange();
 	if (typeof frameRange === 'number') {
 		Log.warn('Selected a single frame. Assuming you want to output an image.');
 		Log.warn(
@@ -24,16 +30,16 @@ const getAndValidateFrameRange = () => {
 };
 
 const getFinalCodec = async (options: {isLambda: boolean}) => {
-	const userCodec = Internals.getOutputCodecOrUndefined();
+	const userCodec = ConfigInternals.getOutputCodecOrUndefined();
 
-	const codec = Internals.getFinalOutputCodec({
+	const codec = getFinalOutputCodec({
 		codec: userCodec,
 		fileExtension: options.isLambda
 			? null
 			: RenderInternals.getExtensionOfFilename(getUserPassedOutputLocation()),
 		emitWarning: true,
 	});
-	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
+	const ffmpegExecutable = ConfigInternals.getCustomFfmpegExecutable();
 	if (
 		codec === 'vp8' &&
 		!(await RenderInternals.ffmpegHasFeature({
@@ -85,7 +91,8 @@ const getFinalCodec = async (options: {isLambda: boolean}) => {
 	return codec;
 };
 
-const getBrowser = () => Internals.getBrowser() ?? Internals.DEFAULT_BROWSER;
+const getBrowser = () =>
+	ConfigInternals.getBrowser() ?? RenderInternals.DEFAULT_BROWSER;
 
 export const getAndValidateAbsoluteOutputFile = (
 	relativeOutputLocation: string,
@@ -113,10 +120,12 @@ const getAndValidateShouldOutputImageSequence = async ({
 	isLambda: boolean;
 }) => {
 	const shouldOutputImageSequence =
-		Internals.getShouldOutputImageSequence(frameRange);
+		ConfigInternals.getShouldOutputImageSequence(frameRange);
 	// When parsing options locally, we don't need FFMPEG because the render will happen on Lambda
 	if (!shouldOutputImageSequence && !isLambda) {
-		await RenderInternals.validateFfmpeg(Internals.getCustomFfmpegExecutable());
+		await RenderInternals.validateFfmpeg(
+			ConfigInternals.getCustomFfmpegExecutable()
+		);
 	}
 
 	return shouldOutputImageSequence;
@@ -126,24 +135,29 @@ const getAndValidateCrf = (
 	shouldOutputImageSequence: boolean,
 	codec: Codec
 ) => {
-	const crf = shouldOutputImageSequence ? null : Internals.getActualCrf(codec);
+	const crf = shouldOutputImageSequence
+		? null
+		: ConfigInternals.getActualCrf(codec);
 	if (crf !== null) {
-		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
+		RenderInternals.validateSelectedCrfAndCodecCombination(crf, codec);
 	}
 
 	return crf;
 };
 
 const getAndValidatePixelFormat = (codec: Codec) => {
-	const pixelFormat = Internals.getPixelFormat();
+	const pixelFormat = ConfigInternals.getPixelFormat();
 
-	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
+	RenderInternals.validateSelectedPixelFormatAndCodecCombination(
+		pixelFormat,
+		codec
+	);
 	return pixelFormat;
 };
 
 const getAndValidateProResProfile = (actualCodec: Codec) => {
-	const proResProfile = Internals.getProResProfile();
-	Internals.validateSelectedCodecAndProResCombination(
+	const proResProfile = ConfigInternals.getProResProfile();
+	RenderInternals.validateSelectedCodecAndProResCombination(
 		actualCodec,
 		proResProfile
 	);
@@ -163,7 +177,7 @@ const getAndValidateImageFormat = ({
 	const imageFormat = getImageFormat(
 		shouldOutputImageSequence ? undefined : codec
 	);
-	Internals.validateSelectedPixelFormatAndImageFormatCombination(
+	RenderInternals.validateSelectedPixelFormatAndImageFormatCombination(
 		pixelFormat,
 		imageFormat
 	);
@@ -203,7 +217,7 @@ export const getCliOptions = async (options: {
 					isLambda: options.isLambda,
 			  });
 
-	const overwrite = Internals.getShouldOverwrite();
+	const overwrite = ConfigInternals.getShouldOverwrite();
 	const crf = getAndValidateCrf(shouldOutputImageSequence, codec);
 	const pixelFormat = getAndValidatePixelFormat(codec);
 	const imageFormat = getAndValidateImageFormat({
@@ -212,36 +226,37 @@ export const getCliOptions = async (options: {
 		pixelFormat,
 	});
 	const proResProfile = getAndValidateProResProfile(codec);
-	const browserExecutable = Internals.getBrowserExecutable();
-	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
-	const ffprobeExecutable = Internals.getCustomFfprobeExecutable();
-	const scale = Internals.getScale();
-	const port = Internals.getServerPort();
+	const browserExecutable = ConfigInternals.getBrowserExecutable();
+	const ffmpegExecutable = ConfigInternals.getCustomFfmpegExecutable();
+	const ffprobeExecutable = ConfigInternals.getCustomFfprobeExecutable();
+	const scale = ConfigInternals.getScale();
+	const port = ConfigInternals.getServerPort();
 
 	const chromiumOptions: ChromiumOptions = {
-		disableWebSecurity: Internals.getChromiumDisableWebSecurity(),
-		ignoreCertificateErrors: Internals.getIgnoreCertificateErrors(),
-		headless: Internals.getChromiumHeadlessMode(),
+		disableWebSecurity: ConfigInternals.getChromiumDisableWebSecurity(),
+		ignoreCertificateErrors: ConfigInternals.getIgnoreCertificateErrors(),
+		headless: ConfigInternals.getChromiumHeadlessMode(),
 		gl:
-			Internals.getChromiumOpenGlRenderer() ??
-			Internals.DEFAULT_OPENGL_RENDERER,
+			ConfigInternals.getChromiumOpenGlRenderer() ??
+			RenderInternals.DEFAULT_OPENGL_RENDERER,
 	};
-	const everyNthFrame = Internals.getAndValidateEveryNthFrame(codec);
-	const numberOfGifLoops = Internals.getAndValidateNumberOfGifLoops(codec);
+	const everyNthFrame = ConfigInternals.getAndValidateEveryNthFrame(codec);
+	const numberOfGifLoops =
+		ConfigInternals.getAndValidateNumberOfGifLoops(codec);
 
-	const parallelism = Internals.getConcurrency();
+	const parallelism = ConfigInternals.getConcurrency();
 
 	RenderInternals.validateConcurrency(parallelism, 'concurrency');
 
 	return {
-		puppeteerTimeout: Internals.getCurrentPuppeteerTimeout(),
+		puppeteerTimeout: ConfigInternals.getCurrentPuppeteerTimeout(),
 		parallelism,
 		frameRange,
 		shouldOutputImageSequence,
 		codec,
 		inputProps: getInputProps(() => undefined),
 		envVariables: await getEnvironmentVariables(),
-		quality: Internals.getQuality(),
+		quality: ConfigInternals.getQuality(),
 		browser: await getAndValidateBrowser(browserExecutable),
 		crf,
 		pixelFormat,
@@ -249,11 +264,11 @@ export const getCliOptions = async (options: {
 		proResProfile,
 		everyNthFrame,
 		numberOfGifLoops,
-		stillFrame: Internals.getStillFrame(),
+		stillFrame: ConfigInternals.getStillFrame(),
 		browserExecutable,
 		ffmpegExecutable,
 		ffprobeExecutable,
-		logLevel: Internals.Logging.getLogLevel(),
+		logLevel: ConfigInternals.Logging.getLogLevel(),
 		scale,
 		chromiumOptions,
 		overwrite,

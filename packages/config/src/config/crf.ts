@@ -1,4 +1,5 @@
-import {Codec, Crf, RenderInternals} from '@remotion/renderer';
+import type {Codec, Crf} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 
 let currentCrf: Crf;
 

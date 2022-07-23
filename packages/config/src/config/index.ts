@@ -15,7 +15,6 @@ import {setFfmpegExecutable, setFfprobeExecutable} from './ffmpeg-executable';
 import {setFrameRange} from './frame-range';
 import {setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
-import type {LogLevel} from './log';
 import {setLogLevel} from './log';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
 import {setNumberOfGifLoops} from './number-of-gif-loops';
@@ -204,4 +203,4 @@ export const Config = {
 	},
 } as const;
 
-export type {Concurrency, WebpackConfiguration, WebpackOverrideFn, LogLevel};
+export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};

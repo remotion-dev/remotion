@@ -1,13 +1,13 @@
-import type {ChromiumOptions} from '@remotion/renderer';
 import type {
+	ChromiumOptions,
 	Codec,
 	FrameRange,
 	ImageFormat,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
-	VideoConfig,
-} from 'remotion';
+} from '@remotion/renderer';
+import type {VideoConfig} from 'remotion';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';

@@ -3,7 +3,7 @@ import {downloadFile} from './assets/download-file';
 import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
-import {getFinalOutputCodec, validCodecs} from './codec';
+import {DEFAULT_CODEC, validCodecs} from './codec';
 import {
 	getDefaultCrfForCodec,
 	getValidCrfRanges,
@@ -26,14 +26,24 @@ import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
 import {getDesiredPort} from './get-port';
-import {validImageFormats} from './image-format';
+import {
+	validateSelectedPixelFormatAndImageFormatCombination,
+	validImageFormats,
+} from './image-format';
+import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
+import {isEqualOrBelowLogLevel, logLevels} from './log-level';
 import {mimeContentType, mimeLookup} from './mime-types';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {killAllBrowsers} from './open-browser';
 import {DEFAULT_OVERWRITE} from './overwrite';
 import {parseStack} from './parse-browser-error-stack';
-import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
+import {
+	DEFAULT_PIXEL_FORMAT,
+	validateSelectedPixelFormatAndCodecCombination,
+	validPixelFormats,
+} from './pixel-format';
+import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {validateQuality} from './quality';
 import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
@@ -65,7 +75,13 @@ export {FfmpegExecutable} from './ffmpeg-executable';
 export {FfmpegVersion} from './ffmpeg-flags';
 export {FrameRange} from './frame-range';
 export {getCompositions} from './get-compositions';
-export {ImageFormat} from './image-format';
+export {
+	ImageFormat,
+	StillImageFormat,
+	validateSelectedPixelFormatAndImageFormatCombination,
+	validImageFormats,
+} from './image-format';
+export type {LogLevel} from './log-level';
 export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
 export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';
@@ -134,6 +150,12 @@ export const RenderInternals = {
 	validateQuality,
 	validateFrame,
 	DEFAULT_TIMEOUT,
-	getFinalOutputCodec,
 	getValidCrfRanges,
+	validateSelectedPixelFormatAndCodecCombination,
+	validateSelectedCodecAndProResCombination,
+	validateSelectedPixelFormatAndImageFormatCombination,
+	DEFAULT_CODEC,
+	isAudioCodec,
+	logLevels,
+	isEqualOrBelowLogLevel,
 };

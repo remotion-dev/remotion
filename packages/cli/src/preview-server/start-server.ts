@@ -1,4 +1,5 @@
 import {BundlerInternals, webpack} from '@remotion/bundler';
+import {ConfigInternals} from '@remotion/config';
 import {RenderInternals} from '@remotion/renderer';
 import crypto from 'crypto';
 import fs from 'fs';
@@ -6,7 +7,6 @@ import http from 'http';
 import os from 'os';
 import path from 'path';
 import type {WebpackOverrideFn} from 'remotion';
-import {Internals} from 'remotion';
 import {wdm} from './dev-middleware';
 import {webpackHotMiddleware} from './hot-middleware';
 import type {LiveEventsServer} from './live-events';
@@ -37,7 +37,7 @@ export const startServer = async (
 		outDir: tmpDir,
 		environment: 'development',
 		webpackOverride:
-			options?.webpackOverride ?? Internals.getWebpackOverrideFn(),
+			options?.webpackOverride ?? ConfigInternals.getWebpackOverrideFn(),
 		envVariables: options?.envVariables ?? {},
 		maxTimelineTracks: options?.maxTimelineTracks ?? 15,
 		entryPoints: [

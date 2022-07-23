@@ -1,3 +1,4 @@
+import {ConfigInternals} from '@remotion/config';
 import type {RenderMediaOnDownload, StitchingState} from '@remotion/renderer';
 import {
 	getCompositions,
@@ -103,8 +104,8 @@ export const render = async () => {
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
-		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		shouldDumpIo: ConfigInternals.Logging.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
 		chromiumOptions,
@@ -146,7 +147,7 @@ export const render = async () => {
 		inputProps,
 		puppeteerInstance,
 		envVariables,
-		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
 		chromiumOptions,
 		browserExecutable,
 	});
@@ -248,8 +249,8 @@ export const render = async () => {
 			},
 			outputDir,
 			serveUrl: urlOrBundle,
-			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
-				Internals.Logging.getLogLevel(),
+			dumpBrowserLogs: ConfigInternals.Logging.isEqualOrBelowLogLevel(
+				ConfigInternals.Logging.getLogLevel(),
 				'verbose'
 			),
 			everyNthFrame,
@@ -302,16 +303,20 @@ export const render = async () => {
 		quality,
 		serveUrl: urlOrBundle,
 		onDownload,
-		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		dumpBrowserLogs: ConfigInternals.Logging.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
 		chromiumOptions,
-		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
 		scale,
 		port,
 		numberOfGifLoops,
 		everyNthFrame,
+		verbose: ConfigInternals.Logging.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
+			'verbose'
+		),
 	});
 
 	Log.info();
@@ -341,8 +346,8 @@ export const render = async () => {
 	);
 
 	if (
-		Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		ConfigInternals.Logging.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		)
 	) {

@@ -1,3 +1,4 @@
+import {Config, ConfigInternals} from '@remotion/config';
 import type {RenderMediaOnDownload} from '@remotion/renderer';
 import {
 	getCompositions,
@@ -7,7 +8,7 @@ import {
 } from '@remotion/renderer';
 import {mkdirSync} from 'fs';
 import path from 'path';
-import {Config, Internals} from 'remotion';
+import {Internals} from 'remotion';
 import {chalk} from './chalk';
 import {
 	getAndValidateAbsoluteOutputFile,
@@ -122,9 +123,8 @@ export const still = async () => {
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
 		chromiumOptions,
-
-		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		shouldDumpIo: ConfigInternals.Logging.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
 		forceDeviceScaleFactor: scale,
@@ -210,15 +210,15 @@ export const still = async () => {
 		output: absoluteOutputLocation,
 		serveUrl: await urlOrBundle,
 		quality,
-		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		dumpBrowserLogs: ConfigInternals.Logging.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
 		envVariables,
 		imageFormat,
 		inputProps,
 		chromiumOptions,
-		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
 		scale,
 		ffmpegExecutable,
 		browserExecutable,

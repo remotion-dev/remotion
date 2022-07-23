@@ -100,6 +100,7 @@ importers:
     specifiers:
       '@jonny/eslint-config': 3.0.266
       '@remotion/bundler': 3.1.5
+      '@remotion/config': 3.1.5
       '@remotion/media-utils': 3.1.5
       '@remotion/player': 3.1.5
       '@remotion/renderer': 3.1.5
@@ -130,6 +131,7 @@ importers:
       vitest: ^0.18.0
     dependencies:
       '@remotion/bundler': link:../bundler
+      '@remotion/config': link:../config
       '@remotion/media-utils': link:../media-utils
       '@remotion/player': link:../player
       '@remotion/renderer': link:../renderer
@@ -547,6 +549,7 @@ importers:
       '@jonny/eslint-config': 3.0.266
       '@remotion/bundler': 3.1.5
       '@remotion/cli': 3.1.5
+      '@remotion/config': 3.1.5
       '@remotion/renderer': 3.1.5
       '@types/jest': ^27.0.2
       '@types/mime-types': 2.1.1
@@ -575,6 +578,7 @@ importers:
       '@aws-sdk/s3-request-presigner': 3.58.0
       '@remotion/bundler': link:../bundler
       '@remotion/cli': link:../cli
+      '@remotion/config': link:../config
       '@remotion/renderer': link:../renderer
       aws-policies: 1.0.1
       mime-types: 2.1.34

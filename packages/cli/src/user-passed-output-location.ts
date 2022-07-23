@@ -1,10 +1,10 @@
-import {Internals} from 'remotion';
+import {ConfigInternals} from '@remotion/config';
 import {parsedCli} from './parse-command-line';
 
 export const getUserPassedOutputLocation = () => {
 	const filename = parsedCli._[3]
 		? parsedCli._[3]
-		: Internals.getOutputLocation();
+		: ConfigInternals.getOutputLocation();
 
 	return filename;
 };

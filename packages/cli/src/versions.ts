@@ -1,5 +1,5 @@
+import {ConfigInternals} from '@remotion/config';
 import fs from 'fs';
-import {Internals} from 'remotion';
 import {Log} from './log';
 import {parseCommandLine} from './parse-command-line';
 import {resolveFrom} from './resolve-from';
@@ -88,8 +88,8 @@ export const validateVersionsBeforeCommand = async () => {
 		'- Remove the `^` character in front of a version to pin a package.'
 	);
 	if (
-		!Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		!ConfigInternals.Logging.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		)
 	) {
@@ -135,8 +135,8 @@ export const versionsCommand = async () => {
 			'- Remove the `^` character in front of a version to pin a package.'
 		);
 		if (
-			!Internals.Logging.isEqualOrBelowLogLevel(
-				Internals.Logging.getLogLevel(),
+			!ConfigInternals.Logging.isEqualOrBelowLogLevel(
+				ConfigInternals.Logging.getLogLevel(),
 				'verbose'
 			)
 		) {
