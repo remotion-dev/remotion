@@ -23,6 +23,7 @@ declare global {
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
 		siteVersion: '3';
+		markAsReady: () => void;
 	}
 }
 

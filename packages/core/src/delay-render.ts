@@ -87,5 +87,8 @@ export const continueRender = (handle: number): void => {
 	});
 	if (handles.length === 0 && typeof window !== 'undefined') {
 		window.ready = true;
+		if (typeof window.markAsReady !== 'undefined') {
+			window.markAsReady();
+		}
 	}
 };
