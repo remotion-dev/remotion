@@ -13,17 +13,15 @@ Some types of content in Remotion can benefit from a GPU being available on the 
 If a GPU is available, it should be enabled by default while rendering the preview. However, in headless mode, Chromium disables the GPU, leading to a significant
 slowdown in rendering time.
 
-## The way forward: Chrome 98
+## Using `--gl=angle`
 
-In Chrome 98 (scheduled for release in February 2022), the GPU can be used in headless mode. Testing a Chromium build that is compiled from source, we found that a video rendered on a `<canvas>` on macOS content is many times faster than in the stable version of Chrome.
+Since Chrome 98, the GPU can be used in headless mode. Adding `--gl=angle` (or `{chromiumOptions: {gl: "angle"}}` for the Node.JS APIs), we find that a video rendered on a `<canvas>` on macOS is many times faster.
 
-We will continue to observe this area and update this document with our findings and share best practices.
+However, there seems to be memory leakage from Chrome that may kill a long render, therefore we don't set `angle` as default. We recommend to render long videos that use the GPU in multiple parts.
 
 ## Considerations
 
 For rendering content that can benefit from a GPU, you might want to choose a cloud rendering solution to which a GPU can be attached to over AWS Lambda (which does not have a GPU). Most bigger cloud providers have some GPU-enabled VPS offerings. Apple M1 VPS instances might also be able to accelerate graphics rendering and be more economical than VPS instances with desktop graphic cards.
-
-Note that to realize these gains, the Chrome update has yet to arrive. We have not yet done any testing in the cloud.
 
 ## Software emulation
 
