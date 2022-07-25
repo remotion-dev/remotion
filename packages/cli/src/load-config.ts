@@ -5,6 +5,7 @@ import path from 'path';
 import {Log} from './log';
 
 export const loadConfigFile = async (
+	remotionRoot: string,
 	configFileName: string,
 	isJavascript: boolean
 ): Promise<string | null> => {
@@ -55,6 +56,7 @@ export const loadConfigFile = async (
 	// eslint-disable-next-line no-eval
 	eval(file);
 
+	Log.verbose('Loaded configuration from', resolved);
 	await fs.promises.unlink(out);
 	return resolved;
 };
