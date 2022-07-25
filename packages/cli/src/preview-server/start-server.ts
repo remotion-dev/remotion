@@ -46,6 +46,7 @@ export const startServer = async (
 			require.resolve('./hot-middleware/client'),
 			require.resolve('./error-overlay/entry-basic.js'),
 		],
+		remotionRoot: options.remotionRoot,
 	});
 
 	const compiler = webpack(config);

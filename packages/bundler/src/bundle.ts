@@ -37,19 +37,27 @@ const trimTrailingSlash = (p: string): string => {
 	return p;
 };
 
-type Options = {
+export type BundleOptions = {
 	webpackOverride?: WebpackOverrideFn;
 	outDir?: string;
 	enableCaching?: boolean;
 	publicPath?: string;
+	remotionRoot?: string;
 };
 
-export const getConfig = (
-	outDir: string,
-	entryPoint: string,
-	onProgressUpdate?: (progress: number) => void,
-	options?: Options
-) => {
+export const getConfig = ({
+	entryPoint,
+	outDir,
+	resolvedRemotionRoot,
+	onProgressUpdate,
+	options,
+}: {
+	outDir: string;
+	entryPoint: string;
+	resolvedRemotionRoot: string;
+	onProgressUpdate?: (progress: number) => void;
+	options?: BundleOptions;
+}) => {
 	return webpackConfig({
 		entry,
 		userDefinedComponent: entryPoint,
@@ -62,17 +70,25 @@ export const getConfig = (
 		// For production, the variables are set dynamically
 		envVariables: {},
 		entryPoints: [],
+		remotionRoot: resolvedRemotionRoot,
 	});
 };
 
 export const bundle = async (
 	entryPoint: string,
 	onProgressUpdate?: (progress: number) => void,
-	options?: Options
+	options?: BundleOptions
 ): Promise<string> => {
+	const resolvedRemotionRoot = options?.remotionRoot ?? process.cwd();
 	const outDir = await prepareOutDir(options?.outDir ?? null);
 
-	const [, config] = getConfig(outDir, entryPoint, onProgressUpdate, options);
+	const [, config] = getConfig({
+		outDir,
+		entryPoint,
+		resolvedRemotionRoot,
+		onProgressUpdate,
+		options,
+	});
 
 	const output = await promisified([config]);
 	if (!output) {
@@ -91,7 +107,8 @@ export const bundle = async (
 			.filter(Boolean)
 			.join('/');
 
-	const from = path.join(process.cwd(), 'public');
+	// TODO: Unhardcode public directory
+	const from = path.join(resolvedRemotionRoot, 'public');
 	const to = path.join(outDir, 'public');
 	if (fs.existsSync(from)) {
 		await copyDir(from, to);

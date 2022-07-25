@@ -54,7 +54,11 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 		type: 'get-compositions',
 	});
 
-	const bundled = await bundleOnCli({fullPath, steps: ['bundling']});
+	const bundled = await bundleOnCli({
+		remotionRoot,
+		fullPath,
+		steps: ['bundling'],
+	});
 
 	const compositions = await getCompositions(bundled, {
 		browserExecutable,
