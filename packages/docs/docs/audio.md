@@ -46,6 +46,6 @@ While Remotion doesn't limit the range of possible playback speeds, in developme
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/audio/Audio.tsx)
-- [Using audio](/docs/audio)
+- [Using audio](/docs/using-audio)
 - [Audio visualization](/docs/audio-visualization)
 - [`<Video />`](/docs/video)
