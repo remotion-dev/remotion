@@ -12,6 +12,12 @@ export const initializeRenderCli = async (
 
 	// Only now Log.verbose is available
 	Log.verbose('Remotion root directory:', remotionRoot);
+	if (remotionRoot !== process.cwd()) {
+		Log.warn(
+			`Warning: The root directory of your project is ${remotionRoot}, but you are executing this command from ${process.cwd()}. The recommendation is to execute commands from the root directory.`
+		);
+	}
+
 	if (appliedName) {
 		Log.verbose(`Applied configuration from ${appliedName}.`);
 	} else {
