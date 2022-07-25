@@ -29,6 +29,10 @@ describe("Should be able to bundle @remotion/lambda/client with ESBuild", () => 
     });
     expect(errors.length).toBe(0);
     expect(warnings.length).toBe(0);
+
+    // Should not include remotion or react
+    const contents = fs.readFileSync(outfile, "utf-8");
+    expect(contents.includes("jsx-runtime")).toBe(false);
   });
 
   test("Bundle should be below 4.5MB", async () => {
