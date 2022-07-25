@@ -1,4 +1,4 @@
-import type {FrameRange} from 'remotion';
+import type {FrameRange} from './frame-range';
 
 export const getRealFrameRange = (
 	durationInFrames: number,

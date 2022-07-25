@@ -1,5 +1,5 @@
+import type {Codec} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {Codec} from 'remotion';
 import {Log} from './log';
 import {getOutputLocation} from './user-passed-output-location';
 

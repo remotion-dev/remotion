@@ -1,12 +1,10 @@
-import type {
-	BrowserExecutable,
-	FfmpegExecutable,
-	TCompMetadata,
-} from 'remotion';
+import type {TCompMetadata} from 'remotion';
+import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import type {ChromiumOptions} from './open-browser';

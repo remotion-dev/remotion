@@ -9,8 +9,10 @@ import {
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+// eslint-disable-next-line no-restricted-imports
 import {Internals} from 'remotion';
 import {chalk} from './chalk';
+import {ConfigInternals} from './config';
 import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
@@ -103,8 +105,8 @@ export const render = async () => {
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
-		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
 		chromiumOptions,
@@ -146,7 +148,7 @@ export const render = async () => {
 		inputProps,
 		puppeteerInstance,
 		envVariables,
-		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
 		chromiumOptions,
 		browserExecutable,
 	});
@@ -248,8 +250,8 @@ export const render = async () => {
 			},
 			outputDir,
 			serveUrl: urlOrBundle,
-			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
-				Internals.Logging.getLogLevel(),
+			dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
+				ConfigInternals.Logging.getLogLevel(),
 				'verbose'
 			),
 			everyNthFrame,
@@ -302,16 +304,20 @@ export const render = async () => {
 		quality,
 		serveUrl: urlOrBundle,
 		onDownload,
-		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
 		chromiumOptions,
-		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
 		scale,
 		port,
 		numberOfGifLoops,
 		everyNthFrame,
+		verbose: RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
+			'verbose'
+		),
 	});
 
 	Log.info();
@@ -341,11 +347,11 @@ export const render = async () => {
 	);
 
 	if (
-		Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		)
 	) {
-		Internals.perf.logPerf();
+		RenderInternals.perf.logPerf();
 	}
 };

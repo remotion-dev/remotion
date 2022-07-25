@@ -1,7 +1,6 @@
 import {Internals} from 'remotion';
 
 Internals.setupEnvVariables();
-Internals.setupPuppeteerTimeout();
 
 Internals.CSSUtils.injectCSS(`
   .css-reset * {

@@ -1,4 +1,4 @@
-import type {Codec} from 'remotion';
+import type {Codec} from './codec';
 
 type MediaSupport = {
 	video: boolean;

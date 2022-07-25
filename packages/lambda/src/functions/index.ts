@@ -1,10 +1,6 @@
-import {Internals} from 'remotion';
-import type {
-	LambdaPayload} from '../shared/constants';
-import {
-	COMMAND_NOT_FOUND,
-	LambdaRoutines,
-} from '../shared/constants';
+import {RenderInternals} from '@remotion/renderer';
+import type {LambdaPayload} from '../shared/constants';
+import {COMMAND_NOT_FOUND, LambdaRoutines} from '../shared/constants';
 import type {LambdaReturnValues} from '../shared/return-values';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getWarm, setWarm} from './helpers/is-warm';
@@ -73,7 +69,7 @@ export const handler = async <T extends LambdaRoutines>(
 			renderId: params.renderId,
 			chunk: String(params.chunk),
 			dumpLogs: String(
-				Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
+				RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
 			),
 			inputProps: JSON.stringify(params.inputProps),
 		});

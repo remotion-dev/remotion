@@ -1,5 +1,5 @@
 import {bundle, BundlerInternals} from '@remotion/bundler';
-import {Internals} from 'remotion';
+import {ConfigInternals} from './config';
 import {Log} from './log';
 import {quietFlagProvided} from './parse-command-line';
 import {
@@ -15,7 +15,7 @@ export const bundleOnCli = async ({
 	fullPath: string;
 	steps: RenderStep[];
 }) => {
-	const shouldCache = Internals.getWebpackCaching();
+	const shouldCache = ConfigInternals.getWebpackCaching();
 
 	const onProgress = (progress: number) => {
 		bundlingProgress.update(
@@ -29,8 +29,7 @@ export const bundleOnCli = async ({
 
 	const options = {
 		enableCaching: shouldCache,
-		webpackOverride:
-			Internals.getWebpackOverrideFn() ?? Internals.defaultOverrideFunction,
+		webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
 	};
 
 	const [hash] = BundlerInternals.getConfig('', fullPath, onProgress, options);

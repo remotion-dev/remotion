@@ -1,5 +1,4 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {Internals} from 'remotion';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {LambdaPayload} from '../shared/constants';
@@ -34,7 +33,7 @@ export const startHandler = async (params: LambdaPayload) => {
 		quality: params.quality,
 		maxRetries: params.maxRetries,
 		privacy: params.privacy,
-		logLevel: params.logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
+		logLevel: params.logLevel ?? 'info',
 		frameRange: params.frameRange,
 		outName: params.outName,
 		timeoutInMilliseconds: params.timeoutInMilliseconds,

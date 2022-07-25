@@ -1,6 +1,6 @@
 import {CliInternals} from '@remotion/cli';
+import type {StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {StillImageFormat} from 'remotion';
 import {downloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
 import {

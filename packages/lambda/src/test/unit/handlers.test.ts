@@ -1,11 +1,9 @@
-import {Internals} from 'remotion';
 import {handler} from '../../functions/index';
 import type {Await} from '../../shared/await';
 import {LambdaRoutines} from '../../shared/constants';
 import type {LambdaReturnValues} from '../../shared/return-values';
 
 test('Info handler should return version', async () => {
-	Internals.Logging.setLogLevel('error');
 	const response = await handler(
 		{
 			type: LambdaRoutines.info,
