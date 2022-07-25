@@ -141,7 +141,7 @@ export const still = async (remotionRoot: string) => {
 
 	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
 		? Promise.resolve(fullPath)
-		: await bundleOnCli({fullPath, steps});
+		: await bundleOnCli({fullPath, remotionRoot, steps});
 
 	const puppeteerInstance = await browserInstance;
 	const comps = await getCompositions(await urlOrBundle, {

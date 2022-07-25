@@ -1,3 +1,4 @@
+import type {BundleOptions} from '@remotion/bundler';
 import {bundle, BundlerInternals} from '@remotion/bundler';
 import {ConfigInternals} from './config';
 import {Log} from './log';
@@ -11,9 +12,11 @@ import type {RenderStep} from './step';
 export const bundleOnCli = async ({
 	fullPath,
 	steps,
+	remotionRoot,
 }: {
 	fullPath: string;
 	steps: RenderStep[];
+	remotionRoot: string;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -27,12 +30,18 @@ export const bundleOnCli = async ({
 		);
 	};
 
-	const options = {
+	const options: BundleOptions = {
 		enableCaching: shouldCache,
 		webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
 	};
 
-	const [hash] = BundlerInternals.getConfig('', fullPath, onProgress, options);
+	const [hash] = BundlerInternals.getConfig({
+		outDir: '',
+		entryPoint: fullPath,
+		onProgressUpdate: onProgress,
+		options,
+		resolvedRemotionRoot: remotionRoot,
+	});
 
 	const cacheExistedBefore = BundlerInternals.cacheExists('production', hash);
 	if (cacheExistedBefore !== 'does-not-exist' && !shouldCache) {

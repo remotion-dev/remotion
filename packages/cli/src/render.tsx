@@ -121,7 +121,7 @@ export const render = async (remotionRoot: string) => {
 
 	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
 		? fullPath
-		: await bundleOnCli({fullPath, steps});
+		: await bundleOnCli({fullPath, remotionRoot, steps});
 
 	const onDownload: RenderMediaOnDownload = (src) => {
 		const id = Math.random();
