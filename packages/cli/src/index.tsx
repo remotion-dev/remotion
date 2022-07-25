@@ -103,4 +103,5 @@ export const CliInternals = {
 	handleCommonError,
 	formatBytes,
 	getFileSizeDownloadBar,
+	findRemotionRoot,
 };
