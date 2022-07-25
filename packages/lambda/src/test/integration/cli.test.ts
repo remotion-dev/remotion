@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports
 import {CliInternals} from '@remotion/cli';
 import {
 	CURRENT_VERSION,

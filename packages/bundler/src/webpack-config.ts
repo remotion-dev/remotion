@@ -40,7 +40,7 @@ export const webpackConfig = ({
 	environment,
 	webpackOverride = (f) => f,
 	onProgressUpdate,
-	enableCaching = Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
+	enableCaching = true,
 	envVariables,
 	maxTimelineTracks,
 	entryPoints,

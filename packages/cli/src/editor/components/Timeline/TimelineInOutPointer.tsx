@@ -1,6 +1,7 @@
 import React, {createRef} from 'react';
 import {Internals} from 'remotion';
 import {useGetXPositionOfItemInTimeline} from '../../helpers/get-left-of-timeline-slider';
+import {useTimelineInOutFramePosition} from '../../state/in-out';
 
 const areaHighlight: React.CSSProperties = {
 	position: 'absolute',
@@ -14,8 +15,7 @@ export const inMarkerAreaRef = createRef<HTMLDivElement>();
 export const outMarkerAreaRef = createRef<HTMLDivElement>();
 
 export const TimelineInOutPointer: React.FC = () => {
-	const {inFrame, outFrame} =
-		Internals.Timeline.useTimelineInOutFramePosition();
+	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const {get, width} = useGetXPositionOfItemInTimeline();
 

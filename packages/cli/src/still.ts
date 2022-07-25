@@ -7,8 +7,8 @@ import {
 } from '@remotion/renderer';
 import {mkdirSync} from 'fs';
 import path from 'path';
-import {Config, Internals} from 'remotion';
 import {chalk} from './chalk';
+import {Config, ConfigInternals} from './config';
 import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
@@ -24,6 +24,7 @@ import {
 } from './progress-bar';
 import {bundleOnCli} from './setup-cache';
 import type {RenderStep} from './step';
+import {truthy} from './truthy';
 import {
 	getOutputLocation,
 	getUserPassedOutputLocation,
@@ -122,9 +123,8 @@ export const still = async () => {
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
 		chromiumOptions,
-
-		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
 		forceDeviceScaleFactor: scale,
@@ -137,7 +137,7 @@ export const still = async () => {
 	const steps: RenderStep[] = [
 		RenderInternals.isServeUrl(fullPath) ? null : ('bundling' as const),
 		'rendering' as const,
-	].filter(Internals.truthy);
+	].filter(truthy);
 
 	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
 		? Promise.resolve(fullPath)
@@ -210,20 +210,21 @@ export const still = async () => {
 		output: absoluteOutputLocation,
 		serveUrl: await urlOrBundle,
 		quality,
-		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
 		envVariables,
 		imageFormat,
 		inputProps,
 		chromiumOptions,
-		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
 		scale,
 		ffmpegExecutable,
 		browserExecutable,
 		overwrite,
 		onDownload,
+		port,
 	});
 
 	frames = 1;

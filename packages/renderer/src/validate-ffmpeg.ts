@@ -1,7 +1,6 @@
 import execa from 'execa';
 import {statSync} from 'fs';
 import os from 'os';
-import {Internals} from 'remotion';
 
 const existsMap: {[key: string]: boolean} = {};
 
@@ -45,9 +44,9 @@ export const validateFfmpeg = async (
 ): Promise<void> => {
 	const ffmpegExists = await binaryExists('ffmpeg', customFfmpegBinary);
 	if (!ffmpegExists) {
-		if (Internals.getCustomFfmpegExecutable()) {
+		if (customFfmpegBinary) {
 			console.error('FFmpeg executable not found:');
-			console.error(Internals.getCustomFfmpegExecutable());
+			console.error(customFfmpegBinary);
 			process.exit(1);
 		}
 

@@ -1,6 +1,6 @@
 import execa from 'execa';
-import type {FfmpegExecutable} from 'remotion';
 import {calculateDisplayVideoSize} from './calculate-sar-dar-pixels';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {pLimit} from './p-limit';
 
 type Result = {

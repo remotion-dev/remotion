@@ -2,33 +2,40 @@ import execa from 'execa';
 import fs, {unlinkSync} from 'fs';
 import {readFile} from 'fs/promises';
 import path from 'path';
-import type {
-	Codec,
-	FfmpegExecutable,
-	ImageFormat,
-	PixelFormat,
-	ProResProfile,
-	RenderAssetInfo,
-	TAsset,
-} from 'remotion';
+import type {RenderAssetInfo, TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
 import type {Assets} from './assets/types';
+import type {Codec} from './codec';
+import {DEFAULT_CODEC} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
 import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
+import {
+	getDefaultCrfForCodec,
+	validateSelectedCrfAndCodecCombination,
+} from './crf';
 import {deleteDirectory} from './delete-directory';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getProResProfileName} from './get-prores-profile-name';
+import type {ImageFormat} from './image-format';
 import type {CancelSignal} from './make-cancel-signal';
 import {mergeAudioTrack} from './merge-audio-track';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
+import type {PixelFormat} from './pixel-format';
+import {
+	DEFAULT_PIXEL_FORMAT,
+	validateSelectedPixelFormatAndCodecCombination,
+} from './pixel-format';
 import {preprocessAudioTrack} from './preprocess-audio-track';
+import type {ProResProfile} from './prores-profile';
 import {tmpDir} from './tmp-dir';
+import {truthy} from './truthy';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
@@ -129,7 +136,7 @@ const getAssetsData = async ({
 				return result;
 			})
 		)
-	).filter(Internals.truthy);
+	).filter(truthy);
 
 	const outName = path.join(
 		tmpDir('remotion-audio-preprocessing'),
@@ -167,16 +174,16 @@ export const spawnFfmpeg = async (
 		'width',
 		'passed to `stitchFramesToVideo()`'
 	);
-	const codec = options.codec ?? Internals.DEFAULT_CODEC;
+	const codec = options.codec ?? DEFAULT_CODEC;
 	validateEvenDimensionsWithCodec({
 		width: options.width,
 		height: options.height,
 		codec,
 		scale: 1,
 	});
-	Internals.validateFps(options.fps, 'in `stitchFramesToVideo()`', codec);
-	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
-	const pixelFormat = options.pixelFormat ?? Internals.DEFAULT_PIXEL_FORMAT;
+	Internals.validateFps(options.fps, 'in `stitchFramesToVideo()`', false);
+	const crf = options.crf ?? getDefaultCrfForCodec(codec);
+	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
 	await validateFfmpeg(options.ffmpegExecutable ?? null);
 
 	const encoderName = getCodecName(codec);
@@ -214,8 +221,8 @@ export const spawnFfmpeg = async (
 		console.log('[verbose] proResProfileName', proResProfileName);
 	}
 
-	Internals.validateSelectedCrfAndCodecCombination(crf, codec);
-	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
+	validateSelectedCrfAndCodecCombination(crf, codec);
+	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
 	const expectedFrames = options.assetsInfo.assets.length;
 

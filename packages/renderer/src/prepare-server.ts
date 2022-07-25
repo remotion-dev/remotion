@@ -1,7 +1,7 @@
 import {existsSync} from 'fs';
 import path from 'path';
-import type {FfmpegExecutable} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {isServeUrl} from './is-serve-url';
 import {serveStatic} from './serve-static';
 import {waitForSymbolicationToBeDone} from './wait-for-symbolication-error-to-be-done';

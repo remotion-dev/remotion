@@ -65,10 +65,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	const [browserInstance, optimization] = await Promise.all([
 		getBrowserInstance(
-			Internals.Logging.isEqualOrBelowLogLevel(
-				Internals.Logging.getLogLevel(),
-				'verbose'
-			),
+			RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
 			params.chromiumOptions
 		),
 		getOptimization({
@@ -94,11 +91,15 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	});
 	Internals.validateDurationInFrames(
 		comp.durationInFrames,
-		'passed to <Component />'
+		'passed to a Lambda render'
 	);
-	Internals.validateFps(comp.fps, 'passed to <Component />', null);
-	Internals.validateDimension(comp.height, 'height', 'passed to <Component />');
-	Internals.validateDimension(comp.width, 'width', 'passed to <Component />');
+	Internals.validateFps(comp.fps, 'passed to a Lambda render', false);
+	Internals.validateDimension(
+		comp.height,
+		'height',
+		'passed to a Lambda render'
+	);
+	Internals.validateDimension(comp.width, 'width', 'passed to a Lambda render');
 
 	RenderInternals.validateConcurrency(
 		params.concurrencyPerLambda,
@@ -168,7 +169,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			proResProfile: params.proResProfile,
 			quality: params.quality,
 			privacy: params.privacy,
-			logLevel: params.logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
+			logLevel: params.logLevel ?? 'info',
 			attempt: 1,
 			timeoutInMilliseconds: params.timeoutInMilliseconds,
 			chromiumOptions: params.chromiumOptions,
