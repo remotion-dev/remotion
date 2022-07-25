@@ -2,6 +2,7 @@ import {BundlerInternals} from '@remotion/bundler';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import {isMainThread} from 'worker_threads';
 import {Log} from './log';
 
 export const loadConfigFile = async (
@@ -56,11 +57,18 @@ export const loadConfigFile = async (
 
 	const currentCwd = process.cwd();
 
-	// The config file is always executed from the Remotion root, if `process.cwd()` is being used
-	process.chdir(remotionRoot);
+	// The config file is always executed from the Remotion root, if `process.cwd()` is being used. We cannot enforce this in worker threads used for testing
+	if (isMainThread) {
+		process.chdir(remotionRoot);
+	}
+
+	// Exectute the contents of the config file
 	// eslint-disable-next-line no-eval
 	eval(file);
-	process.chdir(currentCwd);
+
+	if (isMainThread) {
+		process.chdir(currentCwd);
+	}
 
 	await fs.promises.unlink(out);
 	return resolved;

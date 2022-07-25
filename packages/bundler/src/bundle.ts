@@ -4,6 +4,7 @@ import path from 'path';
 import type {WebpackOverrideFn} from 'remotion';
 import {promisify} from 'util';
 import webpack from 'webpack';
+import {isMainThread} from 'worker_threads';
 import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
 import {webpackConfig} from './webpack-config';
@@ -84,9 +85,13 @@ export const bundle = async (
 	const outDir = await prepareOutDir(options?.outDir ?? null);
 
 	// The config might use an override which might use
-	// `process.cwd()`. The context should always be the Remotion root
+	// `process.cwd()`. The context should always be the Remotion root.
+	// This is not supported in worker threads (used for tests)
 	const currentCwd = process.cwd();
-	process.chdir(resolvedRemotionRoot);
+	if (isMainThread) {
+		process.chdir(resolvedRemotionRoot);
+	}
+
 	const [, config] = getConfig({
 		outDir,
 		entryPoint,
@@ -96,7 +101,10 @@ export const bundle = async (
 	});
 
 	const output = await promisified([config]);
-	process.chdir(currentCwd);
+	if (isMainThread) {
+		process.chdir(currentCwd);
+	}
+
 	if (!output) {
 		throw new Error('Expected webpack output');
 	}
