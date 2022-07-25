@@ -1,8 +1,8 @@
 import execa from 'execa';
-import type {FfmpegExecutable, OffthreadVideoImageFormat} from 'remotion';
-import {Internals} from 'remotion';
+import type {OffthreadVideoImageFormat} from 'remotion';
 import {getVideoStreamDuration} from './assets/get-video-stream-duration';
 import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
 import type {SpecialVCodecForTransparency} from './get-video-info';
 import {getVideoInfo} from './get-video-info';
@@ -13,6 +13,8 @@ import {
 	setLastFrameInCache,
 } from './last-frame-from-video-cache';
 import {pLimit} from './p-limit';
+import {startPerfMeasure, stopPerfMeasure} from './perf';
+import {truthy} from './truthy';
 
 const lastFrameLimit = pLimit(1);
 const mainLimit = pLimit(5);
@@ -25,7 +27,7 @@ const determineVcodecFfmepgFlags = (
 		vcodecFlag === 'vp9' ? 'libvpx-vp9' : null,
 		vcodecFlag === 'vp8' ? '-vcodec' : null,
 		vcodecFlag === 'vp8' ? 'libvpx' : null,
-	].filter(Internals.truthy);
+	].filter(truthy);
 };
 
 const determineResizeParams = (
@@ -74,7 +76,7 @@ const getFrameOfVideoSlow = async ({
 		'image2pipe',
 		...determineResizeParams(needsResize),
 		'-',
-	].filter(Internals.truthy);
+	].filter(truthy);
 
 	const {stdout, stderr} = execa(ffmpegExecutable ?? 'ffmpeg', command);
 
@@ -162,7 +164,7 @@ const getLastFrameOfVideoFastUnlimited = async (
 			'image2pipe',
 			...determineResizeParams(options.needsResize),
 			'-',
-		].filter(Internals.truthy)
+		].filter(truthy)
 	);
 
 	if (!stderr) {
@@ -292,7 +294,7 @@ const extractFrameFromVideoFn = async ({
 			imageFormat === 'jpeg' ? 'mjpeg' : 'png',
 			...determineResizeParams(needsResize),
 			'-',
-		].filter(Internals.truthy),
+		].filter(truthy),
 		{
 			buffer: false,
 		}
@@ -347,8 +349,8 @@ const extractFrameFromVideoFn = async ({
 };
 
 export const extractFrameFromVideo = async (options: Options) => {
-	const perf = Internals.perf.startPerfMeasure('extract-frame');
+	const perf = startPerfMeasure('extract-frame');
 	const res = await mainLimit(extractFrameFromVideoFn, options);
-	Internals.perf.stopPerfMeasure(perf);
+	stopPerfMeasure(perf);
 	return res;
 };

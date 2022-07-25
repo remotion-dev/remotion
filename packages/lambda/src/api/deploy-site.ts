@@ -1,5 +1,4 @@
-import type { WebpackOverrideFn} from 'remotion';
-import {Internals} from 'remotion';
+import type {WebpackOverrideFn} from 'remotion';
 import {deleteSite} from '../api/delete-site';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {bundleSite} from '../shared/bundle-site';
@@ -12,7 +11,7 @@ import {validateBucketName} from '../shared/validate-bucketname';
 import {validateSiteName} from '../shared/validate-site-name';
 import {bucketExistsInRegion} from './bucket-exists';
 import {enableS3Website} from './enable-s3-website';
-import type { UploadDirProgress} from './upload-dir';
+import type {UploadDirProgress} from './upload-dir';
 import {uploadDir} from './upload-dir';
 
 export type DeploySiteInput = {
@@ -76,9 +75,8 @@ export const deploySite = async ({
 		options?.onBundleProgress ?? (() => undefined),
 		{
 			publicPath: `/${subFolder}/`,
-			webpackOverride:
-				options?.webpackOverride ?? Internals.getWebpackOverrideFn(),
-			enableCaching: options?.enableCaching ?? Internals.getWebpackCaching(),
+			webpackOverride: options?.webpackOverride ?? ((f) => f),
+			enableCaching: options?.enableCaching ?? true,
 		}
 	);
 

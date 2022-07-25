@@ -1,7 +1,7 @@
 import execa from 'execa';
 import path from 'path';
-import {Internals} from 'remotion';
 import {guessExtensionForVideo} from './guess-extension-for-media';
+import {truthy} from './truthy';
 
 type EncodingStatus =
 	| {
@@ -35,7 +35,7 @@ const getTemporaryOutputName = async (src: string) => {
 	return parts
 		.map((p, i) => {
 			if (i === parts.length - 1) {
-				return [`pts-${p}`, extraExtension].filter(Internals.truthy).join('.');
+				return [`pts-${p}`, extraExtension].filter(truthy).join('.');
 			}
 
 			return p;

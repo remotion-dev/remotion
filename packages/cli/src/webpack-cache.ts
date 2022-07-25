@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+// eslint-disable-next-line no-restricted-imports
 import {random} from 'remotion';
 
 type Environment = 'development' | 'production';
