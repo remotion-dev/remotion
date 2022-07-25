@@ -1,6 +1,6 @@
 import execa from 'execa';
 import type {OffthreadVideoImageFormat} from 'remotion';
-import {getAudioChannelsAndDuration} from './assets/get-audio-channels';
+import {getVideoStreamDuration} from './assets/get-video-stream-duration';
 import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
@@ -128,7 +128,7 @@ const getLastFrameOfVideoFastUnlimited = async (
 		return fromCache;
 	}
 
-	const {duration} = await getAudioChannelsAndDuration(src, ffprobeExecutable);
+	const {duration} = await getVideoStreamDuration(src, ffprobeExecutable);
 	if (duration === null) {
 		throw new Error(
 			`Could not determine the duration of ${src} using FFMPEG. The file is not supported.`

@@ -127,9 +127,13 @@ pnpm create video -- --skia
   </TabItem>
 </Tabs>
 
-## Known issues
+## Rendering
 
-- A peer dependency conflict between `react-native` and `react-native-web` requires the `--force` for newer versions of npm.
+By default Remotion rendering are done on the CPU. Some Skia effects rely on advanced GPU features, which may be slow to run on the CPU depending on the kind of effect you are using. If your Skia export is extremely slow, we found that enabling the GPU via the `--gl=angle` option improves things substantially. Please check out the documentation on [GPU rendering](/docs/gpu).
+
+```sh
+remotion render src/index.tsx Main out/video.mp4 --gl=angle
+```
 
 ## Resources
 

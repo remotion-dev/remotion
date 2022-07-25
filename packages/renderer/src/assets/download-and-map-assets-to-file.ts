@@ -161,7 +161,7 @@ export const downloadAsset = async ({
 			downloadDir
 		] as string;
 		// The OS might have deleted the file since even though we marked it as downloaded. In that case we reset the state and download it again
-		if (!fs.existsSync(claimedDownloadLocation)) {
+		if (fs.existsSync(claimedDownloadLocation)) {
 			return claimedDownloadLocation;
 		}
 
