@@ -16,9 +16,8 @@ declare global {
 
 // Inlined from https://github.com/webpack/webpack/blob/4c2ee7a4ddb8db2362ca83b6c4190523387ba7ee/lib/config/defaults.js#L265
 // An algorithm to determine where Webpack will cache the depencies
-const getWebpackCacheDir = () => {
-	const cwd = process.cwd();
-	let dir: string | undefined = cwd;
+const getWebpackCacheDir = (remotionRoot: string) => {
+	let dir: string | undefined = remotionRoot;
 	for (;;) {
 		try {
 			if (fs.statSync(path.join(dir, 'package.json')).isFile()) {
@@ -37,7 +36,7 @@ const getWebpackCacheDir = () => {
 	}
 
 	if (!dir) {
-		return path.resolve(cwd, '.cache/webpack');
+		return path.resolve(remotionRoot, '.cache/webpack');
 	}
 
 	if (process.versions.pnp === '1') {
@@ -51,17 +50,24 @@ const getWebpackCacheDir = () => {
 	return path.resolve(dir, 'node_modules/.cache/webpack');
 };
 
-const remotionCacheLocation = (environment: Environment, hash: string) => {
+const remotionCacheLocation = (
+	remotionRoot: string,
+	environment: Environment,
+	hash: string
+) => {
 	return path.join(
-		getWebpackCacheDir(),
+		getWebpackCacheDir(remotionRoot),
 		getWebpackCacheName(environment, hash)
 	);
 };
 
-export const clearCache = () => {
-	return (fs.promises.rm ?? fs.promises.rmdir)(getWebpackCacheDir(), {
-		recursive: true,
-	});
+export const clearCache = (remotionRoot: string) => {
+	return (fs.promises.rm ?? fs.promises.rmdir)(
+		getWebpackCacheDir(remotionRoot),
+		{
+			recursive: true,
+		}
+	);
 };
 
 const getPrefix = (environment: Environment) => {
@@ -78,8 +84,14 @@ export const getWebpackCacheName = (environment: Environment, hash: string) => {
 	return `${getPrefix(environment)}-${hash}`;
 };
 
-const hasOtherCache = (environment: Environment) => {
-	const cacheDir = fs.readdirSync(getWebpackCacheDir());
+const hasOtherCache = ({
+	remotionRoot,
+	environment,
+}: {
+	remotionRoot: string;
+	environment: Environment;
+}) => {
+	const cacheDir = fs.readdirSync(getWebpackCacheDir(remotionRoot));
 	if (
 		cacheDir.find((c) => {
 			return c.startsWith(getPrefix(environment));
@@ -92,18 +104,19 @@ const hasOtherCache = (environment: Environment) => {
 };
 
 export const cacheExists = (
+	remotionRoot: string,
 	environment: Environment,
 	hash: string
 ): CacheState => {
-	if (fs.existsSync(remotionCacheLocation(environment, hash))) {
+	if (fs.existsSync(remotionCacheLocation(remotionRoot, environment, hash))) {
 		return 'exists';
 	}
 
-	if (!fs.existsSync(getWebpackCacheDir())) {
+	if (!fs.existsSync(getWebpackCacheDir(remotionRoot))) {
 		return 'does-not-exist';
 	}
 
-	if (hasOtherCache(environment)) {
+	if (hasOtherCache({remotionRoot, environment})) {
 		return 'other-exists';
 	}
 

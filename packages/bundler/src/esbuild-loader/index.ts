@@ -3,8 +3,6 @@ import path from 'path';
 import type webpack from 'webpack';
 import type {LoaderOptions} from './interfaces';
 
-const tsConfigPath = path.join(process.cwd(), 'tsconfig.json');
-
 const isTsExtensionPtrn = /\.ts$/i;
 
 const isTypescriptInstalled = () => {
@@ -24,6 +22,8 @@ async function ESBuildLoader(
 	this.getOptions();
 	const options: LoaderOptions = this.getOptions();
 	const {implementation, ...esbuildTransformOptions} = options;
+
+	const tsConfigPath = path.join(this.context, 'tsconfig.json');
 
 	if (implementation && typeof implementation.transform !== 'function') {
 		done(

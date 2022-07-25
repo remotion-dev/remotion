@@ -4,6 +4,7 @@ import {checkNodeVersion} from './check-version';
 import {listCompositionsCommand} from './compositions';
 import {overrideRemotion} from './config/index';
 import {getFileSizeDownloadBar} from './download-progress';
+import {findRemotionRoot} from './find-closest-package-json';
 import {formatBytes} from './format-bytes';
 import {getCliOptions} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
@@ -41,10 +42,11 @@ export const cli = async () => {
 		process.exit(0);
 	}
 
+	const remotionRoot = findRemotionRoot();
 	// To check node version and to warn if node version is <12.10.0
 	checkNodeVersion();
 	if (command !== VERSIONS_COMMAND) {
-		await validateVersionsBeforeCommand();
+		await validateVersionsBeforeCommand(remotionRoot);
 	}
 
 	const errorSymbolicationLock =
@@ -52,19 +54,19 @@ export const cli = async () => {
 
 	try {
 		if (command === 'compositions') {
-			await listCompositionsCommand();
+			await listCompositionsCommand(remotionRoot);
 		} else if (command === 'preview') {
-			await previewCommand();
+			await previewCommand(remotionRoot);
 		} else if (command === 'lambda') {
-			await lambdaCommand();
+			await lambdaCommand(remotionRoot);
 		} else if (command === 'render') {
-			await render();
+			await render(remotionRoot);
 		} else if (command === 'still') {
-			await still();
+			await still(remotionRoot);
 		} else if (command === 'upgrade') {
-			await upgrade();
+			await upgrade(remotionRoot);
 		} else if (command === VERSIONS_COMMAND) {
-			await versionsCommand();
+			await versionsCommand(remotionRoot);
 		} else if (command === 'help') {
 			printHelp();
 			process.exit(0);
@@ -101,4 +103,5 @@ export const CliInternals = {
 	handleCommonError,
 	formatBytes,
 	getFileSizeDownloadBar,
+	findRemotionRoot,
 };
