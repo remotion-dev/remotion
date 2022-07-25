@@ -14,7 +14,7 @@ export const findClosestPackageJson = (): string | null => {
 			return possiblePackageJson;
 		}
 
-		currentDir = path.dirname(path.dirname(currentDir));
+		currentDir = path.dirname(currentDir);
 	}
 
 	return null;
