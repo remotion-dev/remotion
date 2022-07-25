@@ -22,7 +22,7 @@ const max = (arr: number[]) => {
 	return biggest;
 };
 
-export const listCompositionsCommand = async () => {
+export const listCompositionsCommand = async (remotionRoot: string) => {
 	const file = parsedCli._[1];
 
 	if (!file) {
@@ -38,7 +38,7 @@ export const listCompositionsCommand = async () => {
 
 	const fullPath = path.join(process.cwd(), file);
 
-	await loadConfig();
+	await loadConfig(remotionRoot);
 
 	const {
 		browserExecutable,

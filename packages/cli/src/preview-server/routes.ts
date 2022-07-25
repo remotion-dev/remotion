@@ -15,8 +15,12 @@ import {getProjectInfo} from './project-info';
 import {serveStatic} from './serve-static';
 import {isUpdateAvailableWithTimeout} from './update-available';
 
-const handleUpdate = async (_: IncomingMessage, response: ServerResponse) => {
-	const data = await isUpdateAvailableWithTimeout();
+const handleUpdate = async (
+	remotionRoot: string,
+	_: IncomingMessage,
+	response: ServerResponse
+) => {
+	const data = await isUpdateAvailableWithTimeout(remotionRoot);
 	response.setHeader('content-type', 'application/json');
 	response.writeHead(200);
 	response.end(JSON.stringify(data));
@@ -48,16 +52,18 @@ const handleFallback = async (
 };
 
 const handleProjectInfo = async (
+	remotionRoot: string,
 	_: IncomingMessage,
 	response: ServerResponse
 ) => {
-	const data = await getProjectInfo();
+	const data = await getProjectInfo(remotionRoot);
 	response.setHeader('content-type', 'application/json');
 	response.writeHead(200);
 	response.end(JSON.stringify(data));
 };
 
 const handleFileSource = async (
+	remotionRoot: string,
 	search: string,
 	_: IncomingMessage,
 	response: ServerResponse
@@ -72,13 +78,14 @@ const handleFileSource = async (
 		throw new Error('must pass `f` parameter');
 	}
 
-	const data = await getFileSource(decodeURIComponent(f));
+	const data = await getFileSource(remotionRoot, decodeURIComponent(f));
 	response.writeHead(200);
 	response.write(data);
 	return response.end();
 };
 
 const handleOpenInEditor = async (
+	remotionRoot: string,
 	req: IncomingMessage,
 	res: ServerResponse
 ) => {
@@ -103,7 +110,7 @@ const handleOpenInEditor = async (
 		const didOpen = await launchEditor({
 			colNumber: stack.originalColumnNumber as number,
 			editor: guess[0],
-			fileName: path.resolve(process.cwd(), stack.originalFileName as string),
+			fileName: path.resolve(remotionRoot, stack.originalFileName as string),
 			lineNumber: stack.originalLineNumber as number,
 			vsCodeNewWindow: false,
 		});
@@ -146,6 +153,7 @@ export const handleRoutes = ({
 	response,
 	liveEventsServer,
 	getCurrentInputProps,
+	remotionRoot,
 }: {
 	hash: string;
 	hashPrefix: string;
@@ -153,23 +161,24 @@ export const handleRoutes = ({
 	response: ServerResponse;
 	liveEventsServer: LiveEventsServer;
 	getCurrentInputProps: () => object;
+	remotionRoot: string;
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
 
 	if (url.pathname === '/api/update') {
-		return handleUpdate(request, response);
+		return handleUpdate(remotionRoot, request, response);
 	}
 
 	if (url.pathname === '/api/project-info') {
-		return handleProjectInfo(request, response);
+		return handleProjectInfo(remotionRoot, request, response);
 	}
 
 	if (url.pathname === '/api/file-source') {
-		return handleFileSource(url.search, request, response);
+		return handleFileSource(remotionRoot, url.search, request, response);
 	}
 
 	if (url.pathname === '/api/open-in-editor') {
-		return handleOpenInEditor(request, response);
+		return handleOpenInEditor(remotionRoot, request, response);
 	}
 
 	if (url.pathname === '/remotion.png') {
@@ -181,7 +190,7 @@ export const handleRoutes = ({
 	}
 
 	if (url.pathname.startsWith(hash)) {
-		const root = path.join(process.cwd(), 'public');
+		const root = path.join(remotionRoot, 'public');
 		return serveStatic(root, hash, request, response);
 	}
 

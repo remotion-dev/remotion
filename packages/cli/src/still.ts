@@ -30,14 +30,14 @@ import {
 	getUserPassedOutputLocation,
 } from './user-passed-output-location';
 
-export const still = async () => {
+export const still = async (remotionRoot: string) => {
 	const startTime = Date.now();
 	const file = parsedCli._[1];
 	const fullPath = RenderInternals.isServeUrl(file)
 		? file
 		: path.join(process.cwd(), file);
 
-	await initializeRenderCli('still');
+	await initializeRenderCli(remotionRoot, 'still');
 
 	const userPassedOutput = getUserPassedOutputLocation();
 	if (
