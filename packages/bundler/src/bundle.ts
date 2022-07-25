@@ -101,7 +101,7 @@ export const bundle = async (
 	}
 
 	const baseDir = options?.publicPath ?? '/';
-	const publicDir =
+	const staticHash =
 		'/' +
 		[trimTrailingSlash(trimLeadingSlash(baseDir)), 'public']
 			.filter(Boolean)
@@ -114,7 +114,13 @@ export const bundle = async (
 		await copyDir(from, to);
 	}
 
-	const html = indexHtml(publicDir, baseDir, null, null);
+	const html = indexHtml({
+		staticHash,
+		baseDir,
+		editorName: null,
+		inputProps: null,
+		remotionRoot: resolvedRemotionRoot,
+	});
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 
 	return outDir;

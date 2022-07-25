@@ -35,19 +35,30 @@ const static404 = (response: ServerResponse) => {
 	);
 };
 
-const handleFallback = async (
-	hash: string,
-	_: IncomingMessage,
-	response: ServerResponse,
-	getCurrentInputProps: () => object
-) => {
+const handleFallback = async ({
+	remotionRoot,
+	hash,
+	response,
+	getCurrentInputProps,
+}: {
+	remotionRoot: string;
+	hash: string;
+	response: ServerResponse;
+	getCurrentInputProps: () => object;
+}) => {
 	const [edit] = await editorGuess;
 	const displayName = getDisplayNameForEditor(edit ? edit.command : null);
 
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
 	response.end(
-		BundlerInternals.indexHtml(hash, '/', displayName, getCurrentInputProps())
+		BundlerInternals.indexHtml({
+			staticHash: hash,
+			baseDir: '/',
+			editorName: displayName,
+			inputProps: getCurrentInputProps(),
+			remotionRoot,
+		})
 	);
 };
 
@@ -198,5 +209,10 @@ export const handleRoutes = ({
 		return static404(response);
 	}
 
-	return handleFallback(hash, request, response, getCurrentInputProps);
+	return handleFallback({
+		remotionRoot,
+		hash,
+		response,
+		getCurrentInputProps,
+	});
 };
