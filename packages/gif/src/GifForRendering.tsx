@@ -1,6 +1,7 @@
 import {Canvas, useParser} from '@react-gifs/tools';
 import {forwardRef, useState} from 'react';
 import {continueRender, delayRender} from 'remotion';
+import {isCorsError} from './is-cors-error';
 import type {GifState, RemotionGifProps} from './props';
 import {useCurrentGifIndex} from './useCurrentGifIndex';
 
@@ -13,6 +14,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			width: 0,
 			height: 0,
 		});
+		const [error, setError] = useState<Error | null>(null);
 
 		const [id] = useState(() =>
 			delayRender(`Rendering <Gif/> with src="${resolvedSrc}"`)
@@ -25,11 +27,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 				if (onError) {
 					onError(info.error);
 				} else {
-					console.error(
-						'Error loading GIF:',
-						info.error,
-						'Handle the event using the onError() prop to make this message disappear.'
-					);
+					setError(info.error);
 				}
 			} else {
 				onLoad?.(info);
@@ -38,6 +36,19 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 
 			continueRender(id);
 		});
+
+		if (error) {
+			console.error(error.stack);
+			if (isCorsError(error)) {
+				throw new Error(
+					`Failed to render GIF with source ${src}: "${error.message}". You must enable CORS for this URL.`
+				);
+			}
+
+			throw new Error(
+				`Failed to render GIF with source ${src}: "${error.message}". Render with --log=verbose to see the full stack.`
+			);
+		}
 
 		return (
 			<Canvas
