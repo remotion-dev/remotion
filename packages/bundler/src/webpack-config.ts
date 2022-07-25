@@ -44,6 +44,7 @@ export const webpackConfig = ({
 	envVariables,
 	maxTimelineTracks,
 	entryPoints,
+	remotionRoot,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -55,6 +56,7 @@ export const webpackConfig = ({
 	envVariables: Record<string, string>;
 	maxTimelineTracks: number;
 	entryPoints: string[];
+	remotionRoot: string;
 }): [string, WebpackConfiguration] => {
 	const conf: webpack.Configuration = webpackOverride({
 		optimization: {
@@ -194,6 +196,7 @@ export const webpackConfig = ({
 				...conf.output,
 				path: outDir,
 			},
+			context: remotionRoot,
 		},
 	];
 };

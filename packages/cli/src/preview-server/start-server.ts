@@ -23,6 +23,7 @@ export const startServer = async (
 		envVariables?: Record<string, string>;
 		port: number | null;
 		maxTimelineTracks?: number;
+		remotionRoot: string;
 	}
 ): Promise<{
 	port: number;
@@ -45,6 +46,7 @@ export const startServer = async (
 			require.resolve('./hot-middleware/client'),
 			require.resolve('./error-overlay/entry-basic.js'),
 		],
+		remotionRoot: options.remotionRoot,
 	});
 
 	const compiler = webpack(config);
@@ -78,6 +80,7 @@ export const startServer = async (
 					response,
 					liveEventsServer,
 					getCurrentInputProps: options.getCurrentInputProps,
+					remotionRoot: options.remotionRoot,
 				});
 			})
 			.catch((err) => {
