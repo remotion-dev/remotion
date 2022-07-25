@@ -80,8 +80,13 @@ export const bundle = async (
 	options?: BundleOptions
 ): Promise<string> => {
 	const resolvedRemotionRoot = options?.remotionRoot ?? process.cwd();
+
 	const outDir = await prepareOutDir(options?.outDir ?? null);
 
+	// The config might use an override which might use
+	// `process.cwd()`. The context should always be the Remotion root
+	const currentCwd = process.cwd();
+	process.chdir(resolvedRemotionRoot);
 	const [, config] = getConfig({
 		outDir,
 		entryPoint,
@@ -91,6 +96,7 @@ export const bundle = async (
 	});
 
 	const output = await promisified([config]);
+	process.chdir(currentCwd);
 	if (!output) {
 		throw new Error('Expected webpack output');
 	}
