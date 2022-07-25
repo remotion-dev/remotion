@@ -54,8 +54,13 @@ export const loadConfigFile = async (
 
 	const file = await fs.promises.readFile(out, 'utf8');
 
+	const currentCwd = process.cwd();
+
+	// The config file is always executed from the Remotion root, if `process.cwd()` is being used
+	process.chdir(remotionRoot);
 	// eslint-disable-next-line no-eval
 	eval(file);
+	process.chdir(currentCwd);
 
 	await fs.promises.unlink(out);
 	return resolved;
