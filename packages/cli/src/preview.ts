@@ -32,7 +32,7 @@ const waitForLiveEventsListener = (): Promise<LiveEventsServer> => {
 	});
 };
 
-export const previewCommand = async () => {
+export const previewCommand = async (remotionRoot: string) => {
 	const file = parsedCli._[1];
 
 	if (!file) {
@@ -49,7 +49,7 @@ export const previewCommand = async () => {
 	const {port: desiredPort} = parsedCli;
 	const fullPath = path.join(process.cwd(), file);
 
-	await initializeRenderCli('preview');
+	await initializeRenderCli(remotionRoot, 'preview');
 
 	let inputProps = getInputProps((newProps) => {
 		waitForLiveEventsListener().then((listener) => {
@@ -70,6 +70,7 @@ export const previewCommand = async () => {
 			envVariables,
 			port: desiredPort,
 			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
+			remotionRoot,
 		}
 	);
 

@@ -20,9 +20,12 @@ const packages = [
 	'remotion',
 ];
 
-const getVersion = async (p: string): Promise<string | null> => {
+const getVersion = async (
+	remotionRoot: string,
+	p: string
+): Promise<string | null> => {
 	try {
-		const remotionPkgJson = resolveFrom(process.cwd(), `${p}/package.json`);
+		const remotionPkgJson = resolveFrom(remotionRoot, `${p}/package.json`);
 		const file = await fs.promises.readFile(remotionPkgJson, 'utf-8');
 		const packageJson = JSON.parse(file);
 		return packageJson.version;
@@ -44,18 +47,22 @@ const groupBy = (vals: [string, string][]) => {
 	return groups;
 };
 
-const getAllVersions = async (): Promise<[string, string][]> => {
+const getAllVersions = async (
+	remotionRoot: string
+): Promise<[string, string][]> => {
 	return (
 		await Promise.all(
-			packages.map(async (p) => [p, await getVersion(p)] as [string, string])
+			packages.map(
+				async (p) => [p, await getVersion(remotionRoot, p)] as [string, string]
+			)
 		)
 	).filter(([, version]) => version);
 };
 
 export const VERSIONS_COMMAND = 'versions';
 
-export const validateVersionsBeforeCommand = async () => {
-	const versions = await getAllVersions();
+export const validateVersionsBeforeCommand = async (remotionRoot: string) => {
+	const versions = await getAllVersions(remotionRoot);
 
 	const grouped = groupBy(versions);
 
@@ -103,9 +110,9 @@ export const validateVersionsBeforeCommand = async () => {
 	Log.info();
 };
 
-export const versionsCommand = async () => {
+export const versionsCommand = async (remotionRoot: string) => {
 	parseCommandLine('versions');
-	const versions = await getAllVersions();
+	const versions = await getAllVersions(remotionRoot);
 
 	const grouped = groupBy(versions);
 
@@ -117,7 +124,7 @@ export const versionsCommand = async () => {
 		Log.info(`On version: ${version}`);
 		for (const pkg of grouped[version]) {
 			Log.info(`- ${pkg}`);
-			Log.verbose(`  ${resolveFrom(process.cwd(), `${pkg}/package.json`)}`);
+			Log.verbose(`  ${resolveFrom(remotionRoot, `${pkg}/package.json`)}`);
 		}
 
 		Log.info();

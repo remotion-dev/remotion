@@ -16,9 +16,8 @@ declare global {
 
 // Inlined from https://github.com/webpack/webpack/blob/4c2ee7a4ddb8db2362ca83b6c4190523387ba7ee/lib/config/defaults.js#L265
 // An algorithm to determine where Webpack will cache the depencies
-const getWebpackCacheDir = () => {
-	const cwd = process.cwd();
-	let dir: string | undefined = cwd;
+const getWebpackCacheDir = (remotionRoot: string) => {
+	let dir: string | undefined = remotionRoot;
 	for (;;) {
 		try {
 			if (fs.statSync(path.join(dir, 'package.json')).isFile()) {
@@ -37,7 +36,7 @@ const getWebpackCacheDir = () => {
 	}
 
 	if (!dir) {
-		return path.resolve(cwd, '.cache/webpack');
+		return path.resolve(remotionRoot, '.cache/webpack');
 	}
 
 	if (process.versions.pnp === '1') {
@@ -52,21 +51,23 @@ const getWebpackCacheDir = () => {
 };
 
 const remotionCacheLocation = (
+	remotionRoot: string,
 	environment: Environment,
 	inputProps: object | null
 ) => {
 	return path.join(
-		getWebpackCacheDir(),
+		getWebpackCacheDir(remotionRoot),
 		getWebpackCacheName(environment, inputProps)
 	);
 };
 
 export const clearCache = (
+	remotionRoot: string,
 	environment: Environment,
 	inputProps: object | null
 ) => {
 	return (fs.promises.rm ?? fs.promises.rmdir)(
-		remotionCacheLocation(environment, inputProps),
+		remotionCacheLocation(remotionRoot, environment, inputProps),
 		{
 			recursive: true,
 		}
@@ -90,8 +91,11 @@ export const getWebpackCacheName = (
 };
 
 export const cacheExists = (
+	remotionRoot: string,
 	environment: Environment,
 	inputProps: object | null
 ) => {
-	return fs.existsSync(remotionCacheLocation(environment, inputProps));
+	return fs.existsSync(
+		remotionCacheLocation(remotionRoot, environment, inputProps)
+	);
 };

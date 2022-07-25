@@ -23,6 +23,7 @@ export const startServer = async (
 		envVariables?: Record<string, string>;
 		port: number | null;
 		maxTimelineTracks?: number;
+		remotionRoot: string;
 	}
 ): Promise<{
 	port: number;
@@ -78,6 +79,7 @@ export const startServer = async (
 					response,
 					liveEventsServer,
 					getCurrentInputProps: options.getCurrentInputProps,
+					remotionRoot: options.remotionRoot,
 				});
 			})
 			.catch((err) => {

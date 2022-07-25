@@ -9,13 +9,14 @@ export const loadConfigFile = async (
 	configFileName: string,
 	isJavascript: boolean
 ): Promise<string | null> => {
-	const resolved = path.resolve(process.cwd(), configFileName);
+	const resolved = path.resolve(remotionRoot, configFileName);
 
-	const tsconfigJson = path.join(process.cwd(), 'tsconfig.json');
+	const tsconfigJson = path.join(remotionRoot, 'tsconfig.json');
 	if (!isJavascript && !fs.existsSync(tsconfigJson)) {
 		Log.error(
-			'Could not find a tsconfig.json file in your project. Did you delete it? Create a tsconfig.json in the root of your project. Copy the default file from https://github.com/remotion-dev/template/blob/main/tsconfig.json.'
+			'Could not find a tsconfig.json file in your project. Did you delete it? Create a tsconfig.json in the root of your project. Copy the default file from https://github.com/remotion-dev/template-helloworld/blob/main/tsconfig.json.'
 		);
+		Log.error('The root directory is:', remotionRoot);
 		process.exit(1);
 	}
 
@@ -29,7 +30,7 @@ export const loadConfigFile = async (
 		bundle: true,
 		entryPoints: [resolved],
 		tsconfig: isJavascript ? undefined : tsconfigJson,
-		absWorkingDir: process.cwd(),
+		absWorkingDir: remotionRoot,
 		outfile: out,
 		external: [
 			'remotion',
@@ -56,7 +57,6 @@ export const loadConfigFile = async (
 	// eslint-disable-next-line no-eval
 	eval(file);
 
-	Log.verbose('Loaded configuration from', resolved);
 	await fs.promises.unlink(out);
 	return resolved;
 };
