@@ -31,6 +31,7 @@ const start = async () => {
 			parallelism: 1,
 			numberOfGifLoops: null,
 			everyNthFrame: 1,
+			verbose: false,
 		});
 		console.log({i});
 	}

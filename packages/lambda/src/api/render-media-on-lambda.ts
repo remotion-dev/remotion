@@ -1,12 +1,11 @@
-import type {ChromiumOptions} from '@remotion/renderer';
 import type {
+	ChromiumOptions,
 	FrameRange,
 	ImageFormat,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
-} from 'remotion';
-import {Internals} from 'remotion';
+} from '@remotion/renderer';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy} from '../shared/constants';
@@ -120,11 +119,10 @@ export const renderMediaOnLambda = async ({
 			quality,
 			maxRetries,
 			privacy,
-			logLevel: logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
+			logLevel: logLevel ?? 'info',
 			frameRange: frameRange ?? null,
 			outName: outName ?? null,
-			timeoutInMilliseconds:
-				timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT,
+			timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
 			chromiumOptions: chromiumOptions ?? {},
 			scale: scale ?? 1,
 			everyNthFrame: everyNthFrame ?? 1,

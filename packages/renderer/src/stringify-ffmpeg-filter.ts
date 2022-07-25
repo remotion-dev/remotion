@@ -1,8 +1,8 @@
-import {Internals} from 'remotion';
 import {calculateATempo} from './assets/calculate-atempo';
 import {ffmpegVolumeExpression} from './assets/ffmpeg-volume-expression';
 import type {AssetVolume} from './assets/types';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
+import {truthy} from './truthy';
 
 export const stringifyFfmpegFilter = ({
 	trimLeft,
@@ -78,7 +78,7 @@ export const stringifyFfmpegFilter = ({
 				? 'apad=pad_len=' + Math.round(padAtEnd * DEFAULT_SAMPLE_RATE)
 				: null,
 		]
-			.filter(Internals.truthy)
+			.filter(truthy)
 			.join(',') +
 		`[a0]`
 	);

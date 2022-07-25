@@ -1,9 +1,8 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
+import type {StillImageFormat} from '@remotion/renderer';
 import {RenderInternals, renderStill} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import type {StillImageFormat} from 'remotion';
-import {Internals} from 'remotion';
 import {estimatePrice} from '../api/estimate-price';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -60,10 +59,7 @@ const innerStillHandler = async (
 			region: getCurrentRegionInFunction(),
 		}),
 		getBrowserInstance(
-			Internals.Logging.isEqualOrBelowLogLevel(
-				lambdaParams.logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
-				'verbose'
-			),
+			RenderInternals.isEqualOrBelowLogLevel(lambdaParams.logLevel, 'verbose'),
 			lambdaParams.chromiumOptions ?? {}
 		),
 	]);

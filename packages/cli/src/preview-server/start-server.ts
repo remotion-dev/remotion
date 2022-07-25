@@ -5,8 +5,9 @@ import fs from 'fs';
 import http from 'http';
 import os from 'os';
 import path from 'path';
+// eslint-disable-next-line no-restricted-imports
 import type {WebpackOverrideFn} from 'remotion';
-import {Internals} from 'remotion';
+import {ConfigInternals} from '../config';
 import {wdm} from './dev-middleware';
 import {webpackHotMiddleware} from './hot-middleware';
 import type {LiveEventsServer} from './live-events';
@@ -37,7 +38,7 @@ export const startServer = async (
 		outDir: tmpDir,
 		environment: 'development',
 		webpackOverride:
-			options?.webpackOverride ?? Internals.getWebpackOverrideFn(),
+			options?.webpackOverride ?? ConfigInternals.getWebpackOverrideFn(),
 		envVariables: options?.envVariables ?? {},
 		maxTimelineTracks: options?.maxTimelineTracks ?? 15,
 		entryPoints: [

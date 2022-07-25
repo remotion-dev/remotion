@@ -1,5 +1,5 @@
-import {Internals} from 'remotion';
 import type {Page} from './browser/BrowserPage';
+import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
@@ -24,8 +24,7 @@ export const setPropsAndEnv = async ({
 	retriesRemaining: number;
 }): Promise<void> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
-	const actualTimeout =
-		timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT;
+	const actualTimeout = timeoutInMilliseconds ?? DEFAULT_TIMEOUT;
 	page.setDefaultTimeout(actualTimeout);
 	page.setDefaultNavigationTimeout(actualTimeout);
 

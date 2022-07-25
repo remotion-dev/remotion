@@ -1,7 +1,6 @@
 import http from 'http';
-import type {FfmpegExecutable} from 'remotion';
-import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getDesiredPort} from './get-port';
 import {startOffthreadVideoServer} from './offthread-video-server';
 import {serveHandler} from './serve-handler';
@@ -20,11 +19,7 @@ export const serveStatic = async (
 	port: number;
 	close: () => Promise<void>;
 }> => {
-	const port = await getDesiredPort(
-		options?.port ?? Internals.getServerPort() ?? undefined,
-		3000,
-		3100
-	);
+	const port = await getDesiredPort(options?.port ?? undefined, 3000, 3100);
 
 	const offthreadRequest = startOffthreadVideoServer({
 		ffmpegExecutable: options.ffmpegExecutable,

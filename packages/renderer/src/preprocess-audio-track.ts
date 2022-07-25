@@ -1,8 +1,8 @@
 import execa from 'execa';
-import type {FfmpegExecutable} from 'remotion';
 import {getAudioChannelsAndDuration} from './assets/get-audio-channels';
 import type {MediaAsset} from './assets/types';
 import {calculateFfmpegFilter} from './calculate-ffmpeg-filters';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
 import {pLimit} from './p-limit';
 import {resolveAssetSrc} from './resolve-asset-src';

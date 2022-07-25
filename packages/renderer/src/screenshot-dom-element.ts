@@ -1,5 +1,5 @@
-import type {ImageFormat} from 'remotion';
 import type {Page} from './browser/BrowserPage';
+import type {ImageFormat} from './image-format';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {screenshot} from './puppeteer-screenshot';
 

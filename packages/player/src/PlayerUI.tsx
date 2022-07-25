@@ -99,7 +99,13 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
 	const [isFullscreen, setIsFullscreen] = useState(() => false);
 
-	usePlayback({loop, playbackRate, moveToBeginningWhenEnded});
+	usePlayback({
+		loop,
+		playbackRate,
+		moveToBeginningWhenEnded,
+		inFrame: null,
+		outFrame: null,
+	});
 	const player = usePlayer();
 
 	useEffect(() => {

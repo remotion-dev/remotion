@@ -12,6 +12,10 @@ import {
 	TimelineInPointer,
 	TimelineOutPointer,
 } from '../icons/timelineInOutPointer';
+import {
+	useTimelineInOutFramePosition,
+	useTimelineSetInOutFramePosition,
+} from '../state/in-out';
 import {persistMarks} from '../state/marks';
 import {ControlButton} from './ControlButton';
 
@@ -31,10 +35,8 @@ export const inOutHandles = createRef<{
 
 export const TimelineInOutPointToggle: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const {inFrame, outFrame} =
-		Internals.Timeline.useTimelineInOutFramePosition();
-	const {setInAndOutFrames} =
-		Internals.Timeline.useTimelineSetInOutFramePosition();
+	const {inFrame, outFrame} = useTimelineInOutFramePosition();
+	const {setInAndOutFrames} = useTimelineSetInOutFramePosition();
 	const {currentComposition} = useContext(Internals.CompositionManager);
 	const isStill = useIsStill();
 	const videoConfig = Internals.useUnsafeVideoConfig();
