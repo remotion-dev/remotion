@@ -42,7 +42,7 @@ export type BundleOptions = {
 	outDir?: string;
 	enableCaching?: boolean;
 	publicPath?: string;
-	remotionRoot?: string;
+	rootDir?: string;
 };
 
 export const getConfig = ({
@@ -79,7 +79,7 @@ export const bundle = async (
 	onProgressUpdate?: (progress: number) => void,
 	options?: BundleOptions
 ): Promise<string> => {
-	const resolvedRemotionRoot = options?.remotionRoot ?? process.cwd();
+	const resolvedRemotionRoot = options?.rootDir ?? process.cwd();
 
 	const outDir = await prepareOutDir(options?.outDir ?? null);
 

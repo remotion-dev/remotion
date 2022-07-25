@@ -33,7 +33,7 @@ export const bundleOnCli = async ({
 	const options: BundleOptions = {
 		enableCaching: shouldCache,
 		webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
-		remotionRoot,
+		rootDir: remotionRoot,
 	};
 
 	const [hash] = BundlerInternals.getConfig({
