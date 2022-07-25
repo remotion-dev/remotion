@@ -48,7 +48,7 @@ export const CompositionSelectorItem: React.FC<{
 	item: CompositionSelectorItemType;
 	currentComposition: string | null;
 	tabIndex: number;
-	selectComposition: (c: TComposition) => void;
+	selectComposition: (c: TComposition, push: boolean) => void;
 	toggleFolder: (folderName: string, parentName: string | null) => void;
 	level: number;
 }> = ({
