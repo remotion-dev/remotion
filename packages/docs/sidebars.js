@@ -206,6 +206,7 @@ module.exports = {
         "player/integration",
         "player/autoplay",
         "player/preloading",
+        "player/best-practices",
       ],
     },
     {
