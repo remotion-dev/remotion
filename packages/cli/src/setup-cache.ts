@@ -44,15 +44,19 @@ export const bundleOnCli = async ({
 		resolvedRemotionRoot: remotionRoot,
 	});
 
-	const cacheExistedBefore = BundlerInternals.cacheExists('production', hash);
+	const cacheExistedBefore = BundlerInternals.cacheExists(
+		remotionRoot,
+		'production',
+		hash
+	);
 	if (cacheExistedBefore !== 'does-not-exist' && !shouldCache) {
 		Log.info('🧹 Cache disabled but found. Deleting... ');
-		await BundlerInternals.clearCache();
+		await BundlerInternals.clearCache(remotionRoot);
 	}
 
 	if (cacheExistedBefore === 'other-exists' && shouldCache) {
 		Log.info('🧹 Webpack config change detected. Clearing cache... ');
-		await BundlerInternals.clearCache();
+		await BundlerInternals.clearCache(remotionRoot);
 	}
 
 	const bundleStartTime = Date.now();
@@ -80,7 +84,7 @@ export const bundleOnCli = async ({
 	);
 	Log.verbose('Bundled under', bundled);
 	const cacheExistedAfter =
-		BundlerInternals.cacheExists('production', hash) === 'exists';
+		BundlerInternals.cacheExists(remotionRoot, 'production', hash) === 'exists';
 
 	if (cacheExistedAfter) {
 		if (

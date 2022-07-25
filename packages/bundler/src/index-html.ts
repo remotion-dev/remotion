@@ -1,11 +1,18 @@
 import path from 'path';
 
-export const indexHtml = (
-	staticHash: string,
-	baseDir: string,
-	editorName: string | null,
-	inputProps: object | null
-) =>
+export const indexHtml = ({
+	baseDir,
+	editorName,
+	inputProps,
+	staticHash,
+	remotionRoot,
+}: {
+	staticHash: string;
+	baseDir: string;
+	editorName: string | null;
+	inputProps: object | null;
+	remotionRoot: string;
+}) =>
 	`
 <!DOCTYPE html>
 <html lang="en">
@@ -26,9 +33,9 @@ export const indexHtml = (
 				: '<script>window.remotion_editorName = null;</script>'
 		}
 		<script>window.remotion_projectName = ${JSON.stringify(
-			path.basename(process.cwd())
+			path.basename(remotionRoot)
 		)};</script>
-		<script>window.remotion_cwd = ${JSON.stringify(process.cwd())};</script>
+		<script>window.remotion_cwd = ${JSON.stringify(remotionRoot)};</script>
 		${
 			inputProps
 				? `		<script>window.remotion_inputProps = ${JSON.stringify(
