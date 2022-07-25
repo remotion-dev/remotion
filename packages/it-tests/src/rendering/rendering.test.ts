@@ -358,7 +358,7 @@ test("Should render a still that uses the staticFile() API", async () => {
   fs.unlinkSync(out);
 });
 
-test("Dynamic duration should work", async () => {
+test("Dynamic duration should work, and render from inside src/", async () => {
   const randomDuration = Math.round(Math.random() * 18 + 2);
   const task = await execa(
     "pnpm",
@@ -366,14 +366,14 @@ test("Dynamic duration should work", async () => {
       "exec",
       "remotion",
       "render",
-      "src/index.tsx",
+      "index.tsx",
       "dynamic-duration",
       `--props`,
       `{"duration": ${randomDuration}}`,
       outputPath,
     ],
     {
-      cwd: path.join(process.cwd(), "..", "example"),
+      cwd: path.join(process.cwd(), "..", "example", "src"),
       reject: false,
     }
   );
