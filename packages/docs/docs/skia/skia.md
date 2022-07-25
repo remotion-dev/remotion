@@ -133,11 +133,7 @@ By default Remotion rendering are done on the CPU. Some Skia effects rely on adv
 
 ```sh
 remotion render src/index.tsx Main out/video.mp4 --gl=angle
-``` 
-
-## Known issues
-
-- A peer dependency conflict between `react-native` and `react-native-web` requires the `--force` for newer versions of npm.
+```
 
 ## Resources
 
