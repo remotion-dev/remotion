@@ -361,10 +361,15 @@ test("Should render a still that uses the staticFile() API", async () => {
 test("Dynamic duration should work, and render from inside src/", async () => {
   const randomDuration = Math.round(Math.random() * 18 + 2);
   const task = await execa(
-    "pnpm",
+    path.join(
+      process.cwd(),
+      "..",
+      "example",
+      "node_modules",
+      ".bin",
+      "remotion"
+    ),
     [
-      "exec",
-      "remotion",
       "render",
       "index.tsx",
       "dynamic-duration",
