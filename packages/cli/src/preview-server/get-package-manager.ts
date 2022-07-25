@@ -22,9 +22,11 @@ export const lockFilePaths: LockfilePath[] = [
 	},
 ];
 
-export const getPackageManager = (): LockfilePath | 'unknown' => {
+export const getPackageManager = (
+	remotionRoot: string
+): LockfilePath | 'unknown' => {
 	const existingPkgManagers = lockFilePaths.filter((p) =>
-		fs.existsSync(path.join(process.cwd(), p.path))
+		fs.existsSync(path.join(remotionRoot, p.path))
 	);
 
 	if (existingPkgManagers.length === 0) {

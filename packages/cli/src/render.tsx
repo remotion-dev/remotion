@@ -31,7 +31,7 @@ import {bundleOnCli} from './setup-cache';
 import type {RenderStep} from './step';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
-export const render = async () => {
+export const render = async (remotionRoot: string) => {
 	const startTime = Date.now();
 	const file = parsedCli._[1];
 	if (!file) {
@@ -47,7 +47,7 @@ export const render = async () => {
 		? file
 		: path.join(process.cwd(), file);
 
-	await initializeRenderCli('sequence');
+	await initializeRenderCli(remotionRoot, 'sequence');
 
 	const {
 		codec,
@@ -121,7 +121,7 @@ export const render = async () => {
 
 	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
 		? fullPath
-		: await bundleOnCli({fullPath, steps});
+		: await bundleOnCli({fullPath, remotionRoot, steps});
 
 	const onDownload: RenderMediaOnDownload = (src) => {
 		const id = Math.random();
