@@ -316,6 +316,7 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2022-07-25'
 	| '2022-07-23'
 	| '2022-07-20'
 	| '2022-07-18'
