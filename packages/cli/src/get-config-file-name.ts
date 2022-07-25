@@ -1,5 +1,6 @@
 import {existsSync} from 'fs';
 import path from 'path';
+import {findRemotionRoot} from './find-closest-package-json';
 import {loadConfigFile} from './load-config';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
@@ -19,11 +20,16 @@ export const loadConfig = (): Promise<string | null> => {
 		return loadConfigFile(parsedCli.config, fullPath.endsWith('.js'));
 	}
 
-	if (existsSync(path.resolve(process.cwd(), defaultConfigFileTypescript))) {
+	const remotionRoot = findRemotionRoot();
+	if (remotionRoot === null) {
+		return Promise.resolve(null);
+	}
+
+	if (existsSync(path.resolve(remotionRoot, defaultConfigFileTypescript))) {
 		return loadConfigFile(defaultConfigFileTypescript, false);
 	}
 
-	if (existsSync(path.resolve(process.cwd(), defaultConfigFileJavascript))) {
+	if (existsSync(path.resolve(remotionRoot, defaultConfigFileJavascript))) {
 		return loadConfigFile(defaultConfigFileJavascript, true);
 	}
 
