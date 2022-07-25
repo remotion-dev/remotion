@@ -1,5 +1,4 @@
 import {RenderInternals} from '@remotion/renderer';
-import fs from 'fs';
 import path from 'path';
 import {ConfigInternals} from './config';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
@@ -30,20 +29,14 @@ const getUpgradeCommand = ({
 	return commands[manager];
 };
 
-export const upgrade = async () => {
-	const packageJsonFilePath = path.join(process.cwd(), 'package.json');
-	if (!fs.existsSync(packageJsonFilePath)) {
-		Log.error(
-			'Could not upgrade because no package.json could be found in your project.'
-		);
-		process.exit(1);
-	}
+export const upgrade = async (remotionRoot: string) => {
+	const packageJsonFilePath = path.join(remotionRoot, 'package.json');
 
 	const packageJson = require(packageJsonFilePath);
 	const dependencies = Object.keys(packageJson.dependencies);
 	const latestRemotionVersion = await getLatestRemotionVersion();
 
-	const manager = getPackageManager();
+	const manager = getPackageManager(remotionRoot);
 
 	if (manager === 'unknown') {
 		throw new Error(

@@ -14,7 +14,7 @@ export const BundlerInternals = {
 	getConfig,
 };
 
-export {bundle} from './bundle';
+export {bundle, BundleOptions} from './bundle';
 export {webpack};
 
 export type WebpackConfiguration = webpack.Configuration;
