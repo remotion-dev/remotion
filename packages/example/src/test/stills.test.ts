@@ -4,6 +4,7 @@ import {
 	RenderInternals,
 	renderStill,
 } from '@remotion/renderer';
+import {makeDownloadMap} from '@remotion/renderer/dist/assets/download-map';
 import {existsSync, unlinkSync} from 'fs';
 import {tmpdir} from 'os';
 import path from 'path';
@@ -37,6 +38,7 @@ test('Can render a still using Node.JS APIs', async () => {
 		},
 		ffmpegExecutable: null,
 		ffprobeExecutable: null,
+		downloadMap: makeDownloadMap(),
 	});
 
 	const serveUrl = `http://localhost:${port}`;

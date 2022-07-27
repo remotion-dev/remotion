@@ -76,7 +76,6 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			return;
 		}
 
-		console.log('REGISTERING', src);
 		registerAsset({
 			type: 'video',
 			src: getAbsoluteSrc(src),
