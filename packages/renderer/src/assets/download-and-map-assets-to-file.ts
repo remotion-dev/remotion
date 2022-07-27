@@ -145,17 +145,17 @@ function validateBufferEncoding(
 export const downloadAsset = async ({
 	src,
 	onDownload,
-	downloadDir,
 	downloadMap,
 }: {
 	src: string;
 	onDownload: RenderMediaOnDownload;
-	downloadDir: string;
 	downloadMap: DownloadMap;
 }): Promise<string> => {
 	if (isAssetCompressed(src)) {
 		return src;
 	}
+
+	const {downloadDir} = downloadMap;
 
 	if (downloadMap.hasBeenDownloadedMap[src]?.[downloadDir]) {
 		const claimedDownloadLocation = downloadMap.hasBeenDownloadedMap[src]?.[
@@ -308,18 +308,15 @@ export const getSanitizedFilenameForAssetUrl = ({
 
 export const downloadAndMapAssetsToFileUrl = async ({
 	asset,
-	downloadDir,
 	onDownload,
 	downloadMap,
 }: {
 	asset: TAsset;
-	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 	downloadMap: DownloadMap;
 }): Promise<TAsset> => {
 	const newSrc = await downloadAsset({
 		src: asset.src,
-		downloadDir,
 		onDownload,
 		downloadMap,
 	});

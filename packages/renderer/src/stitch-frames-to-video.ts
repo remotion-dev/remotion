@@ -78,7 +78,6 @@ type ReturnType = {
 
 const getAssetsData = async ({
 	assets,
-	downloadDir,
 	onDownload,
 	fps,
 	expectedFrames,
@@ -89,7 +88,6 @@ const getAssetsData = async ({
 	downloadMap,
 }: {
 	assets: TAsset[][];
-	downloadDir: string;
 	onDownload: RenderMediaOnDownload | undefined;
 	fps: number;
 	expectedFrames: number;
@@ -101,7 +99,6 @@ const getAssetsData = async ({
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
-		downloadDir,
 		onDownload: onDownload ?? (() => () => undefined),
 		downloadMap,
 	});
@@ -240,7 +237,6 @@ export const spawnFfmpeg = async (
 	const audio = mediaSupport.audio
 		? await getAssetsData({
 				assets: options.assetsInfo.assets,
-				downloadDir: options.assetsInfo.downloadDir,
 				onDownload: options.onDownload,
 				fps: options.fps,
 				expectedFrames,

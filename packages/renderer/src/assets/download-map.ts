@@ -1,4 +1,5 @@
 import type {TAsset} from 'remotion';
+import {tmpDir} from '../tmp-dir';
 
 type EncodingStatus =
 	| {
@@ -49,12 +50,12 @@ export type DownloadMap = {
 	ensureFileHasPresentationTimestamp: Record<string, EncodingStatus>;
 	videoDurationResultCache: Record<string, VideoDurationResult>;
 	durationOfAssetCache: Record<string, AudioChannelsAndDurationResultCache>;
+	downloadDir: string;
 };
 
 export type RenderAssetInfo = {
 	assets: TAsset[][];
 	imageSequenceName: string;
-	downloadDir: string;
 	firstFrameIndex: number;
 	downloadMap: DownloadMap;
 };
@@ -71,5 +72,6 @@ export const makeDownloadMap = (): DownloadMap => {
 		videoDurationResultCache: {},
 		durationOfAssetCache: {},
 		id: String(Math.random()),
+		downloadDir: tmpDir('remotion-assets-dir'),
 	};
 };

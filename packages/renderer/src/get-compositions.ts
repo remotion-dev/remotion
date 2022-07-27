@@ -8,7 +8,6 @@ import type {Page} from './browser/BrowserPage';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getPageAndCleanupFn} from './get-browser-instance';
-import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import type {ChromiumOptions} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
@@ -89,7 +88,6 @@ export const getCompositions = async (
 	serveUrlOrWebpackUrl: string,
 	config?: GetCompositionsConfig
 ) => {
-	const downloadDir = makeAssetsDownloadTmpDir();
 	const downloadMap = config?.downloadMap ?? makeDownloadMap();
 
 	const {page, cleanup} = await getPageAndCleanupFn({
@@ -110,7 +108,6 @@ export const getCompositions = async (
 
 		prepareServer({
 			webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
-			downloadDir,
 			onDownload: () => undefined,
 			onError,
 			ffmpegExecutable: config?.ffmpegExecutable ?? null,

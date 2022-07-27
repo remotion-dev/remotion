@@ -15,7 +15,6 @@ import type {StillImageFormat} from './image-format';
 import {validateNonNullImageFormat} from './image-format';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
 import {getServeUrlWithFallback} from './legacy-webpack-config';
-import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import type {CancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {openBrowser} from './open-browser';
@@ -226,7 +225,6 @@ const innerRenderStill = async ({
 export const renderStill = (options: RenderStillOptions): Promise<void> => {
 	const selectedServeUrl = getServeUrlWithFallback(options);
 
-	const downloadDir = makeAssetsDownloadTmpDir();
 	const downloadMap = options.downloadMap ?? makeDownloadMap();
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
@@ -238,7 +236,6 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 
 		prepareServer({
 			webpackConfigOrServeUrl: selectedServeUrl,
-			downloadDir,
 			onDownload,
 			onError,
 			ffmpegExecutable: options.ffmpegExecutable ?? null,

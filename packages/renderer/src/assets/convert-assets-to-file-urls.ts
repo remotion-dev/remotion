@@ -13,12 +13,10 @@ const chunk = <T>(input: T[], size: number) => {
 
 export const convertAssetsToFileUrls = async ({
 	assets,
-	downloadDir,
 	onDownload,
 	downloadMap,
 }: {
 	assets: TAsset[][];
-	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 	downloadMap: DownloadMap;
 }): Promise<TAsset[][]> => {
@@ -32,7 +30,6 @@ export const convertAssetsToFileUrls = async ({
 					assetsForFrame.map((a) => {
 						return downloadAndMapAssetsToFileUrl({
 							asset: a,
-							downloadDir,
 							onDownload,
 							downloadMap,
 						});
