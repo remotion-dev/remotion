@@ -134,6 +134,7 @@ const getAssetsData = async ({
 					asset,
 					expectedFrames,
 					fps,
+					downloadMap,
 				});
 				preprocessProgress[index] = 1;
 				updateProgress();
