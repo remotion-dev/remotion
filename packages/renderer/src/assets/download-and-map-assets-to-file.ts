@@ -5,6 +5,7 @@ import {random} from 'remotion';
 import {isAssetCompressed} from '../compress-assets';
 import {ensureOutputDirectory} from '../ensure-output-directory';
 import {downloadFile} from './download-file';
+import type {DownloadMap} from './download-map';
 import {sanitizeFilePath} from './sanitize-filepath';
 
 export type RenderMediaOnDownload = (
@@ -18,36 +19,32 @@ export type RenderMediaOnDownload = (
 	| undefined
 	| void;
 
-const isDownloadingMap: {
-	[src: string]: {[downloadDir: string]: boolean} | undefined;
-} = {};
-const hasBeenDownloadedMap: {
-	[src: string]: {[downloadDir: string]: string | null} | undefined;
-} = {};
-const listeners: {[key: string]: {[downloadDir: string]: (() => void)[]}} = {};
-
 const waitForAssetToBeDownloaded = ({
 	src,
 	downloadDir,
+	downloadMap,
 }: {
 	src: string;
 	downloadDir: string;
+	downloadMap: DownloadMap;
 }): Promise<string> => {
-	if (hasBeenDownloadedMap[src]?.[downloadDir]) {
-		return Promise.resolve(hasBeenDownloadedMap[src]?.[downloadDir] as string);
+	if (downloadMap.hasBeenDownloadedMap[src]?.[downloadDir]) {
+		return Promise.resolve(
+			downloadMap.hasBeenDownloadedMap[src]?.[downloadDir] as string
+		);
 	}
 
-	if (!listeners[src]) {
-		listeners[src] = {};
+	if (!downloadMap.listeners[src]) {
+		downloadMap.listeners[src] = {};
 	}
 
-	if (!listeners[src][downloadDir]) {
-		listeners[src][downloadDir] = [];
+	if (!downloadMap.listeners[src][downloadDir]) {
+		downloadMap.listeners[src][downloadDir] = [];
 	}
 
 	return new Promise<string>((resolve) => {
-		listeners[src][downloadDir].push(() => {
-			const srcMap = hasBeenDownloadedMap[src];
+		downloadMap.listeners[src][downloadDir].push(() => {
+			const srcMap = downloadMap.hasBeenDownloadedMap[src];
 			if (!srcMap || !srcMap[downloadDir]) {
 				throw new Error(
 					'Expected file for ' + src + 'to be available in ' + downloadDir
@@ -63,40 +60,42 @@ const notifyAssetIsDownloaded = ({
 	src,
 	downloadDir,
 	to,
+	downloadMap,
 }: {
 	src: string;
 	downloadDir: string;
 	to: string;
+	downloadMap: DownloadMap;
 }) => {
-	if (!listeners[src]) {
-		listeners[src] = {};
+	if (!downloadMap.listeners[src]) {
+		downloadMap.listeners[src] = {};
 	}
 
-	if (!listeners[src][downloadDir]) {
-		listeners[src][downloadDir] = [];
+	if (!downloadMap.listeners[src][downloadDir]) {
+		downloadMap.listeners[src][downloadDir] = [];
 	}
 
-	if (!isDownloadingMap[src]) {
-		isDownloadingMap[src] = {};
+	if (!downloadMap.isDownloadingMap[src]) {
+		downloadMap.isDownloadingMap[src] = {};
 	}
 
 	(
-		isDownloadingMap[src] as {
+		downloadMap.isDownloadingMap[src] as {
 			[downloadDir: string]: boolean;
 		}
-	)[downloadDir] = true;
+	)[downloadDir] = false;
 
-	if (!hasBeenDownloadedMap[src]) {
-		hasBeenDownloadedMap[src] = {};
+	if (!downloadMap.hasBeenDownloadedMap[src]) {
+		downloadMap.hasBeenDownloadedMap[src] = {};
 	}
 
 	(
-		hasBeenDownloadedMap[src] as {
+		downloadMap.hasBeenDownloadedMap[src] as {
 			[downloadDir: string]: string | null;
 		}
 	)[downloadDir] = to;
 
-	listeners[src][downloadDir].forEach((fn) => fn());
+	downloadMap.listeners[src][downloadDir].forEach((fn) => fn());
 };
 
 const validateMimeType = (mimeType: string, src: string) => {
@@ -146,18 +145,20 @@ function validateBufferEncoding(
 export const downloadAsset = async ({
 	src,
 	onDownload,
-	downloadDir,
+	downloadMap,
 }: {
 	src: string;
 	onDownload: RenderMediaOnDownload;
-	downloadDir: string;
+	downloadMap: DownloadMap;
 }): Promise<string> => {
 	if (isAssetCompressed(src)) {
 		return src;
 	}
 
-	if (hasBeenDownloadedMap[src]?.[downloadDir]) {
-		const claimedDownloadLocation = hasBeenDownloadedMap[src]?.[
+	const {downloadDir} = downloadMap;
+
+	if (downloadMap.hasBeenDownloadedMap[src]?.[downloadDir]) {
+		const claimedDownloadLocation = downloadMap.hasBeenDownloadedMap[src]?.[
 			downloadDir
 		] as string;
 		// The OS might have deleted the file since even though we marked it as downloaded. In that case we reset the state and download it again
@@ -166,25 +167,26 @@ export const downloadAsset = async ({
 		}
 
 		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		hasBeenDownloadedMap[src]![downloadDir] = null;
-		if (!isDownloadingMap[src]) {
-			isDownloadingMap[src] = {};
+		downloadMap.hasBeenDownloadedMap[src]![downloadDir] = null;
+		if (!downloadMap.isDownloadingMap[src]) {
+			downloadMap.isDownloadingMap[src] = {};
 		}
 
 		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		isDownloadingMap[src]![downloadDir] = false;
+		downloadMap.isDownloadingMap[src]![downloadDir] = false;
 	}
 
-	if (isDownloadingMap[src]?.[downloadDir]) {
-		return waitForAssetToBeDownloaded({src, downloadDir});
+	if (downloadMap.isDownloadingMap[src]?.[downloadDir]) {
+		console.log('TRIGGER WAIT', {src, downloadDir});
+		return waitForAssetToBeDownloaded({downloadMap, src, downloadDir});
 	}
 
-	if (!isDownloadingMap[src]) {
-		isDownloadingMap[src] = {};
+	if (!downloadMap.isDownloadingMap[src]) {
+		downloadMap.isDownloadingMap[src] = {};
 	}
 
 	(
-		isDownloadingMap[src] as {
+		downloadMap.isDownloadingMap[src] as {
 			[downloadDir: string]: boolean;
 		}
 	)[downloadDir] = true;
@@ -216,7 +218,7 @@ export const downloadAsset = async ({
 
 		const buff = Buffer.from(assetData, encoding);
 		await fs.promises.writeFile(output, buff);
-		notifyAssetIsDownloaded({src, downloadDir, to: output});
+		notifyAssetIsDownloaded({src, downloadMap, downloadDir, to: output});
 		return output;
 	}
 
@@ -228,18 +230,19 @@ export const downloadAsset = async ({
 		to: (contentDisposition) =>
 			getSanitizedFilenameForAssetUrl({contentDisposition, downloadDir, src}),
 	});
-	notifyAssetIsDownloaded({src, downloadDir, to});
+
+	notifyAssetIsDownloaded({src, downloadMap, downloadDir, to});
 
 	return to;
 };
 
-export const markAllAssetsAsDownloaded = () => {
-	Object.keys(hasBeenDownloadedMap).forEach((key) => {
-		delete hasBeenDownloadedMap[key];
+export const markAllAssetsAsDownloaded = (downloadMap: DownloadMap) => {
+	Object.keys(downloadMap.hasBeenDownloadedMap).forEach((key) => {
+		delete downloadMap.hasBeenDownloadedMap[key];
 	});
 
-	Object.keys(isDownloadingMap).forEach((key) => {
-		delete isDownloadingMap[key];
+	Object.keys(downloadMap.isDownloadingMap).forEach((key) => {
+		delete downloadMap.isDownloadingMap[key];
 	});
 };
 
@@ -305,17 +308,17 @@ export const getSanitizedFilenameForAssetUrl = ({
 
 export const downloadAndMapAssetsToFileUrl = async ({
 	asset,
-	downloadDir,
 	onDownload,
+	downloadMap,
 }: {
 	asset: TAsset;
-	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
+	downloadMap: DownloadMap;
 }): Promise<TAsset> => {
 	const newSrc = await downloadAsset({
 		src: asset.src,
-		downloadDir,
 		onDownload,
+		downloadMap,
 	});
 
 	return {

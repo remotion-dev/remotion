@@ -5,6 +5,8 @@ import path from 'path';
 import type {SmallTCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import type {DownloadMap} from './assets/download-map';
+import {makeDownloadMap} from './assets/download-map';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
@@ -79,6 +81,10 @@ export type RenderMediaOptions = {
 	cancelSignal?: CancelSignal;
 	browserExecutable?: BrowserExecutable;
 	verbose?: boolean;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	downloadMap?: DownloadMap;
 } & ServeUrlOrWebpackBundle;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -116,6 +122,7 @@ export const renderMedia = ({
 	browserExecutable,
 	port,
 	cancelSignal,
+	downloadMap,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
 	validateQuality(quality);
@@ -280,6 +287,7 @@ export const renderMedia = ({
 				browserExecutable,
 				port,
 				cancelSignal: cancelRenderFrames.cancelSignal,
+				downloadMap: downloadMap ?? makeDownloadMap(),
 			});
 
 			return renderFramesProc;

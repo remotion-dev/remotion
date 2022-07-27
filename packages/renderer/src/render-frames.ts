@@ -4,6 +4,8 @@ import type {SmallTCompMetadata, TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
+import type {DownloadMap} from './assets/download-map';
+import {makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
@@ -27,7 +29,6 @@ import type {ImageFormat} from './image-format';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
 import {getServeUrlWithFallback} from './legacy-webpack-config';
-import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import type {CancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {openBrowser} from './open-browser';
@@ -78,6 +79,10 @@ type RenderFramesOptions = {
 	ffprobeExecutable?: FfmpegExecutable;
 	port?: number | null;
 	cancelSignal?: CancelSignal;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	downloadMap?: DownloadMap;
 } & ConfigOrComposition &
 	ServeUrlOrWebpackBundle;
 
@@ -119,19 +124,19 @@ const innerRenderFrames = ({
 	timeoutInMilliseconds,
 	scale,
 	actualParallelism,
-	downloadDir,
 	everyNthFrame = 1,
 	proxyPort,
 	cancelSignal,
+	downloadMap,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
 	serveUrl: string;
 	composition: SmallTCompMetadata;
 	actualParallelism: number;
-	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 	proxyPort: number;
+	downloadMap: DownloadMap;
 }): Promise<RenderFramesOutput> => {
 	if (!puppeteerInstance) {
 		throw new Error(
@@ -310,8 +315,8 @@ const innerRenderFrames = ({
 			compressedAssets.forEach((asset) => {
 				downloadAndMapAssetsToFileUrl({
 					asset,
-					downloadDir,
 					onDownload,
+					downloadMap,
 				}).catch((err) => {
 					onError(
 						new Error(`Error while downloading asset: ${(err as Error).stack}`)
@@ -331,9 +336,9 @@ const innerRenderFrames = ({
 		const returnValue: RenderFramesOutput = {
 			assetsInfo: {
 				assets,
-				downloadDir,
 				imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
 				firstFrameIndex: framesToRender[0],
+				downloadMap,
 			},
 			frameCount: framesToRender.length,
 		};
@@ -399,7 +404,7 @@ export const renderFrames = (
 			forceDeviceScaleFactor: options.scale ?? 1,
 		});
 
-	const downloadDir = makeAssetsDownloadTmpDir();
+	const downloadMap = options.downloadMap ?? makeDownloadMap();
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
 
@@ -422,12 +427,12 @@ export const renderFrames = (
 			Promise.all([
 				prepareServer({
 					webpackConfigOrServeUrl: selectedServeUrl,
-					downloadDir,
 					onDownload,
 					onError,
 					ffmpegExecutable: options.ffmpegExecutable ?? null,
 					ffprobeExecutable: options.ffprobeExecutable ?? null,
 					port: options.port ?? null,
+					downloadMap,
 				}),
 				browserInstance,
 			]).then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {
@@ -448,8 +453,8 @@ export const renderFrames = (
 					composition,
 					actualParallelism,
 					onDownload,
-					downloadDir,
 					proxyPort: offthreadPort,
+					downloadMap,
 				});
 			}),
 		])

@@ -77,6 +77,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		}),
 	]);
 
+	const downloadMap = RenderInternals.makeDownloadMap();
+
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
@@ -88,6 +90,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
 		port: null,
+		downloadMap,
 	});
 	Internals.validateDurationInFrames(
 		comp.durationInFrames,

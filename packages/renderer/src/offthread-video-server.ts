@@ -4,6 +4,7 @@ import {Internals} from 'remotion';
 import {URLSearchParams} from 'url';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAsset} from './assets/download-and-map-assets-to-file';
+import type {DownloadMap} from './assets/download-map';
 import {extractFrameFromVideo} from './extract-frame-from-video';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 
@@ -45,15 +46,15 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 export const startOffthreadVideoServer = ({
 	ffmpegExecutable,
 	ffprobeExecutable,
-	downloadDir,
 	onDownload,
 	onError,
+	downloadMap,
 }: {
 	ffmpegExecutable: FfmpegExecutable;
 	ffprobeExecutable: FfmpegExecutable;
-	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
+	downloadMap: DownloadMap;
 }): RequestListener => {
 	return (req, res) => {
 		if (!req.url) {
@@ -73,7 +74,7 @@ export const startOffthreadVideoServer = ({
 			`image/${imageFormat === 'jpeg' ? 'jpg' : 'png'}`
 		);
 
-		downloadAsset({src, downloadDir, onDownload})
+		downloadAsset({src, onDownload, downloadMap})
 			.then((to) => {
 				return extractFrameFromVideo({
 					time,
@@ -81,6 +82,7 @@ export const startOffthreadVideoServer = ({
 					ffmpegExecutable,
 					ffprobeExecutable,
 					imageFormat,
+					downloadMap,
 				});
 			})
 			.then((readable) => {
