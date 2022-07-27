@@ -91,6 +91,7 @@ export const startOffthreadVideoServer = ({
 						ffmpegExecutable,
 						ffprobeExecutable,
 						imageFormat,
+						downloadMap,
 					}),
 					new Promise((_, rej) => {
 						setTimeout(

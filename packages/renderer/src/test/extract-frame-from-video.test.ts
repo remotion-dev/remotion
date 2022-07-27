@@ -1,5 +1,6 @@
 import path from 'path';
 import {expect, test} from 'vitest';
+import {makeDownloadMap} from '../assets/download-and-map-assets-to-file';
 import {extractFrameFromVideo} from '../extract-frame-from-video';
 
 const src = path.join(
@@ -19,6 +20,7 @@ test('Should be able to extract a frame from a video', async () => {
 		src,
 		time: 1,
 		imageFormat: 'jpeg',
+		downloadMap: makeDownloadMap(),
 	});
 
 	expect(str.length).toBeGreaterThan(10000);
@@ -31,6 +33,7 @@ test('Should be able to extract a frame from a video as PNG', async () => {
 		src,
 		time: 1,
 		imageFormat: 'png',
+		downloadMap: makeDownloadMap(),
 	});
 
 	expect(str.length).toBeGreaterThan(10000);
@@ -43,6 +46,7 @@ test('Should get the last frame if out of range', async () => {
 		src,
 		time: 100,
 		imageFormat: 'jpeg',
+		downloadMap: makeDownloadMap(),
 	});
 
 	expect(str.length).toBeGreaterThan(10000);
