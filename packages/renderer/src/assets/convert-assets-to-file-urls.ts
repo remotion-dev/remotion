@@ -1,4 +1,4 @@
-import type {TAsset} from 'remotion';
+import type {DownloadMap, TAsset} from 'remotion';
 import type {RenderMediaOnDownload} from './download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './download-and-map-assets-to-file';
 
@@ -14,10 +14,12 @@ export const convertAssetsToFileUrls = async ({
 	assets,
 	downloadDir,
 	onDownload,
+	downloadMap,
 }: {
 	assets: TAsset[][];
 	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
+	downloadMap: DownloadMap;
 }): Promise<TAsset[][]> => {
 	const chunks = chunk(assets, 1000);
 	const results: TAsset[][][] = [];
@@ -31,6 +33,7 @@ export const convertAssetsToFileUrls = async ({
 							asset: a,
 							downloadDir,
 							onDownload,
+							downloadMap,
 						});
 					})
 				);

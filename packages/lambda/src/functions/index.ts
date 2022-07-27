@@ -33,6 +33,7 @@ export const handler = async <T extends LambdaRoutines>(
 	if (params.type === LambdaRoutines.still) {
 		printCloudwatchHelper(LambdaRoutines.still, {
 			inputProps: JSON.stringify(params.inputProps),
+			isWarm,
 		});
 		return stillHandler(params, {
 			expectedBucketOwner: currentUserId,
@@ -42,6 +43,7 @@ export const handler = async <T extends LambdaRoutines>(
 	if (params.type === LambdaRoutines.start) {
 		printCloudwatchHelper(LambdaRoutines.start, {
 			inputProps: JSON.stringify(params.inputProps),
+			isWarm,
 		});
 		return startHandler(params);
 	}
@@ -50,6 +52,7 @@ export const handler = async <T extends LambdaRoutines>(
 		printCloudwatchHelper(LambdaRoutines.launch, {
 			renderId: params.renderId,
 			inputProps: JSON.stringify(params.inputProps),
+			isWarm,
 		});
 		return launchHandler(params, {expectedBucketOwner: currentUserId});
 	}
@@ -57,6 +60,7 @@ export const handler = async <T extends LambdaRoutines>(
 	if (params.type === LambdaRoutines.status) {
 		printCloudwatchHelper(LambdaRoutines.status, {
 			renderId: params.renderId,
+			isWarm,
 		});
 		return progressHandler(params, {
 			expectedBucketOwner: currentUserId,
@@ -72,6 +76,7 @@ export const handler = async <T extends LambdaRoutines>(
 				RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
 			),
 			inputProps: JSON.stringify(params.inputProps),
+			isWarm,
 		});
 		return rendererHandler(params, {
 			expectedBucketOwner: currentUserId,
@@ -80,7 +85,9 @@ export const handler = async <T extends LambdaRoutines>(
 	}
 
 	if (params.type === LambdaRoutines.info) {
-		printCloudwatchHelper(LambdaRoutines.info, {});
+		printCloudwatchHelper(LambdaRoutines.info, {
+			isWarm,
+		});
 
 		return infoHandler(params);
 	}

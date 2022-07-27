@@ -1,6 +1,10 @@
 import {createWriteStream} from 'fs';
 import {ensureOutputDirectory} from '../ensure-output-directory';
+import {getTmpDirStateIfENoSp} from './get-files-in-folder';
 import {readFile} from './read-file';
+
+let data = 0;
+let downloads = 0;
 
 export const downloadFile = ({
 	onProgress,
@@ -40,12 +44,21 @@ export const downloadFile = ({
 						percent: 1,
 						totalSize: downloaded,
 					});
+					downloads++;
+					console.log(
+						'TOTAL DOWNLOADED',
+						url,
+						downloads,
+						data,
+						getTmpDirStateIfENoSp()
+					);
 					return resolve({sizeInBytes: downloaded, to});
 				});
 				writeStream.on('error', (err) => reject(err));
 				res.pipe(writeStream).on('error', (err) => reject(err));
 				res.on('data', (d) => {
 					downloaded += d.length;
+					data += d.length;
 					onProgress?.({
 						downloaded,
 						percent: totalSize === null ? null : downloaded / totalSize,

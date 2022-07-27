@@ -1,5 +1,5 @@
 import type {RequestListener} from 'http';
-import type {OffthreadVideoImageFormat} from 'remotion';
+import type {DownloadMap, OffthreadVideoImageFormat} from 'remotion';
 import {Internals} from 'remotion';
 import {URLSearchParams} from 'url';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -48,12 +48,14 @@ export const startOffthreadVideoServer = ({
 	downloadDir,
 	onDownload,
 	onError,
+	downloadMap,
 }: {
 	ffmpegExecutable: FfmpegExecutable;
 	ffprobeExecutable: FfmpegExecutable;
 	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
+	downloadMap: DownloadMap;
 }): RequestListener => {
 	return (req, res) => {
 		if (!req.url) {
@@ -73,14 +75,32 @@ export const startOffthreadVideoServer = ({
 			`image/${imageFormat === 'jpeg' ? 'jpg' : 'png'}`
 		);
 
-		downloadAsset({src, downloadDir, onDownload})
+		Promise.race<string>([
+			downloadAsset({src, downloadDir, onDownload, downloadMap}),
+			new Promise((_, rej) => {
+				setTimeout(() => rej(new Error(String('TIMEOUT FOR ' + src))), 15000);
+			}),
+		])
 			.then((to) => {
-				return extractFrameFromVideo({
-					time,
-					src: to,
-					ffmpegExecutable,
-					ffprobeExecutable,
-					imageFormat,
+				const random = Math.random();
+				console.time(src + random);
+				return Promise.race([
+					extractFrameFromVideo({
+						time,
+						src: to,
+						ffmpegExecutable,
+						ffprobeExecutable,
+						imageFormat,
+					}),
+					new Promise((_, rej) => {
+						setTimeout(
+							() => rej(new Error(String('EXTRACTION TIMEDOUT FOR ' + src))),
+							15000
+						);
+					}),
+				]).then((a) => {
+					console.timeEnd(src + random);
+					return a;
 				});
 			})
 			.then((readable) => {

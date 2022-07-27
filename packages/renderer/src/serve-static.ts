@@ -1,4 +1,5 @@
 import http from 'http';
+import type {DownloadMap} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getDesiredPort} from './get-port';
@@ -14,6 +15,7 @@ export const serveStatic = async (
 		downloadDir: string;
 		onDownload: RenderMediaOnDownload;
 		onError: (err: Error) => void;
+		downloadMap: DownloadMap;
 	}
 ): Promise<{
 	port: number;
@@ -27,6 +29,7 @@ export const serveStatic = async (
 		downloadDir: options.downloadDir,
 		onDownload: options.onDownload,
 		onError: options.onError,
+		downloadMap: options.downloadMap,
 	});
 
 	try {

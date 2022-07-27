@@ -3,7 +3,10 @@ import path from 'path';
 import type {SmallTCompMetadata, TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
+import {
+	downloadAndMapAssetsToFileUrl,
+	makeDownloadMap,
+} from './assets/download-and-map-assets-to-file';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
@@ -133,6 +136,7 @@ const innerRenderFrames = ({
 	onDownload: RenderMediaOnDownload;
 	proxyPort: number;
 }): Promise<RenderFramesOutput> => {
+	const downloadMap = makeDownloadMap();
 	if (!puppeteerInstance) {
 		throw new Error(
 			'no puppeteer instance passed to innerRenderFrames - internal error'
@@ -312,6 +316,7 @@ const innerRenderFrames = ({
 					asset,
 					downloadDir,
 					onDownload,
+					downloadMap,
 				}).catch((err) => {
 					onError(
 						new Error(`Error while downloading asset: ${(err as Error).stack}`)
@@ -334,6 +339,7 @@ const innerRenderFrames = ({
 				downloadDir,
 				imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
 				firstFrameIndex: framesToRender[0],
+				downloadMap,
 			},
 			frameCount: framesToRender.length,
 		};
@@ -400,6 +406,7 @@ export const renderFrames = (
 		});
 
 	const downloadDir = makeAssetsDownloadTmpDir();
+	const downloadMap = makeDownloadMap();
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
 
@@ -428,6 +435,7 @@ export const renderFrames = (
 					ffmpegExecutable: options.ffmpegExecutable ?? null,
 					ffprobeExecutable: options.ffprobeExecutable ?? null,
 					port: options.port ?? null,
+					downloadMap,
 				}),
 				browserInstance,
 			]).then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {
