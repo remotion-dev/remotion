@@ -339,11 +339,11 @@ export const render = async (remotionRoot: string) => {
 	);
 	Log.info('-', 'Output can be found at:');
 	Log.info(chalk.cyan(`▶ ${absoluteOutputFile}`));
-	Log.verbose('Cleaning up...');
 
 	try {
 		await RenderInternals.deleteDirectory(urlOrBundle);
 		await RenderInternals.cleanDownloadMap(downloadMap);
+		Log.verbose('Cleaned up', downloadMap.assetDir);
 	} catch (err) {
 		Log.warn('Could not clean up directory.');
 		Log.warn(err);

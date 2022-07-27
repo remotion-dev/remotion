@@ -16,7 +16,7 @@ export const makeFfmpegFilterFile = async (
 	return {
 		file: filterFile,
 		cleanup: () => {
-			deleteDirectory(filterFile);
+			deleteDirectory(downloadMap.complexFilter);
 		},
 	};
 };

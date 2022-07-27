@@ -114,4 +114,5 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 	);
 
 	await RenderInternals.cleanDownloadMap(downloadMap);
+	Log.verbose('Cleaned up', downloadMap.assetDir);
 };

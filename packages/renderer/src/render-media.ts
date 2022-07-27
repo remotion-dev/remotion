@@ -13,6 +13,7 @@ import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import type {Codec} from './codec';
 import {validateSelectedCrfAndCodecCombination} from './crf';
+import {deleteDirectory} from './delete-directory';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import type {FfmpegExecutable} from './ffmpeg-executable';
@@ -369,7 +370,7 @@ export const renderMedia = ({
 				preEncodedFileLocation !== null &&
 				fs.existsSync(preEncodedFileLocation)
 			) {
-				fs.unlinkSync(preEncodedFileLocation);
+				deleteDirectory(path.dirname(preEncodedFileLocation));
 			}
 
 			// Clean download map if it was not passed in
