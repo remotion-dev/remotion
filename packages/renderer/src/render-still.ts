@@ -3,6 +3,7 @@ import path from 'path';
 import type {SmallTCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import {makeDownloadMap} from './assets/download-and-map-assets-to-file';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
@@ -221,6 +222,7 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 	const selectedServeUrl = getServeUrlWithFallback(options);
 
 	const downloadDir = makeAssetsDownloadTmpDir();
+	const downloadMap = makeDownloadMap();
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
 
@@ -237,6 +239,7 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 			ffmpegExecutable: options.ffmpegExecutable ?? null,
 			ffprobeExecutable: options.ffprobeExecutable ?? null,
 			port: options.port ?? null,
+			downloadMap,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
 				close = closeServer;

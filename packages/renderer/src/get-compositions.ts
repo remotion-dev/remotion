@@ -1,4 +1,5 @@
 import type {TCompMetadata} from 'remotion';
+import {makeDownloadMap} from './assets/download-and-map-assets-to-file';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
@@ -84,6 +85,7 @@ export const getCompositions = async (
 	config?: GetCompositionsConfig
 ) => {
 	const downloadDir = makeAssetsDownloadTmpDir();
+	const downloadMap = makeDownloadMap();
 
 	const {page, cleanup} = await getPageAndCleanupFn({
 		passedInInstance: config?.puppeteerInstance,
@@ -109,6 +111,7 @@ export const getCompositions = async (
 			ffmpegExecutable: config?.ffmpegExecutable ?? null,
 			ffprobeExecutable: config?.ffprobeExecutable ?? null,
 			port: config?.port ?? null,
+			downloadMap,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
 				close = closeServer;

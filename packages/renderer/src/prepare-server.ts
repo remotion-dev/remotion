@@ -1,5 +1,6 @@
 import {existsSync} from 'fs';
 import path from 'path';
+import type {DownloadMap} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {isServeUrl} from './is-serve-url';
@@ -14,6 +15,7 @@ export const prepareServer = async ({
 	onError,
 	webpackConfigOrServeUrl,
 	port,
+	downloadMap,
 }: {
 	webpackConfigOrServeUrl: string;
 	downloadDir: string;
@@ -22,6 +24,7 @@ export const prepareServer = async ({
 	ffmpegExecutable: FfmpegExecutable;
 	ffprobeExecutable: FfmpegExecutable;
 	port: number | null;
+	downloadMap: DownloadMap;
 }): Promise<{
 	serveUrl: string;
 	closeServer: () => Promise<unknown>;
@@ -35,6 +38,7 @@ export const prepareServer = async ({
 			ffmpegExecutable,
 			ffprobeExecutable,
 			port,
+			downloadMap,
 		});
 
 		return Promise.resolve({
@@ -62,6 +66,7 @@ export const prepareServer = async ({
 		ffmpegExecutable,
 		ffprobeExecutable,
 		port,
+		downloadMap,
 	});
 	return Promise.resolve({
 		closeServer: () => {

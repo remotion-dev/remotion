@@ -2,7 +2,7 @@ import execa from 'execa';
 import fs, {unlinkSync} from 'fs';
 import {readFile} from 'fs/promises';
 import path from 'path';
-import type {RenderAssetInfo, TAsset} from 'remotion';
+import type {DownloadMap, RenderAssetInfo, TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
@@ -85,6 +85,7 @@ const getAssetsData = async ({
 	ffmpegExecutable,
 	ffprobeExecutable,
 	onProgress,
+	downloadMap,
 }: {
 	assets: TAsset[][];
 	downloadDir: string;
@@ -95,14 +96,16 @@ const getAssetsData = async ({
 	ffmpegExecutable: FfmpegExecutable | null;
 	ffprobeExecutable: FfmpegExecutable | null;
 	onProgress: (progress: number) => void;
+	downloadMap: DownloadMap;
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
 		downloadDir,
 		onDownload: onDownload ?? (() => () => undefined),
+		downloadMap,
 	});
 
-	markAllAssetsAsDownloaded();
+	markAllAssetsAsDownloaded(downloadMap);
 	const assetPositions: Assets = calculateAssetPositions(fileUrlAssets);
 
 	if (verbose) {
@@ -243,6 +246,7 @@ export const spawnFfmpeg = async (
 				ffmpegExecutable: options.ffmpegExecutable ?? null,
 				ffprobeExecutable: options.ffprobeExecutable ?? null,
 				onProgress: (prog) => updateProgress(prog, 0),
+				downloadMap: options.assetsInfo.downloadMap,
 		  })
 		: null;
 
