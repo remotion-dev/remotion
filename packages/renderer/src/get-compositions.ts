@@ -1,4 +1,5 @@
-import type {DownloadMap, TCompMetadata} from 'remotion';
+import type {TCompMetadata} from 'remotion';
+import type {DownloadMap} from './assets/download-map';
 import {makeDownloadMap} from './assets/download-map';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
@@ -122,7 +123,6 @@ export const getCompositions = async (
 				return innerGetCompositions(
 					serveUrl,
 					page,
-					// @ts-expect-error
 					config ?? {},
 					offthreadPort
 				);

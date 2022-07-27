@@ -1,10 +1,13 @@
 import execa from 'execa';
-import type {DownloadMap, OffthreadVideoImageFormat} from 'remotion';
+import type {OffthreadVideoImageFormat} from 'remotion';
+import type {
+	DownloadMap,
+	SpecialVCodecForTransparency,
+} from './assets/download-map';
 import {getVideoStreamDuration} from './assets/get-video-stream-duration';
 import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
-import type {SpecialVCodecForTransparency} from './get-video-info';
 import {getVideoInfo} from './get-video-info';
 import {isBeyondLastFrame, markAsBeyondLastFrame} from './is-beyond-last-frame';
 import type {LastFrameOptions} from './last-frame-from-video-cache';
@@ -252,6 +255,7 @@ const extractFrameFromVideoFn = async ({
 	// audio rendering, so we work with 2 different files
 	const src = await ensurePresentationTimestamps(downloadMap, options.src);
 	const {specialVcodec, needsResize} = await getVideoInfo(
+		downloadMap,
 		src,
 		ffprobeExecutable
 	);

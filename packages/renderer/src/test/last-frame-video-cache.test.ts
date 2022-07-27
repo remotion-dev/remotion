@@ -1,6 +1,6 @@
 import crypto from 'crypto';
-import type {DownloadMap} from 'remotion';
 import {expect, test} from 'vitest';
+import type {DownloadMap} from '../assets/download-map';
 import {makeDownloadMap} from '../assets/download-map';
 import type {LastFrameOptions} from '../last-frame-from-video-cache';
 import {

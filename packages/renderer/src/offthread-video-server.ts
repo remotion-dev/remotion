@@ -1,9 +1,10 @@
 import type {RequestListener} from 'http';
-import type {DownloadMap, OffthreadVideoImageFormat} from 'remotion';
+import type {OffthreadVideoImageFormat} from 'remotion';
 import {Internals} from 'remotion';
 import {URLSearchParams} from 'url';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAsset} from './assets/download-and-map-assets-to-file';
+import type {DownloadMap} from './assets/download-map';
 import {extractFrameFromVideo} from './extract-frame-from-video';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 

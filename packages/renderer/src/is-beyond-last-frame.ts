@@ -1,4 +1,4 @@
-import type {DownloadMap} from 'remotion';
+import type {DownloadMap} from './assets/download-map';
 
 export const isBeyondLastFrame = (
 	downloadMap: DownloadMap,
