@@ -1,5 +1,5 @@
 import execa from 'execa';
-import fs, {unlinkSync} from 'fs';
+import fs from 'fs';
 import {readFile} from 'fs/promises';
 import path from 'path';
 import type {TAsset} from 'remotion';
@@ -278,7 +278,6 @@ export const spawnFfmpeg = async (
 			if (tempFile) {
 				readFile(tempFile)
 					.then((f) => {
-						unlinkSync(tempFile);
 						return resolve(f);
 					})
 					.catch((e) => reject(e));
@@ -286,6 +285,7 @@ export const spawnFfmpeg = async (
 				resolve(null);
 			}
 		});
+		await deleteDirectory(options.assetsInfo.downloadMap.stitchFrames);
 
 		return {
 			getLogs: () => '',
@@ -386,12 +386,17 @@ export const spawnFfmpeg = async (
 			deleteDirectory(options.assetsInfo.downloadMap.audioPreprocessing);
 
 			if (tempFile === null) {
+				deleteDirectory(options.assetsInfo.downloadMap.stitchFrames);
 				return null;
 			}
 
 			return readFile(tempFile)
 				.then((file) => {
-					return Promise.all([file, deleteDirectory(path.dirname(tempFile))]);
+					return Promise.all([
+						file,
+						deleteDirectory(path.dirname(tempFile)),
+						deleteDirectory(options.assetsInfo.downloadMap.stitchFrames),
+					]);
 				})
 				.then(([file]) => file);
 		}),

@@ -252,4 +252,5 @@ export const still = async (remotionRoot: string) => {
 	Log.info(chalk.cyan(`▶️ ${absoluteOutputLocation}`));
 	await closeBrowserPromise;
 	await RenderInternals.cleanDownloadMap(downloadMap);
+	Log.verbose('Cleaned up', downloadMap.assetDir);
 };

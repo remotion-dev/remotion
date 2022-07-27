@@ -84,8 +84,8 @@ const packageJson = fs.existsSync(packageJsonPath)
 export const makeDownloadMap = (): DownloadMap => {
 	const dir = tmpDir(
 		packageJson
-			? 'remotion-assets'
-			: 'remotion-assets-' + packageJson.version.replace(/\./g, '-')
+			? `remotion-v${packageJson.version.replace(/\./g, '-')}-assets`
+			: 'remotion-assets'
 	);
 
 	return {
@@ -109,6 +109,8 @@ export const makeDownloadMap = (): DownloadMap => {
 	};
 };
 
-export const cleanDownloadMap = (downloadMap: DownloadMap) => {
-	return deleteDirectory(downloadMap.downloadDir);
+export const cleanDownloadMap = async (downloadMap: DownloadMap) => {
+	await deleteDirectory(downloadMap.complexFilter);
+	await deleteDirectory(downloadMap.downloadDir);
+	await deleteDirectory(downloadMap.assetDir);
 };
