@@ -51,6 +51,8 @@ export const render = async (remotionRoot: string) => {
 
 	await initializeRenderCli(remotionRoot, 'sequence');
 
+	Log.verbose('Asset dirs', downloadMap.assetDir);
+
 	const {
 		codec,
 		proResProfile,
@@ -341,6 +343,7 @@ export const render = async (remotionRoot: string) => {
 
 	try {
 		await RenderInternals.deleteDirectory(urlOrBundle);
+		await RenderInternals.cleanDownloadMap(downloadMap);
 	} catch (err) {
 		Log.warn('Could not clean up directory.');
 		Log.warn(err);
