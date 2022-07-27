@@ -1,9 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import type {DownloadMap, SmallTCompMetadata, TAsset} from 'remotion';
+import type {SmallTCompMetadata, TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
+import type {DownloadMap} from './assets/download-map';
 import {makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';

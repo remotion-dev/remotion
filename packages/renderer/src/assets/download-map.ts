@@ -10,6 +10,13 @@ type EncodingStatus =
 	  }
 	| undefined;
 
+export type SpecialVCodecForTransparency = 'vp9' | 'vp8' | 'none';
+
+export type Vp9Result = {
+	specialVcodec: SpecialVCodecForTransparency;
+	needsResize: [number, number] | null;
+};
+
 export type DownloadMap = {
 	isDownloadingMap: {
 		[src: string]:
@@ -28,6 +35,7 @@ export type DownloadMap = {
 	listeners: {[key: string]: {[downloadDir: string]: (() => void)[]}};
 	lastFrameMap: Record<string, {lastAccessed: number; data: Buffer}>;
 	isBeyondLastFrameMap: Record<string, number>;
+	isVp9VideoCache: Record<string, Vp9Result>;
 
 	ensureFileHasPresentationTimestamp: Record<string, EncodingStatus>;
 };
@@ -48,5 +56,6 @@ export const makeDownloadMap = (): DownloadMap => {
 		lastFrameMap: {},
 		isBeyondLastFrameMap: {},
 		ensureFileHasPresentationTimestamp: {},
+		isVp9VideoCache: {},
 	};
 };
