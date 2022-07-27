@@ -27,10 +27,7 @@ test('Can render a still using Node.JS APIs', async () => {
 
 	const testOut = path.join(tmpdir(), 'path/to/still.png');
 
-	const downloadDir = RenderInternals.tmpDir('remotion-assets-dir');
-
 	const {port, close} = await RenderInternals.serveStatic(bundled, {
-		downloadDir,
 		onDownload: () => undefined,
 		port: null,
 		onError: (err) => {
