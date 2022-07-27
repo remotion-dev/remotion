@@ -1,11 +1,12 @@
 import fs from 'fs';
 import path from 'path';
+import type {DownloadMap} from './assets/download-map';
 import {createFfmpegMergeFilter} from './create-ffmpeg-merge-filter';
 import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
-import {tmpDir} from './tmp-dir';
 
 export const createFfmpegComplexFilter = async (
-	filters: number
+	filters: number,
+	downloadMap: DownloadMap
 ): Promise<{
 	complexFilterFlag: [string, string] | null;
 	cleanup: () => void;
@@ -16,9 +17,12 @@ export const createFfmpegComplexFilter = async (
 
 	const complexFilter = createFfmpegMergeFilter(filters);
 
-	const {file, cleanup} = await makeFfmpegFilterFile(complexFilter);
+	const {file, cleanup} = await makeFfmpegFilterFile(
+		complexFilter,
+		downloadMap
+	);
 
-	const tempPath = tmpDir('remotion-complex-filter-script');
+	const tempPath = downloadMap.complexFilterScript;
 	const filterFile = path.join(tempPath, 'complex-filter.txt');
 	await fs.promises.writeFile(filterFile, complexFilter);
 

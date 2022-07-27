@@ -3,12 +3,14 @@
 
 import fs from 'fs';
 import path from 'path';
+import type {DownloadMap} from './assets/download-map';
 import {deleteDirectory} from './delete-directory';
-import {tmpDir} from './tmp-dir';
 
-export const makeFfmpegFilterFile = async (complexFilter: string) => {
-	const tempPath = tmpDir('remotion-complex-filter');
-	const filterFile = path.join(tempPath, 'complex-filter.txt');
+export const makeFfmpegFilterFile = async (
+	complexFilter: string,
+	downloadMap: DownloadMap
+) => {
+	const filterFile = path.join(downloadMap.complexFilter, 'complex-filter.txt');
 	await fs.promises.writeFile(filterFile, complexFilter);
 
 	return {

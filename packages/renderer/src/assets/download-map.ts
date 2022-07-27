@@ -51,6 +51,12 @@ export type DownloadMap = {
 	videoDurationResultCache: Record<string, VideoDurationResult>;
 	durationOfAssetCache: Record<string, AudioChannelsAndDurationResultCache>;
 	downloadDir: string;
+	complexFilterScript: string;
+	preEncode: string;
+	audioMixing: string;
+	complexFilter: string;
+	audioPreprocessing: string;
+	stitchFrames: string;
 };
 
 export type RenderAssetInfo = {
@@ -73,5 +79,11 @@ export const makeDownloadMap = (): DownloadMap => {
 		durationOfAssetCache: {},
 		id: String(Math.random()),
 		downloadDir: tmpDir('remotion-assets-dir'),
+		complexFilter: tmpDir('remotion-complex-filter'),
+		complexFilterScript: tmpDir('remotion-complex-filter-script'),
+		preEncode: tmpDir('pre-encode'),
+		audioMixing: tmpDir('remotion-audio-mixing'),
+		audioPreprocessing: tmpDir('remotion-audio-preprocessing'),
+		stitchFrames: tmpDir('remotion-stitch-temp-dir'),
 	};
 };

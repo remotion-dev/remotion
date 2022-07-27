@@ -34,9 +34,6 @@ import {
 	validateSelectedPixelFormatAndCodecCombination,
 } from './pixel-format';
 import {preprocessAudioTrack} from './preprocess-audio-track';
-import type {ProResProfile} from './prores-profile';
-import {tmpDir} from './tmp-dir';
-import {truthy} from './truthy';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
@@ -110,7 +107,7 @@ const getAssetsData = async ({
 		console.log('asset positions', assetPositions);
 	}
 
-	const tempPath = tmpDir('remotion-audio-mixing');
+	const tempPath = downloadMap.audioMixing;
 
 	const preprocessProgress = new Array(assetPositions.length).fill(0);
 
@@ -140,16 +137,14 @@ const getAssetsData = async ({
 		)
 	).filter(truthy);
 
-	const outName = path.join(
-		tmpDir('remotion-audio-preprocessing'),
-		`audio.wav`
-	);
+	const outName = path.join(downloadMap.audioPreprocessing, `audio.wav`);
 
 	await mergeAudioTrack({
 		ffmpegExecutable: ffmpegExecutable ?? null,
 		files: preprocessed,
 		outName,
 		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
+		downloadMap,
 	});
 
 	deleteDirectory(tempPath);
@@ -199,7 +194,7 @@ export const spawnFfmpeg = async (
 	const tempFile = options.outputLocation
 		? null
 		: path.join(
-				tmpDir('remotion-stitch-temp-dir'),
+				options.assetsInfo.downloadMap.stitchFrames,
 				`out.${getFileExtensionFromCodec(codec, 'final')}`
 		  );
 
