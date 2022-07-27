@@ -132,11 +132,12 @@ const getLastFrameOfVideoFastUnlimited = async (
 		return fromCache;
 	}
 
-	const {duration} = await getVideoStreamDuration(
+	const {duration, fps} = await getVideoStreamDuration(
 		downloadMap,
 		src,
 		ffprobeExecutable
 	);
+
 	if (duration === null) {
 		throw new Error(
 			`Could not determine the duration of ${src} using FFMPEG. The file is not supported.`
@@ -155,7 +156,7 @@ const getLastFrameOfVideoFastUnlimited = async (
 		return last;
 	}
 
-	const actualOffset = `${duration * 1000 - offset - 10}ms`;
+	const actualOffset = `${duration * 1000 - offset}ms`;
 	const {stdout, stderr} = execa(
 		ffmpegExecutable ?? 'ffmpeg',
 		[
@@ -212,7 +213,8 @@ const getLastFrameOfVideoFastUnlimited = async (
 	if (isEmpty) {
 		const unlimited = await getLastFrameOfVideoFastUnlimited({
 			ffmpegExecutable,
-			offset: offset + 10,
+			// Decrement in 10ms increments, or 1 frame (e.g. fps = 25 --> 40ms)
+			offset: offset + 1000 / (fps === null ? 10 : fps),
 			src,
 			ffprobeExecutable,
 			imageFormat: options.imageFormat,
