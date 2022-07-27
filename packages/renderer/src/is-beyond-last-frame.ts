@@ -1,9 +1,20 @@
-const map: Record<string, number> = {};
+import type {DownloadMap} from 'remotion';
 
-export const isBeyondLastFrame = (src: string, time: number) => {
-	return map[src] && time >= map[src];
+export const isBeyondLastFrame = (
+	downloadMap: DownloadMap,
+	src: string,
+	time: number
+) => {
+	return (
+		downloadMap.isBeyondLastFrameMap[src] &&
+		time >= downloadMap.isBeyondLastFrameMap[src]
+	);
 };
 
-export const markAsBeyondLastFrame = (src: string, time: number) => {
-	map[src] = time;
+export const markAsBeyondLastFrame = (
+	downloadMap: DownloadMap,
+	src: string,
+	time: number
+) => {
+	downloadMap.isBeyondLastFrameMap[src] = time;
 };
