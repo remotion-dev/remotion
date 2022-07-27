@@ -161,12 +161,6 @@ export const downloadAsset = async ({
 		const claimedDownloadLocation = downloadMap.hasBeenDownloadedMap[src]?.[
 			downloadDir
 		] as string;
-		console.log(
-			'HAS BEEN DL',
-			src,
-			claimedDownloadLocation,
-			fs.existsSync(claimedDownloadLocation)
-		);
 		// The OS might have deleted the file since even though we marked it as downloaded. In that case we reset the state and download it again
 		if (fs.existsSync(claimedDownloadLocation)) {
 			return claimedDownloadLocation;
@@ -228,7 +222,6 @@ export const downloadAsset = async ({
 		return output;
 	}
 
-	console.log('STARTING DL', {src, downloadDir});
 	const {to} = await downloadFile({
 		url: src,
 		onProgress: (progress) => {

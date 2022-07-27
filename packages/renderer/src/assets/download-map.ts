@@ -18,6 +18,7 @@ export type Vp9Result = {
 };
 export type VideoDurationResult = {
 	duration: number | null;
+	fps: number | null;
 };
 
 export type AudioChannelsAndDurationResultCache = {
