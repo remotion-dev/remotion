@@ -1,10 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import type {DownloadMap, TAsset} from 'remotion';
+import type {TAsset} from 'remotion';
 import {random} from 'remotion';
 import {isAssetCompressed} from '../compress-assets';
 import {ensureOutputDirectory} from '../ensure-output-directory';
 import {downloadFile} from './download-file';
+import type {DownloadMap} from './download-map';
 import {sanitizeFilePath} from './sanitize-filepath';
 
 export type RenderMediaOnDownload = (
@@ -17,16 +18,6 @@ export type RenderMediaOnDownload = (
 	  }) => void)
 	| undefined
 	| void;
-
-export const makeDownloadMap = (): DownloadMap => {
-	return {
-		isDownloadingMap: {},
-		hasBeenDownloadedMap: {},
-		listeners: {},
-		lastFrameMap: {},
-		isBeyondLastFrameMap: {},
-	};
-};
 
 const waitForAssetToBeDownloaded = ({
 	src,

@@ -47,6 +47,8 @@ export const render = async (remotionRoot: string) => {
 		? file
 		: path.join(process.cwd(), file);
 
+	const downloadMap = RenderInternals.makeDownloadMap();
+
 	await initializeRenderCli(remotionRoot, 'sequence');
 
 	const {
@@ -151,6 +153,7 @@ export const render = async (remotionRoot: string) => {
 		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
 		chromiumOptions,
 		browserExecutable,
+		downloadMap,
 	});
 
 	const config = comps.find((c) => c.id === compositionId);
@@ -267,6 +270,7 @@ export const render = async (remotionRoot: string) => {
 			ffprobeExecutable,
 			browserExecutable,
 			port,
+			downloadMap,
 		});
 		renderedDoneIn = Date.now() - startTime;
 
@@ -318,6 +322,7 @@ export const render = async (remotionRoot: string) => {
 			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
+		downloadMap,
 	});
 
 	Log.info();

@@ -78,34 +78,6 @@ export type TAsset = {
 	playbackRate: number;
 };
 
-export type DownloadMap = {
-	isDownloadingMap: {
-		[src: string]:
-			| {
-					[downloadDir: string]: boolean;
-			  }
-			| undefined;
-	};
-	hasBeenDownloadedMap: {
-		[src: string]:
-			| {
-					[downloadDir: string]: string | null;
-			  }
-			| undefined;
-	};
-	listeners: {[key: string]: {[downloadDir: string]: (() => void)[]}};
-	lastFrameMap: Record<string, {lastAccessed: number; data: Buffer}>;
-	isBeyondLastFrameMap: Record<string, number>;
-};
-
-export type RenderAssetInfo = {
-	assets: TAsset[][];
-	imageSequenceName: string;
-	downloadDir: string;
-	firstFrameIndex: number;
-	downloadMap: DownloadMap;
-};
-
 export type CompositionManagerContext = {
 	compositions: TComposition[];
 	registerComposition: <T>(comp: TComposition<T>) => void;

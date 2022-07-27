@@ -1,6 +1,6 @@
 import path from 'path';
 import {test} from 'vitest';
-import {makeDownloadMap} from '../assets/download-and-map-assets-to-file';
+import {makeDownloadMap} from '../assets/download-map';
 import {getLastFrameOfVideo} from '../extract-frame-from-video';
 
 test('Get last frame of corrupted video', async () => {

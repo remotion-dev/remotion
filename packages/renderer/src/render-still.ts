@@ -1,9 +1,9 @@
 import fs, {statSync} from 'fs';
 import path from 'path';
-import type {SmallTCompMetadata} from 'remotion';
+import type {DownloadMap, SmallTCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import {makeDownloadMap} from './assets/download-and-map-assets-to-file';
+import {makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
@@ -47,6 +47,10 @@ type InnerStillOptions = {
 	cancelSignal?: CancelSignal;
 	ffmpegExecutable?: FfmpegExecutable;
 	ffprobeExecutable?: FfmpegExecutable;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	downloadMap?: DownloadMap;
 };
 
 type RenderStillOptions = InnerStillOptions &
@@ -222,7 +226,7 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 	const selectedServeUrl = getServeUrlWithFallback(options);
 
 	const downloadDir = makeAssetsDownloadTmpDir();
-	const downloadMap = makeDownloadMap();
+	const downloadMap = options.downloadMap ?? makeDownloadMap();
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
 

@@ -76,6 +76,8 @@ const renderHandler = async (
 
 	const chunkCodec: Codec = params.codec === 'gif' ? 'h264-mkv' : params.codec;
 
+	const downloadMap = RenderInternals.makeDownloadMap();
+
 	await renderMedia({
 		composition: {
 			id: params.composition,
@@ -162,6 +164,7 @@ const renderHandler = async (
 		port: null,
 		everyNthFrame: params.everyNthFrame,
 		numberOfGifLoops: null,
+		downloadMap,
 	});
 
 	const endRendered = Date.now();

@@ -1,19 +1,8 @@
 import execa from 'execa';
 import path from 'path';
+import type {DownloadMap} from './assets/download-map';
 import {guessExtensionForVideo} from './guess-extension-for-media';
 import {truthy} from './truthy';
-
-type EncodingStatus =
-	| {
-			type: 'encoding';
-	  }
-	| {
-			type: 'done';
-			src: string;
-	  }
-	| undefined;
-
-const ensureFileHasPresentationTimestamp: Record<string, EncodingStatus> = {};
 
 type Callback = {
 	src: string;
@@ -44,9 +33,10 @@ const getTemporaryOutputName = async (src: string) => {
 };
 
 export const ensurePresentationTimestamps = async (
+	downloadMap: DownloadMap,
 	src: string
 ): Promise<string> => {
-	const elem = ensureFileHasPresentationTimestamp[src];
+	const elem = downloadMap.ensureFileHasPresentationTimestamp[src];
 	if (elem?.type === 'encoding') {
 		return new Promise<string>((resolve) => {
 			callbacks.push({
@@ -60,7 +50,7 @@ export const ensurePresentationTimestamps = async (
 		return elem.src;
 	}
 
-	ensureFileHasPresentationTimestamp[src] = {type: 'encoding'};
+	downloadMap.ensureFileHasPresentationTimestamp[src] = {type: 'encoding'};
 
 	// If there is no file extension for the video, then we need to tempoa
 	const output = await getTemporaryOutputName(src);
@@ -86,6 +76,9 @@ export const ensurePresentationTimestamps = async (
 
 		return true;
 	});
-	ensureFileHasPresentationTimestamp[src] = {type: 'done', src: output};
+	downloadMap.ensureFileHasPresentationTimestamp[src] = {
+		type: 'done',
+		src: output,
+	};
 	return output;
 };

@@ -67,6 +67,8 @@ const innerStillHandler = async (
 
 	const outputPath = path.join(outputDir, 'output');
 
+	const downloadMap = RenderInternals.makeDownloadMap();
+
 	const composition = await validateComposition({
 		serveUrl: lambdaParams.serveUrl,
 		browserInstance,
@@ -78,6 +80,7 @@ const innerStillHandler = async (
 		chromiumOptions: lambdaParams.chromiumOptions,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 		port: null,
+		downloadMap,
 	});
 
 	const renderMetadata: RenderMetadata = {
@@ -126,6 +129,7 @@ const innerStillHandler = async (
 		chromiumOptions: lambdaParams.chromiumOptions,
 		scale: lambdaParams.scale,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
+		downloadMap,
 	});
 
 	const {key, renderBucketName} = getExpectedOutName(
