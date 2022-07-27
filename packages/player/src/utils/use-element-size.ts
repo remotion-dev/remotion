@@ -5,6 +5,10 @@ export type Size = {
 	height: number;
 	left: number;
 	top: number;
+	windowSize: {
+		width: number;
+		height: number;
+	};
 };
 
 // If a pane has been moved, it will cause a layout shift without
@@ -59,6 +63,10 @@ export const useElementSize = (
 				height,
 				left: newSize[0].x,
 				top: newSize[0].y,
+				windowSize: {
+					height: window.innerHeight,
+					width: window.innerWidth,
+				},
 			});
 		});
 	}, [options.shouldApplyCssTransforms]);
@@ -78,6 +86,10 @@ export const useElementSize = (
 			height: rect[0].height as number,
 			left: rect[0].x as number,
 			top: rect[0].y as number,
+			windowSize: {
+				height: window.innerHeight,
+				width: window.innerWidth,
+			},
 		});
 	}, [ref]);
 
