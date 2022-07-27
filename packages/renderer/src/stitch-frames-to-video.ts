@@ -34,6 +34,8 @@ import {
 	validateSelectedPixelFormatAndCodecCombination,
 } from './pixel-format';
 import {preprocessAudioTrack} from './preprocess-audio-track';
+import type {ProResProfile} from './prores-profile';
+import {truthy} from './truthy';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
