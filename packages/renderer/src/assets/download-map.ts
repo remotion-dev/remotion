@@ -16,6 +16,14 @@ export type Vp9Result = {
 	specialVcodec: SpecialVCodecForTransparency;
 	needsResize: [number, number] | null;
 };
+export type VideoDurationResult = {
+	duration: number | null;
+};
+
+export type AudioChannelsAndDurationResultCache = {
+	channels: number;
+	duration: number | null;
+};
 
 export type DownloadMap = {
 	isDownloadingMap: {
@@ -36,8 +44,9 @@ export type DownloadMap = {
 	lastFrameMap: Record<string, {lastAccessed: number; data: Buffer}>;
 	isBeyondLastFrameMap: Record<string, number>;
 	isVp9VideoCache: Record<string, Vp9Result>;
-
 	ensureFileHasPresentationTimestamp: Record<string, EncodingStatus>;
+	videoDurationResultCache: Record<string, VideoDurationResult>;
+	durationOfAssetCache: Record<string, AudioChannelsAndDurationResultCache>;
 };
 
 export type RenderAssetInfo = {
@@ -57,5 +66,7 @@ export const makeDownloadMap = (): DownloadMap => {
 		isBeyondLastFrameMap: {},
 		ensureFileHasPresentationTimestamp: {},
 		isVp9VideoCache: {},
+		videoDurationResultCache: {},
+		durationOfAssetCache: {},
 	};
 };

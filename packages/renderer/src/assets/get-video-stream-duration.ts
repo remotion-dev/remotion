@@ -1,21 +1,17 @@
 import execa from 'execa';
 import type {FfmpegExecutable} from '../ffmpeg-executable';
 import {pLimit} from '../p-limit';
-
-type Result = {
-	duration: number | null;
-};
-
-const durationOfAssetCache: Record<string, Result> = {};
+import type {DownloadMap, VideoDurationResult} from './download-map';
 
 const limit = pLimit(1);
 
 async function getVideoStreamDurationUnlimited(
+	downloadMap: DownloadMap,
 	src: string,
 	ffprobeExecutable: FfmpegExecutable
-): Promise<Result> {
-	if (durationOfAssetCache[src]) {
-		return durationOfAssetCache[src];
+): Promise<VideoDurationResult> {
+	if (downloadMap.videoDurationResultCache[src]) {
+		return downloadMap.videoDurationResultCache[src];
 	}
 
 	const args = [
@@ -31,18 +27,21 @@ async function getVideoStreamDurationUnlimited(
 
 	const duration = task.stdout.match(/duration=([0-9.]+)/);
 
-	const result: Result = {
+	const result: VideoDurationResult = {
 		duration: duration ? parseFloat(duration[1]) : null,
 	};
 
-	durationOfAssetCache[src] = result;
+	downloadMap.videoDurationResultCache[src] = result;
 
 	return result;
 }
 
 export const getVideoStreamDuration = (
+	downloadMap: DownloadMap,
 	src: string,
 	ffprobeExecutable: FfmpegExecutable
-): Promise<Result> => {
-	return limit(() => getVideoStreamDurationUnlimited(src, ffprobeExecutable));
+): Promise<VideoDurationResult> => {
+	return limit(() =>
+		getVideoStreamDurationUnlimited(downloadMap, src, ffprobeExecutable)
+	);
 };

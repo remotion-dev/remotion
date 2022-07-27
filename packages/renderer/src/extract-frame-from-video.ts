@@ -125,13 +125,18 @@ const getFrameOfVideoSlow = async ({
 const getLastFrameOfVideoFastUnlimited = async (
 	options: LastFrameOptions
 ): Promise<Buffer> => {
-	const {ffmpegExecutable, ffprobeExecutable, offset, src} = options;
+	const {ffmpegExecutable, ffprobeExecutable, offset, src, downloadMap} =
+		options;
 	const fromCache = getLastFrameFromCache({...options, offset: 0});
 	if (fromCache) {
 		return fromCache;
 	}
 
-	const {duration} = await getVideoStreamDuration(src, ffprobeExecutable);
+	const {duration} = await getVideoStreamDuration(
+		downloadMap,
+		src,
+		ffprobeExecutable
+	);
 	if (duration === null) {
 		throw new Error(
 			`Could not determine the duration of ${src} using FFMPEG. The file is not supported.`
