@@ -3,6 +3,8 @@ import path from 'path';
 import type {SmallTCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import type {DownloadMap} from './assets/download-map';
+import {makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
@@ -13,7 +15,6 @@ import type {StillImageFormat} from './image-format';
 import {validateNonNullImageFormat} from './image-format';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
 import {getServeUrlWithFallback} from './legacy-webpack-config';
-import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import type {CancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {openBrowser} from './open-browser';
@@ -46,6 +47,10 @@ type InnerStillOptions = {
 	cancelSignal?: CancelSignal;
 	ffmpegExecutable?: FfmpegExecutable;
 	ffprobeExecutable?: FfmpegExecutable;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	downloadMap?: DownloadMap;
 };
 
 type RenderStillOptions = InnerStillOptions &
@@ -220,7 +225,7 @@ const innerRenderStill = async ({
 export const renderStill = (options: RenderStillOptions): Promise<void> => {
 	const selectedServeUrl = getServeUrlWithFallback(options);
 
-	const downloadDir = makeAssetsDownloadTmpDir();
+	const downloadMap = options.downloadMap ?? makeDownloadMap();
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
 
@@ -231,12 +236,12 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 
 		prepareServer({
 			webpackConfigOrServeUrl: selectedServeUrl,
-			downloadDir,
 			onDownload,
 			onError,
 			ffmpegExecutable: options.ffmpegExecutable ?? null,
 			ffprobeExecutable: options.ffprobeExecutable ?? null,
 			port: options.port ?? null,
+			downloadMap,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
 				close = closeServer;

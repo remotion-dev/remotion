@@ -1,5 +1,6 @@
 import type {
 	ChromiumOptions,
+	DownloadMap,
 	FfmpegExecutable,
 	openBrowser,
 } from '@remotion/renderer';
@@ -18,6 +19,7 @@ type ValidateCompositionOptions = {
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	port: number | null;
+	downloadMap: DownloadMap;
 };
 
 export const validateComposition = async ({
@@ -31,6 +33,7 @@ export const validateComposition = async ({
 	ffprobeExecutable,
 	chromiumOptions,
 	port,
+	downloadMap,
 }: ValidateCompositionOptions): Promise<TCompMetadata> => {
 	const compositions = await getCompositions(serveUrl, {
 		puppeteerInstance: browserInstance,
@@ -41,6 +44,7 @@ export const validateComposition = async ({
 		timeoutInMilliseconds,
 		chromiumOptions,
 		port,
+		downloadMap,
 	});
 
 	const found = compositions.find((c) => c.id === composition);

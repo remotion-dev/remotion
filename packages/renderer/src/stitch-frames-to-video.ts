@@ -2,12 +2,13 @@ import execa from 'execa';
 import fs, {unlinkSync} from 'fs';
 import {readFile} from 'fs/promises';
 import path from 'path';
-import type {RenderAssetInfo, TAsset} from 'remotion';
+import type {TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
+import type {DownloadMap, RenderAssetInfo} from './assets/download-map';
 import type {Assets} from './assets/types';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
@@ -77,7 +78,6 @@ type ReturnType = {
 
 const getAssetsData = async ({
 	assets,
-	downloadDir,
 	onDownload,
 	fps,
 	expectedFrames,
@@ -85,9 +85,9 @@ const getAssetsData = async ({
 	ffmpegExecutable,
 	ffprobeExecutable,
 	onProgress,
+	downloadMap,
 }: {
 	assets: TAsset[][];
-	downloadDir: string;
 	onDownload: RenderMediaOnDownload | undefined;
 	fps: number;
 	expectedFrames: number;
@@ -95,14 +95,15 @@ const getAssetsData = async ({
 	ffmpegExecutable: FfmpegExecutable | null;
 	ffprobeExecutable: FfmpegExecutable | null;
 	onProgress: (progress: number) => void;
+	downloadMap: DownloadMap;
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
-		downloadDir,
 		onDownload: onDownload ?? (() => () => undefined),
+		downloadMap,
 	});
 
-	markAllAssetsAsDownloaded();
+	markAllAssetsAsDownloaded(downloadMap);
 	const assetPositions: Assets = calculateAssetPositions(fileUrlAssets);
 
 	if (verbose) {
@@ -130,6 +131,7 @@ const getAssetsData = async ({
 					asset,
 					expectedFrames,
 					fps,
+					downloadMap,
 				});
 				preprocessProgress[index] = 1;
 				updateProgress();
@@ -235,7 +237,6 @@ export const spawnFfmpeg = async (
 	const audio = mediaSupport.audio
 		? await getAssetsData({
 				assets: options.assetsInfo.assets,
-				downloadDir: options.assetsInfo.downloadDir,
 				onDownload: options.onDownload,
 				fps: options.fps,
 				expectedFrames,
@@ -243,6 +244,7 @@ export const spawnFfmpeg = async (
 				ffmpegExecutable: options.ffmpegExecutable ?? null,
 				ffprobeExecutable: options.ffprobeExecutable ?? null,
 				onProgress: (prog) => updateProgress(prog, 0),
+				downloadMap: options.assetsInfo.downloadMap,
 		  })
 		: null;
 

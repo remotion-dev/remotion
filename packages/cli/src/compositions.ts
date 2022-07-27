@@ -1,4 +1,4 @@
-import {getCompositions} from '@remotion/renderer';
+import {getCompositions, RenderInternals} from '@remotion/renderer';
 import path from 'path';
 import {getCliOptions} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
@@ -36,6 +36,8 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 		process.exit(1);
 	}
 
+	const downloadMap = RenderInternals.makeDownloadMap();
+
 	const fullPath = path.join(process.cwd(), file);
 
 	await loadConfig(remotionRoot);
@@ -69,6 +71,7 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 		inputProps,
 		timeoutInMilliseconds: puppeteerTimeout,
 		port,
+		downloadMap,
 	});
 	if (!quietFlagProvided()) {
 		Log.info();

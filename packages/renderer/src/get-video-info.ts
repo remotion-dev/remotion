@@ -1,25 +1,18 @@
 import execa from 'execa';
+import type {DownloadMap, Vp9Result} from './assets/download-map';
 import {calculateDisplayVideoSize} from './calculate-sar-dar-pixels';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {pLimit} from './p-limit';
 
-type Result = {
-	specialVcodec: SpecialVCodecForTransparency;
-	needsResize: [number, number] | null;
-};
-
-export type SpecialVCodecForTransparency = 'vp9' | 'vp8' | 'none';
-
-const isVp9VideoCache: Record<string, Result> = {};
-
 const limit = pLimit(1);
 
 async function getVideoInfoUnlimited(
+	downloadMap: DownloadMap,
 	src: string,
 	ffprobeExecutable: FfmpegExecutable
-): Promise<Result> {
-	if (typeof isVp9VideoCache[src] !== 'undefined') {
-		return isVp9VideoCache[src];
+): Promise<Vp9Result> {
+	if (typeof downloadMap.isVp9VideoCache[src] !== 'undefined') {
+		return downloadMap.isVp9VideoCache[src];
 	}
 
 	const task = await execa(ffprobeExecutable ?? 'ffprobe', [src]);
@@ -54,19 +47,22 @@ async function getVideoInfoUnlimited(
 		}
 	}
 
-	const result: Result = {
+	const result: Vp9Result = {
 		specialVcodec: isVp9 ? 'vp9' : isVp8 ? 'vp8' : 'none',
 		needsResize,
 	};
 
-	isVp9VideoCache[src] = result;
+	downloadMap.isVp9VideoCache[src] = result;
 
-	return isVp9VideoCache[src];
+	return downloadMap.isVp9VideoCache[src];
 }
 
 export const getVideoInfo = (
+	downloadMap: DownloadMap,
 	src: string,
 	ffprobeExecutable: FfmpegExecutable
-): Promise<Result> => {
-	return limit(() => getVideoInfoUnlimited(src, ffprobeExecutable));
+): Promise<Vp9Result> => {
+	return limit(() =>
+		getVideoInfoUnlimited(downloadMap, src, ffprobeExecutable)
+	);
 };

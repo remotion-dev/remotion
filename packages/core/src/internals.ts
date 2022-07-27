@@ -12,7 +12,6 @@ import {
 import type {CompProps} from './Composition';
 import type {
 	CompositionManagerContext,
-	RenderAssetInfo,
 	TAsset,
 	TCompMetadata,
 	TComposition,
@@ -118,7 +117,6 @@ export type {
 	WebpackOverrideFn,
 	WebpackConfiguration,
 	TAsset,
-	RenderAssetInfo,
 	TimelineContextValue,
 	SetTimelineContextValue,
 	CompProps,

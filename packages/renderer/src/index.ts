@@ -1,5 +1,6 @@
 import execa from 'execa';
 import {downloadFile} from './assets/download-file';
+import {makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
@@ -66,6 +67,7 @@ import {
 	unlockErrorSymbolicationLock,
 } from './wait-for-symbolication-error-to-be-done';
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+export type {DownloadMap} from './assets/download-map';
 export {Browser} from './browser';
 export {BrowserExecutable} from './browser-executable';
 export {BrowserLog} from './browser-log';
@@ -163,4 +165,5 @@ export const RenderInternals = {
 	isValidLogLevel,
 	validateEveryNthFrame,
 	perf,
+	makeDownloadMap,
 };

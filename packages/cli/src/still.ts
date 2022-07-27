@@ -144,6 +144,9 @@ export const still = async (remotionRoot: string) => {
 		: await bundleOnCli({fullPath, remotionRoot, steps});
 
 	const puppeteerInstance = await browserInstance;
+
+	const downloadMap = RenderInternals.makeDownloadMap();
+
 	const comps = await getCompositions(await urlOrBundle, {
 		inputProps,
 		puppeteerInstance,
@@ -154,6 +157,7 @@ export const still = async (remotionRoot: string) => {
 		browserExecutable,
 		ffmpegExecutable,
 		ffprobeExecutable,
+		downloadMap,
 	});
 
 	const composition = comps.find((c) => c.id === compositionId);
@@ -225,6 +229,7 @@ export const still = async (remotionRoot: string) => {
 		overwrite,
 		onDownload,
 		port,
+		downloadMap,
 	});
 
 	frames = 1;

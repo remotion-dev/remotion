@@ -1,8 +1,11 @@
 // OffthreadVideo requires sometimes that the last frame of a video gets extracted, however, this can be slow. We allocate a cache for it but that can be garbage collected
 
 import type {OffthreadVideoImageFormat} from 'remotion';
+import type {
+	DownloadMap,
+	SpecialVCodecForTransparency,
+} from './assets/download-map';
 import type {FfmpegExecutable} from './ffmpeg-executable';
-import type {SpecialVCodecForTransparency} from './get-video-info';
 
 export type LastFrameOptions = {
 	ffmpegExecutable: FfmpegExecutable;
@@ -12,9 +15,8 @@ export type LastFrameOptions = {
 	specialVCodecForTransparency: SpecialVCodecForTransparency;
 	imageFormat: OffthreadVideoImageFormat;
 	needsResize: [number, number] | null;
+	downloadMap: DownloadMap;
 };
-
-let map: Record<string, {lastAccessed: number; data: Buffer}> = {};
 
 const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
 
@@ -26,6 +28,7 @@ const makeLastFrameCacheKey = (options: LastFrameOptions) => {
 		options.offset,
 		options.src,
 		options.imageFormat,
+		options.downloadMap.id,
 	].join('-');
 };
 
@@ -34,13 +37,13 @@ export const setLastFrameInCache = (
 	data: Buffer
 ) => {
 	const key = makeLastFrameCacheKey(options);
-	if (map[key]) {
-		bufferSize -= map[key].data.byteLength;
+	if (options.downloadMap.lastFrameMap[key]) {
+		bufferSize -= options.downloadMap.lastFrameMap[key].data.byteLength;
 	}
 
-	map[key] = {data, lastAccessed: Date.now()};
+	options.downloadMap.lastFrameMap[key] = {data, lastAccessed: Date.now()};
 	bufferSize += data.byteLength;
-	ensureMaxSize();
+	ensureMaxSize(options.downloadMap);
 };
 
 export const getLastFrameFromCache = (
@@ -48,35 +51,35 @@ export const getLastFrameFromCache = (
 ): Buffer | null => {
 	const key = makeLastFrameCacheKey(options);
 
-	if (!map[key]) {
+	if (!options.downloadMap.lastFrameMap[key]) {
 		return null;
 	}
 
-	map[key].lastAccessed = Date.now();
-	return map[key].data ?? null;
+	options.downloadMap.lastFrameMap[key].lastAccessed = Date.now();
+	return options.downloadMap.lastFrameMap[key].data ?? null;
 };
 
-const removedLastFrameFromCache = (key: string) => {
-	if (!map[key]) {
+const removedLastFrameFromCache = (key: string, downloadMap: DownloadMap) => {
+	if (!downloadMap.lastFrameMap[key]) {
 		return;
 	}
 
-	bufferSize -= map[key].data.byteLength;
+	bufferSize -= downloadMap.lastFrameMap[key].data.byteLength;
 
-	delete map[key];
+	delete downloadMap.lastFrameMap[key];
 };
 
-const ensureMaxSize = () => {
+const ensureMaxSize = (downloadMap: DownloadMap) => {
 	// eslint-disable-next-line no-unmodified-loop-condition
 	while (bufferSize > MAX_CACHE_SIZE) {
-		const earliest = Object.entries(map).sort((a, b) => {
+		const earliest = Object.entries(downloadMap.lastFrameMap).sort((a, b) => {
 			return a[1].lastAccessed - b[1].lastAccessed;
 		})[0];
 
-		removedLastFrameFromCache(earliest[0]);
+		removedLastFrameFromCache(earliest[0], downloadMap);
 	}
 };
 
-export const clearLastFileCache = () => {
-	map = {};
+export const clearLastFileCache = (downloadMap: DownloadMap) => {
+	downloadMap.lastFrameMap = {};
 };
