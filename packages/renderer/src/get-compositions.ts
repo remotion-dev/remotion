@@ -1,5 +1,5 @@
-import type {TCompMetadata} from 'remotion';
-import {makeDownloadMap} from './assets/download-and-map-assets-to-file';
+import type {DownloadMap, TCompMetadata} from 'remotion';
+import {makeDownloadMap} from './assets/download-map';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
@@ -25,6 +25,10 @@ type GetCompositionsConfig = {
 	ffmpegExecutable?: FfmpegExecutable;
 	ffprobeExecutable?: FfmpegExecutable;
 	port?: number | null;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	downloadMap?: DownloadMap;
 };
 
 const innerGetCompositions = async (
@@ -85,7 +89,7 @@ export const getCompositions = async (
 	config?: GetCompositionsConfig
 ) => {
 	const downloadDir = makeAssetsDownloadTmpDir();
-	const downloadMap = makeDownloadMap();
+	const downloadMap = config?.downloadMap ?? makeDownloadMap();
 
 	const {page, cleanup} = await getPageAndCleanupFn({
 		passedInInstance: config?.puppeteerInstance,
@@ -118,6 +122,7 @@ export const getCompositions = async (
 				return innerGetCompositions(
 					serveUrl,
 					page,
+					// @ts-expect-error
 					config ?? {},
 					offthreadPort
 				);

@@ -1,5 +1,6 @@
 import execa from 'execa';
 import {downloadFile} from './assets/download-file';
+import {makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
@@ -163,4 +164,5 @@ export const RenderInternals = {
 	isValidLogLevel,
 	validateEveryNthFrame,
 	perf,
+	makeDownloadMap,
 };

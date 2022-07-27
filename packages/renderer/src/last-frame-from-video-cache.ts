@@ -1,6 +1,7 @@
 // OffthreadVideo requires sometimes that the last frame of a video gets extracted, however, this can be slow. We allocate a cache for it but that can be garbage collected
 
-import type {DownloadMap, OffthreadVideoImageFormat} from 'remotion';
+import type {OffthreadVideoImageFormat} from 'remotion';
+import type {DownloadMap} from './assets/download-map';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import type {SpecialVCodecForTransparency} from './get-video-info';
 

@@ -1,12 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import type {SmallTCompMetadata, TAsset} from 'remotion';
+import type {DownloadMap, SmallTCompMetadata, TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import {
-	downloadAndMapAssetsToFileUrl,
-	makeDownloadMap,
-} from './assets/download-and-map-assets-to-file';
+import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
+import {makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
@@ -81,6 +79,10 @@ type RenderFramesOptions = {
 	ffprobeExecutable?: FfmpegExecutable;
 	port?: number | null;
 	cancelSignal?: CancelSignal;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	downloadMap?: DownloadMap;
 } & ConfigOrComposition &
 	ServeUrlOrWebpackBundle;
 
@@ -126,6 +128,7 @@ const innerRenderFrames = ({
 	everyNthFrame = 1,
 	proxyPort,
 	cancelSignal,
+	downloadMap,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -135,8 +138,8 @@ const innerRenderFrames = ({
 	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 	proxyPort: number;
+	downloadMap: DownloadMap;
 }): Promise<RenderFramesOutput> => {
-	const downloadMap = makeDownloadMap();
 	if (!puppeteerInstance) {
 		throw new Error(
 			'no puppeteer instance passed to innerRenderFrames - internal error'
@@ -406,7 +409,7 @@ export const renderFrames = (
 		});
 
 	const downloadDir = makeAssetsDownloadTmpDir();
-	const downloadMap = makeDownloadMap();
+	const downloadMap = options.downloadMap ?? makeDownloadMap();
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
 
@@ -458,6 +461,7 @@ export const renderFrames = (
 					onDownload,
 					downloadDir,
 					proxyPort: offthreadPort,
+					downloadMap,
 				});
 			}),
 		])
