@@ -112,4 +112,6 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 			})
 			.join('\n')
 	);
+
+	await RenderInternals.cleanDownloadMap(downloadMap);
 };

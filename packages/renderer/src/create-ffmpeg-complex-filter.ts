@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import type {DownloadMap} from './assets/download-map';
 import {createFfmpegMergeFilter} from './create-ffmpeg-merge-filter';
 import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
@@ -21,10 +19,6 @@ export const createFfmpegComplexFilter = async (
 		complexFilter,
 		downloadMap
 	);
-
-	const tempPath = downloadMap.complexFilterScript;
-	const filterFile = path.join(tempPath, 'complex-filter.txt');
-	await fs.promises.writeFile(filterFile, complexFilter);
 
 	return {
 		complexFilterFlag: ['-filter_complex_script', file],

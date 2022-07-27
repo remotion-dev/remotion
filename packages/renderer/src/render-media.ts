@@ -6,7 +6,7 @@ import type {SmallTCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
-import {makeDownloadMap} from './assets/download-map';
+import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
@@ -370,6 +370,11 @@ export const renderMedia = ({
 				fs.existsSync(preEncodedFileLocation)
 			) {
 				fs.unlinkSync(preEncodedFileLocation);
+			}
+
+			// Clean download map if it was not passed in
+			if (!options?.downloadMap) {
+				cleanDownloadMap(downloadMap);
 			}
 		});
 

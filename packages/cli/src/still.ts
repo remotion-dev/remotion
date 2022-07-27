@@ -251,4 +251,5 @@ export const still = async (remotionRoot: string) => {
 	Log.info('-', 'Output can be found at:');
 	Log.info(chalk.cyan(`▶️ ${absoluteOutputLocation}`));
 	await closeBrowserPromise;
+	await RenderInternals.cleanDownloadMap(downloadMap);
 };

@@ -1,4 +1,7 @@
+import fs, {mkdirSync} from 'fs';
+import path from 'path';
 import type {TAsset} from 'remotion';
+import {deleteDirectory} from '../delete-directory';
 import {tmpDir} from '../tmp-dir';
 
 type EncodingStatus =
@@ -51,12 +54,12 @@ export type DownloadMap = {
 	videoDurationResultCache: Record<string, VideoDurationResult>;
 	durationOfAssetCache: Record<string, AudioChannelsAndDurationResultCache>;
 	downloadDir: string;
-	complexFilterScript: string;
 	preEncode: string;
 	audioMixing: string;
 	complexFilter: string;
 	audioPreprocessing: string;
 	stitchFrames: string;
+	assetDir: string;
 };
 
 export type RenderAssetInfo = {
@@ -66,7 +69,25 @@ export type RenderAssetInfo = {
 	downloadMap: DownloadMap;
 };
 
+const makeAndReturn = (dir: string, name: string) => {
+	const p = path.join(dir, name);
+	mkdirSync(p);
+	return p;
+};
+
+const packageJsonPath = path.join(__dirname, '..', '..', 'package.json');
+
+const packageJson = fs.existsSync(packageJsonPath)
+	? JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'))
+	: null;
+
 export const makeDownloadMap = (): DownloadMap => {
+	const dir = tmpDir(
+		packageJson
+			? 'remotion-assets'
+			: 'remotion-assets-' + packageJson.version.replace(/\./g, '-')
+	);
+
 	return {
 		isDownloadingMap: {},
 		hasBeenDownloadedMap: {},
@@ -78,12 +99,16 @@ export const makeDownloadMap = (): DownloadMap => {
 		videoDurationResultCache: {},
 		durationOfAssetCache: {},
 		id: String(Math.random()),
-		downloadDir: tmpDir('remotion-assets-dir'),
-		complexFilter: tmpDir('remotion-complex-filter'),
-		complexFilterScript: tmpDir('remotion-complex-filter-script'),
-		preEncode: tmpDir('pre-encode'),
-		audioMixing: tmpDir('remotion-audio-mixing'),
-		audioPreprocessing: tmpDir('remotion-audio-preprocessing'),
-		stitchFrames: tmpDir('remotion-stitch-temp-dir'),
+		assetDir: dir,
+		downloadDir: makeAndReturn(dir, 'remotion-assets-dir'),
+		complexFilter: makeAndReturn(dir, 'remotion-complex-filter'),
+		preEncode: makeAndReturn(dir, 'pre-encode'),
+		audioMixing: makeAndReturn(dir, 'remotion-audio-mixing'),
+		audioPreprocessing: makeAndReturn(dir, 'remotion-audio-preprocessing'),
+		stitchFrames: makeAndReturn(dir, 'remotion-stitch-temp-dir'),
 	};
+};
+
+export const cleanDownloadMap = (downloadMap: DownloadMap) => {
+	return deleteDirectory(downloadMap.downloadDir);
 };

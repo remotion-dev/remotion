@@ -109,8 +109,6 @@ const getAssetsData = async ({
 		console.log('asset positions', assetPositions);
 	}
 
-	const tempPath = downloadMap.audioMixing;
-
 	const preprocessProgress = new Array(assetPositions.length).fill(0);
 
 	const updateProgress = () => {
@@ -122,7 +120,7 @@ const getAssetsData = async ({
 	const preprocessed = (
 		await Promise.all(
 			assetPositions.map(async (asset, index) => {
-				const filterFile = path.join(tempPath, `${index}.wav`);
+				const filterFile = path.join(downloadMap.audioMixing, `${index}.wav`);
 				const result = await preprocessAudioTrack({
 					ffmpegExecutable: ffmpegExecutable ?? null,
 					ffprobeExecutable: ffprobeExecutable ?? null,
@@ -149,7 +147,7 @@ const getAssetsData = async ({
 		downloadMap,
 	});
 
-	deleteDirectory(tempPath);
+	deleteDirectory(downloadMap.audioMixing);
 
 	onProgress(1);
 
@@ -385,6 +383,8 @@ export const spawnFfmpeg = async (
 
 	return {
 		task: task.then(() => {
+			deleteDirectory(options.assetsInfo.downloadMap.audioPreprocessing);
+
 			if (tempFile === null) {
 				return null;
 			}
