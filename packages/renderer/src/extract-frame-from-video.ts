@@ -1,5 +1,5 @@
 import execa from 'execa';
-import type {OffthreadVideoImageFormat} from 'remotion';
+import type {DownloadMap, OffthreadVideoImageFormat} from 'remotion';
 import {getVideoStreamDuration} from './assets/get-video-stream-duration';
 import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
 import type {FfmpegExecutable} from './ffmpeg-executable';
@@ -210,6 +210,7 @@ const getLastFrameOfVideoFastUnlimited = async (
 			imageFormat: options.imageFormat,
 			specialVCodecForTransparency: options.specialVCodecForTransparency,
 			needsResize: options.needsResize,
+			downloadMap: options.downloadMap,
 		});
 
 		return unlimited;
@@ -236,6 +237,7 @@ type Options = {
 	ffmpegExecutable: FfmpegExecutable;
 	ffprobeExecutable: FfmpegExecutable;
 	imageFormat: OffthreadVideoImageFormat;
+	downloadMap: DownloadMap;
 };
 
 const extractFrameFromVideoFn = async ({
@@ -243,6 +245,7 @@ const extractFrameFromVideoFn = async ({
 	ffmpegExecutable,
 	ffprobeExecutable,
 	imageFormat,
+	downloadMap,
 	...options
 }: Options): Promise<Buffer> => {
 	// We make a new copy of the video only for video because the conversion may affect
@@ -273,6 +276,7 @@ const extractFrameFromVideoFn = async ({
 			imageFormat,
 			specialVCodecForTransparency: specialVcodec,
 			needsResize,
+			downloadMap,
 		});
 		return lastFrame;
 	}
@@ -340,6 +344,7 @@ const extractFrameFromVideoFn = async ({
 			imageFormat,
 			specialVCodecForTransparency: specialVcodec,
 			needsResize,
+			downloadMap,
 		});
 
 		return last;

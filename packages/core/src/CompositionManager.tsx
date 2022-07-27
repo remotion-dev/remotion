@@ -94,6 +94,7 @@ export type DownloadMap = {
 			| undefined;
 	};
 	listeners: {[key: string]: {[downloadDir: string]: (() => void)[]}};
+	lastFrameMap: Record<string, {lastAccessed: number; data: Buffer}>;
 };
 
 export type RenderAssetInfo = {

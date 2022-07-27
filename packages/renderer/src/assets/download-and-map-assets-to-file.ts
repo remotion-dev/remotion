@@ -23,6 +23,7 @@ export const makeDownloadMap = (): DownloadMap => {
 		isDownloadingMap: {},
 		hasBeenDownloadedMap: {},
 		listeners: {},
+		lastFrameMap: {},
 	};
 };
 
