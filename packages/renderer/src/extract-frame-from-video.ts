@@ -267,7 +267,7 @@ const extractFrameFromVideoFn = async ({
 		});
 	}
 
-	if (isBeyondLastFrame(src, time)) {
+	if (isBeyondLastFrame(downloadMap, src, time)) {
 		const lastFrame = await getLastFrameOfVideo({
 			ffmpegExecutable,
 			ffprobeExecutable,
@@ -335,7 +335,7 @@ const extractFrameFromVideoFn = async ({
 	]);
 
 	if (stderrStr.includes('Output file is empty')) {
-		markAsBeyondLastFrame(src, time);
+		markAsBeyondLastFrame(downloadMap, src, time);
 		const last = await getLastFrameOfVideo({
 			ffmpegExecutable,
 			ffprobeExecutable,

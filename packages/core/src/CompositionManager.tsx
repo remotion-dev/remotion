@@ -95,6 +95,7 @@ export type DownloadMap = {
 	};
 	listeners: {[key: string]: {[downloadDir: string]: (() => void)[]}};
 	lastFrameMap: Record<string, {lastAccessed: number; data: Buffer}>;
+	isBeyondLastFrameMap: Record<string, number>;
 };
 
 export type RenderAssetInfo = {
