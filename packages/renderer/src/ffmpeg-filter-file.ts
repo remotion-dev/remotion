@@ -4,19 +4,22 @@
 import fs from 'fs';
 import path from 'path';
 import type {DownloadMap} from './assets/download-map';
-import {deleteDirectory} from './delete-directory';
 
 export const makeFfmpegFilterFile = async (
 	complexFilter: string,
 	downloadMap: DownloadMap
 ) => {
-	const filterFile = path.join(downloadMap.complexFilter, 'complex-filter.txt');
+	const random = Math.random().toString().replace('.', '');
+	const filterFile = path.join(
+		downloadMap.complexFilter,
+		'complex-filter-' + random + '.txt'
+	);
 	await fs.promises.writeFile(filterFile, complexFilter);
 
 	return {
 		file: filterFile,
 		cleanup: () => {
-			deleteDirectory(downloadMap.complexFilter);
+			fs.unlinkSync(filterFile);
 		},
 	};
 };

@@ -110,7 +110,7 @@ export const makeDownloadMap = (): DownloadMap => {
 };
 
 export const cleanDownloadMap = async (downloadMap: DownloadMap) => {
-	await deleteDirectory(downloadMap.complexFilter);
 	await deleteDirectory(downloadMap.downloadDir);
+	await deleteDirectory(downloadMap.complexFilter);
 	await deleteDirectory(downloadMap.assetDir);
 };
