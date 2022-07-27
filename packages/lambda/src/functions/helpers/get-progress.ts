@@ -1,7 +1,6 @@
 import {Internals} from 'remotion';
 import type {AwsRegion} from '../../pricing/aws-regions';
-import type {
-	RenderProgress} from '../../shared/constants';
+import type {RenderProgress} from '../../shared/constants';
 import {
 	chunkKey,
 	encodingProgressKey,
@@ -181,7 +180,6 @@ export const getProgress = async ({
 	const lambdasInvokedStats = getLambdasInvokedStats(
 		contents,
 		renderId,
-		renderMetadata?.estimatedRenderLambdaInvokations ?? null,
 		renderMetadata?.startedDate ?? null
 	);
 
