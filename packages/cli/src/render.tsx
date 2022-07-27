@@ -27,7 +27,7 @@ import {
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,
 } from './progress-bar';
-import {bundleOnCli} from './setup-cache';
+import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import type {RenderStep} from './step';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
@@ -123,9 +123,13 @@ export const render = async (remotionRoot: string) => {
 		shouldOutputImageSequence ? null : ('stitching' as const),
 	].filter(Internals.truthy);
 
-	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
-		? fullPath
-		: await bundleOnCli({fullPath, remotionRoot, steps});
+	const {urlOrBundle, cleanup: cleanupBundle} = await bundleOnCliOrTakeServeUrl(
+		{
+			fullPath,
+			remotionRoot,
+			steps,
+		}
+	);
 
 	const onDownload: RenderMediaOnDownload = (src) => {
 		const id = Math.random();
@@ -341,8 +345,9 @@ export const render = async (remotionRoot: string) => {
 	Log.info(chalk.cyan(`▶ ${absoluteOutputFile}`));
 
 	try {
-		await RenderInternals.deleteDirectory(urlOrBundle);
+		await cleanupBundle();
 		await RenderInternals.cleanDownloadMap(downloadMap);
+
 		Log.verbose('Cleaned up', downloadMap.assetDir);
 	} catch (err) {
 		Log.warn('Could not clean up directory.');

@@ -1,5 +1,6 @@
 import type {BundleOptions} from '@remotion/bundler';
 import {bundle, BundlerInternals} from '@remotion/bundler';
+import {RenderInternals} from '@remotion/renderer';
 import {ConfigInternals} from './config';
 import {Log} from './log';
 import {quietFlagProvided} from './parse-command-line';
@@ -8,6 +9,33 @@ import {
 	makeBundlingProgress,
 } from './progress-bar';
 import type {RenderStep} from './step';
+
+export const bundleOnCliOrTakeServeUrl = async ({
+	fullPath,
+	remotionRoot,
+	steps,
+}: {
+	fullPath: string;
+	remotionRoot: string;
+	steps: RenderStep[];
+}): Promise<{
+	urlOrBundle: string;
+	cleanup: () => Promise<void>;
+}> => {
+	if (RenderInternals.isServeUrl(fullPath)) {
+		return {
+			urlOrBundle: fullPath,
+			cleanup: () => Promise.resolve(undefined),
+		};
+	}
+
+	const bundled = await bundleOnCli({fullPath, remotionRoot, steps});
+
+	return {
+		urlOrBundle: bundled,
+		cleanup: () => RenderInternals.deleteDirectory(bundled),
+	};
+};
 
 export const bundleOnCli = async ({
 	fullPath,
