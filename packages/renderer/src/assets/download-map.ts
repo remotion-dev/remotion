@@ -27,6 +27,7 @@ export type AudioChannelsAndDurationResultCache = {
 };
 
 export type DownloadMap = {
+	id: string;
 	isDownloadingMap: {
 		[src: string]:
 			| {
@@ -69,5 +70,6 @@ export const makeDownloadMap = (): DownloadMap => {
 		isVp9VideoCache: {},
 		videoDurationResultCache: {},
 		durationOfAssetCache: {},
+		id: String(Math.random()),
 	};
 };

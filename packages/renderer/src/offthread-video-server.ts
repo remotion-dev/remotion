@@ -85,8 +85,6 @@ export const startOffthreadVideoServer = ({
 					ffprobeExecutable,
 					imageFormat,
 					downloadMap,
-				}).then((a) => {
-					return a;
 				});
 			})
 			.then((readable) => {

@@ -28,7 +28,7 @@ const makeLastFrameCacheKey = (options: LastFrameOptions) => {
 		options.offset,
 		options.src,
 		options.imageFormat,
-		// TODO: Download dir as well?
+		options.downloadMap.id,
 	].join('-');
 };
 
