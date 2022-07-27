@@ -46,14 +46,12 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 export const startOffthreadVideoServer = ({
 	ffmpegExecutable,
 	ffprobeExecutable,
-	downloadDir,
 	onDownload,
 	onError,
 	downloadMap,
 }: {
 	ffmpegExecutable: FfmpegExecutable;
 	ffprobeExecutable: FfmpegExecutable;
-	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
 	downloadMap: DownloadMap;
@@ -76,7 +74,7 @@ export const startOffthreadVideoServer = ({
 			`image/${imageFormat === 'jpeg' ? 'jpg' : 'png'}`
 		);
 
-		downloadAsset({src, downloadDir, onDownload, downloadMap})
+		downloadAsset({src, onDownload, downloadMap})
 			.then((to) => {
 				return extractFrameFromVideo({
 					time,

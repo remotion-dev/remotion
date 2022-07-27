@@ -8,7 +8,6 @@ import {serveStatic} from './serve-static';
 import {waitForSymbolicationToBeDone} from './wait-for-symbolication-error-to-be-done';
 
 export const prepareServer = async ({
-	downloadDir,
 	ffmpegExecutable,
 	ffprobeExecutable,
 	onDownload,
@@ -18,7 +17,6 @@ export const prepareServer = async ({
 	downloadMap,
 }: {
 	webpackConfigOrServeUrl: string;
-	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
 	ffmpegExecutable: FfmpegExecutable;
@@ -32,7 +30,6 @@ export const prepareServer = async ({
 }> => {
 	if (isServeUrl(webpackConfigOrServeUrl)) {
 		const {port: offthreadPort, close: closeProxy} = await serveStatic(null, {
-			downloadDir,
 			onDownload,
 			onError,
 			ffmpegExecutable,
@@ -60,7 +57,6 @@ export const prepareServer = async ({
 	}
 
 	const {port: serverPort, close} = await serveStatic(webpackConfigOrServeUrl, {
-		downloadDir,
 		onDownload,
 		onError,
 		ffmpegExecutable,

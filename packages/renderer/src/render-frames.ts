@@ -29,7 +29,6 @@ import type {ImageFormat} from './image-format';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
 import {getServeUrlWithFallback} from './legacy-webpack-config';
-import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import type {CancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {openBrowser} from './open-browser';
@@ -125,7 +124,6 @@ const innerRenderFrames = ({
 	timeoutInMilliseconds,
 	scale,
 	actualParallelism,
-	downloadDir,
 	everyNthFrame = 1,
 	proxyPort,
 	cancelSignal,
@@ -136,7 +134,6 @@ const innerRenderFrames = ({
 	serveUrl: string;
 	composition: SmallTCompMetadata;
 	actualParallelism: number;
-	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 	proxyPort: number;
 	downloadMap: DownloadMap;
@@ -318,7 +315,6 @@ const innerRenderFrames = ({
 			compressedAssets.forEach((asset) => {
 				downloadAndMapAssetsToFileUrl({
 					asset,
-					downloadDir,
 					onDownload,
 					downloadMap,
 				}).catch((err) => {
@@ -340,7 +336,6 @@ const innerRenderFrames = ({
 		const returnValue: RenderFramesOutput = {
 			assetsInfo: {
 				assets,
-				downloadDir,
 				imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
 				firstFrameIndex: framesToRender[0],
 				downloadMap,
@@ -409,7 +404,6 @@ export const renderFrames = (
 			forceDeviceScaleFactor: options.scale ?? 1,
 		});
 
-	const downloadDir = makeAssetsDownloadTmpDir();
 	const downloadMap = options.downloadMap ?? makeDownloadMap();
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
@@ -433,7 +427,6 @@ export const renderFrames = (
 			Promise.all([
 				prepareServer({
 					webpackConfigOrServeUrl: selectedServeUrl,
-					downloadDir,
 					onDownload,
 					onError,
 					ffmpegExecutable: options.ffmpegExecutable ?? null,
@@ -460,7 +453,6 @@ export const renderFrames = (
 					composition,
 					actualParallelism,
 					onDownload,
-					downloadDir,
 					proxyPort: offthreadPort,
 					downloadMap,
 				});
