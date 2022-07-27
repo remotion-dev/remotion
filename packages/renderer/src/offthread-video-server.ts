@@ -76,32 +76,16 @@ export const startOffthreadVideoServer = ({
 			`image/${imageFormat === 'jpeg' ? 'jpg' : 'png'}`
 		);
 
-		Promise.race<string>([
-			downloadAsset({src, downloadDir, onDownload, downloadMap}),
-			new Promise((_, rej) => {
-				setTimeout(() => rej(new Error(String('TIMEOUT FOR ' + src))), 15000);
-			}),
-		])
+		downloadAsset({src, downloadDir, onDownload, downloadMap})
 			.then((to) => {
-				const random = Math.random();
-				console.time(src + random);
-				return Promise.race([
-					extractFrameFromVideo({
-						time,
-						src: to,
-						ffmpegExecutable,
-						ffprobeExecutable,
-						imageFormat,
-						downloadMap,
-					}),
-					new Promise((_, rej) => {
-						setTimeout(
-							() => rej(new Error(String('EXTRACTION TIMEDOUT FOR ' + src))),
-							15000
-						);
-					}),
-				]).then((a) => {
-					console.timeEnd(src + random);
+				return extractFrameFromVideo({
+					time,
+					src: to,
+					ffmpegExecutable,
+					ffprobeExecutable,
+					imageFormat,
+					downloadMap,
+				}).then((a) => {
 					return a;
 				});
 			})
