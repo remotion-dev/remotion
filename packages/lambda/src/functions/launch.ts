@@ -378,7 +378,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		timeToInvoke: getLambdasInvokedStats(
 			contents,
 			params.renderId,
-			renderMetadata.estimatedRenderLambdaInvokations,
 			renderMetadata.startedDate
 		).timeToInvokeLambdas,
 	};
@@ -412,7 +411,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		jobs,
 	});
 
-	const postRenderData = await createPostRenderData({
+	const postRenderData = createPostRenderData({
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
