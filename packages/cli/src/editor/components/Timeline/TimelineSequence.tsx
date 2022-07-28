@@ -8,7 +8,6 @@ import {
 } from '../../helpers/get-timeline-sequence-layout';
 import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
 import {RichTimelineContext} from '../../state/rich-timeline';
-import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {AudioWaveform} from '../AudioWaveform';
 import {Thumbnail} from '../Thumbnail';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
@@ -28,7 +27,6 @@ export const TimelineSequence: React.FC<{
 		shouldApplyCssTransforms: true,
 	});
 
-	const {zoom} = useContext(TimelineZoomCtx);
 	const {richTimeline} = useContext(RichTimelineContext);
 
 	const windowWidth = size?.width ?? 0;
@@ -50,7 +48,6 @@ export const TimelineSequence: React.FC<{
 		maxMediaDuration,
 		video,
 		windowWidth,
-		zoom,
 	});
 
 	const style: React.CSSProperties = useMemo(() => {
