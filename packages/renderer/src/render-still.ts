@@ -4,7 +4,7 @@ import type {SmallTCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
-import {makeDownloadMap} from './assets/download-map';
+import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
@@ -255,7 +255,14 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 
 			.then((res) => resolve(res))
 			.catch((err) => reject(err))
-			.finally(() => close?.());
+			.finally(() => {
+				// Clean download map if it was not passed in
+				if (!options?.downloadMap) {
+					cleanDownloadMap(downloadMap);
+				}
+
+				return close?.();
+			});
 	});
 
 	return Promise.race([

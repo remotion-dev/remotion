@@ -1,5 +1,5 @@
 import execa from 'execa';
-import fs, {unlinkSync} from 'fs';
+import fs from 'fs';
 import {readFile} from 'fs/promises';
 import path from 'path';
 import type {TAsset} from 'remotion';
@@ -35,7 +35,6 @@ import {
 } from './pixel-format';
 import {preprocessAudioTrack} from './preprocess-audio-track';
 import type {ProResProfile} from './prores-profile';
-import {tmpDir} from './tmp-dir';
 import {truthy} from './truthy';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
@@ -110,8 +109,6 @@ const getAssetsData = async ({
 		console.log('asset positions', assetPositions);
 	}
 
-	const tempPath = tmpDir('remotion-audio-mixing');
-
 	const preprocessProgress = new Array(assetPositions.length).fill(0);
 
 	const updateProgress = () => {
@@ -123,7 +120,7 @@ const getAssetsData = async ({
 	const preprocessed = (
 		await Promise.all(
 			assetPositions.map(async (asset, index) => {
-				const filterFile = path.join(tempPath, `${index}.wav`);
+				const filterFile = path.join(downloadMap.audioMixing, `${index}.wav`);
 				const result = await preprocessAudioTrack({
 					ffmpegExecutable: ffmpegExecutable ?? null,
 					ffprobeExecutable: ffprobeExecutable ?? null,
@@ -140,19 +137,17 @@ const getAssetsData = async ({
 		)
 	).filter(truthy);
 
-	const outName = path.join(
-		tmpDir('remotion-audio-preprocessing'),
-		`audio.wav`
-	);
+	const outName = path.join(downloadMap.audioPreprocessing, `audio.wav`);
 
 	await mergeAudioTrack({
 		ffmpegExecutable: ffmpegExecutable ?? null,
 		files: preprocessed,
 		outName,
 		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
+		downloadMap,
 	});
 
-	deleteDirectory(tempPath);
+	deleteDirectory(downloadMap.audioMixing);
 
 	onProgress(1);
 
@@ -199,7 +194,7 @@ export const spawnFfmpeg = async (
 	const tempFile = options.outputLocation
 		? null
 		: path.join(
-				tmpDir('remotion-stitch-temp-dir'),
+				options.assetsInfo.downloadMap.stitchFrames,
 				`out.${getFileExtensionFromCodec(codec, 'final')}`
 		  );
 
@@ -283,7 +278,6 @@ export const spawnFfmpeg = async (
 			if (tempFile) {
 				readFile(tempFile)
 					.then((f) => {
-						unlinkSync(tempFile);
 						return resolve(f);
 					})
 					.catch((e) => reject(e));
@@ -291,6 +285,7 @@ export const spawnFfmpeg = async (
 				resolve(null);
 			}
 		});
+		await deleteDirectory(options.assetsInfo.downloadMap.stitchFrames);
 
 		return {
 			getLogs: () => '',
@@ -388,13 +383,20 @@ export const spawnFfmpeg = async (
 
 	return {
 		task: task.then(() => {
+			deleteDirectory(options.assetsInfo.downloadMap.audioPreprocessing);
+
 			if (tempFile === null) {
+				deleteDirectory(options.assetsInfo.downloadMap.stitchFrames);
 				return null;
 			}
 
 			return readFile(tempFile)
 				.then((file) => {
-					return Promise.all([file, deleteDirectory(path.dirname(tempFile))]);
+					return Promise.all([
+						file,
+						deleteDirectory(path.dirname(tempFile)),
+						deleteDirectory(options.assetsInfo.downloadMap.stitchFrames),
+					]);
 				})
 				.then(([file]) => file);
 		}),

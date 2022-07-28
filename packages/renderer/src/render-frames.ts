@@ -484,6 +484,7 @@ export const renderFrames = (
 				cleanup.forEach((c) => {
 					c();
 				});
+				// Don't clear download dir because it might be used by stitchFramesToVideo
 			});
 	});
 };
