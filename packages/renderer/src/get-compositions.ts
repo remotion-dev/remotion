@@ -1,6 +1,6 @@
 import type {TCompMetadata} from 'remotion';
 import type {DownloadMap} from './assets/download-map';
-import {makeDownloadMap} from './assets/download-map';
+import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
@@ -133,6 +133,10 @@ export const getCompositions = async (
 				cleanup();
 				close?.();
 				cleanupPageError();
+				// Clean download map if it was not passed in
+				if (!config?.downloadMap) {
+					cleanDownloadMap(downloadMap);
+				}
 			});
 	});
 };

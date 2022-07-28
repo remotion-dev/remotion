@@ -4,7 +4,7 @@ import {getCliOptions} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
-import {bundleOnCli} from './setup-cache';
+import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 
 const max = (arr: number[]) => {
 	if (arr.length === 0) {
@@ -56,11 +56,12 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 		type: 'get-compositions',
 	});
 
-	const bundled = await bundleOnCli({
-		remotionRoot,
-		fullPath,
-		steps: ['bundling'],
-	});
+	const {urlOrBundle: bundled, cleanup: cleanupBundle} =
+		await bundleOnCliOrTakeServeUrl({
+			remotionRoot,
+			fullPath,
+			steps: ['bundling'],
+		});
 
 	const compositions = await getCompositions(bundled, {
 		browserExecutable,
@@ -112,4 +113,8 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 			})
 			.join('\n')
 	);
+
+	await RenderInternals.cleanDownloadMap(downloadMap);
+	await cleanupBundle();
+	Log.verbose('Cleaned up', downloadMap.assetDir);
 };

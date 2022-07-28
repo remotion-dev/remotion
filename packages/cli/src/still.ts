@@ -22,7 +22,7 @@ import {
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,
 } from './progress-bar';
-import {bundleOnCli} from './setup-cache';
+import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import type {RenderStep} from './step';
 import {truthy} from './truthy';
 import {
@@ -139,15 +139,15 @@ export const still = async (remotionRoot: string) => {
 		'rendering' as const,
 	].filter(truthy);
 
-	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
-		? Promise.resolve(fullPath)
-		: await bundleOnCli({fullPath, remotionRoot, steps});
+	const {cleanup: cleanupBundle, urlOrBundle} = await bundleOnCliOrTakeServeUrl(
+		{fullPath, remotionRoot, steps}
+	);
 
 	const puppeteerInstance = await browserInstance;
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
-	const comps = await getCompositions(await urlOrBundle, {
+	const comps = await getCompositions(urlOrBundle, {
 		inputProps,
 		puppeteerInstance,
 		envVariables,
@@ -212,7 +212,7 @@ export const still = async (remotionRoot: string) => {
 		composition,
 		frame: stillFrame,
 		output: absoluteOutputLocation,
-		serveUrl: await urlOrBundle,
+		serveUrl: urlOrBundle,
 		quality,
 		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
 			ConfigInternals.Logging.getLogLevel(),
@@ -251,4 +251,8 @@ export const still = async (remotionRoot: string) => {
 	Log.info('-', 'Output can be found at:');
 	Log.info(chalk.cyan(`▶️ ${absoluteOutputLocation}`));
 	await closeBrowserPromise;
+	await RenderInternals.cleanDownloadMap(downloadMap);
+	await cleanupBundle();
+
+	Log.verbose('Cleaned up', downloadMap.assetDir);
 };
