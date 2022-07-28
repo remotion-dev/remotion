@@ -161,12 +161,35 @@ export const TimelineDragHandler: React.FC = () => {
 				return;
 			}
 
+			const isRightOfArea =
+				e.clientX > (scrollableRef.current?.clientWidth as number) + left;
+
+			const isLeftOfArea = e.clientX < left;
+
 			const frame = getFrameFromX(
 				getClientXWithScroll(e.clientX) - left,
 				videoConfig.durationInFrames,
 				width,
 				'clamp'
 			);
+			const current = scrollableRef.current as HTMLDivElement;
+			const {scrollWidth, scrollLeft, clientWidth, scrollBy} = current;
+			const canScrollRight =
+				scrollWidth - scrollLeft - clientWidth > TIMELINE_PADDING;
+			const canScrollLeft = scrollLeft > 0;
+
+			if (canScrollLeft && isLeftOfArea) {
+				scrollBy({
+					left: -10,
+				});
+			}
+
+			if (canScrollRight && isRightOfArea) {
+				scrollBy({
+					left: 10,
+				});
+			}
+
 			seek(frame);
 		},
 		[dragging.dragging, seek, left, videoConfig, width]
