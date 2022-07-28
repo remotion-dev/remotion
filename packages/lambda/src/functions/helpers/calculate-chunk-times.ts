@@ -1,10 +1,7 @@
 import type {_Object} from '@aws-sdk/client-s3';
 import {lambdaTimingsPrefix} from '../../shared/constants';
-import type {
-	ParsedTiming} from '../../shared/parse-lambda-timings-key';
-import {
-	parseLambdaTimingsKey,
-} from '../../shared/parse-lambda-timings-key';
+import type {ParsedTiming} from '../../shared/parse-lambda-timings-key';
+import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {max, min} from './min-max';
 
 const getAbsoluteTime = (parsedTimings: ParsedTiming[]) => {
@@ -18,7 +15,7 @@ const getAbsoluteTime = (parsedTimings: ParsedTiming[]) => {
 	const biggestEnd = max(allEnds);
 	const smallestStart = min(allStarts);
 
-	return biggestEnd - smallestStart;
+	return (biggestEnd as number) - smallestStart;
 };
 
 export const calculateChunkTimes = ({
