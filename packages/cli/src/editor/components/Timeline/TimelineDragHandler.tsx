@@ -30,7 +30,6 @@ const inner: React.CSSProperties = {
 
 const container: React.CSSProperties = {
 	userSelect: 'none',
-	overflow: 'hidden',
 	position: 'absolute',
 	height: '100%',
 	top: 0,
@@ -93,7 +92,6 @@ export const TimelineDragHandler: React.FC = () => {
 		dragging: false,
 	});
 	const {playing, play, pause, seek} = PlayerInternals.usePlayer();
-	const {zoom} = useContext(TimelineZoomCtx);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 
 	const onPointerDown = useCallback(
@@ -346,6 +344,8 @@ export const TimelineDragHandler: React.FC = () => {
 			window.removeEventListener('pointerup', onPointerUpInOut);
 		};
 	}, [inOutDragging.dragging, onPointerMoveInOut, onPointerUpInOut]);
+
+	const {zoom} = useContext(TimelineZoomCtx);
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		return {
