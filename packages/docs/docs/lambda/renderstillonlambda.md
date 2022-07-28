@@ -60,7 +60,11 @@ React props that are passed to your composition. You define the shape of the pro
 
 ### `privacy`
 
-Whether the output in the S3 bucket should be public or private. Either `"private"` or `"public"`.
+One of:
+
+- `"public"` (_default_): The rendered still is publicly accessible under the S3 URL.
+- `"private"`: The rendered still is not publicly available, but signed links can be created using [presignUrl()](/docs/lambda/presignurl).
+- `"no-acl"` (_available from v.3.1.7_): The ACL option is not being set at all, this option is useful if you are writing to another bucket that does not support ACL using [`outName`](#outname).
 
 ### `frame`
 

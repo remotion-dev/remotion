@@ -5,7 +5,7 @@ import type {
 } from '@remotion/renderer';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
-import type {CostsInfo, OutNameInput} from '../shared/constants';
+import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
 import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
@@ -17,7 +17,7 @@ export type RenderStillOnLambdaInput = {
 	composition: string;
 	inputProps: unknown;
 	imageFormat: StillImageFormat;
-	privacy: 'private' | 'public';
+	privacy: Privacy;
 	maxRetries?: number;
 	envVariables?: Record<string, string>;
 	quality?: number;
