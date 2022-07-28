@@ -1,5 +1,11 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {Internals, interpolate} from 'remotion';
 import {useGetXPositionOfItemInTimeline} from '../../helpers/get-left-of-timeline-slider';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
@@ -7,6 +13,7 @@ import {
 	useTimelineInOutFramePosition,
 	useTimelineSetInOutFramePosition,
 } from '../../state/in-out';
+import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {persistCurrentFrame} from '../FramePersistor';
 import {sliderAreaRef} from './timeline-refs';
 import {inMarkerAreaRef, outMarkerAreaRef} from './TimelineInOutPointer';
@@ -25,8 +32,8 @@ const container: React.CSSProperties = {
 	userSelect: 'none',
 	overflow: 'hidden',
 	position: 'absolute',
-	width: '100%',
 	height: '100%',
+	top: 0,
 };
 
 const getFrameFromX = (
@@ -86,6 +93,7 @@ export const TimelineDragHandler: React.FC = () => {
 		dragging: false,
 	});
 	const {playing, play, pause, seek} = PlayerInternals.usePlayer();
+	const {zoom} = useContext(TimelineZoomCtx);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 
 	const onPointerDown = useCallback(
@@ -339,8 +347,19 @@ export const TimelineDragHandler: React.FC = () => {
 		};
 	}, [inOutDragging.dragging, onPointerMoveInOut, onPointerUpInOut]);
 
+	const containerStyle: React.CSSProperties = useMemo(() => {
+		return {
+			...container,
+			width: 100 * zoom + '%',
+		};
+	}, [zoom]);
+
 	return (
-		<div ref={sliderAreaRef} style={container} onPointerDown={onPointerDown}>
+		<div
+			ref={sliderAreaRef}
+			style={containerStyle}
+			onPointerDown={onPointerDown}
+		>
 			<div style={inner} />
 			{inFrame !== null && (
 				<TimelineInOutPointerHandle

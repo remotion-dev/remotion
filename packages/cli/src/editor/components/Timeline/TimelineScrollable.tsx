@@ -1,0 +1,25 @@
+import React, {useMemo} from 'react';
+
+const outer: React.CSSProperties = {
+	width: '100%',
+	height: '100%',
+	overflowX: 'auto',
+	position: 'relative',
+};
+
+export const TimelineScrollable: React.FC<{
+	children: React.ReactNode;
+}> = ({children}) => {
+	const containerStyle: React.CSSProperties = useMemo(() => {
+		return {
+			width: '100%',
+			height: '100%',
+		};
+	}, []);
+
+	return (
+		<div style={outer}>
+			<div style={containerStyle}>{children}</div>
+		</div>
+	);
+};
