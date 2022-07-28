@@ -4,6 +4,7 @@ import React, {
 	useContext,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {Internals, interpolate} from 'remotion';
@@ -16,6 +17,7 @@ import {
 import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {persistCurrentFrame} from '../FramePersistor';
 import {scrollableRef, sliderAreaRef} from './timeline-refs';
+import {canScrollTimelineIntoDirection} from './timeline-scroll-logic';
 import {inMarkerAreaRef, outMarkerAreaRef} from './TimelineInOutPointer';
 import {
 	inPointerHandle,
@@ -34,6 +36,8 @@ const container: React.CSSProperties = {
 	height: '100%',
 	top: 0,
 };
+
+const SCROLL_INCREMENT = 200;
 
 const getFrameFromX = (
 	clientX: number,
@@ -98,8 +102,18 @@ export const TimelineDragHandler: React.FC = () => {
 	const {playing, play, pause, seek} = PlayerInternals.usePlayer();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 
+	const scroller = useRef<NodeJS.Timeout | null>(null);
+
+	const stopInterval = () => {
+		if (scroller.current) {
+			clearInterval(scroller.current);
+			scroller.current = null;
+		}
+	};
+
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
+			stopInterval();
 			if (!videoConfig) {
 				return;
 			}
@@ -173,24 +187,79 @@ export const TimelineDragHandler: React.FC = () => {
 				'clamp'
 			);
 			const current = scrollableRef.current as HTMLDivElement;
-			const {scrollWidth, scrollLeft, clientWidth, scrollBy} = current;
-			const canScrollRight =
-				scrollWidth - scrollLeft - clientWidth > TIMELINE_PADDING;
-			const canScrollLeft = scrollLeft > 0;
 
-			if (canScrollLeft && isLeftOfArea) {
-				scrollBy({
-					left: -10,
-				});
+			if (isLeftOfArea && canScrollTimelineIntoDirection().canScrollLeft) {
+				if (scroller.current) {
+					return;
+				}
+
+				let currentScrollLeft = scrollableRef.current?.scrollLeft as number;
+
+				const scrollEvery = () => {
+					if (!canScrollTimelineIntoDirection().canScrollLeft) {
+						stopInterval();
+						return;
+					}
+
+					currentScrollLeft -= SCROLL_INCREMENT;
+
+					const nextFrame = getFrameFromX(
+						currentScrollLeft,
+						videoConfig.durationInFrames,
+						width,
+						'clamp'
+					);
+					seek(nextFrame);
+
+					current.scrollBy({
+						left: -SCROLL_INCREMENT,
+					});
+				};
+
+				scrollEvery();
+				scroller.current = setInterval(() => {
+					scrollEvery();
+				}, 100);
+			} else if (
+				isRightOfArea &&
+				canScrollTimelineIntoDirection().canScrollRight
+			) {
+				if (scroller.current) {
+					return;
+				}
+
+				let currentScrollLeft = scrollableRef.current?.scrollLeft as number;
+
+				const scrollEvery = () => {
+					if (!canScrollTimelineIntoDirection().canScrollRight) {
+						stopInterval();
+						return;
+					}
+
+					currentScrollLeft += SCROLL_INCREMENT;
+
+					const nextFrame = getFrameFromX(
+						currentScrollLeft + (scrollableRef.current?.clientWidth as number),
+						videoConfig.durationInFrames,
+						width,
+						'clamp'
+					);
+					seek(nextFrame);
+
+					current.scrollBy({
+						left: SCROLL_INCREMENT,
+					});
+				};
+
+				scrollEvery();
+
+				scroller.current = setInterval(() => {
+					scrollEvery();
+				}, 100);
+			} else {
+				stopInterval();
+				seek(frame);
 			}
-
-			if (canScrollRight && isRightOfArea) {
-				scrollBy({
-					left: 10,
-				});
-			}
-
-			seek(frame);
 		},
 		[dragging.dragging, seek, left, videoConfig, width]
 	);
@@ -259,6 +328,8 @@ export const TimelineDragHandler: React.FC = () => {
 
 	const onPointerUpScrubbing = useCallback(
 		(e: PointerEvent) => {
+			stopInterval();
+
 			if (!videoConfig) {
 				return;
 			}
