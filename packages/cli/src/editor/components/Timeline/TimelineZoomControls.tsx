@@ -36,7 +36,6 @@ export const TimelineZoomControls: React.FC = () => {
 
 	return (
 		<div style={container}>
-			<div>{zoom}</div>
 			<ControlButton
 				onClick={onMinusClicked}
 				style={buttonStyle}
