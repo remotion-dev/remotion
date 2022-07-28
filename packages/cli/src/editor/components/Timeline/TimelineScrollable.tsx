@@ -1,4 +1,5 @@
 import React, {useMemo} from 'react';
+import {scrollableRef} from './timeline-refs';
 
 const outer: React.CSSProperties = {
 	width: '100%',
@@ -19,7 +20,7 @@ export const TimelineScrollable: React.FC<{
 	}, []);
 
 	return (
-		<div style={outer}>
+		<div ref={scrollableRef} style={outer}>
 			<div style={containerStyle}>{children}</div>
 		</div>
 	);

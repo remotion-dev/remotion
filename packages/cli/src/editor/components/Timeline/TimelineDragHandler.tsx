@@ -15,7 +15,7 @@ import {
 } from '../../state/in-out';
 import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {persistCurrentFrame} from '../FramePersistor';
-import {sliderAreaRef} from './timeline-refs';
+import {scrollableRef, sliderAreaRef} from './timeline-refs';
 import {inMarkerAreaRef, outMarkerAreaRef} from './TimelineInOutPointer';
 import {
 	inPointerHandle,
@@ -56,8 +56,12 @@ const getFrameFromX = (
 	return frame;
 };
 
+const getClientXWithScroll = (x: number) => {
+	return x + (scrollableRef.current?.scrollLeft as number);
+};
+
 export const TimelineDragHandler: React.FC = () => {
-	const size = PlayerInternals.useElementSize(sliderAreaRef, {
+	const size = PlayerInternals.useElementSize(scrollableRef, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
@@ -73,7 +77,7 @@ export const TimelineDragHandler: React.FC = () => {
 	>({
 		dragging: false,
 	});
-	const width = size?.width ?? 0;
+	const width = scrollableRef.current?.scrollWidth ?? 0;
 	const left = size?.left ?? 0;
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 
@@ -109,7 +113,7 @@ export const TimelineDragHandler: React.FC = () => {
 				const outMarker = outFrame === null ? Infinity : get(outFrame - 1);
 				setInOutDragging({
 					dragging: 'in',
-					initialOffset: e.clientX,
+					initialOffset: getClientXWithScroll(e.clientX),
 					boundaries: [-Infinity, outMarker - inMarker],
 				});
 				return;
@@ -124,7 +128,7 @@ export const TimelineDragHandler: React.FC = () => {
 				const inMarker = inFrame === null ? -Infinity : get(inFrame + 1);
 				setInOutDragging({
 					dragging: 'out',
-					initialOffset: e.clientX,
+					initialOffset: getClientXWithScroll(e.clientX),
 					boundaries: [inMarker - outMarker, Infinity],
 				});
 
@@ -132,7 +136,7 @@ export const TimelineDragHandler: React.FC = () => {
 			}
 
 			const frame = getFrameFromX(
-				e.clientX - left,
+				getClientXWithScroll(e.clientX) - left,
 				videoConfig.durationInFrames,
 				width,
 				'clamp'
@@ -158,7 +162,7 @@ export const TimelineDragHandler: React.FC = () => {
 			}
 
 			const frame = getFrameFromX(
-				e.clientX - left,
+				getClientXWithScroll(e.clientX) - left,
 				videoConfig.durationInFrames,
 				width,
 				'clamp'
@@ -182,7 +186,7 @@ export const TimelineDragHandler: React.FC = () => {
 				inOutDragging.boundaries[0],
 				Math.min(
 					inOutDragging.boundaries[1],
-					e.clientX - inOutDragging.initialOffset
+					getClientXWithScroll(e.clientX) - inOutDragging.initialOffset
 				)
 			);
 			if (inOutDragging.dragging === 'in') {
@@ -245,7 +249,7 @@ export const TimelineDragHandler: React.FC = () => {
 			});
 
 			const frame = getFrameFromX(
-				e.clientX - left,
+				getClientXWithScroll(e.clientX) - left,
 				videoConfig.durationInFrames,
 				width,
 				'clamp'
@@ -275,7 +279,7 @@ export const TimelineDragHandler: React.FC = () => {
 			});
 
 			const frame = getFrameFromX(
-				e.clientX - left,
+				getClientXWithScroll(e.clientX) - left,
 				videoConfig.durationInFrames,
 				width,
 				'extend'
