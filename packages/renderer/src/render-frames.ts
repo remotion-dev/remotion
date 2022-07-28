@@ -5,7 +5,7 @@ import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
-import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
+import {makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
@@ -484,10 +484,7 @@ export const renderFrames = (
 				cleanup.forEach((c) => {
 					c();
 				});
-				// Clean download map if it was not passed in
-				if (!options.downloadMap) {
-					cleanDownloadMap(downloadMap);
-				}
+				// Don't clear download dir because it might be used by stitchFramesToVideo
 			});
 	});
 };
