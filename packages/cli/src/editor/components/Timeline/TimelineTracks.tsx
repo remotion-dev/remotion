@@ -13,6 +13,7 @@ import {TimelineSequence} from './TimelineSequence';
 const content: React.CSSProperties = {
 	paddingLeft: TIMELINE_PADDING,
 	paddingRight: TIMELINE_PADDING,
+	overflow: 'auto',
 };
 
 const timelineContent: React.CSSProperties = {
