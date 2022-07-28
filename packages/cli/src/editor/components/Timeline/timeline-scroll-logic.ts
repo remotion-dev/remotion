@@ -6,6 +6,6 @@ export const canScrollTimelineIntoDirection = () => {
 	const {scrollWidth, scrollLeft, clientWidth} = current;
 	const canScrollRight =
 		scrollWidth - scrollLeft - clientWidth > TIMELINE_PADDING;
-	const canScrollLeft = scrollLeft > 0;
+	const canScrollLeft = scrollLeft > TIMELINE_PADDING;
 	return {canScrollRight, canScrollLeft};
 };
