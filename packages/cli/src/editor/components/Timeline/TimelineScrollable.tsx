@@ -5,6 +5,7 @@ const outer: React.CSSProperties = {
 	height: '100%',
 	overflowX: 'auto',
 	position: 'relative',
+	backgroundColor: '#111',
 };
 
 export const TimelineScrollable: React.FC<{
