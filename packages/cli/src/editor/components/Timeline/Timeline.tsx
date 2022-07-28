@@ -21,6 +21,7 @@ import {timelineStateReducer} from './timeline-state-reducer';
 import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineInOutPointer} from './TimelineInOutPointer';
 import {TimelineList} from './TimelineList';
+import {TimelineScrollable} from './TimelineScrollable';
 import {TimelineSlider} from './TimelineSlider';
 import {TimelineTracks} from './TimelineTracks';
 
@@ -109,15 +110,17 @@ export const Timeline: React.FC = () => {
 					</SplitterElement>
 					<SplitterHandle onCollapse={noop} allowToCollapse={false} />
 					<SplitterElement type="anti-flexer">
-						<TimelineTracks
-							viewState={state}
-							timeline={shown}
-							fps={videoConfig.fps}
-							hasBeenCut={withoutHidden.length > shown.length}
-						/>
-						<TimelineInOutPointer />
-						<TimelineDragHandler />
-						<TimelineSlider />
+						<TimelineScrollable>
+							<TimelineTracks
+								viewState={state}
+								timeline={shown}
+								fps={videoConfig.fps}
+								hasBeenCut={withoutHidden.length > shown.length}
+							/>
+							<TimelineInOutPointer />
+							<TimelineDragHandler />
+							<TimelineSlider />
+						</TimelineScrollable>
 					</SplitterElement>
 				</SplitterContainer>
 			</div>

@@ -1,10 +1,11 @@
-import React, {useMemo} from 'react';
+import React, {useContext, useMemo} from 'react';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
+import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {isTrackHidden} from './is-collapsed';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import type {TimelineViewState} from './timeline-state-reducer';
@@ -17,9 +18,8 @@ const content: React.CSSProperties = {
 };
 
 const timelineContent: React.CSSProperties = {
-	flex: 1,
 	backgroundColor: '#111111',
-	width: '100%',
+	height: '100%',
 };
 
 export const TimelineTracks: React.FC<{
@@ -33,8 +33,17 @@ export const TimelineTracks: React.FC<{
 			height: TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2,
 		};
 	}, []);
+	const {zoom} = useContext(TimelineZoomCtx);
+
+	const timelineStyle: React.CSSProperties = useMemo(() => {
+		return {
+			...timelineContent,
+			width: 100 * zoom + '%',
+		};
+	}, [zoom]);
+
 	return (
-		<div style={timelineContent}>
+		<div style={timelineStyle}>
 			<div style={content}>
 				{timeline.map((track) => {
 					if (isTrackHidden(track, timeline, viewState)) {

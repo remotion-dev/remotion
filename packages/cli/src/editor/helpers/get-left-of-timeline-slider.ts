@@ -20,11 +20,9 @@ export const useGetXPositionOfItemInTimeline = () => {
 				return 0;
 			}
 
-			return (
-				(frame / (videoConfig.durationInFrames - 1)) *
-					(width - TIMELINE_PADDING * 2) +
-				TIMELINE_PADDING
-			);
+			const proportion = frame / (videoConfig.durationInFrames - 1);
+
+			return proportion * (width - TIMELINE_PADDING * 2) + TIMELINE_PADDING;
 		},
 		[videoConfig, width]
 	);
