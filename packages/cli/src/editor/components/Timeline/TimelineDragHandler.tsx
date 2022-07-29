@@ -9,7 +9,6 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {useGetXPositionOfItemInTimeline} from '../../helpers/get-left-of-timeline-slider';
-import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {
 	useTimelineInOutFramePosition,
 	useTimelineSetInOutFramePosition,
@@ -22,6 +21,9 @@ import {
 	getFrameFromX,
 	getFrameWhileScrollingLeft,
 	getFrameWhileScrollingRight,
+	getScrollPositionForCursorOnLeftEdge,
+	getScrollPositionForCursorOnRightEdge,
+	scrollToTimelineXOffset,
 } from './timeline-scroll-logic';
 import {inMarkerAreaRef, outMarkerAreaRef} from './TimelineInOutPointer';
 import {
@@ -85,10 +87,6 @@ export const TimelineDragHandler: React.FC = () => {
 	});
 	const {playing, play, pause, seek} = PlayerInternals.usePlayer();
 	const videoConfig = Internals.useUnsafeVideoConfig();
-
-	const frameIncrement =
-		((width as number) - TIMELINE_PADDING * 2) /
-		((videoConfig?.durationInFrames as number) - 1);
 
 	const scroller = useRef<NodeJS.Timeout | null>(null);
 
@@ -174,7 +172,6 @@ export const TimelineDragHandler: React.FC = () => {
 				width,
 				'clamp'
 			);
-			const current = scrollableRef.current as HTMLDivElement;
 
 			if (isLeftOfArea && canScrollTimelineIntoDirection().canScrollLeft) {
 				if (scroller.current) {
@@ -192,13 +189,14 @@ export const TimelineDragHandler: React.FC = () => {
 						width
 					);
 
-					const scrollPos = frameIncrement * nextFrame;
+					const scrollPos = getScrollPositionForCursorOnLeftEdge({
+						nextFrame,
+						durationInFrames: videoConfig.durationInFrames,
+					});
 
 					redrawTimelineSliderFast.current?.draw(nextFrame);
 					seek(nextFrame);
-					current.scroll({
-						left: scrollPos,
-					});
+					scrollToTimelineXOffset(scrollPos);
 				};
 
 				scrollEvery();
@@ -222,26 +220,16 @@ export const TimelineDragHandler: React.FC = () => {
 					const nextFrame = getFrameWhileScrollingRight({
 						durationInFrames: videoConfig.durationInFrames,
 						width,
-						frameIncrement,
 					});
 
-					const framesRemaining = videoConfig.durationInFrames - 1 - nextFrame;
-
-					const fromRight = framesRemaining * frameIncrement + TIMELINE_PADDING;
-
-					const scrollPos =
-						(scrollableRef.current?.scrollWidth as number) -
-						fromRight -
-						(scrollableRef.current?.clientWidth as number) +
-						TIMELINE_PADDING +
-						4; // clearfix;
+					const scrollPos = getScrollPositionForCursorOnRightEdge({
+						nextFrame,
+						durationInFrames: videoConfig.durationInFrames,
+					});
 
 					redrawTimelineSliderFast.current?.draw(nextFrame);
 					seek(nextFrame);
-
-					current.scroll({
-						left: scrollPos,
-					});
+					scrollToTimelineXOffset(scrollPos);
 				};
 
 				scrollEvery();
@@ -254,7 +242,7 @@ export const TimelineDragHandler: React.FC = () => {
 				seek(frame);
 			}
 		},
-		[videoConfig, dragging.dragging, left, width, frameIncrement, seek]
+		[videoConfig, dragging.dragging, left, width, seek]
 	);
 
 	const onPointerMoveInOut = useCallback(
