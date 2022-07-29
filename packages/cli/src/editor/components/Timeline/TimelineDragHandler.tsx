@@ -29,6 +29,7 @@ import {
 	outPointerHandle,
 	TimelineInOutPointerHandle,
 } from './TimelineInOutPointerHandle';
+import {redrawTimelineSliderFast} from './TimelineSlider';
 
 const inner: React.CSSProperties = {
 	overflowY: 'auto',
@@ -193,6 +194,7 @@ export const TimelineDragHandler: React.FC = () => {
 
 					const scrollPos = frameIncrement * nextFrame;
 
+					redrawTimelineSliderFast.current?.draw(nextFrame);
 					seek(nextFrame);
 					current.scroll({
 						left: scrollPos,
@@ -234,11 +236,8 @@ export const TimelineDragHandler: React.FC = () => {
 						TIMELINE_PADDING +
 						4; // clearfix;
 
+					redrawTimelineSliderFast.current?.draw(nextFrame);
 					seek(nextFrame);
-
-					const maxScroll =
-						(scrollableRef.current?.scrollWidth as number) -
-						(scrollableRef.current?.clientWidth as number);
 
 					current.scroll({
 						left: scrollPos,
