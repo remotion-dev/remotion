@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {createRef, useImperativeHandle, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {useGetXPositionOfItemInTimeline} from '../../helpers/get-left-of-timeline-slider';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
@@ -17,9 +17,14 @@ const line: React.CSSProperties = {
 	backgroundColor: '#f02c00',
 };
 
+export const redrawTimelineSliderFast = createRef<{
+	draw: (frame: number) => void;
+}>();
+
 export const TimelineSlider: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {get} = useGetXPositionOfItemInTimeline();
+	const ref = useRef<HTMLDivElement>(null);
 
 	const style: React.CSSProperties = useMemo(() => {
 		const left = get(timelinePosition);
@@ -29,8 +34,21 @@ export const TimelineSlider: React.FC = () => {
 		};
 	}, [timelinePosition, get]);
 
+	useImperativeHandle(redrawTimelineSliderFast, () => {
+		return {
+			draw: (frame) => {
+				const {current} = ref;
+				if (!current) {
+					throw new Error('unexpectedly did not have ref to timelineslider');
+				}
+
+				current.style.transform = `translateX(${get(frame)}px)`;
+			},
+		};
+	});
+
 	return (
-		<div style={style}>
+		<div ref={ref} style={style}>
 			<div style={line}>
 				<TimelineSliderHandle />
 			</div>
