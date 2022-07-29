@@ -10,6 +10,7 @@ import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {ControlButton} from './ControlButton';
+import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
 
 const forwardBackStyle = {
 	height: 16,
@@ -76,6 +77,7 @@ export const PlayPause: React.FC<{
 	);
 
 	const videoFps = video?.fps ?? null;
+	const durationInFrames = video?.durationInFrames ?? null;
 
 	const onArrowLeft = useCallback(
 		(e: KeyboardEvent) => {
@@ -83,17 +85,28 @@ export const PlayPause: React.FC<{
 				return null;
 			}
 
+			if (durationInFrames === null) {
+				return null;
+			}
+
 			e.preventDefault();
 
 			if (e.altKey) {
 				seek(0);
+				ensureFrameIsInViewport('backwards', durationInFrames, 0);
 			} else if (e.shiftKey) {
 				frameBack(videoFps);
+				ensureFrameIsInViewport(
+					'backwards',
+					durationInFrames,
+					frame - videoFps
+				);
 			} else {
 				frameBack(1);
+				ensureFrameIsInViewport('backwards', durationInFrames, frame - 1);
 			}
 		},
-		[frameBack, seek, videoFps]
+		[durationInFrames, frame, frameBack, seek, videoFps]
 	);
 
 	const onArrowRight = useCallback(
@@ -104,15 +117,26 @@ export const PlayPause: React.FC<{
 
 			if (e.altKey) {
 				seek(video.durationInFrames - 1);
+				ensureFrameIsInViewport(
+					'forward',
+					video.durationInFrames - 1,
+					video.durationInFrames - 1
+				);
 			} else if (e.shiftKey) {
 				frameForward(video.fps);
+				ensureFrameIsInViewport(
+					'forward',
+					video.durationInFrames,
+					frame + video.fps
+				);
 			} else {
 				frameForward(1);
+				ensureFrameIsInViewport('forward', video.durationInFrames, frame + 1);
 			}
 
 			e.preventDefault();
 		},
-		[frameForward, seek, video]
+		[frame, frameForward, seek, video]
 	);
 
 	const oneFrameBack = useCallback(() => {
