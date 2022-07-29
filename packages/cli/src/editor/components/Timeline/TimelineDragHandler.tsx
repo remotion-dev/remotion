@@ -7,7 +7,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {Internals, interpolate} from 'remotion';
+import {Internals} from 'remotion';
 import {useGetXPositionOfItemInTimeline} from '../../helpers/get-left-of-timeline-slider';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {
@@ -17,7 +17,12 @@ import {
 import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {persistCurrentFrame} from '../FramePersistor';
 import {scrollableRef, sliderAreaRef} from './timeline-refs';
-import {canScrollTimelineIntoDirection} from './timeline-scroll-logic';
+import {
+	canScrollTimelineIntoDirection,
+	getFrameFromX,
+	getFrameWhileScrollingLeft,
+	getFrameWhileScrollingRight,
+} from './timeline-scroll-logic';
 import {inMarkerAreaRef, outMarkerAreaRef} from './TimelineInOutPointer';
 import {
 	inPointerHandle,
@@ -35,29 +40,6 @@ const container: React.CSSProperties = {
 	position: 'absolute',
 	height: '100%',
 	top: 0,
-};
-
-const SCROLL_INCREMENT = 200;
-
-const getFrameFromX = (
-	clientX: number,
-	durationInFrames: number,
-	width: number,
-	extrapolate: 'clamp' | 'extend'
-) => {
-	const pos = clientX - TIMELINE_PADDING;
-	const frame = Math.round(
-		interpolate(
-			pos,
-			[0, width - TIMELINE_PADDING * 2],
-			[0, durationInFrames - 1 ?? 0],
-			{
-				extrapolateLeft: extrapolate,
-				extrapolateRight: extrapolate,
-			}
-		)
-	);
-	return frame;
 };
 
 const getClientXWithScroll = (x: number) => {
@@ -204,11 +186,9 @@ export const TimelineDragHandler: React.FC = () => {
 						return;
 					}
 
-					const nextFrame = getFrameFromX(
-						(scrollableRef.current?.scrollLeft as number) - SCROLL_INCREMENT,
+					const nextFrame = getFrameWhileScrollingLeft(
 						videoConfig.durationInFrames,
-						width,
-						'clamp'
+						width
 					);
 
 					const scrollPos = frameIncrement * nextFrame;
@@ -237,22 +217,14 @@ export const TimelineDragHandler: React.FC = () => {
 						return;
 					}
 
-					const nextFrame = Math.min(
-						videoConfig.durationInFrames - 1,
-						getFrameFromX(
-							(scrollableRef.current?.scrollLeft as number) + SCROLL_INCREMENT,
-							videoConfig.durationInFrames,
-							width,
-							'clamp'
-						) +
-							Math.ceil(
-								((scrollableRef.current?.clientWidth as number) -
-									TIMELINE_PADDING) /
-									frameIncrement
-							)
-					);
+					const nextFrame = getFrameWhileScrollingRight({
+						durationInFrames: videoConfig.durationInFrames,
+						width,
+						frameIncrement,
+					});
 
 					const framesRemaining = videoConfig.durationInFrames - 1 - nextFrame;
+
 					const fromRight = framesRemaining * frameIncrement + TIMELINE_PADDING;
 
 					const scrollPos =
@@ -269,7 +241,7 @@ export const TimelineDragHandler: React.FC = () => {
 						(scrollableRef.current?.clientWidth as number);
 
 					current.scroll({
-						left: Math.min(maxScroll, scrollPos),
+						left: scrollPos,
 					});
 				};
 
