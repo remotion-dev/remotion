@@ -7,9 +7,9 @@ _Available since v3.0 - Part of the `@remotion/renderer` package._
 
 Render a video or an audio programmatically.
 
-:::info
-In Remotion 3.0, we added the [`renderMedia()`](/docs/renderer/render-media) API which combines `renderFrames()` and `stitchFramesToVideo()` into one simplified step and performs the render faster. Prefer `renderMedia()` if you can.
-:::
+## Example
+
+See an example of `renderMedia()` together with [`bundle()`](/docs/bundle) and [`getCompositions()`](/docs/renderer/get-compositions) on the [server-side rendering page](/docs/ssr#render-a-video-using-nodejs-apis).
 
 ## Arguments
 
