@@ -8,6 +8,7 @@ Internals.CSSUtils.injectCSS(`
     line-height: 1;
     color: white;
     font-family: Arial, Helvetica, sans-serif;
-    background-color: #1f2428;
+    background: transparent;
+    box-sizing: border-box;
   }
 `);
