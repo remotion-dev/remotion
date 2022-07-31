@@ -53,15 +53,43 @@ export const getFrameWhileScrollingLeft = (
 	return Math.max(0, Math.min(currentFrame - 1, nextFrame));
 };
 
+export const isCursorInViewport = (frame: number, durationInFrames: number) => {
+	const width = scrollableRef.current?.scrollWidth ?? 0;
+	const scrollLeft = scrollableRef.current?.scrollLeft ?? 0;
+
+	const scrollPosOnRightEdge = getScrollPositionForCursorOnRightEdge({
+		nextFrame: frame,
+		durationInFrames,
+	});
+	const scrollPosOnLeftEdge = getScrollPositionForCursorOnLeftEdge({
+		nextFrame: frame,
+		durationInFrames,
+	});
+
+	const currentFrameRight = calculateFrameWhileScrollingRight({
+		durationInFrames,
+		scrollLeft,
+		width,
+	});
+
+	return !(
+		scrollPosOnRightEdge >=
+			getScrollPositionForCursorOnRightEdge({
+				nextFrame: currentFrameRight,
+				durationInFrames,
+			}) || scrollPosOnLeftEdge < scrollLeft
+	);
+};
+
 export const ensureFrameIsInViewport = (
-	direction: 'backwards-press' | 'forwards-press' | 'forwards-play',
+	direction: 'fit-left' | 'fit-right' | 'page-right' | 'page-left' | 'center',
 	durationInFrames: number,
 	frame: number
 ) => {
 	redrawTimelineSliderFast.current?.draw(frame);
 	const width = scrollableRef.current?.scrollWidth ?? 0;
 	const scrollLeft = scrollableRef.current?.scrollLeft ?? 0;
-	if (direction === 'backwards-press') {
+	if (direction === 'fit-left') {
 		const currentFrameLeft = getFrameFromX(
 			scrollLeft,
 			durationInFrames,
@@ -83,7 +111,7 @@ export const ensureFrameIsInViewport = (
 		}
 	}
 
-	if (direction === 'forwards-press') {
+	if (direction === 'fit-right') {
 		const currentFrameRight = calculateFrameWhileScrollingRight({
 			durationInFrames,
 			scrollLeft: scrollLeft as number,
@@ -105,13 +133,23 @@ export const ensureFrameIsInViewport = (
 		}
 	}
 
-	if (direction === 'forwards-play') {
-		const currentFrameRight = calculateFrameWhileScrollingRight({
-			durationInFrames,
-			scrollLeft,
-			width,
-		});
+	if (direction === 'page-right' || direction === 'page-left') {
+		if (!isCursorInViewport(frame, durationInFrames)) {
+			scrollToTimelineXOffset(
+				direction === 'page-left'
+					? getScrollPositionForCursorOnRightEdge({
+							nextFrame: frame,
+							durationInFrames,
+					  })
+					: getScrollPositionForCursorOnLeftEdge({
+							nextFrame: frame,
+							durationInFrames,
+					  })
+			);
+		}
+	}
 
+	if (direction === 'center') {
 		const scrollPosOnRightEdge = getScrollPositionForCursorOnRightEdge({
 			nextFrame: frame,
 			durationInFrames,
@@ -120,15 +158,7 @@ export const ensureFrameIsInViewport = (
 			nextFrame: frame,
 			durationInFrames,
 		});
-		const needsToPageRight =
-			scrollPosOnRightEdge >=
-				getScrollPositionForCursorOnRightEdge({
-					nextFrame: currentFrameRight,
-					durationInFrames,
-				}) || scrollPosOnLeftEdge < scrollLeft;
-		if (needsToPageRight) {
-			scrollToTimelineXOffset(scrollPosOnLeftEdge);
-		}
+		scrollToTimelineXOffset((scrollPosOnLeftEdge + scrollPosOnRightEdge) / 2);
 	}
 };
 
