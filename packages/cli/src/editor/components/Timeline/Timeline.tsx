@@ -16,7 +16,11 @@ import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
 import {isTrackHidden} from './is-collapsed';
-import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
+import {
+	MAX_TIMELINE_TRACKS,
+	MAX_TIMELINE_TRACKS_NOTICE_HEIGHT,
+} from './MaxTimelineTracks';
+import {timelineVerticalScroll} from './timeline-refs';
 import {timelineStateReducer} from './timeline-state-reducer';
 import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineInOutPointer} from './TimelineInOutPointer';
@@ -31,7 +35,7 @@ const container: React.CSSProperties = {
 	flex: 1,
 	display: 'flex',
 	height: 0,
-	overflow: 'auto',
+	overflowY: 'auto',
 };
 
 const noop = () => undefined;
@@ -83,7 +87,7 @@ export const Timeline: React.FC = () => {
 		return {
 			height:
 				shown.length * (TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2) +
-				(hasBeenCut ? 24 : 0),
+				(hasBeenCut ? MAX_TIMELINE_TRACKS_NOTICE_HEIGHT : 0),
 			display: 'flex',
 			flex: 1,
 			minHeight: '100%',
@@ -96,7 +100,7 @@ export const Timeline: React.FC = () => {
 	}
 
 	return (
-		<div style={container} className="css-reset">
+		<div ref={timelineVerticalScroll} style={container} className="css-reset">
 			<div style={inner}>
 				<SplitterContainer
 					orientation="vertical"
