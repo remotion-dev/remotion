@@ -1,5 +1,6 @@
 import React, {useContext, useState} from 'react';
 import {Internals} from 'remotion';
+import {BACKGROUND} from '../helpers/colors';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
 import {loadLoopOption} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
@@ -24,6 +25,7 @@ const container: React.CSSProperties = {
 	paddingBottom: 2,
 	alignItems: 'center',
 	flexDirection: 'row',
+	background: BACKGROUND,
 };
 
 const sideContainer: React.CSSProperties = {
