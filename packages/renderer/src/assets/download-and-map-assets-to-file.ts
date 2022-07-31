@@ -177,7 +177,6 @@ export const downloadAsset = async ({
 	}
 
 	if (downloadMap.isDownloadingMap[src]?.[downloadDir]) {
-		console.log('TRIGGER WAIT', {src, downloadDir});
 		return waitForAssetToBeDownloaded({downloadMap, src, downloadDir});
 	}
 

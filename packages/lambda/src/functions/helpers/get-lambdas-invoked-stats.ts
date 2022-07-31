@@ -19,8 +19,8 @@ export const getLambdasInvokedStats = (
 	const timeToInvokeLambdas =
 		startDate === null
 			? null
-			: max(lambdasInvoked.map((l) => l.LastModified?.getTime() as number)) -
-			  startDate;
+			: (max(lambdasInvoked.map((l) => l.LastModified?.getTime() as number)) ??
+					0) - startDate;
 	return {
 		timeToInvokeLambdas,
 		lambdasInvoked: lambdasInvoked.length,

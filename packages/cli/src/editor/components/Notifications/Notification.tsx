@@ -32,5 +32,9 @@ export const Notification: React.FC<{
 		};
 	}, [created, duration, id, onRemove]);
 
-	return <div style={notification}>{children}</div>;
+	return (
+		<div className="css-reset" style={notification}>
+			{children}
+		</div>
+	);
 };

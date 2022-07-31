@@ -1,11 +1,11 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
+import {BACKGROUND} from '../helpers/colors';
 import {
 	createFolderTree,
 	splitParentIntoNameAndParent,
 } from '../helpers/create-folder-tree';
-import type {
-	ExpandedFoldersState} from '../helpers/persist-open-folders';
+import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {
 	loadExpandedFolders,
 	openFolderKey,
@@ -22,6 +22,7 @@ const container: React.CSSProperties = {
 	height: '100%',
 	width: '100%',
 	flex: 1,
+	backgroundColor: BACKGROUND,
 };
 
 const list: React.CSSProperties = {

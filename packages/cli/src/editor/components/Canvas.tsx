@@ -1,5 +1,6 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useRef} from 'react';
+import {BACKGROUND} from '../helpers/colors';
 import {VideoPreview} from './Preview';
 
 const container: React.CSSProperties = {
@@ -7,6 +8,7 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	overflow: 'hidden',
 	position: 'relative',
+	backgroundColor: BACKGROUND,
 };
 
 export const Canvas: React.FC = () => {
