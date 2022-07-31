@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {useGetXPositionOfItemInTimeline} from '../../helpers/get-left-of-timeline-slider';
+import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {
 	useTimelineInOutFramePosition,
 	useTimelineSetInOutFramePosition,
@@ -162,9 +163,12 @@ export const TimelineDragHandler: React.FC = () => {
 			}
 
 			const isRightOfArea =
-				e.clientX > (scrollableRef.current?.clientWidth as number) + left;
+				e.clientX >=
+				(scrollableRef.current?.clientWidth as number) +
+					left -
+					TIMELINE_PADDING;
 
-			const isLeftOfArea = e.clientX < left;
+			const isLeftOfArea = e.clientX <= left;
 
 			const frame = getFrameFromX(
 				getClientXWithScroll(e.clientX) - left,
