@@ -19,7 +19,7 @@ export const SkiaCanvas = ({
 }: RemotionCanvasProps) => {
 	const contexts = Internals.useRemotionContexts();
 
-	const props: CanvasProps = useMemo(() => {
+	const props: Omit<CanvasProps, 'children'> = useMemo(() => {
 		return {
 			style: [
 				{
