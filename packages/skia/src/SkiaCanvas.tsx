@@ -14,19 +14,27 @@ export const SkiaCanvas = ({
 	children,
 	height,
 	width,
+	style,
 	...otherProps
 }: RemotionCanvasProps) => {
 	const contexts = Internals.useRemotionContexts();
 
-	const style = useMemo(() => {
+	const props: CanvasProps = useMemo(() => {
 		return {
-			width,
-			height,
+			style: [
+				{
+					width,
+					height,
+				},
+				style,
+			],
+			mode: 'continuous',
+			...otherProps,
 		};
-	}, [height, width]);
+	}, [height, otherProps, style, width]);
 
 	return (
-		<Canvas {...otherProps} style={style} mode="continuous">
+		<Canvas {...props}>
 			<Internals.RemotionContextProvider contexts={contexts}>
 				{children}
 			</Internals.RemotionContextProvider>
