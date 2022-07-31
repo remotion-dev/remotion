@@ -13,11 +13,10 @@ import {TimelineSequence} from './TimelineSequence';
 const content: React.CSSProperties = {
 	paddingLeft: TIMELINE_PADDING,
 	paddingRight: TIMELINE_PADDING,
-	overflow: 'auto',
 };
 
 const timelineContent: React.CSSProperties = {
-	height: '100%',
+	minHeight: '100%',
 };
 
 export const TimelineTracks: React.FC<{
