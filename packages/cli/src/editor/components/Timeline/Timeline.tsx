@@ -77,16 +77,19 @@ export const Timeline: React.FC = () => {
 	}, [state, timeline]);
 
 	const shown = withoutHidden.slice(0, MAX_TIMELINE_TRACKS);
+	const hasBeenCut = withoutHidden.length > shown.length;
 
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
-			height: shown.length * (TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2),
+			height:
+				shown.length * (TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2) +
+				(hasBeenCut ? 24 : 0),
 			display: 'flex',
 			flex: 1,
 			minHeight: '100%',
 			overflowX: 'hidden',
 		};
-	}, [shown.length]);
+	}, [hasBeenCut, shown.length]);
 
 	if (!videoConfig) {
 		return null;
@@ -116,7 +119,7 @@ export const Timeline: React.FC = () => {
 								viewState={state}
 								timeline={shown}
 								fps={videoConfig.fps}
-								hasBeenCut={withoutHidden.length > shown.length}
+								hasBeenCut={hasBeenCut}
 							/>
 							<TimelineInOutPointer />
 							<TimelineDragHandler />
