@@ -93,17 +93,17 @@ export const PlayPause: React.FC<{
 
 			if (e.altKey) {
 				seek(0);
-				ensureFrameIsInViewport('backwards-press', durationInFrames, 0);
+				ensureFrameIsInViewport('fit-left', durationInFrames, 0);
 			} else if (e.shiftKey) {
 				frameBack(videoFps);
 				ensureFrameIsInViewport(
-					'backwards-press',
+					'fit-left',
 					durationInFrames,
-					frame - videoFps
+					Math.max(0, frame - videoFps)
 				);
 			} else {
 				frameBack(1);
-				ensureFrameIsInViewport('backwards-press', durationInFrames, frame - 1);
+				ensureFrameIsInViewport('fit-left', durationInFrames, frame - 1);
 			}
 		},
 		[durationInFrames, frame, frameBack, seek, videoFps]
@@ -118,24 +118,20 @@ export const PlayPause: React.FC<{
 			if (e.altKey) {
 				seek(video.durationInFrames - 1);
 				ensureFrameIsInViewport(
-					'forwards-press',
+					'fit-right',
 					video.durationInFrames - 1,
 					video.durationInFrames - 1
 				);
 			} else if (e.shiftKey) {
 				frameForward(video.fps);
 				ensureFrameIsInViewport(
-					'forwards-press',
+					'fit-right',
 					video.durationInFrames,
-					frame + video.fps
+					Math.min(video.durationInFrames - 1, frame + video.fps)
 				);
 			} else {
 				frameForward(1);
-				ensureFrameIsInViewport(
-					'forwards-press',
-					video.durationInFrames,
-					frame + 1
-				);
+				ensureFrameIsInViewport('fit-right', video.durationInFrames, frame + 1);
 			}
 
 			e.preventDefault();
