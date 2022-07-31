@@ -24,7 +24,12 @@ const calculateFrameWhileScrollingRight = ({
 	scrollLeft: number;
 }) => {
 	return (
-		getFrameFromX(scrollLeft, durationInFrames, width, 'clamp') +
+		getFrameFromX({
+			clientX: scrollLeft,
+			durationInFrames,
+			width,
+			extrapolate: 'clamp',
+		}) +
 		Math.ceil(
 			((scrollableRef.current?.clientWidth as number) - TIMELINE_PADDING) /
 				getFrameIncrement(durationInFrames)
@@ -32,28 +37,37 @@ const calculateFrameWhileScrollingRight = ({
 	);
 };
 
-export const getFrameWhileScrollingLeft = (
-	durationInFrames: number,
-	width: number
-) => {
-	const nextFrame = getFrameFromX(
-		(scrollableRef.current?.scrollLeft as number) - SCROLL_INCREMENT,
+export const getFrameWhileScrollingLeft = ({
+	durationInFrames,
+	width,
+}: {
+	durationInFrames: number;
+	width: number;
+}) => {
+	const nextFrame = getFrameFromX({
+		clientX: (scrollableRef.current?.scrollLeft as number) - SCROLL_INCREMENT,
 		durationInFrames,
 		width,
-		'clamp'
-	);
-	const currentFrame = getFrameFromX(
-		scrollableRef.current?.scrollLeft as number,
+		extrapolate: 'clamp',
+	});
+	const currentFrame = getFrameFromX({
+		clientX: scrollableRef.current?.scrollLeft as number,
 		durationInFrames,
 		width,
-		'clamp'
-	);
+		extrapolate: 'clamp',
+	});
 
 	// Should go back at least 1 frame, but not less than 0
 	return Math.max(0, Math.min(currentFrame - 1, nextFrame));
 };
 
-export const isCursorInViewport = (frame: number, durationInFrames: number) => {
+export const isCursorInViewport = ({
+	frame,
+	durationInFrames,
+}: {
+	frame: number;
+	durationInFrames: number;
+}) => {
 	const width = scrollableRef.current?.scrollWidth ?? 0;
 	const scrollLeft = scrollableRef.current?.scrollLeft ?? 0;
 
@@ -81,21 +95,25 @@ export const isCursorInViewport = (frame: number, durationInFrames: number) => {
 	);
 };
 
-export const ensureFrameIsInViewport = (
-	direction: 'fit-left' | 'fit-right' | 'page-right' | 'page-left' | 'center',
-	durationInFrames: number,
-	frame: number
-) => {
+export const ensureFrameIsInViewport = ({
+	direction,
+	durationInFrames,
+	frame,
+}: {
+	direction: 'fit-left' | 'fit-right' | 'page-right' | 'page-left' | 'center';
+	durationInFrames: number;
+	frame: number;
+}) => {
 	redrawTimelineSliderFast.current?.draw(frame);
 	const width = scrollableRef.current?.scrollWidth ?? 0;
 	const scrollLeft = scrollableRef.current?.scrollLeft ?? 0;
 	if (direction === 'fit-left') {
-		const currentFrameLeft = getFrameFromX(
-			scrollLeft,
+		const currentFrameLeft = getFrameFromX({
+			clientX: scrollLeft,
 			durationInFrames,
 			width,
-			'clamp'
-		);
+			extrapolate: 'clamp',
+		});
 		const scrollPos = getScrollPositionForCursorOnLeftEdge({
 			nextFrame: frame,
 			durationInFrames,
@@ -134,7 +152,7 @@ export const ensureFrameIsInViewport = (
 	}
 
 	if (direction === 'page-right' || direction === 'page-left') {
-		if (!isCursorInViewport(frame, durationInFrames)) {
+		if (!isCursorInViewport({frame, durationInFrames})) {
 			scrollToTimelineXOffset(
 				direction === 'page-left'
 					? getScrollPositionForCursorOnRightEdge({
@@ -234,12 +252,17 @@ export const getFrameWhileScrollingRight = ({
 	return Math.min(durationInFrames - 1, Math.max(nextFrame, currentFrame + 1));
 };
 
-export const getFrameFromX = (
-	clientX: number,
-	durationInFrames: number,
-	width: number,
-	extrapolate: 'clamp' | 'extend'
-) => {
+export const getFrameFromX = ({
+	clientX,
+	durationInFrames,
+	width,
+	extrapolate,
+}: {
+	clientX: number;
+	durationInFrames: number;
+	width: number;
+	extrapolate: 'clamp' | 'extend';
+}) => {
 	const pos = clientX - TIMELINE_PADDING;
 	const frame = Math.round(
 		interpolate(
@@ -253,4 +276,39 @@ export const getFrameFromX = (
 		)
 	);
 	return frame;
+};
+
+export const zoomAndPreserveCursor = ({
+	oldZoom,
+	newZoom,
+	currentFrame,
+	currentDurationInFrames,
+}: {
+	oldZoom: number;
+	newZoom: number;
+	currentFrame: number;
+	currentDurationInFrames: number;
+}) => {
+	const ratio = newZoom / oldZoom;
+	if (ratio === 1) {
+		return;
+	}
+
+	const {current} = scrollableRef;
+
+	if (!current) {
+		return;
+	}
+
+	const frameIncrement = getFrameIncrement(currentDurationInFrames);
+	const prevCursorPosition = frameIncrement * currentFrame + TIMELINE_PADDING;
+
+	const newCursorPosition =
+		ratio * (prevCursorPosition - TIMELINE_PADDING) + TIMELINE_PADDING;
+
+	current.scrollLeft += newCursorPosition - prevCursorPosition;
+	redrawTimelineSliderFast.current?.draw(
+		currentFrame,
+		(scrollableRef.current?.clientWidth ?? 0) * ratio
+	);
 };

@@ -136,12 +136,12 @@ export const TimelineDragHandler: React.FC = () => {
 				return;
 			}
 
-			const frame = getFrameFromX(
-				getClientXWithScroll(e.clientX) - left,
-				videoConfig.durationInFrames,
+			const frame = getFrameFromX({
+				clientX: getClientXWithScroll(e.clientX) - left,
+				durationInFrames: videoConfig.durationInFrames,
 				width,
-				'clamp'
-			);
+				extrapolate: 'clamp',
+			});
 			seek(frame);
 			setDragging({
 				dragging: true,
@@ -170,12 +170,12 @@ export const TimelineDragHandler: React.FC = () => {
 
 			const isLeftOfArea = e.clientX <= left;
 
-			const frame = getFrameFromX(
-				getClientXWithScroll(e.clientX) - left,
-				videoConfig.durationInFrames,
+			const frame = getFrameFromX({
+				clientX: getClientXWithScroll(e.clientX) - left,
+				durationInFrames: videoConfig.durationInFrames,
 				width,
-				'clamp'
-			);
+				extrapolate: 'clamp',
+			});
 
 			if (isLeftOfArea && canScrollTimelineIntoDirection().canScrollLeft) {
 				if (scroller.current) {
@@ -188,10 +188,10 @@ export const TimelineDragHandler: React.FC = () => {
 						return;
 					}
 
-					const nextFrame = getFrameWhileScrollingLeft(
-						videoConfig.durationInFrames,
-						width
-					);
+					const nextFrame = getFrameWhileScrollingLeft({
+						durationInFrames: videoConfig.durationInFrames,
+						width,
+					});
 
 					const scrollPos = getScrollPositionForCursorOnLeftEdge({
 						nextFrame,
@@ -327,12 +327,12 @@ export const TimelineDragHandler: React.FC = () => {
 				dragging: false,
 			});
 
-			const frame = getFrameFromX(
-				getClientXWithScroll(e.clientX) - left,
-				videoConfig.durationInFrames,
+			const frame = getFrameFromX({
+				clientX: getClientXWithScroll(e.clientX) - left,
+				durationInFrames: videoConfig.durationInFrames,
 				width,
-				'clamp'
-			);
+				extrapolate: 'clamp',
+			});
 
 			persistCurrentFrame(frame);
 
@@ -357,12 +357,12 @@ export const TimelineDragHandler: React.FC = () => {
 				dragging: false,
 			});
 
-			const frame = getFrameFromX(
-				getClientXWithScroll(e.clientX) - left,
-				videoConfig.durationInFrames,
+			const frame = getFrameFromX({
+				clientX: getClientXWithScroll(e.clientX) - left,
+				durationInFrames: videoConfig.durationInFrames,
 				width,
-				'extend'
-			);
+				extrapolate: 'extend',
+			});
 			if (inOutDragging.dragging === 'in') {
 				if (frame < 1) {
 					return setInAndOutFrames((prev) => ({

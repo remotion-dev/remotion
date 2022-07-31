@@ -1,7 +1,15 @@
 import type React from 'react';
-import {useContext, useEffect, useRef} from 'react';
+import {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {TimelineZoomCtx} from '../../state/timeline-zoom';
+import {
+	getCurrentDuration,
+	getCurrentFrame,
+	getCurrentZoom,
+	setCurrentDuration,
+	setCurrentFrame,
+	setCurrentZoom,
+} from './imperative-state';
 import {scrollableRef} from './timeline-refs';
 import {
 	ensureFrameIsInViewport,
@@ -23,13 +31,10 @@ export const TimelinePlayCursorSyncer: React.FC = () => {
 	const video = Internals.useVideo();
 	const timelineContext = useContext(Internals.Timeline.TimelineContext);
 	const {zoom} = useContext(TimelineZoomCtx);
-	const currentFrame = useRef<number>(timelineContext.frame);
-	const currentZoom = useRef<number>(zoom);
-	const currentDuration = useRef<number>(video?.durationInFrames ?? 1);
 
-	currentFrame.current = timelineContext.frame;
-	currentZoom.current = zoom;
-	currentDuration.current = video?.durationInFrames ?? 1;
+	setCurrentFrame(timelineContext.frame);
+	setCurrentZoom(zoom);
+	setCurrentDuration(video?.durationInFrames ?? 1);
 
 	const playing = timelineContext.playing ?? false;
 
@@ -45,11 +50,11 @@ export const TimelinePlayCursorSyncer: React.FC = () => {
 			return;
 		}
 
-		ensureFrameIsInViewport(
-			timelineContext.playbackRate > 0 ? 'page-right' : 'page-left',
-			video.durationInFrames,
-			timelineContext.frame
-		);
+		ensureFrameIsInViewport({
+			direction: timelineContext.playbackRate > 0 ? 'page-right' : 'page-left',
+			durationInFrames: video.durationInFrames,
+			frame: timelineContext.frame,
+		});
 	}, [playing, timelineContext, video]);
 
 	/**
@@ -66,27 +71,32 @@ export const TimelinePlayCursorSyncer: React.FC = () => {
 		if (playing) {
 			lastTimelinePositionWhileScrolling = {
 				scrollLeft: current.scrollLeft,
-				frame: currentFrame.current,
-				zoomLevel: currentZoom.current,
-				durationInFrames: currentDuration.current,
+				frame: getCurrentFrame(),
+				zoomLevel: getCurrentZoom(),
+				durationInFrames: getCurrentDuration(),
 			};
 		} else if (lastTimelinePositionWhileScrolling !== null) {
-			if (isCursorInViewport(currentFrame.current, currentDuration.current)) {
+			if (
+				isCursorInViewport({
+					frame: getCurrentFrame(),
+					durationInFrames: getCurrentDuration(),
+				})
+			) {
 				return;
 			}
 
 			if (
-				lastTimelinePositionWhileScrolling.zoomLevel === currentZoom.current &&
+				lastTimelinePositionWhileScrolling.zoomLevel === getCurrentZoom() &&
 				lastTimelinePositionWhileScrolling.durationInFrames ===
-					currentDuration.current
+					getCurrentDuration()
 			) {
 				current.scrollLeft = lastTimelinePositionWhileScrolling.scrollLeft;
 			} else {
-				ensureFrameIsInViewport(
-					'center',
-					currentDuration.current,
-					lastTimelinePositionWhileScrolling.frame
-				);
+				ensureFrameIsInViewport({
+					direction: 'center',
+					durationInFrames: getCurrentDuration(),
+					frame: lastTimelinePositionWhileScrolling.frame,
+				});
 			}
 		}
 	}, [playing]);

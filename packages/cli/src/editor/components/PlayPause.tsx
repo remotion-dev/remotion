@@ -93,17 +93,25 @@ export const PlayPause: React.FC<{
 
 			if (e.altKey) {
 				seek(0);
-				ensureFrameIsInViewport('fit-left', durationInFrames, 0);
+				ensureFrameIsInViewport({
+					direction: 'fit-left',
+					durationInFrames,
+					frame: 0,
+				});
 			} else if (e.shiftKey) {
 				frameBack(videoFps);
-				ensureFrameIsInViewport(
-					'fit-left',
+				ensureFrameIsInViewport({
+					direction: 'fit-left',
 					durationInFrames,
-					Math.max(0, frame - videoFps)
-				);
+					frame: Math.max(0, frame - videoFps),
+				});
 			} else {
 				frameBack(1);
-				ensureFrameIsInViewport('fit-left', durationInFrames, frame - 1);
+				ensureFrameIsInViewport({
+					direction: 'fit-left',
+					durationInFrames,
+					frame: frame - 1,
+				});
 			}
 		},
 		[durationInFrames, frame, frameBack, seek, videoFps]
@@ -117,21 +125,25 @@ export const PlayPause: React.FC<{
 
 			if (e.altKey) {
 				seek(video.durationInFrames - 1);
-				ensureFrameIsInViewport(
-					'fit-right',
-					video.durationInFrames - 1,
-					video.durationInFrames - 1
-				);
+				ensureFrameIsInViewport({
+					direction: 'fit-right',
+					durationInFrames: video.durationInFrames - 1,
+					frame: video.durationInFrames - 1,
+				});
 			} else if (e.shiftKey) {
 				frameForward(video.fps);
-				ensureFrameIsInViewport(
-					'fit-right',
-					video.durationInFrames,
-					Math.min(video.durationInFrames - 1, frame + video.fps)
-				);
+				ensureFrameIsInViewport({
+					direction: 'fit-right',
+					durationInFrames: video.durationInFrames,
+					frame: Math.min(video.durationInFrames - 1, frame + video.fps),
+				});
 			} else {
 				frameForward(1);
-				ensureFrameIsInViewport('fit-right', video.durationInFrames, frame + 1);
+				ensureFrameIsInViewport({
+					direction: 'fit-right',
+					durationInFrames: video.durationInFrames,
+					frame: frame + 1,
+				});
 			}
 
 			e.preventDefault();

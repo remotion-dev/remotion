@@ -1,4 +1,5 @@
 import React, {useCallback, useContext} from 'react';
+import {useIsStill} from '../../helpers/is-current-selected-still';
 import {
 	TimelineZoomCtx,
 	TIMELINE_MAX_ZOOM,
@@ -29,10 +30,15 @@ export const TimelineZoomControls: React.FC = () => {
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
-			setZoom(Number(e.target.value));
+			setZoom(() => Number(e.target.value));
 		},
 		[setZoom]
 	);
+	const isStill = useIsStill();
+
+	if (isStill) {
+		return null;
+	}
 
 	return (
 		<div style={container}>
