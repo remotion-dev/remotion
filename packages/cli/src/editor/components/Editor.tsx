@@ -45,6 +45,7 @@ import NewComposition from './NewComposition/NewComposition';
 import {NoRegisterRoot} from './NoRegisterRoot';
 import {NotificationCenter} from './Notifications/NotificationCenter';
 import {UpdateModal} from './UpdateModal/UpdateModal';
+import {ZoomPersistor} from './ZoomPersistor';
 
 const background: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
@@ -208,6 +209,7 @@ export const Editor: React.FC = () => {
 																		{Root === null ? null : <Root />}
 																		<Internals.CanUseRemotionHooksProvider>
 																			<FramePersistor />
+																			<ZoomPersistor />
 																			{Root === null ? (
 																				<NoRegisterRoot />
 																			) : (
