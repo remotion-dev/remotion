@@ -93,17 +93,17 @@ export const PlayPause: React.FC<{
 
 			if (e.altKey) {
 				seek(0);
-				ensureFrameIsInViewport('backwards', durationInFrames, 0);
+				ensureFrameIsInViewport('backwards-press', durationInFrames, 0);
 			} else if (e.shiftKey) {
 				frameBack(videoFps);
 				ensureFrameIsInViewport(
-					'backwards',
+					'backwards-press',
 					durationInFrames,
 					frame - videoFps
 				);
 			} else {
 				frameBack(1);
-				ensureFrameIsInViewport('backwards', durationInFrames, frame - 1);
+				ensureFrameIsInViewport('backwards-press', durationInFrames, frame - 1);
 			}
 		},
 		[durationInFrames, frame, frameBack, seek, videoFps]
@@ -118,20 +118,24 @@ export const PlayPause: React.FC<{
 			if (e.altKey) {
 				seek(video.durationInFrames - 1);
 				ensureFrameIsInViewport(
-					'forward',
+					'forwards-press',
 					video.durationInFrames - 1,
 					video.durationInFrames - 1
 				);
 			} else if (e.shiftKey) {
 				frameForward(video.fps);
 				ensureFrameIsInViewport(
-					'forward',
+					'forwards-press',
 					video.durationInFrames,
 					frame + video.fps
 				);
 			} else {
 				frameForward(1);
-				ensureFrameIsInViewport('forward', video.durationInFrames, frame + 1);
+				ensureFrameIsInViewport(
+					'forwards-press',
+					video.durationInFrames,
+					frame + 1
+				);
 			}
 
 			e.preventDefault();
@@ -266,8 +270,8 @@ export const PlayPause: React.FC<{
 			</ControlButton>
 
 			<ControlButton
-				aria-label="Step forward one frame"
-				title="Step forward one frame"
+				aria-label="Step forward-press one frame"
+				title="Step forward-press one frame"
 				disabled={isLastFrame}
 				onClick={oneFrameForward}
 			>

@@ -54,15 +54,16 @@ export const getFrameWhileScrollingLeft = (
 };
 
 export const ensureFrameIsInViewport = (
-	direction: 'backwards' | 'forward',
+	direction: 'backwards-press' | 'forwards-press' | 'forwards-play',
 	durationInFrames: number,
 	frame: number
 ) => {
 	redrawTimelineSliderFast.current?.draw(frame);
 	const width = scrollableRef.current?.scrollWidth ?? 0;
-	if (direction === 'backwards') {
+	const scrollLeft = scrollableRef.current?.scrollLeft ?? 0;
+	if (direction === 'backwards-press') {
 		const currentFrameLeft = getFrameFromX(
-			scrollableRef.current?.scrollLeft as number,
+			scrollLeft,
 			durationInFrames,
 			width,
 			'clamp'
@@ -82,13 +83,13 @@ export const ensureFrameIsInViewport = (
 		}
 	}
 
-	if (direction === 'forward') {
+	if (direction === 'forwards-press') {
 		const currentFrameRight = calculateFrameWhileScrollingRight({
 			durationInFrames,
-			scrollLeft: scrollableRef.current?.scrollLeft as number,
+			scrollLeft: scrollLeft as number,
 			width,
 		});
-		console.log(currentFrameRight, frame);
+
 		const scrollPos = getScrollPositionForCursorOnRightEdge({
 			nextFrame: frame,
 			durationInFrames,
@@ -101,6 +102,32 @@ export const ensureFrameIsInViewport = (
 			});
 		if (needsToScrollRight) {
 			scrollToTimelineXOffset(scrollPos);
+		}
+	}
+
+	if (direction === 'forwards-play') {
+		const currentFrameRight = calculateFrameWhileScrollingRight({
+			durationInFrames,
+			scrollLeft,
+			width,
+		});
+
+		const scrollPosOnRightEdge = getScrollPositionForCursorOnRightEdge({
+			nextFrame: frame,
+			durationInFrames,
+		});
+		const scrollPosOnLeftEdge = getScrollPositionForCursorOnLeftEdge({
+			nextFrame: frame,
+			durationInFrames,
+		});
+		const needsToPageRight =
+			scrollPosOnRightEdge >=
+				getScrollPositionForCursorOnRightEdge({
+					nextFrame: currentFrameRight,
+					durationInFrames,
+				}) || scrollPosOnLeftEdge < scrollLeft;
+		if (needsToPageRight) {
+			scrollToTimelineXOffset(scrollPosOnLeftEdge);
 		}
 	}
 };

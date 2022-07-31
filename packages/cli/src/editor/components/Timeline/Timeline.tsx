@@ -21,6 +21,7 @@ import {timelineStateReducer} from './timeline-state-reducer';
 import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineInOutPointer} from './TimelineInOutPointer';
 import {TimelineList} from './TimelineList';
+import {TimelinePlayCursorSyncer} from './TimelinePlayCursorSyncer';
 import {TimelineScrollable} from './TimelineScrollable';
 import {TimelineSlider} from './TimelineSlider';
 import {TimelineTracks} from './TimelineTracks';
@@ -120,6 +121,7 @@ export const Timeline: React.FC = () => {
 							<TimelineInOutPointer />
 							<TimelineDragHandler />
 							<TimelineSlider />
+							<TimelinePlayCursorSyncer />
 						</TimelineScrollable>
 					</SplitterElement>
 				</SplitterContainer>
