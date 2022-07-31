@@ -75,6 +75,7 @@ export const PreviewToolbar: React.FC = () => {
 			<div style={sideContainer}>
 				<Flex />
 				<FpsCounter playbackSpeed={playbackRate} />
+				<Spacing x={1} />
 				<TimelineZoomControls />
 				<div style={padding} />
 			</div>
