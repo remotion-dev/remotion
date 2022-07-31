@@ -1,6 +1,11 @@
 import React, {createRef, useImperativeHandle, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
-import {useGetXPositionOfItemInTimeline} from '../../helpers/get-left-of-timeline-slider';
+import {
+	getXPositionOfItemInTimelineImperatively,
+	useGetXPositionOfItemInTimeline,
+} from '../../helpers/get-left-of-timeline-slider';
+import {getCurrentDuration} from './imperative-state';
+import {sliderAreaRef} from './timeline-refs';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
 
 const container: React.CSSProperties = {
@@ -18,7 +23,7 @@ const line: React.CSSProperties = {
 };
 
 export const redrawTimelineSliderFast = createRef<{
-	draw: (frame: number) => void;
+	draw: (frame: number, width?: number) => void;
 }>();
 
 export const TimelineSlider: React.FC = () => {
@@ -36,13 +41,17 @@ export const TimelineSlider: React.FC = () => {
 
 	useImperativeHandle(redrawTimelineSliderFast, () => {
 		return {
-			draw: (frame) => {
+			draw: (frame, width?: number) => {
 				const {current} = ref;
 				if (!current) {
 					throw new Error('unexpectedly did not have ref to timelineslider');
 				}
 
-				current.style.transform = `translateX(${get(frame)}px)`;
+				current.style.transform = `translateX(${getXPositionOfItemInTimelineImperatively(
+					frame,
+					getCurrentDuration(),
+					width ?? (sliderAreaRef.current?.clientWidth as number) ?? 0
+				)}px)`;
 			},
 		};
 	});

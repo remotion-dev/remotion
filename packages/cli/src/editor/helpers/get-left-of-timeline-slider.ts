@@ -20,9 +20,11 @@ export const useGetXPositionOfItemInTimeline = () => {
 				return 0;
 			}
 
-			const proportion = frame / (videoConfig.durationInFrames - 1);
-
-			return proportion * (width - TIMELINE_PADDING * 2) + TIMELINE_PADDING;
+			return getXPositionOfItemInTimelineImperatively(
+				frame,
+				videoConfig.durationInFrames,
+				width
+			);
 		},
 		[videoConfig, width]
 	);
@@ -30,4 +32,14 @@ export const useGetXPositionOfItemInTimeline = () => {
 	return useMemo(() => {
 		return {get, width};
 	}, [get, width]);
+};
+
+export const getXPositionOfItemInTimelineImperatively = (
+	frame: number,
+	duration: number,
+	width: number
+) => {
+	const proportion = frame / (duration - 1);
+
+	return proportion * (width - TIMELINE_PADDING * 2) + TIMELINE_PADDING;
 };
