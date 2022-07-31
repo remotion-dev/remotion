@@ -1,11 +1,14 @@
 import React, {useCallback, useContext} from 'react';
 import {useIsStill} from '../../helpers/is-current-selected-still';
+import {Minus} from '../../icons/minus';
+import {Plus} from '../../icons/plus';
 import {
 	TimelineZoomCtx,
 	TIMELINE_MAX_ZOOM,
 	TIMELINE_MIN_ZOOM,
 } from '../../state/timeline-zoom';
 import {ControlButton} from '../ControlButton';
+import {Spacing} from '../layout';
 
 const container: React.CSSProperties = {
 	color: 'black',
@@ -15,6 +18,16 @@ const container: React.CSSProperties = {
 
 const buttonStyle: React.CSSProperties = {
 	fontSize: 24,
+};
+
+const iconStyle: React.CSSProperties = {
+	color: 'white',
+	width: 14,
+};
+
+const slider: React.CSSProperties = {
+	width: 60,
+	accentColor: 'var(--blue)',
 };
 
 export const TimelineZoomControls: React.FC = () => {
@@ -49,16 +62,21 @@ export const TimelineZoomControls: React.FC = () => {
 				role={'ControlButton'}
 				type="button"
 			>
-				-
+				<Minus style={iconStyle} />
 			</ControlButton>
+			<Spacing x={0.5} />
 			<input
+				title={`Timeline zoom (${zoom}x)`}
+				alt={`Timeline zoom (${zoom}x)`}
 				type={'range'}
 				min={TIMELINE_MIN_ZOOM}
 				step={0.1}
 				value={zoom}
 				max={TIMELINE_MAX_ZOOM}
 				onChange={onChange}
+				style={slider}
 			/>
+			<Spacing x={0.5} />
 			<ControlButton
 				onClick={onPlusClicked}
 				style={buttonStyle}
@@ -66,7 +84,7 @@ export const TimelineZoomControls: React.FC = () => {
 				role={'button'}
 				type="button"
 			>
-				+
+				<Plus style={iconStyle} />
 			</ControlButton>
 		</div>
 	);
