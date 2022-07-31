@@ -1,5 +1,6 @@
 import execa from 'execa';
 import path from 'path';
+import type {DownloadMap} from './assets/download-map';
 import {chunk} from './chunk';
 import {convertToPcm} from './convert-to-pcm';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
@@ -15,6 +16,7 @@ type Options = {
 	files: string[];
 	outName: string;
 	numberOfSeconds: number;
+	downloadMap: DownloadMap;
 };
 
 const mergeAudioTrackUnlimited = async ({
@@ -22,6 +24,7 @@ const mergeAudioTrackUnlimited = async ({
 	outName,
 	files,
 	numberOfSeconds,
+	downloadMap,
 }: Options): Promise<void> => {
 	if (files.length === 0) {
 		await createSilentAudio({
@@ -54,6 +57,7 @@ const mergeAudioTrackUnlimited = async ({
 					files: chunkFiles,
 					numberOfSeconds,
 					outName: chunkOutname,
+					downloadMap,
 				});
 				return chunkOutname;
 			})
@@ -64,13 +68,14 @@ const mergeAudioTrackUnlimited = async ({
 			files: chunkNames,
 			numberOfSeconds,
 			outName,
+			downloadMap,
 		});
 		await deleteDirectory(tempPath);
 		return;
 	}
 
 	const {complexFilterFlag: mergeFilter, cleanup} =
-		await createFfmpegComplexFilter(files.length);
+		await createFfmpegComplexFilter(files.length, downloadMap);
 
 	const args = [
 		...files.map((f) => ['-i', f]),

@@ -96,7 +96,12 @@ export const lambdaWriteFile = async ({
 			Bucket: bucketName,
 			Key: key,
 			Body: body,
-			ACL: privacy === 'private' ? 'private' : 'public-read',
+			ACL:
+				privacy === 'no-acl'
+					? undefined
+					: privacy === 'private'
+					? 'private'
+					: 'public-read',
 			ExpectedBucketOwner: expectedBucketOwner ?? undefined,
 			ContentType: mimeTypes.lookup(key) || 'application/octet-stream',
 			ContentDisposition: getContentDispositionHeader(downloadBehavior),

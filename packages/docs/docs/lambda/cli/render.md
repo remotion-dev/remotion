@@ -79,7 +79,11 @@ Log level to be used inside the Lambda function. Also, if you set it to `verbose
 
 ### `--privacy`
 
-Defines if the output media is accessible for everyone or not. Either `public` or `private`, default `public`.
+One of:
+
+- `"public"` (_default_): The rendered media is publicly accessible under the S3 URL.
+- `"private"`: The rendered media is not publicly available, but signed links can be created using [presignUrl()](/docs/lambda/presignurl).
+- `"no-acl"` (_available from v.3.1.7_): The ACL option is not being set at all, this option is useful if you are writing to another bucket that does not support ACL using [`outName`](#outname).
 
 ### `--max-retries`
 

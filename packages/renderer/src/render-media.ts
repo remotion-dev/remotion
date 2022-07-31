@@ -6,13 +6,14 @@ import type {SmallTCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
-import {makeDownloadMap} from './assets/download-map';
+import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import type {Codec} from './codec';
 import {validateSelectedCrfAndCodecCombination} from './crf';
+import {deleteDirectory} from './delete-directory';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import type {FfmpegExecutable} from './ffmpeg-executable';
@@ -34,7 +35,6 @@ import type {ProResProfile} from './prores-profile';
 import {validateQuality} from './quality';
 import {renderFrames} from './render-frames';
 import {stitchFramesToVideo} from './stitch-frames-to-video';
-import {tmpDir} from './tmp-dir';
 import type {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateOutputFilename} from './validate-output-filename';
@@ -122,7 +122,6 @@ export const renderMedia = ({
 	browserExecutable,
 	port,
 	cancelSignal,
-	downloadMap,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
 	validateQuality(quality);
@@ -150,13 +149,13 @@ export const renderMedia = ({
 	let cancelled = false;
 
 	const renderStart = Date.now();
-	const tmpdir = tmpDir('pre-encode');
+	const downloadMap = options.downloadMap ?? makeDownloadMap();
 	const parallelEncoding = canUseParallelEncoding(codec);
 	const actualImageFormat = imageFormat ?? 'jpeg';
 
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
-				tmpdir,
+				downloadMap.preEncode,
 				'pre-encode.' + getFileExtensionFromCodec(codec, 'chunk')
 		  )
 		: null;
@@ -287,7 +286,7 @@ export const renderMedia = ({
 				browserExecutable,
 				port,
 				cancelSignal: cancelRenderFrames.cancelSignal,
-				downloadMap: downloadMap ?? makeDownloadMap(),
+				downloadMap,
 			});
 
 			return renderFramesProc;
@@ -371,7 +370,12 @@ export const renderMedia = ({
 				preEncodedFileLocation !== null &&
 				fs.existsSync(preEncodedFileLocation)
 			) {
-				fs.unlinkSync(preEncodedFileLocation);
+				deleteDirectory(path.dirname(preEncodedFileLocation));
+			}
+
+			// Clean download map if it was not passed in
+			if (!options?.downloadMap) {
+				cleanDownloadMap(downloadMap);
 			}
 		});
 

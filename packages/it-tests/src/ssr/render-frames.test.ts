@@ -10,7 +10,7 @@ import {
 import execa from "execa";
 import { expect, test } from "vitest";
 
-test("Legacy SSR way or rendering videos should still work", async () => {
+test("Legacy SSR way of rendering videos should still work", async () => {
   const puppeteerInstance = await openBrowser("chrome");
   const compositions = await getCompositions(
     "https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/",

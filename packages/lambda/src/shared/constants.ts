@@ -316,6 +316,7 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2022-07-28'
 	| '2022-07-27'
 	| '2022-07-25'
 	| '2022-07-23'
@@ -409,7 +410,7 @@ export type LambdaVersions =
 	| '2021-06-23'
 	| 'n/a';
 
-export const CURRENT_VERSION: LambdaVersions = '2022-07-27';
+export const CURRENT_VERSION: LambdaVersions = '2022-07-28';
 
 export type PostRenderData = {
 	cost: {
@@ -473,7 +474,7 @@ export type RenderProgress = {
 	mostExpensiveFrameRanges: ExpensiveChunk[] | null;
 };
 
-export type Privacy = 'public' | 'private';
+export type Privacy = 'public' | 'private' | 'no-acl';
 
 export const LAMBDA_CONCURRENCY_LIMIT_QUOTA = 'L-B99A9384';
 export const LAMBDA_BURST_LIMIT_QUOTA = 'L-548AE339';

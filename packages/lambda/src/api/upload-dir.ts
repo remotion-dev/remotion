@@ -77,7 +77,12 @@ export const uploadDir = async ({
 		const Key = makeS3Key(folder, dir, filePath.name);
 		const Body = createReadStream(filePath.name);
 		const ContentType = mimeTypes.lookup(Key) || 'application/octet-stream';
-		const ACL = privacy === 'private' ? 'private' : 'public-read';
+		const ACL =
+			privacy === 'no-acl'
+				? undefined
+				: privacy === 'private'
+				? 'private'
+				: 'public-read';
 		if (filePath.size > 5 * 1024 * 1024) {
 			const paralellUploads3 = new Upload({
 				client,
