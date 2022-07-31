@@ -28,6 +28,7 @@ import {TimelineList} from './TimelineList';
 import {TimelinePlayCursorSyncer} from './TimelinePlayCursorSyncer';
 import {TimelineScrollable} from './TimelineScrollable';
 import {TimelineSlider} from './TimelineSlider';
+import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
 import {TimelineTracks} from './TimelineTracks';
 
 const container: React.CSSProperties = {
@@ -87,7 +88,8 @@ export const Timeline: React.FC = () => {
 		return {
 			height:
 				shown.length * (TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2) +
-				(hasBeenCut ? MAX_TIMELINE_TRACKS_NOTICE_HEIGHT : 0),
+				(hasBeenCut ? MAX_TIMELINE_TRACKS_NOTICE_HEIGHT : 0) +
+				TIMELINE_TIME_INDICATOR_HEIGHT,
 			display: 'flex',
 			flex: 1,
 			minHeight: '100%',
