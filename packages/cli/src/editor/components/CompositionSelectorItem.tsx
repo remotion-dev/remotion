@@ -1,7 +1,12 @@
 import type {MouseEventHandler} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import type {TComposition} from 'remotion';
-import {CLEAR_HOVER, LIGHT_TEXT, SELECTED_BACKGROUND} from '../helpers/colors';
+import {
+	BACKGROUND,
+	CLEAR_HOVER,
+	LIGHT_TEXT,
+	SELECTED_BACKGROUND,
+} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {FilmIcon} from '../icons/film';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
@@ -22,6 +27,7 @@ const itemStyle: React.CSSProperties = {
 	border: 'none',
 	width: '100%',
 	textAlign: 'left',
+	backgroundColor: BACKGROUND,
 };
 
 const iconStyle: React.CSSProperties = {
