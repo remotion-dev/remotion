@@ -118,7 +118,7 @@ import { AwsRegion, getAwsClient } from "@remotion/lambda";
 
 // Customize these parameters
 const REGION: AwsRegion = "us-east-1";
-const FUNCTION_NAME = "remotion-render-2022-06-02-mem3000mb-disk512mb-120sec";
+const FUNCTION_NAME = "remotion-render-2022-06-02-mem3000mb-disk2048mb-120sec";
 const LAYER_TO_REMOVE = /fonts/;
 const LAYER_TO_ADD = "arn:aws:lambda:us-east-1:1234567891:layer:apple-emoji:1";
 
