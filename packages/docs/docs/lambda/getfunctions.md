@@ -27,7 +27,7 @@ for (const fn of info) {
   console.log(fn.functionName); // "remotion-render-d8a03x"
   console.log(fn.memorySizeInMb); // 1536
   console.log(fn.timeoutInSeconds); // 120
-  console.log(fn.diskSizeInMb); // 512
+  console.log(fn.diskSizeInMb); // 2048
   console.log(fn.version); // "2021-07-25"
 }
 ```
