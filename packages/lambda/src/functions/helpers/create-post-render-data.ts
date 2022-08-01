@@ -84,11 +84,14 @@ export const createPostRenderData = ({
 		.map((c) => c.Size ?? 0)
 		.reduce((a, b) => a + b, 0);
 
-	const {timeToInvokeLambdas} = getLambdasInvokedStats(
+	const {timeToInvokeLambdas} = getLambdasInvokedStats({
 		contents,
 		renderId,
-		renderMetadata.startedDate
-	);
+		estimatedRenderLambdaInvokations:
+			renderMetadata.estimatedRenderLambdaInvokations,
+		startDate: renderMetadata.startedDate,
+		checkIfAllLambdasWereInvoked: false,
+	});
 	const retriesInfo = getRetryStats({contents, renderId});
 
 	if (timeToInvokeLambdas === null) {
