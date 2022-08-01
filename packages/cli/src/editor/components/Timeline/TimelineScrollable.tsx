@@ -1,4 +1,5 @@
 import React, {useMemo} from 'react';
+import {TIMELINE_BACKGROUND} from '../../helpers/colors';
 import {scrollableRef} from './timeline-refs';
 
 const outer: React.CSSProperties = {
@@ -7,7 +8,7 @@ const outer: React.CSSProperties = {
 	overflowX: 'auto',
 	overflowY: 'hidden',
 	position: 'relative',
-	backgroundColor: '#111',
+	backgroundColor: TIMELINE_BACKGROUND,
 };
 
 export const TimelineScrollable: React.FC<{
