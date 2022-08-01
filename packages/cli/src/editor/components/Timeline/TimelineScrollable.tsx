@@ -5,6 +5,7 @@ const outer: React.CSSProperties = {
 	width: '100%',
 	height: '100%',
 	overflowX: 'auto',
+	overflowY: 'hidden',
 	position: 'relative',
 	backgroundColor: '#111',
 };
