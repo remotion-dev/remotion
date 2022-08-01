@@ -64,7 +64,10 @@ const logLine = (frame: SymbolicatedStackFrame) => {
 };
 
 export const printCodeFrameAndStack = (err: ErrorWithStackFrame) => {
-	if (!err.symbolicatedStackFrames) {
+	if (
+		!err.symbolicatedStackFrames ||
+		err.symbolicatedStackFrames.length === 0
+	) {
 		Log.error(err.stack);
 		return;
 	}

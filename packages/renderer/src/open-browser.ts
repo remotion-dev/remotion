@@ -9,6 +9,7 @@ import {
 	ensureLocalBrowser,
 	getLocalBrowserExecutable,
 } from './get-local-browser-executable';
+import {getIdealVideoThreadsFlag} from './get-video-threads-flag';
 import {
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
@@ -105,7 +106,7 @@ export const openBrowser = async (
 			'--force-color-profile=srgb',
 			'--metrics-recording-only',
 			'--no-first-run',
-			'--video-threads=16',
+			'--video-threads=' + getIdealVideoThreadsFlag(),
 			'--enable-automation',
 			'--password-store=basic',
 			'--use-mock-keychain',
