@@ -54,7 +54,7 @@ test('Should be able to get the function afterwards', async () => {
 			timeoutInSeconds: 120,
 			version: CURRENT_VERSION,
 			region: 'us-east-1',
-			diskSizeInMb: 512,
+			diskSizeInMb: 2048,
 		},
 	]);
 	const foreignFunctions = await getFunctions({
@@ -120,7 +120,7 @@ test('Should be able to get the function afterwards', async () => {
 			timeoutInSeconds: 120,
 			version: CURRENT_VERSION,
 			region: 'us-east-1',
-			diskSizeInMb: 512,
+			diskSizeInMb: 2048,
 		},
 	]);
 	markFunctionAsIncompatible(
@@ -146,7 +146,7 @@ test('Should be able to get the function afterwards', async () => {
 			timeoutInSeconds: 120,
 			version: '2021-06-23',
 			region: 'us-east-1',
-			diskSizeInMb: 512,
+			diskSizeInMb: 2048,
 		},
 	]);
 });
