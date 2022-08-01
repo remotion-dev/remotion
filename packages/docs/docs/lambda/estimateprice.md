@@ -27,7 +27,7 @@ console.log(
     region: "us-east-1",
     durationInMiliseconds: 20000,
     memorySizeInMb: 2048,
-    diskSizeInMb: 512,
+    diskSizeInMb: 2048,
     architecture: "x86_64",
     lambdasInvoked: 1,
   })
