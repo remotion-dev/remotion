@@ -26,20 +26,34 @@ export const _screenshotTask = async (
 		});
 
 	const cap = startPerfMeasure('capture');
-	const result = await client.send('Page.captureScreenshot', {
-		format,
-		quality: options.quality,
-		clip: undefined,
-		captureBeyondViewport: true,
-	});
-	stopPerfMeasure(cap);
-	if (shouldSetDefaultBackground)
-		await client.send('Emulation.setDefaultBackgroundColorOverride');
+	try {
+		const result = await client.send('Page.captureScreenshot', {
+			format,
+			quality: options.quality,
+			clip: undefined,
+			captureBeyondViewport: true,
+		});
+		stopPerfMeasure(cap);
+		if (shouldSetDefaultBackground)
+			await client.send('Emulation.setDefaultBackgroundColorOverride');
 
-	const saveMarker = startPerfMeasure('save');
+		const saveMarker = startPerfMeasure('save');
 
-	const buffer = Buffer.from(result.data, 'base64');
-	if (options.path) await fs.promises.writeFile(options.path, buffer);
-	stopPerfMeasure(saveMarker);
-	return buffer;
+		const buffer = Buffer.from(result.data, 'base64');
+		if (options.path) await fs.promises.writeFile(options.path, buffer);
+		stopPerfMeasure(saveMarker);
+		return buffer;
+	} catch (err) {
+		if ((err as Error).message.includes('Unable to capture screenshot')) {
+			const errMessage = [
+				'Could not take a screenshot because Google Chrome ran out of memory or disk space.',
+				process?.env?.REMOTION_LAMBDA
+					? 'Deploy a new Lambda function with more memory or disk space.'
+					: 'Decrease the concurrency to use less RAM.',
+			].join(' ');
+			throw new Error(errMessage);
+		}
+
+		throw err;
+	}
 };
