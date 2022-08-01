@@ -378,11 +378,14 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		framesEncoded: frameCount.length,
 		totalFrames: frameCount.length,
 		doneIn: encodingStop ? encodingStop - encodingStart : null,
-		timeToInvoke: getLambdasInvokedStats(
+		timeToInvoke: getLambdasInvokedStats({
 			contents,
-			params.renderId,
-			renderMetadata.startedDate
-		).timeToInvokeLambdas,
+			renderId: params.renderId,
+			estimatedRenderLambdaInvokations:
+				renderMetadata.estimatedRenderLambdaInvokations,
+			checkIfAllLambdasWereInvoked: false,
+			startDate: renderMetadata.startedDate,
+		}).timeToInvokeLambdas,
 	};
 	const finalEncodingProgressProm = lambdaWriteFile({
 		bucketName: params.bucketName,
