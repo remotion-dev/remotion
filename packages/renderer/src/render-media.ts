@@ -31,6 +31,7 @@ import {DEFAULT_OVERWRITE} from './overwrite';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
 import type {PixelFormat} from './pixel-format';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
+import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
 import {validateQuality} from './quality';
 import {renderFrames} from './render-frames';
@@ -150,7 +151,31 @@ export const renderMedia = ({
 
 	const renderStart = Date.now();
 	const downloadMap = options.downloadMap ?? makeDownloadMap();
-	const parallelEncoding = canUseParallelEncoding(codec);
+	const {estimatedUsage, freeMemory, hasEnoughMemory} =
+		shouldUseParallelEncoding({
+			height: composition.height,
+			width: composition.width,
+		});
+	const parallelEncoding = hasEnoughMemory && canUseParallelEncoding(codec);
+
+	if (options.verbose) {
+		console.log(
+			'[PRESTITCHER] Free memory:',
+			freeMemory,
+			'Estimated usage parallel encoding',
+			estimatedUsage
+		);
+		console.log(
+			'[PRESTICHER]: Codec supports parallel rendering:',
+			canUseParallelEncoding(codec)
+		);
+		if (parallelEncoding) {
+			console.log('[PRESTICHER] Parallel encoding is enabled.');
+		} else {
+			console.log('[PRESTITCHER] Parallel encoding is disabled.');
+		}
+	}
+
 	const actualImageFormat = imageFormat ?? 'jpeg';
 
 	const preEncodedFileLocation = parallelEncoding
