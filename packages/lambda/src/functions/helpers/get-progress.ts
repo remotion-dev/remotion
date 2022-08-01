@@ -177,11 +177,14 @@ export const getProgress = async ({
 		.map((c) => c.Size ?? 0)
 		.reduce((a, b) => a + b, 0);
 
-	const lambdasInvokedStats = getLambdasInvokedStats(
+	const lambdasInvokedStats = getLambdasInvokedStats({
 		contents,
 		renderId,
-		renderMetadata?.startedDate ?? null
-	);
+		estimatedRenderLambdaInvokations:
+			renderMetadata?.estimatedRenderLambdaInvokations ?? null,
+		startDate: renderMetadata?.startedDate ?? null,
+		checkIfAllLambdasWereInvoked: true,
+	});
 
 	const retriesInfo = getRetryStats({
 		contents,
