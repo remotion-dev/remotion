@@ -26,7 +26,7 @@ export const getLambdasInvokedStats = ({
 		.filter((c) => parseLambdaInitializedKey(c.Key as string).attempt === 1);
 
 	const allLambdasInvoked =
-		!checkIfAllLambdasWereInvoked &&
+		!checkIfAllLambdasWereInvoked ||
 		lambdasInvoked.length === estimatedRenderLambdaInvokations;
 
 	const timeToInvokeLambdas =
