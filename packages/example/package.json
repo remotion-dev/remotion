@@ -34,6 +34,7 @@
 		"@remotion/eslint-plugin": "3.1.10",
 		"@remotion/gif": "3.1.10",
 		"@remotion/lambda": "3.1.10",
+		"@remotion/lottie": "3.1.10",
 		"@remotion/media-utils": "3.1.10",
 		"@remotion/renderer": "3.1.10",
 		"@remotion/three": "3.1.10",
