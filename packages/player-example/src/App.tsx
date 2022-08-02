@@ -38,7 +38,6 @@ const ControlsOnly: React.FC<{
 	setTitle: React.Dispatch<React.SetStateAction<string>>;
 	bgColor: string;
 	setBgColor: React.Dispatch<React.SetStateAction<string>>;
-	playbackRate: number;
 	setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
 	loop: boolean;
 	setLoop: React.Dispatch<React.SetStateAction<boolean>>;
@@ -58,7 +57,6 @@ const ControlsOnly: React.FC<{
 	setColor,
 	bgColor,
 	setBgColor,
-	playbackRate,
 	setPlaybackRate,
 	loop,
 	setLoop,
@@ -104,6 +102,14 @@ const ControlsOnly: React.FC<{
 				'ratechange ' + e.detail.playbackRate + ' ' + Date.now(),
 			]);
 		};
+		const fullscreenChangeCallbackListener: CallbackListener<
+			'fullscreenchange'
+		> = (e) => {
+			setLogs((l) => [
+				...l,
+				'fullscreenchange ' + e.detail.isFullscreen + ' ' + Date.now(),
+			]);
+		};
 
 		const {current} = ref;
 		if (!current) {
@@ -117,6 +123,10 @@ const ControlsOnly: React.FC<{
 		current.addEventListener('error', errorCallbackListener);
 		current.addEventListener('timeupdate', timeupdateCallbackLitener);
 		current.addEventListener('ratechange', ratechangeCallbackListener);
+		current.addEventListener(
+			'fullscreenchange',
+			fullscreenChangeCallbackListener
+		);
 
 		return () => {
 			current.removeEventListener('play', playCallbackListener);
@@ -126,6 +136,10 @@ const ControlsOnly: React.FC<{
 			current.removeEventListener('error', errorCallbackListener);
 			current.removeEventListener('timeupdate', timeupdateCallbackLitener);
 			current.removeEventListener('ratechange', ratechangeCallbackListener);
+			current.removeEventListener(
+				'fullscreenchange',
+				fullscreenChangeCallbackListener
+			);
 		};
 	}, [ref]);
 
@@ -457,7 +471,6 @@ export default ({
 				doubleClickToFullscreen={doubleClickToFullscreen}
 				loop={loop}
 				moveToBeginningWhenEnded={moveToBeginningWhenEnded}
-				playbackRate={playbackRate}
 				setBgColor={setBgColor}
 				setClickToPlay={setClickToPlay}
 				setColor={setColor}
