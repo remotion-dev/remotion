@@ -1,4 +1,4 @@
-import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import React, {forwardRef, useEffect, useImperativeHandle, useRef} from 'react';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
@@ -60,6 +60,29 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	useImperativeHandle(ref, () => {
 		return videoRef.current as HTMLVideoElement;
 	});
+
+	useEffect(() => {
+		const {current} = videoRef;
+		if (!current) {
+			return;
+		}
+
+		const errorHandler = () => {
+			if (current?.error) {
+				console.error('Error occurred in video', current?.error);
+				throw new Error(
+					`The browser threw an error while playing the video: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
+				);
+			} else {
+				throw new Error('The browser threw an error');
+			}
+		};
+
+		current.addEventListener('error', errorHandler, {once: true});
+		return () => {
+			current.removeEventListener('error', errorHandler);
+		};
+	}, []);
 
 	return (
 		<video
