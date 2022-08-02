@@ -19,7 +19,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		(e) => {
 			console.log(e.currentTarget.error);
 			throw new Error(
-				`Could not play audio with src ${otherProps.src}: ${e.currentTarget.error}`
+				`Could not play audio with src ${otherProps.src}: ${e.currentTarget.error}. See https://remotion.dev/docs/media-playback-error for help.`
 			);
 		},
 		[otherProps.src]
