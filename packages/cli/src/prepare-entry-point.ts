@@ -3,19 +3,21 @@ import {stat} from 'fs/promises';
 import path from 'path';
 import {exit} from 'process';
 import {Log} from './log';
-import {bundleOnCli} from './setup-cache';
-import {RenderStep} from './step';
+import {bundleOnCliOrTakeServeUrl} from './setup-cache';
+import type {RenderStep} from './step';
 
 export const prepareEntryPoint = async ({
 	file,
 	otherSteps,
 	publicPath,
 	outDir,
+	remotionRoot,
 }: {
 	file: string;
 	otherSteps: RenderStep[];
 	outDir: string | null;
 	publicPath: string | null;
+	remotionRoot: string;
 }): Promise<{
 	urlOrBundle: string;
 	steps: RenderStep[];
@@ -37,11 +39,12 @@ export const prepareEntryPoint = async ({
 		exit(1);
 	}
 
-	const urlOrBundle = await bundleOnCli({
+	const urlOrBundle = await bundleOnCliOrTakeServeUrl({
 		fullPath: joined,
 		steps: ['bundling', ...otherSteps],
 		outDir,
 		publicPath,
+		remotionRoot,
 	});
 
 	return {urlOrBundle, steps: ['bundling', ...otherSteps], shouldDelete: true};

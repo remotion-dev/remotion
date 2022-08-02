@@ -24,6 +24,7 @@ import {
 	makeRenderingAndStitchingProgress,
 } from './progress-bar';
 import type {RenderStep} from './step';
+import {truthy} from './truthy';
 import {
 	getOutputLocation,
 	getUserPassedOutputLocation,
@@ -80,15 +81,14 @@ export const still = async (remotionRoot: string) => {
 		bundleOutDir,
 	} = await getCliOptions({isLambda: false, type: 'still'});
 
-	const otherSteps: RenderStep[] = ['rendering' as const].filter(
-		Internals.truthy
-	);
+	const otherSteps: RenderStep[] = ['rendering' as const].filter(truthy);
 
 	const {shouldDelete, steps, urlOrBundle} = await prepareEntryPoint({
 		file,
 		otherSteps,
 		outDir: bundleOutDir,
 		publicPath,
+		remotionRoot,
 	});
 
 	Log.verbose('Browser executable: ', browserExecutable);
@@ -254,7 +254,7 @@ export const still = async (remotionRoot: string) => {
 		].join(' ')
 	);
 	Log.info('-', 'Output can be found at:');
-	Log.info(chalk.cyan(`▶️ ${userOutput}`));
+	Log.info(chalk.cyan(`▶️ ${absoluteOutputLocation}`));
 
 	if (shouldDelete) {
 		try {

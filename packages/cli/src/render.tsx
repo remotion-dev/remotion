@@ -28,7 +28,6 @@ import {
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,
 } from './progress-bar';
-import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import type {RenderStep} from './step';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
@@ -43,7 +42,6 @@ export const render = async (remotionRoot: string) => {
 		Log.error('Documentation: https://www.remotion.dev/docs/render');
 		process.exit(1);
 	}
-
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
@@ -124,6 +122,7 @@ export const render = async (remotionRoot: string) => {
 		otherSteps,
 		outDir: bundleOutDir,
 		publicPath,
+		remotionRoot,
 	});
 
 	const onDownload: RenderMediaOnDownload = (src) => {
@@ -348,26 +347,28 @@ export const render = async (remotionRoot: string) => {
 			Log.warn(err);
 			Log.warn('Do you have minimum required Node.js version?');
 		}
-	try {
-		await RenderInternals.cleanDownloadMap(downloadMap);
 
-		Log.verbose('Cleaned up', downloadMap.assetDir);
-	} catch (err) {
-		Log.warn('Could not clean up directory.');
-		Log.warn(err);
-		Log.warn('Do you have minimum required Node.js version?');
-	}
+		try {
+			await RenderInternals.cleanDownloadMap(downloadMap);
 
-	Log.info(
-		chalk.green(`\nYour ${codec === 'gif' ? 'GIF' : 'video'} is ready!`)
-	);
+			Log.verbose('Cleaned up', downloadMap.assetDir);
+		} catch (err) {
+			Log.warn('Could not clean up directory.');
+			Log.warn(err);
+			Log.warn('Do you have minimum required Node.js version?');
+		}
 
-	if (
-		RenderInternals.isEqualOrBelowLogLevel(
-			ConfigInternals.Logging.getLogLevel(),
-			'verbose'
-		)
-	) {
-		RenderInternals.perf.logPerf();
+		Log.info(
+			chalk.green(`\nYour ${codec === 'gif' ? 'GIF' : 'video'} is ready!`)
+		);
+
+		if (
+			RenderInternals.isEqualOrBelowLogLevel(
+				ConfigInternals.Logging.getLogLevel(),
+				'verbose'
+			)
+		) {
+			RenderInternals.perf.logPerf();
+		}
 	}
 };

@@ -96,8 +96,6 @@ export const Internals = {
 	DELAY_RENDER_CALLSTACK_TOKEN,
 	useAbsoluteCurrentFrame,
 	portalNode,
-	getPublicPath,
-	getBundleOutDir,
 	waitForRoot,
 	validateOffthreadVideoImageFormat,
 	CanUseRemotionHooksProvider,

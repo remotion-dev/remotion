@@ -5,6 +5,7 @@ import path from 'path';
 import {deploySite} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {BINARY_NAME} from '../../../shared/constants';
+import {truthy} from '../../../shared/truthy';
 import {validateSiteName} from '../../../shared/validate-site-name';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
@@ -93,7 +94,7 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 				makeBucketProgress(multiProgress.bucketProgress),
 				makeDeployProgressBar(multiProgress.deployProgress),
 			]
-				.filter(Internals.truthy)
+				.filter(truthy)
 				.join('\n')
 		);
 	};
