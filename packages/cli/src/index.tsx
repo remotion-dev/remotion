@@ -63,7 +63,7 @@ export const cli = async () => {
 		} else if (command === 'render') {
 			await render(remotionRoot);
 		} else if (command === 'bundle') {
-			await bundleCommand();
+			await bundleCommand(remotionRoot);
 		} else if (command === 'still') {
 			await still(remotionRoot);
 		} else if (command === 'upgrade') {

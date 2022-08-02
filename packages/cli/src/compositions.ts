@@ -60,6 +60,7 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 		otherSteps: [],
 		outDir: bundleOutDir,
 		publicPath,
+		remotionRoot,
 	});
 
 	const compositions = await getCompositions(urlOrBundle, {

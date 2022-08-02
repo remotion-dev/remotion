@@ -273,7 +273,7 @@ export const getCliOptions = async (options: {
 		chromiumOptions,
 		overwrite,
 		port: port ?? null,
-		publicPath: Internals.getPublicPath(),
-		bundleOutDir: Internals.getBundleOutDir(),
+		publicPath: ConfigInternals.getPublicPath(),
+		bundleOutDir: ConfigInternals.getBundleOutDir(),
 	};
 };

@@ -54,6 +54,9 @@ export type ConfigType = {
 		 * If you specify a port, but it's not available, Remotion will throw an error.
 		 */
 		readonly setPort: (port: number | undefined) => void;
+
+		readonly setBundleOutDir: (path: string) => void;
+		readonly setPublicPath: (path: string) => void;
 	};
 	readonly Log: {
 		/**
