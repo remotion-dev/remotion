@@ -101,7 +101,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	});
 
 	useEffect(() => {
-		if (!videoRef.current) {
+		const {current} = videoRef;
+		if (!current) {
 			return;
 		}
 
@@ -121,67 +122,66 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		if (isApproximatelyTheSame(videoRef.current.currentTime, currentTime)) {
-			if (videoRef.current.readyState >= 2) {
+		if (isApproximatelyTheSame(current.currentTime, currentTime)) {
+			if (current.readyState >= 2) {
 				continueRender(handle);
 				return;
 			}
 
-			videoRef.current.addEventListener(
-				'loadeddata',
-				() => {
-					continueRender(handle);
-				},
-				{once: true}
-			);
-			return;
+			const loadedDataHandler = () => {
+				continueRender(handle);
+			};
+
+			current.addEventListener('loadeddata', loadedDataHandler, {once: true});
+			return () => {
+				current.removeEventListener('loadeddata', loadedDataHandler);
+			};
 		}
 
-		videoRef.current.currentTime = currentTime;
+		current.currentTime = currentTime;
 
-		videoRef.current.addEventListener(
-			'seeked',
-			() => {
-				warnAboutNonSeekableMedia(videoRef.current, 'exception');
+		const seekedHandler = () => {
+			warnAboutNonSeekableMedia(current, 'exception');
 
-				if (window.navigator.platform.startsWith('Mac')) {
-					// Improve me: This is ensures frame perfectness but slows down render.
-					// Please see this issue for context: https://github.com/remotion-dev/remotion/issues/200
+			if (window.navigator.platform.startsWith('Mac')) {
+				// Improve me: This is ensures frame perfectness but slows down render.
+				// Please see this issue for context: https://github.com/remotion-dev/remotion/issues/200
 
-					// Only affects macOS since it uses VideoToolbox decoding.
-					setTimeout(() => {
-						continueRender(handle);
-					}, 100);
-				} else {
+				// Only affects macOS since it uses VideoToolbox decoding.
+				setTimeout(() => {
 					continueRender(handle);
-				}
-			},
-			{once: true}
-		);
-		videoRef.current.addEventListener(
-			'ended',
-			() => {
+				}, 100);
+			} else {
 				continueRender(handle);
-			},
-			{once: true}
-		);
-		videoRef.current.addEventListener(
-			'error',
-			() => {
-				if (videoRef.current?.error) {
-					console.error('Error occurred in video', videoRef.current?.error);
-					throw new Error(
-						`The browser threw an error while playing the video: Code ${videoRef.current.error.code} - ${videoRef.current?.error?.message}`
-					);
-				} else {
-					throw new Error('The browser threw an error');
-				}
-			},
-			{once: true}
-		);
+			}
+		};
+
+		current.addEventListener('seeked', seekedHandler, {once: true});
+
+		const endedHandler = () => {
+			continueRender(handle);
+		};
+
+		current.addEventListener('ended', endedHandler, {once: true});
+
+		const errorHandler = () => {
+			if (current?.error) {
+				console.error('Error occurred in video', current?.error);
+				throw new Error(
+					`The browser threw an error while playing the video: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
+				);
+			} else {
+				throw new Error('The browser threw an error');
+			}
+		};
+
+		current.addEventListener('error', errorHandler, {once: true});
 
 		// If video skips to another frame or unmounts, we clear the created handle
 		return () => {
+			current.removeEventListener('ended', endedHandler);
+			current.removeEventListener('error', errorHandler);
+			current.removeEventListener('seeked', seekedHandler);
 			continueRender(handle);
 		};
 	}, [
