@@ -6,6 +6,7 @@ const lambdaCodecs = [
 	'aac',
 	'wav',
 	'gif',
+	'prores',
 ] as const;
 
 export type LambdaCodec = typeof lambdaCodecs[number];
