@@ -2,6 +2,7 @@ import type {WebpackOverrideFn} from 'remotion';
 import {deleteSite} from '../api/delete-site';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {bundleSite} from '../shared/bundle-site';
+import type { Privacy} from '../shared/constants';
 import {getSitesKey} from '../shared/constants';
 import {getAccountId} from '../shared/get-account-id';
 import {makeS3ServeUrl} from '../shared/make-s3-url';
@@ -25,6 +26,7 @@ export type DeploySiteInput = {
 		webpackOverride?: WebpackOverrideFn;
 		enableCaching?: boolean;
 	};
+	privacy?: Privacy;
 };
 
 export type DeploySiteOutput = Promise<{
@@ -47,6 +49,7 @@ export const deploySite = async ({
 	siteName,
 	options,
 	region,
+	privacy = 'public',
 }: DeploySiteInput): DeploySiteOutput => {
 	validateAwsRegion(region);
 	validateBucketName(bucketName, {mustStartWithRemotion: true});
@@ -87,7 +90,7 @@ export const deploySite = async ({
 			dir: bundled,
 			onProgress: options?.onUploadProgress ?? (() => undefined),
 			folder: subFolder,
-			privacy: 'public',
+			privacy,
 		}),
 		enableS3Website({
 			region,

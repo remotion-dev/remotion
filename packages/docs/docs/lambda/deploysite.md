@@ -37,6 +37,7 @@ const { serveUrl } = await deploySite({
       );
     },
   },
+  privacy: "private"
 });
 console.log(serveUrl);
 ```
@@ -62,6 +63,14 @@ Specify the subfolder in your S3 bucket that you want the site to deploy to. If 
 ### `region`
 
 The AWS region in which the bucket resides.
+
+### `privacy`
+
+One of:
+
+- `"public"` (_default_): The deployed site is publicly accessible under the S3 URL.
+- `"private"`: The deployed site is not publicly available, but signed links can be created using [presignUrl()](/docs/lambda/presignurl).
+- `"no-acl"`: The ACL option is not being set at all, this option is useful if you are writing to another bucket that does not support ACL using [`outName`](#outname).
 
 ### `options`
 
