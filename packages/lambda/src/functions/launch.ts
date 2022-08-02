@@ -65,10 +65,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	const [browserInstance, optimization] = await Promise.all([
 		getBrowserInstance(
-			Internals.Logging.isEqualOrBelowLogLevel(
-				Internals.Logging.getLogLevel(),
-				'verbose'
-			),
+			RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
 			params.chromiumOptions
 		),
 		getOptimization({
@@ -79,6 +76,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			expectedBucketOwner: options.expectedBucketOwner,
 		}),
 	]);
+
+	const downloadMap = RenderInternals.makeDownloadMap();
 
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
@@ -91,14 +90,19 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
 		port: null,
+		downloadMap,
 	});
 	Internals.validateDurationInFrames(
 		comp.durationInFrames,
-		'passed to <Component />'
+		'passed to a Lambda render'
 	);
-	Internals.validateFps(comp.fps, 'passed to <Component />', null);
-	Internals.validateDimension(comp.height, 'height', 'passed to <Component />');
-	Internals.validateDimension(comp.width, 'width', 'passed to <Component />');
+	Internals.validateFps(comp.fps, 'passed to a Lambda render', false);
+	Internals.validateDimension(
+		comp.height,
+		'height',
+		'passed to a Lambda render'
+	);
+	Internals.validateDimension(comp.width, 'width', 'passed to a Lambda render');
 
 	RenderInternals.validateConcurrency(
 		params.concurrencyPerLambda,
@@ -168,7 +172,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			proResProfile: params.proResProfile,
 			quality: params.quality,
 			privacy: params.privacy,
-			logLevel: params.logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
+			logLevel: params.logLevel ?? 'info',
 			attempt: 1,
 			timeoutInMilliseconds: params.timeoutInMilliseconds,
 			chromiumOptions: params.chromiumOptions,
@@ -374,12 +378,14 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		framesEncoded: frameCount.length,
 		totalFrames: frameCount.length,
 		doneIn: encodingStop ? encodingStop - encodingStart : null,
-		timeToInvoke: getLambdasInvokedStats(
+		timeToInvoke: getLambdasInvokedStats({
 			contents,
-			params.renderId,
-			renderMetadata.estimatedRenderLambdaInvokations,
-			renderMetadata.startedDate
-		).timeToInvokeLambdas,
+			renderId: params.renderId,
+			estimatedRenderLambdaInvokations:
+				renderMetadata.estimatedRenderLambdaInvokations,
+			checkIfAllLambdasWereInvoked: false,
+			startDate: renderMetadata.startedDate,
+		}).timeToInvokeLambdas,
 	};
 	const finalEncodingProgressProm = lambdaWriteFile({
 		bucketName: params.bucketName,
@@ -411,7 +417,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		jobs,
 	});
 
-	const postRenderData = await createPostRenderData({
+	const postRenderData = createPostRenderData({
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,

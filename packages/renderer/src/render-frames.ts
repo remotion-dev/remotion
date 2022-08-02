@@ -1,22 +1,22 @@
 import fs from 'fs';
 import path from 'path';
-import type {
-	BrowserExecutable,
-	FfmpegExecutable,
-	FrameRange,
-	ImageFormat,
-	SmallTCompMetadata,
-	TAsset,
-} from 'remotion';
+import type {SmallTCompMetadata, TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
+import type {DownloadMap} from './assets/download-map';
+import {makeDownloadMap} from './assets/download-map';
+import {DEFAULT_BROWSER} from './browser';
+import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
+import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
+import type {FfmpegExecutable} from './ffmpeg-executable';
+import type {FrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import type {CountType} from './get-frame-padded-index';
@@ -25,19 +25,22 @@ import {
 	getFrameOutputFileName,
 } from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
+import type {ImageFormat} from './image-format';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
 import {getServeUrlWithFallback} from './legacy-webpack-config';
-import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import type {CancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {openBrowser} from './open-browser';
+import {startPerfMeasure, stopPerfMeasure} from './perf';
 import {Pool} from './pool';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
+import {validateQuality} from './quality';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
+import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
 
@@ -76,6 +79,10 @@ type RenderFramesOptions = {
 	ffprobeExecutable?: FfmpegExecutable;
 	port?: number | null;
 	cancelSignal?: CancelSignal;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	downloadMap?: DownloadMap;
 } & ConfigOrComposition &
 	ServeUrlOrWebpackBundle;
 
@@ -117,19 +124,19 @@ const innerRenderFrames = ({
 	timeoutInMilliseconds,
 	scale,
 	actualParallelism,
-	downloadDir,
 	everyNthFrame = 1,
 	proxyPort,
 	cancelSignal,
+	downloadMap,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
 	serveUrl: string;
 	composition: SmallTCompMetadata;
 	actualParallelism: number;
-	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 	proxyPort: number;
+	downloadMap: DownloadMap;
 }): Promise<RenderFramesOutput> => {
 	if (!puppeteerInstance) {
 		throw new Error(
@@ -250,7 +257,7 @@ const innerRenderFrames = ({
 
 			if (imageFormat !== 'none') {
 				if (onFrameBuffer) {
-					const id = Internals.perf.startPerfMeasure('save');
+					const id = startPerfMeasure('save');
 					const buffer = await provideScreenshot({
 						page: freePage,
 						imageFormat,
@@ -260,7 +267,7 @@ const innerRenderFrames = ({
 							output: null,
 						},
 					});
-					Internals.perf.stopPerfMeasure(id);
+					stopPerfMeasure(id);
 
 					onFrameBuffer(buffer, frame);
 				} else {
@@ -302,17 +309,14 @@ const innerRenderFrames = ({
 				page: freePage,
 			});
 			const compressedAssets = collectedAssets.map((asset) =>
-				Internals.AssetCompression.compressAsset(
-					assets.filter(Internals.truthy).flat(1),
-					asset
-				)
+				compressAsset(assets.filter(truthy).flat(1), asset)
 			);
 			assets[index] = compressedAssets;
 			compressedAssets.forEach((asset) => {
 				downloadAndMapAssetsToFileUrl({
 					asset,
-					downloadDir,
 					onDownload,
+					downloadMap,
 				}).catch((err) => {
 					onError(
 						new Error(`Error while downloading asset: ${(err as Error).stack}`)
@@ -332,9 +336,9 @@ const innerRenderFrames = ({
 		const returnValue: RenderFramesOutput = {
 			assetsInfo: {
 				assets,
-				downloadDir,
 				imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
 				firstFrameIndex: framesToRender[0],
+				downloadMap,
 			},
 			frameCount: framesToRender.length,
 		};
@@ -374,7 +378,7 @@ export const renderFrames = (
 	Internals.validateFps(
 		composition.fps,
 		'in the `config` object of `renderFrames()`',
-		null
+		false
 	);
 	Internals.validateDurationInFrames(
 		composition.durationInFrames,
@@ -388,19 +392,19 @@ export const renderFrames = (
 
 	const selectedServeUrl = getServeUrlWithFallback(options);
 
-	Internals.validateQuality(options.quality);
+	validateQuality(options.quality);
 	validateScale(options.scale);
 
 	const browserInstance =
 		options.puppeteerInstance ??
-		openBrowser(Internals.DEFAULT_BROWSER, {
+		openBrowser(DEFAULT_BROWSER, {
 			shouldDumpIo: options.dumpBrowserLogs,
 			browserExecutable: options.browserExecutable,
 			chromiumOptions: options.chromiumOptions,
 			forceDeviceScaleFactor: options.scale ?? 1,
 		});
 
-	const downloadDir = makeAssetsDownloadTmpDir();
+	const downloadMap = options.downloadMap ?? makeDownloadMap();
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
 
@@ -423,12 +427,12 @@ export const renderFrames = (
 			Promise.all([
 				prepareServer({
 					webpackConfigOrServeUrl: selectedServeUrl,
-					downloadDir,
 					onDownload,
 					onError,
 					ffmpegExecutable: options.ffmpegExecutable ?? null,
 					ffprobeExecutable: options.ffprobeExecutable ?? null,
 					port: options.port ?? null,
+					downloadMap,
 				}),
 				browserInstance,
 			]).then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {
@@ -449,8 +453,8 @@ export const renderFrames = (
 					composition,
 					actualParallelism,
 					onDownload,
-					downloadDir,
 					proxyPort: offthreadPort,
+					downloadMap,
 				});
 			}),
 		])
@@ -480,6 +484,7 @@ export const renderFrames = (
 				cleanup.forEach((c) => {
 					c();
 				});
+				// Don't clear download dir because it might be used by stitchFramesToVideo
 			});
 	});
 };

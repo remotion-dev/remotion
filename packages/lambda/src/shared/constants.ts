@@ -1,13 +1,13 @@
-import type {ChromiumOptions} from '@remotion/renderer';
 import type {
+	ChromiumOptions,
 	Codec,
 	FrameRange,
 	ImageFormat,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
-	VideoConfig,
-} from 'remotion';
+} from '@remotion/renderer';
+import type {VideoConfig} from 'remotion';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';
@@ -36,7 +36,7 @@ export const DEFAULT_MAX_RETRIES = 1;
 
 export const MAX_FUNCTIONS_PER_RENDER = 200;
 
-export const DEFAULT_EPHEMERAL_STORAGE_IN_MB = 512;
+export const DEFAULT_EPHEMERAL_STORAGE_IN_MB = 2048;
 export const MIN_EPHEMERAL_STORAGE_IN_MB = 512;
 export const MAX_EPHEMERAL_STORAGE_IN_MB = 10240;
 
@@ -316,6 +316,12 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2022-08-02'
+	| '2022-08-01'
+	| '2022-07-28'
+	| '2022-07-27'
+	| '2022-07-25'
+	| '2022-07-23'
 	| '2022-07-20'
 	| '2022-07-18'
 	| '2022-07-15'
@@ -406,7 +412,7 @@ export type LambdaVersions =
 	| '2021-06-23'
 	| 'n/a';
 
-export const CURRENT_VERSION: LambdaVersions = '2022-07-20';
+export const CURRENT_VERSION: LambdaVersions = '2022-08-02';
 
 export type PostRenderData = {
 	cost: {
@@ -470,7 +476,7 @@ export type RenderProgress = {
 	mostExpensiveFrameRanges: ExpensiveChunk[] | null;
 };
 
-export type Privacy = 'public' | 'private';
+export type Privacy = 'public' | 'private' | 'no-acl';
 
 export const LAMBDA_CONCURRENCY_LIMIT_QUOTA = 'L-B99A9384';
 export const LAMBDA_BURST_LIMIT_QUOTA = 'L-548AE339';

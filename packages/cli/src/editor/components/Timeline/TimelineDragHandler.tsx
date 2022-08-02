@@ -3,6 +3,10 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {Internals, interpolate} from 'remotion';
 import {useGetXPositionOfItemInTimeline} from '../../helpers/get-left-of-timeline-slider';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {
+	useTimelineInOutFramePosition,
+	useTimelineSetInOutFramePosition,
+} from '../../state/in-out';
 import {persistCurrentFrame} from '../FramePersistor';
 import {sliderAreaRef} from './timeline-refs';
 import {inMarkerAreaRef, outMarkerAreaRef} from './TimelineInOutPointer';
@@ -65,11 +69,9 @@ export const TimelineDragHandler: React.FC = () => {
 	});
 	const width = size?.width ?? 0;
 	const left = size?.left ?? 0;
-	const {inFrame, outFrame} =
-		Internals.Timeline.useTimelineInOutFramePosition();
+	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 
-	const {setInAndOutFrames} =
-		Internals.Timeline.useTimelineSetInOutFramePosition();
+	const {setInAndOutFrames} = useTimelineSetInOutFramePosition();
 
 	const {get} = useGetXPositionOfItemInTimeline();
 	const [dragging, setDragging] = useState<

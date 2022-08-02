@@ -1,9 +1,11 @@
-import type {ChromiumOptions} from '@remotion/renderer';
-import type {LogLevel, StillImageFormat} from 'remotion';
-import {Internals} from 'remotion';
+import type {
+	ChromiumOptions,
+	LogLevel,
+	StillImageFormat,
+} from '@remotion/renderer';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
-import type {CostsInfo, OutNameInput} from '../shared/constants';
+import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
 import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
@@ -15,7 +17,7 @@ export type RenderStillOnLambdaInput = {
 	composition: string;
 	inputProps: unknown;
 	imageFormat: StillImageFormat;
-	privacy: 'private' | 'public';
+	privacy: Privacy;
 	maxRetries?: number;
 	envVariables?: Record<string, string>;
 	quality?: number;
@@ -87,10 +89,9 @@ export const renderStillOnLambda = async ({
 			frame: frame ?? 0,
 			privacy,
 			attempt: 1,
-			logLevel: logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
+			logLevel: logLevel ?? 'info',
 			outName: outName ?? null,
-			timeoutInMilliseconds:
-				timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT,
+			timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
 			chromiumOptions: chromiumOptions ?? {},
 			scale: scale ?? 1,
 			downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},

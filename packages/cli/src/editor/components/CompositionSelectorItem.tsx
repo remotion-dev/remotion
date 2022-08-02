@@ -1,7 +1,12 @@
 import type {MouseEventHandler} from 'react';
-import React, { useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import type {TComposition} from 'remotion';
-import {CLEAR_HOVER, LIGHT_TEXT, SELECTED_BACKGROUND} from '../helpers/colors';
+import {
+	BACKGROUND,
+	CLEAR_HOVER,
+	LIGHT_TEXT,
+	SELECTED_BACKGROUND,
+} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {FilmIcon} from '../icons/film';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
@@ -21,6 +26,8 @@ const itemStyle: React.CSSProperties = {
 	appearance: 'none',
 	border: 'none',
 	width: '100%',
+	textAlign: 'left',
+	backgroundColor: BACKGROUND,
 };
 
 const iconStyle: React.CSSProperties = {
@@ -47,7 +54,7 @@ export const CompositionSelectorItem: React.FC<{
 	item: CompositionSelectorItemType;
 	currentComposition: string | null;
 	tabIndex: number;
-	selectComposition: (c: TComposition) => void;
+	selectComposition: (c: TComposition, push: boolean) => void;
 	toggleFolder: (folderName: string, parentName: string | null) => void;
 	level: number;
 }> = ({
@@ -93,7 +100,7 @@ export const CompositionSelectorItem: React.FC<{
 		(evt) => {
 			evt.preventDefault();
 			if (item.type === 'composition') {
-				selectComposition(item.composition);
+				selectComposition(item.composition, true);
 			} else {
 				toggleFolder(item.folderName, item.parentName);
 			}

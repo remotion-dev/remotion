@@ -6,3 +6,4 @@ tsconfig.tsbuildinfo
 jest.config.js
 *.tgz
 .turbo
+ensure-version-match.js

@@ -15,6 +15,7 @@ const container: React.CSSProperties = {
 	flexDirection: 'column',
 	paddingTop: 20,
 	pointerEvents: 'none',
+	backgroundColor: 'transparent',
 };
 
 type TNotification = {

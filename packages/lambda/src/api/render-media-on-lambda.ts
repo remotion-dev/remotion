@@ -1,18 +1,18 @@
-import type {ChromiumOptions} from '@remotion/renderer';
 import type {
+	ChromiumOptions,
 	FrameRange,
 	ImageFormat,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
-} from 'remotion';
-import {Internals} from 'remotion';
+} from '@remotion/renderer';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
+import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
 import {validateLambdaCodec} from '../shared/validate-lambda-codec';
@@ -100,6 +100,7 @@ export const renderMediaOnLambda = async ({
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
 	validateFramesPerLambda(framesPerLambda ?? null);
+	validateDownloadBehavior(downloadBehavior);
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
 	const res = await callLambda({
 		functionName,
@@ -118,11 +119,10 @@ export const renderMediaOnLambda = async ({
 			quality,
 			maxRetries,
 			privacy,
-			logLevel: logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
+			logLevel: logLevel ?? 'info',
 			frameRange: frameRange ?? null,
 			outName: outName ?? null,
-			timeoutInMilliseconds:
-				timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT,
+			timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
 			chromiumOptions: chromiumOptions ?? {},
 			scale: scale ?? 1,
 			everyNthFrame: everyNthFrame ?? 1,

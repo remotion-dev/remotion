@@ -1,14 +1,12 @@
 import {RenderInternals} from '@remotion/renderer';
-import fs from 'fs';
 import path from 'path';
-import {Internals} from 'remotion';
+import {ConfigInternals} from './config';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
 import {Log} from './log';
-import type {
-	PackageManager} from './preview-server/get-package-manager';
+import type {PackageManager} from './preview-server/get-package-manager';
 import {
 	getPackageManager,
-	lockFilePaths
+	lockFilePaths,
 } from './preview-server/get-package-manager';
 
 const getUpgradeCommand = ({
@@ -31,20 +29,14 @@ const getUpgradeCommand = ({
 	return commands[manager];
 };
 
-export const upgrade = async () => {
-	const packageJsonFilePath = path.join(process.cwd(), 'package.json');
-	if (!fs.existsSync(packageJsonFilePath)) {
-		Log.error(
-			'Could not upgrade because no package.json could be found in your project.'
-		);
-		process.exit(1);
-	}
+export const upgrade = async (remotionRoot: string) => {
+	const packageJsonFilePath = path.join(remotionRoot, 'package.json');
 
 	const packageJson = require(packageJsonFilePath);
 	const dependencies = Object.keys(packageJson.dependencies);
 	const latestRemotionVersion = await getLatestRemotionVersion();
 
-	const manager = getPackageManager();
+	const manager = getPackageManager(remotionRoot);
 
 	if (manager === 'unknown') {
 		throw new Error(
@@ -59,6 +51,7 @@ export const upgrade = async () => {
 		'@remotion/cli',
 		'@remotion/eslint-config',
 		'@remotion/renderer',
+		'@remotion/skia',
 		'@remotion/media-utils',
 		'@remotion/babel-loader',
 		'@remotion/lambda',
@@ -80,8 +73,8 @@ export const upgrade = async () => {
 		}
 	);
 	if (
-		Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'info'
 		)
 	) {

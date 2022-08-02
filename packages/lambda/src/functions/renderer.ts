@@ -1,10 +1,8 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import type {BrowserLog} from '@remotion/renderer';
+import type {BrowserLog, Codec} from '@remotion/renderer';
 import {RenderInternals, renderMedia} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import type {Codec} from 'remotion';
-import {Internals} from 'remotion';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
 import {
@@ -43,10 +41,8 @@ const renderHandler = async (
 		throw new Error('Params must be renderer');
 	}
 
-	Internals.Logging.setLogLevel(params.logLevel);
-
 	const browserInstance = await getBrowserInstance(
-		Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
+		RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
 		params.chromiumOptions ?? {}
 	);
 
@@ -80,6 +76,8 @@ const renderHandler = async (
 
 	const chunkCodec: Codec = params.codec === 'gif' ? 'h264-mkv' : params.codec;
 
+	const downloadMap = RenderInternals.makeDownloadMap();
+
 	await renderMedia({
 		composition: {
 			id: params.composition,
@@ -94,7 +92,7 @@ const renderHandler = async (
 		onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
 			if (
 				renderedFrames % 10 === 0 &&
-				Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
+				RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
 			) {
 				console.log(
 					`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`
@@ -139,10 +137,11 @@ const renderHandler = async (
 		serveUrl: params.serveUrl,
 		quality: params.quality,
 		envVariables: params.envVariables,
-		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
+		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
 			params.logLevel,
 			'verbose'
 		),
+		verbose: RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
 		onBrowserLog: (log) => {
 			logs.push(log);
 		},
@@ -165,6 +164,7 @@ const renderHandler = async (
 		port: null,
 		everyNthFrame: params.everyNthFrame,
 		numberOfGifLoops: null,
+		downloadMap,
 	});
 
 	const endRendered = Date.now();

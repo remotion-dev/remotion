@@ -7,7 +7,7 @@ import Tabs from "@theme/Tabs";
 
 ## Using the template
 
-The easiest way to get started with Tailwind and Remotion is to [use the template by cloning it on GitHub](https://github.com/remotion-dev/template-tailwind/generate) or running the following:
+The easiest way to get started with Tailwind and Remotion is to [use the template by cloning it on GitHub](https://github.com/remotion-dev/template-tailwind) or running the following:
 
 <Tabs
 defaultValue="npm"

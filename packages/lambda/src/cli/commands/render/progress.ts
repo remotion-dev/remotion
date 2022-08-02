@@ -19,7 +19,7 @@ type ChunkProgress = {
 	doneIn: number | null;
 };
 
-export type MultiRenderProgress = {
+type MultiRenderProgress = {
 	lambdaInvokeProgress: LambdaInvokeProgress;
 	chunkProgress: ChunkProgress;
 	encodingProgress: EncodingProgress;

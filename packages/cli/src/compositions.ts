@@ -21,7 +21,7 @@ const max = (arr: number[]) => {
 	return biggest;
 };
 
-export const listCompositionsCommand = async () => {
+export const listCompositionsCommand = async (remotionRoot: string) => {
 	const file = parsedCli._[1];
 
 	if (!file) {
@@ -35,7 +35,9 @@ export const listCompositionsCommand = async () => {
 		process.exit(1);
 	}
 
-	await loadConfig();
+	const downloadMap = RenderInternals.makeDownloadMap();
+
+	await loadConfig(remotionRoot);
 
 	const {
 		browserExecutable,
@@ -69,6 +71,7 @@ export const listCompositionsCommand = async () => {
 		inputProps,
 		timeoutInMilliseconds: puppeteerTimeout,
 		port,
+		downloadMap,
 	});
 	if (!quietFlagProvided()) {
 		Log.info();
@@ -119,4 +122,7 @@ export const listCompositionsCommand = async () => {
 			Log.warn('Do you have minimum required Node.js version?');
 		}
 	}
+
+	await RenderInternals.cleanDownloadMap(downloadMap);
+	Log.verbose('Cleaned up', downloadMap.assetDir);
 };

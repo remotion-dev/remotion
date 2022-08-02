@@ -5,7 +5,7 @@ import {getS3Client} from '../shared/aws-clients';
 import {validateBucketName} from '../shared/validate-bucketname';
 import {validatePresignExpiration} from '../shared/validate-presign-expiration';
 
-export type PresignURLInput = {
+type PresignURLInput = {
 	region: AwsRegion;
 	bucketName: string;
 	objectKey: string;

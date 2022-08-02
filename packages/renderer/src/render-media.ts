@@ -2,22 +2,22 @@ import type {ExecaChildProcess} from 'execa';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import type {
-	BrowserExecutable,
-	Codec,
-	FfmpegExecutable,
-	FrameRange,
-	PixelFormat,
-	ProResProfile,
-	SmallTCompMetadata,
-} from 'remotion';
+import type {SmallTCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import type {DownloadMap} from './assets/download-map';
+import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
+import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
+import type {Codec} from './codec';
+import {validateSelectedCrfAndCodecCombination} from './crf';
+import {deleteDirectory} from './delete-directory';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
+import type {FfmpegExecutable} from './ffmpeg-executable';
+import type {FrameRange} from './frame-range';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
@@ -27,10 +27,15 @@ import {getServeUrlWithFallback} from './legacy-webpack-config';
 import type {CancelSignal} from './make-cancel-signal';
 import {makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
+import {DEFAULT_OVERWRITE} from './overwrite';
+import {startPerfMeasure, stopPerfMeasure} from './perf';
+import type {PixelFormat} from './pixel-format';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
+import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
+import type {ProResProfile} from './prores-profile';
+import {validateQuality} from './quality';
 import {renderFrames} from './render-frames';
 import {stitchFramesToVideo} from './stitch-frames-to-video';
-import {tmpDir} from './tmp-dir';
 import type {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateOutputFilename} from './validate-output-filename';
@@ -76,6 +81,11 @@ export type RenderMediaOptions = {
 	port?: number | null;
 	cancelSignal?: CancelSignal;
 	browserExecutable?: BrowserExecutable;
+	verbose?: boolean;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	downloadMap?: DownloadMap;
 } & ServeUrlOrWebpackBundle;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -115,9 +125,9 @@ export const renderMedia = ({
 	cancelSignal,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
-	Internals.validateQuality(quality);
+	validateQuality(quality);
 	if (typeof crf !== 'undefined' && crf !== null) {
-		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
+		validateSelectedCrfAndCodecCombination(crf, codec);
 	}
 
 	if (outputLocation) {
@@ -140,13 +150,37 @@ export const renderMedia = ({
 	let cancelled = false;
 
 	const renderStart = Date.now();
-	const tmpdir = tmpDir('pre-encode');
-	const parallelEncoding = canUseParallelEncoding(codec);
+	const downloadMap = options.downloadMap ?? makeDownloadMap();
+	const {estimatedUsage, freeMemory, hasEnoughMemory} =
+		shouldUseParallelEncoding({
+			height: composition.height,
+			width: composition.width,
+		});
+	const parallelEncoding = hasEnoughMemory && canUseParallelEncoding(codec);
+
+	if (options.verbose) {
+		console.log(
+			'[PRESTITCHER] Free memory:',
+			freeMemory,
+			'Estimated usage parallel encoding',
+			estimatedUsage
+		);
+		console.log(
+			'[PRESTICHER]: Codec supports parallel rendering:',
+			canUseParallelEncoding(codec)
+		);
+		if (parallelEncoding) {
+			console.log('[PRESTICHER] Parallel encoding is enabled.');
+		} else {
+			console.log('[PRESTITCHER] Parallel encoding is disabled.');
+		}
+	}
+
 	const actualImageFormat = imageFormat ?? 'jpeg';
 
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
-				tmpdir,
+				downloadMap.preEncode,
 				'pre-encode.' + getFileExtensionFromCodec(codec, 'chunk')
 		  )
 		: null;
@@ -189,7 +223,7 @@ export const renderMedia = ({
 		ensureFramesInOrder(realFrameRange);
 
 	const fps = composition.fps / (everyNthFrame ?? 1);
-	Internals.validateFps(fps, 'in "renderMedia()"', codec);
+	Internals.validateFps(fps, 'in "renderMedia()"', codec === 'gif');
 
 	const createPrestitcherIfNecessary = async () => {
 		if (preEncodedFileLocation) {
@@ -206,10 +240,7 @@ export const renderMedia = ({
 					encodedFrames = frame;
 					callUpdate();
 				},
-				verbose: Internals.Logging.isEqualOrBelowLogLevel(
-					Internals.Logging.getLogLevel(),
-					'verbose'
-				),
+				verbose: options.verbose ?? false,
 				ffmpegExecutable,
 				imageFormat: actualImageFormat,
 				signal: cancelPrestitcher.cancelSignal,
@@ -259,9 +290,9 @@ export const renderMedia = ({
 								return;
 							}
 
-							const id = Internals.perf.startPerfMeasure('piping');
+							const id = startPerfMeasure('piping');
 							stitcherFfmpeg?.stdin?.write(buffer);
-							Internals.perf.stopPerfMeasure(id);
+							stopPerfMeasure(id);
 
 							setFrameToStitch(
 								Math.min(realFrameRange[1] + 1, frame + everyNthFrame)
@@ -280,6 +311,7 @@ export const renderMedia = ({
 				browserExecutable,
 				port,
 				cancelSignal: cancelRenderFrames.cancelSignal,
+				downloadMap,
 			});
 
 			return renderFramesProc;
@@ -306,7 +338,7 @@ export const renderMedia = ({
 						preEncodedFileLocation,
 						imageFormat: actualImageFormat,
 					},
-					force: overwrite ?? Internals.DEFAULT_OVERWRITE,
+					force: overwrite ?? DEFAULT_OVERWRITE,
 					pixelFormat,
 					codec,
 					proResProfile,
@@ -321,10 +353,7 @@ export const renderMedia = ({
 					},
 					onDownload,
 					numberOfGifLoops,
-					verbose: Internals.Logging.isEqualOrBelowLogLevel(
-						Internals.Logging.getLogLevel(),
-						'verbose'
-					),
+					verbose: options.verbose,
 					dir: outputDir ?? undefined,
 					cancelSignal: cancelStitcher.cancelSignal,
 				}),
@@ -366,7 +395,12 @@ export const renderMedia = ({
 				preEncodedFileLocation !== null &&
 				fs.existsSync(preEncodedFileLocation)
 			) {
-				fs.unlinkSync(preEncodedFileLocation);
+				deleteDirectory(path.dirname(preEncodedFileLocation));
+			}
+
+			// Clean download map if it was not passed in
+			if (!options?.downloadMap) {
+				cleanDownloadMap(downloadMap);
 			}
 		});
 

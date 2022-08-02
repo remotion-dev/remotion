@@ -7,9 +7,9 @@ _Available since v3.0 - Part of the `@remotion/renderer` package._
 
 Render a video or an audio programmatically.
 
-:::info
-In Remotion 3.0, we added the [`renderMedia()`](/docs/renderer/render-media) API which combines `renderFrames()` and `stitchFramesToVideo()` into one simplified step and performs the render faster. Prefer `renderMedia()` if you can.
-:::
+## Example
+
+See an example of `renderMedia()` together with [`bundle()`](/docs/bundle) and [`getCompositions()`](/docs/renderer/get-compositions) on the [server-side rendering page](/docs/ssr#render-a-video-using-nodejs-apis).
 
 ## Arguments
 
@@ -205,9 +205,9 @@ const onDownload: RenderMediaOnDownload = (src) => {
   console.log(`Downloading ${src}...`);
   return ({ percent, downloaded, totalSize }) => {
     // percent and totalSize can be `null` if the downloaded resource
-    // does not havea `Content-Length` header
+    // does not have a `Content-Length` header
     if (percent === null) {
-      console.log(`${downloaded} bytes downloded`);
+      console.log(`${downloaded} bytes downloaded`);
     } else {
       console.log(`${Math.round(percent * 100)}% done)`);
     }
@@ -255,6 +255,12 @@ A number describing how long the render may take to resolve all `delayRender()` 
 _optional, available from v3.0.15_
 
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
+
+### `verbose`
+
+_optional, available from v3.1.6_
+
+Prints debugging output if set to true.
 
 ### `chromiumOptions?`
 

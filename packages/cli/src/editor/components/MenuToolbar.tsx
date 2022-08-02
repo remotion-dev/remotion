@@ -1,5 +1,6 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
+import {BACKGROUND} from '../helpers/colors';
 import {pickColor} from '../helpers/pick-color';
 import {Checkmark} from '../icons/Checkmark';
 import {CheckerboardContext} from '../state/checkerboard';
@@ -23,10 +24,10 @@ const row: React.CSSProperties = {
 	display: 'flex',
 	color: 'white',
 	borderBottom: '1px solid black',
-
 	fontSize: 13,
 	paddingLeft: 6,
 	paddingRight: 10,
+	backgroundColor: BACKGROUND,
 };
 
 const flex: React.CSSProperties = {

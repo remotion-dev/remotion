@@ -10,7 +10,7 @@
     "ci": "turbo run build lint test --concurrency=50%",
     "watch": "pnpm run --recursive --stream --parallel watch",
     "release": "lerna publish --force-publish",
-    "clean": "lerna clean --yes && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo"
+    "clean": "rm -rf packages/**/dist && lerna clean --yes && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo  && rm -rf packages/**/.turbo"
   },
   "engines": {
     "node": ">=12",
@@ -24,5 +24,5 @@
   "workspaces": [
     "packages/*"
   ],
-  "packageManager": "pnpm@7.2.1"
+  "packageManager": "pnpm@7.7.1"
 }

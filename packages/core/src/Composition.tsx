@@ -93,7 +93,7 @@ export const Composition = <T,>({
 			'of the <Composition/> component'
 		);
 
-		validateFps(fps, 'as a prop of the <Composition/> component', null);
+		validateFps(fps, 'as a prop of the <Composition/> component', false);
 		registerComposition<T>({
 			durationInFrames,
 			fps,

@@ -9,10 +9,16 @@ import {
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+// eslint-disable-next-line no-restricted-imports
 import {Internals} from 'remotion';
 import {chalk} from './chalk';
-import {getCliOptions} from './get-cli-options';
+import {ConfigInternals} from './config';
+import {
+	getAndValidateAbsoluteOutputFile,
+	getCliOptions,
+} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
+import {getOutputFilename} from './get-filename';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
@@ -22,10 +28,11 @@ import {
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,
 } from './progress-bar';
+import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import type {RenderStep} from './step';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
-export const render = async () => {
+export const render = async (remotionRoot: string) => {
 	const startTime = Date.now();
 	const file = parsedCli._[1];
 	if (!file) {
@@ -37,7 +44,12 @@ export const render = async () => {
 		process.exit(1);
 	}
 
-	await initializeRenderCli('sequence');
+
+	const downloadMap = RenderInternals.makeDownloadMap();
+
+	await initializeRenderCli(remotionRoot, 'sequence');
+
+	Log.verbose('Asset dirs', downloadMap.assetDir);
 
 	const {
 		codec,
@@ -45,7 +57,6 @@ export const render = async () => {
 		parallelism,
 		frameRange,
 		shouldOutputImageSequence,
-		absoluteOutputFile,
 		overwrite,
 		inputProps,
 		envVariables,
@@ -67,11 +78,25 @@ export const render = async () => {
 		publicPath,
 	} = await getCliOptions({isLambda: false, type: 'series'});
 
-	if (!absoluteOutputFile) {
-		throw new Error(
-			'assertion error - expected absoluteOutputFile to not be null'
-		);
-	}
+	const relativeOutputLocation = getOutputFilename({
+		codec,
+		imageSequence: shouldOutputImageSequence,
+		compositionName: getCompositionId(),
+		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec, 'final'),
+	});
+
+	const absoluteOutputFile = getAndValidateAbsoluteOutputFile(
+		relativeOutputLocation,
+		overwrite
+	);
+
+	const compositionId = getCompositionId();
+
+	Log.info(
+		chalk.gray(
+			`Composition = ${compositionId}, Codec = ${codec}, Output = ${relativeOutputLocation}`
+		)
+	);
 
 	Log.verbose('Browser executable: ', browserExecutable);
 
@@ -81,8 +106,8 @@ export const render = async () => {
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
-		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
 		chromiumOptions,
@@ -126,11 +151,11 @@ export const render = async () => {
 		inputProps,
 		puppeteerInstance,
 		envVariables,
-		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
 		chromiumOptions,
 		browserExecutable,
+		downloadMap,
 	});
-	const compositionId = getCompositionId(comps);
 
 	const config = comps.find((c) => c.id === compositionId);
 
@@ -229,8 +254,8 @@ export const render = async () => {
 			},
 			outputDir,
 			serveUrl: urlOrBundle,
-			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
-				Internals.Logging.getLogLevel(),
+			dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
+				ConfigInternals.Logging.getLogLevel(),
 				'verbose'
 			),
 			everyNthFrame,
@@ -247,6 +272,7 @@ export const render = async () => {
 			browserExecutable,
 
 			port,
+			downloadMap,
 		});
 		renderedDoneIn = Date.now() - startTime;
 
@@ -284,16 +310,21 @@ export const render = async () => {
 		quality,
 		serveUrl: urlOrBundle,
 		onDownload,
-		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
 		chromiumOptions,
-		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
 		scale,
 		port,
 		numberOfGifLoops,
 		everyNthFrame,
+		verbose: RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
+			'verbose'
+		),
+		downloadMap,
 	});
 
 	Log.info();
@@ -308,7 +339,6 @@ export const render = async () => {
 	);
 	Log.info('-', 'Output can be found at:');
 	Log.info(chalk.cyan(`▶ ${absoluteOutputFile}`));
-	Log.verbose('Cleaning up...');
 
 	if (shouldDelete) {
 		try {
@@ -318,6 +348,14 @@ export const render = async () => {
 			Log.warn(err);
 			Log.warn('Do you have minimum required Node.js version?');
 		}
+	try {
+		await RenderInternals.cleanDownloadMap(downloadMap);
+
+		Log.verbose('Cleaned up', downloadMap.assetDir);
+	} catch (err) {
+		Log.warn('Could not clean up directory.');
+		Log.warn(err);
+		Log.warn('Do you have minimum required Node.js version?');
 	}
 
 	Log.info(
@@ -325,11 +363,11 @@ export const render = async () => {
 	);
 
 	if (
-		Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		)
 	) {
-		Internals.perf.logPerf();
+		RenderInternals.perf.logPerf();
 	}
 };
