@@ -22,5 +22,33 @@ export const getHelpLink = (message: string): THelpLink | null => {
 		};
 	}
 
+	if (message.includes('https://remotion.dev/docs/staticfile-relative-paths')) {
+		return {
+			title: 'staticFile() relative paths',
+			url: 'https://remotion.dev/docs/staticfile-relative-paths',
+		};
+	}
+
+	if (message.includes('https://remotion.dev/docs/staticfile-remote-urls')) {
+		return {
+			title: 'staticFile() remote URLs',
+			url: 'https://remotion.dev/docs/staticfile-remote-urls',
+		};
+	}
+
+	if (message.includes('https://remotion.dev/docs/non-seekable-media')) {
+		return {
+			title: 'Non-seekable media',
+			url: 'https://remotion.dev/docs/non-seekable-media',
+		};
+	}
+
+	if (message.includes('https://remotion.dev/docs/media-playback-error')) {
+		return {
+			title: 'Media playback error',
+			url: 'https://remotion.dev/docs/media-playback-error',
+		};
+	}
+
 	return null;
 };

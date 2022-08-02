@@ -272,6 +272,8 @@ module.exports = {
         "enametoolong",
         "slow-method-to-extract-frame",
         "wrong-composition-mount",
+        "staticfile-relative-paths",
+        "staticfile-remote-urls",
       ],
     },
     {

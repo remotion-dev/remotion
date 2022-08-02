@@ -16,6 +16,12 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 > = ({onError, ...props}, ref) => {
 	const imageRef = useRef<HTMLImageElement>(null);
 
+	if (props.src?.endsWith('.gif')) {
+		throw new TypeError(
+			'The <Img> component does not support GIFs. Use the <Gif> instead: https://remotion.dev/docs/gif'
+		);
+	}
+
 	useImperativeHandle(ref, () => {
 		return imageRef.current as HTMLImageElement;
 	});
