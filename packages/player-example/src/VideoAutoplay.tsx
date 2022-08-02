@@ -1,13 +1,5 @@
-import {
-	Series,
-	Video,
-	AbsoluteFill,
-	Audio,
-	Sequence,
-	Composition,
-	staticFile,
-} from 'remotion';
 import {preloadAudio, preloadVideo} from '@remotion/preload';
+import {AbsoluteFill, Audio, Sequence, Series, staticFile} from 'remotion';
 
 preloadVideo(
 	'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4'
