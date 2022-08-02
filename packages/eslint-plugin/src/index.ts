@@ -3,6 +3,7 @@ import evenDimensions from "./rules/even-dimensions";
 import durationInFrames from "./rules/no-duration-frames-infinity";
 import nomp4Import from "./rules/no-mp4-import";
 import noStringAssets from "./rules/no-string-assets";
+import staticFileNoRelative from "./rules/staticfile-no-relative";
 import useGifComponent from "./rules/use-gif-component";
 import volumeCallback from "./rules/volume-callback";
 import warnNativeMediaTag from "./rules/warn-native-media-tag";
@@ -16,6 +17,7 @@ const rules = {
   "duration-in-frames": durationInFrames,
   "volume-callback": volumeCallback,
   "use-gif-component": useGifComponent,
+  "staticfile-no-relative": staticFileNoRelative,
 };
 
 export = {
@@ -31,6 +33,7 @@ export = {
         "@remotion/duration-in-frames": "error",
         "@remotion/volume-callback": "error",
         "@remotion/use-gif-component": "error",
+        "@remotion/staticfile-no-relative": "error",
       },
     },
   },
