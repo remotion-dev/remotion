@@ -4,7 +4,7 @@ import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {prepareEntryPoint} from './prepare-entry-point';
 
-export const bundleCommand = async () => {
+export const bundleCommand = async (remotionRoot: string) => {
 	const file = parsedCli._[1];
 
 	if (!file) {
@@ -14,7 +14,7 @@ export const bundleCommand = async () => {
 		process.exit(1);
 	}
 
-	await initializeRenderCli('bundle');
+	await initializeRenderCli(remotionRoot, 'bundle');
 
 	const {publicPath, bundleOutDir} = await getCliOptions({
 		isLambda: false,
@@ -26,6 +26,7 @@ export const bundleCommand = async () => {
 		otherSteps: [],
 		outDir: bundleOutDir,
 		publicPath,
+		remotionRoot,
 	});
 
 	Log.info();

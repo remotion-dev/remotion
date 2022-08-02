@@ -38,6 +38,8 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		enableCaching: shouldCache,
 		webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
 		rootDir: remotionRoot,
+		outDir: outDir ?? undefined,
+		publicPath: publicPath ?? undefined,
 	};
 
 	const [hash] = BundlerInternals.getConfig({

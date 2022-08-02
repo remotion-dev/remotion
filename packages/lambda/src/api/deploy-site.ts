@@ -1,7 +1,6 @@
 import {stat} from 'fs/promises';
 import path from 'path';
 import type {WebpackOverrideFn} from 'remotion';
-import {Internals} from 'remotion';
 import {deleteSite} from '../api/delete-site';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {bundleSite} from '../shared/bundle-site';
@@ -79,9 +78,8 @@ export const deploySite = async ({
 			options?.onBundleProgress ?? (() => undefined),
 			{
 				publicPath: `/${subFolder}/`,
-				webpackOverride:
-					options?.webpackOverride ?? Internals.getWebpackOverrideFn(),
-				enableCaching: options?.enableCaching ?? Internals.getWebpackCaching(),
+				webpackOverride: options?.webpackOverride ?? ((f) => f),
+				enableCaching: options?.enableCaching ?? true,
 			}
 		);
 	})();
