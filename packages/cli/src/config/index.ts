@@ -42,7 +42,7 @@ import type {WebpackConfiguration} from '@remotion/bundler';
 // eslint-disable-next-line no-restricted-imports
 import type {ConfigType} from 'remotion';
 import {setBrowserExecutable} from './browser-executable';
-import {getBundleOutDir} from './bundle-out-dir';
+import {getBundleOutDir, setBundleOutDir} from './bundle-out-dir';
 import {
 	setChromiumDisableWebSecurity,
 	setChromiumHeadlessMode,
@@ -57,7 +57,7 @@ import {setDotEnvLocation} from './env-file';
 import {setEveryNthFrame} from './every-nth-frame';
 import {setFfmpegExecutable, setFfprobeExecutable} from './ffmpeg-executable';
 import {setFrameRange} from './frame-range';
-import {getPublicPath} from './get-public-path';
+import {getPublicPath, setPublicPath} from './get-public-path';
 import {setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import {setLogLevel} from './log';
@@ -83,6 +83,8 @@ export const Config: ConfigType = {
 		overrideWebpackConfig,
 		setCachingEnabled: setWebpackCaching,
 		setPort,
+		setBundleOutDir,
+		setPublicPath,
 	},
 	Log: {
 		setLevel: setLogLevel,
