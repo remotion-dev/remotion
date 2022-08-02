@@ -1,10 +1,13 @@
 import execa from 'execa';
-import type {FfmpegExecutable, OffthreadVideoImageFormat} from 'remotion';
-import {Internals} from 'remotion';
-import {getAudioChannelsAndDuration} from './assets/get-audio-channels';
+import type {OffthreadVideoImageFormat} from 'remotion';
+import type {
+	DownloadMap,
+	SpecialVCodecForTransparency,
+} from './assets/download-map';
+import {getVideoStreamDuration} from './assets/get-video-stream-duration';
 import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
-import type {SpecialVCodecForTransparency} from './get-video-info';
 import {getVideoInfo} from './get-video-info';
 import {isBeyondLastFrame, markAsBeyondLastFrame} from './is-beyond-last-frame';
 import type {LastFrameOptions} from './last-frame-from-video-cache';
@@ -13,6 +16,8 @@ import {
 	setLastFrameInCache,
 } from './last-frame-from-video-cache';
 import {pLimit} from './p-limit';
+import {startPerfMeasure, stopPerfMeasure} from './perf';
+import {truthy} from './truthy';
 
 const lastFrameLimit = pLimit(1);
 const mainLimit = pLimit(5);
@@ -25,7 +30,7 @@ const determineVcodecFfmepgFlags = (
 		vcodecFlag === 'vp9' ? 'libvpx-vp9' : null,
 		vcodecFlag === 'vp8' ? '-vcodec' : null,
 		vcodecFlag === 'vp8' ? 'libvpx' : null,
-	].filter(Internals.truthy);
+	].filter(truthy);
 };
 
 const determineResizeParams = (
@@ -74,7 +79,7 @@ const getFrameOfVideoSlow = async ({
 		'image2pipe',
 		...determineResizeParams(needsResize),
 		'-',
-	].filter(Internals.truthy);
+	].filter(truthy);
 
 	const {stdout, stderr} = execa(ffmpegExecutable ?? 'ffmpeg', command);
 
@@ -120,13 +125,19 @@ const getFrameOfVideoSlow = async ({
 const getLastFrameOfVideoFastUnlimited = async (
 	options: LastFrameOptions
 ): Promise<Buffer> => {
-	const {ffmpegExecutable, ffprobeExecutable, offset, src} = options;
+	const {ffmpegExecutable, ffprobeExecutable, offset, src, downloadMap} =
+		options;
 	const fromCache = getLastFrameFromCache({...options, offset: 0});
 	if (fromCache) {
 		return fromCache;
 	}
 
-	const {duration} = await getAudioChannelsAndDuration(src, ffprobeExecutable);
+	const {duration, fps} = await getVideoStreamDuration(
+		downloadMap,
+		src,
+		ffprobeExecutable
+	);
+
 	if (duration === null) {
 		throw new Error(
 			`Could not determine the duration of ${src} using FFMPEG. The file is not supported.`
@@ -145,7 +156,7 @@ const getLastFrameOfVideoFastUnlimited = async (
 		return last;
 	}
 
-	const actualOffset = `${duration * 1000 - offset - 10}ms`;
+	const actualOffset = `${duration * 1000 - offset}ms`;
 	const {stdout, stderr} = execa(
 		ffmpegExecutable ?? 'ffmpeg',
 		[
@@ -162,7 +173,7 @@ const getLastFrameOfVideoFastUnlimited = async (
 			'image2pipe',
 			...determineResizeParams(options.needsResize),
 			'-',
-		].filter(Internals.truthy)
+		].filter(truthy)
 	);
 
 	if (!stderr) {
@@ -202,12 +213,14 @@ const getLastFrameOfVideoFastUnlimited = async (
 	if (isEmpty) {
 		const unlimited = await getLastFrameOfVideoFastUnlimited({
 			ffmpegExecutable,
-			offset: offset + 10,
+			// Decrement in 10ms increments, or 1 frame (e.g. fps = 25 --> 40ms)
+			offset: offset + 1000 / (fps === null ? 10 : fps),
 			src,
 			ffprobeExecutable,
 			imageFormat: options.imageFormat,
 			specialVCodecForTransparency: options.specialVCodecForTransparency,
 			needsResize: options.needsResize,
+			downloadMap: options.downloadMap,
 		});
 
 		return unlimited;
@@ -234,6 +247,7 @@ type Options = {
 	ffmpegExecutable: FfmpegExecutable;
 	ffprobeExecutable: FfmpegExecutable;
 	imageFormat: OffthreadVideoImageFormat;
+	downloadMap: DownloadMap;
 };
 
 const extractFrameFromVideoFn = async ({
@@ -241,12 +255,14 @@ const extractFrameFromVideoFn = async ({
 	ffmpegExecutable,
 	ffprobeExecutable,
 	imageFormat,
+	downloadMap,
 	...options
 }: Options): Promise<Buffer> => {
 	// We make a new copy of the video only for video because the conversion may affect
 	// audio rendering, so we work with 2 different files
-	const src = await ensurePresentationTimestamps(options.src);
+	const src = await ensurePresentationTimestamps(downloadMap, options.src);
 	const {specialVcodec, needsResize} = await getVideoInfo(
+		downloadMap,
 		src,
 		ffprobeExecutable
 	);
@@ -262,7 +278,7 @@ const extractFrameFromVideoFn = async ({
 		});
 	}
 
-	if (isBeyondLastFrame(src, time)) {
+	if (isBeyondLastFrame(downloadMap, src, time)) {
 		const lastFrame = await getLastFrameOfVideo({
 			ffmpegExecutable,
 			ffprobeExecutable,
@@ -271,6 +287,7 @@ const extractFrameFromVideoFn = async ({
 			imageFormat,
 			specialVCodecForTransparency: specialVcodec,
 			needsResize,
+			downloadMap,
 		});
 		return lastFrame;
 	}
@@ -292,7 +309,7 @@ const extractFrameFromVideoFn = async ({
 			imageFormat === 'jpeg' ? 'mjpeg' : 'png',
 			...determineResizeParams(needsResize),
 			'-',
-		].filter(Internals.truthy),
+		].filter(truthy),
 		{
 			buffer: false,
 		}
@@ -329,7 +346,7 @@ const extractFrameFromVideoFn = async ({
 	]);
 
 	if (stderrStr.includes('Output file is empty')) {
-		markAsBeyondLastFrame(src, time);
+		markAsBeyondLastFrame(downloadMap, src, time);
 		const last = await getLastFrameOfVideo({
 			ffmpegExecutable,
 			ffprobeExecutable,
@@ -338,6 +355,7 @@ const extractFrameFromVideoFn = async ({
 			imageFormat,
 			specialVCodecForTransparency: specialVcodec,
 			needsResize,
+			downloadMap,
 		});
 
 		return last;
@@ -347,8 +365,8 @@ const extractFrameFromVideoFn = async ({
 };
 
 export const extractFrameFromVideo = async (options: Options) => {
-	const perf = Internals.perf.startPerfMeasure('extract-frame');
+	const perf = startPerfMeasure('extract-frame');
 	const res = await mainLimit(extractFrameFromVideoFn, options);
-	Internals.perf.stopPerfMeasure(perf);
+	stopPerfMeasure(perf);
 	return res;
 };

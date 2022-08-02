@@ -1,27 +1,30 @@
 import fs, {statSync} from 'fs';
 import path from 'path';
-import type {
-	BrowserExecutable,
-	FfmpegExecutable,
-	SmallTCompMetadata,
-	StillImageFormat,
-} from 'remotion';
+import type {SmallTCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import type {DownloadMap} from './assets/download-map';
+import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
+import {DEFAULT_BROWSER} from './browser';
+import type {BrowserExecutable} from './browser-executable';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
+import type {FfmpegExecutable} from './ffmpeg-executable';
+import type {StillImageFormat} from './image-format';
+import {validateNonNullImageFormat} from './image-format';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
 import {getServeUrlWithFallback} from './legacy-webpack-config';
-import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import type {CancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {openBrowser} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
+import {validateQuality} from './quality';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
+import {validateFrame} from './validate-frame';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
 
@@ -44,6 +47,10 @@ type InnerStillOptions = {
 	cancelSignal?: CancelSignal;
 	ffmpegExecutable?: FfmpegExecutable;
 	ffprobeExecutable?: FfmpegExecutable;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	downloadMap?: DownloadMap;
 };
 
 type RenderStillOptions = InnerStillOptions &
@@ -88,14 +95,14 @@ const innerRenderStill = async ({
 	Internals.validateFps(
 		composition.fps,
 		'in the `config` object of `renderStill()`',
-		null
+		false
 	);
 	Internals.validateDurationInFrames(
 		composition.durationInFrames,
 		'in the `config` object passed to `renderStill()`'
 	);
-	Internals.validateNonNullImageFormat(imageFormat);
-	Internals.validateFrame(frame, composition.durationInFrames);
+	validateNonNullImageFormat(imageFormat);
+	validateFrame(frame, composition.durationInFrames);
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	validateScale(scale);
 
@@ -111,7 +118,7 @@ const innerRenderStill = async ({
 		);
 	}
 
-	Internals.validateQuality(quality);
+	validateQuality(quality);
 
 	if (fs.existsSync(output)) {
 		if (!overwrite) {
@@ -133,7 +140,7 @@ const innerRenderStill = async ({
 
 	const browserInstance =
 		puppeteerInstance ??
-		(await openBrowser(Internals.DEFAULT_BROWSER, {
+		(await openBrowser(DEFAULT_BROWSER, {
 			browserExecutable,
 			shouldDumpIo: dumpBrowserLogs,
 			chromiumOptions,
@@ -218,7 +225,7 @@ const innerRenderStill = async ({
 export const renderStill = (options: RenderStillOptions): Promise<void> => {
 	const selectedServeUrl = getServeUrlWithFallback(options);
 
-	const downloadDir = makeAssetsDownloadTmpDir();
+	const downloadMap = options.downloadMap ?? makeDownloadMap();
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
 
@@ -229,12 +236,12 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 
 		prepareServer({
 			webpackConfigOrServeUrl: selectedServeUrl,
-			downloadDir,
 			onDownload,
 			onError,
 			ffmpegExecutable: options.ffmpegExecutable ?? null,
 			ffprobeExecutable: options.ffprobeExecutable ?? null,
 			port: options.port ?? null,
+			downloadMap,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
 				close = closeServer;
@@ -248,7 +255,14 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 
 			.then((res) => resolve(res))
 			.catch((err) => reject(err))
-			.finally(() => close?.());
+			.finally(() => {
+				// Clean download map if it was not passed in
+				if (!options?.downloadMap) {
+					cleanDownloadMap(downloadMap);
+				}
+
+				return close?.();
+			});
 	});
 
 	return Promise.race([

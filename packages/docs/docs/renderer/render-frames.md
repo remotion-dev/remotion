@@ -125,7 +125,6 @@ Gets called when your project calls `console.log` or another method from console
 - `type`: The console method - one of `log`, `debug`, `info`, `error`, `warning`, `dir`, `dirxml`, `table`, `trace`, `clear`, `startGroup`, `startGroupCollapsed`, `endGroup`, `assert`, `profile`, `profileEnd`, `count`, `timeEnd`, `verbose`
 
 ```tsx twoslash
-import { renderFrames as rf } from "@remotion/renderer";
 interface ConsoleMessageLocation {
   /**
    * URL of the resource if known or `undefined` otherwise.
@@ -196,13 +195,13 @@ _optional, available from v3.0.11_
 
 An absolute path overriding the `ffmpeg` executable to use.
 
-#### `ffprobeExecutable?`
+### `ffprobeExecutable?`
 
 _optional, available from v3.0.17_
 
 An absolute path overriding the `ffprobe` executable to use.
 
-#### `browserExecutable?`
+### `browserExecutable?`
 
 _optional, available from v3.0.11_
 

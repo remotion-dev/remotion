@@ -42,7 +42,7 @@ export const MyVideo = () => {
 ## Caching
 
 It is important to know that in the render process, data fetching works on a per-frame basis. 
-Every frame, every component is re-rended by the _frame context_ modification and then screenshotted.
+Every frame, every component is re-rendered by the _frame context_ modification and then screenshotted.
 You should consider caching the result of your API, to avoid rate-limits and also to speed up the render of your video. We have two suggestions on how to do that:
 
 - Use the `localStorage` API to persist data after a network request and make a request only if the local storage is empty.

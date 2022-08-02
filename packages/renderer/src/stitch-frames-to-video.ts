@@ -1,34 +1,41 @@
 import execa from 'execa';
-import fs, {unlinkSync} from 'fs';
+import fs from 'fs';
 import {readFile} from 'fs/promises';
 import path from 'path';
-import type {
-	Codec,
-	FfmpegExecutable,
-	ImageFormat,
-	PixelFormat,
-	ProResProfile,
-	RenderAssetInfo,
-	TAsset,
-} from 'remotion';
+import type {TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
+import type {DownloadMap, RenderAssetInfo} from './assets/download-map';
 import type {Assets} from './assets/types';
+import type {Codec} from './codec';
+import {DEFAULT_CODEC} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
 import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
+import {
+	getDefaultCrfForCodec,
+	validateSelectedCrfAndCodecCombination,
+} from './crf';
 import {deleteDirectory} from './delete-directory';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getProResProfileName} from './get-prores-profile-name';
+import type {ImageFormat} from './image-format';
 import type {CancelSignal} from './make-cancel-signal';
 import {mergeAudioTrack} from './merge-audio-track';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
+import type {PixelFormat} from './pixel-format';
+import {
+	DEFAULT_PIXEL_FORMAT,
+	validateSelectedPixelFormatAndCodecCombination,
+} from './pixel-format';
 import {preprocessAudioTrack} from './preprocess-audio-track';
-import {tmpDir} from './tmp-dir';
+import type {ProResProfile} from './prores-profile';
+import {truthy} from './truthy';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
@@ -70,7 +77,6 @@ type ReturnType = {
 
 const getAssetsData = async ({
 	assets,
-	downloadDir,
 	onDownload,
 	fps,
 	expectedFrames,
@@ -78,9 +84,9 @@ const getAssetsData = async ({
 	ffmpegExecutable,
 	ffprobeExecutable,
 	onProgress,
+	downloadMap,
 }: {
 	assets: TAsset[][];
-	downloadDir: string;
 	onDownload: RenderMediaOnDownload | undefined;
 	fps: number;
 	expectedFrames: number;
@@ -88,21 +94,20 @@ const getAssetsData = async ({
 	ffmpegExecutable: FfmpegExecutable | null;
 	ffprobeExecutable: FfmpegExecutable | null;
 	onProgress: (progress: number) => void;
+	downloadMap: DownloadMap;
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
-		downloadDir,
 		onDownload: onDownload ?? (() => () => undefined),
+		downloadMap,
 	});
 
-	markAllAssetsAsDownloaded();
+	markAllAssetsAsDownloaded(downloadMap);
 	const assetPositions: Assets = calculateAssetPositions(fileUrlAssets);
 
 	if (verbose) {
 		console.log('asset positions', assetPositions);
 	}
-
-	const tempPath = tmpDir('remotion-audio-mixing');
 
 	const preprocessProgress = new Array(assetPositions.length).fill(0);
 
@@ -115,7 +120,7 @@ const getAssetsData = async ({
 	const preprocessed = (
 		await Promise.all(
 			assetPositions.map(async (asset, index) => {
-				const filterFile = path.join(tempPath, `${index}.wav`);
+				const filterFile = path.join(downloadMap.audioMixing, `${index}.wav`);
 				const result = await preprocessAudioTrack({
 					ffmpegExecutable: ffmpegExecutable ?? null,
 					ffprobeExecutable: ffprobeExecutable ?? null,
@@ -123,27 +128,26 @@ const getAssetsData = async ({
 					asset,
 					expectedFrames,
 					fps,
+					downloadMap,
 				});
 				preprocessProgress[index] = 1;
 				updateProgress();
 				return result;
 			})
 		)
-	).filter(Internals.truthy);
+	).filter(truthy);
 
-	const outName = path.join(
-		tmpDir('remotion-audio-preprocessing'),
-		`audio.wav`
-	);
+	const outName = path.join(downloadMap.audioPreprocessing, `audio.wav`);
 
 	await mergeAudioTrack({
 		ffmpegExecutable: ffmpegExecutable ?? null,
 		files: preprocessed,
 		outName,
 		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
+		downloadMap,
 	});
 
-	deleteDirectory(tempPath);
+	deleteDirectory(downloadMap.audioMixing);
 
 	onProgress(1);
 
@@ -167,16 +171,16 @@ export const spawnFfmpeg = async (
 		'width',
 		'passed to `stitchFramesToVideo()`'
 	);
-	const codec = options.codec ?? Internals.DEFAULT_CODEC;
+	const codec = options.codec ?? DEFAULT_CODEC;
 	validateEvenDimensionsWithCodec({
 		width: options.width,
 		height: options.height,
 		codec,
 		scale: 1,
 	});
-	Internals.validateFps(options.fps, 'in `stitchFramesToVideo()`', codec);
-	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
-	const pixelFormat = options.pixelFormat ?? Internals.DEFAULT_PIXEL_FORMAT;
+	Internals.validateFps(options.fps, 'in `stitchFramesToVideo()`', false);
+	const crf = options.crf ?? getDefaultCrfForCodec(codec);
+	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
 	await validateFfmpeg(options.ffmpegExecutable ?? null);
 
 	const encoderName = getCodecName(codec);
@@ -190,7 +194,7 @@ export const spawnFfmpeg = async (
 	const tempFile = options.outputLocation
 		? null
 		: path.join(
-				tmpDir('remotion-stitch-temp-dir'),
+				options.assetsInfo.downloadMap.stitchFrames,
 				`out.${getFileExtensionFromCodec(codec, 'final')}`
 		  );
 
@@ -214,8 +218,8 @@ export const spawnFfmpeg = async (
 		console.log('[verbose] proResProfileName', proResProfileName);
 	}
 
-	Internals.validateSelectedCrfAndCodecCombination(crf, codec);
-	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
+	validateSelectedCrfAndCodecCombination(crf, codec);
+	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
 	const expectedFrames = options.assetsInfo.assets.length;
 
@@ -228,7 +232,6 @@ export const spawnFfmpeg = async (
 	const audio = mediaSupport.audio
 		? await getAssetsData({
 				assets: options.assetsInfo.assets,
-				downloadDir: options.assetsInfo.downloadDir,
 				onDownload: options.onDownload,
 				fps: options.fps,
 				expectedFrames,
@@ -236,6 +239,7 @@ export const spawnFfmpeg = async (
 				ffmpegExecutable: options.ffmpegExecutable ?? null,
 				ffprobeExecutable: options.ffprobeExecutable ?? null,
 				onProgress: (prog) => updateProgress(prog, 0),
+				downloadMap: options.assetsInfo.downloadMap,
 		  })
 		: null;
 
@@ -274,7 +278,6 @@ export const spawnFfmpeg = async (
 			if (tempFile) {
 				readFile(tempFile)
 					.then((f) => {
-						unlinkSync(tempFile);
 						return resolve(f);
 					})
 					.catch((e) => reject(e));
@@ -282,6 +285,7 @@ export const spawnFfmpeg = async (
 				resolve(null);
 			}
 		});
+		await deleteDirectory(options.assetsInfo.downloadMap.stitchFrames);
 
 		return {
 			getLogs: () => '',
@@ -379,13 +383,20 @@ export const spawnFfmpeg = async (
 
 	return {
 		task: task.then(() => {
+			deleteDirectory(options.assetsInfo.downloadMap.audioPreprocessing);
+
 			if (tempFile === null) {
+				deleteDirectory(options.assetsInfo.downloadMap.stitchFrames);
 				return null;
 			}
 
 			return readFile(tempFile)
 				.then((file) => {
-					return Promise.all([file, deleteDirectory(path.dirname(tempFile))]);
+					return Promise.all([
+						file,
+						deleteDirectory(path.dirname(tempFile)),
+						deleteDirectory(options.assetsInfo.downloadMap.stitchFrames),
+					]);
 				})
 				.then(([file]) => file);
 		}),

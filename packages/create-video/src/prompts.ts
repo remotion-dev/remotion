@@ -1,4 +1,4 @@
-import type {Options, PromptObject} from 'prompts';
+import type {Choice, Options, PromptObject} from 'prompts';
 import prompts from 'prompts';
 
 export type Question<V extends string = string> = PromptObject<V> & {
@@ -50,7 +50,7 @@ export async function selectAsync(
 			}) {
 				if (this.firstRender) {
 					// Ensure the initial state isn't on a disabled item.
-					while (this.choices[this.cursor].disabled) {
+					while ((this.choices[this.cursor] as Choice).disabled) {
 						this.cursor++;
 						if (this.cursor > this.choices.length - 1) break;
 					}
@@ -67,10 +67,13 @@ export async function selectAsync(
 						while (true) {
 							if (next <= 0) break;
 							next--;
-							if (!this.choices[next].disabled) break;
+							if (!(this.choices[next] as Choice).disabled) break;
 						}
 
-						if (!this.choices[next].disabled && next !== this.cursor) {
+						if (
+							!(this.choices[next] as Choice).disabled &&
+							next !== this.cursor
+						) {
 							this.moveCursor(next);
 							this.render();
 						} else {
@@ -85,10 +88,13 @@ export async function selectAsync(
 						while (true) {
 							if (next >= this.choices.length - 1) break;
 							next++;
-							if (!this.choices[next].disabled) break;
+							if (!(this.choices[next] as Choice).disabled) break;
 						}
 
-						if (!this.choices[next].disabled && next !== this.cursor) {
+						if (
+							!(this.choices[next] as Choice).disabled &&
+							next !== this.cursor
+						) {
 							this.moveCursor(next);
 							this.render();
 						} else {
@@ -103,10 +109,10 @@ export async function selectAsync(
 						while (i < this.choices.length) {
 							i++;
 							next = (next + 1) % this.choices.length;
-							if (!this.choices[next].disabled) break;
+							if (!(this.choices[next] as Choice).disabled) break;
 						}
 
-						if (this.choices[next].disabled) {
+						if ((this.choices[next] as Choice).disabled) {
 							// unexpected
 							this.bell();
 						} else {

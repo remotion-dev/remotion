@@ -1,4 +1,10 @@
-export const getExtensionOfFilename = (filename: string) => {
+export const getExtensionOfFilename = (
+	filename: string | null
+): string | null => {
+	if (filename === null) {
+		return null;
+	}
+
 	const filenameArr = filename.split('.');
 
 	const hasExtension = filenameArr.length >= 2;

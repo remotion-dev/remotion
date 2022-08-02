@@ -78,13 +78,6 @@ export type TAsset = {
 	playbackRate: number;
 };
 
-export type RenderAssetInfo = {
-	assets: TAsset[][];
-	imageSequenceName: string;
-	downloadDir: string;
-	firstFrameIndex: number;
-};
-
 export type CompositionManagerContext = {
 	compositions: TComposition[];
 	registerComposition: <T>(comp: TComposition<T>) => void;

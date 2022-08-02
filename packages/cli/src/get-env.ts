@@ -1,7 +1,8 @@
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
-import {Internals} from 'remotion';
+import {ConfigInternals} from './config';
+import {findRemotionRoot} from './find-closest-package-json';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 
@@ -51,9 +52,11 @@ export const getEnvironmentVariables = (): Promise<Record<string, string>> => {
 		return getEnvForEnvFile(processEnv, envFile);
 	}
 
-	const configFileSetting = Internals.getDotEnvLocation();
+	const remotionRoot = findRemotionRoot();
+
+	const configFileSetting = ConfigInternals.getDotEnvLocation();
 	if (configFileSetting) {
-		const envFile = path.resolve(process.cwd(), configFileSetting);
+		const envFile = path.resolve(remotionRoot, configFileSetting);
 		if (!fs.existsSync(envFile)) {
 			Log.error(
 				'You specifed a custom .env file using `Config.Rendering.setDotEnvLocation()` in the config file but it could not be found'
@@ -66,7 +69,7 @@ export const getEnvironmentVariables = (): Promise<Record<string, string>> => {
 		return getEnvForEnvFile(processEnv, envFile);
 	}
 
-	const defaultEnvFile = path.resolve(process.cwd(), '.env');
+	const defaultEnvFile = path.resolve(remotionRoot, '.env');
 	if (!fs.existsSync(defaultEnvFile)) {
 		return Promise.resolve(processEnv);
 	}

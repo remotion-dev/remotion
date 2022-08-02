@@ -2,9 +2,9 @@ import type {
 	ErrorWithStackFrame,
 	SymbolicatedStackFrame,
 } from '@remotion/renderer';
-import {Internals} from 'remotion';
 import {chalk} from './chalk';
 import {Log} from './log';
+import {truthy} from './truthy';
 
 const makeFileName = (firstFrame: SymbolicatedStackFrame) => {
 	return [
@@ -14,7 +14,7 @@ const makeFileName = (firstFrame: SymbolicatedStackFrame) => {
 			? null
 			: firstFrame.originalColumnNumber,
 	]
-		.filter(Internals.truthy)
+		.filter(truthy)
 		.join(':');
 };
 
@@ -57,14 +57,17 @@ const logLine = (frame: SymbolicatedStackFrame) => {
 	Log.info(
 		chalk.gray(
 			['at', frame.originalFunctionName, `${chalk.blueBright(`(${fileName})`)}`]
-				.filter(Internals.truthy)
+				.filter(truthy)
 				.join(' ')
 		)
 	);
 };
 
 export const printCodeFrameAndStack = (err: ErrorWithStackFrame) => {
-	if (!err.symbolicatedStackFrames) {
+	if (
+		!err.symbolicatedStackFrames ||
+		err.symbolicatedStackFrames.length === 0
+	) {
 		Log.error(err.stack);
 		return;
 	}

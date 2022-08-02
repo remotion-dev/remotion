@@ -2,9 +2,9 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import type {WebpackOverrideFn} from 'remotion';
-import {Internals} from 'remotion';
 import {promisify} from 'util';
 import webpack from 'webpack';
+import {isMainThread} from 'worker_threads';
 import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
 import {webpackConfig} from './webpack-config';
@@ -38,34 +38,73 @@ const trimTrailingSlash = (p: string): string => {
 	return p;
 };
 
+export type BundleOptions = {
+	webpackOverride?: WebpackOverrideFn;
+	outDir?: string;
+	enableCaching?: boolean;
+	publicPath?: string;
+	rootDir?: string;
+};
+
+export const getConfig = ({
+	entryPoint,
+	outDir,
+	resolvedRemotionRoot,
+	onProgressUpdate,
+	options,
+}: {
+	outDir: string;
+	entryPoint: string;
+	resolvedRemotionRoot: string;
+	onProgressUpdate?: (progress: number) => void;
+	options?: BundleOptions;
+}) => {
+	return webpackConfig({
+		entry,
+		userDefinedComponent: entryPoint,
+		outDir,
+		environment: 'production',
+		webpackOverride: options?.webpackOverride ?? ((f) => f),
+		onProgressUpdate,
+		enableCaching: options?.enableCaching ?? true,
+		maxTimelineTracks: 15,
+		// For production, the variables are set dynamically
+		envVariables: {},
+		entryPoints: [],
+		remotionRoot: resolvedRemotionRoot,
+	});
+};
+
 export const bundle = async (
 	entryPoint: string,
 	onProgressUpdate?: (progress: number) => void,
-	options?: {
-		webpackOverride?: WebpackOverrideFn;
-		outDir?: string | null;
-		enableCaching?: boolean;
-		publicPath?: string | null;
-	}
+	options?: BundleOptions
 ): Promise<string> => {
+	const resolvedRemotionRoot = options?.rootDir ?? process.cwd();
+
 	const outDir = await prepareOutDir(options?.outDir ?? null);
-	const output = await promisified([
-		webpackConfig({
-			entry,
-			userDefinedComponent: entryPoint,
-			outDir,
-			environment: 'production',
-			webpackOverride:
-				options?.webpackOverride ?? Internals.defaultOverrideFunction,
-			onProgressUpdate,
-			enableCaching:
-				options?.enableCaching ?? Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
-			maxTimelineTracks: 15,
-			// For production, the variables are set dynamically
-			envVariables: {},
-			entryPoints: [],
-		}),
-	]);
+
+	// The config might use an override which might use
+	// `process.cwd()`. The context should always be the Remotion root.
+	// This is not supported in worker threads (used for tests)
+	const currentCwd = process.cwd();
+	if (isMainThread) {
+		process.chdir(resolvedRemotionRoot);
+	}
+
+	const [, config] = getConfig({
+		outDir,
+		entryPoint,
+		resolvedRemotionRoot,
+		onProgressUpdate,
+		options,
+	});
+
+	const output = await promisified([config]);
+	if (isMainThread) {
+		process.chdir(currentCwd);
+	}
+
 	if (!output) {
 		throw new Error('Expected webpack output');
 	}
@@ -76,19 +115,26 @@ export const bundle = async (
 	}
 
 	const baseDir = options?.publicPath ?? '/';
-	const publicDir =
+	const staticHash =
 		'/' +
 		[trimTrailingSlash(trimLeadingSlash(baseDir)), 'public']
 			.filter(Boolean)
 			.join('/');
 
-	const from = path.join(process.cwd(), 'public');
+	// TODO: Unhardcode public directory
+	const from = path.join(resolvedRemotionRoot, 'public');
 	const to = path.join(outDir, 'public');
 	if (fs.existsSync(from)) {
 		await copyDir(from, to);
 	}
 
-	const html = indexHtml(publicDir, baseDir, null, null);
+	const html = indexHtml({
+		staticHash,
+		baseDir,
+		editorName: null,
+		inputProps: null,
+		remotionRoot: resolvedRemotionRoot,
+	});
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 
 	return outDir;

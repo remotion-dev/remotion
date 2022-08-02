@@ -206,6 +206,7 @@ module.exports = {
         "player/integration",
         "player/autoplay",
         "player/preloading",
+        "player/best-practices",
       ],
     },
     {
@@ -216,6 +217,15 @@ module.exports = {
         id: "three",
       },
       items: ["three-canvas", "use-video-texture"],
+    },
+    {
+      type: "category",
+      label: "API - @remotion/skia",
+      link: {
+        type: "doc",
+        id: "skia/skia",
+      },
+      items: ["skia/enable-skia", "skia/skia-canvas"],
     },
     {
       type: "category",

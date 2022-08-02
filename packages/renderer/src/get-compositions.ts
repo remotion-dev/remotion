@@ -1,14 +1,13 @@
-import type {
-	BrowserExecutable,
-	FfmpegExecutable,
-	TCompMetadata,
-} from 'remotion';
+import type {TCompMetadata} from 'remotion';
+import type {DownloadMap} from './assets/download-map';
+import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
+import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getPageAndCleanupFn} from './get-browser-instance';
-import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import type {ChromiumOptions} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
@@ -26,6 +25,10 @@ type GetCompositionsConfig = {
 	ffmpegExecutable?: FfmpegExecutable;
 	ffprobeExecutable?: FfmpegExecutable;
 	port?: number | null;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	downloadMap?: DownloadMap;
 };
 
 const innerGetCompositions = async (
@@ -85,7 +88,7 @@ export const getCompositions = async (
 	serveUrlOrWebpackUrl: string,
 	config?: GetCompositionsConfig
 ) => {
-	const downloadDir = makeAssetsDownloadTmpDir();
+	const downloadMap = config?.downloadMap ?? makeDownloadMap();
 
 	const {page, cleanup} = await getPageAndCleanupFn({
 		passedInInstance: config?.puppeteerInstance,
@@ -105,12 +108,12 @@ export const getCompositions = async (
 
 		prepareServer({
 			webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
-			downloadDir,
 			onDownload: () => undefined,
 			onError,
 			ffmpegExecutable: config?.ffmpegExecutable ?? null,
 			ffprobeExecutable: config?.ffprobeExecutable ?? null,
 			port: config?.port ?? null,
+			downloadMap,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
 				close = closeServer;
@@ -130,6 +133,10 @@ export const getCompositions = async (
 				cleanup();
 				close?.();
 				cleanupPageError();
+				// Clean download map if it was not passed in
+				if (!config?.downloadMap) {
+					cleanDownloadMap(downloadMap);
+				}
 			});
 	});
 };

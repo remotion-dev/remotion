@@ -75,6 +75,16 @@ _optional_
 
 The path of the URL where the bundle is going to be hosted. By default it is `/`, meaning that the bundle is going to be hosted at the root of the domain (e.g. `https://localhost:3000/`). In some cases like rendering on Lambda, the public path might be a subdirectory.
 
+#### `rootDir?`
+
+_optional, available from v3.1.6_
+
+The directory in which the Remotion project is rooted in. This should be set to the directory that contains the `package.json` which installs Remotion. By default, it is the current working directory.
+
+:::note
+The current working directory is the directory from which your program gets executed from. It is not the same as the file where bundle() gets called.
+:::
+
 ## Return value
 
 A promise which will resolve into a `string` specifying the output directory.

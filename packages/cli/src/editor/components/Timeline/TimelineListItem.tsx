@@ -27,6 +27,7 @@ const outer: React.CSSProperties = {
 	alignItems: 'center',
 	paddingLeft: TIMELINE_PADDING,
 	wordBreak: 'break-all',
+	textAlign: 'left',
 };
 
 const hookContainer: React.CSSProperties = {

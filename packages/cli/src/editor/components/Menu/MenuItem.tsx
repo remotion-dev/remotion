@@ -6,7 +6,7 @@ import {HigherZIndex, useZIndex} from '../../state/z-index';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';
 import {getPortal} from './portals';
-import {menuContainer, outerPortal} from './styles';
+import {menuContainerTowardsBottom, outerPortal} from './styles';
 
 const container: React.CSSProperties = {
 	fontSize: 13,
@@ -75,7 +75,7 @@ export const MenuItem: React.FC<{
 		}
 
 		return {
-			...menuContainer,
+			...menuContainerTowardsBottom,
 			left: size.left,
 			top: size.top + size.height,
 		};

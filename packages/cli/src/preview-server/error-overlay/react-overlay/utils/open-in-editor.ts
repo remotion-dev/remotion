@@ -162,7 +162,7 @@ const displayNameForEditor: {[key in Editor]: string} = {
 };
 
 export const getDisplayNameForEditor = (
-	editor: Editor | undefined
+	editor: Editor | null
 ): string | null => {
 	if (!editor) {
 		return null;

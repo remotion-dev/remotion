@@ -8,6 +8,7 @@ import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
 import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
+import {useTimelineInOutFramePosition} from '../state/in-out';
 import {ControlButton} from './ControlButton';
 
 const forwardBackStyle = {
@@ -19,12 +20,16 @@ export const PlayPause: React.FC<{
 	playbackRate: number;
 	loop: boolean;
 }> = ({playbackRate, loop}) => {
+	const {inFrame, outFrame} = useTimelineInOutFramePosition();
+
 	const frame = Internals.Timeline.useTimelinePosition();
 	const video = Internals.useVideo();
 	PlayerInternals.usePlayback({
 		loop,
 		playbackRate,
 		moveToBeginningWhenEnded: true,
+		inFrame,
+		outFrame,
 	});
 
 	const {
