@@ -43,5 +43,12 @@ export const getHelpLink = (message: string): THelpLink | null => {
 		};
 	}
 
+	if (message.includes('https://remotion.dev/docs/media-playback-error')) {
+		return {
+			title: 'Media playback error',
+			url: 'https://remotion.dev/docs/media-playback-error',
+		};
+	}
+
 	return null;
 };
