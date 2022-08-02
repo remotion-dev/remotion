@@ -36,5 +36,12 @@ export const getHelpLink = (message: string): THelpLink | null => {
 		};
 	}
 
+	if (message.includes('https://remotion.dev/docs/non-seekable-media')) {
+		return {
+			title: 'Non-seekable media',
+			url: 'https://remotion.dev/docs/non-seekable-media',
+		};
+	}
+
 	return null;
 };
