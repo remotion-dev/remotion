@@ -15,6 +15,12 @@ const inner = (path: string): string => {
 };
 
 export const staticFile = (path: string) => {
+	if (path.startsWith('..') || path.startsWith('./')) {
+		throw new TypeError(
+			`staticFile() does not support relative paths - got "${path}". Instead, pass the name of a file that is inside the public/ folder. See: https://remotion.dev/docs/staticfile-relative-paths`
+		);
+	}
+
 	const preparsed = inner(path);
 	if (!preparsed.startsWith('/')) {
 		return `/${preparsed}`;
