@@ -39,11 +39,7 @@ export default createRule<Options, MessageIds>({
         }
         const value = node.value;
         // src={"some string"}
-        const insideCurlyBraces =
-          value &&
-          value.type === "JSXExpressionContainer" &&
-          value.expression.type === "Literal";
-        if (!value || (value.type !== "Literal" && !insideCurlyBraces)) {
+        if (!value) {
           return;
         }
         const stringValue =
@@ -54,28 +50,54 @@ export default createRule<Options, MessageIds>({
             : value.type === "Literal"
             ? value.value
             : null;
-        if (typeof stringValue !== "string") {
-          return;
+        // src="image.gif"
+        if (typeof stringValue === "string") {
+          const parent = node.parent;
+          if (!parent) {
+            return;
+          }
+          if (parent.type !== "JSXOpeningElement") {
+            return;
+          }
+          const name = parent.name;
+          if (name.type !== "JSXIdentifier") {
+            return;
+          }
+          if (name.name === "Img" || name.name === "img") {
+            // Network and inline URLs are okay
+            if (stringValue.includes(".gif")) {
+              context.report({
+                messageId: "UseGifComponent",
+                node,
+              });
+            }
+          }
         }
 
-        const parent = node.parent;
-        if (!parent) {
-          return;
-        }
-        if (parent.type !== "JSXOpeningElement") {
-          return;
-        }
-        const name = parent.name;
-        if (name.type !== "JSXIdentifier") {
-          return;
-        }
-        if (name.name === "Img" || name.name === "img") {
-          // Network and inline URLs are okay
-          if (stringValue.includes(".gif")) {
-            context.report({
-              messageId: "UseGifComponent",
-              node,
-            });
+        if (
+          value.type === "JSXExpressionContainer" &&
+          value.expression.type === "CallExpression" &&
+          value.expression.callee.type === "Identifier" &&
+          value.expression.callee.name === "staticFile"
+        ) {
+          const args = value.expression.arguments;
+          if (args.length === 0) {
+            return;
+          }
+
+          const firstArg = args[0];
+
+          if (firstArg.type === "Literal") {
+            const value = firstArg.value;
+            if (typeof value !== "string") {
+              return;
+            }
+            if (value.includes(".gif")) {
+              context.report({
+                messageId: "UseGifComponent",
+                node,
+              });
+            }
           }
         }
       },

@@ -23,6 +23,15 @@ export const Re = () => {
 }
           `,
     `
+import {Img, staticFile} from 'remotion';
+
+export const Re = () => {
+  return (
+    <Img src={staticFile("image.png")} />
+  );
+}
+          `,
+    `
 import {Img} from 'remotion';
 
 export const Re = () => {
