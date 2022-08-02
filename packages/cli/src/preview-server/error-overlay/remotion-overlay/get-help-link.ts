@@ -29,5 +29,12 @@ export const getHelpLink = (message: string): THelpLink | null => {
 		};
 	}
 
+	if (message.includes('https://remotion.dev/docs/staticfile-remote-urls')) {
+		return {
+			title: 'staticFile() remote URLs',
+			url: 'https://remotion.dev/docs/staticfile-remote-urls',
+		};
+	}
+
 	return null;
 };
