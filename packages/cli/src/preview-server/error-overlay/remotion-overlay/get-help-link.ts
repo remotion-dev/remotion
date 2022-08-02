@@ -22,5 +22,12 @@ export const getHelpLink = (message: string): THelpLink | null => {
 		};
 	}
 
+	if (message.includes('https://remotion.dev/docs/staticfile-relative-paths')) {
+		return {
+			title: 'staticFile() relative paths',
+			url: 'https://remotion.dev/docs/staticfile-relative-paths',
+		};
+	}
+
 	return null;
 };
