@@ -1,10 +1,13 @@
 import deterministicRandomness from "./rules/deterministic-randomness";
 import evenDimensions from "./rules/even-dimensions";
+import durationInFrames from "./rules/no-duration-frames-infinity";
 import nomp4Import from "./rules/no-mp4-import";
 import noStringAssets from "./rules/no-string-assets";
-import warnNativeMediaTag from "./rules/warn-native-media-tag";
-import durationInFrames from "./rules/no-duration-frames-infinity";
+import staticFileNoRelative from "./rules/staticfile-no-relative";
+import staticFileNoRemote from "./rules/staticfile-no-remote";
+import useGifComponent from "./rules/use-gif-component";
 import volumeCallback from "./rules/volume-callback";
+import warnNativeMediaTag from "./rules/warn-native-media-tag";
 
 const rules = {
   "no-mp4-import": nomp4Import,
@@ -14,6 +17,9 @@ const rules = {
   "even-dimensions": evenDimensions,
   "duration-in-frames": durationInFrames,
   "volume-callback": volumeCallback,
+  "use-gif-component": useGifComponent,
+  "staticfile-no-relative": staticFileNoRelative,
+  "staticfile-no-remote": staticFileNoRemote,
 };
 
 export = {
@@ -28,6 +34,9 @@ export = {
         "@remotion/even-dimensions": "error",
         "@remotion/duration-in-frames": "error",
         "@remotion/volume-callback": "error",
+        "@remotion/use-gif-component": "error",
+        "@remotion/staticfile-no-relative": "error",
+        "@remotion/staticfile-no-remote": "error",
       },
     },
   },
