@@ -43,6 +43,10 @@ You can request a quota increase under [`https://console.aws.amazon.com/serviceq
 npx remotion lambda quotas increase
 ```
 
+:::note
+This only works for AWS Root accounts, not the children of an organization.
+:::
+
 ## Unhelpful?
 
 Contact the Remotion team, preferrably via [Discord](https://remotion.dev/discord) and we will be happy to help you with your rate limit problem.

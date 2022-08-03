@@ -48,6 +48,10 @@ Creates an AWS support request to increase the concurrency limit on your account
 npx remotion lambda quotas increase
 ```
 
+:::note
+This only works for AWS Root accounts, not the children of an organization.
+:::
+
 ### `--region`
 
 For which region the quotas should be increased.
