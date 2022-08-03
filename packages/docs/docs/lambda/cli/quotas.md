@@ -49,7 +49,7 @@ npx remotion lambda quotas increase
 ```
 
 :::note
-This only works for AWS Root accounts, not the children of an organization.
+This only works for AWS Root accounts, not the children of an organization. You can still request an increase via the console.
 :::
 
 ### `--region`
