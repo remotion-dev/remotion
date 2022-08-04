@@ -42,6 +42,7 @@
     "color-namer": "1.4.0",
     "create-video": "3.1.11",
     "hls.js": "^0.14.17",
+    "lottie-web": "^5.9.6",
     "polished": "4.1.2",
     "react": "18.0.0",
     "react-dom": "18.0.0",
