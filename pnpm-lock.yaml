@@ -611,7 +611,7 @@ importers:
       prettier-plugin-organize-imports: 2.3.4_lbsuufegg2dnc4wh6qgf26kgdy
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
-      ts-jest: 27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm
+      ts-jest: 27.0.5_g2mfyom6zaxqcgedxrl4lakegu
       typescript: 4.7.2
       webpack: 5.72.0
 
@@ -796,11 +796,11 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.0.28
+      remotion: 3.1.11
       typescript: ^4.7.0
     dependencies:
       copy-webpack-plugin: 11.0.0_webpack@5.72.0
-      remotion: 3.0.28_zpnidt7m3osuk7shl3s4oenomq
+      remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_6hvhxfirl4y3p6nuemvvvbadcu
       '@shopify/react-native-skia': 0.1.136_rlxvagb2l2jceoxbyljoesn5oa
@@ -20288,16 +20288,6 @@ packages:
       unist-util-visit: 1.4.1
     dev: false
 
-  /remotion/3.0.28_zpnidt7m3osuk7shl3s4oenomq:
-    resolution: {integrity: sha512-o4KujjlvOzkBvSqaMHMjuxJ8i5ZuMbi8HY+2YDAh3/W/pnPpo6dN3yngEzPySY+tUKxaoFchdtymLokfriyzew==}
-    peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
-    dependencies:
-      react: 18.0.0
-      react-dom: 18.0.0_react@18.0.0
-    dev: false
-
   /renderkid/3.0.0:
     resolution: {integrity: sha512-q/7VIQA8lmM1hF+jn+sFSPWGlMkSAeNYcPLmDQx2zzuiDfaLrOmumR8iaUKlenFgh0XRPIUeSPlH3A+AW3Z5pg==}
     dependencies:
@@ -21943,37 +21933,6 @@ packages:
         optional: true
     dependencies:
       '@babel/core': 7.18.6
-      '@types/jest': 27.4.0
-      bs-logger: 0.2.6
-      fast-json-stable-stringify: 2.1.0
-      jest: 27.2.4
-      jest-util: 27.5.1
-      json5: 2.2.1
-      lodash: 4.17.21
-      make-error: 1.3.6
-      semver: 7.3.7
-      typescript: 4.7.2
-      yargs-parser: 20.2.9
-    dev: true
-
-  /ts-jest/27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm:
-    resolution: {integrity: sha512-lIJApzfTaSSbtlksfFNHkWOzLJuuSm4faFAfo5kvzOiRAuoN4/eKxVJ2zEAho8aecE04qX6K1pAzfH5QHL1/8w==}
-    engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
-    hasBin: true
-    peerDependencies:
-      '@babel/core': '>=7.0.0-beta.0 <8'
-      '@types/jest': ^27.0.0
-      babel-jest: '>=27.0.0 <28'
-      jest: ^27.0.0
-      typescript: '>=3.8 <5.0'
-    peerDependenciesMeta:
-      '@babel/core':
-        optional: true
-      '@types/jest':
-        optional: true
-      babel-jest:
-        optional: true
-    dependencies:
       '@types/jest': 27.4.0
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
