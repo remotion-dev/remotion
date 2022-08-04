@@ -1,7 +1,7 @@
 ---
 id: lottie-aftereffects
-title: Import from After Effects
-slug: aftereffects
+title: Importing from After Effects
+slug: after-effects
 ---
 
 import {InlineStep} from '../../components/InlineStep';
@@ -89,3 +89,7 @@ const Balloons = () => {
 It is advised to make your composition the same size and duration as the original composition in After Effects. Congrats, you're playing an After Effects animation in Remotion! 🎉
 
 <img src="/img/lottie/result.gif"/>
+
+## See also
+
+- [Using LottieFiles](/docs/lottie/lottiefiels)
