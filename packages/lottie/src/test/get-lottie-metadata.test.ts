@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import {expect, test} from 'vitest';
 import {getLottieMetadata} from '../get-lottie-metadata';
 
 test('Should be able to get Lottie metadata', () => {
