@@ -5,7 +5,7 @@ import {useEffect, useRef, useState} from 'react';
 import {continueRender, delayRender, useCurrentFrame} from 'remotion';
 import {getNextFrame} from './utils';
 
-interface LottieProps {
+export interface LottieProps {
 	/**
 	 * JSON object with the animation data.
 	 * */
