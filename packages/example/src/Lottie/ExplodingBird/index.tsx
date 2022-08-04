@@ -77,7 +77,7 @@ const LottieExplodingBird = () => {
 					<Loop durationInFrames={birdDuration} times={birdLoops}>
 						<Lottie
 							animationData={animationData.bird}
-							speed={birdSpeed}
+							playbackRate={birdSpeed}
 							style={{height, width}}
 						/>
 					</Loop>
@@ -85,7 +85,7 @@ const LottieExplodingBird = () => {
 						<Sequence from={-explosionStart}>
 							<Lottie
 								animationData={animationData.bird}
-								speed={explosionSpeed}
+								playbackRate={explosionSpeed}
 								style={{height, width}}
 							/>
 						</Sequence>
@@ -94,7 +94,7 @@ const LottieExplodingBird = () => {
 						<Sequence from={-feathersStart}>
 							<Lottie
 								animationData={animationData.bird}
-								speed={feathersSpeed}
+								playbackRate={feathersSpeed}
 								style={{height, width}}
 							/>
 						</Sequence>

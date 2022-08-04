@@ -19,7 +19,7 @@ const Balloons = () => {
 			<Lottie
 				// https://lottiefiles.com/81293-horror-ballons
 				animationData={balloonsAnimation}
-				speed={2}
+				playbackRate={2}
 				style={{height: 700}}
 			/>
 		</div>
