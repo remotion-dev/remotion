@@ -5,6 +5,7 @@ import {useEffect, useRef, useState} from 'react';
 import {continueRender, delayRender, useCurrentFrame} from 'remotion';
 import type {LottieAnimationData} from './types';
 import {getNextFrame} from './utils';
+import {validatePlaybackRate} from './validate-playbackrate';
 
 export interface LottieProps {
 	/**
@@ -18,7 +19,7 @@ export interface LottieProps {
 	/**
 	 * The speed of the animation. Defaults to 1.
 	 */
-	speed?: number;
+	playbackRate?: number;
 	/**
 	 * CSS classes to apply on the container of the animation.
 	 */
@@ -33,8 +34,7 @@ export const Lottie = ({
 	animationData,
 	className,
 	loop,
-	// TODO: Rename to playback rate to have same name as other components.
-	speed = 1,
+	playbackRate = 1,
 	style,
 }: LottieProps) => {
 	if (typeof animationData !== 'object') {
@@ -42,6 +42,8 @@ export const Lottie = ({
 			'animationData should be provided as an object. If you only have the path to the JSON file, load it and pass it as animationData. See https://remotion.dev/link-tbd for more information.'
 		);
 	}
+
+	validatePlaybackRate(playbackRate);
 
 	const animationRef = useRef<AnimationItem>();
 	const lastFrameRef = useRef<number | null>(null);
@@ -85,8 +87,8 @@ export const Lottie = ({
 			return;
 		}
 
-		animationRef.current.setSpeed(speed);
-	}, [speed]);
+		animationRef.current.setSpeed(playbackRate);
+	}, [playbackRate]);
 
 	useEffect(() => {
 		if (!animationRef.current) {
@@ -94,11 +96,11 @@ export const Lottie = ({
 		}
 
 		const {totalFrames} = animationRef.current;
-		const expectedFrame = frame * speed;
+		const expectedFrame = frame * playbackRate;
 		const nextFrame = getNextFrame(expectedFrame, totalFrames, loop);
 
 		animationRef.current.goToAndStop(nextFrame, true);
-	}, [frame, loop, speed]);
+	}, [frame, loop, playbackRate]);
 
 	// TODO: Implement lottie.destroy
 
