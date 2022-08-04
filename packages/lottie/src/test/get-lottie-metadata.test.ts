@@ -16,3 +16,8 @@ test('Should be able to get Lottie metadata', () => {
 		width: 1920,
 	});
 });
+
+test('Should return null if invalid Lottie file', () => {
+	// @ts-expect-error
+	expect(getLottieMetadata({})).toEqual(null);
+});
