@@ -5,6 +5,7 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
+import './common.css';
 
 const HeaderAndCredits = ({author}: {author: string}) => {
 	const frame = useCurrentFrame();
