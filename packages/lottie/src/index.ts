@@ -1,1 +1,1 @@
-export {Lottie, LottieProps} from './Lottie';
+export {Lottie, LottieAnimationData, LottieProps} from './Lottie';

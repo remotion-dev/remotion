@@ -5,11 +5,13 @@ import {useEffect, useRef, useState} from 'react';
 import {continueRender, delayRender, useCurrentFrame} from 'remotion';
 import {getNextFrame} from './utils';
 
+export type LottieAnimationData = Record<string | number | symbol, unknown>;
+
 export interface LottieProps {
 	/**
 	 * JSON object with the animation data.
 	 * */
-	animationData: Record<string | number | symbol, unknown>;
+	animationData: LottieAnimationData;
 	/**
 	 * If the animation should loop after its end.
 	 */

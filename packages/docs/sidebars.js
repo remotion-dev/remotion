@@ -234,7 +234,7 @@ module.exports = {
         type: "doc",
         id: "lottie/lottie-index",
       },
-      items: ["lottie/lottie-comp"],
+      items: ["lottie/lottie-comp", "lottie/lottie-staticfile"],
     },
     {
       type: "category",
