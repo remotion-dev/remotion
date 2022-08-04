@@ -9,7 +9,7 @@ export interface LottieProps {
 	/**
 	 * JSON object with the animation data.
 	 * */
-	animationData?: Record<string | number | symbol, unknown>;
+	animationData: Record<string | number | symbol, unknown>;
 	/**
 	 * CSS classes to apply on the container of the animation.
 	 */
