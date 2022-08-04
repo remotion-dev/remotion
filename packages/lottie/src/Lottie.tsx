@@ -3,16 +3,7 @@ import lottie from 'lottie-web';
 import type {CSSProperties} from 'react';
 import {useEffect, useRef, useState} from 'react';
 import {continueRender, delayRender, useCurrentFrame} from 'remotion';
-
-const getNextFrame = (
-	currentFrame: number,
-	totalFrames: number,
-	loop?: boolean
-) => {
-	return loop
-		? currentFrame % totalFrames
-		: Math.min(currentFrame, totalFrames);
-};
+import {getNextFrame} from './utils';
 
 interface LottieProps {
 	/**
