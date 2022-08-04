@@ -1,1 +1,1 @@
-export { Lottie } from './Lottie';
+export {Lottie, LottieProps} from './Lottie';
