@@ -1,3 +1,4 @@
+import {describe, expect, it} from 'vitest';
 import {getNextFrame} from '../utils';
 
 describe('getNextFrame', () => {
