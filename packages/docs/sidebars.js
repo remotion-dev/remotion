@@ -236,6 +236,7 @@ module.exports = {
       },
       items: [
         "lottie/lottie-comp",
+        "lottie/getlottiemetadata",
         "lottie/lottie-staticfile",
         "lottie/lottie-remote",
         "lottie/lottie-aftereffects",
