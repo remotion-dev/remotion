@@ -6,7 +6,7 @@
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"test": "jest",
+		"test": "vitest --run",
 		"build": "tsc -d",
 		"watch": "tsc -w",
 		"prerelease": "cp ../../README.md ."
