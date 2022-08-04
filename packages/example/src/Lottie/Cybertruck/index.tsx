@@ -34,7 +34,7 @@ const LottieCybertruck = () => {
 			<Lottie
 				loop
 				animationData={animationData}
-				speed={10}
+				playbackRate={10}
 				style={{height, width}}
 			/>
 		</AbsoluteFill>
