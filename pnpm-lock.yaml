@@ -25,7 +25,7 @@ importers:
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
       react-refresh: 0.9.0
-      remotion: 3.1.10
+      remotion: 3.1.11
       typescript: ^4.7.0
       webpack: 5.72.0
     dependencies:
@@ -34,7 +34,7 @@ importers:
       '@babel/preset-env': 7.15.6_@babel+core@7.15.5
       '@babel/preset-react': 7.14.5_@babel+core@7.15.5
       '@babel/preset-typescript': 7.15.0_@babel+core@7.15.5
-      '@webhotelier/webpack-fast-refresh': 5.1.0_vuqvhffzfprxvnn3qjecvklzc4
+      '@webhotelier/webpack-fast-refresh': 5.1.0_f36dh4o5l4i73vc4a5hscds52a
       babel-loader: 8.2.2_aigbpclt2cyajaoifdqauvkheq
       react-refresh: 0.9.0
       webpack: 5.72.0
@@ -67,7 +67,7 @@ importers:
       react: ^18.0.0
       react-dom: ^18.0.0
       react-refresh: 0.9.0
-      remotion: 3.1.10
+      remotion: 3.1.11
       style-loader: 2.0.0
       typescript: ^4.7.0
       webpack: 5.72.0
@@ -99,10 +99,10 @@ importers:
   packages/cli:
     specifiers:
       '@jonny/eslint-config': 3.0.266
-      '@remotion/bundler': 3.1.10
-      '@remotion/media-utils': 3.1.10
-      '@remotion/player': 3.1.10
-      '@remotion/renderer': 3.1.10
+      '@remotion/bundler': 3.1.11
+      '@remotion/media-utils': 3.1.11
+      '@remotion/player': 3.1.11
+      '@remotion/renderer': 3.1.11
       '@types/minimist': ^1.2.2
       '@types/node': ^16.7.5
       '@types/react': 18.0.1
@@ -123,7 +123,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.1.10
+      remotion: 3.1.11
       semver: 7.3.5
       source-map: 0.6.1
       typescript: ^4.7.0
@@ -250,16 +250,16 @@ importers:
       '@jonny/docusaurus-preset-shiki-twoslash': ^1.1.36
       '@jonny/eslint-config': 3.0.266
       '@mdx-js/react': ^1.6.21
-      '@remotion/babel-loader': 3.1.10
-      '@remotion/bundler': 3.1.10
-      '@remotion/gif': 3.1.10
-      '@remotion/lambda': 3.1.10
-      '@remotion/media-utils': 3.1.10
-      '@remotion/player': 3.1.10
-      '@remotion/preload': 3.1.10
-      '@remotion/renderer': 3.1.10
-      '@remotion/skia': 3.1.10
-      '@remotion/three': 3.1.10
+      '@remotion/babel-loader': 3.1.11
+      '@remotion/bundler': 3.1.11
+      '@remotion/gif': 3.1.11
+      '@remotion/lambda': 3.1.11
+      '@remotion/media-utils': 3.1.11
+      '@remotion/player': 3.1.11
+      '@remotion/preload': 3.1.11
+      '@remotion/renderer': 3.1.11
+      '@remotion/skia': 3.1.11
+      '@remotion/three': 3.1.11
       '@shopify/react-native-skia': ^0.1.136
       '@splitbee/web': ^0.2.4
       '@tsconfig/docusaurus': ^1.0.5
@@ -271,14 +271,14 @@ importers:
       clipboard: ^2.0.8
       clsx: ^1.1.1
       color-namer: 1.4.0
-      create-video: 3.1.10
+      create-video: 3.1.11
       eslint: 8.13.0
       hls.js: ^0.14.17
       polished: 4.1.2
       react: 18.0.0
       react-dom: 18.0.0
       react-player: ^2.9.0
-      remotion: 3.1.10
+      remotion: 3.1.11
       three: 0.134.0
       typescript: ^4.7.0
       url-loader: ^4.1.1
@@ -329,7 +329,7 @@ importers:
 
   packages/eslint-config:
     specifiers:
-      '@remotion/eslint-plugin': 3.1.10
+      '@remotion/eslint-plugin': 3.1.11
       '@types/node': 17.0.17
       '@typescript-eslint/eslint-plugin': 5.19.0
       '@typescript-eslint/parser': 5.19.0
@@ -372,16 +372,16 @@ importers:
       '@babel/preset-react': 7.12.13
       '@mdx-js/react': ^1.6.21
       '@react-three/drei': ^7.22.7
-      '@remotion/babel-loader': 3.1.10
-      '@remotion/bundler': 3.1.10
-      '@remotion/cli': 3.1.10
-      '@remotion/eslint-config': 3.1.10
-      '@remotion/eslint-plugin': 3.1.10
-      '@remotion/gif': 3.1.10
-      '@remotion/lambda': 3.1.10
-      '@remotion/media-utils': 3.1.10
-      '@remotion/renderer': 3.1.10
-      '@remotion/three': 3.1.10
+      '@remotion/babel-loader': 3.1.11
+      '@remotion/bundler': 3.1.11
+      '@remotion/cli': 3.1.11
+      '@remotion/eslint-config': 3.1.11
+      '@remotion/eslint-plugin': 3.1.11
+      '@remotion/gif': 3.1.11
+      '@remotion/lambda': 3.1.11
+      '@remotion/media-utils': 3.1.11
+      '@remotion/renderer': 3.1.11
+      '@remotion/three': 3.1.11
       '@types/babel__core': ^7.1.12
       '@types/babel__template': ^7.4.0
       '@types/express': ^4.17.11
@@ -400,7 +400,7 @@ importers:
       polished: ^4.0.5
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.1.10
+      remotion: 3.1.11
       styled-components: ^5.1.1
       svg-path-properties: ^1.0.4
       ts-unused-exports: ^7.0.1
@@ -462,7 +462,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.1.10
+      remotion: 3.1.11
       typescript: ^4.7.0
       webpack: 5.72.0
     dependencies:
@@ -485,13 +485,13 @@ importers:
 
   packages/it-tests:
     specifiers:
-      '@remotion/bundler': 3.1.10
-      '@remotion/cli': 3.1.10
-      '@remotion/lambda': 3.1.10
-      '@remotion/renderer': 3.1.10
+      '@remotion/bundler': 3.1.11
+      '@remotion/cli': 3.1.11
+      '@remotion/lambda': 3.1.11
+      '@remotion/renderer': 3.1.11
       '@types/sharp': ^0.28.5
       execa: 5.1.1
-      remotion: 3.1.10
+      remotion: 3.1.11
       sharp: 0.30.6
       typescript: ^4.7.0
       vitest: ^0.18.0
@@ -518,9 +518,9 @@ importers:
       '@aws-sdk/lib-storage': 3.58.0
       '@aws-sdk/s3-request-presigner': 3.58.0
       '@jonny/eslint-config': 3.0.266
-      '@remotion/bundler': 3.1.10
-      '@remotion/cli': 3.1.10
-      '@remotion/renderer': 3.1.10
+      '@remotion/bundler': 3.1.11
+      '@remotion/cli': 3.1.11
+      '@remotion/renderer': 3.1.11
       '@types/jest': ^27.0.2
       '@types/mime-types': 2.1.1
       '@types/minimist': 1.2.2
@@ -534,7 +534,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
-      remotion: 3.1.10
+      remotion: 3.1.11
       ts-jest: ^27.0.5
       ts-node: ^10.8.0
       typescript: ^4.7.0
@@ -553,8 +553,6 @@ importers:
       '@remotion/renderer': link:../renderer
       aws-policies: 1.0.1
       mime-types: 2.1.34
-      react: 18.0.0
-      react-dom: 18.0.0_react@18.0.0
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_6hvhxfirl4y3p6nuemvvvbadcu
@@ -567,6 +565,8 @@ importers:
       jest: 27.2.4_ts-node@10.8.0
       prettier: 2.4.1
       prettier-plugin-organize-imports: 2.3.4_pxx7xhvr2bexxfjjff3nukai7m
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
       ts-jest: 27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm
       ts-node: 10.8.0_ysvagj6uoj2jcpx4fli7niyicq
       typescript: 4.7.2
@@ -582,11 +582,9 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
-      remotion: 3.1.10
+      remotion: 3.1.11
       typescript: ^4.7.0
     dependencies:
-      react: 18.0.0
-      react-dom: 18.0.0_react@18.0.0
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_6hvhxfirl4y3p6nuemvvvbadcu
@@ -595,6 +593,8 @@ importers:
       eslint: 8.13.0
       prettier: 2.4.1
       prettier-plugin-organize-imports: 2.3.4_pxx7xhvr2bexxfjjff3nukai7m
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
       typescript: 4.7.2
 
   packages/player:
@@ -612,7 +612,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.1.10
+      remotion: 3.1.11
       ts-jest: ^27.0.5
       typescript: ^4.7.0
       webpack: 5.72.0
@@ -632,17 +632,17 @@ importers:
       prettier-plugin-organize-imports: 2.3.4_pxx7xhvr2bexxfjjff3nukai7m
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
-      ts-jest: 27.0.5_g2mfyom6zaxqcgedxrl4lakegu
+      ts-jest: 27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm
       typescript: 4.7.2
       webpack: 5.72.0
 
   packages/player-example:
     specifiers:
       '@pmmmwh/react-refresh-webpack-plugin': ^0.5.3
-      '@remotion/bundler': 3.1.10
-      '@remotion/eslint-config': 3.1.10
-      '@remotion/player': 3.1.10
-      '@remotion/preload': 3.1.10
+      '@remotion/bundler': 3.1.11
+      '@remotion/eslint-config': 3.1.11
+      '@remotion/player': 3.1.11
+      '@remotion/preload': 3.1.11
       '@types/node': ^12.0.0
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
@@ -656,7 +656,7 @@ importers:
       react-dev-utils: ^12.0.1
       react-dom: 18.0.0
       react-refresh: ^0.11.0
-      remotion: 3.1.10
+      remotion: 3.1.11
       typescript: ^4.7.0
       webpack: 5.72.0
       webpack-dev-server: ^4.6.0
@@ -714,7 +714,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.1.10
+      remotion: 3.1.11
       source-map: ^0.8.0-beta.0
       typescript: ^4.7.0
       vitest: ^0.18.0
@@ -784,7 +784,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.1.10
+      remotion: 3.1.11
       three: ^0.134.0
       typescript: ^4.7.0
     dependencies:
@@ -2222,6 +2222,19 @@ packages:
       browserslist: 4.20.2
       semver: 6.3.0
 
+  /@babel/helper-compilation-targets/7.18.6_@babel+core@7.17.9:
+    resolution: {integrity: sha512-vFjbfhNCzqdeAtZflUFrG5YIFqGTqsctrtkZ1D/NB0mDW9TwW3GmmUepYY4G9wCET5rY5ugz4OGTcLd614IzQg==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0
+    dependencies:
+      '@babel/compat-data': 7.18.8
+      '@babel/core': 7.17.9
+      '@babel/helper-validator-option': 7.18.6
+      browserslist: 4.20.2
+      semver: 6.3.0
+    dev: false
+
   /@babel/helper-compilation-targets/7.18.6_@babel+core@7.18.6:
     resolution: {integrity: sha512-vFjbfhNCzqdeAtZflUFrG5YIFqGTqsctrtkZ1D/NB0mDW9TwW3GmmUepYY4G9wCET5rY5ugz4OGTcLd614IzQg==}
     engines: {node: '>=6.9.0'}
@@ -2275,13 +2288,13 @@ packages:
       '@babel/core': ^7.0.0
     dependencies:
       '@babel/core': 7.17.9
-      '@babel/helper-annotate-as-pure': 7.16.7
-      '@babel/helper-environment-visitor': 7.16.7
-      '@babel/helper-function-name': 7.17.9
+      '@babel/helper-annotate-as-pure': 7.18.6
+      '@babel/helper-environment-visitor': 7.18.6
+      '@babel/helper-function-name': 7.18.6
       '@babel/helper-member-expression-to-functions': 7.17.7
       '@babel/helper-optimise-call-expression': 7.16.7
       '@babel/helper-replace-supers': 7.16.7
-      '@babel/helper-split-export-declaration': 7.16.7
+      '@babel/helper-split-export-declaration': 7.18.6
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -2293,13 +2306,13 @@ packages:
       '@babel/core': ^7.0.0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-annotate-as-pure': 7.16.7
-      '@babel/helper-environment-visitor': 7.16.7
-      '@babel/helper-function-name': 7.17.9
+      '@babel/helper-annotate-as-pure': 7.18.6
+      '@babel/helper-environment-visitor': 7.18.6
+      '@babel/helper-function-name': 7.18.6
       '@babel/helper-member-expression-to-functions': 7.17.7
       '@babel/helper-optimise-call-expression': 7.16.7
       '@babel/helper-replace-supers': 7.16.7
-      '@babel/helper-split-export-declaration': 7.16.7
+      '@babel/helper-split-export-declaration': 7.18.6
     transitivePeerDependencies:
       - supports-color
 
@@ -2648,7 +2661,7 @@ packages:
     resolution: {integrity: sha512-+il1gTy0oHwUsBQZyJvukbB4vPMdcYBrFHa0Uc4AizLxbq6BOYC51Rv4tWocX9BLBDLZ4kc6qUFpQ6HRgL+3zw==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.17.0
+      '@babel/types': 7.18.8
 
   /@babel/helper-split-export-declaration/7.15.4:
     resolution: {integrity: sha512-HsFqhLDZ08DxCpBdEVtKmywj6PQbwnF6HHybur0MAnkAKnlS6uHkwnmRIkElB2Owpfb4xL4NwDmDLFubueDXsw==}
@@ -2881,7 +2894,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.17.9
-      '@babel/helper-plugin-utils': 7.18.6
+      '@babel/helper-plugin-utils': 7.18.9
       '@babel/helper-remap-async-to-generator': 7.16.8
       '@babel/plugin-syntax-async-generators': 7.8.4_@babel+core@7.17.9
     transitivePeerDependencies:
@@ -2895,7 +2908,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-plugin-utils': 7.18.6
+      '@babel/helper-plugin-utils': 7.18.9
       '@babel/helper-remap-async-to-generator': 7.16.8
       '@babel/plugin-syntax-async-generators': 7.8.4_@babel+core@7.18.6
     transitivePeerDependencies:
@@ -2935,7 +2948,7 @@ packages:
     dependencies:
       '@babel/core': 7.17.9
       '@babel/helper-create-class-features-plugin': 7.17.9_@babel+core@7.17.9
-      '@babel/helper-plugin-utils': 7.18.6
+      '@babel/helper-plugin-utils': 7.18.9
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -2948,7 +2961,7 @@ packages:
     dependencies:
       '@babel/core': 7.18.6
       '@babel/helper-create-class-features-plugin': 7.17.9_@babel+core@7.18.6
-      '@babel/helper-plugin-utils': 7.18.6
+      '@babel/helper-plugin-utils': 7.18.9
     transitivePeerDependencies:
       - supports-color
 
@@ -3214,7 +3227,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.17.9
-      '@babel/helper-plugin-utils': 7.18.6
+      '@babel/helper-plugin-utils': 7.18.9
       '@babel/plugin-syntax-nullish-coalescing-operator': 7.8.3_@babel+core@7.17.9
     dev: false
 
@@ -3225,7 +3238,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-plugin-utils': 7.18.6
+      '@babel/helper-plugin-utils': 7.18.9
       '@babel/plugin-syntax-nullish-coalescing-operator': 7.8.3_@babel+core@7.18.6
 
   /@babel/plugin-proposal-numeric-separator/7.14.5_@babel+core@7.15.5:
@@ -3316,10 +3329,10 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
-      '@babel/compat-data': 7.17.7
+      '@babel/compat-data': 7.18.8
       '@babel/core': 7.17.9
-      '@babel/helper-compilation-targets': 7.17.7_@babel+core@7.17.9
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-compilation-targets': 7.18.6_@babel+core@7.17.9
+      '@babel/helper-plugin-utils': 7.18.9
       '@babel/plugin-syntax-object-rest-spread': 7.8.3_@babel+core@7.17.9
       '@babel/plugin-transform-parameters': 7.16.7_@babel+core@7.17.9
     dev: false
@@ -3330,10 +3343,10 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
-      '@babel/compat-data': 7.17.7
+      '@babel/compat-data': 7.18.8
       '@babel/core': 7.18.6
-      '@babel/helper-compilation-targets': 7.17.7_@babel+core@7.18.6
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-compilation-targets': 7.18.6_@babel+core@7.18.6
+      '@babel/helper-plugin-utils': 7.18.9
       '@babel/plugin-syntax-object-rest-spread': 7.8.3_@babel+core@7.18.6
       '@babel/plugin-transform-parameters': 7.16.7_@babel+core@7.18.6
 
@@ -3366,7 +3379,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.17.9
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
       '@babel/plugin-syntax-optional-catch-binding': 7.8.3_@babel+core@7.17.9
     dev: false
 
@@ -3377,7 +3390,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
       '@babel/plugin-syntax-optional-catch-binding': 7.8.3_@babel+core@7.18.6
 
   /@babel/plugin-proposal-optional-chaining/7.14.5_@babel+core@7.15.5:
@@ -3411,7 +3424,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.17.9
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
       '@babel/helper-skip-transparent-expression-wrappers': 7.16.0
       '@babel/plugin-syntax-optional-chaining': 7.8.3_@babel+core@7.17.9
     dev: false
@@ -3423,7 +3436,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
       '@babel/helper-skip-transparent-expression-wrappers': 7.16.0
       '@babel/plugin-syntax-optional-chaining': 7.8.3_@babel+core@7.18.6
 
@@ -4046,7 +4059,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.17.9
-      '@babel/helper-plugin-utils': 7.18.6
+      '@babel/helper-plugin-utils': 7.18.9
     dev: false
 
   /@babel/plugin-syntax-typescript/7.16.7_@babel+core@7.18.6:
@@ -4056,7 +4069,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-plugin-utils': 7.18.6
+      '@babel/helper-plugin-utils': 7.18.9
 
   /@babel/plugin-transform-arrow-functions/7.14.5_@babel+core@7.15.5:
     resolution: {integrity: sha512-KOnO0l4+tD5IfOdi4x8C1XmEIRWUjNRV8wc6K2vz/3e8yAOoZZvsRXRRIF/yo/MAOFb4QjtAw9xSxMXbSMRy8A==}
@@ -4085,7 +4098,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.17.9
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
     dev: false
 
   /@babel/plugin-transform-arrow-functions/7.16.7_@babel+core@7.18.6:
@@ -4095,7 +4108,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
 
   /@babel/plugin-transform-async-to-generator/7.14.5_@babel+core@7.15.5:
     resolution: {integrity: sha512-szkbzQ0mNk0rpu76fzDdqSyPu0MuvpXgC+6rz5rpMb5OIRxdmHfQxrktL8CYolL2d8luMCZTR0DpIMIdL27IjA==}
@@ -4218,7 +4231,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.17.9
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
     dev: false
 
   /@babel/plugin-transform-block-scoping/7.16.7_@babel+core@7.18.6:
@@ -4228,7 +4241,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
 
   /@babel/plugin-transform-classes/7.15.4_@babel+core@7.15.5:
     resolution: {integrity: sha512-Yjvhex8GzBmmPQUvpXRPWQ9WnxXgAFuZSrqOK/eJlOGIXwvv8H3UEdUigl1gb/bnjTrln+e8bkZUYCBt/xYlBg==}
@@ -4273,13 +4286,13 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.17.9
-      '@babel/helper-annotate-as-pure': 7.16.7
-      '@babel/helper-environment-visitor': 7.16.7
-      '@babel/helper-function-name': 7.17.9
+      '@babel/helper-annotate-as-pure': 7.18.6
+      '@babel/helper-environment-visitor': 7.18.6
+      '@babel/helper-function-name': 7.18.6
       '@babel/helper-optimise-call-expression': 7.16.7
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
       '@babel/helper-replace-supers': 7.16.7
-      '@babel/helper-split-export-declaration': 7.16.7
+      '@babel/helper-split-export-declaration': 7.18.6
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -4292,13 +4305,13 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-annotate-as-pure': 7.16.7
-      '@babel/helper-environment-visitor': 7.16.7
-      '@babel/helper-function-name': 7.17.9
+      '@babel/helper-annotate-as-pure': 7.18.6
+      '@babel/helper-environment-visitor': 7.18.6
+      '@babel/helper-function-name': 7.18.6
       '@babel/helper-optimise-call-expression': 7.16.7
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
       '@babel/helper-replace-supers': 7.16.7
-      '@babel/helper-split-export-declaration': 7.16.7
+      '@babel/helper-split-export-declaration': 7.18.6
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -4330,7 +4343,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.17.9
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
     dev: false
 
   /@babel/plugin-transform-computed-properties/7.16.7_@babel+core@7.18.6:
@@ -4340,7 +4353,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
 
   /@babel/plugin-transform-destructuring/7.14.7_@babel+core@7.15.5:
     resolution: {integrity: sha512-0mDE99nK+kVh3xlc5vKwB6wnP9ecuSj+zQCa/n0voENtP/zymdT4HH6QEb65wjjcbqr1Jb/7z9Qp7TF5FtwYGw==}
@@ -4770,9 +4783,9 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.17.9
-      '@babel/helper-module-transforms': 7.17.7
-      '@babel/helper-plugin-utils': 7.16.7
-      '@babel/helper-simple-access': 7.17.7
+      '@babel/helper-module-transforms': 7.18.8
+      '@babel/helper-plugin-utils': 7.18.9
+      '@babel/helper-simple-access': 7.18.6
       babel-plugin-dynamic-import-node: 2.3.3
     transitivePeerDependencies:
       - supports-color
@@ -4785,9 +4798,9 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-module-transforms': 7.17.7
-      '@babel/helper-plugin-utils': 7.16.7
-      '@babel/helper-simple-access': 7.17.7
+      '@babel/helper-module-transforms': 7.18.8
+      '@babel/helper-plugin-utils': 7.18.9
+      '@babel/helper-simple-access': 7.18.6
       babel-plugin-dynamic-import-node: 2.3.3
     transitivePeerDependencies:
       - supports-color
@@ -4991,7 +5004,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-plugin-utils': 7.18.6
+      '@babel/helper-plugin-utils': 7.18.9
 
   /@babel/plugin-transform-object-super/7.14.5_@babel+core@7.15.5:
     resolution: {integrity: sha512-MKfOBWzK0pZIrav9z/hkRqIk/2bTv9qvxHzPQc12RcVkMOzpIKnFCNYJip00ssKWYkd8Sf5g0Wr7pqJ+cmtuFg==}
@@ -5659,7 +5672,7 @@ packages:
     dependencies:
       '@babel/core': 7.17.9
       '@babel/helper-create-class-features-plugin': 7.17.9_@babel+core@7.17.9
-      '@babel/helper-plugin-utils': 7.18.6
+      '@babel/helper-plugin-utils': 7.18.9
       '@babel/plugin-syntax-typescript': 7.16.7_@babel+core@7.17.9
     transitivePeerDependencies:
       - supports-color
@@ -5673,7 +5686,7 @@ packages:
     dependencies:
       '@babel/core': 7.18.6
       '@babel/helper-create-class-features-plugin': 7.17.9_@babel+core@7.18.6
-      '@babel/helper-plugin-utils': 7.18.6
+      '@babel/helper-plugin-utils': 7.18.9
       '@babel/plugin-syntax-typescript': 7.16.7_@babel+core@7.18.6
     transitivePeerDependencies:
       - supports-color
@@ -6215,7 +6228,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.17.9
-      '@babel/helper-plugin-utils': 7.18.6
+      '@babel/helper-plugin-utils': 7.18.9
       '@babel/helper-validator-option': 7.18.6
       '@babel/plugin-transform-typescript': 7.16.8_@babel+core@7.17.9
     transitivePeerDependencies:
@@ -6229,7 +6242,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-plugin-utils': 7.18.6
+      '@babel/helper-plugin-utils': 7.18.9
       '@babel/helper-validator-option': 7.18.6
       '@babel/plugin-transform-typescript': 7.16.8_@babel+core@7.18.6
     transitivePeerDependencies:
@@ -7478,6 +7491,7 @@ packages:
       pacote: 11.3.5
       semver: 7.3.5
     transitivePeerDependencies:
+      - bluebird
       - supports-color
     dev: false
 
@@ -7646,6 +7660,7 @@ packages:
       whatwg-url: 8.7.0
       yargs-parser: 20.2.4
     transitivePeerDependencies:
+      - bluebird
       - supports-color
     dev: false
 
@@ -7839,6 +7854,7 @@ packages:
       npm-registry-fetch: 9.0.0
       npmlog: 4.1.2
     transitivePeerDependencies:
+      - bluebird
       - supports-color
     dev: false
 
@@ -7868,6 +7884,7 @@ packages:
       pify: 5.0.0
       read-package-json: 3.0.1
     transitivePeerDependencies:
+      - bluebird
       - supports-color
     dev: false
 
@@ -8002,6 +8019,7 @@ packages:
       pacote: 11.3.5
       semver: 7.3.5
     transitivePeerDependencies:
+      - bluebird
       - supports-color
     dev: false
 
@@ -8243,6 +8261,8 @@ packages:
       promise-retry: 2.0.1
       semver: 7.3.5
       which: 2.0.2
+    transitivePeerDependencies:
+      - bluebird
     dev: false
 
   /@npmcli/installed-package-contents/1.0.7:
@@ -9938,17 +9958,22 @@ packages:
   /@webgpu/types/0.1.21:
     resolution: {integrity: sha512-pUrWq3V5PiSGFLeLxoGqReTZmiiXwY3jRkIG5sLLKjyqNxrwm/04b4nw7LSmGWJcKk59XOM/YRTUwOzo4MMlow==}
 
-  /@webhotelier/webpack-fast-refresh/5.1.0_vuqvhffzfprxvnn3qjecvklzc4:
+  /@webhotelier/webpack-fast-refresh/5.1.0_f36dh4o5l4i73vc4a5hscds52a:
     resolution: {integrity: sha512-GLe+NjtVaEBeK13RSJrBE4mnlYCxrfg2m1X/UALVpsjSYaIcrabbxBgOp1bGQ4VJoi2FfMN7BfjsLHrwQGaVZA==}
     peerDependencies:
       react-refresh: ^0.9.0-rc.2
       webpack: ^5.0.0-rc.3
     dependencies:
-      react-dev-utils: 11.0.4
+      react-dev-utils: 11.0.4_33ha5ijlieepwyzemwszpp2unm
       react-error-overlay: 7.0.0-next.117
       react-refresh: 0.9.0
       sockjs-client: 1.5.2
       webpack: 5.72.0
+    transitivePeerDependencies:
+      - eslint
+      - supports-color
+      - typescript
+      - vue-template-compiler
     dev: false
 
   /@webxr-input-profiles/motion-controllers/1.0.0:
@@ -10845,6 +10870,8 @@ packages:
       qs: 6.9.7
       raw-body: 2.4.3
       type-is: 1.6.18
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /bonjour-service/1.0.11:
@@ -11034,6 +11061,8 @@ packages:
       ssri: 8.0.1
       tar: 6.1.11
       unique-filename: 1.1.1
+    transitivePeerDependencies:
+      - bluebird
     dev: false
 
   /cache-base/1.0.1:
@@ -11588,6 +11617,8 @@ packages:
       on-headers: 1.0.2
       safe-buffer: 5.1.2
       vary: 1.1.2
+    transitivePeerDependencies:
+      - supports-color
 
   /concat-map/0.0.1:
     resolution: {integrity: sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=}
@@ -12179,6 +12210,11 @@ packages:
 
   /debug/3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
     dependencies:
       ms: 2.1.3
     dev: false
@@ -12427,6 +12463,8 @@ packages:
     dependencies:
       address: 1.1.2
       debug: 2.6.9
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /detect-port/1.3.0:
@@ -13548,6 +13586,8 @@ packages:
       type-is: 1.6.18
       utils-merge: 1.0.1
       vary: 1.1.2
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /ext/1.6.0:
@@ -13885,17 +13925,32 @@ packages:
     resolution: {integrity: sha1-+8cfDEGt6zf5bFd60e1C2P2sypE=}
     dev: false
 
-  /fork-ts-checker-webpack-plugin/4.1.6:
+  /fork-ts-checker-webpack-plugin/4.1.6_33ha5ijlieepwyzemwszpp2unm:
     resolution: {integrity: sha512-DUxuQaKoqfNne8iikd14SAkh5uw4+8vNifp6gmA73yYNS6ywLIWSLD/n/mBzHQRpW3J7rbATEakmiA8JvkTyZw==}
     engines: {node: '>=6.11.5', yarn: '>=1.0.0'}
+    peerDependencies:
+      eslint: '>= 6'
+      typescript: '>= 2.7'
+      vue-template-compiler: '*'
+      webpack: '>= 4'
+    peerDependenciesMeta:
+      eslint:
+        optional: true
+      vue-template-compiler:
+        optional: true
     dependencies:
       '@babel/code-frame': 7.16.0
       chalk: 2.4.2
+      eslint: 8.13.0
       micromatch: 3.1.10
       minimatch: 3.0.4
       semver: 5.7.1
       tapable: 1.1.3
+      typescript: 4.7.2
+      webpack: 5.72.0
       worker-rpc: 0.1.1
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /fork-ts-checker-webpack-plugin/6.5.1_33ha5ijlieepwyzemwszpp2unm:
@@ -16401,6 +16456,7 @@ packages:
       import-local: 3.0.3
       npmlog: 4.1.2
     transitivePeerDependencies:
+      - bluebird
       - supports-color
     dev: false
 
@@ -16432,6 +16488,7 @@ packages:
       npm-package-arg: 8.1.5
       npm-registry-fetch: 11.0.0
     transitivePeerDependencies:
+      - bluebird
       - supports-color
     dev: false
 
@@ -16445,6 +16502,7 @@ packages:
       semver: 7.3.5
       ssri: 8.0.1
     transitivePeerDependencies:
+      - bluebird
       - supports-color
     dev: false
 
@@ -16758,6 +16816,7 @@ packages:
       socks-proxy-agent: 5.0.1
       ssri: 8.0.1
     transitivePeerDependencies:
+      - bluebird
       - supports-color
     dev: false
 
@@ -16782,6 +16841,7 @@ packages:
       socks-proxy-agent: 6.1.0
       ssri: 8.0.1
     transitivePeerDependencies:
+      - bluebird
       - supports-color
     dev: false
 
@@ -17829,6 +17889,7 @@ packages:
       minizlib: 2.1.2
       npm-package-arg: 8.1.5
     transitivePeerDependencies:
+      - bluebird
       - supports-color
     dev: false
 
@@ -17845,6 +17906,7 @@ packages:
       minizlib: 2.1.2
       npm-package-arg: 8.1.5
     transitivePeerDependencies:
+      - bluebird
       - supports-color
     dev: false
 
@@ -18266,6 +18328,7 @@ packages:
       ssri: 8.0.1
       tar: 6.1.11
     transitivePeerDependencies:
+      - bluebird
       - supports-color
     dev: false
 
@@ -18547,6 +18610,8 @@ packages:
       async: 2.6.3
       debug: 3.2.7
       mkdirp: 0.5.5
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /posix-character-classes/0.1.1:
@@ -19152,6 +19217,11 @@ packages:
 
   /promise-inflight/1.0.1:
     resolution: {integrity: sha1-mEcocL8igTL8vdhoEputEsPAKeM=}
+    peerDependencies:
+      bluebird: '*'
+    peerDependenciesMeta:
+      bluebird:
+        optional: true
     dev: false
 
   /promise-retry/2.0.1:
@@ -19367,7 +19437,7 @@ packages:
       react: 17.0.2
     dev: false
 
-  /react-dev-utils/11.0.4:
+  /react-dev-utils/11.0.4_33ha5ijlieepwyzemwszpp2unm:
     resolution: {integrity: sha512-dx0LvIGHcOPtKbeiSUM4jqpBl3TcY7CDjZdfOIcKeznE7BWr9dg0iPG90G5yfVQ+p/rGNMXdbfStvzQZEVEi4A==}
     engines: {node: '>=10'}
     dependencies:
@@ -19380,7 +19450,7 @@ packages:
       escape-string-regexp: 2.0.0
       filesize: 6.1.0
       find-up: 4.1.0
-      fork-ts-checker-webpack-plugin: 4.1.6
+      fork-ts-checker-webpack-plugin: 4.1.6_33ha5ijlieepwyzemwszpp2unm
       global-modules: 2.0.0
       globby: 11.0.1
       gzip-size: 5.1.1
@@ -19395,6 +19465,12 @@ packages:
       shell-quote: 1.7.2
       strip-ansi: 6.0.0
       text-table: 0.2.0
+    transitivePeerDependencies:
+      - eslint
+      - supports-color
+      - typescript
+      - vue-template-compiler
+      - webpack
     dev: false
 
   /react-dev-utils/12.0.1_33ha5ijlieepwyzemwszpp2unm:
@@ -19427,6 +19503,7 @@ packages:
       text-table: 0.2.0
     transitivePeerDependencies:
       - eslint
+      - supports-color
       - typescript
       - vue-template-compiler
       - webpack
@@ -20626,6 +20703,8 @@ packages:
       http-errors: 1.6.3
       mime-types: 2.1.34
       parseurl: 1.3.3
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /serve-static/1.14.2:
@@ -20870,6 +20949,8 @@ packages:
       inherits: 2.0.4
       json3: 3.3.3
       url-parse: 1.5.3
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /sockjs/0.3.21:
@@ -21844,38 +21925,6 @@ packages:
     resolution: {integrity: sha512-3IVX4nI6B5cc31/GFFE+i8ey/N2eA0CZDbo6n0yrz0zDX8ZJ8djmU1p+XRz7G3is0F3bB3pu2pAroFdAWQKU3w==}
     dev: false
 
-  /ts-jest/27.0.5_g2mfyom6zaxqcgedxrl4lakegu:
-    resolution: {integrity: sha512-lIJApzfTaSSbtlksfFNHkWOzLJuuSm4faFAfo5kvzOiRAuoN4/eKxVJ2zEAho8aecE04qX6K1pAzfH5QHL1/8w==}
-    engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
-    hasBin: true
-    peerDependencies:
-      '@babel/core': '>=7.0.0-beta.0 <8'
-      '@types/jest': ^27.0.0
-      babel-jest: '>=27.0.0 <28'
-      jest: ^27.0.0
-      typescript: '>=3.8 <5.0'
-    peerDependenciesMeta:
-      '@babel/core':
-        optional: true
-      '@types/jest':
-        optional: true
-      babel-jest:
-        optional: true
-    dependencies:
-      '@babel/core': 7.18.6
-      '@types/jest': 27.4.0
-      bs-logger: 0.2.6
-      fast-json-stable-stringify: 2.1.0
-      jest: 27.2.4
-      jest-util: 27.2.4
-      json5: 2.2.1
-      lodash: 4.17.21
-      make-error: 1.3.6
-      semver: 7.3.7
-      typescript: 4.7.2
-      yargs-parser: 20.2.9
-    dev: true
-
   /ts-jest/27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm:
     resolution: {integrity: sha512-lIJApzfTaSSbtlksfFNHkWOzLJuuSm4faFAfo5kvzOiRAuoN4/eKxVJ2zEAho8aecE04qX6K1pAzfH5QHL1/8w==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
@@ -21897,7 +21946,7 @@ packages:
       '@types/jest': 27.4.0
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 27.2.4_ts-node@10.8.0
+      jest: 27.2.4
       jest-util: 27.2.4
       json5: 2.2.1
       lodash: 4.17.21
