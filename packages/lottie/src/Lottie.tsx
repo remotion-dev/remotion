@@ -102,7 +102,5 @@ export const Lottie = ({
 		animationRef.current.goToAndStop(nextFrame, true);
 	}, [frame, loop, playbackRate]);
 
-	// TODO: Implement lottie.destroy
-
 	return <div ref={containerRef} className={className} style={style} />;
 };
