@@ -3,9 +3,8 @@ import lottie from 'lottie-web';
 import type {CSSProperties} from 'react';
 import {useEffect, useRef, useState} from 'react';
 import {continueRender, delayRender, useCurrentFrame} from 'remotion';
+import type {LottieAnimationData} from './types';
 import {getNextFrame} from './utils';
-
-export type LottieAnimationData = Record<string | number | symbol, unknown>;
 
 export interface LottieProps {
 	/**
