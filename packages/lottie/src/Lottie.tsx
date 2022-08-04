@@ -11,10 +11,6 @@ export interface LottieProps {
 	 * */
 	animationData: Record<string | number | symbol, unknown>;
 	/**
-	 * CSS classes to apply on the container of the animation.
-	 */
-	className?: string;
-	/**
 	 * If the animation should loop after its end.
 	 */
 	loop?: boolean;
@@ -22,6 +18,10 @@ export interface LottieProps {
 	 * The speed of the animation. Defaults to 1.
 	 */
 	speed?: number;
+	/**
+	 * CSS classes to apply on the container of the animation.
+	 */
+	className?: string;
 	/**
 	 * CSS properties to apply on the container of the animation.
 	 */
@@ -32,6 +32,7 @@ export const Lottie = ({
 	animationData,
 	className,
 	loop,
+	// TODO: Rename to playback rate to have same name as other components.
 	speed = 1,
 	style,
 }: LottieProps) => {
@@ -44,7 +45,9 @@ export const Lottie = ({
 	const animationRef = useRef<AnimationItem>();
 	const lastFrameRef = useRef<number | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
-	const [handle] = useState(delayRender);
+	const [handle] = useState(() =>
+		delayRender('Waiting for Lottie animation to load')
+	);
 	const frame = useCurrentFrame();
 
 	useEffect(() => {
@@ -95,6 +98,8 @@ export const Lottie = ({
 
 		animationRef.current.goToAndStop(nextFrame, true);
 	}, [frame, loop, speed]);
+
+	// TODO: Implement lottie.destroy
 
 	return <div ref={containerRef} className={className} style={style} />;
 };
