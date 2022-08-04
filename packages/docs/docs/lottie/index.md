@@ -48,6 +48,23 @@ pnpm i @remotion/lottie lottie-web
 
 You can now start using the [`<Lottie>`](/docs/lottie/lottie) component in your Remotion project.
 
+## Supported features
+
+- Playing Lottie animations using `lottie-web`
+- Change the speed of the animation
+- Playing remote files
+- Determinining dimensions and duration of a Lottie animation
+
+## Unsupported features
+
+- Playing animation in another direction
+- Rendering on other renderers as `svg`
+- `setSubFrame()`, `setLocationHref()`
+
+:::note
+[Open an issue](https://remotion.dev/issue) if you want to request a currently unsupported feature.
+:::
+
 ## APIs
 
 - [`<Lottie>`](/docs/lottie/lottie)
