@@ -51,7 +51,7 @@ Click Render <InlineStep>3</InlineStep> to write the file.
 
 ### Import the file into Remotion
 
-Copy the file into the Remotion project. The recommended way is to the the JSON inside the `public/` folder of Remotion (create it if necessary) and then load it using [`staticFile()`](/docs/staticfile):
+Copy the file into the Remotion project. The recommended way is to put the JSON inside the `public/` folder of Remotion (create it if necessary) and then load it using [`staticFile()`](/docs/staticfile):
 
 ```tsx twoslash title="Animation.tsx"
 import { continueRender, delayRender, staticFile } from "remotion";
@@ -86,10 +86,11 @@ const Balloons = () => {
 
 ## Finetuning
 
-It is advised to make your composition the same size and duration as the original composition in After Effects. Congrats, you're playing an After Effects animation in Remotion! 🎉
+It is advised to make your composition [the same size and duration](/docs/lottie/getlottiemetadata) as the original composition in After Effects. Congrats, you're playing an After Effects animation in Remotion! 🎉
 
 <img src="/img/lottie/result.gif"/>
 
 ## See also
 
-- [Using LottieFiles](/docs/lottie/lottiefiels)
+- [Using LottieFiles](/docs/lottie/lottiefiles)
+- [`getLottieMetadata()`](/docs/lottie/getlottiemetadata)

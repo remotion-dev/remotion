@@ -8,8 +8,7 @@
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
 		"build": "tsc -d",
-		"watch": "tsc -w",
-		"prerelease": "cp ../../README.md ."
+		"watch": "tsc -w"
 	},
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
@@ -33,7 +32,7 @@
 	"peerDependencies": {
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0",
-		"lottie-web": ">=5"
+		"lottie-web": "^5"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",

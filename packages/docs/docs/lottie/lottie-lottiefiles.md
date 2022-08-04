@@ -19,7 +19,7 @@ If you find a file that you like, click on it, then click `Download` <InlineStep
 
 ### Import the file into Remotion
 
-Copy the file into the Remotion project. The recommended way is to the the JSON inside the `public/` folder of Remotion (create it if necessary) and then load it using [`staticFile()`](/docs/staticfile):
+Copy the file into the Remotion project. The recommended way is to put the JSON inside the `public/` folder of Remotion (create it if necessary) and then load it using [`staticFile()`](/docs/staticfile):
 
 ```tsx twoslash title="Animation.tsx"
 import { continueRender, delayRender, staticFile } from "remotion";

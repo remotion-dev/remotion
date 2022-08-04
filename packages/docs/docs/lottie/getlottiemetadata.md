@@ -5,7 +5,7 @@ title: getLottieMetadata()
 
 _Part of the [`@remotion/lottie`](/docs/lottie) package._
 
-Using this function, you can get basic metadata such as dimensions, duration and framerate of a Lottie animation.
+Using this function, you can get the basic metadata such as dimensions, duration and framerate of a Lottie animation.
 
 ```tsx twoslash title="Animation.tsx"
 // @allowUmdGlobalAccess

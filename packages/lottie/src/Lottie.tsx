@@ -5,6 +5,7 @@ import {useEffect, useRef, useState} from 'react';
 import {continueRender, delayRender, useCurrentFrame} from 'remotion';
 import type {LottieAnimationData} from './types';
 import {getNextFrame} from './utils';
+import {validateLoop} from './validate-loop';
 import {validatePlaybackRate} from './validate-playbackrate';
 
 export interface LottieProps {
@@ -34,7 +35,7 @@ export const Lottie = ({
 	animationData,
 	className,
 	loop,
-	playbackRate = 1,
+	playbackRate,
 	style,
 }: LottieProps) => {
 	if (typeof animationData !== 'object') {
@@ -44,6 +45,7 @@ export const Lottie = ({
 	}
 
 	validatePlaybackRate(playbackRate);
+	validateLoop(loop);
 
 	const animationRef = useRef<AnimationItem>();
 	const lastFrameRef = useRef<number | null>(null);
@@ -87,7 +89,7 @@ export const Lottie = ({
 			return;
 		}
 
-		animationRef.current.setSpeed(playbackRate);
+		animationRef.current.setSpeed(playbackRate ?? 1);
 	}, [playbackRate]);
 
 	useEffect(() => {
@@ -96,7 +98,7 @@ export const Lottie = ({
 		}
 
 		const {totalFrames} = animationRef.current;
-		const expectedFrame = frame * playbackRate;
+		const expectedFrame = frame * (playbackRate ?? 1);
 		const nextFrame = getNextFrame(expectedFrame, totalFrames, loop);
 
 		animationRef.current.goToAndStop(nextFrame, true);
