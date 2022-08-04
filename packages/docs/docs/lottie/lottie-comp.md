@@ -56,3 +56,7 @@ CSS properties to be applied to the `<div>` that contains the animation.
 ### `className`
 
 A CSS class name to be given to the `<div>` that contains the animation.
+
+## See also
+
+- [Loading Lottie animations using `staticFile()`](/docs/lottie/staticfile)
