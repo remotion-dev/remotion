@@ -28,12 +28,12 @@
 	],
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"lottie-web": "5.9.6",
 		"remotion": "3.1.11"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
-		"react-dom": ">=16.8.0"
+		"react-dom": ">=16.8.0",
+		"lottie-web": ">=5"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
