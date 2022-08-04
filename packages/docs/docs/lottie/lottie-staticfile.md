@@ -14,14 +14,14 @@ import { continueRender, delayRender, staticFile } from "remotion";
 import { useEffect, useState } from "react";
 import { Lottie, LottieAnimationData } from "@remotion/lottie";
 
-const Balloons = () => {
+const Square = () => {
   const [handle] = useState(() => delayRender("Loading Lottie animation"));
 
   const [animationData, setAnimationData] =
     useState<LottieAnimationData | null>(null);
 
   useEffect(() => {
-    fetch(staticFile("animation.json"))
+    fetch(staticFile("data.json"))
       .then((data) => data.json())
       .then((json) => {
         setAnimationData(json);

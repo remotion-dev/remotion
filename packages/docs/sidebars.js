@@ -238,6 +238,7 @@ module.exports = {
         "lottie/lottie-comp",
         "lottie/lottie-staticfile",
         "lottie/lottie-remote",
+        "lottie/lottie-aftereffects",
       ],
     },
     {
