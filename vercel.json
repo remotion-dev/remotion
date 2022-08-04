@@ -34,6 +34,11 @@
       "source": "/skia",
       "destination": "https://remotion.dev/docs/skia",
       "permanent": false
+    },
+    {
+      "source": "/lottie",
+      "destination": "https://remotion.dev/docs/lottie",
+      "permanent": false
     }
   ]
 }
