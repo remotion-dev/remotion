@@ -43,7 +43,7 @@ _boolean_
 
 Whether the animation should loop or not. Default false.
 
-### `speed`
+### `playbackRate`
 
 _number_
 
