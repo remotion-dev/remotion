@@ -1,16 +1,18 @@
 ---
-id: lottie-staticfile
-sidebar_label: "Loading from staticFile()"
-title: "Loading Lottie animations from staticFile()"
-slug: staticfile
+id: lottie-remote
+sidebar_label: "Loading from a URL"
+title: "Loading Lottie animations from a URL"
+slug: remote
 ---
 
-In order to load a Lottie animation from a file that has been put into the `public/` folder, use [`staticFile()`](/docs/staticfile) in combination with [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) and Remotion's [`delayRender()`](/docs/delay-render) function.
+In order to load a Lottie animation from a URL that has been put into the `public/` folder, use [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) and Remotion's [`delayRender()`](/docs/delay-render) function.
+
+The resource must support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 
 Use the `LottieAnimationData` type to keep a state using React's `useState()` and only render the [`<Lottie>`](/docs/lottie/lottie) component once the data has been fetched.
 
 ```tsx twoslash title="Animation.tsx"
-import { continueRender, delayRender, staticFile } from "remotion";
+import { continueRender, delayRender } from "remotion";
 import { useEffect, useState } from "react";
 import { Lottie, LottieAnimationData } from "@remotion/lottie";
 
@@ -21,7 +23,7 @@ const Balloons = () => {
     useState<LottieAnimationData | null>(null);
 
   useEffect(() => {
-    fetch(staticFile("animation.json"))
+    fetch("https://assets4.lottiefiles.com/packages/lf20_zyquagfl.json")
       .then((data) => data.json())
       .then((json) => {
         setAnimationData(json);
@@ -43,4 +45,4 @@ const Balloons = () => {
 ## See also
 
 - [`<Lottie>`](/docs/lottie/lottie)
-- [Loading from a URL](/docs/remote)
+- [Loading from `staticFile()`](/docs/staticfile)
