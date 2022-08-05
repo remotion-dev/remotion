@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
@@ -22,8 +22,10 @@ export const PlayPause: React.FC<{
 	loop: boolean;
 }> = ({playbackRate, loop}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
-
 	const frame = Internals.Timeline.useTimelinePosition();
+	const currentFrame = useRef<number>(frame);
+	currentFrame.current = frame;
+
 	const video = Internals.useVideo();
 	PlayerInternals.usePlayback({
 		loop,
@@ -103,18 +105,18 @@ export const PlayPause: React.FC<{
 				ensureFrameIsInViewport({
 					direction: 'fit-left',
 					durationInFrames,
-					frame: Math.max(0, frame - videoFps),
+					frame: Math.max(0, currentFrame.current - videoFps),
 				});
 			} else {
 				frameBack(1);
 				ensureFrameIsInViewport({
 					direction: 'fit-left',
 					durationInFrames,
-					frame: Math.max(0, frame - 1),
+					frame: Math.max(0, currentFrame.current - 1),
 				});
 			}
 		},
-		[durationInFrames, frame, frameBack, seek, videoFps]
+		[durationInFrames, frameBack, seek, videoFps]
 	);
 
 	const onArrowRight = useCallback(
@@ -135,20 +137,23 @@ export const PlayPause: React.FC<{
 				ensureFrameIsInViewport({
 					direction: 'fit-right',
 					durationInFrames: video.durationInFrames,
-					frame: Math.min(video.durationInFrames - 1, frame + video.fps),
+					frame: Math.min(
+						video.durationInFrames - 1,
+						currentFrame.current + video.fps
+					),
 				});
 			} else {
 				frameForward(1);
 				ensureFrameIsInViewport({
 					direction: 'fit-right',
 					durationInFrames: video.durationInFrames,
-					frame: frame + 1,
+					frame: currentFrame.current + 1,
 				});
 			}
 
 			e.preventDefault();
 		},
-		[frame, frameForward, seek, video]
+		[frameForward, seek, video]
 	);
 
 	const oneFrameBack = useCallback(() => {
