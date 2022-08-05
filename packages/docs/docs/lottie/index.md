@@ -53,7 +53,7 @@ You can now start using the [`<Lottie>`](/docs/lottie/lottie) component in your 
 - Playing Lottie animations using `lottie-web`
 - Change the speed of the animation
 - Playing remote files
-- Determinining dimensions and duration of a Lottie animation
+- Determining dimensions and duration of a Lottie animation
 
 ## Unsupported features
 
