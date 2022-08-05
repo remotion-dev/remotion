@@ -1,6 +1,6 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useMemo, useState} from 'react';
-import type { TSequence} from 'remotion';
+import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	getTimelineSequenceLayout,
@@ -26,6 +26,7 @@ export const TimelineSequence: React.FC<{
 		triggerOnWindowResize: false,
 		shouldApplyCssTransforms: true,
 	});
+
 	const {richTimeline} = useContext(RichTimelineContext);
 
 	const windowWidth = size?.width ?? 0;

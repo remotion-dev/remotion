@@ -14,8 +14,8 @@ import {PlaybackRateSelector} from './PlaybackRateSelector';
 import {PlayPause} from './PlayPause';
 import {RichTimelineToggle} from './RichTimelineToggle';
 import {SizeSelector} from './SizeSelector';
+import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
-import {TimeValue} from './TimeValue';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -54,7 +54,7 @@ export const PreviewToolbar: React.FC = () => {
 		<div style={container} className="css-reset">
 			<div style={sideContainer}>
 				<div style={padding} />
-				<TimeValue />
+				<TimelineZoomControls />
 			</div>
 			<Flex />
 			<SizeSelector />
