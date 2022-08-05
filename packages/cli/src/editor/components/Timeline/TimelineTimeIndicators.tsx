@@ -145,6 +145,7 @@ export const TimelineTimeIndicators: React.FC = () => {
 		return {
 			...container,
 			width: windowWidth,
+			overflow: 'hidden',
 		};
 	}, [windowWidth]);
 
