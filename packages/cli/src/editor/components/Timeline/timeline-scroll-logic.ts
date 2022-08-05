@@ -222,7 +222,13 @@ export const getScrollPositionForCursorOnRightEdge = ({
 
 export const getFrameIncrement = (durationInFrames: number) => {
 	const width = scrollableRef.current?.scrollWidth ?? 0;
+	return getFrameIncrementFromWidth(durationInFrames, width);
+};
 
+export const getFrameIncrementFromWidth = (
+	durationInFrames: number,
+	width: number
+) => {
 	return (
 		((width as number) - TIMELINE_PADDING * 2) /
 		((durationInFrames as number) - 1)

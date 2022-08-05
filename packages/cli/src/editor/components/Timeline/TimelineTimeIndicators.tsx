@@ -10,7 +10,7 @@ import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {renderFrame} from '../../state/render-frame';
 import {TimeValue} from '../TimeValue';
 import {sliderAreaRef, timelineVerticalScroll} from './timeline-refs';
-import {getFrameIncrement} from './timeline-scroll-logic';
+import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
 import {TOTAL_TIMELINE_LAYER_LEFT_PADDING} from './TimelineListItem';
 
 export const TIMELINE_TIME_INDICATOR_HEIGHT = 30;
@@ -135,7 +135,10 @@ export const TimelineTimeIndicators: React.FC = () => {
 		return null;
 	}
 
-	const frameInterval = getFrameIncrement(video.durationInFrames);
+	const frameInterval = getFrameIncrementFromWidth(
+		video.durationInFrames,
+		windowWidth
+	);
 
 	const seconds = Math.floor(video.durationInFrames / video.fps);
 
