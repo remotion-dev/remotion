@@ -31,14 +31,11 @@ const Pumpkin = () => {
 		// Credits: https://lottiefiles.com/37789-scary-halloween-pumpkin
 		fetch('https://assets2.lottiefiles.com/packages/lf20_c5izbrx1.json')
 			.then((res) => res.json())
-			.then(setAnimationData);
-	}, []);
-
-	useEffect(() => {
-		if (animationData) {
-			continueRender(handle);
-		}
-	}, [animationData, handle]);
+			.then((data) => {
+				setAnimationData(data);
+				continueRender(handle);
+			});
+	}, [handle]);
 
 	if (!animationData) {
 		return null;
