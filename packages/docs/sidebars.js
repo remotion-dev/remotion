@@ -230,6 +230,22 @@ module.exports = {
     },
     {
       type: "category",
+      label: "API - @remotion/lottie",
+      link: {
+        type: "doc",
+        id: "lottie/lottie-index",
+      },
+      items: [
+        "lottie/lottie-comp",
+        "lottie/getlottiemetadata",
+        "lottie/lottie-staticfile",
+        "lottie/lottie-remote",
+        "lottie/lottie-aftereffects",
+        "lottie/lottie-lottiefiles",
+      ],
+    },
+    {
+      type: "category",
       label: "API - @remotion/preload",
       link: {
         type: "doc",
