@@ -85,8 +85,8 @@ export const TimelineSlider: React.FC = () => {
 
 	return (
 		<div ref={ref} style={style}>
-			<TimelineSliderHandle />
 			<div style={line} />
+			<TimelineSliderHandle />
 		</div>
 	);
 };
