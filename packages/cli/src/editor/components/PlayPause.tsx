@@ -110,7 +110,7 @@ export const PlayPause: React.FC<{
 				ensureFrameIsInViewport({
 					direction: 'fit-left',
 					durationInFrames,
-					frame: frame - 1,
+					frame: Math.max(0, frame - 1),
 				});
 			}
 		},
