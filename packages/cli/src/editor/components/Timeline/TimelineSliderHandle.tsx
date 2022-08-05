@@ -4,6 +4,7 @@ const container: React.CSSProperties = {
 	width: 20,
 	height: 20,
 	position: 'fixed',
+	marginLeft: -8,
 };
 
 const style: React.CSSProperties = {};
