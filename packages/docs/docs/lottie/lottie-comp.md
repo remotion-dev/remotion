@@ -22,6 +22,9 @@ export const MyAnimation: React.FC = () => {
 };
 ```
 
+- [Example using `staticFile()`](/docs/lottie/staticfile)
+- [Example using a remote URL](/docs/lottie/remote)
+
 ## Props
 
 ### `animationData`
@@ -47,7 +50,3 @@ CSS properties to be applied to the `<div>` that contains the animation.
 ### `className`
 
 A CSS class name to be given to the `<div>` that contains the animation.
-
-## See also
-
-- [Loading Lottie animations using `staticFile()`](/docs/lottie/staticfile)

@@ -40,7 +40,7 @@ export const Lottie = ({
 }: LottieProps) => {
 	if (typeof animationData !== 'object') {
 		throw new Error(
-			'animationData should be provided as an object. If you only have the path to the JSON file, load it and pass it as animationData. See https://remotion.dev/link-tbd for more information.'
+			'animationData should be provided as an object. If you only have the path to the JSON file, load it and pass it as animationData. See https://remotion.dev/docs/lottie/lottie#example for more information.'
 		);
 	}
 
