@@ -1,4 +1,4 @@
-import {Lottie} from '@remotion/lottie';
+import {Lottie, LottieAnimationData} from '@remotion/lottie';
 import {useEffect, useState} from 'react';
 import {
 	AbsoluteFill,
@@ -9,21 +9,19 @@ import {
 
 const LottieCybertruck = () => {
 	const {height, width} = useVideoConfig();
-	const [animationData, setAnimationData] = useState(null);
+	const [animationData, setAnimationData] =
+		useState<LottieAnimationData | null>(null);
 	const [handle] = useState(delayRender);
 
 	useEffect(() => {
 		// Credits: https://lottiefiles.com/11643-tesla-cybertruck
 		fetch('https://assets2.lottiefiles.com/packages/lf20_RqpTFh.json')
 			.then((res) => res.json())
-			.then(setAnimationData);
-	}, []);
-
-	useEffect(() => {
-		if (animationData) {
-			continueRender(handle);
-		}
-	}, [animationData, handle]);
+			.then((data) => {
+				setAnimationData(data);
+				continueRender(handle);
+			});
+	}, [handle]);
 
 	if (!animationData) {
 		return null;
