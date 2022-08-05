@@ -56,6 +56,34 @@ type Options = {
 	expectedBucketOwner: string;
 };
 
+const callFunctionWithRetry = async (
+	payload: unknown,
+	retries = 0
+): Promise<unknown> => {
+	try {
+		await getLambdaClient(getCurrentRegionInFunction()).send(
+			new InvokeCommand({
+				FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
+				// @ts-expect-error
+				Payload: JSON.stringify(payload),
+				InvocationType: 'Event',
+			}),
+			{}
+		);
+	} catch (err) {
+		if ((err as Error).name === 'ResourceConflictException') {
+			if (retries > 10) {
+				throw err;
+			}
+
+			await new Promise((resolve) => {
+				setTimeout(resolve, 1000);
+			});
+			return callFunctionWithRetry(payload, retries + 1);
+		}
+	}
+};
+
 const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -223,15 +251,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		lambdaPayloads.map(async (payload, index) => {
 			const callingLambdaTimer = timer('Calling chunk ' + index);
 
-			await getLambdaClient(getCurrentRegionInFunction()).send(
-				new InvokeCommand({
-					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
-					// @ts-expect-error
-					Payload: JSON.stringify(payload),
-					InvocationType: 'Event',
-				}),
-				{}
-			);
+			await callFunctionWithRetry(payload);
 			callingLambdaTimer.end();
 		})
 	);
