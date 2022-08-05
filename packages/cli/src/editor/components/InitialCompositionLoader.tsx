@@ -5,17 +5,21 @@ import {Internals} from 'remotion';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {FolderContext} from '../state/folders';
 import {loadMarks} from '../state/marks';
+import {TimelineZoomCtx} from '../state/timeline-zoom';
 import {getKeysToExpand} from './CompositionSelector';
 import {
 	getCurrentCompositionFromUrl,
 	getFrameForComposition,
 } from './FramePersistor';
+import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
 import {inOutHandles} from './TimelineInOutToggle';
+import {getZoomForComposition} from './ZoomPersistor';
 
 export const useSelectComposition = () => {
 	const setCurrentFrame = Internals.Timeline.useTimelineSetFrame();
 	const {setCurrentComposition} = useContext(Internals.CompositionManager);
 	const {setFoldersExpanded} = useContext(FolderContext);
+	const {setZoom} = useContext(TimelineZoomCtx);
 	return (c: TComposition, push: boolean) => {
 		inOutHandles.current?.setMarks(loadMarks(c.id, c.durationInFrames));
 		if (push) {
@@ -23,9 +27,18 @@ export const useSelectComposition = () => {
 		}
 
 		const frame = getFrameForComposition(c.id);
+		const zoom = getZoomForComposition(c.id);
 		const frameInBounds = Math.min(c.durationInFrames - 1, frame);
 		setCurrentFrame(frameInBounds);
 		setCurrentComposition(c.id);
+		setZoom(() => zoom);
+		setTimeout(() => {
+			ensureFrameIsInViewport({
+				direction: 'center',
+				frame,
+				durationInFrames: c.durationInFrames,
+			});
+		});
 		const {folderName, parentFolderName} = c;
 		if (folderName !== null) {
 			setFoldersExpanded((ex) => {

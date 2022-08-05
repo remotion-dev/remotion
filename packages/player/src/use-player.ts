@@ -8,6 +8,7 @@ type UsePlayerMethods = {
 	frameBack: (frames: number) => void;
 	frameForward: (frames: number) => void;
 	isLastFrame: boolean;
+	isFirstFrame: boolean;
 	emitter: PlayerEmitter;
 	playing: boolean;
 	play: (e?: SyntheticEvent) => void;
@@ -36,6 +37,7 @@ export const usePlayer = (): UsePlayerMethods => {
 
 	const lastFrame = (config?.durationInFrames ?? 1) - 1;
 	const isLastFrame = frame === lastFrame;
+	const isFirstFrame = frame === 0;
 
 	if (!emitter) {
 		throw new TypeError('Expected Player event emitter context');
@@ -151,22 +153,23 @@ export const usePlayer = (): UsePlayerMethods => {
 			play,
 			pause,
 			seek,
-
+			isFirstFrame,
 			getCurrentFrame: () => frameRef.current as number,
 			isPlaying: () => imperativePlaying.current as boolean,
 			pauseAndReturnToPlayStart,
 		};
 	}, [
-		emitter,
 		frameBack,
 		frameForward,
-		imperativePlaying,
 		isLastFrame,
-		pause,
-		play,
+		emitter,
 		playing,
-		pauseAndReturnToPlayStart,
+		play,
+		pause,
 		seek,
+		isFirstFrame,
+		pauseAndReturnToPlayStart,
+		imperativePlaying,
 	]);
 
 	return returnValue;
