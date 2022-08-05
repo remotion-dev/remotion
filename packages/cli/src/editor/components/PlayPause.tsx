@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useEffect, useRef} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
@@ -10,6 +10,7 @@ import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {ControlButton} from './ControlButton';
+import {getCurrentFrame} from './Timeline/imperative-state';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
 
 const forwardBackStyle = {
@@ -23,8 +24,6 @@ export const PlayPause: React.FC<{
 }> = ({playbackRate, loop}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const frame = Internals.Timeline.useTimelinePosition();
-	const currentFrame = useRef<number>(frame);
-	currentFrame.current = frame;
 
 	const video = Internals.useVideo();
 	PlayerInternals.usePlayback({
@@ -105,14 +104,14 @@ export const PlayPause: React.FC<{
 				ensureFrameIsInViewport({
 					direction: 'fit-left',
 					durationInFrames,
-					frame: Math.max(0, currentFrame.current - videoFps),
+					frame: Math.max(0, getCurrentFrame() - videoFps),
 				});
 			} else {
 				frameBack(1);
 				ensureFrameIsInViewport({
 					direction: 'fit-left',
 					durationInFrames,
-					frame: Math.max(0, currentFrame.current - 1),
+					frame: Math.max(0, getCurrentFrame() - 1),
 				});
 			}
 		},
@@ -139,7 +138,7 @@ export const PlayPause: React.FC<{
 					durationInFrames: video.durationInFrames,
 					frame: Math.min(
 						video.durationInFrames - 1,
-						currentFrame.current + video.fps
+						getCurrentFrame() + video.fps
 					),
 				});
 			} else {
@@ -147,7 +146,7 @@ export const PlayPause: React.FC<{
 				ensureFrameIsInViewport({
 					direction: 'fit-right',
 					durationInFrames: video.durationInFrames,
-					frame: currentFrame.current + 1,
+					frame: getCurrentFrame() + 1,
 				});
 			}
 
