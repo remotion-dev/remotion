@@ -6,9 +6,7 @@ const container: React.CSSProperties = {
 	position: 'fixed',
 };
 
-const style: React.CSSProperties = {
-	marginLeft: -8,
-};
+const style: React.CSSProperties = {};
 
 export const TimelineSliderHandle: React.FC = () => {
 	return (

@@ -26,6 +26,7 @@ const line: React.CSSProperties = {
 	width: 1,
 	position: 'fixed',
 	backgroundColor: '#f02c00',
+	marginLeft: 8,
 };
 
 export const redrawTimelineSliderFast = createRef<{
@@ -38,7 +39,7 @@ export const TimelineSlider: React.FC = () => {
 	const ref = useRef<HTMLDivElement>(null);
 
 	const style: React.CSSProperties = useMemo(() => {
-		const left = get(timelinePosition);
+		const left = get(timelinePosition) - 8;
 		return {
 			...container,
 			transform: `translateX(${left}px)`,
@@ -53,11 +54,13 @@ export const TimelineSlider: React.FC = () => {
 					throw new Error('unexpectedly did not have ref to timelineslider');
 				}
 
-				current.style.transform = `translateX(${getXPositionOfItemInTimelineImperatively(
-					frame,
-					getCurrentDuration(),
-					width ?? (sliderAreaRef.current?.clientWidth as number) ?? 0
-				)}px)`;
+				current.style.transform = `translateX(${
+					getXPositionOfItemInTimelineImperatively(
+						frame,
+						getCurrentDuration(),
+						width ?? (sliderAreaRef.current?.clientWidth as number) ?? 0
+					) - 8
+				}px)`;
 			},
 		};
 	});
@@ -85,9 +88,8 @@ export const TimelineSlider: React.FC = () => {
 
 	return (
 		<div ref={ref} style={style}>
-			<div style={line}>
-				<TimelineSliderHandle />
-			</div>
+			<TimelineSliderHandle />
+			<div style={line} />
 		</div>
 	);
 };
