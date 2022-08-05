@@ -435,7 +435,7 @@ export const Index: React.FC = () => {
 			</Folder>
 			<Folder name="lottie">
 				<Composition
-					id="Cybertruck"
+					id="cybertruck"
 					lazyComponent={() => import('./Lottie/Cybertruck')}
 					durationInFrames={500}
 					fps={30}
@@ -443,7 +443,7 @@ export const Index: React.FC = () => {
 					width={850}
 				/>
 				<Composition
-					id="Halloween-Balloons"
+					id="halloween-balloons"
 					lazyComponent={() => import('./Lottie/Halloween/Balloons')}
 					durationInFrames={90}
 					fps={30}
@@ -451,7 +451,7 @@ export const Index: React.FC = () => {
 					width={1080}
 				/>
 				<Composition
-					id="Halloween-Pumpkin"
+					id="halloween-pumpkin"
 					lazyComponent={() => import('./Lottie/Halloween/Pumpkin')}
 					durationInFrames={150}
 					fps={30}
@@ -460,7 +460,7 @@ export const Index: React.FC = () => {
 				/>
 
 				<Composition
-					id="ExplodingBird"
+					id="exploding-bird"
 					lazyComponent={() => import('./Lottie/ExplodingBird')}
 					durationInFrames={300}
 					fps={30}
