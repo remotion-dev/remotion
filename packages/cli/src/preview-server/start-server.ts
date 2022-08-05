@@ -73,7 +73,7 @@ export const startServer = async (
 				});
 			})
 			.then(() => {
-				handleRoutes({
+				return handleRoutes({
 					hash,
 					hashPrefix,
 					request,
