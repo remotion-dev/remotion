@@ -7,6 +7,7 @@ import {
 	getCurrentFrame,
 	getCurrentZoom,
 	setCurrentDuration,
+	setCurrentFps,
 	setCurrentFrame,
 	setCurrentZoom,
 } from './imperative-state';
@@ -35,6 +36,7 @@ export const TimelinePlayCursorSyncer: React.FC = () => {
 	setCurrentFrame(timelineContext.frame);
 	setCurrentZoom(zoom);
 	setCurrentDuration(video?.durationInFrames ?? 1);
+	setCurrentFps(video?.fps ?? 1);
 
 	const playing = timelineContext.playing ?? false;
 
