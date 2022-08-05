@@ -43,4 +43,4 @@ const Square = () => {
 ## See also
 
 - [`<Lottie>`](/docs/lottie/lottie)
-- [Loading from a URL](/docs/remote)
+- [Loading from a URL](/docs/lottie/remote)
