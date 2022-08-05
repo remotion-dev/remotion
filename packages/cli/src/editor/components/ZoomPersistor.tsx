@@ -18,8 +18,8 @@ export const persistCurrentZoom = (frame: number) => {
 };
 
 export const getZoomForComposition = (composition: string) => {
-	const frame = localStorage.getItem(makeKey(composition));
-	return frame ? Number(frame) : 0;
+	const zoom = localStorage.getItem(makeKey(composition));
+	return zoom ? Number(zoom) : 0;
 };
 
 export const ZoomPersistor: React.FC = () => {
