@@ -40,14 +40,11 @@ const LottieExplodingBird = () => {
 		Promise.all([
 			fetch(paths.bird).then((res) => res.json()),
 			fetch(paths.end).then((res) => res.json()),
-		]).then(([bird, end]) => setAnimationData({bird, end}));
-	}, []);
-
-	useEffect(() => {
-		if (animationData) {
+		]).then(([bird, end]) => {
+			setAnimationData({bird, end});
 			continueRender(handle);
-		}
-	}, [animationData, handle]);
+		});
+	}, [handle]);
 
 	// Get the markers and frames from the data
 	const markers = animationData?.bird?.markers;
