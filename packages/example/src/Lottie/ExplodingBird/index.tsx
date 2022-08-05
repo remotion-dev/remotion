@@ -105,7 +105,7 @@ const LottieExplodingBird = () => {
 				<Sequence from={endFrom}>
 					<Lottie
 						animationData={animationData.end}
-						speed={2}
+						playbackRate={2}
 						style={{height, width}}
 					/>
 				</Sequence>
