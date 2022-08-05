@@ -18,7 +18,7 @@ _Part of the [`@remotion/lottie`](/docs/lottie) package._
 // @resolveJsonModule
 // @allowSyntheticDefaultImports
 // @filename: animation.json
-export default {
+{
   v: 1,
   fr: 0,
   w: 0,
