@@ -31,10 +31,20 @@ const tick: React.CSSProperties = {
 	position: 'absolute',
 };
 
+const secondTick: React.CSSProperties = {
+	...tick,
+	height: 15,
+};
+
+const frameTick: React.CSSProperties = {
+	...tick,
+	height: 3,
+};
+
 const tickLabel: React.CSSProperties = {
-	fontSize: 13,
+	fontSize: 12,
 	marginLeft: 8,
-	marginTop: 3,
+	marginTop: 7,
 	color: LIGHT_TEXT,
 };
 
@@ -91,6 +101,13 @@ export const TimelineTimePadding: React.FC = () => {
 	);
 };
 
+type TimelineTick = {
+	frame: number;
+	left: number;
+	style: React.CSSProperties;
+	showTime: boolean;
+};
+
 export const TimelineTimeIndicators: React.FC = () => {
 	const size = PlayerInternals.useElementSize(sliderAreaRef, {
 		triggerOnWindowResize: false,
@@ -131,36 +148,80 @@ export const TimelineTimeIndicators: React.FC = () => {
 		};
 	}, [windowWidth]);
 
+	const ticks: TimelineTick[] = useMemo(() => {
+		if (!video) {
+			return [];
+		}
+
+		const frameInterval = getFrameIncrementFromWidth(
+			video.durationInFrames,
+			windowWidth
+		);
+
+		const seconds = Math.floor(video.durationInFrames / video.fps);
+		const secondMarkerEveryNth = Math.ceil(
+			(5 * video.fps) / (frameInterval * video.fps)
+		);
+		const frameMarkerEveryNth = Math.ceil(5 / frameInterval);
+
+		const secondTicks: TimelineTick[] = new Array(seconds)
+			.fill(true)
+			.map((_, index) => {
+				return {
+					frame: index * video.fps,
+					left: frameInterval * index * video.fps + TIMELINE_PADDING,
+					style: secondTick,
+					showTime: index > 0,
+				};
+			})
+			.filter((_, idx) => idx % secondMarkerEveryNth === 0);
+
+		const frameTicks: TimelineTick[] = new Array(video.durationInFrames)
+			.fill(true)
+			.map((_, index) => {
+				return {
+					frame: index,
+					left: frameInterval * index + TIMELINE_PADDING,
+					style: {
+						...frameTick,
+						height:
+							index % video.fps === 0
+								? 10
+								: (index / frameMarkerEveryNth) % 2 === 0
+								? 5
+								: 2,
+					},
+					showTime: false,
+				};
+			})
+			.filter((_, idx) => idx % frameMarkerEveryNth === 0);
+		// Merge Deduplicate ticks
+		const hasTicks: number[] = [];
+		return [...secondTicks, ...frameTicks].filter((t) => {
+			const alreadyUsed = hasTicks.find((ht) => ht === t.frame) !== undefined;
+			hasTicks.push(t.frame);
+			return !alreadyUsed;
+		});
+	}, [video, windowWidth]);
+
 	if (!video) {
 		return null;
 	}
 
-	const frameInterval = getFrameIncrementFromWidth(
-		video.durationInFrames,
-		windowWidth
-	);
-
-	const seconds = Math.floor(video.durationInFrames / video.fps);
-
-	const secondTicks = new Array(seconds).fill(true).map((_, index) => {
-		return {
-			frame: index * video.fps,
-			left: frameInterval * index * video.fps + TIMELINE_PADDING,
-		};
-	});
-
 	return (
 		<div ref={ref} style={style}>
-			{secondTicks.map((t) => {
+			{ticks.map((t) => {
 				return (
 					<div
 						key={t.frame}
 						style={{
-							...tick,
+							...t.style,
 							left: t.left,
 						}}
 					>
-						<div style={tickLabel}>{renderFrame(t.frame, video.fps)}</div>
+						{t.showTime ? (
+							<div style={tickLabel}>{renderFrame(t.frame, video.fps)}</div>
+						) : null}
 					</div>
 				);
 			})}
