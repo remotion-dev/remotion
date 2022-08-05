@@ -283,8 +283,8 @@ export const PlayPause: React.FC<{
 			</ControlButton>
 
 			<ControlButton
-				aria-label="Step forward-press one frame"
-				title="Step forward-press one frame"
+				aria-label="Step forward one frame"
+				title="Step forward one frame"
 				disabled={isLastFrame}
 				onClick={oneFrameForward}
 			>
