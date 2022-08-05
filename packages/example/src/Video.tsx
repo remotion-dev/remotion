@@ -433,6 +433,41 @@ export const Index: React.FC = () => {
 					durationInFrames={600}
 				/>
 			</Folder>
+			<Folder name="lottie">
+				<Composition
+					id="cybertruck"
+					lazyComponent={() => import('./Lottie/Cybertruck')}
+					durationInFrames={500}
+					fps={30}
+					height={850}
+					width={850}
+				/>
+				<Composition
+					id="halloween-balloons"
+					lazyComponent={() => import('./Lottie/Halloween/Balloons')}
+					durationInFrames={90}
+					fps={30}
+					height={1080}
+					width={1080}
+				/>
+				<Composition
+					id="halloween-pumpkin"
+					lazyComponent={() => import('./Lottie/Halloween/Pumpkin')}
+					durationInFrames={150}
+					fps={30}
+					height={1200}
+					width={1600}
+				/>
+
+				<Composition
+					id="exploding-bird"
+					lazyComponent={() => import('./Lottie/ExplodingBird')}
+					durationInFrames={300}
+					fps={30}
+					height={850}
+					width={850}
+				/>
+			</Folder>
 		</>
 	);
 };

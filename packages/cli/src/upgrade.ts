@@ -52,6 +52,7 @@ export const upgrade = async (remotionRoot: string) => {
 		'@remotion/eslint-config',
 		'@remotion/renderer',
 		'@remotion/skia',
+		'@remotion/lottie',
 		'@remotion/media-utils',
 		'@remotion/babel-loader',
 		'@remotion/lambda',
