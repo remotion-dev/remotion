@@ -1,7 +1,14 @@
-import {Lottie} from '@remotion/lottie';
-import React from 'react';
-import {interpolate, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
-import balloonsAnimation from './balloons.json';
+import {Lottie, LottieAnimationData} from '@remotion/lottie';
+import React, {useEffect, useState} from 'react';
+import {
+	continueRender,
+	delayRender,
+	interpolate,
+	Sequence,
+	staticFile,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 import './common.css';
 import HeaderAndCredits from './HeaderAndCredits';
 
@@ -14,11 +21,32 @@ const Balloons = () => {
 		[0, 1, 1, 0]
 	);
 
+	const [handle] = useState(() => delayRender('Loading Lottie animation'));
+
+	const [animationData, setAnimationData] =
+		useState<LottieAnimationData | null>(null);
+
+	useEffect(() => {
+		fetch(staticFile('balloons.json'))
+			.then((data) => data.json())
+			.then((json) => {
+				setAnimationData(json);
+				continueRender(handle);
+			})
+			.catch((err) => {
+				console.log('Animation failed to load', err);
+			});
+	}, [handle]);
+
+	if (!animationData) {
+		return null;
+	}
+
 	return (
 		<div style={{opacity, display: 'grid', alignContent: 'center', flex: 1}}>
 			<Lottie
 				// https://lottiefiles.com/81293-horror-ballons
-				animationData={balloonsAnimation}
+				animationData={animationData}
 				playbackRate={2}
 				style={{height: 700}}
 			/>
