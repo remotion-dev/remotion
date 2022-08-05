@@ -61,6 +61,7 @@ export const TimelineZoomControls: React.FC = () => {
 				title="Zoom out timeline"
 				role={'ControlButton'}
 				type="button"
+				disabled={TIMELINE_MIN_ZOOM === zoom}
 			>
 				<Minus style={iconStyle} />
 			</ControlButton>
@@ -83,6 +84,7 @@ export const TimelineZoomControls: React.FC = () => {
 				title="Zoom in timeline"
 				role={'button'}
 				type="button"
+				disabled={TIMELINE_MAX_ZOOM === zoom}
 			>
 				<Plus style={iconStyle} />
 			</ControlButton>
