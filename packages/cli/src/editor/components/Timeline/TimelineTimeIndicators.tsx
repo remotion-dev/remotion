@@ -139,7 +139,7 @@ export const TimelineTimeIndicators: React.FC = () => {
 
 	const seconds = Math.floor(video.durationInFrames / video.fps);
 
-	const ticks = new Array(seconds).fill(true).map((_, index) => {
+	const secondTicks = new Array(seconds).fill(true).map((_, index) => {
 		return {
 			frame: index * video.fps,
 			left: frameInterval * index * video.fps + TIMELINE_PADDING,
@@ -148,7 +148,7 @@ export const TimelineTimeIndicators: React.FC = () => {
 
 	return (
 		<div ref={ref} style={style}>
-			{ticks.map((t) => {
+			{secondTicks.map((t) => {
 				return (
 					<div
 						key={t.frame}
