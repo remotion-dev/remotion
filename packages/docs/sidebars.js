@@ -64,6 +64,7 @@ module.exports = {
       items: [
         "lambda/troubleshooting/permissions",
         "lambda/troubleshooting/rate-limit",
+        "lambda/troubleshooting/unrecognizedclientexception",
       ],
     },
     "lambda/changelog",

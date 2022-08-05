@@ -102,40 +102,50 @@ export const renderMediaOnLambda = async ({
 	validateFramesPerLambda(framesPerLambda ?? null);
 	validateDownloadBehavior(downloadBehavior);
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
-	const res = await callLambda({
-		functionName,
-		type: LambdaRoutines.start,
-		payload: {
-			framesPerLambda: framesPerLambda ?? null,
-			composition,
-			serveUrl: realServeUrl,
-			inputProps,
-			codec: actualCodec,
-			imageFormat,
-			crf,
-			envVariables,
-			pixelFormat,
-			proResProfile,
-			quality,
-			maxRetries,
-			privacy,
-			logLevel: logLevel ?? 'info',
-			frameRange: frameRange ?? null,
-			outName: outName ?? null,
-			timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
-			chromiumOptions: chromiumOptions ?? {},
-			scale: scale ?? 1,
-			everyNthFrame: everyNthFrame ?? 1,
-			numberOfGifLoops: numberOfGifLoops ?? 0,
-			concurrencyPerLambda: concurrencyPerLambda ?? 1,
-			downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
-		},
-		region,
-	});
-	return {
-		renderId: res.renderId,
-		bucketName: res.bucketName,
-	};
+	try {
+		const res = await callLambda({
+			functionName,
+			type: LambdaRoutines.start,
+			payload: {
+				framesPerLambda: framesPerLambda ?? null,
+				composition,
+				serveUrl: realServeUrl,
+				inputProps,
+				codec: actualCodec,
+				imageFormat,
+				crf,
+				envVariables,
+				pixelFormat,
+				proResProfile,
+				quality,
+				maxRetries,
+				privacy,
+				logLevel: logLevel ?? 'info',
+				frameRange: frameRange ?? null,
+				outName: outName ?? null,
+				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
+				chromiumOptions: chromiumOptions ?? {},
+				scale: scale ?? 1,
+				everyNthFrame: everyNthFrame ?? 1,
+				numberOfGifLoops: numberOfGifLoops ?? 0,
+				concurrencyPerLambda: concurrencyPerLambda ?? 1,
+				downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
+			},
+			region,
+		});
+		return {
+			renderId: res.renderId,
+			bucketName: res.bucketName,
+		};
+	} catch (err) {
+		if ((err as Error).stack?.includes('UnrecognizedClientException')) {
+			throw new Error(
+				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception'
+			);
+		}
+
+		throw err;
+	}
 };
 
 /**
