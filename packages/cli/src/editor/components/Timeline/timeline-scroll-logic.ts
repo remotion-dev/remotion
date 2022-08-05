@@ -132,7 +132,7 @@ export const ensureFrameIsInViewport = ({
 	if (direction === 'fit-right') {
 		const currentFrameRight = calculateFrameWhileScrollingRight({
 			durationInFrames,
-			scrollLeft: scrollLeft as number,
+			scrollLeft,
 			width,
 		});
 
@@ -229,10 +229,7 @@ export const getFrameIncrementFromWidth = (
 	durationInFrames: number,
 	width: number
 ) => {
-	return (
-		((width as number) - TIMELINE_PADDING * 2) /
-		((durationInFrames as number) - 1)
-	);
+	return (width - TIMELINE_PADDING * 2) / (durationInFrames - 1);
 };
 
 export const getFrameWhileScrollingRight = ({
