@@ -12,7 +12,7 @@ export const canScrollTimelineIntoDirection = () => {
 	return {canScrollRight, canScrollLeft};
 };
 
-export const SCROLL_INCREMENT = 200;
+const SCROLL_INCREMENT = 200;
 
 const calculateFrameWhileScrollingRight = ({
 	durationInFrames,
