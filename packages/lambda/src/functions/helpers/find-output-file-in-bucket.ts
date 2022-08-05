@@ -43,6 +43,11 @@ export const findOutputFileInBucket = async ({
 			return null;
 		}
 
+		if ((err as {name: string}).name === 'UnknownError') {
+			console.log('got unknown error', {expectedOutData});
+			return null;
+		}
+
 		throw err;
 	}
 };
