@@ -19,9 +19,15 @@ _Part of the [`@remotion/lottie`](/docs/lottie) package._
 // @filename: animation.json
 export default {
   v: 1,
+  fr: 0,
+  w: 0,
+  h: 0,
+  op: 0,
 };
 
 // @filename: Animation.tsx
+// @resolveJsonModule
+// @esModuleInterop
 // ---cut---
 import { Lottie } from "@remotion/lottie";
 import animationData from "./animation.json";
