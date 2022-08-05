@@ -8,13 +8,13 @@ const makeKey = (composition: string) => {
 	return `remotion.zoom.${composition}`;
 };
 
-export const persistCurrentZoom = (frame: number) => {
+export const persistCurrentZoom = (zoom: number) => {
 	const currentComposition = getCurrentCompositionFromUrl();
 	if (!currentComposition) {
 		return;
 	}
 
-	localStorage.setItem(makeKey(currentComposition), String(frame));
+	localStorage.setItem(makeKey(currentComposition), String(zoom));
 };
 
 export const getZoomForComposition = (composition: string) => {
