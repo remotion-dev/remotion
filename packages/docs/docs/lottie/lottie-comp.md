@@ -16,8 +16,9 @@ _Part of the [`@remotion/lottie`](/docs/lottie) package._
 ```tsx twoslash title="Animation.tsx"
 // @allowUmdGlobalAccess
 // @resolveJsonModule
+// @allowSyntheticDefaultImports
 // @filename: animation.json
-export default {
+export = {
   v: 1,
   fr: 0,
   w: 0,
@@ -28,6 +29,7 @@ export default {
 // @filename: Animation.tsx
 // @resolveJsonModule
 // @esModuleInterop
+// @allowSyntheticDefaultImports
 // ---cut---
 import { Lottie } from "@remotion/lottie";
 import animationData from "./animation.json";
