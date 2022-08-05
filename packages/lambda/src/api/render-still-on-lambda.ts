@@ -75,34 +75,44 @@ export const renderStillOnLambda = async ({
 	downloadBehavior,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
-	const res = await callLambda({
-		functionName,
-		type: LambdaRoutines.still,
-		payload: {
-			composition,
-			serveUrl: realServeUrl,
-			inputProps,
-			imageFormat,
-			envVariables,
-			quality,
-			maxRetries: maxRetries ?? DEFAULT_MAX_RETRIES,
-			frame: frame ?? 0,
-			privacy,
-			attempt: 1,
-			logLevel: logLevel ?? 'info',
-			outName: outName ?? null,
-			timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
-			chromiumOptions: chromiumOptions ?? {},
-			scale: scale ?? 1,
-			downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
-		},
-		region,
-	});
-	return {
-		estimatedPrice: res.estimatedPrice,
-		url: res.output,
-		sizeInBytes: res.size,
-		bucketName: res.bucketName,
-		renderId: res.renderId,
-	};
+	try {
+		const res = await callLambda({
+			functionName,
+			type: LambdaRoutines.still,
+			payload: {
+				composition,
+				serveUrl: realServeUrl,
+				inputProps,
+				imageFormat,
+				envVariables,
+				quality,
+				maxRetries: maxRetries ?? DEFAULT_MAX_RETRIES,
+				frame: frame ?? 0,
+				privacy,
+				attempt: 1,
+				logLevel: logLevel ?? 'info',
+				outName: outName ?? null,
+				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
+				chromiumOptions: chromiumOptions ?? {},
+				scale: scale ?? 1,
+				downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
+			},
+			region,
+		});
+		return {
+			estimatedPrice: res.estimatedPrice,
+			url: res.output,
+			sizeInBytes: res.size,
+			bucketName: res.bucketName,
+			renderId: res.renderId,
+		};
+	} catch (err) {
+		if ((err as Error).stack?.includes('UnrecognizedClientException')) {
+			throw new Error(
+				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception'
+			);
+		}
+
+		throw err;
+	}
 };
