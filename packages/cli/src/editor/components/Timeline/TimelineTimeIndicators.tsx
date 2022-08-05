@@ -36,11 +36,6 @@ const secondTick: React.CSSProperties = {
 	height: 15,
 };
 
-const frameTick: React.CSSProperties = {
-	...tick,
-	height: 3,
-};
-
 const tickLabel: React.CSSProperties = {
 	fontSize: 12,
 	marginLeft: 8,
@@ -103,7 +98,6 @@ export const TimelineTimePadding: React.FC = () => {
 
 type TimelineTick = {
 	frame: number;
-	left: number;
 	style: React.CSSProperties;
 	showTime: boolean;
 };
@@ -159,19 +153,26 @@ export const TimelineTimeIndicators: React.FC = () => {
 			windowWidth
 		);
 
+		const MIN_SPACING_BETWEEN_TICKS_PX = 5;
+
 		const seconds = Math.floor(video.durationInFrames / video.fps);
 		const secondMarkerEveryNth = Math.ceil(
-			(5 * video.fps) / (frameInterval * video.fps)
+			(MIN_SPACING_BETWEEN_TICKS_PX * video.fps) / (frameInterval * video.fps)
 		);
-		const frameMarkerEveryNth = Math.ceil(5 / frameInterval);
+		const frameMarkerEveryNth = Math.ceil(
+			MIN_SPACING_BETWEEN_TICKS_PX / frameInterval
+		);
 
+		// Big ticks showing for every second
 		const secondTicks: TimelineTick[] = new Array(seconds)
 			.fill(true)
 			.map((_, index) => {
 				return {
 					frame: index * video.fps,
-					left: frameInterval * index * video.fps + TIMELINE_PADDING,
-					style: secondTick,
+					style: {
+						...secondTick,
+						left: frameInterval * index * video.fps + TIMELINE_PADDING,
+					},
 					showTime: index > 0,
 				};
 			})
@@ -182,9 +183,9 @@ export const TimelineTimeIndicators: React.FC = () => {
 			.map((_, index) => {
 				return {
 					frame: index,
-					left: frameInterval * index + TIMELINE_PADDING,
 					style: {
-						...frameTick,
+						...tick,
+						left: frameInterval * index + TIMELINE_PADDING,
 						height:
 							index % video.fps === 0
 								? 10
@@ -196,7 +197,8 @@ export const TimelineTimeIndicators: React.FC = () => {
 				};
 			})
 			.filter((_, idx) => idx % frameMarkerEveryNth === 0);
-		// Merge Deduplicate ticks
+
+		// Merge and deduplicate ticks
 		const hasTicks: number[] = [];
 		return [...secondTicks, ...frameTicks].filter((t) => {
 			const alreadyUsed = hasTicks.find((ht) => ht === t.frame) !== undefined;
@@ -213,13 +215,7 @@ export const TimelineTimeIndicators: React.FC = () => {
 		<div ref={ref} style={style}>
 			{ticks.map((t) => {
 				return (
-					<div
-						key={t.frame}
-						style={{
-							...t.style,
-							left: t.left,
-						}}
-					>
+					<div key={t.frame} style={t.style}>
 						{t.showTime ? (
 							<div style={tickLabel}>{renderFrame(t.frame, video.fps)}</div>
 						) : null}
