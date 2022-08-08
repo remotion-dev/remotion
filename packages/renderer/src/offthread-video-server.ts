@@ -83,6 +83,7 @@ export const startOffthreadVideoServer = ({
 			res.end();
 			return;
 		}
+
 		downloadAsset({src, onDownload, downloadMap})
 			.then((to) => {
 				return extractFrameFromVideo({
