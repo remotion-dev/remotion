@@ -52,7 +52,7 @@ A URL pointing to a Remotion project. Use [`deploySite()`](/docs/lambda/deploysi
 
 ### `composition`
 
-The name of the [composition](/docs/composition) you want to render..
+The `id` of the [composition](/docs/composition) you want to render..
 
 ### `inputProps`
 
