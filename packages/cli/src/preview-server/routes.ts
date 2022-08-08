@@ -73,12 +73,23 @@ const handleProjectInfo = async (
 	response.end(JSON.stringify(data));
 };
 
-const handleFileSource = async (
-	remotionRoot: string,
-	search: string,
-	_: IncomingMessage,
-	response: ServerResponse
-) => {
+const handleFileSource = async ({
+	method,
+	remotionRoot,
+	search,
+	response,
+}: {
+	method: string;
+	remotionRoot: string;
+	search: string;
+	response: ServerResponse;
+}) => {
+	if (method === 'OPTIONS') {
+		response.writeHead(200);
+		response.end();
+		return;
+	}
+
 	if (!search.startsWith('?')) {
 		throw new Error('query must start with ?');
 	}
@@ -100,6 +111,11 @@ const handleOpenInEditor = async (
 	req: IncomingMessage,
 	res: ServerResponse
 ) => {
+	if (req.method === 'OPTIONS') {
+		res.statusCode = 200;
+		res.end();
+	}
+
 	try {
 		const b = await new Promise<string>((_resolve) => {
 			let data = '';
@@ -165,6 +181,7 @@ export const handleRoutes = ({
 	liveEventsServer,
 	getCurrentInputProps,
 	remotionRoot,
+	method,
 }: {
 	hash: string;
 	hashPrefix: string;
@@ -173,6 +190,7 @@ export const handleRoutes = ({
 	liveEventsServer: LiveEventsServer;
 	getCurrentInputProps: () => object;
 	remotionRoot: string;
+	method: string;
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -185,7 +203,12 @@ export const handleRoutes = ({
 	}
 
 	if (url.pathname === '/api/file-source') {
-		return handleFileSource(remotionRoot, url.search, request, response);
+		return handleFileSource({
+			remotionRoot,
+			search: url.search,
+			method,
+			response,
+		});
 	}
 
 	if (url.pathname === '/api/open-in-editor') {
