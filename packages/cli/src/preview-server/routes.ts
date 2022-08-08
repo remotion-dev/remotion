@@ -181,7 +181,6 @@ export const handleRoutes = ({
 	liveEventsServer,
 	getCurrentInputProps,
 	remotionRoot,
-	method,
 }: {
 	hash: string;
 	hashPrefix: string;
@@ -190,7 +189,6 @@ export const handleRoutes = ({
 	liveEventsServer: LiveEventsServer;
 	getCurrentInputProps: () => object;
 	remotionRoot: string;
-	method: string;
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -206,7 +204,7 @@ export const handleRoutes = ({
 		return handleFileSource({
 			remotionRoot,
 			search: url.search,
-			method,
+			method: request.method as string,
 			response,
 		});
 	}
