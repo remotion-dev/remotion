@@ -28,4 +28,11 @@ export const handleCommonError = async (err: Error) => {
 			'💡 Get help for this issue at https://remotion.dev/docs/enametoolong'
 		);
 	}
+
+	if (err.message.includes('The bucket does not allow ACLs')) {
+		Log.info();
+		Log.info(
+			'💡 Get help for this issue at https://remotion.dev/docs/lambda/troubleshooting/bucket-disallows-acl'
+		);
+	}
 };
