@@ -48,6 +48,16 @@ export const presignUrl = async ({
 				return null;
 			}
 
+			if (
+				(err as Error).message === 'UnknownError' ||
+				(err as {$metadata: {httpStatusCode: number}}).$metadata
+					.httpStatusCode === 403
+			) {
+				throw new Error(
+					`Unable to access item "${objectKey}" from bucket "${bucketName}". You must have permission for both "s3:GetObject" and "s3:ListBucket" actions.`
+				);
+			}
+
 			throw err;
 		}
 	}

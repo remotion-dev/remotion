@@ -1,3 +1,4 @@
+import {chalk} from './chalk';
 import {Log} from './log';
 import {printError} from './print-error';
 
@@ -26,6 +27,15 @@ export const handleCommonError = async (err: Error) => {
 		Log.info();
 		Log.info(
 			'💡 Get help for this issue at https://remotion.dev/docs/enametoolong'
+		);
+	}
+
+	if (err.message.includes('The bucket does not allow ACLs')) {
+		Log.info();
+		Log.info(
+			chalk.green(
+				'💡 Fix this issue https://remotion.dev/docs/lambda/troubleshooting/bucket-disallows-acl'
+			)
 		);
 	}
 };
