@@ -74,6 +74,15 @@ export const startOffthreadVideoServer = ({
 			`image/${imageFormat === 'jpeg' ? 'jpg' : 'png'}`
 		);
 
+		if (req.method === 'OPTIONS') {
+			res.statusCode = 200;
+			if (req.headers['access-control-request-private-network']) {
+				res.setHeader('Access-Control-Allow-Private-Network', 'true');
+			}
+
+			res.end();
+			return;
+		}
 		downloadAsset({src, onDownload, downloadMap})
 			.then((to) => {
 				return extractFrameFromVideo({
