@@ -65,6 +65,7 @@ module.exports = {
         "lambda/troubleshooting/permissions",
         "lambda/troubleshooting/rate-limit",
         "lambda/troubleshooting/unrecognizedclientexception",
+        "lambda/troubleshooting/bucket-disallows-acl",
       ],
     },
     "lambda/changelog",
