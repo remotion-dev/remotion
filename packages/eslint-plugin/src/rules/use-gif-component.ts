@@ -9,8 +9,9 @@ type Options = [];
 type MessageIds = "UseGifComponent";
 
 const UseGifComponent = [
-  "Use the <Gif> component for animated GIFs instead.",
-  "See: https://www.remotion.dev/docs/gif",
+  "Use the <Gif> component animated GIFs.",
+  "See: https://www.remotion.dev/docs/gif.",
+  "Ignore this message if this is a non-animated GIF.",
 ].join("\n");
 
 export default createRule<Options, MessageIds>({
