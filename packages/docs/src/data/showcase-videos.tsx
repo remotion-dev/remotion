@@ -1104,11 +1104,11 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "video",
-	url: "https://bardwaj.me/remotion/neenaadena/",
+	url: "https://portfolio-varunpbardwaj.vercel.app/remotion/neenaadena/",
       },
     ],
     author: {
-      "url": "https://bardwaj.me/",
+      "url": "https://portfolio-varunpbardwaj.vercel.app",
       "name": "Varun Bardwaj"
     }
 },
