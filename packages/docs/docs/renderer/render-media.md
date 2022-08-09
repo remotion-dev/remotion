@@ -134,11 +134,11 @@ _boolean - optional - available since v3.2.1_
 
 If set to true, no audio is being rendered.
 
-### `dropAudioIfSilent`
+### `enforceAudioTrack`
 
 _boolean - optional - available since v3.2.1_
 
-Doesn't render an audio track if it would be silent. Set this option to `false` to always render a silent audio track.
+Render a silent audio track if there wouldn't be any otherwise.
 
 ### `puppeteerInstance`
 

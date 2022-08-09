@@ -167,7 +167,7 @@ export type ConfigType = {
 		 * Don't render an audio track if it would be silent.
 		 * Default: true
 		 */
-		readonly setDropAudioIfSilent: (dropAudioIfSilent: boolean) => void;
+		readonly setEnforceAudioTrack: (enforceAudioTrack: boolean) => void;
 	};
 	readonly Output: {
 		/**

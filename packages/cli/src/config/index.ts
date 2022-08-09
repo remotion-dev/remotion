@@ -53,9 +53,9 @@ import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
 import {setCrf} from './crf';
 import {
-	getDropAudioIfSilent,
-	setDropAudioIfSilent,
-} from './drop-silent-audio-if-silent';
+	getEnforceAudioTrack,
+	setEnforceAudioTrack,
+} from './enforce-audio-track';
 import {setDotEnvLocation} from './env-file';
 import {setEveryNthFrame} from './every-nth-frame';
 import {setFfmpegExecutable, setFfprobeExecutable} from './ffmpeg-executable';
@@ -110,6 +110,7 @@ export const Config: ConfigType = {
 		setEveryNthFrame,
 		setNumberOfGifLoops,
 		setMuted,
+		setEnforceAudioTrack,
 	},
 	Output: {
 		setOutputLocation,
@@ -163,8 +164,8 @@ export const ConfigInternals = {
 	defaultOverrideFunction,
 	setMuted,
 	getMuted,
-	getDropAudioIfSilent,
-	setDropAudioIfSilent,
+	getEnforceAudioTrack,
+	setEnforceAudioTrack,
 };
 
 export const overrideRemotion = () => {

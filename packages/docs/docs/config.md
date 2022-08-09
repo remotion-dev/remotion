@@ -248,19 +248,19 @@ Config.Rendering.setMuted(true);
 
 The [command line flag](/docs/cli/render#--muted) `--muted` will take precedence over this option.
 
-### setDropAudioIfSilent()
+### setEnforceAudioTrack()
 
 _Available from Version 3.2.1._
 
-Doesn't render an audio track if it would be silent. Default `true`.
+Render a silent audio track if there would be none otherwise. Default `false`.
 
 ```ts twoslash
 import { Config } from "remotion";
 // ---cut---
-Config.Rendering.setDropAudioIfSilent(false);
+Config.Rendering.setEnforceAudioTrack(true);
 ```
 
-The [command line flag](/docs/cli/render#--drop-audio-if-silent) `--drop-audio-if-silent` will take precedence over this option.
+The [command line flag](/docs/cli/render#--enforce-audio-track) `--enforce-audio-track` will take precedence over this option.
 
 ### setFrameRange()
 
