@@ -28,7 +28,6 @@ export const SkiaCanvas = ({
 				},
 				style,
 			],
-			mode: 'continuous',
 			...otherProps,
 		};
 	}, [height, otherProps, style, width]);
