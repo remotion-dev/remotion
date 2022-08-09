@@ -44,8 +44,7 @@ export type RenderMediaOnLambdaInput = {
 	numberOfGifLoops?: number | null;
 	concurrencyPerLambda?: number;
 	downloadBehavior?: DownloadBehavior | null;
-	// TODO: Make optional
-	muted: boolean;
+	muted?: boolean;
 };
 
 export type RenderMediaOnLambdaOutput = {

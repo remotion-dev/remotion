@@ -68,8 +68,7 @@ export type StitcherOptions = {
 		preEncodedFileLocation: string | null;
 		imageFormat: ImageFormat;
 	};
-	// TODO: Make optional
-	muted: boolean;
+	muted?: boolean;
 };
 
 type ReturnType = {
