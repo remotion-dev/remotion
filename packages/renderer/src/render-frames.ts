@@ -83,6 +83,7 @@ type RenderFramesOptions = {
 	 * @deprecated Only for Remotion internal usage
 	 */
 	downloadMap?: DownloadMap;
+	disableAudio?: boolean;
 } & ConfigOrComposition &
 	ServeUrlOrWebpackBundle;
 
@@ -128,6 +129,7 @@ const innerRenderFrames = ({
 	proxyPort,
 	cancelSignal,
 	downloadMap,
+	disableAudio,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -194,6 +196,8 @@ const innerRenderFrames = ({
 			timeoutInMilliseconds,
 			proxyPort,
 			retriesRemaining: 2,
+			audioEnabled: !disableAudio,
+			videoEnabled: imageFormat !== 'none',
 		});
 
 		await puppeteerEvaluateWithCatch({
