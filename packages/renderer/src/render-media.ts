@@ -319,7 +319,7 @@ export const renderMedia = ({
 				port,
 				cancelSignal: cancelRenderFrames.cancelSignal,
 				downloadMap,
-				disableAudio,
+				muted: disableAudio,
 			});
 
 			return renderFramesProc;
