@@ -15,7 +15,7 @@ test('Need to pass valid metadata', () => {
 			},
 			frame: 0,
 			output: '/file/output.png',
-			serveUrl: 'https://silly-crostata-c4c336.netlify.app/',
+			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
 			downloadMap: makeDownloadMap(),
 		})
 	).rejects.toThrow(/not be NaN, but is NaN/);
@@ -34,7 +34,7 @@ test('Need to pass valid metadata', () => {
 			},
 			frame: 200,
 			output: '/file/output.png',
-			serveUrl: 'https://silly-crostata-c4c336.netlify.app/',
+			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
 			downloadMap: makeDownloadMap(),
 		})
 	).rejects.toThrow(
@@ -57,7 +57,7 @@ test('Catches invalid image format', () => {
 			imageFormat: 'jjj',
 			frame: 200,
 			output: '/file/output.png',
-			serveUrl: 'https://silly-crostata-c4c336.netlify.app/',
+			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
 		})
 	).rejects.toThrow(/Image format should be either "png" or "jpeg"/);
 });
