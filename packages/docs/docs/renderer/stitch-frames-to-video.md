@@ -105,7 +105,7 @@ Set the looping behavior. This option may only be set when rendering GIFs. [See 
 
 _optional, available since v3.2.1_
 
-Disables audio output. This option may only be set in combination with a video codec and should also be passed to [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video).
+Disables audio output. This option may only be set in combination with a video codec and should also be passed to [`renderFrames()`](/docs/renderer/render-frames).
 
 ### `verbose`
 
