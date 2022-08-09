@@ -44,6 +44,8 @@ export const getAssetsForMarkup = async (
 ) => {
 	const collectedAssets: TAsset[][] = [];
 	const Wrapped = () => {
+		window.remotion_audioEnabled = true;
+		window.remotion_videoEnabled = true;
 		const [assets, setAssets] = useState<TAsset[]>([]);
 
 		const registerAsset = useCallback((asset: TAsset) => {

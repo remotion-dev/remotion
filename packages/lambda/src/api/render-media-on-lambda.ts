@@ -44,6 +44,7 @@ export type RenderMediaOnLambdaInput = {
 	numberOfGifLoops?: number | null;
 	concurrencyPerLambda?: number;
 	downloadBehavior?: DownloadBehavior | null;
+	muted?: boolean;
 };
 
 export type RenderMediaOnLambdaOutput = {
@@ -96,6 +97,7 @@ export const renderMediaOnLambda = async ({
 	everyNthFrame,
 	concurrencyPerLambda,
 	downloadBehavior,
+	muted,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
@@ -130,6 +132,7 @@ export const renderMediaOnLambda = async ({
 				numberOfGifLoops: numberOfGifLoops ?? 0,
 				concurrencyPerLambda: concurrencyPerLambda ?? 1,
 				downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
+				muted: muted ?? false,
 			},
 			region,
 		});

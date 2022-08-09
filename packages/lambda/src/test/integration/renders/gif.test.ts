@@ -31,8 +31,7 @@ test('Should make a distributed GIF', async () => {
 	const res = await handler(
 		{
 			type: LambdaRoutines.start,
-			serveUrl:
-				'https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/',
+			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
 			chromiumOptions: {},
 			codec: 'gif',
 			composition: 'framer',
@@ -56,6 +55,7 @@ test('Should make a distributed GIF', async () => {
 			everyNthFrame: 2,
 			concurrencyPerLambda: 1,
 			downloadBehavior: {type: 'play-in-browser'},
+			muted: false,
 		},
 		extraContext
 	);

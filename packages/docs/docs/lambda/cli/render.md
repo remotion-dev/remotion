@@ -110,6 +110,12 @@ By default, each Lambda function renders with concurrency 1 (one open browser ta
 
 [Value between 0 and 100 for JPEG rendering quality](/docs/config#setquality). Doesn't work when PNG frames are rendered.
 
+### `--muted`
+
+_available from v3.2.1_
+
+[Disables audio output.](/docs/config#setmuted) This option may only be used when rendering a video.
+
 ### `--codec`
 
 [`h264` or `h265` or `png` or `vp8` or `mp3` or `aac` or `wav` or `prores`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264`.
