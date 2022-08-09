@@ -137,9 +137,11 @@ export const setPropsAndEnv = async ({
 		page,
 	});
 
-	if (siteVersion !== '3') {
+	const requiredVersion = '4';
+
+	if (siteVersion !== requiredVersion) {
 		throw new Error(
-			`Incompatible site: When visiting ${urlToVisit}, a bundle was found, but one that is not compatible with this version of Remotion. The bundle format changed in version 3.0.11. To resolve this error, please bundle and deploy again.`
+			`Incompatible site: When visiting ${urlToVisit}, a bundle was found, but one that is not compatible with this version of Remotion. Found version: ${siteVersion} - Required version: ${requiredVersion}. To resolve this error, please bundle and deploy again.`
 		);
 	}
 };
