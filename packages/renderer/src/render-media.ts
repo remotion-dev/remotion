@@ -87,8 +87,7 @@ export type RenderMediaOptions = {
 	 * @deprecated Only for Remotion internal usage
 	 */
 	downloadMap?: DownloadMap;
-	// TODO: Make optional
-	muted: boolean;
+	muted?: boolean;
 } & ServeUrlOrWebpackBundle;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
