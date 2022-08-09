@@ -364,6 +364,7 @@ export const renderMedia = ({
 					verbose: options.verbose,
 					dir: outputDir ?? undefined,
 					cancelSignal: cancelStitcher.cancelSignal,
+					muted: disableAudio,
 				}),
 				stitchStart,
 			]);

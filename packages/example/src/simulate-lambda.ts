@@ -32,6 +32,7 @@ const start = async () => {
 			numberOfGifLoops: null,
 			everyNthFrame: 1,
 			verbose: false,
+			muted: true,
 		});
 		console.log({i});
 	}
