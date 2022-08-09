@@ -163,6 +163,11 @@ export type ConfigType = {
 		 * Default: false
 		 */
 		readonly setMuted: (muted: boolean) => void;
+		/**
+		 * Don't render an audio track if it would be silent.
+		 * Default: true
+		 */
+		readonly setDropAudioIfSilent: (dropAudioIfSilent: boolean) => void;
 	};
 	readonly Output: {
 		/**

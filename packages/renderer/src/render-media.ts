@@ -88,6 +88,7 @@ export type RenderMediaOptions = {
 	 */
 	downloadMap?: DownloadMap;
 	muted?: boolean;
+	dropAudioIfSilent?: boolean;
 } & ServeUrlOrWebpackBundle;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -126,6 +127,7 @@ export const renderMedia = ({
 	port,
 	cancelSignal,
 	muted,
+	dropAudioIfSilent,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
 	validateQuality(quality);
@@ -364,6 +366,7 @@ export const renderMedia = ({
 					dir: outputDir ?? undefined,
 					cancelSignal: cancelStitcher.cancelSignal,
 					muted: disableAudio,
+					dropAudioIfSilent,
 				}),
 				stitchStart,
 			]);

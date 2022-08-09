@@ -93,6 +93,12 @@ _available from v3.2.1_
 
 [Disables audio output.](/docs/config#setmuted) This option may only be used when rendering a video.
 
+### `--drop-audio-if-silent`
+
+_available from v3.2.1_
+
+[Don't render an audio track if it would be silent.](/docs/config#setdropaudioifsilent). Default is true, set `--drop-audio-if-silent=false` to render a silent audio track.
+
 ### `--number-of-gif-loops`
 
 _available from v3.1_

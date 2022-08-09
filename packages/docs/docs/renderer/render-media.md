@@ -134,6 +134,12 @@ _boolean - optional - available since v3.2.1_
 
 If set to true, no audio is being rendered.
 
+### `dropAudioIfSilent`
+
+_boolean - optional - available since v3.2.1_
+
+Doesn't render an audio track if it would be silent. Set this option to `false` to always render a silent audio track.
+
 ### `puppeteerInstance`
 
 _puppeteer.Browser - optional_

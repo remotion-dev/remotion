@@ -52,6 +52,10 @@ import {setCodec, setOutputFormat} from './codec';
 import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
 import {setCrf} from './crf';
+import {
+	getDropAudioIfSilent,
+	setDropAudioIfSilent,
+} from './drop-silent-audio-if-silent';
 import {setDotEnvLocation} from './env-file';
 import {setEveryNthFrame} from './every-nth-frame';
 import {setFfmpegExecutable, setFfprobeExecutable} from './ffmpeg-executable';
@@ -159,6 +163,8 @@ export const ConfigInternals = {
 	defaultOverrideFunction,
 	setMuted,
 	getMuted,
+	getDropAudioIfSilent,
+	setDropAudioIfSilent,
 };
 
 export const overrideRemotion = () => {

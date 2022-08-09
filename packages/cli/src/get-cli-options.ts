@@ -274,5 +274,6 @@ export const getCliOptions = async (options: {
 		overwrite,
 		port: port ?? null,
 		muted: ConfigInternals.getMuted(),
+		dropAudioIfSilent: ConfigInternals.getDropAudioIfSilent(),
 	};
 };
