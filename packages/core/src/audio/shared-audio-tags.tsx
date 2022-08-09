@@ -90,7 +90,9 @@ export const SharedAudioContextProvider: React.FC<{
 			const data = audios.current?.find((a) => a.id === id);
 			const {current} = ref;
 			if (!current) {
-				throw new Error('Audio has no ref ' + id);
+				// Whole player has been unmounted, the refs don't exist anymore.
+				// It is not an error anymore though
+				return;
 			}
 
 			if (data === undefined) {
