@@ -99,7 +99,13 @@ const onDownload = (src: string) => {
 
 _optional, available since v3.1_
 
-[Set the looping behavior.](/docs/config#setnumberofgifloops) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
+Set the looping behavior. This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
+
+### `muted`
+
+_optional, available since v3.2.1_
+
+Disables audio output. This option may only be set in combination with a video codec and should also be passed to [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video).
 
 ### `verbose`
 

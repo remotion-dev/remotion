@@ -234,6 +234,20 @@ Config.Rendering.setScale(2);
 
 The [command line flag](/docs/cli/render#--scale) `--scale` will take precedence over this option.
 
+### setMuted()
+
+_Available from Version 3.2.1._
+
+Disables audio output. Default `false`.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Rendering.setMuted(true);
+```
+
+The [command line flag](/docs/cli/render#--muted) `--muted` will take precedence over this option.
+
 ### setFrameRange()
 
 _Available from Version 2.0._
