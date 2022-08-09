@@ -69,7 +69,7 @@ export type StitcherOptions = {
 		imageFormat: ImageFormat;
 	};
 	muted?: boolean;
-	dropAudioIfSilent?: boolean;
+	enforceAudioTrack?: boolean;
 };
 
 type ReturnType = {
@@ -203,7 +203,7 @@ export const spawnFfmpeg = async (
 	const shouldRenderAudio =
 		mediaSupport.audio &&
 		(options.assetsInfo.assets.flat(1).length > 0 ||
-			!options.dropAudioIfSilent) &&
+			options.enforceAudioTrack) &&
 		!options.muted;
 	const shouldRenderVideo = mediaSupport.video;
 

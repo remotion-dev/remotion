@@ -77,7 +77,7 @@ export const render = async (remotionRoot: string) => {
 		everyNthFrame,
 		puppeteerTimeout,
 		muted,
-		dropAudioIfSilent,
+		enforceAudioTrack,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -332,7 +332,7 @@ export const render = async (remotionRoot: string) => {
 		),
 		downloadMap,
 		muted,
-		dropAudioIfSilent,
+		enforceAudioTrack,
 	});
 
 	Log.info();
