@@ -158,6 +158,11 @@ export type ConfigType = {
 		 * Default: null (means GIF will loop infinite)
 		 */
 		readonly setNumberOfGifLoops: (newLoop: Loop) => void;
+		/**
+		 * Disable audio output.
+		 * Default: false
+		 */
+		readonly setMuted: (muted: boolean) => void;
 	};
 	readonly Output: {
 		/**

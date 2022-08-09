@@ -60,6 +60,7 @@ import {setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import {setLogLevel} from './log';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
+import {getMuted, setMuted} from './muted';
 import {setNumberOfGifLoops} from './number-of-gif-loops';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
@@ -104,6 +105,7 @@ export const Config: ConfigType = {
 		setScale,
 		setEveryNthFrame,
 		setNumberOfGifLoops,
+		setMuted,
 	},
 	Output: {
 		setOutputLocation,
@@ -155,6 +157,8 @@ export const ConfigInternals = {
 	setStillFrame,
 	getMaxTimelineTracks,
 	defaultOverrideFunction,
+	setMuted,
+	getMuted,
 };
 
 export const overrideRemotion = () => {

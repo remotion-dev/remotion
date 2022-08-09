@@ -200,6 +200,7 @@ export type LambdaPayloads = {
 		numberOfGifLoops: number | null;
 		concurrencyPerLambda: number;
 		downloadBehavior: DownloadBehavior;
+		muted: boolean;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -228,6 +229,7 @@ export type LambdaPayloads = {
 		numberOfGifLoops: number | null;
 		concurrencyPerLambda: number;
 		downloadBehavior: DownloadBehavior;
+		muted: boolean;
 	};
 	status: {
 		type: LambdaRoutines.status;
@@ -263,6 +265,7 @@ export type LambdaPayloads = {
 		chromiumOptions: ChromiumOptions;
 		scale: number;
 		everyNthFrame: number;
+		muted: boolean;
 	};
 	still: {
 		type: LambdaRoutines.still;

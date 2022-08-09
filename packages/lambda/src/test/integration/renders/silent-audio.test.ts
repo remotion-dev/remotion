@@ -56,6 +56,7 @@ test('Should add silent audio if there is no audio', async () => {
 			downloadBehavior: {
 				type: 'play-in-browser',
 			},
+			muted: false,
 		},
 		extraContext
 	);

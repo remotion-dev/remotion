@@ -54,6 +54,7 @@ test('Should be able to render to another bucket', async () => {
 			downloadBehavior: {
 				type: 'play-in-browser',
 			},
+			muted: false,
 		},
 		extraContext
 	);

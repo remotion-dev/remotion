@@ -329,6 +329,7 @@ export const render = async (remotionRoot: string) => {
 			'verbose'
 		),
 		downloadMap,
+		muted: parsedCli.muted,
 	});
 
 	Log.info();

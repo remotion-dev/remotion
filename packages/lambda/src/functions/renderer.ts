@@ -165,6 +165,7 @@ const renderHandler = async (
 		everyNthFrame: params.everyNthFrame,
 		numberOfGifLoops: null,
 		downloadMap,
+		muted: params.muted,
 	});
 
 	const endRendered = Date.now();

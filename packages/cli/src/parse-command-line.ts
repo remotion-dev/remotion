@@ -47,6 +47,7 @@ export type CommandLineOptions = {
 	port: number;
 	frame: string | number;
 	['disable-headless']: boolean;
+	muted: boolean;
 	gl: OpenGlRenderer;
 };
 
@@ -57,6 +58,8 @@ export const BooleanFlags = [
 	'help',
 	'quiet',
 	'q',
+	'muted',
+
 	// Lambda flags
 	'force',
 	'disable-chunk-optimization',
@@ -212,6 +215,10 @@ export const parseCommandLine = (
 
 	if (typeof parsedCli.port !== 'undefined') {
 		Config.Bundling.setPort(parsedCli.port);
+	}
+
+	if (typeof parsedCli.muted !== 'undefined') {
+		Config.Rendering.setMuted(parsedCli.muted);
 	}
 };
 
