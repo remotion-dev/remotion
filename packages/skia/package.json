@@ -24,14 +24,14 @@
 		"remotion": "3.1.11"
 	},
 	"peerDependencies": {
-		"@shopify/react-native-skia": "^0.1.136",
+		"@shopify/react-native-skia": "^0.1.138",
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0",
 		"remotion": "3.1.11"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
-		"@shopify/react-native-skia": "^0.1.136",
+		"@shopify/react-native-skia": "^0.1.138",
 		"@types/react": "18.0.1",
 		"@types/react-native": "^0.69.2",
 		"eslint": "8.13.0",
