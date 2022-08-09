@@ -48,6 +48,7 @@ export type CommandLineOptions = {
 	frame: string | number;
 	['disable-headless']: boolean;
 	muted: boolean;
+	['drop-audio-if-silent']: boolean;
 	gl: OpenGlRenderer;
 };
 
@@ -59,7 +60,7 @@ export const BooleanFlags = [
 	'quiet',
 	'q',
 	'muted',
-
+	'drop-audio-if-silent',
 	// Lambda flags
 	'force',
 	'disable-chunk-optimization',
@@ -219,6 +220,10 @@ export const parseCommandLine = (
 
 	if (typeof parsedCli.muted !== 'undefined') {
 		Config.Rendering.setMuted(parsedCli.muted);
+	}
+
+	if (typeof parsedCli['drop-audio-if-silent'] !== 'undefined') {
+		Config.Rendering.setDropAudioIfSilent(parsedCli['drop-audio-if-silent']);
 	}
 };
 
