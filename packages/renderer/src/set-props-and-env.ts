@@ -128,7 +128,7 @@ export const setPropsAndEnv = async ({
 		);
 	}
 
-	const siteVersion = await puppeteerEvaluateWithCatch<'3'>({
+	const siteVersion = await puppeteerEvaluateWithCatch<'4'>({
 		pageFunction: () => {
 			return window.siteVersion;
 		},
