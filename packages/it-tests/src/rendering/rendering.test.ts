@@ -278,8 +278,6 @@ test("Should render a video with GIFs", async () => {
   const data = info.stderr;
   expect(data).toContain("Video: h264");
 
-  console.log(data);
-
   expect(data).toContain("Duration: 00:00:01.60");
 
   fs.unlinkSync(outputPath);
