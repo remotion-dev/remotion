@@ -13,6 +13,8 @@ export const setPropsAndEnv = async ({
 	timeoutInMilliseconds,
 	proxyPort,
 	retriesRemaining,
+	audioEnabled,
+	videoEnabled,
 }: {
 	inputProps: unknown;
 	envVariables: Record<string, string> | undefined;
@@ -22,6 +24,8 @@ export const setPropsAndEnv = async ({
 	timeoutInMilliseconds: number | undefined;
 	proxyPort: number;
 	retriesRemaining: number;
+	audioEnabled: boolean;
+	videoEnabled: boolean;
 }): Promise<void> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	const actualTimeout = timeoutInMilliseconds ?? DEFAULT_TIMEOUT;
@@ -30,44 +34,37 @@ export const setPropsAndEnv = async ({
 
 	const urlToVisit = normalizeServeUrl(serveUrl);
 
-	await page.evaluateOnNewDocument(
-		(timeout: number) => {
-			window.remotion_puppeteerTimeout = timeout;
-		},
-		[actualTimeout]
-	);
+	await page.evaluateOnNewDocument((timeout: number) => {
+		window.remotion_puppeteerTimeout = timeout;
+	}, actualTimeout);
 
 	if (inputProps) {
-		await page.evaluateOnNewDocument(
-			(input: string) => {
-				window.remotion_inputProps = input;
-			},
-			[JSON.stringify(inputProps)]
-		);
+		await page.evaluateOnNewDocument((input: string) => {
+			window.remotion_inputProps = input;
+		}, JSON.stringify(inputProps));
 	}
 
 	if (envVariables) {
-		await page.evaluateOnNewDocument(
-			(input: string) => {
-				window.remotion_envVariables = input;
-			},
-			[JSON.stringify(envVariables)]
-		);
+		await page.evaluateOnNewDocument((input: string) => {
+			window.remotion_envVariables = input;
+		}, JSON.stringify(envVariables));
 	}
 
-	await page.evaluateOnNewDocument(
-		(key: number) => {
-			window.remotion_initialFrame = key;
-		},
-		[initialFrame]
-	);
+	await page.evaluateOnNewDocument((key: number) => {
+		window.remotion_initialFrame = key;
+	}, initialFrame);
 
-	await page.evaluateOnNewDocument(
-		(port: number) => {
-			window.remotion_proxyPort = port;
-		},
-		[proxyPort]
-	);
+	await page.evaluateOnNewDocument((port: number) => {
+		window.remotion_proxyPort = port;
+	}, proxyPort);
+
+	await page.evaluateOnNewDocument((enabled: boolean) => {
+		window.remotion_audioEnabled = enabled;
+	}, audioEnabled);
+
+	await page.evaluateOnNewDocument((enabled: boolean) => {
+		window.remotion_videoEnabled = enabled;
+	}, videoEnabled);
 
 	const pageRes = await page.goto(urlToVisit);
 
@@ -95,6 +92,8 @@ export const setPropsAndEnv = async ({
 			retriesRemaining: retriesRemaining - 1,
 			serveUrl,
 			timeoutInMilliseconds,
+			audioEnabled,
+			videoEnabled,
 		});
 	}
 
