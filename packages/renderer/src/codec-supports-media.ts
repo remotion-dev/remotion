@@ -1,6 +1,6 @@
 import type {Codec} from './codec';
 
-export type MediaSupport = {
+type MediaSupport = {
 	video: boolean;
 	audio: boolean;
 };
