@@ -58,6 +58,7 @@ test('Should make a transparent video', async () => {
 			downloadBehavior: {
 				type: 'play-in-browser',
 			},
+			muted: false,
 		},
 		extraContext
 	);
