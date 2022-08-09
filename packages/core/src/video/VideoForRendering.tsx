@@ -73,6 +73,10 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
+		if (!window.remotion_audioEnabled) {
+			return;
+		}
+
 		registerAsset({
 			type: 'video',
 			src: getAbsoluteSrc(props.src),
@@ -101,6 +105,10 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	});
 
 	useEffect(() => {
+		if (!window.remotion_videoEnabled) {
+			return;
+		}
+
 		const {current} = videoRef;
 		if (!current) {
 			return;
