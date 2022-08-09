@@ -86,6 +86,10 @@ Audio codecs `mp3`, `aac` and `wav` are also supported.
 
 See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
 
+### `--muted`
+
+Disables audio output. See also [`renderMedia() -> muted`](/docs/renderer/render-media#muted).
+
 ### `imageFormat`
 
 See [`renderMedia() -> imageFormat`](/docs/renderer/render-media#imageformat).

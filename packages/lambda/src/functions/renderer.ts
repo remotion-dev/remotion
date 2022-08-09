@@ -156,7 +156,6 @@ const renderHandler = async (
 			console.log('Downloading', src);
 			return () => undefined;
 		},
-
 		overwrite: false,
 		chromiumOptions: params.chromiumOptions,
 		scale: params.scale,
@@ -165,11 +164,11 @@ const renderHandler = async (
 		everyNthFrame: params.everyNthFrame,
 		numberOfGifLoops: null,
 		downloadMap,
+		muted: params.muted,
+		enforceAudioTrack: true,
 	});
 
 	const endRendered = Date.now();
-
-	console.log('Adding silent audio, chunk', params.chunk);
 
 	const condensedTimingData: ChunkTimingData = {
 		...chunkTimingData,

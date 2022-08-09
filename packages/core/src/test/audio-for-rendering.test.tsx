@@ -29,6 +29,7 @@ describe('Register and unregister asset', () => {
 	function createMockContext(): MockCompositionManagerContext {
 		const registerAsset = vitest.fn();
 		const unregisterAsset = vitest.fn();
+		window.remotion_audioEnabled = true;
 		const MockProvider: React.FC<{
 			children: React.ReactNode;
 		}> = ({children}) => {
