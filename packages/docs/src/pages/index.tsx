@@ -52,7 +52,6 @@ const NewLanding: React.FC = () => {
           }}
         >
           <div style={clone}>Get started using a template:</div>
-
           <div className={styles.content}>
             <ChooseTemplate />
           </div>
