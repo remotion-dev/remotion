@@ -68,6 +68,8 @@ export type StitcherOptions = {
 		preEncodedFileLocation: string | null;
 		imageFormat: ImageFormat;
 	};
+	muted?: boolean;
+	enforceAudioTrack?: boolean;
 };
 
 type ReturnType = {
@@ -198,6 +200,19 @@ export const spawnFfmpeg = async (
 				`out.${getFileExtensionFromCodec(codec, 'final')}`
 		  );
 
+	const shouldRenderAudio =
+		mediaSupport.audio &&
+		(options.assetsInfo.assets.flat(1).length > 0 ||
+			options.enforceAudioTrack) &&
+		!options.muted;
+	const shouldRenderVideo = mediaSupport.video;
+
+	if (!shouldRenderAudio && !shouldRenderVideo) {
+		throw new Error(
+			'The output format has neither audio nor video. This can happen if you are rendering an audio codec and the output file has no audio or the muted flag was passed.'
+		);
+	}
+
 	if (options.verbose) {
 		console.log(
 			'[verbose] ffmpeg',
@@ -211,10 +226,8 @@ export const spawnFfmpeg = async (
 		}
 
 		console.log('[verbose] codec', codec);
-		console.log(
-			'[verbose] isAudioOnly',
-			mediaSupport.audio && !mediaSupport.video
-		);
+		console.log('[verbose] shouldRenderAudio', shouldRenderAudio);
+		console.log('[verbose] shouldRenderVideo', shouldRenderVideo);
 		console.log('[verbose] proResProfileName', proResProfileName);
 	}
 
@@ -229,7 +242,7 @@ export const spawnFfmpeg = async (
 		options.onProgress?.(Math.round(totalFrameProgress));
 	};
 
-	const audio = mediaSupport.audio
+	const audio = shouldRenderAudio
 		? await getAssetsData({
 				assets: options.assetsInfo.assets,
 				onDownload: options.onDownload,

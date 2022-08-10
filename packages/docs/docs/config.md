@@ -234,6 +234,34 @@ Config.Rendering.setScale(2);
 
 The [command line flag](/docs/cli/render#--scale) `--scale` will take precedence over this option.
 
+### setMuted()
+
+_Available from Version 3.2.1._
+
+Disables audio output. Default `false`.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Rendering.setMuted(true);
+```
+
+The [command line flag](/docs/cli/render#--muted) `--muted` will take precedence over this option.
+
+### setEnforceAudioTrack()
+
+_Available from Version 3.2.1._
+
+Render a silent audio track if there would be none otherwise. Default `false`.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Rendering.setEnforceAudioTrack(true);
+```
+
+The [command line flag](/docs/cli/render#--enforce-audio-track) `--enforce-audio-track` will take precedence over this option.
+
 ### setFrameRange()
 
 _Available from Version 2.0._

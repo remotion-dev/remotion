@@ -80,11 +80,15 @@ React props that are passed to your composition. You define the shape of the pro
 
 Which codec should be used to encode the video.
 
-Video codecs `h264` and `vp8` are supported, `prores` is supported since `v3.1.11`.
+Video codecs `h264` and `vp8` are supported, `prores` is supported since `v3.2.0`.
 
 Audio codecs `mp3`, `aac` and `wav` are also supported.
 
 See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
+
+### `--muted`
+
+Disables audio output. See also [`renderMedia() -> muted`](/docs/renderer/render-media#muted).
 
 ### `imageFormat`
 

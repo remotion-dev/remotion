@@ -93,6 +93,12 @@ _optional_
 
 Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
 
+### `muted`
+
+_optional, available since v3.2.1_
+
+Disables audio output. This option may only be set in combination with a video codec and should also be passed to [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video).
+
 ### `dumpBrowserLogs?`
 
 _optional_

@@ -12,6 +12,7 @@ import type {BrowserLog} from './browser-log';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import type {Codec} from './codec';
+import {codecSupportsMedia} from './codec-supports-media';
 import {validateSelectedCrfAndCodecCombination} from './crf';
 import {deleteDirectory} from './delete-directory';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
@@ -86,6 +87,8 @@ export type RenderMediaOptions = {
 	 * @deprecated Only for Remotion internal usage
 	 */
 	downloadMap?: DownloadMap;
+	muted?: boolean;
+	enforceAudioTrack?: boolean;
 } & ServeUrlOrWebpackBundle;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -123,6 +126,8 @@ export const renderMedia = ({
 	browserExecutable,
 	port,
 	cancelSignal,
+	muted,
+	enforceAudioTrack,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
 	validateQuality(quality);
@@ -261,6 +266,9 @@ export const renderMedia = ({
 		}
 	};
 
+	const mediaSupport = codecSupportsMedia(codec);
+	const disableAudio = !mediaSupport.audio || muted;
+
 	const happyPath = createPrestitcherIfNecessary()
 		.then(() => {
 			const renderFramesProc = renderFrames({
@@ -312,6 +320,7 @@ export const renderMedia = ({
 				port,
 				cancelSignal: cancelRenderFrames.cancelSignal,
 				downloadMap,
+				muted: disableAudio,
 			});
 
 			return renderFramesProc;
@@ -356,6 +365,8 @@ export const renderMedia = ({
 					verbose: options.verbose,
 					dir: outputDir ?? undefined,
 					cancelSignal: cancelStitcher.cancelSignal,
+					muted: disableAudio,
+					enforceAudioTrack,
 				}),
 				stitchStart,
 			]);

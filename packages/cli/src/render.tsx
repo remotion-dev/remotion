@@ -76,6 +76,8 @@ export const render = async (remotionRoot: string) => {
 		numberOfGifLoops,
 		everyNthFrame,
 		puppeteerTimeout,
+		muted,
+		enforceAudioTrack,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -329,6 +331,8 @@ export const render = async (remotionRoot: string) => {
 			'verbose'
 		),
 		downloadMap,
+		muted,
+		enforceAudioTrack,
 	});
 
 	Log.info();

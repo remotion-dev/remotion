@@ -87,6 +87,18 @@ _available from v3.1_
 
 For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif#reducing-frame-rate)
 
+### `--muted`
+
+_available from v3.2.1_
+
+[Disables audio output.](/docs/config#setmuted) This option may only be used when rendering a video.
+
+### `--enforce-audio-track`
+
+_available from v3.2.1_
+
+[Render a silent audio track if there wouldn't be one otherwise.](/docs/config#enforceaudiotrack).
+
 ### `--number-of-gif-loops`
 
 _available from v3.1_
