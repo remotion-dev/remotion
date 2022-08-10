@@ -47,6 +47,8 @@ export type CommandLineOptions = {
 	port: number;
 	frame: string | number;
 	['disable-headless']: boolean;
+	muted: boolean;
+	['enforce-audio-track']: boolean;
 	gl: OpenGlRenderer;
 };
 
@@ -57,6 +59,8 @@ export const BooleanFlags = [
 	'help',
 	'quiet',
 	'q',
+	'muted',
+	'enforce-audio-track',
 	// Lambda flags
 	'force',
 	'disable-chunk-optimization',
@@ -212,6 +216,14 @@ export const parseCommandLine = (
 
 	if (typeof parsedCli.port !== 'undefined') {
 		Config.Bundling.setPort(parsedCli.port);
+	}
+
+	if (typeof parsedCli.muted !== 'undefined') {
+		Config.Rendering.setMuted(parsedCli.muted);
+	}
+
+	if (typeof parsedCli['enforce-audio-track'] !== 'undefined') {
+		Config.Rendering.setEnforceAudioTrack(parsedCli['enforce-audio-track']);
 	}
 };
 

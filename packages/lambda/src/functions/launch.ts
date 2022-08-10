@@ -207,6 +207,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			scale: params.scale,
 			everyNthFrame: params.everyNthFrame,
 			concurrencyPerLambda: params.concurrencyPerLambda,
+			muted: params.muted,
 		};
 		return payload;
 	});

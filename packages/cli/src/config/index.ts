@@ -52,6 +52,10 @@ import {setCodec, setOutputFormat} from './codec';
 import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
 import {setCrf} from './crf';
+import {
+	getEnforceAudioTrack,
+	setEnforceAudioTrack,
+} from './enforce-audio-track';
 import {setDotEnvLocation} from './env-file';
 import {setEveryNthFrame} from './every-nth-frame';
 import {setFfmpegExecutable, setFfprobeExecutable} from './ffmpeg-executable';
@@ -60,6 +64,7 @@ import {setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import {setLogLevel} from './log';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
+import {getMuted, setMuted} from './muted';
 import {setNumberOfGifLoops} from './number-of-gif-loops';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
@@ -104,6 +109,8 @@ export const Config: ConfigType = {
 		setScale,
 		setEveryNthFrame,
 		setNumberOfGifLoops,
+		setMuted,
+		setEnforceAudioTrack,
 	},
 	Output: {
 		setOutputLocation,
@@ -155,6 +162,10 @@ export const ConfigInternals = {
 	setStillFrame,
 	getMaxTimelineTracks,
 	defaultOverrideFunction,
+	setMuted,
+	getMuted,
+	getEnforceAudioTrack,
+	setEnforceAudioTrack,
 };
 
 export const overrideRemotion = () => {

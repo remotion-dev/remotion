@@ -128,6 +128,18 @@ _number | [number, number] - optional_
 
 Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
 
+### `muted`
+
+_boolean - optional - available since v3.2.1_
+
+If set to true, no audio is being rendered.
+
+### `enforceAudioTrack`
+
+_boolean - optional - available since v3.2.1_
+
+Render a silent audio track if there wouldn't be any otherwise.
+
 ### `puppeteerInstance`
 
 _puppeteer.Browser - optional_
