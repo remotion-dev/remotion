@@ -73,7 +73,7 @@ export const PricingTable: React.FC<{}> = () => {
                       " "
                     )}
                   >
-                    {period === Period.Monthly ? "$15" : "$150"}
+                    {period === Period.Monthly ? "$25" : "$250"}
                   </div>
                   <div className={styles.perperiod}>
                     per {period === Period.Monthly ? "month" : "year"}
