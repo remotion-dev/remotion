@@ -72,6 +72,10 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			throw new Error('No src passed');
 		}
 
+		if (!window.remotion_videoEnabled) {
+			return;
+		}
+
 		if (muted) {
 			return;
 		}

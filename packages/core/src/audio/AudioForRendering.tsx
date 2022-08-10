@@ -54,6 +54,10 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			throw new Error('No src passed');
 		}
 
+		if (!window.remotion_audioEnabled) {
+			return;
+		}
+
 		if (props.muted) {
 			return;
 		}

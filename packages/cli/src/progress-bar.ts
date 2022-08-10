@@ -100,14 +100,19 @@ export const makeStitchingProgress = ({
 	codec,
 }: StitchingProgressInput) => {
 	const progress = frames / totalFrames;
+	const mediaType =
+		codec === 'gif'
+			? 'GIF'
+			: RenderInternals.isAudioCodec(codec)
+			? 'audio'
+			: 'video';
+
 	return [
 		`(${steps.indexOf('stitching') + 1}/${steps.length})`,
 		makeProgressBar(progress),
 		stage === 'muxing' && RenderInternals.canUseParallelEncoding(codec)
-			? `${doneIn ? 'Muxed' : 'Muxing'} audio`
-			: `${doneIn ? 'Encoded' : 'Encoding'} ${
-					codec === 'gif' ? 'GIF' : 'video'
-			  }`,
+			? `${doneIn ? 'Muxed' : 'Muxing'} ${mediaType}`
+			: `${doneIn ? 'Encoded' : 'Encoding'} ${mediaType}`,
 		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
 	].join(' ');
 };
