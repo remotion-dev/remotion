@@ -431,7 +431,7 @@ playerRef.current.addEventListener("timeupdate", (e) => {
 
 ### `fullscreenchange`
 
-_Available from v3.1.11_
+_Available from v3.2.0_
 
 Fires when the player enters or exits fullscreen. By reading `e.detail.isFullscreen` or calling `playerRef.isFullscreen()` you can determine if the player is currently in fullscreen or not.
 

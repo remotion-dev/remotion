@@ -273,5 +273,7 @@ export const getCliOptions = async (options: {
 		chromiumOptions,
 		overwrite,
 		port: port ?? null,
+		muted: ConfigInternals.getMuted(),
+		enforceAudioTrack: ConfigInternals.getEnforceAudioTrack(),
 	};
 };

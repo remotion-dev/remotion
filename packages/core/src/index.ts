@@ -14,6 +14,8 @@ declare global {
 		remotion_setFrame: (frame: number) => void;
 		remotion_initialFrame: number;
 		remotion_proxyPort: number;
+		remotion_audioEnabled: boolean;
+		remotion_videoEnabled: boolean;
 		remotion_puppeteerTimeout: number;
 		remotion_inputProps: string;
 		remotion_envVariables: string;
@@ -22,7 +24,7 @@ declare global {
 		remotion_imported: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
-		siteVersion: '3';
+		siteVersion: '4';
 	}
 }
 

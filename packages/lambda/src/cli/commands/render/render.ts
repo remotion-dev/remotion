@@ -67,6 +67,7 @@ export const renderCommand = async (args: string[]) => {
 		scale,
 		everyNthFrame,
 		numberOfGifLoops,
+		muted,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -109,6 +110,7 @@ export const renderCommand = async (args: string[]) => {
 		numberOfGifLoops,
 		everyNthFrame,
 		concurrencyPerLambda: parsedLambdaCli['concurrency-per-lambda'],
+		muted,
 	});
 
 	const totalSteps = outName ? 5 : 4;
