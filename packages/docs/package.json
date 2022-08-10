@@ -34,7 +34,7 @@
     "@remotion/lottie": "3.1.11",
     "@remotion/skia": "3.1.11",
     "@remotion/three": "3.1.11",
-    "@shopify/react-native-skia": "^0.1.136",
+    "@shopify/react-native-skia": "^0.1.139",
     "@splitbee/web": "^0.2.4",
     "chalk": "4.1.2",
     "clipboard": "^2.0.8",
