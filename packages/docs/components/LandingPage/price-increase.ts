@@ -1,0 +1,2 @@
+// September 15th 2022
+export const DEV_SEAT_PRICE_INCREASE = 1663200000000;
