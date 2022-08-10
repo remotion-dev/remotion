@@ -34,7 +34,7 @@ The browser was compiled including the proprietary codecs, so you can include MP
 
 | Remotion version | Chrome version |
 | ---------------- | -------------- |
-| From 3.1.11      | 104.0.5112.64  |
+| From 3.2.0       | 104.0.5112.64  |
 | From 3.0.8       | 101.0.4951.68  |
 | From 3.0.0       | 98.0.4758.139  |
 
