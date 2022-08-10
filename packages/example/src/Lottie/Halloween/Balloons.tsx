@@ -27,6 +27,7 @@ const Balloons = () => {
 		useState<LottieAnimationData | null>(null);
 
 	useEffect(() => {
+		// Credits: https://lottiefiles.com/81293-horror-ballons
 		fetch(staticFile('balloons.json'))
 			.then((data) => data.json())
 			.then((json) => {
@@ -45,7 +46,6 @@ const Balloons = () => {
 	return (
 		<div style={{opacity, display: 'grid', alignContent: 'center', flex: 1}}>
 			<Lottie
-				// https://lottiefiles.com/81293-horror-ballons
 				animationData={animationData}
 				playbackRate={2}
 				style={{height: 700}}
