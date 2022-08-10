@@ -261,7 +261,7 @@ importers:
       '@remotion/renderer': 3.2.1
       '@remotion/skia': 3.2.1
       '@remotion/three': 3.2.1
-      '@shopify/react-native-skia': ^0.1.136
+      '@shopify/react-native-skia': ^0.1.139
       '@splitbee/web': ^0.2.4
       '@tsconfig/docusaurus': ^1.0.5
       '@types/color-namer': ^1.3.0
@@ -305,7 +305,7 @@ importers:
       '@remotion/renderer': link:../renderer
       '@remotion/skia': link:../skia
       '@remotion/three': link:../three
-      '@shopify/react-native-skia': 0.1.136_rlxvagb2l2jceoxbyljoesn5oa
+      '@shopify/react-native-skia': 0.1.139_rlxvagb2l2jceoxbyljoesn5oa
       '@splitbee/web': 0.2.4
       chalk: 4.1.2
       clipboard: 2.0.8
@@ -575,7 +575,7 @@ importers:
       jest: 27.2.4_ts-node@10.8.0
       prettier: 2.4.1
       prettier-plugin-organize-imports: 2.3.4_pxx7xhvr2bexxfjjff3nukai7m
-      ts-jest: 27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm
+      ts-jest: 27.0.5_g2mfyom6zaxqcgedxrl4lakegu
       ts-node: 10.8.0_ysvagj6uoj2jcpx4fli7niyicq
       typescript: 4.7.2
       zip-lib: 0.7.2
@@ -671,7 +671,7 @@ importers:
       prettier-plugin-organize-imports: 2.3.4_pxx7xhvr2bexxfjjff3nukai7m
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
-      ts-jest: 27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm
+      ts-jest: 27.0.5_g2mfyom6zaxqcgedxrl4lakegu
       typescript: 4.7.2
       webpack: 5.72.0
 
@@ -783,7 +783,7 @@ importers:
   packages/skia:
     specifiers:
       '@jonny/eslint-config': 3.0.266
-      '@shopify/react-native-skia': ^0.1.136
+      '@shopify/react-native-skia': ^0.1.139
       '@types/react': 18.0.1
       '@types/react-native': ^0.69.2
       copy-webpack-plugin: '11'
@@ -799,7 +799,7 @@ importers:
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_6hvhxfirl4y3p6nuemvvvbadcu
-      '@shopify/react-native-skia': 0.1.136_rlxvagb2l2jceoxbyljoesn5oa
+      '@shopify/react-native-skia': 0.1.139_rlxvagb2l2jceoxbyljoesn5oa
       '@types/react': 18.0.1
       '@types/react-native': 0.69.2
       eslint: 8.13.0
@@ -8802,8 +8802,9 @@ packages:
       zustand: 3.6.5_react@18.0.0
     dev: true
 
-  /@shopify/react-native-skia/0.1.136_rlxvagb2l2jceoxbyljoesn5oa:
-    resolution: {integrity: sha512-gNsBw9/ISNL7tAHdfhjeW3Y9/FPN93mPx4XSJS7xwbEgYaJdBP+1T1MyCCZZZTTcqJ6bCVp9FFUR6yo0u93Pgg==}
+  /@shopify/react-native-skia/0.1.139_rlxvagb2l2jceoxbyljoesn5oa:
+    resolution: {integrity: sha512-p5ZEb1iYlPbpdjWoQ9hBFML29lp77hnlJAdyR49C4S3h9Oe/Gv6B35c5LKshRE2w6B+xLM6ZApl8PSjll5TjDQ==}
+    hasBin: true
     requiresBuild: true
     peerDependencies:
       react: '>=16.8.1'
@@ -21910,7 +21911,7 @@ packages:
     resolution: {integrity: sha512-3IVX4nI6B5cc31/GFFE+i8ey/N2eA0CZDbo6n0yrz0zDX8ZJ8djmU1p+XRz7G3is0F3bB3pu2pAroFdAWQKU3w==}
     dev: false
 
-  /ts-jest/27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm:
+  /ts-jest/27.0.5_g2mfyom6zaxqcgedxrl4lakegu:
     resolution: {integrity: sha512-lIJApzfTaSSbtlksfFNHkWOzLJuuSm4faFAfo5kvzOiRAuoN4/eKxVJ2zEAho8aecE04qX6K1pAzfH5QHL1/8w==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     hasBin: true
@@ -21928,6 +21929,7 @@ packages:
       babel-jest:
         optional: true
     dependencies:
+      '@babel/core': 7.18.6
       '@types/jest': 27.4.0
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
