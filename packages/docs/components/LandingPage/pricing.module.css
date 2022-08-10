@@ -28,7 +28,7 @@
   text-align: center;
   padding-top: 30px;
   padding-bottom: 10px;
-  min-height: 500px;
+  min-height: 540px;
   display: flex;
   flex-direction: column;
 }
@@ -118,6 +118,14 @@
   box-shadow: var(--box-shadow);
   margin-top: 50px;
 }
+
+.minimum {
+  margin-top: -30px;
+  color: var(--light-text-color);
+  margin-bottom: 20px;
+  font-size: 15px;
+}
+
 
 .plus svg {
   height: 20px;

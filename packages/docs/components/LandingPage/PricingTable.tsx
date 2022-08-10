@@ -135,8 +135,11 @@ export const PricingTable: React.FC<{}> = () => {
                       month.
                     </li>
                   </ul>
-                  <div style={{ flex: 1 }} />
                 </div>
+              </div>
+              <div className={styles.minimum}>
+                Minimum plan amount:{" "}
+                {period === Period.Monthly ? "$100/month" : "$1000/year"}
               </div>
               <a
                 className={styles.pricinga}
