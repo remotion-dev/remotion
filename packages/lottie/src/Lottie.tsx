@@ -1,39 +1,16 @@
 import type {AnimationItem} from 'lottie-web';
 import lottie from 'lottie-web';
-import type {CSSProperties} from 'react';
 import {useEffect, useRef, useState} from 'react';
 import {continueRender, delayRender, useCurrentFrame} from 'remotion';
-import type {LottieAnimationData} from './types';
+import type {LottieProps} from './types';
 import {getNextFrame} from './utils';
 import {validateLoop} from './validate-loop';
 import {validatePlaybackRate} from './validate-playbackrate';
 
-export interface LottieProps {
-	/**
-	 * JSON object with the animation data.
-	 * */
-	animationData: LottieAnimationData;
-	/**
-	 * If the animation should loop after its end.
-	 */
-	loop?: boolean;
-	/**
-	 * The speed of the animation. Defaults to 1.
-	 */
-	playbackRate?: number;
-	/**
-	 * CSS classes to apply on the container of the animation.
-	 */
-	className?: string;
-	/**
-	 * CSS properties to apply on the container of the animation.
-	 */
-	style?: CSSProperties;
-}
-
 export const Lottie = ({
 	animationData,
 	className,
+	direction,
 	loop,
 	playbackRate,
 	style,
@@ -85,11 +62,15 @@ export const Lottie = ({
 	}, [animationData, handle]);
 
 	useEffect(() => {
-		if (!animationRef.current) {
-			return;
+		if (animationRef.current && direction) {
+			animationRef.current.setDirection(direction);
 		}
+	}, [direction]);
 
-		animationRef.current.setSpeed(playbackRate ?? 1);
+	useEffect(() => {
+		if (animationRef.current && playbackRate) {
+			animationRef.current.setSpeed(playbackRate);
+		}
 	}, [playbackRate]);
 
 	useEffect(() => {
@@ -98,11 +79,15 @@ export const Lottie = ({
 		}
 
 		const {totalFrames} = animationRef.current;
-		const expectedFrame = frame * (playbackRate ?? 1);
-		const nextFrame = getNextFrame(expectedFrame, totalFrames, loop);
+		const nextFrame = getNextFrame({
+			currentFrame: frame * (playbackRate ?? 1),
+			direction,
+			loop,
+			totalFrames,
+		});
 
 		animationRef.current.goToAndStop(nextFrame, true);
-	}, [frame, loop, playbackRate]);
+	}, [direction, frame, loop, playbackRate]);
 
 	return <div ref={containerRef} className={className} style={style} />;
 };
