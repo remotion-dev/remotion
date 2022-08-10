@@ -52,12 +52,12 @@ You can now start using the [`<Lottie>`](/docs/lottie/lottie) component in your 
 
 - Playing Lottie animations using `lottie-web`
 - Change the speed of the animation
+- Playing animation in reverse
 - Playing remote files
 - Determining dimensions and duration of a Lottie animation
 
 ## Unsupported features
 
-- Playing animation in another direction
 - Rendering on other renderers as `svg`
 - `setSubFrame()`, `setLocationHref()`
 

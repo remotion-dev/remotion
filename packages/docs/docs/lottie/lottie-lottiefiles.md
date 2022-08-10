@@ -1,6 +1,6 @@
 ---
 id: lottie-lottiefiles
-sidebar_label: "Find Lottie files"
+sidebar_label: "Finding Lottie files"
 title: "Finding Lottie files to use"
 slug: lottiefiles
 ---
