@@ -33,7 +33,7 @@ const LottieLoader = () => {
 
 	const {durationInFrames: df} = getLottieMetadata(animationData) || {};
 	const nLoop = df && frame > 0 ? Math.ceil(frame / df) : 1;
-	const direction = nLoop % 2 === 0 ? -1 : 1;
+	const direction = nLoop % 2 === 0 ? 'backward' : 'forward';
 
 	return <Lottie loop animationData={animationData} direction={direction} />;
 };
