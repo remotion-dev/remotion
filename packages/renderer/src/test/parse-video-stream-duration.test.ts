@@ -63,13 +63,13 @@ DISPOSITION:dependent=0
 DISPOSITION:still_image=0
 TAG:ALPHA_MODE=1
 TAG:ENCODER=Lavc58.134.100 libvpx-vp9
-TAG:DURATION=00:00:05.008000000
+TAG:DURATION=01:20:05.008000000
 [/STREAM]  
   `.trim()
 	);
 	expect(result).toEqual({
 		fps: 24.99,
-		duration: 5.008,
+		duration: 4805.008,
 	});
 });
 
