@@ -40,7 +40,9 @@ export const Button: React.FC<{
 			disabled={disabled}
 			onClick={onClick}
 		>
-			<div style={buttonContainer}>{children}</div>
+			<div className="css-reset" style={buttonContainer}>
+				{children}
+			</div>
 		</button>
 	);
 };
