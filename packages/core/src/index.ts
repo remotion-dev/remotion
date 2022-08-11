@@ -11,6 +11,7 @@ declare global {
 		remotion_editorName: string | null;
 		remotion_projectName: string;
 		remotion_cwd: string;
+		remotion_previewServerCommand: string;
 		remotion_setFrame: (frame: number) => void;
 		remotion_initialFrame: number;
 		remotion_proxyPort: number;

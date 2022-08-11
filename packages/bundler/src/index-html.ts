@@ -6,12 +6,14 @@ export const indexHtml = ({
 	inputProps,
 	staticHash,
 	remotionRoot,
+	previewServerCommand,
 }: {
 	staticHash: string;
 	baseDir: string;
 	editorName: string | null;
 	inputProps: object | null;
 	remotionRoot: string;
+	previewServerCommand: string | null;
 }) =>
 	`
 <!DOCTYPE html>
@@ -36,9 +38,12 @@ export const indexHtml = ({
 			path.basename(remotionRoot)
 		)};</script>
 		<script>window.remotion_cwd = ${JSON.stringify(remotionRoot)};</script>
+		<script>window.remotion_previewServerCommand = ${
+			previewServerCommand ? JSON.stringify(previewServerCommand) : 'null'
+		};</script>
 		${
 			inputProps
-				? `		<script>window.remotion_inputProps = ${JSON.stringify(
+				? `<script>window.remotion_inputProps = ${JSON.stringify(
 						JSON.stringify(inputProps)
 				  )};</script>
 			`
@@ -53,6 +58,7 @@ export const indexHtml = ({
 		<div id="menuportal-4"></div>
 		<div id="menuportal-5"></div>
 		<div id="remotion-error-overlay"></div>
+		<div id="server-disconnected-overlay"></div>
 		<script src="${baseDir}bundle.js"></script>
 	</body>
 </html>
