@@ -58,6 +58,7 @@ export const indexHtml = ({
 		<div id="menuportal-4"></div>
 		<div id="menuportal-5"></div>
 		<div id="remotion-error-overlay"></div>
+		<div id="server-disconnected-overlay"></div>
 		<script src="${baseDir}bundle.js"></script>
 	</body>
 </html>

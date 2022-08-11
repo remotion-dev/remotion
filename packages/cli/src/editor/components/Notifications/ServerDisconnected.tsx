@@ -1,13 +1,14 @@
 import React, {createRef, useImperativeHandle, useState} from 'react';
 
 const container: React.CSSProperties = {
-	position: 'absolute',
-	justifyContent: 'center',
-	alignItems: 'center',
+	position: 'fixed',
+	justifyContent: 'flex-end',
+	alignItems: 'flex-start',
 	display: 'flex',
 	width: '100%',
+	height: '100%',
 	flexDirection: 'column',
-	paddingTop: 20,
+	padding: 30,
 	pointerEvents: 'none',
 	backgroundColor: 'transparent',
 	fontFamily: 'SF Pro, Arial, Helvetica, sans-serif',
@@ -16,13 +17,12 @@ const container: React.CSSProperties = {
 const message: React.CSSProperties = {
 	backgroundColor: '#e74c3c',
 	color: 'white',
-	paddingLeft: 16,
-	paddingRight: 16,
-	paddingTop: 8,
-	paddingBottom: 8,
+	paddingLeft: 20,
+	paddingRight: 20,
+	paddingTop: 12,
+	paddingBottom: 12,
 	borderRadius: 4,
 	boxShadow: '0 2px 4px rgba(0, 0, 0, 0.4)',
-	textAlign: 'center',
 	lineHeight: 1.5,
 };
 
