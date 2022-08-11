@@ -95,6 +95,35 @@
   text-decoration: none;
 }
 
+.doublepanel {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+}
+
+.doublepanelsingle {
+  flex: 1;
+  min-height: 400px;
+}
+
+.plus {
+  height: 40px;
+  width: 40px;
+  border-radius: 20px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+  box-shadow: var(--box-shadow);
+  margin-top: 50px;
+}
+
+.plus svg {
+  height: 20px;
+}
+
+
 @media screen and (max-width: 900px) {
   .pricingcontainer {
     text-align: left;
@@ -107,4 +136,13 @@
     max-width: 500px;
     width: 100%;
   }
+  .doublepanel {
+    flex-direction: column;
+  }
+  .plus {
+    margin-left: 200px;
+    margin-top: -30px;
+    margin-bottom: 30px;
+  }
 }
+
