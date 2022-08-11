@@ -1,9 +1,9 @@
-interface Params {
+import type {LottieProps} from './types';
+
+type Params = Pick<LottieProps, 'direction' | 'loop'> & {
 	currentFrame: number;
-	direction?: number;
-	loop?: boolean;
 	totalFrames: number;
-}
+};
 
 export const getNextFrame = ({
 	currentFrame,
@@ -15,7 +15,7 @@ export const getNextFrame = ({
 		? currentFrame % totalFrames
 		: Math.min(currentFrame, totalFrames);
 
-	if (direction === -1) {
+	if (direction === 'backward') {
 		return totalFrames - nextFrame;
 	}
 

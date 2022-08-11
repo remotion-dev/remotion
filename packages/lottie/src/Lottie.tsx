@@ -63,7 +63,7 @@ export const Lottie = ({
 
 	useEffect(() => {
 		if (animationRef.current && direction) {
-			animationRef.current.setDirection(direction);
+			animationRef.current.setDirection(direction === 'backward' ? -1 : 1);
 		}
 	}, [direction]);
 

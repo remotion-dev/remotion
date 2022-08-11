@@ -13,9 +13,13 @@ export type LottieProps = {
 	 * */
 	animationData: LottieAnimationData;
 	/**
-	 * The direction of the animation. 1 is forward, -1 is reverse.
+	 * CSS classes to apply on the container of the animation.
 	 */
-	direction?: 1 | -1;
+	className?: string;
+	/**
+	 * The direction of the animation. Defaults to forward.
+	 */
+	direction?: 'forward' | 'backward';
 	/**
 	 * If the animation should loop after its end.
 	 */
@@ -25,11 +29,7 @@ export type LottieProps = {
 	 */
 	playbackRate?: number;
 	/**
-	 * CSS classes to apply on the container of the animation.
-	 */
-	className?: string;
-	/**
-	 * CSS properties to apply on the container of the animation.
+	 * CSS properties to apply to the container of the animation.
 	 */
 	style?: CSSProperties;
 };

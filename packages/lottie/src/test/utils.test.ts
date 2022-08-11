@@ -29,13 +29,13 @@ describe('getNextFrame', () => {
 	describe('when direction is reverse and loop is falsy', () => {
 		it('returns the correct frame if current frame is smaller than total frames', () => {
 			expect(
-				getNextFrame({currentFrame: 15, totalFrames: 20, direction: -1})
+				getNextFrame({currentFrame: 15, totalFrames: 20, direction: 'backward'})
 			).toBe(5);
 		});
 
 		it('returns frame zero if current frame is bigger than total frames', () => {
 			expect(
-				getNextFrame({currentFrame: 23, totalFrames: 20, direction: -1})
+				getNextFrame({currentFrame: 23, totalFrames: 20, direction: 'backward'})
 			).toBe(0);
 		});
 	});
@@ -46,7 +46,7 @@ describe('getNextFrame', () => {
 				getNextFrame({
 					currentFrame: 15,
 					totalFrames: 20,
-					direction: -1,
+					direction: 'backward',
 					loop: true,
 				})
 			).toBe(5);
@@ -57,7 +57,7 @@ describe('getNextFrame', () => {
 				getNextFrame({
 					currentFrame: 23,
 					totalFrames: 20,
-					direction: -1,
+					direction: 'backward',
 					loop: true,
 				})
 			).toBe(17);
