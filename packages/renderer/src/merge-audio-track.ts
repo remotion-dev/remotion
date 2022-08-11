@@ -93,7 +93,8 @@ const mergeAudioTrackUnlimited = async ({
 	cleanup();
 };
 
-const limit = pLimit(2);
+// Must be at least 3 because recursively called twice in mergeAudioTrack
+const limit = pLimit(3);
 
 export const mergeAudioTrack = (options: Options) => {
 	return limit(mergeAudioTrackUnlimited, options);
