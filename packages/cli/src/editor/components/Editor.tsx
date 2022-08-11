@@ -44,6 +44,7 @@ import {KeyboardShortcuts} from './KeyboardShortcutsModal';
 import NewComposition from './NewComposition/NewComposition';
 import {NoRegisterRoot} from './NoRegisterRoot';
 import {NotificationCenter} from './Notifications/NotificationCenter';
+import {ServerDisconnected} from './Notifications/ServerDisconnected';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 import {ZoomPersistor} from './ZoomPersistor';
 
@@ -221,6 +222,7 @@ export const Editor: React.FC = () => {
 																</TimelineZoomContext>
 
 																<NotificationCenter />
+																<ServerDisconnected />
 																{modalContextType &&
 																	modalContextType.type === 'new-comp' && (
 																		<NewComposition
