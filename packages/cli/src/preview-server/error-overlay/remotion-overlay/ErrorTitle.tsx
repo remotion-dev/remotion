@@ -40,7 +40,7 @@ export const ErrorTitle: React.FC<{
 	symbolicating: boolean;
 }> = ({name, message, symbolicating}) => {
 	return (
-		<div style={title}>
+		<div style={title} className="css-reset">
 			<div style={left}>
 				<span style={errName}>{name}</span>
 				<br />
