@@ -23,6 +23,7 @@ const message: React.CSSProperties = {
 	borderRadius: 4,
 	boxShadow: '0 2px 4px rgba(0, 0, 0, 0.4)',
 	textAlign: 'center',
+	lineHeight: 1.5,
 };
 
 const inlineCode: React.CSSProperties = {
