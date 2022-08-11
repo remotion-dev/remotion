@@ -25,7 +25,7 @@ importers:
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
       react-refresh: 0.9.0
-      remotion: 3.2.1
+      remotion: 3.2.2
       typescript: ^4.7.0
       webpack: 5.72.0
     dependencies:
@@ -67,7 +67,7 @@ importers:
       react: ^18.0.0
       react-dom: ^18.0.0
       react-refresh: 0.9.0
-      remotion: 3.2.1
+      remotion: 3.2.2
       style-loader: 2.0.0
       typescript: ^4.7.0
       webpack: 5.72.0
@@ -99,10 +99,10 @@ importers:
   packages/cli:
     specifiers:
       '@jonny/eslint-config': 3.0.266
-      '@remotion/bundler': 3.2.1
-      '@remotion/media-utils': 3.2.1
-      '@remotion/player': 3.2.1
-      '@remotion/renderer': 3.2.1
+      '@remotion/bundler': 3.2.2
+      '@remotion/media-utils': 3.2.2
+      '@remotion/player': 3.2.2
+      '@remotion/renderer': 3.2.2
       '@types/minimist': ^1.2.2
       '@types/node': ^16.7.5
       '@types/react': 18.0.1
@@ -123,7 +123,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.2.1
+      remotion: 3.2.2
       semver: 7.3.5
       source-map: 0.6.1
       typescript: ^4.7.0
@@ -250,17 +250,17 @@ importers:
       '@jonny/docusaurus-preset-shiki-twoslash': ^1.1.36
       '@jonny/eslint-config': 3.0.266
       '@mdx-js/react': ^1.6.21
-      '@remotion/babel-loader': 3.2.1
-      '@remotion/bundler': 3.2.1
-      '@remotion/gif': 3.2.1
-      '@remotion/lambda': 3.2.1
-      '@remotion/lottie': 3.2.1
-      '@remotion/media-utils': 3.2.1
-      '@remotion/player': 3.2.1
-      '@remotion/preload': 3.2.1
-      '@remotion/renderer': 3.2.1
-      '@remotion/skia': 3.2.1
-      '@remotion/three': 3.2.1
+      '@remotion/babel-loader': 3.2.2
+      '@remotion/bundler': 3.2.2
+      '@remotion/gif': 3.2.2
+      '@remotion/lambda': 3.2.2
+      '@remotion/lottie': 3.2.2
+      '@remotion/media-utils': 3.2.2
+      '@remotion/player': 3.2.2
+      '@remotion/preload': 3.2.2
+      '@remotion/renderer': 3.2.2
+      '@remotion/skia': 3.2.2
+      '@remotion/three': 3.2.2
       '@shopify/react-native-skia': ^0.1.139
       '@splitbee/web': ^0.2.4
       '@tsconfig/docusaurus': ^1.0.5
@@ -272,7 +272,7 @@ importers:
       clipboard: ^2.0.8
       clsx: ^1.1.1
       color-namer: 1.4.0
-      create-video: 3.2.1
+      create-video: 3.2.2
       eslint: 8.13.0
       hls.js: ^0.14.17
       lottie-web: ^5.9.6
@@ -280,7 +280,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0
       react-player: ^2.9.0
-      remotion: 3.2.1
+      remotion: 3.2.2
       three: 0.134.0
       typescript: ^4.7.0
       url-loader: ^4.1.1
@@ -333,7 +333,7 @@ importers:
 
   packages/eslint-config:
     specifiers:
-      '@remotion/eslint-plugin': 3.2.1
+      '@remotion/eslint-plugin': 3.2.2
       '@types/node': 17.0.17
       '@typescript-eslint/eslint-plugin': 5.19.0
       '@typescript-eslint/parser': 5.19.0
@@ -376,17 +376,17 @@ importers:
       '@babel/preset-react': 7.12.13
       '@mdx-js/react': ^1.6.21
       '@react-three/drei': ^7.22.7
-      '@remotion/babel-loader': 3.2.1
-      '@remotion/bundler': 3.2.1
-      '@remotion/cli': 3.2.1
-      '@remotion/eslint-config': 3.2.1
-      '@remotion/eslint-plugin': 3.2.1
-      '@remotion/gif': 3.2.1
-      '@remotion/lambda': 3.2.1
-      '@remotion/lottie': 3.2.1
-      '@remotion/media-utils': 3.2.1
-      '@remotion/renderer': 3.2.1
-      '@remotion/three': 3.2.1
+      '@remotion/babel-loader': 3.2.2
+      '@remotion/bundler': 3.2.2
+      '@remotion/cli': 3.2.2
+      '@remotion/eslint-config': 3.2.2
+      '@remotion/eslint-plugin': 3.2.2
+      '@remotion/gif': 3.2.2
+      '@remotion/lambda': 3.2.2
+      '@remotion/lottie': 3.2.2
+      '@remotion/media-utils': 3.2.2
+      '@remotion/renderer': 3.2.2
+      '@remotion/three': 3.2.2
       '@types/babel__core': ^7.1.12
       '@types/babel__template': ^7.4.0
       '@types/express': ^4.17.11
@@ -406,7 +406,7 @@ importers:
       polished: ^4.0.5
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.2.1
+      remotion: 3.2.2
       styled-components: ^5.1.1
       svg-path-properties: ^1.0.4
       ts-unused-exports: ^7.0.1
@@ -470,7 +470,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.2.1
+      remotion: 3.2.2
       typescript: ^4.7.0
       webpack: 5.72.0
     dependencies:
@@ -493,13 +493,13 @@ importers:
 
   packages/it-tests:
     specifiers:
-      '@remotion/bundler': 3.2.1
-      '@remotion/cli': 3.2.1
-      '@remotion/lambda': 3.2.1
-      '@remotion/renderer': 3.2.1
+      '@remotion/bundler': 3.2.2
+      '@remotion/cli': 3.2.2
+      '@remotion/lambda': 3.2.2
+      '@remotion/renderer': 3.2.2
       '@types/sharp': ^0.28.5
       execa: 5.1.1
-      remotion: 3.2.1
+      remotion: 3.2.2
       sharp: 0.30.6
       typescript: ^4.7.0
       vitest: ^0.18.0
@@ -526,9 +526,9 @@ importers:
       '@aws-sdk/lib-storage': 3.58.0
       '@aws-sdk/s3-request-presigner': 3.58.0
       '@jonny/eslint-config': 3.0.266
-      '@remotion/bundler': 3.2.1
-      '@remotion/cli': 3.2.1
-      '@remotion/renderer': 3.2.1
+      '@remotion/bundler': 3.2.2
+      '@remotion/cli': 3.2.2
+      '@remotion/renderer': 3.2.2
       '@types/jest': ^27.0.2
       '@types/mime-types': 2.1.1
       '@types/minimist': 1.2.2
@@ -542,7 +542,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
-      remotion: 3.2.1
+      remotion: 3.2.2
       ts-jest: ^27.0.5
       ts-node: ^10.8.0
       typescript: ^4.7.0
@@ -575,7 +575,7 @@ importers:
       jest: 27.2.4_ts-node@10.8.0
       prettier: 2.4.1
       prettier-plugin-organize-imports: 2.3.4_pxx7xhvr2bexxfjjff3nukai7m
-      ts-jest: 27.0.5_g2mfyom6zaxqcgedxrl4lakegu
+      ts-jest: 27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm
       ts-node: 10.8.0_ysvagj6uoj2jcpx4fli7niyicq
       typescript: 4.7.2
       zip-lib: 0.7.2
@@ -592,7 +592,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.2.1
+      remotion: 3.2.2
       typescript: ^4.7.0
       vitest: ^0.18.0
     dependencies:
@@ -621,7 +621,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
-      remotion: 3.2.1
+      remotion: 3.2.2
       typescript: ^4.7.0
     dependencies:
       react: 18.0.0
@@ -651,7 +651,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.2.1
+      remotion: 3.2.2
       ts-jest: ^27.0.5
       typescript: ^4.7.0
       webpack: 5.72.0
@@ -671,17 +671,17 @@ importers:
       prettier-plugin-organize-imports: 2.3.4_pxx7xhvr2bexxfjjff3nukai7m
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
-      ts-jest: 27.0.5_g2mfyom6zaxqcgedxrl4lakegu
+      ts-jest: 27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm
       typescript: 4.7.2
       webpack: 5.72.0
 
   packages/player-example:
     specifiers:
       '@pmmmwh/react-refresh-webpack-plugin': ^0.5.3
-      '@remotion/bundler': 3.2.1
-      '@remotion/eslint-config': 3.2.1
-      '@remotion/player': 3.2.1
-      '@remotion/preload': 3.2.1
+      '@remotion/bundler': 3.2.2
+      '@remotion/eslint-config': 3.2.2
+      '@remotion/player': 3.2.2
+      '@remotion/preload': 3.2.2
       '@types/node': ^12.0.0
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
@@ -695,7 +695,7 @@ importers:
       react-dev-utils: ^12.0.1
       react-dom: 18.0.0
       react-refresh: ^0.11.0
-      remotion: 3.2.1
+      remotion: 3.2.2
       typescript: ^4.7.0
       webpack: 5.72.0
       webpack-dev-server: ^4.6.0
@@ -753,7 +753,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.2.1
+      remotion: 3.2.2
       source-map: ^0.8.0-beta.0
       typescript: ^4.7.0
       vitest: ^0.18.0
@@ -792,7 +792,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.2.1
+      remotion: 3.2.2
       typescript: ^4.7.0
     dependencies:
       copy-webpack-plugin: 11.0.0_webpack@5.72.0
@@ -823,7 +823,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.2.1
+      remotion: 3.2.2
       three: ^0.134.0
       typescript: ^4.7.0
     dependencies:
@@ -2213,7 +2213,7 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/helper-explode-assignable-expression': 7.16.7
-      '@babel/types': 7.17.0
+      '@babel/types': 7.18.8
 
   /@babel/helper-compilation-targets/7.15.4_@babel+core@7.15.5:
     resolution: {integrity: sha512-rMWPCirulnPSe4d+gwdWXLfAXTTBj8M3guAf5xFQJ0nvFY7tfNAFnWdqaHegHlgDZOCT4qvhF3BYlSJag8yhqQ==}
@@ -2477,7 +2477,7 @@ packages:
     resolution: {integrity: sha512-KyUenhWMC8VrxzkGP0Jizjo4/Zx+1nNZhgocs+gLzyZyB8SHidhoq9KK/8Ato4anhwsivfkBLftky7gvzbZMtQ==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.17.0
+      '@babel/types': 7.18.8
 
   /@babel/helper-function-name/7.15.4:
     resolution: {integrity: sha512-Z91cOMM4DseLIGOnog+Z8OI6YseR9bua+HpvLAQ2XayUGU+neTtX+97caALaLdyu53I/fjhbeCnWnRH1O3jFOw==}
@@ -2654,9 +2654,9 @@ packages:
     resolution: {integrity: sha512-fm0gH7Flb8H51LqJHy3HJ3wnE1+qtYR2A99K06ahwrawLdOFsCEWjZOrYricXJHoPSudNKxrMBUPEIPxiIIvBw==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/helper-annotate-as-pure': 7.16.7
+      '@babel/helper-annotate-as-pure': 7.18.6
       '@babel/helper-wrap-function': 7.16.8
-      '@babel/types': 7.17.0
+      '@babel/types': 7.18.8
     transitivePeerDependencies:
       - supports-color
 
@@ -2776,10 +2776,10 @@ packages:
     resolution: {integrity: sha512-8RpyRVIAW1RcDDGTA+GpPAwV22wXCfKOoM9bet6TLkGIFTkRQSkH1nMQ5Yet4MpoXe1ZwHPVtNasc2w0uZMqnw==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/helper-function-name': 7.17.9
-      '@babel/template': 7.16.7
-      '@babel/traverse': 7.17.9
-      '@babel/types': 7.17.0
+      '@babel/helper-function-name': 7.18.6
+      '@babel/template': 7.18.6
+      '@babel/traverse': 7.18.8
+      '@babel/types': 7.18.8
     transitivePeerDependencies:
       - supports-color
 
@@ -4213,8 +4213,8 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.17.9
-      '@babel/helper-module-imports': 7.16.7
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-module-imports': 7.18.6
+      '@babel/helper-plugin-utils': 7.18.9
       '@babel/helper-remap-async-to-generator': 7.16.8
     transitivePeerDependencies:
       - supports-color
@@ -4227,8 +4227,8 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-module-imports': 7.16.7
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-module-imports': 7.18.6
+      '@babel/helper-plugin-utils': 7.18.9
       '@babel/helper-remap-async-to-generator': 7.16.8
     transitivePeerDependencies:
       - supports-color
@@ -4450,7 +4450,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.17.9
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
     dev: false
 
   /@babel/plugin-transform-destructuring/7.17.7_@babel+core@7.18.6:
@@ -4460,7 +4460,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
 
   /@babel/plugin-transform-dotall-regex/7.14.5_@babel+core@7.15.5:
     resolution: {integrity: sha512-loGlnBdj02MDsFaHhAIJzh7euK89lBrGIdM9EAtHFo6xKygCUGuuWe07o1oZVk287amtW1n0808sQM99aZt3gw==}
@@ -4574,7 +4574,7 @@ packages:
     dependencies:
       '@babel/core': 7.17.9
       '@babel/helper-builder-binary-assignment-operator-visitor': 7.16.7
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
     dev: false
 
   /@babel/plugin-transform-exponentiation-operator/7.16.7_@babel+core@7.18.6:
@@ -4585,7 +4585,7 @@ packages:
     dependencies:
       '@babel/core': 7.18.6
       '@babel/helper-builder-binary-assignment-operator-visitor': 7.16.7
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
 
   /@babel/plugin-transform-flow-strip-types/7.18.9_@babel+core@7.18.6:
     resolution: {integrity: sha512-+G6rp2zRuOAInY5wcggsx4+QVao1qPM0osC9fTUVlAV3zOrzTCnrMAFVnR6+a3T8wz1wFIH7KhYMcMB3u1n80A==}
@@ -4665,9 +4665,9 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.17.9
-      '@babel/helper-compilation-targets': 7.17.7_@babel+core@7.17.9
-      '@babel/helper-function-name': 7.17.9
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-compilation-targets': 7.18.6_@babel+core@7.17.9
+      '@babel/helper-function-name': 7.18.6
+      '@babel/helper-plugin-utils': 7.18.9
     dev: false
 
   /@babel/plugin-transform-function-name/7.16.7_@babel+core@7.18.6:
@@ -4677,9 +4677,9 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-compilation-targets': 7.17.7_@babel+core@7.18.6
-      '@babel/helper-function-name': 7.17.9
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-compilation-targets': 7.18.6_@babel+core@7.18.6
+      '@babel/helper-function-name': 7.18.6
+      '@babel/helper-plugin-utils': 7.18.9
 
   /@babel/plugin-transform-literals/7.14.5_@babel+core@7.15.5:
     resolution: {integrity: sha512-ql33+epql2F49bi8aHXxvLURHkxJbSmMKl9J5yHqg4PLtdE6Uc48CH1GS6TQvZ86eoB/ApZXwm7jlA+B3kra7A==}
@@ -4708,7 +4708,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.17.9
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
     dev: false
 
   /@babel/plugin-transform-literals/7.16.7_@babel+core@7.18.6:
@@ -4718,7 +4718,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
 
   /@babel/plugin-transform-member-expression-literals/7.14.5_@babel+core@7.15.5:
     resolution: {integrity: sha512-WkNXxH1VXVTKarWFqmso83xl+2V3Eo28YY5utIkbsmXoItO8Q3aZxN4BTS2k0hz9dGUloHK26mJMyQEYfkn/+Q==}
@@ -5162,7 +5162,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.17.9
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
     dev: false
 
   /@babel/plugin-transform-parameters/7.16.7_@babel+core@7.18.6:
@@ -5172,7 +5172,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
 
   /@babel/plugin-transform-property-literals/7.14.5_@babel+core@7.15.5:
     resolution: {integrity: sha512-r1uilDthkgXW8Z1vJz2dKYLV1tuw2xsbrp3MrZmD99Wh9vsfKoob+JTgri5VUb/JqyKRXotlOtwgu4stIYCmnw==}
@@ -5250,7 +5250,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.17.9
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
     dev: false
 
   /@babel/plugin-transform-react-display-name/7.16.7_@babel+core@7.18.6:
@@ -5260,7 +5260,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-plugin-utils': 7.16.7
+      '@babel/helper-plugin-utils': 7.18.9
 
   /@babel/plugin-transform-react-jsx-development/7.14.5_@babel+core@7.15.5:
     resolution: {integrity: sha512-rdwG/9jC6QybWxVe2UVOa7q6cnTpw8JRRHOxntG/h6g/guAOe6AhtQHJuJh5FwmnXIT1bdm5vC2/5huV8ZOorQ==}
@@ -21911,7 +21911,7 @@ packages:
     resolution: {integrity: sha512-3IVX4nI6B5cc31/GFFE+i8ey/N2eA0CZDbo6n0yrz0zDX8ZJ8djmU1p+XRz7G3is0F3bB3pu2pAroFdAWQKU3w==}
     dev: false
 
-  /ts-jest/27.0.5_g2mfyom6zaxqcgedxrl4lakegu:
+  /ts-jest/27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm:
     resolution: {integrity: sha512-lIJApzfTaSSbtlksfFNHkWOzLJuuSm4faFAfo5kvzOiRAuoN4/eKxVJ2zEAho8aecE04qX6K1pAzfH5QHL1/8w==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     hasBin: true
@@ -21929,7 +21929,6 @@ packages:
       babel-jest:
         optional: true
     dependencies:
-      '@babel/core': 7.18.6
       '@types/jest': 27.4.0
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
