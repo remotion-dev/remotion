@@ -52,7 +52,13 @@ const compareProps = (
 	}
 
 	for (let i = 0; i < keysA.length; i++) {
+		// Not the same keys
 		if (keysA[i] !== keysB[i]) {
+			return false;
+		}
+
+		// Not the same values
+		if (obj1[keysA[i]] !== obj2[keysB[i]]) {
 			return false;
 		}
 	}
@@ -180,6 +186,7 @@ export const SharedAudioContextProvider: React.FC<{
 
 				return prevA;
 			});
+
 			if (changed) {
 				rerenderAudios();
 			}
