@@ -34,6 +34,13 @@ Usually the values on left side of the array can become much larger than the val
 <summary>Postprocessing Example</summary>
 
 ```tsx twoslash
+/**
+ * This postprocessing step will match the values with what you'd
+ * get from WebAudio's AnalyserNode.
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode
+ */
+  
 // get the frequency data
 const frequencyData = visualizeAudio({ /* ... */ });
 
