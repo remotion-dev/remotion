@@ -54,6 +54,8 @@ const amplitudes = frequencyData.map((value) => {
   
   // scale to fit between min and max
   const scaled = (db - minDb) / (maxDb - minDb);
+  
+  return scaled;
 });
 ```
 
