@@ -31,22 +31,28 @@ export const MyAnimation: React.FC = () => {
 
 A JSON object that adheres to the Lottie schema.
 
+### `className`
+
+A CSS class name to be given to the `<div>` that contains the animation.
+
+### `direction`
+
+_"forward"_ or _"backward"_
+
+The direction of the animation. Default: `forward`.
+
 ### `loop`
 
 _boolean_
 
-Whether the animation should loop or not. Default false.
+Whether the animation should loop or not. Default: `false`.
 
 ### `playbackRate`
 
 _number_
 
-The speed of the animation. A higher number is faster. Default 1.
+The speed of the animation. A higher number is faster. Default: `1`.
 
 ### `style`
 
 CSS properties to be applied to the `<div>` that contains the animation.
-
-### `className`
-
-A CSS class name to be given to the `<div>` that contains the animation.

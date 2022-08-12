@@ -458,7 +458,6 @@ export const Index: React.FC = () => {
 					height={1200}
 					width={1600}
 				/>
-
 				<Composition
 					id="exploding-bird"
 					lazyComponent={() => import('./Lottie/ExplodingBird')}
@@ -466,6 +465,14 @@ export const Index: React.FC = () => {
 					fps={30}
 					height={850}
 					width={850}
+				/>
+				<Composition
+					id="loader"
+					lazyComponent={() => import('./Lottie/Loader')}
+					durationInFrames={240}
+					fps={60}
+					height={576}
+					width={576}
 				/>
 			</Folder>
 		</>
