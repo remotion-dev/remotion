@@ -1,9 +1,23 @@
-export const getNextFrame = (
-	currentFrame: number,
-	totalFrames: number,
-	loop?: boolean
-) => {
-	return loop
+import type {LottieProps} from './types';
+
+type Params = Pick<LottieProps, 'direction' | 'loop'> & {
+	currentFrame: number;
+	totalFrames: number;
+};
+
+export const getNextFrame = ({
+	currentFrame,
+	direction,
+	loop,
+	totalFrames,
+}: Params) => {
+	const nextFrame = loop
 		? currentFrame % totalFrames
 		: Math.min(currentFrame, totalFrames);
+
+	if (direction === 'backward') {
+		return totalFrames - nextFrame;
+	}
+
+	return nextFrame;
 };
