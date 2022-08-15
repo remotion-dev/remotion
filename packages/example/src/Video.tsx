@@ -284,7 +284,7 @@ export const Index: React.FC = () => {
 					width={1280}
 					height={720}
 					fps={30}
-					durationInFrames={600}
+					durationInFrames={300}
 				/>
 				<Composition
 					id="corrupt-video"

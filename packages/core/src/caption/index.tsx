@@ -1,4 +1,5 @@
 import {useContext, useEffect} from 'react';
+import {getAbsoluteSrc} from '../absolute-src';
 import type {TCaption} from '../CompositionManager';
 import {CompositionManager} from '../CompositionManager';
 import {getRemotionEnvironment} from '../get-environment';
@@ -19,7 +20,7 @@ export const Caption = (props: CaptionProps) => {
 		registerCaption({
 			id,
 			language,
-			src,
+			src: getAbsoluteSrc(src),
 			title,
 		});
 

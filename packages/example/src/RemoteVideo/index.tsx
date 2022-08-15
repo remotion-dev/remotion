@@ -1,14 +1,10 @@
-import {Caption, interpolate, Video} from 'remotion';
+import {Caption, interpolate, staticFile, Video} from 'remotion';
 
 const RemoteVideo: React.FC = () => {
 	return (
 		<>
-			<Caption
-				language="eng"
-				src="http://127.0.0.1:8080/subs.srt"
-				title="Some title"
-			/>
-			<Caption src="http://127.0.0.1:8080/subs_alt.srt" />
+			<Caption language="eng" src={staticFile('subs.srt')} title="Some title" />
+			<Caption src={staticFile('subs_alt.srt')} />
 			<Video
 				volume={(f) =>
 					interpolate(f, [0, 500], [1, 0], {extrapolateRight: 'clamp'})
