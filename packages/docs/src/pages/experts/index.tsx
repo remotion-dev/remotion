@@ -1,7 +1,7 @@
 import Layout from "@theme/Layout";
 import React, { useMemo } from "react";
 import { random } from "remotion";
-import { experts } from "./data";
+import { experts } from "../../data/experts";
 import styles from "./experts.module.css";
 
 const dateString = (date: Date) =>
