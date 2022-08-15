@@ -29,38 +29,6 @@ The values on the left of the array are low frequencies (for example bass) and a
 
 Usually the values on left side of the array can become much larger than the values on the right. This is not a mistake, but for some visualizations you might have to apply some postprocessing to it, you can flatten the curve by for example mapping each value to a logarithm of the original function.
 
-<details>
-
-<summary>Postprocessing Example</summary>
-
-```tsx twoslash
-/**
- * This postprocessing step will match the values with what you'd
- * get from WebAudio's AnalyserNode.
- *
- * https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode
- */
-  
-// get the frequency data
-const frequencyData = visualizeAudio({ /* ... */ });
-
-// default scaling factors from the W3C spec for getByteFrequencyData
-const minDb = -100;
-const maxDb = -30;
-
-const amplitudes = frequencyData.map((value) => {
-  // convert to decibels (will be in the range `-Infinity` to `0`)
-  const db = 20 * Math.log10(value);
-  
-  // scale to fit between min and max
-  const scaled = (db - minDb) / (maxDb - minDb);
-  
-  return scaled;
-});
-```
-
-</details>
-
 ## Example
 
 In this example, we render a bar chart visualizing the audio spectrum of an audio file we imported using [`useAudioData()`](/docs/use-audio-data) and `visualizeAudio()`.
@@ -101,6 +69,51 @@ export const MyComponent: React.FC = () => {
     </div>
   );
 };
+```
+
+## Postprocessing example
+
+A logarithmic representation of the audio will look more appealing than a linear one. Below is an example of a postprocessing step that looks prettier than the default one.
+
+```tsx twoslash
+import { visualizeAudio } from "@remotion/media-utils";
+const params = {
+  audioData: {
+    channelWaveforms: [],
+    sampleRate: 0,
+    durationInSeconds: 0,
+    numberOfChannels: 0,
+    resultId: "",
+    isRemote: true,
+  },
+  frame: 0,
+  fps: 0,
+  numberOfSamples: 0,
+};
+// ---cut---
+/**
+ * This postprocessing step will match the values with what you'd
+ * get from WebAudio's AnalyserNode.
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode
+ */
+
+// get the frequency data
+const frequencyData = visualizeAudio(params);
+
+// default scaling factors from the W3C spec for getByteFrequencyData
+const minDb = -100;
+const maxDb = -30;
+
+const amplitudes = frequencyData.map((value) => {
+  // convert to decibels (will be in the range `-Infinity` to `0`)
+  const db = 20 * Math.log10(value);
+
+  // scale to fit between min and max
+  const scaled = (db - minDb) / (maxDb - minDb);
+
+  return scaled;
+});
 ```
 
 ## See also
