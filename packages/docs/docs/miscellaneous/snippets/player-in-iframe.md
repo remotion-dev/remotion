@@ -2,6 +2,10 @@
 title: "Embedding a <Player> into an <iframe>"
 ---
 
+:::info
+Credit to [Marcus Stenbeck](https://twitter.com/marcusstenbeck) for creating this snippet.
+:::
+
 This snippet is useful if you want to isolate the global styles of your homepage from the global styles of the [`<Player>`](/docs/player), for example if you are using TailwindCSS.
 
 Don't forget to give your `<Player>` a `className` of `__player` if you use this snippet.
