@@ -54,7 +54,6 @@ export {
 	TCaption,
 	TCompMetadata,
 } from './CompositionManager';
-export * from './config';
 export {Config, ConfigType} from './config';
 export {getInputProps} from './config/input-props';
 export * from './delay-render';

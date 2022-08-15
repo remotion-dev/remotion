@@ -1,7 +1,7 @@
 import {useContext, useEffect} from 'react';
-import {CompositionManager, TCaption} from '../CompositionManager';
+import type {TCaption} from '../CompositionManager';
+import {CompositionManager} from '../CompositionManager';
 import {getRemotionEnvironment} from '../get-environment';
-import {isRemoteAsset} from '../is-remote-asset';
 
 type CaptionProps = Omit<TCaption, 'id' | 'isRemote'>;
 
@@ -21,7 +21,6 @@ export const Caption = (props: CaptionProps) => {
 			language,
 			src,
 			title,
-			isRemote: isRemoteAsset(src),
 		});
 
 		return () => unregisterCaption(id);

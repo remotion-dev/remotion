@@ -1,5 +1,4 @@
 import execa from 'execa';
-import type {TAsset, TCaption, TCompMetadata} from 'remotion';
 import {downloadFile} from './assets/download-file';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
@@ -56,17 +55,28 @@ import {validateConcurrency} from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateEveryNthFrame} from './validate-every-nth-frame';
 import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
+import {validateFrame} from './validate-frame';
+import {
+	DEFAULT_OPENGL_RENDERER,
+	validateOpenGlRenderer,
+} from './validate-opengl-renderer';
+import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
+import {validateScale} from './validate-scale';
+import {
+	registerErrorSymbolicationLock,
+	unlockErrorSymbolicationLock,
+} from './wait-for-symbolication-error-to-be-done';
 
-declare global {
-	interface Window {
-		ready: boolean;
-		getStaticCompositions: () => TCompMetadata[];
-		remotion_setFrame: (frame: number) => void;
-		remotion_collectAssets: () => TAsset[];
-		remotion_collectCaptions: () => TCaption[];
-	}
-}
-
+export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+export type {DownloadMap} from './assets/download-map';
+export {Browser} from './browser';
+export {BrowserExecutable} from './browser-executable';
+export {BrowserLog} from './browser-log';
+export {Codec, CodecOrUndefined} from './codec';
+export {combineVideos} from './combine-videos';
+export {Crf} from './crf';
+export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
+export {FfmpegExecutable} from './ffmpeg-executable';
 export {FfmpegVersion} from './ffmpeg-flags';
 export {FrameRange} from './frame-range';
 export {getCompositions} from './get-compositions';
