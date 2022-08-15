@@ -1,5 +1,6 @@
-import chalk from 'chalk';
+import {chalk} from './chalk';
 import {Log} from './log';
+import {VERSIONS_COMMAND} from './versions';
 
 const packagejson = require('../package.json');
 
@@ -18,11 +19,11 @@ export const printHelp = () => {
 	Log.info();
 	Log.info('Available commands:');
 	Log.info('');
-	Log.info('remotion preview <index-file.ts>');
+	Log.info('remotion preview <entry-point.ts>');
 	Log.info(chalk.gray('Start the preview server.'));
 	printFlags([['--props', 'Pass input props as filename or as JSON']]);
 	Log.info();
-	Log.info('remotion render <index-file.ts> <comp-name> <output-file.mp4>');
+	Log.info('remotion render <entry-point.ts> <comp-name> <output-file.mp4>');
 	Log.info(chalk.gray('Render video, audio or an image sequence.'));
 	printFlags([
 		['--props', 'Pass input props as filename or as JSON'],
@@ -42,7 +43,8 @@ export const printHelp = () => {
 		['--port', 'Custom port to use for the HTTP server'],
 		['--env-file', 'Specify a location for a dotenv file'],
 	]);
-	Log.info('remotion still <index-file.ts> <comp-name> <still.png>');
+	Log.info();
+	Log.info('remotion still <entry-point.ts> <comp-name> <still.png>');
 	Log.info(chalk.gray('Render a still frame and save it as an image.'));
 	printFlags([
 		['--frame', 'Which frame to render (default 0)'],
@@ -57,6 +59,14 @@ export const printHelp = () => {
 		['--port', 'Custom port to use for the HTTP server'],
 		['--env-file', 'Specify a location for a dotenv file'],
 	]);
+	Log.info();
+	Log.info('remotion compositions <index-file.ts>');
+	Log.info(chalk.gray('Prints the available compositions.'));
+	Log.info();
+	Log.info('remotion ' + VERSIONS_COMMAND);
+	Log.info(
+		chalk.gray('Prints and validates versions of all Remotion packages.')
+	);
 	Log.info();
 	Log.info('remotion upgrade');
 	Log.info(chalk.gray('Ensure Remotion is on the newest version.'));

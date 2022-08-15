@@ -1,7 +1,6 @@
 ---
 id: series
-title: <Series />
-sidebar_label: <Series />
+title: <Series>
 ---
 
 _Available from v.2.3.1_
@@ -22,7 +21,7 @@ const Square: React.FC<{color: string}> = () => <div></div>
 ```tsx twoslash
 // @include: example-Square
 // ---cut---
-import {Series} from 'remotion';
+import { Series } from "remotion";
 
 const Example: React.FC = () => {
   return (
@@ -53,7 +52,7 @@ The `<Series />` component takes no props may only contain a list of `<Series.Se
 
 This component is a high order component, and accepts, besides it's children, the following props:
 
-- `durationInFrames` _(required)_: For how many frames the sequence should be displayed. Children are unmounted if they are not within the time range of display. If you don't want to limit the duration of the sequence, you can pass `Infinity`.
+- `durationInFrames` _(optional)_: For how many frames the sequence should be displayed. Children are unmounted if they are not within the time range of display. By default it will be `Infinity` to avoid limit the duration of the sequence.
 
 - `offset`: _(optional)_: Pass a positive number to delay the beginning of the sequence. Pass a negative number to start the sequence earlier, and to overlay the sequence with the one that comes before.
 
@@ -66,4 +65,5 @@ This component is a high order component, and accepts, besides it's children, th
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/series/index.tsx)
 - [`<Sequence />`](/docs/sequence)

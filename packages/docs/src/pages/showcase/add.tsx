@@ -3,6 +3,7 @@ import clsx from "clsx";
 import React from "react";
 import headerStyles from "./header.module.css";
 import styles from "./styles.module.css";
+import Head from "@docusaurus/Head";
 
 const PageHeader: React.FC = () => {
   return (
@@ -97,7 +98,11 @@ const PageHeader: React.FC = () => {
 
 const ShowcaseAdd: React.FC = () => {
   return (
-    <Layout title="Add to showcase" description="hihi">
+    <Layout>
+      <Head>
+        <title>Add to showcase</title>
+      </Head>
+
       <header className={clsx("hero ", styles.heroBanner)}>
         <div className="container">
           <PageHeader />

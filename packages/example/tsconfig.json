@@ -5,7 +5,10 @@
 		"outDir": "./dist",
 		"jsx": "react-jsx",
 		"skipLibCheck": true,
-		"allowSyntheticDefaultImports": true
+		"allowSyntheticDefaultImports": true,
+		"paths": {
+			"lib/*": ["./src/lib/*"]
+		}
 	},
 	"include": ["src"],
 	"references": [

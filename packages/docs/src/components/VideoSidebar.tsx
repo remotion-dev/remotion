@@ -1,5 +1,5 @@
 import React from "react";
-import { ShowcaseLink, ShowcaseVideo } from "../data/showcase-videos";
+import type { ShowcaseLink, ShowcaseVideo } from "../data/showcase-videos";
 
 const container: React.CSSProperties = {
   padding: 20,

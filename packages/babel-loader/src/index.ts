@@ -1,4 +1,5 @@
-import {WebpackConfiguration} from 'remotion';
+import type {WebpackConfiguration} from 'remotion';
+import type {RuleSetUseItem} from 'webpack';
 
 const envPreset = [
 	require.resolve('@babel/preset-env'),
@@ -26,6 +27,7 @@ export const replaceLoadersWithBabel = (
 					return rule;
 				}
 
+				// All modules that use require.resolve need to be added to cli/src/load-config -> external array
 				if (rule.test?.toString().includes('.tsx')) {
 					return {
 						test: /\.tsx?$/,
@@ -58,13 +60,7 @@ export const replaceLoadersWithBabel = (
 									].filter(truthy),
 								},
 							},
-							conf.mode === 'development'
-								? {
-										loader: require.resolve(
-											'@webhotelier/webpack-fast-refresh/loader.js'
-										),
-								  }
-								: null,
+							(rule.use as RuleSetUseItem[])[1],
 						].filter(truthy),
 					};
 				}

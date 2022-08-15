@@ -1,5 +1,7 @@
+import type {RenderMediaOnDownload} from './download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './download-and-map-assets-to-file';
-import {DownloadableAsset} from './types';
+import type {DownloadMap} from './download-map';
+import type {DownloadableAsset} from './types';
 
 const chunk = <T>(input: T[], size: number) => {
 	return input.reduce<T[][]>((arr, item, idx) => {
@@ -11,12 +13,12 @@ const chunk = <T>(input: T[], size: number) => {
 
 export const convertAssetsToFileUrls = async <T extends DownloadableAsset>({
 	assets,
-	dir,
 	onDownload,
+	downloadMap,
 }: {
 	assets: T[][];
-	dir: string;
-	onDownload: (src: string) => void;
+	onDownload: RenderMediaOnDownload;
+	downloadMap: DownloadMap;
 }): Promise<T[][]> => {
 	const chunks = chunk(assets, 1000);
 	const results: T[][][] = [];
@@ -27,9 +29,9 @@ export const convertAssetsToFileUrls = async <T extends DownloadableAsset>({
 				return Promise.all(
 					assetsForFrame.map((a) => {
 						return downloadAndMapAssetsToFileUrl({
-							localhostAsset: a,
-							webpackBundle: dir,
+							asset: a,
 							onDownload,
+							downloadMap,
 						});
 					})
 				);

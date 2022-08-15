@@ -1,23 +1,31 @@
-import {useContext, useEffect} from 'react';
-import {AnyComponent} from './any-component';
+import type {ComponentType} from 'react';
+import React, {Suspense, useContext, useEffect} from 'react';
+import {createPortal} from 'react-dom';
+import {CanUseRemotionHooksProvider} from './CanUseRemotionHooks';
 import {CompositionManager} from './CompositionManager';
+import {getInputProps} from './config/input-props';
+import {continueRender, delayRender} from './delay-render';
+import {FolderContext} from './Folder';
+import {getRemotionEnvironment} from './get-environment';
+import {Internals} from './internals';
+import {Loading} from './loading-indicator';
 import {useNonce} from './nonce';
-import {
-	addStaticComposition,
-	getIsEvaluation,
-	removeStaticComposition,
-} from './register-root';
+import {portalNode} from './portal-node';
 import {useLazyComponent} from './use-lazy-component';
+import {useVideo} from './use-video';
+import {validateCompositionId} from './validation/validate-composition-id';
 import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
 
+type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
+
 export type CompProps<T> =
 	| {
-			lazyComponent: () => Promise<{default: AnyComponent<T>}>;
+			lazyComponent: () => Promise<{default: LooseComponentType<T>}>;
 	  }
 	| {
-			component: AnyComponent<T>;
+			component: LooseComponentType<T>;
 	  };
 
 export type StillProps<T> = {
@@ -32,21 +40,44 @@ type CompositionProps<T> = StillProps<T> & {
 	durationInFrames: number;
 };
 
+const Fallback: React.FC = () => {
+	useEffect(() => {
+		const fallback = delayRender('Waiting for Root component to unsuspend');
+		return () => continueRender(fallback);
+	}, []);
+	return null;
+};
+
 export const Composition = <T,>({
 	width,
 	height,
 	fps,
 	durationInFrames,
 	id,
-	defaultProps: props,
+	defaultProps,
 	...compProps
 }: CompositionProps<T>) => {
-	const {registerComposition, unregisterComposition} = useContext(
-		CompositionManager
-	);
+	const {registerComposition, unregisterComposition} =
+		useContext(CompositionManager);
+	const video = useVideo();
 
 	const lazy = useLazyComponent(compProps);
 	const nonce = useNonce();
+
+	const canUseComposition = useContext(Internals.CanUseRemotionHooks);
+	if (canUseComposition) {
+		if (typeof window !== 'undefined' && window.remotion_isPlayer) {
+			throw new Error(
+				'<Composition> was mounted inside the `component` that was passed to the <Player>. See https://remotion.dev/docs/wrong-composition-mount for help.'
+			);
+		}
+
+		throw new Error(
+			'<Composition> mounted inside another composition. See https://remotion.dev/docs/wrong-composition-mount for help.'
+		);
+	}
+
+	const {folderName, parentName} = useContext(FolderContext);
 
 	useEffect(() => {
 		// Ensure it's a URL safe id
@@ -54,45 +85,30 @@ export const Composition = <T,>({
 			throw new Error('No id for composition passed.');
 		}
 
-		if (!id.match(/^([a-zA-Z0-9-])+$/g)) {
-			throw new Error(
-				`Composition id can only contain a-z, A-Z, 0-9 and -. You passed ${id}`
-			);
-		}
-
+		validateCompositionId(id);
 		validateDimension(width, 'width', 'of the <Composition/> component');
 		validateDimension(height, 'height', 'of the <Composition/> component');
 		validateDurationInFrames(
 			durationInFrames,
 			'of the <Composition/> component'
 		);
-		validateFps(fps, 'as a prop of the <Composition/> component');
+
+		validateFps(fps, 'as a prop of the <Composition/> component', false);
 		registerComposition<T>({
 			durationInFrames,
 			fps,
 			height,
 			width,
 			id,
+			folderName,
 			component: lazy,
-			props,
+			defaultProps,
 			nonce,
+			parentFolderName: parentName,
 		});
-
-		if (getIsEvaluation()) {
-			addStaticComposition({
-				component: lazy,
-				durationInFrames,
-				fps,
-				height,
-				id,
-				width,
-				nonce,
-			});
-		}
 
 		return () => {
 			unregisterComposition(id);
-			removeStaticComposition(id);
 		};
 	}, [
 		durationInFrames,
@@ -100,12 +116,52 @@ export const Composition = <T,>({
 		height,
 		lazy,
 		id,
-		props,
+		folderName,
+		defaultProps,
 		registerComposition,
 		unregisterComposition,
 		width,
 		nonce,
+		parentName,
 	]);
+
+	if (
+		getRemotionEnvironment() === 'preview' &&
+		video &&
+		video.component === lazy
+	) {
+		const Comp = lazy;
+		const inputProps = getInputProps();
+
+		return createPortal(
+			<CanUseRemotionHooksProvider>
+				<Suspense fallback={<Loading />}>
+					<Comp {...defaultProps} {...inputProps} />
+				</Suspense>
+			</CanUseRemotionHooksProvider>,
+
+			portalNode()
+		);
+	}
+
+	if (
+		getRemotionEnvironment() === 'rendering' &&
+		video &&
+		video.component === lazy
+	) {
+		const Comp = lazy;
+		const inputProps = getInputProps();
+
+		return createPortal(
+			<CanUseRemotionHooksProvider>
+				<Suspense fallback={<Fallback />}>
+					<Comp {...defaultProps} {...inputProps} />
+				</Suspense>
+			</CanUseRemotionHooksProvider>,
+
+			portalNode()
+		);
+	}
 
 	return null;
 };

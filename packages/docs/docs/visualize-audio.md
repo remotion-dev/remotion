@@ -3,9 +3,9 @@ title: visualizeAudio()
 id: visualize-audio
 ---
 
-_Part of the `@remotion/media-utils`_ package of helper functions.
+_Part of the `@remotion/media-utils` package of helper functions._
 
-This function takes in `AudioData` (preferrably fetched by the [`useAudioData()`](/docs/use-audio-data) hook) and processes it in a way that makes visualizing the audio that is playing at the current frame easy.
+This function takes in `AudioData` (preferably fetched by the [`useAudioData()`](/docs/use-audio-data) hook) and processes it in a way that makes visualizing the audio that is playing at the current frame easy.
 
 ## Arguments
 
@@ -34,17 +34,17 @@ Usually the values on left side of the array can become much larger than the val
 In this example, we render a bar chart visualizing the audio spectrum of an audio file we imported using [`useAudioData()`](/docs/use-audio-data) and `visualizeAudio()`.
 
 ```tsx twoslash
-import {Audio, useCurrentFrame, useVideoConfig} from 'remotion'
-import {useAudioData, visualizeAudio} from '@remotion/media-utils'
-import music from './music.mp3'
+import { Audio, useCurrentFrame, useVideoConfig } from "remotion";
+import { useAudioData, visualizeAudio } from "@remotion/media-utils";
+import music from "./music.mp3";
 
 export const MyComponent: React.FC = () => {
-  const frame = useCurrentFrame()
-  const {width, height, fps} = useVideoConfig()
-  const audioData = useAudioData(music)
+  const frame = useCurrentFrame();
+  const { width, height, fps } = useVideoConfig();
+  const audioData = useAudioData(music);
 
   if (!audioData) {
-    return null
+    return null;
   }
 
   const visualization = visualizeAudio({
@@ -52,7 +52,7 @@ export const MyComponent: React.FC = () => {
     frame,
     audioData,
     numberOfSamples: 16,
-  }) // [0.22, 0.1, 0.01, 0.01, 0.01, 0.02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  }); // [0.22, 0.1, 0.01, 0.01, 0.01, 0.02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
   // Render a bar chart for each frequency, the higher the amplitude,
   // the longer the bar
@@ -61,16 +61,64 @@ export const MyComponent: React.FC = () => {
       <Audio src={music} />
       {visualization.map((v) => {
         return (
-          <div style={{width: 1000 * v, height: 15, backgroundColor: 'blue'}} />
-        )
+          <div
+            style={{ width: 1000 * v, height: 15, backgroundColor: "blue" }}
+          />
+        );
       })}
     </div>
-  )
-}
+  );
+};
+```
+
+## Postprocessing example
+
+A logarithmic representation of the audio will look more appealing than a linear one. Below is an example of a postprocessing step that looks prettier than the default one.
+
+```tsx twoslash
+import { visualizeAudio } from "@remotion/media-utils";
+const params = {
+  audioData: {
+    channelWaveforms: [],
+    sampleRate: 0,
+    durationInSeconds: 0,
+    numberOfChannels: 0,
+    resultId: "",
+    isRemote: true,
+  },
+  frame: 0,
+  fps: 0,
+  numberOfSamples: 0,
+};
+// ---cut---
+/**
+ * This postprocessing step will match the values with what you'd
+ * get from WebAudio's AnalyserNode.
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode
+ */
+
+// get the frequency data
+const frequencyData = visualizeAudio(params);
+
+// default scaling factors from the W3C spec for getByteFrequencyData
+const minDb = -100;
+const maxDb = -30;
+
+const amplitudes = frequencyData.map((value) => {
+  // convert to decibels (will be in the range `-Infinity` to `0`)
+  const db = 20 * Math.log10(value);
+
+  // scale to fit between min and max
+  const scaled = (db - minDb) / (maxDb - minDb);
+
+  return scaled;
+});
 ```
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/visualize-audio.ts)
 - [Audio visualization](/docs/audio-visualization)
 - [`useAudioData()`](/docs/use-audio-data)
 - [`getAudioData()`](/docs/get-audio-data)

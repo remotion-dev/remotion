@@ -6,11 +6,12 @@ module.exports = {
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/logo-small.png",
-  organizationName: "JonnyBurger", // Usually your GitHub org/user name.
+  organizationName: "remotion-dev", // Usually your GitHub org/user name.
   projectName: "remotion", // Usually your repo name.
   themeConfig: {
     algolia: {
-      apiKey: "f63f08c037745da5269569bfbd91cd59",
+      appId: "PLSDUOL1CA",
+      apiKey: "3e42dbd4f895fe93ff5cf40d860c4a85",
       indexName: "remotion",
       contextualSearch: false,
     },
@@ -32,7 +33,7 @@ module.exports = {
         { to: "showcase", label: "Showcase", position: "left" },
         { to: "/docs/license", label: "Licensing", position: "left" },
         {
-          href: "https://discord.gg/6VzzNDwUwV",
+          href: "https://remotion.dev/discord",
           label: "Discord",
           position: "right",
           "data-splitbee-event": "External Link",
@@ -55,11 +56,19 @@ module.exports = {
           items: [
             {
               label: "Getting started",
-              to: "docs/",
+              to: "/docs/",
             },
             {
-              label: "API reference",
-              to: "docs/cli",
+              label: "API Reference",
+              to: "/docs/cli",
+            },
+            {
+              label: "Player",
+              to: "/player",
+            },
+            {
+              label: "Lambda",
+              to: "/lambda",
             },
             {
               label: "Changelog",
@@ -82,13 +91,13 @@ module.exports = {
             },
             {
               label: "Discord",
-              href: "https://discord.gg/6VzzNDwUwV",
+              href: "https://remotion.dev/discord",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Discord",
             },
             {
               label: "Twitter",
-              href: "https://twitter.com/JNYBGR",
+              href: "https://twitter.com/remotion_dev",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Twitter",
             },
@@ -110,10 +119,17 @@ module.exports = {
           title: "More",
           items: [
             {
+              label: "About us",
+              to: "about",
+            },
+            {
               label: "Blog",
               to: "blog",
             },
-
+            {
+              label: "Success Stories",
+              to: "success-stories",
+            },
             {
               label: "GitHub",
               href: "https://github.com/remotion-dev/remotion",
@@ -150,12 +166,34 @@ module.exports = {
       },
     ],
     [
-      "docusaurus-preset-shiki-twoslash",
+      "@jonny/docusaurus-preset-shiki-twoslash",
       {
-        themes: ["min-light", "min-dark"],
+        vfsRoot: process.cwd(),
+        themes: ["github-light", "github-dark"],
         defaultCompilerOptions: {
           types: ["node"],
         },
+      },
+    ],
+  ],
+  plugins: [
+    [
+      "@docusaurus/plugin-content-blog",
+      {
+        /**
+         * Required for any multi-instance plugin
+         */
+        id: "success-stories",
+        /**
+         * URL route for the blog section of your site.
+         * *DO NOT* include a trailing slash.
+         */
+        routeBasePath: "success-stories",
+        /**
+         * Path to data on filesystem relative to site dir.
+         */
+        path: "./success-stories",
+        blogSidebarTitle: "Success stories",
       },
     ],
   ],

@@ -1,26 +1,41 @@
-// @ts-expect-error
-import ansiDiff from 'ansi-diff';
-import chalk from 'chalk';
-import {Internals} from 'remotion';
+import type {Codec, StitchingState} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
+import {AnsiDiff} from './ansi/ansi-diff';
+import {chalk} from './chalk';
+import {ConfigInternals} from './config';
+import {makeMultiDownloadProgress} from './download-progress';
+import {makeProgressBar} from './make-progress-bar';
+import type {RenderStep} from './step';
+import {truthy} from './truthy';
 
-export const createProgressBar = (): {
+export const createProgressBar = (
+	quiet: boolean
+): {
 	update: (str: string) => boolean;
 } => {
-	if (!Internals.Logging.isEqualOrBelowLogLevel('info')) {
+	if (
+		!RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
+			'info'
+		)
+	) {
 		return {update: () => false};
 	}
 
-	const diff = ansiDiff();
-	process.stdout.write('');
+	return createOverwriteableCliOutput(quiet);
+};
+
+export const createOverwriteableCliOutput = (quiet: boolean) => {
+	if (quiet) {
+		return {
+			update: () => false,
+		};
+	}
+
+	const diff = new AnsiDiff();
 	return {
 		update: (up: string): boolean => process.stdout.write(diff.update(up)),
 	};
-};
-
-export const makeProgressBar = (percentage: number) => {
-	const totalBars = 20;
-	const barsToShow = Math.floor(percentage * totalBars);
-	return `[${'='.repeat(barsToShow).padEnd(totalBars, ' ')}]`;
 };
 
 export const makeBundlingProgress = ({
@@ -29,12 +44,11 @@ export const makeBundlingProgress = ({
 	doneIn,
 }: {
 	progress: number;
-	steps: number;
+	steps: RenderStep[];
 	doneIn: number | null;
 }) =>
 	[
-		'📦',
-		`(1/${steps})`,
+		`(${steps.indexOf('bundling') + 1}/${steps.length})`,
 		makeProgressBar(progress),
 		`${doneIn ? 'Bundled' : 'Bundling'} code`,
 		doneIn === null
@@ -42,27 +56,39 @@ export const makeBundlingProgress = ({
 			: chalk.gray(`${doneIn}ms`),
 	].join(' ');
 
+type RenderingProgressInput = {
+	frames: number;
+	totalFrames: number;
+	steps: RenderStep[];
+	concurrency: number;
+	doneIn: number | null;
+};
+
 export const makeRenderingProgress = ({
 	frames,
 	totalFrames,
 	steps,
 	concurrency,
 	doneIn,
-}: {
-	frames: number;
-	totalFrames: number;
-	steps: number;
-	concurrency: number;
-	doneIn: number | null;
-}) => {
+}: RenderingProgressInput) => {
 	const progress = frames / totalFrames;
 	return [
-		'🖼 ',
-		`(2/${steps})`,
+		`(${steps.indexOf('rendering') + 1}/${steps.length})`,
 		makeProgressBar(progress),
-		`${doneIn ? 'Rendered' : 'Rendering'} frames (${concurrency}x)`,
+		[doneIn ? 'Rendered' : 'Rendering', `frames (${concurrency}x)`]
+			.filter(truthy)
+			.join(' '),
 		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
 	].join(' ');
+};
+
+type StitchingProgressInput = {
+	frames: number;
+	totalFrames: number;
+	steps: RenderStep[];
+	doneIn: number | null;
+	stage: StitchingState;
+	codec: Codec;
 };
 
 export const makeStitchingProgress = ({
@@ -70,18 +96,49 @@ export const makeStitchingProgress = ({
 	totalFrames,
 	steps,
 	doneIn,
-}: {
-	frames: number;
-	totalFrames: number;
-	steps: number;
-	doneIn: number | null;
-}) => {
+	stage,
+	codec,
+}: StitchingProgressInput) => {
 	const progress = frames / totalFrames;
+	const mediaType =
+		codec === 'gif'
+			? 'GIF'
+			: RenderInternals.isAudioCodec(codec)
+			? 'audio'
+			: 'video';
+
 	return [
-		'🎞 ',
-		`(3/${steps})`,
+		`(${steps.indexOf('stitching') + 1}/${steps.length})`,
 		makeProgressBar(progress),
-		`${doneIn ? 'Encoded' : 'Encoding'} video`,
+		stage === 'muxing' && RenderInternals.canUseParallelEncoding(codec)
+			? `${doneIn ? 'Muxed' : 'Muxing'} ${mediaType}`
+			: `${doneIn ? 'Encoded' : 'Encoding'} ${mediaType}`,
 		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
 	].join(' ');
+};
+
+export type DownloadProgress = {
+	name: string;
+	id: number;
+	progress: number | null;
+	totalBytes: number | null;
+	downloaded: number;
+};
+
+export const makeRenderingAndStitchingProgress = ({
+	rendering,
+	stitching,
+	downloads,
+}: {
+	rendering: RenderingProgressInput;
+	stitching: StitchingProgressInput | null;
+	downloads: DownloadProgress[];
+}) => {
+	return [
+		makeRenderingProgress(rendering),
+		makeMultiDownloadProgress(downloads),
+		stitching === null ? null : makeStitchingProgress(stitching),
+	]
+		.filter(truthy)
+		.join('\n');
 };

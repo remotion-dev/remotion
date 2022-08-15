@@ -1,4 +1,4 @@
-import {RenderAssetInfo} from 'remotion';
+import type {RenderAssetInfo} from './assets/download-map';
 
 export type RenderFramesOutput = {
 	frameCount: number;
@@ -8,5 +8,3 @@ export type RenderFramesOutput = {
 export type OnStartData = {
 	frameCount: number;
 };
-
-export type OnErrorInfo = {error: Error; frame: number | null};

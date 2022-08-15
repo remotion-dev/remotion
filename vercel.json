@@ -1,0 +1,44 @@
+{
+  "redirects": [
+    {
+      "source": "/changelog",
+      "destination": "https://github.com/remotion-dev/remotion/releases",
+      "permanent": false
+    },
+    {
+      "source": "/discord",
+      "destination": "https://discord.gg/6VzzNDwUwV",
+      "permanent": false
+    },
+    {
+      "source": "/coc",
+      "destination": "https://github.com/remotion-dev/remotion/blob/main/CODE-OF-CONDUCT.md",
+      "permanent": false
+    },
+    {
+      "source": "/license",
+      "destination": "https://github.com/remotion-dev/remotion/blob/main/LICENSE.md",
+      "permanent": false
+    },
+    {
+      "source": "/timeout",
+      "destination": "https://remotion.dev/docs/timeout",
+      "permanent": false
+    },
+    {
+      "source": "/issue",
+      "destination": "https://github.com/remotion-dev/remotion/issues/new/choose",
+      "permanent": false
+    },
+    {
+      "source": "/skia",
+      "destination": "https://remotion.dev/docs/skia",
+      "permanent": false
+    },
+    {
+      "source": "/lottie",
+      "destination": "https://remotion.dev/docs/lottie",
+      "permanent": false
+    }
+  ]
+}

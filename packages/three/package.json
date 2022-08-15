@@ -1,12 +1,12 @@
 {
 	"name": "@remotion/three",
-	"version": "2.3.3",
+	"version": "3.2.3",
 	"description": "Utility functions for using react-three-fiber with remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
-		"test": "eslint src --ext ts,tsx",
+		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
 		"build": "tsc -d"
 	},
@@ -16,24 +16,42 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
 	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
 	"dependencies": {
-		"remotion": "^2.3.3"
+		"remotion": "3.2.3"
 	},
 	"peerDependencies": {
-		"@react-three/fiber": ">=6.0.14",
-		"react": ">=17.0.1",
-		"react-dom": ">=17.0.1",
-		"three": ">=0.129.0"
+		"@react-three/fiber": ">=7.0.19",
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0",
+		"three": ">=0.134.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.210",
+		"@jonny/eslint-config": "3.0.266",
+		"@react-three/fiber": ">=7.0.26",
 		"@types/node": "^14.14.14",
-		"@types/three": "^0.128.0",
-		"eslint": "^7.4.0",
+		"@types/react": "18.0.1",
+		"@types/react-reconciler": "^0.26.4",
+		"@types/three": "^0.134.0",
+		"@types/web": "0.0.48",
+		"eslint": "8.13.0",
 		"prettier": "^2.0.5",
-		"prettier-plugin-organize-imports": "^1.1.1",
-		"typescript": "^4.4.2"
+		"prettier-plugin-organize-imports": "^2.3.4",
+		"react": "18.0.0",
+		"react-dom": "18.0.0",
+		"three": "^0.134.0",
+		"typescript": "^4.7.0"
 	},
+	"keywords": [
+		"remotion",
+		"ffmpeg",
+		"video",
+		"react",
+		"puppeteer",
+		"player"
+	],
 	"publishConfig": {
 		"access": "public"
 	}

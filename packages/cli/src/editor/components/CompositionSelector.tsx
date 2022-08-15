@@ -1,125 +1,99 @@
-import React, {useCallback, useContext, useEffect} from 'react';
-import {Internals, TComposition} from 'remotion';
-import styled from 'styled-components';
-import {isCompositionStill} from '../helpers/is-composition-still';
-import {FilmIcon} from '../icons/film';
-import {StillIcon} from '../icons/still';
-import {CurrentComposition} from './CurrentComposition';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
+import {Internals} from 'remotion';
+import {BACKGROUND} from '../helpers/colors';
 import {
-	getCurrentCompositionFromUrl,
-	getFrameForComposition,
-} from './FramePersistor';
+	createFolderTree,
+	splitParentIntoNameAndParent,
+} from '../helpers/create-folder-tree';
+import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
+import {
+	loadExpandedFolders,
+	openFolderKey,
+	persistExpandedFolders,
+} from '../helpers/persist-open-folders';
+import {useZIndex} from '../state/z-index';
+import {CompositionSelectorItem} from './CompositionSelectorItem';
+import {CurrentComposition} from './CurrentComposition';
+import {useSelectComposition} from './InitialCompositionLoader';
 
-const Container = styled.div`
-	border-right: 1px solid black;
-	position: absolute;
-	height: 100%;
-	width: 100%;
-	flex: 1;
-`;
+const container: React.CSSProperties = {
+	borderRight: '1px solid black',
+	position: 'absolute',
+	height: '100%',
+	width: '100%',
+	flex: 1,
+	backgroundColor: BACKGROUND,
+};
 
-const List = styled.div`
-	padding: 5px;
-	height: calc(100% - 100px);
-	overflow-y: auto;
-`;
+const list: React.CSSProperties = {
+	padding: 5,
+	height: 'calc(100% - 100px)',
+	overflowY: 'auto',
+};
 
-const Item = styled.a<{
-	selected: boolean;
-}>`
-	background: ${(props) =>
-		props.selected ? 'rgba(255, 255, 255, 0.3)' : 'transparent'};
-	color: ${(props) => (props.selected ? 'white' : 'rgba(255, 255, 255, 0.6)')};
-	padding-left: 8px;
-	padding-right: 8px;
-	padding-top: 6px;
-	padding-bottom: 6px;
-	font-size: 13px;
-	font-family: Arial, Helvetica, sans-serif;
-	display: flex;
-	border-radius: 2px;
-	text-decoration: none;
-	cursor: default;
-	align-items: center;
-	border-width: 1px;
-	border-style: solid;
-	border-color: transparent;
-	margin-bottom: 1px;
-	&:hover {
-		border-color: ${(props) =>
-			props.selected ? 'transparent' : 'rgba(255, 255, 255, 0.1)'};
-		background: ${(props) =>
-			props.selected ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)'};
-		color: white;
+export const getKeysToExpand = (
+	initialFolderName: string,
+	parentFolderName: string | null,
+	initial: string[] = []
+): string[] => {
+	initial.push(openFolderKey(initialFolderName, parentFolderName));
+
+	const {name, parent} = splitParentIntoNameAndParent(parentFolderName);
+	if (!name) {
+		return initial;
 	}
-`;
 
-const spacer: React.CSSProperties = {
-	width: 6,
+	return getKeysToExpand(name, parent, initial);
 };
 
 export const CompositionSelector: React.FC = () => {
-	const {compositions, setCurrentComposition, currentComposition} = useContext(
+	const {compositions, currentComposition, folders} = useContext(
 		Internals.CompositionManager
 	);
-	const setCurrentFrame = Internals.Timeline.useTimelineSetFrame();
+	const [foldersExpanded, setFoldersExpanded] = useState<ExpandedFoldersState>(
+		loadExpandedFolders()
+	);
+	const {tabIndex} = useZIndex();
+	const selectComposition = useSelectComposition();
 
-	const selectComposition = useCallback(
-		(c: TComposition) => {
-			window.history.pushState({}, 'Preview', `/${c.id}`);
-			const frame = getFrameForComposition(c.id);
-			const frameInBounds = Math.min(c.durationInFrames - 1, frame);
-			setCurrentFrame(frameInBounds);
-			setCurrentComposition(c.id);
+	const toggleFolder = useCallback(
+		(folderName: string, parentName: string | null) => {
+			setFoldersExpanded((p) => {
+				const key = openFolderKey(folderName, parentName);
+				const prev = p[key] ?? false;
+				const foldersExpandedState: ExpandedFoldersState = {
+					...p,
+					[key]: !prev,
+				};
+				persistExpandedFolders(foldersExpandedState);
+				return foldersExpandedState;
+			});
 		},
-		[setCurrentComposition, setCurrentFrame]
+		[]
 	);
 
-	useEffect(() => {
-		if (currentComposition) {
-			return;
-		}
-
-		const compositionFromUrl = getCurrentCompositionFromUrl();
-		if (compositionFromUrl) {
-			const exists = compositions.find((c) => c.id === compositionFromUrl);
-			if (exists) {
-				selectComposition(exists);
-				return;
-			}
-		}
-
-		if (compositions.length > 0) {
-			selectComposition(compositions[0]);
-		}
-	}, [compositions, currentComposition, selectComposition]);
+	const items = useMemo(() => {
+		return createFolderTree(compositions, folders, foldersExpanded);
+	}, [compositions, folders, foldersExpanded]);
 
 	return (
-		<Container>
+		<div style={container}>
 			<CurrentComposition />
-			<List>
-				{compositions.map((c) => {
+			<div style={list}>
+				{items.map((c) => {
 					return (
-						<Item
-							key={c.id}
-							href={c.id}
-							selected={currentComposition === c.id}
-							onClick={(evt) => {
-								evt.preventDefault();
-								selectComposition(c);
-							}}
-						>
-							{isCompositionStill(c) ? (
-								<StillIcon style={{height: 18, width: 18}} />
-							) : (
-								<FilmIcon style={{height: 18, width: 18}} />
-							)}
-							<div style={spacer} />
-							{c.id}
-						</Item>
+						<CompositionSelectorItem
+							key={c.key + c.type}
+							level={0}
+							currentComposition={currentComposition}
+							selectComposition={selectComposition}
+							toggleFolder={toggleFolder}
+							tabIndex={tabIndex}
+							item={c}
+						/>
 					);
 				})}
-			</List>
-		</Container>
+			</div>
+		</div>
 	);
 };

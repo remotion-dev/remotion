@@ -1,6 +1,13 @@
-import React, {HTMLAttributes, useMemo} from 'react';
+import type {HTMLAttributes} from 'react';
+import React, { useMemo} from 'react';
 
-export const AbsoluteFill: React.FC<HTMLAttributes<HTMLDivElement>> = props => {
+/**
+ * An absolutely positioned <div> element with 100% width, height, and a column flex style
+ * @link https://www.remotion.dev/docs/absolute-fill
+ */
+export const AbsoluteFill: React.FC<HTMLAttributes<HTMLDivElement>> = (
+	props
+) => {
 	const {style, ...other} = props;
 	const actualStyle = useMemo((): React.CSSProperties => {
 		return {

@@ -1,41 +1,58 @@
+import type {RenderMediaOnDownload} from '@remotion/renderer';
 import {
 	getCompositions,
+	openBrowser,
 	RenderInternals,
 	renderStill,
 } from '@remotion/renderer';
-import chalk from 'chalk';
 import {mkdirSync} from 'fs';
 import path from 'path';
-import {Config, Internals} from 'remotion';
-import {getCliOptions} from './get-cli-options';
+import {chalk} from './chalk';
+import {Config, ConfigInternals} from './config';
+import {
+	getAndValidateAbsoluteOutputFile,
+	getCliOptions,
+} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
-import {handleCommonError} from './handle-common-errors';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
-import {createProgressBar, makeRenderingProgress} from './progress-bar';
-import {bundleOnCli} from './setup-cache';
-import {getUserPassedOutputLocation} from './user-passed-output-location';
+import {parsedCli, quietFlagProvided} from './parse-command-line';
+import type {DownloadProgress} from './progress-bar';
+import {
+	createOverwriteableCliOutput,
+	makeRenderingAndStitchingProgress,
+} from './progress-bar';
+import {bundleOnCliOrTakeServeUrl} from './setup-cache';
+import type {RenderStep} from './step';
+import {truthy} from './truthy';
+import {
+	getOutputLocation,
+	getUserPassedOutputLocation,
+} from './user-passed-output-location';
 
-export const still = async () => {
+export const still = async (remotionRoot: string) => {
 	const startTime = Date.now();
 	const file = parsedCli._[1];
-	const fullPath = path.join(process.cwd(), file);
+	const fullPath = RenderInternals.isServeUrl(file)
+		? file
+		: path.join(process.cwd(), file);
 
-	initializeRenderCli('still');
+	await initializeRenderCli(remotionRoot, 'still');
 
-	const userOutput = path.resolve(process.cwd(), getUserPassedOutputLocation());
-
-	if (userOutput.endsWith('.jpeg') || userOutput.endsWith('.jpg')) {
+	const userPassedOutput = getUserPassedOutputLocation();
+	if (
+		userPassedOutput?.endsWith('.jpeg') ||
+		userPassedOutput?.endsWith('.jpg')
+	) {
 		Log.verbose(
-			'Output file has a JPEG extension, therefore setting the image format to JPEG.'
+			'Output file has a JPEG extension, setting the image format to JPEG.'
 		);
 		Config.Rendering.setImageFormat('jpeg');
 	}
 
-	if (userOutput.endsWith('.png')) {
+	if (userPassedOutput?.endsWith('.png')) {
 		Log.verbose(
-			'Output file has a PNG extension, therefore setting the image format to PNG.'
+			'Output file has a PNG extension, setting the image format to PNG.'
 		);
 		Config.Rendering.setImageFormat('png');
 	}
@@ -48,7 +65,37 @@ export const still = async () => {
 		imageFormat,
 		stillFrame,
 		browserExecutable,
-	} = await getCliOptions('still');
+		chromiumOptions,
+		scale,
+		ffmpegExecutable,
+		ffprobeExecutable,
+		overwrite,
+		puppeteerTimeout,
+		port,
+	} = await getCliOptions({
+		isLambda: false,
+		type: 'still',
+	});
+
+	Log.verbose('Browser executable: ', browserExecutable);
+
+	const compositionId = getCompositionId();
+
+	const relativeOutputLocation = getOutputLocation({
+		compositionId,
+		defaultExtension: imageFormat,
+	});
+
+	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(
+		relativeOutputLocation,
+		overwrite
+	);
+
+	Log.info(
+		chalk.gray(
+			`Output = ${relativeOutputLocation}, Format = ${imageFormat}, Composition = ${compositionId}`
+		)
+	);
 
 	if (imageFormat === 'none') {
 		Log.error(
@@ -57,85 +104,139 @@ export const still = async () => {
 		process.exit(1);
 	}
 
-	if (imageFormat === 'png' && !userOutput.endsWith('.png')) {
+	if (imageFormat === 'png' && !absoluteOutputLocation.endsWith('.png')) {
 		Log.warn(
-			`Rendering a PNG, expected a .png extension but got ${userOutput}`
+			`Rendering a PNG, expected a .png extension but got ${absoluteOutputLocation}`
 		);
 	}
 
 	if (
 		imageFormat === 'jpeg' &&
-		!userOutput.endsWith('.jpg') &&
-		!userOutput.endsWith('.jpeg')
+		!absoluteOutputLocation.endsWith('.jpg') &&
+		!absoluteOutputLocation.endsWith('.jpeg')
 	) {
 		Log.warn(
-			`Rendering a JPEG, expected a .jpg or .jpeg extension but got ${userOutput}`
+			`Rendering a JPEG, expected a .jpg or .jpeg extension but got ${absoluteOutputLocation}`
 		);
 	}
 
-	const browserInstance = RenderInternals.openBrowser(browser, {
+	const browserInstance = openBrowser(browser, {
 		browserExecutable,
-		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+		chromiumOptions,
+		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
+			'verbose'
+		),
+		forceDeviceScaleFactor: scale,
 	});
 
-	mkdirSync(path.join(userOutput, '..'), {
+	mkdirSync(path.join(absoluteOutputLocation, '..'), {
 		recursive: true,
 	});
 
-	const steps = 2;
+	const steps: RenderStep[] = [
+		RenderInternals.isServeUrl(fullPath) ? null : ('bundling' as const),
+		'rendering' as const,
+	].filter(truthy);
 
-	const bundled = await bundleOnCli(fullPath, steps);
+	const {cleanup: cleanupBundle, urlOrBundle} = await bundleOnCliOrTakeServeUrl(
+		{fullPath, remotionRoot, steps}
+	);
 
-	const openedBrowser = await browserInstance;
-	const comps = await getCompositions(bundled, {
-		browser,
+	const puppeteerInstance = await browserInstance;
+
+	const downloadMap = RenderInternals.makeDownloadMap();
+
+	const comps = await getCompositions(urlOrBundle, {
 		inputProps,
-		browserInstance: openedBrowser,
+		puppeteerInstance,
 		envVariables,
+		timeoutInMilliseconds: puppeteerTimeout,
+		chromiumOptions,
+		port,
+		browserExecutable,
+		ffmpegExecutable,
+		ffprobeExecutable,
+		downloadMap,
 	});
-	const compositionId = getCompositionId(comps);
 
 	const composition = comps.find((c) => c.id === compositionId);
 	if (!composition) {
 		throw new Error(`Cannot find composition with ID ${compositionId}`);
 	}
 
-	const renderProgress = createProgressBar();
+	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
 	const renderStart = Date.now();
+
+	const downloads: DownloadProgress[] = [];
+	let frames = 0;
+	const totalFrames = 1;
+
+	const updateProgress = () => {
+		renderProgress.update(
+			makeRenderingAndStitchingProgress({
+				rendering: {
+					frames,
+					concurrency: 1,
+					doneIn: frames === totalFrames ? Date.now() - renderStart : null,
+					steps,
+					totalFrames,
+				},
+				downloads,
+				stitching: null,
+			})
+		);
+	};
+
+	updateProgress();
+
+	const onDownload: RenderMediaOnDownload = (src) => {
+		const id = Math.random();
+		const download: DownloadProgress = {
+			id,
+			name: src,
+			progress: 0,
+			downloaded: 0,
+			totalBytes: null,
+		};
+		downloads.push(download);
+		updateProgress();
+
+		return ({percent}) => {
+			download.progress = percent;
+			updateProgress();
+		};
+	};
 
 	await renderStill({
 		composition,
 		frame: stillFrame,
-		output: userOutput,
-		webpackBundle: bundled,
+		output: absoluteOutputLocation,
+		serveUrl: urlOrBundle,
 		quality,
-		browser,
-		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
+			'verbose'
+		),
 		envVariables,
 		imageFormat,
 		inputProps,
-		onError: (err: Error) => {
-			Log.error();
-			Log.error('The following error occured when rendering the still:');
-
-			handleCommonError(err);
-
-			process.exit(1);
-		},
-		puppeteerInstance: openedBrowser,
-		overwrite: Internals.getShouldOverwrite(),
+		chromiumOptions,
+		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
+		scale,
+		ffmpegExecutable,
+		browserExecutable,
+		overwrite,
+		onDownload,
+		port,
+		downloadMap,
 	});
 
-	const closeBrowserPromise = openedBrowser.close();
-	renderProgress.update(
-		makeRenderingProgress({
-			frames: 1,
-			concurrency: 1,
-			doneIn: Date.now() - renderStart,
-			steps,
-			totalFrames: 1,
-		})
-	);
+	frames = 1;
+	updateProgress();
+	Log.info();
+
+	const closeBrowserPromise = puppeteerInstance.close();
 
 	Log.info(chalk.green('\nYour still frame is ready!'));
 
@@ -148,6 +249,10 @@ export const still = async () => {
 		].join(' ')
 	);
 	Log.info('-', 'Output can be found at:');
-	Log.info(chalk.cyan(`▶️ ${userOutput}`));
+	Log.info(chalk.cyan(`▶️ ${absoluteOutputLocation}`));
 	await closeBrowserPromise;
+	await RenderInternals.cleanDownloadMap(downloadMap);
+	await cleanupBundle();
+
+	Log.verbose('Cleaned up', downloadMap.assetDir);
 };

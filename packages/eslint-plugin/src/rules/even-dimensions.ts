@@ -1,6 +1,6 @@
-import { ESLintUtils } from "@typescript-eslint/experimental-utils";
+import { ESLintUtils } from "@typescript-eslint/utils";
 
-const createRule = ESLintUtils.RuleCreator((name) => {
+const createRule = ESLintUtils.RuleCreator(() => {
   return `https://github.com/remotion-dev/remotion`;
 });
 
@@ -17,7 +17,6 @@ export default createRule<Options, MessageIds>({
     type: "problem",
     docs: {
       description: EvenDimensions,
-      category: "Possible Errors",
       recommended: "warn",
     },
     fixable: undefined,

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef } from "react";
-import { ShowcaseVideo } from "../data/showcase-videos";
+import type { ShowcaseVideo } from "../data/showcase-videos";
 import { useElementSize } from "../helpers/use-el-size";
 import { CancelIcon, IconLeft, IconRight } from "../icons/arrows";
 import { VideoPlayerContent } from "./VideoPlayerContent";

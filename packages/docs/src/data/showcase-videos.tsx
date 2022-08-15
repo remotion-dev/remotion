@@ -104,8 +104,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "video",
-        url:
-          "https://twitter.com/FlorentPergoud/status/1371874105281159178?s=20",
+        url: "https://twitter.com/FlorentPergoud/status/1371874105281159178?s=20",
       },
     ],
     author: {
@@ -270,8 +269,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "source_code",
-        url:
-          "https://github.com/c0/remotion-playground/blob/main/src/GooBallCSS.jsx",
+        url: "https://github.com/c0/remotion-playground/blob/main/src/GooBallCSS.jsx",
       },
     ],
     author: {
@@ -315,8 +313,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "website",
-        url:
-          "https://www.youtube.com/channel/UCRBZkDc7udWuxrvedrFUbCQ/featured",
+        url: "https://www.youtube.com/channel/UCRBZkDc7udWuxrvedrFUbCQ/featured",
       },
     ],
     author: {
@@ -408,8 +405,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "website",
-        url:
-          "https://www.quantargo.com/blog/2021-02-26-new-course-advanced-data-transformation/",
+        url: "https://www.quantargo.com/blog/2021-02-26-new-course-advanced-data-transformation/",
       },
     ],
     author: {
@@ -657,13 +653,11 @@ export const showcaseVideos: ShowcaseVideo[] = [
     links: [
       {
         type: "video",
-        url:
-          "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
+        url: "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
       },
     ],
     author: {
-      url:
-        "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
+      url: "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
       name: "Suthar",
     },
   },
@@ -753,13 +747,11 @@ export const showcaseVideos: ShowcaseVideo[] = [
     links: [
       {
         type: "video",
-        url:
-          "https://www.udemy.com/course/the-cloud-architects-guide-to-cloudfront/",
+        url: "https://www.udemy.com/course/the-cloud-architects-guide-to-cloudfront/",
       },
       {
         type: "website",
-        url:
-          "https://www.udemy.com/course/the-cloud-architects-guide-to-cloudfront/",
+        url: "https://www.udemy.com/course/the-cloud-architects-guide-to-cloudfront/",
       },
     ],
     author: {
@@ -922,8 +914,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
     links: [
       {
         type: "video",
-        url:
-          "https://cdn.ecoeats.uk/videos/merchant-features/06c07944-6d13-4188-8356-d42d744ba54e/raw-pressed-market-street.mp4",
+        url: "https://cdn.ecoeats.uk/videos/merchant-features/06c07944-6d13-4188-8356-d42d744ba54e/raw-pressed-market-street.mp4",
       },
     ],
     author: {
@@ -995,6 +986,266 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "Ben Follington",
     },
   },
+  {
+    title: "Feature overview",
+    type: "mux_video",
+    muxId: "d2SvbrhHvyJZb2EmSv441M601UBy1dfEYfToKGqDpV01Y",
+    description: "A showcase of features in the new Bottom Sheet library.",
+    height: 640,
+    width: 1280,
+    submittedOn: new Date("10-04-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/Gorhom/status/1432363415272558593",
+      },
+      {
+        type: "website",
+        url: "https://gorhom.github.io/react-native-bottom-sheet/blog/bottom-sheet-v4/",
+      },
+    ],
+    author: {
+      url: "https://gorhom.dev/",
+      name: "Mo Gorhom",
+    },
+  },
+  {
+    title: "AnySticker Announcement",
+    type: "mux_video",
+    muxId: "GhK5YXKrtWTa2kEf7HajaE6DG2FtTNsZfW7mfIzQBJ00",
+    description:
+      "A hyped up announcement trailer for the new AnySticker app, made using React Three Fiber.",
+    height: 1080,
+    width: 1080,
+    submittedOn: new Date("11-15-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/JonnyBurger/anysticker-tutorials/blob/main/src/Announcement/index.tsx",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/JNYBGR/status/1458375456965763075",
+      },
+      {
+        type: "website",
+        url: "https://anysticker.com",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/JNYBGR",
+      name: "JNYBGR",
+    },
+  },
+  {
+    title: "Outro Cards",
+    type: "mux_video",
+    muxId: "Rzmd76Rry7hQAAvTREyaLLT4wSAuc9zouk3ZxOmybq4",
+    description:
+      "Animated playing cards. Used as a background for an outro thanking subscribers for their support.",
+    height: 1080,
+    width: 1920,
+    submittedOn: new Date("11-24-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=xPbRsca_l7c",
+      },
+      {
+        type: "website",
+        url: "https://start-react-native.dev/",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/wcandillon",
+      name: "William Candillon",
+    },
+  },
+  {
+    title: 'Mux stats tutorial',
+    type: 'mux_video',
+    muxId: 'DDgXb2KfPk7xdvxEoyPkrl7GcybohNon',
+    description:
+      'An article on how to showcase your video stats by creating a dynamic animated video using Remotion and the Mux Data API.',
+    height: 270,
+    width: 480,
+    submittedOn: new Date('19-01-2022'),
+    links: [
+      {
+        type: 'source_code',
+        url: 'https://github.com/davekiss/mux-remotion-demo/',
+      },
+      {
+        type: 'video',
+        url: 'https://twitter.com/MuxHQ/status/1483514610380644357',
+      },
+      {
+        type: 'tutorial',
+        url: 'https://mux.com/blog/visualize-mux-data-with-remotion/',
+      },
+    ],
+    author: {
+      url: 'https://davekiss.com/',
+      name: 'Dave Kiss',
+    },
+  },
+  {
+    title: "Audio Player",
+    type: "mux_video",
+    muxId: "eKnHTDXWCBsQgm00vOl59ZVF300otry3STKzFe025O7M5E",
+    description: "A Reusable audio player template created using Remotion.",
+    height: 1920,
+    width: 1080,
+    submittedOn: new Date("03-29-2022"),
+    links: [
+      {
+        type: 'source_code',
+        url: 'https://github.com/varunpbardwaj/remotion-audio-player-template/',
+      },
+      {
+        type: "video",
+	url: "https://portfolio-varunpbardwaj.vercel.app/remotion/neenaadena/",
+      },
+    ],
+    author: {
+      "url": "https://portfolio-varunpbardwaj.vercel.app",
+      "name": "Varun Bardwaj"
+    }
+},
+{
+    title: "Product Hunt Today",
+    type: "mux_video",
+    muxId: "9vegqVB2n02YrTL3c38HoOyd7Smytz01Hl3qaXI5KCOZM",
+    description: "Fully automated Twitter bot that tweets trending Product Hunt products every day.",
+    height: 720,
+    width: 720,
+    submittedOn: new Date("03-27-2022"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/Kamigami55/product-hunt-today",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/ProductHunToday/status/1507997707008417792",
+      },
+      {
+        type: "website",
+        url: "https://twitter.com/ProductHunToday",
+      },
+    ],
+    author: {
+      "url": "https://easonchang.com/",
+      "name": "Eason Chang"
+    }
+  },
+  {
+	title: "Old french TV trailer (tribute)",
+	type: "mux_video",
+	muxId: "7tmF019NZLRuazoq5I7WFdacYz8bjJb4BTDEQ5cEkFe4",
+	description: "Video tribute to an old TV jingle called \"La trilogie du samedi\" broadcasted in the early 2000s in France on the channel M6.",
+	height: 1080,
+	width: 1920,
+	submittedOn: new Date("04-01-2022"),
+	links: [],
+	author: {
+		"url": "https://twitter.com/Slashgear_",
+		"name": "Antoine Caron & Mickaël Alves"
+	}
+  },
+  {
+    title: 'snappify ProductHunt GIF',
+    type: 'mux_video',
+    muxId: 'vOGnXmkV01R2WW6SuZRIykksh3uzEfRV900ieznAmc7Is',
+    description:
+      'An animated Logo used for the ProductHunt launch of snappify.',
+    height: 960,
+    width: 960,
+    submittedOn: new Date("05-04-2022"),
+    links: [
+      {
+        type: 'source_code',
+        url: 'https://github.com/snappify-io/producthunt-gif',
+      },
+      {
+        type: 'website',
+        url: 'https://snappify.io/',
+      },
+      {
+        type: 'tutorial',
+        url: 'https://snappify.io/blog/create-producthunt-gif-with-remotion',
+      },
+    ],
+    author: {
+      url: 'https://twitter.com/dominiksumer',
+      name: 'Dominik Sumer',
+    },
+  },
+  {
+    title: "Master Duel Week",
+    type: "mux_video",
+    muxId: "nFm3f8VfvL6ag20093gMUtWfbAJe5F6s4z5LapxrpLcM",
+    description: "Automated Twitter bot that tweets a trading card game's meta deck weekly",
+    height: 720,
+    width: 720,
+    submittedOn: new Date("05-08-2022"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/KalleChen/master-duel-week",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/masterduelweek/status/1522850783020339200",
+      },
+      {
+        type: "website",
+        url: "https://twitter.com/masterduelweek",
+      },
+    ],
+    author: {
+      "url": "https://kallechen.github.io/",
+      "name": "Kalle Chen"
+    }
+  },
+  {
+    title: "Video Ad",
+    type: "mux_video",
+    muxId: "kfl1VFbNcRFntVKhdkvTB6mBmcivDv82UX64Na4TMGw",
+    description: "A simple video ad",
+    height: 1920,
+    width: 1080,
+    submittedOn: new Date("07-18-2022"),
+    links: [],
+    author: {
+      "url": "https://www.linkedin.com/in/sepehrsafari/",
+      "name": "Sepehr Safari"
+    }
+  },
+	{
+	title: "Top 15 smallest animals in this planet",
+	type: "mux_video",
+	muxId: "bQ5bHzbVsYngW5GF4iQxH601HyPnxHZCcXZas1zzQRAU",
+	description: "A simple Top List Video",
+	height: 1080,
+	width: 1920,
+	submittedOn: new Date("08-12-2022"),
+	links: [
+		{
+			type: "video",
+			url: "https://youtu.be/jDAwyWWWfkM",
+		},
+		{
+			type: "website",
+			url: "https://adavii.com/",
+		},
+	],
+	author: {
+		"url": "https://twitter.com/yuwan_kumar",
+		"name": "Yuwan Kumar"
+	}
+},
+		
 ];
 
 const dateString = (date: Date) =>

@@ -1,38 +1,41 @@
-import {renderFrames} from '../render';
+import {describe, expect, test} from 'vitest';
+import {renderFrames} from '../render-frames';
 
 describe('Should validate invalid data passed to renderFrames', () => {
 	test('Invalid FPS', () => {
 		return expect(() =>
 			// @ts-expect-error
 			renderFrames({
-				config: {
+				composition: {
 					durationInFrames: 100,
 					fps: -1,
 					height: 1000,
 					width: 1000,
+					id: 'hithere',
 				},
 			})
-		).rejects.toThrow(
+		).to.throw(
 			/"fps" must be positive, but got -1 in the `config` object of `renderFrames\(\)`/
 		);
 	});
-	test('Invalid durationInFrames', async () => {
-		return expect(
+	test('Invalid durationInFrames', () => {
+		return expect(() =>
 			// @ts-expect-error
 			renderFrames({
-				config: {
+				composition: {
 					durationInFrames: 0.5,
 					fps: 30,
 					height: 1000,
 					width: 1000,
+					id: 'hithere',
 				},
 			})
-		).rejects.toThrow(
+		).toThrow(
 			/The "durationInFrames" prop in the `config` object passed to `renderFrames\(\)` must be an integer, but got 0.5./
 		);
 	});
-	test('Invalid height', async () => {
-		return expect(
+	test('Invalid height', () => {
+		return expect(() =>
 			// @ts-expect-error
 			renderFrames({
 				config: {
@@ -40,14 +43,15 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					fps: 30,
 					height: 1000.5,
 					width: 1000,
+					id: 'hithere',
 				},
 			})
-		).rejects.toThrow(
+		).toThrow(
 			/The "height" prop in the `config` object passed to `renderFrames\(\)` must be an integer, but is 1000.5./
 		);
 	});
-	test('Invalid width', async () => {
-		return expect(
+	test('Invalid width', () => {
+		return expect(() =>
 			// @ts-expect-error
 			renderFrames({
 				config: {
@@ -55,9 +59,10 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					fps: 30,
 					width: 1000.5,
 					height: 1000,
+					id: 'hithere',
 				},
 			})
-		).rejects.toThrow(
+		).toThrow(
 			/The "width" prop in the `config` object passed to `renderFrames\(\)` must be an integer, but is 1000.5./
 		);
 	});

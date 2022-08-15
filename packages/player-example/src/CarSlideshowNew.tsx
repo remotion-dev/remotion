@@ -21,8 +21,8 @@ const CarSlideshow: React.FC<{
 		<div
 			style={{
 				backgroundColor: backGroundColor,
-				width: width,
-				height: height,
+				width,
+				height,
 				position: 'absolute',
 				left: 0,
 				top: 0,

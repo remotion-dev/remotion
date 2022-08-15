@@ -1,7 +1,7 @@
 import {useContext, useMemo} from 'react';
-import {SequenceContext} from './sequencing';
+import {SequenceContext} from './Sequence';
 import {useVideo} from './use-video';
-import {VideoConfig} from './video-config';
+import type {VideoConfig} from './video-config';
 
 export const useUnsafeVideoConfig = (): VideoConfig | null => {
 	const context = useContext(SequenceContext);
@@ -13,13 +13,15 @@ export const useUnsafeVideoConfig = (): VideoConfig | null => {
 			return null;
 		}
 
-		const {durationInFrames, fps, height, width} = video;
+		const {id, durationInFrames, fps, height, width, defaultProps} = video;
 
 		return {
+			id,
 			width,
 			height,
 			fps,
 			durationInFrames: ctxDuration ?? durationInFrames,
+			defaultProps,
 		};
 	}, [ctxDuration, video]);
 };

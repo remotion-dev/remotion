@@ -15,7 +15,7 @@ export const WriteInReact: React.FC = () => {
           video production using server-side rendering and parametrization.
         </p>
 
-        <GetStarted></GetStarted>
+        <GetStarted />
       </div>
       <div className={styles.writeright}>
         <PlayerPreview />

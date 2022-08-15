@@ -1,7 +1,11 @@
 {
-  "lerna": "2.11.0",
   "packages": [
     "packages/*"
   ],
-  "version": "2.3.3"
+  "version": "3.2.3",
+  "command": {
+    "publish": {
+      "exact": true
+    }
+  }
 }

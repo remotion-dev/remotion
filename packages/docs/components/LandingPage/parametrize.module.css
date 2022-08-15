@@ -22,9 +22,7 @@
 }
 
 .parametrizegradient {
-  background: linear-gradient(to right, rgb(66, 144, 245), rgb(66, 233, 245));
-  -webkit-text-fill-color: transparent;
-  -webkit-background-clip: text;
+  color: var(--ifm-color-primary);
 }
 
 .parametrizeinput {

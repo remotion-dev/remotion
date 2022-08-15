@@ -5,7 +5,13 @@ title: Still images
 
 _Available from v2.3_
 
-Remotion is a great solution for rendering dynamic still images too.
+Remotion is a great solution for rendering thumbnails of videos or dynamic still images too. See our [Still template](https://github.com/remotion-dev/template-still) for an easy way to get started.
+
+If you already have a Remotion project, read on how you can render stills.
+
+## Defining a still
+
+Use the [`<Still />`](/docs/still) component instead of the [`<Composition />`](/docs/composition) one to define a still. The timeline will disappear, and you will not have to define a duration or FPs value.
 
 ## Rendering via CLI
 
@@ -21,8 +27,11 @@ By default the frame with number of a composition is being rendered, you can con
 
 ## Rendering using Node.JS
 
-You can use the [`renderStill()`](/docs/render-still) Node.JS API to render a still frame programmatically.
+You can use the [`renderStill()`](/docs/renderer/render-still) Node.JS API to render a still frame programmatically.
 
 ## Rendering using serverless
 
-[AWS Lambda integration is a work in progress.](/docs/ssr/#rendering-a-video-using-serverless)
+You can use [Remotion Lambda](/lambda) to render stills:
+
+- Via [CLI](/docs/lambda/cli/still)
+- Via the [renderStillOnLambda](/docs/lambda/renderstillonlambda) API.

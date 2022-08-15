@@ -1,10 +1,12 @@
 import fs from 'fs';
-import puppeteer, {Product, PuppeteerNode} from 'puppeteer-core';
-import {downloadBrowser} from 'puppeteer-core/lib/cjs/puppeteer/node/install';
-import {PUPPETEER_REVISIONS} from 'puppeteer-core/lib/cjs/puppeteer/revisions';
-import {Browser, BrowserExecutable} from 'remotion';
+import type {Browser} from './browser';
+import type { BrowserExecutable } from './browser-executable';
+import {downloadBrowser} from './browser/create-browser-fetcher';
+import {puppeteer} from './browser/node';
+import type {Product} from './browser/Product';
+import {PUPPETEER_REVISIONS} from './browser/revisions';
 
-const getSearchPathsForProduct = (product: puppeteer.Product) => {
+const getSearchPathsForProduct = (product: Product) => {
 	if (product === 'chrome') {
 		return [
 			process.env.PUPPETEER_EXECUTABLE_PATH ?? null,
@@ -32,9 +34,9 @@ const getSearchPathsForProduct = (product: puppeteer.Product) => {
 	throw new TypeError(`Unknown browser product: ${product}`);
 };
 
-const mapBrowserToProduct = (browser: Browser): puppeteer.Product => browser;
+const mapBrowserToProduct = (browser: Browser): Product => browser;
 
-const getLocalBrowser = (product: puppeteer.Product) => {
+const getLocalBrowser = (product: Product) => {
 	for (const p of getSearchPathsForProduct(product)) {
 		if (fs.existsSync(p)) {
 			return p;
@@ -44,14 +46,12 @@ const getLocalBrowser = (product: puppeteer.Product) => {
 	return null;
 };
 
-const getBrowserRevision = (
-	product: Product
-): puppeteer.BrowserFetcherRevisionInfo => {
-	const browserFetcher = ((puppeteer as unknown) as PuppeteerNode).createBrowserFetcher(
-		{
-			product,
-		}
-	);
+const getBrowserRevision = (product: Product) => {
+	const browserFetcher = puppeteer.createBrowserFetcher({
+		product,
+		path: null,
+		platform: null,
+	});
 	const revisionInfo = browserFetcher.revisionInfo(
 		product === 'firefox'
 			? PUPPETEER_REVISIONS.firefox
@@ -79,7 +79,7 @@ type BrowserStatus =
 	  };
 
 const getBrowserStatus = (
-	product: puppeteer.Product,
+	product: Product,
 	browserExecutablePath: BrowserExecutable
 ): BrowserStatus => {
 	if (browserExecutablePath) {
@@ -117,14 +117,14 @@ export const ensureLocalBrowser = async (
 		console.log(
 			'No local browser could be found. Downloading one from the internet...'
 		);
-		await downloadBrowser();
+		await downloadBrowser(browser);
 	}
 };
 
-export const getLocalBrowserExecutable = async (
+export const getLocalBrowserExecutable = (
 	browser: Browser,
 	preferredBrowserExecutable: BrowserExecutable
-): Promise<string> => {
+): string => {
 	const status = getBrowserStatus(
 		mapBrowserToProduct(browser),
 		preferredBrowserExecutable

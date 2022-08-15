@@ -1,4 +1,4 @@
-import useThemeContext from "@theme/hooks/useThemeContext";
+import { useColorMode } from "@docusaurus/theme-common";
 import React, { forwardRef } from "react";
 import { CancelIcon, IconLeft, IconRight } from "../icons/arrows";
 
@@ -50,12 +50,13 @@ const VideoPlayerHeader: React.ForwardRefRenderFunction<
     hasPrevious: boolean;
   }
 > = ({ onDismiss, onNext, onPrevious, hasNext, hasPrevious }, ref) => {
-  const { isDarkTheme } = useThemeContext();
+  const { colorMode } = useColorMode();
 
-  const iconColor = isDarkTheme ? "#ddd" : "#222";
-  const borderBottom = isDarkTheme
-    ? "1px solid rgba(255, 255, 255, 0.1)"
-    : "1px solid rgba(0, 0, 0, 0.1)";
+  const iconColor = colorMode === "dark" ? "#ddd" : "#222";
+  const borderBottom =
+    colorMode === "dark"
+      ? "1px solid rgba(255, 255, 255, 0.1)"
+      : "1px solid rgba(0, 0, 0, 0.1)";
   return (
     <div ref={ref} style={{ ...container, borderBottom }}>
       <button onClick={onDismiss} type="button" style={button}>

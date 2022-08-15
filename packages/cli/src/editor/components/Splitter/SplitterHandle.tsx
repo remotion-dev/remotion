@@ -1,3 +1,4 @@
+import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {SplitterContext} from './SplitterContext';
 
@@ -13,7 +14,10 @@ const containerColumn: React.CSSProperties = {
 	cursor: 'col-resize',
 };
 
-export const SplitterHandle: React.FC = () => {
+export const SplitterHandle: React.FC<{
+	allowToCollapse: boolean;
+	onCollapse: () => void;
+}> = ({allowToCollapse, onCollapse}) => {
 	const context = useContext(SplitterContext);
 	if (!context) {
 		throw new Error('Cannot find splitter context');
@@ -36,7 +40,7 @@ export const SplitterHandle: React.FC = () => {
 			return;
 		}
 
-		const getNewValue = (e: PointerEvent) => {
+		const getNewValue = (e: PointerEvent, clamp: boolean) => {
 			if (!context.isDragging.current) {
 				throw new Error('cannot get value if not dragging');
 			}
@@ -61,7 +65,11 @@ export const SplitterHandle: React.FC = () => {
 			})();
 
 			const newFlex = context.flexValue + change;
-			return Math.min(context.maxFlex, Math.max(context.minFlex, newFlex));
+			if (clamp) {
+				return Math.min(context.maxFlex, Math.max(context.minFlex, newFlex));
+			}
+
+			return newFlex;
 		};
 
 		const onPointerDown = (e: PointerEvent) => {
@@ -73,7 +81,11 @@ export const SplitterHandle: React.FC = () => {
 			window.addEventListener(
 				'pointerup',
 				(ev: PointerEvent) => {
-					context.persistFlex(getNewValue(ev));
+					if (!context.isDragging.current) {
+						return;
+					}
+
+					context.persistFlex(getNewValue(ev, true));
 					cleanup();
 					setLastPointerUp(Date.now());
 				},
@@ -84,8 +96,16 @@ export const SplitterHandle: React.FC = () => {
 
 		const onPointerMove = (e: PointerEvent) => {
 			if (context.isDragging.current) {
-				const val = getNewValue(e);
+				const val = getNewValue(e, true);
 				context.setFlexValue(val);
+				if (allowToCollapse) {
+					const unclamped = getNewValue(e, false);
+					if (unclamped < context.minFlex / 2) {
+						cleanup();
+						onCollapse();
+						setLastPointerUp(Date.now());
+					}
+				}
 			}
 		};
 
@@ -95,6 +115,7 @@ export const SplitterHandle: React.FC = () => {
 
 			current.removeEventListener('pointerdown', onPointerDown);
 			window.removeEventListener('pointermove', onPointerMove);
+			PlayerInternals.updateAllElementsSizes();
 		};
 
 		current.addEventListener('pointerdown', onPointerDown);
@@ -104,7 +125,14 @@ export const SplitterHandle: React.FC = () => {
 				cleanup();
 			}
 		};
-	}, [context, context.domRect, context.flexValue, lastPointerUp]);
+	}, [
+		allowToCollapse,
+		context,
+		context.domRect,
+		context.flexValue,
+		lastPointerUp,
+		onCollapse,
+	]);
 
 	return (
 		<div

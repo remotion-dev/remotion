@@ -1,6 +1,6 @@
 {
-	"name": "player-example",
-	"version": "2.3.3",
+	"name": "@remotion/player-example",
+	"version": "3.2.3",
 	"private": true,
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
@@ -8,30 +8,33 @@
 		"Shankhadeep Dey <shankhadeepdey99@gmail.com>"
 	],
 	"dependencies": {
-		"@craco/craco": "^6.1.1",
-		"@remotion/player": "^2.3.3",
-		"@testing-library/jest-dom": "^5.11.4",
-		"@testing-library/react": "^11.1.0",
-		"@testing-library/user-event": "^12.1.10",
-		"@types/jest": "^26.0.15",
+		"@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
+		"@remotion/bundler": "3.2.3",
+		"@remotion/eslint-config": "3.2.3",
+		"@remotion/player": "3.2.3",
+		"@remotion/preload": "3.2.3",
 		"@types/node": "^12.0.0",
-		"@types/react": "17.0.19",
-		"@types/react-dom": "^17.0.0",
-		"react": "^17.0.1",
-		"react-dom": "^17.0.1",
-		"react-scripts": "4.0.3",
-		"remotion": "^2.3.3",
-		"typescript": "^4.4.2"
+		"@types/react": "18.0.1",
+		"@types/react-dom": "18.0.0",
+		"browserslist": "^4.18.1",
+		"camelcase": "^6.2.1",
+		"esbuild": "0.14.19",
+		"eslint": "^8.3.0",
+		"fs-extra": "^10.0.0",
+		"html-webpack-plugin": "^5.5.0",
+		"react": "18.0.0",
+		"react-dev-utils": "^12.0.1",
+		"react-dom": "18.0.0",
+		"react-refresh": "^0.11.0",
+		"remotion": "3.2.3",
+		"typescript": "^4.7.0",
+		"webpack": "5.72.0",
+		"webpack-dev-server": "^4.6.0"
 	},
 	"scripts": {
-		"start": "craco start",
-		"build": "craco build"
-	},
-	"eslintConfig": {
-		"extends": [
-			"react-app",
-			"react-app/jest"
-		]
+		"lint": "eslint src --ext ts,tsx",
+		"start": "node scripts/start",
+		"build-site": "node scripts/build"
 	},
 	"browserslist": {
 		"production": [

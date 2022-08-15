@@ -48,26 +48,26 @@ The following helpers are used to modify other easing functions.
 ## Example
 
 ```tsx twoslash
-import {useCurrentFrame, AbsoluteFill} from 'remotion'
+import { useCurrentFrame, AbsoluteFill } from "remotion";
 // ---cut---
-import {interpolate, Easing} from 'remotion';
+import { interpolate, Easing } from "remotion";
 
 const MyVideo: React.FC = () => {
-  const frame = useCurrentFrame()
+  const frame = useCurrentFrame();
   const interpolated = interpolate(frame, [0, 100], [0, 1], {
     easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  })
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
   return (
     <AbsoluteFill
       style={{
         transform: `scale(${interpolated})`,
-        backgroundColor: 'red',
+        backgroundColor: "red",
       }}
     />
-  )
-}
+  );
+};
 ```
 
 ---
@@ -269,3 +269,7 @@ static inOut(easing)
 ```
 
 Makes any easing function symmetrical. The easing function will run forwards for half of the duration, then backwards for the rest of the duration.
+
+## See also
+
+- [Source code for this helper](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/easing.ts)

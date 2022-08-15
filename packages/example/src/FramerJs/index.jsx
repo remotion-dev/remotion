@@ -1,6 +1,6 @@
 import {useCurrentFrame, random} from 'remotion';
 
-export function selectColor(color, frame) {
+function selectColor(color, frame) {
 	return Math.floor((random(`${color}-${frame}`) * 255) % 255);
 }
 

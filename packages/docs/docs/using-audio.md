@@ -8,16 +8,16 @@ id: using-audio
 You can import an audio file using an `import` statement:
 
 ```ts twoslash
-import {Audio} from 'remotion' // needed to import audio files
+import { Audio } from "remotion"; // needed to import audio files
 // ---cut---
-import audio from './audio.mp3'
+import audio from "./audio.mp3";
 ```
 
 You may add an [`<Audio/>`](/docs/audio) tag to your composition to add sound to it.
 
-```tsx twoslash {7}
-import {Audio} from 'remotion'
-import audio from './audio.mp3'
+```tsx twoslash {8}
+import { Audio } from "remotion";
+import audio from "./audio.mp3";
 
 export const MyComposition: React.FC = () => {
   return (
@@ -25,8 +25,8 @@ export const MyComposition: React.FC = () => {
       <h1>Hello World!</h1>
       <Audio src={audio} />
     </div>
-  )
-}
+  );
+};
 ```
 
 The audio will play from the start, at full volume and as long as the duration of the composition or the duration of the audio is long, whatever is shorter.
@@ -38,11 +38,11 @@ You can mix multiple tracks together by adding more audio tags.
 ## Cutting or trimming the audio
 
 You can use the [`<Sequence />`](/docs/sequence) API to cut and trim audio.
-As a convienience, the `<Audio />` tag supports the `startFrom` and `endAt` props.
+As a convenience, the `<Audio />` tag supports the `startFrom` and `endAt` props.
 
-```tsx twoslash {9-10}
-import {Audio} from 'remotion'
-import audio from './audio.mp3'
+```tsx twoslash {10-11}
+import { Audio } from "remotion";
+import audio from "./audio.mp3";
 
 export const MyVideo = () => {
   return (
@@ -54,8 +54,8 @@ export const MyVideo = () => {
         endAt={120} // if your composition is 30fps, then it will end at 4s
       />
     </div>
-  )
-}
+  );
+};
 ```
 
 ## Delaying audio
@@ -64,19 +64,19 @@ Use a `<Sequence>` with a positive `from` attribute to delay the audio from play
 In the following example, the audio will start playing (from the beginning) after 100 frames.
 
 ```tsx twoslash {8}
-import {Audio, Sequence} from 'remotion'
-import audio from './audio.mp3'
+import { Audio, Sequence } from "remotion";
+import audio from "./audio.mp3";
 
 export const MyVideo = () => {
   return (
     <div>
       <div>Hello World!</div>
-      <Sequence from={100} durationInFrames={Infinity}>
+      <Sequence from={100}>
         <Audio src={audio} />
       </Sequence>
     </div>
-  )
-}
+  );
+};
 ```
 
 ## Controlling volume
@@ -84,9 +84,9 @@ export const MyVideo = () => {
 You can use the `volume` prop to control the volume.
 **The simplest way is to pass a number between 0 and 1**. `1` is the maximum volume, values over 1 are allowed but will not increase the volume further. Volumes under 0 are not allowed.
 
-```tsx twoslash {7}
-import {Audio} from 'remotion'
-import audio from './audio.mp3'
+```tsx twoslash {8}
+import { Audio } from "remotion";
+import audio from "./audio.mp3";
 
 export const MyVideo = () => {
   return (
@@ -94,36 +94,38 @@ export const MyVideo = () => {
       <div>Hello World!</div>
       <Audio src={audio} volume={0.5} />
     </div>
-  )
-}
+  );
+};
 ```
 
 You can also **change volume over time**, in this example we are using the [interpolate()](/docs/interpolate) function. Note that because values below 0 are not allowed, we need to set the `extrapolateLeft: 'clamp'` option to ensure no negative values.
 
-```tsx twoslash {11}
-import {Audio, interpolate, useCurrentFrame} from 'remotion'
-import audio from './audio.mp3'
+```tsx twoslash {12-14}
+import { Audio, interpolate, useCurrentFrame } from "remotion";
+import audio from "./audio.mp3";
 
 export const MyVideo = () => {
-  const frame = useCurrentFrame()
+  const frame = useCurrentFrame();
 
   return (
     <div>
       <div>Hello World!</div>
       <Audio
         src={audio}
-        volume={interpolate(frame, [0, 30], [0, 1], {extrapolateLeft: 'clamp'})}
+        volume={interpolate(frame, [0, 30], [0, 1], {
+          extrapolateLeft: "clamp",
+        })}
       />
     </div>
-  )
-}
+  );
+};
 ```
 
 You may also pass a **callback function** that returns the volume based an arbitrary frame number. This has the benefit that Remotion is able to **draw a volume curve in the timeline**!
 
-```tsx twoslash {9}
-import {Audio, interpolate} from 'remotion'
-import audio from './audio.mp3'
+```tsx twoslash {10-12}
+import { Audio, interpolate } from "remotion";
+import audio from "./audio.mp3";
 
 export const MyVideo = () => {
   return (
@@ -131,11 +133,13 @@ export const MyVideo = () => {
       <div>Hello World!</div>
       <Audio
         src={audio}
-        volume={(f) => interpolate(f, [0, 30], [0, 1], {extrapolateLeft: 'clamp'})}
+        volume={(f) =>
+          interpolate(f, [0, 30], [0, 1], { extrapolateLeft: "clamp" })
+        }
       />
     </div>
-  )
-}
+  );
+};
 ```
 
 Note that if you pass in a callback function, the first frame on which audio is being played is always the frame `0`.
@@ -144,20 +148,20 @@ Note that if you pass in a callback function, the first frame on which audio is 
 
 You may pass in the `muted` and it may change over time. When `muted` is true, audio will be omitted at that time. In the following example, we are muting the track between frame 40 and 60.
 
-```tsx twoslash {9}
-import {Audio, useCurrentFrame} from 'remotion'
-import audio from './audio.mp3'
+```tsx twoslash {10}
+import { Audio, useCurrentFrame } from "remotion";
+import audio from "./audio.mp3";
 
 export const MyVideo = () => {
-  const frame = useCurrentFrame()
+  const frame = useCurrentFrame();
 
   return (
     <div>
       <div>Hello World!</div>
       <Audio src={audio} muted={frame >= 40 && frame <= 60} />
     </div>
-  )
-}
+  );
+};
 ```
 
 ## Use audio from `<Video />` tags
@@ -175,6 +179,16 @@ While Remotion doesn't limit the range of possible playback speeds, in developme
 ## Audio visualization
 
 You can obtain audio data and create visualizations based on it. See the page [Audio visualization](/docs/audio-visualization) for more info.
+
+## Rendering audio only
+
+Exporting as `mp3`, `aac` and `wav` is supported. To render only the audio, specify an extension when exporting via CLI:
+
+```
+npx remotion render src/index.tsx my-comp audio.mp3
+```
+
+To render audio using the Node.JS APIs, set the `codec` property to one of the supported audio codecs.
 
 ## See also
 

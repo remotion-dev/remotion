@@ -7,9 +7,7 @@
 }
 
 .mp4 {
-  background: linear-gradient(to right, rgb(66, 144, 245), rgb(66, 233, 245));
-  -webkit-text-fill-color: transparent;
-  -webkit-background-clip: text;
+  color: var(--ifm-color-primary);
 }
 
 .pricingcontainer {
@@ -60,33 +58,16 @@
 }
 
 .freeprice {
-  background: linear-gradient(to right, #4290f5, #42e9f5);
-  -webkit-background-clip: text;
-  -moz-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -moz-text-fill-color: transparent;
-  text-fill-color: transparent;
+  color:  #4290f5;
+
 }
 
 .gradientprice {
-  background: linear-gradient(to right, #e01d67, #79367a);
-  -webkit-background-clip: text;
-  -moz-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -moz-text-fill-color: transparent;
-  text-fill-color: transparent;
+  color: #79367a
 }
 
 .orangeprice {
-  background: linear-gradient(to right, #f5ad43, #fd764a);
-  -webkit-background-clip: text;
-  -moz-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -moz-text-fill-color: transparent;
-  text-fill-color: transparent;
+ color: #fd764a;
 }
 
 .portion {
@@ -114,6 +95,35 @@
   text-decoration: none;
 }
 
+.doublepanel {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+}
+
+.doublepanelsingle {
+  flex: 1;
+  min-height: 400px;
+}
+
+.plus {
+  height: 40px;
+  width: 40px;
+  border-radius: 20px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+  box-shadow: var(--box-shadow);
+  margin-top: 50px;
+}
+
+.plus svg {
+  height: 20px;
+}
+
+
 @media screen and (max-width: 900px) {
   .pricingcontainer {
     text-align: left;
@@ -126,4 +136,13 @@
     max-width: 500px;
     width: 100%;
   }
+  .doublepanel {
+    flex-direction: column;
+  }
+  .plus {
+    margin-left: 200px;
+    margin-top: -30px;
+    margin-bottom: 30px;
+  }
 }
+

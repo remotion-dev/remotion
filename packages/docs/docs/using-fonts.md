@@ -3,46 +3,54 @@ title: Using fonts
 id: fonts
 ---
 
-You can use fonts by loading them in a CSS file using @font-face. Web fonts often ship with a css file declaring the fonts, which you can import using the `@import` statement.
+Here are some ways how you can use custom fonts in Remotion.
 
-## Example using Google Fonts
+## Google Fonts
+
+Import the CSS that Google Fonts gives you. From version 2.2 on, Remotion will automatically wait until the fonts are loaded.
 
 ```css title="font.css"
 @import url("https://fonts.googleapis.com/css2?family=Bangers");
 ```
 
 ```tsx twoslash title="MyComp.tsx"
-import './font.css'
+import "./font.css";
 
 const MyComp: React.FC = () => {
-  return <div style={{fontFamily: 'Bangers'}}>Hello</div>
-}
+  return <div style={{ fontFamily: "Bangers" }}>Hello</div>;
+};
 ```
-
-**Important when using Webfonts:**
-
-- _When using v2.2 or later_: We automatically wait for fonts to be loaded, so you don't need to do anything.
-- _When using an older version of Remotion_: Google Fonts by default appends `?display=swap` to their URLs. Make sure to remove it to ensure the video renders correctly if you have a slow internet connection.
 
 ## Example using local fonts
 
-```css title="font.css"
-@font-face {
-  font-family: "Bangers";
-  font-style: normal;
-  font-weight: 400;
-  src: url(./bangers.woff2) format("woff2");
-}
+Put the font into your `public/` folder and use the [`staticFile()`](/docs/staticfile) API to load the font. Use the `FontFace` browser API to load the font. [Click here](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face) to read the syntax that can be used for the Font Face API.
+
+Put this somewhere in your app where it gets executed:
+
+```tsx twoslash title="load-fonts.ts"
+import { continueRender, delayRender, staticFile } from "remotion";
+
+const waitForFont = delayRender();
+const font = new FontFace(
+  `Bangers`,
+  `url(${staticFile("bangers.woff2")}) format('woff2')`
+);
+
+font
+  .load()
+  .then(() => {
+    document.fonts.add(font);
+    continueRender(waitForFont);
+  })
+  .catch((err) => console.log("Error loading font", err));
 ```
+
+The font is now available for use:
 
 ```tsx twoslash title="MyComp.tsx"
-import './font.css'
-
-const MyComp: React.FC = () => {
-  return <div style={{fontFamily: 'Bangers'}}>Hello</div>
-}
+<div style={{ fontFamily: "Bangers" }}>Some text</div>
 ```
 
-### File requirements
-
-Fonts must have one of the following file extensions to be loaded: `woff`, `woff2`, `ttf`, `eot`.
+:::info
+If your Typescript types give errors, install the newest version of the `@types/web` package.
+:::

@@ -1,34 +1,28 @@
 {
-  "version": "1.0.0-alpha.4",
+  "name": "remotion-monorepo",
+  "version": "0.0.0",
   "private": true,
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
-    "test": "lerna run test && npx jest --runInBand",
-    "build": "lerna run build",
-    "watch": "lerna run watch --stream --parallel"
+    "test": "turbo run lint test",
+    "lint": "turbo run lint",
+    "build": "turbo run build",
+    "ci": "turbo run build lint test --concurrency=50%",
+    "watch": "pnpm run --recursive --stream --parallel watch",
+    "release": "lerna publish --force-publish",
+    "clean": "rm -rf packages/**/dist && lerna clean --yes && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo  && rm -rf packages/**/.turbo"
   },
-  "devDependencies": {
-    "@jonny/eslint-config": "^2.1.233",
-    "@types/jest": "^26.0.20",
-    "@types/minimist": "^1.2.1",
-    "@types/node": "^16.7.5",
-    "@types/react": "17.0.19",
-    "@types/react-dom": "^17.0.9",
-    "@types/sharp": "^0.28.5",
-    "eslint": "^7.25.0",
-    "execa": "^5.0.0",
-    "jest": "^26.6.3",
-    "lerna": "^2.11.0",
-    "prettier": "^2.2.1",
-    "prettier-plugin-organize-imports": "^1.1.1",
-    "sharp": "^0.29.0",
-    "ts-jest": "^26.5.1",
-    "typescript": "^4.4.2"
+  "engines": {
+    "node": ">=12",
+    "pnpm": ">=3"
   },
+  "devDependencies": {},
   "dependencies": {
-    "@react-three/fiber": "^6.1.2",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
-    "three": "^0.128.0"
-  }
+    "lerna": "^4.0.0",
+    "turbo": "^1.2.6"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "packageManager": "pnpm@7.7.1"
 }

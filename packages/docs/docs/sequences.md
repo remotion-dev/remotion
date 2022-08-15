@@ -27,11 +27,17 @@ In order to make a title reusable, we first factor it out into it's own componen
 
 export const MyVideo = () => {
   return (
-    <div style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+    <div
+      style={{
+        flex: 1,
+        textAlign: "center",
+        fontSize: "7em",
+      }}
+    >
       <Title title="Hello World" />
     </div>
-  )
-}
+  );
+};
 ```
 
 Now we can use the `<Sequence>` component to limit the duration of the first title and time-shift the appearance of the second title.
@@ -39,27 +45,27 @@ Now we can use the `<Sequence>` component to limit the duration of the first tit
 ```tsx twoslash
 // @include: example-Title
 // ---cut---
-import {Sequence} from 'remotion'
+import { Sequence } from "remotion";
 
 export const MyVideo = () => {
   return (
     <div
       style={{
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'white',
+        textAlign: "center",
+        fontSize: "7em",
+        backgroundColor: "white",
       }}
     >
       <Sequence from={0} durationInFrames={40}>
         <Title title="Hello" />
       </Sequence>
-      <Sequence from={40} durationInFrames={Infinity}>
+      <Sequence from={40}>
         <Title title="World" />
       </Sequence>
     </div>
-  )
-}
+  );
+};
 ```
 
 You should see two titles appearing after each other. Titles which are not shown during a frame are unmounted.

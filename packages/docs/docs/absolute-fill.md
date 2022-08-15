@@ -1,6 +1,6 @@
 ---
 id: absolute-fill
-title: <AbsoluteFill />
+title: <AbsoluteFill>
 ---
 
 A helper component - it is an absolutely positioned `<div>` with the following styles:
@@ -17,3 +17,7 @@ A helper component - it is an absolutely positioned `<div>` with the following s
   flex-direction: column;
 }
 ```
+
+## See also
+
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/AbsoluteFill.tsx)

@@ -1,7 +1,7 @@
 ---
 id: 2-0-migration
-sidebar_title: v2.0 Migration
-title: v2.0 Breaking changes
+sidebar_label: v2.0 Migration
+title: v2.0 Migration
 ---
 
 The following is a list of breaking changes in Remotion 2.0, as a reference for projects wanting to upgrade.
@@ -55,7 +55,6 @@ Upgrade **all** dependencies containing "remotion" in your package.json to versi
 "eslint": "^7.15.0",
 "express": "^4.17.1",
 "prettier": "^2.2.1",
-"prettier-plugin-organize-imports": "^1.1.1",
 "react": "^17.0.2",
 +"react-dom": "^17.0.2",
 -"remotion": "^1.5.4",

@@ -1,4 +1,12 @@
-import React, {forwardRef, useImperativeHandle, useMemo, useState} from 'react';
+import React, {
+	forwardRef,
+	useContext,
+	useImperativeHandle,
+	useMemo,
+	useState,
+} from 'react';
+import {random} from '../random';
+import {SequenceContext} from '../Sequence';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
@@ -7,7 +15,7 @@ import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state';
-import {RemotionAudioProps} from './props';
+import type {RemotionAudioProps} from './props';
 import {useSharedAudio} from './shared-audio-tags';
 import {useFrameForVolumeProp} from './use-audio-frame';
 
@@ -31,13 +39,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const volumePropFrame = useFrameForVolumeProp();
 
-	const {
-		volume,
-		muted,
-		playbackRate,
-		shouldPreMountAudioTags,
-		...nativeProps
-	} = props;
+	const {volume, muted, playbackRate, shouldPreMountAudioTags, ...nativeProps} =
+		props;
 
 	const propsToPass = useMemo((): RemotionAudioProps => {
 		return {
@@ -46,7 +49,19 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		};
 	}, [mediaMuted, muted, nativeProps]);
 
-	const audioRef = useSharedAudio(propsToPass).el;
+	const sequenceContext = useContext(SequenceContext);
+
+	// Generate a string that's as unique as possible for this asset
+	// but at the same time deterministic. We use it to combat strict mode issues.
+	const id = useMemo(
+		() =>
+			`audio-${random(props.src ?? '')}-${sequenceContext?.relativeFrom}-${
+				sequenceContext?.cumulatedFrom
+			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
+		[props.muted, props.src, sequenceContext]
+	);
+
+	const audioRef = useSharedAudio(propsToPass, id).el;
 
 	const actualVolume = useMediaTagVolume(audioRef);
 
@@ -71,6 +86,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		src: nativeProps.src,
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
+		onlyWarnForMediaSeekingError: false,
 	});
 
 	useImperativeHandle(ref, () => {

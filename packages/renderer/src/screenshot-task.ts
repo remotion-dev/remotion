@@ -1,21 +1,23 @@
 import fs from 'fs';
-import {CDPSession, Page, ScreenshotOptions, Target} from 'puppeteer-core';
-import {Internals} from 'remotion';
+import type {Page} from './browser/BrowserPage';
+import type {ScreenshotOptions} from './browser/ScreenshotOptions';
+import type {StillImageFormat} from './image-format';
+import {startPerfMeasure, stopPerfMeasure} from './perf';
 
 export const _screenshotTask = async (
 	page: Page,
-	format: 'png' | 'jpeg',
+	format: StillImageFormat,
 	options: ScreenshotOptions
 ): Promise<Buffer | string> => {
-	const client = ((page as unknown) as {_client: CDPSession})._client;
-	const target = ((page as unknown) as {_target: Target})._target;
+	const client = page._client();
+	const target = page.target();
 
-	const perfTarget = Internals.perf.startPerfMeasure('activate-target');
+	const perfTarget = startPerfMeasure('activate-target');
 
 	await client.send('Target.activateTarget', {
 		targetId: target._targetId,
 	});
-	Internals.perf.stopPerfMeasure(perfTarget);
+	stopPerfMeasure(perfTarget);
 
 	const shouldSetDefaultBackground = options.omitBackground && format === 'png';
 	if (shouldSetDefaultBackground)
@@ -23,24 +25,35 @@ export const _screenshotTask = async (
 			color: {r: 0, g: 0, b: 0, a: 0},
 		});
 
-	const cap = Internals.perf.startPerfMeasure('capture');
-	const result = await client.send('Page.captureScreenshot', {
-		format,
-		quality: options.quality,
-		clip: undefined,
-		captureBeyondViewport: true,
-	});
-	Internals.perf.stopPerfMeasure(cap);
-	if (shouldSetDefaultBackground)
-		await client.send('Emulation.setDefaultBackgroundColorOverride');
+	const cap = startPerfMeasure('capture');
+	try {
+		const result = await client.send('Page.captureScreenshot', {
+			format,
+			quality: options.quality,
+			clip: undefined,
+			captureBeyondViewport: true,
+		});
+		stopPerfMeasure(cap);
+		if (shouldSetDefaultBackground)
+			await client.send('Emulation.setDefaultBackgroundColorOverride');
 
-	const saveMarker = Internals.perf.startPerfMeasure('save');
-	const buffer =
-		options.encoding === 'base64'
-			? result.data
-			: Buffer.from(result.data, 'base64');
+		const saveMarker = startPerfMeasure('save');
 
-	if (options.path) await fs.promises.writeFile(options.path, buffer);
-	Internals.perf.stopPerfMeasure(saveMarker);
-	return buffer;
+		const buffer = Buffer.from(result.data, 'base64');
+		if (options.path) await fs.promises.writeFile(options.path, buffer);
+		stopPerfMeasure(saveMarker);
+		return buffer;
+	} catch (err) {
+		if ((err as Error).message.includes('Unable to capture screenshot')) {
+			const errMessage = [
+				'Could not take a screenshot because Google Chrome ran out of memory or disk space.',
+				process?.env?.REMOTION_LAMBDA
+					? 'Deploy a new Lambda function with more memory or disk space.'
+					: 'Decrease the concurrency to use less RAM.',
+			].join(' ');
+			throw new Error(errMessage);
+		}
+
+		throw err;
+	}
 };

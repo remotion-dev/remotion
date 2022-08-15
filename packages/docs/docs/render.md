@@ -12,7 +12,7 @@ npm run build
 The underlying command in package.json is defined as follows:
 
 ```bash
-npx remotion render src/index.tsx HelloWorld out.mp4
+npx remotion render src/index.tsx HelloWorld out/video.mp4
 ```
 
 Modify it to select a different video to render, or change its output location.
@@ -28,9 +28,9 @@ Remotion has a full-featured server-side rendering API. Read more about it on th
 
 You can also render a [video using a Github Action.](/docs/ssr#render-using-github-actions)
 
-### Serverless
+### AWS Lambda
 
-We are also working on a Serverless solution for rendering videos, [which is in private beta](/docs/ssr#rendering-a-video-using-serverless).
+Check out [**Remotion Lambda**](/docs/lambda).
 
 ### Only audio
 
@@ -38,7 +38,7 @@ Instead of rendering a video, [you can also just export the audio.](/docs/encodi
 
 ### Image Sequence
 
-Instead of encoding as a video, you can use the [`--sequence`](/docs/cli#--sequence) command to output a series of image.
+Instead of encoding as a video, you can use the [`--sequence`](/docs/cli/render#--sequence) command to output a series of image.
 
 ### Still images
 

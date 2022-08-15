@@ -1,9 +1,9 @@
-import {PreviewSize} from '@remotion/player';
+import type {PreviewSize} from '@remotion/player';
 import {createContext} from 'react';
 
 type PreviewSizeCtx = {
 	size: PreviewSize;
-	setSize: React.Dispatch<React.SetStateAction<PreviewSize>>;
+	setSize: (cb: (oldSize: PreviewSize) => PreviewSize) => void;
 };
 
 export const persistPreviewSizeOption = (option: PreviewSize) => {

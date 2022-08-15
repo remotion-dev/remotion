@@ -35,11 +35,11 @@ In order to create a transparent video, you need at least version 1.4 of Remotio
 If you want to set these options and persist them, add this to your `remotion.config.ts` file (create it if you don't yet have one);
 
 ```tsx twoslash
-import {Config} from 'remotion'
+import { Config } from "remotion";
 
-Config.Rendering.setImageFormat('png')
-Config.Output.setPixelFormat('yuva420p')
-Config.Output.setCodec('vp8')
+Config.Rendering.setImageFormat("png");
+Config.Output.setPixelFormat("yuva420p");
+Config.Output.setCodec("vp8");
 ```
 
 You can also set the settings on the command line:
@@ -56,12 +56,12 @@ ProRes is supported by Final Cut Pro, Adobe Premiere and Davinci Resolve.
 Supported since v2.1.7, you can set the codec to `prores` and choose a ProRes profile with alpha support: Either: `4444` or `4444-hq`. The pixel format must be `yuva444p10le`.
 
 ```tsx twoslash
-import {Config} from 'remotion'
+import { Config } from "remotion";
 
-Config.Rendering.setImageFormat('png')
-Config.Output.setPixelFormat('yuva444p10le')
-Config.Output.setCodec('prores')
-Config.Output.setProResProfile('4444')
+Config.Rendering.setImageFormat("png");
+Config.Output.setPixelFormat("yuva444p10le");
+Config.Output.setCodec("prores");
+Config.Output.setProResProfile("4444");
 ```
 
 You can also set the settings on the command line:
@@ -81,7 +81,7 @@ Given the poor browser support, consider making two versions of a video, one wit
 It's a good practice to set a default when defining the composition:
 
 ```tsx twoslash {7-9}
-import {Composition} from 'remotion'
+import { Composition } from "remotion";
 // @include: example-MyVideo
 // ---cut---
 <Composition
@@ -94,7 +94,7 @@ import {Composition} from 'remotion'
   defaultProps={{
     transparent: true,
   }}
-/>
+/>;
 ```
 
 You can then have separate render commands in your package.json:

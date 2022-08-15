@@ -1,11 +1,11 @@
-import React, {MouseEventHandler, useEffect, useMemo, useRef} from 'react';
+import type {MouseEventHandler} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {formatTime} from './format-time';
 import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
 import {MediaVolumeSlider} from './MediaVolumeSlider';
 import {PlayerSeekBar} from './PlayerSeekBar';
-import {usePlayer} from './use-player';
-import {browserSupportsFullscreen} from './utils/browser-supports-fullscreen';
+import type {usePlayer} from './use-player';
 
 const containerStyle: React.CSSProperties = {
 	boxSizing: 'border-box',
@@ -70,6 +70,17 @@ const timeLabel: React.CSSProperties = {
 	fontSize: 14,
 };
 
+declare global {
+	interface Document {
+		webkitFullscreenEnabled?: boolean;
+		webkitFullscreenElement?: Element;
+		webkitExitFullscreen?: Document['exitFullscreen'];
+	}
+	interface HTMLDivElement {
+		webkitRequestFullScreen: HTMLDivElement['requestFullscreen'];
+	}
+}
+
 export const Controls: React.FC<{
 	fps: number;
 	durationInFrames: number;
@@ -95,6 +106,7 @@ export const Controls: React.FC<{
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
+	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
 
 	const containerCss: React.CSSProperties = useMemo(() => {
 		// Hide if playing and mouse outside
@@ -108,9 +120,20 @@ export const Controls: React.FC<{
 	useEffect(() => {
 		if (playButtonRef.current && spaceKeyToPlayOrPause) {
 			// This switches focus to play button when player.playing flag changes
-			playButtonRef.current.focus();
+			playButtonRef.current.focus({
+				preventScroll: true,
+			});
 		}
 	}, [player.playing, spaceKeyToPlayOrPause]);
+
+	useEffect(() => {
+		// Must be handled client-side to avoid SSR hydration mismatch
+		setSupportsFullscreen(
+			(typeof document !== 'undefined' &&
+				(document.fullscreenEnabled || document.webkitFullscreenEnabled)) ??
+				false
+		);
+	}, []);
 
 	return (
 		<div style={containerCss}>
@@ -139,8 +162,8 @@ export const Controls: React.FC<{
 					<div style={xSpacer} />
 				</div>
 				<div style={flex1} />
-				{browserSupportsFullscreen && allowFullscreen ? (
-					<div style={fullscreen}>
+				<div style={fullscreen}>
+					{supportsFullscreen && allowFullscreen ? (
 						<button
 							type="button"
 							aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter Fullscreen'}
@@ -154,8 +177,8 @@ export const Controls: React.FC<{
 						>
 							<FullscreenIcon minimized={!isFullscreen} />
 						</button>
-					</div>
-				) : null}
+					) : null}
+				</div>
 			</div>
 			<div style={ySpacer} />
 			<PlayerSeekBar durationInFrames={durationInFrames} />

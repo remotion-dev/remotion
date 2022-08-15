@@ -1,5 +1,4 @@
-import {Audio, interpolate, Sequence} from 'remotion';
-import music from './music.mp3';
+import {Audio, interpolate, Sequence, staticFile} from 'remotion';
 
 const AudioTesting: React.FC = () => {
 	return (
@@ -8,7 +7,7 @@ const AudioTesting: React.FC = () => {
 				<Audio
 					startFrom={100}
 					endAt={200}
-					src={music}
+					src={staticFile('music.mp3')}
 					volume={(f) =>
 						interpolate(f, [0, 50, 100], [0, 1, 0], {
 							extrapolateLeft: 'clamp',

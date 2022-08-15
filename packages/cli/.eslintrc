@@ -2,13 +2,20 @@
 	"extends": "@jonny",
 	"rules": {
 		"no-console": "error",
-		"ts-exports/unused-exports": "off"
+		"no-restricted-imports": ["error", "remotion"]
 	},
 	"overrides": [
 		{
 			"files": "./src/editor/**",
 			"rules": {
-				"no-console": "off"
+				"no-console": "off",
+				"no-restricted-imports": ["off"]
+			}
+		},
+		{
+			"files": "./src/preview-server/error-overlay/**",
+			"rules": {
+				"no-restricted-imports": ["off"]
 			}
 		}
 	]

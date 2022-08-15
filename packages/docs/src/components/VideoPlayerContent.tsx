@@ -1,4 +1,3 @@
-import Hls from "hls.js";
 import React, {
   useCallback,
   useEffect,
@@ -6,9 +5,10 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { ShowcaseVideo } from "../data/showcase-videos";
+import type { ShowcaseVideo } from "../data/showcase-videos";
 import { useElementSize } from "../helpers/use-el-size";
 import { PausedIcon } from "../icons/arrows";
+import { MuxVideo } from "./MuxVideo";
 import { Spinner } from "./Spinner";
 import { SHOWCASE_MOBILE_HEADER_HEIGHT } from "./VideoPlayerHeader";
 import { VideoSidebar } from "./VideoSidebar";
@@ -52,14 +52,6 @@ export const PAGINATE_ICON_PADDING = 20;
 export const PAGINATE_BUTTONS_WIDTH =
   (PAGINATE_ICON_WIDTH + PAGINATE_ICON_PADDING * 2) * 2;
 
-const getVideoToPlayUrl = (video: ShowcaseVideo) => {
-  if (video.type === "mux_video") {
-    return `https://stream.mux.com/${video.muxId}.m3u8`;
-  }
-
-  throw new Error("no url");
-};
-
 export const VideoPlayerContent: React.FC<{
   video: ShowcaseVideo;
   userHasInteractedWithPage: boolean;
@@ -67,7 +59,6 @@ export const VideoPlayerContent: React.FC<{
   const [loaded, setLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const container = useRef<HTMLDivElement>(null);
-  const vidUrl = getVideoToPlayUrl(video);
 
   const [paused, setPaused] = useState(!userHasInteractedWithPage);
 
@@ -92,30 +83,6 @@ export const VideoPlayerContent: React.FC<{
 
   const height = ratio * video.height;
   const width = ratio * video.width;
-
-  useEffect(() => {
-    let hls: Hls;
-    if (videoRef.current) {
-      const { current } = videoRef;
-      if (current.canPlayType("application/vnd.apple.mpegurl")) {
-        // Some browers (safari and ie edge) support HLS natively
-        current.src = vidUrl;
-      } else if (Hls.isSupported()) {
-        // This will run in all other modern browsers
-        hls = new Hls();
-        hls.loadSource(vidUrl);
-        hls.attachMedia(current);
-      } else {
-        console.error("This is a legacy browser that doesn't support MSE");
-      }
-    }
-
-    return () => {
-      if (hls) {
-        hls.destroy();
-      }
-    };
-  }, [vidUrl, videoRef]);
 
   const onLoadedMetadata = useCallback(() => {
     setLoaded(true);
@@ -186,12 +153,14 @@ export const VideoPlayerContent: React.FC<{
           <Spinner style={spinner} />
         </div>
       )}
-      <video
+      <MuxVideo
         ref={videoRef}
+        muxId={video.muxId}
         style={videoCss}
         onLoadedMetadata={onLoadedMetadata}
         loop
         height={height}
+        playsInline
         width={width}
         autoPlay={userHasInteractedWithPage}
       />

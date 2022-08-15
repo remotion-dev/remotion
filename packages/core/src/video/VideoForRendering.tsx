@@ -12,16 +12,16 @@ import {
 	useMediaStartsAt,
 } from '../audio/use-audio-frame';
 import {CompositionManager} from '../CompositionManager';
+import {continueRender, delayRender} from '../delay-render';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
-import {isRemoteAsset} from '../is-remote-asset';
 import {random} from '../random';
-import {continueRender, delayRender} from '../ready-manager';
-import {SequenceContext} from '../sequencing';
-import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
+import {SequenceContext} from '../Sequence';
+import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-current-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
+import {warnAboutNonSeekableMedia} from '../warn-about-non-seekable-media';
 import {getMediaTime} from './get-current-time';
-import {RemotionVideoProps} from './props';
+import type {RemotionVideoProps} from './props';
 
 const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
@@ -42,7 +42,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	// but at the same time the same on all threads
 	const id = useMemo(
 		() =>
-			`audio-${random(props.src ?? '')}-${sequenceContext?.cumulatedFrom}-${
+			`video-${random(props.src ?? '')}-${sequenceContext?.cumulatedFrom}-${
 				sequenceContext?.relativeFrom
 			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
 		[
@@ -73,13 +73,16 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
+		if (!window.remotion_audioEnabled) {
+			return;
+		}
+
 		registerAsset({
 			type: 'video',
 			src: getAbsoluteSrc(props.src),
 			id,
 			frame: absoluteFrame,
 			volume,
-			isRemote: isRemoteAsset(getAbsoluteSrc(props.src)),
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
 		});
@@ -102,7 +105,12 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	});
 
 	useEffect(() => {
-		if (!videoRef.current) {
+		if (!window.remotion_videoEnabled) {
+			return;
+		}
+
+		const {current} = videoRef;
+		if (!current) {
 			return;
 		}
 
@@ -113,58 +121,77 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				src: props.src as string,
 				playbackRate: playbackRate || 1,
 				startFrom: -mediaStartsAt,
+				mediaType: 'video',
 			});
 		})();
-		const handle = delayRender();
+		const handle = delayRender(`Rendering <Video /> with src="${props.src}"`);
 		if (process.env.NODE_ENV === 'test') {
 			continueRender(handle);
 			return;
 		}
 
-		if (isApproximatelyTheSame(videoRef.current.currentTime, currentTime)) {
-			if (videoRef.current.readyState >= 2) {
+		if (isApproximatelyTheSame(current.currentTime, currentTime)) {
+			if (current.readyState >= 2) {
 				continueRender(handle);
 				return;
 			}
 
-			videoRef.current.addEventListener(
-				'loadeddata',
-				() => {
-					continueRender(handle);
-				},
-				{once: true}
-			);
-			return;
+			const loadedDataHandler = () => {
+				continueRender(handle);
+			};
+
+			current.addEventListener('loadeddata', loadedDataHandler, {once: true});
+			return () => {
+				current.removeEventListener('loadeddata', loadedDataHandler);
+			};
 		}
 
-		videoRef.current.currentTime = currentTime;
+		current.currentTime = currentTime;
 
-		videoRef.current.addEventListener(
-			'seeked',
-			() => {
+		const seekedHandler = () => {
+			warnAboutNonSeekableMedia(current, 'exception');
+
+			if (window.navigator.platform.startsWith('Mac')) {
 				// Improve me: This is ensures frame perfectness but slows down render.
 				// Please see this issue for context: https://github.com/remotion-dev/remotion/issues/200
+
+				// Only affects macOS since it uses VideoToolbox decoding.
 				setTimeout(() => {
 					continueRender(handle);
 				}, 100);
-			},
-			{once: true}
-		);
-		videoRef.current.addEventListener(
-			'ended',
-			() => {
+			} else {
 				continueRender(handle);
-			},
-			{once: true}
-		);
-		videoRef.current.addEventListener(
-			'error',
-			(err) => {
-				console.error('Error occurred in video', err);
-				continueRender(handle);
-			},
-			{once: true}
-		);
+			}
+		};
+
+		current.addEventListener('seeked', seekedHandler, {once: true});
+
+		const endedHandler = () => {
+			continueRender(handle);
+		};
+
+		current.addEventListener('ended', endedHandler, {once: true});
+
+		const errorHandler = () => {
+			if (current?.error) {
+				console.error('Error occurred in video', current?.error);
+				throw new Error(
+					`The browser threw an error while playing the video: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
+				);
+			} else {
+				throw new Error('The browser threw an error');
+			}
+		};
+
+		current.addEventListener('error', errorHandler, {once: true});
+
+		// If video skips to another frame or unmounts, we clear the created handle
+		return () => {
+			current.removeEventListener('ended', endedHandler);
+			current.removeEventListener('error', errorHandler);
+			current.removeEventListener('seeked', seekedHandler);
+			continueRender(handle);
+		};
 	}, [
 		volumePropsFrame,
 		props.src,

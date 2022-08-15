@@ -18,7 +18,7 @@ In your `remotion.config.ts` file, you can call `Config.Bundler.overrideWebpackC
 Overriding the Webpack config uses the reducer pattern - pass in a function that takes as it's argument a Webpack configuration and return a new Webpack configuration.
 
 ```ts twoslash
-import {Config} from 'remotion'
+import { Config } from "remotion";
 
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
   return {
@@ -30,8 +30,8 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
         // Add more loaders here
       ],
     },
-  }
-})
+  };
+});
 ```
 
 :::info
@@ -45,7 +45,7 @@ Using the reducer pattern will help with type safety, give you auto-complete, en
 The following `remotion.config.ts` file shows how to enable support for MDX. Installation of `mdx-loader babel-loader @babel/preset-env @babel/preset-react` is required.
 
 ```ts twoslash
-import {Config} from 'remotion'
+import { Config } from "remotion";
 // ---cut---
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
   return {
@@ -60,26 +60,26 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
           test: /\.mdx?$/,
           use: [
             {
-              loader: 'babel-loader',
+              loader: "babel-loader",
               options: {
                 presets: [
-                  '@babel/preset-env',
+                  "@babel/preset-env",
                   [
-                    '@babel/preset-react',
+                    "@babel/preset-react",
                     {
-                      runtime: 'automatic',
+                      runtime: "automatic",
                     },
                   ],
                 ],
               },
             },
-            'mdx-loader',
+            "mdx-loader",
           ],
         },
       ],
     },
-  }
-})
+  };
+});
 ```
 
 :::info
@@ -88,97 +88,8 @@ Create a file which contains `declare module '*.mdx';` in your project to fix a 
 
 ### Enable TailwindCSS support
 
-1. Install the following dependencies:
-
-<Tabs
-defaultValue="npm"
-values={[
-{ label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
-]
-}>
-<TabItem value="npm">
-
-```bash
-npm i postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
-```
-
-  </TabItem>
-
-  <TabItem value="yarn">
-
-```bash
-yarn add postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
-```
-
-  </TabItem>
-</Tabs>
-
-2. Add the following to your [`remotion.config.ts`](/docs/config) file:
-
-```ts twoslash
-import {Config} from 'remotion'
-// ---cut---
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
-  return {
-    ...currentConfiguration,
-    module: {
-      ...currentConfiguration.module,
-      rules: [
-        ...(currentConfiguration.module?.rules
-          ? currentConfiguration.module.rules
-          : []
-        ).filter((rule) => {
-          if (rule === '...') {
-            return false
-          }
-          if (rule.test?.toString().includes('.css')) {
-            return false
-          }
-          return true
-        }),
-        {
-          test: /\.css$/i,
-          use: [
-            'style-loader',
-            'css-loader',
-            {
-              loader: 'postcss-loader',
-              options: {
-                postcssOptions: {
-                  plugins: ['postcss-preset-env', 'tailwindcss'],
-                },
-              },
-            },
-          ],
-        },
-      ],
-    },
-  }
-})
-```
-
-3. Create a file `src/style.css` with the following content:
-
-```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-```
-
-4. Import the stylesheet in your `src/Video.tsx` file. Add to the top of the file:
-
-```js
-import "/style.css";
-```
-
-5.  Start using TailwindCSS! You can verify that it's working by adding `className="bg-red-900"` to any element.
-
-6.  _Optional_: Add a `tailwind.config.js` file to the root of your project. Add `/* eslint-env node */` to the top of the file to get rid of an ESLint rule complaining that `module` is not defined.
-
-:::warn
-Due to a caching bug, the config file might not be picked up until you remove the `node_modules/.cache` folder - watch this issue: https://github.com/remotion-dev/remotion/issues/315
-:::
+- [TailwindCSS V3](/docs/tailwind)
+- [TailwindCSS V2 (Legacy)](/docs/tailwind-legacy)
 
 ### Enable SASS/SCSS support
 
@@ -189,12 +100,20 @@ defaultValue="npm"
 values={[
 { label: 'npm', value: 'npm', },
 { label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
 ]
 }>
 <TabItem value="npm">
 
 ```bash
 npm i sass sass-loader
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i sass sass-loader
 ```
 
   </TabItem>
@@ -211,7 +130,7 @@ yarn add sass sass-loader
 2. Add the following to your [`remotion.config.ts`](/docs/config) file:
 
 ```ts twoslash
-import {Config} from 'remotion'
+import { Config } from "remotion";
 // ---cut---
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
   return {
@@ -225,22 +144,141 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
         {
           test: /\.s[ac]ss$/i,
           use: [
-            {loader: 'style-loader'},
-            {loader: 'css-loader'},
-            {loader: 'sass-loader', options: {sourceMap: true}},
+            { loader: "style-loader" },
+            { loader: "css-loader" },
+            { loader: "sass-loader", options: { sourceMap: true } },
           ],
         },
       ],
     },
-  }
-})
+  };
+});
 ```
 
 3. Restart the preview server.
 
+### Enable support for GLSL imports
+
+1. Install the following dependencies:
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm i glsl-shader-loader glslify glslify-import-loader raw-roader
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn add glsl-shader-loader glslify glslify-import-loader raw-roader
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i glsl-shader-loader glslify glslify-import-loader raw-roader
+```
+
+  </TabItem>
+</Tabs>
+
+2. Add the following to your [`remotion.config.ts`](/docs/config) file:
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+  return {
+    ...currentConfiguration,
+    module: {
+      ...currentConfiguration.module,
+      rules: [
+        ...(currentConfiguration.module?.rules
+          ? currentConfiguration.module.rules
+          : []),
+        {
+          test: /\.(glsl|vs|fs|vert|frag)$/,
+          exclude: /node_modules/,
+          use: ["glslify-import-loader", "raw-loader", "glslify-loader"],
+        },
+      ],
+    },
+  };
+});
+```
+
+3. Add the following to your entry file (e.g. `src/index.tsx`):
+
+```ts
+declare module "*.glsl" {
+  const value: string;
+  export default value;
+}
+```
+
+4. Reset the webpack cache by deleting the `node_modules/.cache` folder.
+5. Restart the preview server.
+
+### Enable WebAssembly
+
+There are two WebAssembly modes: asynchronous and synchronous. We recommend testing both and seeing which one works for the WASM library you are trying to use.
+
+```ts twoslash title="remotion.config.ts - synchronous"
+import { Config } from "remotion";
+
+Config.Bundling.overrideWebpackConfig((conf) => {
+  return {
+    ...conf,
+    experiments: {
+      syncWebAssembly: true,
+    },
+  };
+});
+```
+
+:::note
+Since Webpack does not allow synchronous WebAssembly code in the main chunk, you most likely need to declare your composition using [`lazyComponent`](/docs/composition#example-using-lazycomponent) instead of `component`. Check out a [demo project](https://github.com/remotion-dev/id3-tags) for an example.
+:::
+
+```ts twoslash title="remotion.config.ts - asynchronous"
+import { Config } from "remotion";
+
+Config.Bundling.overrideWebpackConfig((conf) => {
+  return {
+    ...conf,
+    experiments: {
+      asyncWebAssembly: true,
+    },
+  };
+});
+```
+
+After you've done that, clear the Webpack cache:
+
+```bash
+rm -rf node_modules/.cache
+```
+
+After restarting, you can import `.wasm` files using an import statement.
+
 ### Use legacy babel loader
 
 See [Using legacy Babel transpilation](/docs/legacy-babel).
+
+## Enable TypeScript aliases
+
+See [TypeScript aliases](/docs/typescript-aliases).
 
 ## Customizing configuration file location
 

@@ -1,22 +1,68 @@
-import fs, {mkdirSync, statSync} from 'fs';
+import fs, {statSync} from 'fs';
 import path from 'path';
-import {Browser as PuppeteerBrowser} from 'puppeteer-core';
-import {Browser, BrowserExecutable, Internals, TCompMetadata} from 'remotion';
+import type {SmallTCompMetadata} from 'remotion';
+import {Internals} from 'remotion';
+import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import type {DownloadMap} from './assets/download-map';
+import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
+import {DEFAULT_BROWSER} from './browser';
+import type {BrowserExecutable} from './browser-executable';
+import type {Browser as PuppeteerBrowser} from './browser/Browser';
+import {ensureOutputDirectory} from './ensure-output-directory';
+import {handleJavascriptException} from './error-handling/handle-javascript-exception';
+import type {FfmpegExecutable} from './ffmpeg-executable';
+import type {StillImageFormat} from './image-format';
+import {validateNonNullImageFormat} from './image-format';
+import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
+import {getServeUrlWithFallback} from './legacy-webpack-config';
+import type {CancelSignal} from './make-cancel-signal';
+import type {ChromiumOptions} from './open-browser';
 import {openBrowser} from './open-browser';
+import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
+import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
+import {validateQuality} from './quality';
 import {seekToFrame} from './seek-to-frame';
-import {serveStatic} from './serve-static';
 import {setPropsAndEnv} from './set-props-and-env';
+import {validateFrame} from './validate-frame';
+import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
+import {validateScale} from './validate-scale';
 
-/**
- * @description Render a still frame from a composition and returns an image path
- */
-export const renderStill = async ({
+type InnerStillOptions = {
+	composition: SmallTCompMetadata;
+	output: string;
+	frame?: number;
+	inputProps?: unknown;
+	imageFormat?: StillImageFormat;
+	quality?: number;
+	puppeteerInstance?: PuppeteerBrowser;
+	dumpBrowserLogs?: boolean;
+	envVariables?: Record<string, string>;
+	overwrite?: boolean;
+	browserExecutable?: BrowserExecutable;
+	timeoutInMilliseconds?: number;
+	chromiumOptions?: ChromiumOptions;
+	scale?: number;
+	onDownload?: RenderMediaOnDownload;
+	cancelSignal?: CancelSignal;
+	ffmpegExecutable?: FfmpegExecutable;
+	ffprobeExecutable?: FfmpegExecutable;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	downloadMap?: DownloadMap;
+};
+
+type RenderStillOptions = InnerStillOptions &
+	ServeUrlOrWebpackBundle & {
+		port?: number | null;
+	};
+
+const innerRenderStill = async ({
 	composition,
 	quality,
 	imageFormat = 'png',
-	webpackBundle,
-	browser = Internals.DEFAULT_BROWSER,
+	serveUrl,
 	puppeteerInstance,
 	dumpBrowserLogs = false,
 	onError,
@@ -26,22 +72,16 @@ export const renderStill = async ({
 	frame = 0,
 	overwrite = true,
 	browserExecutable,
-}: {
-	composition: TCompMetadata;
-	output: string;
-	webpackBundle: string;
-	frame?: number;
-	inputProps?: unknown;
-	imageFormat?: 'png' | 'jpeg';
-	quality?: number;
-	browser?: Browser;
-	puppeteerInstance?: PuppeteerBrowser;
-	dumpBrowserLogs?: boolean;
-	onError?: (err: Error) => void;
-	envVariables?: Record<string, string>;
-	overwrite?: boolean;
-	browserExecutable?: BrowserExecutable;
-}) => {
+	timeoutInMilliseconds,
+	chromiumOptions,
+	scale,
+	proxyPort,
+	cancelSignal,
+}: InnerStillOptions & {
+	serveUrl: string;
+	onError: (err: Error) => void;
+	proxyPort: number;
+}): Promise<void> => {
 	Internals.validateDimension(
 		composition.height,
 		'height',
@@ -54,14 +94,17 @@ export const renderStill = async ({
 	);
 	Internals.validateFps(
 		composition.fps,
-		'in the `config` object of `renderStill()`'
+		'in the `config` object of `renderStill()`',
+		false
 	);
 	Internals.validateDurationInFrames(
 		composition.durationInFrames,
 		'in the `config` object passed to `renderStill()`'
 	);
-	Internals.validateNonNullImageFormat(imageFormat);
-	Internals.validateFrame(frame, composition.durationInFrames);
+	validateNonNullImageFormat(imageFormat);
+	validateFrame(frame, composition.durationInFrames);
+	validatePuppeteerTimeout(timeoutInMilliseconds);
+	validateScale(scale);
 
 	if (typeof output !== 'string') {
 		throw new TypeError('`output` parameter was not passed or is not a string');
@@ -75,7 +118,7 @@ export const renderStill = async ({
 		);
 	}
 
-	Internals.validateQuality(quality);
+	validateQuality(quality);
 
 	if (fs.existsSync(output)) {
 		if (!overwrite) {
@@ -93,58 +136,75 @@ export const renderStill = async ({
 		}
 	}
 
-	mkdirSync(path.resolve(output, '..'), {
-		recursive: true,
-	});
+	ensureOutputDirectory(output);
 
-	const [{port, close}, browserInstance] = await Promise.all([
-		serveStatic(webpackBundle),
+	const browserInstance =
 		puppeteerInstance ??
-			openBrowser(browser, {
-				browserExecutable,
-				shouldDumpIo: dumpBrowserLogs,
-			}),
-	]);
+		(await openBrowser(DEFAULT_BROWSER, {
+			browserExecutable,
+			shouldDumpIo: dumpBrowserLogs,
+			chromiumOptions,
+			forceDeviceScaleFactor: scale ?? 1,
+		}));
 	const page = await browserInstance.newPage();
-	page.setViewport({
+	await page.setViewport({
 		width: composition.width,
 		height: composition.height,
-		deviceScaleFactor: 1,
+		deviceScaleFactor: scale ?? 1,
 	});
+
 	const errorCallback = (err: Error) => {
-		onError?.(err);
+		onError(err);
+		cleanup();
 	};
 
-	page.on('pageerror', errorCallback);
+	const cleanUpJSException = handleJavascriptException({
+		page,
+		onError: errorCallback,
+		frame: null,
+	});
+
+	const cleanup = async () => {
+		cleanUpJSException();
+
+		if (puppeteerInstance) {
+			await page.close();
+		} else {
+			browserInstance.close().catch((err) => {
+				console.log('Unable to close browser', err);
+			});
+		}
+	};
+
+	cancelSignal?.(() => {
+		cleanup();
+	});
+
 	await setPropsAndEnv({
 		inputProps,
 		envVariables,
 		page,
-		port,
+		serveUrl,
 		initialFrame: frame,
+		timeoutInMilliseconds,
+		proxyPort,
+		retriesRemaining: 2,
+		audioEnabled: false,
+		videoEnabled: true,
 	});
 
-	const site = `http://localhost:${port}/index.html?composition=${composition.id}`;
-	await page.goto(site);
-	try {
-		await seekToFrame({frame, page});
-	} catch (err) {
-		const error = err as Error;
-		if (
-			error.message.includes('timeout') &&
-			error.message.includes('exceeded')
-		) {
-			errorCallback(
-				new Error(
-					'The rendering timed out. See https://www.remotion.dev/docs/timeout/ for possible reasons.'
-				)
-			);
-		} else {
-			errorCallback(error);
-		}
-
-		throw error;
-	}
+	await puppeteerEvaluateWithCatch({
+		pageFunction: (id: string) => {
+			window.setBundleMode({
+				type: 'composition',
+				compositionName: id,
+			});
+		},
+		args: [composition.id],
+		frame: null,
+		page,
+	});
+	await seekToFrame({frame, page});
 
 	await provideScreenshot({
 		page,
@@ -156,17 +216,63 @@ export const renderStill = async ({
 		},
 	});
 
-	page.off('pageerror', errorCallback);
+	await cleanup();
+};
 
-	close().catch((err) => {
-		console.log('Unable to close web server', err);
+/**
+ *
+ * @description Render a still frame from a composition
+ * @link https://www.remotion.dev/docs/renderer/render-still
+ */
+export const renderStill = (options: RenderStillOptions): Promise<void> => {
+	const selectedServeUrl = getServeUrlWithFallback(options);
+
+	const downloadMap = options.downloadMap ?? makeDownloadMap();
+
+	const onDownload = options.onDownload ?? (() => () => undefined);
+
+	const happyPath = new Promise<void>((resolve, reject) => {
+		const onError = (err: Error) => reject(err);
+
+		let close: (() => void) | null = null;
+
+		prepareServer({
+			webpackConfigOrServeUrl: selectedServeUrl,
+			onDownload,
+			onError,
+			ffmpegExecutable: options.ffmpegExecutable ?? null,
+			ffprobeExecutable: options.ffprobeExecutable ?? null,
+			port: options.port ?? null,
+			downloadMap,
+		})
+			.then(({serveUrl, closeServer, offthreadPort}) => {
+				close = closeServer;
+				return innerRenderStill({
+					...options,
+					serveUrl,
+					onError: (err) => reject(err),
+					proxyPort: offthreadPort,
+				});
+			})
+
+			.then((res) => resolve(res))
+			.catch((err) => reject(err))
+			.finally(() => {
+				// Clean download map if it was not passed in
+				if (!options?.downloadMap) {
+					cleanDownloadMap(downloadMap);
+				}
+
+				return close?.();
+			});
 	});
 
-	if (puppeteerInstance) {
-		await page.close();
-	} else {
-		browserInstance.close().catch((err) => {
-			console.log('Unable to close browser', err);
-		});
-	}
+	return Promise.race([
+		happyPath,
+		new Promise<void>((_resolve, reject) => {
+			options.cancelSignal?.(() => {
+				reject(new Error('renderStill() got cancelled'));
+			});
+		}),
+	]);
 };

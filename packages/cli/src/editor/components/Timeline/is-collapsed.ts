@@ -1,5 +1,5 @@
-import {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
-import {TimelineViewState} from './timeline-state-reducer';
+import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TimelineViewState} from './timeline-state-reducer';
 
 export const isTrackCollapsed = (
 	hash: string,

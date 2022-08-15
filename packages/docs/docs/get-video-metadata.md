@@ -3,7 +3,7 @@ title: getVideoMetadata()
 id: get-video-metadata
 ---
 
-_Part of the `@remotion/media-utils`_ package of helper functions.
+_Part of the `@remotion/media-utils` package of helper functions._
 
 Takes a `src` to a video, loads it and returns metadata for the specified source.
 
@@ -28,19 +28,19 @@ A string pointing to an asset.
 ```tsx twoslash
 // @module: ESNext
 // @target: ESNext
-import {Audio} from 'remotion'
+import { Audio } from "remotion";
 // ---cut---
-import {getVideoMetadata} from '@remotion/media-utils'
-import video from '../video.mp4'
+import { getVideoMetadata } from "@remotion/media-utils";
+import video from "../video.mp4";
 
-await getVideoMetadata(video) /* {
+await getVideoMetadata(video); /* {
   durationInSeconds: 100.00,
   width: 1280,
   height: 720,
   aspectRatio: 1.77777778,
   isRemote: false
 } */
-await getVideoMetadata('https://example.com/remote-audio.webm') /* {
+await getVideoMetadata("https://example.com/remote-audio.webm"); /* {
   durationInSeconds: 40.213,
   width: 1920,
   height: 1080,
@@ -56,5 +56,6 @@ If you pass in the same argument to `src` multiple times, it will return a cache
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/get-video-metadata.ts)
 - [Using videos](/docs/assets#using-videos)
 - [`<Video/>`](/docs/video)

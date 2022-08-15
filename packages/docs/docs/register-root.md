@@ -3,45 +3,45 @@ id: register-root
 title: registerRoot()
 ---
 
-`registerRoot` is a function that the root component of the Remotion project. In the root component, one or multiple compositions should be returned (in the case of multiple compositions, they should be wrapped in a React Fragment).
+`registerRoot` is a function that registers the root component of the Remotion project. In the root component, one or multiple compositions should be returned (in the case of multiple compositions, they should be wrapped in a React Fragment).
 
 :::info
-The list of compositions can be updated without reloading the page, but calling `registerRoot()` multiple times is an error. This is why the root component should be placed in a different file than `registerRoot()` itself.
+`registerRoot()` should live in a file that is separate from the list of compositions. This is because when using React Fast Refresh, all the code in the file that gets refreshed gets executed again, however, this function should only be called once.
 :::
 
 ## Example
 
-```tsx twoslash title="index.ts"
+```tsx twoslash title="src/index.ts"
 // @filename: ./Video.tsx
-export const RemotionVideo = () => <></>
+export const RemotionVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import {registerRoot} from 'remotion'
-import {RemotionVideo} from './Video'
+import { registerRoot } from "remotion";
+import { RemotionVideo } from "./Video";
 
-registerRoot(RemotionVideo)
+registerRoot(RemotionVideo);
 ```
 
-```tsx twoslash title="Video.tsx"
+```tsx twoslash title="src/Video.tsx"
 // @allowUmdGlobalAccess
 // @filename: MyComponent.tsx
-export default () => <></>
+export default () => <></>;
 
 // @filename: MyOtherComponent.tsx
-export default () => <></>
+export default () => <></>;
 
 // @filename: index.tsx
 const Composition: React.FC<{
-  id: string
-  fps: number
-  height: number
-  width: number
-  component: () => JSX.Element
-}> = () => <></>
+  id: string;
+  fps: number;
+  height: number;
+  width: number;
+  component: () => JSX.Element;
+}> = () => <></>;
 // ---cut---
-import MyComponent from './MyComponent'
-import MyOtherComponent from './MyOtherComponent'
+import MyComponent from "./MyComponent";
+import MyOtherComponent from "./MyOtherComponent";
 
 export const RemotionVideo = () => {
   return (
@@ -61,11 +61,35 @@ export const RemotionVideo = () => {
         component={MyOtherComponent}
       />
     </>
-  )
-}
+  );
+};
+```
+
+## Defer registerRoot()
+
+In some cases, such as dynamically importing roots or loading WebAssembly, you might want to defer the loading of registerRoot(). If you are doing that, you need to tell Remotion to wait by using the [`delayRender()` / `continueRender()`](/docs/delay-render) pattern.
+
+```tsx twoslash
+// @filename: ./Video.tsx
+export const RemotionVideo = () => <></>;
+
+// @filename: index.tsx
+const loadWebAssembly = () => Promise.resolve();
+// ---cut---
+
+import { delayRender, continueRender, registerRoot } from "remotion";
+import { RemotionVideo } from "./Video";
+
+const wait = delayRender();
+
+loadWebAssembly().then(() => {
+  registerRoot(RemotionVideo);
+  continueRender(wait);
+});
 ```
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/register-root.ts)
 - [`<Composition />` component](/docs/composition)
 - [The fundamentals](/docs/the-fundamentals)

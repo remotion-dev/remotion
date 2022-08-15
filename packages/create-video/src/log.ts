@@ -3,7 +3,7 @@
 import chalk from 'chalk';
 
 export const Log = {
-	chalk: chalk,
+	chalk,
 	verbose: (...args: Parameters<typeof console.log>) => {
 		return console.log(chalk.blueBright(...args));
 	},

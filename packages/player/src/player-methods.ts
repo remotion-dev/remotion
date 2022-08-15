@@ -1,11 +1,12 @@
-import {SyntheticEvent} from 'react';
-import {PlayerEmitter} from './event-emitter';
+import type {SyntheticEvent} from 'react';
+import type {PlayerEmitter} from './event-emitter';
 
 export type PlayerMethods = {
 	play: (e?: SyntheticEvent) => void;
 	pause: () => void;
-	toggle: () => void;
+	toggle: (e?: SyntheticEvent) => void;
 	seekTo: (frame: number) => void;
+	getContainerNode: () => HTMLDivElement | null;
 	getCurrentFrame: () => number;
 	requestFullscreen: () => void;
 	exitFullscreen: () => void;
@@ -13,6 +14,7 @@ export type PlayerMethods = {
 	setVolume: (num: number) => void;
 	getVolume: () => number;
 	isMuted: () => boolean;
+	isPlaying: () => boolean;
 	mute: () => void;
 	unmute: () => void;
 };

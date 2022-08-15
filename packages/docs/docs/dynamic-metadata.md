@@ -27,10 +27,10 @@ For example if you have passed `--props='{"hello": "world"}'` as a command line 
 
 ```tsx twoslash
 // It's better to fake type here than to import any
-const getInputProps = () => ({hello: 'world'} as const)
+const getInputProps = () => ({ hello: "world" } as const);
 // ---cut---
-const {hello} = getInputProps()
-console.log(hello) // "world"
+const { hello } = getInputProps();
+console.log(hello); // "world"
 ```
 
 You can use this technique to dynamically change the frame rate, dimensions or duration of our video as you render. For example, if you pass `--props={"duration": 100}` during rendering, the video will be 100 frames long if you define your composition as followed:
@@ -38,9 +38,9 @@ You can use this technique to dynamically change the frame rate, dimensions or d
 ```tsx twoslash
 // @include: example-MyComponent
 // ---cut---
-import {Composition, getInputProps} from 'remotion'
+import { Composition, getInputProps } from "remotion";
 
-const inputProps = getInputProps()
+const inputProps = getInputProps();
 
 export const Index = () => {
   return (
@@ -54,8 +54,8 @@ export const Index = () => {
         durationInFrames={inputProps?.duration ?? 20}
       />
     </>
-  )
-}
+  );
+};
 ```
 
 :::tip
@@ -72,23 +72,27 @@ In this example, we fetch the duration of "Big Buck Bunny" and use it to make ou
 
 ```tsx twoslash
 // @include: example-VideoTesting
-import {useEffect, useState} from 'react'
-import {Composition, continueRender, delayRender} from 'remotion'
+import { useEffect, useState } from "react";
+import { Composition, continueRender, delayRender } from "remotion";
 // ---cut---
+import { getVideoMetadata } from "@remotion/media-utils";
+
 export const Index: React.FC = () => {
-  const [handle] = useState(() => delayRender())
-  const [duration, setDuration] = useState(1)
+  const [handle] = useState(() => delayRender());
+  const [duration, setDuration] = useState(1);
 
   useEffect(() => {
-    const video = document.createElement('video')
-    video.src =
-      'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
-
-    video.onloadedmetadata = () => {
-      setDuration(Math.round(video.duration * 30))
-      continueRender(handle)
-    }
-  }, [handle])
+    getVideoMetadata(
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+    )
+      .then(({ durationInSeconds }) => {
+        setDuration(Math.round(durationInSeconds * 30));
+        continueRender(handle);
+      })
+      .catch((err) => {
+        console.log(`Error fetching metadata: ${err}`);
+      });
+  }, [handle]);
 
   return (
     <>
@@ -101,8 +105,8 @@ export const Index: React.FC = () => {
         durationInFrames={duration}
       />
     </>
-  )
-}
+  );
+};
 ```
 
 ## Change metadata in server-side rendering
@@ -110,26 +114,26 @@ export const Index: React.FC = () => {
 Both `getCompositions()` and `renderFrames()` functions accept an `inputProps` object as a parameter.
 
 ```tsx twoslash
-import {getCompositions} from '@remotion/renderer'
-const bundled: string = ''
+import { getCompositions } from "@remotion/renderer";
+const bundled: string = "";
 // ---cut---
 getCompositions(bundled, {
   inputProps: {
-    custom: 'data'
-  }
-})
+    custom: "data",
+  },
+});
 ```
 
 ```tsx twoslash
-import {renderFrames as rf} from '@remotion/renderer'
-const renderFrames = (options: Partial<Parameters<typeof rf>[0]>) => {}
+import { renderFrames as rf } from "@remotion/renderer";
+const renderFrames = (options: { inputProps: {} }) => {};
 // ---cut---
 renderFrames({
   // ...
   inputProps: {
-    custom: 'data'
-  }
-})
+    custom: "data",
+  },
+});
 ```
 
 Make sure to pass the parameter to both of these functions, so the input props are available to `getInputProps` during the composition fetching and rendering stage.

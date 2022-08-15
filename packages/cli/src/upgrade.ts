@@ -1,71 +1,84 @@
-import execa from 'execa';
-import fs from 'fs';
+import {RenderInternals} from '@remotion/renderer';
 import path from 'path';
-import {Internals} from 'remotion';
+import {ConfigInternals} from './config';
+import {getLatestRemotionVersion} from './get-latest-remotion-version';
 import {Log} from './log';
+import type {PackageManager} from './preview-server/get-package-manager';
+import {
+	getPackageManager,
+	lockFilePaths,
+} from './preview-server/get-package-manager';
 
-const npmOrYarn = (): 'npm' | 'yarn' => {
-	const packageLockJsonFilePath = path.join(process.cwd(), 'package-lock.json');
-	const yarnLockFilePath = path.join(process.cwd(), 'yarn.lock');
+const getUpgradeCommand = ({
+	manager,
+	packages,
+	version,
+}: {
+	manager: PackageManager;
+	packages: string[];
+	version: string;
+}): string[] => {
+	const pkgList = packages.map((p) => `${p}@^${version}`);
 
-	const npmExists = fs.existsSync(packageLockJsonFilePath);
-	const yarnExists = fs.existsSync(yarnLockFilePath);
+	const commands: {[key in PackageManager]: string[]} = {
+		npm: ['i', ...pkgList],
+		pnpm: ['i', ...pkgList],
+		yarn: ['add', ...pkgList],
+	};
 
-	if (npmExists && !yarnExists) {
-		return 'npm';
-	}
-
-	if (!npmExists && yarnExists) {
-		return 'yarn';
-	}
-
-	if (npmExists && yarnExists) {
-		Log.error(
-			'Found both a package-lock.json and a yarn.lock file in your project.'
-		);
-		Log.error(
-			'This can lead to bugs, delete one of the two files and settle on 1 package manager.'
-		);
-		Log.error('Afterwards, run this command again.');
-		process.exit(1);
-	}
-
-	Log.error('Did not find a package-lock.json or yarn.lock file.');
-	Log.error('Cannot determine how to update dependencies.');
-	Log.error('Did you run `npm install` yet?');
-	Log.error('Make sure either file exists and run this command again.');
-	process.exit(1);
+	return commands[manager];
 };
 
-export const upgrade = async () => {
-	const packageJsonFilePath = path.join(process.cwd(), 'package.json');
-	if (!fs.existsSync(packageJsonFilePath)) {
-		Log.error(
-			'Could not upgrade because no package.json could be found in your project.'
-		);
-		process.exit(1);
-	}
+export const upgrade = async (remotionRoot: string) => {
+	const packageJsonFilePath = path.join(remotionRoot, 'package.json');
 
 	const packageJson = require(packageJsonFilePath);
 	const dependencies = Object.keys(packageJson.dependencies);
+	const latestRemotionVersion = await getLatestRemotionVersion();
 
-	const tool = npmOrYarn();
+	const manager = getPackageManager(remotionRoot);
+
+	if (manager === 'unknown') {
+		throw new Error(
+			`No lockfile was found in your project (one of ${lockFilePaths
+				.map((p) => p.path)
+				.join(', ')}). Install dependencies using your favorite manager!`
+		);
+	}
 
 	const toUpgrade = [
 		'@remotion/bundler',
 		'@remotion/cli',
 		'@remotion/eslint-config',
 		'@remotion/renderer',
+		'@remotion/skia',
+		'@remotion/lottie',
 		'@remotion/media-utils',
 		'@remotion/babel-loader',
 		'@remotion/lambda',
+		'@remotion/preload',
 		'@remotion/three',
 		'@remotion/gif',
 		'remotion',
 	].filter((u) => dependencies.includes(u));
 
-	const prom = execa(tool, ['upgrade', ...toUpgrade]);
-	if (Internals.Logging.isEqualOrBelowLogLevel('info')) {
+	const prom = RenderInternals.execa(
+		manager.manager,
+		getUpgradeCommand({
+			manager: manager.manager,
+			packages: toUpgrade,
+			version: latestRemotionVersion,
+		}),
+		{
+			stdio: 'inherit',
+		}
+	);
+	if (
+		RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
+			'info'
+		)
+	) {
 		prom.stdout?.pipe(process.stdout);
 	}
 

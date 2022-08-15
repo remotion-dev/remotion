@@ -1,8 +1,7 @@
-import splitbee from "@splitbee/web";
 import React, { useEffect, useReducer, useRef, useState } from "react";
 import "../input-fields.css";
 import { BlueButton } from "../layout/Button";
-import { GithubResponse } from "./GithubDemo";
+import type { GithubResponse } from "./GithubDemo";
 import styles from "./parametrize.module.css";
 import { ProgrammaticContent } from "./Programmatic";
 
@@ -76,8 +75,6 @@ export const Parametrize: React.FC = () => {
 
   const [state, dispatch] = useReducer(reducer, { type: "loading" });
 
-  splitbee.track("landing-page-video-playback");
-
   useEffect(() => {
     dispatch({
       type: "fetch-video",
@@ -107,7 +104,10 @@ export const Parametrize: React.FC = () => {
         </h2>
         <p>
           Fetch data from an API and use it as the content. <br />
-          Render videos programmatically using our server-side APIs.
+          Display it in real-time with the{" "}
+          <a href="/player">@remotion/player</a>.<br />
+          Render videos programmatically using{" "}
+          <a href="/lambda">@remotion/lambda</a>.
         </p>
         <span style={{ fontSize: 13 }}>
           Customize the video by entering your GitHub username.

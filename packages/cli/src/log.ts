@@ -1,27 +1,47 @@
 /* eslint-disable no-console */
-
-import chalk from 'chalk';
-import {Internals} from 'remotion';
+import {RenderInternals} from '@remotion/renderer';
+import {chalk} from './chalk';
+import {ConfigInternals} from './config';
 
 export const Log = {
 	verbose: (...args: Parameters<typeof console.log>) => {
-		if (Internals.Logging.isEqualOrBelowLogLevel('verbose')) {
-			return console.log(chalk.blueBright(...args));
+		if (
+			RenderInternals.isEqualOrBelowLogLevel(
+				ConfigInternals.Logging.getLogLevel(),
+				'verbose'
+			)
+		) {
+			return console.log(...args.map((a) => chalk.blueBright(a)));
 		}
 	},
 	info: (...args: Parameters<typeof console.log>) => {
-		if (Internals.Logging.isEqualOrBelowLogLevel('info')) {
+		if (
+			RenderInternals.isEqualOrBelowLogLevel(
+				ConfigInternals.Logging.getLogLevel(),
+				'info'
+			)
+		) {
 			return console.log(...args);
 		}
 	},
 	warn: (...args: Parameters<typeof console.log>) => {
-		if (Internals.Logging.isEqualOrBelowLogLevel('warn')) {
-			return console.warn(chalk.yellow(...args));
+		if (
+			RenderInternals.isEqualOrBelowLogLevel(
+				ConfigInternals.Logging.getLogLevel(),
+				'warn'
+			)
+		) {
+			return console.warn(...args.map((a) => chalk.yellow(a)));
 		}
 	},
 	error: (...args: Parameters<typeof console.log>) => {
-		if (Internals.Logging.isEqualOrBelowLogLevel('error')) {
-			return console.error(chalk.red(...args));
+		if (
+			RenderInternals.isEqualOrBelowLogLevel(
+				ConfigInternals.Logging.getLogLevel(),
+				'error'
+			)
+		) {
+			return console.error(...args.map((a) => chalk.red(a)));
 		}
 	},
 };

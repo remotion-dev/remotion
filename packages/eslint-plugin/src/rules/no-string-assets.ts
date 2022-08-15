@@ -1,6 +1,6 @@
-import { ESLintUtils } from "@typescript-eslint/experimental-utils";
+import { ESLintUtils } from "@typescript-eslint/utils";
 
-const createRule = ESLintUtils.RuleCreator((name) => {
+const createRule = ESLintUtils.RuleCreator(() => {
   return `https://github.com/remotion-dev/remotion`;
 });
 
@@ -9,7 +9,7 @@ type Options = [];
 type MessageIds = "NoStringAssets";
 
 const NoStringAssets = [
-  "Don't reference local assets by string, use an import statement instead.",
+  "Don't reference local assets by string, use an import statement or staticFile() instead.",
   "See: https://www.remotion.dev/docs/assets",
 ].join("\n");
 
@@ -19,7 +19,6 @@ export default createRule<Options, MessageIds>({
     type: "problem",
     docs: {
       description: NoStringAssets,
-      category: "Best Practices",
       recommended: "warn",
     },
     fixable: undefined,
@@ -39,13 +38,26 @@ export default createRule<Options, MessageIds>({
           return;
         }
         const value = node.value;
-        if (!value || value.type !== "Literal") {
+        // src={"some string"}
+        const insideCurlyBraces =
+          value &&
+          value.type === "JSXExpressionContainer" &&
+          value.expression.type === "Literal";
+        if (!value || (value.type !== "Literal" && !insideCurlyBraces)) {
           return;
         }
-        const stringValue = value.value;
+        const stringValue =
+          value &&
+          value.type === "JSXExpressionContainer" &&
+          value.expression.type === "Literal"
+            ? value.expression.value
+            : value.type === "Literal"
+            ? value.value
+            : null;
         if (typeof stringValue !== "string") {
           return;
         }
+
         const parent = node.parent;
         if (!parent) {
           return;

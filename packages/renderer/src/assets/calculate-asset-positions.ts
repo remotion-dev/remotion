@@ -1,6 +1,8 @@
-import {TAsset} from 'remotion';
-import {splitAssetsIntoSegments} from './split-assets-into-segments';
-import {Assets, MediaAsset, UnsafeAsset} from './types';
+import type {TAsset} from 'remotion';
+import {resolveAssetSrc} from '../resolve-asset-src';
+import {convertAssetToFlattenedVolume} from './flatten-volume-array';
+import type {Assets, MediaAsset, UnsafeAsset} from './types';
+import {uncompressMediaAsset} from './types';
 
 const areEqual = (a: TAsset | UnsafeAsset, b: TAsset) => {
 	return a.id === b.id;
@@ -16,25 +18,35 @@ const findFrom = (target: TAsset[], asset: TAsset) => {
 	return true;
 };
 
+const copyAndDeduplicateAssets = (assets: TAsset[]) => {
+	const deduplicated: TAsset[] = [];
+	for (const asset of assets) {
+		if (!deduplicated.find((d) => d.id === asset.id)) {
+			deduplicated.push(asset);
+		}
+	}
+
+	return deduplicated;
+};
+
 export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 	const assets: UnsafeAsset[] = [];
 
 	for (let frame = 0; frame < frames.length; frame++) {
-		const prev = (frames[frame - 1] ?? []).slice();
-		const current = frames[frame];
-		const next = (frames[frame + 1] ?? []).slice();
+		const prev = copyAndDeduplicateAssets(frames[frame - 1] ?? []);
+		const current = copyAndDeduplicateAssets(frames[frame]);
+		const next = copyAndDeduplicateAssets(frames[frame + 1] ?? []);
 
 		for (const asset of current) {
 			if (!findFrom(prev, asset)) {
 				assets.push({
-					src: asset.src,
+					src: resolveAssetSrc(uncompressMediaAsset(frames.flat(1), asset).src),
 					type: asset.type,
 					duration: null,
 					id: asset.id,
 					startInVideo: frame,
 					trimLeft: asset.mediaFrame,
 					volume: [],
-					isRemote: asset.isRemote,
 					playbackRate: asset.playbackRate,
 				});
 			}
@@ -60,8 +72,5 @@ export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 		}
 	}
 
-	return splitAssetsIntoSegments({
-		assets: assets as MediaAsset[],
-		duration: frames.length,
-	});
+	return (assets as MediaAsset[]).map((a) => convertAssetToFlattenedVolume(a));
 };

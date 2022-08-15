@@ -1,5 +1,5 @@
 ---
-title: <Audio />
+title: <Audio>
 id: audio
 ---
 
@@ -14,8 +14,8 @@ The component also accepts a `volume` props which allows you to control the volu
 `<Audio>` has two more helper props: `startFrom` and `endAt` for defining the start frame and end frame. Both are optional and do not get forwarded to the native `<audio>` element but tell Remotion which portion of the audio should be included.
 
 ```tsx twoslash
-import {Audio} from 'remotion'
-import audio from './audio.mp3'
+import { Audio } from "remotion";
+import audio from "./audio.mp3";
 
 export const MyVideo = () => {
   return (
@@ -27,8 +27,8 @@ export const MyVideo = () => {
         endAt={120} // if composition is 30fps, then it will end at 4s
       />
     </div>
-  )
-}
+  );
+};
 ```
 
 ## Controlling volume
@@ -45,6 +45,7 @@ While Remotion doesn't limit the range of possible playback speeds, in developme
 
 ## See also
 
-- [Using audio](/docs/audio)
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/audio/Audio.tsx)
+- [Using audio](/docs/using-audio)
 - [Audio visualization](/docs/audio-visualization)
 - [`<Video />`](/docs/video)
