@@ -310,7 +310,10 @@ module.exports = {
         {
           type: "category",
           label: "Snippets",
-          items: ["miscellaneous/snippets/player-in-iframe"],
+          items: [
+            "miscellaneous/snippets/player-in-iframe",
+            "miscellaneous/snippets/fps-converter",
+          ],
         },
       ],
     },
