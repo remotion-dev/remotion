@@ -55,6 +55,5 @@ export const uncompressMediaAsset = (
 export type Assets = MediaAsset[];
 
 export interface DownloadableAsset {
-	isRemote: boolean;
 	src: string;
 }

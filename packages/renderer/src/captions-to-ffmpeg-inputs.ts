@@ -1,4 +1,4 @@
-import {TCaption} from 'remotion';
+import type {TCaption} from 'remotion';
 
 interface CaptionFfmpegInputs {
 	captionFilters: string[];

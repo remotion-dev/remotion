@@ -1,6 +1,6 @@
 import fs, {mkdirSync} from 'fs';
 import path from 'path';
-import type {TAsset} from 'remotion';
+import type {TAsset, TCaption} from 'remotion';
 import {deleteDirectory} from '../delete-directory';
 import {tmpDir} from '../tmp-dir';
 
@@ -64,6 +64,7 @@ export type DownloadMap = {
 
 export type RenderAssetInfo = {
 	assets: TAsset[][];
+	captions: TCaption[][];
 	imageSequenceName: string;
 	firstFrameIndex: number;
 	downloadMap: DownloadMap;

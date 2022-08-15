@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import type {SmallTCompMetadata, TAsset} from 'remotion';
+import type {SmallTCompMetadata, TAsset, TCaption} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
@@ -235,6 +235,9 @@ const innerRenderFrames = ({
 	});
 
 	const assets: TAsset[][] = new Array(framesToRender.length).fill(undefined);
+	const captions: TCaption[][] = new Array(framesToRender.length).fill(
+		undefined
+	);
 	let stopped = false;
 	cancelSignal?.(() => {
 		stopped = true;
@@ -312,10 +315,19 @@ const innerRenderFrames = ({
 				frame,
 				page: freePage,
 			});
+			const collectedCaptions = await puppeteerEvaluateWithCatch<TAsset[]>({
+				pageFunction: () => {
+					return window.remotion_collectCaptions();
+				},
+				args: [],
+				frame,
+				page: freePage,
+			});
 			const compressedAssets = collectedAssets.map((asset) =>
 				compressAsset(assets.filter(truthy).flat(1), asset)
 			);
 			assets[index] = compressedAssets;
+			captions[index] = collectedCaptions;
 			compressedAssets.forEach((asset) => {
 				downloadAndMapAssetsToFileUrl({
 					asset,
@@ -332,7 +344,6 @@ const innerRenderFrames = ({
 			onFrameUpdate(framesRendered, frame);
 			cleanupPageError();
 			freePage.off('error', errorCallbackOnFrame);
-			return compressedAssets;
 		})
 	);
 
@@ -340,6 +351,7 @@ const innerRenderFrames = ({
 		const returnValue: RenderFramesOutput = {
 			assetsInfo: {
 				assets,
+				captions,
 				imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
 				firstFrameIndex: framesToRender[0],
 				downloadMap,
