@@ -49,3 +49,18 @@
   align-items: center;
   color: var(--light-text-color);
 }
+
+.pagetitle {
+  font-size: 3em;
+  text-align: center;
+}
+
+.tagline {
+  text-align: center;
+}
+
+@media screen and (max-width: 900px) {
+  .pagetitle, .tagline {
+    text-align: left;
+  }
+}

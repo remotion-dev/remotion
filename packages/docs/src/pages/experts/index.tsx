@@ -44,16 +44,19 @@ const Experts: React.FC = () => {
   return (
     <Layout>
       <div className={styles.wrapper}>
-        <h1>Hire Remotion freelancers</h1>
-        <p>
-          These people have indicated that they are available to work on
-          Remotion projects. They appear in random order.{" "}
+        <h1 className={styles.pagetitle}>Find a Remotion expert</h1>
+        <p className={styles.tagline}>
+          Get help realizing your Remotion project. <br /> These people have
+          indicated that they are available to work on Remotion projects. They
+          appear in random order.{" "}
         </p>
-        <p>
+        <p className={styles.tagline}>
           <a href="mailto:hi@remotion.dev?subject=Remotion+experts+directory">
             Are you available for hire? Let us know!
           </a>
         </p>
+        <br />
+        <br />
         {expertsInRandomOrder.map((e) => {
           return (
             <div key={e.name} className={styles.card}>
