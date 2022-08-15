@@ -2,7 +2,7 @@
 title: "FPS converter"
 ---
 
-This snippet is useful if you have designed your video with a different frame rate than you want to render in the end. Wrap your markup in the `<FpsConverter>` component to get
+This snippet is useful if you have designed your video with a different frame rate than you want to render in the end. Wrap your markup in the `<FpsConverter>` component override the time of it's children to achieve a different FPS.
 
 ```tsx twoslash title="FpsConverter.tsx"
 import React, { useContext, useMemo } from "react";
