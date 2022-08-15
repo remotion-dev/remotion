@@ -5,12 +5,14 @@ type Expert = {
   image: string;
   website: string | null;
   description: React.ReactNode;
+  twitter: React.ReactNode;
 };
 
 export const experts: Expert[] = [
   {
     name: "Marcus Stenbeck",
     image: "/img/freelancers/marcus.jpeg",
+    twitter: "marcusstenbeck",
     description: (
       <div>
         <p>
@@ -38,6 +40,7 @@ export const experts: Expert[] = [
     name: "UmungoBongo",
     image: "/img/freelancers/umungo.png",
     website: null,
+    twitter: "UmunugoBongo1",
     description: (
       <div>
         <p>
@@ -58,6 +61,7 @@ export const experts: Expert[] = [
     name: "Florent Pergoud",
     image: "/img/freelancers/florent.jpeg",
     website: null,
+    twitter: "florentpergoud",
     description: (
       <div>
         I made:{" "}
@@ -72,6 +76,7 @@ export const experts: Expert[] = [
     name: "Middy",
     image: "/img/freelancers/default.png",
     website: null,
+    twitter: null,
     description: (
       <div>
         I made: <a href="https://middy.com">https://middy.com</a>!
@@ -82,6 +87,7 @@ export const experts: Expert[] = [
     name: "Mohit",
     image: "/img/freelancers/mohit.jpeg",
     website: null,
+    twitter: "Just_Moh_it",
     description: (
       <div>
         I made: <a href="https://mockoops.mohitya.dev">Mockoops</a>!
@@ -92,10 +98,11 @@ export const experts: Expert[] = [
     name: "karel",
     image: "/img/freelancers/karel.png",
     website: "https://karel.wtf",
+    twitter: "KarelETH",
     description: (
       <div>
         I made: <a href="https://www.tiktok.com/@elommusd">TikTok automation</a>
-        , <a href="https://ensvideo.xyz/">ENS video</a>
+        , <a href="https://ensvideo.xyz/">ENS video</a>!
       </div>
     ),
   },

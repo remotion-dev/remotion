@@ -17,6 +17,13 @@
   align-items: center;
 }
 
+
+@media screen and (max-width: 900px) {
+  .card {
+    flex-direction: column;
+  }
+}
+
 .profile {
   height: 200px;
   border-radius: 100px;
@@ -31,4 +38,14 @@
   font-size: 1.2rem;
   margin-bottom: 0;
   font-weight: bold;
+}
+.right {
+  width: 100%;
+}
+
+.socialmedia {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  color: var(--light-text-color);
 }
