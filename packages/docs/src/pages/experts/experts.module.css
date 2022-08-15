@@ -1,0 +1,34 @@
+.wrapper {
+  max-width: 1000px;
+  margin: auto;
+  margin-top: 60px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+
+.card {
+  box-shadow: var(--box-shadow);
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.profile {
+  height: 200px;
+  border-radius: 100px;
+}
+
+.spacer {
+  height: 20px;
+  width: 20px;
+}
+
+.title {
+  font-size: 1.2rem;
+  margin-bottom: 0;
+  font-weight: bold;
+}
