@@ -16,6 +16,7 @@ const packages = [
 	'@remotion/babel-loader',
 	'@remotion/lambda',
 	'@remotion/preload',
+	'@remotion/player',
 	'@remotion/three',
 	'@remotion/gif',
 	'remotion',
