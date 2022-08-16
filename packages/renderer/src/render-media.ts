@@ -23,6 +23,8 @@ import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
+import type {ImageFormat} from './image-format';
+import {isAudioCodec} from './is-audio-codec';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
 import {getServeUrlWithFallback} from './legacy-webpack-config';
 import type {CancelSignal} from './make-cancel-signal';
@@ -103,14 +105,12 @@ export const renderMedia = ({
 	proResProfile,
 	crf,
 	composition,
-	imageFormat,
 	ffmpegExecutable,
 	ffprobeExecutable,
 	inputProps,
 	pixelFormat,
 	codec,
 	envVariables,
-	quality,
 	frameRange,
 	puppeteerInstance,
 	outputLocation,
@@ -130,7 +130,7 @@ export const renderMedia = ({
 	enforceAudioTrack,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
-	validateQuality(quality);
+	validateQuality(options.quality);
 	if (typeof crf !== 'undefined' && crf !== null) {
 		validateSelectedCrfAndCodecCombination(crf, codec);
 	}
@@ -181,7 +181,10 @@ export const renderMedia = ({
 		}
 	}
 
-	const actualImageFormat = imageFormat ?? 'jpeg';
+	const imageFormat: ImageFormat = isAudioCodec(codec)
+		? 'none'
+		: options.imageFormat ?? 'jpeg';
+	const quality = imageFormat === 'jpeg' ? options.quality : undefined;
 
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
@@ -247,7 +250,7 @@ export const renderMedia = ({
 				},
 				verbose: options.verbose ?? false,
 				ffmpegExecutable,
-				imageFormat: actualImageFormat,
+				imageFormat,
 				signal: cancelPrestitcher.cancelSignal,
 			});
 			stitcherFfmpeg = preStitcher.task;
@@ -286,7 +289,7 @@ export const renderMedia = ({
 				},
 				inputProps,
 				envVariables,
-				imageFormat: actualImageFormat,
+				imageFormat,
 				quality,
 				frameRange: frameRange ?? null,
 				puppeteerInstance,
@@ -345,7 +348,7 @@ export const renderMedia = ({
 					outputLocation,
 					internalOptions: {
 						preEncodedFileLocation,
-						imageFormat: actualImageFormat,
+						imageFormat,
 					},
 					force: overwrite ?? DEFAULT_OVERWRITE,
 					pixelFormat,
