@@ -313,6 +313,7 @@ module.exports = {
           items: [
             "miscellaneous/snippets/player-in-iframe",
             "miscellaneous/snippets/fps-converter",
+            "miscellaneous/snippets/adding-animations",
           ],
         },
       ],
