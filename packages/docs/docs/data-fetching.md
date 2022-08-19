@@ -45,7 +45,7 @@ It is important to know that in the render process, data fetching works on a per
 Every frame, every component is re-rendered by the _frame context_ modification and then screenshotted.
 You should consider caching the result of your API, to avoid rate-limits and also to speed up the render of your video. We have two suggestions on how to do that:
 
-- Use the `localStorage` API to persist data after a network request and make a request only if the local storage is empty.
+- Use the `localStorage` API to persist data after a network request and make a request only if the local storage is empty. This technique will make one request per rendering process and then continue with the cached data. If the API you're fetching data from returns different data for each request this method is not a good choice.
 
 - Fetch the data before the render, and store it as a JSON file, then import this JSON file.
 
