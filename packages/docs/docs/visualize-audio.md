@@ -95,7 +95,7 @@ const params = {
  * This postprocessing step will match the values with what you'd
  * get from WebAudio's `AnalyserNode.getByteFrequencyData()`.
  *
- * MDN: https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode
+ * MDN: https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode/getByteFrequencyData
  * W3C Spec: https://www.w3.org/TR/webaudio/#AnalyserNode-methods
  */
 
