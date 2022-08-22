@@ -18,7 +18,7 @@ const getUpgradeCommand = ({
 	packages: string[];
 	version: string;
 }): string[] => {
-	const pkgList = packages.map((p) => `${p}@^${version}`);
+	const pkgList = packages.map((p) => `${p}@${version}`);
 
 	const commands: {[key in PackageManager]: string[]} = {
 		npm: ['i', ...pkgList],
