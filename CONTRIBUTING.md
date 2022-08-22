@@ -72,7 +72,9 @@ pnpm test
 
 in either a subpackage to run tests for that package or in the root to run all tests.
 
-You can test changes to [@remotion/player](https://remotion.dev/docs/player) using:
+### Testing `@remotion/player`
+
+You can test changes to [@remotion/player](https://remotion.dev/docs/player) by starting the Player testbed:
 
 ```console
 cd packages/player-example
@@ -80,3 +82,12 @@ pnpm start
 ```
 
 For information about testing, please consult [TESTING.md](./TESTING.md).
+
+### Testing documentation
+
+You can run the Docusaurus server that powers our docs using:
+
+```console
+cd packages/docs
+pnpm start
+```
