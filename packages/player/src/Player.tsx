@@ -61,10 +61,6 @@ export type PlayerProps<T> = {
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
-Internals.CSSUtils.injectCSS(
-	Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`, '#fff')
-);
-
 export const componentOrNullIfLazy = <T,>(
 	props: CompProps<T>
 ): ComponentType<T> | null => {
@@ -340,6 +336,13 @@ export const PlayerFn = <T,>(
 	const passedInputProps = useMemo(() => {
 		return inputProps ?? {};
 	}, [inputProps]);
+
+	useLayoutEffect(() => {
+		// Inject CSS only on client, and also only after the Player has hydrated
+		Internals.CSSUtils.injectCSS(
+			Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`, '#fff')
+		);
+	}, []);
 
 	return (
 		<Internals.CanUseRemotionHooksProvider>
