@@ -223,5 +223,6 @@ if (typeof window !== 'undefined') {
 	};
 
 	window.siteVersion = '4';
+	window.remotion_version = Internals.VERSION;
 	window.setBundleMode = setBundleModeAndUpdate;
 }
