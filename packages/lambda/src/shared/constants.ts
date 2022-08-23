@@ -312,15 +312,11 @@ export type RenderMetadata = {
 	inputProps: unknown;
 	framesPerLambda: number;
 	memorySizeInMb: number;
-	lambdaVersion: LambdaVersions;
+	lambdaVersion: string;
 	region: AwsRegion;
 	renderId: string;
 	outName: OutNameInput | undefined;
 };
-
-export type LambdaVersions = '2022-08-16' | 'n/a';
-
-export const CURRENT_VERSION: LambdaVersions = '2022-08-16';
 
 export type PostRenderData = {
 	cost: {

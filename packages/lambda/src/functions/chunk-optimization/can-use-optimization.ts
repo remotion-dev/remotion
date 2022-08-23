@@ -1,4 +1,4 @@
-import {CURRENT_VERSION} from '../../defaults';
+import {Internals} from 'remotion';
 import type {OptimizationProfile} from './types';
 
 export const canUseOptimization = ({
@@ -18,7 +18,7 @@ export const canUseOptimization = ({
 		return false;
 	}
 
-	if (optimization.lambdaVersion !== CURRENT_VERSION) {
+	if (optimization.lambdaVersion !== Internals.VERSION) {
 		return false;
 	}
 

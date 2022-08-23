@@ -9,7 +9,6 @@ import type {
 	RenderMetadata,
 } from '../shared/constants';
 import {
-	CURRENT_VERSION,
 	encodingProgressKey,
 	LambdaRoutines,
 	MAX_FUNCTIONS_PER_RENDER,
@@ -230,7 +229,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		type: 'video',
 		imageFormat: params.imageFormat,
 		inputProps: params.inputProps,
-		lambdaVersion: CURRENT_VERSION,
+		lambdaVersion: Internals.VERSION,
 		framesPerLambda,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		region: getCurrentRegionInFunction(),
@@ -374,7 +373,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 						newTiming: getProfileDuration(optimizedProfile),
 						createdFromRenderId: params.renderId,
 						framesPerLambda,
-						lambdaVersion: CURRENT_VERSION,
+						lambdaVersion: Internals.VERSION,
 						frameRange: realFrameRange,
 						everyNthFrame: params.everyNthFrame,
 					},

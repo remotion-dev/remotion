@@ -1,5 +1,6 @@
+import {Internals} from 'remotion';
 import {getFunctions} from '../../api/get-functions';
-import {BINARY_NAME, CURRENT_VERSION} from '../../shared/constants';
+import {BINARY_NAME} from '../../shared/constants';
 import {FUNCTIONS_COMMAND} from '../commands/functions';
 import {FUNCTIONS_DEPLOY_SUBCOMMAND} from '../commands/functions/deploy';
 import {FUNCTIONS_LS_SUBCOMMAND} from '../commands/functions/ls';
@@ -14,12 +15,12 @@ export const findFunctionName = async () => {
 		compatibleOnly: false,
 	});
 	const lambdasWithMatchingVersion = remotionLambdas.filter(
-		(l) => l.version === CURRENT_VERSION
+		(l) => l.version === Internals.VERSION
 	);
 
 	if (lambdasWithMatchingVersion.length === 0) {
 		Log.error(
-			`No lambda functions with version ${CURRENT_VERSION} found in your account.`
+			`No lambda functions with version ${Internals.VERSION} found in your account.`
 		);
 		if (remotionLambdas.length > 0) {
 			Log.error(
