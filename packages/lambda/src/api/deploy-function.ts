@@ -1,4 +1,4 @@
-import {Internals} from 'remotion';
+import {VERSION} from 'remotion/version';
 import {getFunctions} from '../api/get-functions';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {
@@ -60,7 +60,7 @@ export const deployFunction = async (
 	validateCustomRoleArn(options.customRoleArn);
 
 	const fnNameRender = [
-		`${RENDER_FN_PREFIX}${Internals.VERSION.replace(/\./g, '-')}`,
+		`${RENDER_FN_PREFIX}${VERSION.replace(/\./g, '-')}`,
 		`mem${options.memorySizeInMb}mb`,
 		`disk${diskSizeInMb}mb`,
 		`${options.timeoutInSeconds}sec`,
@@ -74,7 +74,7 @@ export const deployFunction = async (
 
 	const alreadyDeployed = fns.find(
 		(f) =>
-			f.version === Internals.VERSION &&
+			f.version === VERSION &&
 			f.memorySizeInMb === options.memorySizeInMb &&
 			f.timeoutInSeconds === options.timeoutInSeconds &&
 			f.diskSizeInMb === diskSizeInMb

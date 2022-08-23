@@ -1,4 +1,4 @@
-import {Internals} from 'remotion';
+import {VERSION} from 'remotion/version';
 import type {Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {normalizeServeUrl} from './normalize-serve-url';
@@ -154,14 +154,14 @@ export const setPropsAndEnv = async ({
 		);
 	}
 
-	if (remotionVersion !== Internals.VERSION) {
+	if (remotionVersion !== VERSION) {
 		if (remotionVersion) {
 			console.warn(
-				`The site was bundled with version ${remotionVersion} of @remotion/bundler, while @remotion/renderer is on version ${Internals.VERSION}. You may not have the newest bugfixes and features. Re-bundle the site to fix this issue.`
+				`The site was bundled with version ${remotionVersion} of @remotion/bundler, while @remotion/renderer is on version ${VERSION}. You may not have the newest bugfixes and features. Re-bundle the site to fix this issue.`
 			);
 		} else {
 			console.warn(
-				`The site was bundled with an old version of Remotion, while @remotion/renderer is on version ${Internals.VERSION}. You may not have the newest bugfixes and features. Re-bundle the site to fix this issue.`
+				`The site was bundled with an old version of Remotion, while @remotion/renderer is on version ${VERSION}. You may not have the newest bugfixes and features. Re-bundle the site to fix this issue.`
 			);
 		}
 	}

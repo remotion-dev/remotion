@@ -1,4 +1,4 @@
-import {Internals} from 'remotion';
+import {VERSION} from 'remotion/version';
 import {getFunctions} from '../../api/get-functions';
 import {BINARY_NAME} from '../../shared/constants';
 import {FUNCTIONS_COMMAND} from '../commands/functions';
@@ -15,12 +15,12 @@ export const findFunctionName = async () => {
 		compatibleOnly: false,
 	});
 	const lambdasWithMatchingVersion = remotionLambdas.filter(
-		(l) => l.version === Internals.VERSION
+		(l) => l.version === VERSION
 	);
 
 	if (lambdasWithMatchingVersion.length === 0) {
 		Log.error(
-			`No lambda functions with version ${Internals.VERSION} found in your account.`
+			`No lambda functions with version ${VERSION} found in your account.`
 		);
 		if (remotionLambdas.length > 0) {
 			Log.error(

@@ -1,6 +1,6 @@
 import type {FunctionConfiguration} from '@aws-sdk/client-lambda';
 import {ListFunctionsCommand} from '@aws-sdk/client-lambda';
-import {Internals} from 'remotion';
+import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
@@ -104,6 +104,6 @@ export const getFunctions = async (
 			return true;
 		}
 
-		return l.version === Internals.VERSION;
+		return l.version === VERSION;
 	});
 };

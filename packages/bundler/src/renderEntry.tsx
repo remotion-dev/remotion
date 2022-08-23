@@ -7,6 +7,7 @@ import type {render, unmountComponentAtNode} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import type {BundleState, TCompMetadata, TComposition} from 'remotion';
 import {continueRender, delayRender, Internals} from 'remotion';
+import {VERSION} from 'remotion/version';
 import {getBundleMode, setBundleMode} from './bundle-mode';
 import {Homepage} from './homepage/homepage';
 
@@ -223,6 +224,6 @@ if (typeof window !== 'undefined') {
 	};
 
 	window.siteVersion = '4';
-	window.remotion_version = Internals.VERSION;
+	window.remotion_version = VERSION;
 	window.setBundleMode = setBundleModeAndUpdate;
 }

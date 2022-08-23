@@ -3,7 +3,7 @@ import {
 	PublishLayerVersionCommand,
 } from '@aws-sdk/client-lambda';
 import {lambda} from 'aws-policies';
-import {Internals} from 'remotion';
+import {VERSION} from 'remotion/version';
 import {getRegions} from '..';
 import {quit} from '../cli/helpers/quit';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -61,7 +61,7 @@ const makeLayerPublic = async () => {
 								? 'Compiled from FFMPEG source. Read FFMPEG license: https://ffmpeg.org/legal.html'
 								: 'Contains Noto Sans font. Read Noto Sans License: https://fonts.google.com/noto/specimen/Noto+Sans/about',
 						CompatibleRuntimes: runtimes,
-						Description: Internals.VERSION,
+						Description: VERSION,
 					})
 				);
 				await getLambdaClient(region).send(

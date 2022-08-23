@@ -1,4 +1,4 @@
-import {Internals} from 'remotion';
+import {VERSION} from 'remotion/version';
 import {deleteFunction} from '../../api/delete-function';
 import {deployFunction} from '../../api/deploy-function';
 import {getFunctions} from '../../api/get-functions';
@@ -9,7 +9,7 @@ import {
 import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
 
 const expectedFunctionName = (memory: number, timeout: number, disk: number) =>
-	`remotion-render-${Internals.VERSION.replace(
+	`remotion-render-${VERSION.replace(
 		/\./g,
 		'-'
 	)}-mem${memory}mb-disk${disk}mb-${timeout}sec`;
@@ -53,7 +53,7 @@ test('Should be able to get the function afterwards', async () => {
 			),
 			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,
-			version: Internals.VERSION,
+			version: VERSION,
 			region: 'us-east-1',
 			diskSizeInMb: 2048,
 		},
@@ -119,7 +119,7 @@ test('Should be able to get the function afterwards', async () => {
 			),
 			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,
-			version: Internals.VERSION,
+			version: VERSION,
 			region: 'us-east-1',
 			diskSizeInMb: 2048,
 		},
