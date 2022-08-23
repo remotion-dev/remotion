@@ -15,12 +15,12 @@ export const startHandler = async (params: LambdaPayload) => {
 	if (params.version !== VERSION) {
 		if (!params.version) {
 			throw new Error(
-				`Version mismatch: A Lambda function with version ${VERSION} was called using the @remotion/lambda package with an older version.`
+				`Version mismatch: When calling renderMediaOnLambda(), the deployed Lambda function had version ${VERSION} but the @remotion/lambda package is an older version. Align the versions.`
 			);
 		}
 
 		throw new Error(
-			`Version mismatch: A Lambda function with version ${VERSION} was called using the @remotion/lambda package with version ${params.version}`
+			`Version mismatch: When calling renderMediaOnLambda(), get deployed Lambda function had version ${VERSION} and the @remotion/lambda package has version ${params.version}. Align the versions.`
 		);
 	}
 
