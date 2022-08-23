@@ -26,7 +26,7 @@ declare global {
 		remotion_finishedBuilding: undefined | (() => void);
 		siteVersion: '4';
 		remotion_version: string;
-		remotion_imported: boolean;
+		remotion_imported: string | boolean;
 	}
 }
 
