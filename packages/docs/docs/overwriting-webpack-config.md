@@ -244,15 +244,15 @@ const enableSass: WebpackOverrideFn = (currentConfiguration) => {
 3. Add the override function to your [`remotion.config.ts`](/docs/config) file:
 
 ```ts twoslash title="remotion.config.ts"
-// @filename: ./src/enable-mdx.ts
+// @filename: ./src/enable-sass.ts
 import { WebpackOverrideFn } from "remotion";
-export const enableMdx: WebpackOverrideFn = (c) => c;
+export const enableSass: WebpackOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // ---cut---
 import { Config } from "remotion";
-import { enableMdx } from "./src/enable-mdx";
+import { enableSass } from "./src/enable-sass";
 
-Config.Bundling.overrideWebpackConfig(enableMdx);
+Config.Bundling.overrideWebpackConfig(enableSass);
 ```
 
 4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
@@ -295,12 +295,12 @@ pnpm i glsl-shader-loader glslify glslify-import-loader raw-roader
   </TabItem>
 </Tabs>
 
-2. Add the following to your [`remotion.config.ts`](/docs/config) file:
+2. Declare a webpack override:
 
-```ts twoslash
-import { Config } from "remotion";
-// ---cut---
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+```ts twoslash title="src/enable.glsl.ts"
+import { WebpackOverrideFn } from "remotion";
+
+export const enableGlsl: WebpackOverrideFn = (currentConfiguration) => {
   return {
     ...currentConfiguration,
     module: {
@@ -317,7 +317,20 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
       ],
     },
   };
-});
+};
+```
+
+```ts twoslash title="remotion.config.ts"
+// @filename: ./src/enable-glsl.ts
+import { WebpackOverrideFn } from "remotion";
+export const enableGlsl: WebpackOverrideFn = (c) => c;
+
+// @filename: remotion.config.ts
+// ---cut---
+import { Config } from "remotion";
+import { enableGlsl } from "./src/enable-glsl";
+
+Config.Bundling.overrideWebpackConfig(enableGlsl);
 ```
 
 3. Add the following to your entry file (e.g. `src/index.tsx`):
@@ -329,8 +342,10 @@ declare module "*.glsl" {
 }
 ```
 
-4. Reset the webpack cache by deleting the `node_modules/.cache` folder.
-5. Restart the preview server.
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+
+5. Reset the webpack cache by deleting the `node_modules/.cache` folder.
+6. Restart the preview server.
 
 ### Enable WebAssembly
 
@@ -373,6 +388,8 @@ rm -rf node_modules/.cache
 ```
 
 After restarting, you can import `.wasm` files using an import statement.
+
+Add the Webpack override to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
 
 ### Use legacy babel loader
 
