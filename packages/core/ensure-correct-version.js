@@ -21,4 +21,4 @@ if (!distFile.includes(version)) {
 	process.exit(1);
 }
 
-console.log('Updated version to v3.2.5');
+console.log('Updated version to v' + version);

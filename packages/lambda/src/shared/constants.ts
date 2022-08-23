@@ -201,6 +201,7 @@ export type LambdaPayloads = {
 		concurrencyPerLambda: number;
 		downloadBehavior: DownloadBehavior;
 		muted: boolean;
+		version: string;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -235,6 +236,7 @@ export type LambdaPayloads = {
 		type: LambdaRoutines.status;
 		bucketName: string;
 		renderId: string;
+		version: string;
 	};
 	renderer: {
 		concurrencyPerLambda: number;
@@ -285,6 +287,7 @@ export type LambdaPayloads = {
 		chromiumOptions: ChromiumOptions;
 		scale: number;
 		downloadBehavior: DownloadBehavior | null;
+		version: string;
 	};
 };
 
@@ -312,15 +315,11 @@ export type RenderMetadata = {
 	inputProps: unknown;
 	framesPerLambda: number;
 	memorySizeInMb: number;
-	lambdaVersion: LambdaVersions;
+	lambdaVersion: string;
 	region: AwsRegion;
 	renderId: string;
 	outName: OutNameInput | undefined;
 };
-
-export type LambdaVersions = '2022-08-16' | 'n/a';
-
-export const CURRENT_VERSION: LambdaVersions = '2022-08-16';
 
 export type PostRenderData = {
 	cost: {
