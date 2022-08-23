@@ -20,7 +20,7 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 				return -1;
 			}
 
-			if (prevPlaybackRate <= -1) {
+			if (prevPlaybackRate > -2) {
 				return -2;
 			}
 
