@@ -3,7 +3,9 @@ id: data-fetching
 title: Data fetching
 ---
 
-One of the most groundbreaking things about Remotion is that you can fetch data from an API to display in your video like you would in a regular React project. It works almost like you are used to: You can use the `fetch` API to load the data in a `useEffect` and set a state.
+One of the coolest things about Remotion is that you can fetch data from an API.
+
+It works almost like you are used to: You can use the [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) API to load data in a [`useEffect()`](https://reactjs.org/docs/hooks-effect.html) call and set a state.
 
 ## Telling Remotion to wait until the data is loaded
 
@@ -39,19 +41,18 @@ export const MyVideo = () => {
 };
 ```
 
-## Caching
+## Best practices
 
-It is important to know that in the render process, data fetching works on a per-frame basis. 
-Every frame, every component is re-rendered by the _frame context_ modification and then screenshotted.
-You should consider caching the result of your API, to avoid rate-limits and also to speed up the render of your video. We have two suggestions on how to do that:
+During rendering, multiple tabs are opened to speed up rendering. In each of these tabs, the tree is re-rendered by changing the value of [`useCurrentFrame()`](/docs/use-current-frame) and then screenshotted.
 
-- Use the `localStorage` API to persist data after a network request and make a request only if the local storage is empty. This technique will make one request per rendering process and then continue with the cached data. If the API you're fetching data from returns different data for each request this method is not a good choice.
-
-- Fetch the data before the render, and store it as a JSON file, then import this JSON file.
+- Each tab will execute the data fetching individually, so if you are rendering with a high concurrency, you may run into a rate limit.
+- You can use the `localStorage` API to persist data after a network request and make a request only if the local storage is empty.
+- The data returned by an API must be the same when called multiple times, otherwise [flickering](/docs/flickering) may apply.
+- Consider fetching data before the render, and pass data as [input props](/docs/parametrized-rendering)
 
 ## Time limit
 
-You need to clear all handles created by `delayRender` within 30 seconds after the page is opened. This limit is imposed by Puppeteer, but makes a lot of sense as going over this limit would make the rendering process massively slow.
+You need to clear all handles created by [`delayRender()`](/docs/delay-render) within 30 seconds after the page is opened. You may [increase the timeout](/docs/timeout#increase-timeout).
 
 ## Using `delayRender()` to calculate video metadata
 
