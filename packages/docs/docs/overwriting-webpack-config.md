@@ -213,12 +213,12 @@ yarn add sass sass-loader
   </TabItem>
 </Tabs>
 
-2. Add the following to your [`remotion.config.ts`](/docs/config) file:
+2. Declare an override function:
 
-```ts twoslash
-import { Config } from "remotion";
-// ---cut---
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+```ts twoslash title="src/enable-sass.ts"
+import { WebpackOverrideFn } from "remotion";
+
+const enableSass: WebpackOverrideFn = (currentConfiguration) => {
   return {
     ...currentConfiguration,
     module: {
@@ -238,10 +238,26 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
       ],
     },
   };
-});
+};
 ```
 
-3. Restart the preview server.
+3. Add the override function to your [`remotion.config.ts`](/docs/config) file:
+
+```ts twoslash title="remotion.config.ts"
+// @filename: ./src/enable-mdx.ts
+import { WebpackOverrideFn } from "remotion";
+export const enableMdx: WebpackOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// ---cut---
+import { Config } from "remotion";
+import { enableMdx } from "./src/enable-mdx";
+
+Config.Bundling.overrideWebpackConfig(enableMdx);
+```
+
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+
+5. Restart the preview server.
 
 ### Enable support for GLSL imports
 
