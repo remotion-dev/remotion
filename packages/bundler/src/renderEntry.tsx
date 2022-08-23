@@ -6,7 +6,7 @@ import type {render, unmountComponentAtNode} from 'react-dom';
 // hence why we import the right thing all the time but need to differentiate here
 import ReactDOM from 'react-dom/client';
 import type {BundleState, TCompMetadata, TComposition} from 'remotion';
-import {continueRender, delayRender, Internals} from 'remotion';
+import {continueRender, delayRender, Internals, VERSION} from 'remotion';
 import {getBundleMode, setBundleMode} from './bundle-mode';
 import {Homepage} from './homepage/homepage';
 
@@ -223,5 +223,6 @@ if (typeof window !== 'undefined') {
 	};
 
 	window.siteVersion = '4';
+	window.remotion_version = VERSION;
 	window.setBundleMode = setBundleModeAndUpdate;
 }
