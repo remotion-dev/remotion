@@ -25,6 +25,7 @@ declare global {
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
 		siteVersion: '4';
+		remotion_version: string;
 		remotion_imported: boolean;
 	}
 }
