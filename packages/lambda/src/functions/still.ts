@@ -3,7 +3,7 @@ import type {StillImageFormat} from '@remotion/renderer';
 import {RenderInternals, renderStill} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import {Internals} from 'remotion';
+import {VERSION} from 'remotion/version';
 import {estimatePrice} from '../api/estimate-price';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -48,15 +48,15 @@ const innerStillHandler = async (
 		throw new TypeError('Expected still type');
 	}
 
-	if (lambdaParams.version !== Internals.VERSION) {
+	if (lambdaParams.version !== VERSION) {
 		if (!lambdaParams.version) {
 			throw new Error(
-				`Version mismatch: A Lambda function with version ${Internals.VERSION} was called using the @remotion/lambda package with an older version.`
+				`Version mismatch: A Lambda function with version ${VERSION} was called using the @remotion/lambda package with an older version.`
 			);
 		}
 
 		throw new Error(
-			`Version mismatch: A Lambda function with version ${Internals.VERSION} was called using the @remotion/lambda package with version ${lambdaParams.version}`
+			`Version mismatch: A Lambda function with version ${VERSION} was called using the @remotion/lambda package with version ${lambdaParams.version}`
 		);
 	}
 
@@ -108,7 +108,7 @@ const innerStillHandler = async (
 		usesOptimizationProfile: false,
 		imageFormat: lambdaParams.imageFormat,
 		inputProps: lambdaParams.inputProps,
-		lambdaVersion: Internals.VERSION,
+		lambdaVersion: VERSION,
 		framesPerLambda: 1,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		region: getCurrentRegionInFunction(),

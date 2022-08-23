@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
 import {CliInternals} from '@remotion/cli';
-import {Internals} from 'remotion';
+import {VERSION} from 'remotion/version';
 import {
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	DEFAULT_MEMORY_SIZE,
@@ -12,7 +12,7 @@ import {getProcessWriteOutput} from './console-hooks';
 test('Deploy function', async () => {
 	await LambdaInternals.executeCommand(['functions', 'deploy']);
 	expect(getProcessWriteOutput()).toContain(
-		`Deployed as remotion-render-${Internals.VERSION.replace(
+		`Deployed as remotion-render-${VERSION.replace(
 			/\./g,
 			'-'
 		)}-mem${DEFAULT_MEMORY_SIZE}mb-disk${DEFAULT_EPHEMERAL_STORAGE_IN_MB}mb-${DEFAULT_TIMEOUT}sec\n`
