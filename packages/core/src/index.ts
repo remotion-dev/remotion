@@ -70,5 +70,6 @@ export * from './Still';
 export type {PlayableMediaTag} from './timeline-position-state';
 export {useCurrentFrame} from './use-current-frame';
 export * from './use-video-config';
+export * from './version';
 export * from './video';
 export * from './video-config';
