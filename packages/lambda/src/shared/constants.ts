@@ -201,6 +201,7 @@ export type LambdaPayloads = {
 		concurrencyPerLambda: number;
 		downloadBehavior: DownloadBehavior;
 		muted: boolean;
+		version: string;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -285,6 +286,7 @@ export type LambdaPayloads = {
 		chromiumOptions: ChromiumOptions;
 		scale: number;
 		downloadBehavior: DownloadBehavior | null;
+		version: string;
 	};
 };
 

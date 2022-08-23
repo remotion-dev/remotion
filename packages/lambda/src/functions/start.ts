@@ -1,4 +1,5 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
+import {Internals} from 'remotion';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {LambdaPayload} from '../shared/constants';
@@ -9,6 +10,18 @@ import {getCurrentRegionInFunction} from './helpers/get-current-region';
 export const startHandler = async (params: LambdaPayload) => {
 	if (params.type !== LambdaRoutines.start) {
 		throw new TypeError('Expected type start');
+	}
+
+	if (params.version !== Internals.VERSION) {
+		if (!params.version) {
+			throw new Error(
+				`Version mismatch: A Lambda function with version ${Internals.VERSION} was called using the @remotion/lambda package with an older version.`
+			);
+		}
+
+		throw new Error(
+			`Version mismatch: A Lambda function with version ${Internals.VERSION} was called using the @remotion/lambda package with version ${params.version}`
+		);
 	}
 
 	const {bucketName} = await getOrCreateBucket({

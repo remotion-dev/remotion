@@ -48,6 +48,18 @@ const innerStillHandler = async (
 		throw new TypeError('Expected still type');
 	}
 
+	if (lambdaParams.version !== Internals.VERSION) {
+		if (!lambdaParams.version) {
+			throw new Error(
+				`Version mismatch: A Lambda function with version ${Internals.VERSION} was called using the @remotion/lambda package with an older version.`
+			);
+		}
+
+		throw new Error(
+			`Version mismatch: A Lambda function with version ${Internals.VERSION} was called using the @remotion/lambda package with version ${lambdaParams.version}`
+		);
+	}
+
 	validateDownloadBehavior(lambdaParams.downloadBehavior);
 	validatePrivacy(lambdaParams.privacy);
 	validateOutname(lambdaParams.outName);
