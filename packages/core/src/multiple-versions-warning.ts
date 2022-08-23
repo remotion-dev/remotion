@@ -1,13 +1,19 @@
 export const checkMultipleRemotionVersions = () => {
-	if (typeof window === 'undefined') {
+	if (typeof globalThis === 'undefined') {
 		return;
 	}
 
-	if (window.remotion_imported) {
-		console.error(
-			'🚨 Multiple versions of Remotion detected. Multiple versions will cause conflicting React contexts and things may break in an unexpected way. Please check your dependency tree and make sure only one version of Remotion is on the page.'
+	if (
+		(globalThis as unknown as Window).remotion_imported ||
+		(typeof window !== 'undefined' && window.remotion_imported)
+	) {
+		throw new TypeError(
+			'🚨 Multiple versions of Remotion detected. This will cause things to break in an unexpected way.\nCheck that all your Remotion packages are on the same version. You can also run `npx remotion versions` from your terminal to see which versions are mismatching.'
 		);
 	}
 
-	window.remotion_imported = true;
+	(globalThis as unknown as Window).remotion_imported = true;
+	if (typeof window !== 'undefined') {
+		window.remotion_imported = true;
+	}
 };

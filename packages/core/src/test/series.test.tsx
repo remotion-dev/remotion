@@ -6,7 +6,7 @@ import {render} from '@testing-library/react';
 import React from 'react';
 import {expect, test} from 'vitest';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
-import {Series} from '../index';
+import {Series} from '../series';
 import {TimelineContext} from '../timeline-position-state';
 import {useCurrentFrame} from '../use-current-frame';
 
