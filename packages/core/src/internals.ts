@@ -45,6 +45,7 @@ import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
 import {validateOffthreadVideoImageFormat} from './validation/validate-offthreadvideo-image-format';
+import {VERSION} from './version';
 import type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
@@ -99,6 +100,7 @@ export const Internals = {
 	CanUseRemotionHooksProvider,
 	CanUseRemotionHooks,
 	enableLegacyRemotionConfig,
+	VERSION,
 };
 
 type WebpackConfiguration = Configuration;

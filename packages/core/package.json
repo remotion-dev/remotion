@@ -6,11 +6,11 @@
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
+		"prepublish": "node ensure-version-match.js && cp ../../README.md .",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
 		"build": "tsc -d",
-		"watch": "tsc -w",
-		"prerelease": "cp ../../README.md ."
+		"watch": "tsc -w"
 	},
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"

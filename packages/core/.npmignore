@@ -7,3 +7,4 @@ vitest.config.ts
 *.tgz
 generate-badges.js
 coverage
+ensure-version-match.js
