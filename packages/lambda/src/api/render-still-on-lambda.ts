@@ -3,6 +3,7 @@ import type {
 	LogLevel,
 	StillImageFormat,
 } from '@remotion/renderer';
+import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
@@ -96,6 +97,7 @@ export const renderStillOnLambda = async ({
 				chromiumOptions: chromiumOptions ?? {},
 				scale: scale ?? 1,
 				downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
+				version: VERSION,
 			},
 			region,
 		});

@@ -3,6 +3,7 @@ import type {StillImageFormat} from '@remotion/renderer';
 import {RenderInternals, renderStill} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
+import {VERSION} from 'remotion/version';
 import {estimatePrice} from '../api/estimate-price';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -12,7 +13,6 @@ import type {
 	RenderMetadata,
 } from '../shared/constants';
 import {
-	CURRENT_VERSION,
 	LambdaRoutines,
 	MAX_EPHEMERAL_STORAGE_IN_MB,
 	renderMetadataKey,
@@ -46,6 +46,18 @@ const innerStillHandler = async (
 ) => {
 	if (lambdaParams.type !== LambdaRoutines.still) {
 		throw new TypeError('Expected still type');
+	}
+
+	if (lambdaParams.version !== VERSION) {
+		if (!lambdaParams.version) {
+			throw new Error(
+				`Version mismatch: When calling renderStillOnLambda(), the deployed Lambda function had version ${VERSION} but the @remotion/lambda package is an older version. Align the versions.`
+			);
+		}
+
+		throw new Error(
+			`Version mismatch: When calling renderStillOnLambda(), get deployed Lambda function had version ${VERSION} and the @remotion/lambda package has version ${lambdaParams.version}. Align the versions.`
+		);
 	}
 
 	validateDownloadBehavior(lambdaParams.downloadBehavior);
@@ -96,7 +108,7 @@ const innerStillHandler = async (
 		usesOptimizationProfile: false,
 		imageFormat: lambdaParams.imageFormat,
 		inputProps: lambdaParams.inputProps,
-		lambdaVersion: CURRENT_VERSION,
+		lambdaVersion: VERSION,
 		framesPerLambda: 1,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		region: getCurrentRegionInFunction(),
