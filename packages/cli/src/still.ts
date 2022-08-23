@@ -7,9 +7,12 @@ import {
 } from '@remotion/renderer';
 import {mkdirSync} from 'fs';
 import path from 'path';
-import {Config, Internals} from 'remotion';
 import {chalk} from './chalk';
-import {getCliOptions} from './get-cli-options';
+import {Config, ConfigInternals} from './config';
+import {
+	getAndValidateAbsoluteOutputFile,
+	getCliOptions,
+} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
@@ -19,31 +22,37 @@ import {
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,
 } from './progress-bar';
-import {bundleOnCli} from './setup-cache';
+import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import type {RenderStep} from './step';
-import {getUserPassedOutputLocation} from './user-passed-output-location';
+import {truthy} from './truthy';
+import {
+	getOutputLocation,
+	getUserPassedOutputLocation,
+} from './user-passed-output-location';
 
-export const still = async () => {
+export const still = async (remotionRoot: string) => {
 	const startTime = Date.now();
 	const file = parsedCli._[1];
 	const fullPath = RenderInternals.isServeUrl(file)
 		? file
 		: path.join(process.cwd(), file);
 
-	await initializeRenderCli('still');
+	await initializeRenderCli(remotionRoot, 'still');
 
-	const userOutput = path.resolve(process.cwd(), getUserPassedOutputLocation());
-
-	if (userOutput.endsWith('.jpeg') || userOutput.endsWith('.jpg')) {
+	const userPassedOutput = getUserPassedOutputLocation();
+	if (
+		userPassedOutput?.endsWith('.jpeg') ||
+		userPassedOutput?.endsWith('.jpg')
+	) {
 		Log.verbose(
-			'Output file has a JPEG extension, therefore setting the image format to JPEG.'
+			'Output file has a JPEG extension, setting the image format to JPEG.'
 		);
 		Config.Rendering.setImageFormat('jpeg');
 	}
 
-	if (userOutput.endsWith('.png')) {
+	if (userPassedOutput?.endsWith('.png')) {
 		Log.verbose(
-			'Output file has a PNG extension, therefore setting the image format to PNG.'
+			'Output file has a PNG extension, setting the image format to PNG.'
 		);
 		Config.Rendering.setImageFormat('png');
 	}
@@ -63,9 +72,30 @@ export const still = async () => {
 		overwrite,
 		puppeteerTimeout,
 		port,
-	} = await getCliOptions({isLambda: false, type: 'still'});
+	} = await getCliOptions({
+		isLambda: false,
+		type: 'still',
+	});
 
 	Log.verbose('Browser executable: ', browserExecutable);
+
+	const compositionId = getCompositionId();
+
+	const relativeOutputLocation = getOutputLocation({
+		compositionId,
+		defaultExtension: imageFormat,
+	});
+
+	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(
+		relativeOutputLocation,
+		overwrite
+	);
+
+	Log.info(
+		chalk.gray(
+			`Output = ${relativeOutputLocation}, Format = ${imageFormat}, Composition = ${compositionId}`
+		)
+	);
 
 	if (imageFormat === 'none') {
 		Log.error(
@@ -74,48 +104,50 @@ export const still = async () => {
 		process.exit(1);
 	}
 
-	if (imageFormat === 'png' && !userOutput.endsWith('.png')) {
+	if (imageFormat === 'png' && !absoluteOutputLocation.endsWith('.png')) {
 		Log.warn(
-			`Rendering a PNG, expected a .png extension but got ${userOutput}`
+			`Rendering a PNG, expected a .png extension but got ${absoluteOutputLocation}`
 		);
 	}
 
 	if (
 		imageFormat === 'jpeg' &&
-		!userOutput.endsWith('.jpg') &&
-		!userOutput.endsWith('.jpeg')
+		!absoluteOutputLocation.endsWith('.jpg') &&
+		!absoluteOutputLocation.endsWith('.jpeg')
 	) {
 		Log.warn(
-			`Rendering a JPEG, expected a .jpg or .jpeg extension but got ${userOutput}`
+			`Rendering a JPEG, expected a .jpg or .jpeg extension but got ${absoluteOutputLocation}`
 		);
 	}
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
 		chromiumOptions,
-
-		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
 		forceDeviceScaleFactor: scale,
 	});
 
-	mkdirSync(path.join(userOutput, '..'), {
+	mkdirSync(path.join(absoluteOutputLocation, '..'), {
 		recursive: true,
 	});
 
 	const steps: RenderStep[] = [
 		RenderInternals.isServeUrl(fullPath) ? null : ('bundling' as const),
 		'rendering' as const,
-	].filter(Internals.truthy);
+	].filter(truthy);
 
-	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
-		? Promise.resolve(fullPath)
-		: await bundleOnCli(fullPath, steps);
+	const {cleanup: cleanupBundle, urlOrBundle} = await bundleOnCliOrTakeServeUrl(
+		{fullPath, remotionRoot, steps}
+	);
 
 	const puppeteerInstance = await browserInstance;
-	const comps = await getCompositions(await urlOrBundle, {
+
+	const downloadMap = RenderInternals.makeDownloadMap();
+
+	const comps = await getCompositions(urlOrBundle, {
 		inputProps,
 		puppeteerInstance,
 		envVariables,
@@ -125,8 +157,8 @@ export const still = async () => {
 		browserExecutable,
 		ffmpegExecutable,
 		ffprobeExecutable,
+		downloadMap,
 	});
-	const compositionId = getCompositionId(comps);
 
 	const composition = comps.find((c) => c.id === compositionId);
 	if (!composition) {
@@ -179,23 +211,25 @@ export const still = async () => {
 	await renderStill({
 		composition,
 		frame: stillFrame,
-		output: userOutput,
-		serveUrl: await urlOrBundle,
+		output: absoluteOutputLocation,
+		serveUrl: urlOrBundle,
 		quality,
-		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
 		envVariables,
 		imageFormat,
 		inputProps,
 		chromiumOptions,
-		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
 		scale,
 		ffmpegExecutable,
 		browserExecutable,
 		overwrite,
 		onDownload,
+		port,
+		downloadMap,
 	});
 
 	frames = 1;
@@ -215,6 +249,10 @@ export const still = async () => {
 		].join(' ')
 	);
 	Log.info('-', 'Output can be found at:');
-	Log.info(chalk.cyan(`▶️ ${userOutput}`));
+	Log.info(chalk.cyan(`▶️ ${absoluteOutputLocation}`));
 	await closeBrowserPromise;
+	await RenderInternals.cleanDownloadMap(downloadMap);
+	await cleanupBundle();
+
+	Log.verbose('Cleaned up', downloadMap.assetDir);
 };

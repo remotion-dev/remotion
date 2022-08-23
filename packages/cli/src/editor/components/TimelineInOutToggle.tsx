@@ -12,6 +12,10 @@ import {
 	TimelineInPointer,
 	TimelineOutPointer,
 } from '../icons/timelineInOutPointer';
+import {
+	useTimelineInOutFramePosition,
+	useTimelineSetInOutFramePosition,
+} from '../state/in-out';
 import {persistMarks} from '../state/marks';
 import {ControlButton} from './ControlButton';
 
@@ -31,10 +35,8 @@ export const inOutHandles = createRef<{
 
 export const TimelineInOutPointToggle: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const {inFrame, outFrame} =
-		Internals.Timeline.useTimelineInOutFramePosition();
-	const {setInAndOutFrames} =
-		Internals.Timeline.useTimelineSetInOutFramePosition();
+	const {inFrame, outFrame} = useTimelineInOutFramePosition();
+	const {setInAndOutFrames} = useTimelineSetInOutFramePosition();
 	const {currentComposition} = useContext(Internals.CompositionManager);
 	const isStill = useIsStill();
 	const videoConfig = Internals.useUnsafeVideoConfig();
@@ -117,14 +119,29 @@ export const TimelineInOutPointToggle: React.FC = () => {
 	}, [setInAndOutFrames]);
 
 	useEffect(() => {
-		const iKey = keybindings.registerKeybinding('keypress', 'i', () => {
-			onInMark();
+		const iKey = keybindings.registerKeybinding({
+			event: 'keypress',
+			key: 'i',
+			callback: () => {
+				onInMark();
+			},
+			commandCtrlKey: false,
 		});
-		const oKey = keybindings.registerKeybinding('keypress', 'o', () => {
-			onOutMark();
+		const oKey = keybindings.registerKeybinding({
+			event: 'keypress',
+			key: 'o',
+			callback: () => {
+				onOutMark();
+			},
+			commandCtrlKey: false,
 		});
-		const xKey = keybindings.registerKeybinding('keypress', 'x', () => {
-			onInOutClear();
+		const xKey = keybindings.registerKeybinding({
+			event: 'keypress',
+			key: 'x',
+			callback: () => {
+				onInOutClear();
+			},
+			commandCtrlKey: false,
 		});
 		return () => {
 			oKey.unregister();

@@ -5,7 +5,7 @@ import {getS3Client} from '../shared/aws-clients';
 import {validateBucketName} from '../shared/validate-bucketname';
 import {validatePresignExpiration} from '../shared/validate-presign-expiration';
 
-export type PresignURLInput = {
+type PresignURLInput = {
 	region: AwsRegion;
 	bucketName: string;
 	objectKey: string;
@@ -46,6 +46,16 @@ export const presignUrl = async ({
 		} catch (err) {
 			if ((err as {name: string}).name === 'NotFound') {
 				return null;
+			}
+
+			if (
+				(err as Error).message === 'UnknownError' ||
+				(err as {$metadata: {httpStatusCode: number}}).$metadata
+					.httpStatusCode === 403
+			) {
+				throw new Error(
+					`Unable to access item "${objectKey}" from bucket "${bucketName}". You must have permission for both "s3:GetObject" and "s3:ListBucket" actions.`
+				);
 			}
 
 			throw err;

@@ -64,6 +64,8 @@ module.exports = {
       items: [
         "lambda/troubleshooting/permissions",
         "lambda/troubleshooting/rate-limit",
+        "lambda/troubleshooting/unrecognizedclientexception",
+        "lambda/troubleshooting/bucket-disallows-acl",
       ],
     },
     "lambda/changelog",
@@ -72,7 +74,6 @@ module.exports = {
   ],
   someSidebar: [
     {
-      collapsed: false,
       type: "category",
       label: "Getting started",
       items: [
@@ -87,7 +88,6 @@ module.exports = {
     {
       type: "category",
       label: "Techniques",
-      collapsed: false,
       items: [
         "assets",
         "using-audio",
@@ -103,12 +103,14 @@ module.exports = {
         "dynamic-metadata",
         "ssr",
         "webpack",
+        "tailwind",
         "legacy-babel",
         "env-variables",
         "third-party",
         "stills",
         "scaling",
         "video-manipulation",
+        "render-as-gif",
       ],
     },
     {
@@ -137,8 +139,7 @@ module.exports = {
     "config",
     {
       type: "category",
-      label: "API - Core",
-      collapsed: false,
+      label: "API - remotion",
       items: [
         "continue-render",
         "delay-render",
@@ -207,6 +208,7 @@ module.exports = {
         "player/integration",
         "player/autoplay",
         "player/preloading",
+        "player/best-practices",
       ],
     },
     {
@@ -217,6 +219,31 @@ module.exports = {
         id: "three",
       },
       items: ["three-canvas", "use-video-texture"],
+    },
+    {
+      type: "category",
+      label: "API - @remotion/skia",
+      link: {
+        type: "doc",
+        id: "skia/skia",
+      },
+      items: ["skia/enable-skia", "skia/skia-canvas"],
+    },
+    {
+      type: "category",
+      label: "API - @remotion/lottie",
+      link: {
+        type: "doc",
+        id: "lottie/lottie-index",
+      },
+      items: [
+        "lottie/lottie-comp",
+        "lottie/getlottiemetadata",
+        "lottie/lottie-staticfile",
+        "lottie/lottie-remote",
+        "lottie/lottie-aftereffects",
+        "lottie/lottie-lottiefiles",
+      ],
     },
     {
       type: "category",
@@ -251,7 +278,6 @@ module.exports = {
     {
       type: "category",
       label: "Troubleshooting",
-      collapsed: false,
       items: [
         "timeout",
         "target-closed",
@@ -263,12 +289,14 @@ module.exports = {
         "version-mismatch",
         "enametoolong",
         "slow-method-to-extract-frame",
+        "wrong-composition-mount",
+        "staticfile-relative-paths",
+        "staticfile-remote-urls",
       ],
     },
     {
       type: "category",
       label: "Miscellaneous",
-      collapsed: false,
       items: [
         "brownfield",
         "chromium-flags",
@@ -277,6 +305,17 @@ module.exports = {
         "gpu",
         "react-18",
         "miscellaneous/typescript-aliases",
+        "miscellaneous/render-all",
+        "miscellaneous/render-in-browser",
+        {
+          type: "category",
+          label: "Snippets",
+          items: [
+            "miscellaneous/snippets/player-in-iframe",
+            "miscellaneous/snippets/fps-converter",
+            "miscellaneous/snippets/adding-animations",
+          ],
+        },
       ],
     },
     "3-0-migration",

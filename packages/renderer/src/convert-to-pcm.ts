@@ -1,5 +1,5 @@
 import execa from 'execa';
-import type {FfmpegExecutable} from 'remotion';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 export const convertToPcm = async ({

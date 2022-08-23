@@ -1,11 +1,5 @@
-import type {
-	MouseEventHandler} from 'react';
-import React, {
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import type {MouseEventHandler} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {formatTime} from './format-time';
 import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
@@ -126,7 +120,9 @@ export const Controls: React.FC<{
 	useEffect(() => {
 		if (playButtonRef.current && spaceKeyToPlayOrPause) {
 			// This switches focus to play button when player.playing flag changes
-			playButtonRef.current.focus();
+			playButtonRef.current.focus({
+				preventScroll: true,
+			});
 		}
 	}, [player.playing, spaceKeyToPlayOrPause]);
 

@@ -41,7 +41,7 @@ export function measureSpring({
 		throw new TypeError('Threshold is below 0');
 	}
 
-	validateFps(fps, 'to the measureSpring() function');
+	validateFps(fps, 'to the measureSpring() function', false);
 
 	const range = Math.abs(from - to);
 	let frame = 0;

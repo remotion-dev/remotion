@@ -1,10 +1,12 @@
-import type {StitchingState} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import type {Codec, StitchingState} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {AnsiDiff} from './ansi/ansi-diff';
 import {chalk} from './chalk';
+import {ConfigInternals} from './config';
 import {makeMultiDownloadProgress} from './download-progress';
 import {makeProgressBar} from './make-progress-bar';
 import type {RenderStep} from './step';
+import {truthy} from './truthy';
 
 export const createProgressBar = (
 	quiet: boolean
@@ -12,8 +14,8 @@ export const createProgressBar = (
 	update: (str: string) => boolean;
 } => {
 	if (
-		!Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		!RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'info'
 		)
 	) {
@@ -74,7 +76,7 @@ export const makeRenderingProgress = ({
 		`(${steps.indexOf('rendering') + 1}/${steps.length})`,
 		makeProgressBar(progress),
 		[doneIn ? 'Rendered' : 'Rendering', `frames (${concurrency}x)`]
-			.filter(Internals.truthy)
+			.filter(truthy)
 			.join(' '),
 		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
 	].join(' ');
@@ -86,6 +88,7 @@ type StitchingProgressInput = {
 	steps: RenderStep[];
 	doneIn: number | null;
 	stage: StitchingState;
+	codec: Codec;
 };
 
 export const makeStitchingProgress = ({
@@ -94,14 +97,22 @@ export const makeStitchingProgress = ({
 	steps,
 	doneIn,
 	stage,
+	codec,
 }: StitchingProgressInput) => {
 	const progress = frames / totalFrames;
+	const mediaType =
+		codec === 'gif'
+			? 'GIF'
+			: RenderInternals.isAudioCodec(codec)
+			? 'audio'
+			: 'video';
+
 	return [
 		`(${steps.indexOf('stitching') + 1}/${steps.length})`,
 		makeProgressBar(progress),
-		stage === 'muxing'
-			? `${doneIn ? 'Muxed' : 'Muxing'} audio`
-			: `${doneIn ? 'Encoded' : 'Encoding'} video`,
+		stage === 'muxing' && RenderInternals.canUseParallelEncoding(codec)
+			? `${doneIn ? 'Muxed' : 'Muxing'} ${mediaType}`
+			: `${doneIn ? 'Encoded' : 'Encoding'} ${mediaType}`,
 		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
 	].join(' ');
 };
@@ -128,6 +139,6 @@ export const makeRenderingAndStitchingProgress = ({
 		makeMultiDownloadProgress(downloads),
 		stitching === null ? null : makeStitchingProgress(stitching),
 	]
-		.filter(Internals.truthy)
+		.filter(truthy)
 		.join('\n');
 };

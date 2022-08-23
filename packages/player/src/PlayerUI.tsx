@@ -1,7 +1,5 @@
 import type {StandardLonghandProperties} from 'csstype';
-import type {
-	MouseEventHandler,
-	SyntheticEvent} from 'react';
+import type {MouseEventHandler, SyntheticEvent} from 'react';
 import React, {
 	forwardRef,
 	Suspense,
@@ -61,6 +59,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		errorFallback: ErrorFallback;
 		playbackRate: number;
 		renderLoading?: RenderLoading;
+		className: string | undefined;
+		moveToBeginningWhenEnded: boolean;
 	}
 > = (
 	{
@@ -81,6 +81,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		errorFallback,
 		playbackRate,
 		renderLoading,
+		className,
+		moveToBeginningWhenEnded,
 	},
 	ref
 ) => {
@@ -96,7 +98,14 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [hasPausedToResume, setHasPausedToResume] = useState(false);
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
 	const [isFullscreen, setIsFullscreen] = useState(() => false);
-	usePlayback({loop, playbackRate});
+
+	usePlayback({
+		loop,
+		playbackRate,
+		moveToBeginningWhenEnded,
+		inFrame: null,
+		outFrame: null,
+	});
 	const player = usePlayer();
 
 	useEffect(() => {
@@ -172,6 +181,36 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			document.exitFullscreen();
 		}
 	}, []);
+
+	useEffect(() => {
+		const {current} = container;
+		if (!current) {
+			return;
+		}
+
+		const fullscreenChange = () => {
+			const element =
+				document.webkitFullscreenElement ?? document.fullscreenElement;
+
+			if (element && element === container.current) {
+				player.emitter.dispatchFullscreenChangeUpdate({
+					isFullscreen: true,
+				});
+			} else {
+				player.emitter.dispatchFullscreenChangeUpdate({
+					isFullscreen: false,
+				});
+			}
+		};
+
+		current.addEventListener('webkitfullscreenchange', fullscreenChange);
+		current.addEventListener('fullscreenchange', fullscreenChange);
+
+		return () => {
+			current.removeEventListener('webkitfullscreenchange', fullscreenChange);
+			current.removeEventListener('fullscreenchange', fullscreenChange);
+		};
+	}, [player.emitter]);
 
 	const durationInFrames = config?.durationInFrames ?? 1;
 
@@ -428,7 +467,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	);
 	if (IS_NODE && !doesReactVersionSupportSuspense) {
 		return (
-			<div ref={container} style={outerStyle}>
+			<div ref={container} style={outerStyle} className={className}>
 				{content}
 			</div>
 		);
@@ -442,7 +481,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		: null;
 
 	return (
-		<div ref={container} style={outerStyle}>
+		<div ref={container} style={outerStyle} className={className}>
 			<Suspense fallback={loadingMarkup}>{content}</Suspense>
 		</div>
 	);

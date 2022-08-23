@@ -1,16 +1,23 @@
 import execa from 'execa';
-import type {
-	Codec,
-	FfmpegExecutable,
-	ImageFormat,
-	PixelFormat,
-	ProResProfile,
-} from 'remotion';
 import {Internals} from 'remotion';
+import type {Codec} from './codec';
+import {DEFAULT_CODEC} from './codec';
+import {
+	getDefaultCrfForCodec,
+	validateSelectedCrfAndCodecCombination,
+} from './crf';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
+import type {ImageFormat} from './image-format';
 import type {CancelSignal} from './make-cancel-signal';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
+import type {PixelFormat} from './pixel-format';
+import {
+	DEFAULT_PIXEL_FORMAT,
+	validateSelectedPixelFormatAndCodecCombination,
+} from './pixel-format';
+import type {ProResProfile} from './prores-profile';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
@@ -41,16 +48,20 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 		'width',
 		'passed to `stitchFramesToVideo()`'
 	);
-	Internals.validateFps(options.fps, 'passed to `stitchFramesToVideo()`');
-	const codec = options.codec ?? Internals.DEFAULT_CODEC;
+	const codec = options.codec ?? DEFAULT_CODEC;
+	Internals.validateFps(
+		options.fps,
+		'in `stitchFramesToVideo()`',
+		codec === 'gif'
+	);
 	validateEvenDimensionsWithCodec({
 		width: options.width,
 		height: options.height,
 		codec,
 		scale: 1,
 	});
-	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
-	const pixelFormat = options.pixelFormat ?? Internals.DEFAULT_PIXEL_FORMAT;
+	const crf = options.crf ?? getDefaultCrfForCodec(codec);
+	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
 	await validateFfmpeg(options.ffmpegExecutable ?? null);
 
 	const encoderName = getCodecName(codec);
@@ -77,11 +88,11 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 		console.log('[verbose] proResProfileName', proResProfileName);
 	}
 
-	Internals.validateSelectedCrfAndCodecCombination(crf, codec);
-	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
+	validateSelectedCrfAndCodecCombination(crf, codec);
+	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
 	const ffmpegArgs = [
-		['-r', String(options.fps)],
+		['-r', options.fps.toFixed(2)],
 		...[
 			['-f', 'image2pipe'],
 			['-s', `${options.width}x${options.height}`],

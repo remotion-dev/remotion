@@ -1,6 +1,6 @@
 import type {AwsRegion} from '../../pricing/aws-regions';
 import type {PostRenderData} from '../../shared/constants';
-import { postRenderDataKey} from '../../shared/constants';
+import {postRenderDataKey} from '../../shared/constants';
 import {lambdaWriteFile} from './io';
 
 export const writePostRenderData = async ({
@@ -23,5 +23,6 @@ export const writePostRenderData = async ({
 		body: JSON.stringify(postRenderData),
 		expectedBucketOwner,
 		region,
+		downloadBehavior: null,
 	});
 };

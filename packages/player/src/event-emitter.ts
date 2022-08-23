@@ -14,6 +14,10 @@ type RateChangeEventPayload = {
 	playbackRate: number;
 };
 
+type FullscreenChangeEventPayload = {
+	isFullscreen: boolean;
+};
+
 type StateEventMap = {
 	seeked: SeekPayload;
 	pause: undefined;
@@ -22,6 +26,7 @@ type StateEventMap = {
 	ended: undefined;
 	error: ErrorPayload;
 	timeupdate: TimeUpdateEventPayload;
+	fullscreenchange: FullscreenChangeEventPayload;
 };
 
 export type EventTypes = keyof StateEventMap;
@@ -41,6 +46,7 @@ export class PlayerEmitter {
 		ratechange: [],
 		seeked: [],
 		timeupdate: [],
+		fullscreenchange: [],
 	};
 
 	addEventListener<Q extends EventTypes>(
@@ -102,5 +108,9 @@ export class PlayerEmitter {
 
 	dispatchTimeUpdate(event: TimeUpdateEventPayload) {
 		this.dispatchEvent('timeupdate', event);
+	}
+
+	dispatchFullscreenChangeUpdate(event: FullscreenChangeEventPayload) {
+		this.dispatchEvent('fullscreenchange', event);
 	}
 }

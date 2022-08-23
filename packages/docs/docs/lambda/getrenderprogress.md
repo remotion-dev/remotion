@@ -47,6 +47,10 @@ The name of the function that triggered the render.
 
 Returns a promise resolving to an object with the following properties:
 
+### `overallProgress`
+
+A number between 0 and 1 indicating the approximate progress of the render.
+
 ### `chunks`
 
 How many chunks have been fully rendered so far.

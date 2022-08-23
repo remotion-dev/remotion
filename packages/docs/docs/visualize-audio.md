@@ -5,7 +5,7 @@ id: visualize-audio
 
 _Part of the `@remotion/media-utils` package of helper functions._
 
-This function takes in `AudioData` (preferrably fetched by the [`useAudioData()`](/docs/use-audio-data) hook) and processes it in a way that makes visualizing the audio that is playing at the current frame easy.
+This function takes in `AudioData` (preferably fetched by the [`useAudioData()`](/docs/use-audio-data) hook) and processes it in a way that makes visualizing the audio that is playing at the current frame easy.
 
 ## Arguments
 
@@ -69,6 +69,52 @@ export const MyComponent: React.FC = () => {
     </div>
   );
 };
+```
+
+## Postprocessing example
+
+A logarithmic representation of the audio will look more appealing than a linear one. Below is an example of a postprocessing step that looks prettier than the default one.
+
+```tsx twoslash
+import { visualizeAudio } from "@remotion/media-utils";
+const params = {
+  audioData: {
+    channelWaveforms: [],
+    sampleRate: 0,
+    durationInSeconds: 0,
+    numberOfChannels: 0,
+    resultId: "",
+    isRemote: true,
+  },
+  frame: 0,
+  fps: 0,
+  numberOfSamples: 0,
+};
+// ---cut---
+/**
+ * This postprocessing step will match the values with what you'd
+ * get from WebAudio's `AnalyserNode.getByteFrequencyData()`.
+ *
+ * MDN: https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode/getByteFrequencyData
+ * W3C Spec: https://www.w3.org/TR/webaudio/#AnalyserNode-methods
+ */
+
+// get the frequency data
+const frequencyData = visualizeAudio(params);
+
+// default scaling factors from the W3C spec for getByteFrequencyData
+const minDb = -100;
+const maxDb = -30;
+
+const amplitudes = frequencyData.map((value) => {
+  // convert to decibels (will be in the range `-Infinity` to `0`)
+  const db = 20 * Math.log10(value);
+
+  // scale to fit between min and max
+  const scaled = (db - minDb) / (maxDb - minDb);
+
+  return scaled;
+});
 ```
 
 ## See also

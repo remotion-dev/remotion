@@ -1,16 +1,16 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
+import type {StillImageFormat} from '@remotion/renderer';
 import {RenderInternals, renderStill} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import type { StillImageFormat} from 'remotion';
-import {Internals} from 'remotion';
 import {estimatePrice} from '../api/estimate-price';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {
 	LambdaPayload,
 	LambdaPayloads,
-	RenderMetadata} from '../shared/constants';
+	RenderMetadata,
+} from '../shared/constants';
 import {
 	CURRENT_VERSION,
 	LambdaRoutines,
@@ -19,6 +19,7 @@ import {
 } from '../shared/constants';
 import {getServeUrlHash} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
+import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {getExpectedOutName} from './helpers/expected-out-name';
@@ -47,6 +48,7 @@ const innerStillHandler = async (
 		throw new TypeError('Expected still type');
 	}
 
+	validateDownloadBehavior(lambdaParams.downloadBehavior);
 	validatePrivacy(lambdaParams.privacy);
 	validateOutname(lambdaParams.outName);
 
@@ -57,16 +59,15 @@ const innerStillHandler = async (
 			region: getCurrentRegionInFunction(),
 		}),
 		getBrowserInstance(
-			Internals.Logging.isEqualOrBelowLogLevel(
-				lambdaParams.logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
-				'verbose'
-			),
+			RenderInternals.isEqualOrBelowLogLevel(lambdaParams.logLevel, 'verbose'),
 			lambdaParams.chromiumOptions ?? {}
 		),
 	]);
 	const outputDir = RenderInternals.tmpDir('remotion-render-');
 
 	const outputPath = path.join(outputDir, 'output');
+
+	const downloadMap = RenderInternals.makeDownloadMap();
 
 	const composition = await validateComposition({
 		serveUrl: lambdaParams.serveUrl,
@@ -79,6 +80,7 @@ const innerStillHandler = async (
 		chromiumOptions: lambdaParams.chromiumOptions,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 		port: null,
+		downloadMap,
 	});
 
 	const renderMetadata: RenderMetadata = {
@@ -109,6 +111,7 @@ const innerStillHandler = async (
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
+		downloadBehavior: null,
 	});
 
 	await renderStill({
@@ -126,9 +129,10 @@ const innerStillHandler = async (
 		chromiumOptions: lambdaParams.chromiumOptions,
 		scale: lambdaParams.scale,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
+		downloadMap,
 	});
 
-	const {key: outName, renderBucketName} = getExpectedOutName(
+	const {key, renderBucketName} = getExpectedOutName(
 		renderMetadata,
 		bucketName
 	);
@@ -137,11 +141,12 @@ const innerStillHandler = async (
 
 	await lambdaWriteFile({
 		bucketName: renderBucketName,
-		key: outName,
+		key,
 		privacy: lambdaParams.privacy,
 		body: fs.createReadStream(outputPath),
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
+		downloadBehavior: lambdaParams.downloadBehavior,
 	});
 	await fs.promises.rm(outputPath, {recursive: true});
 

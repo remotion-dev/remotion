@@ -1,7 +1,6 @@
-import {CliInternals} from '@remotion/cli';
+import {CliInternals, ConfigInternals} from '@remotion/cli';
 import {existsSync, lstatSync} from 'fs';
 import path from 'path';
-import {Internals} from 'remotion';
 import {deploySite} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {BINARY_NAME} from '../../../shared/constants';
@@ -11,7 +10,8 @@ import {getAwsRegion} from '../../get-aws-region';
 import type {
 	BucketCreationProgress,
 	BundleProgress,
-	DeployToS3Progress} from '../../helpers/progress-bar';
+	DeployToS3Progress,
+} from '../../helpers/progress-bar';
 import {
 	makeBucketProgress,
 	makeBundleProgress,
@@ -110,7 +110,6 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 		entryPoint: absoluteFile,
 		siteName: desiredSiteName,
 		bucketName,
-
 		options: {
 			onBundleProgress: (progress: number) => {
 				multiProgress.bundleProgress = {
@@ -126,9 +125,8 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 				};
 				updateProgress();
 			},
-			enableCaching: Internals.getWebpackCaching(),
-			webpackOverride:
-				Internals.getWebpackOverrideFn() ?? Internals.defaultOverrideFunction,
+			enableCaching: ConfigInternals.getWebpackCaching(),
+			webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
 		},
 		region: getAwsRegion(),
 	});

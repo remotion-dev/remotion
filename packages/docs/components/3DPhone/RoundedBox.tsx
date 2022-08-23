@@ -13,7 +13,7 @@ export const RoundedBox: React.FC<Props> = ({
 	width,
 	height,
 	radius,
-	curveSegments: curveSegments,
+	curveSegments,
 	children,
 	depth,
 	...otherProps

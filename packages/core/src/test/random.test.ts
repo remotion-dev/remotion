@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest';
 import {random} from '../random';
 
 describe('Should support negative random numbers', () => {

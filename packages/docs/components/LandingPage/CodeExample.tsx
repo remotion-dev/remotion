@@ -60,6 +60,7 @@ export const CodeExample: React.FC = () => {
   return (
     <div style={{ flex: 1, textAlign: "left", maxWidth: 500 }}>
       <button
+        type="button"
         style={{ ...tabStyle, opacity: tab === "code" ? 1 : 0.5 }}
         onClick={() => setTab("code")}
       >
@@ -67,6 +68,7 @@ export const CodeExample: React.FC = () => {
       </button>
       |
       <button
+        type="button"
         style={{ ...tabStyle, opacity: tab === "preview" ? 1 : 0.5 }}
         onClick={() => setTab("preview")}
       >

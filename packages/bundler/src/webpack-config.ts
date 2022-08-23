@@ -1,3 +1,4 @@
+import {createHash} from 'crypto';
 import ReactDOM from 'react-dom';
 import type {WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import {Internals} from 'remotion';
@@ -39,10 +40,11 @@ export const webpackConfig = ({
 	environment,
 	webpackOverride = (f) => f,
 	onProgressUpdate,
-	enableCaching = Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
+	enableCaching = true,
 	envVariables,
 	maxTimelineTracks,
 	entryPoints,
+	remotionRoot,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -54,8 +56,9 @@ export const webpackConfig = ({
 	envVariables: Record<string, string>;
 	maxTimelineTracks: number;
 	entryPoints: string[];
-}): WebpackConfiguration => {
-	return webpackOverride({
+	remotionRoot: string;
+}): [string, WebpackConfiguration] => {
+	const conf: webpack.Configuration = webpackOverride({
 		optimization: {
 			minimize: false,
 		},
@@ -71,12 +74,7 @@ export const webpackConfig = ({
 			aggregateTimeout: 0,
 			ignored: ['**/.git/**', '**/node_modules/**'],
 		},
-		cache: enableCaching
-			? {
-					type: 'filesystem',
-					name: getWebpackCacheName(environment),
-			  }
-			: false,
+
 		devtool:
 			environment === 'development'
 				? 'cheap-module-source-map'
@@ -117,7 +115,6 @@ export const webpackConfig = ({
 			hashFunction: 'xxhash64',
 			globalObject: 'this',
 			filename: 'bundle.js',
-			path: outDir,
 			devtoolModuleFilenameTemplate: '[resource-path]',
 			assetModuleFilename:
 				environment === 'development' ? '[path][name][ext]' : '[hash][ext]',
@@ -183,4 +180,23 @@ export const webpackConfig = ({
 			],
 		},
 	});
+	const hash = createHash('md5').update(JSON.stringify(conf)).digest('hex');
+	return [
+		hash,
+		{
+			...conf,
+			cache: enableCaching
+				? {
+						type: 'filesystem',
+						name: getWebpackCacheName(environment, hash),
+						version: hash,
+				  }
+				: false,
+			output: {
+				...conf.output,
+				path: outDir,
+			},
+			context: remotionRoot,
+		},
+	];
 };

@@ -14,6 +14,13 @@ const HOOK_WIDTH = 7;
 const BORDER_BOTTOM_LEFT_RADIUS = 2;
 const SPACING = 5;
 
+const TIMELINE_LAYER_PADDING = HOOK_WIDTH + SPACING * 1.5;
+const TIMELINE_COLLAPSER_WIDTH = 8;
+const TIMELINE_COLLAPSER_MARGIN_RIGHT = 10;
+
+export const TOTAL_TIMELINE_LAYER_LEFT_PADDING =
+	TIMELINE_COLLAPSER_WIDTH + TIMELINE_COLLAPSER_MARGIN_RIGHT + TIMELINE_PADDING;
+
 const textStyle: React.CSSProperties = {
 	fontSize: 13,
 };
@@ -27,6 +34,7 @@ const outer: React.CSSProperties = {
 	alignItems: 'center',
 	paddingLeft: TIMELINE_PADDING,
 	wordBreak: 'break-all',
+	textAlign: 'left',
 };
 
 const hookContainer: React.CSSProperties = {
@@ -53,9 +61,9 @@ const smallSpace: React.CSSProperties = {
 };
 
 const collapser: React.CSSProperties = {
-	width: 8,
+	width: TIMELINE_COLLAPSER_WIDTH,
 	userSelect: 'none',
-	marginRight: 10,
+	marginRight: TIMELINE_COLLAPSER_MARGIN_RIGHT,
 };
 
 const collapserButton: React.CSSProperties = {
@@ -82,7 +90,7 @@ export const TimelineListItem: React.FC<{
 	canCollapse,
 }) => {
 	const {tabIndex} = useZIndex();
-	const leftOffset = HOOK_WIDTH + SPACING * 1.5;
+	const leftOffset = TIMELINE_LAYER_PADDING;
 	const hookStyle = useMemo(() => {
 		return {
 			...hook,

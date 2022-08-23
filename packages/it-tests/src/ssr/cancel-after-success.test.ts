@@ -1,13 +1,14 @@
 import { renderMedia, makeCancelSignal } from "@remotion/renderer";
 import fs from "fs";
 import path from "path";
+import { test } from "vitest";
 
 test("Cancelling after success should not throw error", async () => {
   const { cancel, cancelSignal } = makeCancelSignal();
   const outputLocation = "out/render.mp4";
   await renderMedia({
     codec: "h264",
-    serveUrl: "https://silly-crostata-c4c336.netlify.app/",
+    serveUrl: "https://gleaming-wisp-de5d2a.netlify.app/",
     composition: {
       durationInFrames: 4,
       fps: 30,

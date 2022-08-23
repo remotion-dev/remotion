@@ -9,10 +9,16 @@ import {
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+// eslint-disable-next-line no-restricted-imports
 import {Internals} from 'remotion';
 import {chalk} from './chalk';
-import {getCliOptions} from './get-cli-options';
+import {ConfigInternals} from './config';
+import {
+	getAndValidateAbsoluteOutputFile,
+	getCliOptions,
+} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
+import {getOutputFilename} from './get-filename';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
@@ -21,11 +27,11 @@ import {
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,
 } from './progress-bar';
-import {bundleOnCli} from './setup-cache';
+import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import type {RenderStep} from './step';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
-export const render = async () => {
+export const render = async (remotionRoot: string) => {
 	const startTime = Date.now();
 	const file = parsedCli._[1];
 	if (!file) {
@@ -41,7 +47,11 @@ export const render = async () => {
 		? file
 		: path.join(process.cwd(), file);
 
-	await initializeRenderCli('sequence');
+	const downloadMap = RenderInternals.makeDownloadMap();
+
+	await initializeRenderCli(remotionRoot, 'sequence');
+
+	Log.verbose('Asset dirs', downloadMap.assetDir);
 
 	const {
 		codec,
@@ -49,7 +59,6 @@ export const render = async () => {
 		parallelism,
 		frameRange,
 		shouldOutputImageSequence,
-		absoluteOutputFile,
 		overwrite,
 		inputProps,
 		envVariables,
@@ -64,14 +73,35 @@ export const render = async () => {
 		scale,
 		chromiumOptions,
 		port,
+		numberOfGifLoops,
+		everyNthFrame,
 		puppeteerTimeout,
-	} = await getCliOptions({isLambda: false, type: 'series'});
+		muted,
+		enforceAudioTrack,
+	} = await getCliOptions({
+		isLambda: false,
+		type: 'series',
+	});
 
-	if (!absoluteOutputFile) {
-		throw new Error(
-			'assertion error - expected absoluteOutputFile to not be null'
-		);
-	}
+	const relativeOutputLocation = getOutputFilename({
+		codec,
+		imageSequence: shouldOutputImageSequence,
+		compositionName: getCompositionId(),
+		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec, 'final'),
+	});
+
+	const absoluteOutputFile = getAndValidateAbsoluteOutputFile(
+		relativeOutputLocation,
+		overwrite
+	);
+
+	const compositionId = getCompositionId();
+
+	Log.info(
+		chalk.gray(
+			`Composition = ${compositionId}, Codec = ${codec}, Output = ${relativeOutputLocation}`
+		)
+	);
 
 	Log.verbose('Browser executable: ', browserExecutable);
 
@@ -81,8 +111,8 @@ export const render = async () => {
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
-		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
 		chromiumOptions,
@@ -95,9 +125,13 @@ export const render = async () => {
 		shouldOutputImageSequence ? null : ('stitching' as const),
 	].filter(Internals.truthy);
 
-	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
-		? fullPath
-		: await bundleOnCli(fullPath, steps);
+	const {urlOrBundle, cleanup: cleanupBundle} = await bundleOnCliOrTakeServeUrl(
+		{
+			fullPath,
+			remotionRoot,
+			steps,
+		}
+	);
 
 	const onDownload: RenderMediaOnDownload = (src) => {
 		const id = Math.random();
@@ -124,11 +158,11 @@ export const render = async () => {
 		inputProps,
 		puppeteerInstance,
 		envVariables,
-		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
 		chromiumOptions,
 		browserExecutable,
+		downloadMap,
 	});
-	const compositionId = getCompositionId(comps);
 
 	const config = comps.find((c) => c.id === compositionId);
 
@@ -150,9 +184,13 @@ export const render = async () => {
 	Log.verbose('Output dir', outputDir);
 
 	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
-	let totalFrames: number | null = RenderInternals.getDurationFromFrameRange(
-		frameRange,
-		config.durationInFrames
+	const realFrameRange = RenderInternals.getRealFrameRange(
+		config.durationInFrames,
+		frameRange
+	);
+	const totalFrames: number[] = RenderInternals.getFramesToRender(
+		realFrameRange,
+		everyNthFrame
 	);
 	let encodedFrames = 0;
 	let renderedFrames = 0;
@@ -162,7 +200,7 @@ export const render = async () => {
 	const downloads: DownloadProgress[] = [];
 
 	const updateRenderProgress = () => {
-		if (totalFrames === null) {
+		if (totalFrames.length === 0) {
 			throw new Error('totalFrames should not be 0');
 		}
 
@@ -170,7 +208,7 @@ export const render = async () => {
 			makeRenderingAndStitchingProgress({
 				rendering: {
 					frames: renderedFrames,
-					totalFrames,
+					totalFrames: totalFrames.length,
 					concurrency: RenderInternals.getActualConcurrency(parallelism),
 					doneIn: renderedDoneIn,
 					steps,
@@ -182,7 +220,8 @@ export const render = async () => {
 							frames: encodedFrames,
 							stage: stitchStage,
 							steps,
-							totalFrames,
+							totalFrames: totalFrames.length,
+							codec,
 					  },
 				downloads,
 			})
@@ -209,11 +248,7 @@ export const render = async () => {
 				renderedFrames = rendered;
 				updateRenderProgress();
 			},
-			onStart: ({frameCount}) => {
-				totalFrames = frameCount;
-				return updateRenderProgress();
-			},
-
+			onStart: () => undefined,
 			onDownload: (src: string) => {
 				if (src.startsWith('data:')) {
 					Log.info(
@@ -226,10 +261,11 @@ export const render = async () => {
 			},
 			outputDir,
 			serveUrl: urlOrBundle,
-			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
-				Internals.Logging.getLogLevel(),
+			dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
+				ConfigInternals.Logging.getLogLevel(),
 				'verbose'
 			),
+			everyNthFrame,
 			envVariables,
 			frameRange,
 			parallelism,
@@ -242,6 +278,7 @@ export const render = async () => {
 			ffprobeExecutable,
 			browserExecutable,
 			port,
+			downloadMap,
 		});
 		renderedDoneIn = Date.now() - startTime;
 
@@ -279,17 +316,23 @@ export const render = async () => {
 		quality,
 		serveUrl: urlOrBundle,
 		onDownload,
-		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
-		onStart: ({frameCount}) => {
-			totalFrames = frameCount;
-		},
 		chromiumOptions,
-		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
 		scale,
 		port,
+		numberOfGifLoops,
+		everyNthFrame,
+		verbose: RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
+			'verbose'
+		),
+		downloadMap,
+		muted,
+		enforceAudioTrack,
 	});
 
 	Log.info();
@@ -304,24 +347,28 @@ export const render = async () => {
 	);
 	Log.info('-', 'Output can be found at:');
 	Log.info(chalk.cyan(`▶ ${absoluteOutputFile}`));
-	Log.verbose('Cleaning up...');
 
 	try {
-		await RenderInternals.deleteDirectory(urlOrBundle);
+		await cleanupBundle();
+		await RenderInternals.cleanDownloadMap(downloadMap);
+
+		Log.verbose('Cleaned up', downloadMap.assetDir);
 	} catch (err) {
 		Log.warn('Could not clean up directory.');
 		Log.warn(err);
 		Log.warn('Do you have minimum required Node.js version?');
 	}
 
-	Log.info(chalk.green('\nYour video is ready!'));
+	Log.info(
+		chalk.green(`\nYour ${codec === 'gif' ? 'GIF' : 'video'} is ready!`)
+	);
 
 	if (
-		Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
+		RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		)
 	) {
-		Internals.perf.logPerf();
+		RenderInternals.perf.logPerf();
 	}
 };

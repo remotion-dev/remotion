@@ -154,7 +154,7 @@ You can [set a CRF in the config file using the `Config.Output.setCrf()`](/docs/
 
 _Applies only to `prores` codec_.
 
-For ProRes, there is no CRF option, but there are profiles which you can set using the [`--prores-profile` flag](/docs/cli#--prores-profile) or the [`setProResProfile`](/docs/config#setproresprofile) config file option.
+For ProRes, there is no CRF option, but there are profiles which you can set using the [`--prores-profile` flag](/docs/cli/render#--prores-profile) or the [`setProResProfile`](/docs/config#setproresprofile) config file option.
 
 <table>
   <tr>
@@ -234,6 +234,10 @@ You can set the codec to `h264-mkv` to use the mkv container format together wit
 :::info
 This preset was created for Remotion Lambda, and is optimal for when concatenating multiple video clips into one.
 :::
+
+## GIFs
+
+You can also [render you video as a GIF](/docs/render-as-gif).
 
 ## What other settings do you need?
 

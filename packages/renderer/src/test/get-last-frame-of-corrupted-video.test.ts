@@ -1,4 +1,6 @@
 import path from 'path';
+import {test} from 'vitest';
+import {makeDownloadMap} from '../assets/download-map';
 import {getLastFrameOfVideo} from '../extract-frame-from-video';
 
 test('Get last frame of corrupted video', async () => {
@@ -18,5 +20,6 @@ test('Get last frame of corrupted video', async () => {
 		imageFormat: 'png',
 		specialVCodecForTransparency: 'none',
 		needsResize: null,
+		downloadMap: makeDownloadMap(),
 	});
 }, 90000);

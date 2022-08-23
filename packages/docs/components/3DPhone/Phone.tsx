@@ -1,7 +1,7 @@
 import { useThree } from "@react-three/fiber";
 import React, { useEffect, useMemo } from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { VideoTexture } from "three";
+import type { VideoTexture } from "three";
 import {
   CAMERA_DISTANCE,
   getPhoneLayout,

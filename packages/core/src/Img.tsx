@@ -38,6 +38,10 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 
 	// If image source switches, make new handle
 	useLayoutEffect(() => {
+		if (process.env.NODE_ENV === 'test') {
+			return;
+		}
+
 		const newHandle = delayRender('Loading <Img> with src=' + props.src);
 		const {current} = imageRef;
 

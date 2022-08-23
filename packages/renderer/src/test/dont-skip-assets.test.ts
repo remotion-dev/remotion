@@ -1,4 +1,5 @@
 import type {TAsset} from 'remotion';
+import {expect, test} from 'vitest';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T; // from lodash

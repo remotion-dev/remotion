@@ -1,4 +1,4 @@
-import {Vector3} from '@react-three/fiber';
+import type {Vector3} from '@react-three/fiber';
 
 // The distance from which the camera is pointing to the phone.
 export const CAMERA_DISTANCE = 2.5;
@@ -23,6 +23,7 @@ const getPhoneHeight = (aspectRatio: number, baseScale: number): number => {
 	if (aspectRatio > 1) {
 		return baseScale;
 	}
+
 	return baseScale / aspectRatio;
 };
 
@@ -30,6 +31,7 @@ const getPhoneWidth = (aspectRatio: number, baseScale: number): number => {
 	if (aspectRatio < 1) {
 		return baseScale;
 	}
+
 	return baseScale * aspectRatio;
 };
 

@@ -3,6 +3,8 @@ import {getLocationFromBuildError} from '../react-overlay/effects/map-error-to-r
 import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {AskOnDiscord} from './AskOnDiscord';
 import {ErrorTitle} from './ErrorTitle';
+import {getHelpLink} from './get-help-link';
+import {HelpLink} from './HelpLink';
 import {OpenInEditor} from './OpenInEditor';
 import {SearchGithubIssues} from './SearchGitHubIssues';
 import {StackElement} from './StackFrame';
@@ -20,7 +22,8 @@ const spacer: React.CSSProperties = {
 
 export const ErrorDisplay: React.FC<{
 	display: ErrorRecord;
-}> = ({display}) => {
+	keyboardShortcuts: boolean;
+}> = ({display, keyboardShortcuts}) => {
 	const highestLineNumber = Math.max(
 		...display.stackFrames
 			.map((s) => s.originalScriptCode)
@@ -44,6 +47,8 @@ export const ErrorDisplay: React.FC<{
 
 	const lineNumberWidth = String(highestLineNumber).length;
 
+	const helpLink = getHelpLink(message);
+
 	return (
 		<div>
 			<ErrorTitle
@@ -51,15 +56,31 @@ export const ErrorDisplay: React.FC<{
 				name={display.error.name}
 				message={message}
 			/>
-			{display.stackFrames.length > 0 && window.remotion_editorName ? (
+
+			{helpLink ? (
 				<>
-					<OpenInEditor stack={display.stackFrames[0]} />
+					<HelpLink
+						link={helpLink}
+						canHaveKeyboardShortcuts={keyboardShortcuts}
+					/>
 					<div style={spacer} />
 				</>
 			) : null}
-			<SearchGithubIssues message={display.error.message} />
+			{display.stackFrames.length > 0 && window.remotion_editorName ? (
+				<>
+					<OpenInEditor
+						canHaveKeyboardShortcuts={keyboardShortcuts}
+						stack={display.stackFrames[0]}
+					/>
+					<div style={spacer} />
+				</>
+			) : null}
+			<SearchGithubIssues
+				canHaveKeyboardShortcuts={keyboardShortcuts}
+				message={display.error.message}
+			/>
 			<div style={spacer} />
-			<AskOnDiscord />
+			<AskOnDiscord canHaveKeyboardShortcuts={keyboardShortcuts} />
 			<div style={stack}>
 				{display.stackFrames.map((s, i) => {
 					return (

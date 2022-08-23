@@ -1,10 +1,11 @@
 import { renderMedia } from "@remotion/renderer";
+import { expect, test } from "vitest";
 
 test("Fatal error on frame 10 should yield correct error", async () => {
   await expect(() => {
     return renderMedia({
       codec: "h264",
-      serveUrl: "https://silly-crostata-c4c336.netlify.app/",
+      serveUrl: "https://gleaming-wisp-de5d2a.netlify.app/",
       composition: {
         durationInFrames: 1000000,
         fps: 30,

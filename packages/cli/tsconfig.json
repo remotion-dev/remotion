@@ -12,5 +12,6 @@
 		{"path": "../renderer"},
 		{"path": "../player"},
 		{"path": "../media-utils"}
-	]
+	],
+	"exclude": ["vitest.config.ts", "dist"]
 }

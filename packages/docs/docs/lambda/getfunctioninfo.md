@@ -24,7 +24,7 @@ const info = await getFunctionInfo({
 });
 console.log(info.functionName); // remotion-render-d7nd2a9f
 console.log(info.memorySizeInMb); // 1500
-console.log(info.diskSizeInMb); // 512
+console.log(info.diskSizeInMb); // 2048
 console.log(info.version); // '2021-07-14'
 console.log(info.timeoutInSeconds); // 120
 ```

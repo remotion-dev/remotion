@@ -3,11 +3,8 @@ import type {TimingProfile} from './types';
 
 export const isValidOptimizationProfile = (profile: TimingProfile) => {
 	return profile.every((timing) => {
-		const frames = RenderInternals.getDurationFromFrameRange(
-			timing.frameRange,
-			0
-		);
+		const frames = RenderInternals.getFramesToRender(timing.frameRange, 1);
 		const values = Object.values(timing.timings);
-		return frames === values.length && values.every((v) => v > 0);
+		return frames.length === values.length && values.every((v) => v > 0);
 	});
 };

@@ -1,16 +1,11 @@
-import type { PreviewSize} from '@remotion/player';
+import type {PreviewSize} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
-	SetTimelineInOutContextValue,
-	TimelineInOutContextValue} from 'remotion';
-import {
-	continueRender,
-	delayRender,
-	Internals
 } from 'remotion';
+import {continueRender, delayRender, Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
 import {
@@ -20,9 +15,14 @@ import {
 } from '../state/checkerboard';
 import {FolderContextProvider} from '../state/folders';
 import {HighestZIndexProvider} from '../state/highest-z-index';
+import type {
+	SetTimelineInOutContextValue,
+	TimelineInOutContextValue,
+} from '../state/in-out';
+import {SetTimelineInOutContext, TimelineInOutContext} from '../state/in-out';
 import {KeybindingContextProvider} from '../state/keybindings';
 import type {ModalContextType, ModalState} from '../state/modals';
-import { ModalsContext} from '../state/modals';
+import {ModalsContext} from '../state/modals';
 import {loadMuteOption} from '../state/mute';
 import {
 	loadPreviewSizeOption,
@@ -35,6 +35,7 @@ import {
 	RichTimelineContext,
 } from '../state/rich-timeline';
 import {SidebarContextProvider} from '../state/sidebar';
+import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
 import {FramePersistor} from './FramePersistor';
@@ -42,7 +43,9 @@ import {GlobalKeybindings} from './GlobalKeybindings';
 import {KeyboardShortcuts} from './KeyboardShortcutsModal';
 import NewComposition from './NewComposition/NewComposition';
 import {NoRegisterRoot} from './NoRegisterRoot';
+import {NotificationCenter} from './Notifications/NotificationCenter';
 import {UpdateModal} from './UpdateModal/UpdateModal';
+import {ZoomPersistor} from './ZoomPersistor';
 
 const background: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
@@ -181,10 +184,8 @@ export const Editor: React.FC = () => {
 				<CheckerboardContext.Provider value={checkerboardCtx}>
 					<PreviewSizeContext.Provider value={previewSizeCtx}>
 						<ModalsContext.Provider value={modalsContext}>
-							<Internals.Timeline.TimelineInOutContext.Provider
-								value={timelineInOutContextValue}
-							>
-								<Internals.Timeline.SetTimelineInOutContext.Provider
+							<TimelineInOutContext.Provider value={timelineInOutContextValue}>
+								<SetTimelineInOutContext.Provider
 									value={setTimelineInOutContextValue}
 								>
 									<Internals.MediaVolumeContext.Provider
@@ -203,16 +204,23 @@ export const Editor: React.FC = () => {
 																onEscape={noop}
 																onOutsideClick={noop}
 															>
-																<div style={background}>
-																	{Root === null ? null : <Root />}
-																	<FramePersistor />
-																	{Root === null ? (
-																		<NoRegisterRoot />
-																	) : (
-																		<EditorContent />
-																	)}
-																	<GlobalKeybindings />
-																</div>
+																<TimelineZoomContext>
+																	<div style={background}>
+																		{Root === null ? null : <Root />}
+																		<Internals.CanUseRemotionHooksProvider>
+																			<FramePersistor />
+																			<ZoomPersistor />
+																			{Root === null ? (
+																				<NoRegisterRoot />
+																			) : (
+																				<EditorContent />
+																			)}
+																			<GlobalKeybindings />
+																		</Internals.CanUseRemotionHooksProvider>
+																	</div>
+																</TimelineZoomContext>
+
+																<NotificationCenter />
 																{modalContextType &&
 																	modalContextType.type === 'new-comp' && (
 																		<NewComposition
@@ -236,8 +244,8 @@ export const Editor: React.FC = () => {
 											</PlayerInternals.PlayerEventEmitterContext.Provider>
 										</Internals.SetMediaVolumeContext.Provider>
 									</Internals.MediaVolumeContext.Provider>
-								</Internals.Timeline.SetTimelineInOutContext.Provider>
-							</Internals.Timeline.TimelineInOutContext.Provider>
+								</SetTimelineInOutContext.Provider>
+							</TimelineInOutContext.Provider>
 						</ModalsContext.Provider>
 					</PreviewSizeContext.Provider>
 				</CheckerboardContext.Provider>

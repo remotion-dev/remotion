@@ -24,6 +24,7 @@ const bundleLambda = async () => {
 		bundle: true,
 		outfile,
 		entryPoints: [template],
+		treeShaking: true,
 	});
 
 	await zl.archiveFolder(outdir, FUNCTION_ZIP);

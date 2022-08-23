@@ -9,8 +9,7 @@ import {AbsoluteFill} from './AbsoluteFill';
 import {CompositionManager} from './CompositionManager';
 import {getTimelineClipName} from './get-timeline-clip-name';
 import {useNonce} from './nonce';
-import {TimelineContext} from './timeline-position-state';
-import {useAbsoluteCurrentFrame} from './use-current-frame';
+import {TimelineContext, useTimelinePosition} from './timeline-position-state';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 
 export type SequenceContextType = {
@@ -102,7 +101,7 @@ export const Sequence: React.FC<SequenceProps> = ({
 		);
 	}
 
-	const absoluteFrame = useAbsoluteCurrentFrame();
+	const absoluteFrame = useTimelinePosition();
 	const unsafeVideoConfig = useUnsafeVideoConfig();
 	const compositionDuration = unsafeVideoConfig
 		? unsafeVideoConfig.durationInFrames

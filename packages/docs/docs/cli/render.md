@@ -79,6 +79,32 @@ Specify a location for a dotenv file. Default `.env`. Available in v2.2 and late
 
 [Render a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` to select the first 10 frames. To render a still, use the `still` command. Available since v2.0.
 
+### `--every-nth-frame`
+
+_available from v3.1_
+
+[Render only every nth frame.](/docs/config#seteverynthframe) This option may only be set when rendering GIFs. This allows you to lower the FPS of the GIF.
+
+For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif#reducing-frame-rate)
+
+### `--muted`
+
+_available from v3.2.1_
+
+[Disables audio output.](/docs/config#setmuted) This option may only be used when rendering a video.
+
+### `--enforce-audio-track`
+
+_available from v3.2.1_
+
+[Render a silent audio track if there wouldn't be one otherwise.](/docs/config#enforceaudiotrack).
+
+### `--number-of-gif-loops`
+
+_available from v3.1_
+
+[Set the looping behavior.](/docs/config#setnumberofgifloops) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
+
 ### `--bundle-cache`
 
 [Enable or disable Webpack caching](/docs/config#setcachingenabled). This flag is enabled by default, use `--bundle-cache=false` to disable caching. Available since v2.0.
@@ -134,7 +160,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
-- `null` - Chromiums default
+- `null` - Chromium's default
 
 **Default for local rendering**: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
