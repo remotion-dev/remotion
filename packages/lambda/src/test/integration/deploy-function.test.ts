@@ -1,3 +1,4 @@
+import {Internals} from 'remotion';
 import {deleteFunction} from '../../api/delete-function';
 import {deployFunction} from '../../api/deploy-function';
 import {getFunctions} from '../../api/get-functions';
@@ -5,13 +6,13 @@ import {
 	cleanFnStore,
 	markFunctionAsIncompatible,
 } from '../../api/mock-functions';
-import {
-	CURRENT_VERSION,
-	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
-} from '../../shared/constants';
+import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
 
 const expectedFunctionName = (memory: number, timeout: number, disk: number) =>
-	`remotion-render-${CURRENT_VERSION}-mem${memory}mb-disk${disk}mb-${timeout}sec`;
+	`remotion-render-${Internals.VERSION.replace(
+		/\./g,
+		'-'
+	)}-mem${memory}mb-disk${disk}mb-${timeout}sec`;
 
 test('Should be able to deploy function', async () => {
 	const {functionName} = await deployFunction({
@@ -52,7 +53,7 @@ test('Should be able to get the function afterwards', async () => {
 			),
 			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,
-			version: CURRENT_VERSION,
+			version: Internals.VERSION,
 			region: 'us-east-1',
 			diskSizeInMb: 2048,
 		},
@@ -118,7 +119,7 @@ test('Should be able to get the function afterwards', async () => {
 			),
 			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,
-			version: CURRENT_VERSION,
+			version: Internals.VERSION,
 			region: 'us-east-1',
 			diskSizeInMb: 2048,
 		},

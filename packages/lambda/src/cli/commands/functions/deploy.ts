@@ -1,8 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import {Log} from '@remotion/cli/dist/log';
+import {Internals} from 'remotion';
 import {deployFunction} from '../../../api/deploy-function';
 import {
-	CURRENT_VERSION,
 	DEFAULT_ARCHITECTURE,
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
@@ -43,7 +43,7 @@ Region = ${region}
 Memory = ${memorySizeInMb}MB
 Disk size = ${diskSizeInMb}MB
 Timeout = ${timeoutInSeconds}sec
-Version = ${CURRENT_VERSION}
+Version = ${Internals.VERSION}
 Architecture = ${architecture}
 CloudWatch Logging Enabled = ${createCloudWatchLogGroup}
 CloudWatch Retention Period = ${cloudWatchLogRetentionPeriodInDays} days

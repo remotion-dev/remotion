@@ -1,10 +1,6 @@
-import type {
-	LambdaPayload,
-	LambdaVersions} from '../shared/constants';
-import {
-	CURRENT_VERSION,
-	LambdaRoutines
-} from '../shared/constants';
+import {Internals} from 'remotion';
+import type {LambdaPayload} from '../shared/constants';
+import {LambdaRoutines} from '../shared/constants';
 
 export const infoHandler = (lambdaParams: LambdaPayload) => {
 	if (lambdaParams.type !== LambdaRoutines.info) {
@@ -12,9 +8,9 @@ export const infoHandler = (lambdaParams: LambdaPayload) => {
 	}
 
 	const returnValue: {
-		version: LambdaVersions;
+		version: string;
 	} = {
-		version: CURRENT_VERSION,
+		version: Internals.VERSION,
 	};
 
 	return Promise.resolve(returnValue);
