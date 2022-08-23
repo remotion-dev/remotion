@@ -16,7 +16,8 @@ import {continueRender, delayRender} from '../delay-render';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {random} from '../random';
 import {SequenceContext} from '../Sequence';
-import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-current-frame';
+import {useTimelinePosition} from '../timeline-position-state';
+import {useCurrentFrame} from '../use-current-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
 import {warnAboutNonSeekableMedia} from '../warn-about-non-seekable-media';
@@ -27,7 +28,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
 	RemotionVideoProps
 > = ({onError, volume: volumeProp, playbackRate, ...props}, ref) => {
-	const absoluteFrame = useAbsoluteCurrentFrame();
+	const absoluteFrame = useTimelinePosition();
 
 	const frame = useCurrentFrame();
 	const volumePropsFrame = useFrameForVolumeProp();
