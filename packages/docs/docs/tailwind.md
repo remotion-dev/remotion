@@ -78,12 +78,12 @@ pnpm i postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
   </TabItem>
 </Tabs>
 
-2. Add the following to your [`remotion.config.ts`](/docs/config) file:
+2. Create a function for overriding the webpack config
 
-```ts twoslash
-import { Config } from "remotion";
-// ---cut---
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+```ts twoslash title="src/enable-tailwind.ts"
+import { WebpackOverrideFn } from "remotion";
+
+export const enableTailwind: WebpackOverrideFn = (currentConfiguration) => {
   return {
     ...currentConfiguration,
     module: {
@@ -123,10 +123,26 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
       ],
     },
   };
-});
+};
 ```
 
-3. Create a file `src/style.css` with the following content:
+3. Add the Webpack override to your config file:
+
+```ts twoslash title="remotion.config.ts"
+// @filename: ./src/enable-tailwind.ts
+import { WebpackOverrideFn } from "remotion";
+export const enableTailwind: WebpackOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// ---cut---
+import { Config } from "remotion";
+import { enableTailwind } from "./src/enable-tailwind";
+
+Config.Bundling.overrideWebpackConfig(enableTailwind);
+```
+
+4. If you use the [`bundle()` or `deploySite()` Node.JS API, add the Webpack override to it as well](/docs/webpack#when-using-bundle-and-deploysite).
+
+5. Create a file `src/style.css` with the following content:
 
 ```css
 @tailwind base;
@@ -134,13 +150,13 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 @tailwind utilities;
 ```
 
-4. Import the stylesheet in your `src/Video.tsx` file. Add to the top of the file:
+6. Import the stylesheet in your `src/Video.tsx` file. Add to the top of the file:
 
 ```js
 import "./style.css";
 ```
 
-5.  Add a `tailwind.config.js` file to the root of your project:
+7.  Add a `tailwind.config.js` file to the root of your project:
 
 ```js
 /* eslint-env node */
@@ -153,7 +169,7 @@ module.exports = {
 };
 ```
 
-6.  Start using TailwindCSS! You can verify that it's working by adding `className="bg-red-900"` to any element.
+8.  Start using TailwindCSS! You can verify that it's working by adding `className="bg-red-900"` to any element.
 
 ## See also
 
