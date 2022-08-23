@@ -1,3 +1,4 @@
+import type {ForwardRefExoticComponent, RefAttributes} from 'react';
 import React, {
 	forwardRef,
 	useContext,
@@ -92,4 +93,6 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 
 export const AudioForRendering = forwardRef(
 	AudioForRenderingRefForwardingFunction
-);
+) as ForwardRefExoticComponent<
+	RemotionAudioProps & RefAttributes<HTMLAudioElement>
+>;

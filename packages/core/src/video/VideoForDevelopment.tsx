@@ -1,3 +1,4 @@
+import type {ForwardRefExoticComponent, RefAttributes} from 'react';
 import React, {forwardRef, useEffect, useImperativeHandle, useRef} from 'react';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame';
 import {useMediaInTimeline} from '../use-media-in-timeline';
@@ -10,11 +11,13 @@ import {
 } from '../volume-position-state';
 import type {RemotionVideoProps} from './props';
 
+type VideoForDevelopmentProps = RemotionVideoProps & {
+	onlyWarnForMediaSeekingError: boolean;
+};
+
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
-	RemotionVideoProps & {
-		onlyWarnForMediaSeekingError: boolean;
-	}
+	VideoForDevelopmentProps
 > = (props, ref) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -94,6 +97,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 };
 
+// Copy types from forwardRef but not necessary to remove ref
 export const VideoForDevelopment = forwardRef(
 	VideoForDevelopmentRefForwardingFunction
-);
+) as ForwardRefExoticComponent<
+	VideoForDevelopmentProps & RefAttributes<HTMLVideoElement>
+>;
