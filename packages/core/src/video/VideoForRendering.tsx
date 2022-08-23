@@ -1,3 +1,4 @@
+import type {ForwardRefExoticComponent, RefAttributes} from 'react';
 import React, {
 	forwardRef,
 	useContext,
@@ -205,4 +206,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	return <video ref={videoRef} {...props} onError={onError} />;
 };
 
-export const VideoForRendering = forwardRef(VideoForRenderingForwardFunction);
+export const VideoForRendering = forwardRef(
+	VideoForRenderingForwardFunction
+) as ForwardRefExoticComponent<
+	RemotionVideoProps & RefAttributes<HTMLVideoElement>
+>;
