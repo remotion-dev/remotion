@@ -236,6 +236,7 @@ export type LambdaPayloads = {
 		type: LambdaRoutines.status;
 		bucketName: string;
 		renderId: string;
+		version: string;
 	};
 	renderer: {
 		concurrencyPerLambda: number;

@@ -51,12 +51,12 @@ const innerStillHandler = async (
 	if (lambdaParams.version !== VERSION) {
 		if (!lambdaParams.version) {
 			throw new Error(
-				`Version mismatch: A Lambda function with version ${VERSION} was called using the @remotion/lambda package with an older version.`
+				`Version mismatch: When calling renderStillOnLambda(), the deployed Lambda function had version ${VERSION} but the @remotion/lambda package is an older version. Align the versions.`
 			);
 		}
 
 		throw new Error(
-			`Version mismatch: A Lambda function with version ${VERSION} was called using the @remotion/lambda package with version ${lambdaParams.version}`
+			`Version mismatch: When calling renderStillOnLambda(), get deployed Lambda function had version ${VERSION} and the @remotion/lambda package has version ${lambdaParams.version}. Align the versions.`
 		);
 	}
 
