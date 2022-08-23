@@ -49,6 +49,7 @@ During rendering, multiple tabs are opened to speed up rendering. In each of the
 - You can use the `localStorage` API to persist data after a network request and make a request only if the local storage is empty.
 - The data returned by an API must be the same when called multiple times, otherwise [flickering](/docs/flickering) may apply.
 - Consider fetching data before the render, and pass data as [input props](/docs/parametrized-rendering)
+- Make sure to not have `frame` as a dependency of the `useEffect()`, otherwise data will be fetched every frame leading to slowdown and potentially running into rate limits.
 
 ## Time limit
 
