@@ -1,5 +1,5 @@
+import {Internals} from 'remotion';
 import {
-	CURRENT_VERSION,
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	DEFAULT_MEMORY_SIZE,
 } from '../../defaults';
@@ -13,7 +13,7 @@ export const createFunction: typeof original = (input) => {
 				functionName: input.functionName,
 				memorySizeInMb: DEFAULT_MEMORY_SIZE,
 				timeoutInSeconds: input.timeoutInSeconds,
-				version: CURRENT_VERSION,
+				version: Internals.VERSION,
 				diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 			},
 			input.region
