@@ -5,19 +5,20 @@ import {render} from '@testing-library/react';
 import type {ComponentType} from 'react';
 import React, {useContext} from 'react';
 import {describe, expect, test} from 'vitest';
-import {Internals} from '..';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
+import {CompositionManager} from '../CompositionManager';
 import {Loop} from '../loop';
+import {RemotionRoot} from '../RemotionRoot';
 import {expectToThrow} from './expect-to-throw';
 
 const Wrapper: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
-	const compositions = useContext(Internals.CompositionManager);
+	const compositions = useContext(CompositionManager);
 	return (
 		<CanUseRemotionHooksProvider>
-			<Internals.RemotionRoot>
-				<Internals.CompositionManager.Provider
+			<RemotionRoot>
+				<CompositionManager.Provider
 					// eslint-disable-next-line react/jsx-no-constructed-context-values
 					value={{
 						...compositions,
@@ -43,8 +44,8 @@ const Wrapper: React.FC<{
 					}}
 				>
 					{children}
-				</Internals.CompositionManager.Provider>
-			</Internals.RemotionRoot>
+				</CompositionManager.Provider>
+			</RemotionRoot>
 		</CanUseRemotionHooksProvider>
 	);
 };
