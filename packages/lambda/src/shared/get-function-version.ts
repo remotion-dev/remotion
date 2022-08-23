@@ -1,6 +1,5 @@
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from './call-lambda';
-import type { LambdaVersions} from './constants';
 import {COMMAND_NOT_FOUND, LambdaRoutines} from './constants';
 
 export const getFunctionVersion = async ({
@@ -9,7 +8,7 @@ export const getFunctionVersion = async ({
 }: {
 	functionName: string;
 	region: AwsRegion;
-}): Promise<LambdaVersions> => {
+}): Promise<string> => {
 	try {
 		const result = await callLambda({
 			functionName,

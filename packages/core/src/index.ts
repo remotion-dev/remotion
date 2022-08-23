@@ -25,7 +25,8 @@ declare global {
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
 		siteVersion: '4';
-		remotion_imported: boolean;
+		remotion_version: string;
+		remotion_imported: string | boolean;
 	}
 }
 
@@ -69,5 +70,6 @@ export * from './Still';
 export type {PlayableMediaTag} from './timeline-position-state';
 export {useCurrentFrame} from './use-current-frame';
 export * from './use-video-config';
+export * from './version';
 export * from './video';
 export * from './video-config';
