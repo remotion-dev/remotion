@@ -1,5 +1,6 @@
 import React from 'react';
-import {Sequence, useVideoConfig} from '..';
+import {Sequence} from '../Sequence';
+import {useVideoConfig} from '../use-video-config';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames';
 
 export type LoopProps = {

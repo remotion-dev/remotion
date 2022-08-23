@@ -6,7 +6,7 @@ import React from 'react';
 import {describe, expect, test} from 'vitest';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
 import {Freeze} from '../freeze';
-import {Sequence} from '../index';
+import {Sequence} from '../Sequence';
 import type {TimelineContextValue} from '../timeline-position-state';
 import {TimelineContext} from '../timeline-position-state';
 import {useCurrentFrame} from '../use-current-frame';
