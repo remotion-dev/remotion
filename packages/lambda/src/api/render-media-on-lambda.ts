@@ -6,6 +6,7 @@ import type {
 	PixelFormat,
 	ProResProfile,
 } from '@remotion/renderer';
+import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy} from '../shared/constants';
@@ -133,6 +134,7 @@ export const renderMediaOnLambda = async ({
 				concurrencyPerLambda: concurrencyPerLambda ?? 1,
 				downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
 				muted: muted ?? false,
+				version: VERSION,
 			},
 			region,
 		});

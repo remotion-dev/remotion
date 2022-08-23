@@ -1,4 +1,5 @@
-import {CURRENT_VERSION, LambdaRoutines} from '../../defaults';
+import {VERSION} from 'remotion/src/version';
+import {LambdaRoutines} from '../../defaults';
 import {handler} from '../../functions/index';
 
 test('Call function locally', async () => {
@@ -10,5 +11,5 @@ test('Call function locally', async () => {
 				getRemainingTimeInMillis: () => 1000,
 			}
 		)
-	).toEqual({version: CURRENT_VERSION});
+	).toEqual({version: VERSION});
 });

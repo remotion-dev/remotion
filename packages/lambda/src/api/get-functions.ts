@@ -1,12 +1,9 @@
-import type {
-	FunctionConfiguration} from '@aws-sdk/client-lambda';
-import {
-	ListFunctionsCommand,
-} from '@aws-sdk/client-lambda';
+import type {FunctionConfiguration} from '@aws-sdk/client-lambda';
+import {ListFunctionsCommand} from '@aws-sdk/client-lambda';
+import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
-	CURRENT_VERSION,
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	RENDER_FN_PREFIX,
 } from '../shared/constants';
@@ -107,6 +104,6 @@ export const getFunctions = async (
 			return true;
 		}
 
-		return l.version === CURRENT_VERSION;
+		return l.version === VERSION;
 	});
 };

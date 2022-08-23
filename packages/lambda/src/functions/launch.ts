@@ -2,6 +2,7 @@ import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import {Internals} from 'remotion';
+import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {
 	EncodingProgress,
@@ -9,7 +10,6 @@ import type {
 	RenderMetadata,
 } from '../shared/constants';
 import {
-	CURRENT_VERSION,
 	encodingProgressKey,
 	LambdaRoutines,
 	MAX_FUNCTIONS_PER_RENDER,
@@ -230,7 +230,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		type: 'video',
 		imageFormat: params.imageFormat,
 		inputProps: params.inputProps,
-		lambdaVersion: CURRENT_VERSION,
+		lambdaVersion: VERSION,
 		framesPerLambda,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		region: getCurrentRegionInFunction(),
@@ -374,7 +374,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 						newTiming: getProfileDuration(optimizedProfile),
 						createdFromRenderId: params.renderId,
 						framesPerLambda,
-						lambdaVersion: CURRENT_VERSION,
+						lambdaVersion: VERSION,
 						frameRange: realFrameRange,
 						everyNthFrame: params.everyNthFrame,
 					},
