@@ -2,7 +2,7 @@ import React from 'react';
 import {Freeze, Series, staticFile, Video} from 'remotion';
 
 export const FreezeExample: React.FC = () => {
-	const video = staticFile('./framer.mp4');
+	const video = staticFile('framermp4withoutfileextension');
 
 	return (
 		<Series>

@@ -1,3 +1,4 @@
+import type {Codec} from '@remotion/renderer';
 import {combineVideos, RenderInternals} from '@remotion/renderer';
 import fs, {
 	createWriteStream,
@@ -8,7 +9,6 @@ import fs, {
 	rmSync,
 } from 'fs';
 import path, {join} from 'path';
-import type {Codec} from 'remotion';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import {
 	chunkKey,
@@ -164,6 +164,7 @@ export const concatVideosS3 = async ({
 	codec,
 	expectedBucketOwner,
 	fps,
+	numberOfGifLoops,
 }: {
 	bucket: string;
 	expectedFiles: number;
@@ -174,6 +175,7 @@ export const concatVideosS3 = async ({
 	codec: LambdaCodec;
 	expectedBucketOwner: string;
 	fps: number;
+	numberOfGifLoops: number | null;
 }) => {
 	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
 	if (existsSync(outdir)) {
@@ -210,6 +212,7 @@ export const concatVideosS3 = async ({
 		numberOfFrames,
 		codec: codecForCombining,
 		fps,
+		numberOfGifLoops,
 	});
 	combine.end();
 

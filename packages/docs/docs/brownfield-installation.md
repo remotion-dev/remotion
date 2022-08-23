@@ -24,6 +24,13 @@ npm i @remotion/cli remotion
 ```
 
   </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i @remotion/cli remotion
+```
+
+  </TabItem>
 
   <TabItem value="yarn">
 
@@ -33,13 +40,6 @@ yarn add @remotion/cli remotion
 
   </TabItem>
 
-  <TabItem value="pnpm">
-
-```bash
-pnpm i @remotion/cli remotion
-```
-
-  </TabItem>
 </Tabs>
 
 - If you'd like to embed a Remotion video in your existing React app, install [`@remotion/player`](/docs/player/installation) as well.

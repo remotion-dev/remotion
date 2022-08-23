@@ -16,6 +16,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
+      - run: |
+          corepack enable
       - uses: Iamshankhadeep/setup-ffmpeg@v1.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -27,7 +29,6 @@ jobs:
           path: ~/.pnpm-store
           key: v2-${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
-      - uses: pnpm/action-setup@v2.2.2
       - name: Install
         run: pnpm install --frozen-lockfile
 
@@ -48,6 +49,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
+      - run: |
+          corepack enable
       - uses: Iamshankhadeep/setup-ffmpeg@v1.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -59,7 +62,6 @@ jobs:
           path: ~/.pnpm-store
           key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}-bust
 
-      - uses: pnpm/action-setup@v2.2.2
       - name: Install
         run: pnpm install --frozen-lockfile
 
@@ -67,6 +69,7 @@ jobs:
         run: |
           pnpm build
       - name: Test SSR
+        timeout-minutes: 5
         run: |
           cd packages/it-tests && pnpm run testssr
   build:
@@ -98,6 +101,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
+      - run: |
+          corepack enable
       - uses: Iamshankhadeep/setup-ffmpeg@v1.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -109,7 +114,6 @@ jobs:
           path: ~/.pnpm-store
           key: v2-deps-${{ runner.os }}-node${{ matrix.node_version }}
 
-      - uses: pnpm/action-setup@v2.2.2
       - name: Cache node_modules/.cache
         uses: actions/cache@v2
         with:

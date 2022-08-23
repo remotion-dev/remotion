@@ -61,88 +61,89 @@ export const PricingTable: React.FC<{}> = () => {
         <Spacer />
         <Spacer />
         <Spacer />
-        <div className={styles.portion} style={{ flex: 2 }}>
+        <div style={{ flex: 2 }}>
           <div className={styles.targettitle}>Companies</div>
           <div className={styles.pricingrow}>
             <div className={styles.panel}>
-              <strong>Developer seat</strong>
-              <div
-                className={[styles.tableprice, styles.gradientprice].join(" ")}
-              >
-                {period === Period.Monthly ? "$15" : "$150"}
-              </div>
-              <div className={styles.perperiod}>
-                per {period === Period.Monthly ? "month" : "year"}
-              </div>
-              <ul>
-                <li>
-                  <Bullet color="#79367a" />
-                  allows 1 developer to work on Remotion projects
-                </li>
-                <li>
-                  <Bullet color="#79367a" />
-                  may use Remotion on multiple machines
-                </li>
-                <li>
-                  <Bullet color="#79367a" />
-                  Access to prioritized support
-                </li>
-                <li>
-                  <Bullet color="#79367a" />
-                  As long as you make renders, at least one license must be kept
-                  active
-                </li>
-              </ul>
-              <div style={{ flex: 1 }} />
-              <a
-                className={styles.pricinga}
-                href="https://companies.remotion.dev"
-                target="_blank"
-                data-splitbee-event="License-Buy"
-                data-splitbee-event-target={`developer-${period}`}
-              >
-                <div>
-                  <BlueButton fullWidth loading={false} size="bg">
-                    Buy a license
-                  </BlueButton>
+              <div className={styles.doublepanel}>
+                <div className={styles.doublepanelsingle}>
+                  <strong>Developer seat</strong>
+                  <div
+                    className={[styles.tableprice, styles.gradientprice].join(
+                      " "
+                    )}
+                  >
+                    {period === Period.Monthly ? "$15" : "$150"}
+                  </div>
+                  <div className={styles.perperiod}>
+                    per {period === Period.Monthly ? "month" : "year"}
+                  </div>
+                  <ul>
+                    <li>
+                      <Bullet color="#79367a" />
+                      allows 1 developer to work on Remotion projects
+                    </li>
+                    <li>
+                      <Bullet color="#79367a" />
+                      may use Remotion on multiple local machines
+                    </li>
+                    <li>
+                      <Bullet color="#79367a" />
+                      Access to prioritized support
+                    </li>
+                    <li>
+                      <Bullet color="#79367a" />
+                      As long as you make renders, at least one license must be
+                      kept active
+                    </li>
+                  </ul>
+                  <div style={{ flex: 1 }} />
                 </div>
-              </a>
-            </div>
-            <Spacer />
-            <Spacer />
-            <Spacer />
-            <div className={styles.panel}>
-              <strong>Cloud rendering seat</strong>
-              <div
-                className={[styles.tableprice, styles.orangeprice].join(" ")}
-              >
-                {period === Period.Monthly ? "$10" : "$100"}
+                <div className={styles.plus}>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                    <path
+                      fill="currentColor"
+                      d="M432 256c0 17.69-14.33 32.01-32 32.01H256v144c0 17.69-14.33 31.99-32 31.99s-32-14.3-32-31.99v-144H48c-17.67 0-32-14.32-32-32.01s14.33-31.99 32-31.99H192v-144c0-17.69 14.33-32.01 32-32.01s32 14.32 32 32.01v144h144C417.7 224 432 238.3 432 256z"
+                    />
+                  </svg>
+                </div>
+                <div className={styles.doublepanelsingle}>
+                  <strong>Cloud rendering seat</strong>
+                  <div
+                    className={[styles.tableprice, styles.orangeprice].join(
+                      " "
+                    )}
+                  >
+                    {period === Period.Monthly ? "$10" : "$100"}
+                  </div>
+                  <div className={styles.perperiod}>
+                    per {period === Period.Monthly ? "month" : "year"}
+                  </div>
+                  <ul>
+                    <li>
+                      <Bullet color="#f5ad43" />
+                      Choose 1 seat per cloud instance (e.g. VPS, EC2) you are
+                      running Remotion on
+                    </li>
+                    <li>
+                      <Bullet color="#f5ad43" />
+                      Pay only for as long as you are rendering videos.
+                    </li>
+                    <li>
+                      <Bullet color="#f5ad43" />
+                      Using serverless? Choose 1 seat per 2.000 renders per
+                      month.
+                    </li>
+                  </ul>
+                  <div style={{ flex: 1 }} />
+                </div>
               </div>
-              <div className={styles.perperiod}>
-                per {period === Period.Monthly ? "month" : "year"}
-              </div>
-              <ul>
-                <li>
-                  <Bullet color="#f5ad43" />
-                  Choose 1 seat per cloud instance (e.g. VPS, EC2) you are
-                  running Remotion on
-                </li>
-                <li>
-                  <Bullet color="#f5ad43" />
-                  Pay only for as long as you are rendering videos.
-                </li>
-                <li>
-                  <Bullet color="#f5ad43" />
-                  Using serverless? Choose 1 seat per 2.000 renders per month.
-                </li>
-              </ul>
-              <div style={{ flex: 1 }} />
               <a
                 className={styles.pricinga}
                 href="https://companies.remotion.dev"
                 target="_blank"
                 data-splitbee-event="License-Buy"
-                data-splitbee-event-target={`cloud-${period}`}
+                data-splitbee-event-target={`license-${period}`}
               >
                 <div>
                   <BlueButton fullWidth loading={false} size="bg">

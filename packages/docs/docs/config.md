@@ -53,7 +53,7 @@ import { Config } from "remotion";
 Config.Bundling.setCachingEnabled(false);
 ```
 
-The [command line flag](/docs/cli#--bundle-cache) `--bundle-cache` will take precedence over this option.
+The [command line flag](/docs/cli/render#--bundle-cache) `--bundle-cache` will take precedence over this option.
 
 ### setPort()
 
@@ -67,7 +67,7 @@ import { Config } from "remotion";
 Config.Bundling.setPort(3003);
 ```
 
-The [command line flag](/docs/cli#--port) `--port` will take precedence over this option.
+The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option.
 
 ## Log
 
@@ -89,7 +89,7 @@ import { Config } from "remotion";
 Config.Log.setLevel("verbose");
 ```
 
-The [command line flag](/docs/cli#--log) `--log` will take precedence over this option.
+The [command line flag](/docs/cli/render#--log) `--log` will take precedence over this option.
 
 ## Preview
 
@@ -119,7 +119,7 @@ import { Config } from "remotion";
 Config.Puppeteer.setBrowserExecutable("/usr/bin/google-chrome-stable");
 ```
 
-The [command line flag](/docs/cli#--browser-executable) `--browser-executable` will take precedence over this option.
+The [command line flag](/docs/cli/render#--browser-executable) `--browser-executable` will take precedence over this option.
 
 ### setTimeoutInMilliseconds()
 
@@ -133,7 +133,7 @@ import { Config } from "remotion";
 Config.Puppeteer.setTimeoutInMilliseconds(60000);
 ```
 
-The [command line flag](/docs/cli#--timeout) `--timeout` will take precedence over this option.
+The [command line flag](/docs/cli/render#--timeout) `--timeout` will take precedence over this option.
 
 ### setChromiumDisableWebSecurity()
 
@@ -149,7 +149,7 @@ import { Config } from "remotion";
 Config.Puppeteer.setChromiumDisableWebSecurity(true);
 ```
 
-The [command line flag](/docs/cli#--disable-web-security) `--disable-web-security` will take precedence over this option.
+The [command line flag](/docs/cli/render#--disable-web-security) `--disable-web-security` will take precedence over this option.
 
 ### setChromiumIgnoreCertificateErrors()
 
@@ -165,7 +165,7 @@ import { Config } from "remotion";
 Config.Puppeteer.setChromiumIgnoreCertificateErrors(true);
 ```
 
-The [command line flag](/docs/cli#--ignore-certificate-errors) `--ignore-certificate-errors` will take precedence over this option.
+The [command line flag](/docs/cli/render#--ignore-certificate-errors) `--ignore-certificate-errors` will take precedence over this option.
 
 ### setChromiumHeadlessMode()
 
@@ -181,7 +181,7 @@ import { Config } from "remotion";
 Config.Puppeteer.setChromiumHeadlessMode(false);
 ```
 
-The [command line flag](/docs/cli#--disable-headless) `--disable-headless` will take precedence over this option.
+The [command line flag](/docs/cli/render#--disable-headless) `--disable-headless` will take precedence over this option.
 
 ## Rendering
 
@@ -196,7 +196,7 @@ import { Config } from "remotion";
 Config.Rendering.setConcurrency(8);
 ```
 
-The [command line flag](/docs/cli#--concurrency) `--concurrency` will take precedence over this option.
+The [command line flag](/docs/cli/render#--concurrency) `--concurrency` will take precedence over this option.
 
 :::tip
 Try to set your concurrency to `os.cpus().length` to all the threads available on your CPU for faster rendering. The drawback is that other parts of your system might slow down.
@@ -218,7 +218,7 @@ import { Config } from "remotion";
 Config.Rendering.setImageFormat("png");
 ```
 
-The [command line flag](/docs/cli#--image-format) `--image-format` will take precedence over this option.
+The [command line flag](/docs/cli/render#--image-format) `--image-format` will take precedence over this option.
 
 ### setScale()
 
@@ -232,7 +232,35 @@ import { Config } from "remotion";
 Config.Rendering.setScale(2);
 ```
 
-The [command line flag](/docs/cli#--scale) `--scale` will take precedence over this option.
+The [command line flag](/docs/cli/render#--scale) `--scale` will take precedence over this option.
+
+### setMuted()
+
+_Available from Version 3.2.1._
+
+Disables audio output. Default `false`.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Rendering.setMuted(true);
+```
+
+The [command line flag](/docs/cli/render#--muted) `--muted` will take precedence over this option.
+
+### setEnforceAudioTrack()
+
+_Available from Version 3.2.1._
+
+Render a silent audio track if there would be none otherwise. Default `false`.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Rendering.setEnforceAudioTrack(true);
+```
+
+The [command line flag](/docs/cli/render#--enforce-audio-track) `--enforce-audio-track` will take precedence over this option.
 
 ### setFrameRange()
 
@@ -254,7 +282,7 @@ import { Config } from "remotion";
 Config.Rendering.setFrameRange([0, 20]); // Render a video only containing the first 21 frames
 ```
 
-The [command line flag](/docs/cli#--frames) `--frames` will take precedence over this option.
+The [command line flag](/docs/cli/render#--frames) `--frames` will take precedence over this option.
 
 ### setQuality()
 
@@ -266,7 +294,7 @@ import { Config } from "remotion";
 Config.Rendering.setQuality(90);
 ```
 
-The [command line flag](/docs/cli#--quality) `--quality` will take precedence over this option.
+The [command line flag](/docs/cli/render#--quality) `--quality` will take precedence over this option.
 
 ### setDotEnvLocation()
 
@@ -278,7 +306,7 @@ import { Config } from "remotion";
 Config.Rendering.setDotEnvLocation(".my-env");
 ```
 
-The [command line flag](/docs/cli#--env-file) `--env-file` will take precedence over this option.
+The [command line flag](/docs/cli/render#--env-file) `--env-file` will take precedence over this option.
 
 ### setFfmpegExecutable()
 
@@ -290,6 +318,8 @@ import { Config } from "remotion";
 Config.Rendering.setFfmpegExecutable("/path/to/custom/ffmpeg");
 ```
 
+The [command line flag](/docs/cli/render#--ffmpeg-executable) `--ffmpeg-executable` will take precedence over this option.
+
 ### setFfprobeExecutable()
 
 Allows you to use a custom `ffprobe` binary. Must be an absolute path. By default, this is null and the `ffprobe` in `PATH` will be used.
@@ -300,9 +330,49 @@ import { Config } from "remotion";
 Config.Rendering.setFfprobeExecutable("/path/to/custom/ffprobe");
 ```
 
-The [command line flag](/docs/cli#--ffmpeg-executable) `--ffmpeg-executable` will take precedence over this option.
+The [command line flag](/docs/cli/render#--ffprobe-executable) `--ffprobe-executable` will take precedence over this option.
+
+### setEveryNthFrame()
+
+This option may only be set when rendering GIFs. [It determines how many frames are rendered, while the other ones gets skipped in order to lower the FPS of the GIF.](/docs/render-as-gif)
+
+For example, if the `fps` is 30, and `everyNthFrame` is 2, the FPS of the GIF is `15`.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Rendering.setEveryNthFrame(2);
+```
+
+The [command line flag](/docs/cli/render#--every-nth-frame) `--every-nth-frame` will take precedence over this option.
+
+### setNumberOfGifLoops()
+
+This option may only be set when rendering GIFs. [If it is set, it will limit the amount of times a GIF will loop. If set to `0`, the GIF will play once, if set to `1`, it will play twice. If set to `null` or not set at all, it will play forever](/docs/render-as-gif).
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Rendering.setNumberOfGifLoops(2);
+```
+
+The [command line flag](/docs/cli/render#--number-of-gif-loops) `--number-of-gif-loops` will take precedence over this option.
 
 ## Output
+
+### setOutputLocation()
+
+_Available from v3.1.6_
+
+Set the output location of the video or still, relative to the current working directory. The default is `out/{composition}.{container}`. For example, `out/HelloWorld.mp4`.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Output.setOutputLocation("out/video.mp4");
+```
+
+If you pass another argument to the render command, it will take precedence: `npx remotion render src/index.tsx HelloWorld out/video.mp4`.
 
 ### setOverwriteOutput()
 
@@ -329,7 +399,7 @@ import { Config } from "remotion";
 Config.Output.setPixelFormat("yuv420p");
 ```
 
-The [command line flag](/docs/cli#--pixel-format) `--pixel-format` will take precedence over this option.
+The [command line flag](/docs/cli/render#--pixel-format) `--pixel-format` will take precedence over this option.
 
 ### setCodec()
 
@@ -353,7 +423,7 @@ import { Config } from "remotion";
 Config.Output.setCodec("h265");
 ```
 
-The [command line flag](/docs/cli#--codec) `--codec` will take precedence over this option.
+The [command line flag](/docs/cli/render#--codec) `--codec` will take precedence over this option.
 
 **See also**: [Encoding guide](/docs/encoding)
 
@@ -372,7 +442,7 @@ import { Config } from "remotion";
 Config.Output.setProResProfile("4444");
 ```
 
-The [command line flag](/docs/cli#--prores-profile) `--prores-profile` will take precedence over this option.
+The [command line flag](/docs/cli/render#--prores-profile) `--prores-profile` will take precedence over this option.
 
 **See also**: [Encoding guide](/docs/encoding), [Transparent videos](/docs/transparent-videos)
 
@@ -388,7 +458,7 @@ import { Config } from "remotion";
 Config.Output.setImageSequence(true);
 ```
 
-The [command line flag](/docs/cli#--sequence) `--sequence` will take precedence over this option.
+The [command line flag](/docs/cli/render#--sequence) `--sequence` will take precedence over this option.
 
 ### ~~setOutputFormat()~~
 
@@ -431,7 +501,7 @@ import { Config } from "remotion";
 Config.Output.setCrf(16);
 ```
 
-The [command line flag](/docs/cli#--crf) `--crf` will take precedence over this option.
+The [command line flag](/docs/cli/render#--crf) `--crf` will take precedence over this option.
 
 ## See also
 

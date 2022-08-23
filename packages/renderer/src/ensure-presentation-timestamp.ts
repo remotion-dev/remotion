@@ -1,43 +1,59 @@
 import execa from 'execa';
-import {rename, unlink} from 'fs/promises';
 import path from 'path';
-
-const ensureFileHasPresentationTimestamp: Record<string, 'encoding' | 'done'> =
-	{};
+import type {DownloadMap} from './assets/download-map';
+import {guessExtensionForVideo} from './guess-extension-for-media';
+import {truthy} from './truthy';
 
 type Callback = {
 	src: string;
-	fn: () => void;
+	fn: (newsrc: string) => void;
 };
 
 let callbacks: Callback[] = [];
 
-export const ensurePresentationTimestamps = async (src: string) => {
-	if (ensureFileHasPresentationTimestamp[src] === 'encoding') {
-		return new Promise<void>((resolve) => {
-			callbacks.push({
-				src,
-				fn: () => resolve(),
-			});
-		});
-	}
-
-	if (ensureFileHasPresentationTimestamp[src] === 'done') {
-		return;
-	}
-
-	ensureFileHasPresentationTimestamp[src] = 'encoding';
-
+const getTemporaryOutputName = async (src: string) => {
 	const parts = src.split(path.sep);
-	const output = parts
+
+	// If there is no file extension for the video, then we need to temporarily add an extension
+
+	const lastPart = parts[parts.length - 1];
+	const extraExtension = lastPart.includes('.')
+		? null
+		: await guessExtensionForVideo(src);
+
+	return parts
 		.map((p, i) => {
 			if (i === parts.length - 1) {
-				return `pts-${p}`;
+				return [`pts-${p}`, extraExtension].filter(truthy).join('.');
 			}
 
 			return p;
 		})
 		.join(path.sep);
+};
+
+export const ensurePresentationTimestamps = async (
+	downloadMap: DownloadMap,
+	src: string
+): Promise<string> => {
+	const elem = downloadMap.ensureFileHasPresentationTimestamp[src];
+	if (elem?.type === 'encoding') {
+		return new Promise<string>((resolve) => {
+			callbacks.push({
+				src,
+				fn: (newSrc: string) => resolve(newSrc),
+			});
+		});
+	}
+
+	if (elem?.type === 'done') {
+		return elem.src;
+	}
+
+	downloadMap.ensureFileHasPresentationTimestamp[src] = {type: 'encoding'};
+
+	// If there is no file extension for the video, then we need to tempoa
+	const output = await getTemporaryOutputName(src);
 
 	await execa('ffmpeg', [
 		'-i',
@@ -52,16 +68,17 @@ export const ensurePresentationTimestamps = async (src: string) => {
 		'-y',
 	]);
 
-	await unlink(src);
-	await rename(output, src);
-
 	callbacks = callbacks.filter((c) => {
 		if (c.src === src) {
-			c.fn();
+			c.fn(output);
 			return false;
 		}
 
 		return true;
 	});
-	ensureFileHasPresentationTimestamp[src] = 'done';
+	downloadMap.ensureFileHasPresentationTimestamp[src] = {
+		type: 'done',
+		src: output,
+	};
+	return output;
 };

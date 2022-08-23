@@ -1,16 +1,38 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useEffect, useState} from 'react';
-import {Internals, interpolate} from 'remotion';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
+import {Internals} from 'remotion';
 import {useGetXPositionOfItemInTimeline} from '../../helpers/get-left-of-timeline-slider';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {
+	useTimelineInOutFramePosition,
+	useTimelineSetInOutFramePosition,
+} from '../../state/in-out';
+import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {persistCurrentFrame} from '../FramePersistor';
-import {sliderAreaRef} from './timeline-refs';
+import {scrollableRef, sliderAreaRef} from './timeline-refs';
+import {
+	canScrollTimelineIntoDirection,
+	getFrameFromX,
+	getFrameWhileScrollingLeft,
+	getFrameWhileScrollingRight,
+	getScrollPositionForCursorOnLeftEdge,
+	getScrollPositionForCursorOnRightEdge,
+	scrollToTimelineXOffset,
+} from './timeline-scroll-logic';
 import {inMarkerAreaRef, outMarkerAreaRef} from './TimelineInOutPointer';
 import {
 	inPointerHandle,
 	outPointerHandle,
 	TimelineInOutPointerHandle,
 } from './TimelineInOutPointerHandle';
+import {redrawTimelineSliderFast} from './TimelineSlider';
 
 const inner: React.CSSProperties = {
 	overflowY: 'auto',
@@ -19,35 +41,17 @@ const inner: React.CSSProperties = {
 
 const container: React.CSSProperties = {
 	userSelect: 'none',
-	overflow: 'hidden',
 	position: 'absolute',
-	width: '100%',
 	height: '100%',
+	top: 0,
 };
 
-const getFrameFromX = (
-	clientX: number,
-	durationInFrames: number,
-	width: number,
-	extrapolate: 'clamp' | 'extend'
-) => {
-	const pos = clientX - TIMELINE_PADDING;
-	const frame = Math.round(
-		interpolate(
-			pos,
-			[0, width - TIMELINE_PADDING * 2],
-			[0, durationInFrames - 1 ?? 0],
-			{
-				extrapolateLeft: extrapolate,
-				extrapolateRight: extrapolate,
-			}
-		)
-	);
-	return frame;
+const getClientXWithScroll = (x: number) => {
+	return x + (scrollableRef.current?.scrollLeft as number);
 };
 
 export const TimelineDragHandler: React.FC = () => {
-	const size = PlayerInternals.useElementSize(sliderAreaRef, {
+	const size = PlayerInternals.useElementSize(scrollableRef, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
@@ -63,13 +67,12 @@ export const TimelineDragHandler: React.FC = () => {
 	>({
 		dragging: false,
 	});
-	const width = size?.width ?? 0;
+	const width = scrollableRef.current?.scrollWidth ?? 0;
 	const left = size?.left ?? 0;
-	const {inFrame, outFrame} =
-		Internals.Timeline.useTimelineInOutFramePosition();
 
-	const {setInAndOutFrames} =
-		Internals.Timeline.useTimelineSetInOutFramePosition();
+	const {inFrame, outFrame} = useTimelineInOutFramePosition();
+
+	const {setInAndOutFrames} = useTimelineSetInOutFramePosition();
 
 	const {get} = useGetXPositionOfItemInTimeline();
 	const [dragging, setDragging] = useState<
@@ -86,8 +89,18 @@ export const TimelineDragHandler: React.FC = () => {
 	const {playing, play, pause, seek} = PlayerInternals.usePlayer();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 
+	const scroller = useRef<NodeJS.Timeout | null>(null);
+
+	const stopInterval = () => {
+		if (scroller.current) {
+			clearInterval(scroller.current);
+			scroller.current = null;
+		}
+	};
+
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
+			stopInterval();
 			if (!videoConfig) {
 				return;
 			}
@@ -101,7 +114,7 @@ export const TimelineDragHandler: React.FC = () => {
 				const outMarker = outFrame === null ? Infinity : get(outFrame - 1);
 				setInOutDragging({
 					dragging: 'in',
-					initialOffset: e.clientX,
+					initialOffset: getClientXWithScroll(e.clientX),
 					boundaries: [-Infinity, outMarker - inMarker],
 				});
 				return;
@@ -116,19 +129,19 @@ export const TimelineDragHandler: React.FC = () => {
 				const inMarker = inFrame === null ? -Infinity : get(inFrame + 1);
 				setInOutDragging({
 					dragging: 'out',
-					initialOffset: e.clientX,
+					initialOffset: getClientXWithScroll(e.clientX),
 					boundaries: [inMarker - outMarker, Infinity],
 				});
 
 				return;
 			}
 
-			const frame = getFrameFromX(
-				e.clientX - left,
-				videoConfig.durationInFrames,
+			const frame = getFrameFromX({
+				clientX: getClientXWithScroll(e.clientX) - left,
+				durationInFrames: videoConfig.durationInFrames,
 				width,
-				'clamp'
-			);
+				extrapolate: 'clamp',
+			});
 			seek(frame);
 			setDragging({
 				dragging: true,
@@ -149,15 +162,91 @@ export const TimelineDragHandler: React.FC = () => {
 				return;
 			}
 
-			const frame = getFrameFromX(
-				e.clientX - left,
-				videoConfig.durationInFrames,
+			const isRightOfArea =
+				e.clientX >=
+				(scrollableRef.current?.clientWidth as number) +
+					left -
+					TIMELINE_PADDING;
+
+			const isLeftOfArea = e.clientX <= left;
+
+			const frame = getFrameFromX({
+				clientX: getClientXWithScroll(e.clientX) - left,
+				durationInFrames: videoConfig.durationInFrames,
 				width,
-				'clamp'
-			);
-			seek(frame);
+				extrapolate: 'clamp',
+			});
+
+			if (isLeftOfArea && canScrollTimelineIntoDirection().canScrollLeft) {
+				if (scroller.current) {
+					return;
+				}
+
+				const scrollEvery = () => {
+					if (!canScrollTimelineIntoDirection().canScrollLeft) {
+						stopInterval();
+						return;
+					}
+
+					const nextFrame = getFrameWhileScrollingLeft({
+						durationInFrames: videoConfig.durationInFrames,
+						width,
+					});
+
+					const scrollPos = getScrollPositionForCursorOnLeftEdge({
+						nextFrame,
+						durationInFrames: videoConfig.durationInFrames,
+					});
+
+					redrawTimelineSliderFast.current?.draw(nextFrame);
+					seek(nextFrame);
+					scrollToTimelineXOffset(scrollPos);
+				};
+
+				scrollEvery();
+				scroller.current = setInterval(() => {
+					scrollEvery();
+				}, 100);
+			} else if (
+				isRightOfArea &&
+				canScrollTimelineIntoDirection().canScrollRight
+			) {
+				if (scroller.current) {
+					return;
+				}
+
+				const scrollEvery = () => {
+					if (!canScrollTimelineIntoDirection().canScrollRight) {
+						stopInterval();
+						return;
+					}
+
+					const nextFrame = getFrameWhileScrollingRight({
+						durationInFrames: videoConfig.durationInFrames,
+						width,
+					});
+
+					const scrollPos = getScrollPositionForCursorOnRightEdge({
+						nextFrame,
+						durationInFrames: videoConfig.durationInFrames,
+					});
+
+					redrawTimelineSliderFast.current?.draw(nextFrame);
+					seek(nextFrame);
+					scrollToTimelineXOffset(scrollPos);
+				};
+
+				scrollEvery();
+
+				scroller.current = setInterval(() => {
+					scrollEvery();
+				}, 100);
+			} else {
+				stopInterval();
+				seek(frame);
+			}
 		},
-		[dragging.dragging, seek, left, videoConfig, width]
+		[videoConfig, dragging.dragging, left, width, seek]
 	);
 
 	const onPointerMoveInOut = useCallback(
@@ -174,7 +263,7 @@ export const TimelineDragHandler: React.FC = () => {
 				inOutDragging.boundaries[0],
 				Math.min(
 					inOutDragging.boundaries[1],
-					e.clientX - inOutDragging.initialOffset
+					getClientXWithScroll(e.clientX) - inOutDragging.initialOffset
 				)
 			);
 			if (inOutDragging.dragging === 'in') {
@@ -224,6 +313,8 @@ export const TimelineDragHandler: React.FC = () => {
 
 	const onPointerUpScrubbing = useCallback(
 		(e: PointerEvent) => {
+			stopInterval();
+
 			if (!videoConfig) {
 				return;
 			}
@@ -236,12 +327,12 @@ export const TimelineDragHandler: React.FC = () => {
 				dragging: false,
 			});
 
-			const frame = getFrameFromX(
-				e.clientX - left,
-				videoConfig.durationInFrames,
+			const frame = getFrameFromX({
+				clientX: getClientXWithScroll(e.clientX) - left,
+				durationInFrames: videoConfig.durationInFrames,
 				width,
-				'clamp'
-			);
+				extrapolate: 'clamp',
+			});
 
 			persistCurrentFrame(frame);
 
@@ -266,12 +357,12 @@ export const TimelineDragHandler: React.FC = () => {
 				dragging: false,
 			});
 
-			const frame = getFrameFromX(
-				e.clientX - left,
-				videoConfig.durationInFrames,
+			const frame = getFrameFromX({
+				clientX: getClientXWithScroll(e.clientX) - left,
+				durationInFrames: videoConfig.durationInFrames,
 				width,
-				'extend'
-			);
+				extrapolate: 'extend',
+			});
 			if (inOutDragging.dragging === 'in') {
 				if (frame < 1) {
 					return setInAndOutFrames((prev) => ({
@@ -337,8 +428,21 @@ export const TimelineDragHandler: React.FC = () => {
 		};
 	}, [inOutDragging.dragging, onPointerMoveInOut, onPointerUpInOut]);
 
+	const {zoom} = useContext(TimelineZoomCtx);
+
+	const containerStyle: React.CSSProperties = useMemo(() => {
+		return {
+			...container,
+			width: 100 * zoom + '%',
+		};
+	}, [zoom]);
+
 	return (
-		<div ref={sliderAreaRef} style={container} onPointerDown={onPointerDown}>
+		<div
+			ref={sliderAreaRef}
+			style={containerStyle}
+			onPointerDown={onPointerDown}
+		>
 			<div style={inner} />
 			{inFrame !== null && (
 				<TimelineInOutPointerHandle

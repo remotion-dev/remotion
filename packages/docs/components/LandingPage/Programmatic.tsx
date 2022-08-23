@@ -1,6 +1,8 @@
-import { Player, PlayerRef } from "@remotion/player";
+import type { PlayerRef } from "@remotion/player";
+import { Player } from "@remotion/player";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { GithubDemo, GithubResponse } from "./GithubDemo";
+import type { GithubResponse } from "./GithubDemo";
+import { GithubDemo } from "./GithubDemo";
 import styles from "./mobileplayer.module.css";
 
 export const ProgrammaticContent: React.FC<{ data: GithubResponse | null }> = ({
@@ -33,7 +35,11 @@ export const ProgrammaticContent: React.FC<{ data: GithubResponse | null }> = ({
       root: null,
       threshold: 1,
     });
-    observer.observe(current);
+    // Docusaurus sometimes has a layout shift that immediately focuses
+    // the video on page load
+    setTimeout(() => {
+      observer.observe(current);
+    }, 2000);
 
     return () => observer.unobserve(current);
   }, [callback]);

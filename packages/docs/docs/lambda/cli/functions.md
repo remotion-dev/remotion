@@ -37,7 +37,7 @@ Example output
 <pre>
 Region = eu-central-1,
 Memory = 2048MB,
-Disk = 512MB,
+Disk = 2048MB,
 Timeout = 120sec,
 Version = 2021-12-17,
 CloudWatch Enabled = true,

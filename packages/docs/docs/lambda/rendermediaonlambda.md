@@ -40,7 +40,11 @@ In which region your Lambda function is deployed. It's highly recommended that y
 
 ### `privacy`
 
-Either `"public"` or `"private"`, determining whether the video can be seen by anyone after it's uploaded to the S3 bucket.
+One of:
+
+- `"public"` (_default_): The rendered media is publicly accessible under the S3 URL.
+- `"private"`: The rendered media is not publicly available, but signed links can be created using [presignUrl()](/docs/lambda/presignurl).
+- `"no-acl"` (_available from v.3.1.7_): The ACL option is not being set at all, this option is useful if you are writing to another bucket that does not support ACL using [`outName`](#outname).
 
 ### `functionName`
 
@@ -48,6 +52,8 @@ The name of the deployed Lambda function.
 Use [`deployFunction()`](/docs/lambda/deployfunction) to create a new function and [`getFunctions()`](/docs/lambda/getfunctions) to obtain currently deployed Lambdas.
 
 ### `framesPerLambda`
+
+_optional_
 
 The video rendering process gets distributed across multiple Lambda functions. This setting controls how many frames are rendered per Lambda invocation. The lower the number you pass, the more Lambdas get spawned.
 
@@ -64,7 +70,7 @@ A URL pointing to a Remotion project. Use [`deploySite()`](/docs/lambda/deploysi
 
 ### `composition`
 
-The name of the [composition](/docs/composition) you want to render.
+The `id` of the [composition](/docs/composition) you want to render.
 
 ### `inputProps`
 
@@ -74,11 +80,15 @@ React props that are passed to your composition. You define the shape of the pro
 
 Which codec should be used to encode the video.
 
-Video codecs `h264` and `vp8` are supported.
+Video codecs `h264` and `vp8` are supported, `prores` is supported since `v3.2.0`.
 
 Audio codecs `mp3`, `aac` and `wav` are also supported.
 
 See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
+
+### `muted`
+
+Disables audio output. See also [`renderMedia() -> muted`](/docs/renderer/render-media#muted).
 
 ### `imageFormat`
 
@@ -138,6 +148,34 @@ A number describing how long the render may take to resolve all `delayRender()` 
 _optional, available from v2.6.5_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
+
+### `concurrencyPerLambda?`
+
+_optional, available from v3.0.30_
+
+By default, each Lambda function renders with concurrency 1 (one open browser tab). You may use the option to customize this value.
+
+### `everyNthFrame?`
+
+_optional, available from v3.1_
+
+Renders only every nth frame. For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif)
+
+### `numberOfGifLoops?`
+
+_optional, available since v3.1_
+
+[Set the looping behavior.](/docs/config#setnumberofgifloops) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
+
+### `downloadBehavior?`
+
+_optional, available since v3.1.5_
+
+How the output file should behave when accessed through the S3 output link in the browser.  
+Either:
+
+- `{"type": "play-in-browser"}` - the default. The video will play in the browser.
+- `{"type": "download", fileName: null}` or `{"type": "download", fileName: "download.mp4"}` - a `Content-Disposition` header will be added which makes the browser download the file. You can optionally override the filename.
 
 #### `disableWebSecurity`
 

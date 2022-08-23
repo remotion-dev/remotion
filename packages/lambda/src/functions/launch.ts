@@ -56,6 +56,34 @@ type Options = {
 	expectedBucketOwner: string;
 };
 
+const callFunctionWithRetry = async (
+	payload: unknown,
+	retries = 0
+): Promise<unknown> => {
+	try {
+		await getLambdaClient(getCurrentRegionInFunction()).send(
+			new InvokeCommand({
+				FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
+				// @ts-expect-error
+				Payload: JSON.stringify(payload),
+				InvocationType: 'Event',
+			}),
+			{}
+		);
+	} catch (err) {
+		if ((err as Error).name === 'ResourceConflictException') {
+			if (retries > 10) {
+				throw err;
+			}
+
+			await new Promise((resolve) => {
+				setTimeout(resolve, 1000);
+			});
+			return callFunctionWithRetry(payload, retries + 1);
+		}
+	}
+};
+
 const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -65,10 +93,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	const [browserInstance, optimization] = await Promise.all([
 		getBrowserInstance(
-			Internals.Logging.isEqualOrBelowLogLevel(
-				Internals.Logging.getLogLevel(),
-				'verbose'
-			),
+			RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
 			params.chromiumOptions
 		),
 		getOptimization({
@@ -79,6 +104,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			expectedBucketOwner: options.expectedBucketOwner,
 		}),
 	]);
+
+	const downloadMap = RenderInternals.makeDownloadMap();
 
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
@@ -91,31 +118,41 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
 		port: null,
+		downloadMap,
 	});
 	Internals.validateDurationInFrames(
 		comp.durationInFrames,
-		'passed to <Component />'
+		'passed to a Lambda render'
 	);
-	Internals.validateFps(comp.fps, 'passed to <Component />');
-	Internals.validateDimension(comp.height, 'height', 'passed to <Component />');
-	Internals.validateDimension(comp.width, 'width', 'passed to <Component />');
+	Internals.validateFps(comp.fps, 'passed to a Lambda render', false);
+	Internals.validateDimension(
+		comp.height,
+		'height',
+		'passed to a Lambda render'
+	);
+	Internals.validateDimension(comp.width, 'width', 'passed to a Lambda render');
+
+	RenderInternals.validateConcurrency(
+		params.concurrencyPerLambda,
+		'concurrencyPerLambda'
+	);
 
 	const realFrameRange = RenderInternals.getRealFrameRange(
 		comp.durationInFrames,
 		params.frameRange
 	);
 
-	const frameCount = RenderInternals.getDurationFromFrameRange(
+	const frameCount = RenderInternals.getFramesToRender(
 		realFrameRange,
-		0
+		params.everyNthFrame
 	);
 
 	const framesPerLambda =
-		params.framesPerLambda ?? bestFramesPerLambdaParam(frameCount);
+		params.framesPerLambda ?? bestFramesPerLambdaParam(frameCount.length);
 
 	validateFramesPerLambda(framesPerLambda);
 
-	const chunkCount = Math.ceil(frameCount / framesPerLambda);
+	const chunkCount = Math.ceil(frameCount.length / framesPerLambda);
 
 	if (chunkCount > MAX_FUNCTIONS_PER_RENDER) {
 		throw new Error(
@@ -128,13 +165,14 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 
 	const {chunks, didUseOptimization} = planFrameRanges({
-		chunkCount,
 		framesPerLambda,
 		optimization,
 		// TODO: Re-enable chunk optimization later
 		shouldUseOptimization: false,
 		frameRange: realFrameRange,
+		everyNthFrame: params.everyNthFrame,
 	});
+
 	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
 	const invokers = Math.round(Math.sqrt(chunks.length));
 
@@ -162,11 +200,14 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			proResProfile: params.proResProfile,
 			quality: params.quality,
 			privacy: params.privacy,
-			logLevel: params.logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
+			logLevel: params.logLevel ?? 'info',
 			attempt: 1,
 			timeoutInMilliseconds: params.timeoutInMilliseconds,
 			chromiumOptions: params.chromiumOptions,
 			scale: params.scale,
+			everyNthFrame: params.everyNthFrame,
+			concurrencyPerLambda: params.concurrencyPerLambda,
+			muted: params.muted,
 		};
 		return payload;
 	});
@@ -204,31 +245,25 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
+		downloadBehavior: null,
 	});
 
 	await Promise.all(
 		lambdaPayloads.map(async (payload, index) => {
 			const callingLambdaTimer = timer('Calling chunk ' + index);
 
-			await getLambdaClient(getCurrentRegionInFunction()).send(
-				new InvokeCommand({
-					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
-					// @ts-expect-error
-					Payload: JSON.stringify(payload),
-					InvocationType: 'Event',
-				}),
-				{}
-			);
+			await callFunctionWithRetry(payload);
 			callingLambdaTimer.end();
 		})
 	);
+
 	reqSend.end();
 
 	let lastProgressUploaded = 0;
 	let encodingStop: number | null = null;
 
 	const onProgress = (framesEncoded: number, start: number) => {
-		const relativeProgress = framesEncoded / frameCount;
+		const relativeProgress = framesEncoded / frameCount.length;
 		const deltaSinceLastProgressUploaded =
 			relativeProgress - lastProgressUploaded;
 		if (relativeProgress === 1) {
@@ -243,7 +278,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 		const encodingProgress: EncodingProgress = {
 			framesEncoded,
-			totalFrames: frameCount,
+			totalFrames: frameCount.length,
 			doneIn: encodingStop ? encodingStop - start : null,
 			timeToInvoke: null,
 		};
@@ -254,6 +289,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			region: getCurrentRegionInFunction(),
 			privacy: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
+			downloadBehavior: null,
 		}).catch((err) => {
 			writeLambdaError({
 				bucketName: params.bucketName,
@@ -278,16 +314,19 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		});
 	};
 
+	const fps = comp.fps / params.everyNthFrame;
+
 	const {outfile, cleanupChunksProm, encodingStart} = await concatVideosS3({
 		bucket: params.bucketName,
 		expectedFiles: chunkCount,
 		onProgress,
-		numberOfFrames: frameCount,
+		numberOfFrames: frameCount.length,
 		renderId: params.renderId,
 		region: getCurrentRegionInFunction(),
 		codec: params.codec,
 		expectedBucketOwner: options.expectedBucketOwner,
-		fps: comp.fps,
+		fps,
+		numberOfGifLoops: params.numberOfGifLoops,
 	});
 	if (!encodingStop) {
 		encodingStop = Date.now();
@@ -307,6 +346,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		privacy: params.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
+		downloadBehavior: params.downloadBehavior,
 	});
 
 	let chunkProm: Promise<unknown> = Promise.resolve();
@@ -336,6 +376,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 						framesPerLambda,
 						lambdaVersion: CURRENT_VERSION,
 						frameRange: realFrameRange,
+						everyNthFrame: params.everyNthFrame,
 					},
 					expectedBucketOwner: options.expectedBucketOwner,
 					compositionId: params.composition,
@@ -355,15 +396,17 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		}),
 	]);
 	const finalEncodingProgress: EncodingProgress = {
-		framesEncoded: frameCount,
-		totalFrames: frameCount,
+		framesEncoded: frameCount.length,
+		totalFrames: frameCount.length,
 		doneIn: encodingStop ? encodingStop - encodingStart : null,
-		timeToInvoke: getLambdasInvokedStats(
+		timeToInvoke: getLambdasInvokedStats({
 			contents,
-			params.renderId,
-			renderMetadata.estimatedRenderLambdaInvokations,
-			renderMetadata.startedDate
-		).timeToInvokeLambdas,
+			renderId: params.renderId,
+			estimatedRenderLambdaInvokations:
+				renderMetadata.estimatedRenderLambdaInvokations,
+			checkIfAllLambdasWereInvoked: false,
+			startDate: renderMetadata.startedDate,
+		}).timeToInvokeLambdas,
 	};
 	const finalEncodingProgressProm = lambdaWriteFile({
 		bucketName: params.bucketName,
@@ -372,6 +415,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
+		downloadBehavior: null,
 	});
 
 	const errorExplanationsProm = inspectErrors({
@@ -394,7 +438,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		jobs,
 	});
 
-	const postRenderData = await createPostRenderData({
+	const postRenderData = createPostRenderData({
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,

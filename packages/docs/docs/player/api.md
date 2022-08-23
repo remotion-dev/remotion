@@ -79,6 +79,12 @@ _optional_
 
 A boolean property defining whether you can play or pause a video using space key. If enabled, playing the video and subsequently pressing the space key pauses and resumes the video. Only works if `controls` is true. Default `true`.
 
+### `moveToBeginningWhenEnded`
+
+_optional, available from v3.1.3_
+
+A boolean property defining whether the video position should go back to zero once the video has ended. Only works if `loop` is disabled. Default `true`.
+
 ### `inputProps`
 
 _optional_
@@ -90,6 +96,12 @@ Pass props to the component that you have specified using the `component` prop. 
 _optional_
 
 A regular `style` prop for a HTMLDivElement. You can pass a different height and width if you would like different dimensions for the player than the original composition dimensions.
+
+### `className`
+
+_optional - available since v3.1.3_
+
+A HTML class name to be applied to the conainer.
 
 ### `numberOfSharedAudioTags`
 
@@ -175,8 +187,8 @@ export const MyComposition: React.FC = () => null;
 
 // @filename: index.tsx
 // ---cut---
-import { useEffect, useRef } from "react";
 import { Player, PlayerRef } from "@remotion/player";
+import { useEffect, useRef } from "react";
 import { MyComposition } from "./MyComposition";
 
 const MyComp: React.FC = () => {
@@ -208,6 +220,12 @@ The following methods are available on the player ref:
 
 Pause the video. Nothing happens if the video is already paused.
 
+### `pauseAndReturnToPlayStart()`
+
+_Availabe from v3.0.30_
+
+If the video is playing, pause it and return to the playback position where the video has last been played.
+
 ### `play()`
 
 Play the video. Nothing happens if the video is already playing.
@@ -222,7 +240,7 @@ If you play the video from a user gesture, pass the `SyntheticEvent` in as an ar
 
 ### `getCurrentFrame()`
 
-Gets the current postition expressed as the current frame. Divide by the `fps` you passed to get the time in seconds.
+Gets the current position expressed as the current frame. Divide by the `fps` you passed to get the time in seconds.
 
 ### `isPlaying()`
 
@@ -237,8 +255,8 @@ _Available from v2.4.2_
 Gets the container `HTMLDivElement` of the player. Useful if you'd like to manually attach listeners to the player element.
 
 ```tsx twoslash
-import { useRef, useEffect } from "react";
 import { PlayerRef } from "@remotion/player";
+import { useEffect, useRef } from "react";
 // ---cut---
 const playerRef = useRef<PlayerRef>(null);
 
@@ -321,8 +339,8 @@ Stop listening to an event. See the [Events](#events) section to see the functio
 Using a [player ref](#playerref), you can bind event listeners to get notified of certain events of the player.
 
 ```tsx twoslash
-import { useRef, useEffect } from "react";
 import { PlayerRef } from "@remotion/player";
+import { useEffect, useRef } from "react";
 // ---cut---
 const playerRef = useRef<PlayerRef>(null);
 
@@ -353,6 +371,9 @@ useEffect(() => {
   playerRef.current.addEventListener("error", (e) => {
     console.log("error", e.detail.error);
   });
+  playerRef.current.addEventListener("fullscreenchange", (e) => {
+    console.log("fullscreenchange", e.detail.isFullscreen);
+  });
 }, []);
 ```
 
@@ -361,8 +382,8 @@ useEffect(() => {
 Fired when the time position changes. You may get the current frame by reading it from `e.detail.frame`.
 
 ```tsx twoslash
-import { useRef, useEffect } from "react";
 import { PlayerRef } from "@remotion/player";
+import { useRef } from "react";
 const playerRef = useRef<PlayerRef>(null);
 if (!playerRef.current) {
   throw new Error();
@@ -396,8 +417,8 @@ Fires when the video has paused or ended.
 Fires periodically when the video is playing. Unlike the [`seeked`](#seeked) event, frames are skipped, and the event is throttled to only fire a few times a second.
 
 ```tsx twoslash
-import { useRef, useEffect } from "react";
 import { PlayerRef } from "@remotion/player";
+import { useRef } from "react";
 const playerRef = useRef<PlayerRef>(null);
 if (!playerRef.current) {
   throw new Error();
@@ -408,6 +429,25 @@ playerRef.current.addEventListener("timeupdate", (e) => {
 });
 ```
 
+### `fullscreenchange`
+
+_Available from v3.2.0_
+
+Fires when the player enters or exits fullscreen. By reading `e.detail.isFullscreen` or calling `playerRef.isFullscreen()` you can determine if the player is currently in fullscreen or not.
+
+```tsx twoslash
+import { PlayerRef } from "@remotion/player";
+import { useRef } from "react";
+const playerRef = useRef<PlayerRef>(null);
+if (!playerRef.current) {
+  throw new Error();
+}
+// ---cut---
+playerRef.current.addEventListener("fullscreenchange", (e) => {
+  console.log("is fullscreen" + e.detail.isFullscreen); // is fullscreen true
+});
+```
+
 ### `error`
 
 Fires when an error or uncaught exception has happened in the video.
@@ -415,8 +455,8 @@ Fires when an error or uncaught exception has happened in the video.
 You may get the error by reading the `e.detail.error` value:
 
 ```tsx twoslash
-import { useRef, useEffect } from "react";
 import { PlayerRef } from "@remotion/player";
+import { useRef } from "react";
 const ref = useRef<PlayerRef>(null);
 // ---cut---
 ref.current?.addEventListener("error", (e) => {
@@ -436,7 +476,7 @@ This feature is implemented using an [error boundary](https://reactjs.org/docs/e
 You can customize the error message that is shown if a video crashes:
 
 ```tsx twoslash
-import { Player, ErrorFallback } from "@remotion/player";
+import { ErrorFallback, Player } from "@remotion/player";
 import { useCallback } from "react";
 import { AbsoluteFill } from "remotion";
 

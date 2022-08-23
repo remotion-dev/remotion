@@ -1,5 +1,3 @@
-import minimist from 'minimist';
-import {resolve} from 'path';
 import type {
 	BrowserExecutable,
 	Codec,
@@ -8,11 +6,12 @@ import type {
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
-	ProResProfile} from 'remotion';
-import {
-	Config,
-	Internals
-} from 'remotion';
+	ProResProfile,
+} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
+import minimist from 'minimist';
+import {resolve} from 'path';
+import {Config, ConfigInternals} from './config';
 import {Log} from './log';
 
 export type CommandLineOptions = {
@@ -26,6 +25,8 @@ export type CommandLineOptions = {
 	['env-file']: string;
 	['ignore-certificate-errors']: string;
 	['disable-web-security']: string;
+	['every-nth-frame']: number;
+	['number-of-gif-loops']: number;
 	codec: Codec;
 	concurrency: number;
 	timeout: number;
@@ -46,6 +47,8 @@ export type CommandLineOptions = {
 	port: number;
 	frame: string | number;
 	['disable-headless']: boolean;
+	muted: boolean;
+	['enforce-audio-track']: boolean;
 	gl: OpenGlRenderer;
 };
 
@@ -56,6 +59,8 @@ export const BooleanFlags = [
 	'help',
 	'quiet',
 	'q',
+	'muted',
+	'enforce-audio-track',
 	// Lambda flags
 	'force',
 	'disable-chunk-optimization',
@@ -93,6 +98,10 @@ export const parseCommandLine = (
 		);
 	}
 
+	if (parsedCli['number-of-gif-loops']) {
+		Config.Rendering.setNumberOfGifLoops(parsedCli['number-of-gif-loops']);
+	}
+
 	if (parsedCli['ffprobe-executable']) {
 		Config.Rendering.setFfprobeExecutable(
 			resolve(parsedCli['ffprobe-executable'])
@@ -115,22 +124,18 @@ export const parseCommandLine = (
 		Config.Puppeteer.setChromiumHeadlessMode(false);
 	}
 
-	if (parsedCli.gl) {
-		Config.Puppeteer.setChromiumOpenGlRenderer(parsedCli.gl);
-	}
-
 	if (parsedCli.log) {
-		if (!Internals.Logging.isValidLogLevel(parsedCli.log)) {
+		if (!RenderInternals.isValidLogLevel(parsedCli.log)) {
 			Log.error('Invalid `--log` value passed.');
 			Log.error(
-				`Accepted values: ${Internals.Logging.logLevels
+				`Accepted values: ${RenderInternals.logLevels
 					.map((l) => `'${l}'`)
 					.join(', ')}.`
 			);
 			process.exit(1);
 		}
 
-		Internals.Logging.setLogLevel(parsedCli.log as LogLevel);
+		ConfigInternals.Logging.setLogLevel(parsedCli.log as LogLevel);
 	}
 
 	if (parsedCli.concurrency) {
@@ -149,7 +154,7 @@ export const parseCommandLine = (
 			process.exit(1);
 		}
 
-		Internals.setFrameRangeFromCli(parsedCli.frames);
+		ConfigInternals.setFrameRangeFromCli(parsedCli.frames);
 	}
 
 	if (parsedCli.frame) {
@@ -160,7 +165,7 @@ export const parseCommandLine = (
 			process.exit(1);
 		}
 
-		Internals.setStillFrame(Number(parsedCli.frame));
+		ConfigInternals.setStillFrame(Number(parsedCli.frame));
 	}
 
 	if (parsedCli.png) {
@@ -183,6 +188,14 @@ export const parseCommandLine = (
 		Config.Output.setCodec(parsedCli.codec);
 	}
 
+	if (parsedCli['every-nth-frame']) {
+		Config.Rendering.setEveryNthFrame(parsedCli['every-nth-frame']);
+	}
+
+	if (parsedCli.gl) {
+		Config.Puppeteer.setChromiumOpenGlRenderer(parsedCli.gl);
+	}
+
 	if (parsedCli['prores-profile']) {
 		Config.Output.setProResProfile(
 			String(parsedCli['prores-profile']) as ProResProfile
@@ -203,6 +216,14 @@ export const parseCommandLine = (
 
 	if (typeof parsedCli.port !== 'undefined') {
 		Config.Bundling.setPort(parsedCli.port);
+	}
+
+	if (typeof parsedCli.muted !== 'undefined') {
+		Config.Rendering.setMuted(parsedCli.muted);
+	}
+
+	if (typeof parsedCli['enforce-audio-track'] !== 'undefined') {
+		Config.Rendering.setEnforceAudioTrack(parsedCli['enforce-audio-track']);
 	}
 };
 

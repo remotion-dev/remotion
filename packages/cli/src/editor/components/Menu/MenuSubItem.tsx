@@ -8,7 +8,7 @@ import {Flex, Row, Spacing} from '../layout';
 import type {SubMenu} from '../NewComposition/ComboBox';
 import {getPortal} from './portals';
 import {
-	menuContainer,
+	menuContainerTowardsBottom,
 	MENU_VERTICAL_PADDING,
 	SUBMENU_LEFT_INSET,
 } from './styles';
@@ -109,7 +109,7 @@ export const MenuSubItem: React.FC<{
 		}
 
 		return {
-			...menuContainer,
+			...menuContainerTowardsBottom,
 			left: size.left + size.width + SUBMENU_LEFT_INSET,
 			top: size.top - MENU_VERTICAL_PADDING,
 		};

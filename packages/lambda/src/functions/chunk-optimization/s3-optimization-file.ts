@@ -26,6 +26,7 @@ export const writeOptimization = async ({
 		region,
 		privacy: 'private',
 		expectedBucketOwner,
+		downloadBehavior: null,
 	});
 };
 

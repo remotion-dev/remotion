@@ -23,7 +23,7 @@ afterAll(async () => {
 	await RenderInternals.killAllBrowsers();
 });
 
-test('Should be able to render to another bucket', async () => {
+test('Should fail when using an incompatible version', async () => {
 	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
 	const res = await handler(
@@ -48,6 +48,13 @@ test('Should be able to render to another bucket', async () => {
 			quality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,
+			numberOfGifLoops: null,
+			everyNthFrame: 1,
+			concurrencyPerLambda: 1,
+			downloadBehavior: {
+				type: 'play-in-browser',
+			},
+			muted: false,
 		},
 		extraContext
 	);

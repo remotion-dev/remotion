@@ -1,13 +1,10 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import type {BrowserLog} from '@remotion/renderer';
-import { RenderInternals, renderMedia} from '@remotion/renderer';
+import type {BrowserLog, Codec} from '@remotion/renderer';
+import {RenderInternals, renderMedia} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import {Internals} from 'remotion';
 import {getLambdaClient} from '../shared/aws-clients';
-import type {
-	LambdaPayload,
-	LambdaPayloads} from '../shared/constants';
+import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
 import {
 	chunkKeyForIndex,
 	lambdaInitializedKey,
@@ -44,10 +41,8 @@ const renderHandler = async (
 		throw new Error('Params must be renderer');
 	}
 
-	Internals.Logging.setLogLevel(params.logLevel);
-
 	const browserInstance = await getBrowserInstance(
-		Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
+		RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
 		params.chromiumOptions ?? {}
 	);
 
@@ -79,93 +74,108 @@ const renderHandler = async (
 		)}.${RenderInternals.getFileExtensionFromCodec(params.codec, 'chunk')}`
 	);
 
-	await renderMedia({
-		composition: {
-			id: params.composition,
-			durationInFrames: params.durationInFrames,
-			fps: params.fps,
-			height: params.height,
-			width: params.width,
-		},
-		imageFormat: params.imageFormat,
-		inputProps: params.inputProps,
-		frameRange: params.frameRange,
-		onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
-			if (
-				renderedFrames % 10 === 0 &&
-				Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
-			) {
-				console.log(
-					`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`
+	const chunkCodec: Codec = params.codec === 'gif' ? 'h264-mkv' : params.codec;
+
+	const downloadMap = RenderInternals.makeDownloadMap();
+
+	await new Promise<void>((resolve, reject) => {
+		renderMedia({
+			composition: {
+				id: params.composition,
+				durationInFrames: params.durationInFrames,
+				fps: params.fps,
+				height: params.height,
+				width: params.width,
+			},
+			imageFormat: params.imageFormat,
+			inputProps: params.inputProps,
+			frameRange: params.frameRange,
+			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
+				if (
+					renderedFrames % 10 === 0 &&
+					RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
+				) {
+					console.log(
+						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`
+					);
+				}
+
+				const allFrames = RenderInternals.getFramesToRender(
+					params.frameRange,
+					params.everyNthFrame
 				);
-			}
 
-			const duration = RenderInternals.getDurationFromFrameRange(
-				params.frameRange,
-				params.durationInFrames
-			);
+				if (renderedFrames === allFrames.length) {
+					console.log('Rendered all frames!');
+				}
 
-			if (renderedFrames === duration) {
-				console.log('Rendered all frames!');
-			}
-
-			chunkTimingData.timings[renderedFrames] = Date.now() - start;
-		},
-		parallelism: 1,
-		onStart: () => {
-			lambdaWriteFile({
-				privacy: 'private',
-				bucketName: params.bucketName,
-				body: JSON.stringify({
-					filesCleaned: deletedFilesSize,
-					filesInTmp: fs.readdirSync('/tmp'),
-					isWarm: options.isWarm,
-					deletedFiles,
-					tmpSize: getFolderSizeRecursively('/tmp'),
-					tmpDirFiles: getFolderFiles('/tmp'),
-				}),
-				key: lambdaInitializedKey({
-					renderId: params.renderId,
-					chunk: params.chunk,
-					attempt: params.attempt,
-				}),
-				region: getCurrentRegionInFunction(),
-				expectedBucketOwner: options.expectedBucketOwner,
-			});
-		},
-		puppeteerInstance: browserInstance,
-		serveUrl: params.serveUrl,
-		quality: params.quality,
-		envVariables: params.envVariables,
-		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
-			params.logLevel,
-			'verbose'
-		),
-		onBrowserLog: (log) => {
-			logs.push(log);
-		},
-		outputLocation,
-		codec: params.codec,
-		crf: params.crf ?? undefined,
-		ffmpegExecutable:
-			process.env.NODE_ENV === 'test' ? null : '/opt/bin/ffmpeg',
-		pixelFormat: params.pixelFormat,
-		proResProfile: params.proResProfile,
-		onDownload: (src: string) => {
-			console.log('Downloading', src);
-			return () => undefined;
-		},
-
-		overwrite: false,
-		chromiumOptions: params.chromiumOptions,
-		scale: params.scale,
-		timeoutInMilliseconds: params.timeoutInMilliseconds,
-		port: null,
+				chunkTimingData.timings[renderedFrames] = Date.now() - start;
+			},
+			parallelism: params.concurrencyPerLambda,
+			onStart: () => {
+				lambdaWriteFile({
+					privacy: 'private',
+					bucketName: params.bucketName,
+					body: JSON.stringify({
+						filesCleaned: deletedFilesSize,
+						filesInTmp: fs.readdirSync('/tmp'),
+						isWarm: options.isWarm,
+						deletedFiles,
+						tmpSize: getFolderSizeRecursively('/tmp'),
+						tmpDirFiles: getFolderFiles('/tmp'),
+					}),
+					key: lambdaInitializedKey({
+						renderId: params.renderId,
+						chunk: params.chunk,
+						attempt: params.attempt,
+					}),
+					region: getCurrentRegionInFunction(),
+					expectedBucketOwner: options.expectedBucketOwner,
+					downloadBehavior: null,
+				}).catch((err) => reject(err));
+			},
+			puppeteerInstance: browserInstance,
+			serveUrl: params.serveUrl,
+			quality: params.quality,
+			envVariables: params.envVariables,
+			dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
+				params.logLevel,
+				'verbose'
+			),
+			verbose: RenderInternals.isEqualOrBelowLogLevel(
+				params.logLevel,
+				'verbose'
+			),
+			onBrowserLog: (log) => {
+				logs.push(log);
+			},
+			outputLocation,
+			codec: chunkCodec,
+			crf: params.crf ?? undefined,
+			ffmpegExecutable:
+				process.env.NODE_ENV === 'test' ? null : '/opt/bin/ffmpeg',
+			pixelFormat: params.pixelFormat,
+			proResProfile: params.proResProfile,
+			onDownload: (src: string) => {
+				console.log('Downloading', src);
+				return () => undefined;
+			},
+			overwrite: false,
+			chromiumOptions: params.chromiumOptions,
+			scale: params.scale,
+			timeoutInMilliseconds: params.timeoutInMilliseconds,
+			port: null,
+			everyNthFrame: params.everyNthFrame,
+			numberOfGifLoops: null,
+			downloadMap,
+			muted: params.muted,
+			enforceAudioTrack: true,
+		})
+			.then(() => resolve())
+			.catch((err) => reject(err));
 	});
 
 	const endRendered = Date.now();
-
-	console.log('Adding silent audio, chunk', params.chunk);
 
 	const condensedTimingData: ChunkTimingData = {
 		...chunkTimingData,
@@ -182,6 +192,7 @@ const renderHandler = async (
 		region: getCurrentRegionInFunction(),
 		privacy: params.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
+		downloadBehavior: null,
 	});
 	await Promise.all([
 		fs.promises.rm(outputLocation, {recursive: true}),
@@ -189,15 +200,16 @@ const renderHandler = async (
 		lambdaWriteFile({
 			bucketName: params.bucketName,
 			body: JSON.stringify(condensedTimingData as ChunkTimingData, null, 2),
-			key: `${lambdaTimingsKey({
+			key: lambdaTimingsKey({
 				renderId: params.renderId,
 				chunk: params.chunk,
 				rendered: endRendered,
 				start,
-			})}`,
+			}),
 			region: getCurrentRegionInFunction(),
 			privacy: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
+			downloadBehavior: null,
 		}),
 	]);
 };

@@ -25,6 +25,13 @@ npm i remotion @remotion/player
 
   </TabItem>
 
+  <TabItem value="pnpm">
+
+```bash
+pnpm i remotion @remotion/player
+```
+
+  </TabItem>
   <TabItem value="yarn">
 
 ```bash
@@ -33,13 +40,6 @@ yarn add remotion @remotion/player
 
   </TabItem>
 
-  <TabItem value="pnpm">
-
-```bash
-pnpm i remotion @remotion/player
-```
-
-  </TabItem>
 </Tabs>
 
 Read the [examples](/docs/player/examples) and [API reference](/docs/player/api) next.

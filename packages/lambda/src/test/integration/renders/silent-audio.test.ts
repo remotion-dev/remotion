@@ -30,8 +30,7 @@ test('Should add silent audio if there is no audio', async () => {
 	const res = await handler(
 		{
 			type: LambdaRoutines.start,
-			serveUrl:
-				'https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/',
+			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
 			chromiumOptions: {},
 			codec: 'h264',
 			composition: 'react-svg',
@@ -50,6 +49,13 @@ test('Should add silent audio if there is no audio', async () => {
 			quality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,
+			numberOfGifLoops: null,
+			everyNthFrame: 1,
+			concurrencyPerLambda: 1,
+			downloadBehavior: {
+				type: 'play-in-browser',
+			},
+			muted: false,
 		},
 		extraContext
 	);

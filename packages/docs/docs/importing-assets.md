@@ -177,4 +177,4 @@ While this was previously the main way of importing files, we now recommend agai
 - The maximum file size is 2GB.
 - Dynamic imports such as `require('img' + frame + '.png')` are [funky](/docs/webpack-dynamic-imports).
 
-Prefer importing using [`staticFile()`](/docs/staticfile) is possible.
+Prefer importing using [`staticFile()`](/docs/staticfile) if possible.

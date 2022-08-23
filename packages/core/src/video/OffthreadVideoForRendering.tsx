@@ -10,7 +10,8 @@ import {Img} from '../Img';
 import {Internals} from '../internals';
 import {random} from '../random';
 import {SequenceContext} from '../Sequence';
-import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-current-frame';
+import {useTimelinePosition} from '../timeline-position-state';
+import {useCurrentFrame} from '../use-current-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
 import {getExpectedMediaFrameUncorrected} from './get-current-time';
@@ -27,7 +28,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	imageFormat,
 	...props
 }) => {
-	const absoluteFrame = useAbsoluteCurrentFrame();
+	const absoluteFrame = useTimelinePosition();
 
 	const frame = useCurrentFrame();
 	const volumePropsFrame = useFrameForVolumeProp();
@@ -70,6 +71,10 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	useEffect(() => {
 		if (!src) {
 			throw new Error('No src passed');
+		}
+
+		if (!window.remotion_videoEnabled) {
+			return;
 		}
 
 		if (muted) {

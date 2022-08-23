@@ -11,11 +11,11 @@ Remotion's rendering engine is built upon Node.JS, which makes it exceptionally 
 
 Since Remotion is built with tech (_Node.JS, FFMPEG, Puppeteer_) that works well cross-platform, you can without much hassle run it on a Linux-based system or even dockerize your video.
 
-On this page, we demonstrate the server-rendering capabilities or Remotion using examples [built into the template](/docs#installation)!
+On this page, we demonstrate the server-rendering capabilities on Remotion using examples [built into the template](/docs#installation)!
 
 ## Render a video programmatically
 
-The NPM package `@remotion/renderer` provides you with an API for rendering the videos programmatically. You can make a video in three steps: creating a Webpack bundle, rendering the frames, and stitching them together to an MP4. This gives you more independence and allows you to for example skip the stitching process, if you just want a PNG sequence.
+The NPM package `@remotion/renderer` provides you with an API for rendering the videos programmatically. You can make a video in three steps: creating a Webpack bundle, rendering the frames, and stitching them together to a MP4. This gives you more independence and allows you for example to skip the stitching process, if you just want a PNG sequence.
 
 Follow this commented example to see how to render a video:
 

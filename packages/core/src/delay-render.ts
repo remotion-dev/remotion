@@ -1,5 +1,4 @@
 import {getRemotionEnvironment} from './get-environment';
-import {DEFAULT_PUPPETEER_TIMEOUT} from './timeout';
 import {truthy} from './truthy';
 
 if (typeof window !== 'undefined') {
@@ -9,6 +8,8 @@ if (typeof window !== 'undefined') {
 let handles: number[] = [];
 const timeouts: {[key: string]: number | NodeJS.Timeout} = {};
 export const DELAY_RENDER_CALLSTACK_TOKEN = 'The delayRender was called:';
+
+const defaultTimeout = 30000;
 
 /**
  * Call this function to tell Remotion to wait before capturing this frame until data has loaded. Use continueRender() to unblock the render.
@@ -31,8 +32,8 @@ export const delayRender = (label?: string): number => {
 	if (getRemotionEnvironment() === 'rendering') {
 		const timeoutToUse =
 			typeof window === 'undefined'
-				? DEFAULT_PUPPETEER_TIMEOUT
-				: window.remotion_puppeteerTimeout - 2000;
+				? defaultTimeout
+				: (window.remotion_puppeteerTimeout ?? defaultTimeout) - 2000;
 		timeouts[handle] = setTimeout(() => {
 			const message = [
 				`A delayRender()`,

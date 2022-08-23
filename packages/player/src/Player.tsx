@@ -1,6 +1,4 @@
-import type {
-	ComponentType,
-	MutableRefObject} from 'react';
+import type {ComponentType, MutableRefObject} from 'react';
 import React, {
 	forwardRef,
 	useCallback,
@@ -18,11 +16,9 @@ import type {
 	PlayableMediaTag,
 	SetMediaVolumeContextValue,
 	SetTimelineContextValue,
-	TimelineContextValue} from 'remotion';
-import {
-	Composition,
-	Internals
+	TimelineContextValue,
 } from 'remotion';
+import {Composition, Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
@@ -60,12 +56,10 @@ export type PlayerProps<T> = {
 	numberOfSharedAudioTags?: number;
 	playbackRate?: number;
 	renderLoading?: RenderLoading;
+	moveToBeginningWhenEnded?: boolean;
+	className?: string;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
-
-Internals.CSSUtils.injectCSS(
-	Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`, '#fff')
-);
 
 export const componentOrNullIfLazy = <T,>(
 	props: CompProps<T>
@@ -93,10 +87,12 @@ export const PlayerFn = <T,>(
 		clickToPlay,
 		doubleClickToFullscreen = false,
 		spaceKeyToPlayOrPause = true,
+		moveToBeginningWhenEnded = true,
 		numberOfSharedAudioTags = 5,
 		errorFallback = () => '⚠️',
 		playbackRate = 1,
 		renderLoading,
+		className,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -170,7 +166,7 @@ export const PlayerFn = <T,>(
 		durationInFrames,
 		'of the <Player/> component'
 	);
-	Internals.validateFps(fps, 'as a prop of the <Player/> component');
+	Internals.validateFps(fps, 'as a prop of the <Player/> component', false);
 
 	if (typeof controls !== 'boolean' && typeof controls !== 'undefined') {
 		throw new TypeError(
@@ -341,55 +337,68 @@ export const PlayerFn = <T,>(
 		return inputProps ?? {};
 	}, [inputProps]);
 
+	useLayoutEffect(() => {
+		// Inject CSS only on client, and also only after the Player has hydrated
+		Internals.CSSUtils.injectCSS(
+			Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`, '#fff')
+		);
+	}, []);
+
 	return (
-		<Internals.Timeline.TimelineContext.Provider value={timelineContextValue}>
-			<Internals.Timeline.SetTimelineContext.Provider
-				value={setTimelineContextValue}
-			>
-				<Internals.CompositionManager.Provider
-					value={compositionManagerContext}
+		<Internals.CanUseRemotionHooksProvider>
+			<Internals.Timeline.TimelineContext.Provider value={timelineContextValue}>
+				<Internals.Timeline.SetTimelineContext.Provider
+					value={setTimelineContextValue}
 				>
-					<Internals.MediaVolumeContext.Provider
-						value={mediaVolumeContextValue}
+					<Internals.CompositionManager.Provider
+						value={compositionManagerContext}
 					>
-						<Internals.SetMediaVolumeContext.Provider
-							value={setMediaVolumeContextValue}
+						<Internals.MediaVolumeContext.Provider
+							value={mediaVolumeContextValue}
 						>
-							<Internals.SharedAudioContextProvider
-								numberOfAudioTags={numberOfSharedAudioTags}
+							<Internals.SetMediaVolumeContext.Provider
+								value={setMediaVolumeContextValue}
 							>
-								<PlayerEventEmitterContext.Provider value={emitter}>
-									<PlayerUI
-										ref={rootRef}
-										renderLoading={renderLoading}
-										autoPlay={Boolean(autoPlay)}
-										loop={Boolean(loop)}
-										controls={Boolean(controls)}
-										errorFallback={errorFallback}
-										style={style}
-										inputProps={passedInputProps}
-										allowFullscreen={Boolean(allowFullscreen)}
-										clickToPlay={
-											typeof clickToPlay === 'boolean'
-												? clickToPlay
-												: Boolean(controls)
-										}
-										showVolumeControls={Boolean(showVolumeControls)}
-										setMediaVolume={setMediaVolumeAndPersist}
-										mediaVolume={mediaVolume}
-										mediaMuted={mediaMuted}
-										doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
-										setMediaMuted={setMediaMuted}
-										spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
-										playbackRate={playbackRate}
-									/>
-								</PlayerEventEmitterContext.Provider>
-							</Internals.SharedAudioContextProvider>
-						</Internals.SetMediaVolumeContext.Provider>
-					</Internals.MediaVolumeContext.Provider>
-				</Internals.CompositionManager.Provider>
-			</Internals.Timeline.SetTimelineContext.Provider>
-		</Internals.Timeline.TimelineContext.Provider>
+								<Internals.SharedAudioContextProvider
+									numberOfAudioTags={numberOfSharedAudioTags}
+								>
+									<PlayerEventEmitterContext.Provider value={emitter}>
+										<PlayerUI
+											ref={rootRef}
+											renderLoading={renderLoading}
+											autoPlay={Boolean(autoPlay)}
+											loop={Boolean(loop)}
+											controls={Boolean(controls)}
+											errorFallback={errorFallback}
+											style={style}
+											inputProps={passedInputProps}
+											allowFullscreen={Boolean(allowFullscreen)}
+											moveToBeginningWhenEnded={Boolean(
+												moveToBeginningWhenEnded
+											)}
+											clickToPlay={
+												typeof clickToPlay === 'boolean'
+													? clickToPlay
+													: Boolean(controls)
+											}
+											showVolumeControls={Boolean(showVolumeControls)}
+											setMediaVolume={setMediaVolumeAndPersist}
+											mediaVolume={mediaVolume}
+											mediaMuted={mediaMuted}
+											doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
+											setMediaMuted={setMediaMuted}
+											spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
+											playbackRate={playbackRate}
+											className={className ?? undefined}
+										/>
+									</PlayerEventEmitterContext.Provider>
+								</Internals.SharedAudioContextProvider>
+							</Internals.SetMediaVolumeContext.Provider>
+						</Internals.MediaVolumeContext.Provider>
+					</Internals.CompositionManager.Provider>
+				</Internals.Timeline.SetTimelineContext.Provider>
+			</Internals.Timeline.TimelineContext.Provider>
+		</Internals.CanUseRemotionHooksProvider>
 	);
 };
 

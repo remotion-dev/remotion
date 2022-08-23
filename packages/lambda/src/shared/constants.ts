@@ -1,16 +1,17 @@
-import type {ChromiumOptions} from '@remotion/renderer';
 import type {
+	ChromiumOptions,
 	Codec,
 	FrameRange,
 	ImageFormat,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
-	VideoConfig,
-} from 'remotion';
+} from '@remotion/renderer';
+import type {VideoConfig} from 'remotion';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';
+import type {DownloadBehavior} from './content-disposition-header';
 import type {ExpensiveChunk} from './get-most-expensive-chunks';
 import type {LambdaArchitecture} from './validate-architecture';
 import type {LambdaCodec} from './validate-lambda-codec';
@@ -35,7 +36,7 @@ export const DEFAULT_MAX_RETRIES = 1;
 
 export const MAX_FUNCTIONS_PER_RENDER = 200;
 
-export const DEFAULT_EPHEMERAL_STORAGE_IN_MB = 512;
+export const DEFAULT_EPHEMERAL_STORAGE_IN_MB = 2048;
 export const MIN_EPHEMERAL_STORAGE_IN_MB = 512;
 export const MAX_EPHEMERAL_STORAGE_IN_MB = 10240;
 
@@ -195,6 +196,11 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
+		everyNthFrame: number;
+		numberOfGifLoops: number | null;
+		concurrencyPerLambda: number;
+		downloadBehavior: DownloadBehavior;
+		muted: boolean;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -219,6 +225,11 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
+		everyNthFrame: number;
+		numberOfGifLoops: number | null;
+		concurrencyPerLambda: number;
+		downloadBehavior: DownloadBehavior;
+		muted: boolean;
 	};
 	status: {
 		type: LambdaRoutines.status;
@@ -226,6 +237,7 @@ export type LambdaPayloads = {
 		renderId: string;
 	};
 	renderer: {
+		concurrencyPerLambda: number;
 		type: LambdaRoutines.renderer;
 		serveUrl: string;
 		frameRange: [number, number];
@@ -252,6 +264,8 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
+		everyNthFrame: number;
+		muted: boolean;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -266,10 +280,11 @@ export type LambdaPayloads = {
 		frame: number;
 		privacy: Privacy;
 		logLevel: LogLevel;
-		outName: string | null;
+		outName: OutNameInput | null;
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
+		downloadBehavior: DownloadBehavior | null;
 	};
 };
 
@@ -303,90 +318,9 @@ export type RenderMetadata = {
 	outName: OutNameInput | undefined;
 };
 
-export type LambdaVersions =
-	| '2022-07-04'
-	| '2022-06-30'
-	| '2022-06-29'
-	| '2022-06-25'
-	| '2022-06-22'
-	| '2022-06-21'
-	| '2022-06-14'
-	| '2022-06-08'
-	| '2022-06-07'
-	| '2022-06-02'
-	| '2022-05-31'
-	| '2022-05-28'
-	| '2022-05-27'
-	| '2022-05-19'
-	| '2022-05-16'
-	| '2022-05-11'
-	| '2022-05-07'
-	| '2022-05-06'
-	| '2022-05-03'
-	| '2022-04-20'
-	| '2022-04-19'
-	| '2022-04-18'
-	| '2022-04-09'
-	| '2022-04-08'
-	| '2022-04-05'
-	| '2022-04-02'
-	| '2022-03-29'
-	| '2022-03-17'
-	| '2022-03-02'
-	| '2022-03-01'
-	| '2022-02-27'
-	| '2022-02-14'
-	| '2022-02-12'
-	| '2022-02-09'
-	| '2022-02-08'
-	| '2022-02-07'
-	| '2022-02-06'
-	| '2022-02-05'
-	| '2022-02-04'
-	| '2022-02-03'
-	| '2022-01-23'
-	| '2022-01-19'
-	| '2022-01-11'
-	| '2022-01-10'
-	| '2022-01-09'
-	| '2022-01-06'
-	| '2022-01-05'
-	| '2021-12-22'
-	| '2021-12-17'
-	| '2021-12-16'
-	| '2021-12-15'
-	| '2021-12-14'
-	| '2021-12-13'
-	| '2021-12-11'
-	| '2021-12-10'
-	| '2021-12-04'
-	| '2021-11-29'
-	| '2021-11-27'
-	| '2021-11-24'
-	| '2021-11-22'
-	| '2021-11-19'
-	| '2021-11-18'
-	| '2021-11-15'
-	| '2021-11-12'
-	| '2021-11-10'
-	| '2021-11-01'
-	| '2021-10-29'
-	| '2021-10-27'
-	| '2021-10-21'
-	| '2021-10-19'
-	| '2021-10-07'
-	| '2021-10-03'
-	| '2021-10-01'
-	| '2021-09-15'
-	| '2021-09-06'
-	| '2021-08-06'
-	| '2021-07-14'
-	| '2021-07-05'
-	| '2021-07-02'
-	| '2021-06-23'
-	| 'n/a';
+export type LambdaVersions = '2022-08-16' | 'n/a';
 
-export const CURRENT_VERSION: LambdaVersions = '2022-07-04';
+export const CURRENT_VERSION: LambdaVersions = '2022-08-16';
 
 export type PostRenderData = {
 	cost: {
@@ -450,7 +384,7 @@ export type RenderProgress = {
 	mostExpensiveFrameRanges: ExpensiveChunk[] | null;
 };
 
-export type Privacy = 'public' | 'private';
+export type Privacy = 'public' | 'private' | 'no-acl';
 
 export const LAMBDA_CONCURRENCY_LIMIT_QUOTA = 'L-B99A9384';
 export const LAMBDA_BURST_LIMIT_QUOTA = 'L-548AE339';

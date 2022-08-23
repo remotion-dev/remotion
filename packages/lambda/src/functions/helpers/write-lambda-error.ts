@@ -1,7 +1,7 @@
 import {getErrorFileName} from '../../shared/constants';
 import {getCurrentRegionInFunction} from './get-current-region';
 import type {FileNameAndSize} from './get-files-in-folder';
-import { getFolderFiles} from './get-files-in-folder';
+import {getFolderFiles} from './get-files-in-folder';
 import {lambdaWriteFile} from './io';
 import {errorIsOutOfSpaceError} from './is-enosp-err';
 
@@ -64,5 +64,6 @@ export const writeLambdaError = async ({
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',
 		expectedBucketOwner,
+		downloadBehavior: null,
 	});
 };
