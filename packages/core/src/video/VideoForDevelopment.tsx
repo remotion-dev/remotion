@@ -85,7 +85,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return () => {
 			current.removeEventListener('error', errorHandler);
 		};
-	}, []);
+	}, [nativeProps.src]);
 
 	return (
 		<video
