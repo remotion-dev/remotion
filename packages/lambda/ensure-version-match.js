@@ -7,7 +7,7 @@ fs.rmSync('extracted', {recursive: true});
 const [, inLambda] = contents.match(/exports\.VERSION = "(.*)"/);
 
 const inConstants = fs.readFileSync('../core/dist/version.js', 'utf-8');
-const [, inPkg] = inConstants.match(/exports\.VERSION = "(.*)"/);
+const [, inPkg] = inConstants.match(/exports\.VERSION = '(.*)'/);
 
 if (inLambda !== inPkg) {
 	console.error(
