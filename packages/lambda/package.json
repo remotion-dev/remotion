@@ -9,7 +9,6 @@
 	},
 	"module": "true",
 	"scripts": {
-		"prepublish": "node ensure-version-match.js",
 		"testintegration": "jest src/test/integration --runInBand",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "jest src/test/unit",
