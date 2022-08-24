@@ -9,6 +9,7 @@ import {Internals} from '../internals';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import * as useVideoConfigModule from '../use-video-config';
 import {renderHook} from './render-hook';
+import {mockCompositionContext} from './wrap-sequence-context';
 
 beforeAll(() => {
 	vitest
@@ -36,6 +37,7 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 			value={
 				// eslint-disable-next-line react/jsx-no-constructed-context-values
 				{
+					...mockCompositionContext,
 					registerSequence,
 					unregisterSequence,
 				} as unknown as CompositionManagerContext
