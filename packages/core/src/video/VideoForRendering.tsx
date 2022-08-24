@@ -178,7 +178,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			if (current?.error) {
 				console.error('Error occurred in video', current?.error);
 				throw new Error(
-					`The browser threw an error while playing the video: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
+					`The browser threw an error while playing the video ${props.src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
 				);
 			} else {
 				throw new Error('The browser threw an error');
