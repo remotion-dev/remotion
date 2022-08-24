@@ -18,6 +18,7 @@ const context: CompositionManagerContext = {
 		{
 			id: 'my-comp',
 			durationInFrames: 100,
+			// @ts-expect-error
 			component: Comp,
 			defaultProps: {},
 			folderName: null,
