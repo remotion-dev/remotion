@@ -1,19 +1,16 @@
 import type {RefObject} from 'react';
-import { useContext, useEffect, useMemo, useState} from 'react';
+import {useContext, useEffect, useMemo, useState} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame';
 import {CompositionManager} from './CompositionManager';
 import {getAssetDisplayName} from './get-asset-file-name';
+import {getRemotionEnvironment} from './get-environment';
 import {useNonce} from './nonce';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error';
 import {SequenceContext} from './Sequence';
-import type {
-	PlayableMediaTag} from './timeline-position-state';
-import {
-	TimelineContext,
-	usePlayingState,
-} from './timeline-position-state';
+import type {PlayableMediaTag} from './timeline-position-state';
+import {TimelineContext, usePlayingState} from './timeline-position-state';
 import {useVideoConfig} from './use-video-config';
-import type { VolumeProp} from './volume-prop';
+import type {VolumeProp} from './volume-prop';
 import {evaluateVolume} from './volume-prop';
 
 const didWarn: {[key: string]: boolean} = {};
@@ -94,6 +91,10 @@ export const useMediaInTimeline = ({
 
 		if (!src) {
 			throw new Error('No src passed');
+		}
+
+		if (getRemotionEnvironment() !== 'preview') {
+			return;
 		}
 
 		registerSequence({
