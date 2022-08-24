@@ -7,10 +7,11 @@ import React, {
 } from 'react';
 import {AbsoluteFill} from './AbsoluteFill';
 import {CompositionManager} from './CompositionManager';
+import {getRemotionEnvironment} from './get-environment';
 import {getTimelineClipName} from './get-timeline-clip-name';
 import {useNonce} from './nonce';
 import {TimelineContext, useTimelinePosition} from './timeline-position-state';
-import {useUnsafeVideoConfig} from './use-unsafe-video-config';
+import {useVideoConfig} from './use-video-config';
 
 export type SequenceContextType = {
 	cumulatedFrom: number;
@@ -56,7 +57,6 @@ export const Sequence: React.FC<SequenceProps> = ({
 	const cumulatedFrom = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
-	const actualFrom = cumulatedFrom + from;
 	const nonce = useNonce();
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
@@ -102,20 +102,14 @@ export const Sequence: React.FC<SequenceProps> = ({
 	}
 
 	const absoluteFrame = useTimelinePosition();
-	const unsafeVideoConfig = useUnsafeVideoConfig();
-	const compositionDuration = unsafeVideoConfig
-		? unsafeVideoConfig.durationInFrames
-		: 0;
+	const videoConfig = useVideoConfig();
+
+	const parentSequenceDuration = parentSequence
+		? Math.min(parentSequence.durationInFrames - from, durationInFrames)
+		: durationInFrames;
 	const actualDurationInFrames = Math.min(
-		compositionDuration - from,
-		parentSequence
-			? Math.min(
-					parentSequence.durationInFrames +
-						(parentSequence.cumulatedFrom + parentSequence.relativeFrom) -
-						actualFrom,
-					durationInFrames
-			  )
-			: durationInFrames
+		videoConfig.durationInFrames - from,
+		parentSequenceDuration
 	);
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 
@@ -140,6 +134,10 @@ export const Sequence: React.FC<SequenceProps> = ({
 	}, [children, name]);
 
 	useEffect(() => {
+		if (getRemotionEnvironment() !== 'preview') {
+			return;
+		}
+
 		registerSequence({
 			from,
 			duration: actualDurationInFrames,
@@ -157,7 +155,6 @@ export const Sequence: React.FC<SequenceProps> = ({
 		};
 	}, [
 		durationInFrames,
-		actualFrom,
 		id,
 		name,
 		registerSequence,
@@ -172,12 +169,9 @@ export const Sequence: React.FC<SequenceProps> = ({
 		showLoopTimesInTimeline,
 	]);
 
-	const endThreshold = (() => {
-		return actualFrom + durationInFrames - 1;
-	})();
-
+	const endThreshold = cumulatedFrom + from + durationInFrames - 1;
 	const content =
-		absoluteFrame < actualFrom
+		absoluteFrame < cumulatedFrom + from
 			? null
 			: absoluteFrame > endThreshold
 			? null
