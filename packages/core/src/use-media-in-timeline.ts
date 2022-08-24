@@ -51,12 +51,9 @@ export const useMediaInTimeline = ({
 
 	const nonce = useNonce();
 
-	const duration = (() => {
-		return parentSequence
-			? Math.min(parentSequence.durationInFrames, videoConfig.durationInFrames)
-			: videoConfig.durationInFrames;
-	})();
-
+	const duration = parentSequence
+		? Math.min(parentSequence.durationInFrames, videoConfig.durationInFrames)
+		: videoConfig.durationInFrames;
 	const doesVolumeChange = typeof volume === 'function';
 
 	const volumes: string | number = useMemo(() => {

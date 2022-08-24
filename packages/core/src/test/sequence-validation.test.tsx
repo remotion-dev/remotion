@@ -2,9 +2,45 @@
  * @vitest-environment jsdom
  */
 import {render} from '@testing-library/react';
+import React from 'react';
 import {describe, expect, test} from 'vitest';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
+import type {CompositionManagerContext} from '../CompositionManager';
+import {CompositionManager} from '../CompositionManager';
 import {Sequence} from '../Sequence';
 import {expectToThrow} from './expect-to-throw';
+
+const Comp: React.FC = () => null;
+
+const context: CompositionManagerContext = {
+	assets: [],
+	compositions: [
+		{
+			id: 'my-comp',
+			durationInFrames: 100,
+			component: Comp,
+			defaultProps: {},
+			folderName: null,
+			fps: 30,
+			height: 1080,
+			width: 1080,
+			parentFolderName: null,
+			nonce: 0,
+		},
+	],
+	currentComposition: 'my-comp',
+	folders: [],
+	registerAsset: () => undefined,
+	registerComposition: () => undefined,
+	registerFolder: () => undefined,
+	registerSequence: () => undefined,
+	sequences: [],
+	setCurrentComposition: () => undefined,
+	unregisterAsset: () => undefined,
+	unregisterComposition: () => undefined,
+	unregisterFolder: () => undefined,
+	unregisterSequence: () => undefined,
+};
 
 describe('Composition-validation render should throw with invalid props', () => {
 	describe('Throw with invalid duration props', () => {
@@ -64,18 +100,26 @@ describe('Composition-validation render should NOT throw with valid props', () =
 	test('It should allow null as children', () => {
 		expect(() =>
 			render(
-				<Sequence durationInFrames={100} from={0}>
-					{null}
-				</Sequence>
+				<CanUseRemotionHooksProvider>
+					<CompositionManager.Provider value={context}>
+						<Sequence durationInFrames={100} from={0}>
+							{null}
+						</Sequence>
+					</CompositionManager.Provider>
+				</CanUseRemotionHooksProvider>
 			)
 		).not.toThrow();
 	});
 	test('It should allow undefined as children', () => {
 		expect(() =>
 			render(
-				<Sequence durationInFrames={100} from={0}>
-					{undefined}
-				</Sequence>
+				<CanUseRemotionHooksProvider>
+					<CompositionManager.Provider value={context}>
+						<Sequence durationInFrames={100} from={0}>
+							{undefined}
+						</Sequence>
+					</CompositionManager.Provider>
+				</CanUseRemotionHooksProvider>
 			)
 		).not.toThrow();
 	});
