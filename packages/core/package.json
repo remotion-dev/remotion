@@ -6,7 +6,7 @@
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
-		"prepublish": "node ensure-version-match.js && cp ../../README.md .",
+		"prepublish": "node ensure-correct-version.js && cp ../../README.md .",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
 		"build": "tsc -d",
@@ -53,5 +53,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"gitHead": "f0f1e39c890ea9451597e77870310646ee5fcf67"
 }
