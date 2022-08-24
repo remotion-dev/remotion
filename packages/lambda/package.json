@@ -15,7 +15,8 @@
 		"watch": "tsc -w",
 		"build": "tsc -d && pnpm run buildlambda",
 		"buildlambda": "ts-node src/admin/bundle-lambda.ts",
-		"start": "ts-node src/run.ts"
+		"start": "ts-node src/run.ts",
+		"prepublish": "ts-node src/admin/bundle-lambda.ts && node ensure-version-match.js"
 	},
 	"author": "",
 	"license": "MIT",
