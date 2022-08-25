@@ -1,11 +1,10 @@
 .wrapper {
   max-width: 1000px;
   margin: auto;
-  margin-top: 60px;
+  padding-top: 60px;
   padding-left: 20px;
   padding-right: 20px;
 }
-
 
 .card {
   box-shadow: var(--box-shadow);
@@ -15,8 +14,8 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  background-color: var(--ifm-navbar-background-color);
 }
-
 
 @media screen and (max-width: 900px) {
   .card {
@@ -60,7 +59,8 @@
 }
 
 @media screen and (max-width: 900px) {
-  .pagetitle, .tagline {
+  .pagetitle,
+  .tagline {
     text-align: left;
   }
 }
