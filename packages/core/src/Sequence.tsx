@@ -107,9 +107,9 @@ export const Sequence: React.FC<SequenceProps> = ({
 	const parentSequenceDuration = parentSequence
 		? Math.min(parentSequence.durationInFrames - from, durationInFrames)
 		: durationInFrames;
-	const actualDurationInFrames = Math.min(
-		videoConfig.durationInFrames - from,
-		parentSequenceDuration
+	const actualDurationInFrames = Math.max(
+		0,
+		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration)
 	);
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 
