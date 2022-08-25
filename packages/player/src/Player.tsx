@@ -322,6 +322,8 @@ export const PlayerFn = <T,>(
 			unregisterSequence: () => undefined,
 			registerAsset: () => undefined,
 			unregisterAsset: () => undefined,
+			currentCompositionMetadata: null,
+			setCurrentCompositionMetadata: () => undefined,
 			assets: [],
 		};
 	}, [
