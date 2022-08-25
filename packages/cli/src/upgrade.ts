@@ -21,9 +21,9 @@ const getUpgradeCommand = ({
 	const pkgList = packages.map((p) => `${p}@${version}`);
 
 	const commands: {[key in PackageManager]: string[]} = {
-		npm: ['i', ...pkgList],
-		pnpm: ['i', ...pkgList],
-		yarn: ['add', ...pkgList],
+		npm: ['i', '--save-exact', ...pkgList],
+		pnpm: ['i', '--save-exact', ...pkgList],
+		yarn: ['add', '--exact', ...pkgList],
 	};
 
 	return commands[manager];
