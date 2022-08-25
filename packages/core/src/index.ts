@@ -40,6 +40,11 @@ export type BundleState =
 	| {
 			type: 'composition';
 			compositionName: string;
+			compositionDefaultProps: unknown;
+			compositionHeight: number;
+			compositionDurationInFrames: number;
+			compositionWidth: number;
+			compositionFps: number;
 	  };
 
 checkMultipleRemotionVersions();
