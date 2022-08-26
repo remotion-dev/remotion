@@ -10,6 +10,7 @@ import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
 import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
+import {getCloudwatchStreamUrl} from '../shared/get-cloudwatch-stream-url';
 
 export type RenderStillOnLambdaInput = {
 	region: AwsRegion;
@@ -37,6 +38,7 @@ export type RenderStillOnLambdaOutput = {
 	sizeInBytes: number;
 	bucketName: string;
 	renderId: string;
+	cloudWatchLogs: string;
 };
 
 /**
@@ -107,6 +109,12 @@ export const renderStillOnLambda = async ({
 			sizeInBytes: res.size,
 			bucketName: res.bucketName,
 			renderId: res.renderId,
+			cloudWatchLogs: getCloudwatchStreamUrl({
+				functionName,
+				method: LambdaRoutines.still,
+				region,
+				renderId: res.renderId,
+			}),
 		};
 	} catch (err) {
 		if ((err as Error).stack?.includes('UnrecognizedClientException')) {

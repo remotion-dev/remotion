@@ -185,6 +185,12 @@ The size of the output image in bytes.
 
 A unique alphanumeric identifier for this render. Useful for obtaining status and finding the relevant files in the S3 bucket.
 
+### `cloudWatchLogs`
+
+_Available from v3.2.10_
+
+A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/render-still-on-lambda.ts)
