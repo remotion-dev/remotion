@@ -1,0 +1,24 @@
+---
+title: getTangentAtLength()
+---
+
+_Part of the [`@remotion/paths`](/docs/paths) package._
+
+Gets tangent values `x` and `y` of a point which is on an SVG path. The first argument is an SVG path, the second one is the at which length the point should be sampled. It must be between 0 and the return value of [`getLength()`](/docs/paths/get-length).
+
+Returns a point if the path is valid:
+
+```tsx twoslash
+import { getTangentAtLength } from "@remotion/paths";
+
+const tangent = getTangentAtLength("M 50 50 L 150 50", 50);
+console.log(tangent); // { x: 1, y: 0}
+```
+
+The function will throw if the path is invalid:
+
+```tsx twoslash
+import { getTangentAtLength } from "@remotion/paths";
+// ---cut---
+getTangentAtLength("remotion", 50); // Error: Malformed path data: ...
+```

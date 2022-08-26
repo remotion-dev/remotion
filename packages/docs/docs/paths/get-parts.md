@@ -102,7 +102,7 @@ console.log(parts[0].getPointAtLength(50)); // { x: 50, y: 0 }
 
 ### `getTangentAtLength()`
 
-Returns `tangentX` and `tangentY` of a point along the line of a part. The input must be between `0` and `length`.
+Returns tagent point `x` and `y` of a point along the line of a part. The input must be between `0` and the return value of [`getLength`](/docs/paths/get-length).
 
 ```tsx twoslash
 import { getParts } from "@remotion/paths";
@@ -113,5 +113,5 @@ const parts = getParts(`
 `);
 
 // ---cut---
-console.log(parts[0].getTangentAtLength(50)); // { tangentX: 1, tangentY: 0 }
+console.log(parts[0].getTangentAtLength(50)); // { x: 1, y: 0 }
 ```
