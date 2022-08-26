@@ -1,3 +1,4 @@
+import type {ForwardRefExoticComponent, RefAttributes} from 'react';
 import React, {
 	forwardRef,
 	useContext,
@@ -177,7 +178,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			if (current?.error) {
 				console.error('Error occurred in video', current?.error);
 				throw new Error(
-					`The browser threw an error while playing the video: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
+					`The browser threw an error while playing the video ${props.src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
 				);
 			} else {
 				throw new Error('The browser threw an error');
@@ -205,4 +206,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	return <video ref={videoRef} {...props} onError={onError} />;
 };
 
-export const VideoForRendering = forwardRef(VideoForRenderingForwardFunction);
+export const VideoForRendering = forwardRef(
+	VideoForRenderingForwardFunction
+) as ForwardRefExoticComponent<
+	RemotionVideoProps & RefAttributes<HTMLVideoElement>
+>;

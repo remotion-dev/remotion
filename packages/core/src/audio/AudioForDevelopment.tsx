@@ -1,3 +1,4 @@
+import type {ForwardRefExoticComponent, RefAttributes} from 'react';
 import React, {
 	forwardRef,
 	useContext,
@@ -19,11 +20,13 @@ import type {RemotionAudioProps} from './props';
 import {useSharedAudio} from './shared-audio-tags';
 import {useFrameForVolumeProp} from './use-audio-frame';
 
+type AudioForDevelopmentProps = RemotionAudioProps & {
+	shouldPreMountAudioTags: boolean;
+};
+
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
-	RemotionAudioProps & {
-		shouldPreMountAudioTags: boolean;
-	}
+	AudioForDevelopmentProps
 > = (props, ref) => {
 	const [initialShouldPreMountAudioElements] = useState(
 		props.shouldPreMountAudioTags
@@ -102,4 +105,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 export const AudioForDevelopment = forwardRef(
 	AudioForDevelopmentForwardRefFunction
-);
+) as ForwardRefExoticComponent<
+	AudioForDevelopmentProps & RefAttributes<HTMLAudioElement>
+>;
