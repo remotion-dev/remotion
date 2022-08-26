@@ -286,6 +286,7 @@ module.exports = {
         "paths/get-length",
         "paths/get-parts",
         "paths/get-point-at-length",
+        "paths/reverse-path",
       ],
     },
     {
