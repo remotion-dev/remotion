@@ -1,3 +1,5 @@
+// Copied from: https://github.com/rveciana/svg-path-properties
+
 import {makeArc} from './arc';
 import {makeBezier} from './bezier';
 import {makeLinearPosition} from './linear';

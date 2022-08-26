@@ -1,3 +1,5 @@
+// Copied from: https://github.com/rveciana/svg-path-properties
+
 import type {Point} from './types';
 
 import {

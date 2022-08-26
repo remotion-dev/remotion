@@ -1,4 +1,5 @@
-import type {Point, PointProperties, Properties} from './types';
+// Copied from: https://github.com/rveciana/svg-path-properties
+import type {Point, PointProperties, Properties} from '../types';
 
 export const makeArc = ({
 	x0,

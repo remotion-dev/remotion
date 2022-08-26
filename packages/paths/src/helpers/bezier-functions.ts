@@ -27,10 +27,6 @@ export const cubicDerivative = (xs: number[], ys: number[], t: number) => {
 export const getCubicArcLength = (xs: number[], ys: number[], t: number) => {
 	let correctedT: number;
 
-	/* if (xs.length >= tValues.length) {
-        throw new Error('too high n bezier');
-      } */
-
 	const n = 20;
 
 	const z = t / 2;
