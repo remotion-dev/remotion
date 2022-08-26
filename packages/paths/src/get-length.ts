@@ -1,5 +1,7 @@
-import {construct} from './construct';
-import type {PartProperties} from './types';
+// Copied from: https://github.com/rveciana/svg-path-properties
+
+import {construct} from './helpers/construct';
+import type {PartProperties} from './helpers/types';
 
 export const getLength = (p: string) => {
 	const constructucted = construct(p);

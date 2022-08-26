@@ -1,3 +1,4 @@
+// Copied from: https://github.com/rveciana/svg-path-properties
 import type {Point, PointProperties} from './types';
 
 export const makeLinearPosition = (
