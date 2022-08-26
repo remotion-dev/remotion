@@ -64,6 +64,10 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
+		if (volume <= 0) {
+			return;
+		}
+
 		registerAsset({
 			type: 'audio',
 			src: getAbsoluteSrc(props.src),
