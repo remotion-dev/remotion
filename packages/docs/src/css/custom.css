@@ -12,15 +12,13 @@
   font-kerning: normal; 
   -webkit-font-smoothing: antialiased; /* Chrome, Safari */ 
   -moz-osx-font-smoothing: grayscale; /* Firefox */ 
-  letter-spacing: 0.025em; 
-  word-spacing: 0.025em;
 }
 
-h1, h2 {
+h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.025em; 
   word-spacing: -0.025em;
+  font-family: 'GTPlanar'
 }
-
 
 
 @font-face {
@@ -60,11 +58,11 @@ h1, h2 {
   --ifm-color-primary-light: #2290f5;
   --ifm-color-primary-lighter: #2f96f6;
   --ifm-color-primary-lightest: #53a9f7;
-  --ifm-code-font-size: 95%;
-  --ifm-font-family-base: "GTPlanar", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont,
+  --ifm-code-font-size: 100%;
+  --ifm-font-family-base: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont,
 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji',
 'Segoe UI Emoji', 'Segoe UI Symbol';
---ifm-font-size-base: 17px;
+--ifm-font-size-base: 16px;
 }
 
 [data-theme="light"] {
@@ -118,7 +116,14 @@ code {
   background-color: transparent;
   border-width: 0;
   color: #0b84f3;
-  padding: 0;
+  font-family: 'GTPlanar';
+  vertical-align: baseline;
+  padding: 0
+}
+
+.code-container code {
+  font-family: inherit;
+  font-size: 15px;
 }
 
 .markdown a {
