@@ -1,5 +1,5 @@
-import type {AwsRegion} from '../../client';
-import type {LambdaRoutines} from '../../shared/constants';
+import type {AwsRegion} from '../client';
+import type {LambdaRoutines} from './constants';
 
 export const getCloudwatchStreamUrl = ({
 	region,
