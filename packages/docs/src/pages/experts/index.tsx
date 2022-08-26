@@ -104,6 +104,7 @@ const Experts: React.FC = () => {
                         <div style={flex}>
                           <a
                             style={docsButton}
+                            target={"_blank"}
                             href={`https://twitter.com/${e.twitter}`}
                           >
                             <BlueButton loading={false} fullWidth size="sm">
@@ -120,6 +121,7 @@ const Experts: React.FC = () => {
                       <div style={flex}>
                         <a
                           style={docsButton}
+                          target={"_blank"}
                           href={`https://github.com/${e.github}`}
                         >
                           <BlueButton loading={false} fullWidth size="sm">
@@ -141,6 +143,7 @@ const Experts: React.FC = () => {
                         <div style={flex}>
                           <a
                             style={docsButton}
+                            target={"_blank"}
                             href={`https://www.linkedin.com/${e.linkedin}`}
                           >
                             <BlueButton loading={false} fullWidth size="sm">
@@ -155,7 +158,11 @@ const Experts: React.FC = () => {
 
                     {e.email ? (
                       <div style={flex}>
-                        <a style={docsButton} href={`mailto:${e.email}`}>
+                        <a
+                          style={docsButton}
+                          target={"_blank"}
+                          href={`mailto:${e.email}`}
+                        >
                           <BlueButton loading={false} fullWidth size="sm">
                             <EmailLogo /> Email
                           </BlueButton>
