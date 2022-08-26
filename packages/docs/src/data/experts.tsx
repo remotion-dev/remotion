@@ -1,12 +1,4 @@
 import React from "react";
-import { BlueButton } from "../../components/layout/Button";
-import { Spacer } from "../../components/layout/Spacer";
-import {
-  TwitterLogo,
-  LinkedInLogo,
-  GitHubLogo,
-  EmailLogo,
-} from "../components/icons";
 
 type Expert = {
   name: string;
@@ -46,21 +38,21 @@ export const experts: Expert[] = [
             target={"_blank"}
             href="https://github.com/marcusstenbeck/remotion-template-audiogram"
           >
-            Remotion's Audiogram Template
+            Remotion{"'"}s Audiogram Template
           </a>
           {", "}
           <a
             target={"_blank"}
             href="https://github.com/marcusstenbeck/remotion-transition-series"
           >
-            Remotion's Transition Series
+            Remotion{"'"}s Transition Series
           </a>
           {" and "}
           <a
             target={"_blank"}
             href="https://github.com/marcusstenbeck/remotion-audio-visualizers"
           >
-            Remotion's Audio Visualizers
+            Remotion{"'"}s Audio Visualizers
           </a>
           {"."}
         </p>
