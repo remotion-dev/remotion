@@ -9,6 +9,4 @@ test('Should be able to get parts of a path', () => {
 	expect(parts[0].length).toEqual(100);
 	expect(parts[1].length).toEqual(100);
 	expect(parts[0].getPointAtLength(100).x).toEqual(100);
-
-	console.log(parts[0].getTangentAtLength(50));
 });
