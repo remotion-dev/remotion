@@ -26,10 +26,9 @@ export const makeLinearPosition = (
 		return {x: (x1 - x0) / module, y: (y1 - y0) / module};
 	};
 
-	const getPropertiesAtLength = (pos: number): PointProperties => {
-		const point = getPointAtLength(pos);
+	const getPropertiesAtLength = (): PointProperties => {
 		const tangent = getTangentAtLength();
-		return {x: point.x, y: point.y, tangentX: tangent.x, tangentY: tangent.y};
+		return {tangentX: tangent.x, tangentY: tangent.y};
 	};
 
 	return {

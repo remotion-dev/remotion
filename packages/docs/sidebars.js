@@ -277,6 +277,19 @@ module.exports = {
     },
     {
       type: "category",
+      label: "API - @remotion/paths",
+      link: {
+        type: "doc",
+        id: "paths/index",
+      },
+      items: [
+        "paths/get-length",
+        "paths/get-parts",
+        "paths/get-point-at-length",
+      ],
+    },
+    {
+      type: "category",
       label: "Troubleshooting",
       items: [
         "timeout",

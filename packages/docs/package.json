@@ -30,6 +30,7 @@
     "@remotion/lottie": "3.2.9",
     "@remotion/media-utils": "3.2.9",
     "@remotion/player": "3.2.9",
+    "@remotion/paths": "3.2.9",
     "@remotion/preload": "3.2.9",
     "@remotion/renderer": "3.2.9",
     "@remotion/skia": "3.2.9",

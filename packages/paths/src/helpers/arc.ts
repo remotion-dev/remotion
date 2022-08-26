@@ -1,6 +1,6 @@
 // Copied from: https://github.com/rveciana/svg-path-properties
 
-import type {Point, PointProperties, Properties} from './types';
+import type {Point, Properties} from './types';
 
 export const makeArc = ({
 	x0,
@@ -96,15 +96,8 @@ export const makeArc = ({
 		return {x: xDist / dist, y: yDist / dist};
 	};
 
-	const getPropertiesAtLength = (fractionLength: number): PointProperties => {
-		const tangent = getTangentAtLength(fractionLength);
-		const point = getPointAtLength(fractionLength);
-		return {x: point.x, y: point.y, tangentX: tangent.x, tangentY: tangent.y};
-	};
-
 	return {
 		getPointAtLength,
-		getPropertiesAtLength,
 		getTangentAtLength,
 		getTotalLength,
 	};

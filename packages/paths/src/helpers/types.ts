@@ -4,16 +4,14 @@ export interface Properties {
 	getTotalLength(): number;
 	getPointAtLength(pos: number): Point;
 	getTangentAtLength(pos: number): Point;
-	getPropertiesAtLength(pos: number): PointProperties;
 }
 
-export interface PartProperties {
+export interface Part {
 	start: Point;
 	end: Point;
 	length: number;
 	getPointAtLength(pos: number): Point;
 	getTangentAtLength(pos: number): Point;
-	getPropertiesAtLength(pos: number): PointProperties;
 }
 export interface Point {
 	x: number;
@@ -22,8 +20,6 @@ export interface Point {
 export type PointArray = [number, number];
 
 export interface PointProperties {
-	x: number;
-	y: number;
 	tangentX: number;
 	tangentY: number;
 }
