@@ -1,17 +1,18 @@
 import {construct} from './helpers/construct';
-import type {PartProperties} from './helpers/types';
+import type {Part} from './helpers/types';
 
-export const getParts = (p: string) => {
+export const getParts = (p: string): Part[] => {
 	const parts = [];
 	const constructed = construct(p);
 
 	let i = 0;
 	for (const fn of constructed.functions) {
 		if (!fn) {
+			i++;
 			continue;
 		}
 
-		const properties: PartProperties = {
+		const properties: Part = {
 			start: fn.getPointAtLength(0),
 			end: fn.getPointAtLength(
 				constructed.partial_lengths[i] - constructed.partial_lengths[i - 1]
@@ -20,7 +21,6 @@ export const getParts = (p: string) => {
 				constructed.partial_lengths[i] - constructed.partial_lengths[i - 1],
 			getPointAtLength: fn.getPointAtLength,
 			getTangentAtLength: fn.getTangentAtLength,
-			getPropertiesAtLength: fn.getPropertiesAtLength,
 		};
 		i++;
 		parts.push(properties);

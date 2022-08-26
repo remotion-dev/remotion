@@ -141,7 +141,7 @@ function reverseNormalizedPath(normalized: string) {
  * make use of, because it lets you reverse individual
  * subpaths in some <path> "d" attribute.
  */
-export const getReversedPath = (_path: string, _subpath?: number) => {
+export const reversePath = (_path: string, _subpath?: number) => {
 	const subpath = _subpath ?? false;
 	const path = normalizePath(_path);
 	let paths = path.replace(/M/g, '|M').split('|');
