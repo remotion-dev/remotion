@@ -1,3 +1,4 @@
+import {getPartAtLength} from './get-part-at-length';
 import {construct} from './helpers/construct';
 
 export const getTangentAtLength = (p: string, fractionLength: number) => {
