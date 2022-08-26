@@ -75,6 +75,7 @@ export const previewCommand = async (remotionRoot: string) => {
 	);
 
 	setLiveEventsListener(liveEventsServer);
+	Log.info(`Server running on http://localhost:${port}`);
 	betterOpn(`http://localhost:${port}`);
 	await new Promise(noop);
 };
