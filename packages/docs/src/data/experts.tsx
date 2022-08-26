@@ -26,7 +26,7 @@ export const experts: Expert[] = [
     twitter: "marcusstenbeck",
     github: "marcusstenbeck",
     linkedin: "in/mstenbeck/",
-    email: null,
+    email: "marcus.stenbeck+remotionexpert@gmail.com",
     description: (
       <div>
         About me: Animation Technology Engineer specialized in customizable
@@ -36,17 +36,33 @@ export const experts: Expert[] = [
           <a target={"_blank"} href="https://superclip.io">
             Superclip.io
           </a>
-          ,{" "}
-          <a target={"_blank"} href="https://lottievideo.com">
+          {" and "}
+          <a target={"_blank"} href="https://lottietovideo.com/">
             lottietovideo.com
-          </a>{" "}
-          and Remotion{"'"}s{" "}
-          <a
-            href="https://github.com/marcusstenbeck/remotion-template-audiogram"
-            target={"_blank"}
-          >
-            Audiogram template!
           </a>
+          {"!"}
+          <br />I also make opensource stuff:{" "}
+          <a
+            target={"_blank"}
+            href="https://github.com/marcusstenbeck/remotion-template-audiogram"
+          >
+            Remotion's Audiogram Template
+          </a>
+          {", "}
+          <a
+            target={"_blank"}
+            href="https://github.com/marcusstenbeck/remotion-transition-series"
+          >
+            Remotion's Transition Series
+          </a>
+          {" and "}
+          <a
+            target={"_blank"}
+            href="https://github.com/marcusstenbeck/remotion-audio-visualizers"
+          >
+            Remotion's Audio Visualizers
+          </a>
+          {"."}
         </p>
       </div>
     ),
@@ -56,7 +72,7 @@ export const experts: Expert[] = [
     name: "Matt McGillivray",
     image: "/img/freelancers/umungo.png",
     website: null,
-    twitter: "UmunugoBongo1",
+    twitter: "ProThatwas",
     github: "UmungoBungo",
     linkedin: "in/matthew-mcgillivray-68295a55",
     email: null,
@@ -87,10 +103,14 @@ export const experts: Expert[] = [
     description: (
       <div>
         I made:{" "}
-        <a href="https://florentpergoud.notion.site/Florent-Pergoud-s-Remotion-showcase-b0ef4299d389401aab21bbc62516cafe">
+        <a
+          target={"_blank"}
+          href="https://florentpergoud.notion.site/Florent-Pergoud-s-Remotion-showcase-b0ef4299d389401aab21bbc62516cafe"
+        >
           Hello Météo, HugoDécrypteSport, Crowdfunding VFB, Cinéma Le Vincennes
-          and Piano MIDI visualizer!
+          and Piano MIDI visualizer
         </a>
+        !
       </div>
     ),
   },
@@ -104,7 +124,11 @@ export const experts: Expert[] = [
     email: "stephen@middy.com",
     description: (
       <div>
-        I made: <a href="https://middy.com">https://middy.com</a>!
+        I made:{" "}
+        <a target={"_blank"} href="https://middy.com">
+          https://middy.com
+        </a>
+        !
       </div>
     ),
   },
@@ -118,11 +142,15 @@ export const experts: Expert[] = [
     email: "yo@mohitya.dev",
     description: (
       <div>
-        I made: <a href="https://mockoops.mohitya.dev">Mockoops</a>! <br />
-        Able to help you with: SaaS platform from scratch including SSR,
-        creating individual videos and templates, and creating integrations for
-        remotion with existing infrastructure. <br />
-        Availability: 4 to 5 hours/day on weekdays, 5 to 6 hours/day on weekends
+        I made:{" "}
+        <a target={"_blank"} href="https://mockoops.mohitya.dev">
+          Mockoops
+        </a>
+        ! <br />
+        My services: SaaS platform from scratch including SSR, creating
+        individual videos and templates, and creating integrations for remotion
+        with existing infrastructure <br />
+        Availability: 4 to 5 hours/day on weekdays, 5 to 6 hours/day on weekends{" "}
       </div>
     ),
   },
@@ -133,11 +161,14 @@ export const experts: Expert[] = [
     twitter: "KarelETH",
     github: "karelnagel",
     linkedin: "in/karelnagel/",
-    email: null,
+    email: "karel@karel.wtf",
     description: (
       <div>
-        I made: <a href="https://www.tiktok.com/@elommusd">TikTok automation</a>
-        , <a href="https://ensvideo.xyz/">ENS video</a>!
+        I made:{" "}
+        <a target={"_blank"} href="https://www.karel.wtf">
+          TikTok automation, ENS video
+        </a>{" "}
+        and many more!
       </div>
     ),
   },
