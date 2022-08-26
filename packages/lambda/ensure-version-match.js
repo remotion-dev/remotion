@@ -4,10 +4,10 @@ const fs = require('node:fs');
 cp.execSync('unzip -o remotionlambda.zip  -d extracted');
 const contents = fs.readFileSync('extracted/index.js', 'utf-8');
 fs.rmSync('extracted', {recursive: true});
-const [, inLambda] = contents.match(/CURRENT_VERSION = "(.*)"/);
+const [, inLambda] = contents.match(/exports\.VERSION = "(.*)"/);
 
-const inConstants = fs.readFileSync('dist/shared/constants.js', 'utf-8');
-const [, inPkg] = inConstants.match(/CURRENT_VERSION = '(.*)'/);
+const inConstants = fs.readFileSync('../core/dist/version.js', 'utf-8');
+const [, inPkg] = inConstants.match(/exports\.VERSION = '(.*)'/);
 
 if (inLambda !== inPkg) {
 	console.error(

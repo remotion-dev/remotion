@@ -3,8 +3,10 @@
  */
 import {render} from '@testing-library/react';
 import {describe, expect, test} from 'vitest';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
 import {Sequence} from '../Sequence';
 import {expectToThrow} from './expect-to-throw';
+import {WrapSequenceContext} from './wrap-sequence-context';
 
 describe('Composition-validation render should throw with invalid props', () => {
 	describe('Throw with invalid duration props', () => {
@@ -64,18 +66,26 @@ describe('Composition-validation render should NOT throw with valid props', () =
 	test('It should allow null as children', () => {
 		expect(() =>
 			render(
-				<Sequence durationInFrames={100} from={0}>
-					{null}
-				</Sequence>
+				<CanUseRemotionHooksProvider>
+					<WrapSequenceContext>
+						<Sequence durationInFrames={100} from={0}>
+							{null}
+						</Sequence>
+					</WrapSequenceContext>
+				</CanUseRemotionHooksProvider>
 			)
 		).not.toThrow();
 	});
 	test('It should allow undefined as children', () => {
 		expect(() =>
 			render(
-				<Sequence durationInFrames={100} from={0}>
-					{undefined}
-				</Sequence>
+				<CanUseRemotionHooksProvider>
+					<WrapSequenceContext>
+						<Sequence durationInFrames={100} from={0}>
+							{undefined}
+						</Sequence>
+					</WrapSequenceContext>
+				</CanUseRemotionHooksProvider>
 			)
 		).not.toThrow();
 	});

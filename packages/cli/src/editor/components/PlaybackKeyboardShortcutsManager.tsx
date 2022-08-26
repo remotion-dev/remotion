@@ -16,25 +16,15 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 				return -1;
 			}
 
-			if (prevPlaybackRate > 0) {
+			if (prevPlaybackRate > -1) {
 				return -1;
 			}
 
-			if (prevPlaybackRate === -1) {
+			if (prevPlaybackRate > -2) {
 				return -2;
 			}
 
-			if (prevPlaybackRate === -2) {
-				return -4;
-			}
-
-			if (prevPlaybackRate === -4) {
-				return -4;
-			}
-
-			throw new Error(
-				'unexpected previous playrate when pressing J: ' + prevPlaybackRate
-			);
+			return -4;
 		});
 		play();
 	}, [play, playing, setPlaybackRate]);
@@ -50,25 +40,15 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 				return 1;
 			}
 
-			if (prevPlaybackRate < 0) {
+			if (prevPlaybackRate < 1) {
 				return 1;
 			}
 
-			if (prevPlaybackRate === 1) {
+			if (prevPlaybackRate < 2) {
 				return 2;
 			}
 
-			if (prevPlaybackRate === 2) {
-				return 4;
-			}
-
-			if (prevPlaybackRate === 4) {
-				return 4;
-			}
-
-			throw new Error(
-				'unexpected previous playrate when pressing L: ' + prevPlaybackRate
-			);
+			return 4;
 		});
 		play();
 	}, [play, playing, setPlaybackRate]);
