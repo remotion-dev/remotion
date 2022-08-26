@@ -46,10 +46,9 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		() =>
 			`video-${random(props.src ?? '')}-${sequenceContext?.cumulatedFrom}-${
 				sequenceContext?.relativeFrom
-			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
+			}-${sequenceContext?.durationInFrames}`,
 		[
 			props.src,
-			props.muted,
 			sequenceContext?.cumulatedFrom,
 			sequenceContext?.relativeFrom,
 			sequenceContext?.durationInFrames,
