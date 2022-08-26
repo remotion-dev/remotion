@@ -46,12 +46,11 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	// but at the same time the same on all threads
 	const id = useMemo(
 		() =>
-			`video-${random(src ?? '')}-${sequenceContext?.cumulatedFrom}-${
+			`offthreadvideo-${random(src ?? '')}-${sequenceContext?.cumulatedFrom}-${
 				sequenceContext?.relativeFrom
-			}-${sequenceContext?.durationInFrames}-muted:${muted}`,
+			}-${sequenceContext?.durationInFrames}`,
 		[
 			src,
-			muted,
 			sequenceContext?.cumulatedFrom,
 			sequenceContext?.relativeFrom,
 			sequenceContext?.durationInFrames,
@@ -78,6 +77,10 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		}
 
 		if (muted) {
+			return;
+		}
+
+		if (volume <= 0) {
 			return;
 		}
 
