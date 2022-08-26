@@ -10,16 +10,25 @@ import {
 	t2length,
 } from './bezier-functions';
 
-export const makeBezier = (
-	ax: number,
-	ay: number,
-	bx: number,
-	by: number,
-	cx: number,
-	cy: number,
-	dx: number | null,
-	dy: number | null
-) => {
+export const makeBezier = ({
+	ax,
+	ay,
+	bx,
+	by,
+	cx,
+	cy,
+	dx,
+	dy,
+}: {
+	ax: number;
+	ay: number;
+	bx: number;
+	by: number;
+	cx: number;
+	cy: number;
+	dx: number | null;
+	dy: number | null;
+}) => {
 	let d: Point;
 	let getArcLength: (xs: number[], ys: number[], t: number) => number;
 	let getPoint: (xs: number[], ys: number[], t: number) => Point;

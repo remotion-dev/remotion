@@ -78,30 +78,30 @@ export const construct = (string: string) => {
 			cur = [ringStart[0], ringStart[1]];
 			// Cubic Bezier curves
 		} else if (parsed[i][0] === 'C') {
-			curve = makeBezier(
-				cur[0],
-				cur[1],
-				parsed[i][1],
-				parsed[i][2],
-				parsed[i][3],
-				parsed[i][4],
-				parsed[i][5],
-				parsed[i][6]
-			);
+			curve = makeBezier({
+				ax: cur[0],
+				ay: cur[1],
+				bx: parsed[i][1],
+				by: parsed[i][2],
+				cx: parsed[i][3],
+				cy: parsed[i][4],
+				dx: parsed[i][5],
+				dy: parsed[i][6],
+			});
 			length += curve.getTotalLength();
 			cur = [parsed[i][5], parsed[i][6]];
 			functions.push(curve);
 		} else if (parsed[i][0] === 'c') {
-			curve = makeBezier(
-				cur[0],
-				cur[1],
-				cur[0] + parsed[i][1],
-				cur[1] + parsed[i][2],
-				cur[0] + parsed[i][3],
-				cur[1] + parsed[i][4],
-				cur[0] + parsed[i][5],
-				cur[1] + parsed[i][6]
-			);
+			curve = makeBezier({
+				ax: cur[0],
+				ay: cur[1],
+				bx: cur[0] + parsed[i][1],
+				by: cur[1] + parsed[i][2],
+				cx: cur[0] + parsed[i][3],
+				cy: cur[1] + parsed[i][4],
+				dx: cur[0] + parsed[i][5],
+				dy: cur[1] + parsed[i][6],
+			});
 			if (curve.getTotalLength() > 0) {
 				length += curve.getTotalLength();
 				functions.push(curve);
@@ -113,28 +113,28 @@ export const construct = (string: string) => {
 			if (i > 0 && ['C', 'c', 'S', 's'].indexOf(parsed[i - 1][0]) > -1) {
 				if (curve) {
 					const c = curve.getC();
-					curve = makeBezier(
-						cur[0],
-						cur[1],
-						2 * cur[0] - c.x,
-						2 * cur[1] - c.y,
-						parsed[i][1],
-						parsed[i][2],
-						parsed[i][3],
-						parsed[i][4]
-					);
+					curve = makeBezier({
+						ax: cur[0],
+						ay: cur[1],
+						bx: 2 * cur[0] - c.x,
+						by: 2 * cur[1] - c.y,
+						cx: parsed[i][1],
+						cy: parsed[i][2],
+						dx: parsed[i][3],
+						dy: parsed[i][4],
+					});
 				}
 			} else {
-				curve = makeBezier(
-					cur[0],
-					cur[1],
-					cur[0],
-					cur[1],
-					parsed[i][1],
-					parsed[i][2],
-					parsed[i][3],
-					parsed[i][4]
-				);
+				curve = makeBezier({
+					ax: cur[0],
+					ay: cur[1],
+					bx: cur[0],
+					by: cur[1],
+					cx: parsed[i][1],
+					cy: parsed[i][2],
+					dx: parsed[i][3],
+					dy: parsed[i][4],
+				});
 			}
 
 			if (curve) {
@@ -148,28 +148,28 @@ export const construct = (string: string) => {
 				if (curve) {
 					const c = curve.getC();
 					const d = curve.getD();
-					curve = makeBezier(
-						cur[0],
-						cur[1],
-						cur[0] + d.x - c.x,
-						cur[1] + d.y - c.y,
-						cur[0] + parsed[i][1],
-						cur[1] + parsed[i][2],
-						cur[0] + parsed[i][3],
-						cur[1] + parsed[i][4]
-					);
+					curve = makeBezier({
+						ax: cur[0],
+						ay: cur[1],
+						bx: cur[0] + d.x - c.x,
+						by: cur[1] + d.y - c.y,
+						cx: cur[0] + parsed[i][1],
+						cy: cur[1] + parsed[i][2],
+						dx: cur[0] + parsed[i][3],
+						dy: cur[1] + parsed[i][4],
+					});
 				}
 			} else {
-				curve = makeBezier(
-					cur[0],
-					cur[1],
-					cur[0],
-					cur[1],
-					cur[0] + parsed[i][1],
-					cur[1] + parsed[i][2],
-					cur[0] + parsed[i][3],
-					cur[1] + parsed[i][4]
-				);
+				curve = makeBezier({
+					ax: cur[0],
+					ay: cur[1],
+					bx: cur[0],
+					by: cur[1],
+					cx: cur[0] + parsed[i][1],
+					cy: cur[1] + parsed[i][2],
+					dx: cur[0] + parsed[i][3],
+					dy: cur[1] + parsed[i][4],
+				});
 			}
 
 			if (curve) {
@@ -190,16 +190,16 @@ export const construct = (string: string) => {
 				length += linearCurve.getTotalLength();
 				functions.push(linearCurve);
 			} else {
-				curve = makeBezier(
-					cur[0],
-					cur[1],
-					parsed[i][1],
-					parsed[i][2],
-					parsed[i][3],
-					parsed[i][4],
-					null,
-					null
-				);
+				curve = makeBezier({
+					ax: cur[0],
+					ay: cur[1],
+					bx: parsed[i][1],
+					by: parsed[i][2],
+					cx: parsed[i][3],
+					cy: parsed[i][4],
+					dx: null,
+					dy: null,
+				});
 				length += curve.getTotalLength();
 				functions.push(curve);
 			}
@@ -217,16 +217,16 @@ export const construct = (string: string) => {
 				length += linearCurve.getTotalLength();
 				functions.push(linearCurve);
 			} else {
-				curve = makeBezier(
-					cur[0],
-					cur[1],
-					cur[0] + parsed[i][1],
-					cur[1] + parsed[i][2],
-					cur[0] + parsed[i][3],
-					cur[1] + parsed[i][4],
-					null,
-					null
-				);
+				curve = makeBezier({
+					ax: cur[0],
+					ay: cur[1],
+					bx: cur[0] + parsed[i][1],
+					by: cur[1] + parsed[i][2],
+					cx: cur[0] + parsed[i][3],
+					cy: cur[1] + parsed[i][4],
+					dx: null,
+					dy: null,
+				});
 				length += curve.getTotalLength();
 				functions.push(curve);
 			}
@@ -235,16 +235,16 @@ export const construct = (string: string) => {
 			cur = [parsed[i][3] + cur[0], parsed[i][4] + cur[1]];
 		} else if (parsed[i][0] === 'T') {
 			if (i > 0 && ['Q', 'q', 'T', 't'].indexOf(parsed[i - 1][0]) > -1) {
-				curve = makeBezier(
-					cur[0],
-					cur[1],
-					2 * cur[0] - prev_point[0],
-					2 * cur[1] - prev_point[1],
-					parsed[i][1],
-					parsed[i][2],
-					null,
-					null
-				);
+				curve = makeBezier({
+					ax: cur[0],
+					ay: cur[1],
+					bx: 2 * cur[0] - prev_point[0],
+					by: 2 * cur[1] - prev_point[1],
+					cx: parsed[i][1],
+					cy: parsed[i][2],
+					dx: null,
+					dy: null,
+				});
 				functions.push(curve);
 				length += curve.getTotalLength();
 			} else {
@@ -262,16 +262,16 @@ export const construct = (string: string) => {
 			cur = [parsed[i][1], parsed[i][2]];
 		} else if (parsed[i][0] === 't') {
 			if (i > 0 && ['Q', 'q', 'T', 't'].indexOf(parsed[i - 1][0]) > -1) {
-				curve = makeBezier(
-					cur[0],
-					cur[1],
-					2 * cur[0] - prev_point[0],
-					2 * cur[1] - prev_point[1],
-					cur[0] + parsed[i][1],
-					cur[1] + parsed[i][2],
-					null,
-					null
-				);
+				curve = makeBezier({
+					ax: cur[0],
+					ay: cur[1],
+					bx: 2 * cur[0] - prev_point[0],
+					by: 2 * cur[1] - prev_point[1],
+					cx: cur[0] + parsed[i][1],
+					cy: cur[1] + parsed[i][2],
+					dx: null,
+					dy: null,
+				});
 				length += curve.getTotalLength();
 				functions.push(curve);
 			} else {
