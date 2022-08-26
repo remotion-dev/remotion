@@ -1,109 +1,113 @@
-import type { Properties, Point } from "./types";
+import type {Point} from './types';
 
 import {
-  cubicPoint,
-  getCubicArcLength,
-  cubicDerivative,
-  getQuadraticArcLength,
-  quadraticPoint,
-  quadraticDerivative,
-  t2length
-} from "./bezier-functions";
+	cubicDerivative,
+	cubicPoint,
+	getCubicArcLength,
+	getQuadraticArcLength,
+	quadraticDerivative,
+	quadraticPoint,
+	t2length,
+} from './bezier-functions';
 
-export class Bezier implements Properties {
-  private a: Point;
-  private b: Point;
-  private c: Point;
-  private d: Point;
-  private length: number;
-  private getArcLength: (xs: number[], ys: number[], t: number) => number;
-  private getPoint: (xs: number[], ys: number[], t: number) => Point;
-  private getDerivative: (xs: number[], ys: number[], t: number) => Point;
-  constructor(
-    ax: number,
-    ay: number,
-    bx: number,
-    by: number,
-    cx: number,
-    cy: number,
-    dx: number | undefined,
-    dy: number | undefined
-  ) {
-    this.a = { x: ax, y: ay };
-    this.b = { x: bx, y: by };
-    this.c = { x: cx, y: cy };
+export const makeBezier = (
+	ax: number,
+	ay: number,
+	bx: number,
+	by: number,
+	cx: number,
+	cy: number,
+	dx: number | null,
+	dy: number | null
+) => {
+	let d: Point;
+	let getArcLength: (xs: number[], ys: number[], t: number) => number;
+	let getPoint: (xs: number[], ys: number[], t: number) => Point;
+	let getDerivative: (xs: number[], ys: number[], t: number) => Point;
 
-    if (dx !== undefined && dy !== undefined) {
-      this.getArcLength = getCubicArcLength;
-      this.getPoint = cubicPoint;
-      this.getDerivative = cubicDerivative;
-      this.d = { x: dx, y: dy };
-    } else {
-      this.getArcLength = getQuadraticArcLength;
-      this.getPoint = quadraticPoint;
-      this.getDerivative = quadraticDerivative;
-      this.d = { x: 0, y: 0 };
-    }
+	const a = {x: ax, y: ay};
+	const b = {x: bx, y: by};
+	const c = {x: cx, y: cy};
 
-    this.length = this.getArcLength(
-      [this.a.x, this.b.x, this.c.x, this.d.x],
-      [this.a.y, this.b.y, this.c.y, this.d.y],
-      1
-    );
-  }
+	if (dx !== null && dy !== null) {
+		getArcLength = getCubicArcLength;
+		getPoint = cubicPoint;
+		getDerivative = cubicDerivative;
+		d = {x: dx, y: dy};
+	} else {
+		getArcLength = getQuadraticArcLength;
+		getPoint = quadraticPoint;
+		getDerivative = quadraticDerivative;
+		d = {x: 0, y: 0};
+	}
 
-  public getTotalLength = () => {
-    return this.length;
-  };
+	const length = getArcLength([a.x, b.x, c.x, d.x], [a.y, b.y, c.y, d.y], 1);
 
-  public getPointAtLength = (length: number) => {
-    const xs = [this.a.x, this.b.x, this.c.x, this.d.x];
-    const xy = [this.a.y, this.b.y, this.c.y, this.d.y];
-    const t = t2length(length, this.length, i => this.getArcLength(xs, xy, i));
+	const getTotalLength = () => {
+		return length;
+	};
 
-    return this.getPoint(xs, xy, t);
-  };
+	const getPointAtLength = (len: number) => {
+		const xs = [a.x, b.x, c.x, d.x];
+		const xy = [a.y, b.y, c.y, d.y];
+		const t = t2length(len, len, (i) => getArcLength(xs, xy, i));
 
-  public getTangentAtLength = (length: number) => {
-    const xs = [this.a.x, this.b.x, this.c.x, this.d.x];
-    const xy = [this.a.y, this.b.y, this.c.y, this.d.y];
-    const t = t2length(length, this.length, i => this.getArcLength(xs, xy, i));
+		return getPoint(xs, xy, t);
+	};
 
-    const derivative = this.getDerivative(xs, xy, t);
-    const mdl = Math.sqrt(derivative.x * derivative.x + derivative.y * derivative.y);
-    let tangent: Point;
-    if (mdl > 0) {
-      tangent = { x: derivative.x / mdl, y: derivative.y / mdl };
-    } else {
-      tangent = { x: 0, y: 0 };
-    }
+	const getTangentAtLength = (len: number) => {
+		const xs = [a.x, b.x, c.x, d.x];
+		const xy = [a.y, b.y, c.y, d.y];
+		const t = t2length(len, len, (i) => getArcLength(xs, xy, i));
 
-    return tangent;
-  };
+		const derivative = getDerivative(xs, xy, t);
+		const mdl = Math.sqrt(
+			derivative.x * derivative.x + derivative.y * derivative.y
+		);
+		let tangent: Point;
+		if (mdl > 0) {
+			tangent = {x: derivative.x / mdl, y: derivative.y / mdl};
+		} else {
+			tangent = {x: 0, y: 0};
+		}
 
-  public getPropertiesAtLength = (length: number) => {
-    const xs = [this.a.x, this.b.x, this.c.x, this.d.x];
-    const xy = [this.a.y, this.b.y, this.c.y, this.d.y];
-    const t = t2length(length, this.length, i => this.getArcLength(xs, xy, i));
+		return tangent;
+	};
 
-    const derivative = this.getDerivative(xs, xy, t);
-    const mdl = Math.sqrt(derivative.x * derivative.x + derivative.y * derivative.y);
-    let tangent: Point;
-    if (mdl > 0) {
-      tangent = { x: derivative.x / mdl, y: derivative.y / mdl };
-    } else {
-      tangent = { x: 0, y: 0 };
-    }
+	const getPropertiesAtLength = (len: number) => {
+		const xs = [a.x, b.x, c.x, d.x];
+		const xy = [a.y, b.y, c.y, d.y];
+		const t = t2length(len, len, (i) => getArcLength(xs, xy, i));
 
-    const point = this.getPoint(xs, xy, t);
-    return { x: point.x, y: point.y, tangentX: tangent.x, tangentY: tangent.y };
-  };
+		const derivative = getDerivative(xs, xy, t);
+		const mdl = Math.sqrt(
+			derivative.x * derivative.x + derivative.y * derivative.y
+		);
+		let tangent: Point;
+		if (mdl > 0) {
+			tangent = {x: derivative.x / mdl, y: derivative.y / mdl};
+		} else {
+			tangent = {x: 0, y: 0};
+		}
 
-  public getC = () => {
-    return this.c;
-  };
+		const point = getPoint(xs, xy, t);
+		return {x: point.x, y: point.y, tangentX: tangent.x, tangentY: tangent.y};
+	};
 
-  public getD = () => {
-    return this.d;
-  };
-}
+	const getC = () => {
+		return c;
+	};
+
+	const getD = () => {
+		return d;
+	};
+
+	return {
+		getPointAtLength,
+		getPropertiesAtLength,
+		getTangentAtLength,
+		getTotalLength,
+		getC,
+		getD,
+	};
+};
