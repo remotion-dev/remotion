@@ -144,6 +144,10 @@ export const MyVideo = () => {
 
 Note that if you pass in a callback function, the first frame on which audio is being played is always the frame `0`.
 
+:::note
+When using the [`<Player>`](/docs/player), note that Mobile Safari [does not support the `volume` property](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/Using_HTML5_Audio_Video/Device-SpecificConsiderations/Device-SpecificConsiderations.html#//apple_ref/doc/uid/TP40009523-CH5-SW11). The audio mix may not play as intended.
+:::
+
 ## `muted` property
 
 You may pass in the `muted` and it may change over time. When `muted` is true, audio will be omitted at that time. In the following example, we are muting the track between frame 40 and 60.

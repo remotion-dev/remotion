@@ -1,6 +1,7 @@
+import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
-import type { RenderProgress} from '../shared/constants';
+import type {RenderProgress} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 
 export type GetRenderInput = {
@@ -31,6 +32,7 @@ export const getRenderProgress = async ({
 		payload: {
 			bucketName,
 			renderId,
+			version: VERSION,
 		},
 		region,
 	});
