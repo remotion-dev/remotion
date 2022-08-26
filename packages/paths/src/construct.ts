@@ -1,5 +1,5 @@
-import {Arc} from './arc';
-import {Bezier} from './bezier';
+import {makeArc} from './arc';
+import {makeBezier} from './bezier';
 import {makeLinearPosition} from './linear';
 import parse from './parse';
 import type {Point, PointArray, Properties} from './types';
@@ -12,7 +12,7 @@ export const construct = (string: string) => {
 	const parsed = parse(string);
 	let cur: PointArray = [0, 0];
 	let prev_point: PointArray = [0, 0];
-	let curve: Bezier | undefined;
+	let curve: ReturnType<typeof makeBezier> | undefined;
 	let ringStart: PointArray = [0, 0];
 	for (let i = 0; i < parsed.length; i++) {
 		// moveTo
@@ -78,7 +78,7 @@ export const construct = (string: string) => {
 			cur = [ringStart[0], ringStart[1]];
 			// Cubic Bezier curves
 		} else if (parsed[i][0] === 'C') {
-			curve = new Bezier(
+			curve = makeBezier(
 				cur[0],
 				cur[1],
 				parsed[i][1],
@@ -92,7 +92,7 @@ export const construct = (string: string) => {
 			cur = [parsed[i][5], parsed[i][6]];
 			functions.push(curve);
 		} else if (parsed[i][0] === 'c') {
-			curve = new Bezier(
+			curve = makeBezier(
 				cur[0],
 				cur[1],
 				cur[0] + parsed[i][1],
@@ -113,7 +113,7 @@ export const construct = (string: string) => {
 			if (i > 0 && ['C', 'c', 'S', 's'].indexOf(parsed[i - 1][0]) > -1) {
 				if (curve) {
 					const c = curve.getC();
-					curve = new Bezier(
+					curve = makeBezier(
 						cur[0],
 						cur[1],
 						2 * cur[0] - c.x,
@@ -125,7 +125,7 @@ export const construct = (string: string) => {
 					);
 				}
 			} else {
-				curve = new Bezier(
+				curve = makeBezier(
 					cur[0],
 					cur[1],
 					cur[0],
@@ -148,7 +148,7 @@ export const construct = (string: string) => {
 				if (curve) {
 					const c = curve.getC();
 					const d = curve.getD();
-					curve = new Bezier(
+					curve = makeBezier(
 						cur[0],
 						cur[1],
 						cur[0] + d.x - c.x,
@@ -160,7 +160,7 @@ export const construct = (string: string) => {
 					);
 				}
 			} else {
-				curve = new Bezier(
+				curve = makeBezier(
 					cur[0],
 					cur[1],
 					cur[0],
@@ -190,15 +190,15 @@ export const construct = (string: string) => {
 				length += linearCurve.getTotalLength();
 				functions.push(linearCurve);
 			} else {
-				curve = new Bezier(
+				curve = makeBezier(
 					cur[0],
 					cur[1],
 					parsed[i][1],
 					parsed[i][2],
 					parsed[i][3],
 					parsed[i][4],
-					undefined,
-					undefined
+					null,
+					null
 				);
 				length += curve.getTotalLength();
 				functions.push(curve);
@@ -217,15 +217,15 @@ export const construct = (string: string) => {
 				length += linearCurve.getTotalLength();
 				functions.push(linearCurve);
 			} else {
-				curve = new Bezier(
+				curve = makeBezier(
 					cur[0],
 					cur[1],
 					cur[0] + parsed[i][1],
 					cur[1] + parsed[i][2],
 					cur[0] + parsed[i][3],
 					cur[1] + parsed[i][4],
-					undefined,
-					undefined
+					null,
+					null
 				);
 				length += curve.getTotalLength();
 				functions.push(curve);
@@ -235,15 +235,15 @@ export const construct = (string: string) => {
 			cur = [parsed[i][3] + cur[0], parsed[i][4] + cur[1]];
 		} else if (parsed[i][0] === 'T') {
 			if (i > 0 && ['Q', 'q', 'T', 't'].indexOf(parsed[i - 1][0]) > -1) {
-				curve = new Bezier(
+				curve = makeBezier(
 					cur[0],
 					cur[1],
 					2 * cur[0] - prev_point[0],
 					2 * cur[1] - prev_point[1],
 					parsed[i][1],
 					parsed[i][2],
-					undefined,
-					undefined
+					null,
+					null
 				);
 				functions.push(curve);
 				length += curve.getTotalLength();
@@ -262,15 +262,15 @@ export const construct = (string: string) => {
 			cur = [parsed[i][1], parsed[i][2]];
 		} else if (parsed[i][0] === 't') {
 			if (i > 0 && ['Q', 'q', 'T', 't'].indexOf(parsed[i - 1][0]) > -1) {
-				curve = new Bezier(
+				curve = makeBezier(
 					cur[0],
 					cur[1],
 					2 * cur[0] - prev_point[0],
 					2 * cur[1] - prev_point[1],
 					cur[0] + parsed[i][1],
 					cur[1] + parsed[i][2],
-					undefined,
-					undefined
+					null,
+					null
 				);
 				length += curve.getTotalLength();
 				functions.push(curve);
@@ -288,33 +288,33 @@ export const construct = (string: string) => {
 			prev_point = [2 * cur[0] - prev_point[0], 2 * cur[1] - prev_point[1]];
 			cur = [parsed[i][1] + cur[0], parsed[i][2] + cur[1]];
 		} else if (parsed[i][0] === 'A') {
-			const arcCurve = new Arc(
-				cur[0],
-				cur[1],
-				parsed[i][1],
-				parsed[i][2],
-				parsed[i][3],
-				parsed[i][4] === 1,
-				parsed[i][5] === 1,
-				parsed[i][6],
-				parsed[i][7]
-			);
+			const arcCurve = makeArc({
+				x0: cur[0],
+				y0: cur[1],
+				rx: parsed[i][1],
+				ry: parsed[i][2],
+				xAxisRotate: parsed[i][3],
+				LargeArcFlag: parsed[i][4] === 1,
+				SweepFlag: parsed[i][5] === 1,
+				x1: parsed[i][6],
+				y1: parsed[i][7],
+			});
 
 			length += arcCurve.getTotalLength();
 			cur = [parsed[i][6], parsed[i][7]];
 			functions.push(arcCurve);
 		} else if (parsed[i][0] === 'a') {
-			const arcCurve = new Arc(
-				cur[0],
-				cur[1],
-				parsed[i][1],
-				parsed[i][2],
-				parsed[i][3],
-				parsed[i][4] === 1,
-				parsed[i][5] === 1,
-				cur[0] + parsed[i][6],
-				cur[1] + parsed[i][7]
-			);
+			const arcCurve = makeArc({
+				x0: cur[0],
+				y0: cur[1],
+				rx: parsed[i][1],
+				ry: parsed[i][2],
+				xAxisRotate: parsed[i][3],
+				LargeArcFlag: parsed[i][4] === 1,
+				SweepFlag: parsed[i][5] === 1,
+				x1: cur[0] + parsed[i][6],
+				y1: cur[1] + parsed[i][7],
+			});
 
 			length += arcCurve.getTotalLength();
 			cur = [cur[0] + parsed[i][6], cur[1] + parsed[i][7]];
