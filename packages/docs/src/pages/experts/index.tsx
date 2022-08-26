@@ -17,11 +17,6 @@ const dateString = (date: Date) =>
 
 const todayHash = dateString(new Date());
 
-const socialmediaLogo: React.CSSProperties = {
-  height: 24,
-  marginRight: 6,
-};
-
 const docsButton: React.CSSProperties = {
   textDecoration: "none",
 };
