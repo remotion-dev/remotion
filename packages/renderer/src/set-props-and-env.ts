@@ -1,3 +1,4 @@
+import {VERSION} from 'remotion/version';
 import type {Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {normalizeServeUrl} from './normalize-serve-url';
@@ -136,11 +137,32 @@ export const setPropsAndEnv = async ({
 		page,
 	});
 
+	const remotionVersion = await puppeteerEvaluateWithCatch<string>({
+		pageFunction: () => {
+			return window.remotion_version;
+		},
+		args: [],
+		frame: null,
+		page,
+	});
+
 	const requiredVersion = '4';
 
 	if (siteVersion !== requiredVersion) {
 		throw new Error(
 			`Incompatible site: When visiting ${urlToVisit}, a bundle was found, but one that is not compatible with this version of Remotion. Found version: ${siteVersion} - Required version: ${requiredVersion}. To resolve this error, please bundle and deploy again.`
 		);
+	}
+
+	if (remotionVersion !== VERSION) {
+		if (remotionVersion) {
+			console.warn(
+				`The site was bundled with version ${remotionVersion} of @remotion/bundler, while @remotion/renderer is on version ${VERSION}. You may not have the newest bugfixes and features. Re-bundle the site to fix this issue.`
+			);
+		} else {
+			console.warn(
+				`The site was bundled with an old version of Remotion, while @remotion/renderer is on version ${VERSION}. You may not have the newest bugfixes and features. Re-bundle the site to fix this issue.`
+			);
+		}
 	}
 };

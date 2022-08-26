@@ -22,10 +22,11 @@ declare global {
 		remotion_envVariables: string;
 		remotion_collectAssets: () => TAsset[];
 		remotion_isPlayer: boolean;
-		remotion_imported: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
 		siteVersion: '4';
+		remotion_version: string;
+		remotion_imported: string | boolean;
 	}
 }
 
@@ -39,6 +40,11 @@ export type BundleState =
 	| {
 			type: 'composition';
 			compositionName: string;
+			compositionDefaultProps: unknown;
+			compositionHeight: number;
+			compositionDurationInFrames: number;
+			compositionWidth: number;
+			compositionFps: number;
 	  };
 
 checkMultipleRemotionVersions();
@@ -69,5 +75,6 @@ export * from './Still';
 export type {PlayableMediaTag} from './timeline-position-state';
 export {useCurrentFrame} from './use-current-frame';
 export * from './use-video-config';
+export * from './version';
 export * from './video';
 export * from './video-config';

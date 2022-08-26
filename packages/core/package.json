@@ -1,16 +1,16 @@
 {
 	"name": "remotion",
-	"version": "3.2.3",
+	"version": "3.2.9",
 	"description": "Render videos in React",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
+		"prepublish": "node ensure-correct-version.js && cp ../../README.md .",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
 		"build": "tsc -d",
-		"watch": "tsc -w",
-		"prerelease": "cp ../../README.md ."
+		"watch": "tsc -w"
 	},
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
@@ -53,5 +53,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"gitHead": "f0f1e39c890ea9451597e77870310646ee5fcf67"
 }

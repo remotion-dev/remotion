@@ -40,6 +40,16 @@ const barBackground: React.CSSProperties = {
 	borderRadius: BAR_HEIGHT / 2,
 };
 
+const findBodyInWhichDivIsLocated = (div: HTMLElement) => {
+	let current = div;
+
+	while (current.parentElement) {
+		current = current.parentElement;
+	}
+
+	return current;
+};
+
 export const PlayerSeekBar: React.FC<{
 	durationInFrames: number;
 }> = ({durationInFrames}) => {
@@ -125,11 +135,15 @@ export const PlayerSeekBar: React.FC<{
 			return;
 		}
 
-		window.addEventListener('pointermove', onPointerMove);
-		window.addEventListener('pointerup', onPointerUp);
+		const body = findBodyInWhichDivIsLocated(
+			containerRef.current as HTMLElement
+		);
+
+		body.addEventListener('pointermove', onPointerMove);
+		body.addEventListener('pointerup', onPointerUp);
 		return () => {
-			window.removeEventListener('pointermove', onPointerMove);
-			window.removeEventListener('pointerup', onPointerUp);
+			body.removeEventListener('pointermove', onPointerMove);
+			body.removeEventListener('pointerup', onPointerUp);
 		};
 	}, [dragging.dragging, onPointerMove, onPointerUp]);
 
