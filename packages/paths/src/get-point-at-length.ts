@@ -1,5 +1,5 @@
-import {getPartAtLength} from './get-part-at-length';
 import {construct} from './helpers/construct';
+import {getPartAtLength} from './helpers/get-part-at-length';
 
 export const getPointAtLength = (p: string, fractionLength: number) => {
 	const constructed = construct(p);

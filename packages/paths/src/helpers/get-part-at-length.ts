@@ -1,4 +1,4 @@
-import {construct} from './helpers/construct';
+import {construct} from './construct';
 
 export const getPartAtLength = (p: string, fractionLength: number) => {
 	const constructed = construct(p);
