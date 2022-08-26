@@ -75,6 +75,10 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
+		if (volume <= 0) {
+			return;
+		}
+
 		if (!window.remotion_audioEnabled) {
 			return;
 		}
