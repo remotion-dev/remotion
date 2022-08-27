@@ -27,3 +27,4 @@ Source code stems mostly from [d3-interpolate-path](https://github.com/pbeshai/d
 ## See also
 
 - [`@remotion/paths`](/docs/paths)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/interpolate-path.ts)
