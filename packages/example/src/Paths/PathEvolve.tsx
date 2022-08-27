@@ -18,8 +18,8 @@ const PathEvolve: React.FC = () => {
 		},
 	});
 
-	const evolution1 = evolvePath(path1, spr);
-	const evolution2 = evolvePath(path2, spr);
+	const evolution1 = evolvePath(spr, path1);
+	const evolution2 = evolvePath(spr, path2);
 
 	return (
 		<AbsoluteFill>
