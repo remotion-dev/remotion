@@ -22,3 +22,7 @@ import { normalizePath } from "@remotion/paths";
 // ---cut---
 normalizePath("remotion"); // Error: Malformed path data: ...
 ```
+
+## See also
+
+- [`@remotion/paths`](/docs/paths)

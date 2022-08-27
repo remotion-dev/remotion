@@ -9,7 +9,7 @@ A package providing utility functions for dealing with SVG paths. This package c
 - Documentation with examples
 - ESM import style
 
-No dependencies are needed, meaning this package can be used independently of Remotion. Its license is MIT.
+No dependencies are needed, meaning this package can be used independently of Remotion.
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
@@ -55,3 +55,7 @@ yarn add @remotion/paths
 - [`reversePath()`](/docs/paths/reverse-path)
 - [`normalizePath()`](/docs/paths/normalize-path)
 - [`getTangentAtLength()`](/docs/paths/get-tangent-at-length)
+
+## License
+
+MIT

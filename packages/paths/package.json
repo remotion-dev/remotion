@@ -10,7 +10,7 @@
 		"build": "tsc -d",
 		"test": "vitest --run"
 	},
-	"author": "",
+	"author": "Jonny Burger <jonny@remtoin.dev>",
 	"license": "MIT",
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
