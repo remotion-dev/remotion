@@ -8,22 +8,31 @@ Credit to [Marcus Stenbeck](https://twitter.com/marcusstenbeck) for creating thi
 
 This snippet is useful if you want to isolate the global styles of your homepage from the global styles of the [`<Player>`](/docs/player), for example if you are using TailwindCSS.
 
-Don't forget to give your `<Player>` a `className` of `__player` if you use this snippet.
+  
+```diff title="Usage"
+- import { Player } from '@remotion/player';
++ import { IframePlayer } from 'path/to/IframePlayer';
 
-```tsx title="IframePlayerWrapper.tsx"
-import React, { useEffect, useRef, useState } from "react";
-import ReactDOM from "react-dom";
+- <Player {/* ... */} />
++ <IframePlayer {/* ... */} />
+```
 
-const className = "__player";
+```tsx title="IframePlayer.tsx"
+import { Player } from '@remotion/player';
+import React, { ComponentProps, useEffect, useRef, useState } from 'react';
+import ReactDOM from 'react-dom';
+
+const className = '__player';
 const borderNone: React.CSSProperties = {
-  border: "none",
+  border: 'none',
 };
 
-export const IframePlayerWrapper: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const IframedPlayer: React.FC<ComponentProps<typeof Player>> = (
+  props
+) => {
   const [contentRef, setContentRef] = useState<HTMLIFrameElement | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
+  const playerRef = useRef<HTMLDivElement | null>(null);
 
   const mountNode = contentRef?.contentDocument?.body;
 
@@ -31,8 +40,8 @@ export const IframePlayerWrapper: React.FC<{ children: React.ReactNode }> = ({
     if (!contentRef || !contentRef.contentDocument) return;
 
     // Remove margin and padding so player fits snugly
-    contentRef.contentDocument.body.style.margin = "0";
-    contentRef.contentDocument.body.style.padding = "0";
+    contentRef.contentDocument.body.style.margin = '0';
+    contentRef.contentDocument.body.style.padding = '0';
 
     // When player div is resized also resize iframe
     resizeObserverRef.current = new ResizeObserver(([playerEntry]) => {
@@ -43,9 +52,8 @@ export const IframePlayerWrapper: React.FC<{ children: React.ReactNode }> = ({
 
     // The remotion player element
     const playerElement = contentRef.contentDocument.querySelector(
-      "." + className
+      '.' + className
     );
-
     if (!playerElement) {
       throw new Error(
         'Player element not found. Add a "' +
@@ -53,10 +61,8 @@ export const IframePlayerWrapper: React.FC<{ children: React.ReactNode }> = ({
           '" class to the <Player>.'
       );
     }
-
     // Watch the player element for size changes
     resizeObserverRef.current.observe(playerElement as Element);
-
     return () => {
       // ContentRef changed: unobserve!
       (resizeObserverRef.current as ResizeObserver).unobserve(
@@ -65,21 +71,19 @@ export const IframePlayerWrapper: React.FC<{ children: React.ReactNode }> = ({
     };
   }, [contentRef]);
 
+  const combinedClassName = `${className} ${props.className ?? ''}`.trim();
+
   return (
     // eslint-disable-next-line @remotion/warn-native-media-tag
     <iframe ref={setContentRef} style={borderNone}>
-      {mountNode && ReactDOM.createPortal(children, mountNode)}
+      {mountNode &&
+        ReactDOM.createPortal(
+          <Player {...props} className={combinedClassName} />,
+          mountNode
+        )}
     </iframe>
   );
 };
-```
-
-```tsx title="Implementation"
-return (
-  <IframePlayerWrapper>
-    <Player className="__player" {/* ... */} />
-  </IframePlayerWrapper>
-)
 ```
 
 ## See also
