@@ -55,7 +55,8 @@ yarn add @remotion/paths
 - [`getTangentAtLength()`](/docs/paths/get-tangent-at-length)
 - [`reversePath()`](/docs/paths/reverse-path)
 - [`normalizePath()`](/docs/paths/normalize-path)
-- [`interpolatePath()`](/docs/paths/interpolate-path
+- [`interpolatePath()`](/docs/paths/interpolate-path)
+- [`evolvePath()`](/docs/paths/evolve-path)
 
 ## License
 

@@ -1,3 +1,4 @@
+export {evolvePath} from './evolve-path';
 export {getLength} from './get-length';
 export {getParts} from './get-parts';
 export {getPointAtLength} from './get-point-at-length';
