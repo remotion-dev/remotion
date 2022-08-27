@@ -36,6 +36,7 @@
 		"@remotion/lambda": "3.2.10",
 		"@remotion/lottie": "3.2.10",
 		"@remotion/media-utils": "3.2.10",
+		"@remotion/paths": "3.2.10",
 		"@remotion/renderer": "3.2.10",
 		"@remotion/three": "3.2.10",
 		"@types/express": "^4.17.11",
