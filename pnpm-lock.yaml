@@ -387,6 +387,7 @@ importers:
       '@remotion/lambda': 3.2.10
       '@remotion/lottie': 3.2.10
       '@remotion/media-utils': 3.2.10
+      '@remotion/paths': 3.2.10
       '@remotion/renderer': 3.2.10
       '@remotion/three': 3.2.10
       '@types/babel__core': ^7.1.12
@@ -429,6 +430,7 @@ importers:
       '@remotion/lambda': link:../lambda
       '@remotion/lottie': link:../lottie
       '@remotion/media-utils': link:../media-utils
+      '@remotion/paths': link:../paths
       '@remotion/renderer': link:../renderer
       '@remotion/three': link:../three
       '@types/express': 4.17.13
@@ -15163,7 +15165,7 @@ packages:
     dev: false
 
   /is-arrayish/0.2.1:
-    resolution: {integrity: sha1-d8mYQFJ6qOyxqLppe4BkWnqSap0=}
+    resolution: {integrity: sha512-zz06S8t0ozoDXMG+ube26zeCTNXcKIPJZJi8hBrF4idCLms4CG9QtK7qBl1boi5ODzFpjswb5JPmHCbMpjaYzg==}
 
   /is-arrayish/0.3.2:
     resolution: {integrity: sha512-eVRqCvVlZbuw3GrM63ovNSNAeA1K16kaR/LRY/92w0zxQ5/1YzwblUX652i4Xs9RwAGjW9d9y6X88t8OaAJfWQ==}
