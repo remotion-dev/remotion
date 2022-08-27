@@ -3,6 +3,16 @@ import type {KeyEventType, RegisteredKeybinding} from '../state/keybindings';
 import {KeybindingContext} from '../state/keybindings';
 import {useZIndex} from '../state/z-index';
 
+if (!process.env.KEYBOARD_SHORTCUTS_ENABLED) {
+	console.warn(
+		'Keyboard shortcuts disabled either due to: a) --disable-keyboard-shortcuts being passed b) Config.Preview.setKeyboardShortcutsEnabled(false) being set or c) a Remotion version mismatch.'
+	);
+}
+
+export const areKeyboardShortcutsDisabled = () => {
+	return !process.env.KEYBOARD_SHORTCUTS_ENABLED;
+};
+
 export const useKeybinding = () => {
 	const [paneId] = useState(() => String(Math.random()));
 	const context = useContext(KeybindingContext);
@@ -15,6 +25,12 @@ export const useKeybinding = () => {
 			commandCtrlKey: boolean;
 			callback: (e: KeyboardEvent) => void;
 		}) => {
+			if (!process.env.KEYBOARD_SHORTCUTS_ENABLED) {
+				return {
+					unregister: () => undefined,
+				};
+			}
+
 			if (!isHighestContext) {
 				return {
 					unregister: () => undefined,
