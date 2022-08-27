@@ -72,6 +72,7 @@ export const getConfig = ({
 		envVariables: {},
 		entryPoints: [],
 		remotionRoot: resolvedRemotionRoot,
+		keyboardShortcutsEnabled: false,
 	});
 };
 
