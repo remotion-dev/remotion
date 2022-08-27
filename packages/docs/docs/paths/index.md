@@ -2,7 +2,7 @@
 title: "@remotion/paths"
 ---
 
-A package providing utility functions for dealing with SVG paths. This package includes code from [`svg-path-properties`](https://www.npmjs.com/package/svg-path-properties), [`svg-path-reverse`](https://github.com/Pomax/svg-path-reverse#readme) and [d3-interpolate-path](https://github.com/pbeshai/d3-interpolate-path) with the following improvements:
+A package providing utility functions for dealing with SVG paths. This package includes code from [`svg-path-properties`](https://www.npmjs.com/package/svg-path-properties), [`svg-path-reverse`](https://github.com/Pomax/svg-path-reverse#readme) and [`d3-interpolate-path`](https://github.com/pbeshai/d3-interpolate-path) with the following improvements:
 
 - Functional style APIs
 - First class Typescript types
