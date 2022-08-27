@@ -35,6 +35,12 @@ export type ConfigType = {
 		 * @default 15
 		 */
 		readonly setMaxTimelineTracks: (maxTracks: number) => void;
+		/**
+		 * Enable Keyboard shortcuts in the Remotion Preview.
+		 * @param enabled Boolean whether to enable the keyboard shortcuts
+		 * @default true
+		 */
+		readonly setKeyboardShortcutsEnabled: (enableShortcuts: boolean) => void;
 	};
 	readonly Bundling: {
 		/**
