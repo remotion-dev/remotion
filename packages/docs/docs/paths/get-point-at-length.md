@@ -38,6 +38,10 @@ const point = getPointAtLength(path, length * 0.5);
 console.log(point); // { x: 50, y: 0 }
 ```
 
+## Credits
+
+Source code stems mostly from [svg-path-properties](https://www.npmjs.com/package/svg-path-properties).
+
 ## See also
 
 - [getLength()](/docs/paths/get-length)

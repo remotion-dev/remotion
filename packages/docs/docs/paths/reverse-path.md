@@ -21,6 +21,10 @@ import { getLength } from "@remotion/paths";
 getLength("remotion"); // Error: Malformed path data: ...
 ```
 
+## Credits
+
+Source code stems mostly from [svg-path-reverse](https://www.npmjs.com/package/svg-path-reverse).
+
 ## See also
 
 - [`@remotion/paths`](/docs/paths)
