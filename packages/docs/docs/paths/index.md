@@ -2,14 +2,14 @@
 title: "@remotion/paths"
 ---
 
-A package providing utility functions for dealing with SVG paths. This package consists of code from [`svg-path-properties`](https://www.npmjs.com/package/svg-path-properties) and [`svg-path-reverse`](https://github.com/Pomax/svg-path-reverse#readme) with the following improvements:
+A package providing utility functions for dealing with SVG paths. This package includes code from [`svg-path-properties`](https://www.npmjs.com/package/svg-path-properties), [`svg-path-reverse`](https://github.com/Pomax/svg-path-reverse#readme) and [d3-interpolate-path](https://github.com/pbeshai/d3-interpolate-path) with the following improvements:
 
 - Functional style APIs
 - First class Typescript types
 - Documentation with examples
 - ESM import style
 
-No dependencies are needed, meaning this package can be used independently of Remotion.
+This package has no dependencies, meaning this package can be used without Remotion.
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
