@@ -116,6 +116,6 @@ const parts = getParts(`
 console.log(parts[0].getTangentAtLength(50)); // { x: 1, y: 0 }
 ```
 
-## See also
+## See also
 
 - [`@remotion/paths`](/docs/paths)
