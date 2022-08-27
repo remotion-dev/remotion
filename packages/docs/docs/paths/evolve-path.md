@@ -13,11 +13,22 @@ Animates an SVG path from being invisible to it's full length. The function take
 
 - `path` must be a valid SVG path.
 
+The return value will be an object containing [`strokeDasharray`](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dasharray) and [`strokeDashoffset`](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dashoffset) values, which should be passed to the `<path>` element.
+
 ```tsx twoslash
 import { evolvePath } from "@remotion/paths";
 
-const evolution = evolvePath(0.5, "M 0 0 L 100 0");
-console.log(evolution); // { strokeDasharray: '100 100',  strokeDashoffset: 50,}
+const path = "M 0 0 L 100 0";
+const evolution = evolvePath(0.5, path);
+console.log(evolution); // { strokeDasharray: '100 100',  strokeDashoffset: 50 }
+
+const element = (
+  <path
+    d={path}
+    strokeDasharray={evolution.strokeDasharray}
+    strokeDashoffset={evolution.strokeDashoffset}
+  />
+);
 ```
 
 ## See also
