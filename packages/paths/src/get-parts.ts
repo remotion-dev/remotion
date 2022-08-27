@@ -1,9 +1,14 @@
 import {construct} from './helpers/construct';
 import type {Part} from './helpers/types';
 
-export const getParts = (p: string): Part[] => {
+/**
+ * Splits a valid SVG path into it's parts.
+ * @param {string} path A valid SVG path
+ * @link https://remotion.dev/docs/paths/get-parts
+ */
+export const getParts = (path: string): Part[] => {
 	const parts = [];
-	const constructed = construct(p);
+	const constructed = construct(path);
 
 	let i = 0;
 	for (const fn of constructed.functions) {

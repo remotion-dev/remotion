@@ -137,31 +137,20 @@ function reverseNormalizedPath(normalized: string) {
 }
 
 /**
- * This is the function that you'll actually want to
- * make use of, because it lets you reverse individual
- * subpaths in some <path> "d" attribute.
+ * Reverses a path so the end and start are switched.
+ * @param {string} path A valid SVG path
+ * @link https://remotion.dev/docs/paths/reverse-path
  */
-export const reversePath = (_path: string, _subpath?: number) => {
-	const subpath = _subpath ?? false;
-	const path = normalizePath(_path);
-	let paths = path.replace(/M/g, '|M').split('|');
-	let revpath;
+export const reversePath = (path: string) => {
+	const normalizedPath = normalizePath(path);
+	const paths = normalizedPath.replace(/M/g, '|M').split('|');
 	paths.splice(0, 1);
-	if (subpath !== false && subpath >= paths.length) {
-		return path;
-	}
 
-	if (subpath === false) {
-		paths = paths.map((spath) => {
+	return paths
+		.map((spath) => {
 			return reverseNormalizedPath(spath.trim());
-		});
-	} else {
-		const spath = paths[subpath];
-		if (spath) {
-			revpath = reverseNormalizedPath(spath.trim());
-			paths[subpath] = revpath;
-		}
-	}
-
-	return paths.join(' ').replace(/ +/g, ' ').trim();
+		})
+		.join(' ')
+		.replace(/ +/g, ' ')
+		.trim();
 };

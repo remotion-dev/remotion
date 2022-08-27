@@ -1,10 +1,16 @@
 import {construct} from './helpers/construct';
 import {getPartAtLength} from './helpers/get-part-at-length';
 
-export const getTangentAtLength = (p: string, fractionLength: number) => {
-	const constructed = construct(p);
+/**
+ * Gets tangent values x and y of a point which is on an SVG path
+ * @param {string} path A valid SVG path
+ * @param {number} length The length at which the tangent should be sampled
+ * @link https://remotion.dev/docs/paths/get-tangent-at-length
+ */
+export const getTangentAtLength = (path: string, length: number) => {
+	const constructed = construct(path);
 
-	const fractionPart = getPartAtLength(p, fractionLength);
+	const fractionPart = getPartAtLength(path, length);
 	const functionAtPart = constructed.functions[fractionPart.i];
 	if (functionAtPart) {
 		return functionAtPart.getTangentAtLength(fractionPart.fraction);

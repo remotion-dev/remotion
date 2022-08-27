@@ -418,34 +418,34 @@ function interpolatePathCommands(
 }
 
 /**
- * Interpolate from A to B by extending A and B during interpolation to have
- * the same number of points. This allows for a smooth transition when they
- * have a different number of points.
- *
- * Ignores the `Z` character in paths unless both A and B end with it.
- *
- * @param {String} a The `d` attribute for a path
- * @param {String} b The `d` attribute for a path
- * @returns {Function} Interpolation function that maps t ([0, 1]) to a path `d` string.
+ * Interpolates between two SVG paths.
+ * @param {number} value A number - 0 means first path, 1 means second path, any other values will be interpolated
+ * @param {string} firstPath The first valid SVG path
+ * @param {string} secondPath The second valid SVG path
+ * @link https://remotion.dev/docs/paths/interpolate-path
  */
-export const interpolatePath = (value: number, a: string, b: string) => {
+export const interpolatePath = (
+	value: number,
+	firstPath: string,
+	secondPath: string
+) => {
 	// at 1 return the final value without the extensions used during interpolation
 	if (value === 1) {
-		return b;
+		return secondPath;
 	}
 
 	if (value === 0) {
-		return a;
+		return firstPath;
 	}
 
-	const aCommands = pathCommandsFromString(a);
+	const aCommands = pathCommandsFromString(firstPath);
 	if (aCommands.length === 0) {
-		throw new TypeError(`SVG Path "${a}" is not valid`);
+		throw new TypeError(`SVG Path "${firstPath}" is not valid`);
 	}
 
-	const bCommands = pathCommandsFromString(b);
+	const bCommands = pathCommandsFromString(secondPath);
 	if (bCommands.length === 0) {
-		throw new TypeError(`SVG Path "${b}" is not valid`);
+		throw new TypeError(`SVG Path "${secondPath}" is not valid`);
 	}
 
 	const commandInterpolator = interpolatePathCommands(aCommands, bCommands);

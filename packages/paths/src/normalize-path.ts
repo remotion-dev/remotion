@@ -1,13 +1,18 @@
-export const normalizePath = (d: string) => {
+/**
+ * Removes all relative coordinates from an SVG path and converts them into absolute coordinates.
+ * @param {string} path A valid SVG path
+ * @link https://remotion.dev/docs/paths/normalize-path
+ */
+export const normalizePath = (path: string) => {
 	// preprocess "d" so that we have spaces between values
-	d = d
+	path = path
 		.replace(/,/g, ' ')
 		.replace(/([^eE])-/g, '$1 -')
 		.replace(/\s*([achlmqstvzACHLMQSTVZ])\s*/g, ' $1 ')
 		.replace(/\s+/g, ' ');
 
 	// set up the variables used in this function
-	const instructions = d
+	const instructions = path
 		.replace(/([achlmqstvzACHLMQSTVZ])\s?/g, '|$1')
 		.split('|');
 	const instructionLength = instructions.length;
