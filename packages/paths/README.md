@@ -14,9 +14,10 @@ No dependencies are needed, meaning this package can be used independently of Re
 - [`getLength()`](https://remotion.dev/docs/paths/get-length)
 - [`getParts()`](https://remotion.dev/docs/paths/get-parts)
 - [`getPointAtLength()`](https://remotion.dev/docs/paths/get-point-at-length)
+- [`getTangentAtLength()`](https://remotion.dev/docs/paths/get-tangent-at-length)
 - [`reversePath()`](https://remotion.dev/docs/paths/reverse-path)
 - [`normalizePath()`](https://remotion.dev/docs/paths/normalize-path)
-- [`getTangentAtLength()`](https://remotion.dev/docs/paths/get-tangent-at-length)
+- [`interpolatePath()`]https://remotion.dev/docs/paths/interpolate-path
 
 ## License
 
