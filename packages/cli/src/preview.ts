@@ -71,6 +71,7 @@ export const previewCommand = async (remotionRoot: string) => {
 			port: desiredPort,
 			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 			remotionRoot,
+			keyboardShortcutsEnabled: ConfigInternals.getKeyboardShortcutsEnabled(),
 		}
 	);
 
