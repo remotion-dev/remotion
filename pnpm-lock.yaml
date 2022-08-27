@@ -411,7 +411,6 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       remotion: 3.2.10
       styled-components: ^5.1.1
-      svg-path-properties: ^1.0.4
       ts-unused-exports: ^7.0.1
       typescript: ^4.7.0
       vitest: ^0.18.0
@@ -445,7 +444,6 @@ importers:
       prettier: 2.4.1
       remotion: link:../core
       styled-components: 5.3.1_np2hlkcu3nm63an25jdclu2fwe
-      svg-path-properties: 1.0.11
       ts-unused-exports: 7.0.3_typescript@4.7.2
       typescript: 4.7.2
       vitest: 0.18.0
@@ -21506,10 +21504,6 @@ packages:
 
   /svg-parser/2.0.4:
     resolution: {integrity: sha512-e4hG1hRwoOdRb37cIMSgzNsxyzKfayW6VOflrwvR+/bzrkyxY/31WkbgnQpgtrNp1SdpJvpUAGTa/ZoiPNDuRQ==}
-    dev: false
-
-  /svg-path-properties/1.0.11:
-    resolution: {integrity: sha512-Wo6SjzONZPL9UAgrnwcCkDGRYP9CbHJGkNcPFIgEVRjiOiJxSd/AtwnGk/4N4iOLGUoas57TMxY0xASDeb9YJg==}
     dev: false
 
   /svgo/2.7.0:
