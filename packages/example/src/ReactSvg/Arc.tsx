@@ -1,6 +1,6 @@
+import {getPointAtLength, getTangentAtLength} from '@remotion/paths';
 import React from 'react';
 import {useVideoConfig} from 'remotion';
-import * as svgPathProperties from 'svg-path-properties';
 import {COLOR_1, COLOR_2} from './config';
 
 const rx = 170;
@@ -48,20 +48,19 @@ export const Arc: React.FC<{
 	const cx = config.width / 2;
 	const cy = config.height / 2;
 	const d = ellipseToPath(cx, cy);
-	const attributes = new svgPathProperties.svgPathProperties(
-		d
-	).getPropertiesAtLength((electronProgress % 1) * arcLength);
+	const tangent = getTangentAtLength(d, (electronProgress % 1) * arcLength);
+	const pointAtLength = getPointAtLength(d, (electronProgress % 1) * arcLength);
 	const move = (orig: number, x: number, y: number): number =>
-		orig + x * attributes.tangentX + y * attributes.tangentY;
+		orig + x * tangent.x + y * tangent.y;
 
 	const leftPointArrow = [
-		move(attributes.x, 0, electronRadius),
-		move(attributes.y, -electronRadius, 0),
+		move(pointAtLength.x, 0, electronRadius),
+		move(pointAtLength.y, -electronRadius, 0),
 	];
-	const midPoint = [move(attributes.x, 60, 0), move(attributes.y, 0, 60)];
+	const midPoint = [move(pointAtLength.x, 60, 0), move(pointAtLength.y, 0, 60)];
 	const rightPointArrow = [
-		move(attributes.x, 0, -electronRadius),
-		move(attributes.y, electronRadius, 0),
+		move(pointAtLength.x, 0, -electronRadius),
+		move(pointAtLength.y, electronRadius, 0),
 	];
 	return (
 		<svg
@@ -90,8 +89,8 @@ export const Arc: React.FC<{
 			<circle
 				r={electronRadius}
 				fill="#fff"
-				cx={attributes.x}
-				cy={attributes.y}
+				cx={pointAtLength.x}
+				cy={pointAtLength.y}
 				style={{opacity: electronOpacity}}
 			/>
 			<path
