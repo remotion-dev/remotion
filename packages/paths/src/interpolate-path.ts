@@ -51,9 +51,9 @@ function arrayOfLength<T>(length: number, value: T): T[] {
  * @return {String} The string for the `d` attribute
  */
 function commandToString(command: Command) {
-	return `${command.type}${typeMap[command.type]
+	return `${command.type} ${typeMap[command.type]
 		.map((p) => command[p as keyof Command])
-		.join(',')}`;
+		.join(' ')}`;
 }
 
 /**
@@ -453,10 +453,10 @@ export const interpolatePath = (value: number, a: string, b: string) => {
 	const interpolatedCommands = commandInterpolator(value);
 
 	// convert to a string (fastest concat: https://jsperf.com/join-concat/150)
-	let interpolatedString = '';
-	for (const interpolatedCommand of interpolatedCommands) {
-		interpolatedString += commandToString(interpolatedCommand);
-	}
 
-	return interpolatedString;
+	return interpolatedCommands
+		.map((c) => {
+			return commandToString(c);
+		})
+		.join(' ');
 };
