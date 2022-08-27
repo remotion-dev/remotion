@@ -23,7 +23,7 @@ import { getLength } from "@remotion/paths";
 getLength("remotion"); // Error: Malformed path data: ...
 ```
 
-## See also
+## See also
 
 - [getPointAtLength()](/docs/paths/get-point-at-length)
 - [getTangentAtLength()](/docs/paths/get-point-at-length)
