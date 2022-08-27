@@ -31,4 +31,5 @@ Source code stems mostly from [svg-path-properties](https://www.npmjs.com/packag
 
 - [getPointAtLength()](/docs/paths/get-point-at-length)
 - [getTangentAtLength()](/docs/paths/get-point-at-length)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/get-length.ts)
 - [`@remotion/paths`](/docs/paths)

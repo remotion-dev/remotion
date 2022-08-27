@@ -123,3 +123,4 @@ Source code stems mostly from [svg-path-properties](https://www.npmjs.com/packag
 ## See also
 
 - [`@remotion/paths`](/docs/paths)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/get-parts.ts)
