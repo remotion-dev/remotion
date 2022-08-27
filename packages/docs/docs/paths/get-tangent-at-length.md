@@ -23,6 +23,10 @@ import { getTangentAtLength } from "@remotion/paths";
 getTangentAtLength("remotion", 50); // Error: Malformed path data: ...
 ```
 
+## Credits
+
+Source code stems mostly from [svg-path-properties](https://www.npmjs.com/package/svg-path-properties).
+
 ## See also
 
 - [getLength()](/docs/paths/get-length)

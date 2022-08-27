@@ -116,6 +116,10 @@ const parts = getParts(`
 console.log(parts[0].getTangentAtLength(50)); // { x: 1, y: 0 }
 ```
 
+## Credits
+
+Source code stems mostly from [svg-path-properties](https://www.npmjs.com/package/svg-path-properties).
+
 ## See also
 
 - [`@remotion/paths`](/docs/paths)

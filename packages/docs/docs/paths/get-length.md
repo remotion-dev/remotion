@@ -23,6 +23,10 @@ import { getLength } from "@remotion/paths";
 getLength("remotion"); // Error: Malformed path data: ...
 ```
 
+## Credits
+
+Source code stems mostly from [svg-path-properties](https://www.npmjs.com/package/svg-path-properties).
+
 ## See also
 
 - [getPointAtLength()](/docs/paths/get-point-at-length)
