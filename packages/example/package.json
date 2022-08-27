@@ -51,7 +51,6 @@
 		"prettier": "^2.0.5",
 		"remotion": "3.2.10",
 		"styled-components": "^5.1.1",
-		"svg-path-properties": "^1.0.4",
 		"ts-unused-exports": "^7.0.1",
 		"typescript": "^4.7.0",
 		"vitest": "^0.18.0"
