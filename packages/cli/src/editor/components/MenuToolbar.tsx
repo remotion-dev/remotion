@@ -2,6 +2,7 @@ import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {pickColor} from '../helpers/pick-color';
+import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {Checkmark} from '../icons/Checkmark';
 import {CheckerboardContext} from '../state/checkerboard';
 import {ModalsContext} from '../state/modals';
@@ -408,7 +409,9 @@ export const MenuToolbar: React.FC = () => {
 					{
 						id: 'shortcuts',
 						value: 'shortcuts',
-						label: 'Shortcuts',
+						label: areKeyboardShortcutsDisabled()
+							? 'Shortcuts (disabled)'
+							: 'Shortcuts',
 						onClick: () => {
 							close();
 
