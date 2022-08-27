@@ -18,6 +18,7 @@ No dependencies are needed, meaning this package can be used independently of Re
 - [`reversePath()`](https://remotion.dev/docs/paths/reverse-path)
 - [`normalizePath()`](https://remotion.dev/docs/paths/normalize-path)
 - [`interpolatePath()`]https://remotion.dev/docs/paths/interpolate-path
+- [`evolvePath()`]https://remotion.dev/docs/paths/evolve-path
 
 ## License
 

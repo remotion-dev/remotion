@@ -290,6 +290,7 @@ module.exports = {
 				"paths/reverse-path",
 				"paths/normalize-path",
 				"paths/interpolate-path",
+				"paths/evolve-path",
 			],
 		},
 		{

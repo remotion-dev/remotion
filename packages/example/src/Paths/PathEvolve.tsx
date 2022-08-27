@@ -1,4 +1,4 @@
-import {getLength} from '@remotion/paths';
+import {evolvePath} from '@remotion/paths';
 import React from 'react';
 import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 
@@ -18,13 +18,8 @@ const PathEvolve: React.FC = () => {
 		},
 	});
 
-	const pathLength1 = getLength(path1);
-	const strokeDasharray = `${pathLength1} ${pathLength1}`;
-	const strokeDashoffset = pathLength1 - spr * pathLength1;
-
-	const pathLength2 = getLength(path2);
-	const strokeDasharray2 = `${pathLength2} ${pathLength2}`;
-	const strokeDashoffset2 = pathLength2 - spr * pathLength2;
+	const evolution1 = evolvePath(path1, spr);
+	const evolution2 = evolvePath(path2, spr);
 
 	return (
 		<AbsoluteFill>
@@ -42,8 +37,8 @@ const PathEvolve: React.FC = () => {
 							stroke="url(#paint0_linear_9_2)"
 							strokeWidth="89.9167"
 							shapeRendering="crispEdges"
-							strokeDasharray={strokeDasharray}
-							strokeDashoffset={strokeDashoffset}
+							strokeDasharray={evolution1.strokeDasharray}
+							strokeDashoffset={evolution1.strokeDashoffset}
 						/>
 					</g>
 					<g filter="url(#filter1_d_9_2)">
@@ -52,8 +47,8 @@ const PathEvolve: React.FC = () => {
 							stroke="url(#paint1_linear_9_2)"
 							strokeWidth="79.2391"
 							shapeRendering="crispEdges"
-							strokeDasharray={strokeDasharray2}
-							strokeDashoffset={strokeDashoffset2}
+							strokeDasharray={evolution2.strokeDasharray}
+							strokeDashoffset={evolution2.strokeDashoffset}
 						/>
 					</g>
 				</g>
