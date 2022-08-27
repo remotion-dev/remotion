@@ -26,7 +26,7 @@ getPointAtLength("remotion", 50); // Error: Malformed path data: ...
 
 ## Example: Getting the middle point of a path
 
-Use [`getLength()`](/docs/paths/get-length) to get the total length of a path and then multiply it with a number between 0 and 1 to get any point on the path. For example, `length * 0.5` to get the coordinate of the middle of the path.
+Use [`getLength()`](/docs/paths/get-length) to get the total length of a path and then multiply it with a number between 0 and 1 to get any point on the path. For example, `length * 0.5` to get the coordinates in the middle of the path.
 
 ```tsx twoslash
 import { getLength, getPointAtLength } from "@remotion/paths";
