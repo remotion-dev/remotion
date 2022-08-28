@@ -19,7 +19,7 @@ This snippet is useful if you want to isolate the global styles of your homepage
 
 ```tsx title="IframePlayer.tsx"
 import { Player } from '@remotion/player';
-import React, { ComponentProps, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 
 const className = '__player';
@@ -27,12 +27,9 @@ const borderNone: React.CSSProperties = {
   border: 'none',
 };
 
-export const IframedPlayer: React.FC<ComponentProps<typeof Player>> = (
-  props
-) => {
+export const IframePlayer: typeof Player = (props) => {
   const [contentRef, setContentRef] = useState<HTMLIFrameElement | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
-  const playerRef = useRef<HTMLDivElement | null>(null);
 
   const mountNode = contentRef?.contentDocument?.body;
 
@@ -78,6 +75,7 @@ export const IframedPlayer: React.FC<ComponentProps<typeof Player>> = (
     <iframe ref={setContentRef} style={borderNone}>
       {mountNode &&
         ReactDOM.createPortal(
+          // @ts-ignore
           <Player {...props} className={combinedClassName} />,
           mountNode
         )}
