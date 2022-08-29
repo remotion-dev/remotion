@@ -7,6 +7,10 @@ const types: Record<string, string> = {};
 // Populate the extensions/types maps
 populateMaps(extensions, {});
 
+export const getExt = (contentType: string): string | null => {
+	return mimeDb[contentType.toLowerCase()]?.extensions?.[0] ?? null;
+};
+
 export function mimeLookup(path: string) {
 	if (!path || typeof path !== 'string') {
 		return false;

@@ -24,6 +24,6 @@ export const guessExtensionForVideo = async (src: string) => {
 	}
 
 	throw new Error(
-		`A media file ${src} which has no file extension and whose format could not be guessed. Is this a valid media file?`
+		`The media file "${src}" has no file extension and the format could not be guessed. Tips: a) Ensure this is a valid video or audio file b) Add a file extension to the URL like ".mp4" c) Set a "Content-Type" or "Content-Disposition" header if possible.`
 	);
 };
