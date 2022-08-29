@@ -283,6 +283,7 @@ const getFilename = ({
 
 	const ext = extname(pathname);
 
+	// Has no file extension, check if we can derive it from contentType
 	if (!ext && contentType) {
 		const matchedExt = getExt(contentType);
 
@@ -290,7 +291,6 @@ const getFilename = ({
 			pathname: `${pathname}.${matchedExt}`,
 			search,
 		};
-		// Has no file extension, check if we can derive it from contentType
 	}
 
 	return {pathname, search};
