@@ -1,11 +1,11 @@
 1
 00:00:00,000 --> 00:00:02,000
-Main subtitle #1
+This is the first sentence
 
 2
-00:00:02,000 --> 00:00:04,000
-Main subtitle #1
+00:00:02,000 --> 00:00:04,000 
+This is the second sentence
 
-1
+3
 00:00:04,000 --> 00:00:08,000
-Main subtitle #1
+The subtitle is added using FFmpeg

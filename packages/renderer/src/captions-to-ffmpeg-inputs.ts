@@ -5,6 +5,13 @@ interface CaptionFfmpegInputs {
 	captionInputs: [string, string][];
 }
 
+const getFilter = ({language, title}: TCaption, index: number): string[] => {
+	return [
+		language ? [`-metadata:s:s:${index}`, `language=${language}`] : [],
+		title ? [`-metadata:s:s:${index}`, `title=${title}`] : [],
+	].flat();
+};
+
 export const captionsToFfmpegInputs = ({
 	assetsCount,
 	captions,
@@ -19,23 +26,18 @@ export const captionsToFfmpegInputs = ({
 			return acc;
 		}, {})
 	);
-
-	/**
-	 * TODO: Support more formats.
-	 * `mov_text` works for SRT.
-	 */
-	const getFilter = ({language, title}: TCaption, index: number): string[] => {
-		return ['-map', `${assetsCount + 1 + index}:s`, '-c:s', 'mov_text'].concat(
-			language ? [`-metadata:s:s:${index}`, `language=${language}`] : '',
-			title ? [`-metadata:s:s:${index}`, `title=${title}`] : ''
-		);
-	};
+	const numberOfInputs = assetsCount + uniqueCaptions.length;
 
 	return {
 		captionInputs: uniqueCaptions.map((caption) => ['-i', caption.src]),
-		captionFilters: uniqueCaptions.reduce<string[]>(
-			(acc, caption, i) => acc.concat(getFilter(caption, i)),
-			[]
-		),
+		captionFilters: [
+			// Map each input to be present in the output
+			Array.from({length: numberOfInputs}, (_, i) => ['-map', String(i)]),
+			//! The subtitle codec for mp4 - TODO: Support others if needed
+			//! https://en.wikibooks.org/wiki/FFMPEG_An_Intermediate_Guide/subtitle_options#Set_Subtitle_Codec
+			['-c:s', 'mov_text'],
+			// For each subtitle, create its metadata, when available
+			uniqueCaptions.map(getFilter).flat(),
+		].flat(2),
 	};
 };

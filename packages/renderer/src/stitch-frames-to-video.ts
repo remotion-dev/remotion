@@ -259,7 +259,9 @@ export const spawnFfmpeg = async (
 
 	const captions = captionsToFfmpegInputs({
 		captions: options.assetsInfo.captions,
-		assetsCount: 1,
+		//* How many ['-i'] are applied before the captions
+		//* We should find a better name for it :)
+		assetsCount: audio ? 2 : 1,
 	});
 
 	if (mediaSupport.audio && !mediaSupport.video) {
@@ -353,6 +355,7 @@ export const spawnFfmpeg = async (
 		audioCodecName ? ['-b:a', '512K'] : null,
 		captions.captionFilters,
 		// Ignore metadata that may come from remote media
+		//! This is not removing the subtitle metadata, so the final video has the wrong duration again
 		['-map_metadata', '-1'],
 		[
 			'-metadata',
