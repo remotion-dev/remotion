@@ -1,4 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
+import {VERSION} from 'remotion/version';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import type {LambdaReturnValues} from '../../../shared/return-values';
@@ -55,6 +56,7 @@ test('Should fail when using an incompatible version', async () => {
 				type: 'play-in-browser',
 			},
 			muted: false,
+			version: VERSION,
 		},
 		extraContext
 	);
@@ -65,6 +67,7 @@ test('Should fail when using an incompatible version', async () => {
 			type: LambdaRoutines.status,
 			bucketName: startRes.bucketName,
 			renderId: startRes.renderId,
+			version: VERSION,
 		},
 		extraContext
 	)) as Await<LambdaReturnValues[LambdaRoutines.status]>;

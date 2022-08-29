@@ -33,6 +33,7 @@ const inlineCode: React.CSSProperties = {
 
 export const serverDisconnectedRef = createRef<{
 	setServerDisconnected: () => void;
+	setServerConnected: () => void;
 }>();
 
 let pageIsGoingToReload = false;
@@ -49,6 +50,9 @@ export const ServerDisconnected: React.FC = () => {
 			return {
 				setServerDisconnected: () => {
 					setServerDisconnected(true);
+				},
+				setServerConnected: () => {
+					setServerDisconnected(false);
 				},
 			};
 		},

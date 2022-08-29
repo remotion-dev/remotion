@@ -34,3 +34,9 @@ Specify a location for a dotenv file. Default `.env`. Available in v2.2 and late
 ### `--port`
 
 [Set a custom HTTP server port](/docs/config#setPort). If not defined, Remotion will try to find a free port.
+
+### `--disable-keyboard-shortcuts`
+
+_Available from v3.2.11_
+
+Disables all keyboard shortcuts in the Preview.

@@ -45,6 +45,7 @@ export const webpackConfig = ({
 	maxTimelineTracks,
 	entryPoints,
 	remotionRoot,
+	keyboardShortcutsEnabled,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -55,6 +56,7 @@ export const webpackConfig = ({
 	enableCaching?: boolean;
 	envVariables: Record<string, string>;
 	maxTimelineTracks: number;
+	keyboardShortcutsEnabled: boolean;
 	entryPoints: string[];
 	remotionRoot: string;
 }): [string, WebpackConfiguration] => {
@@ -100,6 +102,8 @@ export const webpackConfig = ({
 						new webpack.HotModuleReplacementPlugin(),
 						new webpack.DefinePlugin({
 							'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
+							'process.env.KEYBOARD_SHORTCUTS_ENABLED':
+								keyboardShortcutsEnabled,
 							[`process.env.${Internals.ENV_VARIABLES_ENV_NAME}`]:
 								JSON.stringify(envVariables),
 						}),

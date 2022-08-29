@@ -91,6 +91,11 @@ export type RenderAssetInfo = {
 	bundleDir: string;
 };
 
+type BaseMetadata = Pick<
+	TCompMetadata,
+	'durationInFrames' | 'fps' | 'defaultProps' | 'height' | 'width'
+>;
+
 export type CompositionManagerContext = {
 	compositions: TComposition[];
 	registerComposition: <T>(comp: TComposition<T>) => void;
@@ -99,6 +104,8 @@ export type CompositionManagerContext = {
 	unregisterFolder: (name: string, parent: string | null) => void;
 	currentComposition: string | null;
 	setCurrentComposition: (curr: string) => void;
+	setCurrentCompositionMetadata: (metadata: BaseMetadata) => void;
+	currentCompositionMetadata: BaseMetadata | null;
 	registerSequence: (seq: TSequence) => void;
 	unregisterSequence: (id: string) => void;
 	registerAsset: (asset: TAsset) => void;
@@ -119,6 +126,7 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	unregisterFolder: () => undefined,
 	currentComposition: null,
 	setCurrentComposition: () => undefined,
+	setCurrentCompositionMetadata: () => undefined,
 	registerSequence: () => undefined,
 	unregisterSequence: () => undefined,
 	registerAsset: () => undefined,
@@ -129,6 +137,7 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	assets: [],
 	captions: [],
 	folders: [],
+	currentCompositionMetadata: null,
 });
 
 export const compositionsRef = React.createRef<{
@@ -149,6 +158,9 @@ export const CompositionManagerProvider: React.FC<{
 	const [captions, setCaptions] = useState<TCaption[]>([]);
 
 	const [sequences, setSequences] = useState<TSequence[]>([]);
+
+	const [currentCompositionMetadata, setCurrentCompositionMetadata] =
+		useState<BaseMetadata | null>(null);
 
 	const registerComposition = useCallback(<T,>(comp: TComposition<T>) => {
 		setCompositions((comps) => {
@@ -267,6 +279,8 @@ export const CompositionManagerProvider: React.FC<{
 			registerCaption,
 			unregisterCaption,
 			captions: [],
+			currentCompositionMetadata,
+			setCurrentCompositionMetadata,
 		};
 	}, [
 		compositions,
@@ -284,6 +298,7 @@ export const CompositionManagerProvider: React.FC<{
 		unregisterFolder,
 		registerCaption,
 		unregisterCaption,
+		currentCompositionMetadata,
 	]);
 
 	return (

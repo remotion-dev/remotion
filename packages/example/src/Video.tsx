@@ -474,6 +474,24 @@ export const Index: React.FC = () => {
 					width={576}
 				/>
 			</Folder>
+			<Folder name="paths">
+				<Composition
+					id="path-evolve"
+					lazyComponent={() => import('./Paths/PathEvolve')}
+					durationInFrames={500}
+					fps={30}
+					height={1080}
+					width={1080}
+				/>
+				<Composition
+					id="path-morph"
+					lazyComponent={() => import('./Paths/PathMorph')}
+					durationInFrames={500}
+					fps={30}
+					height={1080}
+					width={1080}
+				/>
+			</Folder>
 		</>
 	);
 };

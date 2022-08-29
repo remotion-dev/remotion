@@ -71,10 +71,12 @@ export const previewCommand = async (remotionRoot: string) => {
 			port: desiredPort,
 			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 			remotionRoot,
+			keyboardShortcutsEnabled: ConfigInternals.getKeyboardShortcutsEnabled(),
 		}
 	);
 
 	setLiveEventsListener(liveEventsServer);
+	Log.info(`Server running on http://localhost:${port}`);
 	betterOpn(`http://localhost:${port}`);
 	await new Promise(noop);
 };

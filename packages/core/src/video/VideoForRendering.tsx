@@ -1,3 +1,4 @@
+import type {ForwardRefExoticComponent, RefAttributes} from 'react';
 import React, {
 	forwardRef,
 	useContext,
@@ -16,7 +17,8 @@ import {continueRender, delayRender} from '../delay-render';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {random} from '../random';
 import {SequenceContext} from '../Sequence';
-import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-current-frame';
+import {useTimelinePosition} from '../timeline-position-state';
+import {useCurrentFrame} from '../use-current-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
 import {warnAboutNonSeekableMedia} from '../warn-about-non-seekable-media';
@@ -27,7 +29,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
 	RemotionVideoProps
 > = ({onError, volume: volumeProp, playbackRate, ...props}, ref) => {
-	const absoluteFrame = useAbsoluteCurrentFrame();
+	const absoluteFrame = useTimelinePosition();
 
 	const frame = useCurrentFrame();
 	const volumePropsFrame = useFrameForVolumeProp();
@@ -44,10 +46,9 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		() =>
 			`video-${random(props.src ?? '')}-${sequenceContext?.cumulatedFrom}-${
 				sequenceContext?.relativeFrom
-			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
+			}-${sequenceContext?.durationInFrames}`,
 		[
 			props.src,
-			props.muted,
 			sequenceContext?.cumulatedFrom,
 			sequenceContext?.relativeFrom,
 			sequenceContext?.durationInFrames,
@@ -70,6 +71,10 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		}
 
 		if (props.muted) {
+			return;
+		}
+
+		if (volume <= 0) {
 			return;
 		}
 
@@ -176,7 +181,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			if (current?.error) {
 				console.error('Error occurred in video', current?.error);
 				throw new Error(
-					`The browser threw an error while playing the video: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
+					`The browser threw an error while playing the video ${props.src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
 				);
 			} else {
 				throw new Error('The browser threw an error');
@@ -204,4 +209,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	return <video ref={videoRef} {...props} onError={onError} />;
 };
 
-export const VideoForRendering = forwardRef(VideoForRenderingForwardFunction);
+export const VideoForRendering = forwardRef(
+	VideoForRenderingForwardFunction
+) as ForwardRefExoticComponent<
+	RemotionVideoProps & RefAttributes<HTMLVideoElement>
+>;

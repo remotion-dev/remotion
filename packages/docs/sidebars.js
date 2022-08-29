@@ -277,6 +277,24 @@ module.exports = {
     },
     {
       type: "category",
+      label: "API - @remotion/paths",
+      link: {
+        type: "doc",
+        id: "paths/index",
+      },
+      items: [
+        "paths/get-length",
+        "paths/get-parts",
+        "paths/get-point-at-length",
+        "paths/get-tangent-at-length",
+        "paths/reverse-path",
+        "paths/normalize-path",
+        "paths/interpolate-path",
+        "paths/evolve-path",
+      ],
+    },
+    {
+      type: "category",
       label: "Troubleshooting",
       items: [
         "timeout",
@@ -307,6 +325,15 @@ module.exports = {
         "miscellaneous/typescript-aliases",
         "miscellaneous/render-all",
         "miscellaneous/render-in-browser",
+        {
+          type: "category",
+          label: "Snippets",
+          items: [
+            "miscellaneous/snippets/player-in-iframe",
+            "miscellaneous/snippets/fps-converter",
+            "miscellaneous/snippets/adding-animations",
+          ],
+        },
       ],
     },
     "3-0-migration",
