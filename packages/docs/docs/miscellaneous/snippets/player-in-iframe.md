@@ -33,7 +33,7 @@ const borderNone: React.CSSProperties = {
 	border: 'none',
 };
 
-const IframedPlayerWithoutRef = <T,>(
+const IframePlayerWithoutRef = <T,>(
 	props: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
 ) => {
@@ -92,7 +92,7 @@ const IframedPlayerWithoutRef = <T,>(
 	);
 };
 
-export const IframedPlayer = forwardRef(IframedPlayerWithoutRef);
+export const IframePlayer = forwardRef(IframePlayerWithoutRef);
 ```
 
 ## See also
