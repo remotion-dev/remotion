@@ -27,5 +27,6 @@ export const Caption = (props: CaptionProps) => {
 		return () => unregisterCaption(id);
 	}, [language, registerCaption, src, title, unregisterCaption]);
 
+	// TODO: Investigate convertion to VTT to preview as <track />s?
 	return null;
 };
