@@ -1,4 +1,5 @@
 import type {Codec} from './codec';
+import {getCodecName} from './get-codec-name';
 
 type MediaSupport = {
 	video: boolean;
@@ -50,4 +51,10 @@ const support: {[key in Codec]: MediaSupport} = {
 
 export const codecSupportsMedia = (codec: Codec): MediaSupport => {
 	return support[codec];
+};
+
+export const codecSupportsCrf = (codec: Codec) => {
+	const encoderName = getCodecName(codec);
+	const supportsCrf = encoderName && codec !== 'prores';
+	return supportsCrf;
 };
