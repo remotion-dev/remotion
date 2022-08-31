@@ -93,9 +93,9 @@ The [command line flag](/docs/cli/render#--log) `--log` will take precedence ove
 
 ## Preview
 
-_Available from Version 2.1.10._
-
 ### setMaxTimelineTracks()
+
+_Available from Version 2.1.10._
 
 Set how many tracks are being displayed in the timeline at most. This does not affect your video, just the amount of tracks shown when previewing. Default `15`.
 
@@ -104,6 +104,18 @@ import { Config } from "remotion";
 // ---cut---
 Config.Preview.setMaxTimelineTracks(20);
 ```
+
+### setKeyboardShortcutsEnabled()
+
+Whether the Preview should react to keyboard shortcuts. Default `true`.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Preview.setKeyboardShortcutsEnabled(false);
+```
+
+The [command line flag](/docs/cli/preview#--disable-keyboard-shortcuts) `--disable-keyboard-shortcuts` will take precedence over this option.
 
 ## Puppeteer
 

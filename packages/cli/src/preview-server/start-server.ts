@@ -24,6 +24,7 @@ export const startServer = async (
 		port: number | null;
 		maxTimelineTracks?: number;
 		remotionRoot: string;
+		keyboardShortcutsEnabled: boolean;
 	}
 ): Promise<{
 	port: number;
@@ -47,6 +48,7 @@ export const startServer = async (
 			require.resolve('./error-overlay/entry-basic.js'),
 		],
 		remotionRoot: options.remotionRoot,
+		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
 	});
 
 	const compiler = webpack(config);
