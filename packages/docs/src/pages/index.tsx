@@ -12,6 +12,7 @@ import { WriteInReact } from "../../components/LandingPage/WriteInReact";
 import styles from "./landing.module.css";
 import { VideoApps } from "../../components/LambdaSplash/VideoApps";
 import { VideoAppsTitle } from "../../components/LambdaSplash/VideoAppsTitle";
+import { BackgroundAnimation } from "../../components/LandingPage/BackgroundAnimation";
 
 setTimeout(() => {
   splitbee.init();
@@ -25,9 +26,10 @@ const NewLanding: React.FC = () => {
         <meta
           name="description"
           content="Create MP4 motion graphics in React. Leverage CSS, SVG, WebGL and more
-        technologies to render videos programmatically!"
+          technologies to render videos programmatically!"
         />
       </Head>
+      <BackgroundAnimation />
       <br />
       <br />
       <br />
