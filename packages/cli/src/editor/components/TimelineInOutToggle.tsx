@@ -6,8 +6,12 @@ import React, {
 	useImperativeHandle,
 } from 'react';
 import {Internals} from 'remotion';
+import {truthy} from '../../truthy';
 import {useIsStill} from '../helpers/is-current-selected-still';
-import {useKeybinding} from '../helpers/use-keybinding';
+import {
+	areKeyboardShortcutsDisabled,
+	useKeybinding,
+} from '../helpers/use-keybinding';
 import {
 	TimelineInPointer,
 	TimelineOutPointer,
@@ -19,7 +23,10 @@ import {
 import {persistMarks} from '../state/marks';
 import {ControlButton} from './ControlButton';
 
-const getTooltipText = (pointType: string) => `Mark ${pointType}`;
+const getTooltipText = (pointType: string, key: string) =>
+	[`Mark ${pointType}`, areKeyboardShortcutsDisabled() ? null : `(${key})`]
+		.filter(truthy)
+		.join(' ');
 
 const style: React.CSSProperties = {
 	width: 16,
@@ -215,8 +222,8 @@ export const TimelineInOutPointToggle: React.FC = () => {
 	return (
 		<>
 			<ControlButton
-				title={getTooltipText('In (I)')}
-				aria-label={getTooltipText('In (I)')}
+				title={getTooltipText('In', 'I')}
+				aria-label={getTooltipText('In', 'I')}
 				onClick={onInMark}
 				disabled={timelinePosition === 0}
 			>
@@ -226,8 +233,8 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				/>
 			</ControlButton>
 			<ControlButton
-				title={getTooltipText('Out (O)')}
-				aria-label={getTooltipText('Out (O)')}
+				title={getTooltipText('Out', '(O)')}
+				aria-label={getTooltipText('Out', '(O)')}
 				onClick={onOutMark}
 				disabled={timelinePosition === videoConfig.durationInFrames - 1}
 			>

@@ -1,4 +1,5 @@
 import React, {useCallback, useContext} from 'react';
+import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {ArrowLeft, ArrowRight, ShiftIcon} from '../icons/keys';
 import {ModalsContext} from '../state/modals';
 import {Column, Row, Spacing} from './layout';
@@ -46,6 +47,22 @@ const title: React.CSSProperties = {
 	marginBottom: 10,
 };
 
+const keyboardShortcutsDisabled: React.CSSProperties = {
+	padding: 12,
+	width: '100%',
+	fontSize: 14,
+	backgroundColor: 'rgba(255, 255, 255, 0.1)',
+};
+
+const ul: React.CSSProperties = {
+	marginTop: 0,
+	marginBottom: 0,
+};
+
+const li: React.CSSProperties = {
+	fontSize: 14,
+};
+
 export const KeyboardShortcuts: React.FC = () => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -56,6 +73,18 @@ export const KeyboardShortcuts: React.FC = () => {
 	return (
 		<ModalContainer onEscape={onQuit} onOutsideClick={onQuit}>
 			<NewCompHeader title="Keyboard shortcuts" />
+			{areKeyboardShortcutsDisabled() ? (
+				<div style={keyboardShortcutsDisabled}>
+					Keyboard shortcuts disabled either due to:
+					<ul style={ul}>
+						<li style={li}>a) --disable-keyboard-shortcuts being passed</li>
+						<li style={li}>
+							b) Config.Preview.setKeyboardShortcutsEnabled(false) being set or
+						</li>
+						<li style={li}> c) a Remotion version mismatch.</li>
+					</ul>
+				</div>
+			) : null}
 			<Row style={container}>
 				<Column>
 					<div style={title}>Playback</div>

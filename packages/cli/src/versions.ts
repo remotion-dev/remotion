@@ -13,6 +13,7 @@ const packages = [
 	'@remotion/skia',
 	'@remotion/lottie',
 	'@remotion/media-utils',
+	'@remotion/paths',
 	'@remotion/babel-loader',
 	'@remotion/lambda',
 	'@remotion/preload',
