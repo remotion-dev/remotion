@@ -4,6 +4,7 @@ import execa from 'execa';
 import {rmdirSync, rmSync, writeFileSync} from 'fs';
 import {join} from 'path';
 import type {Codec} from './codec';
+import {codecSupportsCrf} from './codec-supports-media';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {isAudioCodec} from './is-audio-codec';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
@@ -18,6 +19,7 @@ export const combineVideos = async ({
 	codec,
 	fps,
 	numberOfGifLoops,
+	crf,
 }: {
 	files: string[];
 	filelistDir: string;
@@ -27,11 +29,14 @@ export const combineVideos = async ({
 	codec: Codec;
 	fps: number;
 	numberOfGifLoops: number | null;
+	crf: number | null;
 }) => {
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 
 	const fileListTxt = join(filelistDir, 'files.txt');
 	writeFileSync(fileListTxt, fileList);
+
+	const supportsCrf = codecSupportsCrf(codec);
 
 	try {
 		const task = execa(
@@ -58,6 +63,8 @@ export const combineVideos = async ({
 				// Set max bitrate up to 1024kbps, will choose lower if that's too much
 				'-b:a',
 				'512K',
+				supportsCrf ? '-crf' : null,
+				supportsCrf ? String(crf) : null,
 				codec === 'h264' ? '-movflags' : null,
 				codec === 'h264' ? 'faststart' : null,
 				'-shortest',

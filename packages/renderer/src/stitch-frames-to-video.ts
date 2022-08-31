@@ -12,7 +12,7 @@ import type {DownloadMap, RenderAssetInfo} from './assets/download-map';
 import type {Assets} from './assets/types';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
-import {codecSupportsMedia} from './codec-supports-media';
+import {codecSupportsCrf, codecSupportsMedia} from './codec-supports-media';
 import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
 import {
 	getDefaultCrfForCodec,
@@ -191,7 +191,7 @@ export const spawnFfmpeg = async (
 
 	const mediaSupport = codecSupportsMedia(codec);
 
-	const supportsCrf = encoderName && codec !== 'prores';
+	const supportsCrf = codecSupportsCrf(codec);
 
 	const tempFile = options.outputLocation
 		? null
