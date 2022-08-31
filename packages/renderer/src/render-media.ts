@@ -340,7 +340,6 @@ export const renderMedia = ({
 			callUpdate();
 
 			if (absoluteOutputLocation) {
-				console.log({outputLocation});
 				ensureOutputDirectory(absoluteOutputLocation);
 			}
 
