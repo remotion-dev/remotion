@@ -144,7 +144,7 @@ Config.Bundling.overrideWebpackConfig(enableTailwind);
 
 5. Create a file `src/style.css` with the following content:
 
-```css
+```css title="src/style.css"
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -152,13 +152,13 @@ Config.Bundling.overrideWebpackConfig(enableTailwind);
 
 6. Import the stylesheet in your `src/Video.tsx` file. Add to the top of the file:
 
-```js
+```js title="src/Video.tsx"
 import "./style.css";
 ```
 
 7.  Add a `tailwind.config.js` file to the root of your project:
 
-```js
+```js title="tailwind.config.js"
 /* eslint-env node */
 module.exports = {
   content: ["./src/**/*.{ts,tsx}"],
@@ -169,7 +169,17 @@ module.exports = {
 };
 ```
 
-8.  Start using TailwindCSS! You can verify that it's working by adding `className="bg-red-900"` to any element.
+8. Ensure your `package.json` does not have `"sideEffects": false` set. If it has, declare that CSS files have a side effect:
+
+```diff title="package.json"
+{
+// Only if `"sideEffects": false` exists in your package.json.
+-  "sideEffects": false
++  "sideEffects": ["*.css"]
+}
+```
+
+9. Start using TailwindCSS! You can verify that it's working by adding `className="bg-red-900"` to any element.
 
 ## See also
 

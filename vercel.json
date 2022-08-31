@@ -39,6 +39,11 @@
       "source": "/lottie",
       "destination": "https://remotion.dev/docs/lottie",
       "permanent": false
+    },
+    {
+      "source": "/paths",
+      "destination": "https://remotion.dev/docs/paths",
+      "permanent": false
     }
   ]
 }

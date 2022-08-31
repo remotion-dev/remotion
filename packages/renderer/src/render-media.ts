@@ -139,6 +139,10 @@ export const renderMedia = ({
 		validateOutputFilename(codec, getExtensionOfFilename(outputLocation));
 	}
 
+	const absoluteOutputLocation = outputLocation
+		? path.resolve(process.cwd(), outputLocation)
+		: null;
+
 	validateScale(scale);
 
 	const everyNthFrame = options.everyNthFrame ?? 1;
@@ -335,8 +339,8 @@ export const renderMedia = ({
 			renderedDoneIn = Date.now() - renderStart;
 			callUpdate();
 
-			if (outputLocation) {
-				ensureOutputDirectory(outputLocation);
+			if (absoluteOutputLocation) {
+				ensureOutputDirectory(absoluteOutputLocation);
 			}
 
 			const stitchStart = Date.now();
@@ -345,7 +349,7 @@ export const renderMedia = ({
 					width: composition.width * (scale ?? 1),
 					height: composition.height * (scale ?? 1),
 					fps,
-					outputLocation,
+					outputLocation: absoluteOutputLocation,
 					internalOptions: {
 						preEncodedFileLocation,
 						imageFormat,

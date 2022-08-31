@@ -35,8 +35,8 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		() =>
 			`audio-${random(props.src ?? '')}-${sequenceContext?.relativeFrom}-${
 				sequenceContext?.cumulatedFrom
-			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
-		[props.muted, props.src, sequenceContext]
+			}-${sequenceContext?.durationInFrames}`,
+		[props.src, sequenceContext]
 	);
 
 	const {volume: volumeProp, playbackRate, ...nativeProps} = props;
@@ -61,6 +61,10 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		}
 
 		if (props.muted) {
+			return;
+		}
+
+		if (volume <= 0) {
 			return;
 		}
 

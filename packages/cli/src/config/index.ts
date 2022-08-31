@@ -62,6 +62,10 @@ import {setFfmpegExecutable, setFfprobeExecutable} from './ffmpeg-executable';
 import {setFrameRange} from './frame-range';
 import {setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
+import {
+	getKeyboardShortcutsEnabled,
+	setKeyboardShortcutsEnabled,
+} from './keyboard-shortcuts';
 import {setLogLevel} from './log';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
 import {getMuted, setMuted} from './muted';
@@ -81,6 +85,7 @@ import {setWebpackCaching} from './webpack-caching';
 export const Config: ConfigType = {
 	Preview: {
 		setMaxTimelineTracks,
+		setKeyboardShortcutsEnabled,
 	},
 	Bundling: {
 		overrideWebpackConfig,
@@ -166,6 +171,7 @@ export const ConfigInternals = {
 	getMuted,
 	getEnforceAudioTrack,
 	setEnforceAudioTrack,
+	getKeyboardShortcutsEnabled,
 };
 
 export const overrideRemotion = () => {
