@@ -7,12 +7,10 @@ import {
 	markFunctionAsIncompatible,
 } from '../../api/mock-functions';
 import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
+import {LAMBDA_VERSION_STRING} from '../../shared/lambda-version-string';
 
 const expectedFunctionName = (memory: number, timeout: number, disk: number) =>
-	`remotion-render-${VERSION.replace(
-		/\./g,
-		'-'
-	)}-mem${memory}mb-disk${disk}mb-${timeout}sec`;
+	`remotion-render-${LAMBDA_VERSION_STRING}-mem${memory}mb-disk${disk}mb-${timeout}sec`;
 
 test('Should be able to deploy function', async () => {
 	const {functionName} = await deployFunction({

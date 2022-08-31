@@ -8,6 +8,7 @@ import {
 } from '../shared/constants';
 import {FUNCTION_ZIP} from '../shared/function-zip-path';
 import {getAccountId} from '../shared/get-account-id';
+import {LAMBDA_VERSION_STRING} from '../shared/lambda-version-string';
 import type {LambdaArchitecture} from '../shared/validate-architecture';
 import {validateArchitecture} from '../shared/validate-architecture';
 import {validateAwsRegion} from '../shared/validate-aws-region';
@@ -60,7 +61,7 @@ export const deployFunction = async (
 	validateCustomRoleArn(options.customRoleArn);
 
 	const fnNameRender = [
-		`${RENDER_FN_PREFIX}${VERSION.replace(/\./g, '-')}`,
+		`${RENDER_FN_PREFIX}${LAMBDA_VERSION_STRING}`,
 		`mem${options.memorySizeInMb}mb`,
 		`disk${diskSizeInMb}mb`,
 		`${options.timeoutInSeconds}sec`,
