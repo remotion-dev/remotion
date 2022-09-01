@@ -1,16 +1,9 @@
-import React from "react";
-import { random, useVideoConfig } from "remotion";
+import React, { useEffect } from "react";
 import {getLength} from '@remotion/paths'
-import './bganimation.css'
+import styles from './bg-anim.module.css'
 
-const style: React.CSSProperties = {
-  position: 'absolute',
-  width: '100%',
-}
-
-
-const rx = 0.25;
-const ry = 0.5
+const rx = 0.2;
+const ry = 0.45
 
 
 function ellipseToPath(cx: number, cy: number): string {
@@ -34,32 +27,79 @@ function ellipseToPath(cx: number, cy: number): string {
 	return output;
 }
 
+const strokeWidth = 0.035
+
 export const BackgroundAnimation: React.FC = () => {
   const d = ellipseToPath(0.5, 0.5)
   const length = getLength(d)
-  console.log(length)
+
+  const css = `
+    @keyframes bganimation {
+      from {
+        stroke-dashoffset: 0
+      }
+    
+      to {
+        stroke-dashoffset: ${length};
+      }
+    }  
+  `;
+
+  useEffect(() => {
+    const _style = document.createElement('style');
+    _style.innerHTML = css;
+    document.head.appendChild(_style);
+  }, [css])
 
   return (
-    <div style={style}>
-      <svg viewBox="0 0 1 1" style={{
+    <div  className={styles.bganimcontainer}>
+      <svg className={styles.svg} viewBox="0 0 1 1" style={{
         width: '100%',
+        zIndex: -1,
         position: 'absolute',
-        zIndex: -1
       }}>
-        <g transform="translate(0, -0.4)">
 			<path
 				d={d}
 				fill="none"
 				stroke="var(--ifm-color-primary)"
 				strokeLinecap="round"
-				strokeWidth={0.035}
+        className={styles.p}
         style={{
           transformOrigin: 'center center',  
-          transform: `rotate(${random('hia') * 360}deg)`,
-          animation: `bganimation 20s linear infinite`
+          transform: `rotate(120deg)`,
+          animation: `bganimation 20s linear infinite`,
+          strokeDasharray: `${length * 0.2} ${length * 0.8}`,
         }}
         />
-        </g>
+			<path
+				d={d}
+				fill="none"
+				stroke="var(--ifm-color-primary)"
+				strokeLinecap="round"
+				strokeWidth={strokeWidth}        
+        className={styles.p}
+        style={{
+          transformOrigin: 'center center',  
+          transform: `rotate(0deg)`,
+          animation: `bganimation 20s linear infinite`,
+          strokeDasharray: `${length * 0.2} ${length * 0.8}`,
+
+        }}
+        />
+			<path
+				d={d}
+				fill="none"
+				stroke="var(--ifm-color-primary)"
+				strokeLinecap="round"
+				strokeWidth={strokeWidth}
+        className={styles.p}
+        style={{
+          transformOrigin: 'center center',  
+          transform: `rotate(240deg)`,
+          animation: `bganimation 20s linear infinite`,
+          strokeDasharray: `${length * 0.2} ${length * 0.8}`,
+        }}
+        />
         </svg>
     </div>
   )

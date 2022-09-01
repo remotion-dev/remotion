@@ -8,6 +8,11 @@
   font-weight: 900;
   line-height: 1;
   text-align: center;
+  text-shadow: 0 5px 30px var(--background);
+}
+
+.text {
+  text-shadow: 0 5px 30px var(--background);
 }
 
 .writeright {
