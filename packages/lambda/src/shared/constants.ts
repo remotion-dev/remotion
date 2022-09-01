@@ -54,7 +54,7 @@ export const renderMetadataKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/pre-render-metadata.json`;
 export const initalizedMetadataKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/initialized.txt`;
-export const lambdaInitializedPrefix = (renderId: string) =>
+export const lambdaChunkInitializedPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/lambda-initialized`;
 export const lambdaChunkInitializedKey = ({
 	renderId,
@@ -65,7 +65,9 @@ export const lambdaChunkInitializedKey = ({
 	renderId: string;
 	chunk: number;
 }) =>
-	`${lambdaInitializedPrefix(renderId)}-chunk:${chunk}-attempt:${attempt}.txt`;
+	`${lambdaChunkInitializedPrefix(
+		renderId
+	)}-chunk:${chunk}-attempt:${attempt}.txt`;
 export const lambdaTimingsPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/lambda-timings/chunk:`;
 
