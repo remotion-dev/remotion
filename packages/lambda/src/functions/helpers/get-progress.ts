@@ -4,7 +4,7 @@ import type {RenderProgress} from '../../shared/constants';
 import {
 	chunkKey,
 	encodingProgressKey,
-	lambdaInitializedPrefix,
+	lambdaChunkInitializedPrefix,
 	MAX_EPHEMERAL_STORAGE_IN_MB,
 	renderMetadataKey,
 	rendersPrefix,
@@ -107,7 +107,7 @@ export const getProgress = async ({
 
 	const initializedExists = Boolean(
 		contents.find((c) => {
-			return c.Key?.startsWith(lambdaInitializedPrefix(renderId));
+			return c.Key?.startsWith(lambdaChunkInitializedPrefix(renderId));
 		})
 	);
 

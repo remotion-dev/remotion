@@ -3,7 +3,7 @@ import {VERSION} from 'remotion/version';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {LambdaPayload} from '../shared/constants';
-import {lambdaInitializedPrefix, LambdaRoutines} from '../shared/constants';
+import {initalizedMetadataKey, LambdaRoutines} from '../shared/constants';
 import {randomHash} from '../shared/random-hash';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
@@ -41,7 +41,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		body: 'Render was initialized',
 		expectedBucketOwner: options.expectedBucketOwner,
-		key: lambdaInitializedPrefix(renderId),
+		key: initalizedMetadataKey(renderId),
 		privacy: 'private',
 	});
 

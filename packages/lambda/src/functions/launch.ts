@@ -11,7 +11,7 @@ import type {
 } from '../shared/constants';
 import {
 	encodingProgressKey,
-	lambdaInitializedPrefix,
+	initalizedMetadataKey,
 	LambdaRoutines,
 	MAX_FUNCTIONS_PER_RENDER,
 	renderMetadataKey,
@@ -465,7 +465,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	});
 	await lambdaDeleteFile({
 		bucket: params.bucketName,
-		key: lambdaInitializedPrefix(params.renderId),
+		key: initalizedMetadataKey(params.renderId),
 		region: getCurrentRegionInFunction(),
 	});
 
