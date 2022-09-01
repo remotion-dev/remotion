@@ -14,6 +14,7 @@ export const WriteInReact: React.FC = () => {
           fontSize: "1.2em",
           fontWeight: 500,
         }}
+        className={styles.text}
       >
         Create real MP4 videos programmatically. <br /> Scale your video
         production using server-side rendering and parametrization.
