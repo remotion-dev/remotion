@@ -7,7 +7,7 @@ import {getLambdaClient} from '../shared/aws-clients';
 import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
 import {
 	chunkKeyForIndex,
-	lambdaInitializedKey,
+	lambdaChunkInitializedKey,
 	LambdaRoutines,
 	lambdaTimingsKey,
 	RENDERER_PATH_TOKEN,
@@ -124,7 +124,7 @@ const renderHandler = async (
 						tmpSize: getFolderSizeRecursively('/tmp'),
 						tmpDirFiles: getFolderFiles('/tmp'),
 					}),
-					key: lambdaInitializedKey({
+					key: lambdaChunkInitializedKey({
 						renderId: params.renderId,
 						chunk: params.chunk,
 						attempt: params.attempt,

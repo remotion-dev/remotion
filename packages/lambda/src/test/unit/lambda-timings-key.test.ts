@@ -1,8 +1,8 @@
-import {lambdaInitializedKey} from '../../shared/constants';
+import {lambdaChunkInitializedKey} from '../../shared/constants';
 import {parseLambdaInitializedKey} from '../../shared/parse-lambda-initialized-key';
 
 test('Lambda timinings key', () => {
-	const key = lambdaInitializedKey({
+	const key = lambdaChunkInitializedKey({
 		attempt: 1,
 		chunk: 1,
 		renderId: 'abcdef',
