@@ -464,7 +464,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		renderId: params.renderId,
 	});
 	await lambdaDeleteFile({
-		bucket: params.bucketName,
+		bucketName: params.bucketName,
 		key: initalizedMetadataKey(params.renderId),
 		region: getCurrentRegionInFunction(),
 	});
