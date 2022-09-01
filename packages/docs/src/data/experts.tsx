@@ -21,38 +21,17 @@ export const experts: Expert[] = [
     email: "marcus.stenbeck+remotionexpert@gmail.com",
     description: (
       <div>
-        About me: Animation Technology Engineer specialized in customizable
-        videos and templates.
         <p>
-          I made:{" "}
-          <a target={"_blank"} href="https://superclip.io">
-            Superclip.io
+          Creator of{" "}
+          <a target={"_blank"} href="https://github.com/marcusstenbeck/remotion-template-audiogram">
+            Remotion's Audiogram template
           </a>
-          {" and "}
-          <a target={"_blank"} href="https://lottietovideo.com/">
-            lottietovideo.com
-          </a>
-          {"!"}
-          <br />I also make Open Source stuff:{" "}
+          <br />I make templates, libraries and educational content at {" "}
           <a
             target={"_blank"}
-            href="https://github.com/marcusstenbeck/remotion-template-audiogram"
+            href="https://remotionkit.com"
           >
-            Remotion{"'"}s Audiogram Template
-          </a>
-          {", "}
-          <a
-            target={"_blank"}
-            href="https://github.com/marcusstenbeck/remotion-transition-series"
-          >
-            Remotion{"'"}s Transition Series
-          </a>
-          {" and "}
-          <a
-            target={"_blank"}
-            href="https://github.com/marcusstenbeck/remotion-audio-visualizers"
-          >
-            Remotion{"'"}s Audio Visualizers
+            remotionkit.com
           </a>
           {"."}
         </p>
@@ -60,7 +39,8 @@ export const experts: Expert[] = [
     ),
     website: null,
   },
-  {
+  /**
+    {
     name: "Matt McGillivray",
     image: "/img/freelancers/umungo.png",
     website: null,
@@ -84,6 +64,7 @@ export const experts: Expert[] = [
       </div>
     ),
   },
+  */
   {
     name: "Florent Pergoud",
     image: "/img/freelancers/florent.jpeg",
