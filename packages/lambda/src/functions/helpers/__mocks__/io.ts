@@ -2,10 +2,12 @@ import type {_Object} from '@aws-sdk/client-s3';
 import {Readable} from 'stream';
 import {
 	getS3FilesInBucket,
+	mockDeleteS3File,
 	readMockS3File,
 	writeMockS3File,
 } from '../../../api/__mocks__/mock-s3';
 import type {
+	lambdaDeleteFile as deleteOriginal,
 	lambdaLs as lsOriginal,
 	lambdaReadFile as readOriginal,
 	lambdaWriteFile as writeOriginal,
@@ -41,6 +43,19 @@ export const lambdaWriteFile: typeof writeOriginal = ({
 		bucketName,
 		key,
 		privacy,
+		region,
+	});
+	return Promise.resolve(undefined);
+};
+
+export const lambdaDeleteFile: typeof deleteOriginal = ({
+	bucketName,
+	key,
+	region,
+}) => {
+	mockDeleteS3File({
+		bucketName,
+		key,
 		region,
 	});
 	return Promise.resolve(undefined);

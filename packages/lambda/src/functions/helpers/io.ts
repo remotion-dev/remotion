@@ -76,17 +76,17 @@ export const lambdaLs = async ({
 };
 
 export const lambdaDeleteFile = async ({
-	bucket,
+	bucketName,
 	key,
 	region,
 }: {
 	region: AwsRegion;
-	bucket: string;
+	bucketName: string;
 	key: string;
 }) => {
 	await getS3Client(region).send(
 		new DeleteObjectCommand({
-			Bucket: bucket,
+			Bucket: bucketName,
 			Key: key,
 		})
 	);
