@@ -25,22 +25,7 @@ const flex: React.CSSProperties = {
   flex: 1,
 };
 
-const panel: React.CSSProperties = {
-  backgroundColor: "var(--ifm-navbar-background-color)",
-  boxShadow: "var(--box-shadow)",
-  padding: 10,
-  borderRadius: 10,
-  display: "block",
-  margin: "auto",
-  width: 350,
-  paddingTop: 0,
-  paddingBottom: 0,
-};
 
-const step: React.CSSProperties = {
-  flex: 1,
-  ...panel,
-};
 
 const Experts: React.FC = () => {
   const expertsInRandomOrder = useMemo(() => {
@@ -71,13 +56,14 @@ const Experts: React.FC = () => {
             indicated that they are available to work on Remotion projects. They
             appear in random order.{" "}
           </p>
-          <div style={step}>
             <p className={styles.tagline}>
               <a href="mailto:hi@remotion.dev?subject=Remotion+experts+directory">
+                <strong>
+
                 Are you available for hire? Let us know!
+                </strong>
               </a>
             </p>
-          </div>
           <br />
           <br />
           {expertsInRandomOrder.map((e) => {
@@ -127,6 +113,7 @@ const Experts: React.FC = () => {
                     ) : null}
                   </div>
                   <Spacer />
+                  <Spacer />
                   <div
                     style={{
                       display: "flex",
@@ -134,8 +121,7 @@ const Experts: React.FC = () => {
                     }}
                   >
                     {e.linkedin ? (
-                      <>
-                        <div style={flex}>
+                      <div style={flex}>
                           <a
                             style={docsButton}
                             target={"_blank"}
@@ -146,11 +132,13 @@ const Experts: React.FC = () => {
                             </BlueButton>
                           </a>
                         </div>
+                    ) : null}
+                    {e.linkedin && e.email ? (
+                      <>
                         <Spacer />
                         <Spacer />
                       </>
-                    ) : null}
-
+                    ) : null} 
                     {e.email ? (
                       <div style={flex}>
                         <a

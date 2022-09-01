@@ -33,7 +33,7 @@ export const experts: Expert[] = [
             lottietovideo.com
           </a>
           {"!"}
-          <br />I also make opensource stuff:{" "}
+          <br />I also make Open Source stuff:{" "}
           <a
             target={"_blank"}
             href="https://github.com/marcusstenbeck/remotion-template-audiogram"
