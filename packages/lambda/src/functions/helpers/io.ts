@@ -1,5 +1,6 @@
 import type {_Object} from '@aws-sdk/client-s3';
 import {
+	DeleteObjectCommand,
 	GetObjectCommand,
 	ListObjectsV2Command,
 	PutObjectCommand,
@@ -72,6 +73,23 @@ export const lambdaLs = async ({
 
 		throw err;
 	}
+};
+
+export const lambdaDeleteFile = async ({
+	bucket,
+	key,
+	region,
+}: {
+	region: AwsRegion;
+	bucket: string;
+	key: string;
+}) => {
+	await getS3Client(region).send(
+		new DeleteObjectCommand({
+			Bucket: bucket,
+			Key: key,
+		})
+	);
 };
 
 export const lambdaWriteFile = async ({

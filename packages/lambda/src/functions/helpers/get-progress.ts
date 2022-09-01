@@ -4,6 +4,7 @@ import type {RenderProgress} from '../../shared/constants';
 import {
 	chunkKey,
 	encodingProgressKey,
+	lambdaInitializedPrefix,
 	MAX_EPHEMERAL_STORAGE_IN_MB,
 	renderMetadataKey,
 	rendersPrefix,
@@ -103,6 +104,18 @@ export const getProgress = async ({
 		region: getCurrentRegionInFunction(),
 		expectedBucketOwner,
 	});
+
+	const initializedExists = Boolean(
+		contents.find((c) => {
+			return c.Key?.startsWith(lambdaInitializedPrefix(renderId));
+		})
+	);
+
+	if (!initializedExists) {
+		throw new TypeError(
+			`No render with ID "${renderId}" found in bucket ${bucketName} and region ${region}`
+		);
+	}
 
 	const renderMetadataExists = Boolean(
 		contents.find((c) => c.Key === renderMetadataKey(renderId))

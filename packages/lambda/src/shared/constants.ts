@@ -52,9 +52,11 @@ export const encodingProgressKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/encoding-progress.json`;
 export const renderMetadataKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/pre-render-metadata.json`;
+export const initalizedMetadataKey = (renderId: string) =>
+	`${rendersPrefix(renderId)}/initialized.txt`;
 export const lambdaInitializedPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/lambda-initialized`;
-export const lambdaInitializedKey = ({
+export const lambdaChunkInitializedKey = ({
 	renderId,
 	chunk,
 	attempt,
