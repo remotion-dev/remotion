@@ -131,6 +131,7 @@ module.exports = {
           href: "/docs/lambda/cli",
           label: "lambda ↗️",
         },
+        "cli/bundle",
         "cli/versions",
         "cli/upgrade",
         "cli/help",
