@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/transitions",
-	"version": "3.0.29",
+	"version": "3.2.12",
 	"description": "Transition presets for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
