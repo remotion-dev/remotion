@@ -47,24 +47,28 @@ const determineResizeParams = (
 // if the video is corrupted
 const getFrameOfVideoSlow = async ({
 	src,
-	timestamp,
+	duration,
 	ffmpegExecutable,
 	imageFormat,
 	specialVCodecForTransparency,
 	needsResize,
+	offset,
+	fps,
 }: {
 	ffmpegExecutable: FfmpegExecutable;
 	src: string;
-	timestamp: number;
+	duration: number;
 	imageFormat: OffthreadVideoImageFormat;
 	specialVCodecForTransparency: SpecialVCodecForTransparency;
 	needsResize: [number, number] | null;
-}) => {
+	offset: number;
+	fps: number | null;
+}): Promise<Buffer> => {
 	console.warn(
-		`\nUsing a slow method to extract the frame at ${timestamp}ms of ${src}. See https://remotion.dev/docs/slow-method-to-extract-frame for advice`
+		`\nUsing a slow method to extract the frame at ${duration}ms of ${src}. See https://remotion.dev/docs/slow-method-to-extract-frame for advice`
 	);
 
-	const actualOffset = `-${timestamp * 1000}ms`;
+	const actualOffset = `-${duration * 1000 - offset}ms`;
 	const command = [
 		'-itsoffset',
 		actualOffset,
@@ -112,11 +116,25 @@ const getFrameOfVideoSlow = async ({
 
 	const isEmpty = stdErr.includes('Output file is empty');
 	if (isEmpty) {
-		throw new Error(
-			`Could not get last frame of ${src}. Tried to seek to the end using the command "ffmpeg ${command.join(
-				' '
-			)}" but got no frame. Most likely this video is corrupted.`
-		);
+		if (offset > 70) {
+			throw new Error(
+				`Could not get last frame of ${src}. Tried to seek to the end using the command "ffmpeg ${command.join(
+					' '
+				)}" but got no frame. Most likely this video is corrupted.`
+			);
+		}
+
+		return getFrameOfVideoSlow({
+			ffmpegExecutable,
+			duration,
+			// Decrement in 10ms increments, or 1 frame (e.g. fps = 25 --> 40ms)
+			offset: offset + (fps === null ? 10 : 1000 / fps),
+			src,
+			imageFormat,
+			specialVCodecForTransparency,
+			needsResize,
+			fps,
+		});
 	}
 
 	return stdoutBuffer;
@@ -146,12 +164,14 @@ const getLastFrameOfVideoFastUnlimited = async (
 
 	if (options.specialVCodecForTransparency === 'vp8' || offset > 40) {
 		const last = await getFrameOfVideoSlow({
-			timestamp: duration,
+			duration,
 			ffmpegExecutable,
 			src,
 			imageFormat: options.imageFormat,
 			specialVCodecForTransparency: options.specialVCodecForTransparency,
 			needsResize: options.needsResize,
+			offset: offset - 1000 / (fps === null ? 10 : fps),
+			fps,
 		});
 		return last;
 	}
@@ -214,7 +234,7 @@ const getLastFrameOfVideoFastUnlimited = async (
 		const unlimited = await getLastFrameOfVideoFastUnlimited({
 			ffmpegExecutable,
 			// Decrement in 10ms increments, or 1 frame (e.g. fps = 25 --> 40ms)
-			offset: offset + 1000 / (fps === null ? 10 : fps),
+			offset: offset + (fps === null ? 10 : 1000 / fps),
 			src,
 			ffprobeExecutable,
 			imageFormat: options.imageFormat,
@@ -268,13 +288,20 @@ const extractFrameFromVideoFn = async ({
 	);
 
 	if (specialVcodec === 'vp8') {
+		const {fps} = await getVideoStreamDuration(
+			downloadMap,
+			src,
+			ffprobeExecutable
+		);
 		return getFrameOfVideoSlow({
 			ffmpegExecutable,
 			imageFormat,
 			specialVCodecForTransparency: specialVcodec,
 			src,
-			timestamp: time,
+			duration: time,
 			needsResize,
+			offset: 0,
+			fps,
 		});
 	}
 
@@ -359,6 +386,14 @@ const extractFrameFromVideoFn = async ({
 		});
 
 		return last;
+	}
+
+	if (stdOut.length === 0) {
+		console.log('FFMPEG Logs:');
+		console.log(stderrStr);
+		throw new Error(
+			"Couldn't extract frame from video - FFMPEG did not return any data. Check logs to see more information"
+		);
 	}
 
 	return stdOut;
