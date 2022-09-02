@@ -1,6 +1,6 @@
 ---
 id: composition
-title: <Composition />
+title: <Composition>
 ---
 
 This is the component to use to register a video to make it renderable and make it show up in the sidebar of the Remotion development interface.

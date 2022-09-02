@@ -1,11 +1,11 @@
 import {
+	CallbackListener,
+	ErrorFallback,
 	Player,
 	PlayerRef,
-	CallbackListener,
 	RenderLoading,
-	ErrorFallback,
 } from '@remotion/player';
-import {
+import React, {
 	ComponentType,
 	ReactNode,
 	useCallback,
@@ -30,23 +30,46 @@ type CompProps<T> =
 			component: AnyComponent<T>;
 	  };
 
-export default ({
-	durationInFrames,
-	...props
-}: {
-	durationInFrames: number;
-} & CompProps<any>) => {
-	const [title, setTitle] = useState('Hello World');
-	const [color, setColor] = useState('#ffffff');
-	const [bgColor, setBgColor] = useState('#000000');
-	const [loop, setLoop] = useState(false);
-	const [doubleClickToFullscreen, setDoubleClickToFullscreen] = useState(true);
-	const [clickToPlay, setClickToPlay] = useState(true);
+const ControlsOnly: React.FC<{
+	playerRef: React.RefObject<PlayerRef>;
+	color: string;
+	setColor: React.Dispatch<React.SetStateAction<string>>;
+	title: string;
+	setTitle: React.Dispatch<React.SetStateAction<string>>;
+	bgColor: string;
+	setBgColor: React.Dispatch<React.SetStateAction<string>>;
+	setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
+	loop: boolean;
+	setLoop: React.Dispatch<React.SetStateAction<boolean>>;
+	clickToPlay: boolean;
+	setClickToPlay: React.Dispatch<React.SetStateAction<boolean>>;
+	doubleClickToFullscreen: boolean;
+	setDoubleClickToFullscreen: React.Dispatch<React.SetStateAction<boolean>>;
+	spaceKeyToPlayOrPause: boolean;
+	setSpaceKeyToPlayOrPause: React.Dispatch<React.SetStateAction<boolean>>;
+	moveToBeginningWhenEnded: boolean;
+	setMoveToBeginningWhenEnded: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({
+	playerRef: ref,
+	color,
+	title,
+	setTitle,
+	setColor,
+	bgColor,
+	setBgColor,
+	setPlaybackRate,
+	loop,
+	setLoop,
+	clickToPlay,
+	setClickToPlay,
+	doubleClickToFullscreen,
+	setDoubleClickToFullscreen,
+	setSpaceKeyToPlayOrPause,
+	spaceKeyToPlayOrPause,
+	moveToBeginningWhenEnded,
+	setMoveToBeginningWhenEnded,
+}) => {
 	const [logs, setLogs] = useState<string[]>(() => []);
-	const [spaceKeyToPlayOrPause, setspaceKeyToPlayOrPause] = useState(true);
-	const [playbackRate, setPlaybackRate] = useState(1);
-
-	const ref = useRef<PlayerRef>(null);
 
 	useEffect(() => {
 		const playCallbackListener: CallbackListener<'play'> = () => {
@@ -79,6 +102,14 @@ export default ({
 				'ratechange ' + e.detail.playbackRate + ' ' + Date.now(),
 			]);
 		};
+		const fullscreenChangeCallbackListener: CallbackListener<
+			'fullscreenchange'
+		> = (e) => {
+			setLogs((l) => [
+				...l,
+				'fullscreenchange ' + e.detail.isFullscreen + ' ' + Date.now(),
+			]);
+		};
 
 		const {current} = ref;
 		if (!current) {
@@ -92,6 +123,10 @@ export default ({
 		current.addEventListener('error', errorCallbackListener);
 		current.addEventListener('timeupdate', timeupdateCallbackLitener);
 		current.addEventListener('ratechange', ratechangeCallbackListener);
+		current.addEventListener(
+			'fullscreenchange',
+			fullscreenChangeCallbackListener
+		);
 
 		return () => {
 			current.removeEventListener('play', playCallbackListener);
@@ -101,60 +136,15 @@ export default ({
 			current.removeEventListener('error', errorCallbackListener);
 			current.removeEventListener('timeupdate', timeupdateCallbackLitener);
 			current.removeEventListener('ratechange', ratechangeCallbackListener);
+			current.removeEventListener(
+				'fullscreenchange',
+				fullscreenChangeCallbackListener
+			);
 		};
-	}, []);
-
-	const inputProps = useMemo(() => {
-		return {
-			title: String(title),
-			bgColor: String(bgColor),
-			color: String(color),
-		};
-	}, [bgColor, color, title]);
-
-	const renderLoading: RenderLoading = useCallback(() => {
-		return (
-			<AbsoluteFill style={{backgroundColor: 'yellow'}}>
-				<Loading size={200} />
-				<div>Loading for 3 seconds...</div>
-			</AbsoluteFill>
-		);
-	}, []);
-
-	const errorFallback: ErrorFallback = useCallback(({error}) => {
-		return (
-			<AbsoluteFill
-				style={{
-					backgroundColor: 'yellow',
-					justifyContent: 'center',
-					alignItems: 'center',
-				}}
-			>
-				Sorry about this! An error occurred: {error.message}
-			</AbsoluteFill>
-		);
-	}, []);
+	}, [ref]);
 
 	return (
-		<div style={{margin: '2rem'}}>
-			<Player
-				ref={ref}
-				compositionWidth={500}
-				compositionHeight={432}
-				fps={fps}
-				durationInFrames={durationInFrames}
-				{...props}
-				controls
-				showVolumeControls
-				doubleClickToFullscreen={doubleClickToFullscreen}
-				loop={loop}
-				clickToPlay={clickToPlay}
-				inputProps={inputProps}
-				renderLoading={renderLoading}
-				errorFallback={errorFallback}
-				playbackRate={playbackRate}
-				spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
-			/>
+		<div>
 			<div style={{paddingTop: '0.5rem'}}>
 				Enter Text{' '}
 				<input
@@ -300,10 +290,17 @@ export default ({
 			>
 				doubleClickToFullscreen = {String(doubleClickToFullscreen)}
 			</button>
-			<button type="button" onClick={() => setspaceKeyToPlayOrPause((l) => !l)}>
+			<button type="button" onClick={() => setSpaceKeyToPlayOrPause((l) => !l)}>
 				spaceKeyToPlayOrPause = {String(spaceKeyToPlayOrPause)}
 			</button>
 			<br />
+
+			<button
+				type="button"
+				onClick={() => setMoveToBeginningWhenEnded((l) => !l)}
+			>
+				moveToBeginningWhenEnded = {String(moveToBeginningWhenEnded)}
+			</button>
 			<button
 				type="button"
 				onClick={() =>
@@ -351,6 +348,142 @@ export default ({
 				.map((l) => {
 					return <div key={l}>{l}</div>;
 				})}
+		</div>
+	);
+};
+
+const PlayerOnly: React.FC<
+	{
+		playerRef: React.RefObject<PlayerRef>;
+		inputProps: object;
+		clickToPlay: boolean;
+		loop: boolean;
+		durationInFrames: number;
+		doubleClickToFullscreen: boolean;
+		playbackRate: number;
+		spaceKeyToPlayOrPause: boolean;
+		moveToBeginningWhenEnded: boolean;
+	} & CompProps<any>
+> = ({
+	playerRef,
+	inputProps,
+	clickToPlay,
+	loop,
+	durationInFrames,
+	doubleClickToFullscreen,
+	playbackRate,
+	spaceKeyToPlayOrPause,
+	moveToBeginningWhenEnded,
+	...props
+}) => {
+	console.log('rerender');
+	const renderLoading: RenderLoading = useCallback(() => {
+		return (
+			<AbsoluteFill style={{backgroundColor: 'yellow'}}>
+				<Loading size={200} />
+				<div>Loading for 3 seconds...</div>
+			</AbsoluteFill>
+		);
+	}, []);
+
+	const errorFallback: ErrorFallback = useCallback(({error}) => {
+		return (
+			<AbsoluteFill
+				style={{
+					backgroundColor: 'yellow',
+					justifyContent: 'center',
+					alignItems: 'center',
+				}}
+			>
+				Sorry about this! An error occurred: {error.message}
+			</AbsoluteFill>
+		);
+	}, []);
+
+	return (
+		<Player
+			ref={playerRef}
+			controls
+			showVolumeControls
+			compositionWidth={500}
+			compositionHeight={432}
+			fps={fps}
+			{...props}
+			durationInFrames={durationInFrames}
+			doubleClickToFullscreen={doubleClickToFullscreen}
+			loop={loop}
+			clickToPlay={clickToPlay}
+			inputProps={inputProps}
+			renderLoading={renderLoading}
+			errorFallback={errorFallback}
+			playbackRate={playbackRate}
+			spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
+			moveToBeginningWhenEnded={moveToBeginningWhenEnded}
+		/>
+	);
+};
+
+export default ({
+	durationInFrames,
+	...props
+}: {
+	durationInFrames: number;
+} & CompProps<any>) => {
+	const [title, setTitle] = useState('Hello World');
+	const [color, setColor] = useState('#ffffff');
+	const [bgColor, setBgColor] = useState('#000000');
+	const [loop, setLoop] = useState(false);
+	const [doubleClickToFullscreen, setDoubleClickToFullscreen] = useState(true);
+	const [clickToPlay, setClickToPlay] = useState(true);
+	const [spaceKeyToPlayOrPause, setSpaceKeyToPlayOrPause] = useState(true);
+	const [moveToBeginningWhenEnded, setMoveToBeginningWhenEnded] =
+		useState(true);
+	const [playbackRate, setPlaybackRate] = useState(1);
+
+	const ref = useRef<PlayerRef>(null);
+
+	const inputProps = useMemo(() => {
+		return {
+			title: String(title),
+			bgColor: String(bgColor),
+			color: String(color),
+		};
+	}, [bgColor, color, title]);
+
+	return (
+		<div style={{margin: '2rem'}}>
+			<PlayerOnly
+				clickToPlay={clickToPlay}
+				{...props}
+				doubleClickToFullscreen={doubleClickToFullscreen}
+				durationInFrames={durationInFrames}
+				inputProps={inputProps}
+				loop={loop}
+				moveToBeginningWhenEnded={moveToBeginningWhenEnded}
+				playbackRate={playbackRate}
+				spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
+				playerRef={ref}
+			/>
+			<ControlsOnly
+				bgColor={bgColor}
+				clickToPlay={clickToPlay}
+				color={color}
+				doubleClickToFullscreen={doubleClickToFullscreen}
+				loop={loop}
+				moveToBeginningWhenEnded={moveToBeginningWhenEnded}
+				setBgColor={setBgColor}
+				setClickToPlay={setClickToPlay}
+				setColor={setColor}
+				setDoubleClickToFullscreen={setDoubleClickToFullscreen}
+				setLoop={setLoop}
+				setMoveToBeginningWhenEnded={setMoveToBeginningWhenEnded}
+				setPlaybackRate={setPlaybackRate}
+				setSpaceKeyToPlayOrPause={setSpaceKeyToPlayOrPause}
+				setTitle={setTitle}
+				spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
+				title={title}
+				playerRef={ref}
+			/>
 		</div>
 	);
 };

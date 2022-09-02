@@ -1,5 +1,6 @@
 import React, {useContext, useState} from 'react';
 import {Internals} from 'remotion';
+import {BACKGROUND} from '../helpers/colors';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
 import {loadLoopOption} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
@@ -13,8 +14,8 @@ import {PlaybackRateSelector} from './PlaybackRateSelector';
 import {PlayPause} from './PlayPause';
 import {RichTimelineToggle} from './RichTimelineToggle';
 import {SizeSelector} from './SizeSelector';
+import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
-import {TimeValue} from './TimeValue';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -24,6 +25,7 @@ const container: React.CSSProperties = {
 	paddingBottom: 2,
 	alignItems: 'center',
 	flexDirection: 'row',
+	background: BACKGROUND,
 };
 
 const sideContainer: React.CSSProperties = {
@@ -52,7 +54,7 @@ export const PreviewToolbar: React.FC = () => {
 		<div style={container} className="css-reset">
 			<div style={sideContainer}>
 				<div style={padding} />
-				<TimeValue />
+				<TimelineZoomControls />
 			</div>
 			<Flex />
 			<SizeSelector />

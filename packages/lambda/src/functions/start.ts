@@ -1,21 +1,49 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {Internals} from 'remotion';
+import {VERSION} from 'remotion/version';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {LambdaPayload} from '../shared/constants';
-import { LambdaRoutines} from '../shared/constants';
+import {initalizedMetadataKey, LambdaRoutines} from '../shared/constants';
 import {randomHash} from '../shared/random-hash';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
+import {lambdaWriteFile} from './helpers/io';
 
-export const startHandler = async (params: LambdaPayload) => {
+type Options = {
+	expectedBucketOwner: string;
+};
+
+export const startHandler = async (params: LambdaPayload, options: Options) => {
 	if (params.type !== LambdaRoutines.start) {
 		throw new TypeError('Expected type start');
+	}
+
+	if (params.version !== VERSION) {
+		if (!params.version) {
+			throw new Error(
+				`Version mismatch: When calling renderMediaOnLambda(), the deployed Lambda function had version ${VERSION} but the @remotion/lambda package is an older version. Align the versions.`
+			);
+		}
+
+		throw new Error(
+			`Version mismatch: When calling renderMediaOnLambda(), get deployed Lambda function had version ${VERSION} and the @remotion/lambda package has version ${params.version}. Align the versions.`
+		);
 	}
 
 	const {bucketName} = await getOrCreateBucket({
 		region: getCurrentRegionInFunction(),
 	});
+
 	const renderId = randomHash({randomInTests: true});
+
+	const initialFile = lambdaWriteFile({
+		bucketName,
+		downloadBehavior: null,
+		region: getCurrentRegionInFunction(),
+		body: 'Render was initialized',
+		expectedBucketOwner: options.expectedBucketOwner,
+		key: initalizedMetadataKey(renderId),
+		privacy: 'private',
+	});
 
 	const payload: LambdaPayload = {
 		type: LambdaRoutines.launch,
@@ -34,12 +62,17 @@ export const startHandler = async (params: LambdaPayload) => {
 		quality: params.quality,
 		maxRetries: params.maxRetries,
 		privacy: params.privacy,
-		logLevel: params.logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
+		logLevel: params.logLevel ?? 'info',
 		frameRange: params.frameRange,
 		outName: params.outName,
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
 		scale: params.scale,
+		numberOfGifLoops: params.numberOfGifLoops,
+		everyNthFrame: params.everyNthFrame,
+		concurrencyPerLambda: params.concurrencyPerLambda,
+		downloadBehavior: params.downloadBehavior,
+		muted: params.muted,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({
@@ -49,6 +82,7 @@ export const startHandler = async (params: LambdaPayload) => {
 			InvocationType: 'Event',
 		})
 	);
+	await initialFile;
 	return {
 		bucketName,
 		renderId,

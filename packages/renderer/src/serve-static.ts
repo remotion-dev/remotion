@@ -1,7 +1,8 @@
 import http from 'http';
-import type {FfmpegExecutable} from 'remotion';
-import {Internals} from 'remotion';
+import type {Socket} from 'net';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import type {DownloadMap} from './assets/download-map';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getDesiredPort} from './get-port';
 import {startOffthreadVideoServer} from './offthread-video-server';
 import {serveHandler} from './serve-handler';
@@ -12,29 +13,27 @@ export const serveStatic = async (
 		port: number | null;
 		ffmpegExecutable: FfmpegExecutable;
 		ffprobeExecutable: FfmpegExecutable;
-		downloadDir: string;
 		onDownload: RenderMediaOnDownload;
 		onError: (err: Error) => void;
+		downloadMap: DownloadMap;
 	}
 ): Promise<{
 	port: number;
 	close: () => Promise<void>;
 }> => {
-	const port = await getDesiredPort(
-		options?.port ?? Internals.getServerPort() ?? undefined,
-		3000,
-		3100
-	);
+	const port = await getDesiredPort(options?.port ?? undefined, 3000, 3100);
 
 	const offthreadRequest = startOffthreadVideoServer({
 		ffmpegExecutable: options.ffmpegExecutable,
 		ffprobeExecutable: options.ffprobeExecutable,
-		downloadDir: options.downloadDir,
 		onDownload: options.onDownload,
 		onError: options.onError,
+		downloadMap: options.downloadMap,
 	});
 
 	try {
+		const connections: Record<string, Socket> = {};
+
 		const server = http
 			.createServer((request, response) => {
 				if (request.url?.startsWith('/proxy')) {
@@ -56,8 +55,21 @@ export const serveStatic = async (
 			})
 			.listen(port);
 
+		server.on('connection', (conn) => {
+			const key = conn.remoteAddress + ':' + conn.remotePort;
+			connections[key] = conn;
+			conn.on('close', () => {
+				delete connections[key];
+			});
+		});
+
+		const destroyConnections = function () {
+			for (const key in connections) connections[key].destroy();
+		};
+
 		const close = () => {
 			return new Promise<void>((resolve, reject) => {
+				destroyConnections();
 				server.close((err) => {
 					if (err) {
 						if (

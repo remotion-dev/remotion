@@ -38,7 +38,7 @@ You can mix multiple tracks together by adding more audio tags.
 ## Cutting or trimming the audio
 
 You can use the [`<Sequence />`](/docs/sequence) API to cut and trim audio.
-As a convienience, the `<Audio />` tag supports the `startFrom` and `endAt` props.
+As a convenience, the `<Audio />` tag supports the `startFrom` and `endAt` props.
 
 ```tsx twoslash {10-11}
 import { Audio } from "remotion";
@@ -143,6 +143,10 @@ export const MyVideo = () => {
 ```
 
 Note that if you pass in a callback function, the first frame on which audio is being played is always the frame `0`.
+
+:::note
+When using the [`<Player>`](/docs/player), note that Mobile Safari [does not support the `volume` property](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/Using_HTML5_Audio_Video/Device-SpecificConsiderations/Device-SpecificConsiderations.html#//apple_ref/doc/uid/TP40009523-CH5-SW11). The audio mix may not play as intended.
+:::
 
 ## `muted` property
 

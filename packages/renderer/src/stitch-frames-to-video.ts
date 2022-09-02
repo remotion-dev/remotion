@@ -1,32 +1,41 @@
 import execa from 'execa';
 import fs from 'fs';
-import {readFile, unlink} from 'fs/promises';
+import {readFile} from 'fs/promises';
 import path from 'path';
-import type {
-	Codec,
-	FfmpegExecutable,
-	ImageFormat,
-	PixelFormat,
-	ProResProfile,
-	RenderAssetInfo,
-	TAsset,
-} from 'remotion';
+import type {TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
+import type {DownloadMap, RenderAssetInfo} from './assets/download-map';
 import type {Assets} from './assets/types';
+import type {Codec} from './codec';
+import {DEFAULT_CODEC} from './codec';
+import {codecSupportsCrf, codecSupportsMedia} from './codec-supports-media';
+import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
+import {
+	getDefaultCrfForCodec,
+	validateSelectedCrfAndCodecCombination,
+} from './crf';
 import {deleteDirectory} from './delete-directory';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getProResProfileName} from './get-prores-profile-name';
+import type {ImageFormat} from './image-format';
 import type {CancelSignal} from './make-cancel-signal';
 import {mergeAudioTrack} from './merge-audio-track';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
+import type {PixelFormat} from './pixel-format';
+import {
+	DEFAULT_PIXEL_FORMAT,
+	validateSelectedPixelFormatAndCodecCombination,
+} from './pixel-format';
 import {preprocessAudioTrack} from './preprocess-audio-track';
-import {tmpDir} from './tmp-dir';
+import type {ProResProfile} from './prores-profile';
+import {truthy} from './truthy';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
@@ -44,6 +53,7 @@ export type StitcherOptions = {
 	force: boolean;
 	assetsInfo: RenderAssetInfo;
 	pixelFormat?: PixelFormat;
+	numberOfGifLoops?: number | null;
 	codec?: Codec;
 	crf?: number | null;
 	onProgress?: (progress: number) => void;
@@ -58,6 +68,8 @@ export type StitcherOptions = {
 		preEncodedFileLocation: string | null;
 		imageFormat: ImageFormat;
 	};
+	muted?: boolean;
+	enforceAudioTrack?: boolean;
 };
 
 type ReturnType = {
@@ -67,7 +79,6 @@ type ReturnType = {
 
 const getAssetsData = async ({
 	assets,
-	downloadDir,
 	onDownload,
 	fps,
 	expectedFrames,
@@ -75,9 +86,9 @@ const getAssetsData = async ({
 	ffmpegExecutable,
 	ffprobeExecutable,
 	onProgress,
+	downloadMap,
 }: {
 	assets: TAsset[][];
-	downloadDir: string;
 	onDownload: RenderMediaOnDownload | undefined;
 	fps: number;
 	expectedFrames: number;
@@ -85,21 +96,20 @@ const getAssetsData = async ({
 	ffmpegExecutable: FfmpegExecutable | null;
 	ffprobeExecutable: FfmpegExecutable | null;
 	onProgress: (progress: number) => void;
+	downloadMap: DownloadMap;
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
-		downloadDir,
 		onDownload: onDownload ?? (() => () => undefined),
+		downloadMap,
 	});
 
-	markAllAssetsAsDownloaded();
+	markAllAssetsAsDownloaded(downloadMap);
 	const assetPositions: Assets = calculateAssetPositions(fileUrlAssets);
 
 	if (verbose) {
 		console.log('asset positions', assetPositions);
 	}
-
-	const tempPath = tmpDir('remotion-audio-mixing');
 
 	const preprocessProgress = new Array(assetPositions.length).fill(0);
 
@@ -112,7 +122,7 @@ const getAssetsData = async ({
 	const preprocessed = (
 		await Promise.all(
 			assetPositions.map(async (asset, index) => {
-				const filterFile = path.join(tempPath, `${index}.wav`);
+				const filterFile = path.join(downloadMap.audioMixing, `${index}.wav`);
 				const result = await preprocessAudioTrack({
 					ffmpegExecutable: ffmpegExecutable ?? null,
 					ffprobeExecutable: ffprobeExecutable ?? null,
@@ -120,22 +130,26 @@ const getAssetsData = async ({
 					asset,
 					expectedFrames,
 					fps,
+					downloadMap,
 				});
 				preprocessProgress[index] = 1;
 				updateProgress();
 				return result;
 			})
 		)
-	).filter(Internals.truthy);
+	).filter(truthy);
 
-	const outName = path.join(tempPath, `audio.wav`);
+	const outName = path.join(downloadMap.audioPreprocessing, `audio.wav`);
 
 	await mergeAudioTrack({
 		ffmpegExecutable: ffmpegExecutable ?? null,
 		files: preprocessed,
 		outName,
 		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
+		downloadMap,
 	});
+
+	deleteDirectory(downloadMap.audioMixing);
 
 	onProgress(1);
 
@@ -159,31 +173,45 @@ export const spawnFfmpeg = async (
 		'width',
 		'passed to `stitchFramesToVideo()`'
 	);
-	Internals.validateFps(options.fps, 'passed to `stitchFramesToVideo()`');
-	const codec = options.codec ?? Internals.DEFAULT_CODEC;
+	const codec = options.codec ?? DEFAULT_CODEC;
 	validateEvenDimensionsWithCodec({
 		width: options.width,
 		height: options.height,
 		codec,
 		scale: 1,
 	});
-	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
-	const pixelFormat = options.pixelFormat ?? Internals.DEFAULT_PIXEL_FORMAT;
+	Internals.validateFps(options.fps, 'in `stitchFramesToVideo()`', false);
+	const crf = options.crf ?? getDefaultCrfForCodec(codec);
+	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
 	await validateFfmpeg(options.ffmpegExecutable ?? null);
 
 	const encoderName = getCodecName(codec);
 	const audioCodecName = getAudioCodecName(codec);
 	const proResProfileName = getProResProfileName(codec, options.proResProfile);
 
-	const isAudioOnly = encoderName === null;
-	const supportsCrf = encoderName && codec !== 'prores';
+	const mediaSupport = codecSupportsMedia(codec);
+
+	const supportsCrf = codecSupportsCrf(codec);
 
 	const tempFile = options.outputLocation
 		? null
 		: path.join(
-				tmpDir('remotion-stitch-temp-dir'),
+				options.assetsInfo.downloadMap.stitchFrames,
 				`out.${getFileExtensionFromCodec(codec, 'final')}`
 		  );
+
+	const shouldRenderAudio =
+		mediaSupport.audio &&
+		(options.assetsInfo.assets.flat(1).length > 0 ||
+			options.enforceAudioTrack) &&
+		!options.muted;
+	const shouldRenderVideo = mediaSupport.video;
+
+	if (!shouldRenderAudio && !shouldRenderVideo) {
+		throw new Error(
+			'The output format has neither audio nor video. This can happen if you are rendering an audio codec and the output file has no audio or the muted flag was passed.'
+		);
+	}
 
 	if (options.verbose) {
 		console.log(
@@ -198,12 +226,13 @@ export const spawnFfmpeg = async (
 		}
 
 		console.log('[verbose] codec', codec);
-		console.log('[verbose] isAudioOnly', isAudioOnly);
+		console.log('[verbose] shouldRenderAudio', shouldRenderAudio);
+		console.log('[verbose] shouldRenderVideo', shouldRenderVideo);
 		console.log('[verbose] proResProfileName', proResProfileName);
 	}
 
-	Internals.validateSelectedCrfAndCodecCombination(crf, codec);
-	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
+	validateSelectedCrfAndCodecCombination(crf, codec);
+	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
 	const expectedFrames = options.assetsInfo.assets.length;
 
@@ -213,19 +242,21 @@ export const spawnFfmpeg = async (
 		options.onProgress?.(Math.round(totalFrameProgress));
 	};
 
-	const audio = await getAssetsData({
-		assets: options.assetsInfo.assets,
-		downloadDir: options.assetsInfo.downloadDir,
-		onDownload: options.onDownload,
-		fps: options.fps,
-		expectedFrames,
-		verbose: options.verbose ?? false,
-		ffmpegExecutable: options.ffmpegExecutable ?? null,
-		ffprobeExecutable: options.ffprobeExecutable ?? null,
-		onProgress: (prog) => updateProgress(prog, 0),
-	});
+	const audio = shouldRenderAudio
+		? await getAssetsData({
+				assets: options.assetsInfo.assets,
+				onDownload: options.onDownload,
+				fps: options.fps,
+				expectedFrames,
+				verbose: options.verbose ?? false,
+				ffmpegExecutable: options.ffmpegExecutable ?? null,
+				ffprobeExecutable: options.ffprobeExecutable ?? null,
+				onProgress: (prog) => updateProgress(prog, 0),
+				downloadMap: options.assetsInfo.downloadMap,
+		  })
+		: null;
 
-	if (isAudioOnly) {
+	if (mediaSupport.audio && !mediaSupport.video) {
 		if (!audioCodecName) {
 			throw new TypeError(
 				'exporting audio but has no audio codec name. Report this in the Remotion repo.'
@@ -252,7 +283,23 @@ export const spawnFfmpeg = async (
 		});
 		await ffmpegTask;
 		options.onProgress?.(expectedFrames);
-		const file = tempFile ? await readFile(tempFile) : null;
+		if (audio) {
+			await deleteDirectory(path.dirname(audio));
+		}
+
+		const file = await new Promise<Buffer | null>((resolve, reject) => {
+			if (tempFile) {
+				readFile(tempFile)
+					.then((f) => {
+						return resolve(f);
+					})
+					.catch((e) => reject(e));
+			} else {
+				resolve(null);
+			}
+		});
+		await deleteDirectory(options.assetsInfo.downloadMap.stitchFrames);
+
 		return {
 			getLogs: () => '',
 			task: Promise.resolve(file),
@@ -269,7 +316,15 @@ export const spawnFfmpeg = async (
 					['-start_number', String(options.assetsInfo.firstFrameIndex)],
 					['-i', options.assetsInfo.imageSequenceName],
 			  ]),
-		['-i', audio],
+		audio ? ['-i', audio] : null,
+		(options.numberOfGifLoops ?? null) === null
+			? null
+			: [
+					'-loop',
+					convertNumberOfGifLoopsToFfmpegSyntax(
+						options.numberOfGifLoops ?? null
+					),
+			  ],
 		// -c:v is the same as -vcodec as -codec:video
 		// and specified the video codec.
 		['-c:v', encoderName],
@@ -341,13 +396,20 @@ export const spawnFfmpeg = async (
 
 	return {
 		task: task.then(() => {
-			if (options.outputLocation) {
+			deleteDirectory(options.assetsInfo.downloadMap.audioPreprocessing);
+
+			if (tempFile === null) {
+				deleteDirectory(options.assetsInfo.downloadMap.stitchFrames);
 				return null;
 			}
 
-			return readFile(tempFile as string)
+			return readFile(tempFile)
 				.then((file) => {
-					return Promise.all([file, unlink(tempFile as string)]);
+					return Promise.all([
+						file,
+						deleteDirectory(path.dirname(tempFile)),
+						deleteDirectory(options.assetsInfo.downloadMap.stitchFrames),
+					]);
 				})
 				.then(([file]) => file);
 		}),

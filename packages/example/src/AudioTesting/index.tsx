@@ -1,5 +1,4 @@
-import {staticFile} from 'remotion';
-import {Audio, interpolate, Sequence} from 'remotion';
+import {Audio, interpolate, Sequence, staticFile} from 'remotion';
 
 const AudioTesting: React.FC = () => {
 	return (

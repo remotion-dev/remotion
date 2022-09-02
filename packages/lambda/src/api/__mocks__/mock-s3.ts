@@ -5,7 +5,7 @@ import type {AwsRegion} from '../../pricing/aws-regions';
 type S3MockFile = {
 	bucketName: string;
 	region: AwsRegion;
-	acl: 'public-read' | 'private';
+	acl: 'public-read' | 'private' | 'none';
 	key: string;
 	content: string | ReadStream;
 };
@@ -31,7 +31,12 @@ export const writeMockS3File = ({
 }) => {
 	mockS3Store.push({
 		content: body,
-		acl: privacy === 'public' ? 'public-read' : 'private',
+		acl:
+			privacy === 'no-acl'
+				? 'none'
+				: privacy === 'public'
+				? 'public-read'
+				: 'private',
 		bucketName,
 		key,
 		region,

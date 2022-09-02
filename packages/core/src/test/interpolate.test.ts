@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest';
 import {Easing} from '../easing';
 import {interpolate} from '../interpolate';
 import {expectToThrow} from './expect-to-throw';

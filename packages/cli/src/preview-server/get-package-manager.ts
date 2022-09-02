@@ -6,25 +6,35 @@ type LockfilePath = {
 	manager: PackageManager;
 	path: string;
 	installCommand: string;
+	startCommand: string;
 };
 
 export const lockFilePaths: LockfilePath[] = [
-	{path: 'package-lock.json', manager: 'npm', installCommand: 'npm i'},
+	{
+		path: 'package-lock.json',
+		manager: 'npm',
+		installCommand: 'npm i',
+		startCommand: 'npm start',
+	},
 	{
 		path: 'yarn.lock',
 		manager: 'yarn',
 		installCommand: 'yarn add',
+		startCommand: 'yarn start',
 	},
 	{
 		path: 'pnpm-lock.yaml',
 		manager: 'pnpm',
 		installCommand: 'pnpm i',
+		startCommand: 'pnpm start',
 	},
 ];
 
-export const getPackageManager = (): LockfilePath | 'unknown' => {
+export const getPackageManager = (
+	remotionRoot: string
+): LockfilePath | 'unknown' => {
 	const existingPkgManagers = lockFilePaths.filter((p) =>
-		fs.existsSync(path.join(process.cwd(), p.path))
+		fs.existsSync(path.join(remotionRoot, p.path))
 	);
 
 	if (existingPkgManagers.length === 0) {

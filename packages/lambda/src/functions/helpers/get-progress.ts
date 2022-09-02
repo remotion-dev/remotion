@@ -1,7 +1,6 @@
 import {Internals} from 'remotion';
 import type {AwsRegion} from '../../pricing/aws-regions';
-import type {
-	RenderProgress} from '../../shared/constants';
+import type {RenderProgress} from '../../shared/constants';
 import {
 	chunkKey,
 	encodingProgressKey,
@@ -12,6 +11,7 @@ import {
 import {DOCS_URL} from '../../shared/docs-url';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
+import {checkIfRenderExists} from './check-if-render-exists';
 import {getExpectedOutName} from './expected-out-name';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {formatCostsInfo} from './format-costs-info';
@@ -105,6 +105,13 @@ export const getProgress = async ({
 		expectedBucketOwner,
 	});
 
+	checkIfRenderExists(
+		contents,
+		renderId,
+		bucketName,
+		getCurrentRegionInFunction()
+	);
+
 	const renderMetadataExists = Boolean(
 		contents.find((c) => c.Key === renderMetadataKey(renderId))
 	);
@@ -178,12 +185,14 @@ export const getProgress = async ({
 		.map((c) => c.Size ?? 0)
 		.reduce((a, b) => a + b, 0);
 
-	const lambdasInvokedStats = getLambdasInvokedStats(
+	const lambdasInvokedStats = getLambdasInvokedStats({
 		contents,
 		renderId,
-		renderMetadata?.estimatedRenderLambdaInvokations ?? null,
-		renderMetadata?.startedDate ?? null
-	);
+		estimatedRenderLambdaInvokations:
+			renderMetadata?.estimatedRenderLambdaInvokations ?? null,
+		startDate: renderMetadata?.startedDate ?? null,
+		checkIfAllLambdasWereInvoked: true,
+	});
 
 	const retriesInfo = getRetryStats({
 		contents,

@@ -11,7 +11,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import type {ChildProcess} from 'child_process';
-import child_process, { exec} from 'child_process';
+import child_process, {exec} from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -162,7 +162,7 @@ const displayNameForEditor: {[key in Editor]: string} = {
 };
 
 export const getDisplayNameForEditor = (
-	editor: Editor | undefined
+	editor: Editor | null
 ): string | null => {
 	if (!editor) {
 		return null;
@@ -338,11 +338,16 @@ function getArgumentsForLineNumber(
 	}
 }
 
-export async function guessEditor(): Promise<Editor[]> {
+type ProcessAndCommand = {
+	process: string;
+	command: Editor;
+};
+
+export async function guessEditor(): Promise<ProcessAndCommand[]> {
 	// We can find out which editor is currently running by:
 	// `ps x` on macOS and Linux
 	// `Get-Process` on Windows
-	const availableEditors: Editor[] = [];
+	const availableEditors: ProcessAndCommand[] = [];
 	try {
 		if (process.platform === 'darwin') {
 			const output = (await execProm('ps x')).stdout.toString();
@@ -350,7 +355,10 @@ export async function guessEditor(): Promise<Editor[]> {
 			for (let i = 0; i < processNames.length; i++) {
 				const processName = processNames[i];
 				if (output.indexOf(processName) !== -1) {
-					availableEditors.push(COMMON_EDITORS_OSX[processName]);
+					availableEditors.push({
+						process: processName,
+						command: COMMON_EDITORS_OSX[processName],
+					});
 				}
 			}
 
@@ -370,7 +378,10 @@ export async function guessEditor(): Promise<Editor[]> {
 				const processPath = runningProcesses[i].trim();
 				const processName = path.basename(processPath);
 				if (COMMON_EDITORS_WIN.indexOf(processName as Editor) !== -1) {
-					availableEditors.push(processPath as Editor);
+					availableEditors.push({
+						process: processPath,
+						command: processPath as Editor,
+					});
 				}
 			}
 
@@ -388,7 +399,10 @@ export async function guessEditor(): Promise<Editor[]> {
 			for (let i = 0; i < processNames.length; i++) {
 				const processName = processNames[i];
 				if (output.indexOf(processName) !== -1) {
-					availableEditors.push(COMMON_EDITORS_LINUX[processName]);
+					availableEditors.push({
+						process: processName,
+						command: COMMON_EDITORS_LINUX[processName],
+					});
 				}
 			}
 
@@ -400,11 +414,21 @@ export async function guessEditor(): Promise<Editor[]> {
 
 	// Last resort, use old skool env vars
 	if (process.env.VISUAL) {
-		return [process.env.VISUAL as Editor];
+		return [
+			{
+				process: process.env.VISUAL as Editor,
+				command: process.env.VISUAL as Editor,
+			},
+		];
 	}
 
 	if (process.env.EDITOR) {
-		return [process.env.EDITOR as Editor];
+		return [
+			{
+				process: process.env.EDITOR as Editor,
+				command: process.env.EDITOR as Editor,
+			},
+		];
 	}
 
 	return [];
@@ -412,7 +436,7 @@ export async function guessEditor(): Promise<Editor[]> {
 
 let _childProcess: ChildProcess | null = null;
 
-export function launchEditor({
+export async function launchEditor({
 	colNumber,
 	editor,
 	fileName,
@@ -422,18 +446,18 @@ export function launchEditor({
 	fileName: string;
 	lineNumber: number;
 	colNumber: number;
-	editor: Editor;
+	editor: ProcessAndCommand;
 	vsCodeNewWindow: boolean;
 }): Promise<boolean> {
 	if (!fs.existsSync(fileName)) {
-		return Promise.resolve(false);
+		return false;
 	}
 
 	// Sanitize lineNumber to prevent malicious use on win32
 	// via: https://github.com/nodejs/node/blob/c3bb4b1aa5e907d489619fb43d233c3336bfc03d/lib/child_process.js#L333
 	// and it should be a positive integer
 	if (!(Number.isInteger(lineNumber) && lineNumber > 0)) {
-		return Promise.resolve(false);
+		return false;
 	}
 
 	// colNumber is optional, but should be a positive integer too
@@ -442,8 +466,8 @@ export function launchEditor({
 		colNumber = 1;
 	}
 
-	if (editor.toLowerCase() === 'none') {
-		return Promise.resolve(false);
+	if (editor.command.toLowerCase() === 'none') {
+		return false;
 	}
 
 	if (
@@ -478,38 +502,58 @@ export function launchEditor({
 				'dashes, slashes, and underscores.'
 		);
 		Log.error();
-		return Promise.resolve(false);
+		return false;
 	}
 
 	const shouldOpenVsCodeNewWindow =
-		isVsCodeDerivative(editor) && vsCodeNewWindow;
+		isVsCodeDerivative(editor.command) && vsCodeNewWindow;
 
 	const args = shouldOpenVsCodeNewWindow
 		? ['--new-window', fileName]
 		: lineNumber
-		? getArgumentsForLineNumber(editor, fileName, String(lineNumber), colNumber)
+		? getArgumentsForLineNumber(
+				editor.command,
+				fileName,
+				String(lineNumber),
+				colNumber
+		  )
 		: [fileName];
 
-	if (_childProcess && isTerminalEditor(editor)) {
+	if (_childProcess && isTerminalEditor(editor.command)) {
 		// There's an existing editor process already and it's attached
 		// to the terminal, so go kill it. Otherwise two separate editor
 		// instances attach to the stdin/stdout which gets confusing.
 		_childProcess.kill('SIGKILL');
 	}
 
+	const isWin = os.platform() === 'win32';
+	const where = isWin ? 'where' : 'which';
+
+	const binaryToUse = await new Promise<string>((resolve) => {
+		if (editor.command === editor.process) {
+			resolve(editor.command);
+			return;
+		}
+
+		child_process.exec(`${where} "${editor.command}"`, (err) => {
+			if (err) {
+				resolve(editor.process);
+			} else {
+				resolve(editor.command);
+			}
+		});
+	});
+
 	if (process.platform === 'win32') {
 		// On Windows, launch the editor in a shell because spawn can only
 		// launch .exe files.
 		_childProcess = child_process.spawn(
 			'cmd.exe',
-			['/C', editor].concat(args),
-			{stdio: 'inherit'}
+			['/C', binaryToUse].concat(args),
+			{stdio: 'inherit', detached: true}
 		);
 	} else {
-		_childProcess = child_process.spawn(editor, args, {
-			stdio: 'inherit',
-			detached: true,
-		});
+		_childProcess = child_process.spawn(binaryToUse, args, {stdio: 'inherit'});
 	}
 
 	_childProcess.on('exit', (errorCode) => {
@@ -523,5 +567,5 @@ export function launchEditor({
 	_childProcess.on('error', (error) => {
 		Log.error('Error opening file in editor', fileName, error.message);
 	});
-	return Promise.resolve(true);
+	return true;
 }

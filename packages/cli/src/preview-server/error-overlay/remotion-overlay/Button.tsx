@@ -1,7 +1,8 @@
-import React from 'react';
-
-const INPUT_BORDER_COLOR_UNHOVERED = 'rgba(0, 0, 0, 0.6)';
-const INPUT_BACKGROUND = '#2f363d';
+import React, {useMemo} from 'react';
+import {
+	INPUT_BACKGROUND,
+	INPUT_BORDER_COLOR_UNHOVERED,
+} from '../../../editor/helpers/colors';
 
 const button: React.CSSProperties = {
 	border: `1px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
@@ -11,6 +12,7 @@ const button: React.CSSProperties = {
 	fontFamily: 'inherit',
 	fontSize: 14,
 	color: 'white',
+	flexDirection: 'row',
 };
 
 const buttonContainer: React.CSSProperties = {
@@ -23,10 +25,24 @@ export const Button: React.FC<{
 	onClick: () => void;
 	disabled?: boolean;
 	children: React.ReactNode;
-}> = ({children, onClick, disabled}) => {
+	style?: React.CSSProperties;
+}> = ({children, onClick, disabled, style}) => {
+	const combined = useMemo(() => {
+		return {
+			...button,
+			...(style ?? {}),
+		};
+	}, [style]);
 	return (
-		<button style={button} type="button" disabled={disabled} onClick={onClick}>
-			<div style={buttonContainer}>{children}</div>
+		<button
+			style={combined}
+			type="button"
+			disabled={disabled}
+			onClick={onClick}
+		>
+			<div className="css-reset" style={buttonContainer}>
+				{children}
+			</div>
 		</button>
 	);
 };

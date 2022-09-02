@@ -16,25 +16,15 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 				return -1;
 			}
 
-			if (prevPlaybackRate > 0) {
+			if (prevPlaybackRate > -1) {
 				return -1;
 			}
 
-			if (prevPlaybackRate === -1) {
+			if (prevPlaybackRate > -2) {
 				return -2;
 			}
 
-			if (prevPlaybackRate === -2) {
-				return -4;
-			}
-
-			if (prevPlaybackRate === -4) {
-				return -4;
-			}
-
-			throw new Error(
-				'unexpected previous playrate when pressing J: ' + prevPlaybackRate
-			);
+			return -4;
 		});
 		play();
 	}, [play, playing, setPlaybackRate]);
@@ -50,33 +40,38 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 				return 1;
 			}
 
-			if (prevPlaybackRate < 0) {
+			if (prevPlaybackRate < 1) {
 				return 1;
 			}
 
-			if (prevPlaybackRate === 1) {
+			if (prevPlaybackRate < 2) {
 				return 2;
 			}
 
-			if (prevPlaybackRate === 2) {
-				return 4;
-			}
-
-			if (prevPlaybackRate === 4) {
-				return 4;
-			}
-
-			throw new Error(
-				'unexpected previous playrate when pressing L: ' + prevPlaybackRate
-			);
+			return 4;
 		});
 		play();
 	}, [play, playing, setPlaybackRate]);
 
 	useEffect(() => {
-		const jKey = keybindings.registerKeybinding('keydown', 'j', onJKey);
-		const kKey = keybindings.registerKeybinding('keydown', 'k', onKKey);
-		const lKey = keybindings.registerKeybinding('keydown', 'l', onLKey);
+		const jKey = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'j',
+			callback: onJKey,
+			commandCtrlKey: false,
+		});
+		const kKey = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'k',
+			callback: onKKey,
+			commandCtrlKey: false,
+		});
+		const lKey = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'l',
+			callback: onLKey,
+			commandCtrlKey: false,
+		});
 
 		return () => {
 			jKey.unregister();

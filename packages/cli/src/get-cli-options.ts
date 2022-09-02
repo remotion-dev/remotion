@@ -1,18 +1,23 @@
-import type {ChromiumOptions} from '@remotion/renderer';
+import type {
+	BrowserExecutable,
+	ChromiumOptions,
+	Codec,
+	FrameRange,
+	PixelFormat,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import type {BrowserExecutable, Codec, FrameRange, PixelFormat} from 'remotion';
-import {Internals} from 'remotion';
+import {ConfigInternals} from './config';
 import {getEnvironmentVariables} from './get-env';
-import {getOutputFilename} from './get-filename';
+import {getFinalOutputCodec} from './get-final-output-codec';
 import {getInputProps} from './get-input-props';
 import {getImageFormat} from './image-formats';
 import {Log} from './log';
 import {getUserPassedOutputLocation} from './user-passed-output-location';
 
 const getAndValidateFrameRange = () => {
-	const frameRange = Internals.getRange();
+	const frameRange = ConfigInternals.getRange();
 	if (typeof frameRange === 'number') {
 		Log.warn('Selected a single frame. Assuming you want to output an image.');
 		Log.warn(
@@ -25,16 +30,16 @@ const getAndValidateFrameRange = () => {
 };
 
 const getFinalCodec = async (options: {isLambda: boolean}) => {
-	const userCodec = Internals.getOutputCodecOrUndefined();
+	const userCodec = ConfigInternals.getOutputCodecOrUndefined();
 
-	const codec = Internals.getFinalOutputCodec({
+	const codec = getFinalOutputCodec({
 		codec: userCodec,
 		fileExtension: options.isLambda
 			? null
 			: RenderInternals.getExtensionOfFilename(getUserPassedOutputLocation()),
 		emitWarning: true,
 	});
-	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
+	const ffmpegExecutable = ConfigInternals.getCustomFfmpegExecutable();
 	if (
 		codec === 'vp8' &&
 		!(await RenderInternals.ffmpegHasFeature({
@@ -86,13 +91,17 @@ const getFinalCodec = async (options: {isLambda: boolean}) => {
 	return codec;
 };
 
-const getBrowser = () => Internals.getBrowser() ?? Internals.DEFAULT_BROWSER;
+const getBrowser = () =>
+	ConfigInternals.getBrowser() ?? RenderInternals.DEFAULT_BROWSER;
 
-const getAndValidateAbsoluteOutputFile = (
-	outputFile: string,
+export const getAndValidateAbsoluteOutputFile = (
+	relativeOutputLocation: string,
 	overwrite: boolean
 ) => {
-	const absoluteOutputFile = path.resolve(process.cwd(), outputFile);
+	const absoluteOutputFile = path.resolve(
+		process.cwd(),
+		relativeOutputLocation
+	);
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
 		Log.error(
 			`File at ${absoluteOutputFile} already exists. Use --overwrite to overwrite.`
@@ -111,10 +120,12 @@ const getAndValidateShouldOutputImageSequence = async ({
 	isLambda: boolean;
 }) => {
 	const shouldOutputImageSequence =
-		Internals.getShouldOutputImageSequence(frameRange);
+		ConfigInternals.getShouldOutputImageSequence(frameRange);
 	// When parsing options locally, we don't need FFMPEG because the render will happen on Lambda
 	if (!shouldOutputImageSequence && !isLambda) {
-		await RenderInternals.validateFfmpeg(Internals.getCustomFfmpegExecutable());
+		await RenderInternals.validateFfmpeg(
+			ConfigInternals.getCustomFfmpegExecutable()
+		);
 	}
 
 	return shouldOutputImageSequence;
@@ -124,24 +135,29 @@ const getAndValidateCrf = (
 	shouldOutputImageSequence: boolean,
 	codec: Codec
 ) => {
-	const crf = shouldOutputImageSequence ? null : Internals.getActualCrf(codec);
+	const crf = shouldOutputImageSequence
+		? null
+		: ConfigInternals.getActualCrf(codec);
 	if (crf !== null) {
-		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
+		RenderInternals.validateSelectedCrfAndCodecCombination(crf, codec);
 	}
 
 	return crf;
 };
 
 const getAndValidatePixelFormat = (codec: Codec) => {
-	const pixelFormat = Internals.getPixelFormat();
+	const pixelFormat = ConfigInternals.getPixelFormat();
 
-	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
+	RenderInternals.validateSelectedPixelFormatAndCodecCombination(
+		pixelFormat,
+		codec
+	);
 	return pixelFormat;
 };
 
 const getAndValidateProResProfile = (actualCodec: Codec) => {
-	const proResProfile = Internals.getProResProfile();
-	Internals.validateSelectedCodecAndProResCombination(
+	const proResProfile = ConfigInternals.getProResProfile();
+	RenderInternals.validateSelectedCodecAndProResCombination(
 		actualCodec,
 		proResProfile
 	);
@@ -161,7 +177,7 @@ const getAndValidateImageFormat = ({
 	const imageFormat = getImageFormat(
 		shouldOutputImageSequence ? undefined : codec
 	);
-	Internals.validateSelectedPixelFormatAndImageFormatCombination(
+	RenderInternals.validateSelectedPixelFormatAndImageFormatCombination(
 		pixelFormat,
 		imageFormat
 	);
@@ -190,7 +206,9 @@ export const getCliOptions = async (options: {
 	const codec: Codec =
 		options.type === 'get-compositions'
 			? 'h264'
-			: await getFinalCodec({isLambda: options.isLambda});
+			: await getFinalCodec({
+					isLambda: options.isLambda,
+			  });
 	const shouldOutputImageSequence =
 		options.type === 'still'
 			? true
@@ -198,16 +216,8 @@ export const getCliOptions = async (options: {
 					frameRange,
 					isLambda: options.isLambda,
 			  });
-	const outputFile =
-		options.isLambda || options.type === 'get-compositions'
-			? null
-			: getOutputFilename({
-					codec,
-					imageSequence: shouldOutputImageSequence,
-					type: options.type,
-			  });
 
-	const overwrite = Internals.getShouldOverwrite();
+	const overwrite = ConfigInternals.getShouldOverwrite();
 	const crf = getAndValidateCrf(shouldOutputImageSequence, codec);
 	const pixelFormat = getAndValidatePixelFormat(codec);
 	const imageFormat = getAndValidateImageFormat({
@@ -216,46 +226,55 @@ export const getCliOptions = async (options: {
 		pixelFormat,
 	});
 	const proResProfile = getAndValidateProResProfile(codec);
-	const browserExecutable = Internals.getBrowserExecutable();
-	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
-	const ffprobeExecutable = Internals.getCustomFfprobeExecutable();
-	const scale = Internals.getScale();
-	const port = Internals.getServerPort();
+	const browserExecutable = ConfigInternals.getBrowserExecutable();
+	const ffmpegExecutable = ConfigInternals.getCustomFfmpegExecutable();
+	const ffprobeExecutable = ConfigInternals.getCustomFfprobeExecutable();
+	const scale = ConfigInternals.getScale();
+	const port = ConfigInternals.getServerPort();
 
 	const chromiumOptions: ChromiumOptions = {
-		disableWebSecurity: Internals.getChromiumDisableWebSecurity(),
-		ignoreCertificateErrors: Internals.getIgnoreCertificateErrors(),
-		headless: Internals.getChromiumHeadlessMode(),
+		disableWebSecurity: ConfigInternals.getChromiumDisableWebSecurity(),
+		ignoreCertificateErrors: ConfigInternals.getIgnoreCertificateErrors(),
+		headless: ConfigInternals.getChromiumHeadlessMode(),
 		gl:
-			Internals.getChromiumOpenGlRenderer() ??
-			Internals.DEFAULT_OPENGL_RENDERER,
+			ConfigInternals.getChromiumOpenGlRenderer() ??
+			RenderInternals.DEFAULT_OPENGL_RENDERER,
 	};
+	const everyNthFrame = ConfigInternals.getAndValidateEveryNthFrame(codec);
+	const numberOfGifLoops =
+		ConfigInternals.getAndValidateNumberOfGifLoops(codec);
+
+	const parallelism = ConfigInternals.getConcurrency();
+
+	RenderInternals.validateConcurrency(parallelism, 'concurrency');
 
 	return {
-		puppeteerTimeout: Internals.getCurrentPuppeteerTimeout(),
-		parallelism: Internals.getConcurrency(),
+		puppeteerTimeout: ConfigInternals.getCurrentPuppeteerTimeout(),
+		parallelism,
 		frameRange,
 		shouldOutputImageSequence,
 		codec,
-		overwrite: Internals.getShouldOverwrite(),
 		inputProps: getInputProps(() => undefined),
 		envVariables: await getEnvironmentVariables(),
-		quality: Internals.getQuality(),
-		absoluteOutputFile: outputFile
-			? getAndValidateAbsoluteOutputFile(outputFile, overwrite)
-			: null,
+		quality: ConfigInternals.getQuality(),
 		browser: await getAndValidateBrowser(browserExecutable),
 		crf,
 		pixelFormat,
 		imageFormat,
 		proResProfile,
-		stillFrame: Internals.getStillFrame(),
+		everyNthFrame,
+		numberOfGifLoops,
+		stillFrame: ConfigInternals.getStillFrame(),
 		browserExecutable,
 		ffmpegExecutable,
 		ffprobeExecutable,
-		logLevel: Internals.Logging.getLogLevel(),
+		logLevel: ConfigInternals.Logging.getLogLevel(),
 		scale,
 		chromiumOptions,
+		overwrite,
 		port: port ?? null,
+		muted: ConfigInternals.getMuted(),
+		enforceAudioTrack: ConfigInternals.getEnforceAudioTrack(),
+		keyboardShortcutsEnables: ConfigInternals.getKeyboardShortcutsEnabled(),
 	};
 };

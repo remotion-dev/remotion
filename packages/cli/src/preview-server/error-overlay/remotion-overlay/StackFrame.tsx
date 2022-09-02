@@ -8,6 +8,7 @@ import {formatLocation} from './format-location';
 const location: React.CSSProperties = {
 	color: 'rgba(255, 255, 255, 0.6)',
 	fontFamily: 'monospace',
+	fontSize: 14,
 };
 
 const header: React.CSSProperties = {
@@ -29,6 +30,7 @@ const left: React.CSSProperties = {
 
 const fnName: React.CSSProperties = {
 	fontSize: 14,
+	lineHeight: 1.5,
 	marginBottom: 3,
 };
 
@@ -48,7 +50,7 @@ export const StackElement: React.FC<{
 		setShowCodeFrame((f) => !f);
 	}, []);
 	return (
-		<div>
+		<div className="css-reset">
 			<div style={header}>
 				<div style={left}>
 					<div style={fnName}>
@@ -63,7 +65,7 @@ export const StackElement: React.FC<{
 				</div>
 				{s.originalScriptCode && s.originalScriptCode.length > 0 ? (
 					<Button onClick={toggleCodeFrame}>
-						{showCodeFrame ? <CaretDown /> : <CaretRight />}
+						{showCodeFrame ? <CaretDown invert={false} /> : <CaretRight />}
 					</Button>
 				) : null}
 			</div>

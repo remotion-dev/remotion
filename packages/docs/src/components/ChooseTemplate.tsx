@@ -12,6 +12,8 @@ import { Waveform } from "./icons/waveform";
 import { TemplateIcon } from "./TemplateIcon";
 import { chunk } from "../helpers/chunk";
 import { useElementSize } from "../helpers/use-el-size";
+import { SkiaIcon } from "./icons/skia";
+import { Tailwind } from "./icons/tailwind";
 
 const IconForTemplate: React.FC<{
   template: Template;
@@ -81,6 +83,26 @@ const IconForTemplate: React.FC<{
       <TTSIcon
         style={{
           height: 36,
+        }}
+      />
+    );
+  }
+
+  if (template.homePageLabel === "Tailwind") {
+    return (
+      <Tailwind
+        style={{
+          height: 36,
+        }}
+      />
+    );
+  }
+
+  if (template.homePageLabel === "Skia") {
+    return (
+      <SkiaIcon
+        style={{
+          height: 32,
         }}
       />
     );

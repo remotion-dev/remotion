@@ -160,13 +160,7 @@ const displayNameForEditor: {[key in Editor]: string} = {
 	nano: 'nano',
 };
 
-export const getDisplayNameForEditor = (
-	editor: Editor | undefined
-): string | null => {
-	if (!editor) {
-		return null;
-	}
-
+export const getDisplayNameForEditor = (editor: Editor): string => {
 	const endsIn = Object.keys(displayNameForEditor).find((displayNameKey) => {
 		return editor.endsWith(displayNameKey);
 	});
@@ -337,19 +331,27 @@ function getArgumentsForLineNumber(
 	}
 }
 
-export async function guessEditor(): Promise<Editor[]> {
+type ProcessAndCommand = {
+	process: string;
+	command: Editor;
+};
+
+export async function guessEditor(): Promise<ProcessAndCommand[]> {
 	// We can find out which editor is currently running by:
 	// `ps x` on macOS and Linux
 	// `Get-Process` on Windows
-	const availableEditors: Editor[] = [];
+	const availableEditors: ProcessAndCommand[] = [];
 	try {
 		if (process.platform === 'darwin') {
 			const output = (await execProm('ps x')).stdout.toString();
 			const processNames = Object.keys(COMMON_EDITORS_OSX);
 			for (let i = 0; i < processNames.length; i++) {
-				const processName = processNames[i];
+				const processName = processNames[i] as string;
 				if (output.indexOf(processName) !== -1) {
-					availableEditors.push(COMMON_EDITORS_OSX[processName]);
+					availableEditors.push({
+						process: processName,
+						command: COMMON_EDITORS_OSX[processName] as Editor,
+					});
 				}
 			}
 
@@ -366,10 +368,13 @@ export async function guessEditor(): Promise<Editor[]> {
 			).stdout.toString();
 			const runningProcesses = output.split('\r\n');
 			for (let i = 0; i < runningProcesses.length; i++) {
-				const processPath = runningProcesses[i].trim();
+				const processPath = (runningProcesses[i] as string).trim();
 				const processName = path.basename(processPath);
 				if (COMMON_EDITORS_WIN.indexOf(processName as Editor) !== -1) {
-					availableEditors.push(processPath as Editor);
+					availableEditors.push({
+						process: processPath,
+						command: processPath as Editor,
+					});
 				}
 			}
 
@@ -385,9 +390,12 @@ export async function guessEditor(): Promise<Editor[]> {
 			).stdout.toString();
 			const processNames = Object.keys(COMMON_EDITORS_LINUX);
 			for (let i = 0; i < processNames.length; i++) {
-				const processName = processNames[i];
+				const processName = processNames[i] as string;
 				if (output.indexOf(processName) !== -1) {
-					availableEditors.push(COMMON_EDITORS_LINUX[processName]);
+					availableEditors.push({
+						process: processName,
+						command: COMMON_EDITORS_LINUX[processName] as Editor,
+					});
 				}
 			}
 
@@ -399,11 +407,21 @@ export async function guessEditor(): Promise<Editor[]> {
 
 	// Last resort, use old skool env vars
 	if (process.env.VISUAL) {
-		return [process.env.VISUAL as Editor];
+		return [
+			{
+				process: process.env.VISUAL as Editor,
+				command: process.env.VISUAL as Editor,
+			},
+		];
 	}
 
 	if (process.env.EDITOR) {
-		return [process.env.EDITOR as Editor];
+		return [
+			{
+				process: process.env.EDITOR as Editor,
+				command: process.env.EDITOR as Editor,
+			},
+		];
 	}
 
 	return [];
@@ -411,7 +429,7 @@ export async function guessEditor(): Promise<Editor[]> {
 
 let _childProcess: ChildProcess | null = null;
 
-export function launchEditor({
+export async function launchEditor({
 	colNumber,
 	editor,
 	fileName,
@@ -421,9 +439,9 @@ export function launchEditor({
 	fileName: string;
 	lineNumber: number;
 	colNumber: number;
-	editor: Editor;
+	editor: ProcessAndCommand;
 	vsCodeNewWindow: boolean;
-}): boolean {
+}): Promise<boolean> {
 	if (!fs.existsSync(fileName)) {
 		return false;
 	}
@@ -441,7 +459,7 @@ export function launchEditor({
 		colNumber = 1;
 	}
 
-	if (editor.toLowerCase() === 'none') {
+	if (editor.command.toLowerCase() === 'none') {
 		return false;
 	}
 
@@ -483,31 +501,54 @@ export function launchEditor({
 	}
 
 	const shouldOpenVsCodeNewWindow =
-		isVsCodeDerivative(editor) && vsCodeNewWindow;
+		isVsCodeDerivative(editor.command) && vsCodeNewWindow;
 
 	const args = shouldOpenVsCodeNewWindow
 		? ['--new-window', fileName]
 		: lineNumber
-		? getArgumentsForLineNumber(editor, fileName, String(lineNumber), colNumber)
+		? getArgumentsForLineNumber(
+				editor.command,
+				fileName,
+				String(lineNumber),
+				colNumber
+		  )
 		: [fileName];
 
-	if (_childProcess && isTerminalEditor(editor)) {
+	if (_childProcess && isTerminalEditor(editor.command)) {
 		// There's an existing editor process already and it's attached
 		// to the terminal, so go kill it. Otherwise two separate editor
 		// instances attach to the stdin/stdout which gets confusing.
 		_childProcess.kill('SIGKILL');
 	}
 
+	const isWin = os.platform() === 'win32';
+	const where = isWin ? 'where' : 'which';
+
+	const binaryToUse = await new Promise<string>((resolve) => {
+		if (editor.command === editor.process) {
+			resolve(editor.command);
+			return;
+		}
+
+		child_process.exec(`${where} "${editor.command}"`, (err) => {
+			if (err) {
+				resolve(editor.process);
+			} else {
+				resolve(editor.command);
+			}
+		});
+	});
+
 	if (process.platform === 'win32') {
 		// On Windows, launch the editor in a shell because spawn can only
 		// launch .exe files.
 		_childProcess = child_process.spawn(
 			'cmd.exe',
-			['/C', editor].concat(args),
+			['/C', binaryToUse].concat(args),
 			{stdio: 'inherit', detached: true}
 		);
 	} else {
-		_childProcess = child_process.spawn(editor, args, {stdio: 'inherit'});
+		_childProcess = child_process.spawn(binaryToUse, args, {stdio: 'inherit'});
 	}
 
 	_childProcess.on('exit', (errorCode) => {

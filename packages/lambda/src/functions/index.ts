@@ -1,10 +1,6 @@
-import {Internals} from 'remotion';
-import type {
-	LambdaPayload} from '../shared/constants';
-import {
-	COMMAND_NOT_FOUND,
-	LambdaRoutines,
-} from '../shared/constants';
+import {RenderInternals} from '@remotion/renderer';
+import type {LambdaPayload} from '../shared/constants';
+import {COMMAND_NOT_FOUND, LambdaRoutines} from '../shared/constants';
 import type {LambdaReturnValues} from '../shared/return-values';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getWarm, setWarm} from './helpers/is-warm';
@@ -37,6 +33,7 @@ export const handler = async <T extends LambdaRoutines>(
 	if (params.type === LambdaRoutines.still) {
 		printCloudwatchHelper(LambdaRoutines.still, {
 			inputProps: JSON.stringify(params.inputProps),
+			isWarm,
 		});
 		return stillHandler(params, {
 			expectedBucketOwner: currentUserId,
@@ -46,14 +43,16 @@ export const handler = async <T extends LambdaRoutines>(
 	if (params.type === LambdaRoutines.start) {
 		printCloudwatchHelper(LambdaRoutines.start, {
 			inputProps: JSON.stringify(params.inputProps),
+			isWarm,
 		});
-		return startHandler(params);
+		return startHandler(params, {expectedBucketOwner: currentUserId});
 	}
 
 	if (params.type === LambdaRoutines.launch) {
 		printCloudwatchHelper(LambdaRoutines.launch, {
 			renderId: params.renderId,
 			inputProps: JSON.stringify(params.inputProps),
+			isWarm,
 		});
 		return launchHandler(params, {expectedBucketOwner: currentUserId});
 	}
@@ -61,6 +60,7 @@ export const handler = async <T extends LambdaRoutines>(
 	if (params.type === LambdaRoutines.status) {
 		printCloudwatchHelper(LambdaRoutines.status, {
 			renderId: params.renderId,
+			isWarm,
 		});
 		return progressHandler(params, {
 			expectedBucketOwner: currentUserId,
@@ -73,9 +73,10 @@ export const handler = async <T extends LambdaRoutines>(
 			renderId: params.renderId,
 			chunk: String(params.chunk),
 			dumpLogs: String(
-				Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
+				RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
 			),
 			inputProps: JSON.stringify(params.inputProps),
+			isWarm,
 		});
 		return rendererHandler(params, {
 			expectedBucketOwner: currentUserId,
@@ -84,7 +85,9 @@ export const handler = async <T extends LambdaRoutines>(
 	}
 
 	if (params.type === LambdaRoutines.info) {
-		printCloudwatchHelper(LambdaRoutines.info, {});
+		printCloudwatchHelper(LambdaRoutines.info, {
+			isWarm,
+		});
 
 		return infoHandler(params);
 	}

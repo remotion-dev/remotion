@@ -1,5 +1,5 @@
-export const MAX_PRESIGN_EXPIRATION = 604800;
-export const MIN_PRESIGN_EXPIRATION = 1;
+const MAX_PRESIGN_EXPIRATION = 604800;
+const MIN_PRESIGN_EXPIRATION = 1;
 
 export const validatePresignExpiration = (presignExpiration: unknown) => {
 	if (typeof presignExpiration === 'undefined' || presignExpiration === null) {

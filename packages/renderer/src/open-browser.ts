@@ -1,8 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import type {Browser} from 'remotion';
-import {Internals} from 'remotion';
+import type {Browser} from './browser';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {puppeteer} from './browser/node';
 import type {Viewport} from './browser/PuppeteerViewport';
@@ -10,6 +9,11 @@ import {
 	ensureLocalBrowser,
 	getLocalBrowserExecutable,
 } from './get-local-browser-executable';
+import {getIdealVideoThreadsFlag} from './get-video-threads-flag';
+import {
+	DEFAULT_OPENGL_RENDERER,
+	validateOpenGlRenderer,
+} from './validate-opengl-renderer';
 
 const validRenderers = ['swangle', 'angle', 'egl', 'swiftshader'] as const;
 
@@ -23,8 +27,8 @@ export type ChromiumOptions = {
 };
 
 const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
-	const renderer = option ?? Internals.DEFAULT_OPENGL_RENDERER;
-	Internals.validateOpenGlRenderer(renderer);
+	const renderer = option ?? DEFAULT_OPENGL_RENDERER;
+	validateOpenGlRenderer(renderer);
 	if (renderer === 'swangle') {
 		return [`--use-gl=angle`, `--use-angle=swiftshader`];
 	}
@@ -56,7 +60,7 @@ export const openBrowser = async (
 		viewport?: Viewport;
 	}
 ): Promise<PuppeteerBrowser> => {
-	if (browser === 'firefox' && !Internals.FEATURE_FLAG_FIREFOX_SUPPORT) {
+	if (browser === 'firefox') {
 		throw new TypeError(
 			'Firefox supported is not yet turned on. Stay tuned for the future.'
 		);
@@ -102,7 +106,7 @@ export const openBrowser = async (
 			'--force-color-profile=srgb',
 			'--metrics-recording-only',
 			'--no-first-run',
-			'--video-threads=16',
+			'--video-threads=' + getIdealVideoThreadsFlag(),
 			'--enable-automation',
 			'--password-store=basic',
 			'--use-mock-keychain',

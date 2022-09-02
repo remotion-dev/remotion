@@ -1,10 +1,11 @@
 import type {
 	ChromiumOptions,
-	openBrowser} from '@remotion/renderer';
-import {
-	getCompositions
+	DownloadMap,
+	FfmpegExecutable,
+	openBrowser,
 } from '@remotion/renderer';
-import type {FfmpegExecutable, TCompMetadata} from 'remotion';
+import {getCompositions} from '@remotion/renderer';
+import type {TCompMetadata} from 'remotion';
 import type {Await} from '../../shared/await';
 
 type ValidateCompositionOptions = {
@@ -18,6 +19,7 @@ type ValidateCompositionOptions = {
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	port: number | null;
+	downloadMap: DownloadMap;
 };
 
 export const validateComposition = async ({
@@ -31,6 +33,7 @@ export const validateComposition = async ({
 	ffprobeExecutable,
 	chromiumOptions,
 	port,
+	downloadMap,
 }: ValidateCompositionOptions): Promise<TCompMetadata> => {
 	const compositions = await getCompositions(serveUrl, {
 		puppeteerInstance: browserInstance,
@@ -41,6 +44,7 @@ export const validateComposition = async ({
 		timeoutInMilliseconds,
 		chromiumOptions,
 		port,
+		downloadMap,
 	});
 
 	const found = compositions.find((c) => c.id === composition);

@@ -26,7 +26,7 @@ const value = spring({
 
 ### frame
 
-The current time value. Most of the time you want to pass in the return value of `useCurrentFrame`. The spring animation starts at frame 0, so if you would like to delay the animation, you can pass a different value like `frame - 20`.
+The current time value. Most of the time you want to pass in the return value of [`useCurrentFrame()`](/docs/use-current-frame). The spring animation starts at frame 0, so if you would like to delay the animation, you can pass a different value like `frame - 20`.
 
 ### from
 

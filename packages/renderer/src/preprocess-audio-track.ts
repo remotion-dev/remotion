@@ -1,8 +1,9 @@
 import execa from 'execa';
-import type {FfmpegExecutable} from 'remotion';
+import type {DownloadMap} from './assets/download-map';
 import {getAudioChannelsAndDuration} from './assets/get-audio-channels';
 import type {MediaAsset} from './assets/types';
 import {calculateFfmpegFilter} from './calculate-ffmpeg-filters';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
 import {pLimit} from './p-limit';
 import {resolveAssetSrc} from './resolve-asset-src';
@@ -14,6 +15,7 @@ type Options = {
 	asset: MediaAsset;
 	expectedFrames: number;
 	fps: number;
+	downloadMap: DownloadMap;
 };
 
 const preprocessAudioTrackUnlimited = async ({
@@ -23,8 +25,10 @@ const preprocessAudioTrackUnlimited = async ({
 	asset,
 	expectedFrames,
 	fps,
+	downloadMap,
 }: Options): Promise<string | null> => {
 	const {channels, duration} = await getAudioChannelsAndDuration(
+		downloadMap,
 		resolveAssetSrc(asset.src),
 		ffprobeExecutable
 	);
@@ -41,7 +45,7 @@ const preprocessAudioTrackUnlimited = async ({
 		return null;
 	}
 
-	const {cleanup, file} = await makeFfmpegFilterFile(filter);
+	const {cleanup, file} = await makeFfmpegFilterFile(filter, downloadMap);
 
 	const args = [
 		['-i', resolveAssetSrc(asset.src)],

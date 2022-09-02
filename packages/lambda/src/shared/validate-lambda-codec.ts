@@ -1,4 +1,13 @@
-const lambdaCodecs = ['h264-mkv', 'h264', 'vp8', 'mp3', 'aac', 'wav'] as const;
+const lambdaCodecs = [
+	'h264-mkv',
+	'h264',
+	'vp8',
+	'mp3',
+	'aac',
+	'wav',
+	'gif',
+	'prores',
+] as const;
 
 export type LambdaCodec = typeof lambdaCodecs[number];
 

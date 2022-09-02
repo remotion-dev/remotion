@@ -26,6 +26,10 @@ export const makeLiveEventsRouter = (): LiveEventsServer => {
 		};
 
 		response.writeHead(200, headers);
+		if (request.method === 'OPTIONS') {
+			response.end();
+			return;
+		}
 
 		response.write(serializeMessage({type: 'init'}));
 

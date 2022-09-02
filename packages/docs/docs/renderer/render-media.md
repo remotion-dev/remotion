@@ -7,39 +7,9 @@ _Available since v3.0 - Part of the `@remotion/renderer` package._
 
 Render a video or an audio programmatically.
 
-:::info
-In Remotion 3.0, we added the [`renderMedia()`](/docs/renderer/render-media) API which combines `renderFrames()` and `stitchFramesToVideo()` into one simplified step and performs the render faster. Prefer `renderMedia()` if you can.
-:::
+## Example
 
-```ts
-const renderMedia: (options: {
-  outputLocation?: string | undefined;
-  codec: Codec;
-  composition: SmallTCompMetadata;
-  inputProps?: unknown;
-  parallelism?: number | null;
-  crf?: number | null;
-  imageFormat?: "png" | "jpeg" | "none";
-  ffmpegExecutable?: FfmpegExecutable;
-  pixelFormat?: PixelFormat;
-  envVariables?: Record<string, string>;
-  quality?: number;
-  frameRange?: FrameRange | null;
-  puppeteerInstance?: PuppeteerBrowser;
-  overwrite?: boolean;
-  onProgress?: RenderMediaOnProgress;
-  onDownload?: RenderMediaOnDownload;
-  proResProfile?: ProResProfile;
-  dumpBrowserLogs?: boolean;
-  onBrowserLog?: ((log: BrowserLog) => void) | undefined;
-  onStart?: (data: OnStartData) => void;
-  timeoutInMilliseconds?: number;
-  chromiumOptions?: ChromiumOptions;
-  scale?: number;
-  cancelSignal?: CancelSignal;
-  serveUrl: string;
-}) => Promise<Buffer | null>;
-```
+See an example of `renderMedia()` together with [`bundle()`](/docs/bundle) and [`getCompositions()`](/docs/renderer/get-compositions) on the [server-side rendering page](/docs/ssr#render-a-video-using-nodejs-apis).
 
 ## Arguments
 
@@ -67,7 +37,7 @@ An object describing a composition using `id`, `width`, `height`, `fps` and `dur
 
 ### `codec`
 
-_"h264" (default) | "h265" | "vp8" | "vp9" | "mp3" | "aac" | "wav" | "prores" | "h264-mkv"_
+_"h264" (default) | "h265" | "vp8" | "vp9" | "mp3" | "aac" | "wav" | "prores" | "h264-mkv" | "gif"_
 
 Choose a suitable codec for your output media. Refer to the [Encoding guide](/docs/encoding) to find the best codec for your use case.
 
@@ -79,7 +49,7 @@ An object of arbitrary shape that will be passed as [props to your composition](
 
 ### `parallelism`
 
-_number | null - optional_
+_number | null - optional_
 
 How many threads should be used for rendering frames. By default `null`, which will use half of the threads that your CPU has.  
 Type `node -e "console.log(require('os').cpus().length)"` into your command line to find out how many threads your CPU has.
@@ -88,7 +58,7 @@ Type `node -e "console.log(require('os').cpus().length)"` into your command line
 
 _number | null - optional_
 
-The constant rate factor, controlling the quality. See: [Controllsing quality using the CRF setting.](/docs/encoding/#controlling-quality-using-the-crf-setting)
+The constant rate factor, controlling the quality. See: [Controlling quality using the CRF setting.](/docs/encoding/#controlling-quality-using-the-crf-setting)
 
 ### `imageFormat`
 
@@ -118,6 +88,18 @@ _optional, available from v3.0.11_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
 
+### `everyNthFrame?`
+
+_optional, available from v3.1_
+
+Renders only every nth frame. For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif)
+
+### `numberOfGifLoops?`
+
+_optional, available since v3.1_
+
+[Set the looping behavior.](/docs/config#setnumberofgifloops) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
+
 ### `pixelFormat`
 
 _string - optional_
@@ -145,6 +127,18 @@ Only applies if `imageFormat` is `'jpeg'`, otherwise this option is invalid.
 _number | [number, number] - optional_
 
 Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
+
+### `muted`
+
+_boolean - optional - available since v3.2.1_
+
+If set to true, no audio is being rendered.
+
+### `enforceAudioTrack`
+
+_boolean - optional - available since v3.2.1_
+
+Render a silent audio track if there wouldn't be any otherwise.
 
 ### `puppeteerInstance`
 
@@ -223,9 +217,9 @@ const onDownload: RenderMediaOnDownload = (src) => {
   console.log(`Downloading ${src}...`);
   return ({ percent, downloaded, totalSize }) => {
     // percent and totalSize can be `null` if the downloaded resource
-    // does not havea `Content-Length` header
+    // does not have a `Content-Length` header
     if (percent === null) {
-      console.log(`${downloaded} bytes downloded`);
+      console.log(`${downloaded} bytes downloaded`);
     } else {
       console.log(`${Math.round(percent * 100)}% done)`);
     }
@@ -274,6 +268,12 @@ _optional, available from v3.0.15_
 
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
+### `verbose`
+
+_optional, available from v3.1.6_
+
+Prints debugging output if set to true.
+
 ### `chromiumOptions?`
 
 _optional, available from v2.6.5_
@@ -313,7 +313,7 @@ Accepted values:
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
-- `null` - Chromiums default
+- `null` - Chromium's default
 
 **Default for local rendering**: `null`.  
 **Default for Lambda rendering**: `"swangle"`.

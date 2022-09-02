@@ -2,6 +2,7 @@ import { RenderInternals } from "@remotion/renderer";
 import execa from "execa";
 import fs from "fs";
 import path from "path";
+import { beforeEach, expect, test } from "vitest";
 
 const outputPath = path.join(process.cwd(), "packages/example/out.mp4");
 
@@ -276,15 +277,8 @@ test("Should render a video with GIFs", async () => {
   const info = await execa("ffprobe", [outputPath]);
   const data = info.stderr;
   expect(data).toContain("Video: h264");
-  const ffmpegVersion = await RenderInternals.getFfmpegVersion({
-    ffmpegExecutable: null,
-  });
 
-  if (ffmpegVersion && ffmpegVersion[0] === 4 && ffmpegVersion[1] <= 1) {
-    expect(data).toContain("Duration: 00:00:01.62");
-  } else {
-    expect(data).toContain("Duration: 00:00:01.60");
-  }
+  expect(data).toContain("Duration: 00:00:01.60");
 
   fs.unlinkSync(outputPath);
 });
@@ -357,22 +351,27 @@ test("Should render a still that uses the staticFile() API", async () => {
   fs.unlinkSync(out);
 });
 
-test("Dynamic duration should work", async () => {
+test("Dynamic duration should work, and render from inside src/", async () => {
   const randomDuration = Math.round(Math.random() * 18 + 2);
   const task = await execa(
-    "pnpm",
+    path.join(
+      process.cwd(),
+      "..",
+      "example",
+      "node_modules",
+      ".bin",
+      "remotion"
+    ),
     [
-      "exec",
-      "remotion",
       "render",
-      "src/index.tsx",
+      "index.tsx",
       "dynamic-duration",
       `--props`,
       `{"duration": ${randomDuration}}`,
       outputPath,
     ],
     {
-      cwd: path.join(process.cwd(), "..", "example"),
+      cwd: path.join(process.cwd(), "..", "example", "src"),
       reject: false,
     }
   );

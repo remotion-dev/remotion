@@ -1,20 +1,18 @@
 import {CliInternals} from '@remotion/cli';
+import type {StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {StillImageFormat} from 'remotion';
 import {downloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
 	DEFAULT_OUTPUT_PRIVACY,
-	LambdaRoutines,
 } from '../../shared/constants';
 import {validatePrivacy} from '../../shared/validate-privacy';
 import {validateMaxRetries} from '../../shared/validate-retries';
 import {parsedLambdaCli} from '../args';
 import {getAwsRegion} from '../get-aws-region';
 import {findFunctionName} from '../helpers/find-function-name';
-import {getCloudwatchStreamUrl} from '../helpers/get-cloudwatch-stream-url';
 import {quit} from '../helpers/quit';
 import {Log} from '../log';
 
@@ -95,14 +93,7 @@ export const stillCommand = async (args: string[]) => {
 				`Bucket = ${res.bucketName}, renderId = ${res.renderId}, functionName = ${functionName}`
 			)
 		);
-		Log.verbose(
-			`CloudWatch logs (if enabled): ${getCloudwatchStreamUrl({
-				functionName,
-				region: getAwsRegion(),
-				renderId: res.renderId,
-				method: LambdaRoutines.still,
-			})}`
-		);
+		Log.verbose(`CloudWatch logs (if enabled): ${res.cloudWatchLogs}`);
 
 		if (outName) {
 			Log.info('Finished rendering. Downloading...');

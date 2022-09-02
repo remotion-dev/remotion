@@ -1,6 +1,6 @@
 import betterOpn from 'better-opn';
 import path from 'path';
-import {Internals} from 'remotion';
+import {ConfigInternals} from './config';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
 import {initializeRenderCli} from './initialize-render-cli';
@@ -32,7 +32,7 @@ const waitForLiveEventsListener = (): Promise<LiveEventsServer> => {
 	});
 };
 
-export const previewCommand = async () => {
+export const previewCommand = async (remotionRoot: string) => {
 	const file = parsedCli._[1];
 
 	if (!file) {
@@ -49,7 +49,7 @@ export const previewCommand = async () => {
 	const {port: desiredPort} = parsedCli;
 	const fullPath = path.join(process.cwd(), file);
 
-	await initializeRenderCli('preview');
+	await initializeRenderCli(remotionRoot, 'preview');
 
 	let inputProps = getInputProps((newProps) => {
 		waitForLiveEventsListener().then((listener) => {
@@ -69,11 +69,14 @@ export const previewCommand = async () => {
 			getCurrentInputProps: () => inputProps,
 			envVariables,
 			port: desiredPort,
-			maxTimelineTracks: Internals.getMaxTimelineTracks(),
+			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
+			remotionRoot,
+			keyboardShortcutsEnabled: ConfigInternals.getKeyboardShortcutsEnabled(),
 		}
 	);
 
 	setLiveEventsListener(liveEventsServer);
+	Log.info(`Server running on http://localhost:${port}`);
 	betterOpn(`http://localhost:${port}`);
 	await new Promise(noop);
 };

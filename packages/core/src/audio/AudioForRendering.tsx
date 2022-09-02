@@ -1,3 +1,4 @@
+import type {ForwardRefExoticComponent, RefAttributes} from 'react';
 import React, {
 	forwardRef,
 	useContext,
@@ -10,7 +11,8 @@ import {getAbsoluteSrc} from '../absolute-src';
 import {CompositionManager} from '../CompositionManager';
 import {random} from '../random';
 import {SequenceContext} from '../Sequence';
-import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-current-frame';
+import {useTimelinePosition} from '../timeline-position-state';
+import {useCurrentFrame} from '../use-current-frame';
 import {evaluateVolume} from '../volume-prop';
 import type {RemotionAudioProps} from './props';
 import {useFrameForVolumeProp} from './use-audio-frame';
@@ -21,7 +23,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 > = (props, ref) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
 
-	const absoluteFrame = useAbsoluteCurrentFrame();
+	const absoluteFrame = useTimelinePosition();
 	const volumePropFrame = useFrameForVolumeProp();
 	const frame = useCurrentFrame();
 	const sequenceContext = useContext(SequenceContext);
@@ -33,8 +35,8 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		() =>
 			`audio-${random(props.src ?? '')}-${sequenceContext?.relativeFrom}-${
 				sequenceContext?.cumulatedFrom
-			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
-		[props.muted, props.src, sequenceContext]
+			}-${sequenceContext?.durationInFrames}`,
+		[props.src, sequenceContext]
 	);
 
 	const {volume: volumeProp, playbackRate, ...nativeProps} = props;
@@ -54,7 +56,15 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			throw new Error('No src passed');
 		}
 
+		if (!window.remotion_audioEnabled) {
+			return;
+		}
+
 		if (props.muted) {
+			return;
+		}
+
+		if (volume <= 0) {
 			return;
 		}
 
@@ -87,4 +97,6 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 
 export const AudioForRendering = forwardRef(
 	AudioForRenderingRefForwardingFunction
-);
+) as ForwardRefExoticComponent<
+	RemotionAudioProps & RefAttributes<HTMLAudioElement>
+>;

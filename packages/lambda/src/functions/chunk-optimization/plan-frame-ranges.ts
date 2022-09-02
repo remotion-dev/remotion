@@ -3,18 +3,24 @@ import {canUseOptimization} from './can-use-optimization';
 import type {OptimizationProfile} from './types';
 
 export const planFrameRanges = ({
-	chunkCount,
 	framesPerLambda,
 	optimization,
 	shouldUseOptimization,
 	frameRange,
+	everyNthFrame,
 }: {
-	chunkCount: number;
 	framesPerLambda: number;
 	optimization: OptimizationProfile | null;
 	shouldUseOptimization: boolean;
 	frameRange: [number, number];
+	everyNthFrame: number;
 }): {chunks: [number, number][]; didUseOptimization: boolean} => {
+	const framesToRender = RenderInternals.getFramesToRender(
+		frameRange,
+		everyNthFrame
+	);
+	const chunkCount = Math.ceil(framesToRender.length / framesPerLambda);
+
 	if (
 		canUseOptimization({
 			optimization,
@@ -29,14 +35,17 @@ export const planFrameRanges = ({
 		};
 	}
 
-	const frameCount = RenderInternals.getDurationFromFrameRange(frameRange, 0);
-
+	const firstFrame = frameRange[0];
 	return {
 		chunks: new Array(chunkCount).fill(1).map((_, i) => {
-			return [
-				i * framesPerLambda + frameRange[0],
-				Math.min(frameCount, (i + 1) * framesPerLambda) - 1 + frameRange[0],
-			];
+			const start = i * framesPerLambda * everyNthFrame + firstFrame;
+			const end =
+				Math.min(
+					framesToRender[framesToRender.length - 1],
+					(i + 1) * framesPerLambda * everyNthFrame - 1
+				) + firstFrame;
+
+			return [start, end];
 		}),
 		didUseOptimization: false,
 	};

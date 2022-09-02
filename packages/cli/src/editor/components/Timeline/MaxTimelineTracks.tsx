@@ -6,9 +6,12 @@ export const MAX_TIMELINE_TRACKS =
 		? 15
 		: Number(process.env.MAX_TIMELINE_TRACKS);
 
+export const MAX_TIMELINE_TRACKS_NOTICE_HEIGHT = 24;
+
 const container: React.CSSProperties = {
-	paddingTop: 6,
-	paddingBottom: 6,
+	height: MAX_TIMELINE_TRACKS_NOTICE_HEIGHT,
+	display: 'flex',
+	alignItems: 'center',
 	color: 'rgba(255, 255, 255, 0.6)',
 	fontFamily: 'sans-serif',
 	fontSize: 12,

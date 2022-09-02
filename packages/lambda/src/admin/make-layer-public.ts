@@ -3,10 +3,10 @@ import {
 	PublishLayerVersionCommand,
 } from '@aws-sdk/client-lambda';
 import {lambda} from 'aws-policies';
-import {getRegions} from '..';
+import {VERSION} from 'remotion/version';
+import {getRegions} from '../api/get-regions';
 import {quit} from '../cli/helpers/quit';
 import {getLambdaClient} from '../shared/aws-clients';
-import {CURRENT_VERSION} from '../shared/constants';
 import type {HostedLayers} from '../shared/hosted-layers';
 import type {LambdaArchitecture} from '../shared/validate-architecture';
 
@@ -51,17 +51,17 @@ const makeLayerPublic = async () => {
 					new PublishLayerVersionCommand({
 						Content: {
 							S3Bucket: 'remotionlambda-binaries-' + region,
-							S3Key: `remotion-layer-${layer}-v6-${architecture}.zip`,
+							S3Key: `remotion-layer-${layer}-v8-${architecture}.zip`,
 						},
 						LayerName: layerName,
 						LicenseInfo:
 							layer === 'chromium'
-								? 'Chromium 101, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
+								? 'Chromium 104, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
 								: layer === 'ffmpeg'
 								? 'Compiled from FFMPEG source. Read FFMPEG license: https://ffmpeg.org/legal.html'
 								: 'Contains Noto Sans font. Read Noto Sans License: https://fonts.google.com/noto/specimen/Noto+Sans/about',
 						CompatibleRuntimes: runtimes,
-						Description: CURRENT_VERSION,
+						Description: VERSION,
 					})
 				);
 				await getLambdaClient(region).send(

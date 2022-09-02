@@ -22,6 +22,7 @@ type LambdaCommandLineOptions = {
 	['disable-cloudwatch']: boolean;
 	['max-retries']: number;
 	['frames-per-lambda']: number;
+	['concurrency-per-lambda']: number;
 	['out-name']: string | undefined;
 	['architecture']: LambdaArchitecture;
 	['custom-role-arn']: string | undefined;

@@ -1104,11 +1104,11 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "video",
-	url: "https://bardwaj.me/remotion/neenaadena/",
+	url: "https://portfolio-varunpbardwaj.vercel.app/remotion/neenaadena/",
       },
     ],
     author: {
-      "url": "https://bardwaj.me/",
+      "url": "https://portfolio-varunpbardwaj.vercel.app",
       "name": "Varun Bardwaj"
     }
 },
@@ -1208,6 +1208,44 @@ export const showcaseVideos: ShowcaseVideo[] = [
       "name": "Kalle Chen"
     }
   },
+  {
+    title: "Video Ad",
+    type: "mux_video",
+    muxId: "kfl1VFbNcRFntVKhdkvTB6mBmcivDv82UX64Na4TMGw",
+    description: "A simple video ad",
+    height: 1920,
+    width: 1080,
+    submittedOn: new Date("07-18-2022"),
+    links: [],
+    author: {
+      "url": "https://www.linkedin.com/in/sepehrsafari/",
+      "name": "Sepehr Safari"
+    }
+  },
+	{
+	title: "Top 15 smallest animals in this planet",
+	type: "mux_video",
+	muxId: "bQ5bHzbVsYngW5GF4iQxH601HyPnxHZCcXZas1zzQRAU",
+	description: "A simple Top List Video",
+	height: 1080,
+	width: 1920,
+	submittedOn: new Date("08-12-2022"),
+	links: [
+		{
+			type: "video",
+			url: "https://youtu.be/jDAwyWWWfkM",
+		},
+		{
+			type: "website",
+			url: "https://adavii.com/",
+		},
+	],
+	author: {
+		"url": "https://twitter.com/yuwan_kumar",
+		"name": "Yuwan Kumar"
+	}
+},
+		
 ];
 
 const dateString = (date: Date) =>

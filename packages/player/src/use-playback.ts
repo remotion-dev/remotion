@@ -6,16 +6,20 @@ import {usePlayer} from './use-player';
 export const usePlayback = ({
 	loop,
 	playbackRate,
+	moveToBeginningWhenEnded,
+	inFrame,
+	outFrame,
 }: {
 	loop: boolean;
 	playbackRate: number;
+	moveToBeginningWhenEnded: boolean;
+	inFrame: number | null;
+	outFrame: number | null;
 }) => {
 	const frame = Internals.Timeline.useTimelinePosition();
 	const config = Internals.useUnsafeVideoConfig();
 	const {playing, pause, emitter} = usePlayer();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
-	const {inFrame, outFrame} =
-		Internals.Timeline.useTimelineInOutFramePosition();
 
 	const frameRef = useRef(frame);
 	frameRef.current = frame;
@@ -60,7 +64,10 @@ export const usePlayback = ({
 			});
 			framesAdvanced += framesToAdvance;
 
-			if (nextFrame !== frameRef.current) {
+			if (
+				nextFrame !== frameRef.current &&
+				(!hasEnded || moveToBeginningWhenEnded)
+			) {
 				setFrame(nextFrame);
 			}
 
@@ -91,6 +98,7 @@ export const usePlayback = ({
 		playbackRate,
 		inFrame,
 		outFrame,
+		moveToBeginningWhenEnded,
 	]);
 
 	useEffect(() => {

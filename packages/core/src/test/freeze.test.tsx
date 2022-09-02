@@ -1,14 +1,17 @@
+/**
+ * @vitest-environment jsdom
+ */
 import {render} from '@testing-library/react';
 import React from 'react';
+import {describe, expect, test} from 'vitest';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
 import {Freeze} from '../freeze';
-import {Sequence} from '../index';
-import type {
-	TimelineContextValue} from '../timeline-position-state';
-import {
-	TimelineContext
-} from '../timeline-position-state';
+import {Sequence} from '../Sequence';
+import type {TimelineContextValue} from '../timeline-position-state';
+import {TimelineContext} from '../timeline-position-state';
 import {useCurrentFrame} from '../use-current-frame';
 import {expectToThrow} from './expect-to-throw';
+import {WrapSequenceContext} from './wrap-sequence-context';
 
 describe('Prop validation', () => {
 	test('It should throw if Freeze has string as frame prop value', () => {
@@ -43,9 +46,11 @@ const timelineCtxValue = (frame: number): TimelineContextValue => ({
 
 const renderForFrame = (frame: number, markup: React.ReactNode) => {
 	return render(
-		<TimelineContext.Provider value={timelineCtxValue(frame)}>
-			{markup}
-		</TimelineContext.Provider>
+		<CanUseRemotionHooksProvider>
+			<TimelineContext.Provider value={timelineCtxValue(frame)}>
+				{markup}
+			</TimelineContext.Provider>
+		</CanUseRemotionHooksProvider>
 	);
 };
 
@@ -61,11 +66,13 @@ const WithSequence: React.FC = () => {
 	const SequenceFrom = 200;
 	const FreezeFrame = 100;
 	return (
-		<Sequence from={SequenceFrom} layout="none">
-			<Freeze frame={FreezeFrame}>
-				<TestComponent />
-			</Freeze>
-		</Sequence>
+		<WrapSequenceContext>
+			<Sequence from={SequenceFrom} layout="none">
+				<Freeze frame={FreezeFrame}>
+					<TestComponent />
+				</Freeze>
+			</Sequence>
+		</WrapSequenceContext>
 	);
 };
 
