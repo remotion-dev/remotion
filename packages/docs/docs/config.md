@@ -69,6 +69,18 @@ Config.Bundling.setPort(3003);
 
 The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option.
 
+### setBundleDir()
+
+Defines where the Webpack bundle gets saved.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Bundling.setBundleDir("./dist");
+```
+
+The [command line flag](/docs/cli/bundle#--bundle-dir) `--bundle-dir` will take precedence over this option.
+
 ## Log
 
 ### setLevel()

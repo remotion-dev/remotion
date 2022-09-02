@@ -223,7 +223,7 @@ export const parseCommandLine = (
 	}
 
 	if (typeof parsedCli['bundle-dir'] !== 'undefined') {
-		Config.Bundling.setBundleOutDir(
+		Config.Bundling.setBundleDir(
 			path.resolve(process.cwd(), parsedCli['bundle-dir'])
 		);
 	}

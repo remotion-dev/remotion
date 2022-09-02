@@ -61,7 +61,7 @@ export type ConfigType = {
 		 */
 		readonly setPort: (port: number | undefined) => void;
 
-		readonly setBundleOutDir: (path: string) => void;
+		readonly setBundleDir: (path: string) => void;
 		readonly setPublicPath: (path: string) => void;
 	};
 	readonly Log: {
