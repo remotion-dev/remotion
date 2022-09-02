@@ -39,32 +39,6 @@ export const experts: Expert[] = [
     ),
     website: null,
   },
-  /**
-    {
-    name: "Matt McGillivray",
-    image: "/img/freelancers/umungo.png",
-    website: null,
-    twitter: "ProThatwas",
-    github: "UmungoBungo",
-    linkedin: "in/matthew-mcgillivray-68295a55",
-    email: null,
-    description: (
-      <div>
-        <p>
-          I made:{" "}
-          <a target={"_blank"} href="https://thatwas.pro">
-            ThatWas.pro
-          </a>
-          {" and "}
-          <a target={"_blank"} href="https://splitscreen.video">
-            splitscreen.video
-          </a>
-          !
-        </p>
-      </div>
-    ),
-  },
-  */
   {
     name: "Florent Pergoud",
     image: "/img/freelancers/florent.jpeg",
