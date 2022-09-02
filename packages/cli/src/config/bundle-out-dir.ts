@@ -4,6 +4,6 @@ export const getBundleOutDir = () => {
 	return bundleOutDir;
 };
 
-export const setBundleOutDir = (path: string) => {
+export const setBundleDir = (path: string) => {
 	bundleOutDir = path;
 };

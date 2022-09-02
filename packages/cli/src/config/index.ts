@@ -42,7 +42,7 @@ import type {WebpackConfiguration} from '@remotion/bundler';
 // eslint-disable-next-line no-restricted-imports
 import type {ConfigType} from 'remotion';
 import {setBrowserExecutable} from './browser-executable';
-import {getBundleOutDir, setBundleOutDir} from './bundle-out-dir';
+import {getBundleOutDir, setBundleDir} from './bundle-out-dir';
 import {
 	setChromiumDisableWebSecurity,
 	setChromiumHeadlessMode,
@@ -93,7 +93,7 @@ export const Config: ConfigType = {
 		overrideWebpackConfig,
 		setCachingEnabled: setWebpackCaching,
 		setPort,
-		setBundleOutDir,
+		setBundleDir,
 		setPublicPath,
 	},
 	Log: {
