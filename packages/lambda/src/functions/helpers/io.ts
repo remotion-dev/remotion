@@ -1,9 +1,9 @@
-import type {
-	_Object} from '@aws-sdk/client-s3';
+import type {_Object} from '@aws-sdk/client-s3';
 import {
+	DeleteObjectCommand,
 	GetObjectCommand,
 	ListObjectsV2Command,
-	PutObjectCommand
+	PutObjectCommand,
 } from '@aws-sdk/client-s3';
 import type {ReadStream} from 'fs';
 import mimeTypes from 'mime-types';
@@ -11,6 +11,8 @@ import type {Readable} from 'stream';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import {getS3Client} from '../../shared/aws-clients';
 import type {Privacy} from '../../shared/constants';
+import type {DownloadBehavior} from '../../shared/content-disposition-header';
+import {getContentDispositionHeader} from '../../shared/content-disposition-header';
 
 export type LambdaLSInput = {
 	bucketName: string;
@@ -73,6 +75,23 @@ export const lambdaLs = async ({
 	}
 };
 
+export const lambdaDeleteFile = async ({
+	bucketName,
+	key,
+	region,
+}: {
+	region: AwsRegion;
+	bucketName: string;
+	key: string;
+}) => {
+	await getS3Client(region).send(
+		new DeleteObjectCommand({
+			Bucket: bucketName,
+			Key: key,
+		})
+	);
+};
+
 export const lambdaWriteFile = async ({
 	bucketName,
 	key,
@@ -80,6 +99,7 @@ export const lambdaWriteFile = async ({
 	region,
 	privacy,
 	expectedBucketOwner,
+	downloadBehavior,
 }: {
 	bucketName: string;
 	key: string;
@@ -87,15 +107,22 @@ export const lambdaWriteFile = async ({
 	region: AwsRegion;
 	privacy: Privacy;
 	expectedBucketOwner: string | null;
+	downloadBehavior: DownloadBehavior | null;
 }): Promise<void> => {
 	await getS3Client(region).send(
 		new PutObjectCommand({
 			Bucket: bucketName,
 			Key: key,
 			Body: body,
-			ACL: privacy === 'private' ? 'private' : 'public-read',
+			ACL:
+				privacy === 'no-acl'
+					? undefined
+					: privacy === 'private'
+					? 'private'
+					: 'public-read',
 			ExpectedBucketOwner: expectedBucketOwner ?? undefined,
 			ContentType: mimeTypes.lookup(key) || 'application/octet-stream',
+			ContentDisposition: getContentDispositionHeader(downloadBehavior),
 		})
 	);
 };

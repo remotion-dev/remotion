@@ -1,4 +1,4 @@
-import type {Codec} from 'remotion';
+import type {Codec} from './codec';
 
 export const validateOutputFilename = (
 	codec: Codec,
@@ -70,6 +70,14 @@ export const validateOutputFilename = (
 		if (extension !== 'wav') {
 			throw new TypeError(
 				"When using the 'wav' codec, the output location must end in .wav."
+			);
+		}
+	}
+
+	if (codec === 'gif') {
+		if (extension !== 'gif') {
+			throw new TypeError(
+				'When using the GIF codec, the output filename must end in .gif.'
 			);
 		}
 	}

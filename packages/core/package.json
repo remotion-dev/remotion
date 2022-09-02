@@ -1,16 +1,16 @@
 {
 	"name": "remotion",
-	"version": "3.0.29",
+	"version": "3.2.12",
 	"description": "Render videos in React",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
+		"prepublish": "node ensure-correct-version.js && cp ../../README.md .",
 		"lint": "eslint src --ext ts,tsx",
-		"test": "jest --coverage && node generate-badges.js",
+		"test": "vitest --run",
 		"build": "tsc -d",
-		"watch": "tsc -w",
-		"prerelease": "cp ../../README.md ."
+		"watch": "tsc -w"
 	},
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
@@ -26,22 +26,21 @@
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
-		"@testing-library/react": "13.1.1",
-		"@types/jest": "^27.4.0",
+		"@testing-library/react": "13.3.0",
 		"@types/node": "^16.7.5",
 		"@types/react": "18.0.1",
 		"@types/react-dom": "18.0.0",
 		"@types/webpack-env": "^1.16.0",
+		"@vitejs/plugin-react": "^2.0.0",
 		"eslint": "8.13.0",
-		"jest": "^27.2.4",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0",
 		"react-test-renderer": "^18.0.0",
 		"rimraf": "^3.0.2",
-		"ts-jest": "^27.0.5",
 		"typescript": "^4.7.0",
+		"vitest": "^0.18.0",
 		"webpack": "5.72.0"
 	},
 	"keywords": [
@@ -54,5 +53,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"gitHead": "f0f1e39c890ea9451597e77870310646ee5fcf67"
 }

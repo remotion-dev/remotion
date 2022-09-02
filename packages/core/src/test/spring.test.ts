@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {spring} from '../spring';
 

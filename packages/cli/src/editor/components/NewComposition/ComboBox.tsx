@@ -12,7 +12,11 @@ import {CaretDown} from '../../icons/caret';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {Flex, Spacing} from '../layout';
 import {getPortal} from '../Menu/portals';
-import {menuContainer, outerPortal} from '../Menu/styles';
+import {
+	menuContainerTowardsBottom,
+	menuContainerTowardsTop,
+	outerPortal,
+} from '../Menu/styles';
 import {MenuContent} from './MenuContent';
 
 const container: React.CSSProperties = {
@@ -96,10 +100,23 @@ export const Combobox: React.FC<{
 			return null;
 		}
 
+		const spaceToBottom = size.windowSize.height - (size.top + size.height);
+		const spaceToTop = size.top;
+
+		const layout = spaceToTop > spaceToBottom ? 'bottom' : 'top';
+
 		return {
-			...menuContainer,
+			...(layout === 'top'
+				? {
+						...menuContainerTowardsBottom,
+						top: size.top + size.height,
+				  }
+				: {
+						...menuContainerTowardsTop,
+
+						bottom: size.windowSize.height - size.top,
+				  }),
 			left: size.left,
-			top: size.top + size.height,
 		};
 	}, [opened, size]);
 

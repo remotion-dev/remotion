@@ -1,10 +1,10 @@
-import {getCompositions} from '@remotion/renderer';
+import {getCompositions, RenderInternals} from '@remotion/renderer';
 import path from 'path';
 import {getCliOptions} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
-import {bundleOnCli} from './setup-cache';
+import {parsedCli, quietFlagProvided} from './parse-command-line';
+import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 
 const max = (arr: number[]) => {
 	if (arr.length === 0) {
@@ -22,7 +22,7 @@ const max = (arr: number[]) => {
 	return biggest;
 };
 
-export const listCompositionsCommand = async () => {
+export const listCompositionsCommand = async (remotionRoot: string) => {
 	const file = parsedCli._[1];
 
 	if (!file) {
@@ -36,9 +36,11 @@ export const listCompositionsCommand = async () => {
 		process.exit(1);
 	}
 
+	const downloadMap = RenderInternals.makeDownloadMap();
+
 	const fullPath = path.join(process.cwd(), file);
 
-	await loadConfig();
+	await loadConfig(remotionRoot);
 
 	const {
 		browserExecutable,
@@ -49,9 +51,17 @@ export const listCompositionsCommand = async () => {
 		inputProps,
 		puppeteerTimeout,
 		port,
-	} = await getCliOptions({isLambda: false, type: 'get-compositions'});
+	} = await getCliOptions({
+		isLambda: false,
+		type: 'get-compositions',
+	});
 
-	const bundled = await bundleOnCli(fullPath, ['bundling']);
+	const {urlOrBundle: bundled, cleanup: cleanupBundle} =
+		await bundleOnCliOrTakeServeUrl({
+			remotionRoot,
+			fullPath,
+			steps: ['bundling'],
+		});
 
 	const compositions = await getCompositions(bundled, {
 		browserExecutable,
@@ -62,14 +72,22 @@ export const listCompositionsCommand = async () => {
 		inputProps,
 		timeoutInMilliseconds: puppeteerTimeout,
 		port,
+		downloadMap,
 	});
-	Log.info();
-	Log.info('The following compositions are available:');
-	Log.info();
+	if (!quietFlagProvided()) {
+		Log.info();
+		Log.info('The following compositions are available:');
+		Log.info();
+	}
 
 	const firstColumnLength = max(compositions.map(({id}) => id.length)) + 4;
 	const secondColumnLength = 8;
 	const thirdColumnLength = 15;
+
+	if (quietFlagProvided()) {
+		Log.info(compositions.map((c) => c.id).join(' '));
+		return;
+	}
 
 	Log.info(
 		`${'Composition'.padEnd(firstColumnLength, ' ')}${'FPS'.padEnd(
@@ -95,4 +113,8 @@ export const listCompositionsCommand = async () => {
 			})
 			.join('\n')
 	);
+
+	await RenderInternals.cleanDownloadMap(downloadMap);
+	await cleanupBundle();
+	Log.verbose('Cleaned up', downloadMap.assetDir);
 };

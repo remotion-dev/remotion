@@ -1,12 +1,10 @@
 import type {_Object} from '@aws-sdk/client-s3';
 import {estimatePrice} from '../../api/estimate-price';
 import type {AwsRegion} from '../../pricing/aws-regions';
-import type {
-	PostRenderData,
-	RenderMetadata} from '../../shared/constants';
+import type {PostRenderData, RenderMetadata} from '../../shared/constants';
 import {
 	lambdaTimingsPrefix,
-	MAX_EPHEMERAL_STORAGE_IN_MB
+	MAX_EPHEMERAL_STORAGE_IN_MB,
 } from '../../shared/constants';
 import {
 	getMostExpensiveChunks,
@@ -86,12 +84,14 @@ export const createPostRenderData = ({
 		.map((c) => c.Size ?? 0)
 		.reduce((a, b) => a + b, 0);
 
-	const {timeToInvokeLambdas} = getLambdasInvokedStats(
+	const {timeToInvokeLambdas} = getLambdasInvokedStats({
 		contents,
 		renderId,
-		renderMetadata?.estimatedRenderLambdaInvokations ?? null,
-		renderMetadata.startedDate
-	);
+		estimatedRenderLambdaInvokations:
+			renderMetadata.estimatedRenderLambdaInvokations,
+		startDate: renderMetadata.startedDate,
+		checkIfAllLambdasWereInvoked: false,
+	});
 	const retriesInfo = getRetryStats({contents, renderId});
 
 	if (timeToInvokeLambdas === null) {

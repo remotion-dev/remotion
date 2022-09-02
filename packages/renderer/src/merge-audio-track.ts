@@ -1,19 +1,22 @@
 import execa from 'execa';
 import path from 'path';
-import type {FfmpegExecutable} from 'remotion';
-import {Internals} from 'remotion';
+import type {DownloadMap} from './assets/download-map';
 import {chunk} from './chunk';
 import {convertToPcm} from './convert-to-pcm';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {createSilentAudio} from './create-silent-audio';
+import {deleteDirectory} from './delete-directory';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {pLimit} from './p-limit';
 import {tmpDir} from './tmp-dir';
+import {truthy} from './truthy';
 
 type Options = {
 	ffmpegExecutable: FfmpegExecutable;
 	files: string[];
 	outName: string;
 	numberOfSeconds: number;
+	downloadMap: DownloadMap;
 };
 
 const mergeAudioTrackUnlimited = async ({
@@ -21,6 +24,7 @@ const mergeAudioTrackUnlimited = async ({
 	outName,
 	files,
 	numberOfSeconds,
+	downloadMap,
 }: Options): Promise<void> => {
 	if (files.length === 0) {
 		await createSilentAudio({
@@ -53,21 +57,25 @@ const mergeAudioTrackUnlimited = async ({
 					files: chunkFiles,
 					numberOfSeconds,
 					outName: chunkOutname,
+					downloadMap,
 				});
 				return chunkOutname;
 			})
 		);
 
-		return mergeAudioTrack({
+		await mergeAudioTrack({
 			ffmpegExecutable,
 			files: chunkNames,
 			numberOfSeconds,
 			outName,
+			downloadMap,
 		});
+		await deleteDirectory(tempPath);
+		return;
 	}
 
 	const {complexFilterFlag: mergeFilter, cleanup} =
-		await createFfmpegComplexFilter(files.length);
+		await createFfmpegComplexFilter(files.length, downloadMap);
 
 	const args = [
 		...files.map((f) => ['-i', f]),
@@ -76,7 +84,7 @@ const mergeAudioTrackUnlimited = async ({
 		['-map', '[a]'],
 		['-y', outName],
 	]
-		.filter(Internals.truthy)
+		.filter(truthy)
 		.flat(2);
 
 	const task = execa(ffmpegExecutable ?? 'ffmpeg', args);
@@ -85,7 +93,8 @@ const mergeAudioTrackUnlimited = async ({
 	cleanup();
 };
 
-const limit = pLimit(2);
+// Must be at least 3 because recursively called twice in mergeAudioTrack
+const limit = pLimit(3);
 
 export const mergeAudioTrack = (options: Options) => {
 	return limit(mergeAudioTrackUnlimited, options);

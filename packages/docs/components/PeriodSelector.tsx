@@ -11,7 +11,7 @@ export const PeriodSelector: React.FC<{
   setPeriod: (per: Period) => void;
 }> = ({ period, setPeriod }) => {
   const MonthlyComponent = period === Period.Monthly ? BlueButton : ClearButton;
-  const YearlyComponent = period !== Period.Monthly ? BlueButton : ClearButton;
+  const YearlyComponent = period === Period.Monthly ? ClearButton : BlueButton;
 
   return (
     <div

@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest';
 import {interpolateColors} from '../interpolate-colors';
 import {expectToThrow} from './expect-to-throw';
 

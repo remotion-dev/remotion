@@ -5,8 +5,9 @@ import fs from 'fs';
 import http from 'http';
 import os from 'os';
 import path from 'path';
+// eslint-disable-next-line no-restricted-imports
 import type {WebpackOverrideFn} from 'remotion';
-import {Internals} from 'remotion';
+import {ConfigInternals} from '../config';
 import {wdm} from './dev-middleware';
 import {webpackHotMiddleware} from './hot-middleware';
 import type {LiveEventsServer} from './live-events';
@@ -22,6 +23,8 @@ export const startServer = async (
 		envVariables?: Record<string, string>;
 		port: number | null;
 		maxTimelineTracks?: number;
+		remotionRoot: string;
+		keyboardShortcutsEnabled: boolean;
 	}
 ): Promise<{
 	port: number;
@@ -31,19 +34,21 @@ export const startServer = async (
 		path.join(os.tmpdir(), 'react-motion-graphics')
 	);
 
-	const config = BundlerInternals.webpackConfig({
+	const [, config] = BundlerInternals.webpackConfig({
 		entry,
 		userDefinedComponent,
 		outDir: tmpDir,
 		environment: 'development',
 		webpackOverride:
-			options?.webpackOverride ?? Internals.getWebpackOverrideFn(),
+			options?.webpackOverride ?? ConfigInternals.getWebpackOverrideFn(),
 		envVariables: options?.envVariables ?? {},
 		maxTimelineTracks: options?.maxTimelineTracks ?? 15,
 		entryPoints: [
 			require.resolve('./hot-middleware/client'),
 			require.resolve('./error-overlay/entry-basic.js'),
 		],
+		remotionRoot: options.remotionRoot,
+		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
 	});
 
 	const compiler = webpack(config);
@@ -70,13 +75,14 @@ export const startServer = async (
 				});
 			})
 			.then(() => {
-				handleRoutes({
+				return handleRoutes({
 					hash,
 					hashPrefix,
 					request,
 					response,
 					liveEventsServer,
 					getCurrentInputProps: options.getCurrentInputProps,
+					remotionRoot: options.remotionRoot,
 				});
 			})
 			.catch((err) => {

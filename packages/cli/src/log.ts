@@ -1,13 +1,13 @@
 /* eslint-disable no-console */
-
-import {Internals} from 'remotion';
+import {RenderInternals} from '@remotion/renderer';
 import {chalk} from './chalk';
+import {ConfigInternals} from './config';
 
 export const Log = {
 	verbose: (...args: Parameters<typeof console.log>) => {
 		if (
-			Internals.Logging.isEqualOrBelowLogLevel(
-				Internals.Logging.getLogLevel(),
+			RenderInternals.isEqualOrBelowLogLevel(
+				ConfigInternals.Logging.getLogLevel(),
 				'verbose'
 			)
 		) {
@@ -16,8 +16,8 @@ export const Log = {
 	},
 	info: (...args: Parameters<typeof console.log>) => {
 		if (
-			Internals.Logging.isEqualOrBelowLogLevel(
-				Internals.Logging.getLogLevel(),
+			RenderInternals.isEqualOrBelowLogLevel(
+				ConfigInternals.Logging.getLogLevel(),
 				'info'
 			)
 		) {
@@ -26,8 +26,8 @@ export const Log = {
 	},
 	warn: (...args: Parameters<typeof console.log>) => {
 		if (
-			Internals.Logging.isEqualOrBelowLogLevel(
-				Internals.Logging.getLogLevel(),
+			RenderInternals.isEqualOrBelowLogLevel(
+				ConfigInternals.Logging.getLogLevel(),
 				'warn'
 			)
 		) {
@@ -36,8 +36,8 @@ export const Log = {
 	},
 	error: (...args: Parameters<typeof console.log>) => {
 		if (
-			Internals.Logging.isEqualOrBelowLogLevel(
-				Internals.Logging.getLogLevel(),
+			RenderInternals.isEqualOrBelowLogLevel(
+				ConfigInternals.Logging.getLogLevel(),
 				'error'
 			)
 		) {

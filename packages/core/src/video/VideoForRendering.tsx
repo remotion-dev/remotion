@@ -1,3 +1,4 @@
+import type {ForwardRefExoticComponent, RefAttributes} from 'react';
 import React, {
 	forwardRef,
 	useContext,
@@ -16,7 +17,8 @@ import {continueRender, delayRender} from '../delay-render';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {random} from '../random';
 import {SequenceContext} from '../Sequence';
-import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-current-frame';
+import {useTimelinePosition} from '../timeline-position-state';
+import {useCurrentFrame} from '../use-current-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
 import {warnAboutNonSeekableMedia} from '../warn-about-non-seekable-media';
@@ -27,7 +29,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
 	RemotionVideoProps
 > = ({onError, volume: volumeProp, playbackRate, ...props}, ref) => {
-	const absoluteFrame = useAbsoluteCurrentFrame();
+	const absoluteFrame = useTimelinePosition();
 
 	const frame = useCurrentFrame();
 	const volumePropsFrame = useFrameForVolumeProp();
@@ -44,10 +46,9 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		() =>
 			`video-${random(props.src ?? '')}-${sequenceContext?.cumulatedFrom}-${
 				sequenceContext?.relativeFrom
-			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
+			}-${sequenceContext?.durationInFrames}`,
 		[
 			props.src,
-			props.muted,
 			sequenceContext?.cumulatedFrom,
 			sequenceContext?.relativeFrom,
 			sequenceContext?.durationInFrames,
@@ -70,6 +71,14 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		}
 
 		if (props.muted) {
+			return;
+		}
+
+		if (volume <= 0) {
+			return;
+		}
+
+		if (!window.remotion_audioEnabled) {
 			return;
 		}
 
@@ -101,7 +110,12 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	});
 
 	useEffect(() => {
-		if (!videoRef.current) {
+		if (!window.remotion_videoEnabled) {
+			return;
+		}
+
+		const {current} = videoRef;
+		if (!current) {
 			return;
 		}
 
@@ -112,6 +126,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				src: props.src as string,
 				playbackRate: playbackRate || 1,
 				startFrom: -mediaStartsAt,
+				mediaType: 'video',
 			});
 		})();
 		const handle = delayRender(`Rendering <Video /> with src="${props.src}"`);
@@ -120,67 +135,66 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		if (isApproximatelyTheSame(videoRef.current.currentTime, currentTime)) {
-			if (videoRef.current.readyState >= 2) {
+		if (isApproximatelyTheSame(current.currentTime, currentTime)) {
+			if (current.readyState >= 2) {
 				continueRender(handle);
 				return;
 			}
 
-			videoRef.current.addEventListener(
-				'loadeddata',
-				() => {
-					continueRender(handle);
-				},
-				{once: true}
-			);
-			return;
+			const loadedDataHandler = () => {
+				continueRender(handle);
+			};
+
+			current.addEventListener('loadeddata', loadedDataHandler, {once: true});
+			return () => {
+				current.removeEventListener('loadeddata', loadedDataHandler);
+			};
 		}
 
-		videoRef.current.currentTime = currentTime;
+		current.currentTime = currentTime;
 
-		videoRef.current.addEventListener(
-			'seeked',
-			() => {
-				warnAboutNonSeekableMedia(videoRef.current, 'exception');
+		const seekedHandler = () => {
+			warnAboutNonSeekableMedia(current, 'exception');
 
-				if (window.navigator.platform.startsWith('Mac')) {
-					// Improve me: This is ensures frame perfectness but slows down render.
-					// Please see this issue for context: https://github.com/remotion-dev/remotion/issues/200
+			if (window.navigator.platform.startsWith('Mac')) {
+				// Improve me: This is ensures frame perfectness but slows down render.
+				// Please see this issue for context: https://github.com/remotion-dev/remotion/issues/200
 
-					// Only affects macOS since it uses VideoToolbox decoding.
-					setTimeout(() => {
-						continueRender(handle);
-					}, 100);
-				} else {
+				// Only affects macOS since it uses VideoToolbox decoding.
+				setTimeout(() => {
 					continueRender(handle);
-				}
-			},
-			{once: true}
-		);
-		videoRef.current.addEventListener(
-			'ended',
-			() => {
+				}, 100);
+			} else {
 				continueRender(handle);
-			},
-			{once: true}
-		);
-		videoRef.current.addEventListener(
-			'error',
-			() => {
-				if (videoRef.current?.error) {
-					console.error('Error occurred in video', videoRef.current?.error);
-					throw new Error(
-						`The browser threw an error while playing the video: ${videoRef.current?.error?.message}`
-					);
-				} else {
-					throw new Error('The browser threw an error');
-				}
-			},
-			{once: true}
-		);
+			}
+		};
+
+		current.addEventListener('seeked', seekedHandler, {once: true});
+
+		const endedHandler = () => {
+			continueRender(handle);
+		};
+
+		current.addEventListener('ended', endedHandler, {once: true});
+
+		const errorHandler = () => {
+			if (current?.error) {
+				console.error('Error occurred in video', current?.error);
+				throw new Error(
+					`The browser threw an error while playing the video ${props.src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
+				);
+			} else {
+				throw new Error('The browser threw an error');
+			}
+		};
+
+		current.addEventListener('error', errorHandler, {once: true});
 
 		// If video skips to another frame or unmounts, we clear the created handle
 		return () => {
+			current.removeEventListener('ended', endedHandler);
+			current.removeEventListener('error', errorHandler);
+			current.removeEventListener('seeked', seekedHandler);
 			continueRender(handle);
 		};
 	}, [
@@ -195,4 +209,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	return <video ref={videoRef} {...props} onError={onError} />;
 };
 
-export const VideoForRendering = forwardRef(VideoForRenderingForwardFunction);
+export const VideoForRendering = forwardRef(
+	VideoForRenderingForwardFunction
+) as ForwardRefExoticComponent<
+	RemotionVideoProps & RefAttributes<HTMLVideoElement>
+>;

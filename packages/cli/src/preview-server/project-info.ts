@@ -6,9 +6,9 @@ export type ProjectInfo = {
 	relativeVideoFile: string | null;
 };
 
-export const getProjectInfo = (): Promise<ProjectInfo> => {
+export const getProjectInfo = (remotionRoot: string): Promise<ProjectInfo> => {
 	const pathsToLookFor = ['src/Video.tsx', 'src/Video.jsx'].map((p) => {
-		return path.join(process.cwd(), p);
+		return path.join(remotionRoot, p);
 	});
 
 	const videoFile = pathsToLookFor.find((p) => existsSync(p)) ?? null;
@@ -16,7 +16,7 @@ export const getProjectInfo = (): Promise<ProjectInfo> => {
 	return Promise.resolve({
 		videoFile,
 		relativeVideoFile: videoFile
-			? path.relative(process.cwd(), videoFile)
+			? path.relative(remotionRoot, videoFile)
 			: null,
 	});
 };

@@ -1,15 +1,16 @@
-import type {ChromiumOptions} from '@remotion/renderer';
-import type { LogLevel, StillImageFormat} from 'remotion';
-import {Internals} from 'remotion';
+import type {
+	ChromiumOptions,
+	LogLevel,
+	StillImageFormat,
+} from '@remotion/renderer';
+import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
-import type {
-	CostsInfo} from '../shared/constants';
-import {
-	DEFAULT_MAX_RETRIES,
-	LambdaRoutines,
-} from '../shared/constants';
+import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
+import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
+import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
+import {getCloudwatchStreamUrl} from '../shared/get-cloudwatch-stream-url';
 
 export type RenderStillOnLambdaInput = {
 	region: AwsRegion;
@@ -18,16 +19,17 @@ export type RenderStillOnLambdaInput = {
 	composition: string;
 	inputProps: unknown;
 	imageFormat: StillImageFormat;
-	privacy: 'private' | 'public';
+	privacy: Privacy;
 	maxRetries?: number;
 	envVariables?: Record<string, string>;
 	quality?: number;
 	frame?: number;
 	logLevel?: LogLevel;
-	outName?: string;
+	outName?: OutNameInput;
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
+	downloadBehavior?: DownloadBehavior;
 };
 
 export type RenderStillOnLambdaOutput = {
@@ -36,6 +38,7 @@ export type RenderStillOnLambdaOutput = {
 	sizeInBytes: number;
 	bucketName: string;
 	renderId: string;
+	cloudWatchLogs: string;
 };
 
 /**
@@ -72,36 +75,54 @@ export const renderStillOnLambda = async ({
 	timeoutInMilliseconds,
 	chromiumOptions,
 	scale,
+	downloadBehavior,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
-	const res = await callLambda({
-		functionName,
-		type: LambdaRoutines.still,
-		payload: {
-			composition,
-			serveUrl: realServeUrl,
-			inputProps,
-			imageFormat,
-			envVariables,
-			quality,
-			maxRetries: maxRetries ?? DEFAULT_MAX_RETRIES,
-			frame: frame ?? 0,
-			privacy,
-			attempt: 1,
-			logLevel: logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
-			outName: outName ?? null,
-			timeoutInMilliseconds:
-				timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT,
-			chromiumOptions: chromiumOptions ?? {},
-			scale: scale ?? 1,
-		},
-		region,
-	});
-	return {
-		estimatedPrice: res.estimatedPrice,
-		url: res.output,
-		sizeInBytes: res.size,
-		bucketName: res.bucketName,
-		renderId: res.renderId,
-	};
+	try {
+		const res = await callLambda({
+			functionName,
+			type: LambdaRoutines.still,
+			payload: {
+				composition,
+				serveUrl: realServeUrl,
+				inputProps,
+				imageFormat,
+				envVariables,
+				quality,
+				maxRetries: maxRetries ?? DEFAULT_MAX_RETRIES,
+				frame: frame ?? 0,
+				privacy,
+				attempt: 1,
+				logLevel: logLevel ?? 'info',
+				outName: outName ?? null,
+				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
+				chromiumOptions: chromiumOptions ?? {},
+				scale: scale ?? 1,
+				downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
+				version: VERSION,
+			},
+			region,
+		});
+		return {
+			estimatedPrice: res.estimatedPrice,
+			url: res.output,
+			sizeInBytes: res.size,
+			bucketName: res.bucketName,
+			renderId: res.renderId,
+			cloudWatchLogs: getCloudwatchStreamUrl({
+				functionName,
+				method: LambdaRoutines.still,
+				region,
+				renderId: res.renderId,
+			}),
+		};
+	} catch (err) {
+		if ((err as Error).stack?.includes('UnrecognizedClientException')) {
+			throw new Error(
+				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception'
+			);
+		}
+
+		throw err;
+	}
 };

@@ -13,6 +13,8 @@ const lineNumber: React.CSSProperties = {
 	paddingLeft: 10,
 	paddingRight: 12,
 	marginRight: 12,
+	color: 'inherit',
+	fontSize: 14,
 };
 
 export const CodeFrame: React.FC<{

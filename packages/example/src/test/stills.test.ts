@@ -8,6 +8,7 @@ import {existsSync, unlinkSync} from 'fs';
 import {tmpdir} from 'os';
 import path from 'path';
 import {TCompMetadata} from 'remotion';
+import {expect, test} from 'vitest';
 import {webpackOverride} from '../webpack-override';
 
 test('Can render a still using Node.JS APIs', async () => {
@@ -25,10 +26,7 @@ test('Can render a still using Node.JS APIs', async () => {
 
 	const testOut = path.join(tmpdir(), 'path/to/still.png');
 
-	const downloadDir = RenderInternals.tmpDir('remotion-assets-dir');
-
 	const {port, close} = await RenderInternals.serveStatic(bundled, {
-		downloadDir,
 		onDownload: () => undefined,
 		port: null,
 		onError: (err) => {
@@ -36,6 +34,7 @@ test('Can render a still using Node.JS APIs', async () => {
 		},
 		ffmpegExecutable: null,
 		ffprobeExecutable: null,
+		downloadMap: RenderInternals.makeDownloadMap(),
 	});
 
 	const serveUrl = `http://localhost:${port}`;

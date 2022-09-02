@@ -119,4 +119,33 @@ export const FEATURED_TEMPLATES: Template[] = [
 		},
 		cliId: 'audiogram',
 	},
+	{
+		homePageLabel: 'Skia',
+		shortName: 'Skia',
+		org: 'remotion-dev',
+		repoName: 'template-skia',
+		description: 'React Native Skia starter',
+		longerDescription: 'A template with React Native Skia already setup.',
+		promoVideo: {
+			muxId: 'ecORcc01sP94IsTRGLwngxH4PC1r1kQq6iXpn00HqCIGI',
+			height: 1080,
+			width: 1920,
+		},
+		cliId: 'skia',
+	},
+	{
+		homePageLabel: 'Tailwind',
+		shortName: 'Tailwind',
+		org: 'remotion-dev',
+		repoName: 'template-tailwind',
+		description: 'TypeScript and Tailwind starter',
+		longerDescription:
+			'A starter template with TypeScript and Tailwind already set up.',
+		promoVideo: {
+			muxId: 'OAe00WUpvsAyqAVSd4gehDCeWI81cI024RhTs9l2eB48w',
+			height: 720,
+			width: 1280,
+		},
+		cliId: 'tailwind',
+	},
 ];

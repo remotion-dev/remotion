@@ -1,4 +1,13 @@
-import React, {forwardRef, useImperativeHandle, useMemo, useState} from 'react';
+import type {ForwardRefExoticComponent, RefAttributes} from 'react';
+import React, {
+	forwardRef,
+	useContext,
+	useImperativeHandle,
+	useMemo,
+	useState,
+} from 'react';
+import {random} from '../random';
+import {SequenceContext} from '../Sequence';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
@@ -11,11 +20,13 @@ import type {RemotionAudioProps} from './props';
 import {useSharedAudio} from './shared-audio-tags';
 import {useFrameForVolumeProp} from './use-audio-frame';
 
+type AudioForDevelopmentProps = RemotionAudioProps & {
+	shouldPreMountAudioTags: boolean;
+};
+
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
-	RemotionAudioProps & {
-		shouldPreMountAudioTags: boolean;
-	}
+	AudioForDevelopmentProps
 > = (props, ref) => {
 	const [initialShouldPreMountAudioElements] = useState(
 		props.shouldPreMountAudioTags
@@ -41,7 +52,19 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		};
 	}, [mediaMuted, muted, nativeProps]);
 
-	const audioRef = useSharedAudio(propsToPass).el;
+	const sequenceContext = useContext(SequenceContext);
+
+	// Generate a string that's as unique as possible for this asset
+	// but at the same time deterministic. We use it to combat strict mode issues.
+	const id = useMemo(
+		() =>
+			`audio-${random(props.src ?? '')}-${sequenceContext?.relativeFrom}-${
+				sequenceContext?.cumulatedFrom
+			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
+		[props.muted, props.src, sequenceContext]
+	);
+
+	const audioRef = useSharedAudio(propsToPass, id).el;
 
 	const actualVolume = useMediaTagVolume(audioRef);
 
@@ -82,4 +105,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 export const AudioForDevelopment = forwardRef(
 	AudioForDevelopmentForwardRefFunction
-);
+) as ForwardRefExoticComponent<
+	AudioForDevelopmentProps & RefAttributes<HTMLAudioElement>
+>;

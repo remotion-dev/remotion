@@ -74,6 +74,12 @@ module.exports = {
               label: "Changelog",
               href: "https://github.com/remotion-dev/remotion/releases",
             },
+            {
+              label: "GitHub Issues",
+              href: "https://github.com/remotion-dev/remotion/issues",
+              "data-splitbee-event": "External Link",
+              "data-splitbee-event-target": "Github",
+            },
           ],
         },
         {
@@ -84,11 +90,10 @@ module.exports = {
               to: "showcase",
             },
             {
-              label: "GitHub Issues",
-              href: "https://github.com/remotion-dev/remotion/issues",
-              "data-splitbee-event": "External Link",
-              "data-splitbee-event-target": "Github",
+              label: "Experts",
+              to: "experts",
             },
+
             {
               label: "Discord",
               href: "https://remotion.dev/discord",
@@ -118,6 +123,10 @@ module.exports = {
         {
           title: "More",
           items: [
+            {
+              label: "About us",
+              to: "about",
+            },
             {
               label: "Blog",
               to: "blog",

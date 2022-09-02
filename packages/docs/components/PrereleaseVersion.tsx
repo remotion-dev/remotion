@@ -38,11 +38,11 @@ export const Prerelease: React.FC<{
           return (
             <div key={r}>
               <span style={{ color: "#e13238" }}>
-                - &quot;{r}&quot;: &quot;{"^3.0.0"}&quot;
+                - &quot;{r}&quot;: &quot;{"3.0.0"}&quot;
               </span>
               {"\n"}
               <span style={{ color: "#009400" }}>
-                + &quot;{r}&quot;: &quot;^{version}&quot;
+                + &quot;{r}&quot;: &quot;{version}&quot;
               </span>
               {"\n"}
             </div>

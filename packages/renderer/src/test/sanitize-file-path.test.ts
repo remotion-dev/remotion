@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {sanitizeFilePath} from '../assets/sanitize-filepath';
 
 test('sanitizeFilePath linux', () => {

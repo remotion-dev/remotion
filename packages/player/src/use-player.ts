@@ -1,24 +1,29 @@
 import type {SyntheticEvent} from 'react';
-import { useCallback, useContext, useMemo, useRef} from 'react';
+import {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context';
 import type {PlayerEmitter} from './event-emitter';
 
-export const usePlayer = (): {
+type UsePlayerMethods = {
 	frameBack: (frames: number) => void;
 	frameForward: (frames: number) => void;
 	isLastFrame: boolean;
+	isFirstFrame: boolean;
 	emitter: PlayerEmitter;
 	playing: boolean;
 	play: (e?: SyntheticEvent) => void;
 	pause: () => void;
+	pauseAndReturnToPlayStart: () => void;
 	seek: (newFrame: number) => void;
 	getCurrentFrame: () => number;
 	isPlaying: () => boolean;
-} => {
+};
+
+export const usePlayer = (): UsePlayerMethods => {
 	const [playing, setPlaying, imperativePlaying] =
 		Internals.Timeline.usePlayingState();
 	const frame = Internals.Timeline.useTimelinePosition();
+	const playStart = useRef(0);
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
 	const audioContext = useContext(Internals.SharedAudioContext);
@@ -32,6 +37,7 @@ export const usePlayer = (): {
 
 	const lastFrame = (config?.durationInFrames ?? 1) - 1;
 	const isLastFrame = frame === lastFrame;
+	const isFirstFrame = frame === 0;
 
 	if (!emitter) {
 		throw new TypeError('Expected Player event emitter context');
@@ -70,6 +76,7 @@ export const usePlayer = (): {
 
 			imperativePlaying.current = true;
 			setPlaying(true);
+			playStart.current = frameRef.current as number;
 			emitter.dispatchPlay();
 		},
 		[
@@ -91,6 +98,16 @@ export const usePlayer = (): {
 			emitter.dispatchPause();
 		}
 	}, [emitter, imperativePlaying, setPlaying]);
+
+	const pauseAndReturnToPlayStart = useCallback(() => {
+		if (imperativePlaying.current) {
+			imperativePlaying.current = false;
+
+			setTimelinePosition(playStart.current as number);
+			setPlaying(false);
+			emitter.dispatchPause();
+		}
+	}, [emitter, imperativePlaying, setPlaying, setTimelinePosition]);
 
 	const hasVideo = Boolean(video);
 
@@ -126,7 +143,7 @@ export const usePlayer = (): {
 		[hasVideo, imperativePlaying, lastFrame, setFrame]
 	);
 
-	const returnValue = useMemo(() => {
+	const returnValue: UsePlayerMethods = useMemo(() => {
 		return {
 			frameBack,
 			frameForward,
@@ -136,19 +153,23 @@ export const usePlayer = (): {
 			play,
 			pause,
 			seek,
+			isFirstFrame,
 			getCurrentFrame: () => frameRef.current as number,
 			isPlaying: () => imperativePlaying.current as boolean,
+			pauseAndReturnToPlayStart,
 		};
 	}, [
-		emitter,
 		frameBack,
 		frameForward,
-		imperativePlaying,
 		isLastFrame,
-		pause,
-		play,
+		emitter,
 		playing,
+		play,
+		pause,
 		seek,
+		isFirstFrame,
+		pauseAndReturnToPlayStart,
+		imperativePlaying,
 	]);
 
 	return returnValue;

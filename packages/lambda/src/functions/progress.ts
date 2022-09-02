@@ -1,9 +1,6 @@
-import type {
-	LambdaPayload,
-	RenderProgress} from '../shared/constants';
-import {
-	LambdaRoutines
-} from '../shared/constants';
+import {VERSION} from 'remotion/version';
+import type {LambdaPayload, RenderProgress} from '../shared/constants';
+import {LambdaRoutines} from '../shared/constants';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getProgress} from './helpers/get-progress';
 
@@ -18,6 +15,18 @@ export const progressHandler = (
 ): Promise<RenderProgress> => {
 	if (lambdaParams.type !== LambdaRoutines.status) {
 		throw new TypeError('Expected status type');
+	}
+
+	if (lambdaParams.version !== VERSION) {
+		if (!lambdaParams.version) {
+			throw new Error(
+				`Version mismatch: When calling getRenderProgress(), the deployed Lambda function had version ${VERSION} but the @remotion/lambda package is an older version. Align the versions.`
+			);
+		}
+
+		throw new Error(
+			`Version mismatch: When calling getRenderProgress(), get deployed Lambda function had version ${VERSION} and the @remotion/lambda package has version ${lambdaParams.version}. Align the versions.`
+		);
 	}
 
 	return getProgress({

@@ -2,7 +2,7 @@
   "extends": "@tsconfig/docusaurus/tsconfig.json",
   "baseUrl": ".",
   "compilerOptions": {
-    "types": ["node", "jest"],
+    "types": ["node"],
     "skipLibCheck": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true

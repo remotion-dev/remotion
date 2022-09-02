@@ -52,7 +52,7 @@ A URL pointing to a Remotion project. Use [`deploySite()`](/docs/lambda/deploysi
 
 ### `composition`
 
-The name of the [composition](/docs/composition) you want to render..
+The `id` of the [composition](/docs/composition) you want to render..
 
 ### `inputProps`
 
@@ -60,7 +60,11 @@ React props that are passed to your composition. You define the shape of the pro
 
 ### `privacy`
 
-Whether the output in the S3 bucket should be public or private. Either `"private"` or `"public"`.
+One of:
+
+- `"public"` (_default_): The rendered still is publicly accessible under the S3 URL.
+- `"private"`: The rendered still is not publicly available, but signed links can be created using [presignUrl()](/docs/lambda/presignurl).
+- `"no-acl"` (_available from v.3.1.7_): The ACL option is not being set at all, this option is useful if you are writing to another bucket that does not support ACL using [`outName`](#outname).
 
 ### `frame`
 
@@ -113,6 +117,16 @@ It can either be:
 ### `timeoutInMilliseconds?`
 
 A number describing how long the render may take to resolve all `delayRender()` calls before it times out. Default: `30000`
+
+### `downloadBehavior`
+
+_optional, available since v3.1.5_
+
+How the output file should behave when accessed through the S3 output link in the browser.  
+Either:
+
+- `{"type": "play-in-browser"}` - the default. The video will play in the browser.
+- `{"type": "download", fileName: null}` or `{"type": "download", fileName: "download.mp4"}` - a `Content-Disposition` header will be added which makes the browser download the file. You can optionally override the filename.
 
 ### `chromiumOptions?`
 
@@ -170,6 +184,12 @@ The size of the output image in bytes.
 ### `renderId`
 
 A unique alphanumeric identifier for this render. Useful for obtaining status and finding the relevant files in the S3 bucket.
+
+### `cloudWatchLogs`
+
+_Available from v3.2.10_
+
+A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
 
 ## See also
 
