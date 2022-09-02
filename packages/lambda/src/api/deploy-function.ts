@@ -1,18 +1,16 @@
+import {VERSION} from 'remotion/version';
 import {getFunctions} from '../api/get-functions';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {
-	CURRENT_VERSION,
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	RENDER_FN_PREFIX,
 } from '../shared/constants';
 import {FUNCTION_ZIP} from '../shared/function-zip-path';
 import {getAccountId} from '../shared/get-account-id';
-import type {
-	LambdaArchitecture} from '../shared/validate-architecture';
-import {
-	validateArchitecture,
-} from '../shared/validate-architecture';
+import {LAMBDA_VERSION_STRING} from '../shared/lambda-version-string';
+import type {LambdaArchitecture} from '../shared/validate-architecture';
+import {validateArchitecture} from '../shared/validate-architecture';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateCustomRoleArn} from '../shared/validate-custom-role-arn';
 import {validateDiskSizeInMb} from '../shared/validate-disk-size-in-mb';
@@ -63,7 +61,7 @@ export const deployFunction = async (
 	validateCustomRoleArn(options.customRoleArn);
 
 	const fnNameRender = [
-		`${RENDER_FN_PREFIX}${CURRENT_VERSION}`,
+		`${RENDER_FN_PREFIX}${LAMBDA_VERSION_STRING}`,
 		`mem${options.memorySizeInMb}mb`,
 		`disk${diskSizeInMb}mb`,
 		`${options.timeoutInSeconds}sec`,
@@ -77,7 +75,7 @@ export const deployFunction = async (
 
 	const alreadyDeployed = fns.find(
 		(f) =>
-			f.version === CURRENT_VERSION &&
+			f.version === VERSION &&
 			f.memorySizeInMb === options.memorySizeInMb &&
 			f.timeoutInSeconds === options.timeoutInSeconds &&
 			f.diskSizeInMb === diskSizeInMb

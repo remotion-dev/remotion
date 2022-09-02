@@ -1,5 +1,5 @@
 import type {_Object} from '@aws-sdk/client-s3';
-import {lambdaInitializedPrefix} from '../../shared/constants';
+import {lambdaChunkInitializedPrefix} from '../../shared/constants';
 import {parseLambdaInitializedKey} from '../../shared/parse-lambda-initialized-key';
 
 export type ChunkRetry = {
@@ -16,7 +16,7 @@ export const getRetryStats = ({
 	renderId: string;
 }): ChunkRetry[] => {
 	const retries = contents
-		.filter((c) => c.Key?.startsWith(lambdaInitializedPrefix(renderId)))
+		.filter((c) => c.Key?.startsWith(lambdaChunkInitializedPrefix(renderId)))
 		.filter((c) => parseLambdaInitializedKey(c.Key as string).attempt !== 1);
 
 	return retries.map((retry) => {

@@ -265,3 +265,7 @@ export const App: React.FC = () => {
   );
 };
 ```
+
+## See also
+
+- [Snippet: Embedding a `<Player>` in an iframe](/docs/miscellaneous/snippets/player-in-iframe)

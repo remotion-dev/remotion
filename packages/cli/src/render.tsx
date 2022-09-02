@@ -74,6 +74,8 @@ export const render = async (remotionRoot: string) => {
 		puppeteerTimeout,
 		bundleOutDir,
 		publicPath,
+		muted,
+		enforceAudioTrack,
 	} = await getCliOptions({isLambda: false, type: 'series'});
 
 	const relativeOutputLocation = getOutputFilename({
@@ -324,6 +326,8 @@ export const render = async (remotionRoot: string) => {
 			'verbose'
 		),
 		downloadMap,
+		muted,
+		enforceAudioTrack,
 	});
 
 	Log.info();

@@ -1,4 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
+import {VERSION} from 'remotion/version';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import type {LambdaReturnValues} from '../../../shared/return-values';
@@ -23,7 +24,7 @@ afterAll(async () => {
 	await RenderInternals.killAllBrowsers();
 });
 
-test('Should be able to render to another bucket', async () => {
+test('Should fail when using an incompatible version', async () => {
 	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
 	const res = await handler(
@@ -54,6 +55,8 @@ test('Should be able to render to another bucket', async () => {
 			downloadBehavior: {
 				type: 'play-in-browser',
 			},
+			muted: false,
+			version: VERSION,
 		},
 		extraContext
 	);
@@ -64,6 +67,7 @@ test('Should be able to render to another bucket', async () => {
 			type: LambdaRoutines.status,
 			bucketName: startRes.bucketName,
 			renderId: startRes.renderId,
+			version: VERSION,
 		},
 		extraContext
 	)) as Await<LambdaReturnValues[LambdaRoutines.status]>;

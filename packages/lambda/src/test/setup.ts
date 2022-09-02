@@ -22,6 +22,9 @@ jest.mock('../functions/helpers/get-current-architecture', () =>
 jest.mock('../functions/helpers/get-browser-instance', () =>
 	jest.requireActual('../functions/helpers/__mocks__/get-browser-instance')
 );
+jest.mock('../functions/helpers/check-if-render-exists', () =>
+	jest.requireActual('../functions/helpers/__mocks__/check-if-render-exists')
+);
 jest.mock('../functions/helpers/get-files-in-folder', () =>
 	jest.requireActual('../functions/helpers/__mocks__/get-files-in-folder')
 );

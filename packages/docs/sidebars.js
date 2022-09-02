@@ -64,6 +64,8 @@ module.exports = {
       items: [
         "lambda/troubleshooting/permissions",
         "lambda/troubleshooting/rate-limit",
+        "lambda/troubleshooting/unrecognizedclientexception",
+        "lambda/troubleshooting/bucket-disallows-acl",
       ],
     },
     "lambda/changelog",
@@ -229,6 +231,22 @@ module.exports = {
     },
     {
       type: "category",
+      label: "API - @remotion/lottie",
+      link: {
+        type: "doc",
+        id: "lottie/lottie-index",
+      },
+      items: [
+        "lottie/lottie-comp",
+        "lottie/getlottiemetadata",
+        "lottie/lottie-staticfile",
+        "lottie/lottie-remote",
+        "lottie/lottie-aftereffects",
+        "lottie/lottie-lottiefiles",
+      ],
+    },
+    {
+      type: "category",
       label: "API - @remotion/preload",
       link: {
         type: "doc",
@@ -259,6 +277,24 @@ module.exports = {
     },
     {
       type: "category",
+      label: "API - @remotion/paths",
+      link: {
+        type: "doc",
+        id: "paths/index",
+      },
+      items: [
+        "paths/get-length",
+        "paths/get-parts",
+        "paths/get-point-at-length",
+        "paths/get-tangent-at-length",
+        "paths/reverse-path",
+        "paths/normalize-path",
+        "paths/interpolate-path",
+        "paths/evolve-path",
+      ],
+    },
+    {
+      type: "category",
       label: "Troubleshooting",
       items: [
         "timeout",
@@ -272,6 +308,8 @@ module.exports = {
         "enametoolong",
         "slow-method-to-extract-frame",
         "wrong-composition-mount",
+        "staticfile-relative-paths",
+        "staticfile-remote-urls",
       ],
     },
     {
@@ -287,6 +325,15 @@ module.exports = {
         "miscellaneous/typescript-aliases",
         "miscellaneous/render-all",
         "miscellaneous/render-in-browser",
+        {
+          type: "category",
+          label: "Snippets",
+          items: [
+            "miscellaneous/snippets/player-in-iframe",
+            "miscellaneous/snippets/fps-converter",
+            "miscellaneous/snippets/adding-animations",
+          ],
+        },
       ],
     },
     "3-0-migration",

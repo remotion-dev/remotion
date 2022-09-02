@@ -1,8 +1,15 @@
 import React, {useCallback, useContext} from 'react';
+import {truthy} from '../../truthy';
+import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {CheckerboardContext} from '../state/checkerboard';
 import {ControlButton} from './ControlButton';
 
-const accessibilityLabel = 'Show transparency as checkerboard (T)';
+const accessibilityLabel = [
+	'Show transparency as checkerboard',
+	areKeyboardShortcutsDisabled() ? null : '(T)',
+]
+	.filter(truthy)
+	.join(' ');
 
 export const CheckboardToggle: React.FC = () => {
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);

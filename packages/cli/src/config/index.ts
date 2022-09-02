@@ -53,6 +53,10 @@ import {setCodec, setOutputFormat} from './codec';
 import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
 import {setCrf} from './crf';
+import {
+	getEnforceAudioTrack,
+	setEnforceAudioTrack,
+} from './enforce-audio-track';
 import {setDotEnvLocation} from './env-file';
 import {setEveryNthFrame} from './every-nth-frame';
 import {setFfmpegExecutable, setFfprobeExecutable} from './ffmpeg-executable';
@@ -60,8 +64,13 @@ import {setFrameRange} from './frame-range';
 import {getPublicPath, setPublicPath} from './get-public-path';
 import {setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
+import {
+	getKeyboardShortcutsEnabled,
+	setKeyboardShortcutsEnabled,
+} from './keyboard-shortcuts';
 import {setLogLevel} from './log';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
+import {getMuted, setMuted} from './muted';
 import {setNumberOfGifLoops} from './number-of-gif-loops';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
@@ -78,6 +87,7 @@ import {setWebpackCaching} from './webpack-caching';
 export const Config: ConfigType = {
 	Preview: {
 		setMaxTimelineTracks,
+		setKeyboardShortcutsEnabled,
 	},
 	Bundling: {
 		overrideWebpackConfig,
@@ -108,6 +118,8 @@ export const Config: ConfigType = {
 		setScale,
 		setEveryNthFrame,
 		setNumberOfGifLoops,
+		setMuted,
+		setEnforceAudioTrack,
 	},
 	Output: {
 		setOutputLocation,
@@ -161,6 +173,11 @@ export const ConfigInternals = {
 	defaultOverrideFunction,
 	getPublicPath,
 	getBundleOutDir,
+	setMuted,
+	getMuted,
+	getEnforceAudioTrack,
+	setEnforceAudioTrack,
+	getKeyboardShortcutsEnabled,
 };
 
 export const overrideRemotion = () => {

@@ -277,15 +277,8 @@ test("Should render a video with GIFs", async () => {
   const info = await execa("ffprobe", [outputPath]);
   const data = info.stderr;
   expect(data).toContain("Video: h264");
-  const ffmpegVersion = await RenderInternals.getFfmpegVersion({
-    ffmpegExecutable: null,
-  });
 
-  if (ffmpegVersion && ffmpegVersion[0] === 4 && ffmpegVersion[1] <= 1) {
-    expect(data).toContain("Duration: 00:00:01.62");
-  } else {
-    expect(data).toContain("Duration: 00:00:01.60");
-  }
+  expect(data).toContain("Duration: 00:00:01.60");
 
   fs.unlinkSync(outputPath);
 });

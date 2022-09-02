@@ -12,6 +12,7 @@ import type {BrowserLog} from './browser-log';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import type {Codec} from './codec';
+import {codecSupportsMedia} from './codec-supports-media';
 import {validateSelectedCrfAndCodecCombination} from './crf';
 import {deleteDirectory} from './delete-directory';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
@@ -22,6 +23,8 @@ import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
+import type {ImageFormat} from './image-format';
+import {isAudioCodec} from './is-audio-codec';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
 import {getServeUrlWithFallback} from './legacy-webpack-config';
 import type {CancelSignal} from './make-cancel-signal';
@@ -86,6 +89,8 @@ export type RenderMediaOptions = {
 	 * @deprecated Only for Remotion internal usage
 	 */
 	downloadMap?: DownloadMap;
+	muted?: boolean;
+	enforceAudioTrack?: boolean;
 } & ServeUrlOrWebpackBundle;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -100,14 +105,12 @@ export const renderMedia = ({
 	proResProfile,
 	crf,
 	composition,
-	imageFormat,
 	ffmpegExecutable,
 	ffprobeExecutable,
 	inputProps,
 	pixelFormat,
 	codec,
 	envVariables,
-	quality,
 	frameRange,
 	puppeteerInstance,
 	outputLocation,
@@ -123,9 +126,11 @@ export const renderMedia = ({
 	browserExecutable,
 	port,
 	cancelSignal,
+	muted,
+	enforceAudioTrack,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
-	validateQuality(quality);
+	validateQuality(options.quality);
 	if (typeof crf !== 'undefined' && crf !== null) {
 		validateSelectedCrfAndCodecCombination(crf, codec);
 	}
@@ -133,6 +138,10 @@ export const renderMedia = ({
 	if (outputLocation) {
 		validateOutputFilename(codec, getExtensionOfFilename(outputLocation));
 	}
+
+	const absoluteOutputLocation = outputLocation
+		? path.resolve(process.cwd(), outputLocation)
+		: null;
 
 	validateScale(scale);
 
@@ -176,7 +185,10 @@ export const renderMedia = ({
 		}
 	}
 
-	const actualImageFormat = imageFormat ?? 'jpeg';
+	const imageFormat: ImageFormat = isAudioCodec(codec)
+		? 'none'
+		: options.imageFormat ?? 'jpeg';
+	const quality = imageFormat === 'jpeg' ? options.quality : undefined;
 
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
@@ -242,7 +254,7 @@ export const renderMedia = ({
 				},
 				verbose: options.verbose ?? false,
 				ffmpegExecutable,
-				imageFormat: actualImageFormat,
+				imageFormat,
 				signal: cancelPrestitcher.cancelSignal,
 			});
 			stitcherFfmpeg = preStitcher.task;
@@ -261,6 +273,9 @@ export const renderMedia = ({
 		}
 	};
 
+	const mediaSupport = codecSupportsMedia(codec);
+	const disableAudio = !mediaSupport.audio || muted;
+
 	const happyPath = createPrestitcherIfNecessary()
 		.then(() => {
 			const renderFramesProc = renderFrames({
@@ -278,7 +293,7 @@ export const renderMedia = ({
 				},
 				inputProps,
 				envVariables,
-				imageFormat: actualImageFormat,
+				imageFormat,
 				quality,
 				frameRange: frameRange ?? null,
 				puppeteerInstance,
@@ -312,6 +327,7 @@ export const renderMedia = ({
 				port,
 				cancelSignal: cancelRenderFrames.cancelSignal,
 				downloadMap,
+				muted: disableAudio,
 			});
 
 			return renderFramesProc;
@@ -323,8 +339,8 @@ export const renderMedia = ({
 			renderedDoneIn = Date.now() - renderStart;
 			callUpdate();
 
-			if (outputLocation) {
-				ensureOutputDirectory(outputLocation);
+			if (absoluteOutputLocation) {
+				ensureOutputDirectory(absoluteOutputLocation);
 			}
 
 			const stitchStart = Date.now();
@@ -333,10 +349,10 @@ export const renderMedia = ({
 					width: composition.width * (scale ?? 1),
 					height: composition.height * (scale ?? 1),
 					fps,
-					outputLocation,
+					outputLocation: absoluteOutputLocation,
 					internalOptions: {
 						preEncodedFileLocation,
-						imageFormat: actualImageFormat,
+						imageFormat,
 					},
 					force: overwrite ?? DEFAULT_OVERWRITE,
 					pixelFormat,
@@ -356,6 +372,8 @@ export const renderMedia = ({
 					verbose: options.verbose,
 					dir: outputDir ?? undefined,
 					cancelSignal: cancelStitcher.cancelSignal,
+					muted: disableAudio,
+					enforceAudioTrack,
 				}),
 				stitchStart,
 			]);

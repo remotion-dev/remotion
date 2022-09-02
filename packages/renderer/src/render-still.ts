@@ -189,16 +189,38 @@ const innerRenderStill = async ({
 		timeoutInMilliseconds,
 		proxyPort,
 		retriesRemaining: 2,
+		audioEnabled: false,
+		videoEnabled: true,
 	});
 
 	await puppeteerEvaluateWithCatch({
-		pageFunction: (id: string) => {
+		// eslint-disable-next-line max-params
+		pageFunction: (
+			id: string,
+			defaultProps: unknown,
+			durationInFrames: number,
+			fps: number,
+			height: number,
+			width: number
+		) => {
 			window.setBundleMode({
 				type: 'composition',
 				compositionName: id,
+				compositionDefaultProps: defaultProps,
+				compositionDurationInFrames: durationInFrames,
+				compositionFps: fps,
+				compositionHeight: height,
+				compositionWidth: width,
 			});
 		},
-		args: [composition.id],
+		args: [
+			composition.id,
+			composition.defaultProps,
+			composition.durationInFrames,
+			composition.fps,
+			composition.height,
+			composition.width,
+		],
 		frame: null,
 		page,
 	});

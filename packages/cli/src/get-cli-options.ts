@@ -275,5 +275,8 @@ export const getCliOptions = async (options: {
 		port: port ?? null,
 		publicPath: ConfigInternals.getPublicPath(),
 		bundleOutDir: ConfigInternals.getBundleOutDir(),
+		muted: ConfigInternals.getMuted(),
+		enforceAudioTrack: ConfigInternals.getEnforceAudioTrack(),
+		keyboardShortcutsEnables: ConfigInternals.getKeyboardShortcutsEnabled(),
 	};
 };

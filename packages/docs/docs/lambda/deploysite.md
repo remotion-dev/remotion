@@ -16,9 +16,10 @@ Before calling this function, you should create a bucket, see [`getOrCreateBucke
 // @module: esnext
 // @target: es2017
 import { deploySite } from "@remotion/lambda";
+import path from "path";
 
 const { serveUrl } = await deploySite({
-  entryPoint: "/Users/jonnyburger/my-remotion-video/src/index.tsx",
+  entryPoint: path.resolve(process.cwd(), "src/index.tsx"),
   bucketName: "remotionlambda-c7fsl3d",
   region: "us-east-1",
   options: {

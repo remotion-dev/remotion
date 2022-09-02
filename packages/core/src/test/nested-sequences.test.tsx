@@ -8,6 +8,7 @@ import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
 import {Sequence} from '../Sequence';
 import {TimelineContext} from '../timeline-position-state';
 import {useCurrentFrame} from '../use-current-frame';
+import {WrapSequenceContext} from './wrap-sequence-context';
 
 test('It should calculate the correct offset in nested sequences', () => {
 	const NestedChild = () => {
@@ -32,7 +33,7 @@ test('It should calculate the correct offset in nested sequences', () => {
 	};
 
 	const {queryByText} = render(
-		<CanUseRemotionHooksProvider>
+		<WrapSequenceContext>
 			<TimelineContext.Provider
 				value={{
 					rootId: 'hi',
@@ -54,7 +55,7 @@ test('It should calculate the correct offset in nested sequences', () => {
 					<Child />
 				</Sequence>
 			</TimelineContext.Provider>
-		</CanUseRemotionHooksProvider>
+		</WrapSequenceContext>
 	);
 	expect(queryByText(/^frame9$/i)).not.toBe(null);
 });
@@ -66,7 +67,7 @@ test('Negative offset test', () => {
 	};
 
 	const {queryByText} = render(
-		<CanUseRemotionHooksProvider>
+		<WrapSequenceContext>
 			<TimelineContext.Provider
 				value={{
 					frame: 40,
@@ -92,7 +93,7 @@ test('Negative offset test', () => {
 					</Sequence>
 				</Sequence>
 			</TimelineContext.Provider>
-		</CanUseRemotionHooksProvider>
+		</WrapSequenceContext>
 	);
 	const result = queryByText(/^frame220/i);
 	expect(result).not.toBe(null);
@@ -108,14 +109,16 @@ test('Nested negative offset test', () => {
 	const endAt = 90;
 
 	const content = (
-		<Sequence from={0 - startFrom} durationInFrames={endAt}>
-			<NestedChild />
-		</Sequence>
+		<WrapSequenceContext>
+			<Sequence from={0 - startFrom} durationInFrames={endAt}>
+				<NestedChild />
+			</Sequence>
+		</WrapSequenceContext>
 	);
 
 	const getForFrame = (frame: number) => {
 		const {queryByText} = render(
-			<CanUseRemotionHooksProvider>
+			<WrapSequenceContext>
 				<TimelineContext.Provider
 					value={{
 						frame,
@@ -135,7 +138,7 @@ test('Nested negative offset test', () => {
 				>
 					{content}
 				</TimelineContext.Provider>
-			</CanUseRemotionHooksProvider>
+			</WrapSequenceContext>
 		);
 		return queryByText;
 	};
@@ -158,11 +161,13 @@ test.skip('Negative offset edge case', () => {
 	const endAt = 90;
 
 	const content = (
-		<Sequence from={40}>
-			<Sequence from={0 - startFrom} durationInFrames={endAt}>
-				<NestedChild />
+		<WrapSequenceContext>
+			<Sequence from={40}>
+				<Sequence from={0 - startFrom} durationInFrames={endAt}>
+					<NestedChild />
+				</Sequence>
 			</Sequence>
-		</Sequence>
+		</WrapSequenceContext>
 	);
 
 	const getForFrame = (frame: number) => {

@@ -1,3 +1,4 @@
+import {VERSION} from 'remotion/version';
 import type {Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {normalizeServeUrl} from './normalize-serve-url';
@@ -13,6 +14,8 @@ export const setPropsAndEnv = async ({
 	timeoutInMilliseconds,
 	proxyPort,
 	retriesRemaining,
+	audioEnabled,
+	videoEnabled,
 }: {
 	inputProps: unknown;
 	envVariables: Record<string, string> | undefined;
@@ -22,6 +25,8 @@ export const setPropsAndEnv = async ({
 	timeoutInMilliseconds: number | undefined;
 	proxyPort: number;
 	retriesRemaining: number;
+	audioEnabled: boolean;
+	videoEnabled: boolean;
 }): Promise<void> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	const actualTimeout = timeoutInMilliseconds ?? DEFAULT_TIMEOUT;
@@ -30,44 +35,37 @@ export const setPropsAndEnv = async ({
 
 	const urlToVisit = normalizeServeUrl(serveUrl);
 
-	await page.evaluateOnNewDocument(
-		(timeout: number) => {
-			window.remotion_puppeteerTimeout = timeout;
-		},
-		[actualTimeout]
-	);
+	await page.evaluateOnNewDocument((timeout: number) => {
+		window.remotion_puppeteerTimeout = timeout;
+	}, actualTimeout);
 
 	if (inputProps) {
-		await page.evaluateOnNewDocument(
-			(input: string) => {
-				window.remotion_inputProps = input;
-			},
-			[JSON.stringify(inputProps)]
-		);
+		await page.evaluateOnNewDocument((input: string) => {
+			window.remotion_inputProps = input;
+		}, JSON.stringify(inputProps));
 	}
 
 	if (envVariables) {
-		await page.evaluateOnNewDocument(
-			(input: string) => {
-				window.remotion_envVariables = input;
-			},
-			[JSON.stringify(envVariables)]
-		);
+		await page.evaluateOnNewDocument((input: string) => {
+			window.remotion_envVariables = input;
+		}, JSON.stringify(envVariables));
 	}
 
-	await page.evaluateOnNewDocument(
-		(key: number) => {
-			window.remotion_initialFrame = key;
-		},
-		[initialFrame]
-	);
+	await page.evaluateOnNewDocument((key: number) => {
+		window.remotion_initialFrame = key;
+	}, initialFrame);
 
-	await page.evaluateOnNewDocument(
-		(port: number) => {
-			window.remotion_proxyPort = port;
-		},
-		[proxyPort]
-	);
+	await page.evaluateOnNewDocument((port: number) => {
+		window.remotion_proxyPort = port;
+	}, proxyPort);
+
+	await page.evaluateOnNewDocument((enabled: boolean) => {
+		window.remotion_audioEnabled = enabled;
+	}, audioEnabled);
+
+	await page.evaluateOnNewDocument((enabled: boolean) => {
+		window.remotion_videoEnabled = enabled;
+	}, videoEnabled);
 
 	const pageRes = await page.goto(urlToVisit);
 
@@ -95,6 +93,8 @@ export const setPropsAndEnv = async ({
 			retriesRemaining: retriesRemaining - 1,
 			serveUrl,
 			timeoutInMilliseconds,
+			audioEnabled,
+			videoEnabled,
 		});
 	}
 
@@ -128,7 +128,7 @@ export const setPropsAndEnv = async ({
 		);
 	}
 
-	const siteVersion = await puppeteerEvaluateWithCatch<'3'>({
+	const siteVersion = await puppeteerEvaluateWithCatch<'4'>({
 		pageFunction: () => {
 			return window.siteVersion;
 		},
@@ -137,9 +137,32 @@ export const setPropsAndEnv = async ({
 		page,
 	});
 
-	if (siteVersion !== '3') {
+	const remotionVersion = await puppeteerEvaluateWithCatch<string>({
+		pageFunction: () => {
+			return window.remotion_version;
+		},
+		args: [],
+		frame: null,
+		page,
+	});
+
+	const requiredVersion = '4';
+
+	if (siteVersion !== requiredVersion) {
 		throw new Error(
-			`Incompatible site: When visiting ${urlToVisit}, a bundle was found, but one that is not compatible with this version of Remotion. The bundle format changed in version 3.0.11. To resolve this error, please bundle and deploy again.`
+			`Incompatible site: When visiting ${urlToVisit}, a bundle was found, but one that is not compatible with this version of Remotion. Found version: ${siteVersion} - Required version: ${requiredVersion}. To resolve this error, please bundle and deploy again.`
 		);
+	}
+
+	if (remotionVersion !== VERSION) {
+		if (remotionVersion) {
+			console.warn(
+				`The site was bundled with version ${remotionVersion} of @remotion/bundler, while @remotion/renderer is on version ${VERSION}. You may not have the newest bugfixes and features. Re-bundle the site to fix this issue.`
+			);
+		} else {
+			console.warn(
+				`The site was bundled with an old version of Remotion, while @remotion/renderer is on version ${VERSION}. You may not have the newest bugfixes and features. Re-bundle the site to fix this issue.`
+			);
+		}
 	}
 };

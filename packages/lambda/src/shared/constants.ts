@@ -52,9 +52,11 @@ export const encodingProgressKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/encoding-progress.json`;
 export const renderMetadataKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/pre-render-metadata.json`;
-export const lambdaInitializedPrefix = (renderId: string) =>
+export const initalizedMetadataKey = (renderId: string) =>
+	`${rendersPrefix(renderId)}/initialized.txt`;
+export const lambdaChunkInitializedPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/lambda-initialized`;
-export const lambdaInitializedKey = ({
+export const lambdaChunkInitializedKey = ({
 	renderId,
 	chunk,
 	attempt,
@@ -63,7 +65,9 @@ export const lambdaInitializedKey = ({
 	renderId: string;
 	chunk: number;
 }) =>
-	`${lambdaInitializedPrefix(renderId)}-chunk:${chunk}-attempt:${attempt}.txt`;
+	`${lambdaChunkInitializedPrefix(
+		renderId
+	)}-chunk:${chunk}-attempt:${attempt}.txt`;
 export const lambdaTimingsPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/lambda-timings/chunk:`;
 
@@ -200,6 +204,8 @@ export type LambdaPayloads = {
 		numberOfGifLoops: number | null;
 		concurrencyPerLambda: number;
 		downloadBehavior: DownloadBehavior;
+		muted: boolean;
+		version: string;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -228,11 +234,13 @@ export type LambdaPayloads = {
 		numberOfGifLoops: number | null;
 		concurrencyPerLambda: number;
 		downloadBehavior: DownloadBehavior;
+		muted: boolean;
 	};
 	status: {
 		type: LambdaRoutines.status;
 		bucketName: string;
 		renderId: string;
+		version: string;
 	};
 	renderer: {
 		concurrencyPerLambda: number;
@@ -263,6 +271,7 @@ export type LambdaPayloads = {
 		chromiumOptions: ChromiumOptions;
 		scale: number;
 		everyNthFrame: number;
+		muted: boolean;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -282,6 +291,7 @@ export type LambdaPayloads = {
 		chromiumOptions: ChromiumOptions;
 		scale: number;
 		downloadBehavior: DownloadBehavior | null;
+		version: string;
 	};
 };
 
@@ -309,110 +319,11 @@ export type RenderMetadata = {
 	inputProps: unknown;
 	framesPerLambda: number;
 	memorySizeInMb: number;
-	lambdaVersion: LambdaVersions;
+	lambdaVersion: string;
 	region: AwsRegion;
 	renderId: string;
 	outName: OutNameInput | undefined;
 };
-
-export type LambdaVersions =
-	| '2022-08-02'
-	| '2022-08-01'
-	| '2022-07-28'
-	| '2022-07-27'
-	| '2022-07-25'
-	| '2022-07-23'
-	| '2022-07-20'
-	| '2022-07-18'
-	| '2022-07-15'
-	| '2022-07-14'
-	| '2022-07-12'
-	| '2022-07-10'
-	| '2022-07-09'
-	| '2022-07-08'
-	| '2022-07-04'
-	| '2022-06-30'
-	| '2022-06-29'
-	| '2022-06-25'
-	| '2022-06-22'
-	| '2022-06-21'
-	| '2022-06-14'
-	| '2022-06-08'
-	| '2022-06-07'
-	| '2022-06-02'
-	| '2022-05-31'
-	| '2022-05-28'
-	| '2022-05-27'
-	| '2022-05-19'
-	| '2022-05-16'
-	| '2022-05-11'
-	| '2022-05-07'
-	| '2022-05-06'
-	| '2022-05-03'
-	| '2022-04-20'
-	| '2022-04-19'
-	| '2022-04-18'
-	| '2022-04-09'
-	| '2022-04-08'
-	| '2022-04-05'
-	| '2022-04-02'
-	| '2022-03-29'
-	| '2022-03-17'
-	| '2022-03-02'
-	| '2022-03-01'
-	| '2022-02-27'
-	| '2022-02-14'
-	| '2022-02-12'
-	| '2022-02-09'
-	| '2022-02-08'
-	| '2022-02-07'
-	| '2022-02-06'
-	| '2022-02-05'
-	| '2022-02-04'
-	| '2022-02-03'
-	| '2022-01-23'
-	| '2022-01-19'
-	| '2022-01-11'
-	| '2022-01-10'
-	| '2022-01-09'
-	| '2022-01-06'
-	| '2022-01-05'
-	| '2021-12-22'
-	| '2021-12-17'
-	| '2021-12-16'
-	| '2021-12-15'
-	| '2021-12-14'
-	| '2021-12-13'
-	| '2021-12-11'
-	| '2021-12-10'
-	| '2021-12-04'
-	| '2021-11-29'
-	| '2021-11-27'
-	| '2021-11-24'
-	| '2021-11-22'
-	| '2021-11-19'
-	| '2021-11-18'
-	| '2021-11-15'
-	| '2021-11-12'
-	| '2021-11-10'
-	| '2021-11-01'
-	| '2021-10-29'
-	| '2021-10-27'
-	| '2021-10-21'
-	| '2021-10-19'
-	| '2021-10-07'
-	| '2021-10-03'
-	| '2021-10-01'
-	| '2021-09-15'
-	| '2021-09-06'
-	| '2021-08-06'
-	| '2021-07-14'
-	| '2021-07-05'
-	| '2021-07-02'
-	| '2021-06-23'
-	| 'n/a';
-
-export const CURRENT_VERSION: LambdaVersions = '2022-08-02';
 
 export type PostRenderData = {
 	cost: {

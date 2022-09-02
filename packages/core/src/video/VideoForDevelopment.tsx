@@ -1,4 +1,5 @@
-import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import type {ForwardRefExoticComponent, RefAttributes} from 'react';
+import React, {forwardRef, useEffect, useImperativeHandle, useRef} from 'react';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
@@ -10,11 +11,13 @@ import {
 } from '../volume-position-state';
 import type {RemotionVideoProps} from './props';
 
+type VideoForDevelopmentProps = RemotionVideoProps & {
+	onlyWarnForMediaSeekingError: boolean;
+};
+
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
-	RemotionVideoProps & {
-		onlyWarnForMediaSeekingError: boolean;
-	}
+	VideoForDevelopmentProps
 > = (props, ref) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -61,6 +64,29 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return videoRef.current as HTMLVideoElement;
 	});
 
+	useEffect(() => {
+		const {current} = videoRef;
+		if (!current) {
+			return;
+		}
+
+		const errorHandler = () => {
+			if (current?.error) {
+				console.error('Error occurred in video', current?.error);
+				throw new Error(
+					`The browser threw an error while playing the video ${nativeProps.src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
+				);
+			} else {
+				throw new Error('The browser threw an error');
+			}
+		};
+
+		current.addEventListener('error', errorHandler, {once: true});
+		return () => {
+			current.removeEventListener('error', errorHandler);
+		};
+	}, [nativeProps.src]);
+
 	return (
 		<video
 			ref={videoRef}
@@ -71,6 +97,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 };
 
+// Copy types from forwardRef but not necessary to remove ref
 export const VideoForDevelopment = forwardRef(
 	VideoForDevelopmentRefForwardingFunction
-);
+) as ForwardRefExoticComponent<
+	VideoForDevelopmentProps & RefAttributes<HTMLVideoElement>
+>;
