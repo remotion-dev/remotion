@@ -339,12 +339,15 @@ export const PlayerFn = <T,>(
 		return inputProps ?? {};
 	}, [inputProps]);
 
-	useLayoutEffect(() => {
-		// Inject CSS only on client, and also only after the Player has hydrated
-		Internals.CSSUtils.injectCSS(
-			Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`, '#fff')
-		);
-	}, []);
+	if (typeof window !== 'undefined') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			// Inject CSS only on client, and also only after the Player has hydrated
+			Internals.CSSUtils.injectCSS(
+				Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`, '#fff')
+			);
+		}, []);
+	}
 
 	return (
 		<Internals.CanUseRemotionHooksProvider>
