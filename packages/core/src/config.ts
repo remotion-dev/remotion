@@ -35,6 +35,12 @@ export type ConfigType = {
 		 * @default 15
 		 */
 		readonly setMaxTimelineTracks: (maxTracks: number) => void;
+		/**
+		 * Enable Keyboard shortcuts in the Remotion Preview.
+		 * @param enabled Boolean whether to enable the keyboard shortcuts
+		 * @default true
+		 */
+		readonly setKeyboardShortcutsEnabled: (enableShortcuts: boolean) => void;
 	};
 	readonly Bundling: {
 		/**
@@ -161,6 +167,16 @@ export type ConfigType = {
 		 * Default: null (means GIF will loop infinite)
 		 */
 		readonly setNumberOfGifLoops: (newLoop: Loop) => void;
+		/**
+		 * Disable audio output.
+		 * Default: false
+		 */
+		readonly setMuted: (muted: boolean) => void;
+		/**
+		 * Don't render an audio track if it would be silent.
+		 * Default: true
+		 */
+		readonly setEnforceAudioTrack: (enforceAudioTrack: boolean) => void;
 	};
 	readonly Output: {
 		/**

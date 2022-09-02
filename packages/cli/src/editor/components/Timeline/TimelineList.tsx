@@ -7,6 +7,10 @@ import type {
 	TimelineViewState,
 } from './timeline-state-reducer';
 import {TimelineListItem} from './TimelineListItem';
+import {
+	TimelineTimePadding,
+	TimelineTimePlaceholders,
+} from './TimelineTimeIndicators';
 
 const container: React.CSSProperties = {
 	flex: 1,
@@ -22,6 +26,8 @@ export const TimelineList: React.FC<{
 }> = ({timeline, viewState, dispatchStateChange}) => {
 	return (
 		<div style={container}>
+			<TimelineTimePadding />
+
 			{timeline.map((track, i) => {
 				const beforeDepth = i === 0 ? 0 : timeline[i - 1].depth;
 
@@ -40,6 +46,7 @@ export const TimelineList: React.FC<{
 					</div>
 				);
 			})}
+			<TimelineTimePlaceholders />
 		</div>
 	);
 };

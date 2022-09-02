@@ -52,7 +52,7 @@ A URL pointing to a Remotion project. Use [`deploySite()`](/docs/lambda/deploysi
 
 ### `composition`
 
-The name of the [composition](/docs/composition) you want to render..
+The `id` of the [composition](/docs/composition) you want to render..
 
 ### `inputProps`
 
@@ -184,6 +184,12 @@ The size of the output image in bytes.
 ### `renderId`
 
 A unique alphanumeric identifier for this render. Useful for obtaining status and finding the relevant files in the S3 bucket.
+
+### `cloudWatchLogs`
+
+_Available from v3.2.10_
+
+A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
 
 ## See also
 

@@ -72,6 +72,7 @@ export const getConfig = ({
 		envVariables: {},
 		entryPoints: [],
 		remotionRoot: resolvedRemotionRoot,
+		keyboardShortcutsEnabled: false,
 	});
 };
 
@@ -134,6 +135,7 @@ export const bundle = async (
 		editorName: null,
 		inputProps: null,
 		remotionRoot: resolvedRemotionRoot,
+		previewServerCommand: null,
 	});
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 

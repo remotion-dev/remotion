@@ -32,8 +32,11 @@ The function has between [512MB and 10GB of storage space](/docs/lambda/disk-siz
 The function already includes a running version of Chromium.
 The browser was compiled including the proprietary codecs, so you can include MP4 videos into your project.
 
-- Remotion >= 3.0.8: `101.0.4951.68`
-- Remotion <= 3.0.7: `98.0.4758.139`
+| Remotion version | Chrome version |
+| ---------------- | -------------- |
+| From 3.2.0       | 104.0.5112.64  |
+| From 3.0.8       | 101.0.4951.68  |
+| From 3.0.0       | 98.0.4758.139  |
 
 ## FFMPEG
 

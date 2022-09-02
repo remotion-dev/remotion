@@ -14,7 +14,7 @@ You can synchronize animations with Remotions time using the `animation-play-sta
 
 ## GIFs
 
-Use the [`@remotion/gif`](/docs/gif) component.
+Use the [`@remotion/gif`](/docs/gif) package.
 
 ## Framer Motion
 
@@ -22,11 +22,15 @@ At the moment, we don't have a Framer Motion integration, but are discussing the
 
 ## Lottie
 
-Use the [`remotion-lottie`](https://github.com/ahgsql/remotion-lottie) package (_unofficial library_).
+Use the [`@remotion/lottie`](/docs/lottie) package.
 
 ## Three.JS
 
 Use the [`@remotion/three`](/docs/three) package.
+
+## React Native Skia
+
+Use the [`@remotion/skia`](/docs/skia) package.
 
 ## react-spring
 

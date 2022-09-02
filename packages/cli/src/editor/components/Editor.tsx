@@ -35,6 +35,7 @@ import {
 	RichTimelineContext,
 } from '../state/rich-timeline';
 import {SidebarContextProvider} from '../state/sidebar';
+import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
 import {FramePersistor} from './FramePersistor';
@@ -44,6 +45,7 @@ import NewComposition from './NewComposition/NewComposition';
 import {NoRegisterRoot} from './NoRegisterRoot';
 import {NotificationCenter} from './Notifications/NotificationCenter';
 import {UpdateModal} from './UpdateModal/UpdateModal';
+import {ZoomPersistor} from './ZoomPersistor';
 
 const background: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
@@ -202,18 +204,22 @@ export const Editor: React.FC = () => {
 																onEscape={noop}
 																onOutsideClick={noop}
 															>
-																<div style={background}>
-																	{Root === null ? null : <Root />}
-																	<Internals.CanUseRemotionHooksProvider>
-																		<FramePersistor />
-																		{Root === null ? (
-																			<NoRegisterRoot />
-																		) : (
-																			<EditorContent />
-																		)}
-																		<GlobalKeybindings />
-																	</Internals.CanUseRemotionHooksProvider>
-																</div>
+																<TimelineZoomContext>
+																	<div style={background}>
+																		{Root === null ? null : <Root />}
+																		<Internals.CanUseRemotionHooksProvider>
+																			<FramePersistor />
+																			<ZoomPersistor />
+																			{Root === null ? (
+																				<NoRegisterRoot />
+																			) : (
+																				<EditorContent />
+																			)}
+																			<GlobalKeybindings />
+																		</Internals.CanUseRemotionHooksProvider>
+																	</div>
+																</TimelineZoomContext>
+
 																<NotificationCenter />
 																{modalContextType &&
 																	modalContextType.type === 'new-comp' && (

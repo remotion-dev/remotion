@@ -1,4 +1,5 @@
 import http from 'http';
+import type {Socket} from 'net';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import type {FfmpegExecutable} from './ffmpeg-executable';
@@ -31,6 +32,8 @@ export const serveStatic = async (
 	});
 
 	try {
+		const connections: Record<string, Socket> = {};
+
 		const server = http
 			.createServer((request, response) => {
 				if (request.url?.startsWith('/proxy')) {
@@ -52,8 +55,21 @@ export const serveStatic = async (
 			})
 			.listen(port);
 
+		server.on('connection', (conn) => {
+			const key = conn.remoteAddress + ':' + conn.remotePort;
+			connections[key] = conn;
+			conn.on('close', () => {
+				delete connections[key];
+			});
+		});
+
+		const destroyConnections = function () {
+			for (const key in connections) connections[key].destroy();
+		};
+
 		const close = () => {
 			return new Promise<void>((resolve, reject) => {
+				destroyConnections();
 				server.close((err) => {
 					if (err) {
 						if (

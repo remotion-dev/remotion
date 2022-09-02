@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_UNHOVERED,
@@ -25,10 +25,24 @@ export const Button: React.FC<{
 	onClick: () => void;
 	disabled?: boolean;
 	children: React.ReactNode;
-}> = ({children, onClick, disabled}) => {
+	style?: React.CSSProperties;
+}> = ({children, onClick, disabled, style}) => {
+	const combined = useMemo(() => {
+		return {
+			...button,
+			...(style ?? {}),
+		};
+	}, [style]);
 	return (
-		<button style={button} type="button" disabled={disabled} onClick={onClick}>
-			<div style={buttonContainer}>{children}</div>
+		<button
+			style={combined}
+			type="button"
+			disabled={disabled}
+			onClick={onClick}
+		>
+			<div className="css-reset" style={buttonContainer}>
+				{children}
+			</div>
 		</button>
 	);
 };

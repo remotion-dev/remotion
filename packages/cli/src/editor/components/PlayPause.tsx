@@ -1,6 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect} from 'react';
-import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {JumpToStart} from '../icons/jump-to-start';
@@ -10,6 +9,12 @@ import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {ControlButton} from './ControlButton';
+import {
+	getCurrentDuration,
+	getCurrentFps,
+	getCurrentFrame,
+} from './Timeline/imperative-state';
+import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
 
 const forwardBackStyle = {
 	height: 16,
@@ -22,8 +27,6 @@ export const PlayPause: React.FC<{
 }> = ({playbackRate, loop}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 
-	const frame = Internals.Timeline.useTimelinePosition();
-	const video = Internals.useVideo();
 	PlayerInternals.usePlayback({
 		loop,
 		playbackRate,
@@ -41,6 +44,7 @@ export const PlayPause: React.FC<{
 		seek,
 		frameForward,
 		isLastFrame,
+		isFirstFrame,
 	} = PlayerInternals.usePlayer();
 
 	const isStill = useIsStill();
@@ -75,44 +79,67 @@ export const PlayPause: React.FC<{
 		[pauseAndReturnToPlayStart, playing]
 	);
 
-	const videoFps = video?.fps ?? null;
-
 	const onArrowLeft = useCallback(
 		(e: KeyboardEvent) => {
-			if (!videoFps) {
-				return null;
-			}
-
 			e.preventDefault();
 
 			if (e.altKey) {
 				seek(0);
+				ensureFrameIsInViewport({
+					direction: 'fit-left',
+					durationInFrames: getCurrentDuration(),
+					frame: 0,
+				});
 			} else if (e.shiftKey) {
-				frameBack(videoFps);
+				frameBack(getCurrentFps());
+				ensureFrameIsInViewport({
+					direction: 'fit-left',
+					durationInFrames: getCurrentDuration(),
+					frame: Math.max(0, getCurrentFrame() - getCurrentFps()),
+				});
 			} else {
 				frameBack(1);
+				ensureFrameIsInViewport({
+					direction: 'fit-left',
+					durationInFrames: getCurrentDuration(),
+					frame: Math.max(0, getCurrentFrame() - 1),
+				});
 			}
 		},
-		[frameBack, seek, videoFps]
+		[frameBack, seek]
 	);
 
 	const onArrowRight = useCallback(
 		(e: KeyboardEvent) => {
-			if (!video) {
-				return null;
-			}
-
 			if (e.altKey) {
-				seek(video.durationInFrames - 1);
+				seek(getCurrentDuration() - 1);
+				ensureFrameIsInViewport({
+					direction: 'fit-right',
+					durationInFrames: getCurrentDuration() - 1,
+					frame: getCurrentDuration() - 1,
+				});
 			} else if (e.shiftKey) {
-				frameForward(video.fps);
+				frameForward(getCurrentFps());
+				ensureFrameIsInViewport({
+					direction: 'fit-right',
+					durationInFrames: getCurrentDuration(),
+					frame: Math.min(
+						getCurrentDuration() - 1,
+						getCurrentFrame() + getCurrentFps()
+					),
+				});
 			} else {
 				frameForward(1);
+				ensureFrameIsInViewport({
+					direction: 'fit-right',
+					durationInFrames: getCurrentDuration(),
+					frame: getCurrentFrame() + 1,
+				});
 			}
 
 			e.preventDefault();
 		},
-		[frameForward, seek, video]
+		[frameForward, seek]
 	);
 
 	const oneFrameBack = useCallback(() => {
@@ -128,12 +155,8 @@ export const PlayPause: React.FC<{
 	}, [seek]);
 
 	const jumpToEnd = useCallback(() => {
-		if (!video) {
-			return;
-		}
-
-		seek(video.durationInFrames - 1);
-	}, [seek, video]);
+		seek(getCurrentDuration() - 1);
+	}, [seek]);
 
 	const keybindings = useKeybinding();
 
@@ -202,7 +225,7 @@ export const PlayPause: React.FC<{
 			<ControlButton
 				aria-label="Jump to beginning"
 				title="Jump to beginning"
-				disabled={frame === 0}
+				disabled={isFirstFrame}
 				onClick={jumpToStart}
 			>
 				<JumpToStart style={forwardBackStyle} />
@@ -210,7 +233,7 @@ export const PlayPause: React.FC<{
 			<ControlButton
 				aria-label="Step back one frame"
 				title="Step back one frame"
-				disabled={frame === 0}
+				disabled={isFirstFrame}
 				onClick={oneFrameBack}
 			>
 				<StepBack style={forwardBackStyle} />
@@ -219,7 +242,6 @@ export const PlayPause: React.FC<{
 			<ControlButton
 				aria-label={playing ? 'Pause' : 'Play'}
 				title={playing ? 'Pause' : 'Play'}
-				disabled={!video}
 				onClick={playing ? pause : play}
 			>
 				{playing ? (

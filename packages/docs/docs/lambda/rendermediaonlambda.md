@@ -70,7 +70,7 @@ A URL pointing to a Remotion project. Use [`deploySite()`](/docs/lambda/deploysi
 
 ### `composition`
 
-The name of the [composition](/docs/composition) you want to render.
+The `id` of the [composition](/docs/composition) you want to render.
 
 ### `inputProps`
 
@@ -80,11 +80,15 @@ React props that are passed to your composition. You define the shape of the pro
 
 Which codec should be used to encode the video.
 
-Video codecs `h264` and `vp8` are supported, `prores` is supported since `v3.1.11`.
+Video codecs `h264` and `vp8` are supported, `prores` is supported since `v3.2.0`.
 
 Audio codecs `mp3`, `aac` and `wav` are also supported.
 
 See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
+
+### `muted`
+
+Disables audio output. See also [`renderMedia() -> muted`](/docs/renderer/render-media#muted).
 
 ### `imageFormat`
 
@@ -204,7 +208,7 @@ The default for Lambda is `swangle`, but `null` elsewhere.
 
 ## Return value
 
-Returns a promise resolving to an object containing two properties: `renderId` and `bucketName`. Those are useful for passing to `getRenderProgress()`
+Returns a promise resolving to an object containing two properties: `renderId`, `bucketName`, `cloudWatchLogs`. Those are useful for passing to `getRenderProgress()`
 
 ### `renderId`
 
@@ -213,6 +217,12 @@ A unique alphanumeric identifier for this render. Useful for obtaining status an
 ### `bucketName`
 
 The S3 bucket name in which all files are being saved.
+
+### `cloudWatchLogs`
+
+_Available from v3.2.10_
+
+A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
 
 ## See also
 

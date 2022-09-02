@@ -18,12 +18,12 @@ const getUpgradeCommand = ({
 	packages: string[];
 	version: string;
 }): string[] => {
-	const pkgList = packages.map((p) => `${p}@^${version}`);
+	const pkgList = packages.map((p) => `${p}@${version}`);
 
 	const commands: {[key in PackageManager]: string[]} = {
-		npm: ['i', ...pkgList],
-		pnpm: ['i', ...pkgList],
-		yarn: ['add', ...pkgList],
+		npm: ['i', '--save-exact', ...pkgList],
+		pnpm: ['i', '--save-exact', ...pkgList],
+		yarn: ['add', '--exact', ...pkgList],
 	};
 
 	return commands[manager];
@@ -52,9 +52,12 @@ export const upgrade = async (remotionRoot: string) => {
 		'@remotion/eslint-config',
 		'@remotion/renderer',
 		'@remotion/skia',
+		'@remotion/lottie',
 		'@remotion/media-utils',
+		'@remotion/paths',
 		'@remotion/babel-loader',
 		'@remotion/lambda',
+		'@remotion/player',
 		'@remotion/preload',
 		'@remotion/three',
 		'@remotion/gif',

@@ -6,12 +6,14 @@ import type {
 	PixelFormat,
 	ProResProfile,
 } from '@remotion/renderer';
+import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
+import {getCloudwatchStreamUrl} from '../shared/get-cloudwatch-stream-url';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
@@ -44,11 +46,13 @@ export type RenderMediaOnLambdaInput = {
 	numberOfGifLoops?: number | null;
 	concurrencyPerLambda?: number;
 	downloadBehavior?: DownloadBehavior | null;
+	muted?: boolean;
 };
 
 export type RenderMediaOnLambdaOutput = {
 	renderId: string;
 	bucketName: string;
+	cloudWatchLogs: string;
 };
 
 /**
@@ -96,46 +100,65 @@ export const renderMediaOnLambda = async ({
 	everyNthFrame,
 	concurrencyPerLambda,
 	downloadBehavior,
+	muted,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
 	validateFramesPerLambda(framesPerLambda ?? null);
 	validateDownloadBehavior(downloadBehavior);
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
-	const res = await callLambda({
-		functionName,
-		type: LambdaRoutines.start,
-		payload: {
-			framesPerLambda: framesPerLambda ?? null,
-			composition,
-			serveUrl: realServeUrl,
-			inputProps,
-			codec: actualCodec,
-			imageFormat,
-			crf,
-			envVariables,
-			pixelFormat,
-			proResProfile,
-			quality,
-			maxRetries,
-			privacy,
-			logLevel: logLevel ?? 'info',
-			frameRange: frameRange ?? null,
-			outName: outName ?? null,
-			timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
-			chromiumOptions: chromiumOptions ?? {},
-			scale: scale ?? 1,
-			everyNthFrame: everyNthFrame ?? 1,
-			numberOfGifLoops: numberOfGifLoops ?? 0,
-			concurrencyPerLambda: concurrencyPerLambda ?? 1,
-			downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
-		},
-		region,
-	});
-	return {
-		renderId: res.renderId,
-		bucketName: res.bucketName,
-	};
+	try {
+		const res = await callLambda({
+			functionName,
+			type: LambdaRoutines.start,
+			payload: {
+				framesPerLambda: framesPerLambda ?? null,
+				composition,
+				serveUrl: realServeUrl,
+				inputProps,
+				codec: actualCodec,
+				imageFormat,
+				crf,
+				envVariables,
+				pixelFormat,
+				proResProfile,
+				quality,
+				maxRetries,
+				privacy,
+				logLevel: logLevel ?? 'info',
+				frameRange: frameRange ?? null,
+				outName: outName ?? null,
+				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
+				chromiumOptions: chromiumOptions ?? {},
+				scale: scale ?? 1,
+				everyNthFrame: everyNthFrame ?? 1,
+				numberOfGifLoops: numberOfGifLoops ?? 0,
+				concurrencyPerLambda: concurrencyPerLambda ?? 1,
+				downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
+				muted: muted ?? false,
+				version: VERSION,
+			},
+			region,
+		});
+		return {
+			renderId: res.renderId,
+			bucketName: res.bucketName,
+			cloudWatchLogs: getCloudwatchStreamUrl({
+				functionName,
+				method: LambdaRoutines.renderer,
+				region,
+				renderId: res.renderId,
+			}),
+		};
+	} catch (err) {
+		if ((err as Error).stack?.includes('UnrecognizedClientException')) {
+			throw new Error(
+				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception'
+			);
+		}
+
+		throw err;
+	}
 };
 
 /**

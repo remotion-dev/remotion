@@ -182,6 +182,36 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		}
 	}, []);
 
+	useEffect(() => {
+		const {current} = container;
+		if (!current) {
+			return;
+		}
+
+		const fullscreenChange = () => {
+			const element =
+				document.webkitFullscreenElement ?? document.fullscreenElement;
+
+			if (element && element === container.current) {
+				player.emitter.dispatchFullscreenChangeUpdate({
+					isFullscreen: true,
+				});
+			} else {
+				player.emitter.dispatchFullscreenChangeUpdate({
+					isFullscreen: false,
+				});
+			}
+		};
+
+		current.addEventListener('webkitfullscreenchange', fullscreenChange);
+		current.addEventListener('fullscreenchange', fullscreenChange);
+
+		return () => {
+			current.removeEventListener('webkitfullscreenchange', fullscreenChange);
+			current.removeEventListener('fullscreenchange', fullscreenChange);
+		};
+	}, [player.emitter]);
+
 	const durationInFrames = config?.durationInFrames ?? 1;
 
 	useImperativeHandle(

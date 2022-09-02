@@ -4,6 +4,11 @@ import {Button} from './Button';
 import type {THelpLink} from './get-help-link';
 import {ShortcutHint} from './ShortcutHint';
 
+const buttonStyle: React.CSSProperties = {
+	backgroundColor: 'var(--blue)',
+	color: 'white',
+};
+
 export const HelpLink: React.FC<{
 	canHaveKeyboardShortcuts: boolean;
 	link: THelpLink;
@@ -32,7 +37,7 @@ export const HelpLink: React.FC<{
 	}, [canHaveKeyboardShortcuts, openLink, registerKeybinding]);
 
 	return (
-		<Button onClick={openLink}>
+		<Button style={buttonStyle} onClick={openLink}>
 			Help: {'"'}
 			{link.title}
 			{'"'}

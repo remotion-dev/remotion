@@ -7,7 +7,6 @@ import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
 	DEFAULT_OUTPUT_PRIVACY,
-	LambdaRoutines,
 } from '../../../shared/constants';
 import {sleep} from '../../../shared/sleep';
 import {validateFramesPerLambda} from '../../../shared/validate-frames-per-lambda';
@@ -17,7 +16,6 @@ import {validateMaxRetries} from '../../../shared/validate-retries';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
-import {getCloudwatchStreamUrl} from '../../helpers/get-cloudwatch-stream-url';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 import {makeMultiProgressFromStatus, makeProgressString} from './progress';
@@ -67,6 +65,7 @@ export const renderCommand = async (args: string[]) => {
 		scale,
 		everyNthFrame,
 		numberOfGifLoops,
+		muted,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -109,6 +108,7 @@ export const renderCommand = async (args: string[]) => {
 		numberOfGifLoops,
 		everyNthFrame,
 		concurrencyPerLambda: parsedLambdaCli['concurrency-per-lambda'],
+		muted,
 	});
 
 	const totalSteps = outName ? 5 : 4;
@@ -122,14 +122,7 @@ export const renderCommand = async (args: string[]) => {
 			`Bucket = ${res.bucketName}, renderId = ${res.renderId}, functionName = ${functionName}`
 		)
 	);
-	Log.verbose(
-		`CloudWatch logs (if enabled): ${getCloudwatchStreamUrl({
-			functionName,
-			region,
-			renderId: res.renderId,
-			method: LambdaRoutines.renderer,
-		})}`
-	);
+	Log.verbose(`CloudWatch logs (if enabled): ${res.cloudWatchLogs}`);
 	const status = await getRenderProgress({
 		functionName,
 		bucketName: res.bucketName,

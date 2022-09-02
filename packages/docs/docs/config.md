@@ -93,9 +93,9 @@ The [command line flag](/docs/cli/render#--log) `--log` will take precedence ove
 
 ## Preview
 
-_Available from Version 2.1.10._
-
 ### setMaxTimelineTracks()
+
+_Available from Version 2.1.10._
 
 Set how many tracks are being displayed in the timeline at most. This does not affect your video, just the amount of tracks shown when previewing. Default `15`.
 
@@ -104,6 +104,18 @@ import { Config } from "remotion";
 // ---cut---
 Config.Preview.setMaxTimelineTracks(20);
 ```
+
+### setKeyboardShortcutsEnabled()
+
+Whether the Preview should react to keyboard shortcuts. Default `true`.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Preview.setKeyboardShortcutsEnabled(false);
+```
+
+The [command line flag](/docs/cli/preview#--disable-keyboard-shortcuts) `--disable-keyboard-shortcuts` will take precedence over this option.
 
 ## Puppeteer
 
@@ -233,6 +245,34 @@ Config.Rendering.setScale(2);
 ```
 
 The [command line flag](/docs/cli/render#--scale) `--scale` will take precedence over this option.
+
+### setMuted()
+
+_Available from Version 3.2.1._
+
+Disables audio output. Default `false`.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Rendering.setMuted(true);
+```
+
+The [command line flag](/docs/cli/render#--muted) `--muted` will take precedence over this option.
+
+### setEnforceAudioTrack()
+
+_Available from Version 3.2.1._
+
+Render a silent audio track if there would be none otherwise. Default `false`.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Rendering.setEnforceAudioTrack(true);
+```
+
+The [command line flag](/docs/cli/render#--enforce-audio-track) `--enforce-audio-track` will take precedence over this option.
 
 ### setFrameRange()
 

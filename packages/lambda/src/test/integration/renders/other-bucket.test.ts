@@ -1,4 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
+import {VERSION} from 'remotion/version';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
@@ -30,8 +31,7 @@ test('Should be able to render to another bucket', async () => {
 	const res = await handler(
 		{
 			type: LambdaRoutines.start,
-			serveUrl:
-				'https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/',
+			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
 			chromiumOptions: {},
 			codec: 'h264',
 			composition: 'react-svg',
@@ -59,6 +59,8 @@ test('Should be able to render to another bucket', async () => {
 			downloadBehavior: {
 				type: 'play-in-browser',
 			},
+			muted: false,
+			version: VERSION,
 		},
 		extraContext
 	);
@@ -69,6 +71,7 @@ test('Should be able to render to another bucket', async () => {
 			type: LambdaRoutines.status,
 			bucketName: startRes.bucketName,
 			renderId: startRes.renderId,
+			version: VERSION,
 		},
 		extraContext
 	)) as Await<LambdaReturnValues[LambdaRoutines.status]>;

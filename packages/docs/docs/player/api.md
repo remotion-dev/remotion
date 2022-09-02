@@ -371,6 +371,9 @@ useEffect(() => {
   playerRef.current.addEventListener("error", (e) => {
     console.log("error", e.detail.error);
   });
+  playerRef.current.addEventListener("fullscreenchange", (e) => {
+    console.log("fullscreenchange", e.detail.isFullscreen);
+  });
 }, []);
 ```
 
@@ -423,6 +426,25 @@ if (!playerRef.current) {
 // ---cut---
 playerRef.current.addEventListener("timeupdate", (e) => {
   console.log("current frame is " + e.detail.frame); // current frame is 120
+});
+```
+
+### `fullscreenchange`
+
+_Available from v3.2.0_
+
+Fires when the player enters or exits fullscreen. By reading `e.detail.isFullscreen` or calling `playerRef.isFullscreen()` you can determine if the player is currently in fullscreen or not.
+
+```tsx twoslash
+import { PlayerRef } from "@remotion/player";
+import { useRef } from "react";
+const playerRef = useRef<PlayerRef>(null);
+if (!playerRef.current) {
+  throw new Error();
+}
+// ---cut---
+playerRef.current.addEventListener("fullscreenchange", (e) => {
+  console.log("is fullscreen" + e.detail.isFullscreen); // is fullscreen true
 });
 ```
 

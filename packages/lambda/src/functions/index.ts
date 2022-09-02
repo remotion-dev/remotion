@@ -45,7 +45,7 @@ export const handler = async <T extends LambdaRoutines>(
 			inputProps: JSON.stringify(params.inputProps),
 			isWarm,
 		});
-		return startHandler(params);
+		return startHandler(params, {expectedBucketOwner: currentUserId});
 	}
 
 	if (params.type === LambdaRoutines.launch) {
