@@ -10,7 +10,7 @@ export const bundleCommand = async (remotionRoot: string) => {
 	if (!file) {
 		Log.error('No entry point specified. Pass more arguments:');
 		Log.error('   npx remotion bundle [entry-point]');
-		Log.error('Documentation: https://www.remotion.dev/docs/render');
+		Log.error('Documentation: https://www.remotion.dev/docs/cli/bundle');
 		process.exit(1);
 	}
 
