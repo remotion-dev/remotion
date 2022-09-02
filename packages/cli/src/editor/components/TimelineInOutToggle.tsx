@@ -24,7 +24,11 @@ import {persistMarks} from '../state/marks';
 import {ControlButton} from './ControlButton';
 
 const getTooltipText = (pointType: string, key: string) =>
-	[`Mark ${pointType}`, areKeyboardShortcutsDisabled() ? null : `(${key})`]
+	[
+		`Mark ${pointType}`,
+		areKeyboardShortcutsDisabled() ? null : `(${key})`,
+		'- right click to clear',
+	]
 		.filter(truthy)
 		.join(' ');
 
@@ -34,8 +38,8 @@ const style: React.CSSProperties = {
 };
 
 export const inOutHandles = createRef<{
-	inMarkClick: () => void;
-	outMarkClick: () => void;
+	inMarkClick: (e: KeyboardEvent | null) => void;
+	outMarkClick: (e: KeyboardEvent | null) => void;
 	clearMarks: () => void;
 	setMarks: (marks: [number | null, number | null]) => void;
 }>();
@@ -49,73 +53,6 @@ export const TimelineInOutPointToggle: React.FC = () => {
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const keybindings = useKeybinding();
 
-	const onInMark = useCallback(() => {
-		if (!videoConfig) {
-			return null;
-		}
-
-		setInAndOutFrames((prev) => {
-			const biggestPossible =
-				prev.outFrame === null ? Infinity : prev.outFrame - 1;
-			const selected = Math.min(timelinePosition, biggestPossible);
-
-			if (selected === 0) {
-				return {
-					...prev,
-					inFrame: null,
-				};
-			}
-
-			if (prev.inFrame !== null) {
-				// Disable if already at this position
-				if (prev.inFrame === selected) {
-					return {
-						...prev,
-						inFrame: null,
-					};
-				}
-			}
-
-			return {
-				...prev,
-				inFrame: selected,
-			};
-		});
-	}, [setInAndOutFrames, timelinePosition, videoConfig]);
-
-	const onOutMark = useCallback(() => {
-		if (!videoConfig) {
-			return null;
-		}
-
-		setInAndOutFrames((prev) => {
-			const smallestPossible =
-				prev.inFrame === null ? -Infinity : prev.inFrame + 1;
-			const selected = Math.max(timelinePosition, smallestPossible);
-
-			if (selected === videoConfig.durationInFrames - 1) {
-				return {
-					...prev,
-					outFrame: null,
-				};
-			}
-
-			if (prev.outFrame !== null) {
-				if (prev.outFrame === selected) {
-					return {
-						...prev,
-						outFrame: null,
-					};
-				}
-			}
-
-			return {
-				...prev,
-				outFrame: selected,
-			};
-		});
-	}, [setInAndOutFrames, timelinePosition, videoConfig]);
-
 	const onInOutClear = useCallback(() => {
 		setInAndOutFrames(() => {
 			return {
@@ -125,20 +62,149 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		});
 	}, [setInAndOutFrames]);
 
+	const onInMark = useCallback(
+		(e: KeyboardEvent | React.MouseEvent | null) => {
+			if (!videoConfig) {
+				return null;
+			}
+
+			if (e?.shiftKey) {
+				setInAndOutFrames((f) => {
+					return {
+						...f,
+						inFrame: null,
+					};
+				});
+				return null;
+			}
+
+			setInAndOutFrames((prev) => {
+				const biggestPossible =
+					prev.outFrame === null ? Infinity : prev.outFrame - 1;
+				const selected = Math.min(timelinePosition, biggestPossible);
+
+				if (selected === 0) {
+					return {
+						...prev,
+						inFrame: null,
+					};
+				}
+
+				if (prev.inFrame !== null) {
+					// Disable if already at this position
+					if (prev.inFrame === selected) {
+						return {
+							...prev,
+							inFrame: null,
+						};
+					}
+				}
+
+				return {
+					...prev,
+					inFrame: selected,
+				};
+			});
+		},
+		[setInAndOutFrames, timelinePosition, videoConfig]
+	);
+
+	const clearInMark = useCallback(
+		(e: React.MouseEvent) => {
+			if (!videoConfig) {
+				return null;
+			}
+
+			e.preventDefault();
+
+			setInAndOutFrames((f) => {
+				return {
+					...f,
+					inFrame: null,
+				};
+			});
+		},
+		[setInAndOutFrames, videoConfig]
+	);
+
+	const clearOutMark = useCallback(
+		(e: React.MouseEvent | null) => {
+			if (!videoConfig) {
+				return null;
+			}
+
+			e?.preventDefault();
+
+			setInAndOutFrames((f) => {
+				return {
+					...f,
+					outFrame: null,
+				};
+			});
+		},
+		[setInAndOutFrames, videoConfig]
+	);
+
+	const onOutMark = useCallback(
+		(e: KeyboardEvent | React.MouseEvent | null) => {
+			if (!videoConfig) {
+				return null;
+			}
+
+			if (e?.shiftKey) {
+				setInAndOutFrames((f) => {
+					return {
+						...f,
+						outFrame: null,
+					};
+				});
+				return;
+			}
+
+			setInAndOutFrames((prev) => {
+				const smallestPossible =
+					prev.inFrame === null ? -Infinity : prev.inFrame + 1;
+				const selected = Math.max(timelinePosition, smallestPossible);
+
+				if (selected === videoConfig.durationInFrames - 1) {
+					return {
+						...prev,
+						outFrame: null,
+					};
+				}
+
+				if (prev.outFrame !== null) {
+					if (prev.outFrame === selected) {
+						return {
+							...prev,
+							outFrame: null,
+						};
+					}
+				}
+
+				return {
+					...prev,
+					outFrame: selected,
+				};
+			});
+		},
+		[setInAndOutFrames, timelinePosition, videoConfig]
+	);
+
 	useEffect(() => {
 		const iKey = keybindings.registerKeybinding({
 			event: 'keypress',
 			key: 'i',
-			callback: () => {
-				onInMark();
+			callback: (e) => {
+				onInMark(e);
 			},
 			commandCtrlKey: false,
 		});
 		const oKey = keybindings.registerKeybinding({
 			event: 'keypress',
 			key: 'o',
-			callback: () => {
-				onOutMark();
+			callback: (e) => {
+				onOutMark(e);
 			},
 			commandCtrlKey: false,
 		});
@@ -224,7 +290,8 @@ export const TimelineInOutPointToggle: React.FC = () => {
 			<ControlButton
 				title={getTooltipText('In', 'I')}
 				aria-label={getTooltipText('In', 'I')}
-				onClick={onInMark}
+				onClick={(e) => onInMark(e)}
+				onContextMenu={clearInMark}
 				disabled={timelinePosition === 0}
 			>
 				<TimelineInPointer
@@ -233,9 +300,10 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				/>
 			</ControlButton>
 			<ControlButton
-				title={getTooltipText('Out', '(O)')}
-				aria-label={getTooltipText('Out', '(O)')}
+				title={getTooltipText('Out', 'O')}
+				aria-label={getTooltipText('Out', 'O')}
 				onClick={onOutMark}
+				onContextMenu={clearOutMark}
 				disabled={timelinePosition === videoConfig.durationInFrames - 1}
 			>
 				<TimelineOutPointer
