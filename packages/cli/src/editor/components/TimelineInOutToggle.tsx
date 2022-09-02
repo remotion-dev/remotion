@@ -38,8 +38,8 @@ const style: React.CSSProperties = {
 };
 
 export const inOutHandles = createRef<{
-	inMarkClick: (e: KeyboardEvent) => void;
-	outMarkClick: (e: KeyboardEvent) => void;
+	inMarkClick: (e: KeyboardEvent | null) => void;
+	outMarkClick: (e: KeyboardEvent | null) => void;
 	clearMarks: () => void;
 	setMarks: (marks: [number | null, number | null]) => void;
 }>();
@@ -63,12 +63,12 @@ export const TimelineInOutPointToggle: React.FC = () => {
 	}, [setInAndOutFrames]);
 
 	const onInMark = useCallback(
-		(e: KeyboardEvent | React.MouseEvent) => {
+		(e: KeyboardEvent | React.MouseEvent | null) => {
 			if (!videoConfig) {
 				return null;
 			}
 
-			if (e.shiftKey) {
+			if (e?.shiftKey) {
 				setInAndOutFrames((f) => {
 					return {
 						...f,
@@ -128,12 +128,12 @@ export const TimelineInOutPointToggle: React.FC = () => {
 	);
 
 	const clearOutMark = useCallback(
-		(e: React.MouseEvent) => {
+		(e: React.MouseEvent | null) => {
 			if (!videoConfig) {
 				return null;
 			}
 
-			e.preventDefault();
+			e?.preventDefault();
 
 			setInAndOutFrames((f) => {
 				return {
@@ -146,12 +146,12 @@ export const TimelineInOutPointToggle: React.FC = () => {
 	);
 
 	const onOutMark = useCallback(
-		(e: KeyboardEvent | React.MouseEvent) => {
+		(e: KeyboardEvent | React.MouseEvent | null) => {
 			if (!videoConfig) {
 				return null;
 			}
 
-			if (e.shiftKey) {
+			if (e?.shiftKey) {
 				setInAndOutFrames((f) => {
 					return {
 						...f,
