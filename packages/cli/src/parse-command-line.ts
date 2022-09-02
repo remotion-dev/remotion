@@ -230,18 +230,19 @@ export const parseCommandLine = (
 
 	if (typeof parsedCli['public-path'] !== 'undefined') {
 		Config.Bundling.setPublicPath(parsedCli['public-path']);
-	if (typeof parsedCli.muted !== 'undefined') {
-		Config.Rendering.setMuted(parsedCli.muted);
-	}
+		if (typeof parsedCli.muted !== 'undefined') {
+			Config.Rendering.setMuted(parsedCli.muted);
+		}
 
-	if (typeof parsedCli['disable-keyboard-shortcuts'] !== 'undefined') {
-		Config.Preview.setKeyboardShortcutsEnabled(
-			!parsedCli['disable-keyboard-shortcuts']
-		);
-	}
+		if (typeof parsedCli['disable-keyboard-shortcuts'] !== 'undefined') {
+			Config.Preview.setKeyboardShortcutsEnabled(
+				!parsedCli['disable-keyboard-shortcuts']
+			);
+		}
 
-	if (typeof parsedCli['enforce-audio-track'] !== 'undefined') {
-		Config.Rendering.setEnforceAudioTrack(parsedCli['enforce-audio-track']);
+		if (typeof parsedCli['enforce-audio-track'] !== 'undefined') {
+			Config.Rendering.setEnforceAudioTrack(parsedCli['enforce-audio-track']);
+		}
 	}
 };
 
