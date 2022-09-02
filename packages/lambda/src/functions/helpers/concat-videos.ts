@@ -165,7 +165,6 @@ export const concatVideosS3 = async ({
 	expectedBucketOwner,
 	fps,
 	numberOfGifLoops,
-	crf,
 }: {
 	bucket: string;
 	expectedFiles: number;
@@ -177,7 +176,6 @@ export const concatVideosS3 = async ({
 	expectedBucketOwner: string;
 	fps: number;
 	numberOfGifLoops: number | null;
-	crf: number | null;
 }) => {
 	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
 	if (existsSync(outdir)) {
@@ -215,7 +213,6 @@ export const concatVideosS3 = async ({
 		codec: codecForCombining,
 		fps,
 		numberOfGifLoops,
-		crf,
 	});
 	combine.end();
 
