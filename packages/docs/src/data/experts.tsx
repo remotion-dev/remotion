@@ -24,7 +24,7 @@ export const experts: Expert[] = [
         <p>
           Creator of{" "}
           <a target={"_blank"} href="https://github.com/marcusstenbeck/remotion-template-audiogram">
-            Remotion's Audiogram template
+            Remotion{"'"}s Audiogram template
           </a>
           <br />I make templates, libraries and educational content at {" "}
           <a
