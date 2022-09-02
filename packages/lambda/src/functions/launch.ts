@@ -327,7 +327,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		expectedBucketOwner: options.expectedBucketOwner,
 		fps,
 		numberOfGifLoops: params.numberOfGifLoops,
-		crf: params.crf ?? null,
 	});
 	if (!encodingStop) {
 		encodingStop = Date.now();
