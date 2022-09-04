@@ -3,27 +3,17 @@ import React, {useContext, useMemo} from 'react';
 import {Checkmark} from '../icons/Checkmark';
 import {PreviewSizeContext} from '../state/preview-size';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';
-import type { ComboboxValue} from './NewComposition/ComboBox';
+import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
 
 export const commonPreviewSizes: PreviewSize[] = ['auto', 0.25, 0.5, 1];
 
 export const getPreviewSizeLabel = (previewSize: PreviewSize) => {
-	if (previewSize === 1) {
-		return '100%';
-	}
-
-	if (previewSize === 0.5) {
-		return '50%';
-	}
-
-	if (previewSize === 0.25) {
-		return '25%';
-	}
-
 	if (previewSize === 'auto') {
 		return 'Fit';
 	}
+
+	return `${previewSize * 100}%`;
 };
 
 const accessibilityLabel = 'Preview Size';
