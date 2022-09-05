@@ -278,6 +278,7 @@ importers:
       hls.js: ^0.14.17
       lottie-web: ^5.9.6
       polished: 4.1.2
+      prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
       react-player: ^2.9.0
@@ -330,6 +331,7 @@ importers:
       '@types/node': 17.0.17
       '@types/react': 18.0.1
       eslint: 8.13.0
+      prettier-plugin-organize-imports: 2.3.4_lbsuufegg2dnc4wh6qgf26kgdy
       typescript: 4.7.2
       url-loader: 4.1.1_csgzzuwaerdr4d7s3u52mzcn7m
 
