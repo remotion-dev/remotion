@@ -1,4 +1,4 @@
-import type { Size} from '@remotion/player';
+import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
@@ -11,7 +11,7 @@ import {
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
 
-const checkerboardSize = 49;
+export const checkerboardSize = 49;
 
 const containerStyle = (options: {
 	scale: number;
@@ -102,6 +102,18 @@ const Inner: React.FC<{
 			<div ref={portalContainer} style={style} />
 		</div>
 	);
+};
+
+export const StillPreview: React.FC<{
+	canvasSize: Size;
+}> = ({canvasSize}) => {
+	const config = Internals.useUnsafeVideoConfig();
+
+	if (!config) {
+		return null;
+	}
+
+	return <Inner canvasSize={canvasSize} />;
 };
 
 export const VideoPreview: React.FC<{
