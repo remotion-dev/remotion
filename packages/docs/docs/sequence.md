@@ -161,6 +161,22 @@ const TrimAndDelayExample: React.FC = () => {
 
 See the [`<Series />`](/docs/series) helper component, which helps you calculate markup that makes sequences play after each other.
 
+## Adding a ref
+
+You can add a [React ref](https://reactjs.org/docs/refs-and-the-dom.html) to an `<Sequence>` from version `v3.2.13` on. If you use TypeScript, you need to type it with `HTMLDivElement`:
+
+```tsx twoslash
+import {useRef} from 'react';
+import {Sequence} from 'remotion';
+
+const content = <div>Hello, World</div>
+// ---cut---
+const MyComp = () => {
+  const ref = useRef<HTMLDivElement>(null)
+  return <Sequence from={10} ref={ref}>{content}</Sequence>
+}
+```
+
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Sequence.tsx)
