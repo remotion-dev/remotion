@@ -44,7 +44,7 @@ export type BundleOptions = {
 	enableCaching?: boolean;
 	publicPath?: string;
 	rootDir?: string;
-	publicDir?: string;
+	publicDir?: string | null;
 };
 
 export const getConfig = ({
