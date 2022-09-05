@@ -1,5 +1,5 @@
 import React from 'react';
-import {Freeze, Series, staticFile, Video} from 'remotion';
+import {Freeze, Sequence, Series, staticFile, Video} from 'remotion';
 
 export const FreezeExample: React.FC = () => {
 	const video = staticFile('framermp4withoutfileextension');
@@ -8,6 +8,9 @@ export const FreezeExample: React.FC = () => {
 		<Series>
 			<Series.Sequence durationInFrames={25}>
 				<Freeze frame={0}>
+					<Sequence layout="none" from={0}>
+						<div>hi</div>
+					</Sequence>
 					<Video src={video} />
 				</Freeze>
 			</Series.Sequence>
