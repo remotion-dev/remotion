@@ -166,15 +166,19 @@ See the [`<Series />`](/docs/series) helper component, which helps you calculate
 You can add a [React ref](https://reactjs.org/docs/refs-and-the-dom.html) to an `<Sequence>` from version `v3.2.13` on. If you use TypeScript, you need to type it with `HTMLDivElement`:
 
 ```tsx twoslash
-import {useRef} from 'react';
-import {Sequence} from 'remotion';
+import { useRef } from "react";
+import { Sequence } from "remotion";
 
-const content = <div>Hello, World</div>
+const content = <div>Hello, World</div>;
 // ---cut---
 const MyComp = () => {
-  const ref = useRef<HTMLDivElement>(null)
-  return <Sequence from={10} ref={ref}>{content}</Sequence>
-}
+  const ref = useRef<HTMLDivElement>(null);
+  return (
+    <Sequence from={10} ref={ref}>
+      {content}
+    </Sequence>
+  );
+};
 ```
 
 ## See also

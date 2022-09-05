@@ -23,15 +23,15 @@ A helper component - it is an absolutely positioned `<div>` with the following s
 You can add a [React ref](https://reactjs.org/docs/refs-and-the-dom.html) to an `<AbsoluteFill>` from version `v3.2.13` on. If you use TypeScript, you need to type it with `HTMLDivElement`:
 
 ```tsx twoslash
-import {useRef} from 'react';
-import {AbsoluteFill} from 'remotion';
+import { useRef } from "react";
+import { AbsoluteFill } from "remotion";
 
-const content = <div>Hello, World</div>
+const content = <div>Hello, World</div>;
 // ---cut---
 const MyComp = () => {
   const ref = useRef<HTMLDivElement>(null);
-  return <AbsoluteFill ref={ref}>{content}</AbsoluteFill>
-}
+  return <AbsoluteFill ref={ref}>{content}</AbsoluteFill>;
+};
 ```
 
 ## See also
