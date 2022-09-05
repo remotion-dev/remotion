@@ -13,7 +13,7 @@ export const getPreviewSizeLabel = (previewSize: PreviewSize) => {
 		return 'Fit';
 	}
 
-	return `${previewSize * 100}%`;
+	return `${(previewSize * 100).toFixed(0)}%`;
 };
 
 const accessibilityLabel = 'Preview Size';
@@ -29,8 +29,10 @@ export const SizeSelector: React.FC = () => {
 		};
 	}, []);
 
+	const customPreviewSizes = [...new Set([size, ...commonPreviewSizes])];
+
 	const items: ComboboxValue[] = useMemo(() => {
-		return commonPreviewSizes.map((newSize): ComboboxValue => {
+		return customPreviewSizes.map((newSize): ComboboxValue => {
 			return {
 				id: String(newSize),
 				label: getPreviewSizeLabel(newSize),

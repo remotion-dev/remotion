@@ -3,14 +3,25 @@ export const StillZoom: React.FC = () => {
 		<div
 			style={{
 				display: 'flex',
-				justifyContent: 'center',
-				alignItems: 'center',
-				background: 'white',
-				flex: 1,
-				paddingBottom: 100,
+				flexWrap: 'wrap',
+				background: '#ffffffaa',
 			}}
 		>
-			Hello
+			{Array(396)
+				.fill(null)
+				.map((_, i) => (
+					<div
+						key={i}
+						style={{
+							width: '100px',
+							height: '100px',
+							outline: '1px solid rebeccapurple',
+							fontSize: '3rem',
+						}}
+					>
+						{i}
+					</div>
+				))}
 		</div>
 	);
 };
