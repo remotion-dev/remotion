@@ -1,15 +1,8 @@
-import React, {useMemo, forwardRef} from 'react';
+import React, {forwardRef, useMemo} from 'react';
 
-/**
- * An absolutely positioned <div> element with 100% width, height, and a column flex style
- * @link https://www.remotion.dev/docs/absolute-fill
- */
 const AbsoluteFillRefForwarding: React.ForwardRefRenderFunction<
 	HTMLDivElement,
-	React.DetailedHTMLProps<
-		React.HTMLAttributes<HTMLDivElement>,
-		HTMLDivElement
-	>
+	React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>
 > = (props, ref) => {
 	const {style, ...other} = props;
 	const actualStyle = useMemo((): React.CSSProperties => {
@@ -30,4 +23,8 @@ const AbsoluteFillRefForwarding: React.ForwardRefRenderFunction<
 	return <div ref={ref} style={actualStyle} {...other} />;
 };
 
+/**
+ * An absolutely positioned <div> element with 100% width, height, and a column flex style
+ * @link https://www.remotion.dev/docs/absolute-fill
+ */
 export const AbsoluteFill = forwardRef(AbsoluteFillRefForwarding);
