@@ -63,7 +63,7 @@ export type PlayerProps<T> = {
 	renderPoster?: RenderPoster;
 	showPosterWhenPaused?: boolean;
 	showPosterWhenEnded?: boolean;
-	showPosterWhenAtStart?: boolean;
+	showPosterWhenUnplayed?: boolean;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -99,7 +99,7 @@ export const PlayerFn = <T,>(
 		playbackRate = 1,
 		renderLoading,
 		className,
-		showPosterWhenAtStart,
+		showPosterWhenUnplayed,
 		showPosterWhenEnded,
 		showPosterWhenPaused,
 		initialFrame,
@@ -407,7 +407,7 @@ export const PlayerFn = <T,>(
 											spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
 											playbackRate={playbackRate}
 											className={className ?? undefined}
-											showPosterWhenAtStart={Boolean(showPosterWhenAtStart)}
+											showPosterWhenUnplayed={Boolean(showPosterWhenUnplayed)}
 											showPosterWhenEnded={Boolean(showPosterWhenEnded)}
 											showPosterWhenPaused={Boolean(showPosterWhenPaused)}
 											renderPoster={renderPoster}

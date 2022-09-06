@@ -64,7 +64,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		moveToBeginningWhenEnded: boolean;
 		showPosterWhenPaused: boolean;
 		showPosterWhenEnded: boolean;
-		showPosterWhenAtStart: boolean;
+		showPosterWhenUnplayed: boolean;
 	}
 > = (
 	{
@@ -88,7 +88,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		renderPoster,
 		className,
 		moveToBeginningWhenEnded,
-		showPosterWhenAtStart,
+		showPosterWhenUnplayed,
 		showPosterWhenEnded,
 		showPosterWhenPaused,
 	},
@@ -466,7 +466,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		[
 			showPosterWhenPaused && !player.isPlaying() && !seeking,
 			showPosterWhenEnded && player.isLastFrame && !player.isPlaying(),
-			showPosterWhenAtStart && !player.hasPlayed && !player.isPlaying(),
+			showPosterWhenUnplayed && !player.hasPlayed && !player.isPlaying(),
 		].some(Boolean);
 
 	const content = (

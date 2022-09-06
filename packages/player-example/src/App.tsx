@@ -50,8 +50,8 @@ const ControlsOnly: React.FC<{
 	setSpaceKeyToPlayOrPause: React.Dispatch<React.SetStateAction<boolean>>;
 	moveToBeginningWhenEnded: boolean;
 	setMoveToBeginningWhenEnded: React.Dispatch<React.SetStateAction<boolean>>;
-	showPosterWhenAtStart: boolean;
-	setShowPosterWhenAtStart: React.Dispatch<React.SetStateAction<boolean>>;
+	showPosterWhenUnplayed: boolean;
+	setshowPosterWhenUnplayed: React.Dispatch<React.SetStateAction<boolean>>;
 	showPosterWhenEnded: boolean;
 	setShowPosterWhenEnded: React.Dispatch<React.SetStateAction<boolean>>;
 	showPosterWhenPaused: boolean;
@@ -75,10 +75,10 @@ const ControlsOnly: React.FC<{
 	spaceKeyToPlayOrPause,
 	moveToBeginningWhenEnded,
 	setMoveToBeginningWhenEnded,
-	setShowPosterWhenAtStart,
+	setshowPosterWhenUnplayed,
 	setShowPosterWhenEnded,
 	setShowPosterWhenPaused,
-	showPosterWhenAtStart,
+	showPosterWhenUnplayed,
 	showPosterWhenEnded,
 	showPosterWhenPaused,
 }) => {
@@ -307,8 +307,11 @@ const ControlsOnly: React.FC<{
 				spaceKeyToPlayOrPause = {String(spaceKeyToPlayOrPause)}
 			</button>
 			<br />
-			<button type="button" onClick={() => setShowPosterWhenAtStart((l) => !l)}>
-				showPosterWhenAtStart = {String(showPosterWhenAtStart)}
+			<button
+				type="button"
+				onClick={() => setshowPosterWhenUnplayed((l) => !l)}
+			>
+				showPosterWhenUnplayed = {String(showPosterWhenUnplayed)}
 			</button>
 			<button type="button" onClick={() => setShowPosterWhenEnded((l) => !l)}>
 				showPosterWhenEnded = {String(showPosterWhenEnded)}
@@ -388,7 +391,7 @@ const PlayerOnly: React.FC<
 		moveToBeginningWhenEnded: boolean;
 		showPosterWhenPaused: boolean;
 		showPosterWhenEnded: boolean;
-		showPosterWhenAtStart: boolean;
+		showPosterWhenUnplayed: boolean;
 	} & CompProps<any>
 > = ({
 	playerRef,
@@ -402,7 +405,7 @@ const PlayerOnly: React.FC<
 	moveToBeginningWhenEnded,
 	showPosterWhenPaused,
 	showPosterWhenEnded,
-	showPosterWhenAtStart,
+	showPosterWhenUnplayed,
 	...props
 }) => {
 	const renderLoading: RenderLoading = useCallback(() => {
@@ -456,7 +459,7 @@ const PlayerOnly: React.FC<
 			moveToBeginningWhenEnded={moveToBeginningWhenEnded}
 			renderPoster={renderPoster}
 			initialFrame={30}
-			showPosterWhenAtStart={showPosterWhenAtStart}
+			showPosterWhenUnplayed={showPosterWhenUnplayed}
 			showPosterWhenEnded={showPosterWhenEnded}
 			showPosterWhenPaused={showPosterWhenPaused}
 		/>
@@ -479,7 +482,7 @@ export default ({
 	const [moveToBeginningWhenEnded, setMoveToBeginningWhenEnded] =
 		useState(true);
 	const [playbackRate, setPlaybackRate] = useState(1);
-	const [showPosterWhenAtStart, setShowPosterWhenAtStart] = useState(true);
+	const [showPosterWhenUnplayed, setshowPosterWhenUnplayed] = useState(true);
 	const [showPosterWhenEnded, setShowPosterWhenEnded] = useState(true);
 	const [showPosterWhenPaused, setShowPosterWhenPaused] = useState(true);
 
@@ -508,7 +511,7 @@ export default ({
 				playerRef={ref}
 				showPosterWhenEnded={showPosterWhenEnded}
 				showPosterWhenPaused={showPosterWhenPaused}
-				showPosterWhenAtStart={showPosterWhenAtStart}
+				showPosterWhenUnplayed={showPosterWhenUnplayed}
 			/>
 			<ControlsOnly
 				bgColor={bgColor}
@@ -529,10 +532,10 @@ export default ({
 				spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
 				title={title}
 				playerRef={ref}
-				setShowPosterWhenAtStart={setShowPosterWhenAtStart}
+				setshowPosterWhenUnplayed={setshowPosterWhenUnplayed}
 				setShowPosterWhenEnded={setShowPosterWhenEnded}
 				setShowPosterWhenPaused={setShowPosterWhenPaused}
-				showPosterWhenAtStart={showPosterWhenAtStart}
+				showPosterWhenUnplayed={showPosterWhenUnplayed}
 				showPosterWhenEnded={showPosterWhenEnded}
 				showPosterWhenPaused={showPosterWhenPaused}
 			/>
