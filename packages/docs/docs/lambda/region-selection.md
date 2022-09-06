@@ -28,12 +28,12 @@ There are 3 ways of selection a region:
 
 - When using the Node.JS APIs, you have to pass the region explicitly to each function. Make sure your projects satisfy the Typescript types or follow the documentation.
 
-- When using the CLI, you can set the region using the `AWS_REGION` environment variable. It's best to put it in a `.env` file so you don't forget it sometimes.
+- When using the CLI, you can set the region using the `REMOTION_AWS_REGION` environment variable. It's best to put it in a `.env` file so you don't forget it sometimes.
 
 - You can also pass the `--region` flag to all CLI commands to override the region. The flag takes precedence over the environment variable.
 
 :::info
-The AWS_REGION environment variable and `--region` flag do not work when using the Node.JS APIs. You need to pass a region explicitly.
+The REMOTION_AWS_REGION environment variable and `--region` flag do not have an effect when using the Node.JS APIs. You need to pass a region explicitly.
 :::
 
 If you don't set a region, Remotion will use the default region.
