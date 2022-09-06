@@ -8,6 +8,6 @@ export {Template} from './templates';
 
 export default () => {
 	throw new Error(
-		'create-video is a CLI tool only. Run `yarn create video` or `npm init video` instead!'
+		'create-video is a CLI tool only. Run `npm init video`, `pnpm create video` or `yarn create video` instead!'
 	);
 };
