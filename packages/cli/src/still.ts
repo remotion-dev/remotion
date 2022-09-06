@@ -72,6 +72,7 @@ export const still = async (remotionRoot: string) => {
 		overwrite,
 		puppeteerTimeout,
 		port,
+		publicDir,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'still',
@@ -140,7 +141,7 @@ export const still = async (remotionRoot: string) => {
 	].filter(truthy);
 
 	const {cleanup: cleanupBundle, urlOrBundle} = await bundleOnCliOrTakeServeUrl(
-		{fullPath, remotionRoot, steps}
+		{fullPath, remotionRoot, steps, publicDir}
 	);
 
 	const puppeteerInstance = await browserInstance;
