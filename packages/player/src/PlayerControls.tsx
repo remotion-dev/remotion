@@ -92,6 +92,8 @@ export const Controls: React.FC<{
 	allowFullscreen: boolean;
 	onExitFullscreenButtonClick: MouseEventHandler<HTMLButtonElement>;
 	spaceKeyToPlayOrPause: boolean;
+	onSeekEnd: () => void;
+	onSeekStart: () => void;
 }> = ({
 	durationInFrames,
 	hovered,
@@ -103,6 +105,8 @@ export const Controls: React.FC<{
 	allowFullscreen,
 	onExitFullscreenButtonClick,
 	spaceKeyToPlayOrPause,
+	onSeekEnd,
+	onSeekStart,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -181,7 +185,11 @@ export const Controls: React.FC<{
 				</div>
 			</div>
 			<div style={ySpacer} />
-			<PlayerSeekBar durationInFrames={durationInFrames} />
+			<PlayerSeekBar
+				onSeekEnd={onSeekEnd}
+				onSeekStart={onSeekStart}
+				durationInFrames={durationInFrames}
+			/>
 		</div>
 	);
 };

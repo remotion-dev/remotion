@@ -14,7 +14,7 @@ export const getAwsRegion = (): AwsRegion => {
 		return parsedLambdaCli.region;
 	}
 
-	const envVariable = process.env.AWS_REGION;
+	const envVariable = process.env.REMOTION_AWS_REGION ?? process.env.AWS_REGION;
 	if (envVariable) {
 		validateAwsRegion(envVariable);
 		return envVariable;

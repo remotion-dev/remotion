@@ -26,7 +26,7 @@ Selects an AWS region: For example:
 --region=eu-central-1
 ```
 
-The default region is `us-east-1`. You may also set a `AWS_REGION` environment variable directly or via `.env` file.
+The default region is `us-east-1`. You may also set a `REMOTION_AWS_REGION` environment variable directly or via `.env` file.
 
 See: [Region selection](/docs/lambda/region-selection)
 
