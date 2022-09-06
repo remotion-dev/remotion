@@ -6,7 +6,7 @@ slug: /lambda/region-selection
 
 import {LambdaRegionList} from '../../components/lambda/regions.tsx';
 
-Before starting with Remotion Lambda, you need to think about into which AWS region you are deploying your function and bucket.
+Before going live with Remotion Lambda, you need to think about into which AWS region you are deploying your function and bucket.
 
 This document explains how to select a region and which considerations you need to make.
 
@@ -29,6 +29,10 @@ There are 3 ways of selection a region:
 - When using the Node.JS APIs, you have to pass the region explicitly to each function. Make sure your projects satisfy the Typescript types or follow the documentation.
 
 - When using the CLI, you can set the region using the `REMOTION_AWS_REGION` environment variable. It's best to put it in a `.env` file so you don't forget it sometimes.
+
+:::info
+The variable is called `REMOTION_AWS_REGION` because in Cloud providers like Vercel, `AWS_REGION` is a reserved environment variable name. However, Remotion does also accept the latter if you use it locally.
+:::
 
 - You can also pass the `--region` flag to all CLI commands to override the region. The flag takes precedence over the environment variable.
 
