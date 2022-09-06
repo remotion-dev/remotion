@@ -44,6 +44,7 @@ export const downloadFile = ({
 					return resolve({sizeInBytes: downloaded, to});
 				});
 				writeStream.on('error', (err) => reject(err));
+				res.on('error', (err) => reject(err));
 				res.pipe(writeStream).on('error', (err) => reject(err));
 				res.on('data', (d) => {
 					downloaded += d.length;
