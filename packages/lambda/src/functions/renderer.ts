@@ -160,6 +160,7 @@ const renderHandler = async (
 			proResProfile: params.proResProfile,
 			onDownload: (src: string) => {
 				console.log('Downloading', src);
+				downloads[src] = 0;
 				return ({percent, downloaded}) => {
 					if (percent === null) {
 						console.log(
@@ -169,9 +170,9 @@ const renderHandler = async (
 					}
 
 					if (
-						!downloads[src] ||
 						// Only report every 10% change
-						(downloads[src] > percent - 0.1 && percent !== 1)
+						downloads[src] > percent - 0.1 &&
+						percent !== 1
 					) {
 						return;
 					}
