@@ -1,9 +1,10 @@
+import path from 'path';
 import {describe, expect, test} from 'vitest';
 import {validatePublicDir} from '../validate-public-dir';
 
 describe('validatePublicDir()', () => {
 	test('Should not allow root directory as public dir.', () => {
-		expect(() => validatePublicDir('/')).toThrow(
+		expect(() => validatePublicDir(path.parse(process.cwd()).root)).toThrow(
 			/which is the root directory. This is not allowed./
 		);
 	});
