@@ -36,6 +36,7 @@ const res = await fetch(
 );
 
 if (res.status !== 200) {
+  console.log(await res.text());
   process.exit(1);
 }
 

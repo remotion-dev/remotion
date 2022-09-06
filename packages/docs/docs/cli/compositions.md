@@ -45,6 +45,12 @@ If you don't feel like passing command line flags every time, consider creating 
 
 [Set a custom HTTP server port to host the Webpack bundle](/docs/config#setPort). If not defined, Remotion will try to find a free port.
 
+### `--public-dir`
+
+_Available from v3.2.13_
+
+[Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
+
 ### `--ffmpeg-executable`
 
 [Set a custom `ffmpeg` executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.

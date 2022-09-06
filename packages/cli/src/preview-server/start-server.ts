@@ -18,13 +18,14 @@ export const startServer = async (
 	entry: string,
 	userDefinedComponent: string,
 	options: {
-		webpackOverride?: WebpackOverrideFn;
+		webpackOverride: WebpackOverrideFn;
 		getCurrentInputProps: () => object;
 		envVariables?: Record<string, string>;
 		port: number | null;
 		maxTimelineTracks?: number;
 		remotionRoot: string;
 		keyboardShortcutsEnabled: boolean;
+		userPassedPublicDir: string | null;
 	}
 ): Promise<{
 	port: number;
@@ -83,6 +84,7 @@ export const startServer = async (
 					liveEventsServer,
 					getCurrentInputProps: options.getCurrentInputProps,
 					remotionRoot: options.remotionRoot,
+					userPassedPublicDir: options.userPassedPublicDir,
 				});
 			})
 			.catch((err) => {

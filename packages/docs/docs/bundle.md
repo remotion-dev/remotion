@@ -16,6 +16,8 @@ const bundle: (
     outDir?: string;
     enableCaching?: boolean;
     publicPath?: string;
+    rootDir?: string;
+    publicDir?: string | null;
   }
 ) => Promise<string>;
 ```
@@ -84,6 +86,12 @@ The directory in which the Remotion project is rooted in. This should be set to 
 :::note
 The current working directory is the directory from which your program gets executed from. It is not the same as the file where bundle() gets called.
 :::
+
+#### `publicDir?`
+
+_Available from v3.2.13_
+
+TODO!!!
 
 ## Return value
 

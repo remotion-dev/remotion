@@ -29,7 +29,7 @@ export type RenderLoading = (canvas: {
 	height: number;
 	width: number;
 }) => React.ReactChild;
-
+export type RenderPoster = RenderLoading;
 const reactVersion = React.version.split('.')[0];
 if (reactVersion === '0') {
 	throw new Error(
@@ -58,9 +58,13 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		mediaVolume: number;
 		errorFallback: ErrorFallback;
 		playbackRate: number;
-		renderLoading?: RenderLoading;
+		renderLoading: RenderLoading | undefined;
+		renderPoster: RenderPoster | undefined;
 		className: string | undefined;
 		moveToBeginningWhenEnded: boolean;
+		showPosterWhenPaused: boolean;
+		showPosterWhenEnded: boolean;
+		showPosterWhenUnplayed: boolean;
 	}
 > = (
 	{
@@ -81,8 +85,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		errorFallback,
 		playbackRate,
 		renderLoading,
+		renderPoster,
 		className,
 		moveToBeginningWhenEnded,
+		showPosterWhenUnplayed,
+		showPosterWhenEnded,
+		showPosterWhenPaused,
 	},
 	ref
 ) => {
@@ -98,6 +106,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [hasPausedToResume, setHasPausedToResume] = useState(false);
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
 	const [isFullscreen, setIsFullscreen] = useState(() => false);
+	const [seeking, setSeeking] = useState(false);
 
 	usePlayback({
 		loop,
@@ -406,6 +415,14 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		[toggle]
 	);
 
+	const onSeekStart = useCallback(() => {
+		setSeeking(true);
+	}, []);
+
+	const onSeekEnd = useCallback(() => {
+		setSeeking(false);
+	}, []);
+
 	const onDoubleClick = useCallback(() => {
 		if (isFullscreen) {
 			exitFullscreen();
@@ -431,6 +448,27 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		return null;
 	}
 
+	const poster = renderPoster
+		? renderPoster({
+				height: outerStyle.height as number,
+				width: outerStyle.width as number,
+		  })
+		: null;
+
+	if (poster === undefined) {
+		throw new TypeError(
+			'renderPoster() must return a React element, but undefined was returned'
+		);
+	}
+
+	const shouldShowPoster =
+		poster &&
+		[
+			showPosterWhenPaused && !player.isPlaying() && !seeking,
+			showPosterWhenEnded && player.isLastFrame && !player.isPlaying(),
+			showPosterWhenUnplayed && !player.hasPlayed && !player.isPlaying(),
+		].some(Boolean);
+
 	const content = (
 		<>
 			<div
@@ -449,6 +487,17 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					) : null}
 				</div>
 			</div>
+			{shouldShowPoster ? (
+				<div
+					style={outer}
+					onClick={clickToPlay ? handleClick : undefined}
+					onDoubleClick={
+						doubleClickToFullscreen ? handleDoubleClick : undefined
+					}
+				>
+					{poster}
+				</div>
+			) : null}
 			{controls ? (
 				<Controls
 					fps={config.fps}
@@ -461,6 +510,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					showVolumeControls={showVolumeControls}
 					onExitFullscreenButtonClick={onExitFullscreenButtonClick}
 					spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
+					onSeekEnd={onSeekEnd}
+					onSeekStart={onSeekStart}
 				/>
 			) : null}
 		</>

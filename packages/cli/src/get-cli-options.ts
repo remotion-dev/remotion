@@ -276,5 +276,6 @@ export const getCliOptions = async (options: {
 		muted: ConfigInternals.getMuted(),
 		enforceAudioTrack: ConfigInternals.getEnforceAudioTrack(),
 		keyboardShortcutsEnables: ConfigInternals.getKeyboardShortcutsEnabled(),
+		publicDir: ConfigInternals.getPublicDir(),
 	};
 };
