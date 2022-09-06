@@ -101,7 +101,13 @@ A regular `style` prop for a HTMLDivElement. You can pass a different height and
 
 _optional - available since v3.1.3_
 
-A HTML class name to be applied to the conainer.
+A HTML class name to be applied to the container.
+
+### `initialFrame`
+
+_optional - available since v3.1.14_
+
+Start the playback from a specific frame. Default `0`. Once the player is mounted, this property cannot be changed.
 
 ### `numberOfSharedAudioTags`
 
