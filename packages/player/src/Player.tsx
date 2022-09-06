@@ -23,7 +23,7 @@ import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import type {PlayerRef} from './player-methods';
-import type {RenderLoading} from './PlayerUI';
+import type {RenderLoading, RenderPoster} from './PlayerUI';
 import PlayerUI from './PlayerUI';
 import {validateInitialFrame} from './utils/validate-initial-frame';
 import {validatePlaybackRate} from './utils/validate-playbackrate';
@@ -60,6 +60,10 @@ export type PlayerProps<T> = {
 	moveToBeginningWhenEnded?: boolean;
 	className?: string;
 	initialFrame?: number;
+	renderPoster?: RenderPoster;
+	showPosterWhenPaused?: boolean;
+	showPosterWhenEnded?: boolean;
+	showPosterWhenAtStart?: boolean;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -95,7 +99,11 @@ export const PlayerFn = <T,>(
 		playbackRate = 1,
 		renderLoading,
 		className,
+		showPosterWhenAtStart,
+		showPosterWhenEnded,
+		showPosterWhenPaused,
 		initialFrame,
+		renderPoster,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -399,6 +407,10 @@ export const PlayerFn = <T,>(
 											spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
 											playbackRate={playbackRate}
 											className={className ?? undefined}
+											showPosterWhenAtStart={Boolean(showPosterWhenAtStart)}
+											showPosterWhenEnded={Boolean(showPosterWhenEnded)}
+											showPosterWhenPaused={Boolean(showPosterWhenPaused)}
+											renderPoster={renderPoster}
 										/>
 									</PlayerEventEmitterContext.Provider>
 								</Internals.SharedAudioContextProvider>
