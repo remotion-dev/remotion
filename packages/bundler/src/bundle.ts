@@ -44,6 +44,7 @@ export type BundleOptions = {
 	enableCaching?: boolean;
 	publicPath?: string;
 	rootDir?: string;
+	publicDir?: string | null;
 };
 
 export const getConfig = ({
@@ -122,8 +123,9 @@ export const bundle = async (
 			.filter(Boolean)
 			.join('/');
 
-	// TODO: Unhardcode public directory
-	const from = path.join(resolvedRemotionRoot, 'public');
+	const from = options?.publicDir
+		? path.resolve(resolvedRemotionRoot, options.publicDir)
+		: path.join(resolvedRemotionRoot, 'public');
 	const to = path.join(outDir, 'public');
 	if (fs.existsSync(from)) {
 		await copyDir(from, to);

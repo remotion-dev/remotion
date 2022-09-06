@@ -69,6 +69,22 @@ Config.Bundling.setPort(3003);
 
 The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option.
 
+### setPublicDir()
+
+_Available from v3.2.13_
+
+Define the location of the `public/` directory.  
+By default it is a folder named "public" inside the current working directory.  
+You can either set an absolute path, or a relative path that will be resolved from the closest package.json location.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Bundling.setPublicDir("./publico");
+```
+
+The [command line flag](/docs/cli/render#--public-dir) `--public-dir` will take precedence over this option.
+
 ## Log
 
 ### setLevel()
