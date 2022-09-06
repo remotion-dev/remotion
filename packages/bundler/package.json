@@ -18,7 +18,6 @@
 	},
 	"files": [
 		"dist",
-		"web",
 		"react-shim.js"
 	],
 	"author": "",
