@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import execa from 'execa';
 import {degit} from './degit';
+import {getLatestRemotionVersion} from './latest-remotion-version';
 import {Log} from './log';
 import {openInEditorFlow} from './open-in-editor-flow';
 import {patchPackageJson} from './patch-package-json';
@@ -48,6 +49,7 @@ const initGitRepoAsync = async (root: string): Promise<void> => {
 export const init = async () => {
 	const [projectRoot, folderName] = await resolveProjectRoot();
 	await isGitExecutableAvailable();
+	const latestRemotionVersionPromise = getLatestRemotionVersion();
 
 	const selectedTemplate = await selectTemplate();
 
@@ -60,7 +62,12 @@ export const init = async () => {
 			dest: projectRoot,
 		});
 		patchReadmeMd(projectRoot, pkgManager);
-		patchPackageJson(projectRoot, folderName);
+		const latestVersion = await latestRemotionVersionPromise;
+		patchPackageJson({
+			projectRoot,
+			projectName: folderName,
+			latestRemotionVersion: latestVersion,
+		});
 	} catch (e) {
 		Log.error(e);
 		Log.error('Error with template cloning. Aborting');
