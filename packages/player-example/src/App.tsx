@@ -4,6 +4,7 @@ import {
 	Player,
 	PlayerRef,
 	RenderLoading,
+	RenderPoster,
 } from '@remotion/player';
 import React, {
 	ComponentType,
@@ -49,6 +50,12 @@ const ControlsOnly: React.FC<{
 	setSpaceKeyToPlayOrPause: React.Dispatch<React.SetStateAction<boolean>>;
 	moveToBeginningWhenEnded: boolean;
 	setMoveToBeginningWhenEnded: React.Dispatch<React.SetStateAction<boolean>>;
+	showPosterWhenAtStart: boolean;
+	setShowPosterWhenAtStart: React.Dispatch<React.SetStateAction<boolean>>;
+	showPosterWhenEnded: boolean;
+	setShowPosterWhenEnded: React.Dispatch<React.SetStateAction<boolean>>;
+	showPosterWhenPaused: boolean;
+	setShowPosterWhenPaused: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	playerRef: ref,
 	color,
@@ -68,6 +75,12 @@ const ControlsOnly: React.FC<{
 	spaceKeyToPlayOrPause,
 	moveToBeginningWhenEnded,
 	setMoveToBeginningWhenEnded,
+	setShowPosterWhenAtStart,
+	setShowPosterWhenEnded,
+	setShowPosterWhenPaused,
+	showPosterWhenAtStart,
+	showPosterWhenEnded,
+	showPosterWhenPaused,
 }) => {
 	const [logs, setLogs] = useState<string[]>(() => []);
 
@@ -294,6 +307,16 @@ const ControlsOnly: React.FC<{
 				spaceKeyToPlayOrPause = {String(spaceKeyToPlayOrPause)}
 			</button>
 			<br />
+			<button type="button" onClick={() => setShowPosterWhenAtStart((l) => !l)}>
+				showPosterWhenAtStart = {String(showPosterWhenAtStart)}
+			</button>
+			<button type="button" onClick={() => setShowPosterWhenEnded((l) => !l)}>
+				showPosterWhenEnded = {String(showPosterWhenEnded)}
+			</button>
+			<button type="button" onClick={() => setShowPosterWhenPaused((l) => !l)}>
+				showPosterWhenPaused = {String(showPosterWhenPaused)}
+			</button>
+			<br />
 
 			<button
 				type="button"
@@ -363,6 +386,9 @@ const PlayerOnly: React.FC<
 		playbackRate: number;
 		spaceKeyToPlayOrPause: boolean;
 		moveToBeginningWhenEnded: boolean;
+		showPosterWhenPaused: boolean;
+		showPosterWhenEnded: boolean;
+		showPosterWhenAtStart: boolean;
 	} & CompProps<any>
 > = ({
 	playerRef,
@@ -374,14 +400,23 @@ const PlayerOnly: React.FC<
 	playbackRate,
 	spaceKeyToPlayOrPause,
 	moveToBeginningWhenEnded,
+	showPosterWhenPaused,
+	showPosterWhenEnded,
+	showPosterWhenAtStart,
 	...props
 }) => {
-	console.log('rerender');
 	const renderLoading: RenderLoading = useCallback(() => {
 		return (
 			<AbsoluteFill style={{backgroundColor: 'yellow'}}>
 				<Loading size={200} />
 				<div>Loading for 3 seconds...</div>
+			</AbsoluteFill>
+		);
+	}, []);
+	const renderPoster: RenderPoster = useCallback(() => {
+		return (
+			<AbsoluteFill style={{backgroundColor: 'yellow'}}>
+				<div>Click to play</div>
 			</AbsoluteFill>
 		);
 	}, []);
@@ -419,6 +454,11 @@ const PlayerOnly: React.FC<
 			playbackRate={playbackRate}
 			spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
 			moveToBeginningWhenEnded={moveToBeginningWhenEnded}
+			renderPoster={renderPoster}
+			initialFrame={30}
+			showPosterWhenAtStart={showPosterWhenAtStart}
+			showPosterWhenEnded={showPosterWhenEnded}
+			showPosterWhenPaused={showPosterWhenPaused}
 		/>
 	);
 };
@@ -439,6 +479,9 @@ export default ({
 	const [moveToBeginningWhenEnded, setMoveToBeginningWhenEnded] =
 		useState(true);
 	const [playbackRate, setPlaybackRate] = useState(1);
+	const [showPosterWhenAtStart, setShowPosterWhenAtStart] = useState(true);
+	const [showPosterWhenEnded, setShowPosterWhenEnded] = useState(true);
+	const [showPosterWhenPaused, setShowPosterWhenPaused] = useState(true);
 
 	const ref = useRef<PlayerRef>(null);
 
@@ -463,6 +506,9 @@ export default ({
 				playbackRate={playbackRate}
 				spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
 				playerRef={ref}
+				showPosterWhenEnded={showPosterWhenEnded}
+				showPosterWhenPaused={showPosterWhenPaused}
+				showPosterWhenAtStart={showPosterWhenAtStart}
 			/>
 			<ControlsOnly
 				bgColor={bgColor}
@@ -483,6 +529,12 @@ export default ({
 				spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
 				title={title}
 				playerRef={ref}
+				setShowPosterWhenAtStart={setShowPosterWhenAtStart}
+				setShowPosterWhenEnded={setShowPosterWhenEnded}
+				setShowPosterWhenPaused={setShowPosterWhenPaused}
+				showPosterWhenAtStart={showPosterWhenAtStart}
+				showPosterWhenEnded={showPosterWhenEnded}
+				showPosterWhenPaused={showPosterWhenPaused}
 			/>
 		</div>
 	);
