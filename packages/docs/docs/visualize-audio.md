@@ -21,6 +21,9 @@ The only argument for this function is an object containing the following values
 
 - `numberOfSamples`: `number` - must be a power of two, such as `32`, `64`, `128`, etc. This parameter controls the length of the output array. A lower number will simplify the spectrum and is useful if you want to animate elements roughly based on the level of lows, mids and highs. A higher number will give the spectrum in more detail, which is useful for displaying a bar chart or waveform-style visualization of the audio.
 
+- `smoothing`: `boolean` - when set to `true` the returned values will be an average of the current, previous and next frames. The result is a smoother transition for quickly changing values. Default value is `true`.
+
+
 ## Return value
 
 `number[]` - An array of values describing the amplitude of each frequency range. Each value is between 0 and 1. The array is of length defined by the `numberOfSamples` parameter.
