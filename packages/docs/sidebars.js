@@ -332,6 +332,7 @@ module.exports = {
             "miscellaneous/snippets/player-in-iframe",
             "miscellaneous/snippets/fps-converter",
             "miscellaneous/snippets/adding-animations",
+            "miscellaneous/snippets/offthread-video-while-rendering",
           ],
         },
       ],
