@@ -27,6 +27,7 @@ import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
+import {TwoChannelVoiceVisualization} from './voice-visualization/two-channel';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -421,6 +422,26 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={180 * 30}
 				/>
+				<Folder name="VoiceVisualization">
+					<Composition
+						id="rolling-waveform"
+						lazyComponent={() => import('./voice-visualization')}
+						width={1080}
+						height={1080}
+						fps={30}
+						durationInFrames={30 * 30}
+						defaultProps={{}}
+					/>
+					<Composition
+						id="twochannel"
+						component={TwoChannelVoiceVisualization}
+						width={1080}
+						height={1080}
+						fps={30}
+						durationInFrames={30 * 30}
+						defaultProps={{}}
+					/>
+				</Folder>
 			</Folder>
 			<Folder name="three">
 				<Still id="Orb" component={OrbScene} width={2000} height={2000} />

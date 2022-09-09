@@ -135,6 +135,8 @@ export const AudioWaveform: React.FC<{
 			startTimeInSeconds: startFrom / fps,
 			durationInSeconds: durationInFrames / fps,
 			numberOfSamples,
+			channel: 0,
+			outputRange: 'zero-to-one',
 		});
 	}, [durationInFrames, fps, metadata, startFrom, visualizationWidth]);
 
