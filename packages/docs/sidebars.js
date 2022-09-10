@@ -321,16 +321,16 @@ module.exports = {
         "miscellaneous/typescript-aliases",
         "miscellaneous/render-all",
         "miscellaneous/render-in-browser",
-        {
-          type: "category",
-          label: "Snippets",
-          items: [
-            "miscellaneous/snippets/player-in-iframe",
-            "miscellaneous/snippets/fps-converter",
-            "miscellaneous/snippets/adding-animations",
-            "miscellaneous/snippets/offthread-video-while-rendering",
-          ],
-        },
+      ],
+    },
+    {
+      type: "category",
+      label: "Snippets",
+      items: [
+        "miscellaneous/snippets/player-in-iframe",
+        "miscellaneous/snippets/fps-converter",
+        "miscellaneous/snippets/adding-animations",
+        "miscellaneous/snippets/offthread-video-while-rendering",
       ],
     },
     "3-0-migration",
