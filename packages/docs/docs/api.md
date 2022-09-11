@@ -2,6 +2,6 @@
 title: API overview
 ---
 
-import {TableOfContents} from '../components/TableOfContents';
+import {TableOfContents} from '../components/TableOfContents/api';
 
 <TableOfContents />

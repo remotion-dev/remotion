@@ -7,13 +7,17 @@
 
 .item {
   padding: 18px;
-  box-shadow: var(--box-shadow);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
 }
 
 .link {
   text-decoration: none !important;
   color: inherit;
+}
+
+.link code {
+  color: #0b84f3;
 }
 
 @media screen and (max-width: 900px) {
