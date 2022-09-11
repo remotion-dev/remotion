@@ -1,8 +1,9 @@
 module.exports = {
   apiSidebar: [
+    "api",
     {
       type: "category",
-      label: "CLI",
+      label: "Command line",
       link: {
         type: "doc",
         id: "cli/cli",
@@ -28,9 +29,12 @@ module.exports = {
       type: "category",
       label: "remotion",
       items: [
+        "use-current-frame",
+        "use-video-config",
+        "composition",
+        "interpolate",
         "continue-render",
         "delay-render",
-        "interpolate",
         "interpolate-colors",
         "get-input-props",
         "measure-spring",
@@ -38,10 +42,7 @@ module.exports = {
         "register-root",
         "spring",
         "staticfile",
-        "use-current-frame",
-        "use-video-config",
         "audio",
-        "composition",
         "sequence",
         "loop",
         "video",
@@ -78,8 +79,11 @@ module.exports = {
     {
       type: "category",
       label: "@remotion/lambda",
+      link: {
+        type: "doc",
+        id: "lambda",
+      },
       items: [
-        "lambda",
         {
           type: "category",
           label: "CLI",

@@ -32,7 +32,7 @@ module.exports = {
 
         },
         {
-          to: "/docs/sequence",
+          to: "/docs/api",
           label: "API",
           position: "left",
           type: "docSidebar",
