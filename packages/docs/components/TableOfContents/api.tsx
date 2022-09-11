@@ -32,6 +32,14 @@ export const TableOfContents: React.FC = () => {
           <strong>@remotion/bundler</strong>
           <div>Create a Webpack bundle from Node.JS</div>
         </TOCItem>
+        <TOCItem link="/docs/player">
+          <strong>@remotion/player</strong>
+          <div>Play a Remotion video in the browser</div>
+        </TOCItem>
+        <TOCItem link="/docs/lambda">
+          <strong>@remotion/lambda</strong>
+          <div>Render videos and stills on AWS Lambda</div>
+        </TOCItem>
         <TOCItem link="/docs/gif">
           <strong>@remotion/gif</strong>
           <div>Include a GIF in your video</div>
@@ -39,14 +47,6 @@ export const TableOfContents: React.FC = () => {
         <TOCItem link="/docs/media-utils">
           <strong>@remotion/media-utils</strong>
           <div>Obtain info about video and audio</div>
-        </TOCItem>
-        <TOCItem link="/docs/lambda">
-          <strong>@remotion/lambda</strong>
-          <div>Render videos and stills on AWS Lambda</div>
-        </TOCItem>
-        <TOCItem link="/docs/player">
-          <strong>@remotion/player</strong>
-          <div>Play a Remotion video in the browser</div>
         </TOCItem>
         <TOCItem link="/docs/three">
           <strong>@remotion/three</strong>

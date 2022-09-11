@@ -96,6 +96,24 @@ module.exports = {
     },
     {
       type: "category",
+      link: {
+        type: "doc",
+        id: "player/player",
+      },
+      label: "@remotion/player",
+      items: [
+        "player/installation",
+        "player/examples",
+        "player/api",
+        "player/scaling",
+        "player/integration",
+        "player/autoplay",
+        "player/preloading",
+        "player/best-practices",
+      ],
+    },
+    {
+      type: "category",
       label: "@remotion/lambda",
       link: {
         type: "doc",
@@ -185,24 +203,6 @@ module.exports = {
         "get-waveform-portion",
         "use-audio-data",
         "visualize-audio",
-      ],
-    },
-    {
-      type: "category",
-      link: {
-        type: "doc",
-        id: "player/player",
-      },
-      label: "@remotion/player",
-      items: [
-        "player/installation",
-        "player/examples",
-        "player/api",
-        "player/scaling",
-        "player/integration",
-        "player/autoplay",
-        "player/preloading",
-        "player/best-practices",
       ],
     },
     {
