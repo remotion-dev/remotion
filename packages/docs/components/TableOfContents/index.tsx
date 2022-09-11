@@ -56,7 +56,7 @@ export const TableOfContents: React.FC = () => {
             </div>
           </div>
         </Link>
-        <Link to="/docs/audio-buffer-to-data-url" className={styles.link}>
+        <Link to="/docs/media-utils" className={styles.link}>
           <div className={styles.item}>
             <div>
               <strong>@remotion/media-utils</strong>
