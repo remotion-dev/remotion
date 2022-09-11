@@ -1,0 +1,23 @@
+.containerrow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 15px;
+  margin-bottom: 30px;
+}
+
+.item {
+  padding: 18px;
+  box-shadow: var(--box-shadow);
+  border-radius: 10px;
+}
+
+.link {
+  text-decoration: none !important;
+  color: inherit;
+}
+
+@media screen and (max-width: 900px) {
+  .containerrow {
+    grid-template-columns: 1fr;
+  }
+}
