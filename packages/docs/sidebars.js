@@ -356,6 +356,11 @@ module.exports = {
         "miscellaneous/snippets/offthread-video-while-rendering",
       ],
     },
+    {
+      type: "link",
+      href: "/docs/api",
+      label: "API Reference",
+    },
     "3-0-migration",
     "2-0-migration",
     "license",
