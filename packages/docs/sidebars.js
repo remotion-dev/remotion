@@ -8,6 +8,7 @@ module.exports = {
         type: "doc",
         id: "cli/cli",
       },
+
       collapsed: true,
       items: [
         "cli/preview",
@@ -26,8 +27,18 @@ module.exports = {
     },
     "config",
     {
+      type: "html",
+      value:
+        '<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
+      defaultStyle: true, // Use the default menu item styling
+    },
+    {
       type: "category",
       label: "remotion",
+      link: {
+        type: "doc",
+        id: "remotion",
+      },
       items: [
         "use-current-frame",
         "use-video-config",

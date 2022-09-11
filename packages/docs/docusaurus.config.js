@@ -29,7 +29,6 @@ module.exports = {
           position: "left",
           type: "docSidebar",
           sidebarId: "mainSidebar",
-
         },
         {
           to: "/docs/api",
@@ -76,7 +75,7 @@ module.exports = {
             },
             {
               label: "API Reference",
-              to: "/docs/cli",
+              to: "/docs/api",
             },
             {
               label: "Player",
