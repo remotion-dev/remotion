@@ -28,7 +28,7 @@ export const TableOfContents: React.FC = () => {
             <code>interpolate()</code>, etc.
           </div>
         </TOCItem>
-        <TOCItem link="/docs/bundle">
+        <TOCItem link="/docs/bundler">
           <strong>@remotion/bundler</strong>
           <div>Create a Webpack bundle from Node.JS</div>
         </TOCItem>
