@@ -77,22 +77,21 @@ module.exports = {
       },
       items: ["bundle"],
     },
-    "gif",
     {
       type: "category",
-      label: "@remotion/media-utils",
       link: {
         type: "doc",
-        id: "media-utils/index",
+        id: "renderer",
       },
+      label: "@remotion/renderer",
       items: [
-        "audio-buffer-to-data-url",
-        "get-audio-data",
-        "get-audio-duration-in-seconds",
-        "get-video-metadata",
-        "get-waveform-portion",
-        "use-audio-data",
-        "visualize-audio",
+        "renderer/get-compositions",
+        "renderer/render-media",
+        "renderer/render-frames",
+        "renderer/render-still",
+        "renderer/stitch-frames-to-video",
+        "renderer/open-browser",
+        "renderer/make-cancel-signal",
       ],
     },
     {
@@ -170,6 +169,24 @@ module.exports = {
         "lambda/uninstall",
       ],
     },
+    "gif",
+    {
+      type: "category",
+      label: "@remotion/media-utils",
+      link: {
+        type: "doc",
+        id: "media-utils/index",
+      },
+      items: [
+        "audio-buffer-to-data-url",
+        "get-audio-data",
+        "get-audio-duration-in-seconds",
+        "get-video-metadata",
+        "get-waveform-portion",
+        "use-audio-data",
+        "visualize-audio",
+      ],
+    },
     {
       type: "category",
       link: {
@@ -233,23 +250,6 @@ module.exports = {
         "preload/preload-video",
         "preload/preload-audio",
         "preload/resolve-redirect",
-      ],
-    },
-    {
-      type: "category",
-      link: {
-        type: "doc",
-        id: "renderer",
-      },
-      label: "@remotion/renderer",
-      items: [
-        "renderer/get-compositions",
-        "renderer/render-media",
-        "renderer/render-frames",
-        "renderer/render-still",
-        "renderer/stitch-frames-to-video",
-        "renderer/open-browser",
-        "renderer/make-cancel-signal",
       ],
     },
     {
