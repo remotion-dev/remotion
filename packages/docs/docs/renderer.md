@@ -6,6 +6,7 @@ title: "@remotion/renderer"
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import {TableOfContents} from '../components/TableOfContents/renderer';
 
 The `@remotion/renderer` package provides APIs for rendering video server-side.
 The package is also internally used by the Remotion CLI and [Remotion Lambda](/docs/lambda).
@@ -63,13 +64,7 @@ See the [Server-side rendering](/docs/ssr) for some examples of how to use serve
 
 The following APIs are available in the `@remotion/renderer` package:
 
-- [`getCompositions()`](/docs/renderer/get-compositions) - Get a list of available compositions from a Remotion project.
-- [`renderMedia()`](/docs/renderer/render-media) - Render a video or audio
-- [`renderFrames()`](/docs/renderer/render-frames) - Render an image sequence
-- [`renderStill()`](/docs/renderer/render-still) - Render a still image
-- [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video) - Encode a video based on an image sequence
-- [`openBrowser()`](/docs/renderer/open-browser) - Share a browser instance across function calls for even better performance.
-- [`makeCancelSignal()`](/docs/renderer/make-cancel-signal) - Returns a token that allows a render to be cancelled.
+<TableOfContents />
 
 ## What's the difference between `renderMedia()` and `renderFrames()`?
 
