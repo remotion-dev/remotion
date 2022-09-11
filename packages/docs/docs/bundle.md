@@ -5,7 +5,7 @@ title: bundle()
 
 _Part of the `@remotion/bundler` package._
 
-Bundles a Remotion project using Webpack and prepares it for render using [`renderMedia()`](/docs/renderer/render-media).
+Bundles a Remotion project using Webpack and prepares it for rendering using [`renderMedia()`](/docs/renderer/render-media).
 
 ```ts
 const bundle: (
