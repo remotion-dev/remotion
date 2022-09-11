@@ -24,14 +24,29 @@ module.exports = {
       },
       items: [
         {
-          to: "docs/",
-          activeBasePath: "docs",
+          to: "/docs",
           label: "Docs",
           position: "left",
+          type: "docSidebar",
+          sidebarId: "mainSidebar",
+        },
+        {
+          to: "/docs/api",
+          label: "API",
+          position: "left",
+          type: "docSidebar",
+          sidebarId: "apiSidebar",
         },
         { to: "blog", label: "Blog", position: "left" },
         { to: "showcase", label: "Showcase", position: "left" },
         { to: "/docs/license", label: "Licensing", position: "left" },
+        {
+          href: "https://twitter.com/remotion_dev",
+          label: "Twitter",
+          position: "right",
+          "data-splitbee-event": "External Link",
+          "data-splitbee-event-target": "Twitter",
+        },
         {
           href: "https://remotion.dev/discord",
           label: "Discord",
@@ -60,7 +75,7 @@ module.exports = {
             },
             {
               label: "API Reference",
-              to: "/docs/cli",
+              to: "/docs/api",
             },
             {
               label: "Player",

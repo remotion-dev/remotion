@@ -38,7 +38,7 @@ const MyVideo = () => {
 
 Using `<Sequence />`'s, you can compose multiple elements together and time-shift them independently from each other without changing their animation.
 
-### Getting the absolute frame of the timeline
+### Getting the absolute frame of the timeline
 
 In rare circumstances, you want access to the absolute frame of the timeline inside a sequence, use `useCurrentFrame()` at the top-level component and then pass it down as a prop to the children of the `<Sequence />`.
 

@@ -44,6 +44,11 @@
       "source": "/paths",
       "destination": "https://remotion.dev/docs/paths",
       "permanent": false
+    },
+    {
+      "source": "/paths",
+      "destination": "https://remotion.dev/docs/api",
+      "permanent": false
     }
   ]
 }
