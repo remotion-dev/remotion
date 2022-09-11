@@ -71,6 +71,10 @@ module.exports = {
     {
       type: "category",
       label: "@remotion/bundler",
+      link: {
+        type: "doc",
+        id: "bundler",
+      },
       items: ["bundle"],
     },
     "gif",
