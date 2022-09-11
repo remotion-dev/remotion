@@ -46,7 +46,7 @@
       "permanent": false
     },
     {
-      "source": "/paths",
+      "source": "/api",
       "destination": "https://remotion.dev/docs/api",
       "permanent": false
     }
