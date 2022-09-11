@@ -66,6 +66,10 @@ module.exports = {
     {
       type: "category",
       label: "@remotion/media-utils",
+      link: {
+        type: "doc",
+        id: "media-utils/index",
+      },
       items: [
         "audio-buffer-to-data-url",
         "get-audio-data",
