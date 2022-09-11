@@ -73,13 +73,13 @@ export const TableOfContents: React.FC = () => {
         <TOCItem link="/docs/video">
           <strong>{"<Video>"}</strong>
           <div>
-            Synchronize a <code>{"<video>"}</code> with Remotion's time
+            Synchronize a <code>{"<video>"}</code> with Remotion{"'"}s time
           </div>
         </TOCItem>
         <TOCItem link="/docs/audio">
           <strong>{"<Audio>"}</strong>
           <div>
-            Synchronize <code>{"<audio>"}</code> with Remotion's time
+            Synchronize <code>{"<audio>"}</code> with Remotion{"'"}s time
           </div>
         </TOCItem>
         <TOCItem link="/docs/offthreadvideo">
@@ -100,7 +100,7 @@ export const TableOfContents: React.FC = () => {
       <Grid>
         <TOCItem link="/docs/sequence">
           <strong>{"<Sequence>"}</strong>
-          <div>Time-shifts it's children</div>
+          <div>Time-shifts it{"'"}s children</div>
         </TOCItem>
         <TOCItem link="/docs/series">
           <strong>{"<Series>"}</strong>
