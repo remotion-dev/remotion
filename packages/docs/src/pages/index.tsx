@@ -10,7 +10,6 @@ import { FreePricing } from "../../components/LandingPage/FreePricing";
 import { IfYouKnowReact } from "../../components/LandingPage/if-you-know-react";
 import { Parametrize } from "../../components/LandingPage/parametrize";
 import { RealMP4Videos } from "../../components/LandingPage/real-mp4-videos";
-import { SuccessFeatures } from "../../components/LandingPage/SuccessFeatures";
 import { WriteInReact } from "../../components/LandingPage/WriteInReact";
 import styles from "./landing.module.css";
 
