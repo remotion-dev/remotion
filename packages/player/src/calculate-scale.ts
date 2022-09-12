@@ -2,10 +2,10 @@ import type {PreviewSize} from './utils/preview-size';
 import type {Size} from './utils/use-element-size';
 
 export const calculateScale = ({
-	previewSize,
-	compositionWidth,
-	compositionHeight,
 	canvasSize,
+	compositionHeight,
+	compositionWidth,
+	previewSize,
 }: {
 	previewSize: PreviewSize;
 	compositionWidth: number;
@@ -17,7 +17,27 @@ export const calculateScale = ({
 
 	const ratio = Math.min(heightRatio, widthRatio);
 
-	const scale = previewSize === 'auto' ? ratio : Number(previewSize);
+	return previewSize === 'auto' ? ratio : Number(previewSize);
+};
+
+export const calculateCanvasTransformation = ({
+	previewSize,
+	compositionWidth,
+	compositionHeight,
+	canvasSize,
+}: {
+	previewSize: PreviewSize;
+	compositionWidth: number;
+	compositionHeight: number;
+	canvasSize: Size;
+}) => {
+	const scale = calculateScale({
+		canvasSize,
+		compositionHeight,
+		compositionWidth,
+		previewSize,
+	});
+
 	const correction = 0 - (1 - scale) / 2;
 	const xCorrection = correction * compositionWidth;
 	const yCorrection = correction * compositionHeight;

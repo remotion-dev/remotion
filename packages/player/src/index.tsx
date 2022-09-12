@@ -1,4 +1,4 @@
-import {calculateScale} from './calculate-scale';
+import {calculateCanvasTransformation} from './calculate-scale';
 import {PlayerEventEmitterContext} from './emitter-context';
 import type {CallbackListener, EventTypes} from './event-emitter';
 import {PlayerEmitter} from './event-emitter';
@@ -20,7 +20,7 @@ export const PlayerInternals = {
 	usePlayer,
 	usePlayback,
 	useElementSize,
-	calculateScale,
+	calculateScale: calculateCanvasTransformation,
 	useHoverState,
 	updateAllElementsSizes,
 };

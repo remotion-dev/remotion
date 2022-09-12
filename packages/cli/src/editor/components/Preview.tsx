@@ -8,6 +8,7 @@ import {
 	getCheckerboardBackgroundPos,
 	getCheckerboardBackgroundSize,
 } from '../helpers/checkerboard-background';
+import {getEffectiveTranslation} from '../helpers/get-effective-translation';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
 
@@ -60,6 +61,16 @@ const Inner: React.FC<{
 			previewSize,
 		});
 
+	const effectiveTranslation = useMemo(() => {
+		return getEffectiveTranslation({
+			canvasSize,
+			scale,
+			translation,
+			compositionHeight: config.height,
+			compositionWidth: config.width,
+		});
+	}, [canvasSize, config, scale, translation]);
+
 	const outer: React.CSSProperties = useMemo(() => {
 		return {
 			width: config.width * scale,
@@ -67,8 +78,8 @@ const Inner: React.FC<{
 			display: 'flex',
 			flexDirection: 'column',
 			position: 'absolute',
-			left: centerX - translation.x,
-			top: centerY - translation.y,
+			left: centerX - effectiveTranslation.x,
+			top: centerY - effectiveTranslation.y,
 			overflow: 'hidden',
 		};
 	}, [
@@ -76,9 +87,9 @@ const Inner: React.FC<{
 		centerY,
 		config.height,
 		config.width,
+		effectiveTranslation.x,
+		effectiveTranslation.y,
 		scale,
-		translation.x,
-		translation.y,
 	]);
 
 	const style = useMemo((): React.CSSProperties => {
