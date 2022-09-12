@@ -37,9 +37,19 @@ module.exports = {
           type: "docSidebar",
           sidebarId: "apiSidebar",
         },
-        { to: "blog", label: "Blog", position: "left" },
-        { to: "showcase", label: "Showcase", position: "left" },
-        { to: "/docs/license", label: "Licensing", position: "left" },
+        { to: "/docs/license", label: "Pricing", position: "left" },
+        {
+          type: 'dropdown',
+          label: 'More',
+          position: 'left',
+          items: [
+            { to: "blog", label: "Blog",  },
+            { to: "showcase", label: "Showcase",  },
+            { to: "experts", label: "Experts",  },
+            { to: "about", label: "About",  },
+            { to: "success-stories", label: "Success Stories",  },
+          ],
+        },
         {
           href: "https://twitter.com/remotion_dev",
           label: "Twitter",
