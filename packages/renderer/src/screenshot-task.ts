@@ -47,7 +47,7 @@ export const _screenshotTask = async (
 		if ((err as Error).message.includes('Unable to capture screenshot')) {
 			const errMessage = [
 				'Could not take a screenshot because Google Chrome ran out of memory or disk space.',
-				process?.env?.REMOTION_LAMBDA
+				process?.env?.__RESERVED_IS_INSIDE_REMOTION_LAMBDA
 					? 'Deploy a new Lambda function with more memory or disk space.'
 					: 'Decrease the concurrency to use less RAM.',
 			].join(' ');

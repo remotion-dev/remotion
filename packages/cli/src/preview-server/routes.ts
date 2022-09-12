@@ -185,6 +185,7 @@ export const handleRoutes = ({
 	liveEventsServer,
 	getCurrentInputProps,
 	remotionRoot,
+	userPassedPublicDir,
 }: {
 	hash: string;
 	hashPrefix: string;
@@ -193,6 +194,7 @@ export const handleRoutes = ({
 	liveEventsServer: LiveEventsServer;
 	getCurrentInputProps: () => object;
 	remotionRoot: string;
+	userPassedPublicDir: string | null;
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -226,8 +228,10 @@ export const handleRoutes = ({
 	}
 
 	if (url.pathname.startsWith(hash)) {
-		const root = path.join(remotionRoot, 'public');
-		return serveStatic(root, hash, request, response);
+		const publicDir = userPassedPublicDir
+			? path.resolve(remotionRoot, userPassedPublicDir)
+			: path.join(remotionRoot, 'public');
+		return serveStatic(publicDir, hash, request, response);
 	}
 
 	if (url.pathname.startsWith(hashPrefix)) {

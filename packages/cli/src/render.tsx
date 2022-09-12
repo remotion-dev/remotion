@@ -78,6 +78,7 @@ export const render = async (remotionRoot: string) => {
 		puppeteerTimeout,
 		muted,
 		enforceAudioTrack,
+		publicDir,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -130,6 +131,7 @@ export const render = async (remotionRoot: string) => {
 			fullPath,
 			remotionRoot,
 			steps,
+			publicDir,
 		}
 	);
 

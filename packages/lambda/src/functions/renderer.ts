@@ -7,7 +7,7 @@ import {getLambdaClient} from '../shared/aws-clients';
 import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
 import {
 	chunkKeyForIndex,
-	lambdaInitializedKey,
+	lambdaChunkInitializedKey,
 	LambdaRoutines,
 	lambdaTimingsKey,
 	RENDERER_PATH_TOKEN,
@@ -78,6 +78,8 @@ const renderHandler = async (
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
+	const downloads: Record<string, number> = {};
+
 	await new Promise<void>((resolve, reject) => {
 		renderMedia({
 			composition: {
@@ -124,7 +126,7 @@ const renderHandler = async (
 						tmpSize: getFolderSizeRecursively('/tmp'),
 						tmpDirFiles: getFolderFiles('/tmp'),
 					}),
-					key: lambdaInitializedKey({
+					key: lambdaChunkInitializedKey({
 						renderId: params.renderId,
 						chunk: params.chunk,
 						attempt: params.attempt,
@@ -158,7 +160,33 @@ const renderHandler = async (
 			proResProfile: params.proResProfile,
 			onDownload: (src: string) => {
 				console.log('Downloading', src);
-				return () => undefined;
+				downloads[src] = 0;
+				return ({percent, downloaded}) => {
+					if (percent === null) {
+						console.log(
+							`Download progress (${src}): ${downloaded} bytes. Don't know final size of download, no Content-Length header.`
+						);
+						return;
+					}
+
+					if (
+						// Only report every 10% change
+						downloads[src] > percent - 0.1 &&
+						percent !== 1
+					) {
+						return;
+					}
+
+					downloads[src] = percent;
+					console.log(
+						`Download progress (${src}): ${downloaded} bytes, ${(
+							percent * 100
+						).toFixed(1)}%`
+					);
+					if (percent === 1) {
+						console.log(`Download complete: ${src}`);
+					}
+				};
 			},
 			overwrite: false,
 			chromiumOptions: params.chromiumOptions,

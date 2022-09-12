@@ -189,12 +189,6 @@ renderFrames({
 });
 ```
 
-### `browserExecutable?`
-
-_optional, available from v2.3.1_
-
-A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
-
 ### `ffmpegExecutable?`
 
 _optional, available from v3.0.11_

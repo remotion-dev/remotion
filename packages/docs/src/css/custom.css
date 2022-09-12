@@ -73,6 +73,7 @@ h1, h2, h3, h4, h5, h6 {
   --blue-underlay-hover: #d5e5fd;
   --light-text-color: #777;
   --clear-hover: rgba(0, 0, 0, 0.04);
+  --border-color: rgb(234, 234, 234);
   --box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 [data-theme="dark"] {
@@ -83,6 +84,7 @@ h1, h2, h3, h4, h5, h6 {
   --clear-hover: rgba(255, 255, 255, 0.06);
   --blue-button-color: white;
   --light-text-color: #aaa;
+  --border-color: rgb(42, 42, 42);
   --box-shadow: 0 1px 8px rgba(255, 255, 255, 0.2);
 }
 

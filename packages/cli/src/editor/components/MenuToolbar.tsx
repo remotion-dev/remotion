@@ -348,7 +348,7 @@ export const MenuToolbar: React.FC = () => {
 						leftItem: null,
 						onClick: () => {
 							close();
-							inOutHandles.current?.inMarkClick();
+							inOutHandles.current?.inMarkClick(null);
 						},
 						subMenu: null,
 						type: 'item' as const,
@@ -361,7 +361,7 @@ export const MenuToolbar: React.FC = () => {
 						leftItem: null,
 						onClick: () => {
 							close();
-							inOutHandles.current?.outMarkClick();
+							inOutHandles.current?.outMarkClick(null);
 						},
 						subMenu: null,
 						type: 'item' as const,
