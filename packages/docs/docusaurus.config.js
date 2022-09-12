@@ -20,7 +20,7 @@ module.exports = {
       logo: {
         alt: "Remotion Logo",
         src: "img/new-logo.png",
-        srcDark: "img/new-logo-dark.png",
+        srcDark: "img/remotion-white.png",
       },
       items: [
         {
