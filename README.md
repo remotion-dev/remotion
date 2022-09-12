@@ -39,8 +39,6 @@ Remotion is a framework for **creating videos programmatically using React.**
 </tr>
 </table>
 
-See even more creations in the [Showcase](https://remotion.dev/showcase).
-
 ## Get started
 
 If you already have Node.JS installed, type
