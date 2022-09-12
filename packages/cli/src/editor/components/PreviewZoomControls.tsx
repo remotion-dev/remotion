@@ -1,4 +1,9 @@
-import {useCallback, useContext} from 'react';
+import {
+	ChangeEventHandler,
+	useCallback,
+	useContext,
+	WheelEventHandler,
+} from 'react';
 import {Minus} from '../icons/minus';
 import {Plus} from '../icons/plus';
 import {
@@ -52,14 +57,14 @@ export const PreviewZoomControls: React.FC = () => {
 		});
 	}, [setSize]);
 
-	const onChange = useCallback(
+	const onChange: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			setSize(() => Number(e.target.value));
 		},
 		[setSize]
 	);
 
-	const onWheel = useCallback(
+	const onWheel: WheelEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			setSize((z) => {
 				if (e.deltaY > 0) {
