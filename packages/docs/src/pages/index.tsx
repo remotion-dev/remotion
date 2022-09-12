@@ -1,7 +1,10 @@
+import Head from "@docusaurus/Head";
 import splitbee from "@splitbee/web";
 import Layout from "@theme/Layout";
-import Head from "@docusaurus/Head";
 import React from "react";
+import { VideoApps } from "../../components/LambdaSplash/VideoApps";
+import { VideoAppsTitle } from "../../components/LambdaSplash/VideoAppsTitle";
+import { BackgroundAnimation } from "../../components/LandingPage/BackgroundAnimation";
 import { LightningFastEditor } from "../../components/LandingPage/editor";
 import { FreePricing } from "../../components/LandingPage/FreePricing";
 import { IfYouKnowReact } from "../../components/LandingPage/if-you-know-react";
@@ -10,9 +13,6 @@ import { RealMP4Videos } from "../../components/LandingPage/real-mp4-videos";
 import { SuccessFeatures } from "../../components/LandingPage/SuccessFeatures";
 import { WriteInReact } from "../../components/LandingPage/WriteInReact";
 import styles from "./landing.module.css";
-import { VideoApps } from "../../components/LambdaSplash/VideoApps";
-import { VideoAppsTitle } from "../../components/LambdaSplash/VideoAppsTitle";
-import { BackgroundAnimation } from "../../components/LandingPage/BackgroundAnimation";
 
 setTimeout(() => {
   splitbee.init();
@@ -22,7 +22,7 @@ const NewLanding: React.FC = () => {
   return (
     <Layout>
       <Head>
-        <title>Remotion | Write videos in React</title>
+        <title>Remotion | Make videos programmatically</title>
         <meta
           name="description"
           content="Create MP4 motion graphics in React. Leverage CSS, SVG, WebGL and more
