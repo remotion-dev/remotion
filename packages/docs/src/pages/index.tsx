@@ -63,9 +63,6 @@ const NewLanding: React.FC = () => {
         <br />
         <br />
         <FreePricing />
-        <SuccessFeatures />
-        <br />
-        <br />
       </div>
     </Layout>
   );
