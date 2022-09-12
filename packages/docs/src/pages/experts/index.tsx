@@ -46,10 +46,19 @@ const Experts: React.FC = () => {
           name="description"
           content="Find Remotion freelancers and hire them to create, progress or unblock your Remotion project."
         />
-        <meta name="og:image" content="/img/remotion-experts.png" />
-        <meta name="twitter:image" content="/img/remotion-experts.png" />
-        <meta property="og:image" content="/img/remotion-experts.png" />
-        <meta property="twitter:image" content="/img/remotion-experts.png" />
+        <meta name="og:image" content="/img/remotion-experts-og-image.png" />
+        <meta
+          name="twitter:image"
+          content="/img/remotion-experts-og-image.png"
+        />
+        <meta
+          property="og:image"
+          content="/img/remotion-experts-og-image.png"
+        />
+        <meta
+          property="twitter:image"
+          content="/img/remotion-experts-og-image.png"
+        />
       </Head>
       <div
         style={{
