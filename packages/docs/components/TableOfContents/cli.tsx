@@ -22,7 +22,7 @@ export const TableOfContents: React.FC = () => {
           <strong>compositions</strong>
           <div>List available compositions</div>
         </TOCItem>
-        <TOCItem link="/docs/cli/lambda">
+        <TOCItem link="/docs/lambda/cli">
           <strong>lambda</strong>
           <div>Control Remotion Lambda</div>
         </TOCItem>
