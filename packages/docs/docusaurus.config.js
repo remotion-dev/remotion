@@ -5,7 +5,7 @@ module.exports = {
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
-  favicon: "img/logo-small.png",
+  favicon: "img/favicon.png",
   organizationName: "remotion-dev", // Usually your GitHub org/user name.
   projectName: "remotion", // Usually your repo name.
   themeConfig: {
