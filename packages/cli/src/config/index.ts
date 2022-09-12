@@ -77,6 +77,7 @@ import {setOverwriteOutput} from './overwrite';
 import {setPixelFormat} from './pixel-format';
 import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
+import {getPublicDir, setPublicDir} from './public-dir';
 import {setQuality} from './quality';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
@@ -91,6 +92,7 @@ export const Config: ConfigType = {
 		overrideWebpackConfig,
 		setCachingEnabled: setWebpackCaching,
 		setPort,
+		setPublicDir,
 	},
 	Log: {
 		setLevel: setLogLevel,
@@ -172,6 +174,7 @@ export const ConfigInternals = {
 	getEnforceAudioTrack,
 	setEnforceAudioTrack,
 	getKeyboardShortcutsEnabled,
+	getPublicDir,
 };
 
 export const overrideRemotion = () => {

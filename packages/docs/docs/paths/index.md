@@ -2,6 +2,8 @@
 title: "@remotion/paths"
 ---
 
+import {TableOfContents} from '../../components/TableOfContents/paths';
+
 A package providing utility functions for dealing with SVG paths. This package includes code from [`svg-path-properties`](https://www.npmjs.com/package/svg-path-properties), [`svg-path-reverse`](https://github.com/Pomax/svg-path-reverse#readme) and [`d3-interpolate-path`](https://github.com/pbeshai/d3-interpolate-path) with the following improvements:
 
 - Functional style APIs
@@ -49,14 +51,7 @@ yarn add @remotion/paths
 
 ## Functions
 
-- [`getLength()`](/docs/paths/get-length)
-- [`getParts()`](/docs/paths/get-parts)
-- [`getPointAtLength()`](/docs/paths/get-point-at-length)
-- [`getTangentAtLength()`](/docs/paths/get-tangent-at-length)
-- [`reversePath()`](/docs/paths/reverse-path)
-- [`normalizePath()`](/docs/paths/normalize-path)
-- [`interpolatePath()`](/docs/paths/interpolate-path)
-- [`evolvePath()`](/docs/paths/evolve-path)
+<TableOfContents />
 
 ## License
 

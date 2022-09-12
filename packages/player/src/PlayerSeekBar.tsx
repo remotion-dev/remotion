@@ -52,7 +52,9 @@ const findBodyInWhichDivIsLocated = (div: HTMLElement) => {
 
 export const PlayerSeekBar: React.FC<{
 	durationInFrames: number;
-}> = ({durationInFrames}) => {
+	onSeekStart: () => void;
+	onSeekEnd: () => void;
+}> = ({durationInFrames, onSeekEnd, onSeekStart}) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const barHovered = useHoverState(containerRef);
 	const size = useElementSize(containerRef, {
@@ -91,8 +93,9 @@ export const PlayerSeekBar: React.FC<{
 				dragging: true,
 				wasPlaying: playing,
 			});
+			onSeekStart();
 		},
-		[size, durationInFrames, pause, seek, playing]
+		[size, durationInFrames, pause, seek, playing, onSeekStart]
 	);
 
 	const onPointerMove = useCallback(
@@ -128,7 +131,9 @@ export const PlayerSeekBar: React.FC<{
 		} else {
 			pause();
 		}
-	}, [dragging, pause, play]);
+
+		onSeekEnd();
+	}, [dragging, onSeekEnd, pause, play]);
 
 	useEffect(() => {
 		if (!dragging.dragging) {

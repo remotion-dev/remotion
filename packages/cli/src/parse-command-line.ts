@@ -31,6 +31,7 @@ export type CommandLineOptions = {
 	concurrency: number;
 	timeout: number;
 	config: string;
+	['public-dir']: string;
 	crf: number;
 	force: boolean;
 	overwrite: boolean;
@@ -232,6 +233,10 @@ export const parseCommandLine = (
 
 	if (typeof parsedCli['enforce-audio-track'] !== 'undefined') {
 		Config.Rendering.setEnforceAudioTrack(parsedCli['enforce-audio-track']);
+	}
+
+	if (typeof parsedCli['public-dir'] !== 'undefined') {
+		Config.Bundling.setPublicDir(parsedCli['public-dir']);
 	}
 };
 
