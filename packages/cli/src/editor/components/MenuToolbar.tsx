@@ -197,21 +197,23 @@ export const MenuToolbar: React.FC = () => {
 						subMenu: {
 							leaveLeftSpace: true,
 							preselectIndex: commonPreviewSizes.findIndex(
-								(s) => String(size) === String(s)
+								(s) => String(size.size) === String(s.size)
 							),
 							items: commonPreviewSizes.map((newSize) => ({
-								id: String(newSize),
+								id: String(newSize.size),
 								keyHint: null,
 								label: getPreviewSizeLabel(newSize),
 								leftItem:
-									String(newSize) === String(size) ? <Checkmark /> : null,
+									String(newSize.size) === String(size.size) ? (
+										<Checkmark />
+									) : null,
 								onClick: () => {
 									close();
 									setSize(() => newSize);
 								},
 								subMenu: null,
 								type: 'item' as const,
-								value: newSize,
+								value: newSize.size,
 							})),
 						},
 					},

@@ -3,14 +3,7 @@ import React, {createContext, useCallback, useMemo, useState} from 'react';
 
 type PreviewSizeCtx = {
 	size: PreviewSize;
-	translation: {
-		x: number;
-		y: number;
-	};
 	setSize: (cb: (oldSize: PreviewSize) => PreviewSize) => void;
-	setTranslation: (
-		cb: (oldSize: {x: number; y: number}) => {x: number; y: number}
-	) => void;
 };
 
 export const PREVIEW_MAX_ZOOM = 4;
@@ -23,22 +16,23 @@ export const persistPreviewSizeOption = (option: PreviewSize) => {
 };
 
 export const loadPreviewSizeOption = (): PreviewSize => {
-	const item = localStorage.getItem('previewSize');
+	const item = localStorage.getItem('previewSize-v2');
 	if (item === null) {
-		return 'auto';
+		return {
+			size: 'auto',
+			translation: {
+				x: 0,
+				y: 0,
+			},
+		};
 	}
 
-	return item as PreviewSize;
+	return JSON.parse(item) as PreviewSize;
 };
 
 export const PreviewSizeContext = createContext<PreviewSizeCtx>({
 	setSize: () => undefined,
-	setTranslation: () => undefined,
 	size: loadPreviewSizeOption(),
-	translation: {
-		x: 0,
-		y: 0,
-	},
 });
 
 export const PreviewSizeProvider: React.FC<{

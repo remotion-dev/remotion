@@ -6,14 +6,43 @@ import {CONTROL_BUTTON_PADDING} from './ControlButton';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
 
-export const commonPreviewSizes: PreviewSize[] = ['auto', 0.25, 0.5, 1];
+export const commonPreviewSizes: PreviewSize[] = [
+	{
+		size: 'auto',
+		translation: {
+			x: 0,
+			y: 0,
+		},
+	},
+	{
+		size: 0.25,
+		translation: {
+			x: 0,
+			y: 0,
+		},
+	},
+	{
+		size: 0.5,
+		translation: {
+			x: 0,
+			y: 0,
+		},
+	},
+	{
+		size: 1,
+		translation: {
+			x: 0,
+			y: 0,
+		},
+	},
+];
 
 export const getPreviewSizeLabel = (previewSize: PreviewSize) => {
-	if (previewSize === 'auto') {
+	if (previewSize.size === 'auto') {
 		return 'Fit';
 	}
 
-	return `${(previewSize * 100).toFixed(0)}%`;
+	return `${(previewSize.size * 100).toFixed(0)}%`;
 };
 
 const accessibilityLabel = 'Preview Size';
@@ -29,9 +58,9 @@ export const SizeSelector: React.FC = () => {
 		};
 	}, []);
 
-	const customPreviewSizes = [...new Set([size, ...commonPreviewSizes])];
-
 	const items: ComboboxValue[] = useMemo(() => {
+		// TODO: Unique items
+		const customPreviewSizes = [...new Set([size, ...commonPreviewSizes])];
 		return customPreviewSizes.map((newSize): ComboboxValue => {
 			return {
 				id: String(newSize),
@@ -42,9 +71,10 @@ export const SizeSelector: React.FC = () => {
 					});
 				},
 				type: 'item',
-				value: newSize,
+				value: newSize.size,
 				keyHint: null,
-				leftItem: String(size) === String(newSize) ? <Checkmark /> : null,
+				leftItem:
+					String(size.size) === String(newSize.size) ? <Checkmark /> : null,
 				subMenu: null,
 			};
 		});

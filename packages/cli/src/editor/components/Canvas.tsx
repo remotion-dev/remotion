@@ -30,11 +30,7 @@ export const Canvas: React.FC = () => {
 	const isStill = useIsStill();
 	const dimensions = useDimensions();
 	const ref = useRef<HTMLDivElement>(null);
-	const {
-		setSize,
-		setTranslation,
-		size: previewSize,
-	} = useContext(PreviewSizeContext);
+	const {setSize} = useContext(PreviewSizeContext);
 
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: false,
@@ -51,47 +47,53 @@ export const Canvas: React.FC = () => {
 				return;
 			}
 
-			if (e.ctrlKey || e.metaKey) {
-				setSize((prevSize) => {
+			setSize((prevSize) => {
+				const scale = calculateScale({
+					canvasSize: size,
+					compositionHeight: dimensions.height,
+					compositionWidth: dimensions.width,
+					previewSize: prevSize.size,
+				});
+				const effectiveTranslation = getEffectiveTranslation({
+					translation: prevSize.translation,
+					canvasSize: size,
+					compositionHeight: dimensions.height,
+					compositionWidth: dimensions.width,
+					scale,
+				});
+				if (e.ctrlKey || e.metaKey) {
 					const oldSize =
-						prevSize === 'auto'
+						prevSize.size === 'auto'
 							? calculateScale({
 									canvasSize: size,
 									compositionHeight: dimensions.height,
 									compositionWidth: dimensions.width,
-									previewSize: prevSize,
+									previewSize: prevSize.size,
 							  })
-							: prevSize;
+							: prevSize.size;
 					const unsmoothened = smoothenZoom(oldSize);
 					const added = unsmoothened + e.deltaY * ZOOM_PX_FACTOR;
 					const smoothened = unsmoothenZoom(added);
 
-					return smoothened;
-				});
-			} else {
-				setTranslation((prevTranslation) => {
-					const scale = calculateScale({
-						canvasSize: size,
-						compositionHeight: dimensions.height,
-						compositionWidth: dimensions.width,
-						previewSize,
-					});
-
-					const effectiveTranslation = getEffectiveTranslation({
-						translation: prevTranslation,
-						canvasSize: size,
-						compositionHeight: dimensions.height,
-						compositionWidth: dimensions.width,
-						scale,
-					});
 					return {
+						translation: {
+							x: effectiveTranslation.x,
+							y: effectiveTranslation.y,
+						},
+						size: smoothened,
+					};
+				}
+
+				return {
+					...prevSize,
+					translation: {
 						x: effectiveTranslation.x + e.deltaX,
 						y: effectiveTranslation.y + e.deltaY,
-					};
-				});
-			}
+					},
+				};
+			});
 		},
-		[dimensions, previewSize, setSize, setTranslation, size]
+		[dimensions, setSize, size]
 	);
 
 	useEffect(() => {

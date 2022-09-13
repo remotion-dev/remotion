@@ -7,7 +7,7 @@ export const calculateScale = ({
 	compositionWidth,
 	previewSize,
 }: {
-	previewSize: PreviewSize;
+	previewSize: PreviewSize['size'];
 	compositionWidth: number;
 	compositionHeight: number;
 	canvasSize: Size;
@@ -35,7 +35,7 @@ export const calculateCanvasTransformation = ({
 		canvasSize,
 		compositionHeight,
 		compositionWidth,
-		previewSize,
+		previewSize: previewSize.size,
 	});
 
 	const correction = 0 - (1 - scale) / 2;

@@ -44,9 +44,7 @@ const containerStyle = (options: {
 const Inner: React.FC<{
 	canvasSize: Size;
 }> = ({canvasSize}) => {
-	const {size: previewSize, translation} = useContext(PreviewSizeContext);
-
-	console.log({translation});
+	const {size: previewSize} = useContext(PreviewSizeContext);
 
 	const portalContainer = useRef<HTMLDivElement>(null);
 
@@ -65,11 +63,11 @@ const Inner: React.FC<{
 		return getEffectiveTranslation({
 			canvasSize,
 			scale,
-			translation,
+			translation: previewSize.translation,
 			compositionHeight: config.height,
 			compositionWidth: config.width,
 		});
-	}, [canvasSize, config, scale, translation]);
+	}, [canvasSize, config.height, config.width, previewSize.translation, scale]);
 
 	const outer: React.CSSProperties = useMemo(() => {
 		return {
