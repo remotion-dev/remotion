@@ -1,12 +1,13 @@
 import React, {useCallback, useEffect, useState} from 'react';
+import {Button} from '../../preview-server/error-overlay/remotion-overlay/Button';
 import {copyText} from '../helpers/copy-text';
-import {Button} from './Button';
 import {Spacing} from './layout';
 
 const iconStyle: React.CSSProperties = {
 	width: 16,
 	height: 16,
 	color: 'white',
+	verticalAlign: 'sub',
 };
 
 const copyIcon = (
