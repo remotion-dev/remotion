@@ -325,7 +325,13 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			canvasSize,
 			compositionHeight: config.height,
 			compositionWidth: config.width,
-			previewSize: 'auto',
+			previewSize: {
+				size: 'auto',
+				translation: {
+					x: 0,
+					y: 0,
+				},
+			},
 		});
 	}, [canvasSize, config]);
 
@@ -357,7 +363,13 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			canvasSize,
 			compositionHeight: config.height,
 			compositionWidth: config.width,
-			previewSize: 'auto',
+			previewSize: {
+				size: 'auto',
+				translation: {
+					x: 0,
+					y: 0,
+				},
+			},
 		});
 
 		return {
