@@ -7,12 +7,13 @@ function logN(val: number) {
 }
 
 export const smoothenZoom = (input: number) => {
-	return Math.pow(BASE, input - 1);
+	return BASE ** (input - 1);
 };
 
 export const unsmoothenZoom = (input: number): number => {
 	if (input < 0) {
 		return MAX_ZOOM;
 	}
+
 	return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, logN(input) + 1));
 };
