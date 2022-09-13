@@ -68,6 +68,8 @@ export const Canvas: React.FC = () => {
 				return;
 			}
 
+			e.preventDefault();
+
 			setSize((prevSize) => {
 				const scale = calculateScale({
 					canvasSize: size,
