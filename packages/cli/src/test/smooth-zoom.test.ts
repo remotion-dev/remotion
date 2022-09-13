@@ -2,14 +2,14 @@ import {expect, test} from 'vitest';
 import {smoothenZoom, unsmoothenZoom} from '../smooth-zoom';
 
 test('Smoothen zoom', () => {
-	expect(smoothenZoom(0)).toBe(1);
-	expect(smoothenZoom(-1)).toBe(0.33287108369807955);
-	expect(smoothenZoom(1)).toBe(3.004166023946433);
+	expect(smoothenZoom(0)).toBe(1.4715177646857693);
+	expect(smoothenZoom(-1)).toBe(2.1653645317858032);
+	expect(smoothenZoom(1)).toBe(1);
 });
 
 test('Unsmoothen zoom', () => {
-	expect(unsmoothenZoom(3.004166023946433)).approximately(1, 0.01);
-	expect(unsmoothenZoom(1)).toBe(-0.0953101798043249);
-	expect(unsmoothenZoom(0.33287108369807955)).toBe(-1);
-	expect(unsmoothenZoom(-1)).toBe(-2.3025850929940455);
+	expect(unsmoothenZoom(3.004166023946433)).toBe(0.05);
+	expect(unsmoothenZoom(1)).toBe(1);
+	expect(unsmoothenZoom(0.33287108369807955)).toBe(3.8475693945182985);
+	expect(unsmoothenZoom(-1)).toBe(10);
 });
