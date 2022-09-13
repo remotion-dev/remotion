@@ -11,7 +11,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {calculateScale} from './calculate-scale';
+import {calculateCanvasTransformation} from './calculate-scale';
 import {ErrorBoundary} from './error-boundary';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import type {PlayerMethods, PlayerRef} from './player-methods';
@@ -330,11 +330,17 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			return null;
 		}
 
-		return calculateScale({
+		return calculateCanvasTransformation({
 			canvasSize,
 			compositionHeight: config.height,
 			compositionWidth: config.width,
-			previewSize: 'auto',
+			previewSize: {
+				size: 'auto',
+				translation: {
+					x: 0,
+					y: 0,
+				},
+			},
 		});
 	}, [canvasSize, config]);
 
@@ -362,11 +368,17 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			return {};
 		}
 
-		const {scale, xCorrection, yCorrection} = calculateScale({
+		const {scale, xCorrection, yCorrection} = calculateCanvasTransformation({
 			canvasSize,
 			compositionHeight: config.height,
 			compositionWidth: config.width,
-			previewSize: 'auto',
+			previewSize: {
+				size: 'auto',
+				translation: {
+					x: 0,
+					y: 0,
+				},
+			},
 		});
 
 		return {

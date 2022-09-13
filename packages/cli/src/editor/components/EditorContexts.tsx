@@ -1,4 +1,3 @@
-import type {PreviewSize} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useMemo, useState} from 'react';
 import type {
@@ -22,11 +21,7 @@ import {KeybindingContextProvider} from '../state/keybindings';
 import type {ModalContextType, ModalState} from '../state/modals';
 import {ModalsContext} from '../state/modals';
 import {loadMuteOption} from '../state/mute';
-import {
-	loadPreviewSizeOption,
-	persistPreviewSizeOption,
-	PreviewSizeContext,
-} from '../state/preview-size';
+import {PreviewSizeProvider} from '../state/preview-size';
 import {
 	loadRichTimelineOption,
 	persistRichTimelineOption,
@@ -48,7 +43,6 @@ export const EditorContexts: React.FC<{
 	}, [inAndOutFrames]);
 
 	const [emitter] = useState(() => new PlayerInternals.PlayerEmitter());
-	const [size, setSizeState] = useState(() => loadPreviewSizeOption());
 
 	const setTimelineInOutContextValue =
 		useMemo((): SetTimelineInOutContextValue => {
@@ -82,28 +76,12 @@ export const EditorContexts: React.FC<{
 		},
 		[]
 	);
-	const setSize = useCallback(
-		(newValue: (prevState: PreviewSize) => PreviewSize) => {
-			setSizeState((prevState) => {
-				const newVal = newValue(prevState);
-				persistPreviewSizeOption(newVal);
-				return newVal;
-			});
-		},
-		[]
-	);
 	const [mediaMuted, setMediaMuted] = useState<boolean>(() => loadMuteOption());
 	const [mediaVolume, setMediaVolume] = useState<number>(1);
 	const [modalContextType, setModalContextType] = useState<ModalState | null>(
 		null
 	);
 
-	const previewSizeCtx = useMemo(() => {
-		return {
-			size,
-			setSize,
-		};
-	}, [setSize, size]);
 	const checkerboardCtx = useMemo(() => {
 		return {
 			checkerboard,
@@ -142,7 +120,7 @@ export const EditorContexts: React.FC<{
 		<KeybindingContextProvider>
 			<RichTimelineContext.Provider value={richTimelineCtx}>
 				<CheckerboardContext.Provider value={checkerboardCtx}>
-					<PreviewSizeContext.Provider value={previewSizeCtx}>
+					<PreviewSizeProvider>
 						<ModalsContext.Provider value={modalsContext}>
 							<Internals.MediaVolumeContext.Provider
 								value={mediaVolumeContextValue}
@@ -172,7 +150,7 @@ export const EditorContexts: React.FC<{
 								</Internals.SetMediaVolumeContext.Provider>
 							</Internals.MediaVolumeContext.Provider>
 						</ModalsContext.Provider>
-					</PreviewSizeContext.Provider>
+					</PreviewSizeProvider>
 				</CheckerboardContext.Provider>
 			</RichTimelineContext.Provider>
 		</KeybindingContextProvider>

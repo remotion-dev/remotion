@@ -1,4 +1,4 @@
-import type { Size} from '@remotion/player';
+import type {Size} from '@remotion/player';
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
@@ -11,7 +11,7 @@ import {
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
 
-const checkerboardSize = 49;
+export const checkerboardSize = 49;
 
 const containerStyle = (options: {
 	scale: number;
@@ -51,7 +51,7 @@ const Inner: React.FC<{
 	const {checkerboard} = useContext(CheckerboardContext);
 
 	const {centerX, centerY, yCorrection, xCorrection, scale} =
-		PlayerInternals.calculateScale({
+		PlayerInternals.calculateCanvasTransformation({
 			canvasSize,
 			compositionHeight: config.height,
 			compositionWidth: config.width,
@@ -65,11 +65,19 @@ const Inner: React.FC<{
 			display: 'flex',
 			flexDirection: 'column',
 			position: 'absolute',
-			left: centerX,
-			top: centerY,
+			left: centerX - previewSize.translation.x,
+			top: centerY - previewSize.translation.y,
 			overflow: 'hidden',
 		};
-	}, [centerX, centerY, config.height, config.width, scale]);
+	}, [
+		centerX,
+		centerY,
+		config.height,
+		config.width,
+		previewSize.translation.x,
+		previewSize.translation.y,
+		scale,
+	]);
 
 	const style = useMemo((): React.CSSProperties => {
 		return containerStyle({

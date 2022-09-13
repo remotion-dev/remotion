@@ -179,7 +179,6 @@ export const KeyboardShortcuts: React.FC = () => {
 				<Spacing x={8} />
 				<Column>
 					<div style={title}>Navigation</div>
-
 					<Row align="center">
 						<div style={shortLeft}>
 							<kbd style={key}>N</kbd>
@@ -200,7 +199,6 @@ export const KeyboardShortcuts: React.FC = () => {
 					</Row>
 					<br />
 					<div style={title}>Playback range</div>
-
 					<Row align="center">
 						<div style={shortLeft}>
 							<kbd style={key}>I</kbd>
@@ -218,6 +216,26 @@ export const KeyboardShortcuts: React.FC = () => {
 							<kbd style={key}>X</kbd>
 						</div>
 						<div style={right}>Clear In/Out Points</div>
+					</Row>
+					<br />
+					<div style={title}>Zoom</div>
+					<Row align="center">
+						<div style={shortLeft}>
+							<kbd style={key}>+</kbd>
+						</div>
+						<div style={right}>Zoom in</div>
+					</Row>
+					<Row align="center">
+						<div style={shortLeft}>
+							<kbd style={key}>-</kbd>
+						</div>
+						<div style={right}>Zoom out</div>
+					</Row>
+					<Row align="center">
+						<div style={shortLeft}>
+							<kbd style={key}>0</kbd>
+						</div>
+						<div style={right}>Reset zoom</div>
 					</Row>
 				</Column>
 			</Row>
