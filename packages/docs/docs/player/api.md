@@ -101,7 +101,13 @@ A regular `style` prop for a HTMLDivElement. You can pass a different height and
 
 _optional - available since v3.1.3_
 
-A HTML class name to be applied to the conainer.
+A HTML class name to be applied to the container.
+
+### `initialFrame`
+
+_optional - available since v3.1.14_
+
+Start the playback from a specific frame. Default `0`. Once the player is mounted, this property cannot be changed.
 
 ### `numberOfSharedAudioTags`
 
@@ -174,6 +180,67 @@ const MyApp: React.FC = () => {
 :::info
 A player needs to be loaded if it contains elements that use React Suspense, or if the `lazyComponent` props is being used.
 :::
+
+### `renderPoster`
+
+_optional, available from v3.2.14_
+
+A callback function that allows you to return a custom UI that gets overlayed over the player.
+
+You can control when the poster gets rendered using the props [`showPosterWhenUnplayed`](#showposterwhenunplayed), [`showPosterWhenPaused`](#showposterwhenpaused) and [`showPosterWhenEnded`](#showposterwhenended). By default, they are all disabled.
+
+The first parameter contains the `height` and `width` of the player as it gets rendered.
+
+```tsx twoslash
+import { Player, RenderPoster } from "@remotion/player";
+import { useCallback } from "react";
+import { AbsoluteFill } from "remotion";
+
+const Component: React.FC = () => null;
+
+// ---cut---
+
+const MyApp: React.FC = () => {
+  // `RenderPoster` type can be imported from "@remotion/player"
+  const renderPoster: RenderPoster = useCallback(({ height, width }) => {
+    return (
+      <AbsoluteFill style={{ backgroundColor: "gray" }}>
+        Click to play! ({height}x{width})
+      </AbsoluteFill>
+    );
+  }, []);
+
+  return (
+    <Player
+      fps={30}
+      component={Component}
+      durationInFrames={100}
+      compositionWidth={1080}
+      compositionHeight={1080}
+      renderPoster={renderPoster}
+      showPosterWhenUnplayed
+    />
+  );
+};
+```
+
+### `showPosterWhenUnplayed`
+
+_optional, available from v3.2.14_
+
+Render the poster when the video is in its initial state and has not been played yet. Requires [`renderPoster()`](#renderposter) to be set. Default: `false`.
+
+### `showPosterWhenPaused`
+
+_optional, available from v3.2.14_
+
+Render the poster when the video is paused. Although considered a paused state, the poster will not render while the user is scrubbing through the video. Requires [`renderPoster()`](#renderposter) to be set. Default: `false`.
+
+### `showPosterWhenEnded`
+
+_optional, available from v3.2.14_
+
+Render the poster when the video has ended. Requires [`moveToBeginning`](#movetobeginningwhenended) to be set to `false`. [`renderPoster()`](#renderposter) to be set. Default: `false`.
 
 ## `PlayerRef`
 

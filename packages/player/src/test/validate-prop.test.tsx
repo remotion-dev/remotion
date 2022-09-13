@@ -106,7 +106,7 @@ test('No durationInFrames should give errors', () => {
 		);
 	} catch (e) {
 		expect((e as Error).message).toMatch(
-			/The "durationInFrames" prop of the <Player\/> component must be a number, but you passed a value of type undefined/
+			/durationInFrames` must be a number, but is undefined/
 		);
 	}
 });

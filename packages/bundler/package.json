@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "3.2.12",
+	"version": "3.2.14",
 	"description": "Bundler for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -13,11 +13,11 @@
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
 		"build": "tsc -d",
-		"watch": "tsc -w"
+		"watch": "tsc -w",
+		"test": "vitest --run"
 	},
 	"files": [
 		"dist",
-		"web",
 		"react-shim.js"
 	],
 	"author": "",
@@ -26,7 +26,7 @@
 		"css-loader": "5.2.7",
 		"esbuild": "0.14.19",
 		"react-refresh": "0.9.0",
-		"remotion": "3.2.12",
+		"remotion": "3.2.14",
 		"style-loader": "2.0.0",
 		"webpack": "5.72.0"
 	},
@@ -50,7 +50,8 @@
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0",
-		"typescript": "^4.7.0"
+		"typescript": "^4.7.0",
+		"vitest": "^0.18.0"
 	},
 	"keywords": [
 		"remotion",
