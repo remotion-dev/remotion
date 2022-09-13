@@ -49,6 +49,29 @@ const accessibilityLabel = 'Preview Size';
 
 const comboStyle: React.CSSProperties = {width: 80};
 
+export const getUniqueSizes = (size: PreviewSize) => {
+	const customPreviewSizes = [size, ...commonPreviewSizes];
+	const uniqueSizes: PreviewSize[] = [];
+
+	customPreviewSizes.forEach((p) => {
+		if (!uniqueSizes.find((s) => s.size === p.size)) {
+			uniqueSizes.push(p);
+		}
+	});
+
+	return uniqueSizes.sort((a, b) => {
+		if (a.size === 'auto') {
+			return -1;
+		}
+
+		if (b.size === 'auto') {
+			return 1;
+		}
+
+		return a.size - b.size;
+	});
+};
+
 export const SizeSelector: React.FC = () => {
 	const {size, setSize} = useContext(PreviewSizeContext);
 
@@ -59,44 +82,23 @@ export const SizeSelector: React.FC = () => {
 	}, []);
 
 	const items: ComboboxValue[] = useMemo(() => {
-		const customPreviewSizes = [size, ...commonPreviewSizes];
-		const uniqueSizes: PreviewSize[] = [];
-
-		customPreviewSizes.forEach((p) => {
-			if (!uniqueSizes.find((s) => s.size === p.size)) {
-				uniqueSizes.push(p);
-			}
+		return getUniqueSizes(size).map((newSize): ComboboxValue => {
+			return {
+				id: String(newSize.size),
+				label: getPreviewSizeLabel(newSize),
+				onClick: () => {
+					return setSize(() => {
+						return newSize;
+					});
+				},
+				type: 'item',
+				value: newSize.size,
+				keyHint: newSize.size ? '0' : null,
+				leftItem:
+					String(size.size) === String(newSize.size) ? <Checkmark /> : null,
+				subMenu: null,
+			};
 		});
-
-		return uniqueSizes
-			.sort((a, b) => {
-				if (a.size === 'auto') {
-					return -1;
-				}
-
-				if (b.size === 'auto') {
-					return 1;
-				}
-
-				return a.size - b.size;
-			})
-			.map((newSize): ComboboxValue => {
-				return {
-					id: String(newSize.size),
-					label: getPreviewSizeLabel(newSize),
-					onClick: () => {
-						return setSize(() => {
-							return newSize;
-						});
-					},
-					type: 'item',
-					value: newSize.size,
-					keyHint: null,
-					leftItem:
-						String(size.size) === String(newSize.size) ? <Checkmark /> : null,
-					subMenu: null,
-				};
-			});
 	}, [setSize, size]);
 
 	return (
