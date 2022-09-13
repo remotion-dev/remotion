@@ -41,6 +41,7 @@ export const useKeybinding = () => {
 				const commandKey = window.navigator.platform.startsWith('Mac')
 					? e.metaKey
 					: e.ctrlKey;
+				console.log({e});
 				if (
 					e.key.toLowerCase() === options.key.toLowerCase() &&
 					options.commandCtrlKey === commandKey
