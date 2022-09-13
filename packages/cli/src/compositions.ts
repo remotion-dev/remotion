@@ -51,6 +51,7 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 		inputProps,
 		puppeteerTimeout,
 		port,
+		publicDir,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'get-compositions',
@@ -61,6 +62,7 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 			remotionRoot,
 			fullPath,
 			steps: ['bundling'],
+			publicDir,
 		});
 
 	const compositions = await getCompositions(bundled, {

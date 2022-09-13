@@ -23,8 +23,9 @@ import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import type {PlayerRef} from './player-methods';
-import type {RenderLoading} from './PlayerUI';
+import type {RenderLoading, RenderPoster} from './PlayerUI';
 import PlayerUI from './PlayerUI';
+import {validateInitialFrame} from './utils/validate-initial-frame';
 import {validatePlaybackRate} from './utils/validate-playbackrate';
 import {getPreferredVolume, persistVolume} from './volume-persistance';
 
@@ -58,6 +59,11 @@ export type PlayerProps<T> = {
 	renderLoading?: RenderLoading;
 	moveToBeginningWhenEnded?: boolean;
 	className?: string;
+	initialFrame?: number;
+	renderPoster?: RenderPoster;
+	showPosterWhenPaused?: boolean;
+	showPosterWhenEnded?: boolean;
+	showPosterWhenUnplayed?: boolean;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -93,6 +99,11 @@ export const PlayerFn = <T,>(
 		playbackRate = 1,
 		renderLoading,
 		className,
+		showPosterWhenUnplayed,
+		showPosterWhenEnded,
+		showPosterWhenPaused,
+		initialFrame,
+		renderPoster,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -130,7 +141,8 @@ export const PlayerFn = <T,>(
 
 	const component = Internals.useLazyComponent(componentProps);
 
-	const [frame, setFrame] = useState(0);
+	validateInitialFrame({initialFrame, durationInFrames});
+	const [frame, setFrame] = useState(() => initialFrame ?? 0);
 	const [playing, setPlaying] = useState<boolean>(false);
 	const [rootId] = useState<string>('player-comp');
 	const [emitter] = useState(() => new PlayerEmitter());
@@ -395,6 +407,10 @@ export const PlayerFn = <T,>(
 											spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
 											playbackRate={playbackRate}
 											className={className ?? undefined}
+											showPosterWhenUnplayed={Boolean(showPosterWhenUnplayed)}
+											showPosterWhenEnded={Boolean(showPosterWhenEnded)}
+											showPosterWhenPaused={Boolean(showPosterWhenPaused)}
+											renderPoster={renderPoster}
 										/>
 									</PlayerEventEmitterContext.Provider>
 								</Internals.SharedAudioContextProvider>
