@@ -51,7 +51,7 @@ const Inner: React.FC<{
 	const {checkerboard} = useContext(CheckerboardContext);
 
 	const {centerX, centerY, yCorrection, xCorrection, scale} =
-		PlayerInternals.calculateScale({
+		PlayerInternals.calculateCanvasTransformation({
 			canvasSize,
 			compositionHeight: config.height,
 			compositionWidth: config.width,
