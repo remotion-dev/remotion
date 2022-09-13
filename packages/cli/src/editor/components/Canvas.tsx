@@ -1,15 +1,23 @@
 import {PlayerInternals} from '@remotion/player';
 import {calculateScale} from '@remotion/player/src/calculate-scale';
 import React, {useCallback, useContext, useEffect, useRef} from 'react';
-import {smoothenZoom, unsmoothenZoom} from '../../smooth-zoom';
+import {
+	MAX_ZOOM,
+	MIN_ZOOM,
+	smoothenZoom,
+	unsmoothenZoom,
+} from '../../smooth-zoom';
 import {BACKGROUND} from '../helpers/colors';
 import {
 	getCenterPointWhileScrolling,
 	getEffectiveTranslation,
 } from '../helpers/get-effective-translation';
-import {useDimensions, useIsStill} from '../helpers/is-current-selected-still';
+import {useDimensions} from '../helpers/is-current-selected-still';
+import {useKeybinding} from '../helpers/use-keybinding';
 import {PreviewSizeContext} from '../state/preview-size';
+import {SPACING_UNIT} from './layout';
 import {VideoPreview} from './Preview';
+import {ResetZoomButton} from './ResetZoomButton';
 
 const container: React.CSSProperties = {
 	flex: 1,
@@ -19,26 +27,30 @@ const container: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 };
 
-const stillContainer: React.CSSProperties = {
-	flex: 1,
-	display: 'flex',
-	overflow: 'auto',
-	position: 'relative',
-	backgroundColor: BACKGROUND,
+const resetZoom: React.CSSProperties = {
+	position: 'absolute',
+	top: SPACING_UNIT * 2,
+	right: SPACING_UNIT * 2,
 };
 
 const ZOOM_PX_FACTOR = 0.003;
 
 export const Canvas: React.FC = () => {
-	const isStill = useIsStill();
 	const dimensions = useDimensions();
 	const ref = useRef<HTMLDivElement>(null);
-	const {setSize} = useContext(PreviewSizeContext);
+	const {setSize, size: previewSize} = useContext(PreviewSizeContext);
+	const keybindings = useKeybinding();
 
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: false,
 		shouldApplyCssTransforms: true,
 	});
+
+	const isFit =
+		previewSize.size === 'auto' ||
+		(previewSize.size === 1 &&
+			previewSize.translation.x === 0 &&
+			previewSize.translation.y === 0);
 
 	const onWheel = useCallback(
 		(e: WheelEvent) => {
@@ -47,6 +59,12 @@ export const Canvas: React.FC = () => {
 			}
 
 			if (!dimensions) {
+				return;
+			}
+
+			const wantsToZoom = e.ctrlKey || e.metaKey;
+
+			if (!wantsToZoom && isFit) {
 				return;
 			}
 
@@ -59,7 +77,7 @@ export const Canvas: React.FC = () => {
 				});
 
 				// Zoom in/out
-				if (e.ctrlKey || e.metaKey) {
+				if (wantsToZoom) {
 					const oldSize = prevSize.size === 'auto' ? scale : prevSize.size;
 					const smoothened = smoothenZoom(oldSize);
 					const added = smoothened + e.deltaY * ZOOM_PX_FACTOR;
@@ -113,7 +131,6 @@ export const Canvas: React.FC = () => {
 				// Pan
 				return {
 					...prevSize,
-
 					translation: getEffectiveTranslation({
 						translation: {
 							x: effectiveTranslation.x + e.deltaX,
@@ -127,7 +144,7 @@ export const Canvas: React.FC = () => {
 				};
 			});
 		},
-		[dimensions, setSize, size]
+		[dimensions, isFit, setSize, size]
 	);
 
 	useEffect(() => {
@@ -141,9 +158,107 @@ export const Canvas: React.FC = () => {
 		return () => current.removeEventListener('wheel', onWheel);
 	}, [onWheel]);
 
+	const onReset = useCallback(() => {
+		setSize(() => {
+			return {
+				translation: {
+					x: 0,
+					y: 0,
+				},
+				size: 'auto',
+			};
+		});
+	}, [setSize]);
+
+	const onZoomIn = useCallback(() => {
+		if (!dimensions) {
+			return;
+		}
+
+		if (!size) {
+			return;
+		}
+
+		setSize((prevSize) => {
+			const scale = calculateScale({
+				canvasSize: size,
+				compositionHeight: dimensions.height,
+				compositionWidth: dimensions.width,
+				previewSize: prevSize.size,
+			});
+			return {
+				translation: {
+					x: 0,
+					y: 0,
+				},
+				size: Math.min(MAX_ZOOM, scale * 2),
+			};
+		});
+	}, [dimensions, setSize, size]);
+
+	const onZoomOut = useCallback(() => {
+		if (!dimensions) {
+			return;
+		}
+
+		if (!size) {
+			return;
+		}
+
+		setSize((prevSize) => {
+			const scale = calculateScale({
+				canvasSize: size,
+				compositionHeight: dimensions.height,
+				compositionWidth: dimensions.width,
+				previewSize: prevSize.size,
+			});
+			return {
+				translation: {
+					x: 0,
+					y: 0,
+				},
+				size: Math.max(MIN_ZOOM, scale / 2),
+			};
+		});
+	}, [dimensions, setSize, size]);
+
+	useEffect(() => {
+		const resetBinding = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: '0',
+			commandCtrlKey: false,
+			callback: onReset,
+		});
+
+		const zoomIn = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: '+',
+			commandCtrlKey: false,
+			callback: onZoomIn,
+		});
+
+		const zoomOut = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: '-',
+			commandCtrlKey: false,
+			callback: onZoomOut,
+		});
+
+		return () => {
+			resetBinding.unregister();
+			zoomIn.unregister();
+			zoomOut.unregister();
+		};
+	}, [keybindings, onReset, onZoomIn, onZoomOut]);
+
 	return (
 		<div ref={ref} style={container}>
 			{size ? <VideoPreview canvasSize={size} /> : null}
+			{isFit ? null : (
+				<div style={resetZoom}>
+					<ResetZoomButton onClick={onReset} />
+				</div>
+			)}
 		</div>
 	);
 };

@@ -1,6 +1,6 @@
 const BASE = Math.E / 4;
-const MIN_ZOOM = 0.05;
-const MAX_ZOOM = 10;
+export const MIN_ZOOM = 0.05;
+export const MAX_ZOOM = 10;
 
 function logN(val: number) {
 	return Math.log(val) / Math.log(BASE);
