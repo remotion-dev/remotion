@@ -11,12 +11,14 @@ export const PREVIEW_MIN_ZOOM = 0.1;
 export const ZOOM_BUTTON_STEP = 0.1;
 export const ZOOM_SLIDER_STEP = 0.01;
 
+const key = 'remotion.previewSize';
+
 export const persistPreviewSizeOption = (option: PreviewSize) => {
-	localStorage.setItem('previewSize', String(option));
+	localStorage.setItem(key, JSON.stringify(option));
 };
 
 export const loadPreviewSizeOption = (): PreviewSize => {
-	const item = localStorage.getItem('previewSize-v2');
+	const item = localStorage.getItem(key);
 	if (item === null) {
 		return {
 			size: 'auto',
