@@ -20,7 +20,7 @@ export const PlayerInternals = {
 	usePlayer,
 	usePlayback,
 	useElementSize,
-	calculateScale: calculateCanvasTransformation,
+	calculateCanvasTransformation,
 	useHoverState,
 	updateAllElementsSizes,
 };
