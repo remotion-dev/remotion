@@ -1,5 +1,4 @@
-import type {Size} from '@remotion/player';
-import type {Translation} from '@remotion/player/src/utils/preview-size';
+import type {Size, Translation} from '@remotion/player';
 
 const getEffectiveXTranslation = ({
 	canvasSize,
@@ -15,16 +14,16 @@ const getEffectiveXTranslation = ({
 		y: number;
 	};
 }) => {
-	if (canvasSize.width >= scale * compositionWidth) {
-		return 0;
-	}
-
 	const maxTranslation = Math.abs(
-		(canvasSize.width - scale * compositionWidth) / 2
+		canvasSize.width / 2 +
+			(scale * compositionWidth) / 2 -
+			MUST_BE_INSIDE_CANVAS
 	);
 
 	return Math.max(-maxTranslation, Math.min(translation.x, maxTranslation));
 };
+
+const MUST_BE_INSIDE_CANVAS = 50;
 
 const getEffectiveYTranslation = ({
 	canvasSize,
@@ -40,13 +39,9 @@ const getEffectiveYTranslation = ({
 		y: number;
 	};
 }) => {
-	if (canvasSize.height >= scale * compositionHeight) {
-		return 0;
-	}
-
-	const maxTranslation = Math.abs(
-		(canvasSize.height - scale * compositionHeight) / 2
-	);
+	const maxTranslation =
+		Math.abs(canvasSize.height / 2 + (scale * compositionHeight) / 2) -
+		MUST_BE_INSIDE_CANVAS;
 
 	return Math.max(-maxTranslation, Math.min(translation.y, maxTranslation));
 };

@@ -10,7 +10,7 @@ import {updateAllElementsSizes, useElementSize} from './utils/use-element-size';
 export {ErrorFallback, Player, PlayerProps} from './Player';
 export {PlayerMethods, PlayerRef} from './player-methods';
 export type {RenderLoading} from './PlayerUI';
-export {PreviewSize} from './utils/preview-size';
+export {PreviewSize, Translation} from './utils/preview-size';
 export {Size} from './utils/use-element-size';
 export type {CallbackListener, EventTypes};
 
