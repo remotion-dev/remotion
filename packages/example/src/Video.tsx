@@ -21,6 +21,7 @@ import {SkipZeroFrame} from './SkipZeroFrame';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
+import {StillZoom} from './StillZoom';
 import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
 import {VideoOnCanvas} from './VideoOnCanvas';
@@ -327,6 +328,14 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={100}
+				/>
+			</Folder>
+			<Folder name="still-tests">
+				<Still
+					id="still-zoom"
+					component={StillZoom}
+					width={1800}
+					height={2200}
 				/>
 			</Folder>
 			<Folder name="features">
