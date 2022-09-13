@@ -1,4 +1,5 @@
 import type {Size} from '@remotion/player';
+import type {Translation} from '@remotion/player/src/utils/preview-size';
 
 const getEffectiveXTranslation = ({
 	canvasSize,
@@ -79,5 +80,45 @@ export const getEffectiveTranslation = ({
 			scale,
 			translation,
 		}),
+	};
+};
+
+export const getCenterPointWhileScrolling = ({
+	size,
+	clientX,
+	clientY,
+	compositionWidth,
+	compositionHeight,
+	scale,
+	translation,
+}: {
+	size: Size;
+	clientX: number;
+	clientY: number;
+	compositionWidth: number;
+	compositionHeight: number;
+	scale: number;
+	translation: Translation;
+}) => {
+	const mouseLeft = clientX - size.left;
+	const mouseTop = clientY - size.top;
+
+	const contentLeftPoint =
+		size.width / 2 - (compositionWidth * scale) / 2 - translation.x;
+	const contentTopPoint =
+		size.height / 2 - (compositionHeight * scale) / 2 - translation.y;
+
+	const offsetFromVideoLeft = Math.min(
+		compositionWidth,
+		Math.max(0, (mouseLeft - contentLeftPoint) / scale)
+	);
+	const offsetFromVideoTop = Math.min(
+		compositionHeight,
+		Math.max(0, (mouseTop - contentTopPoint) / scale)
+	);
+
+	return {
+		centerX: offsetFromVideoLeft,
+		centerY: offsetFromVideoTop,
 	};
 };

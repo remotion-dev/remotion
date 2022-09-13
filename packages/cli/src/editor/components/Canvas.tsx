@@ -3,7 +3,10 @@ import {calculateScale} from '@remotion/player/src/calculate-scale';
 import React, {useCallback, useContext, useEffect, useRef} from 'react';
 import {smoothenZoom, unsmoothenZoom} from '../../smooth-zoom';
 import {BACKGROUND} from '../helpers/colors';
-import {getEffectiveTranslation} from '../helpers/get-effective-translation';
+import {
+	getCenterPointWhileScrolling,
+	getEffectiveTranslation,
+} from '../helpers/get-effective-translation';
 import {useDimensions, useIsStill} from '../helpers/is-current-selected-still';
 import {PreviewSizeContext} from '../state/preview-size';
 import {StillPreview, VideoPreview} from './Preview';
@@ -54,6 +57,7 @@ export const Canvas: React.FC = () => {
 					compositionWidth: dimensions.width,
 					previewSize: prevSize.size,
 				});
+
 				const effectiveTranslation = getEffectiveTranslation({
 					translation: prevSize.translation,
 					canvasSize: size,
@@ -61,29 +65,46 @@ export const Canvas: React.FC = () => {
 					compositionWidth: dimensions.width,
 					scale,
 				});
+
+				// Zoom in/out
 				if (e.ctrlKey || e.metaKey) {
-					const oldSize =
-						prevSize.size === 'auto'
-							? calculateScale({
-									canvasSize: size,
-									compositionHeight: dimensions.height,
-									compositionWidth: dimensions.width,
-									previewSize: prevSize.size,
-							  })
-							: prevSize.size;
-					const unsmoothened = smoothenZoom(oldSize);
-					const added = unsmoothened + e.deltaY * ZOOM_PX_FACTOR;
-					const smoothened = unsmoothenZoom(added);
+					const oldSize = prevSize.size === 'auto' ? scale : prevSize.size;
+					const smoothened = smoothenZoom(oldSize);
+					const added = smoothened + e.deltaY * ZOOM_PX_FACTOR;
+					const unsmoothened = unsmoothenZoom(added);
+
+					const {centerX, centerY} = getCenterPointWhileScrolling({
+						size,
+						clientX: e.clientX,
+						clientY: e.clientY,
+						compositionWidth: dimensions.width,
+						compositionHeight: dimensions.height,
+						scale,
+						translation: effectiveTranslation,
+					});
+
+					const zoomDifference = unsmoothened - oldSize;
+
+					const uvCoordinatesX = centerX / dimensions.width;
+					const uvCoordinatesY = centerY / dimensions.height;
+
+					const correctionLeft =
+						-uvCoordinatesX * (zoomDifference * dimensions.width) +
+						(1 - uvCoordinatesX) * zoomDifference * dimensions.width;
+					const correctionTop =
+						-uvCoordinatesY * (zoomDifference * dimensions.height) +
+						(1 - uvCoordinatesY) * zoomDifference * dimensions.height;
 
 					return {
 						translation: {
-							x: effectiveTranslation.x,
-							y: effectiveTranslation.y,
+							x: prevSize.translation.x - correctionLeft / 2,
+							y: prevSize.translation.y - correctionTop / 2,
 						},
-						size: smoothened,
+						size: unsmoothened,
 					};
 				}
 
+				// Pan
 				return {
 					...prevSize,
 					translation: {
