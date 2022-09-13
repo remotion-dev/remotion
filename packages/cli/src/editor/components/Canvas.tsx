@@ -9,7 +9,7 @@ import {
 } from '../helpers/get-effective-translation';
 import {useDimensions, useIsStill} from '../helpers/is-current-selected-still';
 import {PreviewSizeContext} from '../state/preview-size';
-import {StillPreview, VideoPreview} from './Preview';
+import {VideoPreview} from './Preview';
 
 const container: React.CSSProperties = {
 	flex: 1,
@@ -58,14 +58,6 @@ export const Canvas: React.FC = () => {
 					previewSize: prevSize.size,
 				});
 
-				const effectiveTranslation = getEffectiveTranslation({
-					translation: prevSize.translation,
-					canvasSize: size,
-					compositionHeight: dimensions.height,
-					compositionWidth: dimensions.width,
-					scale,
-				});
-
 				// Zoom in/out
 				if (e.ctrlKey || e.metaKey) {
 					const oldSize = prevSize.size === 'auto' ? scale : prevSize.size;
@@ -80,7 +72,7 @@ export const Canvas: React.FC = () => {
 						compositionWidth: dimensions.width,
 						compositionHeight: dimensions.height,
 						scale,
-						translation: effectiveTranslation,
+						translation: prevSize.translation,
 					});
 
 					const zoomDifference = unsmoothened - oldSize;
@@ -96,21 +88,42 @@ export const Canvas: React.FC = () => {
 						(1 - uvCoordinatesY) * zoomDifference * dimensions.height;
 
 					return {
-						translation: {
-							x: prevSize.translation.x - correctionLeft / 2,
-							y: prevSize.translation.y - correctionTop / 2,
-						},
+						translation: getEffectiveTranslation({
+							translation: {
+								x: prevSize.translation.x - correctionLeft / 2,
+								y: prevSize.translation.y - correctionTop / 2,
+							},
+							canvasSize: size,
+							compositionHeight: dimensions.height,
+							compositionWidth: dimensions.width,
+							scale,
+						}),
 						size: unsmoothened,
 					};
 				}
 
+				const effectiveTranslation = getEffectiveTranslation({
+					translation: prevSize.translation,
+					canvasSize: size,
+					compositionHeight: dimensions.height,
+					compositionWidth: dimensions.width,
+					scale,
+				});
+
 				// Pan
 				return {
 					...prevSize,
-					translation: {
-						x: effectiveTranslation.x + e.deltaX,
-						y: effectiveTranslation.y + e.deltaY,
-					},
+
+					translation: getEffectiveTranslation({
+						translation: {
+							x: effectiveTranslation.x + e.deltaX,
+							y: effectiveTranslation.y + e.deltaY,
+						},
+						canvasSize: size,
+						compositionHeight: dimensions.height,
+						compositionWidth: dimensions.width,
+						scale,
+					}),
 				};
 			});
 		},
@@ -127,14 +140,6 @@ export const Canvas: React.FC = () => {
 
 		return () => current.removeEventListener('wheel', onWheel);
 	}, [onWheel]);
-
-	if (isStill) {
-		return (
-			<div ref={ref} style={stillContainer}>
-				{size ? <StillPreview canvasSize={size} /> : null}
-			</div>
-		);
-	}
 
 	return (
 		<div ref={ref} style={container}>

@@ -8,7 +8,6 @@ import {
 	getCheckerboardBackgroundPos,
 	getCheckerboardBackgroundSize,
 } from '../helpers/checkerboard-background';
-import {getEffectiveTranslation} from '../helpers/get-effective-translation';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
 
@@ -59,16 +58,6 @@ const Inner: React.FC<{
 			previewSize,
 		});
 
-	const effectiveTranslation = useMemo(() => {
-		return getEffectiveTranslation({
-			canvasSize,
-			scale,
-			translation: previewSize.translation,
-			compositionHeight: config.height,
-			compositionWidth: config.width,
-		});
-	}, [canvasSize, config.height, config.width, previewSize.translation, scale]);
-
 	const outer: React.CSSProperties = useMemo(() => {
 		return {
 			width: config.width * scale,
@@ -76,8 +65,8 @@ const Inner: React.FC<{
 			display: 'flex',
 			flexDirection: 'column',
 			position: 'absolute',
-			left: centerX - effectiveTranslation.x,
-			top: centerY - effectiveTranslation.y,
+			left: centerX - previewSize.translation.x,
+			top: centerY - previewSize.translation.y,
 			overflow: 'hidden',
 		};
 	}, [
@@ -85,8 +74,8 @@ const Inner: React.FC<{
 		centerY,
 		config.height,
 		config.width,
-		effectiveTranslation.x,
-		effectiveTranslation.y,
+		previewSize.translation.x,
+		previewSize.translation.y,
 		scale,
 	]);
 
@@ -121,18 +110,6 @@ const Inner: React.FC<{
 			<div ref={portalContainer} style={style} />
 		</div>
 	);
-};
-
-export const StillPreview: React.FC<{
-	canvasSize: Size;
-}> = ({canvasSize}) => {
-	const config = Internals.useUnsafeVideoConfig();
-
-	if (!config) {
-		return null;
-	}
-
-	return <Inner canvasSize={canvasSize} />;
 };
 
 export const VideoPreview: React.FC<{
