@@ -1,5 +1,5 @@
 import type {SyntheticEvent} from 'react';
-import {useCallback, useContext, useMemo, useRef} from 'react';
+import {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context';
 import type {PlayerEmitter} from './event-emitter';
@@ -17,13 +17,15 @@ type UsePlayerMethods = {
 	seek: (newFrame: number) => void;
 	getCurrentFrame: () => number;
 	isPlaying: () => boolean;
+	hasPlayed: boolean;
 };
 
 export const usePlayer = (): UsePlayerMethods => {
 	const [playing, setPlaying, imperativePlaying] =
 		Internals.Timeline.usePlayingState();
+	const [hasPlayed, setHasPlayed] = useState(false);
 	const frame = Internals.Timeline.useTimelinePosition();
-	const playStart = useRef(0);
+	const playStart = useRef(frame);
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
 	const audioContext = useContext(Internals.SharedAudioContext);
@@ -56,6 +58,8 @@ export const usePlayer = (): UsePlayerMethods => {
 			if (imperativePlaying.current) {
 				return;
 			}
+
+			setHasPlayed(true);
 
 			if (isLastFrame) {
 				seek(0);
@@ -157,6 +161,7 @@ export const usePlayer = (): UsePlayerMethods => {
 			getCurrentFrame: () => frameRef.current as number,
 			isPlaying: () => imperativePlaying.current as boolean,
 			pauseAndReturnToPlayStart,
+			hasPlayed,
 		};
 	}, [
 		frameBack,
@@ -170,6 +175,7 @@ export const usePlayer = (): UsePlayerMethods => {
 		isFirstFrame,
 		pauseAndReturnToPlayStart,
 		imperativePlaying,
+		hasPlayed,
 	]);
 
 	return returnValue;

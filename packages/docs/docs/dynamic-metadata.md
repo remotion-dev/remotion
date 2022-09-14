@@ -138,6 +138,11 @@ renderFrames({
 
 Make sure to pass the parameter to both of these functions, so the input props are available to `getInputProps` during the composition fetching and rendering stage.
 
+## Changing dimensions and FPS after the video was designed
+
+- If you designed your video with certain dimensions and now want to render a different resolution (e.g. 4K instead of Full HD), you can use [output scaling](/docs/scaling).
+- If you designed your video with certain FPS and now want to change the frame rate, you can use the [`<FpsConverter>`](/docs/miscellaneous/snippets/fps-converter) snippet.
+
 ## See also
 
 - [`getInputProps()`](/docs/get-input-props)

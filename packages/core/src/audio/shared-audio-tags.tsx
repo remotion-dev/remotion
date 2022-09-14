@@ -52,9 +52,35 @@ const compareProps = (
 	}
 
 	for (let i = 0; i < keysA.length; i++) {
+		// Not the same keys
 		if (keysA[i] !== keysB[i]) {
 			return false;
 		}
+
+		// Not the same values
+		if (obj1[keysA[i]] !== obj2[keysB[i]]) {
+			return false;
+		}
+	}
+
+	return true;
+};
+
+const didPropChange = (key: string, newProp: unknown, prevProp: unknown) => {
+	// /music.mp3 and http://localhost:3000/music.mp3 are the same
+	if (
+		key === 'src' &&
+		!(prevProp as string).startsWith('data:') &&
+		!(newProp as string).startsWith('data:')
+	) {
+		return (
+			new URL(prevProp as string, window.location.origin).toString() !==
+			new URL(newProp as string, window.location.origin).toString()
+		);
+	}
+
+	if (prevProp === newProp) {
+		return false;
 	}
 
 	return true;
@@ -104,7 +130,13 @@ export const SharedAudioContextProvider: React.FC<{
 				throw new TypeError('Expected audio data to be there');
 			}
 
-			Object.assign(current, data.props);
+			Object.keys(data.props).forEach((key) => {
+				// @ts-expect-error
+				if (didPropChange(key, data.props[key], current[key])) {
+					// @ts-expect-error
+					current[key] = data.props[key];
+				}
+			});
 		});
 	}, [refs]);
 
@@ -180,6 +212,7 @@ export const SharedAudioContextProvider: React.FC<{
 
 				return prevA;
 			});
+
 			if (changed) {
 				rerenderAudios();
 			}

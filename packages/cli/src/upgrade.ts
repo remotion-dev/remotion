@@ -2,6 +2,7 @@ import {RenderInternals} from '@remotion/renderer';
 import path from 'path';
 import {ConfigInternals} from './config';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
+import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 import type {PackageManager} from './preview-server/get-package-manager';
 import {
@@ -18,12 +19,12 @@ const getUpgradeCommand = ({
 	packages: string[];
 	version: string;
 }): string[] => {
-	const pkgList = packages.map((p) => `${p}@^${version}`);
+	const pkgList = packages.map((p) => `${p}@${version}`);
 
 	const commands: {[key in PackageManager]: string[]} = {
-		npm: ['i', ...pkgList],
-		pnpm: ['i', ...pkgList],
-		yarn: ['add', ...pkgList],
+		npm: ['i', '--save-exact', ...pkgList],
+		pnpm: ['i', '--save-exact', ...pkgList],
+		yarn: ['add', '--exact', ...pkgList],
 	};
 
 	return commands[manager];
@@ -46,21 +47,9 @@ export const upgrade = async (remotionRoot: string) => {
 		);
 	}
 
-	const toUpgrade = [
-		'@remotion/bundler',
-		'@remotion/cli',
-		'@remotion/eslint-config',
-		'@remotion/renderer',
-		'@remotion/skia',
-		'@remotion/lottie',
-		'@remotion/media-utils',
-		'@remotion/babel-loader',
-		'@remotion/lambda',
-		'@remotion/preload',
-		'@remotion/three',
-		'@remotion/gif',
-		'remotion',
-	].filter((u) => dependencies.includes(u));
+	const toUpgrade = listOfRemotionPackages.filter((u) =>
+		dependencies.includes(u)
+	);
 
 	const prom = RenderInternals.execa(
 		manager.manager,

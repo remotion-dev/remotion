@@ -11,6 +11,7 @@ import {
 import {DOCS_URL} from '../../shared/docs-url';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
+import {checkIfRenderExists} from './check-if-render-exists';
 import {getExpectedOutName} from './expected-out-name';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {formatCostsInfo} from './format-costs-info';
@@ -103,6 +104,13 @@ export const getProgress = async ({
 		region: getCurrentRegionInFunction(),
 		expectedBucketOwner,
 	});
+
+	checkIfRenderExists(
+		contents,
+		renderId,
+		bucketName,
+		getCurrentRegionInFunction()
+	);
 
 	const renderMetadataExists = Boolean(
 		contents.find((c) => c.Key === renderMetadataKey(renderId))

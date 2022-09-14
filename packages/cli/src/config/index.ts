@@ -62,6 +62,10 @@ import {setFfmpegExecutable, setFfprobeExecutable} from './ffmpeg-executable';
 import {setFrameRange} from './frame-range';
 import {setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
+import {
+	getKeyboardShortcutsEnabled,
+	setKeyboardShortcutsEnabled,
+} from './keyboard-shortcuts';
 import {setLogLevel} from './log';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
 import {getMuted, setMuted} from './muted';
@@ -73,6 +77,7 @@ import {setOverwriteOutput} from './overwrite';
 import {setPixelFormat} from './pixel-format';
 import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
+import {getPublicDir, setPublicDir} from './public-dir';
 import {setQuality} from './quality';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
@@ -81,11 +86,13 @@ import {setWebpackCaching} from './webpack-caching';
 export const Config: ConfigType = {
 	Preview: {
 		setMaxTimelineTracks,
+		setKeyboardShortcutsEnabled,
 	},
 	Bundling: {
 		overrideWebpackConfig,
 		setCachingEnabled: setWebpackCaching,
 		setPort,
+		setPublicDir,
 	},
 	Log: {
 		setLevel: setLogLevel,
@@ -166,6 +173,8 @@ export const ConfigInternals = {
 	getMuted,
 	getEnforceAudioTrack,
 	setEnforceAudioTrack,
+	getKeyboardShortcutsEnabled,
+	getPublicDir,
 };
 
 export const overrideRemotion = () => {

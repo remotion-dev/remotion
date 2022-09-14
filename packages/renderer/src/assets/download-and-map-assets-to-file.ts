@@ -1,9 +1,10 @@
 import fs from 'fs';
-import path from 'path';
+import path, {extname} from 'path';
 import type {TAsset} from 'remotion';
 import {random} from 'remotion';
 import {isAssetCompressed} from '../compress-assets';
 import {ensureOutputDirectory} from '../ensure-output-directory';
+import {getExt} from '../mime-types';
 import {downloadFile} from './download-file';
 import type {DownloadMap} from './download-map';
 import {sanitizeFilePath} from './sanitize-filepath';
@@ -197,6 +198,7 @@ export const downloadAsset = async ({
 			contentDisposition: null,
 			downloadDir,
 			src,
+			contentType: null,
 		});
 		ensureOutputDirectory(output);
 		const [assetDetails, assetData] = src.substring('data:'.length).split(',');
@@ -226,8 +228,13 @@ export const downloadAsset = async ({
 		onProgress: (progress) => {
 			onProgress?.(progress);
 		},
-		to: (contentDisposition) =>
-			getSanitizedFilenameForAssetUrl({contentDisposition, downloadDir, src}),
+		to: (contentDisposition, contentType) =>
+			getSanitizedFilenameForAssetUrl({
+				contentDisposition,
+				downloadDir,
+				src,
+				contentType,
+			}),
 	});
 
 	notifyAssetIsDownloaded({src, downloadMap, downloadDir, to});
@@ -248,9 +255,11 @@ export const markAllAssetsAsDownloaded = (downloadMap: DownloadMap) => {
 const getFilename = ({
 	contentDisposition,
 	src,
+	contentType,
 }: {
 	src: string;
 	contentDisposition: string | null;
+	contentType: string | null;
 }): {pathname: string; search: string} => {
 	const filenameProbe = 'filename=';
 	if (contentDisposition?.includes(filenameProbe)) {
@@ -272,6 +281,18 @@ const getFilename = ({
 
 	const {pathname, search} = new URL(src);
 
+	const ext = extname(pathname);
+
+	// Has no file extension, check if we can derive it from contentType
+	if (!ext && contentType) {
+		const matchedExt = getExt(contentType);
+
+		return {
+			pathname: `${pathname}.${matchedExt}`,
+			search,
+		};
+	}
+
 	return {pathname, search};
 };
 
@@ -279,16 +300,22 @@ export const getSanitizedFilenameForAssetUrl = ({
 	src,
 	downloadDir,
 	contentDisposition,
+	contentType,
 }: {
 	src: string;
 	downloadDir: string;
 	contentDisposition: string | null;
+	contentType: string | null;
 }) => {
 	if (isAssetCompressed(src)) {
 		return src;
 	}
 
-	const {pathname, search} = getFilename({contentDisposition, src});
+	const {pathname, search} = getFilename({
+		contentDisposition,
+		contentType,
+		src,
+	});
 
 	const split = pathname.split('.');
 	const fileExtension =

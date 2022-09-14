@@ -10,6 +10,7 @@ import {
 	launchEditor,
 } from './error-overlay/react-overlay/utils/open-in-editor';
 import type {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
+import {getPackageManager} from './get-package-manager';
 import type {LiveEventsServer} from './live-events';
 import {getProjectInfo} from './project-info';
 import {serveStatic} from './serve-static';
@@ -51,6 +52,7 @@ const handleFallback = async ({
 
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
+	const packageManager = getPackageManager(remotionRoot);
 	response.end(
 		BundlerInternals.indexHtml({
 			staticHash: hash,
@@ -58,6 +60,8 @@ const handleFallback = async ({
 			editorName: displayName,
 			inputProps: getCurrentInputProps(),
 			remotionRoot,
+			previewServerCommand:
+				packageManager === 'unknown' ? null : packageManager.startCommand,
 		})
 	);
 };
@@ -181,6 +185,7 @@ export const handleRoutes = ({
 	liveEventsServer,
 	getCurrentInputProps,
 	remotionRoot,
+	userPassedPublicDir,
 }: {
 	hash: string;
 	hashPrefix: string;
@@ -189,6 +194,7 @@ export const handleRoutes = ({
 	liveEventsServer: LiveEventsServer;
 	getCurrentInputProps: () => object;
 	remotionRoot: string;
+	userPassedPublicDir: string | null;
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -222,8 +228,10 @@ export const handleRoutes = ({
 	}
 
 	if (url.pathname.startsWith(hash)) {
-		const root = path.join(remotionRoot, 'public');
-		return serveStatic(root, hash, request, response);
+		const publicDir = userPassedPublicDir
+			? path.resolve(remotionRoot, userPassedPublicDir)
+			: path.join(remotionRoot, 'public');
+		return serveStatic(publicDir, hash, request, response);
 	}
 
 	if (url.pathname.startsWith(hashPrefix)) {

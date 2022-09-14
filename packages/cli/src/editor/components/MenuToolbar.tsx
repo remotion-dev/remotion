@@ -2,6 +2,7 @@ import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {pickColor} from '../helpers/pick-color';
+import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {Checkmark} from '../icons/Checkmark';
 import {CheckerboardContext} from '../state/checkerboard';
 import {ModalsContext} from '../state/modals';
@@ -14,7 +15,7 @@ import {Row} from './layout';
 import type {Menu, MenuId} from './Menu/MenuItem';
 import {MenuItem} from './Menu/MenuItem';
 import {MenuBuildIndicator} from './MenuBuildIndicator';
-import {commonPreviewSizes, getPreviewSizeLabel} from './SizeSelector';
+import {getPreviewSizeLabel, getUniqueSizes} from './SizeSelector';
 import {inOutHandles} from './TimelineInOutToggle';
 import {UpdateCheck} from './UpdateCheck';
 
@@ -73,6 +74,8 @@ export const MenuToolbar: React.FC = () => {
 	const close = useCallback(() => {
 		setSelected(null);
 	}, []);
+
+	const sizes = getUniqueSizes(size);
 
 	const structure = useMemo((): Structure => {
 		const struct: Structure = [
@@ -195,22 +198,24 @@ export const MenuToolbar: React.FC = () => {
 						leftItem: null,
 						subMenu: {
 							leaveLeftSpace: true,
-							preselectIndex: commonPreviewSizes.findIndex(
-								(s) => String(size) === String(s)
+							preselectIndex: sizes.findIndex(
+								(s) => String(size.size) === String(s.size)
 							),
-							items: commonPreviewSizes.map((newSize) => ({
-								id: String(newSize),
-								keyHint: null,
+							items: sizes.map((newSize) => ({
+								id: String(newSize.size),
+								keyHint: newSize.size === 1 ? '0' : null,
 								label: getPreviewSizeLabel(newSize),
 								leftItem:
-									String(newSize) === String(size) ? <Checkmark /> : null,
+									String(newSize.size) === String(size.size) ? (
+										<Checkmark />
+									) : null,
 								onClick: () => {
 									close();
 									setSize(() => newSize);
 								},
 								subMenu: null,
 								type: 'item' as const,
-								value: newSize,
+								value: newSize.size,
 							})),
 						},
 					},
@@ -347,7 +352,7 @@ export const MenuToolbar: React.FC = () => {
 						leftItem: null,
 						onClick: () => {
 							close();
-							inOutHandles.current?.inMarkClick();
+							inOutHandles.current?.inMarkClick(null);
 						},
 						subMenu: null,
 						type: 'item' as const,
@@ -360,7 +365,7 @@ export const MenuToolbar: React.FC = () => {
 						leftItem: null,
 						onClick: () => {
 							close();
-							inOutHandles.current?.outMarkClick();
+							inOutHandles.current?.outMarkClick(null);
 						},
 						subMenu: null,
 						type: 'item' as const,
@@ -408,7 +413,9 @@ export const MenuToolbar: React.FC = () => {
 					{
 						id: 'shortcuts',
 						value: 'shortcuts',
-						label: 'Shortcuts',
+						label: areKeyboardShortcutsDisabled()
+							? 'Shortcuts (disabled)'
+							: 'Shortcuts',
 						onClick: () => {
 							close();
 
@@ -520,7 +527,8 @@ export const MenuToolbar: React.FC = () => {
 		setSidebarCollapsedState,
 		setSize,
 		sidebarCollapsedState,
-		size,
+		size.size,
+		sizes,
 	]);
 
 	const menus = useMemo(() => {

@@ -14,10 +14,12 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	fullPath,
 	remotionRoot,
 	steps,
+	publicDir,
 }: {
 	fullPath: string;
 	remotionRoot: string;
 	steps: RenderStep[];
+	publicDir: string | null;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => Promise<void>;
@@ -29,7 +31,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		};
 	}
 
-	const bundled = await bundleOnCli({fullPath, remotionRoot, steps});
+	const bundled = await bundleOnCli({fullPath, remotionRoot, steps, publicDir});
 
 	return {
 		urlOrBundle: bundled,
@@ -41,10 +43,12 @@ export const bundleOnCli = async ({
 	fullPath,
 	steps,
 	remotionRoot,
+	publicDir,
 }: {
 	fullPath: string;
 	steps: RenderStep[];
 	remotionRoot: string;
+	publicDir: string | null;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -62,6 +66,7 @@ export const bundleOnCli = async ({
 		enableCaching: shouldCache,
 		webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
 		rootDir: remotionRoot,
+		publicDir,
 	};
 
 	const [hash] = BundlerInternals.getConfig({

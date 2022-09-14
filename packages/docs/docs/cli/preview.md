@@ -34,3 +34,15 @@ Specify a location for a dotenv file. Default `.env`. Available in v2.2 and late
 ### `--port`
 
 [Set a custom HTTP server port](/docs/config#setPort). If not defined, Remotion will try to find a free port.
+
+### `--public-dir`
+
+_Available from v3.2.13_
+
+[Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
+
+### `--disable-keyboard-shortcuts`
+
+_Available from v3.2.11_
+
+Disables all keyboard shortcuts in the Preview.

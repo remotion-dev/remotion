@@ -24,7 +24,7 @@ export const MyVideo = () => {
 // - MyVideo
 ```
 
-The basic idea behind Remotion is that we'll give you a frame number and a blank canvas, and the freedom to render anything you want using **[React.js](https://reactjs.org)**.
+The basic idea behind Remotion is that we'll give you a frame number and a blank canvas, and the freedom to render anything you want using **[React](https://reactjs.org)**.
 
 ```tsx twoslash
 // @include: example-MyVideo

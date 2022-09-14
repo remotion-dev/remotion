@@ -1222,6 +1222,30 @@ export const showcaseVideos: ShowcaseVideo[] = [
       "name": "Sepehr Safari"
     }
   },
+	{
+	title: "Top 15 smallest animals in this planet",
+	type: "mux_video",
+	muxId: "bQ5bHzbVsYngW5GF4iQxH601HyPnxHZCcXZas1zzQRAU",
+	description: "A simple Top List Video",
+	height: 1080,
+	width: 1920,
+	submittedOn: new Date("08-12-2022"),
+	links: [
+		{
+			type: "video",
+			url: "https://youtu.be/jDAwyWWWfkM",
+		},
+		{
+			type: "website",
+			url: "https://adavii.com/",
+		},
+	],
+	author: {
+		"url": "https://twitter.com/yuwan_kumar",
+		"name": "Yuwan Kumar"
+	}
+},
+		
 ];
 
 const dateString = (date: Date) =>

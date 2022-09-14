@@ -86,7 +86,7 @@ Audio codecs `mp3`, `aac` and `wav` are also supported.
 
 See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
 
-### `--muted`
+### `muted`
 
 Disables audio output. See also [`renderMedia() -> muted`](/docs/renderer/render-media#muted).
 
@@ -208,7 +208,7 @@ The default for Lambda is `swangle`, but `null` elsewhere.
 
 ## Return value
 
-Returns a promise resolving to an object containing two properties: `renderId` and `bucketName`. Those are useful for passing to `getRenderProgress()`
+Returns a promise resolving to an object containing two properties: `renderId`, `bucketName`, `cloudWatchLogs`. Those are useful for passing to `getRenderProgress()`
 
 ### `renderId`
 
@@ -217,6 +217,12 @@ A unique alphanumeric identifier for this render. Useful for obtaining status an
 ### `bucketName`
 
 The S3 bucket name in which all files are being saved.
+
+### `cloudWatchLogs`
+
+_Available from v3.2.10_
+
+A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
 
 ## See also
 

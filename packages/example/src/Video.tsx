@@ -21,6 +21,7 @@ import {SkipZeroFrame} from './SkipZeroFrame';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
+import {StillZoom} from './StillZoom';
 import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
 import {VideoOnCanvas} from './VideoOnCanvas';
@@ -329,6 +330,14 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 			</Folder>
+			<Folder name="still-tests">
+				<Still
+					id="still-zoom"
+					component={StillZoom}
+					width={1800}
+					height={2200}
+				/>
+			</Folder>
 			<Folder name="features">
 				<Composition
 					id="mdx-test"
@@ -458,7 +467,6 @@ export const Index: React.FC = () => {
 					height={1200}
 					width={1600}
 				/>
-
 				<Composition
 					id="exploding-bird"
 					lazyComponent={() => import('./Lottie/ExplodingBird')}
@@ -466,6 +474,32 @@ export const Index: React.FC = () => {
 					fps={30}
 					height={850}
 					width={850}
+				/>
+				<Composition
+					id="loader"
+					lazyComponent={() => import('./Lottie/Loader')}
+					durationInFrames={240}
+					fps={60}
+					height={576}
+					width={576}
+				/>
+			</Folder>
+			<Folder name="paths">
+				<Composition
+					id="path-evolve"
+					lazyComponent={() => import('./Paths/PathEvolve')}
+					durationInFrames={500}
+					fps={30}
+					height={1080}
+					width={1080}
+				/>
+				<Composition
+					id="path-morph"
+					lazyComponent={() => import('./Paths/PathMorph')}
+					durationInFrames={500}
+					fps={30}
+					height={1080}
+					width={1080}
 				/>
 			</Folder>
 		</>

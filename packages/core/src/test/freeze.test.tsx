@@ -6,11 +6,12 @@ import React from 'react';
 import {describe, expect, test} from 'vitest';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
 import {Freeze} from '../freeze';
-import {Sequence} from '../index';
+import {Sequence} from '../Sequence';
 import type {TimelineContextValue} from '../timeline-position-state';
 import {TimelineContext} from '../timeline-position-state';
 import {useCurrentFrame} from '../use-current-frame';
 import {expectToThrow} from './expect-to-throw';
+import {WrapSequenceContext} from './wrap-sequence-context';
 
 describe('Prop validation', () => {
 	test('It should throw if Freeze has string as frame prop value', () => {
@@ -65,11 +66,13 @@ const WithSequence: React.FC = () => {
 	const SequenceFrom = 200;
 	const FreezeFrame = 100;
 	return (
-		<Sequence from={SequenceFrom} layout="none">
-			<Freeze frame={FreezeFrame}>
-				<TestComponent />
-			</Freeze>
-		</Sequence>
+		<WrapSequenceContext>
+			<Sequence from={SequenceFrom} layout="none">
+				<Freeze frame={FreezeFrame}>
+					<TestComponent />
+				</Freeze>
+			</Sequence>
+		</WrapSequenceContext>
 	);
 };
 

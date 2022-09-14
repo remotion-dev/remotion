@@ -23,8 +23,10 @@ import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import type {PlayerRef} from './player-methods';
-import type {RenderLoading} from './PlayerUI';
+import type {RenderLoading, RenderPoster} from './PlayerUI';
 import PlayerUI from './PlayerUI';
+import {validateInOutFrames} from './utils/validate-in-out-frame';
+import {validateInitialFrame} from './utils/validate-initial-frame';
 import {validatePlaybackRate} from './utils/validate-playbackrate';
 import {getPreferredVolume, persistVolume} from './volume-persistance';
 
@@ -58,12 +60,15 @@ export type PlayerProps<T> = {
 	renderLoading?: RenderLoading;
 	moveToBeginningWhenEnded?: boolean;
 	className?: string;
+	initialFrame?: number;
+	renderPoster?: RenderPoster;
+	showPosterWhenPaused?: boolean;
+	showPosterWhenEnded?: boolean;
+	showPosterWhenUnplayed?: boolean;
+	inFrame?: number | null;
+	outFrame?: number | null;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
-
-Internals.CSSUtils.injectCSS(
-	Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`, '#fff')
-);
 
 export const componentOrNullIfLazy = <T,>(
 	props: CompProps<T>
@@ -97,6 +102,13 @@ export const PlayerFn = <T,>(
 		playbackRate = 1,
 		renderLoading,
 		className,
+		showPosterWhenUnplayed,
+		showPosterWhenEnded,
+		showPosterWhenPaused,
+		initialFrame,
+		renderPoster,
+		inFrame,
+		outFrame,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -134,7 +146,9 @@ export const PlayerFn = <T,>(
 
 	const component = Internals.useLazyComponent(componentProps);
 
-	const [frame, setFrame] = useState(0);
+	validateInitialFrame({initialFrame, durationInFrames});
+
+	const [frame, setFrame] = useState(() => initialFrame ?? 0);
 	const [playing, setPlaying] = useState<boolean>(false);
 	const [rootId] = useState<string>('player-comp');
 	const [emitter] = useState(() => new PlayerEmitter());
@@ -171,6 +185,12 @@ export const PlayerFn = <T,>(
 		'of the <Player/> component'
 	);
 	Internals.validateFps(fps, 'as a prop of the <Player/> component', false);
+
+	validateInOutFrames({
+		durationInFrames,
+		inFrame,
+		outFrame,
+	});
 
 	if (typeof controls !== 'boolean' && typeof controls !== 'undefined') {
 		throw new TypeError(
@@ -326,6 +346,8 @@ export const PlayerFn = <T,>(
 			unregisterSequence: () => undefined,
 			registerAsset: () => undefined,
 			unregisterAsset: () => undefined,
+			currentCompositionMetadata: null,
+			setCurrentCompositionMetadata: () => undefined,
 			assets: [],
 		};
 	}, [
@@ -340,6 +362,16 @@ export const PlayerFn = <T,>(
 	const passedInputProps = useMemo(() => {
 		return inputProps ?? {};
 	}, [inputProps]);
+
+	if (typeof window !== 'undefined') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			// Inject CSS only on client, and also only after the Player has hydrated
+			Internals.CSSUtils.injectCSS(
+				Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`, '#fff')
+			);
+		}, []);
+	}
 
 	return (
 		<Internals.CanUseRemotionHooksProvider>
@@ -387,6 +419,12 @@ export const PlayerFn = <T,>(
 											spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
 											playbackRate={playbackRate}
 											className={className ?? undefined}
+											showPosterWhenUnplayed={Boolean(showPosterWhenUnplayed)}
+											showPosterWhenEnded={Boolean(showPosterWhenEnded)}
+											showPosterWhenPaused={Boolean(showPosterWhenPaused)}
+											renderPoster={renderPoster}
+											inFrame={inFrame ?? null}
+											outFrame={outFrame ?? null}
 										/>
 									</PlayerEventEmitterContext.Provider>
 								</Internals.SharedAudioContextProvider>

@@ -6,9 +6,10 @@ import {render} from '@testing-library/react';
 import React from 'react';
 import {expect, test} from 'vitest';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
-import {Series} from '../index';
+import {Series} from '../series';
 import {TimelineContext} from '../timeline-position-state';
 import {useCurrentFrame} from '../use-current-frame';
+import {WrapSequenceContext} from './wrap-sequence-context';
 
 const First = () => {
 	const frame = useCurrentFrame();
@@ -52,17 +53,19 @@ const renderForFrame = (frame: number, markup: React.ReactNode) => {
 test('Basic series test', () => {
 	const {queryByText} = renderForFrame(
 		10,
-		<Series>
-			<Series.Sequence durationInFrames={5}>
-				<First />
-			</Series.Sequence>
-			<Series.Sequence durationInFrames={5}>
-				<Second />
-			</Series.Sequence>
-			<Series.Sequence durationInFrames={5}>
-				<Third />
-			</Series.Sequence>
-		</Series>
+		<WrapSequenceContext>
+			<Series>
+				<Series.Sequence durationInFrames={5}>
+					<First />
+				</Series.Sequence>
+				<Series.Sequence durationInFrames={5}>
+					<Second />
+				</Series.Sequence>
+				<Series.Sequence durationInFrames={5}>
+					<Third />
+				</Series.Sequence>
+			</Series>{' '}
+		</WrapSequenceContext>
 	);
 	expect(queryByText(/^third\s0$/)).not.toBe(null);
 });
@@ -70,19 +73,21 @@ test('Basic series test', () => {
 test('Should support fragments', () => {
 	const {container} = renderForFrame(
 		10,
-		<Series>
-			<Series.Sequence durationInFrames={5}>
-				<First />
-			</Series.Sequence>
-			<>
-				<Series.Sequence key="0" durationInFrames={5}>
-					<Second />
+		<WrapSequenceContext>
+			<Series>
+				<Series.Sequence durationInFrames={5}>
+					<First />
 				</Series.Sequence>
-				<Series.Sequence key="1" durationInFrames={5}>
-					<Third />
-				</Series.Sequence>
-			</>
-		</Series>
+				<>
+					<Series.Sequence key="0" durationInFrames={5}>
+						<Second />
+					</Series.Sequence>
+					<Series.Sequence key="1" durationInFrames={5}>
+						<Third />
+					</Series.Sequence>
+				</>
+			</Series>{' '}
+		</WrapSequenceContext>
 	);
 
 	expect(container.outerHTML).not.toBe(null);
@@ -90,20 +95,24 @@ test('Should support fragments', () => {
 test('Should not allow foreign elements', () => {
 	expect(() => {
 		render(
-			<Series>
-				<First />
-			</Series>
+			<WrapSequenceContext>
+				<Series>
+					<First />
+				</Series>
+			</WrapSequenceContext>
 		);
 	}).toThrow(/only accepts a/);
 });
 test('Should allow layout prop', () => {
 	const {container} = renderForFrame(
 		0,
-		<Series>
-			<Series.Sequence durationInFrames={1}>
-				<First />
-			</Series.Sequence>
-		</Series>
+		<WrapSequenceContext>
+			<Series>
+				<Series.Sequence durationInFrames={1}>
+					<First />
+				</Series.Sequence>
+			</Series>
+		</WrapSequenceContext>
 	);
 	expect(container.outerHTML).toBe(
 		'<div><div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; width: 100%; height: 100%; display: flex;"><div>first 0</div></div></div>'
@@ -111,11 +120,13 @@ test('Should allow layout prop', () => {
 
 	const {container: withoutLayoutContainer} = renderForFrame(
 		0,
-		<Series>
-			<Series.Sequence durationInFrames={1} layout="none">
-				<First />
-			</Series.Sequence>
-		</Series>
+		<WrapSequenceContext>
+			<Series>
+				<Series.Sequence durationInFrames={1} layout="none">
+					<First />
+				</Series.Sequence>
+			</Series>
+		</WrapSequenceContext>
 	);
 	expect(withoutLayoutContainer.outerHTML).toBe(
 		'<div><div>first 0</div></div>'
@@ -124,11 +135,13 @@ test('Should allow layout prop', () => {
 test('Should render nothing after the end', () => {
 	const {container} = renderForFrame(
 		10,
-		<Series>
-			<Series.Sequence durationInFrames={1}>
-				<First />
-			</Series.Sequence>
-		</Series>
+		<WrapSequenceContext>
+			<Series>
+				<Series.Sequence durationInFrames={1}>
+					<First />
+				</Series.Sequence>
+			</Series>
+		</WrapSequenceContext>
 	);
 	expect(container.outerHTML).toBe('<div></div>');
 });
@@ -163,14 +176,16 @@ test('Should throw if invalid or no duration provided', () => {
 test('Should allow whitespace', () => {
 	const {queryByText} = renderForFrame(
 		11,
-		<Series>
-			<Series.Sequence durationInFrames={10}>
-				<First />
-			</Series.Sequence>{' '}
-			<Series.Sequence durationInFrames={10}>
-				<Second />
-			</Series.Sequence>
-		</Series>
+		<WrapSequenceContext>
+			<Series>
+				<Series.Sequence durationInFrames={10}>
+					<First />
+				</Series.Sequence>{' '}
+				<Series.Sequence durationInFrames={10}>
+					<Second />
+				</Series.Sequence>
+			</Series>
+		</WrapSequenceContext>
 	);
 	expect(queryByText(/^second\s1$/g)).not.toBe(null);
 });
@@ -193,14 +208,16 @@ test('Handle empty Series.Sequence', () => {
 test('Should allow negative overlap prop', () => {
 	const {container} = renderForFrame(
 		4,
-		<Series>
-			<Series.Sequence durationInFrames={5} layout="none">
-				<First />
-			</Series.Sequence>
-			<Series.Sequence offset={-1} layout="none" durationInFrames={5}>
-				<Second />
-			</Series.Sequence>
-		</Series>
+		<WrapSequenceContext>
+			<Series>
+				<Series.Sequence durationInFrames={5} layout="none">
+					<First />
+				</Series.Sequence>
+				<Series.Sequence offset={-1} layout="none" durationInFrames={5}>
+					<Second />
+				</Series.Sequence>
+			</Series>
+		</WrapSequenceContext>
 	);
 	expect(container.outerHTML).toBe(
 		'<div><div>first 4</div><div>second 0</div></div>'
@@ -210,14 +227,16 @@ test('Should allow negative overlap prop', () => {
 test('Should allow positive overlap prop', () => {
 	const {container} = renderForFrame(
 		5,
-		<Series>
-			<Series.Sequence durationInFrames={5} layout="none">
-				<First />
-			</Series.Sequence>
-			<Series.Sequence offset={1} layout="none" durationInFrames={5}>
-				<Second />
-			</Series.Sequence>
-		</Series>
+		<WrapSequenceContext>
+			<Series>
+				<Series.Sequence durationInFrames={5} layout="none">
+					<First />
+				</Series.Sequence>
+				<Series.Sequence offset={1} layout="none" durationInFrames={5}>
+					<Second />
+				</Series.Sequence>
+			</Series>
+		</WrapSequenceContext>
 	);
 	expect(container.outerHTML).toBe('<div></div>');
 });
@@ -270,17 +289,19 @@ test('Should disallow non-integer numbers as offset prop', () => {
 test('Should cascade negative offset props', () => {
 	const {container} = renderForFrame(
 		9,
-		<Series>
-			<Series.Sequence durationInFrames={5} layout="none">
-				<First />
-			</Series.Sequence>
-			<Series.Sequence offset={-1} layout="none" durationInFrames={5}>
-				<Second />
-			</Series.Sequence>
-			<Series.Sequence layout="none" durationInFrames={5}>
-				<Third />
-			</Series.Sequence>
-		</Series>
+		<WrapSequenceContext>
+			<Series>
+				<Series.Sequence durationInFrames={5} layout="none">
+					<First />
+				</Series.Sequence>
+				<Series.Sequence offset={-1} layout="none" durationInFrames={5}>
+					<Second />
+				</Series.Sequence>
+				<Series.Sequence layout="none" durationInFrames={5}>
+					<Third />
+				</Series.Sequence>
+			</Series>
+		</WrapSequenceContext>
 	);
 	expect(container.outerHTML).toBe('<div><div>third 0</div></div>');
 });
@@ -288,17 +309,19 @@ test('Should cascade negative offset props', () => {
 test('Should cascade positive offset props', () => {
 	const {container} = renderForFrame(
 		11,
-		<Series>
-			<Series.Sequence durationInFrames={5} layout="none">
-				<First />
-			</Series.Sequence>
-			<Series.Sequence offset={1} layout="none" durationInFrames={5}>
-				<Second />
-			</Series.Sequence>
-			<Series.Sequence layout="none" durationInFrames={5}>
-				<Third />
-			</Series.Sequence>
-		</Series>
+		<WrapSequenceContext>
+			<Series>
+				<Series.Sequence durationInFrames={5} layout="none">
+					<First />
+				</Series.Sequence>
+				<Series.Sequence offset={1} layout="none" durationInFrames={5}>
+					<Second />
+				</Series.Sequence>
+				<Series.Sequence layout="none" durationInFrames={5}>
+					<Third />
+				</Series.Sequence>
+			</Series>
+		</WrapSequenceContext>
 	);
 	expect(container.outerHTML).toBe('<div><div>third 0</div></div>');
 });

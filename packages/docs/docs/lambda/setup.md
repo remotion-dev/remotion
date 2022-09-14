@@ -151,7 +151,7 @@ The function name is returned which you'll need for rendering.
 </TabItem>
 </Tabs>
 
-## 8. Deploy a website
+## 8. Deploy a site
 
 <Tabs
 defaultValue="cli"
@@ -165,10 +165,12 @@ values={[
 Run the following command to deploy your Remotion project to an S3 bucket. Pass as the last argument the entry file of the project - this is the file where [`registerRoot()`](/docs/register-root) is called.
 
 ```bash
-npx remotion lambda sites create src/index.tsx
+npx remotion lambda sites create src/index.tsx --site-name=my-video
 ```
 
-A URL will be printed pointing to the deployed project.
+A `serveUrl` will be printed pointing to the deployed project.
+
+When you update your Remotion video in the future, redeploy your site. Pass the same [`--site-name`](/docs/lambda/cli/sites#--site-name) to overwrite the previous deploy. If you don't pass [`--site-name`](/docs/lambda/cli/sites#--site-name), a unique URL will be generated on every deploy.
 
 </TabItem>
 <TabItem value="node">
@@ -202,10 +204,11 @@ const { serveUrl } = await deploySite({
   bucketName,
   entryPoint: path.resolve(process.cwd(), "src/index.tsx"),
   region: "us-east-1",
+  siteName: "my-video",
 });
 ```
 
-You are now ready to render a video.
+When you update your Remotion video in the future, redeploy your site. Pass the same [`siteName`](/docs/lambda/deploysite#sitename) to overwrite the previous deploy. If you don't pass [`siteName`](/docs/lambda/deploysite#sitename), a unique URL will be generated on every deploy.
 
 </TabItem>
 </Tabs>

@@ -1,0 +1,17 @@
+export const listOfRemotionPackages = [
+	'@remotion/bundler',
+	'@remotion/cli',
+	'@remotion/eslint-config',
+	'@remotion/renderer',
+	'@remotion/skia',
+	'@remotion/lottie',
+	'@remotion/media-utils',
+	'@remotion/paths',
+	'@remotion/babel-loader',
+	'@remotion/lambda',
+	'@remotion/player',
+	'@remotion/preload',
+	'@remotion/three',
+	'@remotion/gif',
+	'remotion',
+];

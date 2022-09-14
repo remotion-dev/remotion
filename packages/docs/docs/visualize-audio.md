@@ -21,6 +21,9 @@ The only argument for this function is an object containing the following values
 
 - `numberOfSamples`: `number` - must be a power of two, such as `32`, `64`, `128`, etc. This parameter controls the length of the output array. A lower number will simplify the spectrum and is useful if you want to animate elements roughly based on the level of lows, mids and highs. A higher number will give the spectrum in more detail, which is useful for displaying a bar chart or waveform-style visualization of the audio.
 
+- `smoothing`: `boolean` - when set to `true` the returned values will be an average of the current, previous and next frames. The result is a smoother transition for quickly changing values. Default value is `true`.
+
+
 ## Return value
 
 `number[]` - An array of values describing the amplitude of each frequency range. Each value is between 0 and 1. The array is of length defined by the `numberOfSamples` parameter.
@@ -69,6 +72,52 @@ export const MyComponent: React.FC = () => {
     </div>
   );
 };
+```
+
+## Postprocessing example
+
+A logarithmic representation of the audio will look more appealing than a linear one. Below is an example of a postprocessing step that looks prettier than the default one.
+
+```tsx twoslash
+import { visualizeAudio } from "@remotion/media-utils";
+const params = {
+  audioData: {
+    channelWaveforms: [],
+    sampleRate: 0,
+    durationInSeconds: 0,
+    numberOfChannels: 0,
+    resultId: "",
+    isRemote: true,
+  },
+  frame: 0,
+  fps: 0,
+  numberOfSamples: 0,
+};
+// ---cut---
+/**
+ * This postprocessing step will match the values with what you'd
+ * get from WebAudio's `AnalyserNode.getByteFrequencyData()`.
+ *
+ * MDN: https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode/getByteFrequencyData
+ * W3C Spec: https://www.w3.org/TR/webaudio/#AnalyserNode-methods
+ */
+
+// get the frequency data
+const frequencyData = visualizeAudio(params);
+
+// default scaling factors from the W3C spec for getByteFrequencyData
+const minDb = -100;
+const maxDb = -30;
+
+const amplitudes = frequencyData.map((value) => {
+  // convert to decibels (will be in the range `-Infinity` to `0`)
+  const db = 20 * Math.log10(value);
+
+  // scale to fit between min and max
+  const scaled = (db - minDb) / (maxDb - minDb);
+
+  return scaled;
+});
 ```
 
 ## See also

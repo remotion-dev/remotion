@@ -5,7 +5,7 @@ Internals.setupEnvVariables();
 Internals.CSSUtils.injectCSS(`
   .css-reset, .css-reset * {
     font-size: 16px;
-    line-height: 1;
+    line-height: 1.5;
     color: white;
     font-family: Arial, Helvetica, sans-serif;
     background: transparent;
