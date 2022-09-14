@@ -39,15 +39,15 @@ module.exports = {
         },
         { to: "/docs/license", label: "Pricing", position: "left" },
         {
-          type: 'dropdown',
-          label: 'More',
-          position: 'left',
+          type: "dropdown",
+          label: "More",
+          position: "left",
           items: [
-            { to: "blog", label: "Blog",  },
-            { to: "showcase", label: "Showcase",  },
-            { to: "experts", label: "Experts",  },
-            { to: "about", label: "About",  },
-            { to: "success-stories", label: "Success Stories",  },
+            { to: "blog", label: "Blog" },
+            { to: "showcase", label: "Showcase" },
+            { to: "experts", label: "Experts" },
+            { to: "about", label: "About" },
+            { to: "success-stories", label: "Success Stories" },
           ],
         },
         {
@@ -172,6 +172,9 @@ module.exports = {
         },
       ],
       copyright: `Copyright © ${new Date().getFullYear()} remotion.dev. Built with Docusaurus.`,
+    },
+    colorMode: {
+      respectPrefersColorScheme: true,
     },
   },
   presets: [
