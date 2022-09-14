@@ -4,13 +4,13 @@ import clsx from "clsx";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { VideoPlayer } from "../../components/VideoPlayer";
 import { VideoPreview } from "../../components/VideoPreview";
-import type {
-  ShowcaseVideo} from "../../data/showcase-videos";
+import type { ShowcaseVideo } from "../../data/showcase-videos";
 import {
   showcaseVideos,
   shuffledShowcaseVideos,
 } from "../../data/showcase-videos";
 import { chunk } from "../../helpers/chunk";
+import { useMobileLayout } from "../../helpers/mobile-layout";
 import { useElementSize } from "../../helpers/use-el-size";
 import headerStyles from "./header.module.css";
 import styles from "./styles.module.css";
@@ -44,7 +44,7 @@ const Showcase = () => {
   const containerSize = useElementSize(
     typeof document === "undefined" ? null : document.body
   );
-  const mobileLayout = (containerSize?.width ?? Infinity) < 1200;
+  const mobileLayout = useMobileLayout();
   const mobileHeight = mobileLayout ? containerSize.width : null;
 
   const [userHasInteractedWithPage, setUserHasInteractedWithPage] =
