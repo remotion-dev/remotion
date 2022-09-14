@@ -117,6 +117,14 @@
   margin-top: 50px;
 }
 
+.minimum {
+  margin-top: -30px;
+  color: var(--light-text-color);
+  margin-bottom: 20px;
+  font-size: 15px;
+}
+
+
 .plus svg {
   height: 20px;
 }
