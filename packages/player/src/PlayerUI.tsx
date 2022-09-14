@@ -65,6 +65,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenPaused: boolean;
 		showPosterWhenEnded: boolean;
 		showPosterWhenUnplayed: boolean;
+		inFrame: number | null;
+		outFrame: number | null;
 	}
 > = (
 	{
@@ -91,6 +93,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenUnplayed,
 		showPosterWhenEnded,
 		showPosterWhenPaused,
+		inFrame,
+		outFrame,
 	},
 	ref
 ) => {
@@ -112,8 +116,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		loop,
 		playbackRate,
 		moveToBeginningWhenEnded,
-		inFrame: null,
-		outFrame: null,
+		inFrame,
+		outFrame,
 	});
 	const player = usePlayer();
 
