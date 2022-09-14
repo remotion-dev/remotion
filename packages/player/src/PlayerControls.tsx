@@ -94,6 +94,8 @@ export const Controls: React.FC<{
 	spaceKeyToPlayOrPause: boolean;
 	onSeekEnd: () => void;
 	onSeekStart: () => void;
+	inFrame: number | null;
+	outFrame: number | null;
 }> = ({
 	durationInFrames,
 	hovered,
@@ -107,6 +109,8 @@ export const Controls: React.FC<{
 	spaceKeyToPlayOrPause,
 	onSeekEnd,
 	onSeekStart,
+	inFrame,
+	outFrame,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -189,6 +193,8 @@ export const Controls: React.FC<{
 				onSeekEnd={onSeekEnd}
 				onSeekStart={onSeekStart}
 				durationInFrames={durationInFrames}
+				inFrame={inFrame}
+				outFrame={outFrame}
 			/>
 		</div>
 	);
