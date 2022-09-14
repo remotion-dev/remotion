@@ -163,6 +163,7 @@ export const PricingTable: React.FC<{}> = () => {
             fontWeight: "bold",
             textDecoration: "none",
           }}
+          target="_blank"
           href="mailto:hi@remotion.dev"
         >
           Contact us
