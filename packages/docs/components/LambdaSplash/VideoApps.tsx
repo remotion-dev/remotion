@@ -43,7 +43,6 @@ const list: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  fontWeight: 500,
 };
 
 const hr: React.CSSProperties = {
@@ -74,7 +73,7 @@ export const VideoApps: React.FC<{
       <div style={step}>
         {active === "remotion" ? <YouAreHere /> : null}
         <h2 style={stepTitle}>Remotion</h2>
-        <strong style={center}>Write videos in React</strong>
+        <strong style={center}>Make videos programmatically</strong>
         <br />
         <div
           style={{

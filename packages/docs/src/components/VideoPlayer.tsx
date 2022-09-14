@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import type { ShowcaseVideo } from "../data/showcase-videos";
-import { useElementSize } from "../helpers/use-el-size";
+import { useMobileLayout } from "../helpers/mobile-layout";
 import { CancelIcon, IconLeft, IconRight } from "../icons/arrows";
 import { VideoPlayerContent } from "./VideoPlayerContent";
 import { VidPlayerHeader } from "./VideoPlayerHeader";
@@ -65,10 +65,7 @@ export const VideoPlayer: React.FC<{
   hasPrevious,
   userHasInteractedWithPage,
 }) => {
-  const containerSize = useElementSize(
-    typeof document === "undefined" ? null : document.body
-  );
-  const mobileLayout = (containerSize?.width ?? Infinity) < 900;
+  const mobileLayout = useMobileLayout();
 
   const containerWithDirection: React.CSSProperties = useMemo(() => {
     return {
