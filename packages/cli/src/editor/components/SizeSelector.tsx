@@ -3,32 +3,74 @@ import React, {useContext, useMemo} from 'react';
 import {Checkmark} from '../icons/Checkmark';
 import {PreviewSizeContext} from '../state/preview-size';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';
-import type { ComboboxValue} from './NewComposition/ComboBox';
+import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
 
-export const commonPreviewSizes: PreviewSize[] = ['auto', 0.25, 0.5, 1];
+export const commonPreviewSizes: PreviewSize[] = [
+	{
+		size: 'auto',
+		translation: {
+			x: 0,
+			y: 0,
+		},
+	},
+	{
+		size: 0.25,
+		translation: {
+			x: 0,
+			y: 0,
+		},
+	},
+	{
+		size: 0.5,
+		translation: {
+			x: 0,
+			y: 0,
+		},
+	},
+	{
+		size: 1,
+		translation: {
+			x: 0,
+			y: 0,
+		},
+	},
+];
 
 export const getPreviewSizeLabel = (previewSize: PreviewSize) => {
-	if (previewSize === 1) {
-		return '100%';
-	}
-
-	if (previewSize === 0.5) {
-		return '50%';
-	}
-
-	if (previewSize === 0.25) {
-		return '25%';
-	}
-
-	if (previewSize === 'auto') {
+	if (previewSize.size === 'auto') {
 		return 'Fit';
 	}
+
+	return `${(previewSize.size * 100).toFixed(0)}%`;
 };
 
 const accessibilityLabel = 'Preview Size';
 
 const comboStyle: React.CSSProperties = {width: 80};
+
+export const getUniqueSizes = (size: PreviewSize) => {
+	const customPreviewSizes = [size, ...commonPreviewSizes];
+	const uniqueSizes: PreviewSize[] = [];
+
+	customPreviewSizes.forEach((p) => {
+		if (!uniqueSizes.find((s) => s.size === p.size)) {
+			uniqueSizes.push(p);
+		}
+	});
+
+	return uniqueSizes.sort((a, b) => {
+		if (a.size === 'auto') {
+			return -1;
+		}
+
+		if (b.size === 'auto') {
+			return 1;
+		}
+
+		return a.size - b.size;
+	});
+};
 
 export const SizeSelector: React.FC = () => {
 	const {size, setSize} = useContext(PreviewSizeContext);
@@ -40,9 +82,9 @@ export const SizeSelector: React.FC = () => {
 	}, []);
 
 	const items: ComboboxValue[] = useMemo(() => {
-		return commonPreviewSizes.map((newSize): ComboboxValue => {
+		return getUniqueSizes(size).map((newSize): ComboboxValue => {
 			return {
-				id: String(newSize),
+				id: String(newSize.size),
 				label: getPreviewSizeLabel(newSize),
 				onClick: () => {
 					return setSize(() => {
@@ -50,9 +92,10 @@ export const SizeSelector: React.FC = () => {
 					});
 				},
 				type: 'item',
-				value: newSize,
-				keyHint: null,
-				leftItem: String(size) === String(newSize) ? <Checkmark /> : null,
+				value: newSize.size,
+				keyHint: newSize.size ? '0' : null,
+				leftItem:
+					String(size.size) === String(newSize.size) ? <Checkmark /> : null,
 				subMenu: null,
 			};
 		});
@@ -63,7 +106,7 @@ export const SizeSelector: React.FC = () => {
 			<Combobox
 				title={accessibilityLabel}
 				style={comboStyle}
-				selectedId={String(size)}
+				selectedId={String(size.size)}
 				values={items}
 			/>
 		</div>

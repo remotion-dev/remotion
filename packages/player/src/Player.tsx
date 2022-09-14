@@ -25,6 +25,7 @@ import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import type {PlayerRef} from './player-methods';
 import type {RenderLoading, RenderPoster} from './PlayerUI';
 import PlayerUI from './PlayerUI';
+import {validateInOutFrames} from './utils/validate-in-out-frame';
 import {validateInitialFrame} from './utils/validate-initial-frame';
 import {validatePlaybackRate} from './utils/validate-playbackrate';
 import {getPreferredVolume, persistVolume} from './volume-persistance';
@@ -64,6 +65,8 @@ export type PlayerProps<T> = {
 	showPosterWhenPaused?: boolean;
 	showPosterWhenEnded?: boolean;
 	showPosterWhenUnplayed?: boolean;
+	inFrame?: number | null;
+	outFrame?: number | null;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -104,6 +107,8 @@ export const PlayerFn = <T,>(
 		showPosterWhenPaused,
 		initialFrame,
 		renderPoster,
+		inFrame,
+		outFrame,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -142,6 +147,7 @@ export const PlayerFn = <T,>(
 	const component = Internals.useLazyComponent(componentProps);
 
 	validateInitialFrame({initialFrame, durationInFrames});
+
 	const [frame, setFrame] = useState(() => initialFrame ?? 0);
 	const [playing, setPlaying] = useState<boolean>(false);
 	const [rootId] = useState<string>('player-comp');
@@ -179,6 +185,12 @@ export const PlayerFn = <T,>(
 		'of the <Player/> component'
 	);
 	Internals.validateFps(fps, 'as a prop of the <Player/> component', false);
+
+	validateInOutFrames({
+		durationInFrames,
+		inFrame,
+		outFrame,
+	});
 
 	if (typeof controls !== 'boolean' && typeof controls !== 'undefined') {
 		throw new TypeError(
@@ -411,6 +423,8 @@ export const PlayerFn = <T,>(
 											showPosterWhenEnded={Boolean(showPosterWhenEnded)}
 											showPosterWhenPaused={Boolean(showPosterWhenPaused)}
 											renderPoster={renderPoster}
+											inFrame={inFrame ?? null}
+											outFrame={outFrame ?? null}
 										/>
 									</PlayerEventEmitterContext.Provider>
 								</Internals.SharedAudioContextProvider>

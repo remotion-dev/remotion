@@ -47,6 +47,7 @@ export const TimelineZoomControls: React.FC = () => {
 		},
 		[setZoom]
 	);
+
 	const isStill = useIsStill();
 
 	if (isStill) {

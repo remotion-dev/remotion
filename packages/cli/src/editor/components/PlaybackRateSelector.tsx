@@ -1,8 +1,9 @@
 import React, {useMemo} from 'react';
+import {useIsStill} from '../helpers/is-current-selected-still';
 import {Checkmark} from '../icons/Checkmark';
 import {persistPlaybackRate} from '../state/playbackrate';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';
-import type { ComboboxValue} from './NewComposition/ComboBox';
+import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
 
 export const commonPlaybackRates: number[] = [
@@ -21,6 +22,7 @@ export const PlaybackRateSelector: React.FC<{
 	playbackRate: number;
 	setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
 }> = ({playbackRate, setPlaybackRate}) => {
+	const isStill = useIsStill();
 	const style = useMemo(() => {
 		return {
 			padding: CONTROL_BUTTON_PADDING,
@@ -55,6 +57,10 @@ export const PlaybackRateSelector: React.FC<{
 		const middle = Math.floor(commonPlaybackRates.length / 2);
 		return [...values.slice(0, middle), divider, ...values.slice(middle)];
 	}, [playbackRate, setPlaybackRate]);
+
+	if (isStill) {
+		return null;
+	}
 
 	return (
 		<div style={style} aria-label={accessibilityLabel}>

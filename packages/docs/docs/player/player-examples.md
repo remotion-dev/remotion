@@ -163,8 +163,8 @@ export const MyVideo = () => <></>;
 // @filename: index.tsx
 // ---cut---
 import { Player, PlayerRef } from "@remotion/player";
-import { MyVideo } from "./remotion/MyVideo";
 import { useCallback, useRef } from "react";
+import { MyVideo } from "./remotion/MyVideo";
 
 export const App: React.FC = () => {
   const playerRef = useRef<PlayerRef>(null);
@@ -200,8 +200,8 @@ export const MyVideo = () => <></>;
 // @filename: index.tsx
 // ---cut---
 import { Player, PlayerRef } from "@remotion/player";
-import { MyVideo } from "./remotion/MyVideo";
 import { useEffect, useRef } from "react";
+import { MyVideo } from "./remotion/MyVideo";
 
 export const App: React.FC = () => {
   const playerRef = useRef<PlayerRef>(null);
@@ -243,8 +243,8 @@ export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import { useState } from "react";
 import { Player } from "@remotion/player";
+import { useState } from "react";
 import { MyVideo } from "./remotion/MyVideo";
 
 export const App: React.FC = () => {
@@ -261,6 +261,34 @@ export const App: React.FC = () => {
       inputProps={{
         text,
       }}
+    />
+  );
+};
+```
+
+## Only play a portion of a video
+
+```tsx twoslash {13-14}
+// @allowUmdGlobalAccess
+// @filename: ./remotion/MyVideo.tsx
+export const MyVideo = () => <></>;
+
+// @filename: index.tsx
+// ---cut---
+import { Player } from "@remotion/player";
+import { MyVideo } from "./remotion/MyVideo";
+
+export const App: React.FC = () => {
+  return (
+    <Player
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+      loop
+      inFrame={30}
+      outFrame={60}
     />
   );
 };
