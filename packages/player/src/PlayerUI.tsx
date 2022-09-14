@@ -528,6 +528,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
 					onSeekEnd={onSeekEnd}
 					onSeekStart={onSeekStart}
+					inFrame={inFrame}
+					outFrame={outFrame}
 				/>
 			) : null}
 		</>
