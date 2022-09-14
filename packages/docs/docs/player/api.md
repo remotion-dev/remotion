@@ -242,6 +242,18 @@ _optional, available from v3.2.14_
 
 Render the poster when the video has ended. Requires [`moveToBeginning`](#movetobeginningwhenended) to be set to `false`. [`renderPoster()`](#renderposter) to be set. Default: `false`.
 
+### `inFrame`
+
+_optional, available from v3.2.15_
+
+Limit playback to only play after a certain frame. The video will start from this frame and move to this position once it has ended. Must be an integer, not smaller than `0`, not bigger than [`outFrame`](#outframe) and not bigger than `durationInFrames - 1`. Default `null`, which means the beginning of the video.
+
+### `outFrame`
+
+_optional, available from v3.2.15_
+
+Limit playback to only play before a certain frame. The video will end at this frame and move to the beginning once it has ended. Must be an integer, not smaller than `1`, not smaller than [`inFrame`](#inframe) and not bigger than `durationInFrames - 1`. Default `null`, which means the end of the video.
+
 ## `PlayerRef`
 
 You may attach a ref to the player and control it in an imperative manner.
