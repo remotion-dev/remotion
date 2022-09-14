@@ -55,7 +55,7 @@ const Inner: React.FC<{
 			canvasSize,
 			compositionHeight: config.height,
 			compositionWidth: config.width,
-			previewSize,
+			previewSize: previewSize.size,
 		});
 
 	const outer: React.CSSProperties = useMemo(() => {
