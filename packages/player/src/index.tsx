@@ -1,4 +1,4 @@
-import {calculateCanvasTransformation} from './calculate-scale';
+import {calculateCanvasTransformation, calculateScale} from './calculate-scale';
 import {PlayerEventEmitterContext} from './emitter-context';
 import type {CallbackListener, EventTypes} from './event-emitter';
 import {PlayerEmitter} from './event-emitter';
@@ -23,4 +23,5 @@ export const PlayerInternals = {
 	calculateCanvasTransformation,
 	useHoverState,
 	updateAllElementsSizes,
+	calculateScale,
 };

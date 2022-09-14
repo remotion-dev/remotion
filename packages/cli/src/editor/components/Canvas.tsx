@@ -1,5 +1,4 @@
 import {PlayerInternals} from '@remotion/player';
-import {calculateScale} from '@remotion/player/src/calculate-scale';
 import React, {useCallback, useContext, useEffect, useRef} from 'react';
 import {
 	MAX_ZOOM,
@@ -71,7 +70,7 @@ export const Canvas: React.FC = () => {
 			e.preventDefault();
 
 			setSize((prevSize) => {
-				const scale = calculateScale({
+				const scale = PlayerInternals.calculateScale({
 					canvasSize: size,
 					compositionHeight: dimensions.height,
 					compositionWidth: dimensions.width,
@@ -182,7 +181,7 @@ export const Canvas: React.FC = () => {
 		}
 
 		setSize((prevSize) => {
-			const scale = calculateScale({
+			const scale = PlayerInternals.calculateScale({
 				canvasSize: size,
 				compositionHeight: dimensions.height,
 				compositionWidth: dimensions.width,
@@ -208,7 +207,7 @@ export const Canvas: React.FC = () => {
 		}
 
 		setSize((prevSize) => {
-			const scale = calculateScale({
+			const scale = PlayerInternals.calculateScale({
 				canvasSize: size,
 				compositionHeight: dimensions.height,
 				compositionWidth: dimensions.width,
