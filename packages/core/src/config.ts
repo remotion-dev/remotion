@@ -35,6 +35,12 @@ export type ConfigType = {
 		 * @default 15
 		 */
 		readonly setMaxTimelineTracks: (maxTracks: number) => void;
+		/**
+		 * Enable Keyboard shortcuts in the Remotion Preview.
+		 * @param enabled Boolean whether to enable the keyboard shortcuts
+		 * @default true
+		 */
+		readonly setKeyboardShortcutsEnabled: (enableShortcuts: boolean) => void;
 	};
 	readonly Bundling: {
 		/**
@@ -54,6 +60,12 @@ export type ConfigType = {
 		 * If you specify a port, but it's not available, Remotion will throw an error.
 		 */
 		readonly setPort: (port: number | undefined) => void;
+		/**
+		 * Define the location of the public/ directory.
+		 * By default it is a folder named "public" inside the current working directory.
+		 * You can set an absolute path or a relative path that will be resolved from the closest package.json location.
+		 */
+		readonly setPublicDir: (publicDir: string | null) => void;
 	};
 	readonly Log: {
 		/**

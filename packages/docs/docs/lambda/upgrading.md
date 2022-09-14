@@ -1,6 +1,6 @@
 ---
 id: upgrading
-title: Upgrading
+title: Upgrading Lambda
 slug: /lambda/upgrading
 ---
 
@@ -27,10 +27,26 @@ npx remotion lambda functions rmall -y
 npx remotion lambda functions deploy
 ```
 
+- Update the site:
+
+```
+npx remotion sites create src/index.ts --site-name=my-name
+```
+
+:::info
+
+Pass `--site-name` with the name of an existing site to update it. The URL will stay the same but older functions may not be able to render the updated site.
+
+If you don't pass `--site-name` a new site URL will be generated. You'll need to update the [`serveUrl`](/docs/lambda/rendermediaonlambda#serveurl) parameter in your [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) calls. Old deployed functions can still render by specifying the old serve URL.
+:::
+
 ## Separating production and testing environments
 
-If you already shipped Remotion Lambda to production, you can upgrade without incurring any downtime. Each version of Remotion Lambda has a schema identifier (in the format of `2021-08-12`) that will increment whenever a breaking change is introduced.
+If you already shipped Remotion Lambda to production, you can upgrade without incurring any downtime:
 
-If you have Remotion Lambda in production and are testing locally, upgrading Remotion Lambda in your project locally and then rendering a video will yield an error message that the versions are mismatching. Simply deploy a new function `npx remotion lambda functions deploy` and your local environment will talk to the new function, while production will talk to the older function.
+- Each deployed function has a version (see them using `npx remotion lambda functions ls`).  
+  Use the same version of the `@remotion/lambda` package to invoke the function.
 
-If everything works and you commit and deploy the change to production, it will start talking to the new version and you can safely remove the old function.
+- You can have multiple functions with different versions deployed. Use the [`compatibleOnly`](/docs/lambda/getfunctions#compatibleonly) parameter to find functions that match the version of the `@remotion/lambda` package.
+
+- Sites/`serveUrl`'s also are version-dependant. Create them with the same version of Remotion that you render them with. Remotion will tolerate mismatches if there are no incompatibilities, but will issue a warning that you might not have all the newest features and bugfixes in the bundled site.

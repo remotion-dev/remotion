@@ -21,9 +21,12 @@ const container: React.CSSProperties = {
 };
 
 const messageContainer: React.CSSProperties = {
+	overflow: 'hidden',
+};
+
+const textContainer: React.CSSProperties = {
 	fontSize,
 	lineHeight,
-	overflow: 'hidden',
 };
 
 const moreLine: React.CSSProperties = {
@@ -80,7 +83,9 @@ export const ErrorMessage: React.FC<{
 	return (
 		<div style={container}>
 			<div style={style}>
-				<div ref={ref}>{message}</div>
+				<div ref={ref} style={textContainer}>
+					{message}
+				</div>
 			</div>
 			{errorLines !== null && errorLines > maxLines ? (
 				<div style={moreLine}>

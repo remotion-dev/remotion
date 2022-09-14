@@ -16,7 +16,7 @@ export const handler = async <T extends LambdaRoutines>(
 	params: LambdaPayload,
 	context: {invokedFunctionArn: string; getRemainingTimeInMillis: () => number}
 ): Promise<LambdaReturnValues[T]> => {
-	process.env.REMOTION_LAMBDA = 'true';
+	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
 	const timeoutInMiliseconds = context.getRemainingTimeInMillis();
 
 	if (!context || !context.invokedFunctionArn) {
@@ -45,7 +45,7 @@ export const handler = async <T extends LambdaRoutines>(
 			inputProps: JSON.stringify(params.inputProps),
 			isWarm,
 		});
-		return startHandler(params);
+		return startHandler(params, {expectedBucketOwner: currentUserId});
 	}
 
 	if (params.type === LambdaRoutines.launch) {

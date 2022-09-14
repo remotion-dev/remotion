@@ -8,7 +8,10 @@ const limit = pLimit(3);
 
 const fetchWithCorsCatch = async (src: string) => {
 	try {
-		const response = await fetch(src);
+		const response = await fetch(src, {
+			mode: 'cors',
+			referrerPolicy: 'no-referrer-when-downgrade',
+		});
 		return response;
 	} catch (err) {
 		const error = err as Error;

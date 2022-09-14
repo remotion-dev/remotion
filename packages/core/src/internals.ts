@@ -34,7 +34,6 @@ import type {
 } from './timeline-position-state';
 import * as TimelinePosition from './timeline-position-state';
 import {truthy} from './truthy';
-import {useAbsoluteCurrentFrame} from './use-current-frame';
 import {useLazyComponent} from './use-lazy-component';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';
@@ -94,7 +93,6 @@ export const Internals = {
 	getPreviewDomElement,
 	compositionsRef,
 	DELAY_RENDER_CALLSTACK_TOKEN,
-	useAbsoluteCurrentFrame,
 	portalNode,
 	waitForRoot,
 	validateOffthreadVideoImageFormat,

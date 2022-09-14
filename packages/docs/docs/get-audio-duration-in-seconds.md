@@ -5,7 +5,7 @@ id: get-audio-duration-in-seconds
 
 _Part of the `@remotion/media-utils` package of helper functions._
 
-_Previously `getAudioDuration()`_
+_Previously called `getAudioDuration()`._
 
 Gets the duration in seconds of an audio source. Remotion will create an invisible `<audio>` tag, load the audio and return the duration.
 
@@ -25,7 +25,7 @@ A string pointing to an audio asset
 // @module: ESNext
 // @target: ESNext
 import { useCallback, useEffect } from "react";
-import { Audio, staticFile } from "remotion";
+import { staticFile } from "remotion";
 // ---cut---
 import { getAudioDurationInSeconds } from "@remotion/media-utils";
 import music from "./music.mp3";

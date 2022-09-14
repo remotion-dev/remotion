@@ -2,6 +2,7 @@ import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import {Internals} from 'remotion';
+import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {
 	EncodingProgress,
@@ -9,8 +10,8 @@ import type {
 	RenderMetadata,
 } from '../shared/constants';
 import {
-	CURRENT_VERSION,
 	encodingProgressKey,
+	initalizedMetadataKey,
 	LambdaRoutines,
 	MAX_FUNCTIONS_PER_RENDER,
 	renderMetadataKey,
@@ -43,7 +44,7 @@ import {getFilesToDelete} from './helpers/get-files-to-delete';
 import {getLambdasInvokedStats} from './helpers/get-lambdas-invoked-stats';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {inspectErrors} from './helpers/inspect-errors';
-import {lambdaLs, lambdaWriteFile} from './helpers/io';
+import {lambdaDeleteFile, lambdaLs, lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
 import {
@@ -230,7 +231,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		type: 'video',
 		imageFormat: params.imageFormat,
 		inputProps: params.inputProps,
-		lambdaVersion: CURRENT_VERSION,
+		lambdaVersion: VERSION,
 		framesPerLambda,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		region: getCurrentRegionInFunction(),
@@ -374,7 +375,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 						newTiming: getProfileDuration(optimizedProfile),
 						createdFromRenderId: params.renderId,
 						framesPerLambda,
-						lambdaVersion: CURRENT_VERSION,
+						lambdaVersion: VERSION,
 						frameRange: realFrameRange,
 						everyNthFrame: params.everyNthFrame,
 					},
@@ -461,6 +462,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		postRenderData,
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
+	});
+	await lambdaDeleteFile({
+		bucketName: params.bucketName,
+		key: initalizedMetadataKey(params.renderId),
+		region: getCurrentRegionInFunction(),
 	});
 
 	await Promise.all([cleanupChunksProm, fs.promises.rm(outfile)]);

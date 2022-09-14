@@ -5,19 +5,15 @@ title: Custom Webpack config
 
 import Tabs from "@theme/Tabs";
 
-You can customize the Webpack configuration if you have at least Version 1.1 of Remotion.
+Remotion ships with [it's own Webpack configuration](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/webpack-config.ts).
 
-Create a config file called `remotion.config.ts` in the root of your project. As a confirmation, you should get a console message `Applied configuration from [configuration-file]`.
+You can override it reducer-style by creating a function that takes the previous Webpack configuration and returns the the new one.
 
-## Overriding the webpack config
+## When rendering using the command line
 
-Get familiar with the default Webpack configuration which can be [found here](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/webpack-config.ts).
+In your `remotion.config.ts` file, you can call `Config.Bundler.overrideWebpackConfig()` from `remotion`.
 
-In your `remotion.config.ts` file, you can call `Config.Bundler.overrideWebpackConfig` from `remotion`.
-
-Overriding the Webpack config uses the reducer pattern - pass in a function that takes as it's argument a Webpack configuration and return a new Webpack configuration.
-
-```ts twoslash
+```ts twoslash title="remotion.config.ts"
 import { Config } from "remotion";
 
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
@@ -38,16 +34,92 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 Using the reducer pattern will help with type safety, give you auto-complete, ensure forwards-compatibility and keep it completely flexible - you can override just one property or pass in a completely new Webpack configuration.
 :::
 
+## When using `bundle()` and `deploySite()`
+
+When using the Node.JS APIs - [`bundle()`](/docs/bundle) for SSR or [`deploySite()`](/docs/lambda/deploysite) for Lambda, you also need to provide the Webpack override, since the Node.JS APIs do not read from the config file. We recommend you put the webpack override in a separate file so you can read it from both the command line and your Node.JS script.
+
+```ts twoslash title="src/webpack-override.ts"
+import { WebpackOverrideFn } from "remotion";
+
+export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
+  return {
+    ...currentConfiguration,
+    // Your override here
+  };
+};
+```
+
+```ts twoslash title="remotion.config.ts"
+// @filename: ./src/webpack-override.ts
+import { WebpackOverrideFn } from "remotion";
+export const webpackOverride: WebpackOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// ---cut---
+import { Config } from "remotion";
+import { webpackOverride } from "./src/webpack-override";
+
+Config.Bundling.overrideWebpackConfig(webpackOverride);
+```
+
+```ts twoslash title="my-script.js"
+// @filename: ./src/webpack-override.ts
+import { WebpackOverrideFn } from "remotion";
+export const webpackOverride: WebpackOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// @target: esnext
+// ---cut---
+import { bundle } from "@remotion/bundler";
+import { webpackOverride } from "./src/webpack-override";
+
+await bundle(require.resolve("./src/index.ts"), () => undefined, {
+  webpackOverride,
+});
+```
+
 ## Snippets
 
 ### Enabling MDX support
 
-The following `remotion.config.ts` file shows how to enable support for MDX. Installation of `mdx-loader babel-loader @babel/preset-env @babel/preset-react` is required.
+1. Install the following dependencies:
 
-```ts twoslash
-import { Config } from "remotion";
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm i mdx-loader babel-loader @babel/preset-env @babel/preset-react
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i mdx-loader babel-loader @babel/preset-env @babel/preset-react
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn add mdx-loader babel-loader @babel/preset-env @babel/preset-react
+```
+
+  </TabItem>
+</Tabs>
+
+2. Create a file with the Webpack override:
+
+```ts twoslash title="enable-mdx.ts"
+import { WebpackOverrideFn } from "remotion";
 // ---cut---
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+export const enableMdx: WebpackOverrideFn = (currentConfiguration) => {
   return {
     ...currentConfiguration,
     module: {
@@ -79,12 +151,26 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
       ],
     },
   };
-});
+};
 ```
 
-:::info
-Create a file which contains `declare module '*.mdx';` in your project to fix a TypeScript error showing up.
-:::
+3. Add it to the config file:
+
+```ts twoslash title="remotion.config.ts"
+// @filename: ./src/enable-mdx.ts
+import { WebpackOverrideFn } from "remotion";
+export const enableMdx: WebpackOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// ---cut---
+import { Config } from "remotion";
+import { enableMdx } from "./src/enable-mdx";
+
+Config.Bundling.overrideWebpackConfig(enableMdx);
+```
+
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+
+5. Create a file which contains `declare module '*.mdx';` in your project to fix a TypeScript error showing up.
 
 ### Enable TailwindCSS support
 
@@ -127,12 +213,12 @@ yarn add sass sass-loader
   </TabItem>
 </Tabs>
 
-2. Add the following to your [`remotion.config.ts`](/docs/config) file:
+2. Declare an override function:
 
-```ts twoslash
-import { Config } from "remotion";
-// ---cut---
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+```ts twoslash title="src/enable-sass.ts"
+import { WebpackOverrideFn } from "remotion";
+
+const enableSass: WebpackOverrideFn = (currentConfiguration) => {
   return {
     ...currentConfiguration,
     module: {
@@ -152,10 +238,26 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
       ],
     },
   };
-});
+};
 ```
 
-3. Restart the preview server.
+3. Add the override function to your [`remotion.config.ts`](/docs/config) file:
+
+```ts twoslash title="remotion.config.ts"
+// @filename: ./src/enable-sass.ts
+import { WebpackOverrideFn } from "remotion";
+export const enableSass: WebpackOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// ---cut---
+import { Config } from "remotion";
+import { enableSass } from "./src/enable-sass";
+
+Config.Bundling.overrideWebpackConfig(enableSass);
+```
+
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+
+5. Restart the preview server.
 
 ### Enable support for GLSL imports
 
@@ -193,12 +295,12 @@ pnpm i glsl-shader-loader glslify glslify-import-loader raw-roader
   </TabItem>
 </Tabs>
 
-2. Add the following to your [`remotion.config.ts`](/docs/config) file:
+2. Declare a webpack override:
 
-```ts twoslash
-import { Config } from "remotion";
-// ---cut---
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+```ts twoslash title="src/enable.glsl.ts"
+import { WebpackOverrideFn } from "remotion";
+
+export const enableGlsl: WebpackOverrideFn = (currentConfiguration) => {
   return {
     ...currentConfiguration,
     module: {
@@ -215,7 +317,20 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
       ],
     },
   };
-});
+};
+```
+
+```ts twoslash title="remotion.config.ts"
+// @filename: ./src/enable-glsl.ts
+import { WebpackOverrideFn } from "remotion";
+export const enableGlsl: WebpackOverrideFn = (c) => c;
+
+// @filename: remotion.config.ts
+// ---cut---
+import { Config } from "remotion";
+import { enableGlsl } from "./src/enable-glsl";
+
+Config.Bundling.overrideWebpackConfig(enableGlsl);
 ```
 
 3. Add the following to your entry file (e.g. `src/index.tsx`):
@@ -227,8 +342,10 @@ declare module "*.glsl" {
 }
 ```
 
-4. Reset the webpack cache by deleting the `node_modules/.cache` folder.
-5. Restart the preview server.
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+
+5. Reset the webpack cache by deleting the `node_modules/.cache` folder.
+6. Restart the preview server.
 
 ### Enable WebAssembly
 
@@ -271,6 +388,8 @@ rm -rf node_modules/.cache
 ```
 
 After restarting, you can import `.wasm` files using an import statement.
+
+Add the Webpack override to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
 
 ### Use legacy babel loader
 

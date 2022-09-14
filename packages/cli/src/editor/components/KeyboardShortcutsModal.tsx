@@ -1,4 +1,5 @@
 import React, {useCallback, useContext} from 'react';
+import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {ArrowLeft, ArrowRight, ShiftIcon} from '../icons/keys';
 import {ModalsContext} from '../state/modals';
 import {Column, Row, Spacing} from './layout';
@@ -46,6 +47,22 @@ const title: React.CSSProperties = {
 	marginBottom: 10,
 };
 
+const keyboardShortcutsDisabled: React.CSSProperties = {
+	padding: 12,
+	width: '100%',
+	fontSize: 14,
+	backgroundColor: 'rgba(255, 255, 255, 0.1)',
+};
+
+const ul: React.CSSProperties = {
+	marginTop: 0,
+	marginBottom: 0,
+};
+
+const li: React.CSSProperties = {
+	fontSize: 14,
+};
+
 export const KeyboardShortcuts: React.FC = () => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -56,6 +73,18 @@ export const KeyboardShortcuts: React.FC = () => {
 	return (
 		<ModalContainer onEscape={onQuit} onOutsideClick={onQuit}>
 			<NewCompHeader title="Keyboard shortcuts" />
+			{areKeyboardShortcutsDisabled() ? (
+				<div style={keyboardShortcutsDisabled}>
+					Keyboard shortcuts disabled either due to:
+					<ul style={ul}>
+						<li style={li}>a) --disable-keyboard-shortcuts being passed</li>
+						<li style={li}>
+							b) Config.Preview.setKeyboardShortcutsEnabled(false) being set or
+						</li>
+						<li style={li}> c) a Remotion version mismatch.</li>
+					</ul>
+				</div>
+			) : null}
 			<Row style={container}>
 				<Column>
 					<div style={title}>Playback</div>
@@ -150,7 +179,6 @@ export const KeyboardShortcuts: React.FC = () => {
 				<Spacing x={8} />
 				<Column>
 					<div style={title}>Navigation</div>
-
 					<Row align="center">
 						<div style={shortLeft}>
 							<kbd style={key}>N</kbd>
@@ -171,7 +199,6 @@ export const KeyboardShortcuts: React.FC = () => {
 					</Row>
 					<br />
 					<div style={title}>Playback range</div>
-
 					<Row align="center">
 						<div style={shortLeft}>
 							<kbd style={key}>I</kbd>
@@ -189,6 +216,26 @@ export const KeyboardShortcuts: React.FC = () => {
 							<kbd style={key}>X</kbd>
 						</div>
 						<div style={right}>Clear In/Out Points</div>
+					</Row>
+					<br />
+					<div style={title}>Zoom</div>
+					<Row align="center">
+						<div style={shortLeft}>
+							<kbd style={key}>+</kbd>
+						</div>
+						<div style={right}>Zoom in</div>
+					</Row>
+					<Row align="center">
+						<div style={shortLeft}>
+							<kbd style={key}>-</kbd>
+						</div>
+						<div style={right}>Zoom out</div>
+					</Row>
+					<Row align="center">
+						<div style={shortLeft}>
+							<kbd style={key}>0</kbd>
+						</div>
+						<div style={right}>Reset zoom</div>
 					</Row>
 				</Column>
 			</Row>

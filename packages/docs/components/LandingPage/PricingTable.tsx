@@ -200,6 +200,19 @@ export const PricingTable: React.FC<{}> = () => {
           Contact us
         </a>
       </p>
+      <p style={{ textAlign: "center", marginTop: 0 }}>
+        Looking for help realizing your project?{" "}
+        <a
+          style={{
+            color: "var(--blue-button-color)",
+            fontWeight: "bold",
+            textDecoration: "none",
+          }}
+          href="/experts"
+        >
+          Find experts
+        </a>
+      </p>
     </div>
   );
 };

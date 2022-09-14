@@ -31,6 +31,7 @@ export type CommandLineOptions = {
 	concurrency: number;
 	timeout: number;
 	config: string;
+	['public-dir']: string;
 	crf: number;
 	force: boolean;
 	overwrite: boolean;
@@ -47,6 +48,7 @@ export type CommandLineOptions = {
 	port: number;
 	frame: string | number;
 	['disable-headless']: boolean;
+	['disable-keyboard-shortcuts']: boolean;
 	muted: boolean;
 	['enforce-audio-track']: boolean;
 	gl: OpenGlRenderer;
@@ -71,6 +73,7 @@ export const BooleanFlags = [
 	'disable-web-security',
 	'ignore-certificate-errors',
 	'disable-headless',
+	'disable-keyboard-shortcuts',
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
@@ -222,8 +225,18 @@ export const parseCommandLine = (
 		Config.Rendering.setMuted(parsedCli.muted);
 	}
 
+	if (typeof parsedCli['disable-keyboard-shortcuts'] !== 'undefined') {
+		Config.Preview.setKeyboardShortcutsEnabled(
+			!parsedCli['disable-keyboard-shortcuts']
+		);
+	}
+
 	if (typeof parsedCli['enforce-audio-track'] !== 'undefined') {
 		Config.Rendering.setEnforceAudioTrack(parsedCli['enforce-audio-track']);
+	}
+
+	if (typeof parsedCli['public-dir'] !== 'undefined') {
+		Config.Bundling.setPublicDir(parsedCli['public-dir']);
 	}
 };
 

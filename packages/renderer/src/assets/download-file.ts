@@ -8,7 +8,7 @@ export const downloadFile = ({
 	to: toFn,
 }: {
 	url: string;
-	to: (contentDisposition: string | null) => string;
+	to: (contentDisposition: string | null, contentType: string | null) => string;
 	onProgress:
 		| ((progress: {
 				percent: number | null;
@@ -21,7 +21,8 @@ export const downloadFile = ({
 		readFile(url)
 			.then((res) => {
 				const contentDisposition = res.headers['content-disposition'] ?? null;
-				const to = toFn(contentDisposition);
+				const contentType = res.headers['content-type'] ?? null;
+				const to = toFn(contentDisposition, contentType);
 				ensureOutputDirectory(to);
 
 				const sizeHeader = res.headers['content-length'];
@@ -43,6 +44,7 @@ export const downloadFile = ({
 					return resolve({sizeInBytes: downloaded, to});
 				});
 				writeStream.on('error', (err) => reject(err));
+				res.on('error', (err) => reject(err));
 				res.pipe(writeStream).on('error', (err) => reject(err));
 				res.on('data', (d) => {
 					downloaded += d.length;

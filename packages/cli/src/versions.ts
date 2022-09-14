@@ -1,25 +1,10 @@
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import {ConfigInternals} from './config';
+import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 import {parseCommandLine} from './parse-command-line';
 import {resolveFrom} from './resolve-from';
-
-const packages = [
-	'@remotion/bundler',
-	'@remotion/cli',
-	'@remotion/eslint-config',
-	'@remotion/renderer',
-	'@remotion/skia',
-	'@remotion/lottie',
-	'@remotion/media-utils',
-	'@remotion/babel-loader',
-	'@remotion/lambda',
-	'@remotion/preload',
-	'@remotion/three',
-	'@remotion/gif',
-	'remotion',
-];
 
 const getVersion = async (
 	remotionRoot: string,
@@ -53,7 +38,7 @@ const getAllVersions = async (
 ): Promise<[string, string][]> => {
 	return (
 		await Promise.all(
-			packages.map(
+			listOfRemotionPackages.map(
 				async (p) => [p, await getVersion(remotionRoot, p)] as [string, string]
 			)
 		)

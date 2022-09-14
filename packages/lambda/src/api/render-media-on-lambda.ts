@@ -6,12 +6,14 @@ import type {
 	PixelFormat,
 	ProResProfile,
 } from '@remotion/renderer';
+import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
+import {getCloudwatchStreamUrl} from '../shared/get-cloudwatch-stream-url';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
@@ -50,6 +52,7 @@ export type RenderMediaOnLambdaInput = {
 export type RenderMediaOnLambdaOutput = {
 	renderId: string;
 	bucketName: string;
+	cloudWatchLogs: string;
 };
 
 /**
@@ -133,12 +136,19 @@ export const renderMediaOnLambda = async ({
 				concurrencyPerLambda: concurrencyPerLambda ?? 1,
 				downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
 				muted: muted ?? false,
+				version: VERSION,
 			},
 			region,
 		});
 		return {
 			renderId: res.renderId,
 			bucketName: res.bucketName,
+			cloudWatchLogs: getCloudwatchStreamUrl({
+				functionName,
+				method: LambdaRoutines.renderer,
+				region,
+				renderId: res.renderId,
+			}),
 		};
 	} catch (err) {
 		if ((err as Error).stack?.includes('UnrecognizedClientException')) {
