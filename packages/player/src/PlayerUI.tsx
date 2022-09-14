@@ -11,7 +11,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {calculateScale} from './calculate-scale';
+import {calculateCanvasTransformation} from './calculate-scale';
 import {ErrorBoundary} from './error-boundary';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import type {PlayerMethods, PlayerRef} from './player-methods';
@@ -65,6 +65,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenPaused: boolean;
 		showPosterWhenEnded: boolean;
 		showPosterWhenUnplayed: boolean;
+		inFrame: number | null;
+		outFrame: number | null;
 	}
 > = (
 	{
@@ -91,6 +93,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenUnplayed,
 		showPosterWhenEnded,
 		showPosterWhenPaused,
+		inFrame,
+		outFrame,
 	},
 	ref
 ) => {
@@ -112,8 +116,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		loop,
 		playbackRate,
 		moveToBeginningWhenEnded,
-		inFrame: null,
-		outFrame: null,
+		inFrame,
+		outFrame,
 	});
 	const player = usePlayer();
 
@@ -330,11 +334,17 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			return null;
 		}
 
-		return calculateScale({
+		return calculateCanvasTransformation({
 			canvasSize,
 			compositionHeight: config.height,
 			compositionWidth: config.width,
-			previewSize: 'auto',
+			previewSize: {
+				size: 'auto',
+				translation: {
+					x: 0,
+					y: 0,
+				},
+			},
 		});
 	}, [canvasSize, config]);
 
@@ -362,11 +372,17 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			return {};
 		}
 
-		const {scale, xCorrection, yCorrection} = calculateScale({
+		const {scale, xCorrection, yCorrection} = calculateCanvasTransformation({
 			canvasSize,
 			compositionHeight: config.height,
 			compositionWidth: config.width,
-			previewSize: 'auto',
+			previewSize: {
+				size: 'auto',
+				translation: {
+					x: 0,
+					y: 0,
+				},
+			},
 		});
 
 		return {
@@ -512,6 +528,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
 					onSeekEnd={onSeekEnd}
 					onSeekStart={onSeekStart}
+					inFrame={inFrame}
+					outFrame={outFrame}
 				/>
 			) : null}
 		</>
