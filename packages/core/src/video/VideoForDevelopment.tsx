@@ -1,7 +1,7 @@
 import type {ForwardRefExoticComponent, RefAttributes} from 'react';
 import React, {forwardRef, useEffect, useImperativeHandle, useRef} from 'react';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame';
-import {usePreload} from '../preload';
+import {usePreload} from '../prefetch';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';

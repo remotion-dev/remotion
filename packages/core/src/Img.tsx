@@ -6,7 +6,7 @@ import React, {
 	useRef,
 } from 'react';
 import {continueRender, delayRender} from './delay-render';
-import {usePreload} from './preload';
+import {usePreload} from './prefetch';
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
 	HTMLImageElement,
