@@ -31,10 +31,13 @@ export const fetchAndPreload = (src: string): FetchAndPreload => {
 		reject = rej;
 	});
 
-	fetch(src)
+	const {signal, abort} = new AbortController();
+
+	fetch(src, {
+		signal,
+	})
 		.then((res) => {
 			if (canceled) {
-				reject(new Error('Preloading cancelled'));
 				return null;
 			}
 
@@ -46,7 +49,6 @@ export const fetchAndPreload = (src: string): FetchAndPreload => {
 		})
 		.then((buf) => {
 			if (canceled) {
-				reject(new Error('Preloading cancelled'));
 				return;
 			}
 
@@ -74,7 +76,7 @@ export const fetchAndPreload = (src: string): FetchAndPreload => {
 				});
 			} else {
 				canceled = true;
-				reject(new Error('Preloading cancelled'));
+				abort();
 			}
 		},
 		waitForDone: () => {
