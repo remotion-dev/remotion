@@ -70,6 +70,7 @@ export type StitcherOptions = {
 	};
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
+	ffmpegArgsHook?: (args: string[]) => string[];
 };
 
 type ReturnType = {
@@ -225,6 +226,10 @@ export const spawnFfmpeg = async (
 			console.log('[verbose] crf', crf);
 		}
 
+		if (options.ffmpegArgsHook) {
+			console.log('[verbose] ffmpegArgsHook', options.ffmpegArgsHook);
+		}
+
 		console.log('[verbose] codec', codec);
 		console.log('[verbose] shouldRenderAudio', shouldRenderAudio);
 		console.log('[verbose] shouldRenderVideo', shouldRenderVideo);
@@ -363,8 +368,16 @@ export const spawnFfmpeg = async (
 	}
 
 	const ffmpegString = ffmpegArgs.flat(2).filter(Boolean) as string[];
+	const finalFfmpegString = options.ffmpegArgsHook
+		? options.ffmpegArgsHook(ffmpegString)
+		: ffmpegString;
 
-	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString, {
+	if (options.verbose) {
+		console.log('Generated final FFMPEG command:');
+		console.log(finalFfmpegString);
+	}
+
+	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', finalFfmpegString, {
 		cwd: options.dir,
 	});
 	options.cancelSignal?.(() => {

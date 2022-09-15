@@ -91,6 +91,7 @@ export type RenderMediaOptions = {
 	downloadMap?: DownloadMap;
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
+	ffmpegArgsHook?: (args: string[]) => string[];
 } & ServeUrlOrWebpackBundle;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -128,6 +129,7 @@ export const renderMedia = ({
 	cancelSignal,
 	muted,
 	enforceAudioTrack,
+	ffmpegArgsHook,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
 	validateQuality(options.quality);
@@ -374,6 +376,7 @@ export const renderMedia = ({
 					cancelSignal: cancelStitcher.cancelSignal,
 					muted: disableAudio,
 					enforceAudioTrack,
+					ffmpegArgsHook,
 				}),
 				stitchStart,
 			]);
