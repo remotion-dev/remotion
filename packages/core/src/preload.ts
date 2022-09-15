@@ -32,11 +32,13 @@ export const fetchAndPreload = (src: string): FetchAndPreload => {
 	});
 
 	const {signal, abort} = new AbortController();
+	let canBeAborted = true;
 
 	fetch(src, {
 		signal,
 	})
 		.then((res) => {
+			canBeAborted = false;
 			if (canceled) {
 				return null;
 			}
@@ -76,7 +78,9 @@ export const fetchAndPreload = (src: string): FetchAndPreload => {
 				});
 			} else {
 				canceled = true;
-				abort();
+				if (canBeAborted) {
+					abort();
+				}
 			}
 		},
 		waitForDone: () => {
