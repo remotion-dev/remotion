@@ -61,7 +61,7 @@ const Experts: React.FC = () => {
         />
       </Head>
       <div className={styles.container}>
-        <div className={styles.backgroundArt}/>
+        <div className={styles.background}/>
         <div className={styles.wrapper}>
           <h1 className={styles.pagetitle}>Find a Remotion expert</h1>
           <p className={styles.tagline}>

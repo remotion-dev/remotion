@@ -2,7 +2,7 @@
   position: relative;
 }
 
-.background-art {
+.background {
   position: fixed;
   inset: 0;
   z-index: -1;
