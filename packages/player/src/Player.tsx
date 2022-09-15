@@ -19,6 +19,7 @@ import type {
 	TimelineContextValue,
 } from 'remotion';
 import {Composition, Internals} from 'remotion';
+import {PreloadProvider} from 'remotion/src/preload-state';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
@@ -392,40 +393,44 @@ export const PlayerFn = <T,>(
 									numberOfAudioTags={numberOfSharedAudioTags}
 								>
 									<PlayerEventEmitterContext.Provider value={emitter}>
-										<PlayerUI
-											ref={rootRef}
-											renderLoading={renderLoading}
-											autoPlay={Boolean(autoPlay)}
-											loop={Boolean(loop)}
-											controls={Boolean(controls)}
-											errorFallback={errorFallback}
-											style={style}
-											inputProps={passedInputProps}
-											allowFullscreen={Boolean(allowFullscreen)}
-											moveToBeginningWhenEnded={Boolean(
-												moveToBeginningWhenEnded
-											)}
-											clickToPlay={
-												typeof clickToPlay === 'boolean'
-													? clickToPlay
-													: Boolean(controls)
-											}
-											showVolumeControls={Boolean(showVolumeControls)}
-											setMediaVolume={setMediaVolumeAndPersist}
-											mediaVolume={mediaVolume}
-											mediaMuted={mediaMuted}
-											doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
-											setMediaMuted={setMediaMuted}
-											spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
-											playbackRate={playbackRate}
-											className={className ?? undefined}
-											showPosterWhenUnplayed={Boolean(showPosterWhenUnplayed)}
-											showPosterWhenEnded={Boolean(showPosterWhenEnded)}
-											showPosterWhenPaused={Boolean(showPosterWhenPaused)}
-											renderPoster={renderPoster}
-											inFrame={inFrame ?? null}
-											outFrame={outFrame ?? null}
-										/>
+										<PreloadProvider>
+											<PlayerUI
+												ref={rootRef}
+												renderLoading={renderLoading}
+												autoPlay={Boolean(autoPlay)}
+												loop={Boolean(loop)}
+												controls={Boolean(controls)}
+												errorFallback={errorFallback}
+												style={style}
+												inputProps={passedInputProps}
+												allowFullscreen={Boolean(allowFullscreen)}
+												moveToBeginningWhenEnded={Boolean(
+													moveToBeginningWhenEnded
+												)}
+												clickToPlay={
+													typeof clickToPlay === 'boolean'
+														? clickToPlay
+														: Boolean(controls)
+												}
+												showVolumeControls={Boolean(showVolumeControls)}
+												setMediaVolume={setMediaVolumeAndPersist}
+												mediaVolume={mediaVolume}
+												mediaMuted={mediaMuted}
+												doubleClickToFullscreen={Boolean(
+													doubleClickToFullscreen
+												)}
+												setMediaMuted={setMediaMuted}
+												spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
+												playbackRate={playbackRate}
+												className={className ?? undefined}
+												showPosterWhenUnplayed={Boolean(showPosterWhenUnplayed)}
+												showPosterWhenEnded={Boolean(showPosterWhenEnded)}
+												showPosterWhenPaused={Boolean(showPosterWhenPaused)}
+												renderPoster={renderPoster}
+												inFrame={inFrame ?? null}
+												outFrame={outFrame ?? null}
+											/>
+										</PreloadProvider>
 									</PlayerEventEmitterContext.Provider>
 								</Internals.SharedAudioContextProvider>
 							</Internals.SetMediaVolumeContext.Provider>
