@@ -1,18 +1,9 @@
-import {createRef, useImperativeHandle, useState} from 'react';
+import {useContext} from 'react';
 import {getRemotionEnvironment} from './get-environment';
-
-const preloadRef = createRef<{
-	setPreloads: React.Dispatch<React.SetStateAction<Record<string, string>>>;
-}>();
+import {PreloadContext, preloadRef} from './preload-state';
 
 export const usePreload = (src: string): string => {
-	const [preloads, setPreloads] = useState<Record<string, string>>({});
-
-	useImperativeHandle(preloadRef, () => {
-		return {
-			setPreloads,
-		};
-	});
+	const {preloads} = useContext(PreloadContext);
 
 	return preloads[src] ?? src;
 };
