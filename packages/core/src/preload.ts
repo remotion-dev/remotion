@@ -79,7 +79,9 @@ export const fetchAndPreload = (src: string): FetchAndPreload => {
 			} else {
 				canceled = true;
 				if (canBeAborted) {
-					abort();
+					try {
+						abort();
+					} catch (e) {}
 				}
 			}
 		},
