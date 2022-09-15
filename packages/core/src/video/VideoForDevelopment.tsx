@@ -1,6 +1,7 @@
 import type {ForwardRefExoticComponent, RefAttributes} from 'react';
 import React, {forwardRef, useEffect, useImperativeHandle, useRef} from 'react';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame';
+import {usePreload} from '../preload';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
@@ -28,6 +29,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		muted,
 		playbackRate,
 		onlyWarnForMediaSeekingError,
+		src,
 		...nativeProps
 	} = props;
 
@@ -41,7 +43,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		volume,
 		mediaVolume,
 		mediaType: 'video',
-		src: nativeProps.src,
+		src,
 	});
 
 	useSyncVolumeWithMediaTag({
@@ -54,11 +56,13 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	useMediaPlayback({
 		mediaRef: videoRef,
-		src: nativeProps.src,
+		src,
 		mediaType: 'video',
 		playbackRate: props.playbackRate ?? 1,
 		onlyWarnForMediaSeekingError,
 	});
+
+	const actualSrc = usePreload(src as string);
 
 	useImperativeHandle(ref, () => {
 		return videoRef.current as HTMLVideoElement;
@@ -74,7 +78,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			if (current?.error) {
 				console.error('Error occurred in video', current?.error);
 				throw new Error(
-					`The browser threw an error while playing the video ${nativeProps.src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
+					`The browser threw an error while playing the video ${src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
 				);
 			} else {
 				throw new Error('The browser threw an error');
@@ -85,13 +89,14 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return () => {
 			current.removeEventListener('error', errorHandler);
 		};
-	}, [nativeProps.src]);
+	}, [src]);
 
 	return (
 		<video
 			ref={videoRef}
 			muted={muted || mediaMuted}
 			playsInline
+			src={actualSrc}
 			{...nativeProps}
 		/>
 	);

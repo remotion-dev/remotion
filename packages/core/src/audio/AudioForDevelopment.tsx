@@ -6,6 +6,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
+import {usePreload} from '../preload';
 import {random} from '../random';
 import {SequenceContext} from '../Sequence';
 import {useMediaInTimeline} from '../use-media-in-timeline';
@@ -42,15 +43,28 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const volumePropFrame = useFrameForVolumeProp();
 
-	const {volume, muted, playbackRate, shouldPreMountAudioTags, ...nativeProps} =
-		props;
+	const {
+		volume,
+		muted,
+		playbackRate,
+		shouldPreMountAudioTags,
+		src,
+		...nativeProps
+	} = props;
+
+	if (!src) {
+		throw new TypeError("No 'src' was passed to <Audio>.");
+	}
+
+	const preloadedSrc = usePreload(src);
 
 	const propsToPass = useMemo((): RemotionAudioProps => {
 		return {
 			muted: muted || mediaMuted,
+			src: preloadedSrc,
 			...nativeProps,
 		};
-	}, [mediaMuted, muted, nativeProps]);
+	}, [mediaMuted, muted, nativeProps, preloadedSrc]);
 
 	const sequenceContext = useContext(SequenceContext);
 
@@ -58,10 +72,10 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	// but at the same time deterministic. We use it to combat strict mode issues.
 	const id = useMemo(
 		() =>
-			`audio-${random(props.src ?? '')}-${sequenceContext?.relativeFrom}-${
+			`audio-${random(src ?? '')}-${sequenceContext?.relativeFrom}-${
 				sequenceContext?.cumulatedFrom
 			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
-		[props.muted, props.src, sequenceContext]
+		[props.muted, src, sequenceContext]
 	);
 
 	const audioRef = useSharedAudio(propsToPass, id).el;
@@ -80,13 +94,13 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		volume,
 		mediaVolume,
 		mediaRef: audioRef,
-		src: nativeProps.src,
+		src,
 		mediaType: 'audio',
 	});
 
 	useMediaPlayback({
 		mediaRef: audioRef,
-		src: nativeProps.src,
+		src,
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
 		onlyWarnForMediaSeekingError: false,
