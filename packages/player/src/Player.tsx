@@ -19,7 +19,6 @@ import type {
 	TimelineContextValue,
 } from 'remotion';
 import {Composition, Internals} from 'remotion';
-import {PreloadProvider} from 'remotion/src/preload-state';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
@@ -393,7 +392,7 @@ export const PlayerFn = <T,>(
 									numberOfAudioTags={numberOfSharedAudioTags}
 								>
 									<PlayerEventEmitterContext.Provider value={emitter}>
-										<PreloadProvider>
+										<Internals.PreloadProvider>
 											<PlayerUI
 												ref={rootRef}
 												renderLoading={renderLoading}
@@ -430,7 +429,7 @@ export const PlayerFn = <T,>(
 												inFrame={inFrame ?? null}
 												outFrame={outFrame ?? null}
 											/>
-										</PreloadProvider>
+										</Internals.PreloadProvider>
 									</PlayerEventEmitterContext.Provider>
 								</Internals.SharedAudioContextProvider>
 							</Internals.SetMediaVolumeContext.Provider>
