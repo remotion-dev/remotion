@@ -12,7 +12,7 @@ export const VERSION = '${version}';
 
 fs.writeFileSync(path.resolve(process.cwd(), 'src/version.ts'), src);
 
-cp.execSync('npx tsc');
+cp.execSync('pnpm exec tsc');
 
 const distFile = fs.readFileSync('dist/version.js', 'utf-8');
 
