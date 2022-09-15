@@ -548,8 +548,6 @@ importers:
       mime-types: 2.1.34
       prettier: ^2.4.1
       prettier-plugin-organize-imports: ^2.3.4
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
       remotion: 3.2.16
       ts-jest: ^27.0.5
       ts-node: ^10.8.0
@@ -569,8 +567,6 @@ importers:
       '@remotion/renderer': link:../renderer
       aws-policies: 1.0.1
       mime-types: 2.1.34
-      react: 18.0.0
-      react-dom: 18.0.0_react@18.0.0
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_6hvhxfirl4y3p6nuemvvvbadcu
@@ -595,7 +591,6 @@ importers:
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
       eslint: 8.13.0
-      lottie-web: ^5
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
@@ -604,7 +599,6 @@ importers:
       typescript: ^4.7.0
       vitest: ^0.18.0
     dependencies:
-      lottie-web: 5.9.6
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_6hvhxfirl4y3p6nuemvvvbadcu
@@ -627,13 +621,9 @@ importers:
       eslint: 8.13.0
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
       remotion: 3.2.16
       typescript: ^4.7.0
     dependencies:
-      react: 18.0.0
-      react-dom: 18.0.0_react@18.0.0
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_6hvhxfirl4y3p6nuemvvvbadcu
