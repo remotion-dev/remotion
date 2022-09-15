@@ -13,7 +13,7 @@ type FetchAndPreload = {
 	waitForDone: () => Promise<string>;
 };
 
-export const fetchAndPreload = (src: string): FetchAndPreload => {
+export const prefetch = (src: string): FetchAndPreload => {
 	if (getRemotionEnvironment() === 'rendering') {
 		return {
 			unpreload: () => undefined,

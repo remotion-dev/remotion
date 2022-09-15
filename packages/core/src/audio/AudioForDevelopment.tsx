@@ -6,7 +6,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import {usePreload} from '../preload';
+import {usePreload} from '../prefetch';
 import {random} from '../random';
 import {SequenceContext} from '../Sequence';
 import {useMediaInTimeline} from '../use-media-in-timeline';
