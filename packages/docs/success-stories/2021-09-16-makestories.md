@@ -1,6 +1,6 @@
 ---
 slug: makestories
-title: How MakeStories uses Remotion to render Web Stories
+title: How MakeStories Uses Remotion to Render Web Stories
 image: /img/makestories.png
 ---
 
