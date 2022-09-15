@@ -60,14 +60,8 @@ const Experts: React.FC = () => {
           content="/img/remotion-experts-og-image.png"
         />
       </Head>
-      <div
-        style={{
-          backgroundImage: "url(/img/background-hire-page.svg)",
-          backgroundSize: "100%",
-          backgroundAttachment: "fixed",
-          backgroundRepeat: "no-repeat",
-        }}
-      >
+      <div className={styles.container}>
+        <div className={styles.backgroundArt}/>
         <div className={styles.wrapper}>
           <h1 className={styles.pagetitle}>Find a Remotion expert</h1>
           <p className={styles.tagline}>
