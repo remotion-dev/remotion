@@ -2,7 +2,7 @@
 title: Terminology
 ---
 
-We try to define the meaning some terms here are used often in the documentation, but are not self-explanatory. Which terms would you like to have explained? [Let us know](https://remotion.dev/issue)!
+Here we try to explain the meaning of some terms that are used often in the documentation, but are not self-explanatory. Which terms would you like to have explained? [Let us know](https://remotion.dev/issue)!
 
 ## Composition
 
