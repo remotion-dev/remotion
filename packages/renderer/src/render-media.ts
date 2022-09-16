@@ -51,6 +51,7 @@ export type RenderMediaOnProgress = (progress: {
 	encodedFrames: number;
 	encodedDoneIn: number | null;
 	renderedDoneIn: number | null;
+	progress: number;
 	stitchStage: StitchingState;
 }) => void;
 
@@ -215,6 +216,12 @@ export const renderMedia = ({
 			renderedDoneIn,
 			renderedFrames,
 			stitchStage,
+			progress:
+				Math.round(
+					((0.7 * renderedFrames + 0.3 * encodedFrames) /
+						composition.durationInFrames) *
+						100
+				) / 100,
 		});
 	};
 
