@@ -85,9 +85,9 @@ Which output format the image should have, either `png` or `jpeg`.
 
 ### `scale?`
 
-_number - default: 1 - available from v2.6.7_
+_optional_
 
-[Scales the output frames by the factor you pass in.](/docs/scaling) For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details.
+Scales the output dimensions by a factor. See [Scaling](/docs/scaling) to learn more about this feature.
 
 ### `quality?`
 
