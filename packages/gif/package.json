@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/gif",
-	"version": "3.2.17",
+	"version": "3.3.0",
 	"description": "Gif component for remotion",
 	"sideEffects": false,
 	"repository": {
@@ -23,7 +23,7 @@
 	"dependencies": {
 		"@react-gifs/tools": "0.1.2",
 		"lru_map": "0.4.1",
-		"remotion": "3.2.17"
+		"remotion": "3.3.0"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
@@ -53,5 +53,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"gitHead": "39824b3a71a2cee2fc16c9b46d54f4e7fa822db2"
 }
