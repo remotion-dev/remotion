@@ -36,7 +36,6 @@ export const MyComponent: React.FC<{ propOne: string; propTwo: number }> = () =>
   null;
 
 // @filename: Root.tsx
-import React from "react";
 // ---cut---
 import { Composition } from "remotion";
 import { MyComponent } from "./MyComponent";
@@ -110,7 +109,7 @@ await renderFrames({
   serveUrl: bundled,
   onStart: () => undefined,
   onFrameUpdate: (f) => undefined,
-  parallelism: null,
+  concurrency: null,
   outputDir: framesDir,
   inputProps: {
     titleText: "Hello World",

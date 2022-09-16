@@ -17,7 +17,6 @@ import {validateSelectedCrfAndCodecCombination} from './crf';
 import {deleteDirectory} from './delete-directory';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
-import type {FfmpegArgsHook} from './ffmpeg-args-hook';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import type {FrameRange} from './frame-range';
 import {getFramesToRender} from './get-duration-from-frame-range';
@@ -53,6 +52,7 @@ export type RenderMediaOnProgress = (progress: {
 	encodedFrames: number;
 	encodedDoneIn: number | null;
 	renderedDoneIn: number | null;
+	progress: number;
 	stitchStage: StitchingState;
 }) => void;
 
@@ -61,7 +61,6 @@ export type RenderMediaOptions = {
 	codec: Codec;
 	composition: SmallTCompMetadata;
 	inputProps?: unknown;
-	parallelism?: number | null;
 	crf?: number | null;
 	imageFormat?: 'png' | 'jpeg' | 'none';
 	ffmpegExecutable?: FfmpegExecutable;
@@ -93,10 +92,33 @@ export type RenderMediaOptions = {
 	downloadMap?: DownloadMap;
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
-	ffmpegArgsHook?: FfmpegArgsHook;
-} & ServeUrlOrWebpackBundle;
+} & ServeUrlOrWebpackBundle &
+	ConcurrencyOrParallelism;
+
+type ConcurrencyOrParallelism =
+	| {
+			concurrency: number | null;
+	  }
+	| {
+			/**
+			 * @deprecated This field has been renamed to `concurrency`
+			 */
+			parallelism: number | null;
+	  };
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
+
+const getConcurrency = (others: ConcurrencyOrParallelism) => {
+	if ('concurrency' in others) {
+		return others.concurrency;
+	}
+
+	if ('parallelism' in others) {
+		return others.parallelism;
+	}
+
+	return null;
+};
 
 /**
  *
@@ -104,7 +126,6 @@ type Await<T> = T extends PromiseLike<infer U> ? U : T;
  * @link https://www.remotion.dev/docs/renderer/render-media
  */
 export const renderMedia = ({
-	parallelism,
 	proResProfile,
 	crf,
 	composition,
@@ -148,6 +169,7 @@ export const renderMedia = ({
 		: null;
 
 	validateScale(scale);
+	const concurrency = getConcurrency(options);
 
 	if (ffmpegArgsHook) {
 		validateFfmpegArgsHook(ffmpegArgsHook);
@@ -223,6 +245,12 @@ export const renderMedia = ({
 			renderedDoneIn,
 			renderedFrames,
 			stitchStage,
+			progress:
+				Math.round(
+					((0.7 * renderedFrames + 0.3 * encodedFrames) /
+						composition.durationInFrames) *
+						100
+				) / 100,
 		});
 	};
 
@@ -292,7 +320,7 @@ export const renderMedia = ({
 					renderedFrames = frame;
 					callUpdate();
 				},
-				parallelism,
+				concurrency,
 				outputDir,
 				onStart: (data) => {
 					renderedFrames = 0;
