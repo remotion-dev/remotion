@@ -96,13 +96,13 @@ export type RenderMediaOptions = {
 
 type ConcurrencyOrParallelism =
 	| {
-			concurrency: number | null;
+			concurrency?: number | null;
 	  }
 	| {
 			/**
 			 * @deprecated This field has been renamed to `concurrency`
 			 */
-			parallelism: number | null;
+			parallelism?: number | null;
 	  };
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
