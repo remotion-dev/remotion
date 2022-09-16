@@ -89,7 +89,7 @@ The current working directory is the directory from which your program gets exec
 
 _Available from v3.2.13_
 
-TODO!!!
+Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the Remotion root folder.
 
 ## Legacy function signature
 
