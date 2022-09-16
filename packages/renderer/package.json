@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/renderer",
-	"version": "3.2.17",
+	"version": "3.2.18",
 	"description": "Renderer for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -22,7 +22,7 @@
 	"dependencies": {
 		"execa": "5.1.1",
 		"extract-zip": "2.0.1",
-		"remotion": "3.2.17",
+		"remotion": "3.2.18",
 		"source-map": "^0.8.0-beta.0",
 		"ws": "8.7.0"
 	},
