@@ -331,21 +331,7 @@ module.exports = {
         "staticfile-remote-urls",
       ],
     },
-    {
-      type: "category",
-      label: "Miscellaneous",
-      items: [
-        "brownfield",
-        "chromium-flags",
-        "video-vs-offthreadvideo",
-        "prereleases",
-        "gpu",
-        "react-18",
-        "miscellaneous/typescript-aliases",
-        "miscellaneous/render-all",
-        "miscellaneous/render-in-browser",
-      ],
-    },
+
     {
       type: "category",
       label: "Snippets",
@@ -361,8 +347,27 @@ module.exports = {
       href: "/docs/api",
       label: "API Reference",
     },
-    "3-0-migration",
-    "2-0-migration",
+    "terminology",
+    {
+      type: "category",
+      label: "Migration guides",
+      items: ["3-0-migration", "2-0-migration"],
+    },
+    {
+      type: "category",
+      label: "Miscellaneous",
+      items: [
+        "brownfield",
+        "chromium-flags",
+        "video-vs-offthreadvideo",
+        "prereleases",
+        "gpu",
+        "react-18",
+        "miscellaneous/typescript-aliases",
+        "miscellaneous/render-all",
+        "miscellaneous/render-in-browser",
+      ],
+    },
     "license",
   ],
 };
