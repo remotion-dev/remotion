@@ -1,6 +1,6 @@
 {
   "name": "@remotion/eslint-config",
-  "version": "3.2.18",
+  "version": "3.2.19",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -16,7 +16,7 @@
   "author": "Jonny Burger <jonny@remotion.dev>",
   "license": "ISC",
   "dependencies": {
-    "@remotion/eslint-plugin": "3.2.18",
+    "@remotion/eslint-plugin": "3.2.19",
     "@typescript-eslint/eslint-plugin": "5.19.0",
     "@typescript-eslint/parser": "5.19.0",
     "eslint-plugin-10x": "1.5.2",
@@ -42,5 +42,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "gitHead": "3ea53cb83112a8a71ce0c7ce222b682094b7cfc5"
+  "gitHead": "296ccbbe30f255b55f7cbbb8f631adc69a23d3e1"
 }
