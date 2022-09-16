@@ -1,6 +1,6 @@
 {
 	"name": "remotion",
-	"version": "3.2.17",
+	"version": "3.2.18",
 	"description": "Render videos in React",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -54,5 +54,5 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"gitHead": "f0f1e39c890ea9451597e77870310646ee5fcf67"
+	"gitHead": "3ea53cb83112a8a71ce0c7ce222b682094b7cfc5"
 }
