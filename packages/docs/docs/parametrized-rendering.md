@@ -110,7 +110,6 @@ await renderFrames({
   serveUrl: bundled,
   onStart: () => undefined,
   onFrameUpdate: (f) => undefined,
-  parallelism: null,
   outputDir: framesDir,
   inputProps: {
     titleText: "Hello World",
