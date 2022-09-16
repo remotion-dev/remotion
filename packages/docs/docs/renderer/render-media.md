@@ -330,7 +330,7 @@ Example:
 import { FfmpegArgsHook } from "@remotion/renderer";
 
 const ffmpegArgsHook: FfmpegArgsHook = (args) => {
-  // modify command
+  // add command
   args.push("-vf", "eq=brightness=0:saturation=1");
   console.log(args);
   return args;
