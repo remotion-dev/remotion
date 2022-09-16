@@ -244,13 +244,13 @@ export const getCliOptions = async (options: {
 	const numberOfGifLoops =
 		ConfigInternals.getAndValidateNumberOfGifLoops(codec);
 
-	const parallelism = ConfigInternals.getConcurrency();
+	const concurrency = ConfigInternals.getConcurrency();
 
-	RenderInternals.validateConcurrency(parallelism, 'concurrency');
+	RenderInternals.validateConcurrency(concurrency, 'concurrency');
 
 	return {
 		puppeteerTimeout: ConfigInternals.getCurrentPuppeteerTimeout(),
-		parallelism,
+		concurrency,
 		frameRange,
 		shouldOutputImageSequence,
 		codec,
