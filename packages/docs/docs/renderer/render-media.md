@@ -318,6 +318,25 @@ Accepted values:
 **Default for local rendering**: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
 
+### `ffmpegArgsHook`
+
+_function - optional_
+
+Get the ffmpeg command of the rendered video. You can modify the ffmpeg command, and finally return a new ffmpeg command.
+
+Example:
+
+```tsx twoslash
+import { FfmpegArgsHook } from "@remotion/renderer";
+
+const ffmpegArgsHook: FfmpegArgsHook = (args) => {
+  // modify command
+  args.push("-vf", "eq=brightness=0:saturation=1");
+  console.log(args);
+  return args;
+};
+```
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/render-media.ts)

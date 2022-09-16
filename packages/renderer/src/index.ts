@@ -75,6 +75,7 @@ export {Codec, CodecOrUndefined} from './codec';
 export {combineVideos} from './combine-videos';
 export {Crf} from './crf';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
+export type {FfmpegArgsHook} from './ffmpeg-args-hook';
 export {FfmpegExecutable} from './ffmpeg-executable';
 export {FfmpegVersion} from './ffmpeg-flags';
 export {FrameRange} from './frame-range';
@@ -103,7 +104,6 @@ export {StitcherOptions, stitchFramesToVideo} from './stitch-frames-to-video';
 export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {OpenGlRenderer} from './validate-opengl-renderer';
-
 export const RenderInternals = {
 	ensureLocalBrowser,
 	ffmpegHasFeature,

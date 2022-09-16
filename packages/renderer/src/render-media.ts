@@ -17,6 +17,7 @@ import {validateSelectedCrfAndCodecCombination} from './crf';
 import {deleteDirectory} from './delete-directory';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
+import type {FfmpegArgsHook} from './ffmpeg-args-hook';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import type {FrameRange} from './frame-range';
 import {getFramesToRender} from './get-duration-from-frame-range';
@@ -41,6 +42,7 @@ import {renderFrames} from './render-frames';
 import {stitchFramesToVideo} from './stitch-frames-to-video';
 import type {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
+import {validateFfmpegArgsHook} from './validate-ffmpeg-args-hook';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 
@@ -91,7 +93,7 @@ export type RenderMediaOptions = {
 	downloadMap?: DownloadMap;
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
-	ffmpegArgsHook?: (args: string[]) => string[];
+	ffmpegArgsHook?: FfmpegArgsHook;
 } & ServeUrlOrWebpackBundle;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -146,6 +148,10 @@ export const renderMedia = ({
 		: null;
 
 	validateScale(scale);
+
+	if (ffmpegArgsHook) {
+		validateFfmpegArgsHook(ffmpegArgsHook);
+	}
 
 	const everyNthFrame = options.everyNthFrame ?? 1;
 	const numberOfGifLoops = options.numberOfGifLoops ?? null;
