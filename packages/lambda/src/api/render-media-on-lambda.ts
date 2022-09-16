@@ -104,7 +104,10 @@ export const renderMediaOnLambda = async ({
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
-	validateFramesPerLambda(framesPerLambda ?? null);
+	validateFramesPerLambda({
+		framesPerLambda: framesPerLambda ?? null,
+		durationInFrames: 1,
+	});
 	validateDownloadBehavior(downloadBehavior);
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
 	try {
