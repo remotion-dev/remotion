@@ -23,14 +23,14 @@ export const experts: Expert[] = [
       <div>
         <p>
           Creator of{" "}
-          <a target={"_blank"} href="https://github.com/marcusstenbeck/remotion-template-audiogram">
-            Remotion{"'"}s Audiogram template
-          </a>
-          <br />I make templates, libraries and educational content at {" "}
           <a
             target={"_blank"}
-            href="https://remotionkit.com"
+            href="https://github.com/marcusstenbeck/remotion-template-audiogram"
           >
+            Remotion{"'"}s Audiogram template
+          </a>
+          <br />I make templates, libraries and educational content at{" "}
+          <a target={"_blank"} href="https://remotionkit.com">
             remotionkit.com
           </a>
           {"."}
@@ -113,6 +113,27 @@ export const experts: Expert[] = [
       <div>
         I made:{" "}
         <a target={"_blank"} href="https://www.karel.wtf">
+          TikTok automation, ENS video
+        </a>{" "}
+        and many more!
+      </div>
+    ),
+  },
+  {
+    name: "Egor Mesyats",
+    image: "/img/freelancers/yehor.jpeg",
+    website: null,
+    twitter: "SatelllteDev",
+    github: "satelllte",
+    linkedin: "/in/satelllte/",
+    email: "lunaerxs@gmail.com",
+    description: (
+      <div>
+        I made:{" "}
+        <a
+          target={"_blank"}
+          href="https://satelllte.notion.site/Remotion-Showcase-5783389861504a5ea2a39fc6fb16c0c8"
+        >
           TikTok automation, ENS video
         </a>{" "}
         and many more!
