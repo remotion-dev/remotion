@@ -146,6 +146,12 @@ _puppeteer.Browser - optional_
 
 An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
 
+### `scale`
+
+_optional_
+
+Scales the output dimensions by a factor. See [Scaling](/docs/scaling) to learn more about this feature.
+
 ### `overwrite`
 
 _boolean - optional_
@@ -181,7 +187,10 @@ const onProgress: RenderMediaOnProgress = ({
   encodedDoneIn,
   renderedDoneIn,
   stitchStage,
+  progress,
 }) => {
+  console.log(`Rendering is ${progress * 100}% complete`);
+
   if (stitchStage === "encoding") {
     // First pass, parallel rendering of frames and encoding into video
     console.log("Encoding...");
@@ -203,6 +212,10 @@ const onProgress: RenderMediaOnProgress = ({
   }
 };
 ```
+
+:::note
+The `progress` attribute is available from v3.2.17
+:::
 
 ### `onDownload`
 
