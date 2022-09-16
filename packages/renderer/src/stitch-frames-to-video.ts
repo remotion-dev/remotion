@@ -19,6 +19,7 @@ import {
 	validateSelectedCrfAndCodecCombination,
 } from './crf';
 import {deleteDirectory} from './delete-directory';
+import type {FfmpegArgsHook} from './ffmpeg-args-hook';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
@@ -70,7 +71,7 @@ export type StitcherOptions = {
 	};
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
-	ffmpegArgsHook?: (args: string[]) => string[];
+	ffmpegArgsHook?: FfmpegArgsHook;
 };
 
 type ReturnType = {
@@ -372,7 +373,7 @@ export const spawnFfmpeg = async (
 		? options.ffmpegArgsHook(ffmpegString)
 		: ffmpegString;
 
-	if (options.verbose) {
+	if (options.verbose && options.ffmpegArgsHook) {
 		console.log('Generated final FFMPEG command:');
 		console.log(finalFfmpegString);
 	}
