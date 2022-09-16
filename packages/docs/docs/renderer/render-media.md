@@ -47,12 +47,15 @@ _object - optional_
 
 An object of arbitrary shape that will be passed as [props to your composition](/docs/parametrized-rendering) and that can be retrieved using [`getInputProps()`](/docs/get-input-props).
 
-### `parallelism`
+### `concurrency?`
 
-_number | null - optional_
+_optional_
 
-How many threads should be used for rendering frames. By default `null`, which will use half of the threads that your CPU has.  
-Type `node -e "console.log(require('os').cpus().length)"` into your command line to find out how many threads your CPU has.
+A `number` specifying how many render processes should be started in parallel or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
+
+### ~~`parallelism?`~~
+
+Renamed to `concurrency` in v3.2.17.
 
 ### `crf`
 
@@ -62,7 +65,7 @@ The constant rate factor, controlling the quality. See: [Controlling quality usi
 
 ### `imageFormat`
 
-_"jpeg" (default) | "png" | "none" - optional_
+_"jpeg" (default) | "png" | "none" - optional_
 
 In which image format the frames should be rendered.
 

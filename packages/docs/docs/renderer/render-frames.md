@@ -67,11 +67,15 @@ A `string` which must be either `png`, `jpeg` or `none`.
 - Choose `png` if you want your image sequence to have an alpha channel (for transparency).
 - Choose `none` if you only want to render audio.
 
-### `parallelism?`
+### `concurrency?`
 
 _optional_
 
-A `number` specifying how many frames should be rendered in parallel or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
+A `number` specifying how many render processes should be started in parallel or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
+
+### ~~`parallelism?`~~
+
+Renamed to `concurrency` in v3.2.17.
 
 ### `scale?`
 
