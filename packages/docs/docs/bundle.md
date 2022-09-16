@@ -8,18 +8,16 @@ _Part of the `@remotion/bundler` package._
 Bundles a Remotion project using Webpack and prepares it for rendering using [`renderMedia()`](/docs/renderer/render-media).
 
 ```ts
-const bundle: (
-  entryPoint: string,
-  onProgressUpdate?: (progress: number) => void,
-  options?: {
-    webpackOverride?: WebpackOverrideFn;
-    outDir?: string;
-    enableCaching?: boolean;
-    publicPath?: string;
-    rootDir?: string;
-    publicDir?: string | null;
-  }
-) => Promise<string>;
+const bundle: (options?: {
+  entryPoint: string;
+  onProgress?: (progress: number) => void;
+  webpackOverride?: WebpackOverrideFn;
+  outDir?: string;
+  enableCaching?: boolean;
+  publicPath?: string;
+  rootDir?: string;
+  publicDir?: string | null;
+}) => Promise<string>;
 ```
 
 ## Arguments
@@ -28,12 +26,12 @@ const bundle: (
 
 A `string` containing an absolute path of the entry point of a Remotion project. In a default Remotion project created with the template, the entry point is located at `src/index.tsx`.
 
-### `onProgressUpdate?`
+### `onProgress?`
 
 A callback function that notifies about the progress of the Webpack bundling. Passes a number between `0` and `100`. Example function:
 
 ```ts twoslash
-const onProgressUpdate = (progress: number) => {
+const onProgress = (progress: number) => {
   console.log(`Webpack bundling progress: ${progress}%`);
 };
 ```
@@ -92,6 +90,35 @@ The current working directory is the directory from which your program gets exec
 _Available from v3.2.13_
 
 TODO!!!
+
+## Legacy function signature
+
+Remotion versions earlier than v3.2.17 had the following function signature instead:
+
+```ts
+const bundle: (
+  entryPoint: string,
+  onProgress?: (progress: number) => void,
+  options?: {
+    webpackOverride?: WebpackOverrideFn;
+    outDir?: string;
+    enableCaching?: boolean;
+    publicPath?: string;
+    rootDir?: string;
+    publicDir?: string | null;
+  }
+) => Promise<string>;
+```
+
+Example:
+
+```ts
+await bundle("src/index.tsx", () => console.log(progress * 100 + "% done"), {
+  webpackOverride,
+});
+```
+
+It is still supported in Remotion v3, but we encourage to migrate to the new function signature.
 
 ## Return value
 

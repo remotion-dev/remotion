@@ -39,7 +39,7 @@ export const webpackConfig = ({
 	outDir,
 	environment,
 	webpackOverride = (f) => f,
-	onProgressUpdate,
+	onProgress,
 	enableCaching = true,
 	envVariables,
 	maxTimelineTracks,
@@ -52,7 +52,7 @@ export const webpackConfig = ({
 	outDir: string;
 	environment: 'development' | 'production';
 	webpackOverride: WebpackOverrideFn;
-	onProgressUpdate?: (f: number) => void;
+	onProgress?: (f: number) => void;
 	enableCaching?: boolean;
 	envVariables: Record<string, string>;
 	maxTimelineTracks: number;
@@ -110,8 +110,8 @@ export const webpackConfig = ({
 				  ]
 				: [
 						new ProgressPlugin((p) => {
-							if (onProgressUpdate) {
-								onProgressUpdate(Number((p * 100).toFixed(2)));
+							if (onProgress) {
+								onProgress(Number((p * 100).toFixed(2)));
 							}
 						}),
 				  ],
