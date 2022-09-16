@@ -29,9 +29,9 @@ Remotion can support this higher resolution by setting the [`deviceScaleFactor`]
 
 The highest scale possible is `16` (sixteen times higher dimensions on each size or 256 times more pixels).
 
-Values between and 1 are allowed. For example, `0.5` will half each dimension.
+Positive values below 1 are allowed. For example, `0.5` will half each dimension.
 
-The scale must result in a value that will result in even pixels. A value of `1.00000001` for a composition with a width of `1920` pixels is now allowed.
+The scale must result in a value that will result in even pixels. A value of `1.00000001` for a composition with a width of `1920` pixels is not allowed.
 
 If you would like to downscale a composition from `1920` to `1280` pixels, pass a scale of `2/3` to avoid rounding errors. This does not currently work as a CLI flag.
 
