@@ -151,7 +151,10 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	const framesPerLambda =
 		params.framesPerLambda ?? bestFramesPerLambdaParam(frameCount.length);
 
-	validateFramesPerLambda(framesPerLambda);
+	validateFramesPerLambda({
+		framesPerLambda,
+		durationInFrames: frameCount.length,
+	});
 
 	const chunkCount = Math.ceil(frameCount.length / framesPerLambda);
 
