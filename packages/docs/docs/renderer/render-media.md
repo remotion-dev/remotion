@@ -187,7 +187,10 @@ const onProgress: RenderMediaOnProgress = ({
   encodedDoneIn,
   renderedDoneIn,
   stitchStage,
+  progress,
 }) => {
+  console.log(`Rendering is ${progress * 100}% complete`);
+
   if (stitchStage === "encoding") {
     // First pass, parallel rendering of frames and encoding into video
     console.log("Encoding...");
@@ -209,6 +212,10 @@ const onProgress: RenderMediaOnProgress = ({
   }
 };
 ```
+
+:::note
+The `progress` attribute is available from v3.2.17
+:::
 
 ### `onDownload`
 
