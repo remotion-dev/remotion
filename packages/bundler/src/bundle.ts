@@ -49,13 +49,13 @@ export const getConfig = ({
 	entryPoint,
 	outDir,
 	resolvedRemotionRoot,
-	onProgressUpdate,
+	onProgress,
 	options,
 }: {
 	outDir: string;
 	entryPoint: string;
 	resolvedRemotionRoot: string;
-	onProgressUpdate?: (progress: number) => void;
+	onProgress?: (progress: number) => void;
 	options?: LegacyBundleOptions;
 }) => {
 	const entry = require.resolve('./renderEntry');
@@ -66,7 +66,7 @@ export const getConfig = ({
 		outDir,
 		environment: 'production',
 		webpackOverride: options?.webpackOverride ?? ((f) => f),
-		onProgressUpdate,
+		onProgress,
 		enableCaching: options?.enableCaching ?? true,
 		maxTimelineTracks: 15,
 		// For production, the variables are set dynamically
@@ -79,14 +79,14 @@ export const getConfig = ({
 
 export type BundleOptions = {
 	entryPoint: string;
-	onProgressUpdate?: (progress: number) => void;
+	onProgress?: (progress: number) => void;
 } & LegacyBundleOptions;
 
 type Arguments =
 	| [options: BundleOptions]
 	| [
 			entryPoint: string,
-			onProgressUpdate?: (progress: number) => void,
+			onProgress?: (progress: number) => void,
 			options?: LegacyBundleOptions
 	  ];
 
@@ -99,7 +99,7 @@ const convertArgumentsIntoOptions = (args: Arguments): BundleOptions => {
 	if (typeof firstArg === 'string') {
 		return {
 			entryPoint: firstArg,
-			onProgressUpdate: args[1],
+			onProgress: args[1],
 			...(args[2] ?? {}),
 		};
 	}
@@ -125,12 +125,12 @@ export async function bundle(...args: Arguments): Promise<string> {
 		process.chdir(resolvedRemotionRoot);
 	}
 
-	const {entryPoint, onProgressUpdate, ...options} = actualArgs;
+	const {entryPoint, onProgress, ...options} = actualArgs;
 	const [, config] = getConfig({
 		outDir,
 		entryPoint,
 		resolvedRemotionRoot,
-		onProgressUpdate,
+		onProgress,
 		options,
 	});
 
