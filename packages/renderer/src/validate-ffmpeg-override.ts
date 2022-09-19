@@ -1,6 +1,6 @@
-import type {FfmpegArgsHook} from './ffmpeg-args-hook';
+import type {FfmpegOverrideFn} from './ffmpeg-override';
 
-export const validateFfmpegArgsHook = (ffmpegArgsHook?: FfmpegArgsHook) => {
+export const validateFfmpegOverride = (ffmpegArgsHook?: FfmpegOverrideFn) => {
 	if (typeof ffmpegArgsHook === 'undefined') {
 		return;
 	}

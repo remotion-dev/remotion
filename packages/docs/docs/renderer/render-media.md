@@ -341,9 +341,9 @@ _function - optional - available from v3.2.22_
 Modifies the FFMPEG command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
 
 ```tsx twoslash
-import type { FfmpegArgsHook } from "@remotion/renderer";
+import type { FfmpegOverrideFn } from "@remotion/renderer";
 
-const ffmpegArgsHook: FfmpegArgsHook = ({ type, args }) => {
+const ffmpegOverride: FfmpegOverrideFn = ({ type, args }) => {
   console.log(type); // "stitcher" | "pre-stitcher
   return [...args, "-vf", "eq=brightness=0:saturation=1"];
 };

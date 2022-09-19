@@ -75,9 +75,9 @@ export {Codec, CodecOrUndefined} from './codec';
 export {combineVideos} from './combine-videos';
 export {Crf} from './crf';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
-export type {FfmpegArgsHook} from './ffmpeg-args-hook';
 export {FfmpegExecutable} from './ffmpeg-executable';
 export {FfmpegVersion} from './ffmpeg-flags';
+export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FrameRange} from './frame-range';
 export {getCompositions} from './get-compositions';
 export {
