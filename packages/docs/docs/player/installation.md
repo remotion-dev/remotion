@@ -7,7 +7,7 @@ slug: /player/installation
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-To install the player, run the following command in a React project:
+To install the Player, run the following command in a React project:
 
 <Tabs
 defaultValue="npm"
@@ -41,5 +41,11 @@ yarn add remotion @remotion/player
   </TabItem>
 
 </Tabs>
+
+Also update **all the other Remotion packages** to have the same version: `remotion`, `@remotion/cli` and others.
+
+:::note
+Make sure no package version number has a `^` character in front of it as it can lead to a version conflict.
+:::
 
 Read the [examples](/docs/player/examples) and [API reference](/docs/player/api) next.

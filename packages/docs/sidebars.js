@@ -98,19 +98,10 @@ module.exports = {
       type: "category",
       link: {
         type: "doc",
-        id: "player/player",
+        id: "player/installation",
       },
       label: "@remotion/player",
-      items: [
-        "player/installation",
-        "player/examples",
-        "player/api",
-        "player/scaling",
-        "player/integration",
-        "player/autoplay",
-        "player/preloading",
-        "player/best-practices",
-      ],
+      items: ["player/api"],
     },
     {
       type: "category",
@@ -318,6 +309,22 @@ module.exports = {
         "scaling",
         "video-manipulation",
         "render-as-gif",
+      ],
+    },
+    {
+      type: "category",
+      link: {
+        type: "doc",
+        id: "player/player",
+      },
+      label: "Player",
+      items: [
+        "player/examples",
+        "player/scaling",
+        "player/integration",
+        "player/autoplay",
+        "player/preloading",
+        "player/best-practices",
       ],
     },
     {
