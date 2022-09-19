@@ -1,4 +1,4 @@
-import type {BundleOptions} from '@remotion/bundler';
+import type {LegacyBundleOptions} from '@remotion/bundler';
 import {bundle, BundlerInternals} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
 import {ConfigInternals} from './config';
@@ -62,7 +62,7 @@ export const bundleOnCli = async ({
 		);
 	};
 
-	const options: BundleOptions = {
+	const options: LegacyBundleOptions = {
 		enableCaching: shouldCache,
 		webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
 		rootDir: remotionRoot,
@@ -72,7 +72,7 @@ export const bundleOnCli = async ({
 	const [hash] = BundlerInternals.getConfig({
 		outDir: '',
 		entryPoint: fullPath,
-		onProgressUpdate: onProgress,
+		onProgress,
 		options,
 		resolvedRemotionRoot: remotionRoot,
 	});
@@ -95,9 +95,9 @@ export const bundleOnCli = async ({
 	const bundleStartTime = Date.now();
 	const bundlingProgress = createOverwriteableCliOutput(quietFlagProvided());
 
-	const bundled = await bundle(
-		fullPath,
-		(progress) => {
+	const bundled = await bundle({
+		entryPoint: fullPath,
+		onProgress: (progress) => {
 			bundlingProgress.update(
 				makeBundlingProgress({
 					progress: progress / 100,
@@ -106,8 +106,8 @@ export const bundleOnCli = async ({
 				})
 			);
 		},
-		options
-	);
+		...options,
+	});
 	bundlingProgress.update(
 		makeBundlingProgress({
 			progress: 1,

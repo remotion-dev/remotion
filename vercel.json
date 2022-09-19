@@ -49,6 +49,11 @@
       "source": "/api",
       "destination": "https://remotion.dev/docs/api",
       "permanent": false
+    },
+    {
+      "source": "/terminology",
+      "destination": "https://remotion.dev/docs/terminology",
+      "permanent": false
     }
   ]
 }
