@@ -1,50 +1,8 @@
-import {useCallback, useEffect, useLayoutEffect, useRef} from 'react';
+import {useLayoutEffect} from 'react';
 
 import {generate, parse} from './parse-generate';
+import type {GifState} from './props';
 import {makeWorker} from './worker';
-
-type WorkerRef = {
-	instance?: Worker;
-	timeout?: NodeJS.Timeout;
-	usageCount?: number;
-};
-
-const createSingleton = (
-	constructor: () => Worker,
-	destructor: (worker: Worker) => void
-): (() => Worker) => {
-	const ref: WorkerRef = {};
-	return () => {
-		if (!ref.instance) {
-			ref.instance = constructor();
-		}
-
-		useLayoutEffect(() => {
-			if (ref.timeout) {
-				clearTimeout(ref.timeout);
-				delete ref.timeout;
-			} else {
-				ref.usageCount = (ref.usageCount || 0) + 1;
-			}
-
-			return () => {
-				ref.timeout = setTimeout(() => {
-					if (ref.usageCount !== undefined) {
-						ref.usageCount -= 1;
-					}
-
-					if (ref.usageCount === 0) {
-						destructor?.(ref.instance as Worker);
-						delete ref.instance;
-						delete ref.timeout;
-					}
-				});
-			};
-		}, []);
-
-		return ref.instance;
-	};
-};
 
 type Ref = {
 	instance?: CanvasRenderingContext2D | null;
@@ -87,63 +45,6 @@ export const createCanvasSingleton = (
 	};
 };
 
-const useUpdatedRef = (value: Function) => {
-	const ref = useRef(value);
-	useEffect(() => {
-		ref.current = value;
-	}, [value]);
-	return ref;
-};
-
-const useEventCallback = (callback: Function) => {
-	const ref = useUpdatedRef(callback);
-	return useCallback((arg: unknown) => ref.current?.(arg), [ref]);
-};
-
-const useAsyncEffect = (
-	fn: (controller: AbortController) => void,
-	deps: unknown[]
-) => {
-	const cb = useEventCallback(fn);
-
-	useEffect(() => {
-		const controller = new AbortController();
-		const dest = cb(controller);
-
-		return () => {
-			controller.abort();
-			dest?.();
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [...deps]);
-};
-
-type OnParsedDone =
-	| {
-			loaded: boolean;
-			width: number;
-			height: number;
-			delays: number[];
-			frames: ImageData[];
-	  }
-	| {loaded: true; error: Error};
-
-const useParser = (src: string, callback: (data: OnParsedDone) => void) => {
-	const cb = useEventCallback(callback);
-
-	useAsyncEffect(
-		(controller) => {
-			if (typeof src === 'string') {
-				parse(src, {signal: controller.signal})
-					.then((raw) => generate(raw))
-					.then((info) => cb(info))
-					.catch((error) => cb({error, loaded: true}));
-			}
-		},
-		[src]
-	);
-};
-
 export const parseGif = async ({
 	src,
 	controller,
@@ -155,37 +56,43 @@ export const parseGif = async ({
 	return generate(raw);
 };
 
-const useWorkerSingleton = createSingleton(
-	() => makeWorker(),
-	(worker) => worker.terminate()
-);
+let worker: Worker | null = null;
 
-const useWorkerParser = (
-	src: string | boolean,
-	callback: (data: OnParsedDone) => void
-) => {
-	const cb = useEventCallback(callback);
-	const worker = useWorkerSingleton();
+export const parseWithWorker = (src: string) => {
+	if (!worker) {
+		worker = makeWorker();
+	}
 
-	useEffect(() => {
-		if (typeof src === 'string') {
-			const handler = (e: MessageEvent) => {
-				const message = e.data || e;
-				if (message.src === src) {
+	let handler: ((e: MessageEvent) => void) | null = null;
+
+	const prom = new Promise<GifState>((resolve, reject) => {
+		handler = (e: MessageEvent) => {
+			const message = e.data || e;
+			if (message.src === src) {
+				if (message.error) {
+					reject(new Error(message.error));
+				} else {
 					const data = message.error ? message : generate(message);
-					cb(data);
+					resolve(data);
 				}
-			};
+			}
+		};
 
-			worker.addEventListener('message', handler);
-			worker.postMessage({src, type: 'parse'});
+		(worker as Worker).addEventListener(
+			'message',
+			handler as (e: MessageEvent) => void
+		);
+		(worker as Worker).postMessage({src, type: 'parse'});
+	});
 
-			return () => {
-				worker.postMessage({src, type: 'cancel'});
-				worker.removeEventListener('message', handler);
-			};
-		}
-	}, [worker, src, cb]);
+	return {
+		prom,
+		cancel: () => {
+			(worker as Worker).postMessage({src, type: 'cancel'});
+			(worker as Worker).removeEventListener(
+				'message',
+				handler as (e: MessageEvent) => void
+			);
+		},
+	};
 };
-
-export {createSingleton, useParser, useWorkerParser};
