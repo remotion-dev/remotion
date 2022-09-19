@@ -77,6 +77,7 @@ export {Crf} from './crf';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
 export {FfmpegExecutable} from './ffmpeg-executable';
 export {FfmpegVersion} from './ffmpeg-flags';
+export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FrameRange} from './frame-range';
 export {getCompositions} from './get-compositions';
 export {
@@ -103,7 +104,6 @@ export {StitcherOptions, stitchFramesToVideo} from './stitch-frames-to-video';
 export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {OpenGlRenderer} from './validate-opengl-renderer';
-
 export const RenderInternals = {
 	ensureLocalBrowser,
 	ffmpegHasFeature,
