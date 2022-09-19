@@ -1,9 +1,9 @@
-import {forwardRef, useState} from 'react';
+import {forwardRef, useEffect, useRef, useState} from 'react';
 import {continueRender, delayRender} from 'remotion';
 import {Canvas} from './canvas';
 import {isCorsError} from './is-cors-error';
 import type {GifState, RemotionGifProps} from './props';
-import {useParser} from './react-tools';
+import {parseGif} from './react-tools';
 import {useCurrentGifIndex} from './useCurrentGifIndex';
 
 export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
@@ -22,21 +22,35 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 		);
 
 		const index = useCurrentGifIndex(state.delays);
+		const currentOnLoad = useRef(onLoad);
+		const currentOnError = useRef(onError);
+		currentOnLoad.current = onLoad;
+		currentOnError.current = onError;
 
-		useParser(resolvedSrc, (info) => {
-			if ('error' in info) {
-				if (onError) {
-					onError(info.error);
-				} else {
-					setError(info.error);
+		useEffect(() => {
+			const controller = new AbortController();
+			let done = false;
+			parseGif({controller, src})
+				.then((parsed) => {
+					currentOnLoad.current?.(parsed);
+					update(parsed);
+					done = true;
+					continueRender(id);
+				})
+				.catch((err) => {
+					if (currentOnError.current) {
+						currentOnError.current(err);
+					} else {
+						setError(err);
+					}
+				});
+
+			return () => {
+				if (!done) {
+					controller.abort();
 				}
-			} else {
-				onLoad?.(info);
-				update(info);
-			}
-
-			continueRender(id);
-		});
+			};
+		}, [id, src]);
 
 		if (error) {
 			console.error(error.stack);

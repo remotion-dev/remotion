@@ -118,9 +118,9 @@ const useAsyncEffect = (
 	}, [...deps]);
 };
 
-type ParserCallbackArgs =
+type OnParsedDone =
 	| {
-			loaded: true;
+			loaded: boolean;
 			width: number;
 			height: number;
 			delays: number[];
@@ -128,10 +128,7 @@ type ParserCallbackArgs =
 	  }
 	| {loaded: true; error: Error};
 
-const useParser = (
-	src: string,
-	callback: (data: ParserCallbackArgs) => void
-) => {
+const useParser = (src: string, callback: (data: OnParsedDone) => void) => {
 	const cb = useEventCallback(callback);
 
 	useAsyncEffect(
@@ -147,6 +144,17 @@ const useParser = (
 	);
 };
 
+export const parseGif = async ({
+	src,
+	controller,
+}: {
+	src: string;
+	controller: AbortController;
+}) => {
+	const raw = await parse(src, {signal: controller.signal});
+	return generate(raw);
+};
+
 const useWorkerSingleton = createSingleton(
 	() => makeWorker(),
 	(worker) => worker.terminate()
@@ -154,7 +162,7 @@ const useWorkerSingleton = createSingleton(
 
 const useWorkerParser = (
 	src: string | boolean,
-	callback: (data: ParserCallbackArgs) => void
+	callback: (data: OnParsedDone) => void
 ) => {
 	const cb = useEventCallback(callback);
 	const worker = useWorkerSingleton();
