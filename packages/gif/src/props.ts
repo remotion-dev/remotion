@@ -9,7 +9,7 @@ export type RemotionGifProps = {
 		frames: ImageData[];
 	}) => void;
 	onError?: (error: Error) => void;
-	fit?: 'contain' | 'fill' | 'cover';
+	fit?: GifFillMode;
 	style?: React.CSSProperties;
 };
 
@@ -19,3 +19,5 @@ export type GifState = {
 	width: number;
 	height: number;
 };
+
+export type GifFillMode = 'contain' | 'cover' | 'fill';
