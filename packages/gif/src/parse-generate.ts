@@ -1,5 +1,6 @@
 import type {Frame, ParsedFrameWithoutPatch, ParsedGif} from 'gifuct-js';
 import {decompressFrames, parseGIF} from 'gifuct-js';
+import type {GifState} from './props';
 
 const validateAndFix = (gif: ParsedGif) => {
 	let currentGce = null;
@@ -97,7 +98,7 @@ type ParserCallbackArgs = {
 	frames: Uint8ClampedArray[];
 };
 
-export const generate = (info: ParserCallbackArgs) => {
+export const generate = (info: ParserCallbackArgs): GifState => {
 	return {
 		...info,
 		frames: info.frames.map((buffer) => {

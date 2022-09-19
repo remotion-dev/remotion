@@ -58,14 +58,6 @@ export const Index: React.FC = () => {
 					width={1080}
 				/>
 				<Composition
-					id="gif"
-					lazyComponent={() => import('./GifTest')}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={150}
-				/>
-				<Composition
 					id="stagger-test"
 					component={SeriesTesting}
 					width={1280}
@@ -500,6 +492,24 @@ export const Index: React.FC = () => {
 					fps={30}
 					height={1080}
 					width={1080}
+				/>
+			</Folder>
+			<Folder name="gif">
+				<Composition
+					id="gif"
+					lazyComponent={() => import('./GifTest')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="gif-duration"
+					lazyComponent={() => import('./GifTest/gif-duration')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
 				/>
 			</Folder>
 		</>
