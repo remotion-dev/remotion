@@ -1,49 +1,6 @@
-import {useLayoutEffect} from 'react';
-
 import {generate, parse} from './parse-generate';
 import type {GifState} from './props';
 import {makeWorker} from './worker';
-
-type Ref = {
-	instance?: CanvasRenderingContext2D | null;
-	timeout?: NodeJS.Timeout;
-	usageCount?: number;
-};
-
-export const createCanvasSingleton = (
-	constructor: () => CanvasRenderingContext2D | null
-): (() => CanvasRenderingContext2D | null) => {
-	const ref: Ref = {};
-	return () => {
-		if (!ref.instance) {
-			ref.instance = constructor();
-		}
-
-		useLayoutEffect(() => {
-			if (ref.timeout) {
-				clearTimeout(ref.timeout);
-				delete ref.timeout;
-			} else {
-				ref.usageCount = (ref.usageCount || 0) + 1;
-			}
-
-			return () => {
-				ref.timeout = setTimeout(() => {
-					if (ref.usageCount !== undefined) {
-						ref.usageCount -= 1;
-					}
-
-					if (ref.usageCount === 0) {
-						delete ref.instance;
-						delete ref.timeout;
-					}
-				});
-			};
-		}, []);
-
-		return ref.instance;
-	};
-};
 
 export const parseGif = async ({
 	src,
