@@ -5,10 +5,11 @@ import {
 	useRef,
 	useState,
 } from 'react';
+import type {GifFillMode} from './props';
 import {useElementSize} from './use-element-size';
 
 const calcArgs = (
-	fit: 'fill' | 'contain' | 'cover',
+	fit: GifFillMode,
 	frameSize: {
 		width: number;
 		height: number;
@@ -90,7 +91,7 @@ type Props = {
 	frames: ImageData[];
 	width?: number;
 	height?: number;
-	fit: 'fill' | 'contain' | 'cover';
+	fit: GifFillMode;
 	className?: string;
 	style?: React.CSSProperties;
 };
