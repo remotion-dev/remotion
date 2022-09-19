@@ -9,10 +9,11 @@
 @media screen and (max-width: 700px) {
   .bganimcontainer {
     position: absolute;
-    width: 700px;
-    height: 700px;
+    width: 100vw;
+    height: 100vw;
     left: 50%;
-    margin-left: -350px;
+    margin-left: -50%;
+    min-width: 0;
   }
 }
 
