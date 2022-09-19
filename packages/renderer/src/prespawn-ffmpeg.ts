@@ -6,6 +6,7 @@ import {
 	getDefaultCrfForCodec,
 	validateSelectedCrfAndCodecCombination,
 } from './crf';
+import type {FfmpegArgsHook} from './ffmpeg-args-hook';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
@@ -34,6 +35,7 @@ type PreSticherOptions = {
 	verbose: boolean;
 	ffmpegExecutable: FfmpegExecutable | undefined;
 	imageFormat: ImageFormat;
+	ffmpegArgsHook?: FfmpegArgsHook;
 	signal: CancelSignal;
 };
 
@@ -122,8 +124,11 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 	}
 
 	const ffmpegString = ffmpegArgs.flat(2).filter(Boolean) as string[];
+	const finalFfmpegString = options.ffmpegArgsHook
+		? options.ffmpegArgsHook({type: 'pre-stitcher', args: ffmpegString})
+		: ffmpegString;
 
-	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString);
+	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', finalFfmpegString);
 
 	options.signal(() => {
 		task.kill();
