@@ -15,15 +15,20 @@ export const openEventSource = () => {
 
 	source.addEventListener('open', () => {
 		serverDisconnectedRef.current?.setServerConnected();
-	});
 
-	source.addEventListener('error', () => {
-		// Display an error message that the preview server has disconnected.
-		serverDisconnectedRef.current?.setServerDisconnected();
+		(source as EventSource).addEventListener(
+			'error',
+			() => {
+				// Display an error message that the preview server has disconnected.
+				serverDisconnectedRef.current?.setServerDisconnected();
+				source?.close();
 
-		// Retry later
-		setTimeout(() => {
-			openEventSource();
-		}, 1000);
+				// Retry later
+				setTimeout(() => {
+					openEventSource();
+				}, 1000);
+			},
+			{once: true}
+		);
 	});
 };
