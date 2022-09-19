@@ -5,6 +5,8 @@ id: get-gif-duration-in-seconds
 
 _Part of the [`@remotion/gif`](/docs/gif) package_
 
+_Available from v3.2.22_
+
 Gets the duration in seconds of a GIF.
 
 :::note
