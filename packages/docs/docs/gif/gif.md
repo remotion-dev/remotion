@@ -1,5 +1,5 @@
 ---
-slug: gif/gif
+slug: gif
 sidebar_label: "<Gif>"
 title: "<Gif>"
 ---
@@ -8,48 +8,81 @@ _Part of the [`@remotion/gif`](/docs/gif) package_
 
 Displays a GIF that synchronizes with Remotions [`useCurrentFrame()`](/docs/use-current-frame).
 
-Gets the duration in seconds of an audio source. Remotion will create an invisible `<audio>` tag, load the audio and return the duration.
-
-## Arguments
+## Props
 
 ### `src`
 
-A string pointing to an audio asset
+_required_
 
-## Return value
+The source of the GIF. Can be an URL or a local image - see [Importing assets](/docs/assets).
 
-`Promise<number>` - the duration of the audio file.
+:::note
+Remote GIFs need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
+
+<details>
+<summary>More info</summary>
+<ul>
+<li>
+Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
+</li>
+<li>
+You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
+</li>
+</ul>
+</details>
+:::
+
+### `width`
+
+The display width.
+
+### `height`
+
+The display height.
+
+### `fit`
+
+Must be one of these values:
+
+- `'fill'`: The GIF will completely fill the container, and will be stretched if necessary. (_default_)
+- `'contain'`: The GIF is scaled to fit the box, while aspect ratio is maintained.
+- `'cover'`: The GIF completely fills the container and maintains it's aspect ratio. It will be cropped if necessary.
+
+### `onLoad`
+
+Callback that gets called once the GIF has loaded and finished processing. As its only argument, the callback gives the following object:
+
+- `width`: Width of the GIF file in pixels.
+- `height`: Height of the GIF file in pixels.
+- `delays`: Array of timestamps of type `number` containing position of each frame.
+- `frames`: Array of frames of type [`ImageData`](https://developer.mozilla.org/en-US/docs/Web/API/ImageData)
+
+### `style`
+
+Allows to pass in custom CSS styles.
 
 ## Example
 
 ```tsx twoslash
-// @module: ESNext
-// @target: ESNext
-import { useCallback, useEffect } from "react";
-import { staticFile } from "remotion";
+import { useVideoConfig } from "remotion";
 // ---cut---
-import { getAudioDurationInSeconds } from "@remotion/media-utils";
-import music from "./music.mp3";
+import { Gif } from "@remotion/gif";
 
-const MyComp: React.FC = () => {
-  const getDuration = useCallback(async () => {
-    const imported = await getAudioDurationInSeconds(music); // 127.452
-    const publicFile = await getAudioDurationInSeconds(
-      staticFile("voiceover.wav")
-    ); // 33.221
-    const remote = await getAudioDurationInSeconds(
-      "https://example.com/remote-audio.aac"
-    ); // 50.24
-  }, []);
+export const MyComponent: React.FC = () => {
+  const { width, height } = useVideoConfig();
 
-  useEffect(() => {
-    getDuration();
-  }, []);
-
-  return null;
+  return (
+    <Gif
+      src="https://media.giphy.com/media/3o72F7YT6s0EMFI0Za/giphy.gif"
+      width={width}
+      height={height}
+      fit="fill"
+    />
+  );
 };
 ```
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/gif/src/get-gif-duration-in-seconds.ts)
+- [`getGifDurationInSeconds()`](/docs/gif/get-gif-duration-in-seconds)
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/gif/src/Gif.tsx)
