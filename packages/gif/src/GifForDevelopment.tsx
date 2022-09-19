@@ -1,13 +1,11 @@
-import {LRUMap} from 'lru_map';
 import {forwardRef, useEffect, useRef, useState} from 'react';
 import {continueRender, delayRender} from 'remotion';
 import {Canvas} from './canvas';
+import {gifCache} from './gif-cache';
 import {isCorsError} from './is-cors-error';
 import type {GifState, RemotionGifProps} from './props';
 import {parseWithWorker} from './react-tools';
 import {useCurrentGifIndex} from './useCurrentGifIndex';
-
-const cache = new LRUMap<string, GifState>(30);
 
 export const GifForDevelopment = forwardRef<
 	HTMLCanvasElement,
@@ -15,7 +13,7 @@ export const GifForDevelopment = forwardRef<
 >(({src, width, height, onError, onLoad, fit = 'fill', ...props}, ref) => {
 	const resolvedSrc = new URL(src, window.location.origin).href;
 	const [state, update] = useState<GifState>(() => {
-		const parsedGif = cache.get(resolvedSrc);
+		const parsedGif = gifCache.get(resolvedSrc);
 
 		if (parsedGif === undefined) {
 			return {
@@ -48,6 +46,7 @@ export const GifForDevelopment = forwardRef<
 			.then((parsed) => {
 				currentOnLoad.current?.(parsed);
 				update(parsed);
+				gifCache.set(resolvedSrc, parsed);
 				done = true;
 				continueRender(newHandle);
 				continueRender(id);
