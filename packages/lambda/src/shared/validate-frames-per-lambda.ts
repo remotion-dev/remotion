@@ -1,6 +1,12 @@
 import {MINIMUM_FRAMES_PER_LAMBDA} from './constants';
 
-export const validateFramesPerLambda = (framesPerLambda: unknown) => {
+export const validateFramesPerLambda = ({
+	framesPerLambda,
+	durationInFrames,
+}: {
+	framesPerLambda: unknown;
+	durationInFrames: number;
+}) => {
 	if (framesPerLambda === null) {
 		return;
 	}
@@ -35,9 +41,14 @@ export const validateFramesPerLambda = (framesPerLambda: unknown) => {
 		);
 	}
 
-	if (framesPerLambda < MINIMUM_FRAMES_PER_LAMBDA) {
+	const effectiveMinimum = Math.min(
+		MINIMUM_FRAMES_PER_LAMBDA,
+		durationInFrames
+	);
+
+	if (framesPerLambda < effectiveMinimum) {
 		throw new TypeError(
-			`The framesPerLambda needs to be at least 4, but is ${framesPerLambda}`
+			`The framesPerLambda needs to be at least ${effectiveMinimum}, but is ${framesPerLambda}`
 		);
 	}
 };

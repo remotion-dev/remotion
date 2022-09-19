@@ -6,6 +6,7 @@ import React, {
 	useRef,
 } from 'react';
 import {continueRender, delayRender} from './delay-render';
+import {getRemotionEnvironment} from './get-environment';
 import {usePreload} from './prefetch';
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
@@ -40,30 +41,33 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 	);
 
 	// If image source switches, make new handle
-	useLayoutEffect(() => {
-		if (process.env.NODE_ENV === 'test') {
-			return;
-		}
+	if (getRemotionEnvironment() === 'rendering') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			if (process.env.NODE_ENV === 'test') {
+				return;
+			}
 
-		const newHandle = delayRender('Loading <Img> with src=' + src);
-		const {current} = imageRef;
+			const newHandle = delayRender('Loading <Img> with src=' + src);
+			const {current} = imageRef;
 
-		const didLoad = () => {
-			continueRender(newHandle);
-		};
+			const didLoad = () => {
+				continueRender(newHandle);
+			};
 
-		if (current?.complete) {
-			continueRender(newHandle);
-		} else {
-			current?.addEventListener('load', didLoad, {once: true});
-		}
+			if (current?.complete) {
+				continueRender(newHandle);
+			} else {
+				current?.addEventListener('load', didLoad, {once: true});
+			}
 
-		// If tag gets unmounted, clear pending handles because image is not going to load
-		return () => {
-			current?.removeEventListener('load', didLoad);
-			continueRender(newHandle);
-		};
-	}, [src]);
+			// If tag gets unmounted, clear pending handles because image is not going to load
+			return () => {
+				current?.removeEventListener('load', didLoad);
+				continueRender(newHandle);
+			};
+		}, [src]);
+	}
 
 	return (
 		<img {...props} ref={imageRef} src={actualSrc} onError={didGetError} />

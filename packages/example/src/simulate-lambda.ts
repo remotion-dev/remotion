@@ -9,7 +9,8 @@ import path from 'path';
 import {webpackOverride} from './webpack-override';
 
 const start = async () => {
-	const bundled = await bundle('./src/index.tsx', () => undefined, {
+	const bundled = await bundle({
+		entryPoint: './src/index.tsx',
 		webpackOverride,
 	});
 
@@ -28,7 +29,7 @@ const start = async () => {
 			outputLocation: path.join(filelistDir, 'out/there' + i + '.mkv'),
 			serveUrl: bundled,
 			frameRange: [i * framesPerLambda, (i + 1) * framesPerLambda - 1],
-			parallelism: 1,
+			concurrency: 1,
 			numberOfGifLoops: null,
 			everyNthFrame: 1,
 			verbose: false,

@@ -24,6 +24,8 @@ export type DeploySiteInput = {
 		onUploadProgress?: (upload: UploadDirProgress) => void;
 		webpackOverride?: WebpackOverrideFn;
 		enableCaching?: boolean;
+		publicDir?: string | null;
+		rootDir?: string;
 	};
 };
 
@@ -77,6 +79,8 @@ export const deploySite = async ({
 			publicPath: `/${subFolder}/`,
 			webpackOverride: options?.webpackOverride ?? ((f) => f),
 			enableCaching: options?.enableCaching ?? true,
+			publicDir: options?.publicDir,
+			rootDir: options?.rootDir,
 		}
 	);
 

@@ -71,7 +71,8 @@ export const webpackOverride: WebpackOverrideFn = (c) => c;
 import { bundle } from "@remotion/bundler";
 import { webpackOverride } from "./src/webpack-override";
 
-await bundle(require.resolve("./src/index.ts"), () => undefined, {
+await bundle({
+  entryPoint: require.resolve("./src/index.ts"),
   webpackOverride,
 });
 ```

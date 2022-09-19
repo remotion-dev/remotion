@@ -98,6 +98,12 @@ _optional - default `{}`_
 
 See [`renderMedia() -> envVariables`](/docs/renderer/render-media#envvariables).
 
+### `scale`
+
+_optional_
+
+Scales the output dimensions by a factor. See [Scaling](/docs/scaling) to learn more about this feature.
+
 ### `outName`
 
 _optional_

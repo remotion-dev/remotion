@@ -113,7 +113,7 @@ const renderHandler = async (
 
 				chunkTimingData.timings[renderedFrames] = Date.now() - start;
 			},
-			parallelism: params.concurrencyPerLambda,
+			concurrency: params.concurrencyPerLambda,
 			onStart: () => {
 				lambdaWriteFile({
 					privacy: 'private',
