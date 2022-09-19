@@ -187,7 +187,15 @@ module.exports = {
         "lambda/uninstall",
       ],
     },
-    "gif",
+    {
+      type: "category",
+      label: "@remotion/gif",
+      link: {
+        type: "doc",
+        id: "gif/index",
+      },
+      items: ["gif/gif", "gif/get-gif-duration-in-seconds"],
+    },
     {
       type: "category",
       label: "@remotion/media-utils",
