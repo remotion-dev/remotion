@@ -275,7 +275,7 @@ export const getCliOptions = async (options: {
 		port: port ?? null,
 		muted: ConfigInternals.getMuted(),
 		enforceAudioTrack: ConfigInternals.getEnforceAudioTrack(),
-		keyboardShortcutsEnables: ConfigInternals.getKeyboardShortcutsEnabled(),
 		publicDir: ConfigInternals.getPublicDir(),
+		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
 	};
 };
