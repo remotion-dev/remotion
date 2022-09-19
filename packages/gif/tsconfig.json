@@ -5,8 +5,7 @@
 		"rootDir": "./src",
 		"outDir": "./dist",
 		"skipLibCheck": true,
-		"jsx": "react-jsx",
-		"allowJs": true
+		"jsx": "react-jsx"
 	},
 	"include": ["./src"],
 	"references": [{"path": "../core"}]
