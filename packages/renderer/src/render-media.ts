@@ -17,6 +17,7 @@ import {validateSelectedCrfAndCodecCombination} from './crf';
 import {deleteDirectory} from './delete-directory';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
+import type {FfmpegArgsHook} from './ffmpeg-args-hook';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import type {FrameRange} from './frame-range';
 import {getFramesToRender} from './get-duration-from-frame-range';
@@ -92,6 +93,7 @@ export type RenderMediaOptions = {
 	downloadMap?: DownloadMap;
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
+	ffmpegArgsHook?: FfmpegArgsHook;
 } & ServeUrlOrWebpackBundle &
 	ConcurrencyOrParallelism;
 
