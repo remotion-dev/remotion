@@ -1,7 +1,8 @@
-import {Canvas, useWorkerParser} from '@react-gifs/tools';
 import {LRUMap} from 'lru_map';
 import {forwardRef, useState} from 'react';
+import {Canvas} from './canvas';
 import type {GifState, RemotionGifProps} from './props';
+import {useWorkerParser} from './react-tools';
 import {useCurrentGifIndex} from './useCurrentGifIndex';
 
 const cache = new LRUMap<string, GifState>(30);
