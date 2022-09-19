@@ -1,9 +1,8 @@
 import {getGifDurationInSeconds} from '@remotion/gif';
 import {useEffect} from 'react';
-import {AbsoluteFill, staticFile, useVideoConfig} from 'remotion';
+import {AbsoluteFill, staticFile} from 'remotion';
 
 const GifTest: React.FC = () => {
-	const {width, height} = useVideoConfig();
 	const giphy = staticFile('giphy.gif');
 
 	useEffect(() => {
