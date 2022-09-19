@@ -25,7 +25,7 @@ importers:
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
       react-refresh: 0.9.0
-      remotion: 3.2.16
+      remotion: 3.2.21
       typescript: ^4.7.0
       webpack: 5.72.0
     dependencies:
@@ -67,7 +67,7 @@ importers:
       react: ^18.0.0
       react-dom: ^18.0.0
       react-refresh: 0.9.0
-      remotion: 3.2.16
+      remotion: 3.2.21
       style-loader: 2.0.0
       typescript: ^4.7.0
       vitest: ^0.18.0
@@ -101,10 +101,10 @@ importers:
   packages/cli:
     specifiers:
       '@jonny/eslint-config': 3.0.266
-      '@remotion/bundler': 3.2.16
-      '@remotion/media-utils': 3.2.16
-      '@remotion/player': 3.2.16
-      '@remotion/renderer': 3.2.16
+      '@remotion/bundler': 3.2.21
+      '@remotion/media-utils': 3.2.21
+      '@remotion/player': 3.2.21
+      '@remotion/renderer': 3.2.21
       '@types/minimist': ^1.2.2
       '@types/node': ^16.7.5
       '@types/react': 18.0.1
@@ -125,7 +125,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.2.16
+      remotion: 3.2.21
       semver: 7.3.5
       source-map: 0.6.1
       typescript: ^4.7.0
@@ -252,18 +252,18 @@ importers:
       '@jonny/docusaurus-preset-shiki-twoslash': ^1.1.36
       '@jonny/eslint-config': 3.0.266
       '@mdx-js/react': ^1.6.21
-      '@remotion/babel-loader': 3.2.16
-      '@remotion/bundler': 3.2.16
-      '@remotion/gif': 3.2.16
-      '@remotion/lambda': 3.2.16
-      '@remotion/lottie': 3.2.16
-      '@remotion/media-utils': 3.2.16
-      '@remotion/paths': 3.2.16
-      '@remotion/player': 3.2.16
-      '@remotion/preload': 3.2.16
-      '@remotion/renderer': 3.2.16
-      '@remotion/skia': 3.2.16
-      '@remotion/three': 3.2.16
+      '@remotion/babel-loader': 3.2.21
+      '@remotion/bundler': 3.2.21
+      '@remotion/gif': 3.2.21
+      '@remotion/lambda': 3.2.21
+      '@remotion/lottie': 3.2.21
+      '@remotion/media-utils': 3.2.21
+      '@remotion/paths': 3.2.21
+      '@remotion/player': 3.2.21
+      '@remotion/preload': 3.2.21
+      '@remotion/renderer': 3.2.21
+      '@remotion/skia': 3.2.21
+      '@remotion/three': 3.2.21
       '@shopify/react-native-skia': ^0.1.139
       '@splitbee/web': ^0.2.4
       '@tsconfig/docusaurus': ^1.0.5
@@ -275,7 +275,7 @@ importers:
       clipboard: ^2.0.8
       clsx: ^1.1.1
       color-namer: 1.4.0
-      create-video: 3.2.16
+      create-video: 3.2.21
       eslint: 8.13.0
       hls.js: ^0.14.17
       lottie-web: ^5.9.6
@@ -285,7 +285,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0
       react-player: ^2.9.0
-      remotion: 3.2.16
+      remotion: 3.2.21
       three: 0.134.0
       typescript: ^4.7.0
       url-loader: ^4.1.1
@@ -341,7 +341,7 @@ importers:
 
   packages/eslint-config:
     specifiers:
-      '@remotion/eslint-plugin': 3.2.16
+      '@remotion/eslint-plugin': 3.2.21
       '@types/node': 17.0.17
       '@typescript-eslint/eslint-plugin': 5.19.0
       '@typescript-eslint/parser': 5.19.0
@@ -384,18 +384,18 @@ importers:
       '@babel/preset-react': 7.12.13
       '@mdx-js/react': ^1.6.21
       '@react-three/drei': ^7.22.7
-      '@remotion/babel-loader': 3.2.16
-      '@remotion/bundler': 3.2.16
-      '@remotion/cli': 3.2.16
-      '@remotion/eslint-config': 3.2.16
-      '@remotion/eslint-plugin': 3.2.16
-      '@remotion/gif': 3.2.16
-      '@remotion/lambda': 3.2.16
-      '@remotion/lottie': 3.2.16
-      '@remotion/media-utils': 3.2.16
-      '@remotion/paths': 3.2.16
-      '@remotion/renderer': 3.2.16
-      '@remotion/three': 3.2.16
+      '@remotion/babel-loader': 3.2.21
+      '@remotion/bundler': 3.2.21
+      '@remotion/cli': 3.2.21
+      '@remotion/eslint-config': 3.2.21
+      '@remotion/eslint-plugin': 3.2.21
+      '@remotion/gif': 3.2.21
+      '@remotion/lambda': 3.2.21
+      '@remotion/lottie': 3.2.21
+      '@remotion/media-utils': 3.2.21
+      '@remotion/paths': 3.2.21
+      '@remotion/renderer': 3.2.21
+      '@remotion/three': 3.2.21
       '@types/babel__core': ^7.1.12
       '@types/babel__template': ^7.4.0
       '@types/express': ^4.17.11
@@ -415,7 +415,7 @@ importers:
       polished: ^4.0.5
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.2.16
+      remotion: 3.2.21
       styled-components: ^5.1.1
       ts-unused-exports: ^7.0.1
       typescript: ^4.7.0
@@ -467,22 +467,21 @@ importers:
   packages/gif:
     specifiers:
       '@jonny/eslint-config': 3.0.266
-      '@react-gifs/tools': 0.1.2
       '@types/node': ^16.7.5
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
       eslint: 8.13.0
+      gifuct-js: 2.1.2
       jest: ^27.2.4
       lru_map: 0.4.1
       prettier: 2.6.2
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.2.16
+      remotion: 3.2.21
       typescript: ^4.7.0
       webpack: 5.72.0
     dependencies:
-      '@react-gifs/tools': 0.1.2_zpnidt7m3osuk7shl3s4oenomq
       lru_map: 0.4.1
       remotion: link:../core
     devDependencies:
@@ -491,6 +490,7 @@ importers:
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
       eslint: 8.13.0
+      gifuct-js: 2.1.2
       jest: 27.2.4
       prettier: 2.6.2
       prettier-plugin-organize-imports: 2.3.4_lbsuufegg2dnc4wh6qgf26kgdy
@@ -501,13 +501,13 @@ importers:
 
   packages/it-tests:
     specifiers:
-      '@remotion/bundler': 3.2.16
-      '@remotion/cli': 3.2.16
-      '@remotion/lambda': 3.2.16
-      '@remotion/renderer': 3.2.16
+      '@remotion/bundler': 3.2.21
+      '@remotion/cli': 3.2.21
+      '@remotion/lambda': 3.2.21
+      '@remotion/renderer': 3.2.21
       '@types/sharp': ^0.28.5
       execa: 5.1.1
-      remotion: 3.2.16
+      remotion: 3.2.21
       sharp: 0.30.6
       typescript: ^4.7.0
       vitest: ^0.18.0
@@ -534,9 +534,9 @@ importers:
       '@aws-sdk/lib-storage': 3.58.0
       '@aws-sdk/s3-request-presigner': 3.58.0
       '@jonny/eslint-config': 3.0.266
-      '@remotion/bundler': 3.2.16
-      '@remotion/cli': 3.2.16
-      '@remotion/renderer': 3.2.16
+      '@remotion/bundler': 3.2.21
+      '@remotion/cli': 3.2.21
+      '@remotion/renderer': 3.2.21
       '@types/jest': ^27.0.2
       '@types/mime-types': 2.1.1
       '@types/minimist': 1.2.2
@@ -550,7 +550,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
-      remotion: 3.2.16
+      remotion: 3.2.21
       ts-jest: ^27.0.5
       ts-node: ^10.8.0
       typescript: ^4.7.0
@@ -600,7 +600,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.2.16
+      remotion: 3.2.21
       typescript: ^4.7.0
       vitest: ^0.18.0
     dependencies:
@@ -629,7 +629,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
-      remotion: 3.2.16
+      remotion: 3.2.21
       typescript: ^4.7.0
     dependencies:
       react: 18.0.0
@@ -677,7 +677,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.2.16
+      remotion: 3.2.21
       ts-jest: ^27.0.5
       typescript: ^4.7.0
       webpack: 5.72.0
@@ -704,10 +704,10 @@ importers:
   packages/player-example:
     specifiers:
       '@pmmmwh/react-refresh-webpack-plugin': ^0.5.3
-      '@remotion/bundler': 3.2.16
-      '@remotion/eslint-config': 3.2.16
-      '@remotion/player': 3.2.16
-      '@remotion/preload': 3.2.16
+      '@remotion/bundler': 3.2.21
+      '@remotion/eslint-config': 3.2.21
+      '@remotion/player': 3.2.21
+      '@remotion/preload': 3.2.21
       '@types/node': ^12.0.0
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
@@ -721,7 +721,7 @@ importers:
       react-dev-utils: ^12.0.1
       react-dom: 18.0.0
       react-refresh: ^0.11.0
-      remotion: 3.2.16
+      remotion: 3.2.21
       typescript: ^4.7.0
       webpack: 5.72.0
       webpack-dev-server: ^4.6.0
@@ -779,7 +779,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.2.16
+      remotion: 3.2.21
       source-map: ^0.8.0-beta.0
       typescript: ^4.7.0
       vitest: ^0.18.0
@@ -818,7 +818,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.2.16
+      remotion: 3.2.21
       typescript: ^4.7.0
     dependencies:
       copy-webpack-plugin: 11.0.0_webpack@5.72.0
@@ -849,7 +849,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.2.16
+      remotion: 3.2.21
       three: ^0.134.0
       typescript: ^4.7.0
     dependencies:
@@ -8541,17 +8541,6 @@ packages:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
     dev: false
 
-  /@react-gifs/tools/0.1.2_zpnidt7m3osuk7shl3s4oenomq:
-    resolution: {integrity: sha512-KC4IXwoT/teTMlkLy8Qp6i/NlYx3kEJsPgRKlXwfTjjmhCLo2tCobnET2am0R7bB0KegDDTO7h10+NbBPRbs5A==}
-    peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
-    dependencies:
-      gifuct-js: 2.1.1
-      react: 18.0.0
-      react-dom: 18.0.0_react@18.0.0
-    dev: false
-
   /@react-native-community/cli-clean/8.0.4:
     resolution: {integrity: sha512-IwS1M1NHg6+qL8PThZYMSIMYbZ6Zbx+lIck9PLBskbosFo24M3lCOflOl++Bggjakp6mR+sRXxLMexid/GeOsQ==}
     dependencies:
@@ -14260,11 +14249,11 @@ packages:
       assert-plus: 1.0.0
     dev: false
 
-  /gifuct-js/2.1.1:
-    resolution: {integrity: sha512-DZkLjGtUs+cx0EDby+on/h/GrjizxcqGHLN6c8h8t8GHT1XBhRhfow/nl6L96fwSRO+37hTF2lCnoqUWFsKs9g==}
+  /gifuct-js/2.1.2:
+    resolution: {integrity: sha512-rI2asw77u0mGgwhV3qA+OEgYqaDn5UNqgs+Bx0FGwSpuqfYn+Ir6RQY5ENNQ8SbIiG/m5gVa7CD5RriO4f4Lsg==}
     dependencies:
-      js-binary-schema-parser: 2.0.2
-    dev: false
+      js-binary-schema-parser: 2.0.3
+    dev: true
 
   /git-raw-commits/2.0.10:
     resolution: {integrity: sha512-sHhX5lsbG9SOO6yXdlwgEMQ/ljIn7qMpAbJZCGfXX2fq5T8M5SrDnpYk9/4HswTildcIqatsWa91vty6VhWSaQ==}
@@ -16193,9 +16182,9 @@ packages:
       '@sideway/formula': 3.0.0
       '@sideway/pinpoint': 2.0.0
 
-  /js-binary-schema-parser/2.0.2:
-    resolution: {integrity: sha512-LUdtrIW6+4ERDhLO19cQBwYKWMcS09QpuBQSUmwYx+OXB8KzMiGDTNoVOTuo4dNrPItlYW0xyiUd1t/3HZtbxg==}
-    dev: false
+  /js-binary-schema-parser/2.0.3:
+    resolution: {integrity: sha512-xezGJmOb4lk/M1ZZLTR/jaBHQ4gG/lqQnJqdIv4721DMggsa1bDVlHXNeHYogaIEHD9vCRv0fcL4hMA+Coarkg==}
+    dev: true
 
   /js-tokens/4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}

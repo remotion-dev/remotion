@@ -145,6 +145,12 @@ export const getProgress = async ({
 		]
 	);
 
+	if (renderMetadata?.type === 'still') {
+		throw new Error(
+			"You don't need to call getRenderProgress() on a still render. Once you have obtained the `renderId`, the render is already done! 😉"
+		);
+	}
+
 	const outputFile = renderMetadata
 		? await findOutputFileInBucket({
 				bucketName,

@@ -40,7 +40,7 @@ test("Legacy SSR way of rendering videos should still work", async () => {
     inputProps: {},
     onFrameUpdate: () => undefined,
     webpackBundle: "https://gleaming-wisp-de5d2a.netlify.app/",
-    parallelism: null,
+    concurrency: null,
     frameRange: [0, 10],
     outputDir: framesDir,
     onStart: () => undefined,
