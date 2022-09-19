@@ -1,2 +1,3 @@
-export * from './Gif';
-export * from './props';
+export {getGifDurationInSeconds} from './get-gif-duration';
+export {Gif} from './Gif';
+export {RemotionGifProps} from './props';
