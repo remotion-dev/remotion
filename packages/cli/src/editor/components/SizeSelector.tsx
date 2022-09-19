@@ -93,7 +93,7 @@ export const SizeSelector: React.FC = () => {
 				},
 				type: 'item',
 				value: newSize.size,
-				keyHint: newSize.size ? '0' : null,
+				keyHint: newSize.size === 1 ? '0' : null,
 				leftItem:
 					String(size.size) === String(newSize.size) ? <Checkmark /> : null,
 				subMenu: null,

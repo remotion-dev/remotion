@@ -57,13 +57,13 @@ type ConfigOrComposition =
 
 type ConcurrencyOrParallelism =
 	| {
-			concurrency: number | null;
+			concurrency?: number | null;
 	  }
 	| {
 			/**
 			 * @deprecated This field has been renamed to `concurrency`
 			 */
-			parallelism: number | null;
+			parallelism?: number | null;
 	  };
 
 type RenderFramesOptions = {

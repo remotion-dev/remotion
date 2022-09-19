@@ -3,13 +3,10 @@ import {getCompositions, renderMedia} from '@remotion/renderer';
 import {webpackOverride} from './src/webpack-override';
 
 const start = async () => {
-	const bundled = await bundle(
-		require.resolve('./src/index.tsx'),
-		() => undefined,
-		{
-			webpackOverride,
-		}
-	);
+	const bundled = await bundle({
+		entryPoint: require.resolve('./src/index.tsx'),
+		webpackOverride,
+	});
 
 	const compositions = await getCompositions(bundled);
 
