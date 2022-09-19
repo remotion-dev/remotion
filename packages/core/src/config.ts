@@ -243,6 +243,16 @@ export type ConfigType = {
 				| 'proxy'
 				| undefined
 		) => void;
+		/**
+		 * Override the arguments that Remotion passes to FFMPEG.
+		 * Consult https://remotion.dev/docs/renderer/render-media#ffmpegoverride before using this feature.
+		 */
+		readonly overrideFfmpegCommand: (
+			command: (info: {
+				type: 'pre-stitcher' | 'stitcher';
+				args: string[];
+			}) => string[]
+		) => void;
 	};
 };
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
