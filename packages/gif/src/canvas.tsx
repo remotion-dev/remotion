@@ -5,6 +5,7 @@ import {
 	useRef,
 	useState,
 } from 'react';
+import {useElementSize} from './use-element-size';
 
 const calcArgs = (
 	fit: 'fill' | 'contain' | 'cover',
@@ -18,7 +19,7 @@ const calcArgs = (
 	}
 ): [number, number, number, number, number, number, number, number] => {
 	switch (fit) {
-		case 'fill':
+		case 'fill': {
 			return [
 				0,
 				0,
@@ -29,6 +30,7 @@ const calcArgs = (
 				canvasSize.width,
 				canvasSize.height,
 			];
+		}
 
 		case 'contain': {
 			const ratio = Math.min(
@@ -86,8 +88,8 @@ const makeCanvas = () => {
 type Props = {
 	index: number;
 	frames: ImageData[];
-	width: number;
-	height: number;
+	width?: number;
+	height?: number;
 	fit: 'fill' | 'contain' | 'cover';
 	className?: string;
 	style?: React.CSSProperties;
@@ -100,11 +102,17 @@ export const Canvas = forwardRef(
 			return makeCanvas();
 		});
 
+		const size = useElementSize(canvasRef);
+
 		useImperativeHandle(ref, () => {
 			return canvasRef.current as HTMLCanvasElement;
 		});
 
 		useEffect(() => {
+			if (!size) {
+				return;
+			}
+
 			const imageData = frames[index];
 			const ctx = canvasRef.current?.getContext('2d');
 			if (imageData && tempCtx && ctx) {
@@ -116,26 +124,26 @@ export const Canvas = forwardRef(
 					tempCtx.canvas.height = imageData.height;
 				}
 
-				if (width > 0 && height > 0) {
-					ctx.clearRect(0, 0, width, height);
+				if (size.width > 0 && size.height > 0) {
+					ctx.clearRect(0, 0, size.width, size.height);
 					tempCtx.clearRect(0, 0, tempCtx.canvas.width, tempCtx.canvas.height);
 				}
 
 				tempCtx.putImageData(imageData, 0, 0);
 				ctx.drawImage(
 					tempCtx.canvas,
-					...calcArgs(fit, imageData, {width, height})
+					...calcArgs(fit, imageData, {width: size.width, height: size.height})
 				);
 			}
-		}, [index, frames, width, height, fit, tempCtx]);
+		}, [index, frames, fit, tempCtx, size]);
 
 		return (
 			<canvas
 				ref={canvasRef}
 				className={className}
 				style={style}
-				width={width}
-				height={height}
+				width={width ?? size?.width}
+				height={height ?? size?.height}
 			/>
 		);
 	}
