@@ -370,7 +370,7 @@ export const spawnFfmpeg = async (
 
 	const ffmpegString = ffmpegArgs.flat(2).filter(Boolean) as string[];
 	const finalFfmpegString = options.ffmpegArgsHook
-		? options.ffmpegArgsHook(ffmpegString)
+		? options.ffmpegArgsHook({type: 'stitcher', args: ffmpegString})
 		: ffmpegString;
 
 	if (options.verbose && options.ffmpegArgsHook) {

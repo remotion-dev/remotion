@@ -31,7 +31,11 @@ A `number` specifying the desired output width in pixels for the video.
 
 A `number` specifying the desired output height in pixels for the video.
 
-### `outputLocation`
+### `assetsInfo`
+
+Information about the audio mix. This is part of the return value of [renderFrames()](/docs/renderer/render-frames#return-value).
+
+### `outputLocation?`
 
 _optional since v3.0.26_
 
@@ -39,13 +43,11 @@ An absolute path specify where the output file should be written to.
 
 If not specified or set to `null`, the file will be returned in-memory as a buffer.
 
-### `force`
+### `force?`
 
-Whether in case of an existing file in `outputLocation` it should be overwritten. Type `boolean`.
+_optional_
 
-### `assetsInfo`
-
-Information about the audio mix. This is part of the return value of [renderFrames()](/docs/renderer/render-frames#return-value).
+Whether Remotion should overwrite the file in `outputLocation` if it already exists. `true` by default.
 
 ### `pixelFormat?`
 
@@ -101,19 +103,19 @@ _optional, available since v3.1_
 
 Set the looping behavior. This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
 
-### `muted`
+### `muted?`
 
 _optional, available since v3.2.1_
 
 Disables audio output. This option may only be set in combination with a video codec and should also be passed to [`renderFrames()`](/docs/renderer/render-frames).
 
-### `verbose`
+### `verbose?`
 
 _optional_
 
 A boolean value that when set to `true`, will log all kinds of debug information. Default `false`.
 
-### `ffmpegExecutable`
+### `ffmpegExecutable?`
 
 _optional_
 
@@ -130,6 +132,38 @@ An absolute path overriding the `ffprobe` executable to use.
 _optional, available from v3.0.15_
 
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
+
+### `ffmpegOverride?`
+
+_function - optional - available from v3.2.22_
+
+Modifies the FFMPEG command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
+
+```tsx twoslash
+import type { FfmpegArgsHook } from "@remotion/renderer";
+
+const ffmpegArgsHook: FfmpegArgsHook = ({ type, args }) => {
+  console.log(type); // "stitcher" | "pre-stitcher
+  return [...args, "-vf", "eq=brightness=0:saturation=1"];
+};
+```
+
+The function you pass must accept an object as it's only parameter which contains the following properties:
+
+- `type`: Either `"stitcher"` or `"pre-stitcher"`. If enough memory and CPU is available, Remotion may use parallel rendering and encoding, which means that a pre-stitcher process gets spawned before all frames are rendered. You can tell whether parallel encoding is enabled by adding `--log=verbose` to your render command.
+- `args`: An array of strings that is passed as arguments to the FFMPEG command.
+
+Your function must return a modified array of strings.
+
+:::warning
+Using this feature is discouraged. Before using it, we want to make you aware of some caveats:
+
+- The render command can change with any new Remotion version, even when it is a patch upgrade. This might break your usage of this feature.
+- Depending on the selected codec, available CPU and RAM, Remotion may or may not use "parallel encoding" which will result in multiple FFMPEG commands being executed. Your function must be able to handle being called multiple times.
+- This feature is not available when using Remotion Lambda.
+
+Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
+:::
 
 ## Return value
 

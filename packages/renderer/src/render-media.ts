@@ -173,9 +173,7 @@ export const renderMedia = ({
 	validateScale(scale);
 	const concurrency = getConcurrency(options);
 
-	if (ffmpegArgsHook) {
-		validateFfmpegArgsHook(ffmpegArgsHook);
-	}
+	validateFfmpegArgsHook(ffmpegArgsHook);
 
 	const everyNthFrame = options.everyNthFrame ?? 1;
 	const numberOfGifLoops = options.numberOfGifLoops ?? null;
@@ -294,6 +292,7 @@ export const renderMedia = ({
 				ffmpegExecutable,
 				imageFormat,
 				signal: cancelPrestitcher.cancelSignal,
+				ffmpegArgsHook,
 			});
 			stitcherFfmpeg = preStitcher.task;
 		}
