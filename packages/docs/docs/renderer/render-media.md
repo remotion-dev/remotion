@@ -352,9 +352,11 @@ const ffmpegArgsHook: FfmpegArgsHook = (args) => {
   return args;
 };
 ```
+
 :::warning
 You should understand the impact of the command you added to prevent unknown errors. You should use it carefully.
 :::
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/render-media.ts)
