@@ -1,10 +1,10 @@
 import {getGifDurationInSeconds} from '@remotion/gif';
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {AbsoluteFill, staticFile} from 'remotion';
 
 const GifTest: React.FC = () => {
 	const giphy = staticFile('giphy.gif');
-
+	const [durations, setDurations] = useState<null | number[]>(null);
 	useEffect(() => {
 		Promise.all([
 			getGifDurationInSeconds(giphy),
@@ -15,6 +15,7 @@ const GifTest: React.FC = () => {
 				'https://media.giphy.com/media/3o72F7YT6s0EMFI0Za/giphy.gif'
 			),
 		]).then((d) => {
+			setDurations(d);
 			console.log('GIF durations', d);
 		});
 	}, [giphy]);
@@ -26,7 +27,7 @@ const GifTest: React.FC = () => {
 				fontSize: 100,
 			}}
 		>
-			Check the console!
+			Durations = {JSON.stringify(durations)}
 		</AbsoluteFill>
 	);
 };
