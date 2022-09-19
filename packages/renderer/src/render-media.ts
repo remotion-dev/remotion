@@ -17,8 +17,8 @@ import {validateSelectedCrfAndCodecCombination} from './crf';
 import {deleteDirectory} from './delete-directory';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
-import type {FfmpegArgsHook} from './ffmpeg-args-hook';
 import type {FfmpegExecutable} from './ffmpeg-executable';
+import type {FfmpegOverrideFn} from './ffmpeg-override';
 import type {FrameRange} from './frame-range';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
@@ -42,7 +42,7 @@ import {renderFrames} from './render-frames';
 import {stitchFramesToVideo} from './stitch-frames-to-video';
 import type {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
-import {validateFfmpegArgsHook} from './validate-ffmpeg-args-hook';
+import {validateFfmpegOverride} from './validate-ffmpeg-override';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 
@@ -93,7 +93,7 @@ export type RenderMediaOptions = {
 	downloadMap?: DownloadMap;
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
-	ffmpegArgsHook?: FfmpegArgsHook;
+	ffmpegOverride?: FfmpegOverrideFn;
 } & ServeUrlOrWebpackBundle &
 	ConcurrencyOrParallelism;
 
@@ -154,7 +154,7 @@ export const renderMedia = ({
 	cancelSignal,
 	muted,
 	enforceAudioTrack,
-	ffmpegArgsHook,
+	ffmpegOverride,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
 	validateQuality(options.quality);
@@ -173,7 +173,7 @@ export const renderMedia = ({
 	validateScale(scale);
 	const concurrency = getConcurrency(options);
 
-	validateFfmpegArgsHook(ffmpegArgsHook);
+	validateFfmpegOverride(ffmpegOverride);
 
 	const everyNthFrame = options.everyNthFrame ?? 1;
 	const numberOfGifLoops = options.numberOfGifLoops ?? null;
@@ -292,7 +292,7 @@ export const renderMedia = ({
 				ffmpegExecutable,
 				imageFormat,
 				signal: cancelPrestitcher.cancelSignal,
-				ffmpegArgsHook,
+				ffmpegOverride,
 			});
 			stitcherFfmpeg = preStitcher.task;
 		}
@@ -411,7 +411,7 @@ export const renderMedia = ({
 					cancelSignal: cancelStitcher.cancelSignal,
 					muted: disableAudio,
 					enforceAudioTrack,
-					ffmpegArgsHook,
+					ffmpegOverride,
 				}),
 				stitchStart,
 			]);
