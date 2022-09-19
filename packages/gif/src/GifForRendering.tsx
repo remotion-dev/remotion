@@ -1,6 +1,7 @@
 import {forwardRef, useEffect, useRef, useState} from 'react';
 import {continueRender, delayRender} from 'remotion';
 import {Canvas} from './canvas';
+import {gifCache} from './gif-cache';
 import {isCorsError} from './is-cors-error';
 import type {GifState, RemotionGifProps} from './props';
 import {parseGif} from './react-tools';
@@ -9,11 +10,19 @@ import {useCurrentGifIndex} from './useCurrentGifIndex';
 export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 	({src, width, height, onLoad, onError, fit = 'fill', ...props}, ref) => {
 		const resolvedSrc = new URL(src, window.location.origin).href;
-		const [state, update] = useState<GifState>({
-			delays: [],
-			frames: [],
-			width: 0,
-			height: 0,
+		const [state, update] = useState<GifState>(() => {
+			const parsedGif = gifCache.get(resolvedSrc);
+
+			if (parsedGif === undefined) {
+				return {
+					delays: [],
+					frames: [],
+					width: 0,
+					height: 0,
+				};
+			}
+
+			return parsedGif as GifState;
 		});
 		const [error, setError] = useState<Error | null>(null);
 
@@ -36,9 +45,9 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 				.then((parsed) => {
 					currentOnLoad.current?.(parsed);
 					update(parsed);
+					gifCache.set(resolvedSrc, parsed);
 					done = true;
 					continueRender(newHandle);
-
 					continueRender(id);
 				})
 				.catch((err) => {
