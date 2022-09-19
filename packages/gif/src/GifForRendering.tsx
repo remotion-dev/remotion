@@ -85,8 +85,8 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 				fit={fit}
 				index={index}
 				frames={state.frames}
-				width={width ?? state.width}
-				height={height ?? state.height}
+				width={width}
+				height={height}
 				{...props}
 				ref={ref}
 			/>
