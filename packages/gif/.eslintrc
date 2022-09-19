@@ -1,6 +1,7 @@
 {
 	"extends": "@jonny",
 	"rules": {
-		"ts-exports/unused-exports": "off"
+		"ts-exports/unused-exports": "off",
+		"react/require-default-props": "off"
 	}
 }

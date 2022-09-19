@@ -1,6 +1,10 @@
-import type {ForwardedRef} from 'react';
-import {forwardRef, useEffect, useLayoutEffect, useRef} from 'react';
-import {createCanvasSingleton} from './react-tools';
+import {
+	forwardRef,
+	useEffect,
+	useImperativeHandle,
+	useRef,
+	useState,
+} from 'react';
 
 const calcArgs = (
 	fit: 'fill' | 'contain' | 'cover',
@@ -69,25 +73,7 @@ const calcArgs = (
 	}
 };
 
-const combine =
-	(
-		...refs: (
-			| React.MutableRefObject<unknown>
-			| Function
-			| ForwardedRef<unknown>
-		)[]
-	) =>
-	(value: unknown) => {
-		refs.forEach((ref) => {
-			if (typeof ref === 'function') {
-				ref(value);
-			} else if (ref !== null && ref !== undefined) {
-				ref.current = value;
-			}
-		});
-	};
-
-const useCanvasSingleton = createCanvasSingleton(() => {
+const makeCanvas = () => {
 	const canvas = document.createElement('canvas');
 	const ctx = canvas.getContext('2d');
 
@@ -95,51 +81,33 @@ const useCanvasSingleton = createCanvasSingleton(() => {
 	canvas.height = 0;
 
 	return ctx;
-});
+};
+
+type Props = {
+	index: number;
+	frames: ImageData[];
+	width: number;
+	height: number;
+	fit: 'fill' | 'contain' | 'cover';
+	className?: string;
+	style?: React.CSSProperties;
+};
 
 export const Canvas = forwardRef(
-	(
-		{
-			index,
-			frames,
-			width,
-			height,
-			fit,
-			className,
-			style,
-		}: {
-			index: number;
-			frames: ImageData[];
-			width: number;
-			height: number;
-			fit: 'fill' | 'contain' | 'cover';
-			// eslint-disable-next-line react/require-default-props
-			className?: string;
-			// eslint-disable-next-line react/require-default-props
-			style?: React.CSSProperties;
-		},
-		ref
-	) => {
-		const canvasRef = useRef<HTMLCanvasElement>();
-		const ctx = useRef<CanvasRenderingContext2D | null>();
-		const tempCtx = useCanvasSingleton();
+	({index, frames, width, height, fit, className, style}: Props, ref) => {
+		const canvasRef = useRef<HTMLCanvasElement>(null);
+		const [tempCtx] = useState(() => {
+			return makeCanvas();
+		});
 
-		useLayoutEffect(() => {
-			if (canvasRef.current) {
-				ctx.current = canvasRef.current.getContext('2d');
-			}
-		}, [canvasRef]);
-
-		useLayoutEffect(() => {
-			if (canvasRef.current) {
-				canvasRef.current.width = width;
-				canvasRef.current.height = height;
-			}
-		}, [canvasRef, width, height]);
+		useImperativeHandle(ref, () => {
+			return canvasRef.current as HTMLCanvasElement;
+		});
 
 		useEffect(() => {
 			const imageData = frames[index];
-			if (imageData && tempCtx) {
+			const ctx = canvasRef.current?.getContext('2d');
+			if (imageData && tempCtx && ctx) {
 				if (
 					tempCtx.canvas.width < imageData.width ||
 					tempCtx.canvas.height < imageData.height
@@ -149,12 +117,12 @@ export const Canvas = forwardRef(
 				}
 
 				if (width > 0 && height > 0) {
-					ctx.current?.clearRect(0, 0, width, height);
+					ctx.clearRect(0, 0, width, height);
 					tempCtx.clearRect(0, 0, tempCtx.canvas.width, tempCtx.canvas.height);
 				}
 
 				tempCtx.putImageData(imageData, 0, 0);
-				ctx.current?.drawImage(
+				ctx.drawImage(
 					tempCtx.canvas,
 					...calcArgs(fit, imageData, {width, height})
 				);
@@ -163,9 +131,11 @@ export const Canvas = forwardRef(
 
 		return (
 			<canvas
-				ref={combine(canvasRef, ref)}
+				ref={canvasRef}
 				className={className}
 				style={style}
+				width={width}
+				height={height}
 			/>
 		);
 	}
