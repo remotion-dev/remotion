@@ -91,7 +91,6 @@ const putPixels = (
 };
 
 type ParserCallbackArgs = {
-	loaded: boolean;
 	width: number;
 	height: number;
 	delays: number[];

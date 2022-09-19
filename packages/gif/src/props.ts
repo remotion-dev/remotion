@@ -3,7 +3,6 @@ export type RemotionGifProps = {
 	width?: number;
 	height?: number;
 	onLoad?: (info: {
-		loaded: boolean;
 		width: number;
 		height: number;
 		delays: number[];
