@@ -24,7 +24,7 @@ import type {RemotionEnvironment} from './get-environment';
 import {getRemotionEnvironment} from './get-environment';
 import {getPreviewDomElement} from './get-preview-dom-element';
 import {portalNode} from './portal-node';
-import {PreloadProvider} from './preload-state';
+import {PrefetchProvider} from './prefetch-state';
 import {getRoot, waitForRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
 import {SequenceContext} from './Sequence';
@@ -100,7 +100,7 @@ export const Internals = {
 	CanUseRemotionHooksProvider,
 	CanUseRemotionHooks,
 	enableLegacyRemotionConfig,
-	PreloadProvider,
+	PrefetchProvider,
 };
 
 type WebpackConfiguration = Configuration;
