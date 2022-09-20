@@ -275,7 +275,7 @@ export const PlayerFn = <T,>(
 		persistVolume(vol);
 	}, []);
 
-	useImperativeHandle(ref, () => rootRef.current as PlayerRef);
+	useImperativeHandle(ref, () => rootRef.current as PlayerRef, []);
 
 	const timelineContextValue = useMemo((): TimelineContextValue & {
 		shouldRegisterSequences: boolean;

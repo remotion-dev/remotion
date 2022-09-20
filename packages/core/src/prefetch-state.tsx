@@ -32,11 +32,15 @@ export const PrefetchProvider: React.FC<{
 		};
 	}, [preloads]);
 
-	useImperativeHandle(preloadRef, () => {
-		return {
-			setPreloads,
-		};
-	});
+	useImperativeHandle(
+		preloadRef,
+		() => {
+			return {
+				setPreloads,
+			};
+		},
+		[]
+	);
 
 	return (
 		<PreloadContext.Provider value={value}>{children}</PreloadContext.Provider>
