@@ -154,9 +154,13 @@ export const Canvas: React.FC = () => {
 			return;
 		}
 
-		current.addEventListener('wheel', onWheel);
+		current.addEventListener('wheel', onWheel, {passive: false});
 
-		return () => current.removeEventListener('wheel', onWheel);
+		return () =>
+			// @ts-expect-error
+			current.removeEventListener('wheel', onWheel, {
+				passive: false,
+			});
 	}, [onWheel]);
 
 	const onReset = useCallback(() => {

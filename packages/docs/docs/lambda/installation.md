@@ -1,13 +1,10 @@
 ---
-id: installation
-title: Installation
-slug: /player/installation
+title: "@remotion/lambda"
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-
-To install the Player, run the following command in a React project:
+import {TableOfContents} from '../../components/TableOfContents/lambda';
 
 <Tabs
 defaultValue="npm"
@@ -20,7 +17,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i remotion @remotion/player
+npm i @remotion/lambda
 ```
 
   </TabItem>
@@ -28,14 +25,14 @@ npm i remotion @remotion/player
   <TabItem value="pnpm">
 
 ```bash
-pnpm i remotion @remotion/player
+pnpm i @remotion/lambda
 ```
 
   </TabItem>
   <TabItem value="yarn">
 
 ```bash
-yarn add remotion @remotion/player
+yarn add @remotion/lambda
 ```
 
   </TabItem>
@@ -48,4 +45,14 @@ Also update **all the other Remotion packages** to have the same version: `remot
 Make sure no package version number has a `^` character in front of it as it can lead to a version conflict.
 :::
 
-Read the [examples](/docs/player/examples) and [API reference](/docs/player/api) next.
+**See the [setup guide](/docs/lambda/setup) for complete instructions on how to get started.**
+
+## APIs
+
+The following Node.JS are available:
+
+<TableOfContents />
+
+## CLI
+
+See [here](/docs/lambda/cli) for a list of CLI commands.
