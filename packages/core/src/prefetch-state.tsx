@@ -20,7 +20,7 @@ export const PreloadContext = createContext<Value>({
 	setPreloads: () => undefined,
 });
 
-export const PreloadProvider: React.FC<{
+export const PrefetchProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
 	const [preloads, setPreloads] = useState<Record<string, string>>({});

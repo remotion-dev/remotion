@@ -392,7 +392,7 @@ export const PlayerFn = <T,>(
 									numberOfAudioTags={numberOfSharedAudioTags}
 								>
 									<PlayerEventEmitterContext.Provider value={emitter}>
-										<Internals.PreloadProvider>
+										<Internals.PrefetchProvider>
 											<PlayerUI
 												ref={rootRef}
 												renderLoading={renderLoading}
@@ -429,7 +429,7 @@ export const PlayerFn = <T,>(
 												inFrame={inFrame ?? null}
 												outFrame={outFrame ?? null}
 											/>
-										</Internals.PreloadProvider>
+										</Internals.PrefetchProvider>
 									</PlayerEventEmitterContext.Provider>
 								</Internals.SharedAudioContextProvider>
 							</Internals.SetMediaVolumeContext.Provider>

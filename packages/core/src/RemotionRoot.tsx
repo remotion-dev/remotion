@@ -10,7 +10,7 @@ import {CompositionManagerProvider} from './CompositionManager';
 import {continueRender, delayRender} from './delay-render';
 import type {TNonceContext} from './nonce';
 import {NonceContext} from './nonce';
-import {PreloadProvider} from './preload-state';
+import {PrefetchProvider} from './prefetch-state';
 import {random} from './random';
 import type {
 	PlayableMediaTag,
@@ -83,7 +83,7 @@ export const RemotionRoot: React.FC<{
 		<NonceContext.Provider value={nonceContext}>
 			<TimelineContext.Provider value={timelineContextValue}>
 				<SetTimelineContext.Provider value={setTimelineContextValue}>
-					<PreloadProvider>
+					<PrefetchProvider>
 						<CompositionManagerProvider>
 							<SharedAudioContextProvider
 								// In the preview, which is mostly played on Desktop, we opt out of the autoplay policy fix as described in https://github.com/remotion-dev/remotion/pull/554, as it mostly applies to mobile.
@@ -92,7 +92,7 @@ export const RemotionRoot: React.FC<{
 								{children}
 							</SharedAudioContextProvider>
 						</CompositionManagerProvider>
-					</PreloadProvider>
+					</PrefetchProvider>
 				</SetTimelineContext.Provider>
 			</TimelineContext.Provider>
 		</NonceContext.Provider>
