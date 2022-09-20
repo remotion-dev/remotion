@@ -2,6 +2,7 @@ import React, {ComponentType} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App';
 import CarSlideshow from './CarSlideshow';
+import {MyAudio} from './MyAudio';
 import {VideoautoplayDemo} from './VideoAutoplay';
 
 const rootElement = document.getElementById('root');
@@ -27,6 +28,7 @@ createRoot(rootElement as HTMLElement).render(
 		}}
 	>
 		<React.StrictMode>
+			<MyAudio />
 			<App lazyComponent={Car} durationInFrames={500} />
 			<App component={VideoautoplayDemo} durationInFrames={2700} />
 		</React.StrictMode>

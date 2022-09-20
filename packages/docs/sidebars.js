@@ -64,6 +64,7 @@ module.exports = {
         "register-root",
         "spring",
         "staticfile",
+        "prefetch",
         "audio",
         "sequence",
         "loop",
