@@ -12,6 +12,8 @@ This package provides functions for preloading assets. While preload is not nece
 
 <TableOfContents />
 
+An alternative to `@remotion/preload` is the [`prefetch()`](/docs/prefetch) API. See [`@remotion/preload` vs `prefetch()`](/docs/player/preloading#remotionpreload-vs-prefetch) to decide which one is better for your usecase.
+
 ## Installation
 
 <Tabs
