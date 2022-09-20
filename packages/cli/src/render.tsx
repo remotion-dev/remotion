@@ -79,6 +79,7 @@ export const render = async (remotionRoot: string) => {
 		muted,
 		enforceAudioTrack,
 		publicDir,
+		ffmpegOverride,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -335,6 +336,8 @@ export const render = async (remotionRoot: string) => {
 		downloadMap,
 		muted,
 		enforceAudioTrack,
+		browserExecutable,
+		ffmpegOverride,
 	});
 
 	Log.info();
