@@ -30,7 +30,9 @@ unpreloadAudio();
 
 ## Prefetching using `prefetch()`
 
-By prefetching, the full media is downloaded and turned into a Blob URL using [`URL.createObjectURL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL?retiredLocale=de).  
+_Available in v3.2.23_
+
+By prefetching, the full media is downloaded and turned into a Blob URL using [`URL.createObjectURL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL).  
 If you pass the original URL into either an [`<Audio>`](/docs/audio), [`<Video>`](/docs/video), [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Img>`](/docs/img) tag and the asset is prefetched, those components will use Blob URL instead.
 
 ```tsx twoslash
@@ -49,6 +51,8 @@ free();
 ## `@remotion/preload` vs. `prefetch()`
 
 [`prefetch()`](/docs/prefetch) is a more reliable way of ensuring the media is ready when it needs to displayed, but the asset needs to be downloaded in full for it.
+
+[`@remotion/preload`](/docs/preload) is preferrable if the asset is large since you don't have to wait for it finish downloading,
 
 <table>
   <tr>
@@ -151,3 +155,8 @@ free();
     </td>
   </tr>
 </table>
+
+## See also
+
+- [`@remotion/preload`](/docs/preload)
+- [`prefetch()`](/docs/prefetch)
