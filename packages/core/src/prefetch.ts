@@ -9,15 +9,15 @@ export const usePreload = (src: string): string => {
 };
 
 type FetchAndPreload = {
-	unpreload: () => void;
-	waitForDone: () => Promise<string>;
+	free: () => void;
+	waitUntilDone: () => Promise<string>;
 };
 
 export const prefetch = (src: string): FetchAndPreload => {
 	if (getRemotionEnvironment() === 'rendering') {
 		return {
-			unpreload: () => undefined,
-			waitForDone: () => Promise.resolve(src),
+			free: () => undefined,
+			waitUntilDone: () => Promise.resolve(src),
 		};
 	}
 
@@ -68,7 +68,7 @@ export const prefetch = (src: string): FetchAndPreload => {
 		});
 
 	return {
-		unpreload: () => {
+		free: () => {
 			if (objectUrl) {
 				URL.revokeObjectURL(objectUrl);
 				preloadRef.current?.setPreloads((p) => {
@@ -85,7 +85,7 @@ export const prefetch = (src: string): FetchAndPreload => {
 				}
 			}
 		},
-		waitForDone: () => {
+		waitUntilDone: () => {
 			return waitUntilDone;
 		},
 	};
