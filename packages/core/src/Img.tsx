@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import {continueRender, delayRender} from './delay-render';
 import {getRemotionEnvironment} from './get-environment';
+import {usePreload} from './prefetch';
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
 	HTMLImageElement,
@@ -14,12 +15,18 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		React.ImgHTMLAttributes<HTMLImageElement>,
 		HTMLImageElement
 	>
-> = ({onError, ...props}, ref) => {
+> = ({onError, src, ...props}, ref) => {
 	const imageRef = useRef<HTMLImageElement>(null);
 
-	useImperativeHandle(ref, () => {
-		return imageRef.current as HTMLImageElement;
-	});
+	useImperativeHandle(
+		ref,
+		() => {
+			return imageRef.current as HTMLImageElement;
+		},
+		[]
+	);
+
+	const actualSrc = usePreload(src as string);
 
 	const didGetError = useCallback(
 		(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
@@ -45,7 +52,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				return;
 			}
 
-			const newHandle = delayRender('Loading <Img> with src=' + props.src);
+			const newHandle = delayRender('Loading <Img> with src=' + src);
 			const {current} = imageRef;
 
 			const didLoad = () => {
@@ -63,10 +70,12 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				current?.removeEventListener('load', didLoad);
 				continueRender(newHandle);
 			};
-		}, [props.src]);
+		}, [src]);
 	}
 
-	return <img {...props} ref={imageRef} onError={didGetError} />;
+	return (
+		<img {...props} ref={imageRef} src={actualSrc} onError={didGetError} />
+	);
 };
 
 export const Img = forwardRef(ImgRefForwarding);
