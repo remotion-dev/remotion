@@ -157,6 +157,7 @@ export const Canvas: React.FC = () => {
 		current.addEventListener('wheel', onWheel, {passive: false});
 
 		return () =>
+			// @ts-expect-error
 			current.removeEventListener('wheel', onWheel, {
 				passive: false,
 			});
