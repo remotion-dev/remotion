@@ -106,9 +106,13 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		onlyWarnForMediaSeekingError: false,
 	});
 
-	useImperativeHandle(ref, () => {
-		return audioRef.current as HTMLAudioElement;
-	});
+	useImperativeHandle(
+		ref,
+		() => {
+			return audioRef.current as HTMLAudioElement;
+		},
+		[audioRef]
+	);
 
 	if (initialShouldPreMountAudioElements) {
 		return null;

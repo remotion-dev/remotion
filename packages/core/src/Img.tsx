@@ -18,9 +18,13 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 > = ({onError, src, ...props}, ref) => {
 	const imageRef = useRef<HTMLImageElement>(null);
 
-	useImperativeHandle(ref, () => {
-		return imageRef.current as HTMLImageElement;
-	});
+	useImperativeHandle(
+		ref,
+		() => {
+			return imageRef.current as HTMLImageElement;
+		},
+		[]
+	);
 
 	const actualSrc = usePreload(src as string);
 

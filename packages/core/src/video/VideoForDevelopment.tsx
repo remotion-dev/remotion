@@ -64,9 +64,13 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const actualSrc = usePreload(src as string);
 
-	useImperativeHandle(ref, () => {
-		return videoRef.current as HTMLVideoElement;
-	});
+	useImperativeHandle(
+		ref,
+		() => {
+			return videoRef.current as HTMLVideoElement;
+		},
+		[]
+	);
 
 	useEffect(() => {
 		const {current} = videoRef;
