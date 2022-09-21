@@ -80,6 +80,12 @@ You can use the `playbackRate` prop to control the speed of the audio. `1` is th
 
 While Remotion doesn't limit the range of possible playback speeds, in development mode the [`HTMLMediaElement.playbackRate`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate) API is used which throws errors on extreme values. At the time of writing, Google Chrome throws an exception if the playback rate is below `0.0625` or above `16`.
 
+### `muted`
+
+_Available from v2.0_
+
+The `muted` prop will be respected. It will lead to no audio being played while still keeping the audio tag mounted. It's value may change over time, for example to only mute a certain section of the audio
+
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/audio/Audio.tsx)
