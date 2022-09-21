@@ -51,7 +51,7 @@ import { interpolate, useCurrentFrame } from "remotion";
 export const MyVideo = () => {
   const frame = useCurrentFrame();
 
-  const opacity = interpolate(frame, [0, 20], [0, 1], {
+  const opacity = interpolate(frame, [0, 60], [0, 1], {
     extrapolateRight: "clamp",
   });
 
@@ -70,7 +70,7 @@ export const MyVideo = () => {
 };
 ```
 
-In this example, we map the frames 0 to 20 to their opacity values `(0, 0.05, 0.1, 0.15 ...`) and use the [`extrapolateRight`](/docs/interpolate#extrapolateright) setting to clamp the output so that it never becomes bigger than 1.
+In this example, we map the frames 0 to 60 to their opacity values `(0, 0.0166, 0.033, 0.05 ...`) and use the [`extrapolateRight`](/docs/interpolate#extrapolateright) setting to clamp the output so that it never becomes bigger than 1.
 
 ## Using spring animations
 
@@ -108,8 +108,6 @@ You should see the text 'jump in'. The default spring configuration leads to a l
 
 ## Always animate using `useCurrentFrame()`
 
-:::caution
 Watch out for flickering issues during rendering that arise if you write animations that are not driven by [`useCurrentFrame()`](/docs/use-current-frame) - for example CSS transitions.
 
 [Read more about how Remotion's rendering works](/docs/flickering) - understanding it will help you avoid issues down the road.
-:::
