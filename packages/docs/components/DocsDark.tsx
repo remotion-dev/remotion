@@ -1,14 +1,26 @@
 import { useColorMode } from "@docusaurus/theme-common";
+import { PlayerInternals } from "@remotion/player";
 import React, { useEffect, useMemo, useRef } from "react";
-import { useMobileLayout } from "../src/helpers/mobile-layout";
 import { Spacer } from "./layout/Spacer";
 
-export const AnimatingProperties: React.FC = () => {
+export const DualVideoDemo: React.FC<{
+  leftDark: string;
+  leftLight: string;
+  rightDark: string;
+  rightLight: string;
+}> = ({ leftDark, leftLight, rightDark, rightLight }) => {
   const { colorMode } = useColorMode();
-  const mobile = useMobileLayout();
 
+  const container = useRef<HTMLDivElement>(null);
   const ref1 = useRef<HTMLVideoElement>(null);
   const ref2 = useRef<HTMLVideoElement>(null);
+
+  const size = PlayerInternals.useElementSize(container, {
+    triggerOnWindowResize: false,
+    shouldApplyCssTransforms: true,
+  });
+
+  const mobile = size?.width < 700;
 
   const style: React.CSSProperties = useMemo(
     () => ({
@@ -52,15 +64,11 @@ export const AnimatingProperties: React.FC = () => {
   }, [colorMode]);
 
   return (
-    <div style={style}>
+    <div ref={container} style={style}>
       <div style={videoContainer}>
         <video
           ref={ref1}
-          src={
-            colorMode === "dark"
-              ? "/img/animating-properties-left-dark.mp4"
-              : "/img/animating-properties-left-light.mp4"
-          }
+          src={colorMode === "dark" ? leftDark : leftLight}
           muted
           loop
         />
@@ -70,15 +78,37 @@ export const AnimatingProperties: React.FC = () => {
       <div style={videoContainer}>
         <video
           ref={ref2}
-          src={
-            colorMode === "dark"
-              ? "/img/animating-properties-right-dark.mp4"
-              : "/img/animating-properties-right-light.mp4"
-          }
+          src={colorMode === "dark" ? rightDark : rightLight}
           muted
           loop
         />
       </div>
+    </div>
+  );
+};
+
+export const AnimatingProperties: React.FC = () => {
+  return (
+    <div>
+      <DualVideoDemo
+        leftDark="/img/animating-properties-left-dark.mp4"
+        leftLight="/img/animating-properties-left-light.mp4"
+        rightDark="/img/animating-properties-right-dark.mp4"
+        rightLight="/img/animating-properties-right-light.mp4"
+      />
+    </div>
+  );
+};
+
+export const Springs: React.FC = () => {
+  return (
+    <div>
+      <DualVideoDemo
+        leftDark="/img/spring-left-dark.mp4"
+        leftLight="/img/spring-left-light.mp4"
+        rightDark="/img/spring-right-dark.mp4"
+        rightLight="/img/spring-right-light.mp4"
+      />
     </div>
   );
 };
