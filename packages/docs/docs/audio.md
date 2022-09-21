@@ -5,37 +5,74 @@ id: audio
 
 Using this component, you can add audio to your video. All audio formats which are supported by Chromium are supported by the component.
 
-## API / Example
+## API
 
-Use an import or require to load an audio file and pass it to the `src` props of the `<Audio />` component.
+### `src`
+
+[Put an audio file into the `public/` folder](/docs/assets) and use [`staticFile()`](/docs/staticfile) to reference it.
+
+```tsx twoslash
+import { AbsoluteFill, Audio, staticFile } from "remotion";
+
+export const MyVideo = () => {
+  return (
+    <AbsoluteFill>
+      <Audio src={staticFile("audio.mp3")} />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `volume`
 
 The component also accepts a `volume` props which allows you to control the volume of the audio in it's entirety or frame by frame. Read the page on [using audio](/docs/using-audio) to learn more.
 
-`<Audio>` has two more helper props: `startFrom` and `endAt` for defining the start frame and end frame. Both are optional and do not get forwarded to the native `<audio>` element but tell Remotion which portion of the audio should be included.
+```tsx twoslash
+import { AbsoluteFill, Audio, interpolate, staticFile } from "remotion";
+
+export const MyVideo = () => {
+  return (
+    <AbsoluteFill>
+      <Audio volume={0.5} src={staticFile("background.mp3")} />
+      <Audio
+        volume={(f) =>
+          interpolate(f, [0, 30], [0, 1], { extrapolateLeft: "clamp" })
+        }
+        src={staticFile("voice.mp3")}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `startFrom` / `endAt`
+
+`<Audio>` has two more helper props you can use:
+
+- `startFrom` will remove a portion of the audio at the beginning
+- `endAt` will remove a portion of the audio at the end
+
+In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
+
+By passing `startFrom={60}`, the playback starts immediately, but with the first 2 seconds of the audio trimmed away.  
+By passing `endAt={120}`, any audio after the 4 second mark in the file will be trimmed away.
+
+The audio will play the range from `00:02:00` to `00:04:00`, meaning the audio will play for 2 seconds.
 
 ```tsx twoslash
-import { Audio } from "remotion";
-import audio from "./audio.mp3";
+import { Audio, staticFile } from "remotion";
 
 export const MyVideo = () => {
   return (
     <div>
       <div>Hello World!</div>
-      <Audio
-        src={audio}
-        startFrom={59} // if composition is 30fps, then it will start at 2s
-        endAt={120} // if composition is 30fps, then it will end at 4s
-      />
+      <Audio src={staticFile("audio.mp3")} startFrom={60} endAt={120} />
     </div>
   );
 };
 ```
 
-## Controlling volume
-
-You can use the `volume` prop to control the loudness of the audio. See [Controlling audio](/docs/using-audio#controlling-volume) for more information.
-
-## Controlling playback speed
+### `playbackRate`
 
 _Available from v2.2_
 
