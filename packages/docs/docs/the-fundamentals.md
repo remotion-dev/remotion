@@ -15,6 +15,7 @@ export const MyComposition = () => {
         justifyContent: "center",
         alignItems: "center",
         fontSize: 100,
+        backgroundColor: "white"
       }}
     >
       The current frame is {frame}.
@@ -56,6 +57,7 @@ export const MyComposition = () => {
         justifyContent: "center",
         alignItems: "center",
         fontSize: 60,
+        backgroundColor: "white",
       }}
     >
       This {width}x{height}px video is {durationInFrames / fps} seconds long.

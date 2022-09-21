@@ -3,37 +3,41 @@ id: animating-properties
 title: Animating properties
 ---
 
-**Animation is all about how properties change over time.**
-Let's start with a simple example, let's say we want to create a fade in animation.
+import {AnimatingProperties} from '../components/DocsDark'
 
-If we want to fade the text in over 20 frames, we need to gradually change the `opacity` style over time so that it goes from 0 to 1.
+Animation works by changing properties over time.  
+Let's create a simple fade in animation.
 
-```tsx twoslash {4, 12}
-import { useCurrentFrame } from "remotion";
+If we want to fade the text in over 60 frames, we need to gradually change the `opacity` over time so that it goes from 0 to 1.
+
+```tsx twoslash {4, 15} title="FadeIn.tsx"
+import { AbsoluteFill, useCurrentFrame } from "remotion";
 // ---cut---
-export const MyVideo = () => {
+export const FadeIn = () => {
   const frame = useCurrentFrame();
 
-  const opacity = frame >= 20 ? 1 : frame / 20;
+  const opacity = Math.min(1, frame / 60);
 
   return (
-    <div
+    <AbsoluteFill
       style={{
-        flex: 1,
-        textAlign: "center",
-        fontSize: "7em",
-        opacity: opacity,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "white",
+        fontSize: 80,
       }}
     >
-      Hello World!
-    </div>
+      <div style={{ opacity: opacity }}>Hello World!</div>
+    </AbsoluteFill>
   );
 };
 ```
 
+<AnimatingProperties />
+
 ## Using the interpolate helper function
 
-Using the [`interpolate`](/docs/interpolate) function can make animations more readable.
+Using the [`interpolate()`](/docs/interpolate) function can make animations more readable.
 The function takes 4 arguments:
 
 1. The input value
