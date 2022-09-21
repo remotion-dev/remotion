@@ -48,12 +48,12 @@ export const DualVideoDemo: React.FC<{
   useEffect(() => {
     Promise.all([
       new Promise<void>((resolve) => {
-        ref1.current.addEventListener("loadeddata", () => resolve(), {
+        ref1.current.addEventListener("progress", () => resolve(), {
           once: true,
         });
       }),
       new Promise<void>((resolve) => {
-        ref2.current.addEventListener("loadeddata", () => resolve(), {
+        ref2.current.addEventListener("progress", () => resolve(), {
           once: true,
         });
       }),
@@ -68,9 +68,11 @@ export const DualVideoDemo: React.FC<{
       <div style={videoContainer}>
         <video
           ref={ref1}
+          preload="metadata"
           src={colorMode === "dark" ? leftDark : leftLight}
           muted
           loop
+          playsInline
         />
       </div>
       <Spacer />
@@ -78,9 +80,11 @@ export const DualVideoDemo: React.FC<{
       <div style={videoContainer}>
         <video
           ref={ref2}
+          preload="metadata"
           src={colorMode === "dark" ? rightDark : rightLight}
           muted
           loop
+          playsInline
         />
       </div>
     </div>
