@@ -74,7 +74,7 @@ In this example, we map the frames 0 to 60 to their opacity values `(0, 0.0166, 
 
 ## Using spring animations
 
-Spring animations are a beautiful animation primitive. This time, let's animate the scale of the text.
+Spring animations are a natural animation primitive. By default, they animate from 0 to 1 over time. This time, let's animate the scale of the text.
 
 ```tsx twoslash {7-12, 20}
 import { spring, useCurrentFrame, useVideoConfig } from "remotion";
