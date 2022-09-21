@@ -60,14 +60,13 @@ By passing `endAt={120}`, any audio after the 4 second mark in the file will be 
 The audio will play the range from `00:02:00` to `00:04:00`, meaning the audio will play for 2 seconds.
 
 ```tsx twoslash
-import { Audio, staticFile } from "remotion";
+import { AbsoluteFill, Audio, staticFile } from "remotion";
 
 export const MyVideo = () => {
   return (
-    <div>
-      <div>Hello World!</div>
+    <AbsoluteFill>
       <Audio src={staticFile("audio.mp3")} startFrom={60} endAt={120} />
-    </div>
+    </AbsoluteFill>
   );
 };
 ```
@@ -80,11 +79,36 @@ You can use the `playbackRate` prop to control the speed of the audio. `1` is th
 
 While Remotion doesn't limit the range of possible playback speeds, in development mode the [`HTMLMediaElement.playbackRate`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate) API is used which throws errors on extreme values. At the time of writing, Google Chrome throws an exception if the playback rate is below `0.0625` or above `16`.
 
+```tsx twoslash
+import { AbsoluteFill, Audio, staticFile } from "remotion";
+
+export const MyVideo = () => {
+  return (
+    <AbsoluteFill>
+      <Audio src={staticFile("audio.mp3")} playbackRate={2} />
+    </AbsoluteFill>
+  );
+};
+```
+
 ### `muted`
 
 _Available from v2.0_
 
-The `muted` prop will be respected. It will lead to no audio being played while still keeping the audio tag mounted. It's value may change over time, for example to only mute a certain section of the audio
+The `muted` prop will be respected. It will lead to no audio being played while still keeping the audio tag mounted. It's value may change over time, for example to only mute a certain section of the audio.
+
+```tsx twoslash
+import { AbsoluteFill, Audio, staticFile, useCurrentFrame } from "remotion";
+
+export const MyVideo = () => {
+  const frame = useCurrentFrame();
+  return (
+    <AbsoluteFill>
+      <Audio src={staticFile("audio.mp3")} muted={frame < 30} />
+    </AbsoluteFill>
+  );
+};
+```
 
 ## See also
 
