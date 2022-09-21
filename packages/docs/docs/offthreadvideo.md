@@ -15,7 +15,7 @@ This component was designed to combat limitations of the default `<Video>` eleme
 import { AbsoluteFill, OffthreadVideo, staticFile } from "remotion";
 
 export const MyVideo = () => {
-  const video = staticFile("./video.webm");
+  const video = staticFile("video.webm");
 
   return (
     <AbsoluteFill>
