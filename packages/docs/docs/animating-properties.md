@@ -3,7 +3,7 @@ id: animating-properties
 title: Animating properties
 ---
 
-import {AnimatingProperties} from '../components/DocsDark'
+import {AnimatingProperties, Springs} from '../components/DocsDark'
 
 Animation works by changing properties over time.  
 Let's create a simple fade in animation.
@@ -74,9 +74,9 @@ In this example, we map the frames 0 to 60 to their opacity values `(0, 0.0166, 
 
 ## Using spring animations
 
-Spring animations are a beautiful way to put things into motion and make them natural. Remotion includes a helper function to make spring animations easy! This time, let's animate the scale of the text.
+Spring animations are a beautiful animation primitive. This time, let's animate the scale of the text.
 
-```tsx twoslash {7-12, 22}
+```tsx twoslash {7-12, 20}
 import { spring, useCurrentFrame, useVideoConfig } from "remotion";
 
 export const MyVideo = () => {
@@ -85,8 +85,6 @@ export const MyVideo = () => {
 
   const scale = spring({
     fps,
-    from: 0,
-    to: 1,
     frame,
   });
 
@@ -104,7 +102,12 @@ export const MyVideo = () => {
 };
 ```
 
-You should see the text 'jump in'. The default spring configuration leads to a little bit of overshoot, meaning the text will bounce a little bit. See the reference page about the [`spring()`](/docs/spring) function to learn how to customize your spring animations.
+You should see the text jump in.
+
+<Springs />
+<br />
+
+The default spring configuration leads to a little bit of overshoot, meaning the text will bounce a little bit. See the documentation page for [`spring()`](/docs/spring) to learn how to customize it.
 
 ## Always animate using `useCurrentFrame()`
 
