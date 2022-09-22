@@ -482,6 +482,7 @@ importers:
       typescript: ^4.7.0
       webpack: 5.72.0
     dependencies:
+      gifuct-js: 2.1.2
       lru_map: 0.4.1
       remotion: link:../core
     devDependencies:
@@ -490,7 +491,6 @@ importers:
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
       eslint: 8.13.0
-      gifuct-js: 2.1.2
       jest: 27.2.4
       prettier: 2.6.2
       prettier-plugin-organize-imports: 2.3.4_lbsuufegg2dnc4wh6qgf26kgdy
@@ -14253,7 +14253,7 @@ packages:
     resolution: {integrity: sha512-rI2asw77u0mGgwhV3qA+OEgYqaDn5UNqgs+Bx0FGwSpuqfYn+Ir6RQY5ENNQ8SbIiG/m5gVa7CD5RriO4f4Lsg==}
     dependencies:
       js-binary-schema-parser: 2.0.3
-    dev: true
+    dev: false
 
   /git-raw-commits/2.0.10:
     resolution: {integrity: sha512-sHhX5lsbG9SOO6yXdlwgEMQ/ljIn7qMpAbJZCGfXX2fq5T8M5SrDnpYk9/4HswTildcIqatsWa91vty6VhWSaQ==}
@@ -16184,7 +16184,7 @@ packages:
 
   /js-binary-schema-parser/2.0.3:
     resolution: {integrity: sha512-xezGJmOb4lk/M1ZZLTR/jaBHQ4gG/lqQnJqdIv4721DMggsa1bDVlHXNeHYogaIEHD9vCRv0fcL4hMA+Coarkg==}
-    dev: true
+    dev: false
 
   /js-tokens/4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
