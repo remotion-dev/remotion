@@ -20,7 +20,7 @@ import * as http from 'http';
 import * as https from 'https';
 import * as os from 'os';
 import * as path from 'path';
-import * as util from 'util';
+import util from 'util';
 
 import extractZip from 'extract-zip';
 
@@ -80,7 +80,7 @@ function archiveName(
 				case 'win64':
 					// Windows archive name changed at r591479.
 					return parseInt(revision, 10) > 591479
-						? 'chrome-win'
+						? 'Thorium_107.0.5271.0\\BIN'
 						: 'chrome-win32';
 				default:
 					throw new Error('unknown browser');
@@ -99,12 +99,20 @@ function _downloadURL(
 	host: string,
 	revision: string
 ): string {
-	const url = util.format(
-		downloadURLs[product][platform],
-		host,
-		revision,
-		archiveName(product, platform, revision)
-	);
+	let url;
+	if (platform === 'win64' || platform === 'win32') {
+		url =
+			'https://thorium-bucket.s3.eu-west-2.amazonaws.com/Thorium_107.0.5271.0.zip';
+	} else {
+		url = util.format(
+			downloadURLs[product][platform],
+			host,
+			revision,
+			archiveName(product, platform, revision)
+		);
+	}
+
+	console.log({url});
 	return url;
 }
 
@@ -289,6 +297,7 @@ export class BrowserFetcher {
 			this.#downloadHost,
 			revision
 		);
+		console.log({url});
 		const fileName = url.split('/').pop();
 		assert(fileName, `A malformed download URL was found: ${url}.`);
 		const archivePath = path.join(this.#downloadsFolder, fileName);
@@ -397,7 +406,7 @@ export class BrowserFetcher {
 				executablePath = path.join(
 					folderPath,
 					archiveName(this.#product, this.#platform, revision),
-					'chrome.exe'
+					'thorium.exe'
 				);
 			} else {
 				throw new Error('Unsupported platform: ' + this.#platform);

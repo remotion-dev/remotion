@@ -1,12 +1,13 @@
 import fs from 'fs';
 import type {Browser} from './browser';
-import type { BrowserExecutable } from './browser-executable';
+import type {BrowserExecutable} from './browser-executable';
 import {downloadBrowser} from './browser/create-browser-fetcher';
 import {puppeteer} from './browser/node';
 import type {Product} from './browser/Product';
 import {PUPPETEER_REVISIONS} from './browser/revisions';
 
 const getSearchPathsForProduct = (product: Product) => {
+	console.log({product});
 	if (product === 'chrome') {
 		return [
 			process.env.PUPPETEER_EXECUTABLE_PATH ?? null,
@@ -19,10 +20,10 @@ const getSearchPathsForProduct = (product: Product) => {
 				? '/app/.apt/usr/bin/google-chrome-stable'
 				: null,
 			process.platform === 'win32'
-				? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+				? 'C:\\Program Files\\Google\\Chrome\\Application\\testchrome.exe'
 				: null,
 			process.platform === 'win32'
-				? 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+				? 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\testchrome.exe'
 				: null,
 		].filter(Boolean) as string[];
 	}
