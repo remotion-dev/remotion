@@ -46,7 +46,7 @@ const { bucketName, renderId } = await renderMediaOnLambda({
 
 If you like to use this feature:
 
-- You must extend the [default Remotion policy](/lambda/permissions) to allow read and write access to that bucket.
+- You must extend the [default Remotion policy](/docs/lambda/permissions) to allow read and write access to that bucket.
 - The bucket must be in the same region.
 - When calling APIs such as [`downloadMedia()`](/docs/lambda/downloadmedia) or [`getRenderProgress()`](/docs/lambda/getrenderprogress), you must pass the `bucketName` where the site resides in, not the bucket where the video gets saved.
 - The `key` must match `/^([0-9a-zA-Z-!_.*'()]+)$/g`
