@@ -53,7 +53,7 @@ const getKey = ({
 }: {
 	credentials: CredentialPair | null;
 	region: AwsRegion;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomS3Credentials | null;
 	service: keyof ServiceMapping;
 }) =>
 	[
@@ -78,7 +78,7 @@ export type CustomCredentialsWithoutSensitiveData = {
 	endpoint: string;
 };
 
-export type CustomCredentials = CustomCredentialsWithoutSensitiveData & {
+export type CustomS3Credentials = CustomCredentialsWithoutSensitiveData & {
 	accessKeyId: string | null;
 	secretAccessKey: string | null;
 };
@@ -90,7 +90,7 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 }: {
 	region: AwsRegion;
 	service: T;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomS3Credentials | null;
 }): ServiceMapping[T] => {
 	const Client = (() => {
 		if (service === 'cloudwatch') {
@@ -161,7 +161,7 @@ export const getCloudWatchLogsClient = (
 
 export const getS3Client = (
 	region: AwsRegion,
-	customCredentials: CustomCredentials | null
+	customCredentials: CustomS3Credentials | null
 ): S3Client => {
 	return getServiceClient({region, service: 's3', customCredentials});
 };
@@ -180,7 +180,7 @@ export const getIamClient = (region: AwsRegion): IAMClient => {
 
 export const getServiceQuotasClient = (
 	region: AwsRegion,
-	customCredentials: CustomCredentials | null
+	customCredentials: CustomS3Credentials | null
 ): ServiceQuotasClient => {
 	return getServiceClient({
 		region,

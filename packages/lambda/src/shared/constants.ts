@@ -12,8 +12,8 @@ import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';
 import type {
-	CustomCredentials,
 	CustomCredentialsWithoutSensitiveData,
+	CustomS3Credentials,
 } from './aws-clients';
 import type {DownloadBehavior} from './content-disposition-header';
 import type {ExpensiveChunk} from './get-most-expensive-chunks';
@@ -132,7 +132,7 @@ export type OutNameInput =
 	| {
 			bucketName: string;
 			key: string;
-			customS3Implementation?: CustomCredentials;
+			customS3Implementation?: CustomS3Credentials;
 	  };
 
 export type OutNameInputWithoutCredentials =
@@ -146,7 +146,7 @@ export type OutNameInputWithoutCredentials =
 export type OutNameOutput = {
 	renderBucketName: string;
 	key: string;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomS3Credentials | null;
 };
 
 export const optimizationProfile = (siteId: string, compositionId: string) =>
@@ -260,7 +260,7 @@ export type LambdaPayloads = {
 		bucketName: string;
 		renderId: string;
 		version: string;
-		customS3Implementation?: CustomCredentials;
+		customS3Implementation?: CustomS3Credentials;
 	};
 	renderer: {
 		concurrencyPerLambda: number;

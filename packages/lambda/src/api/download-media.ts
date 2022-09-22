@@ -1,12 +1,11 @@
 import {RenderInternals} from '@remotion/renderer';
 import path from 'path';
 import {getExpectedOutName} from '../functions/helpers/expected-out-name';
-import {getCustomOutName} from '../functions/helpers/get-custom-out-name';
 import {getRenderMetadata} from '../functions/helpers/get-render-metadata';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
 import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';
 import type {AwsRegion} from '../pricing/aws-regions';
-import type {CustomCredentials} from '../shared/aws-clients';
+import type {CustomS3Credentials} from '../shared/aws-clients';
 import {getAccountId} from '../shared/get-account-id';
 
 export type DownloadMediaInput = {
@@ -15,7 +14,7 @@ export type DownloadMediaInput = {
 	renderId: string;
 	outPath: string;
 	onProgress?: LambdaReadFileProgress;
-	customCredentials?: CustomCredentials;
+	customCredentials?: CustomS3Credentials;
 };
 
 export type DownloadMediaOutput = {
@@ -42,10 +41,7 @@ export const downloadMedia = async (
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
 		renderMetadata,
 		input.bucketName,
-		getCustomOutName({
-			renderMetadata,
-			customCredentials: input.customCredentials ?? null,
-		})
+		input.customCredentials ?? null
 	);
 
 	const {sizeInBytes} = await lambdaDownloadFileWithProgress({

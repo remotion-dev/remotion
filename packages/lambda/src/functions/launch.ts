@@ -40,7 +40,6 @@ import {cleanupFiles} from './helpers/delete-chunks';
 import {getExpectedOutName} from './helpers/expected-out-name';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
-import {getCustomOutName} from './helpers/get-custom-out-name';
 import {getFilesToDelete} from './helpers/get-files-to-delete';
 import {getLambdasInvokedStats} from './helpers/get-lambdas-invoked-stats';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
@@ -343,7 +342,9 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
 		renderMetadata,
 		params.bucketName,
-		params.outName
+		typeof params.outName === 'string' || typeof params.outName === 'undefined'
+			? null
+			: params.outName?.customS3Implementation ?? null
 	);
 
 	const outputSize = fs.statSync(outfile);
@@ -465,7 +466,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			url: getOutputUrlFromMetadata(
 				renderMetadata,
 				params.bucketName,
-				getCustomOutName({renderMetadata, customCredentials})
+				customCredentials
 			),
 		},
 	});
