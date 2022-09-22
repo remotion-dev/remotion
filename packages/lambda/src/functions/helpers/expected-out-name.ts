@@ -21,6 +21,7 @@ export const getExpectedOutName = (
 		return {
 			renderBucketName: bucketName,
 			key: outStillName(renderMetadata.renderId, renderMetadata.imageFormat),
+			customCredentials: null,
 		};
 	}
 
@@ -34,6 +35,7 @@ export const getExpectedOutName = (
 					'final'
 				)
 			),
+			customCredentials: null,
 		};
 	}
 

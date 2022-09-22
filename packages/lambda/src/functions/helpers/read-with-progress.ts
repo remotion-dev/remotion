@@ -25,7 +25,7 @@ export const lambdaDownloadFileWithProgress = async ({
 	outputPath: string;
 	onProgress: LambdaReadFileProgress;
 }): Promise<{sizeInBytes: number; to: string}> => {
-	const client = getS3Client(region);
+	const client = getS3Client(region, null);
 	const command = new GetObjectCommand({
 		Bucket: bucketName,
 		ExpectedBucketOwner: expectedBucketOwner,

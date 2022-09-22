@@ -61,10 +61,21 @@ export type ServiceMapping = {
 	servicequotas: ServiceQuotasClient;
 };
 
-export const getServiceClient = <T extends keyof ServiceMapping>(
-	region: AwsRegion,
-	service: T
-): ServiceMapping[T] => {
+export type CustomCredentials = {
+	accessKeyId: string;
+	secretAccessKey: string;
+	endpoint: string;
+};
+
+export const getServiceClient = <T extends keyof ServiceMapping>({
+	region,
+	service,
+	customCredentials,
+}: {
+	region: AwsRegion;
+	service: T;
+	customCredentials: CustomCredentials | null;
+}): ServiceMapping[T] => {
 	if (!_clients[region]) {
 		_clients[region] = {};
 	}
@@ -102,11 +113,23 @@ export const getServiceClient = <T extends keyof ServiceMapping>(
 	if (!_clients[region][key][service]) {
 		checkCredentials();
 
-		// @ts-expect-error
-		_clients[region][key][service] = new Client({
-			region,
-			credentials: getCredentials(),
-		});
+		if (customCredentials) {
+			// @ts-expect-error
+			_clients[region][key][service] = new Client({
+				region,
+				credentials: {
+					accessKeyId: customCredentials.accessKeyId,
+					secretAccessKey: customCredentials.secretAccessKey,
+				},
+				endpoint: customCredentials.endpoint,
+			});
+		} else {
+			// @ts-expect-error
+			_clients[region][key][service] = new Client({
+				region,
+				credentials: getCredentials(),
+			});
+		}
 	}
 
 	// @ts-expect-error
@@ -116,23 +139,39 @@ export const getServiceClient = <T extends keyof ServiceMapping>(
 export const getCloudWatchLogsClient = (
 	region: AwsRegion
 ): CloudWatchLogsClient => {
-	return getServiceClient(region, 'cloudwatch');
+	return getServiceClient({
+		region,
+		service: 'cloudwatch',
+		customCredentials: null,
+	});
 };
 
-export const getS3Client = (region: AwsRegion): S3Client => {
-	return getServiceClient(region, 's3');
+export const getS3Client = (
+	region: AwsRegion,
+	customCredentials: CustomCredentials | null
+): S3Client => {
+	return getServiceClient({region, service: 's3', customCredentials});
 };
 
 export const getLambdaClient = (region: AwsRegion): LambdaClient => {
-	return getServiceClient(region, 'lambda');
+	return getServiceClient({
+		region,
+		service: 'lambda',
+		customCredentials: null,
+	});
 };
 
 export const getIamClient = (region: AwsRegion): IAMClient => {
-	return getServiceClient(region, 'iam');
+	return getServiceClient({region, service: 'iam', customCredentials: null});
 };
 
 export const getServiceQuotasClient = (
-	region: AwsRegion
+	region: AwsRegion,
+	customCredentials: CustomCredentials | null
 ): ServiceQuotasClient => {
-	return getServiceClient(region, 'servicequotas');
+	return getServiceClient({
+		region,
+		service: 'servicequotas',
+		customCredentials,
+	});
 };
