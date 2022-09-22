@@ -5,6 +5,7 @@ import {getRenderMetadata} from '../functions/helpers/get-render-metadata';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
 import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';
 import type {AwsRegion} from '../pricing/aws-regions';
+import type {CustomCredentials} from '../shared/aws-clients';
 import {getAccountId} from '../shared/get-account-id';
 
 export type DownloadMediaInput = {
@@ -13,12 +14,25 @@ export type DownloadMediaInput = {
 	renderId: string;
 	outPath: string;
 	onProgress?: LambdaReadFileProgress;
+	customCredentials?: CustomCredentials;
 };
 
 export type DownloadMediaOutput = {
 	outputPath: string;
 	sizeInBytes: number;
 };
+
+/**
+ * @description Triggers a render on a lambda given a composition and a lambda function.
+ * @link https://remotion.dev/docs/lambda/downloadmedia
+ * @param params.region The AWS region in which the media resides.
+ * @param params.bucketName The `bucketName` that was specified during the render.
+ * @param params.renderId The `renderId` that was obtainer after triggering the render.
+ * @param params.outPath Where to save the media.
+ * @param params.onProgress Progress callback function - see docs for details.
+ * @param params.customCredentials If the file was saved to a foreign cloud, pass credentials for reading from it.
+ * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
+ */
 
 export const downloadMedia = async (
 	input: DownloadMediaInput
@@ -35,10 +49,13 @@ export const downloadMedia = async (
 
 	const outputPath = path.resolve(process.cwd(), input.outPath);
 	RenderInternals.ensureOutputDirectory(outputPath);
-	const {key, renderBucketName} = getExpectedOutName(
+
+	const {key, renderBucketName, customCredentials} = getExpectedOutName(
 		renderMetadata,
-		input.bucketName
+		input.bucketName,
+		input.customCredentials ?? null
 	);
+
 	const {sizeInBytes} = await lambdaDownloadFileWithProgress({
 		bucketName: renderBucketName,
 		expectedBucketOwner,
@@ -46,6 +63,7 @@ export const downloadMedia = async (
 		region: input.region,
 		onProgress: input.onProgress ?? (() => undefined),
 		outputPath,
+		customCredentials,
 	});
 
 	return {

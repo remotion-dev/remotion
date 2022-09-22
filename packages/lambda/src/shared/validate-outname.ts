@@ -1,4 +1,4 @@
-import type {OutNameInput} from './constants';
+import type {OutNameInputWithoutCredentials} from './constants';
 import {validateBucketName} from './validate-bucketname';
 
 const validateS3Key = (s3Key: string) => {
@@ -17,7 +17,9 @@ const validateS3Key = (s3Key: string) => {
 	}
 };
 
-export const validateOutname = (outName: OutNameInput | undefined | null) => {
+export const validateOutname = (
+	outName: OutNameInputWithoutCredentials | undefined | null
+) => {
 	if (typeof outName === 'undefined' || outName === null) {
 		return;
 	}

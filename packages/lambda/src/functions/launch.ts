@@ -240,6 +240,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
 		outName: params.outName ?? undefined,
+		privacy: params.privacy,
 	};
 
 	await lambdaWriteFile({
@@ -250,6 +251,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: null,
+		customCredentials: null,
 	});
 
 	await Promise.all(
@@ -294,6 +296,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			privacy: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
 			downloadBehavior: null,
+			customCredentials: null,
 		}).catch((err) => {
 			writeLambdaError({
 				bucketName: params.bucketName,
@@ -336,9 +339,12 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		encodingStop = Date.now();
 	}
 
-	const {key, renderBucketName} = getExpectedOutName(
+	const {key, renderBucketName, customCredentials} = getExpectedOutName(
 		renderMetadata,
-		params.bucketName
+		params.bucketName,
+		typeof params.outName === 'string' || typeof params.outName === 'undefined'
+			? null
+			: params.outName?.s3OutputProvider ?? null
 	);
 
 	const outputSize = fs.statSync(outfile);
@@ -351,6 +357,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		privacy: params.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: params.downloadBehavior,
+		customCredentials,
 	});
 
 	let chunkProm: Promise<unknown> = Promise.resolve();
@@ -420,6 +427,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: null,
+		customCredentials: null,
 	});
 
 	const errorExplanationsProm = inspectErrors({
@@ -455,7 +463,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		outputFile: {
 			lastModified: Date.now(),
 			size: outputSize.size,
-			url: getOutputUrlFromMetadata(renderMetadata, params.bucketName),
+			url: getOutputUrlFromMetadata(
+				renderMetadata,
+				params.bucketName,
+				customCredentials
+			),
 		},
 	});
 	await finalEncodingProgressProm;
