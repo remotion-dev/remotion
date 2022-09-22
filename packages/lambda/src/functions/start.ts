@@ -43,6 +43,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		expectedBucketOwner: options.expectedBucketOwner,
 		key: initalizedMetadataKey(renderId),
 		privacy: 'private',
+		customCredentials: null,
 	});
 
 	const payload: LambdaPayload = {

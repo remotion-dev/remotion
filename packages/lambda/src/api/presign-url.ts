@@ -33,7 +33,7 @@ export const presignUrl = async ({
 	validateBucketName(bucketName, {mustStartWithRemotion: false});
 	validatePresignExpiration(expiresInSeconds);
 
-	const s3Client = getS3Client(region);
+	const s3Client = getS3Client(region, null);
 
 	if (checkIfObjectExists) {
 		try {
