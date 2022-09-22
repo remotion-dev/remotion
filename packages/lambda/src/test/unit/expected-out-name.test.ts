@@ -105,15 +105,3 @@ test('Should allow outName an outname with a slash', () => {
 		renderBucketName: 'remotionlambda-98fsduf',
 	});
 });
-
-test('Should allow to ', () => {
-	const newRenderMetadata: RenderMetadata = {
-		...testRenderMetadata,
-		outName: 'justa/name.jpeg',
-	};
-	expect(getExpectedOutName(newRenderMetadata, bucketName, null)).toEqual({
-		customCredentials: null,
-		key: 'renders/9n8dsfafs/justa/name.jpeg',
-		renderBucketName: 'remotionlambda-98fsduf',
-	});
-});
