@@ -74,6 +74,20 @@ One of the [supported regions](/docs/lambda/region-selection) of Remotion Lambda
 
 One of `lambda`, `cloudwatch`, `iam`, `servicequotas` and `s3`.
 
+### `customCredentials`
+
+_available from v3.2.23_
+
+Allows you to connect to another cloud provider, useful if you [render your output to a different cloud](/docs/lambda/custom-destination).
+
+```ts
+type CustomCredentials = {
+  endpoint: string;
+  accessKeyId: string | null;
+  secretAccessKey: string | null;
+};
+```
+
 ## Return value
 
 An object with two properties:
