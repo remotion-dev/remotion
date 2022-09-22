@@ -22,6 +22,18 @@ export type DownloadMediaOutput = {
 	sizeInBytes: number;
 };
 
+/**
+ * @description Triggers a render on a lambda given a composition and a lambda function.
+ * @link https://remotion.dev/docs/lambda/downloadmedia
+ * @param params.region The AWS region in which the media resides.
+ * @param params.bucketName The `bucketName` that was specified during the render.
+ * @param params.renderId The `renderId` that was obtainer after triggering the render.
+ * @param params.outPath Where to save the media.
+ * @param params.onProgress Progress callback function - see docs for details.
+ * @param params.customCredentials If the file was saved to a foreign cloud, pass credentials for reading from it.
+ * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
+ */
+
 export const downloadMedia = async (
 	input: DownloadMediaInput
 ): Promise<DownloadMediaOutput> => {

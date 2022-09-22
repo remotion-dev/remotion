@@ -21,7 +21,7 @@ export const getCredentialsFromOutName = (
 		return null;
 	}
 
-	return name.customS3Implementation ?? null;
+	return name.s3OutputProvider ?? null;
 };
 
 export const getExpectedOutName = (

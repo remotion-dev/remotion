@@ -132,7 +132,7 @@ export type OutNameInput =
 	| {
 			bucketName: string;
 			key: string;
-			customS3Implementation?: CustomS3Credentials;
+			s3OutputProvider?: CustomS3Credentials;
 	  };
 
 export type OutNameInputWithoutCredentials =
@@ -140,7 +140,7 @@ export type OutNameInputWithoutCredentials =
 	| {
 			bucketName: string;
 			key: string;
-			customS3Implementation?: CustomCredentialsWithoutSensitiveData;
+			s3OutputProvider?: CustomCredentialsWithoutSensitiveData;
 	  };
 
 export type OutNameOutput = {
@@ -172,7 +172,7 @@ export const customOutName = (
 	return {
 		key: name.key,
 		renderBucketName: name.bucketName,
-		customCredentials: name.customS3Implementation ?? null,
+		customCredentials: name.s3OutputProvider ?? null,
 	};
 };
 
@@ -260,7 +260,7 @@ export type LambdaPayloads = {
 		bucketName: string;
 		renderId: string;
 		version: string;
-		customS3Implementation?: CustomS3Credentials;
+		s3OutputProvider?: CustomS3Credentials;
 	};
 	renderer: {
 		concurrencyPerLambda: number;

@@ -37,7 +37,7 @@ export const getRenderProgress = async ({
 			bucketName,
 			renderId,
 			version: VERSION,
-			customS3Implementation: s3OutputProvider,
+			s3OutputProvider,
 		},
 		region,
 	});
