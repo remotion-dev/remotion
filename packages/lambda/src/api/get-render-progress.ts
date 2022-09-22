@@ -1,5 +1,6 @@
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
+import type {CustomCredentials} from '../shared/aws-clients';
 import {callLambda} from '../shared/call-lambda';
 import type {RenderProgress} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
@@ -9,6 +10,7 @@ export type GetRenderInput = {
 	bucketName: string;
 	renderId: string;
 	region: AwsRegion;
+	customS3Implementation?: CustomCredentials;
 };
 
 /**
@@ -25,6 +27,7 @@ export const getRenderProgress = async ({
 	bucketName,
 	renderId,
 	region,
+	customS3Implementation,
 }: GetRenderInput): Promise<RenderProgress> => {
 	const result = await callLambda({
 		functionName,
@@ -33,6 +36,7 @@ export const getRenderProgress = async ({
 			bucketName,
 			renderId,
 			version: VERSION,
+			customS3Implementation,
 		},
 		region,
 	});
