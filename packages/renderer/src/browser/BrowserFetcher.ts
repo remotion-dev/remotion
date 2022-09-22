@@ -102,7 +102,7 @@ function _downloadURL(
 	let url;
 	if (platform === 'win64' || platform === 'win32') {
 		url =
-			'https://thorium-bucket.s3.eu-west-2.amazonaws.com/Thorium_107.0.5271.0.zip';
+			'https://remotionchromium-binaries.s3.eu-central-1.amazonaws.com/thorium-107.zip';
 	} else {
 		url = util.format(
 			downloadURLs[product][platform],
@@ -112,7 +112,6 @@ function _downloadURL(
 		);
 	}
 
-	console.log({url});
 	return url;
 }
 
@@ -297,7 +296,6 @@ export class BrowserFetcher {
 			this.#downloadHost,
 			revision
 		);
-		console.log({url});
 		const fileName = url.split('/').pop();
 		assert(fileName, `A malformed download URL was found: ${url}.`);
 		const archivePath = path.join(this.#downloadsFolder, fileName);

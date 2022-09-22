@@ -7,7 +7,6 @@ import type {Product} from './browser/Product';
 import {PUPPETEER_REVISIONS} from './browser/revisions';
 
 const getSearchPathsForProduct = (product: Product) => {
-	console.log({product});
 	if (product === 'chrome') {
 		return [
 			process.env.PUPPETEER_EXECUTABLE_PATH ?? null,
