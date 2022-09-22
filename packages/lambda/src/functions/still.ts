@@ -22,12 +22,14 @@ import {randomHash} from '../shared/random-hash';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
-import {getExpectedOutName} from './helpers/expected-out-name';
+import {
+	getCredentialsFromOutName,
+	getExpectedOutName,
+} from './helpers/expected-out-name';
 import {formatCostsInfo} from './helpers/format-costs-info';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentArchitecture} from './helpers/get-current-architecture';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
-import {getCustomOutName} from './helpers/get-custom-out-name';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {lambdaWriteFile} from './helpers/io';
 import {validateComposition} from './helpers/validate-composition';
@@ -150,7 +152,7 @@ const innerStillHandler = async (
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
 		renderMetadata,
 		bucketName,
-		lambdaParams.outName
+		getCredentialsFromOutName(lambdaParams.outName)
 	);
 
 	const {size} = await fs.promises.stat(outputPath);
@@ -182,7 +184,7 @@ const innerStillHandler = async (
 		output: getOutputUrlFromMetadata(
 			renderMetadata,
 			bucketName,
-			getCustomOutName({customCredentials, renderMetadata})
+			customCredentials
 		),
 		size,
 		bucketName,

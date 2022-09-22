@@ -1,12 +1,12 @@
 import type {OutNameInput, RenderMetadata} from '../../defaults';
-import type {CustomCredentials} from '../../shared/aws-clients';
+import type {CustomS3Credentials} from '../../shared/aws-clients';
 
 export const getCustomOutName = ({
 	renderMetadata,
 	customCredentials,
 }: {
 	renderMetadata: RenderMetadata;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomS3Credentials | null;
 }): OutNameInput | null => {
 	if (!renderMetadata.outName) {
 		return null;
@@ -19,7 +19,7 @@ export const getCustomOutName = ({
 	if (renderMetadata.outName.customS3Implementation) {
 		if (!customCredentials && renderMetadata.privacy !== 'public') {
 			throw new TypeError(
-				`The file was rendered with a custom S3 implementation and is not public, but no custom credentials were passed to the downloadMedia().`
+				`The file was rendered with a custom S3 implementation and is not public, but no custom credentials were passed to downloadMedia().`
 			);
 		}
 
