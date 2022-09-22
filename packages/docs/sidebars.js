@@ -161,6 +161,7 @@ module.exports = {
         "lambda/getregions",
         "lambda/getsites",
         "lambda/downloadmedia",
+        "lambda/deleterender",
         "lambda/getuserpolicy",
         "lambda/getrolepolicy",
         "lambda/getorcreatebucket",
