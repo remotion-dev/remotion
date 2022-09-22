@@ -1,5 +1,6 @@
 import type {DeleteFunctionInput} from './api/delete-function';
 import {deleteFunction} from './api/delete-function';
+import {deleteRender} from './api/delete-render';
 import type {DeleteSiteInput, DeleteSiteOutput} from './api/delete-site';
 import {deleteSite} from './api/delete-site';
 import type {
@@ -85,6 +86,7 @@ export {
 	getRegions,
 	getAwsClient,
 	presignUrl,
+	deleteRender,
 };
 export type {
 	AwsRegion,
