@@ -99,20 +99,16 @@ function _downloadURL(
 	host: string,
 	revision: string
 ): string {
-	let url;
 	if (platform === 'win64' || platform === 'win32') {
-		url =
-			'https://remotionchromium-binaries.s3.eu-central-1.amazonaws.com/thorium-107.zip';
-	} else {
-		url = util.format(
-			downloadURLs[product][platform],
-			host,
-			revision,
-			archiveName(product, platform, revision)
-		);
+		return 'https://remotionchromium-binaries.s3.eu-central-1.amazonaws.com/thorium-107.zip';
 	}
 
-	return url;
+	return util.format(
+		downloadURLs[product][platform],
+		host,
+		revision,
+		archiveName(product, platform, revision)
+	);
 }
 
 function handleArm64(): void {
