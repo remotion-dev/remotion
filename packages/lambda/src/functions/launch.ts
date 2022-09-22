@@ -344,7 +344,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		params.bucketName,
 		typeof params.outName === 'string' || typeof params.outName === 'undefined'
 			? null
-			: params.outName?.customS3Implementation ?? null
+			: params.outName?.s3OutputProvider ?? null
 	);
 
 	const outputSize = fs.statSync(outfile);

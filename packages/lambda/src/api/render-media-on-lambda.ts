@@ -62,14 +62,14 @@ export type RenderMediaOnLambdaOutput = {
  * @param params.serveUrl The URL of the deployed project
  * @param params.composition The ID of the composition which should be rendered.
  * @param params.inputProps The input props that should be passed to the composition.
- * @param params.codec The video codec which should be used for encoding.
+ * @param params.codec The media codec which should be used for encoding.
  * @param params.imageFormat In which image format the frames should be rendered.
  * @param params.crf The constant rate factor to be used during encoding.
  * @param params.envVariables Object containing environment variables to be inserted into the video environment
  * @param params.proResProfile The ProRes profile if rendering a ProRes video
  * @param params.quality JPEG quality if JPEG was selected as the image format.
- * @param params.region The AWS region in which the video should be rendered.
- * @param params.maxRetries How often rendering a chunk may fail before the video render gets aborted.
+ * @param params.region The AWS region in which the media should be rendered.
+ * @param params.maxRetries How often rendering a chunk may fail before the media render gets aborted.
  * @param params.logLevel Level of logging that Lambda function should perform. Default "info".
  * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
