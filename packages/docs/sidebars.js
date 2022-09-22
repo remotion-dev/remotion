@@ -310,6 +310,7 @@ module.exports = {
         "lambda/faq",
         "lambda/light-client",
         "lambda/custom-layers",
+        "lambda/custom-destination",
         "lambda/checklist",
         {
           type: "category",

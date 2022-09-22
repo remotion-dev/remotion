@@ -36,5 +36,6 @@ export const progressHandler = (
 		region: getCurrentRegionInFunction(),
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		timeoutInMiliseconds: options.timeoutInMiliseconds,
+		customCredentials: lambdaParams.s3OutputProvider ?? null,
 	});
 };
