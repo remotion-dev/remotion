@@ -1,6 +1,6 @@
 import fs from 'fs';
 import type {Browser} from './browser';
-import type { BrowserExecutable } from './browser-executable';
+import type {BrowserExecutable} from './browser-executable';
 import {downloadBrowser} from './browser/create-browser-fetcher';
 import {puppeteer} from './browser/node';
 import type {Product} from './browser/Product';
