@@ -4,13 +4,13 @@ import * as LambdaSDK from '@aws-sdk/client-lambda';
 import * as S3SDK from '@aws-sdk/client-s3';
 import * as ServiceQuotasSDK from '@aws-sdk/client-service-quotas';
 import type {AwsRegion} from '../client';
-import type {CustomS3Credentials, ServiceMapping} from '../shared/aws-clients';
+import type {CustomCredentials, ServiceMapping} from '../shared/aws-clients';
 import {getServiceClient} from '../shared/aws-clients';
 
 export type GetAwsClientInput<T extends keyof ServiceMapping> = {
 	region: AwsRegion;
 	service: T;
-	customCredentials?: CustomS3Credentials | null;
+	customCredentials?: CustomCredentials | null;
 };
 
 type SdkMapping = {

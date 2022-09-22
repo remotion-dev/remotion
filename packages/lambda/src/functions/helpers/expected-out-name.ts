@@ -2,13 +2,13 @@ import type {Codec} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {OutNameInput, OutNameOutput, RenderMetadata} from '../../defaults';
 import {customOutName, outName, outStillName} from '../../defaults';
-import type {CustomS3Credentials} from '../../shared/aws-clients';
+import type {CustomCredentials} from '../../shared/aws-clients';
 import {validateOutname} from '../../shared/validate-outname';
 import {getCustomOutName} from './get-custom-out-name';
 
 export const getCredentialsFromOutName = (
 	name: OutNameInput | null
-): CustomS3Credentials | null => {
+): CustomCredentials | null => {
 	if (typeof name === 'string') {
 		return null;
 	}
@@ -27,7 +27,7 @@ export const getCredentialsFromOutName = (
 export const getExpectedOutName = (
 	renderMetadata: RenderMetadata,
 	bucketName: string,
-	customCredentials: CustomS3Credentials | null
+	customCredentials: CustomCredentials | null
 ): OutNameOutput => {
 	const outNameValue = getCustomOutName({
 		customCredentials,

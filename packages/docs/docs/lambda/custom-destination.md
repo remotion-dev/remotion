@@ -4,13 +4,13 @@ sidebar_label: Custom output destination
 title: Customizing Lambda output destination
 ---
 
-By default a render artifact is saved into the S3 back under the key `renders/${renderId}/out.{extension}` (for example: `renders/hy0k2siao8/out.mp4`)
+By default a render artifact is saved into the same S3 bucket as where the site is located under the key `renders/${renderId}/out.{extension}` (for example: `renders/hy0k2siao8/out.mp4`)
 
 You can modify the output destination by passing a different filename, writing it into a different bucket or even upload it to a different S3-compatible provider.
 
 ## Customizing the output name
 
-To customize the output filename, pass `outName: "my-filename.mp4"` to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda).
+To customize the output filename, pass `outName: "my-filename.mp4"` to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#outname) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#outname).
 
 On the CLI, use the [`--out-name`](/docs/lambda/cli/render#--out-name) flag.
 

@@ -2,7 +2,7 @@ import {GetObjectCommand} from '@aws-sdk/client-s3';
 import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
 import {RenderInternals} from '@remotion/renderer';
 import type {AwsRegion} from '../../pricing/aws-regions';
-import type {CustomS3Credentials} from '../../shared/aws-clients';
+import type {CustomCredentials} from '../../shared/aws-clients';
 import {getS3Client} from '../../shared/aws-clients';
 
 export type LambdaReadFileProgress = (progress: {
@@ -26,7 +26,7 @@ export const lambdaDownloadFileWithProgress = async ({
 	expectedBucketOwner: string;
 	outputPath: string;
 	onProgress: LambdaReadFileProgress;
-	customCredentials: CustomS3Credentials | null;
+	customCredentials: CustomCredentials | null;
 }): Promise<{sizeInBytes: number; to: string}> => {
 	const client = getS3Client(region, customCredentials);
 	const command = new GetObjectCommand({

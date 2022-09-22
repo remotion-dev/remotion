@@ -1,6 +1,6 @@
 import {Internals} from 'remotion';
 import type {AwsRegion} from '../../pricing/aws-regions';
-import type {CustomS3Credentials} from '../../shared/aws-clients';
+import type {CustomCredentials} from '../../shared/aws-clients';
 import type {RenderProgress} from '../../shared/constants';
 import {
 	chunkKey,
@@ -46,7 +46,7 @@ export const getProgress = async ({
 	region: AwsRegion;
 	memorySizeInMb: number;
 	timeoutInMiliseconds: number;
-	customCredentials: CustomS3Credentials | null;
+	customCredentials: CustomCredentials | null;
 }): Promise<RenderProgress> => {
 	const postRenderData = await getPostRenderData({
 		bucketName,

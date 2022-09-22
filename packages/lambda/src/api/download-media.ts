@@ -5,7 +5,7 @@ import {getRenderMetadata} from '../functions/helpers/get-render-metadata';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
 import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';
 import type {AwsRegion} from '../pricing/aws-regions';
-import type {CustomS3Credentials} from '../shared/aws-clients';
+import type {CustomCredentials} from '../shared/aws-clients';
 import {getAccountId} from '../shared/get-account-id';
 
 export type DownloadMediaInput = {
@@ -14,7 +14,7 @@ export type DownloadMediaInput = {
 	renderId: string;
 	outPath: string;
 	onProgress?: LambdaReadFileProgress;
-	customCredentials?: CustomS3Credentials;
+	customCredentials?: CustomCredentials;
 };
 
 export type DownloadMediaOutput = {
