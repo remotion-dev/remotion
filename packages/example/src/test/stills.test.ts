@@ -39,7 +39,6 @@ test('Can render a still using Node.JS APIs', async () => {
 	const serveUrl = `http://localhost:${port}`;
 	const fileOSRoot = path.parse(__dirname).root;
 
-	console.log('fileOSRoot', fileOSRoot);
 	expect(() =>
 		renderStill({
 			composition,
@@ -54,7 +53,7 @@ test('Can render a still using Node.JS APIs', async () => {
 	expect(() =>
 		renderStill({
 			composition,
-			output: fileOSRoot,
+			output: process.platform === 'win32' ? fileOSRoot : '/var',
 			serveUrl,
 		})
 	).rejects.toThrow(/already exists, but is not a file/);
