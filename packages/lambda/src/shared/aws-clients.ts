@@ -9,18 +9,12 @@ import {isInsideLambda} from './is-in-lambda';
 
 const _clients: Partial<
 	Record<
-		AwsRegion,
-		Record<
-			string,
-			Record<
-				string,
-				| CloudWatchLogsClient
-				| LambdaClient
-				| S3Client
-				| IAMClient
-				| ServiceQuotasClient
-			>
-		>
+		string,
+		| CloudWatchLogsClient
+		| LambdaClient
+		| S3Client
+		| IAMClient
+		| ServiceQuotasClient
 	>
 > = {};
 
@@ -51,7 +45,26 @@ const getCredentials = (): CredentialPair | undefined => {
 	return undefined;
 };
 
-const getCredentialsKey = () => JSON.stringify(getCredentials());
+const getKey = ({
+	credentials,
+	customCredentials,
+	region,
+	service,
+}: {
+	credentials: CredentialPair | null;
+	region: AwsRegion;
+	customCredentials: CustomCredentials | null;
+	service: keyof ServiceMapping;
+}) =>
+	[
+		credentials?.accessKeyId,
+		credentials?.secretAccessKey,
+		customCredentials?.accessKeyId,
+		customCredentials?.endpoint,
+		customCredentials?.secretAccessKey,
+		region,
+		service,
+	].join('-');
 
 export type ServiceMapping = {
 	s3: S3Client;
@@ -76,10 +89,6 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 	service: T;
 	customCredentials: CustomCredentials | null;
 }): ServiceMapping[T] => {
-	if (!_clients[region]) {
-		_clients[region] = {};
-	}
-
 	const Client = (() => {
 		if (service === 'cloudwatch') {
 			return CloudWatchLogsClient;
@@ -100,22 +109,22 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 		if (service === 'servicequotas') {
 			return ServiceQuotasClient;
 		}
+
+		throw new TypeError('unknown client ' + service);
 	})();
 
-	const key = getCredentialsKey();
-	// @ts-expect-error
-	if (!_clients[region][key]) {
-		// @ts-expect-error
-		_clients[region][key] = {};
-	}
+	const key = getKey({
+		credentials: getCredentials() ?? null,
+		region,
+		customCredentials,
+		service,
+	});
 
-	// @ts-expect-error
-	if (!_clients[region][key][service]) {
+	if (!_clients[key]) {
 		checkCredentials();
 
 		if (customCredentials) {
-			// @ts-expect-error
-			_clients[region][key][service] = new Client({
+			_clients[key] = new Client({
 				region,
 				credentials: {
 					accessKeyId: customCredentials.accessKeyId,
@@ -124,16 +133,14 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 				endpoint: customCredentials.endpoint,
 			});
 		} else {
-			// @ts-expect-error
-			_clients[region][key][service] = new Client({
+			_clients[key] = new Client({
 				region,
 				credentials: getCredentials(),
 			});
 		}
 	}
 
-	// @ts-expect-error
-	return _clients[region][key][service];
+	return _clients[key] as ServiceMapping[T];
 };
 
 export const getCloudWatchLogsClient = (
