@@ -10,7 +10,7 @@
 			"lib/*": ["./src/lib/*"]
 		}
 	},
-	"include": ["src"],
+	"include": ["src", "../letter.js"],
 	"references": [
 		{"path": "../core"},
 		{"path": "../media-utils"},
