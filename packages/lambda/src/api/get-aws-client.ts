@@ -31,6 +31,7 @@ export type GetAwsClientOutput<T extends keyof ServiceMapping> = {
  * @link https://remotion.dev/docs/lambda/getawsclient
  * @param {AwsRegion} params.region The region in which the S3 bucket resides in.
  * @param {string} params.service One of `iam`, `s3`, `cloudwatch`, `iam` or `servicequotas`
+ * @param {CustomCredentials} params.customCredentials Pass endpoint and credentials if you want to connect to a different cloud for S3
  * @returns {GetAwsClientOutput<T>} Returns `client` and `sdk` of a AWS service
  */
 export const getAwsClient = <T extends keyof ServiceMapping>({
