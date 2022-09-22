@@ -124,6 +124,7 @@ const innerStillHandler = async (
 		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: null,
+		customCredentials: null,
 	});
 
 	await renderStill({
@@ -144,7 +145,7 @@ const innerStillHandler = async (
 		downloadMap,
 	});
 
-	const {key, renderBucketName} = getExpectedOutName(
+	const {key, renderBucketName, customCredentials} = getExpectedOutName(
 		renderMetadata,
 		bucketName
 	);
@@ -159,6 +160,7 @@ const innerStillHandler = async (
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		downloadBehavior: lambdaParams.downloadBehavior,
+		customCredentials,
 	});
 	await fs.promises.rm(outputPath, {recursive: true});
 

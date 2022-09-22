@@ -9,7 +9,7 @@ export const createBucket = async ({
 	region: AwsRegion;
 	bucketName: string;
 }) => {
-	await getS3Client(region).send(
+	await getS3Client(region, null).send(
 		new CreateBucketCommand({
 			Bucket: bucketName,
 			ACL: 'public-read',

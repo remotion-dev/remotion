@@ -28,7 +28,7 @@ export const findOutputFileInBucket = async ({
 	const expectedOutData = getExpectedOutName(renderMetadata, bucketName);
 
 	try {
-		const head = await getS3Client(region).send(
+		const head = await getS3Client(region, null).send(
 			new HeadObjectCommand({
 				Bucket: expectedOutData.renderBucketName,
 				Key: expectedOutData.key,

@@ -11,6 +11,7 @@ import type {VideoConfig} from 'remotion';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';
+import type {CustomCredentials} from './aws-clients';
 import type {DownloadBehavior} from './content-disposition-header';
 import type {ExpensiveChunk} from './get-most-expensive-chunks';
 import type {LambdaArchitecture} from './validate-architecture';
@@ -128,11 +129,13 @@ export type OutNameInput =
 	| {
 			bucketName: string;
 			key: string;
+			customS3Implementation?: CustomCredentials;
 	  };
 
 export type OutNameOutput = {
 	renderBucketName: string;
 	key: string;
+	customCredentials: CustomCredentials | null;
 };
 
 export const optimizationProfile = (siteId: string, compositionId: string) =>
@@ -151,10 +154,15 @@ export const customOutName = (
 		return {
 			renderBucketName: bucketName,
 			key: `${rendersPrefix(renderId)}/${name}`,
+			customCredentials: null,
 		};
 	}
 
-	return {key: name.key, renderBucketName: name.bucketName};
+	return {
+		key: name.key,
+		renderBucketName: name.bucketName,
+		customCredentials: name.customS3Implementation ?? null,
+	};
 };
 
 export const postRenderDataKey = (renderId: string) => {

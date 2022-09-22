@@ -250,6 +250,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: null,
+		customCredentials: null,
 	});
 
 	await Promise.all(
@@ -294,6 +295,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			privacy: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
 			downloadBehavior: null,
+			customCredentials: null,
 		}).catch((err) => {
 			writeLambdaError({
 				bucketName: params.bucketName,
@@ -336,7 +338,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		encodingStop = Date.now();
 	}
 
-	const {key, renderBucketName} = getExpectedOutName(
+	const {key, renderBucketName, customCredentials} = getExpectedOutName(
 		renderMetadata,
 		params.bucketName
 	);
@@ -351,6 +353,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		privacy: params.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: params.downloadBehavior,
+		customCredentials,
 	});
 
 	let chunkProm: Promise<unknown> = Promise.resolve();
@@ -420,6 +423,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: null,
+		customCredentials: null,
 	});
 
 	const errorExplanationsProm = inspectErrors({

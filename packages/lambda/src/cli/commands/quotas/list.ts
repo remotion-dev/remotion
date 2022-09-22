@@ -21,25 +21,25 @@ export const quotasListCommand = async () => {
 	Log.info();
 	const [concurrencyLimit, defaultConcurrencyLimit, burstLimit, changes] =
 		await Promise.all([
-			getServiceQuotasClient(region).send(
+			getServiceQuotasClient(region, null).send(
 				new GetServiceQuotaCommand({
 					QuotaCode: LAMBDA_CONCURRENCY_LIMIT_QUOTA,
 					ServiceCode: 'lambda',
 				})
 			),
-			getServiceQuotasClient(region).send(
+			getServiceQuotasClient(region, null).send(
 				new GetAWSDefaultServiceQuotaCommand({
 					QuotaCode: LAMBDA_CONCURRENCY_LIMIT_QUOTA,
 					ServiceCode: 'lambda',
 				})
 			),
-			getServiceQuotasClient(region).send(
+			getServiceQuotasClient(region, null).send(
 				new GetAWSDefaultServiceQuotaCommand({
 					QuotaCode: LAMBDA_BURST_LIMIT_QUOTA,
 					ServiceCode: 'lambda',
 				})
 			),
-			getServiceQuotasClient(region).send(
+			getServiceQuotasClient(region, null).send(
 				new ListRequestedServiceQuotaChangeHistoryByQuotaCommand({
 					QuotaCode: LAMBDA_CONCURRENCY_LIMIT_QUOTA,
 					ServiceCode: 'lambda',
