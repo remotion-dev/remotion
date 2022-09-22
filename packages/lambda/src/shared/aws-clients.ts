@@ -179,12 +179,11 @@ export const getIamClient = (region: AwsRegion): IAMClient => {
 };
 
 export const getServiceQuotasClient = (
-	region: AwsRegion,
-	customCredentials: CustomCredentials | null
+	region: AwsRegion
 ): ServiceQuotasClient => {
 	return getServiceClient({
 		region,
 		service: 'servicequotas',
-		customCredentials,
+		customCredentials: null,
 	});
 };
