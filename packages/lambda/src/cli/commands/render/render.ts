@@ -101,7 +101,15 @@ export const renderCommand = async (args: string[]) => {
 		privacy,
 		logLevel,
 		frameRange: frameRange ?? undefined,
-		outName: parsedLambdaCli['out-name'],
+		outName: {
+			bucketName: 'remotion-lambda-target',
+			key: 'out-file.mp4',
+			customS3Implementation: {
+				endpoint: 'https://fra1.digitaloceanspaces.com',
+				accessKeyId: process.env.SPACES_ACCESS_KEY as string,
+				secretAccessKey: process.env.SPACES_ACCESS_SECRET as string,
+			},
+		},
 		timeoutInMilliseconds: puppeteerTimeout,
 		chromiumOptions,
 		scale,

@@ -40,6 +40,7 @@ import {cleanupFiles} from './helpers/delete-chunks';
 import {getExpectedOutName} from './helpers/expected-out-name';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
+import {getCustomOutName} from './helpers/get-custom-out-name';
 import {getFilesToDelete} from './helpers/get-files-to-delete';
 import {getLambdasInvokedStats} from './helpers/get-lambdas-invoked-stats';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
@@ -240,6 +241,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
 		outName: params.outName ?? undefined,
+		privacy: params.privacy,
 	};
 
 	await lambdaWriteFile({
@@ -340,7 +342,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
 		renderMetadata,
-		params.bucketName
+		params.bucketName,
+		params.outName
 	);
 
 	const outputSize = fs.statSync(outfile);
@@ -459,7 +462,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		outputFile: {
 			lastModified: Date.now(),
 			size: outputSize.size,
-			url: getOutputUrlFromMetadata(renderMetadata, params.bucketName),
+			url: getOutputUrlFromMetadata(
+				renderMetadata,
+				params.bucketName,
+				getCustomOutName({renderMetadata, customCredentials})
+			),
 		},
 	});
 	await finalEncodingProgressProm;

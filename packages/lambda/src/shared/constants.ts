@@ -11,7 +11,10 @@ import type {VideoConfig} from 'remotion';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';
-import type {CustomCredentials} from './aws-clients';
+import type {
+	CustomCredentials,
+	CustomCredentialsWithoutSensitiveData,
+} from './aws-clients';
 import type {DownloadBehavior} from './content-disposition-header';
 import type {ExpensiveChunk} from './get-most-expensive-chunks';
 import type {LambdaArchitecture} from './validate-architecture';
@@ -132,6 +135,14 @@ export type OutNameInput =
 			customS3Implementation?: CustomCredentials;
 	  };
 
+export type OutNameInputWithoutCredentials =
+	| string
+	| {
+			bucketName: string;
+			key: string;
+			customS3Implementation?: CustomCredentialsWithoutSensitiveData;
+	  };
+
 export type OutNameOutput = {
 	renderBucketName: string;
 	key: string;
@@ -249,6 +260,7 @@ export type LambdaPayloads = {
 		bucketName: string;
 		renderId: string;
 		version: string;
+		customS3Implementation?: CustomCredentials;
 	};
 	renderer: {
 		concurrencyPerLambda: number;
@@ -330,7 +342,8 @@ export type RenderMetadata = {
 	lambdaVersion: string;
 	region: AwsRegion;
 	renderId: string;
-	outName: OutNameInput | undefined;
+	outName: OutNameInputWithoutCredentials | undefined;
+	privacy: Privacy;
 };
 
 export type PostRenderData = {
