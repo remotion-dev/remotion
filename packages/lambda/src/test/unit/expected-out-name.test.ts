@@ -34,6 +34,7 @@ const testRenderMetadata: RenderMetadata = {
 
 test('Should get a custom outname', () => {
 	expect(getExpectedOutName(testRenderMetadata, bucketName)).toEqual({
+		customCredentials: null,
 		renderBucketName: 'remotionlambda-98fsduf',
 		key: 'renders/9n8dsfafs/out.mp4',
 	});
@@ -48,6 +49,7 @@ test('Should save to a different outname', () => {
 		},
 	};
 	expect(getExpectedOutName(newRenderMetadata, bucketName)).toEqual({
+		customCredentials: null,
 		renderBucketName: 'my-bucket',
 		key: 'my-key',
 	});
@@ -59,6 +61,7 @@ test('For stills', () => {
 		type: 'still',
 	};
 	expect(getExpectedOutName(newRenderMetadata, bucketName)).toEqual({
+		customCredentials: null,
 		renderBucketName: 'remotionlambda-98fsduf',
 		key: 'renders/9n8dsfafs/out.png',
 	});
@@ -70,6 +73,7 @@ test('Just a custom name', () => {
 		outName: 'justaname.jpeg',
 	};
 	expect(getExpectedOutName(newRenderMetadata, bucketName)).toEqual({
+		customCredentials: null,
 		renderBucketName: 'remotionlambda-98fsduf',
 		key: 'renders/9n8dsfafs/justaname.jpeg',
 	});
@@ -82,6 +86,7 @@ test('Should throw on invalid names', () => {
 	};
 	expectToThrow(() => {
 		expect(getExpectedOutName(newRenderMetadata, bucketName)).toEqual({
+			customCredentials: null,
 			renderBucketName: 'remotionlambda-98fsduf',
 			key: 'renders/9n8dsfafs/justaname.jpeg',
 		});
@@ -93,6 +98,7 @@ test('Should allow outName an outname with a slash', () => {
 		outName: 'justa/name.jpeg',
 	};
 	expect(getExpectedOutName(newRenderMetadata, bucketName)).toEqual({
+		customCredentials: null,
 		key: 'renders/9n8dsfafs/justa/name.jpeg',
 		renderBucketName: 'remotionlambda-98fsduf',
 	});
