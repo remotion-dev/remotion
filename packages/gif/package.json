@@ -21,6 +21,7 @@
 		"watch": "tsc -w"
 	},
 	"dependencies": {
+		"gifuct-js": "2.1.2",
 		"lru_map": "0.4.1",
 		"remotion": "3.2.22"
 	},
@@ -30,7 +31,6 @@
 		"@types/react": "18.0.1",
 		"@types/react-dom": "18.0.0",
 		"eslint": "8.13.0",
-		"gifuct-js": "2.1.2",
 		"jest": "^27.2.4",
 		"prettier": "2.6.2",
 		"prettier-plugin-organize-imports": "^2.3.4",
