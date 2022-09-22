@@ -51,11 +51,19 @@ Where the video should be saved. Pass an absolute path, or it will be resolved r
 
 ### `onProgress`
 
+_optional_
+
 Callback function that gets called with the following properties:
 
 - `totalSize` in bytes
 - `downloaded` number of bytes downloaded
 - `percent` relative progress between 0 and 1
+
+### `customCredentials`
+
+_optional, available from v3.2.23_
+
+If the render was saved to a [different cloud](/docs/lambda/custom-destination#saving-to-another-cloud), pass an object with the same `endpoint`, `accessKeyId` and `secretAccessKey` as you passed to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#outname) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#outname).
 
 ## Return value
 
