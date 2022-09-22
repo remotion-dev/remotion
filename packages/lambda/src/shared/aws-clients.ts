@@ -74,10 +74,13 @@ export type ServiceMapping = {
 	servicequotas: ServiceQuotasClient;
 };
 
-export type CustomCredentials = {
-	accessKeyId: string;
-	secretAccessKey: string;
+export type CustomCredentialsWithoutSensitiveData = {
 	endpoint: string;
+};
+
+export type CustomCredentials = CustomCredentialsWithoutSensitiveData & {
+	accessKeyId: string | null;
+	secretAccessKey: string | null;
 };
 
 export const getServiceClient = <T extends keyof ServiceMapping>({
@@ -125,11 +128,14 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 
 		if (customCredentials) {
 			_clients[key] = new Client({
-				region,
-				credentials: {
-					accessKeyId: customCredentials.accessKeyId,
-					secretAccessKey: customCredentials.secretAccessKey,
-				},
+				region: 'us-east-1',
+				credentials:
+					customCredentials.accessKeyId && customCredentials.secretAccessKey
+						? {
+								accessKeyId: customCredentials.accessKeyId,
+								secretAccessKey: customCredentials.secretAccessKey,
+						  }
+						: undefined,
 				endpoint: customCredentials.endpoint,
 			});
 		} else {

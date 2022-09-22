@@ -1,5 +1,6 @@
 import {Internals} from 'remotion';
 import type {AwsRegion} from '../../pricing/aws-regions';
+import type {CustomCredentials} from '../../shared/aws-clients';
 import type {RenderProgress} from '../../shared/constants';
 import {
 	chunkKey,
@@ -18,6 +19,7 @@ import {formatCostsInfo} from './format-costs-info';
 import {getCleanupProgress} from './get-cleanup-progress';
 import {getCurrentArchitecture} from './get-current-architecture';
 import {getCurrentRegionInFunction} from './get-current-region';
+import {getCustomOutName} from './get-custom-out-name';
 import {getEncodingMetadata} from './get-encoding-metadata';
 import {getFinalEncodingStatus} from './get-final-encoding-status';
 import {getLambdasInvokedStats} from './get-lambdas-invoked-stats';
@@ -37,6 +39,7 @@ export const getProgress = async ({
 	region,
 	memorySizeInMb,
 	timeoutInMiliseconds,
+	customCredentials,
 }: {
 	bucketName: string;
 	renderId: string;
@@ -44,6 +47,7 @@ export const getProgress = async ({
 	region: AwsRegion;
 	memorySizeInMb: number;
 	timeoutInMiliseconds: number;
+	customCredentials: CustomCredentials | null;
 }): Promise<RenderProgress> => {
 	const postRenderData = await getPostRenderData({
 		bucketName,
@@ -55,7 +59,11 @@ export const getProgress = async ({
 	if (postRenderData) {
 		const outData = getExpectedOutName(
 			postRenderData.renderMetadata,
-			bucketName
+			bucketName,
+			getCustomOutName({
+				customCredentials,
+				renderMetadata: postRenderData.renderMetadata,
+			})
 		);
 		return {
 			bucket: bucketName,
@@ -156,6 +164,8 @@ export const getProgress = async ({
 				bucketName,
 				renderMetadata,
 				region,
+				customCredentials,
+				outNameValue: getCustomOutName({customCredentials, renderMetadata}),
 		  })
 		: null;
 
@@ -281,11 +291,19 @@ export const getProgress = async ({
 		retriesInfo,
 		outKey:
 			outputFile && renderMetadata
-				? getExpectedOutName(renderMetadata, bucketName).key
+				? getExpectedOutName(
+						renderMetadata,
+						bucketName,
+						getCustomOutName({customCredentials, renderMetadata})
+				  ).key
 				: null,
 		outBucket:
 			outputFile && renderMetadata
-				? getExpectedOutName(renderMetadata, bucketName).renderBucketName
+				? getExpectedOutName(
+						renderMetadata,
+						bucketName,
+						getCustomOutName({customCredentials, renderMetadata})
+				  ).renderBucketName
 				: null,
 		mostExpensiveFrameRanges: null,
 	};

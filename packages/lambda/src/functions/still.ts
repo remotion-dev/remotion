@@ -27,6 +27,7 @@ import {formatCostsInfo} from './helpers/format-costs-info';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentArchitecture} from './helpers/get-current-architecture';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
+import {getCustomOutName} from './helpers/get-custom-out-name';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {lambdaWriteFile} from './helpers/io';
 import {validateComposition} from './helpers/validate-composition';
@@ -114,6 +115,7 @@ const innerStillHandler = async (
 		region: getCurrentRegionInFunction(),
 		renderId,
 		outName: lambdaParams.outName ?? undefined,
+		privacy: lambdaParams.privacy,
 	};
 
 	await lambdaWriteFile({
@@ -147,7 +149,8 @@ const innerStillHandler = async (
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
 		renderMetadata,
-		bucketName
+		bucketName,
+		lambdaParams.outName
 	);
 
 	const {size} = await fs.promises.stat(outputPath);
@@ -176,7 +179,11 @@ const innerStillHandler = async (
 	});
 
 	return {
-		output: getOutputUrlFromMetadata(renderMetadata, bucketName),
+		output: getOutputUrlFromMetadata(
+			renderMetadata,
+			bucketName,
+			getCustomOutName({customCredentials, renderMetadata})
+		),
 		size,
 		bucketName,
 		estimatedPrice: formatCostsInfo(estimatedPrice),
