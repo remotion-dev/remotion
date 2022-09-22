@@ -482,6 +482,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		bucketName: params.bucketName,
 		key: initalizedMetadataKey(params.renderId),
 		region: getCurrentRegionInFunction(),
+		customCredentials: null,
 	});
 
 	await Promise.all([cleanupChunksProm, fs.promises.rm(outfile)]);
