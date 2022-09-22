@@ -9,7 +9,7 @@ import type {ReadStream} from 'fs';
 import mimeTypes from 'mime-types';
 import type {Readable} from 'stream';
 import type {AwsRegion} from '../../pricing/aws-regions';
-import type {CustomS3Credentials} from '../../shared/aws-clients';
+import type {CustomCredentials} from '../../shared/aws-clients';
 import {getS3Client} from '../../shared/aws-clients';
 import type {Privacy} from '../../shared/constants';
 import type {DownloadBehavior} from '../../shared/content-disposition-header';
@@ -110,7 +110,7 @@ export const lambdaWriteFile = async ({
 	privacy: Privacy;
 	expectedBucketOwner: string | null;
 	downloadBehavior: DownloadBehavior | null;
-	customCredentials: CustomS3Credentials | null;
+	customCredentials: CustomCredentials | null;
 }): Promise<void> => {
 	await getS3Client(region, customCredentials).send(
 		new PutObjectCommand({

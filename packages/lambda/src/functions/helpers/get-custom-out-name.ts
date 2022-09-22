@@ -1,12 +1,12 @@
 import type {OutNameInput, RenderMetadata} from '../../defaults';
-import type {CustomS3Credentials} from '../../shared/aws-clients';
+import type {CustomCredentials} from '../../shared/aws-clients';
 
 export const getCustomOutName = ({
 	renderMetadata,
 	customCredentials,
 }: {
 	renderMetadata: RenderMetadata;
-	customCredentials: CustomS3Credentials | null;
+	customCredentials: CustomCredentials | null;
 }): OutNameInput | null => {
 	if (!renderMetadata.outName) {
 		return null;

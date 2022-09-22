@@ -1,7 +1,7 @@
 import {HeadObjectCommand} from '@aws-sdk/client-s3';
 import type {AwsRegion} from '../..';
 import {ROLE_NAME} from '../../api/iam-validation/suggested-policy';
-import type {CustomS3Credentials} from '../../shared/aws-clients';
+import type {CustomCredentials} from '../../shared/aws-clients';
 import {getS3Client} from '../../shared/aws-clients';
 import type {RenderMetadata} from '../../shared/constants';
 import {getExpectedOutName} from './expected-out-name';
@@ -22,7 +22,7 @@ export const findOutputFileInBucket = async ({
 	region: AwsRegion;
 	renderMetadata: RenderMetadata;
 	bucketName: string;
-	customCredentials: CustomS3Credentials | null;
+	customCredentials: CustomCredentials | null;
 }): Promise<OutputFileMetadata | null> => {
 	if (!renderMetadata) {
 		throw new Error('unexpectedly did not get renderMetadata');

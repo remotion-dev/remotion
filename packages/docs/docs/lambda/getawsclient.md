@@ -78,7 +78,7 @@ One of `lambda`, `cloudwatch`, `iam`, `servicequotas` and `s3`.
 
 _available from v3.2.23_
 
-Allows you to connect to another cloud provider, useful if you [render your output to a different cloud](/docs/lambda/custom-destination).
+Allows you to connect to another cloud provider, useful if you [render your output to a different cloud](/docs/lambda/custom-destination). The value must satisfy the following type:
 
 ```ts
 type CustomCredentials = {

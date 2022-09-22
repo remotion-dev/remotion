@@ -58,7 +58,7 @@ import {renderStillOnLambda} from './api/render-still-on-lambda';
 import type {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
 import {LambdaInternals} from './internals';
 import type {AwsRegion} from './pricing/aws-regions';
-import type {CustomS3Credentials} from './shared/aws-clients';
+import type {CustomCredentials} from './shared/aws-clients';
 import type {RenderProgress} from './shared/constants';
 import type {LambdaArchitecture} from './shared/validate-architecture';
 
@@ -118,5 +118,5 @@ export type {
 	GetAwsClientInput,
 	GetAwsClientOutput,
 	LambdaArchitecture,
-	CustomS3Credentials,
+	CustomCredentials,
 };
