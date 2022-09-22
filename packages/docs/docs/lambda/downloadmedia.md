@@ -39,7 +39,7 @@ The [AWS region](/docs/lambda/region-selection) in which the render has performe
 
 ### `bucketName`
 
-The bucket name in which you the render was stored. This should be the same variable you used for `renderMediaOnLambda()`.
+The bucket name in which the render was stored. This should be the same variable you used for [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda).
 
 ### `renderId`
 
