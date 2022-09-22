@@ -75,6 +75,6 @@ export const deleteRender = async (input: DeleteRenderInput) => {
 	}
 
 	return {
-		totalSizeInBytes: totalSize,
+		freedBytes: totalSize,
 	};
 };

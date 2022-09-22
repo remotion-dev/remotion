@@ -11,13 +11,13 @@ Deletes a rendered video, audio or still and it's associated metada.
 // @target: ESNext
 import { deleteRender } from "@remotion/lambda";
 
-const { sizeInBytes } = await deleteRender({
+const { freedBytes } = await deleteRender({
   bucketName: "remotionlambda-r42fs9fk",
   region: "us-east-1",
   renderId: "8hfxlw",
 });
 
-console.log(sizeInBytes); // 21249541
+console.log(freedBytes); // 21249541
 ```
 
 ## Arguments
@@ -46,7 +46,7 @@ If the render was saved to a [different cloud](/docs/lambda/custom-destination#s
 
 Returns a promise resolving to an object with the following properties:
 
-### `sizeInBytes`
+### `freedBytes`
 
 The amount of bytes that were removed from the S3 bucket.
 
