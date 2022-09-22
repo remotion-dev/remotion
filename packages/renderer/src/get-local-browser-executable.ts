@@ -20,10 +20,10 @@ const getSearchPathsForProduct = (product: Product) => {
 				? '/app/.apt/usr/bin/google-chrome-stable'
 				: null,
 			process.platform === 'win32'
-				? 'C:\\Program Files\\Google\\Chrome\\Application\\testchrome.exe'
+				? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 				: null,
 			process.platform === 'win32'
-				? 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\testchrome.exe'
+				? 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
 				: null,
 		].filter(Boolean) as string[];
 	}
