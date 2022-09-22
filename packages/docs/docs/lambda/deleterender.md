@@ -1,31 +1,22 @@
 ---
-id: downloadmedia
-title: downloadMedia()
-slug: /lambda/downloadmedia
+id: deleterender
+title: deleteRender()
+slug: /lambda/deleterender
 ---
 
-Downloads a rendered video, audio or still to your local disk.
+Deletes a rendered video, audio or still and it's associated metada.
 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import { downloadMedia } from "@remotion/lambda";
+import { deleteRender } from "@remotion/lambda";
 
-const { outputPath, sizeInBytes } = await downloadMedia({
+const { sizeInBytes } = await deleteRender({
   bucketName: "remotionlambda-r42fs9fk",
   region: "us-east-1",
   renderId: "8hfxlw",
-  outPath: "out.mp4",
-  onProgress: ({ totalSize, downloaded, percent }) => {
-    console.log(
-      `Download progress: ${totalSize}/${downloaded} bytes (${(
-        percent * 100
-      ).toFixed(0)}%)`
-    );
-  },
 });
 
-console.log(outputPath); // "/Users/yourname/remotion-project/out.mp4"
 console.log(sizeInBytes); // 21249541
 ```
 
@@ -45,20 +36,6 @@ The bucket name in which the render was stored. This should be the same variable
 
 The ID of the render. You can retrieve this ID by calling [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda).
 
-### `outPath`
-
-Where the video should be saved. Pass an absolute path, or it will be resolved relative to your current working directory.
-
-### `onProgress`
-
-_optional_
-
-Callback function that gets called with the following properties:
-
-- `totalSize` in bytes
-- `downloaded` number of bytes downloaded
-- `percent` relative progress between 0 and 1
-
 ### `customCredentials`
 
 _optional, available from v3.2.23_
@@ -69,16 +46,10 @@ If the render was saved to a [different cloud](/docs/lambda/custom-destination#s
 
 Returns a promise resolving to an object with the following properties:
 
-### `outputPath`
-
-The absolute path of where the file got saved.
-
 ### `sizeInBytes`
 
-The size of the file in bytes.
+The amount of bytes that were removed from the S3 bucket.
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/download-media.ts)
-- [renderMediaOnLambda()](/docs/lambda/rendermediaonlambda)
-- [renderStillOnLambda()](/docs/lambda/renderstillonlambda)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/delete-render.ts)
