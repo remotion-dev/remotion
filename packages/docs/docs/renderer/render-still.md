@@ -131,7 +131,7 @@ A string defining the absolute path on disk of the browser executable that shoul
 
 _optional, available from v2.6.3_
 
-A number describing how long the render may take to resolve all `delayRender()` calls before it times out. Default: `30000`
+A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
 ### `cancelSignal?`
 

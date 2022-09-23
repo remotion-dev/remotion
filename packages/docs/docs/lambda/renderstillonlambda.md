@@ -116,7 +116,7 @@ It can either be:
 
 ### `timeoutInMilliseconds?`
 
-A number describing how long the render may take to resolve all `delayRender()` calls before it times out. Default: `30000`
+A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
 ### `downloadBehavior`
 

@@ -37,7 +37,7 @@ export const getProgress = async ({
 	expectedBucketOwner,
 	region,
 	memorySizeInMb,
-	timeoutInMiliseconds,
+	timeoutInMilliseconds,
 	customCredentials,
 }: {
 	bucketName: string;
@@ -45,7 +45,7 @@ export const getProgress = async ({
 	expectedBucketOwner: string;
 	region: AwsRegion;
 	memorySizeInMb: number;
-	timeoutInMiliseconds: number;
+	timeoutInMilliseconds: number;
 	customCredentials: CustomCredentials | null;
 }): Promise<RenderProgress> => {
 	const postRenderData = await getPostRenderData({
@@ -224,14 +224,14 @@ export const getProgress = async ({
 	// We add a 20 second buffer for it, since AWS timeshifts can be quite a lot. Once it's 20sec over the limit, we consider it timed out
 	const isBeyondTimeout =
 		renderMetadata &&
-		Date.now() > renderMetadata.startedDate + timeoutInMiliseconds + 20000;
+		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds + 20000;
 
 	const allErrors: EnhancedErrorInfo[] = [
 		isBeyondTimeout
 			? ({
 					attempt: 1,
 					chunk: null,
-					explanation: `The main function timed out after ${timeoutInMiliseconds}ms. Consider increasing the timeout of your function. You can use the "--timeout" parameter when deploying a function via CLI, or the "timeoutInSeconds" parameter when using the deployFunction API. ${DOCS_URL}/docs/lambda/cli/functions#deploy`,
+					explanation: `The main function timed out after ${timeoutInMilliseconds}ms. Consider increasing the timeout of your function. You can use the "--timeout" parameter when deploying a function via CLI, or the "timeoutInSeconds" parameter when using the deployFunction API. ${DOCS_URL}/docs/lambda/cli/functions#deploy`,
 					frame: null,
 					isFatal: true,
 					s3Location: '',
