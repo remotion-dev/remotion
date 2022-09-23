@@ -96,7 +96,7 @@ test("should render correct frames from embedded videos - MP4 onthread", async (
   expect(missedFrames).toBeLessThanOrEqual(1);
 });
 
-test.only("should render correct frames from embedded videos - MP4 offthread", async () => {
+test("should render correct frames from embedded videos - MP4 offthread", async () => {
   const missedFrames = await getMissedFramesforCodec("mp4", true);
   expect(missedFrames).toBe(0);
 });
