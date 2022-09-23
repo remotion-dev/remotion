@@ -3,16 +3,43 @@ id: api
 title: "<Player>"
 ---
 
-## `<Player />`
+A component which can be rendered in a regular React App (for example: [Create React App](https://create-react-app.dev/), [Next.JS](https://nextjs.org)) to display a Remotion video.
 
-A React component which takes the following props:
+```tsx twoslash title="MyApp.tsx"
+// @allowUmdGlobalAccess
+// @filename: ./remotion/MyVideo.tsx
+export const MyVideo = () => <></>;
+
+// @filename: index.tsx
+// ---cut---
+import { Player } from "@remotion/player";
+import { MyVideo } from "./remotion/MyVideo";
+
+export const App: React.FC = () => {
+  return (
+    <Player
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+    />
+  );
+};
+```
+
+[See more usage examples](/docs/player/examples)
+
+## API
 
 ### `component` or `lazyComponent`
 
 Pass a React component in directly **or** pass a function that returns a dynamic import. Passing neither or both of the props is an error.
 
+If you use `lazyComponent`, wrap it in a `useCallback()` to avoid constant rendering. [See here for an example.](/docs/player/examples#loading-a-component-lazily)
+
 :::note
-Pass the same React component that you would pass to a `<Composition>`. **Don't** pass in a `<Composition>` or a component returning `<Composition>`
+The Player does not use [`<Composition>`](/docs/composition)'s. Pass your component directly and do not wrap it in a `<Composition>` component.
 :::
 
 ### `durationInFrames`
@@ -178,7 +205,7 @@ const MyApp: React.FC = () => {
 ```
 
 :::info
-A player needs to be loaded if it contains elements that use React Suspense, or if the `lazyComponent` props is being used.
+A player needs to be loaded if it contains elements that use React Suspense, or if the `lazyComponent` prop is being used.
 :::
 
 ### `renderPoster`
