@@ -83,7 +83,7 @@ _Available from v3.2.13_
 
 ### `--timeout`
 
-Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before it times out in milliseconds. Default: `30000`.
+Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout) in milliseconds. Default: `30000`.
 
 :::info
 Not to be confused with the [`--timeout` flag when deploying a Lambda function](/docs/lambda/cli/functions#--timeout).
