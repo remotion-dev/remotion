@@ -9,6 +9,22 @@ By calling `prefetch()`, an asset will be fetched and turned into a Blob URL usi
 
 If you pass the original URL into either an [`<Audio>`](/docs/audio), [`<Video>`](/docs/video), [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Img>`](/docs/img) tag and the asset is fully fetched, those components will use Blob URL instead.
 
+:::note
+Remote assets need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
+
+<details>
+<summary>More info</summary>
+<ul>
+<li>
+Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
+</li>
+<li>
+You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
+</li>
+</ul>
+</details>
+:::
+
 ```tsx twoslash
 import { prefetch } from "remotion";
 
