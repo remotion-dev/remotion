@@ -109,16 +109,6 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 		proResProfileName ? ['-profile:v', proResProfileName] : null,
 		supportsCrf ? ['-crf', String(crf)] : null,
 		['-pix_fmt', 'yuv444p'],
-		[
-			'-color_range',
-			'1',
-			'-colorspace',
-			'1',
-			'-color_primaries',
-			'1',
-			'-color_trc',
-			'1',
-		],
 		['-x264-params', 'eyint=15:no-deblock=1'],
 		// Without explicitly disabling auto-alt-ref,
 		// transparent WebM generation doesn't work
