@@ -340,6 +340,7 @@ export const spawnFfmpeg = async (
 					proResProfileName ? ['-profile:v', proResProfileName] : null,
 					supportsCrf ? ['-crf', String(crf)] : null,
 					['-pix_fmt', pixelFormat],
+
 					// Without explicitly disabling auto-alt-ref,
 					// transparent WebM generation doesn't work
 					pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
