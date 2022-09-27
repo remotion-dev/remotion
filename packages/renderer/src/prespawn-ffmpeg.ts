@@ -108,8 +108,6 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 		['-c:v', encoderName],
 		proResProfileName ? ['-profile:v', proResProfileName] : null,
 		supportsCrf ? ['-crf', String(crf)] : null,
-		['-pix_fmt', 'yuv444p'],
-		['-x264-params', 'eyint=15:no-deblock=1'],
 		// Without explicitly disabling auto-alt-ref,
 		// transparent WebM generation doesn't work
 		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
