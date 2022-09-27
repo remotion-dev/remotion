@@ -422,6 +422,14 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={180 * 30}
 				/>
+				<Composition
+					id="loop-audio"
+					lazyComponent={() => import('./LoopAudio')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={180 * 30}
+				/>
 			</Folder>
 			<Folder name="three">
 				<Still id="Orb" component={OrbScene} width={2000} height={2000} />
