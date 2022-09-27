@@ -53,6 +53,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 				})
 				.catch((err) => {
 					if (aborted) {
+						continueRender(newHandle);
 						return;
 					}
 

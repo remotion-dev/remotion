@@ -28,7 +28,7 @@
 		"react-refresh": "0.9.0",
 		"remotion": "3.2.23",
 		"style-loader": "2.0.0",
-		"webpack": "5.72.0"
+		"webpack": "5.74.0"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",

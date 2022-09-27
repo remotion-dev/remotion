@@ -28,7 +28,7 @@
 		"@webhotelier/webpack-fast-refresh": "5.1.0",
 		"babel-loader": "8.2.2",
 		"react-refresh": "0.9.0",
-		"webpack": "5.72.0"
+		"webpack": "5.74.0"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
