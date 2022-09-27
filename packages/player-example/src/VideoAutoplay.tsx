@@ -1,4 +1,5 @@
 import {preloadAudio, preloadVideo} from '@remotion/preload';
+import {Gif} from '@remotion/gif';
 import {AbsoluteFill, Audio, Sequence, Series, staticFile} from 'remotion';
 
 preloadVideo(
@@ -14,6 +15,7 @@ export const VideoautoplayDemo = () => {
 				backgroundColor: 'red',
 			}}
 		>
+
 			<Sequence from={20}>
 				<Audio src={staticFile('sample.mp3')} volume={0.2} />
 			</Sequence>
@@ -22,6 +24,15 @@ export const VideoautoplayDemo = () => {
 					<AbsoluteFill />
 				</Series.Sequence>
 			</Series>
+			<AbsoluteFill>
+			<Gif
+					src="https://media.giphy.com/media/xT0GqH01ZyKwd3aT3G/giphy.gif"
+					fit="cover"
+					height={200}
+					width={200}
+				/>
+
+			</AbsoluteFill>
 		</AbsoluteFill>
 	);
 };
