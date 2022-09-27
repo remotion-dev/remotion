@@ -17,10 +17,8 @@ export const VideoTesting: React.FC<{
 	const Comp = offthread ? OffthreadVideo : Video;
 
 	return (
-		<div>
-			<Sequence from={0} durationInFrames={durationInFrames}>
-				<Comp src={codec === 'mp4' ? videoMp4 : videoWebm} />
-			</Sequence>
-		</div>
+		<Sequence from={0} durationInFrames={durationInFrames}>
+			<Comp src={codec === 'mp4' ? videoMp4 : videoWebm} />
+		</Sequence>
 	);
 };

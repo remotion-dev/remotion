@@ -59,9 +59,9 @@ const getMissedFramesforCodec = async () => {
     const img = await sharp(filename).raw().toBuffer();
 
     const actualColor = {
-      red: img.readUInt8(0),
-      green: img.readUInt8(1),
-      blue: img.readUInt8(2),
+      red: img.readUInt8(1080 * 3 * 20 + 540 * 3 + 0),
+      green: img.readUInt8(1080 * 3 * 20 + 540 * 3 + 1),
+      blue: img.readUInt8(1080 * 3 * 20 + 540 * 3 + 2),
     };
 
     const colorDistance = {
@@ -86,7 +86,7 @@ const getMissedFramesforCodec = async () => {
   return missedFrames;
 };
 
-test("should render correct frames from embedded videos - MP4 offthread", async () => {
+test("should render correct frames from embedded videos to an MP4 - MP4 offthread", async () => {
   const missedFrames = await getMissedFramesforCodec();
   expect(missedFrames).toBe(0);
 });
