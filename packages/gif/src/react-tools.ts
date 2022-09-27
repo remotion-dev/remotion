@@ -13,12 +13,8 @@ export const parseGif = async ({
 	return generate(raw);
 };
 
-let worker: Worker | null = null;
-
 export const parseWithWorker = (src: string) => {
-	if (!worker) {
-		worker = makeWorker();
-	}
+	const worker = makeWorker();
 
 	let handler: ((e: MessageEvent) => void) | null = null;
 
@@ -50,6 +46,7 @@ export const parseWithWorker = (src: string) => {
 				'message',
 				handler as (e: MessageEvent) => void
 			);
+			worker.terminate();
 		},
 	};
 };
