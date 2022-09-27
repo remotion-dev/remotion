@@ -438,6 +438,12 @@ Requests the video to go to fullscreen. This method throws if the `allowFullscre
 
 Exit fullscreen mode.
 
+### `getScale()`
+
+_available since v3.2.24_
+
+Returns a number which says how much the content is scaled down compared to the natural composition size. For example, if the composition is `1920x1080`, but the player is 960px in width, this method would return `0.5`.
+
 ### `addEventListener()`
 
 Start listening to an event. See the [Events](#events) section to see the function signature and the available events.
