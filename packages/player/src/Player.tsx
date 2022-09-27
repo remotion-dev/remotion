@@ -67,6 +67,7 @@ export type PlayerProps<T> = {
 	showPosterWhenUnplayed?: boolean;
 	inFrame?: number | null;
 	outFrame?: number | null;
+	initiallyShowControls?: number | boolean;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -109,6 +110,7 @@ export const PlayerFn = <T,>(
 		renderPoster,
 		inFrame,
 		outFrame,
+		initiallyShowControls,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -428,6 +430,7 @@ export const PlayerFn = <T,>(
 												renderPoster={renderPoster}
 												inFrame={inFrame ?? null}
 												outFrame={outFrame ?? null}
+												initiallyShowControls={initiallyShowControls ?? true}
 											/>
 										</Internals.PrefetchProvider>
 									</PlayerEventEmitterContext.Provider>
