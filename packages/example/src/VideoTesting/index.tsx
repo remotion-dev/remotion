@@ -18,7 +18,7 @@ export const VideoTesting: React.FC<{
 
 	return (
 		<Sequence from={0} durationInFrames={durationInFrames}>
-			<Comp src={codec === 'mp4' ? videoMp4 : videoWebm} />
+			<Comp imageFormat="png" src={codec === 'mp4' ? videoMp4 : videoWebm} />
 		</Sequence>
 	);
 };
