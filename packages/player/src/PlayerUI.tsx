@@ -67,6 +67,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenUnplayed: boolean;
 		inFrame: number | null;
 		outFrame: number | null;
+		initiallyShowControls: number | boolean;
 	}
 > = (
 	{
@@ -95,6 +96,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenPaused,
 		inFrame,
 		outFrame,
+		initiallyShowControls,
 	},
 	ref
 ) => {
@@ -514,6 +516,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					onSeekStart={onSeekStart}
 					inFrame={inFrame}
 					outFrame={outFrame}
+					initiallyShowControls={initiallyShowControls}
 				/>
 			) : null}
 		</>

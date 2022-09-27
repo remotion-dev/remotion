@@ -281,6 +281,12 @@ _optional, available from v3.2.15_
 
 Limit playback to only play before a certain frame. The video will end at this frame and move to the beginning once it has ended. Must be an integer, not smaller than `1`, not smaller than [`inFrame`](#inframe) and not bigger than `durationInFrames - 1`. Default `null`, which means the end of the video.
 
+### `initiallyShowControls`
+
+_optional, available from v3.2.24_
+
+If true, the controls flash when the player enters the scene. After 2 seconds without hover, the controls fade out. This is similar to how YouTube does it, and signals to the user that the player is in fact controllable. You can also pass a `number`, with which you can customize the duration in milliseconds. Default `true` since `v3.2.24`, before that unsupported.
+
 ## `PlayerRef`
 
 You may attach a ref to the player and control it in an imperative manner.
