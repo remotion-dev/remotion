@@ -54,6 +54,7 @@ export const GifForDevelopment = forwardRef<
 			})
 			.catch((err) => {
 				if (aborted) {
+					continueRender(newHandle);
 					return;
 				}
 
@@ -83,7 +84,7 @@ export const GifForDevelopment = forwardRef<
 		}
 
 		throw new Error(
-			`Failed to render GIF with source ${src}: "${error.message}". Render with --log=verbose to see the full stack.`
+			`Failed to render GIF with source ${src}: "${error.message}".`
 		);
 	}
 
