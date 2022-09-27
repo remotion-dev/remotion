@@ -39,6 +39,7 @@ export const GifForDevelopment = forwardRef<
 
 	useEffect(() => {
 		let done = false;
+		let aborted = false;
 		const {prom, cancel} = parseWithWorker(resolvedSrc);
 		const newHandle = delayRender('Loading <Gif /> with src=' + resolvedSrc);
 
@@ -52,6 +53,10 @@ export const GifForDevelopment = forwardRef<
 				continueRender(id);
 			})
 			.catch((err) => {
+				if (aborted) {
+					return;
+				}
+
 				if (currentOnError.current) {
 					currentOnError.current(err);
 				} else {
@@ -61,6 +66,7 @@ export const GifForDevelopment = forwardRef<
 
 		return () => {
 			if (!done) {
+				aborted = true;
 				cancel();
 			}
 
