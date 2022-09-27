@@ -115,15 +115,16 @@ export const Controls: React.FC<{
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
+	const [initiallyShowControls, setInitiallyShowControls] = useState(true);
 
 	const containerCss: React.CSSProperties = useMemo(() => {
 		// Hide if playing and mouse outside
-		const shouldShow = hovered || !player.playing;
+		const shouldShow = hovered || !player.playing || initiallyShowControls;
 		return {
 			...containerStyle,
 			opacity: Number(shouldShow),
 		};
-	}, [hovered, player.playing]);
+	}, [hovered, initiallyShowControls, player.playing]);
 
 	useEffect(() => {
 		if (playButtonRef.current && spaceKeyToPlayOrPause) {
@@ -141,6 +142,16 @@ export const Controls: React.FC<{
 				(document.fullscreenEnabled || document.webkitFullscreenEnabled)) ??
 				false
 		);
+	}, []);
+
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			setInitiallyShowControls(false);
+		}, 2000);
+
+		return () => {
+			clearInterval(timeout);
+		};
 	}, []);
 
 	return (
