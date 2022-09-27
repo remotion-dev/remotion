@@ -75,7 +75,7 @@ const getMissedFramesforCodec = async (
       colorDistance.blue,
       colorDistance.green
     );
-    const threshold = 12;
+    const threshold = 14;
     if (highestDistance > threshold) {
       console.log(colorDistance, { actualColor, threshold, frame, filename });
       missedFrames++;
