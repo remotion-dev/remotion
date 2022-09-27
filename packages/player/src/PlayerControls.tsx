@@ -146,7 +146,7 @@ export const Controls: React.FC<{
 			return initiallyShowControls;
 		}
 
-		return true;
+		throw new TypeError('initiallyShowControls must be a number or a boolean');
 	});
 
 	const containerCss: React.CSSProperties = useMemo(() => {
