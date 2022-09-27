@@ -39,6 +39,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 		useEffect(() => {
 			const controller = new AbortController();
 			let done = false;
+			let aborted = false;
 			const newHandle = delayRender('Loading <Gif /> with src=' + resolvedSrc);
 
 			parseGif({controller, src: resolvedSrc})
@@ -51,6 +52,10 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 					continueRender(id);
 				})
 				.catch((err) => {
+					if (aborted) {
+						return;
+					}
+
 					if (currentOnError.current) {
 						currentOnError.current(err);
 					} else {
@@ -60,6 +65,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 
 			return () => {
 				if (!done) {
+					aborted = true;
 					controller.abort();
 				}
 
