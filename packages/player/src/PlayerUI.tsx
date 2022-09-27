@@ -67,6 +67,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenUnplayed: boolean;
 		inFrame: number | null;
 		outFrame: number | null;
+		initiallyShowControls: number | boolean;
 	}
 > = (
 	{
@@ -95,6 +96,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenPaused,
 		inFrame,
 		outFrame,
+		initiallyShowControls,
 	},
 	ref
 ) => {
@@ -227,6 +229,20 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const durationInFrames = config?.durationInFrames ?? 1;
 
+	const layout = useMemo(() => {
+		if (!config || !canvasSize) {
+			return null;
+		}
+
+		return calculateCanvasTransformation({
+			canvasSize,
+			compositionHeight: config.height,
+			compositionWidth: config.width,
+			previewSize: 'auto',
+		});
+	}, [canvasSize, config]);
+	const scale = layout?.scale ?? 1;
+
 	useImperativeHandle(
 		ref,
 		() => {
@@ -290,6 +306,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				unmute: () => {
 					setMediaMuted(false);
 				},
+				getScale: () => scale,
 			};
 			return Object.assign(player.emitter, methods);
 		},
@@ -305,6 +322,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			setMediaMuted,
 			setMediaVolume,
 			toggle,
+			scale,
 		]
 	);
 
@@ -329,25 +347,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		};
 	}, [canvasSize, config, style]);
 
-	const layout = useMemo(() => {
-		if (!config || !canvasSize) {
-			return null;
-		}
-
-		return calculateCanvasTransformation({
-			canvasSize,
-			compositionHeight: config.height,
-			compositionWidth: config.width,
-			previewSize: 'auto',
-		});
-	}, [canvasSize, config]);
-
 	const outer: React.CSSProperties = useMemo(() => {
 		if (!layout || !config) {
 			return {};
 		}
 
-		const {centerX, centerY, scale} = layout;
+		const {centerX, centerY} = layout;
 
 		return {
 			width: config.width * scale,
@@ -359,19 +364,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			top: centerY,
 			overflow: 'hidden',
 		};
-	}, [config, layout]);
+	}, [config, layout, scale]);
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
-		if (!config || !canvasSize) {
+		if (!config || !canvasSize || !layout) {
 			return {};
 		}
-
-		const {scale, xCorrection, yCorrection} = calculateCanvasTransformation({
-			canvasSize,
-			compositionHeight: config.height,
-			compositionWidth: config.width,
-			previewSize: 'auto',
-		});
 
 		return {
 			position: 'absolute',
@@ -379,11 +377,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			height: config.height,
 			display: 'flex',
 			transform: `scale(${scale})`,
-			marginLeft: xCorrection,
-			marginTop: yCorrection,
+			marginLeft: layout.xCorrection,
+			marginTop: layout.yCorrection,
 			overflow: 'hidden',
 		};
-	}, [canvasSize, config]);
+	}, [canvasSize, config, layout, scale]);
 
 	const onError = useCallback(
 		(error: Error) => {
@@ -518,6 +516,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					onSeekStart={onSeekStart}
 					inFrame={inFrame}
 					outFrame={outFrame}
+					initiallyShowControls={initiallyShowControls}
 				/>
 			) : null}
 		</>
