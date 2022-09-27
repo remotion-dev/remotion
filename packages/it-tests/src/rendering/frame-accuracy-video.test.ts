@@ -16,7 +16,7 @@ const getMissedFramesforCodec = async () => {
   );
   const outputPath = path.join(outputDir, "vid.mp4");
 
-  // render the VideoTesting example (which contains the Framer composition embedded with <Video>) to an image
+  // render the Framer example to an image
   // sequence which can be checked for accuracy
   await execa(
     "pnpm",
@@ -25,7 +25,8 @@ const getMissedFramesforCodec = async () => {
       "remotion",
       "render",
       "src/index.tsx",
-      `video-testing-mp4-offthread`,
+      `framer`,
+      "--log=verbose",
       outputPath,
     ],
     {
@@ -77,9 +78,9 @@ const getMissedFramesforCodec = async () => {
       colorDistance.blue,
       colorDistance.green
     );
-    const threshold = 40;
+    const threshold = 10;
     if (highestDistance > threshold) {
-      console.log(colorDistance, { threshold, frame, filename });
+      console.log(colorDistance, {actualColor, threshold, frame, filename });
       missedFrames++;
     }
   }
