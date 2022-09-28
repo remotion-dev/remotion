@@ -217,7 +217,9 @@ export const getCliOptions = async (options: {
 					isLambda: options.isLambda,
 			  });
 
-	const overwrite = ConfigInternals.getShouldOverwrite();
+	const overwrite = ConfigInternals.getShouldOverwrite({
+		defaultValue: !options.isLambda,
+	});
 	const crf = getAndValidateCrf(shouldOutputImageSequence, codec);
 	const pixelFormat = getAndValidatePixelFormat(codec);
 	const imageFormat = getAndValidateImageFormat({

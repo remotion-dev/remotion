@@ -2,6 +2,7 @@ import type {_Object} from '@aws-sdk/client-s3';
 import {
 	DeleteObjectCommand,
 	GetObjectCommand,
+	HeadObjectCommand,
 	ListObjectsV2Command,
 	PutObjectCommand,
 } from '@aws-sdk/client-s3';
@@ -151,4 +152,25 @@ export const lambdaReadFile = async ({
 		})
 	);
 	return Body as Readable;
+};
+
+export const lambdaHeadCommand = async ({
+	bucketName,
+	key,
+	region,
+}: {
+	bucketName: string;
+	key: string;
+	region: AwsRegion;
+}): Promise<{
+	LastModified?: Date | undefined;
+	ContentLength?: number | undefined;
+}> => {
+	const head = await getS3Client(region, null).send(
+		new HeadObjectCommand({
+			Bucket: bucketName,
+			Key: key,
+		})
+	);
+	return head;
 };

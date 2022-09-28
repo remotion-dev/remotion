@@ -6,7 +6,7 @@ const invalidOverwrite = 555;
 let defaultOverwriteValue: boolean;
 
 beforeAll(() => {
-	defaultOverwriteValue = getShouldOverwrite();
+	defaultOverwriteValue = getShouldOverwrite({defaultValue: true});
 });
 afterEach(() => {
 	setOverwriteOutput(defaultOverwriteValue);
@@ -23,9 +23,9 @@ test('setOverwriteOutput should NOT throw if image format is a boolean value', (
 	expect(() => setOverwriteOutput(true)).not.toThrow();
 });
 test('getShouldOverwrite should return true by default', () => {
-	expect(getShouldOverwrite()).toEqual(true);
+	expect(getShouldOverwrite({defaultValue: true})).toEqual(true);
 });
 test('setOverwriteOutput should return a boolean value', () => {
 	setOverwriteOutput(false);
-	expect(getShouldOverwrite()).toEqual(false);
+	expect(getShouldOverwrite({defaultValue: true})).toEqual(false);
 });

@@ -74,6 +74,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		concurrencyPerLambda: params.concurrencyPerLambda,
 		downloadBehavior: params.downloadBehavior,
 		muted: params.muted,
+		overwrite: params.overwrite,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({

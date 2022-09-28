@@ -61,6 +61,7 @@ test('Should make a transparent video', async () => {
 			},
 			muted: false,
 			version: VERSION,
+			overwrite: true,
 		},
 		extraContext
 	);
