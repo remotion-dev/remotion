@@ -235,6 +235,7 @@ module.exports = {
         "paths/normalize-path",
         "paths/interpolate-path",
         "paths/evolve-path",
+        "paths/extend-viewbox",
       ],
     },
   ],
