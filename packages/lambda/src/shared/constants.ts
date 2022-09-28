@@ -225,6 +225,7 @@ export type LambdaPayloads = {
 		downloadBehavior: DownloadBehavior;
 		muted: boolean;
 		version: string;
+		overwrite: boolean;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -254,6 +255,7 @@ export type LambdaPayloads = {
 		concurrencyPerLambda: number;
 		downloadBehavior: DownloadBehavior;
 		muted: boolean;
+		overwrite: boolean;
 	};
 	status: {
 		type: LambdaRoutines.status;

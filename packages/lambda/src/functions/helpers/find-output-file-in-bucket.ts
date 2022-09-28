@@ -1,11 +1,10 @@
-import {HeadObjectCommand} from '@aws-sdk/client-s3';
 import type {AwsRegion} from '../..';
 import {ROLE_NAME} from '../../api/iam-validation/suggested-policy';
 import type {CustomCredentials} from '../../shared/aws-clients';
-import {getS3Client} from '../../shared/aws-clients';
 import type {RenderMetadata} from '../../shared/constants';
 import {getExpectedOutName} from './expected-out-name';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
+import {lambdaHeadCommand} from './io';
 
 export type OutputFileMetadata = {
 	url: string;
@@ -35,12 +34,11 @@ export const findOutputFileInBucket = async ({
 	);
 
 	try {
-		const head = await getS3Client(region, customCredentials).send(
-			new HeadObjectCommand({
-				Bucket: renderBucketName,
-				Key: key,
-			})
-		);
+		const head = await lambdaHeadCommand({
+			bucketName,
+			key,
+			region,
+		});
 		return {
 			lastModified: head.LastModified?.getTime() as number,
 			size: head.ContentLength as number,

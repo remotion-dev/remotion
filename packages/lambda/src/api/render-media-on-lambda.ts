@@ -47,6 +47,7 @@ export type RenderMediaOnLambdaInput = {
 	concurrencyPerLambda?: number;
 	downloadBehavior?: DownloadBehavior | null;
 	muted?: boolean;
+	overwrite?: boolean;
 };
 
 export type RenderMediaOnLambdaOutput = {
@@ -101,6 +102,7 @@ export const renderMediaOnLambda = async ({
 	concurrencyPerLambda,
 	downloadBehavior,
 	muted,
+	overwrite,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
@@ -140,6 +142,7 @@ export const renderMediaOnLambda = async ({
 				downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
 				muted: muted ?? false,
 				version: VERSION,
+				overwrite: overwrite ?? false,
 			},
 			region,
 		});

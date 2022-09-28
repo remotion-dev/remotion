@@ -37,7 +37,6 @@ import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
 import {mimeContentType, mimeLookup} from './mime-types';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {killAllBrowsers} from './open-browser';
-import {DEFAULT_OVERWRITE} from './overwrite';
 import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
 import {
@@ -149,7 +148,6 @@ export const RenderInternals = {
 	validateSelectedCrfAndCodecCombination,
 	validImageFormats,
 	validCodecs,
-	DEFAULT_OVERWRITE,
 	DEFAULT_PIXEL_FORMAT,
 	validateQuality,
 	validateFrame,
