@@ -57,7 +57,7 @@ test('Should fail when using an incompatible version', async () => {
 			},
 			muted: false,
 			version: VERSION,
-			overwrite: false,
+			overwrite: true,
 		},
 		extraContext
 	);
