@@ -1,5 +1,6 @@
 import execa from 'execa';
 import type {FfmpegExecutable} from './ffmpeg-executable';
+import { getExecutableFfmpeg } from './ffmpeg-flags';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 export const convertToPcm = async ({
@@ -11,7 +12,7 @@ export const convertToPcm = async ({
 	input: string;
 	outName: string;
 }) => {
-	await execa(ffmpegExecutable ?? 'ffmpeg', [
+	await execa(await getExecutableFfmpeg(ffmpegExecutable), [
 		'-i',
 		input,
 		'-c:a',

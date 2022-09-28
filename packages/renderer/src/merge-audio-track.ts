@@ -1,4 +1,5 @@
 import execa from 'execa';
+
 import path from 'path';
 import type {DownloadMap} from './assets/download-map';
 import {chunk} from './chunk';
@@ -7,6 +8,7 @@ import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {createSilentAudio} from './create-silent-audio';
 import {deleteDirectory} from './delete-directory';
 import type {FfmpegExecutable} from './ffmpeg-executable';
+import { getExecutableFfmpeg } from './ffmpeg-flags';
 import {pLimit} from './p-limit';
 import {tmpDir} from './tmp-dir';
 import {truthy} from './truthy';
@@ -86,9 +88,10 @@ const mergeAudioTrackUnlimited = async ({
 	]
 		.filter(truthy)
 		.flat(2);
-
-	const task = execa(ffmpegExecutable ?? 'ffmpeg', args);
-
+	console.log("before task in merge-audio-tracks")
+	// const task = execa(ffmpegExecutable ?? 'ffmpeg', args)
+	const task = execa(await getExecutableFfmpeg(ffmpegExecutable), args);
+	console.log("task:  ",task)
 	await task;
 	cleanup();
 };
