@@ -58,6 +58,7 @@ test('Should add silent audio if there is no audio', async () => {
 			},
 			muted: false,
 			version: VERSION,
+			overwrite: false,
 		},
 		extraContext
 	);
