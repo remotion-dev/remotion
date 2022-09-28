@@ -13,7 +13,8 @@ export const getFfmpegBuildInfo = async (options: {
 	}
 
 	const data = await execa(
-		options.ffmpegExecutable ?? 'ffmpeg',
+		await getExecutableFfmpeg(options.ffmpegExecutable),
+		// options.ffmpegExecutable ?? 'ffmpeg',
 		['-buildconf'],
 		{
 			reject: false,
@@ -63,4 +64,19 @@ export const getFfmpegVersion = async (options: {
 		ffmpegExecutable: options.ffmpegExecutable,
 	});
 	return parseFfmpegVersion(buildInfo);
+};
+
+// should check if ffmpeg is installed. If installed, return "ffmpeg" else return path to ffmpeg.exe in node modules
+export const getExecutableFfmpeg = async (ffmpegExecutable: string | null) => {
+	const path = require('path');
+	if (await binaryExists('ffmpeg', ffmpegExecutable)) {
+		return 'ffmpeg';
+	}
+
+	return path.resolve(
+		__dirname,
+		'..',
+		'render/node_modules/ffmpeg-2022-09-19-full_build/bin',
+		'ffmpeg.exe'
+	);
 };
