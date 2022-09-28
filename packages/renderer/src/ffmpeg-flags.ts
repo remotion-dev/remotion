@@ -1,10 +1,12 @@
 import execa from 'execa';
-import {binaryExists} from './validate-ffmpeg';
+import type { FfmpegExecutable } from './ffmpeg-executable';
+import {binaryExists, ffmpegInNodeModules} from './validate-ffmpeg';
 
 let buildConfig: string | null = null;
 
 export type FfmpegVersion = [number, number, number] | null;
 
+// executes ffmpeg with execa in order to get buildInfos which then can be used elsewhere?
 export const getFfmpegBuildInfo = async (options: {
 	ffmpegExecutable: string | null;
 }) => {
@@ -38,6 +40,7 @@ export const ffmpegHasFeature = async ({
 		return true;
 	}
 
+	// cant have feature if ffmpeg doesnt even exist
 	if (!(await binaryExists('ffmpeg', ffmpegExecutable))) {
 		return false;
 	}
@@ -67,16 +70,36 @@ export const getFfmpegVersion = async (options: {
 };
 
 // should check if ffmpeg is installed. If installed, return "ffmpeg" else return path to ffmpeg.exe in node modules
-export const getExecutableFfmpeg = async (ffmpegExecutable: string | null) => {
+export const getExecutableFfmpeg = async (ffmpegExecutable: FfmpegExecutable | null) => {
+	
+	const os = require('os');
+	const isWin = os.platform() === 'win32';
+	console.log("is win? " , isWin)
 	const path = require('path');
 	if (await binaryExists('ffmpeg', ffmpegExecutable)) {
 		return 'ffmpeg';
 	}
 
-	return path.resolve(
-		__dirname,
-		'..',
-		'render/node_modules/ffmpeg-2022-09-19-full_build/bin',
-		'ffmpeg.exe'
-	);
+	if (await ffmpegInNodeModules()){
+		if(!isWin){
+			console.log("yes, this is mac")
+			return (path.resolve(__dirname, '..', 'node_modules/.ffmpeg/ffmpeg'));
+		}
+
+			return path.resolve(
+			__dirname,
+				'..',
+				'node_modules/.ffmpeg/ffmpeg-2022-09-19-full_build/bin',
+				'ffmpeg.exe'
+			);
+	}
+
+
+
+	
+
+
+
+
+
 };
