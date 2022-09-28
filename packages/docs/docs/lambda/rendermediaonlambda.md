@@ -40,6 +40,8 @@ In which region your Lambda function is deployed. It's highly recommended that y
 
 ### `privacy`
 
+_optional_
+
 One of:
 
 - `"public"` (_default_): The rendered media is publicly accessible under the S3 URL.
