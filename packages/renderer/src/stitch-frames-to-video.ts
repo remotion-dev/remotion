@@ -20,6 +20,7 @@ import {
 } from './crf';
 import {deleteDirectory} from './delete-directory';
 import type {FfmpegExecutable} from './ffmpeg-executable';
+import {getExecutableFfmpeg} from './ffmpeg-flags';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
@@ -270,7 +271,7 @@ export const spawnFfmpeg = async (
 		}
 
 		const ffmpegTask = execa(
-			'ffmpeg',
+			await getExecutableFfmpeg(options.ffmpegExecutable ?? null),
 			[
 				'-i',
 				audio,
@@ -378,9 +379,13 @@ export const spawnFfmpeg = async (
 		console.log(finalFfmpegString);
 	}
 
-	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', finalFfmpegString, {
-		cwd: options.dir,
-	});
+	const task = execa(
+		await getExecutableFfmpeg(options.ffmpegExecutable ?? null),
+		finalFfmpegString,
+		{
+			cwd: options.dir,
+		}
+	);
 	options.cancelSignal?.(() => {
 		task.kill();
 	});
