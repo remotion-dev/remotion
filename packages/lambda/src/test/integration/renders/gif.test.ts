@@ -58,6 +58,7 @@ test('Should make a distributed GIF', async () => {
 			downloadBehavior: {type: 'play-in-browser'},
 			muted: false,
 			version: VERSION,
+			overwrite: false,
 		},
 		extraContext
 	);

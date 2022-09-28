@@ -38,6 +38,7 @@ import {concatVideosS3} from './helpers/concat-videos';
 import {createPostRenderData} from './helpers/create-post-render-data';
 import {cleanupFiles} from './helpers/delete-chunks';
 import {getExpectedOutName} from './helpers/expected-out-name';
+import {findOutputFileInBucket} from './helpers/find-output-file-in-bucket';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getFilesToDelete} from './helpers/get-files-to-delete';
@@ -215,6 +216,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		};
 		return payload;
 	});
+
 	const renderMetadata: RenderMetadata = {
 		startedDate,
 		videoConfig: comp,
@@ -242,6 +244,41 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		outName: params.outName ?? undefined,
 		privacy: params.privacy,
 	};
+
+	const {key, renderBucketName, customCredentials} = getExpectedOutName(
+		renderMetadata,
+		params.bucketName,
+		typeof params.outName === 'string' || typeof params.outName === 'undefined'
+			? null
+			: params.outName?.s3OutputProvider ?? null
+	);
+
+	const output = await findOutputFileInBucket({
+		bucketName: params.bucketName,
+		customCredentials,
+		region: getCurrentRegionInFunction(),
+		renderMetadata,
+	});
+
+	if (output) {
+		if (params.overwrite) {
+			console.info(
+				'Deleting',
+				{bucketName: renderBucketName, key},
+				'because it already existed and will be overwritten'
+			);
+			await lambdaDeleteFile({
+				bucketName: renderBucketName,
+				customCredentials,
+				key,
+				region: getCurrentRegionInFunction(),
+			});
+		} else {
+			throw new TypeError(
+				`Output file "${key}" in bucket "${renderBucketName}" in region "${getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or use the overwrite option to delete it before render."`
+			);
+		}
+	}
 
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
@@ -338,14 +375,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	if (!encodingStop) {
 		encodingStop = Date.now();
 	}
-
-	const {key, renderBucketName, customCredentials} = getExpectedOutName(
-		renderMetadata,
-		params.bucketName,
-		typeof params.outName === 'string' || typeof params.outName === 'undefined'
-			? null
-			: params.outName?.s3OutputProvider ?? null
-	);
 
 	const outputSize = fs.statSync(outfile);
 
