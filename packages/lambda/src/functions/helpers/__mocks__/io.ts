@@ -8,6 +8,7 @@ import {
 } from '../../../api/__mocks__/mock-s3';
 import type {
 	lambdaDeleteFile as deleteOriginal,
+	lambdaHeadCommand as headOriginal,
 	lambdaLs as lsOriginal,
 	lambdaReadFile as readOriginal,
 	lambdaWriteFile as writeOriginal,
@@ -59,6 +60,22 @@ export const lambdaDeleteFile: typeof deleteOriginal = ({
 		region,
 	});
 	return Promise.resolve(undefined);
+};
+
+export const lambdaHeadCommand: typeof headOriginal = ({
+	bucketName,
+	key,
+	region,
+}) => {
+	const read = readMockS3File({
+		bucketName,
+		key,
+		region,
+	});
+	return Promise.resolve({
+		ContentLength: read?.content.toString().length,
+		LastModified: new Date(),
+	});
 };
 
 export const lambdaLs: typeof lsOriginal = (
