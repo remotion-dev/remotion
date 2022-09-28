@@ -12,9 +12,10 @@ export const binaryExists = async (
 		return existsMap[name];
 	}
 
+	// case where user has specified a custom ffmpeg executable --> we check if its valid
 	if (name === 'ffmpeg' && localFFmpeg) {
 		try {
-			statSync(localFFmpeg);
+			statSync(localFFmpeg); // statSync searches for the file
 			existsMap[name] = true;
 		} catch (err) {
 			existsMap[name] = false;
@@ -22,6 +23,8 @@ export const binaryExists = async (
 
 		return existsMap[name];
 	}
+
+	// TODO: check if binary already exists, if not, check if it exists in node_modules
 
 	const isWin = os.platform() === 'win32';
 	const where = isWin ? 'where' : 'which';
@@ -42,6 +45,7 @@ const isHomebrewInstalled = (): Promise<boolean> => {
 export const validateFfmpeg = async (
 	customFfmpegBinary: string | null
 ): Promise<void> => {
+	// binaryExists should also for node_modules
 	const ffmpegExists = await binaryExists('ffmpeg', customFfmpegBinary);
 	if (!ffmpegExists) {
 		if (customFfmpegBinary) {
