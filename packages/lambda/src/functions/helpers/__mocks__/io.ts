@@ -72,8 +72,14 @@ export const lambdaHeadCommand: typeof headOriginal = ({
 		key,
 		region,
 	});
+	if (!read) {
+		const err = new Error('File not found');
+		err.name = 'NotFound';
+		throw err;
+	}
+
 	return Promise.resolve({
-		ContentLength: read?.content.toString().length,
+		ContentLength: read.content.toString().length,
 		LastModified: new Date(),
 	});
 };
