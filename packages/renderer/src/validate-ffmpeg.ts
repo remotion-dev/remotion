@@ -6,7 +6,7 @@ const existsMap: {[key: string]: boolean} = {};
 
 export const binaryExists = async (
 	name: 'ffmpeg' | 'brew',
-	localFFmpeg: string | null
+	localFFmpeg: string | null // == customFfmpeg
 ) => {
 	if (typeof existsMap[name] !== 'undefined') {
 		return existsMap[name];
@@ -24,8 +24,6 @@ export const binaryExists = async (
 		return existsMap[name];
 	}
 
-	// TODO: check if binary already exists, if not, check if it exists in node_modules
-
 	const isWin = os.platform() === 'win32';
 	const where = isWin ? 'where' : 'which';
 	try {
@@ -38,6 +36,22 @@ export const binaryExists = async (
 	}
 };
 
+export const ffmpegInNodeModules = (): Promise<boolean> =>  {
+	const path = require('path');
+	const fs = require('fs');
+
+	const expectedFfmpegPath = path.resolve(
+		__dirname,
+		'..',
+		'node_modules/.ffmpeg'
+	);
+	console.log( "does ffmpeg exist in node modules? " , fs.existsSync(expectedFfmpegPath));
+	return  fs.existsSync(expectedFfmpegPath);
+};
+
+
+
+
 const isHomebrewInstalled = (): Promise<boolean> => {
 	return binaryExists('brew', null);
 };
@@ -46,7 +60,7 @@ export const validateFfmpeg = async (
 	customFfmpegBinary: string | null
 ): Promise<void> => {
 	// binaryExists should also for node_modules
-	const ffmpegExists = await binaryExists('ffmpeg', customFfmpegBinary);
+	const ffmpegExists = await binaryExists('ffmpeg', customFfmpegBinary)||  await ffmpegInNodeModules();
 	if (!ffmpegExists) {
 		if (customFfmpegBinary) {
 			console.error('FFmpeg executable not found:');
@@ -54,6 +68,7 @@ export const validateFfmpeg = async (
 			process.exit(1);
 		}
 
+		// ------------should be removed after ffmpeg nodemodules implementation--//
 		console.error('It looks like FFMPEG is not installed');
 		if (os.platform() === 'darwin' && (await isHomebrewInstalled())) {
 			console.error('Run `brew install ffmpeg` to install ffmpeg');
