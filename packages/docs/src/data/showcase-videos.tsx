@@ -1245,6 +1245,25 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		"name": "Yuwan Kumar"
 	}
 },
+    {
+	title: "Blast Workout video trailer",
+	type: "mux_video",
+	muxId: "txrjnbtkqe1P701kHusZ4EeIY883aHVvVGF8xsAKKX24",
+	description: "Blast Workout video trailer as it is displayed on the play store",
+	height: 1080,
+	width: 1920,
+	submittedOn: new Date("09-30-2022"),
+	links: [
+		{
+			type: "website",
+			url: "https://blastworkout.app",
+		},
+	],
+	author: {
+		"url": "https://blastworkout.app",
+		"name": "Mad Mustache Company>"
+	}
+    },
 		
 ];
 
