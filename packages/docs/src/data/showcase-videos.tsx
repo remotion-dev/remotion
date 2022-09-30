@@ -1245,6 +1245,26 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		"name": "Yuwan Kumar"
 	}
 },
+	
+{
+	title: "Blast Workout Rotato style 3D",
+	type: "mux_video",
+	muxId: "pw7GlBHgVlhwE9JMWMXk5ta01n2pPBEIgu8akS025zYB8",
+	description: "Blast Workout Rotato style 3D showcasing app features",
+	height: 1280,
+	width: 720,
+	submittedOn: new Date("09-30-2022"),
+	links: [
+		{
+			type: "website",
+			url: "https://blastworkout.app",
+		},
+	],
+	author: {
+		"url": "https://blastworkout.app",
+		"name": "Mad Mustache Company>"
+	}
+},
 		
 ];
 
