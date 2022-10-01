@@ -94,7 +94,7 @@ export const MediaVolumeSlider: React.FC<{
 			Internals.CSSUtils.removeCSS(sliderStyleVertical);
 			Internals.CSSUtils.injectCSS(sliderStyle);
 		}
-	}, [isFullscreen]);
+	}, [isFullscreen, width]);
 
 	const onVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setMediaVolume(parseFloat(e.target.value));
