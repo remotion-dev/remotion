@@ -34,9 +34,9 @@ const getFinalCodec = async (options: {isLambda: boolean}) => {
 
 	const codec = getFinalOutputCodec({
 		codec: userCodec,
-		fileExtension: options.isLambda
-			? null
-			: RenderInternals.getExtensionOfFilename(getUserPassedOutputLocation()),
+		fileExtension: RenderInternals.getExtensionOfFilename(
+			getUserPassedOutputLocation()
+		),
 		emitWarning: true,
 	});
 	const ffmpegExecutable = ConfigInternals.getCustomFfmpegExecutable();
