@@ -19,6 +19,23 @@ export const injectCSS = (css: string) => {
 	injected[css] = true;
 };
 
+export const removeCSS = (css: string) => {
+	if (typeof document === 'undefined') {
+		return;
+	}
+
+	if (injected[css]) {
+		const head = document.head || document.getElementsByTagName('head')[0];
+		head.childNodes.forEach((node) => {
+			if (node.textContent === css) {
+				head.removeChild(node);
+			}
+		});
+	}
+
+	injected[css] = false;
+};
+
 export const OFFTHREAD_VIDEO_CLASS_NAME = '__remotion_offthreadvideo';
 
 export const makeDefaultCSS = (

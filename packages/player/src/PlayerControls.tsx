@@ -208,7 +208,7 @@ export const Controls: React.FC<{
 					{showVolumeControls ? (
 						<>
 							<div style={xSpacer} />
-							<MediaVolumeSlider />
+							<MediaVolumeSlider isFullscreen={isFullscreen} />
 						</>
 					) : null}
 					<div style={xSpacer} />
