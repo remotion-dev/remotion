@@ -44,7 +44,7 @@ const sliderStyleVertical = `
 ${sliderStyle}
 ${scope} {
 	position: absolute;
-  bottom: ${VOLUME_SLIDER_WIDTH / 2 + ICON_SIZE / 2}px;
+  bottom: ${VOLUME_SLIDER_WIDTH / 2 + ICON_SIZE / 2 + 4}px;
   transform: rotate(-90deg);
 }
 `;
