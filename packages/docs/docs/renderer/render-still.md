@@ -78,6 +78,12 @@ _optional_
 _optional - default: 0_
 
 Which frame should be rendered based on its number.
+For a composition of 100 frames, could between -100 and 99.
+In this case:
+- 0 would mean the first frame
+- 99 the last frame
+- -1 would mean the last frame
+- -100 would mean the first frame
 
 ### `imageFormat?`
 

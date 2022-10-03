@@ -137,7 +137,7 @@ const innerStillHandler = async (
 		serveUrl: lambdaParams.serveUrl,
 		dumpBrowserLogs: false,
 		envVariables: lambdaParams.envVariables,
-		frame: lambdaParams.frame,
+		frame: lambdaParams.frame < 0 ? composition.durationInFrames - lambdaParams.frame : lambdaParams.frame,
 		imageFormat: lambdaParams.imageFormat as StillImageFormat,
 		inputProps: lambdaParams.inputProps,
 		overwrite: false,
