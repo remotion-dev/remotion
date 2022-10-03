@@ -92,6 +92,11 @@ export const Controls: React.FC<{
 	allowFullscreen: boolean;
 	onExitFullscreenButtonClick: MouseEventHandler<HTMLButtonElement>;
 	spaceKeyToPlayOrPause: boolean;
+	onSeekEnd: () => void;
+	onSeekStart: () => void;
+	inFrame: number | null;
+	outFrame: number | null;
+	initiallyShowControls: number | boolean;
 }> = ({
 	durationInFrames,
 	hovered,
@@ -103,19 +108,55 @@ export const Controls: React.FC<{
 	allowFullscreen,
 	onExitFullscreenButtonClick,
 	spaceKeyToPlayOrPause,
+	onSeekEnd,
+	onSeekStart,
+	inFrame,
+	outFrame,
+	initiallyShowControls,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
+	const [shouldShowInitially, setInitiallyShowControls] = useState<
+		boolean | number
+	>(() => {
+		if (typeof initiallyShowControls === 'boolean') {
+			return initiallyShowControls;
+		}
+
+		if (typeof initiallyShowControls === 'number') {
+			if (initiallyShowControls % 1 !== 0) {
+				throw new Error(
+					'initiallyShowControls must be an integer or a boolean'
+				);
+			}
+
+			if (Number.isNaN(initiallyShowControls)) {
+				throw new Error('initiallyShowControls must not be NaN');
+			}
+
+			if (!Number.isFinite(initiallyShowControls)) {
+				throw new Error('initiallyShowControls must be finite');
+			}
+
+			if (initiallyShowControls <= 0) {
+				throw new Error('initiallyShowControls must be a positive integer');
+			}
+
+			return initiallyShowControls;
+		}
+
+		throw new TypeError('initiallyShowControls must be a number or a boolean');
+	});
 
 	const containerCss: React.CSSProperties = useMemo(() => {
 		// Hide if playing and mouse outside
-		const shouldShow = hovered || !player.playing;
+		const shouldShow = hovered || !player.playing || shouldShowInitially;
 		return {
 			...containerStyle,
 			opacity: Number(shouldShow),
 		};
-	}, [hovered, player.playing]);
+	}, [hovered, shouldShowInitially, player.playing]);
 
 	useEffect(() => {
 		if (playButtonRef.current && spaceKeyToPlayOrPause) {
@@ -134,6 +175,21 @@ export const Controls: React.FC<{
 				false
 		);
 	}, []);
+
+	useEffect(() => {
+		if (shouldShowInitially === false) {
+			return;
+		}
+
+		const time = shouldShowInitially === true ? 2000 : shouldShowInitially;
+		const timeout = setTimeout(() => {
+			setInitiallyShowControls(false);
+		}, time);
+
+		return () => {
+			clearInterval(timeout);
+		};
+	}, [shouldShowInitially]);
 
 	return (
 		<div style={containerCss}>
@@ -181,7 +237,13 @@ export const Controls: React.FC<{
 				</div>
 			</div>
 			<div style={ySpacer} />
-			<PlayerSeekBar durationInFrames={durationInFrames} />
+			<PlayerSeekBar
+				onSeekEnd={onSeekEnd}
+				onSeekStart={onSeekStart}
+				durationInFrames={durationInFrames}
+				inFrame={inFrame}
+				outFrame={outFrame}
+			/>
 		</div>
 	);
 };

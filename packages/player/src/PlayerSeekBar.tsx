@@ -35,7 +35,7 @@ const containerStyle: React.CSSProperties = {
 
 const barBackground: React.CSSProperties = {
 	height: BAR_HEIGHT,
-	backgroundColor: 'rgba(255, 255, 255, 0.5)',
+	backgroundColor: 'rgba(255, 255, 255, 0.25)',
 	width: '100%',
 	borderRadius: BAR_HEIGHT / 2,
 };
@@ -52,7 +52,11 @@ const findBodyInWhichDivIsLocated = (div: HTMLElement) => {
 
 export const PlayerSeekBar: React.FC<{
 	durationInFrames: number;
-}> = ({durationInFrames}) => {
+	onSeekStart: () => void;
+	onSeekEnd: () => void;
+	inFrame: number | null;
+	outFrame: number | null;
+}> = ({durationInFrames, onSeekEnd, onSeekStart, inFrame, outFrame}) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const barHovered = useHoverState(containerRef);
 	const size = useElementSize(containerRef, {
@@ -91,8 +95,9 @@ export const PlayerSeekBar: React.FC<{
 				dragging: true,
 				wasPlaying: playing,
 			});
+			onSeekStart();
 		},
-		[size, durationInFrames, pause, seek, playing]
+		[size, durationInFrames, pause, seek, playing, onSeekStart]
 	);
 
 	const onPointerMove = useCallback(
@@ -128,7 +133,9 @@ export const PlayerSeekBar: React.FC<{
 		} else {
 			pause();
 		}
-	}, [dragging, pause, play]);
+
+		onSeekEnd();
+	}, [dragging, onSeekEnd, pause, play]);
 
 	useEffect(() => {
 		if (!dragging.dragging) {
@@ -169,10 +176,26 @@ export const PlayerSeekBar: React.FC<{
 		return {
 			height: BAR_HEIGHT,
 			backgroundColor: 'rgba(255, 255, 255, 1)',
-			width: (frame / (durationInFrames - 1)) * 100 + '%',
+			width: ((frame - (inFrame ?? 0)) / (durationInFrames - 1)) * 100 + '%',
+			marginLeft: ((inFrame ?? 0) / (durationInFrames - 1)) * 100 + '%',
 			borderRadius: BAR_HEIGHT / 2,
 		};
-	}, [durationInFrames, frame]);
+	}, [durationInFrames, frame, inFrame]);
+
+	const active: React.CSSProperties = useMemo(() => {
+		return {
+			height: BAR_HEIGHT,
+			backgroundColor: 'rgba(255, 255, 255, 0.25)',
+			width:
+				(((outFrame ?? durationInFrames - 1) - (inFrame ?? 0)) /
+					(durationInFrames - 1)) *
+					100 +
+				'%',
+			marginLeft: ((inFrame ?? 0) / (durationInFrames - 1)) * 100 + '%',
+			borderRadius: BAR_HEIGHT / 2,
+			position: 'absolute',
+		};
+	}, [durationInFrames, inFrame, outFrame]);
 
 	return (
 		<div
@@ -181,6 +204,7 @@ export const PlayerSeekBar: React.FC<{
 			style={containerStyle}
 		>
 			<div style={barBackground}>
+				<div style={active} />
 				<div style={fillStyle} />
 			</div>
 			<div style={knobStyle} />

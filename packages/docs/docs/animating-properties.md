@@ -3,37 +3,41 @@ id: animating-properties
 title: Animating properties
 ---
 
-**Animation is all about how properties change over time.**
-Let's start with a simple example, let's say we want to create a fade in animation.
+import {AnimatingProperties, Springs} from '../components/DocsDark'
 
-If we want to fade the text in over 20 frames, we need to gradually change the `opacity` style over time so that it goes from 0 to 1.
+Animation works by changing properties over time.  
+Let's create a simple fade in animation.
 
-```tsx twoslash {4, 12}
-import { useCurrentFrame } from "remotion";
+If we want to fade the text in over 60 frames, we need to gradually change the `opacity` over time so that it goes from 0 to 1.
+
+```tsx twoslash {4, 15} title="FadeIn.tsx"
+import { AbsoluteFill, useCurrentFrame } from "remotion";
 // ---cut---
-export const MyVideo = () => {
+export const FadeIn = () => {
   const frame = useCurrentFrame();
 
-  const opacity = frame >= 20 ? 1 : frame / 20;
+  const opacity = Math.min(1, frame / 60);
 
   return (
-    <div
+    <AbsoluteFill
       style={{
-        flex: 1,
-        textAlign: "center",
-        fontSize: "7em",
-        opacity: opacity,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "white",
+        fontSize: 80,
       }}
     >
-      Hello World!
-    </div>
+      <div style={{ opacity: opacity }}>Hello World!</div>
+    </AbsoluteFill>
   );
 };
 ```
 
+<AnimatingProperties />
+
 ## Using the interpolate helper function
 
-Using the [`interpolate`](/docs/interpolate) function can make animations more readable.
+Using the [`interpolate()`](/docs/interpolate) function can make animations more readable.
 The function takes 4 arguments:
 
 1. The input value
@@ -47,7 +51,7 @@ import { interpolate, useCurrentFrame } from "remotion";
 export const MyVideo = () => {
   const frame = useCurrentFrame();
 
-  const opacity = interpolate(frame, [0, 20], [0, 1], {
+  const opacity = interpolate(frame, [0, 60], [0, 1], {
     extrapolateRight: "clamp",
   });
 
@@ -66,13 +70,13 @@ export const MyVideo = () => {
 };
 ```
 
-In this example, we map the frames 0 to 20 to their opacity values `(0, 0.05, 0.1, 0.15 ...`) and use the [`extrapolateRight`](/docs/interpolate#extrapolateright) setting to clamp the output so that it never becomes bigger than 1.
+In this example, we map the frames 0 to 60 to their opacity values `(0, 0.0166, 0.033, 0.05 ...`) and use the [`extrapolateRight`](/docs/interpolate#extrapolateright) setting to clamp the output so that it never becomes bigger than 1.
 
 ## Using spring animations
 
-Spring animations are a beautiful way to put things into motion and make them natural. Remotion includes a helper function to make spring animations easy! This time, let's animate the scale of the text.
+Spring animations are a natural animation primitive. By default, they animate from 0 to 1 over time. This time, let's animate the scale of the text.
 
-```tsx twoslash {7-12, 22}
+```tsx twoslash {7-12, 20}
 import { spring, useCurrentFrame, useVideoConfig } from "remotion";
 
 export const MyVideo = () => {
@@ -81,8 +85,6 @@ export const MyVideo = () => {
 
   const scale = spring({
     fps,
-    from: 0,
-    to: 1,
     frame,
   });
 
@@ -100,12 +102,15 @@ export const MyVideo = () => {
 };
 ```
 
-You should see the text 'jump in'. The default spring configuration leads to a little bit of overshoot, meaning the text will bounce a little bit. See the reference page about the [`spring()`](/docs/spring) function to learn how to customize your spring animations.
+You should see the text jump in.
+
+<Springs />
+<br />
+
+The default spring configuration leads to a little bit of overshoot, meaning the text will bounce a little bit. See the documentation page for [`spring()`](/docs/spring) to learn how to customize it.
 
 ## Always animate using `useCurrentFrame()`
 
-:::caution
 Watch out for flickering issues during rendering that arise if you write animations that are not driven by [`useCurrentFrame()`](/docs/use-current-frame) - for example CSS transitions.
 
 [Read more about how Remotion's rendering works](/docs/flickering) - understanding it will help you avoid issues down the road.
-:::

@@ -67,11 +67,15 @@ A `string` which must be either `png`, `jpeg` or `none`.
 - Choose `png` if you want your image sequence to have an alpha channel (for transparency).
 - Choose `none` if you only want to render audio.
 
-### `parallelism?`
+### `concurrency?`
 
 _optional_
 
-A `number` specifying how many frames should be rendered in parallel or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
+A `number` specifying how many render processes should be started in parallel or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
+
+### ~~`parallelism?`~~
+
+Renamed to `concurrency` in v3.2.17.
 
 ### `scale?`
 
@@ -189,12 +193,6 @@ renderFrames({
 });
 ```
 
-### `browserExecutable?`
-
-_optional, available from v2.3.1_
-
-A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
-
 ### `ffmpegExecutable?`
 
 _optional, available from v3.0.11_
@@ -229,7 +227,7 @@ If you passed `null` to `outputDir`, this method will be called passing a buffer
 
 _optional, available from v2.6.3_
 
-A number describing how long one frame may take to resolve all `delayRender()` calls before the render times out and fails. Default: `30000`
+A number describing how long one frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before the [render times out and fails(/docs/timeout). Default: `30000`
 
 ### `everyNthFrame`
 

@@ -61,6 +61,7 @@ test('Should be able to render to another bucket', async () => {
 			},
 			muted: false,
 			version: VERSION,
+			overwrite: true,
 		},
 		extraContext
 	);

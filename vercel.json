@@ -36,6 +36,11 @@
       "permanent": false
     },
     {
+      "source": "/gif",
+      "destination": "https://remotion.dev/docs/gif",
+      "permanent": false
+    },
+    {
       "source": "/lottie",
       "destination": "https://remotion.dev/docs/lottie",
       "permanent": false
@@ -43,6 +48,16 @@
     {
       "source": "/paths",
       "destination": "https://remotion.dev/docs/paths",
+      "permanent": false
+    },
+    {
+      "source": "/api",
+      "destination": "https://remotion.dev/docs/api",
+      "permanent": false
+    },
+    {
+      "source": "/terminology",
+      "destination": "https://remotion.dev/docs/terminology",
       "permanent": false
     }
   ]

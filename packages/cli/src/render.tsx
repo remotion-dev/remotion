@@ -56,7 +56,7 @@ export const render = async (remotionRoot: string) => {
 	const {
 		codec,
 		proResProfile,
-		parallelism,
+		concurrency,
 		frameRange,
 		shouldOutputImageSequence,
 		overwrite,
@@ -78,6 +78,8 @@ export const render = async (remotionRoot: string) => {
 		puppeteerTimeout,
 		muted,
 		enforceAudioTrack,
+		publicDir,
+		ffmpegOverride,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -130,6 +132,7 @@ export const render = async (remotionRoot: string) => {
 			fullPath,
 			remotionRoot,
 			steps,
+			publicDir,
 		}
 	);
 
@@ -209,7 +212,7 @@ export const render = async (remotionRoot: string) => {
 				rendering: {
 					frames: renderedFrames,
 					totalFrames: totalFrames.length,
-					concurrency: RenderInternals.getActualConcurrency(parallelism),
+					concurrency: RenderInternals.getActualConcurrency(concurrency),
 					doneIn: renderedDoneIn,
 					steps,
 				},
@@ -268,7 +271,7 @@ export const render = async (remotionRoot: string) => {
 			everyNthFrame,
 			envVariables,
 			frameRange,
-			parallelism,
+			concurrency,
 			puppeteerInstance,
 			quality,
 			timeoutInMilliseconds: puppeteerTimeout,
@@ -310,7 +313,7 @@ export const render = async (remotionRoot: string) => {
 		},
 		puppeteerInstance,
 		overwrite,
-		parallelism,
+		concurrency,
 		pixelFormat,
 		proResProfile,
 		quality,
@@ -333,6 +336,8 @@ export const render = async (remotionRoot: string) => {
 		downloadMap,
 		muted,
 		enforceAudioTrack,
+		browserExecutable,
+		ffmpegOverride,
 	});
 
 	Log.info();

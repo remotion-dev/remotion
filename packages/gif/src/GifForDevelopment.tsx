@@ -1,10 +1,11 @@
-import {Canvas, useWorkerParser} from '@react-gifs/tools';
-import {LRUMap} from 'lru_map';
-import {forwardRef, useState} from 'react';
+import {forwardRef, useEffect, useRef, useState} from 'react';
+import {continueRender, delayRender} from 'remotion';
+import {Canvas} from './canvas';
+import {gifCache} from './gif-cache';
+import {isCorsError} from './is-cors-error';
 import type {GifState, RemotionGifProps} from './props';
+import {parseWithWorker} from './react-tools';
 import {useCurrentGifIndex} from './useCurrentGifIndex';
-
-const cache = new LRUMap<string, GifState>(30);
 
 export const GifForDevelopment = forwardRef<
 	HTMLCanvasElement,
@@ -12,7 +13,7 @@ export const GifForDevelopment = forwardRef<
 >(({src, width, height, onError, onLoad, fit = 'fill', ...props}, ref) => {
 	const resolvedSrc = new URL(src, window.location.origin).href;
 	const [state, update] = useState<GifState>(() => {
-		const parsedGif = cache.get(resolvedSrc);
+		const parsedGif = gifCache.get(resolvedSrc);
 
 		if (parsedGif === undefined) {
 			return {
@@ -25,26 +26,67 @@ export const GifForDevelopment = forwardRef<
 
 		return parsedGif as GifState;
 	});
+	const [error, setError] = useState<Error | null>(null);
 
-	// skip loading if frames exist
-	useWorkerParser(Boolean(state.frames.length) || resolvedSrc, (info) => {
-		if ('error' in info) {
-			if (onError) {
-				onError(info.error);
-			} else {
-				console.error(
-					'Error loading GIF:',
-					info.error,
-					'Handle the event using the onError() prop to make this message disappear.'
-				);
+	const [id] = useState(() =>
+		delayRender(`Rendering <Gif/> with src="${resolvedSrc}"`)
+	);
+
+	const currentOnLoad = useRef(onLoad);
+	const currentOnError = useRef(onError);
+	currentOnLoad.current = onLoad;
+	currentOnError.current = onError;
+
+	useEffect(() => {
+		let done = false;
+		let aborted = false;
+		const {prom, cancel} = parseWithWorker(resolvedSrc);
+		const newHandle = delayRender('Loading <Gif /> with src=' + resolvedSrc);
+
+		prom
+			.then((parsed) => {
+				currentOnLoad.current?.(parsed);
+				update(parsed);
+				gifCache.set(resolvedSrc, parsed);
+				done = true;
+				continueRender(newHandle);
+				continueRender(id);
+			})
+			.catch((err) => {
+				if (aborted) {
+					continueRender(newHandle);
+					return;
+				}
+
+				if (currentOnError.current) {
+					currentOnError.current(err);
+				} else {
+					setError(err);
+				}
+			});
+
+		return () => {
+			if (!done) {
+				aborted = true;
+				cancel();
 			}
-		} else {
-			onLoad?.(info);
 
-			cache.set(resolvedSrc, info);
-			update(info);
+			continueRender(newHandle);
+		};
+	}, [id, resolvedSrc]);
+
+	if (error) {
+		console.error(error.stack);
+		if (isCorsError(error)) {
+			throw new Error(
+				`Failed to render GIF with source ${src}: "${error.message}". You must enable CORS for this URL.`
+			);
 		}
-	});
+
+		throw new Error(
+			`Failed to render GIF with source ${src}: "${error.message}".`
+		);
+	}
 
 	const index = useCurrentGifIndex(state.delays);
 
@@ -53,8 +95,8 @@ export const GifForDevelopment = forwardRef<
 			fit={fit}
 			index={index}
 			frames={state.frames}
-			width={width ?? state.width}
-			height={height ?? state.height}
+			width={width}
+			height={height}
 			{...props}
 			ref={ref}
 		/>

@@ -217,7 +217,9 @@ export const getCliOptions = async (options: {
 					isLambda: options.isLambda,
 			  });
 
-	const overwrite = ConfigInternals.getShouldOverwrite();
+	const overwrite = ConfigInternals.getShouldOverwrite({
+		defaultValue: !options.isLambda,
+	});
 	const crf = getAndValidateCrf(shouldOutputImageSequence, codec);
 	const pixelFormat = getAndValidatePixelFormat(codec);
 	const imageFormat = getAndValidateImageFormat({
@@ -244,13 +246,13 @@ export const getCliOptions = async (options: {
 	const numberOfGifLoops =
 		ConfigInternals.getAndValidateNumberOfGifLoops(codec);
 
-	const parallelism = ConfigInternals.getConcurrency();
+	const concurrency = ConfigInternals.getConcurrency();
 
-	RenderInternals.validateConcurrency(parallelism, 'concurrency');
+	RenderInternals.validateConcurrency(concurrency, 'concurrency');
 
 	return {
 		puppeteerTimeout: ConfigInternals.getCurrentPuppeteerTimeout(),
-		parallelism,
+		concurrency,
 		frameRange,
 		shouldOutputImageSequence,
 		codec,
@@ -275,6 +277,7 @@ export const getCliOptions = async (options: {
 		port: port ?? null,
 		muted: ConfigInternals.getMuted(),
 		enforceAudioTrack: ConfigInternals.getEnforceAudioTrack(),
-		keyboardShortcutsEnables: ConfigInternals.getKeyboardShortcutsEnabled(),
+		publicDir: ConfigInternals.getPublicDir(),
+		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
 	};
 };

@@ -1,11 +1,11 @@
 module.exports = {
   title: "Remotion",
-  tagline: "Create motion graphics in React",
+  tagline: "Make videos programmatically",
   url: "https://remotion.dev",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
-  favicon: "img/logo-small.png",
+  favicon: "img/favicon.png",
   organizationName: "remotion-dev", // Usually your GitHub org/user name.
   projectName: "remotion", // Usually your repo name.
   themeConfig: {
@@ -17,21 +17,46 @@ module.exports = {
     },
     image: "img/social-preview.png",
     navbar: {
-      title: "Remotion",
       logo: {
-        alt: "Remotion logo",
-        src: "img/logo-small.png",
+        alt: "Remotion Logo",
+        src: "img/new-logo.png",
+        srcDark: "img/remotion-white.png",
       },
       items: [
         {
-          to: "docs/",
-          activeBasePath: "docs",
+          to: "/docs",
           label: "Docs",
           position: "left",
+          type: "docSidebar",
+          sidebarId: "mainSidebar",
         },
-        { to: "blog", label: "Blog", position: "left" },
-        { to: "showcase", label: "Showcase", position: "left" },
-        { to: "/docs/license", label: "Licensing", position: "left" },
+        {
+          to: "/docs/api",
+          label: "API",
+          position: "left",
+          type: "docSidebar",
+          sidebarId: "apiSidebar",
+        },
+        { to: "/docs/license", label: "Pricing", position: "left" },
+        {
+          type: "dropdown",
+          label: "More",
+          position: "left",
+          items: [
+            { to: "blog", label: "Blog" },
+            { to: "showcase", label: "Showcase" },
+            { to: "experts", label: "Experts" },
+            { to: "about", label: "About" },
+            { to: "success-stories", label: "Success Stories" },
+          ],
+        },
+        {
+          href: "https://twitter.com/remotion_dev",
+          label: "Twitter",
+          position: "right",
+          "data-splitbee-event": "External Link",
+          "data-splitbee-event-target": "Twitter",
+        },
         {
           href: "https://remotion.dev/discord",
           label: "Discord",
@@ -60,7 +85,7 @@ module.exports = {
             },
             {
               label: "API Reference",
-              to: "/docs/cli",
+              to: "/docs/api",
             },
             {
               label: "Player",
@@ -147,6 +172,9 @@ module.exports = {
         },
       ],
       copyright: `Copyright © ${new Date().getFullYear()} remotion.dev. Built with Docusaurus.`,
+    },
+    colorMode: {
+      respectPrefersColorScheme: true,
     },
   },
   presets: [

@@ -72,6 +72,8 @@ export const previewCommand = async (remotionRoot: string) => {
 			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 			remotionRoot,
 			keyboardShortcutsEnabled: ConfigInternals.getKeyboardShortcutsEnabled(),
+			userPassedPublicDir: ConfigInternals.getPublicDir(),
+			webpackOverride: ConfigInternals.getWebpackOverrideFn(),
 		}
 	);
 

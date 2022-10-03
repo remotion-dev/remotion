@@ -138,7 +138,7 @@ _available from v3.2.1_
 
 ### `--scale`
 
-Scales the output frames by the factor you pass in. For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details.
+[Scales the output frames by the factor you pass in.](/docs/scaling) For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details.
 
 ### `--env-file`
 
@@ -165,3 +165,11 @@ _available from v3.1_
 ### `--out-name`
 
 The file name of the media output as stored in the S3 bucket. By default, it is `out` plus the appropriate file extension, for example: `out.mp4`. Must match `/([0-9a-zA-Z-!_.*'()]+)/g`.
+
+### `--overwrite`
+
+_available from v3.2.25_
+
+If a custom out name is specified and a file already exists at this key in the S3 bucket, decide whether that file will be deleted before the render begins. Default `false`.
+
+An existing file at the output S3 key will conflict with the render and must be deleted beforehand. If this setting is `false` and a conflict occurs, an error will be thrown.

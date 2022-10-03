@@ -12,11 +12,10 @@ import {expect, test} from 'vitest';
 import {webpackOverride} from '../webpack-override';
 
 test('Can render a still using Node.JS APIs', async () => {
-	const bundled = await bundle(
-		path.join(process.cwd(), 'src/index.tsx'),
-		() => undefined,
-		{webpackOverride}
-	);
+	const bundled = await bundle({
+		entryPoint: path.join(process.cwd(), 'src/index.tsx'),
+		webpackOverride,
+	});
 
 	const compositions = await getCompositions(bundled);
 
@@ -38,6 +37,7 @@ test('Can render a still using Node.JS APIs', async () => {
 	});
 
 	const serveUrl = `http://localhost:${port}`;
+	const fileOSRoot = path.parse(__dirname).root;
 
 	expect(() =>
 		renderStill({
@@ -53,7 +53,7 @@ test('Can render a still using Node.JS APIs', async () => {
 	expect(() =>
 		renderStill({
 			composition,
-			output: process.platform === 'win32' ? 'D:\\' : '/var',
+			output: process.platform === 'win32' ? fileOSRoot : '/var',
 			serveUrl,
 		})
 	).rejects.toThrow(/already exists, but is not a file/);

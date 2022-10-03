@@ -66,6 +66,7 @@ export const renderCommand = async (args: string[]) => {
 		everyNthFrame,
 		numberOfGifLoops,
 		muted,
+		overwrite,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -81,7 +82,7 @@ export const renderCommand = async (args: string[]) => {
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy);
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
-	validateFramesPerLambda(framesPerLambda);
+	validateFramesPerLambda({framesPerLambda, durationInFrames: 1});
 
 	const res = await renderMediaOnLambda({
 		functionName,
@@ -109,6 +110,7 @@ export const renderCommand = async (args: string[]) => {
 		everyNthFrame,
 		concurrencyPerLambda: parsedLambdaCli['concurrency-per-lambda'],
 		muted,
+		overwrite,
 	});
 
 	const totalSteps = outName ? 5 : 4;

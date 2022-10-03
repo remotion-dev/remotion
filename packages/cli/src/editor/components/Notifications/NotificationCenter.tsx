@@ -46,11 +46,15 @@ export const NotificationCenter: React.FC = () => {
 		});
 	}, []);
 
-	useImperativeHandle(notificationCenter, () => {
-		return {
-			addNotification,
-		};
-	});
+	useImperativeHandle(
+		notificationCenter,
+		() => {
+			return {
+				addNotification,
+			};
+		},
+		[addNotification]
+	);
 
 	return (
 		<div style={container}>

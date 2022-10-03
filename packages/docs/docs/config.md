@@ -69,6 +69,22 @@ Config.Bundling.setPort(3003);
 
 The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option.
 
+### setPublicDir()
+
+_Available from v3.2.13_
+
+Define the location of the `public/` directory.  
+By default it is a folder named "public" inside the current working directory.  
+You can either set an absolute path, or a relative path that will be resolved from the closest package.json location.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Bundling.setPublicDir("./publico");
+```
+
+The [command line flag](/docs/cli/render#--public-dir) `--public-dir` will take precedence over this option.
+
 ## Log
 
 ### setLevel()
@@ -137,7 +153,7 @@ The [command line flag](/docs/cli/render#--browser-executable) `--browser-execut
 
 _Available from Version 2.6.3._
 
-Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before it times out. Default: `30000`
+Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
 ```ts twoslash
 import { Config } from "remotion";
@@ -514,6 +530,37 @@ Config.Output.setCrf(16);
 ```
 
 The [command line flag](/docs/cli/render#--crf) `--crf` will take precedence over this option.
+
+### overrideFfmpegCommand
+
+_available from v3.2.22_
+
+Modifies the FFMPEG command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
+
+```tsx twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Output.overrideFfmpegCommand(({ args }) => {
+  return [...args, "-vf", "eq=brightness=0:saturation=1"];
+});
+```
+
+The function you pass must accept an object as it's only parameter which contains the following properties:
+
+- `type`: Either `"stitcher"` or `"pre-stitcher"`. If enough memory and CPU is available, Remotion may use parallel rendering and encoding, which means that a pre-stitcher process gets spawned before all frames are rendered. You can tell whether parallel encoding is enabled by adding `--log=verbose` to your render command.
+- `args`: An array of strings that is passed as arguments to the FFMPEG command.
+
+Your function must return a modified array of strings.
+
+:::warning
+Using this feature is discouraged. Before using it, we want to make you aware of some caveats:
+
+- The render command can change with any new Remotion version, even when it is a patch upgrade. This might break your usage of this feature.
+- Depending on the selected codec, available CPU and RAM, Remotion may or may not use "parallel encoding" which will result in multiple FFMPEG commands being executed. Your function must be able to handle being called multiple times.
+- This feature is not available when using Remotion Lambda.
+
+Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
+:::
 
 ## See also
 

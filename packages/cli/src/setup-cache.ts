@@ -1,4 +1,4 @@
-import type {BundleOptions} from '@remotion/bundler';
+import type {LegacyBundleOptions} from '@remotion/bundler';
 import {bundle, BundlerInternals} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
 import {ConfigInternals} from './config';
@@ -14,10 +14,12 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	fullPath,
 	remotionRoot,
 	steps,
+	publicDir,
 }: {
 	fullPath: string;
 	remotionRoot: string;
 	steps: RenderStep[];
+	publicDir: string | null;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => Promise<void>;
@@ -29,7 +31,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		};
 	}
 
-	const bundled = await bundleOnCli({fullPath, remotionRoot, steps});
+	const bundled = await bundleOnCli({fullPath, remotionRoot, steps, publicDir});
 
 	return {
 		urlOrBundle: bundled,
@@ -41,10 +43,12 @@ export const bundleOnCli = async ({
 	fullPath,
 	steps,
 	remotionRoot,
+	publicDir,
 }: {
 	fullPath: string;
 	steps: RenderStep[];
 	remotionRoot: string;
+	publicDir: string | null;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -58,16 +62,17 @@ export const bundleOnCli = async ({
 		);
 	};
 
-	const options: BundleOptions = {
+	const options: LegacyBundleOptions = {
 		enableCaching: shouldCache,
 		webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
 		rootDir: remotionRoot,
+		publicDir,
 	};
 
 	const [hash] = BundlerInternals.getConfig({
 		outDir: '',
 		entryPoint: fullPath,
-		onProgressUpdate: onProgress,
+		onProgress,
 		options,
 		resolvedRemotionRoot: remotionRoot,
 	});
@@ -90,9 +95,9 @@ export const bundleOnCli = async ({
 	const bundleStartTime = Date.now();
 	const bundlingProgress = createOverwriteableCliOutput(quietFlagProvided());
 
-	const bundled = await bundle(
-		fullPath,
-		(progress) => {
+	const bundled = await bundle({
+		entryPoint: fullPath,
+		onProgress: (progress) => {
 			bundlingProgress.update(
 				makeBundlingProgress({
 					progress: progress / 100,
@@ -101,8 +106,8 @@ export const bundleOnCli = async ({
 				})
 			);
 		},
-		options
-	);
+		...options,
+	});
 	bundlingProgress.update(
 		makeBundlingProgress({
 			progress: 1,
