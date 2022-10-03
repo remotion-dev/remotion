@@ -1,9 +1,12 @@
-import {bundle} from '@remotion/bundler';
 import type {RenderMediaOptions} from '@remotion/renderer';
 import {getCompositions, renderMedia} from '@remotion/renderer';
 import path from 'path';
+import {chalk} from './chalk';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
+import {makeProgressBar} from './make-progress-bar';
+import {parsedCli, quietFlagProvided} from './parse-command-line';
+import {createOverwriteableCliOutput} from './progress-bar';
+import {bundleOnCli} from './setup-cache';
 
 const DEFUALT_RUNS = 3;
 const DEFAULT_COMP_ID = 'Main';
@@ -46,8 +49,6 @@ const runBenchmark = async (
 ) => {
 	const timeTaken: number[] = [];
 	for (let run = 0; run < runs; ++run) {
-		Log.info(`Rendering for ${run + 1}th run`);
-
 		const startTime = performance.now();
 		await renderMedia({
 			...options,
@@ -119,11 +120,53 @@ const logResults = (
 	}
 };
 
-export const benchmarkCommand = async () => {
+type BenchmarkProgressBarOptions = {
+	totalRuns: number;
+	run: number;
+	progress: number;
+	concurrency: number | null;
+	compId: string;
+	doneIn: string | null;
+};
+
+const makeBenchmarkProgressBar = ({
+	totalRuns,
+	run,
+	progress,
+	doneIn,
+	compId,
+	concurrency,
+}: BenchmarkProgressBarOptions) => {
+	const totalProgress = (run + progress) / totalRuns;
+
+	return [
+		`(2/2)`,
+		makeProgressBar(totalProgress),
+		doneIn === null
+			? `Rendering ${compId} frames${
+					concurrency === null ? '' : `(${concurrency}x)`
+			  }`
+			: `Rendered ${compId} ${totalRuns} times`,
+		doneIn === null
+			? `${(totalProgress * 100).toFixed(2)}% ${chalk.gray(
+					` ${run + 1}th run`
+			  )}`
+			: chalk.gray(doneIn),
+	].join(' ');
+};
+
+export const benchmarkCommand = async (remotionRoot: string) => {
 	const runs: number = parsedCli.runs ?? DEFUALT_RUNS;
 	const filePath: string = parsedCli.filePath ?? DEFAULT_FILE_PATH;
 
-	const bundleLocation = await bundle(path.resolve(filePath));
+	const fullPath = path.join(process.cwd(), filePath);
+
+	const bundleLocation = await bundleOnCli({
+		fullPath,
+		publicDir: null,
+		remotionRoot,
+		steps: ['bundling', 'rendering'],
+	});
 
 	const compositions = await getValidCompositions(bundleLocation);
 
@@ -132,28 +175,77 @@ export const benchmarkCommand = async () => {
 	const concurrency = getValidConcurrency();
 
 	for (const composition of compositions) {
+		if (composition !== compositions[0]) {
+			Log.info();
+		}
+
+		const benchmarkProgress = createOverwriteableCliOutput(quietFlagProvided());
+
+		const start = Date.now();
+
 		benchmark[composition.id] = {};
 		if (concurrency) {
 			for (const con of concurrency) {
-				const timeTaken = await runBenchmark(runs, {
-					codec: 'h264',
-					composition,
-					serveUrl: bundleLocation,
-					concurrency: con,
-				});
+				const timeTaken = await runBenchmark(
+					runs,
+					{
+						codec: 'h264',
+						composition,
+						serveUrl: bundleLocation,
+						concurrency: con,
+					},
+					(run, progress) => {
+						benchmarkProgress.update(
+							makeBenchmarkProgressBar({
+								totalRuns: runs,
+								run,
+								compId: composition.id,
+								concurrency: con,
+								doneIn: null,
+								progress,
+							})
+						);
+					}
+				);
 
 				benchmark[composition.id][`${con}`] = timeTaken;
 			}
 		} else {
-			const timeTaken = await runBenchmark(runs, {
-				codec: 'h264',
-				composition,
-				serveUrl: bundleLocation,
-			});
+			const timeTaken = await runBenchmark(
+				runs,
+				{
+					codec: 'h264',
+					composition,
+					serveUrl: bundleLocation,
+				},
+				(run, progress) => {
+					benchmarkProgress.update(
+						makeBenchmarkProgressBar({
+							totalRuns: runs,
+							run,
+							compId: composition.id,
+							concurrency: null,
+							doneIn: null,
+							progress,
+						})
+					);
+				}
+			);
+			benchmarkProgress.update(
+				makeBenchmarkProgressBar({
+					totalRuns: runs,
+					run: runs - 1,
+					compId: composition.id,
+					concurrency: null,
+					doneIn: formatTime(Date.now() - start),
+					progress: 1,
+				})
+			);
 
 			benchmark[composition.id].default = timeTaken;
 		}
 	}
 
+	Log.info();
 	logResults(benchmark, runs);
 };
