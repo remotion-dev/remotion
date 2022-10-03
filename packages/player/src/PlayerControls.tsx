@@ -6,6 +6,9 @@ import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
 import {MediaVolumeSlider} from './MediaVolumeSlider';
 import {PlayerSeekBar} from './PlayerSeekBar';
 import type {usePlayer} from './use-player';
+import {useVideoControlsResize} from './use-video-controls-resize';
+
+export const X_SPACER = 10;
 
 const containerStyle: React.CSSProperties = {
 	boxSizing: 'border-box',
@@ -64,11 +67,14 @@ const flex1: React.CSSProperties = {
 
 const fullscreen: React.CSSProperties = {};
 
-const timeLabel: React.CSSProperties = {
+const timeLabel = (maxWidth: number): React.CSSProperties => ({
 	color: 'white',
 	fontFamily: 'sans-serif',
 	fontSize: 14,
-};
+	maxWidth,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+});
 
 declare global {
 	interface Document {
@@ -117,6 +123,9 @@ export const Controls: React.FC<{
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
+
+	const {maxTimeLabelWidth, displayVerticalVolumeSlider} =
+		useVideoControlsResize(isFullscreen, allowFullscreen);
 	const [shouldShowInitially, setInitiallyShowControls] = useState<
 		boolean | number
 	>(() => {
@@ -208,11 +217,13 @@ export const Controls: React.FC<{
 					{showVolumeControls ? (
 						<>
 							<div style={xSpacer} />
-							<MediaVolumeSlider isFullscreen={isFullscreen} />
+							<MediaVolumeSlider
+								displayVerticalVolumeSlider={displayVerticalVolumeSlider}
+							/>
 						</>
 					) : null}
 					<div style={xSpacer} />
-					<div style={timeLabel}>
+					<div style={timeLabel(maxTimeLabelWidth)}>
 						{formatTime(frame / fps)} / {formatTime(durationInFrames / fps)}
 					</div>
 					<div style={xSpacer} />

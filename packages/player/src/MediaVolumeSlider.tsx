@@ -1,13 +1,12 @@
 import React, {useCallback, useLayoutEffect, useRef, useState} from 'react';
-import {Internals, useVideoConfig} from 'remotion';
+import {Internals} from 'remotion';
 import {ICON_SIZE, VolumeOffIcon, VolumeOnIcon} from './icons';
 import {VOLUME_SLIDER_INPUT_CSS_CLASSNAME} from './player-css-classname';
 import {useHoverState} from './use-hover-state';
 
 const BAR_HEIGHT = 5;
 const KNOB_SIZE = 12;
-const VOLUME_SLIDER_WIDTH = 100;
-const MAX_MOBILE_WIDTH = 480;
+export const VOLUME_SLIDER_WIDTH = 100;
 
 const scope = `.${VOLUME_SLIDER_INPUT_CSS_CLASSNAME}`;
 const sliderStyle = `
@@ -49,7 +48,9 @@ ${scope} {
 }
 `;
 
-const parentDivStyle = (width: Number): React.CSSProperties => ({
+const parentDivStyle = (
+	displayVerticalVolumeSlider: Boolean
+): React.CSSProperties => ({
 	display: 'inline-flex',
 	background: 'none',
 	border: 'none',
@@ -57,10 +58,12 @@ const parentDivStyle = (width: Number): React.CSSProperties => ({
 	justifyContent: 'center',
 	alignItems: 'center',
 	touchAction: 'none',
-	...(width <= MAX_MOBILE_WIDTH && {position: 'relative'}),
+	...(displayVerticalVolumeSlider && {position: 'relative'}),
 });
 
-const volumeContainer = (width: Number): React.CSSProperties => ({
+const volumeContainer = (
+	displayVerticalVolumeSlider: Boolean
+): React.CSSProperties => ({
 	display: 'inline',
 	width: ICON_SIZE,
 	height: ICON_SIZE,
@@ -69,17 +72,14 @@ const volumeContainer = (width: Number): React.CSSProperties => ({
 	background: 'none',
 	border: 'none',
 	padding: 0,
-	...(width <= MAX_MOBILE_WIDTH && {position: 'absolute'}),
+	...(displayVerticalVolumeSlider && {position: 'absolute'}),
 });
 
 export const MediaVolumeSlider: React.FC<{
-	isFullscreen: Boolean;
-}> = ({isFullscreen}) => {
+	displayVerticalVolumeSlider: Boolean;
+}> = ({displayVerticalVolumeSlider}) => {
 	const [mediaMuted, setMediaMuted] = Internals.useMediaMutedState();
 	const [mediaVolume, setMediaVolume] = Internals.useMediaVolumeState();
-	const {width} = useVideoConfig();
-	const playerWidth = isFullscreen ? window.innerWidth : width;
-	const isPlayerWidthSmall = playerWidth < MAX_MOBILE_WIDTH;
 	const [focused, setFocused] = useState<boolean>(false);
 	const parentDivRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -87,14 +87,14 @@ export const MediaVolumeSlider: React.FC<{
 	const isMutedOrZero = mediaMuted || mediaVolume === 0;
 
 	useLayoutEffect(() => {
-		if (isPlayerWidthSmall) {
+		if (displayVerticalVolumeSlider) {
 			Internals.CSSUtils.removeCSS(sliderStyle);
 			Internals.CSSUtils.injectCSS(sliderStyleVertical);
 		} else {
 			Internals.CSSUtils.removeCSS(sliderStyleVertical);
 			Internals.CSSUtils.injectCSS(sliderStyle);
 		}
-	}, [isFullscreen, width]);
+	}, [displayVerticalVolumeSlider]);
 
 	const onVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setMediaVolume(parseFloat(e.target.value));
@@ -121,14 +121,14 @@ export const MediaVolumeSlider: React.FC<{
 	}, [mediaVolume, setMediaMuted, setMediaVolume]);
 
 	return (
-		<div ref={parentDivRef} style={parentDivStyle(playerWidth)}>
+		<div ref={parentDivRef} style={parentDivStyle(displayVerticalVolumeSlider)}>
 			<button
 				aria-label={isMutedOrZero ? 'Unmute sound' : 'Mute sound'}
 				title={isMutedOrZero ? 'Unmute sound' : 'Mute sound'}
 				onClick={onClick}
 				onBlur={onBlur}
 				onFocus={() => setFocused(true)}
-				style={volumeContainer(playerWidth)}
+				style={volumeContainer(displayVerticalVolumeSlider)}
 				type="button"
 			>
 				{isMutedOrZero ? <VolumeOffIcon /> : <VolumeOnIcon />}
