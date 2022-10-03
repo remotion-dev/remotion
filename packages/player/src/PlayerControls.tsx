@@ -9,6 +9,7 @@ import type {usePlayer} from './use-player';
 import {useVideoControlsResize} from './use-video-controls-resize';
 
 export const X_SPACER = 10;
+export const X_PADDING = 12;
 
 const containerStyle: React.CSSProperties = {
 	boxSizing: 'border-box',
@@ -19,8 +20,8 @@ const containerStyle: React.CSSProperties = {
 	paddingBottom: 10,
 	background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.4))',
 	display: 'flex',
-	paddingRight: 12,
-	paddingLeft: 12,
+	paddingRight: X_PADDING,
+	paddingLeft: X_PADDING,
 	flexDirection: 'column',
 	transition: 'opacity 0.3s',
 };
