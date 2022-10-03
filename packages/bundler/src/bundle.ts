@@ -9,8 +9,6 @@ import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
 import {webpackConfig} from './webpack-config';
 
-const entry = require.resolve('./renderEntry');
-
 const promisified = promisify(webpack);
 
 const prepareOutDir = async (specified: string | null) => {
@@ -38,34 +36,37 @@ const trimTrailingSlash = (p: string): string => {
 	return p;
 };
 
-export type BundleOptions = {
+export type LegacyBundleOptions = {
 	webpackOverride?: WebpackOverrideFn;
 	outDir?: string;
 	enableCaching?: boolean;
 	publicPath?: string;
 	rootDir?: string;
+	publicDir?: string | null;
 };
 
 export const getConfig = ({
 	entryPoint,
 	outDir,
 	resolvedRemotionRoot,
-	onProgressUpdate,
+	onProgress,
 	options,
 }: {
 	outDir: string;
 	entryPoint: string;
 	resolvedRemotionRoot: string;
-	onProgressUpdate?: (progress: number) => void;
-	options?: BundleOptions;
+	onProgress?: (progress: number) => void;
+	options?: LegacyBundleOptions;
 }) => {
+	const entry = require.resolve('./renderEntry');
+
 	return webpackConfig({
 		entry,
 		userDefinedComponent: entryPoint,
 		outDir,
 		environment: 'production',
 		webpackOverride: options?.webpackOverride ?? ((f) => f),
-		onProgressUpdate,
+		onProgress,
 		enableCaching: options?.enableCaching ?? true,
 		maxTimelineTracks: 15,
 		// For production, the variables are set dynamically
@@ -76,14 +77,45 @@ export const getConfig = ({
 	});
 };
 
-export const bundle = async (
-	entryPoint: string,
-	onProgressUpdate?: (progress: number) => void,
-	options?: BundleOptions
-): Promise<string> => {
-	const resolvedRemotionRoot = options?.rootDir ?? process.cwd();
+export type BundleOptions = {
+	entryPoint: string;
+	onProgress?: (progress: number) => void;
+} & LegacyBundleOptions;
 
-	const outDir = await prepareOutDir(options?.outDir ?? null);
+type Arguments =
+	| [options: BundleOptions]
+	| [
+			entryPoint: string,
+			onProgress?: (progress: number) => void,
+			options?: LegacyBundleOptions
+	  ];
+
+const convertArgumentsIntoOptions = (args: Arguments): BundleOptions => {
+	if ((args.length as number) === 0) {
+		throw new TypeError('bundle() was called without arguments');
+	}
+
+	const firstArg = args[0];
+	if (typeof firstArg === 'string') {
+		return {
+			entryPoint: firstArg,
+			onProgress: args[1],
+			...(args[2] ?? {}),
+		};
+	}
+
+	if (typeof firstArg.entryPoint !== 'string') {
+		throw new TypeError('bundle() was called without the `entryPoint` option');
+	}
+
+	return firstArg;
+};
+
+export async function bundle(...args: Arguments): Promise<string> {
+	const actualArgs = convertArgumentsIntoOptions(args);
+	const resolvedRemotionRoot = actualArgs?.rootDir ?? process.cwd();
+
+	const outDir = await prepareOutDir(actualArgs?.outDir ?? null);
 
 	// The config might use an override which might use
 	// `process.cwd()`. The context should always be the Remotion root.
@@ -93,11 +125,12 @@ export const bundle = async (
 		process.chdir(resolvedRemotionRoot);
 	}
 
+	const {entryPoint, onProgress, ...options} = actualArgs;
 	const [, config] = getConfig({
 		outDir,
 		entryPoint,
 		resolvedRemotionRoot,
-		onProgressUpdate,
+		onProgress,
 		options,
 	});
 
@@ -115,15 +148,16 @@ export const bundle = async (
 		throw new Error(errors[0].message + '\n' + errors[0].details);
 	}
 
-	const baseDir = options?.publicPath ?? '/';
+	const baseDir = actualArgs?.publicPath ?? '/';
 	const staticHash =
 		'/' +
 		[trimTrailingSlash(trimLeadingSlash(baseDir)), 'public']
 			.filter(Boolean)
 			.join('/');
 
-	// TODO: Unhardcode public directory
-	const from = path.join(resolvedRemotionRoot, 'public');
+	const from = options?.publicDir
+		? path.resolve(resolvedRemotionRoot, options.publicDir)
+		: path.join(resolvedRemotionRoot, 'public');
 	const to = path.join(outDir, 'public');
 	if (fs.existsSync(from)) {
 		await copyDir(from, to);
@@ -140,4 +174,4 @@ export const bundle = async (
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 
 	return outDir;
-};
+}

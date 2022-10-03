@@ -60,22 +60,26 @@ export const Timeline: React.FC = () => {
 		});
 	}, [sequences, videoConfig]);
 
-	useImperativeHandle(timelineRef, () => {
-		return {
-			expandAll: () => {
-				dispatch({
-					type: 'expand-all',
-					allHashes: timeline.map((t) => t.hash),
-				});
-			},
-			collapseAll: () => {
-				dispatch({
-					type: 'collapse-all',
-					allHashes: timeline.map((t) => t.hash),
-				});
-			},
-		};
-	});
+	useImperativeHandle(
+		timelineRef,
+		() => {
+			return {
+				expandAll: () => {
+					dispatch({
+						type: 'expand-all',
+						allHashes: timeline.map((t) => t.hash),
+					});
+				},
+				collapseAll: () => {
+					dispatch({
+						type: 'collapse-all',
+						allHashes: timeline.map((t) => t.hash),
+					});
+				},
+			};
+		},
+		[timeline]
+	);
 
 	const withoutHidden = useMemo(() => {
 		return timeline.filter((t) => !isTrackHidden(t, timeline, state));

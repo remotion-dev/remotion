@@ -1,3 +1,16 @@
+.container {
+  position: relative;
+}
+
+.background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url('/img/background-hire-page.svg');
+  background-size: 100%;
+  background-repeat: no-repeat;
+}
+
 .wrapper {
   max-width: 1000px;
   margin: auto;

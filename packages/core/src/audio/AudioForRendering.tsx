@@ -47,9 +47,13 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaVolume: 1,
 	});
 
-	useImperativeHandle(ref, () => {
-		return audioRef.current as HTMLVideoElement;
-	});
+	useImperativeHandle(
+		ref,
+		() => {
+			return audioRef.current as HTMLVideoElement;
+		},
+		[]
+	);
 
 	useEffect(() => {
 		if (!props.src) {

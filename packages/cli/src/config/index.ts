@@ -59,6 +59,10 @@ import {
 import {setDotEnvLocation} from './env-file';
 import {setEveryNthFrame} from './every-nth-frame';
 import {setFfmpegExecutable, setFfprobeExecutable} from './ffmpeg-executable';
+import {
+	getFfmpegOverrideFunction,
+	setFfmpegOverrideFunction,
+} from './ffmpeg-override';
 import {setFrameRange} from './frame-range';
 import {setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
@@ -77,6 +81,7 @@ import {setOverwriteOutput} from './overwrite';
 import {setPixelFormat} from './pixel-format';
 import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
+import {getPublicDir, setPublicDir} from './public-dir';
 import {setQuality} from './quality';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
@@ -91,6 +96,7 @@ export const Config: ConfigType = {
 		overrideWebpackConfig,
 		setCachingEnabled: setWebpackCaching,
 		setPort,
+		setPublicDir,
 	},
 	Log: {
 		setLevel: setLogLevel,
@@ -126,6 +132,7 @@ export const Config: ConfigType = {
 		setCrf,
 		setImageSequence,
 		setProResProfile,
+		overrideFfmpegCommand: setFfmpegOverrideFunction,
 	},
 } as ConfigType;
 
@@ -172,6 +179,8 @@ export const ConfigInternals = {
 	getEnforceAudioTrack,
 	setEnforceAudioTrack,
 	getKeyboardShortcutsEnabled,
+	getPublicDir,
+	getFfmpegOverrideFunction,
 };
 
 export const overrideRemotion = () => {
