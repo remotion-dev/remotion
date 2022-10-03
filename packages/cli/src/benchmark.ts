@@ -99,9 +99,13 @@ const logResults = (
 
 			Log.info(`Rendering time for ${compId} for ${runs} runs`);
 			if (comp.default) {
-				Log.info(`\tMax : ${formatTime(Math.max(...comp.default))}`);
-				Log.info(`\tMin : ${formatTime(Math.min(...comp.default))}`);
-				Log.info(`\tAverage : ${formatTime(avg(comp.default))}`);
+				Log.info(
+					`  Max : ${chalk.bold(formatTime(Math.max(...comp.default)))}`
+				);
+				Log.info(
+					`  Min : ${chalk.bold(formatTime(Math.min(...comp.default)))}`
+				);
+				Log.info(`  Average : ${chalk.bold(formatTime(avg(comp.default)))}`);
 			} else {
 				for (const con in comp) {
 					// eslint-disable-next-line max-depth
@@ -109,10 +113,20 @@ const logResults = (
 						const concurrencyResult = comp[con];
 
 						Log.info();
-						Log.info(`\tConcurrency : ${con}`);
-						Log.info(`\t\tMax : ${formatTime(Math.max(...concurrencyResult))}`);
-						Log.info(`\t\tMin : ${formatTime(Math.min(...concurrencyResult))}`);
-						Log.info(`\t\tAverage : ${formatTime(avg(concurrencyResult))}`);
+						Log.info(`  Concurrency : ${con}`);
+						Log.info(
+							`    Max : ${chalk.bold(
+								formatTime(Math.max(...concurrencyResult))
+							)}`
+						);
+						Log.info(
+							`    Min : ${chalk.bold(
+								formatTime(Math.min(...concurrencyResult))
+							)}`
+						);
+						Log.info(
+							`    Average : ${chalk.bold(formatTime(avg(concurrencyResult)))}`
+						);
 					}
 				}
 			}
