@@ -112,10 +112,13 @@ export const renderMediaOnLambda = async ({
 		durationInFrames: 1,
 	});
 	validateDownloadBehavior(downloadBehavior);
-	validateOutputFilename(
-		codec,
-		RenderInternals.getExtensionOfFilename(outName)
-	);
+	if (outName === undefined || typeof outName === 'string') {
+		validateOutputFilename(
+			codec,
+			RenderInternals.getExtensionOfFilename(outName ?? null)
+		);
+	}
+
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
 	try {
 		const res = await callLambda({
