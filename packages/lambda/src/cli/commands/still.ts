@@ -49,7 +49,7 @@ export const stillCommand = async (args: string[]) => {
 	const {
 		chromiumOptions,
 		envVariables,
-		imageFormat,
+		imageFormat: cliImageFormat,
 		inputProps,
 		logLevel,
 		puppeteerTimeout,
@@ -68,6 +68,40 @@ export const stillCommand = async (args: string[]) => {
 
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy);
+
+	let imageFormat = cliImageFormat;
+
+	if (outName) {
+		if (cliImageFormat === 'none') {
+			if (outName?.endsWith('.jpeg') || outName?.endsWith('.jpg')) {
+				Log.verbose(
+					'Output file has a JPEG extension, setting the image format to JPEG.'
+				);
+				imageFormat = 'jpeg';
+			}
+
+			if (outName?.endsWith('.png')) {
+				Log.verbose(
+					'Output file has a PNG extension, setting the image format to PNG.'
+				);
+				imageFormat = 'png';
+			}
+		}
+
+		if (imageFormat === 'png' && outName.endsWith('.png')) {
+			Log.warn(`Rendering a PNG, expected a .png extension but got ${outName}`);
+		}
+
+		if (
+			imageFormat === 'jpeg' &&
+			!outName.endsWith('.jpg') &&
+			!outName.endsWith('.jpeg')
+		) {
+			Log.warn(
+				`Rendering a JPEG, expected a .jpg or .jpeg extension but got ${outName}`
+			);
+		}
+	}
 
 	try {
 		const res = await renderStillOnLambda({
