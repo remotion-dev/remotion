@@ -54,6 +54,12 @@ Specify a location for a dotenv file. Default `.env`.
 ### `--frame`
 
 Which frame should be rendered. Example `--frame=10`. Default `0`.
+For a composition of 100 frames, could between -100 and 99.
+In this case:
+- 0 would mean the first frame
+- 99 the last frame
+- -1 would mean the last frame
+- -100 would mean the first frame
 
 ### `--bundle-cache`
 

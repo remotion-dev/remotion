@@ -103,6 +103,7 @@ const innerRenderStill = async ({
 	);
 	validateNonNullImageFormat(imageFormat);
 	validateFrame(frame, composition.durationInFrames);
+	const stillFrame = frame < 0 ? composition.durationInFrames - frame : frame;
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	validateScale(scale);
 
@@ -185,7 +186,7 @@ const innerRenderStill = async ({
 		envVariables,
 		page,
 		serveUrl,
-		initialFrame: frame,
+		initialFrame: stillFrame,
 		timeoutInMilliseconds,
 		proxyPort,
 		retriesRemaining: 2,
@@ -224,14 +225,14 @@ const innerRenderStill = async ({
 		frame: null,
 		page,
 	});
-	await seekToFrame({frame, page});
+	await seekToFrame({frame: stillFrame, page});
 
 	await provideScreenshot({
 		page,
 		imageFormat,
 		quality,
 		options: {
-			frame,
+			frame: stillFrame,
 			output,
 		},
 	});
