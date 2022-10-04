@@ -76,8 +76,7 @@ export class BrowserRunner {
 	}
 
 	start(options: LaunchOptions): void {
-		const {handleSIGINT, handleSIGTERM, handleSIGHUP, dumpio, env, pipe} =
-			options;
+		const {dumpio, env, pipe} = options;
 		let stdio: Array<'ignore' | 'pipe'>;
 		if (pipe) {
 			if (dumpio) {
@@ -148,26 +147,20 @@ export class BrowserRunner {
 			});
 		});
 		this.#listeners = [addEventListener(process, 'exit', this.kill.bind(this))];
-		if (handleSIGINT) {
-			this.#listeners.push(
-				addEventListener(process, 'SIGINT', () => {
-					this.kill();
-					process.exit(130);
-				})
-			);
-		}
+		this.#listeners.push(
+			addEventListener(process, 'SIGINT', () => {
+				this.kill();
+				process.exit(130);
+			})
+		);
 
-		if (handleSIGTERM) {
-			this.#listeners.push(
-				addEventListener(process, 'SIGTERM', this.close.bind(this))
-			);
-		}
+		this.#listeners.push(
+			addEventListener(process, 'SIGTERM', this.close.bind(this))
+		);
 
-		if (handleSIGHUP) {
-			this.#listeners.push(
-				addEventListener(process, 'SIGHUP', this.close.bind(this))
-			);
-		}
+		this.#listeners.push(
+			addEventListener(process, 'SIGHUP', this.close.bind(this))
+		);
 	}
 
 	close(): Promise<void> {
