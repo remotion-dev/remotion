@@ -48,6 +48,7 @@ export type RenderMediaOnLambdaInput = {
 	downloadBehavior?: DownloadBehavior | null;
 	muted?: boolean;
 	overwrite?: boolean;
+	webhook?: string
 };
 
 export type RenderMediaOnLambdaOutput = {
@@ -72,6 +73,7 @@ export type RenderMediaOnLambdaOutput = {
  * @param params.region The AWS region in which the media should be rendered.
  * @param params.maxRetries How often rendering a chunk may fail before the media render gets aborted. Default "1"
  * @param params.logLevel Level of logging that Lambda function should perform. Default "info".
+ * @param params.webhook Webhook URL to be called upon completion or timeout of the rendering process.
  * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
 
@@ -103,6 +105,7 @@ export const renderMediaOnLambda = async ({
 	downloadBehavior,
 	muted,
 	overwrite,
+	webhook,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
@@ -143,6 +146,7 @@ export const renderMediaOnLambda = async ({
 				muted: muted ?? false,
 				version: VERSION,
 				overwrite: overwrite ?? false,
+				webhook,
 			},
 			region,
 		});

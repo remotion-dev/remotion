@@ -18,6 +18,7 @@ import {
 	rendersPrefix,
 } from '../shared/constants';
 import {DOCS_URL} from '../shared/docs-url';
+import {invokeWebhook} from '../shared/invoke-webhook';
 import {getServeUrlHash} from '../shared/make-s3-url';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateOutname} from '../shared/validate-outname';
@@ -92,6 +93,18 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	}
 
 	const startedDate = Date.now();
+
+	let webhookInvoked = false;
+	const webhookDueToTimeout = setTimeout(async () => {
+		if (params.webhook && !webhookInvoked) {
+			await invokeWebhook({
+				url: params.webhook,
+				type: 'timeout',
+				renderId: params.renderId,
+			});
+			webhookInvoked = true;
+		}
+	}, Math.max(params.timeoutInMilliseconds - 1000, 1000));
 
 	const [browserInstance, optimization] = await Promise.all([
 		getBrowserInstance(
@@ -515,6 +528,16 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	});
 
 	await Promise.all([cleanupChunksProm, fs.promises.rm(outfile)]);
+
+	clearTimeout(webhookDueToTimeout);
+	if (params.webhook && !webhookInvoked) {
+		await invokeWebhook({
+			url: params.webhook,
+			type: 'success',
+			renderId: params.renderId,
+		})
+		webhookInvoked = true;
+	}
 };
 
 export const launchHandler = async (
@@ -547,5 +570,12 @@ export const launchHandler = async (
 			expectedBucketOwner: options.expectedBucketOwner,
 			renderId: params.renderId,
 		});
+		if (params.webhook) {
+			await invokeWebhook({
+				url: params.webhook,
+				type: 'error',
+				renderId: params.renderId,
+			})
+		}
 	}
 };
