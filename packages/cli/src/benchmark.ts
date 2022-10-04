@@ -103,11 +103,13 @@ const getResults = (results: number[], runs: number) => {
 
 	return `    Time (${chalk.green('mean')} ± ${chalk.green(
 		'σ'
-	)}): \t ${chalk.green(formatTime(mean))} ± ${chalk.green(
+	)}):         ${chalk.green(formatTime(mean))} ± ${chalk.green(
 		formatTime(dev)
-	)}\n    Range (${chalk.blue('min')} ... ${chalk.red('max')}): \t ${chalk.blue(
-		formatTime(min)
-	)} ... ${chalk.red(formatTime(max))} \t ${chalk.gray(`${runs} runs`)}
+	)}\n    Range (${chalk.blue('min')} ... ${chalk.red(
+		'max'
+	)}):     ${chalk.blue(formatTime(min))} ... ${chalk.red(
+		formatTime(max)
+	)} \t ${chalk.gray(`${runs} runs`)}
 	`;
 };
 
@@ -155,7 +157,7 @@ export const benchmarkCommand = async (remotionRoot: string) => {
 		fullPath,
 		publicDir: null,
 		remotionRoot,
-		steps: [],
+		steps: ['bundling'],
 	});
 
 	const compositions = await getValidCompositions(bundleLocation);
@@ -167,14 +169,14 @@ export const benchmarkCommand = async (remotionRoot: string) => {
 	let count = 1;
 
 	for (const composition of compositions) {
-		Log.info();
-
 		benchmark[composition.id] = {};
 		if (concurrency) {
 			for (const con of concurrency) {
 				const benchmarkProgress = createOverwriteableCliOutput(
 					quietFlagProvided()
 				);
+				Log.info();
+				Log.info();
 				Log.info(
 					`${chalk.bold(`Benchmark #${count++}:`)} ${chalk.gray(
 						`composition=${composition.id} concurrency=${con}`
@@ -201,11 +203,14 @@ export const benchmarkCommand = async (remotionRoot: string) => {
 					}
 				);
 
+				benchmarkProgress.update('');
 				benchmarkProgress.update(getResults(timeTaken, runs));
 
 				benchmark[composition.id][`${con}`] = timeTaken;
 			}
 		} else {
+			Log.info();
+			Log.info();
 			Log.info(
 				`${chalk.bold(`Benchmark #${count++}:`)} ${chalk.gray(
 					`composition=${composition.id}`
@@ -239,6 +244,4 @@ export const benchmarkCommand = async (remotionRoot: string) => {
 			benchmark[composition.id].default = timeTaken;
 		}
 	}
-
-	Log.info();
 };

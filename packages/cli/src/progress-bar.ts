@@ -48,9 +48,7 @@ export const makeBundlingProgress = ({
 	doneIn: number | null;
 }) =>
 	[
-		steps.length > 0
-			? `(${steps.indexOf('bundling') + 1}/${steps.length})`
-			: null,
+		`(${steps.indexOf('bundling') + 1}/${steps.length})`,
 		makeProgressBar(progress),
 		`${doneIn ? 'Bundled' : 'Bundling'} code`,
 		doneIn === null
