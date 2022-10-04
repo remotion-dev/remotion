@@ -25,7 +25,7 @@ export type RenderMediaOnLambdaInput = {
 	functionName: string;
 	serveUrl: string;
 	composition: string;
-	inputProps: unknown;
+	inputProps?: unknown;
 	codec: LambdaCodec;
 	imageFormat?: ImageFormat;
 	crf?: number | undefined;
@@ -120,7 +120,7 @@ export const renderMediaOnLambda = async ({
 				framesPerLambda: framesPerLambda ?? null,
 				composition,
 				serveUrl: realServeUrl,
-				inputProps,
+				inputProps: inputProps ?? {},
 				codec: actualCodec,
 				imageFormat: imageFormat ?? 'jpeg',
 				crf,

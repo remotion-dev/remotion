@@ -19,14 +19,9 @@ const { bucketName, renderId } = await renderMediaOnLambda({
   region: "us-east-1",
   functionName: "remotion-render-bds9aab",
   composition: "MyVideo",
-  framesPerLambda: 20,
   serveUrl:
     "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
-  inputProps: {},
   codec: "h264",
-  imageFormat: "jpeg",
-  maxRetries: 1,
-  privacy: "public",
 });
 ```
 
@@ -76,6 +71,8 @@ The `id` of the [composition](/docs/composition) you want to render.
 
 ### `inputProps`
 
+_optional since v3.2.26_
+
 React props that are passed to your composition. You define the shape of the props that the component accepts.
 
 ### `codec`
@@ -93,6 +90,8 @@ See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
 Disables audio output. See also [`renderMedia() -> muted`](/docs/renderer/render-media#muted).
 
 ### `imageFormat`
+
+_optional since v3.2.26_
 
 See [`renderMedia() -> imageFormat`](/docs/renderer/render-media#imageformat).
 
