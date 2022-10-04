@@ -6,8 +6,7 @@ import * as Crypto from 'crypto';
  * @param payload Stringified request body to encode in the signature.
  */
 export function calculateSignature(payload: string) {
-	const secret =
-		process.env.REMOTION_AWS_SECRET_ACCESS_KEY ?? 'INSECURE_DEFAULT_SECRET';
+	const secret = 'INSECURE_DEFAULT_SECRET';
 	const hmac = Crypto.createHmac('sha1', secret);
 	const signature = 'sha1=' + hmac.update(payload).digest('hex');
 	return signature;
