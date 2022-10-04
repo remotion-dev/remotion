@@ -8,6 +8,7 @@ import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
+import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import type {FfmpegExecutable} from './ffmpeg-executable';
@@ -103,6 +104,10 @@ const innerRenderStill = async ({
 	);
 	validateNonNullImageFormat(imageFormat);
 	validateFrame(frame, composition.durationInFrames);
+	const stillFrame = convertToPositiveFrameIndex({
+		durationInFrames: composition.durationInFrames,
+		frame,
+	});
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	validateScale(scale);
 
@@ -185,7 +190,7 @@ const innerRenderStill = async ({
 		envVariables,
 		page,
 		serveUrl,
-		initialFrame: frame,
+		initialFrame: stillFrame,
 		timeoutInMilliseconds,
 		proxyPort,
 		retriesRemaining: 2,
@@ -224,14 +229,14 @@ const innerRenderStill = async ({
 		frame: null,
 		page,
 	});
-	await seekToFrame({frame, page});
+	await seekToFrame({frame: stillFrame, page});
 
 	await provideScreenshot({
 		page,
 		imageFormat,
 		quality,
 		options: {
-			frame,
+			frame: stillFrame,
 			output,
 		},
 	});
