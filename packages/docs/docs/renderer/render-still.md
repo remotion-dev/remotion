@@ -77,7 +77,9 @@ _optional_
 
 _optional - default: 0_
 
-Which frame should be rendered based on its number.
+Which frame should be rendered based on its number. Frames are zero-indexed.
+
+From v3.2.26, negative values are allowed, with `-1` being the last frame.
 
 ### `imageFormat?`
 
