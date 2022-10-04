@@ -2,7 +2,6 @@ import {expect, test} from 'vitest';
 import {validateFrame} from '../validate-frame';
 
 test('Validate frame', () => {
-	expect(() => validateFrame(-1, 100)).toThrow(/Frame -1 cannot be negative/);
 	expect(() => validateFrame(Infinity, 100)).toThrow(
 		/Frame Infinity is not finite/
 	);
@@ -18,4 +17,9 @@ test('Validate frame', () => {
 	);
 	expect(() => validateFrame(0, 1)).not.toThrow();
 	expect(() => validateFrame(1, 2)).not.toThrow();
+	expect(() => validateFrame(-1, 100)).not.toThrow();
+	expect(() => validateFrame(-100, 100)).not.toThrow();
+	expect(() => validateFrame(-101, 100)).toThrow(
+		/Cannot use frame -101: Duration of composition is 100, therefore the lowest frame that can be rendered is -100/
+	);
 });
