@@ -20,16 +20,19 @@ export const useVideoControlsResize = ({
 		const playPauseIconSize = ICON_SIZE;
 		const volumeIconSize = ICON_SIZE;
 		const _fullscreenIconSize = allowFullScreen ? fullscreenIconSize : 0;
-		const maxTimeLabelWidth =
-			playerWidth -
-			volumeIconSize -
-			playPauseIconSize -
-			_fullscreenIconSize -
-			X_PADDING * 2 -
+		const elementsSize =
+			volumeIconSize +
+			playPauseIconSize +
+			_fullscreenIconSize +
+			X_PADDING * 2 +
 			X_SPACER * 2;
 
-		const maxTimeLabelWidthWithoutNegativeValue =
-			maxTimeLabelWidth > 0 ? maxTimeLabelWidth : 0;
+		const maxTimeLabelWidth = playerWidth - elementsSize;
+
+		const maxTimeLabelWidthWithoutNegativeValue = Math.max(
+			maxTimeLabelWidth,
+			0
+		);
 
 		const availableTimeLabelWidthIfVolumeOpen =
 			maxTimeLabelWidthWithoutNegativeValue - VOLUME_SLIDER_WIDTH;
@@ -42,13 +45,7 @@ export const useVideoControlsResize = ({
 				? maxTimeLabelWidthWithoutNegativeValue
 				: availableTimeLabelWidthIfVolumeOpen;
 		const minWidthForHorizontalDisplay =
-			computedLabelWidth +
-			volumeIconSize +
-			VOLUME_SLIDER_WIDTH +
-			playPauseIconSize +
-			_fullscreenIconSize +
-			X_PADDING * 2 +
-			X_SPACER * 2;
+			computedLabelWidth + elementsSize + VOLUME_SLIDER_WIDTH;
 
 		const displayVerticalVolumeSlider =
 			playerWidth < minWidthForHorizontalDisplay;
