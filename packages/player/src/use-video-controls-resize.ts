@@ -1,23 +1,22 @@
 import {useMemo} from 'react';
-import {useVideoConfig} from 'remotion';
 import {fullscreenIconSize, ICON_SIZE} from './icons';
 import {VOLUME_SLIDER_WIDTH} from './MediaVolumeSlider';
 import {X_PADDING, X_SPACER} from './PlayerControls';
 
-export const useVideoControlsResize = (
-	isFullscreen: Boolean,
-	allowFullScreen: Boolean
-): {
+export const useVideoControlsResize = ({
+	allowFullscreen: allowFullScreen,
+	playerWidth,
+}: {
+	allowFullscreen: boolean;
+	playerWidth: number;
+}): {
 	maxTimeLabelWidth: number;
-	displayVerticalVolumeSlider: Boolean;
+	displayVerticalVolumeSlider: boolean;
 } => {
-	const {width} = useVideoConfig();
-
 	const resizeInfo = useMemo((): {
 		maxTimeLabelWidth: number;
-		displayVerticalVolumeSlider: Boolean;
+		displayVerticalVolumeSlider: boolean;
 	} => {
-		const playerWidth = isFullscreen ? window.innerWidth : width;
 		const playPauseIconSize = ICON_SIZE;
 		const volumeIconSize = ICON_SIZE;
 		const _fullscreenIconSize = allowFullScreen ? fullscreenIconSize : 0;
@@ -53,11 +52,12 @@ export const useVideoControlsResize = (
 
 		const displayVerticalVolumeSlider =
 			playerWidth < minWidthForHorizontalDisplay;
+
 		return {
 			maxTimeLabelWidth: maxTimeLabelWidthWithoutNegativeValue,
 			displayVerticalVolumeSlider,
 		};
-	}, [width, isFullscreen, allowFullScreen]);
+	}, [allowFullScreen, playerWidth]);
 
 	return resizeInfo;
 };

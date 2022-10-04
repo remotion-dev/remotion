@@ -104,6 +104,7 @@ export const Controls: React.FC<{
 	inFrame: number | null;
 	outFrame: number | null;
 	initiallyShowControls: number | boolean;
+	playerWidth: number;
 }> = ({
 	durationInFrames,
 	hovered,
@@ -120,13 +121,14 @@ export const Controls: React.FC<{
 	inFrame,
 	outFrame,
 	initiallyShowControls,
+	playerWidth,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
 
 	const {maxTimeLabelWidth, displayVerticalVolumeSlider} =
-		useVideoControlsResize(isFullscreen, allowFullscreen);
+		useVideoControlsResize({allowFullscreen, playerWidth});
 	const [shouldShowInitially, setInitiallyShowControls] = useState<
 		boolean | number
 	>(() => {
