@@ -16,16 +16,6 @@ export const VOLUME_SLIDER_WIDTH = 100;
 
 const scope = `.${VOLUME_SLIDER_INPUT_CSS_CLASSNAME}`;
 const sliderStyle = `
-	${scope} {
-		-webkit-appearance: none;
-		background-color: rgba(255, 255, 255, 0.5);	
-		border-radius: ${BAR_HEIGHT / 2}px;
-		cursor: pointer;
-		height: ${BAR_HEIGHT}px;
-		margin-left: 5px;
-		width: ${VOLUME_SLIDER_WIDTH}px;
-	}
-
 	${scope}::-webkit-slider-thumb {
 		-webkit-appearance: none;
 		background-color: white;
@@ -49,8 +39,9 @@ const sliderStyleVertical = `
 ${sliderStyle}
 ${scope} {
 	position: absolute;
-  bottom: ${VOLUME_SLIDER_WIDTH / 2 + ICON_SIZE / 2 + 4}px;
-  transform: rotate(-90deg);
+  bottom: ${ICON_SIZE / 2 + 4}px;
+	height: ${VOLUME_SLIDER_WIDTH}px;
+	width: ${BAR_HEIGHT}px;
 }
 `;
 
@@ -122,7 +113,30 @@ export const MediaVolumeSlider: React.FC<{
 			background: 'none',
 			border: 'none',
 			padding: 0,
-			...(displayVerticalVolumeSlider && {position: 'absolute'}),
+		};
+	}, []);
+
+	const inputStyle = useMemo((): React.CSSProperties => {
+		const commonStyle: React.CSSProperties = {
+			WebkitAppearance: 'none',
+			backgroundColor: 'rgba(255, 255, 255, 0.5)',
+			borderRadius: BAR_HEIGHT / 2,
+			cursor: 'pointer',
+		};
+		if (displayVerticalVolumeSlider) {
+			return {
+				...commonStyle,
+				width: BAR_HEIGHT,
+				height: VOLUME_SLIDER_WIDTH,
+			};
+		}
+
+		return {
+			...commonStyle,
+			WebkitAppearance: 'slider-vertical',
+			height: BAR_HEIGHT,
+			marginLeft: 5,
+			width: VOLUME_SLIDER_WIDTH,
 		};
 	}, [displayVerticalVolumeSlider]);
 
@@ -152,6 +166,7 @@ export const MediaVolumeSlider: React.FC<{
 					step={0.01}
 					type="range"
 					value={mediaVolume}
+					style={inputStyle}
 				/>
 			) : null}
 		</div>
