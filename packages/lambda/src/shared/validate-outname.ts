@@ -21,17 +21,19 @@ const validateS3Key = (s3Key: string) => {
 
 export const validateOutname = (
 	outName: OutNameInputWithoutCredentials | undefined | null,
-	codec: Codec
+	codec?: Codec
 ) => {
 	if (typeof outName === 'undefined' || outName === null) {
 		return;
 	}
 
 	if (typeof outName === 'string') {
-		validateOutputFilename(
-			codec,
-			RenderInternals.getExtensionOfFilename(outName ?? null)
-		);
+		if (codec) {
+			validateOutputFilename(
+				codec,
+				RenderInternals.getExtensionOfFilename(outName ?? null)
+			);
+		}
 
 		validateS3Key(outName);
 		return;
