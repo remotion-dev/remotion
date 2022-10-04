@@ -29,6 +29,7 @@ import {
 	getOutputLocation,
 	getUserPassedOutputLocation,
 } from './user-passed-output-location';
+import {validateImageFormat} from './validate-image-format';
 
 export const still = async (remotionRoot: string) => {
 	const startTime = Date.now();
@@ -105,21 +106,7 @@ export const still = async (remotionRoot: string) => {
 		process.exit(1);
 	}
 
-	if (imageFormat === 'png' && !absoluteOutputLocation.endsWith('.png')) {
-		Log.warn(
-			`Rendering a PNG, expected a .png extension but got ${absoluteOutputLocation}`
-		);
-	}
-
-	if (
-		imageFormat === 'jpeg' &&
-		!absoluteOutputLocation.endsWith('.jpg') &&
-		!absoluteOutputLocation.endsWith('.jpeg')
-	) {
-		Log.warn(
-			`Rendering a JPEG, expected a .jpg or .jpeg extension but got ${absoluteOutputLocation}`
-		);
-	}
+	validateImageFormat(imageFormat, absoluteOutputLocation);
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
