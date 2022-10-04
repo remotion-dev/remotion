@@ -1,4 +1,10 @@
-import React, {useCallback, useLayoutEffect, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import {ICON_SIZE, VolumeOffIcon, VolumeOnIcon} from './icons';
 import {VOLUME_SLIDER_INPUT_CSS_CLASSNAME} from './player-css-classname';
@@ -48,33 +54,6 @@ ${scope} {
 }
 `;
 
-const parentDivStyle = (
-	displayVerticalVolumeSlider: Boolean
-): React.CSSProperties => ({
-	display: 'inline-flex',
-	background: 'none',
-	border: 'none',
-	padding: '6px',
-	justifyContent: 'center',
-	alignItems: 'center',
-	touchAction: 'none',
-	...(displayVerticalVolumeSlider && {position: 'relative'}),
-});
-
-const volumeContainer = (
-	displayVerticalVolumeSlider: Boolean
-): React.CSSProperties => ({
-	display: 'inline',
-	width: ICON_SIZE,
-	height: ICON_SIZE,
-	cursor: 'pointer',
-	appearance: 'none',
-	background: 'none',
-	border: 'none',
-	padding: 0,
-	...(displayVerticalVolumeSlider && {position: 'absolute'}),
-});
-
 export const MediaVolumeSlider: React.FC<{
 	displayVerticalVolumeSlider: Boolean;
 }> = ({displayVerticalVolumeSlider}) => {
@@ -120,15 +99,42 @@ export const MediaVolumeSlider: React.FC<{
 		setMediaMuted((mute) => !mute);
 	}, [mediaVolume, setMediaMuted, setMediaVolume]);
 
+	const parentDivStyle: React.CSSProperties = useMemo(() => {
+		return {
+			display: 'inline-flex',
+			background: 'none',
+			border: 'none',
+			padding: '6px',
+			justifyContent: 'center',
+			alignItems: 'center',
+			touchAction: 'none',
+			...(displayVerticalVolumeSlider && {position: 'relative' as const}),
+		};
+	}, [displayVerticalVolumeSlider]);
+
+	const volumeContainer: React.CSSProperties = useMemo(() => {
+		return {
+			display: 'inline',
+			width: ICON_SIZE,
+			height: ICON_SIZE,
+			cursor: 'pointer',
+			appearance: 'none',
+			background: 'none',
+			border: 'none',
+			padding: 0,
+			...(displayVerticalVolumeSlider && {position: 'absolute'}),
+		};
+	}, [displayVerticalVolumeSlider]);
+
 	return (
-		<div ref={parentDivRef} style={parentDivStyle(displayVerticalVolumeSlider)}>
+		<div ref={parentDivRef} style={parentDivStyle}>
 			<button
 				aria-label={isMutedOrZero ? 'Unmute sound' : 'Mute sound'}
 				title={isMutedOrZero ? 'Unmute sound' : 'Mute sound'}
 				onClick={onClick}
 				onBlur={onBlur}
 				onFocus={() => setFocused(true)}
-				style={volumeContainer(displayVerticalVolumeSlider)}
+				style={volumeContainer}
 				type="button"
 			>
 				{isMutedOrZero ? <VolumeOffIcon /> : <VolumeOnIcon />}
