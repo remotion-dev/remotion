@@ -1,35 +1,11 @@
 import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {Internals} from 'remotion';
+import {Internals, random} from 'remotion';
 import {ICON_SIZE, VolumeOffIcon, VolumeOnIcon} from './icons';
-import {VOLUME_SLIDER_INPUT_CSS_CLASSNAME} from './player-css-classname';
 import {useHoverState} from './use-hover-state';
 
 const BAR_HEIGHT = 5;
 const KNOB_SIZE = 12;
 export const VOLUME_SLIDER_WIDTH = 100;
-
-const scope = `.${VOLUME_SLIDER_INPUT_CSS_CLASSNAME}`;
-const sliderStyle = `
-	${scope}::-webkit-slider-thumb {
-		-webkit-appearance: none;
-		background-color: white;
-		border-radius: ${KNOB_SIZE / 2}px;
-		box-shadow: 0 0 2px black;
-		height: ${KNOB_SIZE}px;
-		width: ${KNOB_SIZE}px;
-	}
-
-	${scope}::-moz-range-thumb {
-		-webkit-appearance: none;
-		background-color: white;
-		border-radius: ${KNOB_SIZE / 2}px;
-		box-shadow: 0 0 2px black;
-		height: ${KNOB_SIZE}px;
-		width: ${KNOB_SIZE}px;
-	}
-`;
-
-Internals.CSSUtils.injectCSS(sliderStyle);
 
 export const MediaVolumeSlider: React.FC<{
 	displayVerticalVolumeSlider: Boolean;
@@ -40,6 +16,9 @@ export const MediaVolumeSlider: React.FC<{
 	const parentDivRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const hover = useHoverState(parentDivRef);
+	const [randomClass] = useState(() =>
+		`slider-${random(null)}`.replace('.', '')
+	);
 	const isMutedOrZero = mediaMuted || mediaVolume === 0;
 
 	const onVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -116,8 +95,40 @@ export const MediaVolumeSlider: React.FC<{
 		};
 	}, [displayVerticalVolumeSlider]);
 
+	const sliderStyle = `
+	.${randomClass}::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		background-color: white;
+		border-radius: ${KNOB_SIZE / 2}px;
+		box-shadow: 0 0 2px black;
+		height: ${KNOB_SIZE}px;
+		width: ${KNOB_SIZE}px;
+	}
+	.${randomClass} {
+		background-image: linear-gradient(
+			to right,
+			white ${mediaVolume * 100}%, rgba(255, 255, 255, 0) ${mediaVolume * 100}%
+		);
+	}
+
+	.${randomClass}::-moz-range-thumb {
+		-webkit-appearance: none;
+		background-color: white;
+		border-radius: ${KNOB_SIZE / 2}px;
+		box-shadow: 0 0 2px black;
+		height: ${KNOB_SIZE}px;
+		width: ${KNOB_SIZE}px;
+	}
+`;
+
 	return (
 		<div ref={parentDivRef} style={parentDivStyle}>
+			<style
+				// eslint-disable-next-line react/no-danger
+				dangerouslySetInnerHTML={{
+					__html: sliderStyle,
+				}}
+			/>
 			<button
 				aria-label={isMutedOrZero ? 'Unmute sound' : 'Mute sound'}
 				title={isMutedOrZero ? 'Unmute sound' : 'Mute sound'}
@@ -133,7 +144,7 @@ export const MediaVolumeSlider: React.FC<{
 				<input
 					ref={inputRef}
 					aria-label="Change volume"
-					className={VOLUME_SLIDER_INPUT_CSS_CLASSNAME}
+					className={randomClass}
 					max={1}
 					min={0}
 					onBlur={() => setFocused(false)}
