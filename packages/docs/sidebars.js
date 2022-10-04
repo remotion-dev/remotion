@@ -314,6 +314,7 @@ module.exports = {
         "lambda/custom-layers",
         "lambda/custom-destination",
         "lambda/checklist",
+        "lambda/validate-webhooks",
         {
           type: "category",
           label: "Troubleshooting",

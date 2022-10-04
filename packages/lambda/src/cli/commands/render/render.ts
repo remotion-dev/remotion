@@ -111,6 +111,7 @@ export const renderCommand = async (args: string[]) => {
 		concurrencyPerLambda: parsedLambdaCli['concurrency-per-lambda'],
 		muted,
 		overwrite,
+		webhook: parsedLambdaCli.webhook ?? undefined
 	});
 
 	const totalSteps = outName ? 5 : 4;

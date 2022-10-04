@@ -223,7 +223,7 @@ The S3 bucket name in which all files are being saved.
 
 ### `cloudWatchLogs`
 
-_Available from v3.2.10_
+_available from v3.2.10_
 
 A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
 
@@ -234,6 +234,16 @@ _available from v3.2.25_
 If a custom out name is specified and a file already exists at this key in the S3 bucket, decide whether that file will be deleted before the render begins. Default `false`.
 
 An existing file at the output S3 key will conflict with the render and must be deleted beforehand. If this setting is `false` and a conflict occurs, an error will be thrown.
+
+### `webhook`
+
+_optional, available from v3.2.XX_
+
+If specified, Remotion will send a POST request to the provided endpoint to notify your application when the Lambda rendering process finishes, errors out or times out.
+
+The request headers include a cryptographic signature that you can use to [validate incoming webhooks](/docs/lambda/validate-webhooks).
+
+DOCUMENT RESPONSE
 
 ## See also
 
