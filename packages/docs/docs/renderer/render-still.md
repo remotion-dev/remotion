@@ -77,13 +77,9 @@ _optional_
 
 _optional - default: 0_
 
-Which frame should be rendered based on its number.
-For a composition of 100 frames, could between -100 and 99.
-In this case:
-- 0 would mean the first frame
-- 99 the last frame
-- -1 would mean the last frame
-- -100 would mean the first frame
+Which frame should be rendered based on its number. Frames are zero-indexed.
+
+From v3.2.26, negative values are allowed, with `-1` being the last frame.
 
 ### `imageFormat?`
 
