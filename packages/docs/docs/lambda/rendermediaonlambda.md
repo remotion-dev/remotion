@@ -40,7 +40,7 @@ In which region your Lambda function is deployed. It's highly recommended that y
 
 ### `privacy`
 
-_optional from v3.2.26_
+_optional since v3.2.26_
 
 One of:
 
@@ -118,7 +118,7 @@ See [`renderMedia() -> quality`](/docs/renderer/render-media#quality).
 
 ### `maxRetries`
 
-_optional from v3.2.26, default `1`_
+_optional since v3.2.26, default `1`_
 
 How often a chunk may be retried to render in case the render fails.
 If a rendering of a chunk is failed, the error will be reported in the [`getRenderProgress()`](/docs/lambda/getrenderprogress) object and retried up to as many times as you specify using this option.
