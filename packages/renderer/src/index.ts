@@ -5,6 +5,7 @@ import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {DEFAULT_CODEC, validCodecs} from './codec';
+import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {
 	getDefaultCrfForCodec,
 	getValidCrfRanges,
@@ -165,4 +166,5 @@ export const RenderInternals = {
 	perf,
 	makeDownloadMap,
 	cleanDownloadMap,
+	convertToPositiveFrameIndex,
 };
