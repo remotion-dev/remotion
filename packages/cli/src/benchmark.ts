@@ -10,7 +10,6 @@ import {bundleOnCli} from './setup-cache';
 
 const DEFUALT_RUNS = 3;
 const DEFAULT_COMP_ID = 'Main';
-const DEFAULT_FILE_PATH = './src/index';
 
 const getValidCompositions = async (bundleLoc: string) => {
 	const compositionArg: string = parsedCli.compositions ?? DEFAULT_COMP_ID;
@@ -89,57 +88,33 @@ const formatTime = (time: number) => {
 const avg = (time: number[]) =>
 	time.reduce((prev, curr) => prev + curr) / time.length;
 
-const logResults = (
-	results: Record<string, Record<string, number[]>>,
-	runs: number
-) => {
-	for (const compId in results) {
-		if (Object.prototype.hasOwnProperty.call(results, compId)) {
-			const comp = results[compId];
+const stdDev = (time: number[]) => {
+	const mean = avg(time);
+	return Math.sqrt(
+		time.map((x) => (x - mean) ** 2).reduce((a, b) => a + b) / time.length
+	);
+};
 
-			Log.info(`Rendering time for ${compId} for ${runs} runs`);
-			if (comp.default) {
-				Log.info(
-					`  Max : ${chalk.bold(formatTime(Math.max(...comp.default)))}`
-				);
-				Log.info(
-					`  Min : ${chalk.bold(formatTime(Math.min(...comp.default)))}`
-				);
-				Log.info(`  Average : ${chalk.bold(formatTime(avg(comp.default)))}`);
-			} else {
-				for (const con in comp) {
-					// eslint-disable-next-line max-depth
-					if (Object.prototype.hasOwnProperty.call(comp, con)) {
-						const concurrencyResult = comp[con];
+const getResults = (results: number[], runs: number) => {
+	const mean = avg(results);
+	const dev = stdDev(results);
+	const max = Math.max(...results);
+	const min = Math.min(...results);
 
-						Log.info();
-						Log.info(`  Concurrency : ${con}`);
-						Log.info(
-							`    Max : ${chalk.bold(
-								formatTime(Math.max(...concurrencyResult))
-							)}`
-						);
-						Log.info(
-							`    Min : ${chalk.bold(
-								formatTime(Math.min(...concurrencyResult))
-							)}`
-						);
-						Log.info(
-							`    Average : ${chalk.bold(formatTime(avg(concurrencyResult)))}`
-						);
-					}
-				}
-			}
-		}
-	}
+	return `    Time (${chalk.green('mean')} ± ${chalk.green(
+		'σ'
+	)}): \t ${chalk.green(formatTime(mean))} ± ${chalk.green(
+		formatTime(dev)
+	)}\n    Range (${chalk.blue('min')} ... ${chalk.red('max')}): \t ${chalk.blue(
+		formatTime(min)
+	)} ... ${chalk.red(formatTime(max))} \t ${chalk.gray(`${runs} runs`)}
+	`;
 };
 
 type BenchmarkProgressBarOptions = {
 	totalRuns: number;
 	run: number;
 	progress: number;
-	concurrency: number | null;
-	compId: string;
 	doneIn: string | null;
 };
 
@@ -148,30 +123,31 @@ const makeBenchmarkProgressBar = ({
 	run,
 	progress,
 	doneIn,
-	compId,
-	concurrency,
 }: BenchmarkProgressBarOptions) => {
 	const totalProgress = (run + progress) / totalRuns;
 
 	return [
-		`(2/2)`,
+		`Rendering (${run + 1} out of ${totalRuns} runs)`,
 		makeProgressBar(totalProgress),
 		doneIn === null
-			? `Rendering ${compId} frames${
-					concurrency === null ? '' : `(${concurrency}x)`
-			  }`
-			: `Rendered ${compId} ${totalRuns} times`,
-		doneIn === null
-			? `${(totalProgress * 100).toFixed(2)}% ${chalk.gray(
-					` ${run + 1}th run`
-			  )}`
+			? `${(totalProgress * 100).toFixed(2)}% `
 			: chalk.gray(doneIn),
 	].join(' ');
 };
 
 export const benchmarkCommand = async (remotionRoot: string) => {
 	const runs: number = parsedCli.runs ?? DEFUALT_RUNS;
-	const filePath: string = parsedCli.filePath ?? DEFAULT_FILE_PATH;
+	const {codec} = parsedCli;
+
+	const filePath = parsedCli._[1];
+
+	if (!filePath) {
+		Log.error('No entry file passed.');
+		Log.info('Pass an additional argument specifying the entry file');
+		Log.info();
+		Log.info(`$ remotion benchmark <entry file>`);
+		process.exit(1);
+	}
 
 	const fullPath = path.join(process.cwd(), filePath);
 
@@ -179,7 +155,7 @@ export const benchmarkCommand = async (remotionRoot: string) => {
 		fullPath,
 		publicDir: null,
 		remotionRoot,
-		steps: ['bundling', 'rendering'],
+		steps: [],
 	});
 
 	const compositions = await getValidCompositions(bundleLocation);
@@ -188,22 +164,27 @@ export const benchmarkCommand = async (remotionRoot: string) => {
 
 	const concurrency = getValidConcurrency();
 
+	let count = 1;
+
 	for (const composition of compositions) {
-		if (composition !== compositions[0]) {
-			Log.info();
-		}
-
-		const benchmarkProgress = createOverwriteableCliOutput(quietFlagProvided());
-
-		const start = Date.now();
+		Log.info();
 
 		benchmark[composition.id] = {};
 		if (concurrency) {
 			for (const con of concurrency) {
+				const benchmarkProgress = createOverwriteableCliOutput(
+					quietFlagProvided()
+				);
+				Log.info(
+					`${chalk.bold(`Benchmark #${count++}:`)} ${chalk.gray(
+						`composition=${composition.id} concurrency=${con}`
+					)}`
+				);
+
 				const timeTaken = await runBenchmark(
 					runs,
 					{
-						codec: 'h264',
+						codec,
 						composition,
 						serveUrl: bundleLocation,
 						concurrency: con,
@@ -213,8 +194,6 @@ export const benchmarkCommand = async (remotionRoot: string) => {
 							makeBenchmarkProgressBar({
 								totalRuns: runs,
 								run,
-								compId: composition.id,
-								concurrency: con,
 								doneIn: null,
 								progress,
 							})
@@ -222,9 +201,19 @@ export const benchmarkCommand = async (remotionRoot: string) => {
 					}
 				);
 
+				benchmarkProgress.update(getResults(timeTaken, runs));
+
 				benchmark[composition.id][`${con}`] = timeTaken;
 			}
 		} else {
+			Log.info(
+				`${chalk.bold(`Benchmark #${count++}:`)} ${chalk.gray(
+					`composition=${composition.id}`
+				)}`
+			);
+			const benchmarkProgress = createOverwriteableCliOutput(
+				quietFlagProvided()
+			);
 			const timeTaken = await runBenchmark(
 				runs,
 				{
@@ -237,29 +226,19 @@ export const benchmarkCommand = async (remotionRoot: string) => {
 						makeBenchmarkProgressBar({
 							totalRuns: runs,
 							run,
-							compId: composition.id,
-							concurrency: null,
 							doneIn: null,
 							progress,
 						})
 					);
 				}
 			);
-			benchmarkProgress.update(
-				makeBenchmarkProgressBar({
-					totalRuns: runs,
-					run: runs - 1,
-					compId: composition.id,
-					concurrency: null,
-					doneIn: formatTime(Date.now() - start),
-					progress: 1,
-				})
-			);
+
+			benchmarkProgress.update('');
+			benchmarkProgress.update(getResults(timeTaken, runs));
 
 			benchmark[composition.id].default = timeTaken;
 		}
 	}
 
 	Log.info();
-	logResults(benchmark, runs);
 };

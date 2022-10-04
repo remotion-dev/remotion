@@ -48,13 +48,17 @@ export const makeBundlingProgress = ({
 	doneIn: number | null;
 }) =>
 	[
-		`(${steps.indexOf('bundling') + 1}/${steps.length})`,
+		steps.length > 0
+			? `(${steps.indexOf('bundling') + 1}/${steps.length})`
+			: null,
 		makeProgressBar(progress),
 		`${doneIn ? 'Bundled' : 'Bundling'} code`,
 		doneIn === null
 			? (progress * 100).toFixed(0) + '%'
 			: chalk.gray(`${doneIn}ms`),
-	].join(' ');
+	]
+		.filter(truthy)
+		.join(' ');
 
 type RenderingProgressInput = {
 	frames: number;
