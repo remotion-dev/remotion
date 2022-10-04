@@ -75,16 +75,12 @@ class ChromeLauncher implements ProductLauncher {
 			}
 		}
 
-		const isTempUserDataDir = true;
-
 		// Check for the user data dir argument, which will always be set even
 		// with a custom directory specified via the userDataDir option.
 		const userDataDir = await mkdtempAsync(
 			path.join(tmpDir(), 'puppeteer_dev_chrome_profile-')
 		);
 		chromeArguments.push(`--user-data-dir=${userDataDir}`);
-
-		assert(typeof userDataDir === 'string', '`--user-data-dir` is malformed');
 
 		let chromeExecutable = executablePath;
 		if (!chromeExecutable) {
@@ -97,11 +93,9 @@ class ChromeLauncher implements ProductLauncher {
 		}
 
 		const runner = new BrowserRunner({
-			product: this.product,
 			executablePath: chromeExecutable,
 			processArguments: chromeArguments,
 			userDataDir,
-			isTempUserDataDir,
 		});
 		runner.start({
 			dumpio,
