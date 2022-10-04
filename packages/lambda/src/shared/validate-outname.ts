@@ -1,3 +1,5 @@
+import type {Codec} from '@remotion/renderer';
+import {RenderInternals, validateOutputFilename} from '@remotion/renderer';
 import type {OutNameInputWithoutCredentials} from './constants';
 import {validateBucketName} from './validate-bucketname';
 
@@ -18,13 +20,19 @@ const validateS3Key = (s3Key: string) => {
 };
 
 export const validateOutname = (
-	outName: OutNameInputWithoutCredentials | undefined | null
+	outName: OutNameInputWithoutCredentials | undefined | null,
+	codec: Codec
 ) => {
 	if (typeof outName === 'undefined' || outName === null) {
 		return;
 	}
 
 	if (typeof outName === 'string') {
+		validateOutputFilename(
+			codec,
+			RenderInternals.getExtensionOfFilename(outName ?? null)
+		);
+
 		validateS3Key(outName);
 		return;
 	}
