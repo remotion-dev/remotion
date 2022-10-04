@@ -1,10 +1,4 @@
-import React, {
-	useCallback,
-	useLayoutEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {ICON_SIZE, VolumeOffIcon, VolumeOnIcon} from './icons';
 import {VOLUME_SLIDER_INPUT_CSS_CLASSNAME} from './player-css-classname';
@@ -35,15 +29,7 @@ const sliderStyle = `
 	}
 `;
 
-const sliderStyleVertical = `
-${sliderStyle}
-${scope} {
-	position: absolute;
-  bottom: ${ICON_SIZE / 2 + 4}px;
-	height: ${VOLUME_SLIDER_WIDTH}px;
-	width: ${BAR_HEIGHT}px;
-}
-`;
+Internals.CSSUtils.injectCSS(sliderStyle);
 
 export const MediaVolumeSlider: React.FC<{
 	displayVerticalVolumeSlider: Boolean;
@@ -55,16 +41,6 @@ export const MediaVolumeSlider: React.FC<{
 	const inputRef = useRef<HTMLInputElement>(null);
 	const hover = useHoverState(parentDivRef);
 	const isMutedOrZero = mediaMuted || mediaVolume === 0;
-
-	useLayoutEffect(() => {
-		if (displayVerticalVolumeSlider) {
-			Internals.CSSUtils.removeCSS(sliderStyle);
-			Internals.CSSUtils.injectCSS(sliderStyleVertical);
-		} else {
-			Internals.CSSUtils.removeCSS(sliderStyleVertical);
-			Internals.CSSUtils.injectCSS(sliderStyle);
-		}
-	}, [displayVerticalVolumeSlider]);
 
 	const onVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setMediaVolume(parseFloat(e.target.value));
@@ -122,21 +98,21 @@ export const MediaVolumeSlider: React.FC<{
 			backgroundColor: 'rgba(255, 255, 255, 0.5)',
 			borderRadius: BAR_HEIGHT / 2,
 			cursor: 'pointer',
+			height: BAR_HEIGHT,
+			width: VOLUME_SLIDER_WIDTH,
 		};
 		if (displayVerticalVolumeSlider) {
 			return {
 				...commonStyle,
-				width: BAR_HEIGHT,
-				height: VOLUME_SLIDER_WIDTH,
+				transform: `rotate(-90deg)`,
+				position: 'absolute',
+				bottom: ICON_SIZE + VOLUME_SLIDER_WIDTH / 2 + 5,
 			};
 		}
 
 		return {
 			...commonStyle,
-			WebkitAppearance: 'slider-vertical',
-			height: BAR_HEIGHT,
 			marginLeft: 5,
-			width: VOLUME_SLIDER_WIDTH,
 		};
 	}, [displayVerticalVolumeSlider]);
 
@@ -153,7 +129,6 @@ export const MediaVolumeSlider: React.FC<{
 			>
 				{isMutedOrZero ? <VolumeOffIcon /> : <VolumeOnIcon />}
 			</button>
-
 			{(focused || hover) && !mediaMuted ? (
 				<input
 					ref={inputRef}
