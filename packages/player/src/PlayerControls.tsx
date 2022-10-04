@@ -68,15 +68,6 @@ const flex1: React.CSSProperties = {
 
 const fullscreen: React.CSSProperties = {};
 
-const timeLabel = (maxWidth: number): React.CSSProperties => ({
-	color: 'white',
-	fontFamily: 'sans-serif',
-	fontSize: 14,
-	maxWidth,
-	overflow: 'hidden',
-	textOverflow: 'ellipsis',
-});
-
 declare global {
 	interface Document {
 		webkitFullscreenEnabled?: boolean;
@@ -203,6 +194,17 @@ export const Controls: React.FC<{
 		};
 	}, [shouldShowInitially]);
 
+	const timeLabel: React.CSSProperties = useMemo(() => {
+		return {
+			color: 'white',
+			fontFamily: 'sans-serif',
+			fontSize: 14,
+			maxWidth: maxTimeLabelWidth,
+			overflow: 'hidden',
+			textOverflow: 'ellipsis',
+		};
+	}, [maxTimeLabelWidth]);
+
 	return (
 		<div style={containerCss}>
 			<div style={controlsRow}>
@@ -226,7 +228,7 @@ export const Controls: React.FC<{
 						</>
 					) : null}
 					<div style={xSpacer} />
-					<div style={timeLabel(maxTimeLabelWidth)}>
+					<div style={timeLabel}>
 						{formatTime(frame / fps)} / {formatTime(durationInFrames / fps)}
 					</div>
 					<div style={xSpacer} />
