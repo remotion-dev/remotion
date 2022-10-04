@@ -60,7 +60,15 @@ export const previewCommand = async (remotionRoot: string) => {
 			});
 		});
 	});
-	const envVariables = await getEnvironmentVariables();
+	let envVariables = await getEnvironmentVariables((newEnvVariables) => {
+		waitForLiveEventsListener().then((listener) => {
+			envVariables = newEnvVariables;
+			listener.sendEventToClient({
+				type: 'new-env-variables',
+				newEnvVariables,
+			});
+		});
+	});
 
 	const {port, liveEventsServer} = await startServer(
 		path.resolve(__dirname, 'previewEntry.js'),

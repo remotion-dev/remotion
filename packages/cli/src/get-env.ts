@@ -22,10 +22,26 @@ function getProcessEnv(): Record<string, string> {
 
 const getEnvForEnvFile = async (
 	processEnv: ReturnType<typeof getProcessEnv>,
-	envFile: string
+	envFile: string,
+	onUpdate: (newProps: Record<string, string>) => void
 ) => {
 	try {
 		const envFileData = await fs.promises.readFile(envFile);
+
+		fs.watchFile(envFile, {interval: 100}, async () => {
+			try {
+				const file = await fs.promises.readFile(envFile, 'utf-8')
+				onUpdate({
+					...processEnv,
+					...dotenv.parse(file),
+				});
+				Log.info(`Updated env file ${envFile}.`);
+			} catch (err) {
+				Log.error(
+					`${envFile} update fails with error ${err}`
+				);
+			}
+		});
 		return {
 			...processEnv,
 			...dotenv.parse(envFileData),
@@ -37,7 +53,7 @@ const getEnvForEnvFile = async (
 	}
 };
 
-export const getEnvironmentVariables = (): Promise<Record<string, string>> => {
+export const getEnvironmentVariables = (onUpdate: (newProps: Record<string, string>) => void): Promise<Record<string, string>> => {
 	const processEnv = getProcessEnv();
 
 	if (parsedCli['env-file']) {
@@ -49,7 +65,7 @@ export const getEnvironmentVariables = (): Promise<Record<string, string>> => {
 			process.exit(1);
 		}
 
-		return getEnvForEnvFile(processEnv, envFile);
+		return getEnvForEnvFile(processEnv, envFile, onUpdate);
 	}
 
 	const remotionRoot = findRemotionRoot();
@@ -59,14 +75,14 @@ export const getEnvironmentVariables = (): Promise<Record<string, string>> => {
 		const envFile = path.resolve(remotionRoot, configFileSetting);
 		if (!fs.existsSync(envFile)) {
 			Log.error(
-				'You specifed a custom .env file using `Config.Rendering.setDotEnvLocation()` in the config file but it could not be found'
+				'You specified a custom .env file using `Config.Rendering.setDotEnvLocation()` in the config file but it could not be found'
 			);
 			Log.error('We looked for the file at:', envFile);
 			Log.error('Check that your path is correct and try again.');
 			process.exit(1);
 		}
 
-		return getEnvForEnvFile(processEnv, envFile);
+		return getEnvForEnvFile(processEnv, envFile, onUpdate);
 	}
 
 	const defaultEnvFile = path.resolve(remotionRoot, '.env');
@@ -74,5 +90,5 @@ export const getEnvironmentVariables = (): Promise<Record<string, string>> => {
 		return Promise.resolve(processEnv);
 	}
 
-	return getEnvForEnvFile(processEnv, defaultEnvFile);
+	return getEnvForEnvFile(processEnv, defaultEnvFile, onUpdate);
 };
