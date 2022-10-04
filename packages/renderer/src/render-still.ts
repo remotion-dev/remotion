@@ -11,6 +11,7 @@ import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import type {FfmpegExecutable} from './ffmpeg-executable';
+import {convertToPositiveFrameIndex} from './get-actual-still-frame';
 import type {StillImageFormat} from './image-format';
 import {validateNonNullImageFormat} from './image-format';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
@@ -103,7 +104,10 @@ const innerRenderStill = async ({
 	);
 	validateNonNullImageFormat(imageFormat);
 	validateFrame(frame, composition.durationInFrames);
-	const stillFrame = frame < 0 ? composition.durationInFrames - frame : frame;
+	const stillFrame = convertToPositiveFrameIndex(
+		frame,
+		composition.durationInFrames
+	);
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	validateScale(scale);
 
