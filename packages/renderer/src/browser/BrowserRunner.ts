@@ -76,8 +76,7 @@ export class BrowserRunner {
 	}
 
 	start(options: LaunchOptions): void {
-		const {handleSIGINT, handleSIGTERM, handleSIGHUP, dumpio, env, pipe} =
-			options;
+		const {dumpio, env, pipe} = options;
 		let stdio: Array<'ignore' | 'pipe'>;
 		if (pipe) {
 			if (dumpio) {
@@ -148,29 +147,16 @@ export class BrowserRunner {
 			});
 		});
 		this.#listeners = [addEventListener(process, 'exit', this.kill.bind(this))];
-		if (handleSIGINT) {
-			this.#listeners.push(
-				addEventListener(process, 'SIGINT', () => {
-					this.kill();
-					process.exit(130);
-				})
-			);
-		}
 
-		if (handleSIGTERM) {
-			this.#listeners.push(
-				addEventListener(process, 'SIGTERM', this.close.bind(this))
-			);
-		}
-
-		if (handleSIGHUP) {
-			this.#listeners.push(
-				addEventListener(process, 'SIGHUP', this.close.bind(this))
-			);
-		}
+		this.#listeners.push(
+			addEventListener(process, 'SIGINT', () => {
+				console.log('KILLING');
+			})
+		);
 	}
 
 	close(): Promise<void> {
+		console.log('close');
 		if (this.#closed) {
 			return Promise.resolve();
 		}
@@ -194,6 +180,7 @@ export class BrowserRunner {
 		// If the process failed to launch (for example if the browser executable path
 		// is invalid), then the process does not get a pid assigned. A call to
 		// `proc.kill` would error, as the `pid` to-be-killed can not be found.
+
 		if (this.proc?.pid && pidExists(this.proc.pid)) {
 			const {proc} = this;
 			try {

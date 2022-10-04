@@ -27,9 +27,6 @@ export interface BrowserLaunchArgumentOptions {
 
 export interface LaunchOptions {
 	executablePath?: string;
-	handleSIGINT?: boolean;
-	handleSIGTERM?: boolean;
-	handleSIGHUP?: boolean;
 	timeout?: number;
 	dumpio?: boolean;
 	env?: Record<string, string | undefined>;

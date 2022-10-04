@@ -57,9 +57,6 @@ class ChromeLauncher implements ProductLauncher {
 			executablePath,
 			pipe = false,
 			env = process.env,
-			handleSIGINT = true,
-			handleSIGTERM = true,
-			handleSIGHUP = true,
 			defaultViewport,
 			timeout = 60000,
 			debuggingPort,
@@ -125,9 +122,6 @@ class ChromeLauncher implements ProductLauncher {
 			isTempUserDataDir,
 		});
 		runner.start({
-			handleSIGHUP,
-			handleSIGTERM,
-			handleSIGINT,
 			dumpio,
 			env,
 			pipe: false,
@@ -187,9 +181,6 @@ class FirefoxLauncher implements ProductLauncher {
 			dumpio = false,
 			executablePath = null,
 			env = process.env,
-			handleSIGINT = true,
-			handleSIGTERM = true,
-			handleSIGHUP = true,
 			defaultViewport,
 			timeout = 30000,
 			extraPrefsFirefox = {},
@@ -256,9 +247,6 @@ class FirefoxLauncher implements ProductLauncher {
 			isTempUserDataDir,
 		});
 		runner.start({
-			handleSIGHUP,
-			handleSIGTERM,
-			handleSIGINT,
 			dumpio,
 			env,
 		});

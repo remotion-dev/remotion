@@ -292,6 +292,10 @@ export const render = async (remotionRoot: string) => {
 		return;
 	}
 
+	process.addListener('SIGINT', () => {
+		console.log('YOOO');
+	});
+
 	await renderMedia({
 		outputLocation: absoluteOutputFile,
 		codec,
