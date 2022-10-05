@@ -1,6 +1,3 @@
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
 import type {Browser} from './browser';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {puppeteer} from './browser/node';
@@ -138,13 +135,7 @@ export const openBrowser = async (
 				? '--ignore-certificate-errors'
 				: null,
 			...(options?.chromiumOptions?.disableWebSecurity
-				? [
-						'--disable-web-security',
-						'--user-data-dir=' +
-							(await fs.promises.mkdtemp(
-								path.join(os.tmpdir(), 'chrome-user-dir')
-							)),
-				  ]
+				? ['--disable-web-security']
 				: []),
 		].filter(Boolean) as string[],
 		defaultViewport: options?.viewport ?? {
