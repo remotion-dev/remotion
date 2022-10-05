@@ -112,6 +112,7 @@ describe('Webhooks', () => {
 					'X-Remotion-Signature': expect.stringContaining('sha1='),
 					'X-Remotion-Status': 'success',
 				},
+				timeout: 5000,
 			},
 			expect.anything()
 		);
@@ -177,6 +178,7 @@ describe('Webhooks', () => {
 					'X-Remotion-Signature': expect.stringContaining('sha1='),
 					'X-Remotion-Status': 'timeout',
 				},
+				timeout: 5000,
 			},
 			expect.anything()
 		);
