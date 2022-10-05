@@ -497,7 +497,7 @@ useEffect(() => {
 
 ### `seeked`
 
-Fired when the time position changes. You may get the current frame by reading it from `e.detail.frame`.
+Fired when the time position is changed by the user using the playback bar or using [`seek()`](#seek). You may get the current frame by reading it from `e.detail.frame`.
 
 ```tsx twoslash
 import { PlayerRef } from "@remotion/player";
@@ -512,7 +512,9 @@ playerRef.current.addEventListener("seeked", (e) => {
 });
 ```
 
-This event fires on every single frame update. Don't update your UI based on this event as it will cause a lot of rerenders. Use the [`timeupdate`](#timeupdate) event instead.
+This event fires on every single frame update. Prefer the [`timeupdate`](#timeupdate) event instead if the excessive rerenders cause slowdown.
+
+This event is only fired during seeking. Use [`frameupdate`](#frameupdate) instead if you also want to get time updates during playback.
 
 ### `ended`
 
@@ -532,7 +534,7 @@ Fires when the video has paused or ended.
 
 ### `timeupdate`
 
-Fires periodically when the video is playing. Unlike the [`seeked`](#seeked) event, frames are skipped, and the event is throttled to only fire a few times a second.
+Fires periodic time updates when the video is playing. Unlike the [`seeked`](#seeked) event, frames are skipped, and the event is throttled to only fire a few times a second at most every 250ms.
 
 ```tsx twoslash
 import { PlayerRef } from "@remotion/player";
@@ -546,6 +548,33 @@ playerRef.current.addEventListener("timeupdate", (e) => {
   console.log("current frame is " + e.detail.frame); // current frame is 120
 });
 ```
+
+Prefer the [`seeked`](#seeked) event if you only want to get time updates during seeking.
+
+Prefer the [`frameupdate`](#frameupdate) event if you need an update for every single frame.
+
+### `frameupdate`
+
+_Available from v3.2.26_
+
+Fires whenever the current time has changed, during both playback and seeking.
+
+```tsx twoslash
+import { PlayerRef } from "@remotion/player";
+import { useRef } from "react";
+const playerRef = useRef<PlayerRef>(null);
+if (!playerRef.current) {
+  throw new Error();
+}
+// ---cut---
+playerRef.current.addEventListener("frameupdate", (e) => {
+  console.log("current frame is " + e.detail.frame); // current frame is 120
+});
+```
+
+Prefer the [`seeked`](#seeked) event if you only want to get time updates during seeking.
+
+Prefer the [`timeupdate`](#timeupdate) event if you only need periodical updates (at most every 250ms).
 
 ### `fullscreenchange`
 
