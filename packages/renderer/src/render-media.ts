@@ -458,6 +458,11 @@ export const renderMedia = ({
 			if (!options?.downloadMap) {
 				cleanDownloadMap(downloadMap);
 			}
+
+			// Clean temporary image frames when rendering ends or fails
+			if (outputDir && fs.existsSync(outputDir)) {
+				deleteDirectory(outputDir);
+			}
 		});
 
 	return Promise.race([

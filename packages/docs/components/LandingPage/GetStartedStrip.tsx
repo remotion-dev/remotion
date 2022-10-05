@@ -52,7 +52,7 @@ export const GetStarted: React.FC = () => {
           </BlueButton>
         </a>
         <div style={{ width: 10 }} />
-        <a className={styles.a} href="/docs">
+        <a className={styles.a} href="/discord">
           <BlueButton size="sm" loading={false} fullWidth={false}>
             Discord
           </BlueButton>

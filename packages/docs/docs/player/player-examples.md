@@ -294,6 +294,36 @@ export const App: React.FC = () => {
 };
 ```
 
+## Loading a component lazily
+
+```tsx twoslash
+// @allowUmdGlobalAccess
+// @filename: ./remotion/MyVideo.tsx
+export default () => <></>;
+
+// @filename: index.tsx
+// ---cut---
+import { Player } from "@remotion/player";
+import { useCallback } from "react";
+
+export const App: React.FC = () => {
+  const lazyComponent = useCallback(() => {
+    return import("./remotion/MyVideo");
+  }, []);
+
+  return (
+    <Player
+      lazyComponent={lazyComponent}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+      loop
+    />
+  );
+};
+```
+
 ## See also
 
 - [Snippet: Embedding a `<Player>` in an iframe](/docs/miscellaneous/snippets/player-in-iframe)

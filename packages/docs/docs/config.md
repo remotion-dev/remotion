@@ -153,7 +153,7 @@ The [command line flag](/docs/cli/render#--browser-executable) `--browser-execut
 
 _Available from Version 2.6.3._
 
-Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before it times out. Default: `30000`
+Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
 ```ts twoslash
 import { Config } from "remotion";

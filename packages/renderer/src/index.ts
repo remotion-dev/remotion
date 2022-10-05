@@ -5,6 +5,7 @@ import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {DEFAULT_CODEC, validCodecs} from './codec';
+import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {
 	getDefaultCrfForCodec,
 	getValidCrfRanges,
@@ -37,7 +38,6 @@ import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
 import {mimeContentType, mimeLookup} from './mime-types';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {killAllBrowsers} from './open-browser';
-import {DEFAULT_OVERWRITE} from './overwrite';
 import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
 import {
@@ -149,7 +149,6 @@ export const RenderInternals = {
 	validateSelectedCrfAndCodecCombination,
 	validImageFormats,
 	validCodecs,
-	DEFAULT_OVERWRITE,
 	DEFAULT_PIXEL_FORMAT,
 	validateQuality,
 	validateFrame,
@@ -167,4 +166,5 @@ export const RenderInternals = {
 	perf,
 	makeDownloadMap,
 	cleanDownloadMap,
+	convertToPositiveFrameIndex,
 };

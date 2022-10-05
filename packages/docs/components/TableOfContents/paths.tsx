@@ -41,6 +41,10 @@ export const TableOfContents: React.FC = () => {
           <strong>evolvePath()</strong>
           <div>Animate an SVG path</div>
         </TOCItem>
+        <TOCItem link="/docs/paths/extend-viewbox">
+          <strong>extendViewBox()</strong>
+          <div>Widen an SVG viewBox in all directions</div>
+        </TOCItem>
       </Grid>
     </div>
   );

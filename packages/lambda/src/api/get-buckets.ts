@@ -14,7 +14,9 @@ export const getRemotionS3Buckets = async (
 ): Promise<{
 	remotionBuckets: BucketWithLocation[];
 }> => {
-	const {Buckets} = await getS3Client(region).send(new ListBucketsCommand({}));
+	const {Buckets} = await getS3Client(region, null).send(
+		new ListBucketsCommand({})
+	);
 	if (!Buckets) {
 		return {remotionBuckets: []};
 	}
@@ -25,7 +27,7 @@ export const getRemotionS3Buckets = async (
 
 	const locations = await Promise.all(
 		remotionBuckets.map((bucket) => {
-			return getS3Client(region).send(
+			return getS3Client(region, null).send(
 				new GetBucketLocationCommand({
 					Bucket: bucket.Name as string,
 				})

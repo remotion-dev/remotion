@@ -227,7 +227,7 @@ If you passed `null` to `outputDir`, this method will be called passing a buffer
 
 _optional, available from v2.6.3_
 
-A number describing how long one frame may take to resolve all `delayRender()` calls before the render times out and fails. Default: `30000`
+A number describing how long one frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before the [render times out and fails(/docs/timeout). Default: `30000`
 
 ### `everyNthFrame`
 

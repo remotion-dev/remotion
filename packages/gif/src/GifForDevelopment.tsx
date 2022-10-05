@@ -39,6 +39,7 @@ export const GifForDevelopment = forwardRef<
 
 	useEffect(() => {
 		let done = false;
+		let aborted = false;
 		const {prom, cancel} = parseWithWorker(resolvedSrc);
 		const newHandle = delayRender('Loading <Gif /> with src=' + resolvedSrc);
 
@@ -52,6 +53,11 @@ export const GifForDevelopment = forwardRef<
 				continueRender(id);
 			})
 			.catch((err) => {
+				if (aborted) {
+					continueRender(newHandle);
+					return;
+				}
+
 				if (currentOnError.current) {
 					currentOnError.current(err);
 				} else {
@@ -61,6 +67,7 @@ export const GifForDevelopment = forwardRef<
 
 		return () => {
 			if (!done) {
+				aborted = true;
 				cancel();
 			}
 
@@ -77,7 +84,7 @@ export const GifForDevelopment = forwardRef<
 		}
 
 		throw new Error(
-			`Failed to render GIF with source ${src}: "${error.message}". Render with --log=verbose to see the full stack.`
+			`Failed to render GIF with source ${src}: "${error.message}".`
 		);
 	}
 

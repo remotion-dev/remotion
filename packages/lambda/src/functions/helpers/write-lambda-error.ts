@@ -65,5 +65,6 @@ export const writeLambdaError = async ({
 		privacy: 'private',
 		expectedBucketOwner,
 		downloadBehavior: null,
+		customCredentials: null,
 	});
 };

@@ -3,9 +3,10 @@ import fs, {createWriteStream} from 'fs';
 import os from 'os';
 import path from 'path';
 import {VERSION} from 'remotion/version';
-import {LambdaRoutines} from '../../../defaults';
+import {deleteRender} from '../../../api/delete-render';
+import {LambdaRoutines, rendersPrefix} from '../../../defaults';
 import {handler} from '../../../functions';
-import {lambdaReadFile} from '../../../functions/helpers/io';
+import {lambdaLs, lambdaReadFile} from '../../../functions/helpers/io';
 import type {LambdaReturnValues} from '../../../shared/return-values';
 import {disableLogs, enableLogs} from '../../disable-logs';
 
@@ -60,6 +61,7 @@ test('Should make a transparent video', async () => {
 			},
 			muted: false,
 			version: VERSION,
+			overwrite: true,
 		},
 		extraContext
 	);
@@ -97,4 +99,28 @@ test('Should make a transparent video', async () => {
 	expect(probe.stderr).toMatch(/Video: vp8, yuv420p/);
 	expect(probe.stderr).toMatch(/Audio: opus, 48000 Hz/);
 	fs.unlinkSync(out);
+
+	const files = await lambdaLs({
+		bucketName: progress.outBucket as string,
+		region: 'eu-central-1',
+		expectedBucketOwner: 'abc',
+		prefix: rendersPrefix(startRes.renderId),
+	});
+
+	expect(files.length).toBe(4);
+
+	await deleteRender({
+		bucketName: progress.outBucket as string,
+		region: 'eu-central-1',
+		renderId: startRes.renderId,
+	});
+
+	const expectFiles = await lambdaLs({
+		bucketName: progress.outBucket as string,
+		region: 'eu-central-1',
+		expectedBucketOwner: 'abc',
+		prefix: rendersPrefix(startRes.renderId),
+	});
+
+	expect(expectFiles.length).toBe(0);
 });

@@ -3,16 +3,43 @@ id: api
 title: "<Player>"
 ---
 
-## `<Player />`
+A component which can be rendered in a regular React App (for example: [Create React App](https://create-react-app.dev/), [Next.JS](https://nextjs.org)) to display a Remotion video.
 
-A React component which takes the following props:
+```tsx twoslash title="MyApp.tsx"
+// @allowUmdGlobalAccess
+// @filename: ./remotion/MyVideo.tsx
+export const MyVideo = () => <></>;
+
+// @filename: index.tsx
+// ---cut---
+import { Player } from "@remotion/player";
+import { MyVideo } from "./remotion/MyVideo";
+
+export const App: React.FC = () => {
+  return (
+    <Player
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+    />
+  );
+};
+```
+
+[See more usage examples](/docs/player/examples)
+
+## API
 
 ### `component` or `lazyComponent`
 
 Pass a React component in directly **or** pass a function that returns a dynamic import. Passing neither or both of the props is an error.
 
+If you use `lazyComponent`, wrap it in a `useCallback()` to avoid constant rendering. [See here for an example.](/docs/player/examples#loading-a-component-lazily)
+
 :::note
-Pass the same React component that you would pass to a `<Composition>`. **Don't** pass in a `<Composition>` or a component returning `<Composition>`
+The Player does not use [`<Composition>`](/docs/composition)'s. Pass your component directly and do not wrap it in a `<Composition>` component.
 :::
 
 ### `durationInFrames`
@@ -178,7 +205,7 @@ const MyApp: React.FC = () => {
 ```
 
 :::info
-A player needs to be loaded if it contains elements that use React Suspense, or if the `lazyComponent` props is being used.
+A player needs to be loaded if it contains elements that use React Suspense, or if the `lazyComponent` prop is being used.
 :::
 
 ### `renderPoster`
@@ -253,6 +280,12 @@ Limit playback to only play after a certain frame. The video will start from thi
 _optional, available from v3.2.15_
 
 Limit playback to only play before a certain frame. The video will end at this frame and move to the beginning once it has ended. Must be an integer, not smaller than `1`, not smaller than [`inFrame`](#inframe) and not bigger than `durationInFrames - 1`. Default `null`, which means the end of the video.
+
+### `initiallyShowControls`
+
+_optional, available from v3.2.24_
+
+If true, the controls flash when the player enters the scene. After 2 seconds without hover, the controls fade out. This is similar to how YouTube does it, and signals to the user that the player is in fact controllable. You can also pass a `number`, with which you can customize the duration in milliseconds. Default `true` since `v3.2.24`, before that unsupported.
 
 ## `PlayerRef`
 
@@ -405,6 +438,12 @@ Requests the video to go to fullscreen. This method throws if the `allowFullscre
 
 Exit fullscreen mode.
 
+### `getScale()`
+
+_available since v3.2.24_
+
+Returns a number which says how much the content is scaled down compared to the natural composition size. For example, if the composition is `1920x1080`, but the player is 960px in width, this method would return `0.5`.
+
 ### `addEventListener()`
 
 Start listening to an event. See the [Events](#events) section to see the function signature and the available events.
@@ -458,7 +497,7 @@ useEffect(() => {
 
 ### `seeked`
 
-Fired when the time position changes. You may get the current frame by reading it from `e.detail.frame`.
+Fired when the time position is changed by the user using the playback bar or using [`seek()`](#seek). You may get the current frame by reading it from `e.detail.frame`.
 
 ```tsx twoslash
 import { PlayerRef } from "@remotion/player";
@@ -473,7 +512,9 @@ playerRef.current.addEventListener("seeked", (e) => {
 });
 ```
 
-This event fires on every single frame update. Don't update your UI based on this event as it will cause a lot of rerenders. Use the [`timeupdate`](#timeupdate) event instead.
+This event fires on every single frame update. Prefer the [`timeupdate`](#timeupdate) event instead if the excessive rerenders cause slowdown.
+
+This event is only fired during seeking. Use [`frameupdate`](#frameupdate) instead if you also want to get time updates during playback.
 
 ### `ended`
 
@@ -493,7 +534,7 @@ Fires when the video has paused or ended.
 
 ### `timeupdate`
 
-Fires periodically when the video is playing. Unlike the [`seeked`](#seeked) event, frames are skipped, and the event is throttled to only fire a few times a second.
+Fires periodic time updates when the video is playing. Unlike the [`seeked`](#seeked) event, frames are skipped, and the event is throttled to only fire a few times a second at most every 250ms.
 
 ```tsx twoslash
 import { PlayerRef } from "@remotion/player";
@@ -507,6 +548,33 @@ playerRef.current.addEventListener("timeupdate", (e) => {
   console.log("current frame is " + e.detail.frame); // current frame is 120
 });
 ```
+
+Prefer the [`seeked`](#seeked) event if you only want to get time updates during seeking.
+
+Prefer the [`frameupdate`](#frameupdate) event if you need an update for every single frame.
+
+### `frameupdate`
+
+_Available from v3.2.26_
+
+Fires whenever the current time has changed, during both playback and seeking.
+
+```tsx twoslash
+import { PlayerRef } from "@remotion/player";
+import { useRef } from "react";
+const playerRef = useRef<PlayerRef>(null);
+if (!playerRef.current) {
+  throw new Error();
+}
+// ---cut---
+playerRef.current.addEventListener("frameupdate", (e) => {
+  console.log("current frame is " + e.detail.frame); // current frame is 120
+});
+```
+
+Prefer the [`seeked`](#seeked) event if you only want to get time updates during seeking.
+
+Prefer the [`timeupdate`](#timeupdate) event if you only need periodical updates (at most every 250ms).
 
 ### `fullscreenchange`
 
