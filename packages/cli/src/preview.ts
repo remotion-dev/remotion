@@ -49,7 +49,7 @@ export const previewCommand = async (remotionRoot: string) => {
 	const {port: desiredPort} = parsedCli;
 	const fullPath = path.join(process.cwd(), file);
 
-	await initializeRenderCli(remotionRoot, 'preview');
+	await initializeRenderCli(remotionRoot);
 
 	let inputProps = getInputProps((newProps) => {
 		waitForLiveEventsListener().then((listener) => {
