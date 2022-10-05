@@ -15,7 +15,7 @@ export const warnIfAppleSiliconIsNotUsingArm64Architecture = () => {
 		);
 
 		console.warn(
-			`Apple Silicon detected, but running under Rosetta (not arm64 architecture). This will cause performance issues.\n` +
+			`Apple Silicon detected but running under Rosetta (not arm64 architecture). This will cause performance issues.\n` +
 				`Recommended actions:\n` +
 				(recommendNodeUpgrade
 					? ` - Upgrade to Node ${recommendedNodeVersion} or later\n`
