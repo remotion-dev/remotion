@@ -19,7 +19,6 @@ import {
 } from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {getOutputFilename} from './get-filename';
-import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import type {DownloadProgress} from './progress-bar';
@@ -55,8 +54,6 @@ export const render = async (remotionRoot: string) => {
 		);
 		process.exit(1);
 	}
-
-	await initializeRenderCli(remotionRoot);
 
 	Log.verbose('Asset dirs', downloadMap.assetDir);
 
