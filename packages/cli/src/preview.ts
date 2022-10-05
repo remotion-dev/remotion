@@ -3,7 +3,6 @@ import path from 'path';
 import {ConfigInternals} from './config';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
-import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import type {LiveEventsServer} from './preview-server/live-events';
@@ -48,8 +47,6 @@ export const previewCommand = async (remotionRoot: string) => {
 
 	const {port: desiredPort} = parsedCli;
 	const fullPath = path.join(process.cwd(), file);
-
-	await initializeRenderCli(remotionRoot, 'preview');
 
 	let inputProps = getInputProps((newProps) => {
 		waitForLiveEventsListener().then((listener) => {
