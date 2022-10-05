@@ -2,6 +2,7 @@ import type {RenderMediaOptions} from '@remotion/renderer';
 import {getCompositions, renderMedia} from '@remotion/renderer';
 import path from 'path';
 import {chalk} from './chalk';
+import {getRenderMediaOptions} from './get-render-media-options';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
@@ -139,7 +140,6 @@ const makeBenchmarkProgressBar = ({
 
 export const benchmarkCommand = async (remotionRoot: string) => {
 	const runs: number = parsedCli.runs ?? DEFUALT_RUNS;
-	const {codec} = parsedCli;
 
 	const filePath = parsedCli._[1];
 
@@ -186,9 +186,11 @@ export const benchmarkCommand = async (remotionRoot: string) => {
 				const timeTaken = await runBenchmark(
 					runs,
 					{
-						codec,
-						composition,
-						serveUrl: bundleLocation,
+						...(await getRenderMediaOptions({
+							config: composition,
+							outputLocation: undefined,
+							serveUrl: bundleLocation,
+						})),
 						concurrency: con,
 					},
 					(run, progress) => {
@@ -222,8 +224,11 @@ export const benchmarkCommand = async (remotionRoot: string) => {
 			const timeTaken = await runBenchmark(
 				runs,
 				{
-					codec: 'h264',
-					composition,
+					...(await getRenderMediaOptions({
+						config: composition,
+						outputLocation: undefined,
+						serveUrl: bundleLocation,
+					})),
 					serveUrl: bundleLocation,
 				},
 				(run, progress) => {
