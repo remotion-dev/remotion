@@ -10,7 +10,7 @@ export const lambdaCommand = async (remotionRoot: string) => {
 			paths: [remotionRoot],
 		});
 		const {LambdaInternals} = require(path);
-		await initializeRenderCli(remotionRoot, 'lambda');
+		await initializeRenderCli(remotionRoot);
 
 		await LambdaInternals.executeCommand(parsedCli._.slice(1));
 		process.exit(0);

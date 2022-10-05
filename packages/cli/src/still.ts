@@ -37,7 +37,14 @@ export const still = async (remotionRoot: string) => {
 		? file
 		: path.join(process.cwd(), file);
 
-	await initializeRenderCli(remotionRoot, 'still');
+	if (parsedCli.frames) {
+		Log.error(
+			'--frames flag was passed to the `still` command. This flag only works with the `render` command. Did you mean `--frame`? See reference: https://www.remotion.dev/docs/cli/'
+		);
+		process.exit(1);
+	}
+
+	await initializeRenderCli(remotionRoot);
 
 	const userPassedOutput = getUserPassedOutputLocation();
 	if (
