@@ -71,7 +71,7 @@ export const uploadDir = async ({
 		progresses[file.name] = 0;
 	}
 
-	const client = getS3Client(region);
+	const client = getS3Client(region, null);
 
 	const uploads = files.map(async (filePath) => {
 		const Key = makeS3Key(folder, dir, filePath.name);

@@ -38,6 +38,7 @@ import {concatVideosS3} from './helpers/concat-videos';
 import {createPostRenderData} from './helpers/create-post-render-data';
 import {cleanupFiles} from './helpers/delete-chunks';
 import {getExpectedOutName} from './helpers/expected-out-name';
+import {findOutputFileInBucket} from './helpers/find-output-file-in-bucket';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getFilesToDelete} from './helpers/get-files-to-delete';
@@ -215,6 +216,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		};
 		return payload;
 	});
+
 	const renderMetadata: RenderMetadata = {
 		startedDate,
 		videoConfig: comp,
@@ -240,7 +242,43 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
 		outName: params.outName ?? undefined,
+		privacy: params.privacy,
 	};
+
+	const {key, renderBucketName, customCredentials} = getExpectedOutName(
+		renderMetadata,
+		params.bucketName,
+		typeof params.outName === 'string' || typeof params.outName === 'undefined'
+			? null
+			: params.outName?.s3OutputProvider ?? null
+	);
+
+	const output = await findOutputFileInBucket({
+		bucketName: params.bucketName,
+		customCredentials,
+		region: getCurrentRegionInFunction(),
+		renderMetadata,
+	});
+
+	if (output) {
+		if (params.overwrite) {
+			console.info(
+				'Deleting',
+				{bucketName: renderBucketName, key},
+				'because it already existed and will be overwritten'
+			);
+			await lambdaDeleteFile({
+				bucketName: renderBucketName,
+				customCredentials,
+				key,
+				region: getCurrentRegionInFunction(),
+			});
+		} else {
+			throw new TypeError(
+				`Output file "${key}" in bucket "${renderBucketName}" in region "${getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or use the overwrite option to delete it before render."`
+			);
+		}
+	}
 
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
@@ -250,6 +288,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: null,
+		customCredentials: null,
 	});
 
 	await Promise.all(
@@ -294,6 +333,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			privacy: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
 			downloadBehavior: null,
+			customCredentials: null,
 		}).catch((err) => {
 			writeLambdaError({
 				bucketName: params.bucketName,
@@ -336,11 +376,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		encodingStop = Date.now();
 	}
 
-	const {key, renderBucketName} = getExpectedOutName(
-		renderMetadata,
-		params.bucketName
-	);
-
 	const outputSize = fs.statSync(outfile);
 
 	await lambdaWriteFile({
@@ -351,6 +386,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		privacy: params.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: params.downloadBehavior,
+		customCredentials,
 	});
 
 	let chunkProm: Promise<unknown> = Promise.resolve();
@@ -420,6 +456,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: null,
+		customCredentials: null,
 	});
 
 	const errorExplanationsProm = inspectErrors({
@@ -455,7 +492,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		outputFile: {
 			lastModified: Date.now(),
 			size: outputSize.size,
-			url: getOutputUrlFromMetadata(renderMetadata, params.bucketName),
+			url: getOutputUrlFromMetadata(
+				renderMetadata,
+				params.bucketName,
+				customCredentials
+			),
 		},
 	});
 	await finalEncodingProgressProm;
@@ -470,6 +511,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		bucketName: params.bucketName,
 		key: initalizedMetadataKey(params.renderId),
 		region: getCurrentRegionInFunction(),
+		customCredentials: null,
 	});
 
 	await Promise.all([cleanupChunksProm, fs.promises.rm(outfile)]);
@@ -486,6 +528,10 @@ export const launchHandler = async (
 	try {
 		await innerLaunchHandler(params, options);
 	} catch (err) {
+		if (process.env.NODE_ENV === 'test') {
+			throw err;
+		}
+
 		console.log('Error occurred', err);
 		await writeLambdaError({
 			bucketName: params.bucketName,

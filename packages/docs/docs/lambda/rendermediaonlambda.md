@@ -19,14 +19,9 @@ const { bucketName, renderId } = await renderMediaOnLambda({
   region: "us-east-1",
   functionName: "remotion-render-bds9aab",
   composition: "MyVideo",
-  framesPerLambda: 20,
   serveUrl:
     "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
-  inputProps: {},
   codec: "h264",
-  imageFormat: "jpeg",
-  maxRetries: 1,
-  privacy: "public",
 });
 ```
 
@@ -39,6 +34,8 @@ An object with the following properties:
 In which region your Lambda function is deployed. It's highly recommended that your Remotion site is also in the same region.
 
 ### `privacy`
+
+_optional since v3.2.26_
 
 One of:
 
@@ -74,6 +71,8 @@ The `id` of the [composition](/docs/composition) you want to render.
 
 ### `inputProps`
 
+_optional since v3.2.26_
+
 React props that are passed to your composition. You define the shape of the props that the component accepts.
 
 ### `codec`
@@ -91,6 +90,8 @@ See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
 Disables audio output. See also [`renderMedia() -> muted`](/docs/renderer/render-media#muted).
 
 ### `imageFormat`
+
+_optional since v3.2.26_
 
 See [`renderMedia() -> imageFormat`](/docs/renderer/render-media#imageformat).
 
@@ -116,7 +117,7 @@ See [`renderMedia() -> quality`](/docs/renderer/render-media#quality).
 
 ### `maxRetries`
 
-_optional, default `1`_
+_optional since v3.2.26, default `1`_
 
 How often a chunk may be retried to render in case the render fails.
 If a rendering of a chunk is failed, the error will be reported in the [`getRenderProgress()`](/docs/lambda/getrenderprogress) object and retried up to as many times as you specify using this option.
@@ -135,19 +136,15 @@ The file name of the media output.
 
 It can either be:
 
-- `undefined` - it will default to `out` plus the appropriate file extension, for example: `renders/${renderId}/out.mp4`. The outName must match `/^([0-9a-zA-Z-!_.*'()/]+)$/g`.
+- `undefined` - it will default to `out` plus the appropriate file extension, for example: `renders/${renderId}/out.mp4`.
 - A `string` - it will get saved to the same S3 bucket as your site under the key `renders/{renderId}/{outName}`.
-- An object of shape `{ key: string; bucketName: string }`. This will save the render to an arbitrary bucket with an arbitrary key. Note the following restrictions:
-  - You must extend the default Remotion policy to allow read and write access to that bucket.
-  - The bucket must be in the same region.
-  - When calling APIs such as `downloadMedia()` or `getRenderProgress()`, you must pass the bucket name where the site resides in, not the bucket where the video gets saved.
-  - The `key` must match `/^([0-9a-zA-Z-!_.*'()]+)$/g` and the bucketName must match `/^(?=^.{3,63}$)(?!^(\d+\.)+\d+$)(^(([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])$)/`.
+- An object if you want to render to a different bucket or cloud provider - [see here for detailed instructions](/docs/lambda/custom-destination)
 
 ### `timeoutInMilliseconds?`
 
 _optional_
 
-A number describing how long the render may take to resolve all `delayRender()` calls before it times out. Default: `30000`
+A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
 ### `chromiumOptions?`
 
@@ -229,6 +226,14 @@ The S3 bucket name in which all files are being saved.
 _Available from v3.2.10_
 
 A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
+
+### `overwrite`
+
+_available from v3.2.25_
+
+If a custom out name is specified and a file already exists at this key in the S3 bucket, decide whether that file will be deleted before the render begins. Default `false`.
+
+An existing file at the output S3 key will conflict with the render and must be deleted beforehand. If this setting is `false` and a conflict occurs, an error will be thrown.
 
 ## See also
 

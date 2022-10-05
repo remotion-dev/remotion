@@ -65,7 +65,7 @@ The constant rate factor, controlling the quality. See: [Controlling quality usi
 
 ### `imageFormat?`
 
-_"jpeg" (default) | "png" | "none" - optional_
+_"jpeg" (default) | "png" | "none" - optional since v3.2.26_
 
 In which image format the frames should be rendered.
 
@@ -276,7 +276,7 @@ const onBrowserLog = (log: BrowserLog) => {
 
 _optional_
 
-A number describing how long the render may take to resolve all `delayRender()` calls before it times out. Default: `30000`
+A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
 ### `cancelSignal?`
 

@@ -134,6 +134,7 @@ const renderHandler = async (
 					region: getCurrentRegionInFunction(),
 					expectedBucketOwner: options.expectedBucketOwner,
 					downloadBehavior: null,
+					customCredentials: null,
 				}).catch((err) => reject(err));
 			},
 			puppeteerInstance: browserInstance,
@@ -221,6 +222,7 @@ const renderHandler = async (
 		privacy: params.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: null,
+		customCredentials: null,
 	});
 	await Promise.all([
 		fs.promises.rm(outputLocation, {recursive: true}),
@@ -238,6 +240,7 @@ const renderHandler = async (
 			privacy: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
 			downloadBehavior: null,
+			customCredentials: null,
 		}),
 	]);
 };
@@ -255,6 +258,10 @@ export const rendererHandler = async (
 	try {
 		await renderHandler(params, options, logs);
 	} catch (err) {
+		if (process.env.NODE_ENV === 'test') {
+			throw err;
+		}
+
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
 		const isBrowserError =

@@ -161,6 +161,7 @@ module.exports = {
         "lambda/getregions",
         "lambda/getsites",
         "lambda/downloadmedia",
+        "lambda/deleterender",
         "lambda/getuserpolicy",
         "lambda/getrolepolicy",
         "lambda/getorcreatebucket",
@@ -234,6 +235,7 @@ module.exports = {
         "paths/normalize-path",
         "paths/interpolate-path",
         "paths/evolve-path",
+        "paths/extend-viewbox",
       ],
     },
   ],
@@ -310,6 +312,7 @@ module.exports = {
         "lambda/faq",
         "lambda/light-client",
         "lambda/custom-layers",
+        "lambda/custom-destination",
         "lambda/checklist",
         {
           type: "category",

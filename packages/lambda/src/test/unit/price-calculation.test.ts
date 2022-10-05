@@ -40,6 +40,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 				defaultProps: {},
 			},
 			outName: 'out.mp4',
+			privacy: 'public',
 		},
 		outputFileMetadata: {
 			url: 'out.mp4',

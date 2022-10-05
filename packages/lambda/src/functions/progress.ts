@@ -6,7 +6,7 @@ import {getProgress} from './helpers/get-progress';
 
 type Options = {
 	expectedBucketOwner: string;
-	timeoutInMiliseconds: number;
+	timeoutInMilliseconds: number;
 };
 
 export const progressHandler = (
@@ -35,6 +35,7 @@ export const progressHandler = (
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
-		timeoutInMiliseconds: options.timeoutInMiliseconds,
+		timeoutInMilliseconds: options.timeoutInMilliseconds,
+		customCredentials: lambdaParams.s3OutputProvider ?? null,
 	});
 };

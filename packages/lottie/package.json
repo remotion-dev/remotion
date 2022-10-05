@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/lottie",
-	"version": "3.2.22",
+	"version": "3.2.25",
 	"description": "Remotion Lottie",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -27,7 +27,7 @@
 	],
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"remotion": "3.2.22"
+		"remotion": "3.2.25"
 	},
 	"peerDependencies": {
 		"lottie-web": "^5",

@@ -9,7 +9,7 @@ export const enableS3Website = async ({
 	region: AwsRegion;
 	bucketName: string;
 }) => {
-	await getS3Client(region).send(
+	await getS3Client(region, null).send(
 		new PutBucketWebsiteCommand({
 			Bucket: bucketName,
 			WebsiteConfiguration: {
