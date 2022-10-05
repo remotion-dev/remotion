@@ -35,7 +35,7 @@ In which region your Lambda function is deployed. It's highly recommended that y
 
 ### `privacy`
 
-_optional since v3.2.26_
+_optional since v3.2.27_
 
 One of:
 
@@ -71,7 +71,7 @@ The `id` of the [composition](/docs/composition) you want to render.
 
 ### `inputProps`
 
-_optional since v3.2.26_
+_optional since v3.2.27_
 
 React props that are passed to your composition. You define the shape of the props that the component accepts.
 
@@ -91,7 +91,7 @@ Disables audio output. See also [`renderMedia() -> muted`](/docs/renderer/render
 
 ### `imageFormat`
 
-_optional since v3.2.26_
+_optional since v3.2.27_
 
 See [`renderMedia() -> imageFormat`](/docs/renderer/render-media#imageformat).
 
@@ -117,7 +117,7 @@ See [`renderMedia() -> quality`](/docs/renderer/render-media#quality).
 
 ### `maxRetries`
 
-_optional since v3.2.26, default `1`_
+_optional since v3.2.27, default `1`_
 
 How often a chunk may be retried to render in case the render fails.
 If a rendering of a chunk is failed, the error will be reported in the [`getRenderProgress()`](/docs/lambda/getrenderprogress) object and retried up to as many times as you specify using this option.
