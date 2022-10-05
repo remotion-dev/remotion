@@ -9,7 +9,7 @@
 	},
 	"module": "true",
 	"scripts": {
-		"testintegration": "jest src/test/integration --runInBand",
+		"testintegration": "jest src/test/integration --runInBand --forceExit",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "jest src/test/unit",
 		"watch": "tsc -w",
