@@ -56,6 +56,7 @@ test('Should fail when using an incompatible version', async () => {
 				muted: false,
 				version: VERSION,
 				overwrite: true,
+				webhook: undefined,
 			},
 			extraContext
 		)
