@@ -14,7 +14,7 @@ router.post("/my-remotion-webhook-endpoint", (req, res) => {
     .update(JSON.stringify(req.body))
     .digest("hex")}`;
 
-  if (signature !== req.header("X-REMOTION-SIGNATURE")) {
+  if (signature !== req.header("X-Remotion-Signature")) {
     // Request wasn't sent by Remotion
     // ...
   } else {
