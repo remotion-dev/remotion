@@ -9,7 +9,7 @@ import {formatBytes} from './format-bytes';
 import {getCliOptions} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
 import {handleCommonError} from './handle-common-errors';
-import {initializeRenderCli} from './initialize-render-cli';
+import {initializeCli} from './initialize-cli';
 import {lambdaCommand} from './lambda-command';
 import {loadConfigFile} from './load-config';
 import {Log} from './log';
@@ -51,6 +51,8 @@ export const cli = async () => {
 
 	const errorSymbolicationLock =
 		RenderInternals.registerErrorSymbolicationLock();
+
+	await initializeCli(remotionRoot);
 
 	try {
 		if (command === 'compositions') {
@@ -96,7 +98,7 @@ export const CliInternals = {
 	getCliOptions,
 	parseCommandLine,
 	loadConfig,
-	initializeRenderCli,
+	initializeCli,
 	BooleanFlags,
 	quietFlagProvided,
 	parsedCli,

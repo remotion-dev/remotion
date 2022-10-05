@@ -16,16 +16,13 @@
 
 import * as childProcess from 'child_process';
 import * as fs from 'fs';
-import * as path from 'path';
 import * as readline from 'readline';
-import {promisify} from 'util';
 import {deleteDirectory} from '../delete-directory';
 import {assert} from './assert';
 import {Connection} from './Connection';
 import {TimeoutError} from './Errors';
 import type {LaunchOptions} from './LaunchOptions';
 import {NodeWebSocketTransport} from './NodeWebSocketTransport';
-import type {Product} from './Product';
 import type {PuppeteerEventListener} from './util';
 import {
 	addEventListener,
@@ -34,20 +31,15 @@ import {
 	removeEventListeners,
 } from './util';
 
-const renameAsync = promisify(fs.rename);
-const unlinkAsync = promisify(fs.unlink);
-
 const PROCESS_ERROR_EXPLANATION = `Puppeteer was unable to kill the process which ran the browser binary.
  This means that, on future Puppeteer launches, Puppeteer might not be able to launch the browser.
  Please check your open processes and ensure that the browser processes that Puppeteer launched have been killed.
  If you think this is a bug, please report it on the Puppeteer issue tracker.`;
 
 export class BrowserRunner {
-	#product: Product;
 	#executablePath: string;
 	#processArguments: string[];
 	#userDataDir: string;
-	#isTempUserDataDir?: boolean;
 	#closed = true;
 	#listeners: PuppeteerEventListener[] = [];
 	#processClosing!: Promise<void>;
@@ -56,28 +48,21 @@ export class BrowserRunner {
 	connection?: Connection;
 
 	constructor({
-		product,
 		executablePath,
 		processArguments,
 		userDataDir,
-		isTempUserDataDir,
 	}: {
-		product: Product;
 		executablePath: string;
 		processArguments: string[];
 		userDataDir: string;
-		isTempUserDataDir?: boolean;
 	}) {
-		this.#product = product;
 		this.#executablePath = executablePath;
 		this.#processArguments = processArguments;
 		this.#userDataDir = userDataDir;
-		this.#isTempUserDataDir = isTempUserDataDir;
 	}
 
 	start(options: LaunchOptions): void {
-		const {handleSIGINT, handleSIGTERM, handleSIGHUP, dumpio, env, pipe} =
-			options;
+		const {dumpio, env, pipe} = options;
 		let stdio: Array<'ignore' | 'pipe'>;
 		if (pipe) {
 			if (dumpio) {
@@ -115,59 +100,32 @@ export class BrowserRunner {
 			(this.proc as childProcess.ChildProcess).once('exit', async () => {
 				this.#closed = true;
 				// Cleanup as processes exit.
-				if (this.#isTempUserDataDir) {
-					try {
+				try {
+					if (fs.existsSync(this.#userDataDir)) {
 						await deleteDirectory(this.#userDataDir);
-						fulfill();
-					} catch (error) {
-						reject(error);
-					}
-				} else {
-					if (this.#product === 'firefox') {
-						try {
-							// When an existing user profile has been used remove the user
-							// preferences file and restore possibly backuped preferences.
-							await unlinkAsync(path.join(this.#userDataDir, 'user.js'));
-
-							const prefsBackupPath = path.join(
-								this.#userDataDir,
-								'prefs.js.puppeteer'
-							);
-							if (fs.existsSync(prefsBackupPath)) {
-								const prefsPath = path.join(this.#userDataDir, 'prefs.js');
-								await unlinkAsync(prefsPath);
-								await renameAsync(prefsBackupPath, prefsPath);
-							}
-						} catch (error) {
-							reject(error);
-						}
 					}
 
 					fulfill();
+				} catch (error) {
+					reject(error);
 				}
 			});
 		});
 		this.#listeners = [addEventListener(process, 'exit', this.kill.bind(this))];
-		if (handleSIGINT) {
-			this.#listeners.push(
-				addEventListener(process, 'SIGINT', () => {
-					this.kill();
-					process.exit(130);
-				})
-			);
-		}
+		this.#listeners.push(
+			addEventListener(process, 'SIGINT', () => {
+				this.kill();
+				process.exit(130);
+			})
+		);
 
-		if (handleSIGTERM) {
-			this.#listeners.push(
-				addEventListener(process, 'SIGTERM', this.close.bind(this))
-			);
-		}
+		this.#listeners.push(
+			addEventListener(process, 'SIGTERM', this.close.bind(this))
+		);
 
-		if (handleSIGHUP) {
-			this.#listeners.push(
-				addEventListener(process, 'SIGHUP', this.close.bind(this))
-			);
-		}
+		this.#listeners.push(
+			addEventListener(process, 'SIGHUP', this.close.bind(this))
+		);
 	}
 
 	close(): Promise<void> {
@@ -175,14 +133,7 @@ export class BrowserRunner {
 			return Promise.resolve();
 		}
 
-		if (this.#isTempUserDataDir) {
-			this.kill();
-		} else if (this.connection) {
-			// Attempt to close the browser gracefully
-			this.connection.send('Browser.close').catch(() => {
-				this.kill();
-			});
-		}
+		this.kill();
 
 		// Cleanup this listener last, as that makes sure the full callback runs. If we
 		// perform this earlier, then the previous function calls would not happen.
@@ -231,9 +182,7 @@ export class BrowserRunner {
 
 		// Attempt to remove temporary profile directory to avoid littering.
 		try {
-			if (this.#isTempUserDataDir) {
-				fs.rmSync(this.#userDataDir, {recursive: true, force: true});
-			}
+			fs.rmSync(this.#userDataDir, {recursive: true, force: true});
 		} catch (error) {}
 
 		// Cleanup this listener last, as that makes sure the full callback runs. If we
