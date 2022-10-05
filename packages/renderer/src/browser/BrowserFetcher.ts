@@ -465,7 +465,7 @@ function parseFolderPath(
 	return {product, platform, revision};
 }
 
-function _downloadFile(
+export function _downloadFile(
 	url: string,
 	destinationPath: string,
 	progressCallback: (x: number, y: number) => void

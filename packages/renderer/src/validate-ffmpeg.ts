@@ -1,6 +1,7 @@
 import execa from 'execa';
 import {statSync} from 'fs';
 import os from 'os';
+import {downloadFfmpeg} from './ffmpeg-flags';
 
 const existsMap: {[key: string]: boolean} = {};
 
@@ -41,12 +42,12 @@ export const ffmpegInNodeModules = (): Promise<boolean> => {
 	const fs = require('fs');
 
 	const expectedFfmpegPath = path.resolve(
-		__dirname,
-		'..',
-		'node_modules/.ffmpeg'
+		process.cwd(),
+		'node_modules/.ffmpeg/ffmpeg'
 	);
 	console.log(
 		'does ffmpeg exist in node modules? ',
+		expectedFfmpegPath,
 		fs.existsSync(expectedFfmpegPath)
 	);
 	return fs.existsSync(expectedFfmpegPath);
@@ -64,6 +65,12 @@ export const validateFfmpeg = async (
 		(await binaryExists('ffmpeg', customFfmpegBinary)) ||
 		(await ffmpegInNodeModules());
 	if (!ffmpegExists) {
+		if (os.platform() === 'darwin' || os.platform() === 'win32') {
+			console.log('inside !exists');
+			await downloadFfmpeg();
+			return validateFfmpeg(customFfmpegBinary);
+		}
+
 		if (customFfmpegBinary) {
 			console.error('FFmpeg executable not found:');
 			console.error(customFfmpegBinary);
