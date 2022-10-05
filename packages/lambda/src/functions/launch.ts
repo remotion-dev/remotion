@@ -97,12 +97,21 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	let webhookInvoked = false;
 	const webhookDueToTimeout = setTimeout(async () => {
 		if (params.webhook && !webhookInvoked) {
-			await invokeWebhook({
-				url: params.webhook,
-				type: 'timeout',
-				renderId: params.renderId,
-			});
-			webhookInvoked = true;
+			try {
+				await invokeWebhook({
+					url: params.webhook,
+					type: 'timeout',
+					renderId: params.renderId,
+				});
+				webhookInvoked = true;
+			} catch (err) {
+				if (process.env.NODE_ENV === 'test') {
+					throw err;
+				}
+
+				console.log('Failed to invoke webhook:');
+				console.log(err);
+			}
 		}
 	}, Math.max(params.timeoutInMilliseconds - 1000, 1000));
 
@@ -531,12 +540,21 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	clearTimeout(webhookDueToTimeout);
 	if (params.webhook && !webhookInvoked) {
-		await invokeWebhook({
-			url: params.webhook,
-			type: 'success',
-			renderId: params.renderId,
-		})
-		webhookInvoked = true;
+		try {
+			await invokeWebhook({
+				url: params.webhook,
+				type: 'success',
+				renderId: params.renderId,
+			});
+			webhookInvoked = true;
+		} catch (err) {
+			if (process.env.NODE_ENV === 'test') {
+				throw err;
+			}
+
+			console.log('Failed to invoke webhook:');
+			console.log(err);
+		}
 	}
 };
 
@@ -575,11 +593,20 @@ export const launchHandler = async (
 			renderId: params.renderId,
 		});
 		if (params.webhook) {
-			await invokeWebhook({
-				url: params.webhook,
-				type: 'error',
-				renderId: params.renderId,
-			})
+			try {
+				await invokeWebhook({
+					url: params.webhook,
+					type: 'error',
+					renderId: params.renderId,
+				});
+			} catch (error) {
+				if (process.env.NODE_ENV === 'test') {
+					throw error;
+				}
+
+				console.log('Failed to invoke webhook:');
+				console.log(error);
+			}
 		}
 	}
 };
