@@ -1,6 +1,6 @@
 {
   "name": "@remotion/eslint-config",
-  "version": "3.2.25",
+  "version": "3.2.26",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -16,7 +16,7 @@
   "author": "Jonny Burger <jonny@remotion.dev>",
   "license": "ISC",
   "dependencies": {
-    "@remotion/eslint-plugin": "3.2.25",
+    "@remotion/eslint-plugin": "3.2.26",
     "@typescript-eslint/eslint-plugin": "5.19.0",
     "@typescript-eslint/parser": "5.19.0",
     "eslint-plugin-10x": "1.5.2",
