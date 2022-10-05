@@ -164,7 +164,7 @@ AWS returned an "TooManyRequestsException" error message which could mean you re
 };
 
 export const cli = async () => {
-	await CliInternals.initializeRenderCli(CliInternals.findRemotionRoot());
+	await CliInternals.initializeCli(CliInternals.findRemotionRoot());
 
 	await executeCommand(parsedLambdaCli._);
 };
