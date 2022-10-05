@@ -14,7 +14,6 @@ import {
 	getCliOptions,
 } from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
-import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import type {DownloadProgress} from './progress-bar';
@@ -43,8 +42,6 @@ export const still = async (remotionRoot: string) => {
 		);
 		process.exit(1);
 	}
-
-	await initializeRenderCli(remotionRoot);
 
 	const userPassedOutput = getUserPassedOutputLocation();
 	if (

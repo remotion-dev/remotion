@@ -2,7 +2,7 @@ import {loadConfig} from './get-config-file-name';
 import {Log} from './log';
 import {parseCommandLine} from './parse-command-line';
 
-export const initializeRenderCli = async (remotionRoot: string) => {
+export const initializeCli = async (remotionRoot: string) => {
 	const appliedName = await loadConfig(remotionRoot);
 
 	parseCommandLine();

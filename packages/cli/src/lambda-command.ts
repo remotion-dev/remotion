@@ -1,4 +1,3 @@
-import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {getPackageManager} from './preview-server/get-package-manager';
@@ -10,7 +9,6 @@ export const lambdaCommand = async (remotionRoot: string) => {
 			paths: [remotionRoot],
 		});
 		const {LambdaInternals} = require(path);
-		await initializeRenderCli(remotionRoot);
 
 		await LambdaInternals.executeCommand(parsedCli._.slice(1));
 		process.exit(0);
