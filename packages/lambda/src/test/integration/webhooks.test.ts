@@ -2,6 +2,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {LambdaRoutines} from '../../defaults';
 import {handler} from '../../functions';
+import {mockableHttpClients} from '../../shared/invoke-webhook';
 import type {LambdaReturnValues} from '../../shared/return-values';
 import {disableLogs, enableLogs} from '../disable-logs';
 
@@ -14,21 +15,28 @@ const extraContext = {
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
-let originalFetch = global.fetch;
+const originalFetch = mockableHttpClients.http;
 beforeEach(() => {
-	originalFetch = global.fetch;
-	global.fetch = jest.fn(() =>
-		Promise.resolve({
-			statusText: 'OK',
-			ok: true,
-			status: 201,
-			json: () => Promise.resolve({}),
-		})
-	) as jest.Mock;
+	// @ts-expect-error
+	mockableHttpClients.http = jest.fn(
+		(
+			_url: string,
+			_options: unknown,
+			cb: (a: {statusCode: number}) => void
+		) => {
+			cb({
+				statusCode: 201,
+			});
+			return {
+				on: () => undefined,
+				end: () => undefined,
+			};
+		}
+	);
 });
 
 afterEach(() => {
-	global.fetch = originalFetch;
+	mockableHttpClients.http = originalFetch;
 });
 
 beforeAll(() => {
@@ -94,15 +102,19 @@ describe('Webhooks', () => {
 			extraContext
 		)) as Await<LambdaReturnValues[LambdaRoutines.status]>;
 
-		expect(fetch).toHaveBeenCalledTimes(1);
-		expect(fetch).toHaveBeenCalledWith(TEST_URL, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-REMOTION-SIGNATURE': expect.stringContaining('sha1='),
+		expect(mockableHttpClients.http).toHaveBeenCalledTimes(1);
+		expect(mockableHttpClients.http).toHaveBeenCalledWith(
+			TEST_URL,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-Remotion-Signature': expect.stringContaining('sha1='),
+					'X-Remotion-Status': 'success',
+				},
 			},
-			body: expect.stringContaining('success'),
-		});
+			expect.anything()
+		);
 	});
 
 	test('Should call webhook upon timeout', async () => {
@@ -155,14 +167,18 @@ describe('Webhooks', () => {
 			extraContext
 		)) as Await<LambdaReturnValues[LambdaRoutines.status]>;
 
-		expect(fetch).toHaveBeenCalledTimes(1);
-		expect(fetch).toHaveBeenCalledWith(TEST_URL, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-REMOTION-SIGNATURE': expect.stringContaining('sha1='),
+		expect(mockableHttpClients.http).toHaveBeenCalledTimes(1);
+		expect(mockableHttpClients.http).toHaveBeenCalledWith(
+			TEST_URL,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-Remotion-Signature': expect.stringContaining('sha1='),
+					'X-Remotion-Status': 'timeout',
+				},
 			},
-			body: expect.stringContaining('timeout'),
-		});
+			expect.anything()
+		);
 	});
 });

@@ -1,4 +1,6 @@
 import * as Crypto from 'crypto';
+import http from 'http';
+import https from 'https';
 
 /**
  * @description Calculates cryptographically secure signature for webhooks using Hmac.
@@ -18,26 +20,62 @@ export type InvokeWebhookInput = {
 	renderId: string;
 };
 
+const getWebhookClient = (url: string) => {
+	if (url.startsWith('https://')) {
+		return mockableHttpClients.https;
+	}
+
+	if (url.startsWith('http://')) {
+		return mockableHttpClients.http;
+	}
+
+	throw new Error('Can only request URLs starting with http:// or https://');
+};
+
+export const mockableHttpClients = {
+	http: http.request,
+	https: https.request,
+};
+
 /**
  * @description Calls a webhook.
  * @link https://remotion.dev/docs/lambda/rendermediaonlambda#webhook
  * @param params.url URL of webhook to call.
  */
-export async function invokeWebhook({url, type, renderId}: InvokeWebhookInput) {
+export function invokeWebhook({url, type, renderId}: InvokeWebhookInput) {
 	const payload = JSON.stringify({result: type, renderId});
-	try {
-		const response = await fetch(url, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-REMOTION-SIGNATURE': calculateSignature(payload),
+
+	return new Promise<void>((resolve, reject) => {
+		const req = getWebhookClient(url)(
+			url,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-Remotion-Signature': calculateSignature(payload),
+					'X-Remotion-Status': type,
+				},
 			},
-			body: payload,
+			(res) => {
+				if (res.statusCode && res.statusCode > 299) {
+					reject(
+						new Error(
+							`Sent a webhook but got a status code of ${res.statusCode}`
+						)
+					);
+					return;
+				}
+
+				resolve();
+			}
+		);
+
+		req.on('error', (err) => {
+			reject(err);
 		});
-		if (response.status > 299) {
-			// do we want to log webhook delivery failures?
-		}
-	} catch {
-		// network error ocurred. Do we log this?
-	}
+
+		req.write(payload);
+
+		req.end();
+	});
 }
