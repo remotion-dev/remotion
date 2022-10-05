@@ -36,7 +36,7 @@ export const binaryExists = async (
 	}
 };
 
-export const ffmpegInNodeModules = (): Promise<boolean> =>  {
+export const ffmpegInNodeModules = (): Promise<boolean> => {
 	const path = require('path');
 	const fs = require('fs');
 
@@ -45,12 +45,12 @@ export const ffmpegInNodeModules = (): Promise<boolean> =>  {
 		'..',
 		'node_modules/.ffmpeg'
 	);
-	console.log( "does ffmpeg exist in node modules? " , fs.existsSync(expectedFfmpegPath));
-	return  fs.existsSync(expectedFfmpegPath);
+	console.log(
+		'does ffmpeg exist in node modules? ',
+		fs.existsSync(expectedFfmpegPath)
+	);
+	return fs.existsSync(expectedFfmpegPath);
 };
-
-
-
 
 const isHomebrewInstalled = (): Promise<boolean> => {
 	return binaryExists('brew', null);
@@ -60,7 +60,9 @@ export const validateFfmpeg = async (
 	customFfmpegBinary: string | null
 ): Promise<void> => {
 	// binaryExists should also for node_modules
-	const ffmpegExists = await binaryExists('ffmpeg', customFfmpegBinary)||  await ffmpegInNodeModules();
+	const ffmpegExists =
+		(await binaryExists('ffmpeg', customFfmpegBinary)) ||
+		(await ffmpegInNodeModules());
 	if (!ffmpegExists) {
 		if (customFfmpegBinary) {
 			console.error('FFmpeg executable not found:');
