@@ -528,6 +528,10 @@ export const launchHandler = async (
 	try {
 		await innerLaunchHandler(params, options);
 	} catch (err) {
+		if (process.env.NODE_ENV === 'test') {
+			throw err;
+		}
+
 		console.log('Error occurred', err);
 		await writeLambdaError({
 			bucketName: params.bucketName,

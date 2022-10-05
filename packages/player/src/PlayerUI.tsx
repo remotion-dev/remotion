@@ -517,6 +517,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					inFrame={inFrame}
 					outFrame={outFrame}
 					initiallyShowControls={initiallyShowControls}
+					playerWidth={canvasSize?.width ?? 0}
 				/>
 			) : null}
 		</>
