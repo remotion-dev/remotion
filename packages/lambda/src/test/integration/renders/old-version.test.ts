@@ -27,7 +27,6 @@ test('Should fail when using an incompatible version', async () => {
 	expect(() =>
 		handler(
 			{
-				webhook: undefined,
 				type: LambdaRoutines.start,
 				serveUrl: 'https://competent-mccarthy-56f7c9.netlify.app/',
 				chromiumOptions: {},
