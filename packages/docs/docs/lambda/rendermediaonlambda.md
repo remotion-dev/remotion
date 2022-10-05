@@ -19,14 +19,9 @@ const { bucketName, renderId } = await renderMediaOnLambda({
   region: "us-east-1",
   functionName: "remotion-render-bds9aab",
   composition: "MyVideo",
-  framesPerLambda: 20,
   serveUrl:
     "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
-  inputProps: {},
   codec: "h264",
-  imageFormat: "jpeg",
-  maxRetries: 1,
-  privacy: "public",
 });
 ```
 
@@ -39,6 +34,8 @@ An object with the following properties:
 In which region your Lambda function is deployed. It's highly recommended that your Remotion site is also in the same region.
 
 ### `privacy`
+
+_optional since v3.2.26_
 
 One of:
 
@@ -74,6 +71,8 @@ The `id` of the [composition](/docs/composition) you want to render.
 
 ### `inputProps`
 
+_optional since v3.2.26_
+
 React props that are passed to your composition. You define the shape of the props that the component accepts.
 
 ### `codec`
@@ -91,6 +90,8 @@ See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
 Disables audio output. See also [`renderMedia() -> muted`](/docs/renderer/render-media#muted).
 
 ### `imageFormat`
+
+_optional since v3.2.26_
 
 See [`renderMedia() -> imageFormat`](/docs/renderer/render-media#imageformat).
 
@@ -116,7 +117,7 @@ See [`renderMedia() -> quality`](/docs/renderer/render-media#quality).
 
 ### `maxRetries`
 
-_optional, default `1`_
+_optional since v3.2.26, default `1`_
 
 How often a chunk may be retried to render in case the render fails.
 If a rendering of a chunk is failed, the error will be reported in the [`getRenderProgress()`](/docs/lambda/getrenderprogress) object and retried up to as many times as you specify using this option.

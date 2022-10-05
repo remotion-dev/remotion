@@ -25,16 +25,16 @@ export type RenderMediaOnLambdaInput = {
 	functionName: string;
 	serveUrl: string;
 	composition: string;
-	inputProps: unknown;
+	inputProps?: unknown;
 	codec: LambdaCodec;
-	imageFormat: ImageFormat;
+	imageFormat?: ImageFormat;
 	crf?: number | undefined;
 	envVariables?: Record<string, string>;
 	pixelFormat?: PixelFormat;
 	proResProfile?: ProResProfile;
-	privacy: Privacy;
+	privacy?: Privacy;
 	quality?: number;
-	maxRetries: number;
+	maxRetries?: number;
 	framesPerLambda?: number;
 	logLevel?: LogLevel;
 	frameRange?: FrameRange;
@@ -64,13 +64,13 @@ export type RenderMediaOnLambdaOutput = {
  * @param params.composition The ID of the composition which should be rendered.
  * @param params.inputProps The input props that should be passed to the composition.
  * @param params.codec The media codec which should be used for encoding.
- * @param params.imageFormat In which image format the frames should be rendered.
+ * @param params.imageFormat In which image format the frames should be rendered. Default "jpeg"
  * @param params.crf The constant rate factor to be used during encoding.
  * @param params.envVariables Object containing environment variables to be inserted into the video environment
  * @param params.proResProfile The ProRes profile if rendering a ProRes video
  * @param params.quality JPEG quality if JPEG was selected as the image format.
  * @param params.region The AWS region in which the media should be rendered.
- * @param params.maxRetries How often rendering a chunk may fail before the media render gets aborted.
+ * @param params.maxRetries How often rendering a chunk may fail before the media render gets aborted. Default "1"
  * @param params.logLevel Level of logging that Lambda function should perform. Default "info".
  * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
@@ -120,16 +120,16 @@ export const renderMediaOnLambda = async ({
 				framesPerLambda: framesPerLambda ?? null,
 				composition,
 				serveUrl: realServeUrl,
-				inputProps,
+				inputProps: inputProps ?? {},
 				codec: actualCodec,
-				imageFormat,
+				imageFormat: imageFormat ?? 'jpeg',
 				crf,
 				envVariables,
 				pixelFormat,
 				proResProfile,
 				quality,
-				maxRetries,
-				privacy,
+				maxRetries: maxRetries ?? 1,
+				privacy: privacy ?? 'public',
 				logLevel: logLevel ?? 'info',
 				frameRange: frameRange ?? null,
 				outName: outName ?? null,
