@@ -72,7 +72,7 @@ export const previewCommand = async (remotionRoot: string) => {
 		fullPath,
 		{
 			getCurrentInputProps: () => inputProps,
-			envVariables,
+			getEnvVariables: () => envVariables,
 			port: desiredPort,
 			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 			remotionRoot,

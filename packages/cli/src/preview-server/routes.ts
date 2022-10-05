@@ -41,11 +41,13 @@ const handleFallback = async ({
 	hash,
 	response,
 	getCurrentInputProps,
+								  getEnvVariables,
 }: {
 	remotionRoot: string;
 	hash: string;
 	response: ServerResponse;
 	getCurrentInputProps: () => object;
+	getEnvVariables: () => Record<string, string>;
 }) => {
 	const [edit] = await editorGuess;
 	const displayName = getDisplayNameForEditor(edit ? edit.command : null);
@@ -58,6 +60,7 @@ const handleFallback = async ({
 			staticHash: hash,
 			baseDir: '/',
 			editorName: displayName,
+			envVariables: getEnvVariables(),
 			inputProps: getCurrentInputProps(),
 			remotionRoot,
 			previewServerCommand:
@@ -184,6 +187,7 @@ export const handleRoutes = ({
 	response,
 	liveEventsServer,
 	getCurrentInputProps,
+    getEnvVariables,
 	remotionRoot,
 	userPassedPublicDir,
 }: {
@@ -193,6 +197,7 @@ export const handleRoutes = ({
 	response: ServerResponse;
 	liveEventsServer: LiveEventsServer;
 	getCurrentInputProps: () => object;
+	getEnvVariables: () => Record<string, string>;
 	remotionRoot: string;
 	userPassedPublicDir: string | null;
 }) => {
@@ -243,5 +248,6 @@ export const handleRoutes = ({
 		hash,
 		response,
 		getCurrentInputProps,
+		getEnvVariables,
 	});
 };
