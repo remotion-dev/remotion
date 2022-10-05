@@ -55,6 +55,7 @@ export function invokeWebhook({url, type, renderId}: InvokeWebhookInput) {
 					'X-Remotion-Signature': calculateSignature(payload),
 					'X-Remotion-Status': type,
 				},
+				timeout: 5000,
 			},
 			(res) => {
 				if (res.statusCode && res.statusCode > 299) {
@@ -70,11 +71,11 @@ export function invokeWebhook({url, type, renderId}: InvokeWebhookInput) {
 			}
 		);
 
+		req.write(payload);
+
 		req.on('error', (err) => {
 			reject(err);
 		});
-
-		req.write(payload);
 
 		req.end();
 	});
