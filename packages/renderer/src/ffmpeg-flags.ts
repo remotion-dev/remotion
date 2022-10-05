@@ -1,4 +1,6 @@
 import execa from 'execa';
+import fs from 'fs';
+import {_downloadFile} from './browser/BrowserFetcher';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {binaryExists, ffmpegInNodeModules} from './validate-ffmpeg';
 
@@ -69,13 +71,65 @@ export const getFfmpegVersion = async (options: {
 	return parseFfmpegVersion(buildInfo);
 };
 
+export const downloadFfmpeg = async (): Promise<void> => {
+	const decoyFunction = () => {
+		return undefined;
+	};
+
+	const os = require('os');
+	const path = require('path');
+	if (!fs.existsSync(path.resolve(process.cwd(), 'node_modules/.ffmpeg'))) {
+		fs.mkdirSync(path.resolve(process.cwd(), 'node_modules/.ffmpeg'));
+	}
+
+	const destinationPath = path.resolve(
+		process.cwd(),
+		'node_modules/.ffmpeg/ffmpeg'
+	);
+	console.log(destinationPath);
+	let url: string;
+
+	const isWin = os.platform() === 'win32';
+
+	if (isWin) {
+		url = 'https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z';
+	} else {
+		// has to be extended for linux etc
+		url =
+			'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-arm64';
+	}
+
+	try {
+		await _downloadFile(url, destinationPath, decoyFunction);
+		if (!isWin) {
+			fs.chmodSync(destinationPath, '755');
+		}
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+const getFfmpegBinaryFromNodeModules = () => {
+	const os = require('os');
+	const isWin = os.platform() === 'win32';
+	const path = require('path');
+	if (isWin) {
+		return path.resolve(
+			process.cwd(),
+			'node_modules/.ffmpeg/ffmpeg-2022-09-19-full_build/bin',
+			'ffmpeg.exe'
+		);
+	}
+
+	return path.resolve(process.cwd(), 'node_modules/.ffmpeg/ffmpeg');
+};
+
 // should check if ffmpeg is installed. If installed, return "ffmpeg" else return path to ffmpeg.exe in node modules
 export const getExecutableFfmpeg = async (
 	ffmpegExecutable: FfmpegExecutable | null
 ) => {
 	const os = require('os');
 	const isWin = os.platform() === 'win32';
-	console.log('is win? ', isWin);
 	const path = require('path');
 	if (await binaryExists('ffmpeg', ffmpegExecutable)) {
 		return 'ffmpeg';
@@ -84,14 +138,17 @@ export const getExecutableFfmpeg = async (
 	// this part might change a bit after the automatic download is implemented
 	if (await ffmpegInNodeModules()) {
 		if (!isWin) {
-			return path.resolve(__dirname, '..', 'node_modules/.ffmpeg/ffmpeg');
+			return path.resolve(process.cwd(), 'node_modules/.ffmpeg/ffmpeg');
 		}
 
 		return path.resolve(
-			__dirname,
-			'..',
+			process.cwd(),
 			'node_modules/.ffmpeg/ffmpeg-2022-09-19-full_build/bin',
 			'ffmpeg.exe'
 		);
 	}
+
+	await downloadFfmpeg();
+
+	return getFfmpegBinaryFromNodeModules();
 };
