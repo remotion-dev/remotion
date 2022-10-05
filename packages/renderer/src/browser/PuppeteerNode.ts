@@ -69,16 +69,13 @@ export class PuppeteerNode {
 			this.#lazyLauncher.product !== this.#productName
 		) {
 			switch (this.#productName) {
-				case 'firefox':
-					this._preferredRevision = PUPPETEER_REVISIONS.firefox;
-					break;
 				case 'chrome':
 				default:
 					this._preferredRevision = PUPPETEER_REVISIONS.chromium;
 			}
 
 			// eslint-disable-next-line new-cap
-			this.#lazyLauncher = Launcher(this._preferredRevision, this.#productName);
+			this.#lazyLauncher = Launcher(this._preferredRevision);
 		}
 
 		return this.#lazyLauncher;
