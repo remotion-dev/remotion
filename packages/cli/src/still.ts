@@ -14,7 +14,6 @@ import {
 	getCliOptions,
 } from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
-import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import type {DownloadProgress} from './progress-bar';
@@ -38,7 +37,12 @@ export const still = async (remotionRoot: string) => {
 		? file
 		: path.join(process.cwd(), file);
 
-	await initializeRenderCli(remotionRoot, 'still');
+	if (parsedCli.frames) {
+		Log.error(
+			'--frames flag was passed to the `still` command. This flag only works with the `render` command. Did you mean `--frame`? See reference: https://www.remotion.dev/docs/cli/'
+		);
+		process.exit(1);
+	}
 
 	const userPassedOutput = getUserPassedOutputLocation();
 	if (
