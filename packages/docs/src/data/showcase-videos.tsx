@@ -1261,7 +1261,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
 	],
 	author: {
 		"url": "https://blastworkout.app",
-		"name": "Mad Mustache Company>"
+		"name": "Mad Mustache Company"
 	}
     },
 		
