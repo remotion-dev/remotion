@@ -14,7 +14,7 @@ Apple Silicon detected, but running under Rosetta (not arm64 architecture). This
 Recommended actions:
  - Upgrade to Node 16.0.0 or later
  - Run Node using `arch -arm64` architecture
-See https://emotion.dev/docs/troubleshooting/rosetta for more information.
+See https://remotion.dev/docs/troubleshooting/rosetta for more information.
 ```
 
 You are either using Node 14 (which uses Rosetta on Apple M1 chips), or you are running a node version installed with `arch -x86_64`.

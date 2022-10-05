@@ -21,7 +21,7 @@ export const warnIfAppleSiliconIsNotUsingArm64Architecture = () => {
 					? ` - Upgrade to Node ${recommendedNodeVersion} or later\n`
 					: '') +
 				' - Run Node using `arch -arm64` architecture\n' +
-				'See https://emotion.dev/docs/troubleshooting/rosetta for more information.'
+				'See https://remotion.dev/docs/troubleshooting/rosetta for more information.'
 		);
 	}
 };
