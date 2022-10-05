@@ -27,7 +27,6 @@ const getEnvForEnvFile = async (
 ) => {
 	try {
 		const envFileData = await fs.promises.readFile(envFile);
-
 		fs.watchFile(envFile, {interval: 100}, async () => {
 			try {
 				const file = await fs.promises.readFile(envFile, 'utf-8')
