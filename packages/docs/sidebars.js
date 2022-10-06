@@ -257,6 +257,7 @@ module.exports = {
       label: "Techniques",
       items: [
         "assets",
+        "exporting-from-figma",
         "using-audio",
         "fonts",
         "using-randomness",
