@@ -115,7 +115,7 @@ const getAllFilesS3 = ({
 				}
 			};
 
-			console.log('Found ', filesInBucket);
+			// console.log('Found ', filesInBucket);
 
 			filesInBucket.forEach(async (key) => {
 				if (alreadyDownloading[key]) {
