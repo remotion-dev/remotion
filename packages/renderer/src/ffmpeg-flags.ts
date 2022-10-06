@@ -72,6 +72,7 @@ export const getFfmpegVersion = async (options: {
 };
 
 export const downloadFfmpeg = async (): Promise<void> => {
+	// implement callback instead
 	const decoyFunction = () => {
 		return undefined;
 	};
@@ -89,23 +90,22 @@ export const downloadFfmpeg = async (): Promise<void> => {
 	console.log(destinationPath);
 	let url: string;
 
-	const isWin = os.platform() === 'win32';
-
-	if (isWin) {
+	if (os.platform() === 'win32') {
 		url =
 			'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-win-x86.exe';
-	} else if (process.arch === 'x64') {
+	} else if (os.platform() === 'darwin') {
 		url =
-			'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-arm64';
+			process.arch === 'arm64'
+				? 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-arm64'
+				: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-x86';
 	} else {
-		console.log('download for x86');
 		url =
-			'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-x86';
+			'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-linux-amd64';
 	}
 
 	try {
 		await _downloadFile(url, destinationPath, decoyFunction);
-		if (!isWin) {
+		if (os.platform() !== 'win32') {
 			fs.chmodSync(destinationPath, '755');
 		}
 	} catch (error) {
@@ -151,8 +151,6 @@ export const getExecutableFfmpeg = async (
 			'ffmpeg.exe'
 		);
 	}
-
-	await downloadFfmpeg();
 
 	return getFfmpegBinaryFromNodeModules();
 };
