@@ -45,11 +45,7 @@ export const ffmpegInNodeModules = (): Promise<boolean> => {
 		process.cwd(),
 		'node_modules/.ffmpeg/ffmpeg'
 	);
-	console.log(
-		'does ffmpeg exist in node modules? ',
-		expectedFfmpegPath,
-		fs.existsSync(expectedFfmpegPath)
-	);
+
 	return fs.existsSync(expectedFfmpegPath);
 };
 
@@ -65,7 +61,11 @@ export const validateFfmpeg = async (
 		(await binaryExists('ffmpeg', customFfmpegBinary)) ||
 		(await ffmpegInNodeModules());
 	if (!ffmpegExists) {
-		if (os.platform() === 'darwin' || os.platform() === 'win32') {
+		if (
+			os.platform() === 'darwin' ||
+			os.platform() === 'win32' ||
+			(os.platform() === 'linux' && process.arch === 'arm64')
+		) {
 			await downloadFfmpeg();
 			return validateFfmpeg(customFfmpegBinary);
 		}
@@ -76,7 +76,6 @@ export const validateFfmpeg = async (
 			process.exit(1);
 		}
 
-		// ------------should be removed after ffmpeg nodemodules implementation--//
 		console.error('It looks like FFMPEG is not installed');
 		if (os.platform() === 'darwin' && (await isHomebrewInstalled())) {
 			console.error('Run `brew install ffmpeg` to install ffmpeg');
