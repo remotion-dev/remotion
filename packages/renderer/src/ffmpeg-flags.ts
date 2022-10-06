@@ -82,14 +82,14 @@ export const downloadFfmpeg = async (): Promise<void> => {
 
 	const os = require('os');
 	const path = require('path');
+	const destinationPath =
+		os.platform() === 'win32'
+			? path.resolve(process.cwd(), 'node_modules/.ffmpeg/ffmpeg.exe')
+			: path.resolve(process.cwd(), 'node_modules/.ffmpeg/ffmpeg');
 	if (!fs.existsSync(path.resolve(process.cwd(), 'node_modules/.ffmpeg'))) {
 		fs.mkdirSync(path.resolve(process.cwd(), 'node_modules/.ffmpeg'));
 	}
 
-	const destinationPath = path.resolve(
-		process.cwd(),
-		'node_modules/.ffmpeg/ffmpeg'
-	);
 	console.log(destinationPath);
 	let url: string;
 
@@ -122,11 +122,7 @@ const getFfmpegBinaryFromNodeModules = () => {
 	const isWin = os.platform() === 'win32';
 	const path = require('path');
 	if (isWin) {
-		return path.resolve(
-			process.cwd(),
-			'node_modules/.ffmpeg/ffmpeg-2022-09-19-full_build/bin',
-			'ffmpeg.exe'
-		);
+		return path.resolve(process.cwd(), 'node_modules/.ffmpeg/ffmpeg.exe');
 	}
 
 	return path.resolve(process.cwd(), 'node_modules/.ffmpeg/ffmpeg');
@@ -149,11 +145,7 @@ export const getExecutableFfmpeg = async (
 			return path.resolve(process.cwd(), 'node_modules/.ffmpeg/ffmpeg');
 		}
 
-		return path.resolve(
-			process.cwd(),
-			'node_modules/.ffmpeg/ffmpeg-2022-09-19-full_build/bin',
-			'ffmpeg.exe'
-		);
+		return path.resolve(process.cwd(), 'node_modules/.ffmpeg/ffmpeg.exe');
 	}
 
 	return getFfmpegBinaryFromNodeModules();
