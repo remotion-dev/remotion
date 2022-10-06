@@ -21,6 +21,61 @@ function getProcessEnv(): Record<string, string> {
 	return env;
 }
 
+const watchEnvFile = ({
+	processEnv,
+	envFile,
+	onUpdate,
+	existedBefore,
+}: {
+	processEnv: ReturnType<typeof getProcessEnv>;
+	envFile: string;
+	onUpdate: (newProps: Record<string, string>) => void;
+	existedBefore: boolean;
+}) => {
+	const listener = async () => {
+		try {
+			const file = await fs.promises.readFile(envFile, 'utf-8');
+			onUpdate({
+				...processEnv,
+				...dotenv.parse(file),
+			});
+			if (existedBefore) {
+				Log.info(chalk.blueBright(`Updated env file ${envFile}`));
+			} else {
+				Log.info(chalk.blueBright(`Added env file ${envFile}`));
+			}
+
+			fs.unwatchFile(envFile, listener);
+			watchEnvFile({
+				envFile,
+				existedBefore: true,
+				onUpdate,
+				processEnv,
+			});
+		} catch (err) {
+			// No error message if user did not have a .env file from the beginning
+			if (!existedBefore && !fs.existsSync(envFile)) {
+				return;
+			}
+
+			if (fs.existsSync(envFile) && existedBefore) {
+				Log.error(`${envFile} update failed with error ${err}`);
+			} else {
+				Log.warn(`${envFile} was deleted.`);
+				fs.unwatchFile(envFile, listener);
+				watchEnvFile({
+					envFile,
+					existedBefore: false,
+					onUpdate,
+					processEnv,
+				});
+			}
+		}
+	};
+
+	fs.watchFile(envFile, {interval: 100}, listener);
+};
+
 const getEnvForEnvFile = async (
 	processEnv: ReturnType<typeof getProcessEnv>,
 	envFile: string,
@@ -28,18 +83,7 @@ const getEnvForEnvFile = async (
 ) => {
 	try {
 		const envFileData = await fs.promises.readFile(envFile);
-		fs.watchFile(envFile, {interval: 100}, async () => {
-			try {
-				const file = await fs.promises.readFile(envFile, 'utf-8');
-				onUpdate({
-					...processEnv,
-					...dotenv.parse(file),
-				});
-				Log.info(chalk.blueBright(`Updated env file ${envFile}`));
-			} catch (err) {
-				Log.error(`${envFile} update fails with error ${err}`);
-			}
-		});
+		watchEnvFile({processEnv, envFile, onUpdate, existedBefore: true});
 		return {
 			...processEnv,
 			...dotenv.parse(envFileData),
@@ -87,6 +131,12 @@ export const getEnvironmentVariables = (
 
 	const defaultEnvFile = path.resolve(remotionRoot, '.env');
 	if (!fs.existsSync(defaultEnvFile)) {
+		watchEnvFile({
+			processEnv,
+			envFile: defaultEnvFile,
+			onUpdate,
+			existedBefore: false,
+		});
 		return Promise.resolve(processEnv);
 	}
 
