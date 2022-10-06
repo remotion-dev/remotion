@@ -66,7 +66,6 @@ export const validateFfmpeg = async (
 		(await ffmpegInNodeModules());
 	if (!ffmpegExists) {
 		if (os.platform() === 'darwin' || os.platform() === 'win32') {
-			console.log('inside !exists');
 			await downloadFfmpeg();
 			return validateFfmpeg(customFfmpegBinary);
 		}

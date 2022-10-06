@@ -92,11 +92,15 @@ export const downloadFfmpeg = async (): Promise<void> => {
 	const isWin = os.platform() === 'win32';
 
 	if (isWin) {
-		url = 'https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z';
-	} else {
-		// has to be extended for linux etc
+		url =
+			'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-win-x86.exe';
+	} else if (process.arch === 'x64') {
 		url =
 			'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-arm64';
+	} else {
+		console.log('download for x86');
+		url =
+			'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-x86';
 	}
 
 	try {
