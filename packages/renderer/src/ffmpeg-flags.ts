@@ -73,9 +73,12 @@ export const getFfmpegVersion = async (options: {
 
 export const downloadFfmpeg = async (): Promise<void> => {
 	// implement callback instead
-	const decoyFunction = () => {
-		return undefined;
-	};
+	function onProgress(downloadedBytes: number, totalBytes: number) {
+		console.log(
+			'Downloading ffmpeg: ',
+			toMegabytes(downloadedBytes) + '/' + toMegabytes(totalBytes)
+		);
+	}
 
 	const os = require('os');
 	const path = require('path');
@@ -104,7 +107,7 @@ export const downloadFfmpeg = async (): Promise<void> => {
 	}
 
 	try {
-		await _downloadFile(url, destinationPath, decoyFunction);
+		await _downloadFile(url, destinationPath, onProgress);
 		if (os.platform() !== 'win32') {
 			fs.chmodSync(destinationPath, '755');
 		}
@@ -154,3 +157,8 @@ export const getExecutableFfmpeg = async (
 
 	return getFfmpegBinaryFromNodeModules();
 };
+
+function toMegabytes(bytes: number) {
+	const mb = bytes / 1024 / 1024;
+	return `${Math.round(mb * 10) / 10} Mb`;
+}
