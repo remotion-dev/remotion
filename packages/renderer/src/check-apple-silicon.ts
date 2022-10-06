@@ -15,13 +15,17 @@ export const warnIfAppleSiliconIsNotUsingArm64Architecture = () => {
 		);
 
 		console.warn(
-			`Apple Silicon detected but running under Rosetta (not arm64 architecture). This will cause performance issues.\n` +
-				`Recommended actions:\n` +
-				(recommendNodeUpgrade
+			[
+				`⚠️  Apple Silicon detected but Node.JS running under Rosetta. This will cause performance issues.\n`,
+				`Recommended actions:\n`,
+				recommendNodeUpgrade
 					? ` - Upgrade to Node ${recommendedNodeVersion} or later\n`
-					: '') +
-				' - Run Node using `arch -arm64` architecture\n' +
-				'See https://remotion.dev/docs/troubleshooting/rosetta for more information.'
+					: ' - Run Node using `arch -arm64` architecture\n',
+				'See https://remotion.dev/docs/troubleshooting/rosetta for more information.',
+				'---',
+			]
+				.filter(Boolean)
+				.join('\n')
 		);
 	}
 };

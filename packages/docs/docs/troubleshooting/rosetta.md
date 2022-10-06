@@ -8,13 +8,13 @@ Running Remotion on Apple Silicon (M1 chip) under Rosetta can be up to 2x slower
 
 The recommended way to run Remotion on Apple Silicon is using Node 16 with the native arm64 architecture.
 
-If you encounter the following warning while using `@remotion/renderer`
+If you encounter the following warning while using `@remotion/renderer`:
+
 ```
 Apple Silicon detected but running under Rosetta (not arm64 architecture). This will cause performance issues.
 Recommended actions:
  - Upgrade to Node 16.0.0 or later
  - Run Node using `arch -arm64` architecture
-See https://remotion.dev/docs/troubleshooting/rosetta for more information.
 ```
 
 You are either using Node 14 (which uses Rosetta on Apple M1 chips), or you are running a node version installed with `arch -x86_64`.
@@ -25,6 +25,7 @@ You are either using Node 14 (which uses Rosetta on Apple M1 chips), or you are 
 1. Install Node and run it natively
 
 For example, installing node natively using nvm:
+
 ```
 arch -arm64 zsh
 nvm install 16
