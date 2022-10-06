@@ -364,14 +364,14 @@ test("Dynamic duration should work, and render from inside src/", async () => {
     ),
     [
       "render",
-      "index.tsx",
+      "src/index.tsx",
       "dynamic-duration",
       `--props`,
       `{"duration": ${randomDuration}}`,
       outputPath,
     ],
     {
-      cwd: path.join(process.cwd(), "..", "example", "src"),
+      cwd: path.join(process.cwd(), "..", "example"),
       reject: false,
     }
   );
