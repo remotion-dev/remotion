@@ -1,5 +1,4 @@
 import * as os from 'os';
-import semver from 'semver';
 
 export const warnIfAppleSiliconIsNotUsingArm64Architecture = () => {
 	// see https://github.com/nodejs/node/issues/41900#issuecomment-1113511254
@@ -8,11 +7,10 @@ export const warnIfAppleSiliconIsNotUsingArm64Architecture = () => {
 	const isArm64 = os.arch() === 'arm64';
 
 	if (isAppleSilicon && !isArm64) {
-		const recommendedNodeVersion = '16.0.0';
-		const recommendNodeUpgrade = semver.lt(
-			process.version,
-			recommendedNodeVersion
-		);
+		const recommendedNodeVersion = 16;
+		const version = process.version.replace('v', '').split('.');
+		const majorVersion = Number(version[0]);
+		const recommendNodeUpgrade = majorVersion < recommendedNodeVersion;
 
 		console.warn(
 			[
