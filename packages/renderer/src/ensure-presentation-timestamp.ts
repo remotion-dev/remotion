@@ -1,6 +1,7 @@
 import execa from 'execa';
 import path from 'path';
 import type {DownloadMap} from './assets/download-map';
+import {getExecutableFfmpeg} from './ffmpeg-flags';
 import {guessExtensionForVideo} from './guess-extension-for-media';
 import {truthy} from './truthy';
 
@@ -55,7 +56,7 @@ export const ensurePresentationTimestamps = async (
 	// If there is no file extension for the video, then we need to tempoa
 	const output = await getTemporaryOutputName(src);
 
-	await execa('ffmpeg', [
+	await execa(await getExecutableFfmpeg(null), [
 		'-i',
 		src,
 		'-fflags',
