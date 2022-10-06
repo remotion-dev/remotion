@@ -148,6 +148,7 @@ export const getExecutableFfmpeg = async (
 		return path.resolve(process.cwd(), 'node_modules/.ffmpeg/ffmpeg.exe');
 	}
 
+	await downloadFfmpeg();
 	return getFfmpegBinaryFromNodeModules();
 };
 
