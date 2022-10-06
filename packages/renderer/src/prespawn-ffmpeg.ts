@@ -7,6 +7,7 @@ import {
 	validateSelectedCrfAndCodecCombination,
 } from './crf';
 import type {FfmpegExecutable} from './ffmpeg-executable';
+import {getExecutableFfmpeg} from './ffmpeg-flags';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
@@ -128,7 +129,7 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 		? options.ffmpegOverride({type: 'pre-stitcher', args: ffmpegString})
 		: ffmpegString;
 
-	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', finalFfmpegString);
+	const task = execa(await getExecutableFfmpeg(null), finalFfmpegString);
 
 	options.signal(() => {
 		task.kill();

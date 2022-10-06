@@ -40,12 +40,10 @@ export const binaryExists = async (
 export const ffmpegInNodeModules = (): Promise<boolean> => {
 	const path = require('path');
 	const fs = require('fs');
-
-	const expectedFfmpegPath = path.resolve(
-		process.cwd(),
-		'node_modules/.ffmpeg/ffmpeg'
-	);
-
+	const expectedFfmpegPath =
+		os.platform() === 'win32'
+			? path.resolve(process.cwd(), 'node_modules/.ffmpeg/ffmpeg.exe')
+			: path.resolve(process.cwd(), 'node_modules/.ffmpeg/ffmpeg');
 	return fs.existsSync(expectedFfmpegPath);
 };
 
@@ -61,6 +59,7 @@ export const validateFfmpeg = async (
 		(await binaryExists('ffmpeg', customFfmpegBinary)) ||
 		(await ffmpegInNodeModules());
 	if (!ffmpegExists) {
+		console.log('Platform: ', os.platform());
 		if (
 			os.platform() === 'darwin' ||
 			os.platform() === 'win32' ||
