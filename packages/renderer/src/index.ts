@@ -100,7 +100,7 @@ export {
 	RenderMediaOptions,
 	StitchingState,
 } from './render-media';
-export {renderStill} from './render-still';
+export {renderStill, RenderStillOptions} from './render-still';
 export {StitcherOptions, stitchFramesToVideo} from './stitch-frames-to-video';
 export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
