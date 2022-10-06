@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {findRemotionRoot} from './find-closest-package-json';
 import {Log} from './log';
@@ -29,16 +30,14 @@ const getEnvForEnvFile = async (
 		const envFileData = await fs.promises.readFile(envFile);
 		fs.watchFile(envFile, {interval: 100}, async () => {
 			try {
-				const file = await fs.promises.readFile(envFile, 'utf-8')
+				const file = await fs.promises.readFile(envFile, 'utf-8');
 				onUpdate({
 					...processEnv,
 					...dotenv.parse(file),
 				});
-				Log.info(`Updated env file ${envFile}.`);
+				Log.info(chalk.blueBright(`Updated env file ${envFile}`));
 			} catch (err) {
-				Log.error(
-					`${envFile} update fails with error ${err}`
-				);
+				Log.error(`${envFile} update fails with error ${err}`);
 			}
 		});
 		return {
@@ -52,7 +51,9 @@ const getEnvForEnvFile = async (
 	}
 };
 
-export const getEnvironmentVariables = (onUpdate: (newProps: Record<string, string>) => void): Promise<Record<string, string>> => {
+export const getEnvironmentVariables = (
+	onUpdate: (newProps: Record<string, string>) => void
+): Promise<Record<string, string>> => {
 	const processEnv = getProcessEnv();
 
 	if (parsedCli['env-file']) {

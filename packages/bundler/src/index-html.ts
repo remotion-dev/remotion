@@ -4,7 +4,7 @@ export const indexHtml = ({
 	baseDir,
 	editorName,
 	inputProps,
-    envVariables,
+	envVariables,
 	staticHash,
 	remotionRoot,
 	previewServerCommand,
@@ -13,7 +13,7 @@ export const indexHtml = ({
 	baseDir: string;
 	editorName: string | null;
 	inputProps: object | null;
-	envVariables?: Record<string, string>
+	envVariables?: Record<string, string>;
 	remotionRoot: string;
 	previewServerCommand: string | null;
 }) =>
@@ -52,12 +52,12 @@ export const indexHtml = ({
 				: ''
 		}
 		${
-		envVariables
-			? `<script> window.process = {
+			envVariables
+				? `<script> window.process = {
     						env: ${JSON.stringify(envVariables)}
  				};</script>
 			`
-			: ''
+				: ''
 		}
 		
 		<div id="container"></div>
