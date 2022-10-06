@@ -64,7 +64,7 @@ export const validateFfmpeg = async (
 		if (
 			os.platform() === 'darwin' ||
 			os.platform() === 'win32' ||
-			(os.platform() === 'linux' && process.arch === 'arm64')
+			(os.platform() === 'linux' && process.arch === 'x64')
 		) {
 			await downloadFfmpeg();
 			return validateFfmpeg(customFfmpegBinary);

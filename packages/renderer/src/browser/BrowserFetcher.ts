@@ -469,10 +469,10 @@ export function _downloadFile(
 	url: string,
 	destinationPath: string,
 	progressCallback: (x: number, y: number) => void
-): Promise<void> {
-	let fulfill: (value: void | PromiseLike<void>) => void;
+): Promise<number> {
+	let fulfill: (value: number | PromiseLike<number>) => void;
 	let reject: (err: Error) => void;
-	const promise = new Promise<void>((x, y) => {
+	const promise = new Promise<number>((x, y) => {
 		fulfill = x;
 		reject = y;
 	});
@@ -495,7 +495,7 @@ export function _downloadFile(
 
 		const file = fs.createWriteStream(destinationPath);
 		file.on('finish', () => {
-			return fulfill();
+			return fulfill(totalBytes);
 		});
 		file.on('error', (error) => {
 			return reject(error);
