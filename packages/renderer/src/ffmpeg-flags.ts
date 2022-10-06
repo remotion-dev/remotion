@@ -107,7 +107,8 @@ export const downloadFfmpeg = async (): Promise<void> => {
 	}
 
 	try {
-		await _downloadFile(url, destinationPath, onProgress);
+		const totalBytes = await _downloadFile(url, destinationPath, onProgress);
+		onProgress(totalBytes, totalBytes);
 		if (os.platform() !== 'win32') {
 			fs.chmodSync(destinationPath, '755');
 		}
