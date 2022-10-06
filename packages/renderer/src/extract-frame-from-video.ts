@@ -182,7 +182,7 @@ const getLastFrameOfVideoFastUnlimited = async (
 
 	const actualOffset = `${duration * 1000 - offset}ms`;
 	const {stdout, stderr} = execa(
-		ffmpegExecutable ?? 'ffmpeg',
+		await getExecutableFfmpeg(ffmpegExecutable),
 		[
 			'-ss',
 			actualOffset,
