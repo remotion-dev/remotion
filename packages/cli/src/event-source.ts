@@ -8,7 +8,7 @@ export const openEventSource = () => {
 
 	source.addEventListener('message', (event) => {
 		const newEvent = JSON.parse(event.data) as EventSourceEvent;
-		if (newEvent.type === 'new-input-props') {
+		if (newEvent.type === 'new-input-props' || newEvent.type === 'new-env-variables') {
 			window.location.reload();
 		}
 	});
