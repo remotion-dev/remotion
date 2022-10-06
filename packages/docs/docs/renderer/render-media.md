@@ -65,7 +65,7 @@ The constant rate factor, controlling the quality. See: [Controlling quality usi
 
 ### `imageFormat?`
 
-_"jpeg" (default) | "png" | "none" - optional_
+_"jpeg" (default) | "png" | "none" - optional since v3.2.27_
 
 In which image format the frames should be rendered.
 

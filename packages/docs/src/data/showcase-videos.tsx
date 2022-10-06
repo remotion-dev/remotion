@@ -1062,31 +1062,31 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
-    title: 'Mux stats tutorial',
-    type: 'mux_video',
-    muxId: 'DDgXb2KfPk7xdvxEoyPkrl7GcybohNon',
+    title: "Mux stats tutorial",
+    type: "mux_video",
+    muxId: "DDgXb2KfPk7xdvxEoyPkrl7GcybohNon",
     description:
-      'An article on how to showcase your video stats by creating a dynamic animated video using Remotion and the Mux Data API.',
+      "An article on how to showcase your video stats by creating a dynamic animated video using Remotion and the Mux Data API.",
     height: 270,
     width: 480,
-    submittedOn: new Date('19-01-2022'),
+    submittedOn: new Date("19-01-2022"),
     links: [
       {
-        type: 'source_code',
-        url: 'https://github.com/davekiss/mux-remotion-demo/',
+        type: "source_code",
+        url: "https://github.com/davekiss/mux-remotion-demo/",
       },
       {
-        type: 'video',
-        url: 'https://twitter.com/MuxHQ/status/1483514610380644357',
+        type: "video",
+        url: "https://twitter.com/MuxHQ/status/1483514610380644357",
       },
       {
-        type: 'tutorial',
-        url: 'https://mux.com/blog/visualize-mux-data-with-remotion/',
+        type: "tutorial",
+        url: "https://mux.com/blog/visualize-mux-data-with-remotion/",
       },
     ],
     author: {
-      url: 'https://davekiss.com/',
-      name: 'Dave Kiss',
+      url: "https://davekiss.com/",
+      name: "Dave Kiss",
     },
   },
   {
@@ -1099,24 +1099,25 @@ export const showcaseVideos: ShowcaseVideo[] = [
     submittedOn: new Date("03-29-2022"),
     links: [
       {
-        type: 'source_code',
-        url: 'https://github.com/varunpbardwaj/remotion-audio-player-template/',
+        type: "source_code",
+        url: "https://github.com/varunpbardwaj/remotion-audio-player-template/",
       },
       {
         type: "video",
-	url: "https://portfolio-varunpbardwaj.vercel.app/remotion/neenaadena/",
+        url: "https://portfolio-varunpbardwaj.vercel.app/remotion/neenaadena/",
       },
     ],
     author: {
-      "url": "https://portfolio-varunpbardwaj.vercel.app",
-      "name": "Varun Bardwaj"
-    }
-},
-{
+      url: "https://portfolio-varunpbardwaj.vercel.app",
+      name: "Varun Bardwaj",
+    },
+  },
+  {
     title: "Product Hunt Today",
     type: "mux_video",
     muxId: "9vegqVB2n02YrTL3c38HoOyd7Smytz01Hl3qaXI5KCOZM",
-    description: "Fully automated Twitter bot that tweets trending Product Hunt products every day.",
+    description:
+      "Fully automated Twitter bot that tweets trending Product Hunt products every day.",
     height: 720,
     width: 720,
     submittedOn: new Date("03-27-2022"),
@@ -1135,57 +1136,59 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
     ],
     author: {
-      "url": "https://easonchang.com/",
-      "name": "Eason Chang"
-    }
+      url: "https://easonchang.com/",
+      name: "Eason Chang",
+    },
   },
   {
-	title: "Old french TV trailer (tribute)",
-	type: "mux_video",
-	muxId: "7tmF019NZLRuazoq5I7WFdacYz8bjJb4BTDEQ5cEkFe4",
-	description: "Video tribute to an old TV jingle called \"La trilogie du samedi\" broadcasted in the early 2000s in France on the channel M6.",
-	height: 1080,
-	width: 1920,
-	submittedOn: new Date("04-01-2022"),
-	links: [],
-	author: {
-		"url": "https://twitter.com/Slashgear_",
-		"name": "Antoine Caron & Mickaël Alves"
-	}
-  },
-  {
-    title: 'snappify ProductHunt GIF',
-    type: 'mux_video',
-    muxId: 'vOGnXmkV01R2WW6SuZRIykksh3uzEfRV900ieznAmc7Is',
+    title: "Old french TV trailer (tribute)",
+    type: "mux_video",
+    muxId: "7tmF019NZLRuazoq5I7WFdacYz8bjJb4BTDEQ5cEkFe4",
     description:
-      'An animated Logo used for the ProductHunt launch of snappify.',
+      'Video tribute to an old TV jingle called "La trilogie du samedi" broadcasted in the early 2000s in France on the channel M6.',
+    height: 1080,
+    width: 1920,
+    submittedOn: new Date("04-01-2022"),
+    links: [],
+    author: {
+      url: "https://twitter.com/Slashgear_",
+      name: "Antoine Caron & Mickaël Alves",
+    },
+  },
+  {
+    title: "snappify ProductHunt GIF",
+    type: "mux_video",
+    muxId: "vOGnXmkV01R2WW6SuZRIykksh3uzEfRV900ieznAmc7Is",
+    description:
+      "An animated Logo used for the ProductHunt launch of snappify.",
     height: 960,
     width: 960,
     submittedOn: new Date("05-04-2022"),
     links: [
       {
-        type: 'source_code',
-        url: 'https://github.com/snappify-io/producthunt-gif',
+        type: "source_code",
+        url: "https://github.com/snappify-io/producthunt-gif",
       },
       {
-        type: 'website',
-        url: 'https://snappify.io/',
+        type: "website",
+        url: "https://snappify.io/",
       },
       {
-        type: 'tutorial',
-        url: 'https://snappify.io/blog/create-producthunt-gif-with-remotion',
+        type: "tutorial",
+        url: "https://snappify.io/blog/create-producthunt-gif-with-remotion",
       },
     ],
     author: {
-      url: 'https://twitter.com/dominiksumer',
-      name: 'Dominik Sumer',
+      url: "https://twitter.com/dominiksumer",
+      name: "Dominik Sumer",
     },
   },
   {
     title: "Master Duel Week",
     type: "mux_video",
     muxId: "nFm3f8VfvL6ag20093gMUtWfbAJe5F6s4z5LapxrpLcM",
-    description: "Automated Twitter bot that tweets a trading card game's meta deck weekly",
+    description:
+      "Automated Twitter bot that tweets a trading card game's meta deck weekly",
     height: 720,
     width: 720,
     submittedOn: new Date("05-08-2022"),
@@ -1204,9 +1207,9 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
     ],
     author: {
-      "url": "https://kallechen.github.io/",
-      "name": "Kalle Chen"
-    }
+      url: "https://kallechen.github.io/",
+      name: "Kalle Chen",
+    },
   },
   {
     title: "Video Ad",
@@ -1218,54 +1221,72 @@ export const showcaseVideos: ShowcaseVideo[] = [
     submittedOn: new Date("07-18-2022"),
     links: [],
     author: {
-      "url": "https://www.linkedin.com/in/sepehrsafari/",
-      "name": "Sepehr Safari"
-    }
+      url: "https://www.linkedin.com/in/sepehrsafari/",
+      name: "Sepehr Safari",
+    },
   },
-	{
-	title: "Top 15 smallest animals in this planet",
-	type: "mux_video",
-	muxId: "bQ5bHzbVsYngW5GF4iQxH601HyPnxHZCcXZas1zzQRAU",
-	description: "A simple Top List Video",
-	height: 1080,
-	width: 1920,
-	submittedOn: new Date("08-12-2022"),
-	links: [
-		{
-			type: "video",
-			url: "https://youtu.be/jDAwyWWWfkM",
-		},
-		{
-			type: "website",
-			url: "https://adavii.com/",
-		},
-	],
-	author: {
-		"url": "https://twitter.com/yuwan_kumar",
-		"name": "Yuwan Kumar"
-	}
-},
-	
-{
-	title: "Blast Workout Rotato style 3D",
-	type: "mux_video",
-	muxId: "pw7GlBHgVlhwE9JMWMXk5ta01n2pPBEIgu8akS025zYB8",
-	description: "Blast Workout Rotato style 3D showcasing app features",
-	height: 1280,
-	width: 720,
-	submittedOn: new Date("09-30-2022"),
-	links: [
-		{
-			type: "website",
-			url: "https://blastworkout.app",
-		},
-	],
-	author: {
-		"url": "https://blastworkout.app",
-		"name": "Mad Mustache Company"
-	}
-},
-		
+  {
+    title: "Top 15 smallest animals in this planet",
+    type: "mux_video",
+    muxId: "bQ5bHzbVsYngW5GF4iQxH601HyPnxHZCcXZas1zzQRAU",
+    description: "A simple Top List Video",
+    height: 1080,
+    width: 1920,
+    submittedOn: new Date("08-12-2022"),
+    links: [
+      {
+        type: "video",
+        url: "https://youtu.be/jDAwyWWWfkM",
+      },
+      {
+        type: "website",
+        url: "https://adavii.com/",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/yuwan_kumar",
+      name: "Yuwan Kumar",
+    },
+  },
+  {
+    title: "Blast Workout video trailer",
+    type: "mux_video",
+    muxId: "txrjnbtkqe1P701kHusZ4EeIY883aHVvVGF8xsAKKX24",
+    description:
+      "Blast Workout video trailer as it is displayed on the play store",
+    height: 1080,
+    width: 1920,
+    submittedOn: new Date("09-30-2022"),
+    links: [
+      {
+        type: "website",
+        url: "https://blastworkout.app",
+      },
+    ],
+    author: {
+      url: "https://blastworkout.app",
+      name: "Mad Mustache Company",
+    },
+  },
+  {
+    title: "Blast Workout Rotato style 3D",
+    type: "mux_video",
+    muxId: "pw7GlBHgVlhwE9JMWMXk5ta01n2pPBEIgu8akS025zYB8",
+    description: "Blast Workout Rotato style 3D showcasing app features",
+    height: 1280,
+    width: 720,
+    submittedOn: new Date("09-30-2022"),
+    links: [
+      {
+        type: "website",
+        url: "https://blastworkout.app",
+      },
+    ],
+    author: {
+      url: "https://blastworkout.app",
+      name: "Mad Mustache Company",
+    },
+  },
 ];
 
 const dateString = (date: Date) =>
