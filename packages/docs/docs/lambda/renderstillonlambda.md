@@ -70,7 +70,9 @@ One of:
 
 _optional - default `0`_
 
-Which frame of the composition should be rendered.
+Which frame of the composition should be rendered. Frames are zero-indexed.
+
+From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 ### `imageFormat?`
 

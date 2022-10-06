@@ -1,74 +1,24 @@
-import React, {useCallback, useRef, useState} from 'react';
-import {Internals} from 'remotion';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
+import {Internals, random} from 'remotion';
 import {ICON_SIZE, VolumeOffIcon, VolumeOnIcon} from './icons';
-import {VOLUME_SLIDER_INPUT_CSS_CLASSNAME} from './player-css-classname';
 import {useHoverState} from './use-hover-state';
 
 const BAR_HEIGHT = 5;
 const KNOB_SIZE = 12;
-const VOLUME_SLIDER_WIDTH = 100;
+export const VOLUME_SLIDER_WIDTH = 100;
 
-const scope = `.${VOLUME_SLIDER_INPUT_CSS_CLASSNAME}`;
-const sliderStyle = `
-	${scope} {
-		-webkit-appearance: none;
-		background-color: rgba(255, 255, 255, 0.5);	
-		border-radius: ${BAR_HEIGHT / 2}px;
-		cursor: pointer;
-		height: ${BAR_HEIGHT}px;
-		margin-left: 5px;
-		width: ${VOLUME_SLIDER_WIDTH}px;
-	}
-
-	${scope}::-webkit-slider-thumb {
-		-webkit-appearance: none;
-		background-color: white;
-		border-radius: ${KNOB_SIZE / 2}px;
-		box-shadow: 0 0 2px black;
-		height: ${KNOB_SIZE}px;
-		width: ${KNOB_SIZE}px;
-	}
-
-	${scope}::-moz-range-thumb {
-		-webkit-appearance: none;
-		background-color: white;
-		border-radius: ${KNOB_SIZE / 2}px;
-		box-shadow: 0 0 2px black;
-		height: ${KNOB_SIZE}px;
-		width: ${KNOB_SIZE}px;
-	}
-`;
-
-Internals.CSSUtils.injectCSS(sliderStyle);
-
-const parentDivStyle: React.CSSProperties = {
-	display: 'inline-flex',
-	background: 'none',
-	border: 'none',
-	padding: '6px',
-	justifyContent: 'center',
-	alignItems: 'center',
-	touchAction: 'none',
-};
-
-const volumeContainer: React.CSSProperties = {
-	display: 'inline',
-	width: ICON_SIZE,
-	height: ICON_SIZE,
-	cursor: 'pointer',
-	appearance: 'none',
-	background: 'none',
-	border: 'none',
-	padding: 0,
-};
-
-export const MediaVolumeSlider: React.FC = () => {
+export const MediaVolumeSlider: React.FC<{
+	displayVerticalVolumeSlider: Boolean;
+}> = ({displayVerticalVolumeSlider}) => {
 	const [mediaMuted, setMediaMuted] = Internals.useMediaMutedState();
 	const [mediaVolume, setMediaVolume] = Internals.useMediaVolumeState();
 	const [focused, setFocused] = useState<boolean>(false);
 	const parentDivRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const hover = useHoverState(parentDivRef);
+	const [randomClass] = useState(() =>
+		`slider-${random(null)}`.replace('.', '')
+	);
 	const isMutedOrZero = mediaMuted || mediaVolume === 0;
 
 	const onVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,8 +45,90 @@ export const MediaVolumeSlider: React.FC = () => {
 		setMediaMuted((mute) => !mute);
 	}, [mediaVolume, setMediaMuted, setMediaVolume]);
 
+	const parentDivStyle: React.CSSProperties = useMemo(() => {
+		return {
+			display: 'inline-flex',
+			background: 'none',
+			border: 'none',
+			padding: '6px',
+			justifyContent: 'center',
+			alignItems: 'center',
+			touchAction: 'none',
+			...(displayVerticalVolumeSlider && {position: 'relative' as const}),
+		};
+	}, [displayVerticalVolumeSlider]);
+
+	const volumeContainer: React.CSSProperties = useMemo(() => {
+		return {
+			display: 'inline',
+			width: ICON_SIZE,
+			height: ICON_SIZE,
+			cursor: 'pointer',
+			appearance: 'none',
+			background: 'none',
+			border: 'none',
+			padding: 0,
+		};
+	}, []);
+
+	const inputStyle = useMemo((): React.CSSProperties => {
+		const commonStyle: React.CSSProperties = {
+			WebkitAppearance: 'none',
+			backgroundColor: 'rgba(255, 255, 255, 0.5)',
+			borderRadius: BAR_HEIGHT / 2,
+			cursor: 'pointer',
+			height: BAR_HEIGHT,
+			width: VOLUME_SLIDER_WIDTH,
+		};
+		if (displayVerticalVolumeSlider) {
+			return {
+				...commonStyle,
+				transform: `rotate(-90deg)`,
+				position: 'absolute',
+				bottom: ICON_SIZE + VOLUME_SLIDER_WIDTH / 2 + 5,
+			};
+		}
+
+		return {
+			...commonStyle,
+			marginLeft: 5,
+		};
+	}, [displayVerticalVolumeSlider]);
+
+	const sliderStyle = `
+	.${randomClass}::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		background-color: white;
+		border-radius: ${KNOB_SIZE / 2}px;
+		box-shadow: 0 0 2px black;
+		height: ${KNOB_SIZE}px;
+		width: ${KNOB_SIZE}px;
+	}
+	.${randomClass} {
+		background-image: linear-gradient(
+			to right,
+			white ${mediaVolume * 100}%, rgba(255, 255, 255, 0) ${mediaVolume * 100}%
+		);
+	}
+
+	.${randomClass}::-moz-range-thumb {
+		-webkit-appearance: none;
+		background-color: white;
+		border-radius: ${KNOB_SIZE / 2}px;
+		box-shadow: 0 0 2px black;
+		height: ${KNOB_SIZE}px;
+		width: ${KNOB_SIZE}px;
+	}
+`;
+
 	return (
 		<div ref={parentDivRef} style={parentDivStyle}>
+			<style
+				// eslint-disable-next-line react/no-danger
+				dangerouslySetInnerHTML={{
+					__html: sliderStyle,
+				}}
+			/>
 			<button
 				aria-label={isMutedOrZero ? 'Unmute sound' : 'Mute sound'}
 				title={isMutedOrZero ? 'Unmute sound' : 'Mute sound'}
@@ -108,12 +140,11 @@ export const MediaVolumeSlider: React.FC = () => {
 			>
 				{isMutedOrZero ? <VolumeOffIcon /> : <VolumeOnIcon />}
 			</button>
-
 			{(focused || hover) && !mediaMuted ? (
 				<input
 					ref={inputRef}
 					aria-label="Change volume"
-					className={VOLUME_SLIDER_INPUT_CSS_CLASSNAME}
+					className={randomClass}
 					max={1}
 					min={0}
 					onBlur={() => setFocused(false)}
@@ -121,6 +152,7 @@ export const MediaVolumeSlider: React.FC = () => {
 					step={0.01}
 					type="range"
 					value={mediaVolume}
+					style={inputStyle}
 				/>
 			) : null}
 		</div>

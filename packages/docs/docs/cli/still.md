@@ -53,7 +53,8 @@ Specify a location for a dotenv file. Default `.env`.
 
 ### `--frame`
 
-Which frame should be rendered. Example `--frame=10`. Default `0`.
+Which frame should be rendered. Example `--frame=10`. Default `0`.  
+From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 ### `--bundle-cache`
 
