@@ -5,6 +5,7 @@ import path from "path";
 import sharp from "sharp";
 import { random } from "remotion";
 import { expect, test } from "vitest";
+import { getExecutableFfmpeg } from "@remotion/renderer/dist/ffmpeg-flags";
 
 function selectColor(color: string, frame: number) {
   return Math.floor((random(`${color}-${frame}`) * 255) % 255);
@@ -37,7 +38,7 @@ const getMissedFramesforCodec = async () => {
 
   console.log(outputPath);
 
-  await execa("ffmpeg", [
+  await execa(await getExecutableFfmpeg(null), [
     "-i",
     outputPath,
     "-f",
