@@ -41,7 +41,7 @@ const handleFallback = async ({
 	hash,
 	response,
 	getCurrentInputProps,
-								  getEnvVariables,
+	getEnvVariables,
 }: {
 	remotionRoot: string;
 	hash: string;
@@ -187,7 +187,7 @@ export const handleRoutes = ({
 	response,
 	liveEventsServer,
 	getCurrentInputProps,
-    getEnvVariables,
+	getEnvVariables,
 	remotionRoot,
 	userPassedPublicDir,
 }: {
