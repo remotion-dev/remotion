@@ -257,7 +257,7 @@ export const getCliOptions = async (options: {
 		shouldOutputImageSequence,
 		codec,
 		inputProps: getInputProps(() => undefined),
-		envVariables: await getEnvironmentVariables(),
+		envVariables: await getEnvironmentVariables(() => undefined),
 		quality: ConfigInternals.getQuality(),
 		browser: await getAndValidateBrowser(browserExecutable),
 		crf,
