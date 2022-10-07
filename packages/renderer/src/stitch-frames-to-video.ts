@@ -47,6 +47,8 @@ const packageJson = fs.existsSync(packageJsonPath)
 	: null;
 
 export type StitcherOptions = {
+	audioBitrate?: string | null;
+	videoBitrate?: string | null;
 	fps: number;
 	width: number;
 	height: number;
@@ -278,7 +280,7 @@ export const spawnFfmpeg = async (
 				audioCodecName,
 				// Set bitrate up to 320k, for aac it might effectively be lower
 				'-b:a',
-				'320k',
+				options.audioBitrate || '320k',
 				options.force ? '-y' : null,
 				options.outputLocation ?? tempFile,
 			].filter(Internals.truthy)
@@ -349,7 +351,8 @@ export const spawnFfmpeg = async (
 		codec === 'h264' ? ['-movflags', 'faststart'] : null,
 		audioCodecName ? ['-c:a', audioCodecName] : null,
 		// Set max bitrate up to 1024kbps, will choose lower if that's too much
-		audioCodecName ? ['-b:a', '512K'] : null,
+		audioCodecName ? ['-b:a', options.audioBitrate || '512K'] : null,
+		options.videoBitrate ? ['-b:v', options.videoBitrate] : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		[

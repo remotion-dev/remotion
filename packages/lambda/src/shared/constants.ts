@@ -226,6 +226,8 @@ export type LambdaPayloads = {
 		muted: boolean;
 		version: string;
 		overwrite: boolean;
+		audioBitrate?: string | null;
+		videoBitrate?: string | null;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
