@@ -1,43 +1,23 @@
 import type {RenderMediaOptions} from '@remotion/renderer';
 import {
 	getCompositions,
+	openBrowser,
 	RenderInternals,
 	renderMedia,
 } from '@remotion/renderer';
 import path from 'path';
 import {chalk} from './chalk';
-import {getFinalCodec} from './get-cli-options';
+import {ConfigInternals} from './config';
+import {getCliOptions, getFinalCodec} from './get-cli-options';
 import {getRenderMediaOptions} from './get-render-media-options';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {createOverwriteableCliOutput} from './progress-bar';
-import {bundleOnCli} from './setup-cache';
+import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import {truthy} from './truthy';
 
 const DEFAULT_RUNS = 3;
-
-const getValidCompositions = async (
-	bundleLoc: string,
-	compositionArg: string
-) => {
-	const comps = await getCompositions(bundleLoc);
-
-	const ids = (compositionArg ?? '')
-		.split(',')
-		.map((c) => c.trim())
-		.filter(truthy);
-
-	return ids.map((compId) => {
-		const composition = comps.find((c) => c.id === compId);
-
-		if (!composition) {
-			throw new Error(`No composition with the ID "${compId}" found.`);
-		}
-
-		return composition;
-	});
-};
 
 const getValidConcurrency = (renderMediaOptions: RenderMediaOptions) => {
 	const concurrency =
@@ -170,14 +150,71 @@ export const benchmarkCommand = async (
 
 	const fullPath = path.join(process.cwd(), filePath);
 
-	const bundleLocation = await bundleOnCli({
-		fullPath,
-		publicDir: null,
-		remotionRoot,
-		steps: ['bundling'],
+	const {
+		inputProps,
+		envVariables,
+		browserExecutable,
+		ffmpegExecutable,
+		ffprobeExecutable,
+		chromiumOptions,
+		port,
+		puppeteerTimeout,
+		browser,
+		scale,
+	} = await getCliOptions({
+		isLambda: false,
+		type: 'series',
+		codec: 'h264',
 	});
 
-	const compositions = await getValidCompositions(bundleLocation, args[1]);
+	const downloadMap = RenderInternals.makeDownloadMap();
+
+	const browserInstance = openBrowser(browser, {
+		browserExecutable,
+		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
+			'verbose'
+		),
+		chromiumOptions,
+		forceDeviceScaleFactor: scale,
+	});
+
+	const {urlOrBundle: bundleLocation, cleanup: cleanupBundle} =
+		await bundleOnCliOrTakeServeUrl({
+			fullPath,
+			publicDir: null,
+			remotionRoot,
+			steps: ['bundling'],
+		});
+
+	const puppeteerInstance = await browserInstance;
+
+	const comps = await getCompositions(bundleLocation, {
+		inputProps,
+		envVariables,
+		chromiumOptions,
+		timeoutInMilliseconds: puppeteerTimeout,
+		ffmpegExecutable,
+		ffprobeExecutable,
+		port,
+		puppeteerInstance,
+		downloadMap,
+	});
+
+	const ids = (args[1] ?? '')
+		.split(',')
+		.map((c) => c.trim())
+		.filter(truthy);
+
+	const compositions = ids.map((compId) => {
+		const composition = comps.find((c) => c.id === compId);
+
+		if (!composition) {
+			throw new Error(`No composition with the ID "${compId}" found.`);
+		}
+
+		return composition;
+	});
 
 	if (compositions.length === 0) {
 		Log.error(
@@ -219,7 +256,9 @@ export const benchmarkCommand = async (
 				runs,
 				{
 					...renderMediaOptions,
+					puppeteerInstance,
 					concurrency: con,
+					downloadMap,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(
@@ -241,4 +280,15 @@ export const benchmarkCommand = async (
 	}
 
 	Log.info();
+
+	try {
+		await cleanupBundle();
+		await RenderInternals.cleanDownloadMap(downloadMap);
+
+		Log.verbose('Cleaned up', downloadMap.assetDir);
+	} catch (err) {
+		Log.warn('Could not clean up directory.');
+		Log.warn(err);
+		Log.warn('Do you have minimum required Node.js version?');
+	}
 };
