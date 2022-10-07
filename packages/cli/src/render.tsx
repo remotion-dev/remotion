@@ -69,7 +69,6 @@ export const render = async (remotionRoot: string) => {
 	validateFfmepgCanUseCodec(codec);
 
 	const {
-		proResProfile,
 		concurrency,
 		frameRange,
 		shouldOutputImageSequence,
