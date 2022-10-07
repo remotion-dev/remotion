@@ -8,16 +8,20 @@ import {makeProgressBar} from './make-progress-bar';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {createOverwriteableCliOutput} from './progress-bar';
 import {bundleOnCli} from './setup-cache';
+import {truthy} from './truthy';
 
-const DEFUALT_RUNS = 3;
-const DEFAULT_COMP_ID = 'Main';
+const DEFAULT_RUNS = 3;
 
-const getValidCompositions = async (bundleLoc: string) => {
-	const compositionArg: string = parsedCli.compositions ?? DEFAULT_COMP_ID;
-
+const getValidCompositions = async (
+	bundleLoc: string,
+	compositionArg: string
+) => {
 	const comps = await getCompositions(bundleLoc);
 
-	const ids = compositionArg.split(',').map((c) => c.trim());
+	const ids = (compositionArg ?? '')
+		.split(',')
+		.map((c) => c.trim())
+		.filter(truthy);
 
 	return ids.map((compId) => {
 		const composition = comps.find((c) => c.id === compId);
@@ -138,10 +142,13 @@ const makeBenchmarkProgressBar = ({
 	].join(' ');
 };
 
-export const benchmarkCommand = async (remotionRoot: string) => {
-	const runs: number = parsedCli.runs ?? DEFUALT_RUNS;
+export const benchmarkCommand = async (
+	remotionRoot: string,
+	args: string[]
+) => {
+	const runs: number = parsedCli.runs ?? DEFAULT_RUNS;
 
-	const filePath = parsedCli._[1];
+	const filePath = args[0];
 
 	if (!filePath) {
 		Log.error('No entry file passed.');
@@ -160,7 +167,13 @@ export const benchmarkCommand = async (remotionRoot: string) => {
 		steps: ['bundling'],
 	});
 
-	const compositions = await getValidCompositions(bundleLocation);
+	const compositions = await getValidCompositions(bundleLocation, args[1]);
+
+	if (compositions.length === 0) {
+		Log.error(
+			'No composition IDs passed. Add another argument to the command specifying at least 1 composition ID.'
+		);
+	}
 
 	const benchmark: Record<string, Record<string, number[]>> = {};
 
