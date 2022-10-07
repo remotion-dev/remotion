@@ -39,11 +39,16 @@ const getValidCompositions = async (
 	});
 };
 
-const getValidConcurrency = () => {
+const getValidConcurrency = (renderMediaOptions: RenderMediaOptions) => {
+	const concurrency =
+		'concurrency' in renderMediaOptions
+			? renderMediaOptions.concurrency ?? null
+			: null;
+
 	const {concurrencies} = parsedCli;
 
 	if (!concurrencies) {
-		return undefined;
+		return [RenderInternals.getActualConcurrency(concurrency)];
 	}
 
 	return (concurrencies as string)
@@ -182,8 +187,6 @@ export const benchmarkCommand = async (
 
 	const benchmark: Record<string, Record<string, number[]>> = {};
 
-	const concurrency = getValidConcurrency();
-
 	let count = 1;
 
 	const {codec, reason: codecReason} = getFinalCodec({
@@ -192,72 +195,31 @@ export const benchmarkCommand = async (
 	});
 
 	for (const composition of compositions) {
+		const renderMediaOptions = await getRenderMediaOptions({
+			config: composition,
+			outputLocation: undefined,
+			serveUrl: bundleLocation,
+			codec,
+		});
+		const concurrency = getValidConcurrency(renderMediaOptions);
+
 		benchmark[composition.id] = {};
-		if (concurrency) {
-			for (const con of concurrency) {
-				const benchmarkProgress = createOverwriteableCliOutput(
-					quietFlagProvided()
-				);
-				Log.info();
-				Log.info(
-					`${chalk.bold(`Benchmark #${count++}:`)} ${chalk.gray(
-						`composition=${composition.id} concurrency=${con} codec=${codec} (${codecReason})`
-					)}`
-				);
-
-				const timeTaken = await runBenchmark(
-					runs,
-					{
-						...(await getRenderMediaOptions({
-							config: composition,
-							outputLocation: undefined,
-							serveUrl: bundleLocation,
-							codec,
-						})),
-						concurrency: con,
-					},
-					(run, progress) => {
-						benchmarkProgress.update(
-							makeBenchmarkProgressBar({
-								totalRuns: runs,
-								run,
-								doneIn: null,
-								progress,
-							})
-						);
-					}
-				);
-
-				benchmarkProgress.update('');
-				benchmarkProgress.update(getResults(timeTaken, runs));
-
-				benchmark[composition.id][`${con}`] = timeTaken;
-			}
-		} else {
-			const options = await getRenderMediaOptions({
-				config: composition,
-				outputLocation: undefined,
-				serveUrl: bundleLocation,
-				codec,
-			});
-			Log.info();
-			Log.info(
-				`${chalk.bold(`Benchmark #${count++}:`)} ${chalk.gray(
-					`composition=${
-						composition.id
-					} concurrency=${RenderInternals.getActualConcurrency(
-						'concurrency' in options ? options.concurrency ?? null : null
-					)} (default) codec=${codec} (${codecReason})`
-				)}`
-			);
+		for (const con of concurrency) {
 			const benchmarkProgress = createOverwriteableCliOutput(
 				quietFlagProvided()
 			);
+			Log.info();
+			Log.info(
+				`${chalk.bold(`Benchmark #${count++}:`)} ${chalk.gray(
+					`composition=${composition.id} concurrency=${con} codec=${codec} (${codecReason})`
+				)}`
+			);
+
 			const timeTaken = await runBenchmark(
 				runs,
 				{
-					...options,
-					serveUrl: bundleLocation,
+					...renderMediaOptions,
+					concurrency: con,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(
@@ -274,7 +236,7 @@ export const benchmarkCommand = async (
 			benchmarkProgress.update('');
 			benchmarkProgress.update(getResults(timeTaken, runs));
 
-			benchmark[composition.id].default = timeTaken;
+			benchmark[composition.id][`${con}`] = timeTaken;
 		}
 	}
 
