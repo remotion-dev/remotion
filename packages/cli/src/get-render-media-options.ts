@@ -1,4 +1,4 @@
-import type {RenderMediaOptions} from '@remotion/renderer';
+import type {Codec, RenderMediaOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {ConfigInternals} from './config';
 import {getCliOptions} from './get-cli-options';
@@ -7,13 +7,14 @@ export const getRenderMediaOptions = async ({
 	outputLocation,
 	config,
 	serveUrl,
+	codec,
 }: {
 	outputLocation: RenderMediaOptions['outputLocation'];
 	config: RenderMediaOptions['composition'];
 	serveUrl: string;
+	codec: Codec;
 }): Promise<RenderMediaOptions> => {
 	const {
-		codec,
 		proResProfile,
 		concurrency,
 		frameRange,
@@ -38,11 +39,11 @@ export const getRenderMediaOptions = async ({
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
+		codec,
 	});
 
 	return {
 		outputLocation,
-		codec,
 		composition: config,
 		crf,
 		envVariables,
@@ -75,5 +76,6 @@ export const getRenderMediaOptions = async ({
 		ffmpegOverride,
 		concurrency,
 		serveUrl,
+		codec,
 	};
 };

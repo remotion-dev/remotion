@@ -1,7 +1,12 @@
 import type {RenderMediaOptions} from '@remotion/renderer';
-import {getCompositions, renderMedia} from '@remotion/renderer';
+import {
+	getCompositions,
+	RenderInternals,
+	renderMedia,
+} from '@remotion/renderer';
 import path from 'path';
 import {chalk} from './chalk';
+import {getFinalCodec} from './get-cli-options';
 import {getRenderMediaOptions} from './get-render-media-options';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
@@ -181,6 +186,11 @@ export const benchmarkCommand = async (
 
 	let count = 1;
 
+	const {codec, reason: codecReason} = getFinalCodec({
+		downloadName: null,
+		outName: null,
+	});
+
 	for (const composition of compositions) {
 		benchmark[composition.id] = {};
 		if (concurrency) {
@@ -189,10 +199,9 @@ export const benchmarkCommand = async (
 					quietFlagProvided()
 				);
 				Log.info();
-				Log.info();
 				Log.info(
 					`${chalk.bold(`Benchmark #${count++}:`)} ${chalk.gray(
-						`composition=${composition.id} concurrency=${con}`
+						`composition=${composition.id} concurrency=${con} codec=${codec} (${codecReason})`
 					)}`
 				);
 
@@ -203,6 +212,7 @@ export const benchmarkCommand = async (
 							config: composition,
 							outputLocation: undefined,
 							serveUrl: bundleLocation,
+							codec,
 						})),
 						concurrency: con,
 					},
@@ -224,11 +234,20 @@ export const benchmarkCommand = async (
 				benchmark[composition.id][`${con}`] = timeTaken;
 			}
 		} else {
-			Log.info();
+			const options = await getRenderMediaOptions({
+				config: composition,
+				outputLocation: undefined,
+				serveUrl: bundleLocation,
+				codec,
+			});
 			Log.info();
 			Log.info(
 				`${chalk.bold(`Benchmark #${count++}:`)} ${chalk.gray(
-					`composition=${composition.id}`
+					`composition=${
+						composition.id
+					} concurrency=${RenderInternals.getActualConcurrency(
+						'concurrency' in options ? options.concurrency ?? null : null
+					)} (default) codec=${codec} (${codecReason})`
 				)}`
 			);
 			const benchmarkProgress = createOverwriteableCliOutput(
@@ -237,11 +256,7 @@ export const benchmarkCommand = async (
 			const timeTaken = await runBenchmark(
 				runs,
 				{
-					...(await getRenderMediaOptions({
-						config: composition,
-						outputLocation: undefined,
-						serveUrl: bundleLocation,
-					})),
+					...options,
 					serveUrl: bundleLocation,
 				},
 				(run, progress) => {
@@ -262,4 +277,6 @@ export const benchmarkCommand = async (
 			benchmark[composition.id].default = timeTaken;
 		}
 	}
+
+	Log.info();
 };

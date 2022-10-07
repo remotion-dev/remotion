@@ -29,7 +29,7 @@ const getAndValidateFrameRange = () => {
 	return frameRange;
 };
 
-export const validateFfmepgCanUseCodec = async (codec: Codec) => {
+export const validateFfmpegCanUseCodec = async (codec: Codec) => {
 	const ffmpegExecutable = ConfigInternals.getCustomFfmpegExecutable();
 	if (
 		codec === 'vp8' &&
