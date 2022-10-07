@@ -1,5 +1,5 @@
 ---
-id: exporting-from-Figma
+id: exporting-from-figma
 title: Exporting designs from Figma to Remotion
 ---
 
@@ -67,3 +67,5 @@ export const BikerSVG: React.FC = () => {
 ```
 
 When you're done with that, you can use the component alongside Remotion's built-in `Composition` component. You can look at the result in this [repo](https://github.com/kaf-lamed-beyt/remo-sample).
+
+![result](/static/img/export-figma/result.png)
