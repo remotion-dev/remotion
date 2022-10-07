@@ -351,6 +351,9 @@ export const PlayerFn = <T,>(
 			currentCompositionMetadata: null,
 			setCurrentCompositionMetadata: () => undefined,
 			assets: [],
+			registerCaption: () => undefined,
+			unregisterCaption: () => undefined,
+			captions: [],
 		};
 	}, [
 		component,

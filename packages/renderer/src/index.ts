@@ -67,6 +67,7 @@ import {
 	registerErrorSymbolicationLock,
 	unlockErrorSymbolicationLock,
 } from './wait-for-symbolication-error-to-be-done';
+
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 export type {DownloadMap} from './assets/download-map';
 export {Browser} from './browser';

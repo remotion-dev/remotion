@@ -1,5 +1,5 @@
 import './asset-types';
-import type {TAsset, TCompMetadata} from './CompositionManager';
+import type {TAsset, TCaption, TCompMetadata} from './CompositionManager';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning';
 
 declare global {
@@ -21,6 +21,7 @@ declare global {
 		remotion_inputProps: string;
 		remotion_envVariables: string;
 		remotion_collectAssets: () => TAsset[];
+		remotion_collectCaptions: () => TCaption[];
 		remotion_isPlayer: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
@@ -51,8 +52,14 @@ checkMultipleRemotionVersions();
 
 export * from './AbsoluteFill';
 export * from './audio';
+export * from './caption';
 export * from './Composition';
-export {SmallTCompMetadata, TAsset, TCompMetadata} from './CompositionManager';
+export {
+	SmallTCompMetadata,
+	TAsset,
+	TCaption,
+	TCompMetadata,
+} from './CompositionManager';
 export {Config, ConfigType} from './config';
 export {getInputProps} from './config/input-props';
 export * from './delay-render';

@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path, {extname} from 'path';
-import type {TAsset} from 'remotion';
 import {random} from 'remotion';
 import {isAssetCompressed} from '../compress-assets';
 import {ensureOutputDirectory} from '../ensure-output-directory';
@@ -8,6 +7,7 @@ import {getExt} from '../mime-types';
 import {downloadFile} from './download-file';
 import type {DownloadMap} from './download-map';
 import {sanitizeFilePath} from './sanitize-filepath';
+import type {DownloadableAsset} from './types';
 
 export type RenderMediaOnDownload = (
 	src: string
@@ -332,15 +332,17 @@ export const getSanitizedFilenameForAssetUrl = ({
 	return path.join(downloadDir, sanitizeFilePath(filename));
 };
 
-export const downloadAndMapAssetsToFileUrl = async ({
+export const downloadAndMapAssetsToFileUrl = async <
+	T extends DownloadableAsset
+>({
 	asset,
 	onDownload,
 	downloadMap,
 }: {
-	asset: TAsset;
+	asset: T;
 	onDownload: RenderMediaOnDownload;
 	downloadMap: DownloadMap;
-}): Promise<TAsset> => {
+}): Promise<T> => {
 	const newSrc = await downloadAsset({
 		src: asset.src,
 		onDownload,

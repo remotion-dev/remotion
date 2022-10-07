@@ -6,6 +6,7 @@ import React, {
 	useState,
 } from 'react';
 import {SharedAudioContextProvider} from './audio/shared-audio-tags';
+import type {TAsset} from './CompositionManager';
 import {CompositionManagerProvider} from './CompositionManager';
 import {continueRender, delayRender} from './delay-render';
 import type {TNonceContext} from './nonce';
@@ -23,6 +24,7 @@ export const RemotionRoot: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
 	const [remotionRootId] = useState(() => String(random(null)));
+	const [assets, setAssets] = useState<TAsset[]>([]);
 	const [frame, setFrame] = useState<number>(window.remotion_initialFrame ?? 0);
 	const [playing, setPlaying] = useState<boolean>(false);
 	const imperativePlaying = useRef<boolean>(false);
@@ -41,6 +43,15 @@ export const RemotionRoot: React.FC<{
 			window.remotion_isPlayer = false;
 		}
 	}, []);
+
+	useLayoutEffect(() => {
+		if (typeof window !== 'undefined') {
+			window.remotion_collectAssets = () => {
+				setAssets([]); // clear assets at next render
+				return assets;
+			};
+		}
+	}, [assets]);
 
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {

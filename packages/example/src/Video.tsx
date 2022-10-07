@@ -109,7 +109,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={10}
 				/>
-
 				<Composition
 					id="framer"
 					component={Framer}
@@ -278,7 +277,7 @@ export const Index: React.FC = () => {
 					width={1280}
 					height={720}
 					fps={30}
-					durationInFrames={600}
+					durationInFrames={300}
 				/>
 				<Composition
 					id="corrupt-video"

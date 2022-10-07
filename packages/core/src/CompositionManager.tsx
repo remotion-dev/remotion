@@ -78,6 +78,19 @@ export type TAsset = {
 	playbackRate: number;
 };
 
+export type TCaption = {
+	id: string;
+	language?: string;
+	src: string;
+	title?: string;
+};
+
+export type RenderAssetInfo = {
+	assets: TAsset[][];
+	captions: TCaption[][];
+	bundleDir: string;
+};
+
 type BaseMetadata = Pick<
 	TCompMetadata,
 	'durationInFrames' | 'fps' | 'defaultProps' | 'height' | 'width'
@@ -97,8 +110,11 @@ export type CompositionManagerContext = {
 	unregisterSequence: (id: string) => void;
 	registerAsset: (asset: TAsset) => void;
 	unregisterAsset: (id: string) => void;
+	registerCaption: (caption: TCaption) => void;
+	unregisterCaption: (id: string) => void;
 	sequences: TSequence[];
 	assets: TAsset[];
+	captions: TCaption[];
 	folders: TFolder[];
 };
 
@@ -115,8 +131,11 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	unregisterSequence: () => undefined,
 	registerAsset: () => undefined,
 	unregisterAsset: () => undefined,
+	registerCaption: () => undefined,
+	unregisterCaption: () => undefined,
 	sequences: [],
 	assets: [],
+	captions: [],
 	folders: [],
 	currentCompositionMetadata: null,
 });
@@ -136,6 +155,7 @@ export const CompositionManagerProvider: React.FC<{
 	);
 	const [assets, setAssets] = useState<TAsset[]>([]);
 	const [folders, setFolders] = useState<TFolder[]>([]);
+	const [captions, setCaptions] = useState<TCaption[]>([]);
 
 	const [sequences, setSequences] = useState<TSequence[]>([]);
 
@@ -214,6 +234,15 @@ export const CompositionManagerProvider: React.FC<{
 		}
 	}, [assets]);
 
+	useLayoutEffect(() => {
+		if (typeof window !== 'undefined') {
+			window.remotion_collectCaptions = () => {
+				setCaptions([]); // clear captions at next render
+				return captions;
+			};
+		}
+	}, [captions]);
+
 	useImperativeHandle(
 		compositionsRef,
 		() => {
@@ -223,6 +252,13 @@ export const CompositionManagerProvider: React.FC<{
 		},
 		[compositions]
 	);
+
+	const registerCaption = useCallback((caption: TCaption) => {
+		setCaptions((capts) => capts.concat(caption));
+	}, []);
+	const unregisterCaption = useCallback((id: string) => {
+		setCaptions((capts) => capts.filter((a) => a.id !== id));
+	}, []);
 
 	const contextValue = useMemo((): CompositionManagerContext => {
 		return {
@@ -240,6 +276,9 @@ export const CompositionManagerProvider: React.FC<{
 			folders,
 			registerFolder,
 			unregisterFolder,
+			registerCaption,
+			unregisterCaption,
+			captions: [],
 			currentCompositionMetadata,
 			setCurrentCompositionMetadata,
 		};
@@ -257,6 +296,8 @@ export const CompositionManagerProvider: React.FC<{
 		folders,
 		registerFolder,
 		unregisterFolder,
+		registerCaption,
+		unregisterCaption,
 		currentCompositionMetadata,
 	]);
 

@@ -10,6 +10,7 @@ import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-fi
 import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap, RenderAssetInfo} from './assets/download-map';
 import type {Assets} from './assets/types';
+import {captionsToFfmpegInputs} from './captions-to-ffmpeg-inputs';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {codecSupportsCrf, codecSupportsMedia} from './codec-supports-media';
@@ -262,6 +263,13 @@ export const spawnFfmpeg = async (
 		  })
 		: null;
 
+	const captions = captionsToFfmpegInputs({
+		captions: options.assetsInfo.captions,
+		//* How many ['-i'] are applied before the captions
+		//* We should find a better name for it :)
+		assetsCount: audio ? 2 : 1,
+	});
+
 	if (mediaSupport.audio && !mediaSupport.video) {
 		if (!audioCodecName) {
 			throw new TypeError(
@@ -323,6 +331,7 @@ export const spawnFfmpeg = async (
 					['-i', options.assetsInfo.imageSequenceName],
 			  ]),
 		audio ? ['-i', audio] : null,
+		...(captions ? captions.captionInputs : []),
 		(options.numberOfGifLoops ?? null) === null
 			? null
 			: [
@@ -350,7 +359,9 @@ export const spawnFfmpeg = async (
 		audioCodecName ? ['-c:a', audioCodecName] : null,
 		// Set max bitrate up to 1024kbps, will choose lower if that's too much
 		audioCodecName ? ['-b:a', '512K'] : null,
+		captions.captionFilters,
 		// Ignore metadata that may come from remote media
+		//! This is not removing the subtitle metadata, so the final video has the wrong duration again
 		['-map_metadata', '-1'],
 		[
 			'-metadata',
