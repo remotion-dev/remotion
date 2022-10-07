@@ -16,10 +16,11 @@ import {ConfigInternals} from './config';
 import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
+	getFinalCodec,
+	validateFfmepgCanUseCodec,
 } from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {getOutputFilename} from './get-filename';
-import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import type {DownloadProgress} from './progress-bar';
@@ -29,6 +30,7 @@ import {
 } from './progress-bar';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import type {RenderStep} from './step';
+import {getUserPassedOutputLocation} from './user-passed-output-location';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
 export const render = async (remotionRoot: string) => {
@@ -49,12 +51,23 @@ export const render = async (remotionRoot: string) => {
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
-	await initializeRenderCli(remotionRoot, 'sequence');
+	if (parsedCli.frame) {
+		Log.error(
+			'--frame flag was passed to the `render` command. This flag only works with the `still` command. Did you mean `--frames`? See reference: https://www.remotion.dev/docs/cli/'
+		);
+		process.exit(1);
+	}
 
 	Log.verbose('Asset dirs', downloadMap.assetDir);
 
+	const {codec, reason: codecReason} = getFinalCodec({
+		downloadName: null,
+		outName: getUserPassedOutputLocation(),
+	});
+
+	validateFfmepgCanUseCodec(codec);
+
 	const {
-		codec,
 		proResProfile,
 		concurrency,
 		frameRange,
@@ -83,6 +96,7 @@ export const render = async (remotionRoot: string) => {
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
+		codec,
 	});
 
 	const relativeOutputLocation = getOutputFilename({
@@ -101,7 +115,7 @@ export const render = async (remotionRoot: string) => {
 
 	Log.info(
 		chalk.gray(
-			`Composition = ${compositionId}, Codec = ${codec}, Output = ${relativeOutputLocation}`
+			`Composition = ${compositionId}, Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
 		)
 	);
 

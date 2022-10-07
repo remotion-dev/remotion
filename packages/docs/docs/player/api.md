@@ -555,7 +555,7 @@ Prefer the [`frameupdate`](#frameupdate) event if you need an update for every s
 
 ### `frameupdate`
 
-_Available from v3.2.26_
+_Available from v3.2.27_
 
 Fires whenever the current time has changed, during both playback and seeking.
 

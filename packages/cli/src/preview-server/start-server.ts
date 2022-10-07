@@ -21,7 +21,7 @@ export const startServer = async (
 	options: {
 		webpackOverride: WebpackOverrideFn;
 		getCurrentInputProps: () => object;
-		envVariables?: Record<string, string>;
+		getEnvVariables: () => Record<string, string>;
 		port: number | null;
 		maxTimelineTracks?: number;
 		remotionRoot: string;
@@ -43,7 +43,7 @@ export const startServer = async (
 		environment: 'development',
 		webpackOverride:
 			options?.webpackOverride ?? ConfigInternals.getWebpackOverrideFn(),
-		envVariables: options?.envVariables ?? {},
+		envVariables: options?.getEnvVariables() ?? {},
 		maxTimelineTracks: options?.maxTimelineTracks ?? 15,
 		entryPoints: [
 			require.resolve('./hot-middleware/client'),
@@ -84,6 +84,7 @@ export const startServer = async (
 					response,
 					liveEventsServer,
 					getCurrentInputProps: options.getCurrentInputProps,
+					getEnvVariables: options.getEnvVariables,
 					remotionRoot: options.remotionRoot,
 					userPassedPublicDir: options.userPassedPublicDir,
 				});
