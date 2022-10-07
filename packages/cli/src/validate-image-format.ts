@@ -5,7 +5,7 @@ export const validateImageFormat = (
 	imageFormat: ImageFormat,
 	outName: string | null
 ) => {
-	if (imageFormat === 'png' && outName?.endsWith('.png')) {
+	if (imageFormat === 'png' && !outName?.endsWith('.png')) {
 		Log.warn(`Rendering a PNG, expected a .png extension but got ${outName}`);
 	}
 
