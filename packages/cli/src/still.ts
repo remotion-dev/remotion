@@ -81,6 +81,7 @@ export const still = async (remotionRoot: string) => {
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'still',
+		codec: 'h264',
 	});
 
 	Log.verbose('Browser executable: ', browserExecutable);
