@@ -94,6 +94,8 @@ export type RenderMediaOptions = {
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
 	ffmpegOverride?: FfmpegOverrideFn;
+	audioBitrate?: string | null;
+	videoBitrate?: string | null;
 } & ServeUrlOrWebpackBundle &
 	ConcurrencyOrParallelism;
 
@@ -155,6 +157,8 @@ export const renderMedia = ({
 	muted,
 	enforceAudioTrack,
 	ffmpegOverride,
+	audioBitrate,
+	videoBitrate,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
 	validateQuality(options.quality);
@@ -412,6 +416,8 @@ export const renderMedia = ({
 					muted: disableAudio,
 					enforceAudioTrack,
 					ffmpegOverride,
+					audioBitrate,
+					videoBitrate,
 				}),
 				stitchStart,
 			]);
