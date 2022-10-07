@@ -11,13 +11,13 @@ You can export a design from Figma as an SVG file and import it as a React compo
 
 The design we'll consider here is a suite of 3D graphics made by [Alzea Arafat](https://dribbble.com/alzea) for the design community. You can find them [here](<https://www.figma.com/file/VCoVolpndRmxkSd5AvctYZ/SALY---3D-Illustration-Pack-(Community)?node-id=7%3A4>). When you click the link to the design, click on the **"Library"** &mdash; in the sidebar &mdash; text to access all 3D graphics
 
-![Thumbnail](/static/img/export-figma/banner.png)
+![Thumbnail](/img/export-figma/banner.png)
 
 Click on any of the vector graphics. Make sure you're selecting the 3D element alone. Don't select the whole container, the image below illustrates this.
 
 When you select the vector element, a border will be around it to indicate that it is currently in focus. Looking at the image below, you'll notice on the right, there's a "right sidebar" component with different tabs namely, **Design**, **Prototype**, **Inspect**
 
-![exporting as SVG](/static/img/export-figma/export-as-svg.png)
+![exporting as SVG](/img/export-figma/export-as-svg.png)
 
 Stay on the **Design** tab, then scroll down till you see the **Export** text, click on the plus sign next to it, select the **SVG** format from the file type dropdown menu, then click the export button
 
@@ -27,7 +27,7 @@ Now that you have exported the SVG file, it should be in your downloads folder. 
 
 When you open the SVG file, it'll look like the image below.
 
-![svg file example](/static/img/export-figma/svg-file.png)
+![svg file example](/img/export-figma/svg-file.png)
 
 You should take note of attributes like `xmlns:xlink` or `xlink:href` because TypeScript will throw an error due to how html attributes are used in React, these attributes have to be in `camelCase` form.
 
@@ -68,4 +68,4 @@ export const BikerSVG: React.FC = () => {
 
 When you're done with that, you can use the component alongside Remotion's built-in `Composition` component. You can look at the result in this [repo](https://github.com/kaf-lamed-beyt/remo-sample).
 
-![result](/static/img/export-figma/result.png)
+![result](/img/export-figma/result.png)
