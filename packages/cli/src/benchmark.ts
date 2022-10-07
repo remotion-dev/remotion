@@ -161,13 +161,12 @@ export const benchmarkCommand = async (
 		puppeteerTimeout,
 		browser,
 		scale,
+		publicDir,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
 		codec: 'h264',
 	});
-
-	const downloadMap = RenderInternals.makeDownloadMap();
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
@@ -182,7 +181,7 @@ export const benchmarkCommand = async (
 	const {urlOrBundle: bundleLocation, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({
 			fullPath,
-			publicDir: null,
+			publicDir,
 			remotionRoot,
 			steps: ['bundling'],
 		});
@@ -198,7 +197,6 @@ export const benchmarkCommand = async (
 		ffprobeExecutable,
 		port,
 		puppeteerInstance,
-		downloadMap,
 	});
 
 	const ids = (args[1] ?? '')
@@ -258,7 +256,6 @@ export const benchmarkCommand = async (
 					...renderMediaOptions,
 					puppeteerInstance,
 					concurrency: con,
-					downloadMap,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(
@@ -281,14 +278,5 @@ export const benchmarkCommand = async (
 
 	Log.info();
 
-	try {
-		await cleanupBundle();
-		await RenderInternals.cleanDownloadMap(downloadMap);
-
-		Log.verbose('Cleaned up', downloadMap.assetDir);
-	} catch (err) {
-		Log.warn('Could not clean up directory.');
-		Log.warn(err);
-		Log.warn('Do you have minimum required Node.js version?');
-	}
+	await cleanupBundle();
 };
