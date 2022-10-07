@@ -346,6 +346,7 @@ module.exports = {
         "wrong-composition-mount",
         "staticfile-relative-paths",
         "staticfile-remote-urls",
+        "troubleshooting/rosetta"
       ],
     },
 

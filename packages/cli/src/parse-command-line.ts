@@ -80,9 +80,7 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: BooleanFlags,
 });
 
-export const parseCommandLine = (
-	type: 'still' | 'sequence' | 'lambda' | 'preview' | 'versions'
-) => {
+export const parseCommandLine = () => {
 	if (parsedCli['pixel-format']) {
 		Config.Output.setPixelFormat(parsedCli['pixel-format']);
 	}
@@ -150,24 +148,10 @@ export const parseCommandLine = (
 	}
 
 	if (parsedCli.frames) {
-		if (type === 'still') {
-			Log.error(
-				'--frames flag was passed to the `still` command. This flag only works with the `render` command. Did you mean `--frame`? See reference: https://www.remotion.dev/docs/cli/'
-			);
-			process.exit(1);
-		}
-
 		ConfigInternals.setFrameRangeFromCli(parsedCli.frames);
 	}
 
 	if (parsedCli.frame) {
-		if (type === 'sequence') {
-			Log.error(
-				'--frame flag was passed to the `render` command. This flag only works with the `still` command. Did you mean `--frames`? See reference: https://www.remotion.dev/docs/cli/'
-			);
-			process.exit(1);
-		}
-
 		ConfigInternals.setStillFrame(Number(parsedCli.frame));
 	}
 
@@ -185,10 +169,6 @@ export const parseCommandLine = (
 
 	if (typeof parsedCli.crf !== 'undefined') {
 		Config.Output.setCrf(parsedCli.crf);
-	}
-
-	if (parsedCli.codec) {
-		Config.Output.setCodec(parsedCli.codec);
 	}
 
 	if (parsedCli['every-nth-frame']) {

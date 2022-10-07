@@ -1,5 +1,4 @@
-import {CliInternals} from '@remotion/cli';
-import type {StillImageFormat} from '@remotion/renderer';
+import {CliInternals, ConfigInternals} from '@remotion/cli';
 import {RenderInternals} from '@remotion/renderer';
 import {downloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
@@ -44,12 +43,12 @@ export const stillCommand = async (args: string[]) => {
 		quit(1);
 	}
 
-	const outName = args[2] ?? null;
+	const downloadName = args[2] ?? null;
+	const outName = parsedLambdaCli['out-name'];
 
 	const {
 		chromiumOptions,
 		envVariables,
-		imageFormat,
 		inputProps,
 		logLevel,
 		puppeteerTimeout,
@@ -59,6 +58,7 @@ export const stillCommand = async (args: string[]) => {
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
+		codec: 'h264',
 	});
 
 	const functionName = await findFunctionName();
@@ -69,12 +69,27 @@ export const stillCommand = async (args: string[]) => {
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy);
 
+	const {format: imageFormat, source: imageFormatReason} =
+		CliInternals.determineFinalImageFormat({
+			downloadName,
+			outName: outName ?? null,
+			configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
+			cliFlag: CliInternals.parsedCli['image-format'] ?? null,
+			isLambda: true,
+		});
+
 	try {
+		Log.info(
+			CliInternals.chalk.gray(
+				`functionName = ${functionName}, imageFormat = ${imageFormat} (${imageFormatReason})`
+			)
+		);
+
 		const res = await renderStillOnLambda({
 			functionName,
 			serveUrl,
 			inputProps,
-			imageFormat: imageFormat as StillImageFormat,
+			imageFormat,
 			composition,
 			privacy,
 			region: getAwsRegion(),
@@ -83,23 +98,23 @@ export const stillCommand = async (args: string[]) => {
 			frame: stillFrame,
 			quality,
 			logLevel,
-			outName: parsedLambdaCli['out-name'],
+			outName,
 			chromiumOptions,
 			timeoutInMilliseconds: puppeteerTimeout,
 			scale,
 		});
-		Log.verbose(
+		Log.info(
 			CliInternals.chalk.gray(
-				`Bucket = ${res.bucketName}, renderId = ${res.renderId}, functionName = ${functionName}`
+				`Bucket = ${res.bucketName}, renderId = ${res.renderId}`
 			)
 		);
 		Log.verbose(`CloudWatch logs (if enabled): ${res.cloudWatchLogs}`);
 
-		if (outName) {
+		if (downloadName) {
 			Log.info('Finished rendering. Downloading...');
 			const {outputPath, sizeInBytes} = await downloadMedia({
 				bucketName: res.bucketName,
-				outPath: outName,
+				outPath: downloadName,
 				region: getAwsRegion(),
 				renderId: res.renderId,
 			});
