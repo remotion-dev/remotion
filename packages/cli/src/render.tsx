@@ -308,7 +308,7 @@ export const render = async (remotionRoot: string) => {
 		codec,
 	});
 
-	await renderMedia({
+	const ret = await renderMedia({
 		...options,
 		onProgress: (update) => {
 			encodedDoneIn = update.encodedDoneIn;
@@ -325,6 +325,15 @@ export const render = async (remotionRoot: string) => {
 
 	Log.info();
 	Log.info();
+	if (ret) {
+		Log.verbose(
+			`Following ${ret.slowestFrames.length} frames were slowest to render, consider optimizing them:`
+		);
+		ret.slowestFrames.forEach(({index, time}) => {
+			Log.verbose(`Frame Number : ${index}, Time Taken : ${time.toFixed(3)}`);
+		});
+	}
+
 	const seconds = Math.round((Date.now() - startTime) / 1000);
 	Log.info(
 		[

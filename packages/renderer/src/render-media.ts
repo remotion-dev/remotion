@@ -48,6 +48,15 @@ import {validateScale} from './validate-scale';
 
 export type StitchingState = 'encoding' | 'muxing';
 
+const SLOWEST_FRAME_COUNT = 10;
+
+export type FrameTime = {index: number; time: number};
+
+export type RenderMediaResult = Promise<{
+	buffer: Buffer | null;
+	slowestFrames: FrameTime[];
+} | null>;
+
 export type RenderMediaOnProgress = (progress: {
 	renderedFrames: number;
 	encodedFrames: number;
@@ -156,7 +165,7 @@ export const renderMedia = ({
 	enforceAudioTrack,
 	ffmpegOverride,
 	...options
-}: RenderMediaOptions): Promise<Buffer | null> => {
+}: RenderMediaOptions): RenderMediaResult => {
 	validateQuality(options.quality);
 	if (typeof crf !== 'undefined' && crf !== null) {
 		validateSelectedCrfAndCodecCombination(crf, codec);
@@ -313,13 +322,53 @@ export const renderMedia = ({
 	const mediaSupport = codecSupportsMedia(codec);
 	const disableAudio = !mediaSupport.audio || muted;
 
+	const slowestFrames: FrameTime[] = [];
+	let maxTime = 0;
+	let minTime = 0;
+	let startTime = performance.now();
+
+	const recordFrameTime = (frameIndex: number) => {
+		const time = performance.now() - startTime;
+		startTime = performance.now();
+
+		// ignore first frame
+		if (frameIndex <= 1) {
+			return;
+		}
+
+		const frameTime: FrameTime = {index: frameIndex, time};
+
+		if (time < minTime && slowestFrames.length === SLOWEST_FRAME_COUNT) {
+			return;
+		}
+
+		if (time > maxTime) {
+			// add at starting;
+			slowestFrames.unshift(frameTime);
+			maxTime = time;
+		} else {
+			// add frame at appropriate position
+			const index = slowestFrames.findIndex(
+				({time: indexTime}) => indexTime < time
+			);
+			slowestFrames.splice(index, 0, frameTime);
+		}
+
+		if (slowestFrames.length > SLOWEST_FRAME_COUNT) {
+			slowestFrames.pop();
+		}
+
+		minTime = slowestFrames.at(-1)?.time ?? minTime;
+	};
+
 	const happyPath = createPrestitcherIfNecessary()
 		.then(() => {
 			const renderFramesProc = renderFrames({
 				config: composition,
-				onFrameUpdate: (frame: number) => {
+				onFrameUpdate: (frame: number, frameIndex: number) => {
 					renderedFrames = frame;
 					callUpdate();
+					recordFrameTime(frameIndex);
 				},
 				concurrency,
 				outputDir,
@@ -420,7 +469,7 @@ export const renderMedia = ({
 			encodedFrames = getFramesToRender(realFrameRange, everyNthFrame).length;
 			encodedDoneIn = Date.now() - stitchStart;
 			callUpdate();
-			return buffer;
+			return {buffer, slowestFrames};
 		})
 		.catch((err) => {
 			/**
@@ -467,7 +516,7 @@ export const renderMedia = ({
 
 	return Promise.race([
 		happyPath,
-		new Promise<Buffer | null>((_resolve, reject) => {
+		new Promise<RenderMediaResult>((_resolve, reject) => {
 			cancelSignal?.(() => {
 				reject(new Error('renderMedia() got cancelled'));
 			});
