@@ -4,6 +4,7 @@ import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
+import {warnIfAppleSiliconIsNotUsingArm64Architecture} from './check-apple-silicon';
 import {DEFAULT_CODEC, validCodecs} from './codec';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {
@@ -99,11 +100,12 @@ export {
 	RenderMediaOptions,
 	StitchingState,
 } from './render-media';
-export {renderStill} from './render-still';
+export {renderStill, RenderStillOptions} from './render-still';
 export {StitcherOptions, stitchFramesToVideo} from './stitch-frames-to-video';
 export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {OpenGlRenderer} from './validate-opengl-renderer';
+export {validateOutputFilename} from './validate-output-filename';
 export const RenderInternals = {
 	ensureLocalBrowser,
 	ffmpegHasFeature,
@@ -168,3 +170,6 @@ export const RenderInternals = {
 	cleanDownloadMap,
 	convertToPositiveFrameIndex,
 };
+
+// Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
+warnIfAppleSiliconIsNotUsingArm64Architecture();

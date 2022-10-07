@@ -4,10 +4,11 @@ import {chalk} from './chalk';
 import {checkNodeVersion} from './check-version';
 import {listCompositionsCommand} from './compositions';
 import {overrideRemotion} from './config/index';
+import {determineFinalImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
 import {findRemotionRoot} from './find-closest-package-json';
 import {formatBytes} from './format-bytes';
-import {getCliOptions} from './get-cli-options';
+import {getCliOptions, getFinalCodec} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
 import {handleCommonError} from './handle-common-errors';
 import {initializeCli} from './initialize-cli';
@@ -109,4 +110,6 @@ export const CliInternals = {
 	formatBytes,
 	getFileSizeDownloadBar,
 	findRemotionRoot,
+	getFinalCodec,
+	determineFinalImageFormat,
 };

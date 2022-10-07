@@ -171,10 +171,6 @@ export const parseCommandLine = () => {
 		Config.Output.setCrf(parsedCli.crf);
 	}
 
-	if (parsedCli.codec) {
-		Config.Output.setCodec(parsedCli.codec);
-	}
-
 	if (parsedCli['every-nth-frame']) {
 		Config.Rendering.setEveryNthFrame(parsedCli['every-nth-frame']);
 	}
