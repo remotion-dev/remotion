@@ -46,7 +46,7 @@ const getImageFormat = ({
 	outName: string | null;
 	configImageFormat: ImageFormat | null;
 	cliFlag: ImageFormat | null;
-}): StillImageFormat => {
+}): {format: StillImageFormat; source: string} => {
 	const outNameExtension = deriveExtensionFromFilename(outName);
 	const downloadNameExtension = deriveExtensionFromFilename(downloadName);
 
@@ -67,7 +67,7 @@ const getImageFormat = ({
 			);
 		}
 
-		return downloadNameExtension;
+		return {format: downloadNameExtension, source: 'Download name extension'};
 	}
 
 	if (outNameExtension) {
@@ -77,7 +77,7 @@ const getImageFormat = ({
 			);
 		}
 
-		return outNameExtension;
+		return {format: outNameExtension, source: 'Out name extension'};
 	}
 
 	if (cliFlag === 'none') {
@@ -87,14 +87,14 @@ const getImageFormat = ({
 	}
 
 	if (cliFlag !== null) {
-		return cliFlag;
+		return {format: cliFlag, source: '--image-format flag'};
 	}
 
 	if (configImageFormat !== null && configImageFormat !== 'none') {
-		return configImageFormat;
+		return {format: configImageFormat, source: 'Config file'};
 	}
 
-	return 'png';
+	return {format: 'png', source: 'Default'};
 };
 
 export const stillCommand = async (args: string[]) => {
@@ -129,7 +129,6 @@ export const stillCommand = async (args: string[]) => {
 	const {
 		chromiumOptions,
 		envVariables,
-		imageFormat: cliImageFormat,
 		inputProps,
 		logLevel,
 		puppeteerTimeout,
@@ -149,14 +148,20 @@ export const stillCommand = async (args: string[]) => {
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy);
 
-	const imageFormat = getImageFormat({
+	const {format: imageFormat, source: imageFormatReason} = getImageFormat({
 		downloadName,
-		outName: cliImageFormat,
+		outName: outName ?? null,
 		configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
 		cliFlag: CliInternals.parsedCli['image-format'] ?? null,
 	});
 
 	try {
+		Log.info(
+			CliInternals.chalk.gray(
+				`functionName = ${functionName}, imageFormat = ${imageFormat} (${imageFormatReason})`
+			)
+		);
+
 		const res = await renderStillOnLambda({
 			functionName,
 			serveUrl,
@@ -175,9 +180,9 @@ export const stillCommand = async (args: string[]) => {
 			timeoutInMilliseconds: puppeteerTimeout,
 			scale,
 		});
-		Log.verbose(
+		Log.info(
 			CliInternals.chalk.gray(
-				`Bucket = ${res.bucketName}, renderId = ${res.renderId}, functionName = ${functionName}`
+				`Bucket = ${res.bucketName}, renderId = ${res.renderId}`
 			)
 		);
 		Log.verbose(`CloudWatch logs (if enabled): ${res.cloudWatchLogs}`);
