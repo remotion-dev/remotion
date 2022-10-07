@@ -23,14 +23,18 @@ export const determineFinalImageFormat = ({
 	outName,
 	configImageFormat,
 	cliFlag,
+	isLambda,
 }: {
 	downloadName: string | null;
 	outName: string | null;
 	configImageFormat: ImageFormat | null;
 	cliFlag: ImageFormat | null;
+	isLambda: boolean;
 }): {format: StillImageFormat; source: string} => {
 	const outNameExtension = deriveExtensionFromFilename(outName);
 	const downloadNameExtension = deriveExtensionFromFilename(downloadName);
+
+	const outNameDescription = isLambda ? 'S3 output key' : 'out name';
 
 	if (
 		outNameExtension &&
@@ -38,7 +42,7 @@ export const determineFinalImageFormat = ({
 		outNameExtension !== downloadNameExtension
 	) {
 		throw new TypeError(
-			`Image format mismatch: ${outName} was given as the S3 output name and ${downloadName} was given as the download name, but the extensions don't match.`
+			`Image format mismatch: ${outName} was given as the ${outNameDescription} and ${downloadName} was given as the download name, but the extensions don't match.`
 		);
 	}
 
@@ -55,7 +59,7 @@ export const determineFinalImageFormat = ({
 	if (outNameExtension) {
 		if (cliFlag && outNameExtension !== cliFlag) {
 			throw new TypeError(
-				`Image format mismatch: ${outName} was given as the S3 out name, but --image-format=${cliFlag} was passed. The image formats must match.`
+				`Image format mismatch: ${outName} was given as the ${outNameDescription}, but --image-format=${cliFlag} was passed. The image formats must match.`
 			);
 		}
 

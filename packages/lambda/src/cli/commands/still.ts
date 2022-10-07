@@ -75,6 +75,7 @@ export const stillCommand = async (args: string[]) => {
 			outName: outName ?? null,
 			configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
 			cliFlag: CliInternals.parsedCli['image-format'] ?? null,
+			isLambda: true,
 		});
 
 	try {
