@@ -31,6 +31,7 @@ module.exports = {
             "lambda/cli/quotas",
           ],
         },
+        "cli/benchmark",
         "cli/versions",
         "cli/upgrade",
         "cli/help",
