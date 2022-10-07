@@ -138,6 +138,7 @@ export const stillCommand = async (args: string[]) => {
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
+		codec: 'h264',
 	});
 
 	const functionName = await findFunctionName();
