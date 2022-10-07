@@ -16,6 +16,8 @@ import {ConfigInternals} from './config';
 import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
+	getFinalCodec,
+	validateFfmepgCanUseCodec,
 } from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {getOutputFilename} from './get-filename';
@@ -28,6 +30,7 @@ import {
 } from './progress-bar';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import type {RenderStep} from './step';
+import {getUserPassedOutputLocation} from './user-passed-output-location';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
 export const render = async (remotionRoot: string) => {
@@ -57,8 +60,14 @@ export const render = async (remotionRoot: string) => {
 
 	Log.verbose('Asset dirs', downloadMap.assetDir);
 
+	const {codec, reason: codecReason} = getFinalCodec({
+		downloadName: null,
+		outName: getUserPassedOutputLocation(),
+	});
+
+	validateFfmepgCanUseCodec(codec);
+
 	const {
-		codec,
 		proResProfile,
 		concurrency,
 		frameRange,
@@ -87,6 +96,7 @@ export const render = async (remotionRoot: string) => {
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
+		codec,
 	});
 
 	const relativeOutputLocation = getOutputFilename({
@@ -105,7 +115,7 @@ export const render = async (remotionRoot: string) => {
 
 	Log.info(
 		chalk.gray(
-			`Composition = ${compositionId}, Codec = ${codec}, Output = ${relativeOutputLocation}`
+			`Composition = ${compositionId}, Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
 		)
 	);
 
