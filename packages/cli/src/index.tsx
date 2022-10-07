@@ -3,6 +3,7 @@ import {chalk} from './chalk';
 import {checkNodeVersion} from './check-version';
 import {listCompositionsCommand} from './compositions';
 import {overrideRemotion} from './config/index';
+import {determineFinalImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
 import {findRemotionRoot} from './find-closest-package-json';
 import {formatBytes} from './format-bytes';
@@ -109,4 +110,5 @@ export const CliInternals = {
 	getFileSizeDownloadBar,
 	findRemotionRoot,
 	getFinalCodec,
+	determineFinalImageFormat,
 };
