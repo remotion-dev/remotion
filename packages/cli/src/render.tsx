@@ -17,7 +17,7 @@ import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
 	getFinalCodec,
-	validateFfmepgCanUseCodec,
+	validateFfmpegCanUseCodec,
 } from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {getOutputFilename} from './get-filename';
@@ -66,7 +66,7 @@ export const render = async (remotionRoot: string) => {
 		outName: getUserPassedOutputLocation(),
 	});
 
-	validateFfmepgCanUseCodec(codec);
+	validateFfmpegCanUseCodec(codec);
 
 	const {
 		concurrency,
@@ -304,6 +304,7 @@ export const render = async (remotionRoot: string) => {
 		config,
 		outputLocation: absoluteOutputFile,
 		serveUrl: urlOrBundle,
+		codec,
 	});
 
 	await renderMedia({
