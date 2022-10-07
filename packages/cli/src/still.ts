@@ -29,7 +29,6 @@ import {
 	getOutputLocation,
 	getUserPassedOutputLocation,
 } from './user-passed-output-location';
-import {validateImageFormat} from './validate-image-format';
 
 export const still = async (remotionRoot: string) => {
 	const startTime = Date.now();
@@ -75,6 +74,7 @@ export const still = async (remotionRoot: string) => {
 		configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
 		downloadName: null,
 		outName: getUserPassedOutputLocation(),
+		isLambda: false,
 	});
 
 	const relativeOutputLocation = getOutputLocation({
@@ -92,8 +92,6 @@ export const still = async (remotionRoot: string) => {
 			`Output = ${relativeOutputLocation}, Format = ${imageFormat} (${source}), Composition = ${compositionId}`
 		)
 	);
-
-	validateImageFormat(imageFormat, absoluteOutputLocation);
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,

@@ -27,7 +27,6 @@ import {createOverwriteableCliOutput} from './progress-bar';
 import {render} from './render';
 import {still} from './still';
 import {upgrade} from './upgrade';
-import {validateImageFormat} from './validate-image-format';
 import {
 	validateVersionsBeforeCommand,
 	versionsCommand,
@@ -100,7 +99,6 @@ export const CliInternals = {
 	getCliOptions,
 	parseCommandLine,
 	loadConfig,
-	validateImageFormat,
 	initializeCli,
 	BooleanFlags,
 	quietFlagProvided,
