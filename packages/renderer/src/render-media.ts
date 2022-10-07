@@ -209,7 +209,7 @@ export const renderMedia = ({
 			canUseParallelEncoding(codec)
 		);
 		if (parallelEncoding) {
-			console.log('[PRESTICHER] Parallel encoding is enabled.');
+			console.log('[PRESTITCHER] Parallel encoding is enabled.');
 		} else {
 			console.log('[PRESTITCHER] Parallel encoding is disabled.');
 		}

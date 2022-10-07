@@ -583,7 +583,7 @@ importers:
       jest: 27.2.4_ts-node@10.8.0
       prettier: 2.4.1
       prettier-plugin-organize-imports: 2.3.4_pxx7xhvr2bexxfjjff3nukai7m
-      ts-jest: 27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm
+      ts-jest: 27.0.5_g2mfyom6zaxqcgedxrl4lakegu
       ts-node: 10.8.0_ysvagj6uoj2jcpx4fli7niyicq
       typescript: 4.7.2
       zip-lib: 0.7.2
@@ -697,7 +697,7 @@ importers:
       prettier-plugin-organize-imports: 2.3.4_pxx7xhvr2bexxfjjff3nukai7m
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
-      ts-jest: 27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm
+      ts-jest: 27.0.5_g2mfyom6zaxqcgedxrl4lakegu
       typescript: 4.7.2
       webpack: 5.74.0
 
@@ -7611,7 +7611,7 @@ packages:
       error-stack-parser: 2.0.6
       find-up: 5.0.0
       html-entities: 2.3.3
-      loader-utils: 2.0.0
+      loader-utils: 2.0.2
       react-refresh: 0.11.0
       schema-utils: 3.1.1
       source-map: 0.7.3
@@ -9688,7 +9688,7 @@ packages:
     dependencies:
       '@babel/core': 7.18.6
       find-cache-dir: 3.3.2
-      loader-utils: 2.0.0
+      loader-utils: 2.0.2
       make-dir: 3.1.0
       schema-utils: 2.7.1
       webpack: 5.74.0
@@ -11046,7 +11046,7 @@ packages:
       webpack: ^4.27.0 || ^5.0.0
     dependencies:
       icss-utils: 5.1.0_postcss@8.3.9
-      loader-utils: 2.0.0
+      loader-utils: 2.0.2
       postcss: 8.3.9
       postcss-modules-extract-imports: 3.0.0_postcss@8.3.9
       postcss-modules-local-by-default: 4.0.0_postcss@8.3.9
@@ -12869,7 +12869,7 @@ packages:
     peerDependencies:
       webpack: ^4.0.0 || ^5.0.0
     dependencies:
-      loader-utils: 2.0.0
+      loader-utils: 2.0.2
       schema-utils: 3.1.1
       webpack: 5.74.0
 
@@ -15318,7 +15318,7 @@ packages:
     resolution: {integrity: sha512-aKS4WQjPenRxiQsC93MNfjx+nbF4PAdYzmd/1JIj8HYzqfbu86beTuNgXDzPknWk0n0uARlyewZo4s++ES36Ow==}
     hasBin: true
     dependencies:
-      minimist: 1.2.5
+      minimist: 1.2.6
     dev: false
 
   /json5/2.2.0:
@@ -15558,6 +15558,15 @@ packages:
 
   /loader-utils/2.0.0:
     resolution: {integrity: sha512-rP4F0h2RaWSvPEkD7BLDFQnvSf+nK+wr3ESUjNTyAGobqrijmW92zc+SO6d4p4B1wh7+B/Jg1mkQe5NYUEHtHQ==}
+    engines: {node: '>=8.9.0'}
+    dependencies:
+      big.js: 5.2.2
+      emojis-list: 3.0.0
+      json5: 2.2.1
+    dev: false
+
+  /loader-utils/2.0.2:
+    resolution: {integrity: sha512-TM57VeHptv569d/GKh6TAYdzKblwDNiumOdkFnejjD0XwTH87K90w3O7AiJRqdQoXygvi1VQTJTLGhJl7WqA7A==}
     engines: {node: '>=8.9.0'}
     dependencies:
       big.js: 5.2.2
@@ -20350,7 +20359,7 @@ packages:
     peerDependencies:
       webpack: ^4.0.0 || ^5.0.0
     dependencies:
-      loader-utils: 2.0.0
+      loader-utils: 2.0.2
       schema-utils: 3.1.1
       webpack: 5.74.0_esbuild@0.14.19
     dev: false
@@ -20866,7 +20875,7 @@ packages:
     resolution: {integrity: sha512-3IVX4nI6B5cc31/GFFE+i8ey/N2eA0CZDbo6n0yrz0zDX8ZJ8djmU1p+XRz7G3is0F3bB3pu2pAroFdAWQKU3w==}
     dev: false
 
-  /ts-jest/27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm:
+  /ts-jest/27.0.5_g2mfyom6zaxqcgedxrl4lakegu:
     resolution: {integrity: sha512-lIJApzfTaSSbtlksfFNHkWOzLJuuSm4faFAfo5kvzOiRAuoN4/eKxVJ2zEAho8aecE04qX6K1pAzfH5QHL1/8w==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     hasBin: true
@@ -20884,6 +20893,7 @@ packages:
       babel-jest:
         optional: true
     dependencies:
+      '@babel/core': 7.18.6
       '@types/jest': 27.4.0
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
@@ -21557,7 +21567,7 @@ packages:
         optional: true
     dependencies:
       file-loader: 6.2.0_webpack@5.74.0
-      loader-utils: 2.0.0
+      loader-utils: 2.0.2
       mime-types: 2.1.33
       schema-utils: 3.1.1
       webpack: 5.74.0
