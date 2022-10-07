@@ -169,10 +169,11 @@ export const render = async (remotionRoot: string) => {
 		inputProps,
 		puppeteerInstance,
 		envVariables,
-		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: puppeteerTimeout,
 		chromiumOptions,
 		browserExecutable,
 		downloadMap,
+		port,
 	});
 
 	const config = comps.find((c) => c.id === compositionId);
