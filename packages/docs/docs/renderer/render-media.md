@@ -368,6 +368,8 @@ Before you use this hack, reach out to the Remotion team on [Discord](https://re
 
 ## Return Value
 
+_Available since 3.2.29_
+
 Returns a promise that resolves to an object with keys `buffer` and `slowestFrames`. `slowestFrames` is an array of 10 slowest frames in form of `{index:<Frame number>, time:<Time to render frame ms>}`. You can use this information to optimise your render times.
 
 ## See also
