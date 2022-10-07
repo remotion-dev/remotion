@@ -5,10 +5,10 @@ sidebar_label: benchmark
 
 _available from v3.2.28_
 
-Allows you to benchmark your remotion version against a certain entry file. This command was added in v3.2.28. The only argument to pass is the entry file and codec:
+Measures render time by running a render multiple times, if desired with multiple compositions and concurrency values to compare against each other.
 
 ```bash
-npx remotion benchmark src/index.tsx [composition-name]
+npx remotion benchmark src/index.tsx [composition-ids]
 ```
 
 You can provide multiple composition IDs separated by comma, ex: `npx remotion benchmark ./src/index --codec=h264 Main,Canvas,CSS`
@@ -170,3 +170,21 @@ Inherited from [`npx remotion render`](/docs/cli/render#--enforce-audio-track)
 _optional_
 
 Inherited from [`npx remotion render`](/docs/cli/render#--browser-executable)
+
+### `--public-dir`
+
+_optional_
+
+Inherited from [`npx remotion render`](/docs/cli/render#--public-dir)
+
+### `--config`
+
+_optional_
+
+Inherited from [`npx remotion render`](/docs/cli/render#--config)
+
+### `--bundle-cache`
+
+_optional_
+
+Inherited from [`npx remotion render`](/docs/cli/render#--bundle-cache)

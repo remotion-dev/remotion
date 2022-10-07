@@ -28,7 +28,7 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/cli/benchmark">
           <strong>benchmark</strong>
-          <div>Benchmark remotion version</div>
+          <div>Measure and optimize render time</div>
         </TOCItem>
         <TOCItem link="/docs/cli/versions">
           <strong>versions</strong>
