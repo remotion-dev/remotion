@@ -1,11 +1,20 @@
 import type {ForwardRefExoticComponent, RefAttributes} from 'react';
-import React, {forwardRef, useEffect, useImperativeHandle, useRef} from 'react';
+import React, {
+	forwardRef,
+	useEffect,
+	useImperativeHandle,
+	useRef,
+	useState,
+} from 'react';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame';
+import {continueRender, delayRender} from '../delay-render';
+import {Loop} from '../loop';
 import {usePreload} from '../prefetch';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
+import {useVideoConfig} from '../use-video-config';
 import {
 	useMediaMutedState,
 	useMediaVolumeState,
@@ -22,7 +31,11 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 > = (props, ref) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
 
+	const [checkLoop] = useState(() => delayRender());
+	const videoDuration = useRef<number | null>(null);
+
 	const volumePropFrame = useFrameForVolumeProp();
+	const {fps} = useVideoConfig();
 
 	const {
 		volume,
@@ -78,6 +91,11 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
+		current.onloadedmetadata = () => {
+			videoDuration.current = current.duration;
+			continueRender(checkLoop);
+		};
+
 		const errorHandler = () => {
 			if (current?.error) {
 				console.error('Error occurred in video', current?.error);
@@ -93,11 +111,24 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return () => {
 			current.removeEventListener('error', errorHandler);
 		};
-	}, [src]);
+	}, [src, checkLoop]);
+
+	if (props.loop && videoDuration.current) {
+		return (
+			<Loop durationInFrames={Math.round(videoDuration.current * fps)}>
+				<VideoForDevelopment
+					{...props}
+					ref={videoRef}
+					src={actualSrc}
+					loop={false}
+				/>
+			</Loop>
+		);
+	}
 
 	return (
 		<video
-			ref={videoRef}
+      ref={videoRef}
 			muted={muted || mediaMuted}
 			playsInline
 			src={actualSrc}

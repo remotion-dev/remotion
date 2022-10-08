@@ -19,7 +19,7 @@ export const VideoTesting: React.FC<{
 	return (
 		<div>
 			<Sequence from={0} durationInFrames={durationInFrames}>
-				<Comp src={codec === 'mp4' ? videoMp4 : videoWebm} />
+				<Comp loop src={codec === 'mp4' ? videoMp4 : videoWebm} />
 			</Sequence>
 		</div>
 	);
