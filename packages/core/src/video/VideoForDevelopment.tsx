@@ -1,13 +1,6 @@
 import type {ForwardRefExoticComponent, RefAttributes} from 'react';
-import React, {
-	forwardRef,
-	useEffect,
-	useImperativeHandle,
-	useRef,
-	useState,
-} from 'react';
+import React, {forwardRef, useEffect, useImperativeHandle, useRef} from 'react';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame';
-import {continueRender, delayRender} from '../delay-render';
 import {usePreload} from '../prefetch';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
@@ -29,8 +22,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	VideoForDevelopmentProps
 > = (props, ref) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
-
-	const [checkLoop] = useState(() => delayRender());
 
 	const volumePropFrame = useFrameForVolumeProp();
 
@@ -91,7 +82,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 		current.onloadedmetadata = () => {
 			onDuration(src as string, current.duration);
-			continueRender(checkLoop);
 		};
 
 		const errorHandler = () => {
@@ -109,7 +99,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return () => {
 			current.removeEventListener('error', errorHandler);
 		};
-	}, [src, checkLoop, onDuration]);
+	}, [src, onDuration]);
 
 	return (
 		<video
