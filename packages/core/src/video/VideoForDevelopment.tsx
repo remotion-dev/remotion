@@ -128,7 +128,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	return (
 		<video
-      ref={videoRef}
+			ref={videoRef}
 			muted={muted || mediaMuted}
 			playsInline
 			src={actualSrc}
