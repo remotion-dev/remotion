@@ -8,13 +8,11 @@ import React, {
 } from 'react';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame';
 import {continueRender, delayRender} from '../delay-render';
-import {Loop} from '../loop';
 import {usePreload} from '../prefetch';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
-import {useVideoConfig} from '../use-video-config';
 import {
 	useMediaMutedState,
 	useMediaVolumeState,
@@ -23,6 +21,7 @@ import type {RemotionVideoProps} from './props';
 
 type VideoForDevelopmentProps = RemotionVideoProps & {
 	onlyWarnForMediaSeekingError: boolean;
+	onDuration: (src: string, durationInSeconds: number) => void;
 };
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -32,10 +31,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	const videoRef = useRef<HTMLVideoElement>(null);
 
 	const [checkLoop] = useState(() => delayRender());
-	const videoDuration = useRef<number | null>(null);
 
 	const volumePropFrame = useFrameForVolumeProp();
-	const {fps} = useVideoConfig();
 
 	const {
 		volume,
@@ -43,6 +40,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		onlyWarnForMediaSeekingError,
 		src,
+		onDuration,
 		...nativeProps
 	} = props;
 
@@ -92,7 +90,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		}
 
 		current.onloadedmetadata = () => {
-			videoDuration.current = current.duration;
+			onDuration(src as string, current.duration);
 			continueRender(checkLoop);
 		};
 
@@ -111,20 +109,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return () => {
 			current.removeEventListener('error', errorHandler);
 		};
-	}, [src, checkLoop]);
-
-	if (props.loop && videoDuration.current) {
-		return (
-			<Loop durationInFrames={Math.round(videoDuration.current * fps)}>
-				<VideoForDevelopment
-					{...props}
-					ref={videoRef}
-					src={actualSrc}
-					loop={false}
-				/>
-			</Loop>
-		);
-	}
+	}, [src, checkLoop, onDuration]);
 
 	return (
 		<video
