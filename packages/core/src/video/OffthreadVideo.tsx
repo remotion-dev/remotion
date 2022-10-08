@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {getRemotionEnvironment} from '../get-environment';
 import {Sequence} from '../Sequence';
 import {validateMediaProps} from '../validate-media-props';
@@ -12,6 +12,8 @@ export const OffthreadVideo: React.FC<
 	OffthreadVideoProps & RemotionMainVideoProps
 > = (props) => {
 	const {startFrom, endAt, ...otherProps} = props;
+
+	const onDuration = useCallback(() => undefined, []);
 
 	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined') {
 		validateStartFromProps(startFrom, endAt);
@@ -37,5 +39,11 @@ export const OffthreadVideo: React.FC<
 		return <OffthreadVideoForRendering {...otherProps} />;
 	}
 
-	return <VideoForDevelopment onlyWarnForMediaSeekingError {...otherProps} />;
+	return (
+		<VideoForDevelopment
+			onDuration={onDuration}
+			onlyWarnForMediaSeekingError
+			{...otherProps}
+		/>
+	);
 };
