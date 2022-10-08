@@ -71,7 +71,7 @@ Your package.json should look like the following:
 - Go to [AWS account IAM Roles section](https://console.aws.amazon.com/iamv2/home#/roles)
 - Click "Create role".
 - Under "Use cases", select "Lambda". Click next.
-- Under "Attach permissions policies", filter for `remotion-lambda-policy` and click the checkbox to assign this policy. Click next.
+- Under "Permissions policies", filter for `remotion-lambda-policy` and click the checkbox to assign this policy. Click next.
 - In the final step, name the role `remotion-lambda-role` **exactly**. You can leave the other fields as is.
 - Click "Create role" to confirm.
 
