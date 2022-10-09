@@ -60,6 +60,7 @@ test('Should add silent audio if there is no audio', async () => {
 			version: VERSION,
 			overwrite: true,
 			webhook: undefined,
+			webhookSecret: undefined,
 		},
 		extraContext
 	);

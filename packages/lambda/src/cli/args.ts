@@ -28,6 +28,7 @@ type LambdaCommandLineOptions = {
 	['custom-role-arn']: string | undefined;
 	privacy: Privacy;
 	webhook: string | undefined;
+	webhookSecret: string | undefined;
 };
 
 export const parsedLambdaCli = minimist<LambdaCommandLineOptions>(

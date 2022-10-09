@@ -63,6 +63,7 @@ test('Should be able to render to another bucket', async () => {
 			version: VERSION,
 			overwrite: true,
 			webhook: undefined,
+			webhookSecret: undefined,
 		},
 		extraContext
 	);

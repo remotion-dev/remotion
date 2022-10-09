@@ -6,7 +6,7 @@ import {lambdaWriteFile} from './io';
 import {errorIsOutOfSpaceError} from './is-enosp-err';
 
 export type LambdaErrorInfo = {
-	type: 'renderer' | 'browser' | 'stitcher';
+	type: 'renderer' | 'browser' | 'stitcher' | 'webhook';
 	message: string;
 	name: string;
 	stack: string;
