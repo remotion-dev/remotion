@@ -134,7 +134,7 @@ const jsonParser = bodyParser.json();
 
 // Express API endpoint
 router.post("/my-remotion-webhook-endpoint", jsonParser, (req, res) => {
-  if (signature === "NO_SECRET_PROVIDED") {
+  if (req.header("X-Remotion-Signature") === "NO_SECRET_PROVIDED") {
     // webhook request is not signed
   }
 
