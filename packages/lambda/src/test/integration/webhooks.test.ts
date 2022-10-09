@@ -112,6 +112,7 @@ describe('Webhooks', () => {
 					'Content-Type': 'application/json',
 					'X-Remotion-Signature': expect.stringContaining('sha512='),
 					'X-Remotion-Status': 'success',
+					'X-Remotion-Mode': 'production',
 				},
 				timeout: 5000,
 			},
@@ -177,6 +178,7 @@ describe('Webhooks', () => {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
+					'X-Remotion-Mode': 'production',
 					'X-Remotion-Signature': expect.stringContaining('sha512='),
 					'X-Remotion-Status': 'timeout',
 				},
