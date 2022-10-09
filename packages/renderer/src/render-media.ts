@@ -359,7 +359,7 @@ export const renderMedia = ({
 			slowestFrames.pop();
 		}
 
-		minTime = slowestFrames.at(-1)?.time ?? minTime;
+		minTime = slowestFrames[slowestFrames.length - 1]?.time ?? minTime;
 	};
 
 	const happyPath = createPrestitcherIfNecessary()
