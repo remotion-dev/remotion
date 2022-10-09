@@ -1,5 +1,6 @@
 import {getLottieMetadata, Lottie, LottieAnimationData} from '@remotion/lottie';
-import {useEffect, useState} from 'react';
+import {AnimationItem} from 'lottie-web';
+import {useCallback, useEffect, useState} from 'react';
 import {
 	continueRender,
 	delayRender,
@@ -27,6 +28,10 @@ const LottieLoader = () => {
 			});
 	}, [handle]);
 
+	const onAnimationLoaded = useCallback((item: AnimationItem) => {
+		console.log(item.renderer);
+	}, []);
+
 	if (!animationData) {
 		return null;
 	}
@@ -35,7 +40,14 @@ const LottieLoader = () => {
 	const nLoop = df && frame > 0 ? Math.ceil(frame / df) : 1;
 	const direction = nLoop % 2 === 0 ? 'backward' : 'forward';
 
-	return <Lottie loop animationData={animationData} direction={direction} />;
+	return (
+		<Lottie
+			loop
+			animationData={animationData}
+			direction={direction}
+			onAnimationLoaded={onAnimationLoaded}
+		/>
+	);
 };
 
 export default LottieLoader;
