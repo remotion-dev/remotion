@@ -100,8 +100,16 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			try {
 				await invokeWebhook({
 					url: params.webhook,
+					secret: params.webhookSecret,
 					type: 'timeout',
 					renderId: params.renderId,
+					expectedBucketOwner: options.expectedBucketOwner,
+					bucketName: params.bucketName,
+					outputUrl: undefined,
+					errors: [],
+					lambdaErrors: [],
+					outputFile: undefined,
+					timeToFinish: undefined,
 				});
 				webhookInvoked = true;
 			} catch (err) {
@@ -109,6 +117,24 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 					throw err;
 				}
 
+				await writeLambdaError({
+					bucketName: params.bucketName,
+					errorInfo: {
+						type: 'webhook',
+						message: (err as Error).message,
+						name: (err as Error).name as string,
+						stack: (err as Error).stack as string,
+						tmpDir: null,
+						frame: 0,
+						chunk: 0,
+						isFatal: false,
+						attempt: 1,
+						willRetry: false,
+						totalAttempts: 1,
+					},
+					renderId: params.renderId,
+					expectedBucketOwner: options.expectedBucketOwner,
+				});
 				console.log('Failed to invoke webhook:');
 				console.log(err);
 			}
@@ -501,6 +527,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		jobs,
 	});
 
+	const outputUrl = getOutputUrlFromMetadata(
+		renderMetadata,
+		params.bucketName,
+		customCredentials
+	)
 	const postRenderData = createPostRenderData({
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
@@ -514,11 +545,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		outputFile: {
 			lastModified: Date.now(),
 			size: outputSize.size,
-			url: getOutputUrlFromMetadata(
-				renderMetadata,
-				params.bucketName,
-				customCredentials
-			),
+			url: outputUrl,
 		},
 	});
 	await finalEncodingProgressProm;
@@ -543,8 +570,16 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		try {
 			await invokeWebhook({
 				url: params.webhook,
+				secret: params.webhookSecret,
 				type: 'success',
 				renderId: params.renderId,
+				expectedBucketOwner: options.expectedBucketOwner,
+				bucketName: params.bucketName,
+				outputUrl,
+				errors: [],
+				lambdaErrors: postRenderData.errors,
+				outputFile: postRenderData.outputFile,
+				timeToFinish: postRenderData.timeToFinish
 			});
 			webhookInvoked = true;
 		} catch (err) {
@@ -552,6 +587,24 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 				throw err;
 			}
 
+			await writeLambdaError({
+				bucketName: params.bucketName,
+				errorInfo: {
+					type: 'webhook',
+					message: (err as Error).message,
+					name: (err as Error).name as string,
+					stack: (err as Error).stack as string,
+					tmpDir: null,
+					frame: 0,
+					chunk: 0,
+					isFatal: false,
+					attempt: 1,
+					willRetry: false,
+					totalAttempts: 1,
+				},
+				renderId: params.renderId,
+				expectedBucketOwner: options.expectedBucketOwner,
+			});
 			console.log('Failed to invoke webhook:');
 			console.log(err);
 		}
@@ -596,14 +649,40 @@ export const launchHandler = async (
 			try {
 				await invokeWebhook({
 					url: params.webhook,
+					secret: params.webhookSecret,
 					type: 'error',
 					renderId: params.renderId,
+					expectedBucketOwner: options.expectedBucketOwner,
+					bucketName: params.bucketName,
+					lambdaErrors: [],
+					errors: [err as Error],
+					outputUrl: undefined,
+					outputFile: undefined,
+					timeToFinish: undefined,
 				});
 			} catch (error) {
 				if (process.env.NODE_ENV === 'test') {
 					throw error;
 				}
 
+				await writeLambdaError({
+					bucketName: params.bucketName,
+					errorInfo: {
+						type: 'webhook',
+						message: (err as Error).message,
+						name: (err as Error).name as string,
+						stack: (err as Error).stack as string,
+						tmpDir: null,
+						frame: 0,
+						chunk: 0,
+						isFatal: false,
+						attempt: 1,
+						willRetry: false,
+						totalAttempts: 1,
+					},
+					renderId: params.renderId,
+					expectedBucketOwner: options.expectedBucketOwner,
+				});
 				console.log('Failed to invoke webhook:');
 				console.log(error);
 			}

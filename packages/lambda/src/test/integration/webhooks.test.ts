@@ -87,6 +87,7 @@ describe('Webhooks', () => {
 				version: VERSION,
 				overwrite: true,
 				webhook: TEST_URL,
+				webhookSecret: 'TEST_SECRET'
 			},
 			extraContext
 		);
@@ -109,7 +110,7 @@ describe('Webhooks', () => {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'X-Remotion-Signature': expect.stringContaining('sha1='),
+					'X-Remotion-Signature': expect.stringContaining('sha512='),
 					'X-Remotion-Status': 'success',
 				},
 				timeout: 5000,
@@ -153,6 +154,7 @@ describe('Webhooks', () => {
 				version: VERSION,
 				overwrite: true,
 				webhook: TEST_URL,
+				webhookSecret: 'TEST_SECRET'
 			},
 			extraContext
 		);
@@ -175,7 +177,7 @@ describe('Webhooks', () => {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'X-Remotion-Signature': expect.stringContaining('sha1='),
+					'X-Remotion-Signature': expect.stringContaining('sha512='),
 					'X-Remotion-Status': 'timeout',
 				},
 				timeout: 5000,
