@@ -51,7 +51,8 @@ export type StitchingState = 'encoding' | 'muxing';
 
 const SLOWEST_FRAME_COUNT = 10;
 
-export type FrameTime = {index: number; time: number};
+export type SlowFrame = {frame: number; time: number};
+export type OnSlowestFrames = (frames: SlowFrame[]) => void;
 
 export type RenderMediaOnProgress = (progress: {
 	renderedFrames: number;
@@ -99,6 +100,7 @@ export type RenderMediaOptions = {
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
 	ffmpegOverride?: FfmpegOverrideFn;
+	onSlowestFrames?: OnSlowestFrames;
 } & ServeUrlOrWebpackBundle &
 	ConcurrencyOrParallelism;
 
@@ -160,6 +162,7 @@ export const renderMedia = ({
 	muted,
 	enforceAudioTrack,
 	ffmpegOverride,
+	onSlowestFrames,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
 	validateQuality(options.quality);
@@ -318,7 +321,7 @@ export const renderMedia = ({
 	const mediaSupport = codecSupportsMedia(codec);
 	const disableAudio = !mediaSupport.audio || muted;
 
-	const slowestFrames: FrameTime[] = [];
+	const slowestFrames: SlowFrame[] = [];
 	let maxTime = 0;
 	let minTime = 0;
 	let startTime = performance.now();
@@ -332,7 +335,7 @@ export const renderMedia = ({
 			return;
 		}
 
-		const frameTime: FrameTime = {index: frameIndex, time};
+		const frameTime: SlowFrame = {frame: frameIndex, time};
 
 		if (time < minTime && slowestFrames.length === SLOWEST_FRAME_COUNT) {
 			return;
@@ -465,6 +468,7 @@ export const renderMedia = ({
 			encodedFrames = getFramesToRender(realFrameRange, everyNthFrame).length;
 			encodedDoneIn = Date.now() - stitchStart;
 			callUpdate();
+			onSlowestFrames?.(slowestFrames);
 			return buffer;
 		})
 		.catch((err) => {

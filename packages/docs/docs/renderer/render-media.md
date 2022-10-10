@@ -366,11 +366,29 @@ Using this feature is discouraged. Before using it, we want to make you aware of
 Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
 :::
 
+### `onSlowestFrames?`
+
+_available from v3.2.29_
+
+Callback function that gets called right before `renderMedia()` resolves.  
+The only argument `slowestFrames` is an array of the 10 slowest frames in the shape of `{frame:<Frame number>, time:<Time to render frame ms>}`. You can use this information to optimise your render times.
+
+```tsx twoslash
+import type { OnSlowestFrames } from "@remotion/renderer";
+
+const onSlowestFrames: OnSlowestFrames = (slowestFrames) => {
+  console.log("The slowest 10 frames are:");
+  for (const slowFrame of slowestFrames) {
+    console.log(`Frame ${slowFrame.frame} (${slowFrame.time}ms)`);
+  }
+};
+```
+
 ## Return Value
 
-_Available since 3.2.29_
+_since v3.0.26_
 
-Returns a promise that resolves to an object with keys `buffer` and `slowestFrames`. `slowestFrames` is an array of 10 slowest frames in form of `{index:<Frame number>, time:<Time to render frame ms>}`. You can use this information to optimise your render times.
+If `outputLocation` is not specified or `null`, the return value is a Promise that resolves a `Buffer`. If an output location is specified, the return value is a Promise that resolves no value.
 
 ## See also
 
