@@ -201,6 +201,13 @@ const renderHandler = async (
 			enforceAudioTrack: true,
 			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,
+			onSlowestFrames: (slowestFrames) => {
+				console.log();
+				console.log(`Slowest frames:`);
+				slowestFrames.forEach(({frame, time}) => {
+					console.log(`Frame ${frame} (${time.toFixed(3)}ms)`);
+				});
+			},
 		})
 			.then(() => resolve())
 			.catch((err) => reject(err));

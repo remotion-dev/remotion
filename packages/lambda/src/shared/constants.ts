@@ -194,6 +194,11 @@ export enum LambdaRoutines {
 	still = 'still',
 }
 
+type WebhookOption = null | {
+	url: string;
+	secret: string | null;
+};
+
 export type LambdaPayloads = {
 	info: {
 		type: LambdaRoutines.info;
@@ -228,6 +233,7 @@ export type LambdaPayloads = {
 		overwrite: boolean;
 		audioBitrate?: string | null;
 		videoBitrate?: string | null;
+		webhook: WebhookOption;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -260,6 +266,7 @@ export type LambdaPayloads = {
 		overwrite: boolean;
 		audioBitrate?: string | null;
 		videoBitrate?: string | null;
+		webhook: WebhookOption;
 	};
 	status: {
 		type: LambdaRoutines.status;

@@ -1,6 +1,6 @@
 ---
 id: rosetta
-sidebar_label: Rosetta
+sidebar_label: Apple Silicon detected
 title: Apple Silicon under Rosetta
 ---
 

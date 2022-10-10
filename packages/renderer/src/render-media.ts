@@ -48,6 +48,11 @@ import {validateScale} from './validate-scale';
 
 export type StitchingState = 'encoding' | 'muxing';
 
+const SLOWEST_FRAME_COUNT = 10;
+
+export type SlowFrame = {frame: number; time: number};
+export type OnSlowestFrames = (frames: SlowFrame[]) => void;
+
 export type RenderMediaOnProgress = (progress: {
 	renderedFrames: number;
 	encodedFrames: number;
@@ -96,6 +101,8 @@ export type RenderMediaOptions = {
 	ffmpegOverride?: FfmpegOverrideFn;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
+	onSlowestFrames?: OnSlowestFrames;
+	disallowParallelEncoding?: boolean;
 } & ServeUrlOrWebpackBundle &
 	ConcurrencyOrParallelism;
 
@@ -159,6 +166,7 @@ export const renderMedia = ({
 	ffmpegOverride,
 	audioBitrate,
 	videoBitrate,
+	onSlowestFrames,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
 	validateQuality(options.quality);
@@ -199,7 +207,10 @@ export const renderMedia = ({
 			height: composition.height,
 			width: composition.width,
 		});
-	const parallelEncoding = hasEnoughMemory && canUseParallelEncoding(codec);
+	const parallelEncoding =
+		!options.disallowParallelEncoding &&
+		hasEnoughMemory &&
+		canUseParallelEncoding(codec);
 
 	if (options.verbose) {
 		console.log(
@@ -209,8 +220,12 @@ export const renderMedia = ({
 			estimatedUsage
 		);
 		console.log(
-			'[PRESTICHER]: Codec supports parallel rendering:',
+			'[PRESTITCHER]: Codec supports parallel rendering:',
 			canUseParallelEncoding(codec)
+		);
+		console.log(
+			'[PRESTITCHER]: User disallowed parallel encoding:',
+			Boolean(options.disallowParallelEncoding)
 		);
 		if (parallelEncoding) {
 			console.log('[PRESTITCHER] Parallel encoding is enabled.');
@@ -317,13 +332,48 @@ export const renderMedia = ({
 	const mediaSupport = codecSupportsMedia(codec);
 	const disableAudio = !mediaSupport.audio || muted;
 
+	const slowestFrames: SlowFrame[] = [];
+	let maxTime = 0;
+	let minTime = 0;
+
+	const recordFrameTime = (frameIndex: number, time: number) => {
+		const frameTime: SlowFrame = {frame: frameIndex, time};
+
+		if (time < minTime && slowestFrames.length === SLOWEST_FRAME_COUNT) {
+			return;
+		}
+
+		if (time > maxTime) {
+			// add at starting;
+			slowestFrames.unshift(frameTime);
+			maxTime = time;
+		} else {
+			// add frame at appropriate position
+			const index = slowestFrames.findIndex(
+				({time: indexTime}) => indexTime < time
+			);
+			slowestFrames.splice(index, 0, frameTime);
+		}
+
+		if (slowestFrames.length > SLOWEST_FRAME_COUNT) {
+			slowestFrames.pop();
+		}
+
+		minTime = slowestFrames[slowestFrames.length - 1]?.time ?? minTime;
+	};
+
 	const happyPath = createPrestitcherIfNecessary()
 		.then(() => {
 			const renderFramesProc = renderFrames({
 				config: composition,
-				onFrameUpdate: (frame: number) => {
+				onFrameUpdate: (
+					frame: number,
+					frameIndex: number,
+					timeToRenderInMilliseconds
+				) => {
 					renderedFrames = frame;
 					callUpdate();
+					recordFrameTime(frameIndex, timeToRenderInMilliseconds);
 				},
 				concurrency,
 				outputDir,
@@ -426,6 +476,8 @@ export const renderMedia = ({
 			encodedFrames = getFramesToRender(realFrameRange, everyNthFrame).length;
 			encodedDoneIn = Date.now() - stitchStart;
 			callUpdate();
+			slowestFrames.sort((a, b) => b.time - a.time);
+			onSlowestFrames?.(slowestFrames);
 			return buffer;
 		})
 		.catch((err) => {

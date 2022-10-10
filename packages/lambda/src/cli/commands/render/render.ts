@@ -73,7 +73,7 @@ export const renderCommand = async (args: string[]) => {
 		muted,
 		overwrite,
 		audioBitrate,
-		videoBitrate
+		videoBitrate,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -121,6 +121,12 @@ export const renderCommand = async (args: string[]) => {
 		overwrite,
 		audioBitrate,
 		videoBitrate,
+		webhook: parsedLambdaCli.webhook
+			? {
+					url: parsedLambdaCli.webhook,
+					secret: parsedLambdaCli['webhook-secret'] ?? null,
+			  }
+			: undefined,
 	});
 
 	const totalSteps = downloadName ? 5 : 4;
