@@ -476,6 +476,7 @@ export const renderMedia = ({
 			encodedFrames = getFramesToRender(realFrameRange, everyNthFrame).length;
 			encodedDoneIn = Date.now() - stitchStart;
 			callUpdate();
+			slowestFrames.sort((a, b) => b.time - a.time);
 			onSlowestFrames?.(slowestFrames);
 			return buffer;
 		})
