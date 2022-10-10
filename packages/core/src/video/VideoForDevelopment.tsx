@@ -80,10 +80,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		current.onloadedmetadata = () => {
-			onDuration(src as string, current.duration);
-		};
-
 		const errorHandler = () => {
 			if (current?.error) {
 				console.error('Error occurred in video', current?.error);
@@ -99,7 +95,32 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return () => {
 			current.removeEventListener('error', errorHandler);
 		};
-	}, [src, onDuration]);
+	}, [src]);
+
+	const currentOnDurationCallback =
+		useRef<VideoForDevelopmentProps['onDuration']>();
+	currentOnDurationCallback.current = onDuration;
+
+	useEffect(() => {
+		const {current} = videoRef;
+		if (!current) {
+			return;
+		}
+
+		if (current.duration) {
+			currentOnDurationCallback.current?.(src as string, current.duration);
+			return;
+		}
+
+		const onLoadedMetadata = () => {
+			currentOnDurationCallback.current?.(src as string, current.duration);
+		};
+
+		current.addEventListener('loadedmetadata', onLoadedMetadata);
+		return () => {
+			current.removeEventListener('loadedmetadata', onLoadedMetadata);
+		};
+	}, [src]);
 
 	return (
 		<video
