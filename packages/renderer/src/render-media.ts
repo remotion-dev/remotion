@@ -2,7 +2,6 @@ import type {ExecaChildProcess} from 'execa';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import {performance} from 'perf_hooks';
 import type {SmallTCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -332,17 +331,8 @@ export const renderMedia = ({
 	const slowestFrames: SlowFrame[] = [];
 	let maxTime = 0;
 	let minTime = 0;
-	let startTime = performance.now();
 
-	const recordFrameTime = (frameIndex: number) => {
-		const time = performance.now() - startTime;
-		startTime = performance.now();
-
-		// ignore first frame
-		if (frameIndex <= 1) {
-			return;
-		}
-
+	const recordFrameTime = (frameIndex: number, time: number) => {
 		const frameTime: SlowFrame = {frame: frameIndex, time};
 
 		if (time < minTime && slowestFrames.length === SLOWEST_FRAME_COUNT) {
@@ -372,10 +362,14 @@ export const renderMedia = ({
 		.then(() => {
 			const renderFramesProc = renderFrames({
 				config: composition,
-				onFrameUpdate: (frame: number, frameIndex: number) => {
+				onFrameUpdate: (
+					frame: number,
+					frameIndex: number,
+					timeToRenderInMilliseconds
+				) => {
 					renderedFrames = frame;
 					callUpdate();
-					recordFrameTime(frameIndex);
+					recordFrameTime(frameIndex, timeToRenderInMilliseconds);
 				},
 				concurrency,
 				outputDir,
