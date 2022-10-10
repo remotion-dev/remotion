@@ -94,6 +94,7 @@ export type RenderMediaOptions = {
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
 	ffmpegOverride?: FfmpegOverrideFn;
+	disallowParallelEncoding?: boolean;
 } & ServeUrlOrWebpackBundle &
 	ConcurrencyOrParallelism;
 
@@ -195,7 +196,10 @@ export const renderMedia = ({
 			height: composition.height,
 			width: composition.width,
 		});
-	const parallelEncoding = hasEnoughMemory && canUseParallelEncoding(codec);
+	const parallelEncoding =
+		!options.disallowParallelEncoding &&
+		hasEnoughMemory &&
+		canUseParallelEncoding(codec);
 
 	if (options.verbose) {
 		console.log(
@@ -205,11 +209,15 @@ export const renderMedia = ({
 			estimatedUsage
 		);
 		console.log(
-			'[PRESTICHER]: Codec supports parallel rendering:',
+			'[PRESTITCHER]: Codec supports parallel rendering:',
 			canUseParallelEncoding(codec)
 		);
+		console.log(
+			'[PRESTITCHER]: User disallowed parallel encoding:',
+			Boolean(options.disallowParallelEncoding)
+		);
 		if (parallelEncoding) {
-			console.log('[PRESTICHER] Parallel encoding is enabled.');
+			console.log('[PRESTITCHER] Parallel encoding is enabled.');
 		} else {
 			console.log('[PRESTITCHER] Parallel encoding is disabled.');
 		}

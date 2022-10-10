@@ -165,7 +165,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		);
 	}
 
-	validateOutname(params.outName);
+	validateOutname(params.outName, params.codec);
 	validatePrivacy(params.privacy);
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 
@@ -528,6 +528,10 @@ export const launchHandler = async (
 	try {
 		await innerLaunchHandler(params, options);
 	} catch (err) {
+		if (process.env.NODE_ENV === 'test') {
+			throw err;
+		}
+
 		console.log('Error occurred', err);
 		await writeLambdaError({
 			bucketName: params.bucketName,

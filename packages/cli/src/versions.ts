@@ -97,7 +97,7 @@ export const validateVersionsBeforeCommand = async (remotionRoot: string) => {
 };
 
 export const versionsCommand = async (remotionRoot: string) => {
-	parseCommandLine('versions');
+	parseCommandLine();
 	const versions = await getAllVersions(remotionRoot);
 
 	const grouped = groupBy(versions);

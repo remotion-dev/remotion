@@ -65,7 +65,7 @@ The constant rate factor, controlling the quality. See: [Controlling quality usi
 
 ### `imageFormat?`
 
-_"jpeg" (default) | "png" | "none" - optional since v3.2.26_
+_"jpeg" (default) | "png" | "none" - optional since v3.2.27_
 
 In which image format the frames should be rendered.
 
@@ -181,7 +181,15 @@ _function - optional_
 
 React to render progress. The following callback function is similar to how Remotion displays render progress on it's CLI:
 
-```tsx twoslash
+```tsx twoslash title="Simple example - Log overall progress"
+import { RenderMediaOnProgress } from "@remotion/renderer";
+
+const onProgress: RenderMediaOnProgress = ({ progress }) => {
+  console.log(`Rendering is ${progress * 100}% complete`);
+};
+```
+
+```tsx twoslash title="Advanced example - Fine-grained progress values"
 import { RenderMediaOnProgress } from "@remotion/renderer";
 
 const onProgress: RenderMediaOnProgress = ({
@@ -190,10 +198,7 @@ const onProgress: RenderMediaOnProgress = ({
   encodedDoneIn,
   renderedDoneIn,
   stitchStage,
-  progress,
 }) => {
-  console.log(`Rendering is ${progress * 100}% complete`);
-
   if (stitchStage === "encoding") {
     // First pass, parallel rendering of frames and encoding into video
     console.log("Encoding...");
@@ -217,7 +222,7 @@ const onProgress: RenderMediaOnProgress = ({
 ```
 
 :::note
-The `progress` attribute is available from v3.2.17
+The `progress` attribute is available from v3.2.17.
 :::
 
 ### `onDownload?`
@@ -365,6 +370,12 @@ Using this feature is discouraged. Before using it, we want to make you aware of
 
 Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
 :::
+
+### `disallowParallelEncoding`
+
+_available from v3.2.29_
+
+Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
 
 ## See also
 

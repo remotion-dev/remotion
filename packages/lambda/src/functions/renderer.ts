@@ -258,6 +258,10 @@ export const rendererHandler = async (
 	try {
 		await renderHandler(params, options, logs);
 	} catch (err) {
+		if (process.env.NODE_ENV === 'test') {
+			throw err;
+		}
+
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
 		const isBrowserError =
