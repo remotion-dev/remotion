@@ -322,6 +322,7 @@ export const render = async (remotionRoot: string) => {
 		onDownload,
 		downloadMap,
 		onSlowestFrames: (slowestFrames) => {
+			Log.verbose();
 			Log.verbose(`Slowest frames:`);
 			slowestFrames.forEach(({frame, time}) => {
 				Log.verbose(`Frame ${frame} (${time.toFixed(3)}ms)`);
