@@ -198,7 +198,7 @@ export default async function handler(
   validateWebhookSignature({
     secret: process.env.WEBHOOK_SECRET as string,
     body: req.body,
-    signatureHeader: req.header("X-Remotion-Signature") as string,
+    signatureHeader: req.headers["x-remotion-signature"] as string,
   });
 
   // If code reaches this path, the webhook is authentic.

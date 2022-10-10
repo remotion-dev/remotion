@@ -6,7 +6,7 @@ slug: /lambda/validatewebhooksignature
 
 _Available from v3.2.30_
 
-Validates the signature that was received by a [webhook](/docs/lambda/webhooks) endpoint is authentic and throws an error otherwise.
+Validates that the signature that was received by a [webhook](/docs/lambda/webhooks) endpoint is authentic. If the validation fails, an error is thrown.
 
 ## API
 
@@ -49,7 +49,7 @@ export default async function handler(
   validateWebhookSignature({
     secret: process.env.WEBHOOK_SECRET as string,
     body: req.body,
-    signatureHeader: req.header("X-Remotion-Signature") as string,
+    signatureHeader: req.headers["x-remotion-signature"] as string,
   });
 
   // If code reaches this path, the webhook is authentic.
