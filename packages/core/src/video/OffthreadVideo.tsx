@@ -9,7 +9,7 @@ import type {OffthreadVideoProps, RemotionMainVideoProps} from './props';
 import {VideoForDevelopment} from './VideoForDevelopment';
 
 export const OffthreadVideo: React.FC<
-	OffthreadVideoProps & RemotionMainVideoProps
+	Omit<OffthreadVideoProps & RemotionMainVideoProps, "loop">
 > = (props) => {
 	const {startFrom, endAt, ...otherProps} = props;
 
