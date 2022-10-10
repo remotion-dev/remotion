@@ -5,6 +5,7 @@ const AudioTesting: React.FC = () => {
 		<div>
 			<Sequence from={100} durationInFrames={100}>
 				<Audio
+					loop
 					startFrom={100}
 					endAt={200}
 					src={staticFile('music.mp3')}
