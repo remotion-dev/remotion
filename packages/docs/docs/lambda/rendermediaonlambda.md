@@ -209,6 +209,42 @@ Accepted values:
 The default for Lambda is `swangle`, but `null` elsewhere.
 :::
 
+### `overwrite`
+
+_available from v3.2.25_
+
+If a custom out name is specified and a file already exists at this key in the S3 bucket, decide whether that file will be deleted before the render begins. Default `false`.
+
+An existing file at the output S3 key will conflict with the render and must be deleted beforehand. If this setting is `false` and a conflict occurs, an error will be thrown.
+
+### `webhook`
+
+_optional, available from v3.2.30_
+
+If specified, Remotion will send a POST request to the provided endpoint to notify your application when the Lambda rendering process finishes, errors out or times out.
+
+```tsx twoslash
+import { RenderMediaOnLambdaInput } from "@remotion/lambda";
+
+const webhook: RenderMediaOnLambdaInput["webhook"] = {
+  url: "https://mapsnap.app/api/webhook",
+  secret: process.env.WEBHOOK_SECRET as string,
+};
+```
+
+If you don't want to set up validation, you can set `secret` to null:
+
+```tsx twoslash
+import { RenderMediaOnLambdaInput } from "@remotion/lambda";
+
+const webhook: RenderMediaOnLambdaInput["webhook"] = {
+  url: "https://mapsnap.app/api/webhook",
+  secret: null,
+};
+```
+
+[See here for detailed instructions on how to set up your webhook](/docs/lambda/webhooks).
+
 ## Return value
 
 Returns a promise resolving to an object containing two properties: `renderId`, `bucketName`, `cloudWatchLogs`. Those are useful for passing to `getRenderProgress()`
@@ -223,17 +259,9 @@ The S3 bucket name in which all files are being saved.
 
 ### `cloudWatchLogs`
 
-_Available from v3.2.10_
+_available from v3.2.10_
 
 A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
-
-### `overwrite`
-
-_available from v3.2.25_
-
-If a custom out name is specified and a file already exists at this key in the S3 bucket, decide whether that file will be deleted before the render begins. Default `false`.
-
-An existing file at the output S3 key will conflict with the render and must be deleted beforehand. If this setting is `false` and a conflict occurs, an error will be thrown.
 
 ## See also
 
