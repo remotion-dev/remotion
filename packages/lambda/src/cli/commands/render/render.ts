@@ -120,7 +120,7 @@ export const renderCommand = async (args: string[]) => {
 		webhook: parsedLambdaCli.webhook
 			? {
 					url: parsedLambdaCli.webhook,
-					secret: parsedLambdaCli.webhookSecret ?? null,
+					secret: parsedLambdaCli['webhook-secret'] ?? null,
 			  }
 			: undefined,
 	});
