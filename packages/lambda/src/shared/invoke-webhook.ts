@@ -95,6 +95,7 @@ export function invokeWebhook({
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
+					'Content-Length': jsonPayload.length,
 					'X-Remotion-Mode': 'production',
 					'X-Remotion-Signature': calculateSignature(jsonPayload, secret),
 					'X-Remotion-Status': payload.type,
