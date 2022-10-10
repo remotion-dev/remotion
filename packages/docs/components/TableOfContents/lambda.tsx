@@ -84,7 +84,7 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/lambda/validatewebhooksignature">
           <strong>validateWebhookSignature()</strong>
-          <div>Ensure permissions are correctly set up</div>
+          <div>Validate an incoming webhook request is authentic</div>
         </TOCItem>
       </Grid>
     </div>
