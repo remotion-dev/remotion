@@ -308,7 +308,7 @@ export const render = async (remotionRoot: string) => {
 		codec,
 	});
 
-	const ret = await renderMedia({
+	await renderMedia({
 		...options,
 		onProgress: (update) => {
 			encodedDoneIn = update.encodedDoneIn;
@@ -321,18 +321,16 @@ export const render = async (remotionRoot: string) => {
 		puppeteerInstance,
 		onDownload,
 		downloadMap,
+		onSlowestFrames: (slowestFrames) => {
+			Log.verbose(`Slowest frames:`);
+			slowestFrames.forEach(({frame, time}) => {
+				Log.verbose(`Frame ${frame} (${time.toFixed(3)}ms)`);
+			});
+		},
 	});
 
 	Log.info();
 	Log.info();
-	if (ret) {
-		Log.verbose(
-			`Following ${ret.slowestFrames.length} frames were slowest to render, consider optimizing them:`
-		);
-		ret.slowestFrames.forEach(({index, time}) => {
-			Log.verbose(`Frame Number : ${index}, Time Taken : ${time.toFixed(3)}`);
-		});
-	}
 
 	const seconds = Math.round((Date.now() - startTime) / 1000);
 	Log.info(
