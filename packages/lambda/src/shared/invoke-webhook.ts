@@ -87,6 +87,7 @@ export function invokeWebhook({
 	url: string;
 	secret: string | null;
 }) {
+	const jsonPayload = JSON.stringify(payload);
 	return new Promise<void>((resolve, reject) => {
 		const req = getWebhookClient(url)(
 			url,
@@ -95,10 +96,7 @@ export function invokeWebhook({
 				headers: {
 					'Content-Type': 'application/json',
 					'X-Remotion-Mode': 'production',
-					'X-Remotion-Signature': calculateSignature(
-						JSON.stringify(payload),
-						secret
-					),
+					'X-Remotion-Signature': calculateSignature(jsonPayload, secret),
 					'X-Remotion-Status': payload.type,
 				},
 				timeout: 5000,
@@ -117,7 +115,7 @@ export function invokeWebhook({
 			}
 		);
 
-		req.write(payload);
+		req.write(jsonPayload);
 
 		req.on('error', (err) => {
 			reject(err);
