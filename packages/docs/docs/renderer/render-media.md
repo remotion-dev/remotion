@@ -181,7 +181,15 @@ _function - optional_
 
 React to render progress. The following callback function is similar to how Remotion displays render progress on it's CLI:
 
-```tsx twoslash
+```tsx twoslash title="Simple example - Log overall progress"
+import { RenderMediaOnProgress } from "@remotion/renderer";
+
+const onProgress: RenderMediaOnProgress = ({ progress }) => {
+  console.log(`Rendering is ${progress * 100}% complete`);
+};
+```
+
+```tsx twoslash title="Advanced example - Fine-grained progress values"
 import { RenderMediaOnProgress } from "@remotion/renderer";
 
 const onProgress: RenderMediaOnProgress = ({
@@ -190,10 +198,7 @@ const onProgress: RenderMediaOnProgress = ({
   encodedDoneIn,
   renderedDoneIn,
   stitchStage,
-  progress,
 }) => {
-  console.log(`Rendering is ${progress * 100}% complete`);
-
   if (stitchStage === "encoding") {
     // First pass, parallel rendering of frames and encoding into video
     console.log("Encoding...");
@@ -217,7 +222,7 @@ const onProgress: RenderMediaOnProgress = ({
 ```
 
 :::note
-The `progress` attribute is available from v3.2.17
+The `progress` attribute is available from v3.2.17.
 :::
 
 ### `onDownload?`
