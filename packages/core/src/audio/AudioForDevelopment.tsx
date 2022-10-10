@@ -1,4 +1,5 @@
 import type {ForwardRefExoticComponent, RefAttributes} from 'react';
+import { useEffect} from 'react';
 import React, {
 	forwardRef,
 	useContext,
@@ -23,6 +24,7 @@ import {useFrameForVolumeProp} from './use-audio-frame';
 
 type AudioForDevelopmentProps = RemotionAudioProps & {
 	shouldPreMountAudioTags: boolean;
+  onDuration: (src: string, durationInSeconds: number) => void;
 };
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
@@ -49,6 +51,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		shouldPreMountAudioTags,
 		src,
+    onDuration,
 		...nativeProps
 	} = props;
 
@@ -113,6 +116,33 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		},
 		[audioRef]
 	);
+
+  useEffect(() => {
+    const {current} = audioRef;
+    if (!current) {
+      return;
+    }
+
+    current.onloadedmetadata = () => {
+      onDuration(src, current.duration);
+    };
+
+    const errorHandler = () => {
+			if (current?.error) {
+				console.error('Error occurred in audio', current?.error);
+				throw new Error(
+					`The browser threw an error while playing the audio ${src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
+				);
+			} else {
+				throw new Error('The browser threw an error');
+			}
+		};
+
+		current.addEventListener('error', errorHandler, {once: true});
+		return () => {
+			current.removeEventListener('error', errorHandler);
+		};
+  }, [audioRef, src, onDuration]);
 
 	if (initialShouldPreMountAudioElements) {
 		return null;

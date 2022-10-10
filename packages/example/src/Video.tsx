@@ -222,8 +222,7 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1080}
 					fps={30}
-					// Longer value to test looping
-					durationInFrames={250}
+					durationInFrames={100}
 					defaultProps={{
 						offthread: false,
 						codec: 'mp4' as const,
