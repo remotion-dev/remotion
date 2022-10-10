@@ -16,9 +16,12 @@ import {ConfigInternals} from './config';
 import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
+	getFinalCodec,
+	validateFfmpegCanUseCodec,
 } from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {getOutputFilename} from './get-filename';
+import {getRenderMediaOptions} from './get-render-media-options';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import type {DownloadProgress} from './progress-bar';
@@ -28,6 +31,7 @@ import {
 } from './progress-bar';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import type {RenderStep} from './step';
+import {getUserPassedOutputLocation} from './user-passed-output-location';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
 export const render = async (remotionRoot: string) => {
@@ -57,9 +61,14 @@ export const render = async (remotionRoot: string) => {
 
 	Log.verbose('Asset dirs', downloadMap.assetDir);
 
+	const {codec, reason: codecReason} = getFinalCodec({
+		downloadName: null,
+		outName: getUserPassedOutputLocation(),
+	});
+
+	validateFfmpegCanUseCodec(codec);
+
 	const {
-		codec,
-		proResProfile,
 		concurrency,
 		frameRange,
 		shouldOutputImageSequence,
@@ -68,8 +77,6 @@ export const render = async (remotionRoot: string) => {
 		envVariables,
 		quality,
 		browser,
-		crf,
-		pixelFormat,
 		imageFormat,
 		browserExecutable,
 		ffmpegExecutable,
@@ -77,16 +84,13 @@ export const render = async (remotionRoot: string) => {
 		scale,
 		chromiumOptions,
 		port,
-		numberOfGifLoops,
 		everyNthFrame,
 		puppeteerTimeout,
-		muted,
-		enforceAudioTrack,
 		publicDir,
-		ffmpegOverride,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
+		codec,
 	});
 
 	const relativeOutputLocation = getOutputFilename({
@@ -105,7 +109,7 @@ export const render = async (remotionRoot: string) => {
 
 	Log.info(
 		chalk.gray(
-			`Composition = ${compositionId}, Codec = ${codec}, Output = ${relativeOutputLocation}`
+			`Composition = ${compositionId}, Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
 		)
 	);
 
@@ -165,10 +169,11 @@ export const render = async (remotionRoot: string) => {
 		inputProps,
 		puppeteerInstance,
 		envVariables,
-		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: puppeteerTimeout,
 		chromiumOptions,
 		browserExecutable,
 		downloadMap,
+		port,
 	});
 
 	const config = comps.find((c) => c.id === compositionId);
@@ -296,17 +301,15 @@ export const render = async (remotionRoot: string) => {
 		return;
 	}
 
-	await renderMedia({
+	const options = await getRenderMediaOptions({
+		config,
 		outputLocation: absoluteOutputFile,
+		serveUrl: urlOrBundle,
 		codec,
-		composition: config,
-		crf,
-		envVariables,
-		ffmpegExecutable,
-		ffprobeExecutable,
-		frameRange,
-		imageFormat,
-		inputProps,
+	});
+
+	await renderMedia({
+		...options,
 		onProgress: (update) => {
 			encodedDoneIn = update.encodedDoneIn;
 			encodedFrames = update.encodedFrames;
@@ -316,32 +319,8 @@ export const render = async (remotionRoot: string) => {
 			updateRenderProgress();
 		},
 		puppeteerInstance,
-		overwrite,
-		concurrency,
-		pixelFormat,
-		proResProfile,
-		quality,
-		serveUrl: urlOrBundle,
 		onDownload,
-		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
-			ConfigInternals.Logging.getLogLevel(),
-			'verbose'
-		),
-		chromiumOptions,
-		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
-		scale,
-		port,
-		numberOfGifLoops,
-		everyNthFrame,
-		verbose: RenderInternals.isEqualOrBelowLogLevel(
-			ConfigInternals.Logging.getLogLevel(),
-			'verbose'
-		),
 		downloadMap,
-		muted,
-		enforceAudioTrack,
-		browserExecutable,
-		ffmpegOverride,
 	});
 
 	Log.info();

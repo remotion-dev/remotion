@@ -31,6 +31,10 @@ export const MyAnimation: React.FC = () => {
 
 A JSON object that adheres to the Lottie schema.
 
+:::note
+If the identity of the object changes, the animation will be re-initialized. Consider memoizing the animationData value.
+:::
+
 ### `className`
 
 A CSS class name to be given to the `<div>` that contains the animation.
@@ -56,3 +60,39 @@ The speed of the animation. A higher number is faster. Default: `1`.
 ### `style`
 
 CSS properties to be applied to the `<div>` that contains the animation.
+
+### `onAnimationLoaded`
+
+_available from v3.2.29, optional_
+
+Callback that gets invoked when the Lottie animation has been initialized. The Lottie [`AnimationItem`](https://airbnb.io/lottie/#/web?id=usage-1) gets passed as a parameter.
+
+```tsx twoslash
+import type { LottieAnimationData } from "@remotion/lottie";
+
+const animationData: LottieAnimationData = {
+  fr: 0,
+  w: 0,
+  h: 0,
+  op: 0,
+};
+
+// ---cut---
+
+import { Lottie } from "@remotion/lottie";
+import { AnimationItem } from "lottie-web";
+import { useCallback } from "react";
+
+const Comp: React.FC = () => {
+  const onAnimationLoaded = useCallback((item: AnimationItem) => {
+    console.log(item.renderer);
+  }, []);
+
+  return (
+    <Lottie
+      animationData={animationData}
+      onAnimationLoaded={onAnimationLoaded}
+    />
+  );
+};
+```
