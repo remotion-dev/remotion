@@ -31,7 +31,7 @@ In the following Next.JS webhook endpoint, an error gets thrown if the signature
 ```tsx twoslash title="pages/api/webhook.ts"
 type NextApiRequest = {
   body: string;
-  header: (name: string) => string;
+  headers: Record<string, string>;
 };
 type NextApiResponse = {
   status: (code: number) => { json: (body: object) => void };

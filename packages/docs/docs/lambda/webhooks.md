@@ -180,7 +180,7 @@ Since this endpoint is going to be executed in an AWS Lambda function on it's ow
 ```tsx twoslash title="pages/api/webhook.ts"
 type NextApiRequest = {
   body: string;
-  header: (name: string) => string;
+  headers: Record<string, string>;
 };
 type NextApiResponse = {
   status: (code: number) => { json: (body: object) => void };
