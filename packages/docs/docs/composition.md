@@ -35,6 +35,11 @@ If you use `lazyComponent`, Remotion will use React Suspense to load the compone
 Type your components using the `React.FC<{}>` type and the `defaultProps` prop will be typesafe.
 :::
 
+:::note
+Passing huge objects to `defaultProps` can be slow. [Learn how to avoid it.](/docs/troubleshooting/defaultprops-too-big)
+
+:::
+
 ## Example using `component`
 
 ```tsx twoslash
@@ -127,3 +132,4 @@ export const Video = () => {
 - [`<Sequence />`](/docs/sequence)
 - [`<Still />`](/docs/still)
 - [`<Folder />`](/docs/folder)
+- [Avoid huge payloads for `defaultProps`](/docs/troubleshooting/defaultprops-too-big)

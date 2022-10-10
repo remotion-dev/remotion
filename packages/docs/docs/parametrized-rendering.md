@@ -36,7 +36,6 @@ export const MyComponent: React.FC<{ propOne: string; propTwo: number }> = () =>
   null;
 
 // @filename: Root.tsx
-import React from "react";
 // ---cut---
 import { Composition } from "remotion";
 import { MyComponent } from "./MyComponent";
@@ -154,3 +153,7 @@ you can still use it as normal in your videos and pass it's props directly. Defa
 // ---cut---
 <MyComponent propOne="hi" propTwo={10} />
 ```
+
+## See also
+
+- [Avoid huge payloads for `defaultProps`](/docs/troubleshooting/defaultprops-too-big)
