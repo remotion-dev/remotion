@@ -116,6 +116,7 @@ export const renderMediaOnLambda = async ({
 		durationInFrames: 1,
 	});
 	validateDownloadBehavior(downloadBehavior);
+
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
 	try {
 		const res = await callLambda({

@@ -25,7 +25,7 @@ importers:
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
       react-refresh: 0.9.0
-      remotion: 3.2.27
+      remotion: 3.2.29
       typescript: ^4.7.0
       webpack: 5.74.0
     dependencies:
@@ -67,7 +67,7 @@ importers:
       react: ^18.0.0
       react-dom: ^18.0.0
       react-refresh: 0.9.0
-      remotion: 3.2.27
+      remotion: 3.2.29
       style-loader: 2.0.0
       typescript: ^4.7.0
       vitest: ^0.18.0
@@ -101,10 +101,10 @@ importers:
   packages/cli:
     specifiers:
       '@jonny/eslint-config': 3.0.266
-      '@remotion/bundler': 3.2.27
-      '@remotion/media-utils': 3.2.27
-      '@remotion/player': 3.2.27
-      '@remotion/renderer': 3.2.27
+      '@remotion/bundler': 3.2.29
+      '@remotion/media-utils': 3.2.29
+      '@remotion/player': 3.2.29
+      '@remotion/renderer': 3.2.29
       '@types/minimist': ^1.2.2
       '@types/node': ^16.7.5
       '@types/react': 18.0.1
@@ -125,7 +125,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.2.27
+      remotion: 3.2.29
       semver: 7.3.5
       source-map: 0.6.1
       typescript: ^4.7.0
@@ -252,18 +252,18 @@ importers:
       '@jonny/docusaurus-preset-shiki-twoslash': ^1.1.36
       '@jonny/eslint-config': 3.0.266
       '@mdx-js/react': ^1.6.21
-      '@remotion/babel-loader': 3.2.27
-      '@remotion/bundler': 3.2.27
-      '@remotion/gif': 3.2.27
-      '@remotion/lambda': 3.2.27
-      '@remotion/lottie': 3.2.27
-      '@remotion/media-utils': 3.2.27
-      '@remotion/paths': 3.2.27
-      '@remotion/player': 3.2.27
-      '@remotion/preload': 3.2.27
-      '@remotion/renderer': 3.2.27
-      '@remotion/skia': 3.2.27
-      '@remotion/three': 3.2.27
+      '@remotion/babel-loader': 3.2.29
+      '@remotion/bundler': 3.2.29
+      '@remotion/gif': 3.2.29
+      '@remotion/lambda': 3.2.29
+      '@remotion/lottie': 3.2.29
+      '@remotion/media-utils': 3.2.29
+      '@remotion/paths': 3.2.29
+      '@remotion/player': 3.2.29
+      '@remotion/preload': 3.2.29
+      '@remotion/renderer': 3.2.29
+      '@remotion/skia': 3.2.29
+      '@remotion/three': 3.2.29
       '@shopify/react-native-skia': ^0.1.139
       '@splitbee/web': ^0.2.4
       '@tsconfig/docusaurus': ^1.0.5
@@ -275,7 +275,7 @@ importers:
       clipboard: ^2.0.8
       clsx: ^1.1.1
       color-namer: 1.4.0
-      create-video: 3.2.27
+      create-video: 3.2.29
       eslint: 8.13.0
       hls.js: ^0.14.17
       lottie-web: ^5.9.6
@@ -285,7 +285,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0
       react-player: ^2.9.0
-      remotion: 3.2.27
+      remotion: 3.2.29
       three: 0.134.0
       typescript: ^4.7.0
       url-loader: ^4.1.1
@@ -341,7 +341,7 @@ importers:
 
   packages/eslint-config:
     specifiers:
-      '@remotion/eslint-plugin': 3.2.27
+      '@remotion/eslint-plugin': 3.2.29
       '@types/node': 17.0.17
       '@typescript-eslint/eslint-plugin': 5.19.0
       '@typescript-eslint/parser': 5.19.0
@@ -384,18 +384,18 @@ importers:
       '@babel/preset-react': 7.12.13
       '@mdx-js/react': ^1.6.21
       '@react-three/drei': ^7.22.7
-      '@remotion/babel-loader': 3.2.27
-      '@remotion/bundler': 3.2.27
-      '@remotion/cli': 3.2.27
-      '@remotion/eslint-config': 3.2.27
-      '@remotion/eslint-plugin': 3.2.27
-      '@remotion/gif': 3.2.27
-      '@remotion/lambda': 3.2.27
-      '@remotion/lottie': 3.2.27
-      '@remotion/media-utils': 3.2.27
-      '@remotion/paths': 3.2.27
-      '@remotion/renderer': 3.2.27
-      '@remotion/three': 3.2.27
+      '@remotion/babel-loader': 3.2.29
+      '@remotion/bundler': 3.2.29
+      '@remotion/cli': 3.2.29
+      '@remotion/eslint-config': 3.2.29
+      '@remotion/eslint-plugin': 3.2.29
+      '@remotion/gif': 3.2.29
+      '@remotion/lambda': 3.2.29
+      '@remotion/lottie': 3.2.29
+      '@remotion/media-utils': 3.2.29
+      '@remotion/paths': 3.2.29
+      '@remotion/renderer': 3.2.29
+      '@remotion/three': 3.2.29
       '@types/babel__core': ^7.1.12
       '@types/babel__template': ^7.4.0
       '@types/express': ^4.17.11
@@ -415,7 +415,7 @@ importers:
       polished: ^4.0.5
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.2.27
+      remotion: 3.2.29
       styled-components: ^5.1.1
       ts-unused-exports: ^7.0.1
       typescript: ^4.7.0
@@ -478,7 +478,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.2.27
+      remotion: 3.2.29
       typescript: ^4.7.0
       webpack: 5.74.0
     dependencies:
@@ -501,13 +501,13 @@ importers:
 
   packages/it-tests:
     specifiers:
-      '@remotion/bundler': 3.2.27
-      '@remotion/cli': 3.2.27
-      '@remotion/lambda': 3.2.27
-      '@remotion/renderer': 3.2.27
+      '@remotion/bundler': 3.2.29
+      '@remotion/cli': 3.2.29
+      '@remotion/lambda': 3.2.29
+      '@remotion/renderer': 3.2.29
       '@types/sharp': ^0.28.5
       execa: 5.1.1
-      remotion: 3.2.27
+      remotion: 3.2.29
       sharp: 0.30.6
       typescript: ^4.7.0
       vitest: ^0.18.0
@@ -534,9 +534,9 @@ importers:
       '@aws-sdk/lib-storage': 3.58.0
       '@aws-sdk/s3-request-presigner': 3.58.0
       '@jonny/eslint-config': 3.0.266
-      '@remotion/bundler': 3.2.27
-      '@remotion/cli': 3.2.27
-      '@remotion/renderer': 3.2.27
+      '@remotion/bundler': 3.2.29
+      '@remotion/cli': 3.2.29
+      '@remotion/renderer': 3.2.29
       '@types/jest': ^27.0.2
       '@types/mime-types': 2.1.1
       '@types/minimist': 1.2.2
@@ -550,7 +550,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
-      remotion: 3.2.27
+      remotion: 3.2.29
       ts-jest: ^27.0.5
       ts-node: ^10.8.0
       typescript: ^4.7.0
@@ -600,7 +600,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.2.27
+      remotion: 3.2.29
       typescript: ^4.7.0
       vitest: ^0.18.0
     dependencies:
@@ -629,7 +629,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
-      remotion: 3.2.27
+      remotion: 3.2.29
       typescript: ^4.7.0
     dependencies:
       react: 18.0.0
@@ -677,7 +677,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.2.27
+      remotion: 3.2.29
       ts-jest: ^27.0.5
       typescript: ^4.7.0
       webpack: 5.74.0
@@ -704,11 +704,11 @@ importers:
   packages/player-example:
     specifiers:
       '@pmmmwh/react-refresh-webpack-plugin': ^0.5.3
-      '@remotion/bundler': 3.2.27
-      '@remotion/eslint-config': 3.2.27
-      '@remotion/gif': 3.2.27
-      '@remotion/player': 3.2.27
-      '@remotion/preload': 3.2.27
+      '@remotion/bundler': 3.2.29
+      '@remotion/eslint-config': 3.2.29
+      '@remotion/gif': 3.2.29
+      '@remotion/player': 3.2.29
+      '@remotion/preload': 3.2.29
       '@types/node': ^12.0.0
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
@@ -722,7 +722,7 @@ importers:
       react-dev-utils: ^12.0.1
       react-dom: 18.0.0
       react-refresh: ^0.11.0
-      remotion: 3.2.27
+      remotion: 3.2.29
       typescript: ^4.7.0
       webpack: 5.74.0
       webpack-dev-server: ^4.6.0
@@ -781,7 +781,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.2.27
+      remotion: 3.2.29
       source-map: ^0.8.0-beta.0
       typescript: ^4.7.0
       vitest: ^0.18.0
@@ -820,7 +820,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.2.27
+      remotion: 3.2.29
       typescript: ^4.7.0
     dependencies:
       copy-webpack-plugin: 11.0.0_webpack@5.74.0
@@ -851,7 +851,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.2.27
+      remotion: 3.2.29
       three: ^0.134.0
       typescript: ^4.7.0
     dependencies:
@@ -4181,7 +4181,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-module-transforms': 7.18.8
+      '@babel/helper-module-transforms': 7.19.0
       '@babel/helper-plugin-utils': 7.19.0
       babel-plugin-dynamic-import-node: 2.3.3
     transitivePeerDependencies:
@@ -4224,7 +4224,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-module-transforms': 7.18.8
+      '@babel/helper-module-transforms': 7.19.0
       '@babel/helper-plugin-utils': 7.19.0
       '@babel/helper-simple-access': 7.18.6
       babel-plugin-dynamic-import-node: 2.3.3
@@ -4311,7 +4311,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.18.6
-      '@babel/helper-module-transforms': 7.18.8
+      '@babel/helper-module-transforms': 7.19.0
       '@babel/helper-plugin-utils': 7.19.0
     transitivePeerDependencies:
       - supports-color
@@ -7611,7 +7611,7 @@ packages:
       error-stack-parser: 2.0.6
       find-up: 5.0.0
       html-entities: 2.3.3
-      loader-utils: 2.0.0
+      loader-utils: 2.0.2
       react-refresh: 0.11.0
       schema-utils: 3.1.1
       source-map: 0.7.3
@@ -9170,13 +9170,6 @@ packages:
   /absolute-path/0.0.0:
     resolution: {integrity: sha512-HQiug4c+/s3WOvEnDRxXVmNtSG5s2gJM9r19BTcqjp7BWcE48PB+Y2G6jE65kqI0LpsQeMZygt/b60Gi4KxGyA==}
 
-  /accepts/1.3.7:
-    resolution: {integrity: sha512-Il80Qs2WjYlJIBNzNkK6KYqlVMTbZLXgHx2oT0pU/fjRHyEp+PEfEPY0R3WCwAGVOtauxh1hOxNgIf5bv7dQpA==}
-    engines: {node: '>= 0.6'}
-    dependencies:
-      mime-types: 2.1.34
-      negotiator: 0.6.2
-
   /accepts/1.3.8:
     resolution: {integrity: sha512-PYAthTa2m2VKxuvSD3DPC/Gy+U+sOA1LAuT8mkmRuvw+NACSaeXEQ+NHcVF7rONl6qcaxV3Uuemwawk+7+SJLw==}
     engines: {node: '>= 0.6'}
@@ -9688,7 +9681,7 @@ packages:
     dependencies:
       '@babel/core': 7.18.6
       find-cache-dir: 3.3.2
-      loader-utils: 2.0.0
+      loader-utils: 2.0.2
       make-dir: 3.1.0
       schema-utils: 2.7.1
       webpack: 5.74.0
@@ -10708,7 +10701,7 @@ packages:
     resolution: {integrity: sha512-jaSIDzP9pZVS4ZfQ+TzvtiWhdpFhE2RDHz8QJkpX9SIpLq88VueF5jJw6t+6CUQcAoA6t+x89MLrWAqpfDE8iQ==}
     engines: {node: '>= 0.8.0'}
     dependencies:
-      accepts: 1.3.7
+      accepts: 1.3.8
       bytes: 3.0.0
       compressible: 2.0.18
       debug: 2.6.9
@@ -11046,7 +11039,7 @@ packages:
       webpack: ^4.27.0 || ^5.0.0
     dependencies:
       icss-utils: 5.1.0_postcss@8.3.9
-      loader-utils: 2.0.0
+      loader-utils: 2.0.2
       postcss: 8.3.9
       postcss-modules-extract-imports: 3.0.0_postcss@8.3.9
       postcss-modules-local-by-default: 4.0.0_postcss@8.3.9
@@ -11751,7 +11744,7 @@ packages:
     dev: false
 
   /ee-first/1.1.1:
-    resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
+    resolution: {integrity: sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=}
 
   /electron-to-chromium/1.3.859:
     resolution: {integrity: sha512-gXRXKNWedfdiKIzwr0Mg/VGCvxXzy+4SuK9hp1BDvfbCwx0O5Ot+2f4CoqQkqEJ3Zj/eAV/GoAFgBVFgkBLXuQ==}
@@ -12338,7 +12331,7 @@ packages:
     dev: false
 
   /escape-html/1.0.3:
-    resolution: {integrity: sha1-Aljq5NPQwJdN4cFpGI7wBR0dGYg=}
+    resolution: {integrity: sha512-NiSupZ4OeuGwr68lGIeym/ksIZMJodUGOSCZ/FSnTxcrekbvqrgdUxlJOMpijaKZVjAJrWrGs/6Jy8OMuyj9ow==}
 
   /escape-string-regexp/1.0.5:
     resolution: {integrity: sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg==}
@@ -12869,7 +12862,7 @@ packages:
     peerDependencies:
       webpack: ^4.0.0 || ^5.0.0
     dependencies:
-      loader-utils: 2.0.0
+      loader-utils: 2.0.2
       schema-utils: 3.1.1
       webpack: 5.74.0
 
@@ -13109,7 +13102,7 @@ packages:
       map-cache: 0.2.2
 
   /fresh/0.5.2:
-    resolution: {integrity: sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q==}
+    resolution: {integrity: sha1-PYyt2Q2XZWn6g1qx+OSyOhBWBac=}
     engines: {node: '>= 0.6'}
 
   /fs-constants/1.0.0:
@@ -15318,7 +15311,7 @@ packages:
     resolution: {integrity: sha512-aKS4WQjPenRxiQsC93MNfjx+nbF4PAdYzmd/1JIj8HYzqfbu86beTuNgXDzPknWk0n0uARlyewZo4s++ES36Ow==}
     hasBin: true
     dependencies:
-      minimist: 1.2.5
+      minimist: 1.2.6
     dev: false
 
   /json5/2.2.0:
@@ -15558,6 +15551,15 @@ packages:
 
   /loader-utils/2.0.0:
     resolution: {integrity: sha512-rP4F0h2RaWSvPEkD7BLDFQnvSf+nK+wr3ESUjNTyAGobqrijmW92zc+SO6d4p4B1wh7+B/Jg1mkQe5NYUEHtHQ==}
+    engines: {node: '>=8.9.0'}
+    dependencies:
+      big.js: 5.2.2
+      emojis-list: 3.0.0
+      json5: 2.2.1
+    dev: false
+
+  /loader-utils/2.0.2:
+    resolution: {integrity: sha512-TM57VeHptv569d/GKh6TAYdzKblwDNiumOdkFnejjD0XwTH87K90w3O7AiJRqdQoXygvi1VQTJTLGhJl7WqA7A==}
     engines: {node: '>=8.9.0'}
     dependencies:
       big.js: 5.2.2
@@ -16599,6 +16601,7 @@ packages:
   /negotiator/0.6.2:
     resolution: {integrity: sha512-hZXc7K2e+PgeI1eDBe/10Ard4ekbfrrqG8Ep+8Jmf4JID2bNg7NvCPOZN+kfF574pFQI7mum2AUqDidoKqcTOw==}
     engines: {node: '>= 0.6'}
+    dev: false
 
   /negotiator/0.6.3:
     resolution: {integrity: sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==}
@@ -20350,7 +20353,7 @@ packages:
     peerDependencies:
       webpack: ^4.0.0 || ^5.0.0
     dependencies:
-      loader-utils: 2.0.0
+      loader-utils: 2.0.2
       schema-utils: 3.1.1
       webpack: 5.74.0_esbuild@0.14.19
     dev: false
@@ -21557,7 +21560,7 @@ packages:
         optional: true
     dependencies:
       file-loader: 6.2.0_webpack@5.74.0
-      loader-utils: 2.0.0
+      loader-utils: 2.0.2
       mime-types: 2.1.33
       schema-utils: 3.1.1
       webpack: 5.74.0
@@ -21663,7 +21666,7 @@ packages:
     engines: {node: '>= 4'}
 
   /utils-merge/1.0.1:
-    resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
+    resolution: {integrity: sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM=}
     engines: {node: '>= 0.4.0'}
 
   /uuid/3.4.0:
@@ -21711,7 +21714,7 @@ packages:
     dev: false
 
   /vary/1.1.2:
-    resolution: {integrity: sha1-IpnwLG3tMNSllhsLn3RSShj2NPw=}
+    resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
   /verror/1.10.0:

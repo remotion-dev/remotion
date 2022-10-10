@@ -26,6 +26,10 @@ export const TableOfContents: React.FC = () => {
           <strong>lambda</strong>
           <div>Control Remotion Lambda</div>
         </TOCItem>
+        <TOCItem link="/docs/cli/benchmark">
+          <strong>benchmark</strong>
+          <div>Measure and optimize render time</div>
+        </TOCItem>
         <TOCItem link="/docs/cli/versions">
           <strong>versions</strong>
           <div>List and validate Remotion package versions</div>

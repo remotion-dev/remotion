@@ -213,7 +213,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		);
 	}
 
-	validateOutname(params.outName);
+	validateOutname(params.outName, params.codec);
 	validatePrivacy(params.privacy);
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 

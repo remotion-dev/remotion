@@ -55,6 +55,7 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'get-compositions',
+		codec: 'h264',
 	});
 
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =

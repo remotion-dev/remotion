@@ -45,7 +45,7 @@ test('Should make a distributed GIF', async () => {
 			inputProps: {},
 			logLevel: 'warn',
 			maxRetries: 3,
-			outName: 'out.mp4',
+			outName: 'out.gif',
 			pixelFormat: 'yuv420p',
 			privacy: 'public',
 			proResProfile: undefined,

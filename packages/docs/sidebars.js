@@ -31,6 +31,7 @@ module.exports = {
             "lambda/cli/quotas",
           ],
         },
+        "cli/benchmark",
         "cli/versions",
         "cli/upgrade",
         "cli/help",
@@ -347,6 +348,8 @@ module.exports = {
         "wrong-composition-mount",
         "staticfile-relative-paths",
         "staticfile-remote-urls",
+        "troubleshooting/rosetta",
+        "troubleshooting/defaultprops-too-big",
       ],
     },
 

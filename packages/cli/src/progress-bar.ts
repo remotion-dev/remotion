@@ -54,7 +54,9 @@ export const makeBundlingProgress = ({
 		doneIn === null
 			? (progress * 100).toFixed(0) + '%'
 			: chalk.gray(`${doneIn}ms`),
-	].join(' ');
+	]
+		.filter(truthy)
+		.join(' ');
 
 type RenderingProgressInput = {
 	frames: number;
