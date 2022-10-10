@@ -20,19 +20,31 @@ export function calculateSignature(payload: string, secret?: string) {
 	return signature;
 }
 
-export type InvokeWebhookInput = {
-	url: string;
-	type: 'success' | 'error' | 'timeout';
+type DynamicWebhookPayload =
+	| {
+			type: 'error';
+			errors: {
+				message: string;
+				name: string;
+				stack: string;
+			}[];
+	  }
+	| {
+			type: 'success';
+			lambdaErrors: EnhancedErrorInfo[];
+			outputUrl: string | undefined;
+			outputFile: string | undefined;
+			timeToFinish: number | undefined;
+	  }
+	| {
+			type: 'timeout';
+	  };
+
+export type WebhookPayload = {
 	renderId: string;
-	secret: string | undefined;
 	expectedBucketOwner: string;
 	bucketName: string;
-	outputUrl: string | undefined;
-	lambdaErrors: EnhancedErrorInfo[];
-	errors: Error[];
-	outputFile: string | undefined;
-	timeToFinish: number | undefined;
-};
+} & DynamicWebhookPayload;
 
 const getWebhookClient = (url: string) => {
 	if (url.startsWith('https://')) {
@@ -67,34 +79,14 @@ export const mockableHttpClients = {
  * @returns {Promise<void>} Promise of HTTP request with resolve/reject to be used for error handling.
  */
 export function invokeWebhook({
-	url,
-	type,
-	renderId,
+	payload,
 	secret,
-	bucketName,
-	expectedBucketOwner,
-	outputUrl,
-	lambdaErrors,
-	errors,
-	outputFile,
-	timeToFinish,
-}: InvokeWebhookInput) {
-	const payload = JSON.stringify({
-		result: type,
-		renderId,
-		bucketName,
-		expectedBucketOwner,
-		outputUrl,
-		outputFile,
-		timeToFinish,
-		lambdaErrors,
-		errors: errors.map((err) => ({
-			message: err.message,
-			name: err.name as string,
-			stack: err.stack as string,
-		})),
-	});
-
+	url,
+}: {
+	payload: WebhookPayload;
+	url: string;
+	secret: string | undefined;
+}) {
 	return new Promise<void>((resolve, reject) => {
 		const req = getWebhookClient(url)(
 			url,
@@ -102,9 +94,12 @@ export function invokeWebhook({
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					"X-Remotion-Mode": 'production',
-					'X-Remotion-Signature': calculateSignature(payload, secret),
-					'X-Remotion-Status': type,
+					'X-Remotion-Mode': 'production',
+					'X-Remotion-Signature': calculateSignature(
+						JSON.stringify(payload),
+						secret
+					),
+					'X-Remotion-Status': payload.type,
 				},
 				timeout: 5000,
 			},
