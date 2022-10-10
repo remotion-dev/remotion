@@ -35,6 +35,8 @@ export const printHelp = () => {
 		['--overwrite', 'Overwrite if file exists, default true'],
 		['--sequence', 'Output as an image sequence'],
 		['--codec', 'Video of audio codec'],
+		['--audio-bitrate', 'Customize the output audio bitrate'],
+		['--video-bitrate', 'Customize the output video bitrate'],
 		['--crf', 'FFMPEG CRF value, controls quality, see docs for info'],
 		['--browser-executable', 'Custom path for browser executable'],
 		['--frames', 'Render a portion or a still of a video'],

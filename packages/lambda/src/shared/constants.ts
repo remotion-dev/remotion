@@ -258,6 +258,8 @@ export type LambdaPayloads = {
 		downloadBehavior: DownloadBehavior;
 		muted: boolean;
 		overwrite: boolean;
+		audioBitrate?: string | null;
+		videoBitrate?: string | null;
 	};
 	status: {
 		type: LambdaRoutines.status;
@@ -296,6 +298,8 @@ export type LambdaPayloads = {
 		scale: number;
 		everyNthFrame: number;
 		muted: boolean;
+		audioBitrate?: string | null;
+		videoBitrate?: string | null;
 	};
 	still: {
 		type: LambdaRoutines.still;

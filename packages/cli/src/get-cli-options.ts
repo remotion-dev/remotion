@@ -276,5 +276,7 @@ export const getCliOptions = async (options: {
 		enforceAudioTrack: ConfigInternals.getEnforceAudioTrack(),
 		publicDir: ConfigInternals.getPublicDir(),
 		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
+		audioBitrate: ConfigInternals.getAudioBitrate(),
+		videoBitrate: ConfigInternals.getVideoBitrate(),
 	};
 };

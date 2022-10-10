@@ -120,6 +120,16 @@ _available from v3.2.1_
 
 [`h264` or `h265` or `png` or `vp8` or `mp3` or `aac` or `wav` or `prores`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264`.
 
+### `--audio-bitrate`
+
+Specify the output bitrate for the generated audio.
+Beware, ffmpeg may, depending on the codec chosen, not take this parameter into account.
+
+### `--video-bitrate`
+
+Specify the output bitrate for the generated video.
+Beware, ffmpeg may, depending on the codec chosen, not take this parameter into account.
+
 ### `--prores-profile`
 
 [Set the ProRes profile](/docs/config#setproresprofile). This option is only valid if the [`codec`](#--codec) has been set to `prores`. Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`. See [here](https://video.stackexchange.com/a/14715) for explanation of possible values. Default: `hq`.
