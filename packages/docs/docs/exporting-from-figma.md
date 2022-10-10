@@ -9,8 +9,8 @@ You can export a design from Figma as an SVG file and import it as a React compo
 
 ## Open the Figma design
 
-The design we'll consider here is a suite of 2D graphics made by [Streamline](https://www.figma.com/@05466272_9382_4) for the design community. You can get a copy [here](https://www.figma.com/community/file/1118919399684035468). When you click the link to the design, you can select from the list of designs available &mdash; in the sidebar
-![Thumbnail](/static/img/export-figma/banner.png)
+The design we'll consider here is a suite of 3D graphics made by [Alzea Arafat](https://dribbble.com/alzea) for the design community. You can find them [here](<https://www.figma.com/file/VCoVolpndRmxkSd5AvctYZ/SALY---3D-Illustration-Pack-(Community)?node-id=7%3A4>). When you click the link to the design, click on the **"Library"** &mdash; in the sidebar
+![Thumbnail](/img/export-figma/banner.png)
 
 You do not necessarily have to use this specific design set. But, you should crosscheck to know if the type of SVG you want to export or copy is a pure SVG file, not one that exports an image file as SVG, a typical example would be similar to the snippet below.
 
@@ -45,7 +45,7 @@ You do not necessarily have to use this specific design set. But, you should cro
 
 The snippet above does not represent a pure SVG file, because it literally just exports an image and wraps in the `<svg>` element. A proper SVG file would have all the corresponding `<path />` elements that we can animate conveniently.
 
-You can any design by copying it as an SVG file &mdash; you can do that by right-clicking on the design itself and selecting the **Copy/Paste as** option
+You can export any design by copying it as an SVG file &mdash; you can do that by right-clicking on the design itself and selecting the **Copy/Paste as** option
 
 ![exporting as SVG](/static/img/export-figma/copy-as-svg.png)
 
