@@ -5,6 +5,7 @@ import React, {
 	useEffect,
 	useImperativeHandle,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {usePreload} from '../prefetch';
@@ -117,32 +118,30 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		[audioRef]
 	);
 
+	const currentOnDurationCallback =
+		useRef<AudioForDevelopmentProps['onDuration']>();
+	currentOnDurationCallback.current = onDuration;
+
 	useEffect(() => {
 		const {current} = audioRef;
 		if (!current) {
 			return;
 		}
 
-		current.onloadedmetadata = () => {
-			onDuration(src, current.duration);
+		if (current.duration) {
+			currentOnDurationCallback.current?.(src, current.duration);
+			return;
+		}
+
+		const onLoadedMetadata = () => {
+			currentOnDurationCallback.current?.(src, current.duration);
 		};
 
-		const errorHandler = () => {
-			if (current?.error) {
-				console.error('Error occurred in audio', current?.error);
-				throw new Error(
-					`The browser threw an error while playing the audio ${src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
-				);
-			} else {
-				throw new Error('The browser threw an error');
-			}
-		};
-
-		current.addEventListener('error', errorHandler, {once: true});
+		current.addEventListener('loadedmetadata', onLoadedMetadata);
 		return () => {
-			current.removeEventListener('error', errorHandler);
+			current.removeEventListener('loadedmetadata', onLoadedMetadata);
 		};
-	}, [audioRef, src, onDuration]);
+	}, [audioRef, src]);
 
 	if (initialShouldPreMountAudioElements) {
 		return null;
