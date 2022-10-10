@@ -1,8 +1,11 @@
-import React, {forwardRef, useCallback, useContext} from 'react';
+import React, {forwardRef, useCallback, useContext, useReducer} from 'react';
 import {getRemotionEnvironment} from '../get-environment';
+import {Loop} from '../loop';
 import {Sequence} from '../Sequence';
+import {useVideoConfig} from '../use-video-config';
 import {validateMediaProps} from '../validate-media-props';
 import {validateStartFromProps} from '../validate-start-from-props';
+import {durationReducer} from '../video/duration-state';
 import {AudioForDevelopment} from './AudioForDevelopment';
 import {AudioForRendering} from './AudioForRendering';
 import type {RemotionAudioProps, RemotionMainAudioProps} from './props';
@@ -14,6 +17,10 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 > = (props, ref) => {
 	const audioContext = useContext(SharedAudioContext);
 	const {startFrom, endAt, ...otherProps} = props;
+	const {loop, ...propsOtherThanLoop} = props;
+	const {fps} = useVideoConfig();
+
+	const [durations, setDurations] = useReducer(durationReducer, {});
 
 	const onError: React.ReactEventHandler<HTMLAudioElement> = useCallback(
 		(e) => {
@@ -24,6 +31,10 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		},
 		[otherProps.src]
 	);
+
+	const onDuration = useCallback((src: string, durationInSeconds: number) => {
+		setDurations({type: 'got-duration', durationInSeconds, src});
+	}, []);
 
 	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined') {
 		validateStartFromProps(startFrom, endAt);
@@ -42,10 +53,25 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
+	if (loop && props.src && durations[props.src as string] !== undefined) {
+		return (
+			<Loop durationInFrames={Math.floor(durations[props.src as string] * fps)}>
+				<Audio {...propsOtherThanLoop} ref={ref} />
+			</Loop>
+		);
+	}
+
 	validateMediaProps(props, 'Audio');
 
 	if (getRemotionEnvironment() === 'rendering') {
-		return <AudioForRendering {...props} ref={ref} onError={onError} />;
+		return (
+			<AudioForRendering
+				onDuration={onDuration}
+				{...props}
+				ref={ref}
+				onError={onError}
+			/>
+		);
 	}
 
 	return (
@@ -56,6 +82,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			{...props}
 			ref={ref}
 			onError={onError}
+			onDuration={onDuration}
 		/>
 	);
 };
