@@ -219,20 +219,31 @@ An existing file at the output S3 key will conflict with the render and must be 
 
 ### `webhook`
 
-_optional, available from v3.2.26_
+_optional, available from v3.2.30_
 
 If specified, Remotion will send a POST request to the provided endpoint to notify your application when the Lambda rendering process finishes, errors out or times out.
 
-[See here for detailed instructions on how to set up your webhook](/docs/lambda/webhooks#response).
+```tsx twoslash
+import { RenderMediaOnLambdaInput } from "@remotion/lambda";
 
-### `webhookSecret`
+const webhook: RenderMediaOnLambdaInput["webhook"] = {
+  url: "https://mapsnap.app/api/webhook",
+  secret: process.env.WEBHOOK_SECRET as string,
+};
+```
 
-_optional, available from v3.2.26_
+If you don't want to set up validation, you can set `secret` to null:
 
-If you pass a webhook secret, the request headers of the webhook will include a cryptographic signature that you can use to [validate incoming webhooks](/docs/lambda/webhooks#validate-webhooks).
+```tsx twoslash
+import { RenderMediaOnLambdaInput } from "@remotion/lambda";
 
-We recommend you generate this secret using a service like [randomkeygen.com](https://randomkeygen.com/).
+const webhook: RenderMediaOnLambdaInput["webhook"] = {
+  url: "https://mapsnap.app/api/webhook",
+  secret: null,
+};
+```
 
+[See here for detailed instructions on how to set up your webhook](/docs/lambda/webhooks).
 
 ## Return value
 
