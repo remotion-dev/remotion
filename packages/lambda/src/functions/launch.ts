@@ -99,8 +99,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		if (params.webhook && !webhookInvoked) {
 			try {
 				await invokeWebhook({
-					url: params.webhook,
-					secret: params.webhookSecret,
+					url: params.webhook.url,
+					secret: params.webhook.secret,
 					payload: {
 						type: 'timeout',
 						renderId: params.renderId,
@@ -566,8 +566,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	if (params.webhook && !webhookInvoked) {
 		try {
 			await invokeWebhook({
-				url: params.webhook,
-				secret: params.webhookSecret,
+				url: params.webhook.url,
+				secret: params.webhook.secret,
 				payload: {
 					type: 'success',
 					renderId: params.renderId,
@@ -643,11 +643,11 @@ export const launchHandler = async (
 			expectedBucketOwner: options.expectedBucketOwner,
 			renderId: params.renderId,
 		});
-		if (params.webhook) {
+		if (params.webhook?.url) {
 			try {
 				await invokeWebhook({
-					url: params.webhook,
-					secret: params.webhookSecret,
+					url: params.webhook.url,
+					secret: params.webhook.secret ?? null,
 					payload: {
 						type: 'error',
 						renderId: params.renderId,

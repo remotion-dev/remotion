@@ -86,8 +86,10 @@ describe('Webhooks', () => {
 				muted: false,
 				version: VERSION,
 				overwrite: true,
-				webhook: TEST_URL,
-				webhookSecret: 'TEST_SECRET'
+				webhook: {
+					url: TEST_URL,
+					secret: 'TEST_SECRET',
+				},
 			},
 			extraContext
 		);
@@ -154,8 +156,7 @@ describe('Webhooks', () => {
 				muted: false,
 				version: VERSION,
 				overwrite: true,
-				webhook: TEST_URL,
-				webhookSecret: 'TEST_SECRET'
+				webhook: {url: TEST_URL, secret: 'TEST_SECRET'},
 			},
 			extraContext
 		);
