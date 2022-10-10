@@ -206,7 +206,9 @@ const renderHandler = async (
 					console.log(`Frame ${frame} (${time.toFixed(3)}ms)`);
 				});
 			},
-		}).catch((err) => reject(err));
+		})
+			.then(() => resolve())
+			.catch((err) => reject(err));
 	});
 
 	const endRendered = Date.now();
