@@ -93,6 +93,8 @@ export const render = async (remotionRoot: string) => {
 		enforceAudioTrack,
 		publicDir,
 		ffmpegOverride,
+		audioBitrate,
+		videoBitrate,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -352,6 +354,8 @@ export const render = async (remotionRoot: string) => {
 		enforceAudioTrack,
 		browserExecutable,
 		ffmpegOverride,
+		audioBitrate,
+		videoBitrate,
 	});
 
 	Log.info();

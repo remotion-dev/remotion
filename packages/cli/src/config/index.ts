@@ -86,6 +86,7 @@ import {setQuality} from './quality';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
 import {setWebpackCaching} from './webpack-caching';
+import {getAudioBitrate, getVideoBitrate, setAudioBitrate, setVideoBitrate} from "./bitrate";
 
 export const Config: ConfigType = {
 	Preview: {
@@ -132,6 +133,8 @@ export const Config: ConfigType = {
 		setCrf,
 		setImageSequence,
 		setProResProfile,
+		setAudioBitrate,
+		setVideoBitrate,
 		overrideFfmpegCommand: setFfmpegOverrideFunction,
 	},
 } as ConfigType;
@@ -181,6 +184,8 @@ export const ConfigInternals = {
 	getKeyboardShortcutsEnabled,
 	getPublicDir,
 	getFfmpegOverrideFunction,
+	getAudioBitrate,
+	getVideoBitrate,
 };
 
 export const overrideRemotion = () => {

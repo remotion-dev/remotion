@@ -253,6 +253,11 @@ export type ConfigType = {
 				args: string[];
 			}) => string[]
 		) => void;
+
+		readonly setAudioBitrate: (bitrate: string |  null) => void;
+
+		readonly setVideoBitrate: (bitrate: string |  null) => void;
+
 	};
 };
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};

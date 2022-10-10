@@ -280,7 +280,7 @@ export const spawnFfmpeg = async (
 				audioCodecName,
 				// Set bitrate up to 320k, for aac it might effectively be lower
 				'-b:a',
-				options.audioBitrate || '320k',
+				options.audioBitrate ?? '320k',
 				options.force ? '-y' : null,
 				options.outputLocation ?? tempFile,
 			].filter(Internals.truthy)
@@ -346,13 +346,12 @@ export const spawnFfmpeg = async (
 					// Without explicitly disabling auto-alt-ref,
 					// transparent WebM generation doesn't work
 					pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
-					['-b:v', '1M'],
+					['-b:v', options.videoBitrate ?? '1M'],
 			  ]),
 		codec === 'h264' ? ['-movflags', 'faststart'] : null,
 		audioCodecName ? ['-c:a', audioCodecName] : null,
 		// Set max bitrate up to 1024kbps, will choose lower if that's too much
 		audioCodecName ? ['-b:a', options.audioBitrate || '512K'] : null,
-		options.videoBitrate ? ['-b:v', options.videoBitrate] : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		[
