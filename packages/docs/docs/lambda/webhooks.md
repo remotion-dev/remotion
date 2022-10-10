@@ -235,3 +235,4 @@ This tool sends the demo webhook requests directly from your browser, which has 
 ## See also
 
 - [validateWebhookSignature()](/docs/lambda/validatewebhooksignature)
+- [renderMediaOnLambda()](/docs/lambda/rendermediaonlambda)
