@@ -6,9 +6,9 @@ slug: /lambda/webhooks
 
 import { WebhookTest } from "../../components/lambda/webhook-test";
 
-When rendering on AWS Lambda, Remotion can send webhooks to notify you when the process terminates. This page describes the webhook payloads and how to set up a webhook API endpoint.
+When rendering on AWS Lambda, Remotion can send webhooks to notify you when the render ends, successfully or with failures. This page describes the webhook payloads and how to set up a webhook API endpoint.
 
-Refer to the CLI documentation to [learn how to launch a rendering process with webhooks enabled](/docs/lambda/rendermediaonlambda#wenhook).
+Refer to the `renderMediaOnLambda()` documentation to [learn how to trigger a render with webhooks enabled](/docs/lambda/rendermediaonlambda#webhook).
 
 ## Setup
 
@@ -35,25 +35,38 @@ You can use these headers to verify the authenticity of the request, to check th
 
 The request body has the following structure:
 
-```json
-{
-    "result": "success" | "timeout" | "error",
-    "renderId": "string",
-    "bucketName": "string",
-    "expectedBucketOwner": "string",
-    "outputUrl": "string",
-    "outputFile": "string",
-    "timeToFinish": "number",
-    "lambdaErrors": [],
-    "errors": [{
-      "message": "string",
-      "name": "string",
-      "stack": "string",
-    }],
-}
+```ts
+type WebhookPayload =
+  | {
+      type: "error";
+      errors: {
+        message: string;
+        name: string;
+        stack: string;
+      }[];
+      renderId: string;
+      expectedBucketOwner: string;
+      bucketName: string;
+    }
+  | {
+      type: "success";
+      lambdaErrors: EnhancedErrorInfo[];
+      outputUrl: string | undefined;
+      outputFile: string | undefined;
+      timeToFinish: number | undefined;
+      renderId: string;
+      expectedBucketOwner: string;
+      bucketName: string;
+    }
+  | {
+      type: "timeout";
+      renderId: string;
+      expectedBucketOwner: string;
+      bucketName: string;
+    };
 ```
 
-Note that only the `result`, `renderId`, `bucketName` and `expectedBucketOwner` will always be returned [just like they are returned by the CLI itself](/docs/lambda/rendermediaonlambda#return-value).
+The fields [`renderId`](/docs/lambda/rendermediaonlambda#renderid), [`bucketName`](/docs/lambda/rendermediaonlambda#bucketname) will be returned [just like they are returned by `renderMediaOnLambda()` itself](/docs/lambda/rendermediaonlambda#return-value).
 
 If the render process times out, the reponse body will not contain any other fields.
 
@@ -83,7 +96,7 @@ The `outputUrl`, `outputFile` and `timeToFinish` keys are only returned if the r
 }
 ```
 
-The `errors` array will contain the error message and stack trace of any _fatal_ error that occurs during the render process. The `errors` array will be empty if the status is not `error`.
+The `errors` array will contain the error message and stack trace of any _fatal_ error that occurs during the render process.
 
 ## Validate Webhooks
 
@@ -102,28 +115,34 @@ If it does not match, either the data integrity is compromised and the request b
 This is how Remotion calculates the signature:
 
 ```javascript
-import * as Crypto from 'crypto';
+import * as Crypto from "crypto";
 
 function calculateSignature(payload: string, secret?: string) {
   if (!secret) {
-    return 'NO_SECRET_PROVIDED';
-  } 
-  const hmac = Crypto.createHmac('sha512', secret);
-  const signature = 'sha512=' + hmac.update(payload).digest('hex');
+    return "NO_SECRET_PROVIDED";
+  }
+  const hmac = Crypto.createHmac("sha512", secret);
+  const signature = "sha512=" + hmac.update(payload).digest("hex");
   return signature;
 }
 ```
 
 In your webhook endpoint, the `payload` parameter is the request body and the `secret` parameter is your webhook secret.
 
-## Example webhook endpoint
+Instead of validating the signature yourself, you can use the [`validateWebhookSignature()`](/docs/lambda/validatewebhooksignature) function to throw an error if the signature is invalid.
 
-You can use any web framework and language to set up your webhook endpoint. The following example is written in JavaScript using the Express framework, but you can replicate the validation logic using a cryptography/HMAC library for your language.
+## Example webhook endpoint (Express)
 
-```javascript
+You can use any web framework and language to set up your webhook endpoint. The following example is written in JavaScript using the Express framework.
+
+```javascript title="server.js"
 import express from "express";
 import bodyParser from "body-parser";
 import * as Crypto from "crypto";
+import {
+  validateWebhookSignature,
+  WebhookPayload,
+} from "@remotion/lambda/client";
 
 const router = express();
 
@@ -134,26 +153,66 @@ const jsonParser = bodyParser.json();
 
 // Express API endpoint
 router.post("/my-remotion-webhook-endpoint", jsonParser, (req, res) => {
-  if (req.header("X-Remotion-Signature") === "NO_SECRET_PROVIDED") {
-    // webhook request is not signed
-  }
+  validateWebhookSignature({
+    signatureHeader: req.header("X-Remotion-Signature"),
+    body: req.body,
+    secret: process.env.WEBHOOK_SECRET as string
+  });
 
-  const hmac = Crypto.createHmac("sha512", WEBHOOK_SECRET);
-  const signature = `sha512=${hmac
-    .update(JSON.stringify(req.body))
-    .digest("hex")}`;
+  const status = req.header("X-Remotion-Status"); // success, timeout, error
+  const mode = req.header("X-Remotion-Mode"); // demo or production
 
-  if (signature === req.header("X-Remotion-Signature")) {
-    // Request was sent by Remotion
-    const status = req.header("X-Remotion-Status"); // success, timeout, error
-    const mode = req.header("X-Remotion-Mode"); // demo or production
-    console.log(req.body); // parsed JSON response
+  const payload = JSON.parse(req.body) as WebhookPayload;
+  if (payload.type === "success") {
     // ...
-  } else {
-    // Request was NOT sent by Remotion or has an incomplete request body
+  } else if (payload.type === "timeout") {
     // ...
   }
 });
+```
+
+## Example webhook endpoint (Next.JS)
+
+Similary, here is an example endpoint in Next.JS.
+
+Since this endpoint is going to be executed in an AWS Lambda function on it's own, you want to import the Remotion functions from [`@remotion/lambda/client`](/docs/lambda/light-client).
+
+```tsx twoslash title="pages/api/webhook.ts"
+type NextApiRequest = {
+  body: string;
+  header: (name: string) => string;
+};
+type NextApiResponse = {
+  status: (code: number) => { json: (body: object) => void };
+};
+// ---cut---
+import {
+  validateWebhookSignature,
+  WebhookPayload,
+} from "@remotion/lambda/client";
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  validateWebhookSignature({
+    secret: process.env.WEBHOOK_SECRET as string,
+    body: req.body,
+    signatureHeader: req.header("X-Remotion-Signature") as string,
+  });
+
+  // If code reaches this path, the webhook is authentic.
+  const payload = JSON.parse(req.body) as WebhookPayload;
+  if (payload.type === "success") {
+    // ...
+  } else if (payload.type === "timeout") {
+    // ...
+  }
+
+  res.status(200).json({
+    success: true,
+  });
+}
 ```
 
 ## Test your webhook endpoint
@@ -163,8 +222,16 @@ You can use this tool to verify that your webhook endpoint is working properly. 
 :::info
 This tool sends the demo webhook requests directly from your browser, which has the following implications:
 
-- If your server uses CORS middleware, make sure your API endpoint is configured to accept requests from `remotion.dev`. This is necessary for this tool to work, but **not** for your production webhook endpoint.
+- **CORS requirements**:
+  - Make sure your API endpoint is configured to accept requests from `remotion.dev` by setting `"Access-Control-Allow-Origin": "true"`. This is necessary for this tool to work, but **not** for your production webhook endpoint.
+  - You must set `"Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode"`
+  - You must set `"Access-Control-Allow-Methods": "OPTIONS,POST"`.
 - You can use a server listening on `localhost` and don't need to use a reverse proxy.
+
 :::info
 
 <WebhookTest />
+
+## See also
+
+- [validateWebhookSignature()](/docs/lambda/validatewebhooksignature)
