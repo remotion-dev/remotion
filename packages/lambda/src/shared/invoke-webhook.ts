@@ -63,21 +63,6 @@ export const mockableHttpClients = {
 	https: https.request,
 };
 
-/**
- * @description Calls a webhook.
- * @link https://remotion.dev/docs/lambda/rendermediaonlambda#webhook
- * @param params.url URL of webhook to call.
- * @param params.renderId assigned render ID.
- * @param params.secret webhook secret provided by the user.
- * @param params.bucketName S3 bucket name.
- * @param params.expectedBucketOwner owner of S3 bucket.
- * @param params.outputUrl URL of rendered media file.
- * @param params.lambdaErrors non-fatal errors that have occurred during the render process.
- * @param params.errors fatal errors that have been thrown during the render process.
- * @param params.outputFile output file.
- * @param params.timeToFinish time to finish of rendering process.
- * @returns {Promise<void>} Promise of HTTP request with resolve/reject to be used for error handling.
- */
 export function invokeWebhook({
 	payload,
 	secret,
