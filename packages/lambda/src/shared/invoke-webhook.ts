@@ -10,7 +10,7 @@ import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
  * @param secret User-provided webhook secret used to sign the request.
  * @returns {string} Calculated signature
  */
-export function calculateSignature(payload: string, secret?: string) {
+export function calculateSignature(payload: string, secret: string | null) {
 	if (!secret) {
 		return 'NO_SECRET_PROVIDED';
 	}
@@ -85,7 +85,7 @@ export function invokeWebhook({
 }: {
 	payload: WebhookPayload;
 	url: string;
-	secret: string | undefined;
+	secret: string | null;
 }) {
 	return new Promise<void>((resolve, reject) => {
 		const req = getWebhookClient(url)(

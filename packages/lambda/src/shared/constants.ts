@@ -226,8 +226,10 @@ export type LambdaPayloads = {
 		muted: boolean;
 		version: string;
 		overwrite: boolean;
-		webhook: string | undefined;
-		webhookSecret: string | undefined;
+		webhook: null | {
+			url: string;
+			secret: string | null;
+		};
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -258,8 +260,10 @@ export type LambdaPayloads = {
 		downloadBehavior: DownloadBehavior;
 		muted: boolean;
 		overwrite: boolean;
-		webhook: string | undefined;
-		webhookSecret: string | undefined;
+		webhook: null | {
+			url: string;
+			secret: string | null;
+		};
 	};
 	status: {
 		type: LambdaRoutines.status;
