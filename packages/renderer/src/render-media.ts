@@ -53,11 +53,6 @@ const SLOWEST_FRAME_COUNT = 10;
 
 export type FrameTime = {index: number; time: number};
 
-export type RenderMediaResult = Promise<{
-	buffer: Buffer | null;
-	slowestFrames: FrameTime[];
-} | null>;
-
 export type RenderMediaOnProgress = (progress: {
 	renderedFrames: number;
 	encodedFrames: number;
@@ -166,7 +161,7 @@ export const renderMedia = ({
 	enforceAudioTrack,
 	ffmpegOverride,
 	...options
-}: RenderMediaOptions): RenderMediaResult => {
+}: RenderMediaOptions): Promise<Buffer | null> => {
 	validateQuality(options.quality);
 	if (typeof crf !== 'undefined' && crf !== null) {
 		validateSelectedCrfAndCodecCombination(crf, codec);
@@ -470,7 +465,7 @@ export const renderMedia = ({
 			encodedFrames = getFramesToRender(realFrameRange, everyNthFrame).length;
 			encodedDoneIn = Date.now() - stitchStart;
 			callUpdate();
-			return {buffer, slowestFrames};
+			return buffer;
 		})
 		.catch((err) => {
 			/**
@@ -517,7 +512,7 @@ export const renderMedia = ({
 
 	return Promise.race([
 		happyPath,
-		new Promise<RenderMediaResult>((_resolve, reject) => {
+		new Promise<Buffer | null>((_resolve, reject) => {
 			cancelSignal?.(() => {
 				reject(new Error('renderMedia() got cancelled'));
 			});
