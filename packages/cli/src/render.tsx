@@ -321,10 +321,18 @@ export const render = async (remotionRoot: string) => {
 		puppeteerInstance,
 		onDownload,
 		downloadMap,
+		onSlowestFrames: (slowestFrames) => {
+			Log.verbose();
+			Log.verbose(`Slowest frames:`);
+			slowestFrames.forEach(({frame, time}) => {
+				Log.verbose(`Frame ${frame} (${time.toFixed(3)}ms)`);
+			});
+		},
 	});
 
 	Log.info();
 	Log.info();
+
 	const seconds = Math.round((Date.now() - startTime) / 1000);
 	Log.info(
 		[
