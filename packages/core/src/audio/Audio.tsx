@@ -18,7 +18,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	const audioContext = useContext(SharedAudioContext);
 	const {startFrom, endAt, ...otherProps} = props;
 	const {loop, ...propsOtherThanLoop} = props;
-  const {maxDuration, ...propsOtherThanMaxDuration} = props;
+	const {maxDuration, ...propsOtherThanMaxDuration} = props;
 	const {fps} = useVideoConfig();
 
 	const [durations, setDurations] = useReducer(durationReducer, {});
@@ -42,7 +42,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 		const startFromFrameNo = startFrom ?? 0;
 		const endAtFrameNo = endAt ?? Infinity;
-    const audioDuration = (endAtFrameNo - startFromFrameNo);
+		const audioDuration = endAtFrameNo - startFromFrameNo;
 		return (
 			<Sequence
 				layout="none"
@@ -56,7 +56,10 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	}
 
 	if (loop && props.src && durations[props.src as string] !== undefined) {
-    const duration = Math.min(Math.floor(durations[props.src as string] * fps), maxDuration ?? Infinity);
+		const duration = Math.min(
+			Math.floor(durations[props.src as string] * fps),
+			maxDuration ?? Infinity
+		);
 		return (
 			<Loop durationInFrames={duration}>
 				<Audio {...propsOtherThanLoop} ref={ref} />
