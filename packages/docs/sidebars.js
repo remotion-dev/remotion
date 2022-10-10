@@ -148,7 +148,7 @@ module.exports = {
       label: "@remotion/lambda",
       link: {
         type: "doc",
-        id: "lambda/installation",
+        id: "lambda/api",
       },
       items: [
         "lambda/estimateprice",

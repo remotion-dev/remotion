@@ -68,7 +68,7 @@ You can control Remotion Lambda using the `npx remotion lambda` command.
 
 ## Node.JS API
 
-Everything you can do using the CLI, you can also control using Node.JS APIs. Refer to the left sidebar to see the list of available APIs.
+Everything you can do using the CLI, you can also control using Node.JS APIs. See the reference [here](/docs/lambda/api).
 
 ## License
 
