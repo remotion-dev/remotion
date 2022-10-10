@@ -9,7 +9,7 @@ You can export a design from Figma as an SVG file and import it as a React compo
 
 ## Open the Figma design
 
-The design we'll consider here is a suite of 3D graphics made by [Alzea Arafat](https://dribbble.com/alzea) for the design community. You can find them [here](<https://www.figma.com/file/VCoVolpndRmxkSd5AvctYZ/SALY---3D-Illustration-Pack-(Community)?node-id=7%3A4>). When you click the link to the design, click on the **"Library"** &mdash; in the sidebar
+The design we'll consider here is a suite of 2D graphics made by [Streamline](https://www.figma.com/@05466272_9382_4) for the design community. You can get a copy [here](https://www.figma.com/community/file/1118919399684035468). When you click the link to the design, you can select from the list of designs available &mdash; in the sidebar
 ![Thumbnail](/img/export-figma/banner.png)
 
 You do not necessarily have to use this specific design set. But, you should crosscheck to know if the type of SVG you want to export or copy is a pure SVG file, not one that exports an image file as SVG, a typical example would be similar to the snippet below.
