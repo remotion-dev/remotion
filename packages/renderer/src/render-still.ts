@@ -54,7 +54,7 @@ type InnerStillOptions = {
 	downloadMap?: DownloadMap;
 };
 
-type RenderStillOptions = InnerStillOptions &
+export type RenderStillOptions = InnerStillOptions &
 	ServeUrlOrWebpackBundle & {
 		port?: number | null;
 	};

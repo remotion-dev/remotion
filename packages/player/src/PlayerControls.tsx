@@ -6,6 +6,10 @@ import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
 import {MediaVolumeSlider} from './MediaVolumeSlider';
 import {PlayerSeekBar} from './PlayerSeekBar';
 import type {usePlayer} from './use-player';
+import {useVideoControlsResize} from './use-video-controls-resize';
+
+export const X_SPACER = 10;
+export const X_PADDING = 12;
 
 const containerStyle: React.CSSProperties = {
 	boxSizing: 'border-box',
@@ -16,8 +20,8 @@ const containerStyle: React.CSSProperties = {
 	paddingBottom: 10,
 	background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.4))',
 	display: 'flex',
-	paddingRight: 12,
-	paddingLeft: 12,
+	paddingRight: X_PADDING,
+	paddingLeft: X_PADDING,
 	flexDirection: 'column',
 	transition: 'opacity 0.3s',
 };
@@ -64,12 +68,6 @@ const flex1: React.CSSProperties = {
 
 const fullscreen: React.CSSProperties = {};
 
-const timeLabel: React.CSSProperties = {
-	color: 'white',
-	fontFamily: 'sans-serif',
-	fontSize: 14,
-};
-
 declare global {
 	interface Document {
 		webkitFullscreenEnabled?: boolean;
@@ -97,6 +95,7 @@ export const Controls: React.FC<{
 	inFrame: number | null;
 	outFrame: number | null;
 	initiallyShowControls: number | boolean;
+	playerWidth: number;
 }> = ({
 	durationInFrames,
 	hovered,
@@ -113,10 +112,14 @@ export const Controls: React.FC<{
 	inFrame,
 	outFrame,
 	initiallyShowControls,
+	playerWidth,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
+
+	const {maxTimeLabelWidth, displayVerticalVolumeSlider} =
+		useVideoControlsResize({allowFullscreen, playerWidth});
 	const [shouldShowInitially, setInitiallyShowControls] = useState<
 		boolean | number
 	>(() => {
@@ -191,6 +194,17 @@ export const Controls: React.FC<{
 		};
 	}, [shouldShowInitially]);
 
+	const timeLabel: React.CSSProperties = useMemo(() => {
+		return {
+			color: 'white',
+			fontFamily: 'sans-serif',
+			fontSize: 14,
+			maxWidth: maxTimeLabelWidth,
+			overflow: 'hidden',
+			textOverflow: 'ellipsis',
+		};
+	}, [maxTimeLabelWidth]);
+
 	return (
 		<div style={containerCss}>
 			<div style={controlsRow}>
@@ -208,7 +222,9 @@ export const Controls: React.FC<{
 					{showVolumeControls ? (
 						<>
 							<div style={xSpacer} />
-							<MediaVolumeSlider />
+							<MediaVolumeSlider
+								displayVerticalVolumeSlider={displayVerticalVolumeSlider}
+							/>
 						</>
 					) : null}
 					<div style={xSpacer} />

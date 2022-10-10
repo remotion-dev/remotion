@@ -46,7 +46,7 @@ test('Should make a transparent video', async () => {
 			inputProps: {},
 			logLevel: 'warn',
 			maxRetries: 3,
-			outName: 'out.mp4',
+			outName: 'out.webm',
 			pixelFormat: 'yuva420p',
 			privacy: 'public',
 			proResProfile: undefined,
