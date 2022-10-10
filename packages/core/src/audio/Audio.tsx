@@ -18,6 +18,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	const audioContext = useContext(SharedAudioContext);
 	const {startFrom, endAt, ...otherProps} = props;
 	const {loop, ...propsOtherThanLoop} = props;
+  const {maxDuration, ...propsOtherThanMaxDuration} = props;
 	const {fps} = useVideoConfig();
 
 	const [durations, setDurations] = useReducer(durationReducer, {});
@@ -41,6 +42,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 		const startFromFrameNo = startFrom ?? 0;
 		const endAtFrameNo = endAt ?? Infinity;
+    const audioDuration = (endAtFrameNo - startFromFrameNo);
 		return (
 			<Sequence
 				layout="none"
@@ -48,14 +50,15 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 				showInTimeline={false}
 				durationInFrames={endAtFrameNo}
 			>
-				<Audio {...otherProps} ref={ref} />
+				<Audio {...otherProps} ref={ref} maxDuration={audioDuration} />
 			</Sequence>
 		);
 	}
 
 	if (loop && props.src && durations[props.src as string] !== undefined) {
+    const duration = Math.min(Math.floor(durations[props.src as string] * fps), maxDuration ?? Infinity);
 		return (
-			<Loop durationInFrames={Math.floor(durations[props.src as string] * fps)}>
+			<Loop durationInFrames={duration}>
 				<Audio {...propsOtherThanLoop} ref={ref} />
 			</Loop>
 		);
@@ -67,7 +70,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		return (
 			<AudioForRendering
 				onDuration={onDuration}
-				{...props}
+				{...propsOtherThanMaxDuration}
 				ref={ref}
 				onError={onError}
 			/>
@@ -79,7 +82,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			shouldPreMountAudioTags={
 				audioContext !== null && audioContext.numberOfAudioTags > 0
 			}
-			{...props}
+			{...propsOtherThanMaxDuration}
 			ref={ref}
 			onError={onError}
 			onDuration={onDuration}
