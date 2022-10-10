@@ -199,22 +199,14 @@ const renderHandler = async (
 			downloadMap,
 			muted: params.muted,
 			enforceAudioTrack: true,
-		})
-			.then((ret) => {
-				if (ret && params.logLevel === 'verbose') {
-					console.log(
-						`Following ${ret.slowestFrames.length} frames were slowest to render, consider optimizing them:`
-					);
-					ret.slowestFrames.forEach(({index, time}) => {
-						console.log(
-							`Frame Number : ${index}, Time Taken : ${time.toFixed(3)}`
-						);
-					});
-				}
-
-				resolve();
-			})
-			.catch((err) => reject(err));
+			onSlowestFrames: (slowestFrames) => {
+				console.log();
+				console.log(`Slowest frames:`);
+				slowestFrames.forEach(({frame, time}) => {
+					console.log(`Frame ${frame} (${time.toFixed(3)}ms)`);
+				});
+			},
+		}).catch((err) => reject(err));
 	});
 
 	const endRendered = Date.now();

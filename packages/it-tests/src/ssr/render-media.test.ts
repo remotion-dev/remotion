@@ -111,5 +111,5 @@ test("Render video to a buffer", async () => {
     frameRange: [0, 2],
   });
 
-  expect(buffer?.buffer?.length).toBeGreaterThan(2000);
+  expect(buffer?.length).toBeGreaterThan(2000);
 });
