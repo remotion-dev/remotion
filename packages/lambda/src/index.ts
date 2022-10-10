@@ -61,6 +61,7 @@ import {LambdaInternals} from './internals';
 import type {AwsRegion} from './pricing/aws-regions';
 import type {CustomCredentials} from './shared/aws-clients';
 import type {RenderProgress} from './shared/constants';
+import type {WebhookPayload} from './shared/invoke-webhook';
 import type {LambdaArchitecture} from './shared/validate-architecture';
 
 export {
@@ -121,4 +122,5 @@ export type {
 	GetAwsClientOutput,
 	LambdaArchitecture,
 	CustomCredentials,
+	WebhookPayload,
 };

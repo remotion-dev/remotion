@@ -101,15 +101,12 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 				await invokeWebhook({
 					url: params.webhook,
 					secret: params.webhookSecret,
-					type: 'timeout',
-					renderId: params.renderId,
-					expectedBucketOwner: options.expectedBucketOwner,
-					bucketName: params.bucketName,
-					outputUrl: undefined,
-					errors: [],
-					lambdaErrors: [],
-					outputFile: undefined,
-					timeToFinish: undefined,
+					payload: {
+						type: 'timeout',
+						renderId: params.renderId,
+						expectedBucketOwner: options.expectedBucketOwner,
+						bucketName: params.bucketName,
+					},
 				});
 				webhookInvoked = true;
 			} catch (err) {
@@ -531,7 +528,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		renderMetadata,
 		params.bucketName,
 		customCredentials
-	)
+	);
 	const postRenderData = createPostRenderData({
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
@@ -571,15 +568,16 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			await invokeWebhook({
 				url: params.webhook,
 				secret: params.webhookSecret,
-				type: 'success',
-				renderId: params.renderId,
-				expectedBucketOwner: options.expectedBucketOwner,
-				bucketName: params.bucketName,
-				outputUrl,
-				errors: [],
-				lambdaErrors: postRenderData.errors,
-				outputFile: postRenderData.outputFile,
-				timeToFinish: postRenderData.timeToFinish
+				payload: {
+					type: 'success',
+					renderId: params.renderId,
+					expectedBucketOwner: options.expectedBucketOwner,
+					bucketName: params.bucketName,
+					outputUrl,
+					lambdaErrors: postRenderData.errors,
+					outputFile: postRenderData.outputFile,
+					timeToFinish: postRenderData.timeToFinish,
+				},
 			});
 			webhookInvoked = true;
 		} catch (err) {
@@ -650,15 +648,17 @@ export const launchHandler = async (
 				await invokeWebhook({
 					url: params.webhook,
 					secret: params.webhookSecret,
-					type: 'error',
-					renderId: params.renderId,
-					expectedBucketOwner: options.expectedBucketOwner,
-					bucketName: params.bucketName,
-					lambdaErrors: [],
-					errors: [err as Error],
-					outputUrl: undefined,
-					outputFile: undefined,
-					timeToFinish: undefined,
+					payload: {
+						type: 'error',
+						renderId: params.renderId,
+						expectedBucketOwner: options.expectedBucketOwner,
+						bucketName: params.bucketName,
+						errors: [err as Error].map((e) => ({
+							message: e.message,
+							name: e.name as string,
+							stack: e.stack as string,
+						})),
+					},
 				});
 			} catch (error) {
 				if (process.env.NODE_ENV === 'test') {
