@@ -76,7 +76,7 @@ export type RenderMediaOnLambdaOutput = {
  * @param params.region The AWS region in which the media should be rendered.
  * @param params.maxRetries How often rendering a chunk may fail before the media render gets aborted. Default "1"
  * @param params.logLevel Level of logging that Lambda function should perform. Default "info".
- * @param params.webhook Webhook URL to be called upon completion or timeout of the rendering process.
+ * @param params.webhook Configuration for webhook called upon completion or timeout of the render.
  * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
 
