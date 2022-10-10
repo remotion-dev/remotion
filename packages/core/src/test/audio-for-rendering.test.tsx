@@ -66,7 +66,7 @@ describe('Register and unregister asset', () => {
 			src: 'test',
 			muted: false,
 			volume: 50,
-      onDuration: vitest.fn(),
+			onDuration: vitest.fn(),
 		};
 		const {unmount} = render(
 			<CanUseRemotionHooksProvider>
@@ -86,7 +86,7 @@ describe('Register and unregister asset', () => {
 			src: undefined,
 			muted: false,
 			volume: 50,
-      onDuration: vitest.fn(),
+			onDuration: vitest.fn(),
 		};
 		expectToThrow(() => {
 			render(
@@ -119,7 +119,7 @@ describe('useEffect tests', () => {
 			src: 'test',
 			muted: false,
 			volume: 50,
-      onDuration: vitest.fn(),
+			onDuration: vitest.fn(),
 		};
 		render(
 			<CanUseRemotionHooksProvider>

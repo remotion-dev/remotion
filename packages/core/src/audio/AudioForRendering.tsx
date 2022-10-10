@@ -1,16 +1,17 @@
 import type {ForwardRefExoticComponent, RefAttributes} from 'react';
-import { useLayoutEffect} from 'react';
 import React, {
 	forwardRef,
 	useContext,
 	useEffect,
 	useImperativeHandle,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src';
 import {CompositionManager} from '../CompositionManager';
-import { getRemotionEnvironment } from '../get-environment';
+import {continueRender, delayRender} from '../delay-render';
+import {getRemotionEnvironment} from '../get-environment';
 import {random} from '../random';
 import {SequenceContext} from '../Sequence';
 import {useTimelinePosition} from '../timeline-position-state';
@@ -18,10 +19,9 @@ import {useCurrentFrame} from '../use-current-frame';
 import {evaluateVolume} from '../volume-prop';
 import type {RemotionAudioProps} from './props';
 import {useFrameForVolumeProp} from './use-audio-frame';
-import { continueRender, delayRender } from '../delay-render';
 
 type AudioForRenderingProps = RemotionAudioProps & {
-  onDuration: (src: string, durationInSeconds: number) => void;
+	onDuration: (src: string, durationInSeconds: number) => void;
 };
 
 const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -103,7 +103,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		props.playbackRate,
 	]);
 
-  const {src, onDuration} = props;
+	const {src, onDuration} = props;
 
 	// If audio source switches, make new handle
 	if (getRemotionEnvironment() === 'rendering') {

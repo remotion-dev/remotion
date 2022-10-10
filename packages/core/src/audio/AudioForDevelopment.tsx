@@ -1,8 +1,8 @@
 import type {ForwardRefExoticComponent, RefAttributes} from 'react';
-import { useEffect} from 'react';
 import React, {
 	forwardRef,
 	useContext,
+	useEffect,
 	useImperativeHandle,
 	useMemo,
 	useState,
@@ -24,7 +24,7 @@ import {useFrameForVolumeProp} from './use-audio-frame';
 
 type AudioForDevelopmentProps = RemotionAudioProps & {
 	shouldPreMountAudioTags: boolean;
-  onDuration: (src: string, durationInSeconds: number) => void;
+	onDuration: (src: string, durationInSeconds: number) => void;
 };
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
@@ -51,7 +51,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		shouldPreMountAudioTags,
 		src,
-    onDuration,
+		onDuration,
 		...nativeProps
 	} = props;
 
@@ -117,17 +117,17 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		[audioRef]
 	);
 
-  useEffect(() => {
-    const {current} = audioRef;
-    if (!current) {
-      return;
-    }
+	useEffect(() => {
+		const {current} = audioRef;
+		if (!current) {
+			return;
+		}
 
-    current.onloadedmetadata = () => {
-      onDuration(src, current.duration);
-    };
+		current.onloadedmetadata = () => {
+			onDuration(src, current.duration);
+		};
 
-    const errorHandler = () => {
+		const errorHandler = () => {
 			if (current?.error) {
 				console.error('Error occurred in audio', current?.error);
 				throw new Error(
@@ -142,7 +142,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		return () => {
 			current.removeEventListener('error', errorHandler);
 		};
-  }, [audioRef, src, onDuration]);
+	}, [audioRef, src, onDuration]);
 
 	if (initialShouldPreMountAudioElements) {
 		return null;
