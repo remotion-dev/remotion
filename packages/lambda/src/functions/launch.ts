@@ -18,6 +18,7 @@ import {
 	rendersPrefix,
 } from '../shared/constants';
 import {DOCS_URL} from '../shared/docs-url';
+import {invokeWebhook} from '../shared/invoke-webhook';
 import {getServeUrlHash} from '../shared/make-s3-url';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateOutname} from '../shared/validate-outname';
@@ -92,6 +93,50 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	}
 
 	const startedDate = Date.now();
+
+	let webhookInvoked = false;
+	const webhookDueToTimeout = setTimeout(async () => {
+		if (params.webhook && !webhookInvoked) {
+			try {
+				await invokeWebhook({
+					url: params.webhook.url,
+					secret: params.webhook.secret,
+					payload: {
+						type: 'timeout',
+						renderId: params.renderId,
+						expectedBucketOwner: options.expectedBucketOwner,
+						bucketName: params.bucketName,
+					},
+				});
+				webhookInvoked = true;
+			} catch (err) {
+				if (process.env.NODE_ENV === 'test') {
+					throw err;
+				}
+
+				await writeLambdaError({
+					bucketName: params.bucketName,
+					errorInfo: {
+						type: 'webhook',
+						message: (err as Error).message,
+						name: (err as Error).name as string,
+						stack: (err as Error).stack as string,
+						tmpDir: null,
+						frame: 0,
+						chunk: 0,
+						isFatal: false,
+						attempt: 1,
+						willRetry: false,
+						totalAttempts: 1,
+					},
+					renderId: params.renderId,
+					expectedBucketOwner: options.expectedBucketOwner,
+				});
+				console.log('Failed to invoke webhook:');
+				console.log(err);
+			}
+		}
+	}, Math.max(params.timeoutInMilliseconds - 1000, 1000));
 
 	const [browserInstance, optimization] = await Promise.all([
 		getBrowserInstance(
@@ -479,6 +524,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		jobs,
 	});
 
+	const outputUrl = getOutputUrlFromMetadata(
+		renderMetadata,
+		params.bucketName,
+		customCredentials
+	);
 	const postRenderData = createPostRenderData({
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
@@ -492,11 +542,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		outputFile: {
 			lastModified: Date.now(),
 			size: outputSize.size,
-			url: getOutputUrlFromMetadata(
-				renderMetadata,
-				params.bucketName,
-				customCredentials
-			),
+			url: outputUrl,
 		},
 	});
 	await finalEncodingProgressProm;
@@ -515,6 +561,52 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	});
 
 	await Promise.all([cleanupChunksProm, fs.promises.rm(outfile)]);
+
+	clearTimeout(webhookDueToTimeout);
+	if (params.webhook && !webhookInvoked) {
+		try {
+			await invokeWebhook({
+				url: params.webhook.url,
+				secret: params.webhook.secret,
+				payload: {
+					type: 'success',
+					renderId: params.renderId,
+					expectedBucketOwner: options.expectedBucketOwner,
+					bucketName: params.bucketName,
+					outputUrl,
+					lambdaErrors: postRenderData.errors,
+					outputFile: postRenderData.outputFile,
+					timeToFinish: postRenderData.timeToFinish,
+				},
+			});
+			webhookInvoked = true;
+		} catch (err) {
+			if (process.env.NODE_ENV === 'test') {
+				throw err;
+			}
+
+			await writeLambdaError({
+				bucketName: params.bucketName,
+				errorInfo: {
+					type: 'webhook',
+					message: (err as Error).message,
+					name: (err as Error).name as string,
+					stack: (err as Error).stack as string,
+					tmpDir: null,
+					frame: 0,
+					chunk: 0,
+					isFatal: false,
+					attempt: 1,
+					willRetry: false,
+					totalAttempts: 1,
+				},
+				renderId: params.renderId,
+				expectedBucketOwner: options.expectedBucketOwner,
+			});
+			console.log('Failed to invoke webhook:');
+			console.log(err);
+		}
+	}
 };
 
 export const launchHandler = async (
@@ -551,5 +643,49 @@ export const launchHandler = async (
 			expectedBucketOwner: options.expectedBucketOwner,
 			renderId: params.renderId,
 		});
+		if (params.webhook?.url) {
+			try {
+				await invokeWebhook({
+					url: params.webhook.url,
+					secret: params.webhook.secret ?? null,
+					payload: {
+						type: 'error',
+						renderId: params.renderId,
+						expectedBucketOwner: options.expectedBucketOwner,
+						bucketName: params.bucketName,
+						errors: [err as Error].map((e) => ({
+							message: e.message,
+							name: e.name as string,
+							stack: e.stack as string,
+						})),
+					},
+				});
+			} catch (error) {
+				if (process.env.NODE_ENV === 'test') {
+					throw error;
+				}
+
+				await writeLambdaError({
+					bucketName: params.bucketName,
+					errorInfo: {
+						type: 'webhook',
+						message: (err as Error).message,
+						name: (err as Error).name as string,
+						stack: (err as Error).stack as string,
+						tmpDir: null,
+						frame: 0,
+						chunk: 0,
+						isFatal: false,
+						attempt: 1,
+						willRetry: false,
+						totalAttempts: 1,
+					},
+					renderId: params.renderId,
+					expectedBucketOwner: options.expectedBucketOwner,
+				});
+				console.log('Failed to invoke webhook:');
+				console.log(error);
+			}
+		}
 	}
 };

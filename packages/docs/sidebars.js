@@ -31,6 +31,7 @@ module.exports = {
             "lambda/cli/quotas",
           ],
         },
+        "cli/benchmark",
         "cli/versions",
         "cli/upgrade",
         "cli/help",
@@ -147,7 +148,7 @@ module.exports = {
       label: "@remotion/lambda",
       link: {
         type: "doc",
-        id: "lambda/installation",
+        id: "lambda/api",
       },
       items: [
         "lambda/estimateprice",
@@ -170,6 +171,7 @@ module.exports = {
         "lambda/rendermediaonlambda",
         "lambda/renderstillonlambda",
         "lambda/simulatepermissions",
+        "lambda/validatewebhooksignature",
       ],
     },
     {
@@ -314,6 +316,7 @@ module.exports = {
         "lambda/custom-layers",
         "lambda/custom-destination",
         "lambda/checklist",
+        "lambda/webhooks",
         {
           type: "category",
           label: "Troubleshooting",
@@ -346,7 +349,8 @@ module.exports = {
         "wrong-composition-mount",
         "staticfile-relative-paths",
         "staticfile-remote-urls",
-        "troubleshooting/rosetta"
+        "troubleshooting/rosetta",
+        "troubleshooting/defaultprops-too-big",
       ],
     },
 
