@@ -83,6 +83,26 @@ describe('validateSelectedCrfAndCodecCombination invalid input', () => {
 	);
 });
 
+test('ProRes', () => {
+	expect(() =>
+		validateQualitySettings({crf: 3, codec: 'prores', videoBitrate: undefined})
+	).toThrow(/The "prores" codec does not support the --crf option\./);
+});
+
+test('WAV', () => {
+	expect(() =>
+		validateQualitySettings({crf: 3, codec: 'wav', videoBitrate: undefined})
+	).toThrow(/The "wav" codec does not support the --crf option\./);
+});
+
+test('WAV', () => {
+	expect(() =>
+		validateQualitySettings({crf: 10, codec: 'h264', videoBitrate: '1M'})
+	).toThrow(
+		/"crf" and "videoBitrate" can not both be set. Choose one of either./
+	);
+});
+
 describe('crf tests getValidCrfRanges invalid input', () => {
 	// input codec
 	const invalidInputs = ['abc', '', 3, undefined];
