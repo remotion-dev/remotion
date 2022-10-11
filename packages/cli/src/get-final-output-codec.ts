@@ -72,6 +72,12 @@ export const getFinalOutputCodec = ({
 			);
 		}
 
+		if (configFile && derivedOutNameCodec !== configFile) {
+			throw new TypeError(
+				`The out name is ${outName} but ${configFile} was set as the codec in the config file. The out name implies a codec of ${derivedOutNameCodec} which does not align with the codec set in the config file.`
+			);
+		}
+
 		return {
 			codec: derivedOutNameCodec,
 			reason: 'derived from out name',
