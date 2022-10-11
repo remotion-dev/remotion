@@ -9,6 +9,7 @@ export const listOfRemotionPackages = [
 	'@remotion/skia',
 	'@remotion/lottie',
 	'@remotion/media-utils',
+	'@remotion/motion-blur',
 	'@remotion/paths',
 	'@remotion/babel-loader',
 	'@remotion/lambda',
