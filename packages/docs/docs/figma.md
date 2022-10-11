@@ -39,4 +39,101 @@ An example can be found in this [repository](https://github.com/kaf-lamed-beyt/r
 
 ## Animate SVG markup
 
-You can also read more about how to animate the rocket in this [article](https://meje.dev/blog/svg-animtion-with-remotion).
+Let's try animating the vehicle group. I'll just go ahead and take a section of the vehicle structure for brevity's sake.
+
+```tsx
+import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
+
+export const Rocket: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: "pink",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <svg
+        width="800"
+        height="800"
+        viewBox="0 0 394 394"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g
+          id="vehicle"
+          style={{
+            transform: `scale(${scale}) ${launch}`,
+            transformOrigin: "center center",
+            transformBox: "fill-box",
+          }}
+        >
+          // vehicle's paths
+        </g>
+      </svg>
+    </AbsoluteFill>
+  );
+};
+```
+
+You'll notice that we're having some values assigned in the `style` prop in the `<g>` element. Let's take a look at them in a detailed manner.
+
+```ts
+const up = spring({
+  fps,
+  frame: frame - 20,
+  config: {
+    damping: 20,
+    mass: 15,
+  },
+});
+
+const scale = spring({
+  fps,
+  frame,
+  config: {
+    mass: 1,
+    stiffness: 200,
+  },
+});
+
+const launch = `translateY(${interpolate(up, [0, 1], [0, -3000])}px)`;
+```
+
+The spring library in Remotion can be used to create smooth animations, by taking the current frame of the video &mdash; which we obtain from the `useCurrentFrame()` hook &mdash; into consideration.
+
+The `launch` variable as the name implies animates the rocket by taking it &mdash; 3000px &mdash; out of the viewport.
+
+```ts
+${interpolate(up, [0, 1], [0, -3000])
+```
+
+The `interpolate` function allows us to map a range of values to another one, in this scenario, we're mapping the initial spring animation `up`, the current frames `[0, 1]`, and how far we want the rocket to be displaced from the viewport.
+
+In a simpler form, we're using the `interpolate` function to animate the rocket by telling it to launch the vehicle when the video is in its first frame &mdash; 3000px out of the viewport.
+
+When you're done with that, you can use the component alongside Remotion's built-in `Composition` component. The illustration below shows what the result looks like, but you can still take a look at the result in this [repo](https://github.com/kaf-lamed-beyt/remo-sample).
+
+![rocket svg](https://res.cloudinary.com/meje/image/upload/v1665432945/article%20assets/rocket_clhn8w.gif)
+
+One thing to note when you're working with SVGs is that CSS transforms work differently with them than they do when we're trying to animate conventional HTML elements. That's why I included the `transformBox` and `transformOrigin` properties in the previous snippet like so:
+
+```tsx
+<g
+  id="vehicle"
+  style={{
+    transform: `scale(${scale}) ${launch}`,
+    transformOrigin: "center center",
+    transformBox: "fill-box",
+  }}
+></g>
+```
+
+If I don't set the value of `transformOrigin = "center center"`, the animation would start from the top left corner, and we do not want that. Take a look at what the animation looked like before I added these attributes.
+
+![rocket before transformOrigin attribute](https://res.cloudinary.com/meje/image/upload/v1665485484/article%20assets/transforms_cmdqom.gif)
+
+[see more](https://meje.dev/blog/svg-animtion-with-remotion).
