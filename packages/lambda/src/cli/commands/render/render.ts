@@ -47,11 +47,16 @@ export const renderCommand = async (args: string[]) => {
 		quit(1);
 	}
 
-	const outName = args[2] ?? null;
+	const outName = parsedLambdaCli['out-name'];
+	const downloadName = args[2] ?? null;
+
+	const {codec, reason} = CliInternals.getFinalCodec({
+		downloadName,
+		outName: outName ?? null,
+	});
 
 	const {
 		chromiumOptions,
-		codec,
 		crf,
 		envVariables,
 		frameRange,
@@ -66,9 +71,11 @@ export const renderCommand = async (args: string[]) => {
 		everyNthFrame,
 		numberOfGifLoops,
 		muted,
+		overwrite,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
+		codec,
 	});
 
 	const functionName = await findFunctionName();
@@ -109,9 +116,16 @@ export const renderCommand = async (args: string[]) => {
 		everyNthFrame,
 		concurrencyPerLambda: parsedLambdaCli['concurrency-per-lambda'],
 		muted,
+		overwrite,
+		webhook: parsedLambdaCli.webhook
+			? {
+					url: parsedLambdaCli.webhook,
+					secret: parsedLambdaCli['webhook-secret'] ?? null,
+			  }
+			: undefined,
 	});
 
-	const totalSteps = outName ? 5 : 4;
+	const totalSteps = downloadName ? 5 : 4;
 
 	const progressBar = CliInternals.createOverwriteableCliOutput(
 		CliInternals.quietFlagProvided()
@@ -119,7 +133,12 @@ export const renderCommand = async (args: string[]) => {
 
 	Log.info(
 		CliInternals.chalk.gray(
-			`Bucket = ${res.bucketName}, renderId = ${res.renderId}, functionName = ${functionName}`
+			`bucket = ${res.bucketName}, function = ${functionName}`
+		)
+	);
+	Log.info(
+		CliInternals.chalk.gray(
+			`renderId = ${res.renderId}, codec = ${codec} (${reason})`
 		)
 	);
 	Log.verbose(`CloudWatch logs (if enabled): ${res.cloudWatchLogs}`);
@@ -167,11 +186,11 @@ export const renderCommand = async (args: string[]) => {
 					retriesInfo: newStatus.retriesInfo,
 				})
 			);
-			if (outName) {
+			if (downloadName) {
 				const downloadStart = Date.now();
 				const {outputPath, sizeInBytes} = await downloadMedia({
 					bucketName: res.bucketName,
-					outPath: outName,
+					outPath: downloadName,
 					region: getAwsRegion(),
 					renderId: res.renderId,
 					onProgress: ({downloaded, totalSize}) => {

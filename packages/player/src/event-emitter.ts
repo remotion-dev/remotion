@@ -10,6 +10,10 @@ type TimeUpdateEventPayload = {
 	frame: number;
 };
 
+type FrameUpdateEventPayload = {
+	frame: number;
+};
+
 type RateChangeEventPayload = {
 	playbackRate: number;
 };
@@ -26,6 +30,7 @@ type StateEventMap = {
 	ended: undefined;
 	error: ErrorPayload;
 	timeupdate: TimeUpdateEventPayload;
+	frameupdate: FrameUpdateEventPayload;
 	fullscreenchange: FullscreenChangeEventPayload;
 };
 
@@ -46,6 +51,7 @@ export class PlayerEmitter {
 		ratechange: [],
 		seeked: [],
 		timeupdate: [],
+		frameupdate: [],
 		fullscreenchange: [],
 	};
 
@@ -108,6 +114,10 @@ export class PlayerEmitter {
 
 	dispatchTimeUpdate(event: TimeUpdateEventPayload) {
 		this.dispatchEvent('timeupdate', event);
+	}
+
+	dispatchFrameUpdate(event: FrameUpdateEventPayload) {
+		this.dispatchEvent('frameupdate', event);
 	}
 
 	dispatchFullscreenChangeUpdate(event: FullscreenChangeEventPayload) {

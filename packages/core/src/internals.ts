@@ -24,6 +24,7 @@ import type {RemotionEnvironment} from './get-environment';
 import {getRemotionEnvironment} from './get-environment';
 import {getPreviewDomElement} from './get-preview-dom-element';
 import {portalNode} from './portal-node';
+import {PrefetchProvider} from './prefetch-state';
 import {getRoot, waitForRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
 import {SequenceContext} from './Sequence';
@@ -45,6 +46,7 @@ import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
 import {validateOffthreadVideoImageFormat} from './validation/validate-offthreadvideo-image-format';
+import {DurationsContextProvider} from './video/duration-state';
 import type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
@@ -99,6 +101,8 @@ export const Internals = {
 	CanUseRemotionHooksProvider,
 	CanUseRemotionHooks,
 	enableLegacyRemotionConfig,
+	PrefetchProvider,
+	DurationsContextProvider,
 };
 
 type WebpackConfiguration = Configuration;

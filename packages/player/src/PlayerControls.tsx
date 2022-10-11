@@ -6,6 +6,10 @@ import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
 import {MediaVolumeSlider} from './MediaVolumeSlider';
 import {PlayerSeekBar} from './PlayerSeekBar';
 import type {usePlayer} from './use-player';
+import {useVideoControlsResize} from './use-video-controls-resize';
+
+export const X_SPACER = 10;
+export const X_PADDING = 12;
 
 const containerStyle: React.CSSProperties = {
 	boxSizing: 'border-box',
@@ -16,8 +20,8 @@ const containerStyle: React.CSSProperties = {
 	paddingBottom: 10,
 	background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.4))',
 	display: 'flex',
-	paddingRight: 12,
-	paddingLeft: 12,
+	paddingRight: X_PADDING,
+	paddingLeft: X_PADDING,
 	flexDirection: 'column',
 	transition: 'opacity 0.3s',
 };
@@ -64,12 +68,6 @@ const flex1: React.CSSProperties = {
 
 const fullscreen: React.CSSProperties = {};
 
-const timeLabel: React.CSSProperties = {
-	color: 'white',
-	fontFamily: 'sans-serif',
-	fontSize: 14,
-};
-
 declare global {
 	interface Document {
 		webkitFullscreenEnabled?: boolean;
@@ -96,6 +94,8 @@ export const Controls: React.FC<{
 	onSeekStart: () => void;
 	inFrame: number | null;
 	outFrame: number | null;
+	initiallyShowControls: number | boolean;
+	playerWidth: number;
 }> = ({
 	durationInFrames,
 	hovered,
@@ -111,19 +111,55 @@ export const Controls: React.FC<{
 	onSeekStart,
 	inFrame,
 	outFrame,
+	initiallyShowControls,
+	playerWidth,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
 
+	const {maxTimeLabelWidth, displayVerticalVolumeSlider} =
+		useVideoControlsResize({allowFullscreen, playerWidth});
+	const [shouldShowInitially, setInitiallyShowControls] = useState<
+		boolean | number
+	>(() => {
+		if (typeof initiallyShowControls === 'boolean') {
+			return initiallyShowControls;
+		}
+
+		if (typeof initiallyShowControls === 'number') {
+			if (initiallyShowControls % 1 !== 0) {
+				throw new Error(
+					'initiallyShowControls must be an integer or a boolean'
+				);
+			}
+
+			if (Number.isNaN(initiallyShowControls)) {
+				throw new Error('initiallyShowControls must not be NaN');
+			}
+
+			if (!Number.isFinite(initiallyShowControls)) {
+				throw new Error('initiallyShowControls must be finite');
+			}
+
+			if (initiallyShowControls <= 0) {
+				throw new Error('initiallyShowControls must be a positive integer');
+			}
+
+			return initiallyShowControls;
+		}
+
+		throw new TypeError('initiallyShowControls must be a number or a boolean');
+	});
+
 	const containerCss: React.CSSProperties = useMemo(() => {
 		// Hide if playing and mouse outside
-		const shouldShow = hovered || !player.playing;
+		const shouldShow = hovered || !player.playing || shouldShowInitially;
 		return {
 			...containerStyle,
 			opacity: Number(shouldShow),
 		};
-	}, [hovered, player.playing]);
+	}, [hovered, shouldShowInitially, player.playing]);
 
 	useEffect(() => {
 		if (playButtonRef.current && spaceKeyToPlayOrPause) {
@@ -143,6 +179,32 @@ export const Controls: React.FC<{
 		);
 	}, []);
 
+	useEffect(() => {
+		if (shouldShowInitially === false) {
+			return;
+		}
+
+		const time = shouldShowInitially === true ? 2000 : shouldShowInitially;
+		const timeout = setTimeout(() => {
+			setInitiallyShowControls(false);
+		}, time);
+
+		return () => {
+			clearInterval(timeout);
+		};
+	}, [shouldShowInitially]);
+
+	const timeLabel: React.CSSProperties = useMemo(() => {
+		return {
+			color: 'white',
+			fontFamily: 'sans-serif',
+			fontSize: 14,
+			maxWidth: maxTimeLabelWidth,
+			overflow: 'hidden',
+			textOverflow: 'ellipsis',
+		};
+	}, [maxTimeLabelWidth]);
+
 	return (
 		<div style={containerCss}>
 			<div style={controlsRow}>
@@ -160,7 +222,9 @@ export const Controls: React.FC<{
 					{showVolumeControls ? (
 						<>
 							<div style={xSpacer} />
-							<MediaVolumeSlider />
+							<MediaVolumeSlider
+								displayVerticalVolumeSlider={displayVerticalVolumeSlider}
+							/>
 						</>
 					) : null}
 					<div style={xSpacer} />

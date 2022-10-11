@@ -24,5 +24,6 @@ export const writePostRenderData = async ({
 		expectedBucketOwner,
 		region,
 		downloadBehavior: null,
+		customCredentials: null,
 	});
 };

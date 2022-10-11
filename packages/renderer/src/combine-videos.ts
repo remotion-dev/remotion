@@ -55,7 +55,7 @@ export const combineVideos = async ({
 				isAudioCodec(codec) ? null : codec === 'gif' ? 'gif' : 'copy',
 				'-c:a',
 				getAudioCodecName(codec),
-				// Set max bitrate up to 1024kbps, will choose lower if that's too much
+				// Set max bitrate up to 512kbps, will choose lower if that's too much
 				'-b:a',
 				'512K',
 				codec === 'h264' ? '-movflags' : null,

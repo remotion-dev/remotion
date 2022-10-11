@@ -20,6 +20,7 @@ import {
 } from './crf';
 import {deleteDirectory} from './delete-directory';
 import type {FfmpegExecutable} from './ffmpeg-executable';
+import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
@@ -70,6 +71,7 @@ export type StitcherOptions = {
 	};
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
+	ffmpegOverride?: FfmpegOverrideFn;
 };
 
 type ReturnType = {
@@ -225,6 +227,10 @@ export const spawnFfmpeg = async (
 			console.log('[verbose] crf', crf);
 		}
 
+		if (options.ffmpegOverride) {
+			console.log('[verbose] ffmpegOverride', options.ffmpegOverride);
+		}
+
 		console.log('[verbose] codec', codec);
 		console.log('[verbose] shouldRenderAudio', shouldRenderAudio);
 		console.log('[verbose] shouldRenderVideo', shouldRenderVideo);
@@ -363,8 +369,16 @@ export const spawnFfmpeg = async (
 	}
 
 	const ffmpegString = ffmpegArgs.flat(2).filter(Boolean) as string[];
+	const finalFfmpegString = options.ffmpegOverride
+		? options.ffmpegOverride({type: 'stitcher', args: ffmpegString})
+		: ffmpegString;
 
-	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString, {
+	if (options.verbose && options.ffmpegOverride) {
+		console.log('Generated final FFMPEG command:');
+		console.log(finalFfmpegString);
+	}
+
+	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', finalFfmpegString, {
 		cwd: options.dir,
 	});
 	options.cancelSignal?.(() => {

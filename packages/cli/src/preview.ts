@@ -3,7 +3,6 @@ import path from 'path';
 import {ConfigInternals} from './config';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
-import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import type {LiveEventsServer} from './preview-server/live-events';
@@ -49,8 +48,6 @@ export const previewCommand = async (remotionRoot: string) => {
 	const {port: desiredPort} = parsedCli;
 	const fullPath = path.join(process.cwd(), file);
 
-	await initializeRenderCli(remotionRoot, 'preview');
-
 	let inputProps = getInputProps((newProps) => {
 		waitForLiveEventsListener().then((listener) => {
 			inputProps = newProps;
@@ -60,14 +57,22 @@ export const previewCommand = async (remotionRoot: string) => {
 			});
 		});
 	});
-	const envVariables = await getEnvironmentVariables();
+	let envVariables = await getEnvironmentVariables((newEnvVariables) => {
+		waitForLiveEventsListener().then((listener) => {
+			envVariables = newEnvVariables;
+			listener.sendEventToClient({
+				type: 'new-env-variables',
+				newEnvVariables,
+			});
+		});
+	});
 
 	const {port, liveEventsServer} = await startServer(
 		path.resolve(__dirname, 'previewEntry.js'),
 		fullPath,
 		{
 			getCurrentInputProps: () => inputProps,
-			envVariables,
+			getEnvVariables: () => envVariables,
 			port: desiredPort,
 			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 			remotionRoot,

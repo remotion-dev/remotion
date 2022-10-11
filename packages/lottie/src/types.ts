@@ -1,3 +1,4 @@
+import type {AnimationItem} from 'lottie-web';
 import type {CSSProperties} from 'react';
 
 export type LottieAnimationData = {
@@ -32,4 +33,8 @@ export type LottieProps = {
 	 * CSS properties to apply to the container of the animation.
 	 */
 	style?: CSSProperties;
+	/**
+	 * Callback that gets invoked when new animation data has been initialized
+	 */
+	onAnimationLoaded?: (animation: AnimationItem) => void;
 };

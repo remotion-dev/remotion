@@ -40,12 +40,6 @@ export const deleteSite = async ({
 		expectedBucketOwner: accountId,
 	});
 
-	if (files.length === 0) {
-		return {
-			totalSizeInBytes: 0,
-		};
-	}
-
 	let totalSize = 0;
 
 	while (files.length > 0) {

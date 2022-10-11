@@ -8,6 +8,7 @@ import path from 'path';
 // eslint-disable-next-line no-restricted-imports
 import type {WebpackOverrideFn} from 'remotion';
 import {ConfigInternals} from '../config';
+import {Log} from '../log';
 import {wdm} from './dev-middleware';
 import {webpackHotMiddleware} from './hot-middleware';
 import type {LiveEventsServer} from './live-events';
@@ -20,7 +21,7 @@ export const startServer = async (
 	options: {
 		webpackOverride: WebpackOverrideFn;
 		getCurrentInputProps: () => object;
-		envVariables?: Record<string, string>;
+		getEnvVariables: () => Record<string, string>;
 		port: number | null;
 		maxTimelineTracks?: number;
 		remotionRoot: string;
@@ -42,7 +43,7 @@ export const startServer = async (
 		environment: 'development',
 		webpackOverride:
 			options?.webpackOverride ?? ConfigInternals.getWebpackOverrideFn(),
-		envVariables: options?.envVariables ?? {},
+		envVariables: options?.getEnvVariables() ?? {},
 		maxTimelineTracks: options?.maxTimelineTracks ?? 15,
 		entryPoints: [
 			require.resolve('./hot-middleware/client'),
@@ -83,6 +84,7 @@ export const startServer = async (
 					response,
 					liveEventsServer,
 					getCurrentInputProps: options.getCurrentInputProps,
+					getEnvVariables: options.getEnvVariables,
 					remotionRoot: options.remotionRoot,
 					userPassedPublicDir: options.userPassedPublicDir,
 				});
@@ -90,6 +92,7 @@ export const startServer = async (
 			.catch((err) => {
 				response.setHeader('content-type', 'application/json');
 				response.writeHead(500);
+				Log.error(`Error while calling ${request.url}`, err);
 				response.end(
 					JSON.stringify({
 						err: (err as Error).message,

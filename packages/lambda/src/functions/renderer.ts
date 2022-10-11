@@ -113,7 +113,7 @@ const renderHandler = async (
 
 				chunkTimingData.timings[renderedFrames] = Date.now() - start;
 			},
-			parallelism: params.concurrencyPerLambda,
+			concurrency: params.concurrencyPerLambda,
 			onStart: () => {
 				lambdaWriteFile({
 					privacy: 'private',
@@ -134,6 +134,7 @@ const renderHandler = async (
 					region: getCurrentRegionInFunction(),
 					expectedBucketOwner: options.expectedBucketOwner,
 					downloadBehavior: null,
+					customCredentials: null,
 				}).catch((err) => reject(err));
 			},
 			puppeteerInstance: browserInstance,
@@ -198,6 +199,13 @@ const renderHandler = async (
 			downloadMap,
 			muted: params.muted,
 			enforceAudioTrack: true,
+			onSlowestFrames: (slowestFrames) => {
+				console.log();
+				console.log(`Slowest frames:`);
+				slowestFrames.forEach(({frame, time}) => {
+					console.log(`Frame ${frame} (${time.toFixed(3)}ms)`);
+				});
+			},
 		})
 			.then(() => resolve())
 			.catch((err) => reject(err));
@@ -221,6 +229,7 @@ const renderHandler = async (
 		privacy: params.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: null,
+		customCredentials: null,
 	});
 	await Promise.all([
 		fs.promises.rm(outputLocation, {recursive: true}),
@@ -238,6 +247,7 @@ const renderHandler = async (
 			privacy: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
 			downloadBehavior: null,
+			customCredentials: null,
 		}),
 	]);
 };
@@ -255,6 +265,10 @@ export const rendererHandler = async (
 	try {
 		await renderHandler(params, options, logs);
 	} catch (err) {
+		if (process.env.NODE_ENV === 'test') {
+			throw err;
+		}
+
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
 		const isBrowserError =

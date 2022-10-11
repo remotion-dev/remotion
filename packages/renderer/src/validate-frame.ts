@@ -9,10 +9,6 @@ export const validateFrame = (frame: number, durationInFrames: number) => {
 		);
 	}
 
-	if (frame < 0) {
-		throw new RangeError(`Frame ${frame} cannot be negative`);
-	}
-
 	if (!Number.isFinite(frame)) {
 		throw new RangeError(`Frame ${frame} is not finite`);
 	}
@@ -20,6 +16,14 @@ export const validateFrame = (frame: number, durationInFrames: number) => {
 	if (frame % 1 !== 0) {
 		throw new RangeError(
 			`Argument for frame must be an integer, but got ${frame}`
+		);
+	}
+
+	if (frame < 0 && frame < -durationInFrames) {
+		throw new RangeError(
+			`Cannot use frame ${frame}: Duration of composition is ${durationInFrames}, therefore the lowest frame that can be rendered is ${
+				-durationInFrames
+			}`
 		);
 	}
 

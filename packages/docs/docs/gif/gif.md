@@ -1,52 +1,12 @@
 ---
-id: gif
-sidebar_label: "@remotion/gif"
-title: "@remotion/gif"
+slug: gif
+sidebar_label: "<Gif>"
+title: "<Gif>"
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+_Part of the [`@remotion/gif`](/docs/gif) package_
 
-You can install this package from NPM to get a component for displaying GIFs that synchronize with Remotions [`useCurrentFrame()`](/docs/use-current-frame).
-
-<Tabs
-defaultValue="npm"
-values={[
-{ label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
-{ label: 'pnpm', value: 'pnpm', },
-]
-}>
-<TabItem value="npm">
-
-```bash
-npm i @remotion/gif
-```
-
-  </TabItem>
-
-  <TabItem value="pnpm">
-
-```bash
-pnpm i @remotion/gif
-```
-
-  </TabItem>
-
-  <TabItem value="yarn">
-
-```bash
-yarn add @remotion/gif
-```
-
-  </TabItem>
-</Tabs>
-
-Also update **all the other Remotion packages** to have the same version: `remotion`, `@remotion/cli` and others.
-
-:::note
-Make sure no package version number has a `^` character in front of it as it can lead to a version conflict.
-:::
+Displays a GIF that synchronizes with Remotions [`useCurrentFrame()`](/docs/use-current-frame).
 
 ## Props
 
@@ -56,7 +16,7 @@ _required_
 
 The source of the GIF. Can be an URL or a local image - see [Importing assets](/docs/assets).
 
-:::info
+:::note
 Remote GIFs need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 
 <details>
@@ -92,7 +52,6 @@ Must be one of these values:
 
 Callback that gets called once the GIF has loaded and finished processing. As its only argument, the callback gives the following object:
 
-- `loaded`: Will be always `true`.
 - `width`: Width of the GIF file in pixels.
 - `height`: Height of the GIF file in pixels.
 - `delays`: Array of timestamps of type `number` containing position of each frame.
@@ -122,3 +81,8 @@ export const MyComponent: React.FC = () => {
   );
 };
 ```
+
+## See also
+
+- [`getGifDurationInSeconds()`](/docs/gif/get-gif-duration-in-seconds)
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/gif/src/Gif.tsx)
