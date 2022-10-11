@@ -49,7 +49,7 @@ If you like to use this feature:
 - You must extend the [default Remotion policy](/docs/lambda/permissions) to allow read and write access to that bucket.
 - The bucket must be in the same region.
 - When calling APIs such as [`downloadMedia()`](/docs/lambda/downloadmedia) or [`getRenderProgress()`](/docs/lambda/getrenderprogress), you must pass the `bucketName` where the site resides in, not the bucket where the video gets saved.
-- The `key` must match `/^([0-9a-zA-Z-!_.*'()]+)$/g`
+- The `key` must match `/^([0-9a-zA-Z-!_.*'()/]+)$/g`
 - The bucketName must match `/^(?=^.{3,63}$)(?!^(\d+\.)+\d+$)(^(([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])$)/`.
 
 This feature is not supported from the CLI.
