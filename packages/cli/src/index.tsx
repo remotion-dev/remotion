@@ -1,15 +1,17 @@
 import {RenderInternals} from '@remotion/renderer';
+import {benchmarkCommand} from './benchmark';
 import {chalk} from './chalk';
 import {checkNodeVersion} from './check-version';
 import {listCompositionsCommand} from './compositions';
 import {overrideRemotion} from './config/index';
+import {determineFinalImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
 import {findRemotionRoot} from './find-closest-package-json';
 import {formatBytes} from './format-bytes';
-import {getCliOptions} from './get-cli-options';
+import {getCliOptions, getFinalCodec} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
 import {handleCommonError} from './handle-common-errors';
-import {initializeRenderCli} from './initialize-render-cli';
+import {initializeCli} from './initialize-cli';
 import {lambdaCommand} from './lambda-command';
 import {loadConfigFile} from './load-config';
 import {Log} from './log';
@@ -52,6 +54,8 @@ export const cli = async () => {
 	const errorSymbolicationLock =
 		RenderInternals.registerErrorSymbolicationLock();
 
+	await initializeCli(remotionRoot);
+
 	try {
 		if (command === 'compositions') {
 			await listCompositionsCommand(remotionRoot);
@@ -67,11 +71,16 @@ export const cli = async () => {
 			await upgrade(remotionRoot);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot);
+		} else if (command === 'benchmark') {
+			await benchmarkCommand(remotionRoot, parsedCli._.slice(1));
 		} else if (command === 'help') {
 			printHelp();
 			process.exit(0);
 		} else {
-			Log.error(`Command ${command} not found.`);
+			if (command) {
+				Log.error(`Command ${command} not found.`);
+			}
+
 			printHelp();
 			process.exit(1);
 		}
@@ -96,7 +105,7 @@ export const CliInternals = {
 	getCliOptions,
 	parseCommandLine,
 	loadConfig,
-	initializeRenderCli,
+	initializeCli,
 	BooleanFlags,
 	quietFlagProvided,
 	parsedCli,
@@ -104,4 +113,6 @@ export const CliInternals = {
 	formatBytes,
 	getFileSizeDownloadBar,
 	findRemotionRoot,
+	getFinalCodec,
+	determineFinalImageFormat,
 };

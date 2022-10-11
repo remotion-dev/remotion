@@ -67,6 +67,7 @@ export type PlayerProps<T> = {
 	showPosterWhenUnplayed?: boolean;
 	inFrame?: number | null;
 	outFrame?: number | null;
+	initiallyShowControls?: number | boolean;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -109,6 +110,7 @@ export const PlayerFn = <T,>(
 		renderPoster,
 		inFrame,
 		outFrame,
+		initiallyShowControls,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -275,7 +277,7 @@ export const PlayerFn = <T,>(
 		persistVolume(vol);
 	}, []);
 
-	useImperativeHandle(ref, () => rootRef.current as PlayerRef);
+	useImperativeHandle(ref, () => rootRef.current as PlayerRef, []);
 
 	const timelineContextValue = useMemo((): TimelineContextValue & {
 		shouldRegisterSequences: boolean;
@@ -392,40 +394,49 @@ export const PlayerFn = <T,>(
 									numberOfAudioTags={numberOfSharedAudioTags}
 								>
 									<PlayerEventEmitterContext.Provider value={emitter}>
-										<PlayerUI
-											ref={rootRef}
-											renderLoading={renderLoading}
-											autoPlay={Boolean(autoPlay)}
-											loop={Boolean(loop)}
-											controls={Boolean(controls)}
-											errorFallback={errorFallback}
-											style={style}
-											inputProps={passedInputProps}
-											allowFullscreen={Boolean(allowFullscreen)}
-											moveToBeginningWhenEnded={Boolean(
-												moveToBeginningWhenEnded
-											)}
-											clickToPlay={
-												typeof clickToPlay === 'boolean'
-													? clickToPlay
-													: Boolean(controls)
-											}
-											showVolumeControls={Boolean(showVolumeControls)}
-											setMediaVolume={setMediaVolumeAndPersist}
-											mediaVolume={mediaVolume}
-											mediaMuted={mediaMuted}
-											doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
-											setMediaMuted={setMediaMuted}
-											spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
-											playbackRate={playbackRate}
-											className={className ?? undefined}
-											showPosterWhenUnplayed={Boolean(showPosterWhenUnplayed)}
-											showPosterWhenEnded={Boolean(showPosterWhenEnded)}
-											showPosterWhenPaused={Boolean(showPosterWhenPaused)}
-											renderPoster={renderPoster}
-											inFrame={inFrame ?? null}
-											outFrame={outFrame ?? null}
-										/>
+										<Internals.PrefetchProvider>
+											<Internals.DurationsContextProvider>
+												<PlayerUI
+													ref={rootRef}
+													renderLoading={renderLoading}
+													autoPlay={Boolean(autoPlay)}
+													loop={Boolean(loop)}
+													controls={Boolean(controls)}
+													errorFallback={errorFallback}
+													style={style}
+													inputProps={passedInputProps}
+													allowFullscreen={Boolean(allowFullscreen)}
+													moveToBeginningWhenEnded={Boolean(
+														moveToBeginningWhenEnded
+													)}
+													clickToPlay={
+														typeof clickToPlay === 'boolean'
+															? clickToPlay
+															: Boolean(controls)
+													}
+													showVolumeControls={Boolean(showVolumeControls)}
+													setMediaVolume={setMediaVolumeAndPersist}
+													mediaVolume={mediaVolume}
+													mediaMuted={mediaMuted}
+													doubleClickToFullscreen={Boolean(
+														doubleClickToFullscreen
+													)}
+													setMediaMuted={setMediaMuted}
+													spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
+													playbackRate={playbackRate}
+													className={className ?? undefined}
+													showPosterWhenUnplayed={Boolean(
+														showPosterWhenUnplayed
+													)}
+													showPosterWhenEnded={Boolean(showPosterWhenEnded)}
+													showPosterWhenPaused={Boolean(showPosterWhenPaused)}
+													renderPoster={renderPoster}
+													inFrame={inFrame ?? null}
+													outFrame={outFrame ?? null}
+													initiallyShowControls={initiallyShowControls ?? true}
+												/>
+											</Internals.DurationsContextProvider>
+										</Internals.PrefetchProvider>
 									</PlayerEventEmitterContext.Provider>
 								</Internals.SharedAudioContextProvider>
 							</Internals.SetMediaVolumeContext.Provider>

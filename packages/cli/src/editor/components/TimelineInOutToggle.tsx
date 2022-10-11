@@ -263,19 +263,23 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		}
 	}, [onInOutClear, inFrame, videoConfig]);
 
-	useImperativeHandle(inOutHandles, () => {
-		return {
-			clearMarks: onInOutClear,
-			inMarkClick: onInMark,
-			outMarkClick: onOutMark,
-			setMarks: ([newInFrame, newOutFrame]) => {
-				setInAndOutFrames({
-					inFrame: newInFrame,
-					outFrame: newOutFrame,
-				});
-			},
-		};
-	});
+	useImperativeHandle(
+		inOutHandles,
+		() => {
+			return {
+				clearMarks: onInOutClear,
+				inMarkClick: onInMark,
+				outMarkClick: onOutMark,
+				setMarks: ([newInFrame, newOutFrame]) => {
+					setInAndOutFrames({
+						inFrame: newInFrame,
+						outFrame: newOutFrame,
+					});
+				},
+			};
+		},
+		[onInMark, onInOutClear, onOutMark, setInAndOutFrames]
+	);
 
 	if (!videoConfig) {
 		return null;

@@ -17,6 +17,7 @@ export type PlayerMethods = {
 	isPlaying: () => boolean;
 	mute: () => void;
 	unmute: () => void;
+	getScale: () => number;
 };
 
 export type PlayerRef = PlayerEmitter & PlayerMethods;

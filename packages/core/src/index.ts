@@ -65,6 +65,7 @@ export * from './internals';
 export * from './interpolate';
 export {interpolateColors} from './interpolate-colors';
 export {Loop} from './loop';
+export {prefetch} from './prefetch';
 export * from './random';
 export {registerRoot} from './register-root';
 export {Sequence} from './Sequence';

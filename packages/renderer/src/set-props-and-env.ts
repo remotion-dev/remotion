@@ -154,7 +154,7 @@ export const setPropsAndEnv = async ({
 		);
 	}
 
-	if (remotionVersion !== VERSION) {
+	if (remotionVersion !== VERSION && process.env.NODE_ENV !== 'test') {
 		if (remotionVersion) {
 			console.warn(
 				`The site was bundled with version ${remotionVersion} of @remotion/bundler, while @remotion/renderer is on version ${VERSION}. You may not have the newest bugfixes and features. Re-bundle the site to fix this issue.`

@@ -25,7 +25,7 @@ export const cleanItems = async ({
 					bucketName: bucket,
 					itemName: object,
 				});
-				await getS3Client(region).send(
+				await getS3Client(region, null).send(
 					new DeleteObjectCommand({
 						Bucket: bucket,
 						Key: object,

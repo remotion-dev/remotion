@@ -5,6 +5,7 @@
     "types": ["node"],
     "skipLibCheck": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "jsx": "react"
   }
 }

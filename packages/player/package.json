@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player",
-	"version": "3.2.16",
+	"version": "3.2.30",
 	"description": "Remotion Player",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -28,7 +28,7 @@
 	],
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"remotion": "3.2.16"
+		"remotion": "3.2.30"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -50,7 +50,7 @@
 		"react-dom": "^18.0.0",
 		"ts-jest": "^27.0.5",
 		"typescript": "^4.7.0",
-		"webpack": "5.72.0"
+		"webpack": "5.74.0"
 	},
 	"keywords": [
 		"remotion",

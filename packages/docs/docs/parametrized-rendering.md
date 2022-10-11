@@ -110,7 +110,7 @@ await renderFrames({
   serveUrl: bundled,
   onStart: () => undefined,
   onFrameUpdate: (f) => undefined,
-  parallelism: null,
+  concurrency: null,
   outputDir: framesDir,
   inputProps: {
     titleText: "Hello World",
@@ -154,3 +154,7 @@ you can still use it as normal in your videos and pass it's props directly. Defa
 // ---cut---
 <MyComponent propOne="hi" propTwo={10} />
 ```
+
+## See also
+
+- [Avoid huge payloads for `defaultProps`](/docs/troubleshooting/defaultprops-too-big)

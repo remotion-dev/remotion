@@ -1,6 +1,6 @@
 import fs from 'fs';
 import type {Browser} from './browser';
-import type { BrowserExecutable } from './browser-executable';
+import type {BrowserExecutable} from './browser-executable';
 import {downloadBrowser} from './browser/create-browser-fetcher';
 import {puppeteer} from './browser/node';
 import type {Product} from './browser/Product';
@@ -53,9 +53,7 @@ const getBrowserRevision = (product: Product) => {
 		platform: null,
 	});
 	const revisionInfo = browserFetcher.revisionInfo(
-		product === 'firefox'
-			? PUPPETEER_REVISIONS.firefox
-			: PUPPETEER_REVISIONS.chromium
+		PUPPETEER_REVISIONS.chromium
 	);
 
 	return revisionInfo;

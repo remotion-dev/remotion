@@ -8,17 +8,17 @@ import React, {
 import {SharedAudioContextProvider} from './audio/shared-audio-tags';
 import {CompositionManagerProvider} from './CompositionManager';
 import {continueRender, delayRender} from './delay-render';
-import type { TNonceContext} from './nonce';
+import type {TNonceContext} from './nonce';
 import {NonceContext} from './nonce';
+import {PrefetchProvider} from './prefetch-state';
 import {random} from './random';
 import type {
 	PlayableMediaTag,
 	SetTimelineContextValue,
-	TimelineContextValue} from './timeline-position-state';
-import {
-	SetTimelineContext,
-	TimelineContext
+	TimelineContextValue,
 } from './timeline-position-state';
+import {SetTimelineContext, TimelineContext} from './timeline-position-state';
+import {DurationsContextProvider} from './video/duration-state';
 
 export const RemotionRoot: React.FC<{
 	children: React.ReactNode;
@@ -84,14 +84,18 @@ export const RemotionRoot: React.FC<{
 		<NonceContext.Provider value={nonceContext}>
 			<TimelineContext.Provider value={timelineContextValue}>
 				<SetTimelineContext.Provider value={setTimelineContextValue}>
-					<CompositionManagerProvider>
-						<SharedAudioContextProvider
-							// In the preview, which is mostly played on Desktop, we opt out of the autoplay policy fix as described in https://github.com/remotion-dev/remotion/pull/554, as it mostly applies to mobile.
-							numberOfAudioTags={0}
-						>
-							{children}
-						</SharedAudioContextProvider>
-					</CompositionManagerProvider>
+					<PrefetchProvider>
+						<CompositionManagerProvider>
+							<DurationsContextProvider>
+								<SharedAudioContextProvider
+									// In the preview, which is mostly played on Desktop, we opt out of the autoplay policy fix as described in https://github.com/remotion-dev/remotion/pull/554, as it mostly applies to mobile.
+									numberOfAudioTags={0}
+								>
+									{children}
+								</SharedAudioContextProvider>
+							</DurationsContextProvider>
+						</CompositionManagerProvider>
+					</PrefetchProvider>
 				</SetTimelineContext.Provider>
 			</TimelineContext.Provider>
 		</NonceContext.Provider>
