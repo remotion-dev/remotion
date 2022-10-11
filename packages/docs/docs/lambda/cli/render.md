@@ -174,7 +174,7 @@ _available from v3.1_
 
 ### `--out-name`
 
-The file name of the media output as stored in the S3 bucket. By default, it is `out` plus the appropriate file extension, for example: `out.mp4`. Must match `/([0-9a-zA-Z-!_.*'()]+)/g`.
+The file name of the media output as stored in the S3 bucket. By default, it is `out` plus the appropriate file extension, for example: `out.mp4`. Must match `/([0-9a-zA-Z-!_.*'()/]+)/g`.
 
 ### `--overwrite`
 
