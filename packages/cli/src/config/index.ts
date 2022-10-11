@@ -10,7 +10,6 @@ import {
 } from './chromium-flags';
 import {getOutputCodecOrUndefined} from './codec';
 import {getConcurrency} from './concurrency';
-import {getActualCrf} from './crf';
 import {getDotEnvLocation} from './env-file';
 import {getAndValidateEveryNthFrame} from './every-nth-frame';
 import {
@@ -41,6 +40,12 @@ import {getWebpackCaching} from './webpack-caching';
 import type {WebpackConfiguration} from '@remotion/bundler';
 // eslint-disable-next-line no-restricted-imports
 import type {ConfigType} from 'remotion';
+import {
+	getAudioBitrate,
+	getVideoBitrate,
+	setAudioBitrate,
+	setVideoBitrate,
+} from './bitrate';
 import {setBrowserExecutable} from './browser-executable';
 import {
 	setChromiumDisableWebSecurity,
@@ -51,7 +56,7 @@ import {
 import {setCodec, setOutputFormat} from './codec';
 import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
-import {setCrf} from './crf';
+import {getCrfOrUndefined, setCrf} from './crf';
 import {
 	getEnforceAudioTrack,
 	setEnforceAudioTrack,
@@ -86,7 +91,6 @@ import {setQuality} from './quality';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
 import {setWebpackCaching} from './webpack-caching';
-import {getAudioBitrate, getVideoBitrate, setAudioBitrate, setVideoBitrate} from "./bitrate";
 
 export const Config: ConfigType = {
 	Preview: {
@@ -148,7 +152,6 @@ export const ConfigInternals = {
 	getOutputCodecOrUndefined,
 	getCustomFfmpegExecutable,
 	getBrowser,
-	getActualCrf,
 	getPixelFormat,
 	getProResProfile,
 	getShouldOverwrite,
@@ -186,6 +189,7 @@ export const ConfigInternals = {
 	getFfmpegOverrideFunction,
 	getAudioBitrate,
 	getVideoBitrate,
+	getCrfOrUndefined,
 };
 
 export const overrideRemotion = () => {

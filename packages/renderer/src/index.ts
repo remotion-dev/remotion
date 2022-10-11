@@ -10,7 +10,7 @@ import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {
 	getDefaultCrfForCodec,
 	getValidCrfRanges,
-	validateSelectedCrfAndCodecCombination,
+	validateQualitySettings,
 } from './crf';
 import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
@@ -150,7 +150,7 @@ export const RenderInternals = {
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
 	getDefaultCrfForCodec,
-	validateSelectedCrfAndCodecCombination,
+	validateQualitySettings,
 	validImageFormats,
 	validCodecs,
 	DEFAULT_PIXEL_FORMAT,
