@@ -1,4 +1,4 @@
-import type { DetailedHTMLProps} from "react";
+import type { DetailedHTMLProps } from "react";
 import React, { useCallback, useState } from "react";
 
 const LIGHT_BLUE = "#42e9f5";
@@ -34,7 +34,7 @@ type Props = Omit<
   "onFocus" | "onBlur"
 >;
 
-export const CoolInput: React.FC<Props> = (props) => {
+export const CoolInput: React.FC<Props> = ({ style, ...props }) => {
   const [focus, setFocused] = useState(false);
 
   const onFocus = useCallback(() => {
@@ -47,7 +47,12 @@ export const CoolInput: React.FC<Props> = (props) => {
 
   return (
     <div style={backgroundStyle(focus)}>
-      <input style={inputStyle} {...props} onFocus={onFocus} onBlur={onBlur} />
+      <input
+        style={{ ...inputStyle, ...style }}
+        {...props}
+        onFocus={onFocus}
+        onBlur={onBlur}
+      />
     </div>
   );
 };

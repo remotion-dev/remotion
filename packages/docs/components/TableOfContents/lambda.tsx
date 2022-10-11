@@ -82,6 +82,10 @@ export const TableOfContents: React.FC = () => {
           <strong>simulatePermissions()</strong>
           <div>Ensure permissions are correctly set up</div>
         </TOCItem>
+        <TOCItem link="/docs/lambda/validatewebhooksignature">
+          <strong>validateWebhookSignature()</strong>
+          <div>Validate an incoming webhook request is authentic</div>
+        </TOCItem>
       </Grid>
     </div>
   );

@@ -2,8 +2,10 @@ import type {ForwardRefExoticComponent, RefAttributes} from 'react';
 import React, {
 	forwardRef,
 	useContext,
+	useEffect,
 	useImperativeHandle,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {usePreload} from '../prefetch';
@@ -23,6 +25,7 @@ import {useFrameForVolumeProp} from './use-audio-frame';
 
 type AudioForDevelopmentProps = RemotionAudioProps & {
 	shouldPreMountAudioTags: boolean;
+	onDuration: (src: string, durationInSeconds: number) => void;
 };
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
@@ -49,6 +52,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		shouldPreMountAudioTags,
 		src,
+		onDuration,
 		...nativeProps
 	} = props;
 
@@ -113,6 +117,31 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		},
 		[audioRef]
 	);
+
+	const currentOnDurationCallback =
+		useRef<AudioForDevelopmentProps['onDuration']>();
+	currentOnDurationCallback.current = onDuration;
+
+	useEffect(() => {
+		const {current} = audioRef;
+		if (!current) {
+			return;
+		}
+
+		if (current.duration) {
+			currentOnDurationCallback.current?.(src, current.duration);
+			return;
+		}
+
+		const onLoadedMetadata = () => {
+			currentOnDurationCallback.current?.(src, current.duration);
+		};
+
+		current.addEventListener('loadedmetadata', onLoadedMetadata);
+		return () => {
+			current.removeEventListener('loadedmetadata', onLoadedMetadata);
+		};
+	}, [audioRef, src]);
 
 	if (initialShouldPreMountAudioElements) {
 		return null;

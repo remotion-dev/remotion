@@ -95,9 +95,11 @@ export {PixelFormat} from './pixel-format';
 export {ProResProfile} from './prores-profile';
 export {renderFrames} from './render-frames';
 export {
+	OnSlowestFrames,
 	renderMedia,
 	RenderMediaOnProgress,
 	RenderMediaOptions,
+	SlowFrame,
 	StitchingState,
 } from './render-media';
 export {renderStill, RenderStillOptions} from './render-still';

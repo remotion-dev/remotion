@@ -144,7 +144,7 @@ export const MyComposition = () => {
 
 You can drop the audio of the video by adding a `muted` prop:
 
-```tsx twoslash
+```tsx twoslash title="Example of a muted video"
 import { AbsoluteFill, Video } from "remotion";
 // ---cut---
 export const MyComposition = () => {
@@ -152,6 +152,27 @@ export const MyComposition = () => {
     <AbsoluteFill>
       <Video
         muted
+        src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `loop`
+
+_Available from v3.2.29_
+
+You can use the `loop` prop to loop a video.
+
+```tsx twoslash title="Example of a looped video"
+import { AbsoluteFill, Video } from "remotion";
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        loop
         src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
       />
     </AbsoluteFill>

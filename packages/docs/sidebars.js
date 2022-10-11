@@ -171,6 +171,7 @@ module.exports = {
         "lambda/rendermediaonlambda",
         "lambda/renderstillonlambda",
         "lambda/simulatepermissions",
+        "lambda/validatewebhooksignature",
       ],
     },
     {
@@ -316,6 +317,7 @@ module.exports = {
         "lambda/custom-layers",
         "lambda/custom-destination",
         "lambda/checklist",
+        "lambda/webhooks",
         {
           type: "category",
           label: "Troubleshooting",

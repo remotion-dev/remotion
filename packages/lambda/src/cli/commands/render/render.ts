@@ -117,6 +117,12 @@ export const renderCommand = async (args: string[]) => {
 		concurrencyPerLambda: parsedLambdaCli['concurrency-per-lambda'],
 		muted,
 		overwrite,
+		webhook: parsedLambdaCli.webhook
+			? {
+					url: parsedLambdaCli.webhook,
+					secret: parsedLambdaCli['webhook-secret'] ?? null,
+			  }
+			: undefined,
 	});
 
 	const totalSteps = downloadName ? 5 : 4;

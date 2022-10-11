@@ -14,6 +14,7 @@ import type {RemotionVideoProps} from './props';
 
 type VideoForDevelopmentProps = RemotionVideoProps & {
 	onlyWarnForMediaSeekingError: boolean;
+	onDuration: (src: string, durationInSeconds: number) => void;
 };
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -30,6 +31,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		onlyWarnForMediaSeekingError,
 		src,
+		onDuration,
 		...nativeProps
 	} = props;
 
@@ -92,6 +94,31 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		current.addEventListener('error', errorHandler, {once: true});
 		return () => {
 			current.removeEventListener('error', errorHandler);
+		};
+	}, [src]);
+
+	const currentOnDurationCallback =
+		useRef<VideoForDevelopmentProps['onDuration']>();
+	currentOnDurationCallback.current = onDuration;
+
+	useEffect(() => {
+		const {current} = videoRef;
+		if (!current) {
+			return;
+		}
+
+		if (current.duration) {
+			currentOnDurationCallback.current?.(src as string, current.duration);
+			return;
+		}
+
+		const onLoadedMetadata = () => {
+			currentOnDurationCallback.current?.(src as string, current.duration);
+		};
+
+		current.addEventListener('loadedmetadata', onLoadedMetadata);
+		return () => {
+			current.removeEventListener('loadedmetadata', onLoadedMetadata);
 		};
 	}, [src]);
 
