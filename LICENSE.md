@@ -7,7 +7,7 @@ Depending on the type of your legal entity, you are granted permission to use Re
 
 ## Free license
 
-Copyright © 2022 [Jonny Burger](https://jonny.io)
+Copyright © 2022 [Remotion](https://www.remotion.dev/)
 
 ### Eligibility
 
