@@ -98,6 +98,12 @@ export const validateQualitySettings = ({
 	}
 
 	if (crf < range[0] || crf > range[1]) {
+		if (range[0] === 0 && range[1] === 0) {
+			throw new TypeError(
+				`The "${codec}" codec does not support the --crf option.`
+			);
+		}
+
 		throw new TypeError(
 			`CRF must be between ${range[0]} and ${range[1]} for codec ${codec}. Passed: ${crf}`
 		);
