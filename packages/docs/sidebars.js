@@ -258,7 +258,6 @@ module.exports = {
       label: "Techniques",
       items: [
         "assets",
-        "exporting-from-figma",
         "using-audio",
         "fonts",
         "using-randomness",
@@ -279,6 +278,7 @@ module.exports = {
         "scaling",
         "video-manipulation",
         "render-as-gif",
+        "figma",
       ],
     },
     {
