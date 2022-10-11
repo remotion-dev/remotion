@@ -1,6 +1,6 @@
 ---
 id: figma
-title: Exporting designs from Figma to Remotion
+title: Import from Figma
 ---
 
 You can export a design from Figma as an SVG file and import it as a React component in Remotion and then animate it.
@@ -31,17 +31,17 @@ Alternatively, use the [SVGR playground](https://react-svgr.com/playground/) to 
 
 ## Importing SVG in Remotion
 
-Paste the component into a Remotion project and [register a `<Composition>`](/docs/composition).
-
+Paste the component into a Remotion project and [register a `<Composition>`](/docs/composition).  
 An example can be found in this [repository](https://github.com/kaf-lamed-beyt/remo-sample).
 
-![](/img/export-figma/rocket.gif)
+![](/img/export-figma/editor-pink.png)
 
 ## Animate SVG markup
 
-Let's try animating the vehicle group. I'll just go ahead and take a section of the vehicle structure for brevity's sake.
+Locate the element that you want to animate and add a style property to it.
+In this case, let's animate the `<g>` element that contains the rocket.
 
-```tsx
+```tsx twoslash
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
 
 export const Rocket: React.FC = () => {
@@ -66,7 +66,6 @@ export const Rocket: React.FC = () => {
         <g
           id="vehicle"
           style={{
-            transform: `scale(${scale}) ${launch}`,
             transformOrigin: "center center",
             transformBox: "fill-box",
           }}
@@ -79,9 +78,15 @@ export const Rocket: React.FC = () => {
 };
 ```
 
-You'll notice that we're having some values assigned in the `style` prop in the `<g>` element. Let's take a look at them in a detailed manner.
+Adding `{transformOrigin: "center center", transformBox: "fill-box"}` will ensure that the transformations center is it's own center.
 
-```ts
+Let's create two spring animations, one for scale and one for transformation:
+
+```tsx twoslash
+import { interpolate, spring } from "remotion";
+const fps = 30;
+const frame = 0;
+// ---cut---
 const up = spring({
   fps,
   frame: frame - 20,
@@ -95,7 +100,6 @@ const scale = spring({
   fps,
   frame,
   config: {
-    mass: 1,
     stiffness: 200,
   },
 });
@@ -103,25 +107,9 @@ const scale = spring({
 const launch = `translateY(${interpolate(up, [0, 1], [0, -3000])}px)`;
 ```
 
-The spring library in Remotion can be used to create smooth animations, by taking the current frame of the video &mdash; which we obtain from the `useCurrentFrame()` hook &mdash; into consideration.
+The `scale` will go from 0 to 1 and `launch` animates from `0` to `-3000px`. Apply the styles to the element:
 
-The `launch` variable as the name implies animates the rocket by taking it &mdash; 3000px &mdash; out of the viewport.
-
-```ts
-${interpolate(up, [0, 1], [0, -3000])
-```
-
-The `interpolate` function allows us to map a range of values to another one, in this scenario, we're mapping the initial spring animation `up`, the current frames `[0, 1]`, and how far we want the rocket to be displaced from the viewport.
-
-In a simpler form, we're using the `interpolate` function to animate the rocket by telling it to launch the vehicle when the video is in its first frame &mdash; 3000px out of the viewport.
-
-When you're done with that, you can use the component alongside Remotion's built-in `Composition` component. The illustration below shows what the result looks like, but you can still take a look at the result in this [repo](https://github.com/kaf-lamed-beyt/remo-sample).
-
-![rocket svg](https://res.cloudinary.com/meje/image/upload/v1665432945/article%20assets/rocket_clhn8w.gif)
-
-One thing to note when you're working with SVGs is that CSS transforms work differently with them than they do when we're trying to animate conventional HTML elements. That's why I included the `transformBox` and `transformOrigin` properties in the previous snippet like so:
-
-```tsx
+```tsx {3}
 <g
   id="vehicle"
   style={{
@@ -129,11 +117,16 @@ One thing to note when you're working with SVGs is that CSS transforms work diff
     transformOrigin: "center center",
     transformBox: "fill-box",
   }}
-></g>
+>
+  {/* ... */}
+</g>
 ```
 
-If we don't set the value of `transformOrigin = "center center"`, the animation would start from the top left corner, and we do not want that. Take a look at what the animation looked like before I added these attributes.
+![rocket svg](https://res.cloudinary.com/meje/image/upload/v1665432945/article%20assets/rocket_clhn8w.gif)
 
-![rocket before transformOrigin attribute](https://res.cloudinary.com/meje/image/upload/v1665485484/article%20assets/transforms_cmdqom.gif)
+You have animated a rocket! 🚀
 
-[see more](https://meje.dev/blog/svg-animtion-with-remotion).
+## See also
+
+- [Blog - SVG Animation with Remotion](https://meje.dev/blog/svg-animtion-with-remotion)
+- [Video - Animating Figma Mockups with Remotion](https://twitter.com/jnybgr/status/1496748768821133312)
