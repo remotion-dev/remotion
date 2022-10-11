@@ -132,7 +132,7 @@ One thing to note when you're working with SVGs is that CSS transforms work diff
 ></g>
 ```
 
-If I don't set the value of `transformOrigin = "center center"`, the animation would start from the top left corner, and we do not want that. Take a look at what the animation looked like before I added these attributes.
+If we don't set the value of `transformOrigin = "center center"`, the animation would start from the top left corner, and we do not want that. Take a look at what the animation looked like before I added these attributes.
 
 ![rocket before transformOrigin attribute](https://res.cloudinary.com/meje/image/upload/v1665485484/article%20assets/transforms_cmdqom.gif)
 
