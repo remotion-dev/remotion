@@ -2,10 +2,7 @@ import execa from 'execa';
 import {Internals} from 'remotion';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
-import {
-	getDefaultCrfForCodec,
-	validateSelectedCrfAndCodecCombination,
-} from './crf';
+import {getDefaultCrfForCodec, validateQualitySettings} from './crf';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {getCodecName} from './get-codec-name';
@@ -35,8 +32,9 @@ type PreSticherOptions = {
 	verbose: boolean;
 	ffmpegExecutable: FfmpegExecutable | undefined;
 	imageFormat: ImageFormat;
-	ffmpegOverride?: FfmpegOverrideFn;
+	ffmpegOverride: FfmpegOverrideFn;
 	signal: CancelSignal;
+	videoBitrate: string | null;
 };
 
 export const prespawnFfmpeg = async (options: PreSticherOptions) => {
@@ -90,7 +88,6 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 		console.log('[verbose] proResProfileName', proResProfileName);
 	}
 
-	validateSelectedCrfAndCodecCombination(crf, codec);
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
 	const ffmpegArgs = [
@@ -107,13 +104,17 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 		// and specified the video codec.
 		['-c:v', encoderName],
 		proResProfileName ? ['-profile:v', proResProfileName] : null,
-		supportsCrf ? ['-crf', String(crf)] : null,
 		['-pix_fmt', pixelFormat],
 
 		// Without explicitly disabling auto-alt-ref,
 		// transparent WebM generation doesn't work
 		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
-		['-b:v', '1M'],
+		...validateQualitySettings({
+			crf: options.crf,
+			videoBitrate: options.videoBitrate,
+			codec,
+		}),
+
 		'-y',
 		options.outputLocation,
 	];

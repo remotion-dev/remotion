@@ -131,16 +131,10 @@ const getAndValidateShouldOutputImageSequence = async ({
 	return shouldOutputImageSequence;
 };
 
-const getAndValidateCrf = (
-	shouldOutputImageSequence: boolean,
-	codec: Codec
-) => {
+const getCrf = (shouldOutputImageSequence: boolean) => {
 	const crf = shouldOutputImageSequence
 		? null
-		: ConfigInternals.getActualCrf(codec);
-	if (crf !== null) {
-		RenderInternals.validateSelectedCrfAndCodecCombination(crf, codec);
-	}
+		: ConfigInternals.getCrfOrUndefined();
 
 	return crf;
 };
@@ -215,7 +209,14 @@ export const getCliOptions = async (options: {
 	const overwrite = ConfigInternals.getShouldOverwrite({
 		defaultValue: !options.isLambda,
 	});
-	const crf = getAndValidateCrf(shouldOutputImageSequence, options.codec);
+	const crf = getCrf(shouldOutputImageSequence);
+	const videoBitrate = ConfigInternals.getVideoBitrate();
+	RenderInternals.validateQualitySettings({
+		crf,
+		codec: options.codec,
+		videoBitrate,
+	});
+
 	const pixelFormat = getAndValidatePixelFormat(options.codec);
 	const imageFormat = getAndValidateImageFormat({
 		shouldOutputImageSequence,
@@ -277,6 +278,6 @@ export const getCliOptions = async (options: {
 		publicDir: ConfigInternals.getPublicDir(),
 		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
 		audioBitrate: ConfigInternals.getAudioBitrate(),
-		videoBitrate: ConfigInternals.getVideoBitrate(),
+		videoBitrate,
 	};
 };
