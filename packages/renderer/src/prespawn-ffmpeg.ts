@@ -40,7 +40,10 @@ type PreSticherOptions = {
 	signal: CancelSignal;
 };
 
-export const prespawnFfmpeg = async (options: PreSticherOptions) => {
+export const prespawnFfmpeg = async (
+	options: PreSticherOptions,
+	remotionRoot: string
+) => {
 	Internals.validateDimension(
 		options.height,
 		'height',
@@ -65,7 +68,7 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 	});
 	const crf = options.crf ?? getDefaultCrfForCodec(codec);
 	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
-	await validateFfmpeg(options.ffmpegExecutable ?? null);
+	await validateFfmpeg(options.ffmpegExecutable ?? null, remotionRoot);
 
 	const encoderName = getCodecName(codec);
 	const proResProfileName = getProResProfileName(codec, options.proResProfile);
@@ -129,7 +132,10 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 		? options.ffmpegOverride({type: 'pre-stitcher', args: ffmpegString})
 		: ffmpegString;
 
-	const task = execa(await getExecutableFfmpeg(null), finalFfmpegString);
+	const task = execa(
+		await getExecutableFfmpeg(null, remotionRoot),
+		finalFfmpegString
+	);
 
 	options.signal(() => {
 		task.kill();

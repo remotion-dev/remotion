@@ -17,6 +17,7 @@ test('Need to pass valid metadata', () => {
 			output: '/file/output.png',
 			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
 			downloadMap: makeDownloadMap(),
+			remotionRoot: process.cwd(),
 		})
 	).rejects.toThrow(/not be NaN, but is NaN/);
 });
@@ -36,6 +37,7 @@ test('Need to pass valid metadata', () => {
 			output: '/file/output.png',
 			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
 			downloadMap: makeDownloadMap(),
+			remotionRoot: process.cwd(),
 		})
 	).rejects.toThrow(
 		/Cannot use frame 200: Duration of composition is 30, therefore the highest frame that can be rendered is 29/

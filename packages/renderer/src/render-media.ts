@@ -19,6 +19,7 @@ import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
+import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
@@ -275,25 +276,28 @@ export const renderMedia = ({
 
 	const createPrestitcherIfNecessary = async () => {
 		if (preEncodedFileLocation) {
-			preStitcher = await prespawnFfmpeg({
-				width: composition.width * (scale ?? 1),
-				height: composition.height * (scale ?? 1),
-				fps,
-				outputLocation: preEncodedFileLocation,
-				pixelFormat,
-				codec,
-				proResProfile,
-				crf,
-				onProgress: (frame: number) => {
-					encodedFrames = frame;
-					callUpdate();
+			preStitcher = await prespawnFfmpeg(
+				{
+					width: composition.width * (scale ?? 1),
+					height: composition.height * (scale ?? 1),
+					fps,
+					outputLocation: preEncodedFileLocation,
+					pixelFormat,
+					codec,
+					proResProfile,
+					crf,
+					onProgress: (frame: number) => {
+						encodedFrames = frame;
+						callUpdate();
+					},
+					verbose: options.verbose ?? false,
+					ffmpegExecutable,
+					imageFormat,
+					signal: cancelPrestitcher.cancelSignal,
+					ffmpegOverride,
 				},
-				verbose: options.verbose ?? false,
-				ffmpegExecutable,
-				imageFormat,
-				signal: cancelPrestitcher.cancelSignal,
-				ffmpegOverride,
-			});
+				findRemotionRoot()
+			);
 			stitcherFfmpeg = preStitcher.task;
 		}
 	};
@@ -382,37 +386,40 @@ export const renderMedia = ({
 
 			const stitchStart = Date.now();
 			return Promise.all([
-				stitchFramesToVideo({
-					width: composition.width * (scale ?? 1),
-					height: composition.height * (scale ?? 1),
-					fps,
-					outputLocation: absoluteOutputLocation,
-					internalOptions: {
-						preEncodedFileLocation,
-						imageFormat,
+				stitchFramesToVideo(
+					{
+						width: composition.width * (scale ?? 1),
+						height: composition.height * (scale ?? 1),
+						fps,
+						outputLocation: absoluteOutputLocation,
+						internalOptions: {
+							preEncodedFileLocation,
+							imageFormat,
+						},
+						force: overwrite ?? DEFAULT_OVERWRITE,
+						pixelFormat,
+						codec,
+						proResProfile,
+						crf,
+						assetsInfo,
+						ffmpegExecutable,
+						ffprobeExecutable,
+						onProgress: (frame: number) => {
+							stitchStage = 'muxing';
+							encodedFrames = frame;
+							callUpdate();
+						},
+						onDownload,
+						numberOfGifLoops,
+						verbose: options.verbose,
+						dir: outputDir ?? undefined,
+						cancelSignal: cancelStitcher.cancelSignal,
+						muted: disableAudio,
+						enforceAudioTrack,
+						ffmpegOverride,
 					},
-					force: overwrite ?? DEFAULT_OVERWRITE,
-					pixelFormat,
-					codec,
-					proResProfile,
-					crf,
-					assetsInfo,
-					ffmpegExecutable,
-					ffprobeExecutable,
-					onProgress: (frame: number) => {
-						stitchStage = 'muxing';
-						encodedFrames = frame;
-						callUpdate();
-					},
-					onDownload,
-					numberOfGifLoops,
-					verbose: options.verbose,
-					dir: outputDir ?? undefined,
-					cancelSignal: cancelStitcher.cancelSignal,
-					muted: disableAudio,
-					enforceAudioTrack,
-					ffmpegOverride,
-				}),
+					findRemotionRoot()
+				),
 				stitchStart,
 			]);
 		})
