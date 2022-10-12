@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import {performance} from 'perf_hooks';
 import type {SmallTCompMetadata, TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -55,14 +56,28 @@ type ConfigOrComposition =
 			composition: SmallTCompMetadata;
 	  };
 
+type ConcurrencyOrParallelism =
+	| {
+			concurrency?: number | null;
+	  }
+	| {
+			/**
+			 * @deprecated This field has been renamed to `concurrency`
+			 */
+			parallelism?: number | null;
+	  };
+
 type RenderFramesOptions = {
 	onStart: (data: OnStartData) => void;
-	onFrameUpdate: (framesRendered: number, frameIndex: number) => void;
+	onFrameUpdate: (
+		framesRendered: number,
+		frameIndex: number,
+		timeToRenderInMilliseconds: number
+	) => void;
 	outputDir: string | null;
 	inputProps: unknown;
 	envVariables?: Record<string, string>;
 	imageFormat: ImageFormat;
-	parallelism?: number | null;
 	quality?: number;
 	frameRange?: FrameRange | null;
 	everyNthFrame?: number;
@@ -85,6 +100,7 @@ type RenderFramesOptions = {
 	downloadMap?: DownloadMap;
 	muted?: boolean;
 } & ConfigOrComposition &
+	ConcurrencyOrParallelism &
 	ServeUrlOrWebpackBundle;
 
 const getComposition = (others: ConfigOrComposition) => {
@@ -94,6 +110,18 @@ const getComposition = (others: ConfigOrComposition) => {
 
 	if ('config' in others) {
 		return others.config;
+	}
+
+	return undefined;
+};
+
+const getConcurrency = (others: ConcurrencyOrParallelism) => {
+	if ('concurrency' in others) {
+		return others.concurrency;
+	}
+
+	if ('parallelism' in others) {
+		return others.parallelism;
 	}
 
 	return undefined;
@@ -124,7 +152,7 @@ const innerRenderFrames = ({
 	composition,
 	timeoutInMilliseconds,
 	scale,
-	actualParallelism,
+	actualConcurrency,
 	everyNthFrame = 1,
 	proxyPort,
 	cancelSignal,
@@ -135,7 +163,7 @@ const innerRenderFrames = ({
 	pagesArray: Page[];
 	serveUrl: string;
 	composition: SmallTCompMetadata;
-	actualParallelism: number;
+	actualConcurrency: number;
 	onDownload: RenderMediaOnDownload;
 	proxyPort: number;
 	downloadMap: DownloadMap;
@@ -164,7 +192,7 @@ const innerRenderFrames = ({
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
-	const pages = new Array(actualParallelism).fill(true).map(async () => {
+	const pages = new Array(actualConcurrency).fill(true).map(async () => {
 		const page = await puppeteerInstance.newPage();
 		pagesArray.push(page);
 		await page.setViewport({
@@ -267,6 +295,8 @@ const innerRenderFrames = ({
 				throw new Error('Render was stopped');
 			}
 
+			const startTime = performance.now();
+
 			const errorCallbackOnFrame = (err: Error) => {
 				onError(err);
 			};
@@ -349,7 +379,7 @@ const innerRenderFrames = ({
 			});
 			pool.release(freePage);
 			framesRendered++;
-			onFrameUpdate(framesRendered, frame);
+			onFrameUpdate(framesRendered, frame, performance.now() - startTime);
 			cleanupPageError();
 			freePage.off('error', errorCallbackOnFrame);
 			return compressedAssets;
@@ -382,6 +412,7 @@ export const renderFrames = (
 	options: RenderFramesOptions
 ): Promise<RenderFramesOutput> => {
 	const composition = getComposition(options);
+	const concurrency = getConcurrency(options);
 
 	if (!composition) {
 		throw new Error(
@@ -432,7 +463,7 @@ export const renderFrames = (
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
 
-	const actualParallelism = getActualConcurrency(options.parallelism ?? null);
+	const actualConcurrency = getActualConcurrency(concurrency ?? null);
 
 	const openedPages: Page[] = [];
 
@@ -462,7 +493,7 @@ export const renderFrames = (
 			]).then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {
 				const {stopCycling} = cycleBrowserTabs(
 					puppeteerInstance,
-					actualParallelism
+					actualConcurrency
 				);
 
 				cleanup.push(stopCycling);
@@ -475,7 +506,7 @@ export const renderFrames = (
 					pagesArray: openedPages,
 					serveUrl,
 					composition,
-					actualParallelism,
+					actualConcurrency,
 					onDownload,
 					proxyPort: offthreadPort,
 					downloadMap,

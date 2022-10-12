@@ -11,7 +11,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {calculateScale} from './calculate-scale';
+import {calculateCanvasTransformation} from './calculate-scale';
 import {ErrorBoundary} from './error-boundary';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import type {PlayerMethods, PlayerRef} from './player-methods';
@@ -29,7 +29,7 @@ export type RenderLoading = (canvas: {
 	height: number;
 	width: number;
 }) => React.ReactChild;
-
+export type RenderPoster = RenderLoading;
 const reactVersion = React.version.split('.')[0];
 if (reactVersion === '0') {
 	throw new Error(
@@ -58,9 +58,16 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		mediaVolume: number;
 		errorFallback: ErrorFallback;
 		playbackRate: number;
-		renderLoading?: RenderLoading;
+		renderLoading: RenderLoading | undefined;
+		renderPoster: RenderPoster | undefined;
 		className: string | undefined;
 		moveToBeginningWhenEnded: boolean;
+		showPosterWhenPaused: boolean;
+		showPosterWhenEnded: boolean;
+		showPosterWhenUnplayed: boolean;
+		inFrame: number | null;
+		outFrame: number | null;
+		initiallyShowControls: number | boolean;
 	}
 > = (
 	{
@@ -81,8 +88,15 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		errorFallback,
 		playbackRate,
 		renderLoading,
+		renderPoster,
 		className,
 		moveToBeginningWhenEnded,
+		showPosterWhenUnplayed,
+		showPosterWhenEnded,
+		showPosterWhenPaused,
+		inFrame,
+		outFrame,
+		initiallyShowControls,
 	},
 	ref
 ) => {
@@ -98,13 +112,14 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [hasPausedToResume, setHasPausedToResume] = useState(false);
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
 	const [isFullscreen, setIsFullscreen] = useState(() => false);
+	const [seeking, setSeeking] = useState(false);
 
 	usePlayback({
 		loop,
 		playbackRate,
 		moveToBeginningWhenEnded,
-		inFrame: null,
-		outFrame: null,
+		inFrame,
+		outFrame,
 	});
 	const player = usePlayer();
 
@@ -214,6 +229,20 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const durationInFrames = config?.durationInFrames ?? 1;
 
+	const layout = useMemo(() => {
+		if (!config || !canvasSize) {
+			return null;
+		}
+
+		return calculateCanvasTransformation({
+			canvasSize,
+			compositionHeight: config.height,
+			compositionWidth: config.width,
+			previewSize: 'auto',
+		});
+	}, [canvasSize, config]);
+	const scale = layout?.scale ?? 1;
+
 	useImperativeHandle(
 		ref,
 		() => {
@@ -277,6 +306,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				unmute: () => {
 					setMediaMuted(false);
 				},
+				getScale: () => scale,
 			};
 			return Object.assign(player.emitter, methods);
 		},
@@ -292,6 +322,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			setMediaMuted,
 			setMediaVolume,
 			toggle,
+			scale,
 		]
 	);
 
@@ -316,25 +347,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		};
 	}, [canvasSize, config, style]);
 
-	const layout = useMemo(() => {
-		if (!config || !canvasSize) {
-			return null;
-		}
-
-		return calculateScale({
-			canvasSize,
-			compositionHeight: config.height,
-			compositionWidth: config.width,
-			previewSize: 'auto',
-		});
-	}, [canvasSize, config]);
-
 	const outer: React.CSSProperties = useMemo(() => {
 		if (!layout || !config) {
 			return {};
 		}
 
-		const {centerX, centerY, scale} = layout;
+		const {centerX, centerY} = layout;
 
 		return {
 			width: config.width * scale,
@@ -346,19 +364,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			top: centerY,
 			overflow: 'hidden',
 		};
-	}, [config, layout]);
+	}, [config, layout, scale]);
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
-		if (!config || !canvasSize) {
+		if (!config || !canvasSize || !layout) {
 			return {};
 		}
-
-		const {scale, xCorrection, yCorrection} = calculateScale({
-			canvasSize,
-			compositionHeight: config.height,
-			compositionWidth: config.width,
-			previewSize: 'auto',
-		});
 
 		return {
 			position: 'absolute',
@@ -366,11 +377,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			height: config.height,
 			display: 'flex',
 			transform: `scale(${scale})`,
-			marginLeft: xCorrection,
-			marginTop: yCorrection,
+			marginLeft: layout.xCorrection,
+			marginTop: layout.yCorrection,
 			overflow: 'hidden',
 		};
-	}, [canvasSize, config]);
+	}, [canvasSize, config, layout, scale]);
 
 	const onError = useCallback(
 		(error: Error) => {
@@ -406,6 +417,14 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		[toggle]
 	);
 
+	const onSeekStart = useCallback(() => {
+		setSeeking(true);
+	}, []);
+
+	const onSeekEnd = useCallback(() => {
+		setSeeking(false);
+	}, []);
+
 	const onDoubleClick = useCallback(() => {
 		if (isFullscreen) {
 			exitFullscreen();
@@ -431,6 +450,27 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		return null;
 	}
 
+	const poster = renderPoster
+		? renderPoster({
+				height: outerStyle.height as number,
+				width: outerStyle.width as number,
+		  })
+		: null;
+
+	if (poster === undefined) {
+		throw new TypeError(
+			'renderPoster() must return a React element, but undefined was returned'
+		);
+	}
+
+	const shouldShowPoster =
+		poster &&
+		[
+			showPosterWhenPaused && !player.isPlaying() && !seeking,
+			showPosterWhenEnded && player.isLastFrame && !player.isPlaying(),
+			showPosterWhenUnplayed && !player.hasPlayed && !player.isPlaying(),
+		].some(Boolean);
+
 	const content = (
 		<>
 			<div
@@ -449,6 +489,17 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					) : null}
 				</div>
 			</div>
+			{shouldShowPoster ? (
+				<div
+					style={outer}
+					onClick={clickToPlay ? handleClick : undefined}
+					onDoubleClick={
+						doubleClickToFullscreen ? handleDoubleClick : undefined
+					}
+				>
+					{poster}
+				</div>
+			) : null}
 			{controls ? (
 				<Controls
 					fps={config.fps}
@@ -461,6 +512,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					showVolumeControls={showVolumeControls}
 					onExitFullscreenButtonClick={onExitFullscreenButtonClick}
 					spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
+					onSeekEnd={onSeekEnd}
+					onSeekStart={onSeekStart}
+					inFrame={inFrame}
+					outFrame={outFrame}
+					initiallyShowControls={initiallyShowControls}
+					playerWidth={canvasSize?.width ?? 0}
 				/>
 			) : null}
 		</>

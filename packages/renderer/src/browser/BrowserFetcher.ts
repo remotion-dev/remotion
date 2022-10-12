@@ -20,7 +20,7 @@ import * as http from 'http';
 import * as https from 'https';
 import * as os from 'os';
 import * as path from 'path';
-import * as util from 'util';
+import util from 'util';
 
 import extractZip from 'extract-zip';
 
@@ -80,7 +80,7 @@ function archiveName(
 				case 'win64':
 					// Windows archive name changed at r591479.
 					return parseInt(revision, 10) > 591479
-						? 'chrome-win'
+						? 'Thorium_107.0.5271.0\\BIN'
 						: 'chrome-win32';
 				default:
 					throw new Error('unknown browser');
@@ -99,13 +99,16 @@ function _downloadURL(
 	host: string,
 	revision: string
 ): string {
-	const url = util.format(
+	if (platform === 'win64' || platform === 'win32') {
+		return 'https://remotionchromium-binaries.s3.eu-central-1.amazonaws.com/thorium-107.zip';
+	}
+
+	return util.format(
 		downloadURLs[product][platform],
 		host,
 		revision,
 		archiveName(product, platform, revision)
 	);
-	return url;
 }
 
 function handleArm64(): void {
@@ -397,7 +400,7 @@ export class BrowserFetcher {
 				executablePath = path.join(
 					folderPath,
 					archiveName(this.#product, this.#platform, revision),
-					'chrome.exe'
+					'thorium.exe'
 				);
 			} else {
 				throw new Error('Unsupported platform: ' + this.#platform);

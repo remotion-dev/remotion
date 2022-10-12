@@ -1,13 +1,14 @@
 import React from "react";
 
 const outer: React.CSSProperties = {
-  width: 110,
+  width: 90,
   textAlign: "center",
   display: "flex",
   alignItems: "center",
   flexDirection: "column",
   color: "var(--light-text-color)",
   cursor: "pointer",
+  filter: 'drop-shadow(0px 0px 4px var(--background))',
 };
 
 const icon: React.CSSProperties = {
@@ -16,7 +17,7 @@ const icon: React.CSSProperties = {
   height: 50,
   justifyContent: "center",
   alignItems: "center",
-  margin: 10,
+  margin: 0,
 };
 
 const labelStyle: React.CSSProperties = {

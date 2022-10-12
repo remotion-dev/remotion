@@ -1,5 +1,6 @@
 import React, {
 	createContext,
+	forwardRef,
 	useContext,
 	useEffect,
 	useMemo,
@@ -41,15 +42,21 @@ export type SequenceProps = {
 	showLoopTimesInTimeline?: number;
 } & LayoutAndStyle;
 
-export const Sequence: React.FC<SequenceProps> = ({
-	from,
-	durationInFrames = Infinity,
-	children,
-	name,
-	showInTimeline = true,
-	showLoopTimesInTimeline,
-	...other
-}) => {
+const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	SequenceProps
+> = (
+	{
+		from,
+		durationInFrames = Infinity,
+		children,
+		name,
+		showInTimeline = true,
+		showLoopTimesInTimeline,
+		...other
+	},
+	ref
+) => {
 	const {layout = 'absolute-fill'} = other;
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
@@ -186,13 +193,27 @@ export const Sequence: React.FC<SequenceProps> = ({
 		};
 	}, [styleIfThere]);
 
+	if (ref !== null && layout === 'none') {
+		throw new TypeError(
+			'It is not supported to pass both a `ref` and `layout="none"` to <Sequence />.'
+		);
+	}
+
 	return (
 		<SequenceContext.Provider value={contextValue}>
 			{content === null ? null : layout === 'absolute-fill' ? (
-				<AbsoluteFill style={defaultStyle}>{content}</AbsoluteFill>
+				<AbsoluteFill ref={ref} style={defaultStyle}>
+					{content}
+				</AbsoluteFill>
 			) : (
 				content
 			)}
 		</SequenceContext.Provider>
 	);
 };
+
+/**
+ * A component that time-shifts its children and wraps them in an absolutely positioned <div>.
+ * @link https://www.remotion.dev/docs/sequence
+ */
+export const Sequence = forwardRef(SequenceRefForwardingFunction);

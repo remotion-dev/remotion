@@ -16,10 +16,12 @@ import {ConfigInternals} from './config';
 import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
+	getFinalCodec,
+	validateFfmpegCanUseCodec,
 } from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {getOutputFilename} from './get-filename';
-import {initializeRenderCli} from './initialize-render-cli';
+import {getRenderMediaOptions} from './get-render-media-options';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {prepareEntryPoint} from './prepare-entry-point';
@@ -29,6 +31,7 @@ import {
 	makeRenderingAndStitchingProgress,
 } from './progress-bar';
 import type {RenderStep} from './step';
+import {getUserPassedOutputLocation} from './user-passed-output-location';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
 export const render = async (remotionRoot: string) => {
@@ -45,14 +48,24 @@ export const render = async (remotionRoot: string) => {
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
-	await initializeRenderCli(remotionRoot, 'sequence');
+	if (parsedCli.frame) {
+		Log.error(
+			'--frame flag was passed to the `render` command. This flag only works with the `still` command. Did you mean `--frames`? See reference: https://www.remotion.dev/docs/cli/'
+		);
+		process.exit(1);
+	}
 
 	Log.verbose('Asset dirs', downloadMap.assetDir);
 
+	const {codec, reason: codecReason} = getFinalCodec({
+		downloadName: null,
+		outName: getUserPassedOutputLocation(),
+	});
+
+	validateFfmpegCanUseCodec(codec);
+
 	const {
-		codec,
-		proResProfile,
-		parallelism,
+		concurrency,
 		frameRange,
 		shouldOutputImageSequence,
 		overwrite,
@@ -60,8 +73,6 @@ export const render = async (remotionRoot: string) => {
 		envVariables,
 		quality,
 		browser,
-		crf,
-		pixelFormat,
 		imageFormat,
 		browserExecutable,
 		ffmpegExecutable,
@@ -69,14 +80,13 @@ export const render = async (remotionRoot: string) => {
 		scale,
 		chromiumOptions,
 		port,
-		numberOfGifLoops,
 		everyNthFrame,
 		puppeteerTimeout,
 		bundleOutDir,
 		publicPath,
 		muted,
 		enforceAudioTrack,
-	} = await getCliOptions({isLambda: false, type: 'series'});
+	} = await getCliOptions({isLambda: false, type: 'series', codec});
 
 	const relativeOutputLocation = getOutputFilename({
 		codec,
@@ -94,7 +104,7 @@ export const render = async (remotionRoot: string) => {
 
 	Log.info(
 		chalk.gray(
-			`Composition = ${compositionId}, Codec = ${codec}, Output = ${relativeOutputLocation}`
+			`Composition = ${compositionId}, Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
 		)
 	);
 
@@ -125,6 +135,7 @@ export const render = async (remotionRoot: string) => {
 		outDir: bundleOutDir,
 		publicPath,
 		remotionRoot,
+		publicDir,
 	});
 
 	const onDownload: RenderMediaOnDownload = (src) => {
@@ -152,10 +163,11 @@ export const render = async (remotionRoot: string) => {
 		inputProps,
 		puppeteerInstance,
 		envVariables,
-		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: puppeteerTimeout,
 		chromiumOptions,
 		browserExecutable,
 		downloadMap,
+		port,
 	});
 
 	const config = comps.find((c) => c.id === compositionId);
@@ -203,7 +215,7 @@ export const render = async (remotionRoot: string) => {
 				rendering: {
 					frames: renderedFrames,
 					totalFrames: totalFrames.length,
-					concurrency: RenderInternals.getActualConcurrency(parallelism),
+					concurrency: RenderInternals.getActualConcurrency(concurrency),
 					doneIn: renderedDoneIn,
 					steps,
 				},
@@ -262,7 +274,7 @@ export const render = async (remotionRoot: string) => {
 			everyNthFrame,
 			envVariables,
 			frameRange,
-			parallelism,
+			concurrency,
 			puppeteerInstance,
 			quality,
 			timeoutInMilliseconds: puppeteerTimeout,
@@ -284,17 +296,15 @@ export const render = async (remotionRoot: string) => {
 		return;
 	}
 
-	await renderMedia({
+	const options = await getRenderMediaOptions({
+		config,
 		outputLocation: absoluteOutputFile,
+		serveUrl: urlOrBundle,
 		codec,
-		composition: config,
-		crf,
-		envVariables,
-		ffmpegExecutable,
-		ffprobeExecutable,
-		frameRange,
-		imageFormat,
-		inputProps,
+	});
+
+	await renderMedia({
+		...options,
 		onProgress: (update) => {
 			encodedDoneIn = update.encodedDoneIn;
 			encodedFrames = update.encodedFrames;
@@ -304,34 +314,20 @@ export const render = async (remotionRoot: string) => {
 			updateRenderProgress();
 		},
 		puppeteerInstance,
-		overwrite,
-		parallelism,
-		pixelFormat,
-		proResProfile,
-		quality,
-		serveUrl: urlOrBundle,
 		onDownload,
-		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
-			ConfigInternals.Logging.getLogLevel(),
-			'verbose'
-		),
-		chromiumOptions,
-		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
-		scale,
-		port,
-		numberOfGifLoops,
-		everyNthFrame,
-		verbose: RenderInternals.isEqualOrBelowLogLevel(
-			ConfigInternals.Logging.getLogLevel(),
-			'verbose'
-		),
 		downloadMap,
-		muted,
-		enforceAudioTrack,
+		onSlowestFrames: (slowestFrames) => {
+			Log.verbose();
+			Log.verbose(`Slowest frames:`);
+			slowestFrames.forEach(({frame, time}) => {
+				Log.verbose(`Frame ${frame} (${time.toFixed(3)}ms)`);
+			});
+		},
 	});
 
 	Log.info();
 	Log.info();
+
 	const seconds = Math.round((Date.now() - startTime) / 1000);
 	Log.info(
 		[

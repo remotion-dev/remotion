@@ -1,4 +1,4 @@
-import type {BundleOptions} from '@remotion/bundler';
+import type {LegacyBundleOptions} from '@remotion/bundler';
 import {bundle, BundlerInternals} from '@remotion/bundler';
 import {ConfigInternals} from './config';
 import {Log} from './log';
@@ -15,12 +15,14 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	steps,
 	outDir,
 	publicPath,
+	publicDir,
 }: {
 	fullPath: string;
 	remotionRoot: string;
 	steps: RenderStep[];
 	outDir: string | null;
 	publicPath: string | null;
+	publicDir: string | null;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -34,18 +36,19 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		);
 	};
 
-	const options: BundleOptions = {
+	const options: LegacyBundleOptions = {
 		enableCaching: shouldCache,
 		webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
 		rootDir: remotionRoot,
 		outDir: outDir ?? undefined,
 		publicPath: publicPath ?? undefined,
+		publicDir,
 	};
 
 	const [hash] = BundlerInternals.getConfig({
 		outDir: '',
 		entryPoint: fullPath,
-		onProgressUpdate: onProgress,
+		onProgress,
 		options,
 		resolvedRemotionRoot: remotionRoot,
 	});
@@ -68,9 +71,9 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	const bundleStartTime = Date.now();
 	const bundlingProgress = createOverwriteableCliOutput(quietFlagProvided());
 
-	const bundled = await bundle(
-		fullPath,
-		(progress) => {
+	const bundled = await bundle({
+		entryPoint: fullPath,
+		onProgress: (progress) => {
 			bundlingProgress.update(
 				makeBundlingProgress({
 					progress: progress / 100,
@@ -79,8 +82,8 @@ export const bundleOnCliOrTakeServeUrl = async ({
 				})
 			);
 		},
-		options
-	);
+		...options,
+	});
 	bundlingProgress.update(
 		makeBundlingProgress({
 			progress: 1,

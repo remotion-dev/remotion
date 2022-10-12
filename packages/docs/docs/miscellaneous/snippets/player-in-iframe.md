@@ -85,7 +85,7 @@ const IframePlayerWithoutRef = <T,>(
 			{mountNode &&
 				ReactDOM.createPortal(
 					// @ts-expect-error PlayerProps are incorrectly typed
-					<Player<T> {...otherProps} ref={ref} className={combinedClassName} />,
+					<Player<T> {...props} ref={ref} className={combinedClassName} />,
 					mountNode
 				)}
 		</iframe>

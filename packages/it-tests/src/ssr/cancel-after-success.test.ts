@@ -16,7 +16,7 @@ test("Cancelling after success should not throw error", async () => {
       id: "react-svg",
       width: 1280,
     },
-    parallelism: 1,
+    concurrency: 1,
     outputLocation,
     cancelSignal,
   });

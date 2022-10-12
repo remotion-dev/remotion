@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const ICON_SIZE = 25;
-const fullscreenIconSize = 16;
+export const fullscreenIconSize = 16;
 
 const rotate: React.CSSProperties = {
 	transform: `rotate(90deg)`,

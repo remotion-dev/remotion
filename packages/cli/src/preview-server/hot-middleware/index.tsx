@@ -8,13 +8,8 @@ import type {webpack} from '@remotion/bundler';
 import type {IncomingMessage, ServerResponse} from 'http';
 import {parse} from 'url';
 import {Log} from '../../log';
-import type {
-	HotMiddlewareMessage,
-	ModuleMap,
-	WebpackStats} from './types';
-import {
-	hotMiddlewareOptions
-} from './types';
+import type {HotMiddlewareMessage, ModuleMap, WebpackStats} from './types';
+import {hotMiddlewareOptions} from './types';
 
 const pathMatch = function (url: string, path: string) {
 	try {
@@ -35,7 +30,7 @@ export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
 
 	function onInvalid() {
 		latestStats = null;
-		Log.info('webpack building...');
+		Log.info('Building...');
 		eventStream?.publish({
 			action: 'building',
 		});
@@ -142,8 +137,6 @@ function publishStats(
 		if (bundles.length === 1 && !name && statsResult.compilation) {
 			name = statsResult.compilation.name || '';
 		}
-
-		Log.info(`webpack built in ${_stats.time}ms`);
 
 		eventStream?.publish({
 			name,

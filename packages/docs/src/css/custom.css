@@ -6,6 +6,50 @@
  */
 
 /* You can override the default Infima variables here. */
+
+* {
+  font-feature-settings: "kern" 1, "ss02" 1;
+  font-kerning: normal; 
+  -webkit-font-smoothing: antialiased; /* Chrome, Safari */ 
+  -moz-osx-font-smoothing: grayscale; /* Firefox */ 
+}
+
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.025em; 
+  word-spacing: -0.025em;
+  font-family: 'GTPlanar'
+}
+
+
+@font-face {
+  font-family: 'GTPlanar';
+  src: url('/img/gt-planar-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'GTPlanar';
+  src: url('/img/gt-planar-medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'GTPlanar';
+  src: url('/img/gt-planar-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+
+}
+
+@font-face {
+  font-family: 'GTPlanar';
+  src: url('/img/gt-planar-black.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+}
+
+
 :root {
   --ifm-color-primary: #0b84f3;
   --ifm-color-primary-dark: #0a77db;
@@ -14,25 +58,33 @@
   --ifm-color-primary-light: #2290f5;
   --ifm-color-primary-lighter: #2f96f6;
   --ifm-color-primary-lightest: #53a9f7;
-  --ifm-code-font-size: 95%;
+  --ifm-code-font-size: 100%;
+  --ifm-font-family-base: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont,
+'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+'Segoe UI Emoji', 'Segoe UI Symbol';
+--ifm-font-size-base: 16px;
 }
 
 [data-theme="light"] {
+  --background: #fff;
   --text-color: #000;
   --blue-button-color: #084696;
-  --blue-underlay: rgba(66, 144, 245, 0.15);
-  --blue-underlay-hover: rgba(66, 144, 245, 0.25);
+  --blue-underlay: #e7effe;
+  --blue-underlay-hover: #d5e5fd;
   --light-text-color: #777;
   --clear-hover: rgba(0, 0, 0, 0.04);
+  --border-color: rgb(234, 234, 234);
   --box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 [data-theme="dark"] {
+  --background: #18191a;
   --text-color: #fff;
-  --blue-underlay: rgba(255, 255, 255, 0.15);
-  --blue-underlay-hover: rgba(255, 255, 255, 0.25);
+  --blue-underlay: #424243;
+  --blue-underlay-hover: #5b5c5e;
   --clear-hover: rgba(255, 255, 255, 0.06);
   --blue-button-color: white;
   --light-text-color: #aaa;
+  --border-color: rgb(42, 42, 42);
   --box-shadow: 0 1px 8px rgba(255, 255, 255, 0.2);
 }
 
@@ -68,10 +120,31 @@ code {
   background-color: transparent;
   border-width: 0;
   color: #0b84f3;
-  padding: 0;
+  font-family: 'GTPlanar';
+  vertical-align: baseline;
+  padding: 0
+}
+
+.code-container code {
+  font-family: inherit;
+  font-size: 15px;
 }
 
 .markdown a {
   text-underline-position: under;
   text-decoration: underline;
 }
+
+.no-scroll-bar::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+} 
+

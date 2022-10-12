@@ -1,6 +1,4 @@
-import {RenderInternals} from '@remotion/renderer';
-
-let shouldOverwrite = RenderInternals.DEFAULT_OVERWRITE;
+let shouldOverwrite: boolean | null = null;
 
 export const setOverwriteOutput = (newOverwrite: boolean) => {
 	if (typeof newOverwrite !== 'boolean') {
@@ -14,4 +12,8 @@ export const setOverwriteOutput = (newOverwrite: boolean) => {
 	shouldOverwrite = newOverwrite;
 };
 
-export const getShouldOverwrite = () => shouldOverwrite;
+export const getShouldOverwrite = ({
+	defaultValue,
+}: {
+	defaultValue: boolean;
+}): boolean => shouldOverwrite ?? defaultValue;

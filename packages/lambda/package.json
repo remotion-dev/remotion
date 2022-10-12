@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/lambda",
-	"version": "3.2.12",
+	"version": "3.2.30",
 	"description": "Distributed renderer for Remotion based on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -9,7 +9,7 @@
 	},
 	"module": "true",
 	"scripts": {
-		"testintegration": "jest src/test/integration --runInBand",
+		"testintegration": "jest src/test/integration --runInBand --forceExit",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "jest src/test/unit",
 		"watch": "tsc -w",
@@ -32,12 +32,12 @@
 		"@aws-sdk/client-service-quotas": "3.58.0",
 		"@aws-sdk/lib-storage": "3.58.0",
 		"@aws-sdk/s3-request-presigner": "3.58.0",
-		"@remotion/bundler": "3.2.12",
-		"@remotion/cli": "3.2.12",
-		"@remotion/renderer": "3.2.12",
+		"@remotion/bundler": "3.2.30",
+		"@remotion/cli": "3.2.30",
+		"@remotion/renderer": "3.2.30",
 		"aws-policies": "^1.0.1",
 		"mime-types": "2.1.34",
-		"remotion": "3.2.12"
+		"remotion": "3.2.30"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",

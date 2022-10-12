@@ -12,7 +12,7 @@ export const bucketExistsInRegion = async ({
 	expectedBucketOwner: string | null;
 }) => {
 	try {
-		const bucket = await getS3Client(region).send(
+		const bucket = await getS3Client(region, null).send(
 			new GetBucketLocationCommand({
 				Bucket: bucketName,
 				ExpectedBucketOwner: expectedBucketOwner ?? undefined,

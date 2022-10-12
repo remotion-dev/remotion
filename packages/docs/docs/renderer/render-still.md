@@ -24,7 +24,9 @@ import { getCompositions, renderStill } from "@remotion/renderer";
 // The composition you want to render
 const compositionId = "HelloWorld";
 
-const bundleLocation = await bundle(require.resolve("./src/index"));
+const bundleLocation = await bundle({
+  entryPoint: require.resolve("./src/index"),
+});
 
 const comps = await getCompositions(bundleLocation, {
   inputProps: {
@@ -75,7 +77,9 @@ _optional_
 
 _optional - default: 0_
 
-Which frame should be rendered based on its number.
+Which frame should be rendered based on its number. Frames are zero-indexed.
+
+From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 ### `imageFormat?`
 
@@ -85,9 +89,9 @@ Which output format the image should have, either `png` or `jpeg`.
 
 ### `scale?`
 
-_number - default: 1 - available from v2.6.7_
+_optional_
 
-[Scales the output frames by the factor you pass in.](/docs/scaling) For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details.
+Scales the output dimensions by a factor. See [Scaling](/docs/scaling) to learn more about this feature.
 
 ### `quality?`
 
@@ -129,7 +133,7 @@ A string defining the absolute path on disk of the browser executable that shoul
 
 _optional, available from v2.6.3_
 
-A number describing how long the render may take to resolve all `delayRender()` calls before it times out. Default: `30000`
+A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
 ### `cancelSignal?`
 

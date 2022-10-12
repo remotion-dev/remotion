@@ -2,6 +2,7 @@ import {RenderInternals} from '@remotion/renderer';
 import path from 'path';
 import {ConfigInternals} from './config';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
+import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 import type {PackageManager} from './preview-server/get-package-manager';
 import {
@@ -46,23 +47,9 @@ export const upgrade = async (remotionRoot: string) => {
 		);
 	}
 
-	const toUpgrade = [
-		'@remotion/bundler',
-		'@remotion/cli',
-		'@remotion/eslint-config',
-		'@remotion/renderer',
-		'@remotion/skia',
-		'@remotion/lottie',
-		'@remotion/media-utils',
-		'@remotion/paths',
-		'@remotion/babel-loader',
-		'@remotion/lambda',
-		'@remotion/player',
-		'@remotion/preload',
-		'@remotion/three',
-		'@remotion/gif',
-		'remotion',
-	].filter((u) => dependencies.includes(u));
+	const toUpgrade = listOfRemotionPackages.filter((u) =>
+		dependencies.includes(u)
+	);
 
 	const prom = RenderInternals.execa(
 		manager.manager,

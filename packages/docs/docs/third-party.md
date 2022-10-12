@@ -24,6 +24,10 @@ At the moment, we don't have a Framer Motion integration, but are discussing the
 
 Use the [`@remotion/lottie`](/docs/lottie) package.
 
+## After Effects
+
+See: [Lottie - Import from After Effects](/docs/lottie/after-effects)
+
 ## Three.JS
 
 Use the [`@remotion/three`](/docs/three) package.
@@ -39,6 +43,10 @@ There is no direct compatibility but Remotion provides it's own [`spring()`](/do
 ## Reanimated
 
 There is no integration available but Remotion shares some code with Reanimated, in particular [`interpolate()`](/docs/interpolate), [`spring()`](/docs/spring) and [`Easing`](/docs/easing). This makes it easier to refactor already existing animation from Reanimated.
+
+## TailwindCSS
+
+See: [TailwindCSS](/docs/tailwind)
 
 ## Other libraries
 

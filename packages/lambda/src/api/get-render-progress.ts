@@ -1,5 +1,6 @@
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
+import type {CustomCredentials} from '../shared/aws-clients';
 import {callLambda} from '../shared/call-lambda';
 import type {RenderProgress} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
@@ -9,6 +10,7 @@ export type GetRenderInput = {
 	bucketName: string;
 	renderId: string;
 	region: AwsRegion;
+	s3OutputProvider?: CustomCredentials;
 };
 
 /**
@@ -18,6 +20,7 @@ export type GetRenderInput = {
  * @param {string} params.bucketName The name of the bucket that was used in the render.
  * @param {string} params.renderId The ID of the render that was returned by `renderMediaOnLambda()`.
  * @param {AwsRegion} params.region The region in which the render was triggered.
+ * @param {CustomCredentials} params.s3OutputProvider? Endpoint and credentials if the output file is stored outside of AWS.
  * @returns {Promise<RenderProgress>} See documentation for this function to see all properties on the return object.
  */
 export const getRenderProgress = async ({
@@ -25,6 +28,7 @@ export const getRenderProgress = async ({
 	bucketName,
 	renderId,
 	region,
+	s3OutputProvider,
 }: GetRenderInput): Promise<RenderProgress> => {
 	const result = await callLambda({
 		functionName,
@@ -33,6 +37,7 @@ export const getRenderProgress = async ({
 			bucketName,
 			renderId,
 			version: VERSION,
+			s3OutputProvider,
 		},
 		region,
 	});

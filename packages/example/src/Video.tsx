@@ -21,6 +21,7 @@ import {SkipZeroFrame} from './SkipZeroFrame';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
+import {StillZoom} from './StillZoom';
 import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
 import {VideoOnCanvas} from './VideoOnCanvas';
@@ -55,14 +56,6 @@ export const Index: React.FC = () => {
 					fps={60}
 					height={1080}
 					width={1080}
-				/>
-				<Composition
-					id="gif"
-					lazyComponent={() => import('./GifTest')}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={150}
 				/>
 				<Composition
 					id="stagger-test"
@@ -329,6 +322,14 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 			</Folder>
+			<Folder name="still-tests">
+				<Still
+					id="still-zoom"
+					component={StillZoom}
+					width={1800}
+					height={2200}
+				/>
+			</Folder>
 			<Folder name="features">
 				<Composition
 					id="mdx-test"
@@ -421,6 +422,14 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={180 * 30}
 				/>
+				<Composition
+					id="loop-audio"
+					lazyComponent={() => import('./LoopAudio')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={180 * 30}
+				/>
 			</Folder>
 			<Folder name="three">
 				<Still id="Orb" component={OrbScene} width={2000} height={2000} />
@@ -491,6 +500,32 @@ export const Index: React.FC = () => {
 					fps={30}
 					height={1080}
 					width={1080}
+				/>
+			</Folder>
+			<Folder name="gif">
+				<Composition
+					id="gif"
+					lazyComponent={() => import('./GifTest')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="gif-duration"
+					lazyComponent={() => import('./GifTest/gif-duration')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="gif-fill-modes"
+					lazyComponent={() => import('./GifTest/fill-modes')}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
 				/>
 			</Folder>
 		</>

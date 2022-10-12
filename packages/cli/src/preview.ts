@@ -1,9 +1,10 @@
 import betterOpn from 'better-opn';
 import path from 'path';
+import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
-import {initializeRenderCli} from './initialize-render-cli';
+import {getNetworkAddress} from './get-network-address';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import type {LiveEventsServer} from './preview-server/live-events';
@@ -49,8 +50,6 @@ export const previewCommand = async (remotionRoot: string) => {
 	const {port: desiredPort} = parsedCli;
 	const fullPath = path.join(process.cwd(), file);
 
-	await initializeRenderCli(remotionRoot, 'preview');
-
 	let inputProps = getInputProps((newProps) => {
 		waitForLiveEventsListener().then((listener) => {
 			inputProps = newProps;
@@ -60,23 +59,43 @@ export const previewCommand = async (remotionRoot: string) => {
 			});
 		});
 	});
-	const envVariables = await getEnvironmentVariables();
+	let envVariables = await getEnvironmentVariables((newEnvVariables) => {
+		waitForLiveEventsListener().then((listener) => {
+			envVariables = newEnvVariables;
+			listener.sendEventToClient({
+				type: 'new-env-variables',
+				newEnvVariables,
+			});
+		});
+	});
 
 	const {port, liveEventsServer} = await startServer(
 		path.resolve(__dirname, 'previewEntry.js'),
 		fullPath,
 		{
 			getCurrentInputProps: () => inputProps,
-			envVariables,
+			getEnvVariables: () => envVariables,
 			port: desiredPort,
 			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 			remotionRoot,
 			keyboardShortcutsEnabled: ConfigInternals.getKeyboardShortcutsEnabled(),
+			userPassedPublicDir: ConfigInternals.getPublicDir(),
+			webpackOverride: ConfigInternals.getWebpackOverrideFn(),
 		}
 	);
 
 	setLiveEventsListener(liveEventsServer);
-	Log.info(`Server running on http://localhost:${port}`);
+	const networkAddress = getNetworkAddress();
+	if (networkAddress) {
+		Log.info(
+			`Server ready - Local: ${chalk.underline(
+				`http://localhost:${port}`
+			)}, Network: ${chalk.underline(`http://${networkAddress}:${port}`)}`
+		);
+	} else {
+		Log.info(`Running on http://localhost:${port}`);
+	}
+
 	betterOpn(`http://localhost:${port}`);
 	await new Promise(noop);
 };
