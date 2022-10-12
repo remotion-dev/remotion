@@ -88,6 +88,7 @@ const innerGetCompositions = async (
 
 export const getCompositions = async (
 	serveUrlOrWebpackUrl: string,
+	remotionRoot: string,
 	config?: GetCompositionsConfig
 ) => {
 	const downloadMap = config?.downloadMap ?? makeDownloadMap();
@@ -116,6 +117,7 @@ export const getCompositions = async (
 			ffprobeExecutable: config?.ffprobeExecutable ?? null,
 			port: config?.port ?? null,
 			downloadMap,
+			remotionRoot,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
 				close = closeServer;

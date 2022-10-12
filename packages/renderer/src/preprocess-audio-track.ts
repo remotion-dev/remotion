@@ -17,6 +17,7 @@ type Options = {
 	expectedFrames: number;
 	fps: number;
 	downloadMap: DownloadMap;
+	remotionRoot: string;
 };
 
 const preprocessAudioTrackUnlimited = async ({
@@ -27,6 +28,7 @@ const preprocessAudioTrackUnlimited = async ({
 	expectedFrames,
 	fps,
 	downloadMap,
+	remotionRoot,
 }: Options): Promise<string | null> => {
 	const {channels, duration} = await getAudioChannelsAndDuration(
 		downloadMap,
@@ -56,7 +58,7 @@ const preprocessAudioTrackUnlimited = async ({
 		['-y', outName],
 	].flat(2);
 
-	await execa(await getExecutableFfmpeg(ffmpegExecutable), args);
+	await execa(await getExecutableFfmpeg(ffmpegExecutable, remotionRoot), args);
 
 	cleanup();
 	return outName;

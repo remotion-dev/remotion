@@ -1,18 +1,20 @@
 import execa from 'execa';
 import type {FfmpegExecutable} from './ffmpeg-executable';
-import { getExecutableFfmpeg } from './ffmpeg-flags';
+import {getExecutableFfmpeg} from './ffmpeg-flags';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 export const createSilentAudio = async ({
 	ffmpegExecutable,
 	numberOfSeconds,
 	outName,
+	remotionRoot,
 }: {
 	ffmpegExecutable: FfmpegExecutable;
 	numberOfSeconds: number;
 	outName: string;
+	remotionRoot: string;
 }) => {
-	await execa(await getExecutableFfmpeg(ffmpegExecutable), [
+	await execa(await getExecutableFfmpeg(ffmpegExecutable, remotionRoot), [
 		'-f',
 		'lavfi',
 		'-i',

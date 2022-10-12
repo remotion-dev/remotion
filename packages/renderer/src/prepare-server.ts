@@ -15,6 +15,7 @@ export const prepareServer = async ({
 	webpackConfigOrServeUrl,
 	port,
 	downloadMap,
+	remotionRoot,
 }: {
 	webpackConfigOrServeUrl: string;
 	onDownload: RenderMediaOnDownload;
@@ -23,6 +24,7 @@ export const prepareServer = async ({
 	ffprobeExecutable: FfmpegExecutable;
 	port: number | null;
 	downloadMap: DownloadMap;
+	remotionRoot: string;
 }): Promise<{
 	serveUrl: string;
 	closeServer: () => Promise<unknown>;
@@ -36,6 +38,7 @@ export const prepareServer = async ({
 			ffprobeExecutable,
 			port,
 			downloadMap,
+			remotionRoot,
 		});
 
 		return Promise.resolve({
@@ -63,6 +66,7 @@ export const prepareServer = async ({
 		ffprobeExecutable,
 		port,
 		downloadMap,
+		remotionRoot,
 	});
 	return Promise.resolve({
 		closeServer: () => {

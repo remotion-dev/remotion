@@ -89,6 +89,7 @@ type RenderFramesOptions = {
 	ffprobeExecutable?: FfmpegExecutable;
 	port?: number | null;
 	cancelSignal?: CancelSignal;
+	remotionRoot: string;
 	/**
 	 * @deprecated Only for Remotion internal usage
 	 */
@@ -481,6 +482,7 @@ export const renderFrames = (
 					ffprobeExecutable: options.ffprobeExecutable ?? null,
 					port: options.port ?? null,
 					downloadMap,
+					remotionRoot: options.remotionRoot,
 				}),
 				browserInstance,
 			]).then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {

@@ -55,6 +55,7 @@ const getFrameOfVideoSlow = async ({
 	needsResize,
 	offset,
 	fps,
+	remotionRoot,
 }: {
 	ffmpegExecutable: FfmpegExecutable;
 	src: string;
@@ -64,6 +65,7 @@ const getFrameOfVideoSlow = async ({
 	needsResize: [number, number] | null;
 	offset: number;
 	fps: number | null;
+	remotionRoot: string;
 }): Promise<Buffer> => {
 	console.warn(
 		`\nUsing a slow method to extract the frame at ${duration}ms of ${src}. See https://remotion.dev/docs/slow-method-to-extract-frame for advice`
@@ -87,7 +89,7 @@ const getFrameOfVideoSlow = async ({
 	].filter(truthy);
 
 	const {stdout, stderr} = execa(
-		await getExecutableFfmpeg(ffmpegExecutable),
+		await getExecutableFfmpeg(ffmpegExecutable, remotionRoot),
 		command
 	);
 
@@ -138,6 +140,7 @@ const getFrameOfVideoSlow = async ({
 			specialVCodecForTransparency,
 			needsResize,
 			fps,
+			remotionRoot,
 		});
 	}
 
@@ -176,13 +179,14 @@ const getLastFrameOfVideoFastUnlimited = async (
 			needsResize: options.needsResize,
 			offset: offset - 1000 / (fps === null ? 10 : fps),
 			fps,
+			remotionRoot: options.remotionRoot,
 		});
 		return last;
 	}
 
 	const actualOffset = `${duration * 1000 - offset}ms`;
 	const {stdout, stderr} = execa(
-		await getExecutableFfmpeg(ffmpegExecutable),
+		await getExecutableFfmpeg(ffmpegExecutable, options.remotionRoot),
 		[
 			'-ss',
 			actualOffset,
@@ -245,6 +249,7 @@ const getLastFrameOfVideoFastUnlimited = async (
 			specialVCodecForTransparency: options.specialVCodecForTransparency,
 			needsResize: options.needsResize,
 			downloadMap: options.downloadMap,
+			remotionRoot: options.remotionRoot,
 		});
 
 		return unlimited;
@@ -272,6 +277,7 @@ type Options = {
 	ffprobeExecutable: FfmpegExecutable;
 	imageFormat: OffthreadVideoImageFormat;
 	downloadMap: DownloadMap;
+	remotionRoot: string;
 };
 
 const extractFrameFromVideoFn = async ({
@@ -280,11 +286,16 @@ const extractFrameFromVideoFn = async ({
 	ffprobeExecutable,
 	imageFormat,
 	downloadMap,
+	remotionRoot,
 	...options
 }: Options): Promise<Buffer> => {
 	// We make a new copy of the video only for video because the conversion may affect
 	// audio rendering, so we work with 2 different files
-	const src = await ensurePresentationTimestamps(downloadMap, options.src);
+	const src = await ensurePresentationTimestamps(
+		downloadMap,
+		options.src,
+		remotionRoot
+	);
 	const {specialVcodec, needsResize} = await getVideoInfo(
 		downloadMap,
 		src,
@@ -306,6 +317,7 @@ const extractFrameFromVideoFn = async ({
 			needsResize,
 			offset: 0,
 			fps,
+			remotionRoot,
 		});
 	}
 
@@ -319,13 +331,14 @@ const extractFrameFromVideoFn = async ({
 			specialVCodecForTransparency: specialVcodec,
 			needsResize,
 			downloadMap,
+			remotionRoot,
 		});
 		return lastFrame;
 	}
 
 	const ffmpegTimestamp = frameToFfmpegTimestamp(time);
 	const {stdout, stderr} = execa(
-		await getExecutableFfmpeg(ffmpegExecutable),
+		await getExecutableFfmpeg(ffmpegExecutable, remotionRoot),
 		[
 			'-ss',
 			ffmpegTimestamp,
@@ -387,6 +400,7 @@ const extractFrameFromVideoFn = async ({
 			specialVCodecForTransparency: specialVcodec,
 			needsResize,
 			downloadMap,
+			remotionRoot,
 		});
 
 		return last;

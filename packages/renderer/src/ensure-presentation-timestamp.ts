@@ -35,7 +35,8 @@ const getTemporaryOutputName = async (src: string) => {
 
 export const ensurePresentationTimestamps = async (
 	downloadMap: DownloadMap,
-	src: string
+	src: string,
+	remotionRoot: string
 ): Promise<string> => {
 	const elem = downloadMap.ensureFileHasPresentationTimestamp[src];
 	if (elem?.type === 'encoding') {
@@ -56,7 +57,7 @@ export const ensurePresentationTimestamps = async (
 	// If there is no file extension for the video, then we need to tempoa
 	const output = await getTemporaryOutputName(src);
 
-	await execa(await getExecutableFfmpeg(null), [
+	await execa(await getExecutableFfmpeg(null, remotionRoot), [
 		'-i',
 		src,
 		'-fflags',
