@@ -1,9 +1,10 @@
 import execa from 'execa';
-import {statSync} from 'fs';
+import fs, {statSync} from 'fs';
 import os from 'os';
-import {downloadFfmpeg} from './ffmpeg-flags';
+import {downloadFfmpeg, getFfmpegAbsolutePath} from './ffmpeg-flags';
 
 const existsMap: {[key: string]: boolean} = {};
+
 export const binaryExists = async (
 	name: 'ffmpeg' | 'brew',
 	localFFmpeg: string | null // == customFfmpeg
@@ -36,13 +37,8 @@ export const binaryExists = async (
 	}
 };
 
-export const ffmpegInNodeModules = (remotionRoot: string): Promise<boolean> => {
-	const path = require('path');
-	const fs = require('fs');
-	const expectedFfmpegPath =
-		os.platform() === 'win32'
-			? path.resolve(remotionRoot, 'node_modules/.ffmpeg/ffmpeg.exe')
-			: path.resolve(remotionRoot, 'node_modules/.ffmpeg/ffmpeg');
+export const ffmpegInNodeModules = (remotionRoot: string): boolean => {
+	const expectedFfmpegPath = getFfmpegAbsolutePath(remotionRoot);
 	return fs.existsSync(expectedFfmpegPath);
 };
 
@@ -57,7 +53,7 @@ export const validateFfmpeg = async (
 	// binaryExists should also for node_modules
 	const ffmpegExists =
 		(await binaryExists('ffmpeg', customFfmpegBinary)) ||
-		(await ffmpegInNodeModules(remotionRoot));
+		ffmpegInNodeModules(remotionRoot);
 	if (!ffmpegExists) {
 		console.log('Platform: ', os.platform());
 		if (
