@@ -84,6 +84,7 @@ export const render = async (remotionRoot: string) => {
 		puppeteerTimeout,
 		bundleOutDir,
 		publicPath,
+		publicDir,
 		muted,
 		enforceAudioTrack,
 	} = await getCliOptions({isLambda: false, type: 'series', codec});
@@ -323,6 +324,8 @@ export const render = async (remotionRoot: string) => {
 				Log.verbose(`Frame ${frame} (${time.toFixed(3)}ms)`);
 			});
 		},
+		enforceAudioTrack,
+		muted,
 	});
 
 	Log.info();

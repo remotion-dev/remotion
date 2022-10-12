@@ -13,8 +13,8 @@ import {getRenderMediaOptions} from './get-render-media-options';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
+import {prepareEntryPoint} from './prepare-entry-point';
 import {createOverwriteableCliOutput} from './progress-bar';
-import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import {truthy} from './truthy';
 
 const DEFAULT_RUNS = 3;
@@ -162,6 +162,8 @@ export const benchmarkCommand = async (
 		browser,
 		scale,
 		publicDir,
+		bundleOutDir,
+		publicPath,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -178,13 +180,14 @@ export const benchmarkCommand = async (
 		forceDeviceScaleFactor: scale,
 	});
 
-	const {urlOrBundle: bundleLocation, cleanup: cleanupBundle} =
-		await bundleOnCliOrTakeServeUrl({
-			fullPath,
-			publicDir,
-			remotionRoot,
-			steps: ['bundling'],
-		});
+	const {urlOrBundle: bundleLocation, shouldDelete} = await prepareEntryPoint({
+		file: fullPath,
+		publicDir,
+		remotionRoot,
+		otherSteps: [],
+		outDir: bundleOutDir,
+		publicPath,
+	});
 
 	const puppeteerInstance = await browserInstance;
 
@@ -278,5 +281,13 @@ export const benchmarkCommand = async (
 
 	Log.info();
 
-	await cleanupBundle();
+	if (shouldDelete) {
+		try {
+			await RenderInternals.deleteDirectory(bundleLocation);
+		} catch (err) {
+			Log.warn('Could not clean up directory.');
+			Log.warn(err);
+			Log.warn('Do you have minimum required Node.js version?');
+		}
+	}
 };
