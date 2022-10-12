@@ -13,6 +13,12 @@
 [![Install Size](https://packagephobia.now.sh/badge?p=remotion)](https://packagephobia.now.sh/result?p=remotion)
 <a href="https://twitter.com/remotion_dev"><img src="https://img.shields.io/twitter/follow/remotion_dev?label=Twitter&style=social" alt="Twitter"></a>
 
+<p style="color: orange">
+<a href="https://remotion.dev/hacktoberfest"><strong style="color: orange">
+🎃 Hack on Remotion and earn bounties! $4000 are up for grabs in Hacktoberfest. 
+</strong></a> <a href="https://codechem.com">Sponsored by CodeChem!</a>
+</p>
+
 Remotion is a framework for **creating videos programmatically using React.**
 
 ## Why create videos in React?
