@@ -10,7 +10,7 @@
 		"watch": "tsc -w",
 		"build": "tsc -d"
 	},
-	"author": "Jonny Burger <jonny@remotion.dev>, Ilija Boshkov <ilija@codechem.com>",
+	"author": "Matt McGillivray, Ilija Boshkov <ilija@codechem.com>, Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
 	"license": "MIT",
 	"repository": {
