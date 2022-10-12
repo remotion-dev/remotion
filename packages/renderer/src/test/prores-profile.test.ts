@@ -9,7 +9,7 @@ describe('Pro Res Profile', () => {
 				proResProfile: '4444-xq',
 			});
 		}).toThrow(
-			/You have set a ProRes profile but the codec is not "prores". Set the codec to "prores" or remove the ProRes profile./
+			/You have set a ProRes profile but the codec is "aac". Set the codec to "prores" or remove the ProRes profile./
 		);
 	});
 
