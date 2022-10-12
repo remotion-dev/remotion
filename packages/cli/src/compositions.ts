@@ -54,6 +54,7 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'get-compositions-or-bundle',
+		codec: 'h264',
 	});
 
 	const {urlOrBundle, shouldDelete} = await prepareEntryPoint({

@@ -1,5 +1,5 @@
 import {getCliOptions} from './get-cli-options';
-import {initializeRenderCli} from './initialize-render-cli';
+import {initializeCli} from './initialize-cli';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {prepareEntryPoint} from './prepare-entry-point';
@@ -14,11 +14,12 @@ export const bundleCommand = async (remotionRoot: string) => {
 		process.exit(1);
 	}
 
-	await initializeRenderCli(remotionRoot, 'bundle');
+	await initializeCli(remotionRoot);
 
-	const {publicPath, bundleOutDir} = await getCliOptions({
+	const {publicPath, bundleOutDir, publicDir} = await getCliOptions({
 		isLambda: false,
 		type: 'get-compositions-or-bundle',
+		codec: 'h264',
 	});
 
 	const {urlOrBundle} = await prepareEntryPoint({
@@ -27,6 +28,7 @@ export const bundleCommand = async (remotionRoot: string) => {
 		outDir: bundleOutDir,
 		publicPath,
 		remotionRoot,
+		publicDir,
 	});
 
 	Log.info();
