@@ -20,7 +20,6 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"copy-webpack-plugin": "11",
 		"remotion": "3.2.30"
 	},
 	"peerDependencies": {
