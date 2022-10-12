@@ -57,7 +57,7 @@ type InnerStillOptions = {
 export type RenderStillOptions = InnerStillOptions &
 	ServeUrlOrWebpackBundle & {
 		port?: number | null;
-	};
+	} & {remotionRoot: string};
 
 const innerRenderStill = async ({
 	composition,
@@ -269,6 +269,7 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 			ffprobeExecutable: options.ffprobeExecutable ?? null,
 			port: options.port ?? null,
 			downloadMap,
+			remotionRoot: options.remotionRoot,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
 				close = closeServer;

@@ -19,6 +19,7 @@ type Options = {
 	outName: string;
 	numberOfSeconds: number;
 	downloadMap: DownloadMap;
+	remotionRoot: string;
 };
 
 const mergeAudioTrackUnlimited = async ({
@@ -27,12 +28,14 @@ const mergeAudioTrackUnlimited = async ({
 	files,
 	numberOfSeconds,
 	downloadMap,
+	remotionRoot,
 }: Options): Promise<void> => {
 	if (files.length === 0) {
 		await createSilentAudio({
 			outName,
 			ffmpegExecutable,
 			numberOfSeconds,
+			remotionRoot,
 		});
 		return;
 	}
@@ -42,6 +45,7 @@ const mergeAudioTrackUnlimited = async ({
 			outName,
 			ffmpegExecutable,
 			input: files[0],
+			remotionRoot,
 		});
 		return;
 	}
@@ -60,6 +64,7 @@ const mergeAudioTrackUnlimited = async ({
 					numberOfSeconds,
 					outName: chunkOutname,
 					downloadMap,
+					remotionRoot,
 				});
 				return chunkOutname;
 			})
@@ -71,6 +76,7 @@ const mergeAudioTrackUnlimited = async ({
 			numberOfSeconds,
 			outName,
 			downloadMap,
+			remotionRoot,
 		});
 		await deleteDirectory(tempPath);
 		return;
@@ -89,7 +95,10 @@ const mergeAudioTrackUnlimited = async ({
 		.filter(truthy)
 		.flat(2);
 	console.log('before task in merge-audio-tracks');
-	const task = execa(await getExecutableFfmpeg(ffmpegExecutable), args);
+	const task = execa(
+		await getExecutableFfmpeg(ffmpegExecutable, remotionRoot),
+		args
+	);
 	console.log('task:  ', task);
 	await task;
 	cleanup();

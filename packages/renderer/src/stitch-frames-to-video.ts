@@ -90,6 +90,7 @@ const getAssetsData = async ({
 	ffprobeExecutable,
 	onProgress,
 	downloadMap,
+	remotionRoot,
 }: {
 	assets: TAsset[][];
 	onDownload: RenderMediaOnDownload | undefined;
@@ -100,6 +101,7 @@ const getAssetsData = async ({
 	ffprobeExecutable: FfmpegExecutable | null;
 	onProgress: (progress: number) => void;
 	downloadMap: DownloadMap;
+	remotionRoot: string;
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
@@ -134,6 +136,7 @@ const getAssetsData = async ({
 					expectedFrames,
 					fps,
 					downloadMap,
+					remotionRoot,
 				});
 				preprocessProgress[index] = 1;
 				updateProgress();
@@ -150,6 +153,7 @@ const getAssetsData = async ({
 		outName,
 		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
 		downloadMap,
+		remotionRoot,
 	});
 
 	deleteDirectory(downloadMap.audioMixing);
@@ -261,6 +265,7 @@ export const spawnFfmpeg = async (
 				ffprobeExecutable: options.ffprobeExecutable ?? null,
 				onProgress: (prog) => updateProgress(prog, 0),
 				downloadMap: options.assetsInfo.downloadMap,
+				remotionRoot,
 		  })
 		: null;
 
@@ -272,7 +277,7 @@ export const spawnFfmpeg = async (
 		}
 
 		const ffmpegTask = execa(
-			await getExecutableFfmpeg(options.ffmpegExecutable ?? null),
+			await getExecutableFfmpeg(options.ffmpegExecutable ?? null, remotionRoot),
 			[
 				'-i',
 				audio,
@@ -381,7 +386,7 @@ export const spawnFfmpeg = async (
 	}
 
 	const task = execa(
-		await getExecutableFfmpeg(options.ffmpegExecutable ?? null),
+		await getExecutableFfmpeg(options.ffmpegExecutable ?? null, remotionRoot),
 		finalFfmpegString,
 		{
 			cwd: options.dir,
@@ -439,7 +444,7 @@ export const spawnFfmpeg = async (
 
 export const stitchFramesToVideo = async (
 	options: StitcherOptions,
-	remotionRoot
+	remotionRoot: string
 ): Promise<Buffer | null> => {
 	const {task, getLogs} = await spawnFfmpeg(options, remotionRoot);
 

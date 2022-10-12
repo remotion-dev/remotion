@@ -10,15 +10,18 @@ let buildConfig: string | null = null;
 
 export type FfmpegVersion = [number, number, number] | null;
 
-export const getFfmpegBuildInfo = async (options: {
-	ffmpegExecutable: string | null;
-}) => {
+export const getFfmpegBuildInfo = async (
+	options: {
+		ffmpegExecutable: string | null;
+	},
+	remotionRoot: string
+) => {
 	if (buildConfig !== null) {
 		return buildConfig;
 	}
 
 	const data = await execa(
-		await getExecutableFfmpeg(options.ffmpegExecutable),
+		await getExecutableFfmpeg(options.ffmpegExecutable, remotionRoot),
 		['-buildconf'],
 		{
 			reject: false,
@@ -52,15 +55,17 @@ const getFfmpegAbsolutePath = (remotionRoot: string): string => {
 export const ffmpegHasFeature = async ({
 	ffmpegExecutable,
 	feature,
+	remotionRoot,
 }: {
 	ffmpegExecutable: string | null;
 	feature: 'enable-gpl' | 'enable-libx265' | 'enable-libvpx';
+	remotionRoot: string;
 }) => {
 	if (!(await binaryExists('ffmpeg', ffmpegExecutable))) {
 		return false;
 	}
 
-	const config = await getFfmpegBuildInfo({ffmpegExecutable});
+	const config = await getFfmpegBuildInfo({ffmpegExecutable}, remotionRoot);
 	return config.includes(feature);
 };
 
@@ -75,12 +80,18 @@ export const parseFfmpegVersion = (buildconf: string): FfmpegVersion => {
 	return [Number(match[1]), Number(match[2]), Number(match[3] ?? 0)];
 };
 
-export const getFfmpegVersion = async (options: {
-	ffmpegExecutable: string | null;
-}): Promise<FfmpegVersion> => {
-	const buildInfo = await getFfmpegBuildInfo({
-		ffmpegExecutable: options.ffmpegExecutable,
-	});
+export const getFfmpegVersion = async (
+	options: {
+		ffmpegExecutable: string | null;
+	},
+	remotionRoot: string
+): Promise<FfmpegVersion> => {
+	const buildInfo = await getFfmpegBuildInfo(
+		{
+			ffmpegExecutable: options.ffmpegExecutable,
+		},
+		remotionRoot
+	);
 	return parseFfmpegVersion(buildInfo);
 };
 
@@ -123,7 +134,8 @@ export const downloadFfmpeg = async (remotionRoot: string): Promise<void> => {
 };
 
 export const getExecutableFfmpeg = async (
-	ffmpegExecutable: FfmpegExecutable | null
+	ffmpegExecutable: FfmpegExecutable | null,
+	remotionRoot: string
 ) => {
 	if (await binaryExists('ffmpeg', ffmpegExecutable)) {
 		return 'ffmpeg';
