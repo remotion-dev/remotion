@@ -164,7 +164,8 @@ const getAssetsData = async ({
 };
 
 export const spawnFfmpeg = async (
-	options: StitcherOptions
+	options: StitcherOptions,
+	remotionRoot: string
 ): Promise<ReturnType> => {
 	Internals.validateDimension(
 		options.height,
@@ -186,7 +187,7 @@ export const spawnFfmpeg = async (
 	Internals.validateFps(options.fps, 'in `stitchFramesToVideo()`', false);
 	const crf = options.crf ?? getDefaultCrfForCodec(codec);
 	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
-	await validateFfmpeg(options.ffmpegExecutable ?? null);
+	await validateFfmpeg(options.ffmpegExecutable ?? null, remotionRoot);
 
 	const encoderName = getCodecName(codec);
 	const audioCodecName = getAudioCodecName(codec);
@@ -437,9 +438,10 @@ export const spawnFfmpeg = async (
 };
 
 export const stitchFramesToVideo = async (
-	options: StitcherOptions
+	options: StitcherOptions,
+	remotionRoot
 ): Promise<Buffer | null> => {
-	const {task, getLogs} = await spawnFfmpeg(options);
+	const {task, getLogs} = await spawnFfmpeg(options, remotionRoot);
 
 	const happyPath = task.catch(() => {
 		throw new Error(getLogs());
