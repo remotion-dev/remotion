@@ -279,6 +279,7 @@ module.exports = {
         "scaling",
         "video-manipulation",
         "render-as-gif",
+        "figma",
       ],
     },
     {

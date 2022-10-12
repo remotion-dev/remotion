@@ -37,6 +37,7 @@ import type {PixelFormat} from './pixel-format';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
+import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {validateQuality} from './quality';
 import {renderFrames} from './render-frames';
 import {stitchFramesToVideo} from './stitch-frames-to-video';
@@ -171,6 +172,11 @@ export const renderMedia = ({
 }: RenderMediaOptions): Promise<Buffer | null> => {
 	validateQuality(options.quality);
 	validateQualitySettings({crf, codec, videoBitrate});
+
+	validateSelectedCodecAndProResCombination({
+		codec,
+		proResProfile,
+	});
 
 	if (outputLocation) {
 		validateOutputFilename(codec, getExtensionOfFilename(outputLocation));
