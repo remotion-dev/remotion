@@ -5,7 +5,6 @@ import {listCompositionsCommand} from './compositions';
 import {overrideRemotion} from './config/index';
 import {determineFinalImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
-import {findRemotionRoot} from './find-closest-package-json';
 import {formatBytes} from './format-bytes';
 import {getCliOptions, getFinalCodec} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
@@ -43,7 +42,7 @@ export const cli = async () => {
 		process.exit(0);
 	}
 
-	const remotionRoot = findRemotionRoot();
+	const remotionRoot = RenderInternals.findRemotionRoot();
 	// To check node version and to warn if node version is <12.10.0
 	checkNodeVersion();
 	if (command !== VERSIONS_COMMAND) {
@@ -106,7 +105,6 @@ export const CliInternals = {
 	handleCommonError,
 	formatBytes,
 	getFileSizeDownloadBar,
-	findRemotionRoot,
 	getFinalCodec,
 	determineFinalImageFormat,
 };

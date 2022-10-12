@@ -65,7 +65,7 @@ export const render = async (remotionRoot: string) => {
 		outName: getUserPassedOutputLocation(),
 	});
 
-	validateFfmepgCanUseCodec(codec);
+	validateFfmepgCanUseCodec(codec, remotionRoot);
 
 	const {
 		proResProfile,
@@ -97,6 +97,7 @@ export const render = async (remotionRoot: string) => {
 		isLambda: false,
 		type: 'series',
 		codec,
+		remotionRoot,
 	});
 
 	const relativeOutputLocation = getOutputFilename({
@@ -123,6 +124,7 @@ export const render = async (remotionRoot: string) => {
 
 	await checkAndValidateFfmpegVersion({
 		ffmpegExecutable,
+		remotionRoot,
 	});
 
 	const browserInstance = openBrowser(browser, {
@@ -171,7 +173,7 @@ export const render = async (remotionRoot: string) => {
 
 	const puppeteerInstance = await browserInstance;
 
-	const comps = await getCompositions(urlOrBundle, {
+	const comps = await getCompositions(urlOrBundle, remotionRoot, {
 		inputProps,
 		puppeteerInstance,
 		envVariables,

@@ -21,6 +21,7 @@ import {
 	getFfmpegBuildInfo,
 	getFfmpegVersion,
 } from './ffmpeg-flags';
+import {findRemotionRoot} from './find-closest-package-json';
 import {validateFrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
@@ -169,6 +170,7 @@ export const RenderInternals = {
 	makeDownloadMap,
 	cleanDownloadMap,
 	convertToPositiveFrameIndex,
+	findRemotionRoot,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

@@ -63,6 +63,7 @@ export const still = async (remotionRoot: string) => {
 		isLambda: false,
 		type: 'still',
 		codec: 'h264',
+		remotionRoot,
 	});
 
 	Log.verbose('Browser executable: ', browserExecutable);
@@ -120,7 +121,7 @@ export const still = async (remotionRoot: string) => {
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
-	const comps = await getCompositions(urlOrBundle, {
+	const comps = await getCompositions(urlOrBundle, remotionRoot, {
 		inputProps,
 		puppeteerInstance,
 		envVariables,

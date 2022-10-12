@@ -7,6 +7,7 @@ import type {Browser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import type {FfmpegExecutable} from './ffmpeg-executable';
+import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import type {ChromiumOptions} from './open-browser';
 import {prepareServer} from './prepare-server';
@@ -88,7 +89,6 @@ const innerGetCompositions = async (
 
 export const getCompositions = async (
 	serveUrlOrWebpackUrl: string,
-	remotionRoot: string,
 	config?: GetCompositionsConfig
 ) => {
 	const downloadMap = config?.downloadMap ?? makeDownloadMap();
@@ -117,7 +117,7 @@ export const getCompositions = async (
 			ffprobeExecutable: config?.ffprobeExecutable ?? null,
 			port: config?.port ?? null,
 			downloadMap,
-			remotionRoot,
+			remotionRoot: findRemotionRoot(),
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
 				close = closeServer;

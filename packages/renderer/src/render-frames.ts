@@ -16,6 +16,7 @@ import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import type {FfmpegExecutable} from './ffmpeg-executable';
+import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
@@ -89,7 +90,6 @@ type RenderFramesOptions = {
 	ffprobeExecutable?: FfmpegExecutable;
 	port?: number | null;
 	cancelSignal?: CancelSignal;
-	remotionRoot: string;
 	/**
 	 * @deprecated Only for Remotion internal usage
 	 */
@@ -482,7 +482,7 @@ export const renderFrames = (
 					ffprobeExecutable: options.ffprobeExecutable ?? null,
 					port: options.port ?? null,
 					downloadMap,
-					remotionRoot: options.remotionRoot,
+					remotionRoot: findRemotionRoot(),
 				}),
 				browserInstance,
 			]).then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {

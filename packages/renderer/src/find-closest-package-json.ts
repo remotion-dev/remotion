@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import {Log} from './log';
 
 const recursionLimit = 5;
 
@@ -23,7 +22,7 @@ export const findClosestPackageJson = (): string | null => {
 export const findRemotionRoot = (): string => {
 	const closestPackageJson = findClosestPackageJson();
 	if (closestPackageJson === null) {
-		Log.error(
+		console.error(
 			'Could not find a package.json in the current directory or any of the ' +
 				recursionLimit +
 				' parent directories. Is this a Remotion project?'
