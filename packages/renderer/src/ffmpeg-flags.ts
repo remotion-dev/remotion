@@ -1,5 +1,7 @@
 import execa from 'execa';
 import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import {_downloadFile} from './browser/BrowserFetcher';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {binaryExists, ffmpegInNodeModules} from './validate-ffmpeg';
@@ -8,7 +10,6 @@ let buildConfig: string | null = null;
 
 export type FfmpegVersion = [number, number, number] | null;
 
-// executes ffmpeg with execa in order to get buildInfos which then can be used elsewhere?
 export const getFfmpegBuildInfo = async (options: {
 	ffmpegExecutable: string | null;
 }) => {
@@ -18,7 +19,6 @@ export const getFfmpegBuildInfo = async (options: {
 
 	const data = await execa(
 		await getExecutableFfmpeg(options.ffmpegExecutable),
-		// options.ffmpegExecutable ?? 'ffmpeg',
 		['-buildconf'],
 		{
 			reject: false,
@@ -26,6 +26,27 @@ export const getFfmpegBuildInfo = async (options: {
 	);
 	buildConfig = data.stderr;
 	return buildConfig;
+};
+
+const getFfmpegFolderName = (remotionRoot: string) => {
+	return path.resolve(remotionRoot, 'node_modules/.ffmpeg');
+};
+
+const createDotFfmpegFolder = (remotionRoot: string) => {
+	fs.mkdirSync(getFfmpegFolderName(remotionRoot));
+};
+
+const getFfmpegAbsolutePath = (remotionRoot: string): string => {
+	if (!fs.existsSync(getFfmpegFolderName(remotionRoot))) {
+		createDotFfmpegFolder(remotionRoot);
+	}
+
+	const destinationPath =
+		os.platform() === 'win32'
+			? path.resolve(getFfmpegFolderName(remotionRoot), '/ffmpeg.exe')
+			: path.resolve(getFfmpegFolderName(remotionRoot), '/ffmpeg');
+
+	return destinationPath;
 };
 
 export const ffmpegHasFeature = async ({
@@ -63,7 +84,7 @@ export const getFfmpegVersion = async (options: {
 	return parseFfmpegVersion(buildInfo);
 };
 
-export const downloadFfmpeg = async (): Promise<void> => {
+export const downloadFfmpeg = async (remotionRoot: string): Promise<void> => {
 	// implement callback instead
 	function onProgress(downloadedBytes: number, totalBytes: number) {
 		console.log(
@@ -72,15 +93,7 @@ export const downloadFfmpeg = async (): Promise<void> => {
 		);
 	}
 
-	const os = require('os');
-	const path = require('path');
-	const destinationPath =
-		os.platform() === 'win32'
-			? path.resolve(process.cwd(), 'node_modules/.ffmpeg/ffmpeg.exe')
-			: path.resolve(process.cwd(), 'node_modules/.ffmpeg/ffmpeg');
-	if (!fs.existsSync(path.resolve(process.cwd(), 'node_modules/.ffmpeg'))) {
-		fs.mkdirSync(path.resolve(process.cwd(), 'node_modules/.ffmpeg'));
-	}
+	const destinationPath = getFfmpegAbsolutePath(remotionRoot);
 
 	console.log(destinationPath);
 	let url: string;
@@ -109,39 +122,19 @@ export const downloadFfmpeg = async (): Promise<void> => {
 	}
 };
 
-const getFfmpegBinaryFromNodeModules = () => {
-	const os = require('os');
-	const isWin = os.platform() === 'win32';
-	const path = require('path');
-	if (isWin) {
-		return path.resolve(process.cwd(), 'node_modules/.ffmpeg/ffmpeg.exe');
-	}
-
-	return path.resolve(process.cwd(), 'node_modules/.ffmpeg/ffmpeg');
-};
-
-// should check if ffmpeg is installed. If installed, return "ffmpeg" else return path to ffmpeg.exe in node modules
 export const getExecutableFfmpeg = async (
 	ffmpegExecutable: FfmpegExecutable | null
 ) => {
-	const os = require('os');
-	const isWin = os.platform() === 'win32';
-	const path = require('path');
 	if (await binaryExists('ffmpeg', ffmpegExecutable)) {
 		return 'ffmpeg';
 	}
 
-	// this part might change a bit after the automatic download is implemented
-	if (await ffmpegInNodeModules()) {
-		if (!isWin) {
-			return path.resolve(process.cwd(), 'node_modules/.ffmpeg/ffmpeg');
-		}
-
-		return path.resolve(process.cwd(), 'node_modules/.ffmpeg/ffmpeg.exe');
+	if (await ffmpegInNodeModules(remotionRoot)) {
+		return getFfmpegAbsolutePath(remotionRoot);
 	}
 
-	await downloadFfmpeg();
-	return getFfmpegBinaryFromNodeModules();
+	await downloadFfmpeg(remotionRoot);
+	return getFfmpegAbsolutePath(remotionRoot);
 };
 
 function toMegabytes(bytes: number) {
