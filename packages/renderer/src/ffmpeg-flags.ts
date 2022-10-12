@@ -31,7 +31,7 @@ export const getFfmpegBuildInfo = async (
 	return buildConfig;
 };
 
-const getFfmpegFolderName = (remotionRoot: string) => {
+const getFfmpegFolderName = (remotionRoot: string): string => {
 	return path.resolve(remotionRoot, 'node_modules/.ffmpeg');
 };
 
@@ -39,7 +39,7 @@ const createDotFfmpegFolder = (remotionRoot: string) => {
 	fs.mkdirSync(getFfmpegFolderName(remotionRoot));
 };
 
-const getFfmpegAbsolutePath = (remotionRoot: string): string => {
+export const getFfmpegAbsolutePath = (remotionRoot: string): string => {
 	if (!fs.existsSync(getFfmpegFolderName(remotionRoot))) {
 		createDotFfmpegFolder(remotionRoot);
 	}
@@ -141,7 +141,7 @@ export const getExecutableFfmpeg = async (
 		return 'ffmpeg';
 	}
 
-	if (await ffmpegInNodeModules(remotionRoot)) {
+	if (ffmpegInNodeModules(remotionRoot)) {
 		return getFfmpegAbsolutePath(remotionRoot);
 	}
 
