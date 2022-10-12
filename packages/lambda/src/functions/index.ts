@@ -16,8 +16,8 @@ export const handler = async <T extends LambdaRoutines>(
 	params: LambdaPayload,
 	context: {invokedFunctionArn: string; getRemainingTimeInMillis: () => number}
 ): Promise<LambdaReturnValues[T]> => {
-	process.env.REMOTION_LAMBDA = 'true';
-	const timeoutInMiliseconds = context.getRemainingTimeInMillis();
+	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
+	const timeoutInMilliseconds = context.getRemainingTimeInMillis();
 
 	if (!context || !context.invokedFunctionArn) {
 		throw new Error(
@@ -64,7 +64,7 @@ export const handler = async <T extends LambdaRoutines>(
 		});
 		return progressHandler(params, {
 			expectedBucketOwner: currentUserId,
-			timeoutInMiliseconds,
+			timeoutInMilliseconds,
 		});
 	}
 

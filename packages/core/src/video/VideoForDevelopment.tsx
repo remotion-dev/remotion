@@ -1,6 +1,7 @@
 import type {ForwardRefExoticComponent, RefAttributes} from 'react';
 import React, {forwardRef, useEffect, useImperativeHandle, useRef} from 'react';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame';
+import {usePreload} from '../prefetch';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
@@ -13,6 +14,7 @@ import type {RemotionVideoProps} from './props';
 
 type VideoForDevelopmentProps = RemotionVideoProps & {
 	onlyWarnForMediaSeekingError: boolean;
+	onDuration: (src: string, durationInSeconds: number) => void;
 };
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -28,6 +30,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		muted,
 		playbackRate,
 		onlyWarnForMediaSeekingError,
+		src,
+		onDuration,
 		...nativeProps
 	} = props;
 
@@ -41,7 +45,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		volume,
 		mediaVolume,
 		mediaType: 'video',
-		src: nativeProps.src,
+		src,
 	});
 
 	useSyncVolumeWithMediaTag({
@@ -54,15 +58,21 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	useMediaPlayback({
 		mediaRef: videoRef,
-		src: nativeProps.src,
+		src,
 		mediaType: 'video',
 		playbackRate: props.playbackRate ?? 1,
 		onlyWarnForMediaSeekingError,
 	});
 
-	useImperativeHandle(ref, () => {
-		return videoRef.current as HTMLVideoElement;
-	});
+	const actualSrc = usePreload(src as string);
+
+	useImperativeHandle(
+		ref,
+		() => {
+			return videoRef.current as HTMLVideoElement;
+		},
+		[]
+	);
 
 	useEffect(() => {
 		const {current} = videoRef;
@@ -74,7 +84,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			if (current?.error) {
 				console.error('Error occurred in video', current?.error);
 				throw new Error(
-					`The browser threw an error while playing the video ${nativeProps.src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
+					`The browser threw an error while playing the video ${src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
 				);
 			} else {
 				throw new Error('The browser threw an error');
@@ -85,13 +95,39 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return () => {
 			current.removeEventListener('error', errorHandler);
 		};
-	}, [nativeProps.src]);
+	}, [src]);
+
+	const currentOnDurationCallback =
+		useRef<VideoForDevelopmentProps['onDuration']>();
+	currentOnDurationCallback.current = onDuration;
+
+	useEffect(() => {
+		const {current} = videoRef;
+		if (!current) {
+			return;
+		}
+
+		if (current.duration) {
+			currentOnDurationCallback.current?.(src as string, current.duration);
+			return;
+		}
+
+		const onLoadedMetadata = () => {
+			currentOnDurationCallback.current?.(src as string, current.duration);
+		};
+
+		current.addEventListener('loadedmetadata', onLoadedMetadata);
+		return () => {
+			current.removeEventListener('loadedmetadata', onLoadedMetadata);
+		};
+	}, [src]);
 
 	return (
 		<video
 			ref={videoRef}
 			muted={muted || mediaMuted}
 			playsInline
+			src={actualSrc}
 			{...nativeProps}
 		/>
 	);

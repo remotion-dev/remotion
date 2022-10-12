@@ -43,6 +43,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		expectedBucketOwner: options.expectedBucketOwner,
 		key: initalizedMetadataKey(renderId),
 		privacy: 'private',
+		customCredentials: null,
 	});
 
 	const payload: LambdaPayload = {
@@ -73,6 +74,8 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		concurrencyPerLambda: params.concurrencyPerLambda,
 		downloadBehavior: params.downloadBehavior,
 		muted: params.muted,
+		overwrite: params.overwrite,
+		webhook: params.webhook,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({

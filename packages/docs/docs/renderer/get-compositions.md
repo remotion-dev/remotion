@@ -80,7 +80,6 @@ Gets called when your project calls `console.log` or another method from console
 - `type`: The console method - one of `log`, `debug`, `info`, `error`, `warning`, `dir`, `dirxml`, `table`, `trace`, `clear`, `startGroup`, `startGroupCollapsed`, `endGroup`, `assert`, `profile`, `profileEnd`, `count`, `timeEnd`, `verbose`
 
 ```tsx twoslash
-import { renderFrames as rf } from "@remotion/renderer";
 interface ConsoleMessageLocation {
   /**
    * URL of the resource if known or `undefined` otherwise.
@@ -144,7 +143,7 @@ getCompositions({
 
 _optional, available from v2.6.3_
 
-A number describing how long one frame may take to resolve all `delayRender()` calls before the render times out and fails. Default: `30000`
+A number describing how long one frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before the [render times out and fails(/docs/timeout). Default: `30000`
 
 ### `chromiumOptions?`
 

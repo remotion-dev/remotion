@@ -26,6 +26,8 @@ export type DeploySiteInput = {
 		onUploadProgress?: (upload: UploadDirProgress) => void;
 		webpackOverride?: WebpackOverrideFn;
 		enableCaching?: boolean;
+		publicDir?: string | null;
+		rootDir?: string;
 	};
 };
 

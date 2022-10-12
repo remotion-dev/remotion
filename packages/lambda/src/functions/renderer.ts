@@ -78,6 +78,8 @@ const renderHandler = async (
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
+	const downloads: Record<string, number> = {};
+
 	await new Promise<void>((resolve, reject) => {
 		renderMedia({
 			composition: {
@@ -111,7 +113,7 @@ const renderHandler = async (
 
 				chunkTimingData.timings[renderedFrames] = Date.now() - start;
 			},
-			parallelism: params.concurrencyPerLambda,
+			concurrency: params.concurrencyPerLambda,
 			onStart: () => {
 				lambdaWriteFile({
 					privacy: 'private',
@@ -132,6 +134,7 @@ const renderHandler = async (
 					region: getCurrentRegionInFunction(),
 					expectedBucketOwner: options.expectedBucketOwner,
 					downloadBehavior: null,
+					customCredentials: null,
 				}).catch((err) => reject(err));
 			},
 			puppeteerInstance: browserInstance,
@@ -158,7 +161,33 @@ const renderHandler = async (
 			proResProfile: params.proResProfile,
 			onDownload: (src: string) => {
 				console.log('Downloading', src);
-				return () => undefined;
+				downloads[src] = 0;
+				return ({percent, downloaded}) => {
+					if (percent === null) {
+						console.log(
+							`Download progress (${src}): ${downloaded} bytes. Don't know final size of download, no Content-Length header.`
+						);
+						return;
+					}
+
+					if (
+						// Only report every 10% change
+						downloads[src] > percent - 0.1 &&
+						percent !== 1
+					) {
+						return;
+					}
+
+					downloads[src] = percent;
+					console.log(
+						`Download progress (${src}): ${downloaded} bytes, ${(
+							percent * 100
+						).toFixed(1)}%`
+					);
+					if (percent === 1) {
+						console.log(`Download complete: ${src}`);
+					}
+				};
 			},
 			overwrite: false,
 			chromiumOptions: params.chromiumOptions,
@@ -170,6 +199,13 @@ const renderHandler = async (
 			downloadMap,
 			muted: params.muted,
 			enforceAudioTrack: true,
+			onSlowestFrames: (slowestFrames) => {
+				console.log();
+				console.log(`Slowest frames:`);
+				slowestFrames.forEach(({frame, time}) => {
+					console.log(`Frame ${frame} (${time.toFixed(3)}ms)`);
+				});
+			},
 		})
 			.then(() => resolve())
 			.catch((err) => reject(err));
@@ -193,6 +229,7 @@ const renderHandler = async (
 		privacy: params.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: null,
+		customCredentials: null,
 	});
 	await Promise.all([
 		fs.promises.rm(outputLocation, {recursive: true}),
@@ -210,6 +247,7 @@ const renderHandler = async (
 			privacy: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
 			downloadBehavior: null,
+			customCredentials: null,
 		}),
 	]);
 };
@@ -227,6 +265,10 @@ export const rendererHandler = async (
 	try {
 		await renderHandler(params, options, logs);
 	} catch (err) {
+		if (process.env.NODE_ENV === 'test') {
+			throw err;
+		}
+
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
 		const isBrowserError =

@@ -26,7 +26,7 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 
 	if (!file) {
 		Log.error(
-			'The `compositions` command requires you to specify a root file. For example'
+			'The `compositions` command requires you to specify a entry point. For example'
 		);
 		Log.error('  npx remotion compositions src/index.tsx');
 		Log.error(
@@ -50,6 +50,7 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 		port,
 		bundleOutDir,
 		publicPath,
+		publicDir,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'get-compositions-or-bundle',
@@ -60,6 +61,7 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 		otherSteps: [],
 		outDir: bundleOutDir,
 		publicPath,
+		publicDir,
 		remotionRoot,
 	});
 

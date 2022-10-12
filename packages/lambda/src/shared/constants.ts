@@ -11,6 +11,10 @@ import type {VideoConfig} from 'remotion';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';
+import type {
+	CustomCredentials,
+	CustomCredentialsWithoutSensitiveData,
+} from './aws-clients';
 import type {DownloadBehavior} from './content-disposition-header';
 import type {ExpensiveChunk} from './get-most-expensive-chunks';
 import type {LambdaArchitecture} from './validate-architecture';
@@ -128,11 +132,21 @@ export type OutNameInput =
 	| {
 			bucketName: string;
 			key: string;
+			s3OutputProvider?: CustomCredentials;
+	  };
+
+export type OutNameInputWithoutCredentials =
+	| string
+	| {
+			bucketName: string;
+			key: string;
+			s3OutputProvider?: CustomCredentialsWithoutSensitiveData;
 	  };
 
 export type OutNameOutput = {
 	renderBucketName: string;
 	key: string;
+	customCredentials: CustomCredentials | null;
 };
 
 export const optimizationProfile = (siteId: string, compositionId: string) =>
@@ -151,10 +165,15 @@ export const customOutName = (
 		return {
 			renderBucketName: bucketName,
 			key: `${rendersPrefix(renderId)}/${name}`,
+			customCredentials: null,
 		};
 	}
 
-	return {key: name.key, renderBucketName: name.bucketName};
+	return {
+		key: name.key,
+		renderBucketName: name.bucketName,
+		customCredentials: name.s3OutputProvider ?? null,
+	};
 };
 
 export const postRenderDataKey = (renderId: string) => {
@@ -174,6 +193,11 @@ export enum LambdaRoutines {
 	renderer = 'renderer',
 	still = 'still',
 }
+
+type WebhookOption = null | {
+	url: string;
+	secret: string | null;
+};
 
 export type LambdaPayloads = {
 	info: {
@@ -206,6 +230,8 @@ export type LambdaPayloads = {
 		downloadBehavior: DownloadBehavior;
 		muted: boolean;
 		version: string;
+		overwrite: boolean;
+		webhook: WebhookOption;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -235,12 +261,15 @@ export type LambdaPayloads = {
 		concurrencyPerLambda: number;
 		downloadBehavior: DownloadBehavior;
 		muted: boolean;
+		overwrite: boolean;
+		webhook: WebhookOption;
 	};
 	status: {
 		type: LambdaRoutines.status;
 		bucketName: string;
 		renderId: string;
 		version: string;
+		s3OutputProvider?: CustomCredentials;
 	};
 	renderer: {
 		concurrencyPerLambda: number;
@@ -322,7 +351,8 @@ export type RenderMetadata = {
 	lambdaVersion: string;
 	region: AwsRegion;
 	renderId: string;
-	outName: OutNameInput | undefined;
+	outName: OutNameInputWithoutCredentials | undefined;
+	privacy: Privacy;
 };
 
 export type PostRenderData = {

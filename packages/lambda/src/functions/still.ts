@@ -22,7 +22,10 @@ import {randomHash} from '../shared/random-hash';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
-import {getExpectedOutName} from './helpers/expected-out-name';
+import {
+	getCredentialsFromOutName,
+	getExpectedOutName,
+} from './helpers/expected-out-name';
 import {formatCostsInfo} from './helpers/format-costs-info';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentArchitecture} from './helpers/get-current-architecture';
@@ -114,6 +117,7 @@ const innerStillHandler = async (
 		region: getCurrentRegionInFunction(),
 		renderId,
 		outName: lambdaParams.outName ?? undefined,
+		privacy: lambdaParams.privacy,
 	};
 
 	await lambdaWriteFile({
@@ -124,6 +128,7 @@ const innerStillHandler = async (
 		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: null,
+		customCredentials: null,
 	});
 
 	await renderStill({
@@ -132,7 +137,10 @@ const innerStillHandler = async (
 		serveUrl: lambdaParams.serveUrl,
 		dumpBrowserLogs: false,
 		envVariables: lambdaParams.envVariables,
-		frame: lambdaParams.frame,
+		frame: RenderInternals.convertToPositiveFrameIndex({
+			frame: lambdaParams.frame,
+			durationInFrames: composition.durationInFrames,
+		}),
 		imageFormat: lambdaParams.imageFormat as StillImageFormat,
 		inputProps: lambdaParams.inputProps,
 		overwrite: false,
@@ -144,9 +152,10 @@ const innerStillHandler = async (
 		downloadMap,
 	});
 
-	const {key, renderBucketName} = getExpectedOutName(
+	const {key, renderBucketName, customCredentials} = getExpectedOutName(
 		renderMetadata,
-		bucketName
+		bucketName,
+		getCredentialsFromOutName(lambdaParams.outName)
 	);
 
 	const {size} = await fs.promises.stat(outputPath);
@@ -159,6 +168,7 @@ const innerStillHandler = async (
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		downloadBehavior: lambdaParams.downloadBehavior,
+		customCredentials,
 	});
 	await fs.promises.rm(outputPath, {recursive: true});
 
@@ -174,7 +184,11 @@ const innerStillHandler = async (
 	});
 
 	return {
-		output: getOutputUrlFromMetadata(renderMetadata, bucketName),
+		output: getOutputUrlFromMetadata(
+			renderMetadata,
+			bucketName,
+			customCredentials
+		),
 		size,
 		bucketName,
 		estimatedPrice: formatCostsInfo(estimatedPrice),

@@ -8,13 +8,13 @@ import {
 import {mkdirSync} from 'fs';
 import path from 'path';
 import {chalk} from './chalk';
-import {Config, ConfigInternals} from './config';
+import {ConfigInternals} from './config';
+import {determineFinalImageFormat} from './determine-image-format';
 import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
 } from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
-import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {prepareEntryPoint} from './prepare-entry-point';
@@ -42,24 +42,11 @@ export const still = async (remotionRoot: string) => {
 		process.exit(1);
 	}
 
-	await initializeRenderCli(remotionRoot, 'still');
-
-	const userPassedOutput = getUserPassedOutputLocation();
-	if (
-		userPassedOutput?.endsWith('.jpeg') ||
-		userPassedOutput?.endsWith('.jpg')
-	) {
-		Log.verbose(
-			'Output file has a JPEG extension, setting the image format to JPEG.'
+	if (parsedCli.frames) {
+		Log.error(
+			'--frames flag was passed to the `still` command. This flag only works with the `render` command. Did you mean `--frame`? See reference: https://www.remotion.dev/docs/cli/'
 		);
-		Config.Rendering.setImageFormat('jpeg');
-	}
-
-	if (userPassedOutput?.endsWith('.png')) {
-		Log.verbose(
-			'Output file has a PNG extension, setting the image format to PNG.'
-		);
-		Config.Rendering.setImageFormat('png');
+		process.exit(1);
 	}
 
 	const {
@@ -67,7 +54,6 @@ export const still = async (remotionRoot: string) => {
 		envVariables,
 		quality,
 		browser,
-		imageFormat,
 		stillFrame,
 		browserExecutable,
 		chromiumOptions,
@@ -79,7 +65,8 @@ export const still = async (remotionRoot: string) => {
 		port,
 		publicPath,
 		bundleOutDir,
-	} = await getCliOptions({isLambda: false, type: 'still'});
+		publicDir,
+	} = await getCliOptions({isLambda: false, type: 'still', codec: 'h264'});
 
 	const otherSteps: RenderStep[] = ['rendering' as const].filter(truthy);
 
@@ -89,11 +76,20 @@ export const still = async (remotionRoot: string) => {
 		outDir: bundleOutDir,
 		publicPath,
 		remotionRoot,
+		publicDir,
 	});
 
 	Log.verbose('Browser executable: ', browserExecutable);
 
 	const compositionId = getCompositionId();
+
+	const {format: imageFormat, source} = determineFinalImageFormat({
+		cliFlag: parsedCli['image-format'] ?? null,
+		configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
+		downloadName: null,
+		outName: getUserPassedOutputLocation(),
+		isLambda: false,
+	});
 
 	const relativeOutputLocation = getOutputLocation({
 		compositionId,
@@ -107,32 +103,9 @@ export const still = async (remotionRoot: string) => {
 
 	Log.info(
 		chalk.gray(
-			`Output = ${relativeOutputLocation}, Format = ${imageFormat}, Composition = ${compositionId}`
+			`Output = ${relativeOutputLocation}, Format = ${imageFormat} (${source}), Composition = ${compositionId}`
 		)
 	);
-
-	if (imageFormat === 'none') {
-		Log.error(
-			'No image format was selected - this is probably an error in Remotion - please post your command on Github Issues for help.'
-		);
-		process.exit(1);
-	}
-
-	if (imageFormat === 'png' && !absoluteOutputLocation.endsWith('.png')) {
-		Log.warn(
-			`Rendering a PNG, expected a .png extension but got ${absoluteOutputLocation}`
-		);
-	}
-
-	if (
-		imageFormat === 'jpeg' &&
-		!absoluteOutputLocation.endsWith('.jpg') &&
-		!absoluteOutputLocation.endsWith('.jpeg')
-	) {
-		Log.warn(
-			`Rendering a JPEG, expected a .jpg or .jpeg extension but got ${absoluteOutputLocation}`
-		);
-	}
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,

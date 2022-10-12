@@ -37,14 +37,11 @@ import { bundle } from "@remotion/bundler";
 import { getCompositions, renderMedia } from "@remotion/renderer";
 
 const start = async () => {
-  const bundled = await bundle(
-    require.resolve("./src/index.tsx"),
-    () => undefined,
-    {
-      // If you have a Webpack override, make sure to add it here
-      webpackOverride: (config) => config,
-    }
-  );
+  const bundled = await bundle({
+    entryPoint: require.resolve("./src/index.tsx"),
+    // If you have a Webpack override, make sure to add it here
+    webpackOverride: (config) => config,
+  });
 
   const compositions = await getCompositions(bundled);
 

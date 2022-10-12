@@ -8,22 +8,27 @@ export const openEventSource = () => {
 
 	source.addEventListener('message', (event) => {
 		const newEvent = JSON.parse(event.data) as EventSourceEvent;
-		if (newEvent.type === 'new-input-props') {
+		if (newEvent.type === 'new-input-props' || newEvent.type === 'new-env-variables') {
 			window.location.reload();
 		}
 	});
 
 	source.addEventListener('open', () => {
 		serverDisconnectedRef.current?.setServerConnected();
-	});
 
-	source.addEventListener('error', () => {
-		// Display an error message that the preview server has disconnected.
-		serverDisconnectedRef.current?.setServerDisconnected();
+		(source as EventSource).addEventListener(
+			'error',
+			() => {
+				// Display an error message that the preview server has disconnected.
+				serverDisconnectedRef.current?.setServerDisconnected();
+				source?.close();
 
-		// Retry later
-		setTimeout(() => {
-			openEventSource();
-		}, 1000);
+				// Retry later
+				setTimeout(() => {
+					openEventSource();
+				}, 1000);
+			},
+			{once: true}
+		);
 	});
 };

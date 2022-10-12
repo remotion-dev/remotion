@@ -12,6 +12,20 @@ import {Homepage} from './homepage/homepage';
 
 Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null, '#fff'));
 
+const getCanSerializeDefaultProps = (object: unknown) => {
+	try {
+		const str = JSON.stringify(object);
+		// 256MB is the theoretical limit, making it throw if over 90% of that is reached.
+		return str.length < 256 * 1024 * 1024 * 0.9;
+	} catch (err) {
+		if ((err as Error).message.includes('Invalid string length')) {
+			return false;
+		}
+
+		throw err;
+	}
+};
+
 const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	const video = Internals.useVideo();
 	const compositions = useContext(Internals.CompositionManager);
@@ -215,18 +229,40 @@ if (typeof window !== 'undefined') {
 			throw new Error('Unexpectedly did not have a CompositionManager');
 		}
 
-		return Internals.compositionsRef.current
-			.getCompositions()
-			.map((c): TCompMetadata => {
-				return {
-					defaultProps: c.defaultProps,
-					durationInFrames: c.durationInFrames,
-					fps: c.fps,
-					height: c.height,
-					id: c.id,
-					width: c.width,
-				};
-			});
+		const compositions = Internals.compositionsRef.current.getCompositions();
+
+		const canSerializeDefaultProps = getCanSerializeDefaultProps(compositions);
+		if (!canSerializeDefaultProps) {
+			console.warn(
+				'defaultProps are too big to serialize - trying to find the problematic composition...'
+			);
+			for (const comp of compositions) {
+				if (!getCanSerializeDefaultProps(comp)) {
+					throw new Error(
+						`defaultProps too big - could not serialize - the defaultProps of composition with ID ${comp.id} - the object that was passed to defaultProps was too big. Learn how to mitigate this error by visiting https://remotion.dev/docs/troubleshooting/serialize-defaultprops`
+					);
+				}
+			}
+
+			console.warn(
+				'Could not single out a problematic composition -  The composition list as a whole is too big to serialize.'
+			);
+
+			throw new Error(
+				'defaultProps too big - Could not serialize - an object that was passed to defaultProps was too big. Learn how to mitigate this error by visiting https://remotion.dev/docs/troubleshooting/serialize-defaultprops'
+			);
+		}
+
+		return compositions.map((c): TCompMetadata => {
+			return {
+				defaultProps: c.defaultProps,
+				durationInFrames: c.durationInFrames,
+				fps: c.fps,
+				height: c.height,
+				id: c.id,
+				width: c.width,
+			};
+		});
 	};
 
 	window.siteVersion = '4';

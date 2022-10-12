@@ -4,7 +4,9 @@ import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
+import {warnIfAppleSiliconIsNotUsingArm64Architecture} from './check-apple-silicon';
 import {DEFAULT_CODEC, validCodecs} from './codec';
+import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {
 	getDefaultCrfForCodec,
 	getValidCrfRanges,
@@ -37,7 +39,6 @@ import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
 import {mimeContentType, mimeLookup} from './mime-types';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {killAllBrowsers} from './open-browser';
-import {DEFAULT_OVERWRITE} from './overwrite';
 import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
 import {
@@ -77,6 +78,7 @@ export {Crf} from './crf';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
 export {FfmpegExecutable} from './ffmpeg-executable';
 export {FfmpegVersion} from './ffmpeg-flags';
+export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FrameRange} from './frame-range';
 export {getCompositions} from './get-compositions';
 export {
@@ -93,17 +95,19 @@ export {PixelFormat} from './pixel-format';
 export {ProResProfile} from './prores-profile';
 export {renderFrames} from './render-frames';
 export {
+	OnSlowestFrames,
 	renderMedia,
 	RenderMediaOnProgress,
 	RenderMediaOptions,
+	SlowFrame,
 	StitchingState,
 } from './render-media';
-export {renderStill} from './render-still';
+export {renderStill, RenderStillOptions} from './render-still';
 export {StitcherOptions, stitchFramesToVideo} from './stitch-frames-to-video';
 export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {OpenGlRenderer} from './validate-opengl-renderer';
-
+export {validateOutputFilename} from './validate-output-filename';
 export const RenderInternals = {
 	ensureLocalBrowser,
 	ffmpegHasFeature,
@@ -149,7 +153,6 @@ export const RenderInternals = {
 	validateSelectedCrfAndCodecCombination,
 	validImageFormats,
 	validCodecs,
-	DEFAULT_OVERWRITE,
 	DEFAULT_PIXEL_FORMAT,
 	validateQuality,
 	validateFrame,
@@ -167,4 +170,8 @@ export const RenderInternals = {
 	perf,
 	makeDownloadMap,
 	cleanDownloadMap,
+	convertToPositiveFrameIndex,
 };
+
+// Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
+warnIfAppleSiliconIsNotUsingArm64Architecture();

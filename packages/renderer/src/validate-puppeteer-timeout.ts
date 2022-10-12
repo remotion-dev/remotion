@@ -11,7 +11,7 @@ export const validatePuppeteerTimeout = (timeoutInMilliseconds: unknown) => {
 		);
 	}
 
-	if (timeoutInMilliseconds < 7000) {
+	if (timeoutInMilliseconds < 7000 && process.env.NODE_ENV !== 'test') {
 		throw new TypeError(
 			`'timeoutInMilliseconds' should be bigger or equal than 7000, but is ${timeoutInMilliseconds}`
 		);

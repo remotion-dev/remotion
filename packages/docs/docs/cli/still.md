@@ -53,7 +53,8 @@ Specify a location for a dotenv file. Default `.env`.
 
 ### `--frame`
 
-Which frame should be rendered. Example `--frame=10`. Default `0`.
+Which frame should be rendered. Example `--frame=10`. Default `0`.  
+From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 ### `--bundle-cache`
 
@@ -67,6 +68,12 @@ Which frame should be rendered. Example `--frame=10`. Default `0`.
 
 [Set a custom HTTP server port to serve the Webpack bundle](/docs/config#setPort). If not defined, Remotion will try to find a free port.
 
+### `--public-dir`
+
+_Available from v3.2.13_
+
+[Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
+
 ### `--ffmpeg-executable`
 
 [Set a custom `ffmpeg` executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
@@ -77,7 +84,7 @@ Which frame should be rendered. Example `--frame=10`. Default `0`.
 
 ### `--timeout`
 
-Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before it times out in milliseconds. Default: `30000`.
+Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout) in milliseconds. Default: `30000`.
 
 :::info
 Not to be confused with the [`--timeout` flag when deploying a Lambda function](/docs/lambda/cli/functions#--timeout).

@@ -28,7 +28,7 @@ console.log(
     durationInMiliseconds: 20000,
     memorySizeInMb: 2048,
     diskSizeInMb: 2048,
-    architecture: "x86_64",
+    architecture: "arm64",
     lambdasInvoked: 1,
   })
 ); // 0.00067

@@ -2,13 +2,10 @@ import {loadConfig} from './get-config-file-name';
 import {Log} from './log';
 import {parseCommandLine} from './parse-command-line';
 
-export const initializeRenderCli = async (
-	remotionRoot: string,
-	type: 'still' | 'sequence' | 'lambda' | 'preview' | 'bundle'
-) => {
+export const initializeCli = async (remotionRoot: string) => {
 	const appliedName = await loadConfig(remotionRoot);
 
-	parseCommandLine(type);
+	parseCommandLine();
 
 	// Only now Log.verbose is available
 	Log.verbose('Remotion root directory:', remotionRoot);

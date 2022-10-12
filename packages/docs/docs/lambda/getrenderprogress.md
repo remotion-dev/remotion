@@ -43,6 +43,12 @@ The region in which the Lambda function is located in.
 
 The name of the function that triggered the render.
 
+### `customCredentials`
+
+_optional, available from v3.2.23_
+
+If the render is going to be saved to a [different cloud](/docs/lambda/custom-destination#saving-to-another-cloud), pass an object with the same `endpoint`, `accessKeyId` and `secretAccessKey` as you passed to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#outname) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#outname).
+
 ## Response
 
 Returns a promise resolving to an object with the following properties:
