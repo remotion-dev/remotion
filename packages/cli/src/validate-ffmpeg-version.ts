@@ -4,13 +4,20 @@ import {warnAboutFfmpegVersion} from './warn-about-ffmpeg-version';
 
 export const checkAndValidateFfmpegVersion = async (options: {
 	ffmpegExecutable: string | null;
+	remotionRoot: string;
 }) => {
-	const ffmpegVersion = await RenderInternals.getFfmpegVersion({
-		ffmpegExecutable: options.ffmpegExecutable,
-	});
-	const buildConf = await RenderInternals.getFfmpegBuildInfo({
-		ffmpegExecutable: options.ffmpegExecutable,
-	});
+	const ffmpegVersion = await RenderInternals.getFfmpegVersion(
+		{
+			ffmpegExecutable: options.ffmpegExecutable,
+		},
+		options.remotionRoot
+	);
+	const buildConf = await RenderInternals.getFfmpegBuildInfo(
+		{
+			ffmpegExecutable: options.ffmpegExecutable,
+		},
+		options.remotionRoot
+	);
 	Log.verbose(
 		'Your FFMPEG version:',
 		ffmpegVersion ? ffmpegVersion.join('.') : 'Built from source'

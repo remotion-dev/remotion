@@ -56,6 +56,7 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 		isLambda: false,
 		type: 'get-compositions',
 		codec: 'h264',
+		remotionRoot,
 	});
 
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =
@@ -66,7 +67,7 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 			publicDir,
 		});
 
-	const compositions = await getCompositions(bundled, {
+	const compositions = await getCompositions(bundled, remotionRoot, {
 		browserExecutable,
 		ffmpegExecutable,
 		ffprobeExecutable,

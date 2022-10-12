@@ -10,7 +10,7 @@ export const lambdaCommand = async (remotionRoot: string) => {
 		});
 		const {LambdaInternals} = require(path);
 
-		await LambdaInternals.executeCommand(parsedCli._.slice(1));
+		await LambdaInternals.executeCommand(parsedCli._.slice(1), remotionRoot);
 		process.exit(0);
 	} catch (err) {
 		const manager = getPackageManager(remotionRoot);
