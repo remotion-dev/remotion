@@ -4,7 +4,6 @@ import os from 'os';
 import {downloadFfmpeg} from './ffmpeg-flags';
 
 const existsMap: {[key: string]: boolean} = {};
-
 export const binaryExists = async (
 	name: 'ffmpeg' | 'brew',
 	localFFmpeg: string | null // == customFfmpeg
@@ -37,13 +36,13 @@ export const binaryExists = async (
 	}
 };
 
-export const ffmpegInNodeModules = (): Promise<boolean> => {
+export const ffmpegInNodeModules = (remotionRoot: string): Promise<boolean> => {
 	const path = require('path');
 	const fs = require('fs');
 	const expectedFfmpegPath =
 		os.platform() === 'win32'
-			? path.resolve(process.cwd(), 'node_modules/.ffmpeg/ffmpeg.exe')
-			: path.resolve(process.cwd(), 'node_modules/.ffmpeg/ffmpeg');
+			? path.resolve(remotionRoot, 'node_modules/.ffmpeg/ffmpeg.exe')
+			: path.resolve(remotionRoot, 'node_modules/.ffmpeg/ffmpeg');
 	return fs.existsSync(expectedFfmpegPath);
 };
 
@@ -52,12 +51,13 @@ const isHomebrewInstalled = (): Promise<boolean> => {
 };
 
 export const validateFfmpeg = async (
-	customFfmpegBinary: string | null
+	customFfmpegBinary: string | null,
+	remotionRoot: string
 ): Promise<void> => {
 	// binaryExists should also for node_modules
 	const ffmpegExists =
 		(await binaryExists('ffmpeg', customFfmpegBinary)) ||
-		(await ffmpegInNodeModules());
+		(await ffmpegInNodeModules(remotionRoot));
 	if (!ffmpegExists) {
 		console.log('Platform: ', os.platform());
 		if (
@@ -65,8 +65,8 @@ export const validateFfmpeg = async (
 			os.platform() === 'win32' ||
 			(os.platform() === 'linux' && process.arch === 'x64')
 		) {
-			await downloadFfmpeg();
-			return validateFfmpeg(customFfmpegBinary);
+			await downloadFfmpeg(remotionRoot);
+			return validateFfmpeg(customFfmpegBinary, remotionRoot);
 		}
 
 		if (customFfmpegBinary) {
