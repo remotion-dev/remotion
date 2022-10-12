@@ -12,12 +12,14 @@ export const prepareEntryPoint = async ({
 	publicPath,
 	outDir,
 	remotionRoot,
+	publicDir,
 }: {
 	file: string;
 	otherSteps: RenderStep[];
 	outDir: string | null;
 	publicPath: string | null;
 	remotionRoot: string;
+	publicDir: string | null;
 }): Promise<{
 	urlOrBundle: string;
 	steps: RenderStep[];
@@ -45,6 +47,7 @@ export const prepareEntryPoint = async ({
 		outDir,
 		publicPath,
 		remotionRoot,
+		publicDir,
 	});
 
 	return {urlOrBundle, steps: ['bundling', ...otherSteps], shouldDelete: true};
