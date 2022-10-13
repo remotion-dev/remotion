@@ -160,7 +160,7 @@ export const downloadFfmpeg = async (
 	const totalBytes = await _downloadFile(url, destinationPath, onProgress);
 	onProgress(totalBytes, totalBytes);
 	if (os.platform() !== 'win32') {
-		fs.chmodSync(destinationPath, '755');
+		fs.chmodSync(destinationPath, '777');
 	}
 
 	isDownloading[url] = false;
