@@ -59,6 +59,11 @@
       "source": "/terminology",
       "destination": "https://remotion.dev/docs/terminology",
       "permanent": false
+    },
+    {
+      "source": "/hacktoberfest",
+      "destination": "https://github.com/remotion-dev/remotion/issues/1365",
+      "permanent": false
     }
   ]
 }

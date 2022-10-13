@@ -75,6 +75,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		downloadBehavior: params.downloadBehavior,
 		muted: params.muted,
 		overwrite: params.overwrite,
+		webhook: params.webhook,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({

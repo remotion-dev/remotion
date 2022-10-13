@@ -164,12 +164,8 @@ const getAndValidatePixelFormat = (codec: Codec) => {
 	return pixelFormat;
 };
 
-const getAndValidateProResProfile = (actualCodec: Codec) => {
+const getProResProfile = () => {
 	const proResProfile = ConfigInternals.getProResProfile();
-	RenderInternals.validateSelectedCodecAndProResCombination(
-		actualCodec,
-		proResProfile
-	);
 
 	return proResProfile;
 };
@@ -233,7 +229,7 @@ export const getCliOptions = async (options: {
 		codec: options.codec,
 		pixelFormat,
 	});
-	const proResProfile = getAndValidateProResProfile(options.codec);
+	const proResProfile = getProResProfile();
 	const browserExecutable = ConfigInternals.getBrowserExecutable();
 	const ffmpegExecutable = ConfigInternals.getCustomFfmpegExecutable();
 	const ffprobeExecutable = ConfigInternals.getCustomFfprobeExecutable();

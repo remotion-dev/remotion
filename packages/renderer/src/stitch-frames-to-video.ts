@@ -38,6 +38,7 @@ import {
 } from './pixel-format';
 import {preprocessAudioTrack} from './preprocess-audio-track';
 import type {ProResProfile} from './prores-profile';
+import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {truthy} from './truthy';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
@@ -189,6 +190,11 @@ export const spawnFfmpeg = async (
 		codec,
 		scale: 1,
 	});
+	validateSelectedCodecAndProResCombination({
+		codec,
+		proResProfile: options.proResProfile,
+	});
+
 	Internals.validateFps(options.fps, 'in `stitchFramesToVideo()`', false);
 	const crf = options.crf ?? getDefaultCrfForCodec(codec);
 	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;

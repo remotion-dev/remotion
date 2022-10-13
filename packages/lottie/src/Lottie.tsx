@@ -14,6 +14,7 @@ export const Lottie = ({
 	loop,
 	playbackRate,
 	style,
+	onAnimationLoaded,
 }: LottieProps) => {
 	if (typeof animationData !== 'object') {
 		throw new Error(
@@ -27,6 +28,10 @@ export const Lottie = ({
 	const animationRef = useRef<AnimationItem>();
 	const lastFrameRef = useRef<number | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
+
+	const onAnimationLoadedRef = useRef<LottieProps['onAnimationLoaded']>();
+	onAnimationLoadedRef.current = onAnimationLoaded;
+
 	const [handle] = useState(() =>
 		delayRender('Waiting for Lottie animation to load')
 	);
@@ -53,6 +58,8 @@ export const Lottie = ({
 		};
 
 		animation.addEventListener('DOMLoaded', onComplete);
+
+		onAnimationLoadedRef.current?.(animation);
 
 		return () => {
 			lastFrameRef.current = animation.currentFrame;

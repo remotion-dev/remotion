@@ -39,11 +39,25 @@ const onStart = () => {
 
 ### `onFrameUpdate`
 
-A callback function that gets called whenever a frame finished rendering. An argument is passed containing how many frames have been rendered (not the frame number of the rendered frame). Example value
+A callback function that gets called whenever a frame finished rendering. An argument is passed containing how many frames have been rendered (not the frame number of the rendered frame).
+
+In `v3.0.0`, a second argument was added: `frame`, returning the frame number that was just rendered.
+
+In `v3.2.30`, a third argument was rendered: `timeToRenderInMilliseconds`, describing the time it took to render that frame in milliseconds.
 
 ```ts twoslash
-const onFrameUpdate = (frame: number) => {
-  console.log(`${frame} frames rendered.`);
+const onFrameUpdate = (
+  framesRendered: number,
+  frame: number,
+  timeToRenderInMilliseconds: number
+) => {
+  console.log(`${framesRendered} frames rendered.`);
+
+  // From v3.0.0
+  console.log(`${frame} was just rendered.`);
+
+  // From v3.2.30
+  console.log(`It took ${timeToRenderInMilliseconds}ms to render that frame.`);
 };
 ```
 

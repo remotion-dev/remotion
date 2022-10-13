@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import {performance} from 'perf_hooks';
 import type {SmallTCompMetadata, TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -69,7 +70,11 @@ type ConcurrencyOrParallelism =
 
 type RenderFramesOptions = {
 	onStart: (data: OnStartData) => void;
-	onFrameUpdate: (framesRendered: number, frameIndex: number) => void;
+	onFrameUpdate: (
+		framesRendered: number,
+		frameIndex: number,
+		timeToRenderInMilliseconds: number
+	) => void;
 	outputDir: string | null;
 	inputProps: unknown;
 	envVariables?: Record<string, string>;
@@ -291,6 +296,8 @@ const innerRenderFrames = ({
 				throw new Error('Render was stopped');
 			}
 
+			const startTime = performance.now();
+
 			const errorCallbackOnFrame = (err: Error) => {
 				onError(err);
 			};
@@ -373,7 +380,7 @@ const innerRenderFrames = ({
 			});
 			pool.release(freePage);
 			framesRendered++;
-			onFrameUpdate(framesRendered, frame);
+			onFrameUpdate(framesRendered, frame, performance.now() - startTime);
 			cleanupPageError();
 			freePage.off('error', errorCallbackOnFrame);
 			return compressedAssets;

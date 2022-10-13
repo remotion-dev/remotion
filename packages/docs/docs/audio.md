@@ -110,6 +110,25 @@ export const MyVideo = () => {
 };
 ```
 
+### `loop`
+
+_Available from v3.2.29_
+
+You can use the `loop` prop to loop audio.
+
+```tsx twoslash
+import { AbsoluteFill, Audio, staticFile, useCurrentFrame } from "remotion";
+
+export const MyVideo = () => {
+  const frame = useCurrentFrame();
+  return (
+    <AbsoluteFill>
+      <Audio loop src={staticFile("audio.mp3")} />
+    </AbsoluteFill>
+  );
+};
+```
+
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/audio/Audio.tsx)
