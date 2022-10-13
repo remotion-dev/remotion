@@ -482,6 +482,14 @@ export function _downloadFile(
 
 	let lastProgress = Date.now();
 
+	function onData(chunk: string): void {
+		downloadedBytes += chunk.length;
+		if (Date.now() - lastProgress > 1000) {
+			progressCallback(downloadedBytes, totalBytes);
+			lastProgress = Date.now();
+		}
+	}
+
 	const request = httpRequest(url, 'GET', (response) => {
 		if (response.statusCode !== 200) {
 			const error = new Error(
@@ -494,8 +502,7 @@ export function _downloadFile(
 		}
 
 		const file = fs.createWriteStream(destinationPath);
-		file.on('finish', () => {
-			file.close();
+		file.on('close', () => {
 			return fulfill(totalBytes);
 		});
 		file.on('error', (error) => {
@@ -509,14 +516,6 @@ export function _downloadFile(
 		return reject(error);
 	});
 	return promise;
-
-	function onData(chunk: string): void {
-		downloadedBytes += chunk.length;
-		if (Date.now() - lastProgress > 1000) {
-			progressCallback(downloadedBytes, totalBytes);
-			lastProgress = Date.now();
-		}
-	}
 }
 
 function install(archivePath: string, folderPath: string): Promise<unknown> {
