@@ -52,11 +52,18 @@ The frame rate of the video. Must be a number.
 
 ### `compositionWidth`
 
-The width of the composition in pixels.
+The width you would like the video to have when rendered. Use `style={{width: <width>}}` to define a different natural width for the Player.
+
+:::note
+**Example**:
+If you want to render a Full HD video, set `compositionWidth` to `1920` and `compositionHeight` to `1080`. By default, the Player will also assume these dimensions.
+To make it smaller, pass a `style` prop to give the player a different width: `{"style={{width: 400}}"}`. See [Player Scaling](/docs/player/scaling) to learn more.
+:::
 
 ### `compositionHeight`
 
-The height of the composition in pixels.
+The height of the canvas in pixels.
+The height you would like the video to have when rendered. Use `style={{height: <height>}}` to define a different natural height for the Player.
 
 ### `loop`
 
