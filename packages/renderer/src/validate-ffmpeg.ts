@@ -58,7 +58,7 @@ export const validateFfmpeg = async (
 		console.log('Platform: ', os.platform());
 		if (
 			os.platform() === 'darwin' ||
-			(os.platform() === 'win32' && process.arch !== 'arm64') ||
+			(os.platform() === 'win32' && process.arch === 'x64') ||
 			(os.platform() === 'linux' && process.arch === 'x64')
 		) {
 			await downloadFfmpeg(remotionRoot);
