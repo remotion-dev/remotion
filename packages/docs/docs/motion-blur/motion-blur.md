@@ -1,8 +1,11 @@
 ---
 title: "<MotionBlur>"
+slug: motion-blur
 ---
 
 import { MotionBlurExample } from "../../components/MotionBlurExample/MotionBlurExample";
+
+import {TableOfContents} from '../../components/TableOfContents/motion-blur';
 
 ```twoslash include example
 const BlueSquare: React.FC = () => <div></div>
@@ -28,7 +31,7 @@ How many frames each layer is lagging behind the last one. Can also a floating p
 
 ### `blurOpacity`
 
-The `blurOpacity` defines the highest opacity of a layer. The lowest opacity is 0.
+The highest opacity of a layer. The lowest opacity is 0 and layers intbetween get interpolated.
 
 ## Example usage
 
@@ -59,9 +62,13 @@ export const MyComposition = () => {
 
 <MotionBlurExample />
 
+## Functions
+
+<TableOfContents />
+
 ## Credits
 
-Credits to [@UmungoBungo](https://github.com/UmungoBungo) for inventing this technique.
+This technique was invented and first implemented by [@UmungoBungo](https://github.com/UmungoBungo).
 
 ## See also
 

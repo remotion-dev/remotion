@@ -150,9 +150,7 @@ module.exports = {
         type: "doc",
         id: "motion-blur/index",
       },
-      items: [
-        "motion-blur/component",
-      ],
+      items: ["motion-blur/motion-blur"],
     },
     {
       type: "category",
