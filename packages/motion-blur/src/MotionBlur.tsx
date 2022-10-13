@@ -1,7 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Freeze, useCurrentFrame} from 'remotion';
 
-type MotionBlurProps = {
+export type MotionBlurProps = {
 	children: React.ReactNode;
 	layers: number;
 	lagInFrames: number;

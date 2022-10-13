@@ -1,1 +1,1 @@
-export { MotionBlur } from './MotionBlur';
+export {MotionBlur, MotionBlurProps} from './MotionBlur';
