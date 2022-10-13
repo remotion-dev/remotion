@@ -133,6 +133,13 @@ export const getExecutableFfmpeg = async (
 	ffmpegExecutable: FfmpegExecutable | null,
 	remotionRoot: string
 ) => {
+	if (
+		(await binaryExists('ffmpeg', ffmpegExecutable)) &&
+		ffmpegExecutable !== null
+	) {
+		return ffmpegExecutable;
+	}
+
 	if (await binaryExists('ffmpeg', ffmpegExecutable)) {
 		return 'ffmpeg';
 	}
