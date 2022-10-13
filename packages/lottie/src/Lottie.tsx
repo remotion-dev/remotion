@@ -94,6 +94,29 @@ export const Lottie = ({
 		});
 
 		animationRef.current.goToAndStop(nextFrame, true);
+		const images = containerRef.current?.querySelectorAll(
+			'image'
+		) as NodeListOf<SVGImageElement>;
+		images.forEach((img) => {
+			const imgHandle = delayRender(
+				`Waiting for lottie image with src="${img.href.baseVal}" to load`
+			);
+
+			// https://stackoverflow.com/a/46839799
+			img.addEventListener(
+				'load',
+				() => {
+					continueRender(imgHandle);
+				},
+				{once: true}
+			);
+
+			img.setAttributeNS(
+				'http://www.w3.org/1999/xlink',
+				'xlink:href',
+				img.href.baseVal as string
+			);
+		});
 	}, [direction, frame, loop, playbackRate]);
 
 	return <div ref={containerRef} className={className} style={style} />;
