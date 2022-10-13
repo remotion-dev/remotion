@@ -2,6 +2,8 @@
 title: "@remotion/motion-blur"
 ---
 
+_Available from v3.2.31_
+
 A high order component that creates a motion blur effect.
 
 import Tabs from '@theme/Tabs';
