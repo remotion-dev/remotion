@@ -46,8 +46,8 @@ export const getFfmpegAbsolutePath = (remotionRoot: string): string => {
 
 	const destinationPath =
 		os.platform() === 'win32'
-			? path.resolve(getFfmpegFolderName(remotionRoot), '/ffmpeg.exe')
-			: path.resolve(getFfmpegFolderName(remotionRoot), '/ffmpeg');
+			? path.resolve(getFfmpegFolderName(remotionRoot), 'ffmpeg.exe')
+			: path.resolve(getFfmpegFolderName(remotionRoot), 'ffmpeg');
 
 	return destinationPath;
 };

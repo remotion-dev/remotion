@@ -34,6 +34,7 @@ test('Can render a still using Node.JS APIs', async () => {
 		ffmpegExecutable: null,
 		ffprobeExecutable: null,
 		downloadMap: RenderInternals.makeDownloadMap(),
+		remotionRoot: process.cwd(),
 	});
 
 	const serveUrl = `http://localhost:${port}`;
