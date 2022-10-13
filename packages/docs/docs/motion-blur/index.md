@@ -2,7 +2,7 @@
 title: "@remotion/motion-blur"
 ---
 
-A package providing a higher order component that creates motion blur.
+A high order component that creates a motion blur effect.
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
@@ -40,6 +40,7 @@ yarn add @remotion/motion-blur
   </TabItem>
 </Tabs>
 
+## Components
 
 ## License
 

@@ -174,7 +174,7 @@ export const MotionBlurExample: React.FC = () => {
           <input
             type="range"
             min={0}
-            max={4}
+            max={2}
             step={0.1}
             value={lagInFrames}
             style={{ width: 90, marginRight: 8, padding: 8 }}
