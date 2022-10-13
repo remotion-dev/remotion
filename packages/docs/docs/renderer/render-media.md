@@ -41,15 +41,21 @@ _"h264" (default) | "h265" | "vp8" | "vp9" | "mp3" | "aac" | "wav" | "prores" | 
 
 Choose a suitable codec for your output media. Refer to the [Encoding guide](/docs/encoding) to find the best codec for your use case.
 
-### `audioBitrate`
+### `audioBitrate?`
+
+_string - optional_
 
 Specify the output bitrate for the generated audio.
 Beware, ffmpeg may, depending on the codec chosen, not take this parameter into account.
+Example:  `512K`, `1M`
 
-### `videoBitrate`
+### `videoBitrate?`
+
+_string - optional_
 
 Specify the output bitrate for the generated video.
 Beware, ffmpeg may, depending on the codec chosen, not take this parameter into account.
+Example:  `512K`, `1M`
 
 ### `inputProps?`
 

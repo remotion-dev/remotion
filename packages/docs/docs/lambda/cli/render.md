@@ -124,11 +124,13 @@ _available from v3.2.1_
 
 Specify the output bitrate for the generated audio.
 Beware, ffmpeg may, depending on the codec chosen, not take this parameter into account.
+Example:  `512K`, `1M`
 
 ### `--video-bitrate`
 
 Specify the output bitrate for the generated video.
 Beware, ffmpeg may, depending on the codec chosen, not take this parameter into account.
+Example:  `512K`, `1M`
 
 ### `--prores-profile`
 

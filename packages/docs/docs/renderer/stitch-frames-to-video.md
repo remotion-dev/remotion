@@ -61,15 +61,21 @@ _optional_
 
 Set a codec. See the [encoding guide](/docs/encoding) for available values and guidance on which one to choose. The default is `h264`.
 
-### `audioBitrate`
+### `audioBitrate?`
+
+_string - optional_
 
 Specify the output bitrate for the generated audio.
 Beware, ffmpeg may, depending on the codec chosen, not take this parameter into account.
+Example:  `512K`, `1M`
 
-### `videoBitrate`
+### `videoBitrate?`
+
+_string - optional_
 
 Specify the output bitrate for the generated video.
 Beware, ffmpeg may, depending on the codec chosen, not take this parameter into account.
+Example:  `512K`, `1M`
 
 ### `crf?`
 
