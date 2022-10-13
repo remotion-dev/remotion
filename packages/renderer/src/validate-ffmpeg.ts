@@ -65,7 +65,7 @@ export const validateFfmpeg = async (
 			(os.platform() === 'win32' && process.arch === 'x64') ||
 			(os.platform() === 'linux' && process.arch === 'x64')
 		) {
-			await downloadFfmpeg(remotionRoot, getFfmpegDownloadUrl());
+			await downloadFfmpeg(remotionRoot, getFfmpegDownloadUrl().url);
 			return validateFfmpeg(customFfmpegBinary, remotionRoot);
 		}
 

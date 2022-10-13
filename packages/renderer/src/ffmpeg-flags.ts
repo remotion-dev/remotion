@@ -37,21 +37,51 @@ const getFfmpegFolderName = (remotionRoot: string): string => {
 	return path.resolve(remotionRoot, 'node_modules/.ffmpeg');
 };
 
-const createDotFfmpegFolder = (remotionRoot: string) => {
-	fs.mkdirSync(getFfmpegFolderName(remotionRoot));
-};
+const ffmpegBinaryPrefix = 'ffmpeg-';
+const randomFfmpegRuntimeId = String(Math.random()).replace('0.', '');
 
 export const getFfmpegAbsolutePath = (remotionRoot: string): string => {
-	if (!fs.existsSync(getFfmpegFolderName(remotionRoot))) {
-		createDotFfmpegFolder(remotionRoot);
+	const folderName = getFfmpegFolderName(remotionRoot);
+	if (!fs.existsSync(folderName)) {
+		fs.mkdirSync(folderName);
 	}
 
-	const destinationPath =
-		os.platform() === 'win32'
-			? path.resolve(getFfmpegFolderName(remotionRoot), 'ffmpeg.exe')
-			: path.resolve(getFfmpegFolderName(remotionRoot), 'ffmpeg');
+	const items = fs.readdirSync(folderName);
+	// Check if a version of FFMPEG is already installed.
+	// To qualify, it must have the expected file size
+	// to avoid finding binaries that are still being downloaded
+	// A random ID is being assigned to the download to avoid conflicts when multiple Remotion processes are running
+	const ffmpegInstalled = items.find((i) => {
+		const matches = i.startsWith(ffmpegBinaryPrefix);
+		if (!matches) {
+			return false;
+		}
 
-	return destinationPath;
+		const expectedLength = getFfmpegDownloadUrl().contentLength;
+
+		const stat = fs.statSync(path.join(folderName, i));
+		if (stat.size === expectedLength) {
+			return true;
+		}
+
+		return false;
+	});
+
+	if (ffmpegInstalled) {
+		return path.join(folderName, ffmpegInstalled);
+	}
+
+	if (os.platform() === 'win32') {
+		return path.resolve(
+			folderName,
+			`${ffmpegBinaryPrefix}${randomFfmpegRuntimeId}.exe`
+		);
+	}
+
+	return path.resolve(
+		folderName,
+		`${ffmpegBinaryPrefix}${randomFfmpegRuntimeId}`
+	);
 };
 
 export const ffmpegHasFeature = async ({
@@ -111,6 +141,8 @@ const waitForFfmpegToBeDownloaded = (url: string) => {
 	});
 };
 
+const seed = Math.random();
+
 export const downloadFfmpeg = async (
 	remotionRoot: string,
 	url: string
@@ -122,7 +154,8 @@ export const downloadFfmpeg = async (
 	) => {
 		console.log(
 			'Downloading ffmpeg: ',
-			toMegabytes(downloadedBytes) + '/' + toMegabytes(totalBytesToDownload)
+			seed,
+			`${toMegabytes(downloadedBytes)}/${toMegabytes(totalBytesToDownload)}`
 		);
 	};
 
@@ -163,7 +196,7 @@ export const getExecutableFfmpeg = async (
 		return 'ffmpeg';
 	}
 
-	const url = getFfmpegDownloadUrl();
+	const {url} = getFfmpegDownloadUrl();
 
 	await waitForFfmpegToBeDownloaded(url);
 
@@ -180,16 +213,31 @@ function toMegabytes(bytes: number) {
 	return `${Math.round(mb * 10) / 10} Mb`;
 }
 
-export const getFfmpegDownloadUrl = () => {
+export const getFfmpegDownloadUrl = (): {
+	url: string;
+	contentLength: number;
+} => {
 	if (os.platform() === 'win32') {
-		return 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-win-x86.exe';
+		return {
+			url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-win-x86.exe',
+			contentLength: 127531008,
+		};
 	}
 
 	if (os.platform() === 'darwin') {
 		return process.arch === 'arm64'
-			? 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-arm64'
-			: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-x86';
+			? {
+					url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-arm64',
+					contentLength: 42093320,
+			  }
+			: {
+					url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-x86',
+					contentLength: 78380700,
+			  };
 	}
 
-	return 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-linux-amd64';
+	return {
+		url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-linux-amd64',
+		contentLength: 78502560,
+	};
 };
