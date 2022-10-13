@@ -46,7 +46,7 @@ const lottie = {
 	markers: [],
 };
 
-const LottieCybertruck = () => {
+const ImageInLottie = () => {
 	const {height, width} = useVideoConfig();
 
 	return (
@@ -61,4 +61,4 @@ const LottieCybertruck = () => {
 	);
 };
 
-export default LottieCybertruck;
+export default ImageInLottie;
