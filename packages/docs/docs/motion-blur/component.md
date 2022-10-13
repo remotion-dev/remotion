@@ -9,54 +9,59 @@ const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
 ```
 
-Credits to [@UmungoBungo](https://github.com/UmungoBungo) for inventing this technique.
+The `<MotionBlur>` component duplicates it's children and adds a time offset to each layer in order to create a motion blur effect.
 
-The motion blur is achieved by rendering the previous frame at a lower opacity multiple times to create a blur effect.
-
-For this technique to work, the element must be wrapped in an [`<AbsoluteFill>`](https://remotion.dev/docs/absolute-fill) so the previous frames can be layered under the original.
-
-Motion blur can be added to any element by wrapping it in `<MotionBlur>`:
+For this technique to work, the children must be absolutely positioned so many layers can be created without influencing the layout.  
+You can use the [`<AbsoluteFill>`](/docs/absolute-fill) component to absolutely position content.
 
 ## API
 
-### `frameDelay`
-The `frameDelay` parameter determines how many frames each layer is lagging behind.
+Wrap your content in `<MotionBlur>` and add the following props in addition.
 
-### `opacity`
-The `opacity` defines the highest opacity of a layer. The lowest opacity is 0.
+### `layers`
 
-### `iterations`
-The `iterations` parameter defines how many layers are added together.
+How many layers are added below the content. Must be an integer
 
+### `lagInFrames`
+
+How many frames each layer is lagging behind the last one. Can also a floating point number.
+
+### `blurOpacity`
+
+The `blurOpacity` defines the highest opacity of a layer. The lowest opacity is 0.
 
 ## Example usage
 
 ```tsx twoslash
 // @include: example-BlueSquare
 // ---cut---
-import React from 'react';
-import {AbsoluteFill} from 'remotion';
-import {MotionBlur} from '@remotion/motion-blur';
+import { MotionBlur } from "@remotion/motion-blur";
+import { AbsoluteFill } from "remotion";
 
 export const MyComposition = () => {
   return (
-    <AbsoluteFill
-      style={{
-        backgroundColor: 'white',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <MotionBlur opacity={1} frameDelay={0.1} iterations={50}>
+    <MotionBlur layers={50} lagInFrames={0.1} blurOpacity={1}>
+      <AbsoluteFill
+        style={{
+          backgroundColor: "white",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <BlueSquare />
-      </MotionBlur>
-    </AbsoluteFill>
+      </AbsoluteFill>
+    </MotionBlur>
   );
 };
 ```
+
 ## Demo
 
 <MotionBlurExample />
+
+## Credits
+
+Credits to [@UmungoBungo](https://github.com/UmungoBungo) for inventing this technique.
 
 ## See also
 
