@@ -156,6 +156,7 @@ export const downloadFfmpeg = async (
 ): Promise<string> => {
 	const destinationPath = getFfmpegAbsolutePath(remotionRoot);
 
+	console.log('DOWNLOAD', Math.random());
 	isDownloading[url] = true;
 	const totalBytes = await _downloadFile(url, destinationPath, onProgress);
 	onProgress(totalBytes, totalBytes);
@@ -170,6 +171,11 @@ export const downloadFfmpeg = async (
 
 	listeners[url].forEach((listener) => listener(destinationPath));
 	listeners[url] = [];
+
+	console.log({
+		destinationPath,
+		perm: fs.accessSync(destinationPath, fs.constants.X_OK),
+	});
 
 	return destinationPath;
 };
