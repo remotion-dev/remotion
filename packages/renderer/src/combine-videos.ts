@@ -4,21 +4,14 @@ import execa from 'execa';
 import {rmdirSync, rmSync, writeFileSync} from 'fs';
 import {join} from 'path';
 import type {Codec} from './codec';
+import type {FfmpegExecutable} from './ffmpeg-executable';
+import {getExecutableFfmpeg} from './ffmpeg-flags';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {isAudioCodec} from './is-audio-codec';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {truthy} from './truthy';
 
-export const combineVideos = async ({
-	files,
-	filelistDir,
-	output,
-	onProgress,
-	numberOfFrames,
-	codec,
-	fps,
-	numberOfGifLoops,
-}: {
+type Options = {
 	files: string[];
 	filelistDir: string;
 	output: string;
@@ -27,7 +20,23 @@ export const combineVideos = async ({
 	codec: Codec;
 	fps: number;
 	numberOfGifLoops: number | null;
-}) => {
+	remotionRoot: string;
+	ffmpegExecutable: FfmpegExecutable;
+};
+
+export const combineVideos = async (options: Options) => {
+	const {
+		files,
+		filelistDir,
+		output,
+		onProgress,
+		numberOfFrames,
+		codec,
+		fps,
+		numberOfGifLoops,
+		ffmpegExecutable,
+		remotionRoot,
+	} = options;
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 
 	const fileListTxt = join(filelistDir, 'files.txt');
@@ -35,7 +44,7 @@ export const combineVideos = async ({
 
 	try {
 		const task = execa(
-			'ffmpeg',
+			await getExecutableFfmpeg(ffmpegExecutable, remotionRoot),
 			[
 				isAudioCodec(codec) ? null : '-r',
 				isAudioCodec(codec) ? null : String(fps),

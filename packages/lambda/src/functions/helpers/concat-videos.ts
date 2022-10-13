@@ -1,4 +1,4 @@
-import type {Codec} from '@remotion/renderer';
+import type {Codec, FfmpegExecutable} from '@remotion/renderer';
 import {combineVideos, RenderInternals} from '@remotion/renderer';
 import fs, {
 	createWriteStream,
@@ -165,6 +165,8 @@ export const concatVideosS3 = async ({
 	expectedBucketOwner,
 	fps,
 	numberOfGifLoops,
+	ffmpegExecutable,
+	remotionRoot,
 }: {
 	bucket: string;
 	expectedFiles: number;
@@ -176,6 +178,8 @@ export const concatVideosS3 = async ({
 	expectedBucketOwner: string;
 	fps: number;
 	numberOfGifLoops: number | null;
+	ffmpegExecutable: FfmpegExecutable;
+	remotionRoot: string;
 }) => {
 	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
 	if (existsSync(outdir)) {
@@ -213,6 +217,8 @@ export const concatVideosS3 = async ({
 		codec: codecForCombining,
 		fps,
 		numberOfGifLoops,
+		ffmpegExecutable,
+		remotionRoot,
 	});
 	combine.end();
 
