@@ -294,7 +294,8 @@ const extractFrameFromVideoFn = async ({
 	const src = await ensurePresentationTimestamps(
 		downloadMap,
 		options.src,
-		remotionRoot
+		remotionRoot,
+		ffmpegExecutable
 	);
 	const {specialVcodec, needsResize} = await getVideoInfo(
 		downloadMap,
