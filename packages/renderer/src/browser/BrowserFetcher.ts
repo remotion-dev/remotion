@@ -495,6 +495,7 @@ export function _downloadFile(
 
 		const file = fs.createWriteStream(destinationPath);
 		file.on('finish', () => {
+			file.close();
 			return fulfill(totalBytes);
 		});
 		file.on('error', (error) => {
