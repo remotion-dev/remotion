@@ -2,19 +2,30 @@ import { Player } from "@remotion/player";
 import React, { useState } from "react";
 import {
   AbsoluteFill,
+  Freeze,
   interpolate,
   spring,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
 
-import { MotionBlur } from '@remotion/motion-blur';
+import { MotionBlur } from "@remotion/motion-blur";
 
 const square: React.CSSProperties = {
   height: 150,
   width: 150,
-  backgroundColor: '#0b84f3',
+  backgroundColor: "#0b84f3",
   borderRadius: 14,
+};
+
+const row: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+};
+
+const spacer: React.CSSProperties = {
+  width: 40,
 };
 
 export const Square: React.FC = () => {
@@ -35,8 +46,8 @@ export const Square: React.FC = () => {
   return (
     <AbsoluteFill
       style={{
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
         transform: `translateY(${y}px) rotate(${rotate}rad)`,
       }}
     >
@@ -46,34 +57,60 @@ export const Square: React.FC = () => {
 };
 
 const MyComposition = ({
-  opacity,
-  iterations,
-  frameDelay,
+  blurOpacity,
+  layers,
+  lagInFrames,
 }: {
-  opacity: number,
-  iterations: number,
-  frameDelay: number,
+  blurOpacity: number;
+  layers: number;
+  lagInFrames: number;
 }) => {
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: 'white',
-        justifyContent: 'center',
-        alignItems: 'center',
+        flexDirection: "row",
       }}
     >
-      <MotionBlur opacity={opacity} frameDelay={frameDelay} iterations={iterations}>
-        <Square />
-      </MotionBlur>
+      <div style={{ flex: 1, position: "relative" }}>
+        <AbsoluteFill style={{ padding: 30 }}>
+          <h1>Still</h1>
+        </AbsoluteFill>
+        <Freeze frame={38}>
+          <MotionBlur
+            blurOpacity={blurOpacity}
+            lagInFrames={lagInFrames}
+            layers={layers}
+          >
+            <Square />
+          </MotionBlur>
+        </Freeze>
+      </div>
+      <div
+        style={{
+          width: 1,
+          background: "var(--ifm-color-emphasis-300)",
+        }}
+      />
+      <div style={{ flex: 1, position: "relative" }}>
+        <AbsoluteFill style={{ padding: 30 }}>
+          <h1>Animation</h1>
+        </AbsoluteFill>
+        <MotionBlur
+          blurOpacity={blurOpacity}
+          lagInFrames={lagInFrames}
+          layers={layers}
+        >
+          <Square />
+        </MotionBlur>
+      </div>
     </AbsoluteFill>
   );
 };
 
-
 export const MotionBlurExample: React.FC = () => {
-  const [opacity, setOpacity] = useState(1);
-  const [frameDelay, setFrameDelay] = useState(0.3);
-  const [iterations, setIterations] = useState(50);
+  const [blurOpacity, setBlurOpacity] = useState(1);
+  const [lagInFrames, setFrameDelay] = useState(0.3);
+  const [layers, setLayers] = useState(50);
 
   return (
     <div>
@@ -81,54 +118,73 @@ export const MotionBlurExample: React.FC = () => {
         component={MyComposition}
         compositionWidth={1280}
         compositionHeight={720}
-        controls
-        durationInFrames={150}
+        durationInFrames={70}
         fps={30}
         style={{
           width: "100%",
+          border: "1px solid var(--ifm-color-emphasis-300)",
+          borderRadius: "var(--ifm-pre-border-radius)",
         }}
         inputProps={{
-          opacity,
-          frameDelay,
-          iterations,
+          blurOpacity,
+          lagInFrames,
+          layers,
         }}
+        autoPlay
         loop
       />
-      <div style={{ marginTop: '50px' }}>
-        <label>
+      <br />
+      <div style={{ ...row, fontSize: 20 }}>
+        <label style={row}>
           <input
-            type="number"
+            type="range"
             min={0}
+            max={100}
+            value={layers}
+            style={{ width: 90, marginRight: 8, padding: 8 }}
+            onChange={(e) => setLayers(Number(e.target.value))}
+          />
+          <code>
+            layers={"{"}
+            {layers}
+            {"}"}
+          </code>
+        </label>
+        <div style={spacer} />
+
+        <label style={row}>
+          <input
+            type="range"
+            min={0}
+            max={1}
             step={0.05}
-            value={opacity}
-            style={{ width: 90, marginRight: 8, padding: 8 }}
-            onChange={(e) => setOpacity(Number(e.target.value))}
+            value={blurOpacity}
+            style={{ width: 90, marginRight: 8 }}
+            onChange={(e) => setBlurOpacity(Number(e.target.value))}
           />
-          Opacity
+          <code>
+            blurOpacity={"{"}
+            {blurOpacity}
+            {"}"}
+          </code>
         </label>
-      </div>
-      <div>
-        <label>
+        <div style={spacer} />
+
+        <label style={row}>
           <input
-            type="number"
+            type="range"
             min={0}
-            value={iterations}
-            style={{ width: 90, marginRight: 8, padding: 8 }}
-            onChange={(e) => setIterations(Number(e.target.value))}
-          />
-          Iterations
-        </label>
-      </div>
-      <div>
-        <label>
-          <input
-            type="number"
-            min={0}
-            value={frameDelay}
+            max={4}
+            step={0.1}
+            value={lagInFrames}
             style={{ width: 90, marginRight: 8, padding: 8 }}
             onChange={(e) => setFrameDelay(Number(e.target.value))}
           />
-          Frame Delay
+          <code>
+            lagInFrames={"{"}
+            {lagInFrames}
+            {"}"}
+          </code>
         </label>
       </div>
     </div>
