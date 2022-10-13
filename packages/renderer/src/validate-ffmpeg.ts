@@ -1,9 +1,9 @@
 import execa from 'execa';
-import fs, {statSync} from 'fs';
+import {statSync} from 'fs';
 import os from 'os';
 import {
 	downloadFfmpeg,
-	getFfmpegAbsolutePath,
+	ffmpegInNodeModules,
 	getFfmpegDownloadUrl,
 } from './ffmpeg-flags';
 
@@ -39,11 +39,6 @@ export const binaryExists = async (
 		existsMap[name] = false;
 		return false;
 	}
-};
-
-export const ffmpegInNodeModules = (remotionRoot: string): boolean => {
-	const expectedFfmpegPath = getFfmpegAbsolutePath(remotionRoot);
-	return fs.existsSync(expectedFfmpegPath);
 };
 
 const isHomebrewInstalled = (): Promise<boolean> => {

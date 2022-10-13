@@ -4,10 +4,10 @@ import os from 'os';
 import path from 'path';
 import {_downloadFile} from './browser/BrowserFetcher';
 import type {FfmpegExecutable} from './ffmpeg-executable';
-import {binaryExists, ffmpegInNodeModules} from './validate-ffmpeg';
+import {binaryExists} from './validate-ffmpeg';
 
 let buildConfig: string | null = null;
-const listeners: Record<string, (() => void)[]> = {};
+const listeners: Record<string, ((path: string) => void)[]> = {};
 const isDownloading: Record<string, boolean> = {};
 
 export type FfmpegVersion = [number, number, number] | null;
@@ -40,7 +40,7 @@ const getFfmpegFolderName = (remotionRoot: string): string => {
 const ffmpegBinaryPrefix = 'ffmpeg-';
 const randomFfmpegRuntimeId = String(Math.random()).replace('0.', '');
 
-export const getFfmpegAbsolutePath = (remotionRoot: string): string => {
+export const ffmpegInNodeModules = (remotionRoot: string): string | null => {
 	const folderName = getFfmpegFolderName(remotionRoot);
 	if (!fs.existsSync(folderName)) {
 		fs.mkdirSync(folderName);
@@ -69,6 +69,15 @@ export const getFfmpegAbsolutePath = (remotionRoot: string): string => {
 
 	if (ffmpegInstalled) {
 		return path.join(folderName, ffmpegInstalled);
+	}
+
+	return null;
+};
+
+const getFfmpegAbsolutePath = (remotionRoot: string): string => {
+	const folderName = getFfmpegFolderName(remotionRoot);
+	if (!fs.existsSync(folderName)) {
+		fs.mkdirSync(folderName);
 	}
 
 	if (os.platform() === 'win32') {
@@ -128,39 +137,29 @@ export const getFfmpegVersion = async (
 };
 
 const waitForFfmpegToBeDownloaded = (url: string) => {
-	if (!isDownloading[url]) {
-		return Promise.resolve();
-	}
-
-	return new Promise<void>((resolve) => {
+	return new Promise<string>((resolve) => {
 		if (!listeners[url]) {
 			listeners[url] = [];
 		}
 
-		listeners[url].push(resolve);
+		listeners[url].push((src) => resolve(src));
 	});
+};
+
+const onProgress = (downloadedBytes: number, totalBytesToDownload: number) => {
+	console.log(
+		'Downloading ffmpeg: ',
+		`${toMegabytes(downloadedBytes)}/${toMegabytes(totalBytesToDownload)}`
+	);
 };
 
 export const downloadFfmpeg = async (
 	remotionRoot: string,
 	url: string
-): Promise<void> => {
+): Promise<string> => {
 	// implement callback instead
-	const onProgress = (
-		downloadedBytes: number,
-		totalBytesToDownload: number
-	) => {
-		console.log(
-			'Downloading ffmpeg: ',
-			`${toMegabytes(downloadedBytes)}/${toMegabytes(totalBytesToDownload)}`
-		);
-	};
 
 	const destinationPath = getFfmpegAbsolutePath(remotionRoot);
-
-	if (isDownloading[url]) {
-		return waitForFfmpegToBeDownloaded(url);
-	}
 
 	isDownloading[url] = true;
 	const totalBytes = await _downloadFile(url, destinationPath, onProgress);
@@ -174,8 +173,10 @@ export const downloadFfmpeg = async (
 		listeners[url] = [];
 	}
 
-	listeners[url].forEach((listener) => listener());
+	listeners[url].forEach((listener) => listener(destinationPath));
 	listeners[url] = [];
+
+	return destinationPath;
 };
 
 export const getExecutableFfmpeg = async (
@@ -194,14 +195,17 @@ export const getExecutableFfmpeg = async (
 
 	const {url} = getFfmpegDownloadUrl();
 
-	await waitForFfmpegToBeDownloaded(url);
-
-	if (ffmpegInNodeModules(remotionRoot)) {
-		return getFfmpegAbsolutePath(remotionRoot);
+	if (isDownloading[url]) {
+		return waitForFfmpegToBeDownloaded(url);
 	}
 
-	await downloadFfmpeg(remotionRoot, url);
-	return getFfmpegAbsolutePath(remotionRoot);
+	const inNodeMod = ffmpegInNodeModules(remotionRoot);
+
+	if (inNodeMod) {
+		return inNodeMod;
+	}
+
+	return downloadFfmpeg(remotionRoot, url);
 };
 
 function toMegabytes(bytes: number) {
