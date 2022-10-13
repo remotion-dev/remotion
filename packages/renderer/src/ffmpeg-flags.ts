@@ -98,6 +98,10 @@ export const getFfmpegVersion = async (
 };
 
 const waitForFfmpegToBeDownloaded = (url: string) => {
+	if (!isDownloading[url]) {
+		return Promise.resolve();
+	}
+
 	return new Promise<void>((resolve) => {
 		if (!listeners[url]) {
 			listeners[url] = [];
@@ -107,7 +111,10 @@ const waitForFfmpegToBeDownloaded = (url: string) => {
 	});
 };
 
-export const downloadFfmpeg = async (remotionRoot: string): Promise<void> => {
+export const downloadFfmpeg = async (
+	remotionRoot: string,
+	url: string
+): Promise<void> => {
 	// implement callback instead
 	const onProgress = (
 		downloadedBytes: number,
@@ -120,21 +127,6 @@ export const downloadFfmpeg = async (remotionRoot: string): Promise<void> => {
 	};
 
 	const destinationPath = getFfmpegAbsolutePath(remotionRoot);
-
-	let url: string;
-
-	if (os.platform() === 'win32') {
-		url =
-			'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-win-x86.exe';
-	} else if (os.platform() === 'darwin') {
-		url =
-			process.arch === 'arm64'
-				? 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-arm64'
-				: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-x86';
-	} else {
-		url =
-			'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-linux-amd64';
-	}
 
 	if (isDownloading[url]) {
 		return waitForFfmpegToBeDownloaded(url);
@@ -171,11 +163,15 @@ export const getExecutableFfmpeg = async (
 		return 'ffmpeg';
 	}
 
+	const url = getFfmpegDownloadUrl();
+
+	await waitForFfmpegToBeDownloaded(url);
+
 	if (ffmpegInNodeModules(remotionRoot)) {
 		return getFfmpegAbsolutePath(remotionRoot);
 	}
 
-	await downloadFfmpeg(remotionRoot);
+	await downloadFfmpeg(remotionRoot, url);
 	return getFfmpegAbsolutePath(remotionRoot);
 };
 
@@ -183,3 +179,17 @@ function toMegabytes(bytes: number) {
 	const mb = bytes / 1024 / 1024;
 	return `${Math.round(mb * 10) / 10} Mb`;
 }
+
+export const getFfmpegDownloadUrl = () => {
+	if (os.platform() === 'win32') {
+		return 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-win-x86.exe';
+	}
+
+	if (os.platform() === 'darwin') {
+		return process.arch === 'arm64'
+			? 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-arm64'
+			: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-x86';
+	}
+
+	return 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-linux-amd64';
+};

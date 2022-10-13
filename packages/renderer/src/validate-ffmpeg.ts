@@ -1,7 +1,11 @@
 import execa from 'execa';
 import fs, {statSync} from 'fs';
 import os from 'os';
-import {downloadFfmpeg, getFfmpegAbsolutePath} from './ffmpeg-flags';
+import {
+	downloadFfmpeg,
+	getFfmpegAbsolutePath,
+	getFfmpegDownloadUrl,
+} from './ffmpeg-flags';
 
 const existsMap: {[key: string]: boolean} = {};
 
@@ -61,7 +65,7 @@ export const validateFfmpeg = async (
 			(os.platform() === 'win32' && process.arch === 'x64') ||
 			(os.platform() === 'linux' && process.arch === 'x64')
 		) {
-			await downloadFfmpeg(remotionRoot);
+			await downloadFfmpeg(remotionRoot, getFfmpegDownloadUrl());
 			return validateFfmpeg(customFfmpegBinary, remotionRoot);
 		}
 
