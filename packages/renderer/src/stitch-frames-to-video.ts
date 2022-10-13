@@ -22,6 +22,7 @@ import {deleteDirectory} from './delete-directory';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getExecutableFfmpeg} from './ffmpeg-flags';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
+import {findRemotionRoot} from './find-closest-package-json';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
@@ -443,9 +444,9 @@ export const spawnFfmpeg = async (
 };
 
 export const stitchFramesToVideo = async (
-	options: StitcherOptions,
-	remotionRoot: string
+	options: StitcherOptions
 ): Promise<Buffer | null> => {
+	const remotionRoot = findRemotionRoot();
 	const {task, getLogs} = await spawnFfmpeg(options, remotionRoot);
 
 	const happyPath = task.catch(() => {

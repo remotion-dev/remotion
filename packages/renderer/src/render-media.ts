@@ -386,40 +386,37 @@ export const renderMedia = ({
 
 			const stitchStart = Date.now();
 			return Promise.all([
-				stitchFramesToVideo(
-					{
-						width: composition.width * (scale ?? 1),
-						height: composition.height * (scale ?? 1),
-						fps,
-						outputLocation: absoluteOutputLocation,
-						internalOptions: {
-							preEncodedFileLocation,
-							imageFormat,
-						},
-						force: overwrite ?? DEFAULT_OVERWRITE,
-						pixelFormat,
-						codec,
-						proResProfile,
-						crf,
-						assetsInfo,
-						ffmpegExecutable,
-						ffprobeExecutable,
-						onProgress: (frame: number) => {
-							stitchStage = 'muxing';
-							encodedFrames = frame;
-							callUpdate();
-						},
-						onDownload,
-						numberOfGifLoops,
-						verbose: options.verbose,
-						dir: outputDir ?? undefined,
-						cancelSignal: cancelStitcher.cancelSignal,
-						muted: disableAudio,
-						enforceAudioTrack,
-						ffmpegOverride,
+				stitchFramesToVideo({
+					width: composition.width * (scale ?? 1),
+					height: composition.height * (scale ?? 1),
+					fps,
+					outputLocation: absoluteOutputLocation,
+					internalOptions: {
+						preEncodedFileLocation,
+						imageFormat,
 					},
-					findRemotionRoot()
-				),
+					force: overwrite ?? DEFAULT_OVERWRITE,
+					pixelFormat,
+					codec,
+					proResProfile,
+					crf,
+					assetsInfo,
+					ffmpegExecutable,
+					ffprobeExecutable,
+					onProgress: (frame: number) => {
+						stitchStage = 'muxing';
+						encodedFrames = frame;
+						callUpdate();
+					},
+					onDownload,
+					numberOfGifLoops,
+					verbose: options.verbose,
+					dir: outputDir ?? undefined,
+					cancelSignal: cancelStitcher.cancelSignal,
+					muted: disableAudio,
+					enforceAudioTrack,
+					ffmpegOverride,
+				}),
 				stitchStart,
 			]);
 		})
