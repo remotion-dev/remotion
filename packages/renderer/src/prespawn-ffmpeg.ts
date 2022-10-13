@@ -2,7 +2,7 @@ import execa from 'execa';
 import {Internals} from 'remotion';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
-import {getDefaultCrfForCodec, validateQualitySettings} from './crf';
+import {validateQualitySettings} from './crf';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {getCodecName} from './get-codec-name';
@@ -60,7 +60,6 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 		codec,
 		scale: 1,
 	});
-	const crf = options.crf ?? getDefaultCrfForCodec(codec);
 	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
 	await validateFfmpeg(options.ffmpegExecutable ?? null);
 
@@ -81,7 +80,7 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 		console.log('[verbose] encoder', encoderName);
 		console.log('[verbose] pixelFormat', pixelFormat);
 		if (supportsCrf) {
-			console.log('[verbose] crf', crf);
+			console.log('[verbose] crf', options.crf);
 		}
 
 		console.log('[verbose] codec', codec);

@@ -14,7 +14,7 @@ import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
 import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
-import {getDefaultCrfForCodec, validateQualitySettings} from './crf';
+import {validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
@@ -188,7 +188,6 @@ export const spawnFfmpeg = async (
 	});
 
 	Internals.validateFps(options.fps, 'in `stitchFramesToVideo()`', false);
-	const crf = options.crf ?? getDefaultCrfForCodec(codec);
 	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
 	await validateFfmpeg(options.ffmpegExecutable ?? null);
 
@@ -237,7 +236,11 @@ export const spawnFfmpeg = async (
 		console.log('[verbose] proResProfileName', proResProfileName);
 	}
 
-	validateQualitySettings({crf, codec, videoBitrate: options.videoBitrate});
+	validateQualitySettings({
+		crf: options.crf,
+		codec,
+		videoBitrate: options.videoBitrate,
+	});
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
 	const expectedFrames = options.assetsInfo.assets.length;
