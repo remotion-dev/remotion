@@ -59,7 +59,6 @@ export const validateFfmpeg = async (
 		(await binaryExists('ffmpeg', customFfmpegBinary)) ||
 		ffmpegInNodeModules(remotionRoot);
 	if (!ffmpegExists) {
-		console.log('Platform: ', os.platform());
 		if (
 			os.platform() === 'darwin' ||
 			(os.platform() === 'win32' && process.arch === 'x64') ||
