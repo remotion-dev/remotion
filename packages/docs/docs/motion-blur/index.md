@@ -8,6 +8,7 @@ A high order component that creates a motion blur effect.
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import {TableOfContents} from '../../components/TableOfContents/motion-blur';
 
 <Tabs
 defaultValue="npm"
@@ -43,6 +44,8 @@ yarn add @remotion/motion-blur
 </Tabs>
 
 ## Components
+
+<TableOfContents />
 
 ## License
 
