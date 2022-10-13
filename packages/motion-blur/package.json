@@ -1,7 +1,7 @@
 {
-	"name": "@remotion/skia",
+	"name": "@remotion/motion-blur",
 	"version": "3.2.30",
-	"description": "Utilities for using react-native-skia in Remotion",
+	"description": "Motion blur effect for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
@@ -10,7 +10,7 @@
 		"watch": "tsc -w",
 		"build": "tsc -d"
 	},
-	"author": "Jonny Burger <jonny@remotion.dev>, William Candillon <wcandillon@gmail.com>",
+	"author": "Matt McGillivray, Ilija Boshkov <ilija@codechem.com>, Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
 	"license": "MIT",
 	"repository": {
@@ -20,19 +20,15 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"copy-webpack-plugin": "11",
 		"remotion": "3.2.30"
 	},
 	"peerDependencies": {
-		"@shopify/react-native-skia": "^0.1.139",
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
-		"@shopify/react-native-skia": "^0.1.139",
 		"@types/react": "18.0.1",
-		"@types/react-native": "^0.69.2",
 		"eslint": "8.13.0",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^2.3.4",
@@ -40,10 +36,12 @@
 		"react-dom": "18.0.0",
 		"typescript": "^4.7.0",
 		"remotion": "3.2.30"
+
 	},
 	"keywords": [
 		"remotion",
-		"skia"
+		"motion",
+		"blur"
 	],
 	"publishConfig": {
 		"access": "public"
