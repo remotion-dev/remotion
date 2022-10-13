@@ -7,11 +7,7 @@ import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {warnIfAppleSiliconIsNotUsingArm64Architecture} from './check-apple-silicon';
 import {DEFAULT_CODEC, validCodecs} from './codec';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
-import {
-	getDefaultCrfForCodec,
-	getValidCrfRanges,
-	validateQualitySettings,
-} from './crf';
+import {getValidCrfRanges, validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
@@ -149,7 +145,6 @@ export const RenderInternals = {
 	validateFrameRange,
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
-	getDefaultCrfForCodec,
 	validateQualitySettings,
 	validImageFormats,
 	validCodecs,
