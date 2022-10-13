@@ -18,6 +18,7 @@ import {symbolicateError} from './error-handling/symbolicate-error';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
 import {
 	ffmpegHasFeature,
+	getExecutableFfmpeg,
 	getFfmpegBuildInfo,
 	getFfmpegVersion,
 } from './ffmpeg-flags';
@@ -173,6 +174,7 @@ export const RenderInternals = {
 	cleanDownloadMap,
 	convertToPositiveFrameIndex,
 	findRemotionRoot,
+	getExecutableFfmpeg,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
