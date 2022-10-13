@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/skia",
-	"version": "3.2.30",
+	"version": "3.2.31",
 	"description": "Utilities for using react-native-skia in Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -21,7 +21,7 @@
 	},
 	"dependencies": {
 		"copy-webpack-plugin": "11",
-		"remotion": "3.2.30"
+		"remotion": "3.2.31"
 	},
 	"peerDependencies": {
 		"@shopify/react-native-skia": "^0.1.139",
@@ -38,8 +38,8 @@
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"react": "18.0.0",
 		"react-dom": "18.0.0",
-		"typescript": "^4.7.0",
-		"remotion": "3.2.30"
+		"remotion": "3.2.30",
+		"typescript": "^4.7.0"
 	},
 	"keywords": [
 		"remotion",
