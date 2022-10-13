@@ -18,6 +18,7 @@ import type {
 	TimelineContextValue,
 } from './timeline-position-state';
 import {SetTimelineContext, TimelineContext} from './timeline-position-state';
+import {DurationsContextProvider} from './video/duration-state';
 
 export const RemotionRoot: React.FC<{
 	children: React.ReactNode;
@@ -85,12 +86,14 @@ export const RemotionRoot: React.FC<{
 				<SetTimelineContext.Provider value={setTimelineContextValue}>
 					<PrefetchProvider>
 						<CompositionManagerProvider>
-							<SharedAudioContextProvider
-								// In the preview, which is mostly played on Desktop, we opt out of the autoplay policy fix as described in https://github.com/remotion-dev/remotion/pull/554, as it mostly applies to mobile.
-								numberOfAudioTags={0}
-							>
-								{children}
-							</SharedAudioContextProvider>
+							<DurationsContextProvider>
+								<SharedAudioContextProvider
+									// In the preview, which is mostly played on Desktop, we opt out of the autoplay policy fix as described in https://github.com/remotion-dev/remotion/pull/554, as it mostly applies to mobile.
+									numberOfAudioTags={0}
+								>
+									{children}
+								</SharedAudioContextProvider>
+							</DurationsContextProvider>
 						</CompositionManagerProvider>
 					</PrefetchProvider>
 				</SetTimelineContext.Provider>

@@ -56,11 +56,13 @@ import type {
 	RenderStillOnLambdaOutput,
 } from './api/render-still-on-lambda';
 import {renderStillOnLambda} from './api/render-still-on-lambda';
+import {validateWebhookSignature} from './api/validate-webhook-signature';
 import type {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
 import {LambdaInternals} from './internals';
 import type {AwsRegion} from './pricing/aws-regions';
 import type {CustomCredentials} from './shared/aws-clients';
 import type {RenderProgress} from './shared/constants';
+import type {WebhookPayload} from './shared/invoke-webhook';
 import type {LambdaArchitecture} from './shared/validate-architecture';
 
 export {
@@ -87,6 +89,7 @@ export {
 	getAwsClient,
 	presignUrl,
 	deleteRender,
+	validateWebhookSignature,
 };
 export type {
 	AwsRegion,
@@ -121,4 +124,5 @@ export type {
 	GetAwsClientOutput,
 	LambdaArchitecture,
 	CustomCredentials,
+	WebhookPayload,
 };
