@@ -173,7 +173,7 @@ export const render = async (remotionRoot: string) => {
 
 	const puppeteerInstance = await browserInstance;
 
-	const comps = await getCompositions(urlOrBundle, remotionRoot, {
+	const comps = await getCompositions(urlOrBundle, {
 		inputProps,
 		puppeteerInstance,
 		envVariables,

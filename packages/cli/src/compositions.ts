@@ -67,7 +67,7 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 			publicDir,
 		});
 
-	const compositions = await getCompositions(bundled, remotionRoot, {
+	const compositions = await getCompositions(bundled, {
 		browserExecutable,
 		ffmpegExecutable,
 		ffprobeExecutable,
