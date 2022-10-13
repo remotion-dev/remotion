@@ -7,7 +7,7 @@ const existsMap: {[key: string]: boolean} = {};
 
 export const binaryExists = async (
 	name: 'ffmpeg' | 'brew',
-	localFFmpeg: string | null // == customFfmpeg
+	localFFmpeg: string | null
 ) => {
 	if (typeof existsMap[name] !== 'undefined') {
 		return existsMap[name];
@@ -16,7 +16,7 @@ export const binaryExists = async (
 	// case where user has specified a custom ffmpeg executable --> we check if its valid
 	if (name === 'ffmpeg' && localFFmpeg) {
 		try {
-			statSync(localFFmpeg); // statSync searches for the file
+			statSync(localFFmpeg);
 			existsMap[name] = true;
 		} catch (err) {
 			existsMap[name] = false;
