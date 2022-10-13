@@ -97,12 +97,15 @@ export const getFfmpegVersion = async (
 
 export const downloadFfmpeg = async (remotionRoot: string): Promise<void> => {
 	// implement callback instead
-	function onProgress(downloadedBytes: number, totalBytes: number) {
+	const onProgress = (
+		downloadedBytes: number,
+		totalBytesToDownload: number
+	) => {
 		console.log(
 			'Downloading ffmpeg: ',
-			toMegabytes(downloadedBytes) + '/' + toMegabytes(totalBytes)
+			toMegabytes(downloadedBytes) + '/' + toMegabytes(totalBytesToDownload)
 		);
-	}
+	};
 
 	const destinationPath = getFfmpegAbsolutePath(remotionRoot);
 
