@@ -63,11 +63,13 @@ Specify a location for a dotenv file. Default `.env`. Available in v2.2 and late
 
 Specify the output bitrate for the generated audio.
 Beware, ffmpeg may, depending on the codec chosen, not take this parameter into account.
+Example:  `512K`, `1M`
 
 ### `--video-bitrate`
 
 Specify the output bitrate for the generated video.
 Beware, ffmpeg may, depending on the codec chosen, not take this parameter into account.
+Example:  `512K`, `1M`
 
 ### `--prores-profile`
 
