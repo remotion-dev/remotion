@@ -1,6 +1,7 @@
 import execa from 'execa';
 import path from 'path';
 import type {DownloadMap} from './assets/download-map';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getExecutableFfmpeg} from './ffmpeg-flags';
 import {guessExtensionForVideo} from './guess-extension-for-media';
 import {truthy} from './truthy';
@@ -36,7 +37,8 @@ const getTemporaryOutputName = async (src: string) => {
 export const ensurePresentationTimestamps = async (
 	downloadMap: DownloadMap,
 	src: string,
-	remotionRoot: string
+	remotionRoot: string,
+	ffmpegExecutable: FfmpegExecutable
 ): Promise<string> => {
 	const elem = downloadMap.ensureFileHasPresentationTimestamp[src];
 	if (elem?.type === 'encoding') {
@@ -57,7 +59,7 @@ export const ensurePresentationTimestamps = async (
 	// If there is no file extension for the video, then we need to tempoa
 	const output = await getTemporaryOutputName(src);
 
-	await execa(await getExecutableFfmpeg(null, remotionRoot), [
+	await execa(await getExecutableFfmpeg(ffmpegExecutable, remotionRoot), [
 		'-i',
 		src,
 		'-fflags',
