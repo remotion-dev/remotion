@@ -175,6 +175,7 @@ export const downloadFfmpeg = async (
 	console.log({
 		destinationPath,
 		perm: fs.accessSync(destinationPath, fs.constants.X_OK),
+		stat: fs.statSync(destinationPath),
 	});
 
 	return destinationPath;
@@ -187,6 +188,8 @@ export const getExecutableFfmpeg = async (
 	const exists = await binaryExists('ffmpeg', ffmpegExecutable);
 
 	if (exists) {
+		console.log('XXX get from exists');
+
 		if (ffmpegExecutable !== null) {
 			return ffmpegExecutable;
 		}
@@ -197,15 +200,19 @@ export const getExecutableFfmpeg = async (
 	const {url} = getFfmpegDownloadUrl();
 
 	if (isDownloading[url]) {
+		console.log('XXX get from waiting');
 		return waitForFfmpegToBeDownloaded(url);
 	}
 
 	const inNodeMod = ffmpegInNodeModules(remotionRoot);
 
 	if (inNodeMod) {
+		console.log('XXX get from node mode', inNodeMod);
+
 		return inNodeMod;
 	}
 
+	console.log('XXX get from DL');
 	return downloadFfmpeg(remotionRoot, url);
 };
 
