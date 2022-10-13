@@ -308,6 +308,7 @@ export const render = async (remotionRoot: string) => {
 		outputLocation: absoluteOutputFile,
 		serveUrl: urlOrBundle,
 		codec,
+		remotionRoot,
 	});
 
 	await renderMedia({

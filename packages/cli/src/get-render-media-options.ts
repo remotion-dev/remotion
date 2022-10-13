@@ -8,11 +8,13 @@ export const getRenderMediaOptions = async ({
 	config,
 	serveUrl,
 	codec,
+	remotionRoot,
 }: {
 	outputLocation: RenderMediaOptions['outputLocation'];
 	config: RenderMediaOptions['composition'];
 	serveUrl: string;
 	codec: Codec;
+	remotionRoot: string;
 }): Promise<RenderMediaOptions> => {
 	const {
 		proResProfile,
@@ -40,6 +42,7 @@ export const getRenderMediaOptions = async ({
 		isLambda: false,
 		type: 'series',
 		codec,
+		remotionRoot,
 	});
 
 	return {

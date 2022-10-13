@@ -166,6 +166,7 @@ export const benchmarkCommand = async (
 		isLambda: false,
 		type: 'series',
 		codec: 'h264',
+		remotionRoot,
 	});
 
 	const browserInstance = openBrowser(browser, {
@@ -235,6 +236,7 @@ export const benchmarkCommand = async (
 			outputLocation: undefined,
 			serveUrl: bundleLocation,
 			codec,
+			remotionRoot,
 		});
 		const concurrency = getValidConcurrency(renderMediaOptions);
 
