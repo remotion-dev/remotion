@@ -7,6 +7,8 @@ import type {FfmpegExecutable} from './ffmpeg-executable';
 import {binaryExists, ffmpegInNodeModules} from './validate-ffmpeg';
 
 let buildConfig: string | null = null;
+const listeners: Record<string, (() => void)[]> = {};
+const isDownloading: Record<string, boolean> = {};
 
 export type FfmpegVersion = [number, number, number] | null;
 
@@ -95,6 +97,16 @@ export const getFfmpegVersion = async (
 	return parseFfmpegVersion(buildInfo);
 };
 
+const waitForFfmpegToBeDownloaded = (url: string) => {
+	return new Promise<void>((resolve) => {
+		if (!listeners[url]) {
+			listeners[url] = [];
+		}
+
+		listeners[url].push(resolve);
+	});
+};
+
 export const downloadFfmpeg = async (remotionRoot: string): Promise<void> => {
 	// implement callback instead
 	const onProgress = (
@@ -109,7 +121,6 @@ export const downloadFfmpeg = async (remotionRoot: string): Promise<void> => {
 
 	const destinationPath = getFfmpegAbsolutePath(remotionRoot);
 
-	console.log(destinationPath);
 	let url: string;
 
 	if (os.platform() === 'win32') {
@@ -125,11 +136,24 @@ export const downloadFfmpeg = async (remotionRoot: string): Promise<void> => {
 			'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-linux-amd64';
 	}
 
+	if (isDownloading[url]) {
+		return waitForFfmpegToBeDownloaded(url);
+	}
+
+	isDownloading[url] = true;
 	const totalBytes = await _downloadFile(url, destinationPath, onProgress);
 	onProgress(totalBytes, totalBytes);
 	if (os.platform() !== 'win32') {
 		fs.chmodSync(destinationPath, '755');
 	}
+
+	isDownloading[url] = false;
+	if (!listeners[url]) {
+		listeners[url] = [];
+	}
+
+	listeners[url].forEach((listener) => listener());
+	listeners[url] = [];
 };
 
 export const getExecutableFfmpeg = async (
