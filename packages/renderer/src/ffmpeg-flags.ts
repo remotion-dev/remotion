@@ -122,14 +122,10 @@ export const downloadFfmpeg = async (remotionRoot: string): Promise<void> => {
 			'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-linux-amd64';
 	}
 
-	try {
-		const totalBytes = await _downloadFile(url, destinationPath, onProgress);
-		onProgress(totalBytes, totalBytes);
-		if (os.platform() !== 'win32') {
-			fs.chmodSync(destinationPath, '755');
-		}
-	} catch (error) {
-		console.log(error);
+	const totalBytes = await _downloadFile(url, destinationPath, onProgress);
+	onProgress(totalBytes, totalBytes);
+	if (os.platform() !== 'win32') {
+		fs.chmodSync(destinationPath, '755');
 	}
 };
 
