@@ -46,21 +46,18 @@ export const ffmpegInNodeModules = (remotionRoot: string): string | null => {
 		fs.mkdirSync(folderName);
 	}
 
-	const items = fs.readdirSync(folderName);
 	// Check if a version of FFMPEG is already installed.
 	// To qualify, it must have the expected file size
 	// to avoid finding binaries that are still being downloaded
 	// A random ID is being assigned to the download to avoid conflicts when multiple Remotion processes are running
-	const ffmpegInstalled = items.find((i) => {
-		const matches = i.startsWith(ffmpegBinaryPrefix);
-		if (!matches) {
+	const ffmpegInstalled = fs.readdirSync(folderName).find((filename) => {
+		if (!filename.startsWith(ffmpegBinaryPrefix)) {
 			return false;
 		}
 
 		const expectedLength = getFfmpegDownloadUrl().contentLength;
 
-		const stat = fs.statSync(path.join(folderName, i));
-		if (stat.size === expectedLength) {
+		if (fs.statSync(path.join(folderName, filename)).size === expectedLength) {
 			return true;
 		}
 
@@ -148,7 +145,7 @@ const waitForFfmpegToBeDownloaded = (url: string) => {
 
 const onProgress = (downloadedBytes: number, totalBytesToDownload: number) => {
 	console.log(
-		'Downloading ffmpeg: ',
+		'Downloading FFmpeg: ',
 		`${toMegabytes(downloadedBytes)}/${toMegabytes(totalBytesToDownload)}`
 	);
 };
@@ -157,8 +154,6 @@ export const downloadFfmpeg = async (
 	remotionRoot: string,
 	url: string
 ): Promise<string> => {
-	// implement callback instead
-
 	const destinationPath = getFfmpegAbsolutePath(remotionRoot);
 
 	isDownloading[url] = true;
