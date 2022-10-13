@@ -141,8 +141,6 @@ const waitForFfmpegToBeDownloaded = (url: string) => {
 	});
 };
 
-const seed = Math.random();
-
 export const downloadFfmpeg = async (
 	remotionRoot: string,
 	url: string
@@ -154,7 +152,6 @@ export const downloadFfmpeg = async (
 	) => {
 		console.log(
 			'Downloading ffmpeg: ',
-			seed,
 			`${toMegabytes(downloadedBytes)}/${toMegabytes(totalBytesToDownload)}`
 		);
 	};
