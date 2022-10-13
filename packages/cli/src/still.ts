@@ -121,7 +121,7 @@ export const still = async (remotionRoot: string) => {
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
-	const comps = await getCompositions(urlOrBundle, remotionRoot, {
+	const comps = await getCompositions(urlOrBundle, {
 		inputProps,
 		puppeteerInstance,
 		envVariables,
