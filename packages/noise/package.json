@@ -24,7 +24,8 @@
     "url": "https://github.com/remotion-dev/remotion/issues"
   },
   "dependencies": {
-    "remotion": "3.2.31"
+    "remotion": "3.2.31",
+    "simplex-noise": "4.0.0"
   },
   "keywords": [
     "remotion",
