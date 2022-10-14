@@ -4,7 +4,9 @@ title: createNoise4D()
 
 _Part of the [`@remotion/noise`](/docs/noise) package._
 
-Creates 4D noise.
+Creates 4D noise. The function takes one argument:
+
+- `seed`, same as [random](/docs/random)'s one
 
 A `NoiseFunction4D` is returned:
 

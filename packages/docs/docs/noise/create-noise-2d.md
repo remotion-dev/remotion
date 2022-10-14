@@ -4,7 +4,9 @@ title: createNoise2D()
 
 _Part of the [`@remotion/noise`](/docs/noise) package._
 
-Creates 2D noise.
+Creates 2D noise. The function takes one argument:
+
+- `seed`, same as [random](/docs/random)'s one
 
 A `NoiseFunction2D` is returned:
 

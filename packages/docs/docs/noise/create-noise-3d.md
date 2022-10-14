@@ -4,7 +4,9 @@ title: createNoise3D()
 
 _Part of the [`@remotion/noise`](/docs/noise) package._
 
-Creates 3D noise.
+Creates 3D noise. The function takes one argument:
+
+- `seed`, same as [random](/docs/random)'s one
 
 A `NoiseFunction3D` is returned:
 
