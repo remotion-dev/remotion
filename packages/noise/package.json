@@ -23,6 +23,9 @@
   "bugs": {
     "url": "https://github.com/remotion-dev/remotion/issues"
   },
+  "dependencies": {
+    "remotion": "3.2.31"
+  },
   "keywords": [
     "remotion",
     "noise"
