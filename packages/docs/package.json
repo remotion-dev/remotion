@@ -30,6 +30,7 @@
     "@remotion/lottie": "3.2.31",
     "@remotion/media-utils": "3.2.31",
     "@remotion/motion-blur": "3.2.31",
+    "@remotion/noise": "3.2.31",
     "@remotion/paths": "3.2.31",
     "@remotion/player": "3.2.31",
     "@remotion/preload": "3.2.31",

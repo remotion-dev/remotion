@@ -249,6 +249,19 @@ module.exports = {
         "paths/extend-viewbox",
       ],
     },
+    {
+      type: "category",
+      label: "@remotion/noise",
+      link: {
+        type: "doc",
+        id: "noise/index",
+      },
+      items: [
+        // "noise/create-noise-2d", // TODO: confirm it works
+        // "noise/create-noise-3d", // TODO: confirm it works
+        // "noise/create-noise-4d", // TODO: confirm it works
+      ],
+    },
   ],
   mainSidebar: [
     {
