@@ -9,6 +9,7 @@ Utility functions that create a noise effect.
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import {TableOfContents} from '../../components/TableOfContents/noise';
 
 <Tabs
 defaultValue="npm"
@@ -45,7 +46,8 @@ yarn add @remotion/noise
 
 ## Functions
 
-<!-- TODO: add functions reference -->
+<!-- TODO: confirm the references work -->
+<TableOfContents/>
 
 ## License
 
