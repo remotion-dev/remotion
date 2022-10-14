@@ -1,4 +1,4 @@
-import type {ComponentType, MutableRefObject} from 'react';
+import type {ComponentProps, ComponentType, MutableRefObject} from 'react';
 import React, {
 	forwardRef,
 	useCallback,
@@ -65,11 +65,16 @@ export type PlayerProps<T> = {
 	showPosterWhenPaused?: boolean;
 	showPosterWhenEnded?: boolean;
 	showPosterWhenUnplayed?: boolean;
-	inFrame?: number | null;
-	outFrame?: number | null;
-	initiallyShowControls?: number | boolean;
 } & PropsIfHasProps<T> &
-	CompProps<T>;
+	CompProps<T> &
+	Pick<
+		ComponentProps<typeof PlayerUI>,
+		| 'inFrame'
+		| 'outFrame'
+		| 'initiallyShowControls'
+		| 'renderFullscreen'
+		| 'renderPlayPauseButton'
+	>;
 
 export const componentOrNullIfLazy = <T,>(
 	props: CompProps<T>
@@ -111,6 +116,8 @@ export const PlayerFn = <T,>(
 		inFrame,
 		outFrame,
 		initiallyShowControls,
+		renderFullscreen,
+		renderPlayPauseButton,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -434,6 +441,8 @@ export const PlayerFn = <T,>(
 													inFrame={inFrame ?? null}
 													outFrame={outFrame ?? null}
 													initiallyShowControls={initiallyShowControls ?? true}
+													renderFullscreen={renderFullscreen}
+													renderPlayPauseButton={renderPlayPauseButton}
 												/>
 											</Internals.DurationsContextProvider>
 										</Internals.PrefetchProvider>

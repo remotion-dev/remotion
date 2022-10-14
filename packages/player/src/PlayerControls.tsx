@@ -1,4 +1,4 @@
-import type {MouseEventHandler} from 'react';
+import type {MouseEventHandler, ReactNode} from 'react';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {formatTime} from './format-time';
@@ -79,6 +79,9 @@ declare global {
 	}
 }
 
+const PlayPauseButton: React.FC<{playing: boolean}> = ({playing}) =>
+	playing ? <PauseIcon /> : <PlayIcon />;
+
 export const Controls: React.FC<{
 	fps: number;
 	durationInFrames: number;
@@ -96,6 +99,8 @@ export const Controls: React.FC<{
 	outFrame: number | null;
 	initiallyShowControls: number | boolean;
 	playerWidth: number;
+	renderPlayPauseButton?: (props: {playing: boolean}) => ReactNode;
+	renderFullscreen?: (props: {minimized: boolean}) => ReactNode;
 }> = ({
 	durationInFrames,
 	hovered,
@@ -113,6 +118,8 @@ export const Controls: React.FC<{
 	outFrame,
 	initiallyShowControls,
 	playerWidth,
+	renderPlayPauseButton = PlayPauseButton,
+	renderFullscreen = FullscreenIcon,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -217,7 +224,7 @@ export const Controls: React.FC<{
 						aria-label={player.playing ? 'Pause video' : 'Play video'}
 						title={player.playing ? 'Pause video' : 'Play video'}
 					>
-						{player.playing ? <PauseIcon /> : <PlayIcon />}
+						{renderPlayPauseButton({playing: player.playing})}
 					</button>
 					{showVolumeControls ? (
 						<>
@@ -247,7 +254,7 @@ export const Controls: React.FC<{
 									: onFullscreenButtonClick
 							}
 						>
-							<FullscreenIcon minimized={!isFullscreen} />
+							{renderFullscreen({minimized: !isFullscreen})}
 						</button>
 					) : null}
 				</div>
