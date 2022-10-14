@@ -669,6 +669,27 @@ importers:
       react-dom: 18.0.0_react@18.0.0
       typescript: 4.7.2
 
+  packages/noise:
+    specifiers:
+      '@jonny/eslint-config': ^3.0.266
+      '@types/node': ^16.7.5
+      eslint: 8.13.0
+      prettier: ^2.0.5
+      prettier-plugin-organize-imports: ^2.3.4
+      remotion: 3.2.31
+      simplex-noise: 4.0.0
+      typescript: ^4.7.0
+    dependencies:
+      remotion: link:../core
+      simplex-noise: 4.0.0
+    devDependencies:
+      '@jonny/eslint-config': 3.0.266_6hvhxfirl4y3p6nuemvvvbadcu
+      '@types/node': 16.10.2
+      eslint: 8.13.0
+      prettier: 2.6.2
+      prettier-plugin-organize-imports: 2.3.4_lbsuufegg2dnc4wh6qgf26kgdy
+      typescript: 4.7.2
+
   packages/paths:
     specifiers:
       '@jonny/eslint-config': 3.0.266
@@ -19812,6 +19833,10 @@ packages:
     dependencies:
       is-arrayish: 0.3.2
     dev: true
+
+  /simplex-noise/4.0.0:
+    resolution: {integrity: sha512-ciRAxJnRdQhFhZ7+yZKxk8bQJoIq2J2UPO2pbzy1vcrWFq70P4hNCCmcCTkBKDCIeXZVd/yKjL8Fmh8Aeu5+6g==}
+    dev: false
 
   /sirv/1.0.17:
     resolution: {integrity: sha512-qx9go5yraB7ekT7bCMqUHJ5jEaOC/GXBxUWv+jeWnb7WzHUFdcQPGWk7YmAwFBaQBrogpuSqd/azbC2lZRqqmw==}
