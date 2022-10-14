@@ -1,0 +1,33 @@
+{
+  "name": "@remotion/noise",
+  "version": "3.2.31",
+  "description": "Noise effect for Remotion",
+  "main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"sideEffects": false,
+  "scripts": {
+		"lint": "eslint src --ext ts,tsx",
+		"watch": "tsc -w",
+		"build": "tsc -d"
+	},
+  "author": "Yehor Misiats (https://github.com/satelllte)",
+  "maintainers": [
+		"Jonny Burger <jonny@remotion.dev>",
+		"Yehor Misiats (https://github.com/satelllte)"
+	],
+  "contributors": [],
+	"license": "MIT",
+  "repository": {
+		"url": "https://github.com/remotion-dev/remotion"
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+  "keywords": [
+    "remotion",
+    "noise"
+  ],
+  "publishConfig": {
+		"access": "public"
+	}
+}
