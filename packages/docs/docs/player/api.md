@@ -287,6 +287,70 @@ _optional, available from v3.2.24_
 
 If true, the controls flash when the player enters the scene. After 2 seconds without hover, the controls fade out. This is similar to how YouTube does it, and signals to the user that the player is in fact controllable. You can also pass a `number`, with which you can customize the duration in milliseconds. Default `true` since `v3.2.24`, before that unsupported.
 
+### `renderPlayPauseButton`
+
+_optional, available from v3.2.31_
+
+Allows you to customise the Play-Pause button of the player, must return a valid react element.
+
+```tsx twoslash
+import { Player } from "@remotion/player";
+import { MyVideo } from "./remotion/MyVideo";
+
+export const App: React.FC = () => {
+  const renderPlayPauseButton = useCallback(({ playing }) => {
+    if (playing) {
+      return <MyPlayButton />;
+    }
+
+    return <MyPauseButton />;
+  }, []);
+
+  return (
+    <Player
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+      renderPlayPauseButton={renderPlayPauseButton}
+    />
+  );
+};
+```
+
+### `renderFullscreen`
+
+_optional, available from v3.2.31_
+
+Allows you to customise the fullscreen button of the player, must return a valid react element.
+
+```tsx twoslash
+import { Player } from "@remotion/player";
+import { MyVideo } from "./remotion/MyVideo";
+
+export const App: React.FC = () => {
+  const renderFullscreen = useCallback(({ minimized }) => {
+    if (minimized) {
+      return <FullScreenButton />;
+    }
+
+    return <MinimiseButton />;
+  }, []);
+
+  return (
+    <Player
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+      renderFullscreen={renderFullscreen}
+    />
+  );
+};
+```
+
 ## `PlayerRef`
 
 You may attach a ref to the player and control it in an imperative manner.
