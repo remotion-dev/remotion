@@ -72,6 +72,10 @@ export const TableOfContents: React.FC = () => {
           <strong>@remotion/paths</strong>
           <div>Manipulate and obtain info about SVG paths</div>
         </TOCItem>
+        <TOCItem link="/docs/noise">
+          <strong>@remotion/noise</strong>
+          <div>Create noise</div>
+        </TOCItem>
       </Grid>
     </div>
   );
