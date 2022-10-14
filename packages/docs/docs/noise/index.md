@@ -46,7 +46,6 @@ yarn add @remotion/noise
 
 ## Functions
 
-<!-- TODO: confirm the references work -->
 <TableOfContents/>
 
 ## License
