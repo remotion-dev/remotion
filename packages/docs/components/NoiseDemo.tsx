@@ -9,13 +9,13 @@ const opacityNoise3d = createNoise3D("opacity");
 const colorNoise3d = createNoise3D("opacity");
 
 interface Props {
-  size: number
+  scale: number
   speed: number
   circleRadius: number
 }
 
 const Background: React.FC<Props> = ({
-  size,
+  scale,
   speed,
   circleRadius,
 }) => {
@@ -24,19 +24,19 @@ const Background: React.FC<Props> = ({
   const overscanMargin = 100;
   const width = config.width + overscanMargin;
   const height = config.height + overscanMargin;
-  const rows = Math.round(height / size);
-  const cols = Math.round(width / size);
+  const rows = Math.round(height / scale);
+  const cols = Math.round(width / scale);
   return (
     <>
       {new Array(cols).fill(0).map((_i, i) =>
         new Array(rows).fill(0).map((_j, j) => {
           const key = `${i}-${j}`;
-          const x = i * size;
-          const y = j * size;
+          const x = i * scale;
+          const y = j * scale;
           const px = i / cols;
           const py = j / rows;
-          const dx = xNoise3d(px, py, frame * speed) * size;
-          const dy = yNoise3d(px, py, frame * speed) * size;
+          const dx = xNoise3d(px, py, frame * speed) * scale;
+          const dy = yNoise3d(px, py, frame * speed) * scale;
           const opacity = interpolate(
             opacityNoise3d(i, j, frame * speed),
             [-1, 1],
@@ -100,7 +100,7 @@ const MyComposition: React.FC<Props> = (props) => {
 
 export const NoiseDemo = () => {
   const fps = 30;
-  const [size, setSize] = useState(75);
+  const [scale, setScale] = useState(75);
   const [speed, setSpeed] = useState(0.01);
   const [circleRadius, setCircleRadius] = useState(5);
 
@@ -129,7 +129,7 @@ export const NoiseDemo = () => {
           borderRadius: "var(--ifm-pre-border-radius)",
         }}
         inputProps={{
-          size,
+          scale,
           speed,
           circleRadius,
         }}
@@ -140,14 +140,14 @@ export const NoiseDemo = () => {
         <label style={labelStyle}>
           <input
             type="range"
-            min={50}
+            min={50} // don't set too low values, otherwise you're going to kill the DOM thread spawning lots of dots
             max={200}
             step={1}
-            value={size}
+            value={scale}
             style={inputStyle}
-            onChange={(e) => setSize(Number(e.target.value))}
+            onChange={(e) => setScale(Number(e.target.value))}
           />
-          <code>{`size={${size}}`}</code>
+          <code>{`scale={${scale}}`}</code>
         </label>
         <label style={labelStyle}>
           <input
