@@ -1,5 +1,5 @@
 import type {StandardLonghandProperties} from 'csstype';
-import type {ComponentProps, MouseEventHandler, SyntheticEvent} from 'react';
+import type {MouseEventHandler, ReactNode, SyntheticEvent} from 'react';
 import React, {
 	forwardRef,
 	Suspense,
@@ -65,14 +65,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenPaused: boolean;
 		showPosterWhenEnded: boolean;
 		showPosterWhenUnplayed: boolean;
-	} & Pick<
-		ComponentProps<typeof Controls>,
-		| 'inFrame'
-		| 'outFrame'
-		| 'initiallyShowControls'
-		| 'renderPlayPauseButton'
-		| 'renderFullscreen'
-	>
+		inFrame: number | null;
+		outFrame: number | null;
+		initiallyShowControls: number | boolean;
+		renderPlayPauseButton?: (props: {playing: boolean}) => ReactNode;
+		renderFullscreen?: (props: {minimized: boolean}) => ReactNode;
+	}
 > = (
 	{
 		controls,
