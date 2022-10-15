@@ -1,4 +1,4 @@
-import type {ComponentProps, ComponentType, MutableRefObject} from 'react';
+import type {ComponentType, MutableRefObject, ReactNode} from 'react';
 import React, {
 	forwardRef,
 	useCallback,
@@ -65,16 +65,13 @@ export type PlayerProps<T> = {
 	showPosterWhenPaused?: boolean;
 	showPosterWhenEnded?: boolean;
 	showPosterWhenUnplayed?: boolean;
+	inFrame?: number | null;
+	outFrame?: number | null;
+	initiallyShowControls: number | boolean;
+	renderPlayPauseButton?: (props: {playing: boolean}) => ReactNode;
+	renderFullscreen?: (props: {minimized: boolean}) => ReactNode;
 } & PropsIfHasProps<T> &
-	CompProps<T> &
-	Pick<
-		ComponentProps<typeof PlayerUI>,
-		| 'inFrame'
-		| 'outFrame'
-		| 'initiallyShowControls'
-		| 'renderFullscreen'
-		| 'renderPlayPauseButton'
-	>;
+	CompProps<T>;
 
 export const componentOrNullIfLazy = <T,>(
 	props: CompProps<T>
