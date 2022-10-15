@@ -67,7 +67,7 @@ export type PlayerProps<T> = {
 	showPosterWhenUnplayed?: boolean;
 	inFrame?: number | null;
 	outFrame?: number | null;
-	initiallyShowControls: number | boolean;
+	initiallyShowControls?: number | boolean;
 	renderPlayPauseButton?: (props: {playing: boolean}) => ReactNode;
 	renderFullscreen?: (props: {minimized: boolean}) => ReactNode;
 } & PropsIfHasProps<T> &
