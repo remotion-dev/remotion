@@ -114,7 +114,7 @@ module.exports = {
         id: "player/installation",
       },
       label: "@remotion/player",
-      items: ["player/api"],
+      items: ["player/api", "player/thumbnail"],
     },
 
     {
