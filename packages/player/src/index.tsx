@@ -13,6 +13,7 @@ export type {RenderLoading, RenderPoster} from './PlayerUI';
 export {PreviewSize, Translation} from './utils/preview-size';
 export {Size} from './utils/use-element-size';
 export type {CallbackListener, EventTypes};
+export { Thumbnail } from './Thumbnail'
 
 export const PlayerInternals = {
 	PlayerEventEmitterContext,
