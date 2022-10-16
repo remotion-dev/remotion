@@ -3,6 +3,7 @@ import {createRoot} from 'react-dom/client';
 import App from './App';
 import CarSlideshow from './CarSlideshow';
 import {VideoautoplayDemo} from './VideoAutoplay';
+import {Thumbnail} from "@remotion/player/dist/Thumbnail";
 
 const rootElement = document.getElementById('root');
 
