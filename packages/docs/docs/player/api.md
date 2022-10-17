@@ -296,22 +296,29 @@ If true, the controls flash when the player enters the scene. After 2 seconds wi
 
 ### `renderPlayPauseButton`
 
-_optional, available from v3.2.31_
+_optional, available from v3.2.32_
 
-Allows you to customise the Play-Pause button of the player, must return a valid react element.
+Allows you to customize the Play/Pause button of the controls, must be a callback function that returns a valid React element.
 
 ```tsx twoslash
-import { Player } from "@remotion/player";
-import { MyVideo } from "./remotion/MyVideo";
+const MyPlayButton: React.FC = () => null;
+const MyPauseButton: React.FC = () => null;
+const MyVideo: React.FC = () => null;
+// ---cut---
+import { Player, RenderPlayPauseButton } from "@remotion/player";
+import { useCallback } from "react";
 
 export const App: React.FC = () => {
-  const renderPlayPauseButton = useCallback(({ playing }) => {
-    if (playing) {
-      return <MyPlayButton />;
-    }
+  const renderPlayPauseButton: RenderPlayPauseButton = useCallback(
+    ({ playing }) => {
+      if (playing) {
+        return <MyPlayButton />;
+      }
 
-    return <MyPauseButton />;
-  }, []);
+      return <MyPauseButton />;
+    },
+    []
+  );
 
   return (
     <Player
@@ -326,24 +333,31 @@ export const App: React.FC = () => {
 };
 ```
 
-### `renderFullscreen`
+### `renderFullscreenButton`
 
-_optional, available from v3.2.31_
+_optional, available from v3.2.32_
 
-Allows you to customise the fullscreen button of the player, must return a valid react element.
+Allows you to customise the fullscreen button of the player controls, must return a valid React element. If fullscreen is disabled or not available in a browser, it will not be rendered.
 
 ```tsx twoslash
-import { Player } from "@remotion/player";
-import { MyVideo } from "./remotion/MyVideo";
+const FullScreenButton: React.FC = () => null;
+const MinimiseButton: React.FC = () => null;
+const MyVideo: React.FC = () => null;
+// ---cut---
+import { Player, RenderFullscreenButton } from "@remotion/player";
+import { useCallback } from "react";
 
 export const App: React.FC = () => {
-  const renderFullscreen = useCallback(({ minimized }) => {
-    if (minimized) {
-      return <FullScreenButton />;
-    }
+  const renderFullscreenButton: RenderFullscreenButton = useCallback(
+    ({ minimized }) => {
+      if (minimized) {
+        return <FullScreenButton />;
+      }
 
-    return <MinimiseButton />;
-  }, []);
+      return <MinimiseButton />;
+    },
+    []
+  );
 
   return (
     <Player
@@ -352,7 +366,7 @@ export const App: React.FC = () => {
       compositionWidth={1920}
       compositionHeight={1080}
       fps={30}
-      renderFullscreen={renderFullscreen}
+      renderFullscreenButton={renderFullscreenButton}
     />
   );
 };
