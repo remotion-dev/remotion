@@ -8,6 +8,11 @@ import {PlayerSeekBar} from './PlayerSeekBar';
 import type {usePlayer} from './use-player';
 import {useVideoControlsResize} from './use-video-controls-resize';
 
+export type RenderPlayPauseButton = (props: {playing: boolean}) => ReactNode;
+export type RenderFullscreenButton = (props: {
+	isFullscreen: boolean;
+}) => ReactNode;
+
 export const X_SPACER = 10;
 export const X_PADDING = 12;
 
@@ -99,8 +104,8 @@ export const Controls: React.FC<{
 	outFrame: number | null;
 	initiallyShowControls: number | boolean;
 	playerWidth: number;
-	renderPlayPauseButton?: (props: {playing: boolean}) => ReactNode;
-	renderFullscreenButton?: (props: {isFullscreen: boolean}) => ReactNode;
+	renderPlayPauseButton: RenderPlayPauseButton | null;
+	renderFullscreenButton: RenderFullscreenButton | null;
 }> = ({
 	durationInFrames,
 	hovered,
@@ -118,8 +123,8 @@ export const Controls: React.FC<{
 	outFrame,
 	initiallyShowControls,
 	playerWidth,
-	renderPlayPauseButton = PlayPauseButton,
-	renderFullscreenButton: renderFullscreen = FullscreenIcon,
+	renderPlayPauseButton,
+	renderFullscreenButton,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -224,7 +229,11 @@ export const Controls: React.FC<{
 						aria-label={player.playing ? 'Pause video' : 'Play video'}
 						title={player.playing ? 'Pause video' : 'Play video'}
 					>
-						{renderPlayPauseButton({playing: player.playing})}
+						{renderPlayPauseButton === null ? (
+							<PlayPauseButton playing={player.playing} />
+						) : (
+							renderPlayPauseButton({playing: player.playing})
+						)}
 					</button>
 					{showVolumeControls ? (
 						<>
@@ -254,7 +263,11 @@ export const Controls: React.FC<{
 									: onFullscreenButtonClick
 							}
 						>
-							{renderFullscreen({isFullscreen})}
+							{renderFullscreenButton === null ? (
+								<FullscreenIcon isFullscreen={isFullscreen} />
+							) : (
+								renderFullscreenButton({isFullscreen})
+							)}
 						</button>
 					) : null}
 				</div>
