@@ -13,7 +13,7 @@ import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import type {Codec} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
-import {validateSelectedCrfAndCodecCombination} from './crf';
+import {validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
@@ -37,6 +37,7 @@ import type {PixelFormat} from './pixel-format';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
+import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {validateQuality} from './quality';
 import {renderFrames} from './render-frames';
 import {stitchFramesToVideo} from './stitch-frames-to-video';
@@ -45,6 +46,7 @@ import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-c
 import {validateFfmpegOverride} from './validate-ffmpeg-override';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
+import {validateBitrate} from './validate-videobitrate';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -99,6 +101,8 @@ export type RenderMediaOptions = {
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
 	ffmpegOverride?: FfmpegOverrideFn;
+	audioBitrate?: string | null;
+	videoBitrate?: string | null;
 	onSlowestFrames?: OnSlowestFrames;
 	disallowParallelEncoding?: boolean;
 } & ServeUrlOrWebpackBundle &
@@ -162,13 +166,20 @@ export const renderMedia = ({
 	muted,
 	enforceAudioTrack,
 	ffmpegOverride,
+	audioBitrate,
+	videoBitrate,
 	onSlowestFrames,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
 	validateQuality(options.quality);
-	if (typeof crf !== 'undefined' && crf !== null) {
-		validateSelectedCrfAndCodecCombination(crf, codec);
-	}
+	validateQualitySettings({crf, codec, videoBitrate});
+	validateBitrate(audioBitrate, 'audioBitrate');
+	validateBitrate(videoBitrate, 'videoBitrate');
+
+	validateSelectedCodecAndProResCombination({
+		codec,
+		proResProfile,
+	});
 
 	if (outputLocation) {
 		validateOutputFilename(codec, getExtensionOfFilename(outputLocation));
@@ -307,7 +318,8 @@ export const renderMedia = ({
 				ffmpegExecutable,
 				imageFormat,
 				signal: cancelPrestitcher.cancelSignal,
-				ffmpegOverride,
+				ffmpegOverride: ffmpegOverride ?? (({args}) => args),
+				videoBitrate: videoBitrate ?? null,
 			});
 			stitcherFfmpeg = preStitcher.task;
 		}
@@ -462,6 +474,8 @@ export const renderMedia = ({
 					muted: disableAudio,
 					enforceAudioTrack,
 					ffmpegOverride,
+					audioBitrate,
+					videoBitrate,
 				}),
 				stitchStart,
 			]);

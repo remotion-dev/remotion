@@ -253,6 +253,17 @@ export type ConfigType = {
 				args: string[];
 			}) => string[]
 		) => void;
+
+		/**
+		 * Set a target audio bitrate to be passed to FFMPEG.
+		 */
+		readonly setAudioBitrate: (bitrate: string | null) => void;
+
+		/**
+		 * Set a target video bitrate to be passed to FFMPEG.
+		 * Mutually exclusive with setCrf().
+		 */
+		readonly setVideoBitrate: (bitrate: string | null) => void;
 	};
 };
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};

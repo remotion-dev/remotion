@@ -12,12 +12,9 @@ import type {DownloadMap, RenderAssetInfo} from './assets/download-map';
 import type {Assets} from './assets/types';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
-import {codecSupportsCrf, codecSupportsMedia} from './codec-supports-media';
+import {codecSupportsMedia} from './codec-supports-media';
 import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
-import {
-	getDefaultCrfForCodec,
-	validateSelectedCrfAndCodecCombination,
-} from './crf';
+import {validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
@@ -36,9 +33,11 @@ import {
 } from './pixel-format';
 import {preprocessAudioTrack} from './preprocess-audio-track';
 import type {ProResProfile} from './prores-profile';
+import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {truthy} from './truthy';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
+import {validateBitrate} from './validate-videobitrate';
 
 const packageJsonPath = path.join(__dirname, '..', 'package.json');
 
@@ -47,6 +46,8 @@ const packageJson = fs.existsSync(packageJsonPath)
 	: null;
 
 export type StitcherOptions = {
+	audioBitrate?: string | null;
+	videoBitrate?: string | null;
 	fps: number;
 	width: number;
 	height: number;
@@ -182,8 +183,15 @@ export const spawnFfmpeg = async (
 		codec,
 		scale: 1,
 	});
+	validateSelectedCodecAndProResCombination({
+		codec,
+		proResProfile: options.proResProfile,
+	});
+
+	validateBitrate(options.audioBitrate, 'audioBitrate');
+	validateBitrate(options.videoBitrate, 'videoBitrate');
+
 	Internals.validateFps(options.fps, 'in `stitchFramesToVideo()`', false);
-	const crf = options.crf ?? getDefaultCrfForCodec(codec);
 	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
 	await validateFfmpeg(options.ffmpegExecutable ?? null);
 
@@ -192,8 +200,6 @@ export const spawnFfmpeg = async (
 	const proResProfileName = getProResProfileName(codec, options.proResProfile);
 
 	const mediaSupport = codecSupportsMedia(codec);
-
-	const supportsCrf = codecSupportsCrf(codec);
 
 	const tempFile = options.outputLocation
 		? null
@@ -223,9 +229,6 @@ export const spawnFfmpeg = async (
 		console.log('[verbose] encoder', encoderName);
 		console.log('[verbose] audioCodec', audioCodecName);
 		console.log('[verbose] pixelFormat', pixelFormat);
-		if (supportsCrf) {
-			console.log('[verbose] crf', crf);
-		}
 
 		if (options.ffmpegOverride) {
 			console.log('[verbose] ffmpegOverride', options.ffmpegOverride);
@@ -237,7 +240,11 @@ export const spawnFfmpeg = async (
 		console.log('[verbose] proResProfileName', proResProfileName);
 	}
 
-	validateSelectedCrfAndCodecCombination(crf, codec);
+	validateQualitySettings({
+		crf: options.crf,
+		codec,
+		videoBitrate: options.videoBitrate,
+	});
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
 	const expectedFrames = options.assetsInfo.assets.length;
@@ -278,7 +285,7 @@ export const spawnFfmpeg = async (
 				audioCodecName,
 				// Set bitrate up to 320k, for aac it might effectively be lower
 				'-b:a',
-				'320k',
+				options.audioBitrate ?? '320k',
 				options.force ? '-y' : null,
 				options.outputLocation ?? tempFile,
 			].filter(Internals.truthy)
@@ -338,18 +345,21 @@ export const spawnFfmpeg = async (
 			? []
 			: [
 					proResProfileName ? ['-profile:v', proResProfileName] : null,
-					supportsCrf ? ['-crf', String(crf)] : null,
 					['-pix_fmt', pixelFormat],
 
 					// Without explicitly disabling auto-alt-ref,
 					// transparent WebM generation doesn't work
 					pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
-					['-b:v', '1M'],
+					...validateQualitySettings({
+						crf: options.crf,
+						videoBitrate: options.videoBitrate,
+						codec,
+					}),
 			  ]),
 		codec === 'h264' ? ['-movflags', 'faststart'] : null,
 		audioCodecName ? ['-c:a', audioCodecName] : null,
 		// Set max bitrate up to 1024kbps, will choose lower if that's too much
-		audioCodecName ? ['-b:a', '512K'] : null,
+		audioCodecName ? ['-b:a', options.audioBitrate || '512K'] : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		[
