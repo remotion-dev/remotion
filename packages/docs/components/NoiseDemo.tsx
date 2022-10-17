@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from "react";
-import { AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
-import { Player } from "@remotion/player";
 import { createNoise3D } from "@remotion/noise";
+import { Player } from "@remotion/player";
+import React, { useMemo, useState } from "react";
+import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 
 const xNoise3d = createNoise3D("x");
 const yNoise3d = createNoise3D("y");
@@ -9,28 +9,23 @@ const opacityNoise3d = createNoise3D("opacity");
 const colorNoise3d = createNoise3D("color");
 
 interface Props {
-  scale: number
-  speed: number
-  circleRadius: number
+  scale: number;
+  speed: number;
+  circleRadius: number;
 }
 
-const Background: React.FC<Props> = ({
-  scale,
-  speed,
-  circleRadius,
-}) => {
-  const config = useVideoConfig();
+const OVERSCAN_MARGIN = 100;
+
+const NoiseComp: React.FC<Props> = ({ scale, speed, circleRadius }) => {
   const frame = useCurrentFrame();
-  const overscanMargin = 100;
-  const width = config.width + overscanMargin;
-  const height = config.height + overscanMargin;
-  const rows = Math.round(height / scale);
-  const cols = Math.round(width / scale);
+  const { height, width } = useVideoConfig();
+  const rows = Math.round((height + OVERSCAN_MARGIN) / scale);
+  const cols = Math.round((width + OVERSCAN_MARGIN) / scale);
+
   return (
-    <>
-      {new Array(cols).fill(0).map((_i, i) =>
-        new Array(rows).fill(0).map((_j, j) => {
-          const key = `${i}-${j}`;
+    <svg width={width} height={height}>
+      {new Array(cols).fill(0).map((_, i) =>
+        new Array(rows).fill(0).map((__, j) => {
           const x = i * scale;
           const y = j * scale;
           const px = i / cols;
@@ -40,89 +35,59 @@ const Background: React.FC<Props> = ({
           const opacity = interpolate(
             opacityNoise3d(i, j, frame * speed),
             [-1, 1],
-            [0, 1],
-            { easing: Easing.bezier(0.85, 0, 0.15, 1) }
+            [0, 1]
           );
           const color =
-            Math.round(
-              interpolate(
-                colorNoise3d(px, py, frame * speed),
-                [-1, 1],
-                [0, 1]
-              )
-            ) === 0 ? "0,87,184" : "254,221,0";
+            colorNoise3d(px, py, frame * speed) < 0
+              ? "rgb(0,87,184)"
+              : "rgb(254,221,0)";
           return (
             <circle
-              key={key}
+              // eslint-disable-next-line react/no-array-index-key
+              key={`${i}-${j}`}
               cx={x + dx}
               cy={y + dy}
               r={circleRadius}
-              fill={`rgba(${color}, ${opacity})`}
+              fill={color}
+              opacity={opacity}
             />
           );
         })
       )}
-    </>
+    </svg>
   );
 };
 
-const MyComposition: React.FC<Props> = (props) => {
-  const { width, height } = useVideoConfig();
-  return (
-    <AbsoluteFill>
-      <svg width={width} height={height}>
-        <rect width={width} height={height} fill="black" />
-        <Background {...props} />
-        <defs>
-          <filter
-            id="blur"
-            x="0"
-            y="0"
-            width={width}
-            height={height}
-            filterUnits="userSpaceOnUse"
-            colorInterpolationFilters="sRGB"
-          >
-            <feFlood floodOpacity="0" result="BackgroundImageFix" />
-            <feBlend
-              mode="normal"
-              in="SourceGraphic"
-              in2="BackgroundImageFix"
-              result="shape"
-            />
-            <feGaussianBlur stdDeviation="50" result="effect1_foregroundBlur" />
-          </filter>
-        </defs>
-      </svg>
-    </AbsoluteFill>
-  );
-}
-
 export const NoiseDemo = () => {
-  const fps = 30;
   const [scale, setScale] = useState(75);
   const [speed, setSpeed] = useState(0.01);
   const [circleRadius, setCircleRadius] = useState(5);
 
-  const inputStyle = useMemo<React.CSSProperties>(() => ({
-    width: 90,
-    marginRight: 8
-  }), []);
-  const labelStyle = useMemo<React.CSSProperties>(() => ({
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    margin: 8,
-  }), []);
+  const inputStyle = useMemo<React.CSSProperties>(
+    () => ({
+      width: 90,
+      marginRight: 8,
+    }),
+    []
+  );
+  const labelStyle = useMemo<React.CSSProperties>(
+    () => ({
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "center",
+      margin: 8,
+    }),
+    []
+  );
 
   return (
     <>
       <Player
-        component={MyComposition}
+        component={NoiseComp}
         compositionWidth={1280}
         compositionHeight={720}
-        durationInFrames={fps * 5}
-        fps={fps}
+        durationInFrames={150}
+        fps={30}
         style={{
           width: "100%",
           border: "1px solid var(--ifm-color-emphasis-300)",
