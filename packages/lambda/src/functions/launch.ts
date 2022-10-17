@@ -258,6 +258,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			everyNthFrame: params.everyNthFrame,
 			concurrencyPerLambda: params.concurrencyPerLambda,
 			muted: params.muted,
+			audioBitrate: params.audioBitrate,
+			videoBitrate: params.videoBitrate,
 		};
 		return payload;
 	});

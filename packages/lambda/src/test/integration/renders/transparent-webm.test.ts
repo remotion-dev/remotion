@@ -63,6 +63,8 @@ test('Should make a transparent video', async () => {
 			version: VERSION,
 			overwrite: true,
 			webhook: null,
+			audioBitrate: null,
+			videoBitrate: null,
 		},
 		extraContext
 	);
