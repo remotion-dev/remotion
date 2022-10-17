@@ -75,6 +75,16 @@ export const validateQualitySettings = ({
 	}
 
 	if (videoBitrate) {
+		if (codec === 'prores') {
+			console.warn('ProRes does not support videoBitrate. Ignoring.');
+			return [];
+		}
+
+		if (isAudioCodec(codec)) {
+			console.warn(`${codec} does not support videoBitrate. Ignoring.`);
+			return [];
+		}
+
 		return ['-b:v', videoBitrate];
 	}
 
@@ -107,6 +117,16 @@ export const validateQualitySettings = ({
 		throw new TypeError(
 			`CRF must be between ${range[0]} and ${range[1]} for codec ${codec}. Passed: ${crf}`
 		);
+	}
+
+	if (codec === 'prores') {
+		console.warn('ProRes does not support the "crf" option. Ignoring.');
+		return [];
+	}
+
+	if (isAudioCodec(codec)) {
+		console.warn(`${codec} does not support the "crf" option. Ignoring.`);
+		return [];
 	}
 
 	return ['-crf', String(crf)];
