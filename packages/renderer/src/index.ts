@@ -59,6 +59,7 @@ import {
 } from './validate-opengl-renderer';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
+import {validateBitrate} from './validate-videobitrate';
 import {
 	registerErrorSymbolicationLock,
 	unlockErrorSymbolicationLock,
@@ -166,6 +167,7 @@ export const RenderInternals = {
 	makeDownloadMap,
 	cleanDownloadMap,
 	convertToPositiveFrameIndex,
+	validateBitrate,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

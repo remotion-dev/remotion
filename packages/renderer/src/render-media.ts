@@ -46,6 +46,7 @@ import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-c
 import {validateFfmpegOverride} from './validate-ffmpeg-override';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
+import {validateBitrate} from './validate-videobitrate';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -172,6 +173,8 @@ export const renderMedia = ({
 }: RenderMediaOptions): Promise<Buffer | null> => {
 	validateQuality(options.quality);
 	validateQualitySettings({crf, codec, videoBitrate});
+	validateBitrate(audioBitrate, 'audioBitrate');
+	validateBitrate(videoBitrate, 'videoBitrate');
 
 	validateSelectedCodecAndProResCombination({
 		codec,
