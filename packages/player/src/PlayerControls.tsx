@@ -100,7 +100,7 @@ export const Controls: React.FC<{
 	initiallyShowControls: number | boolean;
 	playerWidth: number;
 	renderPlayPauseButton?: (props: {playing: boolean}) => ReactNode;
-	renderFullscreen?: (props: {minimized: boolean}) => ReactNode;
+	renderFullscreenButton?: (props: {isFullscreen: boolean}) => ReactNode;
 }> = ({
 	durationInFrames,
 	hovered,
@@ -119,7 +119,7 @@ export const Controls: React.FC<{
 	initiallyShowControls,
 	playerWidth,
 	renderPlayPauseButton = PlayPauseButton,
-	renderFullscreen = FullscreenIcon,
+	renderFullscreenButton: renderFullscreen = FullscreenIcon,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -254,7 +254,7 @@ export const Controls: React.FC<{
 									: onFullscreenButtonClick
 							}
 						>
-							{renderFullscreen({minimized: !isFullscreen})}
+							{renderFullscreen({isFullscreen})}
 						</button>
 					) : null}
 				</div>
