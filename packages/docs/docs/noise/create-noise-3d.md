@@ -6,13 +6,13 @@ _Part of the [`@remotion/noise`](/docs/noise) package._
 
 Creates 3D noise. The function takes one argument:
 
-- `seed`, same as [random](/docs/random)'s one
+- `seed`, same as for [`random()`](/docs/random)
 
 A `NoiseFunction3D` is returned:
 
 ```tsx twoslash
-import { createNoise3D } from "@remotion/noise";
 import type { NoiseFunction3D } from "@remotion/noise";
+import { createNoise3D } from "@remotion/noise";
 
 const noise3d: NoiseFunction3D = createNoise3D("my-seed");
 
