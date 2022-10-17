@@ -7,9 +7,15 @@ import {usePlayback} from './use-playback';
 import {usePlayer} from './use-player';
 import {updateAllElementsSizes, useElementSize} from './utils/use-element-size';
 
-export {ErrorFallback, Player, PlayerProps} from './Player';
+export {Player, PlayerProps} from './Player';
 export {PlayerMethods, PlayerRef} from './player-methods';
-export type {RenderLoading, RenderPoster} from './PlayerUI';
+export type {
+	ErrorFallback,
+	RenderFullscreenButton,
+	RenderLoading,
+	RenderPlayPauseButton,
+	RenderPoster,
+} from './PlayerUI';
 export {PreviewSize, Translation} from './utils/preview-size';
 export {Size} from './utils/use-element-size';
 export type {CallbackListener, EventTypes};
