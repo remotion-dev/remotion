@@ -25,10 +25,9 @@ import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import type {PlayerRef} from './player-methods';
 import type {
 	RenderFullscreenButton,
-	RenderLoading,
 	RenderPlayPauseButton,
-	RenderPoster,
-} from './PlayerUI';
+} from './PlayerControls';
+import type {RenderLoading, RenderPoster} from './PlayerUI';
 import PlayerUI from './PlayerUI';
 import {validateInOutFrames} from './utils/validate-in-out-frame';
 import {validateInitialFrame} from './utils/validate-initial-frame';
@@ -443,8 +442,8 @@ export const PlayerFn = <T,>(
 													inFrame={inFrame ?? null}
 													outFrame={outFrame ?? null}
 													initiallyShowControls={initiallyShowControls ?? true}
-													renderFullscreen={renderFullscreenButton}
-													renderPlayPauseButton={renderPlayPauseButton}
+													renderFullscreen={renderFullscreenButton ?? null}
+													renderPlayPauseButton={renderPlayPauseButton ?? null}
 												/>
 											</Internals.DurationsContextProvider>
 										</Internals.PrefetchProvider>

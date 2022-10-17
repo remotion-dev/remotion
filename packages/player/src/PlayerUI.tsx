@@ -1,5 +1,5 @@
 import type {StandardLonghandProperties} from 'csstype';
-import type {MouseEventHandler, ReactNode, SyntheticEvent} from 'react';
+import type {MouseEventHandler, SyntheticEvent} from 'react';
 import React, {
 	forwardRef,
 	Suspense,
@@ -15,6 +15,10 @@ import {calculateCanvasTransformation} from './calculate-scale';
 import {ErrorBoundary} from './error-boundary';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import type {PlayerMethods, PlayerRef} from './player-methods';
+import type {
+	RenderFullscreenButton,
+	RenderPlayPauseButton,
+} from './PlayerControls';
 import {Controls} from './PlayerControls';
 import {useHoverState} from './use-hover-state';
 import {usePlayback} from './use-playback';
@@ -29,10 +33,6 @@ export type RenderLoading = (canvas: {
 	height: number;
 	width: number;
 }) => React.ReactChild;
-export type RenderPlayPauseButton = (props: {playing: boolean}) => ReactNode;
-export type RenderFullscreenButton = (props: {
-	isFullscreen: boolean;
-}) => ReactNode;
 export type RenderPoster = RenderLoading;
 const reactVersion = React.version.split('.')[0];
 if (reactVersion === '0') {
@@ -72,8 +72,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		inFrame: number | null;
 		outFrame: number | null;
 		initiallyShowControls: number | boolean;
-		renderPlayPauseButton?: RenderPlayPauseButton;
-		renderFullscreen?: RenderFullscreenButton;
+		renderPlayPauseButton: RenderPlayPauseButton | null;
+		renderFullscreen: RenderFullscreenButton | null;
 	}
 > = (
 	{
