@@ -6,7 +6,6 @@ import type {
 	PixelFormat,
 	ProResProfile,
 } from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
@@ -122,9 +121,6 @@ export const renderMediaOnLambda = async ({
 		durationInFrames: 1,
 	});
 	validateDownloadBehavior(downloadBehavior);
-
-	RenderInternals.validateBitrate(audioBitrate, 'audioBitrate');
-	RenderInternals.validateBitrate(videoBitrate, 'videoBitrate');
 
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
 	try {

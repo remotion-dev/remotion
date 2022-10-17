@@ -179,6 +179,9 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	);
 	Internals.validateDimension(comp.width, 'width', 'passed to a Lambda render');
 
+	RenderInternals.validateBitrate(params.audioBitrate, 'audioBitrate');
+	RenderInternals.validateBitrate(params.videoBitrate, 'videoBitrate');
+
 	RenderInternals.validateConcurrency(
 		params.concurrencyPerLambda,
 		'concurrencyPerLambda'
