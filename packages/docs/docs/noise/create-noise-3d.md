@@ -28,6 +28,7 @@ Dependency: [simplex-noise](https://www.npmjs.com/package/simplex-noise)
 
 ## See also
 
+- [Example: Noise visualization](/docs/noise-visualization)
 - [createNoise2D()](/docs/noise/create-noise-2d)
 - [createNoise4D()](/docs/noise/create-noise-4d)
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/noise/src/index.ts)
