@@ -64,6 +64,11 @@
       "source": "/hacktoberfest",
       "destination": "https://github.com/remotion-dev/remotion/issues/1365",
       "permanent": false
+    },
+    {
+      "source": "/motion-blur",
+      "destination": "https://remotion.dev/docs/motion-blur",
+      "permanent": false
     }
   ]
 }

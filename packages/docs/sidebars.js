@@ -145,6 +145,15 @@ module.exports = {
     },
     {
       type: "category",
+      label: "@remotion/motion-blur",
+      link: {
+        type: "doc",
+        id: "motion-blur/index",
+      },
+      items: ["motion-blur/motion-blur"],
+    },
+    {
+      type: "category",
       label: "@remotion/lambda",
       link: {
         type: "doc",

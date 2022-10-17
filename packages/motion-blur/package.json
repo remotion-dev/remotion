@@ -1,0 +1,48 @@
+{
+	"name": "@remotion/motion-blur",
+	"version": "3.2.31",
+	"description": "Motion blur effect for Remotion",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"sideEffects": false,
+	"scripts": {
+		"lint": "eslint src --ext ts,tsx",
+		"watch": "tsc -w",
+		"build": "tsc -d"
+	},
+	"author": "Matt McGillivray, Ilija Boshkov <ilija@codechem.com>, Jonny Burger <jonny@remotion.dev>",
+	"contributors": [],
+	"license": "MIT",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion"
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"dependencies": {
+		"remotion": "3.2.31"
+	},
+	"peerDependencies": {
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
+	},
+	"devDependencies": {
+		"@jonny/eslint-config": "3.0.266",
+		"@types/react": "18.0.1",
+		"eslint": "8.13.0",
+		"prettier": "^2.0.5",
+		"prettier-plugin-organize-imports": "^2.3.4",
+		"react": "18.0.0",
+		"react-dom": "18.0.0",
+		"remotion": "3.2.30",
+		"typescript": "^4.7.0"
+	},
+	"keywords": [
+		"remotion",
+		"motion",
+		"blur"
+	],
+	"publishConfig": {
+		"access": "public"
+	}
+}
