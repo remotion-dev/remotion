@@ -61,15 +61,22 @@ Specify a location for a dotenv file. Default `.env`. Available in v2.2 and late
 
 ### `--audio-bitrate`
 
-Specify the output bitrate for the generated audio.
-Beware, ffmpeg may, depending on the codec chosen, not take this parameter into account.
-Example:  `512K`, `1M`
+_Available from v3.2.32_
+
+Specify the target bitrate for the generated audio.  
+The syntax for FFMPEGs `-b:a` parameter should be used.  
+FFMPEG may encode the video in a way that will not result in the exact audio bitrate specified.
+Example values: `128K` for 128 kbps, `1M` for 1 Mbps.
 
 ### `--video-bitrate`
 
-Specify the output bitrate for the generated video.
-Beware, ffmpeg may, depending on the codec chosen, not take this parameter into account.
-Example:  `512K`, `1M`
+_Available from v3.2.32_
+
+Specify the target bitrate for the generated video.  
+The syntax for FFMPEGs `-b:v` parameter should be used.  
+FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
+This option cannot be set if `--crf` is set.
+Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 ### `--prores-profile`
 
@@ -77,7 +84,7 @@ Example:  `512K`, `1M`
 
 ### `--crf`
 
-[To set Constant Rate Factor (CRF) of the output](/docs/config#setcrf). Minimum 0. Use this rate control mode if you want to keep the best quality and care less about the file size. Available since v1.4.
+[To set Constant Rate Factor (CRF) of the output](/docs/config#setcrf). Minimum 0. Use this rate control mode if you want to keep the best quality and care less about the file size. This option cannot be set if `--video-bitrate` is set. Available since v1.4.
 
 ### `--browser-executable`
 
