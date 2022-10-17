@@ -48,6 +48,8 @@ export type RenderMediaOnLambdaInput = {
 	downloadBehavior?: DownloadBehavior | null;
 	muted?: boolean;
 	overwrite?: boolean;
+	audioBitrate?: string | null;
+	videoBitrate?: string | null;
 	webhook?: {
 		url: string;
 		secret: string | null;
@@ -108,6 +110,8 @@ export const renderMediaOnLambda = async ({
 	downloadBehavior,
 	muted,
 	overwrite,
+	audioBitrate,
+	videoBitrate,
 	webhook,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	const actualCodec = validateLambdaCodec(codec);
@@ -150,6 +154,8 @@ export const renderMediaOnLambda = async ({
 				muted: muted ?? false,
 				version: VERSION,
 				overwrite: overwrite ?? false,
+				audioBitrate: audioBitrate ?? null,
+				videoBitrate: videoBitrate ?? null,
 				webhook: webhook ?? null,
 			},
 			region,

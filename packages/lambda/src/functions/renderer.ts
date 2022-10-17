@@ -199,6 +199,8 @@ const renderHandler = async (
 			downloadMap,
 			muted: params.muted,
 			enforceAudioTrack: true,
+			audioBitrate: params.audioBitrate,
+			videoBitrate: params.videoBitrate,
 			onSlowestFrames: (slowestFrames) => {
 				console.log();
 				console.log(`Slowest frames:`);
