@@ -34,7 +34,10 @@ type VideoForRenderingProps = RemotionVideoProps & {
 const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
 	VideoForRenderingProps
-> = ({onError, volume: volumeProp, playbackRate, ...props}, ref) => {
+> = (
+	{onError, volume: volumeProp, playbackRate, onDuration, ...props},
+	ref
+) => {
 	const absoluteFrame = useTimelinePosition();
 
 	const frame = useCurrentFrame();
@@ -216,7 +219,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		mediaStartsAt,
 	]);
 
-	const {src, onDuration} = props;
+	const {src} = props;
 
 	// If video source switches, make new handle
 	if (getRemotionEnvironment() === 'rendering') {

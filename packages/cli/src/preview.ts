@@ -1,8 +1,10 @@
 import betterOpn from 'better-opn';
 import path from 'path';
+import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
+import {getNetworkAddress} from './get-network-address';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import type {LiveEventsServer} from './preview-server/live-events';
@@ -83,7 +85,17 @@ export const previewCommand = async (remotionRoot: string) => {
 	);
 
 	setLiveEventsListener(liveEventsServer);
-	Log.info(`Server running on http://localhost:${port}`);
+	const networkAddress = getNetworkAddress();
+	if (networkAddress) {
+		Log.info(
+			`Server ready - Local: ${chalk.underline(
+				`http://localhost:${port}`
+			)}, Network: ${chalk.underline(`http://${networkAddress}:${port}`)}`
+		);
+	} else {
+		Log.info(`Running on http://localhost:${port}`);
+	}
+
 	betterOpn(`http://localhost:${port}`);
 	await new Promise(noop);
 };
