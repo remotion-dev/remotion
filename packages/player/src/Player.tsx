@@ -1,4 +1,4 @@
-import type {ComponentType, MutableRefObject, ReactNode} from 'react';
+import type {ComponentType, MutableRefObject} from 'react';
 import React, {
 	forwardRef,
 	useCallback,
@@ -23,7 +23,12 @@ import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import type {PlayerRef} from './player-methods';
-import type {RenderLoading, RenderPoster} from './PlayerUI';
+import type {
+	RenderFullscreenButton,
+	RenderLoading,
+	RenderPlayPauseButton,
+	RenderPoster,
+} from './PlayerUI';
 import PlayerUI from './PlayerUI';
 import {validateInOutFrames} from './utils/validate-in-out-frame';
 import {validateInitialFrame} from './utils/validate-initial-frame';
@@ -68,8 +73,8 @@ export type PlayerProps<T> = {
 	inFrame?: number | null;
 	outFrame?: number | null;
 	initiallyShowControls?: number | boolean;
-	renderPlayPauseButton?: (props: {playing: boolean}) => ReactNode;
-	renderFullscreen?: (props: {minimized: boolean}) => ReactNode;
+	renderPlayPauseButton?: RenderPlayPauseButton;
+	renderFullscreenButton?: RenderFullscreenButton;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -113,7 +118,7 @@ export const PlayerFn = <T,>(
 		inFrame,
 		outFrame,
 		initiallyShowControls,
-		renderFullscreen,
+		renderFullscreenButton,
 		renderPlayPauseButton,
 		...componentProps
 	}: PlayerProps<T>,
@@ -438,7 +443,7 @@ export const PlayerFn = <T,>(
 													inFrame={inFrame ?? null}
 													outFrame={outFrame ?? null}
 													initiallyShowControls={initiallyShowControls ?? true}
-													renderFullscreen={renderFullscreen}
+													renderFullscreen={renderFullscreenButton}
 													renderPlayPauseButton={renderPlayPauseButton}
 												/>
 											</Internals.DurationsContextProvider>

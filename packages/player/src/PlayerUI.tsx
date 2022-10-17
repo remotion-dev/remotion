@@ -29,6 +29,8 @@ export type RenderLoading = (canvas: {
 	height: number;
 	width: number;
 }) => React.ReactChild;
+export type RenderPlayPauseButton = (props: {playing: boolean}) => ReactNode;
+export type RenderFullscreenButton = (props: {minimized: boolean}) => ReactNode;
 export type RenderPoster = RenderLoading;
 const reactVersion = React.version.split('.')[0];
 if (reactVersion === '0') {
