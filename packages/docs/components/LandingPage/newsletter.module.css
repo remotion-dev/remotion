@@ -1,5 +1,5 @@
-.pricingtitle {
-  font-size: 1.875em;
+.newslettertitle {
+  font-size: 0.875em;
   font-weight: 700;
   line-height: 1.1;
 }
@@ -8,11 +8,11 @@
   color: var(--ifm-color-primary);
 }
 
-.pricingcontainer {
+.newslettercontainer {
   text-align: center;
 }
 
-.pricingrow {
+.newsletterrow {
   display: flex;
   flex-direction: row;
 }
@@ -26,12 +26,12 @@
   text-align: center;
   padding-top: 30px;
   padding-bottom: 10px;
-  min-height: 550px;
+  min-height: 250px;
   display: flex;
   flex-direction: column;
 }
 .panel ul {
-  text-align: left;
+  text-align: center;
   list-style-type: none;
   padding-left: 0;
 }
@@ -49,22 +49,14 @@
   font-size: 0.9em;
 }
 
-.tableprice {
-  font-size: 60px;
+.tablenewsletter {
+  font-size: 40px;
   font-weight: 700;
   margin-top: -5px;
 }
 
-.freeprice {
+.titlecolor {
   color: #4290f5;
-}
-
-.gradientprice {
-  color: #79367a;
-}
-
-.orangeprice {
-  color: #fd764a;
 }
 
 .portion {
