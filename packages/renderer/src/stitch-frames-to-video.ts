@@ -37,6 +37,7 @@ import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {truthy} from './truthy';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
+import {validateBitrate} from './validate-videobitrate';
 
 const packageJsonPath = path.join(__dirname, '..', 'package.json');
 
@@ -186,6 +187,9 @@ export const spawnFfmpeg = async (
 		codec,
 		proResProfile: options.proResProfile,
 	});
+
+	validateBitrate(options.audioBitrate, 'audioBitrate');
+	validateBitrate(options.videoBitrate, 'videoBitrate');
 
 	Internals.validateFps(options.fps, 'in `stitchFramesToVideo()`', false);
 	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
