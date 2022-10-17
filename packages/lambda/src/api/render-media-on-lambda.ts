@@ -6,6 +6,7 @@ import type {
 	PixelFormat,
 	ProResProfile,
 } from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
@@ -48,6 +49,8 @@ export type RenderMediaOnLambdaInput = {
 	downloadBehavior?: DownloadBehavior | null;
 	muted?: boolean;
 	overwrite?: boolean;
+	audioBitrate?: string | null;
+	videoBitrate?: string | null;
 	webhook?: {
 		url: string;
 		secret: string | null;
@@ -108,6 +111,8 @@ export const renderMediaOnLambda = async ({
 	downloadBehavior,
 	muted,
 	overwrite,
+	audioBitrate,
+	videoBitrate,
 	webhook,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	const actualCodec = validateLambdaCodec(codec);
@@ -117,6 +122,9 @@ export const renderMediaOnLambda = async ({
 		durationInFrames: 1,
 	});
 	validateDownloadBehavior(downloadBehavior);
+
+	RenderInternals.validateBitrate(audioBitrate, 'audioBitrate');
+	RenderInternals.validateBitrate(videoBitrate, 'videoBitrate');
 
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
 	try {
@@ -150,6 +158,8 @@ export const renderMediaOnLambda = async ({
 				muted: muted ?? false,
 				version: VERSION,
 				overwrite: overwrite ?? false,
+				audioBitrate: audioBitrate ?? null,
+				videoBitrate: videoBitrate ?? null,
 				webhook: webhook ?? null,
 			},
 			region,

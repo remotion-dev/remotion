@@ -231,6 +231,8 @@ export type LambdaPayloads = {
 		muted: boolean;
 		version: string;
 		overwrite: boolean;
+		audioBitrate: string | null;
+		videoBitrate: string | null;
 		webhook: WebhookOption;
 	};
 	launch: {
@@ -262,6 +264,8 @@ export type LambdaPayloads = {
 		downloadBehavior: DownloadBehavior;
 		muted: boolean;
 		overwrite: boolean;
+		audioBitrate: string | null;
+		videoBitrate: string | null;
 		webhook: WebhookOption;
 	};
 	status: {
@@ -301,6 +305,8 @@ export type LambdaPayloads = {
 		scale: number;
 		everyNthFrame: number;
 		muted: boolean;
+		audioBitrate: string | null;
+		videoBitrate: string | null;
 	};
 	still: {
 		type: LambdaRoutines.still;
