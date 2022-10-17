@@ -285,7 +285,7 @@ module.exports = {
         "fonts",
         "using-randomness",
         "audio-visualization",
-        "add-noise",
+        "noise-visualization",
         "use-img-and-iframe",
         "javascript",
         "data-fetching",

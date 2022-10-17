@@ -1,6 +1,6 @@
 ---
-title: Add noise
-id: add-noise
+title: Noise visualization
+id: noise-visualization
 ---
 
 Using the [@remotion/noise](/docs/noise) API, you can add noise for your videos.
