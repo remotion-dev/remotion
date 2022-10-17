@@ -3,7 +3,7 @@ import type {Codec} from '../codec';
 import {
 	getDefaultCrfForCodec,
 	getValidCrfRanges,
-	validateSelectedCrfAndCodecCombination,
+	validateQualitySettings,
 } from '../crf';
 
 describe('crf tests getValidCrfRanges valid input', () => {
@@ -42,7 +42,11 @@ describe('validateSelectedCrfAndCodecCombination valid input', () => {
 	validInputs.forEach((entry) =>
 		test(`validate with crf ${entry[0]} and codec ${entry[1]}`, () =>
 			expect(() =>
-				validateSelectedCrfAndCodecCombination(entry[0], entry[1])
+				validateQualitySettings({
+					crf: entry[0],
+					codec: entry[1],
+					videoBitrate: undefined,
+				})
 			).not.toThrow())
 	);
 });
@@ -66,12 +70,36 @@ describe('validateSelectedCrfAndCodecCombination invalid input', () => {
 	invalidInputs.forEach((entry) =>
 		test(`validate with crf ${entry[0]} and codec ${entry[1]}`, () =>
 			expect(() =>
-				validateSelectedCrfAndCodecCombination(entry[0], entry[1])
+				validateQualitySettings({
+					crf: entry[0],
+					codec: entry[1],
+					videoBitrate: undefined,
+				})
 			).toThrow(
 				new RegExp(
 					`CRF must be between ${entry[2][0]} and ${entry[2][1]} for codec ${entry[1]}. Passed: ${entry[0]}`
 				)
 			))
+	);
+});
+
+test('ProRes', () => {
+	expect(() =>
+		validateQualitySettings({crf: 3, codec: 'prores', videoBitrate: undefined})
+	).toThrow(/The "prores" codec does not support the --crf option\./);
+});
+
+test('WAV', () => {
+	expect(() =>
+		validateQualitySettings({crf: 3, codec: 'wav', videoBitrate: undefined})
+	).toThrow(/The "wav" codec does not support the --crf option\./);
+});
+
+test('WAV', () => {
+	expect(() =>
+		validateQualitySettings({crf: 10, codec: 'h264', videoBitrate: '1M'})
+	).toThrow(
+		/"crf" and "videoBitrate" can not both be set. Choose one of either./
 	);
 });
 

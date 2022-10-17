@@ -188,3 +188,15 @@ Inherited from [`npx remotion render`](/docs/cli/render#--config)
 _optional_
 
 Inherited from [`npx remotion render`](/docs/cli/render#--bundle-cache)
+
+### `--video-bitrate`
+
+_optional_
+
+Inherited from [`npx remotion render`](/docs/cli/render#--video-bitrate)
+
+### `--audio-bitrate`
+
+_optional_
+
+Inherited from [`npx remotion render`](/docs/cli/render#--audio-bitrate)

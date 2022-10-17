@@ -90,6 +90,8 @@ describe('Webhooks', () => {
 					url: TEST_URL,
 					secret: 'TEST_SECRET',
 				},
+				audioBitrate: null,
+				videoBitrate: null,
 			},
 			extraContext
 		);
@@ -158,6 +160,8 @@ describe('Webhooks', () => {
 				version: VERSION,
 				overwrite: true,
 				webhook: {url: TEST_URL, secret: 'TEST_SECRET'},
+				audioBitrate: null,
+				videoBitrate: null,
 			},
 			extraContext
 		);
