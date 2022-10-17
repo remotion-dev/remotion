@@ -88,8 +88,6 @@ export const render = async (remotionRoot: string) => {
 		puppeteerTimeout,
 		publicDir,
 		ffmpegOverride,
-		audioBitrate,
-		videoBitrate,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -326,8 +324,6 @@ export const render = async (remotionRoot: string) => {
 		downloadMap,
 		browserExecutable,
 		ffmpegOverride,
-		audioBitrate,
-		videoBitrate,
 		onSlowestFrames: (slowestFrames) => {
 			Log.verbose();
 			Log.verbose(`Slowest frames:`);
