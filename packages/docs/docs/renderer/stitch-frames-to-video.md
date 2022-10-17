@@ -63,19 +63,23 @@ Set a codec. See the [encoding guide](/docs/encoding) for available values and g
 
 ### `audioBitrate?`
 
-_string - optional_
+_string - optional, available from v3.2.32_
 
-Specify the output bitrate for the generated audio.
-Beware, ffmpeg may, depending on the codec chosen, not take this parameter into account.
-Example:  `512K`, `1M`
+Specify the target bitrate for the generated video.  
+The syntax for FFMPEGs `-b:v` parameter should be used.  
+FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
+This option cannot be set if `--crf` is set.
+Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 ### `videoBitrate?`
 
-_string - optional_
+_string - optional, available from v3.2.32_
 
-Specify the output bitrate for the generated video.
-Beware, ffmpeg may, depending on the codec chosen, not take this parameter into account.
-Example:  `512K`, `1M`
+Specify the target bitrate for the generated video.  
+The syntax for FFMPEGs `-b:v` parameter should be used.  
+FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
+This option cannot be set if `--crf` is set.
+Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 ### `crf?`
 
