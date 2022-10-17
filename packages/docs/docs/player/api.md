@@ -349,12 +349,12 @@ import { useCallback } from "react";
 
 export const App: React.FC = () => {
   const renderFullscreenButton: RenderFullscreenButton = useCallback(
-    ({ minimized }) => {
-      if (minimized) {
-        return <FullScreenButton />;
+    ({ isFullscreen }) => {
+      if (isFullscreen) {
+        return <MinimiseButton />;
       }
 
-      return <MinimiseButton />;
+      return <FullScreenButton />;
     },
     []
   );

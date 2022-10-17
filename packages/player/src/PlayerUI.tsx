@@ -30,7 +30,9 @@ export type RenderLoading = (canvas: {
 	width: number;
 }) => React.ReactChild;
 export type RenderPlayPauseButton = (props: {playing: boolean}) => ReactNode;
-export type RenderFullscreenButton = (props: {minimized: boolean}) => ReactNode;
+export type RenderFullscreenButton = (props: {
+	isFullscreen: boolean;
+}) => ReactNode;
 export type RenderPoster = RenderLoading;
 const reactVersion = React.version.split('.')[0];
 if (reactVersion === '0') {
@@ -70,8 +72,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		inFrame: number | null;
 		outFrame: number | null;
 		initiallyShowControls: number | boolean;
-		renderPlayPauseButton?: (props: {playing: boolean}) => ReactNode;
-		renderFullscreen?: (props: {minimized: boolean}) => ReactNode;
+		renderPlayPauseButton?: RenderPlayPauseButton;
+		renderFullscreen?: RenderFullscreenButton;
 	}
 > = (
 	{
@@ -101,7 +103,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		inFrame,
 		outFrame,
 		initiallyShowControls,
-		renderFullscreen,
+		renderFullscreen: renderFullscreenButton,
 		renderPlayPauseButton,
 	},
 	ref
@@ -524,7 +526,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					outFrame={outFrame}
 					initiallyShowControls={initiallyShowControls}
 					playerWidth={canvasSize?.width ?? 0}
-					renderFullscreen={renderFullscreen}
+					renderFullscreenButton={renderFullscreenButton}
 					renderPlayPauseButton={renderPlayPauseButton}
 				/>
 			) : null}
