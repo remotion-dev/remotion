@@ -2,8 +2,8 @@
 title: "@remotion/noise"
 ---
 
-<!-- TODO: most probably, the version will be different, so change it later -->
-_Available from v3.2.31_
+
+_Available from v3.2.32_
 
 Utility functions that create a noise effect.
 
