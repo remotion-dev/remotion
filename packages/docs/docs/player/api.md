@@ -294,6 +294,84 @@ _optional, available from v3.2.24_
 
 If true, the controls flash when the player enters the scene. After 2 seconds without hover, the controls fade out. This is similar to how YouTube does it, and signals to the user that the player is in fact controllable. You can also pass a `number`, with which you can customize the duration in milliseconds. Default `true` since `v3.2.24`, before that unsupported.
 
+### `renderPlayPauseButton`
+
+_optional, available from v3.2.32_
+
+Allows you to customize the Play/Pause button of the controls, must be a callback function that returns a valid React element.
+
+```tsx twoslash
+const MyPlayButton: React.FC = () => null;
+const MyPauseButton: React.FC = () => null;
+const MyVideo: React.FC = () => null;
+// ---cut---
+import { Player, RenderPlayPauseButton } from "@remotion/player";
+import { useCallback } from "react";
+
+export const App: React.FC = () => {
+  const renderPlayPauseButton: RenderPlayPauseButton = useCallback(
+    ({ playing }) => {
+      if (playing) {
+        return <MyPlayButton />;
+      }
+
+      return <MyPauseButton />;
+    },
+    []
+  );
+
+  return (
+    <Player
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+      renderPlayPauseButton={renderPlayPauseButton}
+    />
+  );
+};
+```
+
+### `renderFullscreenButton`
+
+_optional, available from v3.2.32_
+
+Allows you to customise the fullscreen button of the player controls, must return a valid React element. If fullscreen is disabled or not available in a browser, it will not be rendered.
+
+```tsx twoslash
+const FullScreenButton: React.FC = () => null;
+const MinimiseButton: React.FC = () => null;
+const MyVideo: React.FC = () => null;
+// ---cut---
+import { Player, RenderFullscreenButton } from "@remotion/player";
+import { useCallback } from "react";
+
+export const App: React.FC = () => {
+  const renderFullscreenButton: RenderFullscreenButton = useCallback(
+    ({ isFullscreen }) => {
+      if (isFullscreen) {
+        return <MinimiseButton />;
+      }
+
+      return <FullScreenButton />;
+    },
+    []
+  );
+
+  return (
+    <Player
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+      renderFullscreenButton={renderFullscreenButton}
+    />
+  );
+};
+```
+
 ## `PlayerRef`
 
 You may attach a ref to the player and control it in an imperative manner.
