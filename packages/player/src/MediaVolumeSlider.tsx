@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useId, useMemo, useRef, useState} from 'react';
 import {Internals, random} from 'remotion';
 import {ICON_SIZE, VolumeOffIcon, VolumeOnIcon} from './icons';
 import {useHoverState} from './use-hover-state';
@@ -16,8 +16,10 @@ export const MediaVolumeSlider: React.FC<{
 	const parentDivRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const hover = useHoverState(parentDivRef);
+	// eslint-disable-next-line react-hooks/rules-of-hooks
+	const randomId = typeof useId === 'undefined' ? 'volume-slider' : useId();
 	const [randomClass] = useState(() =>
-		`slider-${random(null)}`.replace('.', '')
+		`__remotion-volume-slider-${random(randomId)}`.replace('.', '')
 	);
 	const isMutedOrZero = mediaMuted || mediaVolume === 0;
 
