@@ -4,24 +4,45 @@ title: noise2D()
 
 _Part of the [`@remotion/noise`](/docs/noise) package._
 
-Creates 2D noise. The function takes one argument:
+Creates 2D noise.
 
-- `seed`, same as for [`random()`](/docs/random)
+## API
 
-A `NoiseFunction2D` is returned:
+The function takes three arguments:
+
+### `seed`
+
+Pass any _string_ or _number_. If the seed is the same, you will get the same result for same `x` and `y` values. Change the seed to to get different results for your `x` and `y` values.
+
+### `x`
+
+_number_
+
+The first dimensional value.
+
+### `y`
+
+_number_
+
+The second dimensional value.
+
+## Return value
+
+A value between `-1` and `1`, swinging as your `x` and `y` values change.
+
+## Example
 
 ```tsx twoslash
 import { noise2D } from "@remotion/noise";
 
-
 const x = 32;
 const y = 40;
-console.log(noise2D("my-seed" x, y)); // a number in the interval [-1, 1] which corresponds to (x, y) coord.
+console.log(noise2D("my-seed", x, y)); // a number in the interval [-1, 1] which corresponds to (x, y) coord.
 ```
 
 ## Credits
 
-Dependency: [simplex-noise](https://www.npmjs.com/package/simplex-noise)
+Uses the [simplex-noise](https://www.npmjs.com/package/simplex-noise) dependency
 
 ## See also
 
