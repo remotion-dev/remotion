@@ -69,6 +69,11 @@
       "source": "/motion-blur",
       "destination": "https://remotion.dev/docs/motion-blur",
       "permanent": false
+    },
+    {
+      "source": "/noise",
+      "destination": "https://remotion.dev/docs/noise",
+      "permanent": false
     }
   ]
 }
