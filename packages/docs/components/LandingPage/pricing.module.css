@@ -1,5 +1,5 @@
 .pricingtitle {
-  font-size: 1.875em;
+  font-size: 2.5em;
   font-weight: 700;
   line-height: 1.1;
 }
@@ -56,15 +56,16 @@
 }
 
 .freeprice {
-  color: #4290f5;
+  color:  #4290f5;
+
 }
 
 .gradientprice {
-  color: #79367a;
+  color: #79367a
 }
 
 .orangeprice {
-  color: #fd764a;
+ color: #fd764a;
 }
 
 .portion {
@@ -123,9 +124,11 @@
   font-size: 15px;
 }
 
+
 .plus svg {
   height: 20px;
 }
+
 
 @media screen and (max-width: 900px) {
   .pricingcontainer {
@@ -148,3 +151,4 @@
     margin-bottom: 30px;
   }
 }
+
