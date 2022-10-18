@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player",
-	"version": "3.2.31",
+	"version": "3.2.32",
 	"description": "Remotion Player",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -27,7 +27,7 @@
 	],
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"remotion": "3.2.31"
+		"remotion": "3.2.32"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
