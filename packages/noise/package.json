@@ -1,8 +1,9 @@
 {
-	"name": "@remotion/paths",
+	"name": "@remotion/noise",
 	"version": "3.2.31",
-	"description": "Utility functions for SVG paths",
+	"description": "Noise effect for Remotion",
 	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
@@ -10,7 +11,12 @@
 		"build": "tsc -d",
 		"test": "vitest --run"
 	},
-	"author": "Jonny Burger <jonny@remotion.dev>",
+	"author": "Yehor Misiats (https://github.com/satelllte)",
+	"maintainers": [
+		"Jonny Burger <jonny@remotion.dev>",
+		"Yehor Misiats (https://github.com/satelllte)"
+	],
+	"contributors": [],
 	"license": "MIT",
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
@@ -18,8 +24,12 @@
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
+	"dependencies": {
+		"remotion": "3.2.31",
+		"simplex-noise": "4.0.0"
+	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.266",
+		"@jonny/eslint-config": "^3.0.266",
 		"@types/node": "^16.7.5",
 		"eslint": "8.13.0",
 		"prettier": "^2.0.5",
@@ -28,9 +38,8 @@
 		"vitest": "0.18.0"
 	},
 	"keywords": [
-		"svg",
-		"path",
-		"utilities"
+		"remotion",
+		"noise"
 	],
 	"publishConfig": {
 		"access": "public"
