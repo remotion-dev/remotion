@@ -79,6 +79,9 @@ export const printHelp = () => {
 	Log.info();
 	Log.info('remotion upgrade');
 	Log.info(chalk.gray('Ensure Remotion is on the newest version.'));
+	printFlags([
+		['--enforce-manager', 'Enforce package manager, defaults to use from lockfile'],
+	]);
 	Log.info();
 	Log.info(
 		'Visit https://www.remotion.dev/docs/cli for browsable CLI documentation.'
