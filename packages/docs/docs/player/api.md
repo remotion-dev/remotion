@@ -52,11 +52,18 @@ The frame rate of the video. Must be a number.
 
 ### `compositionWidth`
 
-The width of the composition in pixels.
+The width you would like the video to have when rendered. Use `style={{width: <width>}}` to define a different natural width for the Player.
+
+:::note
+**Example**:
+If you want to render a Full HD video, set `compositionWidth` to `1920` and `compositionHeight` to `1080`. By default, the Player will also assume these dimensions.
+To make it smaller, pass a `style` prop to give the player a different width: `{"style={{width: 400}}"}`. See [Player Scaling](/docs/player/scaling) to learn more.
+:::
 
 ### `compositionHeight`
 
-The height of the composition in pixels.
+The height of the canvas in pixels.
+The height you would like the video to have when rendered. Use `style={{height: <height>}}` to define a different natural height for the Player.
 
 ### `loop`
 
@@ -286,6 +293,84 @@ Limit playback to only play before a certain frame. The video will end at this f
 _optional, available from v3.2.24_
 
 If true, the controls flash when the player enters the scene. After 2 seconds without hover, the controls fade out. This is similar to how YouTube does it, and signals to the user that the player is in fact controllable. You can also pass a `number`, with which you can customize the duration in milliseconds. Default `true` since `v3.2.24`, before that unsupported.
+
+### `renderPlayPauseButton`
+
+_optional, available from v3.2.32_
+
+Allows you to customize the Play/Pause button of the controls, must be a callback function that returns a valid React element.
+
+```tsx twoslash
+const MyPlayButton: React.FC = () => null;
+const MyPauseButton: React.FC = () => null;
+const MyVideo: React.FC = () => null;
+// ---cut---
+import { Player, RenderPlayPauseButton } from "@remotion/player";
+import { useCallback } from "react";
+
+export const App: React.FC = () => {
+  const renderPlayPauseButton: RenderPlayPauseButton = useCallback(
+    ({ playing }) => {
+      if (playing) {
+        return <MyPlayButton />;
+      }
+
+      return <MyPauseButton />;
+    },
+    []
+  );
+
+  return (
+    <Player
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+      renderPlayPauseButton={renderPlayPauseButton}
+    />
+  );
+};
+```
+
+### `renderFullscreenButton`
+
+_optional, available from v3.2.32_
+
+Allows you to customise the fullscreen button of the player controls, must return a valid React element. If fullscreen is disabled or not available in a browser, it will not be rendered.
+
+```tsx twoslash
+const FullScreenButton: React.FC = () => null;
+const MinimiseButton: React.FC = () => null;
+const MyVideo: React.FC = () => null;
+// ---cut---
+import { Player, RenderFullscreenButton } from "@remotion/player";
+import { useCallback } from "react";
+
+export const App: React.FC = () => {
+  const renderFullscreenButton: RenderFullscreenButton = useCallback(
+    ({ isFullscreen }) => {
+      if (isFullscreen) {
+        return <MinimiseButton />;
+      }
+
+      return <FullScreenButton />;
+    },
+    []
+  );
+
+  return (
+    <Player
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+      renderFullscreenButton={renderFullscreenButton}
+    />
+  );
+};
+```
 
 ## `PlayerRef`
 

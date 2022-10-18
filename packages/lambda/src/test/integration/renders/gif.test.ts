@@ -60,6 +60,8 @@ test('Should make a distributed GIF', async () => {
 			version: VERSION,
 			overwrite: true,
 			webhook: null,
+			audioBitrate: null,
+			videoBitrate: null,
 		},
 		extraContext
 	);

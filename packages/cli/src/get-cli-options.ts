@@ -131,16 +131,10 @@ const getAndValidateShouldOutputImageSequence = async ({
 	return shouldOutputImageSequence;
 };
 
-const getAndValidateCrf = (
-	shouldOutputImageSequence: boolean,
-	codec: Codec
-) => {
+const getCrf = (shouldOutputImageSequence: boolean) => {
 	const crf = shouldOutputImageSequence
 		? null
-		: ConfigInternals.getActualCrf(codec);
-	if (crf !== null) {
-		RenderInternals.validateSelectedCrfAndCodecCombination(crf, codec);
-	}
+		: ConfigInternals.getCrfOrUndefined();
 
 	return crf;
 };
@@ -155,12 +149,8 @@ const getAndValidatePixelFormat = (codec: Codec) => {
 	return pixelFormat;
 };
 
-const getAndValidateProResProfile = (actualCodec: Codec) => {
+const getProResProfile = () => {
 	const proResProfile = ConfigInternals.getProResProfile();
-	RenderInternals.validateSelectedCodecAndProResCombination(
-		actualCodec,
-		proResProfile
-	);
 
 	return proResProfile;
 };
@@ -215,14 +205,21 @@ export const getCliOptions = async (options: {
 	const overwrite = ConfigInternals.getShouldOverwrite({
 		defaultValue: !options.isLambda,
 	});
-	const crf = getAndValidateCrf(shouldOutputImageSequence, options.codec);
+	const crf = getCrf(shouldOutputImageSequence);
+	const videoBitrate = ConfigInternals.getVideoBitrate();
+	RenderInternals.validateQualitySettings({
+		crf,
+		codec: options.codec,
+		videoBitrate,
+	});
+
 	const pixelFormat = getAndValidatePixelFormat(options.codec);
 	const imageFormat = getAndValidateImageFormat({
 		shouldOutputImageSequence,
 		codec: options.codec,
 		pixelFormat,
 	});
-	const proResProfile = getAndValidateProResProfile(options.codec);
+	const proResProfile = getProResProfile();
 	const browserExecutable = ConfigInternals.getBrowserExecutable();
 	const ffmpegExecutable = ConfigInternals.getCustomFfmpegExecutable();
 	const ffprobeExecutable = ConfigInternals.getCustomFfprobeExecutable();
@@ -276,5 +273,7 @@ export const getCliOptions = async (options: {
 		enforceAudioTrack: ConfigInternals.getEnforceAudioTrack(),
 		publicDir: ConfigInternals.getPublicDir(),
 		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
+		audioBitrate: ConfigInternals.getAudioBitrate(),
+		videoBitrate,
 	};
 };
