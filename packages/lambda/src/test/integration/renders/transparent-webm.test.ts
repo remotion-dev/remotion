@@ -3,14 +3,13 @@ import fs, {createWriteStream} from 'fs';
 import os from 'os';
 import path from 'path';
 import {VERSION} from 'remotion/version';
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import {deleteRender} from '../../../api/delete-render';
 import {LambdaRoutines, rendersPrefix} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaLs, lambdaReadFile} from '../../../functions/helpers/io';
 import type {LambdaReturnValues} from '../../../shared/return-values';
 import {disableLogs, enableLogs} from '../../disable-logs';
-
-jest.setTimeout(90000);
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
