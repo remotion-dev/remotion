@@ -370,16 +370,14 @@ importers:
     specifiers:
       '@typescript-eslint/utils': 5.19.0
       eslint: 8.13.0
-      jest: ^27.2.4
-      ts-jest: ^27.0.5
       typescript: ^4.7.0
+      vitest: 0.24.3
     dependencies:
       '@typescript-eslint/utils': 5.19.0_6hvhxfirl4y3p6nuemvvvbadcu
     devDependencies:
       eslint: 8.13.0
-      jest: 27.2.4
-      ts-jest: 27.0.5_rvlwc6ridvtrh4l2o34pdixd4e
       typescript: 4.7.2
+      vitest: 0.24.3
 
   packages/example:
     specifiers:
@@ -15157,7 +15155,7 @@ packages:
         optional: true
     dependencies:
       abab: 2.0.5
-      acorn: 8.7.0
+      acorn: 8.8.0
       acorn-globals: 6.0.0
       cssom: 0.4.4
       cssstyle: 2.3.0
@@ -20824,37 +20822,6 @@ packages:
     dependencies:
       '@babel/core': 7.18.6
       '@types/jest': 27.4.0
-      bs-logger: 0.2.6
-      fast-json-stable-stringify: 2.1.0
-      jest: 27.2.4
-      jest-util: 27.5.1
-      json5: 2.2.1
-      lodash: 4.17.21
-      make-error: 1.3.6
-      semver: 7.3.7
-      typescript: 4.7.2
-      yargs-parser: 20.2.9
-    dev: true
-
-  /ts-jest/27.0.5_rvlwc6ridvtrh4l2o34pdixd4e:
-    resolution: {integrity: sha512-lIJApzfTaSSbtlksfFNHkWOzLJuuSm4faFAfo5kvzOiRAuoN4/eKxVJ2zEAho8aecE04qX6K1pAzfH5QHL1/8w==}
-    engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
-    hasBin: true
-    peerDependencies:
-      '@babel/core': '>=7.0.0-beta.0 <8'
-      '@types/jest': ^27.0.0
-      babel-jest: '>=27.0.0 <28'
-      jest: ^27.0.0
-      typescript: '>=3.8 <5.0'
-    peerDependenciesMeta:
-      '@babel/core':
-        optional: true
-      '@types/jest':
-        optional: true
-      babel-jest:
-        optional: true
-    dependencies:
-      '@babel/core': 7.18.6
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
       jest: 27.2.4
