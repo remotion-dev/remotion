@@ -18,13 +18,13 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - run: |
           corepack enable
-      - uses: Iamshankhadeep/setup-ffmpeg@v1.1
+      - uses: Iamshankhadeep/setup-ffmpeg@v1.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version: ${{ matrix.versionffmpeg_version }}
 
       - name: Cache .pnpm-store
-        uses: actions/cache@v1
+        uses: actions/cache@v3.0.11
         with:
           path: ~/.pnpm-store
           key: v2-${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -51,13 +51,13 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - run: |
           corepack enable
-      - uses: Iamshankhadeep/setup-ffmpeg@v1.1
+      - uses: Iamshankhadeep/setup-ffmpeg@v1.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version: ${{ matrix.versionffmpeg_version }}
 
       - name: Cache .pnpm-store
-        uses: actions/cache@v1
+        uses: actions/cache@v3.0.11
         with:
           path: ~/.pnpm-store
           key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}-bust
@@ -103,26 +103,26 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - run: |
           corepack enable
-      - uses: Iamshankhadeep/setup-ffmpeg@v1.1
+      - uses: Iamshankhadeep/setup-ffmpeg@v1.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version: ${{ matrix.ffmpeg_version }}
 
       - name: Cache .pnpm-store
-        uses: actions/cache@v2
+        uses: actions/cache@v3.0.11
         with:
           path: ~/.pnpm-store
           key: v2-deps-${{ runner.os }}-node${{ matrix.node_version }}
 
       - name: Cache node_modules/.cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3.0.11
         with:
           path: node_modules/.cache
           key: v2-deps-${{ runner.os }}-${{ matrix.ffmpeg_version }}-node${{ matrix.node_version }}-v2
       - name: Install
         run: pnpm install --frozen-lockfile
       - name: Cache dist/ folders
-        uses: actions/cache@v2
+        uses: actions/cache@v3.0.11
         if: runner.os != 'windows'
         with:
           path: packages/**/dist

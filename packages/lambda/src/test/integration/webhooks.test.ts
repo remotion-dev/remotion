@@ -90,6 +90,8 @@ describe('Webhooks', () => {
 					url: TEST_URL,
 					secret: 'TEST_SECRET',
 				},
+				audioBitrate: null,
+				videoBitrate: null,
 			},
 			extraContext
 		);
@@ -115,7 +117,7 @@ describe('Webhooks', () => {
 					'X-Remotion-Signature': expect.stringContaining('sha512='),
 					'X-Remotion-Status': 'success',
 					'X-Remotion-Mode': 'production',
-					'Content-Length': 320,
+					'Content-Length': expect.any(Number),
 				},
 				timeout: 5000,
 			},
@@ -158,6 +160,8 @@ describe('Webhooks', () => {
 				version: VERSION,
 				overwrite: true,
 				webhook: {url: TEST_URL, secret: 'TEST_SECRET'},
+				audioBitrate: null,
+				videoBitrate: null,
 			},
 			extraContext
 		);

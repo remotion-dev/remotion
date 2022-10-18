@@ -145,6 +145,15 @@ module.exports = {
     },
     {
       type: "category",
+      label: "@remotion/motion-blur",
+      link: {
+        type: "doc",
+        id: "motion-blur/index",
+      },
+      items: ["motion-blur/motion-blur"],
+    },
+    {
+      type: "category",
       label: "@remotion/lambda",
       link: {
         type: "doc",
@@ -240,6 +249,15 @@ module.exports = {
         "paths/extend-viewbox",
       ],
     },
+    {
+      type: "category",
+      label: "@remotion/noise",
+      link: {
+        type: "doc",
+        id: "noise/index",
+      },
+      items: ["noise/noise-2d", "noise/noise-3d", "noise/noise-4d"],
+    },
   ],
   mainSidebar: [
     {
@@ -263,6 +281,7 @@ module.exports = {
         "fonts",
         "using-randomness",
         "audio-visualization",
+        "noise-visualization",
         "use-img-and-iframe",
         "javascript",
         "data-fetching",
@@ -279,6 +298,7 @@ module.exports = {
         "scaling",
         "video-manipulation",
         "render-as-gif",
+        "figma",
       ],
     },
     {
@@ -350,6 +370,7 @@ module.exports = {
         "staticfile-relative-paths",
         "staticfile-remote-urls",
         "troubleshooting/rosetta",
+        "troubleshooting/loading-root-component",
         "troubleshooting/defaultprops-too-big",
       ],
     },

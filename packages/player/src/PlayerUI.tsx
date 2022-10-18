@@ -15,6 +15,10 @@ import {calculateCanvasTransformation} from './calculate-scale';
 import {ErrorBoundary} from './error-boundary';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import type {PlayerMethods, PlayerRef} from './player-methods';
+import type {
+	RenderFullscreenButton,
+	RenderPlayPauseButton,
+} from './PlayerControls';
 import {Controls} from './PlayerControls';
 import {useHoverState} from './use-hover-state';
 import {usePlayback} from './use-playback';
@@ -68,6 +72,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		inFrame: number | null;
 		outFrame: number | null;
 		initiallyShowControls: number | boolean;
+		renderPlayPauseButton: RenderPlayPauseButton | null;
+		renderFullscreen: RenderFullscreenButton | null;
 	}
 > = (
 	{
@@ -97,6 +103,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		inFrame,
 		outFrame,
 		initiallyShowControls,
+		renderFullscreen: renderFullscreenButton,
+		renderPlayPauseButton,
 	},
 	ref
 ) => {
@@ -518,6 +526,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					outFrame={outFrame}
 					initiallyShowControls={initiallyShowControls}
 					playerWidth={canvasSize?.width ?? 0}
+					renderFullscreenButton={renderFullscreenButton}
+					renderPlayPauseButton={renderPlayPauseButton}
 				/>
 			) : null}
 		</>

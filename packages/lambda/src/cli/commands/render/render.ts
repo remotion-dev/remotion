@@ -72,6 +72,8 @@ export const renderCommand = async (args: string[]) => {
 		numberOfGifLoops,
 		muted,
 		overwrite,
+		audioBitrate,
+		videoBitrate,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -117,6 +119,8 @@ export const renderCommand = async (args: string[]) => {
 		concurrencyPerLambda: parsedLambdaCli['concurrency-per-lambda'],
 		muted,
 		overwrite,
+		audioBitrate,
+		videoBitrate,
 		webhook: parsedLambdaCli.webhook
 			? {
 					url: parsedLambdaCli.webhook,
