@@ -74,7 +74,7 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/noise">
           <strong>@remotion/noise</strong>
-          <div>Create noise</div>
+          <div>Generate noise effects</div>
         </TOCItem>
       </Grid>
     </div>
