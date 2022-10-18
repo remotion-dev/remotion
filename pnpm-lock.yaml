@@ -70,7 +70,7 @@ importers:
       remotion: 3.2.31
       style-loader: 2.0.0
       typescript: ^4.7.0
-      vitest: 0.18.0
+      vitest: 0.24.3
       webpack: 5.74.0
     dependencies:
       css-loader: 5.2.7_webpack@5.74.0
@@ -96,7 +96,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
       typescript: 4.7.2
-      vitest: 0.18.0
+      vitest: 0.24.3
 
   packages/cli:
     specifiers:
@@ -129,7 +129,7 @@ importers:
       semver: 7.3.5
       source-map: 0.6.1
       typescript: ^4.7.0
-      vitest: 0.18.0
+      vitest: 0.24.3
     dependencies:
       '@remotion/bundler': link:../bundler
       '@remotion/media-utils': link:../media-utils
@@ -161,7 +161,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
       typescript: 4.7.2
-      vitest: 0.18.0
+      vitest: 0.24.3
 
   packages/core:
     specifiers:
@@ -180,7 +180,7 @@ importers:
       react-test-renderer: ^18.0.0
       rimraf: ^3.0.2
       typescript: ^4.7.0
-      vitest: 0.18.0
+      vitest: 0.24.3
       webpack: 5.74.0
     devDependencies:
       '@jonny/eslint-config': 3.0.266_6hvhxfirl4y3p6nuemvvvbadcu
@@ -198,7 +198,7 @@ importers:
       react-test-renderer: 18.0.0_react@18.0.0
       rimraf: 3.0.2
       typescript: 4.7.2
-      vitest: 0.18.0
+      vitest: 0.24.3
       webpack: 5.74.0
 
   packages/create-video:
@@ -291,7 +291,7 @@ importers:
       three: 0.134.0
       typescript: ^4.7.0
       url-loader: ^4.1.1
-      vitest: 0.18.0
+      vitest: 0.24.3
     dependencies:
       '@babel/plugin-transform-modules-commonjs': 7.15.4_@babel+core@7.18.6
       '@docusaurus/core': 2.1.0_gt2ntm2exbdqrzs2t5x4a3ntdi
@@ -330,7 +330,7 @@ importers:
       react-player: 2.9.0_react@18.0.0
       remotion: link:../core
       three: 0.134.0
-      vitest: 0.18.0
+      vitest: 0.24.3
     devDependencies:
       '@tsconfig/docusaurus': 1.0.5
       '@types/color-namer': 1.3.0
@@ -423,7 +423,7 @@ importers:
       styled-components: ^5.1.1
       ts-unused-exports: ^7.0.1
       typescript: ^4.7.0
-      vitest: 0.18.0
+      vitest: 0.24.3
     dependencies:
       '@babel/plugin-syntax-jsx': 7.12.13_@babel+core@7.18.6
       '@babel/preset-env': 7.12.13_@babel+core@7.18.6
@@ -456,7 +456,7 @@ importers:
       styled-components: 5.3.1_np2hlkcu3nm63an25jdclu2fwe
       ts-unused-exports: 7.0.3_typescript@4.7.2
       typescript: 4.7.2
-      vitest: 0.18.0
+      vitest: 0.24.3
     devDependencies:
       '@types/babel__core': 7.1.16
       '@types/babel__template': 7.4.1
@@ -514,7 +514,7 @@ importers:
       remotion: 3.2.31
       sharp: 0.30.6
       typescript: ^4.7.0
-      vitest: 0.18.0
+      vitest: 0.24.3
     devDependencies:
       '@remotion/bundler': link:../bundler
       '@remotion/cli': link:../cli
@@ -525,7 +525,7 @@ importers:
       remotion: link:../core
       sharp: 0.30.6
       typescript: 4.7.2
-      vitest: 0.18.0
+      vitest: 0.24.3
 
   packages/lambda:
     specifiers:
@@ -602,7 +602,7 @@ importers:
       react-dom: ^18.0.0
       remotion: 3.2.31
       typescript: ^4.7.0
-      vitest: 0.18.0
+      vitest: 0.24.3
     dependencies:
       lottie-web: 5.9.6
       remotion: link:../core
@@ -617,7 +617,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
       typescript: 4.7.2
-      vitest: 0.18.0
+      vitest: 0.24.3
 
   packages/media-utils:
     specifiers:
@@ -677,7 +677,7 @@ importers:
       remotion: 3.2.31
       simplex-noise: 4.0.0
       typescript: ^4.7.0
-      vitest: 0.18.0
+      vitest: 0.24.3
     dependencies:
       remotion: link:../core
       simplex-noise: 4.0.0
@@ -688,7 +688,7 @@ importers:
       prettier: 2.6.2
       prettier-plugin-organize-imports: 2.3.4_lbsuufegg2dnc4wh6qgf26kgdy
       typescript: 4.7.2
-      vitest: 0.18.0
+      vitest: 0.24.3
 
   packages/paths:
     specifiers:
@@ -698,7 +698,7 @@ importers:
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
       typescript: ^4.7.0
-      vitest: 0.18.0
+      vitest: 0.24.3
     devDependencies:
       '@jonny/eslint-config': 3.0.266_6hvhxfirl4y3p6nuemvvvbadcu
       '@types/node': 16.10.2
@@ -706,7 +706,7 @@ importers:
       prettier: 2.6.2
       prettier-plugin-organize-imports: 2.3.4_lbsuufegg2dnc4wh6qgf26kgdy
       typescript: 4.7.2
-      vitest: 0.18.0
+      vitest: 0.24.3
 
   packages/player:
     specifiers:
@@ -830,7 +830,7 @@ importers:
       remotion: 3.2.31
       source-map: ^0.8.0-beta.0
       typescript: ^4.7.0
-      vitest: 0.18.0
+      vitest: 0.24.3
       ws: 8.7.0
     dependencies:
       execa: 5.1.1
@@ -852,7 +852,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
       typescript: 4.7.2
-      vitest: 0.18.0
+      vitest: 0.24.3
 
   packages/skia:
     specifiers:
@@ -8242,9 +8242,6 @@ packages:
     resolution: {integrity: sha512-frBecisrNGz+F4T6bcc+NLeolfiojh5FxW2klu669+8BARtyQv2C/GkNW6FUodVe4BroGMP/wER/YDGc7rEllw==}
     dependencies:
       '@types/chai': 4.3.3
-
-  /@types/chai/4.3.1:
-    resolution: {integrity: sha512-/zPMqDkzSZ8t3VtxOa4KPq7uzzW978M9Tvh+j7GHKuo6k6GTLxPJ4J5gE5cjfJ26pnXst0N5Hax8Sr0T2Mi9zQ==}
 
   /@types/chai/4.3.3:
     resolution: {integrity: sha512-hC7OMnszpxhZPduX+m+nrx+uFoLkWOMiR4oa/AZF3MuSETYTZmFfJAHqZEM8MVlvfG7BEUcgvtwoCTxBp6hm3g==}
@@ -20271,7 +20268,6 @@ packages:
     resolution: {integrity: sha512-pv48ybn4iE1O9RLgCAN0iU4Xv7RlBTiit6DKmMiErbs9x1wH6vXBs45tWc0H5wUIF6TLTrKweqkmYF/iraQKNw==}
     dependencies:
       acorn: 8.8.0
-    dev: true
 
   /strong-log-transformer/2.1.0:
     resolution: {integrity: sha512-B3Hgul+z0L9a236FAUC9iZsL+nVHgoCJnqCbN588DjYxvGXaXaaFbfmQ/JhvKjZwsOukuR72XbHv71Qkug0HxA==}
@@ -20652,25 +20648,14 @@ packages:
 
   /tinybench/2.3.0:
     resolution: {integrity: sha512-zs1gMVBwyyG2QbVchYIbnabRhMOCGvrwZz/q+SV+LIMa9q5YDQZi2kkI6ZRqV2Bz7ba1uvrc7ieUoE4KWnGeKg==}
-    dev: true
-
-  /tinypool/0.2.2:
-    resolution: {integrity: sha512-tp4n5OARNL3v8ntdJUyo5NsDfwvUtu8isB43USjrsQxQrADDKY6UGBkmFaw/2vNmEt8S/uSm2U5FhkiK1eAFGw==}
-    engines: {node: '>=14.0.0'}
 
   /tinypool/0.3.0:
     resolution: {integrity: sha512-NX5KeqHOBZU6Bc0xj9Vr5Szbb1j8tUHIeD18s41aDJaPeC5QTdEhK0SpdpUrZlj2nv5cctNcSjaKNanXlfcVEQ==}
-    engines: {node: '>=14.0.0'}
-    dev: true
-
-  /tinyspy/0.3.3:
-    resolution: {integrity: sha512-gRiUR8fuhUf0W9lzojPf1N1euJYA30ISebSfgca8z76FOvXtVXqd5ojEIaKLWbDQhAaC3ibxZIjqbyi4ybjcTw==}
     engines: {node: '>=14.0.0'}
 
   /tinyspy/1.0.2:
     resolution: {integrity: sha512-bSGlgwLBYf7PnUsQ6WOc6SJ3pGOcd+d8AA6EUnLDDM0kWEstC1JIlSZA3UNliDXhd9ABoS7hiRBDCu+XP/sf1Q==}
     engines: {node: '>=14.0.0'}
-    dev: true
 
   /title-case/2.1.1:
     resolution: {integrity: sha1-PhJyFtpY0rxb7PE3q5Ha46fNj6o=}
@@ -21742,44 +21727,6 @@ packages:
     optionalDependencies:
       fsevents: 2.3.2
 
-  /vitest/0.18.0:
-    resolution: {integrity: sha512-ryAtlh5Gvg3+aLNuOQ8YOHxgQCCu46jx40X5MBL0K0/ejB9i5zsr8fV8LTGXbXex80UMHlzceI9F+ouGaiR+mQ==}
-    engines: {node: '>=v14.16.0'}
-    hasBin: true
-    peerDependencies:
-      '@edge-runtime/vm': '*'
-      '@vitest/ui': '*'
-      c8: '*'
-      happy-dom: '*'
-      jsdom: '*'
-    peerDependenciesMeta:
-      '@edge-runtime/vm':
-        optional: true
-      '@vitest/ui':
-        optional: true
-      c8:
-        optional: true
-      happy-dom:
-        optional: true
-      jsdom:
-        optional: true
-    dependencies:
-      '@types/chai': 4.3.1
-      '@types/chai-subset': 1.3.3
-      '@types/node': 18.0.3
-      chai: 4.3.6
-      debug: 4.3.4
-      local-pkg: 0.4.2
-      tinypool: 0.2.2
-      tinyspy: 0.3.3
-      vite: 3.0.0
-    transitivePeerDependencies:
-      - less
-      - sass
-      - stylus
-      - supports-color
-      - terser
-
   /vitest/0.24.3:
     resolution: {integrity: sha512-aM0auuPPgMSstWvr851hB74g/LKaKBzSxcG3da7ejfZbx08Y21JpZmbmDYrMTCGhVZKqTGwzcnLMwyfz2WzkhQ==}
     engines: {node: '>=v14.16.0'}
@@ -21819,7 +21766,6 @@ packages:
       - stylus
       - supports-color
       - terser
-    dev: true
 
   /vlq/1.0.1:
     resolution: {integrity: sha512-gQpnTgkubC6hQgdIcRdYGDSDc+SaujOdyesZQMv6JlfQee/9Mp0Qhnys6WxDWvQnL5WZdT7o2Ul187aSt0Rq+w==}
