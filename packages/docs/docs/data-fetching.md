@@ -3,32 +3,33 @@ id: data-fetching
 title: Data fetching
 ---
 
-One of the most groundbreaking things about Remotion is that you can fetch data from an API to display in your video like you would in a regular React project. It works almost like you are used to: You can use the `fetch` API to load the data in a `useEffect` and set a state.
+One of the coolest things about Remotion is that you can fetch data from an API.
+
+It works almost like you are used to: You can use the [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) API to load data in a [`useEffect()`](https://reactjs.org/docs/hooks-effect.html) call and set a state.
 
 ## Telling Remotion to wait until the data is loaded
 
 There are two functions, [`delayRender`](/docs/delay-render) and [`continueRender`](/docs/continue-render), which you can use to tell Remotion to not yet render the frame. If you want to asynchronously render a frame, you should call `delayRender()` as soon as possible, before the window `onload` event is fired. The function returns a handle that you need to give Remotion the green light to render later using `continueRender()`.
 
-```tsx
-import {useEffect, useState} from 'react';
-import {continueRender, delayRender} from 'remotion';
-
+```tsx twoslash
+import { useEffect, useCallback, useState } from "react";
+import { continueRender, delayRender } from "remotion";
 
 export const MyVideo = () => {
   const [data, setData] = useState(null);
   const [handle] = useState(() => delayRender());
 
-  const fetchData = async () => {
-    const response = await fetch('http://example.com/api');
+  const fetchData = useCallback(async () => {
+    const response = await fetch("http://example.com/api");
     const json = await response.json();
     setData(json);
 
     continueRender(handle);
-  }
+  }, [handle]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   return (
     <div>
@@ -37,27 +38,28 @@ export const MyVideo = () => {
       ) : null}
     </div>
   );
-}
-
+};
 ```
 
-## Caching
+## Best practices
 
-It is important to know that in the render process, data fetching works on a per-frame basis, so for every frame, the page gets fully reloaded and screenshotted. You should consider caching the result of your API, to avoid rate-limits and also to speed up the render of your video. We have two suggestions on how to do that:
+During rendering, multiple tabs are opened to speed up rendering. In each of these tabs, the tree is re-rendered by changing the value of [`useCurrentFrame()`](/docs/use-current-frame) and then screenshotted.
 
-- Use the `localStorage` API to persist data after a network request and make a request only if the local storage is empty.
-
-- Fetch the data before the render, and store it as a JSON file, then import this JSON file.
+- Each tab will execute the data fetching individually, so if you are rendering with a high concurrency, you may run into a rate limit.
+- You can use the `localStorage` API to persist data after a network request and make a request only if the local storage is empty.
+- The data returned by an API must be the same when called multiple times, otherwise [flickering](/docs/flickering) may apply.
+- Consider fetching data before the render, and pass data as [input props](/docs/parametrized-rendering)
+- Make sure to not have `frame` as a dependency of the `useEffect()`, otherwise data will be fetched every frame leading to slowdown and potentially running into rate limits.
 
 ## Time limit
 
-You need to clear all handles created by `delayRender` within 30 seconds after the page is opened. This limit is imposed by Puppeteer, but makes a lot of sense as going over this limit would make the rendering process massively slow.
+You need to clear all handles created by [`delayRender()`](/docs/delay-render) within 30 seconds after the page is opened. You may [increase the timeout](/docs/timeout#increase-timeout).
 
 ## Using `delayRender()` to calculate video metadata
 
 You can also customize duration, frame rate and dimensions based on asynchronous data fetching:
 
-- **See: [Dynamic duration, FPS & dimensions](dynamic-metadata)**
+- **See: [Dynamic duration, FPS & dimensions](/docs/dynamic-metadata)**
 
 ## See also
 

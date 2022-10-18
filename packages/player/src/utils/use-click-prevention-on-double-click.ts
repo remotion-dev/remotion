@@ -1,38 +1,44 @@
-import {useCallback, useMemo} from 'react';
+import type {SyntheticEvent} from 'react';
+import { useCallback, useMemo} from 'react';
 import {cancellablePromise} from './cancellable-promise';
 import {delay} from './delay';
 import {useCancellablePromises} from './use-cancellable-promises';
 
 const useClickPreventionOnDoubleClick = (
-	onClick: () => void,
+	onClick: (e: SyntheticEvent) => void,
 	onDoubleClick: () => void,
 	doubleClickToFullscreen: boolean
-): [() => void, () => void] => {
+): [(e: SyntheticEvent) => void, () => void] => {
 	const api = useCancellablePromises();
 
-	const handleClick = useCallback(async () => {
-		api.clearPendingPromises();
-		const waitForClick = cancellablePromise(delay(200));
-		api.appendPendingPromise(waitForClick);
+	const handleClick = useCallback(
+		async (e: SyntheticEvent) => {
+			api.clearPendingPromises();
+			const waitForClick = cancellablePromise(delay(200));
+			api.appendPendingPromise(waitForClick);
 
-		try {
-			await waitForClick.promise;
-			api.removePendingPromise(waitForClick);
-			onClick();
-		} catch (errorInfo) {
-			api.removePendingPromise(waitForClick);
-			if (!errorInfo.isCanceled) {
-				throw errorInfo.error;
+			try {
+				await waitForClick.promise;
+				api.removePendingPromise(waitForClick);
+				onClick(e);
+			} catch (errorInfo) {
+				const info = errorInfo as {isCanceled: boolean; error: Error};
+
+				api.removePendingPromise(waitForClick);
+				if (!info.isCanceled) {
+					throw info.error;
+				}
 			}
-		}
-	}, [api, onClick]);
+		},
+		[api, onClick]
+	);
 
 	const handleDoubleClick = useCallback(() => {
 		api.clearPendingPromises();
 		onDoubleClick();
 	}, [api, onDoubleClick]);
 
-	const returnValue = useMemo((): [() => void, () => void] => {
+	const returnValue = useMemo((): [(e: SyntheticEvent) => void, () => void] => {
 		if (!doubleClickToFullscreen) {
 			return [onClick, onDoubleClick];
 		}

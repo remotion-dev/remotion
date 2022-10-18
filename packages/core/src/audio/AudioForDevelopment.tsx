@@ -1,4 +1,16 @@
-import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import type {ForwardRefExoticComponent, RefAttributes} from 'react';
+import React, {
+	forwardRef,
+	useContext,
+	useEffect,
+	useImperativeHandle,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
+import {usePreload} from '../prefetch';
+import {random} from '../random';
+import {SequenceContext} from '../Sequence';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
@@ -7,20 +19,70 @@ import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state';
-import {RemotionAudioProps} from './props';
+import type {RemotionAudioProps} from './props';
+import {useSharedAudio} from './shared-audio-tags';
 import {useFrameForVolumeProp} from './use-audio-frame';
+
+type AudioForDevelopmentProps = RemotionAudioProps & {
+	shouldPreMountAudioTags: boolean;
+	onDuration: (src: string, durationInSeconds: number) => void;
+};
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
-	RemotionAudioProps
+	AudioForDevelopmentProps
 > = (props, ref) => {
-	const audioRef = useRef<HTMLAudioElement>(null);
+	const [initialShouldPreMountAudioElements] = useState(
+		props.shouldPreMountAudioTags
+	);
+	if (props.shouldPreMountAudioTags !== initialShouldPreMountAudioElements) {
+		throw new Error(
+			'Cannot change the behavior for pre-mounting audio tags dynamically.'
+		);
+	}
+
 	const [mediaVolume] = useMediaVolumeState();
 	const [mediaMuted] = useMediaMutedState();
 
 	const volumePropFrame = useFrameForVolumeProp();
 
-	const {volume, muted, playbackRate, ...nativeProps} = props;
+	const {
+		volume,
+		muted,
+		playbackRate,
+		shouldPreMountAudioTags,
+		src,
+		onDuration,
+		...nativeProps
+	} = props;
+
+	if (!src) {
+		throw new TypeError("No 'src' was passed to <Audio>.");
+	}
+
+	const preloadedSrc = usePreload(src);
+
+	const propsToPass = useMemo((): RemotionAudioProps => {
+		return {
+			muted: muted || mediaMuted,
+			src: preloadedSrc,
+			...nativeProps,
+		};
+	}, [mediaMuted, muted, nativeProps, preloadedSrc]);
+
+	const sequenceContext = useContext(SequenceContext);
+
+	// Generate a string that's as unique as possible for this asset
+	// but at the same time deterministic. We use it to combat strict mode issues.
+	const id = useMemo(
+		() =>
+			`audio-${random(src ?? '')}-${sequenceContext?.relativeFrom}-${
+				sequenceContext?.cumulatedFrom
+			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
+		[props.muted, src, sequenceContext]
+	);
+
+	const audioRef = useSharedAudio(propsToPass, id).el;
 
 	const actualVolume = useMediaTagVolume(audioRef);
 
@@ -36,24 +98,60 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		volume,
 		mediaVolume,
 		mediaRef: audioRef,
-		src: nativeProps.src,
+		src,
 		mediaType: 'audio',
 	});
 
 	useMediaPlayback({
 		mediaRef: audioRef,
-		src: nativeProps.src,
+		src,
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
+		onlyWarnForMediaSeekingError: false,
 	});
 
-	useImperativeHandle(ref, () => {
-		return audioRef.current as HTMLAudioElement;
-	});
+	useImperativeHandle(
+		ref,
+		() => {
+			return audioRef.current as HTMLAudioElement;
+		},
+		[audioRef]
+	);
 
-	return <audio ref={audioRef} muted={muted || mediaMuted} {...nativeProps} />;
+	const currentOnDurationCallback =
+		useRef<AudioForDevelopmentProps['onDuration']>();
+	currentOnDurationCallback.current = onDuration;
+
+	useEffect(() => {
+		const {current} = audioRef;
+		if (!current) {
+			return;
+		}
+
+		if (current.duration) {
+			currentOnDurationCallback.current?.(src, current.duration);
+			return;
+		}
+
+		const onLoadedMetadata = () => {
+			currentOnDurationCallback.current?.(src, current.duration);
+		};
+
+		current.addEventListener('loadedmetadata', onLoadedMetadata);
+		return () => {
+			current.removeEventListener('loadedmetadata', onLoadedMetadata);
+		};
+	}, [audioRef, src]);
+
+	if (initialShouldPreMountAudioElements) {
+		return null;
+	}
+
+	return <audio ref={audioRef} {...propsToPass} />;
 };
 
 export const AudioForDevelopment = forwardRef(
 	AudioForDevelopmentForwardRefFunction
-);
+) as ForwardRefExoticComponent<
+	AudioForDevelopmentProps & RefAttributes<HTMLAudioElement>
+>;

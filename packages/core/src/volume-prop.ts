@@ -36,5 +36,5 @@ export const evaluateVolume = ({
 		);
 	}
 
-	return Math.min(1, evaluated);
+	return Math.max(0, Math.min(1, evaluated));
 };

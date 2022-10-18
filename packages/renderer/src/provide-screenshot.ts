@@ -1,26 +1,25 @@
-import puppeteer from 'puppeteer-core';
-import {ImageFormat} from 'remotion';
+import type {Page} from './browser/BrowserPage';
+import type {ImageFormat} from './image-format';
 import {screenshotDOMElement} from './screenshot-dom-element';
 
-export const provideScreenshot = async ({
+export const provideScreenshot = ({
 	page,
 	imageFormat,
 	options,
 	quality,
 }: {
-	page: puppeteer.Page;
+	page: Page;
 	imageFormat: ImageFormat;
 	quality: number | undefined;
 	options: {
 		frame: number;
-		output: string;
+		output: string | null;
 	};
-}): Promise<void> => {
-	await screenshotDOMElement({
+}): Promise<Buffer> => {
+	return screenshotDOMElement({
 		page,
 		opts: {
 			path: options.output,
-			selector: '#canvas',
 		},
 		imageFormat,
 		quality,

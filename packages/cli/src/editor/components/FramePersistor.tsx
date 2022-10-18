@@ -1,4 +1,5 @@
-import React, {useContext, useEffect} from 'react';
+import type React from 'react';
+import {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 
 export const getCurrentCompositionFromUrl = () => {
@@ -38,7 +39,7 @@ export const FramePersistor: React.FC = () => {
 		if (!playing) {
 			persistCurrentFrame(frame);
 		}
-	}, [frame, playing]);
+	}, [frame, isActive, playing]);
 
 	return null;
 };

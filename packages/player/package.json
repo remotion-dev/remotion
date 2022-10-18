@@ -1,50 +1,65 @@
 {
 	"name": "@remotion/player",
-	"version": "2.1.7",
+	"version": "3.2.32",
 	"description": "Remotion Player",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
-		"test": "eslint src --ext ts,tsx && jest",
+		"lint": "eslint src --ext ts,tsx",
+		"test": "jest",
 		"build": "tsc -d",
 		"watch": "tsc -w",
 		"prerelease": "cp ../../README.md ."
 	},
 	"repository": {
-		"url": "https://github.com/JonnyBurger/remotion"
+		"url": "https://github.com/remotion-dev/remotion"
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"files": [
 		"dist",
 		"README.md"
 	],
-	"author": "Jonny Burger <hi@jonny.io>",
+	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
-		"Jonny Burger <hi@jonny.io>",
+		"Jonny Burger <jonny@remotion.dev>",
 		"Shankhadeep Dey <shankhadeepdey99@gmail.com>"
 	],
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"remotion": "^2.1.7"
+		"remotion": "3.2.32"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.233",
-		"@testing-library/react": "^11.2.2",
-		"@types/jest": "^26.0.19",
+		"@jonny/eslint-config": "3.0.266",
+		"@testing-library/react": "13.1.1",
+		"@types/jest": "^27.4.0",
 		"@types/node": "^14.14.14",
-		"@types/react": "^17.0.0",
-		"@types/react-dom": "^17.0.0",
-		"eslint": "^7.4.0",
-		"jest": "^26.6.3",
+		"@types/react": "18.0.1",
+		"@types/react-dom": "18.0.0",
+		"csstype": "^3.0.9",
+		"eslint": "8.13.0",
+		"jest": "^27.2.4",
 		"prettier": "^2.0.5",
-		"prettier-plugin-organize-imports": "^1.1.1",
-		"ts-jest": "^26.4.4",
-		"typescript": "^4.1.2",
-		"webpack": "^5.21.2"
+		"prettier-plugin-organize-imports": "^2.3.4",
+		"react": "^18.0.0",
+		"react-dom": "^18.0.0",
+		"ts-jest": "^27.0.5",
+		"typescript": "^4.7.0",
+		"webpack": "5.74.0"
 	},
+	"keywords": [
+		"remotion",
+		"ffmpeg",
+		"video",
+		"react",
+		"puppeteer",
+		"player"
+	],
 	"publishConfig": {
 		"access": "public"
 	}

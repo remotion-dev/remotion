@@ -1,126 +1,79 @@
-import {PlayerInternals} from '@remotion/player';
-import React, {useMemo, useState} from 'react';
-import {
-	Internals,
-	MediaVolumeContextValue,
-	SetMediaVolumeContextValue,
-} from 'remotion';
-import styled from 'styled-components';
-import {
-	CheckerboardContext,
-	loadCheckerboardOption,
-} from '../state/checkerboard';
-import {loadPreviewSizeOption, PreviewSizeContext} from '../state/preview-size';
-import {
-	loadRichTimelineOption,
-	RichTimelineContext,
-} from '../state/rich-timeline';
+import React, {useContext, useEffect, useState} from 'react';
+import {continueRender, delayRender, Internals} from 'remotion';
+import {BACKGROUND} from '../helpers/colors';
+import {noop} from '../helpers/noop';
+import {ModalsContext} from '../state/modals';
+import {TimelineZoomContext} from '../state/timeline-zoom';
+import {HigherZIndex} from '../state/z-index';
+import {EditorContent} from './EditorContent';
 import {FramePersistor} from './FramePersistor';
-import {SplitterContainer} from './Splitter/SplitterContainer';
-import {SplitterElement} from './Splitter/SplitterElement';
-import {SplitterHandle} from './Splitter/SplitterHandle';
-import {Timeline} from './Timeline/Timeline';
-import {TopPanel} from './TopPanel';
-import {UpdateCheck} from './UpdateCheck';
+import {GlobalKeybindings} from './GlobalKeybindings';
+import {KeyboardShortcuts} from './KeyboardShortcutsModal';
+import NewComposition from './NewComposition/NewComposition';
+import {NoRegisterRoot} from './NoRegisterRoot';
+import {NotificationCenter} from './Notifications/NotificationCenter';
+import {UpdateModal} from './UpdateModal/UpdateModal';
+import {ZoomPersistor} from './ZoomPersistor';
 
-const Background = styled.div`
-	background: #222;
-	display: flex;
-	width: 100%;
-	height: 100%;
-	flex-direction: column;
-	position: absolute;
-`;
-
-const Root = Internals.getRoot();
+const background: React.CSSProperties = {
+	backgroundColor: BACKGROUND,
+	display: 'flex',
+	width: '100%',
+	height: '100%',
+	flexDirection: 'column',
+	position: 'absolute',
+};
 
 export const Editor: React.FC = () => {
-	const [emitter] = useState(() => new PlayerInternals.PlayerEmitter());
-	const [size, setSize] = useState(() => loadPreviewSizeOption());
-	const [checkerboard, setCheckerboard] = useState(() =>
-		loadCheckerboardOption()
-	);
-	const [richTimeline, setRichTimeline] = useState(() =>
-		loadRichTimelineOption()
-	);
-	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
-	const [mediaVolume, setMediaVolume] = useState<number>(1);
+	const [Root, setRoot] = useState<React.FC | null>(() => Internals.getRoot());
 
-	const previewSizeCtx = useMemo(() => {
-		return {
-			size,
-			setSize,
-		};
-	}, [size]);
-	const checkerboardCtx = useMemo(() => {
-		return {
-			checkerboard,
-			setCheckerboard,
-		};
-	}, [checkerboard]);
-	const richTimelineCtx = useMemo(() => {
-		return {
-			richTimeline,
-			setRichTimeline,
-		};
-	}, [richTimeline]);
+	const {selectedModal: modalContextType} = useContext(ModalsContext);
 
-	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {
-		return {
-			mediaMuted,
-			mediaVolume,
-		};
-	}, [mediaMuted, mediaVolume]);
+	const [waitForRoot] = useState(() => {
+		if (Root) {
+			return 0;
+		}
 
-	const setMediaVolumeContextValue = useMemo((): SetMediaVolumeContextValue => {
-		return {
-			setMediaMuted,
-			setMediaVolume,
-		};
-	}, []);
+		return delayRender('Waiting for registerRoot()');
+	});
 
-	if (!Root) {
-		throw new Error('Root has not been registered. ');
-	}
+	useEffect(() => {
+		if (Root) {
+			return;
+		}
+
+		const cleanup = Internals.waitForRoot((NewRoot) => {
+			setRoot(() => NewRoot);
+			continueRender(waitForRoot);
+		});
+
+		return () => cleanup();
+	}, [Root, waitForRoot]);
 
 	return (
-		<RichTimelineContext.Provider value={richTimelineCtx}>
-			<CheckerboardContext.Provider value={checkerboardCtx}>
-				<PreviewSizeContext.Provider value={previewSizeCtx}>
-					<Internals.MediaVolumeContext.Provider
-						value={mediaVolumeContextValue}
-					>
-						<Internals.SetMediaVolumeContext.Provider
-							value={setMediaVolumeContextValue}
-						>
-							<PlayerInternals.PlayerEventEmitterContext.Provider
-								value={emitter}
-							>
-								<Background>
-									<Root />
-									<UpdateCheck />
-									<FramePersistor />
-									<SplitterContainer
-										orientation="horizontal"
-										id="top-to-bottom"
-										maxFlex={0.9}
-										minFlex={0.2}
-										defaultFlex={0.75}
-									>
-										<SplitterElement type="flexer">
-											<TopPanel />
-										</SplitterElement>
-										<SplitterHandle />
-										<SplitterElement type="anti-flexer">
-											<Timeline />
-										</SplitterElement>
-									</SplitterContainer>
-								</Background>
-							</PlayerInternals.PlayerEventEmitterContext.Provider>
-						</Internals.SetMediaVolumeContext.Provider>
-					</Internals.MediaVolumeContext.Provider>
-				</PreviewSizeContext.Provider>
-			</CheckerboardContext.Provider>
-		</RichTimelineContext.Provider>
+		<HigherZIndex onEscape={noop} onOutsideClick={noop}>
+			<TimelineZoomContext>
+				<div style={background}>
+					{Root === null ? null : <Root />}
+					<Internals.CanUseRemotionHooksProvider>
+						<FramePersistor />
+						<ZoomPersistor />
+						{Root === null ? <NoRegisterRoot /> : <EditorContent />}
+						<GlobalKeybindings />
+					</Internals.CanUseRemotionHooksProvider>
+				</div>
+			</TimelineZoomContext>
+
+			<NotificationCenter />
+			{modalContextType && modalContextType.type === 'new-comp' && (
+				<NewComposition initialCompType={modalContextType.compType} />
+			)}
+			{modalContextType && modalContextType.type === 'update' && (
+				<UpdateModal info={modalContextType.info} />
+			)}
+			{modalContextType && modalContextType.type === 'shortcuts' && (
+				<KeyboardShortcuts />
+			)}
+		</HigherZIndex>
 	);
 };

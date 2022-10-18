@@ -1,6 +1,11 @@
 {
 	"extends": "@jonny",
-	"rules": {
-		"ts-exports/unused-exports": "off"
-	}
+	"overrides": [
+		{
+			"files": "src/browser/**",
+			"rules": {
+				"@typescript-eslint/no-explicit-any": "off"
+			}
+		}
+	]
 }

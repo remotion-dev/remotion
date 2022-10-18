@@ -1,16 +1,29 @@
 import React, {useCallback, useMemo} from 'react';
-import {TSequence} from 'remotion';
+import type {TSequence} from 'remotion';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
-import {TimelineActionState} from './timeline-state-reducer';
+import {useZIndex} from '../../state/z-index';
+import type {TimelineActionState} from './timeline-state-reducer';
 import {TimelineCollapseToggle} from './TimelineCollapseToggle';
+import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 
 const HOOK_WIDTH = 7;
 const BORDER_BOTTOM_LEFT_RADIUS = 2;
 const SPACING = 5;
+
+const TIMELINE_LAYER_PADDING = HOOK_WIDTH + SPACING * 1.5;
+const TIMELINE_COLLAPSER_WIDTH = 8;
+const TIMELINE_COLLAPSER_MARGIN_RIGHT = 10;
+
+export const TOTAL_TIMELINE_LAYER_LEFT_PADDING =
+	TIMELINE_COLLAPSER_WIDTH + TIMELINE_COLLAPSER_MARGIN_RIGHT + TIMELINE_PADDING;
+
+const textStyle: React.CSSProperties = {
+	fontSize: 13,
+};
 
 const outer: React.CSSProperties = {
 	height: TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2,
@@ -19,9 +32,9 @@ const outer: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
-	fontSize: 13,
 	paddingLeft: TIMELINE_PADDING,
 	wordBreak: 'break-all',
+	textAlign: 'left',
 };
 
 const hookContainer: React.CSSProperties = {
@@ -48,9 +61,9 @@ const smallSpace: React.CSSProperties = {
 };
 
 const collapser: React.CSSProperties = {
-	width: 8,
+	width: TIMELINE_COLLAPSER_WIDTH,
 	userSelect: 'none',
-	marginRight: 10,
+	marginRight: TIMELINE_COLLAPSER_MARGIN_RIGHT,
 };
 
 const collapserButton: React.CSSProperties = {
@@ -76,7 +89,8 @@ export const TimelineListItem: React.FC<{
 	hash,
 	canCollapse,
 }) => {
-	const leftOffset = HOOK_WIDTH + SPACING * 1.5;
+	const {tabIndex} = useZIndex();
+	const leftOffset = TIMELINE_LAYER_PADDING;
 	const hookStyle = useMemo(() => {
 		return {
 			...hook,
@@ -115,7 +129,12 @@ export const TimelineListItem: React.FC<{
 		<div style={outer}>
 			<div style={padder} />
 			{canCollapse ? (
-				<button type="button" style={collapserButton} onClick={toggleCollapse}>
+				<button
+					tabIndex={tabIndex}
+					type="button"
+					style={collapserButton}
+					onClick={toggleCollapse}
+				>
 					<TimelineCollapseToggle collapsed={collapsed} />
 				</button>
 			) : (
@@ -130,7 +149,13 @@ export const TimelineListItem: React.FC<{
 					<div style={space} />
 				</>
 			) : null}
-			{text}
+			<div style={textStyle}>
+				{text || 'Untitled'}
+				<TimelineSequenceFrame
+					duration={sequence.duration}
+					from={sequence.from}
+				/>
+			</div>
 		</div>
 	);
 };

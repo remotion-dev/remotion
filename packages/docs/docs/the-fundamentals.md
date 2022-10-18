@@ -3,44 +3,65 @@ id: the-fundamentals
 title: The fundamentals
 ---
 
-The basic idea behind Remotion is that you get a frame number and blank canvas to render anything you want.
+```twoslash include example
+import { useCurrentFrame, AbsoluteFill } from "remotion";
 
-You express those ideas using **[React](https://reactjs.org)**.
-
-```jsx
-import { useCurrentFrame } from "remotion";
-
-export const MyVideo = () => {
+export const MyComposition = () => {
   const frame = useCurrentFrame();
 
   return (
-    <div style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <AbsoluteFill
+      style={{
+        justifyContent: "center",
+        alignItems: "center",
+        fontSize: 100,
+        backgroundColor: "white"
+      }}
+    >
       The current frame is {frame}.
-    </div>
+    </AbsoluteFill>
   );
 };
+// - MyComposition
 ```
+
+The basic idea behind Remotion is that we'll give you a frame number and a blank canvas, and the freedom to render anything you want using [React](https://reactjs.org).
+
+```tsx twoslash
+// @include: example-MyComposition
+```
+
+A video is a function of images over time. If you change content every frame, you'll end up with an animation.
 
 ## Video properties
 
 A video has 4 properties:
 
-- `width` and `height` in pixels.
+- `width` in pixels.
+- `height` in pixels.
 - `durationInFrames`: The number of frames which the video is long.
-- `fps`: The amount of frames per second. The duration in frames divided by FPS results in the duration in seconds.
+- `fps`: Frames per second. The duration in frames divided by FPS results in the duration in seconds.
 
-These properties are variable and you can reuse a component multiple times with different properties. This is why you better not hard-code these properties, but instead derive them from the `useVideoConfig` hook:
+These properties are variable and you can reuse a component multiple times with different properties.  
+Rather than hardcoding these values, we can derive them from the [`useVideoConfig()`](/docs/use-video-config) hook:
 
-```jsx
-import { useVideoConfig } from "remotion";
+```tsx twoslash
+import { AbsoluteFill, useVideoConfig } from "remotion";
 
-export const MyVideo = () => {
+export const MyComposition = () => {
   const { fps, durationInFrames, width, height } = useVideoConfig();
 
   return (
-    <div style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      This video is {durationInFrames / fps} seconds long.
-    </div>
+    <AbsoluteFill
+      style={{
+        justifyContent: "center",
+        alignItems: "center",
+        fontSize: 60,
+        backgroundColor: "white",
+      }}
+    >
+      This {width}x{height}px video is {durationInFrames / fps} seconds long.
+    </AbsoluteFill>
   );
 };
 ```
@@ -49,23 +70,29 @@ A video's first frame is `0` and it's last frame is `durationInFrames - 1`.
 
 ## Defining compositions
 
-Compositions are components with the above mentioned metadata. You can define compositions in `src/Video.tsx` to make them show up in the left sidebar.
+Using a [composition](/docs/terminology#composition) you can define a video that should be rendered.
 
-```tsx
+You define a composition by rendering a [`<Composition>`](/docs/composition) component in `src/Video.tsx`, giving it an `id`, defining values for its `height`, `width`, `fps` and `durationInFrames`, and passing a React component to `component`.
+
+```tsx twoslash title="src/Video.tsx"
+import { Composition } from "remotion";
+// @include: example-MyComposition
+// ---cut---
+
 export const RemotionVideo: React.FC = () => {
   return (
     <>
       <Composition
-        id="MyVideo"
-        component={MyVideo}
+        id="MyComposition"
         durationInFrames={150}
         fps={30}
         width={1920}
         height={1080}
+        component={MyComposition}
       />
     </>
   );
 };
 ```
 
-Remember that if you like, you can register multiple compositions that rely on the same component. For example, if you like to make a square video for social media feeds, and a portrait video for Stories, you can reuse the component and try to make it 'responsive'.
+You can render as many compositions as you like in `src/Video.tsx`.

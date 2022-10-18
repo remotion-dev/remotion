@@ -1,0 +1,79 @@
+.container {
+  position: relative;
+}
+
+.background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url('/img/background-hire-page.svg');
+  background-size: 100%;
+  background-repeat: no-repeat;
+}
+
+.wrapper {
+  max-width: 1000px;
+  margin: auto;
+  padding-top: 60px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.card {
+  box-shadow: var(--box-shadow);
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: var(--ifm-navbar-background-color);
+}
+
+@media screen and (max-width: 900px) {
+  .card {
+    flex-direction: column;
+  }
+}
+
+.profile {
+  height: 200px;
+  border-radius: 100px;
+}
+
+.spacer {
+  height: 20px;
+  width: 20px;
+}
+
+.title {
+  font-size: 1.2rem;
+  margin-bottom: 0;
+  font-weight: bold;
+}
+.right {
+  width: 100%;
+}
+
+.socialmedia {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  color: var(--light-text-color);
+}
+
+.pagetitle {
+  font-size: 3em;
+  text-align: center;
+}
+
+.tagline {
+  text-align: center;
+}
+
+@media screen and (max-width: 900px) {
+  .pagetitle,
+  .tagline {
+    text-align: left;
+  }
+}

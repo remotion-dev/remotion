@@ -7,22 +7,18 @@ _Available from v2.0.8_
 
 Based on a [spring()](/docs/spring) configuration and the frame rate, return how long it takes for a spring animation to settle.
 
-```tsx
-import {
-  measureSpring,
-  SpringConfig
-} from 'remotion';
+```tsx twoslash
+import { measureSpring, SpringConfig } from "remotion";
 
-
-const config: SpringConfig = {
+const config: Partial<SpringConfig> = {
   damping: 200,
-}
+};
 
 measureSpring({
   fps: 30,
   config: {
-    damping: 200
-  }
+    damping: 200,
+  },
 }); // => 23
 ```
 
@@ -54,7 +50,7 @@ The spring configuration that you pass to [spring()](/docs/spring#config).
 
 ### `from?`
 
-_optional - default: `1`_
+_optional - default: `0`_
 
 The initial value of the animation.
 
@@ -66,4 +62,5 @@ The end value of the animation. Note that depending on the parameters, spring an
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/spring/measure-spring.ts)
 - [spring()](/docs/spring)

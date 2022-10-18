@@ -1,73 +1,41 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {Internals, interpolate} from 'remotion';
+import React, {useCallback, useId, useMemo, useRef, useState} from 'react';
+import {Internals, random} from 'remotion';
 import {ICON_SIZE, VolumeOffIcon, VolumeOnIcon} from './icons';
 import {useHoverState} from './use-hover-state';
-import {useElementSize} from './utils/use-element-size';
 
 const BAR_HEIGHT = 5;
 const KNOB_SIZE = 12;
-const VERTICAL_PADDING = 4;
-const VOLUME_SLIDER_WIDTH = 100;
+export const VOLUME_SLIDER_WIDTH = 100;
 
-const parentDivStyle: React.CSSProperties = {
-	display: 'inline-flex',
-	background: 'none',
-	border: 'none',
-	padding: '6px',
-	justifyContent: 'center',
-	alignItems: 'center',
-};
-
-const containerStyle: React.CSSProperties = {
-	userSelect: 'none',
-	paddingTop: VERTICAL_PADDING,
-	paddingBottom: VERTICAL_PADDING,
-	boxSizing: 'border-box',
-	cursor: 'pointer',
-	position: 'relative',
-};
-
-const barBackground: React.CSSProperties = {
-	height: BAR_HEIGHT,
-	backgroundColor: 'rgba(255, 255, 255, 0.5)',
-	width: VOLUME_SLIDER_WIDTH,
-	borderRadius: BAR_HEIGHT / 2,
-};
-
-const getVolumeFromX = (clientX: number, width: number) => {
-	const pos = clientX;
-	const volume =
-		width === 0
-			? 0
-			: interpolate(pos, [0, width], [0, 1], {
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-			  });
-	return volume;
-};
-
-const xSpacer: React.CSSProperties = {
-	width: 5,
-};
-
-const volumeContainer: React.CSSProperties = {
-	display: 'inline',
-	width: ICON_SIZE,
-	height: ICON_SIZE,
-	cursor: 'pointer',
-};
-
-export const MediaVolumeSlider: React.FC = () => {
+export const MediaVolumeSlider: React.FC<{
+	displayVerticalVolumeSlider: Boolean;
+}> = ({displayVerticalVolumeSlider}) => {
 	const [mediaMuted, setMediaMuted] = Internals.useMediaMutedState();
 	const [mediaVolume, setMediaVolume] = Internals.useMediaVolumeState();
-	const [dragging, setDragging] = useState<boolean>(false);
-	const currentRef = useRef<HTMLDivElement>(null);
-	const iconDivRef = useRef<HTMLDivElement>(null);
+	const [focused, setFocused] = useState<boolean>(false);
 	const parentDivRef = useRef<HTMLDivElement>(null);
-	const size = useElementSize(currentRef);
+	const inputRef = useRef<HTMLInputElement>(null);
 	const hover = useHoverState(parentDivRef);
+	// eslint-disable-next-line react-hooks/rules-of-hooks
+	const randomId = typeof useId === 'undefined' ? 'volume-slider' : useId();
+	const [randomClass] = useState(() =>
+		`__remotion-volume-slider-${random(randomId)}`.replace('.', '')
+	);
+	const isMutedOrZero = mediaMuted || mediaVolume === 0;
 
-	const hoverOrDragging = hover || dragging;
+	const onVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setMediaVolume(parseFloat(e.target.value));
+	};
+
+	const onBlur = () => {
+		setTimeout(() => {
+			// We need a small delay to check which element was focused next,
+			// and if it wasn't the volume slider, we hide it
+			if (document.activeElement !== inputRef.current) {
+				setFocused(false);
+			}
+		}, 10);
+	};
 
 	const onClick = useCallback(() => {
 		if (mediaVolume === 0) {
@@ -79,118 +47,116 @@ export const MediaVolumeSlider: React.FC = () => {
 		setMediaMuted((mute) => !mute);
 	}, [mediaVolume, setMediaMuted, setMediaVolume]);
 
-	const onPointerDown = useCallback(
-		(e: React.PointerEvent<HTMLDivElement>) => {
-			if (!size) {
-				throw new Error('Player has no size');
-			}
+	const parentDivStyle: React.CSSProperties = useMemo(() => {
+		return {
+			display: 'inline-flex',
+			background: 'none',
+			border: 'none',
+			padding: '6px',
+			justifyContent: 'center',
+			alignItems: 'center',
+			touchAction: 'none',
+			...(displayVerticalVolumeSlider && {position: 'relative' as const}),
+		};
+	}, [displayVerticalVolumeSlider]);
 
-			const _volume = getVolumeFromX(
-				e.clientX - size.left - KNOB_SIZE / 2,
-				size.width - KNOB_SIZE
-			);
-			setMediaVolume(_volume);
-			if (_volume > 0) {
-				setMediaMuted(false);
-			}
-
-			setDragging(true);
-		},
-		[setMediaMuted, setMediaVolume, size]
-	);
-
-	const onPointerMove = useCallback(
-		(e: PointerEvent) => {
-			if (!size) {
-				throw new Error('Player has no size');
-			}
-
-			if (!dragging) return;
-
-			const _volume = getVolumeFromX(
-				e.clientX - size.left - KNOB_SIZE / 2,
-				size.width - KNOB_SIZE
-			);
-			setMediaVolume(_volume);
-			if (_volume > 0) {
-				setMediaMuted(false);
-			}
-		},
-		[dragging, setMediaMuted, setMediaVolume, size]
-	);
-
-	const onPointerUp = useCallback(() => {
-		setDragging(false);
+	const volumeContainer: React.CSSProperties = useMemo(() => {
+		return {
+			display: 'inline',
+			width: ICON_SIZE,
+			height: ICON_SIZE,
+			cursor: 'pointer',
+			appearance: 'none',
+			background: 'none',
+			border: 'none',
+			padding: 0,
+		};
 	}, []);
 
-	useEffect(() => {
-		if (!dragging) {
-			return;
+	const inputStyle = useMemo((): React.CSSProperties => {
+		const commonStyle: React.CSSProperties = {
+			WebkitAppearance: 'none',
+			backgroundColor: 'rgba(255, 255, 255, 0.5)',
+			borderRadius: BAR_HEIGHT / 2,
+			cursor: 'pointer',
+			height: BAR_HEIGHT,
+			width: VOLUME_SLIDER_WIDTH,
+		};
+		if (displayVerticalVolumeSlider) {
+			return {
+				...commonStyle,
+				transform: `rotate(-90deg)`,
+				position: 'absolute',
+				bottom: ICON_SIZE + VOLUME_SLIDER_WIDTH / 2 + 5,
+			};
 		}
 
-		window.addEventListener('pointermove', onPointerMove);
-		window.addEventListener('pointerup', onPointerUp);
-		return () => {
-			window.removeEventListener('pointermove', onPointerMove);
-			window.removeEventListener('pointerup', onPointerUp);
-		};
-	}, [currentRef, dragging, onPointerMove, onPointerUp, onPointerDown]);
-
-	const knobStyle: React.CSSProperties = useMemo(() => {
 		return {
-			height: KNOB_SIZE,
-			width: KNOB_SIZE,
-			borderRadius: KNOB_SIZE / 2,
-			position: 'absolute',
-			top: VERTICAL_PADDING - KNOB_SIZE / 2 + 5 / 2,
-			backgroundColor: 'white',
-			left: mediaMuted
-				? 0
-				: Math.max(0, mediaVolume * ((size?.width ?? 0) - KNOB_SIZE)),
-			boxShadow: '0 0 2px black',
-			opacity: Number(hoverOrDragging),
+			...commonStyle,
+			marginLeft: 5,
 		};
-	}, [hoverOrDragging, mediaMuted, mediaVolume, size?.width]);
+	}, [displayVerticalVolumeSlider]);
 
-	const fillStyle: React.CSSProperties = useMemo(() => {
-		return {
-			height: BAR_HEIGHT,
-			backgroundColor: 'rgba(255, 255, 255, 1)',
-			width: mediaMuted ? 0 : (mediaVolume / 1) * 100 + '%',
-			borderRadius: BAR_HEIGHT / 2,
-		};
-	}, [mediaMuted, mediaVolume]);
+	const sliderStyle = `
+	.${randomClass}::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		background-color: white;
+		border-radius: ${KNOB_SIZE / 2}px;
+		box-shadow: 0 0 2px black;
+		height: ${KNOB_SIZE}px;
+		width: ${KNOB_SIZE}px;
+	}
+	.${randomClass} {
+		background-image: linear-gradient(
+			to right,
+			white ${mediaVolume * 100}%, rgba(255, 255, 255, 0) ${mediaVolume * 100}%
+		);
+	}
 
-	const isMutedOrZero = mediaMuted || mediaVolume === 0;
+	.${randomClass}::-moz-range-thumb {
+		-webkit-appearance: none;
+		background-color: white;
+		border-radius: ${KNOB_SIZE / 2}px;
+		box-shadow: 0 0 2px black;
+		height: ${KNOB_SIZE}px;
+		width: ${KNOB_SIZE}px;
+	}
+`;
 
 	return (
 		<div ref={parentDivRef} style={parentDivStyle}>
-			<div
-				ref={iconDivRef}
-				role="button"
+			<style
+				// eslint-disable-next-line react/no-danger
+				dangerouslySetInnerHTML={{
+					__html: sliderStyle,
+				}}
+			/>
+			<button
 				aria-label={isMutedOrZero ? 'Unmute sound' : 'Mute sound'}
 				title={isMutedOrZero ? 'Unmute sound' : 'Mute sound'}
 				onClick={onClick}
+				onBlur={onBlur}
+				onFocus={() => setFocused(true)}
 				style={volumeContainer}
+				type="button"
 			>
 				{isMutedOrZero ? <VolumeOffIcon /> : <VolumeOnIcon />}
-			</div>
-			<div style={xSpacer} />
-
-			<div
-				ref={currentRef}
-				onPointerDown={onPointerDown}
-				style={containerStyle}
-			>
-				{hoverOrDragging ? (
-					<>
-						<div style={barBackground}>
-							<div style={fillStyle} />
-						</div>
-						<div style={knobStyle} />
-					</>
-				) : null}
-			</div>
+			</button>
+			{(focused || hover) && !mediaMuted ? (
+				<input
+					ref={inputRef}
+					aria-label="Change volume"
+					className={randomClass}
+					max={1}
+					min={0}
+					onBlur={() => setFocused(false)}
+					onChange={onVolumeChange}
+					step={0.01}
+					type="range"
+					value={mediaVolume}
+					style={inputStyle}
+				/>
+			) : null}
 		</div>
 	);
 };

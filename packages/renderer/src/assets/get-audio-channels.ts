@@ -1,24 +1,52 @@
 import execa from 'execa';
+import type {FfmpegExecutable} from '../ffmpeg-executable';
+import {pLimit} from '../p-limit';
+import type {
+	AudioChannelsAndDurationResultCache,
+	DownloadMap,
+} from './download-map';
 
-export async function getAudioChannels(path: string) {
+const limit = pLimit(1);
+
+async function getAudioChannelsAndDurationUnlimited(
+	downloadMap: DownloadMap,
+	src: string,
+	ffprobeExecutable: FfmpegExecutable
+): Promise<AudioChannelsAndDurationResultCache> {
+	if (downloadMap.durationOfAssetCache[src]) {
+		return downloadMap.durationOfAssetCache[src];
+	}
+
 	const args = [
 		['-v', 'error'],
-		['-show_entries', 'stream=channels'],
+		['-show_entries', 'stream=channels:format=duration'],
 		['-of', 'default=nw=1'],
-		[path],
+		[src],
 	]
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = await execa('ffprobe', args);
-	if (!task.stdout.includes('channels=')) {
-		return 0;
-	}
+	const task = await execa(ffprobeExecutable ?? 'ffprobe', args);
 
-	const channels = parseInt(task.stdout.replace('channels=', ''), 10);
-	if (isNaN(channels)) {
-		throw new TypeError('Unexpected result from ffprobe for channel probing: ');
-	}
+	const channels = task.stdout.match(/channels=([0-9]+)/);
+	const duration = task.stdout.match(/duration=([0-9.]+)/);
 
-	return channels;
+	const result: AudioChannelsAndDurationResultCache = {
+		channels: channels ? parseInt(channels[1], 10) : 0,
+		duration: duration ? parseFloat(duration[1]) : null,
+	};
+
+	downloadMap.durationOfAssetCache[src] = result;
+
+	return result;
 }
+
+export const getAudioChannelsAndDuration = (
+	downloadMap: DownloadMap,
+	src: string,
+	ffprobeExecutable: FfmpegExecutable
+): Promise<AudioChannelsAndDurationResultCache> => {
+	return limit(() =>
+		getAudioChannelsAndDurationUnlimited(downloadMap, src, ffprobeExecutable)
+	);
+};

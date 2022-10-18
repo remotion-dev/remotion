@@ -1,10 +1,12 @@
 import * as assert from 'assert';
-import {Page, ScreenshotOptions} from 'puppeteer-core';
+import type {Page} from './browser/BrowserPage';
+import type {ScreenshotOptions} from './browser/ScreenshotOptions';
+import type {StillImageFormat} from './image-format';
 import {_screenshotTask} from './screenshot-task';
 
-export const screenshot = async (
+export const screenshot = (
 	page: Page,
-	options: ScreenshotOptions = {}
+	options: ScreenshotOptions
 ): Promise<Buffer | string | void> => {
 	let screenshotType: 'png' | 'jpeg' | null = null;
 	// options.type takes precedence over inferring the type from options.path
@@ -55,10 +57,6 @@ export const screenshot = async (
 		);
 	}
 
-	assert.ok(
-		!options.clip || !options.fullPage,
-		'options.clip and options.fullPage are exclusive'
-	);
 	if (options.clip) {
 		assert.ok(
 			typeof options.clip.x === 'number',
@@ -90,8 +88,7 @@ export const screenshot = async (
 		);
 	}
 
-	// @ts-expect-error
-	return (page as Page)._screenshotTaskQueue.postTask(() =>
-		_screenshotTask(page, screenshotType as 'png' | 'jpeg', options)
+	return page.screenshotTaskQueue.postTask(() =>
+		_screenshotTask(page, screenshotType as StillImageFormat, options)
 	);
 };

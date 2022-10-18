@@ -12,5 +12,4 @@ Remotion is **free to use** if you are:
 
 If you don't qualify for any of the above, you need to acquire a company license. Visit [companies.remotion.dev](https://companies.remotion.dev) for pricing and buying a license.
 
-
-When in doubt, read the [LICENSE file](https://github.com/JonnyBurger/remotion/blob/main/LICENSE.md) and the [Company License FAQ](https://companies.remotion.dev/faq) before using Remotion. You can contact [the author](mailto:hi@jonny.io) if you need clarification whether you can use Remotion in your project for free.
+When in doubt, read the [LICENSE file](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md) and the [Company License FAQ](https://companies.remotion.dev/faq) before using Remotion. You can contact [us](mailto:hi@remotion.dev) if you need clarification whether you can use Remotion in your project for free.

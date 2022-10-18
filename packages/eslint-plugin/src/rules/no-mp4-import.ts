@@ -1,7 +1,7 @@
-import { ESLintUtils } from "@typescript-eslint/experimental-utils";
+import { ESLintUtils } from "@typescript-eslint/utils";
 
-const createRule = ESLintUtils.RuleCreator((name) => {
-  return `https://github.com/JonnyBurger/remotion`;
+const createRule = ESLintUtils.RuleCreator(() => {
+  return `https://github.com/remotion-dev/remotion`;
 });
 
 type Options = [];
@@ -11,13 +11,12 @@ type MessageIds = "NoMP4Import";
 const NoMP4Import =
   "Importing MP4 will work while you are previewing the video, but will not work while rendering since Puppeteer does not include the codecs necessary for MP4 videos. Convert the video to WebM first.";
 
-export default createRule<Options, MessageIds>({
+const rule = createRule<Options, MessageIds>({
   name: "no-mp4-import",
   meta: {
     type: "problem",
     docs: {
       description: NoMP4Import,
-      category: "Best Practices",
       recommended: "warn",
     },
     fixable: undefined,
@@ -66,3 +65,5 @@ export default createRule<Options, MessageIds>({
     };
   },
 });
+
+export default rule;

@@ -30,21 +30,39 @@ const containerStyle: React.CSSProperties = {
 	boxSizing: 'border-box',
 	cursor: 'pointer',
 	position: 'relative',
+	touchAction: 'none',
 };
 
 const barBackground: React.CSSProperties = {
 	height: BAR_HEIGHT,
-	backgroundColor: 'rgba(255, 255, 255, 0.5)',
+	backgroundColor: 'rgba(255, 255, 255, 0.25)',
 	width: '100%',
 	borderRadius: BAR_HEIGHT / 2,
 };
 
+const findBodyInWhichDivIsLocated = (div: HTMLElement) => {
+	let current = div;
+
+	while (current.parentElement) {
+		current = current.parentElement;
+	}
+
+	return current;
+};
+
 export const PlayerSeekBar: React.FC<{
 	durationInFrames: number;
-}> = ({durationInFrames}) => {
+	onSeekStart: () => void;
+	onSeekEnd: () => void;
+	inFrame: number | null;
+	outFrame: number | null;
+}> = ({durationInFrames, onSeekEnd, onSeekStart, inFrame, outFrame}) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const barHovered = useHoverState(containerRef);
-	const size = useElementSize(containerRef);
+	const size = useElementSize(containerRef, {
+		triggerOnWindowResize: true,
+		shouldApplyCssTransforms: true,
+	});
 	const {seek, play, pause, playing} = usePlayer();
 	const frame = Internals.Timeline.useTimelinePosition();
 
@@ -77,8 +95,9 @@ export const PlayerSeekBar: React.FC<{
 				dragging: true,
 				wasPlaying: playing,
 			});
+			onSeekStart();
 		},
-		[size, durationInFrames, pause, seek, playing]
+		[size, durationInFrames, pause, seek, playing, onSeekStart]
 	);
 
 	const onPointerMove = useCallback(
@@ -114,18 +133,24 @@ export const PlayerSeekBar: React.FC<{
 		} else {
 			pause();
 		}
-	}, [dragging, pause, play]);
+
+		onSeekEnd();
+	}, [dragging, onSeekEnd, pause, play]);
 
 	useEffect(() => {
 		if (!dragging.dragging) {
 			return;
 		}
 
-		window.addEventListener('pointermove', onPointerMove);
-		window.addEventListener('pointerup', onPointerUp);
+		const body = findBodyInWhichDivIsLocated(
+			containerRef.current as HTMLElement
+		);
+
+		body.addEventListener('pointermove', onPointerMove);
+		body.addEventListener('pointerup', onPointerUp);
 		return () => {
-			window.removeEventListener('pointermove', onPointerMove);
-			window.removeEventListener('pointerup', onPointerUp);
+			body.removeEventListener('pointermove', onPointerMove);
+			body.removeEventListener('pointerup', onPointerUp);
 		};
 	}, [dragging.dragging, onPointerMove, onPointerUp]);
 
@@ -139,7 +164,8 @@ export const PlayerSeekBar: React.FC<{
 			backgroundColor: 'white',
 			left: Math.max(
 				0,
-				(frame / (durationInFrames - 1)) * (size?.width ?? 0) - KNOB_SIZE / 2
+				(frame / Math.max(1, durationInFrames - 1)) * (size?.width ?? 0) -
+					KNOB_SIZE / 2
 			),
 			boxShadow: '0 0 2px black',
 			opacity: Number(barHovered),
@@ -150,10 +176,26 @@ export const PlayerSeekBar: React.FC<{
 		return {
 			height: BAR_HEIGHT,
 			backgroundColor: 'rgba(255, 255, 255, 1)',
-			width: (frame / (durationInFrames - 1)) * 100 + '%',
+			width: ((frame - (inFrame ?? 0)) / (durationInFrames - 1)) * 100 + '%',
+			marginLeft: ((inFrame ?? 0) / (durationInFrames - 1)) * 100 + '%',
 			borderRadius: BAR_HEIGHT / 2,
 		};
-	}, [durationInFrames, frame]);
+	}, [durationInFrames, frame, inFrame]);
+
+	const active: React.CSSProperties = useMemo(() => {
+		return {
+			height: BAR_HEIGHT,
+			backgroundColor: 'rgba(255, 255, 255, 0.25)',
+			width:
+				(((outFrame ?? durationInFrames - 1) - (inFrame ?? 0)) /
+					(durationInFrames - 1)) *
+					100 +
+				'%',
+			marginLeft: ((inFrame ?? 0) / (durationInFrames - 1)) * 100 + '%',
+			borderRadius: BAR_HEIGHT / 2,
+			position: 'absolute',
+		};
+	}, [durationInFrames, inFrame, outFrame]);
 
 	return (
 		<div
@@ -162,6 +204,7 @@ export const PlayerSeekBar: React.FC<{
 			style={containerStyle}
 		>
 			<div style={barBackground}>
+				<div style={active} />
 				<div style={fillStyle} />
 			</div>
 			<div style={knobStyle} />

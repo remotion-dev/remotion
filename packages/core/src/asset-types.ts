@@ -1,14 +1,62 @@
-declare module '*.webm';
-declare module '*.png';
-declare module '*.mp4';
-declare module '*.mp3';
-declare module '*.wav';
-declare module '*.aac';
+declare module '*.webm' {
+	const src: string;
+	export default src;
+}
+
+declare module '*.png' {
+	const src: string;
+	export default src;
+}
+
+declare module '*.mp4' {
+	const src: string;
+	export default src;
+}
+
+declare module '*.mp3' {
+	const src: string;
+	export default src;
+}
+
+declare module '*.wav' {
+	const src: string;
+	export default src;
+}
+
+declare module '*.aac' {
+	const src: string;
+	export default src;
+}
+
 declare module '*.svg';
-declare module '*.jpg';
-declare module '*.jpeg';
-declare module '*.bmp';
-declare module '*.gif';
-declare module '*.woff';
-declare module '*.woff2';
+declare module '*.jpg' {
+	const src: string;
+	export default src;
+}
+
+declare module '*.jpeg' {
+	const src: string;
+	export default src;
+}
+
+declare module '*.bmp' {
+	const src: string;
+	export default src;
+}
+
+declare module '*.gif' {
+	const src: string;
+	export default src;
+}
+
+declare module '*.woff' {
+	const src: string;
+	export default src;
+}
+
+declare module '*.woff2' {
+	const src: string;
+	export default src;
+}
+
 declare module '*.css';

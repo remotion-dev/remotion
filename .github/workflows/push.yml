@@ -1,8 +1,78 @@
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 name: Install and Test
+
+env:
+  FORCE_COLOR: 1
 jobs:
+  lambda-tests:
+    runs-on: ubuntu-latest
+    name: Lambda integration
+    steps:
+      - uses: actions/checkout@main
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node_version }}
+      - run: |
+          corepack enable
+      - uses: Iamshankhadeep/setup-ffmpeg@v1.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ matrix.versionffmpeg_version }}
+
+      - name: Cache .pnpm-store
+        uses: actions/cache@v3.0.11
+        with:
+          path: ~/.pnpm-store
+          key: v2-${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: |
+          pnpm build
+      - name: Test Lambda IT
+        run: |
+          cd packages/it-tests && pnpm run testlambda
+      - name: Test Lambda E2E
+        run: |
+          cd packages/lambda && pnpm run testintegration
+  ssr-tests:
+    runs-on: ubuntu-latest
+    name: SSR integration
+    steps:
+      - uses: actions/checkout@main
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node_version }}
+      - run: |
+          corepack enable
+      - uses: Iamshankhadeep/setup-ffmpeg@v1.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ matrix.versionffmpeg_version }}
+
+      - name: Cache .pnpm-store
+        uses: actions/cache@v3.0.11
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}-bust
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: build
+        run: |
+          pnpm build
+      - name: Test SSR
+        timeout-minutes: 5
+        run: |
+          cd packages/it-tests && pnpm run testssr
   build:
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != 'JonnyBurger/remotion'
     name: Build Node ${{ matrix.node_version }} - ffmpeg ${{ matrix.ffmpeg_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -18,27 +88,46 @@ jobs:
             node_version: 14
             ffmpeg_version: 4.4
           - os: ubuntu-latest
-            node_version: 12
+            node_version: 18
             ffmpeg_version: 4.4
           - os: ubuntu-latest
-            node_version: 16
-            ffmpeg_version: 4.4
+            node_version: 14
+            ffmpeg_version: 5.0
           - os: ubuntu-latest
             node_version: 14
             ffmpeg_version: 4.1
     steps:
       - uses: actions/checkout@main
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
-      - uses: Iamshankhadeep/setup-ffmpeg@v1.1
+      - run: |
+          corepack enable
+      - uses: Iamshankhadeep/setup-ffmpeg@v1.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          version: ${{ matrix.versionffmpeg_version }}
-      - run: npm i
-      - run: npx lerna bootstrap --ci --concurrency=2
-      - run: npm run build
-      # We need to call bootstrap again to link the CLI
-      # binary to allow `npx remotion`
-      - run: npx lerna bootstrap --ci --concurrency=2
-      - run: npm test
+          version: ${{ matrix.ffmpeg_version }}
+
+      - name: Cache .pnpm-store
+        uses: actions/cache@v3.0.11
+        with:
+          path: ~/.pnpm-store
+          key: v2-deps-${{ runner.os }}-node${{ matrix.node_version }}
+
+      - name: Cache node_modules/.cache
+        uses: actions/cache@v3.0.11
+        with:
+          path: node_modules/.cache
+          key: v2-deps-${{ runner.os }}-${{ matrix.ffmpeg_version }}-node${{ matrix.node_version }}-v2
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Cache dist/ folders
+        uses: actions/cache@v3.0.11
+        if: runner.os != 'windows'
+        with:
+          path: packages/**/dist
+          key: dist-${{ runner.os }}-${{ matrix.ffmpeg_version }}-node${{ matrix.node_version }}-v2-bust
+
+      - name: Build & Test
+        run: |
+          pnpm run ci

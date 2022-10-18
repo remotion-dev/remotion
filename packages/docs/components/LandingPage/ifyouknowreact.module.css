@@ -9,16 +9,12 @@
 .ifyouknowtitle {
   font-size: 2.5em;
   font-weight: 700;
-  font-family: --apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   line-height: 1.1;
   text-align: right;
 }
 
 .rea {
-  background: linear-gradient(to right, rgb(66, 144, 245), rgb(66, 233, 245));
-  -webkit-text-fill-color: transparent;
-  -webkit-background-clip: text;
+color: var(--ifm-color-primary)
 }
 
 .aknow {

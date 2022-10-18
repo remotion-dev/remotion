@@ -17,18 +17,21 @@ This method is not available when inside a Remotion Player. Instead, get the pro
 
 Pass in a [parseable](/docs/cli) JSON representation using the `--props` flag to either `remotion preview` or `remotion render`:
 
-```console
-npx remotion render --props='{"hello": "world"}' src/index.tsx my-composition out.mp4
+```bash
+npx remotion render --props='{"hello": "world"}' src/index.tsx my-composition out/video.mp4
 ```
 
 You can then access the props in JavaScript:
 
-```tsx
-const {hello} = getInputProps() // "world"
+```tsx twoslash
+const getInputProps = () => ({ hello: "world" } as const);
+// ---cut---
+const { hello } = getInputProps(); // "world"
 ```
 
 In this example, the props also get passed to the component of the composition with the id `my-composition`.
 
 ## See also
 
-- [Dynamic duration, FPS & dimensions](dynamic-metadata)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/config/input-props.ts)
+- [Dynamic duration, FPS & dimensions](/docs/dynamic-metadata)
