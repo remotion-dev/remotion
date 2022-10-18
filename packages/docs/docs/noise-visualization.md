@@ -25,7 +25,11 @@ import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 
 const OVERSCAN_MARGIN = 100;
 
-const NoiseComp: React.FC<Props> = ({ scale, speed, circleRadius }) => {
+const NoiseComp: React.FC<{
+  scale: number;
+  speed: number;
+  circleRadius: number;
+}> = ({ scale, speed, circleRadius }) => {
   const frame = useCurrentFrame();
   const { height, width } = useVideoConfig();
   const rows = Math.round((height + OVERSCAN_MARGIN) / scale);
