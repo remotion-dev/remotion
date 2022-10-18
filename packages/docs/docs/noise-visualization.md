@@ -16,52 +16,48 @@ import { NoiseDemo } from "../components/NoiseDemo";
 
 <NoiseDemo/>
 
-<hr/>
-
 ```tsx twoslash
 import { noise3D } from "@remotion/noise";
 import React from "react";
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 
 const OVERSCAN_MARGIN = 100;
+const ROWS = 10;
+const COLS = 15;
 
 const NoiseComp: React.FC<{
-  scale: number;
   speed: number;
   circleRadius: number;
-}> = ({ scale, speed, circleRadius }) => {
+  maxOffset: number;
+}> = ({ speed, circleRadius, maxOffset }) => {
   const frame = useCurrentFrame();
   const { height, width } = useVideoConfig();
-  const rows = Math.round((height + OVERSCAN_MARGIN) / scale);
-  const cols = Math.round((width + OVERSCAN_MARGIN) / scale);
 
   return (
     <svg width={width} height={height}>
-      {new Array(cols).fill(0).map((_, i) =>
-        new Array(rows).fill(0).map((__, j) => {
-          const x = i * scale;
-          const y = j * scale;
-          const px = i / cols;
-          const py = j / rows;
-          const dx = noise3D("x", px, py, frame * speed) * scale;
-          const dy = noise3D("y", px, py, frame * speed) * scale;
+      {new Array(COLS).fill(0).map((_, i) =>
+        new Array(ROWS).fill(0).map((__, j) => {
+          const x = i * ((width + OVERSCAN_MARGIN) / COLS);
+          const y = j * ((height + OVERSCAN_MARGIN) / ROWS);
+          const px = i / COLS;
+          const py = j / ROWS;
+          const dx = noise3D("x", px, py, frame * speed) * maxOffset;
+          const dy = noise3D("y", px, py, frame * speed) * maxOffset;
           const opacity = interpolate(
             noise3D("opacity", i, j, frame * speed),
             [-1, 1],
             [0, 1]
           );
-          const color =
-            noise3D("color", px, py, frame * speed) < 0
-              ? "rgb(0,87,184)"
-              : "rgb(254,221,0)";
+
+          const key = `${i}-${j}`;
+
           return (
             <circle
-              // eslint-disable-next-line react/no-array-index-key
-              key={`${i}-${j}`}
+              key={key}
               cx={x + dx}
               cy={y + dy}
               r={circleRadius}
-              fill={color}
+              fill="gray"
               opacity={opacity}
             />
           );

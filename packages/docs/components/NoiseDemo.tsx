@@ -4,46 +4,44 @@ import React, { useMemo, useState } from "react";
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 
 interface Props {
-  scale: number;
   speed: number;
   circleRadius: number;
+  maxOffset: number;
 }
 
 const OVERSCAN_MARGIN = 100;
+const ROWS = 10;
+const COLS = 15;
 
-const NoiseComp: React.FC<Props> = ({ scale, speed, circleRadius }) => {
+const NoiseComp: React.FC<Props> = ({ speed, circleRadius, maxOffset }) => {
   const frame = useCurrentFrame();
   const { height, width } = useVideoConfig();
-  const rows = Math.round((height + OVERSCAN_MARGIN) / scale);
-  const cols = Math.round((width + OVERSCAN_MARGIN) / scale);
 
   return (
     <svg width={width} height={height}>
-      {new Array(cols).fill(0).map((_, i) =>
-        new Array(rows).fill(0).map((__, j) => {
-          const x = i * scale;
-          const y = j * scale;
-          const px = i / cols;
-          const py = j / rows;
-          const dx = noise3D("x", px, py, frame * speed) * scale;
-          const dy = noise3D("y", px, py, frame * speed) * scale;
+      {new Array(COLS).fill(0).map((_, i) =>
+        new Array(ROWS).fill(0).map((__, j) => {
+          const x = i * ((width + OVERSCAN_MARGIN) / COLS);
+          const y = j * ((height + OVERSCAN_MARGIN) / ROWS);
+          const px = i / COLS;
+          const py = j / ROWS;
+          const dx = noise3D("x", px, py, frame * speed) * maxOffset;
+          const dy = noise3D("y", px, py, frame * speed) * maxOffset;
           const opacity = interpolate(
             noise3D("opacity", i, j, frame * speed),
             [-1, 1],
             [0, 1]
           );
-          const color =
-            noise3D("color", px, py, frame * speed) < 0
-              ? "rgb(0,87,184)"
-              : "rgb(254,221,0)";
+
+          const key = `${i}-${j}`;
+
           return (
             <circle
-              // eslint-disable-next-line react/no-array-index-key
-              key={`${i}-${j}`}
+              key={key}
               cx={x + dx}
               cy={y + dy}
               r={circleRadius}
-              fill={color}
+              fill="gray"
               opacity={opacity}
             />
           );
@@ -54,7 +52,7 @@ const NoiseComp: React.FC<Props> = ({ scale, speed, circleRadius }) => {
 };
 
 export const NoiseDemo = () => {
-  const [scale, setScale] = useState(75);
+  const [maxOffset, setMaxOffset] = useState(50);
   const [speed, setSpeed] = useState(0.01);
   const [circleRadius, setCircleRadius] = useState(5);
 
@@ -89,7 +87,7 @@ export const NoiseDemo = () => {
           borderRadius: "var(--ifm-pre-border-radius)",
         }}
         inputProps={{
-          scale,
+          maxOffset,
           speed,
           circleRadius,
         }}
@@ -97,18 +95,6 @@ export const NoiseDemo = () => {
         loop
       />
       <div>
-        <label style={labelStyle}>
-          <input
-            type="range"
-            min={50} // don't set too low values, otherwise you're going to kill the DOM thread spawning lots of dots
-            max={200}
-            step={1}
-            value={scale}
-            style={inputStyle}
-            onChange={(e) => setScale(Number(e.target.value))}
-          />
-          <code>{`scale={${scale}}`}</code>
-        </label>
         <label style={labelStyle}>
           <input
             type="range"
@@ -120,6 +106,18 @@ export const NoiseDemo = () => {
             onChange={(e) => setSpeed(Number(e.target.value))}
           />
           <code>{`speed={${speed}}`}</code>
+        </label>
+        <label style={labelStyle}>
+          <input
+            type="range"
+            min={0}
+            max={100}
+            step={1}
+            value={maxOffset}
+            style={inputStyle}
+            onChange={(e) => setMaxOffset(Number(e.target.value))}
+          />
+          <code>{`maxOffset={${maxOffset}}`}</code>
         </label>
         <label style={labelStyle}>
           <input
