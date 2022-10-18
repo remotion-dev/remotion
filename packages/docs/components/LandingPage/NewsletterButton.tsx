@@ -5,7 +5,7 @@ import styles from "./newsletter.module.css";
 export const NewsletterButton: React.FC<{}> = () => {
   return (
     <div>
-      <div className={styles.pricingrow}>
+      <div className={styles.newslettergrow}>
         <div className={styles.portion}>
           <div className={styles.panel}>
             <div

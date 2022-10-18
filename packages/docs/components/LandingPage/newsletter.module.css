@@ -1,22 +1,3 @@
-.newslettertitle {
-  font-size: 0.875em;
-  font-weight: 700;
-  line-height: 1.1;
-}
-
-.mp4 {
-  color: var(--ifm-color-primary);
-}
-
-.newslettercontainer {
-  text-align: center;
-}
-
-.newsletterrow {
-  display: flex;
-  flex-direction: row;
-}
-
 .panel {
   background-color: var(--ifm-background-color);
   box-shadow: var(--box-shadow);
@@ -43,12 +24,6 @@
   font-size: 0.95em;
 }
 
-.perperiod {
-  font-weight: 500;
-  margin-top: -7px;
-  font-size: 0.9em;
-}
-
 .tablenewsletter {
   font-size: 40px;
   font-weight: 700;
@@ -59,84 +34,13 @@
   color: #4290f5;
 }
 
-.portion {
-  flex: 1;
-}
-
-.targettitle {
-  border-bottom: 1px solid var(--text-color);
-  font-weight: 600;
-  margin-bottom: 20px;
-}
-
-.bulletcontainer {
-  margin-right: 8px;
-  display: inline-flex;
-  justify-content: center;
-  margin-top: 5px;
-}
-
-.pricinga {
-  color: inherit;
-}
-
-.pricinga:hover {
-  text-decoration: none;
-}
-
-.doublepanel {
-  flex: 1;
-  display: flex;
-  flex-direction: row;
-}
-
-.doublepanelsingle {
-  flex: 1;
-  min-height: 400px;
-}
-
-.plus {
-  height: 40px;
-  width: 40px;
-  border-radius: 20px;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 20px;
-  box-shadow: var(--box-shadow);
-  margin-top: 50px;
-}
-
-.minimum {
-  margin-top: -30px;
-  color: var(--light-text-color);
-  margin-bottom: 20px;
-  font-size: 15px;
-}
-
-.plus svg {
-  height: 20px;
-}
-
-@media screen and (max-width: 900px) {
-  .pricingcontainer {
-    text-align: left;
-  }
-  .pricingrow {
+@media screen and (max-width: 200px) {
+  .newslettergrow {
     flex-direction: column;
     align-items: center;
   }
   .portion {
     max-width: 500px;
     width: 100%;
-  }
-  .doublepanel {
-    flex-direction: column;
-  }
-  .plus {
-    margin-left: 200px;
-    margin-top: -30px;
-    margin-bottom: 30px;
   }
 }
