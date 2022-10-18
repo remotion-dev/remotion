@@ -1,6 +1,8 @@
 import React from "react";
 
-export const ExperimentalBadge: React.FC = () => {
+export const ExperimentalBadge: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => {
   return (
     <div
       style={{
@@ -24,10 +26,7 @@ export const ExperimentalBadge: React.FC = () => {
       >
         EXPERIMENTAL
       </div>
-      <div>
-        This component may change in minor version updates. Monitor the
-        documentation page to see breaking changes when upgrading.
-      </div>
+      <div>{children}</div>
     </div>
   );
 };

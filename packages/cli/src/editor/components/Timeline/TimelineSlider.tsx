@@ -1,44 +1,96 @@
-import {PlayerInternals} from '@remotion/player';
-import React from 'react';
+import React, {
+	createRef,
+	useEffect,
+	useImperativeHandle,
+	useMemo,
+	useRef,
+} from 'react';
 import {Internals} from 'remotion';
-import styled from 'styled-components';
-import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
-import {sliderAreaRef} from './timeline-refs';
+import {
+	getXPositionOfItemInTimelineImperatively,
+	useGetXPositionOfItemInTimeline,
+} from '../../helpers/get-left-of-timeline-slider';
+import {getCurrentDuration} from './imperative-state';
+import {sliderAreaRef, timelineVerticalScroll} from './timeline-refs';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
 
-const Container = styled.div`
-	position: absolute;
-	bottom: 0;
-	top: 0;
-`;
+const container: React.CSSProperties = {
+	position: 'absolute',
+	bottom: 0,
+	top: 0,
+	pointerEvents: 'none',
+};
 
-const Line = styled.div`
-	height: 100%;
-	width: 1px;
-	position: fixed;
-	background-color: #f02c00;
-`;
+const line: React.CSSProperties = {
+	height: '100%',
+	width: 1,
+	position: 'fixed',
+	backgroundColor: '#f02c00',
+};
+
+export const redrawTimelineSliderFast = createRef<{
+	draw: (frame: number, width?: number) => void;
+}>();
 
 export const TimelineSlider: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const videoConfig = Internals.useUnsafeVideoConfig();
-	const size = PlayerInternals.useElementSize(sliderAreaRef);
-	const width = size?.width ?? 0;
+	const {get} = useGetXPositionOfItemInTimeline();
+	const ref = useRef<HTMLDivElement>(null);
 
-	if (!videoConfig) {
-		return null;
-	}
+	const style: React.CSSProperties = useMemo(() => {
+		const left = get(timelinePosition);
+		return {
+			...container,
+			transform: `translateX(${left}px)`,
+		};
+	}, [timelinePosition, get]);
 
-	const left =
-		(timelinePosition / (videoConfig.durationInFrames - 1)) *
-			(width - TIMELINE_PADDING * 2) +
-		TIMELINE_PADDING;
+	useImperativeHandle(
+		redrawTimelineSliderFast,
+		() => {
+			return {
+				draw: (frame, width?: number) => {
+					const {current} = ref;
+					if (!current) {
+						throw new Error('unexpectedly did not have ref to timelineslider');
+					}
+
+					current.style.transform = `translateX(${getXPositionOfItemInTimelineImperatively(
+						frame,
+						getCurrentDuration(),
+						width ?? (sliderAreaRef.current?.clientWidth as number) ?? 0
+					)}px)`;
+				},
+			};
+		},
+		[]
+	);
+
+	useEffect(() => {
+		const currentRef = ref.current;
+		if (!currentRef) {
+			return;
+		}
+
+		const {current} = timelineVerticalScroll;
+		if (!current) {
+			return;
+		}
+
+		const onScroll = () => {
+			currentRef.style.top = current.scrollTop + 'px';
+		};
+
+		current.addEventListener('scroll', onScroll);
+		return () => {
+			current.removeEventListener('scroll', onScroll);
+		};
+	}, []);
 
 	return (
-		<Container style={{transform: `translateX(${left}px)`}}>
-			<Line>
-				<TimelineSliderHandle />
-			</Line>
-		</Container>
+		<div ref={ref} style={style}>
+			<div style={line} />
+			<TimelineSliderHandle />
+		</div>
 	);
 };

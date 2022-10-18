@@ -1,5 +1,6 @@
 import React, {Suspense, useContext, useMemo, useState} from 'react';
-import {Internals, random, TComposition, TimelineContextValue} from 'remotion';
+import type { TComposition, TimelineContextValue} from 'remotion';
+import {Internals, random} from 'remotion';
 import {
 	checkerboardBackgroundColor,
 	checkerboardBackgroundImage,
@@ -68,12 +69,20 @@ export const Thumbnail: React.FC<{
 			playing: false,
 			frame: frameToDisplay,
 			rootId: thumbnailId,
+			imperativePlaying: {
+				current: false,
+			},
+			playbackRate: 1,
+			setPlaybackRate: () => {
+				throw new Error('thumbnail');
+			},
+			audioAndVideoTags: {current: []},
 		};
 	}, [frameToDisplay, thumbnailId]);
 
 	const props = useMemo(() => {
-		return ((composition.props as unknown) as {}) ?? {};
-	}, [composition.props]);
+		return (composition.defaultProps as unknown as {}) ?? {};
+	}, [composition.defaultProps]);
 
 	const ThumbnailComponent = composition.component;
 

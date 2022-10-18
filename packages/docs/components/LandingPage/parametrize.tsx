@@ -1,8 +1,7 @@
-import splitbee from "@splitbee/web";
 import React, { useEffect, useReducer, useRef, useState } from "react";
 import "../input-fields.css";
 import { BlueButton } from "../layout/Button";
-import { GithubResponse } from "./GithubDemo";
+import type { GithubResponse } from "./GithubDemo";
 import styles from "./parametrize.module.css";
 import { ProgrammaticContent } from "./Programmatic";
 
@@ -12,11 +11,13 @@ const makeRequest = async (username: string): Promise<GithubResponse> => {
   if (cache[username]) {
     return cache[username];
   }
+
   const response = await fetch(`https://api.github.com/users/${username}`);
   const json = await response.json();
   if (response.status !== 200) {
     throw new Error(json.message);
   }
+
   cache[username] = json;
   return json;
 };
@@ -74,8 +75,6 @@ export const Parametrize: React.FC = () => {
 
   const [state, dispatch] = useReducer(reducer, { type: "loading" });
 
-  splitbee.track("landing-page-video-playback");
-
   useEffect(() => {
     dispatch({
       type: "fetch-video",
@@ -105,12 +104,15 @@ export const Parametrize: React.FC = () => {
         </h2>
         <p>
           Fetch data from an API and use it as the content. <br />
-          Render videos programmatically using our server-side APIs.
+          Display it in real-time with the{" "}
+          <a href="/player">@remotion/player</a>.<br />
+          Render videos programmatically using{" "}
+          <a href="/lambda">@remotion/lambda</a>.
         </p>
         <span style={{ fontSize: 13 }}>
-          Customize the video by entering your Github username.
+          Customize the video by entering your GitHub username.
         </span>
-        <div style={{ height: 10 }}></div>
+        <div style={{ height: 10 }} />
         <div>
           <form
             onSubmit={(e) => {
@@ -124,13 +126,12 @@ export const Parametrize: React.FC = () => {
             style={{ display: "flex", flexDirection: "row" }}
           >
             <input
-              className={styles.parametrizeinput}
-              autoFocus
               ref={ref}
+              className={styles.parametrizeinput}
               type="text"
-              placeholder="Your Github username"
-            ></input>{" "}
-            <div style={{ width: 8, display: "inline-block" }}></div>
+              placeholder="Your GitHub username"
+            />{" "}
+            <div style={{ width: 8, display: "inline-block" }} />
             <BlueButton
               loading={state.type === "loading"}
               fullWidth={false}
@@ -139,6 +140,7 @@ export const Parametrize: React.FC = () => {
                 if (!ref.current?.value) {
                   return;
                 }
+
                 setUsername(ref.current?.value as string);
               }}
             >

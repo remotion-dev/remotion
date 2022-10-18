@@ -1,30 +1,40 @@
-import puppeteer from 'puppeteer-core';
-import {ImageFormat} from 'remotion';
+import type {Page} from './browser/BrowserPage';
+import type {ImageFormat} from './image-format';
+import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {screenshot} from './puppeteer-screenshot';
 
 export const screenshotDOMElement = async ({
 	page,
 	imageFormat,
 	quality,
-	opts = {},
+	opts,
 }: {
-	page: puppeteer.Page;
+	page: Page;
 	imageFormat: ImageFormat;
 	quality: number | undefined;
-	opts?: {
-		path?: string;
-		selector?: string;
+	opts: {
+		path: string | null;
 	};
 }): Promise<Buffer> => {
-	const path = 'path' in opts ? opts.path : null;
-	const {selector} = opts;
-
-	if (!selector) throw Error('Please provide a selector.');
-	if (!path) throw Error('Please provide a path.');
+	const {path} = opts;
 
 	if (imageFormat === 'png') {
-		await page.evaluate(() => {
-			document.body.style.background = 'transparent';
+		await puppeteerEvaluateWithCatch({
+			pageFunction: () => {
+				document.body.style.background = 'transparent';
+			},
+			args: [],
+			frame: null,
+			page,
+		});
+	} else {
+		await puppeteerEvaluateWithCatch({
+			pageFunction: () => {
+				document.body.style.background = 'black';
+			},
+			args: [],
+			frame: null,
+			page,
 		});
 	}
 
@@ -34,7 +44,7 @@ export const screenshotDOMElement = async ({
 
 	return screenshot(page, {
 		omitBackground: imageFormat === 'png',
-		path,
+		path: path ?? undefined,
 		type: imageFormat,
 		quality,
 	}) as Promise<Buffer>;

@@ -1,46 +1,144 @@
-import {Browser as PuppeteerBrowser} from 'puppeteer-core';
-import {Browser, Internals, TCompMetadata} from 'remotion';
-import {openBrowser} from './open-browser';
-import {serveStatic} from './serve-static';
+import type {TCompMetadata} from 'remotion';
+import type {DownloadMap} from './assets/download-map';
+import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
+import type {BrowserExecutable} from './browser-executable';
+import type {BrowserLog} from './browser-log';
+import type {Browser} from './browser/Browser';
+import type {Page} from './browser/BrowserPage';
+import {handleJavascriptException} from './error-handling/handle-javascript-exception';
+import type {FfmpegExecutable} from './ffmpeg-executable';
+import {getPageAndCleanupFn} from './get-browser-instance';
+import type {ChromiumOptions} from './open-browser';
+import {prepareServer} from './prepare-server';
+import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {setPropsAndEnv} from './set-props-and-env';
+import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
-export const getCompositions = async (
-	webpackBundle: string,
-	config?: {
-		browser?: Browser;
-		inputProps?: object | null;
-		envVariables?: Record<string, string>;
-		browserInstance?: PuppeteerBrowser;
-	}
+type GetCompositionsConfig = {
+	inputProps?: object | null;
+	envVariables?: Record<string, string>;
+	puppeteerInstance?: Browser;
+	onBrowserLog?: (log: BrowserLog) => void;
+	browserExecutable?: BrowserExecutable;
+	timeoutInMilliseconds?: number;
+	chromiumOptions?: ChromiumOptions;
+	ffmpegExecutable?: FfmpegExecutable;
+	ffprobeExecutable?: FfmpegExecutable;
+	port?: number | null;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	downloadMap?: DownloadMap;
+};
+
+const innerGetCompositions = async (
+	serveUrl: string,
+	page: Page,
+	config: GetCompositionsConfig,
+	proxyPort: number
 ): Promise<TCompMetadata[]> => {
-	const browserInstance =
-		config?.browserInstance ??
-		(await openBrowser(config?.browser || Internals.DEFAULT_BROWSER));
-	const page = await browserInstance.newPage();
+	if (config?.onBrowserLog) {
+		page.on('console', (log) => {
+			config.onBrowserLog?.({
+				stackTrace: log.stackTrace(),
+				text: log.text,
+				type: log.type,
+			});
+		});
+	}
 
-	const {port, close} = await serveStatic(webpackBundle);
-	page.on('error', console.error);
-	page.on('pageerror', console.error);
+	validatePuppeteerTimeout(config?.timeoutInMilliseconds);
 
 	await setPropsAndEnv({
 		inputProps: config?.inputProps,
 		envVariables: config?.envVariables,
 		page,
-		port,
+		serveUrl,
+		initialFrame: 0,
+		timeoutInMilliseconds: config?.timeoutInMilliseconds,
+		proxyPort,
+		retriesRemaining: 2,
+		audioEnabled: false,
+		videoEnabled: false,
 	});
 
-	await page.goto(`http://localhost:${port}/index.html?evaluation=true`);
-	await page.waitForFunction('window.ready === true');
-	const result = await page.evaluate('window.getStaticCompositions()');
+	await puppeteerEvaluateWithCatch({
+		page,
+		pageFunction: () => {
+			window.setBundleMode({
+				type: 'evaluation',
+			});
+		},
+		frame: null,
+		args: [],
+	});
 
-	// Close web server and don't wait for it to finish,
-	// it is slow.
-	close().catch((err) => {
-		console.error('Was not able to close web server', err);
+	await page.waitForFunction(page.browser, 'window.ready === true');
+	const result = await puppeteerEvaluateWithCatch({
+		pageFunction: () => {
+			return window.getStaticCompositions();
+		},
+		frame: null,
+		page,
+		args: [],
 	});
-	// Close puppeteer page and don't wait for it to finish.
-	page.close().catch((err) => {
-		console.error('Was not able to close puppeteer page', err);
-	});
+
 	return result as TCompMetadata[];
+};
+
+export const getCompositions = async (
+	serveUrlOrWebpackUrl: string,
+	config?: GetCompositionsConfig
+) => {
+	const downloadMap = config?.downloadMap ?? makeDownloadMap();
+
+	const {page, cleanup} = await getPageAndCleanupFn({
+		passedInInstance: config?.puppeteerInstance,
+		browserExecutable: config?.browserExecutable ?? null,
+		chromiumOptions: config?.chromiumOptions ?? {},
+	});
+
+	return new Promise<TCompMetadata[]>((resolve, reject) => {
+		const onError = (err: Error) => reject(err);
+		const cleanupPageError = handleJavascriptException({
+			page,
+			frame: null,
+			onError,
+		});
+
+		let close: (() => void) | null = null;
+
+		prepareServer({
+			webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
+			onDownload: () => undefined,
+			onError,
+			ffmpegExecutable: config?.ffmpegExecutable ?? null,
+			ffprobeExecutable: config?.ffprobeExecutable ?? null,
+			port: config?.port ?? null,
+			downloadMap,
+		})
+			.then(({serveUrl, closeServer, offthreadPort}) => {
+				close = closeServer;
+				return innerGetCompositions(
+					serveUrl,
+					page,
+					config ?? {},
+					offthreadPort
+				);
+			})
+
+			.then((comp) => resolve(comp))
+			.catch((err) => {
+				reject(err);
+			})
+			.finally(() => {
+				cleanup();
+				close?.();
+				cleanupPageError();
+				// Clean download map if it was not passed in
+				if (!config?.downloadMap) {
+					cleanDownloadMap(downloadMap);
+				}
+			});
+	});
 };

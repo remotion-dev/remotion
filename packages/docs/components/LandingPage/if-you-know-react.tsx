@@ -7,20 +7,20 @@ import styles from "./ifyouknowreact.module.css";
 export const IfYouKnowReact: React.FC = () => {
   return (
     <div className={styles.ifyouknowrow}>
-      <CodeExample></CodeExample>
-      <div style={{ width: 40 }}></div>
+      <CodeExample />
+      <div style={{ width: 40 }} />
       <div>
         <h2 className={styles.ifyouknowtitle}>
-          If you know <span className={styles.rea}>React</span> <br />
-          you can make videos.
+          Leverage <span className={styles.rea}>React</span> <br />
+          to express yourself.
         </h2>
         <p>
           Remotion gives you the tools for video creation, <br /> but the rules
           of React stay the same. <br />
         </p>
         Learn the fundamentals in just a few minutes.
-        <Spacer></Spacer>
-        <Spacer></Spacer>
+        <Spacer />
+        <Spacer />
         <a className={styles.aknow} href="/docs/the-fundamentals">
           <BlueButton size="sm" fullWidth={false} loading={false}>
             Learn Remotion

@@ -1,24 +1,31 @@
 import React from "react";
+import { ChooseTemplate } from "../../src/components/ChooseTemplate";
 import { GetStarted } from "./GetStartedStrip";
-import { PlayerPreview } from "./PlayerPreview";
 import styles from "./writeinreact.module.css";
 
 export const WriteInReact: React.FC = () => {
   return (
-    <div className={styles.writeincss}>
-      <div style={{ flex: 1 }}>
-        <h1 className={styles.writeincsstitle}>
-          Write videos <br /> in React.
-        </h1>
-        <p>
-          Use your React knowledge to create real MP4 videos. <br /> Scale your
-          video production using server-side rendering and parametrization.
-        </p>
-
-        <GetStarted></GetStarted>
+    <div>
+      <h1 className={styles.writeincsstitle}>Make videos programmatically.</h1>
+      <br />
+      <p
+        style={{
+          textAlign: "center",
+          fontSize: "1.2em",
+          fontWeight: 500,
+        }}
+        className={styles.text}
+      >
+        Create real MP4 videos using React. <br /> Scale your video production
+        using server-side rendering and parametrization.
+      </p>
+      <br />
+      <div className={styles.writeincss}>
+        <GetStarted />
       </div>
-      <div className={styles.writeright}>
-        <PlayerPreview />
+      <br />
+      <div>
+        <ChooseTemplate />
       </div>
     </div>
   );

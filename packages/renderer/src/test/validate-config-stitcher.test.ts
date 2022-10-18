@@ -1,4 +1,5 @@
-import {stitchFramesToVideo} from '../stitcher';
+import {describe, expect, test} from 'vitest';
+import {stitchFramesToVideo} from '../stitch-frames-to-video';
 
 describe('Should validate invalid data passed to stitchFramesToVideo', () => {
 	test('Invalid FPS', () => {
@@ -10,11 +11,11 @@ describe('Should validate invalid data passed to stitchFramesToVideo', () => {
 				width: 1000,
 			})
 		).rejects.toThrow(
-			/"fps" must be positive, but got -1 passed to `stitchFramesToVideo\(\)`/
+			/"fps" must be positive, but got -1 in `stitchFramesToVideo\(\)`/
 		);
 	});
 
-	test('Invalid height', async () => {
+	test('Invalid height', () => {
 		return expect(
 			// @ts-expect-error
 			stitchFramesToVideo({
@@ -26,7 +27,7 @@ describe('Should validate invalid data passed to stitchFramesToVideo', () => {
 			/The "height" prop passed to `stitchFramesToVideo\(\)` must be an integer, but is 1000.5./
 		);
 	});
-	test('Invalid width', async () => {
+	test('Invalid width', () => {
 		return expect(
 			// @ts-expect-error
 			stitchFramesToVideo({

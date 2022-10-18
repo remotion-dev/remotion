@@ -1,7 +1,5 @@
 {
   "editor.tabSize": 2,
-  "java.configuration.updateBuildConfiguration": "disabled",
-  "typescript.tsdk": "node_modules/typescript/lib",
   "editor.codeActionsOnSave": {
     "source.organizeImports": false,
     "source.fixAll": true

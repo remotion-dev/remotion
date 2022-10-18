@@ -1,0 +1,14 @@
+.container {
+  text-align: center
+}
+
+.title {
+  font-size: 2.5em;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.highlight {
+  color: var(--ifm-color-primary);
+}
+

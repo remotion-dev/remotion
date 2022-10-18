@@ -16,7 +16,7 @@ const gradients = [
 	['#9d0391', '#120078'],
 ];
 
-export const DropDots: React.FC<{
+const DropDots: React.FC<{
 	opacity: number;
 	volume: number;
 }> = ({opacity, volume}) => {
@@ -27,7 +27,7 @@ export const DropDots: React.FC<{
 	const {height, width} = useVideoConfig();
 	const dots = new Array(process.env.NODE_ENV === 'development' ? 45 : 45)
 		.fill(true)
-		.map((x, i) => {
+		.map((_x, i) => {
 			const startX = random(`x-${i}-${iteration}`) * width;
 			const startY = random(`y-${i}-${iteration}`) * height;
 			const startRotation = random(`rotation-${i}-${iteration}`) * 360;
@@ -146,7 +146,7 @@ export const DropDots: React.FC<{
 									marginLeft: d.size * 0.05,
 									opacity: 0.55,
 								}}
-								src="https://github.com/JonnyBurger/remotion-logo/blob/main/monochromatic/element-0.png?raw=true"
+								src="https://github.com/remotion-dev/logo/blob/main/monochromatic/element-0.png?raw=true"
 							/>
 						</div>
 					</div>

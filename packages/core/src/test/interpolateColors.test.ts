@@ -1,4 +1,5 @@
-import {interpolateColors} from '../interpolateColors';
+import {describe, expect, test} from 'vitest';
+import {interpolateColors} from '../interpolate-colors';
 import {expectToThrow} from './expect-to-throw';
 
 test('Throws if color string is not right', () => {
@@ -75,19 +76,20 @@ test('HSV', () => {
 		interpolateColors(0.5, [0, 1], ['hsla(120, 100%, 25%, 0)', 'blue'])
 	).toBe('rgba(0, 64, 128, 0.5)');
 
-	expect(
-		interpolateColors(0.5, [0, 1], ['hsl(120, 50%, 50%)', 'blue'])
-	).toBe('rgba(32, 96, 160, 1)');
+	expect(interpolateColors(0.5, [0, 1], ['hsl(120, 50%, 50%)', 'blue'])).toBe(
+		'rgba(32, 96, 160, 1)'
+	);
 });
 
 describe('RGB', () => {
-	test('standard rgb interpolation', () => expect(
-		interpolateColors(0.5, [0, 1], ['rgb(0,0,0)', 'rgb(255,255,255)'])
-	).toBe('rgba(128, 128, 128, 1)'));
+	test('standard rgb interpolation', () =>
+		expect(
+			interpolateColors(0.5, [0, 1], ['rgb(0,0,0)', 'rgb(255,255,255)'])
+		).toBe('rgba(128, 128, 128, 1)'));
 
 	test('rgb clamping', () => {
 		expect(
 			interpolateColors(0.5, [0, 1], ['rgb(-1,0,0)', 'rgb(256,255,255)'])
 		).toBe('rgba(128, 128, 128, 1)');
-	})
+	});
 });

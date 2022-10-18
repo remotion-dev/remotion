@@ -1,58 +1,36 @@
-import {getSimultaneousAssets} from './assets/get-simulatenous-assets';
-import {AssetAudioDetails, Assets} from './assets/types';
-import {resolveAssetSrc} from './resolve-asset-src';
+import {flattenVolumeArray} from './assets/flatten-volume-array';
+import type {MediaAsset} from './assets/types';
 import {stringifyFfmpegFilter} from './stringify-ffmpeg-filter';
 
-export type FfmpegFilterCalculation = {
-	filter: string;
-	streamIndex: number;
-};
-
-export const calculateFfmpegFilters = ({
-	assetPositions,
-	assetAudioDetails,
+export const calculateFfmpegFilter = ({
+	asset,
 	fps,
-	videoTrackCount,
+	durationInFrames,
+	channels,
+	assetDuration,
 }: {
-	assetPositions: Assets;
-	assetAudioDetails: Map<string, AssetAudioDetails>;
+	asset: MediaAsset;
 	fps: number;
-	videoTrackCount: number;
-}): FfmpegFilterCalculation[] => {
-	const withMoreThan1Channel = assetPositions.filter((pos) => {
-		return (
-			(assetAudioDetails.get(resolveAssetSrc(pos.src)) as AssetAudioDetails)
-				.channels > 0
-		);
-	});
-	return withMoreThan1Channel.map((asset) => {
-		const assetTrimLeft = (asset.trimLeft / fps).toFixed(3);
-		const assetTrimRight = (
-			(asset.trimLeft + asset.duration * asset.playbackRate) /
-			fps
-		).toFixed(3);
-		const audioDetails = assetAudioDetails.get(
-			resolveAssetSrc(asset.src)
-		) as AssetAudioDetails;
-		const simultaneousAssets = getSimultaneousAssets(
-			withMoreThan1Channel,
-			asset
-		);
+	durationInFrames: number;
+	channels: number;
+	assetDuration: number | null;
+}): string | null => {
+	if (channels === 0) {
+		return null;
+	}
 
-		const streamIndex = assetPositions.indexOf(asset) + videoTrackCount;
-		return {
-			filter: stringifyFfmpegFilter({
-				streamIndex,
-				channels: audioDetails.channels,
-				startInVideo: asset.startInVideo,
-				trimLeft: assetTrimLeft,
-				trimRight: assetTrimRight,
-				simulatenousAssets: simultaneousAssets.length,
-				volume: asset.volume,
-				fps,
-				playbackRate: asset.playbackRate,
-			}),
-			streamIndex,
-		};
+	const assetTrimLeft = (asset.trimLeft * asset.playbackRate) / fps;
+	const assetTrimRight =
+		assetTrimLeft + (asset.duration * asset.playbackRate) / fps;
+	return stringifyFfmpegFilter({
+		channels,
+		startInVideo: asset.startInVideo,
+		trimLeft: assetTrimLeft,
+		trimRight: assetTrimRight,
+		volume: flattenVolumeArray(asset.volume),
+		fps,
+		playbackRate: asset.playbackRate,
+		durationInFrames,
+		assetDuration,
 	});
 };

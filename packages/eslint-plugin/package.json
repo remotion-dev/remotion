@@ -1,23 +1,26 @@
 {
   "name": "@remotion/eslint-plugin",
-  "version": "2.1.5",
+  "version": "3.2.32",
   "description": "A set of rules helping you avoid common pitfalls in Remotion.",
   "scripts": {
     "build": "tsc -d",
-    "test": "jest"
+    "test": "jest",
+    "watch": "tsc -w"
   },
   "main": "dist/index.js",
   "bugs": {
-    "url": "https://github.com/JonnyBurger/remotion/issues"
+    "url": "https://github.com/remotion-dev/remotion/issues"
   },
-  "author": "Jonny Burger <hi@jonny.io>",
+  "author": "Jonny Burger <jonny@remotion.dev>",
   "license": "ISC",
+  "dependencies": {
+    "@typescript-eslint/utils": "5.19.0"
+  },
   "devDependencies": {
-    "@typescript-eslint/experimental-utils": "^4.14.1",
-    "eslint": "^7.18.0",
-    "jest": "^26.6.3",
-    "ts-jest": "^26.4.4",
-    "typescript": "^4.1.3"
+    "eslint": "8.13.0",
+    "jest": "^27.2.4",
+    "ts-jest": "^27.0.5",
+    "typescript": "^4.7.0"
   },
   "private": false
 }

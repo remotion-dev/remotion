@@ -1,7 +1,7 @@
-import { ESLintUtils } from "@typescript-eslint/experimental-utils";
+import { ESLintUtils } from "@typescript-eslint/utils";
 
-const createRule = ESLintUtils.RuleCreator((name) => {
-  return `https://github.com/JonnyBurger/remotion`;
+const createRule = ESLintUtils.RuleCreator(() => {
+  return `https://github.com/remotion-dev/remotion`;
 });
 
 type Options = [];
@@ -21,7 +21,6 @@ export default createRule<Options, MessageIds>({
     type: "problem",
     docs: {
       description: DeterministicRandomness,
-      category: "Best Practices",
       recommended: "warn",
     },
     fixable: undefined,

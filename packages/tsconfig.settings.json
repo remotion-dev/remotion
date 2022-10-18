@@ -3,13 +3,16 @@
     "target": "ES2018",
     "module": "commonjs",
     "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
+    "declarationMap": false,
+    "sourceMap": false,
     "lib": ["es2019", "dom"],
     "jsx": "react-jsx",
     "noEmit": false,
+    "skipLibCheck": true,
     "strict": true,
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   }
 }

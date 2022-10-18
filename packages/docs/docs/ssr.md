@@ -3,135 +3,89 @@ id: ssr
 title: Server-Side Rendering
 ---
 
-Remotion's rendering engine is built upon Node.JS, which makes it exceptionally easy to render a video in the cloud.
+:::info
+This documentation is how server-side rendering works in Remotion v3 and above. To see rendering in [2.0 and below, click here.](/docs/ssr-legacy)
+:::
+
+Remotion's rendering engine is built upon Node.JS, which makes it easy to render a video in the cloud.
 
 Since Remotion is built with tech (_Node.JS, FFMPEG, Puppeteer_) that works well cross-platform, you can without much hassle run it on a Linux-based system or even dockerize your video.
 
-On this page, we demonstrate the server-rendering capabilities or Remotion using examples [built into the template](/docs#installation)!
+## Render a video on AWS Lambda
 
-## Render a video programmatically
+The easiest and fastest way to render videos in the cloud is to use `@remotion/lambda`. [Click here to read the documentation for it](/docs/lambda).
 
-The NPM package `@remotion/renderer` provides you with an API for rendering the videos programmatically. You can make a video in three steps: creating a Webpack bundle, rendering the frames, and stitching them together to an MP4. This gives you more independence and allows you to for example skip the stitching process, if you just want a PNG sequence.
+## Render a video using Node.JS APIs
+
+The NPM package `@remotion/renderer` provides you with an API for rendering the videos programmatically. You can make a video in two steps: 1. Creating a Webpack bundle, then 2. rendering and stitching them together to an MP4.
 
 Follow this commented example to see how to render a video:
 
-```tsx
-import fs from 'fs';
-import {evaluateRootForCompositions} from 'remotion';
-import {bundle} from '@remotion/bundler';
-import {
-	getCompositions,
-	renderFrames,
-	stitchFramesToVideo,
-} from '@remotion/renderer';
+```tsx twoslash
+import path from "path";
+import { bundle } from "@remotion/bundler";
+import { getCompositions, renderMedia } from "@remotion/renderer";
 
 const start = async () => {
   // The composition you want to render
-  const compositionId = 'HelloWorld';
+  const compositionId = "HelloWorld";
 
-  // Create a webpack bundle of the entry file.
-  const bundled = await bundle(require.resolve('./src/index'));
+  // You only have to do this once, you can reuse the bundle.
+  const entry = "./src/index";
+  console.log("Creating a Webpack bundle of the video");
+  const bundleLocation = await bundle(path.resolve(entry), () => undefined, {
+    // If you have a Webpack override, make sure to add it here
+    webpackOverride: (config) => config,
+  });
+
+  // Parametrize the video by passing arbitrary props to your component.
+  const inputProps = {
+    foo: "bar",
+  };
 
   // Extract all the compositions you have defined in your project
   // from the webpack bundle.
-  const comps = await getCompositions(bundled, {
+  const comps = await getCompositions(bundleLocation, {
     // You can pass custom input props that you can retrieve using getInputProps()
     // in the composition list. Use this if you want to dynamically set the duration or
     // dimensions of the video.
-    inputProps: {
-      custom: 'data'
-    }
+    inputProps,
   });
 
   // Select the composition you want to render.
-  const video = comps.find((c) => c.id === compositionId);
+  const composition = comps.find((c) => c.id === compositionId);
 
-  // We create a temporary directory for storing the frames
-  const framesDir = await fs.promises.mkdtemp(
-    path.join(os.tmpdir(), 'remotion-')
-  );
+  // Ensure the composition exists
+  if (!composition) {
+    throw new Error(`No composition with the ID ${compositionId} found.
+  Review "${entry}" for the correct ID.`);
+  }
 
-  // We create JPEGs for all frames
-  const {assetsInfo} = await renderFrames({
-    config: video,
-    // Path of the webpack bundle you have created
-    webpackBundle: bundled,
-    // Get's called after bundling is finished and the
-    // actual rendering starts.
-    onStart: () => console.log('Rendering frames...'),
-    onFrameUpdate: (f) => {
-      // Log a message whenever 10 frames have rendered.
-      if (f % 10 === 0) {
-        console.log(`Rendered frame ${f}`);
-      }
-    },
-    // How many CPU threads to use. `null` will use a sane default (half of the available threads)
-    // See 'CLI options' section for concurrency options.
-    parallelism: null,
-    outputDir: framesDir,
-    // React props passed to the root component of the sequence. Will be merged with the `defaultProps` of a video.
-    inputProps: {
-      titleText: 'Hello World'
-    },
-    compositionId,
-    // Can be either 'jpeg' or 'png'. JPEG is faster, but has no transparency.
-    imageFormat: 'jpeg'
+  const outputLocation = `out/${compositionId}.mp4`;
+  console.log("Attempting to render:", outputLocation);
+  await renderMedia({
+    composition,
+    serveUrl: bundleLocation,
+    codec: "h264",
+    outputLocation,
+    inputProps,
   });
-
-  // Add this step if you want to make an MP4 out of the rendered frames.
-  await stitchFramesToVideo({
-    // Input directory of the frames
-    dir: tmpDir,
-    // Overwrite existing video
-    force: true,
-    // Possible overwrite of video metadata,
-    // we suggest to just fill in the data from the
-    // video variable
-    fps: video.fps,
-    height: video.height,
-    width: video.width,
-    // Must match the value above for the image format
-    imageFormat: 'jpeg',
-    // Pass in the desired output path of the video. Et voilà!
-    outputLocation: path.join(tmpDir, 'out.mp4'),
-    // FFMPEG pixel format
-    pixelFormat: 'yuv420p',
-    // Information needed to construct audio correctly.
-    assetsInfo,
-    // Hook into the FFMPEG progress
-    onProgress: (frame) => undefined
-  });
+  console.log("Render done!");
 };
 
 start();
 ```
 
-:::warning
-Many projects created before April 27th are missing the extra parameter for `getCompositions()`. Make sure to add it if you want to use input props to control duration or dimensions of the video.
-:::
+This flow is highly customizable. Click on one of the SSR APIs to read about it's options:
 
-[See also: Passing props in GitHub Actions](/docs/parametrized-rendering#passing-props-in-github-actions)
-
-## Render using a HTTP server
-
-In the [template](/docs#installation), we added a minimal example of an HTTP server that dynamically returns a video whenever you call the URL.
-
-The server is located under `server.tsx`, and you can run it using `npm run server`. Call the default URL with parameters, and it will return a video after some time! Try it out in the browser or using cURL:
-
-```bash
-curl "http://localhost:8000?titleText=Hello,+World!&titleColor=red" > output.mp4
-```
+- [`getCompositions()`](/docs/renderer/get-compositions) - Get a list of available compositions from a Remotion project.
+- [`renderMedia()`](/docs/renderer/render-media) - Render a video or audio
+- [`renderFrames()`](/docs/renderer/render-frames) - Render an image sequence
+- [`renderStill()`](/docs/renderer/render-still) - Render a still image
+- [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video) - Encode a video based on an image sequence
+- [`openBrowser()`](/docs/renderer/open-browser) - Share a browser instance across function calls for even better performance.
 
 Note that we only added a minimal example. For production, you should consider adding a queueing system and rate limiting.
-
-## Render using a HTTP server (Dockerized)
-
-We added a Dockerfile that includes FFMPEG and added it to the template. That means you can also run the server described in the section above using Docker.
-
-```bash
-docker build -t my-video .
-docker run -p 8000:8000 --privileged my-video
-```
 
 ## Render using GitHub Actions
 
@@ -149,13 +103,9 @@ Note that running the workflow may incur costs. However, the workflow will only 
 
 [See also: Passing props in GitHub Actions](/docs/parametrized-rendering#passing-props-in-github-actions)
 
-## Rendering a video using serverless
-
-We are working on a library which will help you render videos using AWS Lambda. Contact us if you are interested in testing an early version.
-
 ## API reference
 
 - [bundle()](/docs/bundle)
-- [getCompositions()](/docs/get-compositions)
-- [renderFrames()](/docs/render-frames)
-- [stitchFramesToVideo()](/docs/stitch-frames-to-video)
+- [getCompositions()](/docs/renderer/get-compositions)
+- [renderMedia()](/docs/renderer/render-media)
+- [stitchFramesToVideo()](/docs/renderer/stitch-frames-to-video)

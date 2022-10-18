@@ -3,14 +3,13 @@ export type RemotionGifProps = {
 	width?: number;
 	height?: number;
 	onLoad?: (info: {
-		loaded: true;
 		width: number;
 		height: number;
 		delays: number[];
 		frames: ImageData[];
 	}) => void;
 	onError?: (error: Error) => void;
-	fit?: 'contain' | 'fill' | 'cover';
+	fit?: GifFillMode;
 	style?: React.CSSProperties;
 };
 
@@ -20,3 +19,5 @@ export type GifState = {
 	width: number;
 	height: number;
 };
+
+export type GifFillMode = 'contain' | 'cover' | 'fill';

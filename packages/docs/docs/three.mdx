@@ -17,7 +17,7 @@ These are the only two APIs provided - for everything else you can use the stand
 
 ## Starter template
 
-Check out [remotion-template-three](https://github.com/jonnyburger/remotion-template-three), a minimal boilerplate for Remotion and React Three Fiber. It is a template repository, you can click "Use this template" on the Github repo to get started.
+Check out [remotion-template-three](https://github.com/remotion-dev/template-three), a minimal boilerplate for Remotion and React Three Fiber. It is a template repository, you can click "Use this template" on the GitHub repo to get started.
 
 <ThreeDPlayer />
 
@@ -32,12 +32,13 @@ defaultValue="npm"
 values={[
 { label: 'npm', value: 'npm', },
 { label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
 ]
 }>
 <TabItem value="npm">
 
 ```bash
-npm i three @react-three/fiber @remotion/three
+npm i three @react-three/fiber @remotion/three @types/three
 ```
 
   </TabItem>
@@ -45,7 +46,14 @@ npm i three @react-three/fiber @remotion/three
   <TabItem value="yarn">
 
 ```bash
-yarn add three @react-three/fiber @remotion/three
+yarn add three @react-three/fiber @remotion/three @types/three
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i three @react-three/fiber @remotion/three @types/three
 ```
 
   </TabItem>

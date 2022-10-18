@@ -1,4 +1,7 @@
 import {registerRoot} from 'remotion';
 import {Index} from './Video';
 
-registerRoot(Index);
+// Should be able to defer registerRoot()
+setTimeout(() => {
+	registerRoot(Index);
+}, 500);

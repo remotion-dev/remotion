@@ -1,3 +1,7 @@
+Want to watch a tutorial video instead? [Click here](https://www.youtube.com/watch?v=tgBfJw2tET8)
+
+---
+
 ## Contributing
 
 Issues and pull requests of all sorts are welcome!
@@ -12,33 +16,78 @@ Please note that this project is released with a [Contributor Code of Conduct](C
 
 ### Code setup
 
-Clone the repo and run
+1. Remotion uses [`pnpm`](https://pnpm.io/) as the package manager for development in this repository. Please install the latest version of pnpm globally:
 
 ```console
-
-npm i
-
-npx lerna bootstrap
-
-npm run build
-
-npx lerna bootstrap
-
+[sudo] npm i -g pnpm
 ```
 
-to set up the project. Make sure to run `npx lerna bootstrap` twice - the reason is that during the build phase new CLI binaries are being created so another symlink is necessary. You only have to do this once.
-
-We recommend keeping a terminal open with the command
+2. Clone the Remotion repository
 
 ```console
-
-npm run watch
-
+git clone https://github.com/remotion-dev/remotion.git && cd remotion
 ```
 
-running to keep the monorepos building and synchronized.
+3. Install all dependencies:
 
-As a testbed, you can use the `example` folder. Run `npm start` to trigger the preview and `npm run render` to trigger the render process.
+```console
+pnpm i
+```
 
-### Testing
+4. Build the project initially:
+
+```console
+pnpm build
+```
+
+5. Rebuild whenever a file changes:
+
+```console
+pnpm watch
+```
+
+6. You can start making changes!
+
+### Testing your changes
+
+You can start the Testbed using
+
+```console
+cd packages/example
+npm start
+```
+
+You can render a test video using
+
+```console
+cd packages/example
+pnpm render
+```
+
+You can run tests using
+
+```console
+pnpm test
+```
+
+in either a subpackage to run tests for that package or in the root to run all tests.
+
+### Testing `@remotion/player`
+
+You can test changes to [@remotion/player](https://remotion.dev/docs/player) by starting the Player testbed:
+
+```console
+cd packages/player-example
+pnpm start
+```
+
 For information about testing, please consult [TESTING.md](./TESTING.md).
+
+### Testing documentation
+
+You can run the Docusaurus server that powers our docs using:
+
+```console
+cd packages/docs
+pnpm start
+```

@@ -1,8 +1,21 @@
 import {useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
+import {calculateNextFrame} from './calculate-next-frame';
 import {usePlayer} from './use-player';
 
-export const usePlayback = ({loop}: {loop: boolean}) => {
+export const usePlayback = ({
+	loop,
+	playbackRate,
+	moveToBeginningWhenEnded,
+	inFrame,
+	outFrame,
+}: {
+	loop: boolean;
+	playbackRate: number;
+	moveToBeginningWhenEnded: boolean;
+	inFrame: number | null;
+	outFrame: number | null;
+}) => {
 	const frame = Internals.Timeline.useTimelinePosition();
 	const config = Internals.useUnsafeVideoConfig();
 	const {playing, pause, emitter} = usePlayer();
@@ -10,6 +23,8 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 
 	const frameRef = useRef(frame);
 	frameRef.current = frame;
+
+	const lastTimeUpdateEvent = useRef<number | null>(null);
 
 	useEffect(() => {
 		if (!config) {
@@ -23,7 +38,7 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 		let hasBeenStopped = false;
 		let reqAnimFrameCall: number | null = null;
 		const startedTime = performance.now();
-		const startedFrame = frameRef.current;
+		let framesAdvanced = 0;
 
 		const stop = () => {
 			hasBeenStopped = true;
@@ -34,17 +49,33 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 
 		const callback = () => {
 			const time = performance.now() - startedTime;
-			const nextFrame = Math.round(time / (1000 / config.fps)) + startedFrame;
-			if (nextFrame === config.durationInFrames && !loop) {
+			const actualLastFrame = outFrame ?? config.durationInFrames - 1;
+			const actualFirstFrame = inFrame ?? 0;
+
+			const {nextFrame, framesToAdvance, hasEnded} = calculateNextFrame({
+				time,
+				currentFrame: frameRef.current,
+				playbackSpeed: playbackRate,
+				fps: config.fps,
+				actualFirstFrame,
+				actualLastFrame,
+				framesAdvanced,
+				shouldLoop: loop,
+			});
+			framesAdvanced += framesToAdvance;
+
+			if (
+				nextFrame !== frameRef.current &&
+				(!hasEnded || moveToBeginningWhenEnded)
+			) {
+				setFrame(nextFrame);
+			}
+
+			if (hasEnded) {
 				stop();
 				pause();
 				emitter.dispatchEnded();
 				return;
-			}
-
-			const actualNextFrame = nextFrame % config.durationInFrames;
-			if (actualNextFrame !== frameRef.current) {
-				setFrame(actualNextFrame);
 			}
 
 			if (!hasBeenStopped) {
@@ -57,5 +88,33 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 		return () => {
 			stop();
 		};
-	}, [config, loop, pause, playing, setFrame]);
+	}, [
+		config,
+		loop,
+		pause,
+		playing,
+		setFrame,
+		emitter,
+		playbackRate,
+		inFrame,
+		outFrame,
+		moveToBeginningWhenEnded,
+	]);
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (lastTimeUpdateEvent.current === frameRef.current) {
+				return;
+			}
+
+			emitter.dispatchTimeUpdate({frame: frameRef.current as number});
+			lastTimeUpdateEvent.current = frameRef.current;
+		}, 250);
+
+		return () => clearInterval(interval);
+	}, [emitter]);
+
+	useEffect(() => {
+		emitter.dispatchFrameUpdate({frame});
+	}, [emitter, frame]);
 };

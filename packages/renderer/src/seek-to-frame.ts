@@ -1,15 +1,22 @@
-import puppeteer from 'puppeteer-core';
+import type {Page} from './browser/BrowserPage';
+import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 
 export const seekToFrame = async ({
 	frame,
 	page,
 }: {
 	frame: number;
-	page: puppeteer.Page;
+	page: Page;
 }) => {
-	await page.waitForFunction('window.ready === true');
-	await page.evaluate((f) => {
-		window.remotion_setFrame(f);
-	}, frame);
-	await page.waitForFunction('window.ready === true');
+	await page.waitForFunction(page.browser, 'window.ready === true');
+	await puppeteerEvaluateWithCatch({
+		pageFunction: (f: number) => {
+			window.remotion_setFrame(f);
+		},
+		args: [frame],
+		frame,
+		page,
+	});
+	await page.waitForFunction(page.browser, 'window.ready === true');
+	await page.evaluateHandle('document.fonts.ready');
 };

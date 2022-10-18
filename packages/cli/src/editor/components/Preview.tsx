@@ -1,7 +1,7 @@
-import {PlayerInternals, Size} from '@remotion/player';
-import React, {Suspense, useContext, useMemo} from 'react';
+import type {Size} from '@remotion/player';
+import {PlayerInternals} from '@remotion/player';
+import React, {useContext, useEffect, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
-import styled from 'styled-components';
 import {
 	checkerboardBackgroundColor,
 	checkerboardBackgroundImage,
@@ -11,56 +11,52 @@ import {
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
 
-const checkerboardSize = 49;
+export const checkerboardSize = 49;
 
-export const Container = styled.div<{
+const containerStyle = (options: {
 	scale: number;
 	xCorrection: number;
 	yCorrection: number;
 	width: number;
 	height: number;
 	checkerboard: boolean;
-}>`
-	transform: scale(${(props): number => props.scale});
-	margin-left: ${(props): number => props.xCorrection}px;
-	margin-top: ${(props): number => props.yCorrection}px;
-	width: ${(props): number => props.width}px;
-	height: ${(props): number => props.height}px;
-	display: flex;
-	position: absolute;
-	background-color: ${(props) =>
-		checkerboardBackgroundColor(props.checkerboard)};
-	background-image: ${(props) =>
-		checkerboardBackgroundImage(props.checkerboard)};
-	background-size: ${getCheckerboardBackgroundSize(
-		checkerboardSize
-	)}; /* Must be a square */
-	background-position: ${getCheckerboardBackgroundPos(
-		checkerboardSize
-	)}; /* Must be half of one side of the square */
-`;
+}): React.CSSProperties => {
+	return {
+		transform: `scale(${options.scale})`,
+		marginLeft: options.xCorrection,
+		marginTop: options.yCorrection,
+		width: options.width,
+		height: options.height,
+		display: 'flex',
+		position: 'absolute',
+		backgroundColor: checkerboardBackgroundColor(options.checkerboard),
+		backgroundImage: checkerboardBackgroundImage(options.checkerboard),
+		backgroundSize:
+			getCheckerboardBackgroundSize(checkerboardSize) /* Must be a square */,
+		backgroundPosition:
+			getCheckerboardBackgroundPos(
+				checkerboardSize
+			) /* Must be half of one side of the square */,
+	};
+};
 
 const Inner: React.FC<{
 	canvasSize: Size;
 }> = ({canvasSize}) => {
 	const {size: previewSize} = useContext(PreviewSizeContext);
-	const video = Internals.useVideo();
+
+	const portalContainer = useRef<HTMLDivElement>(null);
 
 	const config = useVideoConfig();
 	const {checkerboard} = useContext(CheckerboardContext);
 
-	const {
-		centerX,
-		centerY,
-		yCorrection,
-		xCorrection,
-		scale,
-	} = PlayerInternals.calculateScale({
-		canvasSize,
-		compositionHeight: config.height,
-		compositionWidth: config.width,
-		previewSize,
-	});
+	const {centerX, centerY, yCorrection, xCorrection, scale} =
+		PlayerInternals.calculateCanvasTransformation({
+			canvasSize,
+			compositionHeight: config.height,
+			compositionWidth: config.width,
+			previewSize: previewSize.size,
+		});
 
 	const outer: React.CSSProperties = useMemo(() => {
 		return {
@@ -69,33 +65,50 @@ const Inner: React.FC<{
 			display: 'flex',
 			flexDirection: 'column',
 			position: 'absolute',
-			left: centerX,
-			top: centerY,
+			left: centerX - previewSize.translation.x,
+			top: centerY - previewSize.translation.y,
 			overflow: 'hidden',
 		};
-	}, [centerX, centerY, config.height, config.width, scale]);
+	}, [
+		centerX,
+		centerY,
+		config.height,
+		config.width,
+		previewSize.translation.x,
+		previewSize.translation.y,
+		scale,
+	]);
 
-	const Component = video ? video.component : null;
+	const style = useMemo((): React.CSSProperties => {
+		return containerStyle({
+			checkerboard,
+			scale,
+			xCorrection,
+			yCorrection,
+			width: config.width,
+			height: config.height,
+		});
+	}, [
+		checkerboard,
+		config.height,
+		config.width,
+		scale,
+		xCorrection,
+		yCorrection,
+	]);
+
+	useEffect(() => {
+		const {current} = portalContainer;
+		current?.appendChild(Internals.portalNode());
+		return () => {
+			current?.removeChild(Internals.portalNode());
+		};
+	}, []);
 
 	return (
-		<Suspense fallback={<div>loading...</div>}>
-			<div style={outer}>
-				<Container
-					{...{
-						checkerboard,
-						scale,
-						xCorrection,
-						yCorrection,
-						width: config.width,
-						height: config.height,
-					}}
-				>
-					{Component ? (
-						<Component {...(((video?.props as unknown) as {}) ?? {})} />
-					) : null}
-				</Container>
-			</div>
-		</Suspense>
+		<div style={outer}>
+			<div ref={portalContainer} style={style} />
+		</div>
 	);
 };
 

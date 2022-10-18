@@ -7,9 +7,9 @@ export const LightningFastEditor: React.FC = () => {
   const [isIntersecting, setIsIntersecting] = useState(false);
 
   const callback: IntersectionObserverCallback = useCallback((data) => {
-    const { isIntersecting } = data[0];
-    setIsIntersecting(isIntersecting);
-    if (isIntersecting) {
+    const { isIntersecting: intersecting } = data[0];
+    setIsIntersecting(intersecting);
+    if (intersecting) {
       videoRef.current?.play();
     } else {
       videoRef.current?.pause();
@@ -21,6 +21,7 @@ export const LightningFastEditor: React.FC = () => {
     if (!current) {
       return;
     }
+
     const observer = new IntersectionObserver(callback, {
       root: null,
       threshold: 0.2,
@@ -28,9 +29,9 @@ export const LightningFastEditor: React.FC = () => {
     observer.observe(current);
 
     return () => observer.unobserve(current);
-  }, []);
+  }, [callback]);
   return (
-    <div className={styles.row} ref={ref}>
+    <div ref={ref} className={styles.row}>
       <div>
         <video
           src="/img/player-demo.mp4"
@@ -46,7 +47,7 @@ export const LightningFastEditor: React.FC = () => {
             borderRadius: 7,
             overflow: "hidden",
           }}
-        ></video>
+        />
       </div>
       <div style={{ flex: 1 }}>
         <h2 className={styles.title}>

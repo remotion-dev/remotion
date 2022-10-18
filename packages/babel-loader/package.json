@@ -1,10 +1,10 @@
 {
 	"name": "@remotion/babel-loader",
-	"version": "2.1.7",
+	"version": "3.2.32",
 	"description": "babel-loader polyfill for Remotion",
 	"main": "dist/index.js",
 	"scripts": {
-		"test": "eslint src --ext ts,tsx",
+		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
 		"build": "tsc -d"
 	},
@@ -14,28 +14,39 @@
 	"author": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"repository": {
-		"url": "https://github.com/JonnyBurger/remotion"
+		"url": "https://github.com/remotion-dev/remotion"
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"@babel/core": "^7.12.10",
-		"@babel/plugin-proposal-class-properties": "^7.12.13",
-		"@babel/preset-env": "^7.12.10",
-		"@babel/preset-react": "^7.12.10",
-		"@babel/preset-typescript": "^7.12.7",
-		"@webhotelier/webpack-fast-refresh": "^5.1.0",
-		"babel-loader": "^8.1.0",
-		"react-refresh": "^0.9.0-rc.2",
-		"webpack": "5.37.0"
+		"@babel/core": "7.15.5",
+		"@babel/plugin-proposal-class-properties": "7.14.5",
+		"@babel/preset-env": "7.15.6",
+		"@babel/preset-react": "7.14.5",
+		"@babel/preset-typescript": "7.15.0",
+		"@webhotelier/webpack-fast-refresh": "5.1.0",
+		"babel-loader": "8.2.2",
+		"react-refresh": "0.9.0",
+		"webpack": "5.74.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.233",
-		"@types/node": "^15.0.1",
-		"eslint": "^7.25.0",
+		"@jonny/eslint-config": "3.0.266",
+		"@types/node": "^16.7.5",
+		"eslint": "8.13.0",
 		"prettier": "^2.0.5",
-		"prettier-plugin-organize-imports": "^1.1.1",
-		"remotion": "^2.1.7",
-		"typescript": "^4.1.2"
+		"prettier-plugin-organize-imports": "^2.3.4",
+		"remotion": "3.2.32",
+		"typescript": "^4.7.0"
 	},
+	"keywords": [
+		"remotion",
+		"ffmpeg",
+		"video",
+		"react",
+		"puppeteer",
+		"player"
+	],
 	"publishConfig": {
 		"access": "public"
 	}

@@ -1,36 +1,186 @@
 ---
-title: <Video />
+title: <Video>
 id: video
 ---
 
-This component allows you to include a video file in your Remotion project. While in the preview, the video will just play in a HTML5 `<video>` tag, during render, the exact frame needed will be extracted.
+This component allows you to include a video file in your Remotion project. It wraps the native [`HTMLVideoElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement).
 
-## API / Example
+## API
 
-Use an import or require to load an video file and pass it as the `src` prop. All the props that the native `<video>` element accepts (except `autoplay` and `controls`) will be forwarded (but of course not all are useful for Remotion). This means you can use all CSS to style the video.
+[Put a video file into the `public/` folder](/docs/assets) and use [`staticFile()`](/docs/staticfile) to reference it.
 
-`<Video>` also accepts a `volume` prop which allows you to control the volume for the whole track or change it on a per-frame basis. Refer to the [using audio](/docs/using-audio#controlling-volume) guide to learn how to use it.
+All the props that the native `<video>` element accepts (except `autoplay` and `controls`) will be forwarded (but of course not all are useful for Remotion). This means you can use all CSS to style the video.
 
-`<Video>` has two more helper props: `startFrom` and `endAt` to define when the video should start and end. Both are optional and do not get forwarded to the native `<video>` element but tell Remotion which portion of the video to use.
+```tsx twoslash
+import { AbsoluteFill, staticFile, Video } from "remotion";
 
-```tsx
-import {Video} from 'remotion';
-import video from './video.webm';
-
-export const MyVideo = () => {
+export const MyComposition = () => {
   return (
-    <div>
-      <div>Hello World!</div>
-      <Video
-        src={video}
-        startFrom={59} // if video is 30fps, then it will start at 2s
-        endAt={120} // if video is 30fps, then it will end at 4s
-        style={{height: 1080 / 2, width: 1920 / 2}}
-      />
-    </div>
-  )
-}
+    <AbsoluteFill>
+      <Video src={staticFile("video.webm")} />
+    </AbsoluteFill>
+  );
+};
 ```
+
+You can load a video from an URL as well:
+
+```tsx twoslash
+import { AbsoluteFill, Video } from "remotion";
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `startFrom` / `endAt`
+
+`<Video>` has two more helper props you can use:
+
+- `startFrom` will remove a portion of the video at the beginning
+- `endAt` will remove a portion of the video at the end
+
+In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
+
+By passing `startFrom={60}`, the playback starts immediately, but with the first 2 seconds of the video trimmed away.  
+By passing `endAt={120}`, any video after the 4 second mark in the file will be trimmed away.
+
+The video will play the range from `00:02:00` to `00:04:00`, meaning the video will play for 2 seconds.
+
+```tsx twoslash
+import { AbsoluteFill, staticFile, Video } from "remotion";
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video src={staticFile("video.webm")} startFrom={60} endAt={120} />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `style`
+
+You can pass any style you can pass to a native `<video>` element. This is how you set it's size for example:
+
+```tsx twoslash
+import { AbsoluteFill, staticFile, Video } from "remotion";
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src={staticFile("video.webm")}
+        style={{ height: 720, width: 1280 }}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `volume`
+
+`<Video>` accepts a `volume` prop which allows you to control the volume for the whole track or change it on a per-frame basis. Refer to the [using audio](/docs/using-audio#controlling-volume) guide to learn how to use it.
+
+```tsx twoslash title="Example using static volume"
+import { AbsoluteFill, staticFile, Video } from "remotion";
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video volume={0.5} src={staticFile("video.webm")} />
+    </AbsoluteFill>
+  );
+};
+```
+
+```tsx twoslash title="Example of a fade in over 100 frames"
+import { AbsoluteFill, interpolate, staticFile, Video } from "remotion";
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        volume={(f) =>
+          interpolate(f, [0, 100], [0, 1], { extrapolateLeft: "clamp" })
+        }
+        src={staticFile("video.webm")}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `playbackRate`
+
+_Available from v2.2_
+
+You can use the `playbackRate` prop to control the speed of the video. `1` is the default and means regular speed, `0.5` slows down the video so it's twice as long and `2` speeds up the video so it's twice as fast.
+
+While Remotion doesn't limit the range of possible playback speeds, in development mode the [`HTMLMediaElement.playbackRate`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate) API is used which throws errors on extreme values. At the time of writing, Google Chrome throws an exception if the playback rate is below `0.0625` or above `16`.
+
+```tsx twoslash title="Example of a video playing twice as fast"
+import { AbsoluteFill, staticFile, Video } from "remotion";
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video playbackRate={2} src={staticFile("video.webm")} />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `muted`
+
+You can drop the audio of the video by adding a `muted` prop:
+
+```tsx twoslash title="Example of a muted video"
+import { AbsoluteFill, Video } from "remotion";
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        muted
+        src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `loop`
+
+_Available from v3.2.29_
+
+You can use the `loop` prop to loop a video.
+
+```tsx twoslash title="Example of a looped video"
+import { AbsoluteFill, Video } from "remotion";
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        loop
+        src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+Remotion will download the whole video during render in order to mix its audio. If the video contains a silent audio track, you can add the muted property to signal to Remotion that it does not need to download the video and make the render more efficient.
 
 ## Codec support
 
@@ -43,18 +193,13 @@ Prior to Remotion 1.5, Remotion will always use an internal Puppeteer binary and
 
 If you would like Remotion to warn you when you import an MP4 video, you can turn on the `@remotion/no-mp4-import` ESLint rule.
 
-## Controlling volume
+## Alternative: `<OffthreadVideo>`
 
-You can use the `volume` prop to control the loudness of the audio coming from the video. See [Controlling audio](/docs/using-audio#controlling-volume) for more information.
-
-## Controlling playback speed
-
-_Available from v2.2_
-
-You can use the `playbackRate` prop to control the speed of the video. `1` is the default and means regular speed, `0.5` slows down the video so it's twice as long and `2` speeds up the video so it's twice as fast.
-
-While Remotion doesn't limit the range of possible playback speeds, in development mode the [`HTMLMediaElement.playbackRate`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate) API is used which throws errors on extreme values. At the time of writing, Google Chrome throws an exception if the playback rate is below `0.0625` or above `16`.
+[`<OffthreadVideo>`](/docs/offthreadvideo) is a drop-in alternative to `<Video>`. To decide which tag to use, see: [`<Video>` vs `<OffthreadVideo>`](/docs/video-vs-offthreadvideo)
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/video/Video.tsx)
 - [`<Audio />`](/docs/audio)
+- [`<OffthreadVideo />`](/docs/offthreadvideo)
+- [`<Video>` vs `<OffthreadVideo>`](/docs/video-vs-offthreadvideo)

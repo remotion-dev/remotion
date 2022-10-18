@@ -1,16 +1,32 @@
-import {FrameRange} from 'remotion';
+import type {FrameRange} from './frame-range';
 
-export const getFrameToRender = (
-	frameRange: FrameRange | null,
-	index: number
-) => {
-	if (typeof frameRange === 'object' && frameRange !== null) {
-		return index + frameRange[0] - 1;
+export const getRealFrameRange = (
+	durationInFrames: number,
+	frameRange: FrameRange | null
+): [number, number] => {
+	if (frameRange === null) {
+		return [0, durationInFrames - 1];
 	}
 
 	if (typeof frameRange === 'number') {
-		return frameRange;
+		if (frameRange < 0 || frameRange >= durationInFrames) {
+			throw new Error(
+				`Frame number is out of range, must be between 0 and ${
+					durationInFrames - 1
+				} but got ${frameRange}`
+			);
+		}
+
+		return [frameRange, frameRange];
 	}
 
-	return index;
+	if (frameRange[1] >= durationInFrames || frameRange[0] < 0) {
+		throw new Error(
+			`Frame range ${frameRange.join('-')} is not in between 0-${
+				durationInFrames - 1
+			}`
+		);
+	}
+
+	return frameRange;
 };

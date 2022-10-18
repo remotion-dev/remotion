@@ -1,0 +1,27 @@
+.container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.title {
+  font-size: 3.5em;
+  text-align: center;
+  font-weight: 700;
+  line-height: 1.2;
+  max-width: 600px;
+}
+@media screen and (max-width: 1000px) {
+  .title {
+    font-size: 2em;
+  }
+}
+
+.p {
+  text-align: center;
+  max-width: 500px;
+}
+
+.a:hover {
+  text-decoration: none;
+}

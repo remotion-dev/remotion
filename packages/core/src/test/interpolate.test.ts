@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest';
 import {Easing} from '../easing';
 import {interpolate} from '../interpolate';
 import {expectToThrow} from './expect-to-throw';
@@ -102,7 +103,7 @@ test('Easing test', () => {
 
 test('Extrapolation left test', () => {
 	const testValues: ('extend' | undefined)[] = ['extend', undefined];
-	testValues.forEach(entry => {
+	testValues.forEach((entry) => {
 		expect(
 			interpolate(-3, [0, 1, 2], [0, 0.5, 1], {
 				extrapolateRight: entry,
@@ -113,7 +114,7 @@ test('Extrapolation left test', () => {
 
 test('Extrapolation right test', () => {
 	const testValues: ('extend' | undefined)[] = ['extend', undefined];
-	testValues.forEach(entry => {
+	testValues.forEach((entry) => {
 		expect(
 			interpolate(3, [0, 1, 2], [0, 0.5, 1], {
 				extrapolateRight: entry,
@@ -133,7 +134,7 @@ test('Extrapolation identity', () => {
 		[1000, {extrapolateRight: 'identity'}],
 		[-1000, {extrapolateLeft: 'identity'}],
 	];
-	testValues.forEach(entry => {
+	testValues.forEach((entry) => {
 		expect(interpolate(entry[0], [0, 1, 2], [0, 2, 4], entry[1])).toBe(
 			entry[0]
 		);
@@ -164,7 +165,7 @@ test('Zig-zag test', () => {
 		[-0.1, -1100],
 	];
 
-	testValues.forEach(entry => {
+	testValues.forEach((entry) => {
 		expect(
 			interpolate(entry[0], [1, 2, 3, 4, 5], [0, 1000, 0, -1000, 1000])
 		).toBe(entry[1]);
@@ -174,23 +175,21 @@ test('Zig-zag test', () => {
 test('Handle bad types', () => {
 	// @ts-expect-error
 	expect(() => interpolate(undefined, [0, 1], [1, 0])).toThrowError(
-		/input or inputRange or outputRange can not be undefined/
+		/input can not be undefined/
 	);
 	// @ts-expect-error
 	expect(() => interpolate(1, undefined, [1, 0])).toThrowError(
-		/input or inputRange or outputRange can not be undefined/
+		/inputRange can not be undefined/
 	);
 	// @ts-expect-error
 	expect(() => interpolate(1, [1, 0], undefined)).toThrowError(
-		/input or inputRange or outputRange can not be undefined/
+		/outputRange can not be undefined/
 	);
 	// @ts-expect-error
-	expect(() => interpolate(1)).toThrowError(
-		/input or inputRange or outputRange can not be undefined/
-	);
+	expect(() => interpolate(1)).toThrowError(/inputRange can not be undefined/);
 	// @ts-expect-error
 	expect(() => interpolate('1', [0, 1], [1, 0])).toThrowError(
-		/Cannot interpolation an input which is not a number/
+		/Cannot interpolate an input which is not a number/
 	);
 	// @ts-expect-error
 	expect(() => interpolate(1, 'string', 'string')).toThrowError(
@@ -202,10 +201,10 @@ test('Handle bad types', () => {
 	);
 	// @ts-expect-error
 	expect(() => interpolate(1, undefined, 'string')).toThrowError(
-		/input or inputRange or outputRange can not be undefined/
+		/inputRange can not be undefined/
 	);
 	// @ts-expect-error
 	expect(() => interpolate([1, 2], undefined, 'string')).toThrowError(
-		/input or inputRange or outputRange can not be undefined/
+		/inputRange can not be undefined/
 	);
 });

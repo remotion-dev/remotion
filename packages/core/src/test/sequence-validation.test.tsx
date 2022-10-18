@@ -1,17 +1,15 @@
+/**
+ * @vitest-environment jsdom
+ */
 import {render} from '@testing-library/react';
-import React from 'react';
-import {Sequence} from '../sequencing';
+import {describe, expect, test} from 'vitest';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
+import {Sequence} from '../Sequence';
 import {expectToThrow} from './expect-to-throw';
+import {WrapSequenceContext} from './wrap-sequence-context';
 
 describe('Composition-validation render should throw with invalid props', () => {
 	describe('Throw with invalid duration props', () => {
-		test('It should throw if Sequence has missing duration', () => {
-			expectToThrow(
-				// @ts-expect-error
-				() => render(<Sequence from={0} />),
-				/You passed to durationInFrames an argument of type undefined, but it must be a number./
-			);
-		});
 		test('It should throw if Sequence has non-integer durationInFrames', () => {
 			expectToThrow(
 				() =>
@@ -68,18 +66,26 @@ describe('Composition-validation render should NOT throw with valid props', () =
 	test('It should allow null as children', () => {
 		expect(() =>
 			render(
-				<Sequence durationInFrames={100} from={0}>
-					{null}
-				</Sequence>
+				<CanUseRemotionHooksProvider>
+					<WrapSequenceContext>
+						<Sequence durationInFrames={100} from={0}>
+							{null}
+						</Sequence>
+					</WrapSequenceContext>
+				</CanUseRemotionHooksProvider>
 			)
 		).not.toThrow();
 	});
 	test('It should allow undefined as children', () => {
 		expect(() =>
 			render(
-				<Sequence durationInFrames={100} from={0}>
-					{undefined}
-				</Sequence>
+				<CanUseRemotionHooksProvider>
+					<WrapSequenceContext>
+						<Sequence durationInFrames={100} from={0}>
+							{undefined}
+						</Sequence>
+					</WrapSequenceContext>
+				</CanUseRemotionHooksProvider>
 			)
 		).not.toThrow();
 	});

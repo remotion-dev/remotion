@@ -1,4 +1,4 @@
-import {getLuminance} from 'polished';
+import { getLuminance } from 'polished';
 
 export const getReadableColor = (color: string): string => {
 	const luminance = getLuminance(color);

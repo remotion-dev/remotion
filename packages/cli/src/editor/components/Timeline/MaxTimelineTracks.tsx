@@ -1,23 +1,31 @@
 import React from 'react';
-import styled from 'styled-components';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 
-export const MAX_TIMELINE_TRACKS = 15;
+export const MAX_TIMELINE_TRACKS =
+	typeof process.env.MAX_TIMELINE_TRACKS === 'undefined'
+		? 15
+		: Number(process.env.MAX_TIMELINE_TRACKS);
 
-const Container = styled.div`
-	padding-top: 6px;
-	padding-bottom: 6px;
-	color: rgba(255, 255, 255, 0.6);
-	font-family: sans-serif;
-	font-size: 12px;
-	background-color: rgba(255, 255, 255, 0.1);
-	padding-left: ${TIMELINE_PADDING + 5}px;
-`;
+export const MAX_TIMELINE_TRACKS_NOTICE_HEIGHT = 24;
+
+const container: React.CSSProperties = {
+	height: MAX_TIMELINE_TRACKS_NOTICE_HEIGHT,
+	display: 'flex',
+	alignItems: 'center',
+	color: 'rgba(255, 255, 255, 0.6)',
+	fontFamily: 'sans-serif',
+	fontSize: 12,
+	backgroundColor: 'rgba(255, 255, 255, 0.1)',
+	paddingLeft: TIMELINE_PADDING + 5,
+};
 
 export const MaxTimelineTracksReached: React.FC = () => {
 	return (
-		<Container>
+		<div style={container}>
 			Limited display to {MAX_TIMELINE_TRACKS} tracks to sustain performance.
-		</Container>
+			{''}
+			You can change this by setting Config.Preview.setMaxTimelineTracks() in
+			your remotion.config.ts file.
+		</div>
 	);
 };

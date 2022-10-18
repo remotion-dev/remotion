@@ -1,28 +1,37 @@
+import type {ComponentType, MutableRefObject} from 'react';
 import React, {
 	forwardRef,
-	MutableRefObject,
 	useCallback,
+	useEffect,
 	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
-import {
+import type {
 	CompositionManagerContext,
 	CompProps,
-	Internals,
-	LooseAnyComponent,
 	MediaVolumeContextValue,
+	PlayableMediaTag,
 	SetMediaVolumeContextValue,
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from 'remotion';
+import {Composition, Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
-import {PlayerRef} from './player-methods';
+import type {PlayerRef} from './player-methods';
+import type {
+	RenderFullscreenButton,
+	RenderPlayPauseButton,
+} from './PlayerControls';
+import type {RenderLoading, RenderPoster} from './PlayerUI';
 import PlayerUI from './PlayerUI';
+import {validateInOutFrames} from './utils/validate-in-out-frame';
+import {validateInitialFrame} from './utils/validate-initial-frame';
+import {validatePlaybackRate} from './utils/validate-playbackrate';
 import {getPreferredVolume, persistVolume} from './volume-persistance';
 
 type PropsIfHasProps<Props> = {} extends Props
@@ -33,6 +42,8 @@ type PropsIfHasProps<Props> = {} extends Props
 			inputProps: Props;
 	  };
 
+export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
+
 export type PlayerProps<T> = {
 	durationInFrames: number;
 	compositionWidth: number;
@@ -40,18 +51,41 @@ export type PlayerProps<T> = {
 	fps: number;
 	showVolumeControls?: boolean;
 	controls?: boolean;
+	errorFallback?: ErrorFallback;
 	style?: React.CSSProperties;
 	loop?: boolean;
 	autoPlay?: boolean;
 	allowFullscreen?: boolean;
 	clickToPlay?: boolean;
 	doubleClickToFullscreen?: boolean;
+	spaceKeyToPlayOrPause?: boolean;
+	numberOfSharedAudioTags?: number;
+	playbackRate?: number;
+	renderLoading?: RenderLoading;
+	moveToBeginningWhenEnded?: boolean;
+	className?: string;
+	initialFrame?: number;
+	renderPoster?: RenderPoster;
+	showPosterWhenPaused?: boolean;
+	showPosterWhenEnded?: boolean;
+	showPosterWhenUnplayed?: boolean;
+	inFrame?: number | null;
+	outFrame?: number | null;
+	initiallyShowControls?: number | boolean;
+	renderPlayPauseButton?: RenderPlayPauseButton;
+	renderFullscreenButton?: RenderFullscreenButton;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
-Internals.CSSUtils.injectCSS(
-	Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`)
-);
+export const componentOrNullIfLazy = <T,>(
+	props: CompProps<T>
+): ComponentType<T> | null => {
+	if ('component' in props) {
+		return props.component as ComponentType<T>;
+	}
+
+	return null;
+};
 
 export const PlayerFn = <T,>(
 	{
@@ -68,23 +102,71 @@ export const PlayerFn = <T,>(
 		allowFullscreen = true,
 		clickToPlay,
 		doubleClickToFullscreen = false,
+		spaceKeyToPlayOrPause = true,
+		moveToBeginningWhenEnded = true,
+		numberOfSharedAudioTags = 5,
+		errorFallback = () => '⚠️',
+		playbackRate = 1,
+		renderLoading,
+		className,
+		showPosterWhenUnplayed,
+		showPosterWhenEnded,
+		showPosterWhenPaused,
+		initialFrame,
+		renderPoster,
+		inFrame,
+		outFrame,
+		initiallyShowControls,
+		renderFullscreenButton,
+		renderPlayPauseButton,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
 ) => {
-	useLayoutEffect(() => {
-		if (typeof window !== 'undefined') {
+	if (typeof window !== 'undefined') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
 			window.remotion_isPlayer = true;
-		}
-	}, []);
+		}, []);
+	}
+
+	// @ts-expect-error
+	if (componentProps.defaultProps !== undefined) {
+		throw new Error(
+			'The <Player /> component does not accept `defaultProps`, but some were passed. Use `inputProps` instead.'
+		);
+	}
+
+	const componentForValidation = componentOrNullIfLazy(
+		componentProps
+	) as ComponentType<unknown> | null;
+
+	// @ts-expect-error
+	if (componentForValidation?.type === Composition) {
+		throw new TypeError(
+			`'component' should not be an instance of <Composition/>. Pass the React component directly, and set the duration, fps and dimensions as separate props. See https://www.remotion.dev/docs/player/examples for an example.`
+		);
+	}
+
+	if (componentForValidation === Composition) {
+		throw new TypeError(
+			`'component' must not be the 'Composition' component. Pass your own React component directly, and set the duration, fps and dimensions as separate props. See https://www.remotion.dev/docs/player/examples for an example.`
+		);
+	}
+
 	const component = Internals.useLazyComponent(componentProps);
-	const [frame, setFrame] = useState(0);
+
+	validateInitialFrame({initialFrame, durationInFrames});
+
+	const [frame, setFrame] = useState(() => initialFrame ?? 0);
 	const [playing, setPlaying] = useState<boolean>(false);
 	const [rootId] = useState<string>('player-comp');
 	const [emitter] = useState(() => new PlayerEmitter());
 	const rootRef = useRef<PlayerRef>(null);
 	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
 	const [mediaVolume, setMediaVolume] = useState<number>(getPreferredVolume());
+	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
+	const imperativePlaying = useRef(false);
 
 	if (typeof compositionHeight !== 'number') {
 		throw new TypeError(
@@ -112,7 +194,13 @@ export const PlayerFn = <T,>(
 		durationInFrames,
 		'of the <Player/> component'
 	);
-	Internals.validateFps(fps, 'as a prop of the <Player/> component');
+	Internals.validateFps(fps, 'as a prop of the <Player/> component', false);
+
+	validateInOutFrames({
+		durationInFrames,
+		inFrame,
+		outFrame,
+	});
 
 	if (typeof controls !== 'boolean' && typeof controls !== 'undefined') {
 		throw new TypeError(
@@ -165,12 +253,39 @@ export const PlayerFn = <T,>(
 		);
 	}
 
+	if (
+		typeof spaceKeyToPlayOrPause !== 'boolean' &&
+		typeof spaceKeyToPlayOrPause !== 'undefined'
+	) {
+		throw new TypeError(
+			`'spaceKeyToPlayOrPause' must be a boolean or undefined but got '${typeof spaceKeyToPlayOrPause}' instead`
+		);
+	}
+
+	if (
+		typeof numberOfSharedAudioTags !== 'number' ||
+		numberOfSharedAudioTags % 1 !== 0 ||
+		!Number.isFinite(numberOfSharedAudioTags) ||
+		Number.isNaN(numberOfSharedAudioTags) ||
+		numberOfSharedAudioTags < 0
+	) {
+		throw new TypeError(
+			`'numberOfSharedAudioTags' must be an integer but got '${numberOfSharedAudioTags}' instead`
+		);
+	}
+
+	validatePlaybackRate(playbackRate);
+
+	useEffect(() => {
+		emitter.dispatchRatechange(playbackRate);
+	}, [emitter, playbackRate]);
+
 	const setMediaVolumeAndPersist = useCallback((vol: number) => {
 		setMediaVolume(vol);
 		persistVolume(vol);
 	}, []);
 
-	useImperativeHandle(ref, () => rootRef.current as PlayerRef);
+	useImperativeHandle(ref, () => rootRef.current as PlayerRef, []);
 
 	const timelineContextValue = useMemo((): TimelineContextValue & {
 		shouldRegisterSequences: boolean;
@@ -180,8 +295,14 @@ export const PlayerFn = <T,>(
 			playing,
 			rootId,
 			shouldRegisterSequences: false,
+			playbackRate,
+			imperativePlaying,
+			setPlaybackRate: () => {
+				throw new Error('playback rate');
+			},
+			audioAndVideoTags,
 		};
-	}, [frame, playing, rootId]);
+	}, [frame, playbackRate, playing, rootId]);
 
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
@@ -208,7 +329,7 @@ export const PlayerFn = <T,>(
 			compositions: [
 				{
 					component: component as React.LazyExoticComponent<
-						LooseAnyComponent<unknown>
+						ComponentType<unknown>
 					>,
 					durationInFrames,
 					height: compositionHeight,
@@ -217,8 +338,15 @@ export const PlayerFn = <T,>(
 					id: 'player-comp',
 					props: inputProps as unknown,
 					nonce: 777,
+					scale: 1,
+					folderName: null,
+					defaultProps: undefined,
+					parentFolderName: null,
 				},
 			],
+			folders: [],
+			registerFolder: () => undefined,
+			unregisterFolder: () => undefined,
 			currentComposition: 'player-comp',
 			registerComposition: () => undefined,
 			registerSequence: () => undefined,
@@ -228,6 +356,8 @@ export const PlayerFn = <T,>(
 			unregisterSequence: () => undefined,
 			registerAsset: () => undefined,
 			unregisterAsset: () => undefined,
+			currentCompositionMetadata: null,
+			setCurrentCompositionMetadata: () => undefined,
 			assets: [],
 		};
 	}, [
@@ -243,47 +373,88 @@ export const PlayerFn = <T,>(
 		return inputProps ?? {};
 	}, [inputProps]);
 
+	if (typeof window !== 'undefined') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			// Inject CSS only on client, and also only after the Player has hydrated
+			Internals.CSSUtils.injectCSS(
+				Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`, '#fff')
+			);
+		}, []);
+	}
+
 	return (
-		<Internals.Timeline.TimelineContext.Provider value={timelineContextValue}>
-			<Internals.Timeline.SetTimelineContext.Provider
-				value={setTimelineContextValue}
-			>
-				<Internals.CompositionManager.Provider
-					value={compositionManagerContext}
+		<Internals.CanUseRemotionHooksProvider>
+			<Internals.Timeline.TimelineContext.Provider value={timelineContextValue}>
+				<Internals.Timeline.SetTimelineContext.Provider
+					value={setTimelineContextValue}
 				>
-					<Internals.MediaVolumeContext.Provider
-						value={mediaVolumeContextValue}
+					<Internals.CompositionManager.Provider
+						value={compositionManagerContext}
 					>
-						<Internals.SetMediaVolumeContext.Provider
-							value={setMediaVolumeContextValue}
+						<Internals.MediaVolumeContext.Provider
+							value={mediaVolumeContextValue}
 						>
-							<PlayerEventEmitterContext.Provider value={emitter}>
-								<PlayerUI
-									ref={rootRef}
-									autoPlay={Boolean(autoPlay)}
-									loop={Boolean(loop)}
-									controls={Boolean(controls)}
-									style={style}
-									inputProps={passedInputProps}
-									allowFullscreen={Boolean(allowFullscreen)}
-									clickToPlay={
-										typeof clickToPlay === 'boolean'
-											? clickToPlay
-											: Boolean(controls)
-									}
-									showVolumeControls={Boolean(showVolumeControls)}
-									setMediaVolume={setMediaVolumeAndPersist}
-									mediaVolume={mediaVolume}
-									mediaMuted={mediaMuted}
-									doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
-									setMediaMuted={setMediaMuted}
-								/>
-							</PlayerEventEmitterContext.Provider>
-						</Internals.SetMediaVolumeContext.Provider>
-					</Internals.MediaVolumeContext.Provider>
-				</Internals.CompositionManager.Provider>
-			</Internals.Timeline.SetTimelineContext.Provider>
-		</Internals.Timeline.TimelineContext.Provider>
+							<Internals.SetMediaVolumeContext.Provider
+								value={setMediaVolumeContextValue}
+							>
+								<Internals.SharedAudioContextProvider
+									numberOfAudioTags={numberOfSharedAudioTags}
+								>
+									<PlayerEventEmitterContext.Provider value={emitter}>
+										<Internals.PrefetchProvider>
+											<Internals.DurationsContextProvider>
+												<PlayerUI
+													ref={rootRef}
+													renderLoading={renderLoading}
+													autoPlay={Boolean(autoPlay)}
+													loop={Boolean(loop)}
+													controls={Boolean(controls)}
+													errorFallback={errorFallback}
+													style={style}
+													inputProps={passedInputProps}
+													allowFullscreen={Boolean(allowFullscreen)}
+													moveToBeginningWhenEnded={Boolean(
+														moveToBeginningWhenEnded
+													)}
+													clickToPlay={
+														typeof clickToPlay === 'boolean'
+															? clickToPlay
+															: Boolean(controls)
+													}
+													showVolumeControls={Boolean(showVolumeControls)}
+													setMediaVolume={setMediaVolumeAndPersist}
+													mediaVolume={mediaVolume}
+													mediaMuted={mediaMuted}
+													doubleClickToFullscreen={Boolean(
+														doubleClickToFullscreen
+													)}
+													setMediaMuted={setMediaMuted}
+													spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
+													playbackRate={playbackRate}
+													className={className ?? undefined}
+													showPosterWhenUnplayed={Boolean(
+														showPosterWhenUnplayed
+													)}
+													showPosterWhenEnded={Boolean(showPosterWhenEnded)}
+													showPosterWhenPaused={Boolean(showPosterWhenPaused)}
+													renderPoster={renderPoster}
+													inFrame={inFrame ?? null}
+													outFrame={outFrame ?? null}
+													initiallyShowControls={initiallyShowControls ?? true}
+													renderFullscreen={renderFullscreenButton ?? null}
+													renderPlayPauseButton={renderPlayPauseButton ?? null}
+												/>
+											</Internals.DurationsContextProvider>
+										</Internals.PrefetchProvider>
+									</PlayerEventEmitterContext.Provider>
+								</Internals.SharedAudioContextProvider>
+							</Internals.SetMediaVolumeContext.Provider>
+						</Internals.MediaVolumeContext.Provider>
+					</Internals.CompositionManager.Provider>
+				</Internals.Timeline.SetTimelineContext.Provider>
+			</Internals.Timeline.TimelineContext.Provider>
+		</Internals.CanUseRemotionHooksProvider>
 	);
 };
 

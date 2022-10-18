@@ -1,4 +1,3 @@
-import './event-target-polyfill';
 type SeekPayload = {
 	frame: number;
 };
@@ -7,57 +6,121 @@ type ErrorPayload = {
 	error: Error;
 };
 
-interface StateEventMap {
-	seeked: CustomEvent<SeekPayload>;
-	pause: CustomEvent<undefined>;
-	play: CustomEvent<undefined>;
-	ended: CustomEvent<undefined>;
-	error: CustomEvent<ErrorPayload>;
-}
+type TimeUpdateEventPayload = {
+	frame: number;
+};
 
-export interface PlayerEventTarget extends EventTarget {
-	addEventListener<K extends keyof StateEventMap>(
-		type: K,
-		listener: (ev: StateEventMap[K]) => void,
-		options?: boolean | AddEventListenerOptions
-	): void;
-	addEventListener(
-		type: string,
-		callback: EventListenerOrEventListenerObject | null,
-		options?: EventListenerOptions | boolean
-	): void;
-}
+type FrameUpdateEventPayload = {
+	frame: number;
+};
 
-export class PlayerEmitter extends EventTarget {
-	dispatchSeek(frame: number) {
-		this.dispatchEvent(
-			new CustomEvent<SeekPayload>('seeked', {
-				detail: {
-					frame,
-				},
-			})
+type RateChangeEventPayload = {
+	playbackRate: number;
+};
+
+type FullscreenChangeEventPayload = {
+	isFullscreen: boolean;
+};
+
+type StateEventMap = {
+	seeked: SeekPayload;
+	pause: undefined;
+	play: undefined;
+	ratechange: RateChangeEventPayload;
+	ended: undefined;
+	error: ErrorPayload;
+	timeupdate: TimeUpdateEventPayload;
+	frameupdate: FrameUpdateEventPayload;
+	fullscreenchange: FullscreenChangeEventPayload;
+};
+
+export type EventTypes = keyof StateEventMap;
+
+export type CallbackListener<T extends EventTypes> = (data: {
+	detail: StateEventMap[T];
+}) => void;
+
+type Listeners = {[EventType in EventTypes]: CallbackListener<EventType>[]};
+
+export class PlayerEmitter {
+	listeners: Listeners = {
+		ended: [],
+		error: [],
+		pause: [],
+		play: [],
+		ratechange: [],
+		seeked: [],
+		timeupdate: [],
+		frameupdate: [],
+		fullscreenchange: [],
+	};
+
+	addEventListener<Q extends EventTypes>(
+		name: Q,
+		callback: CallbackListener<Q>
+	) {
+		(this.listeners[name] as CallbackListener<Q>[]).push(callback);
+	}
+
+	removeEventListener<Q extends EventTypes>(
+		name: Q,
+		callback: CallbackListener<Q>
+	) {
+		this.listeners[name] = (
+			this.listeners[name] as CallbackListener<EventTypes>[]
+		).filter((l) => l !== callback);
+	}
+
+	private dispatchEvent<T extends EventTypes>(
+		dispatchName: T,
+		context: StateEventMap[T]
+	) {
+		(this.listeners[dispatchName] as CallbackListener<T>[]).forEach(
+			(callback) => {
+				callback({detail: context});
+			}
 		);
+	}
+
+	dispatchSeek(frame: number) {
+		this.dispatchEvent('seeked', {
+			frame,
+		});
 	}
 
 	dispatchPause() {
-		this.dispatchEvent(new CustomEvent('pause'));
+		this.dispatchEvent('pause', undefined);
 	}
 
 	dispatchPlay() {
-		this.dispatchEvent(new CustomEvent('play'));
+		this.dispatchEvent('play', undefined);
 	}
 
 	dispatchEnded() {
-		this.dispatchEvent(new CustomEvent('ended'));
+		this.dispatchEvent('ended', undefined);
+	}
+
+	dispatchRatechange(playbackRate: number) {
+		this.dispatchEvent('ratechange', {
+			playbackRate,
+		});
 	}
 
 	dispatchError(error: Error) {
-		this.dispatchEvent(
-			new CustomEvent<ErrorPayload>('error', {
-				detail: {
-					error,
-				},
-			})
-		);
+		this.dispatchEvent('error', {
+			error,
+		});
+	}
+
+	dispatchTimeUpdate(event: TimeUpdateEventPayload) {
+		this.dispatchEvent('timeupdate', event);
+	}
+
+	dispatchFrameUpdate(event: FrameUpdateEventPayload) {
+		this.dispatchEvent('frameupdate', event);
+	}
+
+	dispatchFullscreenChangeUpdate(event: FullscreenChangeEventPayload) {
+		this.dispatchEvent('fullscreenchange', event);
 	}
 }

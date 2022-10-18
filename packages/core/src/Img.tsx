@@ -1,5 +1,13 @@
-import React, {forwardRef, useCallback, useEffect, useState} from 'react';
-import {continueRender, delayRender} from './ready-manager';
+import React, {
+	forwardRef,
+	useCallback,
+	useImperativeHandle,
+	useLayoutEffect,
+	useRef,
+} from 'react';
+import {continueRender, delayRender} from './delay-render';
+import {getRemotionEnvironment} from './get-environment';
+import {usePreload} from './prefetch';
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
 	HTMLImageElement,
@@ -7,43 +15,67 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		React.ImgHTMLAttributes<HTMLImageElement>,
 		HTMLImageElement
 	>
-> = ({onLoad, onError, ...props}, ref) => {
-	const [handle] = useState(() => delayRender());
+> = ({onError, src, ...props}, ref) => {
+	const imageRef = useRef<HTMLImageElement>(null);
 
-	useEffect(() => {
-		if (
-			ref &&
-			(ref as React.MutableRefObject<HTMLImageElement>).current.complete
-		) {
-			continueRender(handle);
-		}
-	}, [handle, ref]);
-
-	const didLoad = useCallback(
-		(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-			continueRender(handle);
-			onLoad?.(e);
+	useImperativeHandle(
+		ref,
+		() => {
+			return imageRef.current as HTMLImageElement;
 		},
-		[handle, onLoad]
+		[]
 	);
+
+	const actualSrc = usePreload(src as string);
 
 	const didGetError = useCallback(
 		(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-			continueRender(handle);
 			if (onError) {
 				onError(e);
 			} else {
 				console.error(
-					'Error loading image:',
+					'Error loading image with src:',
+					imageRef.current?.src,
 					e,
 					'Handle the event using the onError() prop to make this message disappear.'
 				);
 			}
 		},
-		[handle, onError]
+		[onError]
 	);
 
-	return <img {...props} ref={ref} onLoad={didLoad} onError={didGetError} />;
+	// If image source switches, make new handle
+	if (getRemotionEnvironment() === 'rendering') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			if (process.env.NODE_ENV === 'test') {
+				return;
+			}
+
+			const newHandle = delayRender('Loading <Img> with src=' + src);
+			const {current} = imageRef;
+
+			const didLoad = () => {
+				continueRender(newHandle);
+			};
+
+			if (current?.complete) {
+				continueRender(newHandle);
+			} else {
+				current?.addEventListener('load', didLoad, {once: true});
+			}
+
+			// If tag gets unmounted, clear pending handles because image is not going to load
+			return () => {
+				current?.removeEventListener('load', didLoad);
+				continueRender(newHandle);
+			};
+		}, [src]);
+	}
+
+	return (
+		<img {...props} ref={imageRef} src={actualSrc} onError={didGetError} />
+	);
 };
 
 export const Img = forwardRef(ImgRefForwarding);
