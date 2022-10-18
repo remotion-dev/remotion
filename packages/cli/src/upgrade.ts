@@ -30,14 +30,14 @@ const getUpgradeCommand = ({
 	return commands[manager];
 };
 
-export const upgrade = async (remotionRoot: string) => {
+export const upgrade = async (remotionRoot: string, enforceManager?: string) => {
 	const packageJsonFilePath = path.join(remotionRoot, 'package.json');
 
 	const packageJson = require(packageJsonFilePath);
 	const dependencies = Object.keys(packageJson.dependencies);
 	const latestRemotionVersion = await getLatestRemotionVersion();
 
-	const manager = getPackageManager(remotionRoot);
+	const manager = getPackageManager(remotionRoot, enforceManager);
 
 	if (manager === 'unknown') {
 		throw new Error(

@@ -68,7 +68,7 @@ export const cli = async () => {
 		} else if (command === 'still') {
 			await still(remotionRoot);
 		} else if (command === 'upgrade') {
-			await upgrade(remotionRoot);
+			await upgrade(remotionRoot, parsedCli['enforce-manager']);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot);
 		} else if (command === 'benchmark') {
