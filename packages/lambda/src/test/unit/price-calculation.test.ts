@@ -1,9 +1,10 @@
+import {expect, test} from 'vitest';
 import {estimatePriceFromBucket} from '../../functions/helpers/calculate-price-from-bucket';
 
 test('Should not throw while calculating prices when time shifts occur', () => {
 	const aDate = Date.now();
 	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
-	process.env.REMOTION_AWS_REGION = 'us-east-1';
+	process.env.AWS_REGION = 'us-east-1';
 
 	const price = estimatePriceFromBucket({
 		contents: [
