@@ -53,7 +53,7 @@
 		"styled-components": "^5.1.1",
 		"ts-unused-exports": "^7.0.1",
 		"typescript": "^4.7.0",
-		"vitest": "^0.18.0"
+		"vitest": "0.18.0"
 	},
 	"devDependencies": {
 		"@types/babel__core": "^7.1.12",

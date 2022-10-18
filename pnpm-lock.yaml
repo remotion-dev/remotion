@@ -70,7 +70,7 @@ importers:
       remotion: 3.2.31
       style-loader: 2.0.0
       typescript: ^4.7.0
-      vitest: ^0.18.0
+      vitest: 0.18.0
       webpack: 5.74.0
     dependencies:
       css-loader: 5.2.7_webpack@5.74.0
@@ -129,7 +129,7 @@ importers:
       semver: 7.3.5
       source-map: 0.6.1
       typescript: ^4.7.0
-      vitest: ^0.18.0
+      vitest: 0.18.0
     dependencies:
       '@remotion/bundler': link:../bundler
       '@remotion/media-utils': link:../media-utils
@@ -180,7 +180,7 @@ importers:
       react-test-renderer: ^18.0.0
       rimraf: ^3.0.2
       typescript: ^4.7.0
-      vitest: ^0.18.0
+      vitest: 0.18.0
       webpack: 5.74.0
     devDependencies:
       '@jonny/eslint-config': 3.0.266_6hvhxfirl4y3p6nuemvvvbadcu
@@ -259,6 +259,7 @@ importers:
       '@remotion/lottie': 3.2.31
       '@remotion/media-utils': 3.2.31
       '@remotion/motion-blur': 3.2.31
+      '@remotion/noise': 3.2.31
       '@remotion/paths': 3.2.31
       '@remotion/player': 3.2.31
       '@remotion/preload': 3.2.31
@@ -290,7 +291,7 @@ importers:
       three: 0.134.0
       typescript: ^4.7.0
       url-loader: ^4.1.1
-      vitest: ^0.18.0
+      vitest: 0.18.0
     dependencies:
       '@babel/plugin-transform-modules-commonjs': 7.15.4_@babel+core@7.18.6
       '@docusaurus/core': 2.1.0_gt2ntm2exbdqrzs2t5x4a3ntdi
@@ -307,6 +308,7 @@ importers:
       '@remotion/lottie': link:../lottie
       '@remotion/media-utils': link:../media-utils
       '@remotion/motion-blur': link:../motion-blur
+      '@remotion/noise': link:../noise
       '@remotion/paths': link:../paths
       '@remotion/player': link:../player
       '@remotion/preload': link:../preload
@@ -421,7 +423,7 @@ importers:
       styled-components: ^5.1.1
       ts-unused-exports: ^7.0.1
       typescript: ^4.7.0
-      vitest: ^0.18.0
+      vitest: 0.18.0
     dependencies:
       '@babel/plugin-syntax-jsx': 7.12.13_@babel+core@7.18.6
       '@babel/preset-env': 7.12.13_@babel+core@7.18.6
@@ -512,7 +514,7 @@ importers:
       remotion: 3.2.31
       sharp: 0.30.6
       typescript: ^4.7.0
-      vitest: ^0.18.0
+      vitest: 0.18.0
     devDependencies:
       '@remotion/bundler': link:../bundler
       '@remotion/cli': link:../cli
@@ -604,7 +606,7 @@ importers:
       react-dom: ^18.0.0
       remotion: 3.2.31
       typescript: ^4.7.0
-      vitest: ^0.18.0
+      vitest: 0.18.0
     dependencies:
       lottie-web: 5.9.6
       remotion: link:../core
@@ -669,6 +671,29 @@ importers:
       react-dom: 18.0.0_react@18.0.0
       typescript: 4.7.2
 
+  packages/noise:
+    specifiers:
+      '@jonny/eslint-config': ^3.0.266
+      '@types/node': ^16.7.5
+      eslint: 8.13.0
+      prettier: ^2.0.5
+      prettier-plugin-organize-imports: ^2.3.4
+      remotion: 3.2.31
+      simplex-noise: 4.0.0
+      typescript: ^4.7.0
+      vitest: 0.18.0
+    dependencies:
+      remotion: link:../core
+      simplex-noise: 4.0.0
+    devDependencies:
+      '@jonny/eslint-config': 3.0.266_6hvhxfirl4y3p6nuemvvvbadcu
+      '@types/node': 16.10.2
+      eslint: 8.13.0
+      prettier: 2.6.2
+      prettier-plugin-organize-imports: 2.3.4_lbsuufegg2dnc4wh6qgf26kgdy
+      typescript: 4.7.2
+      vitest: 0.18.0
+
   packages/paths:
     specifiers:
       '@jonny/eslint-config': 3.0.266
@@ -677,7 +702,7 @@ importers:
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
       typescript: ^4.7.0
-      vitest: ^0.18.0
+      vitest: 0.18.0
     devDependencies:
       '@jonny/eslint-config': 3.0.266_6hvhxfirl4y3p6nuemvvvbadcu
       '@types/node': 16.10.2
@@ -722,7 +747,7 @@ importers:
       prettier-plugin-organize-imports: 2.3.4_pxx7xhvr2bexxfjjff3nukai7m
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
-      ts-jest: 27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm
+      ts-jest: 27.0.5_g2mfyom6zaxqcgedxrl4lakegu
       typescript: 4.7.2
       webpack: 5.74.0
 
@@ -809,7 +834,7 @@ importers:
       remotion: 3.2.31
       source-map: ^0.8.0-beta.0
       typescript: ^4.7.0
-      vitest: ^0.18.0
+      vitest: 0.18.0
       ws: 8.7.0
     dependencies:
       execa: 5.1.1
@@ -19813,6 +19838,10 @@ packages:
       is-arrayish: 0.3.2
     dev: true
 
+  /simplex-noise/4.0.0:
+    resolution: {integrity: sha512-ciRAxJnRdQhFhZ7+yZKxk8bQJoIq2J2UPO2pbzy1vcrWFq70P4hNCCmcCTkBKDCIeXZVd/yKjL8Fmh8Aeu5+6g==}
+    dev: false
+
   /sirv/1.0.17:
     resolution: {integrity: sha512-qx9go5yraB7ekT7bCMqUHJ5jEaOC/GXBxUWv+jeWnb7WzHUFdcQPGWk7YmAwFBaQBrogpuSqd/azbC2lZRqqmw==}
     engines: {node: '>= 10'}
@@ -20894,6 +20923,38 @@ packages:
     resolution: {integrity: sha512-3IVX4nI6B5cc31/GFFE+i8ey/N2eA0CZDbo6n0yrz0zDX8ZJ8djmU1p+XRz7G3is0F3bB3pu2pAroFdAWQKU3w==}
     dev: false
 
+  /ts-jest/27.0.5_g2mfyom6zaxqcgedxrl4lakegu:
+    resolution: {integrity: sha512-lIJApzfTaSSbtlksfFNHkWOzLJuuSm4faFAfo5kvzOiRAuoN4/eKxVJ2zEAho8aecE04qX6K1pAzfH5QHL1/8w==}
+    engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
+    hasBin: true
+    peerDependencies:
+      '@babel/core': '>=7.0.0-beta.0 <8'
+      '@types/jest': ^27.0.0
+      babel-jest: '>=27.0.0 <28'
+      jest: ^27.0.0
+      typescript: '>=3.8 <5.0'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@types/jest':
+        optional: true
+      babel-jest:
+        optional: true
+    dependencies:
+      '@babel/core': 7.18.6
+      '@types/jest': 27.4.0
+      bs-logger: 0.2.6
+      fast-json-stable-stringify: 2.1.0
+      jest: 27.2.4
+      jest-util: 27.5.1
+      json5: 2.2.1
+      lodash: 4.17.21
+      make-error: 1.3.6
+      semver: 7.3.7
+      typescript: 4.7.2
+      yargs-parser: 20.2.9
+    dev: true
+
   /ts-jest/27.0.5_h5rbqvnmqo6ezjz2gx5x5dlwkm:
     resolution: {integrity: sha512-lIJApzfTaSSbtlksfFNHkWOzLJuuSm4faFAfo5kvzOiRAuoN4/eKxVJ2zEAho8aecE04qX6K1pAzfH5QHL1/8w==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
@@ -20915,7 +20976,7 @@ packages:
       '@types/jest': 27.4.0
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 27.2.4
+      jest: 27.2.4_ts-node@10.8.0
       jest-util: 27.5.1
       json5: 2.2.1
       lodash: 4.17.21

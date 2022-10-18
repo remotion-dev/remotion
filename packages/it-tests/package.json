@@ -18,6 +18,6 @@
     "remotion": "3.2.31",
     "sharp": "0.30.6",
     "typescript": "^4.7.0",
-    "vitest": "^0.18.0"
+    "vitest": "0.18.0"
   }
 }
