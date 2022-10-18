@@ -256,11 +256,7 @@ module.exports = {
         type: "doc",
         id: "noise/index",
       },
-      items: [
-        "noise/create-noise-2d",
-        "noise/create-noise-3d",
-        "noise/create-noise-4d",
-      ],
+      items: ["noise/noise-2d", "noise/noise-3d", "noise/noise-4d"],
     },
   ],
   mainSidebar: [

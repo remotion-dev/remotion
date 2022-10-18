@@ -7,7 +7,7 @@ Using the [`@remotion/noise`](/docs/noise) package, you can add noise for your v
 
 ## Noise Dot Grid Demo
 
-This example shows how to create a floating dot grid "surface" using [`createNoise3D()`](/docs/noise/create-noise-3d) function.
+This example shows how to create a floating dot grid "surface" using [`noise3D()`](/docs/noise/noise-3d) function.
 
 - 1st and 2nd dimensions used for space domain.
 - 3rd dimension used for time domain.
@@ -19,22 +19,13 @@ import { NoiseDemo } from "../components/NoiseDemo";
 <hr/>
 
 ```tsx twoslash
-import { createNoise3D } from "@remotion/noise";
+import { noise3D } from "@remotion/noise";
 import React from "react";
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 
-const xNoise3d = createNoise3D("x");
-const yNoise3d = createNoise3D("y");
-const opacityNoise3d = createNoise3D("opacity");
-const colorNoise3d = createNoise3D("color");
-
 const OVERSCAN_MARGIN = 100;
 
-const NoiseComp: React.FC<{
-  scale: number;
-  speed: number;
-  circleRadius: number;
-}> = ({ scale, speed, circleRadius }) => {
+const NoiseComp: React.FC<Props> = ({ scale, speed, circleRadius }) => {
   const frame = useCurrentFrame();
   const { height, width } = useVideoConfig();
   const rows = Math.round((height + OVERSCAN_MARGIN) / scale);
@@ -48,19 +39,20 @@ const NoiseComp: React.FC<{
           const y = j * scale;
           const px = i / cols;
           const py = j / rows;
-          const dx = xNoise3d(px, py, frame * speed) * scale;
-          const dy = yNoise3d(px, py, frame * speed) * scale;
+          const dx = noise3D("x", px, py, frame * speed) * scale;
+          const dy = noise3D("y", px, py, frame * speed) * scale;
           const opacity = interpolate(
-            opacityNoise3d(i, j, frame * speed),
+            noise3D("opacity", i, j, frame * speed),
             [-1, 1],
             [0, 1]
           );
           const color =
-            colorNoise3d(px, py, frame * speed) < 0
+            noise3D("color", px, py, frame * speed) < 0
               ? "rgb(0,87,184)"
               : "rgb(254,221,0)";
           return (
             <circle
+              // eslint-disable-next-line react/no-array-index-key
               key={`${i}-${j}`}
               cx={x + dx}
               cy={y + dy}

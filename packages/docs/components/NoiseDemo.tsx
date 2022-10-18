@@ -1,12 +1,7 @@
-import { createNoise3D } from "@remotion/noise";
+import { noise3D } from "@remotion/noise";
 import { Player } from "@remotion/player";
 import React, { useMemo, useState } from "react";
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
-
-const xNoise3d = createNoise3D("x");
-const yNoise3d = createNoise3D("y");
-const opacityNoise3d = createNoise3D("opacity");
-const colorNoise3d = createNoise3D("color");
 
 interface Props {
   scale: number;
@@ -30,15 +25,15 @@ const NoiseComp: React.FC<Props> = ({ scale, speed, circleRadius }) => {
           const y = j * scale;
           const px = i / cols;
           const py = j / rows;
-          const dx = xNoise3d(px, py, frame * speed) * scale;
-          const dy = yNoise3d(px, py, frame * speed) * scale;
+          const dx = noise3D("x", px, py, frame * speed) * scale;
+          const dy = noise3D("y", px, py, frame * speed) * scale;
           const opacity = interpolate(
-            opacityNoise3d(i, j, frame * speed),
+            noise3D("opacity", i, j, frame * speed),
             [-1, 1],
             [0, 1]
           );
           const color =
-            colorNoise3d(px, py, frame * speed) < 0
+            noise3D("color", px, py, frame * speed) < 0
               ? "rgb(0,87,184)"
               : "rgb(254,221,0)";
           return (
