@@ -61,7 +61,7 @@ const generate4DNoise = (seed: RandomSeed) => {
 
 /**
  * @description Creates 2D noise.
- * @link https://remotion.dev/docs/noise/create-noise-2d
+ * @link https://remotion.dev/docs/noise/noise-2d
  * @param {RandomSeed} seed Remotion random seed. The same parameter https://www.remotion.dev/docs/random function accepts.
  * @returns {number}
  */
@@ -71,7 +71,7 @@ export const noise2D = (seed: RandomSeed, x: number, y: number): number => {
 
 /**
  * @description Creates 3D noise.
- * @link https://remotion.dev/docs/noise/create-noise-3d
+ * @link https://remotion.dev/docs/noise/noise-3d
  * @param {RandomSeed} seed Remotion random seed. The same parameter https://www.remotion.dev/docs/random function accepts.
  * @returns {number}
  */
@@ -84,7 +84,7 @@ export const noise3D = (
 
 /**
  * @description Creates 4D noise.
- * @link https://remotion.dev/docs/noise/create-noise-4d
+ * @link https://remotion.dev/docs/noise/noise-4d
  * @param {RandomSeed} seed Remotion random seed. The same parameter https://www.remotion.dev/docs/random function accepts.
  * @returns {number}
  */
