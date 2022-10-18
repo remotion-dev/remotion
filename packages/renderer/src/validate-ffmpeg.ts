@@ -1,6 +1,8 @@
 import execa from 'execa';
 import {statSync} from 'fs';
 import os from 'os';
+import {RenderInternals} from '.';
+import {warnAboutFfmpegVersion} from './warn-about-ffmpeg-version';
 
 const existsMap: {[key: string]: boolean} = {};
 
@@ -38,6 +40,23 @@ export const binaryExists = async (
 const isHomebrewInstalled = (): Promise<boolean> => {
 	return binaryExists('brew', null);
 };
+
+export const checkAndValidateFfmpegVersion = async (options: {
+	ffmpegExecutable: string | null;
+}) => {
+	const ffmpegVersion = await RenderInternals.getFfmpegVersion({
+		ffmpegExecutable: options.ffmpegExecutable,
+	});
+	const buildConf = await RenderInternals.getFfmpegBuildInfo({
+		ffmpegExecutable: options.ffmpegExecutable,
+	});
+	console.log(
+		'Your FFMPEG version:',
+		ffmpegVersion ? ffmpegVersion.join('.') : 'Built from source'
+	);
+	warnAboutFfmpegVersion({ffmpegVersion, buildConf});
+};
+
 
 export const validateFfmpeg = async (
 	customFfmpegBinary: string | null
@@ -79,4 +98,6 @@ export const validateFfmpeg = async (
 
 		process.exit(1);
 	}
+
+	await checkAndValidateFfmpegVersion({ffmpegExecutable: customFfmpegBinary});
 };
