@@ -360,6 +360,7 @@ module.exports = {
         "staticfile-relative-paths",
         "staticfile-remote-urls",
         "troubleshooting/rosetta",
+        "troubleshooting/loading-root-component",
         "troubleshooting/defaultprops-too-big",
       ],
     },
