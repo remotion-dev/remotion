@@ -30,6 +30,7 @@
     "@remotion/lottie": "3.2.31",
     "@remotion/media-utils": "3.2.31",
     "@remotion/motion-blur": "3.2.31",
+    "@remotion/noise": "3.2.31",
     "@remotion/paths": "3.2.31",
     "@remotion/player": "3.2.31",
     "@remotion/preload": "3.2.31",
@@ -51,7 +52,7 @@
     "react-player": "^2.9.0",
     "remotion": "3.2.31",
     "three": "0.134.0",
-    "vitest": "^0.18.0"
+    "vitest": "0.18.0"
   },
   "devDependencies": {
     "@tsconfig/docusaurus": "^1.0.5",
