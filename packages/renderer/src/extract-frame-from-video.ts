@@ -160,7 +160,8 @@ const getLastFrameOfVideoFastUnlimited = async (
 	const {duration, fps} = await getVideoStreamDuration(
 		downloadMap,
 		src,
-		ffprobeExecutable
+		ffprobeExecutable,
+		options.remotionRoot
 	);
 
 	if (duration === null) {
@@ -300,14 +301,16 @@ const extractFrameFromVideoFn = async ({
 	const {specialVcodec, needsResize} = await getVideoInfo(
 		downloadMap,
 		src,
-		ffprobeExecutable
+		ffprobeExecutable,
+		remotionRoot
 	);
 
 	if (specialVcodec === 'vp8') {
 		const {fps} = await getVideoStreamDuration(
 			downloadMap,
 			src,
-			ffprobeExecutable
+			ffprobeExecutable,
+			remotionRoot
 		);
 		return getFrameOfVideoSlow({
 			ffmpegExecutable,
