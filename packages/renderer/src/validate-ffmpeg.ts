@@ -55,10 +55,12 @@ export const checkAndValidateFfmpegVersion = async (options: {
 		ffmpegExecutable: options.ffmpegExecutable,
 		remotionRoot: options.remotionRoot,
 	});
-	const buildConf = await getFfmpegBuildInfo({
-		ffmpegExecutable: options.ffmpegExecutable,
-		remotionRoot: options.remotionRoot,
-	});
+	const buildConf = await getFfmpegBuildInfo(
+		{
+			ffmpegExecutable: options.ffmpegExecutable,
+		},
+		options.remotionRoot
+	);
 	warnAboutFfmpegVersion({ffmpegVersion, buildConf});
 };
 

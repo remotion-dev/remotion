@@ -173,7 +173,8 @@ export const renderMedia = ({
 	onSlowestFrames,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
-	validateFfmpeg(ffmpegExecutable ?? null);
+	const remotionRoot = findRemotionRoot();
+	validateFfmpeg(ffmpegExecutable ?? null, remotionRoot);
 	validateQuality(options.quality);
 	validateQualitySettings({crf, codec, videoBitrate});
 	validateBitrate(audioBitrate, 'audioBitrate');
@@ -325,7 +326,7 @@ export const renderMedia = ({
 					ffmpegOverride: ffmpegOverride ?? (({args}) => args),
 					videoBitrate: videoBitrate ?? null,
 				},
-				findRemotionRoot()
+				remotionRoot
 			);
 			stitcherFfmpeg = preStitcher.task;
 		}
