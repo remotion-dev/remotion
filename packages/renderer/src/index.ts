@@ -4,8 +4,7 @@ import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
-import {warnIfAppleSiliconIsNotUsingArm64Architecture} from './check-apple-silicon';
-import { checkNodeVersion } from './check-version';
+import {checkNodeVersionAndWarnAboutRosetta} from './check-apple-silicon';
 import {DEFAULT_CODEC, validCodecs} from './codec';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {getValidCrfRanges, validateQualitySettings} from './crf';
@@ -172,6 +171,4 @@ export const RenderInternals = {
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
-warnIfAppleSiliconIsNotUsingArm64Architecture();
-
-checkNodeVersion();
+checkNodeVersionAndWarnAboutRosetta();
