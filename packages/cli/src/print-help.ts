@@ -80,7 +80,10 @@ export const printHelp = () => {
 	Log.info('remotion upgrade');
 	Log.info(chalk.gray('Ensure Remotion is on the newest version.'));
 	printFlags([
-		['--enforce-manager', 'Enforce package manager, defaults to use from lockfile'],
+		[
+			'--package-manager',
+			'Enforce package manager, defaults to use from lockfile',
+		],
 	]);
 	Log.info();
 	Log.info(

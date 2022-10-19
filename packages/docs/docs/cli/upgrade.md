@@ -9,13 +9,15 @@ Upgrades all Remotion-related packages.
 npx remotion upgrade
 ```
 
-## Arguments
+## Flags
 
-### `enforce-manager`
+### `--package-manager`
 
 _optional since v3.2.33_
 
-Allows you to enforce manager to be used for the upgrade. This is useful if you are using Remotion in a monorepo and you want to upgrade all packages at once. By default, Remotion will use the manager of `lockfile`.
+Forces a specific package manager to be used. This is useful if you are using Remotion in a monorepo and you want to upgrade all packages at once. By default, Remotion will auto-detect the package manager.
+
+Acceptable values are `npm`, `yarn` and `pnpm`
 
 ## Package manager support
 
