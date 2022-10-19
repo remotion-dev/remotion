@@ -6,7 +6,7 @@ import {warnAboutFfmpegVersion} from './warn-about-ffmpeg-version';
 
 const existsMap: {[key: string]: boolean} = {};
 
-export const binaryExists = async (
+export const binaryExists = (
 	name: 'ffmpeg' | 'brew',
 	localFFmpeg: string | null
 ) => {
@@ -28,7 +28,7 @@ export const binaryExists = async (
 	const isWin = os.platform() === 'win32';
 	const where = isWin ? 'where' : 'which';
 	try {
-		await execa(where, [name]);
+		execa.sync(where, [name]);
 		existsMap[name] = true;
 		return true;
 	} catch (err) {
@@ -37,7 +37,7 @@ export const binaryExists = async (
 	}
 };
 
-const isHomebrewInstalled = (): Promise<boolean> => {
+const isHomebrewInstalled = (): boolean => {
 	return binaryExists('brew', null);
 };
 
@@ -57,11 +57,10 @@ export const checkAndValidateFfmpegVersion = async (options: {
 	warnAboutFfmpegVersion({ffmpegVersion, buildConf});
 };
 
-
 export const validateFfmpeg = async (
 	customFfmpegBinary: string | null
 ): Promise<void> => {
-	const ffmpegExists = await binaryExists('ffmpeg', customFfmpegBinary);
+	const ffmpegExists = binaryExists('ffmpeg', customFfmpegBinary);
 	if (!ffmpegExists) {
 		if (customFfmpegBinary) {
 			console.error('FFmpeg executable not found:');
@@ -70,7 +69,7 @@ export const validateFfmpeg = async (
 		}
 
 		console.error('It looks like FFMPEG is not installed');
-		if (os.platform() === 'darwin' && (await isHomebrewInstalled())) {
+		if (os.platform() === 'darwin' && isHomebrewInstalled()) {
 			console.error('Run `brew install ffmpeg` to install ffmpeg');
 		} else if (os.platform() === 'win32') {
 			console.error('1. Install FFMPEG for Windows here:');
