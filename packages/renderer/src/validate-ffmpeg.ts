@@ -92,7 +92,11 @@ export const validateFfmpeg = async (
 		(os.platform() === 'win32' && process.arch === 'x64') ||
 		(os.platform() === 'linux' && process.arch === 'x64')
 	) {
-		await downloadBinary(remotionRoot, getFfmpegDownloadUrl('ffmpeg').url);
+		await downloadBinary(
+			remotionRoot,
+			getFfmpegDownloadUrl('ffmpeg').url,
+			'ffmpeg'
+		);
 		return validateFfmpeg(customFfmpegBinary, remotionRoot);
 	}
 
