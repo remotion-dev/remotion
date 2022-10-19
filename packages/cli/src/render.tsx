@@ -32,7 +32,6 @@ import {
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import type {RenderStep} from './step';
 import {getUserPassedOutputLocation} from './user-passed-output-location';
-import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
 export const render = async (remotionRoot: string) => {
 	const startTime = Date.now();
@@ -114,10 +113,6 @@ export const render = async (remotionRoot: string) => {
 	);
 
 	Log.verbose('Browser executable: ', browserExecutable);
-
-	await checkAndValidateFfmpegVersion({
-		ffmpegExecutable,
-	});
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
