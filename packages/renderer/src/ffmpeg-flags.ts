@@ -118,17 +118,15 @@ export const parseFfmpegVersion = (buildconf: string): FfmpegVersion => {
 	return [Number(match[1]), Number(match[2]), Number(match[3] ?? 0)];
 };
 
-export const getFfmpegVersion = async (
-	options: {
-		ffmpegExecutable: string | null;
-	},
-	remotionRoot: string
-): Promise<FfmpegVersion> => {
+export const getFfmpegVersion = async (options: {
+	ffmpegExecutable: string | null;
+	remotionRoot: string;
+}): Promise<FfmpegVersion> => {
 	const buildInfo = await getFfmpegBuildInfo(
 		{
 			ffmpegExecutable: options.ffmpegExecutable,
 		},
-		remotionRoot
+		options.remotionRoot
 	);
 	return parseFfmpegVersion(buildInfo);
 };

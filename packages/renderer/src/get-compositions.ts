@@ -13,7 +13,7 @@ import type {ChromiumOptions} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {setPropsAndEnv} from './set-props-and-env';
-import { validateFfmpeg } from './validate-ffmpeg';
+import {validateFfmpeg} from './validate-ffmpeg';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 type GetCompositionsConfig = {
@@ -92,7 +92,7 @@ export const getCompositions = async (
 	serveUrlOrWebpackUrl: string,
 	config?: GetCompositionsConfig
 ) => {
-	await validateFfmpeg(config?.ffmpegExecutable ?? null);
+	await validateFfmpeg(config?.ffmpegExecutable ?? null, findRemotionRoot());
 
 	const downloadMap = config?.downloadMap ?? makeDownloadMap();
 
