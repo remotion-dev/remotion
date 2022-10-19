@@ -1,7 +1,7 @@
 import type { SVGProps } from "react";
 import React from "react";
 
-export const RemixIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
+export const RemixIcon: React.FC<SVGProps<SVGSVGElement>> = () => {
   return (
     <svg
       width="800"
