@@ -1,20 +1,20 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
 import type { Template } from "create-video";
 import { CreateVideoInternals } from "create-video";
-import { TemplateModal } from "./TemplateModal";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { chunk } from "../helpers/chunk";
+import { useMobileLayout } from "../helpers/mobile-layout";
+import { NavigateLeft, NavigateRight } from "./ArrowRight";
 import { Blank } from "./icons/blank";
 import { Cubes } from "./icons/cubes";
 import { JSIcon } from "./icons/js";
+import { SkiaIcon } from "./icons/skia";
 import { StillIcon } from "./icons/still";
+import { Tailwind } from "./icons/tailwind";
 import { TypeScriptIcon } from "./icons/ts";
 import { TTSIcon } from "./icons/tts";
 import { Waveform } from "./icons/waveform";
 import { TemplateIcon } from "./TemplateIcon";
-import { chunk } from "../helpers/chunk";
-import { NavigateLeft, NavigateRight } from "./ArrowRight";
-import { useMobileLayout } from "../helpers/mobile-layout";
-import { SkiaIcon } from "./icons/skia";
-import { Tailwind } from "./icons/tailwind";
+import { TemplateModal } from "./TemplateModal";
 
 const IconForTemplate: React.FC<{
   template: Template;

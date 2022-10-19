@@ -48,7 +48,7 @@
 		"@types/minimist": "1.2.2",
 		"@types/node": "^14.14.14",
 		"@types/prompt": "^1.1.0",
-		"eslint": "8.13.0",
+		"eslint": "8.25.0",
 		"prettier": "^2.4.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"ts-node": "^10.8.0",

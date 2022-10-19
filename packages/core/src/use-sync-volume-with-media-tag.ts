@@ -1,7 +1,7 @@
 import type {RefObject} from 'react';
-import { useEffect} from 'react';
+import {useEffect} from 'react';
 import {isApproximatelyTheSame} from './is-approximately-the-same';
-import type { VolumeProp} from './volume-prop';
+import type {VolumeProp} from './volume-prop';
 import {evaluateVolume} from './volume-prop';
 
 export type UseSyncVolumeWithMediaTagOptions = {

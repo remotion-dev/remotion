@@ -1,9 +1,5 @@
-import type {
-	AudioData} from '@remotion/media-utils';
-import {
-	getAudioData,
-	getWaveformPortion,
-} from '@remotion/media-utils';
+import type {AudioData} from '@remotion/media-utils';
+import {getAudioData, getWaveformPortion} from '@remotion/media-utils';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
 	TIMELINE_BORDER,
