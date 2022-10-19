@@ -6447,7 +6447,7 @@ packages:
       npm-package-arg: 8.1.5
       p-map: 4.0.0
       pacote: 11.3.5
-      semver: 7.3.7
+      semver: 7.3.5
     transitivePeerDependencies:
       - bluebird
       - supports-color
@@ -6478,7 +6478,7 @@ packages:
       p-map-series: 2.1.0
       p-waterfall: 2.1.1
       read-package-tree: 5.3.1
-      semver: 7.3.7
+      semver: 7.3.5
     dev: false
 
   /@lerna/changed/4.0.0:
@@ -6583,7 +6583,7 @@ packages:
       npm-package-arg: 8.1.5
       npmlog: 4.1.2
       pify: 5.0.0
-      semver: 7.3.7
+      semver: 7.3.5
     dev: false
 
   /@lerna/create-symlink/4.0.0:
@@ -6611,7 +6611,7 @@ packages:
       p-reduce: 2.1.0
       pacote: 11.3.5
       pify: 5.0.0
-      semver: 7.3.7
+      semver: 7.3.5
       slash: 3.0.0
       validate-npm-package-license: 3.0.4
       validate-npm-package-name: 3.0.0
@@ -6718,7 +6718,7 @@ packages:
     engines: {node: '>= 10.18.0'}
     dependencies:
       '@lerna/child-process': 4.0.0
-      semver: 7.3.7
+      semver: 7.3.5
     dev: false
 
   /@lerna/import/4.0.0:
@@ -6890,7 +6890,7 @@ packages:
       '@lerna/validation-error': 4.0.0
       npm-package-arg: 8.1.5
       npmlog: 4.1.2
-      semver: 7.3.7
+      semver: 7.3.5
     dev: false
 
   /@lerna/package/4.0.0:
@@ -6906,7 +6906,7 @@ packages:
     resolution: {integrity: sha512-GQqguzETdsYRxOSmdFZ6zDBXDErIETWOqomLERRY54f4p+tk4aJjoVdd9xKwehC9TBfIFvlRbL1V9uQGHh1opg==}
     engines: {node: '>= 10.18.0'}
     dependencies:
-      semver: 7.3.7
+      semver: 7.3.5
     dev: false
 
   /@lerna/profiler/4.0.0:
@@ -6975,7 +6975,7 @@ packages:
       p-map: 4.0.0
       p-pipe: 3.1.0
       pacote: 11.3.5
-      semver: 7.3.7
+      semver: 7.3.5
     transitivePeerDependencies:
       - bluebird
       - supports-color
@@ -7106,7 +7106,7 @@ packages:
       p-pipe: 3.1.0
       p-reduce: 2.1.0
       p-waterfall: 2.1.1
-      semver: 7.3.7
+      semver: 7.3.5
       slash: 3.0.0
       temp-write: 4.0.0
       write-json-file: 4.3.0
@@ -7205,7 +7205,7 @@ packages:
     resolution: {integrity: sha512-8ltnOpRR/oJbOp8vaGUnipOi3bqkcW+sLHFlyXIr08OGHmVJLB1Hn7QtGXbYcpVtH1gAYZTlmDXtE4YV0+AMMQ==}
     dependencies:
       '@gar/promisify': 1.1.2
-      semver: 7.3.7
+      semver: 7.3.5
     dev: false
 
   /@npmcli/git/2.1.0:
@@ -7217,7 +7217,7 @@ packages:
       npm-pick-manifest: 6.1.1
       promise-inflight: 1.0.1
       promise-retry: 2.0.1
-      semver: 7.3.7
+      semver: 7.3.5
       which: 2.0.2
     transitivePeerDependencies:
       - bluebird
@@ -8621,7 +8621,7 @@ packages:
       debug: 4.3.3
       globby: 11.0.4
       is-glob: 4.0.3
-      semver: 7.3.7
+      semver: 7.3.5
       tsutils: 3.21.0_typescript@4.7.2
       typescript: 4.7.2
     transitivePeerDependencies:
@@ -8642,7 +8642,7 @@ packages:
       debug: 4.3.4
       globby: 11.0.4
       is-glob: 4.0.3
-      semver: 7.3.7
+      semver: 7.3.5
       tsutils: 3.21.0_typescript@4.7.2
       typescript: 4.7.2
     transitivePeerDependencies:
@@ -12683,7 +12683,7 @@ packages:
       memfs: 3.4.1
       minimatch: 3.1.2
       schema-utils: 2.7.0
-      semver: 7.3.7
+      semver: 7.3.5
       tapable: 1.1.3
       typescript: 4.7.2
       webpack: 5.74.0_esbuild@0.14.19
@@ -13701,7 +13701,7 @@ packages:
       promzard: 0.3.0
       read: 1.0.7
       read-package-json: 4.1.1
-      semver: 7.3.7
+      semver: 7.3.5
       validate-npm-package-license: 3.0.4
       validate-npm-package-name: 3.0.0
     dev: false
@@ -14567,7 +14567,7 @@ packages:
       normalize-package-data: 3.0.3
       npm-package-arg: 8.1.5
       npm-registry-fetch: 11.0.0
-      semver: 7.3.7
+      semver: 7.3.5
       ssri: 8.0.1
     transitivePeerDependencies:
       - bluebird
@@ -15780,7 +15780,7 @@ packages:
       npmlog: 4.1.2
       request: 2.88.2
       rimraf: 3.0.2
-      semver: 7.3.7
+      semver: 7.3.5
       tar: 6.1.11
       which: 2.0.2
     dev: false
@@ -15833,7 +15833,7 @@ packages:
     dependencies:
       hosted-git-info: 4.0.2
       is-core-module: 2.7.0
-      semver: 7.3.7
+      semver: 7.3.5
       validate-npm-package-license: 3.0.4
     dev: false
 
@@ -15866,7 +15866,7 @@ packages:
     resolution: {integrity: sha512-09OmyDkNLYwqKPOnbI8exiOZU2GVVmQp7tgez2BPi5OZC8M82elDAps7sxC4l//uSUtotWqoEIDwjRvWH4qz8w==}
     engines: {node: '>=10'}
     dependencies:
-      semver: 7.3.7
+      semver: 7.3.5
     dev: false
 
   /npm-lifecycle/3.1.5:
@@ -15891,7 +15891,7 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       hosted-git-info: 4.0.2
-      semver: 7.3.7
+      semver: 7.3.5
       validate-npm-package-name: 3.0.0
     dev: false
 
@@ -15912,7 +15912,7 @@ packages:
       npm-install-checks: 4.0.0
       npm-normalize-package-bin: 1.0.1
       npm-package-arg: 8.1.5
-      semver: 7.3.7
+      semver: 7.3.5
     dev: false
 
   /npm-registry-fetch/11.0.0:
@@ -17486,8 +17486,6 @@ packages:
       shell-quote: 1.7.2
       strip-ansi: 6.0.0
       text-table: 0.2.0
-      typescript: 4.7.2
-      webpack: 5.74.0
     transitivePeerDependencies:
       - eslint
       - supports-color
@@ -17524,8 +17522,6 @@ packages:
       shell-quote: 1.7.3
       strip-ansi: 6.0.1
       text-table: 0.2.0
-      typescript: 4.7.2
-      webpack: 5.74.0_esbuild@0.14.19
     transitivePeerDependencies:
       - eslint
       - supports-color
@@ -20321,7 +20317,6 @@ packages:
   /unified/6.2.0:
     resolution: {integrity: sha512-1k+KPhlVtqmG99RaTbAv/usu85fcSRu3wY8X+vnsEhIxNP5VbVIDiXnLqyKIG+UMdyTg0ZX9EI6k2AfjJkHPtA==}
     dependencies:
-      '@types/unist': 2.0.6
       bail: 1.0.5
       extend: 3.0.2
       is-plain-obj: 1.1.0
@@ -20333,7 +20328,6 @@ packages:
   /unified/9.2.0:
     resolution: {integrity: sha512-vx2Z0vY+a3YoTj8+pttM3tiJHCwY5UFbYdiWrwBEbHmK8pvsPj2rtAX2BFfgXen8T39CJWblWRDT4L5WGXtDdg==}
     dependencies:
-      '@types/unist': 2.0.6
       bail: 1.0.5
       extend: 3.0.2
       is-buffer: 2.0.5
@@ -20345,7 +20339,6 @@ packages:
   /unified/9.2.2:
     resolution: {integrity: sha512-Sg7j110mtefBD+qunSLO1lqOEKdrwBFBrR6Qd8f4uwkhWNlbkaqwHse6e7QvD3AP/MNoJdEDLaf8OxYyoWgorQ==}
     dependencies:
-      '@types/unist': 2.0.6
       bail: 1.0.5
       extend: 3.0.2
       is-buffer: 2.0.5
