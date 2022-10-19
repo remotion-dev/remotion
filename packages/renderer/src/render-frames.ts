@@ -43,7 +43,6 @@ import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
-import { validateFfmpeg } from './validate-ffmpeg';
 import {validateScale} from './validate-scale';
 
 type ConfigOrComposition =
@@ -413,8 +412,6 @@ type CleanupFn = () => void;
 export const renderFrames = (
 	options: RenderFramesOptions
 ): Promise<RenderFramesOutput> => {
-	validateFfmpeg(options.ffmpegExecutable ?? null);
-
 	const composition = getComposition(options);
 	const concurrency = getConcurrency(options);
 
