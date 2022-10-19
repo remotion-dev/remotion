@@ -13,7 +13,7 @@ export const lambdaCommand = async (remotionRoot: string) => {
 		await LambdaInternals.executeCommand(parsedCli._.slice(1), remotionRoot);
 		process.exit(0);
 	} catch (err) {
-		const manager = getPackageManager(remotionRoot);
+		const manager = getPackageManager(remotionRoot, undefined);
 		const installCommand =
 			manager === 'unknown' ? 'npm i' : manager.installCommand;
 		Log.error(err);
