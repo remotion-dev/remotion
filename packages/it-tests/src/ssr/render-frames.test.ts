@@ -9,6 +9,7 @@ import {
 } from "@remotion/renderer";
 import execa from "execa";
 import { expect, test } from "vitest";
+import { getExecutableFfprobe } from "@remotion/renderer/dist/ffmpeg-flags";
 
 test("Legacy SSR way of rendering videos should still work", async () => {
   const puppeteerInstance = await openBrowser("chrome");
@@ -57,7 +58,9 @@ test("Legacy SSR way of rendering videos should still work", async () => {
     codec: "h264",
   });
   expect(fs.existsSync(outPath)).toBe(true);
-  const probe = await execa("ffprobe", [outPath]);
+  const probe = await execa(await getExecutableFfprobe(null, process.cwd()), [
+    outPath,
+  ]);
   expect(probe.stderr).toMatch(/Video: h264/);
   await puppeteerInstance.close();
 });
