@@ -7,6 +7,7 @@ import { NavigateLeft, NavigateRight } from "./ArrowRight";
 import { Blank } from "./icons/blank";
 import { Cubes } from "./icons/cubes";
 import { JSIcon } from "./icons/js";
+import { RemixIcon } from "./icons/remix";
 import { SkiaIcon } from "./icons/skia";
 import { StillIcon } from "./icons/still";
 import { Tailwind } from "./icons/tailwind";
@@ -102,6 +103,16 @@ const IconForTemplate: React.FC<{
   if (template.homePageLabel === "Skia") {
     return (
       <SkiaIcon
+        style={{
+          height: 32,
+        }}
+      />
+    );
+  }
+
+  if (template.homePageLabel === "Remix") {
+    return (
+      <RemixIcon
         style={{
           height: 32,
         }}
