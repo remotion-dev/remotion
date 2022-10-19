@@ -357,7 +357,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const outer: React.CSSProperties = useMemo(() => {
 		if (!layout || !config) {
-			return {};
+			return {
+				opacity: 0,
+			};
 		}
 
 		const {centerX, centerY} = layout;
