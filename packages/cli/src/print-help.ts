@@ -82,7 +82,7 @@ export const printHelp = () => {
 	printFlags([
 		[
 			'--package-manager',
-			'Enforce package manager, defaults to use from lockfile',
+			'Force a specific package manager, defaults to use from lockfile',
 		],
 	]);
 	Log.info();
