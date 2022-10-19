@@ -1,7 +1,7 @@
 import execa from 'execa';
 import {statSync} from 'fs';
 import os from 'os';
-import {RenderInternals} from '.';
+import {getFfmpegBuildInfo, getFfmpegVersion} from './ffmpeg-flags';
 import {warnAboutFfmpegVersion} from './warn-about-ffmpeg-version';
 
 const existsMap: {[key: string]: boolean} = {};
@@ -44,10 +44,10 @@ const isHomebrewInstalled = (): boolean => {
 export const checkAndValidateFfmpegVersion = async (options: {
 	ffmpegExecutable: string | null;
 }) => {
-	const ffmpegVersion = await RenderInternals.getFfmpegVersion({
+	const ffmpegVersion = await getFfmpegVersion({
 		ffmpegExecutable: options.ffmpegExecutable,
 	});
-	const buildConf = await RenderInternals.getFfmpegBuildInfo({
+	const buildConf = await getFfmpegBuildInfo({
 		ffmpegExecutable: options.ffmpegExecutable,
 	});
 	console.log(

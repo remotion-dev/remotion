@@ -12,11 +12,7 @@ import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
-import {
-	ffmpegHasFeature,
-	getFfmpegBuildInfo,
-	getFfmpegVersion,
-} from './ffmpeg-flags';
+import {ffmpegHasFeature} from './ffmpeg-flags';
 import {validateFrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
@@ -109,10 +105,8 @@ export const RenderInternals = {
 	ensureLocalBrowser,
 	ffmpegHasFeature,
 	getActualConcurrency,
-	getFfmpegVersion,
 	validateFfmpeg,
 	binaryExists,
-	getFfmpegBuildInfo,
 	serveStatic,
 	validateEvenDimensionsWithCodec,
 	normalizeServeUrl,
