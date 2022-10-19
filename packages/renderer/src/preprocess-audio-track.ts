@@ -33,7 +33,8 @@ const preprocessAudioTrackUnlimited = async ({
 	const {channels, duration} = await getAudioChannelsAndDuration(
 		downloadMap,
 		resolveAssetSrc(asset.src),
-		ffprobeExecutable
+		ffprobeExecutable,
+		remotionRoot
 	);
 
 	const filter = calculateFfmpegFilter({

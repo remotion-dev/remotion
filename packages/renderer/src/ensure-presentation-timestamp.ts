@@ -13,7 +13,7 @@ type Callback = {
 
 let callbacks: Callback[] = [];
 
-const getTemporaryOutputName = async (src: string) => {
+const getTemporaryOutputName = async (src: string, remotionRoot: string) => {
 	const parts = src.split(path.sep);
 
 	// If there is no file extension for the video, then we need to temporarily add an extension
@@ -21,7 +21,7 @@ const getTemporaryOutputName = async (src: string) => {
 	const lastPart = parts[parts.length - 1];
 	const extraExtension = lastPart.includes('.')
 		? null
-		: await guessExtensionForVideo(src);
+		: await guessExtensionForVideo(src, remotionRoot);
 
 	return parts
 		.map((p, i) => {
@@ -57,7 +57,7 @@ export const ensurePresentationTimestamps = async (
 	downloadMap.ensureFileHasPresentationTimestamp[src] = {type: 'encoding'};
 
 	// If there is no file extension for the video, then we need to tempoa
-	const output = await getTemporaryOutputName(src);
+	const output = await getTemporaryOutputName(src, remotionRoot);
 
 	await execa(await getExecutableFfmpeg(ffmpegExecutable, remotionRoot), [
 		'-i',

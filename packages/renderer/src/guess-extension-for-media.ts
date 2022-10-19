@@ -1,7 +1,13 @@
 import execa from 'execa';
+import {getExecutableFfprobe} from './ffmpeg-flags';
 
-export const guessExtensionForVideo = async (src: string) => {
-	const {stderr} = await execa('ffprobe', [src]);
+export const guessExtensionForVideo = async (
+	src: string,
+	remotionRoot: string
+) => {
+	const {stderr} = await execa(await getExecutableFfprobe(null, remotionRoot), [
+		src,
+	]);
 
 	if (stderr.includes('mp3,')) {
 		return 'mp3';
