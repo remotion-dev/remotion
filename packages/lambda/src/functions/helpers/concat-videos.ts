@@ -13,12 +13,16 @@ import type {AwsRegion} from '../../pricing/aws-regions';
 import {
 	chunkKey,
 	CONCAT_FOLDER_TOKEN,
+	getErrorKeyPrefix,
 	REMOTION_CONCATED_TOKEN,
 	REMOTION_FILELIST_TOKEN,
+	rendersPrefix,
 } from '../../shared/constants';
 import type {LambdaCodec} from '../../shared/validate-lambda-codec';
+import {inspectErrors} from './inspect-errors';
 import {lambdaLs, lambdaReadFile} from './io';
 import {timer} from './timer';
+import type {EnhancedErrorInfo} from './write-lambda-error';
 
 const getChunkDownloadOutputLocation = ({
 	outdir,
@@ -68,6 +72,7 @@ const getAllFilesS3 = ({
 	renderId,
 	region,
 	expectedBucketOwner,
+	onErrors,
 }: {
 	bucket: string;
 	expectedFiles: number;
@@ -75,12 +80,13 @@ const getAllFilesS3 = ({
 	renderId: string;
 	region: AwsRegion;
 	expectedBucketOwner: string;
+	onErrors: (errors: EnhancedErrorInfo[]) => Promise<void>;
 }): Promise<string[]> => {
 	const alreadyDownloading: {[key: string]: true} = {};
 	const downloaded: {[key: string]: true} = {};
 
 	const getFiles = async () => {
-		const prefix = chunkKey(renderId);
+		const prefix = rendersPrefix(renderId);
 		const lsTimer = timer('Listing files');
 		const contents = await lambdaLs({
 			bucketName: bucket,
@@ -89,14 +95,19 @@ const getAllFilesS3 = ({
 			expectedBucketOwner,
 		});
 		lsTimer.end();
-		return contents
-			.filter((c) => c.Key?.startsWith(chunkKey(renderId)))
-			.map((_) => _.Key as string);
+		return {
+			filesInBucket: contents
+				.filter((c) => c.Key?.startsWith(chunkKey(renderId)))
+				.map((_) => _.Key as string),
+			errorContents: contents.filter((c) =>
+				c.Key?.startsWith(getErrorKeyPrefix(renderId))
+			),
+		};
 	};
 
 	return new Promise<string[]>((resolve, reject) => {
 		const loop = async () => {
-			const filesInBucket = await getFiles();
+			const {filesInBucket, errorContents} = await getFiles();
 			const checkFinish = () => {
 				const areAllFilesDownloaded =
 					Object.keys(downloaded).length === expectedFiles;
@@ -115,7 +126,21 @@ const getAllFilesS3 = ({
 				}
 			};
 
-			// console.log('Found ', filesInBucket);
+			console.log('Found ', filesInBucket);
+			const errors = (
+				await inspectErrors({
+					bucket,
+					contents: errorContents,
+					expectedBucketOwner,
+					region,
+					renderId,
+				})
+			).filter((e) => e.isFatal);
+
+			if (errors.length > 0) {
+				await onErrors(errors);
+				// Will die here
+			}
 
 			filesInBucket.forEach(async (key) => {
 				if (alreadyDownloading[key]) {
@@ -145,12 +170,12 @@ const getAllFilesS3 = ({
 				Object.keys(alreadyDownloading).length === expectedFiles;
 			if (!areAllFilesDownloading) {
 				setTimeout(() => {
-					loop();
+					loop().catch((err) => reject(err));
 				}, 100);
 			}
 		};
 
-		loop();
+		loop().catch((err) => reject(err));
 	});
 };
 
@@ -167,10 +192,12 @@ export const concatVideosS3 = async ({
 	numberOfGifLoops,
 	ffmpegExecutable,
 	remotionRoot,
+	onErrors,
 }: {
 	bucket: string;
 	expectedFiles: number;
 	onProgress: (frames: number, encodingStart: number) => void;
+	onErrors: (errors: EnhancedErrorInfo[]) => Promise<void>;
 	numberOfFrames: number;
 	renderId: string;
 	region: AwsRegion;
@@ -196,6 +223,7 @@ export const concatVideosS3 = async ({
 		renderId,
 		region,
 		expectedBucketOwner,
+		onErrors,
 	});
 
 	const outfile = join(

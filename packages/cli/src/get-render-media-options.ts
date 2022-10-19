@@ -38,6 +38,8 @@ export const getRenderMediaOptions = async ({
 		muted,
 		enforceAudioTrack,
 		ffmpegOverride,
+		audioBitrate,
+		videoBitrate,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -80,5 +82,7 @@ export const getRenderMediaOptions = async ({
 		concurrency,
 		serveUrl,
 		codec,
+		audioBitrate,
+		videoBitrate,
 	};
 };

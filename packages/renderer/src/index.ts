@@ -7,11 +7,7 @@ import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {warnIfAppleSiliconIsNotUsingArm64Architecture} from './check-apple-silicon';
 import {DEFAULT_CODEC, validCodecs} from './codec';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
-import {
-	getDefaultCrfForCodec,
-	getValidCrfRanges,
-	validateSelectedCrfAndCodecCombination,
-} from './crf';
+import {getValidCrfRanges, validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
@@ -65,6 +61,7 @@ import {
 } from './validate-opengl-renderer';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
+import {validateBitrate} from './validate-videobitrate';
 import {
 	registerErrorSymbolicationLock,
 	unlockErrorSymbolicationLock,
@@ -151,8 +148,7 @@ export const RenderInternals = {
 	validateFrameRange,
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
-	getDefaultCrfForCodec,
-	validateSelectedCrfAndCodecCombination,
+	validateQualitySettings,
 	validImageFormats,
 	validCodecs,
 	DEFAULT_PIXEL_FORMAT,
@@ -175,6 +171,7 @@ export const RenderInternals = {
 	convertToPositiveFrameIndex,
 	findRemotionRoot,
 	getExecutableFfmpeg,
+	validateBitrate,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

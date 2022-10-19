@@ -1,13 +1,12 @@
 import {RenderInternals} from '@remotion/renderer';
 import {createWriteStream} from 'fs';
 import {VERSION} from 'remotion/version';
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
 import type {LambdaReturnValues} from '../../../shared/return-values';
 import {disableLogs, enableLogs} from '../../disable-logs';
-
-jest.setTimeout(30000);
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
@@ -60,6 +59,8 @@ test('Should make a distributed GIF', async () => {
 			version: VERSION,
 			overwrite: true,
 			webhook: null,
+			audioBitrate: null,
+			videoBitrate: null,
 		},
 		extraContext
 	);

@@ -218,6 +218,14 @@ export const parseCommandLine = () => {
 	if (typeof parsedCli['public-dir'] !== 'undefined') {
 		Config.Bundling.setPublicDir(parsedCli['public-dir']);
 	}
+
+	if (typeof parsedCli['audio-bitrate'] !== 'undefined') {
+		Config.Output.setAudioBitrate(parsedCli['audio-bitrate']);
+	}
+
+	if (typeof parsedCli['video-bitrate'] !== 'undefined') {
+		Config.Output.setVideoBitrate(parsedCli['video-bitrate']);
+	}
 };
 
 export const quietFlagProvided = () => parsedCli.quiet || parsedCli.q;
