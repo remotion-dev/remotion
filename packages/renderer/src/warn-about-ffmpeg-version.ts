@@ -1,4 +1,4 @@
-import type {FfmpegVersion} from '.';
+import type {FfmpegVersion} from './ffmpeg-flags';
 
 const printMessage = (ffmpegVersion: NonNullable<FfmpegVersion>) => {
 	console.warn('⚠️Old FFMPEG version detected: ' + ffmpegVersion.join('.'));
@@ -12,7 +12,9 @@ const printBuildConfMessage = () => {
 	console.error(
 		'   Audio will not be supported and you may experience other issues.'
 	);
-	console.error('   Upgrade FFMPEG to at least v4.1.0 to get rid of this warning.');
+	console.error(
+		'   Upgrade FFMPEG to at least v4.1.0 to get rid of this warning.'
+	);
 };
 
 export const warnAboutFfmpegVersion = ({
