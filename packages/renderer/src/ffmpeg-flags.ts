@@ -74,7 +74,10 @@ export const ffmpegInNodeModules = (
 	return null;
 };
 
-const getFfmpegAbsolutePath = (remotionRoot: string): string => {
+const getFfmpegAbsolutePath = (
+	remotionRoot: string,
+	binary: 'ffmpeg' | 'ffprobe'
+): string => {
 	const folderName = getFfmpegFolderName(remotionRoot);
 	if (!fs.existsSync(folderName)) {
 		fs.mkdirSync(folderName);
@@ -83,13 +86,13 @@ const getFfmpegAbsolutePath = (remotionRoot: string): string => {
 	if (os.platform() === 'win32') {
 		return path.resolve(
 			folderName,
-			`${binaryPrefix.ffmpeg}${randomFfmpegRuntimeId}.exe`
+			`${binaryPrefix[binary]}${randomFfmpegRuntimeId}.exe`
 		);
 	}
 
 	return path.resolve(
 		folderName,
-		`${binaryPrefix.ffmpeg}${randomFfmpegRuntimeId}`
+		`${binaryPrefix[binary]}${randomFfmpegRuntimeId}`
 	);
 };
 
@@ -153,9 +156,10 @@ const onProgress = (downloadedBytes: number, totalBytesToDownload: number) => {
 
 export const downloadBinary = async (
 	remotionRoot: string,
-	url: string
+	url: string,
+	binary: 'ffmpeg' | 'ffprobe'
 ): Promise<string> => {
-	const destinationPath = getFfmpegAbsolutePath(remotionRoot);
+	const destinationPath = getFfmpegAbsolutePath(remotionRoot, binary);
 
 	isDownloading[url] = true;
 	const totalBytes = await _downloadFile(url, destinationPath, onProgress);
@@ -201,7 +205,7 @@ export const getExecutableFfprobe = async (
 		return inNodeMod;
 	}
 
-	return downloadBinary(remotionRoot, url);
+	return downloadBinary(remotionRoot, url, 'ffprobe');
 };
 
 export const getExecutableFfmpeg = async (
@@ -230,7 +234,7 @@ export const getExecutableFfmpeg = async (
 		return inNodeMod;
 	}
 
-	return downloadBinary(remotionRoot, url);
+	return downloadBinary(remotionRoot, url, 'ffmpeg');
 };
 
 function toMegabytes(bytes: number) {
