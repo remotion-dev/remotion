@@ -113,13 +113,13 @@ const convertArgumentsIntoOptions = (args: Arguments): BundleOptions => {
 
 const recursionLimit = 5;
 
-const findClosestPackageJson = (currentDir: string): string | null => {
+const findClosestPackageJsonFolder = (currentDir: string): string | null => {
 	let possiblePackageJson = '';
 	for (let i = 0; i < recursionLimit; i++) {
 		possiblePackageJson = path.join(currentDir, 'package.json');
 		const exists = fs.existsSync(possiblePackageJson);
 		if (exists) {
-			return possiblePackageJson;
+			return path.dirname(possiblePackageJson);
 		}
 
 		currentDir = path.dirname(currentDir);
@@ -132,7 +132,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 	const actualArgs = convertArgumentsIntoOptions(args);
 	const resolvedRemotionRoot =
 		actualArgs?.rootDir ??
-		findClosestPackageJson(actualArgs.entryPoint) ??
+		findClosestPackageJsonFolder(actualArgs.entryPoint) ??
 		process.cwd();
 
 	const outDir = await prepareOutDir(actualArgs?.outDir ?? null);
