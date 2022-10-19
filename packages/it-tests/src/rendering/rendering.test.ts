@@ -1,4 +1,5 @@
 import { RenderInternals } from "@remotion/renderer";
+import { cleanDownloadMap } from "@remotion/renderer/dist/assets/download-map";
 import execa from "execa";
 import fs from "fs";
 import path from "path";
@@ -385,6 +386,7 @@ test("Dynamic duration should work, and render from inside src/", async () => {
   const expectedDuration = (randomDuration / 30).toFixed(2);
   const ffmpegVersion = await RenderInternals.getFfmpegVersion({
     ffmpegExecutable: null,
+    remotionRoot: process.cwd(),
   });
   if (ffmpegVersion && ffmpegVersion[0] === 4 && ffmpegVersion[1] > 1) {
     expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
