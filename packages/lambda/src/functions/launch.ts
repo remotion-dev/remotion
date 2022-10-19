@@ -49,6 +49,7 @@ import {inspectErrors} from './helpers/inspect-errors';
 import {lambdaDeleteFile, lambdaLs, lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
+import type {EnhancedErrorInfo} from './helpers/write-lambda-error';
 import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
@@ -408,6 +409,35 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		});
 	};
 
+	const onErrors = async (errors: EnhancedErrorInfo[]) => {
+		console.log('Found Errors', errors);
+
+		if (params.webhook) {
+			console.log('Sending webhook with errors');
+			await invokeWebhook({
+				url: params.webhook.url,
+				secret: params.webhook.secret ?? null,
+				payload: {
+					type: 'error',
+					renderId: params.renderId,
+					expectedBucketOwner: options.expectedBucketOwner,
+					bucketName: params.bucketName,
+					errors: errors.slice(0, 5).map((e) => ({
+						message: e.message,
+						name: e.name as string,
+						stack: e.stack as string,
+					})),
+				},
+			});
+		} else {
+			console.log('No webhook specified');
+		}
+
+		throw new Error(
+			'Stopping Lambda function because error occurred: ' + errors[0].stack
+		);
+	};
+
 	const fps = comp.fps / params.everyNthFrame;
 
 	const {outfile, cleanupChunksProm, encodingStart} = await concatVideosS3({
@@ -421,6 +451,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		expectedBucketOwner: options.expectedBucketOwner,
 		fps,
 		numberOfGifLoops: params.numberOfGifLoops,
+		onErrors,
 	});
 	if (!encodingStop) {
 		encodingStop = Date.now();
