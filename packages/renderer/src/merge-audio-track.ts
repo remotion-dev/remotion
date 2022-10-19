@@ -1,5 +1,4 @@
 import execa from 'execa';
-
 import path from 'path';
 import type {DownloadMap} from './assets/download-map';
 import {chunk} from './chunk';

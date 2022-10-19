@@ -154,7 +154,6 @@ export const downloadFfmpeg = async (
 ): Promise<string> => {
 	const destinationPath = getFfmpegAbsolutePath(remotionRoot);
 
-	console.log('DOWNLOAD', Math.random());
 	isDownloading[url] = true;
 	const totalBytes = await _downloadFile(url, destinationPath, onProgress);
 	onProgress(totalBytes, totalBytes);
@@ -170,12 +169,6 @@ export const downloadFfmpeg = async (
 	listeners[url].forEach((listener) => listener(destinationPath));
 	listeners[url] = [];
 
-	console.log({
-		destinationPath,
-		perm: fs.accessSync(destinationPath, fs.constants.X_OK),
-		stat: fs.statSync(destinationPath),
-	});
-
 	return destinationPath;
 };
 
@@ -186,8 +179,6 @@ export const getExecutableFfmpeg = async (
 	const exists = await binaryExists('ffmpeg', ffmpegExecutable);
 
 	if (exists) {
-		console.log('XXX get from exists');
-
 		if (ffmpegExecutable !== null) {
 			return ffmpegExecutable;
 		}
@@ -198,19 +189,15 @@ export const getExecutableFfmpeg = async (
 	const {url} = getFfmpegDownloadUrl();
 
 	if (isDownloading[url]) {
-		console.log('XXX get from waiting');
 		return waitForFfmpegToBeDownloaded(url);
 	}
 
 	const inNodeMod = ffmpegInNodeModules(remotionRoot);
 
 	if (inNodeMod) {
-		console.log('XXX get from node mode', inNodeMod);
-
 		return inNodeMod;
 	}
 
-	console.log('XXX get from DL');
 	return downloadFfmpeg(remotionRoot, url);
 };
 
@@ -250,7 +237,7 @@ export const getFfmpegDownloadUrl = (): {
 
 const printMessage = (ffmpegVersion: NonNullable<FfmpegVersion>) => {
 	console.warn('⚠️Old FFMPEG version detected: ' + ffmpegVersion.join('.'));
-	console.warn('   For audio support, you need at least version 4.1.0.');
+	console.warn('   You need at least version 4.1.0.');
 	console.warn('   Upgrade FFMPEG to get rid of this warning.');
 };
 
