@@ -1,4 +1,4 @@
-son:
+on:
   push:
     branches:
       - main
