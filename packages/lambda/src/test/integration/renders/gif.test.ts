@@ -1,4 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
+import {getExecutableFfprobe} from '@remotion/renderer/src/ffmpeg-flags';
 import {createWriteStream} from 'fs';
 import {VERSION} from 'remotion/version';
 import {afterAll, beforeAll, expect, test} from 'vitest';
@@ -85,6 +86,9 @@ test('Should make a distributed GIF', async () => {
 	await new Promise<void>((resolve) => {
 		file.pipe(createWriteStream('gif.gif')).on('close', () => resolve());
 	});
-	const probe = await RenderInternals.execa('ffprobe', ['gif.gif']);
+	const probe = await RenderInternals.execa(
+		await getExecutableFfprobe(null, process.cwd()),
+		['gif.gif']
+	);
 	expect(probe.stderr).toMatch(/Video: gif, bgra, 1080x1080/);
 }, 90000);
