@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {isValidOptimizationProfile} from '../../functions/chunk-optimization/is-valid-profile';
 import {optimizeProfile} from '../../functions/chunk-optimization/optimize-profile';
 
