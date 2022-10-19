@@ -13,16 +13,27 @@ import {warnAboutFfmpegVersion} from './warn-about-ffmpeg-version';
 const existsMap: {[key: string]: boolean} = {};
 
 export const binaryExists = (
-	name: 'ffmpeg' | 'brew',
-	localFFmpeg: string | null
+	name: 'ffmpeg' | 'ffprobe' | 'brew',
+	localExecutable: string | null
 ) => {
 	if (typeof existsMap[name] !== 'undefined') {
 		return existsMap[name];
 	}
 
-	if (name === 'ffmpeg' && localFFmpeg) {
+	if (name === 'ffmpeg' && localExecutable) {
 		try {
-			statSync(localFFmpeg);
+			statSync(localExecutable);
+			existsMap[name] = true;
+		} catch (err) {
+			existsMap[name] = false;
+		}
+
+		return existsMap[name];
+	}
+
+	if (name === 'ffprobe' && localExecutable) {
+		try {
+			statSync(localExecutable);
 			existsMap[name] = true;
 		} catch (err) {
 			existsMap[name] = false;
