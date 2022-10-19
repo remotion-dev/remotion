@@ -65,7 +65,7 @@ export const validateFfmpeg = async (
 		if (customFfmpegBinary) {
 			console.error('FFmpeg executable not found:');
 			console.error(customFfmpegBinary);
-			process.exit(1);
+			throw new Error('FFmpeg not found');
 		}
 
 		console.error('It looks like FFMPEG is not installed');
@@ -95,7 +95,7 @@ export const validateFfmpeg = async (
 			);
 		}
 
-		process.exit(1);
+		throw new Error('FFmpeg not found');
 	}
 
 	await checkAndValidateFfmpegVersion({ffmpegExecutable: customFfmpegBinary});
