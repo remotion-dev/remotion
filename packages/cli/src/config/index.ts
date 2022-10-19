@@ -46,6 +46,14 @@ import {
 	setAudioBitrate,
 	setVideoBitrate,
 } from './bitrate';
+import {
+	getHeight,
+	setHeight,
+}	from './height';
+import {
+	getWidth,
+	setWidth
+} from './width';
 import {setBrowserExecutable} from './browser-executable';
 import {
 	setChromiumDisableWebSecurity,
@@ -139,6 +147,8 @@ export const Config: ConfigType = {
 		setProResProfile,
 		setAudioBitrate,
 		setVideoBitrate,
+		setHeight,
+		setWidth,
 		overrideFfmpegCommand: setFfmpegOverrideFunction,
 	},
 } as ConfigType;
@@ -189,6 +199,8 @@ export const ConfigInternals = {
 	getFfmpegOverrideFunction,
 	getAudioBitrate,
 	getVideoBitrate,
+	getHeight,
+	getWidth,
 	getCrfOrUndefined,
 };
 
