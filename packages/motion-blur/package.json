@@ -29,8 +29,8 @@
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
 		"@types/react": "18.0.1",
-		"eslint": "8.13.0",
-		"prettier": "^2.0.5",
+		"eslint": "8.25.0",
+		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"react": "18.0.0",
 		"react-dom": "18.0.0",

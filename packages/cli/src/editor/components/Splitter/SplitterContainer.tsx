@@ -3,10 +3,9 @@ import {useTimelineFlex} from '../../state/timeline';
 import type {
 	SplitterDragState,
 	SplitterOrientation,
-	TSplitterContext} from './SplitterContext';
-import {
-	SplitterContext
+	TSplitterContext,
 } from './SplitterContext';
+import {SplitterContext} from './SplitterContext';
 
 const containerRow: React.CSSProperties = {
 	display: 'flex',
