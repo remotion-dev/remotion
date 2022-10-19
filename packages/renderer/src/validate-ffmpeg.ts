@@ -2,7 +2,7 @@ import execa from 'execa';
 import {statSync} from 'fs';
 import os from 'os';
 import {
-	downloadFfmpeg,
+	downloadBinary,
 	ffmpegInNodeModules,
 	getFfmpegBuildInfo,
 	getFfmpegDownloadUrl,
@@ -79,11 +79,11 @@ export const validateFfmpeg = async (
 	customFfmpegBinary: string | null,
 	remotionRoot: string
 ): Promise<void> => {
-	if (await binaryExists('ffmpeg', customFfmpegBinary)) {
+	if (binaryExists('ffmpeg', customFfmpegBinary)) {
 		return;
 	}
 
-	if (ffmpegInNodeModules(remotionRoot)) {
+	if (ffmpegInNodeModules(remotionRoot, 'ffmpeg')) {
 		return;
 	}
 
@@ -92,7 +92,7 @@ export const validateFfmpeg = async (
 		(os.platform() === 'win32' && process.arch === 'x64') ||
 		(os.platform() === 'linux' && process.arch === 'x64')
 	) {
-		await downloadFfmpeg(remotionRoot, getFfmpegDownloadUrl().url);
+		await downloadBinary(remotionRoot, getFfmpegDownloadUrl('ffmpeg').url);
 		return validateFfmpeg(customFfmpegBinary, remotionRoot);
 	}
 
@@ -103,7 +103,7 @@ export const validateFfmpeg = async (
 	}
 
 	console.error('It looks like FFMPEG is not installed');
-	if (os.platform() === 'darwin' && (await isHomebrewInstalled())) {
+	if (os.platform() === 'darwin' && isHomebrewInstalled()) {
 		console.error('Run `brew install ffmpeg` to install ffmpeg');
 	} else if (os.platform() === 'win32') {
 		console.error('1. Install FFMPEG for Windows here:');

@@ -37,10 +37,13 @@ const getFfmpegFolderName = (remotionRoot: string): string => {
 	return path.resolve(remotionRoot, 'node_modules/.ffmpeg');
 };
 
-const ffmpegBinaryPrefix = 'ffmpeg-';
+const binaryPrefix = {ffmpeg: 'ffmpeg-', ffprobe: 'ffprobe-'} as const;
 const randomFfmpegRuntimeId = String(Math.random()).replace('0.', '');
 
-export const ffmpegInNodeModules = (remotionRoot: string): string | null => {
+export const ffmpegInNodeModules = (
+	remotionRoot: string,
+	binary: 'ffmpeg' | 'ffprobe'
+): string | null => {
 	const folderName = getFfmpegFolderName(remotionRoot);
 	if (!fs.existsSync(folderName)) {
 		fs.mkdirSync(folderName);
@@ -51,11 +54,11 @@ export const ffmpegInNodeModules = (remotionRoot: string): string | null => {
 	// to avoid finding binaries that are still being downloaded
 	// A random ID is being assigned to the download to avoid conflicts when multiple Remotion processes are running
 	const ffmpegInstalled = fs.readdirSync(folderName).find((filename) => {
-		if (!filename.startsWith(ffmpegBinaryPrefix)) {
+		if (!filename.startsWith(binaryPrefix[binary])) {
 			return false;
 		}
 
-		const expectedLength = getFfmpegDownloadUrl().contentLength;
+		const expectedLength = getFfmpegDownloadUrl(binary).contentLength;
 
 		if (fs.statSync(path.join(folderName, filename)).size === expectedLength) {
 			return true;
@@ -80,13 +83,13 @@ const getFfmpegAbsolutePath = (remotionRoot: string): string => {
 	if (os.platform() === 'win32') {
 		return path.resolve(
 			folderName,
-			`${ffmpegBinaryPrefix}${randomFfmpegRuntimeId}.exe`
+			`${binaryPrefix.ffmpeg}${randomFfmpegRuntimeId}.exe`
 		);
 	}
 
 	return path.resolve(
 		folderName,
-		`${ffmpegBinaryPrefix}${randomFfmpegRuntimeId}`
+		`${binaryPrefix.ffmpeg}${randomFfmpegRuntimeId}`
 	);
 };
 
@@ -148,7 +151,7 @@ const onProgress = (downloadedBytes: number, totalBytesToDownload: number) => {
 	);
 };
 
-export const downloadFfmpeg = async (
+export const downloadBinary = async (
 	remotionRoot: string,
 	url: string
 ): Promise<string> => {
@@ -176,7 +179,7 @@ export const getExecutableFfprobe = async (
 	ffprobeExecutable: FfmpegExecutable,
 	remotionRoot: string
 ) => {
-	const exists = binaryExists('ffprobe', null);
+	const exists = binaryExists('ffprobe', ffprobeExecutable);
 
 	if (exists) {
 		if (ffprobeExecutable !== null) {
@@ -187,6 +190,18 @@ export const getExecutableFfprobe = async (
 	}
 
 	const {url} = getFfmpegDownloadUrl('ffprobe');
+
+	if (isDownloading[url]) {
+		return waitForFfmpegToBeDownloaded(url);
+	}
+
+	const inNodeMod = ffmpegInNodeModules(remotionRoot, 'ffprobe');
+
+	if (inNodeMod) {
+		return inNodeMod;
+	}
+
+	return downloadBinary(remotionRoot, url);
 };
 
 export const getExecutableFfmpeg = async (
@@ -209,13 +224,13 @@ export const getExecutableFfmpeg = async (
 		return waitForFfmpegToBeDownloaded(url);
 	}
 
-	const inNodeMod = ffmpegInNodeModules(remotionRoot);
+	const inNodeMod = ffmpegInNodeModules(remotionRoot, 'ffmpeg');
 
 	if (inNodeMod) {
 		return inNodeMod;
 	}
 
-	return downloadFfmpeg(remotionRoot, url);
+	return downloadBinary(remotionRoot, url);
 };
 
 function toMegabytes(bytes: number) {
