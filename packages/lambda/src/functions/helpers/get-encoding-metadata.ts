@@ -1,5 +1,5 @@
 import type {EncodingProgress} from '../../defaults';
-import { encodingProgressKey} from '../../defaults';
+import {encodingProgressKey} from '../../defaults';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import {streamToString} from '../../shared/stream-to-string';
 import {lambdaReadFile} from './io';
