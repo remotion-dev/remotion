@@ -199,6 +199,8 @@ const renderHandler = async (
 			downloadMap,
 			muted: params.muted,
 			enforceAudioTrack: true,
+			audioBitrate: params.audioBitrate,
+			videoBitrate: params.videoBitrate,
 			onSlowestFrames: (slowestFrames) => {
 				console.log();
 				console.log(`Slowest frames:`);
@@ -266,6 +268,7 @@ export const rendererHandler = async (
 		await renderHandler(params, options, logs);
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
+			console.log({err});
 			throw err;
 		}
 

@@ -115,6 +115,14 @@ See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile
 
 See [`renderMedia() -> quality`](/docs/renderer/render-media#quality).
 
+### `audioBitrate`
+
+See [`renderMedia() -> audioBitrate`](/docs/renderer/render-media#audiobitrate).
+
+### `videoBitrate`
+
+See [`renderMedia() -> videoBitrate`](/docs/renderer/render-media#videobitrate).
+
 ### `maxRetries`
 
 _optional since v3.2.27, default `1`_

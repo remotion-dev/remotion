@@ -1,12 +1,11 @@
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
 import type {LambdaReturnValues} from '../../../shared/return-values';
 import {disableLogs, enableLogs} from '../../disable-logs';
-
-jest.setTimeout(90000);
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
@@ -63,6 +62,8 @@ test('Should be able to render to another bucket', async () => {
 			version: VERSION,
 			overwrite: true,
 			webhook: null,
+			audioBitrate: null,
+			videoBitrate: null,
 		},
 		extraContext
 	);

@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {deploySite} from '../../api/deploy-site';
 import {getOrCreateBucket} from '../../api/get-or-create-bucket';
 import {getSites} from '../../api/get-sites';

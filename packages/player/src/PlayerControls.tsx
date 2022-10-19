@@ -1,4 +1,4 @@
-import type {MouseEventHandler} from 'react';
+import type {MouseEventHandler, ReactNode} from 'react';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {formatTime} from './format-time';
@@ -7,6 +7,11 @@ import {MediaVolumeSlider} from './MediaVolumeSlider';
 import {PlayerSeekBar} from './PlayerSeekBar';
 import type {usePlayer} from './use-player';
 import {useVideoControlsResize} from './use-video-controls-resize';
+
+export type RenderPlayPauseButton = (props: {playing: boolean}) => ReactNode;
+export type RenderFullscreenButton = (props: {
+	isFullscreen: boolean;
+}) => ReactNode;
 
 export const X_SPACER = 10;
 export const X_PADDING = 12;
@@ -79,6 +84,9 @@ declare global {
 	}
 }
 
+const PlayPauseButton: React.FC<{playing: boolean}> = ({playing}) =>
+	playing ? <PauseIcon /> : <PlayIcon />;
+
 export const Controls: React.FC<{
 	fps: number;
 	durationInFrames: number;
@@ -96,6 +104,8 @@ export const Controls: React.FC<{
 	outFrame: number | null;
 	initiallyShowControls: number | boolean;
 	playerWidth: number;
+	renderPlayPauseButton: RenderPlayPauseButton | null;
+	renderFullscreenButton: RenderFullscreenButton | null;
 }> = ({
 	durationInFrames,
 	hovered,
@@ -113,6 +123,8 @@ export const Controls: React.FC<{
 	outFrame,
 	initiallyShowControls,
 	playerWidth,
+	renderPlayPauseButton,
+	renderFullscreenButton,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -217,7 +229,11 @@ export const Controls: React.FC<{
 						aria-label={player.playing ? 'Pause video' : 'Play video'}
 						title={player.playing ? 'Pause video' : 'Play video'}
 					>
-						{player.playing ? <PauseIcon /> : <PlayIcon />}
+						{renderPlayPauseButton === null ? (
+							<PlayPauseButton playing={player.playing} />
+						) : (
+							renderPlayPauseButton({playing: player.playing})
+						)}
 					</button>
 					{showVolumeControls ? (
 						<>
@@ -247,7 +263,11 @@ export const Controls: React.FC<{
 									: onFullscreenButtonClick
 							}
 						>
-							<FullscreenIcon minimized={!isFullscreen} />
+							{renderFullscreenButton === null ? (
+								<FullscreenIcon isFullscreen={isFullscreen} />
+							) : (
+								renderFullscreenButton({isFullscreen})
+							)}
 						</button>
 					) : null}
 				</div>

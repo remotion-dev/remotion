@@ -41,6 +41,27 @@ _"h264" (default) | "h265" | "vp8" | "vp9" | "mp3" | "aac" | "wav" | "prores" | 
 
 Choose a suitable codec for your output media. Refer to the [Encoding guide](/docs/encoding) to find the best codec for your use case.
 
+### `audioBitrate?`
+
+_string - optional, available from v3.2.32_
+
+Specify the target bitrate for the generated video.  
+The syntax for FFMPEGs `-b:v` parameter should be used.  
+FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
+This option cannot be set if `--crf` is set.
+Example values: `512K` for 512 kbps, `1M` for 1 Mbps.  
+Default: `320k`
+
+### `videoBitrate?`
+
+_string - optional, available from v3.2.32_
+
+Specify the target bitrate for the generated video.  
+The syntax for FFMPEGs `-b:v` parameter should be used.  
+FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
+This option cannot be set if `--crf` is set.
+Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
+
 ### `inputProps?`
 
 _object - optional_

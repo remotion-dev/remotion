@@ -123,7 +123,9 @@ let cleanupExplainerContainer = () => {
 	explainerContainer.innerHTML = '';
 };
 
-const waitForRootHandle = delayRender('Loading root component');
+const waitForRootHandle = delayRender(
+	'Loading root component - See https://remotion.dev/docs/troubleshooting/loading-root-component if you experience a timeout'
+);
 
 const WaitForRoot: React.FC = () => {
 	const [Root, setRoot] = useState<React.FC | null>(() => Internals.getRoot());
