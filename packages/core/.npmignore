@@ -8,3 +8,4 @@ vitest.config.ts
 generate-badges.js
 coverage
 ensure-version-match.js
+vitest.config.ts

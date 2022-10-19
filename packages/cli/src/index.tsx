@@ -1,4 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
+import minimist from 'minimist';
 import {benchmarkCommand} from './benchmark';
 import {chalk} from './chalk';
 import {listCompositionsCommand} from './compositions';
@@ -112,4 +113,5 @@ export const CliInternals = {
 	findRemotionRoot,
 	getFinalCodec,
 	determineFinalImageFormat,
+	minimist,
 };
