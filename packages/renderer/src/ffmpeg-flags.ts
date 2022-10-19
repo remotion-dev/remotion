@@ -172,11 +172,28 @@ export const downloadFfmpeg = async (
 	return destinationPath;
 };
 
+export const getExecutableFfprobe = async (
+	ffprobeExecutable: FfmpegExecutable,
+	remotionRoot: string
+) => {
+	const exists = binaryExists('ffprobe', null);
+
+	if (exists) {
+		if (ffprobeExecutable !== null) {
+			return ffprobeExecutable;
+		}
+
+		return 'ffprobe';
+	}
+
+	const {url} = getFfmpegDownloadUrl('ffprobe');
+};
+
 export const getExecutableFfmpeg = async (
 	ffmpegExecutable: FfmpegExecutable | null,
 	remotionRoot: string
 ) => {
-	const exists = await binaryExists('ffmpeg', ffmpegExecutable);
+	const exists = binaryExists('ffmpeg', ffmpegExecutable);
 
 	if (exists) {
 		if (ffmpegExecutable !== null) {
@@ -186,7 +203,7 @@ export const getExecutableFfmpeg = async (
 		return 'ffmpeg';
 	}
 
-	const {url} = getFfmpegDownloadUrl();
+	const {url} = getFfmpegDownloadUrl('ffmpeg');
 
 	if (isDownloading[url]) {
 		return waitForFfmpegToBeDownloaded(url);
@@ -206,33 +223,57 @@ function toMegabytes(bytes: number) {
 	return `${Math.round(mb * 10) / 10} Mb`;
 }
 
-export const getFfmpegDownloadUrl = (): {
+export const getFfmpegDownloadUrl = (
+	binary: 'ffmpeg' | 'ffprobe'
+): {
 	url: string;
 	contentLength: number;
 } => {
 	if (os.platform() === 'win32') {
-		return {
-			url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-win-x86.exe',
-			contentLength: 127531008,
-		};
-	}
-
-	if (os.platform() === 'darwin') {
-		return process.arch === 'arm64'
+		return binary === 'ffmpeg'
 			? {
-					url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-arm64',
-					contentLength: 42093320,
+					url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-win-x86.exe',
+					contentLength: 127531008,
 			  }
 			: {
-					url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-x86',
-					contentLength: 78380700,
+					url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffprobe-win-x86.exe',
+					contentLength: 127425536,
 			  };
 	}
 
-	return {
-		url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-linux-amd64',
-		contentLength: 78502560,
-	};
+	if (os.platform() === 'darwin') {
+		if (process.arch === 'arm64') {
+			return binary === 'ffmpeg'
+				? {
+						url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-arm64',
+						contentLength: 42093320,
+				  }
+				: {
+						url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffprobe-macos-arm64',
+						contentLength: 46192536,
+				  };
+		}
+
+		return binary === 'ffmpeg'
+			? {
+					url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-x86',
+					contentLength: 78380700,
+			  }
+			: {
+					url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffprobe-macos-x86',
+					contentLength: 77364284,
+			  };
+	}
+
+	return binary === 'ffmpeg'
+		? {
+				url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-linux-amd64',
+				contentLength: 78502560,
+		  }
+		: {
+				url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffprobe-linux-amd64',
+				contentLength: 78400704,
+		  };
 };
 
 const printMessage = (ffmpegVersion: NonNullable<FfmpegVersion>) => {
