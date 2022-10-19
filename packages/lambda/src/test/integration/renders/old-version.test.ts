@@ -1,10 +1,9 @@
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {disableLogs, enableLogs} from '../../disable-logs';
-
-jest.setTimeout(90000);
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',

@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {planFrameRanges} from '../../functions/chunk-optimization/plan-frame-ranges';
 
 test('Plan frame ranges should respect everyNthFrame', () => {
