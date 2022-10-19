@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {validateInOutFrames} from '../utils/validate-in-out-frame';
 
 test('Validate in out frames', () => {
