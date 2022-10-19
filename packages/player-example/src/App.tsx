@@ -118,7 +118,9 @@ const ControlsOnly: React.FC<{
 		const timeupdateCallbackListener: CallbackListener<'timeupdate'> = (e) => {
 			setLogs((l) => [...l, 'timeupdate ' + e.detail.frame]);
 		};
-		const frameupdateCallbackListener: CallbackListener<'frameupdate'> = (e) => {
+		const frameupdateCallbackListener: CallbackListener<'frameupdate'> = (
+			e
+		) => {
 			setLogs((l) => [...l, 'frameupdate ' + e.detail.frame]);
 		};
 
