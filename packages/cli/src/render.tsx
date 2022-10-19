@@ -112,6 +112,13 @@ export const render = async (remotionRoot: string) => {
 		)
 	);
 
+	const ffmpegVersion = await RenderInternals.getFfmpegVersion({
+		ffmpegExecutable,
+	});
+	Log.verbose(
+		'FFMPEG Version:',
+		ffmpegVersion ? ffmpegVersion.join('.') : 'Built from source'
+	);
 	Log.verbose('Browser executable: ', browserExecutable);
 
 	const browserInstance = openBrowser(browser, {

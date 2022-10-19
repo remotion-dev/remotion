@@ -12,7 +12,7 @@ import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
-import {ffmpegHasFeature} from './ffmpeg-flags';
+import {ffmpegHasFeature, getFfmpegVersion} from './ffmpeg-flags';
 import {validateFrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
@@ -162,6 +162,7 @@ export const RenderInternals = {
 	cleanDownloadMap,
 	convertToPositiveFrameIndex,
 	validateBitrate,
+	getFfmpegVersion,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

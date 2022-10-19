@@ -50,10 +50,6 @@ export const checkAndValidateFfmpegVersion = async (options: {
 	const buildConf = await getFfmpegBuildInfo({
 		ffmpegExecutable: options.ffmpegExecutable,
 	});
-	console.log(
-		'Your FFMPEG version:',
-		ffmpegVersion ? ffmpegVersion.join('.') : 'Built from source'
-	);
 	warnAboutFfmpegVersion({ffmpegVersion, buildConf});
 };
 
