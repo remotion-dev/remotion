@@ -17,7 +17,6 @@ export const binaryExists = async (
 		return existsMap[name];
 	}
 
-	// case where user has specified a custom ffmpeg executable --> we check if its valid
 	if (name === 'ffmpeg' && localFFmpeg) {
 		try {
 			statSync(localFFmpeg);
