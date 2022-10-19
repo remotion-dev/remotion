@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/cli",
-	"version": "3.2.32",
+	"version": "3.2.33",
 	"description": "CLI for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -22,15 +22,15 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"@remotion/bundler": "3.2.32",
-		"@remotion/media-utils": "3.2.32",
-		"@remotion/player": "3.2.32",
-		"@remotion/renderer": "3.2.32",
+		"@remotion/bundler": "3.2.33",
+		"@remotion/media-utils": "3.2.33",
+		"@remotion/player": "3.2.33",
+		"@remotion/renderer": "3.2.33",
 		"better-opn": "2.1.1",
 		"dotenv": "9.0.2",
 		"memfs": "3.4.3",
 		"minimist": "1.2.6",
-		"remotion": "3.2.32",
+		"remotion": "3.2.33",
 		"semver": "7.3.5",
 		"source-map": "0.6.1"
 	},
