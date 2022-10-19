@@ -10,9 +10,7 @@ import TabItem from '@theme/TabItem';
 
 ## Prerequisites
 
-The only dependency for Remotion is Node.JS
-
-See [Installing Node.js](https://nodejs.org/en/download/) - Minimum: Version 14.0.0
+To use Remotion, you need at least Node 14. See: [Installing Node.js](https://nodejs.org/en/download/)
 
 ## Installation
 
@@ -86,6 +84,11 @@ Watch out for `apt` wanting to uninstall critical packages (e.g the Desktop) in 
 </Tabs>
 
 Got instructions for more Linux distributions? [Add them to this page](https://github.com/remotion-dev/remotion/edit/main/packages/docs/docs/getting-started.md)!
+
+## FFmpeg requirement
+
+Remotion requires `ffmpeg` and `ffprobe` binaries to render videos. The minimum version is 4.1.0.  
+For the most common operating systems, Remotion will try to install FFmpeg for you.
 
 ## Installation in existing projects
 
