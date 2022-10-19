@@ -52,7 +52,7 @@
     "react-player": "^2.9.0",
     "remotion": "3.2.32",
     "three": "0.134.0",
-    "vitest": "0.18.0"
+    "vitest": "0.24.3"
   },
   "devDependencies": {
     "@tsconfig/docusaurus": "^1.0.5",

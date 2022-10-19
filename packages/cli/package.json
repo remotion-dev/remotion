@@ -7,7 +7,6 @@
 	"bin": {
 		"remotion": "remotion-cli.js"
 	},
-	"module": "true",
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
@@ -58,7 +57,7 @@
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0",
 		"typescript": "^4.7.0",
-		"vitest": "0.18.0"
+		"vitest": "0.24.3"
 	},
 	"keywords": [
 		"remotion",
