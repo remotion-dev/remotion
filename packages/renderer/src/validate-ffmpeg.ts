@@ -1,5 +1,5 @@
 import execa from 'execa';
-import {statSync} from 'fs';
+import {existsSync, statSync} from 'fs';
 import os from 'os';
 import {getFfmpegBuildInfo, getFfmpegVersion} from './ffmpeg-flags';
 import {warnAboutFfmpegVersion} from './warn-about-ffmpeg-version';
@@ -56,6 +56,9 @@ export const checkAndValidateFfmpegVersion = async (options: {
 export const validateFfmpeg = async (
 	customFfmpegBinary: string | null
 ): Promise<void> => {
+	if (process.platform === 'linux' && existsSync('/opt/bin/ffmpeg')) {
+		return Promise.resolve();
+	}
 	const ffmpegExists = binaryExists('ffmpeg', customFfmpegBinary);
 	if (!ffmpegExists) {
 		if (customFfmpegBinary) {
