@@ -1,6 +1,6 @@
 import * as os from 'os';
 
-export const warnIfAppleSiliconIsNotUsingArm64Architecture = () => {
+export const checkNodeVersionAndWarnAboutRosetta = () => {
 	// see https://github.com/nodejs/node/issues/41900#issuecomment-1113511254
 	const cpus = os.cpus();
 	const isAppleSilicon = cpus[0].model.includes('Apple');
