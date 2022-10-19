@@ -218,7 +218,7 @@ export const downloadAsset = async ({
 		validateBufferEncoding(encoding, src);
 
 		const buff = Buffer.from(assetData, encoding);
-		await fs.promises.writeFile(output, buff);
+		fs.writeFileSync(output, buff);
 		notifyAssetIsDownloaded({src, downloadMap, downloadDir, to: output});
 		return output;
 	}
