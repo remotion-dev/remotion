@@ -1,5 +1,4 @@
 import { RenderInternals } from "@remotion/renderer";
-import { cleanDownloadMap } from "@remotion/renderer/dist/assets/download-map";
 import execa from "execa";
 import fs from "fs";
 import path from "path";
