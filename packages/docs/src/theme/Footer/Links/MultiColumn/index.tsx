@@ -4,7 +4,7 @@ import LinkItem from "@theme/Footer/LinkItem";
 import React from "react";
 
 const footerTitle: React.CSSProperties = {
-  fontFamily: "GT Planar",
+  fontFamily: "GTPlanar",
 };
 
 const ColumnLinkItem = ({ item }) => {
