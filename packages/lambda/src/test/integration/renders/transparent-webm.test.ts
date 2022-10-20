@@ -97,7 +97,7 @@ test('Should make a transparent video', async () => {
 		file.on('close', () => resolve());
 	});
 	const probe = await RenderInternals.execa(
-		await RenderInternals.getExecutableFfmpeg(null, process.cwd(), 'ffprobe'),
+		await RenderInternals.getExecutableBinary(null, process.cwd(), 'ffprobe'),
 		[out]
 	);
 	expect(probe.stderr).toMatch(/ALPHA_MODE(\s+): 1/);

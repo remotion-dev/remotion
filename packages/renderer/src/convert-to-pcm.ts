@@ -1,6 +1,6 @@
 import execa from 'execa';
 import type {FfmpegExecutable} from './ffmpeg-executable';
-import {getExecutableFfmpeg} from './ffmpeg-flags';
+import {getExecutableBinary} from './ffmpeg-flags';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 export const convertToPcm = async ({
@@ -15,7 +15,7 @@ export const convertToPcm = async ({
 	remotionRoot: string;
 }) => {
 	await execa(
-		await getExecutableFfmpeg(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
 		[
 			'-i',
 			input,

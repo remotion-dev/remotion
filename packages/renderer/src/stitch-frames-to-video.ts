@@ -17,7 +17,7 @@ import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loo
 import {validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
 import type {FfmpegExecutable} from './ffmpeg-executable';
-import {getExecutableFfmpeg} from './ffmpeg-flags';
+import {getExecutableBinary} from './ffmpeg-flags';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getAudioCodecName} from './get-audio-codec-name';
@@ -285,7 +285,7 @@ export const spawnFfmpeg = async (
 		}
 
 		const ffmpegTask = execa(
-			await getExecutableFfmpeg(
+			await getExecutableBinary(
 				options.ffmpegExecutable ?? null,
 				remotionRoot,
 				'ffmpeg'
@@ -401,7 +401,7 @@ export const spawnFfmpeg = async (
 	}
 
 	const task = execa(
-		await getExecutableFfmpeg(
+		await getExecutableBinary(
 			options.ffmpegExecutable ?? null,
 			remotionRoot,
 			'ffmpeg'

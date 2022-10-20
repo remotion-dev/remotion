@@ -4,7 +4,7 @@ import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {validateQualitySettings} from './crf';
 import type {FfmpegExecutable} from './ffmpeg-executable';
-import {getExecutableFfmpeg} from './ffmpeg-flags';
+import {getExecutableBinary} from './ffmpeg-flags';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
@@ -133,7 +133,7 @@ export const prespawnFfmpeg = async (
 		: ffmpegString;
 
 	const task = execa(
-		await getExecutableFfmpeg(
+		await getExecutableBinary(
 			options.ffmpegExecutable ?? null,
 			remotionRoot,
 			'ffmpeg'

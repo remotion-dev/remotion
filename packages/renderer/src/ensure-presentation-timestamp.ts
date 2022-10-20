@@ -2,7 +2,7 @@ import execa from 'execa';
 import path from 'path';
 import type {DownloadMap} from './assets/download-map';
 import type {FfmpegExecutable} from './ffmpeg-executable';
-import {getExecutableFfmpeg} from './ffmpeg-flags';
+import {getExecutableBinary} from './ffmpeg-flags';
 import {guessExtensionForVideo} from './guess-extension-for-media';
 import {truthy} from './truthy';
 
@@ -60,7 +60,7 @@ export const ensurePresentationTimestamps = async (
 	const output = await getTemporaryOutputName(src, remotionRoot);
 
 	await execa(
-		await getExecutableFfmpeg(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
 		[
 			'-i',
 			src,

@@ -5,7 +5,7 @@ import {rmdirSync, rmSync, writeFileSync} from 'fs';
 import {join} from 'path';
 import type {Codec} from './codec';
 import type {FfmpegExecutable} from './ffmpeg-executable';
-import {getExecutableFfmpeg} from './ffmpeg-flags';
+import {getExecutableBinary} from './ffmpeg-flags';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {isAudioCodec} from './is-audio-codec';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
@@ -44,7 +44,7 @@ export const combineVideos = async (options: Options) => {
 
 	try {
 		const task = execa(
-			await getExecutableFfmpeg(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+			await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
 			[
 				isAudioCodec(codec) ? null : '-r',
 				isAudioCodec(codec) ? null : String(fps),
