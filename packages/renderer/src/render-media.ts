@@ -43,6 +43,7 @@ import {renderFrames} from './render-frames';
 import {stitchFramesToVideo} from './stitch-frames-to-video';
 import type {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
+import {validateFfmpeg} from './validate-ffmpeg';
 import {validateFfmpegOverride} from './validate-ffmpeg-override';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
@@ -171,6 +172,7 @@ export const renderMedia = ({
 	onSlowestFrames,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
+	validateFfmpeg(ffmpegExecutable ?? null);
 	validateQuality(options.quality);
 	validateQualitySettings({crf, codec, videoBitrate});
 	validateBitrate(audioBitrate, 'audioBitrate');

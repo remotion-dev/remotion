@@ -1,6 +1,6 @@
+import {expect, test} from 'vitest';
 import type {RenderMetadata} from '../../defaults';
 import {getExpectedOutName} from '../../functions/helpers/expected-out-name';
-import {expectToThrow} from '../helpers/expect-to-throw';
 
 const bucketName = 'remotionlambda-98fsduf';
 
@@ -85,13 +85,9 @@ test('Should throw on invalid names', () => {
 		...testRenderMetadata,
 		outName: '👺.jpeg',
 	};
-	expectToThrow(() => {
-		expect(getExpectedOutName(newRenderMetadata, bucketName, null)).toEqual({
-			customCredentials: null,
-			renderBucketName: 'remotionlambda-98fsduf',
-			key: 'renders/9n8dsfafs/justaname.jpeg',
-		});
-	}, /The S3 Key must match the RegExp/);
+	expect(() => {
+		getExpectedOutName(newRenderMetadata, bucketName, null);
+	}).toThrow(/The S3 Key must match the RegExp/);
 });
 
 test('Should allow outName an outname with a slash', () => {

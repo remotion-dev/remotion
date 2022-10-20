@@ -1,19 +1,20 @@
-import type {FfmpegVersion} from '@remotion/renderer';
-import {Log} from './log';
+import type {FfmpegVersion} from './ffmpeg-flags';
 
 const printMessage = (ffmpegVersion: NonNullable<FfmpegVersion>) => {
-	Log.warn('⚠️Old FFMPEG version detected: ' + ffmpegVersion.join('.'));
-	Log.warn('   For audio support, you need at least version 4.1.0.');
-	Log.warn('   Upgrade FFMPEG to get rid of this warning.');
+	console.warn('⚠️Old FFMPEG version detected: ' + ffmpegVersion.join('.'));
+	console.warn('   For audio support, you need at least version 4.1.0.');
+	console.warn('   Upgrade FFMPEG to get rid of this warning.');
 };
 
 const printBuildConfMessage = () => {
-	Log.error('⚠️  Unsupported FFMPEG version detected.');
-	Log.error("   Your version doesn't support the -buildconf flag");
-	Log.error(
+	console.error('⚠️  Unsupported FFMPEG version detected.');
+	console.error("   Your version doesn't support the -buildconf flag");
+	console.error(
 		'   Audio will not be supported and you may experience other issues.'
 	);
-	Log.error('   Upgrade FFMPEG to at least v4.1.0 to get rid of this warning.');
+	console.error(
+		'   Upgrade FFMPEG to at least v4.1.0 to get rid of this warning.'
+	);
 };
 
 export const warnAboutFfmpegVersion = ({
