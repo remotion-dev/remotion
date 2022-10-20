@@ -4,12 +4,10 @@ type Value = Record<string, string>;
 
 export const PreloadContext = createContext<Value>({});
 
-let preloads: Record<string, string> = {};
+let preloads: Value = {};
 let updaters: (() => void)[] = [];
 
-export const setPreloads = (
-	updater: (p: Record<string, string>) => Record<string, string>
-) => {
+export const setPreloads = (updater: (p: Value) => Value) => {
 	preloads = updater(preloads);
 	updaters.forEach((u) => u());
 };
@@ -17,9 +15,7 @@ export const setPreloads = (
 export const PrefetchProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
-	const [_preloads, _setPreloads] = useState<Record<string, string>>(
-		() => preloads
-	);
+	const [_preloads, _setPreloads] = useState<Value>(() => preloads);
 
 	useEffect(() => {
 		const updaterFunction = () => {
