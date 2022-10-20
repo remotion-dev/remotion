@@ -13,9 +13,7 @@ const Footer = () => {
   return (
     <FooterLayout
       style={style}
-      links={
-        links && links.length > 0 && <FooterLinks style={style} links={links} />
-      }
+      links={links && links.length > 0 && <FooterLinks links={links} />}
     />
   );
 };
