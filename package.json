@@ -16,10 +16,14 @@
     "node": ">=12",
     "pnpm": ">=3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/node": "^18.11.2"
+  },
   "dependencies": {
     "lerna": "^4.0.0",
-    "turbo": "1.5.6"
+    "turbo": "1.5.6",
+    "@vercel/node": "^2.5.26",
+    "got": "^11"
   },
   "workspaces": [
     "packages/*"

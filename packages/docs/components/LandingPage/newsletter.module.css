@@ -4,35 +4,20 @@
   padding: 10px;
   border-radius: 15px;
   flex: 1;
-  text-align: center;
-  padding-top: 30px;
+
   padding-bottom: 10px;
   min-height: 250px;
   display: flex;
   flex-direction: column;
 }
-.panel ul {
-  text-align: center;
-  list-style-type: none;
-  padding-left: 0;
-}
-.panel li {
-  margin-top: 12px;
-  margin-bottom: 12px;
-  display: flex;
-  color: var(--text-color);
-  font-size: 0.95em;
-}
+
 
 .tablenewsletter {
   font-size: 40px;
   font-weight: 700;
-  margin-top: -5px;
+  font-family: 'GT Planar';
 }
 
-.titlecolor {
-  color: #4290f5;
-}
 
 @media screen and (max-width: 200px) {
   .newslettergrow {
