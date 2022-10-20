@@ -6,12 +6,10 @@ importers:
     specifiers:
       '@types/node': ^18.11.2
       '@vercel/node': ^2.5.26
-      got: ^11
       lerna: ^4.0.0
       turbo: 1.5.6
     dependencies:
       '@vercel/node': 2.5.26
-      got: 11.8.5
       lerna: 4.0.0
       turbo: 1.5.6
     devDependencies:
@@ -288,6 +286,7 @@ importers:
       color-namer: 1.4.0
       create-video: 3.2.34
       eslint: 8.25.0
+      got: ^11
       hls.js: ^0.14.17
       lottie-web: ^5.9.6
       polished: 4.1.2
@@ -331,6 +330,7 @@ importers:
       clsx: 1.1.1
       color-namer: 1.4.0
       create-video: link:../create-video
+      got: 11.8.5
       hls.js: 0.14.17
       lottie-web: 5.9.6
       polished: 4.1.2
@@ -576,6 +576,8 @@ importers:
       '@remotion/renderer': link:../renderer
       aws-policies: 1.0.1
       mime-types: 2.1.34
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
@@ -586,8 +588,6 @@ importers:
       eslint: 8.25.0
       prettier: 2.4.1
       prettier-plugin-organize-imports: 2.3.4_pxx7xhvr2bexxfjjff3nukai7m
-      react: 18.0.0
-      react-dom: 18.0.0_react@18.0.0
       ts-node: 10.8.0_ysvagj6uoj2jcpx4fli7niyicq
       typescript: 4.7.2
       vitest: 0.24.3
@@ -637,6 +637,8 @@ importers:
       remotion: 3.2.34
       typescript: ^4.7.0
     dependencies:
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
@@ -645,8 +647,6 @@ importers:
       eslint: 8.25.0
       prettier: 2.7.1
       prettier-plugin-organize-imports: 2.3.4_j2odc4yr77iddtreafyicbq5hi
-      react: 18.0.0
-      react-dom: 18.0.0_react@18.0.0
       typescript: 4.7.2
 
   packages/motion-blur:
@@ -8439,7 +8439,7 @@ packages:
   /@types/sax/1.2.3:
     resolution: {integrity: sha512-+QSw6Tqvs/KQpZX8DvIl3hZSjNFLW/OqE5nlyHXtTwODaJvioN2rOWpBNEWZp2HZUFhOh+VohmJku/WxEXU2XA==}
     dependencies:
-      '@types/node': 18.0.3
+      '@types/node': 18.11.2
     dev: false
 
   /@types/scheduler/0.16.2:
@@ -8459,7 +8459,7 @@ packages:
     resolution: {integrity: sha512-nCkHGI4w7ZgAdNkrEu0bv+4xNV/XDqW+DydknebMOQwkpDGx8G+HTlj7R7ABI8i8nKxVw0wtKPi1D+lPOkh4YQ==}
     dependencies:
       '@types/mime': 1.3.2
-      '@types/node': 18.0.3
+      '@types/node': 18.11.2
     dev: false
 
   /@types/sharp/0.28.6:
@@ -12705,7 +12705,7 @@ packages:
     resolution: {integrity: sha512-EzV94NYKoO09GLXGjXj9JIlXijVck4ONSr5wiCWDvhsvj5jxSrzTmRU/9C1DyB6uToszLs8aifA6NQ7lEQdvFw==}
     engines: {node: '>= 0.8'}
     dependencies:
-      '@types/node': 18.0.3
+      '@types/node': 18.11.2
       require-like: 0.1.2
     dev: false
 
@@ -14947,7 +14947,7 @@ packages:
     hasBin: true
 
   /json-buffer/3.0.0:
-    resolution: {integrity: sha512-CuUqjv0FUZIdXkHPI8MezCnFCdaTAacej1TZYulLoAg1h/PhwkdXFN4V/gzY4g+fMBCOV2xF+rp7t2XD2ns/NQ==}
+    resolution: {integrity: sha1-Wx85evx11ne96Lz8Dkfh+aPZqJg=}
     dev: false
 
   /json-buffer/3.0.1:
