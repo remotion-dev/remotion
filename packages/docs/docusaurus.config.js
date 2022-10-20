@@ -171,7 +171,7 @@ module.exports = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Remotion Ltd. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Remotion AG. Built with Docusaurus.`,
     },
     colorMode: {
       respectPrefersColorScheme: true,
