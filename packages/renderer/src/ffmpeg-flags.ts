@@ -166,13 +166,15 @@ export const downloadBinary = async (
 ): Promise<string> => {
 	const destinationPath = getFfmpegAbsolutePath(remotionRoot, binary);
 
+	const onProgressCallback = (downloadedBytes: number, _totalBytes: number) => {
+		onProgress(downloadedBytes, _totalBytes, binary);
+	};
+
 	isDownloading[url] = true;
 	const totalBytes = await _downloadFile(
 		url,
 		destinationPath,
-		(downloadedBytes) => {
-			onProgress(downloadedBytes, totalBytes, binary);
-		}
+		onProgressCallback
 	);
 	onProgress(totalBytes, totalBytes, binary);
 	if (os.platform() !== 'win32') {
