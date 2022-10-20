@@ -147,9 +147,14 @@ const waitForFfmpegToBeDownloaded = (url: string) => {
 	});
 };
 
-const onProgress = (downloadedBytes: number, totalBytesToDownload: number) => {
+const onProgress = (
+	downloadedBytes: number,
+	totalBytesToDownload: number,
+	binary: 'ffmpeg' | 'ffprobe'
+) => {
 	console.log(
-		'Downloading FFmpeg: ',
+		'Downloading ',
+		[binary],
 		`${toMegabytes(downloadedBytes)}/${toMegabytes(totalBytesToDownload)}`
 	);
 };
@@ -162,8 +167,14 @@ export const downloadBinary = async (
 	const destinationPath = getFfmpegAbsolutePath(remotionRoot, binary);
 
 	isDownloading[url] = true;
-	const totalBytes = await _downloadFile(url, destinationPath, onProgress);
-	onProgress(totalBytes, totalBytes);
+	const totalBytes = await _downloadFile(
+		url,
+		destinationPath,
+		(downloadedBytes) => {
+			onProgress(downloadedBytes, totalBytes, binary);
+		}
+	);
+	onProgress(totalBytes, totalBytes, binary);
 	if (os.platform() !== 'win32') {
 		fs.chmodSync(destinationPath, '777');
 	}
