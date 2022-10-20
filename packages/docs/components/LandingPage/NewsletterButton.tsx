@@ -52,8 +52,8 @@ export const NewsletterButton: React.FC<{}> = () => {
               }}
             >
               <p>
-                Read about new features and all noteworthy updates we have made
-                on Remotion once in a while.
+                Read about new features and noteworthy updates we have made on
+                Remotion once in a while.
               </p>
 
               <CoolInput
