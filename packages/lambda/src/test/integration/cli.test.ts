@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
 import {CliInternals} from '@remotion/cli';
+import {expect, test} from 'vitest';
 import {
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	DEFAULT_MEMORY_SIZE,

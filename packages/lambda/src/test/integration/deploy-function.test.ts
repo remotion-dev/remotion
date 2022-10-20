@@ -1,4 +1,5 @@
 import {VERSION} from 'remotion/version';
+import {expect, test} from 'vitest';
 import {deleteFunction} from '../../api/delete-function';
 import {deployFunction} from '../../api/deploy-function';
 import {getFunctions} from '../../api/get-functions';

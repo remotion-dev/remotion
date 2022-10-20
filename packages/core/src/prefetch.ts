@@ -1,9 +1,9 @@
 import {useContext} from 'react';
 import {getRemotionEnvironment} from './get-environment';
-import {PreloadContext, preloadRef} from './prefetch-state';
+import {PreloadContext, setPreloads} from './prefetch-state';
 
 export const usePreload = (src: string): string => {
-	const {preloads} = useContext(PreloadContext);
+	const preloads = useContext(PreloadContext);
 
 	return preloads[src] ?? src;
 };
@@ -56,7 +56,8 @@ export const prefetch = (src: string): FetchAndPreload => {
 
 			if (buf) {
 				objectUrl = URL.createObjectURL(buf);
-				preloadRef.current?.setPreloads((p) => ({
+
+				setPreloads((p) => ({
 					...p,
 					[src]: objectUrl as string,
 				}));
@@ -71,7 +72,7 @@ export const prefetch = (src: string): FetchAndPreload => {
 		free: () => {
 			if (objectUrl) {
 				URL.revokeObjectURL(objectUrl);
-				preloadRef.current?.setPreloads((p) => {
+				setPreloads((p) => {
 					const copy = {...p};
 					delete copy[src];
 					return copy;
