@@ -5,6 +5,7 @@
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
+    "start-docs": "docusaurus start",
     "build": "tsc -d",
     "build-docs": "node --max_old_space_size=16000 node_modules/@docusaurus/core/bin/docusaurus.mjs build && node count-pages.js",
     "swizzle": "docusaurus swizzle",
@@ -44,6 +45,7 @@
     "clsx": "^1.1.1",
     "color-namer": "1.4.0",
     "create-video": "3.2.34",
+    "got": "^11",
     "hls.js": "^0.14.17",
     "lottie-web": "^5.9.6",
     "polished": "4.1.2",
