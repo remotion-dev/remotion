@@ -15,7 +15,7 @@ export const NewsletterButton: React.FC<{}> = () => {
         setSubmitting(true);
         e.preventDefault();
 
-        const response = await fetch("http://localhost:3001/api/newsletter", {
+        const response = await fetch("/api/newsletter", {
           method: "POST",
           body: JSON.stringify({ email }),
           headers: {
