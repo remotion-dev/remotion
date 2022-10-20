@@ -46,7 +46,7 @@ test('Get audio channels for video without music', async () => {
 		process.cwd()
 	);
 	expect(channels.channels).toEqual(0);
-	expect(channels.duration).toBeCloseTo(3.34, 2);
+	expect(channels.duration).toBeCloseTo(3.334, 2);
 }, 90000);
 
 test('Get audio channels for video with music', async () => {
