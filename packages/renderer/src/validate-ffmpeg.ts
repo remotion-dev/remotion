@@ -59,6 +59,7 @@ export const validateFfmpeg = async (
 	if (process.platform === 'linux' && existsSync('/opt/bin/ffmpeg')) {
 		return Promise.resolve();
 	}
+
 	const ffmpegExists = binaryExists('ffmpeg', customFfmpegBinary);
 	if (!ffmpegExists) {
 		if (customFfmpegBinary) {
