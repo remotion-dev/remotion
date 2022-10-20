@@ -2,7 +2,7 @@ import execa from 'execa';
 import type {DownloadMap, Vp9Result} from './assets/download-map';
 import {calculateDisplayVideoSize} from './calculate-sar-dar-pixels';
 import type {FfmpegExecutable} from './ffmpeg-executable';
-import {getExecutableFfmpeg} from './ffmpeg-flags';
+import {getExecutableBinary} from './ffmpeg-flags';
 import {pLimit} from './p-limit';
 
 const limit = pLimit(1);
@@ -18,7 +18,7 @@ async function getVideoInfoUnlimited(
 	}
 
 	const task = await execa(
-		await getExecutableFfmpeg(ffprobeExecutable, remotionRoot, 'ffprobe'),
+		await getExecutableBinary(ffprobeExecutable, remotionRoot, 'ffprobe'),
 		[src]
 	);
 

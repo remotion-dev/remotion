@@ -7,7 +7,7 @@ import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {createSilentAudio} from './create-silent-audio';
 import {deleteDirectory} from './delete-directory';
 import type {FfmpegExecutable} from './ffmpeg-executable';
-import {getExecutableFfmpeg} from './ffmpeg-flags';
+import {getExecutableBinary} from './ffmpeg-flags';
 import {pLimit} from './p-limit';
 import {tmpDir} from './tmp-dir';
 import {truthy} from './truthy';
@@ -94,7 +94,7 @@ const mergeAudioTrackUnlimited = async ({
 		.filter(truthy)
 		.flat(2);
 	const task = execa(
-		await getExecutableFfmpeg(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
 		args
 	);
 	await task;

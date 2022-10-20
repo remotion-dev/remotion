@@ -1,12 +1,12 @@
 import execa from 'execa';
-import {getExecutableFfmpeg} from './ffmpeg-flags';
+import {getExecutableBinary} from './ffmpeg-flags';
 
 export const guessExtensionForVideo = async (
 	src: string,
 	remotionRoot: string
 ) => {
 	const {stderr} = await execa(
-		await getExecutableFfmpeg(null, remotionRoot, 'ffprobe'),
+		await getExecutableBinary(null, remotionRoot, 'ffprobe'),
 		[src]
 	);
 

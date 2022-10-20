@@ -1,6 +1,6 @@
 import execa from 'execa';
 import type {FfmpegExecutable} from '../ffmpeg-executable';
-import {getExecutableFfmpeg} from '../ffmpeg-flags';
+import {getExecutableBinary} from '../ffmpeg-flags';
 import {pLimit} from '../p-limit';
 import type {
 	AudioChannelsAndDurationResultCache,
@@ -29,7 +29,7 @@ async function getAudioChannelsAndDurationUnlimited(
 		.filter(Boolean) as string[];
 
 	const task = await execa(
-		await getExecutableFfmpeg(ffprobeExecutable, remotionRoot, 'ffprobe'),
+		await getExecutableBinary(ffprobeExecutable, remotionRoot, 'ffprobe'),
 		args
 	);
 

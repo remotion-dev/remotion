@@ -7,7 +7,7 @@ import type {
 import {getVideoStreamDuration} from './assets/get-video-stream-duration';
 import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
 import type {FfmpegExecutable} from './ffmpeg-executable';
-import {getExecutableFfmpeg} from './ffmpeg-flags';
+import {getExecutableBinary} from './ffmpeg-flags';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
 import {getVideoInfo} from './get-video-info';
 import {isBeyondLastFrame, markAsBeyondLastFrame} from './is-beyond-last-frame';
@@ -89,7 +89,7 @@ const getFrameOfVideoSlow = async ({
 	].filter(truthy);
 
 	const {stdout, stderr} = execa(
-		await getExecutableFfmpeg(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
 		command
 	);
 
@@ -187,7 +187,7 @@ const getLastFrameOfVideoFastUnlimited = async (
 
 	const actualOffset = `${duration * 1000 - offset}ms`;
 	const {stdout, stderr} = execa(
-		await getExecutableFfmpeg(ffmpegExecutable, options.remotionRoot, 'ffmpeg'),
+		await getExecutableBinary(ffmpegExecutable, options.remotionRoot, 'ffmpeg'),
 		[
 			'-ss',
 			actualOffset,
@@ -342,7 +342,7 @@ const extractFrameFromVideoFn = async ({
 
 	const ffmpegTimestamp = frameToFfmpegTimestamp(time);
 	const {stdout, stderr} = execa(
-		await getExecutableFfmpeg(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
 		[
 			'-ss',
 			ffmpegTimestamp,

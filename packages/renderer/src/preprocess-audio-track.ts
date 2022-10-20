@@ -5,7 +5,7 @@ import type {MediaAsset} from './assets/types';
 import {calculateFfmpegFilter} from './calculate-ffmpeg-filters';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
-import {getExecutableFfmpeg} from './ffmpeg-flags';
+import {getExecutableBinary} from './ffmpeg-flags';
 import {pLimit} from './p-limit';
 import {resolveAssetSrc} from './resolve-asset-src';
 
@@ -60,7 +60,7 @@ const preprocessAudioTrackUnlimited = async ({
 	].flat(2);
 
 	await execa(
-		await getExecutableFfmpeg(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
 		args
 	);
 
