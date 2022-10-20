@@ -1,48 +1,37 @@
-import React, {
-	createContext,
-	createRef,
-	useImperativeHandle,
-	useMemo,
-	useState,
-} from 'react';
+import React, {createContext, useEffect, useState} from 'react';
 
-type Value = {
-	preloads: Record<string, string>;
-	setPreloads: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+type Value = Record<string, string>;
+
+export const PreloadContext = createContext<Value>({});
+
+let preloads: Value = {};
+let updaters: (() => void)[] = [];
+
+export const setPreloads = (updater: (p: Value) => Value) => {
+	preloads = updater(preloads);
+	updaters.forEach((u) => u());
 };
-
-export const preloadRef = createRef<{
-	setPreloads: React.Dispatch<React.SetStateAction<Record<string, string>>>;
-}>();
-
-export const PreloadContext = createContext<Value>({
-	preloads: {},
-	setPreloads: () => undefined,
-});
 
 export const PrefetchProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
-	const [preloads, setPreloads] = useState<Record<string, string>>({});
+	const [_preloads, _setPreloads] = useState<Value>(() => preloads);
 
-	const value: Value = useMemo(() => {
-		return {
-			preloads,
-			setPreloads,
+	useEffect(() => {
+		const updaterFunction = () => {
+			_setPreloads(preloads);
 		};
-	}, [preloads]);
 
-	useImperativeHandle(
-		preloadRef,
-		() => {
-			return {
-				setPreloads,
-			};
-		},
-		[]
-	);
+		updaters.push(updaterFunction);
+
+		return () => {
+			updaters = updaters.filter((u) => u !== updaterFunction);
+		};
+	}, []);
 
 	return (
-		<PreloadContext.Provider value={value}>{children}</PreloadContext.Provider>
+		<PreloadContext.Provider value={_preloads}>
+			{children}
+		</PreloadContext.Provider>
 	);
 };
