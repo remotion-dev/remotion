@@ -1,4 +1,5 @@
 import { useColorMode } from "@docusaurus/theme-common";
+// @ts-expect-error
 import LinkItem from "@theme/Footer/LinkItem";
 import React from "react";
 
