@@ -20,18 +20,7 @@ export const binaryExists = (
 		return existsMap[name];
 	}
 
-	if (name === 'ffmpeg' && localExecutable) {
-		try {
-			statSync(localExecutable);
-			existsMap[name] = true;
-		} catch (err) {
-			existsMap[name] = false;
-		}
-
-		return existsMap[name];
-	}
-
-	if (name === 'ffprobe' && localExecutable) {
+	if (localExecutable) {
 		try {
 			statSync(localExecutable);
 			existsMap[name] = true;
