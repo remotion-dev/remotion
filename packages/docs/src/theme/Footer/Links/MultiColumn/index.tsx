@@ -29,6 +29,7 @@ const Column = ({ column }) => {
       </div>
       <ul className="footer__items clean-list">
         {column.items.map((item, i) => (
+          // eslint-disable-next-line react/no-array-index-key
           <ColumnLinkItem key={i} item={item} />
         ))}
       </ul>
@@ -67,6 +68,7 @@ export default ({ columns }) => {
         </p>
       </div>
       {columns.map((column, i) => (
+        // eslint-disable-next-line react/no-array-index-key
         <Column key={i} column={column} />
       ))}
     </div>
