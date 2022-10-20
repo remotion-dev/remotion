@@ -13,7 +13,7 @@
     "clean": "rm -rf packages/**/dist && lerna clean --yes && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo  && rm -rf packages/**/.turbo"
   },
   "engines": {
-    "node": ">=12",
+    "node": ">=14",
     "pnpm": ">=3"
   },
   "devDependencies": {
