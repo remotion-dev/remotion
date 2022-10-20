@@ -39,7 +39,7 @@ test("Should be able to render video with scale 2", async () => {
   expect(exists).toBe(true);
 
   const info = await execa(
-    await RenderInternals.getExecutableFfprobe(null, process.cwd()),
+    await RenderInternals.getExecutableFfmpeg(null, process.cwd(), "ffprobe"),
     [outputPath]
   );
   const data = info.stderr;
@@ -76,7 +76,7 @@ test("Should be able to render video with scale 0.1", async () => {
   expect(exists).toBe(true);
 
   const info = await execa(
-    await RenderInternals.getExecutableFfprobe(null, process.cwd()),
+    await RenderInternals.getExecutableFfmpeg(null, process.cwd(), "ffprobe"),
     [outputPath]
   );
   const data = info.stderr;

@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {getExecutableFfprobe} from '@remotion/renderer/src/ffmpeg-flags';
+import {getExecutableFfmpeg} from '@remotion/renderer/src/ffmpeg-flags';
 import {VERSION} from 'remotion/version';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
@@ -87,7 +87,7 @@ test('Should be able to render to another bucket', async () => {
 		region: 'eu-central-1',
 	});
 	const probe = await RenderInternals.execa(
-		await getExecutableFfprobe(null, process.cwd()),
+		await getExecutableFfmpeg(null, process.cwd(), 'ffprobe'),
 		['-'],
 		{
 			stdin: file,

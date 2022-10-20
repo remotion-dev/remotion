@@ -192,35 +192,6 @@ export const downloadBinary = async (
 	return destinationPath;
 };
 
-export const getExecutableFfprobe = async (
-	ffprobeExecutable: FfmpegExecutable,
-	remotionRoot: string
-) => {
-	const exists = binaryExists('ffprobe', ffprobeExecutable);
-
-	if (exists) {
-		if (ffprobeExecutable !== null) {
-			return ffprobeExecutable;
-		}
-
-		return 'ffprobe';
-	}
-
-	const {url} = getBinaryDownloadUrl('ffprobe');
-
-	if (isDownloading[url]) {
-		return waitForFfmpegToBeDownloaded(url);
-	}
-
-	const inNodeMod = ffmpegInNodeModules(remotionRoot, 'ffprobe');
-
-	if (inNodeMod) {
-		return inNodeMod;
-	}
-
-	return downloadBinary(remotionRoot, url, 'ffprobe');
-};
-
 export const getExecutableFfmpeg = async (
 	ffmpegExecutable: FfmpegExecutable | null,
 	remotionRoot: string,

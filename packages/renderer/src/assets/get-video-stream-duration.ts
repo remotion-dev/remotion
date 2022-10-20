@@ -1,6 +1,6 @@
 import execa from 'execa';
 import type {FfmpegExecutable} from '../ffmpeg-executable';
-import {getExecutableFfprobe} from '../ffmpeg-flags';
+import {getExecutableFfmpeg} from '../ffmpeg-flags';
 import {pLimit} from '../p-limit';
 import type {DownloadMap, VideoDurationResult} from './download-map';
 
@@ -69,7 +69,7 @@ async function getVideoStreamDurationUnlimited(
 		.filter(Boolean) as string[];
 
 	const task = await execa(
-		await getExecutableFfprobe(ffprobeExecutable, remotionRoot),
+		await getExecutableFfmpeg(ffprobeExecutable, remotionRoot, 'ffprobe'),
 		args
 	);
 

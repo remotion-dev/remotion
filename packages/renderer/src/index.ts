@@ -15,7 +15,6 @@ import {SymbolicateableError} from './error-handling/symbolicateable-error';
 import {
 	ffmpegHasFeature,
 	getExecutableFfmpeg,
-	getExecutableFfprobe,
 	getFfmpegVersion,
 } from './ffmpeg-flags';
 import {findRemotionRoot} from './find-closest-package-json';
@@ -169,7 +168,6 @@ export const RenderInternals = {
 	convertToPositiveFrameIndex,
 	findRemotionRoot,
 	getExecutableFfmpeg,
-	getExecutableFfprobe,
 	validateBitrate,
 	getFfmpegVersion,
 };

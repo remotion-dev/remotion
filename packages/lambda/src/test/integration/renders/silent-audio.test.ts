@@ -83,7 +83,7 @@ test('Should add silent audio if there is no audio', async () => {
 		region: 'eu-central-1',
 	});
 	const probe = await RenderInternals.execa(
-		await RenderInternals.getExecutableFfprobe(null, process.cwd()),
+		await RenderInternals.getExecutableFfmpeg(null, process.cwd(), 'ffprobe'),
 		['-'],
 		{
 			stdin: file,
