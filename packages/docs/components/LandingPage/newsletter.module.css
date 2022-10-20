@@ -1,0 +1,31 @@
+.panel {
+  background-color: var(--ifm-background-color);
+  box-shadow: var(--box-shadow);
+  padding: 10px;
+  border-radius: 15px;
+  flex: 1;
+
+  padding-bottom: 10px;
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.tablenewsletter {
+  font-size: 40px;
+  font-weight: 700;
+  font-family: 'GT Planar';
+}
+
+
+@media screen and (max-width: 200px) {
+  .newslettergrow {
+    flex-direction: column;
+    align-items: center;
+  }
+  .portion {
+    max-width: 500px;
+    width: 100%;
+  }
+}
