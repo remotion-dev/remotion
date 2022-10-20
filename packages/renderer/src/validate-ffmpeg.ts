@@ -141,6 +141,6 @@ export const validateFfmpeg = async (
 			);
 		}
 
-		process.exit(1);
+		throw new Error('FFmpeg not found');
 	}
 };
