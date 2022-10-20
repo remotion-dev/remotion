@@ -21,7 +21,11 @@ export const getFfmpegBuildInfo = async (options: {
 	}
 
 	const data = await execa(
-		await getExecutableBinary(options.ffmpegExecutable, remotionRoot, 'ffmpeg'),
+		await getExecutableBinary(
+			options.ffmpegExecutable,
+			options.remotionRoot,
+			'ffmpeg'
+		),
 		['-buildconf'],
 		{
 			reject: false,
