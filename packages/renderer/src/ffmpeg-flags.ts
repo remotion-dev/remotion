@@ -12,12 +12,10 @@ const isDownloading: Record<string, boolean> = {};
 
 export type FfmpegVersion = [number, number, number] | null;
 
-export const getFfmpegBuildInfo = async (
-	options: {
-		ffmpegExecutable: string | null;
-	},
-	remotionRoot: string
-) => {
+export const getFfmpegBuildInfo = async (options: {
+	ffmpegExecutable: string | null;
+	remotionRoot: string;
+}) => {
 	if (buildConfig !== null) {
 		return buildConfig;
 	}
@@ -109,7 +107,7 @@ export const ffmpegHasFeature = async ({
 		return false;
 	}
 
-	const config = await getFfmpegBuildInfo({ffmpegExecutable}, remotionRoot);
+	const config = await getFfmpegBuildInfo({ffmpegExecutable, remotionRoot});
 	return config.includes(feature);
 };
 
@@ -128,12 +126,10 @@ export const getFfmpegVersion = async (options: {
 	ffmpegExecutable: string | null;
 	remotionRoot: string;
 }): Promise<FfmpegVersion> => {
-	const buildInfo = await getFfmpegBuildInfo(
-		{
-			ffmpegExecutable: options.ffmpegExecutable,
-		},
-		options.remotionRoot
-	);
+	const buildInfo = await getFfmpegBuildInfo({
+		ffmpegExecutable: options.ffmpegExecutable,
+		remotionRoot: options.remotionRoot,
+	});
 	return parseFfmpegVersion(buildInfo);
 };
 
