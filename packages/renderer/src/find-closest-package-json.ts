@@ -22,12 +22,7 @@ export const findClosestPackageJson = (): string | null => {
 export const findRemotionRoot = (): string => {
 	const closestPackageJson = findClosestPackageJson();
 	if (closestPackageJson === null) {
-		console.error(
-			'Could not find a package.json in the current directory or any of the ' +
-				recursionLimit +
-				' parent directories. Is this a Remotion project?'
-		);
-		process.exit(1);
+		return process.cwd();
 	}
 
 	return path.dirname(closestPackageJson);
