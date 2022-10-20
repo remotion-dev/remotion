@@ -45,6 +45,7 @@
     "clsx": "^1.1.1",
     "color-namer": "1.4.0",
     "create-video": "3.2.34",
+    "got": "^11",
     "hls.js": "^0.14.17",
     "lottie-web": "^5.9.6",
     "polished": "4.1.2",
