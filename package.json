@@ -19,7 +19,7 @@
   "devDependencies": {},
   "dependencies": {
     "lerna": "^4.0.0",
-    "turbo": "^1.2.6"
+    "turbo": "1.5.6"
   },
   "workspaces": [
     "packages/*"

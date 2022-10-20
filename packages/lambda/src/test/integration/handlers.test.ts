@@ -1,4 +1,5 @@
-import {VERSION} from 'remotion/src/version';
+import {VERSION} from 'remotion/version';
+import {expect, test} from 'vitest';
 import {LambdaRoutines} from '../../defaults';
 import {handler} from '../../functions/index';
 

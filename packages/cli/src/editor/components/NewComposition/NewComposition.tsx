@@ -1,11 +1,5 @@
-import type {
-	ChangeEventHandler} from 'react';
-import React, {
-	useCallback,
-	useContext,
-	useMemo,
-	useState,
-} from 'react';
+import type {ChangeEventHandler} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {
 	validateCompositionDimension,
@@ -17,12 +11,12 @@ import {
 	persistAspectRatioOption,
 } from '../../state/aspect-ratio-locked';
 import type {CompType} from '../../state/modals';
-import { ModalsContext} from '../../state/modals';
+import {ModalsContext} from '../../state/modals';
 import {CopyButton} from '../CopyButton';
 import {Flex, Row, Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
-import type { ComboboxValue} from './ComboBox';
+import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
 import {CopyHint} from './CopyHint';
 import {InputDragger} from './InputDragger';

@@ -135,7 +135,8 @@ export const experts: Expert[] = [
           href="https://satelllte.notion.site/Remotion-Showcase-5783389861504a5ea2a39fc6fb16c0c8#4f76cb43a15342bda167e0e9a0553895"
         >
           Music visualization
-        </a>!<br/>
+        </a>
+        !<br />
         Check out my{" "}
         <a
           target={"_blank"}

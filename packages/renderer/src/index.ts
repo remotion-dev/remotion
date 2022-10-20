@@ -4,7 +4,7 @@ import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
-import {warnIfAppleSiliconIsNotUsingArm64Architecture} from './check-apple-silicon';
+import {checkNodeVersionAndWarnAboutRosetta} from './check-apple-silicon';
 import {DEFAULT_CODEC, validCodecs} from './codec';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {getValidCrfRanges, validateQualitySettings} from './crf';
@@ -12,11 +12,7 @@ import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
-import {
-	ffmpegHasFeature,
-	getFfmpegBuildInfo,
-	getFfmpegVersion,
-} from './ffmpeg-flags';
+import {ffmpegHasFeature, getFfmpegVersion} from './ffmpeg-flags';
 import {validateFrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
@@ -109,10 +105,8 @@ export const RenderInternals = {
 	ensureLocalBrowser,
 	ffmpegHasFeature,
 	getActualConcurrency,
-	getFfmpegVersion,
 	validateFfmpeg,
 	binaryExists,
-	getFfmpegBuildInfo,
 	serveStatic,
 	validateEvenDimensionsWithCodec,
 	normalizeServeUrl,
@@ -168,7 +162,8 @@ export const RenderInternals = {
 	cleanDownloadMap,
 	convertToPositiveFrameIndex,
 	validateBitrate,
+	getFfmpegVersion,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
-warnIfAppleSiliconIsNotUsingArm64Architecture();
+checkNodeVersionAndWarnAboutRosetta();

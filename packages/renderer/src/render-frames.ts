@@ -387,11 +387,12 @@ const innerRenderFrames = ({
 	);
 
 	const happyPath = progress.then(() => {
+		const firstFrameIndex = countType === 'from-zero' ? 0 : framesToRender[0];
 		const returnValue: RenderFramesOutput = {
 			assetsInfo: {
 				assets,
 				imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
-				firstFrameIndex: framesToRender[0],
+				firstFrameIndex,
 				downloadMap,
 			},
 			frameCount: framesToRender.length,

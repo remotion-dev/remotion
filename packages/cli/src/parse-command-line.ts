@@ -52,6 +52,7 @@ export type CommandLineOptions = {
 	muted: boolean;
 	['enforce-audio-track']: boolean;
 	gl: OpenGlRenderer;
+	['package-manager']: string;
 };
 
 export const BooleanFlags = [
