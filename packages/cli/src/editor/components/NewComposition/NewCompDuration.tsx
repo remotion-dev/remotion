@@ -1,5 +1,5 @@
 import type {ChangeEventHandler} from 'react';
-import React, { useCallback} from 'react';
+import React, {useCallback} from 'react';
 import {validateCompositionDuration} from '../../helpers/validate-new-comp-data';
 import {Row} from '../layout';
 import {InputDragger} from './InputDragger';

@@ -268,6 +268,7 @@ export const rendererHandler = async (
 		await renderHandler(params, options, logs);
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
+			console.log({err});
 			throw err;
 		}
 

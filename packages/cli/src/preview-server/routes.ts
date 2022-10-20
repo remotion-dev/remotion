@@ -54,7 +54,7 @@ const handleFallback = async ({
 
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
-	const packageManager = getPackageManager(remotionRoot);
+	const packageManager = getPackageManager(remotionRoot, undefined);
 	response.end(
 		BundlerInternals.indexHtml({
 			staticHash: hash,
