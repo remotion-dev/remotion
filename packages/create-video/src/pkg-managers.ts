@@ -80,16 +80,18 @@ export const getRenderCommand = (manager: PackageManager) => {
 	}
 };
 
-export const getUpgradeCommand = (manager: PackageManager) => {
+export const getRunCommand = (manager: PackageManager) => {
 	if (manager === 'npm') {
-		return `npm run upgrade`;
+		return `npm run`;
 	}
 
 	if (manager === 'yarn') {
-		return `yarn run upgrade`;
+		return `yarn run`;
 	}
 
 	if (manager === 'pnpm') {
-		return `pnpm run upgrade`;
+		return `pnpm run`;
 	}
+
+	throw new TypeError('unknown package manager');
 };

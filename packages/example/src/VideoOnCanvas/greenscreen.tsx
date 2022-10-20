@@ -1,7 +1,5 @@
-import {useVideoConfig, Video} from 'remotion';
-import {useCallback, useEffect, useRef} from 'react';
-import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import React, {useCallback, useEffect, useRef} from 'react';
+import {AbsoluteFill, useVideoConfig, Video} from 'remotion';
 
 export const Greenscreen: React.FC = () => {
 	const video = useRef<HTMLVideoElement>(null);

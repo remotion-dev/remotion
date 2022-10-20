@@ -21,9 +21,7 @@ export const validateFrame = (frame: number, durationInFrames: number) => {
 
 	if (frame < 0 && frame < -durationInFrames) {
 		throw new RangeError(
-			`Cannot use frame ${frame}: Duration of composition is ${durationInFrames}, therefore the lowest frame that can be rendered is ${
-				-durationInFrames
-			}`
+			`Cannot use frame ${frame}: Duration of composition is ${durationInFrames}, therefore the lowest frame that can be rendered is ${-durationInFrames}`
 		);
 	}
 

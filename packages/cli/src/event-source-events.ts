@@ -6,7 +6,7 @@ export type EventSourceEvent =
 	| {
 			type: 'init';
 	  }
-    | {
-	        type: 'new-env-variables';
+	| {
+			type: 'new-env-variables';
 			newEnvVariables: Record<string, string>;
-      };
+	  };

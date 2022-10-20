@@ -15,7 +15,6 @@ export const VideoautoplayDemo = () => {
 				backgroundColor: 'red',
 			}}
 		>
-
 			<Sequence from={20}>
 				<Audio src={staticFile('sample.mp3')} volume={0.2} />
 			</Sequence>
@@ -25,13 +24,12 @@ export const VideoautoplayDemo = () => {
 				</Series.Sequence>
 			</Series>
 			<AbsoluteFill>
-			<Gif
+				<Gif
 					src="https://media.giphy.com/media/xT0GqH01ZyKwd3aT3G/giphy.gif"
 					fit="cover"
 					height={200}
 					width={200}
 				/>
-
 			</AbsoluteFill>
 		</AbsoluteFill>
 	);
