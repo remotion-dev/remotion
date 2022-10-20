@@ -84,7 +84,7 @@ describe('Webhooks', () => {
 				proResProfile: undefined,
 				quality: undefined,
 				scale: 1,
-				timeoutInMilliseconds: 16000,
+				timeoutInMilliseconds: 40000,
 				numberOfGifLoops: null,
 				everyNthFrame: 1,
 				concurrencyPerLambda: 1,
