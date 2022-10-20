@@ -168,10 +168,13 @@ module.exports = {
               label: "For companies",
               href: "https://companies.remotion.dev",
             },
+            {
+              label: "Brand",
+              href: "https://github.com/remotion-dev/logo",
+            },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Remotion AG. Built with Docusaurus.`,
     },
     colorMode: {
       respectPrefersColorScheme: true,
