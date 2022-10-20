@@ -9,7 +9,7 @@ export default ({ style, links }) => {
       })}
       style={{
         backgroundColor: "var(--footer-background)",
-        borderTop: "var(--footer-border)",
+        borderTop: "1px solid var(--footer-border)",
       }}
     >
       <div className="container container-fluid">{links}</div>
