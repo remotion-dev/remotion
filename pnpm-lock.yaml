@@ -6,10 +6,12 @@ importers:
     specifiers:
       '@types/node': ^18.11.2
       '@vercel/node': ^2.5.26
+      got: ^11
       lerna: ^4.0.0
       turbo: 1.5.6
     dependencies:
       '@vercel/node': 2.5.26
+      got: 11.8.5
       lerna: 4.0.0
       turbo: 1.5.6
     devDependencies:
