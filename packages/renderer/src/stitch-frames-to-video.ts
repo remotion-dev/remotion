@@ -285,7 +285,11 @@ export const spawnFfmpeg = async (
 		}
 
 		const ffmpegTask = execa(
-			await getExecutableFfmpeg(options.ffmpegExecutable ?? null, remotionRoot),
+			await getExecutableFfmpeg(
+				options.ffmpegExecutable ?? null,
+				remotionRoot,
+				'ffmpeg'
+			),
 			[
 				'-i',
 				audio,
@@ -397,7 +401,11 @@ export const spawnFfmpeg = async (
 	}
 
 	const task = execa(
-		await getExecutableFfmpeg(options.ffmpegExecutable ?? null, remotionRoot),
+		await getExecutableFfmpeg(
+			options.ffmpegExecutable ?? null,
+			remotionRoot,
+			'ffmpeg'
+		),
 		finalFfmpegString,
 		{
 			cwd: options.dir,

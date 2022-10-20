@@ -44,7 +44,7 @@ export const combineVideos = async (options: Options) => {
 
 	try {
 		const task = execa(
-			await getExecutableFfmpeg(ffmpegExecutable, remotionRoot),
+			await getExecutableFfmpeg(ffmpegExecutable, remotionRoot, 'ffmpeg'),
 			[
 				isAudioCodec(codec) ? null : '-r',
 				isAudioCodec(codec) ? null : String(fps),

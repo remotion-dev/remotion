@@ -133,7 +133,11 @@ export const prespawnFfmpeg = async (
 		: ffmpegString;
 
 	const task = execa(
-		await getExecutableFfmpeg(options.ffmpegExecutable ?? null, remotionRoot),
+		await getExecutableFfmpeg(
+			options.ffmpegExecutable ?? null,
+			remotionRoot,
+			'ffmpeg'
+		),
 		finalFfmpegString
 	);
 

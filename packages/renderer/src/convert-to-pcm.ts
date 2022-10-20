@@ -14,13 +14,16 @@ export const convertToPcm = async ({
 	outName: string;
 	remotionRoot: string;
 }) => {
-	await execa(await getExecutableFfmpeg(ffmpegExecutable, remotionRoot), [
-		'-i',
-		input,
-		'-c:a',
-		'pcm_s16le',
-		'-ar',
-		String(DEFAULT_SAMPLE_RATE),
-		outName,
-	]);
+	await execa(
+		await getExecutableFfmpeg(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+		[
+			'-i',
+			input,
+			'-c:a',
+			'pcm_s16le',
+			'-ar',
+			String(DEFAULT_SAMPLE_RATE),
+			outName,
+		]
+	);
 };

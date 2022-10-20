@@ -4,8 +4,8 @@ import os from 'os';
 import {
 	downloadBinary,
 	ffmpegInNodeModules,
+	getBinaryDownloadUrl,
 	getFfmpegBuildInfo,
-	getFfmpegDownloadUrl,
 	getFfmpegVersion,
 } from './ffmpeg-flags';
 import {warnAboutFfmpegVersion} from './warn-about-ffmpeg-version';
@@ -102,7 +102,7 @@ export const validateFfmpeg = async (
 		) {
 			await downloadBinary(
 				remotionRoot,
-				getFfmpegDownloadUrl('ffmpeg').url,
+				getBinaryDownloadUrl('ffmpeg').url,
 				'ffmpeg'
 			);
 			return validateFfmpeg(customFfmpegBinary, remotionRoot);
