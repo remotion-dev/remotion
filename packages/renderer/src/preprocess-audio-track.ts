@@ -59,7 +59,10 @@ const preprocessAudioTrackUnlimited = async ({
 		['-y', outName],
 	].flat(2);
 
-	await execa(await getExecutableFfmpeg(ffmpegExecutable, remotionRoot), args);
+	await execa(
+		await getExecutableFfmpeg(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+		args
+	);
 
 	cleanup();
 	return outName;

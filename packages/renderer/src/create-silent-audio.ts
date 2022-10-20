@@ -14,17 +14,20 @@ export const createSilentAudio = async ({
 	outName: string;
 	remotionRoot: string;
 }) => {
-	await execa(await getExecutableFfmpeg(ffmpegExecutable, remotionRoot), [
-		'-f',
-		'lavfi',
-		'-i',
-		`anullsrc=r=${DEFAULT_SAMPLE_RATE}`,
-		'-c:a',
-		'pcm_s16le',
-		'-t',
-		String(numberOfSeconds),
-		'-ar',
-		String(DEFAULT_SAMPLE_RATE),
-		outName,
-	]);
+	await execa(
+		await getExecutableFfmpeg(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+		[
+			'-f',
+			'lavfi',
+			'-i',
+			`anullsrc=r=${DEFAULT_SAMPLE_RATE}`,
+			'-c:a',
+			'pcm_s16le',
+			'-t',
+			String(numberOfSeconds),
+			'-ar',
+			String(DEFAULT_SAMPLE_RATE),
+			outName,
+		]
+	);
 };

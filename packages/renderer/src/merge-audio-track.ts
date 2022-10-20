@@ -94,7 +94,7 @@ const mergeAudioTrackUnlimited = async ({
 		.filter(truthy)
 		.flat(2);
 	const task = execa(
-		await getExecutableFfmpeg(ffmpegExecutable, remotionRoot),
+		await getExecutableFfmpeg(ffmpegExecutable, remotionRoot, 'ffmpeg'),
 		args
 	);
 	await task;

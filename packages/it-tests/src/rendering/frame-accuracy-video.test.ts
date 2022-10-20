@@ -34,14 +34,17 @@ const getMissedFramesforCodec = async () => {
     }
   );
 
-  await execa(await RenderInternals.getExecutableFfmpeg(null, process.cwd()), [
-    "-i",
-    outputPath,
-    "-f",
-    "image2",
-    path.join(outputDir, "out%3d.jpeg"),
-    "-y",
-  ]);
+  await execa(
+    await RenderInternals.getExecutableFfmpeg(null, process.cwd(), "ffmpeg"),
+    [
+      "-i",
+      outputPath,
+      "-f",
+      "image2",
+      path.join(outputDir, "out%3d.jpeg"),
+      "-y",
+    ]
+  );
 
   let missedFrames = 0;
 

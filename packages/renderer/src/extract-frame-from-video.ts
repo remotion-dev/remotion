@@ -89,7 +89,7 @@ const getFrameOfVideoSlow = async ({
 	].filter(truthy);
 
 	const {stdout, stderr} = execa(
-		await getExecutableFfmpeg(ffmpegExecutable, remotionRoot),
+		await getExecutableFfmpeg(ffmpegExecutable, remotionRoot, 'ffmpeg'),
 		command
 	);
 
@@ -187,7 +187,7 @@ const getLastFrameOfVideoFastUnlimited = async (
 
 	const actualOffset = `${duration * 1000 - offset}ms`;
 	const {stdout, stderr} = execa(
-		await getExecutableFfmpeg(ffmpegExecutable, options.remotionRoot),
+		await getExecutableFfmpeg(ffmpegExecutable, options.remotionRoot, 'ffmpeg'),
 		[
 			'-ss',
 			actualOffset,
@@ -342,7 +342,7 @@ const extractFrameFromVideoFn = async ({
 
 	const ffmpegTimestamp = frameToFfmpegTimestamp(time);
 	const {stdout, stderr} = execa(
-		await getExecutableFfmpeg(ffmpegExecutable, remotionRoot),
+		await getExecutableFfmpeg(ffmpegExecutable, remotionRoot, 'ffmpeg'),
 		[
 			'-ss',
 			ffmpegTimestamp,

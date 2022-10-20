@@ -59,18 +59,21 @@ export const ensurePresentationTimestamps = async (
 	// If there is no file extension for the video, then we need to tempoa
 	const output = await getTemporaryOutputName(src, remotionRoot);
 
-	await execa(await getExecutableFfmpeg(ffmpegExecutable, remotionRoot), [
-		'-i',
-		src,
-		'-fflags',
-		'+genpts+igndts',
-		'-vcodec',
-		'copy',
-		'-acodec',
-		'copy',
-		output,
-		'-y',
-	]);
+	await execa(
+		await getExecutableFfmpeg(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+		[
+			'-i',
+			src,
+			'-fflags',
+			'+genpts+igndts',
+			'-vcodec',
+			'copy',
+			'-acodec',
+			'copy',
+			output,
+			'-y',
+		]
+	);
 
 	callbacks = callbacks.filter((c) => {
 		if (c.src === src) {

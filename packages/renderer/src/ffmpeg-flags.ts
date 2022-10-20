@@ -23,7 +23,7 @@ export const getFfmpegBuildInfo = async (
 	}
 
 	const data = await execa(
-		await getExecutableFfmpeg(options.ffmpegExecutable, remotionRoot),
+		await getExecutableFfmpeg(options.ffmpegExecutable, remotionRoot, 'ffmpeg'),
 		['-buildconf'],
 		{
 			reject: false,
@@ -58,7 +58,7 @@ export const ffmpegInNodeModules = (
 			return false;
 		}
 
-		const expectedLength = getFfmpegDownloadUrl(binary).contentLength;
+		const expectedLength = getBinaryDownloadUrl(binary).contentLength;
 
 		if (fs.statSync(path.join(folderName, filename)).size === expectedLength) {
 			return true;
@@ -206,7 +206,7 @@ export const getExecutableFfprobe = async (
 		return 'ffprobe';
 	}
 
-	const {url} = getFfmpegDownloadUrl('ffprobe');
+	const {url} = getBinaryDownloadUrl('ffprobe');
 
 	if (isDownloading[url]) {
 		return waitForFfmpegToBeDownloaded(url);
@@ -223,31 +223,32 @@ export const getExecutableFfprobe = async (
 
 export const getExecutableFfmpeg = async (
 	ffmpegExecutable: FfmpegExecutable | null,
-	remotionRoot: string
+	remotionRoot: string,
+	binary: 'ffmpeg' | 'ffprobe'
 ) => {
-	const exists = binaryExists('ffmpeg', ffmpegExecutable);
+	const exists = binaryExists(binary, ffmpegExecutable);
 
 	if (exists) {
 		if (ffmpegExecutable !== null) {
 			return ffmpegExecutable;
 		}
 
-		return 'ffmpeg';
+		return binary;
 	}
 
-	const {url} = getFfmpegDownloadUrl('ffmpeg');
+	const {url} = getBinaryDownloadUrl(binary);
 
 	if (isDownloading[url]) {
 		return waitForFfmpegToBeDownloaded(url);
 	}
 
-	const inNodeMod = ffmpegInNodeModules(remotionRoot, 'ffmpeg');
+	const inNodeMod = ffmpegInNodeModules(remotionRoot, binary);
 
 	if (inNodeMod) {
 		return inNodeMod;
 	}
 
-	return downloadBinary(remotionRoot, url, 'ffmpeg');
+	return downloadBinary(remotionRoot, url, binary);
 };
 
 function toMegabytes(bytes: number) {
@@ -255,7 +256,7 @@ function toMegabytes(bytes: number) {
 	return `${Math.round(mb * 10) / 10} Mb`;
 }
 
-export const getFfmpegDownloadUrl = (
+export const getBinaryDownloadUrl = (
 	binary: 'ffmpeg' | 'ffprobe'
 ): {
 	url: string;
