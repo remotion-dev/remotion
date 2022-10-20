@@ -130,3 +130,4 @@ You have animated a rocket! 🚀
 
 - [Blog - SVG Animation with Remotion](https://meje.dev/blog/svg-animtion-with-remotion)
 - [Video - Animating Figma Mockups with Remotion](https://twitter.com/jnybgr/status/1496748768821133312)
+- [Locofy - Export Figma mockups as React components](https://www.locofy.ai)
