@@ -48,7 +48,7 @@ An object with the following properties:
 
 ### `entryPoint`
 
-An absolute path pointing to the entry file of your Remotion project. Usually the entry file in your Remotion project is stored at `src/entry.tsx`.
+An absolute path pointing to the entry point of your Remotion project. [Usually the entry point in your Remotion project is stored at `src/entry.tsx`](/docs/terminology#entry-point).
 
 ### `bucketName`
 
@@ -135,5 +135,6 @@ An object with the following values:
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/deploy-site.ts)
+- [CLI equivalent: `npx remotion lambda sites create`](/docs/lambda/cli/sites#create)
 - [getSites()](/docs/lambda/getsites)
 - [deleteSite()](/docs/lambda/deletesite)
