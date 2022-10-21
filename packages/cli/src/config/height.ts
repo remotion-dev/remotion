@@ -1,5 +1,3 @@
-import {RenderInternals} from '@remotion/renderer';
-
 let specifiedHeight: number;
 
 export const setHeight = (newHeight: number) => {

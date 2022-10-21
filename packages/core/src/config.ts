@@ -233,7 +233,7 @@ export type ConfigType = {
 		 * Possible values: 4444-xq, 4444, hq, standard, light, proxy. Default: 'hq'
 		 * See https://avpres.net/FFmpeg/im_ProRes.html for meaning of possible values.
 		 */
-		 readonly setHeight: (newHeigh: number) => void;
+		readonly setHeight: (newHeigh: number) => void;
 		 /**
 			* Set new height.
 			*/
