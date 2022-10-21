@@ -202,6 +202,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 				leftItem:
 					String(frameRate) === selectedFrameRate ? <Checkmark /> : null,
 				subMenu: null,
+				quickSwitcherLabel: null,
 			};
 		});
 	}, [onFpsChange, selectedFrameRate]);
@@ -224,6 +225,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 				subMenu: null,
 				type: 'item',
 				value: 'composition' as CompType,
+				quickSwitcherLabel: null,
 			},
 			{
 				id: 'still',
@@ -234,6 +236,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 				subMenu: null,
 				type: 'item',
 				value: 'still' as CompType,
+				quickSwitcherLabel: null,
 			},
 		];
 	}, [onTypeChanged]);

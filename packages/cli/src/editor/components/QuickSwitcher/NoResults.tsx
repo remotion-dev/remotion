@@ -8,12 +8,15 @@ const container: React.CSSProperties = {
 	fontSize: 14,
 };
 
+export type Mode = 'commands' | 'compositions';
+
 export const QuickSwitcherNoResults: React.FC<{
 	query: string;
-}> = ({query}) => {
+	mode: Mode;
+}> = ({query, mode}) => {
 	return (
 		<div style={container}>
-			No compositions matching {'"'}
+			No {mode === 'commands' ? 'commands' : 'compositions'} matching {'"'}
 			{query}
 			{'"'}
 		</div>

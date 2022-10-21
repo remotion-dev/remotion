@@ -5,10 +5,14 @@ import {FilmIcon} from '../../icons/film';
 import {StillIcon} from '../../icons/still';
 import {Spacing} from '../layout';
 
-type QuickSwitcherResultDetail = {
-	type: 'composition';
-	compositionType: 'composition' | 'still';
-};
+type QuickSwitcherResultDetail =
+	| {
+			type: 'composition';
+			compositionType: 'composition' | 'still';
+	  }
+	| {
+			type: 'menu-item';
+	  };
 
 export type TQuickSwitcherResult = {
 	title: string;
@@ -81,6 +85,7 @@ export const QuickSwitcherResult: React.FC<{
 			binding.unregister();
 		};
 	}, [keybindings, result.onSelected, selected]);
+
 	useEffect(() => {
 		if (selected) {
 			ref.current?.scrollIntoView({
@@ -110,11 +115,13 @@ export const QuickSwitcherResult: React.FC<{
 
 	return (
 		<div ref={ref} key={result.id} style={style} onClick={result.onSelected}>
-			{result.compositionType === 'still' ? (
-				<StillIcon style={iconStyle} />
-			) : (
-				<FilmIcon style={iconStyle} />
-			)}
+			{result.type === 'composition' ? (
+				result.compositionType === 'still' ? (
+					<StillIcon style={iconStyle} />
+				) : (
+					<FilmIcon style={iconStyle} />
+				)
+			) : null}
 			<Spacing x={1} />
 			<div style={labelStyle}>{result.title}</div>
 		</div>
