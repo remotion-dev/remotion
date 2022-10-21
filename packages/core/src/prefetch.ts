@@ -2,7 +2,7 @@ import {useContext} from 'react';
 import {getRemotionEnvironment} from './get-environment';
 import {PreloadContext, setPreloads} from './prefetch-state';
 
-export const usePreload = (src: string): string => {
+export const usePreload = (src: string): Blob => {
 	const preloads = useContext(PreloadContext);
 
 	return preloads[src] ?? src;
@@ -46,7 +46,7 @@ export const prefetch = (
 	}
 
 	let canceled = false;
-	let objectUrl: string | null = null;
+	const objectUrl: string | null = null;
 	let resolve: (src: string) => void = () => undefined;
 	let reject: (err: Error) => void = () => undefined;
 
@@ -78,24 +78,18 @@ export const prefetch = (
 				return;
 			}
 
-			if (method === 'base64') {
-				return blobToBase64(buf);
-			}
-
-			return URL.createObjectURL(buf);
+			return buf;
 		})
-		.then((url) => {
+		.then((buf) => {
 			if (canceled) {
 				return;
 			}
 
-			objectUrl = url as string;
-
 			setPreloads((p) => ({
 				...p,
-				[src]: objectUrl as string,
+				[src]: buf as Blob,
 			}));
-			resolve(objectUrl);
+			resolve(buf);
 		})
 		.catch((err) => {
 			reject(err);

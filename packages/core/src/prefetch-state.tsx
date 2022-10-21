@@ -1,6 +1,6 @@
 import React, {createContext, useEffect, useState} from 'react';
 
-type Value = Record<string, string>;
+type Value = Record<string, Blob>;
 
 export const PreloadContext = createContext<Value>({});
 

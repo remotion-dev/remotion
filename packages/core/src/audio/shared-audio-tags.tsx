@@ -41,6 +41,15 @@ type SharedContext = {
 	numberOfAudioTags: number;
 };
 
+const mapPropsToSrcObject = (props: RemotionAudioProps) => {
+	const {src, ...others} = props;
+	if (src instanceof Blob) {
+		return {...others, srcObject: src};
+	}
+
+	return props;
+};
+
 const compareProps = (
 	obj1: Record<string, unknown>,
 	obj2: Record<string, unknown>
@@ -130,9 +139,10 @@ export const SharedAudioContextProvider: React.FC<{
 				throw new TypeError('Expected audio data to be there');
 			}
 
-			Object.keys(data.props).forEach((key) => {
+			Object.keys(mapPropsToSrcObject(data.props)).forEach((key) => {
 				// @ts-expect-error
 				if (didPropChange(key, data.props[key], current[key])) {
+					console.log({key, buffer: data.props[key]});
 					// @ts-expect-error
 					current[key] = data.props[key];
 				}
