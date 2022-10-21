@@ -233,6 +233,14 @@ export type ConfigType = {
 		 * Possible values: 4444-xq, 4444, hq, standard, light, proxy. Default: 'hq'
 		 * See https://avpres.net/FFmpeg/im_ProRes.html for meaning of possible values.
 		 */
+		 readonly setHeight: (newHeigh: number) => void;
+		 /**
+			* Set new height.
+			*/
+		readonly setWidth: (newWidth: number) => void;
+		 /**
+			* Set new width.
+			*/
 		readonly setProResProfile: (
 			profile:
 				| '4444-xq'
