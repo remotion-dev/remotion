@@ -12,6 +12,7 @@ import {useKeybinding} from '../../helpers/use-keybinding';
 import {ModalsContext} from '../../state/modals';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {fuzzySearch} from './fuzzy-search';
+import {QuickSwitcherNoResults} from './NoResults';
 import type {TQuickSwitcherResult} from './QuickSwitcherResult';
 import {QuickSwitcherResult} from './QuickSwitcherResult';
 
@@ -152,6 +153,9 @@ export const QuickSwitcherContent: React.FC = () => {
 						/>
 					);
 				})}
+				{resultsArray.length === 0 ? (
+					<QuickSwitcherNoResults query={state.query} />
+				) : null}
 			</div>
 		</div>
 	);
