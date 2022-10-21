@@ -3,10 +3,11 @@ import React, {
 	useContext,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {INPUT_BORDER_COLOR_UNHOVERED} from '../../helpers/colors';
+import {INPUT_BORDER_COLOR_UNHOVERED, LIGHT_TEXT} from '../../helpers/colors';
 import {isCompositionStill} from '../../helpers/is-composition-still';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {
@@ -15,6 +16,7 @@ import {
 } from '../../helpers/use-menu-structure';
 import {ModalsContext} from '../../state/modals';
 import {useSelectComposition} from '../InitialCompositionLoader';
+import {Spacing} from '../layout';
 import {fuzzySearch} from './fuzzy-search';
 import type {Mode} from './NoResults';
 import {QuickSwitcherNoResults} from './NoResults';
@@ -31,8 +33,40 @@ const container: React.CSSProperties = {
 	width: 500,
 };
 
+const modeSelector: React.CSSProperties = {
+	paddingLeft: 16,
+	paddingRight: 16,
+	display: 'flex',
+	flexDirection: 'row',
+	paddingTop: 8,
+	paddingBottom: 5,
+};
+
+const modeItem: React.CSSProperties = {
+	appearance: 'none',
+	border: 'none',
+	fontFamily: 'inherit',
+	padding: 0,
+	fontSize: 13,
+	cursor: 'pointer',
+};
+
+const modeInactive: React.CSSProperties = {
+	...modeItem,
+	color: LIGHT_TEXT,
+};
+
+const modeActive: React.CSSProperties = {
+	...modeItem,
+	color: 'white',
+	fontWeight: 'bold',
+};
+
 const content: React.CSSProperties = {
-	padding: 16,
+	paddingLeft: 16,
+	paddingRight: 16,
+	paddingTop: 4,
+	paddingBottom: 10,
 };
 
 const results: React.CSSProperties = {
@@ -48,14 +82,15 @@ const loopIndex = (index: number, length: number) => {
 	return index % length;
 };
 
-// Separate component to correctly capture keybindings
 export const QuickSwitcherContent: React.FC = () => {
 	const {compositions} = useContext(Internals.CompositionManager);
 	const [state, setState] = useState({
 		query: '',
 		selectedIndex: 0,
 	});
+	const inputRef = useRef<HTMLInputElement>(null);
 	const selectComposition = useSelectComposition();
+
 	const closeMenu = useCallback(() => undefined, []);
 	const actions = useMenuStructure(closeMenu);
 
@@ -168,10 +203,44 @@ export const QuickSwitcherContent: React.FC = () => {
 		resultsArray.length
 	);
 
+	const onActionsSelected = useCallback(() => {
+		setState({
+			query: '> ',
+			selectedIndex: 0,
+		});
+		inputRef.current?.focus();
+	}, []);
+
+	const onCompositionsSelected = useCallback(() => {
+		setState({
+			query: '',
+			selectedIndex: 0,
+		});
+		inputRef.current?.focus();
+	}, []);
+
 	return (
 		<div style={container}>
+			<div style={modeSelector}>
+				<button
+					onClick={onCompositionsSelected}
+					style={mode === 'compositions' ? modeActive : modeInactive}
+					type="button"
+				>
+					Compositions
+				</button>
+				<Spacing x={1} />
+				<button
+					onClick={onActionsSelected}
+					style={mode === 'commands' ? modeActive : modeInactive}
+					type="button"
+				>
+					Actions
+				</button>
+			</div>
 			<div style={content}>
 				<input
+					ref={inputRef}
 					type="text"
 					style={input}
 					autoFocus

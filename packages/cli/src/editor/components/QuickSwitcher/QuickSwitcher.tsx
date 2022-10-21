@@ -10,6 +10,7 @@ const QuickSwitcher: React.FC = () => {
 		setSelectedModal(null);
 	}, [setSelectedModal]);
 
+	// Separate child component to correctly capture keybindings
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<QuickSwitcherContent />
