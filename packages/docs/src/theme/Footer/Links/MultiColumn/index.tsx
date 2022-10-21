@@ -1,7 +1,7 @@
 import { useColorMode } from "@docusaurus/theme-common";
 // @ts-expect-error
 import LinkItem from "@theme/Footer/LinkItem";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const footerTitle: React.CSSProperties = {
   fontFamily: "GTPlanar",
@@ -48,6 +48,16 @@ const copyright: React.CSSProperties = {
 
 export default ({ columns }) => {
   const { isDarkTheme } = useColorMode();
+  const [src, setSrc] = useState("/img/new-logo.png");
+
+  useEffect(() => {
+    if (isDarkTheme) {
+      setSrc("/img/remotion-white.png");
+    } else {
+      setSrc("/img/new-logo.png");
+    }
+  }, [isDarkTheme]);
+
   return (
     <div className="row footer__links">
       <div
@@ -57,7 +67,8 @@ export default ({ columns }) => {
         }}
       >
         <img
-          src={isDarkTheme ? "/img/remotion-white.png" : "/img/new-logo.png"}
+          key={String(isDarkTheme)}
+          src={src}
           style={{
             height: 32,
             marginRight: 80,
