@@ -200,9 +200,12 @@ RTF = React Three Fiber
 
 9. Add the following imports at the **top** of **Torus.tsx**, below the useSpline import.
 
-   ```tsx
-
-   ```
+    ```tsx
+    import React, { useEffect } from "react";
+    import { useThree } from "@react-three/fiber";
+    import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+    import { CAMERA_DISTANCE } from "./helpers/layout";
+    ```
 
    - useThree is used for the camera.
    - interpolate is used to fill in the frames in between the key frames.
@@ -278,7 +281,7 @@ RTF = React Three Fiber
     Remove the `import {Phone} from './Phone';` statement from the top and replace it with
 
     ```tsx
-
+    import { Torus } from "./Torus";
     ```
 
     Delete the code from line 36 to line 42 that is:-
