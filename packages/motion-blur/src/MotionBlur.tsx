@@ -72,7 +72,6 @@ export const MotionBlur: React.FC<MotionBlurProps> = ({
 					</AbsoluteFill>
 				);
 			})}
-			{children}
 		</AbsoluteFill>
 	);
 };
