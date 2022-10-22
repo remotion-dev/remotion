@@ -201,15 +201,7 @@ RTF = React Three Fiber
 9. Add the following imports at the **top** of **Torus.tsx**, below the useSpline import.
 
    ```tsx
-   import React, { useEffect } from "react";
-   import { useThree } from "@react-three/fiber";
-   import {
-     interpolate,
-     spring,
-     useCurrentFrame,
-     useVideoConfig,
-   } from "remotion";
-   import { CAMERA_DISTANCE } from "./helpers/layout";
+
    ```
 
    - useThree is used for the camera.
@@ -242,25 +234,24 @@ RTF = React Three Fiber
 
 11. Let's add some animation. Below the above code, insert the following:-
 
-
     ```tsx
     const constantRotation = interpolate(
-    	frame,
-    	[0, durationInFrames],
-    	[0, Math.PI * 6]
+      frame,
+      [0, durationInFrames],
+      [0, Math.PI * 6]
     );
 
     const entranceAnimation = spring({
-    	frame,
-    	fps,
-    	config: {
-    		damping: 2,
-    		mass: 15,
-    	},
+      frame,
+      fps,
+      config: {
+        damping: 2,
+        mass: 15,
+      },
     });
     ```
 
-    - The constantRotation variable is used to store the number of times our Torus will rotate. Math.PI * 2 means 1 complete 360 degree rotation. You can increase the number to make the Torus rotate faster.
+    - The constantRotation variable is used to store the number of times our Torus will rotate. Math.PI \* 2 means 1 complete 360 degree rotation. You can increase the number to make the Torus rotate faster.
     - The entranceAnimation uses a spring based animation. This will be more clear when we see the output. Damping controls how many times the spring will compress and extend. A lower value will make the spring compress and extend more. However increasing the mass will cause the spring to compress and extend lesser.
 
 12. Inside the `<mesh ... />` component, replace some lines to utilize the animations which we defined above:-
@@ -287,7 +278,7 @@ RTF = React Three Fiber
     Remove the `import {Phone} from './Phone';` statement from the top and replace it with
 
     ```tsx
-    import { Torus } from "./Torus";
+
     ```
 
     Delete the code from line 36 to line 42 that is:-
@@ -322,7 +313,7 @@ RTF = React Three Fiber
 
     The video will be saved in the **out** folder as **video.mp4**
 
-    NOTE: 🔴 <span style="color:red">[IMPORTANT] : The above command will **not work** when you are using **@react-three/fiber v7.0.0** because of some error in the library itself. The template which we utilized is using @react-three/fiber v7.0.0. **Upgrade to v8.0.0** and the video gets exported without any issues.</span>
+    NOTE: 🔴 <span style={{color: "red"}}>[IMPORTANT] : The above command will **not work** when you are using **@react-three/fiber v7.0.0** because of some error in the library itself. The template which we utilized is using @react-three/fiber v7.0.0. **Upgrade to v8.0.0** and the video gets exported without any issues.</span>
 
     So, you will have to manually upgrade @react-three/fiber by either editing **package.json** and running **npm install** OR by running **npm install @react-three/fiber@8.0.0**
 
@@ -330,9 +321,7 @@ RTF = React Three Fiber
 
 ## Final Result / Generated Video
 
-
 https://user-images.githubusercontent.com/51107639/197317646-9e4532a1-9a6f-427f-9a99-5fe3d3d31873.mp4
-
 
 ## Additional Resources
 
