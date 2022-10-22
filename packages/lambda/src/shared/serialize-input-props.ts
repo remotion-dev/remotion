@@ -24,7 +24,7 @@ export const serializeInputProps = async ({
 			console.warn(
 				`Warning: inputProps are over ${Math.round(
 					MAX_INLINE_PAYLOAD_SIZE / 1000
-				)} (${Math.ceil(
+				)}KB (${Math.ceil(
 					payload.length / 1024
 				)}KB) in size. Uploading them to S3 to circumvent AWS Lambda payload size.`
 			);
