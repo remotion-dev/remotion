@@ -4,6 +4,7 @@ import fs from 'fs';
 import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
+import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
 import type {
 	EncodingProgress,
 	LambdaPayload,
@@ -560,6 +561,12 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		jobs,
 	});
 
+	const cleanupSerializedInputPropsProm = cleanupSerializedInputProps({
+		bucketName: params.bucketName,
+		region: getCurrentRegionInFunction(),
+		serialized: params.inputProps,
+	});
+
 	const outputUrl = getOutputUrlFromMetadata(
 		renderMetadata,
 		params.bucketName,
@@ -574,7 +581,9 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		contents,
 		errorExplanations: await errorExplanationsProm,
 		timeToEncode: encodingStop - encodingStart,
-		timeToDelete: await deletProm,
+		timeToDelete: (
+			await Promise.all([deletProm, cleanupSerializedInputPropsProm])
+		).reduce((a, b) => a + b, 0),
 		outputFile: {
 			lastModified: Date.now(),
 			size: outputSize.size,

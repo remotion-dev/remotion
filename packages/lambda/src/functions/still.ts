@@ -7,6 +7,7 @@ import {VERSION} from 'remotion/version';
 import {estimatePrice} from '../api/estimate-price';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
+import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
 import type {
 	LambdaPayload,
 	LambdaPayloads,
@@ -17,6 +18,7 @@ import {
 	MAX_EPHEMERAL_STORAGE_IN_MB,
 	renderMetadataKey,
 } from '../shared/constants';
+import {deserializeInputProps} from '../shared/deserialize-input-props';
 import {getServeUrlHash} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
@@ -78,6 +80,13 @@ const innerStillHandler = async (
 			lambdaParams.chromiumOptions ?? {}
 		),
 	]);
+	const inputPropsPromise = deserializeInputProps({
+		bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+		serialized: lambdaParams.inputProps,
+	});
+
 	const outputDir = RenderInternals.tmpDir('remotion-render-');
 
 	const outputPath = path.join(outputDir, 'output');
@@ -131,6 +140,7 @@ const innerStillHandler = async (
 		customCredentials: null,
 	});
 
+	const inputProps = await inputPropsPromise;
 	await renderStill({
 		composition,
 		output: outputPath,
@@ -142,7 +152,7 @@ const innerStillHandler = async (
 			durationInFrames: composition.durationInFrames,
 		}),
 		imageFormat: lambdaParams.imageFormat as StillImageFormat,
-		inputProps: lambdaParams.inputProps,
+		inputProps,
 		overwrite: false,
 		puppeteerInstance: browserInstance,
 		quality: lambdaParams.quality,
@@ -170,7 +180,15 @@ const innerStillHandler = async (
 		downloadBehavior: lambdaParams.downloadBehavior,
 		customCredentials,
 	});
-	await fs.promises.rm(outputPath, {recursive: true});
+
+	await Promise.all([
+		fs.promises.rm(outputPath, {recursive: true}),
+		cleanupSerializedInputProps({
+			bucketName,
+			region: getCurrentRegionInFunction(),
+			serialized: lambdaParams.inputProps,
+		}),
+	]);
 
 	const estimatedPrice = estimatePrice({
 		durationInMiliseconds: Date.now() - start + 100,
