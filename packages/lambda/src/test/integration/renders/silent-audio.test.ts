@@ -39,7 +39,10 @@ test('Should add silent audio if there is no audio', async () => {
 			frameRange: [0, 12],
 			framesPerLambda: 8,
 			imageFormat: 'png',
-			inputProps: {},
+			inputProps: {
+				type: 'payload',
+				payload: {},
+			},
 			logLevel: 'warn',
 			maxRetries: 3,
 			outName: 'out.mp4',
