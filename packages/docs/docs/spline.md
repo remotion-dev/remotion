@@ -330,12 +330,18 @@ RTF = React Three Fiber
 
 ## Final Result / Generated Video
 
-<video src="../static/img/spline-guide/spline_guide_final_video.mp4"></video>
+
+https://user-images.githubusercontent.com/51107639/197317646-9e4532a1-9a6f-427f-9a99-5fe3d3d31873.mp4
+
 
 ## Additional Resources
 
 https://www.remotion.dev/docs/
+
 https://www.remotion.dev/docs/three
+
 https://github.com/remotion-dev/template-three
+
 https://docs.spline.design/
+
 https://www.youtube.com/c/splinetool
