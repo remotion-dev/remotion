@@ -21,6 +21,16 @@ export const GlobalKeybindings: React.FC = () => {
 			},
 			commandCtrlKey: false,
 		});
+		const cmdKKey = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'k',
+			callback: () => {
+				setSelectedModal({
+					type: 'quick-switcher',
+				});
+			},
+			commandCtrlKey: true,
+		});
 
 		const cKey = keybindings.registerKeybinding({
 			event: 'keypress',
@@ -45,6 +55,7 @@ export const GlobalKeybindings: React.FC = () => {
 			nKey.unregister();
 			cKey.unregister();
 			questionMark.unregister();
+			cmdKKey.unregister();
 		};
 	}, [keybindings, setCheckerboard, setSelectedModal]);
 
