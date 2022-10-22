@@ -3,7 +3,8 @@ import {createRoot} from 'react-dom/client';
 import App from './App';
 import CarSlideshow from './CarSlideshow';
 import {VideoautoplayDemo} from './VideoAutoplay';
-import {Thumbnail} from "@remotion/player/dist/Thumbnail";
+import {Thumbnail} from "@remotion/player";
+import {ThumbnailDemo} from "./ThumbnailDemo";
 
 const rootElement = document.getElementById('root');
 
@@ -30,6 +31,7 @@ createRoot(rootElement as HTMLElement).render(
 		<React.StrictMode>
 			<App lazyComponent={Car} durationInFrames={500} />
 			<App component={VideoautoplayDemo} durationInFrames={2700} />
+			<ThumbnailDemo/>
 		</React.StrictMode>
 	</div>
 );
