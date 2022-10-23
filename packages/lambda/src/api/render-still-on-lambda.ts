@@ -11,6 +11,7 @@ import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {getCloudwatchStreamUrl} from '../shared/get-cloudwatch-stream-url';
+import {serializeInputProps} from '../shared/serialize-input-props';
 
 export type RenderStillOnLambdaInput = {
 	region: AwsRegion;
@@ -78,6 +79,13 @@ export const renderStillOnLambda = async ({
 	downloadBehavior,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
+
+	const serializedInputProps = await serializeInputProps({
+		inputProps,
+		region,
+		type: 'still',
+	});
+
 	try {
 		const res = await callLambda({
 			functionName,
@@ -85,7 +93,7 @@ export const renderStillOnLambda = async ({
 			payload: {
 				composition,
 				serveUrl: realServeUrl,
-				inputProps,
+				inputProps: serializedInputProps,
 				imageFormat,
 				envVariables,
 				quality,
