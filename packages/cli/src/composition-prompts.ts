@@ -26,7 +26,7 @@ prompt.separator = (title: string) => ({
 	value: undefined,
 });
 
-export async function selectComposition(
+export async function selectAsync(
 	questions: NamelessQuestion,
 	options?: PromptOptions
 ): Promise<unknown> {

@@ -9,6 +9,7 @@ import path from 'path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {getCliOptions, getFinalCodec} from './get-cli-options';
+import {getCompositionId} from './get-composition-id';
 import {getRenderMediaOptions} from './get-render-media-options';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
@@ -203,6 +204,11 @@ export const benchmarkCommand = async (
 		.split(',')
 		.map((c) => c.trim())
 		.filter(truthy);
+
+	if (ids[0] === '') {
+		const composition = await getCompositionId();
+		return composition;
+	}
 
 	const compositions = ids.map((compId) => {
 		const composition = comps.find((c) => c.id === compId);

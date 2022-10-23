@@ -93,10 +93,12 @@ export const render = async (remotionRoot: string) => {
 		codec,
 	});
 
+	const compositionId = await getCompositionId();
+
 	const relativeOutputLocation = getOutputFilename({
 		codec,
 		imageSequence: shouldOutputImageSequence,
-		compositionName: getCompositionId(),
+		compositionName: compositionId,
 		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec, 'final'),
 	});
 
@@ -104,8 +106,6 @@ export const render = async (remotionRoot: string) => {
 		relativeOutputLocation,
 		overwrite
 	);
-
-	const compositionId = getCompositionId();
 
 	Log.info(
 		chalk.gray(
