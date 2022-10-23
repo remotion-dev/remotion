@@ -95,6 +95,10 @@ export const render = async (remotionRoot: string) => {
 
 	const compositionId = await getCompositionId();
 
+	if (!compositionId) {
+		throw new Error(`No composition ID provided.`);
+	}
+
 	const relativeOutputLocation = getOutputFilename({
 		codec,
 		imageSequence: shouldOutputImageSequence,

@@ -9,12 +9,12 @@ import path from 'path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {getCliOptions, getFinalCodec} from './get-cli-options';
-import {getCompositionId} from './get-composition-id';
 import {getRenderMediaOptions} from './get-render-media-options';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {createOverwriteableCliOutput} from './progress-bar';
+import {selectComposition} from './select-composition';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import {truthy} from './truthy';
 
@@ -200,15 +200,14 @@ export const benchmarkCommand = async (
 		puppeteerInstance,
 	});
 
-	const ids = (args[1] ?? '')
-		.split(',')
-		.map((c) => c.trim())
-		.filter(truthy);
-
-	if (ids[0] === '') {
-		const composition = await getCompositionId();
-		return composition;
-	}
+	const ids = (
+		args[1]
+			? args[1]
+					.split(',')
+					.map((c) => c.trim())
+					.filter(truthy)
+			: await selectComposition(true)
+	) as string[];
 
 	const compositions = ids.map((compId) => {
 		const composition = comps.find((c) => c.id === compId);

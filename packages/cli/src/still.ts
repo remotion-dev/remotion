@@ -77,6 +77,10 @@ export const still = async (remotionRoot: string) => {
 		isLambda: false,
 	});
 
+	if (!compositionId) {
+		throw new Error('No Composition ID provided.');
+	}
+
 	const relativeOutputLocation = getOutputLocation({
 		compositionId,
 		defaultExtension: imageFormat,
