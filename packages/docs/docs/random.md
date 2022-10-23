@@ -14,7 +14,7 @@ const rand2 = random(1); // still 0.07301638228818774
 const randomCoordinates = new Array(10).fill(true).map((a, i) => {
   return {
     x: random(`random-x-${i}`),
-    y: random(`random--${i}`),
+    y: random(`random-y-${i}`),
   };
 }); // will always be [{x: 0.2887063352391124, y: 0.18660089606419206}, ...]
 
