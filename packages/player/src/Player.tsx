@@ -25,18 +25,11 @@ import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import type {PlayerRef} from './player-methods';
 import type {RenderLoading, RenderPoster} from './PlayerUI';
 import PlayerUI from './PlayerUI';
+import type {PropsIfHasProps} from './utils/props-if-has-props';
 import {validateInOutFrames} from './utils/validate-in-out-frame';
 import {validateInitialFrame} from './utils/validate-initial-frame';
 import {validatePlaybackRate} from './utils/validate-playbackrate';
 import {getPreferredVolume, persistVolume} from './volume-persistance';
-
-type PropsIfHasProps<Props> = {} extends Props
-	? {
-			inputProps?: Props;
-	  }
-	: {
-			inputProps: Props;
-	  };
 
 export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 
