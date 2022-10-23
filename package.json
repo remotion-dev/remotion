@@ -16,9 +16,9 @@
     "node": ">=12",
     "pnpm": ">=3"
   },
-  "devDependencies": {},
   "dependencies": {
     "lerna": "^4.0.0",
+    "pnpm": "^7.13.4",
     "turbo": "^1.2.6"
   },
   "workspaces": [
