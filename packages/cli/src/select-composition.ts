@@ -4,7 +4,6 @@ import {
 	RenderInternals,
 } from '@remotion/renderer';
 import path from 'path';
-import prompts from './composition-prompts';
 // eslint-disable-next-line no-restricted-imports
 import {Internals} from 'remotion';
 import {selectAsync} from './composition-prompts';
@@ -18,7 +17,9 @@ import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import type {RenderStep} from './step';
 import {getUserPassedOutputLocation} from './user-passed-output-location';
 
-export const selectComposition = async () => {
+export const selectComposition = async (
+	multiple = false
+): Promise<string[] | string> => {
 	const remotionRoot = findRemotionRoot();
 	const file = parsedCli._[1];
 	const downloadMap = RenderInternals.makeDownloadMap();
@@ -85,23 +86,27 @@ export const selectComposition = async () => {
 		port,
 	});
 
-	const selectedComposition = (await selectAsync(
-		{
-			message: 'Select a composition:',
-			optionsPerPage: 20,
-			choices: compositions.map((comp) => {
-				if (typeof comp.id === 'string') {
-					return prompts.separator(comp.id);
-				}
+	if (compositions.length === 1) {
+		const onlyComposition = compositions.pop();
+		if (onlyComposition) {
+			return [onlyComposition.id];
+		}
+	}
 
+	const selectedComposition = await selectAsync(
+		{
+			message: multiple ? 'Select composition/s: ' : 'Select a composition:',
+			optionsPerPage: 20,
+			type: multiple ? 'multiselect' : 'select',
+			choices: compositions.map((comp) => {
 				return {
-					value: comp.id,
-					title: chalk.bold(comp.id),
+					value: comp.id as string,
+					title: chalk.bold(comp.id as string),
 				};
 			}),
 		},
 		{}
-	)) as string;
+	);
 
 	return selectedComposition;
 };
