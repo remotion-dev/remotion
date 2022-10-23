@@ -67,7 +67,7 @@ export const still = async (remotionRoot: string) => {
 
 	Log.verbose('Browser executable: ', browserExecutable);
 
-	const compositionId = getCompositionId();
+	const compositionId = await getCompositionId();
 
 	const {format: imageFormat, source} = determineFinalImageFormat({
 		cliFlag: parsedCli['image-format'] ?? null,

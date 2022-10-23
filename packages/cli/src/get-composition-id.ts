@@ -1,11 +1,13 @@
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
+import {selectComposition} from './select-composition';
 
-export const getCompositionId = () => {
+export const getCompositionId = async () => {
 	if (!parsedCli._[2]) {
 		Log.error('Composition ID not passed.');
-		Log.error('Pass an extra argument <composition-id>.');
-		process.exit(1);
+
+		const selectedComposition = await selectComposition();
+		return selectedComposition;
 	}
 
 	return parsedCli._[2];
