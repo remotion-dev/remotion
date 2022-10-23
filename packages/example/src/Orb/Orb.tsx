@@ -27,6 +27,8 @@ export const Orb = () => {
 				height={15}
 				blur={2.5}
 				far={1.6}
+				attachArray={undefined}
+				attachObject={undefined}
 			/>
 		</>
 	);
