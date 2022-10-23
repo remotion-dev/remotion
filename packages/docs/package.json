@@ -53,7 +53,7 @@
     "react-dom": "18.0.0",
     "react-player": "^2.9.0",
     "remotion": "3.2.34",
-    "three": "0.134.0",
+    "three": "0.145.0",
     "vitest": "0.24.3"
   },
   "devDependencies": {
