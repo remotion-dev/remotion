@@ -15,4 +15,6 @@ export const getCompositionId = async () => {
 	}
 
 	Log.error('Composition ID not passed.');
+	Log.error('Pass an extra argument <composition-id>.');
+	process.exit(1);
 };
