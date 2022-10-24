@@ -6,22 +6,22 @@ const createRule = ESLintUtils.RuleCreator(() => {
 
 type Options = [];
 
-type MessageIds = "From";
+type MessageIds = "From0";
 
-const From = "0 is now the default, so you can remove the prop.";
+const From0 = "0 is now the default, so you can remove the prop.";
 
 export default createRule<Options, MessageIds>({
   name: "from",
   meta: {
     type: "problem",
     docs: {
-      description: From,
+      description: From0,
       recommended: "warn",
     },
     fixable: "code",
     schema: [],
     messages: {
-      From,
+      From0,
     },
   },
   defaultOptions: [],
@@ -41,12 +41,13 @@ export default createRule<Options, MessageIds>({
         }
 
         const expression = value.expression;
-        if (!expression || expression.type !== "Identifier") {
+        if (!expression || expression.type !== "Literal") {
           return;
         }
 
-        const stringValue = expression.name;
-        if (typeof stringValue !== "string") {
+        const stringValue = expression.value;
+
+        if (stringValue !== 0) {
           return;
         }
 
@@ -66,9 +67,9 @@ export default createRule<Options, MessageIds>({
         if (name.name !== "Sequence") {
           return;
         }
-        if (stringValue === "0") {
+        if (stringValue === 0) {
           context.report({
-            messageId: "From",
+            messageId: "From0",
             node,
             fix: (fixer) => {
               return fixer.removeRange([node.name.range[0], value.range[1]]);
