@@ -29,7 +29,7 @@ To define which props your video accepts, simply give your component the `React.
 
 When registering the component as a sequence, you can define the default props:
 
-```tsx twoslash {13-16}
+```tsx twoslash {14-17}
 // @filename: MyComponent.tsx
 import React from "react";
 export const MyComponent: React.FC<{ propOne: string; propTwo: number }> = () =>
@@ -41,7 +41,7 @@ import React from "react";
 import { Composition } from "remotion";
 import { MyComponent } from "./MyComponent";
 
-export const Root = () => {
+export const Root: React.FC = () => {
   return (
     <>
       <Composition
@@ -87,12 +87,12 @@ npx remotion render src/index.tsx HelloWorld out/helloworld.mp4 --props=./path/t
 
 ### Passing input props when server rendering
 
-When server-rendering using `renderFrames`, you can pass props using the `inputProps` option:
+When server-rendering using [`renderMedia()`](/docs/renderer/render-media), you can pass props using the [`inputProps`](/docs/renderer/render-media#inputprops) option:
 
-```tsx twoslash {9-11}
+```tsx twoslash {8-10}
 // @module: esnext
 // @target: es2017
-const video = {
+const composition = {
   fps: 30,
   durationInFrames: 30,
   width: 1080,
@@ -100,22 +100,19 @@ const video = {
   id: "my-video",
   defaultProps: {},
 };
-const bundled = "/path/to/bundle";
-const framesDir = "/path/to/frames";
+const serveUrl = "/path/to/bundle";
+const outputLocation = "/path/to/frames";
 // ---cut---
-import { renderFrames } from "@remotion/renderer";
+import { renderMedia } from "@remotion/renderer";
 
-await renderFrames({
-  config: video,
-  serveUrl: bundled,
-  onStart: () => undefined,
-  onFrameUpdate: (f) => undefined,
-  concurrency: null,
-  outputDir: framesDir,
+await renderMedia({
+  composition,
+  serveUrl,
+  codec: "h264",
+  outputLocation,
   inputProps: {
     titleText: "Hello World",
   },
-  imageFormat: "jpeg",
 });
 ```
 
@@ -146,7 +143,7 @@ _Available since v2.0._: You can also use the `getInputProps()` function to retr
 
 ## You can still use components as normal
 
-Even if you have registered a component as a sequence,
+Even if you have registered a component as a composition,
 you can still use it as normal in your videos and pass it's props directly. Default props don't apply in this case.
 
 ```tsx twoslash
