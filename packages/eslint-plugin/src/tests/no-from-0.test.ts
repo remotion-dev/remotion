@@ -1,5 +1,5 @@
 import { ESLintUtils } from "@typescript-eslint/utils";
-import rule from "../rules/no-duration-frames-infinity";
+import rule from "../rules/no-from-0";
 
 const ruleTester = new ESLintUtils.RuleTester({
   parser: "@typescript-eslint/parser",
@@ -17,7 +17,7 @@ ruleTester.run("no-duration-frames-infinity", rule, {
 
       export const Re = () => {
         return (
-          <Sequence durationInFrames={1}>
+          <Sequence durationInFrames={1} from={1}>
             Hi
           </Sequence>
         );
@@ -27,18 +27,18 @@ ruleTester.run("no-duration-frames-infinity", rule, {
   invalid: [
     {
       code: `
-        import {Composition} from 'remotion';
+        import {Composition, Sequence} from 'remotion';
 
         export const Re = () => {
           return (
-            <Sequence durationInFrames={Infinity}>
+            <Sequence from={0}>
               Hi
             </Sequence>
           );
         }
       `,
       output: `
-        import {Composition} from 'remotion';
+        import {Composition, Sequence} from 'remotion';
 
         export const Re = () => {
           return (
@@ -50,7 +50,7 @@ ruleTester.run("no-duration-frames-infinity", rule, {
       `,
       errors: [
         {
-          messageId: "DurationInFrames",
+          messageId: "From0",
         },
       ],
     },
