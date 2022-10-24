@@ -12,7 +12,10 @@ const testRenderMetadata: RenderMetadata = {
 	framesPerLambda: 20,
 	imageFormat: 'png',
 	type: 'video',
-	inputProps: {},
+	inputProps: {
+		type: 'payload',
+		payload: {},
+	},
 	lambdaVersion: '2022-02-14',
 	memorySizeInMb: 2048,
 	outName: undefined,

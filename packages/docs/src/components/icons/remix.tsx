@@ -1,14 +1,13 @@
 import type { SVGProps } from "react";
 import React from "react";
 
-export const RemixIcon: React.FC<SVGProps<SVGSVGElement>> = () => {
+export const RemixIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
   return (
     <svg
-      width="800"
-      height="800"
       viewBox="0 0 800 800"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      {...props}
     >
       <path
         fillRule="evenodd"

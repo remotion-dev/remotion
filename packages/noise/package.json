@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/noise",
-	"version": "3.2.34",
+	"version": "3.2.35",
 	"description": "Noise effect for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -25,8 +25,8 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"remotion": "3.2.34",
-		"simplex-noise": "4.0.0"
+		"remotion": "3.2.35",
+		"simplex-noise": "4.0.1"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^3.0.266",

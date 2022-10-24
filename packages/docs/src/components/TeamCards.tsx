@@ -272,7 +272,7 @@ export const TeamCardsLayout: React.FC<{}> = () => {
         <Spacer />
 
         <h2 style={stepTitle}>Patric</h2>
-        <strong style={center}>Intern</strong>
+        <strong style={center}>Junior Hacker</strong>
 
         <ul style={{ ...list, flex: 1 }}>
           <li>

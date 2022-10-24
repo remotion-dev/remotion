@@ -103,16 +103,16 @@ export const experts: Expert[] = [
   },
   {
     name: "Karel Nagel",
-    image: "/img/freelancers/karel.png",
+    image: "/img/freelancers/karel.jpeg",
     website: "https://karel.wtf",
     twitter: "KarelETH",
     github: "karelnagel",
     linkedin: "in/karelnagel/",
-    email: "karel@karel.wtf",
+    email: "karel@asius.ee",
     description: (
       <div>
         I made:{" "}
-        <a target={"_blank"} href="https://www.karel.wtf">
+        <a target={"_blank"} href="https://asius.ee/">
           TikTok automation, ENS video
         </a>{" "}
         and many more!

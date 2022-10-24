@@ -75,7 +75,10 @@ describe('Webhooks', () => {
 				frameRange: [0, 2],
 				framesPerLambda: 8,
 				imageFormat: 'png',
-				inputProps: {},
+				inputProps: {
+					type: 'payload',
+					payload: {},
+				},
 				logLevel: 'warn',
 				maxRetries: 3,
 				outName: 'out.mp4',
@@ -148,7 +151,10 @@ describe('Webhooks', () => {
 				frameRange: [0, 50],
 				framesPerLambda: 8,
 				imageFormat: 'png',
-				inputProps: {},
+				inputProps: {
+					type: 'payload',
+					payload: {},
+				},
 				logLevel: 'warn',
 				maxRetries: 3,
 				outName: 'out.mp4',

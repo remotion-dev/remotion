@@ -180,6 +180,10 @@ export const postRenderDataKey = (renderId: string) => {
 	return `${rendersPrefix(renderId)}/post-render-metadata.json`;
 };
 
+export const inputPropsKey = (hash: string) => {
+	return `input-props/${hash}.json`;
+};
+
 export const RENDERER_PATH_TOKEN = 'remotion-bucket';
 export const CONCAT_FOLDER_TOKEN = 'remotion-concat';
 export const REMOTION_CONCATED_TOKEN = 'remotion-concated-token';
@@ -199,6 +203,16 @@ type WebhookOption = null | {
 	secret: string | null;
 };
 
+export type SerializedInputProps =
+	| {
+			type: 'bucket-url';
+			hash: string;
+	  }
+	| {
+			type: 'payload';
+			payload: unknown;
+	  };
+
 export type LambdaPayloads = {
 	info: {
 		type: LambdaRoutines.info;
@@ -208,7 +222,7 @@ export type LambdaPayloads = {
 		serveUrl: string;
 		composition: string;
 		framesPerLambda: number | null;
-		inputProps: unknown;
+		inputProps: SerializedInputProps;
 		codec: LambdaCodec;
 		imageFormat: ImageFormat;
 		crf: number | undefined;
@@ -241,7 +255,7 @@ export type LambdaPayloads = {
 		composition: string;
 		framesPerLambda: number | null;
 		bucketName: string;
-		inputProps: unknown;
+		inputProps: SerializedInputProps;
 		renderId: string;
 		imageFormat: ImageFormat;
 		codec: LambdaCodec;
@@ -288,7 +302,7 @@ export type LambdaPayloads = {
 		width: number;
 		durationInFrames: number;
 		retriesLeft: number;
-		inputProps: unknown;
+		inputProps: SerializedInputProps;
 		renderId: string;
 		imageFormat: ImageFormat;
 		codec: Exclude<Codec, 'h264'>;
@@ -312,7 +326,7 @@ export type LambdaPayloads = {
 		type: LambdaRoutines.still;
 		serveUrl: string;
 		composition: string;
-		inputProps: unknown;
+		inputProps: SerializedInputProps;
 		imageFormat: ImageFormat;
 		envVariables: Record<string, string> | undefined;
 		attempt: number;
@@ -351,7 +365,7 @@ export type RenderMetadata = {
 	usesOptimizationProfile: boolean;
 	type: 'still' | 'video';
 	imageFormat: ImageFormat;
-	inputProps: unknown;
+	inputProps: SerializedInputProps;
 	framesPerLambda: number;
 	memorySizeInMb: number;
 	lambdaVersion: string;
