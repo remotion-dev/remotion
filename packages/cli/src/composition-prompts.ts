@@ -14,7 +14,7 @@ export default function prompt(
 	questions = Array.isArray(questions) ? questions : [questions];
 	return prompts(questions, {
 		onCancel() {
-			throw new Error('User cancelled selection.');
+			throw new Error('No composition selected.');
 		},
 		...options,
 	});

@@ -96,7 +96,7 @@ export const selectComposition = async (
 	const selectedComposition = await selectAsync(
 		{
 			message: multiple ? 'Select composition/s: ' : 'Select composition: ',
-			optionsPerPage: 20,
+			optionsPerPage: 5,
 			type: multiple ? 'multiselect' : 'select',
 			choices: compositions.map((comp) => {
 				return {
