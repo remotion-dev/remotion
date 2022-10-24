@@ -92,26 +92,6 @@ export const render = async (remotionRoot: string) => {
 		codec,
 	});
 
-	const compositionId = await getCompositionId();
-
-	const relativeOutputLocation = getOutputFilename({
-		codec,
-		imageSequence: shouldOutputImageSequence,
-		compositionName: compositionId,
-		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec, 'final'),
-	});
-
-	const absoluteOutputFile = getAndValidateAbsoluteOutputFile(
-		relativeOutputLocation,
-		overwrite
-	);
-
-	Log.info(
-		chalk.gray(
-			`Composition = ${compositionId}, Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
-		)
-	);
-
 	const ffmpegVersion = await RenderInternals.getFfmpegVersion({
 		ffmpegExecutable,
 	});
@@ -178,6 +158,8 @@ export const render = async (remotionRoot: string) => {
 		port,
 	});
 
+	const compositionId = await getCompositionId(comps);
+
 	const config = comps.find((c) => c.id === compositionId);
 
 	if (!config) {
@@ -190,6 +172,24 @@ export const render = async (remotionRoot: string) => {
 		codec,
 		scale,
 	});
+
+	const relativeOutputLocation = getOutputFilename({
+		codec,
+		imageSequence: shouldOutputImageSequence,
+		compositionName: compositionId,
+		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec, 'final'),
+	});
+
+	Log.info(
+		chalk.gray(
+			`Composition = ${compositionId}, Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
+		)
+	);
+
+	const absoluteOutputFile = getAndValidateAbsoluteOutputFile(
+		relativeOutputLocation,
+		overwrite
+	);
 
 	const outputDir = shouldOutputImageSequence
 		? absoluteOutputFile
