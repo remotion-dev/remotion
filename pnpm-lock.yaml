@@ -131,6 +131,7 @@ importers:
       minimist: 1.2.6
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
+      prompts: 2.4.1
       react: ^18.0.0
       react-dom: ^18.0.0
       remotion: 3.2.35
@@ -147,6 +148,7 @@ importers:
       dotenv: 9.0.2
       memfs: 3.4.3
       minimist: 1.2.6
+      prompts: 2.4.1
       remotion: link:../core
       semver: 7.3.5
       source-map: 0.6.1

@@ -30,6 +30,7 @@
 		"dotenv": "9.0.2",
 		"memfs": "3.4.3",
 		"minimist": "1.2.6",
+		"prompts": "2.4.1",
 		"remotion": "3.2.35",
 		"semver": "7.3.5",
 		"source-map": "0.6.1"
