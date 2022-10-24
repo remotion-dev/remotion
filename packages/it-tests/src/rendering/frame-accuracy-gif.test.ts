@@ -96,4 +96,6 @@ const getMissedFramesforCodec = async () => {
 test("should render correct frames from embedded videos - MP4 offthread", async () => {
   const missedFrames = await getMissedFramesforCodec();
   expect(missedFrames).toBe(0);
+}, {
+  retry: 2
 });

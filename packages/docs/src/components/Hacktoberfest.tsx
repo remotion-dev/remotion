@@ -6,7 +6,7 @@ const background: React.CSSProperties = {
   padding: "10px 14px",
   color: "white",
   fontSize: 15,
-  fontFamily: "GT Planar",
+  fontFamily: "GTPlanar",
   display: "flex",
   flexDirection: "row",
   alignItems: "center",

@@ -69,6 +69,8 @@ h6 {
 
 [data-theme="light"] {
   --background: #fff;
+  --footer-background: #fcfcfc;
+  --footer-border: #eaeaea;
   --text-color: #000;
   --blue-button-color: #084696;
   --blue-underlay: #e7effe;
@@ -80,6 +82,8 @@ h6 {
 }
 [data-theme="dark"] {
   --background: #18191a;
+  --footer-background: #1f1f1f;
+  --footer-border: #2f2f2f;
   --text-color: #fff;
   --blue-underlay: #424243;
   --blue-underlay-hover: #5b5c5e;
