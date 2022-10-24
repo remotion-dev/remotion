@@ -52,6 +52,7 @@
 		"remotion": "3.2.35",
 		"styled-components": "^5.1.1",
 		"ts-unused-exports": "^7.0.1",
+		"use-asset": "^1.0.4",
 		"typescript": "^4.7.0",
 		"vitest": "0.24.3"
 	},
