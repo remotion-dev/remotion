@@ -6,15 +6,18 @@ export type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
 export const selectComposition = async (
 	validCompositions: Await<ReturnType<typeof getCompositions>>
-): Promise<string[] | string> => {
+): Promise<{compositionId: string; reason: string}> => {
 	if (validCompositions.length === 1) {
 		const onlyComposition = validCompositions[0];
 		if (onlyComposition) {
-			return onlyComposition.id;
+			return {
+				compositionId: onlyComposition.id,
+				reason: 'Only composition',
+			};
 		}
 	}
 
-	const selectedComposition = await selectAsync({
+	const selectedComposition = (await selectAsync({
 		message: 'Select composition:',
 		optionsPerPage: 5,
 		type: 'select',
@@ -24,9 +27,9 @@ export const selectComposition = async (
 				title: chalk.bold(comp.id),
 			};
 		}),
-	});
+	})) as string;
 
-	return selectedComposition;
+	return {compositionId: selectedComposition, reason: 'Selected'};
 };
 
 export const selectCompositions = async (

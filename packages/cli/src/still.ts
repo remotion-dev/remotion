@@ -111,7 +111,7 @@ export const still = async (remotionRoot: string) => {
 		downloadMap,
 	});
 
-	const compositionId = await getCompositionId(comps);
+	const {compositionId, config, reason} = await getCompositionId(comps);
 
 	const relativeOutputLocation = getOutputLocation({
 		compositionId,
@@ -129,13 +129,9 @@ export const still = async (remotionRoot: string) => {
 
 	Log.info(
 		chalk.gray(
-			`Output = ${relativeOutputLocation}, Format = ${imageFormat} (${source}), Composition = ${compositionId}`
+			`Output = ${relativeOutputLocation}, Format = ${imageFormat} (${source}), Composition = ${compositionId} (${reason})`
 		)
 	);
-	const composition = comps.find((c) => c.id === compositionId);
-	if (!composition) {
-		throw new Error(`Cannot find composition with ID ${compositionId}`);
-	}
 
 	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
 	const renderStart = Date.now();
@@ -181,7 +177,7 @@ export const still = async (remotionRoot: string) => {
 	};
 
 	await renderStill({
-		composition,
+		composition: config,
 		frame: stillFrame,
 		output: absoluteOutputLocation,
 		serveUrl: urlOrBundle,

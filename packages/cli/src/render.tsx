@@ -158,13 +158,7 @@ export const render = async (remotionRoot: string) => {
 		port,
 	});
 
-	const compositionId = await getCompositionId(comps);
-
-	const config = comps.find((c) => c.id === compositionId);
-
-	if (!config) {
-		throw new Error(`Cannot find composition with ID ${compositionId}`);
-	}
+	const {compositionId, config, reason} = await getCompositionId(comps);
 
 	RenderInternals.validateEvenDimensionsWithCodec({
 		width: config.width,
@@ -182,7 +176,7 @@ export const render = async (remotionRoot: string) => {
 
 	Log.info(
 		chalk.gray(
-			`Composition = ${compositionId}, Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
+			`Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
 		)
 	);
 
