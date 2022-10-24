@@ -277,8 +277,8 @@ export const getCliOptions = async (options: {
 		publicDir: ConfigInternals.getPublicDir(),
 		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
 		audioBitrate: ConfigInternals.getAudioBitrate(),
+		videoBitrate,
 		height,
 		width,
-		videoBitrate,
 	};
 };
