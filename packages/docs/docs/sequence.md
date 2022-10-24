@@ -24,7 +24,7 @@ export const Outro = () => <></>;
 const MyTrailer = () => {
   return (
     <>
-      <Sequence from={0} durationInFrames={10}>
+      <Sequence durationInFrames={10}>
         <Intro />
       </Sequence>
       <Sequence from={10}>
@@ -123,7 +123,7 @@ const MyVideo = () => {
 ### Trim end
 
 We can clip some content so it only stays visible for a certain time by specifying a non-finite `durationInFrames` number.
-In this example, we wrap the square in `<Sequence from={0} durationInFrames={45}>` and as you can see, it disappears after 45 frames.
+In this example, we wrap the square in `<Sequence durationInFrames={45}>` and as you can see, it disappears after 45 frames.
 
 <SequenceForwardExample type="clip" />
 <br />
