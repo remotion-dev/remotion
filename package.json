@@ -13,13 +13,17 @@
     "clean": "rm -rf packages/**/dist && lerna clean --yes && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo  && rm -rf packages/**/.turbo"
   },
   "engines": {
-    "node": ">=12",
+    "node": ">=14",
     "pnpm": ">=3"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.2"
   },
   "dependencies": {
     "lerna": "^4.0.0",
-    "pnpm": "^7.13.4",
-    "turbo": "^1.2.6"
+    "turbo": "1.5.6",
+    "@vercel/node": "^2.5.26",
+    "got": "^11"
   },
   "workspaces": [
     "packages/*"

@@ -1,7 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
+import minimist from 'minimist';
 import {benchmarkCommand} from './benchmark';
 import {chalk} from './chalk';
-import {checkNodeVersion} from './check-version';
 import {listCompositionsCommand} from './compositions';
 import {overrideRemotion} from './config/index';
 import {determineFinalImageFormat} from './determine-image-format';
@@ -45,8 +45,6 @@ export const cli = async () => {
 	}
 
 	const remotionRoot = findRemotionRoot();
-	// To check node version and to warn if node version is <12.10.0
-	checkNodeVersion();
 	if (command !== VERSIONS_COMMAND) {
 		await validateVersionsBeforeCommand(remotionRoot);
 	}
@@ -68,7 +66,7 @@ export const cli = async () => {
 		} else if (command === 'still') {
 			await still(remotionRoot);
 		} else if (command === 'upgrade') {
-			await upgrade(remotionRoot);
+			await upgrade(remotionRoot, parsedCli['package-manager']);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot);
 		} else if (command === 'benchmark') {
@@ -115,4 +113,5 @@ export const CliInternals = {
 	findRemotionRoot,
 	getFinalCodec,
 	determineFinalImageFormat,
+	minimist,
 };

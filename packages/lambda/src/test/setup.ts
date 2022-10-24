@@ -1,74 +1,74 @@
-jest.mock('../api/get-buckets', () =>
-	jest.requireActual('../api/__mocks__/get-buckets')
+import {vi} from 'vitest';
+
+vi.mock('../api/get-buckets', () =>
+	vi.importActual('../api/__mocks__/get-buckets')
 );
-jest.mock('../cli/helpers/quit', () =>
-	jest.requireActual('../cli/helpers/__mocks__/quit')
+vi.mock('../cli/helpers/quit', () =>
+	vi.importActual('../cli/helpers/__mocks__/quit')
 );
-jest.mock('../functions/helpers/io', () =>
-	jest.requireActual('../functions/helpers/__mocks__/io')
+vi.mock('../functions/helpers/io', () =>
+	vi.importActual('../functions/helpers/__mocks__/io')
 );
-jest.mock('../functions/helpers/timer', () =>
-	jest.requireActual('../functions/helpers/__mocks__/timer')
+vi.mock('../functions/helpers/timer', () =>
+	vi.importActual('../functions/helpers/__mocks__/timer')
 );
-jest.mock('../functions/helpers/print-cloudwatch-helper', () =>
-	jest.requireActual('../functions/helpers/__mocks__/print-cloudwatch-helper')
+vi.mock('../functions/helpers/print-cloudwatch-helper', () =>
+	vi.importActual('../functions/helpers/__mocks__/print-cloudwatch-helper')
 );
-jest.mock('../functions/helpers/get-current-region', () =>
-	jest.requireActual('../functions/helpers/__mocks__/get-current-region')
+vi.mock('../functions/helpers/get-current-region', () =>
+	vi.importActual('../functions/helpers/__mocks__/get-current-region')
 );
-jest.mock('../functions/helpers/get-current-architecture', () =>
-	jest.requireActual('../functions/helpers/__mocks__/get-current-architecture')
+vi.mock('../functions/helpers/get-current-architecture', () =>
+	vi.importActual('../functions/helpers/__mocks__/get-current-architecture')
 );
-jest.mock('../functions/helpers/get-browser-instance', () =>
-	jest.requireActual('../functions/helpers/__mocks__/get-browser-instance')
+vi.mock('../functions/helpers/get-browser-instance', () =>
+	vi.importActual('../functions/helpers/__mocks__/get-browser-instance')
 );
-jest.mock('../functions/helpers/check-if-render-exists', () =>
-	jest.requireActual('../functions/helpers/__mocks__/check-if-render-exists')
+vi.mock('../functions/helpers/check-if-render-exists', () =>
+	vi.importActual('../functions/helpers/__mocks__/check-if-render-exists')
 );
-jest.mock('../functions/helpers/get-files-in-folder', () =>
-	jest.requireActual('../functions/helpers/__mocks__/get-files-in-folder')
+vi.mock('../functions/helpers/get-files-in-folder', () =>
+	vi.importActual('../functions/helpers/__mocks__/get-files-in-folder')
 );
-jest.mock('../functions/helpers/get-chromium-executable-path', () =>
-	jest.requireActual(
-		'../functions/helpers/__mocks__/get-chromium-executable-path'
-	)
+vi.mock('../functions/helpers/get-chromium-executable-path', () =>
+	vi.importActual('../functions/helpers/__mocks__/get-chromium-executable-path')
 );
-jest.mock('../shared/bundle-site', () =>
-	jest.requireActual('../shared/__mocks__/bundle-site')
+vi.mock('../shared/bundle-site', () =>
+	vi.importActual('../shared/__mocks__/bundle-site')
 );
-jest.mock('../shared/get-account-id', () =>
-	jest.requireActual('../shared/__mocks__/get-account-id')
+vi.mock('../shared/get-account-id', () =>
+	vi.importActual('../shared/__mocks__/get-account-id')
 );
-jest.mock('../shared/aws-clients', () =>
-	jest.requireActual('../shared/__mocks__/aws-clients')
+vi.mock('../shared/aws-clients', () =>
+	vi.importActual('../shared/__mocks__/aws-clients')
 );
-jest.mock('../api/enable-s3-website', () =>
-	jest.requireActual('../api/__mocks__/enable-s3-website')
+vi.mock('../api/enable-s3-website', () =>
+	vi.importActual('../api/__mocks__/enable-s3-website')
 );
-jest.mock('../api/create-bucket', () =>
-	jest.requireActual('../api/__mocks__/create-bucket')
+vi.mock('../api/create-bucket', () =>
+	vi.importActual('../api/__mocks__/create-bucket')
 );
-jest.mock('../api/upload-dir', () =>
-	jest.requireActual('../api/__mocks__/upload-dir')
+vi.mock('../api/upload-dir', () =>
+	vi.importActual('../api/__mocks__/upload-dir')
 );
-jest.mock('../api/bucket-exists', () =>
-	jest.requireActual('../api/__mocks__/bucket-exists')
+vi.mock('../api/bucket-exists', () =>
+	vi.importActual('../api/__mocks__/bucket-exists')
 );
-jest.mock('../api/clean-items', () =>
-	jest.requireActual('../api/__mocks__/clean-items')
+vi.mock('../api/clean-items', () =>
+	vi.importActual('../api/__mocks__/clean-items')
 );
-jest.mock('../api/create-function', () =>
-	jest.requireActual('../api/__mocks__/create-function')
+vi.mock('../api/create-function', () =>
+	vi.importActual('../api/__mocks__/create-function')
 );
-jest.mock('../api/get-functions', () =>
-	jest.requireActual('../api/__mocks__/get-functions')
+vi.mock('../api/get-functions', () =>
+	vi.importActual('../api/__mocks__/get-functions')
 );
-jest.mock('../api/delete-function', () =>
-	jest.requireActual('../api/__mocks__/delete-function')
+vi.mock('../api/delete-function', () =>
+	vi.importActual('../api/__mocks__/delete-function')
 );
-jest.mock('../shared/random-hash', () =>
-	jest.requireActual('../shared/__mocks__/random-hash')
+vi.mock('../shared/random-hash', () =>
+	vi.importActual('../shared/__mocks__/random-hash')
 );
-jest.mock('../shared/check-credentials', () =>
-	jest.requireActual('../shared/__mocks__/check-credentials')
+vi.mock('../shared/check-credentials', () =>
+	vi.importActual('../shared/__mocks__/check-credentials')
 );

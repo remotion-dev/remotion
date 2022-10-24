@@ -1,6 +1,6 @@
 import type {_Object} from '@aws-sdk/client-s3';
 import {estimatePrice} from '../../api/estimate-price';
-import type { RenderMetadata} from '../../shared/constants';
+import type {RenderMetadata} from '../../shared/constants';
 import {lambdaTimingsPrefix} from '../../shared/constants';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import type {LambdaArchitecture} from '../../shared/validate-architecture';

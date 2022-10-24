@@ -14,6 +14,9 @@ export type ModalState =
 			info: UpdateInfo;
 	  }
 	| {
+			type: 'quick-switcher';
+	  }
+	| {
 			type: 'shortcuts';
 	  };
 
