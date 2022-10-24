@@ -1,5 +1,6 @@
 import type {Options, PromptObject} from 'prompts';
 import prompts from 'prompts';
+import {Log} from './log';
 
 export type Question<V extends string = string> = PromptObject<V> & {
 	optionsPerPage?: number;
@@ -14,7 +15,8 @@ export default function prompt(
 	questions = Array.isArray(questions) ? questions : [questions];
 	return prompts(questions, {
 		onCancel() {
-			throw new Error('No composition selected.');
+			Log.error('No composition selected.');
+			process.exit(1);
 		},
 		...options,
 	});
