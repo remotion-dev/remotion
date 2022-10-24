@@ -10,7 +10,7 @@ const GifTest: React.FC = () => {
 				display: 'flex',
 			}}
 		>
-			<Sequence from={0} durationInFrames={30}>
+			<Sequence durationInFrames={30}>
 				<Gif
 					fit="contain"
 					style={{
