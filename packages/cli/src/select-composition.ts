@@ -89,19 +89,19 @@ export const selectComposition = async (
 	if (compositions.length === 1) {
 		const onlyComposition = compositions.pop();
 		if (onlyComposition) {
-			return [onlyComposition.id];
+			return onlyComposition.id;
 		}
 	}
 
 	const selectedComposition = await selectAsync(
 		{
-			message: multiple ? 'Select composition/s: ' : 'Select a composition:',
+			message: multiple ? 'Select composition/s: ' : 'Select composition: ',
 			optionsPerPage: 20,
 			type: multiple ? 'multiselect' : 'select',
 			choices: compositions.map((comp) => {
 				return {
-					value: comp.id as string,
-					title: chalk.bold(comp.id as string),
+					value: comp.id,
+					title: chalk.bold(comp.id),
 				};
 			}),
 		},
