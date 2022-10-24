@@ -50,9 +50,10 @@ The Sequence component is a high order component and accepts, besides children, 
 
 ### `from`
 
-_required_
+_optional_ (From v3.2.36, _required_ in previous versions)
 
 At which frame it's children should assume the video starts. When the sequence is at `frame`, it's children are at frame `0`.
+From v3.2.36 onwards, this prop will be optional; by default, it will be 0.
 
 ### `durationInFrames`
 
