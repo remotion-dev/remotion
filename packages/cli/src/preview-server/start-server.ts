@@ -90,14 +90,19 @@ export const startServer = async (
 				});
 			})
 			.catch((err) => {
-				response.setHeader('content-type', 'application/json');
-				response.writeHead(500);
 				Log.error(`Error while calling ${request.url}`, err);
-				response.end(
-					JSON.stringify({
-						err: (err as Error).message,
-					})
-				);
+				if (!response.headersSent) {
+					response.setHeader('content-type', 'application/json');
+					response.writeHead(500);
+				}
+
+				if (!response.writableEnded) {
+					response.end(
+						JSON.stringify({
+							err: (err as Error).message,
+						})
+					);
+				}
 			});
 	});
 

@@ -8,10 +8,9 @@ import {getTimelineNestedLevel} from './get-timeline-nestedness';
 import {getTimelineSequenceHash} from './get-timeline-sequence-hash';
 import type {
 	TrackWithHash,
-	TrackWithHashAndOriginalTimings} from './get-timeline-sequence-sort-key';
-import {
-	getTimelineSequenceSequenceSortKey
+	TrackWithHashAndOriginalTimings,
 } from './get-timeline-sequence-sort-key';
+import {getTimelineSequenceSequenceSortKey} from './get-timeline-sequence-sort-key';
 
 export type SequenceWithOverlap = {
 	sequence: TSequence;

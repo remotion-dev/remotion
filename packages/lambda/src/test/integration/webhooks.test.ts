@@ -1,12 +1,20 @@
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
+import {
+	afterAll,
+	afterEach,
+	beforeAll,
+	beforeEach,
+	describe,
+	expect,
+	test,
+	vi,
+} from 'vitest';
 import {LambdaRoutines} from '../../defaults';
 import {handler} from '../../functions';
 import {mockableHttpClients} from '../../shared/invoke-webhook';
 import type {LambdaReturnValues} from '../../shared/return-values';
 import {disableLogs, enableLogs} from '../disable-logs';
-
-jest.setTimeout(90000);
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
@@ -18,7 +26,7 @@ type Await<T> = T extends PromiseLike<infer U> ? U : T;
 const originalFetch = mockableHttpClients.http;
 beforeEach(() => {
 	// @ts-expect-error
-	mockableHttpClients.http = jest.fn(
+	mockableHttpClients.http = vi.fn(
 		(
 			_url: string,
 			_options: unknown,
@@ -67,7 +75,10 @@ describe('Webhooks', () => {
 				frameRange: [0, 2],
 				framesPerLambda: 8,
 				imageFormat: 'png',
-				inputProps: {},
+				inputProps: {
+					type: 'payload',
+					payload: {},
+				},
 				logLevel: 'warn',
 				maxRetries: 3,
 				outName: 'out.mp4',
@@ -90,6 +101,8 @@ describe('Webhooks', () => {
 					url: TEST_URL,
 					secret: 'TEST_SECRET',
 				},
+				audioBitrate: null,
+				videoBitrate: null,
 			},
 			extraContext
 		);
@@ -138,7 +151,10 @@ describe('Webhooks', () => {
 				frameRange: [0, 50],
 				framesPerLambda: 8,
 				imageFormat: 'png',
-				inputProps: {},
+				inputProps: {
+					type: 'payload',
+					payload: {},
+				},
 				logLevel: 'warn',
 				maxRetries: 3,
 				outName: 'out.mp4',
@@ -158,6 +174,8 @@ describe('Webhooks', () => {
 				version: VERSION,
 				overwrite: true,
 				webhook: {url: TEST_URL, secret: 'TEST_SECRET'},
+				audioBitrate: null,
+				videoBitrate: null,
 			},
 			extraContext
 		);

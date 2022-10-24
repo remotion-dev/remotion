@@ -1,4 +1,4 @@
-import type { StillProps} from './Composition';
+import type {StillProps} from './Composition';
 import {Composition} from './Composition';
 
 export const Still = <T,>(props: StillProps<T>) => {

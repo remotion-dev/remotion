@@ -1,10 +1,9 @@
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {disableLogs, enableLogs} from '../../disable-logs';
-
-jest.setTimeout(90000);
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
@@ -37,7 +36,10 @@ test('Should fail when using an incompatible version', async () => {
 				frameRange: [0, 12],
 				framesPerLambda: 8,
 				imageFormat: 'png',
-				inputProps: {},
+				inputProps: {
+					type: 'payload',
+					payload: {},
+				},
 				logLevel: 'warn',
 				maxRetries: 3,
 				outName: null,
@@ -57,6 +59,8 @@ test('Should fail when using an incompatible version', async () => {
 				version: VERSION,
 				overwrite: true,
 				webhook: null,
+				audioBitrate: null,
+				videoBitrate: null,
 			},
 			extraContext
 		)
