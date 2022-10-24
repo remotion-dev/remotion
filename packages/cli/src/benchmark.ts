@@ -14,7 +14,7 @@ import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {createOverwriteableCliOutput} from './progress-bar';
-import {selectComposition} from './select-composition';
+import {selectCompositions} from './select-composition';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import {truthy} from './truthy';
 
@@ -206,7 +206,7 @@ export const benchmarkCommand = async (
 					.split(',')
 					.map((c) => c.trim())
 					.filter(truthy)
-			: await selectComposition({multiple: true, validCompositions: comps})
+			: await selectCompositions(comps)
 	) as string[];
 
 	const compositions = ids.map((compId) => {
