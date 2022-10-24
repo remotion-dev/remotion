@@ -1,14 +1,15 @@
 import {selectAsync} from './composition-prompts';
 
-import type {TCompMetadata} from 'remotion';
+import type {getCompositions} from '@remotion/renderer';
 import {chalk} from './chalk';
+export type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
 export const selectComposition = async ({
 	multiple,
 	validCompositions,
 }: {
 	multiple: boolean;
-	validCompositions: TCompMetadata[];
+	validCompositions: Await<ReturnType<typeof getCompositions>>;
 }): Promise<string[] | string> => {
 	if (validCompositions.length === 1) {
 		const onlyComposition = validCompositions[0];
