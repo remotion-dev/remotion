@@ -26,7 +26,6 @@ export async function selectAsync(
 ): Promise<string | string[]> {
 	const {value} = await prompt(
 		{
-			limit: 11,
 			...question,
 			name: 'value',
 			type: question.type,
