@@ -86,6 +86,8 @@ export const render = async (remotionRoot: string) => {
 		everyNthFrame,
 		puppeteerTimeout,
 		publicDir,
+		height,
+		width,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -183,6 +185,8 @@ export const render = async (remotionRoot: string) => {
 	if (!config) {
 		throw new Error(`Cannot find composition with ID ${compositionId}`);
 	}
+
+
 
 	RenderInternals.validateEvenDimensionsWithCodec({
 		width: config.width,

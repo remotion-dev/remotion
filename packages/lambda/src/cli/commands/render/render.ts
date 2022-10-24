@@ -74,6 +74,8 @@ export const renderCommand = async (args: string[]) => {
 		overwrite,
 		audioBitrate,
 		videoBitrate,
+		height,
+		width,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -121,6 +123,8 @@ export const renderCommand = async (args: string[]) => {
 		overwrite,
 		audioBitrate,
 		videoBitrate,
+		height,
+		width,
 		webhook: parsedLambdaCli.webhook
 			? {
 					url: parsedLambdaCli.webhook,

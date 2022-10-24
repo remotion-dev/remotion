@@ -233,6 +233,8 @@ export type LambdaPayloads = {
 		overwrite: boolean;
 		audioBitrate: string | null;
 		videoBitrate: string | null;
+		height: number | undefined;
+		width: number | undefined;
 		webhook: WebhookOption;
 	};
 	launch: {

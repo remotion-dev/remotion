@@ -38,6 +38,8 @@ export const getRenderMediaOptions = async ({
 		ffmpegOverride,
 		audioBitrate,
 		videoBitrate,
+		height,
+		width,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -81,5 +83,7 @@ export const getRenderMediaOptions = async ({
 		codec,
 		audioBitrate,
 		videoBitrate,
+		height,
+		width,
 	};
 };
