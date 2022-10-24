@@ -185,8 +185,9 @@ export const render = async (remotionRoot: string) => {
 	if (!config) {
 		throw new Error(`Cannot find composition with ID ${compositionId}`);
 	}
-
-
+  
+	config['height'] = height;
+	config['width'] = width;
 
 	RenderInternals.validateEvenDimensionsWithCodec({
 		width: config.width,
