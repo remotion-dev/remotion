@@ -10,10 +10,7 @@ export const getCompositionId = async (validCompositions: TCompMetadata[]) => {
 	}
 
 	if (!process.env.CI) {
-		const selectedComposition = await selectComposition({
-			multiple: false,
-			validCompositions,
-		});
+		const selectedComposition = await selectComposition(validCompositions);
 		if (selectedComposition && typeof selectedComposition === 'string') {
 			return selectedComposition;
 		}
