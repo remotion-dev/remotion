@@ -206,7 +206,7 @@ export const benchmarkCommand = async (
 					.split(',')
 					.map((c) => c.trim())
 					.filter(truthy)
-			: await selectComposition(true)
+			: await selectComposition({multiple: true, validCompositions: comps})
 	) as string[];
 
 	const compositions = ids.map((compId) => {
