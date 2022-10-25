@@ -8,7 +8,13 @@ const container: React.CSSProperties = {
 	fontSize: 14,
 };
 
-export type Mode = 'commands' | 'compositions';
+export type Mode = 'commands' | 'compositions' | 'docsearch';
+
+const MODE_TO_STRING: Record<Mode, string> = {
+	commands: 'commands',
+	compositions: 'compositions',
+	docsearch: 'documentaion',
+};
 
 export const QuickSwitcherNoResults: React.FC<{
 	query: string;
@@ -16,7 +22,7 @@ export const QuickSwitcherNoResults: React.FC<{
 }> = ({query, mode}) => {
 	return (
 		<div style={container}>
-			No {mode === 'commands' ? 'commands' : 'compositions'} matching {'"'}
+			No {MODE_TO_STRING[mode]} matching {'"'}
 			{query}
 			{'"'}
 		</div>

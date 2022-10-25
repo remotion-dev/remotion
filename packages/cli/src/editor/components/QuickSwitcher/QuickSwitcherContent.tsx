@@ -17,6 +17,7 @@ import {
 import {ModalsContext} from '../../state/modals';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {Spacing} from '../layout';
+import {agoliaSearch} from './agolia-search';
 import {fuzzySearch} from './fuzzy-search';
 import type {Mode} from './NoResults';
 import {QuickSwitcherNoResults} from './NoResults';
@@ -93,15 +94,20 @@ export const QuickSwitcherContent: React.FC = () => {
 
 	const closeMenu = useCallback(() => undefined, []);
 	const actions = useMenuStructure(closeMenu);
+	const [docResults, setDocResults] = useState<TQuickSwitcherResult[]>([]);
 
 	const {setSelectedModal} = useContext(ModalsContext);
 
 	const keybindings = useKeybinding();
 
-	const mode: Mode = state.query.startsWith('>') ? 'commands' : 'compositions';
+	const mode: Mode = state.query.startsWith('>')
+		? 'commands'
+		: state.query.startsWith('?')
+		? 'docsearch'
+		: 'compositions';
 
 	const actualQuery = useMemo(() => {
-		if (mode === 'commands') {
+		if (mode === 'commands' || mode === 'docsearch') {
 			return state.query.substring(1).trim();
 		}
 
@@ -119,6 +125,10 @@ export const QuickSwitcherContent: React.FC = () => {
 	const resultsArray = useMemo((): TQuickSwitcherResult[] => {
 		if (mode === 'commands') {
 			return fuzzySearch(actualQuery, menuActions);
+		}
+
+		if (mode === 'docsearch') {
+			return [];
 		}
 
 		return fuzzySearch(
@@ -177,6 +187,28 @@ export const QuickSwitcherContent: React.FC = () => {
 		};
 	}, [keybindings, onArrowDown, onArrowUp]);
 
+	useEffect(() => {
+		if (mode !== 'docsearch') {
+			return;
+		}
+
+		let cancelled = false;
+
+		(async () => {
+			agoliaSearch(actualQuery).then((agoliaResults) => {
+				if (cancelled) {
+					return;
+				}
+
+				setDocResults(agoliaResults);
+			});
+		})();
+
+		return () => {
+			cancelled = true;
+		};
+	}, [actualQuery, mode]);
+
 	// Arrow down
 	useEffect(() => {
 		const binding = keybindings.registerKeybinding({
@@ -219,6 +251,17 @@ export const QuickSwitcherContent: React.FC = () => {
 		inputRef.current?.focus();
 	}, []);
 
+	const onDocSearchSelected = useCallback(() => {
+		setState({
+			query: '? ',
+			selectedIndex: 0,
+		});
+		setDocResults([]);
+		inputRef.current?.focus();
+	}, []);
+
+	const completeResult = mode === 'docsearch' ? docResults : resultsArray;
+
 	return (
 		<div style={container}>
 			<div style={modeSelector}>
@@ -237,6 +280,14 @@ export const QuickSwitcherContent: React.FC = () => {
 				>
 					Actions
 				</button>
+				<Spacing x={1} />
+				<button
+					onClick={onDocSearchSelected}
+					style={mode === 'docsearch' ? modeActive : modeInactive}
+					type="button"
+				>
+					Doc Search
+				</button>
 			</div>
 			<div style={content}>
 				<input
@@ -250,7 +301,7 @@ export const QuickSwitcherContent: React.FC = () => {
 				/>
 			</div>
 			<div style={results}>
-				{resultsArray.map((result, i) => {
+				{completeResult.map((result, i) => {
 					return (
 						<QuickSwitcherResult
 							key={result.id}
@@ -259,7 +310,7 @@ export const QuickSwitcherContent: React.FC = () => {
 						/>
 					);
 				})}
-				{resultsArray.length === 0 ? (
+				{completeResult.length === 0 ? (
 					<QuickSwitcherNoResults mode={mode} query={actualQuery} />
 				) : null}
 			</div>
