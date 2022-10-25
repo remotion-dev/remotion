@@ -77,7 +77,7 @@ describe('Webhooks', () => {
 				imageFormat: 'png',
 				inputProps: {
 					type: 'payload',
-					payload: {},
+					payload: '{}',
 				},
 				logLevel: 'warn',
 				maxRetries: 3,
@@ -153,7 +153,7 @@ describe('Webhooks', () => {
 				imageFormat: 'png',
 				inputProps: {
 					type: 'payload',
-					payload: {},
+					payload: '{}',
 				},
 				logLevel: 'warn',
 				maxRetries: 3,

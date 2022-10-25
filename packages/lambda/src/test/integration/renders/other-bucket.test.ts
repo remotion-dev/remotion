@@ -41,7 +41,7 @@ test('Should be able to render to another bucket', async () => {
 			imageFormat: 'png',
 			inputProps: {
 				type: 'payload',
-				payload: {},
+				payload: '{}',
 			},
 			logLevel: 'warn',
 			maxRetries: 3,

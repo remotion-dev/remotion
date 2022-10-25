@@ -14,7 +14,7 @@ const testRenderMetadata: RenderMetadata = {
 	type: 'video',
 	inputProps: {
 		type: 'payload',
-		payload: {},
+		payload: '{}',
 	},
 	lambdaVersion: '2022-02-14',
 	memorySizeInMb: 2048,
