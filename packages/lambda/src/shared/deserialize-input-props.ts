@@ -16,7 +16,7 @@ export const deserializeInputProps = async ({
 	expectedBucketOwner: string;
 }): Promise<unknown> => {
 	if (serialized.type === 'payload') {
-		return serialized.payload;
+		return JSON.parse(serialized.payload);
 	}
 
 	try {
