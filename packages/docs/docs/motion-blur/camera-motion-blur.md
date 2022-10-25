@@ -27,7 +27,9 @@ possible and carefully inspect that the output is of acceptable quality.
 
 Wrap your content in `<CameraMotionBlur>` and optionally add the following props in addition.
 
-### `shutterAngle (optional) (default = 180)`
+### `shutterAngle`
+
+_optional - default: `180`_
 
 Controls the amount of blur.
 
@@ -58,10 +60,12 @@ Read more here: [Rotary disc shutter on Wikipedia](https://en.wikipedia.org/wiki
 
 </details>
 
-### `samples (optional) (default = 10)`
+### `samples`
+
+_optional - default: `10`_
 
 The final image is an average of the samples. For a value of `10` the component will render ten
-frames with different time offsets and combine into a final image.
+frames with different time offsets and combine them into a final image.
 
 :::caution
 A high number will produce a higher quality blur at the cost of image quality. See example below.
