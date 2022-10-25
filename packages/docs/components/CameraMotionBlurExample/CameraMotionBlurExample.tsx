@@ -64,10 +64,10 @@ export const Square: React.FC = () => {
 
 const MyComposition = ({
   shutterAngle,
-  iterations,
+  samples,
 }: {
   shutterAngle: number;
-  iterations: number;
+  samples: number;
 }) => {
   return (
     <AbsoluteFill
@@ -80,7 +80,7 @@ const MyComposition = ({
           <h1>Still</h1>
         </AbsoluteFill>
         <Freeze frame={20}>
-          <CameraMotionBlur shutterAngle={shutterAngle} iterations={iterations}>
+          <CameraMotionBlur shutterAngle={shutterAngle} samples={samples}>
             <Square />
           </CameraMotionBlur>
         </Freeze>
@@ -95,7 +95,7 @@ const MyComposition = ({
         <AbsoluteFill style={{ padding: 30 }}>
           <h1>Animation</h1>
         </AbsoluteFill>
-        <CameraMotionBlur shutterAngle={shutterAngle} iterations={iterations}>
+        <CameraMotionBlur shutterAngle={shutterAngle} samples={samples}>
           <Square />
         </CameraMotionBlur>
       </div>
@@ -105,7 +105,7 @@ const MyComposition = ({
 
 export const CameraMotionBlurExample: React.FC = () => {
   const [shutterAngle, setShutterAngle] = useState(180);
-  const [iterations, setIterations] = useState(10);
+  const [samples, setSamples] = useState(10);
 
   return (
     <div>
@@ -122,7 +122,7 @@ export const CameraMotionBlurExample: React.FC = () => {
         }}
         inputProps={{
           shutterAngle,
-          iterations,
+          samples,
         }}
         autoPlay
         loop
@@ -153,13 +153,13 @@ export const CameraMotionBlurExample: React.FC = () => {
             min={1}
             max={100}
             step={1}
-            value={iterations}
+            value={samples}
             style={{ width: 90, marginRight: 8 }}
-            onChange={(e) => setIterations(Number(e.target.value))}
+            onChange={(e) => setSamples(Number(e.target.value))}
           />
           <code>
-            iterations={"{"}
-            {iterations}
+            samples={"{"}
+            {samples}
             {"}"}
           </code>
         </label>
