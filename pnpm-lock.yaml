@@ -114,6 +114,7 @@ importers:
       '@remotion/renderer': 3.2.35
       '@types/minimist': ^1.2.2
       '@types/node': ^16.7.5
+      '@types/prompts': ^2.4.1
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
       '@types/semver': ^7.3.4
@@ -130,6 +131,7 @@ importers:
       minimist: 1.2.6
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
+      prompts: 2.4.1
       react: ^18.0.0
       react-dom: ^18.0.0
       remotion: 3.2.35
@@ -146,6 +148,7 @@ importers:
       dotenv: 9.0.2
       memfs: 3.4.3
       minimist: 1.2.6
+      prompts: 2.4.1
       remotion: link:../core
       semver: 7.3.5
       source-map: 0.6.1
@@ -153,6 +156,7 @@ importers:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
       '@types/minimist': 1.2.2
       '@types/node': 16.10.2
+      '@types/prompts': 2.4.1
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
       '@types/semver': 7.3.8
@@ -8142,7 +8146,7 @@ packages:
   /@types/bonjour/3.5.10:
     resolution: {integrity: sha512-p7ienRMiS41Nu2/igbJxxLDWrSZ0WxM8UQgCeO9KhoVF7cOVFkrKsiDr1EsJIla8vV3oEEjGcz11jc5yimhzZw==}
     dependencies:
-      '@types/node': 17.0.17
+      '@types/node': 18.0.3
     dev: false
 
   /@types/cacheable-request/6.0.2:
@@ -8170,7 +8174,7 @@ packages:
     resolution: {integrity: sha512-h8QJa8xSb1WD4fpKBDcATDNGXghFj6/3GRWG6dhmRcu0RX1Ubasur2Uvx5aeEwlf0MwblEC2bMzzMQntxnw/Cw==}
     dependencies:
       '@types/express-serve-static-core': 4.17.24
-      '@types/node': 17.0.17
+      '@types/node': 18.0.3
     dev: false
 
   /@types/connect/3.4.35:
@@ -8304,7 +8308,7 @@ packages:
   /@types/minipass/3.1.2:
     resolution: {integrity: sha512-foLGjgrJkUjLG/o2t2ymlZGEoBNBa/TfoUZ7oCTkOjP1T43UGBJspovJou/l3ZuHvye2ewR5cZNtp2zyWgILMA==}
     dependencies:
-      '@types/node': 17.0.17
+      '@types/node': 18.0.3
     dev: true
 
   /@types/node/12.20.27:
@@ -8355,7 +8359,13 @@ packages:
   /@types/prompts/2.0.14:
     resolution: {integrity: sha512-HZBd99fKxRWpYCErtm2/yxUZv6/PBI9J7N4TNFffl5JbrYMHBwF25DjQGTW3b3jmXq+9P6/8fCIb2ee57BFfYA==}
     dependencies:
-      '@types/node': 16.10.2
+      '@types/node': 18.0.3
+    dev: true
+
+  /@types/prompts/2.4.1:
+    resolution: {integrity: sha512-1Mqzhzi9W5KlooNE4o0JwSXGUDeQXKldbGn9NO4tpxwZbHXYd+WcKpCksG2lbhH7U9I9LigfsdVsP2QAY0lNPA==}
+    dependencies:
+      '@types/node': 18.0.3
     dev: true
 
   /@types/prop-types/15.7.4:
@@ -8473,7 +8483,7 @@ packages:
   /@types/sockjs/0.3.33:
     resolution: {integrity: sha512-f0KEEe05NvUnat+boPTZ0dgaLZ4SfSouXUgv5noUiefG2ajgKjmETo9ZJyuqsl7dfl2aHlLJUiki6B4ZYldiiw==}
     dependencies:
-      '@types/node': 17.0.17
+      '@types/node': 18.0.3
     dev: false
 
   /@types/styled-components/5.1.14:
@@ -8509,7 +8519,7 @@ packages:
   /@types/ws/8.5.3:
     resolution: {integrity: sha512-6YOoWjruKj1uLf3INHH7D3qTXwFfEsg1kf3c0uDdSBJwfa/llkwIjrAGV7j7mVgGNbzTQ3HiHKKDXl6bJPD97w==}
     dependencies:
-      '@types/node': 17.0.17
+      '@types/node': 18.0.3
     dev: false
 
   /@types/yargs-parser/20.2.1:
@@ -8529,7 +8539,7 @@ packages:
     resolution: {integrity: sha512-Cn6WYCm0tXv8p6k+A8PvbDG763EDpBoTzHdA+Q/MF6H3sapGjCm9NzoaJncJS9tUKSuCoDs9XHxYYsQDgxR6kw==}
     requiresBuild: true
     dependencies:
-      '@types/node': 17.0.17
+      '@types/node': 18.0.3
     dev: false
     optional: true
 
@@ -18154,6 +18164,8 @@ packages:
       shell-quote: 1.7.2
       strip-ansi: 6.0.0
       text-table: 0.2.0
+      typescript: 4.7.2
+      webpack: 5.74.0
     transitivePeerDependencies:
       - eslint
       - supports-color
@@ -18190,6 +18202,8 @@ packages:
       shell-quote: 1.7.3
       strip-ansi: 6.0.1
       text-table: 0.2.0
+      typescript: 4.7.2
+      webpack: 5.74.0_esbuild@0.14.19
     transitivePeerDependencies:
       - eslint
       - supports-color
@@ -21011,6 +21025,7 @@ packages:
   /unified/6.2.0:
     resolution: {integrity: sha512-1k+KPhlVtqmG99RaTbAv/usu85fcSRu3wY8X+vnsEhIxNP5VbVIDiXnLqyKIG+UMdyTg0ZX9EI6k2AfjJkHPtA==}
     dependencies:
+      '@types/unist': 2.0.6
       bail: 1.0.5
       extend: 3.0.2
       is-plain-obj: 1.1.0
@@ -21022,6 +21037,7 @@ packages:
   /unified/9.2.0:
     resolution: {integrity: sha512-vx2Z0vY+a3YoTj8+pttM3tiJHCwY5UFbYdiWrwBEbHmK8pvsPj2rtAX2BFfgXen8T39CJWblWRDT4L5WGXtDdg==}
     dependencies:
+      '@types/unist': 2.0.6
       bail: 1.0.5
       extend: 3.0.2
       is-buffer: 2.0.5
@@ -21033,6 +21049,7 @@ packages:
   /unified/9.2.2:
     resolution: {integrity: sha512-Sg7j110mtefBD+qunSLO1lqOEKdrwBFBrR6Qd8f4uwkhWNlbkaqwHse6e7QvD3AP/MNoJdEDLaf8OxYyoWgorQ==}
     dependencies:
+      '@types/unist': 2.0.6
       bail: 1.0.5
       extend: 3.0.2
       is-buffer: 2.0.5
