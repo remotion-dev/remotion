@@ -18,6 +18,7 @@ import {
 	renderMetadataKey,
 	rendersPrefix,
 } from '../shared/constants';
+import {deserializeInputProps} from '../shared/deserialize-input-props';
 import {DOCS_URL} from '../shared/docs-url';
 import {invokeWebhook} from '../shared/invoke-webhook';
 import {getServeUrlHash} from '../shared/make-s3-url';
@@ -156,11 +157,18 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
+	const inputPropsPromise = deserializeInputProps({
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+		serialized: params.inputProps,
+	});
+
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
 		browserInstance,
-		inputProps: params.inputProps,
+		inputProps: await inputPropsPromise,
 		envVariables: params.envVariables,
 		ffmpegExecutable: null,
 		ffprobeExecutable: null,
