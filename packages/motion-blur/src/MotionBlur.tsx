@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Freeze, useCurrentFrame} from 'remotion';
+import {Trail} from './Trail';
 
 export type MotionBlurProps = {
 	children: React.ReactNode;
@@ -9,35 +9,9 @@ export type MotionBlurProps = {
 };
 
 export const MotionBlur: React.FC<MotionBlurProps> = ({
-	children,
-	layers,
-	lagInFrames,
 	blurOpacity,
+	...rest
 }: MotionBlurProps) => {
-	const frame = useCurrentFrame();
-
-	if (
-		typeof layers !== 'number' ||
-		Number.isNaN(layers) ||
-		!Number.isFinite(layers)
-	) {
-		throw new TypeError(
-			`"layers" must be a number, but got ${JSON.stringify(layers)}`
-		);
-	}
-
-	if (layers % 1 !== 0) {
-		throw new TypeError(
-			`"layers" must be an integer, but got ${JSON.stringify(layers)}`
-		);
-	}
-
-	if (layers < 0) {
-		throw new TypeError(
-			`"layers" must be non-negative, but got ${JSON.stringify(layers)}`
-		);
-	}
-
 	if (
 		typeof blurOpacity !== 'number' ||
 		Number.isNaN(blurOpacity) ||
@@ -48,31 +22,5 @@ export const MotionBlur: React.FC<MotionBlurProps> = ({
 		);
 	}
 
-	if (
-		typeof lagInFrames !== 'number' ||
-		Number.isNaN(lagInFrames) ||
-		!Number.isFinite(lagInFrames)
-	) {
-		throw new TypeError(
-			`"lagInFrames" must be a number, but got ${JSON.stringify(lagInFrames)}`
-		);
-	}
-
-	return (
-		<AbsoluteFill>
-			{new Array(layers).fill(true).map((_, i) => {
-				return (
-					<AbsoluteFill
-						key={`frame-${i.toString()}`}
-						style={{
-							opacity: blurOpacity - ((i + 1) / layers) * blurOpacity,
-						}}
-					>
-						<Freeze frame={frame - lagInFrames * i}>{children}</Freeze>
-					</AbsoluteFill>
-				);
-			})}
-			{children}
-		</AbsoluteFill>
-	);
+	return <Trail {...rest} trailOpacity={blurOpacity} />;
 };
