@@ -4,35 +4,35 @@ import {AbsoluteFill, Freeze, useCurrentFrame} from 'remotion';
 export type CameraMotionBlurProps = {
 	children: React.ReactNode;
 	shutterAngle?: number;
-	iterations?: number;
+	samples?: number;
 };
 
 export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 	children,
 	shutterAngle = 180,
-	iterations = 10,
+	samples = 50,
 }: CameraMotionBlurProps) => {
 	const currentFrame = useCurrentFrame();
 
 	if (
-		typeof iterations !== 'number' ||
-		Number.isNaN(iterations) ||
-		!Number.isFinite(iterations)
+		typeof samples !== 'number' ||
+		Number.isNaN(samples) ||
+		!Number.isFinite(samples)
 	) {
 		throw new TypeError(
-			`"iterations" must be a number, but got ${JSON.stringify(iterations)}`
+			`"samples" must be a number, but got ${JSON.stringify(samples)}`
 		);
 	}
 
-	if (iterations % 1 !== 0) {
+	if (samples % 1 !== 0) {
 		throw new TypeError(
-			`"iterations" must be an integer, but got ${JSON.stringify(iterations)}`
+			`"samples" must be an integer, but got ${JSON.stringify(samples)}`
 		);
 	}
 
-	if (iterations < 0) {
+	if (samples < 0) {
 		throw new TypeError(
-			`"iterations" must be non-negative, but got ${JSON.stringify(iterations)}`
+			`"samples" must be non-negative, but got ${JSON.stringify(samples)}`
 		);
 	}
 
@@ -58,21 +58,19 @@ export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 
 	return (
 		<AbsoluteFill style={{isolation: 'isolate'}}>
-			{new Array(iterations).fill(true).map((_, i) => {
-				const iteration = i + 1;
-				const iterationFrameOffset = shutterFraction * (iteration / iterations);
+			{new Array(samples).fill(true).map((_, i) => {
+				const sample = i + 1;
+				const sampleFrameOffset = shutterFraction * (sample / samples);
 				return (
 					<AbsoluteFill
 						key={`frame-${i.toString()}`}
 						style={{
-							// @ts-ignore 'plus-lighter' is assignable, google "MDN plus-lighter"
+							// @ts-expect-error 'plus-lighter' is assignable, google "MDN plus-lighter"
 							mixBlendMode: 'plus-lighter',
-							opacity: 1 / iterations,
+							filter: `opacity(${1 / samples})`,
 						}}
 					>
-						<Freeze frame={currentFrame - iterationFrameOffset}>
-							{children}
-						</Freeze>
+						<Freeze frame={currentFrame - sampleFrameOffset}>{children}</Freeze>
 					</AbsoluteFill>
 				);
 			})}
