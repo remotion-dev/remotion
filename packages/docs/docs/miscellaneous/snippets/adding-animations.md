@@ -81,11 +81,3 @@ export const TwoPushes: React.FC = () => {
   );
 };
 ```
-
-```
-
-```
-
-```
-
-```
