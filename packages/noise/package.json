@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/noise",
-	"version": "3.2.35",
+	"version": "3.2.36",
 	"description": "Noise effect for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -25,7 +25,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"remotion": "3.2.35",
+		"remotion": "3.2.36",
 		"simplex-noise": "4.0.1"
 	},
 	"devDependencies": {
