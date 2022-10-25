@@ -43,7 +43,7 @@ test('Should make a distributed GIF', async () => {
 			imageFormat: 'png',
 			inputProps: {
 				type: 'payload',
-				payload: {},
+				payload: '{}',
 			},
 			logLevel: 'warn',
 			maxRetries: 3,

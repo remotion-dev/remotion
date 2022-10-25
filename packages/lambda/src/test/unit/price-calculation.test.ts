@@ -24,7 +24,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			imageFormat: 'jpeg',
 			inputProps: {
 				type: 'payload',
-				payload: {},
+				payload: '{}',
 			},
 			lambdaVersion: '2021-11-29',
 			memorySizeInMb: 1024,
