@@ -65,7 +65,6 @@ export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 					<AbsoluteFill
 						key={`frame-${i.toString()}`}
 						style={{
-							// @ts-expect-error 'plus-lighter' is assignable, google "MDN plus-lighter"
 							mixBlendMode: 'plus-lighter',
 							filter: `opacity(${1 / samples})`,
 						}}

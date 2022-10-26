@@ -36,7 +36,7 @@
 		"@testing-library/react": "13.3.0",
 		"@types/node": "^16.7.5",
 		"@types/progress": "2.0.5",
-		"@types/react": "18.0.1",
+		"@types/react": "18.0.23",
 		"@types/react-dom": "18.0.0",
 		"eslint": "8.25.0",
 		"prettier": "^2.7.1",
