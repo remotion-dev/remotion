@@ -67,10 +67,12 @@ export const Trail: React.FC<TrailProps> = ({
 					<AbsoluteFill
 						key={`frame-${i.toString()}`}
 						style={{
-							opacity: trailOpacity - ((i + 1) / layers) * trailOpacity,
+							opacity: trailOpacity - ((layers - i) / layers) * trailOpacity,
 						}}
 					>
-						<Freeze frame={frame - lagInFrames * i}>{children}</Freeze>
+						<Freeze frame={frame - lagInFrames * (layers - i)}>
+							{children}
+						</Freeze>
 					</AbsoluteFill>
 				);
 			})}
