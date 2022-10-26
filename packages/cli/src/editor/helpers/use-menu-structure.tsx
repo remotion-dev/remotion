@@ -1,5 +1,6 @@
 import {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
+import {cmdOrCtrlCharacter} from '../../preview-server/error-overlay/remotion-overlay/ShortcutHint';
 import {truthy} from '../../truthy';
 import {Row} from '../components/layout';
 import type {Menu} from '../components/Menu/MenuItem';
@@ -236,7 +237,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 									subMenu: null,
 									type: 'item' as const,
 									value: 'expanded' as SidebarCollapsedState,
-									quickSwitcherLabel: null,
+									quickSwitcherLabel: 'Expand',
 								},
 								{
 									id: 'sidebar-collapsed',
@@ -252,7 +253,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 									subMenu: null,
 									type: 'item' as const,
 									value: 'collapsed' as SidebarCollapsedState,
-									quickSwitcherLabel: null,
+									quickSwitcherLabel: 'Collapse',
 								},
 							],
 						},
@@ -325,6 +326,28 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						leftItem: null,
 						subMenu: null,
 						quickSwitcherLabel: 'Timeline: Collapse all layers',
+					},
+					{
+						id: 'in-out-divider',
+						type: 'divider' as const,
+					},
+					{
+						id: 'quick-switcher',
+						keyHint: `${cmdOrCtrlCharacter}+K`,
+						label: 'Quick Switcher',
+						onClick: () => {
+							closeMenu();
+							setSelectedModal({
+								type: 'quick-switcher',
+								mode: 'compositions',
+								invocationTimestamp: Date.now(),
+							});
+						},
+						type: 'item' as const,
+						value: 'quick-switcher',
+						leftItem: null,
+						subMenu: null,
+						quickSwitcherLabel: 'Switch composition',
 					},
 					{
 						id: 'in-out-divider',
@@ -410,7 +433,9 @@ export const useMenuStructure = (closeMenu: () => void) => {
 							closeMenu();
 
 							setSelectedModal({
-								type: 'shortcuts',
+								type: 'quick-switcher',
+								mode: 'docs',
+								invocationTimestamp: Date.now(),
 							});
 						},
 						keyHint: '?',

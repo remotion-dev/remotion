@@ -1,9 +1,13 @@
 import React, {useCallback, useContext} from 'react';
 import {ModalsContext} from '../../state/modals';
 import {ModalContainer} from '../ModalContainer';
+import type {QuickSwitcherMode} from './NoResults';
 import {QuickSwitcherContent} from './QuickSwitcherContent';
 
-const QuickSwitcher: React.FC = () => {
+const QuickSwitcher: React.FC<{
+	initialMode: QuickSwitcherMode;
+	invocationTimestamp: number;
+}> = ({initialMode, invocationTimestamp}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
 	const onQuit = useCallback(() => {
@@ -13,7 +17,10 @@ const QuickSwitcher: React.FC = () => {
 	// Separate child component to correctly capture keybindings
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
-			<QuickSwitcherContent />
+			<QuickSwitcherContent
+				invocationTimestamp={invocationTimestamp}
+				initialMode={initialMode}
+			/>
 		</ModalContainer>
 	);
 };
