@@ -83,7 +83,7 @@ export const getRenderMediaOptions = async ({
 		codec,
 		audioBitrate,
 		videoBitrate,
-		height,
-		width,
+		forceHeight: height,
+		forceWidth: width,
 	};
 };
