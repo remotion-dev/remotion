@@ -1,13 +1,14 @@
 import React from 'react';
+import type {TrailProps} from './Trail';
 import {Trail} from './Trail';
 
-export type MotionBlurProps = {
-	children: React.ReactNode;
-	layers: number;
-	lagInFrames: number;
+export type MotionBlurProps = Omit<TrailProps, 'trailOpacity'> & {
 	blurOpacity: number;
 };
 
+/**
+ * @deprecated The component has been renamed "Trail" instead: https://remotion.dev/docs/motion-blur/trail
+ */
 export const MotionBlur: React.FC<MotionBlurProps> = ({
 	blurOpacity,
 	...rest
