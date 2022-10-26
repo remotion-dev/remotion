@@ -169,8 +169,8 @@ export const renderMediaOnLambda = async ({
 				audioBitrate: audioBitrate ?? null,
 				videoBitrate: videoBitrate ?? null,
 				webhook: webhook ?? null,
-				height: forceHeight ?? null,
-				width: forceWidth ?? null,
+				forceHeight: forceHeight ?? null,
+				forceWidth: forceWidth ?? null,
 			},
 			region,
 		});

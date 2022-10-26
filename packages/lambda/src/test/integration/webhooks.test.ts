@@ -103,8 +103,8 @@ describe('Webhooks', () => {
 				},
 				audioBitrate: null,
 				videoBitrate: null,
-				height: null,
-				width: null,
+				forceHeight: null,
+				forceWidth: null,
 			},
 			extraContext
 		);
@@ -179,8 +179,8 @@ describe('Webhooks', () => {
 				videoBitrate: null,
 				bucketName: 'abc',
 				renderId: 'abc',
-				height: null,
-				width: null,
+				forceHeight: null,
+				forceWidth: null,
 			},
 			{
 				...extraContext,
