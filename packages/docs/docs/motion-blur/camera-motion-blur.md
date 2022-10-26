@@ -10,6 +10,8 @@ const RainbowSquare: React.FC = () => <div></div>
 // - RainbowSquare
 ```
 
+_available from v3.2.39_
+
 The `<CameraMotionBlur>` produces natural looking motion blur similar to what would be produced by
 a film camera.
 
