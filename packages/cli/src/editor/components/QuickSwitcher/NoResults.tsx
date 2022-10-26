@@ -10,10 +10,10 @@ const container: React.CSSProperties = {
 
 export type Mode = 'commands' | 'compositions' | 'docsearch';
 
-const MODE_TO_STRING: Record<Mode, string> = {
+const MODE_TO_STRING: {[key in Mode]: string} = {
 	commands: 'commands',
 	compositions: 'compositions',
-	docsearch: 'documentaion',
+	docsearch: 'documentation',
 };
 
 export const QuickSwitcherNoResults: React.FC<{
