@@ -83,6 +83,14 @@ const loopIndex = (index: number, length: number) => {
 	return index % length;
 };
 
+const stripQuery = (query: string) => {
+	if (query.startsWith('>') || query.startsWith('?')) {
+		return query.substring(1).trim();
+	}
+
+	return query.trim();
+};
+
 export const QuickSwitcherContent: React.FC = () => {
 	const {compositions} = useContext(Internals.CompositionManager);
 	const [state, setState] = useState({
@@ -107,12 +115,8 @@ export const QuickSwitcherContent: React.FC = () => {
 		: 'compositions';
 
 	const actualQuery = useMemo(() => {
-		if (mode === 'commands' || mode === 'docs') {
-			return state.query.substring(1).trim();
-		}
-
-		return state.query.trim();
-	}, [mode, state.query]);
+		return stripQuery(state.query);
+	}, [state.query]);
 
 	const menuActions = useMemo((): TQuickSwitcherResult[] => {
 		if (mode !== 'commands') {
@@ -235,26 +239,26 @@ export const QuickSwitcherContent: React.FC = () => {
 	);
 
 	const onActionsSelected = useCallback(() => {
-		setState({
-			query: '> ',
+		setState((s) => ({
+			query: `> ${stripQuery(s.query)}`,
 			selectedIndex: 0,
-		});
+		}));
 		inputRef.current?.focus();
 	}, []);
 
 	const onCompositionsSelected = useCallback(() => {
-		setState({
-			query: '',
+		setState((s) => ({
+			query: stripQuery(s.query),
 			selectedIndex: 0,
-		});
+		}));
 		inputRef.current?.focus();
 	}, []);
 
 	const onDocSearchSelected = useCallback(() => {
-		setState({
-			query: '? ',
+		setState((s) => ({
+			query: `? ${stripQuery(s.query)}`,
 			selectedIndex: 0,
-		});
+		}));
 		setDocResults([]);
 		inputRef.current?.focus();
 	}, []);
