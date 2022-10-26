@@ -150,7 +150,7 @@ module.exports = {
         type: "doc",
         id: "motion-blur/index",
       },
-      items: ["motion-blur/motion-blur"],
+      items: ["motion-blur/trail", "motion-blur/camera-motion-blur"],
     },
     {
       type: "category",
@@ -348,6 +348,7 @@ module.exports = {
             "lambda/troubleshooting/bucket-disallows-acl",
           ],
         },
+        "lambda/limits",
         "lambda/changelog",
         "lambda/upgrading",
         "lambda/uninstall",

@@ -4,10 +4,8 @@ import {planFrameRanges} from '../../functions/chunk-optimization/plan-frame-ran
 test('Plan frame ranges should respect everyNthFrame', () => {
 	const planned = planFrameRanges({
 		framesPerLambda: 8,
-		shouldUseOptimization: false,
 		everyNthFrame: 2,
 		frameRange: [0, 99],
-		optimization: null,
 	});
 	expect(planned.chunks).toEqual([
 		[0, 15],
@@ -23,10 +21,8 @@ test('Plan frame ranges should respect everyNthFrame', () => {
 test('Should remove ranges that are not going to render', () => {
 	const planned = planFrameRanges({
 		framesPerLambda: 11,
-		shouldUseOptimization: false,
 		everyNthFrame: 1,
 		frameRange: [0, 22],
-		optimization: null,
 	});
 	expect(planned.chunks).toEqual([
 		[0, 10],

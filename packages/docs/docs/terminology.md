@@ -16,6 +16,10 @@ A [`<Sequence>`](/docs/sequence) is a built-in component that manipulates the ti
 
 Using a sequence, you can also trim the start and end of an animation by passing the [`durationInFrames`](/docs/sequence#durationinframes) prop.
 
+## Composition ID
+
+The string that you pass to the [`<Composition>` component](#composition). You need the composition ID to reference what you would like to render, for example: `npx remotion render src/index <composition-id>`. See: [Defining compositions](/docs/the-fundamentals#defining-compositions)
+
 ## Bundle
 
 Once you have written your video in React, you need to bundle it using Webpack in order to render it. The output artifact of the bundling process is called the bundle. It is a folder containing HTML, CSS, JavaScript and other assets.
