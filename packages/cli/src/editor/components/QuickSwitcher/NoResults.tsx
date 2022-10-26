@@ -8,12 +8,12 @@ const container: React.CSSProperties = {
 	fontSize: 14,
 };
 
-export type Mode = 'commands' | 'compositions' | 'docsearch';
+export type Mode = 'commands' | 'compositions' | 'docs';
 
 const MODE_TO_STRING: {[key in Mode]: string} = {
 	commands: 'commands',
 	compositions: 'compositions',
-	docsearch: 'documentation',
+	docs: 'documentation',
 };
 
 export const QuickSwitcherNoResults: React.FC<{
