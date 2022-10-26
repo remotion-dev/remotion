@@ -16,10 +16,12 @@ import {
 } from '../../helpers/use-menu-structure';
 import {ModalsContext} from '../../state/modals';
 import {useSelectComposition} from '../InitialCompositionLoader';
+import {KeyboardShortcutsExplainer} from '../KeyboardShortcutsExplainer';
 import {Spacing} from '../layout';
 import {algoliaSearch} from './algolia-search';
+import {AlgoliaCredit} from './AlgoliaCredit';
 import {fuzzySearch} from './fuzzy-search';
-import type {Mode} from './NoResults';
+import type {QuickSwitcherMode} from './NoResults';
 import {QuickSwitcherNoResults} from './NoResults';
 import type {TQuickSwitcherResult} from './QuickSwitcherResult';
 import {QuickSwitcherResult} from './QuickSwitcherResult';
@@ -28,10 +30,6 @@ const input: React.CSSProperties = {
 	padding: 4,
 	border: '2px solid ' + INPUT_BORDER_COLOR_UNHOVERED,
 	width: '100%',
-};
-
-const container: React.CSSProperties = {
-	width: 500,
 };
 
 const modeSelector: React.CSSProperties = {
@@ -68,11 +66,9 @@ const content: React.CSSProperties = {
 	paddingRight: 16,
 	paddingTop: 4,
 	paddingBottom: 10,
-};
-
-const results: React.CSSProperties = {
-	overflowY: 'auto',
-	height: 300,
+	display: 'flex',
+	flexDirection: 'row',
+	alignItems: 'center',
 };
 
 const loopIndex = (index: number, length: number) => {
@@ -91,28 +87,77 @@ const stripQuery = (query: string) => {
 	return query.trim();
 };
 
-export const QuickSwitcherContent: React.FC = () => {
+const mapQueryToMode = (query: string): QuickSwitcherMode => {
+	return query.startsWith('>')
+		? 'commands'
+		: query.startsWith('?')
+		? 'docs'
+		: 'compositions';
+};
+
+const mapModeToQuery = (mode: QuickSwitcherMode): string => {
+	if (mode === 'commands') {
+		return '> ';
+	}
+
+	if (mode === 'compositions') {
+		return '';
+	}
+
+	if (mode === 'docs') {
+		return '? ';
+	}
+
+	throw new Error('no mode' + mode);
+};
+
+type AlgoliaState =
+	| {
+			type: 'initial';
+	  }
+	| {
+			type: 'loading';
+	  }
+	| {
+			type: 'results';
+			results: TQuickSwitcherResult[];
+	  }
+	| {
+			type: 'error';
+			error: Error;
+	  };
+
+export const QuickSwitcherContent: React.FC<{
+	initialMode: QuickSwitcherMode;
+	invocationTimestamp: number;
+}> = ({initialMode, invocationTimestamp}) => {
 	const {compositions} = useContext(Internals.CompositionManager);
-	const [state, setState] = useState({
-		query: '',
-		selectedIndex: 0,
+	const [state, setState] = useState(() => {
+		return {
+			query: mapModeToQuery(initialMode),
+			selectedIndex: 0,
+		};
 	});
+
+	useEffect(() => {
+		setState({
+			query: mapModeToQuery(initialMode),
+			selectedIndex: 0,
+		});
+	}, [initialMode, invocationTimestamp]);
+
 	const inputRef = useRef<HTMLInputElement>(null);
 	const selectComposition = useSelectComposition();
 
 	const closeMenu = useCallback(() => undefined, []);
 	const actions = useMenuStructure(closeMenu);
-	const [docResults, setDocResults] = useState<TQuickSwitcherResult[]>([]);
+	const [docResults, setDocResults] = useState<AlgoliaState>({type: 'initial'});
 
 	const {setSelectedModal} = useContext(ModalsContext);
 
 	const keybindings = useKeybinding();
 
-	const mode: Mode = state.query.startsWith('>')
-		? 'commands'
-		: state.query.startsWith('?')
-		? 'docs'
-		: 'compositions';
+	const mode: QuickSwitcherMode = mapQueryToMode(state.query);
 
 	const actualQuery = useMemo(() => {
 		return stripQuery(state.query);
@@ -131,8 +176,8 @@ export const QuickSwitcherContent: React.FC = () => {
 			return fuzzySearch(actualQuery, menuActions);
 		}
 
-		if (mode === 'docs') {
-			return docResults;
+		if (mode === 'docs' && docResults.type === 'results') {
+			return docResults.results;
 		}
 
 		return fuzzySearch(
@@ -197,15 +242,28 @@ export const QuickSwitcherContent: React.FC = () => {
 			return;
 		}
 
+		if (actualQuery.trim() === '') {
+			setDocResults({type: 'initial'});
+			return;
+		}
+
 		let cancelled = false;
+		setDocResults({type: 'loading'});
+		algoliaSearch(actualQuery)
+			.then((agoliaResults) => {
+				if (cancelled) {
+					return;
+				}
 
-		algoliaSearch(actualQuery).then((agoliaResults) => {
-			if (cancelled) {
-				return;
-			}
+				setDocResults({type: 'results', results: agoliaResults});
+			})
+			.catch((err) => {
+				if (cancelled) {
+					return;
+				}
 
-			setDocResults(agoliaResults);
-		});
+				setDocResults({type: 'error', error: err});
+			});
 
 		return () => {
 			cancelled = true;
@@ -259,9 +317,32 @@ export const QuickSwitcherContent: React.FC = () => {
 			query: `? ${stripQuery(s.query)}`,
 			selectedIndex: 0,
 		}));
-		setDocResults([]);
+		setDocResults({type: 'initial'});
 		inputRef.current?.focus();
 	}, []);
+
+	const showKeyboardShortcuts = mode === 'docs' && actualQuery.trim() === '';
+	const showSearchLoadingState =
+		mode === 'docs' && docResults.type === 'loading';
+
+	const container: React.CSSProperties = useMemo(() => {
+		return {
+			width: showKeyboardShortcuts ? 800 : 500,
+		};
+	}, [showKeyboardShortcuts]);
+
+	const results: React.CSSProperties = useMemo(() => {
+		if (showKeyboardShortcuts) {
+			return {
+				maxHeight: 600,
+			};
+		}
+
+		return {
+			overflowY: 'auto',
+			height: 300,
+		};
+	}, [showKeyboardShortcuts]);
 
 	return (
 		<div style={container}>
@@ -300,20 +381,28 @@ export const QuickSwitcherContent: React.FC = () => {
 					onChange={onTextChange}
 					placeholder="Search compositions..."
 				/>
+				{showKeyboardShortcuts ? (
+					<>
+						<Spacing x={2} /> <AlgoliaCredit />
+					</>
+				) : null}
 			</div>
 			<div style={results}>
-				{resultsArray.map((result, i) => {
-					return (
-						<QuickSwitcherResult
-							key={result.id}
-							selected={selectedIndexRounded === i}
-							result={result}
-						/>
-					);
-				})}
-				{resultsArray.length === 0 ? (
+				{showKeyboardShortcuts ? (
+					<KeyboardShortcutsExplainer />
+				) : showSearchLoadingState ? null : resultsArray.length === 0 ? (
 					<QuickSwitcherNoResults mode={mode} query={actualQuery} />
-				) : null}
+				) : (
+					resultsArray.map((result, i) => {
+						return (
+							<QuickSwitcherResult
+								key={result.id}
+								selected={selectedIndexRounded === i}
+								result={result}
+							/>
+						);
+					})
+				)}
 			</div>
 		</div>
 	);
