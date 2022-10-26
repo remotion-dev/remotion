@@ -27,7 +27,7 @@
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
 		"@types/node": "^16.7.5",
-		"@types/react": "18.0.1",
+		"@types/react": "18.0.23",
 		"eslint": "8.25.0",
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",

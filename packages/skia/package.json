@@ -31,7 +31,7 @@
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
 		"@shopify/react-native-skia": "^0.1.139",
-		"@types/react": "18.0.1",
+		"@types/react": "18.0.23",
 		"@types/react-native": "^0.69.2",
 		"eslint": "8.25.0",
 		"prettier": "^2.7.1",

@@ -32,7 +32,7 @@
 		"@jonny/eslint-config": "3.0.266",
 		"@react-three/fiber": ">=7.0.26",
 		"@types/node": "^14.14.14",
-		"@types/react": "18.0.1",
+		"@types/react": "18.0.23",
 		"@types/react-reconciler": "^0.26.4",
 		"@types/three": "^0.134.0",
 		"@types/web": "0.0.48",
