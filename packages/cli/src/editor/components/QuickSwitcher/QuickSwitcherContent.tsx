@@ -17,7 +17,7 @@ import {
 import {ModalsContext} from '../../state/modals';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {Spacing} from '../layout';
-import {agoliaSearch} from './agolia-search';
+import {algoliaSearch} from './algolia-search';
 import {fuzzySearch} from './fuzzy-search';
 import type {Mode} from './NoResults';
 import {QuickSwitcherNoResults} from './NoResults';
@@ -103,11 +103,11 @@ export const QuickSwitcherContent: React.FC = () => {
 	const mode: Mode = state.query.startsWith('>')
 		? 'commands'
 		: state.query.startsWith('?')
-		? 'docsearch'
+		? 'docs'
 		: 'compositions';
 
 	const actualQuery = useMemo(() => {
-		if (mode === 'commands' || mode === 'docsearch') {
+		if (mode === 'commands' || mode === 'docs') {
 			return state.query.substring(1).trim();
 		}
 
@@ -127,7 +127,7 @@ export const QuickSwitcherContent: React.FC = () => {
 			return fuzzySearch(actualQuery, menuActions);
 		}
 
-		if (mode === 'docsearch') {
+		if (mode === 'docs') {
 			return [];
 		}
 
@@ -188,21 +188,19 @@ export const QuickSwitcherContent: React.FC = () => {
 	}, [keybindings, onArrowDown, onArrowUp]);
 
 	useEffect(() => {
-		if (mode !== 'docsearch') {
+		if (mode !== 'docs') {
 			return;
 		}
 
 		let cancelled = false;
 
-		(async () => {
-			agoliaSearch(actualQuery).then((agoliaResults) => {
-				if (cancelled) {
-					return;
-				}
+		algoliaSearch(actualQuery).then((agoliaResults) => {
+			if (cancelled) {
+				return;
+			}
 
-				setDocResults(agoliaResults);
-			});
-		})();
+			setDocResults(agoliaResults);
+		});
 
 		return () => {
 			cancelled = true;
@@ -260,7 +258,7 @@ export const QuickSwitcherContent: React.FC = () => {
 		inputRef.current?.focus();
 	}, []);
 
-	const completeResult = mode === 'docsearch' ? docResults : resultsArray;
+	const completeResult = mode === 'docs' ? docResults : resultsArray;
 
 	return (
 		<div style={container}>
@@ -283,10 +281,10 @@ export const QuickSwitcherContent: React.FC = () => {
 				<Spacing x={1} />
 				<button
 					onClick={onDocSearchSelected}
-					style={mode === 'docsearch' ? modeActive : modeInactive}
+					style={mode === 'docs' ? modeActive : modeInactive}
 					type="button"
 				>
-					Doc Search
+					Documentation
 				</button>
 			</div>
 			<div style={content}>
