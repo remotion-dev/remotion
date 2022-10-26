@@ -74,7 +74,7 @@ export const Trail: React.FC<TrailProps> = ({
 					</AbsoluteFill>
 				);
 			})}
-			{!hideOriginal && children}
+			{hideOriginal ? null : children}
 		</AbsoluteFill>
 	);
 };
