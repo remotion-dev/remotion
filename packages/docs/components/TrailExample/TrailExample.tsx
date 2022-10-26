@@ -67,12 +67,10 @@ const MyComposition = ({
   trailOpacity,
   layers,
   lagInFrames,
-  hideOriginal,
 }: {
   trailOpacity: number;
   layers: number;
   lagInFrames: number;
-  hideOriginal: boolean;
 }) => {
   return (
     <AbsoluteFill
@@ -89,7 +87,6 @@ const MyComposition = ({
             trailOpacity={trailOpacity}
             lagInFrames={lagInFrames}
             layers={layers}
-            hideOriginal={hideOriginal}
           >
             <Square />
           </Trail>
@@ -109,7 +106,6 @@ const MyComposition = ({
           trailOpacity={trailOpacity}
           lagInFrames={lagInFrames}
           layers={layers}
-          hideOriginal={hideOriginal}
         >
           <Square />
         </Trail>
@@ -121,7 +117,6 @@ const MyComposition = ({
 export const TrailExample: React.FC = () => {
   const [trailOpacity, setTrailOpacity] = useState(1);
   const [lagInFrames, setFrameDelay] = useState(0.3);
-  const [hideOriginal, setHideOriginal] = useState(false);
   const [layers, setLayers] = useState(50);
 
   return (
@@ -141,7 +136,6 @@ export const TrailExample: React.FC = () => {
           trailOpacity,
           lagInFrames,
           layers,
-          hideOriginal,
         }}
         autoPlay
         loop
@@ -201,20 +195,6 @@ export const TrailExample: React.FC = () => {
         </label>
 
         <div style={spacer} />
-
-        <label style={row}>
-          <input
-            type="checkbox"
-            checked={hideOriginal}
-            style={{ marginRight: 8, padding: 8 }}
-            onChange={(e) => setHideOriginal(e.target.checked)}
-          />
-          <code>
-            hideOriginal={"{"}
-            {JSON.stringify(hideOriginal)}
-            {"}"}
-          </code>
-        </label>
       </div>
     </div>
   );

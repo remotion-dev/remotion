@@ -31,13 +31,6 @@ How many frames each layer is lagging behind the last one. Can also a floating p
 
 The highest opacity of a layer. The lowest opacity is 0 and layers intbetween get interpolated.
 
-### `hideOriginal`
-
-Default: `false`
-
-- If `true` it will render the original children on top of the trail.
-- If `false` only the trail will be rendered.
-
 ## Example usage
 
 ```tsx twoslash

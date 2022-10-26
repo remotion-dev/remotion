@@ -6,7 +6,6 @@ export type TrailProps = {
 	layers: number;
 	lagInFrames: number;
 	trailOpacity: number;
-	hideOriginal?: boolean;
 };
 
 export const Trail: React.FC<TrailProps> = ({
@@ -14,7 +13,6 @@ export const Trail: React.FC<TrailProps> = ({
 	layers,
 	lagInFrames,
 	trailOpacity,
-	hideOriginal = false,
 }: TrailProps) => {
 	const frame = useCurrentFrame();
 
@@ -76,7 +74,7 @@ export const Trail: React.FC<TrailProps> = ({
 					</AbsoluteFill>
 				);
 			})}
-			{hideOriginal ? null : children}
+			{children}
 		</AbsoluteFill>
 	);
 };
