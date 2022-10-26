@@ -123,12 +123,14 @@ export const renderMediaOnLambda = async ({
 	});
 	validateDownloadBehavior(downloadBehavior);
 
-	const realServeUrl = await convertToServeUrl(serveUrl, region);
-	const serializedInputProps = await serializeInputProps({
-		inputProps,
-		region,
-		type: 'video-or-audio',
-	});
+	const [realServeUrl, serializedInputProps] = await Promise.all([
+		convertToServeUrl(serveUrl, region),
+		serializeInputProps({
+			inputProps,
+			region,
+			type: 'video-or-audio',
+		}),
+	]);
 	try {
 		const res = await callLambda({
 			functionName,
