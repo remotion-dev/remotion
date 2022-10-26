@@ -104,8 +104,8 @@ export type RenderMediaOptions = {
 	ffmpegOverride?: FfmpegOverrideFn;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
-	height?: number | null;
-	width?: number | null;
+	forceHeight?: number | null;
+	forceWidth?: number | null;
 	onSlowestFrames?: OnSlowestFrames;
 	disallowParallelEncoding?: boolean;
 } & ServeUrlOrWebpackBundle &
