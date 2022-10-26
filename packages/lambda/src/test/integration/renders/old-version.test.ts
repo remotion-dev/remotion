@@ -61,8 +61,8 @@ test('Should fail when using an incompatible version', async () => {
 				webhook: null,
 				audioBitrate: null,
 				videoBitrate: null,
-				height: undefined,
-			  width: undefined,
+				height: null,
+				width: null,
 			},
 			extraContext
 		)

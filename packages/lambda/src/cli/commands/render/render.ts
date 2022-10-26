@@ -125,8 +125,8 @@ export const renderCommand = async (args: string[]) => {
 		overwrite,
 		audioBitrate,
 		videoBitrate,
-		height,
-		width,
+		forceHeight: height,
+		forceWidth: width,
 		webhook: parsedLambdaCli.webhook
 			? {
 					url: parsedLambdaCli.webhook,

@@ -67,8 +67,8 @@ test('Should be able to render to another bucket', async () => {
 			webhook: null,
 			audioBitrate: null,
 			videoBitrate: null,
-			height: undefined,
-			width: undefined,
+			height: null,
+			width: null,
 		},
 		extraContext
 	);

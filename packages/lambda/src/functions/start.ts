@@ -78,6 +78,8 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		webhook: params.webhook,
 		audioBitrate: params.audioBitrate,
 		videoBitrate: params.videoBitrate,
+		height: params.height,
+		width: params.width,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({
