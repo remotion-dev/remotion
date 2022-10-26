@@ -34,7 +34,6 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			startedDate: aDate + 1000,
 			totalChunks: 20,
 			type: 'video',
-			usesOptimizationProfile: true,
 			videoConfig: {
 				durationInFrames: 100,
 				fps: 30,

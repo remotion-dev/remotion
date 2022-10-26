@@ -149,8 +149,6 @@ export type OutNameOutput = {
 	customCredentials: CustomCredentials | null;
 };
 
-export const optimizationProfile = (siteId: string, compositionId: string) =>
-	`optimization-profiles/${siteId}/${compositionId}/optimization-profile`;
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
 export const outName = (renderId: string, extension: string) =>
 	`${rendersPrefix(renderId)}/out.${extension}`;
@@ -362,7 +360,6 @@ export type RenderMetadata = {
 	estimatedRenderLambdaInvokations: number;
 	compositionId: string;
 	codec: Codec | null;
-	usesOptimizationProfile: boolean;
 	type: 'still' | 'video';
 	imageFormat: ImageFormat;
 	inputProps: SerializedInputProps;

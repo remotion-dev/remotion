@@ -24,7 +24,6 @@ const testRenderMetadata: RenderMetadata = {
 	siteId: 'my-site',
 	startedDate: Date.now(),
 	totalChunks: 20,
-	usesOptimizationProfile: false,
 	videoConfig: {
 		defaultProps: {},
 		durationInFrames: 200,

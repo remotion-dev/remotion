@@ -118,7 +118,6 @@ const innerStillHandler = async (
 		siteId: getServeUrlHash(lambdaParams.serveUrl),
 		totalChunks: 1,
 		type: 'still',
-		usesOptimizationProfile: false,
 		imageFormat: lambdaParams.imageFormat,
 		inputProps: lambdaParams.inputProps,
 		lambdaVersion: VERSION,
