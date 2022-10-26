@@ -1,5 +1,6 @@
 import type {DeleteFunctionInput} from './api/delete-function';
 import {deleteFunction} from './api/delete-function';
+import type {DeleteRenderInput} from './api/delete-render';
 import {deleteRender} from './api/delete-render';
 import type {DeleteSiteInput, DeleteSiteOutput} from './api/delete-site';
 import {deleteSite} from './api/delete-site';
@@ -131,4 +132,5 @@ export type {
 	WebhookPayload,
 	LambdaErrorInfo,
 	EnhancedErrorInfo,
+	DeleteRenderInput,
 };
