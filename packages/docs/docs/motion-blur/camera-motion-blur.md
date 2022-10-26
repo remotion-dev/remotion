@@ -5,8 +5,6 @@ slug: camera-motion-blur
 
 import { CameraMotionBlurExample } from "../../components/CameraMotionBlurExample/CameraMotionBlurExample";
 
-import {TableOfContents} from '../../components/TableOfContents/motion-blur';
-
 ```twoslash include example
 const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
@@ -101,10 +99,6 @@ export const MyComposition = () => {
 ## Demo
 
 <CameraMotionBlurExample />
-
-## Functions
-
-<TableOfContents />
 
 ## Credits
 
