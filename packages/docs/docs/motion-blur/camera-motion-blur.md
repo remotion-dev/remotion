@@ -16,7 +16,7 @@ a film camera.
 For this technique to work, the children must be absolutely positioned so many layers can be created without influencing the layout.  
 You can use the [`<AbsoluteFill>`](/docs/absolute-fill) component to absolutely position content.
 
-:::caution
+:::note
 The technique is destructive to colors. It is recommended to keep the `samples` property as low as
 possible and carefully inspect that the output is of acceptable quality.
 :::
