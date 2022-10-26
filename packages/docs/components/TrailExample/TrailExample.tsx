@@ -21,6 +21,7 @@ const square: React.CSSProperties = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
+  color: "white",
 };
 
 const row: React.CSSProperties = {
