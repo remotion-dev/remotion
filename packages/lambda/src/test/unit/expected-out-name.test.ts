@@ -14,7 +14,7 @@ const testRenderMetadata: RenderMetadata = {
 	type: 'video',
 	inputProps: {
 		type: 'payload',
-		payload: {},
+		payload: '{}',
 	},
 	lambdaVersion: '2022-02-14',
 	memorySizeInMb: 2048,
@@ -24,7 +24,6 @@ const testRenderMetadata: RenderMetadata = {
 	siteId: 'my-site',
 	startedDate: Date.now(),
 	totalChunks: 20,
-	usesOptimizationProfile: false,
 	videoConfig: {
 		defaultProps: {},
 		durationInFrames: 200,

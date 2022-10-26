@@ -67,8 +67,6 @@ export const still = async (remotionRoot: string) => {
 
 	Log.verbose('Browser executable: ', browserExecutable);
 
-	const compositionId = getCompositionId();
-
 	const {format: imageFormat, source} = determineFinalImageFormat({
 		cliFlag: parsedCli['image-format'] ?? null,
 		configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
@@ -76,22 +74,6 @@ export const still = async (remotionRoot: string) => {
 		outName: getUserPassedOutputLocation(),
 		isLambda: false,
 	});
-
-	const relativeOutputLocation = getOutputLocation({
-		compositionId,
-		defaultExtension: imageFormat,
-	});
-
-	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(
-		relativeOutputLocation,
-		overwrite
-	);
-
-	Log.info(
-		chalk.gray(
-			`Output = ${relativeOutputLocation}, Format = ${imageFormat} (${source}), Composition = ${compositionId}`
-		)
-	);
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
@@ -101,10 +83,6 @@ export const still = async (remotionRoot: string) => {
 			'verbose'
 		),
 		forceDeviceScaleFactor: scale,
-	});
-
-	mkdirSync(path.join(absoluteOutputLocation, '..'), {
-		recursive: true,
 	});
 
 	const steps: RenderStep[] = [
@@ -133,10 +111,27 @@ export const still = async (remotionRoot: string) => {
 		downloadMap,
 	});
 
-	const composition = comps.find((c) => c.id === compositionId);
-	if (!composition) {
-		throw new Error(`Cannot find composition with ID ${compositionId}`);
-	}
+	const {compositionId, config, reason} = await getCompositionId(comps);
+
+	const relativeOutputLocation = getOutputLocation({
+		compositionId,
+		defaultExtension: imageFormat,
+	});
+
+	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(
+		relativeOutputLocation,
+		overwrite
+	);
+
+	mkdirSync(path.join(absoluteOutputLocation, '..'), {
+		recursive: true,
+	});
+
+	Log.info(
+		chalk.gray(
+			`Output = ${relativeOutputLocation}, Format = ${imageFormat} (${source}), Composition = ${compositionId} (${reason})`
+		)
+	);
 
 	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
 	const renderStart = Date.now();
@@ -182,7 +177,7 @@ export const still = async (remotionRoot: string) => {
 	};
 
 	await renderStill({
-		composition,
+		composition: config,
 		frame: stillFrame,
 		output: absoluteOutputLocation,
 		serveUrl: urlOrBundle,

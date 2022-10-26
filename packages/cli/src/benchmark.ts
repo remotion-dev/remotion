@@ -14,6 +14,7 @@ import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {createOverwriteableCliOutput} from './progress-bar';
+import {selectCompositions} from './select-composition';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import {truthy} from './truthy';
 
@@ -199,10 +200,14 @@ export const benchmarkCommand = async (
 		puppeteerInstance,
 	});
 
-	const ids = (args[1] ?? '')
-		.split(',')
-		.map((c) => c.trim())
-		.filter(truthy);
+	const ids = (
+		args[1]
+			? args[1]
+					.split(',')
+					.map((c) => c.trim())
+					.filter(truthy)
+			: await selectCompositions(comps)
+	) as string[];
 
 	const compositions = ids.map((compId) => {
 		const composition = comps.find((c) => c.id === compId);

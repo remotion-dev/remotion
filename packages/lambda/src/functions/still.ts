@@ -80,12 +80,6 @@ const innerStillHandler = async (
 			lambdaParams.chromiumOptions ?? {}
 		),
 	]);
-	const inputPropsPromise = deserializeInputProps({
-		bucketName,
-		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
-		serialized: lambdaParams.inputProps,
-	});
 
 	const outputDir = RenderInternals.tmpDir('remotion-render-');
 
@@ -93,11 +87,18 @@ const innerStillHandler = async (
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
+	const inputProps = await deserializeInputProps({
+		bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+		serialized: lambdaParams.inputProps,
+	});
+
 	const composition = await validateComposition({
 		serveUrl: lambdaParams.serveUrl,
 		browserInstance,
 		composition: lambdaParams.composition,
-		inputProps: lambdaParams.inputProps,
+		inputProps,
 		envVariables: lambdaParams.envVariables,
 		ffmpegExecutable: null,
 		ffprobeExecutable: null,
@@ -117,7 +118,6 @@ const innerStillHandler = async (
 		siteId: getServeUrlHash(lambdaParams.serveUrl),
 		totalChunks: 1,
 		type: 'still',
-		usesOptimizationProfile: false,
 		imageFormat: lambdaParams.imageFormat,
 		inputProps: lambdaParams.inputProps,
 		lambdaVersion: VERSION,
@@ -140,7 +140,6 @@ const innerStillHandler = async (
 		customCredentials: null,
 	});
 
-	const inputProps = await inputPropsPromise;
 	await renderStill({
 		composition,
 		output: outputPath,
