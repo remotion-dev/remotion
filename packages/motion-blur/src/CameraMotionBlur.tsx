@@ -10,7 +10,7 @@ export type CameraMotionBlurProps = {
 export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 	children,
 	shutterAngle = 180,
-	samples = 50,
+	samples = 10,
 }: CameraMotionBlurProps) => {
 	const currentFrame = useCurrentFrame();
 
