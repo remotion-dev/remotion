@@ -1,0 +1,23 @@
+{
+  "name": "@remotion/google-fonts",
+  "version": "3.2.38",
+  "description": "Google Fonts support for remotion",
+  "scripts": {
+    "build": "tsc -d",
+    "watch": "tsc -w",
+    "generate": "node scripts/generate.mjs"
+  },
+  "license": "SEE LICENSE IN LICENSE.md",
+  "dependencies": {
+    "remotion": "3.2.35"
+  },
+  "devDependencies": {
+    "@types/css-font-loading-module": "^0.0.7",
+    "@types/node": "^18.0.3",
+    "axios": "^1.1.3",
+    "p-queue": "^7.3.0",
+    "postcss": "^8.4.18",
+    "prettier": "^2.7.1",
+    "typescript": "^4.7.0"
+  }
+}
