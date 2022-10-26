@@ -1,12 +1,10 @@
+// eslint-disable-next-line no-restricted-imports
+import {Internals} from 'remotion';
+
 let specifiedHeight: number | null;
 
 export const setHeight = (newHeight: number) => {
-	if (typeof newHeight !== 'number') {
-		throw new Error(
-			'--height flag / setHeight() must be a number, but got ' +
-				JSON.stringify(newHeight)
-		);
-	}
+	Internals.validateDimension(newHeight, 'height', 'passed to `setHeight()`');
 
 	specifiedHeight = newHeight;
 };
