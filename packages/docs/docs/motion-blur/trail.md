@@ -10,6 +10,8 @@ const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
 ```
 
+_available from v3.2.39, previously called `<MotionBlur>`_
+
 The `<Trail>` component duplicates it's children and adds a time offset to each layer in order to create a trail effect.
 
 For this technique to work, the children must be absolutely positioned so many layers can be created without influencing the layout.  
@@ -28,6 +30,8 @@ How many layers are added below the content. Must be an integer
 How many frames each layer is lagging behind the last one. Can also a floating point number.
 
 ### `trailOpacity`
+
+_previously called `blurOpacity`_
 
 The highest opacity of a layer. The lowest opacity is 0 and layers intbetween get interpolated.
 
