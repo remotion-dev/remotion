@@ -53,7 +53,7 @@ const LottiePumpkin: React.FC = () => {
 
 	return (
 		<div className="container" style={{height, width}}>
-			<Sequence from={0} durationInFrames={durationInFrames}>
+			<Sequence durationInFrames={durationInFrames}>
 				<Pumpkin />
 			</Sequence>
 			<Sequence from={30}>

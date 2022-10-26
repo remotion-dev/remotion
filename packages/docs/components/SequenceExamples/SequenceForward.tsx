@@ -45,15 +45,15 @@ const BlueSquare: React.FC = () => {
 
 const DelayExample: React.FC = () => {
   return (
-    <Sequence from={30} >
-      <BlueSquare/>
+    <Sequence from={30}>
+      <BlueSquare />
     </Sequence>
   );
 };
 
 const TrimStartExample: React.FC = () => {
   return (
-    <Sequence from={-15} >
+    <Sequence from={-15}>
       <BlueSquare />
     </Sequence>
   );
@@ -61,8 +61,8 @@ const TrimStartExample: React.FC = () => {
 
 const TrimAndDelayExample: React.FC = () => {
   return (
-    <Sequence from={30} >
-      <Sequence from={-15} >
+    <Sequence from={30}>
+      <Sequence from={-15}>
         <BlueSquare />
       </Sequence>
     </Sequence>
@@ -120,7 +120,7 @@ export const SequenceForwardExample: React.FC<{
           width: "100%",
         }}
         loop
-       />
+      />
     </div>
   );
 };

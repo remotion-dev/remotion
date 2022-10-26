@@ -64,7 +64,7 @@ Sometimes, you cannot avoid a render taking longer than 30 seconds. For example:
 You can increase the default timeout from v2.6.3 on:
 
 - Using the [`--timeout`](/docs/cli/render#--timeout) CLI flag
-- Using the `timeoutInMilliseconds` option in [`renderStill()`](/docs/render-still#timeoutinmilliseconds), [`renderFrames()`](/docs/render-frames#timeoutinmilliseconds), [`getCompositions()`](/docs/get-compositions#timeoutinmilliseconds), [`renderMedia()`](/docs/renderer/render-media#timeoutinmilliseconds), [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#timeoutinmilliseconds) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#timeoutinmilliseconds)
+- Using the `timeoutInMilliseconds` option in [`renderStill()`](/docs/renderer/render-still#timeoutinmilliseconds), [`renderFrames()`](/docs/renderer/render-frames#timeoutinmilliseconds), [`getCompositions()`](/docs/renderer/get-compositions#timeoutinmilliseconds), [`renderMedia()`](/docs/renderer/render-media#timeoutinmilliseconds), [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#timeoutinmilliseconds) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#timeoutinmilliseconds)
 - Using the [`Config.Puppeteer.setTimeoutInMilliseconds()`](/docs/config#settimeoutinmilliseconds) option in the config file
 
 ## Adding a label to help debugging

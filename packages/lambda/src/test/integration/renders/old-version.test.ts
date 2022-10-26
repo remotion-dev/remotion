@@ -36,7 +36,10 @@ test('Should fail when using an incompatible version', async () => {
 				frameRange: [0, 12],
 				framesPerLambda: 8,
 				imageFormat: 'png',
-				inputProps: {},
+				inputProps: {
+					type: 'payload',
+					payload: '{}',
+				},
 				logLevel: 'warn',
 				maxRetries: 3,
 				outName: null,

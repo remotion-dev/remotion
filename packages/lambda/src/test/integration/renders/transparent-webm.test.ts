@@ -42,7 +42,10 @@ test('Should make a transparent video', async () => {
 			frameRange: [0, 9],
 			framesPerLambda: 5,
 			imageFormat: 'png',
-			inputProps: {},
+			inputProps: {
+				type: 'payload',
+				payload: '{}',
+			},
 			logLevel: 'warn',
 			maxRetries: 3,
 			outName: 'out.webm',

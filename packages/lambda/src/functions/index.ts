@@ -54,7 +54,10 @@ export const handler = async <T extends LambdaRoutines>(
 			inputProps: JSON.stringify(params.inputProps),
 			isWarm,
 		});
-		return launchHandler(params, {expectedBucketOwner: currentUserId});
+		return launchHandler(params, {
+			expectedBucketOwner: currentUserId,
+			getRemainingTimeInMillis: context.getRemainingTimeInMillis,
+		});
 	}
 
 	if (params.type === LambdaRoutines.status) {

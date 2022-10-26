@@ -94,26 +94,6 @@ export const render = async (remotionRoot: string) => {
 		codec,
 	});
 
-	const relativeOutputLocation = getOutputFilename({
-		codec,
-		imageSequence: shouldOutputImageSequence,
-		compositionName: getCompositionId(),
-		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec, 'final'),
-	});
-
-	const absoluteOutputFile = getAndValidateAbsoluteOutputFile(
-		relativeOutputLocation,
-		overwrite
-	);
-
-	const compositionId = getCompositionId();
-
-	Log.info(
-		chalk.gray(
-			`Composition = ${compositionId}, Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
-		)
-	);
-
 	const ffmpegVersion = await RenderInternals.getFfmpegVersion({
 		ffmpegExecutable,
 	});
@@ -180,21 +160,33 @@ export const render = async (remotionRoot: string) => {
 		port,
 	});
 
-	const config = comps.find((c) => c.id === compositionId);
-
-	if (!config) {
-		throw new Error(`Cannot find composition with ID ${compositionId}`);
-	}
-  
-	config['height'] = height;
-	config['width'] = width;
-
+	const {compositionId, config, reason} = await getCompositionId(comps);
+	config.height = height;
+	config.width = width;
 	RenderInternals.validateEvenDimensionsWithCodec({
 		width: config.width,
 		height: config.height,
 		codec,
 		scale,
 	});
+
+	const relativeOutputLocation = getOutputFilename({
+		codec,
+		imageSequence: shouldOutputImageSequence,
+		compositionName: compositionId,
+		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec, 'final'),
+	});
+
+	Log.info(
+		chalk.gray(
+			`Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
+		)
+	);
+
+	const absoluteOutputFile = getAndValidateAbsoluteOutputFile(
+		relativeOutputLocation,
+		overwrite
+	);
 
 	const outputDir = shouldOutputImageSequence
 		? absoluteOutputFile
