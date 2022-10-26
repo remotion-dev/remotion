@@ -60,6 +60,7 @@ import {writePostRenderData} from './helpers/write-post-render-data';
 
 type Options = {
 	expectedBucketOwner: string;
+	getRemainingTimeInMillis: () => number;
 };
 
 const callFunctionWithRetry = async (
@@ -98,6 +99,12 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	const startedDate = Date.now();
 
 	let webhookInvoked = false;
+	console.log(
+		`Function has ${Math.max(
+			options.getRemainingTimeInMillis() - 1000,
+			1000
+		)} before it times out`
+	);
 	const webhookDueToTimeout = setTimeout(async () => {
 		if (params.webhook && !webhookInvoked) {
 			try {
@@ -139,7 +146,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 				console.log(err);
 			}
 		}
-	}, Math.max(params.timeoutInMilliseconds - 1000, 1000));
+	}, Math.max(options.getRemainingTimeInMillis() - 1000, 1000));
 
 	const [browserInstance, optimization] = await Promise.all([
 		getBrowserInstance(
