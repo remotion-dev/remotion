@@ -1,4 +1,4 @@
-let specifiedHeight: number;
+let specifiedHeight: number | null;
 
 export const setHeight = (newHeight: number) => {
 	if (typeof newHeight !== 'number') {
@@ -11,6 +11,6 @@ export const setHeight = (newHeight: number) => {
 	specifiedHeight = newHeight;
 };
 
-export const getHeight = (): number => {
+export const getHeight = (): number | null => {
 	return specifiedHeight;
 };
