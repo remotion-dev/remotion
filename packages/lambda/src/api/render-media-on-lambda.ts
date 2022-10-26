@@ -55,6 +55,8 @@ export type RenderMediaOnLambdaInput = {
 		url: string;
 		secret: string | null;
 	};
+	forceWidth?: number;
+	forceHeight?: number;
 };
 
 export type RenderMediaOnLambdaOutput = {
@@ -114,6 +116,8 @@ export const renderMediaOnLambda = async ({
 	audioBitrate,
 	videoBitrate,
 	webhook,
+	forceHeight,
+	forceWidth,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
@@ -165,6 +169,8 @@ export const renderMediaOnLambda = async ({
 				audioBitrate: audioBitrate ?? null,
 				videoBitrate: videoBitrate ?? null,
 				webhook: webhook ?? null,
+				height: forceHeight ?? null,
+				width: forceWidth ?? null,
 			},
 			region,
 		});
