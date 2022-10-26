@@ -9,32 +9,14 @@ type Levels = 'lvl0' | 'lvl1' | 'lvl2' | 'lvl3' | 'lvl4' | 'lvl5' | 'lvl6';
 
 type Hit = {
 	url: string;
-	content?: any;
 	type: Levels;
 	hierarchy: Record<Levels, string | null>;
 	objectID: string;
-	_snippetResult: any;
-	_highlightResult: any;
 };
 
-type AgoliaResults = {
+type AlgoliaResults = {
 	results: {
 		hits: Hit[];
-		nbHits: number;
-		page: number;
-		nbPages: number;
-		hitsPerPage: number;
-		exhaustiveNbHits: boolean;
-		exhaustiveTypo: boolean;
-		exhaustive: {
-			nbHits: boolean;
-			typo: boolean;
-		};
-		query: string;
-		params: string;
-		index: string;
-		renderingContent: any;
-		processingTimeMS: number;
 	}[];
 };
 
@@ -65,7 +47,7 @@ export const algoliaSearch = async (
 			],
 		}),
 		method: 'POST',
-	}).then((res) => res.json() as Promise<AgoliaResults>);
+	}).then((res) => res.json() as Promise<AlgoliaResults>);
 
 	const {hits} = results[0];
 
