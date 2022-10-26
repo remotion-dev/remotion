@@ -55,8 +55,8 @@ export type RenderMediaOnLambdaInput = {
 		url: string;
 		secret: string | null;
 	};
-	forceWidth?: number;
-	forceHeight?: number;
+	forceWidth?: number | null;
+	forceHeight?: number | null;
 };
 
 export type RenderMediaOnLambdaOutput = {

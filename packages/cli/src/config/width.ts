@@ -1,4 +1,4 @@
-let passedWidth: number;
+let passedWidth: number | null = null;
 
 export const setWidth = (newWidth: number) => {
 	if (typeof newWidth !== 'number') {
@@ -11,6 +11,6 @@ export const setWidth = (newWidth: number) => {
 	passedWidth = newWidth;
 };
 
-export const getWidth = (): number => {
+export const getWidth = (): number | null => {
 	return passedWidth;
 };

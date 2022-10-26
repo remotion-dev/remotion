@@ -19,7 +19,7 @@ import {
 	getFinalCodec,
 	validateFfmpegCanUseCodec,
 } from './get-cli-options';
-import {getCompositionId} from './get-composition-id';
+import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {getOutputFilename} from './get-filename';
 import {getRenderMediaOptions} from './get-render-media-options';
 import {Log} from './log';
@@ -160,9 +160,13 @@ export const render = async (remotionRoot: string) => {
 		port,
 	});
 
-	const {compositionId, config, reason} = await getCompositionId(comps);
-	config.height = height;
-	config.width = width;
+	const {compositionId, config, reason} =
+		await getCompositionWithDimensionOverride({
+			validCompositions: comps,
+			height,
+			width,
+		});
+
 	RenderInternals.validateEvenDimensionsWithCodec({
 		width: config.width,
 		height: config.height,
