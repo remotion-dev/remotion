@@ -6,8 +6,8 @@ slug: camera-motion-blur
 import { CameraMotionBlurExample } from "../../components/CameraMotionBlurExample/CameraMotionBlurExample";
 
 ```twoslash include example
-const BlueSquare: React.FC = () => <div></div>
-// - BlueSquare
+const RainbowSquare: React.FC = () => <div></div>
+// - RainbowSquare
 ```
 
 The `<CameraMotionBlur>` produces natural looking motion blur similar to what would be produced by
@@ -74,7 +74,7 @@ Recommended values: 5-10.
 ## Example usage
 
 ```tsx twoslash
-// @include: example-BlueSquare
+// @include: example-RainbowSquare
 // ---cut---
 import { CameraMotionBlur } from "@remotion/motion-blur";
 import { AbsoluteFill } from "remotion";
@@ -89,7 +89,7 @@ export const MyComposition = () => {
           alignItems: "center",
         }}
       >
-        <BlueSquare />
+        <RainbowSquare />
       </AbsoluteFill>
     </CameraMotionBlur>
   );
