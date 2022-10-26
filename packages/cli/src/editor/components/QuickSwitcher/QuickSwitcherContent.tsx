@@ -128,7 +128,7 @@ export const QuickSwitcherContent: React.FC = () => {
 		}
 
 		if (mode === 'docs') {
-			return [];
+			return docResults;
 		}
 
 		return fuzzySearch(
@@ -148,9 +148,10 @@ export const QuickSwitcherContent: React.FC = () => {
 		);
 	}, [
 		mode,
-		compositions,
 		actualQuery,
+		compositions,
 		menuActions,
+		docResults,
 		selectComposition,
 		setSelectedModal,
 	]);
@@ -258,8 +259,6 @@ export const QuickSwitcherContent: React.FC = () => {
 		inputRef.current?.focus();
 	}, []);
 
-	const completeResult = mode === 'docs' ? docResults : resultsArray;
-
 	return (
 		<div style={container}>
 			<div style={modeSelector}>
@@ -299,7 +298,7 @@ export const QuickSwitcherContent: React.FC = () => {
 				/>
 			</div>
 			<div style={results}>
-				{completeResult.map((result, i) => {
+				{resultsArray.map((result, i) => {
 					return (
 						<QuickSwitcherResult
 							key={result.id}
@@ -308,7 +307,7 @@ export const QuickSwitcherContent: React.FC = () => {
 						/>
 					);
 				})}
-				{completeResult.length === 0 ? (
+				{resultsArray.length === 0 ? (
 					<QuickSwitcherNoResults mode={mode} query={actualQuery} />
 				) : null}
 			</div>
