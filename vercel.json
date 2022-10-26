@@ -22,7 +22,7 @@
     },
     {
       "source": "/timeout",
-      "destination": "https://remotion.dev/docs/timeout",
+      "destination": "/docs/timeout",
       "permanent": false
     },
     {
@@ -32,32 +32,32 @@
     },
     {
       "source": "/skia",
-      "destination": "https://remotion.dev/docs/skia",
+      "destination": "/docs/skia",
       "permanent": false
     },
     {
       "source": "/gif",
-      "destination": "https://remotion.dev/docs/gif",
+      "destination": "/docs/gif",
       "permanent": false
     },
     {
       "source": "/lottie",
-      "destination": "https://remotion.dev/docs/lottie",
+      "destination": "/docs/lottie",
       "permanent": false
     },
     {
       "source": "/paths",
-      "destination": "https://remotion.dev/docs/paths",
+      "destination": "/docs/paths",
       "permanent": false
     },
     {
       "source": "/api",
-      "destination": "https://remotion.dev/docs/api",
+      "destination": "/docs/api",
       "permanent": false
     },
     {
       "source": "/terminology",
-      "destination": "https://remotion.dev/docs/terminology",
+      "destination": "/docs/terminology",
       "permanent": false
     },
     {
@@ -67,17 +67,37 @@
     },
     {
       "source": "/motion-blur",
-      "destination": "https://remotion.dev/docs/motion-blur",
+      "destination": "/docs/motion-blur",
       "permanent": false
     },
     {
       "source": "/noise",
-      "destination": "https://remotion.dev/docs/noise",
+      "destination": "/docs/noise",
       "permanent": false
     },
     {
       "source": "/docs/get-audio-duration",
       "destination": "/docs/get-audio-duration-in-seconds",
+      "permanent": true
+    },
+    {
+      "source": "/docs/get-compositions",
+      "destination": "/docs/renderer/get-compositions",
+      "permanent": true
+    },
+    {
+      "source": "/docs/stitch-frames-to-video",
+      "destination": "/docs/renderer/stitch-frames-to-video",
+      "permanent": true
+    },
+    {
+      "source": "/docs/render-still",
+      "destination": "/docs/renderer/render-still",
+      "permanent": true
+    },
+    {
+      "source": "/docs/render-frames",
+      "destination": "/docs/renderer/render-frames",
       "permanent": true
     }
   ]
