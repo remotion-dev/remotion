@@ -5,8 +5,6 @@ slug: trail
 
 import { TrailExample } from "../../components/TrailExample/TrailExample";
 
-import {TableOfContents} from '../../components/TableOfContents/motion-blur';
-
 ```twoslash include example
 const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
@@ -68,10 +66,6 @@ export const MyComposition = () => {
 ## Demo
 
 <TrailExample />
-
-## Functions
-
-<TableOfContents />
 
 ## Credits
 
