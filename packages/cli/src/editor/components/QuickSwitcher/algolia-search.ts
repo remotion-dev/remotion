@@ -38,7 +38,7 @@ type AgoliaResults = {
 	}[];
 };
 
-export const agoliaSearch = async (
+export const algoliaSearch = async (
 	query: string
 ): Promise<TQuickSwitcherResult[]> => {
 	const url = new URL(AGOLIA_SEARCH_URL);
