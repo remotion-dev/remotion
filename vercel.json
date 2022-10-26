@@ -99,6 +99,11 @@
       "source": "/docs/render-frames",
       "destination": "/docs/renderer/render-frames",
       "permanent": true
+    },
+    {
+      "source": "/docs/motion-blur/motion-blur",
+      "destination": "/docs/motion-blur/trail",
+      "permanent": true
     }
   ]
 }
