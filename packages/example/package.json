@@ -41,7 +41,7 @@
 		"@remotion/three": "3.2.38",
 		"@types/express": "^4.17.11",
 		"@types/node": "^16.7.5",
-		"@types/react": "18.0.1",
+		"@types/react": "18.0.23",
 		"@types/styled-components": "^5.1.1",
 		"@types/web": "0.0.48",
 		"babel-loader": "^8.2.2",
