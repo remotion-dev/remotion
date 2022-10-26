@@ -74,6 +74,11 @@
       "source": "/noise",
       "destination": "https://remotion.dev/docs/noise",
       "permanent": false
+    },
+    {
+      "source": "/docs/get-audio-duration",
+      "destination": "/docs/get-audio-duration-in-seconds",
+      "permanent": true
     }
   ]
 }
