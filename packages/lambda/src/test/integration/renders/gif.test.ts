@@ -41,7 +41,10 @@ test('Should make a distributed GIF', async () => {
 			frameRange: [0, 60],
 			framesPerLambda: 8,
 			imageFormat: 'png',
-			inputProps: {},
+			inputProps: {
+				type: 'payload',
+				payload: '{}',
+			},
 			logLevel: 'warn',
 			maxRetries: 3,
 			outName: 'out.gif',
