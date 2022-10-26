@@ -1,8 +1,8 @@
 import {truthy} from '../../../truthy';
 import type {TQuickSwitcherResult} from './QuickSwitcherResult';
 
-const AGOLIA_API_KEY = '3e42dbd4f895fe93ff5cf40d860c4a85';
-const AGOLIA_APPLICATION_ID = 'PLSDUOL1CA';
+const ALGOLIA_API_KEY = '3e42dbd4f895fe93ff5cf40d860c4a85';
+const ALGOLIA_APPLICATION_ID = 'PLSDUOL1CA';
 const AGOLIA_SEARCH_URL =
 	'https://plsduol1ca-dsn.algolia.net/1/indexes/*/queries';
 
@@ -46,8 +46,8 @@ export const algoliaSearch = async (
 		'x-algolia-agen',
 		encodeURIComponent('Remotion Preview DocSearch')
 	);
-	url.searchParams.set('x-algolia-api-key', AGOLIA_API_KEY);
-	url.searchParams.set('x-algolia-application-id', AGOLIA_APPLICATION_ID);
+	url.searchParams.set('x-algolia-api-key', ALGOLIA_API_KEY);
+	url.searchParams.set('x-algolia-application-id', ALGOLIA_APPLICATION_ID);
 
 	const {results} = await fetch(url.toString(), {
 		headers: {

@@ -8,9 +8,9 @@ const container: React.CSSProperties = {
 	fontSize: 14,
 };
 
-export type Mode = 'commands' | 'compositions' | 'docs';
+export type QuickSwitcherMode = 'commands' | 'compositions' | 'docs';
 
-const MODE_TO_STRING: {[key in Mode]: string} = {
+const MODE_TO_STRING: {[key in QuickSwitcherMode]: string} = {
 	commands: 'commands',
 	compositions: 'compositions',
 	docs: 'documentation',
@@ -18,7 +18,7 @@ const MODE_TO_STRING: {[key in Mode]: string} = {
 
 export const QuickSwitcherNoResults: React.FC<{
 	query: string;
-	mode: Mode;
+	mode: QuickSwitcherMode;
 }> = ({query, mode}) => {
 	return (
 		<div style={container}>
