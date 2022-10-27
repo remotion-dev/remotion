@@ -1,4 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
+import type {KeyboardEvent} from 'react';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
@@ -94,6 +95,15 @@ export const MenuItem: React.FC<{
 		onItemSelected(id);
 		(document.activeElement as HTMLDivElement).blur();
 	}, [id, onItemSelected]);
+	const onKeyDown = useCallback(
+		(evt: KeyboardEvent) => {
+			if (evt.key === 'Enter') {
+				evt.preventDefault();
+				onClick();
+			}
+		},
+		[onClick]
+	);
 
 	const outerStyle = useMemo(() => {
 		return {
@@ -108,6 +118,7 @@ export const MenuItem: React.FC<{
 				ref={ref}
 				role="button"
 				tabIndex={tabIndex}
+				onKeyDown={onKeyDown}
 				onPointerEnter={onPointerEnter}
 				onPointerLeave={onPointerLeave}
 				onClick={onClick}
