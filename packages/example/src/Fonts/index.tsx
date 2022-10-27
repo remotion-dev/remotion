@@ -1,19 +1,11 @@
+import {loadFont} from '@remotion/google-fonts/Montserrat';
 import React from 'react';
-import {AbsoluteFill, continueRender, delayRender, staticFile} from 'remotion';
+import {AbsoluteFill} from 'remotion';
 
-const waitForFont = delayRender();
-const font = new FontFace(
-	`Bangers`,
-	`url(${staticFile('bangers.woff2')}) format('woff2')`
-);
-
-font
-	.load()
-	.then(() => {
-		document.fonts.add(font);
-		continueRender(waitForFont);
-	})
-	.catch((err) => console.log('Error loading font', err));
+loadFont('italic', {
+	subsets: ['latin', 'latin-ext', 'vietnamese'],
+	weights: ['400'],
+});
 
 export const FontDemo: React.FC = () => {
 	return (
