@@ -11,11 +11,6 @@ import { Font, googleFonts } from "./google-fonts";
 const OUTDIR = "./src";
 const CSS_CACHE_DIR = "./.cache-css";
 
-if (process.env.CI) {
-  console.log("Not generating fonts in CI.");
-  process.exit(0);
-}
-
 const generate = async (font: Font) => {
   // Prepare filename
   let importName = font.family.replace(/\s/g, "");
