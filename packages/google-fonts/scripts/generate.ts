@@ -5,43 +5,35 @@ import postcss from "postcss";
 import prettier from "prettier";
 import PQueue from "p-queue";
 
-import { getCssLink, unqoute, quote } from "./utils.mjs";
+import { getCssLink, unqoute, quote } from "./utils";
+import { Font, googleFonts } from "./google-fonts";
 
 const OUTDIR = "./src";
 const CSS_CACHE_DIR = "./.cache-css";
-const FONTDATA_FILE = "./google-fonts.json";
 
 if (process.env.CI) {
   console.log("Not generating fonts in CI.");
   process.exit(0);
 }
 
-const generate = async (font) => {
-  // Prepare info data
-  let info = {
-    fontFamily: font.family.replace(/^['"]/g, "").replace(/['"]$/g, ""),
-    importName: font.family.replace(/\s/g, ""),
-    version: font.version,
-    url: null,
-    unicodeRanges: {},
-    fonts: {},
-  };
-
+const generate = async (font: Font) => {
   // Prepare filename
-  const filename = `${info.importName}.ts`;
+  let importName = font.family.replace(/\s/g, "");
+  const filename = `${importName}.ts`;
   const cssname = `${font.family.toLowerCase().replace(/\s/g, "_")}_${
     font.version
   }.css`;
 
   // Get css link
-  info.url = getCssLink(font);
+  const url = getCssLink(font);
 
   //  Read css from cache, otherwise from url
-  let css,
-    cssFile = path.resolve(CSS_CACHE_DIR, cssname);
+  let css: null | string = null;
+  let fontFamily: null | string = null;
+  let cssFile = path.resolve(CSS_CACHE_DIR, cssname);
   if (!fs.existsSync(cssFile)) {
     //  Get from url with user agent that support woff2
-    let res = await axios.get(info.url, {
+    let res = await axios.get(url, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36",
@@ -54,24 +46,29 @@ const generate = async (font) => {
     css = res.data;
   } else {
     // Read css from cache
-    css = await fs.promises.readFile(cssFile);
+    css = await fs.promises.readFile(cssFile, "utf-8");
   }
 
+  if (!css) {
+    throw new Error("no css");
+  }
   // Parse CSS
   let ast = postcss.parse(css);
+  let unicodeRanges: Record<string, string> = {};
+  let fonts: Record<string, Record<string, Record<string, string>>> = {};
   for (const node of ast.nodes) {
     //  Only process @font-face
-    if (node.type != "atrule" && node.name != "font-face") continue;
+    if (node.type !== "atrule" || node.name != "font-face") continue;
 
     //  Check subset info before @font-face block
     let prev = node.prev();
-    if (prev.type != "comment") continue;
+    if (!prev || prev.type != "comment") continue;
 
-    let style,
-      weight,
-      src,
-      unicodeRange,
-      subset = prev.text;
+    let style: null | string = null;
+    let weight: null | string = null;
+    let src: null | string = null;
+    let unicodeRange: null | string = null;
+    let subset: null | string = prev.text;
 
     //  Parse fontFamily
     node.walkDecls("font-fontFamily", (decl, _) => {
@@ -98,7 +95,7 @@ const generate = async (font) => {
 
     //  Parse url to font file
     node.walkDecls("src", (decl, _) => {
-      src = decl.value.match(/url\((.+?)\)/)?.[1];
+      src = decl.value.match(/url\((.+?)\)/)?.[1] as string;
     });
 
     //  Parse unicode-range
@@ -106,16 +103,34 @@ const generate = async (font) => {
       unicodeRange = decl.value;
     });
 
+    if (!style) throw Error("no style");
+    if (!weight) throw Error("no weight");
+    if (!subset) throw Error("no subset");
+    if (!unicodeRange) throw Error("no unicodeRange");
+    if (!src) throw Error("no src");
+
     //  Set unicode range data
-    info.unicodeRanges[subset] = unicodeRange;
+    unicodeRanges[subset] = unicodeRange;
 
     //  Set font url
-    info.fonts[style] ??= {};
-    info.fonts[style][weight] ??= {};
-    info.fonts[style][weight][subset] = src;
+    fonts[style] ??= {};
+    fonts[style][weight] ??= {};
+    fonts[style][weight][subset] = src;
   }
 
   console.log(`- Generating ${filename}`);
+
+  // Prepare info data
+  const info = {
+    fontFamily:
+      fontFamily ?? font.family.replace(/^['"]/g, "").replace(/['"]$/g, ""),
+    importName,
+    version: font.version,
+    url,
+    unicodeRanges,
+    fonts,
+  };
+
   let output = `import { loadFonts } from "./base";
 
 export const info = ${JSON.stringify(info, null, 3)}
@@ -124,7 +139,7 @@ export const fontFamily = info.fontFamily;
 
 type Variants = {\n`;
 
-  for (const [style, val] of Object.entries(info.fonts)) {
+  for (const [style, val] of Object.entries(fonts)) {
     output += `  ${style}: {\n`;
     output += `    weights: ${Object.keys(val).map(quote).join(" | ")},\n`;
     output += `    subsets: ${font.subsets.map(quote).join(" | ")},\n`;
@@ -164,18 +179,13 @@ const run = async () => {
     await fs.promises.mkdir(CSS_CACHE_DIR, { recursive: true });
   }
 
-  // Read font list from google fonts api response
-  const fontData = JSON.parse(
-    await fs.promises.readFile(FONTDATA_FILE, "utf-8")
-  );
-
   // create queue
   const queue = new PQueue({
     concurrency: 5,
   });
 
   // Batch convert
-  for (const font of fontData.items) {
+  for (const font of googleFonts) {
     queue.add(async () => await generate(font));
   }
 
