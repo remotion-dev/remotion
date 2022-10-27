@@ -28,11 +28,11 @@ Inline JSON string isn't supported on Windows because it removes the `"` charact
 
 ### `--height`
 
-[Set custom height for the render.](/docs/config#setheight)
+[Specify new height (in pixels) for the rendered video.](/docs/config#setheight) Must be an even positive integer for h264 videos.
 
 ### `--width`
 
-[Set custom width for the render.](/docs/config#setwidth)
+[Specify new width (in pixels) for the rendered video.](/docs/config#setwidth) Must be an even positive integer for h264 videos.
 
 ### `--concurrency`
 

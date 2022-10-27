@@ -100,6 +100,14 @@ _optional - default `{}`_
 
 See [`renderMedia() -> envVariables`](/docs/renderer/render-media#envvariables).
 
+### `height`
+
+Specify height of the output image in pixels.
+
+### `width`
+
+Specify width of the output image in pixels.
+
 ### `scale`
 
 _optional_
