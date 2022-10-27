@@ -1,4 +1,4 @@
-import type {MouseEventHandler} from 'react';
+import type {KeyboardEvent, MouseEvent} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import type {TComposition} from 'remotion';
 import {
@@ -96,9 +96,9 @@ export const CompositionSelectorItem: React.FC<{
 		};
 	}, [hovered, level, selected]);
 
-	const onClick: MouseEventHandler = useCallback(
-		(evt) => {
-			evt.preventDefault();
+	const onClick = useCallback(
+		(evt?: MouseEvent) => {
+			evt?.preventDefault?.();
 			if (item.type === 'composition') {
 				selectComposition(item.composition, true);
 			} else {
@@ -106,6 +106,16 @@ export const CompositionSelectorItem: React.FC<{
 			}
 		},
 		[item, selectComposition, toggleFolder]
+	);
+
+	const onKeyDown = useCallback(
+		(evt: KeyboardEvent) => {
+			if (evt.key === 'Enter') {
+				evt.preventDefault();
+				onClick();
+			}
+		},
+		[onClick]
 	);
 
 	if (item.type === 'folder') {
@@ -117,6 +127,7 @@ export const CompositionSelectorItem: React.FC<{
 					onPointerLeave={onPointerLeave}
 					tabIndex={tabIndex}
 					onClick={onClick}
+					onKeyDown={onKeyDown}
 					type="button"
 				>
 					{item.expanded ? (
