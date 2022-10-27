@@ -42,20 +42,20 @@ export const Index: React.FC = () => {
 		<>
 			<Folder name="components">
 				<Composition
-					id="iframe"
-					lazyComponent={() => import('./IframeTest')}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={10}
-				/>
-				<Composition
 					id="looped"
 					lazyComponent={() => import('./LoopedVideo')}
 					durationInFrames={200}
 					fps={60}
 					height={1080}
 					width={1080}
+				/>
+				<Composition
+					id="iframe"
+					lazyComponent={() => import('./IframeTest')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={10}
 				/>
 				<Composition
 					id="stagger-test"
