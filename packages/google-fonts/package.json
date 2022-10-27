@@ -9,7 +9,7 @@
   },
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
-    "remotion": "3.2.35"
+    "remotion": "3.2.39"
   },
   "devDependencies": {
     "@types/css-font-loading-module": "^0.0.7",
