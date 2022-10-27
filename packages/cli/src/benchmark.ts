@@ -8,6 +8,7 @@ import {
 import path from 'path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
+import { getEntryPoint } from './entry-point';
 import {getCliOptions, getFinalCodec} from './get-cli-options';
 import {getRenderMediaOptions} from './get-render-media-options';
 import {Log} from './log';
@@ -135,11 +136,11 @@ const makeBenchmarkProgressBar = ({
 
 export const benchmarkCommand = async (
 	remotionRoot: string,
-	args: string[]
 ) => {
 	const runs: number = parsedCli.runs ?? DEFAULT_RUNS;
+	const args = parsedCli._.slice(1);
 
-	const filePath = args[0];
+	const filePath = getEntryPoint();
 
 	if (!filePath) {
 		Log.error('No entry file passed.');

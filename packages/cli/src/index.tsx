@@ -71,7 +71,7 @@ export const cli = async () => {
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot);
 		} else if (command === 'benchmark') {
-			await benchmarkCommand(remotionRoot, parsedCli._.slice(1));
+			await benchmarkCommand(remotionRoot);
 		} else if (command === 'help') {
 			printHelp();
 			process.exit(0);

@@ -2,6 +2,7 @@ import betterOpn from 'better-opn';
 import path from 'path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
+import { getEntryPoint } from './entry-point';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
 import {getNetworkAddress} from './get-network-address';
@@ -34,7 +35,7 @@ const waitForLiveEventsListener = (): Promise<LiveEventsServer> => {
 };
 
 export const previewCommand = async (remotionRoot: string) => {
-	const file = parsedCli._[1];
+	const file = getEntryPoint();
 
 	if (!file) {
 		Log.error(

@@ -91,11 +91,13 @@ import {setQuality} from './quality';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
 import {setWebpackCaching} from './webpack-caching';
+import { getEntryPoint, setEntryPoint } from './entry-point';
 
 export const Config: ConfigType = {
 	Preview: {
 		setMaxTimelineTracks,
 		setKeyboardShortcutsEnabled,
+		setEntryPoint,
 	},
 	Bundling: {
 		overrideWebpackConfig,
@@ -190,6 +192,7 @@ export const ConfigInternals = {
 	getAudioBitrate,
 	getVideoBitrate,
 	getCrfOrUndefined,
+	getEntryPoint,
 };
 
 export const overrideRemotion = () => {
