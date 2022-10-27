@@ -8,7 +8,6 @@ import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
 import {FramePersistor} from './FramePersistor';
 import {GlobalKeybindings} from './GlobalKeybindings';
-import {KeyboardShortcuts} from './KeyboardShortcutsModal';
 import NewComposition from './NewComposition/NewComposition';
 import {NoRegisterRoot} from './NoRegisterRoot';
 import {NotificationCenter} from './Notifications/NotificationCenter';
@@ -66,7 +65,10 @@ export const Editor: React.FC = () => {
 
 					{modalContextType && modalContextType.type === 'quick-switcher' && (
 						// Quick switcher here because requires timeline zoom ctx
-						<QuickSwitcher />
+						<QuickSwitcher
+							invocationTimestamp={modalContextType.invocationTimestamp}
+							initialMode={modalContextType.mode}
+						/>
 					)}
 				</div>
 			</TimelineZoomContext>
@@ -77,9 +79,6 @@ export const Editor: React.FC = () => {
 
 			{modalContextType && modalContextType.type === 'update' && (
 				<UpdateModal info={modalContextType.info} />
-			)}
-			{modalContextType && modalContextType.type === 'shortcuts' && (
-				<KeyboardShortcuts />
 			)}
 		</HigherZIndex>
 	);
