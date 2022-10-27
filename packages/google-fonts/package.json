@@ -1,7 +1,7 @@
 {
   "name": "@remotion/google-fonts",
   "version": "3.2.39",
-  "description": "Google Fonts support for remotion",
+  "description": "Load Google Fonts in Remotion",
   "scripts": {
     "build": "tsc -d",
     "watch": "tsc -w",
