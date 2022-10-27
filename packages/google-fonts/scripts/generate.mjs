@@ -11,10 +11,16 @@ const OUTDIR = "./src";
 const CSS_CACHE_DIR = "./.cache-css";
 const FONTDATA_FILE = "./google-fonts.json";
 
+if (process.env.CI) {
+  console.log("Not generating fonts in CI.");
+  process.exit(0);
+}
+
 const generate = async (font) => {
   // Prepare info data
   let info = {
-    fontFamily: font.family,
+    fontFamily: font.family.replace(/^['"]/g, "").replace(/['"]$/g, ""),
+    importName: font.family.replace(/\s/g, ""),
     version: font.version,
     url: null,
     unicodeRanges: {},
@@ -22,7 +28,7 @@ const generate = async (font) => {
   };
 
   // Prepare filename
-  const filename = `${font.family.replace(/\s/g, "")}.ts`;
+  const filename = `${info.importName}.ts`;
   const cssname = `${font.family.toLowerCase().replace(/\s/g, "_")}_${
     font.version
   }.css`;

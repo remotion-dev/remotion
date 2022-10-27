@@ -3,9 +3,9 @@
   "version": "3.2.39",
   "description": "Load Google Fonts in Remotion",
   "scripts": {
-    "build": "node scripts/generate.mjs && tsc -d",
+    "build": "pnpm run generate && tsc -d",
     "watch": "tsc -w",
-    "generate": "node scripts/generate.mjs",
+    "generate": "node scripts/generate.mjs && node scripts/generate-index.mjs",
     "prepublishOnly": "node ensure-generation.js"
   },
   "license": "SEE LICENSE IN LICENSE.md",
