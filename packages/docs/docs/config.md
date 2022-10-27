@@ -488,6 +488,36 @@ Config.Output.setImageSequence(true);
 
 The [command line flag](/docs/cli/render#--sequence) `--sequence` will take precedence over this option.
 
+### setHeight()
+
+_Available from Version_
+
+Sets/Overrides the height of the rendered video.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Output.setHeight(600);
+```
+
+The [command line flag](/docs/cli/render#--height) `--height` will take precedence over this option.
+(see h264 validation?)
+
+### setWidth()
+
+_Available from Version_
+
+Sets/Overrides the width of the rendered video.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Output.setWidth(900);
+```
+
+
+The [command line flag](/docs/cli/render#--width) `--width` will take precedence over this option
+
 ### ~~setOutputFormat()~~
 
 _Deprecated_. Use `setCodec()` and `setImageSequence()` instead.

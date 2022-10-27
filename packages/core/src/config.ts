@@ -228,19 +228,22 @@ export type ConfigType = {
 		 */
 		readonly setImageSequence: (newImageSequence: boolean) => void;
 		/**
+		 * Override the output video's height.
+		 * Ovverrides natural height of the video.
+		 * See h264 restriction
+		 */
+		readonly setHeight: (newHeight: number) => void;
+		/**
+		 * Set new width.
+		 * Overrides natural width of the video.
+		 */
+		readonly setWidth: (newWidth: number) => void;
+		/**
 		 * Set the ProRes profile.
 		 * This method is only valid if the codec has been set to 'prores'.
 		 * Possible values: 4444-xq, 4444, hq, standard, light, proxy. Default: 'hq'
 		 * See https://avpres.net/FFmpeg/im_ProRes.html for meaning of possible values.
 		 */
-		readonly setHeight: (newHeigh: number) => void;
-		 /**
-			* Set new height.
-			*/
-		readonly setWidth: (newWidth: number) => void;
-		 /**
-			* Set new width.
-			*/
 		readonly setProResProfile: (
 			profile:
 				| '4444-xq'
