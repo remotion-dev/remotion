@@ -5,6 +5,8 @@ export const unqoute = (str: string) =>
 
 export const quote = (str: string) => `'${str}'`;
 
+export const removeWhitespace = (str: string) => str.replace(/\s/g, "");
+
 export const getCssLink = (font: Font) => {
   let url = "https://fonts.googleapis.com/css2?family=";
   url += font.family.replace(/ /g, "+");
