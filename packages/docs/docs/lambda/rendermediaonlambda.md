@@ -85,6 +85,15 @@ Audio codecs `mp3`, `aac` and `wav` are also supported.
 
 See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
 
+
+### `height`
+
+Specifies new height. See also [`renderMedia() -> height`](/docs/renderer/render-media#height).
+
+### `width`
+
+Specifies new width. See also [`renderMedia() -> height`](/docs/renderer/render-media#height).
+
 ### `muted`
 
 Disables audio output. See also [`renderMedia() -> muted`](/docs/renderer/render-media#muted).

@@ -192,6 +192,14 @@ If a custom out name is specified and a file already exists at this key in the S
 
 An existing file at the output S3 key will conflict with the render and must be deleted beforehand. If this setting is `false` and a conflict occurs, an error will be thrown.
 
+### `--height`
+
+[Specify new height (in pixels) for the rendered video.](/docs/config#setheight) Must be an even positive integer for h264 videos.
+
+### `--width`
+
+[Specify new width (in pixels) for the rendered video.](/docs/config#setwidth) Must be an even positive integer for h264 videos.
+
 ### `--webhook`
 
 _available from v3.2.30_

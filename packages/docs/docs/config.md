@@ -492,7 +492,7 @@ The [command line flag](/docs/cli/render#--sequence) `--sequence` will take prec
 
 _Available from Version_
 
-Sets/Overrides the height of the rendered video.
+Sets/Overrides the height of the rendered video. Must be an even positive integer for h264 videos.
 
 ```ts twoslash
 import { Config } from "remotion";
@@ -507,14 +507,13 @@ The [command line flag](/docs/cli/render#--height) `--height` will take preceden
 
 _Available from Version_
 
-Sets/Overrides the width of the rendered video.
+Sets/Overrides the width of the rendered video. Must be an even positive integer for h264 videos.
 
 ```ts twoslash
 import { Config } from "remotion";
 // ---cut---
 Config.Output.setWidth(900);
 ```
-
 
 The [command line flag](/docs/cli/render#--width) `--width` will take precedence over this option
 
