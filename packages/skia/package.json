@@ -38,7 +38,7 @@
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"react": "18.0.0",
 		"react-dom": "18.0.0",
-		"remotion": "3.2.30",
+		"remotion": "3.2.39",
 		"typescript": "^4.7.0"
 	},
 	"keywords": [
