@@ -2,7 +2,7 @@ import type {} from "css-font-loading-module";
 import { continueRender, delayRender } from "remotion";
 
 const loadedFonts: { [key: string]: boolean } = {};
-export type Info = {
+export type FontInfo = {
   fontFamily: string;
   importName: string;
   version: string;
@@ -12,13 +12,17 @@ export type Info = {
 };
 
 export const loadFonts = (
-  meta: Info,
+  meta: FontInfo,
   style?: string,
   options?: {
     weights?: string[];
     subsets?: string[];
   }
-): { fontFamily: string } => {
+): {
+  fontFamily: FontInfo["fontFamily"];
+  fonts: FontInfo["fonts"];
+  unicodeRanges: FontInfo["unicodeRanges"];
+} => {
   const styles = style ? [style] : Object.keys(meta.fonts);
   for (const style of styles) {
     if (!meta.fonts[style]) {
@@ -92,5 +96,7 @@ export const loadFonts = (
 
   return {
     fontFamily: meta.fontFamily,
+    fonts: meta.fonts,
+    unicodeRanges: meta.unicodeRanges,
   };
 };
