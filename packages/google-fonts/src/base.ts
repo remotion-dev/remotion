@@ -30,7 +30,7 @@ export const loadFonts = (
         `The font ${meta.fontFamily} does not have a style ${style}`
       );
     }
-    const weights = options?.weights ?? Object.keys(meta.fonts[style].weights);
+    const weights = options?.weights ?? Object.keys(meta.fonts[style]);
     for (const weight of weights) {
       if (!meta.fonts[style][weight]) {
         throw new Error(

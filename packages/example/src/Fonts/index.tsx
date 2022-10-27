@@ -1,10 +1,9 @@
-import {loadFont} from '@remotion/google-fonts/AreYouSerious';
+import {loadFont} from '@remotion/google-fonts/Genos';
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 
 const {fontFamily} = loadFont('normal', {
-	subsets: ['latin', 'latin-ext', 'vietnamese'],
-	weights: ['400'],
+	weights: ['900', '500'],
 });
 
 export const FontDemo: React.FC = () => {
@@ -14,7 +13,7 @@ export const FontDemo: React.FC = () => {
 				justifyContent: 'center',
 				alignItems: 'center',
 				fontFamily,
-				fontSize: 100,
+				fontSize: 200,
 				backgroundColor: 'whitesmoke',
 			}}
 		>
