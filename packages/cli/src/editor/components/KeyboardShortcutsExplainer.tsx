@@ -1,20 +1,13 @@
-import React, {useCallback, useContext} from 'react';
+import React from 'react';
+import {cmdOrCtrlCharacter} from '../../preview-server/error-overlay/remotion-overlay/ShortcutHint';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {ArrowLeft, ArrowRight, ShiftIcon} from '../icons/keys';
-import {ModalsContext} from '../state/modals';
 import {Column, Row, Spacing} from './layout';
-import {ModalContainer} from './ModalContainer';
-import {NewCompHeader} from './ModalHeader';
 
 const left: React.CSSProperties = {
-	width: 100,
+	width: 85,
 	paddingTop: 8,
 	paddingBottom: 8,
-};
-
-const shortLeft: React.CSSProperties = {
-	...left,
-	width: 40,
 };
 
 const key: React.CSSProperties = {
@@ -63,16 +56,9 @@ const li: React.CSSProperties = {
 	fontSize: 14,
 };
 
-export const KeyboardShortcuts: React.FC = () => {
-	const {setSelectedModal} = useContext(ModalsContext);
-
-	const onQuit = useCallback(() => {
-		setSelectedModal(null);
-	}, [setSelectedModal]);
-
+export const KeyboardShortcutsExplainer: React.FC = () => {
 	return (
-		<ModalContainer onEscape={onQuit} onOutsideClick={onQuit}>
-			<NewCompHeader title="Keyboard shortcuts" />
+		<div>
 			{areKeyboardShortcutsDisabled() ? (
 				<div style={keyboardShortcutsDisabled}>
 					Keyboard shortcuts disabled either due to:
@@ -134,9 +120,6 @@ export const KeyboardShortcuts: React.FC = () => {
 						</div>
 						<div style={right}>1 second forward</div>
 					</Row>
-
-					<br />
-					<br />
 					<Row align="center">
 						<div style={left}>
 							<kbd style={key}>A</kbd>
@@ -149,8 +132,6 @@ export const KeyboardShortcuts: React.FC = () => {
 						</div>
 						<div style={right}>Jump to end</div>
 					</Row>
-					<br />
-					<br />
 					<Row align="center">
 						<div style={left}>
 							<kbd style={key}>J</kbd>
@@ -175,44 +156,53 @@ export const KeyboardShortcuts: React.FC = () => {
 						</div>
 						<div style={right}>Pause & return to playback start</div>
 					</Row>
+					<br />
 				</Column>
 				<Spacing x={8} />
 				<Column>
 					<div style={title}>Navigation</div>
 					<Row align="center">
-						<div style={shortLeft}>
+						<div style={left}>
 							<kbd style={key}>N</kbd>
 						</div>
 						<div style={right}>New composition</div>
 					</Row>
 					<Row align="center">
-						<div style={shortLeft}>
+						<div style={left}>
 							<kbd style={key}>T</kbd>
 						</div>
 						<div style={right}>Toggle checkerboard transparency</div>
 					</Row>
 					<Row align="center">
-						<div style={shortLeft}>
+						<div style={left}>
 							<kbd style={key}>?</kbd>
 						</div>
 						<div style={right}>Show keyboard shortcuts</div>
 					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>K</kbd>
+						</div>
+						<div style={right}>Quick Switcher</div>
+					</Row>
 					<br />
 					<div style={title}>Playback range</div>
 					<Row align="center">
-						<div style={shortLeft}>
+						<div style={left}>
 							<kbd style={key}>I</kbd>
 						</div>
 						<div style={right}>Set In Point</div>
 					</Row>
 					<Row align="center">
-						<div style={shortLeft}>
+						<div style={left}>
 							<kbd style={key}>O</kbd>
 						</div>
 						<div style={right}>Set Out Point</div>
 					</Row>
 					<Row align="center">
-						<div style={shortLeft}>
+						<div style={left}>
 							<kbd style={key}>X</kbd>
 						</div>
 						<div style={right}>Clear In/Out Points</div>
@@ -220,25 +210,25 @@ export const KeyboardShortcuts: React.FC = () => {
 					<br />
 					<div style={title}>Zoom</div>
 					<Row align="center">
-						<div style={shortLeft}>
+						<div style={left}>
 							<kbd style={key}>+</kbd>
 						</div>
 						<div style={right}>Zoom in</div>
 					</Row>
 					<Row align="center">
-						<div style={shortLeft}>
+						<div style={left}>
 							<kbd style={key}>-</kbd>
 						</div>
 						<div style={right}>Zoom out</div>
 					</Row>
 					<Row align="center">
-						<div style={shortLeft}>
+						<div style={left}>
 							<kbd style={key}>0</kbd>
 						</div>
 						<div style={right}>Reset zoom</div>
 					</Row>
 				</Column>
 			</Row>
-		</ModalContainer>
+		</div>
 	);
 };

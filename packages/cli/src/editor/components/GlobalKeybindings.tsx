@@ -27,6 +27,8 @@ export const GlobalKeybindings: React.FC = () => {
 			callback: () => {
 				setSelectedModal({
 					type: 'quick-switcher',
+					mode: 'compositions',
+					invocationTimestamp: Date.now(),
 				});
 			},
 			commandCtrlKey: true,
@@ -45,7 +47,9 @@ export const GlobalKeybindings: React.FC = () => {
 			key: '?',
 			callback: () => {
 				setSelectedModal({
-					type: 'shortcuts',
+					type: 'quick-switcher',
+					mode: 'docs',
+					invocationTimestamp: Date.now(),
 				});
 			},
 			commandCtrlKey: false,

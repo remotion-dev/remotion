@@ -8,15 +8,21 @@ const container: React.CSSProperties = {
 	fontSize: 14,
 };
 
-export type Mode = 'commands' | 'compositions';
+export type QuickSwitcherMode = 'commands' | 'compositions' | 'docs';
+
+const MODE_TO_STRING: {[key in QuickSwitcherMode]: string} = {
+	commands: 'commands',
+	compositions: 'compositions',
+	docs: 'documentation',
+};
 
 export const QuickSwitcherNoResults: React.FC<{
 	query: string;
-	mode: Mode;
+	mode: QuickSwitcherMode;
 }> = ({query, mode}) => {
 	return (
 		<div style={container}>
-			No {mode === 'commands' ? 'commands' : 'compositions'} matching {'"'}
+			No {MODE_TO_STRING[mode]} matching {'"'}
 			{query}
 			{'"'}
 		</div>
