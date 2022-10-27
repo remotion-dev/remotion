@@ -7,7 +7,7 @@ import PQueue from "p-queue";
 
 import { getCssLink, unqoute, quote, removeWhitespace } from "./utils";
 import { Font, googleFonts } from "./google-fonts";
-import { Info } from "../src/base";
+import { FontInfo } from "../src/base";
 
 const OUTDIR = "./src";
 const CSS_CACHE_DIR = "./.cache-css";
@@ -117,7 +117,7 @@ const generate = async (font: Font) => {
   console.log(`- Generating ${filename}`);
 
   // Prepare info data
-  const info: Info = {
+  const info: FontInfo = {
     fontFamily,
     importName,
     version: font.version,
