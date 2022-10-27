@@ -3,3 +3,6 @@
 /*.js
 /*.d.ts
 !ensure-generation.js
+src
+!src/index.ts
+!src/base.ts
