@@ -134,7 +134,7 @@ export const loadFont = <T extends keyof Variants>(
     subsets: Variants[T]['subsets'][];
   }
 ) => { 
-  loadFonts(meta, style, options);
+  return loadFonts(meta, style, options);
 };
 `;
 
