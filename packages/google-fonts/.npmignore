@@ -5,3 +5,4 @@ scripts
 src
 google-fonts.json
 tsconfig.tsbuildinfo
+ensure-generation.js

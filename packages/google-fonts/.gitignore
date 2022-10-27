@@ -2,3 +2,4 @@
 .cache-css
 /*.js
 /*.d.ts
+!ensure-generation.js
