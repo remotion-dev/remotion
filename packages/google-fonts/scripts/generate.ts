@@ -7,6 +7,7 @@ import PQueue from "p-queue";
 
 import { getCssLink, unqoute, quote, removeWhitespace } from "./utils";
 import { Font, googleFonts } from "./google-fonts";
+import { Info } from "../src/base";
 
 const OUTDIR = "./src";
 const CSS_CACHE_DIR = "./.cache-css";
@@ -24,7 +25,7 @@ const generate = async (font: Font) => {
 
   //  Read css from cache, otherwise from url
   let css: null | string = null;
-  let fontFamily: null | string = null;
+  let fontFamily: null | string = unqoute(font.family);
   let cssFile = path.resolve(CSS_CACHE_DIR, cssname);
   if (!fs.existsSync(cssFile)) {
     //  Get from url with user agent that support woff2
@@ -116,7 +117,7 @@ const generate = async (font: Font) => {
   console.log(`- Generating ${filename}`);
 
   // Prepare info data
-  const info = {
+  const info: Info = {
     fontFamily,
     importName,
     version: font.version,
@@ -143,10 +144,10 @@ type Variants = {\n`;
   output += `};
 
 export const loadFont = <T extends keyof Variants>(
-  style: T,
-  options: {
-    weights: Variants[T]['weights'][];
-    subsets: Variants[T]['subsets'][];
+  style?: T,
+  options?: {
+    weights?: Variants[T]['weights'][];
+    subsets?: Variants[T]['subsets'][];
   }
 ) => { 
   return loadFonts(info, style, options);
