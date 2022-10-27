@@ -65,7 +65,7 @@ import * as TitanOne from "@remotion/google-fonts/TitanOne";
 import * as Montserrat from "@remotion/google-fonts/Montserrat";
 ```
 
-After that call [loadFont()](./load-font.md) function with specific style, weights, and subsets.
+After that call [loadFont()](./load-font.md) function with specific style, weights, and subsets or just omit the function arguments to load all variant available.
 
 ```tsx
 import * as TitanOne from "@remotion/google-fonts/TitanOne";
@@ -86,6 +86,9 @@ Montserrat.loadFont("italic", {
   weights: ["400", "500", "600", "700", "800"],
   subsets: ["latin", "latin-ext"],
 });
+
+// Load all Montserrat variant
+Montserrat.loadFont();
 ```
 
 Then use it anywhere in our code.
@@ -93,10 +96,7 @@ Then use it anywhere in our code.
 ```tsx
 import * as TitanOne from "@remotion/google-fonts/TitanOne";
 
-TitanOne.loadFont("normal", {
-  weights: ["400"],
-  subsets: ["latin"],
-});
+TitanOne.loadFont();
 
 export const GoogleFontsDemoComposition = () => {
   return (
@@ -129,3 +129,26 @@ The font family name, so we can pass this instead hardcode string.
 ### info
 
 Complete information about the current font.
+
+**Example:**
+
+```js
+{
+  fontFamily: 'Titan One',
+  importName: 'TitanOne',
+  version: 'v13',
+  url: 'https://fonts.googleapis.com/css2?family=Titan+One:ital,wght@0,400',
+  unicodeRanges: {
+    'latin-ext': 'U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF',
+    'latin': 'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
+  },
+  fonts: {
+    normal: {
+      '400': {
+        'latin-ext': 'https://fonts.gstatic.com/s/titanone/v13/mFTzWbsGxbbS_J5cQcjCmjgm6Es.woff2',
+        'latin': 'https://fonts.gstatic.com/s/titanone/v13/mFTzWbsGxbbS_J5cQcjClDgm.woff2',
+      },
+    },
+  },
+}
+```
