@@ -5,7 +5,7 @@ import postcss from "postcss";
 import prettier from "prettier";
 import PQueue from "p-queue";
 
-import { getCssLink, unqoute, quote } from "./utils";
+import { getCssLink, unqoute, quote, removeWhitespace } from "./utils";
 import { Font, googleFonts } from "./google-fonts";
 
 const OUTDIR = "./src";
@@ -13,7 +13,7 @@ const CSS_CACHE_DIR = "./.cache-css";
 
 const generate = async (font: Font) => {
   // Prepare filename
-  let importName = font.family.replace(/\s/g, "");
+  let importName = removeWhitespace(font.family);
   const filename = `${importName}.ts`;
   const cssname = `${font.family.toLowerCase().replace(/\s/g, "_")}_${
     font.version
@@ -75,7 +75,7 @@ const generate = async (font: Font) => {
         );
       }
 
-      info.fontFamily = decl.value;
+      fontFamily = decl.value;
     });
 
     //  Parse style
@@ -117,8 +117,7 @@ const generate = async (font: Font) => {
 
   // Prepare info data
   const info = {
-    fontFamily:
-      fontFamily ?? font.family.replace(/^['"]/g, "").replace(/['"]$/g, ""),
+    fontFamily,
     importName,
     version: font.version,
     url,

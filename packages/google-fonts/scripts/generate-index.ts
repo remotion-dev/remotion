@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "path";
 import prettier from "prettier";
 import { googleFonts } from "./google-fonts";
+import { removeWhitespace, unqoute } from "./utils";
 
 const OUTDIR = "./src";
 
@@ -12,11 +13,8 @@ const generate = async () => {
   console.log(`- Generating ${filename}`);
   let output = `export const availableFonts = ${JSON.stringify(
     googleFonts.map((f) => ({
-      fontFamily: f.family.replace(/^['"]/g, "").replace(/['"]$/g, ""),
-      importName: f.family
-        .replace(/^['"]/g, "")
-        .replace(/['"]$/g, "")
-        .replace(/\s/g, ""),
+      fontFamily: unqoute(f.family),
+      importName: removeWhitespace(unqoute(f.family)),
     })),
     null,
     2
