@@ -12,9 +12,9 @@ const CSS_CACHE_DIR = "./.cache-css";
 const FONTDATA_FILE = "./google-fonts.json";
 
 const generate = async (font) => {
-  // Prepare meta data
-  let meta = {
-    family: font.family,
+  // Prepare info data
+  let info = {
+    fontFamily: font.family,
     version: font.version,
     url: null,
     unicodeRanges: {},
@@ -28,14 +28,14 @@ const generate = async (font) => {
   }.css`;
 
   // Get css link
-  meta.url = getCssLink(font);
+  info.url = getCssLink(font);
 
   //  Read css from cache, otherwise from url
   let css,
     cssFile = path.resolve(CSS_CACHE_DIR, cssname);
   if (!fs.existsSync(cssFile)) {
     //  Get from url with user agent that support woff2
-    let res = await axios.get(meta.url, {
+    let res = await axios.get(info.url, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36",
@@ -67,17 +67,17 @@ const generate = async (font) => {
       unicodeRange,
       subset = prev.text;
 
-    //  Parse family
-    node.walkDecls("font-family", (decl, _) => {
+    //  Parse fontFamily
+    node.walkDecls("font-fontFamily", (decl, _) => {
       if (font.family != unqoute(decl.value)) {
         throw new Error(
-          `Font Family value mismatch: ${font.family} with ${unqoute(
+          `Font fontFamily value mismatch: ${font.family} with ${unqoute(
             decl.value
           )}`
         );
       }
 
-      meta.family = decl.value;
+      info.fontFamily = decl.value;
     });
 
     //  Parse style
@@ -101,24 +101,24 @@ const generate = async (font) => {
     });
 
     //  Set unicode range data
-    meta.unicodeRanges[subset] = unicodeRange;
+    info.unicodeRanges[subset] = unicodeRange;
 
     //  Set font url
-    meta.fonts[style] ??= {};
-    meta.fonts[style][weight] ??= {};
-    meta.fonts[style][weight][subset] = src;
+    info.fonts[style] ??= {};
+    info.fonts[style][weight] ??= {};
+    info.fonts[style][weight][subset] = src;
   }
 
   console.log(`- Generating ${filename}`);
   let output = `import { loadFonts } from "./base";
 
-export const meta = ${JSON.stringify(meta, null, 3)}
+export const info = ${JSON.stringify(info, null, 3)}
 
-export const family = meta.family;
+export const fontFamily = info.fontFamily;
 
 type Variants = {\n`;
 
-  for (const [style, val] of Object.entries(meta.fonts)) {
+  for (const [style, val] of Object.entries(info.fonts)) {
     output += `  ${style}: {\n`;
     output += `    weights: ${Object.keys(val).map(quote).join(" | ")},\n`;
     output += `    subsets: ${font.subsets.map(quote).join(" | ")},\n`;
@@ -134,8 +134,9 @@ export const loadFont = <T extends keyof Variants>(
     subsets: Variants[T]['subsets'][];
   }
 ) => { 
-  return loadFonts(meta, style, options);
+  return loadFonts(info, style, options);
 };
+
 `;
 
   //  Format output
