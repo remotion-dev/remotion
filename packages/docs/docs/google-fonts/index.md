@@ -55,7 +55,7 @@ Before using it, we need to import the fonts we want first, there are 2 ways to 
 **Import one font**
 
 ```tsx
-import { loadFont, family } from "@remotion/google-fonts/TitanOne";
+import { loadFont, fontFamily } from "@remotion/google-fonts/TitanOne";
 ```
 
 **Import multiple fonts**
@@ -104,7 +104,7 @@ export const GoogleFontsDemoComposition = () => {
       style={{
         justifyContent: "center",
         alignItems: "center",
-        fontFamily: TitanOne.family,
+        fontFamily: TitanOne.fontFamily,
       }}
     >
       <div>Hallo Google Fonts</div>
@@ -122,10 +122,10 @@ Each font will export these variables:
 Load font with selected style, weights, and subsets. See [loadFont()](./load-font.md).
 
 
-### family
+### fontFamily
 
 The font family name, so we can pass this instead hardcode string.
 
-### meta
+### info
 
 Complete information about the current font.
