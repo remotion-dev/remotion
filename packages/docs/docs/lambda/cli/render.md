@@ -204,12 +204,14 @@ _available from v3.2.30_
 
 Sets a webhook secret for the webhook (see above). [`renderMediaOnLambda() -> webhook.secret`](/docs/lambda/rendermediaonlambda#webhook). To be used together with `--webhook`.
 
-_available from v3.2.40_
-
 ### `--height`
+
+_available from v3.2.40_
 
 [Specify new height (in pixels) for the rendered video.](/docs/config#setheight) Must be an even positive integer for h264 videos.
 
 ### `--width`
+
+_available from v3.2.40_
 
 [Specify new width (in pixels) for the rendered video.](/docs/config#setwidth) Must be an even positive integer for h264 videos.
