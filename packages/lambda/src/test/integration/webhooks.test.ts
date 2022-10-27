@@ -18,7 +18,7 @@ import {disableLogs, enableLogs} from '../disable-logs';
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
-	getRemainingTimeInMillis: () => 30000,
+	getRemainingTimeInMillis: () => 120000,
 };
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;

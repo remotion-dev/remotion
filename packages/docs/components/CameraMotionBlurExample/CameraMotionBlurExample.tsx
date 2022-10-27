@@ -9,19 +9,25 @@ import {
   useVideoConfig,
 } from "remotion";
 
-import { MotionBlur } from "@remotion/motion-blur";
+import { CameraMotionBlur } from "@remotion/motion-blur";
 
 const square: React.CSSProperties = {
   height: 150,
   width: 150,
-  backgroundColor: "#0b84f3",
+  background: `linear-gradient(217deg, rgba(255,0,0,1), rgba(255,0,0,0) 70.71%), linear-gradient(127deg, rgba(0,255,0,1), rgba(0,255,0,0) 70.71%), linear-gradient(336deg, rgba(0,0,255,1), rgba(0,0,255,0) 70.71%)`,
   borderRadius: 14,
+  fontSize: 100,
+  fontWeight: "bold",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
 };
 
 const row: React.CSSProperties = {
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
+  flexWrap: "wrap",
 };
 
 const spacer: React.CSSProperties = {
@@ -51,19 +57,17 @@ export const Square: React.FC = () => {
         transform: `translateY(${y}px) rotate(${rotate}rad)`,
       }}
     >
-      <div style={square} />
+      <div style={square}>A</div>
     </AbsoluteFill>
   );
 };
 
 const MyComposition = ({
-  blurOpacity,
-  layers,
-  lagInFrames,
+  shutterAngle,
+  samples,
 }: {
-  blurOpacity: number;
-  layers: number;
-  lagInFrames: number;
+  shutterAngle: number;
+  samples: number;
 }) => {
   return (
     <AbsoluteFill
@@ -75,14 +79,10 @@ const MyComposition = ({
         <AbsoluteFill style={{ padding: 30 }}>
           <h1>Still</h1>
         </AbsoluteFill>
-        <Freeze frame={38}>
-          <MotionBlur
-            blurOpacity={blurOpacity}
-            lagInFrames={lagInFrames}
-            layers={layers}
-          >
+        <Freeze frame={20}>
+          <CameraMotionBlur shutterAngle={shutterAngle} samples={samples}>
             <Square />
-          </MotionBlur>
+          </CameraMotionBlur>
         </Freeze>
       </div>
       <div
@@ -95,22 +95,17 @@ const MyComposition = ({
         <AbsoluteFill style={{ padding: 30 }}>
           <h1>Animation</h1>
         </AbsoluteFill>
-        <MotionBlur
-          blurOpacity={blurOpacity}
-          lagInFrames={lagInFrames}
-          layers={layers}
-        >
+        <CameraMotionBlur shutterAngle={shutterAngle} samples={samples}>
           <Square />
-        </MotionBlur>
+        </CameraMotionBlur>
       </div>
     </AbsoluteFill>
   );
 };
 
-export const MotionBlurExample: React.FC = () => {
-  const [blurOpacity, setBlurOpacity] = useState(1);
-  const [lagInFrames, setFrameDelay] = useState(0.3);
-  const [layers, setLayers] = useState(50);
+export const CameraMotionBlurExample: React.FC = () => {
+  const [shutterAngle, setShutterAngle] = useState(180);
+  const [samples, setSamples] = useState(10);
 
   return (
     <div>
@@ -126,9 +121,8 @@ export const MotionBlurExample: React.FC = () => {
           borderRadius: "var(--ifm-pre-border-radius)",
         }}
         inputProps={{
-          blurOpacity,
-          lagInFrames,
-          layers,
+          shutterAngle,
+          samples,
         }}
         autoPlay
         loop
@@ -139,50 +133,33 @@ export const MotionBlurExample: React.FC = () => {
           <input
             type="range"
             min={0}
+            max={360}
+            step={1}
+            value={shutterAngle}
+            style={{ width: 90, marginRight: 8, padding: 8 }}
+            onChange={(e) => setShutterAngle(Number(e.target.value))}
+          />
+          <code>
+            shutterAngle={"{"}
+            {shutterAngle}
+            {"}"}
+          </code>
+        </label>
+        <div style={spacer} />
+
+        <label style={row}>
+          <input
+            type="range"
+            min={1}
             max={100}
-            value={layers}
-            style={{ width: 90, marginRight: 8, padding: 8 }}
-            onChange={(e) => setLayers(Number(e.target.value))}
-          />
-          <code>
-            layers={"{"}
-            {layers}
-            {"}"}
-          </code>
-        </label>
-        <div style={spacer} />
-
-        <label style={row}>
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.05}
-            value={blurOpacity}
+            step={1}
+            value={samples}
             style={{ width: 90, marginRight: 8 }}
-            onChange={(e) => setBlurOpacity(Number(e.target.value))}
+            onChange={(e) => setSamples(Number(e.target.value))}
           />
           <code>
-            blurOpacity={"{"}
-            {blurOpacity}
-            {"}"}
-          </code>
-        </label>
-        <div style={spacer} />
-
-        <label style={row}>
-          <input
-            type="range"
-            min={0}
-            max={2}
-            step={0.1}
-            value={lagInFrames}
-            style={{ width: 90, marginRight: 8, padding: 8 }}
-            onChange={(e) => setFrameDelay(Number(e.target.value))}
-          />
-          <code>
-            lagInFrames={"{"}
-            {lagInFrames}
+            samples={"{"}
+            {samples}
             {"}"}
           </code>
         </label>
