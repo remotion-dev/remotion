@@ -1,8 +1,8 @@
-import {loadFont} from '@remotion/google-fonts/Montserrat';
+import {loadFont} from '@remotion/google-fonts/AreYouSerious';
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 
-loadFont('italic', {
+const {fontFamily} = loadFont('normal', {
 	subsets: ['latin', 'latin-ext', 'vietnamese'],
 	weights: ['400'],
 });
@@ -13,8 +13,9 @@ export const FontDemo: React.FC = () => {
 			style={{
 				justifyContent: 'center',
 				alignItems: 'center',
-				fontFamily: 'Bangers',
-				fontSize: 300,
+				fontFamily,
+				fontSize: 100,
+				backgroundColor: 'whitesmoke',
 			}}
 		>
 			<h1>Font Demo</h1>
