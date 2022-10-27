@@ -17,7 +17,7 @@ const loadFont: (
 ## Example
 
 ```tsx
-import { loadFont, family } from "@remotion/google-fonts/Lobster";
+import { loadFont, fontFamily } from "@remotion/google-fonts/Lobster";
 
 loadFont("normal", {
   weights: ["400"],
@@ -30,7 +30,7 @@ export const GoogleFontsExample: React.FC = () => {
       style={{
         justifyContent: 'center',
         alignItems: 'center',
-        fontFamily: family,
+        fontFamily: fontFamily,
         fontSize: 280,
       }}
     >

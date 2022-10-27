@@ -26,10 +26,10 @@ const MyComp: React.FC = () => {
 Instead of writing separate CSS files to import Google Fonts, we can use [`@remotion/google-fonts`](./google-fonts/index.md) to easily integrate it in Remotion and get some TypeScript auto-complete feature.
 
 ```tsx title="MyComp.tsx"
-import { family, loadFont } from "@remotion/google-fonts/TitanOne";
+import { fontFamily, loadFont } from "@remotion/google-fonts/TitanOne";
 
 const GoogleFontsComp: React.FC = () => {
-  return <div style={{ fontFamily: family }}>Hello, Google Fonts</div>;
+  return <div style={{ fontFamily: fontFamily }}>Hello, Google Fonts</div>;
 };
 ```
 
