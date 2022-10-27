@@ -10,7 +10,8 @@ export const loadFonts = (
     weights: string[];
     subsets: string[];
   }
-) => {
+): { fontFamily: string } => {
+  const fontFamily = meta.family.replace(/^['"]/g, "").replace(/['"]$/g, "");
   for (const weight of options.weights) {
     for (const subset of options.subsets) {
       //  Get font url from meta
@@ -42,7 +43,7 @@ export const loadFonts = (
 
       //  Create font-face
       const fontFace = new FontFace(
-        meta.family.replace(/^['"]/g, "").replace(/['"]$/g, ""),
+        fontFamily,
         `url(${font}) format('woff2')`,
         {
           weight: weight,
@@ -65,4 +66,7 @@ export const loadFonts = (
         });
     }
   }
+  return {
+    fontFamily,
+  };
 };
