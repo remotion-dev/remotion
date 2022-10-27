@@ -524,10 +524,10 @@ importers:
       p-queue: ^7.3.0
       postcss: ^8.4.18
       prettier: ^2.7.1
-      remotion: 3.2.35
+      remotion: 3.2.39
       typescript: ^4.7.0
     dependencies:
-      remotion: 3.2.35_zpnidt7m3osuk7shl3s4oenomq
+      remotion: link:../core
     devDependencies:
       '@types/css-font-loading-module': 0.0.7
       '@types/node': 18.11.2
@@ -19086,16 +19086,6 @@ packages:
     dependencies:
       textr: 0.3.0
       unist-util-visit: 1.4.1
-    dev: false
-
-  /remotion/3.2.35_zpnidt7m3osuk7shl3s4oenomq:
-    resolution: {integrity: sha512-+NDcIXF2yNN70DDZPhNA4Mi6FJEK3n5hOXMPUF0eWI6i9WcWeYQ8g5II/g6TvbeH4MTDfn1rBxcEhgOTQGmuCA==}
-    peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
-    dependencies:
-      react: 18.0.0
-      react-dom: 18.0.0_react@18.0.0
     dev: false
 
   /renderkid/3.0.0:
