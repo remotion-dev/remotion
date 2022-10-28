@@ -134,13 +134,15 @@ const makeBenchmarkProgressBar = ({
 	].join(' ');
 };
 
-export const benchmarkCommand = async (remotionRoot: string) => {
+export const benchmarkCommand = async (
+	remotionRoot: string,
+	args: string[]
+) => {
 	const runs: number = parsedCli.runs ?? DEFAULT_RUNS;
-	const args = parsedCli._.slice(1);
 
-	const filePath = findEntryPoint(args);
+	const {file} = findEntryPoint(args);
 
-	if (!filePath) {
+	if (!file) {
 		Log.error('No entry file passed.');
 		Log.info('Pass an additional argument specifying the entry file');
 		Log.info();
@@ -148,7 +150,7 @@ export const benchmarkCommand = async (remotionRoot: string) => {
 		process.exit(1);
 	}
 
-	const fullPath = path.join(process.cwd(), filePath);
+	const fullPath = path.join(process.cwd(), file);
 
 	const {
 		inputProps,

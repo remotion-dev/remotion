@@ -1,33 +1,34 @@
 // eslint-disable-next-line no-restricted-imports
 import type {TCompMetadata} from 'remotion';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
 import {selectComposition} from './select-composition';
 
 export const getCompositionId = async (
-	validCompositions: TCompMetadata[]
+	validCompositions: TCompMetadata[],
+	args: string[]
 ): Promise<{
 	compositionId: string;
 	reason: string;
 	config: TCompMetadata;
+	argsAfterComposition: string[];
 }> => {
-	if (parsedCli._[2]) {
-		const config = validCompositions.find((c) => c.id === parsedCli._[2]);
+	const [compName, ...remainingArgs] = args;
+	if (compName) {
+		const config = validCompositions.find((c) => c.id === compName);
 
 		if (!config) {
 			throw new Error(
-				`Cannot find composition with ID "${
-					parsedCli._[2]
-				}". Available composition: ${validCompositions
+				`Cannot find composition with ID "${compName}". Available composition: ${validCompositions
 					.map((c) => c.id)
 					.join(', ')}`
 			);
 		}
 
 		return {
-			compositionId: parsedCli._[2],
+			compositionId: compName,
 			reason: 'Passed as argument',
 			config,
+			argsAfterComposition: remainingArgs,
 		};
 	}
 
@@ -40,6 +41,7 @@ export const getCompositionId = async (
 				config: validCompositions.find(
 					(c) => c.id === compositionId
 				) as TCompMetadata,
+				argsAfterComposition: args,
 			};
 		}
 	}

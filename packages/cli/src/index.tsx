@@ -37,8 +37,7 @@ import {
 
 export const cli = async () => {
 	overrideRemotion();
-	const args = process.argv;
-	const command = args[2];
+	const [command, ...args] = parsedCli._;
 
 	if (parsedCli.help) {
 		printHelp();
@@ -57,21 +56,21 @@ export const cli = async () => {
 
 	try {
 		if (command === 'compositions') {
-			await listCompositionsCommand(remotionRoot);
+			await listCompositionsCommand(remotionRoot, args);
 		} else if (command === 'preview') {
-			await previewCommand(remotionRoot);
+			await previewCommand(remotionRoot, args);
 		} else if (command === 'lambda') {
-			await lambdaCommand(remotionRoot);
+			await lambdaCommand(remotionRoot, args);
 		} else if (command === 'render') {
-			await render(remotionRoot);
+			await render(remotionRoot, args);
 		} else if (command === 'still') {
-			await still(remotionRoot);
+			await still(remotionRoot, args);
 		} else if (command === 'upgrade') {
 			await upgrade(remotionRoot, parsedCli['package-manager']);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot);
 		} else if (command === 'benchmark') {
-			await benchmarkCommand(remotionRoot);
+			await benchmarkCommand(remotionRoot, args);
 		} else if (command === 'help') {
 			printHelp();
 			process.exit(0);
