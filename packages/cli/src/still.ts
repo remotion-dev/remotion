@@ -10,6 +10,7 @@ import path from 'path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {determineFinalImageFormat} from './determine-image-format';
+import {findEntryPoint} from './entry-point';
 import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
@@ -32,7 +33,17 @@ import {
 
 export const still = async (remotionRoot: string) => {
 	const startTime = Date.now();
-	const file = parsedCli._[1];
+	const file = findEntryPoint();
+
+	if (!file) {
+		Log.error('No entry point specified. Pass more arguments:');
+		Log.error(
+			'   npx remotion render [entry-point] [composition-name] [out-name]'
+		);
+		Log.error('Documentation: https://www.remotion.dev/docs/render');
+		process.exit(1);
+	}
+
 	const fullPath = RenderInternals.isServeUrl(file)
 		? file
 		: path.join(process.cwd(), file);
