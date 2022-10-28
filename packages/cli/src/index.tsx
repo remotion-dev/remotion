@@ -12,6 +12,7 @@ import {formatBytes} from './format-bytes';
 import {getCliOptions, getFinalCodec} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
 import {handleCommonError} from './handle-common-errors';
+import {getImageFormat} from './image-formats';
 import {initializeCli} from './initialize-cli';
 import {lambdaCommand} from './lambda-command';
 import {loadConfigFile} from './load-config';
@@ -117,4 +118,5 @@ export const CliInternals = {
 	minimist,
 	selectComposition,
 	findEntryPoint,
+	getImageFormat,
 };
