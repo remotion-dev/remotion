@@ -85,6 +85,20 @@ Config.Bundling.setPublicDir("./publico");
 
 The [command line flag](/docs/cli/render#--public-dir) `--public-dir` will take precedence over this option.
 
+### setEntryPoint()
+
+_Available from v3.2.40_
+
+Sets the Remotion [entry point](/docs/terminology#entry-point), you don't have to specify it for CLI commands.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Bundling.setEntryPoint("./src/index.tsx");
+```
+
+If you pass an entry point as a CLI argument, it will take precedence.
+
 ## Log
 
 ### setLevel()
