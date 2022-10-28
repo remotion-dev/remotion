@@ -21,9 +21,7 @@
   },
   "dependencies": {
     "lerna": "^4.0.0",
-    "turbo": "1.5.6",
-    "@vercel/node": "^2.5.26",
-    "got": "^11"
+    "turbo": "1.5.6"
   },
   "workspaces": [
     "packages/*"
