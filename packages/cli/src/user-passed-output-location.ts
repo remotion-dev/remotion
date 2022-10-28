@@ -1,7 +1,7 @@
 import {ConfigInternals} from './config';
 
 export const getUserPassedOutputLocation = (args: string[]) => {
-	const filename = args ? args[0] : ConfigInternals.getOutputLocation();
+	const filename = args[0] ?? ConfigInternals.getOutputLocation();
 
 	return filename;
 };
