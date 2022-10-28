@@ -10,6 +10,7 @@ import path from 'path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {determineFinalImageFormat} from './determine-image-format';
+import {findEntryPoint} from './entry-point';
 import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
@@ -30,9 +31,23 @@ import {
 	getUserPassedOutputLocation,
 } from './user-passed-output-location';
 
-export const still = async (remotionRoot: string) => {
+export const still = async (remotionRoot: string, args: string[]) => {
 	const startTime = Date.now();
-	const file = parsedCli._[1];
+	const {
+		file,
+		remainingArgs,
+		reason: entryPointReason,
+	} = findEntryPoint(args, remotionRoot);
+
+	if (!file) {
+		Log.error('No entry point specified. Pass more arguments:');
+		Log.error(
+			'   npx remotion render [entry-point] [composition-name] [out-name]'
+		);
+		Log.error('Documentation: https://www.remotion.dev/docs/render');
+		process.exit(1);
+	}
+
 	const fullPath = RenderInternals.isServeUrl(file)
 		? file
 		: path.join(process.cwd(), file);
@@ -64,18 +79,9 @@ export const still = async (remotionRoot: string) => {
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'still',
-		codec: 'h264',
 	});
 
 	Log.verbose('Browser executable: ', browserExecutable);
-
-	const {format: imageFormat, source} = determineFinalImageFormat({
-		cliFlag: parsedCli['image-format'] ?? null,
-		configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
-		downloadName: null,
-		outName: getUserPassedOutputLocation(),
-		isLambda: false,
-	});
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
@@ -113,16 +119,25 @@ export const still = async (remotionRoot: string) => {
 		downloadMap,
 	});
 
-	const {compositionId, config, reason} =
+	const {compositionId, config, reason, argsAfterComposition} =
 		await getCompositionWithDimensionOverride({
 			validCompositions: comps,
 			height,
 			width,
+			args: remainingArgs,
 		});
+	const {format: imageFormat, source} = determineFinalImageFormat({
+		cliFlag: parsedCli['image-format'] ?? null,
+		configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
+		downloadName: null,
+		outName: getUserPassedOutputLocation(argsAfterComposition),
+		isLambda: false,
+	});
 
 	const relativeOutputLocation = getOutputLocation({
 		compositionId,
 		defaultExtension: imageFormat,
+		args: argsAfterComposition,
 	});
 
 	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(
@@ -136,7 +151,7 @@ export const still = async (remotionRoot: string) => {
 
 	Log.info(
 		chalk.gray(
-			`Output = ${relativeOutputLocation}, Format = ${imageFormat} (${source}), Composition = ${compositionId} (${reason})`
+			`Entry point = ${file} (${entryPointReason}), Output = ${relativeOutputLocation}, Format = ${imageFormat} (${source}), Composition = ${compositionId} (${reason})`
 		)
 	);
 

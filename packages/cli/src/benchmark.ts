@@ -8,6 +8,7 @@ import {
 import path from 'path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
+import {findEntryPoint} from './entry-point';
 import {getCliOptions, getFinalCodec} from './get-cli-options';
 import {getRenderMediaOptions} from './get-render-media-options';
 import {Log} from './log';
@@ -139,9 +140,9 @@ export const benchmarkCommand = async (
 ) => {
 	const runs: number = parsedCli.runs ?? DEFAULT_RUNS;
 
-	const filePath = args[0];
+	const {file, reason, remainingArgs} = findEntryPoint(args, remotionRoot);
 
-	if (!filePath) {
+	if (!file) {
 		Log.error('No entry file passed.');
 		Log.info('Pass an additional argument specifying the entry file');
 		Log.info();
@@ -149,7 +150,7 @@ export const benchmarkCommand = async (
 		process.exit(1);
 	}
 
-	const fullPath = path.join(process.cwd(), filePath);
+	const fullPath = path.join(process.cwd(), file);
 
 	const {
 		inputProps,
@@ -166,8 +167,9 @@ export const benchmarkCommand = async (
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
-		codec: 'h264',
 	});
+
+	Log.verbose('Entry point:', file, 'reason:', reason);
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
@@ -201,8 +203,8 @@ export const benchmarkCommand = async (
 	});
 
 	const ids = (
-		args[1]
-			? args[1]
+		remainingArgs[0]
+			? remainingArgs[0]
 					.split(',')
 					.map((c) => c.trim())
 					.filter(truthy)

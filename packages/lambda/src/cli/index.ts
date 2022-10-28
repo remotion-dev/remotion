@@ -36,7 +36,7 @@ const requiresCredentials = (args: string[]) => {
 	return true;
 };
 
-const matchCommand = (args: string[]) => {
+const matchCommand = (args: string[], remotionRoot: string) => {
 	if (parsedLambdaCli.help || args.length === 0) {
 		printHelp();
 		quit(0);
@@ -71,7 +71,7 @@ const matchCommand = (args: string[]) => {
 	}
 
 	if (args[0] === SITES_COMMAND) {
-		return sitesCommand(args.slice(1));
+		return sitesCommand(args.slice(1), remotionRoot);
 	}
 
 	if (args[0] === 'upload') {
@@ -108,10 +108,10 @@ const matchCommand = (args: string[]) => {
 	quit(1);
 };
 
-export const executeCommand = async (args: string[]) => {
+export const executeCommand = async (args: string[], remotionRoot: string) => {
 	try {
 		setIsCli(true);
-		await matchCommand(args);
+		await matchCommand(args, remotionRoot);
 	} catch (err) {
 		const error = err as Error;
 		if (
@@ -164,7 +164,8 @@ AWS returned an "TooManyRequestsException" error message which could mean you re
 };
 
 export const cli = async () => {
-	await CliInternals.initializeCli(CliInternals.findRemotionRoot());
+	const remotionRoot = CliInternals.findRemotionRoot();
+	await CliInternals.initializeCli(remotionRoot);
 
-	await executeCommand(parsedLambdaCli._);
+	await executeCommand(parsedLambdaCli._, remotionRoot);
 };

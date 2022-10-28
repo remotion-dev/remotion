@@ -163,9 +163,7 @@ const getAssetsData = async ({
 	return outName;
 };
 
-export const spawnFfmpeg = async (
-	options: StitcherOptions
-): Promise<ReturnType> => {
+const spawnFfmpeg = async (options: StitcherOptions): Promise<ReturnType> => {
 	Internals.validateDimension(
 		options.height,
 		'height',

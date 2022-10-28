@@ -2,6 +2,7 @@ import betterOpn from 'better-opn';
 import path from 'path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
+import {findEntryPoint} from './entry-point';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
 import {getNetworkAddress} from './get-network-address';
@@ -33,8 +34,10 @@ const waitForLiveEventsListener = (): Promise<LiveEventsServer> => {
 	});
 };
 
-export const previewCommand = async (remotionRoot: string) => {
-	const file = parsedCli._[1];
+export const previewCommand = async (remotionRoot: string, args: string[]) => {
+	const {file, reason} = findEntryPoint(args, remotionRoot);
+
+	Log.verbose('Entry point:', file, 'reason:', reason);
 
 	if (!file) {
 		Log.error(

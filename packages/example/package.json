@@ -10,16 +10,16 @@
 		"dist"
 	],
 	"scripts": {
-		"start": "remotion preview src/index.tsx --props src/my-props.json",
+		"start": "remotion preview --props src/my-props.json",
 		"start-js": "remotion preview src/entry.jsx",
-		"comps": "remotion compositions src/index.tsx",
+		"comps": "remotion compositions",
 		"lint": "eslint src --ext ts,tsx,js,jsx",
 		"test": "vitest --run",
 		"build": "tsc -d",
-		"render": "remotion render src/index.tsx react-svg",
+		"render": "remotion render react-svg",
 		"render-js": "remotion render src/entry.jsx framer",
-		"render-gif": "remotion render src/index.tsx framer out/video.gif --codec=gif --every-nth-frame=2",
-		"render-transparent": "remotion render src/index.tsx --image-format=png --pixel-format=yuva420p --codec=vp8 react-svg out/video.webm"
+		"render-gif": "remotion render framer out/video.gif --codec=gif --every-nth-frame=2",
+		"render-transparent": "remotion render --image-format=png --pixel-format=yuva420p --codec=vp8 react-svg out/video.webm"
 	},
 	"dependencies": {
 		"@babel/plugin-syntax-jsx": "7.12.13",

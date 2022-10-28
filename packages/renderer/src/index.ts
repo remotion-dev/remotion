@@ -7,7 +7,6 @@ import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {checkNodeVersionAndWarnAboutRosetta} from './check-apple-silicon';
 import {DEFAULT_CODEC, validCodecs} from './codec';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
-import {getValidCrfRanges, validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
@@ -21,40 +20,28 @@ import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
 import {getDesiredPort} from './get-port';
-import {
-	validateSelectedPixelFormatAndImageFormatCombination,
-	validImageFormats,
-} from './image-format';
+import {validImageFormats} from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
 import {mimeContentType, mimeLookup} from './mime-types';
-import {normalizeServeUrl} from './normalize-serve-url';
 import {killAllBrowsers} from './open-browser';
 import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
-import {
-	DEFAULT_PIXEL_FORMAT,
-	validateSelectedPixelFormatAndCodecCombination,
-	validPixelFormats,
-} from './pixel-format';
-import {validateSelectedCodecAndProResCombination} from './prores-profile';
+import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
 import {validateQuality} from './quality';
 import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
-import {spawnFfmpeg} from './stitch-frames-to-video';
 import {tmpDir} from './tmp-dir';
 import {validateConcurrency} from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
-import {validateEveryNthFrame} from './validate-every-nth-frame';
-import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
+import {validateFfmpeg} from './validate-ffmpeg';
 import {validateFrame} from './validate-frame';
 import {
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
 } from './validate-opengl-renderer';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
-import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
 import {
 	registerErrorSymbolicationLock,
@@ -106,11 +93,8 @@ export const RenderInternals = {
 	ffmpegHasFeature,
 	getActualConcurrency,
 	validateFfmpeg,
-	binaryExists,
 	serveStatic,
 	validateEvenDimensionsWithCodec,
-	normalizeServeUrl,
-	spawnFfmpeg,
 	getFileExtensionFromCodec,
 	tmpDir,
 	deleteDirectory,
@@ -119,7 +103,6 @@ export const RenderInternals = {
 	getRealFrameRange,
 	validatePuppeteerTimeout,
 	downloadFile,
-	validateScale,
 	killAllBrowsers,
 	parseStack,
 	symbolicateError,
@@ -140,23 +123,17 @@ export const RenderInternals = {
 	validateFrameRange,
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
-	validateQualitySettings,
 	validImageFormats,
 	validCodecs,
 	DEFAULT_PIXEL_FORMAT,
 	validateQuality,
 	validateFrame,
 	DEFAULT_TIMEOUT,
-	getValidCrfRanges,
-	validateSelectedPixelFormatAndCodecCombination,
-	validateSelectedCodecAndProResCombination,
-	validateSelectedPixelFormatAndImageFormatCombination,
 	DEFAULT_CODEC,
 	isAudioCodec,
 	logLevels,
 	isEqualOrBelowLogLevel,
 	isValidLogLevel,
-	validateEveryNthFrame,
 	perf,
 	makeDownloadMap,
 	cleanDownloadMap,

@@ -6,22 +6,18 @@ import {listCompositionsCommand} from './compositions';
 import {overrideRemotion} from './config/index';
 import {determineFinalImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
+import {findEntryPoint} from './entry-point';
 import {findRemotionRoot} from './find-closest-package-json';
 import {formatBytes} from './format-bytes';
 import {getCliOptions, getFinalCodec} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
 import {handleCommonError} from './handle-common-errors';
+import {getImageFormat} from './image-formats';
 import {initializeCli} from './initialize-cli';
 import {lambdaCommand} from './lambda-command';
-import {loadConfigFile} from './load-config';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
-import {
-	BooleanFlags,
-	parseCommandLine,
-	parsedCli,
-	quietFlagProvided,
-} from './parse-command-line';
+import {BooleanFlags, parsedCli, quietFlagProvided} from './parse-command-line';
 import {previewCommand} from './preview';
 import {printHelp} from './print-help';
 import {createOverwriteableCliOutput} from './progress-bar';
@@ -37,8 +33,7 @@ import {
 
 export const cli = async () => {
 	overrideRemotion();
-	const args = process.argv;
-	const command = args[2];
+	const [command, ...args] = parsedCli._;
 
 	if (parsedCli.help) {
 		printHelp();
@@ -57,21 +52,21 @@ export const cli = async () => {
 
 	try {
 		if (command === 'compositions') {
-			await listCompositionsCommand(remotionRoot);
+			await listCompositionsCommand(remotionRoot, args);
 		} else if (command === 'preview') {
-			await previewCommand(remotionRoot);
+			await previewCommand(remotionRoot, args);
 		} else if (command === 'lambda') {
-			await lambdaCommand(remotionRoot);
+			await lambdaCommand(remotionRoot, args);
 		} else if (command === 'render') {
-			await render(remotionRoot);
+			await render(remotionRoot, args);
 		} else if (command === 'still') {
-			await still(remotionRoot);
+			await still(remotionRoot, args);
 		} else if (command === 'upgrade') {
 			await upgrade(remotionRoot, parsedCli['package-manager']);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot);
 		} else if (command === 'benchmark') {
-			await benchmarkCommand(remotionRoot, parsedCli._.slice(1));
+			await benchmarkCommand(remotionRoot, args);
 		} else if (command === 'help') {
 			printHelp();
 			process.exit(0);
@@ -100,9 +95,7 @@ export const CliInternals = {
 	chalk,
 	makeProgressBar,
 	Log,
-	loadConfigFile,
 	getCliOptions,
-	parseCommandLine,
 	loadConfig,
 	initializeCli,
 	BooleanFlags,
@@ -116,4 +109,6 @@ export const CliInternals = {
 	determineFinalImageFormat,
 	minimist,
 	selectComposition,
+	findEntryPoint,
+	getImageFormat,
 };
