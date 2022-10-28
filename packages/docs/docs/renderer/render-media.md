@@ -70,7 +70,7 @@ An object of arbitrary shape that will be passed as [props to your composition](
 
 ### `--height`
 
-[Specify new height (in pixels) for the rendered video.](/docs/config#setheight) Must be an even positive integer for h264 videos.
+[Specify new height (in pixels) for the rendered video.](/docs/config#overrideheight) Must be an even positive integer for h264 videos.
 
 ### `--width`
 
