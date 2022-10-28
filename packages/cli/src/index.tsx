@@ -6,6 +6,7 @@ import {listCompositionsCommand} from './compositions';
 import {overrideRemotion} from './config/index';
 import {determineFinalImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
+import {findEntryPoint} from './entry-point';
 import {findRemotionRoot} from './find-closest-package-json';
 import {formatBytes} from './format-bytes';
 import {getCliOptions, getFinalCodec} from './get-cli-options';
@@ -115,4 +116,5 @@ export const CliInternals = {
 	determineFinalImageFormat,
 	minimist,
 	selectComposition,
+	findEntryPoint,
 };
