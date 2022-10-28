@@ -1,20 +1,20 @@
 ---
-title: info
+title: getInfo()
 ---
 
 import {AvailableFonts} from '../../components/AvailableFonts'
 
 _Part of the [`@remotion/google-fonts`](/docs/google-fonts) package_
 
-Each font exports an `info` property that can be used to get various information about the font at runtime, such as which weights, styles and subsets are available.
+Each font exports an `getInfo()` function that can be used to get various information about the font at runtime, such as which weights, styles and subsets are available.
 
 ## Usage
 
 To get information about a font, you can import the `info` property:
 
 ```tsx twoslash title="Get info about the font"
-import { info } from "@remotion/google-fonts/Montserrat";
-console.log(info);
+import { getInfo } from "@remotion/google-fonts/Montserrat";
+console.log(getInfo());
 ```
 
 ```json title="Example value of info object"

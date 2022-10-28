@@ -266,8 +266,8 @@ module.exports = {
       },
       items: [
         "google-fonts/load-font",
-        "google-fonts/available-fonts",
-        "google-fonts/info",
+        "google-fonts/get-available-fonts",
+        "google-fonts/get-info",
       ],
     },
   ],

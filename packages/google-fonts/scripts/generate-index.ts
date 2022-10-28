@@ -11,7 +11,7 @@ const generate = async () => {
   const filename = `index.ts`;
 
   console.log(`- Generating ${filename}`);
-  let output = `export const availableFonts = ${JSON.stringify(
+  let output = `export const getAvailableFonts = () => ${JSON.stringify(
     googleFonts.map((f) => ({
       fontFamily: unqoute(f.family),
       importName: removeWhitespace(unqoute(f.family)),
