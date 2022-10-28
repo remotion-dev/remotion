@@ -132,6 +132,7 @@ export const OpenInEditor: React.FC<{
 			key: 'o',
 			callback: onEditor,
 			commandCtrlKey: true,
+			preventDefault: true,
 		});
 		return () => unregister();
 	}, [canHaveKeyboardShortcuts, openInBrowser, registerKeybinding]);

@@ -31,6 +31,7 @@
     "@remotion/lottie": "3.2.39",
     "@remotion/media-utils": "3.2.39",
     "@remotion/motion-blur": "3.2.39",
+    "@remotion/google-fonts": "3.2.39",
     "@remotion/noise": "3.2.39",
     "@remotion/paths": "3.2.39",
     "@remotion/player": "3.2.39",
@@ -52,8 +53,8 @@
     "react": "18.0.0",
     "react-dom": "18.0.0",
     "react-player": "^2.9.0",
+    "three": "0.145.0",
     "remotion": "3.2.39",
-    "three": "0.134.0",
     "vitest": "0.24.3"
   },
   "devDependencies": {

@@ -31,6 +31,18 @@ Besides choosing a video and output location with the command line arguments, th
 Inline JSON string isn't supported on Windows because it removes the `"` character, use a temporary file instead.
 :::
 
+### `--height`
+
+_available from v3.2.40_
+
+[Overrides composition height.](/docs/config#overrideheight)
+
+### `--width`
+
+_available from v3.2.40_
+
+[Overrides composition width.](/docs/config#overridewidth)
+
 ### `--concurrency`
 
 [How many CPU threads to use.](/docs/config#setconcurrency) Minimum 1. The maximum is the amount of threads you have (In Node.JS `os.cpus().length`).

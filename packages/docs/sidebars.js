@@ -116,7 +116,6 @@ module.exports = {
       label: "@remotion/player",
       items: ["player/api"],
     },
-
     {
       type: "category",
       label: "@remotion/gif",
@@ -258,6 +257,19 @@ module.exports = {
       },
       items: ["noise/noise-2d", "noise/noise-3d", "noise/noise-4d"],
     },
+    {
+      type: "category",
+      label: "@remotion/google-fonts",
+      link: {
+        type: "doc",
+        id: "google-fonts/google-fonts",
+      },
+      items: [
+        "google-fonts/load-font",
+        "google-fonts/get-available-fonts",
+        "google-fonts/get-info",
+      ],
+    },
   ],
   mainSidebar: [
     {
@@ -299,6 +311,7 @@ module.exports = {
         "video-manipulation",
         "render-as-gif",
         "figma",
+        "spline",
       ],
     },
     {

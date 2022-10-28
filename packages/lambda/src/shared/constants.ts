@@ -246,6 +246,8 @@ export type LambdaPayloads = {
 		audioBitrate: string | null;
 		videoBitrate: string | null;
 		webhook: WebhookOption;
+		forceHeight: number | null;
+		forceWidth: number | null;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -279,6 +281,8 @@ export type LambdaPayloads = {
 		audioBitrate: string | null;
 		videoBitrate: string | null;
 		webhook: WebhookOption;
+		forceHeight: number | null;
+		forceWidth: number | null;
 	};
 	status: {
 		type: LambdaRoutines.status;
@@ -339,6 +343,8 @@ export type LambdaPayloads = {
 		scale: number;
 		downloadBehavior: DownloadBehavior | null;
 		version: string;
+		forceHeight: number | null;
+		forceWidth: number | null;
 	};
 };
 

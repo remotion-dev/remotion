@@ -233,6 +233,14 @@ export type ConfigType = {
 		 */
 		readonly setImageSequence: (newImageSequence: boolean) => void;
 		/**
+		 * Overrides the height of a composition
+		 */
+		readonly overrideHeight: (newHeight: number) => void;
+		/**
+		 * Overrides the width of a composition
+		 */
+		readonly overrideWidth: (newWidth: number) => void;
+		/**
 		 * Set the ProRes profile.
 		 * This method is only valid if the codec has been set to 'prores'.
 		 * Possible values: 4444-xq, 4444, hq, standard, light, proxy. Default: 'hq'

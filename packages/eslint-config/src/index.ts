@@ -453,13 +453,6 @@ const getRules = (typescript: boolean) => {
     ],
     "react/button-has-type": "error",
     "react/default-props-match-prop-types": "error",
-    "react/function-component-definition": [
-      "error",
-      {
-        namedComponents: "arrow-function",
-        unnamedComponents: "arrow-function",
-      },
-    ],
     "react/no-access-state-in-setstate": "error",
     "react/no-children-prop": "error",
     "react/no-danger": "error",

@@ -15,7 +15,7 @@ import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
 } from './get-cli-options';
-import {getCompositionId} from './get-composition-id';
+import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import type {DownloadProgress} from './progress-bar';
@@ -74,6 +74,8 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		puppeteerTimeout,
 		port,
 		publicDir,
+		height,
+		width,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'still',
@@ -118,8 +120,12 @@ export const still = async (remotionRoot: string, args: string[]) => {
 	});
 
 	const {compositionId, config, reason, argsAfterComposition} =
-		await getCompositionId(comps, remainingArgs);
-
+		await getCompositionWithDimensionOverride({
+			validCompositions: comps,
+			height,
+			width,
+			args: remainingArgs,
+		});
 	const {format: imageFormat, source} = determineFinalImageFormat({
 		cliFlag: parsedCli['image-format'] ?? null,
 		configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
