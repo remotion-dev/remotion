@@ -4,14 +4,9 @@ import axios from "axios";
 import postcss from "postcss";
 import prettier from "prettier";
 import PQueue from "p-queue";
+import { FontInfo } from "../src/base";
 
-import {
-  getCssLink,
-  unqoute,
-  quote,
-  removeWhitespace,
-  FontInfo,
-} from "./utils";
+import { getCssLink, unqoute, quote, removeWhitespace } from "./utils";
 import { Font, googleFonts } from "./google-fonts";
 
 const OUTDIR = "./src";
