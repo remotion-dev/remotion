@@ -208,10 +208,10 @@ Sets a webhook secret for the webhook (see above). [`renderMediaOnLambda() -> we
 
 _available from v3.2.40_
 
-[Specify new height (in pixels) for the rendered video.](/docs/config#overrideheight) Must be an even positive integer for h264 videos.
+[Overrides composition height.](/docs/config#overrideheight)
 
 ### `--width`
 
 _available from v3.2.40_
 
-[Specify new width (in pixels) for the rendered video.](/docs/config#setwidth) Must be an even positive integer for h264 videos.
+[Overrides composition width.](/docs/config#overridewidth)
