@@ -20,6 +20,7 @@ export const GlobalKeybindings: React.FC = () => {
 				});
 			},
 			commandCtrlKey: false,
+			preventDefault: true,
 		});
 		const cmdKKey = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -31,7 +32,9 @@ export const GlobalKeybindings: React.FC = () => {
 					invocationTimestamp: Date.now(),
 				});
 			},
+
 			commandCtrlKey: true,
+			preventDefault: true,
 		});
 
 		const cKey = keybindings.registerKeybinding({
@@ -41,6 +44,7 @@ export const GlobalKeybindings: React.FC = () => {
 				setCheckerboard((c) => !c);
 			},
 			commandCtrlKey: true,
+			preventDefault: true,
 		});
 		const questionMark = keybindings.registerKeybinding({
 			event: 'keypress',
@@ -53,6 +57,7 @@ export const GlobalKeybindings: React.FC = () => {
 				});
 			},
 			commandCtrlKey: false,
+			preventDefault: true,
 		});
 
 		return () => {
