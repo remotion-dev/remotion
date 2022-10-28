@@ -20,6 +20,8 @@ type ValidateCompositionOptions = {
 	chromiumOptions: ChromiumOptions;
 	port: number | null;
 	downloadMap: DownloadMap;
+	forceHeight: number | null;
+	forceWidth: number | null;
 };
 
 export const validateComposition = async ({
@@ -34,6 +36,8 @@ export const validateComposition = async ({
 	chromiumOptions,
 	port,
 	downloadMap,
+	forceHeight,
+	forceWidth,
 }: ValidateCompositionOptions): Promise<TCompMetadata> => {
 	const compositions = await getCompositions(serveUrl, {
 		puppeteerInstance: browserInstance,
@@ -56,5 +60,9 @@ export const validateComposition = async ({
 		);
 	}
 
-	return found;
+	return {
+		...found,
+		height: forceHeight ?? found.height,
+		width: forceWidth ?? found.width,
+	};
 };

@@ -31,6 +31,8 @@ export type RenderStillOnLambdaInput = {
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
 	downloadBehavior?: DownloadBehavior;
+	forceWidth?: number | null;
+	forceHeight?: number | null;
 };
 
 export type RenderStillOnLambdaOutput = {
@@ -77,6 +79,8 @@ export const renderStillOnLambda = async ({
 	chromiumOptions,
 	scale,
 	downloadBehavior,
+	forceHeight,
+	forceWidth,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
 
@@ -108,6 +112,8 @@ export const renderStillOnLambda = async ({
 				scale: scale ?? 1,
 				downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
 				version: VERSION,
+				forceHeight: forceHeight ?? null,
+				forceWidth: forceWidth ?? null,
 			},
 			region,
 		});

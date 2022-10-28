@@ -14,7 +14,7 @@ import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
 } from './get-cli-options';
-import {getCompositionId} from './get-composition-id';
+import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import type {DownloadProgress} from './progress-bar';
@@ -59,6 +59,8 @@ export const still = async (remotionRoot: string) => {
 		puppeteerTimeout,
 		port,
 		publicDir,
+		height,
+		width,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'still',
@@ -111,7 +113,12 @@ export const still = async (remotionRoot: string) => {
 		downloadMap,
 	});
 
-	const {compositionId, config, reason} = await getCompositionId(comps);
+	const {compositionId, config, reason} =
+		await getCompositionWithDimensionOverride({
+			validCompositions: comps,
+			height,
+			width,
+		});
 
 	const relativeOutputLocation = getOutputLocation({
 		compositionId,
