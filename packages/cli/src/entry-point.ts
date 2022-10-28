@@ -12,31 +12,48 @@ const candidates = [
 	path.join('src', 'index.js'),
 ];
 
-const findCommonPath = () => {
-	return candidates.find((candidate) => existsSync(candidate));
+const findCommonPath = (remotionRoot: string) => {
+	return candidates.find((candidate) =>
+		existsSync(path.resolve(remotionRoot, candidate))
+	);
 };
 
 export const findEntryPoint = (
-	args: string[]
+	args: string[],
+	remotionRoot: string
 ): {
 	file: string | null;
 	remainingArgs: string[];
+	reason: string;
 } => {
 	// 1st priority: Explicitly passed entry point
 	let file: string | null = args[0];
-	if (file) return {file, remainingArgs: args.slice(1)};
+	if (file) {
+		Log.verbose('Checking if', file, 'is the entry file');
+		if (existsSync(path.resolve(remotionRoot, file))) {
+			return {file, remainingArgs: args.slice(1), reason: 'argument passed'};
+		}
+	}
 
 	// 2nd priority: Config file
 	file = ConfigInternals.getEntryPoint();
-	if (file) return {file, remainingArgs: args};
+	if (file) {
+		Log.verbose('Entry point from config file is', file);
 
-	// 3rd priority: Common paths
-	const found = findCommonPath();
-
-	if (found) {
-		Log.verbose(`No entry point specified. Using ${found} as fallback`);
-		return {file: found, remainingArgs: args};
+		return {file, remainingArgs: args, reason: 'config file'};
 	}
 
-	return {file: null, remainingArgs: args};
+	// 3rd priority: Common paths
+	const found = findCommonPath(remotionRoot);
+
+	if (found) {
+		Log.verbose(
+			'Selected',
+			found,
+			'as the entry point because file exists and is a common entry point and no entry point was explicitly selected'
+		);
+		return {file: found, remainingArgs: args, reason: 'common paths'};
+	}
+
+	return {file: null, remainingArgs: args, reason: 'none found'};
 };

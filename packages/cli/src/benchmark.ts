@@ -140,7 +140,7 @@ export const benchmarkCommand = async (
 ) => {
 	const runs: number = parsedCli.runs ?? DEFAULT_RUNS;
 
-	const {file} = findEntryPoint(args);
+	const {file, reason, remainingArgs} = findEntryPoint(args, remotionRoot);
 
 	if (!file) {
 		Log.error('No entry file passed.');
@@ -168,6 +168,8 @@ export const benchmarkCommand = async (
 		isLambda: false,
 		type: 'series',
 	});
+
+	Log.verbose('Entry point:', file, 'reason:', reason);
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
@@ -201,8 +203,8 @@ export const benchmarkCommand = async (
 	});
 
 	const ids = (
-		args[1]
-			? args[1]
+		remainingArgs[0]
+			? remainingArgs[0]
 					.split(',')
 					.map((c) => c.trim())
 					.filter(truthy)

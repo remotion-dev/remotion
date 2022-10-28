@@ -37,7 +37,11 @@ import {getUserPassedOutputLocation} from './user-passed-output-location';
 
 export const render = async (remotionRoot: string, args: string[]) => {
 	const startTime = Date.now();
-	const {file, remainingArgs} = findEntryPoint(args);
+	const {
+		file,
+		remainingArgs,
+		reason: entryPointReason,
+	} = findEntryPoint(args, remotionRoot);
 
 	if (!file) {
 		Log.error('No entry point specified. Pass more arguments:');
@@ -178,7 +182,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 
 	Log.info(
 		chalk.gray(
-			`Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
+			`Entry point = ${file} (${entryPointReason}), Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
 		)
 	);
 

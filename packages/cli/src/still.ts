@@ -33,7 +33,11 @@ import {
 
 export const still = async (remotionRoot: string, args: string[]) => {
 	const startTime = Date.now();
-	const {file, remainingArgs} = findEntryPoint(args);
+	const {
+		file,
+		remainingArgs,
+		reason: entryPointReason,
+	} = findEntryPoint(args, remotionRoot);
 
 	if (!file) {
 		Log.error('No entry point specified. Pass more arguments:');
@@ -141,7 +145,7 @@ export const still = async (remotionRoot: string, args: string[]) => {
 
 	Log.info(
 		chalk.gray(
-			`Output = ${relativeOutputLocation}, Format = ${imageFormat} (${source}), Composition = ${compositionId} (${reason})`
+			`Entry point = ${file} (${entryPointReason}), Output = ${relativeOutputLocation}, Format = ${imageFormat} (${source}), Composition = ${compositionId} (${reason})`
 		)
 	);
 

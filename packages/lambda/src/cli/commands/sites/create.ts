@@ -22,8 +22,11 @@ import {Log} from '../../log';
 
 export const SITES_CREATE_SUBCOMMAND = 'create';
 
-export const sitesCreateSubcommand = async (args: string[]) => {
-	const {file} = CliInternals.findEntryPoint(args);
+export const sitesCreateSubcommand = async (
+	args: string[],
+	remotionRoot: string
+) => {
+	const {file, reason} = CliInternals.findEntryPoint(args, remotionRoot);
 	if (!file) {
 		Log.error('No entry file passed.');
 		Log.info(
@@ -34,6 +37,8 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 		quit(1);
 		return;
 	}
+
+	Log.verbose('Entry point:', file, 'Reason:', reason);
 
 	const absoluteFile = path.join(process.cwd(), file);
 	if (!existsSync(absoluteFile)) {

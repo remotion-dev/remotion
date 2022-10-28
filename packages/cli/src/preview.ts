@@ -35,7 +35,9 @@ const waitForLiveEventsListener = (): Promise<LiveEventsServer> => {
 };
 
 export const previewCommand = async (remotionRoot: string, args: string[]) => {
-	const {file} = findEntryPoint(args);
+	const {file, reason} = findEntryPoint(args, remotionRoot);
+
+	Log.verbose('Entry point:', file, 'reason:', reason);
 
 	if (!file) {
 		Log.error(
