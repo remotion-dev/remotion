@@ -69,6 +69,7 @@ import {
 	setFfmpegOverrideFunction,
 } from './ffmpeg-override';
 import {setFrameRange} from './frame-range';
+import {getHeight, overrideHeight} from './height';
 import {setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import {
@@ -91,6 +92,7 @@ import {setQuality} from './quality';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
 import {setWebpackCaching} from './webpack-caching';
+import {getWidth, overrideWidth} from './width';
 
 export const Config: ConfigType = {
 	Preview: {
@@ -139,6 +141,8 @@ export const Config: ConfigType = {
 		setProResProfile,
 		setAudioBitrate,
 		setVideoBitrate,
+		overrideHeight,
+		overrideWidth,
 		overrideFfmpegCommand: setFfmpegOverrideFunction,
 	},
 } as ConfigType;
@@ -189,6 +193,8 @@ export const ConfigInternals = {
 	getFfmpegOverrideFunction,
 	getAudioBitrate,
 	getVideoBitrate,
+	getHeight,
+	getWidth,
 	getCrfOrUndefined,
 };
 
