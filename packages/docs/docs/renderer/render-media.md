@@ -68,14 +68,6 @@ _object - optional_
 
 An object of arbitrary shape that will be passed as [props to your composition](/docs/parametrized-rendering) and that can be retrieved using [`getInputProps()`](/docs/get-input-props).
 
-### `--height`
-
-[Specify new height (in pixels) for the rendered video.](/docs/config#overrideheight) Must be an even positive integer for h264 videos.
-
-### `--width`
-
-[Specify new width (in pixels) for the rendered video.](/docs/config#setwidth) Must be an even positive integer for h264 videos.
-
 ### `concurrency?`
 
 _optional_

@@ -28,11 +28,15 @@ Inline JSON string isn't supported on Windows because it removes the `"` charact
 
 ### `--height`
 
-[Specify new height (in pixels) for the rendered video.](/docs/config#overrideheight) Must be an even positive integer for h264 videos.
+_available from v3.2.40_
+
+[Overrides composition height.](/docs/config#overrideheight)
 
 ### `--width`
 
-[Specify new width (in pixels) for the rendered video.](/docs/config#setwidth) Must be an even positive integer for h264 videos.
+_available from v3.2.40_
+
+[Overrides composition width.](/docs/config#overridewidth)
 
 ### `--concurrency`
 
