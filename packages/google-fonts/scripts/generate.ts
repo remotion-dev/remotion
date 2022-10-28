@@ -114,7 +114,9 @@ const generate = async (font: Font) => {
     fonts[style][weight][subset] = src;
   }
 
-  console.log(`- Generating ${filename}`);
+  if (!process.env.CI) {
+    console.log(`- Generating ${filename}`);
+  }
 
   // Prepare info data
   const info: FontInfo = {
