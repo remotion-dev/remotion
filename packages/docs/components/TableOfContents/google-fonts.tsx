@@ -10,6 +10,10 @@ export const TableOfContents: React.FC = () => {
           <strong>loadFont()</strong>
           <div>Load a Google Font</div>
         </TOCItem>
+        <TOCItem link="/docs/google-fonts/available-fonts">
+          <strong>availableFonts</strong>
+          <div>Static list of available fonts</div>
+        </TOCItem>
       </Grid>
     </div>
   );

@@ -2,6 +2,8 @@
 title: loadFont()
 ---
 
+_Part of the [`@remotion/google-fonts`](/docs/google-fonts) package_
+
 Load a [Google Font](https://fonts.google.com) for use in Remotion.
 
 - Automatically blocks the render until the font is ready

@@ -143,7 +143,7 @@ Implemented by [Hidayatullah](https://github.com/ayatkyo).
 
 MIT
 
-## See also
+## See also
 
 - [Fonts](/docs/fonts)
 - [`loadFont()`](/docs/google-fonts/load-font)

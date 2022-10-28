@@ -264,9 +264,7 @@ module.exports = {
         type: "doc",
         id: "google-fonts/google-fonts",
       },
-      items: [
-        "google-fonts/load-font"
-      ],
+      items: ["google-fonts/load-font", "google-fonts/available-fonts"],
     },
   ],
   mainSidebar: [
