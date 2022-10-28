@@ -6,16 +6,19 @@ export const getCompositionWithDimensionOverride = async ({
 	validCompositions,
 	height,
 	width,
+	args,
 }: {
 	validCompositions: TCompMetadata[];
 	height: number | null;
 	width: number | null;
+	args: string[];
 }): Promise<{
 	compositionId: string;
 	reason: string;
 	config: TCompMetadata;
+	argsAfterComposition: string[];
 }> => {
-	const returnValue = await getCompositionId(validCompositions);
+	const returnValue = await getCompositionId(validCompositions, args);
 	return {
 		...returnValue,
 		config: {
