@@ -1,12 +1,12 @@
 {
 	"name": "remotion",
-	"version": "3.2.38",
+	"version": "3.2.39",
 	"description": "Render videos in React",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
-		"prepublish": "node ensure-correct-version.js && cp ../../README.md .",
+		"prepublishOnly": "node ensure-correct-version.js && cp ../../README.md .",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
 		"build": "tsc -d",
