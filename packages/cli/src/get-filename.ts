@@ -8,15 +8,18 @@ export const getOutputFilename = ({
 	imageSequence,
 	compositionName,
 	defaultExtension,
+	args,
 }: {
 	codec: Codec;
 	imageSequence: boolean;
 	compositionName: string;
 	defaultExtension: string;
+	args: string[];
 }): string => {
 	let filename = getOutputLocation({
 		compositionId: compositionName,
 		defaultExtension,
+		args,
 	});
 
 	let extension = RenderInternals.getExtensionOfFilename(filename);
