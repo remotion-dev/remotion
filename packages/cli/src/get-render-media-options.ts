@@ -48,7 +48,11 @@ export const getRenderMediaOptions = async ({
 
 	return {
 		outputLocation,
-		composition: config,
+		composition: {
+			...config,
+			width: width ?? config.width,
+			height: height ?? config.height,
+		},
 		crf,
 		envVariables,
 		ffmpegExecutable,
@@ -83,7 +87,5 @@ export const getRenderMediaOptions = async ({
 		codec,
 		audioBitrate,
 		videoBitrate,
-		forceHeight: height,
-		forceWidth: width,
 	};
 };
