@@ -5,9 +5,14 @@ import postcss from "postcss";
 import prettier from "prettier";
 import PQueue from "p-queue";
 
-import { getCssLink, unqoute, quote, removeWhitespace } from "./utils";
+import {
+  getCssLink,
+  unqoute,
+  quote,
+  removeWhitespace,
+  FontInfo,
+} from "./utils";
 import { Font, googleFonts } from "./google-fonts";
-import { FontInfo } from "../src/base";
 
 const OUTDIR = "./src";
 const CSS_CACHE_DIR = "./.cache-css";

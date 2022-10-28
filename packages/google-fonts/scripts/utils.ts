@@ -1,5 +1,14 @@
 import { Font } from "./google-fonts";
 
+export type FontInfo = {
+  fontFamily: string;
+  importName: string;
+  version: string;
+  url: string;
+  unicodeRanges: Record<string, string>;
+  fonts: Record<string, Record<string, Record<string, string>>>;
+};
+
 export const unqoute = (str: string) =>
   str.replace(/^['"]/g, "").replace(/['"]$/g, "");
 
