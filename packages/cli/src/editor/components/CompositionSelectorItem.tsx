@@ -1,4 +1,4 @@
-import type {KeyboardEvent, MouseEvent} from 'react';
+import type {KeyboardEvent, MouseEvent, MouseEventHandler} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import type {TComposition} from 'remotion';
 import {
@@ -96,26 +96,30 @@ export const CompositionSelectorItem: React.FC<{
 		};
 	}, [hovered, level, selected]);
 
-	const onClick = useCallback(
-		(evt?: MouseEvent) => {
-			evt?.preventDefault?.();
-			if (item.type === 'composition') {
-				selectComposition(item.composition, true);
-			} else {
-				toggleFolder(item.folderName, item.parentName);
-			}
+	const select = useCallback(() => {
+		if (item.type === 'composition') {
+			selectComposition(item.composition, true);
+		} else {
+			toggleFolder(item.folderName, item.parentName);
+		}
+	}, [item, selectComposition, toggleFolder]);
+
+	const onClick: MouseEventHandler = useCallback(
+		(evt: MouseEvent) => {
+			evt.preventDefault();
+			select();
 		},
-		[item, selectComposition, toggleFolder]
+		[select]
 	);
 
 	const onKeyDown = useCallback(
 		(evt: KeyboardEvent) => {
 			if (evt.key === 'Enter') {
 				evt.preventDefault();
-				onClick();
+				select();
 			}
 		},
-		[onClick]
+		[select]
 	);
 
 	if (item.type === 'folder') {
@@ -165,6 +169,7 @@ export const CompositionSelectorItem: React.FC<{
 			tabIndex={tabIndex}
 			onClick={onClick}
 			type="button"
+			onKeyDown={onKeyDown}
 		>
 			{isCompositionStill(item.composition) ? (
 				<StillIcon style={iconStyle} />
