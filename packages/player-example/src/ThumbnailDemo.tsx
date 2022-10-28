@@ -5,9 +5,7 @@ import {Thumbnail} from "@remotion/player";
 export const ThumbnailDemo: React.FC = () => {
 
     return <div style={{margin: '2rem'}}>
-        <Thumbnail inputProps={{
-
-        }} targetHeight={500} targetWidth={500} component={VideoautoplayDemo} compositionWidth={500}
+        <Thumbnail inputProps={{}} component={VideoautoplayDemo} compositionWidth={500}
                    compositionHeight={432} frameToDisplay={1} durationInFrames={2700} fps={30}/>
     </div>
 }
