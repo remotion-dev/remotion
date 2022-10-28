@@ -6,6 +6,7 @@ title: "@remotion/google-fonts"
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import {TableOfContents} from '../../components/TableOfContents/google-fonts';
 
 The `@remotion/google-fonts` package provides APIs for easily integrating [Google Fonts](https://fonts.google.com/) into Remotion.
 
@@ -44,67 +45,56 @@ pnpm i @remotion/google-fonts
   </TabItem>
 </Tabs>
 
-All Google Fonts is available under `"@remotion/google-fonts/<FontName>"`.
-
-So if we want to use **Montserrat** font then we can import it from `"@remotion/google-fonts/Montserrat"`.
-
 ## Usage
 
-Before using it, we need to import the fonts we want first, there are 2 ways to do this.
+To load a font, import the package `@remotion/google-fonts/<FontName>` and call [`loadFont()`](/docs/load-font).
 
-**Import one font**
-
-```tsx
-import { loadFont, fontFamily } from "@remotion/google-fonts/TitanOne";
+```tsx twoslash title="Load all font styles"
+import { loadFont } from "@remotion/google-fonts/TitanOne";
+const { fontFamily } = loadFont(); // "Titan One"
 ```
 
-**Import multiple fonts**
+If you want to import multiple fonts and want to avoid a variable name collision, you can import the fonts using an `import * as` statement.
 
-```tsx
-import * as TitanOne from "@remotion/google-fonts/TitanOne";
+```tsx twoslash title="Scope loadFont() variable"
 import * as Montserrat from "@remotion/google-fonts/Montserrat";
+Montserrat.loadFont();
 ```
 
-After that call [loadFont()](./load-font.md) function with specific style, weights, and subsets or just omit the function arguments to load all variant available.
+Call [`loadFont()`](/docs/google-fonts/load-font) to start the loading process. By default, every style, weight and subset is loaded.
 
-```tsx
-import * as TitanOne from "@remotion/google-fonts/TitanOne";
+You can pass a style (such as `normal`, `italic`) to only load that specific style. If you want multiple styles, call `loadFont()` multiple times.
+
+```tsx twoslash title="Load just one style"
+import { loadFont } from "@remotion/google-fonts/TitanOne";
+
+loadFont("normal");
+```
+
+Use the TypeScript autocomplete to see the available styles. To further narrow down what's being loaded, you can specify `weights` and `subsets`. These options are also typesafe.
+
+```tsx twoslash title="Load a specific style with limit weights and subsets"
 import * as Montserrat from "@remotion/google-fonts/Montserrat";
 
-// Load Titan One font
-TitanOne.loadFont("normal", {
-  weights: ["400"],
-  subsets: ["latin"],
-});
-
-// Load Montserrat using 2 font style
 Montserrat.loadFont("normal", {
   weights: ["400", "600", "800"],
   subsets: ["latin", "latin-ext"],
 });
-Montserrat.loadFont("italic", {
-  weights: ["400", "500", "600", "700", "800"],
-  subsets: ["latin", "latin-ext"],
-});
-
-// Load all Montserrat variant
-Montserrat.loadFont();
 ```
 
-Then use it anywhere in our code.
+`loadFonts()` returns an object with a `fontFamily` property. You can use the `style` attribute to render text in the font you loaded.
 
-```tsx
-import * as TitanOne from "@remotion/google-fonts/TitanOne";
+```tsx twoslash title="Use the fontFamily property"
+import { loadFont } from "@remotion/google-fonts/TitanOne";
+import { AbsoluteFill } from "remotion";
 
-TitanOne.loadFont();
+const { fontFamily } = loadFont();
 
 export const GoogleFontsDemoComposition = () => {
   return (
     <AbsoluteFill
       style={{
-        justifyContent: "center",
-        alignItems: "center",
-        fontFamily: TitanOne.fontFamily,
+        fontFamily,
       }}
     >
       <div>Hallo Google Fonts</div>
@@ -113,42 +103,47 @@ export const GoogleFontsDemoComposition = () => {
 };
 ```
 
-## APIs
+To get information about a font, you can import the `info` property:
 
-Each font will export these variables:
+```tsx twoslash title="Get info about the font"
+import { info } from "@remotion/google-fonts/Montserrat";
+console.log(info);
+```
 
-### loadFont()
-
-Load font with selected style, weights, and subsets. See [loadFont()](./load-font.md).
-
-
-### fontFamily
-
-The font family name, so we can pass this instead hardcode string.
-
-### info
-
-Complete information about the current font.
-
-**Example:**
-
-```js
+```json title="Example value of info object"
 {
-  fontFamily: 'Titan One',
-  importName: 'TitanOne',
-  version: 'v13',
-  url: 'https://fonts.googleapis.com/css2?family=Titan+One:ital,wght@0,400',
-  unicodeRanges: {
-    'latin-ext': 'U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF',
-    'latin': 'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
+  "fontFamily": "Titan One",
+  "importName": "TitanOne",
+  "version": "v13",
+  "url": "https://fonts.googleapis.com/css2?family=Titan+One:ital,wght@0,400",
+  "unicodeRanges": {
+    "latin-ext": "U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF",
+    "latin": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
   },
-  fonts: {
-    normal: {
-      '400': {
-        'latin-ext': 'https://fonts.gstatic.com/s/titanone/v13/mFTzWbsGxbbS_J5cQcjCmjgm6Es.woff2',
-        'latin': 'https://fonts.gstatic.com/s/titanone/v13/mFTzWbsGxbbS_J5cQcjClDgm.woff2',
-      },
-    },
-  },
+  "fonts": {
+    "normal": {
+      "400": {
+        "latin-ext": "https://fonts.gstatic.com/s/titanone/v13/mFTzWbsGxbbS_J5cQcjCmjgm6Es.woff2",
+        "latin": "https://fonts.gstatic.com/s/titanone/v13/mFTzWbsGxbbS_J5cQcjClDgm.woff2"
+      }
+    }
+  }
 }
 ```
+
+## APIs
+
+<TableOfContents />
+
+## Credits
+
+Implemented by [Hidayatullah](https://github.com/ayatkyo).
+
+## License
+
+MIT
+
+## See also
+
+- [Fonts](/docs/fonts)
+- [`loadFont()`](/docs/google-fonts/load-font)
