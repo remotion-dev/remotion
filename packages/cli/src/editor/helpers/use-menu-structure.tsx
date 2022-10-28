@@ -407,7 +407,10 @@ export const useMenuStructure = (closeMenu: () => void) => {
 								id: 'color-picker',
 								value: 'color-picker',
 								label: 'Color Picker',
-								onClick: () => pickColor(),
+								onClick: () => {
+									closeMenu();
+									pickColor();
+								},
 								leftItem: null,
 								keyHint: null,
 								subMenu: null,
