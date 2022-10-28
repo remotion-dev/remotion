@@ -1,4 +1,4 @@
-import type {MouseEvent, MouseEventHandler} from 'react';
+import type {MouseEventHandler} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import type {TComposition} from 'remotion';
 import {
@@ -96,20 +96,16 @@ export const CompositionSelectorItem: React.FC<{
 		};
 	}, [hovered, level, selected]);
 
-	const select = useCallback(() => {
-		if (item.type === 'composition') {
-			selectComposition(item.composition, true);
-		} else {
-			toggleFolder(item.folderName, item.parentName);
-		}
-	}, [item, selectComposition, toggleFolder]);
-
 	const onClick: MouseEventHandler = useCallback(
-		(evt: MouseEvent) => {
+		(evt) => {
 			evt.preventDefault();
-			select();
+			if (item.type === 'composition') {
+				selectComposition(item.composition, true);
+			} else {
+				toggleFolder(item.folderName, item.parentName);
+			}
 		},
-		[select]
+		[item, selectComposition, toggleFolder]
 	);
 
 	if (item.type === 'folder') {
