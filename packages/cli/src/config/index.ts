@@ -11,7 +11,6 @@ import {
 import {getOutputCodecOrUndefined} from './codec';
 import {getConcurrency} from './concurrency';
 import {getDotEnvLocation} from './env-file';
-import {getAndValidateEveryNthFrame} from './every-nth-frame';
 import {
 	getCustomFfmpegExecutable,
 	getCustomFfprobeExecutable,
@@ -21,7 +20,6 @@ import {getUserPreferredImageFormat} from './image-format';
 import {getShouldOutputImageSequence} from './image-sequence';
 import * as Logging from './log';
 import {getMaxTimelineTracks} from './max-timeline-tracks';
-import {getAndValidateNumberOfGifLoops} from './number-of-gif-loops';
 import {getOutputLocation} from './output-location';
 import {
 	defaultOverrideFunction,
@@ -61,8 +59,9 @@ import {
 	getEnforceAudioTrack,
 	setEnforceAudioTrack,
 } from './enforce-audio-track';
+import {getEntryPoint, setEntryPoint} from './entry-point';
 import {setDotEnvLocation} from './env-file';
-import {setEveryNthFrame} from './every-nth-frame';
+import {getEveryNthFrame, setEveryNthFrame} from './every-nth-frame';
 import {setFfmpegExecutable, setFfprobeExecutable} from './ffmpeg-executable';
 import {
 	getFfmpegOverrideFunction,
@@ -78,7 +77,7 @@ import {
 import {setLogLevel} from './log';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
 import {getMuted, setMuted} from './muted';
-import {setNumberOfGifLoops} from './number-of-gif-loops';
+import {getNumberOfGifLoops, setNumberOfGifLoops} from './number-of-gif-loops';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
 import {overrideWebpackConfig} from './override-webpack';
@@ -91,7 +90,6 @@ import {setQuality} from './quality';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
 import {setWebpackCaching} from './webpack-caching';
-import { getEntryPoint, setEntryPoint } from './entry-point';
 
 export const Config: ConfigType = {
 	Preview: {
@@ -165,8 +163,7 @@ export const ConfigInternals = {
 	getIgnoreCertificateErrors,
 	getChromiumHeadlessMode,
 	getChromiumOpenGlRenderer,
-	getAndValidateEveryNthFrame,
-	getAndValidateNumberOfGifLoops,
+	getEveryNthFrame,
 	getConcurrency,
 	getCurrentPuppeteerTimeout,
 	getQuality,
@@ -193,6 +190,7 @@ export const ConfigInternals = {
 	getVideoBitrate,
 	getCrfOrUndefined,
 	getEntryPoint,
+	getNumberOfGifLoops,
 };
 
 export const overrideRemotion = () => {

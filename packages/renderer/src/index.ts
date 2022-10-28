@@ -7,7 +7,7 @@ import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {checkNodeVersionAndWarnAboutRosetta} from './check-apple-silicon';
 import {DEFAULT_CODEC, validCodecs} from './codec';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
-import {getValidCrfRanges, validateQualitySettings} from './crf';
+import {getValidCrfRanges} from './crf';
 import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
@@ -21,10 +21,7 @@ import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
 import {getDesiredPort} from './get-port';
-import {
-	validateSelectedPixelFormatAndImageFormatCombination,
-	validImageFormats,
-} from './image-format';
+import {validImageFormats} from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
@@ -46,7 +43,6 @@ import {spawnFfmpeg} from './stitch-frames-to-video';
 import {tmpDir} from './tmp-dir';
 import {validateConcurrency} from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
-import {validateEveryNthFrame} from './validate-every-nth-frame';
 import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
 import {validateFrame} from './validate-frame';
 import {
@@ -140,7 +136,6 @@ export const RenderInternals = {
 	validateFrameRange,
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
-	validateQualitySettings,
 	validImageFormats,
 	validCodecs,
 	DEFAULT_PIXEL_FORMAT,
@@ -150,13 +145,11 @@ export const RenderInternals = {
 	getValidCrfRanges,
 	validateSelectedPixelFormatAndCodecCombination,
 	validateSelectedCodecAndProResCombination,
-	validateSelectedPixelFormatAndImageFormatCombination,
 	DEFAULT_CODEC,
 	isAudioCodec,
 	logLevels,
 	isEqualOrBelowLogLevel,
 	isValidLogLevel,
-	validateEveryNthFrame,
 	perf,
 	makeDownloadMap,
 	cleanDownloadMap,
