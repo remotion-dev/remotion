@@ -13,7 +13,7 @@ import path from 'path';
 import {Internals} from 'remotion';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
-import { getEntryPoint } from './entry-point';
+import {findEntryPoint} from './entry-point';
 import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
@@ -36,7 +36,7 @@ import {getUserPassedOutputLocation} from './user-passed-output-location';
 
 export const render = async (remotionRoot: string) => {
 	const startTime = Date.now();
-	const file = getEntryPoint();
+	const file = findEntryPoint();
 
 	if (!file) {
 		Log.error('No entry point specified. Pass more arguments:');
