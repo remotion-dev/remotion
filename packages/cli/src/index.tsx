@@ -15,15 +15,9 @@ import {handleCommonError} from './handle-common-errors';
 import {getImageFormat} from './image-formats';
 import {initializeCli} from './initialize-cli';
 import {lambdaCommand} from './lambda-command';
-import {loadConfigFile} from './load-config';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
-import {
-	BooleanFlags,
-	parseCommandLine,
-	parsedCli,
-	quietFlagProvided,
-} from './parse-command-line';
+import {BooleanFlags, parsedCli, quietFlagProvided} from './parse-command-line';
 import {previewCommand} from './preview';
 import {printHelp} from './print-help';
 import {createOverwriteableCliOutput} from './progress-bar';
@@ -101,9 +95,7 @@ export const CliInternals = {
 	chalk,
 	makeProgressBar,
 	Log,
-	loadConfigFile,
 	getCliOptions,
-	parseCommandLine,
 	loadConfig,
 	initializeCli,
 	BooleanFlags,
