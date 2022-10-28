@@ -20,7 +20,7 @@ import {
 	getFinalCodec,
 	validateFfmpegCanUseCodec,
 } from './get-cli-options';
-import {getCompositionId} from './get-composition-id';
+import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {getOutputFilename} from './get-filename';
 import {getRenderMediaOptions} from './get-render-media-options';
 import {getImageFormat} from './image-formats';
@@ -85,6 +85,8 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		everyNthFrame,
 		puppeteerTimeout,
 		publicDir,
+		height,
+		width,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -157,7 +159,12 @@ export const render = async (remotionRoot: string, args: string[]) => {
 	});
 
 	const {compositionId, config, reason, argsAfterComposition} =
-		await getCompositionId(comps, remainingArgs);
+		await getCompositionWithDimensionOverride({
+			validCompositions: comps,
+			height,
+			width,
+			args: remainingArgs,
+		});
 
 	const {codec, reason: codecReason} = getFinalCodec({
 		downloadName: null,

@@ -20,12 +20,12 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 	if (params.version !== VERSION) {
 		if (!params.version) {
 			throw new Error(
-				`Version mismatch: When calling renderMediaOnLambda(), the deployed Lambda function had version ${VERSION} but the @remotion/lambda package is an older version. Align the versions.`
+				`Version mismatch: When calling renderMediaOnLambda(), you called the function ${process.env.AWS_LAMBDA_FUNCTION_NAME} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call renderMediaOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`
 			);
 		}
 
 		throw new Error(
-			`Version mismatch: When calling renderMediaOnLambda(), get deployed Lambda function had version ${VERSION} and the @remotion/lambda package has version ${params.version}. Align the versions.`
+			`Version mismatch: When calling renderMediaOnLambda(), you passed ${process.env.AWS_LAMBDA_FUNCTION_NAME} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${params.version}. Deploy a new function and use it to call renderMediaOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`
 		);
 	}
 
@@ -78,6 +78,8 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		webhook: params.webhook,
 		audioBitrate: params.audioBitrate,
 		videoBitrate: params.videoBitrate,
+		forceHeight: params.forceHeight,
+		forceWidth: params.forceWidth,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({

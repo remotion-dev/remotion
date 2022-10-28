@@ -194,7 +194,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						quickSwitcherLabel: null,
 					},
 					{
-						id: 'timeline-divider',
+						id: 'timeline-divider-1',
 						type: 'divider' as const,
 					},
 					{
@@ -260,7 +260,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						onClick: () => undefined,
 					},
 					{
-						id: 'timeline-divider',
+						id: 'timeline-divider-2',
 						type: 'divider' as const,
 					},
 					{
@@ -280,7 +280,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 							: 'Enable Checkerboard Transparency',
 					},
 					{
-						id: 'timeline-divider',
+						id: 'timeline-divider-3',
 						type: 'divider' as const,
 					},
 					{
@@ -328,7 +328,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						quickSwitcherLabel: 'Timeline: Collapse all layers',
 					},
 					{
-						id: 'in-out-divider',
+						id: 'in-out-divider-4',
 						type: 'divider' as const,
 					},
 					{
@@ -350,7 +350,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						quickSwitcherLabel: 'Switch composition',
 					},
 					{
-						id: 'in-out-divider',
+						id: 'in-out-divider-5',
 						type: 'divider' as const,
 					},
 					{
@@ -407,7 +407,10 @@ export const useMenuStructure = (closeMenu: () => void) => {
 								id: 'color-picker',
 								value: 'color-picker',
 								label: 'Color Picker',
-								onClick: () => pickColor(),
+								onClick: () => {
+									closeMenu();
+									pickColor();
+								},
 								leftItem: null,
 								keyHint: null,
 								subMenu: null,
@@ -491,7 +494,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						quickSwitcherLabel: null,
 					},
 					{
-						id: 'help-divider',
+						id: 'help-divider-6',
 						type: 'divider' as const,
 					},
 					{
