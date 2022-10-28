@@ -249,7 +249,9 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		);
 	};
 
-	const imageFormat = getImageFormat(codec);
+	const imageFormat = getImageFormat(
+		shouldOutputImageSequence ? undefined : codec
+	);
 
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
@@ -309,6 +311,8 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		Log.info();
 		Log.info();
 		Log.info(chalk.green('\nYour image sequence is ready!'));
+		Log.info(chalk.cyan(`▶ ${absoluteOutputFile}`));
+
 		return;
 	}
 
