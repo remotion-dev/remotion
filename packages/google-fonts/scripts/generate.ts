@@ -128,9 +128,9 @@ const generate = async (font: Font) => {
 
   let output = `import { loadFonts } from "./base";
 
-export const info = ${JSON.stringify(info, null, 3)}
+export const getInfo = () => (${JSON.stringify(info, null, 3)})
 
-export const fontFamily = info.fontFamily;
+export const fontFamily = getInfo().fontFamily;
 
 type Variants = {\n`;
 
@@ -150,7 +150,7 @@ export const loadFont = <T extends keyof Variants>(
     subsets?: Variants[T]['subsets'][];
   }
 ) => { 
-  return loadFonts(info, style, options);
+  return loadFonts(getInfo(), style, options);
 };
 
 `;

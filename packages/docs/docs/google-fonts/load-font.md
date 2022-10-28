@@ -62,7 +62,7 @@ export const GoogleFontsExample: React.FC = () => {
 
 ## Arguments
 
-All arguments and options are optional. Use TypeScript autocompletion or `info` to discover available options. With any of them, all styles, weights and subsets are loaded.
+All arguments and options are optional. Use TypeScript autocompletion or [`getInfo`](/docs/google-fonts/get-info) to discover available options. With any of them, all styles, weights and subsets are loaded.
 
 ### style
 

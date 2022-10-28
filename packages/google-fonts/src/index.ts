@@ -1,4 +1,4 @@
-export const availableFonts = [
+export const getAvailableFonts = () => [
   {
     fontFamily: 'ABeeZee',
     importName: 'ABeeZee',

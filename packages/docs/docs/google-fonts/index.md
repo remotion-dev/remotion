@@ -103,11 +103,11 @@ export const GoogleFontsDemoComposition = () => {
 };
 ```
 
-To get information about a font, you can import the `info` property:
+To get information about a font, you can import the `getInfo()` function:
 
 ```tsx twoslash title="Get info about the font"
-import { info } from "@remotion/google-fonts/Montserrat";
-console.log(info);
+import { getInfo } from "@remotion/google-fonts/Montserrat";
+console.log(getInfo());
 ```
 
 ```json title="Example value of info object"
@@ -129,6 +129,14 @@ console.log(info);
     }
   }
 }
+```
+
+To get a list of all available fonts, you can call [`getAvailableFonts()`](/docs/google-fonts/get-available-fonts) imported from `@remotion/google-fonts`:
+
+```ts twoslash
+import { getAvailableFonts } from "@remotion/google-fonts";
+
+console.log(getAvailableFonts());
 ```
 
 ## APIs

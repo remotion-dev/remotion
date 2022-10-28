@@ -1,5 +1,5 @@
 ---
-title: availableFonts
+title: getAvailableFonts()
 ---
 
 import {AvailableFonts} from '../../components/AvailableFonts'
@@ -11,9 +11,9 @@ Static array of all available fonts available in `@remotion/google-fonts`.
 ## Usage
 
 ```ts twoslash
-import { availableFonts } from "@remotion/google-fonts";
+import { getAvailableFonts } from "@remotion/google-fonts";
 
-console.log(availableFonts);
+console.log(getAvailableFonts());
 ```
 
 ```json title="JSON structure (shortened)"

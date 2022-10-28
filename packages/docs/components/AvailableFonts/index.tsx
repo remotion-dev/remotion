@@ -1,4 +1,4 @@
-import { availableFonts } from "@remotion/google-fonts";
+import { getAvailableFonts } from "@remotion/google-fonts";
 import React from "react";
 
 export const AvailableFonts: React.FC = () => {
@@ -8,7 +8,7 @@ export const AvailableFonts: React.FC = () => {
         <th>Font Family</th>
         <th>import statement</th>
       </tr>
-      {availableFonts.map((font) => {
+      {getAvailableFonts().map((font) => {
         return (
           <tr key={font.importName}>
             <td>{font.fontFamily}</td>
