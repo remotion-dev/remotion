@@ -31,7 +31,8 @@ export const validateEveryNthFrame = (everyNthFrame: unknown, codec: Codec) => {
 		return everyNthFrame;
 	}
 
-	if (codec !== 'gif') {
+	// h264-mkv because that is what is being used on Lambda
+	if (codec !== 'gif' && codec !== 'h264-mkv') {
 		throw new Error(
 			`"everyNthFrame" can only be set if "codec" is set to "gif". The codec is "${codec}"`
 		);
