@@ -23,8 +23,8 @@ import {Log} from '../../log';
 export const SITES_CREATE_SUBCOMMAND = 'create';
 
 export const sitesCreateSubcommand = async (args: string[]) => {
-	const fileName = args[0];
-	if (!fileName) {
+	const {file} = CliInternals.findEntryPoint(args);
+	if (!file) {
 		Log.error('No entry file passed.');
 		Log.info(
 			'Pass an additional argument specifying the entry file of your Remotion project:'
@@ -32,9 +32,10 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 		Log.info();
 		Log.info(`${BINARY_NAME} deploy <entry-file.ts>`);
 		quit(1);
+		return;
 	}
 
-	const absoluteFile = path.join(process.cwd(), fileName);
+	const absoluteFile = path.join(process.cwd(), file);
 	if (!existsSync(absoluteFile)) {
 		Log.error(
 			`No file exists at ${absoluteFile}. Make sure the path exists and try again.`
