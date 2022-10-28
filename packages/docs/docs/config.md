@@ -490,7 +490,7 @@ The [command line flag](/docs/cli/render#--sequence) `--sequence` will take prec
 
 ### overrideHeight()
 
-_Available from Version_
+_Available from v3.2.40_
 
 Overrides the height of the rendered video.
 
@@ -503,9 +503,9 @@ Config.Output.overrideHeight(600);
 The [command line flag](/docs/cli/render#--height) `--height` will take precedence over this option.
 (see h264 validation?)
 
-### setWidth()
+### overrideWidth()
 
-_Available from Version_
+_Available from v3.2.40_
 
 Overrides the width of the rendered video.
 
