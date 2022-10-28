@@ -230,6 +230,7 @@ export const QuickSwitcherContent: React.FC<{
 			callback: onArrowUp,
 			commandCtrlKey: false,
 			event: 'keydown',
+			preventDefault: true,
 		});
 
 		return () => {
@@ -277,6 +278,7 @@ export const QuickSwitcherContent: React.FC<{
 			callback: onArrowDown,
 			commandCtrlKey: false,
 			event: 'keydown',
+			preventDefault: true,
 		});
 
 		return () => {

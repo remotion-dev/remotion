@@ -93,6 +93,7 @@ export const QuickSwitcherResult: React.FC<{
 			callback: result.onSelected,
 			commandCtrlKey: false,
 			event: 'keydown',
+			preventDefault: true,
 		});
 
 		return () => {

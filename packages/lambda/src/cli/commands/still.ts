@@ -60,6 +60,8 @@ export const stillCommand = async (args: string[]) => {
 		quality,
 		stillFrame,
 		scale,
+		height,
+		width,
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
@@ -107,6 +109,8 @@ export const stillCommand = async (args: string[]) => {
 			chromiumOptions,
 			timeoutInMilliseconds: puppeteerTimeout,
 			scale,
+			forceHeight: height,
+			forceWidth: width,
 		});
 		Log.info(
 			CliInternals.chalk.gray(
