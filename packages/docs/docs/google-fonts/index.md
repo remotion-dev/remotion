@@ -47,7 +47,7 @@ pnpm i @remotion/google-fonts
 
 ## Usage
 
-To load a font, import the package `@remotion/google-fonts/<FontName>` and call [`loadFont()`](/docs/load-font).
+To load a font, import the package `@remotion/google-fonts/<FontName>` and call [`loadFont()`](/docs/google-font/load-font).
 
 ```tsx twoslash title="Load all font styles"
 import { loadFont } from "@remotion/google-fonts/TitanOne";
