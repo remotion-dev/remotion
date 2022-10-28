@@ -88,7 +88,7 @@ jobs:
             node_version: 14
             ffmpeg_version: 4.4
           - os: ubuntu-latest
-            node_version: 18
+            node_version: 19
             ffmpeg_version: 4.4
           - os: ubuntu-latest
             node_version: 14

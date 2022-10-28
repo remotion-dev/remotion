@@ -309,6 +309,7 @@ module.exports = {
         "video-manipulation",
         "render-as-gif",
         "figma",
+        "spline",
       ],
     },
     {
