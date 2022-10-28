@@ -203,3 +203,15 @@ Sets a webhook to be called when the render finishes or fails. [`renderMediaOnLa
 _available from v3.2.30_
 
 Sets a webhook secret for the webhook (see above). [`renderMediaOnLambda() -> webhook.secret`](/docs/lambda/rendermediaonlambda#webhook). To be used together with `--webhook`.
+
+### `--height`
+
+_available from v3.2.40_
+
+[Overrides composition height.](/docs/config#overrideheight)
+
+### `--width`
+
+_available from v3.2.40_
+
+[Overrides composition width.](/docs/config#overridewidth)

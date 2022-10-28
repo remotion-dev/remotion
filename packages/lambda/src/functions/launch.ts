@@ -164,6 +164,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		chromiumOptions: params.chromiumOptions,
 		port: null,
 		downloadMap,
+		forceHeight: params.forceHeight,
+		forceWidth: params.forceWidth,
 	});
 	Internals.validateDurationInFrames(
 		comp.durationInFrames,

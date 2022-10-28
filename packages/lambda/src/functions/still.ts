@@ -108,6 +108,8 @@ const innerStillHandler = async (
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 		port: null,
 		downloadMap,
+		forceHeight: lambdaParams.forceHeight,
+		forceWidth: lambdaParams.forceWidth,
 	});
 
 	const renderMetadata: RenderMetadata = {
