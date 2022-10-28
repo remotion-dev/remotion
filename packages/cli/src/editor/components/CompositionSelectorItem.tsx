@@ -1,4 +1,4 @@
-import type {KeyboardEvent, MouseEvent, MouseEventHandler} from 'react';
+import type {MouseEvent, MouseEventHandler} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import type {TComposition} from 'remotion';
 import {
@@ -112,16 +112,6 @@ export const CompositionSelectorItem: React.FC<{
 		[select]
 	);
 
-	const onKeyDown = useCallback(
-		(evt: KeyboardEvent) => {
-			if (evt.key === 'Enter') {
-				evt.preventDefault();
-				select();
-			}
-		},
-		[select]
-	);
-
 	if (item.type === 'folder') {
 		return (
 			<>
@@ -131,7 +121,6 @@ export const CompositionSelectorItem: React.FC<{
 					onPointerLeave={onPointerLeave}
 					tabIndex={tabIndex}
 					onClick={onClick}
-					onKeyDown={onKeyDown}
 					type="button"
 				>
 					{item.expanded ? (
@@ -169,7 +158,6 @@ export const CompositionSelectorItem: React.FC<{
 			tabIndex={tabIndex}
 			onClick={onClick}
 			type="button"
-			onKeyDown={onKeyDown}
 		>
 			{isCompositionStill(item.composition) ? (
 				<StillIcon style={iconStyle} />

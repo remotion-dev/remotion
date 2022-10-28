@@ -70,6 +70,7 @@ export const PlayPause: React.FC<{
 
 	const onEnter = useCallback(
 		(e: KeyboardEvent) => {
+			console.log({e, playing});
 			if (playing) {
 				// Don't prevent keyboard navigation
 				e.preventDefault();
@@ -166,36 +167,42 @@ export const PlayPause: React.FC<{
 			key: 'ArrowLeft',
 			callback: onArrowLeft,
 			commandCtrlKey: false,
+			preventDefault: true,
 		});
 		const arrowRight = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'ArrowRight',
 			callback: onArrowRight,
 			commandCtrlKey: false,
+			preventDefault: true,
 		});
 		const space = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: ' ',
 			callback: onSpace,
 			commandCtrlKey: false,
+			preventDefault: true,
 		});
 		const enter = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'enter',
 			callback: onEnter,
 			commandCtrlKey: false,
+			preventDefault: false,
 		});
 		const a = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'a',
 			callback: jumpToStart,
 			commandCtrlKey: false,
+			preventDefault: true,
 		});
 		const e = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'e',
 			callback: jumpToEnd,
 			commandCtrlKey: false,
+			preventDefault: true,
 		});
 
 		return () => {

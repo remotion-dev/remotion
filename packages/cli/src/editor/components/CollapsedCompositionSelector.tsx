@@ -1,4 +1,3 @@
-import type {KeyboardEvent} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import {getBackgroundFromHoverState} from '../helpers/colors';
 import {CaretRight} from '../icons/caret';
@@ -18,16 +17,6 @@ export const CollapsedCompositionSelector: React.FC<{
 	const onPointerLeave = useCallback(() => {
 		setHovered(false);
 	}, []);
-
-	const onKeyDown = useCallback(
-		(evt: KeyboardEvent) => {
-			if (evt.key === 'Enter') {
-				evt.preventDefault();
-				onExpand();
-			}
-		},
-		[onExpand]
-	);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
@@ -58,7 +47,6 @@ export const CollapsedCompositionSelector: React.FC<{
 			role="button"
 			tabIndex={tabIndex}
 			onClick={onExpand}
-			onKeyDown={onKeyDown}
 		>
 			<CaretRight />
 		</button>
