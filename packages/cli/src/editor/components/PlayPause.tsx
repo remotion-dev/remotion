@@ -70,7 +70,6 @@ export const PlayPause: React.FC<{
 
 	const onEnter = useCallback(
 		(e: KeyboardEvent) => {
-			console.log({e, playing});
 			if (playing) {
 				// Don't prevent keyboard navigation
 				e.preventDefault();
