@@ -31,9 +31,9 @@ import {
 	getUserPassedOutputLocation,
 } from './user-passed-output-location';
 
-export const still = async (remotionRoot: string) => {
+export const still = async (remotionRoot: string, args: string[]) => {
 	const startTime = Date.now();
-	const file = findEntryPoint(parsedCli._.slice(1));
+	const {file, remainingArgs} = findEntryPoint(args);
 
 	if (!file) {
 		Log.error('No entry point specified. Pass more arguments:');
@@ -78,14 +78,6 @@ export const still = async (remotionRoot: string) => {
 
 	Log.verbose('Browser executable: ', browserExecutable);
 
-	const {format: imageFormat, source} = determineFinalImageFormat({
-		cliFlag: parsedCli['image-format'] ?? null,
-		configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
-		downloadName: null,
-		outName: getUserPassedOutputLocation(),
-		isLambda: false,
-	});
-
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
 		chromiumOptions,
@@ -122,11 +114,21 @@ export const still = async (remotionRoot: string) => {
 		downloadMap,
 	});
 
-	const {compositionId, config, reason} = await getCompositionId(comps);
+	const {compositionId, config, reason, argsAfterComposition} =
+		await getCompositionId(comps, remainingArgs);
+
+	const {format: imageFormat, source} = determineFinalImageFormat({
+		cliFlag: parsedCli['image-format'] ?? null,
+		configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
+		downloadName: null,
+		outName: getUserPassedOutputLocation(argsAfterComposition),
+		isLambda: false,
+	});
 
 	const relativeOutputLocation = getOutputLocation({
 		compositionId,
 		defaultExtension: imageFormat,
+		args: argsAfterComposition,
 	});
 
 	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(

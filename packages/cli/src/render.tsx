@@ -34,9 +34,9 @@ import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import type {RenderStep} from './step';
 import {getUserPassedOutputLocation} from './user-passed-output-location';
 
-export const render = async (remotionRoot: string) => {
+export const render = async (remotionRoot: string, args: string[]) => {
 	const startTime = Date.now();
-	const file = findEntryPoint(parsedCli._.slice(1));
+	const {file, remainingArgs} = findEntryPoint(args);
 
 	if (!file) {
 		Log.error('No entry point specified. Pass more arguments:');
@@ -61,13 +61,6 @@ export const render = async (remotionRoot: string) => {
 	}
 
 	Log.verbose('Asset dirs', downloadMap.assetDir);
-
-	const {codec, reason: codecReason} = getFinalCodec({
-		downloadName: null,
-		outName: getUserPassedOutputLocation(),
-	});
-
-	validateFfmpegCanUseCodec(codec);
 
 	const {
 		concurrency,
@@ -160,7 +153,14 @@ export const render = async (remotionRoot: string) => {
 		port,
 	});
 
-	const {compositionId, config, reason} = await getCompositionId(comps);
+	const {compositionId, config, reason, argsAfterComposition} =
+		await getCompositionId(comps, remainingArgs);
+
+	const {codec, reason: codecReason} = getFinalCodec({
+		downloadName: null,
+		outName: getUserPassedOutputLocation(argsAfterComposition),
+	});
+	validateFfmpegCanUseCodec(codec);
 
 	RenderInternals.validateEvenDimensionsWithCodec({
 		width: config.width,
@@ -174,6 +174,7 @@ export const render = async (remotionRoot: string) => {
 		imageSequence: shouldOutputImageSequence,
 		compositionName: compositionId,
 		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec, 'final'),
+		args: argsAfterComposition,
 	});
 
 	Log.info(
