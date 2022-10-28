@@ -167,7 +167,6 @@ export const benchmarkCommand = async (
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
-		codec: 'h264',
 	});
 
 	const browserInstance = openBrowser(browser, {

@@ -23,6 +23,7 @@ import {
 import {getCompositionId} from './get-composition-id';
 import {getOutputFilename} from './get-filename';
 import {getRenderMediaOptions} from './get-render-media-options';
+import {getImageFormat} from './image-formats';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import type {DownloadProgress} from './progress-bar';
@@ -71,7 +72,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		envVariables,
 		quality,
 		browser,
-		imageFormat,
 		browserExecutable,
 		ffmpegExecutable,
 		ffprobeExecutable,
@@ -84,7 +84,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
-		codec,
 	});
 
 	const ffmpegVersion = await RenderInternals.getFfmpegVersion({
@@ -238,6 +237,8 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			})
 		);
 	};
+
+	const imageFormat = getImageFormat(codec);
 
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {

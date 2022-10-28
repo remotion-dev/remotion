@@ -1,4 +1,6 @@
-export const validateEveryNthFrame = (everyNthFrame: unknown) => {
+import type {Codec} from './codec';
+
+export const validateEveryNthFrame = (everyNthFrame: unknown, codec: Codec) => {
 	if (typeof everyNthFrame === 'undefined') {
 		throw new TypeError(`Argument missing for parameter "everyNthFrame"`);
 	}
@@ -22,6 +24,16 @@ export const validateEveryNthFrame = (everyNthFrame: unknown) => {
 	if (everyNthFrame % 1 !== 0) {
 		throw new RangeError(
 			`Argument for everyNthFrame must be an integer, but got ${everyNthFrame}`
+		);
+	}
+
+	if (everyNthFrame === 1) {
+		return everyNthFrame;
+	}
+
+	if (codec !== 'gif') {
+		throw new Error(
+			`"everyNthFrame" can only be set if "codec" is set to "gif". The codec is "${codec}"`
 		);
 	}
 };
