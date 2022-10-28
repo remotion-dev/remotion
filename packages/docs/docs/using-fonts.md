@@ -5,9 +5,29 @@ id: fonts
 
 Here are some ways how you can use custom fonts in Remotion.
 
-## Google Fonts
+## Google Fonts using `@remotion/google-fonts`
 
-Import the CSS that Google Fonts gives you. From version 2.2 on, Remotion will automatically wait until the fonts are loaded.
+_available from v3.2.40_
+
+[`@remotion/google-fonts`](/docs/google-fonts/index.md) is a type-safe way to load Google fonts without having to create CSS files.
+
+```tsx title="MyComp.tsx"
+import { loadFont } from "@remotion/google-fonts/TitanOne";
+
+const { fontFamily } = loadFont();
+
+const GoogleFontsComp: React.FC = () => {
+  return <div style={{ fontFamily }}>Hello, Google Fonts</div>;
+};
+```
+
+## Google Fonts using CSS
+
+Import the CSS that Google Fonts gives you. From version 2.2 on, Remotion will automatically wait until the fonts are loaded
+
+:::note
+This does not work if you use [`lazyComponent`](/docs/composition#lazycomponent).
+:::
 
 ```css title="font.css"
 @import url("https://fonts.googleapis.com/css2?family=Bangers");

@@ -10,6 +10,7 @@ export const listOfRemotionPackages = [
 	'@remotion/lottie',
 	'@remotion/media-utils',
 	'@remotion/motion-blur',
+	'@remotion/google-fonts',
 	'@remotion/noise',
 	'@remotion/paths',
 	'@remotion/babel-loader',
