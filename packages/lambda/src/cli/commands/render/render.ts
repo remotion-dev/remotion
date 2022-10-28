@@ -64,7 +64,6 @@ export const renderCommand = async (args: string[]) => {
 		crf,
 		envVariables,
 		frameRange,
-		imageFormat,
 		inputProps,
 		logLevel,
 		pixelFormat,
@@ -81,8 +80,9 @@ export const renderCommand = async (args: string[]) => {
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
-		codec,
 	});
+
+	const imageFormat = CliInternals.getImageFormat(codec);
 
 	const functionName = await findFunctionName();
 
