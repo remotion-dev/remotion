@@ -151,11 +151,11 @@ export const parseCommandLine = () => {
 	}
 
 	if (parsedCli.height) {
-		Config.Output.setHeight(parsedCli.height);
+		Config.Output.overrideHeight(parsedCli.height);
 	}
 
 	if (parsedCli.width) {
-		Config.Output.setWidth(parsedCli.width);
+		Config.Output.overrideWidth(parsedCli.width);
 	}
 
 	if (parsedCli.frames) {

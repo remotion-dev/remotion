@@ -228,16 +228,13 @@ export type ConfigType = {
 		 */
 		readonly setImageSequence: (newImageSequence: boolean) => void;
 		/**
-		 * Override the output video's height.
-		 * Ovverrides natural height of the video.
-		 * See h264 restriction
+		 * Overrides the height of a composition
 		 */
-		readonly setHeight: (newHeight: number) => void;
+		readonly overrideHeight: (newHeight: number) => void;
 		/**
-		 * Set new width.
-		 * Overrides natural width of the video.
+		 * Overrides the width of a composition
 		 */
-		readonly setWidth: (newWidth: number) => void;
+		readonly overrideWidth: (newWidth: number) => void;
 		/**
 		 * Set the ProRes profile.
 		 * This method is only valid if the codec has been set to 'prores'.

@@ -3,8 +3,12 @@ import {Internals} from 'remotion';
 
 let specifiedHeight: number | null;
 
-export const setHeight = (newHeight: number) => {
-	Internals.validateDimension(newHeight, 'height', 'passed to `setHeight()`');
+export const overrideHeight = (newHeight: number) => {
+	Internals.validateDimension(
+		newHeight,
+		'height',
+		'passed to `overrideHeight()`'
+	);
 
 	specifiedHeight = newHeight;
 };

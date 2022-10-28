@@ -488,16 +488,16 @@ Config.Output.setImageSequence(true);
 
 The [command line flag](/docs/cli/render#--sequence) `--sequence` will take precedence over this option.
 
-### setHeight()
+### overrideHeight()
 
 _Available from Version_
 
-Sets/Overrides the height of the rendered video. Must be an even positive integer for h264 videos.
+Overrides the height of the rendered video.
 
 ```ts twoslash
 import { Config } from "remotion";
 // ---cut---
-Config.Output.setHeight(600);
+Config.Output.overrideHeight(600);
 ```
 
 The [command line flag](/docs/cli/render#--height) `--height` will take precedence over this option.
@@ -507,12 +507,12 @@ The [command line flag](/docs/cli/render#--height) `--height` will take preceden
 
 _Available from Version_
 
-Sets/Overrides the width of the rendered video. Must be an even positive integer for h264 videos.
+Overrides the width of the rendered video.
 
 ```ts twoslash
 import { Config } from "remotion";
 // ---cut---
-Config.Output.setWidth(900);
+Config.Output.overrideWidth(900);
 ```
 
 The [command line flag](/docs/cli/render#--width) `--width` will take precedence over this option
