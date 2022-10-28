@@ -26,7 +26,7 @@
 		"@babel/preset-env": "7.12.13",
 		"@babel/preset-react": "7.12.13",
 		"@mdx-js/react": "^1.6.21",
-		"@react-three/drei": "^7.22.7",
+		"@react-three/drei": "^9.37.0",
 		"@remotion/babel-loader": "3.2.39",
 		"@remotion/bundler": "3.2.39",
 		"@remotion/cli": "3.2.39",
@@ -53,6 +53,7 @@
 		"remotion": "3.2.39",
 		"styled-components": "^5.1.1",
 		"ts-unused-exports": "^7.0.1",
+		"use-asset": "^1.0.4",
 		"typescript": "^4.7.0",
 		"vitest": "0.24.3"
 	},
