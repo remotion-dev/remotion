@@ -39,3 +39,8 @@ console.log(availableFonts);
 ## List of available fonts
 
 <AvailableFonts />
+
+## See also
+
+- [Fonts](/docs/fonts)
+- [`@remotion/google-fonts`](/docs/google-fonts)

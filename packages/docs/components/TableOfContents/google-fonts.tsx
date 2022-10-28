@@ -14,6 +14,10 @@ export const TableOfContents: React.FC = () => {
           <strong>availableFonts</strong>
           <div>Static list of available fonts</div>
         </TOCItem>
+        <TOCItem link="/docs/google-fonts/info">
+          <strong>info</strong>
+          <div>Metadata about a specific font</div>
+        </TOCItem>
       </Grid>
     </div>
   );
