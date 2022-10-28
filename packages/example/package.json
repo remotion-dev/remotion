@@ -33,6 +33,7 @@
 		"@remotion/eslint-config": "3.2.39",
 		"@remotion/eslint-plugin": "3.2.39",
 		"@remotion/gif": "3.2.39",
+		"@remotion/google-fonts": "3.2.39",
 		"@remotion/lambda": "3.2.39",
 		"@remotion/lottie": "3.2.39",
 		"@remotion/media-utils": "3.2.39",
