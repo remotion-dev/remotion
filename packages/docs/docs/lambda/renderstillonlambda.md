@@ -100,13 +100,17 @@ _optional - default `{}`_
 
 See [`renderMedia() -> envVariables`](/docs/renderer/render-media#envvariables).
 
-### `height`
+### `forceHeight`
 
-Specify height of the output image in pixels.
+_optional, available from v3.2.40_
 
-### `width`
+Overrides the default composition height.
 
-Specify width of the output image in pixels.
+### `forceWidth`
+
+_optional, available from v3.2.40_
+
+Overrides the default composition width.
 
 ### `scale`
 
