@@ -44,6 +44,11 @@ export type ConfigType = {
 	};
 	readonly Bundling: {
 		/**
+		 * Specify the entry point so you don't have to specify it in the
+		 * CLI command
+		 */
+		readonly setEntryPoint: (src: string) => void;
+		/**
 		 * Pass in a function which takes the current Webpack config
 		 * and return a modified Webpack configuration.
 		 * Docs: http://remotion.dev/docs/webpack
