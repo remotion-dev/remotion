@@ -95,13 +95,13 @@ export const Config: ConfigType = {
 	Preview: {
 		setMaxTimelineTracks,
 		setKeyboardShortcutsEnabled,
-		setEntryPoint,
 	},
 	Bundling: {
 		overrideWebpackConfig,
 		setCachingEnabled: setWebpackCaching,
 		setPort,
 		setPublicDir,
+		setEntryPoint,
 	},
 	Log: {
 		setLevel: setLogLevel,
