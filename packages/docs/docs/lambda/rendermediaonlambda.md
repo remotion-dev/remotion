@@ -85,14 +85,17 @@ Audio codecs `mp3`, `aac` and `wav` are also supported.
 
 See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
 
+### `forceHeight`
 
-### `height`
+_available from v3.2.40_
 
-Specifies new height. See also [`renderMedia() -> height`](/docs/renderer/render-media#height).
+Overrides default composition height.
 
-### `width`
+### `forceWidth`
 
-Specifies new width. See also [`renderMedia() -> height`](/docs/renderer/render-media#height).
+_available from v3.2.40_
+
+Overrides default composition width.
 
 ### `muted`
 
