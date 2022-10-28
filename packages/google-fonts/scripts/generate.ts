@@ -176,12 +176,12 @@ const run = async () => {
 
   // create queue
   const queue = new PQueue({
-    concurrency: 5,
+    concurrency: 3,
   });
 
   // Batch convert
   for (const font of googleFonts) {
-    queue.add(async () => await generate(font));
+    queue.add(() => generate(font));
   }
 
   // wait queue
