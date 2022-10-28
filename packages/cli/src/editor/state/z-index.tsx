@@ -28,6 +28,7 @@ const EscapeHook: React.FC<{
 			key: 'Escape',
 			callback: onEscape,
 			commandCtrlKey: false,
+			preventDefault: true,
 		});
 
 		return () => {

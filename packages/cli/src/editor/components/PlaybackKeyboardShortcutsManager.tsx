@@ -59,18 +59,21 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 			key: 'j',
 			callback: onJKey,
 			commandCtrlKey: false,
+			preventDefault: true,
 		});
 		const kKey = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'k',
 			callback: onKKey,
 			commandCtrlKey: false,
+			preventDefault: true,
 		});
 		const lKey = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'l',
 			callback: onLKey,
 			commandCtrlKey: false,
+			preventDefault: true,
 		});
 
 		return () => {
