@@ -27,7 +27,7 @@ export const listCompositionsCommand = async (
 	remotionRoot: string,
 	args: string[]
 ) => {
-	const {file} = findEntryPoint(args);
+	const {file, reason} = findEntryPoint(args, remotionRoot);
 
 	if (!file) {
 		Log.error(
@@ -39,6 +39,8 @@ export const listCompositionsCommand = async (
 		);
 		process.exit(1);
 	}
+
+	Log.verbose('Entry point:', file, 'reason:', reason);
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
