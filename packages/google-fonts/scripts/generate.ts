@@ -122,7 +122,7 @@ const generate = async (font: Font) => {
     fonts[style][weight][subset] = src;
   }
 
-  if (!process.env.CI) {
+  if (!process.env.VERCEL && !process.env.CI) {
     console.log(`- Generating ${filename}`);
   }
 
