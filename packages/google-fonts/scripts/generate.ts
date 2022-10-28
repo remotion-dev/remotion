@@ -4,7 +4,15 @@ import axios from "axios";
 import postcss from "postcss";
 import prettier from "prettier";
 import PQueue from "p-queue";
-import { FontInfo } from "../src/base";
+
+type FontInfo = {
+  fontFamily: string;
+  importName: string;
+  version: string;
+  url: string;
+  unicodeRanges: Record<string, string>;
+  fonts: Record<string, Record<string, Record<string, string>>>;
+};
 
 import { getCssLink, unqoute, quote, removeWhitespace } from "./utils";
 import { Font, googleFonts } from "./google-fonts";
