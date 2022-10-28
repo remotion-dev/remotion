@@ -1,7 +1,6 @@
 import {existsSync} from 'fs';
 import {ConfigInternals} from './config';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
 
 const candidates = [
 	'./src/index.tsx',
@@ -16,9 +15,9 @@ const findCommonPath = () => {
 	return candidates.find((candidate) => existsSync(candidate));
 };
 
-export const findEntryPoint = () => {
+export const findEntryPoint = (args: string[]) => {
 	// 1st priority: Explicitly passed entry point
-	let file: string | null = parsedCli._[1];
+	let file: string | null = args[0];
 	if (file) return file;
 
 	// 2nd priority: Config file

@@ -138,7 +138,7 @@ export const benchmarkCommand = async (remotionRoot: string) => {
 	const runs: number = parsedCli.runs ?? DEFAULT_RUNS;
 	const args = parsedCli._.slice(1);
 
-	const filePath = findEntryPoint();
+	const filePath = findEntryPoint(args);
 
 	if (!filePath) {
 		Log.error('No entry file passed.');

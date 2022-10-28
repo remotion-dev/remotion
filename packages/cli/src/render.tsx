@@ -36,7 +36,7 @@ import {getUserPassedOutputLocation} from './user-passed-output-location';
 
 export const render = async (remotionRoot: string) => {
 	const startTime = Date.now();
-	const file = findEntryPoint();
+	const file = findEntryPoint(parsedCli._.slice(1));
 
 	if (!file) {
 		Log.error('No entry point specified. Pass more arguments:');
