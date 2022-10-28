@@ -20,7 +20,7 @@ export const getLambdaClient: typeof original = () => {
 
 			return handler(JSON.parse(payload), {
 				invokedFunctionArn: 'arn:fake',
-				getRemainingTimeInMillis: () => 12000,
+				getRemainingTimeInMillis: () => 120000,
 			});
 		},
 	} as unknown as LambdaClient;
