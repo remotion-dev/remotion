@@ -30,7 +30,8 @@ export const findEntryPoint = (
 	let file: string | null = args[0];
 	if (file) {
 		Log.verbose('Checking if', file, 'is the entry file');
-		if (existsSync(path.resolve(remotionRoot, file))) {
+		// Intentionally resolving CLI files to CWD, while resolving config file to remotionRoot
+		if (existsSync(path.resolve(process.cwd(), file))) {
 			return {file, remainingArgs: args.slice(1), reason: 'argument passed'};
 		}
 	}
