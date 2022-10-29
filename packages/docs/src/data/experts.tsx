@@ -123,7 +123,7 @@ export const experts: Expert[] = [
     name: "Yehor Misiats",
     image: "/img/freelancers/yehor.jpeg",
     website: null,
-    twitter: "SatelllteDev",
+    twitter: "isatelllte",
     github: "satelllte",
     linkedin: "/in/satelllte/",
     email: "lunaerxs@gmail.com",
