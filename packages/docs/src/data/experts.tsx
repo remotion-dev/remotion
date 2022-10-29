@@ -125,7 +125,7 @@ export const experts: Expert[] = [
     website: null,
     twitter: "isatelllte",
     github: "satelllte",
-    linkedin: "/in/satelllte/",
+    linkedin: "in/satelllte/",
     email: "lunaerxs@gmail.com",
     description: (
       <div>
