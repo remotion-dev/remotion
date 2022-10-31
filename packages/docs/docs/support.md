@@ -1,11 +1,11 @@
 ---
 id: support
-title: Support
+title: Support Policy
 ---
 
-The Remotion team provides **no guarantee** of support.
+We welcome you to ask questions and invest a lot of time into supporting our users. Follow the steps below if have a question that you would like to get answered.
 
-We try our best to help you succeed with your projects. Follow the steps below if have a question that you would like to get answered.
+The Remotion team provides **no guarantee** for support, and you should not hold the expectation to receive any help.
 
 ## How to ask for help
 
@@ -29,3 +29,20 @@ Company license customers can get a <span style={{
 If posted in a public channel, the Remotion team will try to prioritize your question, albeit no guarantee of support is given.
 
 We still expect company license subscribers to follow the best practices for asking questions outlined above.
+
+## Paid consulting
+
+You can request a consultation session [here](https://cal.com/remotion). Remotion's creator Jonny Burger will help you with answers and code to technical questions. This is the only way to receive support via video call.
+
+## Refusal of support
+
+We reserve the right to not respond to questions for any reason whatsoever.
+In practice, this can happen because:
+
+- the guidelines above were not followed
+- low effort was put into solving out the problem on your own
+- inability to demonstrate a problem or lack of information
+- poor React skills (we don't have the capacity to teach you)
+- violation of our [Code of Conduct](https://remotion.dev/coc)
+
+Remotion is targeted towards developers and therefore basic skills in React and web development are expected. You should also be mindful of the limitations or those technologies as we cannot help you overcome them.
