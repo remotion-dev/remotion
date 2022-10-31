@@ -97,8 +97,15 @@ export const PricingTable: React.FC<{}> = () => {
                     <li>
                       <Bullet color="#79367a" />
                       Prioritized support
-                      <a href="/docs/support">
-                        <sup> 1)</sup>
+                      <a
+                        href="/docs/support"
+                        style={{
+                          color: "inherit",
+                          opacity: 0.5,
+                          marginLeft: 4,
+                        }}
+                      >
+                        <sup> see policy</sup>
                       </a>
                     </li>
                     <li>

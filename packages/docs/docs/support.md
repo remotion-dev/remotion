@@ -45,4 +45,4 @@ In practice, this can happen because:
 - poor React skills (we don't have the capacity to teach you)
 - violation of our [Code of Conduct](https://remotion.dev/coc)
 
-Remotion is targeted towards developers and therefore basic skills in React and web development are expected. You should also be mindful of the limitations or those technologies as we cannot help you overcome them.
+Remotion is targeted towards developers and therefore basic skills in React and web development are expected. You should also be mindful of the limitations of those technologies as we cannot help you overcome them.
