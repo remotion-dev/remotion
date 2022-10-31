@@ -96,7 +96,10 @@ export const PricingTable: React.FC<{}> = () => {
                     </li>
                     <li>
                       <Bullet color="#79367a" />
-                      Access to prioritized support
+                      Prioritized support
+                      <a href="/docs/support">
+                        <sup> 1)</sup>
+                      </a>
                     </li>
                     <li>
                       <Bullet color="#79367a" />

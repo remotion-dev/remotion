@@ -104,6 +104,11 @@
       "source": "/docs/motion-blur/motion-blur",
       "destination": "/docs/motion-blur/trail",
       "permanent": true
+    },
+    {
+      "source": "/support",
+      "destination": "/docs/support",
+      "permanent": true
     }
   ]
 }
