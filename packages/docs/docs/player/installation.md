@@ -4,6 +4,8 @@ title: Installation
 slug: /player/installation
 ---
 
+import {TableOfContents} from '../../components/TableOfContents/player';
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
@@ -48,4 +50,8 @@ Also update **all the other Remotion packages** to have the same version: `remot
 Make sure no package version number has a `^` character in front of it as it can lead to a version conflict.
 :::
 
-Read the [examples](/docs/player/examples) and [API reference](/docs/player/api) next.
+Read the [examples](/docs/player/examples) and [API reference](/docs/player/player) next.
+
+## Components
+
+<TableOfContents />
