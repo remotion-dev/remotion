@@ -175,7 +175,9 @@ export const loadFont = <T extends keyof Variants>(
 
   //  Save
   await fs.promises.writeFile(path.resolve(OUTDIR, filename), output);
-  console.log(`- ${filename} generated`);
+  if (!process.env.VERCEL && !process.env.CI) {
+    console.log(`- ${filename} generated`);
+  }
 };
 
 const run = async () => {
