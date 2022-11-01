@@ -4,6 +4,7 @@ import React, {
 	forwardRef,
 	Suspense,
 	useCallback,
+	useContext,
 	useEffect,
 	useImperativeHandle,
 	useMemo,
@@ -52,14 +53,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		allowFullscreen: boolean;
 		inputProps: unknown;
 		showVolumeControls: boolean;
-		mediaMuted: boolean;
 		style?: React.CSSProperties;
 		clickToPlay: boolean;
 		doubleClickToFullscreen: boolean;
 		spaceKeyToPlayOrPause: boolean;
-		setMediaVolume: (v: number) => void;
-		setMediaMuted: (v: boolean) => void;
-		mediaVolume: number;
 		errorFallback: ErrorFallback;
 		playbackRate: number;
 		renderLoading: RenderLoading | undefined;
@@ -85,11 +82,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		inputProps,
 		clickToPlay,
 		showVolumeControls,
-		mediaVolume,
-		mediaMuted,
 		doubleClickToFullscreen,
-		setMediaMuted,
-		setMediaVolume,
 		spaceKeyToPlayOrPause,
 		errorFallback,
 		playbackRate,
@@ -250,6 +243,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		});
 	}, [canvasSize, config]);
 	const scale = layout?.scale ?? 1;
+
+	const {setMediaVolume, setMediaMuted} = useContext(
+		Internals.SetMediaVolumeContext
+	);
+	const {mediaMuted, mediaVolume} = useContext(Internals.MediaVolumeContext);
 
 	useImperativeHandle(
 		ref,
