@@ -105,7 +105,7 @@ This advice is mainly for frequently updated state like the current time. Keepin
 ## Pass the user interaction event to `play()`
 
 When you listen to an `onClick()` event, the browser will give you an `event` argument.  
-Pass it on to [`.play()`](/docs/player/api#play) and [`.toggle()`](/docs/player/api#toggle) to have the lowest chance of hitting autoplay restrictions that the browser may impose.
+Pass it on to [`.play()`](/docs/player/player#play) and [`.toggle()`](/docs/player/player#toggle) to have the lowest chance of hitting autoplay restrictions that the browser may impose.
 
 [Read here for more details.](/docs/player/autoplay#pass-the-event-to-the-play-or-toggle-method)
 
