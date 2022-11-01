@@ -52,7 +52,7 @@ The frame rate of the video. Must be a number.
 
 ### `compositionWidth`
 
-The width you would like the video to have when rendered. Use `style={{width: <width>}}` to define a different natural width for the Player.
+The width you would like the video to have when rendered as an MP4. Use `style={{width: <width>}}` to define a width to be assumed in the browser.
 
 :::note
 **Example**:
@@ -62,8 +62,7 @@ To make it smaller, pass a `style` prop to give the player a different width: `{
 
 ### `compositionHeight`
 
-The height of the canvas in pixels.
-The height you would like the video to have when rendered. Use `style={{height: <height>}}` to define a different natural height for the Player.
+The height you would like the video to have when rendered as an MP4. Use `style={{height: <height>}}` to define a height to be assumed in the browser.
 
 ### `loop`
 
@@ -748,3 +747,5 @@ const MyApp: React.FC = () => {
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/player/src/Player.tsx)
+- [`<Composition>`](/docs/composition)
+- [`<Thumbnail>`](/docs/player/thumbnail)
