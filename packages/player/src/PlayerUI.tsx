@@ -33,7 +33,7 @@ export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 export type RenderLoading = (canvas: {
 	height: number;
 	width: number;
-}) => React.ReactChild;
+}) => React.ReactNode;
 export type RenderPoster = RenderLoading;
 const reactVersion = React.version.split('.')[0];
 if (reactVersion === '0') {
