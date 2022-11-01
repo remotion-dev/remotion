@@ -85,6 +85,20 @@ Config.Bundling.setPublicDir("./publico");
 
 The [command line flag](/docs/cli/render#--public-dir) `--public-dir` will take precedence over this option.
 
+### setEntryPoint()
+
+_Available from v3.2.40_
+
+Sets the Remotion [entry point](/docs/terminology#entry-point), you don't have to specify it for CLI commands.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Bundling.setEntryPoint("./src/index.tsx");
+```
+
+If you pass an entry point as a CLI argument, it will take precedence.
+
 ## Log
 
 ### setLevel()
@@ -487,6 +501,35 @@ Config.Output.setImageSequence(true);
 ```
 
 The [command line flag](/docs/cli/render#--sequence) `--sequence` will take precedence over this option.
+
+### overrideHeight()
+
+_Available from v3.2.40_
+
+Overrides the height of the rendered video.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Output.overrideHeight(600);
+```
+
+The [command line flag](/docs/cli/render#--height) `--height` will take precedence over this option.
+(see h264 validation?)
+
+### overrideWidth()
+
+_Available from v3.2.40_
+
+Overrides the width of the rendered video.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Output.overrideWidth(900);
+```
+
+The [command line flag](/docs/cli/render#--width) `--width` will take precedence over this option
 
 ### ~~setOutputFormat()~~
 

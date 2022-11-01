@@ -20,14 +20,7 @@ const getMissedFramesforCodec = async () => {
   // sequence which can be checked for accuracy
   await execa(
     "pnpm",
-    [
-      "exec",
-      "remotion",
-      "render",
-      "src/index.tsx",
-      `video-testing-mp4-offthread`,
-      outputPath,
-    ],
+    ["exec", "remotion", "render", `video-testing-mp4-offthread`, outputPath],
     {
       cwd: path.join(process.cwd(), "..", "example"),
     }
@@ -86,7 +79,13 @@ const getMissedFramesforCodec = async () => {
   return missedFrames;
 };
 
-test("should render correct frames from embedded videos - MP4 offthread", async () => {
-  const missedFrames = await getMissedFramesforCodec();
-  expect(missedFrames).toBe(0);
-});
+test(
+  "should render correct frames from embedded videos - MP4 offthread",
+  async () => {
+    const missedFrames = await getMissedFramesforCodec();
+    expect(missedFrames).toBe(0);
+  },
+  {
+    retry: 2,
+  }
+);

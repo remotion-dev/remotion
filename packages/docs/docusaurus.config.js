@@ -48,6 +48,7 @@ module.exports = {
             { to: "experts", label: "Experts" },
             { to: "about", label: "About" },
             { to: "success-stories", label: "Success Stories" },
+            { to: "/docs/support", label: "Support" },
           ],
         },
         {
@@ -100,8 +101,8 @@ module.exports = {
               href: "https://github.com/remotion-dev/remotion/releases",
             },
             {
-              label: "GitHub Issues",
-              href: "https://github.com/remotion-dev/remotion/issues",
+              label: "GitHub",
+              href: "https://github.com/remotion-dev/remotion",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Github",
             },
@@ -161,17 +162,20 @@ module.exports = {
               to: "success-stories",
             },
             {
-              label: "GitHub",
-              href: "https://github.com/remotion-dev/remotion",
+              label: "Support",
+              to: "/docs/support",
             },
             {
               label: "For companies",
               href: "https://companies.remotion.dev",
             },
+            {
+              label: "Brand",
+              href: "https://github.com/remotion-dev/logo",
+            },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} remotion.dev. Built with Docusaurus.`,
     },
     colorMode: {
       respectPrefersColorScheme: true,

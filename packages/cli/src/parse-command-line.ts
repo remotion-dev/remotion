@@ -50,8 +50,11 @@ export type CommandLineOptions = {
 	['disable-headless']: boolean;
 	['disable-keyboard-shortcuts']: boolean;
 	muted: boolean;
+	height: number;
+	width: number;
 	['enforce-audio-track']: boolean;
 	gl: OpenGlRenderer;
+	['package-manager']: string;
 };
 
 export const BooleanFlags = [
@@ -147,6 +150,14 @@ export const parseCommandLine = () => {
 		Config.Puppeteer.setTimeoutInMilliseconds(parsedCli.timeout);
 	}
 
+	if (parsedCli.height) {
+		Config.Output.overrideHeight(parsedCli.height);
+	}
+
+	if (parsedCli.width) {
+		Config.Output.overrideWidth(parsedCli.width);
+	}
+
 	if (parsedCli.frames) {
 		ConfigInternals.setFrameRangeFromCli(parsedCli.frames);
 	}
@@ -217,6 +228,14 @@ export const parseCommandLine = () => {
 
 	if (typeof parsedCli['public-dir'] !== 'undefined') {
 		Config.Bundling.setPublicDir(parsedCli['public-dir']);
+	}
+
+	if (typeof parsedCli['audio-bitrate'] !== 'undefined') {
+		Config.Output.setAudioBitrate(parsedCli['audio-bitrate']);
+	}
+
+	if (typeof parsedCli['video-bitrate'] !== 'undefined') {
+		Config.Output.setVideoBitrate(parsedCli['video-bitrate']);
 	}
 };
 

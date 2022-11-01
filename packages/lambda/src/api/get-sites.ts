@@ -4,7 +4,7 @@ import {getSitesKey} from '../shared/constants';
 import {getAccountId} from '../shared/get-account-id';
 import {makeS3ServeUrl} from '../shared/make-s3-url';
 import type {BucketWithLocation} from './get-buckets';
-import { getRemotionS3Buckets} from './get-buckets';
+import {getRemotionS3Buckets} from './get-buckets';
 
 type Site = {
 	sizeInBytes: number;

@@ -85,6 +85,18 @@ Audio codecs `mp3`, `aac` and `wav` are also supported.
 
 See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
 
+### `forceHeight`
+
+_available from v3.2.40_
+
+Overrides default composition height.
+
+### `forceWidth`
+
+_available from v3.2.40_
+
+Overrides default composition width.
+
 ### `muted`
 
 Disables audio output. See also [`renderMedia() -> muted`](/docs/renderer/render-media#muted).
@@ -114,6 +126,14 @@ See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile
 ### `quality`
 
 See [`renderMedia() -> quality`](/docs/renderer/render-media#quality).
+
+### `audioBitrate`
+
+See [`renderMedia() -> audioBitrate`](/docs/renderer/render-media#audiobitrate).
+
+### `videoBitrate`
+
+See [`renderMedia() -> videoBitrate`](/docs/renderer/render-media#videobitrate).
 
 ### `maxRetries`
 

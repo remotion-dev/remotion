@@ -116,7 +116,6 @@ module.exports = {
       label: "@remotion/player",
       items: ["player/api", "player/thumbnail"],
     },
-
     {
       type: "category",
       label: "@remotion/gif",
@@ -150,7 +149,7 @@ module.exports = {
         type: "doc",
         id: "motion-blur/index",
       },
-      items: ["motion-blur/motion-blur"],
+      items: ["motion-blur/trail", "motion-blur/camera-motion-blur"],
     },
     {
       type: "category",
@@ -249,6 +248,28 @@ module.exports = {
         "paths/extend-viewbox",
       ],
     },
+    {
+      type: "category",
+      label: "@remotion/noise",
+      link: {
+        type: "doc",
+        id: "noise/index",
+      },
+      items: ["noise/noise-2d", "noise/noise-3d", "noise/noise-4d"],
+    },
+    {
+      type: "category",
+      label: "@remotion/google-fonts",
+      link: {
+        type: "doc",
+        id: "google-fonts/google-fonts",
+      },
+      items: [
+        "google-fonts/load-font",
+        "google-fonts/get-available-fonts",
+        "google-fonts/get-info",
+      ],
+    },
   ],
   mainSidebar: [
     {
@@ -272,6 +293,7 @@ module.exports = {
         "fonts",
         "using-randomness",
         "audio-visualization",
+        "noise-visualization",
         "use-img-and-iframe",
         "javascript",
         "data-fetching",
@@ -289,6 +311,7 @@ module.exports = {
         "video-manipulation",
         "render-as-gif",
         "figma",
+        "spline",
       ],
     },
     {
@@ -337,6 +360,7 @@ module.exports = {
             "lambda/troubleshooting/bucket-disallows-acl",
           ],
         },
+        "lambda/limits",
         "lambda/changelog",
         "lambda/upgrading",
         "lambda/uninstall",
@@ -360,6 +384,7 @@ module.exports = {
         "staticfile-relative-paths",
         "staticfile-remote-urls",
         "troubleshooting/rosetta",
+        "troubleshooting/loading-root-component",
         "troubleshooting/defaultprops-too-big",
       ],
     },

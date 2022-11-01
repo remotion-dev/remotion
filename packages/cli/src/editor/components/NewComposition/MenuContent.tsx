@@ -150,42 +150,49 @@ export const MenuContent: React.FC<{
 			key: 'Escape',
 			callback: onEscape,
 			commandCtrlKey: false,
+			preventDefault: true,
 		});
 		const rightBinding = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'ArrowRight',
 			commandCtrlKey: false,
 			callback: onArrowRight,
+			preventDefault: true,
 		});
 		const leftBinding = keybindings.registerKeybinding({
 			event: 'keydown',
 			commandCtrlKey: false,
 			key: 'ArrowLeft',
 			callback: onPreviousMenu,
+			preventDefault: true,
 		});
 		const downBinding = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'ArrowDown',
 			commandCtrlKey: false,
 			callback: onArrowDown,
+			preventDefault: true,
 		});
 		const upBinding = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'ArrowUp',
 			callback: onArrowUp,
 			commandCtrlKey: false,
+			preventDefault: true,
 		});
 		const enterBinding = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'Enter',
 			callback: onEnter,
 			commandCtrlKey: false,
+			preventDefault: true,
 		});
 		const spaceBinding = keybindings.registerKeybinding({
 			event: 'keyup',
 			key: ' ',
 			callback: onEnter,
 			commandCtrlKey: false,
+			preventDefault: true,
 		});
 		return () => {
 			escapeBinding.unregister();

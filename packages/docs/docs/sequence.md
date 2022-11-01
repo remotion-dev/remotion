@@ -24,7 +24,7 @@ export const Outro = () => <></>;
 const MyTrailer = () => {
   return (
     <>
-      <Sequence from={0} durationInFrames={10}>
+      <Sequence durationInFrames={10}>
         <Intro />
       </Sequence>
       <Sequence from={10}>
@@ -50,9 +50,10 @@ The Sequence component is a high order component and accepts, besides children, 
 
 ### `from`
 
-_required_
+_optional_ (From v3.2.36, _required_ in previous versions)
 
 At which frame it's children should assume the video starts. When the sequence is at `frame`, it's children are at frame `0`.
+From v3.2.36 onwards, this prop will be optional; by default, it will be 0.
 
 ### `durationInFrames`
 
@@ -122,7 +123,7 @@ const MyVideo = () => {
 ### Trim end
 
 We can clip some content so it only stays visible for a certain time by specifying a non-finite `durationInFrames` number.
-In this example, we wrap the square in `<Sequence from={0} durationInFrames={45}>` and as you can see, it disappears after 45 frames.
+In this example, we wrap the square in `<Sequence durationInFrames={45}>` and as you can see, it disappears after 45 frames.
 
 <SequenceForwardExample type="clip" />
 <br />

@@ -10,9 +10,7 @@ import {
 } from './chromium-flags';
 import {getOutputCodecOrUndefined} from './codec';
 import {getConcurrency} from './concurrency';
-import {getActualCrf} from './crf';
 import {getDotEnvLocation} from './env-file';
-import {getAndValidateEveryNthFrame} from './every-nth-frame';
 import {
 	getCustomFfmpegExecutable,
 	getCustomFfprobeExecutable,
@@ -22,7 +20,6 @@ import {getUserPreferredImageFormat} from './image-format';
 import {getShouldOutputImageSequence} from './image-sequence';
 import * as Logging from './log';
 import {getMaxTimelineTracks} from './max-timeline-tracks';
-import {getAndValidateNumberOfGifLoops} from './number-of-gif-loops';
 import {getOutputLocation} from './output-location';
 import {
 	defaultOverrideFunction,
@@ -41,6 +38,12 @@ import {getWebpackCaching} from './webpack-caching';
 import type {WebpackConfiguration} from '@remotion/bundler';
 // eslint-disable-next-line no-restricted-imports
 import type {ConfigType} from 'remotion';
+import {
+	getAudioBitrate,
+	getVideoBitrate,
+	setAudioBitrate,
+	setVideoBitrate,
+} from './bitrate';
 import {setBrowserExecutable} from './browser-executable';
 import {
 	setChromiumDisableWebSecurity,
@@ -51,19 +54,21 @@ import {
 import {setCodec, setOutputFormat} from './codec';
 import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
-import {setCrf} from './crf';
+import {getCrfOrUndefined, setCrf} from './crf';
 import {
 	getEnforceAudioTrack,
 	setEnforceAudioTrack,
 } from './enforce-audio-track';
+import {getEntryPoint, setEntryPoint} from './entry-point';
 import {setDotEnvLocation} from './env-file';
-import {setEveryNthFrame} from './every-nth-frame';
+import {getEveryNthFrame, setEveryNthFrame} from './every-nth-frame';
 import {setFfmpegExecutable, setFfprobeExecutable} from './ffmpeg-executable';
 import {
 	getFfmpegOverrideFunction,
 	setFfmpegOverrideFunction,
 } from './ffmpeg-override';
 import {setFrameRange} from './frame-range';
+import {getHeight, overrideHeight} from './height';
 import {setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import {
@@ -73,7 +78,7 @@ import {
 import {setLogLevel} from './log';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
 import {getMuted, setMuted} from './muted';
-import {setNumberOfGifLoops} from './number-of-gif-loops';
+import {getNumberOfGifLoops, setNumberOfGifLoops} from './number-of-gif-loops';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
 import {overrideWebpackConfig} from './override-webpack';
@@ -86,6 +91,7 @@ import {setQuality} from './quality';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
 import {setWebpackCaching} from './webpack-caching';
+import {getWidth, overrideWidth} from './width';
 
 export const Config: ConfigType = {
 	Preview: {
@@ -97,6 +103,7 @@ export const Config: ConfigType = {
 		setCachingEnabled: setWebpackCaching,
 		setPort,
 		setPublicDir,
+		setEntryPoint,
 	},
 	Log: {
 		setLevel: setLogLevel,
@@ -132,6 +139,10 @@ export const Config: ConfigType = {
 		setCrf,
 		setImageSequence,
 		setProResProfile,
+		setAudioBitrate,
+		setVideoBitrate,
+		overrideHeight,
+		overrideWidth,
 		overrideFfmpegCommand: setFfmpegOverrideFunction,
 	},
 } as ConfigType;
@@ -145,7 +156,6 @@ export const ConfigInternals = {
 	getOutputCodecOrUndefined,
 	getCustomFfmpegExecutable,
 	getBrowser,
-	getActualCrf,
 	getPixelFormat,
 	getProResProfile,
 	getShouldOverwrite,
@@ -157,8 +167,7 @@ export const ConfigInternals = {
 	getIgnoreCertificateErrors,
 	getChromiumHeadlessMode,
 	getChromiumOpenGlRenderer,
-	getAndValidateEveryNthFrame,
-	getAndValidateNumberOfGifLoops,
+	getEveryNthFrame,
 	getConcurrency,
 	getCurrentPuppeteerTimeout,
 	getQuality,
@@ -181,6 +190,13 @@ export const ConfigInternals = {
 	getKeyboardShortcutsEnabled,
 	getPublicDir,
 	getFfmpegOverrideFunction,
+	getAudioBitrate,
+	getVideoBitrate,
+	getHeight,
+	getWidth,
+	getCrfOrUndefined,
+	getEntryPoint,
+	getNumberOfGifLoops,
 };
 
 export const overrideRemotion = () => {

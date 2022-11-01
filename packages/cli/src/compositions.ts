@@ -1,9 +1,10 @@
 import {getCompositions, RenderInternals} from '@remotion/renderer';
 import path from 'path';
+import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
 import {Log} from './log';
-import {parsedCli, quietFlagProvided} from './parse-command-line';
+import {quietFlagProvided} from './parse-command-line';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 
 const max = (arr: number[]) => {
@@ -22,8 +23,11 @@ const max = (arr: number[]) => {
 	return biggest;
 };
 
-export const listCompositionsCommand = async (remotionRoot: string) => {
-	const file = parsedCli._[1];
+export const listCompositionsCommand = async (
+	remotionRoot: string,
+	args: string[]
+) => {
+	const {file, reason} = findEntryPoint(args, remotionRoot);
 
 	if (!file) {
 		Log.error(
@@ -35,6 +39,8 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 		);
 		process.exit(1);
 	}
+
+	Log.verbose('Entry point:', file, 'reason:', reason);
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
@@ -55,7 +61,6 @@ export const listCompositionsCommand = async (remotionRoot: string) => {
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'get-compositions',
-		codec: 'h264',
 	});
 
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =

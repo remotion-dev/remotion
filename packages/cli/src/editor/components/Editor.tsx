@@ -8,10 +8,10 @@ import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
 import {FramePersistor} from './FramePersistor';
 import {GlobalKeybindings} from './GlobalKeybindings';
-import {KeyboardShortcuts} from './KeyboardShortcutsModal';
 import NewComposition from './NewComposition/NewComposition';
 import {NoRegisterRoot} from './NoRegisterRoot';
 import {NotificationCenter} from './Notifications/NotificationCenter';
+import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 import {ZoomPersistor} from './ZoomPersistor';
 
@@ -61,18 +61,24 @@ export const Editor: React.FC = () => {
 						{Root === null ? <NoRegisterRoot /> : <EditorContent />}
 						<GlobalKeybindings />
 					</Internals.CanUseRemotionHooksProvider>
+					<NotificationCenter />
+
+					{modalContextType && modalContextType.type === 'quick-switcher' && (
+						// Quick switcher here because requires timeline zoom ctx
+						<QuickSwitcher
+							invocationTimestamp={modalContextType.invocationTimestamp}
+							initialMode={modalContextType.mode}
+						/>
+					)}
 				</div>
 			</TimelineZoomContext>
 
-			<NotificationCenter />
 			{modalContextType && modalContextType.type === 'new-comp' && (
 				<NewComposition initialCompType={modalContextType.compType} />
 			)}
+
 			{modalContextType && modalContextType.type === 'update' && (
 				<UpdateModal info={modalContextType.info} />
-			)}
-			{modalContextType && modalContextType.type === 'shortcuts' && (
-				<KeyboardShortcuts />
 			)}
 		</HigherZIndex>
 	);

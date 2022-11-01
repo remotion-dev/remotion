@@ -39,7 +39,7 @@ export type SubMenu = {
 	items: ComboboxValue[];
 };
 
-type SelectionItem = {
+export type SelectionItem = {
 	type: 'item';
 	id: string;
 	label: React.ReactNode;
@@ -48,6 +48,7 @@ type SelectionItem = {
 	keyHint: string | null;
 	leftItem: React.ReactNode;
 	subMenu: SubMenu | null;
+	quickSwitcherLabel: string | null;
 };
 
 export type ComboboxValue = DividerItem | SelectionItem;

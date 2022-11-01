@@ -3,14 +3,13 @@ import fs, {createWriteStream} from 'fs';
 import os from 'os';
 import path from 'path';
 import {VERSION} from 'remotion/version';
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import {deleteRender} from '../../../api/delete-render';
 import {LambdaRoutines, rendersPrefix} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaLs, lambdaReadFile} from '../../../functions/helpers/io';
 import type {LambdaReturnValues} from '../../../shared/return-values';
 import {disableLogs, enableLogs} from '../../disable-logs';
-
-jest.setTimeout(90000);
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
@@ -43,7 +42,10 @@ test('Should make a transparent video', async () => {
 			frameRange: [0, 9],
 			framesPerLambda: 5,
 			imageFormat: 'png',
-			inputProps: {},
+			inputProps: {
+				type: 'payload',
+				payload: '{}',
+			},
 			logLevel: 'warn',
 			maxRetries: 3,
 			outName: 'out.webm',
@@ -63,6 +65,10 @@ test('Should make a transparent video', async () => {
 			version: VERSION,
 			overwrite: true,
 			webhook: null,
+			audioBitrate: null,
+			videoBitrate: null,
+			forceHeight: null,
+			forceWidth: null,
 		},
 		extraContext
 	);

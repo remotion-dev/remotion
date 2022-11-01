@@ -1,12 +1,11 @@
 {
 	"name": "@remotion/player",
-	"version": "3.2.31",
+	"version": "3.2.40",
 	"description": "Remotion Player",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"test": "jest",
 		"build": "tsc -d",
 		"watch": "tsc -w",
 		"prerelease": "cp ../../README.md ."
@@ -28,7 +27,7 @@
 	],
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"remotion": "3.2.31"
+		"remotion": "3.2.40"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -37,19 +36,19 @@
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
 		"@testing-library/react": "13.1.1",
-		"@types/jest": "^27.4.0",
 		"@types/node": "^14.14.14",
-		"@types/react": "18.0.1",
+		"@types/react": "18.0.23",
 		"@types/react-dom": "18.0.0",
-		"csstype": "^3.0.9",
-		"eslint": "8.13.0",
-		"jest": "^27.2.4",
-		"prettier": "^2.0.5",
+		"@vitejs/plugin-react": "^2.0.0",
+		"csstype": "^3.0.11",
+		"eslint": "8.25.0",
+		"jsdom": "20.0.1",
+		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0",
-		"ts-jest": "^27.0.5",
 		"typescript": "^4.7.0",
+		"vitest": "0.24.3",
 		"webpack": "5.74.0"
 	},
 	"keywords": [

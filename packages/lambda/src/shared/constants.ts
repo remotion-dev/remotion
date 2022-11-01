@@ -149,8 +149,6 @@ export type OutNameOutput = {
 	customCredentials: CustomCredentials | null;
 };
 
-export const optimizationProfile = (siteId: string, compositionId: string) =>
-	`optimization-profiles/${siteId}/${compositionId}/optimization-profile`;
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
 export const outName = (renderId: string, extension: string) =>
 	`${rendersPrefix(renderId)}/out.${extension}`;
@@ -180,6 +178,10 @@ export const postRenderDataKey = (renderId: string) => {
 	return `${rendersPrefix(renderId)}/post-render-metadata.json`;
 };
 
+export const inputPropsKey = (hash: string) => {
+	return `input-props/${hash}.json`;
+};
+
 export const RENDERER_PATH_TOKEN = 'remotion-bucket';
 export const CONCAT_FOLDER_TOKEN = 'remotion-concat';
 export const REMOTION_CONCATED_TOKEN = 'remotion-concated-token';
@@ -199,6 +201,16 @@ type WebhookOption = null | {
 	secret: string | null;
 };
 
+export type SerializedInputProps =
+	| {
+			type: 'bucket-url';
+			hash: string;
+	  }
+	| {
+			type: 'payload';
+			payload: unknown;
+	  };
+
 export type LambdaPayloads = {
 	info: {
 		type: LambdaRoutines.info;
@@ -208,7 +220,7 @@ export type LambdaPayloads = {
 		serveUrl: string;
 		composition: string;
 		framesPerLambda: number | null;
-		inputProps: unknown;
+		inputProps: SerializedInputProps;
 		codec: LambdaCodec;
 		imageFormat: ImageFormat;
 		crf: number | undefined;
@@ -231,7 +243,11 @@ export type LambdaPayloads = {
 		muted: boolean;
 		version: string;
 		overwrite: boolean;
+		audioBitrate: string | null;
+		videoBitrate: string | null;
 		webhook: WebhookOption;
+		forceHeight: number | null;
+		forceWidth: number | null;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -239,7 +255,7 @@ export type LambdaPayloads = {
 		composition: string;
 		framesPerLambda: number | null;
 		bucketName: string;
-		inputProps: unknown;
+		inputProps: SerializedInputProps;
 		renderId: string;
 		imageFormat: ImageFormat;
 		codec: LambdaCodec;
@@ -262,7 +278,11 @@ export type LambdaPayloads = {
 		downloadBehavior: DownloadBehavior;
 		muted: boolean;
 		overwrite: boolean;
+		audioBitrate: string | null;
+		videoBitrate: string | null;
 		webhook: WebhookOption;
+		forceHeight: number | null;
+		forceWidth: number | null;
 	};
 	status: {
 		type: LambdaRoutines.status;
@@ -284,7 +304,7 @@ export type LambdaPayloads = {
 		width: number;
 		durationInFrames: number;
 		retriesLeft: number;
-		inputProps: unknown;
+		inputProps: SerializedInputProps;
 		renderId: string;
 		imageFormat: ImageFormat;
 		codec: Exclude<Codec, 'h264'>;
@@ -301,12 +321,14 @@ export type LambdaPayloads = {
 		scale: number;
 		everyNthFrame: number;
 		muted: boolean;
+		audioBitrate: string | null;
+		videoBitrate: string | null;
 	};
 	still: {
 		type: LambdaRoutines.still;
 		serveUrl: string;
 		composition: string;
-		inputProps: unknown;
+		inputProps: SerializedInputProps;
 		imageFormat: ImageFormat;
 		envVariables: Record<string, string> | undefined;
 		attempt: number;
@@ -321,6 +343,8 @@ export type LambdaPayloads = {
 		scale: number;
 		downloadBehavior: DownloadBehavior | null;
 		version: string;
+		forceHeight: number | null;
+		forceWidth: number | null;
 	};
 };
 
@@ -342,10 +366,9 @@ export type RenderMetadata = {
 	estimatedRenderLambdaInvokations: number;
 	compositionId: string;
 	codec: Codec | null;
-	usesOptimizationProfile: boolean;
 	type: 'still' | 'video';
 	imageFormat: ImageFormat;
-	inputProps: unknown;
+	inputProps: SerializedInputProps;
 	framesPerLambda: number;
 	memorySizeInMb: number;
 	lambdaVersion: string;

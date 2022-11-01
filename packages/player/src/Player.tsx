@@ -23,6 +23,10 @@ import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import type {PlayerRef} from './player-methods';
+import type {
+	RenderFullscreenButton,
+	RenderPlayPauseButton,
+} from './PlayerControls';
 import type {RenderLoading, RenderPoster} from './PlayerUI';
 import PlayerUI from './PlayerUI';
 import type {PropsIfHasProps} from './utils/props-if-has-props';
@@ -61,6 +65,8 @@ export type PlayerProps<T> = {
 	inFrame?: number | null;
 	outFrame?: number | null;
 	initiallyShowControls?: number | boolean;
+	renderPlayPauseButton?: RenderPlayPauseButton;
+	renderFullscreenButton?: RenderFullscreenButton;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -104,6 +110,8 @@ export const PlayerFn = <T,>(
 		inFrame,
 		outFrame,
 		initiallyShowControls,
+		renderFullscreenButton,
+		renderPlayPauseButton,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -427,6 +435,8 @@ export const PlayerFn = <T,>(
 													inFrame={inFrame ?? null}
 													outFrame={outFrame ?? null}
 													initiallyShowControls={initiallyShowControls ?? true}
+													renderFullscreen={renderFullscreenButton ?? null}
+													renderPlayPauseButton={renderPlayPauseButton ?? null}
 												/>
 											</Internals.DurationsContextProvider>
 										</Internals.PrefetchProvider>

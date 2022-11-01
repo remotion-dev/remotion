@@ -13,7 +13,7 @@ import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import type {Codec} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
-import {validateSelectedCrfAndCodecCombination} from './crf';
+import {validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
@@ -25,6 +25,7 @@ import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import type {ImageFormat} from './image-format';
+import {validateSelectedPixelFormatAndImageFormatCombination} from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
 import {getServeUrlWithFallback} from './legacy-webpack-config';
@@ -34,6 +35,7 @@ import type {ChromiumOptions} from './open-browser';
 import {DEFAULT_OVERWRITE} from './overwrite';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
 import type {PixelFormat} from './pixel-format';
+import {validateSelectedPixelFormatAndCodecCombination} from './pixel-format';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
@@ -43,9 +45,12 @@ import {renderFrames} from './render-frames';
 import {stitchFramesToVideo} from './stitch-frames-to-video';
 import type {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
+import {validateEveryNthFrame} from './validate-every-nth-frame';
+import {validateFfmpeg} from './validate-ffmpeg';
 import {validateFfmpegOverride} from './validate-ffmpeg-override';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
+import {validateBitrate} from './validate-videobitrate';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -100,6 +105,8 @@ export type RenderMediaOptions = {
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
 	ffmpegOverride?: FfmpegOverrideFn;
+	audioBitrate?: string | null;
+	videoBitrate?: string | null;
 	onSlowestFrames?: OnSlowestFrames;
 	disallowParallelEncoding?: boolean;
 } & ServeUrlOrWebpackBundle &
@@ -163,19 +170,22 @@ export const renderMedia = ({
 	muted,
 	enforceAudioTrack,
 	ffmpegOverride,
+	audioBitrate,
+	videoBitrate,
 	onSlowestFrames,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
+	validateFfmpeg(ffmpegExecutable ?? null);
 	validateQuality(options.quality);
-	if (typeof crf !== 'undefined' && crf !== null) {
-		validateSelectedCrfAndCodecCombination(crf, codec);
-	}
+	validateQualitySettings({crf, codec, videoBitrate});
+	validateBitrate(audioBitrate, 'audioBitrate');
+	validateBitrate(videoBitrate, 'videoBitrate');
 
 	validateSelectedCodecAndProResCombination({
 		codec,
 		proResProfile,
 	});
-
+	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 	if (outputLocation) {
 		validateOutputFilename(codec, getExtensionOfFilename(outputLocation));
 	}
@@ -190,6 +200,7 @@ export const renderMedia = ({
 	validateFfmpegOverride(ffmpegOverride);
 
 	const everyNthFrame = options.everyNthFrame ?? 1;
+	validateEveryNthFrame(everyNthFrame, codec);
 	const numberOfGifLoops = options.numberOfGifLoops ?? null;
 	const serveUrl = getServeUrlWithFallback(options);
 
@@ -240,6 +251,11 @@ export const renderMedia = ({
 		? 'none'
 		: options.imageFormat ?? 'jpeg';
 	const quality = imageFormat === 'jpeg' ? options.quality : undefined;
+
+	validateSelectedPixelFormatAndImageFormatCombination(
+		pixelFormat,
+		imageFormat
+	);
 
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
@@ -313,7 +329,8 @@ export const renderMedia = ({
 				ffmpegExecutable,
 				imageFormat,
 				signal: cancelPrestitcher.cancelSignal,
-				ffmpegOverride,
+				ffmpegOverride: ffmpegOverride ?? (({args}) => args),
+				videoBitrate: videoBitrate ?? null,
 			});
 			stitcherFfmpeg = preStitcher.task;
 		}
@@ -468,6 +485,8 @@ export const renderMedia = ({
 					muted: disableAudio,
 					enforceAudioTrack,
 					ffmpegOverride,
+					audioBitrate,
+					videoBitrate,
 				}),
 				stitchStart,
 			]);

@@ -14,11 +14,15 @@ export const DEFAULT_IMAGE_FORMAT: ImageFormat = 'png';
 
 // By returning a value, we improve testability as we can specifically test certain branches
 export const validateSelectedPixelFormatAndImageFormatCombination = (
-	pixelFormat: PixelFormat,
+	pixelFormat: PixelFormat | undefined,
 	imageFormat: ImageFormat
 ): 'none' | 'valid' => {
 	if (imageFormat === 'none') {
 		return 'none';
+	}
+
+	if (typeof pixelFormat === 'undefined') {
+		return 'valid';
 	}
 
 	if (!validImageFormats.includes(imageFormat)) {
