@@ -1,6 +1,6 @@
 ---
-id: api
 title: "<Player>"
+slug: /player/player
 ---
 
 A component which can be rendered in a regular React App (for example: [Create React App](https://create-react-app.dev/), [Next.JS](https://nextjs.org)) to display a Remotion video.
@@ -176,7 +176,7 @@ _optional_
 
 A callback function that allows you to return a custom UI that gets displayed while the player is loading.
 
-The first parameter contains the `height` and `width` of the player as it gets rendered.
+The first parameter of the callback function contains the `height` and `width` of the player as it gets rendered.
 
 ```tsx twoslash
 import { Player, RenderLoading } from "@remotion/player";
