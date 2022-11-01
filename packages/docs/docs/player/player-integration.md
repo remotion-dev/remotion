@@ -113,7 +113,7 @@ registerRoot(MyVideo);
 ```
 
 :::tip
-Don't move these statements together into one file, as you might break Fast Refresh.
+Don't move these statements together into one file, as you might break hot reloading.
 :::
 
 ## Using Remotion Preview
