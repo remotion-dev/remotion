@@ -114,7 +114,7 @@ module.exports = {
         id: "player/installation",
       },
       label: "@remotion/player",
-      items: ["player/api"],
+      items: ["player/api", "player/thumbnail"],
     },
     {
       type: "category",
@@ -318,7 +318,7 @@ module.exports = {
       type: "category",
       link: {
         type: "doc",
-        id: "player/player",
+        id: "player/index",
       },
       label: "Player",
       items: [
