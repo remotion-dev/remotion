@@ -322,6 +322,11 @@ module.exports = {
       },
       label: "Player",
       items: [
+        {
+          type: "link",
+          href: "/docs/player/player",
+          label: "API Reference",
+        },
         "player/examples",
         "player/scaling",
         "player/integration",
@@ -338,6 +343,11 @@ module.exports = {
         id: "lambda",
       },
       items: [
+        {
+          type: "link",
+          href: "/docs/player/player",
+          label: "API Reference",
+        },
         "lambda/setup",
         "lambda/permissions",
         "lambda/region-selection",
