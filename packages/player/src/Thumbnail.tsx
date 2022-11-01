@@ -1,8 +1,24 @@
-import type {ComponentType, CSSProperties, LazyExoticComponent} from 'react';
-import {Suspense, useMemo, useState} from 'react';
+import type {
+	ComponentType,
+	CSSProperties,
+	LazyExoticComponent,
+	MutableRefObject,
+} from 'react';
+import {
+	forwardRef,
+	useImperativeHandle,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import type {CompProps, TimelineContextValue} from 'remotion';
 import {Internals, random} from 'remotion';
+import {ThumbnailEmitterContext} from './emitter-context';
+import {ThumbnailEmitter} from './event-emitter';
+import type {ThumbnailMethods} from './player-methods';
+import type {ErrorFallback, RenderLoading} from './PlayerUI';
 import {SharedPlayerContexts} from './SharedPlayerContext';
+import ThumbnailUI from './ThumbnailUI';
 import type {PropsIfHasProps} from './utils/props-if-has-props';
 
 type ThumbnailProps<T> = PropsIfHasProps<T> &
@@ -14,32 +30,29 @@ type ThumbnailProps<T> = PropsIfHasProps<T> &
 		compositionHeight: number;
 		inputProps?: unknown;
 		fps: number;
+		errorFallback?: ErrorFallback;
+		renderLoading?: RenderLoading;
+		className?: string;
 	};
 
-export const Thumbnail = <T,>({
-	frameToDisplay,
-	style,
-	inputProps,
-	compositionHeight,
-	compositionWidth,
-	durationInFrames,
-	fps,
-	...componentProps
-}: ThumbnailProps<T>) => {
+export const ThumbnailFn = <T,>(
+	{
+		frameToDisplay,
+		style,
+		inputProps,
+		compositionHeight,
+		compositionWidth,
+		durationInFrames,
+		fps,
+		className,
+		errorFallback = () => '⚠️',
+		renderLoading,
+		...componentProps
+	}: ThumbnailProps<T>,
+	ref: MutableRefObject<ThumbnailMethods>
+) => {
 	const [thumbnailId] = useState(() => String(random(null)));
-
-	const container: CSSProperties = useMemo(() => {
-		return {
-			width: compositionWidth,
-			height: compositionHeight,
-			backgroundColor: 'rgba(0, 0, 0, 0.4)',
-			display: 'flex',
-			justifyContent: 'center',
-			alignItems: 'center',
-			position: 'relative',
-			...style,
-		};
-	}, [compositionWidth, compositionHeight, style]);
+	const rootRef = useRef<ThumbnailMethods>(null);
 
 	const timelineState: TimelineContextValue = useMemo(() => {
 		return {
@@ -57,13 +70,17 @@ export const Thumbnail = <T,>({
 		};
 	}, [frameToDisplay, thumbnailId]);
 
-	const props = useMemo(() => {
-		return (inputProps ?? {}) as unknown as {};
-	}, [inputProps]);
+	useImperativeHandle(ref, () => rootRef.current as ThumbnailMethods, []);
 
 	const Component = Internals.useLazyComponent(
 		componentProps
 	) as LazyExoticComponent<ComponentType<unknown>>;
+
+	const [emitter] = useState(() => new ThumbnailEmitter());
+
+	const passedInputProps = useMemo(() => {
+		return inputProps ?? {};
+	}, [inputProps]);
 
 	return (
 		<SharedPlayerContexts
@@ -76,11 +93,27 @@ export const Thumbnail = <T,>({
 			inputProps={inputProps}
 			numberOfSharedAudioTags={0}
 		>
-			<div style={container}>
-				<Suspense fallback={null}>
-					<Component {...props} />
-				</Suspense>
-			</div>
+			<ThumbnailEmitterContext.Provider value={emitter}>
+				<ThumbnailUI
+					className={className}
+					errorFallback={errorFallback}
+					inputProps={passedInputProps}
+					renderLoading={renderLoading}
+					style={style}
+				/>
+			</ThumbnailEmitterContext.Provider>
 		</SharedPlayerContexts>
 	);
 };
+
+declare module 'react' {
+	// eslint-disable-next-line @typescript-eslint/no-shadow
+	function forwardRef<T, P = {}>(
+		render: (
+			props: P,
+			ref: React.MutableRefObject<T>
+		) => React.ReactElement | null
+	): (props: P & React.RefAttributes<T>) => React.ReactElement | null;
+}
+
+export const Thumbnail = forwardRef(ThumbnailFn);
