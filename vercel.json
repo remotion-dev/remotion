@@ -114,6 +114,16 @@
       "source": "/docs/player/api",
       "destination": "/docs/player/player",
       "permanent": true
+    },
+    {
+      "source": "/github",
+      "destination": "https://github.com/remotion-dev/remotion",
+      "permanent": false
+    },
+    {
+      "source": "/brand",
+      "destination": "https://github.com/remotion-dev/logo",
+      "permanent": false
     }
   ]
 }
