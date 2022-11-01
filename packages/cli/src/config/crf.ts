@@ -1,5 +1,4 @@
-import type {Codec, Crf} from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
+import type {Crf} from '@remotion/renderer';
 
 let currentCrf: Crf;
 
@@ -13,11 +12,4 @@ export const setCrf = (newCrf: Crf) => {
 
 export const getCrfOrUndefined = () => {
 	return currentCrf;
-};
-
-export const getActualCrf = (codec: Codec) => {
-	const crf =
-		getCrfOrUndefined() ?? RenderInternals.getDefaultCrfForCodec(codec);
-	RenderInternals.validateSelectedCrfAndCodecCombination(crf, codec);
-	return crf;
 };

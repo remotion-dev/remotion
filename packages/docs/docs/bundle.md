@@ -24,7 +24,7 @@ const bundle: (options?: {
 
 ### `entryPoint`
 
-A `string` containing an absolute path of the entry point of a Remotion project. In a default Remotion project created with the template, the entry point is located at `src/index.tsx`.
+A `string` containing an absolute path of the entry point of a Remotion project. [In a default Remotion project created with the template, the entry point is located at `src/index.tsx`](/docs/terminology#entry-point).
 
 ### `onProgress?`
 

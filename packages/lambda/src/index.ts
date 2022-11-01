@@ -1,5 +1,6 @@
 import type {DeleteFunctionInput} from './api/delete-function';
 import {deleteFunction} from './api/delete-function';
+import type {DeleteRenderInput} from './api/delete-render';
 import {deleteRender} from './api/delete-render';
 import type {DeleteSiteInput, DeleteSiteOutput} from './api/delete-site';
 import {deleteSite} from './api/delete-site';
@@ -58,6 +59,10 @@ import type {
 import {renderStillOnLambda} from './api/render-still-on-lambda';
 import {validateWebhookSignature} from './api/validate-webhook-signature';
 import type {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
+import type {
+	EnhancedErrorInfo,
+	LambdaErrorInfo,
+} from './functions/helpers/write-lambda-error';
 import {LambdaInternals} from './internals';
 import type {AwsRegion} from './pricing/aws-regions';
 import type {CustomCredentials} from './shared/aws-clients';
@@ -125,4 +130,7 @@ export type {
 	LambdaArchitecture,
 	CustomCredentials,
 	WebhookPayload,
+	LambdaErrorInfo,
+	EnhancedErrorInfo,
+	DeleteRenderInput,
 };

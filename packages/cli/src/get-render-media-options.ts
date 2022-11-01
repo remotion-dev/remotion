@@ -2,6 +2,7 @@ import type {Codec, RenderMediaOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {ConfigInternals} from './config';
 import {getCliOptions} from './get-cli-options';
+import {getImageFormat} from './image-formats';
 
 export const getRenderMediaOptions = async ({
 	outputLocation,
@@ -24,7 +25,6 @@ export const getRenderMediaOptions = async ({
 		quality,
 		crf,
 		pixelFormat,
-		imageFormat,
 		browserExecutable,
 		ffmpegExecutable,
 		ffprobeExecutable,
@@ -36,15 +36,24 @@ export const getRenderMediaOptions = async ({
 		muted,
 		enforceAudioTrack,
 		ffmpegOverride,
+		audioBitrate,
+		videoBitrate,
+		height,
+		width,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
-		codec,
 	});
+
+	const imageFormat = getImageFormat(codec);
 
 	return {
 		outputLocation,
-		composition: config,
+		composition: {
+			...config,
+			width: width ?? config.width,
+			height: height ?? config.height,
+		},
 		crf,
 		envVariables,
 		ffmpegExecutable,
@@ -77,5 +86,7 @@ export const getRenderMediaOptions = async ({
 		concurrency,
 		serveUrl,
 		codec,
+		audioBitrate,
+		videoBitrate,
 	};
 };

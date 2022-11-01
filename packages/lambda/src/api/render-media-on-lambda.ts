@@ -14,6 +14,7 @@ import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {getCloudwatchStreamUrl} from '../shared/get-cloudwatch-stream-url';
+import {serializeInputProps} from '../shared/serialize-input-props';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
@@ -48,10 +49,14 @@ export type RenderMediaOnLambdaInput = {
 	downloadBehavior?: DownloadBehavior | null;
 	muted?: boolean;
 	overwrite?: boolean;
+	audioBitrate?: string | null;
+	videoBitrate?: string | null;
 	webhook?: {
 		url: string;
 		secret: string | null;
 	};
+	forceWidth?: number | null;
+	forceHeight?: number | null;
 };
 
 export type RenderMediaOnLambdaOutput = {
@@ -108,7 +113,11 @@ export const renderMediaOnLambda = async ({
 	downloadBehavior,
 	muted,
 	overwrite,
+	audioBitrate,
+	videoBitrate,
 	webhook,
+	forceHeight,
+	forceWidth,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
@@ -118,7 +127,14 @@ export const renderMediaOnLambda = async ({
 	});
 	validateDownloadBehavior(downloadBehavior);
 
-	const realServeUrl = await convertToServeUrl(serveUrl, region);
+	const [realServeUrl, serializedInputProps] = await Promise.all([
+		convertToServeUrl(serveUrl, region),
+		serializeInputProps({
+			inputProps,
+			region,
+			type: 'video-or-audio',
+		}),
+	]);
 	try {
 		const res = await callLambda({
 			functionName,
@@ -127,7 +143,7 @@ export const renderMediaOnLambda = async ({
 				framesPerLambda: framesPerLambda ?? null,
 				composition,
 				serveUrl: realServeUrl,
-				inputProps: inputProps ?? {},
+				inputProps: serializedInputProps,
 				codec: actualCodec,
 				imageFormat: imageFormat ?? 'jpeg',
 				crf,
@@ -150,7 +166,11 @@ export const renderMediaOnLambda = async ({
 				muted: muted ?? false,
 				version: VERSION,
 				overwrite: overwrite ?? false,
+				audioBitrate: audioBitrate ?? null,
+				videoBitrate: videoBitrate ?? null,
 				webhook: webhook ?? null,
+				forceHeight: forceHeight ?? null,
+				forceWidth: forceWidth ?? null,
 			},
 			region,
 		});

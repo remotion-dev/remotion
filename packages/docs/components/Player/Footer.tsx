@@ -23,7 +23,7 @@ const inner: React.CSSProperties = {
   paddingTop: 80,
   borderRadius: 10,
   flex: 1,
-  backgroundColor: "white",
+  backgroundColor: "var(--background)",
   width: "100%",
 };
 

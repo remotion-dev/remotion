@@ -58,7 +58,7 @@ type Tab = "code" | "preview";
 export const CodeExample: React.FC = () => {
   const [tab, setTab] = useState<Tab>("code");
   return (
-    <div style={{ flex: 1, textAlign: "left", maxWidth: 500 }}>
+    <div style={{ flex: 1, textAlign: "left", maxWidth: 700 }}>
       <button
         type="button"
         style={{ ...tabStyle, opacity: tab === "code" ? 1 : 0.5 }}

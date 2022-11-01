@@ -1,11 +1,11 @@
 import React from "react";
-import TeamCardsCSS from "./TeamCardsCSS.module.css";
+import { BlueButton } from "../../components/layout/Button";
+import { Spacer } from "../../components/layout/Spacer";
+import { EmailLogo, GitHubLogo, LinkedInLogo, TwitterLogo } from "./icons";
 import Jonny from "./images/Jonny Burger.png";
 import Mehmet from "./images/Mehmet Ademi.png";
 import Patric from "./images/Patric Salvisberg.png";
-import { TwitterLogo, LinkedInLogo, GitHubLogo, EmailLogo } from "./icons";
-import { BlueButton } from "../../components/layout/Button";
-import { Spacer } from "../../components/layout/Spacer";
+import TeamCardsCSS from "./TeamCardsCSS.module.css";
 
 const ButtonMailto = ({ mailto, label }) => {
   return <a href={mailto}>{label}</a>;
@@ -272,7 +272,7 @@ export const TeamCardsLayout: React.FC<{}> = () => {
         <Spacer />
 
         <h2 style={stepTitle}>Patric</h2>
-        <strong style={center}>Intern</strong>
+        <strong style={center}>Junior Hacker</strong>
 
         <ul style={{ ...list, flex: 1 }}>
           <li>

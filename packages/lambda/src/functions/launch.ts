@@ -4,6 +4,7 @@ import fs from 'fs';
 import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
+import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
 import type {
 	EncodingProgress,
 	LambdaPayload,
@@ -17,23 +18,14 @@ import {
 	renderMetadataKey,
 	rendersPrefix,
 } from '../shared/constants';
+import {deserializeInputProps} from '../shared/deserialize-input-props';
 import {DOCS_URL} from '../shared/docs-url';
 import {invokeWebhook} from '../shared/invoke-webhook';
 import {getServeUrlHash} from '../shared/make-s3-url';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
-import {collectChunkInformation} from './chunk-optimization/collect-data';
-import {getFrameRangesFromProfile} from './chunk-optimization/get-frame-ranges-from-profile';
-import {getProfileDuration} from './chunk-optimization/get-profile-duration';
-import {isValidOptimizationProfile} from './chunk-optimization/is-valid-profile';
-import {optimizeInvocationOrder} from './chunk-optimization/optimize-invocation-order';
-import {optimizeProfileRecursively} from './chunk-optimization/optimize-profile';
 import {planFrameRanges} from './chunk-optimization/plan-frame-ranges';
-import {
-	getOptimization,
-	writeOptimization,
-} from './chunk-optimization/s3-optimization-file';
 import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
 import {concatVideosS3} from './helpers/concat-videos';
 import {createPostRenderData} from './helpers/create-post-render-data';
@@ -49,6 +41,7 @@ import {inspectErrors} from './helpers/inspect-errors';
 import {lambdaDeleteFile, lambdaLs, lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
+import type {EnhancedErrorInfo} from './helpers/write-lambda-error';
 import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
@@ -57,6 +50,7 @@ import {writePostRenderData} from './helpers/write-post-render-data';
 
 type Options = {
 	expectedBucketOwner: string;
+	getRemainingTimeInMillis: () => number;
 };
 
 const callFunctionWithRetry = async (
@@ -95,6 +89,12 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	const startedDate = Date.now();
 
 	let webhookInvoked = false;
+	console.log(
+		`Function has ${Math.max(
+			options.getRemainingTimeInMillis() - 1000,
+			1000
+		)} before it times out`
+	);
 	const webhookDueToTimeout = setTimeout(async () => {
 		if (params.webhook && !webhookInvoked) {
 			try {
@@ -136,29 +136,27 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 				console.log(err);
 			}
 		}
-	}, Math.max(params.timeoutInMilliseconds - 1000, 1000));
+	}, Math.max(options.getRemainingTimeInMillis() - 1000, 1000));
 
-	const [browserInstance, optimization] = await Promise.all([
-		getBrowserInstance(
-			RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
-			params.chromiumOptions
-		),
-		getOptimization({
-			bucketName: params.bucketName,
-			siteId: getServeUrlHash(params.serveUrl),
-			compositionId: params.composition,
-			region: getCurrentRegionInFunction(),
-			expectedBucketOwner: options.expectedBucketOwner,
-		}),
-	]);
+	const browserInstance = await getBrowserInstance(
+		RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
+		params.chromiumOptions
+	);
 
 	const downloadMap = RenderInternals.makeDownloadMap();
+
+	const inputPropsPromise = deserializeInputProps({
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+		serialized: params.inputProps,
+	});
 
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
 		browserInstance,
-		inputProps: params.inputProps,
+		inputProps: await inputPropsPromise,
 		envVariables: params.envVariables,
 		ffmpegExecutable: null,
 		ffprobeExecutable: null,
@@ -166,6 +164,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		chromiumOptions: params.chromiumOptions,
 		port: null,
 		downloadMap,
+		forceHeight: params.forceHeight,
+		forceWidth: params.forceWidth,
 	});
 	Internals.validateDurationInFrames(
 		comp.durationInFrames,
@@ -178,6 +178,9 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		'passed to a Lambda render'
 	);
 	Internals.validateDimension(comp.width, 'width', 'passed to a Lambda render');
+
+	RenderInternals.validateBitrate(params.audioBitrate, 'audioBitrate');
+	RenderInternals.validateBitrate(params.videoBitrate, 'videoBitrate');
 
 	RenderInternals.validateConcurrency(
 		params.concurrencyPerLambda,
@@ -214,11 +217,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	validatePrivacy(params.privacy);
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 
-	const {chunks, didUseOptimization} = planFrameRanges({
+	const {chunks} = planFrameRanges({
 		framesPerLambda,
-		optimization,
-		// TODO: Re-enable chunk optimization later
-		shouldUseOptimization: false,
 		frameRange: realFrameRange,
 		everyNthFrame: params.everyNthFrame,
 	});
@@ -258,6 +258,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			everyNthFrame: params.everyNthFrame,
 			concurrencyPerLambda: params.concurrencyPerLambda,
 			muted: params.muted,
+			audioBitrate: params.audioBitrate,
+			videoBitrate: params.videoBitrate,
 		};
 		return payload;
 	});
@@ -277,7 +279,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		compositionId: comp.id,
 		siteId: getServeUrlHash(params.serveUrl),
 		codec: params.codec,
-		usesOptimizationProfile: didUseOptimization,
 		type: 'video',
 		imageFormat: params.imageFormat,
 		inputProps: params.inputProps,
@@ -403,6 +404,35 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		});
 	};
 
+	const onErrors = async (errors: EnhancedErrorInfo[]) => {
+		console.log('Found Errors', errors);
+
+		if (params.webhook) {
+			console.log('Sending webhook with errors');
+			await invokeWebhook({
+				url: params.webhook.url,
+				secret: params.webhook.secret ?? null,
+				payload: {
+					type: 'error',
+					renderId: params.renderId,
+					expectedBucketOwner: options.expectedBucketOwner,
+					bucketName: params.bucketName,
+					errors: errors.slice(0, 5).map((e) => ({
+						message: e.message,
+						name: e.name as string,
+						stack: e.stack as string,
+					})),
+				},
+			});
+		} else {
+			console.log('No webhook specified');
+		}
+
+		throw new Error(
+			'Stopping Lambda function because error occurred: ' + errors[0].stack
+		);
+	};
+
 	const fps = comp.fps / params.everyNthFrame;
 
 	const {outfile, cleanupChunksProm, encodingStart} = await concatVideosS3({
@@ -416,6 +446,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		expectedBucketOwner: options.expectedBucketOwner,
 		fps,
 		numberOfGifLoops: params.numberOfGifLoops,
+		onErrors,
 	});
 	if (!encodingStop) {
 		encodingStop = Date.now();
@@ -434,52 +465,12 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		customCredentials,
 	});
 
-	let chunkProm: Promise<unknown> = Promise.resolve();
-
-	// TODO: Enable in a later release
-	const enableChunkOptimization = false;
-
-	if (enableChunkOptimization) {
-		const chunkData = await collectChunkInformation({
-			bucketName: params.bucketName,
-			renderId: params.renderId,
-			region: getCurrentRegionInFunction(),
-			expectedBucketOwner: options.expectedBucketOwner,
-		});
-		const optimizedProfile = optimizeInvocationOrder(
-			optimizeProfileRecursively(chunkData, 400)
-		);
-		const optimizedFrameRange = getFrameRangesFromProfile(optimizedProfile);
-		chunkProm = isValidOptimizationProfile(optimizedProfile)
-			? writeOptimization({
-					bucketName: params.bucketName,
-					optimization: {
-						ranges: optimizedFrameRange,
-						oldTiming: getProfileDuration(chunkData),
-						newTiming: getProfileDuration(optimizedProfile),
-						createdFromRenderId: params.renderId,
-						framesPerLambda,
-						lambdaVersion: VERSION,
-						frameRange: realFrameRange,
-						everyNthFrame: params.everyNthFrame,
-					},
-					expectedBucketOwner: options.expectedBucketOwner,
-					compositionId: params.composition,
-					siteId: getServeUrlHash(params.serveUrl),
-					region: getCurrentRegionInFunction(),
-			  })
-			: Promise.resolve();
-	}
-
-	const [, contents] = await Promise.all([
-		chunkProm,
-		lambdaLs({
-			bucketName: params.bucketName,
-			prefix: rendersPrefix(params.renderId),
-			expectedBucketOwner: options.expectedBucketOwner,
-			region: getCurrentRegionInFunction(),
-		}),
-	]);
+	const contents = await lambdaLs({
+		bucketName: params.bucketName,
+		prefix: rendersPrefix(params.renderId),
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+	});
 	const finalEncodingProgress: EncodingProgress = {
 		framesEncoded: frameCount.length,
 		totalFrames: frameCount.length,
@@ -524,6 +515,12 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		jobs,
 	});
 
+	const cleanupSerializedInputPropsProm = cleanupSerializedInputProps({
+		bucketName: params.bucketName,
+		region: getCurrentRegionInFunction(),
+		serialized: params.inputProps,
+	});
+
 	const outputUrl = getOutputUrlFromMetadata(
 		renderMetadata,
 		params.bucketName,
@@ -538,7 +535,9 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		contents,
 		errorExplanations: await errorExplanationsProm,
 		timeToEncode: encodingStop - encodingStart,
-		timeToDelete: await deletProm,
+		timeToDelete: (
+			await Promise.all([deletProm, cleanupSerializedInputPropsProm])
+		).reduce((a, b) => a + b, 0),
 		outputFile: {
 			lastModified: Date.now(),
 			size: outputSize.size,

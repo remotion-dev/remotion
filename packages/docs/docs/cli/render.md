@@ -8,8 +8,16 @@ import {AngleChangelog} from '../../components/AngleChangelog';
 Render a video or audio based on the entry point, the composition ID and save it to the output location.
 
 ```bash
-npx remotion render <entry-file> <composition-id> <output-location>
+npx remotion render <entry-file> [<composition-id>] [<output-location>]
 ```
+
+If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:
+1. Get the path from the Config (Can be set using `Config.Preview.setEntryPoint("<entry-point>")`).
+2. Look for some common paths i.e. `src/index.tsx`, `src/index.ts`, `src/index.js`, `remotion/index.js`.
+3. Fail as entry point could not be determined.
+
+If `output-location` is not passed, the media will be rendered into the `out` folder.  
+If `composition-id` is also not passed, Remotion will let you select a composition.
 
 ## Flags
 
@@ -22,6 +30,18 @@ Besides choosing a video and output location with the command line arguments, th
 :::info
 Inline JSON string isn't supported on Windows because it removes the `"` character, use a temporary file instead.
 :::
+
+### `--height`
+
+_available from v3.2.40_
+
+[Overrides composition height.](/docs/config#overrideheight)
+
+### `--width`
+
+_available from v3.2.40_
+
+[Overrides composition width.](/docs/config#overridewidth)
 
 ### `--concurrency`
 
@@ -59,13 +79,33 @@ Specify a location for a dotenv file. Default `.env`. Available in v2.2 and late
 
 [`h264` or `h265` or `png` or `vp8` or `vp9` or `mp3` or `aac` or `wav` or `prores` or `h264-mkv`](/docs/config#setcodec). If you don't supply `--codec`, it will use the H.264 encoder. Available since v1.4.
 
+### `--audio-bitrate`
+
+_Available from v3.2.32_
+
+Specify the target bitrate for the generated audio.  
+The syntax for FFMPEGs `-b:a` parameter should be used.  
+FFMPEG may encode the video in a way that will not result in the exact audio bitrate specified.
+Example values: `128K` for 128 kbps, `1M` for 1 Mbps.  
+Default: `320k`
+
+### `--video-bitrate`
+
+_Available from v3.2.32_
+
+Specify the target bitrate for the generated video.  
+The syntax for FFMPEGs `-b:v` parameter should be used.  
+FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
+This option cannot be set if `--crf` is set.
+Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
+
 ### `--prores-profile`
 
 [Set the ProRes profile](/docs/config#setproresprofile). This option is only valid if the [`codec`](#--codec) has been set to `prores`. Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`. See [here](https://video.stackexchange.com/a/14715) for explanation of possible values. Default: `hq`. Available since v2.1.6.
 
 ### `--crf`
 
-[To set Constant Rate Factor (CRF) of the output](/docs/config#setcrf). Minimum 0. Use this rate control mode if you want to keep the best quality and care less about the file size. Available since v1.4.
+[To set Constant Rate Factor (CRF) of the output](/docs/config#setcrf). Minimum 0. Use this rate control mode if you want to keep the best quality and care less about the file size. This option cannot be set if `--video-bitrate` is set. Available since v1.4.
 
 ### `--browser-executable`
 

@@ -35,6 +35,8 @@ export const printHelp = () => {
 		['--overwrite', 'Overwrite if file exists, default true'],
 		['--sequence', 'Output as an image sequence'],
 		['--codec', 'Video of audio codec'],
+		['--audio-bitrate', 'Customize the output audio bitrate'],
+		['--video-bitrate', 'Customize the output video bitrate'],
 		['--crf', 'FFMPEG CRF value, controls quality, see docs for info'],
 		['--browser-executable', 'Custom path for browser executable'],
 		['--frames', 'Render a portion or a still of a video'],
@@ -77,6 +79,12 @@ export const printHelp = () => {
 	Log.info();
 	Log.info('remotion upgrade');
 	Log.info(chalk.gray('Ensure Remotion is on the newest version.'));
+	printFlags([
+		[
+			'--package-manager',
+			'Force a specific package manager, defaults to use from lockfile',
+		],
+	]);
 	Log.info();
 	Log.info(
 		'Visit https://www.remotion.dev/docs/cli for browsable CLI documentation.'

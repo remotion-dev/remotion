@@ -59,7 +59,7 @@ const LottieBalloons: React.FC = () => {
 
 	return (
 		<div className="container" style={{height, width}}>
-			<Sequence from={0}>
+			<Sequence>
 				<Balloons />
 			</Sequence>
 			<Sequence from={10}>

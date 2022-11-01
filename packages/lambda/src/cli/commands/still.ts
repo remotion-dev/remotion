@@ -1,5 +1,5 @@
 import {CliInternals, ConfigInternals} from '@remotion/cli';
-import {RenderInternals} from '@remotion/renderer';
+import {getCompositions, RenderInternals} from '@remotion/renderer';
 import {downloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
 import {
@@ -7,8 +7,10 @@ import {
 	DEFAULT_MAX_RETRIES,
 	DEFAULT_OUTPUT_PRIVACY,
 } from '../../shared/constants';
+import {convertToServeUrl} from '../../shared/convert-to-serve-url';
 import {validatePrivacy} from '../../shared/validate-privacy';
 import {validateMaxRetries} from '../../shared/validate-retries';
+import {validateServeUrl} from '../../shared/validate-serveurl';
 import {parsedLambdaCli} from '../args';
 import {getAwsRegion} from '../get-aws-region';
 import {findFunctionName} from '../helpers/find-function-name';
@@ -32,15 +34,18 @@ export const stillCommand = async (args: string[]) => {
 		quit(1);
 	}
 
-	const composition = args[1];
+	const region = getAwsRegion();
+	let composition = args[1];
 	if (!composition) {
-		Log.error('No composition ID passed.');
-		Log.info('Pass an additional argument specifying the composition ID.');
-		Log.info();
-		Log.info(
-			`${BINARY_NAME} ${STILL_COMMAND} <serve-url> <composition-id> [output-location]`
-		);
-		quit(1);
+		if (!composition) {
+			Log.info('No compositions passed. Fetching compositions...');
+
+			validateServeUrl(serveUrl);
+			const realServeUrl = await convertToServeUrl(serveUrl, region);
+			const comps = await getCompositions(realServeUrl);
+			const {compositionId} = await CliInternals.selectComposition(comps);
+			composition = compositionId;
+		}
 	}
 
 	const downloadName = args[2] ?? null;
@@ -55,10 +60,11 @@ export const stillCommand = async (args: string[]) => {
 		quality,
 		stillFrame,
 		scale,
+		height,
+		width,
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
-		codec: 'h264',
 	});
 
 	const functionName = await findFunctionName();
@@ -92,7 +98,7 @@ export const stillCommand = async (args: string[]) => {
 			imageFormat,
 			composition,
 			privacy,
-			region: getAwsRegion(),
+			region,
 			maxRetries,
 			envVariables,
 			frame: stillFrame,
@@ -102,6 +108,8 @@ export const stillCommand = async (args: string[]) => {
 			chromiumOptions,
 			timeoutInMilliseconds: puppeteerTimeout,
 			scale,
+			forceHeight: height,
+			forceWidth: width,
 		});
 		Log.info(
 			CliInternals.chalk.gray(
@@ -115,7 +123,7 @@ export const stillCommand = async (args: string[]) => {
 			const {outputPath, sizeInBytes} = await downloadMedia({
 				bucketName: res.bucketName,
 				outPath: downloadName,
-				region: getAwsRegion(),
+				region,
 				renderId: res.renderId,
 			});
 			Log.info('Done!', outputPath, CliInternals.formatBytes(sizeInBytes));
