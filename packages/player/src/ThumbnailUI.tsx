@@ -1,4 +1,3 @@
-import type {StandardLonghandProperties} from 'csstype';
 import React, {
 	forwardRef,
 	Suspense,
@@ -8,13 +7,17 @@ import React, {
 	useRef,
 } from 'react';
 import {Internals} from 'remotion';
-import {calculateCanvasTransformation} from './calculate-scale';
+import {
+	calculateCanvasTransformation,
+	calculateContainerStyle,
+	calculateOuter,
+	calculateOuterStyle,
+} from './calculate-scale';
 import {ErrorBoundary} from './error-boundary';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import type {ThumbnailMethods} from './player-methods';
 import type {ErrorFallback, RenderLoading} from './PlayerUI';
 import {useThumbnail} from './use-thumbnail';
-import {calculatePlayerSize} from './utils/calculate-player-size';
 import {IS_NODE} from './utils/is-node';
 import {useElementSize} from './utils/use-element-size';
 
@@ -76,58 +79,20 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 	const VideoComponent = video ? video.component : null;
 
 	const outerStyle: React.CSSProperties = useMemo(() => {
-		if (!config) {
-			return {};
-		}
-
-		return {
-			position: 'relative',
-			overflow: 'hidden',
-			...calculatePlayerSize({
-				compositionHeight: config.height,
-				compositionWidth: config.width,
-				currentSize: canvasSize,
-				height: style?.height as StandardLonghandProperties['width'],
-				width: style?.width as StandardLonghandProperties['height'],
-			}),
-			...style,
-		};
+		return calculateOuterStyle({config, style, canvasSize});
 	}, [canvasSize, config, style]);
 
 	const outer: React.CSSProperties = useMemo(() => {
-		if (!layout || !config) {
-			return {};
-		}
-
-		const {centerX, centerY} = layout;
-
-		return {
-			width: config.width * scale,
-			height: config.height * scale,
-			display: 'flex',
-			flexDirection: 'column',
-			position: 'absolute',
-			left: centerX,
-			top: centerY,
-			overflow: 'hidden',
-		};
+		return calculateOuter({config, layout, scale});
 	}, [config, layout, scale]);
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
-		if (!config || !canvasSize || !layout) {
-			return {};
-		}
-
-		return {
-			position: 'absolute',
-			width: config.width,
-			height: config.height,
-			display: 'flex',
-			transform: `scale(${scale})`,
-			marginLeft: layout.xCorrection,
-			marginTop: layout.yCorrection,
-			overflow: 'hidden',
-		};
+		return calculateContainerStyle({
+			canvasSize,
+			config,
+			layout,
+			scale,
+		});
 	}, [canvasSize, config, layout, scale]);
 
 	const onError = useCallback(

@@ -1,4 +1,3 @@
-import type {StandardLonghandProperties} from 'csstype';
 import type {MouseEventHandler, SyntheticEvent} from 'react';
 import React, {
 	forwardRef,
@@ -12,7 +11,12 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {calculateCanvasTransformation} from './calculate-scale';
+import {
+	calculateCanvasTransformation,
+	calculateContainerStyle,
+	calculateOuter,
+	calculateOuterStyle,
+} from './calculate-scale';
 import {ErrorBoundary} from './error-boundary';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import type {PlayerMethods, PlayerRef} from './player-methods';
@@ -24,7 +28,6 @@ import {Controls} from './PlayerControls';
 import {useHoverState} from './use-hover-state';
 import {usePlayback} from './use-playback';
 import {usePlayer} from './use-player';
-import {calculatePlayerSize} from './utils/calculate-player-size';
 import {IS_NODE} from './utils/is-node';
 import {useClickPreventionOnDoubleClick} from './utils/use-click-prevention-on-double-click';
 import {useElementSize} from './utils/use-element-size';
@@ -335,58 +338,15 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const VideoComponent = video ? video.component : null;
 
 	const outerStyle: React.CSSProperties = useMemo(() => {
-		if (!config) {
-			return {};
-		}
-
-		return {
-			position: 'relative',
-			overflow: 'hidden',
-			...calculatePlayerSize({
-				compositionHeight: config.height,
-				compositionWidth: config.width,
-				currentSize: canvasSize,
-				height: style?.height as StandardLonghandProperties['width'],
-				width: style?.width as StandardLonghandProperties['height'],
-			}),
-			...style,
-		};
+		return calculateOuterStyle({canvasSize, config, style});
 	}, [canvasSize, config, style]);
 
 	const outer: React.CSSProperties = useMemo(() => {
-		if (!layout || !config) {
-			return {};
-		}
-
-		const {centerX, centerY} = layout;
-
-		return {
-			width: config.width * scale,
-			height: config.height * scale,
-			display: 'flex',
-			flexDirection: 'column',
-			position: 'absolute',
-			left: centerX,
-			top: centerY,
-			overflow: 'hidden',
-		};
+		return calculateOuter({config, layout, scale});
 	}, [config, layout, scale]);
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
-		if (!config || !canvasSize || !layout) {
-			return {};
-		}
-
-		return {
-			position: 'absolute',
-			width: config.width,
-			height: config.height,
-			display: 'flex',
-			transform: `scale(${scale})`,
-			marginLeft: layout.xCorrection,
-			marginTop: layout.yCorrection,
-			overflow: 'hidden',
-		};
+		return calculateContainerStyle({canvasSize, config, layout, scale});
 	}, [canvasSize, config, layout, scale]);
 
 	const onError = useCallback(
