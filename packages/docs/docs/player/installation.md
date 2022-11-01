@@ -4,6 +4,8 @@ title: Installation
 slug: /player/installation
 ---
 
+import {TableOfContents} from '../../components/TableOfContents/player';
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
@@ -49,3 +51,7 @@ Make sure no package version number has a `^` character in front of it as it can
 :::
 
 Read the [examples](/docs/player/examples) and [API reference](/docs/player/player) next.
+
+## Components
+
+<TableOfContents />
