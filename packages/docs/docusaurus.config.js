@@ -171,7 +171,7 @@ module.exports = {
             },
             {
               label: "Brand",
-              href: "https://github.com/remotion-dev/logo",
+              href: "https://remotion.dev/brand",
             },
           ],
         },
