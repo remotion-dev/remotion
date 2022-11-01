@@ -271,7 +271,7 @@ ref.current?.addEventListener("error", (e) => {
 
 ## Handling errors
 
-See: [`<Player>` -> Handling errors](/docs/player/api#handling-errors)
+See: [`<Player>` -> Handling errors](/docs/player/player#handling-errors)
 
 ## See also
 

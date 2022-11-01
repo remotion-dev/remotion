@@ -14,4 +14,4 @@ Play the video, then tweak the parameters below the video.
 ## See also
 
 - [Installation](/docs/player/installation)
-- [API](/docs/player/api)
+- [API](/docs/player/player)
