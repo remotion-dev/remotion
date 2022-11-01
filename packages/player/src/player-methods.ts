@@ -23,4 +23,5 @@ export type PlayerMethods = ThumbnailMethods & {
 	unmute: () => void;
 };
 
+export type ThumbnailRef = PlayerEmitter & ThumbnailMethods;
 export type PlayerRef = PlayerEmitter & PlayerMethods;

@@ -318,7 +318,7 @@ module.exports = {
       type: "category",
       link: {
         type: "doc",
-        id: "player/player",
+        id: "player/index",
       },
       label: "Player",
       items: [

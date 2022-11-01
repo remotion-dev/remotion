@@ -1,7 +1,5 @@
 ---
-id: player
 title: "@remotion/player"
-slug: /player
 ---
 
 import { PlayerExampleWithControls } from "../../components/PlayerExampleWithControls.tsx";

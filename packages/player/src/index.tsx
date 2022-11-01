@@ -8,7 +8,12 @@ import {usePlayer} from './use-player';
 import {updateAllElementsSizes, useElementSize} from './utils/use-element-size';
 
 export {Player, PlayerProps} from './Player';
-export {PlayerMethods, PlayerRef} from './player-methods';
+export {
+	PlayerMethods,
+	PlayerRef,
+	ThumbnailMethods,
+	ThumbnailRef,
+} from './player-methods';
 export type {
 	RenderFullscreenButton,
 	RenderPlayPauseButton,

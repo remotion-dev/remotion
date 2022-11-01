@@ -109,6 +109,11 @@
       "source": "/support",
       "destination": "/docs/support",
       "permanent": true
+    },
+    {
+      "source": "/docs/player/api",
+      "destination": "/docs/player/player",
+      "permanent": true
     }
   ]
 }
