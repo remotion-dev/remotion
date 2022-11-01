@@ -34,15 +34,14 @@ We still expect company license subscribers to follow the best practices for ask
 
 You can request a consultation session [here](https://cal.com/remotion). Remotion's creator Jonny Burger will help you with answers and code to technical questions. This is the only way to receive support via video call.
 
-## Refusal of support
+## When we can't help
 
-We reserve the right to not respond to questions for any reason whatsoever.
-In practice, this can happen because:
+We don't provide support if:
 
 - the guidelines above were not followed
-- low effort was put into solving out the problem on your own
-- inability to demonstrate a problem or lack of information
-- poor React skills (we don't have the capacity to teach you)
-- violation of our [Code of Conduct](https://remotion.dev/coc)
+- low effort was put into first solving the problem yourself
+- your question is lacking reproduction or information
+- the cause of problems is due to poor React or JavaScript skills
+- our [Code of Conduct](https://remotion.dev/coc) is violated
 
 Remotion is targeted towards developers and therefore basic skills in React and web development are expected. You should also be mindful of the limitations of those technologies as we cannot help you overcome them.

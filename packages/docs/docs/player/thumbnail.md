@@ -3,6 +3,8 @@ id: thumbnail
 title: "<Thumbnail>"
 ---
 
+_available from v3.2.41_
+
 A component which can be rendered in a regular React App (for example: [Create React App](https://create-react-app.dev/), [Next.JS](https://nextjs.org)) to display a single frame of a video.
 
 ```tsx twoslash title="MyApp.tsx"
