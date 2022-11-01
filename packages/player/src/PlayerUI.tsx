@@ -412,6 +412,15 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		}
 	}, [shouldAutoplay, player]);
 
+	const loadingMarkup = useMemo(() => {
+		return renderLoading
+			? renderLoading({
+					height: outerStyle.height as number,
+					width: outerStyle.width as number,
+			  })
+			: null;
+	}, [outerStyle.height, outerStyle.width, renderLoading]);
+
 	if (!config) {
 		return null;
 	}
@@ -497,13 +506,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			</div>
 		);
 	}
-
-	const loadingMarkup = renderLoading
-		? renderLoading({
-				height: outerStyle.height as number,
-				width: outerStyle.width as number,
-		  })
-		: null;
 
 	return (
 		<div ref={container} style={outerStyle} className={className}>
