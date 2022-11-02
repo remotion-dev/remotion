@@ -30,6 +30,10 @@ export type LottieProps = {
 	 */
 	playbackRate?: number;
 	/**
+	 * Overload the frame number of the animation.
+	 */
+	animationFrame?: number;
+	/**
 	 * CSS properties to apply to the container of the animation.
 	 */
 	style?: CSSProperties;

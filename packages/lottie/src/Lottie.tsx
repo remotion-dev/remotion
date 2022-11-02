@@ -13,6 +13,7 @@ export const Lottie = ({
 	direction,
 	loop,
 	playbackRate,
+	animationFrame,
 	style,
 	onAnimationLoaded,
 }: LottieProps) => {
@@ -87,7 +88,7 @@ export const Lottie = ({
 
 		const {totalFrames} = animationRef.current;
 		const nextFrame = getNextFrame({
-			currentFrame: frame * (playbackRate ?? 1),
+			currentFrame: animationFrame ?? frame * (playbackRate ?? 1),
 			direction,
 			loop,
 			totalFrames,
@@ -117,7 +118,7 @@ export const Lottie = ({
 				img.href.baseVal as string
 			);
 		});
-	}, [direction, frame, loop, playbackRate]);
+	}, [direction, frame, loop, playbackRate, animationFrame]);
 
 	return <div ref={containerRef} className={className} style={style} />;
 };
