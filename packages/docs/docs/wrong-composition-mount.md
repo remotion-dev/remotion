@@ -73,8 +73,8 @@ To fix it, you must remove the nested compositions.
 The cause for the error is that in the component you passed in to the `component` prop of Remotion Player, you are returning a `<Composition>`.
 
 ```tsx twoslash title="❌"
-import { Composition } from "remotion";
 import { Player } from "@remotion/player";
+import { Composition } from "remotion";
 
 const AnotherComp: React.FC = () => {
   return null;
@@ -112,10 +112,9 @@ const Index: React.FC = () => {
 There is no use for compositions in `<Player>`. Only use them during rendering and when using the Remotion Preview.
 :::
 
-To fix it, pass the component directly to the player's [`component`](/docs/player/api#component) prop and provide the [`durationInFrames`](/docs/player/api#durationinframes), [`fps`](/docs/player/api#fps), [`compositionHeight`](/docs/player/api#compositionheight) and [`compositionWidth`](/docs/player/api#compositionwidth) props to the player.
+To fix it, pass the component directly to the player's [`component`](/docs/player/player#component) prop and provide the [`durationInFrames`](/docs/player/player#durationinframes), [`fps`](/docs/player/player#fps), [`compositionHeight`](/docs/player/player#compositionheight) and [`compositionWidth`](/docs/player/player#compositionwidth) props to the player.
 
 ```tsx twoslash title="✅"
-import { Composition } from "remotion";
 import { Player } from "@remotion/player";
 
 const AnotherComp: React.FC = () => {

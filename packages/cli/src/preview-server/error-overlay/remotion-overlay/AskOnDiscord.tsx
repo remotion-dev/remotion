@@ -28,6 +28,7 @@ export const AskOnDiscord: React.FC<{
 			key: 'd',
 			callback: onEditor,
 			commandCtrlKey: true,
+			preventDefault: true,
 		});
 		return () => unregister();
 	}, [canHaveKeyboardShortcuts, openInBrowser, registerKeybinding]);

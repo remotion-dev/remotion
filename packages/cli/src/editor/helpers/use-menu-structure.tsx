@@ -1,5 +1,6 @@
 import {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
+import {cmdOrCtrlCharacter} from '../../preview-server/error-overlay/remotion-overlay/ShortcutHint';
 import {truthy} from '../../truthy';
 import {Row} from '../components/layout';
 import type {Menu} from '../components/Menu/MenuItem';
@@ -193,7 +194,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						quickSwitcherLabel: null,
 					},
 					{
-						id: 'timeline-divider',
+						id: 'timeline-divider-1',
 						type: 'divider' as const,
 					},
 					{
@@ -236,7 +237,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 									subMenu: null,
 									type: 'item' as const,
 									value: 'expanded' as SidebarCollapsedState,
-									quickSwitcherLabel: null,
+									quickSwitcherLabel: 'Expand',
 								},
 								{
 									id: 'sidebar-collapsed',
@@ -252,14 +253,14 @@ export const useMenuStructure = (closeMenu: () => void) => {
 									subMenu: null,
 									type: 'item' as const,
 									value: 'collapsed' as SidebarCollapsedState,
-									quickSwitcherLabel: null,
+									quickSwitcherLabel: 'Collapse',
 								},
 							],
 						},
 						onClick: () => undefined,
 					},
 					{
-						id: 'timeline-divider',
+						id: 'timeline-divider-2',
 						type: 'divider' as const,
 					},
 					{
@@ -279,7 +280,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 							: 'Enable Checkerboard Transparency',
 					},
 					{
-						id: 'timeline-divider',
+						id: 'timeline-divider-3',
 						type: 'divider' as const,
 					},
 					{
@@ -327,7 +328,29 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						quickSwitcherLabel: 'Timeline: Collapse all layers',
 					},
 					{
-						id: 'in-out-divider',
+						id: 'in-out-divider-4',
+						type: 'divider' as const,
+					},
+					{
+						id: 'quick-switcher',
+						keyHint: `${cmdOrCtrlCharacter}+K`,
+						label: 'Quick Switcher',
+						onClick: () => {
+							closeMenu();
+							setSelectedModal({
+								type: 'quick-switcher',
+								mode: 'compositions',
+								invocationTimestamp: Date.now(),
+							});
+						},
+						type: 'item' as const,
+						value: 'quick-switcher',
+						leftItem: null,
+						subMenu: null,
+						quickSwitcherLabel: 'Switch composition',
+					},
+					{
+						id: 'in-out-divider-5',
 						type: 'divider' as const,
 					},
 					{
@@ -384,7 +407,10 @@ export const useMenuStructure = (closeMenu: () => void) => {
 								id: 'color-picker',
 								value: 'color-picker',
 								label: 'Color Picker',
-								onClick: () => pickColor(),
+								onClick: () => {
+									closeMenu();
+									pickColor();
+								},
 								leftItem: null,
 								keyHint: null,
 								subMenu: null,
@@ -410,7 +436,9 @@ export const useMenuStructure = (closeMenu: () => void) => {
 							closeMenu();
 
 							setSelectedModal({
-								type: 'shortcuts',
+								type: 'quick-switcher',
+								mode: 'docs',
+								invocationTimestamp: Date.now(),
 							});
 						},
 						keyHint: '?',
@@ -466,7 +494,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						quickSwitcherLabel: null,
 					},
 					{
-						id: 'help-divider',
+						id: 'help-divider-6',
 						type: 'divider' as const,
 					},
 					{

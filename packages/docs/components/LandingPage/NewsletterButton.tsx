@@ -15,13 +15,16 @@ export const NewsletterButton: React.FC<{}> = () => {
         setSubmitting(true);
         e.preventDefault();
 
-        const response = await fetch("/api/newsletter", {
-          method: "POST",
-          body: JSON.stringify({ email }),
-          headers: {
-            "content-type": "application/json",
-          },
-        });
+        const response = await fetch(
+          "https://companies.remotion.dev/api/newsletter",
+          {
+            method: "POST",
+            body: JSON.stringify({ email }),
+            headers: {
+              "content-type": "application/json",
+            },
+          }
+        );
         const json = await response.json();
         if (json.success) {
           setSubscribed(true);

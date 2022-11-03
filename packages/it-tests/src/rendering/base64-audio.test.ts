@@ -15,14 +15,7 @@ beforeEach(() => {
 test("Should be able to render a MP3 audio file", async () => {
   const task = execa(
     "pnpm",
-    [
-      "exec",
-      "remotion",
-      "render",
-      "src/index.tsx",
-      "audio-testing-base64",
-      outputPath,
-    ],
+    ["exec", "remotion", "render", "audio-testing-base64", outputPath],
     {
       cwd: path.join(process.cwd(), "..", "example"),
     }

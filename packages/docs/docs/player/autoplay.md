@@ -9,7 +9,7 @@ Browsers place restrictions on websites that play audio without user interaction
 
 ## Trigger the play from a user event
 
-Don't autoplay audio on site load, or else browsers will block the audio. Instead, display a play button or use the [`controls`](/docs/player/api#controls) prop.
+Don't autoplay audio on site load, or else browsers will block the audio. Instead, display a play button or use the [`controls`](/docs/player/player#controls) prop.
 
 ## Pass the event to the `play()` or `toggle()` method
 
@@ -22,8 +22,8 @@ export const MyComp = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
+import { PlayerRef } from "@remotion/player";
 import { useRef } from "react";
-import { Player, PlayerRef } from "@remotion/player";
 
 export const App: React.FC = () => {
   const ref = useRef<PlayerRef>(null);
@@ -45,7 +45,7 @@ export const App: React.FC = () => {
 
 ## Use the `numberOfSharedAudioTags` property
 
-If your audio does not enter the video immediately (say the few seconds of the video are silent, but then the audio fades in), it technically doesn't start based on an user integration. To combat this issue, you can use the [`numberOfSharedAudioTags`](/docs/player/api#numberofsharedaudiotags) property. This will play some silent audio on the first play with user interaction, and then reuse that tag to play your deferred audio playback.
+If your audio does not enter the video immediately (say the few seconds of the video are silent, but then the audio fades in), it technically doesn't start based on an user integration. To combat this issue, you can use the [`numberOfSharedAudioTags`](/docs/player/player#numberofsharedaudiotags) property. This will play some silent audio on the first play with user interaction, and then reuse that tag to play your deferred audio playback.
 
 You can have as many silent audio tags as you want. Set `numberOfSharedAudioTags={2}` to prepare two shared audio tags. Be mindful: If you set this props and you render more [`<Audio/>`](/docs/audio) than there are shared audio tags, an exception will be thrown.
 

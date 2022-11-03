@@ -1,6 +1,7 @@
 import deterministicRandomness from "./rules/deterministic-randomness";
 import evenDimensions from "./rules/even-dimensions";
 import durationInFrames from "./rules/no-duration-frames-infinity";
+import noFrom0 from "./rules/no-from-0";
 import nomp4Import from "./rules/no-mp4-import";
 import noStringAssets from "./rules/no-string-assets";
 import staticFileNoRelative from "./rules/staticfile-no-relative";
@@ -16,6 +17,7 @@ const rules = {
   "no-string-assets": noStringAssets,
   "even-dimensions": evenDimensions,
   "duration-in-frames": durationInFrames,
+  "from-0": noFrom0,
   "volume-callback": volumeCallback,
   "use-gif-component": useGifComponent,
   "staticfile-no-relative": staticFileNoRelative,
@@ -33,6 +35,7 @@ export = {
         "@remotion/no-string-assets": "error",
         "@remotion/even-dimensions": "error",
         "@remotion/duration-in-frames": "error",
+        "@remotion/from-0": "error",
         "@remotion/volume-callback": "error",
         "@remotion/use-gif-component": "error",
         "@remotion/staticfile-no-relative": "error",

@@ -38,7 +38,7 @@ test('Should fail when using an incompatible version', async () => {
 				imageFormat: 'png',
 				inputProps: {
 					type: 'payload',
-					payload: {},
+					payload: '{}',
 				},
 				logLevel: 'warn',
 				maxRetries: 3,
@@ -61,6 +61,8 @@ test('Should fail when using an incompatible version', async () => {
 				webhook: null,
 				audioBitrate: null,
 				videoBitrate: null,
+				forceHeight: null,
+				forceWidth: null,
 			},
 			extraContext
 		)

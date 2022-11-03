@@ -12,6 +12,11 @@ type QuickSwitcherResultDetail =
 	  }
 	| {
 			type: 'menu-item';
+	  }
+	| {
+			type: 'search-result';
+			titleLine: string;
+			subtitleLine: string;
 	  };
 
 export type TQuickSwitcherResult = {
@@ -23,8 +28,7 @@ export type TQuickSwitcherResult = {
 const container: React.CSSProperties = {
 	paddingLeft: 16,
 	paddingRight: 16,
-	paddingTop: 3,
-	paddingBottom: 3,
+
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
@@ -32,15 +36,25 @@ const container: React.CSSProperties = {
 };
 
 const label: React.CSSProperties = {
-	flex: 1,
 	whiteSpace: 'nowrap',
 	textOverflow: 'ellipsis',
-	overflow: 'hidden',
+};
+
+const searchLabel: React.CSSProperties = {
+	...label,
+	lineHeight: 1.25,
 };
 
 const iconStyle: React.CSSProperties = {
 	width: 14,
 	height: 14,
+};
+
+const labelContainer: React.CSSProperties = {
+	overflow: 'hidden',
+	flex: 1,
+	paddingTop: 5,
+	paddingBottom: 5,
 };
 
 export const QuickSwitcherResult: React.FC<{
@@ -79,6 +93,7 @@ export const QuickSwitcherResult: React.FC<{
 			callback: result.onSelected,
 			commandCtrlKey: false,
 			event: 'keydown',
+			preventDefault: true,
 		});
 
 		return () => {
@@ -107,11 +122,16 @@ export const QuickSwitcherResult: React.FC<{
 
 	const labelStyle = useMemo(() => {
 		return {
-			...label,
-			color: selected || hovered ? 'white' : LIGHT_TEXT,
+			...(result.type === 'search-result' ? searchLabel : label),
+			color:
+				result.type === 'search-result'
+					? LIGHT_TEXT
+					: selected || hovered
+					? 'white'
+					: LIGHT_TEXT,
 			fontSize: 15,
 		};
-	}, [hovered, selected]);
+	}, [hovered, result.type, selected]);
 
 	return (
 		<div ref={ref} key={result.id} style={style} onClick={result.onSelected}>
@@ -123,7 +143,28 @@ export const QuickSwitcherResult: React.FC<{
 				)
 			) : null}
 			<Spacing x={1} />
-			<div style={labelStyle}>{result.title}</div>
+			<div style={labelContainer}>
+				{result.type === 'search-result' ? (
+					<>
+						<div
+							style={labelStyle}
+							// eslint-disable-next-line react/no-danger
+							dangerouslySetInnerHTML={{
+								__html: result.titleLine,
+							}}
+						/>
+						<div
+							style={labelStyle}
+							// eslint-disable-next-line react/no-danger
+							dangerouslySetInnerHTML={{
+								__html: result.subtitleLine,
+							}}
+						/>
+					</>
+				) : (
+					<div style={labelStyle}>{result.title}</div>
+				)}
+			</div>
 		</div>
 	);
 };

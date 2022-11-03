@@ -41,7 +41,7 @@ test('Should add silent audio if there is no audio', async () => {
 			imageFormat: 'png',
 			inputProps: {
 				type: 'payload',
-				payload: {},
+				payload: '{}',
 			},
 			logLevel: 'warn',
 			maxRetries: 3,
@@ -64,6 +64,8 @@ test('Should add silent audio if there is no audio', async () => {
 			webhook: null,
 			audioBitrate: null,
 			videoBitrate: null,
+			forceHeight: null,
+			forceWidth: null,
 		},
 		extraContext
 	);

@@ -8,8 +8,16 @@ import {AngleChangelog} from '../../components/AngleChangelog';
 Render a video or audio based on the entry point, the composition ID and save it to the output location.
 
 ```bash
-npx remotion render <entry-file> <composition-id> <output-location>
+npx remotion render <entry-file> [<composition-id>] [<output-location>]
 ```
+
+If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:
+1. Get the path from the Config (Can be set using `Config.Preview.setEntryPoint("<entry-point>")`).
+2. Look for some common paths i.e. `src/index.tsx`, `src/index.ts`, `src/index.js`, `remotion/index.js`.
+3. Fail as entry point could not be determined.
+
+If `output-location` is not passed, the media will be rendered into the `out` folder.  
+If `composition-id` is also not passed, Remotion will let you select a composition.
 
 ## Flags
 
@@ -22,6 +30,18 @@ Besides choosing a video and output location with the command line arguments, th
 :::info
 Inline JSON string isn't supported on Windows because it removes the `"` character, use a temporary file instead.
 :::
+
+### `--height`
+
+_available from v3.2.40_
+
+[Overrides composition height.](/docs/config#overrideheight)
+
+### `--width`
+
+_available from v3.2.40_
+
+[Overrides composition width.](/docs/config#overridewidth)
 
 ### `--concurrency`
 

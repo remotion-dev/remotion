@@ -54,15 +54,17 @@ const innerStillHandler = async (
 	}
 
 	if (lambdaParams.version !== VERSION) {
-		if (!lambdaParams.version) {
+		if (lambdaParams.version !== VERSION) {
+			if (!lambdaParams.version) {
+				throw new Error(
+					`Version mismatch: When calling renderMediaOnLambda(), you called the function ${process.env.AWS_LAMBDA_FUNCTION_NAME} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call renderMediaOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`
+				);
+			}
+
 			throw new Error(
-				`Version mismatch: When calling renderStillOnLambda(), the deployed Lambda function had version ${VERSION} but the @remotion/lambda package is an older version. Align the versions.`
+				`Version mismatch: When calling renderMediaOnLambda(), you passed ${process.env.AWS_LAMBDA_FUNCTION_NAME} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${lambdaParams.version}. Deploy a new function and use it to call renderMediaOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`
 			);
 		}
-
-		throw new Error(
-			`Version mismatch: When calling renderStillOnLambda(), get deployed Lambda function had version ${VERSION} and the @remotion/lambda package has version ${lambdaParams.version}. Align the versions.`
-		);
 	}
 
 	validateDownloadBehavior(lambdaParams.downloadBehavior);
@@ -80,12 +82,6 @@ const innerStillHandler = async (
 			lambdaParams.chromiumOptions ?? {}
 		),
 	]);
-	const inputPropsPromise = deserializeInputProps({
-		bucketName,
-		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
-		serialized: lambdaParams.inputProps,
-	});
 
 	const outputDir = RenderInternals.tmpDir('remotion-render-');
 
@@ -93,11 +89,18 @@ const innerStillHandler = async (
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
+	const inputProps = await deserializeInputProps({
+		bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+		serialized: lambdaParams.inputProps,
+	});
+
 	const composition = await validateComposition({
 		serveUrl: lambdaParams.serveUrl,
 		browserInstance,
 		composition: lambdaParams.composition,
-		inputProps: lambdaParams.inputProps,
+		inputProps,
 		envVariables: lambdaParams.envVariables,
 		ffmpegExecutable: null,
 		ffprobeExecutable: null,
@@ -105,6 +108,8 @@ const innerStillHandler = async (
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 		port: null,
 		downloadMap,
+		forceHeight: lambdaParams.forceHeight,
+		forceWidth: lambdaParams.forceWidth,
 	});
 
 	const renderMetadata: RenderMetadata = {
@@ -117,7 +122,6 @@ const innerStillHandler = async (
 		siteId: getServeUrlHash(lambdaParams.serveUrl),
 		totalChunks: 1,
 		type: 'still',
-		usesOptimizationProfile: false,
 		imageFormat: lambdaParams.imageFormat,
 		inputProps: lambdaParams.inputProps,
 		lambdaVersion: VERSION,
@@ -140,7 +144,6 @@ const innerStillHandler = async (
 		customCredentials: null,
 	});
 
-	const inputProps = await inputPropsPromise;
 	await renderStill({
 		composition,
 		output: outputPath,
