@@ -197,6 +197,16 @@ export const getExecutableBinary = async (
 	remotionRoot: string,
 	binary: 'ffmpeg' | 'ffprobe'
 ) => {
+	if (binary === 'ffmpeg') {
+		if (fs.existsSync('/opt/bin/ffmpeg')) {
+			return '/opt/bin/ffmpeg';
+		}
+	} else if (binary === 'ffprobe') {
+		if (fs.existsSync('/opt/bin/ffprobe')) {
+			return '/opt/bin/ffprobe';
+		}
+	}
+
 	const exists = binaryExists(binary, ffmpegExecutable);
 
 	if (exists) {

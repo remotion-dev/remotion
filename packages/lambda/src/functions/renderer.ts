@@ -164,8 +164,7 @@ const renderHandler = async (
 			outputLocation,
 			codec: chunkCodec,
 			crf: params.crf ?? undefined,
-			ffmpegExecutable:
-				process.env.NODE_ENV === 'test' ? null : '/opt/bin/ffmpeg',
+
 			pixelFormat: params.pixelFormat,
 			proResProfile: params.proResProfile,
 			onDownload: (src: string) => {
