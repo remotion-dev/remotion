@@ -18,6 +18,7 @@ import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
 	getFinalCodec,
+	validateFfmepgCanUseCodec,
 } from './get-cli-options';
 import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {getOutputFilename} from './get-filename';
@@ -171,7 +172,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		downloadName: null,
 		outName: getUserPassedOutputLocation(argsAfterComposition),
 	});
-	validateFfmpegCanUseCodec(codec);
+	validateFfmepgCanUseCodec(codec, remotionRoot);
 
 	RenderInternals.validateEvenDimensionsWithCodec({
 		width: config.width,
