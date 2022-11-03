@@ -108,11 +108,11 @@ export const experts: Expert[] = [
     twitter: "KarelETH",
     github: "karelnagel",
     linkedin: "in/karelnagel/",
-    email: "karel@asius.ee",
+    email: "karel@karel.wtf",
     description: (
       <div>
         I made:{" "}
-        <a target={"_blank"} href="https://asius.ee/">
+        <a target={"_blank"} href="https://www.karel.wtf">
           TikTok automation, ENS video
         </a>{" "}
         and many more!
@@ -123,9 +123,9 @@ export const experts: Expert[] = [
     name: "Yehor Misiats",
     image: "/img/freelancers/yehor.jpeg",
     website: null,
-    twitter: "isatelllte",
+    twitter: "SatelllteDev",
     github: "satelllte",
-    linkedin: "in/satelllte/",
+    linkedin: "/in/satelllte/",
     email: "lunaerxs@gmail.com",
     description: (
       <div>
@@ -147,5 +147,24 @@ export const experts: Expert[] = [
         .
       </div>
     ),
+  },
+  {
+    name: "Benjamin Jameson",
+    image: "/img/freelancers/benjamin.jpeg",
+    twitter: null,
+    github: "BenjaminJameson",
+    linkedin: null,
+    email: "ben@captok.ai",
+    description: (
+      <div>
+        Creator of{" "}
+        <a target={"_blank"} href="https://www.captok.ai">
+          CopTok
+        </a>
+        <br />I specialize in creating serverless AI web applications using AWS,
+        Javascript and Python.
+      </div>
+    ),
+    website: null,
   },
 ];
