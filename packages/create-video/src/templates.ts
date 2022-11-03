@@ -80,7 +80,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		shortName: 'Remix',
 		org: 'florentpergoud',
 		repoName: 'remotion-remix-template',
-		description: 'Remotion + React Three Fiber Starter Template',
+		description: 'Remotion + Remix Starter Kit',
 		longerDescription:
 			'A software-as-a-service starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Built with remix.run.',
 		promoBanner: {

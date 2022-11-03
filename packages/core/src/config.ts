@@ -44,6 +44,11 @@ export type ConfigType = {
 	};
 	readonly Bundling: {
 		/**
+		 * Specify the entry point so you don't have to specify it in the
+		 * CLI command
+		 */
+		readonly setEntryPoint: (src: string) => void;
+		/**
 		 * Pass in a function which takes the current Webpack config
 		 * and return a modified Webpack configuration.
 		 * Docs: http://remotion.dev/docs/webpack
@@ -227,6 +232,14 @@ export type ConfigType = {
 		 * Set to true if don't want a video but an image sequence as the output.
 		 */
 		readonly setImageSequence: (newImageSequence: boolean) => void;
+		/**
+		 * Overrides the height of a composition
+		 */
+		readonly overrideHeight: (newHeight: number) => void;
+		/**
+		 * Overrides the width of a composition
+		 */
+		readonly overrideWidth: (newWidth: number) => void;
 		/**
 		 * Set the ProRes profile.
 		 * This method is only valid if the codec has been set to 'prores'.

@@ -18,7 +18,7 @@ import {disableLogs, enableLogs} from '../disable-logs';
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
-	getRemainingTimeInMillis: () => 12000,
+	getRemainingTimeInMillis: () => 120000,
 };
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -77,7 +77,7 @@ describe('Webhooks', () => {
 				imageFormat: 'png',
 				inputProps: {
 					type: 'payload',
-					payload: {},
+					payload: '{}',
 				},
 				logLevel: 'warn',
 				maxRetries: 3,
@@ -103,6 +103,8 @@ describe('Webhooks', () => {
 				},
 				audioBitrate: null,
 				videoBitrate: null,
+				forceHeight: null,
+				forceWidth: null,
 			},
 			extraContext
 		);
@@ -139,21 +141,21 @@ describe('Webhooks', () => {
 	test('Should call webhook upon timeout', async () => {
 		process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
-		const res = await handler(
+		await handler(
 			{
-				type: LambdaRoutines.start,
+				type: LambdaRoutines.launch,
 				serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
 				crf: 9,
 				envVariables: {},
-				frameRange: [0, 50],
+				frameRange: [0, 10],
 				framesPerLambda: 8,
 				imageFormat: 'png',
 				inputProps: {
 					type: 'payload',
-					payload: {},
+					payload: '{}',
 				},
 				logLevel: 'warn',
 				maxRetries: 3,
@@ -171,26 +173,24 @@ describe('Webhooks', () => {
 					type: 'play-in-browser',
 				},
 				muted: false,
-				version: VERSION,
 				overwrite: true,
 				webhook: {url: TEST_URL, secret: 'TEST_SECRET'},
 				audioBitrate: null,
 				videoBitrate: null,
+				bucketName: 'abc',
+				renderId: 'abc',
+				forceHeight: null,
+				forceWidth: null,
 			},
-			extraContext
-		);
-		const startRes = res as Await<LambdaReturnValues[LambdaRoutines.start]>;
-
-		(await handler(
 			{
-				type: LambdaRoutines.status,
-				bucketName: startRes.bucketName,
-				renderId: startRes.renderId,
-				version: VERSION,
-			},
-			extraContext
-		)) as Await<LambdaReturnValues[LambdaRoutines.status]>;
+				...extraContext,
+				getRemainingTimeInMillis: () => 1000,
+			}
+		);
 
+		await new Promise((resolve) => {
+			setTimeout(resolve, 2000);
+		});
 		expect(mockableHttpClients.http).toHaveBeenCalledTimes(1);
 		expect(mockableHttpClients.http).toHaveBeenCalledWith(
 			TEST_URL,
@@ -201,7 +201,7 @@ describe('Webhooks', () => {
 					'X-Remotion-Mode': 'production',
 					'X-Remotion-Signature': expect.stringContaining('sha512='),
 					'X-Remotion-Status': 'timeout',
-					'Content-Length': 79,
+					'Content-Length': 54,
 				},
 				timeout: 5000,
 			},

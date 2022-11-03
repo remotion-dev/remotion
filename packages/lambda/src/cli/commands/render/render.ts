@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {RenderInternals} from '@remotion/renderer';
+import {getCompositions, RenderInternals} from '@remotion/renderer';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {renderMediaOnLambda} from '../../../api/render-media-on-lambda';
@@ -8,11 +8,13 @@ import {
 	DEFAULT_MAX_RETRIES,
 	DEFAULT_OUTPUT_PRIVACY,
 } from '../../../shared/constants';
+import {convertToServeUrl} from '../../../shared/convert-to-serve-url';
 import {sleep} from '../../../shared/sleep';
 import {validateFramesPerLambda} from '../../../shared/validate-frames-per-lambda';
 import type {LambdaCodec} from '../../../shared/validate-lambda-codec';
 import {validatePrivacy} from '../../../shared/validate-privacy';
 import {validateMaxRetries} from '../../../shared/validate-retries';
+import {validateServeUrl} from '../../../shared/validate-serveurl';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
@@ -36,15 +38,17 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		quit(1);
 	}
 
-	const composition = args[1];
+	const region = getAwsRegion();
+
+	let composition: string = args[1];
 	if (!composition) {
-		Log.error('No composition ID passed.');
-		Log.info('Pass an additional argument specifying the composition ID.');
-		Log.info();
-		Log.info(
-			`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id> [output-location]`
-		);
-		quit(1);
+		Log.info('No compositions passed. Fetching compositions...');
+
+		validateServeUrl(serveUrl);
+		const realServeUrl = await convertToServeUrl(serveUrl, region);
+		const comps = await getCompositions(realServeUrl);
+		const {compositionId} = await CliInternals.selectComposition(comps);
+		composition = compositionId;
 	}
 
 	const outName = parsedLambdaCli['out-name'];
@@ -60,7 +64,6 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		crf,
 		envVariables,
 		frameRange,
-		imageFormat,
 		inputProps,
 		logLevel,
 		pixelFormat,
@@ -74,16 +77,17 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		overwrite,
 		audioBitrate,
 		videoBitrate,
+		height,
+		width,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
-		codec,
 		remotionRoot,
 	});
 
-	const functionName = await findFunctionName();
+	const imageFormat = CliInternals.getImageFormat(codec);
 
-	const region = getAwsRegion();
+	const functionName = await findFunctionName();
 
 	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
 	validateMaxRetries(maxRetries);
@@ -122,6 +126,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		overwrite,
 		audioBitrate,
 		videoBitrate,
+		forceHeight: height,
+		forceWidth: width,
 		webhook: parsedLambdaCli.webhook
 			? {
 					url: parsedLambdaCli.webhook,

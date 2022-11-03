@@ -1,12 +1,12 @@
 {
 	"name": "remotion",
-	"version": "3.2.35",
+	"version": "3.2.41",
 	"description": "Render videos in React",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
-		"prepublish": "node ensure-correct-version.js && cp ../../README.md .",
+		"prepublishOnly": "node ensure-correct-version.js && cp ../../README.md .",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
 		"build": "tsc -d",
@@ -28,7 +28,7 @@
 		"@jonny/eslint-config": "3.0.266",
 		"@testing-library/react": "13.3.0",
 		"@types/node": "^16.7.5",
-		"@types/react": "18.0.1",
+		"@types/react": "18.0.23",
 		"@types/react-dom": "18.0.0",
 		"@types/webpack-env": "^1.16.0",
 		"@vitejs/plugin-react": "^2.0.0",

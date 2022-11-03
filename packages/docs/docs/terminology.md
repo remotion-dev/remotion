@@ -16,6 +16,10 @@ A [`<Sequence>`](/docs/sequence) is a built-in component that manipulates the ti
 
 Using a sequence, you can also trim the start and end of an animation by passing the [`durationInFrames`](/docs/sequence#durationinframes) prop.
 
+## Composition ID
+
+The string that you pass to the [`<Composition>` component](#composition). You need the composition ID to reference what you would like to render, for example: `npx remotion render src/index <composition-id>`. See: [Defining compositions](/docs/the-fundamentals#defining-compositions)
+
 ## Bundle
 
 Once you have written your video in React, you need to bundle it using Webpack in order to render it. The output artifact of the bundling process is called the bundle. It is a folder containing HTML, CSS, JavaScript and other assets.
@@ -42,7 +46,7 @@ The Remotion Root is the directory in which Remotion commands get executed in. I
 
 The entry point is the file where the Remotion CLI and Node.JS APIs will look for a Remotion project. By default in most templates, it is `src/index.tsx`. The entry point can be passed to the render command, for example: `npx remotion render src/index.tsx`. The entry point should call [`registerRoot()`](/docs/register-root).
 
-In the [Remotion Player](#remotion-player), there is no concept of an entry point. You directly pass a React component and metadata to the [`<Player>`](/docs/player/api).
+In the [Remotion Player](#remotion-player), there is no concept of an entry point. You directly pass a React component and metadata to the [`<Player>`](/docs/player/player).
 
 ## Remotion Preview
 
@@ -69,4 +73,4 @@ Input props are data that can be passed to a render in order to parametrize the 
 
 In the [Remotion Preview](#remotion-preview), you can set [default props](/docs/composition#defaultprops) to serve as placeholder data for desigining your video. If your input props don't override the default props, the default props will be used.
 
-In the [Remotion Player](#remotion-player), there are no default props, but you can pass [`inputProps`](/docs/player/api#inputprops) directly to the [`<Player>`](/docs/player).
+In the [Remotion Player](#remotion-player), there are no default props, but you can pass [`inputProps`](/docs/player/player#inputprops) directly to the [`<Player>`](/docs/player).

@@ -114,9 +114,8 @@ module.exports = {
         id: "player/installation",
       },
       label: "@remotion/player",
-      items: ["player/api"],
+      items: ["player/api", "player/thumbnail"],
     },
-
     {
       type: "category",
       label: "@remotion/gif",
@@ -150,7 +149,7 @@ module.exports = {
         type: "doc",
         id: "motion-blur/index",
       },
-      items: ["motion-blur/motion-blur"],
+      items: ["motion-blur/trail", "motion-blur/camera-motion-blur"],
     },
     {
       type: "category",
@@ -258,6 +257,19 @@ module.exports = {
       },
       items: ["noise/noise-2d", "noise/noise-3d", "noise/noise-4d"],
     },
+    {
+      type: "category",
+      label: "@remotion/google-fonts",
+      link: {
+        type: "doc",
+        id: "google-fonts/google-fonts",
+      },
+      items: [
+        "google-fonts/load-font",
+        "google-fonts/get-available-fonts",
+        "google-fonts/get-info",
+      ],
+    },
   ],
   mainSidebar: [
     {
@@ -299,16 +311,22 @@ module.exports = {
         "video-manipulation",
         "render-as-gif",
         "figma",
+        "spline",
       ],
     },
     {
       type: "category",
       link: {
         type: "doc",
-        id: "player/player",
+        id: "player/index",
       },
       label: "Player",
       items: [
+        {
+          type: "link",
+          href: "/docs/player/player",
+          label: "API Reference",
+        },
         "player/examples",
         "player/scaling",
         "player/integration",
@@ -325,6 +343,11 @@ module.exports = {
         id: "lambda",
       },
       items: [
+        {
+          type: "link",
+          href: "/docs/player/player",
+          label: "API Reference",
+        },
         "lambda/setup",
         "lambda/permissions",
         "lambda/region-selection",
@@ -347,6 +370,7 @@ module.exports = {
             "lambda/troubleshooting/bucket-disallows-acl",
           ],
         },
+        "lambda/limits",
         "lambda/changelog",
         "lambda/upgrading",
         "lambda/uninstall",

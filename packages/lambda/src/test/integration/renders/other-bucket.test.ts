@@ -42,7 +42,7 @@ test('Should be able to render to another bucket', async () => {
 			imageFormat: 'png',
 			inputProps: {
 				type: 'payload',
-				payload: {},
+				payload: '{}',
 			},
 			logLevel: 'warn',
 			maxRetries: 3,
@@ -68,6 +68,8 @@ test('Should be able to render to another bucket', async () => {
 			webhook: null,
 			audioBitrate: null,
 			videoBitrate: null,
+			forceHeight: null,
+			forceWidth: null,
 		},
 		extraContext
 	);

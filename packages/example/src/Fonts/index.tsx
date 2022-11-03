@@ -1,19 +1,10 @@
+import {loadFont} from '@remotion/google-fonts/Genos';
 import React from 'react';
-import {AbsoluteFill, continueRender, delayRender, staticFile} from 'remotion';
+import {AbsoluteFill} from 'remotion';
 
-const waitForFont = delayRender();
-const font = new FontFace(
-	`Bangers`,
-	`url(${staticFile('bangers.woff2')}) format('woff2')`
-);
-
-font
-	.load()
-	.then(() => {
-		document.fonts.add(font);
-		continueRender(waitForFont);
-	})
-	.catch((err) => console.log('Error loading font', err));
+const {fontFamily} = loadFont('normal', {
+	weights: ['900', '500'],
+});
 
 export const FontDemo: React.FC = () => {
 	return (
@@ -21,8 +12,9 @@ export const FontDemo: React.FC = () => {
 			style={{
 				justifyContent: 'center',
 				alignItems: 'center',
-				fontFamily: 'Bangers',
-				fontSize: 300,
+				fontFamily,
+				fontSize: 200,
+				backgroundColor: 'whitesmoke',
 			}}
 		>
 			<h1>Font Demo</h1>

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const cmdOrCtrlCharacter = window.navigator.platform.startsWith('Mac')
+export const cmdOrCtrlCharacter = window.navigator.platform.startsWith('Mac')
 	? '⌘'
 	: 'Ctrl';
 

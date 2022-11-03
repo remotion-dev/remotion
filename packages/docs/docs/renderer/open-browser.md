@@ -5,7 +5,7 @@ id: open-browser
 
 _Available since v3.0 - Part of the `@remotion/renderer` package._
 
-Opens a Chrome or Chromium browser instance. By reusing an instance across [`renderFrames()`](/docs/renderer/render-frames), [`renderStill()`](/docs/renderer/render-still), [`renderMedia()`](/docs/renderer/render-media) and [`getCompositions()`](/docs/get-compositions) calls, you can save time by not opening and closing browsers for each call.
+Opens a Chrome or Chromium browser instance. By reusing an instance across [`renderFrames()`](/docs/renderer/render-frames), [`renderStill()`](/docs/renderer/render-still), [`renderMedia()`](/docs/renderer/render-media) and [`getCompositions()`](/docs/renderer/get-compositions) calls, you can save time by not opening and closing browsers for each call.
 
 ```ts
 const openBrowser: (

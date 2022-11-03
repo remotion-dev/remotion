@@ -149,8 +149,6 @@ export type OutNameOutput = {
 	customCredentials: CustomCredentials | null;
 };
 
-export const optimizationProfile = (siteId: string, compositionId: string) =>
-	`optimization-profiles/${siteId}/${compositionId}/optimization-profile`;
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
 export const outName = (renderId: string, extension: string) =>
 	`${rendersPrefix(renderId)}/out.${extension}`;
@@ -248,6 +246,8 @@ export type LambdaPayloads = {
 		audioBitrate: string | null;
 		videoBitrate: string | null;
 		webhook: WebhookOption;
+		forceHeight: number | null;
+		forceWidth: number | null;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -281,6 +281,8 @@ export type LambdaPayloads = {
 		audioBitrate: string | null;
 		videoBitrate: string | null;
 		webhook: WebhookOption;
+		forceHeight: number | null;
+		forceWidth: number | null;
 	};
 	status: {
 		type: LambdaRoutines.status;
@@ -341,6 +343,8 @@ export type LambdaPayloads = {
 		scale: number;
 		downloadBehavior: DownloadBehavior | null;
 		version: string;
+		forceHeight: number | null;
+		forceWidth: number | null;
 	};
 };
 
@@ -362,7 +366,6 @@ export type RenderMetadata = {
 	estimatedRenderLambdaInvokations: number;
 	compositionId: string;
 	codec: Codec | null;
-	usesOptimizationProfile: boolean;
 	type: 'still' | 'video';
 	imageFormat: ImageFormat;
 	inputProps: SerializedInputProps;

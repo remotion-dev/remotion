@@ -72,7 +72,7 @@ const matchCommand = (args: string[], remotionRoot: string) => {
 	}
 
 	if (args[0] === SITES_COMMAND) {
-		return sitesCommand(args.slice(1));
+		return sitesCommand(args.slice(1), remotionRoot);
 	}
 
 	if (args[0] === 'upload') {

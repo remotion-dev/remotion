@@ -25,7 +25,6 @@ const getMissedFramesforCodec = async () => {
       "exec",
       "remotion",
       "render",
-      "src/index.tsx",
       `video-testing-mp4-offthread`,
       "--codec=gif",
       "--every-nth-frame=2",
@@ -93,9 +92,13 @@ const getMissedFramesforCodec = async () => {
   return missedFrames;
 };
 
-test("should render correct frames from embedded videos - MP4 offthread", async () => {
-  const missedFrames = await getMissedFramesforCodec();
-  expect(missedFrames).toBe(0);
-}, {
-  retry: 2
-});
+test(
+  "should render correct frames from embedded videos - MP4 offthread",
+  async () => {
+    const missedFrames = await getMissedFramesforCodec();
+    expect(missedFrames).toBe(0);
+  },
+  {
+    retry: 2,
+  }
+);
