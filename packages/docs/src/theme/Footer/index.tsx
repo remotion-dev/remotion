@@ -8,14 +8,12 @@ const Footer = () => {
 
   useEffect(() => {
     if (typeof document !== "undefined") {
-      document.addEventListener("DOMContentLoaded", () => {
-        document
-          .querySelector(".navbar__logo")
-          .addEventListener("contextmenu", (e) => {
-            e.preventDefault();
-            window.open("https://remotion.dev/brand", "_blank");
-          });
-      });
+      document
+        .querySelector(".navbar__logo")
+        .addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+          window.open("https://remotion.dev/brand", "_blank");
+        });
     }
   }, []);
 
