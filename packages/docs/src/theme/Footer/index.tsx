@@ -1,10 +1,21 @@
 import { useThemeConfig } from "@docusaurus/theme-common";
-import React from "react";
+import React, { useEffect } from "react";
 import FooterLayout from "./Layout";
 import FooterLinks from "./Links";
 
 const Footer = () => {
   const { footer } = useThemeConfig();
+
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document
+        .querySelector(".navbar__logo")
+        .addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+          window.open("https://remotion.dev/brand", "_blank");
+        });
+    }
+  }, []);
 
   if (!footer) {
     return null;
@@ -22,14 +33,3 @@ const Footer = () => {
 export default React.memo(Footer);
 
 // Right-click on the Remotion logo to get brand
-
-document.addEventListener("DOMContentLoaded", () => {
-  setTimeout(() => {
-    document
-      .querySelector(".navbar__logo")
-      .addEventListener("contextmenu", (e) => {
-        e.preventDefault();
-        window.open("https://remotion.dev/brand", "_blank");
-      });
-  }, 200);
-});
