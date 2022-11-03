@@ -9,46 +9,48 @@
 
 * {
   font-feature-settings: "kern" 1, "ss02" 1;
-  font-kerning: normal; 
-  -webkit-font-smoothing: antialiased; /* Chrome, Safari */ 
-  -moz-osx-font-smoothing: grayscale; /* Firefox */ 
+  font-kerning: normal;
+  -webkit-font-smoothing: antialiased; /* Chrome, Safari */
+  -moz-osx-font-smoothing: grayscale; /* Firefox */
 }
 
-h1, h2, h3, h4, h5, h6 {
-  letter-spacing: -0.025em; 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  letter-spacing: -0.025em;
   word-spacing: -0.025em;
-  font-family: 'GTPlanar'
+  font-family: "GTPlanar";
 }
-
 
 @font-face {
-  font-family: 'GTPlanar';
-  src: url('/img/gt-planar-regular.woff2') format('woff2');
+  font-family: "GTPlanar";
+  src: url("/img/gt-planar-regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'GTPlanar';
-  src: url('/img/gt-planar-medium.woff2') format('woff2');
+  font-family: "GTPlanar";
+  src: url("/img/gt-planar-medium.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
 }
 @font-face {
-  font-family: 'GTPlanar';
-  src: url('/img/gt-planar-bold.woff2') format('woff2');
+  font-family: "GTPlanar";
+  src: url("/img/gt-planar-bold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
-
 }
 
 @font-face {
-  font-family: 'GTPlanar';
-  src: url('/img/gt-planar-black.woff2') format('woff2');
+  font-family: "GTPlanar";
+  src: url("/img/gt-planar-black.woff2") format("woff2");
   font-weight: 900;
   font-style: normal;
 }
-
 
 :root {
   --ifm-color-primary: #0b84f3;
@@ -59,14 +61,16 @@ h1, h2, h3, h4, h5, h6 {
   --ifm-color-primary-lighter: #2f96f6;
   --ifm-color-primary-lightest: #53a9f7;
   --ifm-code-font-size: 100%;
-  --ifm-font-family-base: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont,
-'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji',
-'Segoe UI Emoji', 'Segoe UI Symbol';
---ifm-font-size-base: 16px;
+  --ifm-font-family-base: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
+    Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, "Segoe UI", Helvetica,
+    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --ifm-font-size-base: 16px;
 }
 
 [data-theme="light"] {
   --background: #fff;
+  --footer-background: #fcfcfc;
+  --footer-border: #eaeaea;
   --text-color: #000;
   --blue-button-color: #084696;
   --blue-underlay: #e7effe;
@@ -78,6 +82,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 [data-theme="dark"] {
   --background: #18191a;
+  --footer-background: #1f1f1f;
+  --footer-border: #2f2f2f;
   --text-color: #fff;
   --blue-underlay: #424243;
   --blue-underlay-hover: #5b5c5e;
@@ -120,9 +126,9 @@ code {
   background-color: transparent;
   border-width: 0;
   color: #0b84f3;
-  font-family: 'GTPlanar';
+  font-family: "GTPlanar";
   vertical-align: baseline;
-  padding: 0
+  padding: 0;
 }
 
 .code-container code {
@@ -146,5 +152,4 @@ code {
   100% {
     transform: rotate(360deg);
   }
-} 
-
+}

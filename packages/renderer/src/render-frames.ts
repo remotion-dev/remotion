@@ -67,6 +67,8 @@ type ConcurrencyOrParallelism =
 			parallelism?: number | null;
 	  };
 
+const MAX_RETRIES_PER_FRAME = 1;
+
 type RenderFramesOptions = {
 	onStart: (data: OnStartData) => void;
 	onFrameUpdate: (
@@ -192,7 +194,7 @@ const innerRenderFrames = ({
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
-	const pages = new Array(actualConcurrency).fill(true).map(async () => {
+	const makePage = async () => {
 		const page = await puppeteerInstance.newPage();
 		pagesArray.push(page);
 		await page.setViewport({
@@ -262,7 +264,9 @@ const innerRenderFrames = ({
 
 		page.off('console', logCallback);
 		return page;
-	});
+	};
+
+	const pages = new Array(actualConcurrency).fill(true).map(makePage);
 
 	// If rendering a GIF and skipping frames, we must ensure it starts from 0
 	// and then is consecutive so FFMPEG recognizes the sequence
@@ -287,111 +291,168 @@ const innerRenderFrames = ({
 	cancelSignal?.(() => {
 		stopped = true;
 	});
-	const progress = Promise.all(
-		framesToRender.map(async (frame, index) => {
-			const pool = await poolPromise;
-			const freePage = await pool.acquire();
-			if (stopped) {
-				throw new Error('Render was stopped');
-			}
 
-			const startTime = performance.now();
+	const renderFrameWithOptionToReject = async (
+		frame: number,
+		index: number,
+		reject: (err: Error) => void
+	) => {
+		const pool = await poolPromise;
+		const freePage = await pool.acquire();
+		if (stopped) {
+			return reject(new Error('Render was stopped'));
+		}
 
-			const errorCallbackOnFrame = (err: Error) => {
-				onError(err);
-			};
+		const startTime = performance.now();
 
-			const cleanupPageError = handleJavascriptException({
-				page: freePage,
-				onError: errorCallbackOnFrame,
-				frame,
-			});
-			freePage.on('error', errorCallbackOnFrame);
-			await seekToFrame({frame, page: freePage});
+		const errorCallbackOnFrame = (err: Error) => {
+			reject(err);
+		};
 
-			if (imageFormat !== 'none') {
-				if (onFrameBuffer) {
-					const id = startPerfMeasure('save');
-					const buffer = await provideScreenshot({
-						page: freePage,
-						imageFormat,
-						quality,
-						options: {
-							frame,
-							output: null,
-						},
-					});
-					stopPerfMeasure(id);
+		const cleanupPageError = handleJavascriptException({
+			page: freePage,
+			onError: errorCallbackOnFrame,
+			frame,
+		});
+		freePage.on('error', errorCallbackOnFrame);
+		await seekToFrame({frame, page: freePage});
 
-					onFrameBuffer(buffer, frame);
-				} else {
-					if (!outputDir) {
-						throw new Error(
-							'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`'
-						);
-					}
-
-					const output = path.join(
-						outputDir,
-						getFrameOutputFileName({
-							frame,
-							imageFormat,
-							index,
-							countType,
-							lastFrame,
-							totalFrames: framesToRender.length,
-						})
-					);
-					await provideScreenshot({
-						page: freePage,
-						imageFormat,
-						quality,
-						options: {
-							frame,
-							output,
-						},
-					});
-				}
-			}
-
-			const collectedAssets = await puppeteerEvaluateWithCatch<TAsset[]>({
-				pageFunction: () => {
-					return window.remotion_collectAssets();
-				},
-				args: [],
-				frame,
-				page: freePage,
-			});
-			const compressedAssets = collectedAssets.map((asset) =>
-				compressAsset(assets.filter(truthy).flat(1), asset)
-			);
-			assets[index] = compressedAssets;
-			compressedAssets.forEach((asset) => {
-				downloadAndMapAssetsToFileUrl({
-					asset,
-					onDownload,
-					downloadMap,
-				}).catch((err) => {
-					onError(
-						new Error(`Error while downloading asset: ${(err as Error).stack}`)
-					);
+		if (imageFormat !== 'none') {
+			if (onFrameBuffer) {
+				const id = startPerfMeasure('save');
+				const buffer = await provideScreenshot({
+					page: freePage,
+					imageFormat,
+					quality,
+					options: {
+						frame,
+						output: null,
+					},
 				});
+				stopPerfMeasure(id);
+
+				onFrameBuffer(buffer, frame);
+			} else {
+				if (!outputDir) {
+					throw new Error(
+						'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`'
+					);
+				}
+
+				const output = path.join(
+					outputDir,
+					getFrameOutputFileName({
+						frame,
+						imageFormat,
+						index,
+						countType,
+						lastFrame,
+						totalFrames: framesToRender.length,
+					})
+				);
+				await provideScreenshot({
+					page: freePage,
+					imageFormat,
+					quality,
+					options: {
+						frame,
+						output,
+					},
+				});
+			}
+		}
+
+		const collectedAssets = await puppeteerEvaluateWithCatch<TAsset[]>({
+			pageFunction: () => {
+				return window.remotion_collectAssets();
+			},
+			args: [],
+			frame,
+			page: freePage,
+		});
+		const compressedAssets = collectedAssets.map((asset) =>
+			compressAsset(assets.filter(truthy).flat(1), asset)
+		);
+		assets[index] = compressedAssets;
+		compressedAssets.forEach((asset) => {
+			downloadAndMapAssetsToFileUrl({
+				asset,
+				onDownload,
+				downloadMap,
+			}).catch((err) => {
+				onError(
+					new Error(`Error while downloading asset: ${(err as Error).stack}`)
+				);
 			});
-			pool.release(freePage);
-			framesRendered++;
-			onFrameUpdate(framesRendered, frame, performance.now() - startTime);
-			cleanupPageError();
-			freePage.off('error', errorCallbackOnFrame);
-			return compressedAssets;
-		})
+		});
+		framesRendered++;
+		onFrameUpdate(framesRendered, frame, performance.now() - startTime);
+		cleanupPageError();
+		freePage.off('error', errorCallbackOnFrame);
+		pool.release(freePage);
+	};
+
+	const renderFrame = (frame: number, index: number) => {
+		return new Promise<void>((resolve, reject) => {
+			renderFrameWithOptionToReject(frame, index, reject)
+				.then(() => {
+					resolve();
+				})
+				.catch((err) => {
+					reject(err);
+				});
+		});
+	};
+
+	const renderFrameAndRetryTargetClose = async (
+		frame: number,
+		index: number,
+		retriesLeft: number,
+		attempt: number
+	) => {
+		try {
+			await renderFrame(frame, index);
+		} catch (err) {
+			if (!(err as Error)?.message?.includes('Target closed')) {
+				throw err;
+			}
+
+			if (retriesLeft === 0) {
+				console.warn(
+					err,
+					`The browser crashed ${attempt} times while rendering frame ${frame}. Not retrying anymore. Learn more about this error under https://www.remotion.dev/docs/target-closed`
+				);
+				throw err;
+			}
+
+			console.warn(
+				`The browser crashed while rendering frame ${frame}, retrying ${retriesLeft} more times. Learn more about this error under https://www.remotion.dev/docs/target-closed`
+			);
+			const pool = await poolPromise;
+			const page = await makePage();
+			pool.release(page);
+			await renderFrameAndRetryTargetClose(
+				frame,
+				index,
+				retriesLeft - 1,
+				attempt + 1
+			);
+		}
+	};
+
+	const progress = Promise.all(
+		framesToRender.map((frame, index) =>
+			renderFrameAndRetryTargetClose(frame, index, MAX_RETRIES_PER_FRAME, 1)
+		)
 	);
 
 	const happyPath = progress.then(() => {
+		const firstFrameIndex = countType === 'from-zero' ? 0 : framesToRender[0];
 		const returnValue: RenderFramesOutput = {
 			assetsInfo: {
 				assets,
 				imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
-				firstFrameIndex: framesToRender[0],
+				firstFrameIndex,
 				downloadMap,
 			},
 			frameCount: framesToRender.length,

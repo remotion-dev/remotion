@@ -3,7 +3,6 @@ import type {
 	ChromiumOptions,
 	Codec,
 	FrameRange,
-	PixelFormat,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
@@ -12,7 +11,6 @@ import {ConfigInternals} from './config';
 import {getEnvironmentVariables} from './get-env';
 import {getFinalOutputCodec} from './get-final-output-codec';
 import {getInputProps} from './get-input-props';
-import {getImageFormat} from './image-formats';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 
@@ -139,39 +137,10 @@ const getCrf = (shouldOutputImageSequence: boolean) => {
 	return crf;
 };
 
-const getAndValidatePixelFormat = (codec: Codec) => {
-	const pixelFormat = ConfigInternals.getPixelFormat();
-
-	RenderInternals.validateSelectedPixelFormatAndCodecCombination(
-		pixelFormat,
-		codec
-	);
-	return pixelFormat;
-};
-
 const getProResProfile = () => {
 	const proResProfile = ConfigInternals.getProResProfile();
 
 	return proResProfile;
-};
-
-const getAndValidateImageFormat = ({
-	shouldOutputImageSequence,
-	codec,
-	pixelFormat,
-}: {
-	shouldOutputImageSequence: boolean;
-	codec: Codec;
-	pixelFormat: PixelFormat;
-}) => {
-	const imageFormat = getImageFormat(
-		shouldOutputImageSequence ? undefined : codec
-	);
-	RenderInternals.validateSelectedPixelFormatAndImageFormatCombination(
-		pixelFormat,
-		imageFormat
-	);
-	return imageFormat;
 };
 
 const getAndValidateBrowser = async (browserExecutable: BrowserExecutable) => {
@@ -190,7 +159,6 @@ const getAndValidateBrowser = async (browserExecutable: BrowserExecutable) => {
 export const getCliOptions = async (options: {
 	isLambda: boolean;
 	type: 'still' | 'series' | 'get-compositions';
-	codec: Codec;
 }) => {
 	const frameRange = getAndValidateFrameRange();
 
@@ -207,18 +175,8 @@ export const getCliOptions = async (options: {
 	});
 	const crf = getCrf(shouldOutputImageSequence);
 	const videoBitrate = ConfigInternals.getVideoBitrate();
-	RenderInternals.validateQualitySettings({
-		crf,
-		codec: options.codec,
-		videoBitrate,
-	});
 
-	const pixelFormat = getAndValidatePixelFormat(options.codec);
-	const imageFormat = getAndValidateImageFormat({
-		shouldOutputImageSequence,
-		codec: options.codec,
-		pixelFormat,
-	});
+	const pixelFormat = ConfigInternals.getPixelFormat();
 	const proResProfile = getProResProfile();
 	const browserExecutable = ConfigInternals.getBrowserExecutable();
 	const ffmpegExecutable = ConfigInternals.getCustomFfmpegExecutable();
@@ -234,14 +192,13 @@ export const getCliOptions = async (options: {
 			ConfigInternals.getChromiumOpenGlRenderer() ??
 			RenderInternals.DEFAULT_OPENGL_RENDERER,
 	};
-	const everyNthFrame = ConfigInternals.getAndValidateEveryNthFrame(
-		options.codec
-	);
-	const numberOfGifLoops = ConfigInternals.getAndValidateNumberOfGifLoops(
-		options.codec
-	);
+	const everyNthFrame = ConfigInternals.getEveryNthFrame();
+	const numberOfGifLoops = ConfigInternals.getNumberOfGifLoops();
 
 	const concurrency = ConfigInternals.getConcurrency();
+
+	const height = ConfigInternals.getHeight();
+	const width = ConfigInternals.getWidth();
 
 	RenderInternals.validateConcurrency(concurrency, 'concurrency');
 
@@ -256,7 +213,6 @@ export const getCliOptions = async (options: {
 		browser: await getAndValidateBrowser(browserExecutable),
 		crf,
 		pixelFormat,
-		imageFormat,
 		proResProfile,
 		everyNthFrame,
 		numberOfGifLoops,
@@ -275,5 +231,7 @@ export const getCliOptions = async (options: {
 		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
 		audioBitrate: ConfigInternals.getAudioBitrate(),
 		videoBitrate,
+		height,
+		width,
 	};
 };

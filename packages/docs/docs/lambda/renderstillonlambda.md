@@ -100,6 +100,18 @@ _optional - default `{}`_
 
 See [`renderMedia() -> envVariables`](/docs/renderer/render-media#envvariables).
 
+### `forceHeight`
+
+_optional, available from v3.2.40_
+
+Overrides the default composition height.
+
+### `forceWidth`
+
+_optional, available from v3.2.40_
+
+Overrides the default composition width.
+
 ### `scale`
 
 _optional_

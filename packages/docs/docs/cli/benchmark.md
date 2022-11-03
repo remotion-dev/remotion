@@ -11,7 +11,9 @@ Measures render time by running a render multiple times, if desired with multipl
 npx remotion benchmark src/index.tsx [composition-ids]
 ```
 
-You can provide multiple composition IDs separated by comma, ex: `npx remotion benchmark ./src/index --codec=h264 Main,Canvas,CSS`
+You can provide multiple composition IDs separated by comma, ex: `npx remotion benchmark src/index.ts --codec=h264 Main,Canvas,CSS`
+
+If `composition-ids` is not passed, Remotion will let you select compositions from a list.
 
 ## Flags
 

@@ -88,5 +88,5 @@ export const OfflineAudioBufferExample: React.FC = () => {
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/audio-buffer/audio-helpers.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/audio-buffer/audio-url-helpers.ts)
 - [Rendering audio only](/docs/using-audio/#rendering-audio-only)

@@ -1,3 +1,21 @@
+type DynamicTemplate =
+	| {
+			type: 'video';
+			promoVideo: {
+				muxId: string;
+				width: number;
+				height: number;
+			};
+	  }
+	| {
+			type: 'image';
+			promoBanner: {
+				src: string;
+				width: number;
+				height: number;
+			};
+	  };
+
 export type Template = {
 	shortName: string;
 	description: string;
@@ -5,13 +23,8 @@ export type Template = {
 	repoName: string;
 	homePageLabel: string;
 	longerDescription: string;
-	promoVideo: {
-		muxId: string;
-		width: number;
-		height: number;
-	};
 	cliId: string;
-};
+} & DynamicTemplate;
 
 export const FEATURED_TEMPLATES: Template[] = [
 	{
@@ -28,6 +41,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 			width: 1920,
 		},
 		cliId: 'hello-world',
+		type: 'video',
 	},
 	{
 		homePageLabel: 'JavaScript',
@@ -43,6 +57,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 			height: 1080,
 		},
 		cliId: 'javascript',
+		type: 'video',
 	},
 	{
 		homePageLabel: 'Blank',
@@ -58,6 +73,23 @@ export const FEATURED_TEMPLATES: Template[] = [
 			height: 720,
 		},
 		cliId: 'blank',
+		type: 'video',
+	},
+	{
+		homePageLabel: 'Remix',
+		shortName: 'Remix',
+		org: 'florentpergoud',
+		repoName: 'remotion-remix-template',
+		description: 'Remotion + Remix Starter Kit',
+		longerDescription:
+			'A software-as-a-service starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Built with remix.run.',
+		promoBanner: {
+			width: 1280,
+			height: 720,
+			src: '/img/remix-template.png',
+		},
+		cliId: 'remix',
+		type: 'image',
 	},
 	{
 		homePageLabel: '3D',
@@ -73,6 +105,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 			height: 720,
 		},
 		cliId: 'three',
+		type: 'video',
 	},
 	{
 		homePageLabel: 'Stills',
@@ -88,6 +121,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 			width: 1200,
 		},
 		cliId: 'still',
+		type: 'video',
 	},
 	{
 		homePageLabel: 'TTS',
@@ -103,6 +137,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 			height: 1080,
 		},
 		cliId: 'tts',
+		type: 'video',
 	},
 	{
 		homePageLabel: 'Audiogram',
@@ -118,6 +153,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 			width: 1080,
 		},
 		cliId: 'audiogram',
+		type: 'video',
 	},
 	{
 		homePageLabel: 'Skia',
@@ -132,6 +168,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 			width: 1920,
 		},
 		cliId: 'skia',
+		type: 'video',
 	},
 	{
 		homePageLabel: 'Tailwind',
@@ -147,5 +184,6 @@ export const FEATURED_TEMPLATES: Template[] = [
 			width: 1280,
 		},
 		cliId: 'tailwind',
+		type: 'video',
 	},
 ];

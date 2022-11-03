@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {lambdaTimingsKey} from '../../shared/constants';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 

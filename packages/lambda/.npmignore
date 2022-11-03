@@ -3,7 +3,7 @@ src
 .eslintrc
 tsconfig.tsbuildinfo
 .prettierrc
-jest.config.js
 *.tgz
 .turbo
 ensure-version-match.js
+vitest.config.ts

@@ -28,7 +28,7 @@ const printSitesHelp = () => {
 	Log.info(CliInternals.chalk.gray('Remove a site from the S3 bucket.'));
 };
 
-export const sitesCommand = (args: string[]) => {
+export const sitesCommand = (args: string[], remotionRoot: string) => {
 	if (args[0] === SITES_LS_SUBCOMMAND) {
 		return sitesLsSubcommand();
 	}
@@ -42,7 +42,7 @@ export const sitesCommand = (args: string[]) => {
 	}
 
 	if (args[0] === SITES_CREATE_SUBCOMMAND) {
-		return sitesCreateSubcommand(args.slice(1));
+		return sitesCreateSubcommand(args.slice(1), remotionRoot);
 	}
 
 	if (args[0]) {

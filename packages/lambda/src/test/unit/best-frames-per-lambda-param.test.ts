@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {bestFramesPerLambdaParam} from '../../functions/helpers/best-frames-per-lambda-param';
 
 test('Get reasonable framesPerLambda defaults', () => {

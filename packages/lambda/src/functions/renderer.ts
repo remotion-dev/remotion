@@ -12,6 +12,7 @@ import {
 	lambdaTimingsKey,
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
+import {deserializeInputProps} from '../shared/deserialize-input-props';
 import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
@@ -40,6 +41,13 @@ const renderHandler = async (
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
+
+	const inputPropsPromise = deserializeInputProps({
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+		serialized: params.inputProps,
+	});
 
 	const browserInstance = await getBrowserInstance(
 		RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
@@ -80,6 +88,7 @@ const renderHandler = async (
 
 	const downloads: Record<string, number> = {};
 
+	const inputProps = await inputPropsPromise;
 	await new Promise<void>((resolve, reject) => {
 		renderMedia({
 			composition: {
@@ -90,7 +99,7 @@ const renderHandler = async (
 				width: params.width,
 			},
 			imageFormat: params.imageFormat,
-			inputProps: params.inputProps,
+			inputProps,
 			frameRange: params.frameRange,
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
 				if (
@@ -268,6 +277,7 @@ export const rendererHandler = async (
 		await renderHandler(params, options, logs);
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
+			console.log({err});
 			throw err;
 		}
 

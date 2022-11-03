@@ -20,7 +20,6 @@
   max-width: 1000px;
 }
 
-
 @media screen and (max-width: 900px) {
   .writeincss {
     flex-direction: column;
@@ -29,4 +28,3 @@
     font-size: 3.5em;
   }
 }
-
