@@ -3,7 +3,6 @@ import path from "path";
 import axios from "axios";
 import postcss from "postcss";
 import prettier from "prettier";
-import PQueue from "p-queue";
 
 type FontInfo = {
   fontFamily: string;
@@ -175,7 +174,9 @@ export const loadFont = <T extends keyof Variants>(
 
   //  Save
   await fs.promises.writeFile(path.resolve(OUTDIR, filename), output);
-  console.log(`- ${filename} generated`);
+  if (!process.env.VERCEL && !process.env.CI) {
+    console.log(`- ${filename} generated`);
+  }
 };
 
 const run = async () => {
@@ -184,18 +185,10 @@ const run = async () => {
     await fs.promises.mkdir(CSS_CACHE_DIR, { recursive: true });
   }
 
-  // create queue
-  const queue = new PQueue({
-    concurrency: 3,
-  });
-
   // Batch convert
   for (const font of googleFonts) {
-    queue.add(() => generate(font));
+    await generate(font);
   }
-
-  // wait queue
-  await queue.onIdle();
 
   console.log("- All done");
 };
