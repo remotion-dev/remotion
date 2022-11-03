@@ -1,10 +1,12 @@
 import execa from 'execa';
-import {statSync} from 'fs';
+import {existsSync, statSync} from 'fs';
 import os from 'os';
+import {getFfmpegBuildInfo, getFfmpegVersion} from './ffmpeg-flags';
+import {warnAboutFfmpegVersion} from './warn-about-ffmpeg-version';
 
 const existsMap: {[key: string]: boolean} = {};
 
-export const binaryExists = async (
+export const binaryExists = (
 	name: 'ffmpeg' | 'brew',
 	localFFmpeg: string | null
 ) => {
@@ -26,7 +28,7 @@ export const binaryExists = async (
 	const isWin = os.platform() === 'win32';
 	const where = isWin ? 'where' : 'which';
 	try {
-		await execa(where, [name]);
+		execa.sync(where, [name]);
 		existsMap[name] = true;
 		return true;
 	} catch (err) {
@@ -35,23 +37,39 @@ export const binaryExists = async (
 	}
 };
 
-const isHomebrewInstalled = (): Promise<boolean> => {
+const isHomebrewInstalled = (): boolean => {
 	return binaryExists('brew', null);
+};
+
+export const checkAndValidateFfmpegVersion = async (options: {
+	ffmpegExecutable: string | null;
+}) => {
+	const ffmpegVersion = await getFfmpegVersion({
+		ffmpegExecutable: options.ffmpegExecutable,
+	});
+	const buildConf = await getFfmpegBuildInfo({
+		ffmpegExecutable: options.ffmpegExecutable,
+	});
+	warnAboutFfmpegVersion({ffmpegVersion, buildConf});
 };
 
 export const validateFfmpeg = async (
 	customFfmpegBinary: string | null
 ): Promise<void> => {
-	const ffmpegExists = await binaryExists('ffmpeg', customFfmpegBinary);
+	if (process.platform === 'linux' && existsSync('/opt/bin/ffmpeg')) {
+		return Promise.resolve();
+	}
+
+	const ffmpegExists = binaryExists('ffmpeg', customFfmpegBinary);
 	if (!ffmpegExists) {
 		if (customFfmpegBinary) {
 			console.error('FFmpeg executable not found:');
 			console.error(customFfmpegBinary);
-			process.exit(1);
+			throw new Error('FFmpeg not found');
 		}
 
 		console.error('It looks like FFMPEG is not installed');
-		if (os.platform() === 'darwin' && (await isHomebrewInstalled())) {
+		if (os.platform() === 'darwin' && isHomebrewInstalled()) {
 			console.error('Run `brew install ffmpeg` to install ffmpeg');
 		} else if (os.platform() === 'win32') {
 			console.error('1. Install FFMPEG for Windows here:');
@@ -77,6 +95,8 @@ export const validateFfmpeg = async (
 			);
 		}
 
-		process.exit(1);
+		throw new Error('FFmpeg not found');
 	}
+
+	await checkAndValidateFfmpegVersion({ffmpegExecutable: customFfmpegBinary});
 };

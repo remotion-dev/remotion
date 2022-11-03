@@ -1,19 +1,18 @@
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
 import {getPackageManager} from './preview-server/get-package-manager';
 import {getRemotionVersion} from './preview-server/update-available';
 
-export const lambdaCommand = async (remotionRoot: string) => {
+export const lambdaCommand = async (remotionRoot: string, args: string[]) => {
 	try {
 		const path = require.resolve('@remotion/lambda', {
 			paths: [remotionRoot],
 		});
 		const {LambdaInternals} = require(path);
 
-		await LambdaInternals.executeCommand(parsedCli._.slice(1));
+		await LambdaInternals.executeCommand(args, remotionRoot);
 		process.exit(0);
 	} catch (err) {
-		const manager = getPackageManager(remotionRoot);
+		const manager = getPackageManager(remotionRoot, undefined);
 		const installCommand =
 			manager === 'unknown' ? 'npm i' : manager.installCommand;
 		Log.error(err);

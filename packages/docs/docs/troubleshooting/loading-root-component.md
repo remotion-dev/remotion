@@ -24,7 +24,7 @@ In the CLI, the entry point is passed as an argument to the render command:
 npx remotion render [entry-point]
 ```
 
-In the [`bundle()`](/docs/bundle) and [`deploySite()`](/docs/lambda/deploysite) Node.JS apis, you pass the entry point via the `entryPoint` property.
+In the [`bundle()`](/docs/bundle) and [`deploySite()`](/docs/lambda/deploysite) Node.JS apis, you pass the entry point via the [`entryPoint`](/docs/terminology#entry-point) property.
 
 ## See also
 

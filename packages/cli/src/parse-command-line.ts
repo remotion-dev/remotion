@@ -50,8 +50,11 @@ export type CommandLineOptions = {
 	['disable-headless']: boolean;
 	['disable-keyboard-shortcuts']: boolean;
 	muted: boolean;
+	height: number;
+	width: number;
 	['enforce-audio-track']: boolean;
 	gl: OpenGlRenderer;
+	['package-manager']: string;
 };
 
 export const BooleanFlags = [
@@ -145,6 +148,14 @@ export const parseCommandLine = () => {
 
 	if (parsedCli.timeout) {
 		Config.Puppeteer.setTimeoutInMilliseconds(parsedCli.timeout);
+	}
+
+	if (parsedCli.height) {
+		Config.Output.overrideHeight(parsedCli.height);
+	}
+
+	if (parsedCli.width) {
+		Config.Output.overrideWidth(parsedCli.width);
 	}
 
 	if (parsedCli.frames) {

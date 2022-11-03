@@ -84,7 +84,7 @@ free();
         Inserts a <code>{"<link type='preload'>"}</code> tag
     </td>
     <td>
-    Fetches the asset and turns it into a URL blob
+    Fetches the asset and turns it into a URL blob or Base 64 URL
     </td>
   </tr>
   <tr>

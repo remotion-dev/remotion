@@ -12,11 +12,11 @@ Using the `npx remotion lambda render` command, you can render a video in the cl
 The structure of a command is as follows:
 
 ```
-npx remotion lambda render <serve-url> <composition-id> [<output-location>]
+npx remotion lambda render <serve-url> [<composition-id>] [<output-location>]
 ```
 
 - The serve URL is obtained by deploying a project to Remotion using the [`sites create`](/docs/lambda/cli/sites#create) command or calling [`deploySite()`](/docs/lambda/deploysite).
-- The composition ID is the [`id` of your `<Composition/>`](/docs/the-fundamentals#defining-compositions).
+- The [composition ID](/docs/terminology#composition-id). If not specified, the list of compositions will be fetched and you can choose a composition.
 - The `output-location` parameter is optional. If you don't specify it, the video is stored in your S3 bucket. If you specify a location, it gets downloaded to your device in an additional step.
 
 ## Example commands
@@ -203,3 +203,15 @@ Sets a webhook to be called when the render finishes or fails. [`renderMediaOnLa
 _available from v3.2.30_
 
 Sets a webhook secret for the webhook (see above). [`renderMediaOnLambda() -> webhook.secret`](/docs/lambda/rendermediaonlambda#webhook). To be used together with `--webhook`.
+
+### `--height`
+
+_available from v3.2.40_
+
+[Overrides composition height.](/docs/config#overrideheight)
+
+### `--width`
+
+_available from v3.2.40_
+
+[Overrides composition width.](/docs/config#overridewidth)
