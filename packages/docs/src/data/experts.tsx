@@ -104,7 +104,7 @@ export const experts: Expert[] = [
   {
     name: "Karel Nagel",
     image: "/img/freelancers/karel.jpeg",
-    website: "https://karel.wtf",
+    website: "https://asius.ee/",
     twitter: "KarelETH",
     github: "karelnagel",
     linkedin: "in/karelnagel/",
@@ -123,9 +123,9 @@ export const experts: Expert[] = [
     name: "Yehor Misiats",
     image: "/img/freelancers/yehor.jpeg",
     website: null,
-    twitter: "SatelllteDev",
+    twitter: "isatelllte",
     github: "satelllte",
-    linkedin: "/in/satelllte/",
+    linkedin: "in/satelllte/",
     email: "lunaerxs@gmail.com",
     description: (
       <div>
@@ -147,5 +147,24 @@ export const experts: Expert[] = [
         .
       </div>
     ),
+  },
+  {
+    name: "Benjamin Jameson",
+    image: "/img/freelancers/benjamin.jpeg",
+    twitter: null,
+    github: "BenjaminJameson",
+    linkedin: null,
+    email: "ben@captok.ai",
+    description: (
+      <div>
+        Creator of{" "}
+        <a target={"_blank"} href="https://www.captok.ai">
+          CopTok
+        </a>
+        <br />I specialize in creating serverless AI web applications using AWS,
+        Javascript and Python.
+      </div>
+    ),
+    website: null,
   },
 ];

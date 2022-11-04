@@ -114,7 +114,7 @@ module.exports = {
         id: "player/installation",
       },
       label: "@remotion/player",
-      items: ["player/api"],
+      items: ["player/api", "player/thumbnail"],
     },
     {
       type: "category",
@@ -318,10 +318,15 @@ module.exports = {
       type: "category",
       link: {
         type: "doc",
-        id: "player/player",
+        id: "player/index",
       },
       label: "Player",
       items: [
+        {
+          type: "link",
+          href: "/docs/player/player",
+          label: "API Reference",
+        },
         "player/examples",
         "player/scaling",
         "player/integration",
@@ -338,6 +343,11 @@ module.exports = {
         id: "lambda",
       },
       items: [
+        {
+          type: "link",
+          href: "/docs/player/player",
+          label: "API Reference",
+        },
         "lambda/setup",
         "lambda/permissions",
         "lambda/region-selection",
@@ -393,6 +403,7 @@ module.exports = {
       type: "category",
       label: "Snippets",
       items: [
+        "miscellaneous/snippets/accelerated-video",
         "miscellaneous/snippets/player-in-iframe",
         "miscellaneous/snippets/fps-converter",
         "miscellaneous/snippets/adding-animations",

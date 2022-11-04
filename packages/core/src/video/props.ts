@@ -11,10 +11,11 @@ export type RemotionVideoProps = Omit<
 		React.VideoHTMLAttributes<HTMLVideoElement>,
 		HTMLVideoElement
 	>,
-	'autoPlay' | 'controls' | 'onEnded'
+	'autoPlay' | 'controls' | 'onEnded' | 'nonce'
 > & {
 	volume?: VolumeProp;
 	playbackRate?: number;
+	acceptableTimeshift?: number;
 };
 
 export type OffthreadVideoImageFormat = 'png' | 'jpeg';
@@ -28,4 +29,5 @@ export type OffthreadVideoProps = {
 	muted?: boolean;
 	onError?: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement>;
 	imageFormat?: OffthreadVideoImageFormat;
+	acceptableTimeShiftInSeconds?: number;
 };

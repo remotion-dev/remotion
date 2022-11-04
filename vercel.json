@@ -104,6 +104,26 @@
       "source": "/docs/motion-blur/motion-blur",
       "destination": "/docs/motion-blur/trail",
       "permanent": true
+    },
+    {
+      "source": "/support",
+      "destination": "/docs/support",
+      "permanent": true
+    },
+    {
+      "source": "/docs/player/api",
+      "destination": "/docs/player/player",
+      "permanent": true
+    },
+    {
+      "source": "/github",
+      "destination": "https://github.com/remotion-dev/remotion",
+      "permanent": false
+    },
+    {
+      "source": "/brand",
+      "destination": "https://github.com/remotion-dev/logo",
+      "permanent": false
     }
   ]
 }
