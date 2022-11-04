@@ -1,9 +1,9 @@
-import type {StandardLonghandProperties} from 'csstype';
 import type {MouseEventHandler, SyntheticEvent} from 'react';
 import React, {
 	forwardRef,
 	Suspense,
 	useCallback,
+	useContext,
 	useEffect,
 	useImperativeHandle,
 	useMemo,
@@ -11,7 +11,12 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {calculateCanvasTransformation} from './calculate-scale';
+import {
+	calculateCanvasTransformation,
+	calculateContainerStyle,
+	calculateOuter,
+	calculateOuterStyle,
+} from './calculate-scale';
 import {ErrorBoundary} from './error-boundary';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import type {PlayerMethods, PlayerRef} from './player-methods';
@@ -23,7 +28,6 @@ import {Controls} from './PlayerControls';
 import {useHoverState} from './use-hover-state';
 import {usePlayback} from './use-playback';
 import {usePlayer} from './use-player';
-import {calculatePlayerSize} from './utils/calculate-player-size';
 import {IS_NODE} from './utils/is-node';
 import {useClickPreventionOnDoubleClick} from './utils/use-click-prevention-on-double-click';
 import {useElementSize} from './utils/use-element-size';
@@ -32,7 +36,7 @@ export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 export type RenderLoading = (canvas: {
 	height: number;
 	width: number;
-}) => React.ReactChild;
+}) => React.ReactNode;
 export type RenderPoster = RenderLoading;
 const reactVersion = React.version.split('.')[0];
 if (reactVersion === '0') {
@@ -52,14 +56,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		allowFullscreen: boolean;
 		inputProps: unknown;
 		showVolumeControls: boolean;
-		mediaMuted: boolean;
 		style?: React.CSSProperties;
 		clickToPlay: boolean;
 		doubleClickToFullscreen: boolean;
 		spaceKeyToPlayOrPause: boolean;
-		setMediaVolume: (v: number) => void;
-		setMediaMuted: (v: boolean) => void;
-		mediaVolume: number;
 		errorFallback: ErrorFallback;
 		playbackRate: number;
 		renderLoading: RenderLoading | undefined;
@@ -85,11 +85,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		inputProps,
 		clickToPlay,
 		showVolumeControls,
-		mediaVolume,
-		mediaMuted,
 		doubleClickToFullscreen,
-		setMediaMuted,
-		setMediaVolume,
 		spaceKeyToPlayOrPause,
 		errorFallback,
 		playbackRate,
@@ -251,6 +247,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}, [canvasSize, config]);
 	const scale = layout?.scale ?? 1;
 
+	const {setMediaVolume, setMediaMuted} = useContext(
+		Internals.SetMediaVolumeContext
+	);
+	const {mediaMuted, mediaVolume} = useContext(Internals.MediaVolumeContext);
+
 	useImperativeHandle(
 		ref,
 		() => {
@@ -337,58 +338,15 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const VideoComponent = video ? video.component : null;
 
 	const outerStyle: React.CSSProperties = useMemo(() => {
-		if (!config) {
-			return {};
-		}
-
-		return {
-			position: 'relative',
-			overflow: 'hidden',
-			...calculatePlayerSize({
-				compositionHeight: config.height,
-				compositionWidth: config.width,
-				currentSize: canvasSize,
-				height: style?.height as StandardLonghandProperties['width'],
-				width: style?.width as StandardLonghandProperties['height'],
-			}),
-			...style,
-		};
+		return calculateOuterStyle({canvasSize, config, style});
 	}, [canvasSize, config, style]);
 
 	const outer: React.CSSProperties = useMemo(() => {
-		if (!layout || !config) {
-			return {};
-		}
-
-		const {centerX, centerY} = layout;
-
-		return {
-			width: config.width * scale,
-			height: config.height * scale,
-			display: 'flex',
-			flexDirection: 'column',
-			position: 'absolute',
-			left: centerX,
-			top: centerY,
-			overflow: 'hidden',
-		};
+		return calculateOuter({config, layout, scale});
 	}, [config, layout, scale]);
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
-		if (!config || !canvasSize || !layout) {
-			return {};
-		}
-
-		return {
-			position: 'absolute',
-			width: config.width,
-			height: config.height,
-			display: 'flex',
-			transform: `scale(${scale})`,
-			marginLeft: layout.xCorrection,
-			marginTop: layout.yCorrection,
-			overflow: 'hidden',
-		};
+		return calculateContainerStyle({canvasSize, config, layout, scale});
 	}, [canvasSize, config, layout, scale]);
 
 	const onError = useCallback(
@@ -453,6 +411,15 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			setShouldAutoPlay(false);
 		}
 	}, [shouldAutoplay, player]);
+
+	const loadingMarkup = useMemo(() => {
+		return renderLoading
+			? renderLoading({
+					height: outerStyle.height as number,
+					width: outerStyle.width as number,
+			  })
+			: null;
+	}, [outerStyle.height, outerStyle.width, renderLoading]);
 
 	if (!config) {
 		return null;
@@ -539,13 +506,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			</div>
 		);
 	}
-
-	const loadingMarkup = renderLoading
-		? renderLoading({
-				height: outerStyle.height as number,
-				width: outerStyle.width as number,
-		  })
-		: null;
 
 	return (
 		<div ref={container} style={outerStyle} className={className}>
