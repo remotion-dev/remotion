@@ -39,7 +39,7 @@ export const MyComposition = () => {
 
 ## Props
 
-The props [`volume`](/docs/video#volume), [`playbackRate`](/docs/video#playbackrate) and [`muted`](/docs/video#muted) are supported and work the same as in [`<Video>`](/docs/video).
+The props [`volume`](/docs/video#volume), [`playbackRate`](/docs/video#playbackrate), [`muted`](/docs/video#muted) and [`acceptableTimeShiftInSeconds`](/docs/video#acceptabletimeshiftinseconds) are supported and work the same as in [`<Video>`](/docs/video).
 
 The props [`onError`](/docs/img#onerror), `className` and `style` are supported and get passed to the underlying HTML element. Remember that during render, this is a `<img>` element, and during preview, this is a `<video>` element.
 
