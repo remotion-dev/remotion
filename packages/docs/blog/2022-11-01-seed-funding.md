@@ -1,6 +1,6 @@
 ---
-slug: seed-round
-title: Remotion raises CHF 180.000 to empower developers with programmatic video
+slug: seed-funding
+title: We raised CHF 180k to simplify programmatic video!
 author: Jonny Burger
 author_title: Chief Hacker @ Remotion
 author_url: https://github.com/JonnyBurger
@@ -8,51 +8,23 @@ author_image_url: https://avatars2.githubusercontent.com/u/1629785?s=460&u=12eb9
 image: https://remotion-still.herokuapp.com/PreviewCard.png?title=TODO
 ---
 
-We are delighted to announce that we have raised 180.000 Swiss Francs from Remotion users and customers!
+import {InvestorGrid} from '../components/InvestorGrid'
 
-Our first funding will allow us to make it easier for you to create programmatic videos! We will create new graphics, templates and tools to help you build more with less code.
+We are delighted to announce that we have raised 180'000 Swiss Francs from Remotion users and customers!
+
+With our first funding, we will make it easier for you to programmatically create videos and video apps. We'll introduce new components, templates and tools to help you build more with less code.
 
 ## Our investors use Remotion
 
-Our line-up of investors consists of companies and people who have approached us over time because they use Remotion to either build their business or express their creativity and see our potential.
+Our line-up of investors consists of companies and people that use Remotion for fun or to build their business.
 
 We are so happy to partner with investors who understand our vision and can help us with relevant connections.
 
-Our investors include:
-
-- Heiko Hubertz
-  _Founder of Oxolo_
-- William Candillon
-  _Creator of "Can it be done in React Native" and React Native Skia_
-- Sebastien Lorber
-  _Docusaurus Maintainer and Editor of This Week In React_
-- Jeremy Toeman
-  _Building augxlabs.com with Remotion_
-- Stephen Sullivan
-  _Building Middy.com_
-- Dominic Monn
-  _Founder, MentorCruise.com_
-- Robert Zhang-Smitheran
-  _Cameo.com_
-- Lucas Pelloni
-  _Founder Axelra AG (former employer)_
-- Ilya
-  _Senior Software Engineer, Spotify_
-- Nick Dima
-  _Senior Software Engineer, Musixmatch_
-- For One Red GmbH
-  _Design and Development Studio, Remotion Office provider_
-- Simon Schmid
-  _Product @ Iubenda_
-- Michiel Westerbeek
-  _Co-Founder, Tella_
+<InvestorGrid />
 
 ## Making Remotion easier for creatives
 
-When we launched Remotion, we only had a few basic primitives like `useCurrentFrame()` and `interpolate`.
-Since then, we built packages for Lottie, GIFs, SVG paths, Three.JS, Audio Visualization, Motion Blur, Noise as well as 10 starter kits and tons of examples!
-
-Building an app feels like playing with LEGO nowadays and we want to bring this feeling to Remotion by building more abstractions so you can bring your ideas to canvas faster.
+Writing videos in React gives you incredible freedom, but it can be hard to do simple things. Fortunately, it is easy to package up effects, patterns and graphics
 
 ## Enabling new business opportunities
 
