@@ -418,7 +418,7 @@ importers:
       '@types/node': ^16.7.5
       '@types/react': 18.0.23
       '@types/styled-components': ^5.1.1
-      '@types/web': 0.0.48
+      '@types/web': 0.0.78
       '@typescript-eslint/eslint-plugin': 5.18.0
       '@typescript-eslint/parser': 5.18.0
       babel-loader: ^8.2.2
@@ -460,7 +460,7 @@ importers:
       '@types/node': 16.10.2
       '@types/react': 18.0.23
       '@types/styled-components': 5.1.14
-      '@types/web': 0.0.48
+      '@types/web': 0.0.78
       babel-loader: 8.2.2_m3opitmgss2x7fiy6klia7uvaa
       lottie-web: 5.9.6
       mdx-loader: 3.0.2_react@18.0.0
@@ -607,6 +607,8 @@ importers:
       '@remotion/renderer': link:../renderer
       aws-policies: 1.0.1
       mime-types: 2.1.34
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
@@ -617,8 +619,6 @@ importers:
       eslint: 8.25.0
       prettier: 2.4.1
       prettier-plugin-organize-imports: 2.3.4_pxx7xhvr2bexxfjjff3nukai7m
-      react: 18.0.0
-      react-dom: 18.0.0_react@18.0.0
       ts-node: 10.8.0_ysvagj6uoj2jcpx4fli7niyicq
       typescript: 4.7.2
       vitest: 0.24.3
@@ -668,6 +668,8 @@ importers:
       remotion: 3.2.41
       typescript: ^4.7.0
     dependencies:
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
@@ -676,8 +678,6 @@ importers:
       eslint: 8.25.0
       prettier: 2.7.1
       prettier-plugin-organize-imports: 2.3.4_j2odc4yr77iddtreafyicbq5hi
-      react: 18.0.0
-      react-dom: 18.0.0_react@18.0.0
       typescript: 4.7.2
 
   packages/motion-blur:
@@ -927,7 +927,7 @@ importers:
       '@types/react': 18.0.23
       '@types/react-reconciler': ^0.26.4
       '@types/three': ^0.134.0
-      '@types/web': 0.0.48
+      '@types/web': 0.0.78
       eslint: 8.25.0
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
@@ -945,7 +945,7 @@ importers:
       '@types/react': 18.0.23
       '@types/react-reconciler': 0.26.4
       '@types/three': 0.134.0
-      '@types/web': 0.0.48
+      '@types/web': 0.0.78
       eslint: 8.25.0
       prettier: 2.7.1
       prettier-plugin-organize-imports: 2.3.4_j2odc4yr77iddtreafyicbq5hi
@@ -8585,8 +8585,8 @@ packages:
     resolution: {integrity: sha512-PBjIUxZHOuj0R15/xuwJYjFi+KZdNFrehocChv4g5hu6aFroHue8m0lBP0POdK2nKzbw0cgV1mws8+V/JAcEkQ==}
     dev: false
 
-  /@types/web/0.0.48:
-    resolution: {integrity: sha512-X5KKfR0MNm5ujo7421tVTF6n9MXh58DfWOuvPnuMAlr12vloTtyxJEC0rHVKIvcpqqoOJSrlkW2dMJjl9eK3Dg==}
+  /@types/web/0.0.78:
+    resolution: {integrity: sha512-1Apkpr0zolMDECgtokp9ztApWkdlg4Ey4UJ3sKHAGjCHoiUq1/kBd0lR+JxeHlQVqAC6tike7tUJ9uLbVNwsxQ==}
 
   /@types/webpack-env/1.16.2:
     resolution: {integrity: sha512-vKx7WNQNZDyJveYcHAm9ZxhqSGLYwoyLhrHjLBOkw3a7cT76sTdjgtwyijhk1MaHyRIuSztcVwrUOO/NEu68Dw==}

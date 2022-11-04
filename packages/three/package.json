@@ -35,7 +35,7 @@
 		"@types/react": "18.0.23",
 		"@types/react-reconciler": "^0.26.4",
 		"@types/three": "^0.134.0",
-		"@types/web": "0.0.48",
+		"@types/web": "0.0.78",
 		"eslint": "8.25.0",
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
