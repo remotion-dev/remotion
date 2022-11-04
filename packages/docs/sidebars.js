@@ -403,6 +403,7 @@ module.exports = {
       type: "category",
       label: "Snippets",
       items: [
+        "miscellaneous/snippets/accelerated-video",
         "miscellaneous/snippets/player-in-iframe",
         "miscellaneous/snippets/fps-converter",
         "miscellaneous/snippets/adding-animations",
