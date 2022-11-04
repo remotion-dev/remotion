@@ -180,6 +180,14 @@ export const MyComposition = () => {
 };
 ```
 
+## `acceptableTimeShiftInSeconds`
+
+_Available from v3.2.41_
+
+During [Preview](/docs/terminology#remotion-preview) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
+
+## Speed up renders for video with silent audio
+
 Remotion will download the whole video during render in order to mix its audio. If the video contains a silent audio track, you can add the muted property to signal to Remotion that it does not need to download the video and make the render more efficient.
 
 ## Codec support

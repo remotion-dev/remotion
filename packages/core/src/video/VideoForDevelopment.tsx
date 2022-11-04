@@ -3,7 +3,10 @@ import React, {forwardRef, useEffect, useImperativeHandle, useRef} from 'react';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame';
 import {usePreload} from '../prefetch';
 import {useMediaInTimeline} from '../use-media-in-timeline';
-import {useMediaPlayback} from '../use-media-playback';
+import {
+	DEFAULT_ACCEPTABLE_TIMESHIFT,
+	useMediaPlayback,
+} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
 import {
@@ -32,6 +35,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		onlyWarnForMediaSeekingError,
 		src,
 		onDuration,
+		acceptableTimeshift,
 		...nativeProps
 	} = props;
 
@@ -62,6 +66,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaType: 'video',
 		playbackRate: props.playbackRate ?? 1,
 		onlyWarnForMediaSeekingError,
+		acceptableTimeshift: acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
 	});
 
 	const actualSrc = usePreload(src as string);
