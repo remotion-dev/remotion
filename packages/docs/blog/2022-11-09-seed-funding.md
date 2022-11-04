@@ -9,6 +9,7 @@ image: https://remotion-still.herokuapp.com/PreviewCard.png?title=TODO
 ---
 
 import {InvestorGrid} from '../components/InvestorGrid'
+import {DownloadPressRelease} from '../components/DownloadPressRelease'
 
 We are delighted to announce that we have raised 180'000 Swiss Francs from Remotion users and customers!
 
@@ -38,11 +39,14 @@ We have tons of opportunities to make it easier to build an app with Remotion. W
 
 ## Why did we "only" raise 180‘000 CHF?
 
-We recognize startups nowadays usually raise much more money than we do at an earlier stage. At the same time, they are facing a high chance of failure due to running out of money.
-With the amount we have raised, we are not only able to continue, but accelerate our operation and grow our revenue to confidently stay in business for a long time.
-We already have a thriving community of business customers, creative coders, professional Remotion freelancers and indie hackers whose interest is our long-term success.
-Vice versa, we owe everything to our community and can only grow with them - we can hardly buy growth!
+We recognize startups usually raise more money than we do at an earlier stage. At the same time, they are entering a high risk of failure due to running out of money.
+
+With the amount we have raised, we are not only able to continue, but accelerate our operation and grow our [company license](https://companies.remotion.dev) revenue to confidently stay here for a long time.
+
+Remotion is a thriving community of business customers, creative coders, professional Remotion freelancers and indie hackers whose interest is our long-term success. Our aim is to grow in a healthy way with our community!
 
 ## Thank you…
 
-To everybody who tried Remotion, sent a pull request, tweeted about it or complained about a bug. It is such a privilege to be able to build Remotion together with you and it should be illegal to have so much fun!
+To everybody who tried out Remotion, sent a pull request, tweeted about it or filed a bug. It is a huge thrill to see people believe in the ideas that we put out and we are very privileged to work on them for hopefully a very long time.
+
+<DownloadPressRelease />
