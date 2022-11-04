@@ -24,14 +24,17 @@ We are so happy to partner with investors who understand our vision and can help
 
 ## Making Remotion easier for creatives
 
-Writing videos in React gives you incredible freedom, but it can be hard to do simple things. Fortunately, it is easy to package up effects, patterns and graphics
+The number one feedback that we have heard is that being able to write videos in React is powerful, but simple things can be hard. Fortunately, almost any complexity in React can be abstracted, packaged up, released to NPM and shared with others.
+
+While our low-level primitives will always be here, we will also develop higher-level components solving common needs that people face, so that more developers, not just React experts, can use Remotion.
+
+We also encourage our community to create building blocks for Remotion and will sponsor developers as well as help them monetize their work.
 
 ## Enabling new business opportunities
 
-With Remotion Player and Remotion Lambda, we provide powerful APIs that allow you to build apps and businesses that produce videos for end users.
-We learn from over 30 companies already using Remotion in production, and continually improve our solutions and make Remotion fit to solve increasingly more complex problems.
+With the [Remotion Player](/player) and [Remotion Lambda](/player), we provide APIs that allow you to build apps that produce videos for end users.
 
-We have tons of opportunities to make it easier to build an app with Remotion and are going to build templates, UI elements, and define best infrastructure practices, so companies can realize Remotion solutions faster and with less resources.
+We have tons of opportunities to make it easier to build an app with Remotion. We are going to release UI elements, SaaS templates and even best practices for payment integration, so companies can realize Remotion solutions faster and with less resources.
 
 ## Why did we "only" raise 180‘000 CHF?
 
