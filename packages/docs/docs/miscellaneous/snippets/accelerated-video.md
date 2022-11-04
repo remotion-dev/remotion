@@ -1,43 +1,29 @@
 ---
-title: Accelerated Video
+title: "Change the speed of a video over time"
 ---
 
 import {AcceleratedVideoExample} from "../../../components/AcceleratedVideoPlayerExample.tsx"
 
-Say we're rendering the 500th frame, and we want to make this process a declarative one, by taking note of the speed with which the previous frames have been played before the current one.
+To speed up a video over time - for example to start with regular speed and then increasingly make it faster - we need to write some code to ensure we stay within Remotion's rules.
 
-We need a way to calculate the total time elapsed by the video, by adding the playback rates of the previous frames &mdash; in a recuring pattern hence increasing the speed of each frame when we loop over the total amount of frames we have, such that the speed function becomes;
+It is not as easy as interpolating the [`playbackRate`](/docs/video#playbackrate):
 
-```tsx
-const speedFunction(f: number) => {
-   interpolate(f, [0, 500], [1, 5], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-   })
-}
+```tsx twoslash title="❌ Does not work"
+import { interpolate, Video } from "remotion";
+let frame = 0;
+// ---cut---
+<Video playbackRate={interpolate(frame, [0, 100], [1, 5])} />;
 ```
 
-## snippet example
+This is because Remotion will evaluate each frame independently from the other frames. If `frame` is 100, the `playbackRate` evaluates as 5 and Remotion will render the 500th frame of the video, which is undesired because it does not take into account that the speed has been building up to 5 until now.
 
-Accelerating the playback or speed of a video with spring animation over time can be done with the example snippet below. You can also tweak the results with the player.
+The correct way is to calculate the total time that has elapsed until the current frame, by accumulating the playback rates of the previous frames. Then we start the video from that frame and set the playback rate of that current frame to ensure the video plays smoothly.
 
-```tsx
+```tsx twoslash title="✅ AcceleratedVideo.tsx"
 import React from "react";
-import {
-  AbsoluteFill,
-  interpolate,
-  Sequence,
-  useCurrentFrame,
-  Video,
-} from "remotion";
+import { interpolate, Sequence, useCurrentFrame, Video } from "remotion";
 
-const remapSpeed = ({
-  frame,
-  speed,
-}: {
-  frame: number;
-  speed: (fr: number) => number;
-}) => {
+const remapSpeed = (frame: number, speed: (fr: number) => number) => {
   let framesPassed = 0;
   for (let i = 0; i <= frame; i++) {
     framesPassed += speed(i);
@@ -48,33 +34,29 @@ const remapSpeed = ({
 
 export const AcceleratedVideo: React.FC = () => {
   const frame = useCurrentFrame();
-  const speedFunction = (f: number) =>
-    interpolate(f, [0, 500], [1, 5], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    });
 
-  const remappedFrame = remapSpeed({
-    frame,
-    speed: speedFunction,
-  });
+  const speedFunction = (f: number) => interpolate(f, [0, 500], [1, 5]);
+
+  const remappedFrame = remapSpeed(frame, speedFunction);
 
   return (
-    <AbsoluteFill>
-      <Sequence from={frame}>
-        <Video
-          startFrom={Math.round(remappedFrame)}
-          playbackRate={speedFunction(frame)}
-          src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-        />
-      </Sequence>
-    </AbsoluteFill>
+    <Sequence from={frame}>
+      <Video
+        startFrom={Math.round(remappedFrame)}
+        playbackRate={speedFunction(frame)}
+        src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+      />
+    </Sequence>
   );
 };
 ```
 
+Note that the timeline in the Remotion Preview might move as you play the video because we reposition the sequence over time. This is okay as long as we calculate the frame in an idempotent way.
+
 ## Demo
 
-Play the video, then tweak the parameters below the video.
-
 <AcceleratedVideoExample />
+
+## See also
+
+- [`<Video>`](/docs/video)

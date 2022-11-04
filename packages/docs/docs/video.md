@@ -203,3 +203,4 @@ If you would like Remotion to warn you when you import an MP4 video, you can tur
 - [`<Audio />`](/docs/audio)
 - [`<OffthreadVideo />`](/docs/offthreadvideo)
 - [`<Video>` vs `<OffthreadVideo>`](/docs/video-vs-offthreadvideo)
+- [`Change the speed of a video over time`](/docs/miscellaneous/snippets/accelerated-video)
