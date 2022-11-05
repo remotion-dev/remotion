@@ -159,7 +159,7 @@ export const experts: Expert[] = [
       <div>
         Creator of{" "}
         <a target={"_blank"} href="https://www.captok.ai">
-          CopTok
+          CapTok
         </a>
         <br />I specialize in creating serverless AI web applications using AWS,
         Javascript and Python.
