@@ -40,7 +40,7 @@ export const InvestorGrid: React.FC = () => {
     <div style={container}>
       <div style={row}>
         <div style={item}>
-          <img style={image} src="/img/investors/foronered.svg" />
+          <img style={image} src="/img/investors/foronered.png" />
           <h3 style={title}>For One Red</h3>
           <div style={subtitle}>Design Studio</div>
         </div>
@@ -117,6 +117,16 @@ export const InvestorGrid: React.FC = () => {
           <h3 style={title}>Michiel Westerbeek</h3>
           <div style={subtitle}>Founder, Tella</div>
         </div>
+      </div>
+      <div style={row}>
+        <div style={item}>
+          <img style={image} src="/img/investors/david.jpeg" />
+          <h3 style={title}>David Salib</h3>
+          <div style={subtitle}>Founder, Momento</div>
+        </div>{" "}
+        <div style={spacer} />
+        <div style={item} /> <div style={spacer} />
+        <div style={item} />
       </div>
     </div>
   );
