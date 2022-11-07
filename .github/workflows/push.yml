@@ -18,6 +18,11 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - run: |
           corepack enable
+      - uses: Iamshankhadeep/setup-ffmpeg@v1.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ matrix.versionffmpeg_version }}
+
       - name: Cache .pnpm-store
         uses: actions/cache@v3.0.11
         with:
@@ -46,6 +51,11 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - run: |
           corepack enable
+      - uses: Iamshankhadeep/setup-ffmpeg@v1.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ matrix.versionffmpeg_version }}
+
       - name: Cache .pnpm-store
         uses: actions/cache@v3.0.11
         with:
@@ -93,6 +103,11 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - run: |
           corepack enable
+      - uses: Iamshankhadeep/setup-ffmpeg@v1.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ matrix.ffmpeg_version }}
+
       - name: Cache .pnpm-store
         uses: actions/cache@v3.0.11
         with:
