@@ -96,8 +96,10 @@ const params = {
 // ---cut---
 /**
  * This postprocessing step will match the values with what you'd
- * get from WebAudio's `AnalyserNode.getByteFrequencyData()`.
+ * get from WebAudio's `AnalyserNode.getFloatFrequencyData()` and
+ * `AnalyserNode.getByteFrequencyData()`.
  *
+ * MDN: https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode/getFloatFrequencyData
  * MDN: https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode/getByteFrequencyData
  * W3C Spec: https://www.w3.org/TR/webaudio/#AnalyserNode-methods
  */
@@ -105,19 +107,29 @@ const params = {
 // get the frequency data
 const frequencyData = visualizeAudio(params);
 
+function toByteFrequencyData(value: number) {
+  // convert to decibels (will be in the range `-Infinity` to `0`)
+  return 20 * Math.log10(value);
+}
+
 // default scaling factors from the W3C spec for getByteFrequencyData
 const minDb = -100;
 const maxDb = -30;
 
-const amplitudes = frequencyData.map((value) => {
-  // convert to decibels (will be in the range `-Infinity` to `0`)
-  const db = 20 * Math.log10(value);
-
+function toByteFrequencyData(value: number) {
+  const db = toFloatFrequencyData(value);
+  
   // scale to fit between min and max
   const scaled = (db - minDb) / (maxDb - minDb);
+  
+  const clamped = Math.max(0, Math.min(1, scaled));
 
-  return scaled;
-});
+  // Make it an integer between 0-255
+  return Math.round(255 * clamped);
+}
+
+const byteFrequencyData = frequencyData.map(toByteFrequencyData);
+const floatFrequencyData = frequencyData.map(toFloatFrequencyData);
 ```
 
 ## See also
