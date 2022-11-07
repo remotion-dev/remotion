@@ -5,6 +5,7 @@ import {Internals} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
 import type {LoaderOptions} from './esbuild-loader/interfaces';
 import {ReactFreshWebpackPlugin} from './fast-refresh';
+import {jsonStringifyWithCircularReferences} from './stringify-with-circular-references';
 import {getWebpackCacheName} from './webpack-cache';
 import esbuild = require('esbuild');
 
@@ -184,7 +185,9 @@ export const webpackConfig = ({
 			],
 		},
 	});
-	const hash = createHash('md5').update(JSON.stringify(conf)).digest('hex');
+	const hash = createHash('md5')
+		.update(jsonStringifyWithCircularReferences(conf))
+		.digest('hex');
 	return [
 		hash,
 		{
