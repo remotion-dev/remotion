@@ -107,7 +107,7 @@ const params = {
 // get the frequency data
 const frequencyData = visualizeAudio(params);
 
-function toByteFrequencyData(value: number) {
+function toFloatFrequencyData(value: number) {
   // convert to decibels (will be in the range `-Infinity` to `0`)
   return 20 * Math.log10(value);
 }
