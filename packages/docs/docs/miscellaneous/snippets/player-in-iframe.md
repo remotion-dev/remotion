@@ -6,7 +6,7 @@ title: "Embedding a <Player> into an <iframe>"
 Credit to [@marcusstenbeck](https://twitter.com/marcusstenbeck) for creating this snippet.
 :::
 
-This snippet is useful if you want to isolate the global styles of your homepage from the global styles of the [`<Player>`](/docs/player), for example if you are using TailwindCSS.
+This snippet is useful if you want to isolate the global styles of your homepage from the global styles of the [`<Player>`](/docs/player).
 
 ```diff title="Usage"
 - import { Player } from '@remotion/player';
