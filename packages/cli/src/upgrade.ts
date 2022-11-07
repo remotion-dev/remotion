@@ -39,6 +39,7 @@ export const upgrade = async (
 	const packageJson = require(packageJsonFilePath);
 	const dependencies = Object.keys(packageJson.dependencies);
 	const latestRemotionVersion = await getLatestRemotionVersion();
+	Log.info('Newest Remotion version is', latestRemotionVersion);
 
 	const manager = getPackageManager(remotionRoot, packageManager);
 
@@ -76,4 +77,5 @@ export const upgrade = async (
 
 	await prom;
 	Log.info('⏫ Remotion has been upgraded!');
+	Log.info('https://remotion.dev/changelog');
 };
