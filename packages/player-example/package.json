@@ -19,7 +19,7 @@
 		"@types/react-dom": "18.0.0",
 		"browserslist": "^4.18.1",
 		"camelcase": "^6.2.1",
-		"esbuild": "0.14.19",
+		"esbuild": "0.15.13",
 		"eslint": "^8.3.0",
 		"fs-extra": "^10.0.0",
 		"html-webpack-plugin": "^5.5.0",
