@@ -268,7 +268,9 @@ const innerRenderFrames = ({
 		return page;
 	};
 
-	const pages = new Array(actualConcurrency).fill(true).map(makePage);
+	const pages = new Array(actualConcurrency)
+		.fill(true)
+		.map(() => makePage(puppeteerInstance));
 
 	// If rendering a GIF and skipping frames, we must ensure it starts from 0
 	// and then is consecutive so FFMPEG recognizes the sequence
