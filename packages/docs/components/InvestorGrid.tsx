@@ -62,9 +62,7 @@ export const InvestorGrid: React.FC = () => {
           <div style={item}>
             <img style={image} src="/img/investors/william.jpeg" />
             <h3 style={title}>William Candillon</h3>
-            <div style={subtitle}>
-              {"Can it be done in React Native?"}, React Native Skia
-            </div>
+            <div style={subtitle}>{"Can it be done in React Native?"}</div>
           </div>
         </div>{" "}
         <div style={spacer} />
