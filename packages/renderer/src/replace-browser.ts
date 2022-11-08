@@ -25,7 +25,7 @@ export const handleBrowserCrash = (instance: Browser) => {
 			try {
 				replacing = true;
 				instance
-					.close()
+					.close(true)
 					.then(() => {
 						console.log('Killed previous browser and making new one');
 					})

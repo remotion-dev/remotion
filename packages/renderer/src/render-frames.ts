@@ -601,7 +601,7 @@ export const renderFrames = (
 				} else {
 					Promise.resolve(browserInstance)
 						.then((puppeteerInstance) => {
-							return puppeteerInstance.close();
+							return puppeteerInstance.close(true);
 						})
 						.catch((err) => {
 							console.log('Unable to close browser', err);
