@@ -472,7 +472,6 @@ const getRules = (typescript: boolean) => {
       },
     ],
     "react/no-this-in-sfc": "error",
-    "react/no-unescaped-entities": "error",
     "react/no-unknown-property": "error",
     "react/no-unsafe": "error",
     "react/no-unused-prop-types": "error",
