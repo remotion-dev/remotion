@@ -196,12 +196,14 @@ const innerRenderFrames = ({
 
 	const makePage = async () => {
 		const page = await puppeteerInstance.newPage();
+		console.log('page', page);
 		pagesArray.push(page);
 		await page.setViewport({
 			width: composition.width,
 			height: composition.height,
 			deviceScaleFactor: scale ?? 1,
 		});
+		console.log('viewport');
 
 		const logCallback = (log: ConsoleMessage) => {
 			onBrowserLog?.({
@@ -229,6 +231,7 @@ const innerRenderFrames = ({
 			audioEnabled: !muted,
 			videoEnabled: imageFormat !== 'none',
 		});
+		console.log('props');
 
 		await puppeteerEvaluateWithCatch({
 			// eslint-disable-next-line max-params
@@ -261,6 +264,8 @@ const innerRenderFrames = ({
 			frame: null,
 			page,
 		});
+
+		console.log('bundle mode');
 
 		page.off('console', logCallback);
 		return page;
@@ -413,7 +418,10 @@ const innerRenderFrames = ({
 		try {
 			await renderFrame(frame, index);
 		} catch (err) {
-			if (!(err as Error)?.message?.includes('Target closed')) {
+			if (
+				!(err as Error)?.message?.includes('Target closed') &&
+				!(err as Error)?.message?.includes('Session closed')
+			) {
 				throw err;
 			}
 
@@ -429,7 +437,9 @@ const innerRenderFrames = ({
 				`The browser crashed while rendering frame ${frame}, retrying ${retriesLeft} more times. Learn more about this error under https://www.remotion.dev/docs/target-closed`
 			);
 			const pool = await poolPromise;
+			console.log('making new page');
 			const page = await makePage();
+			console.log('made new page');
 			pool.release(page);
 			await renderFrameAndRetryTargetClose(
 				frame,
