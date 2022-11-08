@@ -99,7 +99,7 @@ export const InvestorGrid: React.FC = () => {
       </div>
       <div style={row}>
         <div style={item}>
-          <img style={image} src="/img/investors/david.jpeg" />
+          <img style={image} src="/img/investors/robbie.jpeg" />
           <h3 style={title}>Robbie Zhang-Smitheran</h3>
           <div style={subtitle}>Cameo.com</div>
         </div>{" "}
