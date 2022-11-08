@@ -6,7 +6,7 @@ export const handleBrowserCrash = (instance: Browser) => {
 		resolve: (br: Browser) => void;
 		reject: (err: Error) => void;
 	}[] = [];
-	let replacing = true;
+	let replacing = false;
 
 	return {
 		getBrowser: () => _instance,
