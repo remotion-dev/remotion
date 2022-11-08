@@ -44,7 +44,7 @@ export class NodeWebSocketTransport implements ConnectionTransport {
 			const ws = new NodeWebSocket(url, [], {
 				followRedirects: true,
 				perMessageDeflate: false,
-				maxPayload: 256 * 1024 * 1024, // 256Mb
+				maxPayload: 1024 * 1024 * 1024, // 1024Mb
 				headers: {
 					'User-Agent': `Remotion CLI`,
 				},

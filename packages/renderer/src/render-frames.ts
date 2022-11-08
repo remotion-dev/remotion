@@ -160,6 +160,7 @@ const innerRenderFrames = ({
 	cancelSignal,
 	downloadMap,
 	muted,
+	makeBrowser,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -169,6 +170,7 @@ const innerRenderFrames = ({
 	onDownload: RenderMediaOnDownload;
 	proxyPort: number;
 	downloadMap: DownloadMap;
+	makeBrowser: () => Promise<Browser>;
 }): Promise<RenderFramesOutput> => {
 	if (!puppeteerInstance) {
 		throw new Error(
@@ -194,16 +196,14 @@ const innerRenderFrames = ({
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
-	const makePage = async () => {
-		const page = await puppeteerInstance.newPage();
-		console.log('page', page);
+	const makePage = async (instance: Browser) => {
+		const page = await instance.newPage();
 		pagesArray.push(page);
 		await page.setViewport({
 			width: composition.width,
 			height: composition.height,
 			deviceScaleFactor: scale ?? 1,
 		});
-		console.log('viewport');
 
 		const logCallback = (log: ConsoleMessage) => {
 			onBrowserLog?.({
@@ -231,7 +231,6 @@ const innerRenderFrames = ({
 			audioEnabled: !muted,
 			videoEnabled: imageFormat !== 'none',
 		});
-		console.log('props');
 
 		await puppeteerEvaluateWithCatch({
 			// eslint-disable-next-line max-params
@@ -264,8 +263,6 @@ const innerRenderFrames = ({
 			frame: null,
 			page,
 		});
-
-		console.log('bundle mode');
 
 		page.off('console', logCallback);
 		return page;
@@ -437,9 +434,7 @@ const innerRenderFrames = ({
 				`The browser crashed while rendering frame ${frame}, retrying ${retriesLeft} more times. Learn more about this error under https://www.remotion.dev/docs/target-closed`
 			);
 			const pool = await poolPromise;
-			console.log('making new page');
-			const page = await makePage();
-			console.log('made new page');
+			const page = await makePage(await makeBrowser());
 			pool.release(page);
 			await renderFrameAndRetryTargetClose(
 				frame,
@@ -521,14 +516,15 @@ export const renderFrames = (
 	validateQuality(options.quality);
 	validateScale(options.scale);
 
-	const browserInstance =
-		options.puppeteerInstance ??
+	const makeBrowser = () =>
 		openBrowser(DEFAULT_BROWSER, {
 			shouldDumpIo: options.dumpBrowserLogs,
 			browserExecutable: options.browserExecutable,
 			chromiumOptions: options.chromiumOptions,
 			forceDeviceScaleFactor: options.scale ?? 1,
 		});
+
+	const browserInstance = options.puppeteerInstance ?? makeBrowser();
 
 	const downloadMap = options.downloadMap ?? makeDownloadMap();
 
@@ -581,6 +577,7 @@ export const renderFrames = (
 					onDownload,
 					proxyPort: offthreadPort,
 					downloadMap,
+					makeBrowser,
 				});
 			}),
 		])
