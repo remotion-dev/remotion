@@ -42,7 +42,7 @@ const browserInstances: PuppeteerBrowser[] = [];
 export const killAllBrowsers = async () => {
 	for (const browser of browserInstances) {
 		try {
-			await browser.close();
+			await browser.close(true);
 		} catch (err) {}
 	}
 };

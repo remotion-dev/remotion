@@ -33,6 +33,7 @@ export const enum BrowserEmittedEvents {
 	TargetChanged = 'targetchanged',
 	TargetCreated = 'targetcreated',
 	Closed = 'closed',
+	ClosedSilent = 'closed-silent',
 }
 
 export class Browser extends EventEmitter {
@@ -245,10 +246,12 @@ export class Browser extends EventEmitter {
 		}, []);
 	}
 
-	async close(): Promise<void> {
+	async close(silent: boolean): Promise<void> {
 		await this.#closeCallback.call(null);
 		this.disconnect();
-		this.emit(BrowserEmittedEvents.Closed);
+		this.emit(
+			silent ? BrowserEmittedEvents.ClosedSilent : BrowserEmittedEvents.Closed
+		);
 	}
 
 	disconnect(): void {

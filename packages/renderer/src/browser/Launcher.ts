@@ -128,7 +128,7 @@ class ChromeLauncher implements ProductLauncher {
 				{timeout}
 			);
 		} catch (error) {
-			await browser.close();
+			await browser.close(false);
 			throw error;
 		}
 
