@@ -109,6 +109,9 @@ class ChromeLauncher implements ProductLauncher {
 				timeout,
 				preferredRevision: this._preferredRevision,
 			});
+			connection.on('close', () => {
+				runner.kill();
+			});
 			browser = await Browser._create({
 				connection,
 				contextIds: [],

@@ -39,6 +39,7 @@ import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {validateQuality} from './quality';
+import {handleBrowserCrash} from './replace-browser';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {truthy} from './truthy';
@@ -196,8 +197,10 @@ const innerRenderFrames = ({
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
-	const makePage = async (instance: Browser) => {
-		const page = await instance.newPage();
+	const browserReplacer = handleBrowserCrash(puppeteerInstance);
+
+	const makePage = async () => {
+		const page = await browserReplacer.getBrowser().newPage();
 		pagesArray.push(page);
 		await page.setViewport({
 			width: composition.width,
@@ -268,9 +271,7 @@ const innerRenderFrames = ({
 		return page;
 	};
 
-	const pages = new Array(actualConcurrency)
-		.fill(true)
-		.map(() => makePage(puppeteerInstance));
+	const pages = new Array(actualConcurrency).fill(true).map(() => makePage());
 
 	// If rendering a GIF and skipping frames, we must ensure it starts from 0
 	// and then is consecutive so FFMPEG recognizes the sequence
@@ -436,7 +437,8 @@ const innerRenderFrames = ({
 				`The browser crashed while rendering frame ${frame}, retrying ${retriesLeft} more times. Learn more about this error under https://www.remotion.dev/docs/target-closed`
 			);
 			const pool = await poolPromise;
-			const page = await makePage(await makeBrowser());
+			await browserReplacer.replaceBrowser(makeBrowser);
+			const page = await makePage();
 			pool.release(page);
 			await renderFrameAndRetryTargetClose(
 				frame,
