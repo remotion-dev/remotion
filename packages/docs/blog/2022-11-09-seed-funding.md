@@ -5,7 +5,7 @@ author: Jonny Burger
 author_title: Chief Hacker @ Remotion
 author_url: https://github.com/JonnyBurger
 author_image_url: https://avatars2.githubusercontent.com/u/1629785?s=460&u=12eb94da6070d00fc924761ce06e3a428d01b7e9&v=4
-image: https://remotion-still.herokuapp.com/PreviewCard.png?title=TODO
+image: /img/funding-banner.jpg
 ---
 
 import {InvestorGrid} from '../components/InvestorGrid'

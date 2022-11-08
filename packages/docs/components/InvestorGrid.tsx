@@ -48,7 +48,7 @@ export const InvestorGrid: React.FC = () => {
         <div style={item}>
           <img style={image} src="/img/investors/heiko.jpeg" />
           <h3 style={title}>Heiko Hubertz</h3>
-          <div style={subtitle}>Founder, Oxolo</div>
+          <div style={subtitle}>Founder & CEO, Oxolo</div>
         </div>
         <div style={spacer} />
         <div style={item}>
@@ -63,7 +63,7 @@ export const InvestorGrid: React.FC = () => {
             <img style={image} src="/img/investors/william.jpeg" />
             <h3 style={title}>William Candillon</h3>
             <div style={subtitle}>
-              {"Can it be done in React Native"}, React Native Skia
+              {"Can it be done in React Native?"}, React Native Skia
             </div>
           </div>
         </div>{" "}
@@ -84,7 +84,7 @@ export const InvestorGrid: React.FC = () => {
         <div style={item}>
           <img style={image} src="/img/investors/steven.jpeg" />
           <h3 style={title}>Steven Sullivan</h3>
-          <div style={subtitle}>Founder, Middy</div>
+          <div style={subtitle}>Founder, Middy.com</div>
         </div>
         <div style={spacer} />
         <div style={item}>
@@ -101,10 +101,10 @@ export const InvestorGrid: React.FC = () => {
       </div>
       <div style={row}>
         <div style={item}>
-          <img style={image} src="/img/investors/lucas.jpeg" />
-          <h3 style={title}>Lucas Pelloni</h3>
-          <div style={subtitle}>Founder, Axelra</div>
-        </div>
+          <img style={image} src="/img/investors/david.jpeg" />
+          <h3 style={title}>Robbie Zhang-Smitheran</h3>
+          <div style={subtitle}>Cameo.com</div>
+        </div>{" "}
         <div style={spacer} />
         <div style={item}>
           <img style={image} src="/img/investors/ilya.jpeg" />
@@ -113,19 +113,24 @@ export const InvestorGrid: React.FC = () => {
         </div>
         <div style={spacer} />
         <div style={item}>
-          <img style={image} src="/img/investors/michiel.jpeg" />
-          <h3 style={title}>Michiel Westerbeek</h3>
-          <div style={subtitle}>Founder, Tella</div>
+          <img style={image} src="/img/investors/lucas.jpeg" />
+          <h3 style={title}>Lucas Pelloni</h3>
+          <div style={subtitle}>Co-Founder, Axelra</div>
         </div>
       </div>
       <div style={row}>
         <div style={item}>
+          <img style={image} src="/img/investors/michiel.jpeg" />
+          <h3 style={title}>Michiel Westerbeek</h3>
+          <div style={subtitle}>Co-Founder, Tella</div>
+        </div>
+        <div style={spacer} />
+        <div style={item}>
           <img style={image} src="/img/investors/david.jpeg" />
           <h3 style={title}>David Salib</h3>
-          <div style={subtitle}>Founder, Momento</div>
+          <div style={subtitle}>Co-Founder, Momento</div>
         </div>{" "}
         <div style={spacer} />
-        <div style={item} /> <div style={spacer} />
         <div style={item} />
       </div>
     </div>
