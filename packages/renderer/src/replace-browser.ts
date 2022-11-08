@@ -24,6 +24,14 @@ export const handleBrowserCrash = (instance: Browser) => {
 
 			try {
 				replacing = true;
+				instance
+					.close()
+					.then(() => {
+						console.log('Killed previous browser and making new one');
+					})
+					.catch(() => {
+						// Ignore as browser crashed
+					});
 				const browser = await make();
 				replacing = false;
 				_instance = browser;
