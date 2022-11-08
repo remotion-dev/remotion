@@ -145,7 +145,6 @@ export class BrowserRunner {
 		// If the process failed to launch (for example if the browser executable path
 		// is invalid), then the process does not get a pid assigned. A call to
 		// `proc.kill` would error, as the `pid` to-be-killed can not be found.
-		console.log('Killing browser');
 		if (this.proc?.pid && pidExists(this.proc.pid)) {
 			const {proc} = this;
 			try {
