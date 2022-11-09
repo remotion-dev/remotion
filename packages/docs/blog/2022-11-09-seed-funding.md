@@ -16,7 +16,7 @@ We are delighted to announce that we have raised 180'000 Swiss Francs from Remot
 <iframe style={{
   width: '100%',
   aspectRatio: '16 / 9'
-}} src="https://www.youtube.com/embed/LMFxGQrAwTs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+}} src="https://www.youtube.com/embed/AZinzRlATJo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 With our first funding, we will make it easier for you to programmatically create videos and video apps. We'll introduce new components, templates and tools to help you build more with less code.
 
