@@ -81,7 +81,7 @@ export const InvestorGrid: React.FC = () => {
       <div style={row}>
         <div style={item}>
           <img style={image} src="/img/investors/steven.jpeg" />
-          <h3 style={title}>Steven Sullivan</h3>
+          <h3 style={title}>Stephen Sullivan</h3>
           <div style={subtitle}>Founder, Middy.com</div>
         </div>
         <div style={spacer} />
