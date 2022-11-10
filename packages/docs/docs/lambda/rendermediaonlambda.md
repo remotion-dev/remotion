@@ -283,7 +283,7 @@ _available from v3.2.10_
 
 A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
 
-### `renderFolder`
+### `folderInS3Console`
 
 _available from v3.2.43_
 

@@ -63,7 +63,7 @@ export type RenderMediaOnLambdaOutput = {
 	renderId: string;
 	bucketName: string;
 	cloudWatchLogs: string;
-	renderFolder: string;
+	folderInS3Console: string;
 };
 
 /**
@@ -184,7 +184,7 @@ export const renderMediaOnLambda = async ({
 				region,
 				renderId: res.renderId,
 			}),
-			renderFolder: getS3RenderUrl({
+			folderInS3Console: getS3RenderUrl({
 				bucketName: res.bucketName,
 				renderId: res.renderId,
 				region,
