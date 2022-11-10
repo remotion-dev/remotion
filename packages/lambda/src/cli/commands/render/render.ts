@@ -157,7 +157,7 @@ export const renderCommand = async (args: string[]) => {
 	);
 
 	Log.verbose(`CloudWatch logs (if enabled): ${res.cloudWatchLogs}`);
-	Log.verbose(`Render folder: ${res.renderFolder}`);
+	Log.verbose(`Render folder: ${res.folderInS3Console}`);
 	const status = await getRenderProgress({
 		functionName,
 		bucketName: res.bucketName,
