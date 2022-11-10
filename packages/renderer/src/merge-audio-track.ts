@@ -26,7 +26,6 @@ const mergeAudioTrackUnlimited = async ({
 	numberOfSeconds,
 	downloadMap,
 }: Options): Promise<void> => {
-	console.log('MERGING AUDIO TRACKS', files.length);
 	if (files.length === 0) {
 		await createSilentAudio({
 			outName,
