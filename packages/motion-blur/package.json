@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/motion-blur",
-	"version": "3.2.41",
+	"version": "3.2.42",
 	"description": "Motion blur effect for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -20,7 +20,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"remotion": "3.2.41"
+		"remotion": "3.2.42"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
