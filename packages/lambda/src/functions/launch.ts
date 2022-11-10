@@ -95,6 +95,10 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			1000
 		)} before it times out`
 	);
+	const verbose = RenderInternals.isEqualOrBelowLogLevel(
+		params.logLevel,
+		'verbose'
+	);
 	const webhookDueToTimeout = setTimeout(async () => {
 		if (params.webhook && !webhookInvoked) {
 			try {
@@ -139,7 +143,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	}, Math.max(options.getRemainingTimeInMillis() - 1000, 1000));
 
 	const browserInstance = await getBrowserInstance(
-		RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
+		verbose,
 		params.chromiumOptions
 	);
 
@@ -508,12 +512,14 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		renderId: params.renderId,
 	});
 
-	const deletProm = cleanupFiles({
-		region: getCurrentRegionInFunction(),
-		bucket: params.bucketName,
-		contents,
-		jobs,
-	});
+	const deletProm = verbose
+		? Promise.resolve(0)
+		: cleanupFiles({
+				region: getCurrentRegionInFunction(),
+				bucket: params.bucketName,
+				contents,
+				jobs,
+		  });
 
 	const cleanupSerializedInputPropsProm = cleanupSerializedInputProps({
 		bucketName: params.bucketName,
