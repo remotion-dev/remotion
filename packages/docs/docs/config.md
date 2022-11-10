@@ -62,7 +62,7 @@ By default, Remotion will try to find a free port.
 If you specify a port, but it's not available, Remotion will throw an error.
 
 :::note
-When the [Remotion Preview](/docs/terminology#remotion-preview), a server will be started to host the Preview.  
+When starting the [Remotion Preview](/docs/terminology#remotion-preview), a server will be started to host it.  
 During rendering, a HTTP server is also started in the background to serve the Webpack [bundle](/docs/terminology#bundle).
 :::
 
