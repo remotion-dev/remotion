@@ -60,7 +60,6 @@ export const combineVideos = async ({
 				'512K',
 				codec === 'h264' ? '-movflags' : null,
 				codec === 'h264' ? 'faststart' : null,
-				'-shortest',
 				'-y',
 				output,
 			].filter(truthy)
