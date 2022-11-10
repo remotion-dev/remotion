@@ -90,7 +90,7 @@ Config.Bundling.setPublicDir("./publico");
 
 The [command line flag](/docs/cli/render#--public-dir) `--public-dir` will take precedence over this option.
 
-### setEntryPoint()
+### setEntryPoint()
 
 _Available from v3.2.40_
 
