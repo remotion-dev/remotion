@@ -159,6 +159,11 @@ module.exports = {
         id: "lambda/api",
       },
       items: [
+        {
+          type: "link",
+          href: "/docs/lambda/cli",
+          label: "CLI Reference",
+        },
         "lambda/estimateprice",
         "lambda/deployfunction",
         "lambda/deletefunction",
@@ -345,7 +350,7 @@ module.exports = {
       items: [
         {
           type: "link",
-          href: "/docs/player/player",
+          href: "/docs/lambda/api",
           label: "API Reference",
         },
         "lambda/setup",

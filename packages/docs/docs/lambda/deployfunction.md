@@ -84,5 +84,6 @@ An object with the following values:
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/deploy-function.ts)
+- [CLI equivalent: npx remotion lambda functions deploy](https://www.remotion.dev/docs/lambda/cli/functions#deploy)
 - [deleteFunction()](/docs/lambda/deletefunction)
 - [getFunctions()](/docs/lambda/getfunctions)
