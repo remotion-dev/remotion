@@ -144,7 +144,7 @@ _Available since v2.0._: You can also use the `getInputProps()` function to retr
 ## You can still use components as normal
 
 Even if you have registered a component as a composition,
-you can still use it as normal in your videos and pass it's props directly. Default props don't apply in this case.
+you can still use it normally in your videos and pass its props directly. Default props don't apply in this case.
 
 ```tsx twoslash
 // @include: example-MyComponent

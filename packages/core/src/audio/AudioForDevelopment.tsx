@@ -12,7 +12,10 @@ import {usePreload} from '../prefetch';
 import {random} from '../random';
 import {SequenceContext} from '../Sequence';
 import {useMediaInTimeline} from '../use-media-in-timeline';
-import {useMediaPlayback} from '../use-media-playback';
+import {
+	DEFAULT_ACCEPTABLE_TIMESHIFT,
+	useMediaPlayback,
+} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
 import {
@@ -53,6 +56,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		shouldPreMountAudioTags,
 		src,
 		onDuration,
+		acceptableTimeShiftInSeconds,
 		...nativeProps
 	} = props;
 
@@ -108,6 +112,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
 		onlyWarnForMediaSeekingError: false,
+		acceptableTimeshift:
+			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
 	});
 
 	useImperativeHandle(
