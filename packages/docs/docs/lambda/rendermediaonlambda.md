@@ -283,6 +283,12 @@ _available from v3.2.10_
 
 A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
 
+### `renderFolder`
+
+_available from v3.2.43_
+
+A link to the folder in the AWS console where each chunk and render is located.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/render-media-on-lambda.ts)
