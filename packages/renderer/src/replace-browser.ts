@@ -37,14 +37,15 @@ export const handleBrowserCrash = (instance: Browser): BrowserReplacer => {
 						// Ignore as browser crashed
 					});
 				const browser = await make();
-				console.log('Made new browser');
-				replacing = false;
 				_instance = browser;
 				waiters.forEach((w) => w.resolve(browser));
+				console.log('Made new browser');
 				return browser;
 			} catch (err) {
 				waiters.forEach((w) => w.reject(err as Error));
 				throw err;
+			} finally {
+				replacing = false;
 			}
 		},
 	};
