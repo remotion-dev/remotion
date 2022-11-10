@@ -87,8 +87,8 @@ Got instructions for more Linux distributions? [Add them to this page](https://g
 
 ## FFmpeg requirement
 
-Remotion requires `ffmpeg` and `ffprobe` binaries to render videos. The minimum version is 4.1.0.  
-For the most common operating systems, Remotion will try to install FFmpeg for you.
+Remotion requires `ffmpeg` and `ffprobe` binaries (minimum version 4.1) to render videos.  
+If you don't have them, Remotion will try to install FFmpeg for you.
 
 ## Installation in existing projects
 
