@@ -57,9 +57,14 @@ The [command line flag](/docs/cli/render#--bundle-cache) `--bundle-cache` will t
 
 ### setPort()
 
-Define on which port Remotion should start it's HTTP servers during preview and rendering.
+Define on which port Remotion should start it's HTTP servers.
 By default, Remotion will try to find a free port.
 If you specify a port, but it's not available, Remotion will throw an error.
+
+:::note
+When the [Remotion Preview](/docs/terminology#remotion-preview), a server will be started to host the Preview.  
+During rendering, a HTTP server is also started in the background to serve the Webpack [bundle](/docs/terminology#bundle).
+:::
 
 ```ts twoslash
 import { Config } from "remotion";
