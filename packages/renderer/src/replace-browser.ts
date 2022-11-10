@@ -1,6 +1,11 @@
 import type {Browser} from './browser/Browser';
 
-export const handleBrowserCrash = (instance: Browser) => {
+export type BrowserReplacer = {
+	getBrowser: () => Browser;
+	replaceBrowser: (make: () => Promise<Browser>) => Promise<Browser>;
+};
+
+export const handleBrowserCrash = (instance: Browser): BrowserReplacer => {
 	let _instance = instance;
 	const waiters: {
 		resolve: (br: Browser) => void;
@@ -10,7 +15,6 @@ export const handleBrowserCrash = (instance: Browser) => {
 
 	return {
 		getBrowser: () => _instance,
-
 		replaceBrowser: async (make: () => Promise<Browser>): Promise<Browser> => {
 			if (replacing) {
 				const waiter = new Promise<Browser>((resolve, reject) => {
@@ -24,7 +28,7 @@ export const handleBrowserCrash = (instance: Browser) => {
 
 			try {
 				replacing = true;
-				instance
+				await instance
 					.close(true)
 					.then(() => {
 						console.log('Killed previous browser and making new one');
@@ -33,6 +37,7 @@ export const handleBrowserCrash = (instance: Browser) => {
 						// Ignore as browser crashed
 					});
 				const browser = await make();
+				console.log('Made new browser');
 				replacing = false;
 				_instance = browser;
 				waiters.forEach((w) => w.resolve(browser));

@@ -39,6 +39,7 @@ import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {validateQuality} from './quality';
+import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
@@ -144,7 +145,6 @@ const innerRenderFrames = ({
 	quality,
 	imageFormat = DEFAULT_IMAGE_FORMAT,
 	frameRange,
-	puppeteerInstance,
 	onError,
 	envVariables,
 	onBrowserLog,
@@ -162,6 +162,7 @@ const innerRenderFrames = ({
 	downloadMap,
 	muted,
 	makeBrowser,
+	browserReplacer,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -172,13 +173,8 @@ const innerRenderFrames = ({
 	proxyPort: number;
 	downloadMap: DownloadMap;
 	makeBrowser: () => Promise<Browser>;
+	browserReplacer: BrowserReplacer;
 }): Promise<RenderFramesOutput> => {
-	if (!puppeteerInstance) {
-		throw new Error(
-			'no puppeteer instance passed to innerRenderFrames - internal error'
-		);
-	}
-
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
 			fs.mkdirSync(outputDir, {
@@ -197,11 +193,10 @@ const innerRenderFrames = ({
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
-	const browserReplacer = handleBrowserCrash(puppeteerInstance);
-
 	const makePage = async () => {
 		const page = await browserReplacer.getBrowser().newPage();
 		pagesArray.push(page);
+		console.log('Made new page');
 		await page.setViewport({
 			width: composition.width,
 			height: composition.height,
@@ -438,6 +433,7 @@ const innerRenderFrames = ({
 			);
 			const pool = await poolPromise;
 			await browserReplacer.replaceBrowser(makeBrowser);
+			console.log('Successfully replaced browser');
 			const page = await makePage();
 			pool.release(page);
 			await renderFrameAndRetryTargetClose(
@@ -562,8 +558,10 @@ export const renderFrames = (
 				}),
 				browserInstance,
 			]).then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {
+				const browserReplacer = handleBrowserCrash(puppeteerInstance);
+
 				const {stopCycling} = cycleBrowserTabs(
-					puppeteerInstance,
+					browserReplacer,
 					actualConcurrency
 				);
 
@@ -582,6 +580,7 @@ export const renderFrames = (
 					proxyPort: offthreadPort,
 					downloadMap,
 					makeBrowser,
+					browserReplacer,
 				});
 			}),
 		])
