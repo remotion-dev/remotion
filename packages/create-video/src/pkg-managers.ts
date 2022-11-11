@@ -69,6 +69,10 @@ export const getRenderCommandForTemplate = (
 		return `${getRunCommand(manager)} remotion:render`;
 	}
 
+	if (template.cliId === 'still') {
+		return `${getRunCommand(manager)} render`;
+	}
+
 	return getRenderCommand(manager);
 };
 
