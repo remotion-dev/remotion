@@ -15,7 +15,7 @@ title: registerRoot()
 // @filename: ./Root.tsx
 export const RemotionRoot = () => <></>;
 
-// @filename: index.tsx
+// @filename: index.ts
 // ---cut---
 import { registerRoot } from "remotion";
 import { RemotionRoot } from "./Root";
@@ -31,7 +31,7 @@ export default () => <></>;
 // @filename: MyOtherComponent.tsx
 export default () => <></>;
 
-// @filename: index.tsx
+// @filename: index.ts
 const Composition: React.FC<{
   id: string;
   fps: number;
@@ -70,15 +70,15 @@ export const RemotionRoot = () => {
 In some cases, such as dynamically importing roots or loading WebAssembly, you might want to defer the loading of registerRoot(). If you are doing that, you need to tell Remotion to wait by using the [`delayRender()` / `continueRender()`](/docs/delay-render) pattern.
 
 ```tsx twoslash
-// @filename: ./Video.tsx
+// @filename: ./Root.tsx
 export const RemotionRoot = () => <></>;
 
-// @filename: index.tsx
+// @filename: index.ts
 const loadWebAssembly = () => Promise.resolve();
 // ---cut---
 
 import { continueRender, delayRender, registerRoot } from "remotion";
-import { RemotionRoot } from "./Video";
+import { RemotionRoot } from "./Root";
 
 const wait = delayRender();
 

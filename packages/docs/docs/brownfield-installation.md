@@ -56,12 +56,12 @@ export const MyComposition = () => {
 };
 ```
 
-```tsx twoslash title="remotion/Video.tsx"
+```tsx twoslash title="remotion/Root.tsx"
 // @filename: Composition.tsx
 export const MyComposition: React.FC = () => {
   return null;
 };
-// @filename: Video.tsx
+// @filename: Root.tsx
 // ---cut---
 import React from "react";
 import { Composition } from "remotion";
@@ -88,7 +88,7 @@ export const RemotionRoot: React.FC = () => {
 export const MyComposition: React.FC = () => {
   return null;
 };
-// @filename: Video.tsx
+// @filename: Root.tsx
 import React from "react";
 import { Composition } from "remotion";
 import { MyComposition } from "./Composition";
@@ -110,7 +110,7 @@ export const RemotionRoot: React.FC = () => {
 // @filename: index.ts
 // ---cut---
 import { registerRoot } from "remotion";
-import { RemotionRoot } from "./Video";
+import { RemotionRoot } from "./Root";
 
 registerRoot(RemotionRoot);
 ```
