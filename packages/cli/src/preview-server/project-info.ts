@@ -8,6 +8,8 @@ export type ProjectInfo = {
 
 export const getProjectInfo = (remotionRoot: string): Promise<ProjectInfo> => {
 	const pathsToLookFor = [
+		'remotion/Root.tsx',
+		'remotion/Root.jsx',
 		'src/Root.tsx',
 		'src/Root.jsx',
 		'src/Video.tsx',
