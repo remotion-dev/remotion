@@ -33,7 +33,7 @@ export const listCompositionsCommand = async (
 		Log.error(
 			'The `compositions` command requires you to specify a entry point. For example'
 		);
-		Log.error('  npx remotion compositions src/index.tsx');
+		Log.error('  npx remotion compositions src/index.ts');
 		Log.error(
 			'See https://www.remotion.dev/docs/register-root for more information.'
 		);

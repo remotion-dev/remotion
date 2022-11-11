@@ -18,7 +18,7 @@ Use the [`<Still />`](/docs/still) component instead of the [`<Composition />`](
 You can use the [`npx remotion still`](/docs/cli/#npx-remotion-still) command to render a still image. Example command:
 
 ```bash
-npx remotion still --props='{"custom": "data"}' src/index.tsx my-comp out.png
+npx remotion still --props='{"custom": "data"}' src/index.ts my-comp out.png
 ```
 
 You can use the `--image-format` flag to determine the output format. The default format is `png`, with `jpeg` being the other option.

@@ -5,7 +5,7 @@ import { expect, test } from "vitest";
 test("Should be able to call pnpm exec compositions", async () => {
   const task = await execa(
     "pnpm",
-    ["exec", "remotion", "compositions", "src/index.tsx"],
+    ["exec", "remotion", "compositions", "src/index.ts"],
     {
       cwd: path.join(process.cwd(), "..", "example"),
     }

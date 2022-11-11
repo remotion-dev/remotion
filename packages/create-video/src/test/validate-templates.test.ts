@@ -63,4 +63,48 @@ for (const template of FEATURED_TEMPLATES) {
 		});
 		expect(res.statusCode).toBe(404);
 	});
+
+	test(
+		template.shortName + ' should not have a standard entry point',
+		async () => {
+			const {contents, entryPoint} = await findFile([
+				getFileForTemplate(template, 'src/index.ts'),
+				getFileForTemplate(template, 'src/index.js'),
+				getFileForTemplate(template, 'remotion/index.ts'),
+				getFileForTemplate(template, 'app/remotion/index.ts'),
+			]);
+			expect(entryPoint).toBeTruthy();
+			expect(contents).toMatch(/RemotionRoot/);
+		}
+	);
+	test(
+		template.shortName + ' should not have a standard Root file',
+		async () => {
+			const {contents, entryPoint} = await findFile([
+				getFileForTemplate(template, 'src/Root.tsx'),
+				getFileForTemplate(template, 'src/Root.jsx'),
+				getFileForTemplate(template, 'remotion/Root.tsx'),
+				getFileForTemplate(template, 'app/remotion/Root.tsx'),
+			]);
+			expect(entryPoint).toBeTruthy();
+			expect(contents).toMatch(/export const RemotionRoot/);
+		}
+	);
 }
+
+const findFile = async (options: string[]) => {
+	let entryPoint: string | null = null;
+	let contents: string | null = null;
+	for (const point of options) {
+		const res = await got(point, {
+			throwHttpErrors: false,
+		});
+		if (res.statusCode === 200) {
+			entryPoint = point;
+			contents = res.body;
+			break;
+		}
+	}
+
+	return {entryPoint, contents};
+};
