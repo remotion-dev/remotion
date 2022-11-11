@@ -101,8 +101,8 @@ You can then have separate render commands in your package.json:
 
 ```json
 "scripts": {
-  "render": "remotion render src/index.ts my-video video.mp4",
-  "render-transparent": "remotion render src/index.ts --image-format=png --pixel-format=yuva420p --codec=vp8 my-video video-transparent.webm"
+  "render": "remotion render my-video video.mp4",
+  "render-transparent": "remotion render --image-format=png --pixel-format=yuva420p --codec=vp8 my-video video-transparent.webm"
 }
 ```
 

@@ -12,10 +12,8 @@ npm start
 This is a shorthand for
 
 ```bash
-npx remotion preview src/index.ts
+npx remotion preview
 ```
-
-where `src/index.ts` is the file where [`registerRoot()`](/docs/register-root) is called.
 
 A server will be started on port 3000 (or 3001 if it's not available, and so on) and the preview should open in the browser.
 

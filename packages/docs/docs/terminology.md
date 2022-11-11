@@ -44,7 +44,7 @@ The Remotion Root is the directory in which Remotion commands get executed in. I
 
 ## Entry point
 
-The entry point is the file where the Remotion CLI and Node.JS APIs will look for a Remotion project. By default in most templates, it is `src/index.ts`. The entry point can be passed to the render command, for example: `npx remotion render src/index.ts`. The entry point should call [`registerRoot()`](/docs/register-root).
+The entry point is the file where the Remotion CLI and Node.JS APIs will look for a Remotion project. By default in most templates, it is `src/index.ts`. In older projects, it may have an `.tsx` extension instead of `.ts`. The entry point can be passed to the render command, for example: `npx remotion render src/index.ts`. The entry point should call [`registerRoot()`](/docs/register-root).
 
 In the [Remotion Player](#remotion-player), there is no concept of an entry point. You directly pass a React component and metadata to the [`<Player>`](/docs/player/player).
 
