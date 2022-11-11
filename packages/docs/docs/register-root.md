@@ -31,7 +31,7 @@ export default () => <></>;
 // @filename: MyOtherComponent.tsx
 export default () => <></>;
 
-// @filename: index.ts
+// @filename: index.tsx
 const Composition: React.FC<{
   id: string;
   fps: number;
