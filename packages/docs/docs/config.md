@@ -99,7 +99,7 @@ Sets the Remotion [entry point](/docs/terminology#entry-point), you don't have t
 ```ts twoslash
 import { Config } from "remotion";
 // ---cut---
-Config.Bundling.setEntryPoint("./src/index.tsx");
+Config.Bundling.setEntryPoint("./src/index.ts");
 ```
 
 If you pass an entry point as a CLI argument, it will take precedence.
@@ -419,7 +419,7 @@ import { Config } from "remotion";
 Config.Output.setOutputLocation("out/video.mp4");
 ```
 
-If you pass another argument to the render command, it will take precedence: `npx remotion render src/index.tsx HelloWorld out/video.mp4`.
+If you pass another argument to the render command, it will take precedence: `npx remotion render src/index.ts HelloWorld out/video.mp4`.
 
 ### setOverwriteOutput()
 

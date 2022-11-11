@@ -13,7 +13,7 @@ You have specified an [entry point](/docs/terminology#entry-point) that does not
 
 In most of the templates, the entry point is `src/index.ts`.
 
-- Maybe you have specified the list of compositions (`src/Video.tsx` in most templates) instead.
+- Maybe you have specified the list of compositions (`src/Root.tsx` in most templates) instead.
 - Maybe you have specified the filename of a component that you want to render.
 
 Ensure that you are passing the file that calls [`registerRoot()`](/docs/register-root) as the entry point.

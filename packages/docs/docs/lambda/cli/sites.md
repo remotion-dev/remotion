@@ -15,7 +15,7 @@ The `npx remotion lambda sites` command allows to create, view and delete Remoti
 ## create
 
 ```
-npx remotion lambda sites create src/index.tsx
+npx remotion lambda sites create src/index.ts
 ```
 
 Bundle and upload a Remotion video to an S3 bucket.
@@ -55,7 +55,7 @@ The [AWS region](/docs/lambda/region-selection) to select. Both project and func
 Uploads the project to a specific directory and returns a deterministic URL. If a site already existed under this name, it will be overwritten. Can only contain the following characters: `0-9`, `a-z`, `A-Z`, `-`, `!`, `_`, `.`, `*`, `'`, `(`, `)`
 
 ```
-npx remotion lambda sites create src/index.tsx --site-name=my-project
+npx remotion lambda sites create src/index.ts --site-name=my-project
 ```
 
 <details>

@@ -49,14 +49,14 @@ yarn add remotion @remotion/cli @remotion/player
   </TabItem>
 </Tabs>
 
-Afterwards, create a subfolder for Remotion within your project and add three files: An index file, a `Video.tsx` file for your list of compositions, and a file with your composition. It could look like this:
+Afterwards, create a subfolder for Remotion within your project and add three files: An index file, a `Root.tsx` file for your list of compositions, and a file with your composition. It could look like this:
 
 ```diff
  └── src/
 +  ├── remotion/
-+  │   ├── index.tsx
++  │   ├── index.ts
 +  │   ├── MyComp.tsx
-+  │   └── Video.tsx
++  │   └── Root.tsx
    └── app/
        └── App.tsx
 ```
@@ -69,7 +69,7 @@ export const MyComp: React.FC<{ text: string }> = ({ text }) => {
 };
 ```
 
-Your list of videos (`remotion/Video.tsx` in the example) could look like this:
+Your list of videos (`remotion/Root.tsx` in the example) could look like this:
 
 ```tsx twoslash
 // @allowUmdGlobalAccess
@@ -77,8 +77,8 @@ Your list of videos (`remotion/Video.tsx` in the example) could look like this:
 export const MyComp = () => <></>;
 
 // @filename: index.tsx
-// ---cut---
 import React from "react";
+// ---cut---
 import { Composition } from "remotion";
 import { MyComp } from "./MyComp";
 
@@ -99,10 +99,10 @@ export const MyVideo = () => {
 };
 ```
 
-Your index file (`remotion/index.tsx` in the example) could look like this:
+Your index file (`remotion/index.ts` in the example) could look like this:
 
 ```tsx twoslash
-// @filename: ./Video.tsx
+// @filename: ./Root.tsx
 export const MyVideo: React.FC<{ text: string }> = () => <></>;
 
 // ---cut---
@@ -121,14 +121,14 @@ Don't move these statements together into one file, as you might break hot reloa
 You can open the Remotion Preview using the `npx remotion preview command`:
 
 ```bash
-npx remotion preview src/remotion/index.tsx
+npx remotion preview src/remotion/index.ts
 ```
 
 We recommend adding a new script into your package.json for easy access:
 
 ```diff
   "scripts": {
-+    "video": "remotion preview src/remotion/index.tsx"
++    "video": "remotion preview src/remotion/index.ts"
   }
 ```
 
@@ -183,7 +183,7 @@ import path from "path";
 import { bundle } from "@remotion/bundler";
 
 const bundled = await bundle(
-  path.join(process.cwd(), "src", "remotion", "index.tsx")
+  path.join(process.cwd(), "src", "remotion", "index.ts")
 );
 ```
 

@@ -10,11 +10,11 @@ In some scenarios, you might find it useful to render all compositions.
 You can combine the [`npx remotion compositions`](/docs/cli/compositions) command with a bash loop:
 
 ```sh title="render-all.sh"
-compositions=($(npx remotion compositions src/index.tsx -q))
+compositions=($(npx remotion compositions src/index.ts -q))
 
 for composition in "${compositions[@]}"
 do
-  npx remotion render src/index.tsx $composition $composition.mp4
+  npx remotion render src/index.ts $composition $composition.mp4
 done
 ```
 
@@ -38,7 +38,7 @@ import { getCompositions, renderMedia } from "@remotion/renderer";
 
 const start = async () => {
   const bundled = await bundle({
-    entryPoint: require.resolve("./src/index.tsx"),
+    entryPoint: require.resolve("./src/index.ts"),
     // If you have a Webpack override, make sure to add it here
     webpackOverride: (config) => config,
   });

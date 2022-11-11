@@ -12,18 +12,18 @@ title: registerRoot()
 ## Example
 
 ```tsx twoslash title="src/index.ts"
-// @filename: ./Video.tsx
-export const RemotionVideo = () => <></>;
+// @filename: ./Root.tsx
+export const RemotionRoot = () => <></>;
 
-// @filename: index.tsx
+// @filename: index.ts
 // ---cut---
 import { registerRoot } from "remotion";
-import { RemotionVideo } from "./Video";
+import { RemotionRoot } from "./Root";
 
-registerRoot(RemotionVideo);
+registerRoot(RemotionRoot);
 ```
 
-```tsx twoslash title="src/Video.tsx"
+```tsx twoslash title="src/Root.tsx"
 // @allowUmdGlobalAccess
 // @filename: MyComponent.tsx
 export default () => <></>;
@@ -32,18 +32,12 @@ export default () => <></>;
 export default () => <></>;
 
 // @filename: index.tsx
-const Composition: React.FC<{
-  id: string;
-  fps: number;
-  height: number;
-  width: number;
-  component: () => JSX.Element;
-}> = () => <></>;
+import { Composition } from "remotion";
 // ---cut---
 import MyComponent from "./MyComponent";
 import MyOtherComponent from "./MyOtherComponent";
 
-export const RemotionVideo = () => {
+export const RemotionRoot = () => {
   return (
     <>
       <Composition
@@ -51,6 +45,7 @@ export const RemotionVideo = () => {
         fps={30}
         height={1080}
         width={1920}
+        durationInFrames={90}
         component={MyComponent}
       />
       <Composition
@@ -58,6 +53,7 @@ export const RemotionVideo = () => {
         fps={30}
         height={1080}
         width={1920}
+        durationInFrames={90}
         component={MyOtherComponent}
       />
     </>
@@ -70,20 +66,20 @@ export const RemotionVideo = () => {
 In some cases, such as dynamically importing roots or loading WebAssembly, you might want to defer the loading of registerRoot(). If you are doing that, you need to tell Remotion to wait by using the [`delayRender()` / `continueRender()`](/docs/delay-render) pattern.
 
 ```tsx twoslash
-// @filename: ./Video.tsx
-export const RemotionVideo = () => <></>;
+// @filename: ./Root.tsx
+export const RemotionRoot = () => <></>;
 
-// @filename: index.tsx
+// @filename: index.ts
 const loadWebAssembly = () => Promise.resolve();
 // ---cut---
 
-import { delayRender, continueRender, registerRoot } from "remotion";
-import { RemotionVideo } from "./Video";
+import { continueRender, delayRender, registerRoot } from "remotion";
+import { RemotionRoot } from "./Root";
 
 const wait = delayRender();
 
 loadWebAssembly().then(() => {
-  registerRoot(RemotionVideo);
+  registerRoot(RemotionRoot);
   continueRender(wait);
 });
 ```

@@ -14,7 +14,7 @@ Assuming you have a file:
    ├── lib/
    │   ├── one.ts
    │   ├── two.ts
-   ├── Video.tsx
+   ├── Root.tsx
    └── index.ts
 ```
 
