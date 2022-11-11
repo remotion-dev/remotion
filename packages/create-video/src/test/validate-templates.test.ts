@@ -17,10 +17,7 @@ for (const template of FEATURED_TEMPLATES) {
 		expect(res.statusCode).toBe(200);
 		const body = JSON.parse(res.body);
 
-		if (
-			!template.shortName.includes('Remix') &&
-			!template.shortName.includes('Still')
-		) {
+		if (!template.shortName.includes('Remix')) {
 			expect(body.scripts.build).toMatch(/render/);
 			expect(body.scripts.build).not.toContain('index');
 		}
