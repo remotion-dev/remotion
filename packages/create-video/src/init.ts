@@ -7,8 +7,8 @@ import {openInEditorFlow} from './open-in-editor-flow';
 import {patchPackageJson} from './patch-package-json';
 import {patchReadmeMd} from './patch-readme';
 import {
-	getRenderCommand,
-	getStartCommand,
+	getDevCommand,
+	getRenderCommandForTemplate,
 	selectPackageManager,
 } from './pkg-managers';
 import {resolveProjectRoot} from './resolve-project-root';
@@ -123,10 +123,12 @@ export const init = async () => {
 
 	Log.info('Get started by running');
 	Log.info(chalk.blueBright(`cd ${folderName}`));
-	Log.info(chalk.blueBright(getStartCommand(pkgManager)));
+	Log.info(chalk.blueBright(getDevCommand(pkgManager, selectedTemplate)));
 	Log.info('');
 	Log.info('To render a video, run');
-	Log.info(chalk.blueBright(getRenderCommand(pkgManager)));
+	Log.info(
+		chalk.blueBright(getRenderCommandForTemplate(pkgManager, selectedTemplate))
+	);
 	Log.info('');
 	Log.info(
 		'Docs to get you started:',
