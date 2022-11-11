@@ -1,6 +1,6 @@
 import React from "react";
 
-type Expert = {
+export type Expert = {
   name: string;
   image: string;
   website: string | null;
@@ -9,16 +9,20 @@ type Expert = {
   github: React.ReactNode;
   linkedin: React.ReactNode;
   email: React.ReactNode;
+  slug: string;
+  since: number;
 };
 
 export const experts: Expert[] = [
   {
+    slug: "marcus-stenbeck",
     name: "Marcus Stenbeck",
     image: "/img/freelancers/marcus.jpeg",
     twitter: "marcusstenbeck",
     github: "marcusstenbeck",
     linkedin: "in/mstenbeck/",
     email: "marcus.stenbeck+remotionexpert@gmail.com",
+    since: new Date("2022-08-15").getTime(),
     description: (
       <div>
         <p>
@@ -40,6 +44,7 @@ export const experts: Expert[] = [
     website: null,
   },
   {
+    slug: "florent-pergoud",
     name: "Florent Pergoud",
     image: "/img/freelancers/florent.jpeg",
     website: null,
@@ -47,6 +52,7 @@ export const experts: Expert[] = [
     github: "florentpergoud",
     linkedin: "in/florent-pergoud/",
     email: "florentpergoud@gmail.com",
+    since: new Date("2022-08-15").getTime(),
     description: (
       <div>
         I made:{" "}
@@ -62,6 +68,7 @@ export const experts: Expert[] = [
     ),
   },
   {
+    slug: "stephen-sullivan",
     name: "Stephen Sullivan",
     image: "/img/freelancers/stephen.png",
     website: null,
@@ -69,6 +76,7 @@ export const experts: Expert[] = [
     github: null,
     linkedin: "in/sterv/",
     email: "stephen@middy.com",
+    since: new Date("2022-08-15").getTime(),
     description: (
       <div>
         I made:{" "}
@@ -80,6 +88,7 @@ export const experts: Expert[] = [
     ),
   },
   {
+    slug: "mohit-yadav",
     name: "Mohit Yadav",
     image: "/img/freelancers/mohit.jpeg",
     website: null,
@@ -87,6 +96,7 @@ export const experts: Expert[] = [
     github: "Just-Moh-it",
     linkedin: "in/just-moh-it/",
     email: "yo@mohitya.dev",
+    since: new Date("2022-08-15").getTime(),
     description: (
       <div>
         I made:{" "}
@@ -95,31 +105,14 @@ export const experts: Expert[] = [
         </a>
         ! <br />
         My services: SaaS platform from scratch including SSR, creating
-        individual videos and templates, and creating integrations for remotion
+        individual videos and templates, and creating integrations for Remotion
         with existing infrastructure <br />
         Availability: 4 to 5 hours/day on weekdays, 5 to 6 hours/day on weekends{" "}
       </div>
     ),
   },
   {
-    name: "Karel Nagel",
-    image: "/img/freelancers/karel.jpeg",
-    website: "https://asius.ee/",
-    twitter: "KarelETH",
-    github: "karelnagel",
-    linkedin: "in/karelnagel/",
-    email: "karel@asius.ee",
-    description: (
-      <div>
-        I made:{" "}
-        <a target={"_blank"} href="https://asius.ee/">
-          TikTok automation, ENS video
-        </a>{" "}
-        and many more!
-      </div>
-    ),
-  },
-  {
+    slug: "yehor-misiats",
     name: "Yehor Misiats",
     image: "/img/freelancers/yehor.jpeg",
     website: null,
@@ -127,6 +120,8 @@ export const experts: Expert[] = [
     github: "satelllte",
     linkedin: "in/satelllte/",
     email: "lunaerxs@gmail.com",
+    since: new Date("2022-09-16").getTime(),
+
     description: (
       <div>
         I made:{" "}
@@ -149,12 +144,14 @@ export const experts: Expert[] = [
     ),
   },
   {
+    slug: "benjamin-jameson",
     name: "Benjamin Jameson",
     image: "/img/freelancers/benjamin.jpeg",
     twitter: null,
     github: "BenjaminJameson",
     linkedin: null,
     email: "ben@captok.ai",
+    since: new Date("2022-11-03").getTime(),
     description: (
       <div>
         Creator of{" "}
@@ -166,5 +163,25 @@ export const experts: Expert[] = [
       </div>
     ),
     website: null,
+  },
+  {
+    slug: "karel-nagel",
+    name: "Karel Nagel",
+    image: "/img/freelancers/karel.jpeg",
+    website: "https://asius.ee/",
+    twitter: "KarelETH",
+    github: "karelnagel",
+    linkedin: "in/karelnagel/",
+    since: new Date("2022-08-22").getTime(),
+    email: "karel@asius.ee",
+    description: (
+      <div>
+        I made:{" "}
+        <a target={"_blank"} href="https://asius.ee/">
+          TikTok automation, ENS video
+        </a>{" "}
+        and many more!
+      </div>
+    ),
   },
 ];
