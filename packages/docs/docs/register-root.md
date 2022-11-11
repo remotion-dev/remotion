@@ -32,13 +32,7 @@ export default () => <></>;
 export default () => <></>;
 
 // @filename: index.tsx
-const Composition: React.FC<{
-  id: string;
-  fps: number;
-  height: number;
-  width: number;
-  component: () => JSX.Element;
-}> = () => <></>;
+import { Composition } from "remotion";
 // ---cut---
 import MyComponent from "./MyComponent";
 import MyOtherComponent from "./MyOtherComponent";
