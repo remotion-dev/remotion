@@ -45,7 +45,7 @@ const MyComp: React.FC<{
   return null;
 };
 
-// src/Video.tsx
+// src/Root.tsx
 const RemotionRoot = () => {
   const [audioData, setAudioData] = useState<AudioData | null>(null);
   const [handle] = useState(() => delayRender());
@@ -103,7 +103,7 @@ const MyComp: React.FC<{ src: string }> = ({ src }) => {
   return null;
 };
 
-// src/Video.tsx
+// src/Root.tsx
 const RemotionRoot = () => {
   return (
     <Composition

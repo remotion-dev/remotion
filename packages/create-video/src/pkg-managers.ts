@@ -1,4 +1,5 @@
 import path from 'path';
+import type {Template} from './templates';
 
 export type PackageManager = 'npm' | 'yarn' | 'pnpm';
 
@@ -50,6 +51,25 @@ export const getInstallCommand = (manager: PackageManager) => {
 	if (manager === 'pnpm') {
 		return `pnpm i`;
 	}
+};
+
+export const getDevCommand = (manager: PackageManager, template: Template) => {
+	if (template.cliId === 'remix') {
+		return `${getRunCommand(manager)} dev`;
+	}
+
+	return getStartCommand(manager);
+};
+
+export const getRenderCommandForTemplate = (
+	manager: PackageManager,
+	template: Template
+) => {
+	if (template.cliId === 'remix') {
+		return `${getRunCommand(manager)} remotion:render`;
+	}
+
+	return getRenderCommand(manager);
 };
 
 export const getStartCommand = (manager: PackageManager) => {

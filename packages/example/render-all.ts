@@ -4,7 +4,7 @@ import {webpackOverride} from './src/webpack-override';
 
 const start = async () => {
 	const bundled = await bundle({
-		entryPoint: require.resolve('./src/index.tsx'),
+		entryPoint: require.resolve('./src/index.ts'),
 		webpackOverride,
 	});
 

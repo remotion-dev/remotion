@@ -334,7 +334,7 @@ import { enableGlsl } from "./src/enable-glsl";
 Config.Bundling.overrideWebpackConfig(enableGlsl);
 ```
 
-3. Add the following to your entry file (e.g. `src/index.tsx`):
+3. Add the following to your [entry point](/docs/terminology#entry-point) (e.g. `src/index.ts`):
 
 ```ts
 declare module "*.glsl" {
