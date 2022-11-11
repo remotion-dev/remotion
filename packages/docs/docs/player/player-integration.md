@@ -77,6 +77,7 @@ Your list of videos (`remotion/Root.tsx` in the example) could look like this:
 export const MyComp = () => <></>;
 
 // @filename: index.tsx
+import React from "react";
 // ---cut---
 import { Composition } from "remotion";
 import { MyComp } from "./MyComp";
