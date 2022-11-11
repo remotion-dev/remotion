@@ -24,6 +24,7 @@ export type Template = {
 	homePageLabel: string;
 	longerDescription: string;
 	cliId: string;
+	defaultBranch: string;
 } & DynamicTemplate;
 
 export const FEATURED_TEMPLATES: Template[] = [
@@ -42,6 +43,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		},
 		cliId: 'hello-world',
 		type: 'video',
+		defaultBranch: 'main',
 	},
 	{
 		homePageLabel: 'JavaScript',
@@ -58,6 +60,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		},
 		cliId: 'javascript',
 		type: 'video',
+		defaultBranch: 'main',
 	},
 	{
 		homePageLabel: 'Blank',
@@ -74,6 +77,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		},
 		cliId: 'blank',
 		type: 'video',
+		defaultBranch: 'main',
 	},
 	{
 		homePageLabel: 'Remix',
@@ -90,6 +94,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		},
 		cliId: 'remix',
 		type: 'image',
+		defaultBranch: 'main',
 	},
 	{
 		homePageLabel: '3D',
@@ -106,6 +111,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		},
 		cliId: 'three',
 		type: 'video',
+		defaultBranch: 'main',
 	},
 	{
 		homePageLabel: 'Stills',
@@ -122,6 +128,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		},
 		cliId: 'still',
 		type: 'video',
+		defaultBranch: 'main',
 	},
 	{
 		homePageLabel: 'TTS',
@@ -138,6 +145,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		},
 		cliId: 'tts',
 		type: 'video',
+		defaultBranch: 'master',
 	},
 	{
 		homePageLabel: 'Audiogram',
@@ -154,6 +162,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		},
 		cliId: 'audiogram',
 		type: 'video',
+		defaultBranch: 'main',
 	},
 	{
 		homePageLabel: 'Skia',
@@ -169,6 +178,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		},
 		cliId: 'skia',
 		type: 'video',
+		defaultBranch: 'main',
 	},
 	{
 		homePageLabel: 'Tailwind',
@@ -185,5 +195,6 @@ export const FEATURED_TEMPLATES: Template[] = [
 		},
 		cliId: 'tailwind',
 		type: 'video',
+		defaultBranch: 'main',
 	},
 ];
