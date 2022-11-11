@@ -67,7 +67,7 @@ import React from "react";
 import { Composition } from "remotion";
 import { MyComposition } from "./Composition";
 
-export const RemotionVideo: React.FC = () => {
+export const RemotionRoot: React.FC = () => {
   return (
     <>
       <Composition
@@ -93,7 +93,7 @@ import React from "react";
 import { Composition } from "remotion";
 import { MyComposition } from "./Composition";
 
-export const RemotionVideo: React.FC = () => {
+export const RemotionRoot: React.FC = () => {
   return (
     <>
       <Composition
@@ -110,9 +110,9 @@ export const RemotionVideo: React.FC = () => {
 // @filename: index.ts
 // ---cut---
 import { registerRoot } from "remotion";
-import { RemotionVideo } from "./Video";
+import { RemotionRoot } from "./Video";
 
-registerRoot(RemotionVideo);
+registerRoot(RemotionRoot);
 ```
 
 The file that calls [`registerRoot()`](/docs/register-root) is now your Remotion **entrypoint**.

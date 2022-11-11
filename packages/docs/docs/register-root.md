@@ -43,7 +43,7 @@ const Composition: React.FC<{
 import MyComponent from "./MyComponent";
 import MyOtherComponent from "./MyOtherComponent";
 
-export const RemotionVideo = () => {
+export const RemotionRoot = () => {
   return (
     <>
       <Composition
@@ -71,19 +71,19 @@ In some cases, such as dynamically importing roots or loading WebAssembly, you m
 
 ```tsx twoslash
 // @filename: ./Video.tsx
-export const RemotionVideo = () => <></>;
+export const RemotionRoot = () => <></>;
 
 // @filename: index.tsx
 const loadWebAssembly = () => Promise.resolve();
 // ---cut---
 
 import { continueRender, delayRender, registerRoot } from "remotion";
-import { RemotionVideo } from "./Video";
+import { RemotionRoot } from "./Video";
 
 const wait = delayRender();
 
 loadWebAssembly().then(() => {
-  registerRoot(RemotionVideo);
+  registerRoot(RemotionRoot);
   continueRender(wait);
 });
 ```

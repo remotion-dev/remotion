@@ -79,7 +79,7 @@ import { Composition } from "remotion";
 // @include: example-MyComposition
 // ---cut---
 
-export const RemotionVideo: React.FC = () => {
+export const RemotionRoot: React.FC = () => {
   return (
     <>
       <Composition
