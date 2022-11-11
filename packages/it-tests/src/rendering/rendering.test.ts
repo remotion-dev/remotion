@@ -328,7 +328,7 @@ test("Dynamic duration should work, and render from inside src/", async () => {
     ),
     [
       "render",
-      "index.tsx",
+      "index.ts",
       "dynamic-duration",
       `--props`,
       `{"duration": ${randomDuration}}`,

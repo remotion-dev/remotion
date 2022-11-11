@@ -73,7 +73,7 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 Next, you need to refactor the [entry point](/docs/terminology#entry-point) file to first load the Skia WebAssembly binary before calling registerRoot():
 
 ```ts twoslash title="src/index.ts"
-// @filename: ./Video.tsx
+// @filename: ./Root.tsx
 export const RemotionRoot = () => <></>;
 
 // @filename: index.tsx
@@ -83,7 +83,7 @@ import { registerRoot } from "remotion";
 
 (async () => {
   await LoadSkia();
-  const { RemotionRoot } = await import("./Video");
+  const { RemotionRoot } = await import("./Root");
   registerRoot(RemotionRoot);
 })();
 ```
