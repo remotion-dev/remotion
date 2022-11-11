@@ -47,7 +47,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 	},
 	{
 		homePageLabel: 'JavaScript',
-		shortName: 'Hello World (Javascript)',
+		shortName: 'Hello World (JavaScript)',
 		org: 'remotion-dev',
 		repoName: 'template-helloworld-javascript',
 		description: 'The default starter template in plain JS',
