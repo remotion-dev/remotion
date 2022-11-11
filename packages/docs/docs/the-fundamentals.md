@@ -72,9 +72,9 @@ A video's first frame is `0` and it's last frame is `durationInFrames - 1`.
 
 Using a [composition](/docs/terminology#composition) you can define a video that should be rendered.
 
-You define a composition by rendering a [`<Composition>`](/docs/composition) component in `src/Video.tsx`, giving it an `id`, defining values for its `height`, `width`, `fps` and `durationInFrames`, and passing a React component to `component`.
+You define a composition by rendering a [`<Composition>`](/docs/composition) component in `src/Root.tsx`, giving it an `id`, defining values for its `height`, `width`, `fps` and `durationInFrames`, and passing a React component to `component`.
 
-```tsx twoslash title="src/Video.tsx"
+```tsx twoslash title="src/Root.tsx"
 import { Composition } from "remotion";
 // @include: example-MyComposition
 // ---cut---
@@ -95,4 +95,4 @@ export const RemotionVideo: React.FC = () => {
 };
 ```
 
-You can render as many compositions as you like in `src/Video.tsx`.
+You can render as many compositions as you like in `src/Root.tsx`.
