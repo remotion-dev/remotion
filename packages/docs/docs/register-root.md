@@ -12,18 +12,18 @@ title: registerRoot()
 ## Example
 
 ```tsx twoslash title="src/index.ts"
-// @filename: ./Video.tsx
-export const RemotionVideo = () => <></>;
+// @filename: ./Root.tsx
+export const RemotionRoot = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
 import { registerRoot } from "remotion";
-import { RemotionVideo } from "./Video";
+import { RemotionRoot } from "./Root";
 
-registerRoot(RemotionVideo);
+registerRoot(RemotionRoot);
 ```
 
-```tsx twoslash title="src/Video.tsx"
+```tsx twoslash title="src/Root.tsx"
 // @allowUmdGlobalAccess
 // @filename: MyComponent.tsx
 export default () => <></>;
@@ -77,7 +77,7 @@ export const RemotionVideo = () => <></>;
 const loadWebAssembly = () => Promise.resolve();
 // ---cut---
 
-import { delayRender, continueRender, registerRoot } from "remotion";
+import { continueRender, delayRender, registerRoot } from "remotion";
 import { RemotionVideo } from "./Video";
 
 const wait = delayRender();

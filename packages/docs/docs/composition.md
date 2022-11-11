@@ -7,7 +7,7 @@ This is the component to use to register a video to make it renderable and make 
 
 A composition represents the video you want to create, as a collection of clips (for example, several `<Sequence>`) that will play back to back to form your video.
 
-```tsx twoslash title="src/Video.tsx"
+```tsx twoslash title="src/Root.tsx"
 const Component: React.FC = () => null;
 // ---cut---
 
