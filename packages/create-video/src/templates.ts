@@ -23,7 +23,17 @@ export type Template = {
 	repoName: string;
 	homePageLabel: string;
 	longerDescription: string;
-	cliId: string;
+	cliId:
+		| 'hello-world'
+		| 'javascript'
+		| 'blank'
+		| 'remix'
+		| 'three'
+		| 'still'
+		| 'tts'
+		| 'audiogram'
+		| 'skia'
+		| 'tailwind';
 	defaultBranch: string;
 } & DynamicTemplate;
 
