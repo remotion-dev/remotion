@@ -12,7 +12,7 @@ npm run build
 The underlying command in package.json is defined as follows:
 
 ```bash
-npx remotion render src/index.tsx HelloWorld out/video.mp4
+npx remotion render src/index.ts HelloWorld out/video.mp4
 ```
 
 Modify it to select a different video to render, or change its output location.

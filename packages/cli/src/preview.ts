@@ -43,7 +43,7 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 		Log.error(
 			'The preview command requires you to specify a root file. For example'
 		);
-		Log.error('  npx remotion preview src/index.tsx');
+		Log.error('  npx remotion preview src/index.ts');
 		Log.error(
 			'See https://www.remotion.dev/docs/register-root for more information.'
 		);

@@ -70,9 +70,9 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 });
 ```
 
-Next, you need to refactor entrypoint file (most commonly `src/index.tsx`) to first load the Skia WebAssembly binary before calling registerRoot():
+Next, you need to refactor entrypoint file (most commonly `src/index.ts`) to first load the Skia WebAssembly binary before calling registerRoot():
 
-```ts twoslash title="src/index.tsx"
+```ts twoslash title="src/index.ts"
 // @filename: ./Video.tsx
 export const RemotionVideo = () => <></>;
 
@@ -132,7 +132,7 @@ pnpm create video -- --skia
 By default Remotion rendering are done on the CPU. Some Skia effects rely on advanced GPU features, which may be slow to run on the CPU depending on the kind of effect you are using. If your Skia export is extremely slow, we found that enabling the GPU via the `--gl=angle` option improves things substantially. Please check out the documentation on [GPU rendering](/docs/gpu).
 
 ```sh
-remotion render src/index.tsx Main out/video.mp4 --gl=angle
+remotion render src/index.ts Main out/video.mp4 --gl=angle
 ```
 
 ## Resources

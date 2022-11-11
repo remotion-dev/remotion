@@ -36,7 +36,6 @@ export const MyComponent: React.FC<{ propOne: string; propTwo: number }> = () =>
   null;
 
 // @filename: Root.tsx
-import React from "react";
 // ---cut---
 import { Composition } from "remotion";
 import { MyComponent } from "./MyComponent";
@@ -74,13 +73,13 @@ When rendering (for example using the `npm run build` script defined in `package
 **Using inline JSON**
 
 ```bash
-npx remotion render src/index.tsx HelloWorld out/helloworld.mp4 --props='{"propOne": "Hi", "propTwo": 10}'
+npx remotion render src/index.ts HelloWorld out/helloworld.mp4 --props='{"propOne": "Hi", "propTwo": 10}'
 ```
 
 **Using a file path:**
 
 ```bash
-npx remotion render src/index.tsx HelloWorld out/helloworld.mp4 --props=./path/to/props.json
+npx remotion render src/index.ts HelloWorld out/helloworld.mp4 --props=./path/to/props.json
 ```
 
 [See also: CLI flags](/docs/cli)

@@ -15,7 +15,7 @@ test(
 	'Can render a still using Node.JS APIs',
 	async () => {
 		const bundled = await bundle({
-			entryPoint: path.join(process.cwd(), 'src/index.tsx'),
+			entryPoint: path.join(process.cwd(), 'src/index.ts'),
 			webpackOverride,
 		});
 
@@ -63,7 +63,7 @@ test(
 		expect(() =>
 			renderStill({
 				composition,
-				output: 'src/index.tsx',
+				output: 'src/index.ts',
 				serveUrl,
 				overwrite: false,
 			})
