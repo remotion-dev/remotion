@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useCallback, useContext} from 'react';
 import type {TCompMetadata} from 'remotion';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import {ModalsContext} from '../../state/modals';
@@ -8,13 +8,6 @@ import {NewCompHeader} from '../ModalHeader';
 export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 	composition,
 }) => {
-	const panelContent: React.CSSProperties = useMemo(() => {
-		return {
-			flexDirection: 'row',
-			display: 'flex',
-		};
-	}, []);
-
 	const {setSelectedModal} = useContext(ModalsContext);
 
 	const onQuit = useCallback(() => {
