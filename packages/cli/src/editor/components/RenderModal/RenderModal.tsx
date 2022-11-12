@@ -41,9 +41,6 @@ type Action =
 	  }
 	| {
 			type: 'fail';
-	  }
-	| {
-			type: 'reset';
 	  };
 
 const reducer = (state: State, action: Action): State => {
@@ -56,12 +53,6 @@ const reducer = (state: State, action: Action): State => {
 	if (action.type === 'fail') {
 		return {
 			type: 'error',
-		};
-	}
-
-	if (action.type === 'reset') {
-		return {
-			type: 'idle',
 		};
 	}
 
@@ -129,11 +120,6 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 			})
 			.catch(() => {
 				dispatchIfMounted({type: 'fail'});
-			})
-			.finally(() => {
-				setTimeout(() => {
-					dispatchIfMounted({type: 'reset'});
-				}, 2000);
 			});
 	}, [composition.id, dispatchIfMounted, outName, setSelectedModal]);
 

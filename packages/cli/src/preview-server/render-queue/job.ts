@@ -11,3 +11,8 @@ export type AddRenderRequest = {
 	type: 'still' | 'composition';
 	outName: string;
 };
+
+export type OpenInFileExplorerRequest = {
+	// TODO: Don't allow paths outside Remotion directory
+	directory: string;
+};
