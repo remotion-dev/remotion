@@ -114,7 +114,7 @@ export default () => {
   }
 
   const expert = experts.find((e) => e.slug === expertSlug[1]);
-  const imgSrc = useBaseUrl("/generated/experts-" + expert + ".png");
+  const imgSrc = useBaseUrl("/generated/experts-" + expert.slug + ".png");
 
   if (!expert) {
     throw new Error("no expert found");
