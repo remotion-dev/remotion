@@ -52,12 +52,11 @@ export const RenderButton: React.FC<{
 	}, []);
 
 	const onClick = useCallback(() => {
-		console.log('tab index');
 		setSelectedModal({
 			type: 'render',
-			compId: composition.id,
+			composition,
 		});
-	}, [composition.id, setSelectedModal]);
+	}, [composition, setSelectedModal]);
 
 	return (
 		<button

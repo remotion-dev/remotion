@@ -1,5 +1,6 @@
 import type React from 'react';
 import {createContext} from 'react';
+import type {TCompMetadata} from 'remotion';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {UpdateInfo} from '../components/UpdateCheck';
 
@@ -12,7 +13,7 @@ export type ModalState =
 	  }
 	| {
 			type: 'render';
-			compId: string;
+			composition: TCompMetadata;
 	  }
 	| {
 			type: 'update';
