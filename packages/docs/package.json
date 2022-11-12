@@ -13,7 +13,8 @@
     "serve": "docusaurus serve",
     "clear": "docusaurus clear",
     "lint": "eslint src && eslint components",
-    "test": "vitest --run"
+    "test": "vitest --run",
+    "remotion": "remotion preview src/remotion/entry.ts"
   },
   "dependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.15.4",
@@ -26,6 +27,7 @@
     "@mdx-js/react": "^1.6.21",
     "@remotion/babel-loader": "3.2.44",
     "@remotion/bundler": "3.2.44",
+    "@remotion/cli": "3.2.44",
     "@remotion/gif": "3.2.44",
     "@remotion/google-fonts": "3.2.44",
     "@remotion/lambda": "3.2.44",
