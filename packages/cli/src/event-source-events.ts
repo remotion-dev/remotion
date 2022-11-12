@@ -1,3 +1,5 @@
+import type {RenderJob} from './preview-server/render-queue/job';
+
 export type EventSourceEvent =
 	| {
 			type: 'new-input-props';
@@ -9,4 +11,8 @@ export type EventSourceEvent =
 	| {
 			type: 'new-env-variables';
 			newEnvVariables: Record<string, string>;
+	  }
+	| {
+			type: 'render-queue-updated';
+			queue: RenderJob[];
 	  };
