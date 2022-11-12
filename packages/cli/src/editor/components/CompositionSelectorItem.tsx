@@ -169,7 +169,7 @@ export const CompositionSelectorItem: React.FC<{
 			{isCompositionStill(item.composition) ? (
 				<>
 					<Spacing x={0.5} />
-					<RenderButton />
+					<RenderButton composition={item.composition} />
 				</>
 			) : null}
 		</Row>

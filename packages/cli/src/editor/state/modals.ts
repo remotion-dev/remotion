@@ -11,6 +11,10 @@ export type ModalState =
 			compType: CompType;
 	  }
 	| {
+			type: 'render';
+			compId: string;
+	  }
+	| {
 			type: 'update';
 			info: UpdateInfo;
 	  }

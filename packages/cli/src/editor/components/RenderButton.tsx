@@ -1,6 +1,9 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import type {SVGProps} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
+import type {TCompMetadata} from 'remotion';
 import {CLEAR_HOVER, LIGHT_TEXT} from '../helpers/colors';
 import {RenderIcon} from '../icons/render';
+import {ModalsContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 
 export const COMPOSITION_ITEM_HEIGHT = 32;
@@ -16,8 +19,12 @@ const itemStyle: React.CSSProperties = {
 	height: COMPOSITION_ITEM_HEIGHT,
 };
 
-export const RenderButton: React.FC = () => {
+export const RenderButton: React.FC<{
+	composition: TCompMetadata;
+}> = ({composition}) => {
 	const [hovered, setHovered] = useState(false);
+	const {setSelectedModal} = useContext(ModalsContext);
+
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
 	}, []);
@@ -36,16 +43,21 @@ export const RenderButton: React.FC = () => {
 		};
 	}, [hovered]);
 
-	const iconStyle: React.CSSProperties = useMemo(() => {
+	const iconStyle: SVGProps<SVGSVGElement> = useMemo(() => {
 		return {
-			height: 14,
-			color: hovered ? 'white' : LIGHT_TEXT,
+			style: {
+				height: 14,
+			},
 		};
-	}, [hovered]);
+	}, []);
 
 	const onClick = useCallback(() => {
 		console.log('tab index');
-	}, []);
+		setSelectedModal({
+			type: 'render',
+			compId: composition.id,
+		});
+	}, [composition.id, setSelectedModal]);
 
 	return (
 		<button
@@ -56,10 +68,7 @@ export const RenderButton: React.FC = () => {
 			onPointerLeave={onPointerLeave}
 			type="button"
 		>
-			<RenderIcon
-				svgProps={{style: iconStyle}}
-				color={hovered ? 'white' : LIGHT_TEXT}
-			/>
+			<RenderIcon svgProps={iconStyle} color={hovered ? 'white' : LIGHT_TEXT} />
 		</button>
 	);
 };
