@@ -16,6 +16,7 @@ import {parseRequestBody} from './parse-body';
 import {getProjectInfo} from './project-info';
 import {jobQueue} from './render-queue';
 import {handleAddRender} from './render-queue/add-render';
+import {handleOpenInFileExplorer} from './render-queue/open-in-file-explorer';
 import {serveStatic} from './serve-static';
 import {isUpdateAvailableWithTimeout} from './update-available';
 
@@ -219,6 +220,10 @@ export const handleRoutes = ({
 
 	if (url.pathname === '/api/open-in-editor') {
 		return handleOpenInEditor(remotionRoot, request, response);
+	}
+
+	if (url.pathname === '/api/open-in-file-explorer') {
+		return handleOpenInFileExplorer(remotionRoot, request, response);
 	}
 
 	if (url.pathname === '/api/render') {
