@@ -1,4 +1,5 @@
 import {serverDisconnectedRef} from './editor/components/Notifications/ServerDisconnected';
+import {renderJobsRef} from './editor/components/RenderQueue/context';
 import type {EventSourceEvent} from './event-source-events';
 
 let source: EventSource | null = null;
@@ -13,6 +14,10 @@ export const openEventSource = () => {
 			newEvent.type === 'new-env-variables'
 		) {
 			window.location.reload();
+		}
+
+		if (newEvent.type === 'render-queue-updated') {
+			renderJobsRef.current?.updateRenderJobs(newEvent.queue);
 		}
 	});
 

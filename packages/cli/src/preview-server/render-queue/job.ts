@@ -4,3 +4,8 @@ export type RenderJob = {
 	type: 'still' | 'composition';
 	id: string;
 };
+
+export type AddRenderRequest = {
+	compositionId: string;
+	type: 'still' | 'composition';
+};

@@ -8,6 +8,7 @@ export const indexHtml = ({
 	staticHash,
 	remotionRoot,
 	previewServerCommand,
+	renderQueue,
 }: {
 	staticHash: string;
 	baseDir: string;
@@ -16,6 +17,7 @@ export const indexHtml = ({
 	envVariables?: Record<string, string>;
 	remotionRoot: string;
 	previewServerCommand: string | null;
+	renderQueue: unknown | null;
 }) =>
 	`
 <!DOCTYPE html>
@@ -47,6 +49,14 @@ export const indexHtml = ({
 			inputProps
 				? `<script>window.remotion_inputProps = ${JSON.stringify(
 						JSON.stringify(inputProps)
+				  )};</script>
+			`
+				: ''
+		}
+		${
+			renderQueue
+				? `<script>window.remotion_initialRenderQueue = ${JSON.stringify(
+						renderQueue
 				  )};</script>
 			`
 				: ''

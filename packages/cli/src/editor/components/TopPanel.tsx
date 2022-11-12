@@ -3,10 +3,10 @@ import {useCompactUI} from '../helpers/use-compact-ui';
 import {SidebarContext} from '../state/sidebar';
 import {Canvas} from './Canvas';
 import {CollapsedCompositionSelector} from './CollapsedCompositionSelector';
-import {CompositionSelector} from './CompositionSelector';
 import {InitialCompositionLoader} from './InitialCompositionLoader';
 import {MenuToolbar} from './MenuToolbar';
 import {PreviewToolbar} from './PreviewToolbar';
+import {SidebarContent} from './SidebarContent';
 import {SplitterContainer} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';
 import {SplitterHandle} from './Splitter/SplitterHandle';
@@ -78,7 +78,7 @@ export const TopPanel: React.FC = () => {
 					{actualState === 'expanded' ? (
 						<SplitterElement type="flexer">
 							<div style={leftContainer} className="css-reset">
-								<CompositionSelector />
+								<SidebarContent />
 							</div>
 						</SplitterElement>
 					) : null}

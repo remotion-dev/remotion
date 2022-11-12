@@ -8,31 +8,13 @@ import {getInputProps} from './get-input-props';
 import {getNetworkAddress} from './get-network-address';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
-import type {LiveEventsServer} from './preview-server/live-events';
+import {
+	setLiveEventsListener,
+	waitForLiveEventsListener,
+} from './preview-server/live-events';
 import {startServer} from './preview-server/start-server';
 
 const noop = () => undefined;
-type Waiter = (list: LiveEventsServer) => void;
-
-let liveEventsListener: LiveEventsServer | null = null;
-const waiters: Waiter[] = [];
-
-const setLiveEventsListener = (listener: LiveEventsServer) => {
-	liveEventsListener = listener;
-	waiters.forEach((w) => w(listener));
-};
-
-const waitForLiveEventsListener = (): Promise<LiveEventsServer> => {
-	if (liveEventsListener) {
-		return Promise.resolve(liveEventsListener);
-	}
-
-	return new Promise<LiveEventsServer>((resolve) => {
-		waiters.push((list: LiveEventsServer) => {
-			resolve(list);
-		});
-	});
-};
 
 export const previewCommand = async (remotionRoot: string, args: string[]) => {
 	const {file, reason} = findEntryPoint(args, remotionRoot);
