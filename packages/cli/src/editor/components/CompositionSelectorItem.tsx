@@ -12,6 +12,7 @@ import {FilmIcon} from '../icons/film';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {StillIcon} from '../icons/still';
 import {Row, Spacing} from './layout';
+import {COMPOSITION_ITEM_HEIGHT, RenderButton} from './RenderButton';
 
 const itemStyle: React.CSSProperties = {
 	paddingRight: 8,
@@ -28,6 +29,7 @@ const itemStyle: React.CSSProperties = {
 	width: '100%',
 	textAlign: 'left',
 	backgroundColor: BACKGROUND,
+	height: COMPOSITION_ITEM_HEIGHT,
 };
 
 const iconStyle: React.CSSProperties = {
@@ -147,7 +149,7 @@ export const CompositionSelectorItem: React.FC<{
 	}
 
 	return (
-		<Row>
+		<Row align="center">
 			<button
 				style={style}
 				onPointerEnter={onPointerEnter}
@@ -166,9 +168,8 @@ export const CompositionSelectorItem: React.FC<{
 			</button>
 			{isCompositionStill(item.composition) ? (
 				<>
-					<Spacing x={1} />
-					<FilmIcon style={iconStyle} />
-					<Spacing x={1} />
+					<Spacing x={0.5} />
+					<RenderButton />
 				</>
 			) : null}
 		</Row>
