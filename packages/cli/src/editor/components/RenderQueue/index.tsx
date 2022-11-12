@@ -1,5 +1,6 @@
 import React, {useContext} from 'react';
 import {RenderQueueContext} from './context';
+import {RenderQueueItem} from './RenderQueueItem';
 
 export const RenderQueue: React.FC = () => {
 	const {jobs} = useContext(RenderQueueContext);
@@ -7,7 +8,11 @@ export const RenderQueue: React.FC = () => {
 	return (
 		<div>
 			{jobs.map((j) => {
-				return <div key={j.id}>{j.compositionId}</div>;
+				return (
+					<div key={j.id}>
+						<RenderQueueItem job={j} />
+					</div>
+				);
 			})}
 		</div>
 	);

@@ -3,9 +3,11 @@ export type RenderJob = {
 	compositionId: string;
 	type: 'still' | 'composition';
 	id: string;
+	outputLocation: string;
 };
 
 export type AddRenderRequest = {
 	compositionId: string;
 	type: 'still' | 'composition';
+	outName: string;
 };

@@ -261,7 +261,6 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 								</div>
 							</Row>
 							<Spacing y={1} />
-
 							<Row align="center">
 								<div style={leftLabel}>Name</div>
 								<div style={inputArea}>

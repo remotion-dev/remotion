@@ -1,21 +1,10 @@
 import {ConfigInternals} from './config';
+import {getDefaultOutLocation} from './get-default-out-name';
 
 export const getUserPassedOutputLocation = (args: string[]) => {
 	const filename = args[0] ?? ConfigInternals.getOutputLocation();
 
 	return filename;
-};
-
-const getDefaultOutLocation = ({
-	compositionName,
-	defaultExtension,
-}: {
-	compositionName: string;
-	defaultExtension: string;
-}) => {
-	const defaultName = `out/${compositionName}.${defaultExtension}`;
-
-	return defaultName;
 };
 
 export const getOutputLocation = ({
