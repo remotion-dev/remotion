@@ -4,13 +4,17 @@ import React, {
 	useEffect,
 	useReducer,
 	useRef,
+	useState,
 } from 'react';
 import type {TCompMetadata} from 'remotion';
+import {getDefaultOutLocation} from '../../../get-default-out-name';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import type {AddRenderRequest} from '../../../preview-server/render-queue/job';
 import {ModalsContext} from '../../state/modals';
+import {Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
+import {RemotionInput} from '../NewComposition/RemInput';
 
 type State =
 	| {
@@ -70,6 +74,10 @@ const reducer = (state: State, action: Action): State => {
 	return state;
 };
 
+const container: React.CSSProperties = {
+	padding: 20,
+};
+
 export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 	composition,
 }) => {
@@ -83,6 +91,15 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 
 	const [state, dispatch] = useReducer(reducer, initialState);
 
+	// TODO: Allow to change out name
+	const [outName] = useState(() =>
+		getDefaultOutLocation({
+			compositionName: composition.id,
+			// TODO: Set default extension
+			defaultExtension: 'png',
+		})
+	);
+
 	const dispatchIfMounted: typeof dispatch = useCallback((payload) => {
 		if (isMounted.current === false) return;
 		dispatch(payload);
@@ -92,6 +109,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 		const body: AddRenderRequest = {
 			compositionId: composition.id,
 			type: 'still',
+			outName,
 		};
 		fetch(`/api/render`, {
 			method: 'post',
@@ -117,7 +135,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 					dispatchIfMounted({type: 'reset'});
 				}, 2000);
 			});
-	}, [composition.id, dispatchIfMounted, setSelectedModal]);
+	}, [composition.id, dispatchIfMounted, outName, setSelectedModal]);
 
 	useEffect(() => {
 		return () => {
@@ -128,9 +146,15 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title={`Render ${composition.id}`} />
-			<Button onClick={onClick} disabled={state.type === 'load'}>
-				{state.type === 'idle' ? 'Render' : 'Rendering...'}
-			</Button>
+			<div style={container}>
+				<div>
+					<RemotionInput type="text" value={outName} />
+				</div>
+				<Spacing y={0.5} />
+				<Button onClick={onClick} disabled={state.type === 'load'}>
+					{state.type === 'idle' ? 'Render' : 'Rendering...'}
+				</Button>
+			</div>
 		</ModalContainer>
 	);
 };

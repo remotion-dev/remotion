@@ -222,7 +222,7 @@ export const handleRoutes = ({
 	}
 
 	if (url.pathname === '/api/render') {
-		return handleAddRender(request, response);
+		return handleAddRender(remotionRoot, request, response);
 	}
 
 	if (url.pathname === '/remotion.png') {
