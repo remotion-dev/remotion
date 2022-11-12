@@ -12,7 +12,10 @@ import {
 import type {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
 import {getPackageManager} from './get-package-manager';
 import type {LiveEventsServer} from './live-events';
+import {parseRequestBody} from './parse-body';
 import {getProjectInfo} from './project-info';
+import {jobQueue} from './render-queue';
+import {handleAddRender} from './render-queue/add-render';
 import {serveStatic} from './serve-static';
 import {isUpdateAvailableWithTimeout} from './update-available';
 
@@ -65,6 +68,7 @@ const handleFallback = async ({
 			remotionRoot,
 			previewServerCommand:
 				packageManager === 'unknown' ? null : packageManager.startCommand,
+			renderQueue: jobQueue,
 		})
 	);
 };
@@ -124,16 +128,9 @@ const handleOpenInEditor = async (
 	}
 
 	try {
-		const b = await new Promise<string>((_resolve) => {
-			let data = '';
-			req.on('data', (chunk) => {
-				data += chunk;
-			});
-			req.on('end', () => {
-				_resolve(data.toString());
-			});
-		});
-		const body = JSON.parse(b) as {stack: SymbolicatedStackFrame};
+		const body = (await parseRequestBody(req)) as {
+			stack: SymbolicatedStackFrame;
+		};
 		if (!('stack' in body)) {
 			throw new TypeError('Need to pass stack');
 		}
@@ -222,6 +219,10 @@ export const handleRoutes = ({
 
 	if (url.pathname === '/api/open-in-editor') {
 		return handleOpenInEditor(remotionRoot, request, response);
+	}
+
+	if (url.pathname === '/api/render') {
+		return handleAddRender(request, response);
 	}
 
 	if (url.pathname === '/remotion.png') {

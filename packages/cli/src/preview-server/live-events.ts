@@ -57,3 +57,25 @@ export const makeLiveEventsRouter = (): LiveEventsServer => {
 		router,
 	};
 };
+
+type Waiter = (list: LiveEventsServer) => void;
+
+let liveEventsListener: LiveEventsServer | null = null;
+const waiters: Waiter[] = [];
+
+export const waitForLiveEventsListener = (): Promise<LiveEventsServer> => {
+	if (liveEventsListener) {
+		return Promise.resolve(liveEventsListener);
+	}
+
+	return new Promise<LiveEventsServer>((resolve) => {
+		waiters.push((list: LiveEventsServer) => {
+			resolve(list);
+		});
+	});
+};
+
+export const setLiveEventsListener = (listener: LiveEventsServer) => {
+	liveEventsListener = listener;
+	waiters.forEach((w) => w(listener));
+};
