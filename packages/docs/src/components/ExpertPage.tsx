@@ -82,7 +82,8 @@ const socialIconContainer: React.CSSProperties = {
 };
 
 const socialLink: React.CSSProperties = {
-  display: 'inline-block'
+  display: 'block',
+  maxWidth: 'fit-content',
 }
 
 const socialRow: React.CSSProperties = {
