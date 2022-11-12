@@ -7,6 +7,7 @@ import {ColorInterpolation} from './ColorInterpolation';
 import {MyCtx, WrappedInContext} from './Context';
 import CorruptVideo from './CorruptVideo';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
+import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
@@ -532,6 +533,16 @@ export const Index: React.FC = () => {
 					lazyComponent={() => import('./GifTest/fill-modes')}
 					width={1920}
 					height={1080}
+					fps={30}
+					durationInFrames={150}
+				/>
+			</Folder>
+			<Folder name="og-images">
+				<Composition
+					id="expert"
+					component={Expert}
+					width={1200}
+					height={630}
 					fps={30}
 					durationInFrames={150}
 				/>
