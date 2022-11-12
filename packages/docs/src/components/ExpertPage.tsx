@@ -1,12 +1,13 @@
 import Head from "@docusaurus/Head";
 import { useLocation } from "@docusaurus/router";
-import useBaseUrl from "@docusaurus/useBaseUrl";
 import Layout from "@theme/Layout";
 import React from "react";
 import { Button } from "../../components/layout/Button";
 import { DARK_BLUE } from "../../components/layout/colors";
 import { Spacer } from "../../components/layout/Spacer";
 import { experts } from "../data/experts";
+
+import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 
 const layout: React.CSSProperties = {
   maxWidth: 900,
@@ -106,6 +107,7 @@ const cardIcon: React.CSSProperties = {
 
 export default () => {
   const location = useLocation();
+  const context = useDocusaurusContext();
 
   const expertSlug = location.pathname.match(/experts\/([a-zA-Z-]+)/);
 
@@ -114,7 +116,7 @@ export default () => {
   }
 
   const expert = experts.find((e) => e.slug === expertSlug[1]);
-  const imgSrc = useBaseUrl("/generated/experts-" + expert.slug + ".png");
+  const imgSrc = `${context.siteConfig.url}/generated/experts-${expert.slug}.png`;
 
   if (!expert) {
     throw new Error("no expert found");
