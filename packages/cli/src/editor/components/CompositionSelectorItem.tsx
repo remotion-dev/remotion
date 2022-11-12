@@ -11,7 +11,7 @@ import {isCompositionStill} from '../helpers/is-composition-still';
 import {FilmIcon} from '../icons/film';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {StillIcon} from '../icons/still';
-import {Spacing} from './layout';
+import {Row, Spacing} from './layout';
 
 const itemStyle: React.CSSProperties = {
 	paddingRight: 8,
@@ -147,21 +147,30 @@ export const CompositionSelectorItem: React.FC<{
 	}
 
 	return (
-		<button
-			style={style}
-			onPointerEnter={onPointerEnter}
-			onPointerLeave={onPointerLeave}
-			tabIndex={tabIndex}
-			onClick={onClick}
-			type="button"
-		>
+		<Row>
+			<button
+				style={style}
+				onPointerEnter={onPointerEnter}
+				onPointerLeave={onPointerLeave}
+				tabIndex={tabIndex}
+				onClick={onClick}
+				type="button"
+			>
+				{isCompositionStill(item.composition) ? (
+					<StillIcon style={iconStyle} />
+				) : (
+					<FilmIcon style={iconStyle} />
+				)}
+				<Spacing x={1} />
+				{item.composition.id}
+			</button>
 			{isCompositionStill(item.composition) ? (
-				<StillIcon style={iconStyle} />
-			) : (
-				<FilmIcon style={iconStyle} />
-			)}
-			<Spacing x={1} />
-			{item.composition.id}
-		</button>
+				<>
+					<Spacing x={1} />
+					<FilmIcon style={iconStyle} />
+					<Spacing x={1} />
+				</>
+			) : null}
+		</Row>
 	);
 };
