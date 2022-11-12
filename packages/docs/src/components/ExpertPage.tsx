@@ -1,5 +1,6 @@
 import Head from "@docusaurus/Head";
 import { useLocation } from "@docusaurus/router";
+import useBaseUrl from "@docusaurus/useBaseUrl";
 import Layout from "@theme/Layout";
 import React from "react";
 import { Button } from "../../components/layout/Button";
@@ -113,6 +114,7 @@ export default () => {
   }
 
   const expert = experts.find((e) => e.slug === expertSlug[1]);
+  const imgSrc = useBaseUrl("/generated/experts-" + expert + ".png");
 
   if (!expert) {
     throw new Error("no expert found");
@@ -126,6 +128,7 @@ export default () => {
           name="description"
           content={`Hire ${expert.name} and other Remotion experts, vetted by Remotion.`}
         />
+        <meta property="og:image" content={imgSrc} />
       </Head>
       <div style={header}>
         <div style={layout}>

@@ -16,7 +16,7 @@ export const RemotionRoot: React.FC = () => {
             }}
             height={630}
             width={1200}
-            id={`${e.slug}`}
+            id={`experts-${e.slug}`}
           />
         );
       })}
