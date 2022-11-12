@@ -7,6 +7,8 @@ import { DARK_BLUE } from "../../components/layout/colors";
 import { Spacer } from "../../components/layout/Spacer";
 import { experts } from "../data/experts";
 
+import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
+
 const layout: React.CSSProperties = {
   maxWidth: 900,
   margin: "auto",
@@ -105,6 +107,7 @@ const cardIcon: React.CSSProperties = {
 
 export default () => {
   const location = useLocation();
+  const context = useDocusaurusContext();
 
   const expertSlug = location.pathname.match(/experts\/([a-zA-Z-]+)/);
 
@@ -113,6 +116,7 @@ export default () => {
   }
 
   const expert = experts.find((e) => e.slug === expertSlug[1]);
+  const imgSrc = `${context.siteConfig.url}/generated/experts-${expert.slug}.png`;
 
   if (!expert) {
     throw new Error("no expert found");
@@ -126,6 +130,7 @@ export default () => {
           name="description"
           content={`Hire ${expert.name} and other Remotion experts, vetted by Remotion.`}
         />
+        <meta property="og:image" content={imgSrc} />
       </Head>
       <div style={header}>
         <div style={layout}>

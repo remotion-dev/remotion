@@ -267,6 +267,7 @@ importers:
       '@mdx-js/react': ^1.6.21
       '@remotion/babel-loader': 3.2.44
       '@remotion/bundler': 3.2.44
+      '@remotion/cli': 3.2.44
       '@remotion/gif': 3.2.44
       '@remotion/google-fonts': 3.2.44
       '@remotion/lambda': 3.2.44
@@ -318,6 +319,7 @@ importers:
       '@mdx-js/react': 1.6.22_react@18.0.0
       '@remotion/babel-loader': link:../babel-loader
       '@remotion/bundler': link:../bundler
+      '@remotion/cli': link:../cli
       '@remotion/gif': link:../gif
       '@remotion/google-fonts': link:../google-fonts
       '@remotion/lambda': link:../lambda
