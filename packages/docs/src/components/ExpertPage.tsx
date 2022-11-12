@@ -81,11 +81,14 @@ const socialIconContainer: React.CSSProperties = {
   alignItems: "center",
 };
 
+const socialLink: React.CSSProperties = {
+  display: 'inline-block'
+}
+
 const socialRow: React.CSSProperties = {
   flexDirection: "row",
   display: "flex",
   alignItems: "center",
-  marginTop: 10,
   marginBottom: 10,
 };
 
@@ -173,7 +176,7 @@ export default () => {
         <h3>About me</h3>
         <p style={description}>{expert.description}</p>
         <h3>Socials</h3>
-        <a href={`mailto:${expert.email}`} target={"_blank"}>
+        <a style={socialLink} href={`mailto:${expert.email}`} target={"_blank"}>
           <div style={socialRow}>
             <div style={socialIconContainer}>
               <svg
@@ -191,7 +194,7 @@ export default () => {
           </div>
         </a>
         {expert.github ? (
-          <a href={`https://github.com/${expert.github}`} target={"_blank"}>
+          <a style={socialLink} href={`https://github.com/${expert.github}`} target={"_blank"}>
             <div style={socialRow}>
               <div style={socialIconContainer}>
                 <svg
@@ -210,7 +213,7 @@ export default () => {
           </a>
         ) : null}
         {expert.twitter ? (
-          <a href={`https://twitter.com/${expert.twitter}`} target={"_blank"}>
+          <a style={socialLink} href={`https://twitter.com/${expert.twitter}`} target={"_blank"}>
             <div style={socialRow}>
               <div style={socialIconContainer}>
                 <svg
@@ -229,7 +232,7 @@ export default () => {
           </a>
         ) : null}
         {expert.linkedin ? (
-          <a href={`https://linkedin.com/${expert.linkedin}`} target={"_blank"}>
+          <a style={socialLink} href={`https://linkedin.com/${expert.linkedin}`} target={"_blank"}>
             <div style={socialRow}>
               <div style={socialIconContainer}>
                 <svg
