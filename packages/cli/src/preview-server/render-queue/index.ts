@@ -62,6 +62,14 @@ export const processJob = async (job: RenderJob, entryPoint: string) => {
 export const addJob = (job: RenderJob, entryPoint: string) => {
 	jobQueue.push(job);
 	processJobIfPossible(entryPoint);
+
+	notifyClientsOfJobUpdate();
+};
+
+export const removeJob = (jobId: string) => {
+	console.log({jobQueue, jobId});
+	jobQueue = jobQueue.filter((job) => job.id !== jobId);
+	notifyClientsOfJobUpdate();
 };
 
 export const processJobIfPossible = async (entryPoint: string) => {

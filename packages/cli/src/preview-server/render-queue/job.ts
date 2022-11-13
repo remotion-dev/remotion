@@ -27,6 +27,10 @@ export type AddRenderRequest = {
 	outName: string;
 };
 
+export type RemoveRenderRequest = {
+	jobId: string;
+};
+
 export type OpenInFileExplorerRequest = {
 	// TODO: Don't allow paths outside Remotion directory
 	directory: string;
