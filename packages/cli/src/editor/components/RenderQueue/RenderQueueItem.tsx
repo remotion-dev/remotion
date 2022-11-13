@@ -15,6 +15,10 @@ const title: React.CSSProperties = {
 	lineHeight: 1,
 };
 
+const right: React.CSSProperties = {
+	flex: 1,
+};
+
 export const RenderQueueItem: React.FC<{
 	job: RenderJob;
 }> = ({job}) => {
@@ -22,7 +26,7 @@ export const RenderQueueItem: React.FC<{
 		<Row style={container} align="center">
 			<RenderQueueItemStatus job={job} />
 			<Spacing x={1} />
-			<div>
+			<div style={right}>
 				<div style={title}>{job.compositionId}</div>
 				<RenderQueueOutputName job={job} />
 			</div>
