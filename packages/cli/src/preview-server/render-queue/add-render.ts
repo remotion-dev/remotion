@@ -1,14 +1,14 @@
 import type {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';
-import {jobQueue} from '.';
-import {waitForLiveEventsListener} from '../live-events';
+import {addJob, notifyClientsOfJobUpdate} from '.';
 import {parseRequestBody} from '../parse-body';
 import type {AddRenderRequest} from './job';
 
 export const handleAddRender = async (
 	remotionRoot: string,
 	req: IncomingMessage,
-	res: ServerResponse
+	res: ServerResponse,
+	entryPoint: string
 ) => {
 	if (req.method === 'OPTIONS') {
 		res.statusCode = 200;
@@ -18,20 +18,19 @@ export const handleAddRender = async (
 	try {
 		const body = (await parseRequestBody(req)) as AddRenderRequest;
 
-		jobQueue.push({
-			compositionId: body.compositionId,
-			id: String(Math.random()).replace('0.', ''),
-			startedAt: Date.now(),
-			type: 'still',
-			outputLocation: path.resolve(remotionRoot, body.outName),
-		});
+		addJob(
+			{
+				compositionId: body.compositionId,
+				id: String(Math.random()).replace('0.', ''),
+				startedAt: Date.now(),
+				type: 'still',
+				outputLocation: path.resolve(remotionRoot, body.outName),
+				status: 'idle',
+			},
+			entryPoint
+		);
 
-		waitForLiveEventsListener().then((listener) => {
-			listener.sendEventToClient({
-				type: 'render-queue-updated',
-				queue: jobQueue,
-			});
-		});
+		notifyClientsOfJobUpdate();
 
 		res.setHeader('content-type', 'application/json');
 		res.writeHead(200);

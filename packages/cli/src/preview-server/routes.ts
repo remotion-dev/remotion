@@ -14,7 +14,7 @@ import {getPackageManager} from './get-package-manager';
 import type {LiveEventsServer} from './live-events';
 import {parseRequestBody} from './parse-body';
 import {getProjectInfo} from './project-info';
-import {jobQueue} from './render-queue';
+import {getRenderQueue} from './render-queue';
 import {handleAddRender} from './render-queue/add-render';
 import {handleOpenInFileExplorer} from './render-queue/open-in-file-explorer';
 import {serveStatic} from './serve-static';
@@ -69,7 +69,7 @@ const handleFallback = async ({
 			remotionRoot,
 			previewServerCommand:
 				packageManager === 'unknown' ? null : packageManager.startCommand,
-			renderQueue: jobQueue,
+			renderQueue: getRenderQueue(),
 		})
 	);
 };
@@ -188,6 +188,7 @@ export const handleRoutes = ({
 	getEnvVariables,
 	remotionRoot,
 	userPassedPublicDir,
+	entryPoint,
 }: {
 	hash: string;
 	hashPrefix: string;
@@ -198,6 +199,7 @@ export const handleRoutes = ({
 	getEnvVariables: () => Record<string, string>;
 	remotionRoot: string;
 	userPassedPublicDir: string | null;
+	entryPoint: string;
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -223,11 +225,11 @@ export const handleRoutes = ({
 	}
 
 	if (url.pathname === '/api/open-in-file-explorer') {
-		return handleOpenInFileExplorer(remotionRoot, request, response);
+		return handleOpenInFileExplorer(request, response);
 	}
 
 	if (url.pathname === '/api/render') {
-		return handleAddRender(remotionRoot, request, response);
+		return handleAddRender(remotionRoot, request, response, entryPoint);
 	}
 
 	if (url.pathname === '/remotion.png') {
