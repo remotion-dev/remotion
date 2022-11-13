@@ -62,7 +62,6 @@ export const Tab: React.FC<{
 
 	return (
 		<button
-			className="no-focus-ring"
 			style={definiteStyle}
 			type="button"
 			onClick={onClick}
