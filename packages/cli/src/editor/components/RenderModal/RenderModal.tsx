@@ -136,10 +136,12 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 				<div>
 					<RemotionInput type="text" value={outName} />
 				</div>
-				<Spacing y={0.5} />
-				<Button onClick={onClick} disabled={state.type === 'load'}>
-					{state.type === 'idle' ? 'Render' : 'Rendering...'}
-				</Button>
+				<Spacing block y={0.5} />
+				<div>
+					<Button onClick={onClick} disabled={state.type === 'load'}>
+						{state.type === 'idle' ? 'Render' : 'Rendering...'}
+					</Button>
+				</div>
 			</div>
 		</ModalContainer>
 	);
