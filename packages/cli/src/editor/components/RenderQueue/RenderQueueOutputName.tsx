@@ -4,6 +4,7 @@ import type {
 	RenderJob,
 } from '../../../preview-server/render-queue/job';
 import {LIGHT_TEXT} from '../../helpers/colors';
+import {SPACING_UNIT} from '../layout';
 import {notificationCenter} from '../Notifications/NotificationCenter';
 
 const outputLocation: React.CSSProperties = {
@@ -14,6 +15,11 @@ const outputLocation: React.CSSProperties = {
 	padding: 0,
 	cursor: 'pointer',
 	lineHeight: 1,
+	textAlign: 'left',
+	whiteSpace: 'nowrap',
+	overflow: 'hidden',
+	marginRight: SPACING_UNIT,
+	textOverflow: 'ellipsis',
 };
 
 const formatOutputLocation = (location: string) => {
@@ -68,7 +74,12 @@ export const RenderQueueOutputName: React.FC<{
 	}, [job.outputLocation]);
 
 	return (
-		<button onClick={onClick} type="button" style={outputLocation}>
+		<button
+			onClick={onClick}
+			type="button"
+			style={outputLocation}
+			title={job.outputLocation}
+		>
 			{formatOutputLocation(job.outputLocation)}
 		</button>
 	);

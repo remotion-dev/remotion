@@ -1,6 +1,6 @@
 import React, {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
-import {BACKGROUND} from '../helpers/colors';
+import {BACKGROUND, BORDER_COLOR} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {renderFrame} from '../state/render-frame';
 import {RichTimelineContext} from '../state/rich-timeline';
@@ -10,7 +10,7 @@ import {Thumbnail} from './Thumbnail';
 const container: React.CSSProperties = {
 	minHeight: 100,
 	display: 'block',
-	borderBottom: '1px solid black',
+	borderBottom: `1px solid ${BORDER_COLOR}`,
 	padding: 16,
 	color: 'white',
 	backgroundColor: BACKGROUND,

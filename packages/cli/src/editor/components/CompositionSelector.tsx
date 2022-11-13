@@ -17,7 +17,6 @@ import {CurrentComposition} from './CurrentComposition';
 import {useSelectComposition} from './InitialCompositionLoader';
 
 const container: React.CSSProperties = {
-	borderRight: '1px solid black',
 	position: 'absolute',
 	height: '100%',
 	width: '100%',

@@ -31,3 +31,10 @@ a:focus {
 	box-shadow: 0 0 1px 2px rgba(255, 255, 255, 0.35);
 	border-radius: 2px;
 }
+
+input.no-focus-ring:focus,
+button.no-focus-ring:focus,
+a.no-focus-ring:focus {
+	box-shadow: none;
+	border-radius: 0
+}
