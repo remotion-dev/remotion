@@ -15,4 +15,9 @@ export type EventSourceEvent =
 	| {
 			type: 'render-queue-updated';
 			queue: RenderJob[];
+	  }
+	| {
+			type: 'render-job-failed';
+			compositionId: string;
+			error: Error;
 	  };

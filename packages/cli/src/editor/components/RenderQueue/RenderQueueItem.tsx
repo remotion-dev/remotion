@@ -11,7 +11,7 @@ const container: React.CSSProperties = {
 };
 
 const title: React.CSSProperties = {
-	fontSize: 14,
+	fontSize: 13,
 	lineHeight: 1,
 };
 

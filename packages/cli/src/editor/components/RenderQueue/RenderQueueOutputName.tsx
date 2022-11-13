@@ -8,7 +8,7 @@ import {SPACING_UNIT} from '../layout';
 import {notificationCenter} from '../Notifications/NotificationCenter';
 
 const outputLocation: React.CSSProperties = {
-	fontSize: 14,
+	fontSize: 13,
 	color: LIGHT_TEXT,
 	appearance: 'none',
 	border: 'none',
