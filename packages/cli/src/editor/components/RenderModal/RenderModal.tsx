@@ -15,6 +15,7 @@ import {Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {RemotionInput} from '../NewComposition/RemInput';
+import {leftSidebarTabs} from '../SidebarContent';
 
 type State =
 	| {
@@ -102,6 +103,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 			type: 'still',
 			outName,
 		};
+		leftSidebarTabs.current?.selectRendersPanel();
 		fetch(`/api/render`, {
 			method: 'post',
 			headers: {

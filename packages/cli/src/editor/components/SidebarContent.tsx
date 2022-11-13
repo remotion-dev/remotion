@@ -1,7 +1,13 @@
-import React, {useCallback, useState} from 'react';
+import React, {
+	createRef,
+	useCallback,
+	useImperativeHandle,
+	useState,
+} from 'react';
 import {BORDER_COLOR} from '../helpers/colors';
 import {CompositionSelector} from './CompositionSelector';
 import {RenderQueue} from './RenderQueue';
+import {RendersTab} from './RendersTab';
 import {Tab, Tabs} from './Tabs';
 
 type SidebarPanel = 'compositions' | 'renders';
@@ -15,6 +21,10 @@ const tabsContainer: React.CSSProperties = {
 	borderBottom: `1px solid ${BORDER_COLOR}`,
 };
 
+export const leftSidebarTabs = createRef<{
+	selectRendersPanel: () => void;
+}>();
+
 export const SidebarContent: React.FC = () => {
 	const [panel, setPanel] = useState<SidebarPanel>('compositions');
 
@@ -26,6 +36,16 @@ export const SidebarContent: React.FC = () => {
 		setPanel('renders');
 	}, []);
 
+	useImperativeHandle(
+		leftSidebarTabs,
+		() => {
+			return {
+				selectRendersPanel: () => setPanel('renders'),
+			};
+		},
+		[]
+	);
+
 	return (
 		<div style={container}>
 			<div style={tabsContainer}>
@@ -36,9 +56,10 @@ export const SidebarContent: React.FC = () => {
 					>
 						Compositions
 					</Tab>
-					<Tab selected={panel === 'renders'} onClick={onRendersSelected}>
-						Renders
-					</Tab>
+					<RendersTab
+						onClick={onRendersSelected}
+						selected={panel === 'renders'}
+					/>
 				</Tabs>
 			</div>
 			{panel === 'compositions' ? <CompositionSelector /> : <RenderQueue />}

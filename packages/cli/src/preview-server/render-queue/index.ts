@@ -95,5 +95,13 @@ export const processJobIfPossible = async (entryPoint: string) => {
 				error: err as Error,
 			};
 		});
+
+		waitForLiveEventsListener().then((listener) => {
+			listener.sendEventToClient({
+				type: 'render-job-failed',
+				compositionId: nextJob.compositionId,
+				error: err as Error,
+			});
+		});
 	}
 };

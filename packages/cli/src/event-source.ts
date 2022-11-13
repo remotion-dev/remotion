@@ -1,3 +1,4 @@
+import {notificationCenter} from './editor/components/Notifications/NotificationCenter';
 import {serverDisconnectedRef} from './editor/components/Notifications/ServerDisconnected';
 import {renderJobsRef} from './editor/components/RenderQueue/context';
 import type {EventSourceEvent} from './event-source-events';
@@ -18,6 +19,15 @@ export const openEventSource = () => {
 
 		if (newEvent.type === 'render-queue-updated') {
 			renderJobsRef.current?.updateRenderJobs(newEvent.queue);
+		}
+
+		if (newEvent.type === 'render-job-failed') {
+			notificationCenter.current?.addNotification({
+				content: `Rendering "${newEvent.compositionId}" failed`,
+				duration: 2000,
+				created: Date.now(),
+				id: String(Math.random()).replace('0.', ''),
+			});
 		}
 	});
 
