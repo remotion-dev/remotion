@@ -67,7 +67,6 @@ export const addJob = (job: RenderJob, entryPoint: string) => {
 };
 
 export const removeJob = (jobId: string) => {
-	console.log({jobQueue, jobId});
 	jobQueue = jobQueue.filter((job) => job.id !== jobId);
 	notifyClientsOfJobUpdate();
 };

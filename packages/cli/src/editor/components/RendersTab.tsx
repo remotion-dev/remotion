@@ -37,6 +37,7 @@ export const RendersTab: React.FC<{
 		return {
 			...badge,
 			backgroundColor: failedJobs > 0 ? FAIL_COLOR : 'white',
+			color: failedJobs > 0 ? 'white' : 'black',
 		};
 	}, [failedJobs]);
 
@@ -44,7 +45,7 @@ export const RendersTab: React.FC<{
 		<Tab selected={selected} onClick={onClick}>
 			<div style={row}>
 				Renders
-				{failedJobs ? (
+				{jobCount > 0 ? (
 					<>
 						<Spacing x={0.5} />
 						<div style={badgeStyle}>{jobCount}</div>
