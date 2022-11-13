@@ -4,7 +4,6 @@ import type {OpenInFileExplorerRequest} from './job';
 import {openDirectoryInFinder} from './open-directory-in-finder';
 
 export const handleOpenInFileExplorer = async (
-	remotionRoot: string,
 	req: IncomingMessage,
 	res: ServerResponse
 ) => {
@@ -16,6 +15,7 @@ export const handleOpenInFileExplorer = async (
 	try {
 		const body = (await parseRequestBody(req)) as OpenInFileExplorerRequest;
 
+		// TODO: Disallow opening file that is not in Remotion CWD
 		await openDirectoryInFinder(body.directory);
 
 		res.setHeader('content-type', 'application/json');

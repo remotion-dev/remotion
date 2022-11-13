@@ -13,6 +13,7 @@ const outputLocation: React.CSSProperties = {
 	border: 'none',
 	padding: 0,
 	cursor: 'pointer',
+	lineHeight: 1,
 };
 
 const formatOutputLocation = (location: string) => {

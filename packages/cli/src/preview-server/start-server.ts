@@ -87,6 +87,7 @@ export const startServer = async (
 					getEnvVariables: options.getEnvVariables,
 					remotionRoot: options.remotionRoot,
 					userPassedPublicDir: options.userPassedPublicDir,
+					entryPoint: userDefinedComponent,
 				});
 			})
 			.catch((err) => {
