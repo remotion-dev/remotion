@@ -3,11 +3,13 @@ import type {RenderJob} from '../../../preview-server/render-queue/job';
 import {Row, Spacing} from '../layout';
 import {RenderQueueItemStatus} from './RenderQueueItemStatus';
 import {RenderQueueOutputName} from './RenderQueueOutputName';
+import {RenderQueueRemoveItem} from './RenderQueueRemoveItem';
 
 const container: React.CSSProperties = {
 	padding: 12,
 	display: 'flex',
 	flexDirection: 'row',
+	paddingBottom: 10,
 };
 
 const title: React.CSSProperties = {
@@ -30,6 +32,7 @@ export const RenderQueueItem: React.FC<{
 				<div style={title}>{job.compositionId}</div>
 				<RenderQueueOutputName job={job} />
 			</div>
+			<RenderQueueRemoveItem job={job} />
 		</Row>
 	);
 };

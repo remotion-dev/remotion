@@ -17,9 +17,7 @@ const outputLocation: React.CSSProperties = {
 	lineHeight: 1,
 	textAlign: 'left',
 	whiteSpace: 'nowrap',
-	overflow: 'hidden',
 	marginRight: SPACING_UNIT,
-	textOverflow: 'ellipsis',
 };
 
 const formatOutputLocation = (location: string) => {

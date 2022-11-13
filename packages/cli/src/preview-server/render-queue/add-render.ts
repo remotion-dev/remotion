@@ -1,6 +1,6 @@
 import type {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';
-import {addJob, notifyClientsOfJobUpdate} from '.';
+import {addJob} from '.';
 import {parseRequestBody} from '../parse-body';
 import type {AddRenderRequest} from './job';
 
@@ -29,8 +29,6 @@ export const handleAddRender = async (
 			},
 			entryPoint
 		);
-
-		notifyClientsOfJobUpdate();
 
 		res.setHeader('content-type', 'application/json');
 		res.writeHead(200);
