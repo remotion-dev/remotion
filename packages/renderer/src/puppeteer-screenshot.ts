@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import type {Page} from './browser/BrowserPage';
 import type {ScreenshotOptions} from './browser/ScreenshotOptions';
 import type {StillImageFormat} from './image-format';
-import {_screenshotTask} from './screenshot-task';
+import {screenshotTask} from './screenshot-task';
 
 export const screenshot = (
 	page: Page,
@@ -89,6 +89,6 @@ export const screenshot = (
 	}
 
 	return page.screenshotTaskQueue.postTask(() =>
-		_screenshotTask(page, screenshotType as StillImageFormat, options)
+		screenshotTask(page, screenshotType as StillImageFormat, options)
 	);
 };

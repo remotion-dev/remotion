@@ -433,7 +433,6 @@ const innerRenderFrames = ({
 			);
 			const pool = await poolPromise;
 			await browserReplacer.replaceBrowser(makeBrowser);
-			console.log('Successfully replaced browser');
 			const page = await makePage();
 			pool.release(page);
 			await renderFrameAndRetryTargetClose(

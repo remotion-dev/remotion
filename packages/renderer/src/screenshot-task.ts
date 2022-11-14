@@ -4,7 +4,7 @@ import type {ScreenshotOptions} from './browser/ScreenshotOptions';
 import type {StillImageFormat} from './image-format';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
 
-export const _screenshotTask = async (
+export const screenshotTask = async (
 	page: Page,
 	format: StillImageFormat,
 	options: ScreenshotOptions

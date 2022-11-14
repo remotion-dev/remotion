@@ -19,7 +19,6 @@ export const waitForReady = (page: Page) => {
 			.mainFrame()
 			._mainWorld.waitForFunction(page.browser, 'window.ready === true')
 			.catch((err) => {
-				console.log({err, page, closed: page.closed});
 				throw err;
 			}),
 	]);

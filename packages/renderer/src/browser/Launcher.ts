@@ -109,7 +109,6 @@ export class ChromeLauncher implements ProductLauncher {
 				timeout,
 				preferredRevision: this._preferredRevision,
 			});
-			console.log('new connection');
 			browser = await Browser._create({
 				connection,
 				contextIds: [],
