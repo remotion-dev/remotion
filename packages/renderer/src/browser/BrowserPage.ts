@@ -395,12 +395,4 @@ export class Page extends EventEmitter {
 	isClosed(): boolean {
 		return this.#closed;
 	}
-
-	waitForFunction(
-		browser: Browser,
-		pageFunction: Function | string,
-		...args: SerializableOrJSHandle[]
-	): Promise<JSHandle> {
-		return this.mainFrame().waitForFunction(browser, pageFunction, ...args);
-	}
 }
