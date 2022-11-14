@@ -197,7 +197,7 @@ export const downloadBinary = async (
 };
 
 export const getExecutableBinary = (
-	ffmpegExecutable: FfmpegExecutable | null,
+	ffmpegExecutable: FfmpegExecutable,
 	remotionRoot: string,
 	binary: 'ffmpeg' | 'ffprobe'
 ) => {
