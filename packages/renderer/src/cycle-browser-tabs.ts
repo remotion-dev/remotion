@@ -28,7 +28,7 @@ export const cycleBrowserTabs = (
 					const currentPage = pages[i % pages.length];
 					i++;
 					if (
-						!currentPage?.isClosed?.() &&
+						!currentPage?.closed &&
 						!stopped &&
 						currentPage?.url() !== 'about:blank'
 					) {

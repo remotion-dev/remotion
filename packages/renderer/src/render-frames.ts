@@ -196,7 +196,6 @@ const innerRenderFrames = ({
 	const makePage = async () => {
 		const page = await browserReplacer.getBrowser().newPage();
 		pagesArray.push(page);
-		console.log('Made new page');
 		await page.setViewport({
 			width: composition.width,
 			height: composition.height,
@@ -263,6 +262,7 @@ const innerRenderFrames = ({
 		});
 
 		page.off('console', logCallback);
+
 		return page;
 	};
 

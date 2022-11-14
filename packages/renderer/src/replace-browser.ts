@@ -28,7 +28,7 @@ export const handleBrowserCrash = (instance: Browser): BrowserReplacer => {
 
 			try {
 				replacing = true;
-				await instance
+				await _instance
 					.close(true)
 					.then(() => {
 						console.log('Killed previous browser and making new one');

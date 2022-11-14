@@ -16,6 +16,7 @@
 
 import {assert} from './assert';
 import type {Page} from './BrowserPage';
+import {PageEmittedEvents} from './BrowserPage';
 import type {Connection} from './Connection';
 import type {DevtoolsTargetCreatedEvent} from './devtools-types';
 import {EventEmitter} from './EventEmitter';
@@ -248,6 +249,11 @@ export class Browser extends EventEmitter {
 
 	async close(silent: boolean): Promise<void> {
 		await this.#closeCallback.call(null);
+		(await this.pages()).forEach((page) => {
+			console.log('disposing', page.id);
+			page.emit(PageEmittedEvents.Disposed);
+			page.closed = true;
+		});
 		this.disconnect();
 		this.emit(
 			silent ? BrowserEmittedEvents.ClosedSilent : BrowserEmittedEvents.Closed
