@@ -12,22 +12,19 @@ import {warnAboutFfmpegVersion} from './warn-about-ffmpeg-version';
 
 const existsMap: {[key: string]: boolean} = {};
 
-export const binaryExists = (
-	name: 'ffmpeg' | 'ffprobe' | 'brew',
-	localExecutable: string | null
-) => {
-	if (typeof existsMap[name] !== 'undefined') {
-		return existsMap[name];
+export const customExecutableExists = (localExecutable: string): boolean => {
+	try {
+		statSync(localExecutable);
+		existsMap[localExecutable] = true;
+	} catch (err) {
+		existsMap[localExecutable] = false;
 	}
 
-	if (localExecutable) {
-		try {
-			statSync(localExecutable);
-			existsMap[name] = true;
-		} catch (err) {
-			existsMap[name] = false;
-		}
+	return existsMap[localExecutable];
+};
 
+export const binaryExists = (name: 'ffmpeg' | 'ffprobe' | 'brew') => {
+	if (typeof existsMap[name] !== 'undefined') {
 		return existsMap[name];
 	}
 
@@ -44,7 +41,7 @@ export const binaryExists = (
 };
 
 const isHomebrewInstalled = (): boolean => {
-	return binaryExists('brew', null);
+	return binaryExists('brew');
 };
 
 export const checkAndValidateFfmpegVersion = async (options: {
@@ -67,18 +64,23 @@ export const validateFfmpeg = async (
 	remotionRoot: string
 ): Promise<void> => {
 	if (process.platform === 'linux' && existsSync('/opt/bin/ffmpeg')) {
-		return Promise.resolve();
+		return;
 	}
 
-	const ffmpegExists = binaryExists('ffmpeg', customFfmpegBinary);
+	const ffmpegExists = binaryExists('ffmpeg');
 	if (ffmpegExists) {
 		return;
 	}
 
 	if (customFfmpegBinary) {
-		console.error('FFmpeg executable not found:');
-		console.error(customFfmpegBinary);
-		throw new Error('FFmpeg not found');
+		const exists = customExecutableExists(customFfmpegBinary);
+		if (exists) {
+			return;
+		}
+
+		throw new Error(
+			'Custom FFmpeg executable not found: ' + customFfmpegBinary
+		);
 	}
 
 	if (ffmpegInNodeModules(remotionRoot, 'ffmpeg')) {

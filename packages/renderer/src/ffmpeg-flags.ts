@@ -4,7 +4,7 @@ import os from 'os';
 import path from 'path';
 import {_downloadFile} from './browser/BrowserFetcher';
 import type {FfmpegExecutable} from './ffmpeg-executable';
-import {binaryExists} from './validate-ffmpeg';
+import {binaryExists, customExecutableExists} from './validate-ffmpeg';
 
 let buildConfig: string | null = null;
 const listeners: Record<string, ((path: string) => void)[]> = {};
@@ -107,7 +107,11 @@ export const ffmpegHasFeature = async ({
 	feature: 'enable-gpl' | 'enable-libx265' | 'enable-libvpx';
 	remotionRoot: string;
 }) => {
-	if (!binaryExists('ffmpeg', ffmpegExecutable)) {
+	if (ffmpegExecutable && !customExecutableExists(ffmpegExecutable)) {
+		return false;
+	}
+
+	if (!binaryExists('ffmpeg')) {
 		return false;
 	}
 
@@ -192,7 +196,7 @@ export const downloadBinary = async (
 	return destinationPath;
 };
 
-export const getExecutableBinary = async (
+export const getExecutableBinary = (
 	ffmpegExecutable: FfmpegExecutable | null,
 	remotionRoot: string,
 	binary: 'ffmpeg' | 'ffprobe'
@@ -207,13 +211,11 @@ export const getExecutableBinary = async (
 		}
 	}
 
-	const exists = binaryExists(binary, ffmpegExecutable);
+	if (ffmpegExecutable && customExecutableExists(ffmpegExecutable)) {
+		return ffmpegExecutable;
+	}
 
-	if (exists) {
-		if (ffmpegExecutable !== null) {
-			return ffmpegExecutable;
-		}
-
+	if (binaryExists(binary)) {
 		return binary;
 	}
 
