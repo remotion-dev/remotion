@@ -8,7 +8,7 @@ export const seekToFrame = async ({
 	frame: number;
 	page: Page;
 }) => {
-	await page.waitForFunction(page.browser, 'window.ready === true');
+	await page.mainFrame().waitForFunction(page.browser, 'window.ready === true');
 	await puppeteerEvaluateWithCatch({
 		pageFunction: (f: number) => {
 			window.remotion_setFrame(f);
@@ -17,6 +17,6 @@ export const seekToFrame = async ({
 		frame,
 		page,
 	});
-	await page.waitForFunction(page.browser, 'window.ready === true');
+	await page.mainFrame().waitForFunction(page.browser, 'window.ready === true');
 	await page.evaluateHandle('document.fonts.ready');
 };
