@@ -28,8 +28,8 @@ my-video/
 │  ├─ my-image.png
 │  ├─ font.woff2
 ├─ src/
-│  ├─ Video.tsx
-│  ├─ index.tsx
+│  ├─ Root.tsx
+│  ├─ index.ts
 ├─ package.json
 ```
 

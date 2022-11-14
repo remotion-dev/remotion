@@ -241,5 +241,6 @@ module.exports = {
         blogSidebarTitle: "Success stories",
       },
     ],
+    "./route-plugin",
   ],
 };

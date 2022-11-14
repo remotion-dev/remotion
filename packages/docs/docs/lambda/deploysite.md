@@ -19,7 +19,7 @@ import { deploySite } from "@remotion/lambda";
 import path from "path";
 
 const { serveUrl } = await deploySite({
-  entryPoint: path.resolve(process.cwd(), "src/index.tsx"),
+  entryPoint: path.resolve(process.cwd(), "src/index.ts"),
   bucketName: "remotionlambda-c7fsl3d",
   region: "us-east-1",
   options: {

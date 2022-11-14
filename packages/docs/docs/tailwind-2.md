@@ -99,7 +99,7 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 @tailwind utilities;
 ```
 
-4. Import the stylesheet in your `src/Video.tsx` file. Add to the top of the file:
+4. Import the stylesheet in your `src/Root.tsx` file. Add to the top of the file:
 
 ```js
 import "./style.css";

@@ -107,10 +107,21 @@ const makeEncodingProgress = ({
 
 const makeCleanupProgress = (
 	cleanupInfo: CleanupInfo | null,
-	totalSteps: number
+	totalSteps: number,
+	skipped: boolean
 ) => {
 	if (!cleanupInfo) {
 		return '';
+	}
+
+	if (skipped) {
+		return [
+			'🪣 ',
+			`(4/${totalSteps})`,
+			CliInternals.chalk.blueBright(
+				`Not cleaning up because --log=verbose was set`
+			),
+		].join(' ');
 	}
 
 	const {doneIn, filesDeleted, minFilesToDelete} = cleanupInfo;
@@ -188,11 +199,13 @@ export const makeProgressString = ({
 	steps,
 	downloadInfo,
 	retriesInfo,
+	verbose,
 }: {
 	progress: MultiRenderProgress;
 	steps: number;
 	downloadInfo: DownloadedInfo | null;
 	retriesInfo: ChunkRetry[];
+	verbose: boolean;
 }) => {
 	return [
 		makeInvokeProgress(progress.lambdaInvokeProgress, steps, retriesInfo),
@@ -206,7 +219,7 @@ export const makeProgressString = ({
 			chunkProgress: progress.chunkProgress,
 			totalSteps: steps,
 		}),
-		makeCleanupProgress(progress.cleanupInfo, steps),
+		makeCleanupProgress(progress.cleanupInfo, steps, verbose),
 		downloadInfo ? makeDownloadProgress(downloadInfo, steps) : null,
 	]
 		.filter(Internals.truthy)

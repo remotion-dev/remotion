@@ -12,8 +12,8 @@ my-video/
 │  ├─ logo.png
 ├─ src/
 │  ├─ MyComp.tsx
-│  ├─ Video.tsx
-│  ├─ index.tsx
+│  ├─ Root.tsx
+│  ├─ index.ts
 ├─ package.json
 ```
 
@@ -61,7 +61,7 @@ my-video/
 ```
 
 ```tsx twoslash
-import { Img, useCurrentFrame, staticFile } from "remotion";
+import { Img, staticFile, useCurrentFrame } from "remotion";
 
 const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
@@ -132,8 +132,8 @@ my-video/
 ├─ src/
 │  ├─ style.css
 │  ├─ MyComp.tsx
-│  ├─ Video.tsx
-│  ├─ index.tsx
+│  ├─ Root.tsx
+│  ├─ index.ts
 ├─ package.json
 ```
 
