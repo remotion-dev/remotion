@@ -1,3 +1,4 @@
+import {BrowserEmittedEvents} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 
