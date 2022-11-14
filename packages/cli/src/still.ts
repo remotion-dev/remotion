@@ -227,7 +227,7 @@ export const still = async (remotionRoot: string, args: string[]) => {
 	updateProgress();
 	Log.info();
 
-	const closeBrowserPromise = puppeteerInstance.close();
+	const closeBrowserPromise = puppeteerInstance.close(false);
 
 	Log.info(chalk.green('\nYour still frame is ready!'));
 

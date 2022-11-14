@@ -12,6 +12,7 @@ import {getPageAndCleanupFn} from './get-browser-instance';
 import type {ChromiumOptions} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
+import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validateFfmpeg} from './validate-ffmpeg';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
@@ -75,7 +76,7 @@ const innerGetCompositions = async (
 		args: [],
 	});
 
-	await page.waitForFunction(page.browser, 'window.ready === true');
+	await waitForReady(page);
 	const result = await puppeteerEvaluateWithCatch({
 		pageFunction: () => {
 			return window.getStaticCompositions();

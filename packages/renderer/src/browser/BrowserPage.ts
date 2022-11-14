@@ -57,17 +57,20 @@ interface WaitForOptions {
 	timeout?: number;
 }
 
-const enum PageEmittedEvents {
+export const enum PageEmittedEvents {
 	Console = 'console',
 	Error = 'error',
+	Disposed = 'disposed',
 }
 
 interface PageEventObject {
 	console: ConsoleMessage;
 	error: Error;
+	disposed: undefined;
 }
 
 export class Page extends EventEmitter {
+	id: string;
 	static async _create(
 		client: CDPSession,
 		target: Target,
@@ -81,7 +84,7 @@ export class Page extends EventEmitter {
 		return page;
 	}
 
-	#closed = false;
+	closed = false;
 	#client: CDPSession;
 	#target: Target;
 	#timeoutSettings = new TimeoutSettings();
@@ -97,6 +100,7 @@ export class Page extends EventEmitter {
 		this.#frameManager = new FrameManager(client, this, this.#timeoutSettings);
 		this.screenshotTaskQueue = new TaskQueue();
 		this.browser = browser;
+		this.id = String(Math.random());
 
 		client.on('Target.attachedToTarget', (event: AttachedToTargetEvent) => {
 			switch (event.targetInfo.type) {
@@ -377,10 +381,10 @@ export class Page extends EventEmitter {
 		options: {runBeforeUnload?: boolean} = {runBeforeUnload: undefined}
 	): Promise<void> {
 		const connection = this.#client.connection();
-		assert(
-			connection,
-			'Protocol error: Connection closed. Most likely the page has been closed.'
-		);
+		if (!connection) {
+			return;
+		}
+
 		const runBeforeUnload = Boolean(options.runBeforeUnload);
 		if (runBeforeUnload) {
 			await this.#client.send('Page.close');
@@ -390,17 +394,5 @@ export class Page extends EventEmitter {
 			});
 			await this.#target._isClosedPromise;
 		}
-	}
-
-	isClosed(): boolean {
-		return this.#closed;
-	}
-
-	waitForFunction(
-		browser: Browser,
-		pageFunction: Function | string,
-		...args: SerializableOrJSHandle[]
-	): Promise<JSHandle> {
-		return this.mainFrame().waitForFunction(browser, pageFunction, ...args);
 	}
 }

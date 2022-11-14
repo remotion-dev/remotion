@@ -204,6 +204,10 @@ class WaitTask {
 		this.#browser = options.browser;
 
 		this.#browser.on(BrowserEmittedEvents.Closed, this.onBrowserClose);
+		this.#browser.on(
+			BrowserEmittedEvents.ClosedSilent,
+			this.onBrowserCloseSilent
+		);
 
 		this.rerun();
 	}
@@ -212,9 +216,16 @@ class WaitTask {
 		return this.terminate(new Error('Browser was closed'));
 	};
 
-	terminate(error: Error): void {
+	onBrowserCloseSilent = () => {
+		return this.terminate(null);
+	};
+
+	terminate(error: Error | null): void {
 		this.#terminated = true;
-		this.#reject(error);
+		if (error) {
+			this.#reject(error);
+		}
+
 		this.#cleanup();
 	}
 
@@ -320,6 +331,10 @@ class WaitTask {
 		}
 
 		this.#browser.off(BrowserEmittedEvents.Closed, this.onBrowserClose);
+		this.#browser.off(
+			BrowserEmittedEvents.ClosedSilent,
+			this.onBrowserCloseSilent
+		);
 
 		this.#domWorld._waitTasks.delete(this);
 	}

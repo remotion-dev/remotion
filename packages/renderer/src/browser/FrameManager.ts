@@ -15,7 +15,6 @@
  */
 
 import {assert} from './assert';
-import type {Browser} from './Browser';
 import type {Page} from './BrowserPage';
 import type {CDPSession} from './Connection';
 import {Connection} from './Connection';
@@ -636,14 +635,6 @@ export class Frame {
 
 	childFrames(): Frame[] {
 		return Array.from(this._childFrames);
-	}
-
-	waitForFunction(
-		browser: Browser,
-		pageFunction: Function | string,
-		...args: SerializableOrJSHandle[]
-	): Promise<JSHandle> {
-		return this._mainWorld.waitForFunction(browser, pageFunction, ...args);
 	}
 
 	_navigated(framePayload: TFrame): void {
