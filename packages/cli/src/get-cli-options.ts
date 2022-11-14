@@ -131,7 +131,8 @@ const getAndValidateShouldOutputImageSequence = async ({
 	if (!shouldOutputImageSequence && !isLambda) {
 		await RenderInternals.validateFfmpeg(
 			ConfigInternals.getCustomFfmpegExecutable(),
-			remotionRoot
+			remotionRoot,
+			'ffmpeg'
 		);
 	}
 

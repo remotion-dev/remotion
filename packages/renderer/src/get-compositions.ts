@@ -92,7 +92,16 @@ export const getCompositions = async (
 	serveUrlOrWebpackUrl: string,
 	config?: GetCompositionsConfig
 ) => {
-	await validateFfmpeg(config?.ffmpegExecutable ?? null, findRemotionRoot());
+	await validateFfmpeg(
+		config?.ffmpegExecutable ?? null,
+		findRemotionRoot(),
+		'ffmpeg'
+	);
+	await validateFfmpeg(
+		config?.ffprobeExecutable ?? null,
+		findRemotionRoot(),
+		'ffprobe'
+	);
 
 	const downloadMap = config?.downloadMap ?? makeDownloadMap();
 

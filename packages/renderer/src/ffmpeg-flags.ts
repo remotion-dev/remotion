@@ -60,7 +60,13 @@ export const ffmpegInNodeModules = (
 			return false;
 		}
 
-		const expectedLength = getBinaryDownloadUrl(binary).contentLength;
+		const dlUrl = getBinaryDownloadUrl(binary);
+
+		if (!dlUrl) {
+			return false;
+		}
+
+		const expectedLength = dlUrl.contentLength;
 
 		if (fs.statSync(path.join(folderName, filename)).size === expectedLength) {
 			return true;
@@ -196,19 +202,18 @@ export const downloadBinary = async (
 	return destinationPath;
 };
 
+export const lambdaFfmpegPaths = {
+	ffmpeg: '/opt/bin/ffmpeg',
+	ffprobe: '/opt/bin/ffprobe',
+} as const;
+
 export const getExecutableBinary = (
 	ffmpegExecutable: FfmpegExecutable,
 	remotionRoot: string,
 	binary: 'ffmpeg' | 'ffprobe'
 ) => {
-	if (binary === 'ffmpeg') {
-		if (fs.existsSync('/opt/bin/ffmpeg')) {
-			return '/opt/bin/ffmpeg';
-		}
-	} else if (binary === 'ffprobe') {
-		if (fs.existsSync('/opt/bin/ffprobe')) {
-			return '/opt/bin/ffprobe';
-		}
+	if (fs.existsSync(lambdaFfmpegPaths[binary])) {
+		return lambdaFfmpegPaths[binary];
 	}
 
 	if (ffmpegExecutable && customExecutableExists(ffmpegExecutable)) {
@@ -219,10 +224,10 @@ export const getExecutableBinary = (
 		return binary;
 	}
 
-	const {url} = getBinaryDownloadUrl(binary);
+	const dlUrl = getBinaryDownloadUrl(binary);
 
-	if (isDownloading[url]) {
-		return waitForFfmpegToBeDownloaded(url);
+	if (dlUrl && isDownloading[dlUrl.url]) {
+		return waitForFfmpegToBeDownloaded(dlUrl.url);
 	}
 
 	const inNodeMod = ffmpegInNodeModules(remotionRoot, binary);
@@ -231,7 +236,15 @@ export const getExecutableBinary = (
 		return inNodeMod;
 	}
 
-	return downloadBinary(remotionRoot, url, binary);
+	if (!dlUrl) {
+		throw new Error(
+			`${binary} could not be installed automatically. Your architecture and OS combination (os = ${os.platform()}, arch = ${
+				process.arch
+			}) is not supported. Please install ${binary} manually and add "${binary}" to your PATH.`
+		);
+	}
+
+	return downloadBinary(remotionRoot, dlUrl.url, binary);
 };
 
 function toMegabytes(bytes: number) {
@@ -244,7 +257,7 @@ export const getBinaryDownloadUrl = (
 ): {
 	url: string;
 	contentLength: number;
-} => {
+} | null => {
 	if (os.platform() === 'win32') {
 		return binary === 'ffmpeg'
 			? {
