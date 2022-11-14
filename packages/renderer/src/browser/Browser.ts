@@ -16,6 +16,7 @@
 
 import {assert} from './assert';
 import type {Page} from './BrowserPage';
+import {PageEmittedEvents} from './BrowserPage';
 import type {Connection} from './Connection';
 import type {DevtoolsTargetCreatedEvent} from './devtools-types';
 import {EventEmitter} from './EventEmitter';
@@ -33,6 +34,7 @@ export const enum BrowserEmittedEvents {
 	TargetChanged = 'targetchanged',
 	TargetCreated = 'targetcreated',
 	Closed = 'closed',
+	ClosedSilent = 'closed-silent',
 }
 
 export class Browser extends EventEmitter {
@@ -58,7 +60,7 @@ export class Browser extends EventEmitter {
 	}
 
 	#defaultViewport: Viewport;
-	#connection: Connection;
+	connection: Connection;
 	#closeCallback: BrowserCloseCallback;
 	#defaultContext: BrowserContext;
 	#contexts: Map<string, BrowserContext>;
@@ -77,7 +79,7 @@ export class Browser extends EventEmitter {
 	) {
 		super();
 		this.#defaultViewport = defaultViewport;
-		this.#connection = connection;
+		this.connection = connection;
 		this.#closeCallback =
 			closeCallback ||
 			function () {
@@ -91,12 +93,12 @@ export class Browser extends EventEmitter {
 		}
 
 		this.#targets = new Map();
-		this.#connection.on('Target.targetCreated', this.#targetCreated.bind(this));
-		this.#connection.on(
+		this.connection.on('Target.targetCreated', this.#targetCreated.bind(this));
+		this.connection.on(
 			'Target.targetDestroyed',
 			this.#targetDestroyed.bind(this)
 		);
-		this.#connection.on(
+		this.connection.on(
 			'Target.targetInfoChanged',
 			this.#targetInfoChanged.bind(this)
 		);
@@ -122,7 +124,7 @@ export class Browser extends EventEmitter {
 			targetInfo,
 			context,
 			() => {
-				return this.#connection.createSession(targetInfo);
+				return this.connection.createSession(targetInfo);
 			},
 			this.#defaultViewport ?? null
 		);
@@ -171,7 +173,7 @@ export class Browser extends EventEmitter {
 	}
 
 	async _createPageInContext(contextId?: string): Promise<Page> {
-		const {targetId} = await this.#connection.send('Target.createTarget', {
+		const {targetId} = await this.connection.send('Target.createTarget', {
 			url: 'about:blank',
 			browserContextId: contextId || undefined,
 		});
@@ -245,14 +247,21 @@ export class Browser extends EventEmitter {
 		}, []);
 	}
 
-	async close(): Promise<void> {
+	async close(silent: boolean): Promise<void> {
 		await this.#closeCallback.call(null);
+		(await this.pages()).forEach((page) => {
+			console.log('disposing', page.id);
+			page.emit(PageEmittedEvents.Disposed);
+			page.closed = true;
+		});
 		this.disconnect();
-		this.emit(BrowserEmittedEvents.Closed);
+		this.emit(
+			silent ? BrowserEmittedEvents.ClosedSilent : BrowserEmittedEvents.Closed
+		);
 	}
 
 	disconnect(): void {
-		this.#connection.dispose();
+		this.connection.dispose();
 	}
 }
 

@@ -40,6 +40,8 @@ import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {validateQuality} from './quality';
+import type {BrowserReplacer} from './replace-browser';
+import {handleBrowserCrash} from './replace-browser';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {truthy} from './truthy';
@@ -130,12 +132,6 @@ const getConcurrency = (others: ConcurrencyOrParallelism) => {
 	return undefined;
 };
 
-const getPool = async (pages: Promise<Page>[]) => {
-	const puppeteerPages = await Promise.all(pages);
-	const pool = new Pool(puppeteerPages);
-	return pool;
-};
-
 const innerRenderFrames = ({
 	onFrameUpdate,
 	outputDir,
@@ -144,7 +140,6 @@ const innerRenderFrames = ({
 	quality,
 	imageFormat = DEFAULT_IMAGE_FORMAT,
 	frameRange,
-	puppeteerInstance,
 	onError,
 	envVariables,
 	onBrowserLog,
@@ -161,6 +156,8 @@ const innerRenderFrames = ({
 	cancelSignal,
 	downloadMap,
 	muted,
+	makeBrowser,
+	browserReplacer,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -170,13 +167,9 @@ const innerRenderFrames = ({
 	onDownload: RenderMediaOnDownload;
 	proxyPort: number;
 	downloadMap: DownloadMap;
+	makeBrowser: () => Promise<Browser>;
+	browserReplacer: BrowserReplacer;
 }): Promise<RenderFramesOutput> => {
-	if (!puppeteerInstance) {
-		throw new Error(
-			'no puppeteer instance passed to innerRenderFrames - internal error'
-		);
-	}
-
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
 			fs.mkdirSync(outputDir, {
@@ -196,7 +189,7 @@ const innerRenderFrames = ({
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
 	const makePage = async () => {
-		const page = await puppeteerInstance.newPage();
+		const page = await browserReplacer.getBrowser().newPage();
 		pagesArray.push(page);
 		await page.setViewport({
 			width: composition.width,
@@ -264,10 +257,16 @@ const innerRenderFrames = ({
 		});
 
 		page.off('console', logCallback);
+
 		return page;
 	};
 
-	const pages = new Array(actualConcurrency).fill(true).map(makePage);
+	const getPool = async () => {
+		const pages = new Array(actualConcurrency).fill(true).map(() => makePage());
+		const puppeteerPages = await Promise.all(pages);
+		const pool = new Pool(puppeteerPages);
+		return pool;
+	};
 
 	// If rendering a GIF and skipping frames, we must ensure it starts from 0
 	// and then is consecutive so FFMPEG recognizes the sequence
@@ -281,7 +280,7 @@ const innerRenderFrames = ({
 	});
 	let framesRendered = 0;
 
-	const poolPromise = getPool(pages);
+	const poolPromise = getPool();
 
 	onStart({
 		frameCount: framesToRender.length,
@@ -300,6 +299,7 @@ const innerRenderFrames = ({
 	) => {
 		const pool = await poolPromise;
 		const freePage = await pool.acquire();
+
 		if (stopped) {
 			return reject(new Error('Render was stopped'));
 		}
@@ -414,7 +414,10 @@ const innerRenderFrames = ({
 		try {
 			await renderFrame(frame, index);
 		} catch (err) {
-			if (!(err as Error)?.message?.includes('Target closed')) {
+			if (
+				!(err as Error)?.message?.includes('Target closed') &&
+				!(err as Error)?.message?.includes('Session closed')
+			) {
 				throw err;
 			}
 
@@ -429,9 +432,16 @@ const innerRenderFrames = ({
 			console.warn(
 				`The browser crashed while rendering frame ${frame}, retrying ${retriesLeft} more times. Learn more about this error under https://www.remotion.dev/docs/target-closed`
 			);
-			const pool = await poolPromise;
-			const page = await makePage();
-			pool.release(page);
+			await browserReplacer.replaceBrowser(makeBrowser, async () => {
+				const pages = new Array(actualConcurrency)
+					.fill(true)
+					.map(() => makePage());
+				const puppeteerPages = await Promise.all(pages);
+				const pool = await poolPromise;
+				for (const newPage of puppeteerPages) {
+					pool.release(newPage);
+				}
+			});
 			await renderFrameAndRetryTargetClose(
 				frame,
 				index,
@@ -512,14 +522,15 @@ export const renderFrames = (
 	validateQuality(options.quality);
 	validateScale(options.scale);
 
-	const browserInstance =
-		options.puppeteerInstance ??
+	const makeBrowser = () =>
 		openBrowser(DEFAULT_BROWSER, {
 			shouldDumpIo: options.dumpBrowserLogs,
 			browserExecutable: options.browserExecutable,
 			chromiumOptions: options.chromiumOptions,
 			forceDeviceScaleFactor: options.scale ?? 1,
 		});
+
+	const browserInstance = options.puppeteerInstance ?? makeBrowser();
 
 	const downloadMap = options.downloadMap ?? makeDownloadMap();
 
@@ -554,8 +565,10 @@ export const renderFrames = (
 				}),
 				browserInstance,
 			]).then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {
+				const browserReplacer = handleBrowserCrash(puppeteerInstance);
+
 				const {stopCycling} = cycleBrowserTabs(
-					puppeteerInstance,
+					browserReplacer,
 					actualConcurrency
 				);
 
@@ -573,6 +586,8 @@ export const renderFrames = (
 					onDownload,
 					proxyPort: offthreadPort,
 					downloadMap,
+					makeBrowser,
+					browserReplacer,
 				});
 			}),
 		])
@@ -592,7 +607,7 @@ export const renderFrames = (
 				} else {
 					Promise.resolve(browserInstance)
 						.then((puppeteerInstance) => {
-							return puppeteerInstance.close();
+							return puppeteerInstance.close(true);
 						})
 						.catch((err) => {
 							console.log('Unable to close browser', err);
