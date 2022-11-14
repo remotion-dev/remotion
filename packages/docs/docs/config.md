@@ -57,9 +57,14 @@ The [command line flag](/docs/cli/render#--bundle-cache) `--bundle-cache` will t
 
 ### setPort()
 
-Define on which port Remotion should start it's HTTP servers during preview and rendering.
+Define on which port Remotion should start it's HTTP servers.
 By default, Remotion will try to find a free port.
 If you specify a port, but it's not available, Remotion will throw an error.
+
+:::note
+When starting the [Remotion Preview](/docs/terminology#remotion-preview), a server will be started to host it.  
+During rendering, a HTTP server is also started in the background to serve the Webpack [bundle](/docs/terminology#bundle).
+:::
 
 ```ts twoslash
 import { Config } from "remotion";
@@ -85,7 +90,7 @@ Config.Bundling.setPublicDir("./publico");
 
 The [command line flag](/docs/cli/render#--public-dir) `--public-dir` will take precedence over this option.
 
-### setEntryPoint()
+### setEntryPoint()
 
 _Available from v3.2.40_
 
@@ -94,7 +99,7 @@ Sets the Remotion [entry point](/docs/terminology#entry-point), you don't have t
 ```ts twoslash
 import { Config } from "remotion";
 // ---cut---
-Config.Bundling.setEntryPoint("./src/index.tsx");
+Config.Bundling.setEntryPoint("./src/index.ts");
 ```
 
 If you pass an entry point as a CLI argument, it will take precedence.
@@ -414,7 +419,7 @@ import { Config } from "remotion";
 Config.Output.setOutputLocation("out/video.mp4");
 ```
 
-If you pass another argument to the render command, it will take precedence: `npx remotion render src/index.tsx HelloWorld out/video.mp4`.
+If you pass another argument to the render command, it will take precedence: `npx remotion render src/index.ts HelloWorld out/video.mp4`.
 
 ### setOverwriteOutput()
 

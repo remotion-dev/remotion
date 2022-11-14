@@ -7,7 +7,7 @@ Since Remotion 1.3, you can opt out of Typescript and it's type checking advanta
 
 ## Opting out of Typescript
 
-You may import `.js` and `.jsx` files as normal. If you would like to completely move to JS, rename `index.tsx` and `Video.tsx` so they have a `.jsx` file extension. Remove types such as `React.FC` and `SpringConfig`.
+You may import `.js` and `.jsx` files as normal. If you would like to completely move to JS, rename `index.ts` and `Root.tsx` so they have a `.jsx` file extension. Remove types such as `React.FC` and `SpringConfig`.
 
 ## Upgrading
 

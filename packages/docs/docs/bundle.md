@@ -24,7 +24,7 @@ const bundle: (options?: {
 
 ### `entryPoint`
 
-A `string` containing an absolute path of the entry point of a Remotion project. [In a default Remotion project created with the template, the entry point is located at `src/index.tsx`](/docs/terminology#entry-point).
+A `string` containing an absolute path of the entry point of a Remotion project. [In most Remotion project created with the template, the entry point is located at `src/index.ts`](/docs/terminology#entry-point).
 
 ### `onProgress?`
 
@@ -113,7 +113,7 @@ const bundle: (
 Example:
 
 ```ts
-await bundle("src/index.tsx", () => console.log(progress * 100 + "% done"), {
+await bundle("src/index.ts", () => console.log(progress * 100 + "% done"), {
   webpackOverride,
 });
 ```
