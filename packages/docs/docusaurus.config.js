@@ -9,14 +9,6 @@ module.exports = {
   organizationName: "remotion-dev", // Usually your GitHub org/user name.
   projectName: "remotion", // Usually your repo name.
   themeConfig: {
-    announcementBar: {
-      id: "announcement",
-      content:
-        '<a style="text-decoration: none; font-size: 14px;" href="/blog/seed-funding">We have raised CHF 180.000 to simplify programmatic video!</a>',
-      backgroundColor: "var(--ifm-navbar-background-color)",
-      textColor: "var(--ifm-heading-color)",
-      isCloseable: false,
-    },
     algolia: {
       appId: "PLSDUOL1CA",
       apiKey: "3e42dbd4f895fe93ff5cf40d860c4a85",
@@ -195,7 +187,6 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
-          // Please change this to your repo.
           editUrl:
             "https://github.com/remotion-dev/remotion/edit/main/packages/docs/",
         },
