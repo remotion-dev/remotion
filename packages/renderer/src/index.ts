@@ -60,6 +60,11 @@ export {BrowserLog} from './browser-log';
 export {Codec, CodecOrUndefined} from './codec';
 export {combineVideos} from './combine-videos';
 export {Crf} from './crf';
+export {
+	ensureFfmpeg,
+	EnsureFfmpegOptions,
+	ensureFfprobe,
+} from './ensure-ffmpeg';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
 export {FfmpegExecutable} from './ffmpeg-executable';
 export {FfmpegVersion} from './ffmpeg-flags';
