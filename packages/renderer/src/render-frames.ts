@@ -131,12 +131,6 @@ const getConcurrency = (others: ConcurrencyOrParallelism) => {
 	return undefined;
 };
 
-const getPool = async (pages: Promise<Page>[]) => {
-	const puppeteerPages = await Promise.all(pages);
-	const pool = new Pool(puppeteerPages);
-	return pool;
-};
-
 const innerRenderFrames = ({
 	onFrameUpdate,
 	outputDir,
@@ -266,7 +260,12 @@ const innerRenderFrames = ({
 		return page;
 	};
 
-	const pages = new Array(actualConcurrency).fill(true).map(() => makePage());
+	const getPool = async () => {
+		const pages = new Array(actualConcurrency).fill(true).map(() => makePage());
+		const puppeteerPages = await Promise.all(pages);
+		const pool = new Pool(puppeteerPages);
+		return pool;
+	};
 
 	// If rendering a GIF and skipping frames, we must ensure it starts from 0
 	// and then is consecutive so FFMPEG recognizes the sequence
@@ -280,7 +279,7 @@ const innerRenderFrames = ({
 	});
 	let framesRendered = 0;
 
-	const poolPromise = getPool(pages);
+	const poolPromise = getPool();
 
 	onStart({
 		frameCount: framesToRender.length,
@@ -299,6 +298,8 @@ const innerRenderFrames = ({
 	) => {
 		const pool = await poolPromise;
 		const freePage = await pool.acquire();
+
+		console.log('free page', {freePage: freePage.id, frame});
 		if (stopped) {
 			return reject(new Error('Render was stopped'));
 		}
@@ -431,10 +432,16 @@ const innerRenderFrames = ({
 			console.warn(
 				`The browser crashed while rendering frame ${frame}, retrying ${retriesLeft} more times. Learn more about this error under https://www.remotion.dev/docs/target-closed`
 			);
-			const pool = await poolPromise;
-			await browserReplacer.replaceBrowser(makeBrowser);
-			const page = await makePage();
-			pool.release(page);
+			await browserReplacer.replaceBrowser(makeBrowser, async () => {
+				const pages = new Array(actualConcurrency)
+					.fill(true)
+					.map(() => makePage());
+				const puppeteerPages = await Promise.all(pages);
+				const pool = await poolPromise;
+				for (const newPage of puppeteerPages) {
+					pool.release(newPage);
+				}
+			});
 			await renderFrameAndRetryTargetClose(
 				frame,
 				index,
