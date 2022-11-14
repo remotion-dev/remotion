@@ -17,7 +17,9 @@ import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loo
 import {validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
 import type {FfmpegExecutable} from './ffmpeg-executable';
+import {getExecutableBinary} from './ffmpeg-flags';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
+import {findRemotionRoot} from './find-closest-package-json';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
@@ -90,6 +92,7 @@ const getAssetsData = async ({
 	ffprobeExecutable,
 	onProgress,
 	downloadMap,
+	remotionRoot,
 }: {
 	assets: TAsset[][];
 	onDownload: RenderMediaOnDownload | undefined;
@@ -100,6 +103,7 @@ const getAssetsData = async ({
 	ffprobeExecutable: FfmpegExecutable | null;
 	onProgress: (progress: number) => void;
 	downloadMap: DownloadMap;
+	remotionRoot: string;
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
@@ -134,6 +138,7 @@ const getAssetsData = async ({
 					expectedFrames,
 					fps,
 					downloadMap,
+					remotionRoot,
 				});
 				preprocessProgress[index] = 1;
 				updateProgress();
@@ -150,6 +155,7 @@ const getAssetsData = async ({
 		outName,
 		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
 		downloadMap,
+		remotionRoot,
 	});
 
 	deleteDirectory(downloadMap.audioMixing);
@@ -163,7 +169,10 @@ const getAssetsData = async ({
 	return outName;
 };
 
-const spawnFfmpeg = async (options: StitcherOptions): Promise<ReturnType> => {
+export const spawnFfmpeg = async (
+	options: StitcherOptions,
+	remotionRoot: string
+): Promise<ReturnType> => {
 	Internals.validateDimension(
 		options.height,
 		'height',
@@ -191,7 +200,11 @@ const spawnFfmpeg = async (options: StitcherOptions): Promise<ReturnType> => {
 
 	Internals.validateFps(options.fps, 'in `stitchFramesToVideo()`', false);
 	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
-	await validateFfmpeg(options.ffmpegExecutable ?? null);
+	await validateFfmpeg(
+		options.ffmpegExecutable ?? null,
+		remotionRoot,
+		'ffmpeg'
+	);
 
 	const encoderName = getCodecName(codec);
 	const audioCodecName = getAudioCodecName(codec);
@@ -265,6 +278,7 @@ const spawnFfmpeg = async (options: StitcherOptions): Promise<ReturnType> => {
 				ffprobeExecutable: options.ffprobeExecutable ?? null,
 				onProgress: (prog) => updateProgress(prog, 0),
 				downloadMap: options.assetsInfo.downloadMap,
+				remotionRoot,
 		  })
 		: null;
 
@@ -276,7 +290,11 @@ const spawnFfmpeg = async (options: StitcherOptions): Promise<ReturnType> => {
 		}
 
 		const ffmpegTask = execa(
-			'ffmpeg',
+			await getExecutableBinary(
+				options.ffmpegExecutable ?? null,
+				remotionRoot,
+				'ffmpeg'
+			),
 			[
 				'-i',
 				audio,
@@ -387,9 +405,17 @@ const spawnFfmpeg = async (options: StitcherOptions): Promise<ReturnType> => {
 		console.log(finalFfmpegString);
 	}
 
-	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', finalFfmpegString, {
-		cwd: options.dir,
-	});
+	const task = execa(
+		await getExecutableBinary(
+			options.ffmpegExecutable ?? null,
+			remotionRoot,
+			'ffmpeg'
+		),
+		finalFfmpegString,
+		{
+			cwd: options.dir,
+		}
+	);
 	options.cancelSignal?.(() => {
 		task.kill();
 	});
@@ -443,7 +469,8 @@ const spawnFfmpeg = async (options: StitcherOptions): Promise<ReturnType> => {
 export const stitchFramesToVideo = async (
 	options: StitcherOptions
 ): Promise<Buffer | null> => {
-	const {task, getLogs} = await spawnFfmpeg(options);
+	const remotionRoot = findRemotionRoot();
+	const {task, getLogs} = await spawnFfmpeg(options, remotionRoot);
 
 	const happyPath = task.catch(() => {
 		throw new Error(getLogs());

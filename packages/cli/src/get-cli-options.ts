@@ -27,13 +27,17 @@ const getAndValidateFrameRange = () => {
 	return frameRange;
 };
 
-export const validateFfmpegCanUseCodec = async (codec: Codec) => {
+export const validateFfmepgCanUseCodec = async (
+	codec: Codec,
+	remotionRoot: string
+) => {
 	const ffmpegExecutable = ConfigInternals.getCustomFfmpegExecutable();
 	if (
 		codec === 'vp8' &&
 		!(await RenderInternals.ffmpegHasFeature({
 			feature: 'enable-libvpx',
 			ffmpegExecutable,
+			remotionRoot,
 		}))
 	) {
 		Log.error(
@@ -49,6 +53,7 @@ export const validateFfmpegCanUseCodec = async (codec: Codec) => {
 		!(await RenderInternals.ffmpegHasFeature({
 			feature: 'enable-gpl',
 			ffmpegExecutable,
+			remotionRoot,
 		}))
 	) {
 		Log.error(
@@ -64,6 +69,7 @@ export const validateFfmpegCanUseCodec = async (codec: Codec) => {
 		!(await RenderInternals.ffmpegHasFeature({
 			feature: 'enable-libx265',
 			ffmpegExecutable,
+			remotionRoot,
 		}))
 	) {
 		Log.error(
@@ -113,16 +119,20 @@ export const getAndValidateAbsoluteOutputFile = (
 const getAndValidateShouldOutputImageSequence = async ({
 	frameRange,
 	isLambda,
+	remotionRoot,
 }: {
 	frameRange: FrameRange | null;
 	isLambda: boolean;
+	remotionRoot: string;
 }) => {
 	const shouldOutputImageSequence =
 		ConfigInternals.getShouldOutputImageSequence(frameRange);
 	// When parsing options locally, we don't need FFMPEG because the render will happen on Lambda
 	if (!shouldOutputImageSequence && !isLambda) {
 		await RenderInternals.validateFfmpeg(
-			ConfigInternals.getCustomFfmpegExecutable()
+			ConfigInternals.getCustomFfmpegExecutable(),
+			remotionRoot,
+			'ffmpeg'
 		);
 	}
 
@@ -159,6 +169,7 @@ const getAndValidateBrowser = async (browserExecutable: BrowserExecutable) => {
 export const getCliOptions = async (options: {
 	isLambda: boolean;
 	type: 'still' | 'series' | 'get-compositions';
+	remotionRoot: string;
 }) => {
 	const frameRange = getAndValidateFrameRange();
 
@@ -168,6 +179,7 @@ export const getCliOptions = async (options: {
 			: await getAndValidateShouldOutputImageSequence({
 					frameRange,
 					isLambda: options.isLambda,
+					remotionRoot: options.remotionRoot,
 			  });
 
 	const overwrite = ConfigInternals.getShouldOverwrite({

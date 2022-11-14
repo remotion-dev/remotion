@@ -32,6 +32,7 @@ module.exports = {
           ],
         },
         "cli/benchmark",
+        "cli/install",
         "cli/versions",
         "cli/upgrade",
         "cli/help",
@@ -105,6 +106,8 @@ module.exports = {
         "renderer/stitch-frames-to-video",
         "renderer/open-browser",
         "renderer/make-cancel-signal",
+        "renderer/ensure-ffmpeg",
+        "renderer/ensure-ffprobe",
       ],
     },
     {
@@ -431,6 +434,7 @@ module.exports = {
       label: "Miscellaneous",
       items: [
         "brownfield",
+        "ffmpeg",
         "chromium-flags",
         "video-vs-offthreadvideo",
         "prereleases",

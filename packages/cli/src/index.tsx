@@ -7,13 +7,13 @@ import {overrideRemotion} from './config/index';
 import {determineFinalImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
 import {findEntryPoint} from './entry-point';
-import {findRemotionRoot} from './find-closest-package-json';
 import {formatBytes} from './format-bytes';
 import {getCliOptions, getFinalCodec} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
 import {handleCommonError} from './handle-common-errors';
 import {getImageFormat} from './image-formats';
 import {initializeCli} from './initialize-cli';
+import {installCommand, INSTALL_COMMAND} from './install';
 import {lambdaCommand} from './lambda-command';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
@@ -40,7 +40,7 @@ export const cli = async () => {
 		process.exit(0);
 	}
 
-	const remotionRoot = findRemotionRoot();
+	const remotionRoot = RenderInternals.findRemotionRoot();
 	if (command !== VERSIONS_COMMAND) {
 		await validateVersionsBeforeCommand(remotionRoot);
 	}
@@ -65,6 +65,8 @@ export const cli = async () => {
 			await upgrade(remotionRoot, parsedCli['package-manager']);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot);
+		} else if (command === INSTALL_COMMAND) {
+			await installCommand(remotionRoot, args);
 		} else if (command === 'benchmark') {
 			await benchmarkCommand(remotionRoot, args);
 		} else if (command === 'help') {
@@ -104,7 +106,6 @@ export const CliInternals = {
 	handleCommonError,
 	formatBytes,
 	getFileSizeDownloadBar,
-	findRemotionRoot,
 	getFinalCodec,
 	determineFinalImageFormat,
 	minimist,

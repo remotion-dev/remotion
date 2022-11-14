@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import {RenderInternals} from '@remotion/renderer';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
 import {BINARY_NAME} from '../defaults';
 import {checkCredentials} from '../shared/check-credentials';
@@ -47,11 +48,11 @@ const matchCommand = (args: string[], remotionRoot: string) => {
 	}
 
 	if (args[0] === RENDER_COMMAND) {
-		return renderCommand(args.slice(1));
+		return renderCommand(args.slice(1), remotionRoot);
 	}
 
 	if (args[0] === STILL_COMMAND) {
-		return stillCommand(args.slice(1));
+		return stillCommand(args.slice(1), remotionRoot);
 	}
 
 	if (args[0] === FUNCTIONS_COMMAND) {
@@ -164,7 +165,7 @@ AWS returned an "TooManyRequestsException" error message which could mean you re
 };
 
 export const cli = async () => {
-	const remotionRoot = CliInternals.findRemotionRoot();
+	const remotionRoot = RenderInternals.findRemotionRoot();
 	await CliInternals.initializeCli(remotionRoot);
 
 	await executeCommand(parsedLambdaCli._, remotionRoot);

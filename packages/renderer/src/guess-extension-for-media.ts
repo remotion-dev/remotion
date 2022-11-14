@@ -1,7 +1,19 @@
 import execa from 'execa';
+import {getExecutableBinary} from './ffmpeg-flags';
 
-export const guessExtensionForVideo = async (src: string) => {
-	const {stderr} = await execa('ffprobe', [src]);
+export const guessExtensionForVideo = async ({
+	src,
+	remotionRoot,
+	ffprobeBinary,
+}: {
+	src: string;
+	remotionRoot: string;
+	ffprobeBinary: string | null;
+}) => {
+	const {stderr} = await execa(
+		await getExecutableBinary(ffprobeBinary, remotionRoot, 'ffprobe'),
+		[src]
+	);
 
 	if (stderr.includes('mp3,')) {
 		return 'mp3';

@@ -1,9 +1,9 @@
+import {RenderInternals} from '@remotion/renderer';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
-import {findRemotionRoot} from './find-closest-package-json';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 
@@ -112,7 +112,7 @@ export const getEnvironmentVariables = (
 		return getEnvForEnvFile(processEnv, envFile, onUpdate);
 	}
 
-	const remotionRoot = findRemotionRoot();
+	const remotionRoot = RenderInternals.findRemotionRoot();
 
 	const configFileSetting = ConfigInternals.getDotEnvLocation();
 	if (configFileSetting) {

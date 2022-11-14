@@ -1,5 +1,6 @@
 import execa from 'execa';
 import type {FfmpegExecutable} from '../ffmpeg-executable';
+import {getExecutableBinary} from '../ffmpeg-flags';
 import {pLimit} from '../p-limit';
 import type {DownloadMap, VideoDurationResult} from './download-map';
 
@@ -51,7 +52,8 @@ export const parseVideoStreamDuration = (stdout: string) => {
 async function getVideoStreamDurationUnlimited(
 	downloadMap: DownloadMap,
 	src: string,
-	ffprobeExecutable: FfmpegExecutable
+	ffprobeExecutable: FfmpegExecutable,
+	remotionRoot: string
 ): Promise<VideoDurationResult> {
 	if (downloadMap.videoDurationResultCache[src]) {
 		return downloadMap.videoDurationResultCache[src];
@@ -66,7 +68,10 @@ async function getVideoStreamDurationUnlimited(
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = await execa(ffprobeExecutable ?? 'ffprobe', args);
+	const task = await execa(
+		await getExecutableBinary(ffprobeExecutable, remotionRoot, 'ffprobe'),
+		args
+	);
 
 	return parseVideoStreamDuration(task.stdout);
 }
@@ -74,9 +79,15 @@ async function getVideoStreamDurationUnlimited(
 export const getVideoStreamDuration = (
 	downloadMap: DownloadMap,
 	src: string,
-	ffprobeExecutable: FfmpegExecutable
+	ffprobeExecutable: FfmpegExecutable,
+	remotionRoot: string
 ): Promise<VideoDurationResult> => {
 	return limit(() =>
-		getVideoStreamDurationUnlimited(downloadMap, src, ffprobeExecutable)
+		getVideoStreamDurationUnlimited(
+			downloadMap,
+			src,
+			ffprobeExecutable,
+			remotionRoot
+		)
 	);
 };
