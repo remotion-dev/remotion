@@ -35,10 +35,11 @@ export const cycleBrowserTabs = (
 						return currentPage.bringToFront();
 					}
 				})
-				.then(() => {
+
+				.catch((err) => console.log(err))
+				.finally(() => {
 					set();
-				})
-				.catch((err) => console.log(err));
+				});
 		}, 200);
 	};
 

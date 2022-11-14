@@ -2,7 +2,10 @@ import type {Browser} from './browser/Browser';
 
 export type BrowserReplacer = {
 	getBrowser: () => Browser;
-	replaceBrowser: (make: () => Promise<Browser>) => Promise<Browser>;
+	replaceBrowser: (
+		make: () => Promise<Browser>,
+		makeNewPages: () => Promise<void>
+	) => Promise<Browser>;
 };
 
 export const handleBrowserCrash = (instance: Browser): BrowserReplacer => {
@@ -15,7 +18,7 @@ export const handleBrowserCrash = (instance: Browser): BrowserReplacer => {
 
 	return {
 		getBrowser: () => _instance,
-		replaceBrowser: async (make: () => Promise<Browser>): Promise<Browser> => {
+		replaceBrowser: async (make, makeNewPages): Promise<Browser> => {
 			if (replacing) {
 				const waiter = new Promise<Browser>((resolve, reject) => {
 					waiters.push({
@@ -38,6 +41,7 @@ export const handleBrowserCrash = (instance: Browser): BrowserReplacer => {
 					});
 				const browser = await make();
 				_instance = browser;
+				await makeNewPages();
 				waiters.forEach((w) => w.resolve(browser));
 				console.log('Made new browser');
 				return browser;
