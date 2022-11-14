@@ -4,6 +4,7 @@ import {benchmarkCommand} from './benchmark';
 import {chalk} from './chalk';
 import {listCompositionsCommand} from './compositions';
 import {overrideRemotion} from './config/index';
+import {installCommand, INSTALL_COMMAND} from './deps';
 import {determineFinalImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
 import {findEntryPoint} from './entry-point';
@@ -64,6 +65,8 @@ export const cli = async () => {
 			await upgrade(remotionRoot, parsedCli['package-manager']);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot);
+		} else if (command === INSTALL_COMMAND) {
+			await installCommand(remotionRoot, args);
 		} else if (command === 'benchmark') {
 			await benchmarkCommand(remotionRoot, args);
 		} else if (command === 'help') {
