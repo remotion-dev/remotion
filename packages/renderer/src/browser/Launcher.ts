@@ -38,7 +38,7 @@ export interface ProductLauncher {
 	product: Product;
 }
 
-class ChromeLauncher implements ProductLauncher {
+export class ChromeLauncher implements ProductLauncher {
 	_preferredRevision: string;
 
 	constructor(preferredRevision: string) {
@@ -109,6 +109,7 @@ class ChromeLauncher implements ProductLauncher {
 				timeout,
 				preferredRevision: this._preferredRevision,
 			});
+			console.log('new connection');
 			browser = await Browser._create({
 				connection,
 				contextIds: [],
@@ -167,8 +168,4 @@ function resolveExecutablePath(launcher: ChromeLauncher): {
 				product === 'chrome' ? chromeHelp : firefoxHelp
 		  }`;
 	return {executablePath: revisionInfo.executablePath, missingText};
-}
-
-export default function Launcher(preferredRevision: string): ProductLauncher {
-	return new ChromeLauncher(preferredRevision);
 }
