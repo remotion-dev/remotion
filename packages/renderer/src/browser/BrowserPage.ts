@@ -377,10 +377,10 @@ export class Page extends EventEmitter {
 		options: {runBeforeUnload?: boolean} = {runBeforeUnload: undefined}
 	): Promise<void> {
 		const connection = this.#client.connection();
-		assert(
-			connection,
-			'Protocol error: Connection closed. Most likely the page has been closed.'
-		);
+		if (!connection) {
+			return;
+		}
+
 		const runBeforeUnload = Boolean(options.runBeforeUnload);
 		if (runBeforeUnload) {
 			await this.#client.send('Page.close');
