@@ -74,13 +74,13 @@ When rendering (for example using the `npm run build` script defined in `package
 **Using inline JSON**
 
 ```bash
-npx remotion render src/index.tsx HelloWorld out/helloworld.mp4 --props='{"propOne": "Hi", "propTwo": 10}'
+npx remotion render HelloWorld out/helloworld.mp4 --props='{"propOne": "Hi", "propTwo": 10}'
 ```
 
 **Using a file path:**
 
 ```bash
-npx remotion render src/index.tsx HelloWorld out/helloworld.mp4 --props=./path/to/props.json
+npx remotion render HelloWorld out/helloworld.mp4 --props=./path/to/props.json
 ```
 
 [See also: CLI flags](/docs/cli)

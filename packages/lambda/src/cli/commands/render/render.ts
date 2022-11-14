@@ -1,4 +1,4 @@
-import {CliInternals} from '@remotion/cli';
+import {CliInternals, ConfigInternals} from '@remotion/cli';
 import {getCompositions, RenderInternals} from '@remotion/renderer';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
@@ -151,7 +151,13 @@ export const renderCommand = async (args: string[]) => {
 			`renderId = ${res.renderId}, codec = ${codec} (${reason})`
 		)
 	);
+	const verbose = RenderInternals.isEqualOrBelowLogLevel(
+		ConfigInternals.Logging.getLogLevel(),
+		'verbose'
+	);
+
 	Log.verbose(`CloudWatch logs (if enabled): ${res.cloudWatchLogs}`);
+	Log.verbose(`Render folder: ${res.folderInS3Console}`);
 	const status = await getRenderProgress({
 		functionName,
 		bucketName: res.bucketName,
@@ -165,6 +171,7 @@ export const renderCommand = async (args: string[]) => {
 			steps: totalSteps,
 			downloadInfo: null,
 			retriesInfo: status.retriesInfo,
+			verbose,
 		})
 	);
 
@@ -184,6 +191,7 @@ export const renderCommand = async (args: string[]) => {
 				steps: totalSteps,
 				retriesInfo: newStatus.retriesInfo,
 				downloadInfo: null,
+				verbose,
 			})
 		);
 
@@ -194,6 +202,7 @@ export const renderCommand = async (args: string[]) => {
 					steps: totalSteps,
 					downloadInfo: null,
 					retriesInfo: newStatus.retriesInfo,
+					verbose,
 				})
 			);
 			if (downloadName) {
@@ -214,6 +223,7 @@ export const renderCommand = async (args: string[]) => {
 									downloaded,
 									totalSize,
 								},
+								verbose,
 							})
 						);
 					},
@@ -228,6 +238,7 @@ export const renderCommand = async (args: string[]) => {
 							downloaded: sizeInBytes,
 							totalSize: sizeInBytes,
 						},
+						verbose,
 					})
 				);
 				Log.info();

@@ -211,6 +211,7 @@ const spawnFfmpeg = async (options: StitcherOptions): Promise<ReturnType> => {
 		(options.assetsInfo.assets.flat(1).length > 0 ||
 			options.enforceAudioTrack) &&
 		!options.muted;
+
 	const shouldRenderVideo = mediaSupport.video;
 
 	if (!shouldRenderAudio && !shouldRenderVideo) {

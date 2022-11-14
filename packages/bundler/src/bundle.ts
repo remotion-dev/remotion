@@ -130,9 +130,10 @@ const findClosestPackageJsonFolder = (currentDir: string): string | null => {
 
 export async function bundle(...args: Arguments): Promise<string> {
 	const actualArgs = convertArgumentsIntoOptions(args);
+	const entryPoint = path.resolve(process.cwd(), actualArgs.entryPoint);
 	const resolvedRemotionRoot =
 		actualArgs?.rootDir ??
-		findClosestPackageJsonFolder(actualArgs.entryPoint) ??
+		findClosestPackageJsonFolder(entryPoint) ??
 		process.cwd();
 
 	const outDir = await prepareOutDir(actualArgs?.outDir ?? null);
@@ -145,7 +146,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 		process.chdir(resolvedRemotionRoot);
 	}
 
-	const {entryPoint, onProgress, ...options} = actualArgs;
+	const {onProgress, ...options} = actualArgs;
 	const [, config] = getConfig({
 		outDir,
 		entryPoint,

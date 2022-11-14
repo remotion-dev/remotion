@@ -165,7 +165,7 @@ values={[
 Run the following command to deploy your Remotion project to an S3 bucket. Pass as the last argument the entry file of the project - this is the file where [`registerRoot()`](/docs/register-root) is called.
 
 ```bash
-npx remotion lambda sites create src/index.tsx --site-name=my-video
+npx remotion lambda sites create src/index.ts --site-name=my-video
 ```
 
 A `serveUrl` will be printed pointing to the deployed project.
@@ -202,7 +202,7 @@ const { bucketName } = await getOrCreateBucket({
 // ---cut---
 const { serveUrl } = await deploySite({
   bucketName,
-  entryPoint: path.resolve(process.cwd(), "src/index.tsx"),
+  entryPoint: path.resolve(process.cwd(), "src/index.ts"),
   region: "us-east-1",
   siteName: "my-video",
 });
