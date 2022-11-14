@@ -220,6 +220,7 @@ export const spawnFfmpeg = async (
 		(options.assetsInfo.assets.flat(1).length > 0 ||
 			options.enforceAudioTrack) &&
 		!options.muted;
+
 	const shouldRenderVideo = mediaSupport.video;
 
 	if (!shouldRenderAudio && !shouldRenderVideo) {

@@ -181,13 +181,13 @@ values={[
 To render only the audio via CLI, specify an extension when exporting via CLI:
 
 ```
-npx remotion render src/index.tsx my-comp out/audio.mp3
+npx remotion render src/index.ts my-comp out/audio.mp3
 ```
 
 or use the `--codec` flag to automatically choose a good output file name:
 
 ```
-npx remotion render src/index.tsx my-comp --codec=mp3
+npx remotion render src/index.ts my-comp --codec=mp3
 ```
 
   </TabItem>

@@ -12,8 +12,9 @@ npx remotion compositions <entry-file>
 ```
 
 If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:
+
 1. Get the path from the Config (Can be set using `Config.Preview.setEntryPoint("<entry-point>")`).
-2. Look for some common paths i.e. `src/index.tsx`, `src/index.ts`, `src/index.js`, `remotion/index.js`.
+2. Look for some common paths i.e. `src/index.ts`, `src/index.tsx`, `src/index.js`, `remotion/index.js`.
 3. Fail as entry point could not be determined.
 
 ## Flags

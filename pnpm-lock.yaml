@@ -28,7 +28,7 @@ importers:
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
       react-refresh: 0.9.0
-      remotion: 3.2.42
+      remotion: 3.2.44
       typescript: ^4.7.0
       webpack: 5.74.0
     dependencies:
@@ -70,7 +70,7 @@ importers:
       react: ^18.0.0
       react-dom: ^18.0.0
       react-refresh: 0.9.0
-      remotion: 3.2.42
+      remotion: 3.2.44
       style-loader: 2.0.0
       typescript: ^4.7.0
       vitest: 0.24.3
@@ -104,10 +104,10 @@ importers:
   packages/cli:
     specifiers:
       '@jonny/eslint-config': 3.0.266
-      '@remotion/bundler': 3.2.42
-      '@remotion/media-utils': 3.2.42
-      '@remotion/player': 3.2.42
-      '@remotion/renderer': 3.2.42
+      '@remotion/bundler': 3.2.44
+      '@remotion/media-utils': 3.2.44
+      '@remotion/player': 3.2.44
+      '@remotion/renderer': 3.2.44
       '@types/minimist': ^1.2.2
       '@types/node': ^16.7.5
       '@types/prompts': ^2.4.1
@@ -130,7 +130,7 @@ importers:
       prompts: 2.4.1
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.2.42
+      remotion: 3.2.44
       semver: 7.3.5
       source-map: 0.6.1
       typescript: ^4.7.0
@@ -220,12 +220,14 @@ importers:
       chalk: 4.1.2
       eslint: 8.25.0
       execa: 5.1.1
+      got: ^11
       minimist: 1.2.6
       prettier: 2.6.2
       prettier-plugin-organize-imports: ^2.3.4
       prompts: 2.4.1
       tar: 6.1.11
       typescript: ^4.7.0
+      vitest: 0.24.3
     dependencies:
       chalk: 4.1.2
       execa: 5.1.1
@@ -239,9 +241,11 @@ importers:
       '@types/prompts': 2.0.14
       '@types/tar': 6.1.1
       eslint: 8.25.0
+      got: 11.8.5
       prettier: 2.6.2
       prettier-plugin-organize-imports: 2.3.4_lbsuufegg2dnc4wh6qgf26kgdy
       typescript: 4.7.2
+      vitest: 0.24.3
 
   packages/discord-poster:
     specifiers:
@@ -261,21 +265,22 @@ importers:
       '@jonny/docusaurus-preset-shiki-twoslash': ^1.1.36
       '@jonny/eslint-config': 3.0.266
       '@mdx-js/react': ^1.6.21
-      '@remotion/babel-loader': 3.2.42
-      '@remotion/bundler': 3.2.42
-      '@remotion/gif': 3.2.42
-      '@remotion/google-fonts': 3.2.42
-      '@remotion/lambda': 3.2.42
-      '@remotion/lottie': 3.2.42
-      '@remotion/media-utils': 3.2.42
-      '@remotion/motion-blur': 3.2.42
-      '@remotion/noise': 3.2.42
-      '@remotion/paths': 3.2.42
-      '@remotion/player': 3.2.42
-      '@remotion/preload': 3.2.42
-      '@remotion/renderer': 3.2.42
-      '@remotion/skia': 3.2.42
-      '@remotion/three': 3.2.42
+      '@remotion/babel-loader': 3.2.44
+      '@remotion/bundler': 3.2.44
+      '@remotion/cli': 3.2.44
+      '@remotion/gif': 3.2.44
+      '@remotion/google-fonts': 3.2.44
+      '@remotion/lambda': 3.2.44
+      '@remotion/lottie': 3.2.44
+      '@remotion/media-utils': 3.2.44
+      '@remotion/motion-blur': 3.2.44
+      '@remotion/noise': 3.2.44
+      '@remotion/paths': 3.2.44
+      '@remotion/player': 3.2.44
+      '@remotion/preload': 3.2.44
+      '@remotion/renderer': 3.2.44
+      '@remotion/skia': 3.2.44
+      '@remotion/three': 3.2.44
       '@shopify/react-native-skia': ^0.1.139
       '@splitbee/web': ^0.2.4
       '@tsconfig/docusaurus': ^1.0.5
@@ -287,7 +292,7 @@ importers:
       clipboard: ^2.0.8
       clsx: ^1.1.1
       color-namer: 1.4.0
-      create-video: 3.2.42
+      create-video: 3.2.44
       eslint: 8.25.0
       got: ^11
       hls.js: ^0.14.17
@@ -298,7 +303,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0
       react-player: ^2.9.0
-      remotion: 3.2.42
+      remotion: 3.2.44
       three: 0.145.0
       typescript: ^4.7.0
       url-loader: ^4.1.1
@@ -314,6 +319,7 @@ importers:
       '@mdx-js/react': 1.6.22_react@18.0.0
       '@remotion/babel-loader': link:../babel-loader
       '@remotion/bundler': link:../bundler
+      '@remotion/cli': link:../cli
       '@remotion/gif': link:../gif
       '@remotion/google-fonts': link:../google-fonts
       '@remotion/lambda': link:../lambda
@@ -358,7 +364,7 @@ importers:
 
   packages/eslint-config:
     specifiers:
-      '@remotion/eslint-plugin': 3.2.42
+      '@remotion/eslint-plugin': 3.2.44
       '@types/node': 17.0.17
       '@typescript-eslint/eslint-plugin': 5.19.0
       '@typescript-eslint/parser': 5.19.0
@@ -399,19 +405,19 @@ importers:
       '@babel/preset-react': 7.12.13
       '@mdx-js/react': ^1.6.21
       '@react-three/drei': ^9.37.0
-      '@remotion/babel-loader': 3.2.42
-      '@remotion/bundler': 3.2.42
-      '@remotion/cli': 3.2.42
-      '@remotion/eslint-config': 3.2.42
-      '@remotion/eslint-plugin': 3.2.42
-      '@remotion/gif': 3.2.42
-      '@remotion/google-fonts': 3.2.42
-      '@remotion/lambda': 3.2.42
-      '@remotion/lottie': 3.2.42
-      '@remotion/media-utils': 3.2.42
-      '@remotion/paths': 3.2.42
-      '@remotion/renderer': 3.2.42
-      '@remotion/three': 3.2.42
+      '@remotion/babel-loader': 3.2.44
+      '@remotion/bundler': 3.2.44
+      '@remotion/cli': 3.2.44
+      '@remotion/eslint-config': 3.2.44
+      '@remotion/eslint-plugin': 3.2.44
+      '@remotion/gif': 3.2.44
+      '@remotion/google-fonts': 3.2.44
+      '@remotion/lambda': 3.2.44
+      '@remotion/lottie': 3.2.44
+      '@remotion/media-utils': 3.2.44
+      '@remotion/paths': 3.2.44
+      '@remotion/renderer': 3.2.44
+      '@remotion/three': 3.2.44
       '@types/babel__core': ^7.1.12
       '@types/babel__template': ^7.4.0
       '@types/express': ^4.17.11
@@ -431,7 +437,7 @@ importers:
       polished: ^4.0.5
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.2.42
+      remotion: 3.2.44
       styled-components: ^5.1.1
       ts-unused-exports: ^7.0.1
       typescript: ^4.7.0
@@ -496,7 +502,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.2.42
+      remotion: 3.2.44
       typescript: ^4.7.0
       webpack: 5.74.0
     dependencies:
@@ -524,7 +530,7 @@ importers:
       axios: ^1.1.3
       postcss: ^8.4.18
       prettier: ^2.7.1
-      remotion: 3.2.42
+      remotion: 3.2.44
       ts-node: ^10.8.0
       typescript: ^4.7.0
     dependencies:
@@ -541,13 +547,13 @@ importers:
 
   packages/it-tests:
     specifiers:
-      '@remotion/bundler': 3.2.42
-      '@remotion/cli': 3.2.42
-      '@remotion/lambda': 3.2.42
-      '@remotion/renderer': 3.2.42
+      '@remotion/bundler': 3.2.44
+      '@remotion/cli': 3.2.44
+      '@remotion/lambda': 3.2.44
+      '@remotion/renderer': 3.2.44
       '@types/sharp': ^0.28.5
       execa: 5.1.1
-      remotion: 3.2.42
+      remotion: 3.2.44
       sharp: 0.30.6
       typescript: ^4.7.0
       vitest: 0.24.3
@@ -574,9 +580,9 @@ importers:
       '@aws-sdk/lib-storage': 3.190.0
       '@aws-sdk/s3-request-presigner': 3.190.0
       '@jonny/eslint-config': 3.0.266
-      '@remotion/bundler': 3.2.42
-      '@remotion/cli': 3.2.42
-      '@remotion/renderer': 3.2.42
+      '@remotion/bundler': 3.2.44
+      '@remotion/cli': 3.2.44
+      '@remotion/renderer': 3.2.44
       '@types/mime-types': 2.1.1
       '@types/minimist': 1.2.2
       '@types/node': ^14.14.14
@@ -588,7 +594,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
-      remotion: 3.2.42
+      remotion: 3.2.44
       ts-node: ^10.8.0
       typescript: ^4.7.0
       vitest: ^0.24.3
@@ -636,7 +642,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.2.42
+      remotion: 3.2.44
       typescript: ^4.7.0
       vitest: 0.24.3
     dependencies:
@@ -665,7 +671,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
-      remotion: 3.2.42
+      remotion: 3.2.44
       typescript: ^4.7.0
     dependencies:
       react: 18.0.0
@@ -689,7 +695,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.2.42
+      remotion: 3.2.44
       typescript: ^4.7.0
     dependencies:
       remotion: link:../core
@@ -710,7 +716,7 @@ importers:
       eslint: 8.25.0
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.2.42
+      remotion: 3.2.44
       simplex-noise: 4.0.1
       typescript: ^4.7.0
       vitest: 0.24.3
@@ -759,7 +765,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.2.42
+      remotion: 3.2.44
       typescript: ^4.7.0
       vitest: 0.24.3
       webpack: 5.74.0
@@ -786,11 +792,11 @@ importers:
   packages/player-example:
     specifiers:
       '@pmmmwh/react-refresh-webpack-plugin': ^0.5.3
-      '@remotion/bundler': 3.2.42
-      '@remotion/eslint-config': 3.2.42
-      '@remotion/gif': 3.2.42
-      '@remotion/player': 3.2.42
-      '@remotion/preload': 3.2.42
+      '@remotion/bundler': 3.2.44
+      '@remotion/eslint-config': 3.2.44
+      '@remotion/gif': 3.2.44
+      '@remotion/player': 3.2.44
+      '@remotion/preload': 3.2.44
       '@types/node': ^12.0.0
       '@types/react': 18.0.23
       '@types/react-dom': 18.0.0
@@ -804,7 +810,7 @@ importers:
       react-dev-utils: ^12.0.1
       react-dom: 18.0.0
       react-refresh: ^0.11.0
-      remotion: 3.2.42
+      remotion: 3.2.44
       typescript: ^4.7.0
       webpack: 5.74.0
       webpack-dev-server: ^4.6.0
@@ -863,7 +869,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.2.42
+      remotion: 3.2.44
       source-map: ^0.8.0-beta.0
       typescript: ^4.7.0
       vitest: 0.24.3
@@ -902,7 +908,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.2.42
+      remotion: 3.2.44
       typescript: ^4.7.0
     dependencies:
       copy-webpack-plugin: 11.0.0_webpack@5.74.0
@@ -933,7 +939,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.2.42
+      remotion: 3.2.44
       three: ^0.145.0
       typescript: ^4.7.0
     dependencies:
@@ -7918,7 +7924,6 @@ packages:
   /@sindresorhus/is/4.6.0:
     resolution: {integrity: sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==}
     engines: {node: '>=10'}
-    dev: false
 
   /@slorber/static-site-generator-webpack-plugin/4.0.7:
     resolution: {integrity: sha512-Ug7x6z5lwrz0WqdnNFOMYrDQNTPAprvHLSh6+/fmml3qUiz6l5eq+2MzLKWtn/q5K5NpSiFsZTP/fck/3vjSxA==}
@@ -8096,7 +8101,6 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       defer-to-connect: 2.0.1
-    dev: false
 
   /@testing-library/dom/8.16.0:
     resolution: {integrity: sha512-uxF4zmnLHHDlmW4l+0WDjcgLVwCvH+OVLpD8Dfp+Bjfz85prwxWGbwXgJdLtkgjD0qfOzkJF9SmA6YZPsMYX4w==}
@@ -8228,7 +8232,6 @@ packages:
       '@types/keyv': 3.1.4
       '@types/node': 18.11.2
       '@types/responselike': 1.0.0
-    dev: false
 
   /@types/chai-subset/1.3.3:
     resolution: {integrity: sha512-frBecisrNGz+F4T6bcc+NLeolfiojh5FxW2klu669+8BARtyQv2C/GkNW6FUodVe4BroGMP/wER/YDGc7rEllw==}
@@ -8323,7 +8326,6 @@ packages:
 
   /@types/http-cache-semantics/4.0.1:
     resolution: {integrity: sha512-SZs7ekbP8CN0txVG2xVRH6EgKmEm31BOxA07vkFaETzZz1xh+cbt8BcI0slpymvwhx5dlFnQG2rTlPVQn+iRPQ==}
-    dev: false
 
   /@types/http-proxy/1.17.8:
     resolution: {integrity: sha512-5kPLG5BKpWYkw/LVOGWpiq3nEVqxiN32rTgI53Sk12/xHFQ2rG3ehI9IO+O3W2QoKeyB92dJkoka8SUm6BX1pA==}
@@ -8358,7 +8360,6 @@ packages:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
       '@types/node': 18.11.2
-    dev: false
 
   /@types/mdast/3.0.10:
     resolution: {integrity: sha512-W864tg/Osz1+9f4lrGTZpCSO5/z4608eUp19tbozkq2HJK6i3z1kT0H9tlADXuYIb1YYOBByU4Jsqkk75q48qA==}
@@ -8384,7 +8385,7 @@ packages:
   /@types/minipass/3.1.2:
     resolution: {integrity: sha512-foLGjgrJkUjLG/o2t2ymlZGEoBNBa/TfoUZ7oCTkOjP1T43UGBJspovJou/l3ZuHvye2ewR5cZNtp2zyWgILMA==}
     dependencies:
-      '@types/node': 18.0.3
+      '@types/node': 18.11.2
     dev: true
 
   /@types/node/12.20.27:
@@ -8532,7 +8533,6 @@ packages:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
       '@types/node': 18.11.2
-    dev: false
 
   /@types/retry/0.12.1:
     resolution: {integrity: sha512-xoDlM2S4ortawSWORYqsdU+2rxdh4LRW9ytc3zmT37RIKQh6IHyKwwtKhKis9ah8ol07DCkZxPt8BBvPjC6v4g==}
@@ -10141,7 +10141,6 @@ packages:
   /cacheable-lookup/5.0.4:
     resolution: {integrity: sha512-2/kNscPhpcxrOigMZzbiWF7dz8ilhb/nIHU3EyZiXWXpeq/au8qJ8VhdftMkty3n7Gj6HIGalQG8oiBNB3AJgA==}
     engines: {node: '>=10.6.0'}
-    dev: false
 
   /cacheable-request/6.1.0:
     resolution: {integrity: sha512-Oj3cAGPCqOZX7Rz64Uny2GYAZNliQSqfbePrgAQ1wKAihYmCUnraBtJtKcGR4xz7wF+LoJC+ssFZvv5BgF9Igg==}
@@ -10167,7 +10166,6 @@ packages:
       lowercase-keys: 2.0.0
       normalize-url: 6.1.0
       responselike: 2.0.1
-    dev: false
 
   /call-bind/1.0.2:
     resolution: {integrity: sha512-7O+FbCihrB5WGbFYesctwmTKae6rOiIzmz1icreWJ+0aA7LJfuqhEso2T9ncpcFtzMQtzXf2QGGueWJGTYsqrA==}
@@ -10494,7 +10492,6 @@ packages:
     resolution: {integrity: sha512-yjLXh88P599UOyPTFX0POsd7WxnbsVsGohcwzHOLspIhhpalPw1BcqED8NblyZLKcGrL8dTgMlcaZxV2jAD41Q==}
     dependencies:
       mimic-response: 1.0.1
-    dev: false
 
   /clone/1.0.4:
     resolution: {integrity: sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==}
@@ -11392,7 +11389,6 @@ packages:
   /defer-to-connect/2.0.1:
     resolution: {integrity: sha512-4tvttepXG1VaYGrRibk5EwJd1t4udunSOVMdLSAL6mId1ix438oPwPZMALY41FCijukO1L0twNcGsdzS7dHgDg==}
     engines: {node: '>=10'}
-    dev: false
 
   /define-lazy-prop/2.0.0:
     resolution: {integrity: sha512-Ds09qNh8yw3khSjiJjiUInaGX9xlqZDY7JVryGxdxV7NPeuqQfplOpQ66yJFZut3jLa5zOwkXw1g9EI2uKh4Og==}
@@ -13502,7 +13498,6 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       pump: 3.0.0
-    dev: false
 
   /get-stream/6.0.1:
     resolution: {integrity: sha512-ts6Wi+2j3jQjqi70w5AlN8DFnkSwC+MqmxEzdEALB2qXZYV3X/b1CTfgPLGJNMeAWxdPfU8FO1ms3NUfaHCPYg==}
@@ -13722,7 +13717,6 @@ packages:
       lowercase-keys: 2.0.0
       p-cancelable: 2.1.1
       responselike: 2.0.1
-    dev: false
 
   /got/9.6.0:
     resolution: {integrity: sha512-R7eWptXuGYxwijs0eV+v3o6+XH1IqVK8dJOEecQfTmkncw9AV4dcw/Dhxi8MdlqPthxxpZyizMzyg8RTmEsG+Q==}
@@ -14095,7 +14089,6 @@ packages:
 
   /http-cache-semantics/4.1.0:
     resolution: {integrity: sha512-carPklcUh7ROWRK7Cv27RPtdhYhUsela/ue5/jKzjegVvXDqM2ILE9Q2BGn9JZJh1g87cp56su/FgQSzcWS8cQ==}
-    dev: false
 
   /http-deceiver/1.2.7:
     resolution: {integrity: sha1-+nFolEq5pRnTN8sL7HKE3D5yPYc=}
@@ -14192,7 +14185,6 @@ packages:
     dependencies:
       quick-lru: 5.1.1
       resolve-alpn: 1.2.1
-    dev: false
 
   /https-proxy-agent/5.0.0:
     resolution: {integrity: sha512-EkYm5BcKUGiduxzSt3Eppko+PiNWNEpa4ySk9vTC6wDsQJW9rHSa+UhGNJoRYp7bz6Ht1eaRIa6QaJqO5rCFbA==}
@@ -15030,7 +15022,6 @@ packages:
 
   /json-buffer/3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
-    dev: false
 
   /json-parse-better-errors/1.0.2:
     resolution: {integrity: sha512-mrqyZKfX5EhL7hvqcV6WG1yYjnjeuYDzDhhcAAUrq8Po85NBQBJP+ZDUT75qZQ98IkUoBqdkExkukOU7Ts2wrw==}
@@ -15141,7 +15132,6 @@ packages:
     resolution: {integrity: sha512-2YvuMsA+jnFGtBareKqgANOEKe1mk3HKiXu2fRmAfyxG0MJAywNhi5ttWA3PMjl4NmpyjZNbFifR2vNjW1znfA==}
     dependencies:
       json-buffer: 3.0.1
-    dev: false
 
   /kind-of/3.2.2:
     resolution: {integrity: sha512-NOW9QQXMoZGg/oqnVNoNTTIFEIid1627WCffUBJEdMxYApq7mNE7CpzucIPc+ZQg25Phej7IJSmX3hO+oblOtQ==}
@@ -15484,7 +15474,6 @@ packages:
   /lowercase-keys/2.0.0:
     resolution: {integrity: sha512-tqNXrS78oMOE73NMxK4EMLQsQowWf8jKooH9g7xPavRT706R6bkQJ6DY2Te7QukaZsulxa30wQ7bk0pm4XiHmA==}
     engines: {node: '>=8'}
-    dev: false
 
   /lru-cache/5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
@@ -16121,7 +16110,6 @@ packages:
   /mimic-response/1.0.1:
     resolution: {integrity: sha512-j5EctnkH7amfV/q5Hgmoal1g2QHFJRraOtmx0JpIqkxhBhI/lJSl1nMpQ45hVarwNETOoWEimndZ4QK0RHxuxQ==}
     engines: {node: '>=4'}
-    dev: false
 
   /mimic-response/3.1.0:
     resolution: {integrity: sha512-z0yWI+4FDrrweS8Zmt4Ej5HdJmky15+L2e6Wgn3+iK5fWzb6T3fhNFq2+MeTRb064c6Wr4N/wv0DzQTjNzHNGQ==}
@@ -16551,7 +16539,6 @@ packages:
   /normalize-url/6.1.0:
     resolution: {integrity: sha512-DlL+XwOy3NxAQ8xuC0okPgK46iuVNAK01YN7RueYBqqFeGsBjV9XmCAzAdgt+667bCl5kPh9EqKKDwnaPG1I7A==}
     engines: {node: '>=10'}
-    dev: false
 
   /npm-bundled/1.1.2:
     resolution: {integrity: sha512-x5DHup0SuyQcmL3s7Rx/YQ8sbw/Hzg0rj48eN0dV7hf5cmQq5PXIeioroH3raV1QC1yh3uTYuMThvEQF3iKgGQ==}
@@ -16915,7 +16902,6 @@ packages:
   /p-cancelable/2.1.1:
     resolution: {integrity: sha512-BZOr3nRQHOntUjTrH8+Lh54smKHoHyur8We1V8DSMVrl5A2malOOwuJRnKRDjSnkoeBh4at6BwEnb5I7Jl31wg==}
     engines: {node: '>=8'}
-    dev: false
 
   /p-finally/1.0.0:
     resolution: {integrity: sha512-LICb2p9CB7FS+0eR1oqWnHhp0FljGLZCWBE9aix0Uye9W8LTQPwMTYVGWQWIw9RdQiDg4+epXQODwIYJtSJaow==}
@@ -17818,6 +17804,7 @@ packages:
       nanoid: 3.3.4
       picocolors: 1.0.0
       source-map-js: 1.0.2
+    dev: false
 
   /postcss/8.4.18:
     resolution: {integrity: sha512-Wi8mWhncLJm11GATDaQKobXSNEYGUHeQLiQqDFG1qQ5UTDPTEvKw0Xt5NsTpktGTwLps3ByrWsBrG0rB8YQ9oA==}
@@ -17826,7 +17813,6 @@ packages:
       nanoid: 3.3.4
       picocolors: 1.0.0
       source-map-js: 1.0.2
-    dev: true
 
   /potpack/1.0.1:
     resolution: {integrity: sha512-15vItUAbViaYrmaB/Pbw7z6qX2xENbFSTA7Ii4tgbPtasxm5v6ryKhKtL91tpWovDJzTiZqdwzhcFBCwiMVdVw==}
@@ -18142,7 +18128,6 @@ packages:
   /quick-lru/5.1.1:
     resolution: {integrity: sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==}
     engines: {node: '>=10'}
-    dev: false
 
   /randombytes/2.1.0:
     resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
@@ -19108,7 +19093,6 @@ packages:
 
   /resolve-alpn/1.2.1:
     resolution: {integrity: sha512-0a1F4l73/ZFZOakJnQ3FvkJ2+gSTQWz/r2KE5OdDY0TxPm5h4GkqkWWfM47T7HsbnOtcJVEF4epCVy6u7Q3K+g==}
-    dev: false
 
   /resolve-cwd/3.0.0:
     resolution: {integrity: sha512-OrZaX2Mb+rJCpH/6CpSqt9xFVpN++x01XnN2ie9g6P5/3xelLAkXWVADpdz1IHD/KFfEXyE6V0U01OQ3UO2rEg==}
@@ -19169,7 +19153,6 @@ packages:
     resolution: {integrity: sha512-4gl03wn3hj1HP3yzgdI7d3lCkF95F21Pz4BPGvKHinyQzALR5CapwC8yIi0Rh58DEMQ/SguC03wFj2k0M/mHhw==}
     dependencies:
       lowercase-keys: 2.0.0
-    dev: false
 
   /restore-cursor/3.1.0:
     resolution: {integrity: sha512-l+sSefzHpj5qimhFSE5a8nufZYAM3sBSVMAPtYkmC+4EH2anSGaEMXSD0izRQbu9nfyQ9y5JrVmp7E8oZrUjvA==}
@@ -21522,7 +21505,7 @@ packages:
         optional: true
     dependencies:
       esbuild: 0.14.49
-      postcss: 8.4.14
+      postcss: 8.4.18
       resolve: 1.22.1
       rollup: 2.76.0
     optionalDependencies:
@@ -21552,7 +21535,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.3
       '@types/chai-subset': 1.3.3
-      '@types/node': 18.0.3
+      '@types/node': 18.11.2
       chai: 4.3.6
       debug: 4.3.4
       local-pkg: 0.4.2
@@ -21592,7 +21575,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.3
       '@types/chai-subset': 1.3.3
-      '@types/node': 18.0.3
+      '@types/node': 18.11.2
       chai: 4.3.6
       debug: 4.3.4
       jsdom: 20.0.1

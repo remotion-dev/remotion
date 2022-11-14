@@ -13,7 +13,7 @@ import type {OutNameInput, Privacy} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {getCloudwatchStreamUrl} from '../shared/get-cloudwatch-stream-url';
+import {getCloudwatchStreamUrl, getS3RenderUrl} from '../shared/get-aws-urls';
 import {serializeInputProps} from '../shared/serialize-input-props';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
@@ -63,6 +63,7 @@ export type RenderMediaOnLambdaOutput = {
 	renderId: string;
 	bucketName: string;
 	cloudWatchLogs: string;
+	folderInS3Console: string;
 };
 
 /**
@@ -182,6 +183,11 @@ export const renderMediaOnLambda = async ({
 				method: LambdaRoutines.renderer,
 				region,
 				renderId: res.renderId,
+			}),
+			folderInS3Console: getS3RenderUrl({
+				bucketName: res.bucketName,
+				renderId: res.renderId,
+				region,
 			}),
 		};
 	} catch (err) {
