@@ -177,7 +177,7 @@ export const renderMedia = ({
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
 	const remotionRoot = findRemotionRoot();
-	validateFfmpeg(ffmpegExecutable ?? null, remotionRoot);
+	validateFfmpeg(ffmpegExecutable ?? null, remotionRoot, 'ffmpeg');
 	validateQuality(options.quality);
 	validateQualitySettings({crf, codec, videoBitrate});
 	validateBitrate(audioBitrate, 'audioBitrate');

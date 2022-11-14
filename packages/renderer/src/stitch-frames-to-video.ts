@@ -200,7 +200,11 @@ export const spawnFfmpeg = async (
 
 	Internals.validateFps(options.fps, 'in `stitchFramesToVideo()`', false);
 	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
-	await validateFfmpeg(options.ffmpegExecutable ?? null, remotionRoot);
+	await validateFfmpeg(
+		options.ffmpegExecutable ?? null,
+		remotionRoot,
+		'ffmpeg'
+	);
 
 	const encoderName = getCodecName(codec);
 	const audioCodecName = getAudioCodecName(codec);

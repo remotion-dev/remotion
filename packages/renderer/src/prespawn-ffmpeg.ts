@@ -65,7 +65,11 @@ export const prespawnFfmpeg = async (
 		scale: 1,
 	});
 	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
-	await validateFfmpeg(options.ffmpegExecutable ?? null, remotionRoot);
+	await validateFfmpeg(
+		options.ffmpegExecutable ?? null,
+		remotionRoot,
+		'ffmpeg'
+	);
 
 	const encoderName = getCodecName(codec);
 	const proResProfileName = getProResProfileName(codec, options.proResProfile);
