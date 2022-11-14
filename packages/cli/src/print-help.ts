@@ -1,5 +1,5 @@
 import {chalk} from './chalk';
-import {INSTALL_COMMAND} from './deps';
+import {INSTALL_COMMAND} from './install';
 import {Log} from './log';
 import {VERSIONS_COMMAND} from './versions';
 
