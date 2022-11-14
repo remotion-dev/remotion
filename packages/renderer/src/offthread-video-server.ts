@@ -49,12 +49,14 @@ export const startOffthreadVideoServer = ({
 	onDownload,
 	onError,
 	downloadMap,
+	remotionRoot,
 }: {
 	ffmpegExecutable: FfmpegExecutable;
 	ffprobeExecutable: FfmpegExecutable;
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
 	downloadMap: DownloadMap;
+	remotionRoot: string;
 }): RequestListener => {
 	return (req, res) => {
 		if (!req.url) {
@@ -96,6 +98,7 @@ export const startOffthreadVideoServer = ({
 					ffprobeExecutable,
 					imageFormat,
 					downloadMap,
+					remotionRoot,
 				});
 			})
 			.then((readable) => {

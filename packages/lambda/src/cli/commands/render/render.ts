@@ -24,7 +24,7 @@ import {makeMultiProgressFromStatus, makeProgressString} from './progress';
 
 export const RENDER_COMMAND = 'render';
 
-export const renderCommand = async (args: string[]) => {
+export const renderCommand = async (args: string[], remotionRoot: string) => {
 	const serveUrl = args[0];
 	if (!serveUrl) {
 		Log.error('No serve URL passed.');
@@ -82,6 +82,7 @@ export const renderCommand = async (args: string[]) => {
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
+		remotionRoot,
 	});
 
 	const imageFormat = CliInternals.getImageFormat(codec);

@@ -61,6 +61,7 @@ export const listCompositionsCommand = async (
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'get-compositions',
+		remotionRoot,
 	});
 
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =

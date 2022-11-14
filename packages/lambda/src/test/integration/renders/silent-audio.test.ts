@@ -87,9 +87,13 @@ test('Should add silent audio if there is no audio', async () => {
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 	});
-	const probe = await RenderInternals.execa('ffprobe', ['-'], {
-		stdin: file,
-	});
+	const probe = await RenderInternals.execa(
+		await RenderInternals.getExecutableBinary(null, process.cwd(), 'ffprobe'),
+		['-'],
+		{
+			stdin: file,
+		}
+	);
 	expect(probe.stderr).toMatch(/Stream #0:0/);
 	expect(probe.stderr).toMatch(/Video: h264/);
 	expect(probe.stderr).toMatch(/Stream #0:1/);

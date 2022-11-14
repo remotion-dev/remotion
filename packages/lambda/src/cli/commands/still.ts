@@ -19,7 +19,7 @@ import {Log} from '../log';
 
 export const STILL_COMMAND = 'still';
 
-export const stillCommand = async (args: string[]) => {
+export const stillCommand = async (args: string[], remotionRoot: string) => {
 	const serveUrl = args[0];
 
 	if (!serveUrl) {
@@ -65,6 +65,7 @@ export const stillCommand = async (args: string[]) => {
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
+		remotionRoot,
 	});
 
 	const functionName = await findFunctionName();

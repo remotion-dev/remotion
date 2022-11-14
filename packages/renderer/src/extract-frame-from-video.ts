@@ -7,6 +7,7 @@ import type {
 import {getVideoStreamDuration} from './assets/get-video-stream-duration';
 import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
 import type {FfmpegExecutable} from './ffmpeg-executable';
+import {getExecutableBinary} from './ffmpeg-flags';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
 import {getVideoInfo} from './get-video-info';
 import {isBeyondLastFrame, markAsBeyondLastFrame} from './is-beyond-last-frame';
@@ -54,6 +55,7 @@ const getFrameOfVideoSlow = async ({
 	needsResize,
 	offset,
 	fps,
+	remotionRoot,
 }: {
 	ffmpegExecutable: FfmpegExecutable;
 	src: string;
@@ -63,6 +65,7 @@ const getFrameOfVideoSlow = async ({
 	needsResize: [number, number] | null;
 	offset: number;
 	fps: number | null;
+	remotionRoot: string;
 }): Promise<Buffer> => {
 	console.warn(
 		`\nUsing a slow method to extract the frame at ${duration}ms of ${src}. See https://remotion.dev/docs/slow-method-to-extract-frame for advice`
@@ -85,7 +88,10 @@ const getFrameOfVideoSlow = async ({
 		'-',
 	].filter(truthy);
 
-	const {stdout, stderr} = execa(ffmpegExecutable ?? 'ffmpeg', command);
+	const {stdout, stderr} = execa(
+		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+		command
+	);
 
 	if (!stderr) {
 		throw new Error('unexpectedly did not get stderr');
@@ -134,6 +140,7 @@ const getFrameOfVideoSlow = async ({
 			specialVCodecForTransparency,
 			needsResize,
 			fps,
+			remotionRoot,
 		});
 	}
 
@@ -153,7 +160,8 @@ const getLastFrameOfVideoFastUnlimited = async (
 	const {duration, fps} = await getVideoStreamDuration(
 		downloadMap,
 		src,
-		ffprobeExecutable
+		ffprobeExecutable,
+		options.remotionRoot
 	);
 
 	if (duration === null) {
@@ -172,13 +180,14 @@ const getLastFrameOfVideoFastUnlimited = async (
 			needsResize: options.needsResize,
 			offset: offset - 1000 / (fps === null ? 10 : fps),
 			fps,
+			remotionRoot: options.remotionRoot,
 		});
 		return last;
 	}
 
 	const actualOffset = `${duration * 1000 - offset}ms`;
 	const {stdout, stderr} = execa(
-		ffmpegExecutable ?? 'ffmpeg',
+		await getExecutableBinary(ffmpegExecutable, options.remotionRoot, 'ffmpeg'),
 		[
 			'-ss',
 			actualOffset,
@@ -241,6 +250,7 @@ const getLastFrameOfVideoFastUnlimited = async (
 			specialVCodecForTransparency: options.specialVCodecForTransparency,
 			needsResize: options.needsResize,
 			downloadMap: options.downloadMap,
+			remotionRoot: options.remotionRoot,
 		});
 
 		return unlimited;
@@ -268,6 +278,7 @@ type Options = {
 	ffprobeExecutable: FfmpegExecutable;
 	imageFormat: OffthreadVideoImageFormat;
 	downloadMap: DownloadMap;
+	remotionRoot: string;
 };
 
 const extractFrameFromVideoFn = async ({
@@ -276,22 +287,31 @@ const extractFrameFromVideoFn = async ({
 	ffprobeExecutable,
 	imageFormat,
 	downloadMap,
+	remotionRoot,
 	...options
 }: Options): Promise<Buffer> => {
 	// We make a new copy of the video only for video because the conversion may affect
 	// audio rendering, so we work with 2 different files
-	const src = await ensurePresentationTimestamps(downloadMap, options.src);
+	const src = await ensurePresentationTimestamps({
+		downloadMap,
+		src: options.src,
+		remotionRoot,
+		ffmpegExecutable,
+		ffprobeExecutable,
+	});
 	const {specialVcodec, needsResize} = await getVideoInfo(
 		downloadMap,
 		src,
-		ffprobeExecutable
+		ffprobeExecutable,
+		remotionRoot
 	);
 
 	if (specialVcodec === 'vp8') {
 		const {fps} = await getVideoStreamDuration(
 			downloadMap,
 			src,
-			ffprobeExecutable
+			ffprobeExecutable,
+			remotionRoot
 		);
 		return getFrameOfVideoSlow({
 			ffmpegExecutable,
@@ -302,6 +322,7 @@ const extractFrameFromVideoFn = async ({
 			needsResize,
 			offset: 0,
 			fps,
+			remotionRoot,
 		});
 	}
 
@@ -315,13 +336,14 @@ const extractFrameFromVideoFn = async ({
 			specialVCodecForTransparency: specialVcodec,
 			needsResize,
 			downloadMap,
+			remotionRoot,
 		});
 		return lastFrame;
 	}
 
 	const ffmpegTimestamp = frameToFfmpegTimestamp(time);
 	const {stdout, stderr} = execa(
-		ffmpegExecutable ?? 'ffmpeg',
+		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
 		[
 			'-ss',
 			ffmpegTimestamp,
@@ -383,6 +405,7 @@ const extractFrameFromVideoFn = async ({
 			specialVCodecForTransparency: specialVcodec,
 			needsResize,
 			downloadMap,
+			remotionRoot,
 		});
 
 		return last;

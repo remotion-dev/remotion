@@ -450,6 +450,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		expectedBucketOwner: options.expectedBucketOwner,
 		fps,
 		numberOfGifLoops: params.numberOfGifLoops,
+		ffmpegExecutable: null,
+		remotionRoot: process.cwd(),
 		onErrors,
 	});
 	if (!encodingStop) {

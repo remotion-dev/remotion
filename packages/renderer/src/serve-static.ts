@@ -16,6 +16,7 @@ export const serveStatic = async (
 		onDownload: RenderMediaOnDownload;
 		onError: (err: Error) => void;
 		downloadMap: DownloadMap;
+		remotionRoot: string;
 	}
 ): Promise<{
 	port: number;
@@ -29,6 +30,7 @@ export const serveStatic = async (
 		onDownload: options.onDownload,
 		onError: options.onError,
 		downloadMap: options.downloadMap,
+		remotionRoot: options.remotionRoot,
 	});
 
 	try {
