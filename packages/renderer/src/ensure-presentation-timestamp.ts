@@ -13,7 +13,15 @@ type Callback = {
 
 let callbacks: Callback[] = [];
 
-const getTemporaryOutputName = async (src: string, remotionRoot: string) => {
+const getTemporaryOutputName = async ({
+	src,
+	remotionRoot,
+	ffprobeBinary,
+}: {
+	src: string;
+	remotionRoot: string;
+	ffprobeBinary: string | null;
+}) => {
 	const parts = src.split(path.sep);
 
 	// If there is no file extension for the video, then we need to temporarily add an extension
@@ -21,7 +29,11 @@ const getTemporaryOutputName = async (src: string, remotionRoot: string) => {
 	const lastPart = parts[parts.length - 1];
 	const extraExtension = lastPart.includes('.')
 		? null
-		: await guessExtensionForVideo(src, remotionRoot);
+		: await guessExtensionForVideo({
+				src,
+				remotionRoot,
+				ffprobeBinary,
+		  });
 
 	return parts
 		.map((p, i) => {
@@ -34,12 +46,19 @@ const getTemporaryOutputName = async (src: string, remotionRoot: string) => {
 		.join(path.sep);
 };
 
-export const ensurePresentationTimestamps = async (
-	downloadMap: DownloadMap,
-	src: string,
-	remotionRoot: string,
-	ffmpegExecutable: FfmpegExecutable
-): Promise<string> => {
+export const ensurePresentationTimestamps = async ({
+	downloadMap,
+	src,
+	remotionRoot,
+	ffmpegExecutable,
+	ffprobeExecutable,
+}: {
+	downloadMap: DownloadMap;
+	src: string;
+	remotionRoot: string;
+	ffmpegExecutable: FfmpegExecutable;
+	ffprobeExecutable: FfmpegExecutable;
+}): Promise<string> => {
 	const elem = downloadMap.ensureFileHasPresentationTimestamp[src];
 	if (elem?.type === 'encoding') {
 		return new Promise<string>((resolve) => {
@@ -57,7 +76,11 @@ export const ensurePresentationTimestamps = async (
 	downloadMap.ensureFileHasPresentationTimestamp[src] = {type: 'encoding'};
 
 	// If there is no file extension for the video, then we need to tempoa
-	const output = await getTemporaryOutputName(src, remotionRoot);
+	const output = await getTemporaryOutputName({
+		src,
+		remotionRoot,
+		ffprobeBinary: ffprobeExecutable,
+	});
 
 	await execa(
 		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),

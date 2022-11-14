@@ -292,12 +292,13 @@ const extractFrameFromVideoFn = async ({
 }: Options): Promise<Buffer> => {
 	// We make a new copy of the video only for video because the conversion may affect
 	// audio rendering, so we work with 2 different files
-	const src = await ensurePresentationTimestamps(
+	const src = await ensurePresentationTimestamps({
 		downloadMap,
-		options.src,
+		src: options.src,
 		remotionRoot,
-		ffmpegExecutable
-	);
+		ffmpegExecutable,
+		ffprobeExecutable,
+	});
 	const {specialVcodec, needsResize} = await getVideoInfo(
 		downloadMap,
 		src,
