@@ -299,7 +299,6 @@ const innerRenderFrames = ({
 		const pool = await poolPromise;
 		const freePage = await pool.acquire();
 
-		console.log('free page', {freePage: freePage.id, frame});
 		if (stopped) {
 			return reject(new Error('Render was stopped'));
 		}
