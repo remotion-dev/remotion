@@ -1,17 +1,27 @@
 import {BrowserEmittedEvents} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
+import {PageEmittedEvents} from './browser/BrowserPage';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 
 export const waitForReady = (page: Page) => {
 	return Promise.race([
 		new Promise((_, reject) => {
-			page.browser.once(BrowserEmittedEvents.ClosedSilent, () => {
+			page.on(PageEmittedEvents.Disposed, () => {
+				reject(new Error('Target closed (page disposed)'));
+			});
+		}),
+		new Promise((_, reject) => {
+			page.browser.on(BrowserEmittedEvents.ClosedSilent, () => {
 				reject(new Error('Target closed'));
 			});
 		}),
 		page
 			.mainFrame()
-			._mainWorld.waitForFunction(page.browser, 'window.ready === true'),
+			._mainWorld.waitForFunction(page.browser, 'window.ready === true')
+			.catch((err) => {
+				console.log({err, page, closed: page.closed});
+				throw err;
+			}),
 	]);
 };
 
