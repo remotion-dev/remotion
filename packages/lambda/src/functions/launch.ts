@@ -213,7 +213,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	if (chunkCount > MAX_FUNCTIONS_PER_RENDER) {
 		throw new Error(
-			`Too many functions: This render would cause ${chunkCount} functions to spawn. We limit this amount to ${MAX_FUNCTIONS_PER_RENDER} functions as more would result in diminishing returns. Values set: frameCount = ${frameCount}, framesPerLambda=${framesPerLambda}. See ${DOCS_URL}/docs/lambda/concurrency for how this parameter is calculated.`
+			`Too many functions: This render would cause ${chunkCount} functions to spawn. We limit this amount to ${MAX_FUNCTIONS_PER_RENDER} functions as more would result in diminishing returns. Values set: frameCount = ${frameCount}, framesPerLambda=${framesPerLambda}. See ${DOCS_URL}/docs/lambda/concurrency#too-many-functions for help.`
 		);
 	}
 

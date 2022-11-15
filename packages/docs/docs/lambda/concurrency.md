@@ -52,3 +52,14 @@ Ensure that you only set parameter within these limits to ensure the renders don
 - Maximum concurrency: 200
 
 The Remotion Lambda defaults will never go outside these bounds.
+
+## "Too many functions"
+
+If you get an error:
+
+> Too many functions: This render would cause [X] functions to spawn. We limit this amount to 200 functions as more would result in diminishing returns.
+
+You have set a value for `framesPerLambda` that is very low and would cause many functions to be spawned. In our experience, renders will not become faster if the concurrency is increased beyond this point.
+
+- We recommend setting the `framesPerLambda` value to `null`. Remotion will choose a reasonable value that stays within the bounds.
+- If you don't want to use the default, ensure that you don't set values that go outside of the bounds defined above.
