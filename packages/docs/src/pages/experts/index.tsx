@@ -1,4 +1,5 @@
 import Head from "@docusaurus/Head";
+import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
 import React, { useMemo } from "react";
 import { random } from "remotion";
@@ -83,7 +84,7 @@ const Experts: React.FC = () => {
           <br />
           {expertsInRandomOrder.map((e) => {
             return (
-              <a key={e.name} style={link} href={`/experts/${e.slug}`}>
+              <Link key={e.name} style={link} href={`/experts/${e.slug}`}>
                 <div className={styles.card}>
                   <img className={styles.profile} src={e.image} />
                   <div className={styles.spacer} />
@@ -173,7 +174,7 @@ const Experts: React.FC = () => {
                     <br />
                   </div>
                 </div>
-              </a>
+              </Link>
             );
           })}
         </div>
