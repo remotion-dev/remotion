@@ -61,14 +61,18 @@ export const Background: React.FC = () => {
 };
 ```
 
-Return the background in your main composition `src/Comp.tsx`:
+Return the background in your main composition `src/Composition.tsx`:
 
 ```tsx twoslash
+// @filename: Background.tsx
 export const Background: React.FC = () => null;
+
+// @filename: Composition.tsx
 import React from "react";
 import { AbsoluteFill } from "remotion";
-
+import { Background } from "./Background";
 // ---cut---
+
 export const MyComposition: React.FC = () => {
   return (
     <AbsoluteFill>
