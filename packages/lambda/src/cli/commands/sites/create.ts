@@ -150,4 +150,16 @@ export const sitesCreateSubcommand = async (
 
 	Log.info(`Serve URL: ${serveUrl}`);
 	Log.info(`Site Name: ${siteName}`);
+
+	Log.info();
+	Log.info(
+		CliInternals.chalk.blueBright(
+			'ℹ️ If you make changes to your code, you need to redeploy the site. You can overwrite the existing site by running:'
+		)
+	);
+	Log.info(
+		CliInternals.chalk.blueBright(
+			`npx remotion lambda sites create ${args[0]} --site-name=${siteName}`
+		)
+	);
 };
