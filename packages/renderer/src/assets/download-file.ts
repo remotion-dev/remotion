@@ -18,6 +18,12 @@ export const downloadFile = ({
 		| undefined;
 }) => {
 	return new Promise<{sizeInBytes: number; to: string}>((resolve, reject) => {
+		let rejected = false;
+		const rejectAndFlag = (err: Error) => {
+			reject(err);
+			rejected = true;
+		};
+
 		readFile(url)
 			.then((res) => {
 				const contentDisposition = res.headers['content-disposition'] ?? null;
@@ -36,6 +42,10 @@ export const downloadFile = ({
 				// concise method to avoid this problem
 				// https://github.com/remotion-dev/remotion/issues/384#issuecomment-844398183
 				writeStream.on('close', () => {
+					if (rejected) {
+						return;
+					}
+
 					onProgress?.({
 						downloaded,
 						percent: 1,
@@ -43,9 +53,9 @@ export const downloadFile = ({
 					});
 					return resolve({sizeInBytes: downloaded, to});
 				});
-				writeStream.on('error', (err) => reject(err));
-				res.on('error', (err) => reject(err));
-				res.pipe(writeStream).on('error', (err) => reject(err));
+				writeStream.on('error', (err) => rejectAndFlag(err));
+				res.on('error', (err) => rejectAndFlag(err));
+				res.pipe(writeStream).on('error', (err) => rejectAndFlag(err));
 				res.on('data', (d) => {
 					downloaded += d.length;
 					onProgress?.({
@@ -54,9 +64,20 @@ export const downloadFile = ({
 						totalSize,
 					});
 				});
+				res.on('close', () => {
+					if (totalSize !== null && downloaded !== totalSize) {
+						rejectAndFlag(
+							new Error(
+								`Download finished with ${downloaded} bytes, but expected ${totalSize} bytes from 'Content-Length'.`
+							)
+						);
+					}
+
+					writeStream.close();
+				});
 			})
 			.catch((err) => {
-				reject(err);
+				rejectAndFlag(err);
 			});
 	});
 };
