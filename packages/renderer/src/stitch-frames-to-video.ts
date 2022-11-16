@@ -452,7 +452,8 @@ export const spawnFfmpeg = async (
 				return null;
 			}
 
-			return readFile(tempFile)
+			return promises
+				.readFile(tempFile)
 				.then((file) => {
 					return Promise.all([
 						file,
