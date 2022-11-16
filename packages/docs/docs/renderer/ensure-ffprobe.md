@@ -29,7 +29,7 @@ Optionally, you can pass an object and pass the following options:
 
 _string_
 
-The directory in which your `node_modules` is locted.
+The directory in which your `node_modules` is located.
 
 ## Return value
 
