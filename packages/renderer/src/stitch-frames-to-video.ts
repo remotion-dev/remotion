@@ -1,6 +1,5 @@
 import execa from 'execa';
-import fs from 'fs';
-import {readFile} from 'fs/promises';
+import fs, {promises} from 'fs';
 import path from 'path';
 import type {TAsset} from 'remotion';
 import {Internals} from 'remotion';
@@ -319,7 +318,8 @@ export const spawnFfmpeg = async (
 
 		const file = await new Promise<Buffer | null>((resolve, reject) => {
 			if (tempFile) {
-				readFile(tempFile)
+				promises
+					.readFile(tempFile)
 					.then((f) => {
 						return resolve(f);
 					})
