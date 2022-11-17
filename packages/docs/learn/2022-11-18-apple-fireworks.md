@@ -678,5 +678,74 @@ export const Stars: React.FC = () => {
 };
 ```
 
-Here is how the complete firework should look like:
+Here is how the almost complete firework should look like:
 <img src="/img/apple-wow-tutorial/DotsAndHeartsAndStars.gif"/>
+
+## Slow motion effect
+
+Lastly let's apply a nice slow motion effect to the firework. You can do this by wrapping all moving components in a component called `<Slowed>`.
+
+```tsx title="src/SlowedTrail.tsx"
+import React from "react";
+import { Freeze, interpolate, useCurrentFrame } from "remotion";
+
+// RemapSpeed() is a helper function for the component <Slowed> that takes a frame number and a speed
+const remapSpeed = ({
+  frame,
+  speed,
+}: {
+  frame: number;
+  speed: (fr: number) => number;
+}) => {
+  let framesPassed = 0;
+  for (let i = 0; i <= frame; i++) {
+    framesPassed += speed(i);
+  }
+
+  return framesPassed;
+};
+
+export const Slowed: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => {
+  const frame = useCurrentFrame();
+  const remappedFrame = remapSpeed({
+    frame,
+    speed: (f) =>
+      interpolate(f, [0, 20, 21], [1.5, 1.5, 0.5], {
+        extrapolateRight: "clamp",
+      }),
+  });
+
+  return <Freeze frame={remappedFrame}>{children}</Freeze>;
+};
+```
+
+As you can tell now everything is very composible. The main composition looks like this:
+
+```tsx title="src/Slowed.tsx"
+import { AbsoluteFill } from "remotion";
+import { Background } from "./Background";
+import { Dots } from "./Dots";
+import { RedHearts } from "./RedHearts";
+import { Slowed } from "./SlowedTrail";
+import { Stars } from "./Stars";
+import { YellowHearts } from "./YellowHearts";
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Background />
+      <Slowed>
+        <Dots />
+        <RedHearts />
+        <YellowHearts />
+        <Stars />
+      </Slowed>
+    </AbsoluteFill>
+  );
+};
+```
+
+Your final firework should look like this:
+<img src="/img/apple-wow-tutorial/Slowed.gif"/>
