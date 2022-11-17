@@ -19,6 +19,19 @@ export type GetCompositionsOnLambdaInput = {
 
 export type GetCompositionsOnLambdaOutput = {};
 
+/**
+ * @description Returns the compositions from a serveUrl
+ * @link https://remotion.dev/docs/lambda/getcompositionsonlambda
+ * @param params.functionName The name of the Lambda function that should be used
+ * @param params.serveUrl The URL of the deployed project
+ * @param params.inputProps The input props that should be passed while the compositions are evaluated.
+ * @param params.envVariables Object containing environment variables to be inserted into the video environment
+ * @param params.region The AWS region in which the video should be rendered.
+ * @param params.logLevel The log level of the Lambda function
+ * @param params.timeoutInMilliseconds The timeout of the Lambda function
+ * @param params.chromiumOptions The options to pass to Chromium
+ * @returns The compositions
+ */
 export const getCompositionsOnLambda = async ({
 	chromiumOptions,
 	serveUrl,
