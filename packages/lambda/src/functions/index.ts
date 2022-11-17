@@ -101,7 +101,9 @@ export const handler = async <T extends LambdaRoutines>(
 			isWarm,
 		});
 
-		return compositionsHandler(params);
+		return compositionsHandler(params, {
+			expectedBucketOwner: currentUserId,
+		});
 	}
 
 	throw new Error(COMMAND_NOT_FOUND);
