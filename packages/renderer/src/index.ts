@@ -11,7 +11,6 @@ import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
-import {canExtractFramesFast} from './extract-frame-from-video';
 import {
 	ffmpegHasFeature,
 	getExecutableBinary,
@@ -71,6 +70,7 @@ export {FfmpegExecutable} from './ffmpeg-executable';
 export {FfmpegVersion} from './ffmpeg-flags';
 export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FrameRange} from './frame-range';
+export {getCanExtractFramesFast} from './get-can-extract-frames-fast';
 export {getCompositions} from './get-compositions';
 export {
 	ImageFormat,
@@ -153,7 +153,6 @@ export const RenderInternals = {
 	getExecutableBinary,
 	validateBitrate,
 	getFfmpegVersion,
-	canExtractFramesFast,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

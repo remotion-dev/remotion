@@ -108,6 +108,7 @@ module.exports = {
         "renderer/make-cancel-signal",
         "renderer/ensure-ffmpeg",
         "renderer/ensure-ffprobe",
+        "renderer/can-extract-frames-fast",
       ],
     },
     {
