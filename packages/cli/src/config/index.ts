@@ -79,6 +79,7 @@ import {setLogLevel} from './log';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
 import {getMuted, setMuted} from './muted';
 import {getNumberOfGifLoops, setNumberOfGifLoops} from './number-of-gif-loops';
+import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
 import {overrideWebpackConfig} from './override-webpack';
@@ -97,6 +98,7 @@ export const Config: ConfigType = {
 	Preview: {
 		setMaxTimelineTracks,
 		setKeyboardShortcutsEnabled,
+		setNumberOfSharedAudioTags,
 	},
 	Bundling: {
 		overrideWebpackConfig,
