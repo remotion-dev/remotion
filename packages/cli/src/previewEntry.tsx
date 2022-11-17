@@ -17,7 +17,7 @@ const getServerDisconnectedDomElement = () => {
 };
 
 const content = (
-	<Internals.RemotionRoot>
+	<Internals.RemotionRoot numberOfAudioTags={window.remotion_numberOfAudioTags}>
 		<EditorContexts>
 			<Editor />
 		</EditorContexts>
