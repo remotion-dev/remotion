@@ -68,7 +68,8 @@ const handleFallback = async ({
 			previewServerCommand:
 				packageManager === 'unknown' ? null : packageManager.startCommand,
 			numberOfAudioTags:
-				parsedCli['number-shared-audio-tags'] ?? getNumberOfSharedAudioTags(),
+				parsedCli['number-of-shared-audio-tags'] ??
+				getNumberOfSharedAudioTags(),
 		})
 	);
 };
