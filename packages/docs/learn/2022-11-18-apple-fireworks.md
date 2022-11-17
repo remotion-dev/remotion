@@ -412,3 +412,271 @@ export const MyComposition = () => {
 
 And this is how your animation with the duplicated dots should look like:
 <img src="/img/apple-wow-tutorial/Trail.gif"/>
+
+## Duplicating the `<Trail>` in a circular manner
+
+In a next step you are going to create a `<Explosion>` component. It takes children and duplicates them for example 10 times and applies a rotation to each child.
+
+```tsx title="src/Explosion.tsx"
+import React from "react";
+import { AbsoluteFill } from "remotion";
+
+const AMOUNT = 10;
+
+export const Explosion: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => {
+  return (
+    <AbsoluteFill>
+      {new Array(AMOUNT).fill(true).map((_, i) => {
+        return (
+          <AbsoluteFill
+            style={{
+              rotate: (i / AMOUNT) * (Math.PI * 2) + "rad",
+            }}
+          >
+            {children}
+          </AbsoluteFill>
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
+```
+
+Your main composition (`src/Composition.tsx`) looks like this:
+
+```tsx
+import { AbsoluteFill } from "remotion";
+import { Background } from "./Background";
+import { Dot } from "./Dot";
+import { Explosion } from "./Explosion";
+import { Shrinking } from "./Shrinking";
+import { Trail } from "./Trail";
+// ---cut---
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Background />
+      <Explosion>
+        <Trail amount={4} extraOffset={0}>
+          <Shrinking>
+            <Dot />
+          </Shrinking>
+        </Trail>
+      </Explosion>
+    </AbsoluteFill>
+  );
+};
+```
+
+The animated explosion should look like this:
+<img src="/img/apple-wow-tutorial/Explosion.gif"/>
+
+## Cleanup
+
+You have crated a bunch of files until now, let's put most of them together in one file called `src/Dots.tsx` and create a new and combined component called `<Dots>`.
+
+```tsx title="src/Dots.tsx"
+import React from "react";
+import { Sequence } from "remotion";
+import { Dot } from "./Dot";
+import { Explosion } from "./Explosion";
+import { Shrinking } from "./Shrinking";
+import { Trail } from "./Trail";
+
+export const Dots: React.FC = () => {
+  return (
+    <Explosion>
+      <Trail amount={4} extraOffset={0}>
+        <Shrinking>
+          <Sequence from={5}>
+            <Dot />
+          </Sequence>
+        </Shrinking>
+      </Trail>
+    </Explosion>
+  );
+};
+```
+
+Using `<Dots>` our main composition `src/Composition.tsx` looks now clean:
+
+```tsx
+import { AbsoluteFill } from "remotion";
+import { Background } from "./Background";
+import { Dots } from "./Dots";
+// ---cut---
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Background />
+      <Dots />
+    </AbsoluteFill>
+  );
+};
+```
+
+Nothing has changed on the animation itself:
+<img src="/img/apple-wow-tutorial/Dots.gif"/>
+
+## Adding stars and hearts
+
+Next to the dots we also add some stars and hearts in different colors. This way the explosion gets a nice WOW effect. In this step we are basically repeating the previous steps. Next to the `<Dots>` component, we add three more components: `<RedHearts>`, `<YellowHearts>` and `<Stars>`.
+
+```tsx title="src/RedHeart.tsx"
+import React from "react";
+import { AbsoluteFill } from "remotion";
+
+export const RedHeart: React.FC = () => {
+  return (
+    <AbsoluteFill
+      style={{
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      ❤️
+    </AbsoluteFill>
+  );
+};
+```
+
+Effects like `<Shrinking>`, `<Move>` and `<Explosion>` need to be applied. Also to consider is that you need to change the position of the `<RedHearts>` otherwise they would be on top of the `<Dots>`, you want to avoid this by changing the `<AbsoluteFill>`:
+
+```tsx title="src/RedHearts.tsx"
+import React from "react";
+import { AbsoluteFill } from "remotion";
+import { Explosion } from "./Explosion";
+import { Move } from "./Move";
+import { RedHeart } from "./RedHeart";
+import { Shrinking } from "./Shrinking";
+
+export const RedHearts: React.FC = () => {
+  return (
+    <Explosion>
+      <Move delay={5}>
+        <AbsoluteFill style={{ transform: `translateY(-100px)` }}>
+          <Shrinking>
+            <RedHeart />
+          </Shrinking>
+        </AbsoluteFill>
+      </Move>
+    </Explosion>
+  );
+};
+```
+
+We do the same for the `<YellowHearts>`:
+
+```tsx title="src/YellowHeart.tsx"
+import React from "react";
+import { AbsoluteFill } from "remotion";
+
+export const YellowHeart: React.FC = () => {
+  return (
+    <AbsoluteFill
+      style={{
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      💛
+    </AbsoluteFill>
+  );
+};
+```
+
+```tsx title="src/YellowHearts.tsx"
+import React from "react";
+import { AbsoluteFill } from "remotion";
+import { Explosion } from "./Explosion";
+import { Move } from "./Move";
+import { Shrinking } from "./Shrinking";
+import { YellowHeart } from "./YellowHeart";
+
+export const YellowHearts: React.FC = () => {
+  return (
+    <AbsoluteFill
+      style={{
+        rotate: "0.3rad",
+      }}
+    >
+      <Explosion>
+        <Move delay={20}>
+          <AbsoluteFill
+            style={{
+              transform: `translateY(-50px)`,
+            }}
+          >
+            <Shrinking>
+              <YellowHeart />
+            </Shrinking>
+          </AbsoluteFill>
+        </Move>
+      </Explosion>
+    </AbsoluteFill>
+  );
+};
+```
+
+Your main composition should look like this:
+<img src="/img/apple-wow-tutorial/DotsAndHearts.gif"/>
+
+<br/>
+<br/>
+
+As already described above we want to add some `<Stars>` to the explosion:
+
+```tsx title="src/Star.tsx"
+import React from "react";
+import { AbsoluteFill } from "remotion";
+
+export const Star: React.FC = () => {
+  return (
+    <AbsoluteFill
+      style={{
+        justifyContent: "center",
+        alignItems: "center",
+        fontSize: 14,
+      }}
+    >
+      ⭐
+    </AbsoluteFill>
+  );
+};
+```
+
+Effects like `<Shrinking>`, `<Trail>` and `<Explosion>` need to be applied. Also to consider is that you need to change the position of the `<Stars>` otherwise they would be on top of the `<Dots>`, you want to avoid this by rotating the `<Stars>` and giving `<Trail>` an `extraOffset`:
+
+```tsx title="src/Stars.tsx"
+import React from "react";
+import { AbsoluteFill } from "remotion";
+import { Explosion } from "./Explosion";
+import { Shrinking } from "./Shrinking";
+import { Star } from "./Star";
+import { Trail } from "./Trail";
+
+export const Stars: React.FC = () => {
+  return (
+    <AbsoluteFill
+      style={{
+        rotate: "0.3rad",
+      }}
+    >
+      <Explosion>
+        <Trail extraOffset={100} amount={4}>
+          <Shrinking>
+            <Star />
+          </Shrinking>
+        </Trail>
+      </Explosion>
+    </AbsoluteFill>
+  );
+};
+```
+
+Here is how the complete firework should look like:
+<img src="/img/apple-wow-tutorial/DotsAndHeartsAndStars.gif"/>
