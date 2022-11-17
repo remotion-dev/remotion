@@ -1,6 +1,6 @@
 ---
 title: getCanExtractFramesFast()
-id: can-extract-frames-fast
+id: get-can-extract-frames-fast
 ---
 
 _Available since v3.3.2 - Part of the `@remotion/renderer` package._
@@ -31,6 +31,14 @@ Using this API, you can probe whether this issue affects your video file. It wil
 When `canExtractFramesFast` is `false`, you should check the `shouldReencode` flag. If it is true, you can re-encode the video to make the render faster. Note that it is not always faster to re-encode the video than it is to deal with a slow render.
 
 Videos with a VP8 codec don't support fast frame extraction at all, and therefore `shouldReencode` can be false even if `canExtractFramesFast` is false.
+
+## Reencoding a video
+
+You can re-encode a video using FFmpeg:
+
+```sh
+ffmpeg -i inputvideo.mp4 outputvideo.mp4
+```
 
 ## Arguments
 
