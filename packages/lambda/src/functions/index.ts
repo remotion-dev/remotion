@@ -2,6 +2,7 @@ import {RenderInternals} from '@remotion/renderer';
 import type {LambdaPayload} from '../shared/constants';
 import {COMMAND_NOT_FOUND, LambdaRoutines} from '../shared/constants';
 import type {LambdaReturnValues} from '../shared/return-values';
+import {compositionsHandler} from './compositions';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getWarm, setWarm} from './helpers/is-warm';
 import {printCloudwatchHelper} from './helpers/print-cloudwatch-helper';
@@ -93,6 +94,14 @@ export const handler = async <T extends LambdaRoutines>(
 		});
 
 		return infoHandler(params);
+	}
+
+	if (params.type === LambdaRoutines.compositions) {
+		printCloudwatchHelper(LambdaRoutines.compositions, {
+			isWarm,
+		});
+
+		return compositionsHandler(params);
 	}
 
 	throw new Error(COMMAND_NOT_FOUND);
