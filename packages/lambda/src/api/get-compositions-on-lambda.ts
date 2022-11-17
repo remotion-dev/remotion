@@ -1,4 +1,5 @@
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
+import type {TCompMetadata} from 'remotion';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
 import {LambdaRoutines} from '../defaults';
@@ -17,7 +18,9 @@ export type GetCompositionsOnLambdaInput = {
 	timeoutInMilliseconds?: number;
 };
 
-export type GetCompositionsOnLambdaOutput = {};
+export type GetCompositionsOnLambdaOutput = {
+	compositions: TCompMetadata[];
+};
 
 /**
  * @description Returns the compositions from a serveUrl
@@ -41,7 +44,7 @@ export const getCompositionsOnLambda = async ({
 	envVariables,
 	logLevel,
 	timeoutInMilliseconds,
-}: GetCompositionsOnLambdaInput) => {
+}: GetCompositionsOnLambdaInput): Promise<GetCompositionsOnLambdaOutput> => {
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
 
 	const serializedInputProps = await serializeInputProps({
