@@ -8,6 +8,7 @@ export const indexHtml = ({
 	staticHash,
 	remotionRoot,
 	previewServerCommand,
+	numberOfAudioTags,
 }: {
 	staticHash: string;
 	baseDir: string;
@@ -16,6 +17,7 @@ export const indexHtml = ({
 	envVariables?: Record<string, string>;
 	remotionRoot: string;
 	previewServerCommand: string | null;
+	numberOfAudioTags: number;
 }) =>
 	`
 <!DOCTYPE html>
@@ -28,6 +30,7 @@ export const indexHtml = ({
 		<title>Remotion Preview</title>
 	</head>
 	<body>
+    <script>window.remotion_numberOfAudioTags = ${numberOfAudioTags};</script>
     <script>window.remotion_staticBase = "${staticHash}";</script>
 		<div id="video-container"></div>
 		<div id="explainer-container"></div>
