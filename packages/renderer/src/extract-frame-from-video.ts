@@ -2,6 +2,7 @@ import execa from 'execa';
 import type {OffthreadVideoImageFormat} from 'remotion';
 import type {
 	DownloadMap,
+	NeedsResize,
 	SpecialVCodecForTransparency,
 } from './assets/download-map';
 import {getVideoStreamDuration} from './assets/get-video-stream-duration';
@@ -186,57 +187,15 @@ const getLastFrameOfVideoFastUnlimited = async (
 	}
 
 	const actualOffset = `${duration * 1000 - offset}ms`;
-	const {stdout, stderr} = execa(
-		await getExecutableBinary(ffmpegExecutable, options.remotionRoot, 'ffmpeg'),
-		[
-			'-ss',
-			actualOffset,
-			...determineVcodecFfmepgFlags(options.specialVCodecForTransparency),
-			'-i',
-			src,
-			'-frames:v',
-			'1',
-			'-c:v',
-			options.imageFormat === 'jpeg' ? 'mjpeg' : 'png',
-			'-f',
-			'image2pipe',
-			...determineResizeParams(options.needsResize),
-			'-',
-		].filter(truthy)
-	);
-
-	if (!stderr) {
-		throw new Error('unexpectedly did not get stderr');
-	}
-
-	if (!stdout) {
-		throw new Error('unexpectedly did not get stdout');
-	}
-
-	const stderrChunks: Buffer[] = [];
-	const stdoutChunks: Buffer[] = [];
-
-	const stdErrString = new Promise<string>((resolve, reject) => {
-		stderr.on('data', (d) => stderrChunks.push(d));
-		stderr.on('error', (err) => reject(err));
-		stderr.on('end', () =>
-			resolve(Buffer.concat(stderrChunks).toString('utf-8'))
-		);
+	const [stdErr, stdoutBuffer] = await tryToExtractFrameOfVideoFast({
+		actualOffset,
+		ffmpegExecutable,
+		imageFormat: options.imageFormat,
+		needsResize: options.needsResize,
+		remotionRoot: options.remotionRoot,
+		specialVCodecForTransparency: options.specialVCodecForTransparency,
+		src,
 	});
-
-	const stdoutChunk = new Promise<Buffer>((resolve, reject) => {
-		stdout.on('data', (d) => {
-			stdoutChunks.push(d);
-		});
-		stdout.on('error', (err) => {
-			reject(err);
-		});
-		stdout.on('end', () => {
-			resolve(Buffer.concat(stdoutChunks));
-		});
-	});
-
-	const [stdErr, stdoutBuffer] = await Promise.all([stdErrString, stdoutChunk]);
 
 	const isEmpty = stdErr.includes('Output file is empty');
 	if (isEmpty) {
@@ -279,6 +238,76 @@ type Options = {
 	imageFormat: OffthreadVideoImageFormat;
 	downloadMap: DownloadMap;
 	remotionRoot: string;
+};
+
+const tryToExtractFrameOfVideoFast = async ({
+	ffmpegExecutable,
+	remotionRoot,
+	specialVCodecForTransparency,
+	imageFormat,
+	needsResize,
+	src,
+	actualOffset,
+}: {
+	ffmpegExecutable: FfmpegExecutable;
+	remotionRoot: string;
+	imageFormat: OffthreadVideoImageFormat;
+	needsResize: NeedsResize;
+	src: string;
+	specialVCodecForTransparency: SpecialVCodecForTransparency;
+	actualOffset: string;
+}) => {
+	const {stdout, stderr} = execa(
+		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+		[
+			'-ss',
+			actualOffset,
+			...determineVcodecFfmepgFlags(specialVCodecForTransparency),
+			'-i',
+			src,
+			'-frames:v',
+			'1',
+			'-c:v',
+			imageFormat === 'jpeg' ? 'mjpeg' : 'png',
+			'-f',
+			'image2pipe',
+			...determineResizeParams(needsResize),
+			'-',
+		].filter(truthy)
+	);
+	if (!stderr) {
+		throw new Error('unexpectedly did not get stderr');
+	}
+
+	if (!stdout) {
+		throw new Error('unexpectedly did not get stdout');
+	}
+
+	const stderrChunks: Buffer[] = [];
+	const stdoutChunks: Buffer[] = [];
+
+	const stdErrString = new Promise<string>((resolve, reject) => {
+		stderr.on('data', (d) => stderrChunks.push(d));
+		stderr.on('error', (err) => reject(err));
+		stderr.on('end', () =>
+			resolve(Buffer.concat(stderrChunks).toString('utf-8'))
+		);
+	});
+
+	const stdoutChunk = new Promise<Buffer>((resolve, reject) => {
+		stdout.on('data', (d) => {
+			stdoutChunks.push(d);
+		});
+		stdout.on('error', (err) => {
+			reject(err);
+		});
+		stdout.on('end', () => {
+			resolve(Buffer.concat(stdoutChunks));
+		});
+	});
+
+	const [stdErr, stdoutBuffer] = await Promise.all([stdErrString, stdoutChunk]);
+	return [stdErr, stdoutBuffer] as const;
 };
 
 const extractFrameFromVideoFn = async ({
