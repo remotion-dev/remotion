@@ -19,13 +19,15 @@ You should use `getCompositionsOnLambda()` if you cannot use [`getCompositions()
 // @target: es2017
 import { getCompositionsOnLambda } from "@remotion/lambda";
 
-const { compositions } = await getCompositionsOnLambda({
+const compositions = await getCompositionsOnLambda({
   region: "us-east-1",
   functionName: "remotion-render-bds9aab",
   serveUrl:
     "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
   inputProps: {},
 });
+
+console.log(compositions); // See below for an example value
 ```
 
 ## Arguments
