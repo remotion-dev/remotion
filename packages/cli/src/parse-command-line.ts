@@ -27,6 +27,7 @@ export type CommandLineOptions = {
 	['disable-web-security']: string;
 	['every-nth-frame']: number;
 	['number-of-gif-loops']: number;
+	['number-shared-audio-tags']: number;
 	codec: Codec;
 	concurrency: number;
 	timeout: number;
