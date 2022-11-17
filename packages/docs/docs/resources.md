@@ -38,12 +38,20 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Noise](/docs/noise)
 - [Path animations](/docs/paths)
 
+## Animation Libraries
+
+- [Remotion Animated](https://www.remotion-animated.dev/)
+- [remotion-transition-series](https://reactjsexample.com/remotion-series-component-with-transitions/)
+
 ## Full projects
 
 - [Github Unwrapped](https://github.com/remotion-dev/github-unwrapped)
 - [Podcast Maker](https://github.com/remotion-dev/podcast-maker)
 - [Stargazer](https://github.com/pomber/stargazer)
 - [MapSnap](https://companies.remotion.dev) _(exclusive for Company License subscribers)_
+- [Mockoops](https://github.com/Just-Moh-it/Mockoops)
+- [Product Hunt Today](https://github.com/Kamigami55/product-hunt-today)
+- [Remotion Wether](https://github.com/florentpergoud/remotion-weather)
 
 ## Examples
 
@@ -78,3 +86,14 @@ See the [Showcase](/showcase) for videos made with Remotion.
 - [Fireship: Remotion Tutorial](https://www.youtube.com/watch?v=deg8bOoziaE&t=3s)
 - [A soft introduction to Remotion](https://www.youtube.com/watch?v=szh2Qgo9SVE&t=847s)
 - [CRT effect](https://www.youtube.com/watch?v=-7MOoWN2_nk)
+
+## Humans
+
+- [Experts](/experts)
+- [Support](/support)
+- [Success Stories](/success-stories)
+
+## See also
+
+- [Remotion GitHub topic](https://github.com/topics/remotion)
+- [#resources and #showcase channel on Discord](https://remotion.dev/discord)
