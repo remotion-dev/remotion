@@ -54,6 +54,15 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Greenscreen Effect](/docs/video-manipulation)
 - [Noise visualization](/docs/noise-visualization)
 - [Audio visualization](/docs/audio-visualization)
+- [3D Text](https://github.com/JonnyBurger/3d-text)
+- [Wavy TikTok Effect](https://github.com/JonnyBurger/wavy-meme)
+- [Apple "Spring loaded" animation](https://github.com/JonnyBurger/spring-loaded)
+- [ThreeJS particles demo](https://github.com/JonnyBurger/three-particles)
+- [Text Morphing](https://github.com/JonnyBurger/morph-text)
+- [Include GLTF models](https://github.com/JonnyBurger/remotion-three-gltf-example)
+- [OpenGL transitions](https://github.com/JonnyBurger/remotion-gl-transitions)
+- [Conference talk in React](https://github.com/pomber/record-talk-with-remotion)
+- [Conference talk in React #2](https://github.com/JonnyBurger/react-summit-talk)
 
 ## Videos
 
