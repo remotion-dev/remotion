@@ -90,7 +90,7 @@ See the [Showcase](/showcase) for videos made with Remotion.
 ## Humans
 
 - [Experts](/experts)
-- [Support](/support)
+- [Support](/docs/support)
 - [Success Stories](/success-stories)
 
 ## See also
