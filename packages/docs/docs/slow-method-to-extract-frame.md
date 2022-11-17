@@ -18,6 +18,10 @@ While it is not an error itself, it warns that the render must do an expensive o
 - If it's a VP8 video in a WebM container and the selected image format is PNG, we cannot accurately extract the frame using FFMPEG and need to resort to the slow method.
   - **Recommendation**: Prefer the VP9 codec instead, or switch the image format to JPEG (in which you will lose transparency however)
 
+## Checking whether a video has this issue
+
+You can use the [getCanExtractFramesFast()](/docs/renderer/get-can-extract-frames-fast)
+
 ## See also
 
 - [`<OffthreadVideo>`](/docs/offthreadvideo)
