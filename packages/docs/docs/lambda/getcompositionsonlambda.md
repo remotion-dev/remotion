@@ -8,9 +8,9 @@ _available from v3.3.2_
 
 Gets the compositions inside a Lambda function.
 
-Note that you can also get the compositions of a site that is hosted on Lambda using [`getCompositions()`](/docs/renderer/getcompositions). Vice versa, you can also get the compositions from a serve URL that is not hosted on AWS Lambda using `getCompositionsOnLambda()`.
+Note that you can also get the compositions of a site that is hosted on Lambda using [`getCompositions()`](/docs/renderer/get-compositions). Vice versa, you can also get the compositions from a serve URL that is not hosted on AWS Lambda using `getCompositionsOnLambda()`.
 
-You should use `getCompositionsOnLambda()` if you cannot use [`getCompositions()`](/docs/renderer/getcompositions) because the machine cannot run Chrome.
+You should use `getCompositionsOnLambda()` if you cannot use [`getCompositions()`](/docs/renderer/get-compositions) because the machine cannot run Chrome.
 
 ## Example
 
