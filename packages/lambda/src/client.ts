@@ -1,3 +1,4 @@
+import {getCompositionsOnLambda} from './api/get-compositions-on-lambda';
 import {getFunctions} from './api/get-functions';
 import {getRenderProgress} from './api/get-render-progress';
 import {
@@ -17,5 +18,6 @@ export {
 	getRenderProgress,
 	getFunctions,
 	validateWebhookSignature,
+	getCompositionsOnLambda,
 };
 export type {AwsRegion, RenderProgress, WebhookPayload};
