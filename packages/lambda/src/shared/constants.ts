@@ -349,6 +349,7 @@ export type LambdaPayloads = {
 	};
 	compositions: {
 		type: LambdaRoutines.compositions;
+		version: string;
 	};
 };
 
