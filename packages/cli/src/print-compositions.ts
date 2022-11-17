@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-restricted-imports
 import type {TCompMetadata} from 'remotion';
 import {Log} from './log';
+import {quietFlagProvided} from './parse-command-line';
 
 const max = (arr: number[]) => {
 	if (arr.length === 0) {
@@ -19,6 +20,17 @@ const max = (arr: number[]) => {
 };
 
 export const printCompositions = (compositions: TCompMetadata[]) => {
+	if (!quietFlagProvided()) {
+		Log.info();
+		Log.info('The following compositions are available:');
+		Log.info();
+	}
+
+	if (quietFlagProvided()) {
+		Log.info(compositions.map((c) => c.id).join(' '));
+		return;
+	}
+
 	const firstColumnLength = max(compositions.map(({id}) => id.length)) + 4;
 	const secondColumnLength = 8;
 	const thirdColumnLength = 15;

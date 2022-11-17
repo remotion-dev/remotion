@@ -27,6 +27,7 @@ module.exports = {
             "lambda/cli/render",
             "lambda/cli/still",
             "lambda/cli/policies",
+            "lambda/cli/compositions",
             "lambda/cli/regions",
             "lambda/cli/quotas",
           ],
