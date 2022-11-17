@@ -5,12 +5,16 @@ import type {
 	NeedsResize,
 	SpecialVCodecForTransparency,
 } from './assets/download-map';
-import {getVideoStreamDuration} from './assets/get-video-stream-duration';
+import {
+	getVideoStreamDuration,
+	getVideoStreamDurationwithoutCache,
+} from './assets/get-video-stream-duration';
 import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getExecutableBinary} from './ffmpeg-flags';
+import {findRemotionRoot} from './find-closest-package-json';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
-import {getVideoInfo} from './get-video-info';
+import {getVideoInfo, getVideoInfoUncached} from './get-video-info';
 import {isBeyondLastFrame, markAsBeyondLastFrame} from './is-beyond-last-frame';
 import type {LastFrameOptions} from './last-frame-from-video-cache';
 import {
@@ -23,6 +27,8 @@ import {truthy} from './truthy';
 
 const lastFrameLimit = pLimit(1);
 const mainLimit = pLimit(5);
+
+const ACCEPTABLE_OFFSET_THRESHOLD = 40;
 
 const determineVcodecFfmepgFlags = (
 	vcodecFlag: SpecialVCodecForTransparency
@@ -171,7 +177,10 @@ const getLastFrameOfVideoFastUnlimited = async (
 		);
 	}
 
-	if (options.specialVCodecForTransparency === 'vp8' || offset > 40) {
+	if (
+		options.specialVCodecForTransparency === 'vp8' ||
+		offset > ACCEPTABLE_OFFSET_THRESHOLD
+	) {
 		const last = await getFrameOfVideoSlow({
 			duration,
 			ffmpegExecutable,
@@ -238,6 +247,71 @@ type Options = {
 	imageFormat: OffthreadVideoImageFormat;
 	downloadMap: DownloadMap;
 	remotionRoot: string;
+};
+
+export const canExtractFramesFast = async ({
+	src,
+	ffmpegExecutable,
+	ffprobeExecutable,
+}: {
+	src: string;
+	ffmpegExecutable: FfmpegExecutable;
+	ffprobeExecutable: FfmpegExecutable;
+}): Promise<{
+	canExtractFramesFast: boolean;
+	shouldReencode: boolean;
+}> => {
+	const remotionRoot = findRemotionRoot();
+	const {specialVcodecForTransparency: specialVcodec} =
+		await getVideoInfoUncached({
+			src,
+			ffprobeExecutable,
+			remotionRoot,
+		});
+
+	if (specialVcodec === 'vp8') {
+		return {
+			canExtractFramesFast: false,
+			shouldReencode: false,
+		};
+	}
+
+	const {duration} = await getVideoStreamDurationwithoutCache({
+		ffprobeExecutable,
+		remotionRoot,
+		src,
+	});
+	if (duration === null) {
+		throw new Error(
+			`Could not determine the duration of ${src} using FFMPEG. The file is not supported.`
+		);
+	}
+
+	const actualOffset = `${duration * 1000 - ACCEPTABLE_OFFSET_THRESHOLD}ms`;
+
+	const [stdErr] = await tryToExtractFrameOfVideoFast({
+		actualOffset,
+		ffmpegExecutable,
+		imageFormat: 'jpeg',
+		// Intentionally leaving needsResize as null, because we don't need to resize
+		needsResize: null,
+		remotionRoot,
+		specialVCodecForTransparency: specialVcodec,
+		src,
+	});
+	const isEmpty = stdErr.includes('Output file is empty');
+
+	if (isEmpty) {
+		return {
+			canExtractFramesFast: false,
+			shouldReencode: true,
+		};
+	}
+
+	return {
+		canExtractFramesFast: true,
+		shouldReencode: false,
+	};
 };
 
 const tryToExtractFrameOfVideoFast = async ({
@@ -328,12 +402,8 @@ const extractFrameFromVideoFn = async ({
 		ffmpegExecutable,
 		ffprobeExecutable,
 	});
-	const {specialVcodec, needsResize} = await getVideoInfo(
-		downloadMap,
-		src,
-		ffprobeExecutable,
-		remotionRoot
-	);
+	const {specialVcodecForTransparency: specialVcodec, needsResize} =
+		await getVideoInfo(downloadMap, src, ffprobeExecutable, remotionRoot);
 
 	if (specialVcodec === 'vp8') {
 		const {fps} = await getVideoStreamDuration(
