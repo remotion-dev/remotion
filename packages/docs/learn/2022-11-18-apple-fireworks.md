@@ -721,7 +721,7 @@ export const Slowed: React.FC<{
 };
 ```
 
-As you can tell now everything is very composible. The main composition looks like this:
+As you can tell now everything is very composable. The main composition looks like this:
 
 ```tsx title="src/Slowed.tsx"
 import { AbsoluteFill } from "remotion";
@@ -749,3 +749,7 @@ export const MyComposition = () => {
 
 Your final firework should look like this:
 <img src="/img/apple-wow-tutorial/Slowed.gif"/>
+
+## Adding your animoji
+
+As a last step of this tutorial we add your animoji on top of the firework. For the animoji you need to have an iPhone. In iMessages you can record an animoji of yourself and send it to a friend. After you've done that, it will also appear in the Messages app on your MacBook. You can download your animoji there. Once you have done that, you can right-click it and select "Services", then "Encode Selected Video Files", then choose "Apple ProRes" in the setting dropdown. Don't forget to tick box that says "Preserve Transparency". A new file of your animoji will be created. Next to the "src" folder you create a new one called "public". You put your encoded video in this folder. You can then use FFmpeg to turn it into a series of frames, just use this command: "ffmpeg -i animoji.mov -pix_fmt rgba -start_number 0 frame%03d.png". You then can import this series of frames by using the StaticFile API and we can use the current frame number to figure out the file name. By doing all of this you have finally imported a transparent version of your animoji into your composition.
