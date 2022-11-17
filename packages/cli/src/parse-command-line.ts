@@ -33,6 +33,8 @@ export type CommandLineOptions = {
 	timeout: number;
 	config: string;
 	['public-dir']: string;
+	['audio-bitrate']: string;
+	['video-bitrate']: string;
 	crf: number;
 	force: boolean;
 	overwrite: boolean;
