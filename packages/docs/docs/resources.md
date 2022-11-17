@@ -97,3 +97,5 @@ See the [Showcase](/showcase) for videos made with Remotion.
 
 - [Remotion GitHub topic](https://github.com/topics/remotion)
 - [#resources and #showcase channel on Discord](https://remotion.dev/discord)
+
+Many resources in our documentation were left out from this list to avoid too much redundancy. [Search](/search) the documentation to see if we have an article on what you are looking for!
