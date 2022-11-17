@@ -320,6 +320,7 @@ module.exports = {
         "render-as-gif",
         "figma",
         "spline",
+        "temporary-url",
       ],
     },
     {
