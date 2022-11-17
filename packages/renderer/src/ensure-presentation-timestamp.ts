@@ -46,6 +46,43 @@ const getTemporaryOutputName = async ({
 		.join(path.sep);
 };
 
+export const ensurePresentationTimestampWithoutCache = async ({
+	src,
+	remotionRoot,
+	ffmpegExecutable,
+	ffprobeExecutable,
+}: {
+	src: string;
+	remotionRoot: string;
+	ffmpegExecutable: FfmpegExecutable;
+	ffprobeExecutable: FfmpegExecutable;
+}) => {
+	// If there is no file extension for the video, then we need to tempoa
+	const output = await getTemporaryOutputName({
+		src,
+		remotionRoot,
+		ffprobeBinary: ffprobeExecutable,
+	});
+
+	await execa(
+		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+		[
+			'-i',
+			src,
+			'-fflags',
+			'+genpts+igndts',
+			'-vcodec',
+			'copy',
+			'-acodec',
+			'copy',
+			output,
+			'-y',
+		]
+	);
+
+	return output;
+};
+
 export const ensurePresentationTimestamps = async ({
 	downloadMap,
 	src,
@@ -75,28 +112,12 @@ export const ensurePresentationTimestamps = async ({
 
 	downloadMap.ensureFileHasPresentationTimestamp[src] = {type: 'encoding'};
 
-	// If there is no file extension for the video, then we need to tempoa
-	const output = await getTemporaryOutputName({
-		src,
+	const output = await ensurePresentationTimestampWithoutCache({
+		ffmpegExecutable,
+		ffprobeExecutable,
 		remotionRoot,
-		ffprobeBinary: ffprobeExecutable,
+		src,
 	});
-
-	await execa(
-		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
-		[
-			'-i',
-			src,
-			'-fflags',
-			'+genpts+igndts',
-			'-vcodec',
-			'copy',
-			'-acodec',
-			'copy',
-			output,
-			'-y',
-		]
-	);
 
 	callbacks = callbacks.filter((c) => {
 		if (c.src === src) {
