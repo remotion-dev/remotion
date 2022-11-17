@@ -11,6 +11,7 @@ import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
+import {canExtractFramesFast} from './extract-frame-from-video';
 import {
 	ffmpegHasFeature,
 	getExecutableBinary,
@@ -152,6 +153,7 @@ export const RenderInternals = {
 	getExecutableBinary,
 	validateBitrate,
 	getFfmpegVersion,
+	canExtractFramesFast,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
