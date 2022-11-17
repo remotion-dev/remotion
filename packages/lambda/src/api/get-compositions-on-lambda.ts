@@ -18,9 +18,7 @@ export type GetCompositionsOnLambdaInput = {
 	timeoutInMilliseconds?: number;
 };
 
-export type GetCompositionsOnLambdaOutput = {
-	compositions: TCompMetadata[];
-};
+export type GetCompositionsOnLambdaOutput = TCompMetadata[];
 
 /**
  * @description Returns the compositions from a serveUrl
@@ -68,9 +66,7 @@ export const getCompositionsOnLambda = async ({
 			},
 			region,
 		});
-		return {
-			compositions: res.compositions,
-		};
+		return res.compositions;
 	} catch (err) {
 		if ((err as Error).stack?.includes('UnrecognizedClientException')) {
 			throw new Error(

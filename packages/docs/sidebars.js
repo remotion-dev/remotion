@@ -182,6 +182,7 @@ module.exports = {
         "lambda/deleterender",
         "lambda/getuserpolicy",
         "lambda/getrolepolicy",
+        "lambda/getcompositionsonlambda",
         "lambda/getorcreatebucket",
         "lambda/getrenderprogress",
         "lambda/presignurl",
