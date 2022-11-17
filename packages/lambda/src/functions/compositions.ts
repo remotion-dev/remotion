@@ -1,8 +1,20 @@
+import {getCompositions, RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
+import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import type {LambdaPayload} from '../defaults';
 import {LambdaRoutines} from '../defaults';
+import {deserializeInputProps} from '../shared/deserialize-input-props';
+import {getBrowserInstance} from './helpers/get-browser-instance';
+import {getCurrentRegionInFunction} from './helpers/get-current-region';
 
-export const compositionsHandler = (lambdaParams: LambdaPayload) => {
+type Options = {
+	expectedBucketOwner: string;
+};
+
+export const compositionsHandler = async (
+	lambdaParams: LambdaPayload,
+	options: Options
+) => {
 	if (lambdaParams.type !== LambdaRoutines.compositions) {
 		throw new TypeError('Expected info compositions');
 	}
@@ -19,5 +31,38 @@ export const compositionsHandler = (lambdaParams: LambdaPayload) => {
 		);
 	}
 
-	return Promise.resolve({});
+	const [{bucketName}, browserInstance] = await Promise.all([
+		getOrCreateBucket({
+			region: getCurrentRegionInFunction(),
+		}),
+		getBrowserInstance(
+			RenderInternals.isEqualOrBelowLogLevel(lambdaParams.logLevel, 'verbose'),
+			lambdaParams.chromiumOptions ?? {}
+		),
+	]);
+
+	const inputProps = await deserializeInputProps({
+		bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+		serialized: lambdaParams.inputProps,
+	});
+
+	const downloadMap = RenderInternals.makeDownloadMap();
+
+	const compositions = await getCompositions(lambdaParams.serveUrl, {
+		puppeteerInstance: browserInstance,
+		inputProps: inputProps as object,
+		envVariables: lambdaParams.envVariables,
+		ffmpegExecutable: null,
+		ffprobeExecutable: null,
+		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
+		chromiumOptions: lambdaParams.chromiumOptions,
+		port: null,
+		downloadMap,
+	});
+
+	return Promise.resolve({
+		compositions,
+	});
 };

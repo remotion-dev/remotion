@@ -350,6 +350,12 @@ export type LambdaPayloads = {
 	compositions: {
 		type: LambdaRoutines.compositions;
 		version: string;
+		chromiumOptions: ChromiumOptions;
+		logLevel: LogLevel;
+		inputProps: SerializedInputProps;
+		envVariables: Record<string, string> | undefined;
+		timeoutInMilliseconds: number;
+		serveUrl: string;
 	};
 };
 
