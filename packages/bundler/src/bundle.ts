@@ -181,7 +181,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 		: path.join(resolvedRemotionRoot, 'public');
 	const to = path.join(outDir, 'public');
 	if (fs.existsSync(from)) {
-		await copyDir(from, to);
+		await copyDir({src: from, dest: to});
 	}
 
 	const html = indexHtml({
