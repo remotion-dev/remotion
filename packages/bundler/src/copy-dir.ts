@@ -33,8 +33,11 @@ export async function copyDir({
 			onSymlinkDetected(entry, src);
 			await fs.promises.symlink(realpath, destPath);
 		} else {
-			await fs.promises.copyFile(srcPath, destPath);
-			copied += fs.statSync(srcPath).size;
+			const [, {size}] = await Promise.all([
+				fs.promises.copyFile(srcPath, destPath),
+				fs.promises.stat(srcPath),
+			]);
+			copied += size;
 			onProgress(copied);
 		}
 	}
