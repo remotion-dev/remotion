@@ -41,7 +41,7 @@ This list tries to compile all templates, libraries, building blocks and example
 ## Animation Libraries
 
 - [Remotion Animated](https://www.remotion-animated.dev/)
-- [remotion-transition-series](https://reactjsexample.com/remotion-series-component-with-transitions/)
+- [remotion-transition-series](https://github.com/marcusstenbeck/remotion-transition-series)
 
 ## Full projects
 
