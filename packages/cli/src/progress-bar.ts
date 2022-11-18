@@ -62,8 +62,8 @@ const makeBundlingProgress = ({
 		.join(' ');
 
 const makeCopyingProgress = (options: CopyingState) => {
-	// Don't show copy progress lower than 100MB
-	if (options.bytes < 1000 * 1000 * 100) {
+	// Don't show copy progress lower than 200MB
+	if (options.bytes < 1000 * 1000 * 200) {
 		return null;
 	}
 
