@@ -752,4 +752,70 @@ Your final firework should look like this:
 
 ## Adding your animoji
 
-As a last step of this tutorial we add your animoji on top of the firework. For the animoji you need to have an iPhone. In iMessages you can record an animoji of yourself and send it to a friend. After you've done that, it will also appear in the Messages app on your MacBook. You can download your animoji there. Once you have done that, you can right-click it and select "Services", then "Encode Selected Video Files", then choose "Apple ProRes" in the setting dropdown. Don't forget to tick box that says "Preserve Transparency". A new file of your animoji will be created. Next to the "src" folder you create a new one called "public". You put your encoded video in this folder. You can then use FFmpeg to turn it into a series of frames, just use this command: "ffmpeg -i animoji.mov -pix_fmt rgba -start_number 0 frame%03d.png". You then can import this series of frames by using the StaticFile API and we can use the current frame number to figure out the file name. By doing all of this you have finally imported a transparent version of your animoji into your composition.
+As a last step of this tutorial we add your animoji on top of the firework. For the animoji you need to have an iPhone. This is how you get it: In iMessages you can record an animoji of yourself and send it to a friend. After you've done that, it will also appear in the Messages app on your MacBook. You can download your animoji there. Once you have done that, you can right-click it and select "Services", then "Encode Selected Video Files" and then choose "Apple ProRes" in the setting dropdown. Don't forget to tick the box that says "Preserve Transparency". A new file of your animoji will be created. Give it a simple name like animoji.mov.
+Next to the "src" folder you create a new one called "public". You put your encoded video in this folder. You can then use FFmpeg to turn the encoded video into a series of frames, for that you use this command: "ffmpeg -i animoji.mov -pix_fmt rgba -start_number 0 frame%03d.png".
+How to create a series of frames out of the encoded video:
+<img src="/img/apple-wow-tutorial/FFmpegCommand.png"/>
+
+You then can import this series of frames by using the StaticFile API and we can use the current frame number to figure out the file name.
+
+```tsx title="src/Animoji.tsx"
+import React from "react";
+import { AbsoluteFill, Img, staticFile, useCurrentFrame } from "remotion";
+
+export const Memoji: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  const src = `frame${(frame * 2).toString().padStart(3, "0")}.png`;
+
+  return (
+    <AbsoluteFill
+      style={{
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 80,
+      }}
+    >
+      <Img
+        style={{
+          height: 800,
+        }}
+        src={staticFile(src)}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+The main composition looks like this:
+
+```tsx title="src/Composition.tsx"
+import { AbsoluteFill } from "remotion";
+import { Memoji } from "./Animoji";
+import { Background } from "./Background";
+import { Dots } from "./Dots";
+import { RedHearts } from "./RedHearts";
+import { Slowed } from "./SlowedTrail";
+import { Stars } from "./Stars";
+import { YellowHearts } from "./YellowHearts";
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Background />
+      <Slowed>
+        <Dots />
+        <RedHearts />
+        <YellowHearts />
+        <Stars />
+      </Slowed>
+      <Memoji />
+    </AbsoluteFill>
+  );
+};
+```
+
+By doing all of this you have finally imported a transparent version of your animoji into your composition. Which should look like this:
+<img src="/img/apple-wow-tutorial/Final.gif"/>
+
+Awesome, we are done! We hope you had fun following along this tutorial and creating your own animation video!
