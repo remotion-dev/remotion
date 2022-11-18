@@ -180,8 +180,24 @@ export async function bundle(...args: Arguments): Promise<string> {
 		? path.resolve(resolvedRemotionRoot, options.publicDir)
 		: path.join(resolvedRemotionRoot, 'public');
 	const to = path.join(outDir, 'public');
+
+	let symlinkWarningShown = false;
+	const showSymlinkWarning = (ent: fs.Dirent, src: string) => {
+		if (symlinkWarningShown) {
+			return;
+		}
+
+		symlinkWarningShown = true;
+		console.warn(
+			`\nFound a symbolic link in the public folder (${path.join(
+				src,
+				ent.name
+			)}). The symlink will be forwarded into the bundle.`
+		);
+	};
+
 	if (fs.existsSync(from)) {
-		await copyDir({src: from, dest: to});
+		await copyDir({src: from, dest: to, onSymlinkDetected: showSymlinkWarning});
 	}
 
 	const html = indexHtml({
