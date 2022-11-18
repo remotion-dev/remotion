@@ -43,6 +43,8 @@ export type LegacyBundleOptions = {
 	publicPath?: string;
 	rootDir?: string;
 	publicDir?: string | null;
+	onPublicDirCopyProgress?: (bytes: number) => void;
+	onSymlinkDetected?: (path: string) => void;
 };
 
 export const getConfig = ({
@@ -187,17 +189,25 @@ export async function bundle(...args: Arguments): Promise<string> {
 			return;
 		}
 
+		const absolutePath = path.join(src, ent.name);
+		if (options.onSymlinkDetected) {
+			options.onSymlinkDetected(absolutePath);
+			return;
+		}
+
 		symlinkWarningShown = true;
 		console.warn(
-			`\nFound a symbolic link in the public folder (${path.join(
-				src,
-				ent.name
-			)}). The symlink will be forwarded into the bundle.`
+			`\nFound a symbolic link in the public folder (${absolutePath}). The symlink will be forwarded into the bundle.`
 		);
 	};
 
 	if (fs.existsSync(from)) {
-		await copyDir({src: from, dest: to, onSymlinkDetected: showSymlinkWarning});
+		await copyDir({
+			src: from,
+			dest: to,
+			onSymlinkDetected: showSymlinkWarning,
+			onProgress: (prog) => options.onPublicDirCopyProgress?.(prog),
+		});
 	}
 
 	const html = indexHtml({
