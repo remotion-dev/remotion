@@ -1,15 +1,20 @@
 import React from "react";
 import { AbsoluteFill } from "remotion";
 import data from "./creditsdata.json";
-import { CreditsList } from "./components/AfterCreditList";
+import { CreditsList } from "./AfterCreditList";
+import AfterCreditItem from "./AfterCreditItem";
+
 import { getFont } from './utils';
 getFont();
 
 
-export const JSONAsDataset: React.FC = () => {
+const JSONAsDataset: React.FC = () => {
   return (
     <AbsoluteFill>
       <CreditsList credits={data} />
     </AbsoluteFill>
   )
 }
+
+
+export {AfterCreditItem, JSONAsDataset}

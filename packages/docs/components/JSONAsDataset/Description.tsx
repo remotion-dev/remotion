@@ -1,6 +1,6 @@
 import React from "react";
 import { interpolate, useCurrentFrame } from "remotion";
-import type { MetadataType } from "../types"
+import type { MetadataType } from "./types"
 
 const Description: React.FC<{
   name: string,

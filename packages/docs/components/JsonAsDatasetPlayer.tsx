@@ -1,7 +1,7 @@
 import { Player } from "@remotion/player";
 import React from "react";
-import {JSONAsDataset} from "./JSONAsDataset"
-import AfterCreditItem from "./JSONAsDataset/components/AfterCreditItem"
+import {JSONAsDataset, AfterCreditItem} from "./JSONAsDataset"
+
 
 export const JsonAsDSAllItems: React.FC = () => {
   return (

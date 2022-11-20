@@ -174,14 +174,14 @@ export default Main;
 
 ```
 
-The component contains simple animation, using the `scale` in the `div` layer. The `Description` component also has it's animation. Full code in here [description](#the-description),
+The component contains simple animation, using the `scale` in the `div` layer. The `Description` component also has it's animation. Full code in here [description](#the-description).
 
 ![](../static/img/json-as-dataset/single_component_not_centered.gif)
 
 
-The `Single` component will center the `After Credit item` if we pass the parameter `isSingle`.
+The `Single` component will center the `After Credit item` if we pass a `true` value to parameter `isSingle`.
 
-![]((../static/img/json-as-dataset/single_component_centered.gif)
+![](../static/img/json-as-dataset/single_component_centered.gif)
 
 
 ### Rendering individual after credit

@@ -1,9 +1,9 @@
 import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
-import { BACKGROUND } from "../utils";
+import { BACKGROUND } from "./utils";
 import CreditItem from "./AfterCreditItem";
 import CreditTitle from "./AfterCreditTitle";
-import type { AfterCreditType } from "../types";
+import type { AfterCreditType } from "./types";
 
 
 const CreditsList: React.FC<{

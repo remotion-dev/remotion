@@ -2,7 +2,7 @@ import React from "react";
 import { AbsoluteFill, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import Description from "./Description";
 import SourceTypeComp from "./SourceType";
-import type { AfterCreditType } from "../types";
+import type { AfterCreditType } from "./types";
 
 type Props = {
   children?: JSX.Element | JSX.Element[];
