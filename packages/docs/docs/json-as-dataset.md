@@ -293,7 +293,7 @@ You now have individual video with different information.
 
 - [Video - Animation using remotion](https://fb.watch/gVmZpFmVJ0/)
 - [Project - Full source code](https://github.com/alexfernandez803/remotion-dataset)
-
+- [Project - Inspiration for the animation and themes](https://github.com/wcandillon/remotion-fireship)
 
 ## Extras
 ### The Description
