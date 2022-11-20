@@ -199,13 +199,12 @@ import afterCredits from "./AfterCredits/creditsdata.json"
 const renderOne = async (credit: AfterCreditType, bundleLocation: string, compositionId: string, entry: String) => {
    
     const comps = await getCompositions(bundleLocation, {
-     
         inputProps: credit,
     });
+
     const composition = comps.find((c) => c.id === compositionId);
     if (!composition) {
-        throw new Error(`No composition with the ID ${compositionId} found.
-  Review "${entry}" for the correct ID.`);
+        throw new Error(`No composition with the ID ${compositionId} found. Review "${entry}" for the correct ID.`);
     }
 
     const outputLocation = `out/${credit.name}.mp4`;
@@ -248,12 +247,13 @@ start();
 
 The `start` function is the entry point of the render process, it resolves the path of the bundle and composition project, `afterCredits` contains the list of items to render, and passed on to `renderOne` for rendering the `item` individually.
 
-From `renderOne` function, it will bundle the remotion project, find our composition ie. `AfterCreditItem`, pass the  `item` values(`singleCredit`) as a property for rendering the composition. Each video is rendered in `out` folder.
+From `renderOne` function, it will bundle the remotion project, find our composition ie. `AfterCreditItem`, pass the  `item` values(`singleCredit`) as a property for rendering the composition, each video is rendered in `out` folder by the
+[renderMedia](https://www.remotion.dev/docs/renderer/render-media) function.
 
 
 ### Running from CLI
 
-To help us in running the render, we need to install ts-node from npm `npm install ts-node`
+To help us in running the render, we need to install `ts-node` from npm `npm install ts-node`
 
 From package.json, we added the code below to initiate the render process from the project.
 
@@ -261,11 +261,13 @@ From package.json, we added the code below to initiate the render process from t
   "render": "ts-node ./src/render.ts",
 ```
 
+### Executing from the CLI
+
 ``` bash title="command line"
 npm run render
 ```
 
-#### This will initiate the render process.
+#### Render Process
 
 <RenderVideo />
 
@@ -273,7 +275,7 @@ npm run render
 ![](../static/img/json-as-dataset/all_files.png)
 
 
-You now have individual video with different information.
+You now have individual video with dynamic information based on input property.
 
 ## See also
 
