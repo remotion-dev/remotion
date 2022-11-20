@@ -323,6 +323,7 @@ module.exports = {
         "render-as-gif",
         "figma",
         "spline",
+        "json-as-dataset",
       ],
     },
     {
