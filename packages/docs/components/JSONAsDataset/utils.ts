@@ -1,10 +1,5 @@
 export const BACKGROUND = "#16181D";
-
-
-
 import { continueRender, delayRender, staticFile } from "remotion";
-
-console.log(staticFile("/fonts/Cubano.woff"))
 if (typeof window !== "undefined" && "FontFace" in window) {
   const font = new FontFace(
     "Cubano",

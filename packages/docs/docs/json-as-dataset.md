@@ -197,21 +197,12 @@ import afterCredits from "./AfterCredits/creditsdata.json"
 
 
 const renderOne = async (credit: AfterCreditType, bundleLocation: string, compositionId: string, entry: String) => {
-    // Parametrize the video by passing arbitrary props to your component.
-
-    // Extract all the compositions you have defined in your project
-    // from the webpack bundle.
+   
     const comps = await getCompositions(bundleLocation, {
-        // You can pass custom input props that you can retrieve using getInputProps()
-        // in the composition list. Use this if you want to dynamically set the duration or
-        // dimensions of the video.
+     
         inputProps: credit,
     });
-
-    // Select the composition you want to render.
     const composition = comps.find((c) => c.id === compositionId);
-
-    // Ensure the composition exists
     if (!composition) {
         throw new Error(`No composition with the ID ${compositionId} found.
   Review "${entry}" for the correct ID.`);
@@ -232,16 +223,12 @@ const renderOne = async (credit: AfterCreditType, bundleLocation: string, compos
 
 const start = async () => {
 
-    // The composition you want to render
     const compositionId = "AfterCreditItem";
 
-    // You only have to do this once, you can reuse the bundle.
     const entry = "src/index.ts";
     console.log("Creating a Webpack bundle of the video");
 
-
     const bundleLocation = await bundle(path.resolve(entry), () => undefined, {
-        // If you have a Webpack override, make sure to add it here
         webpackOverride: (config) => config,
 
     });
@@ -253,14 +240,13 @@ const start = async () => {
 
     });
     console.log("render all");
-
 }
 
 start();
 
 ```
 
-The `start` function is the entry point of the render process, it resolves the path of the bundle and composition project, `afterCredits` contains the list if items to render, and passed on to `renderOne` for rendering the `item` individually.
+The `start` function is the entry point of the render process, it resolves the path of the bundle and composition project, `afterCredits` contains the list of items to render, and passed on to `renderOne` for rendering the `item` individually.
 
 From `renderOne` function, it will bundle the remotion project, find our composition ie. `AfterCreditItem`, pass the  `item` values(`singleCredit`) as a property for rendering the composition. Each video is rendered in `out` folder.
 
