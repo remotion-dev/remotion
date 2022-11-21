@@ -54,4 +54,4 @@ const Balloons = () => {
 
 ## See also
 
-- [Import from After Effects](/docs/lottie/after-effects)
+- [Import from After Effects](/docs/after-effects)
