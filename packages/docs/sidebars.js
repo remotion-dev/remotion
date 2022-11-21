@@ -321,8 +321,6 @@ module.exports = {
         "scaling",
         "video-manipulation",
         "render-as-gif",
-        "figma",
-        "spline",
       ],
     },
     {
@@ -409,7 +407,6 @@ module.exports = {
         "troubleshooting/defaultprops-too-big",
       ],
     },
-
     {
       type: "category",
       label: "Snippets",
@@ -419,6 +416,17 @@ module.exports = {
         "miscellaneous/snippets/fps-converter",
         "miscellaneous/snippets/adding-animations",
         "miscellaneous/snippets/offthread-video-while-rendering",
+      ],
+    },
+    {
+      type: "category",
+      label: "Workflows",
+      items: [
+        "dataset-render",
+        "miscellaneous/render-all",
+        "figma",
+        "spline",
+        "lottie/lottie-aftereffects",
       ],
     },
     {
@@ -445,7 +453,6 @@ module.exports = {
         "react-18",
         "legacy-babel",
         "miscellaneous/typescript-aliases",
-        "miscellaneous/render-all",
         "miscellaneous/render-in-browser",
       ],
     },
