@@ -379,6 +379,7 @@ module.exports = {
           ],
         },
         "lambda/optimizing-cost",
+        "lambda/optimizing-speed",
         "lambda/limits",
         "lambda/changelog",
         "lambda/upgrading",

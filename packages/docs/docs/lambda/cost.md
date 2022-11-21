@@ -18,10 +18,15 @@ Not all AWS regions have the same cost. See the [AWS Lambda](https://aws.amazon.
 
 Consider whether your computation will run on every invoked Lambda function. If possible, pre-compute data once and pass it as [input props](/docs/parametrized-rendering#input-props) to the render.
 
+## Less memory
+
+Reducing the memory will linearly decrease the cost. Try out different values for the memory when deploying a Lambda function and see how low you can set it without experiencing a crash.
+
 ## Make the render more performant
 
 Making your render more efficient will also reduce the cost of using Lambda. See the [general performance tips](/docs/performance)
 
 ## See also
 
+- [Optimizing for speed](/docs/lambda/optimizing-speed)
 - [Performance](/docs/performance)
