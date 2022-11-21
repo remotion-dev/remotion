@@ -29,7 +29,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Figma](/docs/figma)
 - [Lottie](/docs/lottie)
 - [spline.design](/docs/spline)
-- [After Effects](/docs/lottie/after-effects)
+- [After Effects](/docs/after-effects)
 - [GIFs](/docs/gif)
 
 ## Effects
