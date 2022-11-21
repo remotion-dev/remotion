@@ -1,392 +1,362 @@
 ---
 id: json-as-dataset
-title: JSON as dataset
+sidebar_title: Render a dataset
+title: Render videos programmatically from a dataset
 ---
 
 import { Player } from "@remotion/player";
-import {JsonAsDSAllItems, JsonAsDSItem, RenderVideo} from "../components/JsonAsDatasetPlayer";
+import { DatasetDemo} from "../components/DatasetDemo";
 
-Example usage of a Dataset or sets of record in Remotion. The dataset is a collection of package or tutorial used in project.
+You can use Remotion to do a batch render to create many videos based on a dataset. In the following example, we are going to turn a JSON dataset into a series of videos.
 
+We'll start by creating a blank Remotion project:
 
-## Completed video with all after credits 
- <JsonAsDSAllItems />
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-### Individual after credit
- <JsonAsDSItem />
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
 
-
-## Problem
-How to individually extract a video with different parameter from a set of records.
-
-## Solution
-Create a separate process to bundle the remotion project, pass the data and render video separately using node js. We will be leveraging `@remotion/renderer` package and [render video in nodejs ](https://www.remotion.dev/docs/ssr/#render-a-video-using-nodejs-apis).
-
-
-## Work out the solution
-
-#### This assumes that you already bootstrapped you're remotion project
-
-### Create a JSON structure
-
-Let's start a simple json record that represents data that needs to automatically animated.
-The record contains bill of materials or credits to project that is used to create a remotion video, in movies an after credits.
-
-
-### Sample json record
-
-1. Record that is installed in the npm project
-
-```json
-  {
-    "name": "React",
-    "source_type": "npm",
-    "metadata": {
-      "project_url": "https://reactjs.org/"
-    }
-  }
-```
-2. Another record from github that we learned a technique or inspiration.
-
-```json
-  {
-    "name": "Remotion Fireship",
-    "source_type": "github",
-    "metadata": {
-      "project_url": "https://github.com/wcandillon/remotion-fireship"
-    }
-  }
+```bash
+npm init video --blank
 ```
 
-### Parameter types
-``` tsx twoslash
-interface MetadataType {
-  cover_url?: string;
-  project_url: string;
-}
+  </TabItem>
+  <TabItem value="pnpm">
 
-interface AfterCreditType {
+```bash
+pnpm create video --blank
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn create video --blank
+```
+
+  </TabItem>
+</Tabs>
+
+## Sample dataset
+
+JSON is the most convienient format to import in Remotion. If your dataset is in a different format, you can convert it using one of many available libraries on NPM.
+
+```ts title="my-data.ts"
+export const data = [
+  {
+    name: "React",
+    repo: "facebook/react",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
+  },
+  {
+    name: "Remotion",
+    repo: "remotion-dev/remotion",
+    logo: "https://github.com/remotion-dev/logo/raw/main/withouttitle/element-0.png",
+  },
+];
+```
+
+## Sample component
+
+This component will animate a title, subtitle and image using Remotion. Replace the contents of the `src/Composition.tsx` file with the following:
+
+```tsx title="Composition.tsx"
+import React from "react";
+import {
+  AbsoluteFill,
+  Img,
+  interpolate,
+  spring,
+  useCurrentFrame,
+  useVideoConfig,
+} from "remotion";
+
+interface Props {
   name: string;
-  source_type: string;
-  metadata: MetadataType,
-  isSingle?: boolean,
+  logo: string;
+  repo: string;
 }
 
-
-export {
-  MetadataType,
-  AfterCreditType
-}
-
-```
-
-This represents the json into React parameter types
-
-### Individual After Credit
-
-``` tsx title="AfterCreditItem.tsx"
-import { AbsoluteFill, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import Description from "./Description";
-import SourceType from "./SourceType";
-import { AfterCreditType } from "./types";
-
-type Props = {
-  children?: JSX.Element | JSX.Element[];
-};
-
-
-const Single: React.FC<Props> = ({ children }) => {
-  return <AbsoluteFill
-    style={{
-      display: 'flex',
-      alignContent: 'center',
-      justifyContent: 'center',
-      justifyItems: "center",
-    }}
-  >
-    <div style={{
-      display: 'flex',
-      alignContent: 'center',
-      justifyContent: 'center',
-      justifyItems: "center",
-
-    }}>
-
-
-      {children}
-    </div>
-  </AbsoluteFill>
-}
-
-const AfterCreditItem: React.FC<AfterCreditType> = ({ name, source_type, metadata, isSingle }) => {
+export const MyComposition: React.FC<Props> = ({ name, repo, logo }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
   const scale = spring({
     fps,
-    frame: frame + 10,
-    durationInFrames: 25,
+    frame: frame - 10,
     config: {
-      damping: 100
-    }
+      damping: 100,
+    },
   });
 
+  const opacity = interpolate(frame, [30, 40], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const moveY = interpolate(frame, [20, 30], [10, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   return (
-
-    <div style={{
-      transform: `scale(${scale})`,
-      backgroundColor: "white",
-      height: '100px',
-      margin: '10px',
-      display: 'flex',
-      paddingLeft: 50,
-      paddingRight: 50,
-      fontFamily: "Cubano",
-      fontWeight: "bold",
-      fontSize: '50px',
-      borderRadius: '20px',
-      justifyItems: 'center',
-      alignItems: 'center',
-    }}>
-      <SourceType sourceType={source_type} />
-      <Description name={name} metadata={metadata} />
-    </div>
-  )
-}
-
-const Main: React.FC<AfterCreditType> = (credit) => {
-
-  if (credit.isSingle)
-    return (
-      <Single>
-        <AfterCreditItem {...credit} />
-      </Single>
-    )
-
-  return (
-    <AfterCreditItem {...credit} />
-  )
-
-}
-
-export default Main;
-
+    <AbsoluteFill
+      style={{
+        scale: String(scale),
+        backgroundColor: "white",
+        fontWeight: "bold",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 20,
+        }}
+      >
+        <Img
+          src={logo}
+          style={{
+            height: 80,
+          }}
+        />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 40,
+              transform: `translateY(${moveY}px)`,
+              lineHeight: 1,
+            }}
+          >
+            {name}
+          </div>
+          <div
+            style={{
+              fontSize: 20,
+              opacity,
+              lineHeight: 1.25,
+            }}
+          >
+            {repo}
+          </div>
+        </div>
+      </div>
+    </AbsoluteFill>
+  );
+};
 ```
 
-The component contains simple animation, using the `scale` in the `div` layer. The `Description` component also has it's animation. Full code in here [description](#the-description).
+<DatasetDemo />
 
-![](../static/img/json-as-dataset/single_component_not_centered.gif)
+## Writing the script
 
+In order to render our videos, we'll first need to bundle our project using Webpack and prepare it for rendering.
+This can be done by using the [`bundle()`](/docs/bundle) function from the [`@remotion/bundler`](/docs/bundler) package.
 
-The `Single` component will center the `After Credit item` if we pass a `true` value to parameter `isSingle`.
-
-![](../static/img/json-as-dataset/single_component_centered.gif)
-
-
-### Rendering individual after credit
-
-Let's start with creating a separate typescript file. Adapted from remotion documentation with tweaks.
-
-```tsx title="render.tsx"
-import path from "path";
+```ts twoslash
+// @module: esnext
+// @target: es2022
 import { bundle } from "@remotion/bundler";
-import { getCompositions, renderMedia } from "@remotion/renderer";
-import { AfterCreditType } from "./AfterCredits/types";
-import afterCredits from "./AfterCredits/creditsdata.json"
 
+const bundleLocation = await bundle({
+  entryPoint: "./src/index.ts",
+});
+```
 
-const renderOne = async (credit: AfterCreditType, bundleLocation: string, compositionId: string, entry: String) => {
-   
-    const comps = await getCompositions(bundleLocation, {
-        inputProps: credit,
-    });
+## Getting the composition
 
-    const composition = comps.find((c) => c.id === compositionId);
-    if (!composition) {
-        throw new Error(`No composition with the ID ${compositionId} found. Review "${entry}" for the correct ID.`);
-    }
+We can use [`getCompositions()`](/docs/renderer/get-compositions) to extract all the defined compositions. Select the composition by searching for the composition ID that is defined in `src/Root.tsx` - by default `MyComp`:
 
-    const outputLocation = `out/${credit.name}.mp4`;
-    console.log("Attempting to render:", outputLocation);
-    await renderMedia({
-        composition,
-        serveUrl: bundleLocation,
-        codec: "h264",
-        outputLocation,
-        inputProps: credit,
-    });
-    console.log("Render done!");
+```tsx twoslash
+// @module: esnext
+// @target: es2022
+
+const bundleLocation = "xxx";
+// ---cut---
+
+import { getCompositions } from "@remotion/renderer";
+
+const compositionId = "MyComp";
+const allCompositions = await getCompositions(bundleLocation);
+
+const composition = allCompositions.find((c) => c.id === compositionId);
+
+if (!composition) {
+  throw new Error(`No composition with the ID ${compositionId} found.`);
 }
+```
 
+By throwing an error if the composition does not exist, we tell TypeScript that we are sure that `composition` is not `undefined`.
+
+## Rendering videos
+
+Import the dataset and loop over each entry. Trigger a render using [`renderMedia()`](/docs/renderer/render-media) and pass the data entry as [`inputProps`](/docs/renderer/render-media#inputprops). This will pass the object as React props to the component above.
+
+```ts twoslash
+// @module: esnext
+// @target: es2022
+// @filename: dataset.ts
+export const data = [
+  {
+    name: "React",
+    repo: "facebook/react",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
+  },
+  {
+    name: "Remotion",
+    repo: "remotion-dev/remotion",
+    logo: "https://github.com/remotion-dev/logo/raw/main/withouttitle/element-0.png",
+  },
+];
+
+const bundleLocation = "xxx";
+
+// @filename: render.ts
+const composition = {
+  width: 1000,
+  height: 1000,
+  fps: 30,
+  durationInFrames: 30,
+  id: "hi",
+};
+const bundleLocation = "xxx";
+// ---cut---
+import { renderMedia } from "@remotion/renderer";
+import { data } from "./dataset";
+
+for (const entry of data) {
+  await renderMedia({
+    composition,
+    serveUrl: bundleLocation,
+    codec: "h264",
+    outputLocation: `out/${entry.name}.mp4`,
+    inputProps: entry,
+  });
+}
+```
+
+## Full script
+
+Currently, top level `await` is not well supported, so all asynchronous functions were wrapped in an async function and which is immediately called.
+
+```ts twoslash title="render.ts"
+// @filename: dataset.ts
+export const data = [
+  {
+    name: "React",
+    repo: "facebook/react",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
+  },
+  {
+    name: "Remotion",
+    repo: "remotion-dev/remotion",
+    logo: "https://github.com/remotion-dev/logo/raw/main/withouttitle/element-0.png",
+  },
+];
+
+// @filename: render.ts
+// ---cut---
+import { getCompositions, renderMedia } from "@remotion/renderer";
+import { bundle } from "@remotion/bundler";
+import { data } from "./dataset";
+
+const compositionId = "MyComp";
 
 const start = async () => {
+  const bundleLocation = await bundle({
+    entryPoint: "./src/index.ts",
+  });
 
-    const compositionId = "AfterCreditItem";
+  const allCompositions = await getCompositions(bundleLocation);
 
-    const entry = "src/index.ts";
-    console.log("Creating a Webpack bundle of the video");
+  const composition = allCompositions.find((c) => c.id === compositionId);
 
-    const bundleLocation = await bundle(path.resolve(entry), () => undefined, {
-        webpackOverride: (config) => config,
+  if (!composition) {
+    throw new Error(`No composition with the ID ${compositionId} found.`);
+  }
 
+  for (const entry of data) {
+    await renderMedia({
+      composition,
+      serveUrl: bundleLocation,
+      codec: "h264",
+      outputLocation: `out/${entry.name}.mp4`,
+      inputProps: entry,
     });
+  }
+};
 
-
-    afterCredits.forEach(async element => {
-        const singleCredit = { ...element, isSingle: true }
-        await renderOne(singleCredit, bundleLocation, compositionId, entry);
-
-    });
-    console.log("render all");
-}
-
-start();
-
+start()
+  .then(() => {
+    console.log("Rendered all videos");
+  })
+  .catch((err) => {
+    console.log("Error occurred:", err);
+  });
 ```
 
-The `start` function is the entry point of the render process, it resolves the path of the bundle and composition project, `afterCredits` contains the list of items to render, and passed on to `renderOne` for rendering the `item` individually.
+### Running the script
 
-From `renderOne` function, it will bundle the remotion project, find our composition ie. `AfterCreditItem`, pass the  `item` values(`singleCredit`) as a property for rendering the composition, each video is rendered in `out` folder by the
-[renderMedia](https://www.remotion.dev/docs/renderer/render-media) function.
+To help us in running the render, we need to install `ts-node` from npm.
 
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
 
-### Running from CLI
-
-To help us in running the render, we need to install `ts-node` from npm `npm install ts-node`
-
-From package.json, we added the code below to initiate the render process from the project.
-
-```tsx title="package.json"
-  "render": "ts-node ./src/render.ts",
+```bash
+npm i ts-node
 ```
 
-### Executing from the CLI
+  </TabItem>
+  <TabItem value="pnpm">
 
-``` bash title="command line"
-npm run render
+```bash
+pnpm i ts-node
 ```
 
-#### Render Process
+  </TabItem>
 
-<RenderVideo />
+  <TabItem value="yarn">
 
-#### Output files:
-![](../static/img/json-as-dataset/all_files.png)
+```bash
+yarn add ts-node
+```
 
+  </TabItem>
+</Tabs>
 
-You now have individual video with dynamic information based on input property.
+You can then run the script using
+
+```bash
+npx ts-node render.ts
+```
+
+## Credits
+
+Authored by [Alex Fernandez](https://github.com/alexfernandez803) and [ThePerfectSystem](https://github.com/ThePerfectSystem), edited by Jonny Burger.
 
 ## See also
 
-- [Video - Animation using remotion](https://fb.watch/gVmZpFmVJ0/)
-- [Project - Full source code](https://github.com/alexfernandez803/remotion-dataset)
-- [Project - Inspiration for the animation and themes](https://github.com/wcandillon/remotion-fireship)
-
-## Extras
-### The Description
-
-The description component contains the `name` of the `credit` item and `metadata.project_url`.
-The `name` will be shown first then followed by `project_url`.
-
-```tsx
-import { interpolate, useCurrentFrame } from "remotion";
-import { Metadata } from "../types"
-
-const Description: React.FC<{
-  name: string,
-  metadata: Metadata
-}> = ({ name, metadata }) => {
-  const frame = useCurrentFrame();
-  const moveY = interpolate(
-    frame,
-    [20, 30],
-    [10, 0],
-    {
-      extrapolateLeft: 'clamp',
-      extrapolateRight: 'clamp'
-    }
-  );
-  const opacity = interpolate(
-    frame,
-    [50, 100],
-    [0, 1],
-    {
-      extrapolateLeft: 'clamp',
-      extrapolateRight: 'clamp'
-    }
-  );
-  
-  return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-    }}>
-      <div style={{
-        fontSize: '40px',
-        transform: `translateY(${moveY}px)`
-      }}>
-        {name}
-      </div>
-
-      <div style={{
-        fontSize: '20px',
-        opacity: `${opacity}`,
-        fontFamily: 'Arial'
-      }}>
-        {metadata.project_url}
-      </div>
-
-    </div>
-
-  )
-}
-
-export default Description;
-```
-The `name`'s `div` container will be positioned in place of `{metadata.project_url}` `div` container, then will move up based on `moveY` value. After that on `opacity` between frame `50 to 100` the `project_url` will slowly show.
-
-
-### Icons based on source type
-
-This are svg icons retrieved from icon's respective website, source can be either github or npm.
-
-```tsx
-  import { SourceType } from "../types";
-
-  const SourceTypeElem: React.FC<{
-    sourceType: SourceType
-  }> = ({ sourceType }) => {
-    if (sourceType === 'github') {
-      return (
-        <svg height="64" viewBox="0 0 16 16" version="1.1" width="64"  >
-          <path fillRule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-        </svg>
-
-      )
-    }
-
-    if (sourceType === 'npm') {
-      return (
-        <svg fill="red" height="64" width="64" viewBox="0 0 780 250"><path d="M240,250h100v-50h100V0H240V250z M340,50h50v100h-50V50z M480,0v200h100V50h50v150h50V50h50v150h50V0H480z M0,200h100V50h50v150h50V0H0V200z"></path></svg>
-      )
-    }
-
-    return <></>
-  }
-
-  const SourceTypeElemMain: React.FC<{
-    sourceType: SourceType
-  }> = ({ sourceType }) => {
-    return <div style={{
-      paddingTop: '10px',
-      paddingLeft: '0px',
-      paddingRight: '30px',
-      display: 'flex',
-    }}>
-      <SourceTypeElem sourceType={sourceType} />
-    </div>
-  }
-
-  export default SourceTypeElemMain;
-```
+- [Example repository using a dataset](https://github.com/alexfernandez803/remotion-dataset)
