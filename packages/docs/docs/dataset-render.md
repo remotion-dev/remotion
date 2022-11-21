@@ -1,6 +1,6 @@
 ---
 id: dataset-render
-title: Rendering From Dataset
+title: Render a dataset
 ---
 
 You can write a script to generate videos based on different input props from datasets.
@@ -40,7 +40,7 @@ import { getCompositions, renderMedia } from "@remotion/renderer";
 
 for (var data of dataset) {
     inputProps['name'] = data['name'];
-    inputProps['color'] = data['color'];   
+    inputProps['color'] = data['color'];
 
     const comps = await getCompositions(bundleLocation, {
         inputProps,
@@ -54,7 +54,7 @@ for (var data of dataset) {
         throw new Error(`No composition with the ID ${compositionId} found.
     Review "${entry}" for the correct ID.`);
     }
-    
+
     const outputLocation = `out/${inputProps['name']}.mp4`;
     console.log("Attempting to render:", outputLocation);
     await renderMedia({
