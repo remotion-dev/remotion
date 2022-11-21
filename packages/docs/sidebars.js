@@ -381,6 +381,7 @@ module.exports = {
             "lambda/troubleshooting/bucket-disallows-acl",
           ],
         },
+        "lambda/optimizing-cost",
         "lambda/limits",
         "lambda/changelog",
         "lambda/upgrading",
