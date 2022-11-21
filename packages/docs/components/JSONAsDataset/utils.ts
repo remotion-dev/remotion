@@ -1,3 +1,4 @@
+import type { } from "css-font-loading-module";
 export const BACKGROUND = "#16181D";
 import { continueRender, delayRender, staticFile } from "remotion";
 if (typeof window !== "undefined" && "FontFace" in window) {

@@ -6,6 +6,8 @@
     "skipLibCheck": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "jsx": "react"
+    "jsx": "react",
+    "resolveJsonModule": true
   }
+  
 }

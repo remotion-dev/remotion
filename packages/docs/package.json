@@ -43,6 +43,8 @@
     "@remotion/three": "3.3.2",
     "@shopify/react-native-skia": "^0.1.139",
     "@splitbee/web": "^0.2.4",
+    "@types/css-font-loading-module": "^0.0.7",
+    "@types/web": "0.0.78",
     "chalk": "4.1.2",
     "clipboard": "^2.0.8",
     "clsx": "^1.1.1",
