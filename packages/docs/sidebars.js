@@ -223,7 +223,6 @@ module.exports = {
         "lottie/getlottiemetadata",
         "lottie/lottie-staticfile",
         "lottie/lottie-remote",
-        "lottie/lottie-aftereffects",
         "lottie/lottie-lottiefiles",
       ],
     },
@@ -423,10 +422,10 @@ module.exports = {
       label: "Workflows",
       items: [
         "dataset-render",
-        "miscellaneous/render-all",
+        "render-all",
         "figma",
         "spline",
-        "lottie/lottie-aftereffects",
+        "after-effects",
       ],
     },
     {

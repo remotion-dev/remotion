@@ -1,10 +1,10 @@
 ---
-id: lottie-aftereffects
+id: after-effects
 title: Import from After Effects
 slug: after-effects
 ---
 
-import {InlineStep} from '../../components/InlineStep';
+import {InlineStep} from '../components/InlineStep';
 
 If you are a After Effects user, you might find it useful to convert your After Effects compositions to Remotion compositions. You can use the [`@remotion/lottie`](/docs/lottie) package for this.
 
