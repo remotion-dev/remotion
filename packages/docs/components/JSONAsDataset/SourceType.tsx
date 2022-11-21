@@ -17,7 +17,7 @@ const SourceTypeElem: React.FC<{
     )
   }
 
-  return <></>
+  return <div />
 }
 
 const SourceTypeElemMain: React.FC<{

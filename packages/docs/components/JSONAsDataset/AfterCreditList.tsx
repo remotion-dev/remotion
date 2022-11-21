@@ -36,7 +36,7 @@ const CreditsList: React.FC<{
           justifyItems: 'center',
           flexFlow: 'wrap',
         }}>
-          {theCredits.map((item, index) => <CreditItem key={`${item.name}-${index}`} {...item} />)}
+          {theCredits.map((item) => <CreditItem key={`${item.name}`} {...item} />)}
         </div>
       </AbsoluteFill>
 
