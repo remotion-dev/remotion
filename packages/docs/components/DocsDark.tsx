@@ -3,6 +3,64 @@ import { PlayerInternals } from "@remotion/player";
 import React, { useEffect, useMemo, useRef } from "react";
 import { Spacer } from "./layout/Spacer";
 
+export const SingleVideoDemo: React.FC<{
+  dark: string;
+  light: string;
+}> = ({ dark, light }) => {
+  const { colorMode } = useColorMode();
+
+  const container = useRef<HTMLDivElement>(null);
+  const ref1 = useRef<HTMLVideoElement>(null);
+
+  const style: React.CSSProperties = useMemo(
+    () => ({
+      display: "flex",
+    }),
+    []
+  );
+
+  const videoContainer: React.CSSProperties = useMemo(() => {
+    return {
+      border:
+        "1px solid " +
+        (colorMode === "dark"
+          ? "transparent"
+          : "var(--ifm-color-emphasis-300)"),
+      flex: 1,
+      display: "block",
+      overflow: "hidden",
+      borderRadius: "var(--ifm-code-border-radius)",
+    };
+  }, [colorMode]);
+
+  useEffect(() => {
+    ref1.current.addEventListener(
+      "progress",
+      () => {
+        ref1.current.play();
+      },
+      {
+        once: true,
+      }
+    );
+  }, [colorMode]);
+
+  return (
+    <div ref={container} style={style}>
+      <div style={videoContainer}>
+        <video
+          ref={ref1}
+          preload="metadata"
+          src={colorMode === "dark" ? dark : light}
+          muted
+          loop
+          playsInline
+        />
+      </div>
+    </div>
+  );
+};
+
 export const DualVideoDemo: React.FC<{
   leftDark: string;
   leftLight: string;
@@ -112,6 +170,17 @@ export const Springs: React.FC = () => {
         leftLight="/img/spring-left-light.mp4"
         rightDark="/img/spring-right-dark.mp4"
         rightLight="/img/spring-right-light.mp4"
+      />
+    </div>
+  );
+};
+
+export const Transforms: React.FC = () => {
+  return (
+    <div>
+      <SingleVideoDemo
+        dark="/img/transforms-dark.mp4"
+        light="/img/transforms-light.mp4"
       />
     </div>
   );
