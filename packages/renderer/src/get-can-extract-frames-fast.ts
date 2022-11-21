@@ -6,7 +6,7 @@ import {findRemotionRoot} from './find-closest-package-json';
 import {getVideoInfoUncached} from './get-video-info';
 import {tryToExtractFrameOfVideoFast} from './try-to-extract-frame-of-video-fast';
 
-export const ACCEPTABLE_OFFSET_THRESHOLD = 40;
+export const ACCEPTABLE_OFFSET_THRESHOLD = 50;
 
 export const getCanExtractFramesFast = async ({
 	src,
