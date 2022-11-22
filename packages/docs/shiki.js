@@ -69,7 +69,6 @@ function shiki(context, pluginOptions) {
     }
 
     a[1].beforeDefaultRemarkPlugins.push([twoslash, options]);
-    console.log(a[1]);
     return a;
   };
 
@@ -95,7 +94,6 @@ function shiki(context, pluginOptions) {
       typeof plugin === "function" ||
       (Array.isArray(plugin) && typeof plugin[0] === "function")
     ) {
-      console.log({ plugin });
       return plugin;
     }
 
