@@ -9,6 +9,7 @@ declare global {
 		setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
 		remotion_editorName: string | null;
+		remotion_numberOfAudioTags: number;
 		remotion_projectName: string;
 		remotion_cwd: string;
 		remotion_previewServerCommand: string;

@@ -3,7 +3,10 @@ import {RenderInternals} from '@remotion/renderer';
 import {AnsiDiff} from './ansi/ansi-diff';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
-import {makeMultiDownloadProgress} from './download-progress';
+import {
+	getFileSizeDownloadBar,
+	makeMultiDownloadProgress,
+} from './download-progress';
 import {makeProgressBar} from './make-progress-bar';
 import type {RenderStep} from './step';
 import {truthy} from './truthy';
@@ -38,7 +41,7 @@ export const createOverwriteableCliOutput = (quiet: boolean) => {
 	};
 };
 
-export const makeBundlingProgress = ({
+const makeBundlingProgress = ({
 	progress,
 	steps,
 	doneIn,
@@ -57,6 +60,74 @@ export const makeBundlingProgress = ({
 	]
 		.filter(truthy)
 		.join(' ');
+
+const makeCopyingProgress = (options: CopyingState) => {
+	// Don't show copy progress lower than 200MB
+	if (options.bytes < 1000 * 1000 * 200) {
+		return null;
+	}
+
+	return [
+		'    +',
+		options.doneIn ? makeProgressBar(1) : getFileSizeDownloadBar(options.bytes),
+		'Copying public dir',
+		options.doneIn === null ? null : chalk.gray(`${options.doneIn}ms`),
+	]
+		.filter(truthy)
+		.join(' ');
+};
+
+const makeSymlinkProgress = (options: SymbolicLinksState) => {
+	if (options.symlinks.length === 0) {
+		return null;
+	}
+
+	if (options.symlinks.length === 1) {
+		return [
+			chalk.gray(`      Found a symbolic link in the public folder:`),
+			chalk.gray('      ' + options.symlinks[0]),
+			chalk.gray('      The symlink will be forwarded in to the bundle.'),
+		].join('\n');
+	}
+
+	return [
+		chalk.gray(
+			`      Found ${options.symlinks.length} symbolic links in the public folder.`
+		),
+		chalk.gray('      The symlinks will be forwarded in to the bundle.'),
+	].join('\n');
+};
+
+export type CopyingState = {
+	bytes: number;
+	doneIn: number | null;
+};
+
+export type BundlingState = {
+	progress: number;
+	steps: RenderStep[];
+	doneIn: number | null;
+};
+
+export type SymbolicLinksState = {symlinks: string[]};
+
+export const makeBundlingAndCopyProgress = ({
+	bundling,
+	copying,
+	symLinks,
+}: {
+	bundling: BundlingState;
+	copying: CopyingState;
+	symLinks: SymbolicLinksState;
+}) => {
+	return [
+		makeBundlingProgress(bundling),
+		makeCopyingProgress(copying),
+		makeSymlinkProgress(symLinks),
+	]
+		.filter(truthy)
+		.join('\n');
+};
 
 type RenderingProgressInput = {
 	frames: number;

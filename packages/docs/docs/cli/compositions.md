@@ -88,3 +88,10 @@ Opens an actual browser to observe the composition fetching.
 ### `--quiet`, `--q`
 
 Only prints the composition IDs, separated by a space.
+
+## See also
+
+- [`getCompositions()`](/docs/cli/compositions)
+- [`npx remotion compositions`](/docs/cli/compositions)
+- [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda)
+- [`npx remotion lambda compositions`](/docs/lambda/cli/compositions)

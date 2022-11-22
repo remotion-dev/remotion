@@ -27,6 +27,7 @@ module.exports = {
             "lambda/cli/render",
             "lambda/cli/still",
             "lambda/cli/policies",
+            "lambda/cli/compositions",
             "lambda/cli/regions",
             "lambda/cli/quotas",
           ],
@@ -108,6 +109,7 @@ module.exports = {
         "renderer/make-cancel-signal",
         "renderer/ensure-ffmpeg",
         "renderer/ensure-ffprobe",
+        "renderer/get-can-extract-frames-fast",
       ],
     },
     {
@@ -181,6 +183,7 @@ module.exports = {
         "lambda/deleterender",
         "lambda/getuserpolicy",
         "lambda/getrolepolicy",
+        "lambda/getcompositionsonlambda",
         "lambda/getorcreatebucket",
         "lambda/getrenderprogress",
         "lambda/presignurl",
@@ -220,7 +223,6 @@ module.exports = {
         "lottie/getlottiemetadata",
         "lottie/lottie-staticfile",
         "lottie/lottie-remote",
-        "lottie/lottie-aftereffects",
         "lottie/lottie-lottiefiles",
       ],
     },
@@ -318,8 +320,6 @@ module.exports = {
         "scaling",
         "video-manipulation",
         "render-as-gif",
-        "figma",
-        "spline",
       ],
     },
     {
@@ -378,6 +378,8 @@ module.exports = {
             "lambda/troubleshooting/bucket-disallows-acl",
           ],
         },
+        "lambda/optimizing-cost",
+        "lambda/optimizing-speed",
         "lambda/limits",
         "lambda/changelog",
         "lambda/upgrading",
@@ -406,7 +408,6 @@ module.exports = {
         "troubleshooting/defaultprops-too-big",
       ],
     },
-
     {
       type: "category",
       label: "Snippets",
@@ -416,6 +417,17 @@ module.exports = {
         "miscellaneous/snippets/fps-converter",
         "miscellaneous/snippets/adding-animations",
         "miscellaneous/snippets/offthread-video-while-rendering",
+      ],
+    },
+    {
+      type: "category",
+      label: "Workflows",
+      items: [
+        "dataset-render",
+        "render-all",
+        "figma",
+        "spline",
+        "after-effects",
       ],
     },
     {
@@ -442,7 +454,6 @@ module.exports = {
         "react-18",
         "legacy-babel",
         "miscellaneous/typescript-aliases",
-        "miscellaneous/render-all",
         "miscellaneous/render-in-browser",
       ],
     },

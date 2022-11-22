@@ -87,7 +87,7 @@ export const validateFfmpeg = async (
 	const binaryUrl = getBinaryDownloadUrl(binary);
 
 	if (binaryUrl) {
-		await downloadBinary(remotionRoot, binaryUrl.url, 'ffmpeg');
+		await downloadBinary(remotionRoot, binaryUrl.url, binary);
 		return validateFfmpeg(customFfmpegBinary, remotionRoot, binary);
 	}
 

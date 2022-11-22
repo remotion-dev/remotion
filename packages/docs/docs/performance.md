@@ -13,6 +13,10 @@ By default, Remotion will use half of the threads available on the system to per
 Most Intel and AMD CPUs have hyperthreading, which means that per CPU core you get 2 threads. So for example, if you have an 8-core CPU, you have 16 threads, which means that the maximum concurrency that Remotion supports is 16.
 :::
 
+## Decrease concurrency
+
+Too much concurrency can also lead to the render being overloaded and causing Chrome to throttle the render. The art is to find the value for concurrency that works best for you, for example using the [`npx remotion benchmark`](/docs/cli/benchmark) command.
+
 ## Decrease remote load
 
 Loading data from remote sources, such as making an API call, loading an image, video, or audio file from a remote location will increase the render time because Remotion has to wait until the data is fetched. Try to move assets to your local machine or cache API requests (for example in `localStorage`) to speed up Remotion rendering.
@@ -25,6 +29,6 @@ Generally, lower resolution frames result in faster renders. You can make the di
 
 [JPEG rendering is faster](/docs/config#setimageformat) than PNG rendering. [H264 is the fastest way](/docs/encoding) to encode frames into a video. If you have deviated from the defaults, consider them again if you see slow rendering.
 
-## Rendering still too slow?
+## Enable GPU acceleration
 
-We are actively working on a way to massively speed up video rendering. Hang on!
+For Three.JS content and other content that benefits from GPU acceleration, you should enable the [`--gl=angle`](/docs/chromium-flags#--gl) flag. See: [Using the GPU](/docs/gpu)

@@ -7,16 +7,15 @@ import {pLimit} from './p-limit';
 
 const limit = pLimit(1);
 
-async function getVideoInfoUnlimited(
-	downloadMap: DownloadMap,
-	src: string,
-	ffprobeExecutable: FfmpegExecutable,
-	remotionRoot: string
-): Promise<Vp9Result> {
-	if (typeof downloadMap.isVp9VideoCache[src] !== 'undefined') {
-		return downloadMap.isVp9VideoCache[src];
-	}
-
+export async function getVideoInfoUncached({
+	src,
+	ffprobeExecutable,
+	remotionRoot,
+}: {
+	src: string;
+	ffprobeExecutable: FfmpegExecutable;
+	remotionRoot: string;
+}): Promise<Vp9Result> {
 	const task = await execa(
 		await getExecutableBinary(ffprobeExecutable, remotionRoot, 'ffprobe'),
 		[src]
@@ -53,9 +52,28 @@ async function getVideoInfoUnlimited(
 	}
 
 	const result: Vp9Result = {
-		specialVcodec: isVp9 ? 'vp9' : isVp8 ? 'vp8' : 'none',
+		specialVcodecForTransparency: isVp9 ? 'vp9' : isVp8 ? 'vp8' : 'none',
 		needsResize,
 	};
+
+	return result;
+}
+
+async function getVideoInfoUnlimited(
+	downloadMap: DownloadMap,
+	src: string,
+	ffprobeExecutable: FfmpegExecutable,
+	remotionRoot: string
+): Promise<Vp9Result> {
+	if (typeof downloadMap.isVp9VideoCache[src] !== 'undefined') {
+		return downloadMap.isVp9VideoCache[src];
+	}
+
+	const result = await getVideoInfoUncached({
+		ffprobeExecutable,
+		remotionRoot,
+		src,
+	});
 
 	downloadMap.isVp9VideoCache[src] = result;
 

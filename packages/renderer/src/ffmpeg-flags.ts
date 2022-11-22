@@ -164,7 +164,7 @@ const onProgress = (
 ) => {
 	console.log(
 		'Downloading ',
-		[binary],
+		binary,
 		`${toMegabytes(downloadedBytes)}/${toMegabytes(totalBytesToDownload)}`
 	);
 };

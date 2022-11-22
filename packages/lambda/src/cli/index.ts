@@ -5,6 +5,10 @@ import {BINARY_NAME} from '../defaults';
 import {checkCredentials} from '../shared/check-credentials';
 import {DOCS_URL} from '../shared/docs-url';
 import {parsedLambdaCli} from './args';
+import {
+	compositionsCommand,
+	COMPOSITIONS_COMMAND,
+} from './commands/compositions';
 import {functionsCommand, FUNCTIONS_COMMAND} from './commands/functions';
 import {policiesCommand, POLICIES_COMMAND} from './commands/policies/policies';
 import {ROLE_SUBCOMMAND} from './commands/policies/role';
@@ -53,6 +57,10 @@ const matchCommand = (args: string[], remotionRoot: string) => {
 
 	if (args[0] === STILL_COMMAND) {
 		return stillCommand(args.slice(1), remotionRoot);
+	}
+
+	if (args[0] === COMPOSITIONS_COMMAND) {
+		return compositionsCommand(args.slice(1), remotionRoot);
 	}
 
 	if (args[0] === FUNCTIONS_COMMAND) {

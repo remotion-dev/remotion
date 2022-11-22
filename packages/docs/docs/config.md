@@ -142,6 +142,8 @@ Config.Preview.setMaxTimelineTracks(20);
 
 ### setKeyboardShortcutsEnabled()
 
+_available from v3.2.11_
+
 Whether the Preview should react to keyboard shortcuts. Default `true`.
 
 ```ts twoslash
@@ -151,6 +153,19 @@ Config.Preview.setKeyboardShortcutsEnabled(false);
 ```
 
 The [command line flag](/docs/cli/preview#--disable-keyboard-shortcuts) `--disable-keyboard-shortcuts` will take precedence over this option.
+
+### setNumberOfSharedAudioTags()
+
+_available from v3.3.2_
+
+How many shared audio tags should be mounted. Shared audio tags can help prevent playback issues due to audio autoplay policies of the browser. Default 0
+
+```ts twoslash
+import { Config } from "remotion";
+
+// ---cut---
+Config.Preview.setNumberOfSharedAudioTags(5);
+```
 
 ## Puppeteer
 
