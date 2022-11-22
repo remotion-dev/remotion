@@ -3,7 +3,7 @@ id: temporary-url
 title: Handling user video uploads
 ---
 
-In a webapp where users can upload videos and edit them, we can create a better user experience by loading the video into a player even before the upload is finished. Good news: This can be done pretty easily!
+In an app where users can upload videos and edit them, we can create a better user experience by loading the video into a player even before the upload is finished. Good news: This can be done pretty easily!
 
 ## Allowing user uploads
 
@@ -82,78 +82,71 @@ export const RemotionPlayer: React.FC = () => {
 };
 ```
 
-The implementation of the `upload()` function is provider-specific and we do not show an implementation in this article. We assume it is a function that takes a file and returns an URL.
+The implementation of the `upload()` function is provider-specific and we do not show an implementation in this article. We assume it is a function that takes a file, uploads it and returns an URL.
 
 ## Optimistic updates
 
-When we start the upload of the file, we can create a blob URL which can be used to display the file residing on our clients system. Like this, the video can be displayed as soon as the file gets provided by the user. When the file is done uploading and we get the remote URL, the component shall use remote URL as source.
+When we start the upload of the file, we can create a blob URL using `URL.createObjectURL()` which can be used to display the local file in a [`<Video>`](/docs/video) tag. When the file is done uploading and we get the remote URL, the component shall use remote URL as source.
 
 ```tsx twoslash title="App.tsx"
-const MyComposition: React.FC<{ URL: string | null }> = (URL) => {
+const MyComposition: React.FC<{ videoUrl: string }> = ({ videoUrl }) => {
   return null;
 };
+
 const upload = async (file: File) => {
   return "https://example.com";
 };
 
 // ---cut---
 import { Player } from "@remotion/player";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
-type VideoURL =
+type VideoState =
   | {
       type: "empty";
     }
   | {
       type: "blob" | "cloud";
-      URL: string;
+      url: string;
     };
 
 export const RemotionPlayer: React.FC = () => {
-  const [videoURL, setVideoUrl] = useState<VideoURL>({
+  const [videoState, setVideoState] = useState<VideoState>({
     type: "empty",
   });
 
-  const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files === null) {
-      return;
-    }
+  const handleChange = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (event.target.files === null) {
+        return;
+      }
 
-    const file = event.target.files[0];
-    const blobURL = URL.createObjectURL(file);
-    setVideoUrl({ type: "blob", URL: blobURL });
-    const cloudURL = await upload(file);
-    setVideoUrl({ type: "cloud", URL: cloudURL });
-    URL.revokeObjectURL(blobURL);
-  };
-  const deriveURL = () => {
-    if (videoURL.type === "empty") {
-      return null;
-    }
-    return videoURL.URL;
-  };
+      const file = event.target.files[0];
+      const blobUrl = URL.createObjectURL(file);
+      setVideoState({ type: "blob", url: blobUrl });
+      const cloudUrl = await upload(file);
+      setVideoState({ type: "cloud", url: cloudUrl });
+      URL.revokeObjectURL(blobUrl);
+    },
+    []
+  );
 
   return (
     <div>
-      <Player
-        component={MyComposition}
-        durationInFrames={120}
-        compositionWidth={1920}
-        compositionHeight={1080}
-        fps={30}
-        inputProps={{ URL: deriveURL() }}
-      />
-
+      {videoState.type !== "empty" ? (
+        <Player
+          component={MyComposition}
+          durationInFrames={120}
+          compositionWidth={1920}
+          compositionHeight={1080}
+          fps={30}
+          inputProps={{ videoUrl: videoState.url }}
+        />
+      ) : null}
       <input type="file" onChange={handleChange} />
     </div>
   );
 };
 ```
 
-How does it work?
-
-First, we create a new type called VideoURL with which we can easily keep track what kind of URL our videURL state is at the moment (empty, blob or cloud)
-
-See how in `handleChange()` we now create a blob URL simply with `URL.createObjectURL(file)` and set our `videoURL` state
-to type = "blob" and URL = blobURL. Like this, while we are still awaiting the cloud URL, the Video will already be displayed in the Player with the blobURL as source! Exactly what we wanted.
-When the cloud URL gets returned by our `upload()` function, the state will be updated with type = "cloud" and URL = cloudURL and the player will automatically use the cloudURL as new source.
+This will result in the user immediately seeing the video as they drag it into the input field. It is a good practice to call `URL.revokeObjectURL()` after the local video is not used anymore to free up the used memory.
