@@ -428,6 +428,7 @@ module.exports = {
         "figma",
         "spline",
         "after-effects",
+        "video-uploads",
       ],
     },
     {

@@ -58,7 +58,12 @@ This feature is not supported from the CLI.
 
 _Available from v3.2.23_
 
-You can upload the file to another S3-compatible provider. You must pass an `outName` [as specified above](#customizing-the-output-bucket) and also provide an `s3OutputProvider` like in the example below.
+You can upload the file to another S3-compatible provider.
+
+- List of supported providers (non-exhaustive): Cloudflare, DigitalOcean Spaces
+- List of unsupported providers (non-exhaustive): Azure Blob Storage (not S3 compatible)
+
+You must pass an `outName` [as specified above](#customizing-the-output-bucket) and also provide an `s3OutputProvider` like in the example below.
 
 ```tsx twoslash {13-21}
 // @module: esnext
