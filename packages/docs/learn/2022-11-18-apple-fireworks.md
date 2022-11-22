@@ -1,10 +1,21 @@
 ---
 slug: apple-fireworks
 title: Making the Apple fireworks tutorial
+authors:
+  - name: Jonny Burger
+    title: Chief Hacker
+    url: https://github.com/JonnyBurger
+    image_url: https://www.remotion.dev/assets/images/Jonny%20Burger-50c99bb359b1df278a2a1bc7f7f4f9a5.png
+  - name: Mehmet Ademi
+    title: Business Developer
+    url: https://github.com/MehmetAdemi
+    image_url: https://www.remotion.dev/assets/images/Mehmet%20Ademi-8db6e8da49e0dcdf5089cc03d2cd0acd.png
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+
+<img src="/img/apple-wow-tutorial/Final.gif"/>
 
 ## Getting started
 

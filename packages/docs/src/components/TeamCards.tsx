@@ -2,9 +2,6 @@ import React from "react";
 import { BlueButton } from "../../components/layout/Button";
 import { Spacer } from "../../components/layout/Spacer";
 import { EmailLogo, GitHubLogo, LinkedInLogo, TwitterLogo } from "./icons";
-import Jonny from "./images/Jonny Burger.png";
-import Mehmet from "./images/Mehmet Ademi.png";
-import Patric from "./images/Patric Salvisberg.png";
 import TeamCardsCSS from "./TeamCardsCSS.module.css";
 
 const ButtonMailto = ({ mailto, label }) => {
@@ -77,7 +74,7 @@ export const TeamCardsLayout: React.FC<{}> = () => {
           }}
         >
           <img
-            src={Jonny}
+            src={"/img/team/jonny.png"}
             style={{
               width: 250,
               height: 250,
@@ -170,7 +167,7 @@ export const TeamCardsLayout: React.FC<{}> = () => {
           }}
         >
           <img
-            src={Mehmet}
+            src={"/img/team/mehmet.png"}
             style={{
               width: 250,
               height: 250,
@@ -256,7 +253,7 @@ export const TeamCardsLayout: React.FC<{}> = () => {
           }}
         >
           <img
-            src={Patric}
+            src={"/img/team/patric.png"}
             style={{
               width: 250,
               height: 250,
