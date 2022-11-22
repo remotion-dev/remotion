@@ -1,10 +1,10 @@
 ---
-id: lottie-aftereffects
-title: Importing from After Effects
+id: after-effects
+title: Import from After Effects
 slug: after-effects
 ---
 
-import {InlineStep} from '../../components/InlineStep';
+import {InlineStep} from '../components/InlineStep';
 
 If you are a After Effects user, you might find it useful to convert your After Effects compositions to Remotion compositions. You can use the [`@remotion/lottie`](/docs/lottie) package for this.
 
@@ -54,9 +54,9 @@ Click Render <InlineStep>3</InlineStep> to write the file.
 Copy the file into the Remotion project. The recommended way is to put the JSON inside the `public/` folder of Remotion (create it if necessary) and then load it using [`staticFile()`](/docs/staticfile):
 
 ```tsx twoslash title="Animation.tsx"
-import { continueRender, delayRender, staticFile } from "remotion";
-import { useEffect, useState } from "react";
 import { Lottie, LottieAnimationData } from "@remotion/lottie";
+import { useEffect, useState } from "react";
+import { continueRender, delayRender, staticFile } from "remotion";
 
 const Balloons = () => {
   const [handle] = useState(() => delayRender("Loading Lottie animation"));

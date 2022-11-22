@@ -26,7 +26,7 @@ Use the [`@remotion/lottie`](/docs/lottie) package.
 
 ## After Effects
 
-See: [Lottie - Import from After Effects](/docs/lottie/after-effects)
+See: [Lottie - Import from After Effects](/docs/after-effects)
 
 ## Three.JS
 

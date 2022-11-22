@@ -10,11 +10,12 @@ import {
   renderMediaOnLambda,
   renderStillOnLambda,
   getRenderProgress,
+  getCompositionsOnLambda,
   getFunctions,
   AwsRegion,
   RenderProgress,
   validateWebhookSignature,
-  WebhookPayload
+  WebhookPayload,
 } from "@remotion/lambda/client";
 ```
 

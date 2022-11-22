@@ -1,3 +1,4 @@
+import type {compositionsHandler} from '../functions/compositions';
 import type {infoHandler} from '../functions/info';
 import type {launchHandler} from '../functions/launch';
 import type {progressHandler} from '../functions/progress';
@@ -13,4 +14,5 @@ export interface LambdaReturnValues {
 	[LambdaRoutines.status]: ReturnType<typeof progressHandler>;
 	[LambdaRoutines.info]: ReturnType<typeof infoHandler>;
 	[LambdaRoutines.still]: ReturnType<typeof stillHandler>;
+	[LambdaRoutines.compositions]: ReturnType<typeof compositionsHandler>;
 }

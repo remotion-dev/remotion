@@ -41,6 +41,12 @@ export type ConfigType = {
 		 * @default true
 		 */
 		readonly setKeyboardShortcutsEnabled: (enableShortcuts: boolean) => void;
+		/**
+		 * Set number of shared audio tags. https://www.remotion.dev/docs/player/autoplay#use-the-numberofsharedaudiotags-property
+		 * @param numberOfAudioTags
+		 * @default 0
+		 */
+		readonly setNumberOfSharedAudioTags: (numberOfAudioTags: number) => void;
 	};
 	readonly Bundling: {
 		/**
