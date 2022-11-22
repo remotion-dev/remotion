@@ -16,9 +16,11 @@ type EncodingStatus =
 
 export type SpecialVCodecForTransparency = 'vp9' | 'vp8' | 'none';
 
+export type NeedsResize = [number, number] | null;
+
 export type Vp9Result = {
-	specialVcodec: SpecialVCodecForTransparency;
-	needsResize: [number, number] | null;
+	specialVcodecForTransparency: SpecialVCodecForTransparency;
+	needsResize: NeedsResize;
 };
 export type VideoDurationResult = {
 	duration: number | null;

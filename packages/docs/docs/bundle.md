@@ -17,6 +17,8 @@ const bundle: (options?: {
   publicPath?: string;
   rootDir?: string;
   publicDir?: string | null;
+  onPublicDirCopyProgress?: (bytes: number) => void;
+  onSymlinkDetected?: (path: string) => void;
 }) => Promise<string>;
 ```
 
@@ -90,6 +92,18 @@ The current working directory is the directory from which your program gets exec
 _Available from v3.2.13_
 
 Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the Remotion root folder.
+
+#### `onPublicDirCopyProgress?`
+
+_Available from v3.3.3_
+
+Reports progress of how many bytes have been written while copying the `public/` directoy. Useful to warn the user if the directory is large that this operation is slow.
+
+#### `onSymlinkDetected?`
+
+_Available from v3.3.3_
+
+Gets called when a symbolic link is detected in the `public/` directory. Since Remotion will forward the symbolic link, it might be useful to display a hint to the user that if the original symbolic link gets deleted, the bundle will also break.
 
 ## Legacy function signature
 

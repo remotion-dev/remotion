@@ -250,7 +250,6 @@ export class Browser extends EventEmitter {
 	async close(silent: boolean): Promise<void> {
 		await this.#closeCallback.call(null);
 		(await this.pages()).forEach((page) => {
-			console.log('disposing', page.id);
 			page.emit(PageEmittedEvents.Disposed);
 			page.closed = true;
 		});

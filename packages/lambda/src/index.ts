@@ -20,6 +20,11 @@ import type {EstimatePriceInput} from './api/estimate-price';
 import {estimatePrice} from './api/estimate-price';
 import type {GetAwsClientInput, GetAwsClientOutput} from './api/get-aws-client';
 import {getAwsClient} from './api/get-aws-client';
+import type {
+	GetCompositionsOnLambdaInput,
+	GetCompositionsOnLambdaOutput,
+} from './api/get-compositions-on-lambda';
+import {getCompositionsOnLambda} from './api/get-compositions-on-lambda';
 import type {FunctionInfo, GetFunctionInfoInput} from './api/get-function-info';
 import {getFunctionInfo} from './api/get-function-info';
 import type {GetFunctionsInput} from './api/get-functions';
@@ -95,6 +100,7 @@ export {
 	presignUrl,
 	deleteRender,
 	validateWebhookSignature,
+	getCompositionsOnLambda,
 };
 export type {
 	AwsRegion,
@@ -133,4 +139,6 @@ export type {
 	LambdaErrorInfo,
 	EnhancedErrorInfo,
 	DeleteRenderInput,
+	GetCompositionsOnLambdaOutput,
+	GetCompositionsOnLambdaInput,
 };

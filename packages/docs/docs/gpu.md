@@ -28,6 +28,10 @@ For rendering content that can benefit from a GPU, you might want to choose a cl
 You can still render all types of content without having a GPU, it will just be slower.
 The graphics content will be software-emulated using [ANGLE](https://github.com/google/angle) or [SwiftShader](https://github.com/google/swiftshader) (when using Lambda).
 
+## Using the GPU on Lambda
+
+AWS Lambda instances have no GPU, so it is not possible to use it.
+
 ## What are your experiences?
 
 We'd love to learn and document more findings about the GPU. Let us know and we will amend this document!
