@@ -57,3 +57,7 @@ npx remotion lambda functions deploy
 ```
 
 If you are using the Node.JS APIs, the following APIs are useful: [`getFunctions()`](/docs/lambda/getfunctions), [`deployFunction()`](/docs/lambda/deployfunction) and [`deleteFunction()`](/docs/lambda/deletefunction).
+
+### What the entrypoint of the lambda?
+
+The lambda function handler is in [`lambda/src/functions/index.ts`](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/functions/index.ts).
