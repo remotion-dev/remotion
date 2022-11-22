@@ -70,6 +70,7 @@ export {FfmpegExecutable} from './ffmpeg-executable';
 export {FfmpegVersion} from './ffmpeg-flags';
 export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FrameRange} from './frame-range';
+export {getCanExtractFramesFast} from './get-can-extract-frames-fast';
 export {getCompositions} from './get-compositions';
 export {
 	ImageFormat,

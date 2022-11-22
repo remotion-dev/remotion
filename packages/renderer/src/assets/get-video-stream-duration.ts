@@ -49,16 +49,15 @@ export const parseVideoStreamDuration = (stdout: string) => {
 	return result;
 };
 
-async function getVideoStreamDurationUnlimited(
-	downloadMap: DownloadMap,
-	src: string,
-	ffprobeExecutable: FfmpegExecutable,
-	remotionRoot: string
-): Promise<VideoDurationResult> {
-	if (downloadMap.videoDurationResultCache[src]) {
-		return downloadMap.videoDurationResultCache[src];
-	}
-
+export async function getVideoStreamDurationwithoutCache({
+	src,
+	ffprobeExecutable,
+	remotionRoot,
+}: {
+	src: string;
+	ffprobeExecutable: FfmpegExecutable;
+	remotionRoot: string;
+}) {
 	const args = [
 		['-v', 'error'],
 		['-select_streams', 'v:0'],
@@ -73,7 +72,30 @@ async function getVideoStreamDurationUnlimited(
 		args
 	);
 
-	return parseVideoStreamDuration(task.stdout);
+	const result: VideoDurationResult = parseVideoStreamDuration(task.stdout);
+
+	return result;
+}
+
+async function getVideoStreamDurationUnlimited(
+	downloadMap: DownloadMap,
+	src: string,
+	ffprobeExecutable: FfmpegExecutable,
+	remotionRoot: string
+): Promise<VideoDurationResult> {
+	if (downloadMap.videoDurationResultCache[src]) {
+		return downloadMap.videoDurationResultCache[src];
+	}
+
+	const result: VideoDurationResult = await getVideoStreamDurationwithoutCache({
+		src,
+		ffprobeExecutable,
+		remotionRoot,
+	});
+
+	downloadMap.videoDurationResultCache[src] = result;
+
+	return result;
 }
 
 export const getVideoStreamDuration = (

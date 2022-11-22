@@ -3,6 +3,8 @@ import {createReadStream, statSync} from 'fs';
 import type {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';
 import {URLSearchParams} from 'url';
+import {getNumberOfSharedAudioTags} from '../config/number-of-shared-audio-tags';
+import {parsedCli} from '../parse-command-line';
 import {getFileSource} from './error-overlay/react-overlay/utils/get-file-source';
 import {
 	getDisplayNameForEditor,
@@ -65,6 +67,9 @@ const handleFallback = async ({
 			remotionRoot,
 			previewServerCommand:
 				packageManager === 'unknown' ? null : packageManager.startCommand,
+			numberOfAudioTags:
+				parsedCli['number-of-shared-audio-tags'] ??
+				getNumberOfSharedAudioTags(),
 		})
 	);
 };

@@ -19,6 +19,7 @@ import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {BooleanFlags, parsedCli, quietFlagProvided} from './parse-command-line';
 import {previewCommand} from './preview';
+import {printCompositions} from './print-compositions';
 import {printHelp} from './print-help';
 import {createOverwriteableCliOutput} from './progress-bar';
 import {render} from './render';
@@ -112,4 +113,5 @@ export const CliInternals = {
 	selectComposition,
 	findEntryPoint,
 	getImageFormat,
+	printCompositions,
 };

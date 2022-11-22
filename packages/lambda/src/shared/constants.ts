@@ -194,6 +194,7 @@ export enum LambdaRoutines {
 	status = 'status',
 	renderer = 'renderer',
 	still = 'still',
+	compositions = 'compositions',
 }
 
 type WebhookOption = null | {
@@ -345,6 +346,16 @@ export type LambdaPayloads = {
 		version: string;
 		forceHeight: number | null;
 		forceWidth: number | null;
+	};
+	compositions: {
+		type: LambdaRoutines.compositions;
+		version: string;
+		chromiumOptions: ChromiumOptions;
+		logLevel: LogLevel;
+		inputProps: SerializedInputProps;
+		envVariables: Record<string, string> | undefined;
+		timeoutInMilliseconds: number;
+		serveUrl: string;
 	};
 };
 
