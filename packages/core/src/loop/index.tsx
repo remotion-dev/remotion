@@ -1,5 +1,6 @@
 import React from 'react';
 import {Sequence} from '../Sequence';
+import type {LayoutAndStyle} from '../Sequence';
 import {useVideoConfig} from '../use-video-config';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames';
 
@@ -8,17 +9,16 @@ export type LoopProps = {
 	durationInFrames: number;
 	// How many times to loop (optional, default Infinity)
 	times?: number;
-	layout?: 'absolute-fill' | 'none';
 	name?: string;
 	children: React.ReactNode;
-};
+} & LayoutAndStyle;
 
 export const Loop: React.FC<LoopProps> = ({
 	durationInFrames,
 	times = Infinity,
 	children,
-	layout,
 	name,
+	...props
 }) => {
 	const {durationInFrames: compDuration} = useVideoConfig();
 	validateDurationInFrames(durationInFrames, 'of the <Loop /> component');
@@ -53,10 +53,11 @@ export const Loop: React.FC<LoopProps> = ({
 						key={`loop-${i}`}
 						durationInFrames={durationInFrames}
 						from={i * durationInFrames}
-						layout={layout}
 						name={name}
 						showLoopTimesInTimeline={actualTimes}
 						showInTimeline={i === 0}
+						layout={props.layout}
+						{...(props.layout==='absolute-fill' && {style: props.style})}
 					>
 						{children}
 					</Sequence>
