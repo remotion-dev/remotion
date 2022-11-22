@@ -1,51 +1,41 @@
 ---
 id: temporary-url
-title: How to display a video in the Remotion Player before it's fully uploaded to a cloud storage.
+title: Handling user video uploads
 ---
 
-## Problem
+In a webapp where users can upload videos and edit them, we can create a better user experience by loading the video into a player even before the upload is finished. Good news: This can be done pretty easily!
 
-Lets say you are building a webapp where you want to enable your users to upload a Video which then gets displayed by the Remotion Player in your webapp. You choose to store the video in a cloud. Each time a video gets uploaded, several seconds, sometimes even minutes pass untill your video is fully uploaded to the cloud and can be displayed in the player. Definitely not a great user experience. You would like to have your video ready to watch as soon as it gets provided by the client, without having to wait for the cloud to completely finish the upload.
+## Allowing user uploads
 
-Good news: This can be done pretty easily!
+We have a component which returns a [`<Video>`](/docs/video) tag that includes an URL as source.
 
-## Overview
-
-Lets analyze the problem.
-
-We will somewhere have a component which returns a video tag that includes an URL as source.
-
-```tsx twoslash
+```tsx twoslash title="MyComposition.tsx"
 const upload = async (file: File) => {
   return "https://example.com";
 };
 // ---cut---
-import { AbsoluteFill, Sequence, Video } from "remotion";
+import { AbsoluteFill, Video } from "remotion";
 
 type VideoProps = {
-  videoURL: string | null;
+  videoURL: string;
 };
 
 export const MyComponent: React.FC<VideoProps> = ({ videoURL }) => {
-  if (!videoURL) {
-    return null;
-  }
   return (
     <AbsoluteFill>
-      <Sequence>
-        <Video src={videoURL} />
-      </Sequence>
+      <Video src={videoURL} />
     </AbsoluteFill>
   );
 };
 ```
 
-The videoURL will be passed from the Remotion Player to our component.
+The video URL will be passed from the Remotion Player to our component.  
+Using a `<input type="file">` element, we allow a user upload.  
 As soon as a file is fully uploaded to the cloud, the URL will be set and can be used by the component to display the video.
 
-```tsx twoslash
+```tsx twoslash title="App.tsx"
 import { useCallback } from "react";
-const MyComposition: React.FC<{ videoURL: string | null }> = (URL) => {
+const MyComposition: React.FC<{ videoUrl: string | null }> = (URL) => {
   return null;
 };
 const upload = async (file: File) => {
@@ -56,7 +46,7 @@ import { Player } from "@remotion/player";
 import { useState } from "react";
 
 export const RemotionPlayer: React.FC = () => {
-  const [videoURL, setVideoURL] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
   const handleChange = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,21 +58,23 @@ export const RemotionPlayer: React.FC = () => {
       //upload is an example function  & returns a URL when a file is uploaded on the cloud.
       const cloudURL = await upload(file);
       // E.g., cloudURL = https://exampleBucketName.s3.ExampleAwsRegion.amazonaws.com
-      setVideoURL(cloudURL);
+      setVideoUrl(cloudURL);
     },
     []
   );
 
   return (
     <div>
-      <Player
-        component={MyComposition}
-        durationInFrames={120}
-        compositionWidth={1920}
-        compositionHeight={1080}
-        fps={30}
-        inputProps={{ videoURL }}
-      />
+      {videoUrl === null ? null : (
+        <Player
+          component={MyComposition}
+          durationInFrames={120}
+          compositionWidth={1920}
+          compositionHeight={1080}
+          fps={30}
+          inputProps={{ videoUrl }}
+        />
+      )}
 
       <input type="file" onChange={handleChange} />
     </div>
@@ -90,11 +82,13 @@ export const RemotionPlayer: React.FC = () => {
 };
 ```
 
-## Solution
+The implementation of the `upload()` function is provider-specific and we do not show an implementation in this article. We assume it is a function that takes a file and returns an URL.
 
-When we start the upload of the file, we want to create a blob URL which can be used by the composition to display the file residing on our clients system. Like this, the video can be displayed as soon as the file gets provided by the client. When the file is uploaded and we get the S3 URL, the composition shall use the S3 URL as source.
+## Optimistic updates
 
-```tsx twoslash
+When we start the upload of the file, we can create a blob URL which can be used to display the file residing on our clients system. Like this, the video can be displayed as soon as the file gets provided by the user. When the file is done uploading and we get the remote URL, the component shall use remote URL as source.
+
+```tsx twoslash title="App.tsx"
 const MyComposition: React.FC<{ URL: string | null }> = (URL) => {
   return null;
 };
@@ -116,7 +110,7 @@ type VideoURL =
     };
 
 export const RemotionPlayer: React.FC = () => {
-  const [videoURL, setVideoURL] = useState<VideoURL>({
+  const [videoURL, setVideoUrl] = useState<VideoURL>({
     type: "empty",
   });
 
@@ -127,9 +121,9 @@ export const RemotionPlayer: React.FC = () => {
 
     const file = event.target.files[0];
     const blobURL = URL.createObjectURL(file);
-    setVideoURL({ type: "blob", URL: blobURL });
+    setVideoUrl({ type: "blob", URL: blobURL });
     const cloudURL = await upload(file);
-    setVideoURL({ type: "cloud", URL: cloudURL });
+    setVideoUrl({ type: "cloud", URL: cloudURL });
     URL.revokeObjectURL(blobURL);
   };
   const deriveURL = () => {
