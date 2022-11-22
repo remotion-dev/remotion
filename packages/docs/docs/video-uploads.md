@@ -1,5 +1,5 @@
 ---
-id: temporary-url
+id: video-uploads
 title: Handling user video uploads
 ---
 
