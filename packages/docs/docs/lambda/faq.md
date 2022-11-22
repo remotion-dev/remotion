@@ -58,6 +58,8 @@ npx remotion lambda functions deploy
 
 If you are using the Node.JS APIs, the following APIs are useful: [`getFunctions()`](/docs/lambda/getfunctions), [`deployFunction()`](/docs/lambda/deployfunction) and [`deleteFunction()`](/docs/lambda/deletefunction).
 
-### What the entrypoint of the lambda?
+### Can I modify the code that is run inside the Lambda?
 
-The lambda function handler is in [`lambda/src/functions/index.ts`](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/functions/index.ts).
+The code that is run inside the Lambda is an executor binary that is provided by Remotion. You cannot write code to run inside the function that Remotion deploys for you, but you can make use of many configuration options and call a Remotion Lambda function from another Lambda function using APIs like [renderMediaOnLambda](/docs/lambda/rendermediaonlambda).
+
+The source code of what is run inside a Remotion Lambda function [can be found here](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/functions/index.ts) and forked if necessary. We recommend to reach out to the Remotion team first and check if a fork is really necessary.
