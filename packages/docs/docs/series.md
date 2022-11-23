@@ -18,7 +18,7 @@ const Square: React.FC<{color: string}> = () => <div></div>
 // - Square
 ```
 
-```tsx twoslash
+```tsx twoslash title="src/Example.tsx"
 // @include: example-Square
 // ---cut---
 import { Series } from "remotion";
@@ -63,23 +63,28 @@ This component is a high order component, and accepts, besides it's children, th
 
 - `layout`: _(optional)_: Either `"absolute-fill"` _(default)_ or `"none"` By default, your sequences will be absolutely positioned, so they will overlay each other. If you would like to opt out of it and handle layouting yourself, pass `layout="none"`.
 
-- `style`: _(optional)_: CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
+- `style`: _(optional, available from v3.3.4)_: CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
 
-- `ref`: _(optional)_: You can add a [React ref](https://reactjs.org/docs/refs-and-the-dom.html) to a `<Series.Sequence>`. If you use TypeScript, you need to type it with `HTMLDivElement`:
+- `ref`: _(optional, available from v3.3.4)_: You can add a [React ref](https://reactjs.org/docs/refs-and-the-dom.html) to a `<Series.Sequence>`. If you use TypeScript, you need to type it with `HTMLDivElement`:
 
-```tsx
-import { useRef } from "react";
+```tsx twoslash title="src/Example.tsx"
+const Square: React.FC<{
+  color: string;
+}> = () => null;
+// ---cut---
+import React, { useRef } from "react";
 import { Series } from "remotion";
 
 const Example: React.FC = () => {
   const first = useRef<HTMLDivElement>(null);
   const second = useRef<HTMLDivElement>(null);
+
   return (
     <Series>
       <Series.Sequence durationInFrames={40} ref={first}>
         <Square color={"#3498db"} />
       </Series.Sequence>
-      <Series.Sequence durationInFrames={20} ref="second">
+      <Series.Sequence durationInFrames={20} ref={second}>
         <Square color={"#5ff332"} />
       </Series.Sequence>
       <Series.Sequence durationInFrames={70}>
