@@ -81,7 +81,7 @@ const { bucketName, renderId } = await renderMediaOnLambda({
   codec: "h264",
   imageFormat: "jpeg",
   maxRetries: 1,
-  privacy: "public",
+  privacy: "no-acl",
   outName: {
     key: "my-output",
     bucketName: "output-bucket",
@@ -100,6 +100,7 @@ If you want to use this feature, note the following:
 
 - When calling [`downloadMedia()`](/docs/lambda/downloadmedia#bucketname) or [`getRenderProgress()`](/docs/lambda/getrenderprogress#bucketname), you must pass the AWS `bucketName` where the site resides in, not the bucket name of the foreign cloud.
 - When calling [`downloadMedia()`](/docs/lambda/downloadmedia#s3outputprovider) or [`getRenderProgress()`](/docs/lambda/getrenderprogress#s3outputprovider), you must provide the `s3OutputProvider` option with the same credentials again.
+- By default, Remotion [assumes you use ACL](/docs/lambda/troubleshooting/bucket-disallows-acl) which is less common on other clouds. You need to set `privacy: "no-acl"` if you don't want to use ACL.
 
 This feature is not supported from the CLI.
 
