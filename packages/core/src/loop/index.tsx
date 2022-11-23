@@ -43,6 +43,7 @@ export const Loop: React.FC<LoopProps> = ({
 
 	const maxTimes = Math.ceil(compDuration / durationInFrames);
 	const actualTimes = Math.min(maxTimes, times);
+	const style = props.layout === 'none' ? undefined : props.style;
 
 	return (
 		<>
@@ -57,7 +58,7 @@ export const Loop: React.FC<LoopProps> = ({
 						showLoopTimesInTimeline={actualTimes}
 						showInTimeline={i === 0}
 						layout={props.layout}
-						{...(props.layout === 'absolute-fill' && {style: props.style})}
+						style={style}
 					>
 						{children}
 					</Sequence>
