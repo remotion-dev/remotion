@@ -46,26 +46,42 @@ const Example: React.FC = () => {
 
 ## API
 
-The `<Series />` component takes no props may only contain a list of `<Series.Sequence />` instances.
-
-### `<Series.Sequence />`
+The `<Series />` component takes no props may only contain a list of `<Series.Sequence />` instances. A `<Series.Sequence />` component takes the following props:
 
 This component is a high order component, and accepts, besides it's children, the following props:
 
-- `durationInFrames` _(required)_: For how many frames the sequence should be displayed. Children are unmounted if they are not within the time range of display.
+### `durationInFrames`
 
-- `offset`: _(optional)_: Pass a positive number to delay the beginning of the sequence. Pass a negative number to start the sequence earlier, and to overlay the sequence with the one that comes before.
+For how many frames the sequence should be displayed. Children are unmounted if they are not within the time range of display.
 
-  The offset does not apply to sequences that come before, but the sequences that come after it will also be shifted.
+### `offset`
 
-  **Example 1**: Pass `10` to delay the sequence by 10 frames and create a blank space of 10 frames before it.
-  **Example 2**: Pass `-10` to start the sequence earlier and overlay the sequence on top of the previous one for 10 frames.
+_optional_
 
-- `layout`: _(optional)_: Either `"absolute-fill"` _(default)_ or `"none"` By default, your sequences will be absolutely positioned, so they will overlay each other. If you would like to opt out of it and handle layouting yourself, pass `layout="none"`.
+Pass a positive number to delay the beginning of the sequence. Pass a negative number to start the sequence earlier, and to overlay the sequence with the one that comes before.
 
-- `style`: _(optional, available from v3.3.4)_: CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
+The offset does not apply to sequences that come before, but the sequences that come after it will also be shifted.
 
-- `ref`: _(optional, available from v3.3.4)_: You can add a [React ref](https://reactjs.org/docs/refs-and-the-dom.html) to a `<Series.Sequence>`. If you use TypeScript, you need to type it with `HTMLDivElement`:
+**Example 1**: Pass `10` to delay the sequence by 10 frames and create a blank space of 10 frames before it.  
+**Example 2**: Pass `-10` to start the sequence earlier and overlay the sequence on top of the previous one for 10 frames.
+
+### `layout`
+
+_optional_
+
+Either `"absolute-fill"` _(default)_ or `"none"` By default, your sequences will be absolutely positioned, so they will overlay each other. If you would like to opt out of it and handle layouting yourself, pass `layout="none"`.
+
+### `style`
+
+_optional, available from v3.3.4_
+
+CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
+
+### `ref`
+
+_optional, available from v3.3.4_
+
+You can add a [React ref](https://reactjs.org/docs/refs-and-the-dom.html) to a `<Series.Sequence>`. If you use TypeScript, you need to type it with `HTMLDivElement`:
 
 ```tsx twoslash title="src/Example.tsx"
 const Square: React.FC<{
