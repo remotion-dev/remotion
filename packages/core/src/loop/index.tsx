@@ -1,6 +1,6 @@
 import React from 'react';
-import {Sequence} from '../Sequence';
 import type {LayoutAndStyle} from '../Sequence';
+import {Sequence} from '../Sequence';
 import {useVideoConfig} from '../use-video-config';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames';
 
@@ -57,7 +57,7 @@ export const Loop: React.FC<LoopProps> = ({
 						showLoopTimesInTimeline={actualTimes}
 						showInTimeline={i === 0}
 						layout={props.layout}
-						{...(props.layout==='absolute-fill' && {style: props.style})}
+						{...(props.layout === 'absolute-fill' && {style: props.style})}
 					>
 						{children}
 					</Sequence>
