@@ -41,6 +41,7 @@ const MyComposition: React.FC<{ videoUrl: string | null }> = (URL) => {
 const upload = async (file: File) => {
   return "https://exampleName.s3.examplesRegion.amazonaws.com";
 };
+
 // ---cut---
 import { Player } from "@remotion/player";
 import { useState } from "react";
