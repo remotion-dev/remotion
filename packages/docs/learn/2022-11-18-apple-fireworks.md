@@ -177,12 +177,12 @@ export const MyComposition: React.FC = () => {
 };
 ```
 
-Now we got the white dot on top of our Background:
+Now we got a white dot on top of our background:
 <img src="/img/apple-wow-tutorial/Dot.png"/>
 
 ## Animate the dot
 
-Let's apply some animation on the white circle we created above. We create another component called `<Schrinking>` in a new file `src/Shrinking.tsx`, which then wraps the circle in the main composition `src/Composition.tsx`.
+Let's apply some animation to the white dot we created above. We create another component called Schrinking in a new file `src/Shrinking.tsx`, which then wraps the dot in the main composition `src/Composition.tsx`.
 
 ```tsx title="src/Shrinking.tsx"
 import React from "react";
