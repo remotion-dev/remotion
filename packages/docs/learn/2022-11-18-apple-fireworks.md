@@ -55,9 +55,9 @@ yarn create video --blank
   </TabItem>
 </Tabs>
 
-## Frame setup
+## Composition setup
 
-In the `src/Root.tsx` file, adjust the frame width and height to be the following:
+A [Composition](https://www.remotion.dev/docs/terminology#composition) defines the frame of the video. In the `src/Root.tsx` file, adjust the frame width and height to the following:
 
 ```tsx twoslash title="src/Root.tsx"
 import { Composition } from "remotion";
@@ -81,7 +81,7 @@ export const RemotionRoot: React.FC = () => {
 
 ## Create a background
 
-Create a background by creating a new file `src/Background.tsx` and returning a linear gradient:
+Create a new file `src/Background.tsx`. Add a background with a linear gradient:
 
 ```tsx twoslash title="src/Background.tsx"
 import React from "react";
@@ -98,9 +98,9 @@ export const Background: React.FC = () => {
 };
 ```
 
-Return the background in your main composition `src/Composition.tsx`:
+Add the created background in MyComposition, which can be found in the file `src/Composition.tsx`. This file is very important. At the end, it will contain all components that you create in this tutorial.
 
-```tsx twoslash
+```tsx twoslash title="src/Composition.tsx"
 // @filename: Background.tsx
 export const Background: React.FC = () => null;
 
@@ -123,9 +123,9 @@ This results in the following:
 
 <img src="/img/apple-wow-tutorial/Background.png"/>
 
-## Cricle as a React component
+## Render a dot
 
-Render a white circle by creating a new file `src/Dot.tsx` and returning a React component which contains the characterists of our circle, e.g. centered.
+Render a white dot by creating a new file `src/Dot.tsx` and return a centered circle.
 
 ```tsx twoslash title="src/Dot.tsx"
 import React from "react";
