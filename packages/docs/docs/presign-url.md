@@ -3,12 +3,12 @@ id: presign-url
 title: Upload with presign URL
 ---
 
-When uploading a file which will be used in a remotion component, we want to make sure we can upload this file immediately on our destination server.
+In an app where users can upload videos and edit them, we want to make sure these videos get uploaded immediately on our destination cloud storage (other word for destination cloud storage?). With the following presign URL workflow, a unique temporary upload url is provided with the possibility to ensure that individually set constraints (such as maximal file size) aren't violated. (reformulate this sentence)
 
-- how to upload on s3 with presign workflow (so we dont need to upload on own server first)
-- explaining benefits -> you can set clear constraint (how many uploads are possible, how big can the files be, what type of files are allowed, is the user logged in etc...)
+### Types and helper functions
 
-### presign.ts
+In order to be able to check the file type and file size in the backend, both contentType and contentLength are sent in the PresignRequestBody.
+With `makeS3Url()` a helperfunction is provided to set up the read URL (??)
 
 ```tsx twoslash
 // ---cut---
@@ -40,7 +40,9 @@ export const makeS3Url = ({
 };
 ```
 
-### presign endpoint
+### Generating the presign url
+
+By making a POST request to the following endpoint, the creation of a presign URL gets triggered.
 
 ```tsx
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -61,6 +63,7 @@ export default async function handler(
 
   const body = req.body as PresignRequestBody;
 
+  //content type precondition
   if (body.contentType !== "application/octet-stream") {
     return res.status(400).json({
       message: `Content type ${body.contentType} is not supported`,
@@ -81,7 +84,7 @@ export default async function handler(
     service: "s3",
   });
 
-  //using uuid to generate a random primary key
+  //generates a random ID
   const id = v4();
 
   const region = process.env.REMOTION_AWS_REGION as AwsRegion;
@@ -89,7 +92,6 @@ export default async function handler(
     region,
   });
 
-  //command from AWS S3
   const command = new sdk.PutObjectCommand({
     Bucket: bucketName,
     Key: id,
@@ -98,14 +100,13 @@ export default async function handler(
     ContentType: body.contentType,
   });
 
-  //url which will be used to stream the file in remotion (?)
+  //url which will be used to read the uploaded file
   const readUrl = makeS3Url({
     videoId: id,
     bucketName,
     region,
   });
 
-  //getSignedUrl is an API from AWS --> link it in text
   //expiresIn can be set to your liking
   const presignedUrl = await getSignedUrl(client, command, {
     expiresIn: 60 * 5,
@@ -122,3 +123,13 @@ export default async function handler(
   return res.status(200).json(response);
 }
 ```
+
+After ensuring the provided file does not violate the constraint in place, the AWS client and SDK get derived with [getAwsClient()](/docs/lambda/getawsclient), which are needed to create and get the presign URL.
+
+To create a unique ID which later will be contained in the presign URL, [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier) V4 is used.
+
+After deriving the AWS Region and the S3 bucket name, command object is created, which is needed to get the signed URL.
+
+By using the helper function `makeS3Url()`, the read url will be created.
+
+The presignedUrl then gets created with the [getSingedUrl()](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#getSignedUrl-property).
