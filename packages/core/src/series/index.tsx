@@ -1,6 +1,6 @@
 import type {FC, PropsWithChildren} from 'react';
 import {Children, forwardRef, useMemo} from 'react';
-import type {SequenceProps, LayoutAndStyle} from '../Sequence';
+import type {LayoutAndStyle, SequenceProps} from '../Sequence';
 import {Sequence} from '../Sequence';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames';
 import {flattenChildren} from './flatten-children';
@@ -9,18 +9,21 @@ type SeriesSequenceProps = PropsWithChildren<
 	{
 		durationInFrames: number;
 		offset?: number;
-	} & Pick<SequenceProps, 'layout' | 'name'> & LayoutAndStyle
+	} & Pick<SequenceProps, 'layout' | 'name'> &
+		LayoutAndStyle
 >;
 
 const SeriesSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
-HTMLDivElement,
-SeriesSequenceProps
-> = ({children}) => {
+	HTMLDivElement,
+	SeriesSequenceProps
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+> = ({children}, _ref) => {
+	// Discard ref
 	// eslint-disable-next-line react/jsx-no-useless-fragment
 	return <>{children}</>;
 };
 
-const SeriesSequence = forwardRef(SeriesSequenceRefForwardingFunction)
+const SeriesSequence = forwardRef(SeriesSequenceRefForwardingFunction);
 
 const Series: FC<{
 	children: React.ReactNode;
