@@ -152,9 +152,9 @@ export const Dot: React.FC = () => {
 };
 ```
 
-Return the circle in your main composition `src/Composition.tsx`:
+Add the `<Dot>` in your main composition `src/Composition.tsx`:
 
-```tsx twoslash
+```tsx twoslash title="src/Composition.tsx"
 // @filename: Dot.tsx
 export const Dot: React.FC = () => null;
 // @filename: Background.tsx
