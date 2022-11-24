@@ -210,7 +210,7 @@ export const Shrinking: React.FC<{
 };
 ```
 
-Return the `<Shrinking>`component in your main composition `src/Composition.tsx`:
+Return the `<Shrinking>` component in your main composition `src/Composition.tsx`:
 
 ```tsx twoslash
 // @filename: Shrinking.tsx
@@ -248,7 +248,7 @@ Now, you have some action to show. By using `<Shrinking>` in your main compositi
 
 ## Move the dot
 
-In this step we crate a component called Move. This component has a spring animation, which by default goes from zero to one, and has a duration of four seconds (durationInFrames: 120) in the code snipped below:
+In this step we create a component called Move. This component has a spring animation, which by default goes from zero to one, and has a duration of four seconds (durationInFrames: 120) in the code snipped below:
 
 ```tsx twoslash title="src/Move.tsx"
 import React from "react";
@@ -334,7 +334,7 @@ And up goes the dot:
 
 ## Duplicate the moving dot
 
-This step is a little bit trickier, but makes the animation very nice! In this step we are going to make changes on three files: `src/Move.tsx`, `src/Trail.tsx` and `src/Composition.tsx`. You create a so called `<Trail>` component. It takes some React children and duplicates them for a certain amount of time. Each dot will have a scale applied to it, so that each dot is smaller than the previous one. And here comes the important step: Within the `<Trail>` component you implement the previously created `<Move>` component. In addition to the implementation we also apply a delay between the animation start of each dot. To do this we need to add an argument `delay` in the `src/Move.tsx` file.
+Here it gets a little bit trickier, but the following steps are going to make your animation more entertaining. First, you add a `delay` prop into the `<Move>` component and then change the `frame` parameter of your `spring()` function.
 
 ```tsx twoslash title="src/Move.tsx"
 import React from "react";
@@ -375,6 +375,8 @@ export const Move: React.FC<{
   );
 };
 ```
+
+Now, you create a so called `<Trail>` component. It takes some React children and duplicates them. The component adds a delay to each subsequent dot so they don't start all at once. Each dot will have a scale applied to it, so that each dot is smaller than the previous one. And here comes the important step: Within the `<Trail>` component you implement the previously created `<Move>` component.
 
 ```tsx twoslash title="src/Trail.tsx"
 // @filename: Move.tsx
@@ -422,9 +424,9 @@ export const Trail: React.FC<{
 };
 ```
 
-Because you already implemented the `<Move>` component in the `<Trail>` component, you need to consider this in your main composition `src/Composition.tsx`:
+In your main composition, you now replace your `<Move>` component with the `<Trail>` component:
 
-```tsx twoslash
+```tsx twoslash title="src/Composition.tsx"
 // @filename: Move.tsx
 export const Move: React.FC<{
   children: React.ReactNode;
