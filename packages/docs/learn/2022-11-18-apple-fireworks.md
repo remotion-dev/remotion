@@ -243,12 +243,12 @@ export const MyComposition: React.FC = () => {
 };
 ```
 
-Now we have some action to show:
+Now, you have some action to show. By using `<Shrinking>` in your main composition you have created a fade out effect:
 <img src="/img/apple-wow-tutorial/Shrinking.gif"/>
 
 ## Move the dot
 
-Now combine the `<Shrinking>` from above with a component called `<Move>`. This component has a spring animation which by default goes from zero to one and has a duration of four seconds (durationInFrames: 120) in the code snipped below defined:
+In this step we crate a component called Move. This component has a spring animation, which by default goes from zero to one, and has a duration of four seconds (durationInFrames: 120) in the code snipped below:
 
 ```tsx twoslash title="src/Move.tsx"
 import React from "react";
@@ -289,9 +289,9 @@ export const Move: React.FC<{
 };
 ```
 
-Return the `<Move>` component in your main composition `src/Composition.tsx`:
+Add the `<Move>` component in your composition `src/Composition.tsx`. You get a nice effect by combining the effect of moving and shrinking, just wrap the shrinking dot in the `<Move>` component:
 
-```tsx twoslash
+```tsx twoslash title="src/Composition.tsx"
 // @filename: Move.tsx
 export const Move: React.FC<{
   children: React.ReactNode;
