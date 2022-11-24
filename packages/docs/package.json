@@ -57,7 +57,11 @@
     "react-player": "^2.9.0",
     "remotion": "3.3.3",
     "three": "0.145.0",
-    "vitest": "0.24.3"
+    "vitest": "0.24.3",
+    "@types/uuid": "^8.3.4",
+    "uuid": "^8.3.2",
+    "@aws-sdk/s3-request-presigner": "3.190.0",
+    "next": "12.2.0"
   },
   "devDependencies": {
     "@tsconfig/docusaurus": "^1.0.5",

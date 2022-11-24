@@ -3,9 +3,21 @@ id: presign-url
 title: Upload with presign URL
 ---
 
-In an app where users can upload videos and edit them, we want to make sure these videos get uploaded immediately on our destination cloud storage (other word for destination cloud storage?). With the following presign URL workflow, a unique temporary upload url is provided with the possibility to ensure that individually set constraints (such as maximal file size) aren't violated. (reformulate this sentence)
+In an app where users can upload videos and edit them, we want to make sure these videos get uploaded directly on our destination cloud storage (other word for destination cloud storage?). With the following presign URL workflow, a unique temporary upload url is provided with the possibility to ensure that individually set constraints (such as maximal file size, filetype,...) aren't violated. (reformulate this sentence)
 
-### Types and helper functions
+## What is a presign URL?
+
+A presign URL is a URL to which you can send a file. This URL predefines the filename, filesize, contenttype and source location of the file it accepts.
+
+## Why using presign URL?
+
+The traditional way of handling a file upload would be to let the client upload the file on the server, which then handles the upload to the cloud storage. While this approach works, its not ideal due to several reasons.
+
+- If many clients happen to upload big files on the server, the server can get slow or even break down under the load. With the presign workflow, the server only needs to create presign URLs, which creats way less server load than handling file transfers.
+
+- Since a lot of servers today are based on ephemeral environments, files should not be stored on them. There is no guarantee the files will still exist after a server restart.
+
+## Types and helper functions
 
 In order to be able to check the file type and file size in the backend, both contentType and contentLength are sent in the PresignRequestBody.
 With `makeS3Url()` a helperfunction is provided to set up the read URL (??)
@@ -40,16 +52,41 @@ export const makeS3Url = ({
 };
 ```
 
-### Generating the presign url
+## Generating the presign url
 
-By making a POST request to the following endpoint, the creation of a presign URL gets triggered.
+By making a POST request to the following endpoint, the creation of a presign URL gets triggered. (Example was done with a Next Endpoint)
 
-```tsx
+```tsx twoslash
+const makeS3Url = ({
+  bucketName,
+  fileId,
+  region,
+}: {
+  fileId: string;
+  region: AwsRegion;
+  bucketName: string;
+}) => {
+  return `https://${bucketName}.s3.${region}.amazonaws.com/${fileId}`;
+};
+
+export type PresignResponse = {
+  uploadUrl: string;
+  readUrl: string;
+  id: string;
+  bucketName: string;
+  region: AwsRegion;
+};
+
+export type PresignRequestBody = {
+  contentLength: number;
+  contentType: string;
+};
+// ---cut---
+
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { AwsRegion, getAwsClient, getOrCreateBucket } from "@remotion/lambda";
 import { NextApiRequest, NextApiResponse } from "next";
 import { v4 } from "uuid";
-import { PresignRequestBody, PresignResponse } from "./presign";
 
 export default async function handler(
   req: NextApiRequest,
@@ -92,6 +129,8 @@ export default async function handler(
     region,
   });
 
+  //passing conentLength and contentType results in the URL only
+  //accepting a file with this exact size and type
   const command = new sdk.PutObjectCommand({
     Bucket: bucketName,
     Key: id,
@@ -102,7 +141,7 @@ export default async function handler(
 
   //url which will be used to read the uploaded file
   const readUrl = makeS3Url({
-    videoId: id,
+    fileId: id,
     bucketName,
     region,
   });
