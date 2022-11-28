@@ -8,6 +8,7 @@ import { Spacer } from "../../components/layout/Spacer";
 import { experts } from "../data/experts";
 
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
+import { Seo } from "./Seo";
 
 const layout: React.CSSProperties = {
   maxWidth: 900,
@@ -82,9 +83,9 @@ const socialIconContainer: React.CSSProperties = {
 };
 
 const socialLink: React.CSSProperties = {
-  display: 'block',
-  maxWidth: 'fit-content',
-}
+  display: "block",
+  maxWidth: "fit-content",
+};
 
 const socialRow: React.CSSProperties = {
   flexDirection: "row",
@@ -129,12 +130,9 @@ export default () => {
   return (
     <Layout>
       <Head>
-        <title>{expert.name} | Remotion Experts</title>
-        <meta
-          name="description"
-          content={`Hire ${expert.name} and other Remotion experts, vetted by Remotion.`}
-        />
-        <meta property="og:image" content={imgSrc} />
+        <Seo.Title>{`${expert.name} | Remotion Experts`}</Seo.Title>
+        <Seo.Description>{`Hire ${expert.name} and other Remotion experts, vetted by Remotion.`}</Seo.Description>
+        <Seo.Image>{imgSrc}</Seo.Image>
       </Head>
       <div style={header}>
         <div style={layout}>
@@ -195,7 +193,11 @@ export default () => {
           </div>
         </a>
         {expert.github ? (
-          <a style={socialLink} href={`https://github.com/${expert.github}`} target={"_blank"}>
+          <a
+            style={socialLink}
+            href={`https://github.com/${expert.github}`}
+            target={"_blank"}
+          >
             <div style={socialRow}>
               <div style={socialIconContainer}>
                 <svg
@@ -214,7 +216,11 @@ export default () => {
           </a>
         ) : null}
         {expert.twitter ? (
-          <a style={socialLink} href={`https://twitter.com/${expert.twitter}`} target={"_blank"}>
+          <a
+            style={socialLink}
+            href={`https://twitter.com/${expert.twitter}`}
+            target={"_blank"}
+          >
             <div style={socialRow}>
               <div style={socialIconContainer}>
                 <svg
@@ -233,7 +239,11 @@ export default () => {
           </a>
         ) : null}
         {expert.linkedin ? (
-          <a style={socialLink} href={`https://linkedin.com/${expert.linkedin}`} target={"_blank"}>
+          <a
+            style={socialLink}
+            href={`https://linkedin.com/${expert.linkedin}`}
+            target={"_blank"}
+          >
             <div style={socialRow}>
               <div style={socialIconContainer}>
                 <svg

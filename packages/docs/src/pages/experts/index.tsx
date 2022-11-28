@@ -11,6 +11,7 @@ import {
   LinkedInLogo,
   TwitterLogo,
 } from "../../components/icons";
+import { Seo } from "../../components/Seo";
 import { experts } from "../../data/experts";
 import styles from "./experts.module.css";
 
@@ -47,24 +48,12 @@ const Experts: React.FC = () => {
   return (
     <Layout>
       <Head>
-        <title>Remotion experts | Hire Remotion freelancers</title>
-        <meta
-          name="description"
-          content="Find Remotion freelancers and hire them to create, progress or unblock your Remotion project."
-        />
-        <meta name="og:image" content="/img/remotion-experts-og-image.png" />
-        <meta
-          name="twitter:image"
-          content="/img/remotion-experts-og-image.png"
-        />
-        <meta
-          property="og:image"
-          content="/img/remotion-experts-og-image.png"
-        />
-        <meta
-          property="twitter:image"
-          content="/img/remotion-experts-og-image.png"
-        />
+        <Seo.Title>Remotion experts | Hire Remotion freelancers</Seo.Title>
+        <Seo.Description>
+          Find Remotion freelancers and hire them to create, progress or unblock
+          your Remotion project.
+        </Seo.Description>
+        <Seo.Image>{"/img/remotion-experts-og-image.png"}</Seo.Image>
       </Head>
       <div className={styles.container}>
         <div className={styles.background} />

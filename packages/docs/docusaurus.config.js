@@ -1,7 +1,7 @@
 module.exports = {
   title: "Remotion | Make videos programmatically",
   tagline: "Make videos programmatically",
-  url: "https://remotion.dev",
+  url: "https://www.remotion.dev",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
