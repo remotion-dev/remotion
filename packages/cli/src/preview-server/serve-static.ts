@@ -28,13 +28,11 @@ export const serveStatic = async function (
 		return;
 	}
 
-	const path = join(
-		root,
-		new URL(req.url as string, 'http://localhost').pathname.replace(
-			new RegExp(`^${hash}`),
-			''
-		)
-	);
+	const filename = new URL(
+		req.url as string,
+		'http://localhost'
+	).pathname.replace(new RegExp(`^${hash}`), '');
+	const path = join(root, decodeURIComponent(filename));
 
 	if (!RenderInternals.isPathInside(path, root)) {
 		res.writeHead(500);
