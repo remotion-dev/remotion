@@ -19,10 +19,10 @@ import { deployFunction } from "@remotion/lambda";
 const { functionName } = await deployFunction({
   region: "us-east-1",
   timeoutInSeconds: 120,
-  memorySizeInMb: 1024,
+  memorySizeInMb: 2048,
   createCloudWatchLogGroup: true,
   architecture: "arm64",
-  diskSizeInMb: 512,
+  diskSizeInMb: 2048,
 });
 console.log(functionName);
 ```
