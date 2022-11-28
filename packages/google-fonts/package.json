@@ -1,6 +1,6 @@
 {
   "name": "@remotion/google-fonts",
-  "version": "3.3.3",
+  "version": "3.3.4",
   "description": "Load Google Fonts in Remotion",
   "scripts": {
     "build": "pnpm run generate && tsc -d",
@@ -10,7 +10,7 @@
   },
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
-    "remotion": "3.3.3"
+    "remotion": "3.3.4"
   },
   "devDependencies": {
     "@types/css-font-loading-module": "^0.0.7",
