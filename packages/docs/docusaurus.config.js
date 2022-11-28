@@ -1,5 +1,5 @@
 module.exports = {
-  title: "Remotion | Make videos programmatically",
+  title: "Remotion | Make videos programmatically in React",
   tagline: "Make videos programmatically",
   url: "https://www.remotion.dev",
   baseUrl: "/",
