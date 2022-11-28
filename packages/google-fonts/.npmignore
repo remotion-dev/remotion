@@ -1,6 +1,7 @@
 .cache-css
 .turbo
 *.ts
+!*.d.ts
 scripts
 src
 google-fonts.json
