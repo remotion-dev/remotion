@@ -1,5 +1,6 @@
 import Head from "@docusaurus/Head";
 import Link from "@docusaurus/Link";
+import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import React, { useMemo } from "react";
 import { random } from "remotion";
@@ -45,15 +46,19 @@ const Experts: React.FC = () => {
     );
   }, []);
 
+  const context = useDocusaurusContext();
+
   return (
     <Layout>
       <Head>
-        <Seo.Title>Remotion experts | Hire Remotion freelancers</Seo.Title>
-        <Seo.Description>
-          Find Remotion freelancers and hire them to create, progress or unblock
-          your Remotion project.
-        </Seo.Description>
-        <Seo.Image>{"/img/remotion-experts-og-image.png"}</Seo.Image>
+        {Seo.renderTitle("Remotion experts | Hire Remotion freelancers")}
+        {Seo.renderDescription(
+          "Find Remotion freelancers and hire them to create, progress or unblock your Remotion project."
+        )}
+        {Seo.renderImage(
+          "/img/remotion-experts-og-image.png",
+          context.siteConfig.url
+        )}
       </Head>
       <div className={styles.container}>
         <div className={styles.background} />

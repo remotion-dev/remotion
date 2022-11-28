@@ -1,27 +1,24 @@
-import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import React from "react";
 
 export const Seo = {
-  Title: ({ children }: { children: string }) => {
+  renderTitle: (title: string) => {
     return (
       <>
-        <title>{children}</title>
-        <meta property="og:title" content={children} />
+        <title>{title}</title>
+        <meta property="og:title" content={title} />
       </>
     );
   },
-  Description: ({ children }: { children: string }) => {
+  renderDescription: (title: string) => {
     return (
       <>
-        <meta name="description" content={children} />
-        <meta property="og:description" content={children} />
+        <meta name="description" content={title} />
+        <meta property="og:description" content={title} />
       </>
     );
   },
-  Image: ({ children }: { children: string }) => {
-    const context = useDocusaurusContext();
-
-    const imgSrc = new URL(children, context.siteConfig.url).href;
+  renderImage: (title: string, domain: string) => {
+    const imgSrc = new URL(title, domain).href;
 
     return (
       <>
