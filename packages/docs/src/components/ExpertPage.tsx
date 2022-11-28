@@ -121,7 +121,7 @@ export default () => {
   }
 
   const expert = experts.find((e) => e.slug === expertSlug[1]);
-  const imgSrc = `${context.siteConfig.url}/generated/experts-${expert.slug}.png`;
+  const imgSrc = `/generated/experts-${expert.slug}.png`;
 
   if (!expert) {
     throw new Error("no expert found");
@@ -130,9 +130,11 @@ export default () => {
   return (
     <Layout>
       <Head>
-        <Seo.Title>{`${expert.name} | Remotion Experts`}</Seo.Title>
-        <Seo.Description>{`Hire ${expert.name} and other Remotion experts, vetted by Remotion.`}</Seo.Description>
-        <Seo.Image>{imgSrc}</Seo.Image>
+        {Seo.renderTitle(`${expert.name} | Remotion Experts`)}
+        {Seo.renderDescription(
+          `Hire ${expert.name} and other Remotion experts, vetted by Remotion.`
+        )}
+        {Seo.renderImage(imgSrc, context.siteConfig.url)}
       </Head>
       <div style={header}>
         <div style={layout}>
