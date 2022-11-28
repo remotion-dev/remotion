@@ -1,100 +1,56 @@
 ---
-id: presign-url
+id: presigned-urls
 title: Upload with a presigned URL
 ---
 
-In an app where users can upload videos and edit them, we want to make sure these videos get uploaded directly to our destination cloud storage. By generating a presigned URL on the server, you allow a user to directly upload a file into your cloud storage without having to through your server.
+This article provides guidance for webapps wanting to allow users to upload videos and other assets. We recommend to generate a presigned URL server-side that allows a user to directly upload a file into your cloud storage without having to pass the file through your server.
 
-You can set constraints such as maximal file size and file type, apply rate limiting and require authentication, and predefine the key.
+You can set constraints such as maximal file size and file type, apply rate limiting, require authentication, and predefine the storage location.
 
-## What is a presign URL?
+## Why use presigned URL?
 
-A presign URL is a URL to which you can send a file. This URL predefines the filename, filesize, contenttype and source location of the file it accepts.
+The traditional way of implementing a file upload would be to let the client upload the file onto a server, which then stores the file on disk or forwards the upload to cloud storage. While this approach works, it's not ideal due to several reasons.
 
-## Why using presign URL?
+- **Reduce load**: If many clients happen to upload big files on the same server, this server can get slow or even break down under the load. With the presign workflow, the server only needs to create presign URLs, which reduces server load than handling file transfers.
+- **Reduce spam**: To prevent your users using your upload feature as free hosting space, you can deny them a presigned URL if they step over your allowance.
+- **Data safety**: Since a lot of hosting solutions today are ephemeral or serverless, files should not be stored on them. There is no guarantee the files will still exist after a server restart and you might run out of disk space.
 
-The traditional way of handling a file upload would be to let the client upload the file on a server, which then handles the upload to the cloud storage. While this approach works, it's not ideal due to several reasons.
+## AWS Example
 
-- If many clients happen to upload big files on the same server, this server can get slow or even break down under the load. With the presign workflow, the server only needs to create presign URLs, which reduces server load than handling file transfers.
+This example assumes user uploads are stored in S3. For other frontends
 
-- Since a lot of hosting solutions today are ephemeral or serverless, files should not be stored on them. There is no guarantee the files will still exist after a server restart and you might run out of disk space.
+First, accept a file in your frontend, for example using `<input type="file">`. You should get a `File`, from which you can determine the content type and content length:
 
-## Types and helper functions
-
-In order to be able to check the file type and file size in the backend, both contentType and contentLength are sent in the PresignRequestBody.
-With `makeS3Url()` a helperfunction is provided to set up the read URL
-
-```tsx twoslash
+```ts twoslash title="App.tsx"
+// @module: ESNext
+// @target: ESNext
+import { interpolate } from "remotion";
+const file: File = {} as unknown as File;
 // ---cut---
-import { AwsRegion } from "@remotion/lambda";
-
-export type PresignResponse = {
-  uploadUrl: string;
-  readUrl: string;
-  id: string;
-  bucketName: string;
-  region: AwsRegion;
-};
-
-export type PresignRequestBody = {
-  contentLength: number;
-  contentType: string;
-};
-
-export const makeS3Url = ({
-  bucketName,
-  fileId,
-  region,
-}: {
-  fileId: string;
-  region: AwsRegion;
-  bucketName: string;
-}) => {
-  return `https://${bucketName}.s3.${region}.amazonaws.com/${fileId}`;
-};
+const contentType = file.type || "application/octet-stream";
+const arrayBuffer = await file.arrayBuffer();
+const contentLength = arrayBuffer.byteLength;
 ```
 
-## Generating the presign url
+This example uses [`@aws-sdk/s3-request-presigner`](https://github.com/aws/aws-sdk-js-v3/tree/main/packages/s3-request-presigner) and [the AWS SDK imported from `@remotion/lambda`](/docs/lambda/getawsclient). By calling the function below, two URLs are generated:
 
-By making a POST request to the following endpoint, the creation of a presign URL gets triggered. (Example was done with a Next Endpoint)
+- `presignedUrl` is a URL to which the file can be uploaded to
+- `readUrl` is the URL from which the file can be read from.
 
-```tsx twoslash
-const makeS3Url = ({
-  bucketName,
-  fileId,
-  region,
-}: {
-  fileId: string;
-  region: AwsRegion;
-  bucketName: string;
-}) => {
-  return `https://${bucketName}.s3.${region}.amazonaws.com/${fileId}`;
-};
-
-export type PresignResponse = {
-  uploadUrl: string;
-  readUrl: string;
-  id: string;
-  bucketName: string;
-  region: AwsRegion;
-};
-
-export type PresignRequestBody = {
-  contentLength: number;
-  contentType: string;
-};
-// ---cut---
+```tsx twoslash title="api/generate-presigned-url.ts"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { AwsRegion, getAwsClient, getOrCreateBucket } from "@remotion/lambda";
+import { AwsRegion, getAwsClient } from "@remotion/lambda";
 import { v4 } from "uuid";
 
 export const generatePresignedUrl = async (
   contentType: string,
   contentLength: number,
-  expiresIn: number
-): Promise<string> => {
+  expiresIn: number,
+  bucketName: string,
+  region: AwsRegion
+): Promise<{ presignedUrl: string; readUrl: string }> => {
   if (contentLength > 1024 * 1024 * 200) {
-    console.error(
+    throw new Error(
       `File may not be over 200MB. Yours is ${contentLength} bytes.`
     );
   }
@@ -104,51 +60,58 @@ export const generatePresignedUrl = async (
     service: "s3",
   });
 
-  //generates a random ID
-  const id = v4();
+  const key = v4();
 
-  const region = process.env.REMOTION_AWS_REGION as AwsRegion;
-  const { bucketName } = await getOrCreateBucket({
-    region,
-  });
-
-  //passing conentLength and contentType results in the URL only
-  //accepting a file with this exact size and type
   const command = new sdk.PutObjectCommand({
     Bucket: bucketName,
-    Key: id,
+    Key: key,
     ACL: "public-read",
     ContentLength: contentLength,
     ContentType: contentType,
   });
 
-  //url which will be used to read the uploaded file
-  const readUrl = makeS3Url({
-    fileId: id,
-    bucketName,
-    region,
+  const presignedUrl = await getSignedUrl(client, command, {
+    expiresIn,
   });
 
-  //expiresIn can be set to your liking
-  const presignedUrl = await getSignedUrl(client, command, {
-    expiresIn: 60 * 5,
-  });
-  return presignedUrl;
+  // The location of the assset after the upload
+  const readUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${key}`;
+
+  return { presignedUrl, readUrl };
 };
 ```
 
-After ensuring the provided file does not violate the constraint in place, the AWS client and SDK get derived with [getAwsClient()](/docs/lambda/getawsclient), which are needed to create and get the presign URL.
+Explanation:
 
-To create a unique ID which later will be contained in the presign URL, [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier) V4 is used.
+- First, the upload request gets checked for constraints. In this example, we reject uploads that are over 200MB. You could add more constraints or add rate-limiting.
+- The AWS SDK gets imported using [getAwsClient()](/docs/lambda/getawsclient). If you don't use Remotion Lambda, install the [`@aws-sdk/client-s3`](https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-s3) package directly.
+- A [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier) gets used as the filename to avoid name clashes.
+- Finally, the presigned URL and output URL get calculated and returned.
 
-We can derive the URL at which the file will be available using makeS3Url().
+## Using the presigned URL
 
-The presignedUrl then gets created with the [getSignedUrl()](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#getSignedUrl-property).
+Send the presigned URL back to the client. Afterwards, you can now perform an upload using the built-in [`fetch()`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) function:
 
-## Useing the presigned URL
+```ts twoslash title="App.tsx"
+// @module: ESNext
+// @target: ESNext
+import { interpolate } from "remotion";
+const presignedUrl = "hi";
+const file: File = {} as unknown as File;
 
-////////////////////////////////////////////////////////////////////
+const contentType = file.type || "application/octet-stream";
+const arrayBuffer = await file.arrayBuffer();
+// ---cut---
 
-TO BE CONTINUED NEXT WEDNESDAY
+await fetch(presignedUrl, {
+  method: "PUT",
+  body: arrayBuffer,
+  headers: {
+    "content-type": contentType,
+  },
+});
+```
 
-////////////////////////////////////////////////////////////////////
+## See also
+
+- [Handling user video uploads](/docs/video-uploads)
