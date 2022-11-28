@@ -4,6 +4,7 @@ id: legacy-babel
 ---
 
 import Tabs from "@theme/Tabs";
+import TabItem from '@theme/TabItem';
 
 In Remotion 2.0, the traditional transpilation of Javascript and Typescript using the `babel-loader` has been replaced by the faster `esbuild-loader` by default.
 

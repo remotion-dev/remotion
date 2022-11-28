@@ -4,6 +4,7 @@ title: "Code sharing"
 ---
 
 import Tabs from "@theme/Tabs";
+import TabItem from '@theme/TabItem';
 
 If you are using the player, a common desire is to share the code with your Remotion Preview and/or server-side rendering. With the correct setup, you can write the component once and use it for previewing, displaying and rendering.
 
@@ -77,7 +78,6 @@ Your list of videos (`remotion/Root.tsx` in the example) could look like this:
 export const MyComp = () => <></>;
 
 // @filename: index.tsx
-import React from "react";
 // ---cut---
 import { Composition } from "remotion";
 import { MyComp } from "./MyComp";
