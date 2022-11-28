@@ -429,7 +429,7 @@ module.exports = {
         "spline",
         "after-effects",
         "video-uploads",
-        "presigned-url",
+        "presigned-urls",
       ],
     },
     {
