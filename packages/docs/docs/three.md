@@ -5,6 +5,7 @@ sidebar_label: Overview
 ---
 
 import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 import { ThreeDPlayer } from "../components/3DPhonePlayer.tsx";
 
 is a package for integrating [React Three Fiber](https://github.com/pmndrs/react-three-fiber) with Remotion.
