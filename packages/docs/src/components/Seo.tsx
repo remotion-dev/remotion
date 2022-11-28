@@ -1,30 +1,26 @@
 import React from "react";
 
+// Do not refactor arrays!
+// React Helmet does not support arrays
 export const Seo = {
   renderTitle: (title: string) => {
-    return (
-      <>
-        <title>{title}</title>
-        <meta property="og:title" content={title} />
-      </>
-    );
+    return [
+      <title key="title1">{title}</title>,
+      <meta key="title2" property="og:title" content={title} />,
+    ];
   },
   renderDescription: (title: string) => {
-    return (
-      <>
-        <meta name="description" content={title} />
-        <meta property="og:description" content={title} />
-      </>
-    );
+    return [
+      <meta key="desc" name="description" content={title} />,
+      <meta key="desc2" property="og:description" content={title} />,
+    ];
   },
   renderImage: (title: string, domain: string) => {
     const imgSrc = new URL(title, domain).href;
 
-    return (
-      <>
-        <meta property="og:image" content={imgSrc} />
-        <meta name="twitter:image" content={imgSrc} />
-      </>
-    );
+    return [
+      <meta key="img1" property="og:image" content={imgSrc} />,
+      <meta key="img2" name="twitter:image" content={imgSrc} />,
+    ];
   },
 };
