@@ -35,10 +35,10 @@ describe("Should be able to bundle @remotion/lambda/client with ESBuild", () => 
     expect(contents.includes("jsx-runtime")).toBe(false);
   });
 
-  test("Bundle should be below 4.5MB", async () => {
+  test("Bundle should be below 6MB", async () => {
     const file = await fs.promises.readFile(outfile, "utf-8");
     expect(file.length).toBeGreaterThan(10000);
-    expect(file.length).toBeLessThanOrEqual(4500000);
+    expect(file.length).toBeLessThanOrEqual(6000000);
   });
 
   test("Bundle should not include Renderer", async () => {
