@@ -41,6 +41,7 @@ const MyComposition: React.FC<{ videoUrl: string | null }> = (URL) => {
 const upload = async (file: File) => {
   return "https://exampleName.s3.examplesRegion.amazonaws.com";
 };
+
 // ---cut---
 import { Player } from "@remotion/player";
 import { useState } from "react";
@@ -150,3 +151,7 @@ export const RemotionPlayer: React.FC = () => {
 ```
 
 This will result in the user immediately seeing the video as they drag it into the input field. It is a good practice to call `URL.revokeObjectURL()` after the local video is not used anymore to free up the used memory.
+
+## See also
+
+- [Uploading with presigned URLs](/docs/presigned-urls)
