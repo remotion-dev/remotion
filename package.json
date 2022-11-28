@@ -26,5 +26,5 @@
   "workspaces": [
     "packages/*"
   ],
-  "packageManager": "pnpm@7.17.1"
+  "packageManager": "pnpm@7.7.1"
 }

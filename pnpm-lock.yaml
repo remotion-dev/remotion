@@ -806,7 +806,7 @@ importers:
       '@types/node': ^12.0.0
       '@types/react': 18.0.23
       '@types/react-dom': 18.0.0
-      browserslist: ^4.18.1
+      browserslist: ^4.21.4
       camelcase: ^6.2.1
       esbuild: 0.15.13
       eslint: ^8.3.0
@@ -830,7 +830,7 @@ importers:
       '@types/node': 12.20.27
       '@types/react': 18.0.23
       '@types/react-dom': 18.0.0
-      browserslist: 4.20.2
+      browserslist: 4.21.4
       camelcase: 6.3.0
       esbuild: 0.15.13
       eslint: 8.13.0
@@ -18639,7 +18639,7 @@ packages:
     dependencies:
       '@babel/code-frame': 7.16.7
       address: 1.1.2
-      browserslist: 4.20.2
+      browserslist: 4.21.4
       chalk: 4.1.2
       cross-spawn: 7.0.3
       detect-port-alt: 1.1.6
@@ -18677,7 +18677,7 @@ packages:
     dependencies:
       '@babel/code-frame': 7.16.7
       address: 1.1.2
-      browserslist: 4.20.2
+      browserslist: 4.21.4
       chalk: 4.1.2
       cross-spawn: 7.0.3
       detect-port-alt: 1.1.6
