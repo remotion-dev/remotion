@@ -98,7 +98,7 @@ for (const entry of data.slice(0, 5)) {
 
   const newLines = [
     ...lines.slice(0, frontmatterLine + 1),
-    `image: /${output}`,
+    `image: /${output.substring("/static".length)}`,
     ...lines.slice(frontmatterLine + 1),
   ].join("\n");
 
