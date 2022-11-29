@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-getawsclient.png
 id: getawsclient
 title: getAwsClient()
 crumb: "Lambda API"

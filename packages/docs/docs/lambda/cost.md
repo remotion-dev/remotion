@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-cost.png
 id: optimizing-cost
 title: Optimizing for cost
 slug: /lambda/optimizing-cost

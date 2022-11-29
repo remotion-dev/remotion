@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-paths-interpolate-path.png
 title: interpolatePath()
 crumb: "@remotion/paths"
 ---

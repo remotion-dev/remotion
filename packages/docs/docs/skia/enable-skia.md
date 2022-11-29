@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-skia-enable-skia.png
 title: enableSkia()
 crumb: "@remotion/skia"
 ---

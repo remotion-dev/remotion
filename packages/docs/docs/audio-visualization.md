@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-audio-visualization.png
 title: Audio visualization
 id: audio-visualization
 crumb: "Techniques"

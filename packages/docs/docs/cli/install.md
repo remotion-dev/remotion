@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-cli-install.png
 title: npx remotion install
 sidebar_label: install
 crumb: CLI Reference

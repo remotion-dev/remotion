@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-noise-noise-2d.png
 title: noise2D()
 crumb: "Make some"
 ---

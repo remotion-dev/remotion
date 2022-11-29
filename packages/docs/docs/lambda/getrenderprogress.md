@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-getrenderprogress.png
 id: getrenderprogress
 title: getRenderProgress()
 slug: /lambda/getrenderprogress

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-player-player-integration.png
 id: integration
 title: "Code sharing"
 crumb: "@remotion/player"

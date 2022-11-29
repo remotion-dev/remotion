@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-getting-started.png
 id: getting-started
 title: Setup and Installation
 sidebar_label: Installation

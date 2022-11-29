@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-disk-size.png
 id: disk-size
 title: Disk size
 crumb: "Lambda"

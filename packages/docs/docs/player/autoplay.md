@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-player-autoplay.png
 id: autoplay
 sidebar_label: "Autoplay"
 title: "Combatting autoplay issues"

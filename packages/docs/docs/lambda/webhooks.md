@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-webhooks.png
 sidebar_label: Webhooks
 title: Webhooks
 slug: /lambda/webhooks

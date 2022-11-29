@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-interpolate.png
 title: interpolate()
 id: interpolate
 crumb: "API"

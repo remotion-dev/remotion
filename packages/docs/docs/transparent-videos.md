@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-transparent-videos.png
 id: transparent-videos
 title: Transparent videos
 crumb: "Techniques"

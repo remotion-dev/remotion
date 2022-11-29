@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-use-current-frame.png
 title: useCurrentFrame()
 id: use-current-frame
 crumb: "API"

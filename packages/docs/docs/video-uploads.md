@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-video-uploads.png
 id: video-uploads
 title: Handling user video uploads
 crumb: "Building video apps"

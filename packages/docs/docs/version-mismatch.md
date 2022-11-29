@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-version-mismatch.png
 id: version-mismatch
 title: Version mismatch
 crumb: "How to fix a"

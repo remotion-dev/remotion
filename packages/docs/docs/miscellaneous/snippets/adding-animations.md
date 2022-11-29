@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-miscellaneous-snippets-adding-animations.png
 title: Adding and subtracting animations
 crumb: "Snippets"
 ---

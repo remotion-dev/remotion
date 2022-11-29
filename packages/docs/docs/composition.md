@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-composition.png
 id: composition
 title: <Composition>
 crumb: "API"

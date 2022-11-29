@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-deletesite.png
 id: deletesite
 title: deleteSite()
 slug: /lambda/deletesite

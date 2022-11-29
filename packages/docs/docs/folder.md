@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-folder.png
 title: <Folder>
 id: folder
 crumb: "API"

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-easing.png
 id: easing
 title: Easing
 crumb: "API"

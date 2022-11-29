@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-config.png
 id: config
 title: Configuration file
 crumb: "remotion.config.ts"

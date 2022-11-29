@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-cli-help.png
 title: npx remotion help
 sidebar_label: help
 crumb: CLI Reference

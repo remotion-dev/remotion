@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-presignurl.png
 id: presignurl
 title: presignUrl()
 crumb: "Lambda API"

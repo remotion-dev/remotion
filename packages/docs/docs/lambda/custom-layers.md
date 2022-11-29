@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-custom-layers.png
 title: Custom Layers
 slug: custom-layers
 crumb: "Lambda"

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-getcompositionsonlambda.png
 id: getcompositionsonlambda
 title: getCompositionsOnLambda()
 slug: /lambda/getcompositionsonlambda

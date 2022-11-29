@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-prereleases.png
 id: prereleases
 slug: /prereleases
 title: Testing prereleases

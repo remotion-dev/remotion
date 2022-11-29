@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-getorcreatebucket.png
 id: getorcreatebucket
 title: getOrCreateBucket()
 slug: /lambda/getorcreatebucket

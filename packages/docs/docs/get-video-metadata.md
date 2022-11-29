@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-get-video-metadata.png
 title: getVideoMetadata()
 id: get-video-metadata
 crumb: "@remotion/media-utils"

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-still.png
 id: still
 title: <Still>
 crumb: "API"

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-troubleshooting-rosetta.png
 id: rosetta
 sidebar_label: Apple Silicon detected
 title: Apple Silicon under Rosetta

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-renderer-get-can-extract-frames-fast.png
 title: getCanExtractFramesFast()
 id: get-can-extract-frames-fast
 crumb: "@remotion/renderer"

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-paths-get-tangent-at-length.png
 title: getTangentAtLength()
 crumb: "@remotion/paths"
 ---

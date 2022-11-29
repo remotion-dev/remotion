@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-video.png
 title: <Video>
 id: video
 crumb: "API"

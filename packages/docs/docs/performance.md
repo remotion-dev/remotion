@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-performance.png
 id: performance
 title: Performance Tips
 crumb: "Need for Speed"

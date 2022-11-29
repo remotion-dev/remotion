@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-terminology.png
 title: Terminology
 crumb: "The Remotion dictionary"
 ---

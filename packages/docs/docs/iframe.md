@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-iframe.png
 title: <IFrame>
 id: iframe
 crumb: "API"

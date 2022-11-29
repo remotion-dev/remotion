@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-bundler.png
 title: "@remotion/bundler"
 ---
 

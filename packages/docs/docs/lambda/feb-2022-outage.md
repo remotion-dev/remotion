@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-feb-2022-outage.png
 id: feb-2022-outage
 sidebar_label: 02/2022 Outage
 title: February 2022 Outage

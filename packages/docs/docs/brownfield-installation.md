@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-brownfield-installation.png
 id: brownfield
 title: Installing Remotion in an existing project
 sidebar_label: Installation in existing project

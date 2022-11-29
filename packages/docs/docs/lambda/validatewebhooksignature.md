@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-validatewebhooksignature.png
 id: validatewebhooksignature
 title: validateWebhookSignature()
 slug: /lambda/validatewebhooksignature

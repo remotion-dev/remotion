@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-cli-still.png
 id: still
 sidebar_label: still
 title: "npx remotion lambda still"

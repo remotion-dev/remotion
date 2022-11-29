@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-three-canvas.png
 id: three-canvas
 title: <ThreeCanvas>
 crumb: "@remotion/three"

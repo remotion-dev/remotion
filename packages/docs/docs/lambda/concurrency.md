@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-concurrency.png
 id: concurrency
 title: Concurrency
 crumb: "Lambda"

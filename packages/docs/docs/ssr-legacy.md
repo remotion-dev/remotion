@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-ssr-legacy.png
 id: ssr-legacy
 title: Server-Side Rendering (v1 and v2)
 crumb: "Legacy docs"

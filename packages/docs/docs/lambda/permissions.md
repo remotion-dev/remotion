@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-permissions.png
 sidebar_label: Permissions
 title: Permissions
 crumb: "Lambda"

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-paths-index.png
 title: "@remotion/paths"
 crumb: "SVG"
 ---

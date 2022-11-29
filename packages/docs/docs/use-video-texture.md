@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-use-video-texture.png
 id: use-video-texture
 title: useVideoTexture()
 crumb: "@remotion/three"

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-noise-visualization.png
 title: Noise visualization
 id: noise-visualization
 crumb: "Techniques"

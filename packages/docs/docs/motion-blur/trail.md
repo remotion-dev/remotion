@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-motion-blur-trail.png
 title: "<Trail>"
 slug: trail
 crumb: "Motion blur"

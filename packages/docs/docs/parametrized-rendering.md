@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-parametrized-rendering.png
 id: parametrized-rendering
 title: Parametrized rendering
 crumb: "How To"

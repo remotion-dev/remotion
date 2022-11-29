@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-estimateprice.png
 id: estimateprice
 title: estimatePrice()
 slug: /lambda/estimateprice

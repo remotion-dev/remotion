@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-paths-normalize-path.png
 title: normalizePath()
 crumb: "@remotion/paths"
 ---

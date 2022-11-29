@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-custom-destination.png
 id: custom-destination
 sidebar_label: Custom output destination
 title: Customizing Lambda output destination

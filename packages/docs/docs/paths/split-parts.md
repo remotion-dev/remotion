@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-paths-split-parts.png
 title: splitParts()
 crumb: "@remotion/paths"
 ---

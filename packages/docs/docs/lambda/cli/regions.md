@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-cli-regions.png
 id: regions
 sidebar_label: regions
 title: "npx remotion lambda regions"

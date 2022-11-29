@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lottie-lottie-staticfile.png
 id: lottie-staticfile
 sidebar_label: "Loading from staticFile()"
 title: "Loading Lottie animations from staticFile()"

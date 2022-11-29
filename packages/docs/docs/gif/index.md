@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-gif-index.png
 sidebar_label: "@remotion/gif"
 title: "@remotion/gif"
 ---

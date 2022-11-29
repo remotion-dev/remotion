@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-google-fonts-get-info.png
 title: getInfo()
 crumb: "@remotion/google-fonts"
 ---

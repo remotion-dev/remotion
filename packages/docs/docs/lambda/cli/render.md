@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-cli-render.png
 id: render
 sidebar_label: render
 title: "npx remotion lambda render"

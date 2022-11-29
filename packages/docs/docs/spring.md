@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-spring.png
 id: spring
 title: spring()
 crumb: "API"

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-use-img-and-iframe.png
 id: use-img-and-iframe
 title: <Img> and <IFrame> tags
 crumb: "Best practices"

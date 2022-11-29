@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-sequence.png
 id: sequence
 title: <Sequence>
 crumb: "API"

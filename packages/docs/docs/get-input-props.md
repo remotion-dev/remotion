@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-get-input-props.png
 title: getInputProps()
 id: get-input-props
 crumb: "API"

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-miscellaneous-snippets-accelerated-video.png
 title: "Change the speed of a video over time"
 crumb: "Snippets"
 ---

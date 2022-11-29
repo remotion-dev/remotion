@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-continue-render.png
 id: continue-render
 title: continueRender()
 crumb: "API"

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-deletefunction.png
 id: deletefunction
 title: deleteFunction()
 slug: /lambda/deletefunction

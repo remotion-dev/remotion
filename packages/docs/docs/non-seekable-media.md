@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-non-seekable-media.png
 id: non-seekable-media
 title: Non-seekable media
 crumb: "Troubleshooting"

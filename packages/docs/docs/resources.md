@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-resources.png
 title: List of resources
 crumb: "Ecosystem"
 ---

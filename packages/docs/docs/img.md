@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-img.png
 title: <Img>
 id: img
 crumb: "API"

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-speed.png
 id: optimizing-speed
 title: Optimizing for speed
 slug: /lambda/optimizing-speed

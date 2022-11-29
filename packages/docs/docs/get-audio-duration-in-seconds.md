@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-get-audio-duration-in-seconds.png
 title: getAudioDurationInSeconds()
 id: get-audio-duration-in-seconds
 crumb: "@remotion/media-utils"

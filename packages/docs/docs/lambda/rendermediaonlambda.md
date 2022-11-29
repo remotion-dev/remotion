@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-rendermediaonlambda.png
 id: rendermediaonlambda
 title: renderMediaOnLambda()
 crumb: "Lambda API"

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-checklist.png
 id: checklist
 sidebar_label: Production Checklist
 title: Production Checklist

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-media-utils-index.png
 title: "@remotion/media-utils"
 ---
 

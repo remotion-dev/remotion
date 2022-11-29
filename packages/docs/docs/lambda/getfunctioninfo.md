@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-getfunctioninfo.png
 id: getfunctioninfo
 title: getFunctionInfo()
 slug: /lambda/getfunctioninfo

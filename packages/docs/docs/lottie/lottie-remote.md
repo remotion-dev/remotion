@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lottie-lottie-remote.png
 id: lottie-remote
 sidebar_label: "Loading from a URL"
 title: "Loading Lottie animations from a URL"

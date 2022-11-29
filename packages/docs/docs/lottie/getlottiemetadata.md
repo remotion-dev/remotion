@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lottie-getlottiemetadata.png
 id: getlottiemetadata
 title: getLottieMetadata()
 crumb: "@remotion/lottie"

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-deploysite.png
 id: deploysite
 title: deploySite()
 slug: /lambda/deploysite

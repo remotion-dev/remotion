@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-preload-preload-video.png
 id: preload-video
 slug: preload-video
 sidebar_label: preloadVideo()

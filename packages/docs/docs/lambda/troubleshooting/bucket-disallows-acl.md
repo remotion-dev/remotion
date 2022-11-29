@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-troubleshooting-bucket-disallows-acl.png
 id: bucket-disallows-acl
 title: The bucket does not allow ACLs
 crumb: "Lambda Troubleshooting"

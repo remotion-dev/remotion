@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-gif-gif.png
 slug: gif
 sidebar_label: "<Gif>"
 title: "<Gif>"
