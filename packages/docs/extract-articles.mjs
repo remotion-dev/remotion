@@ -28,6 +28,17 @@ const findTitle = (split) => {
   return title;
 };
 
+const findCrumb = (split) => {
+  const crumb = split
+    .find((s) => s.startsWith("crumb: "))
+    ?.replace(/^crumb:\s/, "");
+  if (crumb?.startsWith('"')) {
+    return crumb.substr(1, crumb.length - 2);
+  }
+
+  return crumb ?? null;
+};
+
 const data = [];
 
 for (const page of pages) {
@@ -40,12 +51,14 @@ for (const page of pages) {
   const split = frontmatter[1].split("\n");
   const id = findId(split, page);
   const title = findTitle(split);
+  const crumb = findCrumb(split);
 
   const relativePath = page.replace(process.cwd() + path.sep, "");
-  data.push({ id, title, relativePath });
+  const compId = relativePath.replace(/\//g, "-").replace(/.md$/, "");
+  data.push({ id, title, relativePath, compId, crumb });
 }
 
 fs.writeFileSync(
-  path.join(process.cwd(), "src", "data", "article.ts"),
-  JSON.stringify(data, null, 2)
+  path.join(process.cwd(), "src", "data", "articles.ts"),
+  `export const articles = ` + JSON.stringify(data, null, 2)
 );

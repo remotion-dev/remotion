@@ -1,6 +1,8 @@
 import React from "react";
 import { Folder, Still } from "remotion";
+import { articles } from "../data/articles";
 import { experts } from "../data/experts";
+import { Article } from "./Article";
 import { Expert } from "./Expert";
 
 export const RemotionRoot: React.FC = () => {
@@ -22,7 +24,22 @@ export const RemotionRoot: React.FC = () => {
           );
         })}
       </Folder>
-      <Folder name="articles" />
+      <Folder name="articles">
+        {articles.map((e) => {
+          return (
+            <Still
+              key={e.compId}
+              component={Article}
+              defaultProps={{
+                articleRelativePath: e.relativePath,
+              }}
+              height={630}
+              width={1200}
+              id={`articles-${e.compId}`}
+            />
+          );
+        })}
+      </Folder>
     </>
   );
 };
