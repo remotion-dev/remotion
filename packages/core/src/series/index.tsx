@@ -1,6 +1,6 @@
 import type {FC, PropsWithChildren} from 'react';
-import {Children, useMemo} from 'react';
-import type {SequenceProps} from '../Sequence';
+import {Children, forwardRef, useMemo} from 'react';
+import type {LayoutAndStyle, SequenceProps} from '../Sequence';
 import {Sequence} from '../Sequence';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames';
 import {flattenChildren} from './flatten-children';
@@ -9,13 +9,21 @@ type SeriesSequenceProps = PropsWithChildren<
 	{
 		durationInFrames: number;
 		offset?: number;
-	} & Pick<SequenceProps, 'layout' | 'name'>
+	} & Pick<SequenceProps, 'layout' | 'name'> &
+		LayoutAndStyle
 >;
 
-const SeriesSequence = ({children}: SeriesSequenceProps) => {
+const SeriesSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	SeriesSequenceProps
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+> = ({children}, _ref) => {
+	// Discard ref
 	// eslint-disable-next-line react/jsx-no-useless-fragment
 	return <>{children}</>;
 };
+
+const SeriesSequence = forwardRef(SeriesSequenceRefForwardingFunction);
 
 const Series: FC<{
 	children: React.ReactNode;
@@ -29,6 +37,7 @@ const Series: FC<{
 				| {
 						props: SeriesSequenceProps;
 						type: typeof SeriesSequence;
+						ref: React.MutableRefObject<HTMLDivElement>;
 				  }
 				| string;
 			if (typeof castedChild === 'string') {
@@ -92,6 +101,7 @@ const Series: FC<{
 					from={currentStartFrame}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
+					ref={castedChild.ref}
 				>
 					{child}
 				</Sequence>

@@ -58,7 +58,12 @@ This feature is not supported from the CLI.
 
 _Available from v3.2.23_
 
-You can upload the file to another S3-compatible provider. You must pass an `outName` [as specified above](#customizing-the-output-bucket) and also provide an `s3OutputProvider` like in the example below.
+You can upload the file to another S3-compatible provider.
+
+- List of supported providers (non-exhaustive): Cloudflare, DigitalOcean Spaces
+- List of unsupported providers (non-exhaustive): Azure Blob Storage (not S3 compatible)
+
+You must pass an `outName` [as specified above](#customizing-the-output-bucket) and also provide an `s3OutputProvider` like in the example below.
 
 ```tsx twoslash {13-21}
 // @module: esnext
@@ -76,7 +81,7 @@ const { bucketName, renderId } = await renderMediaOnLambda({
   codec: "h264",
   imageFormat: "jpeg",
   maxRetries: 1,
-  privacy: "public",
+  privacy: "no-acl",
   outName: {
     key: "my-output",
     bucketName: "output-bucket",
@@ -95,6 +100,7 @@ If you want to use this feature, note the following:
 
 - When calling [`downloadMedia()`](/docs/lambda/downloadmedia#bucketname) or [`getRenderProgress()`](/docs/lambda/getrenderprogress#bucketname), you must pass the AWS `bucketName` where the site resides in, not the bucket name of the foreign cloud.
 - When calling [`downloadMedia()`](/docs/lambda/downloadmedia#s3outputprovider) or [`getRenderProgress()`](/docs/lambda/getrenderprogress#s3outputprovider), you must provide the `s3OutputProvider` option with the same credentials again.
+- By default, Remotion [assumes you use ACL](/docs/lambda/troubleshooting/bucket-disallows-acl) which is less common on other clouds. You need to set `privacy: "no-acl"` if you don't want to use ACL.
 
 This feature is not supported from the CLI.
 
