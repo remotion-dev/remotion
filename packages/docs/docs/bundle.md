@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-bundle.png
 id: bundle
 title: bundle()
 crumb: "@remotion/bundler"

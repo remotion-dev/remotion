@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-measure-spring.png
 title: measureSpring()
 id: measure-spring
 crumb: "API"

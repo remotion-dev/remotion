@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-paths-evolve-path.png
 title: evolvePath()
 crumb: "@remotion/paths"
 ---

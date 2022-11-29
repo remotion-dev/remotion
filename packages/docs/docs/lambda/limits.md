@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-limits.png
 sidebar_label: Limits
 title: Lambda Limits
 slug: /lambda/limits

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-region-selection.png
 id: region-selection
 title: Region selection
 slug: /lambda/region-selection

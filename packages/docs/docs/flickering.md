@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-flickering.png
 id: flickering
 title: Flickering
 crumb: "How to avoid"

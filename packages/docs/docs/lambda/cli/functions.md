@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-cli-functions.png
 id: functions
 sidebar_label: functions
 title: "npx remotion lambda functions"

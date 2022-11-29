@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-staticfile.png
 id: staticfile
 title: staticFile()
 crumb: "API"

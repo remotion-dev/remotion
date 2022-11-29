@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-using-audio.png
 title: Using audio
 id: using-audio
 crumb: "Techniques"

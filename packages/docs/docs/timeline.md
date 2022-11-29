@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-timeline.png
 title: Preview your video
 id: timeline
 crumb: "Timeline basics"

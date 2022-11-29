@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-renderer-ensure-ffmpeg.png
 id: ensure-ffmpeg
 title: ensureFfmpeg()
 crumb: "@remotion/renderer"

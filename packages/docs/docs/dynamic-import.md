@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-dynamic-import.png
 title: Webpack dynamic imports
 id: webpack-dynamic-imports
 crumb: "Knowledge Base"

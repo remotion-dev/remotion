@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-uninstall.png
 id: uninstall
 title: Uninstall Lambda
 slug: /lambda/uninstall

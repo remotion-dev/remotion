@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-getsites.png
 id: getsites
 title: getSites()
 slug: /lambda/getsites

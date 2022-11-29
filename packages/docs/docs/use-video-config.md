@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-use-video-config.png
 title: useVideoConfig()
 id: use-video-config
 crumb: "API"

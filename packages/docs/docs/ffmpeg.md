@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-ffmpeg.png
 title: Installing FFmpeg
 sidebar_label: Installing FFmpeg
 crumb: "(you don't have to)"

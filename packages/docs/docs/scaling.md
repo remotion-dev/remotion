@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-scaling.png
 id: scaling
 title: Output scaling
 crumb: "How To"

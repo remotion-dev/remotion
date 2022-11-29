@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-player-installation.png
 id: installation
 title: Installation
 slug: /player/installation

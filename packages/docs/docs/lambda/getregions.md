@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-getregions.png
 id: getregions
 title: getRegions()
 crumb: "Lambda API"

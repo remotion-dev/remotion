@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-random.png
 id: random
 title: random()
 crumb: "API"

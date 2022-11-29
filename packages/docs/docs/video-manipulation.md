@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-video-manipulation.png
 id: video-manipulation
 title: Video manipulation
 crumb: "How To"

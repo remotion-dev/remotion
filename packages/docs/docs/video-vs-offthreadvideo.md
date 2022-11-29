@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-video-vs-offthreadvideo.png
 id: video-vs-offthreadvideo
 title: "<Video> vs. <OffthreadVideo>"
 crumb: "Comparison"

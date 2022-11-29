@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-static-file-remote-urls.png
 id: staticfile-remote-urls
 title: staticFile() does not support remote URLs
 sidebar_label: staticFile() remote URLs

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-ssr.png
 id: ssr
 title: Server-Side Rendering
 crumb: "The power of"

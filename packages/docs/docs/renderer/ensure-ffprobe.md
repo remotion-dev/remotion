@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-renderer-ensure-ffprobe.png
 id: ensure-ffprobe
 title: ensureFfprobe()
 crumb: "@remotion/renderer"

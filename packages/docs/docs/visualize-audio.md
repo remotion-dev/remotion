@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-visualize-audio.png
 title: visualizeAudio()
 id: visualize-audio
 crumb: "@remotion/media-utils"

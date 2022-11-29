@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-figma.png
 id: figma
 title: Import from Figma
 crumb: "The best of both"

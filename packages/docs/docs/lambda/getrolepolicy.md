@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-getrolepolicy.png
 id: getrolepolicy
 title: getRolePolicy()
 slug: /lambda/getrolepolicy

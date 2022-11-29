@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-getuserpolicy.png
 id: getuserpolicy
 title: getUserPolicy()
 slug: /lambda/getuserpolicy

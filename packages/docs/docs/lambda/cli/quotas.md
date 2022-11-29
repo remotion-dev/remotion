@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-cli-quotas.png
 id: quotas
 sidebar_label: quotas
 title: "npx remotion lambda quotas"

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-cli-policies.png
 id: policies
 sidebar_label: policies
 title: "npx remotion lambda policies"

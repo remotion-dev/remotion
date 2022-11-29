@@ -1,7 +1,10 @@
 module.exports = {
   title: "Remotion | Make videos programmatically in React",
   tagline: "Make videos programmatically",
-  url: "https://www.remotion.dev",
+  url:
+    process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production"
+      ? process.env.VERCEL_URL
+      : "https://www.remotion.dev",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",

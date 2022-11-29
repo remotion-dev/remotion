@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-setup.png
 id: setup
 title: Setup
 slug: /lambda/setup

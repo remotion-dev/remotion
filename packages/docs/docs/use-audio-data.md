@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-use-audio-data.png
 title: useAudioData()
 id: use-audio-data
 crumb: "@remotion/media-utils"

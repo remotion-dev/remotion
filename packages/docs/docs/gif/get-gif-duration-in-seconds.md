@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-gif-get-gif-duration-in-seconds.png
 title: getGifDurationInSeconds()
 id: get-gif-duration-in-seconds
 crumb: "@remotion/gif"

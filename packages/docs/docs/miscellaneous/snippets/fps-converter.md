@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-miscellaneous-snippets-fps-converter.png
 title: "FPS converter"
 crumb: "Snippets"
 ---

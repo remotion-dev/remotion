@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-player-preloading.png
 sidebar_label: "Preloading"
 title: "Preloading assets"
 crumb: "@remotion/player"

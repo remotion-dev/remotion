@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-third-party.png
 id: third-party
 title: Third party integrations
 sidebar_label: Third party integrations

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-miscellaneous-render-in-browser.png
 sidebar_label: Browser rendering
 title: Can I render videos in the browser?
 crumb: "FAQ"

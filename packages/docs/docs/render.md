@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-render.png
 id: render
 title: Render your video
 crumb: "How To"

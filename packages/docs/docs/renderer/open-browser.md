@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-renderer-open-browser.png
 title: openBrowser()
 id: open-browser
 crumb: "@remotion/renderer"

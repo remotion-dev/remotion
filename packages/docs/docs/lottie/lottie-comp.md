@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lottie-lottie-comp.png
 id: lottie-comp
 sidebar_label: "<Lottie>"
 title: "<Lottie>"

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-offthreadvideo.png
 id: offthreadvideo
 title: "<OffthreadVideo>"
 crumb: "API"

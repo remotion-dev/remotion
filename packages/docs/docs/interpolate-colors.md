@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-interpolate-colors.png
 title: interpolateColors()
 id: interpolate-colors
 crumb: "API"

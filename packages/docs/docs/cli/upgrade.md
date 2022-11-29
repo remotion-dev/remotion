@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-cli-upgrade.png
 title: npx remotion upgrade
 sidebar_label: upgrade
 crumb: CLI Reference

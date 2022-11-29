@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-gpu.png
 id: gpu
 title: Using the GPU
 sidebar_label: Using the GPU

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-preload-preload-audio.png
 id: preload-audio
 slug: preload-audio
 title: "preloadAudio()"

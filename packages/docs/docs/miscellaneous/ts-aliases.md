@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-miscellaneous-ts-aliases.png
 title: "TypeScript aliases"
 id: typescript-aliases
 slug: /typescript-aliases

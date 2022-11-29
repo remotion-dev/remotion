@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-miscellaneous-snippets-player-in-iframe.png
 title: "Embedding a <Player> into an <iframe>"
 crumb: "Snippets"
 ---

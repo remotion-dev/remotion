@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-renderer-render-media.png
 id: render-media
 title: renderMedia()
 crumb: "@remotion/renderer"

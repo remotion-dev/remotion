@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-dynamic-metadata.png
 id: dynamic-metadata
 title: Dynamic duration, FPS & dimensions
 crumb: "How To"

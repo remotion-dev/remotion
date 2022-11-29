@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-freeze.png
 id: freeze
 title: <Freeze>
 crumb: "API"

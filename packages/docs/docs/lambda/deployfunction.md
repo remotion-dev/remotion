@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-deployfunction.png
 id: deployfunction
 title: deployFunction()
 slug: /lambda/deployfunction

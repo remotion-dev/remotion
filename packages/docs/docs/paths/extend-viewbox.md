@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-paths-extend-viewbox.png
 title: extendViewBox()
 crumb: "@remotion/paths"
 ---

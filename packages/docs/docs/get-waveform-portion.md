@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-get-waveform-portion.png
 title: getWaveformPortion()
 id: get-waveform-portion
 crumb: "@remotion/media-utils"

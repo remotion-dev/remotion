@@ -1,5 +1,5 @@
 ---
-image: /static/generated/articles-docs-absolute-fill.png
+image: /generated/articles-docs-absolute-fill.png
 id: absolute-fill
 title: <AbsoluteFill>
 crumb: "API"

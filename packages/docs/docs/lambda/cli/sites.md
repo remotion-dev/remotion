@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-cli-sites.png
 id: sites
 sidebar_label: sites
 title: "npx remotion lambda sites"

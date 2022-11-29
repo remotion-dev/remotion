@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-cli-still.png
 title: npx remotion still
 sidebar_label: still
 crumb: CLI Reference

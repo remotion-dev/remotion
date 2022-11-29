@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-cli-versions.png
 title: npx remotion versions
 sidebar_label: versions
 crumb: CLI Reference

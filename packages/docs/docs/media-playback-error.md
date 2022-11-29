@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-media-playback-error.png
 id: media-playback-error
 title: "Could not play video/audio with src"
 sidebar_label: Media playback error

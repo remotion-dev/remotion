@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-series.png
 id: series
 title: <Series>
 crumb: "API"

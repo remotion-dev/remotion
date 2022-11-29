@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-register-root.png
 id: register-root
 title: registerRoot()
 crumb: "API"

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-renderer-stitch-frames-to-video.png
 id: stitch-frames-to-video
 title: stitchFramesToVideo()
 crumb: "@remotion/renderer"

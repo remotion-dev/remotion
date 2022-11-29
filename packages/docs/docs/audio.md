@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-audio.png
 title: <Audio>
 id: audio
 crumb: "How to"

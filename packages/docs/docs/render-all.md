@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-render-all.png
 id: render-all
 title: Render all compositions
 crumb: "Techniques"

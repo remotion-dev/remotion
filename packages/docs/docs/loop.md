@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-loop.png
 id: loop
 title: <Loop>
 crumb: "API"

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-audiobuffertodataurl.png
 id: audio-buffer-to-data-url
 title: audioBufferToDataUrl()
 crumb: "@remotion/media-utils"

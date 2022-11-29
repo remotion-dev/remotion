@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-data-fetching.png
 id: data-fetching
 title: Data fetching
 crumb: "How to"

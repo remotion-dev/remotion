@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-player-player-examples.png
 id: examples
 sidebar_label: "Examples"
 title: "Examples for @remotion/player"

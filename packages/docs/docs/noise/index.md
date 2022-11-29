@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-noise-index.png
 title: "@remotion/noise"
 ---
 

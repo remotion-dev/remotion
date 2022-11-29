@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-runtime.png
 id: runtime
 title: Runtime
 slug: /lambda/runtime

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-delay-render.png
 id: delay-render
 title: delayRender() and continueRender()
 sidebar_label: delayRender()

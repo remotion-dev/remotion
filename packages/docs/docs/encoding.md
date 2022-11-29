@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-encoding.png
 id: encoding
 title: Encoding Guide
 crumb: "Codecs and more"

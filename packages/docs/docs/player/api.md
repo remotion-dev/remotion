@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-player-api.png
 title: "<Player>"
 slug: /player/player
 crumb: "@remotion/player"

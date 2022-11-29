@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-paths-get-parts.png
 title: getParts()
 crumb: "@remotion/paths"
 ---

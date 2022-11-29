@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-get-audio-data.png
 title: getAudioData()
 id: get-audio-data
 crumb: "@remotion/media-utils"

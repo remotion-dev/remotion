@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-simulatepermissions.png
 id: simulatepermissions
 title: simulatePermissions()
 slug: /lambda/simulatepermissions

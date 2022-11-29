@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-paths-get-point-at-length.png
 title: getPointAtLength()
 crumb: "@remotion/paths"
 ---

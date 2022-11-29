@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-using-fonts.png
 title: Using fonts
 id: fonts
 crumb: "Techniques"

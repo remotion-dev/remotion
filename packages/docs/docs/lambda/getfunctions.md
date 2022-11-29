@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-getfunctions.png
 title: getFunctions()
 id: getfunctions
 slug: /lambda/getfunctions

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-troubleshooting-permissions.png
 id: permissions
 sidebar_label: Permissions
 title: AWS Permissions Troubleshooting

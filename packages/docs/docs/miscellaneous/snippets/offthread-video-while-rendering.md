@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-miscellaneous-snippets-offthread-video-while-rendering.png
 title: "<OffthreadVideo /> while rendering"
 crumb: "Snippets"
 ---

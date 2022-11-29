@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-stills.png
 id: stills
 title: Still images
 crumb: "How to generate"

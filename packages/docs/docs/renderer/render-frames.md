@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-renderer-render-frames.png
 id: render-frames
 title: renderFrames()
 crumb: "@remotion/renderer"

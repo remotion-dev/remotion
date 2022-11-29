@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda.png
 id: lambda
 sidebar_label: Overview
 title: "@remotion/lambda"

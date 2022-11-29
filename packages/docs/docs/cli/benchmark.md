@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-cli-benchmark.png
 title: npx remotion benchmark
 sidebar_label: benchmark
 crumb: CLI Reference

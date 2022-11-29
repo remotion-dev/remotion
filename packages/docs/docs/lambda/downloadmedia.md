@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-downloadmedia.png
 id: downloadmedia
 title: downloadMedia()
 slug: /lambda/downloadmedia

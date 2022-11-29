@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-player-best-practices.png
 id: best-practices
 sidebar_label: "Best practices"
 title: "Player - Best practices"

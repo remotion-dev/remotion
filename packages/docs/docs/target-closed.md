@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-target-closed.png
 id: target-closed
 title: "'Target closed' error message"
 sidebar_label: Target closed

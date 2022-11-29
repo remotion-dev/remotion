@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-presigned-urls.png
 id: presigned-urls
 title: Upload with a presigned URL
 crumb: "Building video apps"

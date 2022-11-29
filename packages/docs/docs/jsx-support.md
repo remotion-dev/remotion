@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-jsx-support.png
 id: javascript
 title: Plain JavaScript
 crumb: "How To"

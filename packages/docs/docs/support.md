@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-support.png
 id: support
 title: Support Policy
 crumb: "Let us help you"

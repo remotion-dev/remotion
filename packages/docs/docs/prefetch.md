@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-prefetch.png
 id: prefetch
 title: prefetch()
 crumb: "API"

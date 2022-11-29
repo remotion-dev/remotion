@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-deleterender.png
 id: deleterender
 title: deleteRender()
 slug: /lambda/deleterender

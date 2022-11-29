@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-tailwind.png
 id: tailwind
 title: TailwindCSS
 crumb: "text-lg font-bold"

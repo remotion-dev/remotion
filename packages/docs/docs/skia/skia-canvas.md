@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-skia-skia-canvas.png
 title: <SkiaCanvas />
 crumb: "@remotion/skia"
 ---

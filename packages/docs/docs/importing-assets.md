@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-importing-assets.png
 id: assets
 title: Importing assets
 crumb: "How To"

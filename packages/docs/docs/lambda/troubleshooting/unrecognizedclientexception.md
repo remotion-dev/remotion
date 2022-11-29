@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-troubleshooting-unrecognizedclientexception.png
 id: unrecognizedclientexception
 title: UnrecognizedClientException
 crumb: "Lambda Troubleshooting"

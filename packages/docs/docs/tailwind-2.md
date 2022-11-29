@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-tailwind-2.png
 id: tailwind-legacy
 title: TailwindCSS v2 (Legacy)
 crumb: "Legacy docs"
