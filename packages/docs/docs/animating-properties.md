@@ -1,4 +1,5 @@
 ---
+image: /static/generated/articles-docs-animating-properties.png
 id: animating-properties
 title: Animating properties
 ---

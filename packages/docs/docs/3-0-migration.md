@@ -1,4 +1,5 @@
 ---
+image: /static/generated/articles-docs-3-0-migration.png
 id: 3-0-migration
 title: v3.0 Migration
 ---

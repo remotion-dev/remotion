@@ -75,9 +75,10 @@ const compositions = await getCompositions(serveUrl);
 
 for (const entry of data.slice(0, 5)) {
   const composition = compositions.find((c) => c.id === entry.compId);
+  const output = `static/generated/${composition.id}.png`;
   await renderStill({
     composition,
-    output: `static/generated/${composition.id}.png`,
+    output,
     serveUrl,
   });
 
@@ -91,10 +92,16 @@ for (const entry of data.slice(0, 5)) {
     throw new Error("could not find frontmatter for " + composition.id);
   }
 
-  const newLines = [
-    ...lines.slice(0, frontmatterLine),
-    ...lines.slice(frontmatterLine),
-  ];
+  if (lines.find((l) => l.startsWith("image:"))) {
+    continue;
+  }
 
+  const newLines = [
+    ...lines.slice(0, frontmatterLine + 1),
+    `image: /${output}`,
+    ...lines.slice(frontmatterLine + 1),
+  ].join("\n");
+
+  fs.writeFileSync(path.join(process.cwd(), entry.relativePath), newLines);
   console.log("Rendered", composition.id);
 }
