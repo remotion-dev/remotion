@@ -1,6 +1,7 @@
 ---
 id: render-as-gif
 title: Render as GIF
+crumb: "Techniques"
 ---
 
 _Available since v3.1_

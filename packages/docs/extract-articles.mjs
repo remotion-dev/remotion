@@ -73,7 +73,7 @@ const serveUrl = await bundle({
 });
 const compositions = await getCompositions(serveUrl);
 
-for (const entry of data.slice(0, 5)) {
+for (const entry of data) {
   const composition = compositions.find((c) => c.id === entry.compId);
   const output = `static/generated/${composition.id}.png`;
   await renderStill({
@@ -86,14 +86,12 @@ for (const entry of data.slice(0, 5)) {
     path.join(process.cwd(), entry.relativePath),
     "utf-8"
   );
-  const lines = fileContents.split("\n");
+  const lines = fileContents
+    .split("\n")
+    .filter((l) => !l.startsWith("image: "));
   const frontmatterLine = lines.findIndex((l) => l === "---");
   if (frontmatterLine === -1) {
     throw new Error("could not find frontmatter for " + composition.id);
-  }
-
-  if (lines.find((l) => l.startsWith("image:"))) {
-    continue;
   }
 
   const newLines = [

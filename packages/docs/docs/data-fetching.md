@@ -1,6 +1,7 @@
 ---
 id: data-fetching
 title: Data fetching
+crumb: "How to"
 ---
 
 One of the coolest things about Remotion is that you can fetch data from an API.
@@ -12,7 +13,7 @@ It works almost like you are used to: You can use the [`fetch`](https://develope
 There are two functions, [`delayRender`](/docs/delay-render) and [`continueRender`](/docs/continue-render), which you can use to tell Remotion to not yet render the frame. If you want to asynchronously render a frame, you should call `delayRender()` as soon as possible, before the window `onload` event is fired. The function returns a handle that you need to give Remotion the green light to render later using `continueRender()`.
 
 ```tsx twoslash
-import { useEffect, useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { continueRender, delayRender } from "remotion";
 
 export const MyVideo = () => {

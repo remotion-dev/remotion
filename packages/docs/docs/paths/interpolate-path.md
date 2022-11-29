@@ -1,5 +1,6 @@
 ---
 title: interpolatePath()
+crumb: "@remotion/paths"
 ---
 
 _Part of the [`@remotion/paths`](/docs/paths) package._

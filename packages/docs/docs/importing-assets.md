@@ -1,6 +1,7 @@
 ---
 id: assets
 title: Importing assets
+crumb: "How To"
 ---
 
 To import assets in Remotion, create a `public/` folder in your project and use [`staticFile()`](/docs/staticfile) to import it.

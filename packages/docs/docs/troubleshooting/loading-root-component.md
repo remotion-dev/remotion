@@ -1,6 +1,7 @@
 ---
 id: loading-root-component
 title: Root component Timeout
+crumb: "Troubleshooting"
 ---
 
 If you get an error message:

@@ -1,6 +1,7 @@
 ---
 id: config
 title: Configuration file
+crumb: "remotion.config.ts"
 ---
 
 To configure Remotion, create a `remotion.config.ts` file in the root of your Remotion project.

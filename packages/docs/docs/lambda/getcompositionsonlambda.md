@@ -2,6 +2,7 @@
 id: getcompositionsonlambda
 title: getCompositionsOnLambda()
 slug: /lambda/getcompositionsonlambda
+crumb: "Lambda API"
 ---
 
 _available from v3.3.2_

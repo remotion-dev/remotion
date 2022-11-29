@@ -1,22 +1,13 @@
 ---
 sidebar_label: Light client
 title: Light client
+crumb: "Lambda"
 ---
 
 The following methods and types can be imported from `@remotion/lambda/client`:
 
 ```tsx twoslash
-import {
-  renderMediaOnLambda,
-  renderStillOnLambda,
-  getRenderProgress,
-  getCompositionsOnLambda,
-  getFunctions,
-  AwsRegion,
-  RenderProgress,
-  validateWebhookSignature,
-  WebhookPayload,
-} from "@remotion/lambda/client";
+
 ```
 
 These functions don't have any Node.JS dependencies and can be bundled with a bundler such as Webpack or ESBuild.

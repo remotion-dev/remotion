@@ -2,6 +2,7 @@
 id: deploysite
 title: deploySite()
 slug: /lambda/deploysite
+crumb: "Lambda API"
 ---
 
 Takes a Remotion project, bundles it and uploads it to an S3 bucket. Once uploaded, a Lambda function can render any composition in the Remotion project by specifying the URL.

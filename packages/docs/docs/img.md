@@ -1,6 +1,7 @@
 ---
 title: <Img>
 id: img
+crumb: "API"
 ---
 
 The `<Img />` tag can be used like a regular `<img>` HTML tag.

@@ -1,5 +1,6 @@
 ---
 title: Adding and subtracting animations
+crumb: "Snippets"
 ---
 
 <div style={{height: 200}}>

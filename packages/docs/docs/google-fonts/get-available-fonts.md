@@ -1,5 +1,6 @@
 ---
 title: getAvailableFonts()
+crumb: "@remotion/google-fonts"
 ---
 
 import {AvailableFonts} from '../../components/AvailableFonts'

@@ -1,6 +1,7 @@
 ---
 title: getCanExtractFramesFast()
 id: get-can-extract-frames-fast
+crumb: "@remotion/renderer"
 ---
 
 _Available since v3.3.2 - Part of the `@remotion/renderer` package._

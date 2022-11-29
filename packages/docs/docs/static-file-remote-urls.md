@@ -2,6 +2,7 @@
 id: staticfile-remote-urls
 title: staticFile() does not support remote URLs
 sidebar_label: staticFile() remote URLs
+crumb: "Troubleshooting"
 ---
 
 If you got the following error message:

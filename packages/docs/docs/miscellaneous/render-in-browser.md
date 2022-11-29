@@ -1,6 +1,7 @@
 ---
 sidebar_label: Browser rendering
 title: Can I render videos in the browser?
+crumb: "FAQ"
 ---
 
 **Rendering videos in the browser is not supported.** In order to render videos, you need to hook up [server-side rendering](/docs/ssr), [Remotion Lambda](/docs/lambda), or [render videos locally](/docs/render).

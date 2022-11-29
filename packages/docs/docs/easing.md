@@ -1,6 +1,7 @@
 ---
 id: easing
 title: Easing
+crumb: "API"
 ---
 
 :::info
@@ -48,9 +49,9 @@ The following helpers are used to modify other easing functions.
 ## Example
 
 ```tsx twoslash
-import { useCurrentFrame, AbsoluteFill } from "remotion";
+import { AbsoluteFill, useCurrentFrame } from "remotion";
 // ---cut---
-import { interpolate, Easing } from "remotion";
+import { Easing, interpolate } from "remotion";
 
 const MyVideo: React.FC = () => {
   const frame = useCurrentFrame();

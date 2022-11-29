@@ -1,6 +1,7 @@
 ---
 id: getlottiemetadata
 title: getLottieMetadata()
+crumb: "@remotion/lottie"
 ---
 
 _Part of the [`@remotion/lottie`](/docs/lottie) package._

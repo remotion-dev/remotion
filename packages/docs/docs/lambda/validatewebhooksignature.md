@@ -2,6 +2,7 @@
 id: validatewebhooksignature
 title: validateWebhookSignature()
 slug: /lambda/validatewebhooksignature
+crumb: "Lambda API"
 ---
 
 _Available from v3.2.30_

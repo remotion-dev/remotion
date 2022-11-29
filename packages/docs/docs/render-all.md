@@ -1,6 +1,7 @@
 ---
 id: render-all
 title: Render all compositions
+crumb: "Techniques"
 ---
 
 In some scenarios, you might find it useful to render all compositions.

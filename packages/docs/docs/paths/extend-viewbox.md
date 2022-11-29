@@ -1,5 +1,6 @@
 ---
 title: extendViewBox()
+crumb: "@remotion/paths"
 ---
 
 _Part of the [`@remotion/paths`](/docs/paths) package. Available since v3.2.25_

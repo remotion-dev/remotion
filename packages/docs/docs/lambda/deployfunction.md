@@ -2,6 +2,7 @@
 id: deployfunction
 title: deployFunction()
 slug: /lambda/deployfunction
+crumb: "Lambda API"
 ---
 
 Creates an [AWS Lambda](https://aws.amazon.com/lambda/) function in your AWS account that will be able to render a video in the cloud.

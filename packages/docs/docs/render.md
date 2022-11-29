@@ -1,6 +1,7 @@
 ---
 id: render
 title: Render your video
+crumb: "How To"
 ---
 
 Now here comes the magic! Turn your creation into an MP4.

@@ -1,6 +1,7 @@
 ---
 id: getregions
 title: getRegions()
+crumb: "Lambda API"
 ---
 
 Gets an array of all supported AWS regions of this release of Remotion Lambda.

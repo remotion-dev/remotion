@@ -1,6 +1,7 @@
 ---
 title: getCompositions()
 id: get-compositions
+crumb: "@remotion/renderer"
 ---
 
 import {AngleChangelog} from '../../components/AngleChangelog';

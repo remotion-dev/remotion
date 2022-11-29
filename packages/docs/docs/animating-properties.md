@@ -2,6 +2,7 @@
 image: /static/generated/articles-docs-animating-properties.png
 id: animating-properties
 title: Animating properties
+crumb: "The basics"
 ---
 
 import {AnimatingProperties, Springs} from '../components/DocsDark'

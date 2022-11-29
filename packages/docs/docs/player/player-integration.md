@@ -1,6 +1,7 @@
 ---
 id: integration
 title: "Code sharing"
+crumb: "@remotion/player"
 ---
 
 import Tabs from "@theme/Tabs";

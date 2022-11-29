@@ -1,6 +1,7 @@
 ---
 title: npx remotion preview
 sidebar_label: preview
+crumb: CLI Reference
 ---
 
 Start the server which allows you to preview the Remotion video. The only argument to pass is the entry file:

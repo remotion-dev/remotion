@@ -1,6 +1,7 @@
 ---
 id: tailwind-legacy
 title: TailwindCSS v2 (Legacy)
+crumb: "Legacy docs"
 ---
 
 import Tabs from "@theme/Tabs";

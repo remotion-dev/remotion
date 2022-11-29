@@ -1,6 +1,7 @@
 ---
 title: npx remotion upgrade
 sidebar_label: upgrade
+crumb: CLI Reference
 ---
 
 Upgrades all Remotion-related packages.

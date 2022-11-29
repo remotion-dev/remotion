@@ -1,6 +1,7 @@
 ---
 title: npx remotion render
 sidebar_label: render
+crumb: CLI Reference
 ---
 
 import {AngleChangelog} from '../../components/AngleChangelog';

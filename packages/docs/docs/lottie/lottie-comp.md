@@ -3,6 +3,7 @@ id: lottie-comp
 sidebar_label: "<Lottie>"
 title: "<Lottie>"
 slug: lottie
+crumb: "@remotion/lottie"
 ---
 
 _Part of the [`@remotion/lottie`](/docs/lottie) package._

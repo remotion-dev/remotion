@@ -1,6 +1,7 @@
 ---
 title: getInputProps()
 id: get-input-props
+crumb: "API"
 ---
 
 _Available from v2.0_.

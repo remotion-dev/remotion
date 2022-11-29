@@ -1,6 +1,7 @@
 ---
 id: stills
 title: Still images
+crumb: "How to generate"
 ---
 
 _Available from v2.3_

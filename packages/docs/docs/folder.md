@@ -1,6 +1,7 @@
 ---
 title: <Folder>
 id: folder
+crumb: "API"
 ---
 
 _Available from v3.0.1_

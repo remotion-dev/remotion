@@ -1,5 +1,6 @@
 ---
 title: noise4D()
+crumb: "Make some"
 ---
 
 _Part of the [`@remotion/noise`](/docs/noise) package._

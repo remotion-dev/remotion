@@ -2,6 +2,7 @@
 id: deleterender
 title: deleteRender()
 slug: /lambda/deleterender
+crumb: "Lambda API"
 ---
 
 Deletes a rendered video, audio or still and it's associated metada.

@@ -1,6 +1,7 @@
 ---
 title: npx remotion install
 sidebar_label: install
+crumb: CLI Reference
 ---
 
 _available from v3.3_

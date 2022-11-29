@@ -1,6 +1,7 @@
 ---
 title: Preview your video
 id: timeline
+crumb: "Timeline basics"
 ---
 
 You can start the preview server of Remotion using

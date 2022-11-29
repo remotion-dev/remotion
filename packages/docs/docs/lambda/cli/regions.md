@@ -2,6 +2,7 @@
 id: regions
 sidebar_label: regions
 title: "npx remotion lambda regions"
+crumb: "Lambda CLI Reference"
 ---
 
 Prints the AWS regions supported by the current version of Remotion Lambda. Useful for bash scripts.

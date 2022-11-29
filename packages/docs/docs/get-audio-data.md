@@ -1,6 +1,7 @@
 ---
 title: getAudioData()
 id: get-audio-data
+crumb: "@remotion/media-utils"
 ---
 
 _Part of the `@remotion/media-utils` package of helper functions._

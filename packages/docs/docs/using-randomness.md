@@ -1,7 +1,7 @@
 ---
 id: using-randomness
 title: Using randomness
-crumb: "Roll the dice:"
+crumb: "Roll the dice"
 ---
 
 The following thing is an anti-pattern in Remotion:

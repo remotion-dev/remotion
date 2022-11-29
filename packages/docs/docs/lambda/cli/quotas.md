@@ -3,6 +3,7 @@ id: quotas
 sidebar_label: quotas
 title: "npx remotion lambda quotas"
 slug: /lambda/cli/quotas
+crumb: "Lambda CLI Reference"
 ---
 
 Displays the AWS Lambda concurrency and burst limits currently being applied to your account and region. You can use the `increase` command to send a request to AWS asking them to increase their quotas.

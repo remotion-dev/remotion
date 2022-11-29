@@ -3,6 +3,7 @@ id: preload-video
 slug: preload-video
 sidebar_label: preloadVideo()
 title: "preloadVideo()"
+crumb: "@remotion/player"
 ---
 
 _This function is part of the [`@remotion/preload`](/docs/preload) package._

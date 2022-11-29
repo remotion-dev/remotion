@@ -1,6 +1,7 @@
 ---
 id: ensure-ffprobe
 title: ensureFfprobe()
+crumb: "@remotion/renderer"
 ---
 
 _Available from v3.3_

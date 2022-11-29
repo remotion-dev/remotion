@@ -1,6 +1,7 @@
 ---
 id: the-fundamentals
 title: The fundamentals
+crumb: "Getting started"
 ---
 
 ```twoslash include example

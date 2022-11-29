@@ -1,6 +1,7 @@
 ---
 id: bucket-disallows-acl
 title: The bucket does not allow ACLs
+crumb: "Lambda Troubleshooting"
 ---
 
 If you encounter the following error while rendering a video on Remotion Lambda:

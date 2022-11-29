@@ -1,5 +1,6 @@
 ---
 title: loadFont()
+crumb: "@remotion/google-fonts"
 ---
 
 _Part of the [`@remotion/google-fonts`](/docs/google-fonts) package_

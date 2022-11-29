@@ -1,6 +1,7 @@
 ---
 id: webpack
 title: Custom Webpack config
+crumb: "How To"
 ---
 
 import Tabs from "@theme/Tabs";

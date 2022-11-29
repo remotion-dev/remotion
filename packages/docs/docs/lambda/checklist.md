@@ -3,6 +3,7 @@ id: checklist
 sidebar_label: Production Checklist
 title: Production Checklist
 slug: /lambda/checklist
+crumb: "Lambda"
 ---
 
 import {DefaultTimeout} from '../../components/lambda/default-timeout';

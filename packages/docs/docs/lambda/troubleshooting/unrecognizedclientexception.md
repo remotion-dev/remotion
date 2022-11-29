@@ -1,6 +1,7 @@
 ---
 id: unrecognizedclientexception
 title: UnrecognizedClientException
+crumb: "Lambda Troubleshooting"
 ---
 
 If you got a permission error while calling [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda):

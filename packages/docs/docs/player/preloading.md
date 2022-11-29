@@ -1,6 +1,7 @@
 ---
 sidebar_label: "Preloading"
 title: "Preloading assets"
+crumb: "@remotion/player"
 ---
 
 By default, assets such as videos, audio, or images will only be loaded as they enter the video. When using the [Remotion Player](/docs/terminology#remotion-player), you may want to preload those assets beforehand to make them play immediately once they enter the video.

@@ -2,6 +2,7 @@
 id: prereleases
 slug: /prereleases
 title: Testing prereleases
+crumb: "Only the brave"
 ---
 
 import {Prerelease} from "../components/PrereleaseVersion"

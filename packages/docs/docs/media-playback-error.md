@@ -2,6 +2,7 @@
 id: media-playback-error
 title: "Could not play video/audio with src"
 sidebar_label: Media playback error
+crumb: "Troubleshooting"
 ---
 
 The following error may occur in your Remotion project during development or while rendering:

@@ -1,6 +1,7 @@
 ---
 id: scaling
 title: Output scaling
+crumb: "How To"
 ---
 
 _Available from v2.6.7._

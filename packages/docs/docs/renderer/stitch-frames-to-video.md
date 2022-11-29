@@ -1,6 +1,7 @@
 ---
 id: stitch-frames-to-video
 title: stitchFramesToVideo()
+crumb: "@remotion/renderer"
 ---
 
 _Part of the `@remotion/renderer` package._

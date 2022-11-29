@@ -2,6 +2,7 @@
 id: renderstillonlambda
 title: renderStillOnLambda()
 slug: /lambda/renderstillonlambda
+crumb: "Lambda API"
 ---
 
 Renders a still image inside a lambda function and writes it to the specified output location.

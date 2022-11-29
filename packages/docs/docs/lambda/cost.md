@@ -2,6 +2,7 @@
 id: optimizing-cost
 title: Optimizing for cost
 slug: /lambda/optimizing-cost
+crumb: "Lambda"
 ---
 
 On this page, a few strategies for optimizing the cost of using Remotion Lambda are presented.

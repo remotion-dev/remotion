@@ -2,6 +2,7 @@
 title: "TypeScript aliases"
 id: typescript-aliases
 slug: /typescript-aliases
+crumb: "How to"
 ---
 
 Typescript aliases are not supported by default, since the ESBuild Webpack loader we have does not support them.
