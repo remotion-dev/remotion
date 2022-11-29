@@ -35,7 +35,7 @@ export const RemotionRoot: React.FC = () => {
               }}
               height={630}
               width={1200}
-              id={`articles-${e.compId}`}
+              id={e.compId}
             />
           );
         })}
