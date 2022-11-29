@@ -1,6 +1,7 @@
 ---
 id: loop
 title: <Loop>
+crumb: "API"
 ---
 
 import { LoopExamples, BlueSquare } from "../components/LoopExamples/LoopExamples";

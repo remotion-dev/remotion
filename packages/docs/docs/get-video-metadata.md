@@ -1,6 +1,7 @@
 ---
 title: getVideoMetadata()
 id: get-video-metadata
+crumb: "@remotion/media-utils"
 ---
 
 _Part of the `@remotion/media-utils` package of helper functions._
@@ -27,8 +28,6 @@ A string pointing to an asset.
 
 ```tsx twoslash
 // @module: ESNext
-// @target: ESNext
-import { Audio } from "remotion";
 // ---cut---
 import { getVideoMetadata } from "@remotion/media-utils";
 import video from "../video.mp4";

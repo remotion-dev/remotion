@@ -1,6 +1,7 @@
 ---
 title: useVideoConfig()
 id: use-video-config
+crumb: "API"
 ---
 
 With this hook, you can retrieve some info about the context of the video that you are making.

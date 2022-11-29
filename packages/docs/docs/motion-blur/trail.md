@@ -1,6 +1,7 @@
 ---
 title: "<Trail>"
 slug: trail
+crumb: "Motion blur"
 ---
 
 import { TrailExample } from "../../components/TrailExample/TrailExample";

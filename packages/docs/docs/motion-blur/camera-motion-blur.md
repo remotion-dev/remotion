@@ -1,6 +1,7 @@
 ---
 title: "<CameraMotionBlur>"
 slug: camera-motion-blur
+crumb: "Realistic camera effect"
 ---
 
 import { CameraMotionBlurExample } from "../../components/CameraMotionBlurExample/CameraMotionBlurExample";

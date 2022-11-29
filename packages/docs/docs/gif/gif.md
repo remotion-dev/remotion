@@ -2,6 +2,7 @@
 slug: gif
 sidebar_label: "<Gif>"
 title: "<Gif>"
+crumb: "@remotion/gif"
 ---
 
 _Part of the [`@remotion/gif`](/docs/gif) package_

@@ -2,6 +2,7 @@
 id: brownfield
 title: Installing Remotion in an existing project
 sidebar_label: Installation in existing project
+crumb: "Brownfield integration"
 ---
 
 import Tabs from '@theme/Tabs';

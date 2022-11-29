@@ -1,6 +1,7 @@
 ---
 title: npx remotion lambda compositions
 sidebar_label: compositions
+crumb: "Lambda CLI Reference"
 ---
 
 _Available from v3.3.2._

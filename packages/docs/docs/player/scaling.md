@@ -1,6 +1,7 @@
 ---
 id: scaling
 title: "Scaling"
+crumb: "@remotion/player"
 ---
 
 The following algorithm is used for calculating the size of the Player:

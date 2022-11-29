@@ -1,6 +1,7 @@
 ---
 id: continue-render
 title: continueRender()
+crumb: "API"
 ---
 
 import {Redirect} from '@docusaurus/router';

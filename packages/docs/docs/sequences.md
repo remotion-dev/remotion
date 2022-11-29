@@ -2,6 +2,7 @@
 id: reusability
 title: Reuse components using Sequences
 sidebar_label: Reuse components
+crumb: "The power of React"
 ---
 
 ```twoslash include example

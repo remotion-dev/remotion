@@ -2,6 +2,7 @@
 id: gpu
 title: Using the GPU
 sidebar_label: Using the GPU
+crumb: "Need for Speed"
 ---
 
 Some types of content in Remotion can benefit from a GPU being available on the machine that is used for rendering. That is:

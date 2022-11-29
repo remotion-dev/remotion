@@ -1,6 +1,7 @@
 ---
 id: slow-method-to-extract-frame
 title: "Slow method to extract frame"
+crumb: "Troubleshooting"
 ---
 
 When using the [`<OffthreadVideo>`](/docs/offthreadvideo) component, the following warning message may appear:

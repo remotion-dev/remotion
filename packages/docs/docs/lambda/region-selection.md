@@ -2,6 +2,7 @@
 id: region-selection
 title: Region selection
 slug: /lambda/region-selection
+crumb: "Lambda"
 ---
 
 import {LambdaRegionList} from '../../components/lambda/regions.tsx';

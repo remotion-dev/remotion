@@ -2,6 +2,7 @@
 id: getsites
 title: getSites()
 slug: /lambda/getsites
+crumb: "Lambda API"
 ---
 
 Gets an array of Remotion projects in your S3 account.

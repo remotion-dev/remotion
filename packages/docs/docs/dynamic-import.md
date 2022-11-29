@@ -1,6 +1,7 @@
 ---
 title: Webpack dynamic imports
 id: webpack-dynamic-imports
+crumb: "Knowledge Base"
 ---
 
 A common need in Remotion is to import assets from dynamic paths. This means that sometimes you don't know the exact path of an asset that should be imported upfront and you want to calculate it during runtime.

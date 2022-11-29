@@ -1,6 +1,7 @@
 ---
 id: javascript
 title: Plain JavaScript
+crumb: "How To"
 ---
 
 Since Remotion 1.3, you can opt out of Typescript and it's type checking advantages in Remotion. Continue at your own risk.

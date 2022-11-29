@@ -2,6 +2,7 @@
 image: /static/generated/articles-docs-3-0-migration.png
 id: 3-0-migration
 title: v3.0 Migration
+crumb: "Version Upgrade"
 ---
 
 When upgrading from Remotion 2 to Remotion 3, note the following changes and apply them to your project.
@@ -212,7 +213,7 @@ The import `overrideWebpackConfig` was deprecated and now removed. Use `Config.B
 **Upgrade path**: Change import in `remotion.config.ts`and use `overrideWebpackConfig()`.
 
 ```tsx title="Previously"
-import { overrideWebpackConfig } from "@remotion/bundler";
+
 ```
 
 ```tsx title="Now"
@@ -220,5 +221,3 @@ import { Config } from "remotion";
 
 Config.Bundling.overrideWebpackConfig();
 ```
-
-

@@ -1,6 +1,7 @@
 ---
 title: npx remotion benchmark
 sidebar_label: benchmark
+crumb: CLI Reference
 ---
 
 _available from v3.2.28_

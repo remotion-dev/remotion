@@ -1,6 +1,7 @@
 ---
 id: ensure-ffmpeg
 title: ensureFfmpeg()
+crumb: "@remotion/renderer"
 ---
 
 _Available from v3.3_

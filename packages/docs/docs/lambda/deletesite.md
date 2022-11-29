@@ -2,6 +2,7 @@
 id: deletesite
 title: deleteSite()
 slug: /lambda/deletesite
+crumb: "Lambda API"
 ---
 
 Removes a Remotion project from your S3 bucket.

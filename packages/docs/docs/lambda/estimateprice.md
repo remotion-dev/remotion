@@ -2,6 +2,7 @@
 id: estimateprice
 title: estimatePrice()
 slug: /lambda/estimateprice
+crumb: "Lambda API"
 ---
 
 Calculates the AWS costs incurred for AWS Lambda given the region, execution duration and memory size based on the AWS Lambda pricing matrix.

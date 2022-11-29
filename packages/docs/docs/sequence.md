@@ -1,6 +1,7 @@
 ---
 id: sequence
 title: <Sequence>
+crumb: "API"
 ---
 
 import { SequenceForwardExample } from "../components/SequenceExamples/SequenceForward";

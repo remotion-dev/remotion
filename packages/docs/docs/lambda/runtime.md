@@ -2,6 +2,7 @@
 id: runtime
 title: Runtime
 slug: /lambda/runtime
+crumb: "Lambda"
 ---
 
 import {DefaultMemorySize} from '../../components/lambda/default-memory-size';

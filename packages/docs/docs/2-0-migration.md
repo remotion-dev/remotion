@@ -3,6 +3,7 @@ image: /static/generated/articles-docs-2-0-migration.png
 id: 2-0-migration
 sidebar_label: v2.0 Migration
 title: v2.0 Migration
+crumb: "Version Upgrade"
 ---
 
 The following is a list of breaking changes in Remotion 2.0, as a reference for projects wanting to upgrade.

@@ -1,5 +1,6 @@
 ---
 title: "<OffthreadVideo /> while rendering"
+crumb: "Snippets"
 ---
 
 The following component will only use [`<OffthreadVideo />`](/docs/offthreadvideo) while rendering, but [`<Video />`](/docs/video) in the Player.

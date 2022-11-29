@@ -1,6 +1,7 @@
 ---
 title: visualizeAudio()
 id: visualize-audio
+crumb: "@remotion/media-utils"
 ---
 
 _Part of the `@remotion/media-utils` package of helper functions._
@@ -23,7 +24,6 @@ The only argument for this function is an object containing the following values
 
 - `smoothing`: `boolean` - when set to `true` the returned values will be an average of the current, previous and next frames. The result is a smoother transition for quickly changing values. Default value is `true`.
 
-
 ## Return value
 
 `number[]` - An array of values describing the amplitude of each frequency range. Each value is between 0 and 1. The array is of length defined by the `numberOfSamples` parameter.
@@ -37,8 +37,8 @@ Usually the values on left side of the array can become much larger than the val
 In this example, we render a bar chart visualizing the audio spectrum of an audio file we imported using [`useAudioData()`](/docs/use-audio-data) and `visualizeAudio()`.
 
 ```tsx twoslash
-import { Audio, useCurrentFrame, useVideoConfig } from "remotion";
 import { useAudioData, visualizeAudio } from "@remotion/media-utils";
+import { Audio, useCurrentFrame, useVideoConfig } from "remotion";
 import music from "./music.mp3";
 
 export const MyComponent: React.FC = () => {

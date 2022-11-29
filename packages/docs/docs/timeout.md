@@ -1,6 +1,7 @@
 ---
 id: timeout
 title: Puppeteer timeout
+crumb: "Troubleshooting"
 ---
 
 The following error:

@@ -2,6 +2,7 @@
 sidebar_label: FAQ
 title: FAQ
 slug: /lambda/faq
+crumb: "Lambda"
 ---
 
 Some commonly asked questions about Remotion Lambda.

@@ -1,5 +1,6 @@
 ---
 title: "Change the speed of a video over time"
+crumb: "Snippets"
 ---
 
 import {AcceleratedVideoExample} from "../../../components/AcceleratedVideoPlayerExample.tsx"

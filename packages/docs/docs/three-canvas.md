@@ -1,6 +1,7 @@
 ---
 id: three-canvas
 title: <ThreeCanvas>
+crumb: "@remotion/three"
 ---
 
 A wrapper for [React Three Fiber](https://github.com/pmndrs/react-three-fiber)'s `<Canvas />` which synchronizes with Remotions [`useCurrentFrame()`](/docs/use-current-frame).
@@ -16,8 +17,8 @@ A browser bug [would normally cause the layout to be broken](https://github.com/
 A spinning, color changing, scaling cube. This example can also be found in the `examples` folder of the Remotion repo.
 
 ```tsx twoslash
-import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { ThreeCanvas } from "@remotion/three";
+import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 
 const ThreeBasic: React.FC = () => {
   const frame = useCurrentFrame();

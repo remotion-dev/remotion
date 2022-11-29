@@ -1,6 +1,7 @@
 ---
 id: staticfile
 title: staticFile()
+crumb: "API"
 ---
 
 _Available from v2.5.7._

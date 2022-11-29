@@ -1,6 +1,7 @@
 ---
 title: Installing FFmpeg
 sidebar_label: Installing FFmpeg
+crumb: "(you don't have to)"
 ---
 
 Remotion requires FFmpeg to encode videos. Since v3.3, you do not need to install FFmpeg manually. This page documents the behavior of Remotion for developers needing advanced control.

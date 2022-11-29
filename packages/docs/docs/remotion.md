@@ -1,5 +1,6 @@
 ---
 title: "remotion"
+crumb: "npm i"
 ---
 
 import {TableOfContents} from '../components/TableOfContents/remotion';

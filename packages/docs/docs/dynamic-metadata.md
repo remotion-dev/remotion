@@ -1,6 +1,7 @@
 ---
 id: dynamic-metadata
 title: Dynamic duration, FPS & dimensions
+crumb: "How To"
 ---
 
 ```twoslash include example
@@ -125,7 +126,6 @@ getCompositions(bundled, {
 ```
 
 ```tsx twoslash
-import { renderFrames as rf } from "@remotion/renderer";
 const renderFrames = (options: { inputProps: {} }) => {};
 // ---cut---
 renderFrames({

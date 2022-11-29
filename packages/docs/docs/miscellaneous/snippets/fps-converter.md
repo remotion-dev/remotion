@@ -1,5 +1,6 @@
 ---
 title: "FPS converter"
+crumb: "Snippets"
 ---
 
 This snippet is useful if you have designed your video with a different frame rate than you want to render in the end. Wrap your markup in the `<FpsConverter>` component override the time of it's children to achieve a different FPS.

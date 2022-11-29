@@ -1,6 +1,7 @@
 ---
 id: register-root
 title: registerRoot()
+crumb: "API"
 ---
 
 `registerRoot` is a function that registers the root component of the Remotion project. In the root component, one or multiple compositions should be returned (in the case of multiple compositions, they should be wrapped in a React Fragment).

@@ -2,6 +2,7 @@
 id: getfunctioninfo
 title: getFunctionInfo()
 slug: /lambda/getfunctioninfo
+crumb: "Lambda API"
 ---
 
 Gets information about a function given it's name and region.

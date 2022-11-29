@@ -2,6 +2,7 @@
 title: getFunctions()
 id: getfunctions
 slug: /lambda/getfunctions
+crumb: "Lambda API"
 ---
 
 Retrieves a list of functions that Remotion deployed to AWS Lambda in a certain region.

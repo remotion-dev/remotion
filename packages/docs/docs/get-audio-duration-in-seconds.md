@@ -1,6 +1,7 @@
 ---
 title: getAudioDurationInSeconds()
 id: get-audio-duration-in-seconds
+crumb: "@remotion/media-utils"
 ---
 
 _Part of the `@remotion/media-utils` package of helper functions._

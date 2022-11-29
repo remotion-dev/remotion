@@ -1,6 +1,7 @@
 ---
 id: random
 title: random()
+crumb: "API"
 ---
 
 The `random()` API will give your deterministic pseudorandom values. Unlike the `Math.random()` function, Remotions function takes in a seed which can be a `number` or a `string`. If the seed is the same, the output is always the same.

@@ -1,5 +1,6 @@
 ---
 title: enableSkia()
+crumb: "@remotion/skia"
 ---
 
 A function that modifies the default Webpack configuration to make the necessary changes to support Skia.

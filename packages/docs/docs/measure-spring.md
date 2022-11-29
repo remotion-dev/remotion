@@ -1,6 +1,7 @@
 ---
 title: measureSpring()
 id: measure-spring
+crumb: "API"
 ---
 
 _Available from v2.0.8_

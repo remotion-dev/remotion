@@ -1,5 +1,6 @@
 ---
 title: "Embedding a <Player> into an <iframe>"
+crumb: "Snippets"
 ---
 
 :::info

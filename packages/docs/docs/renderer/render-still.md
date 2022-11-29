@@ -1,6 +1,7 @@
 ---
 id: render-still
 title: renderStill()
+crumb: "@remotion/renderer"
 ---
 
 import {AngleChangelog} from '../../components/AngleChangelog';

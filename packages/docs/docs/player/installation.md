@@ -2,6 +2,7 @@
 id: installation
 title: Installation
 slug: /player/installation
+crumb: "@remotion/player"
 ---
 
 import {TableOfContents} from '../../components/TableOfContents/player';

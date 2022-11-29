@@ -1,6 +1,7 @@
 ---
 id: flickering
 title: Flickering
+crumb: "How to avoid"
 ---
 
 If your video flickers or suffers from choppiness during rendering, it is an indication that you have a **multi-threading issue**.

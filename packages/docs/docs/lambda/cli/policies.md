@@ -3,6 +3,7 @@ id: policies
 sidebar_label: policies
 title: "npx remotion lambda policies"
 slug: /lambda/cli/policies
+crumb: "Lambda CLI Reference"
 ---
 
 import {RolePolicy} from '../../../components/lambda/role-permissions.tsx';
