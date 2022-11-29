@@ -256,6 +256,7 @@ module.exports = {
         "paths/interpolate-path",
         "paths/evolve-path",
         "paths/extend-viewbox",
+        "paths/split-parts",
       ],
     },
     {
