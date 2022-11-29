@@ -1,4 +1,5 @@
 ---
+image: /static/generated/articles-docs-after-effects.png
 id: after-effects
 title: Import from After Effects
 slug: after-effects
