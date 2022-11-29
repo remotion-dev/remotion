@@ -11,7 +11,13 @@ export const TableOfContents: React.FC = () => {
           <div>Obtain length of an SVG path</div>
         </TOCItem>
         <TOCItem link="/docs/paths/get-parts">
-          <strong>getParts()</strong>
+          <strong
+            style={{
+              textDecoration: "line-through",
+            }}
+          >
+            getParts()
+          </strong>
           <div>Split SVG path into its parts</div>
         </TOCItem>
         <TOCItem link="/docs/paths/get-tangent-at-length">
@@ -44,6 +50,10 @@ export const TableOfContents: React.FC = () => {
         <TOCItem link="/docs/paths/extend-viewbox">
           <strong>extendViewBox()</strong>
           <div>Widen an SVG viewBox in all directions</div>
+        </TOCItem>
+        <TOCItem link="/docs/paths/split-parts">
+          <strong>splitParts()</strong>
+          <div>Split SVG path into its parts</div>
         </TOCItem>
       </Grid>
     </div>

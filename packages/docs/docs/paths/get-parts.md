@@ -4,6 +4,10 @@ title: getParts()
 
 _Part of the [`@remotion/paths`](/docs/paths) package._
 
+:::warning
+**Deprecated** in favor of [`splitParts()`](/docs/paths/split-parts).
+:::
+
 Takes an SVG path and returns an array of parts of the path.
 
 Example of a path that has two straight lines:
