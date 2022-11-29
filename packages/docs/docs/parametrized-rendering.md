@@ -39,6 +39,7 @@ export const MyComponent: React.FC<{ propOne: string; propTwo: number }> = () =>
 
 // @filename: Root.tsx
 // ---cut---
+import React from "react";
 import { Composition } from "remotion";
 import { MyComponent } from "./MyComponent";
 
