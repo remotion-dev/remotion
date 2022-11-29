@@ -47,6 +47,7 @@ A string pointing to an audio asset.
 ## Example
 
 ```tsx twoslash
+import { Audio } from "remotion";
 // ---cut---
 import { useAudioData } from "@remotion/media-utils";
 import music from "./music.mp3";
