@@ -1287,6 +1287,29 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "Mad Mustache Company",
     },
   },
+  {
+	title: "Funeral Collage/Slideshow",
+	type: "mux_video",
+	muxId: "3ZOyZm01dqewQjVUNP02MzqWooJlYJ00cVSLX9WjSwuYjs",
+	description: "Online memorial photo slideshow maker. Create a fitting tribute video for your loved one.",
+	height: 1080,
+	width: 1920,
+	submittedOn: new Date("11-29-2022"),
+	links: [
+		{
+			type: "video",
+			url: "https://firebasestorage.googleapis.com/v0/b/funeral-collage.appspot.com/o/demo%2Fjoanna-bloggs-demo.mp4?alt=media&token=ed4dff7d-396d-4b97-9f95-85c58d669277",
+		},
+		{
+			type: "website",
+			url: "https://funeralcollage.com/",
+		}
+	],
+	author: {
+		"url": "https://funeralcollage.com/",
+		"name": "Funeral Collage/Slideshow"
+	}
+},
 ];
 
 const dateString = (date: Date) =>
