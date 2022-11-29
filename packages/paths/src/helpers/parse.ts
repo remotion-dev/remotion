@@ -17,7 +17,9 @@ const length: {[key in pathOrders]: number} = {
 const segmentRegExp = /([astvzqmhlc])([^astvzqmhlc]*)/gi;
 const numberRegExp = /-?[0-9]*\.?[0-9]+(?:e[-+]?\d+)?/gi;
 
-export default (path: string) => {
+export type Instruction = [string, ...number[]];
+
+export const parsePath = (path: string): Instruction[] => {
 	const segments = (path && path.length > 0 ? path : 'M0,0').match(
 		segmentRegExp
 	);

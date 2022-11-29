@@ -256,6 +256,7 @@ module.exports = {
         "paths/interpolate-path",
         "paths/evolve-path",
         "paths/extend-viewbox",
+        "paths/split-parts",
       ],
     },
     {
@@ -429,6 +430,8 @@ module.exports = {
         "figma",
         "spline",
         "after-effects",
+        "video-uploads",
+        "presigned-urls",
       ],
     },
     {

@@ -1,5 +1,6 @@
 import Head from "@docusaurus/Head";
 import Link from "@docusaurus/Link";
+import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import React, { useMemo } from "react";
 import { random } from "remotion";
@@ -11,6 +12,7 @@ import {
   LinkedInLogo,
   TwitterLogo,
 } from "../../components/icons";
+import { Seo } from "../../components/Seo";
 import { experts } from "../../data/experts";
 import styles from "./experts.module.css";
 
@@ -44,27 +46,19 @@ const Experts: React.FC = () => {
     );
   }, []);
 
+  const context = useDocusaurusContext();
+
   return (
     <Layout>
       <Head>
-        <title>Remotion experts | Hire Remotion freelancers</title>
-        <meta
-          name="description"
-          content="Find Remotion freelancers and hire them to create, progress or unblock your Remotion project."
-        />
-        <meta name="og:image" content="/img/remotion-experts-og-image.png" />
-        <meta
-          name="twitter:image"
-          content="/img/remotion-experts-og-image.png"
-        />
-        <meta
-          property="og:image"
-          content="/img/remotion-experts-og-image.png"
-        />
-        <meta
-          property="twitter:image"
-          content="/img/remotion-experts-og-image.png"
-        />
+        {Seo.renderTitle("Remotion experts | Hire Remotion freelancers")}
+        {Seo.renderDescription(
+          "Find Remotion freelancers and hire them to create, progress or unblock your Remotion project."
+        )}
+        {Seo.renderImage(
+          "/img/remotion-experts-og-image.png",
+          context.siteConfig.url
+        )}
       </Head>
       <div className={styles.container}>
         <div className={styles.background} />
