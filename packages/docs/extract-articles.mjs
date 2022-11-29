@@ -54,7 +54,8 @@ for (const page of pages) {
   const crumb = findCrumb(split);
 
   const relativePath = page.replace(process.cwd() + path.sep, "");
-  const compId = relativePath.replace(/\//g, "-").replace(/.md$/, "");
+  const compId =
+    "articles-" + relativePath.replace(/\//g, "-").replace(/.md$/, "");
   data.push({ id, title, relativePath, compId, crumb });
 }
 
@@ -62,3 +63,38 @@ fs.writeFileSync(
   path.join(process.cwd(), "src", "data", "articles.ts"),
   `export const articles = ` + JSON.stringify(data, null, 2)
 );
+
+import { bundle } from "@remotion/bundler";
+import { getCompositions, renderStill } from "@remotion/renderer";
+
+const serveUrl = await bundle({
+  entryPoint: path.join(process.cwd(), "./src/remotion/entry.ts"),
+  publicDir: path.join(process.cwd(), "static"),
+});
+const compositions = await getCompositions(serveUrl);
+
+for (const entry of data.slice(0, 5)) {
+  const composition = compositions.find((c) => c.id === entry.compId);
+  await renderStill({
+    composition,
+    output: `static/generated/${composition.id}.png`,
+    serveUrl,
+  });
+
+  const fileContents = fs.readFileSync(
+    path.join(process.cwd(), entry.relativePath),
+    "utf-8"
+  );
+  const lines = fileContents.split("\n");
+  const frontmatterLine = lines.findIndex((l) => l === "---");
+  if (frontmatterLine === -1) {
+    throw new Error("could not find frontmatter for " + composition.id);
+  }
+
+  const newLines = [
+    ...lines.slice(0, frontmatterLine),
+    ...lines.slice(frontmatterLine),
+  ];
+
+  console.log("Rendered", composition.id);
+}
