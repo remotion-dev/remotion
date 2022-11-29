@@ -5,21 +5,24 @@ import { Expert } from "./Expert";
 
 export const RemotionRoot: React.FC = () => {
   return (
-    <Folder name="experts">
-      {experts.map((e) => {
-        return (
-          <Still
-            key={e.slug}
-            component={Expert}
-            defaultProps={{
-              expertId: e.slug,
-            }}
-            height={630}
-            width={1200}
-            id={`experts-${e.slug}`}
-          />
-        );
-      })}
-    </Folder>
+    <>
+      <Folder name="experts">
+        {experts.map((e) => {
+          return (
+            <Still
+              key={e.slug}
+              component={Expert}
+              defaultProps={{
+                expertId: e.slug,
+              }}
+              height={630}
+              width={1200}
+              id={`experts-${e.slug}`}
+            />
+          );
+        })}
+      </Folder>
+      <Folder name="articles" />
+    </>
   );
 };
