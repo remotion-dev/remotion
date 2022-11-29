@@ -210,7 +210,7 @@ export const Shrinking: React.FC<{
 };
 ```
 
-Return the `<Shrinking>` component in your main composition `src/Composition.tsx`:
+Add the `<Shrinking>` component in your main composition `src/Composition.tsx`:
 
 ```tsx twoslash
 // @filename: Shrinking.tsx
@@ -289,7 +289,7 @@ export const Move: React.FC<{
 };
 ```
 
-Add the `<Move>` component in your composition `src/Composition.tsx`. You get a nice effect by combining the effect of moving and shrinking, just wrap the shrinking dot in the `<Move>` component:
+Add the `<Move>` component in your composition `src/Composition.tsx`. You get a nice animation by combining the effect of moving and shrinking, just wrap the shrinking dot in the `<Move>` component:
 
 ```tsx twoslash title="src/Composition.tsx"
 // @filename: Move.tsx
@@ -376,7 +376,7 @@ export const Move: React.FC<{
 };
 ```
 
-Now, you create a so called `<Trail>` component. It takes some React children and duplicates them. The component adds a delay to each subsequent dot so they don't start all at once. Each dot will have a scale applied to it, so that each dot is smaller than the previous one. And here comes the important step: Within the `<Trail>` component you implement the previously created `<Move>` component.
+Now, you create a so called Trail component. It takes some React children and duplicates them. The component adds a delay to each subsequent dot so they don't start all at once. Each dot will have a scale applied to it, so that each dot is smaller than the previous one. And here comes the important step: Within the `<Trail>` component you implement the previously created `<Move>` component.
 
 ```tsx twoslash title="src/Trail.tsx"
 // @filename: Move.tsx
@@ -473,9 +473,9 @@ export const MyComposition = () => {
 And this is how your animation with the duplicated dots should look like:
 <img src="/img/apple-wow-tutorial/Trail.gif"/>
 
-## Duplicating the `<Trail>` in a circular manner
+## Duplicating markup and arranging it in a circle
 
-In a next step you are going to create a `<Explosion>` component. It takes children and duplicates them for example 10 times and applies a rotation to each child.
+Now you are going to create a `<Explosion>` component. It takes children and renders them for example 10 times and applies a rotation to each instance. It's worth mentioning here that a full rotation amounts to 2π, while `(i/AMOUNT)` represents a factor between 0 and 1.
 
 ```tsx twoslash title="src/Explosion.tsx"
 import React from "react";
@@ -492,7 +492,7 @@ export const Explosion: React.FC<{
         return (
           <AbsoluteFill
             style={{
-              rotate: (i / AMOUNT) * (Math.PI * 2) + "rad",
+              rotate: (i / AMOUNT) * (2 * Math.PI) + "rad",
             }}
           >
             {children}
@@ -563,7 +563,7 @@ The animated explosion should look like this:
 
 ## Cleanup
 
-You have crated a bunch of files until now, let's put most of them together in one file called `src/Dots.tsx` and create a new and combined component called `<Dots>`.
+You have created a bunch of files until now, let's put most of them together in one file called `src/Dots.tsx`. Extract `<Explosion>` and it's children into a new separate component called Dots.
 
 ```tsx twoslash title="src/Dots.tsx"
 // @filename: Move.tsx
@@ -614,7 +614,7 @@ export const Dots: React.FC = () => {
 };
 ```
 
-Using `<Dots>` our main composition `src/Composition.tsx` looks now clean:
+Replace the `<Explosion>` with the new `<Dots>` component:
 
 ```tsx twoslash
 // @filename: Background.tsx
@@ -644,7 +644,9 @@ Nothing has changed on the animation itself:
 
 ## Adding stars and hearts
 
-Next to the dots we also add some stars and hearts in different colors. This way the explosion gets a nice WOW effect. In this step we are basically repeating the previous steps. Next to the `<Dots>` component, we add three more components: `<RedHearts>`, `<YellowHearts>` and `<Stars>`.
+To make the animation more exciting, let's also add some stars and hearts in different colors. To do this, we need basically to repeat the previous steps. Besides the `<Dots>`component, you will add three more components in the next few steps.
+
+Let's start with red hearts. First you render a red heart by creating a new file `src/RedHeart.tsx` and return a centered red heart emoji.
 
 ```tsx twoslash title="src/RedHeart.tsx"
 import React from "react";
@@ -664,7 +666,7 @@ export const RedHeart: React.FC = () => {
 };
 ```
 
-Effects like `<Shrinking>`, `<Move>` and `<Explosion>` need to be applied. Also to consider is that you need to change the position of the `<RedHearts>` otherwise they would be on top of the `<Dots>`, you want to avoid this by changing the `<AbsoluteFill>`:
+Effects like `<Shrinking>`, `<Move>` and `<Explosion>` need to be applied to that red heart. We do this in a new component called RedHearts. Also to consider is that you need to change the position of `<RedHearts>` otherwise they would be on top of the `<Dots>`, you want to avoid this by changing the `<AbsoluteFill>`. You change the position by giving the red hearts a bigger radius than the dots, apply a 100px translation. Also, we add a short delay of 5 frames to the `<Move>` component:
 
 ```tsx twoslash title="src/RedHearts.tsx"
 // @filename: Move.tsx
@@ -717,7 +719,7 @@ export const RedHearts: React.FC = () => {
 };
 ```
 
-We do the same for the `<YellowHearts>`:
+We do the same to get some yellow hearts in our animation:
 
 ```tsx twoslash title="src/YellowHeart.tsx"
 import React from "react";
@@ -736,6 +738,8 @@ export const YellowHeart: React.FC = () => {
   );
 };
 ```
+
+For the yellow hearts we are going to change the position by applying a translation of 50px and adding a delay of 20 frames to the `<Move>` component:
 
 ```tsx twoslash title="src/YellowHearts.tsx"
 // @filename: Move.tsx
@@ -806,7 +810,7 @@ Your main composition should look like this:
 <br/>
 <br/>
 
-As already described above we want to add some `<Stars>` to the explosion:
+Additionaly to the dots and hearts let's also add some stars. As you can see on the animation above the hearts do not have the trail effect. For the stars you are going to add the trail effect, as this is the case for the dots. But first you render a star by creating a new file `src/Star.tsx` and return a centered star emoji.
 
 ```tsx twoslash title="src/Star.tsx"
 import React from "react";
@@ -827,7 +831,7 @@ export const Star: React.FC = () => {
 };
 ```
 
-Effects like `<Shrinking>`, `<Trail>` and `<Explosion>` need to be applied. Also to consider is that you need to change the position of the `<Stars>` otherwise they would be on top of the `<Dots>`, you want to avoid this by rotating the `<Stars>` and giving `<Trail>` an `extraOffset`:
+Effects like `<Shrinking>`, `<Trail>` and `<Explosion>` need to be applied. Also to consider is that you need to change the position of the stars otherwise they would be on top of the `<Dots>`, you want to avoid this by giving `<Trail>` an `extraOffset` of 100, which is the same as the translation you used for the hearts:
 
 ```tsx twoslash title="src/Stars.tsx"
 // @filename: Move.tsx
@@ -889,7 +893,7 @@ Here is how the almost complete firework should look like:
 
 ## Slow motion effect
 
-Lastly let's apply a nice slow motion effect to the firework. You can do this by wrapping all moving components in a component called `<Slowed>`.
+Lastly let's apply a slow motion effect to the firework. For this you start with a new file `src/SlowedTrail.tsx`. It should contain a component called Slowed and a helper function `remapSpeed()` which will apply different speed levels to the firework. In the code snipped below a speed of 1.5 is applied until frame 20, afterwards the speed is slowed down to 0.5.
 
 ```tsx twoslash title="src/SlowedTrail.tsx"
 import React from "react";
@@ -927,7 +931,7 @@ export const Slowed: React.FC<{
 };
 ```
 
-As you can tell everything is very composable. The main composition looks like this:
+In the main composition you are going to wrap all moving dots, hearts and stars in the component `<Slowed>`. As you sure can tell by now, everything is very composable:
 
 ```tsx twoslash title="src/Slowed.tsx"
 // @filename: Move.tsx
@@ -985,12 +989,30 @@ Your final firework should look like this:
 
 ## Adding your animoji
 
-As a last step of this tutorial we add your animoji on top of the firework. For the animoji you need to have an iPhone. This is how you get it: In iMessages you can record an animoji of yourself and send it to a friend. After you've done that, it will also appear in the Messages app on your MacBook. You can download your animoji there. Once you have done that, you can right-click it and select "Services", then "Encode Selected Video Files" and then choose "Apple ProRes" in the setting dropdown. Don't forget to tick the box that says "Preserve Transparency". A new file of your animoji will be created. Give it a simple name like animoji.mov.
-Next to the "src" folder you create a new one called "public". You put your encoded video in this folder. You can then use FFmpeg to turn the encoded video into a series of frames, for that you use this command: "ffmpeg -i animoji.mov -pix_fmt rgba -start_number 0 frame%03d.png".
-How to create a series of frames out of the encoded video:
+As a last step of this tutorial we add your animoji on top of the firework. For the animoji you need to have an iPhone and MacBook. This is how you get it: On your iPhone in iMessage you can record an animoji of yourself and send it to a friend. After you've done that, it will also appear in the Messages app on your MacBook. You can download your animoji there. Once you have done that, you need to create a transparent version of your animoji. Just follow these points:
+
+1. right-click your downloaded animoji
+2. select "Services"
+3. select "Encode Selected Video Files"
+4. choose "Apple ProRes" in the settings dropdown
+5. tick the box that says "Preserve Transparency".
+
+A new encoded file of your animoji will be created. Give it a simple name like animoji.mov.
+
+In addition to the "src" folder you create a new one called "public". You put your encoded video in this folder. You can then use FFmpeg to turn the encoded video into a series of frames, for that you need to follow these points:
+
+1. change the current working directory to "public"
+2. use this command: `ffmpeg -i animoji.mov -pix_fmt rgba -start_number 0 frame%03d.png`
+
+Only assets that are being used by Remotion need to be in the "public" folder. You don't need the encoded video, it can be deleted after the frames have been extracted.
+
+Here is a screenshot right before creating the series of frames:
 <img src="/img/apple-wow-tutorial/FFmpegCommand.png"/>
 
-You then can import this series of frames by using the StaticFile API and we can use the current frame number to figure out the file name.
+<br/>
+<br/>
+
+Alright, so far you have prepared the animoji to be used in a new component called Animoji. You can import this series of frames by using the [staticFile()](https://www.remotion.dev/docs/staticfile) API. The file name of each frame will help you to determine the current frame number.
 
 ```tsx twoslash title="src/Animoji.tsx"
 import React from "react";
@@ -1020,7 +1042,7 @@ export const Animoji: React.FC = () => {
 };
 ```
 
-The main composition looks like this:
+Render the `<Animoji>` component in your main composition:
 
 ```tsx twoslash title="src/Composition.tsx"
 // @filename: Move.tsx
@@ -1077,7 +1099,7 @@ export const MyComposition = () => {
 };
 ```
 
-By doing all of this you have finally imported a transparent version of your animoji into your composition. Which should look like this:
+By doing all of this you have finally imported a transparent version of your animoji into your composition. You can run `npm run build` to export your video as MP4. Which should look like this:
 <img src="/img/apple-wow-tutorial/Final.gif"/>
 
-Awesome, we are done! We hope you had fun following along this tutorial and creating your own animation video!
+Awesome, you are done! We hope you had fun following along this tutorial and creating your own animation video!
