@@ -3,7 +3,7 @@ module.exports = {
   tagline: "Make videos programmatically",
   url:
     process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production"
-      ? process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
       : "https://www.remotion.dev",
   baseUrl: "/",
   onBrokenLinks: "throw",
