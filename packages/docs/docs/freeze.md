@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-freeze.png
 id: freeze
 title: <Freeze>
+crumb: "API"
 ---
 
 import { FreezeExample } from "../components/FreezeExample/FreezeExample";

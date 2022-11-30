@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-interpolate-colors.png
 title: interpolateColors()
 id: interpolate-colors
+crumb: "API"
 ---
 
 _Available from v2.0.3_
@@ -42,7 +44,7 @@ In this example, we are interpolating colors from red to yellow. At frame 0 (the
 Using the following snippet, we can calculate the current color for any frame:
 
 ```tsx twoslash
-import { useCurrentFrame, interpolateColors } from "remotion";
+import { interpolateColors, useCurrentFrame } from "remotion";
 
 const frame = useCurrentFrame(); // 10
 

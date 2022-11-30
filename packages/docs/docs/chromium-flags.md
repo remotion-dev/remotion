@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-chromium-flags.png
 id: chromium-flags
 title: Chromium flags
+crumb: "Tweaks"
 ---
 
 import {AngleChangelog} from '../components/AngleChangelog';

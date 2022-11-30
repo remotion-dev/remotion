@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-legacy-babel-loader.png
 title: Using legacy Babel transpilation
 id: legacy-babel
+crumb: "How To"
 ---
 
 import Tabs from "@theme/Tabs";

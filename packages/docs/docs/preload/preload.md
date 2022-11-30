@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-preload-preload.png
 id: preload
 sidebar_label: Overview
 title: "@remotion/preload"

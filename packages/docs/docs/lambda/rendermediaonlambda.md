@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-lambda-rendermediaonlambda.png
 id: rendermediaonlambda
 title: renderMediaOnLambda()
+crumb: "Lambda API"
 ---
 
 import { MinimumFramesPerLambda } from "../../components/lambda/default-frames-per-lambda";

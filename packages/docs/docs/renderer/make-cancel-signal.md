@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-renderer-make-cancel-signal.png
 id: make-cancel-signal
 title: makeCancelSignal()
+crumb: "@remotion/renderer"
 ---
 
 _Available from v3.0.15_

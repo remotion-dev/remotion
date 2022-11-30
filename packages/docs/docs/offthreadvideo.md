@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-offthreadvideo.png
 id: offthreadvideo
 title: "<OffthreadVideo>"
+crumb: "API"
 ---
 
 _Available from Remotion 3.0.11_

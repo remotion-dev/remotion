@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-audio.png
 title: <Audio>
 id: audio
+crumb: "How to"
 ---
 
 Using this component, you can add audio to your video. All audio formats which are supported by Chromium are supported by the component.

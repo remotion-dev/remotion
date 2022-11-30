@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-paths-evolve-path.png
 title: evolvePath()
+crumb: "@remotion/paths"
 ---
 
 _Part of the [`@remotion/paths`](/docs/paths) package._

@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-simulatepermissions.png
 id: simulatepermissions
 title: simulatePermissions()
 slug: /lambda/simulatepermissions
+crumb: "Lambda API"
 ---
 
 Runs tests through the AWS Simulator ensuring that all the necessary permissions are set for the authenticated user.

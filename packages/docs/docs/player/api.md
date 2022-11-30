@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-player-api.png
 title: "<Player>"
 slug: /player/player
+crumb: "@remotion/player"
 ---
 
 A component which can be rendered in a regular React App (for example: [Create React App](https://create-react-app.dev/), [Next.JS](https://nextjs.org)) to display a Remotion video.

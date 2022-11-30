@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-paths-get-point-at-length.png
 title: getPointAtLength()
+crumb: "@remotion/paths"
 ---
 
 _Part of the [`@remotion/paths`](/docs/paths) package._

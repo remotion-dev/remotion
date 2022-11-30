@@ -1,8 +1,10 @@
 ---
+image: /generated/articles-docs-player-best-practices.png
 id: best-practices
 sidebar_label: "Best practices"
 title: "Player - Best practices"
 slug: /player/best-practices
+crumb: "@remotion/player"
 ---
 
 ## Avoid re-renders of the `<Player>`

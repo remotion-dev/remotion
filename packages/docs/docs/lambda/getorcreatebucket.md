@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-getorcreatebucket.png
 id: getorcreatebucket
 title: getOrCreateBucket()
 slug: /lambda/getorcreatebucket
+crumb: "Lambda API"
 ---
 
 Creates a bucket for Remotion Lambda in your S3 account. If one already exists, it will get returned instead.

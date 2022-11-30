@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-cli-versions.png
 title: npx remotion versions
 sidebar_label: versions
+crumb: CLI Reference
 ---
 
 _Available from Remotion v2.6.2_

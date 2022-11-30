@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-lambda-disk-size.png
 id: disk-size
 title: Disk size
+crumb: "Lambda"
 ---
 
 By default, each Lambda function comes with an ephemereal disk size of 2048MB. This is enough storage to render a video of approximately 32 minutes of Full HD video.

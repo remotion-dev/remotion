@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-cli-compositions.png
 title: npx remotion compositions
 sidebar_label: compositions
+crumb: CLI Reference
 ---
 
 _Available from v2.6.12._

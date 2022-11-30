@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-third-party.png
 id: third-party
 title: Third party integrations
 sidebar_label: Third party integrations
+crumb: "Integrations"
 ---
 
 All animations in Remotion must be driven by the value returned by the [`useCurrentFrame()`](/docs/use-current-frame) hook. If you would like to use another way of animations in Remotion, you need an integration that supports synchronizing the timing with Remotion.

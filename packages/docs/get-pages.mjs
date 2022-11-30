@@ -1,16 +1,12 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
-const root = path.join(process.cwd(), "docs");
-
-const pages = [];
-
-const readDir = (dir) => {
+export const readDir = (dir, pages = []) => {
   const docs = fs.readdirSync(dir);
   for (const doc of docs) {
     const stat = fs.statSync(path.join(dir, doc));
     if (stat.isDirectory()) {
-      readDir(path.join(dir, doc));
+      readDir(path.join(dir, doc), pages);
     } else if (stat.isFile()) {
       if (doc.includes("redirect")) {
         continue;
@@ -19,8 +15,6 @@ const readDir = (dir) => {
       pages.push(path.join(dir, doc));
     }
   }
+
+  return pages;
 };
-
-readDir(root);
-
-console.log(`There are ${pages.length} documentation pages.`);

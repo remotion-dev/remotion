@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-cli.png
 id: cli
 sidebar_label: Overview
 title: "@remotion/lambda - CLI"

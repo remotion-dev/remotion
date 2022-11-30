@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-video.png
 title: <Video>
 id: video
+crumb: "API"
 ---
 
 This component allows you to include a video file in your Remotion project. It wraps the native [`HTMLVideoElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement).

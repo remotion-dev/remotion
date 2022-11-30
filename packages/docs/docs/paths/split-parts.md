@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-paths-split-parts.png
 title: splitParts()
+crumb: "@remotion/paths"
 ---
 
 _Part of the [`@remotion/paths`](/docs/paths) package. Available from v3.3.6_

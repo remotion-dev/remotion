@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-three.png
 id: three
 title: "@remotion/three"
 sidebar_label: Overview
