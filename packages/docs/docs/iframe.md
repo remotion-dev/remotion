@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-iframe.png
 title: <IFrame>
 id: iframe
+crumb: "API"
 ---
 
 The `<IFrame />` can be used like a regular `<iframe>` HTML tag.

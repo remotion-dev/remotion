@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-getrenderprogress.png
 id: getrenderprogress
 title: getRenderProgress()
 slug: /lambda/getrenderprogress
+crumb: "Lambda API"
 ---
 
 Gets the current status of a render originally triggered via [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).

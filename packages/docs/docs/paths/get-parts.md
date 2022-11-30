@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-paths-get-parts.png
 title: getParts()
+crumb: "@remotion/paths"
 ---
 
 _Part of the [`@remotion/paths`](/docs/paths) package._

@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-speed.png
 id: optimizing-speed
 title: Optimizing for speed
 slug: /lambda/optimizing-speed
+crumb: "Lambda"
 ---
 
 On this page, a few strategies are presented for making a render on Lambda as fast as possible.

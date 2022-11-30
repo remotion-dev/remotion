@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-renderer-ensure-ffmpeg.png
 id: ensure-ffmpeg
 title: ensureFfmpeg()
+crumb: "@remotion/renderer"
 ---
 
 _Available from v3.3_

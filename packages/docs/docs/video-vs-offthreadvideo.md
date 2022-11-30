@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-video-vs-offthreadvideo.png
 id: video-vs-offthreadvideo
 title: "<Video> vs. <OffthreadVideo>"
+crumb: "Comparison"
 ---
 
 We offer two components for including other videos in your video: [`<Video />`](/docs/video) and [`<OffthreadVideo />`](/docs/offthreadvideo).

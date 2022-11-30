@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-use-video-texture.png
 id: use-video-texture
 title: useVideoTexture()
+crumb: "@remotion/three"
 ---
 
 Allows you to use a video in React Three Fiber that is synchronized with Remotion's `useCurrentFrame()`.

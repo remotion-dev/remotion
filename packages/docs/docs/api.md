@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-api.png
 title: API overview
 ---
 

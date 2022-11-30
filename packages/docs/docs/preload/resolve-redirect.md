@@ -1,6 +1,7 @@
 ---
 id: resolve-redirect
 title: resolveRedirect()
+crumb: "@remotion/player"
 ---
 
 Follows the redirects of a URL (most commonly a remote video or audio) until the final URL is resolved and returns that.
@@ -26,8 +27,8 @@ resolveRedirect(
 This snippet tries to preload a video on a best-effort basis. If the redirect cannot be resolved, it tries to preload the original URL.
 
 ```tsx twoslash
+import { preloadVideo, resolveRedirect } from "@remotion/preload";
 import { Video } from "remotion";
-import { resolveRedirect, preloadVideo } from "@remotion/preload";
 
 // This code gets executed immediately once the page loads
 let urlToLoad =

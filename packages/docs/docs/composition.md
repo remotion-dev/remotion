@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-composition.png
 id: composition
 title: <Composition>
+crumb: "API"
 ---
 
 This is the component to use to register a video to make it renderable and make it show up in the sidebar of the Remotion development interface.

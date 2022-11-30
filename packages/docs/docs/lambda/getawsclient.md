@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-lambda-getawsclient.png
 id: getawsclient
 title: getAwsClient()
+crumb: "Lambda API"
 ---
 
 This API exposes full access to the AWS SDK that Remotion uses under the hood. You can use it to interact with your AWS infrastructure in ways that Remotion doesn't provide a function for.

@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-dataset-render.png
 id: dataset-render
 sidebar_label: Render a dataset
 title: Render videos programmatically from a dataset
+crumb: "Tutorials"
 ---
 
 import { Player } from "@remotion/player";

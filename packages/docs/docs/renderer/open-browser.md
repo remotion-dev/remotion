@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-renderer-open-browser.png
 title: openBrowser()
 id: open-browser
+crumb: "@remotion/renderer"
 ---
 
 _Available since v3.0 - Part of the `@remotion/renderer` package._

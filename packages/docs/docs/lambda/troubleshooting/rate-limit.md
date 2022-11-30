@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-troubleshooting-rate-limit.png
 id: rate-limit
 sidebar_label: Rate Limit
 title: AWS Rate Limit Troubleshooting
+crumb: "Lambda Troubleshooting"
 ---
 
 If you get an error message:

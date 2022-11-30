@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-overwriting-webpack-config.png
 id: webpack
 title: Custom Webpack config
+crumb: "How To"
 ---
 
 import Tabs from "@theme/Tabs";

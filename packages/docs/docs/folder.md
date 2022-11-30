@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-folder.png
 title: <Folder>
 id: folder
+crumb: "API"
 ---
 
 _Available from v3.0.1_

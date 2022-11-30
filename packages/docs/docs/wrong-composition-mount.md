@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-wrong-composition-mount.png
 id: wrong-composition-mount
 title: Wrongly mounted <Composition>
+crumb: "Troubleshooting"
 ---
 
 ## Problem

@@ -1,8 +1,10 @@
 ---
+image: /generated/articles-docs-getting-started.png
 id: getting-started
 title: Setup and Installation
 sidebar_label: Installation
 slug: /
+crumb: "Let's begin!"
 ---
 
 import Tabs from '@theme/Tabs';

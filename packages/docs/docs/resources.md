@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-resources.png
 title: List of resources
+crumb: "Ecosystem"
 ---
 
 This list tries to compile all templates, libraries, building blocks and examples in one place. Add more to the list by clicking the "Improve this page" button below!

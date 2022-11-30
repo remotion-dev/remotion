@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-motion-blur-index.png
 title: "@remotion/motion-blur"
 ---
 

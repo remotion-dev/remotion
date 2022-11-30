@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-renderer-render-still.png
 id: render-still
 title: renderStill()
+crumb: "@remotion/renderer"
 ---
 
 import {AngleChangelog} from '../../components/AngleChangelog';

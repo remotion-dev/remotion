@@ -8,7 +8,9 @@ const serveUrl = await bundle({
 });
 const compositions = await getCompositions(serveUrl);
 
-for (const composition of compositions) {
+for (const composition of compositions.filter((c) =>
+  c.id.startsWith("expert")
+)) {
   await renderStill({
     composition,
     output: `static/generated/${composition.id}.png`,

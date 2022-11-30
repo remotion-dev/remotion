@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-remotion.png
 title: "remotion"
+crumb: "Core API Reference"
 ---
 
 import {TableOfContents} from '../components/TableOfContents/remotion';

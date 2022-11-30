@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-troubleshooting-rosetta.png
 id: rosetta
 sidebar_label: Apple Silicon detected
 title: Apple Silicon under Rosetta
+crumb: "Troubleshooting"
 ---
 
 Running Remotion on Apple Silicon (M1 chip) under Rosetta can be up to 2x slower.

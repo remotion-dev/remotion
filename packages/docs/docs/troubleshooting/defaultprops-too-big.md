@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-troubleshooting-defaultprops-too-big.png
 id: defaultprops-too-big
 sidebar_label: defaultProps too big
 title: defaultProps too big - could not serialize
+crumb: "Troubleshooting"
 ---
 
 If you experience an error during rendering:

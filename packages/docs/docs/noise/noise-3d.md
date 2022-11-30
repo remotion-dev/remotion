@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-noise-noise-3d.png
 title: noise3D()
+crumb: "Make some"
 ---
 
 _Part of the [`@remotion/noise`](/docs/noise) package._

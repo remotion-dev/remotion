@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-use-audio-data.png
 title: useAudioData()
 id: use-audio-data
+crumb: "@remotion/media-utils"
 ---
 
 _Part of the `@remotion/media-utils` package of helper functions._

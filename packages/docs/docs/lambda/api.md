@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-lambda-api.png
 title: "@remotion/lambda"
+crumb: "Render videos without servers"
 ---
 
 import Tabs from '@theme/Tabs';

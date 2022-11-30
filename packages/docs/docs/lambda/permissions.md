@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-lambda-permissions.png
 sidebar_label: Permissions
 title: Permissions
+crumb: "Lambda"
 ---
 
 import {UserPolicy} from '../../components/lambda/user-permissions.tsx';

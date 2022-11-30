@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-deletefunction.png
 id: deletefunction
 title: deleteFunction()
 slug: /lambda/deletefunction
+crumb: "Lambda API"
 ---
 
 Deletes a deployed Lambda function based on it's name.

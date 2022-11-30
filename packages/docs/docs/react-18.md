@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-react-18.png
 id: react-18
 title: Upgrade to React 18
+crumb: "The new and shiny"
 ---
 
 ## Updating packages

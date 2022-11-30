@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-version-mismatch.png
 id: version-mismatch
 title: Version mismatch
+crumb: "How to fix a"
 ---
 
 It is important that all Remotion packages you install (`remotion`, `@remotion/player`, `@remotion/cli`, etc.) have the same version installed. If the versions differ, the packages might not be able to correctly communicate with each other which can introduce subtle bugs or even complete breakage.
@@ -15,7 +17,7 @@ The following `package.json` does **not** ensure that all Remotion versions are 
     "remotion": "^2.6.12",
     "@remotion/player": "^2.6.12",
     "@remotion/gif": "^2.6.12"
-  },
+  }
 }
 ```
 
@@ -27,7 +29,7 @@ however the following manifest does:
     "remotion": "2.6.12",
     "@remotion/player": "2.6.12",
     "@remotion/gif": "2.6.12"
-  },
+  }
 }
 ```
 
@@ -77,4 +79,3 @@ to see which packages and versions your project contains.
 If we have given you a prerelease version of Remotion to test, the same principle applies, where you should not just upgrade the affected package, but all packages including `remotion` and packages starting with `@remotion`.
 
 **See also:** [Testing prereleases](/docs/prereleases)
-
