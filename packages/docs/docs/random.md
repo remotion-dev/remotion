@@ -5,7 +5,7 @@ title: random()
 crumb: "API"
 ---
 
-The `random()` API will give your deterministic pseudorandom values. Unlike the `Math.random()` function, Remotions function takes in a seed which can be a `number` or a `string`. If the seed is the same, the output is always the same.
+The `random()` API will give deterministic pseudorandom values between `0` and `1`. Unlike the `Math.random()` function, Remotions function takes in a seed which can be a `number` or a `string`. If the seed is the same, the output is always the same.
 
 ```ts twoslash
 import { random } from "remotion";
