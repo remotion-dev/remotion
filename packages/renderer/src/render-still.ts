@@ -76,7 +76,7 @@ const innerRenderStill = async ({
 	browserExecutable,
 	timeoutInMilliseconds,
 	chromiumOptions,
-	scale,
+	scale = 1,
 	proxyPort,
 	cancelSignal,
 }: InnerStillOptions & {
@@ -240,6 +240,8 @@ const innerRenderStill = async ({
 			frame: stillFrame,
 			output,
 		},
+		height: composition.height,
+		width: composition.width,
 	});
 
 	await cleanup();
