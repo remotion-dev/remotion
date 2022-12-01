@@ -12,7 +12,8 @@
 	"scripts": {
 		"build": "tsc -d",
 		"watch": "tsc -w",
-		"lint": "eslint src --ext ts,tsx"
+		"lint": "eslint src --ext ts,tsx",
+		"test": "vitest --run"
 	},
 	"author": "",
 	"license": "SEE LICENSE IN LICENSE.md",
