@@ -33,7 +33,7 @@ export const patchPackageJson = (
 		projectRoot: string;
 		projectName: string;
 		latestRemotionVersion: string;
-		packageManager: `${PackageManager}@${string}`;
+		packageManager: `${PackageManager}@${string}` | null;
 	},
 	{
 		getPackageJson = (filename: string) => fs.readFileSync(filename, 'utf-8'),
@@ -65,7 +65,7 @@ export const patchPackageJson = (
 			name: projectName,
 			...others,
 			dependencies: newDependencies,
-			packageManager,
+			...(packageManager ? {packageManager} : {}),
 		},
 		undefined,
 		2
