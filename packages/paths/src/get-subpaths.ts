@@ -3,9 +3,9 @@ import {construct} from './helpers/construct';
 /**
  * Splits a valid SVG path into it's parts.
  * @param {string} path A valid SVG path
- * @link https://remotion.dev/docs/paths/split-parts
+ * @link https://remotion.dev/docs/paths/get-subpaths
  */
-export const splitParts = (path: string): string[] => {
+export const getSubpaths = (path: string): string[] => {
 	const {segments} = construct(path);
 
 	return segments
