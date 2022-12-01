@@ -241,7 +241,6 @@ const innerRenderStill = async ({
 			output,
 		},
 		height: composition.height,
-		scale,
 		width: composition.width,
 	});
 

@@ -3,7 +3,6 @@ export interface ScreenshotOptions {
 	path?: string;
 	quality?: number;
 	omitBackground: boolean;
-	scale: number;
 	width: number;
 	height: number;
 }
