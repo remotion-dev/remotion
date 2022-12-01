@@ -1087,6 +1087,13 @@ export const articles = [
     crumb: "@remotion/paths",
   },
   {
+    id: "paths/get-subpaths",
+    title: "getSubpaths()",
+    relativePath: "docs/paths/get-subpaths.md",
+    compId: "articles-docs-paths-get-subpaths",
+    crumb: "@remotion/paths",
+  },
+  {
     id: "paths/get-tangent-at-length",
     title: "getTangentAtLength()",
     relativePath: "docs/paths/get-tangent-at-length.md",
@@ -1119,13 +1126,6 @@ export const articles = [
     title: "reversePath()",
     relativePath: "docs/paths/reverse-path.md",
     compId: "articles-docs-paths-reverse-path",
-    crumb: "@remotion/paths",
-  },
-  {
-    id: "paths/split-parts",
-    title: "getSubpaths()",
-    relativePath: "docs/paths/split-parts.md",
-    compId: "articles-docs-paths-split-parts",
     crumb: "@remotion/paths",
   },
   {

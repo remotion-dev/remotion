@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-paths-get-subpaths.png
 title: getSubpaths()
 crumb: "@remotion/paths"
 ---
