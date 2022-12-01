@@ -1,3 +1,4 @@
+import { exec } from 'child_process';
 import path from 'path';
 import type {Template} from './templates';
 
@@ -119,3 +120,30 @@ export const getRunCommand = (manager: PackageManager) => {
 
 	throw new TypeError('unknown package manager');
 };
+
+export const getPackageManagerVersion = (manager: PackageManager): Promise<string> => {
+	const cmd = {
+		npm: `npm -v`,
+		yarn: `yarn -v`,
+		pnpm: `pnpm -v`
+	}[manager];
+	if (!cmd) {
+		throw new TypeError('unknown package manager');
+	}
+	
+	return new Promise((resolve, reject) => {
+		exec(cmd, (error, stdout, stderr) => {
+			if (error) {
+				reject(error);
+				return;
+			}
+		
+			if (stderr) {
+				reject(stderr);
+				return;
+			}
+			
+			resolve(stdout.trim());
+		});
+	})
+}
