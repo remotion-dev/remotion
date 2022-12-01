@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import {exec} from 'child_process';
 import path from 'path';
 import type {Template} from './templates';
 
@@ -121,22 +121,36 @@ export const getRunCommand = (manager: PackageManager) => {
 	throw new TypeError('unknown package manager');
 };
 
-export const getPackageManagerVersion = (manager: PackageManager): Promise<string> => {
-	const cmd: `${PackageManager} -v` = `${manager} -v`
-	
+export const getPackageManagerVersion = (
+	manager: PackageManager
+): Promise<string> => {
+	const cmd: `${PackageManager} -v` = `${manager} -v`;
+
 	return new Promise((resolve, reject) => {
 		exec(cmd, (error, stdout, stderr) => {
 			if (error) {
 				reject(error);
 				return;
 			}
-		
+
 			if (stderr) {
 				reject(stderr);
 				return;
 			}
-			
+
 			resolve(stdout.trim());
 		});
-	})
-}
+	});
+};
+
+export const getPackageManagerVersionOrNull = async (
+	manager: PackageManager
+): Promise<string | null> => {
+	try {
+		const version = await getPackageManagerVersion(manager);
+		return version;
+	} catch (err) {
+		console.warn(`Could not determine the version of ${manager}.`);
+		return null;
+	}
+};

@@ -8,7 +8,7 @@ import {patchPackageJson} from './patch-package-json';
 import {patchReadmeMd} from './patch-readme';
 import {
 	getDevCommand,
-	getPackageManagerVersion,
+	getPackageManagerVersionOrNull,
 	getRenderCommandForTemplate,
 	selectPackageManager,
 } from './pkg-managers';
@@ -55,7 +55,7 @@ export const init = async () => {
 	const selectedTemplate = await selectTemplate();
 
 	const pkgManager = selectPackageManager();
-	const pkgManagerVersion = await getPackageManagerVersion(pkgManager);
+	const pkgManagerVersion = await getPackageManagerVersionOrNull(pkgManager);
 
 	try {
 		await degit({
@@ -69,7 +69,9 @@ export const init = async () => {
 			projectRoot,
 			projectName: folderName,
 			latestRemotionVersion: latestVersion,
-			packageManager: `${pkgManager}@${pkgManagerVersion}`
+			packageManager: pkgManagerVersion
+				? `${pkgManager}@${pkgManagerVersion}`
+				: null,
 		});
 	} catch (e) {
 		Log.error(e);
