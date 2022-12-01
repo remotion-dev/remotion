@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "3.3.5",
+	"version": "3.3.6",
 	"description": "Bundler for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -26,7 +26,7 @@
 		"css-loader": "5.2.7",
 		"esbuild": "0.15.13",
 		"react-refresh": "0.9.0",
-		"remotion": "3.3.5",
+		"remotion": "3.3.6",
 		"style-loader": "2.0.0",
 		"webpack": "5.74.0"
 	},
