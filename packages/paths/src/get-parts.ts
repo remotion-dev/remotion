@@ -5,7 +5,7 @@ import type {Part} from './helpers/types';
  * Splits a valid SVG path into it's parts.
  * @param {string} path A valid SVG path
  * @link https://remotion.dev/docs/paths/get-parts
- * @deprecated In favor of splitParts()
+ * @deprecated In favor of getSubpaths()
  */
 export const getParts = (path: string): Part[] => {
 	const parts = [];
