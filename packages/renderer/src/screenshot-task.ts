@@ -27,12 +27,21 @@ export const screenshotTask = async (
 
 	const cap = startPerfMeasure('capture');
 	try {
+		console.time('screen');
 		const result = await client.send('Page.captureScreenshot', {
 			format,
 			quality: options.quality,
-			clip: undefined,
+			clip: {
+				x: 0,
+				y: 0,
+				height: options.height,
+				scale: 1,
+				width: options.width,
+			},
 			captureBeyondViewport: true,
 		});
+		console.timeEnd('screen');
+
 		stopPerfMeasure(cap);
 		if (shouldSetDefaultBackground)
 			await client.send('Emulation.setDefaultBackgroundColorOverride');

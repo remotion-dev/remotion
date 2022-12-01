@@ -57,38 +57,12 @@ export const screenshot = (
 		);
 	}
 
-	if (options.clip) {
-		assert.ok(
-			typeof options.clip.x === 'number',
-			'Expected options.clip.x to be a number but found ' +
-				typeof options.clip.x
-		);
-		assert.ok(
-			typeof options.clip.y === 'number',
-			'Expected options.clip.y to be a number but found ' +
-				typeof options.clip.y
-		);
-		assert.ok(
-			typeof options.clip.width === 'number',
-			'Expected options.clip.width to be a number but found ' +
-				typeof options.clip.width
-		);
-		assert.ok(
-			typeof options.clip.height === 'number',
-			'Expected options.clip.height to be a number but found ' +
-				typeof options.clip.height
-		);
-		assert.ok(
-			options.clip.width !== 0,
-			'Expected options.clip.width not to be 0.'
-		);
-		assert.ok(
-			options.clip.height !== 0,
-			'Expected options.clip.height not to be 0.'
-		);
-	}
-
 	return page.screenshotTaskQueue.postTask(() =>
-		screenshotTask(page, screenshotType as StillImageFormat, options)
+		screenshotTask(page, screenshotType as StillImageFormat, {
+			...options,
+			height: options.height,
+			width: options.width,
+			scale: options.scale,
+		})
 	);
 };
