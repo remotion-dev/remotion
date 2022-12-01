@@ -1,13 +1,17 @@
 import * as assert from 'assert';
 import type {Page} from './browser/BrowserPage';
-import type {ScreenshotOptions} from './browser/ScreenshotOptions';
 import type {StillImageFormat} from './image-format';
 import {screenshotTask} from './screenshot-task';
 
-export const screenshot = (
-	page: Page,
-	options: ScreenshotOptions
-): Promise<Buffer | string | void> => {
+export const screenshot = (options: {
+	page: Page;
+	type: 'png' | 'jpeg';
+	path?: string;
+	quality?: number;
+	omitBackground: boolean;
+	width: number;
+	height: number;
+}): Promise<Buffer | string | void> => {
 	let screenshotType: 'png' | 'jpeg' | null = null;
 	// options.type takes precedence over inferring the type from options.path
 	// because it may be a 0-length file with no extension created beforehand
@@ -57,11 +61,13 @@ export const screenshot = (
 		);
 	}
 
-	return page.screenshotTaskQueue.postTask(() =>
-		screenshotTask(page, screenshotType as StillImageFormat, {
-			...options,
+	return options.page.screenshotTaskQueue.postTask(() =>
+		screenshotTask({
+			page: options.page,
+			format: screenshotType as StillImageFormat,
 			height: options.height,
 			width: options.width,
+			omitBackground: options.omitBackground,
 		})
 	);
 };

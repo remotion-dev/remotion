@@ -46,7 +46,8 @@ export const screenshotDOMElement = async ({
 		throw new TypeError('Tried to make a screenshot with format "none"');
 	}
 
-	return screenshot(page, {
+	return screenshot({
+		page,
 		omitBackground: imageFormat === 'png',
 		path: path ?? undefined,
 		type: imageFormat,
