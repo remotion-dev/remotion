@@ -7,6 +7,9 @@ export const provideScreenshot = ({
 	imageFormat,
 	options,
 	quality,
+	height,
+	width,
+	scale,
 }: {
 	page: Page;
 	imageFormat: ImageFormat;
@@ -15,6 +18,9 @@ export const provideScreenshot = ({
 		frame: number;
 		output: string | null;
 	};
+	height: number;
+	width: number;
+	scale: number;
 }): Promise<Buffer> => {
 	return screenshotDOMElement({
 		page,
@@ -23,5 +29,8 @@ export const provideScreenshot = ({
 		},
 		imageFormat,
 		quality,
+		height,
+		scale,
+		width,
 	});
 };
