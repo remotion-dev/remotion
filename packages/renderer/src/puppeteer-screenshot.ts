@@ -68,6 +68,8 @@ export const screenshot = (options: {
 			height: options.height,
 			width: options.width,
 			omitBackground: options.omitBackground,
+			path: options.path,
+			quality: options.quality,
 		})
 	);
 };
