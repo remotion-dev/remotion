@@ -1,3 +1,4 @@
+import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
 import { readDir } from "./get-pages.mjs";
@@ -64,6 +65,8 @@ fs.writeFileSync(
   `export const articles = ` + JSON.stringify(data, null, 2)
 );
 
+execSync("pnpm exec prettier src/data/articles.ts --write");
+
 import { bundle } from "@remotion/bundler";
 import { getCompositions, renderStill } from "@remotion/renderer";
 
@@ -76,16 +79,19 @@ const compositions = await getCompositions(serveUrl);
 for (const entry of data) {
   const composition = compositions.find((c) => c.id === entry.compId);
   const output = `static/generated/${composition.id}.png`;
+  if (fs.existsSync(output)) {
+    console.log("Existed", composition.id);
+    continue;
+  }
+
+  const out = path.join(process.cwd(), entry.relativePath);
   await renderStill({
     composition,
     output,
     serveUrl,
   });
 
-  const fileContents = fs.readFileSync(
-    path.join(process.cwd(), entry.relativePath),
-    "utf-8"
-  );
+  const fileContents = fs.readFileSync(out, "utf-8");
   const lines = fileContents
     .split("\n")
     .filter((l) => !l.startsWith("image: "));
@@ -100,6 +106,6 @@ for (const entry of data) {
     ...lines.slice(frontmatterLine + 1),
   ].join("\n");
 
-  fs.writeFileSync(path.join(process.cwd(), entry.relativePath), newLines);
+  fs.writeFileSync(out, newLines);
   console.log("Rendered", composition.id);
 }
