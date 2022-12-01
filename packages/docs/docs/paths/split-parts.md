@@ -1,6 +1,5 @@
 ---
-image: /generated/articles-docs-paths-split-parts.png
-title: splitParts()
+title: getSubpaths()
 crumb: "@remotion/paths"
 ---
 
@@ -11,9 +10,9 @@ Takes an SVG path and returns an array of parts of the path.
 Example of a path that has two straight lines:
 
 ```tsx twoslash
-import { splitParts } from "@remotion/paths";
+import { getSubpaths } from "@remotion/paths";
 
-const parts = splitParts(`
+const parts = getSubpaths(`
   M 0 0 L 100 0
   M 0 100 L 200 100
 `);
@@ -22,9 +21,9 @@ const parts = splitParts(`
 An array is returned containing two parts.
 
 ```tsx twoslash
-import { splitParts } from "@remotion/paths";
+import { getSubpaths } from "@remotion/paths";
 
-const parts = splitParts(`
+const parts = getSubpaths(`
   M 0 0 L 100 0
   M 0 100 L 200 100
 `);
@@ -40,4 +39,4 @@ Paths containing relative `m` elements will be converted into `M` elements.
 ## See also
 
 - [`@remotion/paths`](/docs/paths)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/split-parts.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/get-subpaths.ts)
