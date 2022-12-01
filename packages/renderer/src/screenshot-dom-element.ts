@@ -8,7 +8,6 @@ export const screenshotDOMElement = async ({
 	imageFormat,
 	quality,
 	opts,
-	scale,
 	height,
 	width,
 }: {
@@ -18,7 +17,6 @@ export const screenshotDOMElement = async ({
 	opts: {
 		path: string | null;
 	};
-	scale: number;
 	height: number;
 	width: number;
 }): Promise<Buffer> => {
@@ -53,7 +51,6 @@ export const screenshotDOMElement = async ({
 		path: path ?? undefined,
 		type: imageFormat,
 		quality,
-		scale,
 		width,
 		height,
 	}) as Promise<Buffer>;

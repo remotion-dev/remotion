@@ -62,7 +62,6 @@ export const screenshot = (
 			...options,
 			height: options.height,
 			width: options.width,
-			scale: options.scale,
 		})
 	);
 };

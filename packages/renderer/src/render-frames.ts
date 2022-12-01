@@ -338,7 +338,6 @@ const innerRenderFrames = ({
 						output: null,
 					},
 					height: composition.height,
-					scale,
 					width: composition.width,
 				});
 				stopPerfMeasure(id);
@@ -371,7 +370,6 @@ const innerRenderFrames = ({
 						output,
 					},
 					height,
-					scale,
 					width,
 				});
 			}
