@@ -6,7 +6,9 @@ crumb: "@remotion/paths"
 
 _Part of the [`@remotion/paths`](/docs/paths) package. Available from v3.3.6_
 
-Takes an SVG path and returns an array of parts of the path.
+Takes an SVG path and returns an array of subpaths.
+
+Each `M` and `m` statement in a path creates a new subpath.
 
 Example of a path that has two straight lines:
 
