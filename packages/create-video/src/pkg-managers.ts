@@ -122,14 +122,7 @@ export const getRunCommand = (manager: PackageManager) => {
 };
 
 export const getPackageManagerVersion = (manager: PackageManager): Promise<string> => {
-	const cmd = {
-		npm: `npm -v`,
-		yarn: `yarn -v`,
-		pnpm: `pnpm -v`
-	}[manager];
-	if (!cmd) {
-		throw new TypeError('unknown package manager');
-	}
+	const cmd: `${PackageManager} -v` = `${manager} -v`
 	
 	return new Promise((resolve, reject) => {
 		exec(cmd, (error, stdout, stderr) => {
