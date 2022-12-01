@@ -1,9 +1,9 @@
 import {expect, test} from 'vitest';
 import {getLength} from '../get-length';
-import {splitParts} from '../split-parts';
+import {getSubpaths} from '../get-subpaths';
 
 test('Should be able to get parts of a path', () => {
-	const parts = splitParts(`
+	const parts = getSubpaths(`
   M 0 0 L 100 0
   m 0 100 L 100 100 L 100 200
   `);
