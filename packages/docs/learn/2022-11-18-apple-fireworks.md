@@ -81,7 +81,7 @@ export const RemotionRoot: React.FC = () => {
 
 ## Create a background
 
-Create a new file `src/Background.tsx`. Add a background with a linear gradient:
+Create a new file `src/Background.tsx` and return a background with linear gradient:
 
 ```tsx twoslash title="src/Background.tsx"
 import React from "react";
@@ -376,7 +376,12 @@ export const Move: React.FC<{
 };
 ```
 
-Now, you create a so called Trail component. It takes some React children and duplicates them. The component adds a delay to each subsequent dot so they don't start all at once. Each dot will have a scale applied to it, so that each dot is smaller than the previous one. And here comes the important step: Within the `<Trail>` component you implement the previously created `<Move>` component.
+Now, you create a so called Trail component. It takes some React children and duplicates them. The component adds a delay to each subsequent dot so they don't start all at once. Each dot will have a scale applied to it, so that each dot is smaller than the previous one. What you also do is you implement the previously created `<Move>` component within the `<Trail>` component.
+We order is crucial here. Things are done from inside out:
+
+1. Apply a scale so that the dots become smaller over time.
+2. Apply the move animation.
+3. Apply a delay between the animation start of each dot by using Remotion's `<Sequence>` component.
 
 ```tsx twoslash title="src/Trail.tsx"
 // @filename: Move.tsx
@@ -393,19 +398,14 @@ import { Move } from "./Move";
 
 export const Trail: React.FC<{
   amount: number;
-  extraOffset: number;
   children: React.ReactNode;
-}> = ({ amount, extraOffset, children }) => {
+}> = ({ amount, children }) => {
   return (
     <AbsoluteFill>
       {new Array(amount).fill(true).map((a, i) => {
         return (
           <Sequence from={i * 3}>
-            <AbsoluteFill
-              style={{
-                translate: `0 ${-extraOffset}px`,
-              }}
-            >
+            <AbsoluteFill>
               <Move delay={0}>
                 <AbsoluteFill
                   style={{
@@ -443,7 +443,6 @@ export const Dot: React.FC<{}> = () => null;
 // @filename: Trail.tsx
 export const Trail: React.FC<{
   children: React.ReactNode;
-  extraOffset: number;
   amount: number;
 }> = () => null;
 
@@ -460,7 +459,7 @@ export const MyComposition = () => {
   return (
     <AbsoluteFill>
       <Background />
-      <Trail amount={4} extraOffset={0}>
+      <Trail amount={4}>
         <Shrinking>
           <Dot />
         </Shrinking>
@@ -504,7 +503,7 @@ export const Explosion: React.FC<{
 };
 ```
 
-Your main composition (`src/Composition.tsx`) looks like this:
+`<Trail>` gets wrapped up in the `<Explosion>` component. Your main composition (`src/Composition.tsx`) looks like this:
 
 ```tsx twoslash title="src/Composition.tsx"
 // @filename: Move.tsx
@@ -527,7 +526,6 @@ export const Dot: React.FC<{}> = () => null;
 // @filename: Trail.tsx
 export const Trail: React.FC<{
   children: React.ReactNode;
-  extraOffset: number;
   amount: number;
 }> = () => null;
 
@@ -547,7 +545,7 @@ export const MyComposition = () => {
     <AbsoluteFill>
       <Background />
       <Explosion>
-        <Trail amount={4} extraOffset={0}>
+        <Trail amount={4}>
           <Shrinking>
             <Dot />
           </Shrinking>
@@ -642,7 +640,7 @@ export const MyComposition = () => {
 Nothing has changed on the animation itself:
 <img src="/img/apple-wow-tutorial/Dots.gif"/>
 
-## Adding stars and hearts
+## Adding hearts and stars
 
 To make the animation more exciting, let's also add some stars and hearts in different colors. To do this, we need basically to repeat the previous steps. Besides the `<Dots>`component, you will add three more components in the next few steps.
 
@@ -831,7 +829,55 @@ export const Star: React.FC = () => {
 };
 ```
 
-Effects like `<Shrinking>`, `<Trail>` and `<Explosion>` need to be applied. Also to consider is that you need to change the position of the stars otherwise they would be on top of the `<Dots>`, you want to avoid this by giving `<Trail>` an `extraOffset` of 100, which is the same as the translation you used for the hearts:
+To consider is that you need to change the position of the stars otherwise they would be on top of the `<Dots>`, you want to avoid this by giving `<Trail>` an `extraOffset` prop. What this does is that the stars can start more outwards than the dots. An `extraOffset` of 100 for stars leads to the same circumference at the beginning and end as the red hearts have, we will see this in the next step. Here is the adjusted `<Trail>`:
+
+```tsx twoslash title="src/Trail.tsx"
+// @filename: Move.tsx
+export const Move: React.FC<{
+  children: React.ReactNode;
+  delay: number;
+}> = () => null;
+
+// @filename: Trail.tsx
+// ---cut---
+import React from "react";
+import { AbsoluteFill, Sequence } from "remotion";
+import { Move } from "./Move";
+
+export const Trail: React.FC<{
+  amount: number;
+  extraOffset: number;
+  children: React.ReactNode;
+}> = ({ amount, extraOffset, children }) => {
+  return (
+    <AbsoluteFill>
+      {new Array(amount).fill(true).map((a, i) => {
+        return (
+          <Sequence from={i * 3}>
+            <AbsoluteFill
+              style={{
+                translate: `0 ${-extraOffset}px`,
+              }}
+            >
+              <Move delay={0}>
+                <AbsoluteFill
+                  style={{
+                    scale: String(1 - i / amount),
+                  }}
+                >
+                  {children}
+                </AbsoluteFill>
+              </Move>
+            </AbsoluteFill>
+          </Sequence>
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
+```
+
+Effects like `<Shrinking>`, the new `<Trail>` and `<Explosion>` need to be applied to the star we created above. Additionally we also add some rotation. We do all of this in a new component called Stars:
 
 ```tsx twoslash title="src/Stars.tsx"
 // @filename: Move.tsx
