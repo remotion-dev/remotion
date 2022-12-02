@@ -1148,4 +1148,4 @@ export const MyComposition = () => {
 By doing all of this you have finally imported a transparent version of your animoji into your composition. You can run `npm run build` to export your video as MP4. Which should look like this:
 <img src="/img/apple-wow-tutorial/Final.gif"/>
 
-Awesome, you are done! We hope you had fun following along this tutorial and creating your own animation video!
+Awesome, you are done! We hope you had fun following along this tutorial and creating your own animation video! Let us know if you liked this tutorial by writting us a [mail](mailto:hi@remotion.dev).
