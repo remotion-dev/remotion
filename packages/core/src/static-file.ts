@@ -23,6 +23,10 @@ type LiteralUnion<LiteralType, BaseType extends string> =
 	| LiteralType
 	| (BaseType & Record<never, never>);
 
+/**
+ * Reference a file from the public/ folder.
+ * If the file does not appear in the autocomplete, type the path manually.
+ */
 export const staticFile = (
 	path: LiteralUnion<keyof RemotionStaticPaths, string>
 ) => {

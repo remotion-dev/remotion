@@ -12,13 +12,12 @@ import {
 	launchEditor,
 } from './error-overlay/react-overlay/utils/open-in-editor';
 import type {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
-import {getFilesInPublicFolder} from './get-files-in-public-folder';
 import {getPackageManager} from './get-package-manager';
 import type {LiveEventsServer} from './live-events';
 import {getProjectInfo} from './project-info';
+import {getFiles} from './public-folder';
 import {serveStatic} from './serve-static';
 import {isUpdateAvailableWithTimeout} from './update-available';
-import {writeFilesDefinitionFile} from './write-files-definition-file';
 
 const handleUpdate = async (
 	remotionRoot: string,
@@ -46,14 +45,12 @@ const handleFallback = async ({
 	response,
 	getCurrentInputProps,
 	getEnvVariables,
-	publicDir,
 }: {
 	remotionRoot: string;
 	hash: string;
 	response: ServerResponse;
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
-	publicDir: string;
 }) => {
 	const [edit] = await editorGuess;
 	const displayName = getDisplayNameForEditor(edit ? edit.command : null);
@@ -61,9 +58,6 @@ const handleFallback = async ({
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
 	const packageManager = getPackageManager(remotionRoot, undefined);
-
-	const publicFiles = getFilesInPublicFolder(publicDir);
-	writeFilesDefinitionFile(publicFiles, remotionRoot);
 
 	response.end(
 		BundlerInternals.indexHtml({
@@ -78,7 +72,7 @@ const handleFallback = async ({
 			numberOfAudioTags:
 				parsedCli['number-of-shared-audio-tags'] ??
 				getNumberOfSharedAudioTags(),
-			publicFiles,
+			publicFiles: getFiles(),
 		})
 	);
 };
@@ -203,7 +197,7 @@ export const handleRoutes = ({
 	getCurrentInputProps,
 	getEnvVariables,
 	remotionRoot,
-	userPassedPublicDir,
+	publicDir,
 }: {
 	hash: string;
 	hashPrefix: string;
@@ -213,13 +207,9 @@ export const handleRoutes = ({
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
 	remotionRoot: string;
-	userPassedPublicDir: string | null;
+	publicDir: string;
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
-
-	const publicDir = userPassedPublicDir
-		? path.resolve(remotionRoot, userPassedPublicDir)
-		: path.join(remotionRoot, 'public');
 
 	if (url.pathname === '/api/update') {
 		return handleUpdate(remotionRoot, request, response);
@@ -264,6 +254,5 @@ export const handleRoutes = ({
 		response,
 		getCurrentInputProps,
 		getEnvVariables,
-		publicDir,
 	});
 };
