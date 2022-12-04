@@ -28,7 +28,10 @@ const files = getStaticFiles();
 ]
 */
 
-const videoSrc = staticFile(files[0].path);
+const videoSrc = staticFile(files[0].path); // Don't forget to wrap the path in staticFile() still!
+const dataSrc = staticFile(
+  files.find((f) => f.path === "assets/data.json") as string
+); // Use `as string` to assure a file is valid
 ```
 
 ## API
