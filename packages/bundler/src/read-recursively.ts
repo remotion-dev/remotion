@@ -1,9 +1,8 @@
 import fs, {statSync} from 'fs';
 import path from 'path';
-// eslint-disable-next-line no-restricted-imports
 import type {StaticFile} from 'remotion';
 
-const readRecursively = ({
+export const readRecursively = ({
 	folder,
 	output = [],
 	startPath,
@@ -42,8 +41,4 @@ const readRecursively = ({
 	}
 
 	return output.sort((a, b) => a.path.localeCompare(b.path));
-};
-
-export const getFilesInPublicFolder = (publicFolder: string): StaticFile[] => {
-	return readRecursively({folder: '.', startPath: publicFolder});
 };
