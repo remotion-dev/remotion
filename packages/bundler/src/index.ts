@@ -4,6 +4,7 @@ import {cacheExists, clearCache} from './webpack-cache';
 import {webpackConfig} from './webpack-config';
 import esbuild = require('esbuild');
 import webpack = require('webpack');
+import {readRecursively} from './read-recursively';
 
 export const BundlerInternals = {
 	esbuild,
@@ -12,6 +13,7 @@ export const BundlerInternals = {
 	cacheExists,
 	clearCache,
 	getConfig,
+	readRecursively,
 };
 
 export {bundle, BundleOptions, LegacyBundleOptions} from './bundle';
