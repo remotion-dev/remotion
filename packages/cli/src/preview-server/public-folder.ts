@@ -1,5 +1,6 @@
 import {BundlerInternals} from '@remotion/bundler';
 import {watch} from 'fs';
+import path from 'path';
 // eslint-disable-next-line no-restricted-imports
 import type {StaticFile} from 'remotion';
 import {writeFilesDefinitionFile} from './write-files-definition-file';
@@ -26,7 +27,15 @@ const fetchFolder = ({
 	publicDir: string;
 	remotionRoot: string;
 }) => {
-	files = BundlerInternals.readRecursively({folder: '.', startPath: publicDir});
+	files = BundlerInternals.readRecursively({
+		folder: '.',
+		startPath: publicDir,
+	}).map((f) => {
+		return {
+			...f,
+			path: f.path.split(path.sep).join('/'),
+		};
+	});
 	writeFilesDefinitionFile(files, remotionRoot);
 };
 

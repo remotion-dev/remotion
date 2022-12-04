@@ -82,3 +82,4 @@ export * from './use-video-config';
 export * from './version';
 export * from './video';
 export * from './video-config';
+export {getStaticFiles} from './get-static-files';
