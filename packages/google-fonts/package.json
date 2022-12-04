@@ -20,6 +20,6 @@
     "postcss": "^8.4.18",
     "prettier": "^2.7.1",
     "ts-node": "^10.8.0",
-    "typescript": "^4.7.0"
+    "typescript": "^4.8.0"
   }
 }

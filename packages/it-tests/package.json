@@ -17,7 +17,7 @@
     "execa": "5.1.1",
     "remotion": "3.3.6",
     "sharp": "0.30.6",
-    "typescript": "^4.7.0",
+    "typescript": "^4.8.0",
     "vitest": "0.24.3"
   }
 }

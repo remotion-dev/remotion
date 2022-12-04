@@ -34,7 +34,7 @@
 		"eslint": "8.25.0",
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
-		"typescript": "^4.7.0",
+		"typescript": "^4.8.0",
 		"vitest": "0.24.3"
 	},
 	"keywords": [
