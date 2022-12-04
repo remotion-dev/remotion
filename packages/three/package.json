@@ -42,7 +42,7 @@
 		"react": "18.0.0",
 		"react-dom": "18.0.0",
 		"three": "^0.145.0",
-		"typescript": "^4.7.0"
+		"typescript": "^4.8.0"
 	},
 	"keywords": [
 		"remotion",

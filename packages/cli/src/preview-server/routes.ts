@@ -18,6 +18,7 @@ import type {LiveEventsServer} from './live-events';
 import {getProjectInfo} from './project-info';
 import {serveStatic} from './serve-static';
 import {isUpdateAvailableWithTimeout} from './update-available';
+import {writeFilesDefinitionFile} from './write-files-definition-file';
 
 const handleUpdate = async (
 	remotionRoot: string,
@@ -60,6 +61,10 @@ const handleFallback = async ({
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
 	const packageManager = getPackageManager(remotionRoot, undefined);
+
+	const publicFiles = getFilesInPublicFolder(publicDir);
+	writeFilesDefinitionFile(publicFiles, remotionRoot);
+
 	response.end(
 		BundlerInternals.indexHtml({
 			staticHash: hash,
@@ -73,7 +78,7 @@ const handleFallback = async ({
 			numberOfAudioTags:
 				parsedCli['number-of-shared-audio-tags'] ??
 				getNumberOfSharedAudioTags(),
-			publicFiles: getFilesInPublicFolder(publicDir),
+			publicFiles,
 		})
 	);
 };

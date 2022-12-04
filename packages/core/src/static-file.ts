@@ -14,7 +14,18 @@ const inner = (path: string): string => {
 	return `/${trimLeadingSlash(path)}`;
 };
 
-export const staticFile = (path: string) => {
+declare global {
+	// eslint-disable-next-line @typescript-eslint/no-empty-interface
+	interface RemotionStaticPaths {}
+}
+
+type LiteralUnion<LiteralType, BaseType extends string> =
+	| LiteralType
+	| (BaseType & Record<never, never>);
+
+export const staticFile = (
+	path: LiteralUnion<keyof RemotionStaticPaths, string>
+) => {
 	if (path.startsWith('http://') || path.startsWith('https://')) {
 		throw new TypeError(
 			`staticFile() does not support remote URLs - got "${path}". Instead, pass the URL without wrapping it in staticFile(). See: https://remotion.dev/docs/staticfile-remote-urls`
