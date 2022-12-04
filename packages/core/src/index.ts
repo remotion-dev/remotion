@@ -1,6 +1,7 @@
 import './asset-types';
 import type {TAsset, TCompMetadata} from './CompositionManager';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning';
+import type {StaticFile} from './static-file';
 
 declare global {
 	interface Window {
@@ -8,6 +9,7 @@ declare global {
 		getStaticCompositions: () => TCompMetadata[];
 		setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
+		remotion_staticFiles: StaticFile[];
 		remotion_editorName: string | null;
 		remotion_numberOfAudioTags: number;
 		remotion_projectName: string;
@@ -72,7 +74,7 @@ export {registerRoot} from './register-root';
 export {Sequence} from './Sequence';
 export {Series} from './series';
 export * from './spring';
-export {staticFile} from './static-file';
+export {staticFile, StaticFile} from './static-file';
 export * from './Still';
 export type {PlayableMediaTag} from './timeline-position-state';
 export {useCurrentFrame} from './use-current-frame';

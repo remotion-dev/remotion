@@ -14,6 +14,10 @@ export const openEventSource = () => {
 		) {
 			window.location.reload();
 		}
+
+		if (newEvent.type === 'new-public-folder') {
+			window.remotion_staticFiles = newEvent.files;
+		}
 	});
 
 	source.addEventListener('open', () => {

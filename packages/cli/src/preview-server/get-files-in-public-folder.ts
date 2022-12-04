@@ -1,11 +1,7 @@
 import fs, {statSync} from 'fs';
 import path from 'path';
-
-export type StaticFile = {
-	path: string;
-	size: number;
-	lastModified: number;
-};
+// eslint-disable-next-line no-restricted-imports
+import type {StaticFile} from 'remotion';
 
 const readRecursively = ({
 	folder,

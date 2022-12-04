@@ -19,6 +19,12 @@ declare global {
 	interface RemotionStaticPaths {}
 }
 
+export type StaticFile = {
+	path: string;
+	size: number;
+	lastModified: number;
+};
+
 type LiteralUnion<LiteralType, BaseType extends string> =
 	| LiteralType
 	| (BaseType & Record<never, never>);
