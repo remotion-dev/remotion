@@ -21,7 +21,7 @@ declare global {
 
 export type StaticFile = {
 	path: string;
-	size: number;
+	sizeInBytes: number;
 	lastModified: number;
 };
 

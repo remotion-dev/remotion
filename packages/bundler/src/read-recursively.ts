@@ -25,7 +25,7 @@ export const readRecursively = ({
 			output.push({
 				path: path.join(folder, file),
 				lastModified: Math.floor(stat.mtimeMs),
-				size: stat.size,
+				sizeInBytes: stat.size,
 			});
 		} else if (stat.isSymbolicLink()) {
 			const realpath = fs.realpathSync(path.join(folder, file));
@@ -34,7 +34,7 @@ export const readRecursively = ({
 				output.push({
 					path: realpath,
 					lastModified: Math.floor(realStat.mtimeMs),
-					size: realStat.size,
+					sizeInBytes: realStat.size,
 				});
 			}
 		}
