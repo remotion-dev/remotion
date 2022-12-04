@@ -73,3 +73,4 @@ You can achieve this via the browser-built-in `encodeURIComponent()` function: `
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/static-file.ts)
 - [Loading assets](/docs/assets)
+- [`getStaticFiles()`](/docs/getstaticfiles)

@@ -301,6 +301,13 @@ export const articles = [
     crumb: "API",
   },
   {
+    id: "getstaticfiles",
+    title: "getStaticFiles()",
+    relativePath: "docs/get-static-files.md",
+    compId: "articles-docs-get-static-files",
+    crumb: "API",
+  },
+  {
     id: "get-video-metadata",
     title: "getVideoMetadata()",
     relativePath: "docs/get-video-metadata.md",
