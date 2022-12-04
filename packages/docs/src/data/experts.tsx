@@ -81,7 +81,7 @@ export const experts: Expert[] = [
       <div>
         I made:{" "}
         <a target={"_blank"} href="https://middy.com">
-          https://middy.com
+          middy.com
         </a>
         !
       </div>
