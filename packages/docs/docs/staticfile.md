@@ -63,11 +63,9 @@ If you are a Create React App or Next.JS user, you might be used to just to be a
 - It avoids conflicts with composition names which might share the same name (for example `http://localhost:3000/conflicting-name` while running the preview)
 - It allows us to make paths framework-agnostic, so your code can work across Remotion, Create React App, Next.JS and potentially other frameworks.
 
-## URL encoding
+## Getting all files in the public folder
 
-If you import a file via this API, a URL is generated. Therefore you have to make sure to encode non-URL-safe characters in your filename.  
-If on your filesystem, file is named `Video #1.mp4`, in your code you should import it using `staticFile("Video%20%201.mp4")`.  
-You can achieve this via the browser-built-in `encodeURIComponent()` function: `staticFile(encodeURIComponent("Video #1.mp4"))`.
+Use the `getStaticFiles()` API to get a list of available options.
 
 ## See also
 
