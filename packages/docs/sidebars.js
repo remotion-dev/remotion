@@ -458,6 +458,7 @@ module.exports = {
         "legacy-babel",
         "miscellaneous/typescript-aliases",
         "miscellaneous/render-in-browser",
+        "miscellaneous/changing-temp-dir",
       ],
     },
     "license",
