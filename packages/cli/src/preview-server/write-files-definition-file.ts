@@ -25,7 +25,7 @@ ${files
   } 
 }  
 export {}
-`;
+`.trimStart();
 
 	const folder = path.join(remotionRoot);
 

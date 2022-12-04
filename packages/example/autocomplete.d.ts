@@ -1,4 +1,3 @@
-
 /*
 	This file will give you autocompletions for staticFile().
 	Enable autocompletion by adding "autocomplete.d.ts" to the "include" array in "tsconfig.json".
@@ -8,17 +7,16 @@
 
 declare global {
   interface RemotionStaticPaths {
-		[" 🔽 Suggestions [may be incomplete]"]: unknown;
     ["22khz.wav"]: unknown;
-    ["Both.mp4"]: unknown;
     ["balloons.json"]: unknown;
+    ["bangers.woff2"]: unknown;
     ["corrupted.mp4"]: unknown;
-    ["dddd.mp3"]: unknown;
     ["framer.webm"]: unknown;
     ["framermp4withoutfileextension"]: unknown;
     ["giphy.gif"]: unknown;
-    ["hundred"]: unknown;
-    ["nested"]: unknown;
+    ["music.mp3"]: unknown;
+    ["nested/logö.png"]: unknown;
+    ["nested/mp4.png"]: unknown;
     ["reverse-loader.json"]: unknown;
   } 
 }  

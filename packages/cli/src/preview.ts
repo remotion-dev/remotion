@@ -8,7 +8,9 @@ import {getInputProps} from './get-input-props';
 import {getNetworkAddress} from './get-network-address';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
+import {getAbsolutePublicDir} from './preview-server/get-absolute-public-dir';
 import type {LiveEventsServer} from './preview-server/live-events';
+import {initPublicFolderWatch} from './preview-server/public-folder';
 import {startServer} from './preview-server/start-server';
 
 const noop = () => undefined;
@@ -72,6 +74,16 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 		});
 	});
 
+	const publicDir = getAbsolutePublicDir({
+		userPassedPublicDir: ConfigInternals.getPublicDir(),
+		remotionRoot,
+	});
+
+	initPublicFolderWatch({
+		publicDir,
+		remotionRoot,
+	});
+
 	const {port, liveEventsServer} = await startServer(
 		path.resolve(__dirname, 'previewEntry.js'),
 		fullPath,
@@ -82,7 +94,7 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 			remotionRoot,
 			keyboardShortcutsEnabled: ConfigInternals.getKeyboardShortcutsEnabled(),
-			userPassedPublicDir: ConfigInternals.getPublicDir(),
+			publicDir,
 			webpackOverride: ConfigInternals.getWebpackOverrideFn(),
 		}
 	);

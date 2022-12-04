@@ -26,7 +26,7 @@ export const startServer = async (
 		maxTimelineTracks?: number;
 		remotionRoot: string;
 		keyboardShortcutsEnabled: boolean;
-		userPassedPublicDir: string | null;
+		publicDir: string;
 	}
 ): Promise<{
 	port: number;
@@ -86,7 +86,7 @@ export const startServer = async (
 					getCurrentInputProps: options.getCurrentInputProps,
 					getEnvVariables: options.getEnvVariables,
 					remotionRoot: options.remotionRoot,
-					userPassedPublicDir: options.userPassedPublicDir,
+					publicDir: options.publicDir,
 				});
 			})
 			.catch((err) => {
