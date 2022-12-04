@@ -12,6 +12,7 @@ import {
 	launchEditor,
 } from './error-overlay/react-overlay/utils/open-in-editor';
 import type {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
+import {getFilesInPublicFolder} from './get-files-in-public-folder';
 import {getPackageManager} from './get-package-manager';
 import type {LiveEventsServer} from './live-events';
 import {getProjectInfo} from './project-info';
@@ -44,12 +45,14 @@ const handleFallback = async ({
 	response,
 	getCurrentInputProps,
 	getEnvVariables,
+	publicDir,
 }: {
 	remotionRoot: string;
 	hash: string;
 	response: ServerResponse;
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
+	publicDir: string;
 }) => {
 	const [edit] = await editorGuess;
 	const displayName = getDisplayNameForEditor(edit ? edit.command : null);
@@ -70,6 +73,7 @@ const handleFallback = async ({
 			numberOfAudioTags:
 				parsedCli['number-of-shared-audio-tags'] ??
 				getNumberOfSharedAudioTags(),
+			publicFiles: getFilesInPublicFolder(publicDir),
 		})
 	);
 };
@@ -208,6 +212,10 @@ export const handleRoutes = ({
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
 
+	const publicDir = userPassedPublicDir
+		? path.resolve(remotionRoot, userPassedPublicDir)
+		: path.join(remotionRoot, 'public');
+
 	if (url.pathname === '/api/update') {
 		return handleUpdate(remotionRoot, request, response);
 	}
@@ -238,9 +246,6 @@ export const handleRoutes = ({
 	}
 
 	if (url.pathname.startsWith(hash)) {
-		const publicDir = userPassedPublicDir
-			? path.resolve(remotionRoot, userPassedPublicDir)
-			: path.join(remotionRoot, 'public');
 		return serveStatic(publicDir, hash, request, response);
 	}
 
@@ -254,5 +259,6 @@ export const handleRoutes = ({
 		response,
 		getCurrentInputProps,
 		getEnvVariables,
+		publicDir,
 	});
 };
