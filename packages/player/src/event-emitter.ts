@@ -77,9 +77,9 @@ export class PlayerEmitter {
 		name: Q,
 		callback: CallbackListener<Q>
 	) {
-		this.listeners[name] = (
-			this.listeners[name] as CallbackListener<PlayerEventTypes>[]
-		).filter((l) => l !== callback);
+		this.listeners[name] = this.listeners[name].filter(
+			(l) => l !== callback
+		) as PlayerListeners[Q];
 	}
 
 	private dispatchEvent<T extends PlayerEventTypes>(
