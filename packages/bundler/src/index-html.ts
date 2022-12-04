@@ -1,5 +1,12 @@
 import path from 'path';
 
+// TODO: Move to Remotion
+export type StaticFile = {
+	path: string;
+	size: number;
+	lastModified: number;
+};
+
 export const indexHtml = ({
 	baseDir,
 	editorName,
@@ -9,6 +16,7 @@ export const indexHtml = ({
 	remotionRoot,
 	previewServerCommand,
 	numberOfAudioTags,
+	publicFiles,
 }: {
 	staticHash: string;
 	baseDir: string;
@@ -18,6 +26,7 @@ export const indexHtml = ({
 	remotionRoot: string;
 	previewServerCommand: string | null;
 	numberOfAudioTags: number;
+	publicFiles: StaticFile[];
 }) =>
 	`
 <!DOCTYPE html>
@@ -62,6 +71,7 @@ export const indexHtml = ({
 			`
 				: ''
 		}
+		<script>window.remotion_staticFiles = ${JSON.stringify(publicFiles)}</script>
 		
 		<div id="container"></div>
 		<div id="menuportal-0"></div>

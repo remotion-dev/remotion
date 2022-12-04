@@ -218,6 +218,8 @@ export async function bundle(...args: Arguments): Promise<string> {
 		remotionRoot: resolvedRemotionRoot,
 		previewServerCommand: null,
 		numberOfAudioTags: 0,
+		// TODO
+		publicFiles: [],
 	});
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 
