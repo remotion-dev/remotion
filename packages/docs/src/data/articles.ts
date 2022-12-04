@@ -910,6 +910,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "miscellaneous/changing-temp-dir",
+    title: "Changing the temporary directory",
+    relativePath: "docs/miscellaneous/changing-temp-dir.md",
+    compId: "articles-docs-miscellaneous-changing-temp-dir",
+    crumb: "Advanced configuration",
+  },
+  {
     id: "miscellaneous/render-in-browser",
     title: "Can I render videos in the browser?",
     relativePath: "docs/miscellaneous/render-in-browser.md",
