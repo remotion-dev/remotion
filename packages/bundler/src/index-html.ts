@@ -1,11 +1,7 @@
 import path from 'path';
+import type {StaticFile} from 'remotion';
 
 // TODO: Move to Remotion
-export type StaticFile = {
-	path: string;
-	size: number;
-	lastModified: number;
-};
 
 export const indexHtml = ({
 	baseDir,

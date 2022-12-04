@@ -10,7 +10,7 @@ import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {getAbsolutePublicDir} from './preview-server/get-absolute-public-dir';
 import type {LiveEventsServer} from './preview-server/live-events';
-import {initPublicFolderWatch} from './preview-server/public-folder';
+import {getFiles, initPublicFolderWatch} from './preview-server/public-folder';
 import {startServer} from './preview-server/start-server';
 
 const noop = () => undefined;
@@ -82,6 +82,14 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 	initPublicFolderWatch({
 		publicDir,
 		remotionRoot,
+		onUpdate: () => {
+			waitForLiveEventsListener().then((listener) => {
+				listener.sendEventToClient({
+					type: 'new-public-folder',
+					files: getFiles(),
+				});
+			});
+		},
 	});
 
 	const {port, liveEventsServer} = await startServer(
