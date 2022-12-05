@@ -82,6 +82,7 @@ export const sitesCreateSubcommand = async (
 			doneIn: null,
 			totalSize: null,
 			sizeUploaded: 0,
+			stats: null,
 		},
 	};
 
@@ -112,7 +113,7 @@ export const sitesCreateSubcommand = async (
 	const bundleStart = Date.now();
 	const uploadStart = Date.now();
 
-	const {serveUrl, siteName} = await deploySite({
+	const {serveUrl, siteName, stats} = await deploySite({
 		entryPoint: absoluteFile,
 		siteName: desiredSiteName,
 		bucketName,
@@ -128,6 +129,7 @@ export const sitesCreateSubcommand = async (
 					sizeUploaded: p.sizeUploaded,
 					totalSize: p.totalSize,
 					doneIn: null,
+					stats: null,
 				};
 				updateProgress();
 			},
@@ -141,6 +143,11 @@ export const sitesCreateSubcommand = async (
 		sizeUploaded: 1,
 		totalSize: 1,
 		doneIn: uploadDuration,
+		stats: {
+			addedFiles: stats.uploadedFiles,
+			removedFiles: stats.deletedFiles,
+			untouchedFiles: stats.untouchedFiles,
+		},
 	};
 	updateProgress();
 

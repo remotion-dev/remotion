@@ -26,9 +26,16 @@ export const getS3DiffOperations = async ({
 			return key === d && o.ETag === dir[d];
 		});
 	});
+	const existing = Object.keys(dir).filter((d) => {
+		return objects.find((o) => {
+			const key = o.Key?.substring(prefix.length + 1) as string;
+			return key === d && o.ETag === dir[d];
+		});
+	});
 
 	return {
 		toDelete: filesOnS3ButNotLocal,
 		toUpload: localFilesNotOnS3,
+		existingCount: existing.length,
 	};
 };
