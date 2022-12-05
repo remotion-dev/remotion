@@ -12,10 +12,6 @@ type S3MockFile = {
 
 let mockS3Store: S3MockFile[] = [];
 
-export const mockS3Upload = (file: S3MockFile) => {
-	mockS3Store.push(file);
-};
-
 export const writeMockS3File = ({
 	body,
 	privacy,
@@ -29,6 +25,13 @@ export const writeMockS3File = ({
 	key: string;
 	region: AwsRegion;
 }) => {
+	mockS3Store = mockS3Store.filter((m) => {
+		return !(
+			m.region === region &&
+			m.bucketName === bucketName &&
+			m.key === key
+		);
+	});
 	mockS3Store.push({
 		content: body,
 		acl:
