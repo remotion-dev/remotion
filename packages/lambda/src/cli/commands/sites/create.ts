@@ -1,6 +1,7 @@
 import {CliInternals, ConfigInternals} from '@remotion/cli';
 import {existsSync, lstatSync} from 'fs';
 import path from 'path';
+import {Internals} from 'remotion';
 import {deploySite} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {BINARY_NAME} from '../../../shared/constants';
@@ -82,6 +83,7 @@ export const sitesCreateSubcommand = async (
 			doneIn: null,
 			totalSize: null,
 			sizeUploaded: 0,
+			stats: null,
 		},
 	};
 
@@ -112,7 +114,7 @@ export const sitesCreateSubcommand = async (
 	const bundleStart = Date.now();
 	const uploadStart = Date.now();
 
-	const {serveUrl, siteName} = await deploySite({
+	const {serveUrl, siteName, stats} = await deploySite({
 		entryPoint: absoluteFile,
 		siteName: desiredSiteName,
 		bucketName,
@@ -128,6 +130,7 @@ export const sitesCreateSubcommand = async (
 					sizeUploaded: p.sizeUploaded,
 					totalSize: p.totalSize,
 					doneIn: null,
+					stats: null,
 				};
 				updateProgress();
 			},
@@ -141,6 +144,11 @@ export const sitesCreateSubcommand = async (
 		sizeUploaded: 1,
 		totalSize: 1,
 		doneIn: uploadDuration,
+		stats: {
+			addedFiles: stats.uploadedFiles,
+			removedFiles: stats.deletedFiles,
+			untouchedFiles: stats.untouchedFiles,
+		},
 	};
 	updateProgress();
 
@@ -159,7 +167,9 @@ export const sitesCreateSubcommand = async (
 	);
 	Log.info(
 		CliInternals.chalk.blueBright(
-			`npx remotion lambda sites create ${args[0]} --site-name=${siteName}`
+			['npx remotion lambda sites create', args[0], `--site-name=${siteName}`]
+				.filter(Internals.truthy)
+				.join(' ')
 		)
 	);
 };

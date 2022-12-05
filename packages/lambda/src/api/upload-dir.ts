@@ -1,5 +1,6 @@
 import {PutObjectCommand} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
+import type {Dirent} from 'fs';
 import {createReadStream, promises as fs} from 'fs';
 import mimeTypes from 'mime-types';
 import path from 'path';
@@ -31,29 +32,34 @@ export const getDirFiles = (entry: string): MockFile[] => {
 	);
 };
 
-export const uploadDir = async ({
-	bucket,
-	region,
-	dir,
-	onProgress,
-	folder,
-	privacy,
-}: {
-	bucket: string;
-	region: AwsRegion;
-	dir: string;
-	folder: string;
-	onProgress: (progress: UploadDirProgress) => void;
-	privacy: Privacy;
-}) => {
-	async function getFiles(directory: string): Promise<FileInfo[]> {
-		const dirents = await fs.readdir(directory, {withFileTypes: true});
-		const _files = await Promise.all(
-			dirents.map(async (dirent) => {
+async function getFiles(
+	directory: string,
+	originalDirectory: string,
+	toUpload: string[]
+): Promise<FileInfo[]> {
+	const dirents = await fs.readdir(directory, {withFileTypes: true});
+	const _files = await Promise.all(
+		dirents
+			.map((dirent): [Dirent, string] => {
 				const res = path.resolve(directory, dirent.name);
+				return [dirent, res];
+			})
+			.filter(([dirent, res]) => {
+				const relative = path.relative(originalDirectory, res);
+				if (dirent.isDirectory()) {
+					return true;
+				}
+
+				if (!toUpload.includes(relative)) {
+					return false;
+				}
+
+				return true;
+			})
+			.map(async ([dirent, res]) => {
 				const {size} = await fs.stat(res);
 				return dirent.isDirectory()
-					? getFiles(res)
+					? getFiles(res, originalDirectory, toUpload)
 					: [
 							{
 								name: res,
@@ -61,11 +67,28 @@ export const uploadDir = async ({
 							},
 					  ];
 			})
-		);
-		return _files.flat(1);
-	}
+	);
+	return _files.flat(1);
+}
 
-	const files = await getFiles(dir);
+export const uploadDir = async ({
+	bucket,
+	region,
+	localDir: dir,
+	onProgress,
+	keyPrefix: folder,
+	privacy,
+	toUpload,
+}: {
+	bucket: string;
+	region: AwsRegion;
+	localDir: string;
+	keyPrefix: string;
+	onProgress: (progress: UploadDirProgress) => void;
+	privacy: Privacy;
+	toUpload: string[];
+}) => {
+	const files = await getFiles(dir, dir, toUpload);
 	const progresses: {[key: string]: number} = {};
 	for (const file of files) {
 		progresses[file.name] = 0;
