@@ -54,6 +54,16 @@ Note that different regions have a different limit on how many Lambda functions 
 
 **Because of this, we recommend hosting your primary infrastructure in `us-east-1`, `us-west-2` or `eu-west-1` for maximum scalability.**
 
+## Enabling regions in the AWS console
+
+Some regions that are supported by Remotion are not enabled by default in an AWS account. If you get a message:
+
+```
+The security token included in the request is invalid
+```
+
+Go to the AWS console, click on your name, then click `Account` and enable the regions that you would like to use.
+
 ## Other considerations
 
 - The function and S3 bucket must be in the same region to eliminate latency across datacenters. Rendering with functions and buckets that ahave mismatching regions is not supported
