@@ -1,9 +1,10 @@
 import type {WebpackOverrideFn} from 'remotion';
-import {deleteSite} from '../api/delete-site';
+import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {bundleSite} from '../shared/bundle-site';
 import {getSitesKey} from '../shared/constants';
 import {getAccountId} from '../shared/get-account-id';
+import {getS3DiffOperations} from '../shared/get-s3-operations';
 import {makeS3ServeUrl} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
 import {validateAwsRegion} from '../shared/validate-aws-region';
@@ -66,12 +67,14 @@ export const deploySite = async ({
 	}
 
 	const subFolder = getSitesKey(siteId);
-	await deleteSite({
+
+	const files = await lambdaLs({
 		bucketName,
-		onAfterItemDeleted: () => undefined,
+		expectedBucketOwner: await getAccountId({region}),
 		region,
-		siteName: siteId,
+		prefix: subFolder,
 	});
+
 	const bundled = await bundleSite(
 		entryPoint,
 		options?.onBundleProgress ?? (() => undefined),
@@ -83,16 +86,32 @@ export const deploySite = async ({
 			rootDir: options?.rootDir,
 		}
 	);
+	const {toDelete, toUpload} = await getS3DiffOperations({
+		objects: files,
+		bundle: bundled,
+		prefix: subFolder,
+	});
 
 	await Promise.all([
 		uploadDir({
 			bucket: bucketName,
 			region,
-			dir: bundled,
+			localDir: bundled,
 			onProgress: options?.onUploadProgress ?? (() => undefined),
-			folder: subFolder,
+			keyPrefix: subFolder,
 			privacy: 'public',
+			toUpload,
 		}),
+		Promise.all(
+			toDelete.map((d) => {
+				return lambdaDeleteFile({
+					bucketName,
+					customCredentials: null,
+					key: d.Key as string,
+					region,
+				});
+			})
+		),
 		enableS3Website({
 			region,
 			bucketName,
