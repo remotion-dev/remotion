@@ -23,6 +23,7 @@
 		"url": "https://github.com/JonnyBurger/remotion"
 	},
 	"dependencies": {
+		"@aws-sdk/types": "3.215.0",
 		"@aws-sdk/abort-controller": "3.215.0",
 		"@aws-sdk/client-cloudwatch-logs": "3.215.0",
 		"@aws-sdk/client-iam": "3.215.0",
@@ -32,6 +33,7 @@
 		"@aws-sdk/client-sts": "3.215.0",
 		"@aws-sdk/lib-storage": "3.215.0",
 		"@aws-sdk/s3-request-presigner": "3.215.0",
+		"@aws-sdk/credential-providers": "3.215.0",
 		"@remotion/bundler": "3.3.8",
 		"@remotion/cli": "3.3.8",
 		"@remotion/renderer": "3.3.8",
