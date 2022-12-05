@@ -48,6 +48,9 @@ vi.mock('../api/enable-s3-website', () =>
 vi.mock('../api/create-bucket', () =>
 	vi.importActual('../api/__mocks__/create-bucket')
 );
+vi.mock('../shared/read-dir', () =>
+	vi.importActual('../shared/__mocks__/read-dir')
+);
 vi.mock('../api/upload-dir', () =>
 	vi.importActual('../api/__mocks__/upload-dir')
 );

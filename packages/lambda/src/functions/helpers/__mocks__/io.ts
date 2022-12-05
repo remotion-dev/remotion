@@ -103,7 +103,7 @@ export const lambdaLs: typeof lsOriginal = (
 				const size = typeof file.content === 'string' ? file.content.length : 0;
 				return {
 					Key: file.key,
-					ETag: undefined,
+					ETag: 'etag',
 					LastModified: new Date(0),
 					Owner: undefined,
 					Size: size,

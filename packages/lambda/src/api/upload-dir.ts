@@ -74,9 +74,9 @@ async function getFiles(
 export const uploadDir = async ({
 	bucket,
 	region,
-	localDir: dir,
+	localDir,
 	onProgress,
-	keyPrefix: folder,
+	keyPrefix,
 	privacy,
 	toUpload,
 }: {
@@ -88,7 +88,7 @@ export const uploadDir = async ({
 	privacy: Privacy;
 	toUpload: string[];
 }) => {
-	const files = await getFiles(dir, dir, toUpload);
+	const files = await getFiles(localDir, localDir, toUpload);
 	const progresses: {[key: string]: number} = {};
 	for (const file of files) {
 		progresses[file.name] = 0;
@@ -97,7 +97,7 @@ export const uploadDir = async ({
 	const client = getS3Client(region, null);
 
 	const uploads = files.map(async (filePath) => {
-		const Key = makeS3Key(folder, dir, filePath.name);
+		const Key = makeS3Key(keyPrefix, localDir, filePath.name);
 		const Body = createReadStream(filePath.name);
 		const ContentType = mimeTypes.lookup(Key) || 'application/octet-stream';
 		const ACL =
