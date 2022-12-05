@@ -9,8 +9,8 @@ crumb: "FAQ"
 
 ## Will it be supported in the future?
 
-It is unlikely, because there is currently no browser API that allows to capture the viewport.  
-If such an API gets introduced, we can consider supporting this feature in the future.
+Currently there is no browser API that allows to capture the viewport. A proposed API that would allow this is [Element Capture](https://github.com/WICG/proposals/issues/73).   
+If such an API gets introduced, we can consider supporting browser rendering in the future.
 
 ## Why not...
 
