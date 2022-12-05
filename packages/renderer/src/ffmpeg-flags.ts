@@ -258,7 +258,7 @@ export const getBinaryDownloadUrl = (
 	url: string;
 	contentLength: number;
 } | null => {
-	if (os.platform() === 'win32') {
+	if (os.platform() === 'win32' && process.arch === 'x64') {
 		return binary === 'ffmpeg'
 			? {
 					url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-win-x86.exe',
@@ -270,19 +270,19 @@ export const getBinaryDownloadUrl = (
 			  };
 	}
 
-	if (os.platform() === 'darwin') {
-		if (process.arch === 'arm64') {
-			return binary === 'ffmpeg'
-				? {
-						url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-arm64',
-						contentLength: 42093320,
-				  }
-				: {
-						url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffprobe-macos-arm64',
-						contentLength: 46192536,
-				  };
-		}
+	if (os.platform() === 'darwin' && process.arch === 'arm64') {
+		return binary === 'ffmpeg'
+			? {
+					url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-arm64',
+					contentLength: 42093320,
+			  }
+			: {
+					url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffprobe-macos-arm64',
+					contentLength: 46192536,
+			  };
+	}
 
+	if (os.platform() === 'darwin' && process.arch === 'x64') {
 		return binary === 'ffmpeg'
 			? {
 					url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-macos-x86',
@@ -294,15 +294,19 @@ export const getBinaryDownloadUrl = (
 			  };
 	}
 
-	return binary === 'ffmpeg'
-		? {
-				url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-linux-amd64',
-				contentLength: 78502560,
-		  }
-		: {
-				url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffprobe-linux-amd64',
-				contentLength: 78400704,
-		  };
+	if (os.platform() === 'linux' && process.arch === 'x64') {
+		return binary === 'ffmpeg'
+			? {
+					url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffmpeg-linux-amd64',
+					contentLength: 78502560,
+			  }
+			: {
+					url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffprobe-linux-amd64',
+					contentLength: 78400704,
+			  };
+	}
+
+	return null;
 };
 
 const printMessage = (ffmpegVersion: NonNullable<FfmpegVersion>) => {
