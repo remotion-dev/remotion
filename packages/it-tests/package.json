@@ -1,6 +1,6 @@
 {
   "name": "@remotion/it-tests",
-  "version": "3.3.6",
+  "version": "3.3.7",
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "test": "vitest src/rendering --run",
@@ -9,13 +9,13 @@
   },
   "private": true,
   "devDependencies": {
-    "@remotion/bundler": "3.3.6",
-    "@remotion/cli": "3.3.6",
-    "@remotion/lambda": "3.3.6",
-    "@remotion/renderer": "3.3.6",
+    "@remotion/bundler": "3.3.7",
+    "@remotion/cli": "3.3.7",
+    "@remotion/lambda": "3.3.7",
+    "@remotion/renderer": "3.3.7",
     "@types/sharp": "^0.28.5",
     "execa": "5.1.1",
-    "remotion": "3.3.6",
+    "remotion": "3.3.7",
     "sharp": "0.30.6",
     "typescript": "^4.7.0",
     "vitest": "0.24.3"
