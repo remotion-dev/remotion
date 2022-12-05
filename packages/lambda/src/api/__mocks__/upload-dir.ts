@@ -1,5 +1,5 @@
 import type {MockFile, uploadDir as original} from '../upload-dir';
-import {mockS3Upload} from './mock-s3';
+import {writeMockS3File} from './mock-s3';
 
 export const getDirFiles = (dir: string): MockFile[] => {
 	if (dir === '/path/to/bundle-1') {
@@ -31,20 +31,15 @@ export const getDirFiles = (dir: string): MockFile[] => {
 	throw new Error('could not get dir for ' + dir);
 };
 
-export const uploadDir: typeof original = async (input) => {
-	const files = getDirFiles(input.dir);
+export const uploadDir: typeof original = (input) => {
+	const files = getDirFiles(input.localDir);
 	for (const file of files) {
-		mockS3Upload({
-			acl:
-				input.privacy === 'no-acl'
-					? 'none'
-					: input.privacy === 'private'
-					? 'private'
-					: 'public-read',
+		writeMockS3File({
+			privacy: input.privacy,
 			bucketName: input.bucket,
-			content: file.content,
+			body: file.content,
 			// Should not use path.join here because on Windows it's not / separator
-			key: [input.folder, file.name].join('/'),
+			key: [input.keyPrefix, file.name].join('/'),
 			region: input.region,
 		});
 	}
