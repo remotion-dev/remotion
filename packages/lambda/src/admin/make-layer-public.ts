@@ -51,7 +51,7 @@ const makeLayerPublic = async () => {
 					new PublishLayerVersionCommand({
 						Content: {
 							S3Bucket: 'remotionlambda-binaries-' + region,
-							S3Key: `remotion-layer-${layer}-v8-${architecture}.zip`,
+							S3Key: `remotion-layer-${layer}-v9-${architecture}.zip`,
 						},
 						LayerName: layerName,
 						LicenseInfo:
