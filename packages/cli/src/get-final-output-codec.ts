@@ -37,15 +37,15 @@ export const getFinalOutputCodec = ({
 		RenderInternals.getExtensionOfFilename(downloadName);
 	const outNameExtension = RenderInternals.getExtensionOfFilename(outName);
 
-	const derivedDownloadCodec = deriveExtensionFromFilename(
+	const derivedDownloadCodecs = deriveExtensionFromFilename(
 		downloadNameExtension
 	);
-	const derivedOutNameCodec = deriveExtensionFromFilename(outNameExtension);
+	const derivedOutNameCodecs = deriveExtensionFromFilename(outNameExtension);
 
 	if (
-		derivedDownloadCodec.length === 0 &&
-		derivedOutNameCodec.length === 0 &&
-		derivedDownloadCodec.join('') !== derivedOutNameCodec.join('')
+		derivedDownloadCodecs.length > 0 &&
+		derivedOutNameCodecs.length > 0 &&
+		derivedDownloadCodecs.join('') !== derivedOutNameCodecs.join('')
 	) {
 		throw new TypeError(
 			`The download name is ${downloadName} but the output name is ${outName}. The file extensions must match`
@@ -54,38 +54,40 @@ export const getFinalOutputCodec = ({
 
 	if (cliFlag) {
 		if (
-			derivedDownloadCodec.length > 0 &&
-			derivedDownloadCodec.indexOf(cliFlag) === -1
+			derivedDownloadCodecs.length > 0 &&
+			derivedDownloadCodecs.indexOf(cliFlag) === -1
 		) {
 			throw new TypeError(
-				`The download name is ${downloadName} but --codec=${cliFlag} was passed. The download name implies a codec of ${derivedDownloadCodec.join(
+				`The download name is ${downloadName} but --codec=${cliFlag} was passed. The download name implies a codec of ${derivedDownloadCodecs.join(
 					' or '
 				)} which does not align with the --codec flag.`
 			);
 		}
 
 		if (
-			derivedOutNameCodec.length > 0 &&
-			derivedOutNameCodec.indexOf(cliFlag) === -1
+			derivedOutNameCodecs.length > 0 &&
+			derivedOutNameCodecs.indexOf(cliFlag) === -1
 		) {
 			throw new TypeError(
-				`The out name is ${outName} but --codec=${cliFlag} was passed. The out name implies a codec of ${derivedOutNameCodec} which does not align with the --codec flag.`
+				`The out name is ${outName} but --codec=${cliFlag} was passed. The out name implies a codec of ${derivedOutNameCodecs.join(
+					' or '
+				)} which does not align with the --codec flag.`
 			);
 		}
 
 		return {codec: cliFlag, reason: 'from --codec flag'};
 	}
 
-	if (derivedDownloadCodec) {
+	if (derivedDownloadCodecs) {
 		return {
-			codec: derivedDownloadCodec[0],
+			codec: derivedDownloadCodecs[0],
 			reason: 'derived from download name',
 		};
 	}
 
-	if (derivedOutNameCodec) {
+	if (derivedOutNameCodecs) {
 		return {
-			codec: derivedOutNameCodec[0],
+			codec: derivedOutNameCodecs[0],
 			reason: 'derived from out name',
 		};
 	}
