@@ -1,6 +1,7 @@
 import {CliInternals, ConfigInternals} from '@remotion/cli';
 import {existsSync, lstatSync} from 'fs';
 import path from 'path';
+import {Internals} from 'remotion';
 import {deploySite} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {BINARY_NAME} from '../../../shared/constants';
@@ -166,7 +167,9 @@ export const sitesCreateSubcommand = async (
 	);
 	Log.info(
 		CliInternals.chalk.blueBright(
-			`npx remotion lambda sites create ${args[0]} --site-name=${siteName}`
+			['npx remotion lambda sites create', args[0], `--site-name=${siteName}`]
+				.filter(Internals.truthy)
+				.join(' ')
 		)
 	);
 };

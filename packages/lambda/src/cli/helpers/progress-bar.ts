@@ -66,16 +66,14 @@ const makeUploadDiff = ({stats}: {stats: UploadStats | null}) => {
 		return CliInternals.chalk.gray(`(Unchanged)`);
 	}
 
+	const total = stats.addedFiles + stats.removedFiles;
 	return CliInternals.chalk.gray(
-		'(' +
-			[
-				stats.addedFiles ? `+${stats.addedFiles}` : null,
-				stats.removedFiles ? `-${stats.removedFiles}` : null,
-			]
-				.filter(Internals.truthy)
-				.join(',') +
-			' files' +
-			')'
+		`(${[
+			stats.addedFiles ? `+${stats.addedFiles}` : null,
+			stats.removedFiles ? `-${stats.removedFiles}` : null,
+		]
+			.filter(Internals.truthy)
+			.join(',')} ${total === 1 ? 'file' : 'files'})`
 	);
 };
 
