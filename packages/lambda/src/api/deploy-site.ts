@@ -62,10 +62,12 @@ export const deploySite = async ({
 	const siteId = siteName ?? randomHash();
 	validateSiteName(siteId);
 
+	const accountId = await getAccountId({region});
+
 	const bucketExists = await bucketExistsInRegion({
 		bucketName,
 		region,
-		expectedBucketOwner: await getAccountId({region}),
+		expectedBucketOwner: accountId,
 	});
 	if (!bucketExists) {
 		throw new Error(`No bucket with the name ${bucketName} exists`);
@@ -73,24 +75,22 @@ export const deploySite = async ({
 
 	const subFolder = getSitesKey(siteId);
 
-	const files = await lambdaLs({
-		bucketName,
-		expectedBucketOwner: await getAccountId({region}),
-		region,
-		prefix: subFolder,
-	});
-
-	const bundled = await bundleSite(
-		entryPoint,
-		options?.onBundleProgress ?? (() => undefined),
-		{
+	const [files, bundled] = await Promise.all([
+		lambdaLs({
+			bucketName,
+			expectedBucketOwner: accountId,
+			region,
+			prefix: subFolder,
+		}),
+		bundleSite(entryPoint, options?.onBundleProgress ?? (() => undefined), {
 			publicPath: `/${subFolder}/`,
 			webpackOverride: options?.webpackOverride ?? ((f) => f),
 			enableCaching: options?.enableCaching ?? true,
 			publicDir: options?.publicDir,
 			rootDir: options?.rootDir,
-		}
-	);
+		}),
+	]);
+
 	const {toDelete, toUpload, existingCount} = await getS3DiffOperations({
 		objects: files,
 		bundle: bundled,
