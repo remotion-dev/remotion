@@ -1,9 +1,10 @@
 import type {WebpackOverrideFn} from 'remotion';
-import {deleteSite} from '../api/delete-site';
+import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {bundleSite} from '../shared/bundle-site';
 import {getSitesKey} from '../shared/constants';
 import {getAccountId} from '../shared/get-account-id';
+import {getS3DiffOperations} from '../shared/get-s3-operations';
 import {makeS3ServeUrl} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
 import {validateAwsRegion} from '../shared/validate-aws-region';
@@ -32,6 +33,11 @@ export type DeploySiteInput = {
 export type DeploySiteOutput = Promise<{
 	serveUrl: string;
 	siteName: string;
+	stats: {
+		uploadedFiles: number;
+		deletedFiles: number;
+		untouchedFiles: number;
+	};
 }>;
 
 /**
@@ -56,43 +62,61 @@ export const deploySite = async ({
 	const siteId = siteName ?? randomHash();
 	validateSiteName(siteId);
 
+	const accountId = await getAccountId({region});
+
 	const bucketExists = await bucketExistsInRegion({
 		bucketName,
 		region,
-		expectedBucketOwner: await getAccountId({region}),
+		expectedBucketOwner: accountId,
 	});
 	if (!bucketExists) {
 		throw new Error(`No bucket with the name ${bucketName} exists`);
 	}
 
 	const subFolder = getSitesKey(siteId);
-	await deleteSite({
-		bucketName,
-		onAfterItemDeleted: () => undefined,
-		region,
-		siteName: siteId,
-	});
-	const bundled = await bundleSite(
-		entryPoint,
-		options?.onBundleProgress ?? (() => undefined),
-		{
+
+	const [files, bundled] = await Promise.all([
+		lambdaLs({
+			bucketName,
+			expectedBucketOwner: accountId,
+			region,
+			prefix: subFolder,
+		}),
+		bundleSite(entryPoint, options?.onBundleProgress ?? (() => undefined), {
 			publicPath: `/${subFolder}/`,
 			webpackOverride: options?.webpackOverride ?? ((f) => f),
 			enableCaching: options?.enableCaching ?? true,
 			publicDir: options?.publicDir,
 			rootDir: options?.rootDir,
-		}
-	);
+		}),
+	]);
+
+	const {toDelete, toUpload, existingCount} = await getS3DiffOperations({
+		objects: files,
+		bundle: bundled,
+		prefix: subFolder,
+	});
 
 	await Promise.all([
 		uploadDir({
 			bucket: bucketName,
 			region,
-			dir: bundled,
+			localDir: bundled,
 			onProgress: options?.onUploadProgress ?? (() => undefined),
-			folder: subFolder,
+			keyPrefix: subFolder,
 			privacy: 'public',
+			toUpload,
 		}),
+		Promise.all(
+			toDelete.map((d) => {
+				return lambdaDeleteFile({
+					bucketName,
+					customCredentials: null,
+					key: d.Key as string,
+					region,
+				});
+			})
+		),
 		enableS3Website({
 			region,
 			bucketName,
@@ -102,5 +126,10 @@ export const deploySite = async ({
 	return {
 		serveUrl: makeS3ServeUrl({bucketName, subFolder, region}),
 		siteName: siteId,
+		stats: {
+			uploadedFiles: toUpload.length,
+			deletedFiles: toDelete.length,
+			untouchedFiles: existingCount,
+		},
 	};
 };

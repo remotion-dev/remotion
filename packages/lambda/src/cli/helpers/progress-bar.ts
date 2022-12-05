@@ -44,16 +44,44 @@ export const makeBucketProgress = ({
 	].join(' ');
 };
 
+type UploadStats = {
+	addedFiles: number;
+	removedFiles: number;
+	untouchedFiles: number;
+};
+
 export type DeployToS3Progress = {
 	sizeUploaded: number;
 	totalSize: number | null;
 	doneIn: number | null;
+	stats: UploadStats | null;
+};
+
+const makeUploadDiff = ({stats}: {stats: UploadStats | null}) => {
+	if (!stats) {
+		return null;
+	}
+
+	if (stats.addedFiles === 0 && stats.removedFiles === 0) {
+		return CliInternals.chalk.gray(`(Unchanged)`);
+	}
+
+	const total = stats.addedFiles + stats.removedFiles;
+	return CliInternals.chalk.gray(
+		`(${[
+			stats.addedFiles ? `+${stats.addedFiles}` : null,
+			stats.removedFiles ? `-${stats.removedFiles}` : null,
+		]
+			.filter(Internals.truthy)
+			.join(',')} ${total === 1 ? 'file' : 'files'})`
+	);
 };
 
 export const makeDeployProgressBar = ({
 	sizeUploaded,
 	totalSize,
 	doneIn,
+	stats,
 }: DeployToS3Progress) => {
 	const progress = totalSize === null ? 0 : sizeUploaded / totalSize;
 	return [
@@ -68,6 +96,7 @@ export const makeDeployProgressBar = ({
 				  )}`
 				: ''
 			: CliInternals.chalk.gray(`${doneIn}ms`),
+		makeUploadDiff({stats}),
 	]
 		.filter(Internals.truthy)
 		.join(' ');
