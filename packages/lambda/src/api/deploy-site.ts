@@ -33,6 +33,11 @@ export type DeploySiteInput = {
 export type DeploySiteOutput = Promise<{
 	serveUrl: string;
 	siteName: string;
+	stats: {
+		uploadedFiles: number;
+		deletedFiles: number;
+		untouchedFiles: number;
+	};
 }>;
 
 /**
@@ -86,7 +91,7 @@ export const deploySite = async ({
 			rootDir: options?.rootDir,
 		}
 	);
-	const {toDelete, toUpload} = await getS3DiffOperations({
+	const {toDelete, toUpload, existingCount} = await getS3DiffOperations({
 		objects: files,
 		bundle: bundled,
 		prefix: subFolder,
@@ -121,5 +126,10 @@ export const deploySite = async ({
 	return {
 		serveUrl: makeS3ServeUrl({bucketName, subFolder, region}),
 		siteName: siteId,
+		stats: {
+			uploadedFiles: toUpload.length,
+			deletedFiles: toDelete.length,
+			untouchedFiles: existingCount,
+		},
 	};
 };
