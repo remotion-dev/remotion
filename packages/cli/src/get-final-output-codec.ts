@@ -78,14 +78,14 @@ export const getFinalOutputCodec = ({
 		return {codec: cliFlag, reason: 'from --codec flag'};
 	}
 
-	if (derivedDownloadCodecs) {
+	if (derivedDownloadCodecs.length > 0) {
 		return {
 			codec: derivedDownloadCodecs[0],
 			reason: 'derived from download name',
 		};
 	}
 
-	if (derivedOutNameCodecs) {
+	if (derivedOutNameCodecs.length > 0) {
 		return {
 			codec: derivedOutNameCodecs[0],
 			reason: 'derived from out name',
