@@ -1,6 +1,6 @@
 import {PlayerRef} from '@remotion/player';
 import React from 'react';
-import {useCurrentPlayerFrame} from './use-current-frame';
+import {useCurrentPlayerFrame} from './use-current-player-frame';
 
 export const TimeDisplay: React.FC<{
 	playerRef: React.RefObject<PlayerRef>;
