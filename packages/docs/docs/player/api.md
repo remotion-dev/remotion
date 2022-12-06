@@ -554,7 +554,7 @@ useEffect(() => {
     return;
   }
   const onPlay: CallbackListener<"play"> = () => {
-    onStoreChange("play");
+    console.log("play");
   };
   playerRef.current.addEventListener("play", onPlay);
   playerRef.current.addEventListener("ratechange", () => {
