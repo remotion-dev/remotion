@@ -18,6 +18,7 @@ import React, {
 import {AbsoluteFill} from 'remotion';
 import {playerExampleComp} from './CarSlideshow';
 import {Loading} from './Loading';
+import { TimeDisplay } from './TimeDisplay';
 
 const fps = 30;
 
@@ -183,6 +184,9 @@ const ControlsOnly: React.FC<{
 						setTitle(e.target.value);
 					}}
 				/>
+			</div>
+			<div>
+				<TimeDisplay playerRef={ref} />
 			</div>
 			<div style={{paddingTop: '0.5rem'}}>
 				<div>

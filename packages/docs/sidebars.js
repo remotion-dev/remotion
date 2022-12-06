@@ -340,6 +340,7 @@ module.exports = {
         "player/scaling",
         "player/integration",
         "player/autoplay",
+        "player/current-time",
         "player/preloading",
         "player/best-practices",
       ],
