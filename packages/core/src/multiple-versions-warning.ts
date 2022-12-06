@@ -10,9 +10,13 @@ export const checkMultipleRemotionVersions = () => {
 		(globalThis as unknown as Window).remotion_imported ||
 		(typeof window !== 'undefined' && window.remotion_imported);
 
-	// Next.JS will reload the package and cause a server-side warning.
-	// It's okay if the version is the same
-	if (alreadyImported && alreadyImported !== VERSION) {
+	if (alreadyImported) {
+		if (typeof window === 'undefined' && alreadyImported === VERSION) {
+			// Next.JS will reload the package and cause a server-side warning.
+			// It's okay if this happens during SSR in developement
+			return;
+		}
+
 		throw new TypeError(
 			`🚨 Multiple versions of Remotion detected: ${[
 				VERSION,
