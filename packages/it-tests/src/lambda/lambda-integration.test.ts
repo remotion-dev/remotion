@@ -17,7 +17,7 @@ test("Should be able to get user policy without authentication", async () => {
       cwd: path.join(process.cwd(), "..", "example"),
     }
   );
-  expect(task.stdout).toContain("iam:GetUser");
+  expect(task.stdout).toContain("iam:SimulatePrincipalPolicy");
 });
 
 test("Should be able to get role policy without authentication", async () => {

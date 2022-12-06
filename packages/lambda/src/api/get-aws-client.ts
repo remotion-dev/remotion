@@ -3,6 +3,7 @@ import * as IamSdk from '@aws-sdk/client-iam';
 import * as LambdaSDK from '@aws-sdk/client-lambda';
 import * as S3SDK from '@aws-sdk/client-s3';
 import * as ServiceQuotasSDK from '@aws-sdk/client-service-quotas';
+import * as StsSdk from '@aws-sdk/client-sts';
 import type {AwsRegion} from '../client';
 import type {CustomCredentials, ServiceMapping} from '../shared/aws-clients';
 import {getServiceClient} from '../shared/aws-clients';
@@ -19,6 +20,7 @@ type SdkMapping = {
 	iam: typeof IamSdk;
 	lambda: typeof LambdaSDK;
 	servicequotas: typeof ServiceQuotasSDK;
+	sts: typeof StsSdk;
 };
 
 export type GetAwsClientOutput<T extends keyof ServiceMapping> = {
@@ -51,6 +53,7 @@ export const getAwsClient = <T extends keyof ServiceMapping>({
 			iam: IamSdk,
 			s3: S3SDK,
 			servicequotas: ServiceQuotasSDK,
+			sts: StsSdk,
 		}[service],
 	};
 };
