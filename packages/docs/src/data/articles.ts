@@ -1164,6 +1164,13 @@ export const articles = [
     crumb: "@remotion/player",
   },
   {
+    id: "current-time",
+    title: "Displaying the current time",
+    relativePath: "docs/player/current-time.md",
+    compId: "articles-docs-player-current-time",
+    crumb: "@remotion/player",
+  },
+  {
     id: "player/index",
     title: "@remotion/player",
     relativePath: "docs/player/index.md",
