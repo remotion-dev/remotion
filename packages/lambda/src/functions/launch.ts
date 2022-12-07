@@ -293,6 +293,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		renderId: params.renderId,
 		outName: params.outName ?? undefined,
 		privacy: params.privacy,
+		everyNthFrame: params.everyNthFrame,
+		frameRange: realFrameRange,
 	};
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
