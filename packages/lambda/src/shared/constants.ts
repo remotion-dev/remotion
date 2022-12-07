@@ -407,7 +407,6 @@ export type PostRenderData = {
 	timeToEncode: number;
 	timeToCleanUp: number;
 	timeToRenderChunks: number;
-	timeToInvokeLambdas: number;
 	retriesInfo: ChunkRetry[];
 	mostExpensiveFrameRanges: ExpensiveChunk[] | undefined;
 };
@@ -444,7 +443,6 @@ export type RenderProgress = {
 	lambdasInvoked: number;
 	cleanup: CleanupInfo | null;
 	timeToFinishChunks: number | null;
-	timeToInvokeLambdas: number | null;
 	timeToEncode: number | null;
 	overallProgress: number;
 	retriesInfo: ChunkRetry[];

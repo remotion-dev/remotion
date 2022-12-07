@@ -115,7 +115,6 @@ export const createPostRenderData = ({
 			renderId,
 			type: 'absolute-time',
 		}),
-		timeToInvokeLambdas: 0,
 		retriesInfo,
 		mostExpensiveFrameRanges: getMostExpensiveChunks(
 			parsedTimings,
