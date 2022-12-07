@@ -66,13 +66,13 @@ export const getProgress = async ({
 			customCredentials
 		);
 
-		const frameCount = RenderInternals.getFramesToRender(
+		const totalFrameCount = RenderInternals.getFramesToRender(
 			postRenderData.renderMetadata.frameRange,
 			postRenderData.renderMetadata.everyNthFrame
 		).length;
 
 		return {
-			framesRendered: frameCount,
+			framesRendered: totalFrameCount,
 			bucket: bucketName,
 			renderSize: postRenderData.renderSize,
 			chunks: postRenderData.renderMetadata.totalChunks,
@@ -90,10 +90,7 @@ export const getProgress = async ({
 			currentTime: Date.now(),
 			done: true,
 			encodingStatus: {
-				framesEncoded: frameCount,
-				totalFrames: frameCount,
-				doneIn: postRenderData.timeToEncode,
-				timeToInvoke: postRenderData.timeToInvokeLambdas,
+				framesEncoded: totalFrameCount,
 			},
 			errors: postRenderData.errors,
 			fatalErrorEncountered: false,
@@ -109,6 +106,7 @@ export const getProgress = async ({
 			outKey: outData.key,
 			outBucket: outData.renderBucketName,
 			mostExpensiveFrameRanges: postRenderData.mostExpensiveFrameRanges ?? null,
+			timeToEncode: postRenderData.timeToEncode,
 		};
 	}
 
@@ -130,34 +128,26 @@ export const getProgress = async ({
 		contents.find((c) => c.Key === renderMetadataKey(renderId))
 	);
 
-	const [encodingStatus, renderMetadata, errorExplanations] = await Promise.all(
-		[
-			getEncodingMetadata({
-				exists: Boolean(
-					contents.find((c) => c.Key === encodingProgressKey(renderId))
-				),
-				bucketName,
-				renderId,
-				region: getCurrentRegionInFunction(),
-				expectedBucketOwner,
-			}),
-			renderMetadataExists
-				? getRenderMetadata({
-						bucketName,
-						renderId,
-						region: getCurrentRegionInFunction(),
-						expectedBucketOwner,
-				  })
-				: null,
-			inspectErrors({
-				contents,
-				renderId,
-				bucket: bucketName,
-				region: getCurrentRegionInFunction(),
-				expectedBucketOwner,
-			}),
-		]
-	);
+	const encodingStatus = getEncodingMetadata({
+		exists: contents.find((c) => c.Key === encodingProgressKey(renderId)),
+	});
+	const [renderMetadata, errorExplanations] = await Promise.all([
+		renderMetadataExists
+			? getRenderMetadata({
+					bucketName,
+					renderId,
+					region: getCurrentRegionInFunction(),
+					expectedBucketOwner,
+			  })
+			: null,
+		inspectErrors({
+			contents,
+			renderId,
+			bucket: bucketName,
+			region: getCurrentRegionInFunction(),
+			expectedBucketOwner,
+		}),
+	]);
 
 	if (renderMetadata?.type === 'still') {
 		throw new Error(
@@ -226,10 +216,6 @@ export const getProgress = async ({
 	const lambdasInvokedStats = getLambdasInvokedStats({
 		contents,
 		renderId,
-		estimatedRenderLambdaInvokations:
-			renderMetadata?.estimatedRenderLambdaInvokations ?? null,
-		startDate: renderMetadata?.startedDate ?? null,
-		checkIfAllLambdasWereInvoked: true,
 	});
 
 	const retriesInfo = getRetryStats({
@@ -238,10 +224,9 @@ export const getProgress = async ({
 	});
 
 	const finalEncodingStatus = getFinalEncodingStatus({
-		encodingStatus,
+		encodingProgress: encodingStatus,
 		outputFileExists: Boolean(outputFile),
 		renderMetadata,
-		lambdaInvokeStatus: lambdasInvokedStats,
 	});
 
 	const chunkCount = outputFile
@@ -272,6 +257,13 @@ export const getProgress = async ({
 		...errorExplanations,
 	].filter(Internals.truthy);
 
+	const frameCount = renderMetadata
+		? RenderInternals.getFramesToRender(
+				renderMetadata.frameRange,
+				renderMetadata.everyNthFrame
+		  ).length
+		: null;
+
 	return {
 		framesRendered,
 		chunks: chunkCount,
@@ -296,20 +288,19 @@ export const getProgress = async ({
 					type: 'absolute-time',
 			  })
 			: null,
-		timeToInvokeLambdas:
-			encodingStatus?.timeToInvoke ?? lambdasInvokedStats.timeToInvokeLambdas,
+		timeToInvokeLambdas: 0,
 		overallProgress: getOverallProgress({
 			cleanup: cleanup ? cleanup.filesDeleted / cleanup.minFilesToDelete : 0,
 			encoding:
-				finalEncodingStatus && renderMetadata
-					? finalEncodingStatus.framesEncoded /
-					  renderMetadata.videoConfig.durationInFrames
+				finalEncodingStatus && renderMetadata && frameCount
+					? finalEncodingStatus.framesEncoded / frameCount
 					: 0,
 			invoking: renderMetadata
 				? lambdasInvokedStats.lambdasInvoked /
 				  renderMetadata.estimatedRenderLambdaInvokations
 				: 0,
 			rendering: renderMetadata ? chunkCount / renderMetadata.totalChunks : 0,
+			frames: frameCount === null ? 0 : framesRendered / frameCount,
 		}),
 		retriesInfo,
 		outKey:
@@ -322,5 +313,6 @@ export const getProgress = async ({
 						.renderBucketName
 				: null,
 		mostExpensiveFrameRanges: null,
+		timeToEncode: null,
 	};
 };

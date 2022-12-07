@@ -363,9 +363,6 @@ export type LambdaPayload = LambdaPayloads[LambdaRoutines];
 
 export type EncodingProgress = {
 	framesEncoded: number;
-	totalFrames: number | null;
-	doneIn: number | null;
-	timeToInvoke: number | null;
 };
 
 export type RenderMetadata = {
@@ -448,6 +445,7 @@ export type RenderProgress = {
 	cleanup: CleanupInfo | null;
 	timeToFinishChunks: number | null;
 	timeToInvokeLambdas: number | null;
+	timeToEncode: number | null;
 	overallProgress: number;
 	retriesInfo: ChunkRetry[];
 	mostExpensiveFrameRanges: ExpensiveChunk[] | null;

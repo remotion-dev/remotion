@@ -5,11 +5,7 @@ import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
-import type {
-	EncodingProgress,
-	LambdaPayload,
-	RenderMetadata,
-} from '../shared/constants';
+import type {LambdaPayload, RenderMetadata} from '../shared/constants';
 import {
 	encodingProgressKey,
 	initalizedMetadataKey,
@@ -35,7 +31,6 @@ import {findOutputFileInBucket} from './helpers/find-output-file-in-bucket';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getFilesToDelete} from './helpers/get-files-to-delete';
-import {getLambdasInvokedStats} from './helpers/get-lambdas-invoked-stats';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {inspectErrors} from './helpers/inspect-errors';
 import {lambdaDeleteFile, lambdaLs, lambdaWriteFile} from './helpers/io';
@@ -355,15 +350,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	reqSend.end();
 
 	let lastProgressUploaded = 0;
-	let encodingStop: number | null = null;
 
-	const onProgress = (framesEncoded: number, start: number) => {
+	const onProgress = (framesEncoded: number) => {
 		const relativeProgress = framesEncoded / frameCount.length;
 		const deltaSinceLastProgressUploaded =
 			relativeProgress - lastProgressUploaded;
-		if (relativeProgress === 1) {
-			encodingStop = Date.now();
-		}
 
 		if (deltaSinceLastProgressUploaded < 0.1) {
 			return;
@@ -371,16 +362,10 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 		lastProgressUploaded = relativeProgress;
 
-		const encodingProgress: EncodingProgress = {
-			framesEncoded,
-			totalFrames: frameCount.length,
-			doneIn: encodingStop ? encodingStop - start : null,
-			timeToInvoke: null,
-		};
 		lambdaWriteFile({
 			bucketName: params.bucketName,
 			key: encodingProgressKey(params.renderId),
-			body: JSON.stringify(encodingProgress),
+			body: String(framesEncoded),
 			region: getCurrentRegionInFunction(),
 			privacy: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
@@ -441,7 +426,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	const fps = comp.fps / params.everyNthFrame;
 
-	const {outfile, cleanupChunksProm, encodingStart} = await concatVideosS3({
+	const encodingStart = Date.now();
+	const {outfile, cleanupChunksProm} = await concatVideosS3({
 		bucket: params.bucketName,
 		expectedFiles: chunkCount,
 		onProgress,
@@ -456,9 +442,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		remotionRoot: process.cwd(),
 		onErrors,
 	});
-	if (!encodingStop) {
-		encodingStop = Date.now();
-	}
+	const encodingStop = Date.now();
 
 	const outputSize = fs.statSync(outfile);
 
@@ -479,23 +463,10 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 	});
-	const finalEncodingProgress: EncodingProgress = {
-		framesEncoded: frameCount.length,
-		totalFrames: frameCount.length,
-		doneIn: encodingStop ? encodingStop - encodingStart : null,
-		timeToInvoke: getLambdasInvokedStats({
-			contents,
-			renderId: params.renderId,
-			estimatedRenderLambdaInvokations:
-				renderMetadata.estimatedRenderLambdaInvokations,
-			checkIfAllLambdasWereInvoked: false,
-			startDate: renderMetadata.startedDate,
-		}).timeToInvokeLambdas,
-	};
 	const finalEncodingProgressProm = lambdaWriteFile({
 		bucketName: params.bucketName,
 		key: encodingProgressKey(params.renderId),
-		body: JSON.stringify(finalEncodingProgress),
+		body: String(frameCount.length),
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
