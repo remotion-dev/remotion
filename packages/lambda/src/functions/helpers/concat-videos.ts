@@ -1,18 +1,10 @@
 import type {Codec, FfmpegExecutable} from '@remotion/renderer';
 import {combineVideos, RenderInternals} from '@remotion/renderer';
-import fs, {
-	createWriteStream,
-	existsSync,
-	mkdirSync,
-	promises,
-	rmdirSync,
-	rmSync,
-} from 'fs';
+import fs, {createWriteStream, promises} from 'fs';
 import path, {join} from 'path';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import {
 	chunkKey,
-	CONCAT_FOLDER_TOKEN,
 	getErrorKeyPrefix,
 	REMOTION_CONCATED_TOKEN,
 	REMOTION_FILELIST_TOKEN,
@@ -65,7 +57,7 @@ const downloadS3File = async ({
 	});
 };
 
-const getAllFilesS3 = ({
+export const getAllFilesS3 = ({
 	bucket,
 	expectedFiles,
 	outdir,
@@ -180,67 +172,39 @@ const getAllFilesS3 = ({
 };
 
 export const concatVideosS3 = async ({
-	bucket,
-	expectedFiles,
 	onProgress,
 	numberOfFrames,
-	renderId,
-	region,
 	codec,
-	expectedBucketOwner,
 	fps,
 	numberOfGifLoops,
 	ffmpegExecutable,
 	remotionRoot,
-	onErrors,
+	files,
+	outdir,
 }: {
-	bucket: string;
-	expectedFiles: number;
-	onProgress: (frames: number, encodingStart: number) => void;
-	onErrors: (errors: EnhancedErrorInfo[]) => Promise<void>;
+	onProgress: (frames: number) => void;
 	numberOfFrames: number;
-	renderId: string;
-	region: AwsRegion;
 	codec: LambdaCodec;
-	expectedBucketOwner: string;
 	fps: number;
 	numberOfGifLoops: number | null;
 	ffmpegExecutable: FfmpegExecutable;
 	remotionRoot: string;
+	files: string[];
+	outdir: string;
 }) => {
-	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
-	if (existsSync(outdir)) {
-		(rmSync ?? rmdirSync)(outdir, {
-			recursive: true,
-		});
-	}
-
-	mkdirSync(outdir);
-	const files = await getAllFilesS3({
-		bucket,
-		expectedFiles,
-		outdir,
-		renderId,
-		region,
-		expectedBucketOwner,
-		onErrors,
-	});
-
 	const outfile = join(
 		RenderInternals.tmpDir(REMOTION_CONCATED_TOKEN),
 		'concat.' + RenderInternals.getFileExtensionFromCodec(codec, 'final')
 	);
 	const combine = timer('Combine videos');
 	const filelistDir = RenderInternals.tmpDir(REMOTION_FILELIST_TOKEN);
-	const encodingStart = Date.now();
-
 	const codecForCombining: Codec = codec === 'h264-mkv' ? 'h264' : codec;
 
 	await combineVideos({
 		files,
 		filelistDir,
 		output: outfile,
-		onProgress: (p) => onProgress(p, encodingStart),
+		onProgress: (p) => onProgress(p),
 		numberOfFrames,
 		codec: codecForCombining,
 		fps,
@@ -253,5 +217,5 @@ export const concatVideosS3 = async ({
 	const cleanupChunksProm = (fs.promises.rm ?? fs.promises.rmdir)(outdir, {
 		recursive: true,
 	});
-	return {outfile, cleanupChunksProm, encodingStart};
+	return {outfile, cleanupChunksProm};
 };
