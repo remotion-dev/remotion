@@ -100,7 +100,7 @@ const renderHandler = async (
 			frameRange: params.frameRange,
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
 				if (
-					renderedFrames % 10 === 0 &&
+					renderedFrames % 5 === 0 &&
 					RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
 				) {
 					console.log(
