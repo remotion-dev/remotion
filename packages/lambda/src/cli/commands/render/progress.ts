@@ -55,11 +55,9 @@ const makeInvokeProgress = (
 
 const makeRenderProgress = ({
 	chunkProgress,
-	invokeProgress,
 	totalSteps,
 }: {
 	chunkProgress: ChunkProgress;
-	invokeProgress: LambdaInvokeProgress;
 	totalSteps: number;
 }) => {
 	const {chunksInvoked, totalChunks, doneIn} = chunkProgress;
@@ -239,7 +237,6 @@ export const makeProgressString = ({
 		makeInvokeProgress(progress.lambdaInvokeProgress, steps, retriesInfo),
 		...makeRenderProgress({
 			chunkProgress: progress.chunkProgress,
-			invokeProgress: progress.lambdaInvokeProgress,
 			totalSteps: steps,
 		}),
 		makeEncodingProgress({
