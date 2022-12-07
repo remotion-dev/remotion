@@ -175,7 +175,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			retriesInfo: status.retriesInfo,
 			verbose,
 			totalFrames: getTotalFrames(status),
-			timeToEncodeIn: status.timeToEncode,
+			timeToEncode: status.timeToEncode,
 		})
 	);
 
@@ -196,7 +196,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				retriesInfo: newStatus.retriesInfo,
 				downloadInfo: null,
 				verbose,
-				timeToEncodeIn: newStatus.timeToEncode,
+				timeToEncode: newStatus.timeToEncode,
 				totalFrames: getTotalFrames(newStatus),
 			})
 		);
@@ -209,7 +209,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					downloadInfo: null,
 					retriesInfo: newStatus.retriesInfo,
 					verbose,
-					timeToEncodeIn: newStatus.timeToEncode,
+					timeToEncode: newStatus.timeToEncode,
 					totalFrames: getTotalFrames(newStatus),
 				})
 			);
@@ -232,7 +232,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 									totalSize,
 								},
 								verbose,
-								timeToEncodeIn: newStatus.timeToEncode,
+								timeToEncode: newStatus.timeToEncode,
 								totalFrames: getTotalFrames(newStatus),
 							})
 						);
@@ -249,7 +249,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 							totalSize: sizeInBytes,
 						},
 						verbose,
-						timeToEncodeIn: newStatus.timeToEncode,
+						timeToEncode: newStatus.timeToEncode,
 						totalFrames: getTotalFrames(newStatus),
 					})
 				);
