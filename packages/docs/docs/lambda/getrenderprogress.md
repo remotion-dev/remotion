@@ -127,6 +127,12 @@ How many bytes have been saved to the S3 bucket as a result of this render.
 
 How many lambdas that render a chunk have been invoked yet and have started rendering.
 
+### `framesRendered`
+
+_available from v3.3.8_
+
+How many frames have been rendered so far, approximated to a number divisible by `5`.
+
 ### `costs`
 
 An object describing the costs of the render so far. The cost may increase if the render has not finished yet. Only costs for AWS Lambda are estimated, not for S3 storage. It is a best-effort estimation, but without any guarantees. The object has the following properties:
