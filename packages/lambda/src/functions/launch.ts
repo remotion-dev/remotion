@@ -1,12 +1,14 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
-import fs from 'fs';
+import fs, {existsSync, mkdirSync, rmdirSync, rmSync} from 'fs';
+import {join} from 'path';
 import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
 import type {LambdaPayload, RenderMetadata} from '../shared/constants';
 import {
+	CONCAT_FOLDER_TOKEN,
 	encodingProgressKey,
 	initalizedMetadataKey,
 	LambdaRoutines,
@@ -23,7 +25,7 @@ import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {planFrameRanges} from './chunk-optimization/plan-frame-ranges';
 import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
-import {concatVideosS3} from './helpers/concat-videos';
+import {concatVideosS3, getAllFilesS3} from './helpers/concat-videos';
 import {createPostRenderData} from './helpers/create-post-render-data';
 import {cleanupFiles} from './helpers/delete-chunks';
 import {getExpectedOutName} from './helpers/expected-out-name';
@@ -426,21 +428,34 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	const fps = comp.fps / params.everyNthFrame;
 
-	const encodingStart = Date.now();
-	const {outfile, cleanupChunksProm} = await concatVideosS3({
+	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
+	if (existsSync(outdir)) {
+		(rmSync ?? rmdirSync)(outdir, {
+			recursive: true,
+		});
+	}
+
+	mkdirSync(outdir);
+	const files = await getAllFilesS3({
 		bucket: params.bucketName,
 		expectedFiles: chunkCount,
-		onProgress,
-		numberOfFrames: frameCount.length,
+		outdir,
 		renderId: params.renderId,
 		region: getCurrentRegionInFunction(),
-		codec: params.codec,
 		expectedBucketOwner: options.expectedBucketOwner,
+		onErrors,
+	});
+	const encodingStart = Date.now();
+	const {outfile, cleanupChunksProm} = await concatVideosS3({
+		onProgress,
+		numberOfFrames: frameCount.length,
+		codec: params.codec,
 		fps,
 		numberOfGifLoops: params.numberOfGifLoops,
 		ffmpegExecutable: null,
 		remotionRoot: process.cwd(),
-		onErrors,
+		files,
+		outdir,
 	});
 	const encodingStop = Date.now();
 

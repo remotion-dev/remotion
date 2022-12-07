@@ -96,7 +96,7 @@ const makeEncodingProgress = ({
 	chunkProgress,
 	totalSteps,
 	totalFrames,
-	timeToEncode: doneIn,
+	timeToEncode,
 }: {
 	encodingProgress: EncodingProgress;
 	chunkProgress: ChunkProgress;
@@ -116,10 +116,10 @@ const makeEncodingProgress = ({
 		'📽 ',
 		`(4/${totalSteps})`,
 		CliInternals.makeProgressBar(progress),
-		`${doneIn === null ? 'Combining' : 'Combined'} videos`,
-		doneIn === null
+		`${timeToEncode === null ? 'Combining' : 'Combined'} videos`,
+		timeToEncode === null
 			? `${Math.round(progress * 100)}%`
-			: CliInternals.chalk.gray(`${doneIn}ms`),
+			: CliInternals.chalk.gray(`${timeToEncode}ms`),
 	].join(' ');
 };
 
@@ -221,7 +221,7 @@ export const makeProgressString = ({
 	downloadInfo,
 	retriesInfo,
 	verbose,
-	timeToEncodeIn,
+	timeToEncode,
 	totalFrames,
 }: {
 	progress: MultiRenderProgress;
@@ -229,7 +229,7 @@ export const makeProgressString = ({
 	downloadInfo: DownloadedInfo | null;
 	retriesInfo: ChunkRetry[];
 	verbose: boolean;
-	timeToEncodeIn: number | null;
+	timeToEncode: number | null;
 	totalFrames: number | null;
 }) => {
 	return [
@@ -242,7 +242,7 @@ export const makeProgressString = ({
 			encodingProgress: progress.encodingProgress,
 			chunkProgress: progress.chunkProgress,
 			totalSteps: steps,
-			timeToEncode: timeToEncodeIn,
+			timeToEncode,
 			totalFrames,
 		}),
 		makeCleanupProgress(progress.cleanupInfo, steps, verbose),
