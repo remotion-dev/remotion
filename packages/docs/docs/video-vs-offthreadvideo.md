@@ -17,6 +17,7 @@ Is based on the native HTML5 `<video>` element and therefore behaves similar to 
 ✅ &nbsp; You can attach a ref and [draw the video to a canvas](/docs/video-manipulation).  
 ✅ &nbsp; Can be rendered without having to be downloaded fully.  
 ✅ &nbsp; Is usually faster to render.
+✅ &nbsp; [Renders embedded transparent videos quickly](/docs/transparent-videos).
 
 **Cons**
 
@@ -43,3 +44,4 @@ A more sophisticated way of embedding a video, which:
 ⛔ &nbsp; The video needs to be downloaded fully before a frame can be rendered.  
 ⛔ &nbsp; No ref can be attached to this element, as it is `<video>` during preview but a `<Img/>` during render.  
 ⛔ &nbsp; The video cannot be drawn to a canvas.
+⛔ &nbsp; Supports [embedded transparent videos](/docs/transparent-videos) only if [`imageType="png"`](/docs/offthreadvideo#imageformat) is set which leads to a performance penalty.
