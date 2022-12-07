@@ -7,6 +7,7 @@ import type {
 	RenderProgress,
 } from '../../../defaults';
 import type {ChunkRetry} from '../../../functions/helpers/get-retry-stats';
+import {truthy} from '../../../shared/truthy';
 
 type LambdaInvokeProgress = {
 	totalLambdas: number | null;
@@ -71,7 +72,7 @@ const makeRenderProgress = ({
 
 	const frames =
 		chunkProgress.totalFrames === null
-			? `${chunkProgress.framesRendered}`
+			? null
 			: `(${chunkProgress.framesRendered}/${chunkProgress.totalFrames})`;
 
 	const first = [
@@ -80,10 +81,12 @@ const makeRenderProgress = ({
 		CliInternals.makeProgressBar(renderProgress),
 		doneIn === null ? 'Rendering frames' : 'Rendered frames',
 		doneIn === null ? frames : CliInternals.chalk.gray(`${doneIn}ms`),
-	].join(' ');
+	]
+		.filter(truthy)
+		.join(' ');
 
 	const second = [
-		'🏗️',
+		'🏗️ ',
 		`(3/${totalSteps})`,
 		CliInternals.makeProgressBar(encodingProgress),
 		`${doneIn === null ? 'Encoding' : 'Encoded'} chunks`,
