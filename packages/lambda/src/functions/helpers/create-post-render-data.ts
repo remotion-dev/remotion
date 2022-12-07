@@ -15,7 +15,6 @@ import {calculateChunkTimes} from './calculate-chunk-times';
 import type {OutputFileMetadata} from './find-output-file-in-bucket';
 import {getCurrentArchitecture} from './get-current-architecture';
 import {getFilesToDelete} from './get-files-to-delete';
-import {getLambdasInvokedStats} from './get-lambdas-invoked-stats';
 import {getRetryStats} from './get-retry-stats';
 import {getTimeToFinish} from './get-time-to-finish';
 import type {EnhancedErrorInfo} from './write-lambda-error';
@@ -84,19 +83,7 @@ export const createPostRenderData = ({
 		.map((c) => c.Size ?? 0)
 		.reduce((a, b) => a + b, 0);
 
-	const {timeToInvokeLambdas} = getLambdasInvokedStats({
-		contents,
-		renderId,
-		estimatedRenderLambdaInvokations:
-			renderMetadata.estimatedRenderLambdaInvokations,
-		startDate: renderMetadata.startedDate,
-		checkIfAllLambdasWereInvoked: false,
-	});
 	const retriesInfo = getRetryStats({contents, renderId});
-
-	if (timeToInvokeLambdas === null) {
-		throw new Error('should have timing for all lambdas');
-	}
 
 	return {
 		cost: {
@@ -128,7 +115,7 @@ export const createPostRenderData = ({
 			renderId,
 			type: 'absolute-time',
 		}),
-		timeToInvokeLambdas,
+		timeToInvokeLambdas: 0,
 		retriesInfo,
 		mostExpensiveFrameRanges: getMostExpensiveChunks(
 			parsedTimings,
