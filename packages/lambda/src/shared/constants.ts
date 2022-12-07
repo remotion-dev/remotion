@@ -387,6 +387,8 @@ export type RenderMetadata = {
 	renderId: string;
 	outName: OutNameInputWithoutCredentials | undefined;
 	privacy: Privacy;
+	frameRange: [number, number];
+	everyNthFrame: number;
 };
 
 export type PostRenderData = {
@@ -449,6 +451,7 @@ export type RenderProgress = {
 	overallProgress: number;
 	retriesInfo: ChunkRetry[];
 	mostExpensiveFrameRanges: ExpensiveChunk[] | null;
+	framesRendered: number;
 };
 
 export type Privacy = 'public' | 'private' | 'no-acl';

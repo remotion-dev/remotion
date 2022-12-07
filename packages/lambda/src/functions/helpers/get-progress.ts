@@ -1,6 +1,8 @@
+import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import type {CustomCredentials} from '../../shared/aws-clients';
+import {getProgressOfChunk} from '../../shared/chunk-progress';
 import type {RenderProgress} from '../../shared/constants';
 import {
 	chunkKey,
@@ -61,7 +63,14 @@ export const getProgress = async ({
 			bucketName,
 			customCredentials
 		);
+
+		const frameCount = RenderInternals.getFramesToRender(
+			postRenderData.renderMetadata.frameRange,
+			postRenderData.renderMetadata.everyNthFrame
+		).length;
+
 		return {
+			framesRendered: frameCount,
 			bucket: bucketName,
 			renderSize: postRenderData.renderSize,
 			chunks: postRenderData.renderMetadata.totalChunks,
@@ -79,9 +88,8 @@ export const getProgress = async ({
 			currentTime: Date.now(),
 			done: true,
 			encodingStatus: {
-				framesEncoded:
-					postRenderData.renderMetadata.videoConfig.durationInFrames,
-				totalFrames: postRenderData.renderMetadata.videoConfig.durationInFrames,
+				framesEncoded: frameCount,
+				totalFrames: frameCount,
 				doneIn: postRenderData.timeToEncode,
 				timeToInvoke: postRenderData.timeToInvokeLambdas,
 			},
@@ -191,6 +199,11 @@ export const getProgress = async ({
 	});
 
 	const chunks = contents.filter((c) => c.Key?.startsWith(chunkKey(renderId)));
+	const framesRendered = chunks
+		.map((c) => {
+			return getProgressOfChunk(c.ETag as string);
+		})
+		.reduce((a, b) => a + b, 0);
 	const allChunks = chunks.length === (renderMetadata?.totalChunks ?? Infinity);
 	const renderSize = contents
 		.map((c) => c.Size ?? 0)
@@ -246,6 +259,7 @@ export const getProgress = async ({
 	].filter(Internals.truthy);
 
 	return {
+		framesRendered,
 		chunks: chunkCount,
 		done: false,
 		encodingStatus,
