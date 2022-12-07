@@ -100,7 +100,6 @@ export const getProgress = async ({
 			renderMetadata: postRenderData.renderMetadata,
 			timeToFinish: postRenderData.timeToFinish,
 			timeToFinishChunks: postRenderData.timeToRenderChunks,
-			timeToInvokeLambdas: postRenderData.timeToInvokeLambdas,
 			overallProgress: 1,
 			retriesInfo: postRenderData.retriesInfo,
 			outKey: outData.key,
@@ -288,7 +287,6 @@ export const getProgress = async ({
 					type: 'absolute-time',
 			  })
 			: null,
-		timeToInvokeLambdas: 0,
 		overallProgress: getOverallProgress({
 			cleanup: cleanup ? cleanup.filesDeleted / cleanup.minFilesToDelete : 0,
 			encoding:
