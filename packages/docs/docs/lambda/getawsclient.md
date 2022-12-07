@@ -74,7 +74,7 @@ One of the [supported regions](/docs/lambda/region-selection) of Remotion Lambda
 
 ### `service`
 
-One of `lambda`, `cloudwatch`, `iam`, `servicequotas` and `s3`.
+One of `lambda`, `cloudwatch`, `iam`, `servicequotas`, `s3` or `sts`.
 
 ### `customCredentials`
 
