@@ -4,10 +4,10 @@ import {RenderInternals, renderMedia} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {getLambdaClient} from '../shared/aws-clients';
+import {writeLambdaInitializedFile} from '../shared/chunk-progress';
 import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
 import {
 	chunkKeyForIndex,
-	lambdaChunkInitializedKey,
 	LambdaRoutines,
 	lambdaTimingsKey,
 	RENDERER_PATH_TOKEN,
@@ -17,11 +17,8 @@ import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
 } from './chunk-optimization/types';
-import {deletedFiles, deletedFilesSize} from './helpers/clean-tmpdir';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
-import {getFolderFiles} from './helpers/get-files-in-folder';
-import {getFolderSizeRecursively} from './helpers/get-folder-size';
 import {lambdaWriteFile} from './helpers/io';
 import {
 	getTmpDirStateIfENoSp,
@@ -109,6 +106,14 @@ const renderHandler = async (
 					console.log(
 						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`
 					);
+					writeLambdaInitializedFile({
+						attempt: params.attempt,
+						bucketName: params.bucketName,
+						chunk: params.chunk,
+						expectedBucketOwner: options.expectedBucketOwner,
+						framesRendered: renderedFrames,
+						renderId: params.renderId,
+					}).catch((err) => reject(err));
 				}
 
 				const allFrames = RenderInternals.getFramesToRender(
@@ -124,26 +129,13 @@ const renderHandler = async (
 			},
 			concurrency: params.concurrencyPerLambda,
 			onStart: () => {
-				lambdaWriteFile({
-					privacy: 'private',
+				writeLambdaInitializedFile({
+					attempt: params.attempt,
 					bucketName: params.bucketName,
-					body: JSON.stringify({
-						filesCleaned: deletedFilesSize,
-						filesInTmp: fs.readdirSync('/tmp'),
-						isWarm: options.isWarm,
-						deletedFiles,
-						tmpSize: getFolderSizeRecursively('/tmp'),
-						tmpDirFiles: getFolderFiles('/tmp'),
-					}),
-					key: lambdaChunkInitializedKey({
-						renderId: params.renderId,
-						chunk: params.chunk,
-						attempt: params.attempt,
-					}),
-					region: getCurrentRegionInFunction(),
+					chunk: params.chunk,
 					expectedBucketOwner: options.expectedBucketOwner,
-					downloadBehavior: null,
-					customCredentials: null,
+					framesRendered: 0,
+					renderId: params.renderId,
 				}).catch((err) => reject(err));
 			},
 			puppeteerInstance: browserInstance,
