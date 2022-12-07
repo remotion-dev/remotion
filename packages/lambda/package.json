@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/lambda",
-	"version": "3.3.7",
+	"version": "3.3.8",
 	"description": "Distributed renderer for Remotion based on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -32,12 +32,12 @@
 		"@aws-sdk/client-sts": "3.215.0",
 		"@aws-sdk/lib-storage": "3.215.0",
 		"@aws-sdk/s3-request-presigner": "3.215.0",
-		"@remotion/bundler": "3.3.7",
-		"@remotion/cli": "3.3.7",
-		"@remotion/renderer": "3.3.7",
+		"@remotion/bundler": "3.3.8",
+		"@remotion/cli": "3.3.8",
+		"@remotion/renderer": "3.3.8",
 		"aws-policies": "^1.0.1",
 		"mime-types": "2.1.34",
-		"remotion": "3.3.7"
+		"remotion": "3.3.8"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
