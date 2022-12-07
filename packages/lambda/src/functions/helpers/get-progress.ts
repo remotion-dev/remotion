@@ -28,6 +28,7 @@ import {getLambdasInvokedStats} from './get-lambdas-invoked-stats';
 import {getOverallProgress} from './get-overall-progress';
 import {getPostRenderData} from './get-post-render-data';
 import {getRenderMetadata} from './get-render-metadata';
+import {getRenderedFramesProgress} from './get-rendered-frames-progress';
 import {getRetryStats} from './get-retry-stats';
 import {getTimeToFinish} from './get-time-to-finish';
 import {inspectErrors} from './inspect-errors';
@@ -200,13 +201,15 @@ export const getProgress = async ({
 	});
 
 	const chunks = contents.filter((c) => c.Key?.startsWith(chunkKey(renderId)));
-	const framesRendered = contents
-		// TODO: Deduplicate attempts
-		.filter((c) => c.Key?.startsWith(lambdaChunkInitializedPrefix(renderId)))
-		.map((c) => {
-			return getProgressOfChunk(c.ETag as string);
-		})
-		.reduce((a, b) => a + b, 0);
+	const framesRendered = renderMetadata
+		? getRenderedFramesProgress({
+				contents,
+				everyNthFrame: renderMetadata.everyNthFrame,
+				frameRange: renderMetadata.frameRange,
+				framesPerLambda: renderMetadata.framesPerLambda,
+				renderId,
+		  })
+		: 0;
 	console.log(
 		'etags',
 		contents

@@ -15,11 +15,11 @@ type LambdaInvokeProgress = {
 };
 
 type ChunkProgress = {
-	totalChunks: number | null;
-	chunksInvoked: number;
 	doneIn: number | null;
 	framesRendered: number;
 	totalFrames: number | null;
+	totalChunks: number | null;
+	chunksInvoked: number;
 };
 
 type MultiRenderProgress = {
@@ -61,25 +61,38 @@ const makeRenderProgress = ({
 	invokeProgress: LambdaInvokeProgress;
 	totalSteps: number;
 }) => {
-	const lambdaIsDone = invokeProgress.doneIn !== null;
 	const {chunksInvoked, totalChunks, doneIn} = chunkProgress;
-	const progress = totalChunks === null ? 0 : chunksInvoked / totalChunks;
-	const shouldShow = lambdaIsDone || progress > 0;
-	if (!shouldShow) {
-		return '';
-	}
+	const renderProgress =
+		chunkProgress.totalFrames === null
+			? 0
+			: chunkProgress.framesRendered / chunkProgress.totalFrames;
+	const encodingProgress =
+		totalChunks === null ? 0 : chunksInvoked / totalChunks;
 
-	return [
+	const frames =
+		chunkProgress.totalFrames === null
+			? `${chunkProgress.framesRendered}`
+			: `(${chunkProgress.framesRendered}/${chunkProgress.totalFrames})`;
+
+	const first = [
 		'🧩',
 		`(2/${totalSteps})`,
-		CliInternals.makeProgressBar(progress),
-		chunkProgress.totalFrames === null
-			? `${chunkProgress.framesRendered} frames`
-			: `${chunkProgress.framesRendered}/${chunkProgress.totalFrames} frames`,
+		CliInternals.makeProgressBar(renderProgress),
+		doneIn === null ? 'Rendering frames' : 'Rendered frames',
+		doneIn === null ? frames : CliInternals.chalk.gray(`${doneIn}ms`),
+	].join(' ');
+
+	const second = [
+		'🏗️',
+		`(3/${totalSteps})`,
+		CliInternals.makeProgressBar(encodingProgress),
+		`${doneIn === null ? 'Encoding' : 'Encoded'} chunks`,
 		doneIn === null
-			? `${Math.round(progress * 100)}%`
+			? `${Math.round(encodingProgress * 100)}%`
 			: CliInternals.chalk.gray(`${doneIn}ms`),
 	].join(' ');
+
+	return [first, second];
 };
 
 const makeEncodingProgress = ({
@@ -101,7 +114,7 @@ const makeEncodingProgress = ({
 
 	return [
 		'📽 ',
-		`(3/${totalSteps})`,
+		`(4/${totalSteps})`,
 		CliInternals.makeProgressBar(progress),
 		`${doneIn === null ? 'Combining' : 'Combined'} videos`,
 		doneIn === null
@@ -122,7 +135,7 @@ const makeCleanupProgress = (
 	if (skipped) {
 		return [
 			'🪣 ',
-			`(4/${totalSteps})`,
+			`(5/${totalSteps})`,
 			CliInternals.chalk.blueBright(
 				`Not cleaning up because --log=verbose was set`
 			),
@@ -133,7 +146,7 @@ const makeCleanupProgress = (
 	const progress = filesDeleted / minFilesToDelete;
 	return [
 		'🪣 ',
-		`(4/${totalSteps})`,
+		`(5/${totalSteps})`,
 		CliInternals.makeProgressBar(progress),
 		`${doneIn === null ? 'Cleaning up' : 'Cleaned up'} artifacts`,
 		doneIn === null
@@ -148,7 +161,7 @@ const makeDownloadProgress = (
 ) => {
 	return [
 		'💾',
-		`(5/${totalSteps})`,
+		`(6/${totalSteps})`,
 		downloadInfo.totalSize === null
 			? CliInternals.getFileSizeDownloadBar(downloadInfo.downloaded)
 			: CliInternals.makeProgressBar(
@@ -221,7 +234,7 @@ export const makeProgressString = ({
 }) => {
 	return [
 		makeInvokeProgress(progress.lambdaInvokeProgress, steps, retriesInfo),
-		makeRenderProgress({
+		...makeRenderProgress({
 			chunkProgress: progress.chunkProgress,
 			invokeProgress: progress.lambdaInvokeProgress,
 			totalSteps: steps,
