@@ -76,17 +76,6 @@ The following table is a breakdown of why Remotion Lambda requires the permissio
   </tr>
   <tr>
     <td>
-      <code>iam:GetUser</code>
-    </td>
-    <td>
-      <code>{"arn:aws:iam::*:user/${aws:username}"}</code>
-    </td>
-    <td>
-    Get the authenticated user in order to do a permission validation.
-    </td>
-  </tr>
-  <tr>
-    <td>
       <code>iam:SimulatePrincipalPolicy</code>
     </td>
     <td><code>*</code></td>

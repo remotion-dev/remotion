@@ -3,6 +3,7 @@ import {IAMClient} from '@aws-sdk/client-iam';
 import {LambdaClient} from '@aws-sdk/client-lambda';
 import {S3Client} from '@aws-sdk/client-s3';
 import {ServiceQuotasClient} from '@aws-sdk/client-service-quotas';
+import {STSClient} from '@aws-sdk/client-sts';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {checkCredentials} from './check-credentials';
 import {isInsideLambda} from './is-in-lambda';
@@ -15,6 +16,7 @@ const _clients: Partial<
 		| S3Client
 		| IAMClient
 		| ServiceQuotasClient
+		| STSClient
 	>
 > = {};
 
@@ -72,6 +74,7 @@ export type ServiceMapping = {
 	iam: IAMClient;
 	lambda: LambdaClient;
 	servicequotas: ServiceQuotasClient;
+	sts: STSClient;
 };
 
 export type CustomCredentialsWithoutSensitiveData = {
@@ -111,6 +114,10 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 
 		if (service === 'servicequotas') {
 			return ServiceQuotasClient;
+		}
+
+		if (service === 'sts') {
+			return STSClient;
 		}
 
 		throw new TypeError('unknown client ' + service);
@@ -186,4 +193,8 @@ export const getServiceQuotasClient = (
 		service: 'servicequotas',
 		customCredentials: null,
 	});
+};
+
+export const getStsClient = (region: AwsRegion): STSClient => {
+	return getServiceClient({region, service: 'sts', customCredentials: null});
 };

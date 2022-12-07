@@ -22,12 +22,6 @@ export const requiredPermissions: {
 		resource: ['*'],
 	},
 	{
-		id: 'Identity',
-		actions: [iam.GetUser],
-		// eslint-disable-next-line no-template-curly-in-string
-		resource: ['arn:aws:iam::*:user/${aws:username}'],
-	},
-	{
 		id: 'PermissionValidation',
 		actions: [iam.SimulatePrincipalPolicy],
 		resource: ['*'],

@@ -583,6 +583,7 @@ importers:
       '@aws-sdk/client-lambda': 3.215.0
       '@aws-sdk/client-s3': 3.215.0
       '@aws-sdk/client-service-quotas': 3.215.0
+      '@aws-sdk/client-sts': 3.215.0
       '@aws-sdk/lib-storage': 3.215.0
       '@aws-sdk/s3-request-presigner': 3.215.0
       '@jonny/eslint-config': 3.0.266
@@ -612,6 +613,7 @@ importers:
       '@aws-sdk/client-lambda': 3.215.0
       '@aws-sdk/client-s3': 3.215.0
       '@aws-sdk/client-service-quotas': 3.215.0
+      '@aws-sdk/client-sts': 3.215.0
       '@aws-sdk/lib-storage': 3.215.0_lissoxat37kg4kuf6r76eckcsy
       '@aws-sdk/s3-request-presigner': 3.215.0
       '@remotion/bundler': link:../bundler
