@@ -7,6 +7,7 @@ import type {RenderProgress} from '../../shared/constants';
 import {
 	chunkKey,
 	encodingProgressKey,
+	lambdaChunkInitializedPrefix,
 	MAX_EPHEMERAL_STORAGE_IN_MB,
 	renderMetadataKey,
 	rendersPrefix,
@@ -199,11 +200,21 @@ export const getProgress = async ({
 	});
 
 	const chunks = contents.filter((c) => c.Key?.startsWith(chunkKey(renderId)));
-	const framesRendered = chunks
+	const framesRendered = contents
+		// TODO: Deduplicate attempts
+		.filter((c) => c.Key?.startsWith(lambdaChunkInitializedPrefix(renderId)))
 		.map((c) => {
 			return getProgressOfChunk(c.ETag as string);
 		})
 		.reduce((a, b) => a + b, 0);
+	console.log(
+		'etags',
+		contents
+			.filter((c) => c.Key?.startsWith(lambdaChunkInitializedPrefix(renderId)))
+			.map((c) => {
+				return getProgressOfChunk(c.ETag as string);
+			})
+	);
 	const allChunks = chunks.length === (renderMetadata?.totalChunks ?? Infinity);
 	const renderSize = contents
 		.map((c) => c.Size ?? 0)

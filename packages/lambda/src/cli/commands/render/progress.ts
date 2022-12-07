@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import type {
 	CleanupInfo,
@@ -17,6 +18,8 @@ type ChunkProgress = {
 	totalChunks: number | null;
 	chunksInvoked: number;
 	doneIn: number | null;
+	framesRendered: number;
+	totalFrames: number | null;
 };
 
 type MultiRenderProgress = {
@@ -49,7 +52,7 @@ const makeInvokeProgress = (
 	].join(' ');
 };
 
-const makeChunkProgress = ({
+const makeRenderProgress = ({
 	chunkProgress,
 	invokeProgress,
 	totalSteps,
@@ -70,7 +73,9 @@ const makeChunkProgress = ({
 		'🧩',
 		`(2/${totalSteps})`,
 		CliInternals.makeProgressBar(progress),
-		`${doneIn === null ? 'Rendering' : 'Rendered'} chunks`,
+		chunkProgress.totalFrames === null
+			? `${chunkProgress.framesRendered} frames`
+			: `${chunkProgress.framesRendered}/${chunkProgress.totalFrames} frames`,
 		doneIn === null
 			? `${Math.round(progress * 100)}%`
 			: CliInternals.chalk.gray(`${doneIn}ms`),
@@ -171,6 +176,13 @@ export const makeMultiProgressFromStatus = (
 			chunksInvoked: status.chunks,
 			totalChunks: status.renderMetadata?.totalChunks ?? null,
 			doneIn: status.timeToFinishChunks,
+			framesRendered: status.framesRendered,
+			totalFrames: status.renderMetadata
+				? RenderInternals.getFramesToRender(
+						status.renderMetadata.frameRange,
+						status.renderMetadata.everyNthFrame
+				  ).length
+				: null,
 		},
 		encodingProgress: {
 			framesEncoded: status.encodingStatus?.framesEncoded ?? 0,
@@ -209,7 +221,7 @@ export const makeProgressString = ({
 }) => {
 	return [
 		makeInvokeProgress(progress.lambdaInvokeProgress, steps, retriesInfo),
-		makeChunkProgress({
+		makeRenderProgress({
 			chunkProgress: progress.chunkProgress,
 			invokeProgress: progress.lambdaInvokeProgress,
 			totalSteps: steps,
