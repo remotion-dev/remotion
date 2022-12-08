@@ -17,25 +17,28 @@ If you want to display a component that synchronizes with the time of the player
 
 ```tsx twoslash title="use-current-player-frame.ts"
 import { CallbackListener, PlayerRef } from "@remotion/player";
-import React, { useSyncExternalStore } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 export const useCurrentPlayerFrame = (ref: React.RefObject<PlayerRef>) => {
-  const { current } = ref;
-
-  const data = useSyncExternalStore<number>(
+  const subscribe = useCallback(
     (onStoreChange: (newVal: number) => void) => {
+      const { current } = ref;
       if (!current) {
         return () => undefined;
       }
       const updater: CallbackListener<"frameupdate"> = ({ detail }) => {
         onStoreChange(detail.frame);
       };
-
       current.addEventListener("frameupdate", updater);
       return () => {
         current.removeEventListener("frameupdate", updater);
       };
     },
+    [ref]
+  );
+
+  const data = useSyncExternalStore<number>(
+    subscribe,
     () => ref.current?.getCurrentFrame() ?? 0,
     () => 0
   );
@@ -88,25 +91,28 @@ This is how a component could access the current time:
 ```tsx twoslash title="TimeDisplay.tsx"
 // @filename: ./use-current-player-frame.ts
 import { CallbackListener, PlayerRef } from "@remotion/player";
-import React, { useSyncExternalStore } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 export const useCurrentPlayerFrame = (ref: React.RefObject<PlayerRef>) => {
-  const { current } = ref;
-
-  const data = useSyncExternalStore<number>(
+  const subscribe = useCallback(
     (onStoreChange: (newVal: number) => void) => {
+      const { current } = ref;
       if (!current) {
         return () => undefined;
       }
       const updater: CallbackListener<"frameupdate"> = ({ detail }) => {
         onStoreChange(detail.frame);
       };
-
       current.addEventListener("frameupdate", updater);
       return () => {
         current.removeEventListener("frameupdate", updater);
       };
     },
+    [ref]
+  );
+
+  const data = useSyncExternalStore<number>(
+    subscribe,
     () => ref.current?.getCurrentFrame() ?? 0,
     () => 0
   );
@@ -117,8 +123,6 @@ export const useCurrentPlayerFrame = (ref: React.RefObject<PlayerRef>) => {
 // @filename: TimeDisplay.tsx
 // ---cut---
 import { useCurrentPlayerFrame } from "./use-current-player-frame";
-import type {PlayerRef} from '@remotion/player'
-import React from 'react';
 
 export const TimeDisplay: React.FC<{
   playerRef: React.RefObject<PlayerRef>;
