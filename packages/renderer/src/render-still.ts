@@ -286,7 +286,7 @@ export const renderStill = (options: RenderStillOptions): Promise<RenderStillRet
 				});
 			})
 
-			.then((buffer) => resolve(buffer))
+			.then((res) => resolve(res))
 			.catch((err) => reject(err))
 			.finally(() => {
 				// Clean download map if it was not passed in
@@ -294,7 +294,7 @@ export const renderStill = (options: RenderStillOptions): Promise<RenderStillRet
 					cleanDownloadMap(downloadMap);
 				}
 
-				close?.();
+				return close?.();
 			});
 	});
 
