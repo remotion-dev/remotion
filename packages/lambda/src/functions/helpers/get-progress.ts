@@ -116,13 +116,6 @@ export const getProgress = async ({
 		expectedBucketOwner,
 	});
 
-	checkIfRenderExists(
-		contents,
-		renderId,
-		bucketName,
-		getCurrentRegionInFunction()
-	);
-
 	const renderMetadataExists = Boolean(
 		contents.find((c) => c.Key === renderMetadataKey(renderId))
 	);
@@ -153,6 +146,13 @@ export const getProgress = async ({
 			"You don't need to call getRenderProgress() on a still render. Once you have obtained the `renderId`, the render is already done! 😉"
 		);
 	}
+
+	checkIfRenderExists(
+		contents,
+		renderId,
+		bucketName,
+		getCurrentRegionInFunction()
+	);
 
 	const outputFile = renderMetadata
 		? await findOutputFileInBucket({
