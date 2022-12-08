@@ -189,9 +189,9 @@ Accepted values:
 Default: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
 
-## Return value
+## Return Value
 
-A promise with no value. If the render succeeded, the still has been saved to `output`. If the render failed, the promise rejects.
+If `output` is not specified or `null`, the return value is a Promise that resolves a `Buffer`. If an output location is specified, the return value is a Promise that resolves no value.
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/render-still.ts)
 - [bundle()](/docs/bundle)
