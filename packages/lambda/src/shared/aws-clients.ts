@@ -1,12 +1,15 @@
-import {createHash} from 'crypto';
 import {CloudWatchLogsClient} from '@aws-sdk/client-cloudwatch-logs';
 import {IAMClient} from '@aws-sdk/client-iam';
 import {LambdaClient} from '@aws-sdk/client-lambda';
 import {S3Client} from '@aws-sdk/client-s3';
-import {fromIni} from '@aws-sdk/credential-providers';
 import {ServiceQuotasClient} from '@aws-sdk/client-service-quotas';
 import {STSClient} from '@aws-sdk/client-sts';
-import type {AwsCredentialIdentity, AwsCredentialIdentityProvider} from '@aws-sdk/types';
+import {fromIni} from '@aws-sdk/credential-providers';
+import type {
+	AwsCredentialIdentity,
+	AwsCredentialIdentityProvider,
+} from '@aws-sdk/types';
+import {createHash} from 'crypto';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {checkCredentials} from './check-credentials';
 import {isInsideLambda} from './is-in-lambda';
@@ -23,7 +26,10 @@ const _clients: Partial<
 	>
 > = {};
 
-const getCredentials = (): AwsCredentialIdentity | AwsCredentialIdentityProvider | undefined => {
+const getCredentials = ():
+	| AwsCredentialIdentity
+	| AwsCredentialIdentityProvider
+	| undefined => {
 	if (isInsideLambda()) {
 		return undefined;
 	}
@@ -69,7 +75,7 @@ const getCredentialsHash = ({
 	customCredentials: CustomCredentials | null;
 	service: keyof ServiceMapping;
 }): string => {
-	const hashComponents: { [key: string]: any; } = {};
+	const hashComponents: {[key: string]: any} = {};
 
 	if (process.env.REMOTION_AWS_PROFILE) {
 		hashComponents.credentials = {
@@ -87,7 +93,10 @@ const getCredentialsHash = ({
 		hashComponents.credentials = {
 			awsProfile: process.env.AWS_PROFILE,
 		};
-	} else if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+	} else if (
+		process.env.AWS_ACCESS_KEY_ID &&
+		process.env.AWS_SECRET_ACCESS_KEY
+	) {
 		hashComponents.credentials = {
 			accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
 			secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
@@ -101,7 +110,7 @@ const getCredentialsHash = ({
 	return createHash('sha256')
 		.update(JSON.stringify(hashComponents))
 		.digest('base64');
-}
+};
 
 export type ServiceMapping = {
 	s3: S3Client;

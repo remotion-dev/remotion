@@ -23,7 +23,6 @@
 		"url": "https://github.com/JonnyBurger/remotion"
 	},
 	"dependencies": {
-		"@aws-sdk/types": "3.215.0",
 		"@aws-sdk/abort-controller": "3.215.0",
 		"@aws-sdk/client-cloudwatch-logs": "3.215.0",
 		"@aws-sdk/client-iam": "3.215.0",
@@ -46,6 +45,7 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
+		"@aws-sdk/types": "3.215.0",
 		"@jonny/eslint-config": "3.0.266",
 		"@types/mime-types": "2.1.1",
 		"@types/minimist": "1.2.2",

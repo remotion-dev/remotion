@@ -619,7 +619,6 @@ importers:
       '@aws-sdk/credential-providers': 3.215.0
       '@aws-sdk/lib-storage': 3.215.0_lissoxat37kg4kuf6r76eckcsy
       '@aws-sdk/s3-request-presigner': 3.215.0
-      '@aws-sdk/types': 3.215.0
       '@remotion/bundler': link:../bundler
       '@remotion/cli': link:../cli
       '@remotion/renderer': link:../renderer
@@ -629,6 +628,7 @@ importers:
       react-dom: 18.0.0_react@18.0.0
       remotion: link:../core
     devDependencies:
+      '@aws-sdk/types': 3.215.0
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
       '@types/mime-types': 2.1.1
       '@types/minimist': 1.2.2
@@ -2147,7 +2147,6 @@ packages:
   /@aws-sdk/types/3.215.0:
     resolution: {integrity: sha512-eRbCVjwzTYd9C5e2mceScJ6D2kYDDEC3PLkYfJa+1wH9iiF2JlbiYozAokyeYBHQ+AjmD93MK58RBoM8iZfH0Q==}
     engines: {node: '>=14.0.0'}
-    dev: false
 
   /@aws-sdk/url-parser/3.215.0:
     resolution: {integrity: sha512-r/qIk3TUlV36JvoRjTErFm0LzzgNKLB1YUG8zVZCGAc2TEATi8OVEmsZvi+KfTmsbszulITJVcjZKbHLbGoUzg==}
