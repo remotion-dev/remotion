@@ -77,7 +77,6 @@ export const sitesCreateSubcommand = async (
 		bucketProgress: {
 			bucketCreated: false,
 			doneIn: null,
-			websiteEnabled: false,
 		},
 		deployProgress: {
 			doneIn: null,
@@ -107,7 +106,6 @@ export const sitesCreateSubcommand = async (
 		},
 	});
 
-	multiProgress.bucketProgress.websiteEnabled = true;
 	multiProgress.bucketProgress.doneIn = Date.now() - bucketStart;
 	updateProgress();
 
