@@ -191,7 +191,11 @@ Default: `null`.
 
 ## Return Value
 
-If `output` is not specified or `null`, the return value is a Promise that resolves a `Buffer`. If an output location is specified, the return value is a Promise that resolves no value.
+The return value is a promise that resolves to an object with the following keys:
+
+- `buffer`: (_available from v3.3.9_) A `Buffer` that only exists if no `output` option was provided. Otherwise null.
+
+## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/render-still.ts)
 - [bundle()](/docs/bundle)
