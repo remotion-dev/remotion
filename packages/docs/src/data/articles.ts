@@ -427,6 +427,13 @@ export const articles = [
     crumb: "Render videos without servers",
   },
   {
+    id: "authentication",
+    title: "Authentication",
+    relativePath: "docs/lambda/authentication.md",
+    compId: "articles-docs-lambda-authentication",
+    crumb: "Lambda",
+  },
+  {
     id: "changelog",
     title: "Prerelease Changelog",
     relativePath: "docs/lambda/changelog.md",

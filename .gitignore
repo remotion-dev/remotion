@@ -12,3 +12,4 @@ packages/example/out
 .vscode/taskmarks.json
 .turbo
 .vercel
+packages/example/credentials.ini
