@@ -55,7 +55,7 @@ type InnerStillOptions = {
 	downloadMap?: DownloadMap;
 };
 
-type RenderStillReturnValue = {buffer: Buffer};
+type RenderStillReturnValue = {buffer: Buffer | null};
 
 export type RenderStillOptions = InnerStillOptions &
 	ServeUrlOrWebpackBundle & {
@@ -85,7 +85,7 @@ const innerRenderStill = async ({
 	serveUrl: string;
 	onError: (err: Error) => void;
 	proxyPort: number;
-}): Promise<RenderStillReturnValue | null> => {
+}): Promise<RenderStillReturnValue> => {
 	Internals.validateDimension(
 		composition.height,
 		'height',
@@ -247,7 +247,7 @@ const innerRenderStill = async ({
 
 	await cleanup();
 
-	return output ? {buffer} : null;
+	return {buffer: output ? null : buffer};
 };
 
 /**
@@ -257,55 +257,53 @@ const innerRenderStill = async ({
  */
 export const renderStill = (
 	options: RenderStillOptions
-): Promise<RenderStillReturnValue | null> => {
+): Promise<RenderStillReturnValue> => {
 	const selectedServeUrl = getServeUrlWithFallback(options);
 
 	const downloadMap = options.downloadMap ?? makeDownloadMap();
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
 
-	const happyPath = new Promise<RenderStillReturnValue | null>(
-		(resolve, reject) => {
-			const onError = (err: Error) => reject(err);
+	const happyPath = new Promise<RenderStillReturnValue>((resolve, reject) => {
+		const onError = (err: Error) => reject(err);
 
-			let close: (() => void) | null = null;
+		let close: (() => void) | null = null;
 
-			prepareServer({
-				webpackConfigOrServeUrl: selectedServeUrl,
-				onDownload,
-				onError,
-				ffmpegExecutable: options.ffmpegExecutable ?? null,
-				ffprobeExecutable: options.ffprobeExecutable ?? null,
-				port: options.port ?? null,
-				downloadMap,
-				remotionRoot: findRemotionRoot(),
-			})
-				.then(({serveUrl, closeServer, offthreadPort}) => {
-					close = closeServer;
-					return innerRenderStill({
-						...options,
-						serveUrl,
-						onError: (err) => reject(err),
-						proxyPort: offthreadPort,
-					});
-				})
-
-				.then((res) => resolve(res))
-				.catch((err) => reject(err))
-				.finally(() => {
-					// Clean download map if it was not passed in
-					if (!options?.downloadMap) {
-						cleanDownloadMap(downloadMap);
-					}
-
-					return close?.();
+		prepareServer({
+			webpackConfigOrServeUrl: selectedServeUrl,
+			onDownload,
+			onError,
+			ffmpegExecutable: options.ffmpegExecutable ?? null,
+			ffprobeExecutable: options.ffprobeExecutable ?? null,
+			port: options.port ?? null,
+			downloadMap,
+			remotionRoot: findRemotionRoot(),
+		})
+			.then(({serveUrl, closeServer, offthreadPort}) => {
+				close = closeServer;
+				return innerRenderStill({
+					...options,
+					serveUrl,
+					onError: (err) => reject(err),
+					proxyPort: offthreadPort,
 				});
-		}
-	);
+			})
+
+			.then((res) => resolve(res))
+			.catch((err) => reject(err))
+			.finally(() => {
+				// Clean download map if it was not passed in
+				if (!options?.downloadMap) {
+					cleanDownloadMap(downloadMap);
+				}
+
+				return close?.();
+			});
+	});
 
 	return Promise.race([
 		happyPath,
-		new Promise<RenderStillReturnValue | null>((_resolve, reject) => {
+		new Promise<RenderStillReturnValue>((_resolve, reject) => {
 			options.cancelSignal?.(() => {
 				reject(new Error('renderStill() got cancelled'));
 			});
