@@ -5,10 +5,6 @@ import {S3Client} from '@aws-sdk/client-s3';
 import {ServiceQuotasClient} from '@aws-sdk/client-service-quotas';
 import {STSClient} from '@aws-sdk/client-sts';
 import {fromIni} from '@aws-sdk/credential-providers';
-import type {
-	AwsCredentialIdentity,
-	AwsCredentialIdentityProvider,
-} from '@aws-sdk/types';
 import {createHash} from 'crypto';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {checkCredentials} from './check-credentials';
@@ -26,8 +22,11 @@ const _clients: Partial<
 	>
 > = {};
 
+type CredentialPair = {accessKeyId: string; secretAccessKey: string};
+type AwsCredentialIdentityProvider = ReturnType<typeof fromIni>;
+
 const getCredentials = ():
-	| AwsCredentialIdentity
+	| CredentialPair
 	| AwsCredentialIdentityProvider
 	| undefined => {
 	if (isInsideLambda()) {
