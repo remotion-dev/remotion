@@ -21,22 +21,21 @@ test('Need to pass valid metadata', () => {
 	).rejects.toThrow(/not be NaN, but is NaN/);
 });
 
-test('Returns buffer in promise result', () => {
-	return expect(
-		renderStill({
-			composition: {
-				width: 1000,
-				height: 1000,
-				fps: 30,
-				durationInFrames: 30,
-				id: 'react-svg',
-				defaultProps: undefined,
-			},
-			frame: 0,
-			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
-			downloadMap: makeDownloadMap(),
-		})
-	).resolves.toHaveProperty('buffer');
+test('Returns buffer in promise result', async () => {
+	const {buffer} = await renderStill({
+		composition: {
+			width: 1000,
+			height: 1000,
+			fps: 30,
+			durationInFrames: 30,
+			id: 'react-svg',
+			defaultProps: undefined,
+		},
+		frame: 0,
+		serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
+		downloadMap: makeDownloadMap(),
+	});
+	return expect(buffer?.length).toBeGreaterThan(1000);
 });
 
 test('Need to pass valid metadata', () => {
