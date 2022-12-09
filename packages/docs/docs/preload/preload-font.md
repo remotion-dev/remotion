@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-preload-preload-font.png
 id: preload-font
 slug: preload-font
 title: "preloadFont()"

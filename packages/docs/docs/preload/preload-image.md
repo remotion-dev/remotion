@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-preload-preload-image.png
 id: preload-image
 slug: preload-image
 title: "preloadImage()"
