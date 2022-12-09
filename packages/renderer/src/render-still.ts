@@ -55,7 +55,7 @@ type InnerStillOptions = {
 	downloadMap?: DownloadMap;
 };
 
-type RenderStillReturnValue = { buffer: Buffer };
+type RenderStillReturnValue = {buffer: Buffer};
 
 export type RenderStillOptions = InnerStillOptions &
 	ServeUrlOrWebpackBundle & {
@@ -114,7 +114,8 @@ const innerRenderStill = async ({
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	validateScale(scale);
 
-	output = typeof output === 'string' ? path.resolve(process.cwd(), output) : null;
+	output =
+		typeof output === 'string' ? path.resolve(process.cwd(), output) : null;
 
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
@@ -125,21 +126,21 @@ const innerRenderStill = async ({
 	validateQuality(quality);
 
 	if (output) {
-	if (fs.existsSync(output)) {
-		if (!overwrite) {
-			throw new Error(
-				`Cannot render still - "overwrite" option was set to false, but the output destination ${output} already exists.`
+		if (fs.existsSync(output)) {
+			if (!overwrite) {
+				throw new Error(
+					`Cannot render still - "overwrite" option was set to false, but the output destination ${output} already exists.`
 				);
 			}
-			
+
 			const stat = statSync(output);
-			
+
 			if (!stat.isFile()) {
 				throw new Error(
 					`The output location ${output} already exists, but is not a file, but something else (e.g. folder). Cannot save to it.`
-					);
-				}
+				);
 			}
+		}
 
 		ensureOutputDirectory(output);
 	}
@@ -246,7 +247,7 @@ const innerRenderStill = async ({
 
 	await cleanup();
 
-	return output ? { buffer } : null
+	return output ? {buffer} : null;
 };
 
 /**
@@ -254,49 +255,53 @@ const innerRenderStill = async ({
  * @description Render a still frame from a composition
  * @link https://www.remotion.dev/docs/renderer/render-still
  */
-export const renderStill = (options: RenderStillOptions): Promise<RenderStillReturnValue | null> => {
+export const renderStill = (
+	options: RenderStillOptions
+): Promise<RenderStillReturnValue | null> => {
 	const selectedServeUrl = getServeUrlWithFallback(options);
 
 	const downloadMap = options.downloadMap ?? makeDownloadMap();
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
 
-	const happyPath = new Promise<RenderStillReturnValue | null>((resolve, reject) => {
-		const onError = (err: Error) => reject(err);
+	const happyPath = new Promise<RenderStillReturnValue | null>(
+		(resolve, reject) => {
+			const onError = (err: Error) => reject(err);
 
-		let close: (() => void) | null = null;
+			let close: (() => void) | null = null;
 
-		prepareServer({
-			webpackConfigOrServeUrl: selectedServeUrl,
-			onDownload,
-			onError,
-			ffmpegExecutable: options.ffmpegExecutable ?? null,
-			ffprobeExecutable: options.ffprobeExecutable ?? null,
-			port: options.port ?? null,
-			downloadMap,
-			remotionRoot: findRemotionRoot(),
-		})
-			.then(({serveUrl, closeServer, offthreadPort}) => {
-				close = closeServer;
-				return innerRenderStill({
-					...options,
-					serveUrl,
-					onError: (err) => reject(err),
-					proxyPort: offthreadPort,
-				});
+			prepareServer({
+				webpackConfigOrServeUrl: selectedServeUrl,
+				onDownload,
+				onError,
+				ffmpegExecutable: options.ffmpegExecutable ?? null,
+				ffprobeExecutable: options.ffprobeExecutable ?? null,
+				port: options.port ?? null,
+				downloadMap,
+				remotionRoot: findRemotionRoot(),
 			})
+				.then(({serveUrl, closeServer, offthreadPort}) => {
+					close = closeServer;
+					return innerRenderStill({
+						...options,
+						serveUrl,
+						onError: (err) => reject(err),
+						proxyPort: offthreadPort,
+					});
+				})
 
-			.then((res) => resolve(res))
-			.catch((err) => reject(err))
-			.finally(() => {
-				// Clean download map if it was not passed in
-				if (!options?.downloadMap) {
-					cleanDownloadMap(downloadMap);
-				}
+				.then((res) => resolve(res))
+				.catch((err) => reject(err))
+				.finally(() => {
+					// Clean download map if it was not passed in
+					if (!options?.downloadMap) {
+						cleanDownloadMap(downloadMap);
+					}
 
-				return close?.();
-			});
-	});
+					return close?.();
+				});
+		}
+	);
 
 	return Promise.race([
 		happyPath,
