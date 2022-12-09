@@ -359,6 +359,7 @@ module.exports = {
           label: "API Reference",
         },
         "lambda/setup",
+        "lambda/authentication",
         "lambda/permissions",
         "lambda/region-selection",
         "lambda/concurrency",
