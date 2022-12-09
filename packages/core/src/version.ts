@@ -1,2 +1,2 @@
 // Automatically generated on publish
-export const VERSION = '3.3.8';
+export const VERSION = '3.3.9';
