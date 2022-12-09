@@ -1234,6 +1234,20 @@ export const articles = [
     crumb: "@remotion/preload",
   },
   {
+    id: "preload-font",
+    title: "preloadFont()",
+    relativePath: "docs/preload/preload-font.md",
+    compId: "articles-docs-preload-preload-font",
+    crumb: "@remotion/preload",
+  },
+  {
+    id: "preload-image",
+    title: "preloadImage()",
+    relativePath: "docs/preload/preload-image.md",
+    compId: "articles-docs-preload-preload-image",
+    crumb: "@remotion/preload",
+  },
+  {
     id: "preload-video",
     title: "preloadVideo()",
     relativePath: "docs/preload/preload-video.md",
