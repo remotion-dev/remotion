@@ -1,4 +1,5 @@
 export {preloadAudio} from './preload-audio';
+export {preloadFont} from './preload-font';
+export {preloadImage} from './preload-image';
 export {preloadVideo} from './preload-video';
-export {preloadAsset} from './preload-asset';
 export {resolveRedirect} from './resolve-redirect';
