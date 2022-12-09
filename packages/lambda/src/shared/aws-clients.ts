@@ -74,7 +74,7 @@ const getCredentialsHash = ({
 	customCredentials: CustomCredentials | null;
 	service: keyof ServiceMapping;
 }): string => {
-	const hashComponents: {[key: string]: any} = {};
+	const hashComponents: {[key: string]: unknown} = {};
 
 	if (process.env.REMOTION_AWS_PROFILE) {
 		hashComponents.credentials = {
