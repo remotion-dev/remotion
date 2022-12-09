@@ -20,16 +20,14 @@ export const makeBundleProgress = ({progress, doneIn}: BundleProgress) => {
 
 export type BucketCreationProgress = {
 	bucketCreated: boolean;
-	websiteEnabled: boolean;
 	doneIn: number | null;
 };
 
 export const makeBucketProgress = ({
 	bucketCreated,
-	websiteEnabled,
 	doneIn,
 }: BucketCreationProgress) => {
-	const states = [bucketCreated, websiteEnabled];
+	const states = [bucketCreated];
 	const statesFinished = states.filter(Boolean).map((p) => p).length;
 	const progress = statesFinished / states.length;
 

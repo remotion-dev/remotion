@@ -103,8 +103,6 @@ The following table is a breakdown of why Remotion Lambda requires the permissio
       <code>s3:GetBucketLocation</code> <br />
       <code>s3:PutBucketAcl</code> <br />
       <code>s3:DeleteBucket</code> <br />
-      <code>s3:PutBucketWebsite</code> <br />
-      <code>s3:DeleteBucketWebsite</code> <br />
     </td>
     <td>
       <code>{'arn:aws:s3:::remotionlambda-*'}</code>

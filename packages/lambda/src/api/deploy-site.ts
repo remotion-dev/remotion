@@ -11,7 +11,6 @@ import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateBucketName} from '../shared/validate-bucketname';
 import {validateSiteName} from '../shared/validate-site-name';
 import {bucketExistsInRegion} from './bucket-exists';
-import {enableS3Website} from './enable-s3-website';
 import type {UploadDirProgress} from './upload-dir';
 import {uploadDir} from './upload-dir';
 
@@ -117,10 +116,6 @@ export const deploySite = async ({
 				});
 			})
 		),
-		enableS3Website({
-			region,
-			bucketName,
-		}),
 	]);
 
 	return {
