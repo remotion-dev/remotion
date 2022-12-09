@@ -20,7 +20,7 @@ We recommend using the environment variable variants prefixed with `REMOTION_` b
 
 ## Rotating credentials
 
-Using more than one AWS account can be a viable scaling strategy to increase the [concurrency limit](/docs/concurrency). To do so, you can set new values for the `REMOTION_AWS_ACCESS_KEY_ID` and `REMOTION_AWS_SECRET_ACCESS_KEY` or other environment variables before making an operation using `@remotion/lambda`. Below is an implementation example.
+Using more than one AWS account can be a viable scaling strategy to increase the [concurrency limit](/docs/lambda/concurrency). To do so, you can set new values for the `REMOTION_AWS_ACCESS_KEY_ID` and `REMOTION_AWS_SECRET_ACCESS_KEY` or other environment variables before making an operation using `@remotion/lambda`. Below is an implementation example.
 
 ```ini title=".env"
 # Account 1
@@ -78,7 +78,7 @@ aws_access_key_id = YOUR_ACCESS_KEY_ID
 aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
 ```
 
-In this example, we added a `remotion` profile. Now, by setting `AWS_PROFILE=remotion`, you can select the profile and don't need to pass each environment variable separately anymore.
+In this example, we added a `remotion` profile. Now, by setting `REMOTION_AWS_PROFILE=remotion`, you can select the profile and don't need to pass each environment variable separately anymore.
 
 ## See also
 
