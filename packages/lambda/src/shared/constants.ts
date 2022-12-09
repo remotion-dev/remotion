@@ -448,6 +448,7 @@ export type RenderProgress = {
 	retriesInfo: ChunkRetry[];
 	mostExpensiveFrameRanges: ExpensiveChunk[] | null;
 	framesRendered: number;
+	outputSizeInBytes: number | null;
 };
 
 export type Privacy = 'public' | 'private' | 'no-acl';
