@@ -123,6 +123,12 @@ The current time at which the Lambda function responded to the progress request.
 
 How many bytes have been saved to the S3 bucket as a result of this render.
 
+### `outputSizeInBytes`
+
+_available from v.3.3.9_
+
+The size of the output artifact in bytes.
+
 ### `lambdasInvoked`
 
 How many lambdas that render a chunk have been invoked yet and have started rendering.
