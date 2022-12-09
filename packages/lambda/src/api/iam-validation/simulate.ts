@@ -53,6 +53,13 @@ export const simulatePermissions = async (
 	let callerArn;
 	if (callerIdentityArnType === 'iam' && callerIdentityArnComponents[3] === 'user') {
 		callerArn = callerIdentity.Arn as string;
+	} else if (callerIdentityArnType === 'sts' && callerIdentityArnComponents[3] === 'assumed-role') {
+		const assumedRoleComponents = callerIdentityArnComponents[4].match(/\/([^/]+)\/(.*)/)
+		if (!assumedRoleComponents) {
+			throw new Error('Unsupported AWS Caller Identity as Assumed-Role ARN detected');
+		}
+
+		callerArn = `arn:aws:iam::${callerIdentityArnComponents[2]}:role/${assumedRoleComponents[1]}`
 	} else {
 		throw new Error('Unsupported AWS Caller Identity ARN detected');
 	}
