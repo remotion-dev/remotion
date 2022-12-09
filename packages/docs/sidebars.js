@@ -236,6 +236,8 @@ module.exports = {
       items: [
         "preload/preload-video",
         "preload/preload-audio",
+        "preload/preload-image",
+        "preload/preload-font",
         "preload/resolve-redirect",
       ],
     },
