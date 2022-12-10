@@ -313,6 +313,6 @@ export const getProgress = async ({
 				: null,
 		mostExpensiveFrameRanges: null,
 		timeToEncode: null,
-		outputSizeInBytes: null,
+		outputSizeInBytes: outputFile?.size ?? null,
 	};
 };
