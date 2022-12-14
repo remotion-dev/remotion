@@ -125,7 +125,7 @@ export const webpackConfig = ({
 				environment === 'development' ? '[path][name][ext]' : '[hash][ext]',
 		},
 		resolve: {
-			extensions: ['.ts', '.tsx', '.js', '.jsx'],
+			extensions: ['.web.js', '.ts', '.tsx', '.js', '.jsx'],
 			alias: {
 				// Only one version of react
 				'react/jsx-runtime': require.resolve('react/jsx-runtime'),
