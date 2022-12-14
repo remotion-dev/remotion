@@ -151,6 +151,34 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						subMenu: null,
 						quickSwitcherLabel: 'New still...',
 					},
+					{
+						id: 'open-in-editor',
+						value: 'open-in-editor',
+						label: 'Open in code editor...',
+						onClick: async () => {
+							await fetch(`/api/open-in-editor`, {
+								method: 'post',
+								headers: {
+									'content-type': 'application/json',
+								},
+								body: JSON.stringify({
+									stack: {
+										originalFileName: `${window.remotion_cwd}`,
+										originalLineNumber: 1,
+										originalColumnNumber: 1,
+									},
+								}),
+							})
+							.catch(err => {
+								console.error(err)
+							})
+						},
+						type: 'item' as const,
+						keyHint: null,
+						leftItem: null,
+						subMenu: null,
+						quickSwitcherLabel: 'Open in editor...',
+					},
 				],
 				quickSwitcherLabel: null,
 			},
