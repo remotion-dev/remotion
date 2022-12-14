@@ -148,9 +148,10 @@ const handleOpenInEditor = async (
 		const stack = body.stack as SymbolicatedStackFrame;
 
 		const guess = await editorGuess;
+		const defaultCodeEditor = { process: 'code', command: 'code' }
 		const didOpen = await launchEditor({
 			colNumber: stack.originalColumnNumber as number,
-			editor: guess[0],
+			editor: guess[0] ?? defaultCodeEditor,
 			fileName: path.resolve(remotionRoot, stack.originalFileName as string),
 			lineNumber: stack.originalLineNumber as number,
 			vsCodeNewWindow: false,
