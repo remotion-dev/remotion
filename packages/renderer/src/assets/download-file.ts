@@ -97,6 +97,7 @@ export const downloadFile = ({
 				res.on('data', (d) => {
 					refreshTimeout();
 					downloaded += d.length;
+					refreshTimeout();
 					onProgress?.({
 						downloaded,
 						percent: totalSize === null ? null : downloaded / totalSize,
