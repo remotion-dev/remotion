@@ -278,7 +278,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i glsl-shader-loader glslify glslify-import-loader raw-roader
+npm i glsl-shader-loader glslify glslify-import-loader raw-loader
 ```
 
   </TabItem>
@@ -286,14 +286,14 @@ npm i glsl-shader-loader glslify glslify-import-loader raw-roader
   <TabItem value="yarn">
 
 ```bash
-yarn add glsl-shader-loader glslify glslify-import-loader raw-roader
+yarn add glsl-shader-loader glslify glslify-import-loader raw-loader
 ```
 
   </TabItem>
   <TabItem value="pnpm">
 
 ```bash
-pnpm i glsl-shader-loader glslify glslify-import-loader raw-roader
+pnpm i glsl-shader-loader glslify glslify-import-loader raw-loader
 ```
 
   </TabItem>
