@@ -84,6 +84,7 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 			keyboardShortcutsEnabled: ConfigInternals.getKeyboardShortcutsEnabled(),
 			userPassedPublicDir: ConfigInternals.getPublicDir(),
 			webpackOverride: ConfigInternals.getWebpackOverrideFn(),
+			poll: ConfigInternals.getWebpackPolling(),
 		}
 	);
 

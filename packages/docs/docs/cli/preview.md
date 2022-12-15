@@ -53,4 +53,11 @@ _Available from v3.2.13_
 
 _Available from v3.2.11_
 
-Disables all keyboard shortcuts in the Preview.
+[Disables all keyboard shortcuts in the Preview](/docs/config#setkeyboardshortcutsenabled).
+
+### `--webpack-poll`
+
+_Available from v3.3.11_
+
+[Enables Webpack polling](/docs/config#setwebpackpollinginmilliseconds) instead of the file system event listeners for hot reloading. This is useful if you are inside a virtual machine or have a remote file system.
+Pass a value in milliseconds, for example `--webpack-poll=1000`.
