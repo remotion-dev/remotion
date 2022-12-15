@@ -59,6 +59,13 @@ type WebhookPayload =
       renderId: string;
       expectedBucketOwner: string;
       bucketName: string;
+      // Available from v3.3.11
+      costs: {
+        estimatedCost: number;
+        estimatedDisplayCost: string;
+        currency: string;
+        disclaimer: string;
+      };
     }
   | {
       type: "timeout";
