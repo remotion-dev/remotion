@@ -244,7 +244,7 @@ export const parseCommandLine = () => {
 	}
 
 	if (typeof parsedCli['webpack-poll'] !== 'undefined') {
-		Config.Bundling.setWebpackPollingInMilliseconds(parsedCli['webpack-poll']);
+		Config.Preview.setWebpackPollingInMilliseconds(parsedCli['webpack-poll']);
 	}
 
 	if (typeof parsedCli['audio-bitrate'] !== 'undefined') {
