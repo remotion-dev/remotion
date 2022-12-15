@@ -105,6 +105,7 @@ export const Config: ConfigType = {
 		setMaxTimelineTracks,
 		setKeyboardShortcutsEnabled,
 		setNumberOfSharedAudioTags,
+		setWebpackPollingInMilliseconds,
 	},
 	Bundling: {
 		overrideWebpackConfig,
@@ -112,7 +113,6 @@ export const Config: ConfigType = {
 		setPort,
 		setPublicDir,
 		setEntryPoint,
-		setWebpackPollingInMilliseconds,
 	},
 	Log: {
 		setLevel: setLogLevel,

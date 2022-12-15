@@ -156,6 +156,21 @@ Config.Preview.setKeyboardShortcutsEnabled(false);
 
 The [command line flag](/docs/cli/preview#--disable-keyboard-shortcuts) `--disable-keyboard-shortcuts` will take precedence over this option.
 
+### setWebpackPollingInMilliseconds()
+
+_available from v3.3.11_
+
+Enables Webpack polling instead of the file system event listeners for hot reloading.
+This is useful if you are inside a virtual machine or have a remote file system.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Preview.setWebpackPollingInMilliseconds(1000);
+```
+
+The [command line flag](/docs/cli/preview#--webpack-poll) `--webpack-poll` will take precedence over this option.
+
 ### setNumberOfSharedAudioTags()
 
 _available from v3.3.2_
