@@ -5,6 +5,7 @@ import {truthy} from '../../truthy';
 import {Row} from '../components/layout';
 import type {Menu} from '../components/Menu/MenuItem';
 import type {SelectionItem} from '../components/NewComposition/ComboBox';
+import { notificationCenter } from '../components/Notifications/NotificationCenter';
 import type {TQuickSwitcherResult} from '../components/QuickSwitcher/QuickSwitcherResult';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
 import {inOutHandles} from '../components/TimelineInOutToggle';
@@ -172,11 +173,22 @@ export const useMenuStructure = (closeMenu: () => void) => {
 							.then((res)=> res.json())
 							.then(({success}) => {
 								if(!success){
-									console.error('Could not open in editor');
+									notificationCenter.current?.addNotification({
+										content: `Could not open ${window.remotion_editorName}`,
+										duration: 2000,
+										created: Date.now(),
+										id: String(Math.random()),
+									});
 								}
 							})
-							.catch(() => {
-								console.error('Could not open in editor');
+							.catch((err) => {
+								console.error(err)
+								notificationCenter.current?.addNotification({
+									content: `Could not open ${window.remotion_editorName}`,
+									duration: 2000,
+									created: Date.now(),
+									id: String(Math.random()),
+								});
 							})
 						},
 						type: 'item' as const,
