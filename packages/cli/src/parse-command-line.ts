@@ -84,6 +84,7 @@ export const BooleanFlags = [
 	'ignore-certificate-errors',
 	'disable-headless',
 	'disable-keyboard-shortcuts',
+	'default-only',
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
