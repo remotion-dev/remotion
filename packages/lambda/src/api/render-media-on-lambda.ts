@@ -1,11 +1,11 @@
 import type {
-	ChromiumOptions,
 	FrameRange,
 	ImageFormat,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
 } from '@remotion/renderer';
+import type {LambdaChromiumOptions} from '@remotion/renderer/src/open-browser';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
@@ -41,7 +41,7 @@ export type RenderMediaOnLambdaInput = {
 	frameRange?: FrameRange;
 	outName?: OutNameInput;
 	timeoutInMilliseconds?: number;
-	chromiumOptions?: ChromiumOptions;
+	chromiumOptions?: LambdaChromiumOptions;
 	scale?: number;
 	everyNthFrame?: number;
 	numberOfGifLoops?: number | null;

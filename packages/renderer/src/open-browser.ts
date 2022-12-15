@@ -16,11 +16,15 @@ const validRenderers = ['swangle', 'angle', 'egl', 'swiftshader'] as const;
 
 type OpenGlRenderer = typeof validRenderers[number];
 
-export type ChromiumOptions = {
+export type LambdaChromiumOptions = {
 	ignoreCertificateErrors?: boolean;
 	disableWebSecurity?: boolean;
 	gl?: OpenGlRenderer | null;
 	headless?: boolean;
+};
+
+export type ChromiumOptions = LambdaChromiumOptions & {
+	enableExtensions?: boolean;
 };
 
 const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
@@ -90,7 +94,9 @@ export const openBrowser = async (
 			'--disable-component-extensions-with-background-pages',
 			'--disable-default-apps',
 			'--disable-dev-shm-usage',
-			'--disable-extensions',
+			options?.chromiumOptions?.enableExtensions
+				? null
+				: '--disable-extensions',
 			'--no-proxy-server',
 			"--proxy-server='direct://'",
 			'--proxy-bypass-list=*',
