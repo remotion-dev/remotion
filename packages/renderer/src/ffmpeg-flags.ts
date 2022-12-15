@@ -277,8 +277,8 @@ export const getBinaryDownloadUrl = (
 					contentLength: 42093320,
 			  }
 			: {
-					url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffprobe-macos-arm64',
-					contentLength: 46192536,
+					url: 'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/ffprobe-macos-arm64-v2',
+					contentLength: 46690008,
 			  };
 	}
 
