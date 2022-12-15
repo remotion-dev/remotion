@@ -25,6 +25,18 @@ In [`getCompositions()`](/docs/renderer/get-compositions#disablewebsecurity), [`
 
 Pass [`--disable-web-security`](/docs/cli/render#--disable-web-security) in one of the following commands: `remotion render`, `remotion still`, `remotion lambda render`, `remotion lambda still`.
 
+## `--enable-extensions`
+
+This will enable your installed Chrome extensions during render.
+
+### Via Node.JS APIs
+
+In [`getCompositions()`](/docs/renderer/get-compositions#enableextensions), [`renderStill()`](/docs/renderer/render-still#enableextensions), [`renderMedia()`](/docs/renderer/render-media#enableextensions) and [`renderFrames()`](/docs/renderer/render-frames#enableextensions), you can pass [`chromiumOptions.disableWebSecurity`](/docs/renderer/render-still#enableextensions).
+
+### Via CLI flag
+
+Pass [`--disable-web-security`](/docs/cli/render#--disable-web-security) in one of the following commands: `remotion render`, `remotion still`, `remotion lambda render`, `remotion lambda still`.
+
 ### Via config file
 
 Use [setChromiumDisableWebSecurity()](/docs/config#setchromiumdisablewebsecurity).
