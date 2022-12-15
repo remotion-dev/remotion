@@ -575,10 +575,8 @@ export async function launchEditor({
 
 		_childProcess.on('error', (error) => {
 			Log.error('Error opening file in editor', fileName, error.message);
-		console.error("resolve to false")
 			reject(new Error('Error opening file in editor'));
 		});
-		console.error("resolve to true")
 		resolve(true);
 	});
 }

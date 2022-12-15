@@ -18,6 +18,7 @@ import {RichTimelineContext} from '../state/rich-timeline';
 import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
 import {timelineRef} from '../state/timeline-ref';
+import { openInEditor } from './open-in-editor';
 import {pickColor} from './pick-color';
 import {areKeyboardShortcutsDisabled} from './use-keybinding';
 
@@ -157,18 +158,12 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						value: 'open-in-editor',
 						label: `Open in ${window.remotion_editorName}`,
 						onClick: async () => {
-							await fetch(`/api/open-in-editor`, {
-								method: 'post',
-								headers: {
-									'content-type': 'application/json',
-								},
-								body: JSON.stringify({
-									stack: {
-										originalFileName: `${window.remotion_cwd}`,
-										originalLineNumber: 1,
-										originalColumnNumber: 1,
-									},
-								}),
+							await openInEditor({
+								originalFileName: `${window.remotion_cwd}`,
+								originalLineNumber: 1,
+								originalColumnNumber: 1,
+								originalFunctionName: null,
+								originalScriptCode: null
 							})
 							.then((res)=> res.json())
 							.then(({success}) => {
