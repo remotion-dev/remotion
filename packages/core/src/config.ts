@@ -77,6 +77,11 @@ export type ConfigType = {
 		 * You can set an absolute path or a relative path that will be resolved from the closest package.json location.
 		 */
 		readonly setPublicDir: (publicDir: string | null) => void;
+		/**
+		 * Enable Webpack polling instead of file system listeners for hot reloading in the preview.
+		 * This is useful if you are using a remote directory or a virtual machine.
+		 */
+		readonly setWebpackPollingInMilliseconds: (interval: number | null) => void;
 	};
 	readonly Log: {
 		/**
