@@ -95,8 +95,8 @@ export const downloadFile = ({
 				res.on('error', (err) => rejectAndFlag(err));
 				res.pipe(writeStream).on('error', (err) => rejectAndFlag(err));
 				res.on('data', (d) => {
-					downloaded += d.length;
 					refreshTimeout();
+					downloaded += d.length;
 					onProgress?.({
 						downloaded,
 						percent: totalSize === null ? null : downloaded / totalSize,
