@@ -119,6 +119,11 @@ export type ConfigType = {
 		 */
 		readonly setChromiumHeadlessMode: (should: boolean) => void;
 		/**
+		 * If true, your installed Chrome extensions will be enabled.
+		 * Default: false
+		 */
+		readonly setEnableChromiumExtensions: (should: boolean) => void;
+		/**
 		 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle', 'swiftshader' and 'swangle'.
 		 * Default: 'swangle' in Lambda, null elsewhere.
 		 */
