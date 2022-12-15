@@ -388,13 +388,15 @@ export type RenderMetadata = {
 	everyNthFrame: number;
 };
 
+export type AfterRenderCost = {
+	estimatedCost: number;
+	estimatedDisplayCost: string;
+	currency: string;
+	disclaimer: string;
+};
+
 export type PostRenderData = {
-	cost: {
-		estimatedCost: number;
-		estimatedDisplayCost: string;
-		currency: string;
-		disclaimer: string;
-	};
+	cost: AfterRenderCost;
 	outputFile: string;
 	outputSize: number;
 	renderSize: number;
