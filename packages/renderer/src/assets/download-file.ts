@@ -95,6 +95,7 @@ export const downloadFile = ({
 				res.on('error', (err) => rejectAndFlag(err));
 				res.pipe(writeStream).on('error', (err) => rejectAndFlag(err));
 				res.on('data', (d) => {
+					refreshTimeout();
 					downloaded += d.length;
 					onProgress?.({
 						downloaded,
