@@ -27,6 +27,7 @@ export const startServer = async (
 		remotionRoot: string;
 		keyboardShortcutsEnabled: boolean;
 		userPassedPublicDir: string | null;
+		poll: number | null;
 	}
 ): Promise<{
 	port: number;
@@ -51,6 +52,7 @@ export const startServer = async (
 		],
 		remotionRoot: options.remotionRoot,
 		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
+		poll: options.poll,
 	});
 
 	const compiler = webpack(config);

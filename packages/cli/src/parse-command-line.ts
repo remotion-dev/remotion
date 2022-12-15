@@ -61,6 +61,7 @@ export type CommandLineOptions = {
 	['enforce-audio-track']: boolean;
 	gl: OpenGlRenderer;
 	['package-manager']: string;
+	['webpack-poll']: number;
 };
 
 export const BooleanFlags = [
@@ -240,6 +241,10 @@ export const parseCommandLine = () => {
 
 	if (typeof parsedCli['public-dir'] !== 'undefined') {
 		Config.Bundling.setPublicDir(parsedCli['public-dir']);
+	}
+
+	if (typeof parsedCli['webpack-poll'] !== 'undefined') {
+		Config.Bundling.setWebpackPollingInMilliseconds(parsedCli['webpack-poll']);
 	}
 
 	if (typeof parsedCli['audio-bitrate'] !== 'undefined') {
