@@ -16,11 +16,14 @@ const validRenderers = ['swangle', 'angle', 'egl', 'swiftshader'] as const;
 
 type OpenGlRenderer = typeof validRenderers[number];
 
-export type ChromiumOptions = {
+export type LambdaChromiumOptions = {
 	ignoreCertificateErrors?: boolean;
 	disableWebSecurity?: boolean;
 	gl?: OpenGlRenderer | null;
 	headless?: boolean;
+};
+
+export type ChromiumOptions = LambdaChromiumOptions & {
 	enableExtensions?: boolean;
 };
 
