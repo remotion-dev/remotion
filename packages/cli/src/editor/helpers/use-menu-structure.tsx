@@ -151,10 +151,10 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						subMenu: null,
 						quickSwitcherLabel: 'New still...',
 					},
-					{
+					window.remotion_editorName ? {
 						id: 'open-in-editor',
 						value: 'open-in-editor',
-						label: 'Open in code editor...',
+						label: `Open in ${window.remotion_editorName}`,
 						onClick: async () => {
 							await fetch(`/api/open-in-editor`, {
 								method: 'post',
@@ -169,8 +169,14 @@ export const useMenuStructure = (closeMenu: () => void) => {
 									},
 								}),
 							})
-							.catch(err => {
-								console.error(err)
+							.then((res)=> res.json())
+							.then(({success}) => {
+								if(!success){
+									console.error('Could not open in editor');
+								}
+							})
+							.catch(() => {
+								console.error('Could not open in editor');
 							})
 						},
 						type: 'item' as const,
@@ -178,6 +184,9 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						leftItem: null,
 						subMenu: null,
 						quickSwitcherLabel: 'Open in editor...',
+					} : {
+							id: 'file-divider-1',
+							type: 'divider' as const,
 					},
 				],
 				quickSwitcherLabel: null,
