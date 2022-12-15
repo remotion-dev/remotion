@@ -30,6 +30,6 @@ export const setChromiumHeadlessMode = (should: boolean) => {
 };
 
 export const getChromiumEnableExtensions = () => enableExtensions;
-export const setChromiumEnableExtensions = (should: boolean) => {
+export const setEnableChromiumExtensions = (should: boolean) => {
 	enableExtensions = should;
 };

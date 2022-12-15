@@ -8,7 +8,7 @@ import {
 	getChromiumHeadlessMode,
 	getChromiumOpenGlRenderer,
 	getIgnoreCertificateErrors,
-	setChromiumEnableExtensions,
+	setEnableChromiumExtensions,
 } from './chromium-flags';
 import {getOutputCodecOrUndefined} from './codec';
 import {getConcurrency} from './concurrency';
@@ -118,7 +118,7 @@ export const Config: ConfigType = {
 		setChromiumDisableWebSecurity,
 		setChromiumIgnoreCertificateErrors,
 		setChromiumHeadlessMode,
-		setChromiumEnableExtensions,
+		setEnableChromiumExtensions,
 		setChromiumOpenGlRenderer,
 	},
 	Rendering: {
