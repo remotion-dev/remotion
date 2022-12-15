@@ -69,6 +69,7 @@ const editorNames = [
 	'phpstorm',
 	'pycharm',
 	'rubymine',
+	'subl',
 	'sublime_text',
 	'vim',
 	'webstorm',
@@ -154,6 +155,7 @@ const displayNameForEditor: {[key in Editor]: string} = {
 	pycharm: 'PyCharm',
 	rider: 'Rider',
 	rubymine: 'RubyMine',
+	subl: 'Sublime Text',
 	sublime_text: 'Sublime Text',
 	vim: 'vim',
 	vscodium: 'VS Codium',
@@ -234,7 +236,7 @@ const COMMON_EDITORS_LINUX: Record<string, Editor> = {
 	'phpstorm.sh': 'phpstorm',
 	'pycharm.sh': 'pycharm',
 	'rubymine.sh': 'rubymine',
-	sublime_text: 'sublime_text',
+	sublime_text: 'subl',
 	vim: 'vim',
 	'webstorm.sh': 'webstorm',
 	'goland.sh': 'goland',
@@ -280,6 +282,8 @@ function getArgumentsForLineNumber(
 	colNumber: number
 ) {
 	const editorBasename = path.basename(editor).replace(/\.(exe|cmd|bat)$/i, '');
+	const isFolder =
+		fs.existsSync(fileName) && fs.lstatSync(fileName).isDirectory();
 	switch (editorBasename) {
 		case 'atom':
 		case 'Atom':
@@ -287,7 +291,9 @@ function getArgumentsForLineNumber(
 		case 'subl':
 		case 'sublime':
 		case 'sublime_text':
-			return [fileName + ':' + lineNumber + ':' + colNumber];
+			return isFolder
+				? [fileName]
+				: [fileName + ':' + lineNumber + ':' + colNumber];
 		case 'wstorm':
 		case 'charm':
 			return [fileName + ':' + lineNumber];
@@ -544,28 +550,35 @@ export async function launchEditor({
 		});
 	});
 
-	if (process.platform === 'win32') {
-		// On Windows, launch the editor in a shell because spawn can only
-		// launch .exe files.
-		_childProcess = child_process.spawn(
-			'cmd.exe',
-			['/C', binaryToUse].concat(args),
-			{stdio: 'inherit', detached: true}
-		);
-	} else {
-		_childProcess = child_process.spawn(binaryToUse, args, {stdio: 'inherit'});
-	}
-
-	_childProcess.on('exit', (errorCode) => {
-		_childProcess = null;
-
-		if (errorCode) {
-			Log.error(`Process exited with code ${errorCode}`);
+	return new Promise((resolve, reject) => {
+		if (process.platform === 'win32') {
+			// On Windows, launch the editor in a shell because spawn can only
+			// launch .exe files.
+			_childProcess = child_process.spawn(
+				'cmd.exe',
+				['/C', binaryToUse].concat(args),
+				{stdio: 'inherit', detached: true}
+			);
+		} else {
+			_childProcess = child_process.spawn(binaryToUse, args, {
+				stdio: 'inherit',
+			});
 		}
-	});
 
-	_childProcess.on('error', (error) => {
-		Log.error('Error opening file in editor', fileName, error.message);
+		_childProcess.on('exit', (errorCode) => {
+			_childProcess = null;
+
+			if (errorCode) {
+				Log.error(`Process exited with code ${errorCode}`);
+			}
+		});
+
+		_childProcess.on('error', (error) => {
+			Log.error('Error opening file in editor', fileName, error.message);
+		console.error("resolve to false")
+			reject(new Error('Error opening file in editor'));
+		});
+		console.error("resolve to true")
+		resolve(true);
 	});
-	return true;
 }
