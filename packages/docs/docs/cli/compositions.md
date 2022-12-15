@@ -81,7 +81,15 @@ Results in invalid SSL certificates in Chrome, such as self-signed ones, being i
 
 ### `--disable-web-security`
 
+_available since v2.6.5_
+
 This will most notably disable CORS in Chrome among other security features.
+
+### `--enable-extensions`
+
+_available since v3.3.10_
+
+If set, your Chrome extensions will be enabled while rendering.
 
 ### `--disable-headless`
 

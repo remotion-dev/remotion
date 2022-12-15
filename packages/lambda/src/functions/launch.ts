@@ -572,6 +572,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 					lambdaErrors: postRenderData.errors,
 					outputFile: postRenderData.outputFile,
 					timeToFinish: postRenderData.timeToFinish,
+					costs: postRenderData.cost,
 				},
 			});
 			webhookInvoked = true;

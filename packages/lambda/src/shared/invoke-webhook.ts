@@ -2,6 +2,7 @@ import * as Crypto from 'crypto';
 import http from 'http';
 import https from 'https';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
+import type {AfterRenderCost} from './constants';
 
 /**
  * @description Calculates cryptographically secure signature for webhooks using Hmac.
@@ -35,6 +36,7 @@ type DynamicWebhookPayload =
 			outputUrl: string | undefined;
 			outputFile: string | undefined;
 			timeToFinish: number | undefined;
+			costs: AfterRenderCost;
 	  }
 	| {
 			type: 'timeout';
