@@ -47,6 +47,13 @@ export type ConfigType = {
 		 * @default 0
 		 */
 		readonly setNumberOfSharedAudioTags: (numberOfAudioTags: number) => void;
+		/**
+		 * Enable Webpack polling instead of file system listeners for hot reloading in the preview.
+		 * This is useful if you are using a remote directory or a virtual machine.
+		 * @param interval
+		 * @default null
+		 */
+		readonly setWebpackPollingInMilliseconds: (interval: number | null) => void;
 	};
 	readonly Bundling: {
 		/**
