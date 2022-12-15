@@ -4,9 +4,11 @@ import {getBrowser} from './browser';
 import {getBrowserExecutable} from './browser-executable';
 import {
 	getChromiumDisableWebSecurity,
+	getChromiumEnableExtensions,
 	getChromiumHeadlessMode,
 	getChromiumOpenGlRenderer,
 	getIgnoreCertificateErrors,
+	setEnableChromiumExtensions,
 } from './chromium-flags';
 import {getOutputCodecOrUndefined} from './codec';
 import {getConcurrency} from './concurrency';
@@ -92,6 +94,10 @@ import {setQuality} from './quality';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
 import {setWebpackCaching} from './webpack-caching';
+import {
+	getWebpackPolling,
+	setWebpackPollingInMilliseconds,
+} from './webpack-poll';
 import {getWidth, overrideWidth} from './width';
 
 export const Config: ConfigType = {
@@ -99,6 +105,7 @@ export const Config: ConfigType = {
 		setMaxTimelineTracks,
 		setKeyboardShortcutsEnabled,
 		setNumberOfSharedAudioTags,
+		setWebpackPollingInMilliseconds,
 	},
 	Bundling: {
 		overrideWebpackConfig,
@@ -116,6 +123,7 @@ export const Config: ConfigType = {
 		setChromiumDisableWebSecurity,
 		setChromiumIgnoreCertificateErrors,
 		setChromiumHeadlessMode,
+		setEnableChromiumExtensions,
 		setChromiumOpenGlRenderer,
 	},
 	Rendering: {
@@ -169,6 +177,7 @@ export const ConfigInternals = {
 	getIgnoreCertificateErrors,
 	getChromiumHeadlessMode,
 	getChromiumOpenGlRenderer,
+	getChromiumEnableExtensions,
 	getEveryNthFrame,
 	getConcurrency,
 	getCurrentPuppeteerTimeout,
@@ -199,6 +208,7 @@ export const ConfigInternals = {
 	getCrfOrUndefined,
 	getEntryPoint,
 	getNumberOfGifLoops,
+	getWebpackPolling,
 };
 
 export const overrideRemotion = () => {

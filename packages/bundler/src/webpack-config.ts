@@ -47,6 +47,7 @@ export const webpackConfig = ({
 	entryPoints,
 	remotionRoot,
 	keyboardShortcutsEnabled,
+	poll,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -60,6 +61,7 @@ export const webpackConfig = ({
 	keyboardShortcutsEnabled: boolean;
 	entryPoints: string[];
 	remotionRoot: string;
+	poll: number | null;
 }): [string, WebpackConfiguration] => {
 	const conf: webpack.Configuration = webpackOverride({
 		optimization: {
@@ -74,14 +76,12 @@ export const webpackConfig = ({
 					  },
 		},
 		watchOptions: {
+			poll: poll ?? undefined,
 			aggregateTimeout: 0,
 			ignored: ['**/.git/**', '**/node_modules/**'],
 		},
 
-		devtool:
-			environment === 'development'
-				? 'cheap-module-source-map'
-				: 'cheap-module-source-map',
+		devtool: 'cheap-module-source-map',
 		entry: [
 			// Fast Refresh must come first,
 			// because setup-environment imports ReactDOM.
@@ -125,7 +125,7 @@ export const webpackConfig = ({
 				environment === 'development' ? '[path][name][ext]' : '[hash][ext]',
 		},
 		resolve: {
-			extensions: ['.ts', '.tsx', '.js', '.jsx'],
+			extensions: ['.ts', '.tsx', '.web.js', '.js', '.jsx'],
 			alias: {
 				// Only one version of react
 				'react/jsx-runtime': require.resolve('react/jsx-runtime'),

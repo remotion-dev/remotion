@@ -51,6 +51,7 @@ export type CommandLineOptions = {
 	port: number;
 	frame: string | number;
 	['disable-headless']: boolean;
+	['enable-extensions']: boolean;
 	['disable-keyboard-shortcuts']: boolean;
 	muted: boolean;
 	height: number;
@@ -60,6 +61,7 @@ export type CommandLineOptions = {
 	['enforce-audio-track']: boolean;
 	gl: OpenGlRenderer;
 	['package-manager']: string;
+	['webpack-poll']: number;
 };
 
 export const BooleanFlags = [
@@ -82,6 +84,7 @@ export const BooleanFlags = [
 	'ignore-certificate-errors',
 	'disable-headless',
 	'disable-keyboard-shortcuts',
+	'default-only',
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
@@ -133,6 +136,10 @@ export const parseCommandLine = () => {
 
 	if (parsedCli['disable-headless']) {
 		Config.Puppeteer.setChromiumHeadlessMode(false);
+	}
+
+	if (parsedCli['enable-extensions']) {
+		Config.Puppeteer.setEnableChromiumExtensions(true);
 	}
 
 	if (parsedCli.log) {
@@ -235,6 +242,10 @@ export const parseCommandLine = () => {
 
 	if (typeof parsedCli['public-dir'] !== 'undefined') {
 		Config.Bundling.setPublicDir(parsedCli['public-dir']);
+	}
+
+	if (typeof parsedCli['webpack-poll'] !== 'undefined') {
+		Config.Preview.setWebpackPollingInMilliseconds(parsedCli['webpack-poll']);
 	}
 
 	if (typeof parsedCli['audio-bitrate'] !== 'undefined') {

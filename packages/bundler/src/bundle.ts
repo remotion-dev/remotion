@@ -76,6 +76,7 @@ export const getConfig = ({
 		entryPoints: [],
 		remotionRoot: resolvedRemotionRoot,
 		keyboardShortcutsEnabled: false,
+		poll: null,
 	});
 };
 

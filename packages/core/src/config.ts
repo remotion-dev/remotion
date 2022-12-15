@@ -47,6 +47,13 @@ export type ConfigType = {
 		 * @default 0
 		 */
 		readonly setNumberOfSharedAudioTags: (numberOfAudioTags: number) => void;
+		/**
+		 * Enable Webpack polling instead of file system listeners for hot reloading in the preview.
+		 * This is useful if you are using a remote directory or a virtual machine.
+		 * @param interval
+		 * @default null
+		 */
+		readonly setWebpackPollingInMilliseconds: (interval: number | null) => void;
 	};
 	readonly Bundling: {
 		/**
@@ -118,6 +125,11 @@ export type ConfigType = {
 		 * Default: true
 		 */
 		readonly setChromiumHeadlessMode: (should: boolean) => void;
+		/**
+		 * If true, your installed Chrome extensions will be enabled.
+		 * Default: false
+		 */
+		readonly setEnableChromiumExtensions: (should: boolean) => void;
 		/**
 		 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle', 'swiftshader' and 'swangle'.
 		 * Default: 'swangle' in Lambda, null elsewhere.

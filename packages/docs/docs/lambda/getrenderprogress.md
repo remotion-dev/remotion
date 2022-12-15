@@ -105,15 +105,15 @@ In which bucket the render and other artifacts get saved.
 
 ### `timeToFinish`
 
-`null` is the video is not yet rendered, a `number` describing how long the render took to finish in miliseconds.
+`null` is the video is not yet rendered, a `number` describing how long the render took to finish in milliseconds.
 
 ### `errors`
 
-An array which contains errors that occured.
+An array which contains errors that occurred.
 
 ### `fatalErrorEncountered`
 
-`true` if an error occured and the video cannot be rendered. You should stop polling for progress and check the `errors` array.
+`true` if an error occurred and the video cannot be rendered. You should stop polling for progress and check the `errors` array.
 
 ### `currentTime`
 
