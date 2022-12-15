@@ -70,6 +70,8 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			{...otherProps}
 			ref={ref}
 			onDuration={onDuration}
+			startFrom={startFrom}
+			endAt={endAt}
 		/>
 	);
 };

@@ -9,13 +9,14 @@ import {
 } from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
+import { useVideoConfig } from '../use-video-config';
 import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state';
-import type {RemotionVideoProps} from './props';
+import type {RemotionMainVideoProps, RemotionVideoProps} from './props';
 
-type VideoForDevelopmentProps = RemotionVideoProps & {
+type VideoForDevelopmentProps = RemotionVideoProps & RemotionMainVideoProps & {
 	onlyWarnForMediaSeekingError: boolean;
 	onDuration: (src: string, durationInSeconds: number) => void;
 };
@@ -27,6 +28,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	const videoRef = useRef<HTMLVideoElement>(null);
 
 	const volumePropFrame = useFrameForVolumeProp();
+	const {fps} = useVideoConfig();
 
 	const {
 		volume,
@@ -36,6 +38,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		src,
 		onDuration,
 		acceptableTimeshift,
+		startFrom,
+		endAt,
 		...nativeProps
 	} = props;
 
@@ -69,7 +73,18 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		acceptableTimeshift: acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
 	});
 
-	const actualSrc = usePreload(src as string);
+	let actualSrc = usePreload(src as string);
+
+	const shouldAppendFragment = !actualSrc.startsWith('data:') && !actualSrc.includes('#t=')
+	if (shouldAppendFragment) {
+		if (typeof startFrom === 'number' && Number.isFinite(startFrom)) {
+			actualSrc += `#t=${Math.floor(startFrom/fps)}`
+
+			if (typeof endAt === 'number' && Number.isFinite(endAt) && endAt > startFrom) {
+				actualSrc += `,${Math.ceil(endAt/fps)}`
+			}
+		}
+	}
 
 	useImperativeHandle(
 		ref,
