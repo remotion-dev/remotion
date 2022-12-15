@@ -21,6 +21,7 @@ export type ChromiumOptions = {
 	disableWebSecurity?: boolean;
 	gl?: OpenGlRenderer | null;
 	headless?: boolean;
+	enableExtensions?: boolean;
 };
 
 const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
@@ -55,7 +56,6 @@ export const openBrowser = async (
 		chromiumOptions?: ChromiumOptions;
 		forceDeviceScaleFactor?: number;
 		viewport?: Viewport;
-		exableExtensions: boolean;
 	}
 ): Promise<PuppeteerBrowser> => {
 	if (browser === 'firefox') {
@@ -91,7 +91,9 @@ export const openBrowser = async (
 			'--disable-component-extensions-with-background-pages',
 			'--disable-default-apps',
 			'--disable-dev-shm-usage',
-			options?.exableExtensions ? null : '--disable-extensions',
+			options?.chromiumOptions?.enableExtensions
+				? null
+				: '--disable-extensions',
 			'--no-proxy-server',
 			"--proxy-server='direct://'",
 			'--proxy-bypass-list=*',

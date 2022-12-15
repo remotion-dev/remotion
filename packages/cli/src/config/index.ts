@@ -4,9 +4,11 @@ import {getBrowser} from './browser';
 import {getBrowserExecutable} from './browser-executable';
 import {
 	getChromiumDisableWebSecurity,
+	getChromiumEnableExtensions,
 	getChromiumHeadlessMode,
 	getChromiumOpenGlRenderer,
 	getIgnoreCertificateErrors,
+	setChromiumEnableExtensions,
 } from './chromium-flags';
 import {getOutputCodecOrUndefined} from './codec';
 import {getConcurrency} from './concurrency';
@@ -116,6 +118,7 @@ export const Config: ConfigType = {
 		setChromiumDisableWebSecurity,
 		setChromiumIgnoreCertificateErrors,
 		setChromiumHeadlessMode,
+		setChromiumEnableExtensions,
 		setChromiumOpenGlRenderer,
 	},
 	Rendering: {
@@ -169,6 +172,7 @@ export const ConfigInternals = {
 	getIgnoreCertificateErrors,
 	getChromiumHeadlessMode,
 	getChromiumOpenGlRenderer,
+	getChromiumEnableExtensions,
 	getEveryNthFrame,
 	getConcurrency,
 	getCurrentPuppeteerTimeout,
