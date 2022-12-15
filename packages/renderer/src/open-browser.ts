@@ -55,6 +55,7 @@ export const openBrowser = async (
 		chromiumOptions?: ChromiumOptions;
 		forceDeviceScaleFactor?: number;
 		viewport?: Viewport;
+		exableExtensions: boolean;
 	}
 ): Promise<PuppeteerBrowser> => {
 	if (browser === 'firefox') {
@@ -90,7 +91,7 @@ export const openBrowser = async (
 			'--disable-component-extensions-with-background-pages',
 			'--disable-default-apps',
 			'--disable-dev-shm-usage',
-			'--disable-extensions',
+			options?.exableExtensions ? null : '--disable-extensions',
 			'--no-proxy-server',
 			"--proxy-server='direct://'",
 			'--proxy-bypass-list=*',
