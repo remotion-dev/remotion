@@ -65,7 +65,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaRef: videoRef,
 	});
 
-	const {shouldBeTime} = useMediaPlayback({
+	useMediaPlayback({
 		mediaRef: videoRef,
 		src,
 		mediaType: 'video',
@@ -74,6 +74,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		acceptableTimeshift: acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
 	});
 
+	const actualFrom = parentSequence
+		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
+		: 0;
 	const duration = parentSequence
 		? Math.min(parentSequence.durationInFrames, durationInFrames)
 		: durationInFrames;
@@ -82,11 +85,11 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const shouldAppendFragment = !actualSrc.startsWith('data:') && !actualSrc.includes('#t=')
 	if (shouldAppendFragment) {
-		if (typeof shouldBeTime === 'number' && Number.isFinite(shouldBeTime)) {
-			actualSrc += `#t=${shouldBeTime}`
+		if (typeof actualFrom === 'number' && Number.isFinite(actualFrom)) {
+			actualSrc += `#t=${Math.round((-actualFrom/fps)*100)/100}`
 
 			if (typeof duration === 'number' && Number.isFinite(duration)) {
-				actualSrc += `,${Math.ceil(duration/fps)}`
+				actualSrc += `,${Math.round((duration/fps)*100)/100}`
 			}
 		}
 	}
