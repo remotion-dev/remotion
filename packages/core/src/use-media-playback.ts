@@ -44,28 +44,30 @@ export const useMediaPlayback = ({
 		}
 	}, [mediaRef, mediaType, playing]);
 
+	const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
+	
+	if (!src) {
+		throw new Error(
+			`No 'src' attribute was passed to the ${tagName} element.`
+		);
+	}
+		
+		
+	const shouldBeTime = getMediaTime({
+		fps,
+		frame,
+		src,
+		playbackRate: localPlaybackRate,
+		startFrom: -mediaStartsAt,
+		mediaType,
+	});
+		
 	useEffect(() => {
-		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
 		if (!mediaRef.current) {
 			throw new Error(`No ${mediaType} ref found`);
 		}
 
-		if (!src) {
-			throw new Error(
-				`No 'src' attribute was passed to the ${tagName} element.`
-			);
-		}
-
 		mediaRef.current.playbackRate = Math.max(0, playbackRate);
-
-		const shouldBeTime = getMediaTime({
-			fps,
-			frame,
-			src,
-			playbackRate: localPlaybackRate,
-			startFrom: -mediaStartsAt,
-			mediaType,
-		});
 
 		const isTime = mediaRef.current.currentTime;
 		const timeShift = Math.abs(shouldBeTime - isTime);
@@ -92,16 +94,14 @@ export const useMediaPlayback = ({
 		}
 	}, [
 		absoluteFrame,
-		fps,
 		playbackRate,
-		frame,
 		mediaRef,
 		mediaType,
 		playing,
-		src,
-		mediaStartsAt,
-		localPlaybackRate,
 		onlyWarnForMediaSeekingError,
 		acceptableTimeshift,
+		shouldBeTime
 	]);
+
+	return { shouldBeTime }
 };

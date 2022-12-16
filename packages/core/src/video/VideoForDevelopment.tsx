@@ -1,4 +1,5 @@
 import type {ForwardRefExoticComponent, RefAttributes} from 'react';
+import { useContext} from 'react';
 import React, {forwardRef, useEffect, useImperativeHandle, useRef} from 'react';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame';
 import {usePreload} from '../prefetch';
@@ -14,9 +15,10 @@ import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state';
-import type {RemotionMainVideoProps, RemotionVideoProps} from './props';
+import type {RemotionVideoProps} from './props';
+import { SequenceContext } from '../Sequence';
 
-type VideoForDevelopmentProps = RemotionVideoProps & RemotionMainVideoProps & {
+type VideoForDevelopmentProps = RemotionVideoProps & {
 	onlyWarnForMediaSeekingError: boolean;
 	onDuration: (src: string, durationInSeconds: number) => void;
 };
@@ -28,7 +30,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	const videoRef = useRef<HTMLVideoElement>(null);
 
 	const volumePropFrame = useFrameForVolumeProp();
-	const {fps} = useVideoConfig();
+	const {fps, durationInFrames} = useVideoConfig();
+	const parentSequence = useContext(SequenceContext);
 
 	const {
 		volume,
@@ -38,8 +41,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		src,
 		onDuration,
 		acceptableTimeshift,
-		startFrom,
-		endAt,
 		...nativeProps
 	} = props;
 
@@ -64,7 +65,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaRef: videoRef,
 	});
 
-	useMediaPlayback({
+	const {shouldBeTime} = useMediaPlayback({
 		mediaRef: videoRef,
 		src,
 		mediaType: 'video',
@@ -73,15 +74,19 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		acceptableTimeshift: acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
 	});
 
+	const duration = parentSequence
+		? Math.min(parentSequence.durationInFrames, durationInFrames)
+		: durationInFrames;
+
 	let actualSrc = usePreload(src as string);
 
 	const shouldAppendFragment = !actualSrc.startsWith('data:') && !actualSrc.includes('#t=')
 	if (shouldAppendFragment) {
-		if (typeof startFrom === 'number' && Number.isFinite(startFrom)) {
-			actualSrc += `#t=${Math.floor(startFrom/fps)}`
+		if (typeof shouldBeTime === 'number' && Number.isFinite(shouldBeTime)) {
+			actualSrc += `#t=${shouldBeTime}`
 
-			if (typeof endAt === 'number' && Number.isFinite(endAt) && endAt > startFrom) {
-				actualSrc += `,${Math.ceil(endAt/fps)}`
+			if (typeof duration === 'number' && Number.isFinite(duration)) {
+				actualSrc += `,${Math.ceil(duration/fps)}`
 			}
 		}
 	}
