@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-	Clipper,
-	Easing,
-	interpolate,
-	useCurrentFrame,
-	useVideoConfig,
-} from 'remotion';
+import {Easing, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Arc} from './Arc';
 import {Atom} from './Atom';
 import {Black} from './Black';
@@ -89,50 +83,41 @@ const ReactSvg: React.FC<{
 	const scale = frame < 70 ? scaleIn : scaleOut;
 
 	return (
-		<Clipper
-			x={0}
-			y={0}
-			width={videoConfig.width / 2}
-			height={videoConfig.height}
-		>
+		<div style={{flex: 1, backgroundColor: transparent ? undefined : 'white'}}>
 			<div
-				style={{flex: 1, backgroundColor: transparent ? undefined : 'white'}}
+				style={{
+					position: 'absolute',
+					width: videoConfig.width,
+					height: videoConfig.height,
+					transform: `scale(${scale})`,
+				}}
 			>
-				<div
-					style={{
-						position: 'absolute',
-						width: videoConfig.width,
-						height: videoConfig.height,
-						transform: `scale(${scale})`,
-					}}
-				>
-					{transparent ? null : <DotGrid />}
-					<Arc
-						rotateProgress={rotationDevelopment}
-						progress={development}
-						rotation={30}
-						electronProgress={electronDevelopment}
-						electronOpacity={electronOpacity}
-					/>
-					<Arc
-						rotateProgress={rotationDevelopment}
-						rotation={90}
-						progress={frame < rotateStart ? 0 : 1}
-						electronProgress={electronDevelopment * 1.2 + 0.33}
-						electronOpacity={electronOpacity}
-					/>
-					<Arc
-						rotateProgress={rotationDevelopment}
-						rotation={-30}
-						progress={frame < rotateStart ? 0 : 1}
-						electronProgress={electronDevelopment + 0.66}
-						electronOpacity={electronOpacity}
-					/>
-					<Atom scale={rotationDevelopment} />
-					{transparent ? null : <Black scale={scaleOutBlackDot} />}
-				</div>
+				{transparent ? null : <DotGrid />}
+				<Arc
+					rotateProgress={rotationDevelopment}
+					progress={development}
+					rotation={30}
+					electronProgress={electronDevelopment}
+					electronOpacity={electronOpacity}
+				/>
+				<Arc
+					rotateProgress={rotationDevelopment}
+					rotation={90}
+					progress={frame < rotateStart ? 0 : 1}
+					electronProgress={electronDevelopment * 1.2 + 0.33}
+					electronOpacity={electronOpacity}
+				/>
+				<Arc
+					rotateProgress={rotationDevelopment}
+					rotation={-30}
+					progress={frame < rotateStart ? 0 : 1}
+					electronProgress={electronDevelopment + 0.66}
+					electronOpacity={electronOpacity}
+				/>
+				<Atom scale={rotationDevelopment} />
+				{transparent ? null : <Black scale={scaleOutBlackDot} />}
 			</div>
-		</Clipper>
+		</div>
 	);
 };
 
