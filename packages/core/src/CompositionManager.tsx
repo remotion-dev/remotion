@@ -88,6 +88,7 @@ export type ClipRegion = {
 	y: number;
 	width: number;
 	height: number;
+	hide: boolean;
 };
 
 export type CompositionManagerContext = {
