@@ -25,5 +25,8 @@ export const compose = ({
   };
 
   // TODO: Don't use sync
-  execSync(`${bin} ${JSON.stringify(JSON.stringify(payload))}`);
+  // TODO: Get error message
+  execSync(bin, {
+    input: JSON.stringify(payload),
+  });
 };
