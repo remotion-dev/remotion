@@ -28,7 +28,8 @@ pub mod payloads {
     #[derive(Serialize, Deserialize, Debug)]
     #[serde(tag = "type", content = "params")]
     pub enum Layer {
-        Image(ImageLayer),
+        PngImage(ImageLayer),
+        JpgImage(ImageLayer),
         Solid(SolidLayer),
     }
 

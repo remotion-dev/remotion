@@ -1,4 +1,4 @@
-use std::fs::File;
+use std::{error::Error, fmt, fs::File};
 
 use image::{ImageBuffer, Rgba};
 
@@ -6,6 +6,17 @@ use crate::{
     errors,
     payloads::payloads::{ImageLayer, Layer, SolidLayer},
 };
+
+#[derive(Debug)]
+struct NoMetadataError {}
+
+impl fmt::Display for NoMetadataError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "No metadata")
+    }
+}
+
+impl Error for NoMetadataError {}
 
 fn draw_solid_layer(img: &mut ImageBuffer<image::Rgba<u8>, Vec<u8>>, layer: SolidLayer) {
     for y in layer.y..(layer.height + layer.y) {
@@ -29,7 +40,7 @@ fn alpha_compositing(color1: &Rgba<u8>, color2: Rgba<u8>) -> Rgba<u8> {
     return blended_color;
 }
 
-fn draw_image_layer(img: &mut ImageBuffer<image::Rgba<u8>, Vec<u8>>, layer: ImageLayer) {
+fn draw_png_image_layer(img: &mut ImageBuffer<image::Rgba<u8>, Vec<u8>>, layer: ImageLayer) {
     let file = match File::open(layer.src) {
         Ok(content) => content,
         Err(err) => {
@@ -65,10 +76,48 @@ fn draw_image_layer(img: &mut ImageBuffer<image::Rgba<u8>, Vec<u8>>, layer: Imag
     }
 }
 
+fn draw_jpg_image_layer(img: &mut ImageBuffer<image::Rgba<u8>, Vec<u8>>, layer: ImageLayer) {
+    let file = match File::open(layer.src) {
+        Ok(content) => content,
+        Err(err) => {
+            errors::handle_error(&err);
+        }
+    };
+
+    let mut decoder = jpeg_decoder::Decoder::new(file);
+
+    let pixels = match decoder.decode() {
+        Ok(content) => content,
+        Err(err) => errors::handle_error(&err),
+    };
+    let metadata = match decoder.info() {
+        Some(content) => content,
+        None => errors::handle_error(&NoMetadataError {}),
+    };
+    let width = metadata.width as u32;
+
+    for y in layer.y..(layer.height + layer.y) {
+        for x in layer.x..(layer.width + layer.x) {
+            let r = pixels[((y * width + x) * 3) as usize];
+            let g = pixels[((y * width + x) * 3 + 1) as usize];
+            let b = pixels[((y * width + x) * 3 + 2) as usize];
+            let a = 255;
+
+            let px: Rgba<u8> = Rgba([r, g, b, a]);
+            let prev_pixel = img.get_pixel(x, y);
+
+            img.put_pixel(x, y, alpha_compositing(prev_pixel, px))
+        }
+    }
+}
+
 pub fn draw_layer(img: &mut ImageBuffer<image::Rgba<u8>, Vec<u8>>, layer: Layer) {
     match layer {
-        Layer::Image(layer) => {
-            draw_image_layer(img, layer);
+        Layer::PngImage(layer) => {
+            draw_png_image_layer(img, layer);
+        }
+        Layer::JpgImage(layer) => {
+            draw_jpg_image_layer(img, layer);
         }
         Layer::Solid(layer) => {
             draw_solid_layer(img, layer);

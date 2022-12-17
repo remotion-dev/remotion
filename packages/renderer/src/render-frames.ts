@@ -410,7 +410,10 @@ const innerRenderFrames = ({
 							clipRegion.hide
 								? null
 								: {
-										type: 'Image' as const,
+										type:
+											imageFormat === 'jpeg'
+												? ('JpgImage' as const)
+												: ('PngImage' as const),
 										params: {
 											height: clipRegion.height,
 											width: clipRegion.width,
