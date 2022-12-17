@@ -54,6 +54,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
       - run: |
           corepack enable
       - uses: Iamshankhadeep/setup-ffmpeg@v1.2
@@ -106,6 +111,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
       - run: |
           corepack enable
       - uses: Iamshankhadeep/setup-ffmpeg@v1.2
