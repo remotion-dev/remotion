@@ -233,6 +233,7 @@ const innerRenderStill = async ({
 	});
 	await seekToFrame({frame: stillFrame, page});
 
+	// TODO: Support clip region and compositing
 	const buffer = await provideScreenshot({
 		page,
 		imageFormat,
@@ -243,6 +244,7 @@ const innerRenderStill = async ({
 		},
 		height: composition.height,
 		width: composition.width,
+		clipRegion: null,
 	});
 
 	await cleanup();

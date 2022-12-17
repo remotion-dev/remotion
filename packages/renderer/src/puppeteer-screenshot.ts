@@ -1,4 +1,5 @@
 import * as assert from 'assert';
+import type {ClipRegion} from 'remotion';
 import type {Page} from './browser/BrowserPage';
 import type {StillImageFormat} from './image-format';
 import {screenshotTask} from './screenshot-task';
@@ -11,6 +12,7 @@ export const screenshot = (options: {
 	omitBackground: boolean;
 	width: number;
 	height: number;
+	clipRegion: ClipRegion | null;
 }): Promise<Buffer | string | void> => {
 	let screenshotType: 'png' | 'jpeg' | null = null;
 	// options.type takes precedence over inferring the type from options.path
@@ -70,6 +72,7 @@ export const screenshot = (options: {
 			omitBackground: options.omitBackground,
 			path: options.path,
 			quality: options.quality,
+			clipRegion: options.clipRegion,
 		})
 	);
 };

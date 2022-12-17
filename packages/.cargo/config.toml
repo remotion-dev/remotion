@@ -3,4 +3,6 @@
 
 [build]
 # Calling the directory "dist" so it gets cached by turborepo
+# TODO: Change it to not conflict with JS
+# TODO: Add libc field to JS
 target-dir = "compositor/dist"

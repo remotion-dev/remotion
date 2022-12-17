@@ -83,6 +83,13 @@ type BaseMetadata = Pick<
 	'durationInFrames' | 'fps' | 'defaultProps' | 'height' | 'width'
 >;
 
+export type ClipRegion = {
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+};
+
 export type CompositionManagerContext = {
 	compositions: TComposition[];
 	registerComposition: <T>(comp: TComposition<T>) => void;
@@ -97,6 +104,7 @@ export type CompositionManagerContext = {
 	unregisterSequence: (id: string) => void;
 	registerAsset: (asset: TAsset) => void;
 	unregisterAsset: (id: string) => void;
+	setClipRegion: (clip: ClipRegion | null) => void;
 	sequences: TSequence[];
 	assets: TAsset[];
 	folders: TFolder[];
@@ -119,6 +127,7 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	assets: [],
 	folders: [],
 	currentCompositionMetadata: null,
+	setClipRegion: () => null,
 });
 
 export const compositionsRef = React.createRef<{
@@ -138,6 +147,7 @@ export const CompositionManagerProvider: React.FC<{
 	const [folders, setFolders] = useState<TFolder[]>([]);
 
 	const [sequences, setSequences] = useState<TSequence[]>([]);
+	const [clipRegion, setRegion] = useState<ClipRegion | null>(null);
 
 	const [currentCompositionMetadata, setCurrentCompositionMetadata] =
 		useState<BaseMetadata | null>(null);
@@ -176,6 +186,10 @@ export const CompositionManagerProvider: React.FC<{
 		});
 	}, []);
 
+	const setClipRegion = useCallback((region: ClipRegion | null) => {
+		setRegion(region);
+	}, []);
+
 	const unregisterAsset = useCallback((id: string) => {
 		setAssets((assts) => {
 			return assts.filter((a) => a.id !== id);
@@ -211,8 +225,13 @@ export const CompositionManagerProvider: React.FC<{
 				setAssets([]); // clear assets at next render
 				return assets;
 			};
+
+			window.remotion_getClipRegion = () => {
+				setClipRegion(null); // clear assets at next render
+				return clipRegion;
+			};
 		}
-	}, [assets]);
+	}, [assets, clipRegion, setClipRegion]);
 
 	useImperativeHandle(
 		compositionsRef,
@@ -242,6 +261,7 @@ export const CompositionManagerProvider: React.FC<{
 			unregisterFolder,
 			currentCompositionMetadata,
 			setCurrentCompositionMetadata,
+			setClipRegion,
 		};
 	}, [
 		compositions,
@@ -258,6 +278,7 @@ export const CompositionManagerProvider: React.FC<{
 		registerFolder,
 		unregisterFolder,
 		currentCompositionMetadata,
+		setClipRegion,
 	]);
 
 	return (

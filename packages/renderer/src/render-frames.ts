@@ -1,7 +1,8 @@
+import {compose} from '@remotion/compositor';
 import fs from 'fs';
 import path from 'path';
 import {performance} from 'perf_hooks';
-import type {SmallTCompMetadata, TAsset} from 'remotion';
+import type {ClipRegion, SmallTCompMetadata, TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
@@ -326,6 +327,15 @@ const innerRenderFrames = ({
 		freePage.on('error', errorCallbackOnFrame);
 		await seekToFrame({frame, page: freePage});
 
+		const clipRegion = await puppeteerEvaluateWithCatch<ClipRegion | null>({
+			pageFunction: () => {
+				return window.remotion_getClipRegion();
+			},
+			args: [],
+			frame,
+			page: freePage,
+		});
+
 		if (imageFormat !== 'none') {
 			if (onFrameBuffer) {
 				const id = startPerfMeasure('save');
@@ -339,7 +349,9 @@ const innerRenderFrames = ({
 					},
 					height: composition.height,
 					width: composition.width,
+					clipRegion,
 				});
+
 				stopPerfMeasure(id);
 
 				onFrameBuffer(buffer, frame);
@@ -371,7 +383,26 @@ const innerRenderFrames = ({
 					},
 					height,
 					width,
+					clipRegion,
 				});
+				if (clipRegion) {
+					compose({
+						height: composition.height,
+						width: composition.width,
+						layers: [
+							{
+								type: 'Image',
+								height: clipRegion.height,
+								width: clipRegion.width,
+								src: output,
+								x: clipRegion.x,
+								y: clipRegion.y,
+							},
+						],
+						output: output + '-2.png',
+					});
+					console.log(output + '-2.png');
+				}
 			}
 		}
 
