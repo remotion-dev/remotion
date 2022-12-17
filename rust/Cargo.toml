@@ -9,5 +9,5 @@ png = "0.17.7"
 image = "0.24.5"
 
 [[bin]]
-name = "transfomer"
-path = "transformer.rs"
+name = "transformer"
+path = "main.rs"
