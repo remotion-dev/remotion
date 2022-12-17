@@ -1,0 +1,12 @@
+[package]
+name = "image-transformer"
+version = "0.1.0"
+authors = ["Jonny Burger <jonny@remotion.dev>"]
+edition = "2021"
+
+[dependencies]
+png = "0.17.7"
+
+[[bin]]
+name = "transfomer"
+path = "transformer.rs"
