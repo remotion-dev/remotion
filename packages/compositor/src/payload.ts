@@ -3,19 +3,23 @@
 export type Layer =
   | {
       type: "Image";
-      src: string;
-      x: number;
-      y: number;
-      width: number;
-      height: number;
+      params: {
+        src: string;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      };
     }
   | {
       type: "Solid";
-      fill: [number, number, number, number];
-      x: number;
-      y: number;
-      width: number;
-      height: number;
+      params: {
+        fill: [number, number, number, number];
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      };
     };
 
 export type CliInput = {

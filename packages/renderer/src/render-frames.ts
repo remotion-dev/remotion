@@ -385,6 +385,7 @@ const innerRenderFrames = ({
 					width,
 					clipRegion,
 				});
+
 				if (clipRegion) {
 					compose({
 						height: composition.height,
@@ -392,16 +393,17 @@ const innerRenderFrames = ({
 						layers: [
 							{
 								type: 'Image',
-								height: clipRegion.height,
-								width: clipRegion.width,
-								src: output,
-								x: clipRegion.x,
-								y: clipRegion.y,
+								params: {
+									height: clipRegion.height,
+									width: clipRegion.width,
+									src: output,
+									x: clipRegion.x,
+									y: clipRegion.y,
+								},
 							},
 						],
 						output: output + '-2.png',
 					});
-					console.log(output + '-2.png');
 				}
 			}
 		}
