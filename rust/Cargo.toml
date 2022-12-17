@@ -7,6 +7,8 @@ edition = "2021"
 [dependencies]
 png = "0.17.7"
 image = "0.24.5"
+serde = {version =  "1.0.151", features = ["derive"]}
+serde_json = "1.0.89"
 
 [[bin]]
 name = "transformer"
