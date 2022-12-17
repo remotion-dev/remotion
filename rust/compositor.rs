@@ -50,8 +50,8 @@ fn draw_image_layer(img: &mut ImageBuffer<image::Rgba<u8>, Vec<u8>>, layer: Imag
     };
 
     let bytes = &buf[..info.buffer_size()];
-    for y in layer.y..(info.height + layer.y) {
-        for x in layer.x..(info.width + layer.x) {
+    for y in layer.y..(layer.height + layer.y) {
+        for x in layer.x..(layer.width + layer.x) {
             let r = bytes[((y * info.width + x) * 4) as usize];
             let g = bytes[((y * info.width + x) * 4 + 1) as usize];
             let b = bytes[((y * info.width + x) * 4 + 2) as usize];

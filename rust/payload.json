@@ -2,14 +2,14 @@
   "width": 1920,
   "height": 1080,
   "v": 1,
-  "output": "imglol.png",
+  "output": "imglol.jpeg",
   "layers": [
     {
       "type": "Solid",
       "params": {
         "fill": [255, 0, 255, 255],
-        "x": 0,
-        "y": 0,
+        "x": 100,
+        "y": 100,
         "width": 100,
         "height": 100
       }
@@ -18,8 +18,10 @@
       "type": "Image",
       "params": {
         "src": "/var/folders/hs/mbxg3j_55ls1b_dhn50w32t00000gn/T/react-motion-renderqyvqrH/element-049.png",
-        "x": 0,
-        "y": 0
+        "x": 50,
+        "y": 50,
+        "width": 900,
+        "height": 490
       }
     }
   ]

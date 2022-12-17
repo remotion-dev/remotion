@@ -10,6 +10,8 @@ pub mod payloads {
         pub src: String,
         pub x: u32,
         pub y: u32,
+        pub width: u32,
+        pub height: u32,
     }
 
     #[derive(Serialize, Deserialize, Debug)]
