@@ -1,2 +1,19 @@
 [build]
 target-dir = "rust/target"
+target = [
+  # Linux ARM
+  "aarch64-unknown-linux-gnu",
+  # Linux x64
+  "x86_64-unknown-linux-gnu",
+  # macOS ARM
+  "aarch64-apple-darwin",
+  # macOS ARM
+  "x86_64-apple-darwin"
+]
+
+
+[target.x86_64-unknown-linux-gnu]
+linker = "x86_64-unknown-linux-gnu-gcc"
+
+[target.aarch64-unknown-linux-gnu]
+linker = "aarch64-unknown-linux-gnu-gcc"
