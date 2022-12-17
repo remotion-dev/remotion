@@ -16,6 +16,19 @@ fn draw_solid_layer(img: &mut ImageBuffer<image::Rgba<u8>, Vec<u8>>, layer: Soli
     }
 }
 
+fn alpha_compositing(color1: &Rgba<u8>, color2: Rgba<u8>) -> Rgba<u8> {
+    let alpha1 = color1[3] as f32 / 255.0;
+    let alpha2 = color2[3] as f32 / 255.0;
+
+    let r = (alpha1 * color1[0] as f32 + alpha2 * (1.0 - alpha1) * color2[0] as f32) as u8;
+    let g = (alpha1 * color1[1] as f32 + alpha2 * (1.0 - alpha1) * color2[1] as f32) as u8;
+    let b = (alpha1 * color1[2] as f32 + alpha2 * (1.0 - alpha1) * color2[2] as f32) as u8;
+    let a = ((alpha1 + alpha2 * (1.0 - alpha1)) * 255.0) as u8;
+
+    let blended_color = Rgba([r, g, b, a]);
+    return blended_color;
+}
+
 fn draw_image_layer(img: &mut ImageBuffer<image::Rgba<u8>, Vec<u8>>, layer: ImageLayer) {
     let file = match File::open(layer.src) {
         Ok(content) => content,
@@ -44,9 +57,10 @@ fn draw_image_layer(img: &mut ImageBuffer<image::Rgba<u8>, Vec<u8>>, layer: Imag
             let b = bytes[((y * info.width + x) * 4 + 2) as usize];
             let a = bytes[((y * info.width + x) * 4 + 3) as usize];
 
-            let array: [u8; 4] = [r, g, b, a];
-            let px: Rgba<u8> = Rgba(array);
-            img.put_pixel(x, y, px)
+            let px: Rgba<u8> = Rgba([r, g, b, a]);
+            let prev_pixel = img.get_pixel(x, y);
+
+            img.put_pixel(x, y, alpha_compositing(prev_pixel, px))
         }
     }
 }
