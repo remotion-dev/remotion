@@ -9,17 +9,18 @@ export const Clipper: React.FC<
 		height: number;
 		x: number;
 		y: number;
+		hide?: boolean;
 	}>
-> = ({height, width, x, y, children}) => {
+> = ({height, width, x, y, hide, children}) => {
 	const context = useContext(CompositionManager);
 
 	useEffect(() => {
-		context.setClipRegion({height, width, x, y});
+		context.setClipRegion({height, hide: Boolean(hide), width, x, y});
 
 		return () => {
 			context.setClipRegion(null);
 		};
-	}, [context, height, width, x, y]);
+	}, [context, height, hide, width, x, y]);
 
 	return <AbsoluteFill>{children}</AbsoluteFill>;
 };

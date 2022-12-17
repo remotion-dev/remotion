@@ -387,35 +387,39 @@ const innerRenderFrames = ({
 					})
 				);
 
-				await provideScreenshot({
-					page: freePage,
-					imageFormat,
-					quality,
-					options: {
-						frame,
-						output: clipRegion ? output : composedOutput,
-					},
-					height,
-					width,
-					clipRegion,
-				});
+				if (!clipRegion?.hide) {
+					await provideScreenshot({
+						page: freePage,
+						imageFormat,
+						quality,
+						options: {
+							frame,
+							output: clipRegion ? output : composedOutput,
+						},
+						height,
+						width,
+						clipRegion,
+					});
+				}
 
 				if (clipRegion) {
 					compose({
 						height: composition.height,
 						width: composition.width,
 						layers: [
-							{
-								type: 'Image',
-								params: {
-									height: clipRegion.height,
-									width: clipRegion.width,
-									src: output,
-									x: clipRegion.x,
-									y: clipRegion.y,
-								},
-							},
-						],
+							clipRegion.hide
+								? null
+								: {
+										type: 'Image' as const,
+										params: {
+											height: clipRegion.height,
+											width: clipRegion.width,
+											src: output,
+											x: clipRegion.x,
+											y: clipRegion.y,
+										},
+								  },
+						].filter(truthy),
 						output: composedOutput,
 					});
 				}
