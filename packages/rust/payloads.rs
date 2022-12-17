@@ -1,3 +1,5 @@
+// Must keep this file synced with payload.ts!
+
 extern crate serde;
 extern crate serde_json;
 

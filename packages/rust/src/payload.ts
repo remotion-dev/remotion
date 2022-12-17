@@ -1,3 +1,5 @@
+// Must keep this file synced with payloads.rs!
+
 type Layer =
   | {
       type: "Image";
