@@ -1,28 +1,18 @@
 {
-  "width": 1920,
-  "height": 1080,
   "v": 1,
-  "output": "imglol.jpeg",
+  "height": 1080,
+  "width": 1920,
   "layers": [
     {
-      "type": "Solid",
+      "type": "JpgImage",
       "params": {
-        "fill": [255, 0, 255, 255],
-        "x": 100,
-        "y": 100,
-        "width": 100,
-        "height": 100
-      }
-    },
-    {
-      "type": "Image",
-      "params": {
-        "src": "/var/folders/hs/mbxg3j_55ls1b_dhn50w32t00000gn/T/react-motion-renderqyvqrH/element-049.png",
-        "x": 50,
-        "y": 50,
-        "width": 900,
-        "height": 490
+        "height": 1080,
+        "width": 960,
+        "src": "/var/folders/hs/mbxg3j_55ls1b_dhn50w32t00000gn/T/react-motion-renderiHoU3V/element-151.jpeg",
+        "x": 0,
+        "y": 0
       }
     }
-  ]
+  ],
+  "output": "/var/folders/hs/mbxg3j_55ls1b_dhn50w32t00000gn/T/react-motion-render4HoU3V/composed-151.jpeg"
 }

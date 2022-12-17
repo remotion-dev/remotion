@@ -2,7 +2,17 @@
 
 export type Layer =
   | {
-      type: "Image";
+      type: "PngImage";
+      params: {
+        src: string;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      };
+    }
+  | {
+      type: "JpgImage";
       params: {
         src: string;
         x: number;

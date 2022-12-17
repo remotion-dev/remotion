@@ -235,6 +235,7 @@ name = "image-transformer"
 version = "0.1.0"
 dependencies = [
  "image",
+ "jpeg-decoder",
  "png",
  "serde",
  "serde_json",
