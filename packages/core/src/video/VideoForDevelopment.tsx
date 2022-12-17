@@ -1,8 +1,14 @@
 import type {ForwardRefExoticComponent, RefAttributes} from 'react';
-import { useContext} from 'react';
-import React, {forwardRef, useEffect, useImperativeHandle, useRef} from 'react';
+import React, {
+	forwardRef,
+	useContext,
+	useEffect,
+	useImperativeHandle,
+	useRef,
+} from 'react';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame';
 import {usePreload} from '../prefetch';
+import {SequenceContext} from '../Sequence';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
@@ -10,13 +16,13 @@ import {
 } from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
-import { useVideoConfig } from '../use-video-config';
+import {useVideoConfig} from '../use-video-config';
 import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state';
 import type {RemotionVideoProps} from './props';
-import { SequenceContext } from '../Sequence';
+import {appendVideoFragment} from './video-fragment';
 
 type VideoForDevelopmentProps = RemotionVideoProps & {
 	onlyWarnForMediaSeekingError: boolean;
@@ -81,18 +87,12 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		? Math.min(parentSequence.durationInFrames, durationInFrames)
 		: durationInFrames;
 
-	let actualSrc = usePreload(src as string);
-
-	const shouldAppendFragment = !actualSrc.startsWith('data:') && !actualSrc.includes('#t=')
-	if (shouldAppendFragment) {
-		if (typeof actualFrom === 'number' && Number.isFinite(actualFrom)) {
-			actualSrc += `#t=${Math.round((-actualFrom/fps)*100)/100}`
-
-			if (typeof duration === 'number' && Number.isFinite(duration)) {
-				actualSrc += `,${Math.round((duration/fps)*100)/100}`
-			}
-		}
-	}
+	const actualSrc = appendVideoFragment({
+		actualSrc: usePreload(src as string),
+		actualFrom,
+		duration,
+		fps,
+	});
 
 	useImperativeHandle(
 		ref,
