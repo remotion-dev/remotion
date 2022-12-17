@@ -1,6 +1,6 @@
 // Must keep this file synced with payloads.rs!
 
-type Layer =
+export type Layer =
   | {
       type: "Image";
       src: string;
@@ -18,7 +18,7 @@ type Layer =
       height: number;
     };
 
-type CliInput = {
+export type CliInput = {
   v: number;
   output: string;
   width: number;
