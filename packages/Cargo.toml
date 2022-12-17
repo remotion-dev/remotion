@@ -12,5 +12,5 @@ serde_json = "1.0.89"
 
 
 [[bin]]
-name = "transformer"
-path = "rust/main.rs"
+name = "compositor"
+path = "compositor/main.rs"
