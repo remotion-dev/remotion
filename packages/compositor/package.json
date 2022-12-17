@@ -23,6 +23,8 @@
     "@remotion/compositor-darwin-x64": "3.3.11",
     "@remotion/compositor-linux-arm64-gnu": "3.3.11",
     "@remotion/compositor-linux-x64-gnu": "3.3.11",
+    "@remotion/compositor-linux-arm64-musl": "3.3.11",
+    "@remotion/compositor-linux-x64-musl": "3.3.11",
     "@remotion/compositor-win32-x64-msvc": "3.3.11"
   },
   "publishConfig": {
