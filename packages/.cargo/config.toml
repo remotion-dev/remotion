@@ -8,7 +8,9 @@ target = [
   # macOS ARM
   "aarch64-apple-darwin",
   # macOS ARM
-  "x86_64-apple-darwin"
+  "x86_64-apple-darwin",
+  # Windows x64
+  "x86_64-pc-windows-gnu",
 ]
 
 
