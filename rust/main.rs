@@ -1,71 +1,33 @@
+mod compositor;
 mod errors;
-use image::{ImageBuffer, Rgba, RgbaImage};
-use std::env;
-use std::fs::File;
+mod payloads;
+use compositor::draw_layer;
+use image::{ImageBuffer, RgbaImage};
+use payloads::payloads::parse_cli;
+use std::io::Read;
 
 extern crate png;
 
+fn read_stdin_to_string() -> Result<String, std::io::Error> {
+    let mut input = String::new();
+    std::io::stdin().read_to_string(&mut input)?;
+    Ok(input)
+}
+
 fn main() -> Result<(), std::io::Error> {
-    let args: Vec<String> = env::args().collect();
-
-    if args.len() < 3 {
-        errors::handle_error(&std::io::Error::new(
-            std::io::ErrorKind::Other,
-            "not enough arguments",
-        ));
-    }
-
-    let query = &args[1];
-    let canvas_width = match args[2].parse::<u32>() {
-        Ok(content) => content,
-        Err(error) => {
-            errors::handle_error(&error);
-        }
-    };
-    let canvas_height = match args[3].parse::<u32>() {
-        Ok(content) => content,
-        Err(err) => {
-            errors::handle_error(&err);
-        }
-    };
-
-    let mut img: RgbaImage = ImageBuffer::new(canvas_width, canvas_height);
-
-    let file = match File::open(query) {
-        Ok(content) => content,
-        Err(err) => {
-            errors::handle_error(&err);
-        }
-    };
-
-    let decoder = png::Decoder::new(file);
-    let mut reader = match decoder.read_info() {
+    let input = match read_stdin_to_string() {
         Ok(content) => content,
         Err(err) => errors::handle_error(&err),
     };
 
-    let mut buf = vec![0; reader.output_buffer_size()];
-    let info = match reader.next_frame(&mut buf) {
-        Ok(content) => content,
-        Err(err) => errors::handle_error(&err),
-    };
+    let opts = parse_cli(&input);
+    let mut img: RgbaImage = ImageBuffer::new(opts.width, opts.height);
 
-    let bytes = &buf[..info.buffer_size()];
-
-    for y in 0..info.height {
-        for x in 0..info.width {
-            let r = bytes[((y * info.width + x) * 4) as usize];
-            let g = bytes[((y * info.width + x) * 4 + 1) as usize];
-            let b = bytes[((y * info.width + x) * 4 + 2) as usize];
-            let a = bytes[((y * info.width + x) * 4 + 3) as usize];
-
-            let array: [u8; 4] = [r, g, b, a];
-            let px: Rgba<u8> = Rgba(array);
-            img.put_pixel(x, y, px)
-        }
+    for layer in opts.layers {
+        draw_layer(&mut img, layer)
     }
 
-    match img.save("img.png") {
+    match img.save(opts.output) {
         Ok(content) => content,
         Err(err) => errors::handle_error(&err),
     };
