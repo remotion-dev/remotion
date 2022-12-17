@@ -371,15 +371,29 @@ const innerRenderFrames = ({
 						countType,
 						lastFrame,
 						totalFrames: framesToRender.length,
+						type: 'element',
 					})
 				);
+				const composedOutput = path.join(
+					outputDir,
+					getFrameOutputFileName({
+						frame,
+						imageFormat,
+						index,
+						countType,
+						lastFrame,
+						totalFrames: framesToRender.length,
+						type: 'composed',
+					})
+				);
+
 				await provideScreenshot({
 					page: freePage,
 					imageFormat,
 					quality,
 					options: {
 						frame,
-						output,
+						output: clipRegion ? output : composedOutput,
 					},
 					height,
 					width,
@@ -402,7 +416,7 @@ const innerRenderFrames = ({
 								},
 							},
 						],
-						output: output + '-2.png',
+						output: composedOutput,
 					});
 				}
 			}
@@ -513,7 +527,7 @@ const innerRenderFrames = ({
 		const returnValue: RenderFramesOutput = {
 			assetsInfo: {
 				assets,
-				imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
+				imageSequenceName: `composed-%0${filePadLength}d.${imageFormat}`,
 				firstFrameIndex,
 				downloadMap,
 			},

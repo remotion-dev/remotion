@@ -10,6 +10,7 @@ test('Get frame padded index', () => {
 			index: 0,
 			lastFrame: 100,
 			totalFrames: 100,
+			type: 'element',
 		})
 	).toBe('element-00.jpeg');
 
@@ -21,6 +22,7 @@ test('Get frame padded index', () => {
 			index: 50,
 			lastFrame: 100,
 			totalFrames: 100,
+			type: 'element',
 		})
 	).toBe('element-50.jpeg');
 
@@ -32,6 +34,7 @@ test('Get frame padded index', () => {
 			index: 50,
 			lastFrame: 100,
 			totalFrames: 101,
+			type: 'element',
 		})
 	).toBe('element-050.jpeg');
 	expect(
@@ -42,6 +45,7 @@ test('Get frame padded index', () => {
 			index: 50,
 			lastFrame: 99,
 			totalFrames: 100,
+			type: 'element',
 		})
 	).toBe('element-50.jpeg');
 });
