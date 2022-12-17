@@ -7,7 +7,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "cargo build --release",
+    "build": "node build.mjs",
     "build-all": "sh cross_compile.sh"
   },
   "author": "",
