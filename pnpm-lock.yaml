@@ -173,6 +173,21 @@ importers:
   packages/compositor:
     specifiers: {}
 
+  packages/compositor-darwin-arm64:
+    specifiers: {}
+
+  packages/compositor-darwin-x64:
+    specifiers: {}
+
+  packages/compositor-linux-arm64-gnu:
+    specifiers: {}
+
+  packages/compositor-linux-x64-gnu:
+    specifiers: {}
+
+  packages/compositor-win32-x64-msvc:
+    specifiers: {}
+
   packages/core:
     specifiers:
       '@jonny/eslint-config': 3.0.266
