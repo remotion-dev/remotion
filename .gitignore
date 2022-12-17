@@ -12,4 +12,4 @@ packages/example/out
 .vscode/taskmarks.json
 .turbo
 .vercel
-rust/target
+packages/rust/target
