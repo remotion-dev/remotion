@@ -171,7 +171,18 @@ importers:
       vitest: 0.24.3
 
   packages/compositor:
-    specifiers: {}
+    specifiers:
+      '@remotion/compositor-darwin-arm64': 3.3.11
+      '@remotion/compositor-darwin-x64': 3.3.11
+      '@remotion/compositor-linux-arm64-gnu': 3.3.11
+      '@remotion/compositor-linux-x64-gnu': 3.3.11
+      '@remotion/compositor-win32-x64-msvc': 3.3.11
+    optionalDependencies:
+      '@remotion/compositor-darwin-arm64': link:../compositor-darwin-arm64
+      '@remotion/compositor-darwin-x64': link:../compositor-darwin-x64
+      '@remotion/compositor-linux-arm64-gnu': link:../compositor-linux-arm64-gnu
+      '@remotion/compositor-linux-x64-gnu': link:../compositor-linux-x64-gnu
+      '@remotion/compositor-win32-x64-msvc': link:../compositor-win32-x64-msvc
 
   packages/compositor-darwin-arm64:
     specifiers: {}

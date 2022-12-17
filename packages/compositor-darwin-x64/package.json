@@ -1,3 +1,4 @@
 {
-  "name": "@remotion/compositor-x64-arm64"
+  "version": "3.3.11",
+  "name": "@remotion/compositor-darwin-x64"
 }
