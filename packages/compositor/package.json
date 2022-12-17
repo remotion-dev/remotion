@@ -6,6 +6,10 @@
   "files": [
     "dist"
   ],
+  "scripts": {
+    "build": "cargo build --release",
+    "build-all": "sh cross_compile.sh"
+  },
   "author": "",
   "license": "SEE LICENSE IN LICENSE.md",
   "repository": {
