@@ -53,7 +53,7 @@ test('Should apply name if given', async () => {
 	).toEqual({
 		siteName: 'testing',
 		serveUrl:
-			'https://remotionlambda-abcdef.s3.ap-northeast-1.amazonaws.com/sites/testing/index.html',
+			'https://remotionlambda-apnortheast1-abcdef.s3.ap-northeast-1.amazonaws.com/sites/testing/index.html',
 		stats: {
 			deletedFiles: 0,
 			untouchedFiles: 0,
@@ -76,7 +76,7 @@ test('Should use a random hash if no siteName is given', async () => {
 	).toEqual({
 		siteName: 'testing',
 		serveUrl:
-			'https://remotionlambda-abcdef.s3.ap-northeast-1.amazonaws.com/sites/testing/index.html',
+			'https://remotionlambda-apnortheast1-abcdef.s3.ap-northeast-1.amazonaws.com/sites/testing/index.html',
 		stats: {
 			deletedFiles: 0,
 			untouchedFiles: 2,
