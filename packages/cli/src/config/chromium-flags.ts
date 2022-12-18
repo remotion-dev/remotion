@@ -6,7 +6,6 @@ let ignoreCertificateErrors = false;
 let openGlRenderer: OpenGlRenderer | null =
 	RenderInternals.DEFAULT_OPENGL_RENDERER;
 let headlessMode = true;
-let enableExtensions = false;
 
 export const getChromiumDisableWebSecurity = () => chromiumDisableWebSecurity;
 export const setChromiumDisableWebSecurity = (should: boolean) => {
@@ -27,9 +26,4 @@ export const setChromiumOpenGlRenderer = (renderer: OpenGlRenderer) => {
 export const getChromiumHeadlessMode = () => headlessMode;
 export const setChromiumHeadlessMode = (should: boolean) => {
 	headlessMode = should;
-};
-
-export const getChromiumEnableExtensions = () => enableExtensions;
-export const setEnableChromiumExtensions = (should: boolean) => {
-	enableExtensions = should;
 };

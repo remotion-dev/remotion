@@ -203,7 +203,6 @@ export const getCliOptions = async (options: {
 		gl:
 			ConfigInternals.getChromiumOpenGlRenderer() ??
 			RenderInternals.DEFAULT_OPENGL_RENDERER,
-		enableExtensions: ConfigInternals.getChromiumEnableExtensions(),
 	};
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 	const numberOfGifLoops = ConfigInternals.getNumberOfGifLoops();

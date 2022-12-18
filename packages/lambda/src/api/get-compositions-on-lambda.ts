@@ -1,5 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
-import type {LambdaChromiumOptions} from '@remotion/renderer/src/open-browser';
+import type {ChromiumOptions} from '@remotion/renderer/src/open-browser';
 import type {TCompMetadata} from 'remotion';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
@@ -9,7 +9,7 @@ import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {serializeInputProps} from '../shared/serialize-input-props';
 
 export type GetCompositionsOnLambdaInput = {
-	chromiumOptions?: LambdaChromiumOptions;
+	chromiumOptions?: ChromiumOptions;
 	region: AwsRegion;
 	inputProps: unknown;
 	functionName: string;
