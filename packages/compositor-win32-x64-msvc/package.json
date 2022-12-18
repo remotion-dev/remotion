@@ -1,4 +1,10 @@
 {
   "version": "3.3.11",
-  "name": "@remotion/compositor-win32-x64-msvc"
+  "name": "@remotion/compositor-win32-x64-msvc",
+  "os": [
+    "win32"
+  ],
+  "cpu": [
+    "x64"
+  ]
 }
