@@ -2,6 +2,7 @@ import {GetBucketLocationCommand, ListBucketsCommand} from '@aws-sdk/client-s3';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
 import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
+import {parseBucketName} from '../shared/validate-bucketname';
 
 export type BucketWithLocation = {
 	name: string;
@@ -26,12 +27,20 @@ export const getRemotionS3Buckets = async (
 	);
 
 	const locations = await Promise.all(
-		remotionBuckets.map((bucket) => {
-			return getS3Client(region, null).send(
+		remotionBuckets.map(async (bucket) => {
+			const {region: parsedRegion} = parseBucketName(bucket.Name as string);
+			if (parsedRegion) {
+				return parsedRegion;
+			}
+
+			const result = await getS3Client(region, null).send(
 				new GetBucketLocationCommand({
 					Bucket: bucket.Name as string,
 				})
 			);
+
+			// AWS docs: Buckets in Region us-east-1 have a LocationConstraint of null!!
+			return result.LocationConstraint ?? ('us-east-1' as AwsRegion);
 		})
 	);
 
@@ -40,8 +49,7 @@ export const getRemotionS3Buckets = async (
 			return {
 				creationDate: (bucket.CreationDate as Date).getTime(),
 				name: bucket.Name as string,
-				// AWS docs: Buckets in Region us-east-1 have a LocationConstraint of null!!
-				region: (locations[i].LocationConstraint ?? 'us-east-1') as AwsRegion,
+				region: locations[i] as AwsRegion,
 			};
 		}
 	);
