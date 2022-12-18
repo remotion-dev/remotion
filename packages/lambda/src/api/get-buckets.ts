@@ -33,26 +33,34 @@ export const getRemotionS3Buckets = async (
 				return parsedRegion;
 			}
 
-			const result = await getS3Client(region, null).send(
-				new GetBucketLocationCommand({
-					Bucket: bucket.Name as string,
-				})
-			);
+			try {
+				const result = await getS3Client(region, null).send(
+					new GetBucketLocationCommand({
+						Bucket: bucket.Name as string,
+					})
+				);
+				// AWS docs: Buckets in Region us-east-1 have a LocationConstraint of null!!
+				return result.LocationConstraint ?? ('us-east-1' as AwsRegion);
+			} catch (err) {
+				// Sometimes the API returns a bucket even if it was deleted before
+				if ((err as Error).message.includes('NoSuchBucket')) {
+					return null;
+				}
 
-			// AWS docs: Buckets in Region us-east-1 have a LocationConstraint of null!!
-			return result.LocationConstraint ?? ('us-east-1' as AwsRegion);
+				throw err;
+			}
 		})
 	);
 
-	const bucketsWithLocation = remotionBuckets.map(
-		(bucket, i): BucketWithLocation => {
+	const bucketsWithLocation = remotionBuckets
+		.map((bucket, i): BucketWithLocation => {
 			return {
 				creationDate: (bucket.CreationDate as Date).getTime(),
 				name: bucket.Name as string,
 				region: locations[i] as AwsRegion,
 			};
-		}
-	);
+		})
+		.filter((b) => b.region);
 	return {
 		remotionBuckets: bucketsWithLocation.filter((bucket) => {
 			return bucket.region === region;
