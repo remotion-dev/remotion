@@ -9,9 +9,10 @@
   "scripts": {
     "build": "node build.mjs && tsc -d",
     "watch": "tsc -w",
-    "build-all": "sh cross_compile.sh"
+    "build-all": "sh cross_compile.sh && sh copy.sh",
+    "prepublishOnly": "sh cross_compile.sh && sh copy.sh"
   },
-  "author": "",
+  "author": "Jonny Burger <jonny@remotion.dev>",
   "license": "SEE LICENSE IN LICENSE.md",
   "repository": {
     "url": "https://github.com/remotion-dev/remotion"
