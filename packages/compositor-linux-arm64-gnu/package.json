@@ -1,4 +1,13 @@
 {
   "version": "3.3.11",
-  "name": "@remotion/compositor-linux-arm64-gnu"
+  "name": "@remotion/compositor-linux-arm64-gnu",
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "libc": [
+    "glibc"
+  ]
 }
