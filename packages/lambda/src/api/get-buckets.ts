@@ -43,7 +43,7 @@ export const getRemotionS3Buckets = async (
 				return result.LocationConstraint ?? ('us-east-1' as AwsRegion);
 			} catch (err) {
 				// Sometimes the API returns a bucket even if it was deleted before
-				if ((err as Error).message.includes('NoSuchBucket')) {
+				if ((err as Error).stack?.includes('NoSuchBucket')) {
 					return null;
 				}
 
