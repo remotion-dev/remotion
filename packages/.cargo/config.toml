@@ -2,7 +2,6 @@
 # only searches 1 level for Cargofiles
 
 [build]
-# Calling the directory "dist" so it gets cached by turborepo
-# TODO: Change it to not conflict with JS
+# Calling the directory "target" and adding it to turbo.json
 # TODO: Add libc field to JS
-target-dir = "compositor/dist"
+target-dir = "compositor/target"

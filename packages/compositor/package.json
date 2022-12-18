@@ -7,7 +7,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "node build.mjs",
+    "build": "node build.mjs && tsc -d",
     "watch": "tsc -w",
     "build-all": "sh cross_compile.sh"
   },
