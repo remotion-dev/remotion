@@ -2,6 +2,7 @@ import {GetBucketLocationCommand, ListBucketsCommand} from '@aws-sdk/client-s3';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
 import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
+import {parseBucketName} from '../shared/validate-bucketname';
 
 export type BucketWithLocation = {
 	name: string;
@@ -27,6 +28,11 @@ export const getRemotionS3Buckets = async (
 
 	const locations = await Promise.all(
 		remotionBuckets.map(async (bucket) => {
+			const {region: parsedRegion} = parseBucketName(bucket.Name as string);
+			if (parsedRegion) {
+				return parsedRegion;
+			}
+
 			const result = await getS3Client(region, null).send(
 				new GetBucketLocationCommand({
 					Bucket: bucket.Name as string,
