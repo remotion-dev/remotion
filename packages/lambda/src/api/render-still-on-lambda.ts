@@ -1,5 +1,5 @@
 import type {LogLevel, StillImageFormat} from '@remotion/renderer';
-import type {LambdaChromiumOptions} from '@remotion/renderer/src/open-browser';
+import type {ChromiumOptions} from '@remotion/renderer/src/open-browser';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
@@ -25,7 +25,7 @@ export type RenderStillOnLambdaInput = {
 	logLevel?: LogLevel;
 	outName?: OutNameInput;
 	timeoutInMilliseconds?: number;
-	chromiumOptions?: LambdaChromiumOptions;
+	chromiumOptions?: ChromiumOptions;
 	scale?: number;
 	downloadBehavior?: DownloadBehavior;
 	forceWidth?: number | null;
