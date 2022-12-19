@@ -153,6 +153,10 @@ module.exports = {
           title: "More",
           items: [
             {
+              label: "Resources",
+              to: "/docs/resources",
+            },
+            {
               label: "About us",
               to: "about",
             },
