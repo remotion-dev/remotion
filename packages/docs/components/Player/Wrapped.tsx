@@ -4,7 +4,7 @@ import styles from "./powered.module.css";
 
 export const WrappedBanner: React.FC = () => {
   return (
-    <div style={{ background: `#dafed0` }}>
+    <div style={{ background: `#FFE3CA` }}>
       <div
         className={styles.responsiverow}
         style={{
@@ -14,17 +14,17 @@ export const WrappedBanner: React.FC = () => {
           margin: "auto",
           paddingTop: 30,
           paddingBottom: 30,
-          color: `#124f01`,
+          color: `black`,
           display: "flex",
         }}
       >
         <div style={{ maxWidth: 560 }}>
           <p style={{ marginBottom: 8 }}>
-            <strong>Real-world project</strong>
+            <strong>Reference application</strong>
           </p>
           <p style={{ marginBottom: 0 }}>
             Check out #GitHubUnwrapped to get your personal GitHub Year in
-            Review. <br /> Powered by @remotion/player!
+            Review. <br /> Powered by Remotion Player and open source!
           </p>
         </div>
         <div className={styles.flexer} />
@@ -37,12 +37,12 @@ export const WrappedBanner: React.FC = () => {
             <Button
               background="white"
               hoverColor="white"
-              color="#124f01"
+              color="#000"
               loading={false}
               fullWidth={false}
               size="sm"
             >
-              Visit githubunwrapped.com
+              Visit GitHubUnwrapped.com
             </Button>
           </a>
         </div>
