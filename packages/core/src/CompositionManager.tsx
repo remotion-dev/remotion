@@ -47,6 +47,7 @@ type EnhancedTSequenceData =
 			volume: string | number;
 			doesVolumeChange: boolean;
 			startMediaFrom: number;
+			playbackRate: number;
 	  }
 	| {
 			type: 'video';
