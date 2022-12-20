@@ -14,10 +14,16 @@ authors:
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import {AppleFireworksTutorial} from '../src/components/AppleFireworksTutorial';
 
 Learn how to create an animation that Apple has on its website during the holiday season with this beginner-friendly Remotion tutorial!
-
 <img src="/img/apple-wow-tutorial/Final.gif"/>
+
+## Video version
+
+This tutorial is also available as a video version:
+
+<AppleFireworksTutorial />
 
 ## Getting started
 
