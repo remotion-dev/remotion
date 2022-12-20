@@ -59,7 +59,7 @@ module.exports = {
           ],
         },
         {
-          href: "https://twitter.com/remotion_dev",
+          href: "https://twitter.com/remotion",
           label: "Twitter",
           position: "right",
           "data-splitbee-event": "External Link",
@@ -135,7 +135,7 @@ module.exports = {
             },
             {
               label: "Twitter",
-              href: "https://twitter.com/remotion_dev",
+              href: "https://twitter.com/remotion",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Twitter",
             },
