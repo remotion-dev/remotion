@@ -46,6 +46,10 @@ module.exports = {
           label: "More",
           position: "left",
           items: [
+            {
+              to: "/docs/resources",
+              label: "Resources",
+            },
             { to: "blog", label: "Blog" },
             { to: "showcase", label: "Showcase" },
             { to: "experts", label: "Experts" },
@@ -152,10 +156,6 @@ module.exports = {
         {
           title: "More",
           items: [
-            {
-              label: "Resources",
-              to: "/docs/resources",
-            },
             {
               label: "About us",
               to: "about",
