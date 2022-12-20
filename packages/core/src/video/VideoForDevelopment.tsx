@@ -61,6 +61,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaVolume,
 		mediaType: 'video',
 		src,
+		playbackRate: props.playbackRate ?? 1,
 	});
 
 	useSyncVolumeWithMediaTag({
