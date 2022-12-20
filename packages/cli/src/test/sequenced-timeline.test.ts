@@ -160,6 +160,7 @@ const sequences: TSequence[] = [
 		startMediaFrom: 0,
 		doesVolumeChange: false,
 		showLoopTimesInTimeline: undefined,
+		playbackRate: 1,
 	},
 	{
 		from: 12000,
@@ -189,6 +190,7 @@ const sequences: TSequence[] = [
 		startMediaFrom: 330,
 		doesVolumeChange: false,
 		showLoopTimesInTimeline: undefined,
+		playbackRate: 1,
 	},
 	{
 		from: -330,
