@@ -315,6 +315,7 @@ module.exports = {
         "parametrized-rendering",
         "dynamic-metadata",
         "ssr",
+        "workflows-integration",
         "webpack",
         "tailwind",
         "env-variables",
