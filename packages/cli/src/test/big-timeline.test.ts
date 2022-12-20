@@ -389,6 +389,7 @@ const sequences: TSequence[] = [
 		nonce: 60,
 		startMediaFrom: 0,
 		doesVolumeChange: false,
+		playbackRate: 1,
 	},
 	{
 		from: 0,
@@ -538,6 +539,7 @@ const sequences: TSequence[] = [
 		nonce: 72,
 		startMediaFrom: 0,
 		doesVolumeChange: false,
+		playbackRate: 1,
 	},
 	{
 		from: 0,
@@ -687,6 +689,7 @@ const sequences: TSequence[] = [
 		nonce: 242,
 		startMediaFrom: 0,
 		doesVolumeChange: false,
+		playbackRate: 1,
 	},
 	{
 		from: 0,
@@ -836,6 +839,7 @@ const sequences: TSequence[] = [
 		nonce: 254,
 		startMediaFrom: 0,
 		doesVolumeChange: false,
+		playbackRate: 1,
 	},
 	{
 		from: 0,
@@ -1106,6 +1110,7 @@ const sequences: TSequence[] = [
 		nonce: 274,
 		startMediaFrom: 0,
 		doesVolumeChange: false,
+		playbackRate: 1,
 	},
 	{
 		from: 0,
@@ -1255,6 +1260,7 @@ const sequences: TSequence[] = [
 		nonce: 286,
 		startMediaFrom: 0,
 		doesVolumeChange: false,
+		playbackRate: 1,
 	},
 	{
 		from: 0,
@@ -1404,6 +1410,7 @@ const sequences: TSequence[] = [
 		nonce: 298,
 		startMediaFrom: 0,
 		doesVolumeChange: false,
+		playbackRate: 1,
 	},
 	{
 		from: 0,
@@ -1553,6 +1560,7 @@ const sequences: TSequence[] = [
 		nonce: 310,
 		startMediaFrom: 0,
 		doesVolumeChange: false,
+		playbackRate: 1,
 	},
 	{
 		from: 0,
@@ -1702,6 +1710,7 @@ const sequences: TSequence[] = [
 		nonce: 322,
 		startMediaFrom: 0,
 		doesVolumeChange: false,
+		playbackRate: 1,
 	},
 	{
 		from: 0,
@@ -1851,6 +1860,7 @@ const sequences: TSequence[] = [
 		nonce: 334,
 		startMediaFrom: 0,
 		doesVolumeChange: false,
+		playbackRate: 1,
 	},
 	{
 		from: 0,
@@ -2000,6 +2010,7 @@ const sequences: TSequence[] = [
 		nonce: 346,
 		startMediaFrom: 0,
 		doesVolumeChange: false,
+		playbackRate: 1,
 	},
 	{
 		from: 0,
@@ -2137,6 +2148,7 @@ const sequences: TSequence[] = [
 		nonce: 357,
 		startMediaFrom: 10,
 		doesVolumeChange: true,
+		playbackRate: 1,
 	},
 	{
 		from: -10,
@@ -2178,6 +2190,7 @@ const sequences: TSequence[] = [
 		nonce: 360,
 		startMediaFrom: 0,
 		doesVolumeChange: false,
+		playbackRate: 1,
 	},
 	{
 		from: 0,
@@ -2315,6 +2328,7 @@ const sequences: TSequence[] = [
 		nonce: 371,
 		startMediaFrom: 10,
 		doesVolumeChange: true,
+		playbackRate: 1,
 	},
 	{
 		from: -10,
@@ -2356,6 +2370,7 @@ const sequences: TSequence[] = [
 		nonce: 374,
 		startMediaFrom: 0,
 		doesVolumeChange: false,
+		playbackRate: 1,
 	},
 	{
 		from: 0,
@@ -2493,6 +2508,7 @@ const sequences: TSequence[] = [
 		nonce: 385,
 		startMediaFrom: 10,
 		doesVolumeChange: true,
+		playbackRate: 1,
 	},
 	{
 		from: -10,
