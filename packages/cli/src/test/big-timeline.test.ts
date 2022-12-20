@@ -869,6 +869,7 @@ const sequences: TSequence[] = [
 		nonce: 256,
 		startMediaFrom: 0,
 		doesVolumeChange: false,
+		playbackRate: 1,
 	},
 	{
 		type: 'video',
@@ -886,6 +887,7 @@ const sequences: TSequence[] = [
 		nonce: 257,
 		startMediaFrom: 0,
 		doesVolumeChange: false,
+		playbackRate: 1,
 	},
 	{
 		type: 'video',
@@ -903,6 +905,7 @@ const sequences: TSequence[] = [
 		nonce: 258,
 		startMediaFrom: 60,
 		doesVolumeChange: false,
+		playbackRate: 1,
 	},
 	{
 		from: -60,
@@ -932,6 +935,7 @@ const sequences: TSequence[] = [
 		nonce: 260,
 		startMediaFrom: 120,
 		doesVolumeChange: false,
+		playbackRate: 1,
 	},
 	{
 		from: -120,
@@ -961,6 +965,7 @@ const sequences: TSequence[] = [
 		nonce: 262,
 		startMediaFrom: 180,
 		doesVolumeChange: false,
+		playbackRate: 1,
 	},
 	{
 		from: -180,
