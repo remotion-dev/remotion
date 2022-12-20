@@ -104,6 +104,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		mediaRef: audioRef,
 		src,
 		mediaType: 'audio',
+		playbackRate: playbackRate ?? 1,
 	});
 
 	useMediaPlayback({
