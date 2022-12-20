@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-limits.png
 sidebar_label: Limits
 title: Lambda Limits
 slug: /lambda/limits
+crumb: "Lambda"
 ---
 
 The standard AWS Lambda quotas apply ([see here](https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html)), most notably:

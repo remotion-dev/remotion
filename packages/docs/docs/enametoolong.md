@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-enametoolong.png
 id: enametoolong
 title: ENAMETOOLONG
+crumb: "Troubleshooting"
 ---
 
 ```

@@ -8,7 +8,7 @@ export const StaticDemo: React.FC = () => {
 	return (
 		<>
 			<Img
-				src={staticFile('logo.png')}
+				src={staticFile('nested/logö.png')}
 				onLoad={() => continueRender(handle1)}
 			/>
 			<Img

@@ -236,6 +236,8 @@ module.exports = {
       items: [
         "preload/preload-video",
         "preload/preload-audio",
+        "preload/preload-image",
+        "preload/preload-font",
         "preload/resolve-redirect",
       ],
     },
@@ -256,6 +258,7 @@ module.exports = {
         "paths/interpolate-path",
         "paths/evolve-path",
         "paths/extend-viewbox",
+        "paths/get-subpaths",
       ],
     },
     {
@@ -339,6 +342,7 @@ module.exports = {
         "player/scaling",
         "player/integration",
         "player/autoplay",
+        "player/current-time",
         "player/preloading",
         "player/best-practices",
       ],
@@ -357,6 +361,7 @@ module.exports = {
           label: "API Reference",
         },
         "lambda/setup",
+        "lambda/authentication",
         "lambda/permissions",
         "lambda/region-selection",
         "lambda/concurrency",
@@ -429,6 +434,7 @@ module.exports = {
         "spline",
         "after-effects",
         "video-uploads",
+        "presigned-urls",
       ],
     },
     {
@@ -456,6 +462,7 @@ module.exports = {
         "legacy-babel",
         "miscellaneous/typescript-aliases",
         "miscellaneous/render-in-browser",
+        "miscellaneous/changing-temp-dir",
       ],
     },
     "license",

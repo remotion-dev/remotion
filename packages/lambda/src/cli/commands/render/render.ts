@@ -3,6 +3,7 @@ import {getCompositions, RenderInternals} from '@remotion/renderer';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {renderMediaOnLambda} from '../../../api/render-media-on-lambda';
+import type {RenderProgress} from '../../../shared/constants';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
@@ -136,7 +137,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			: undefined,
 	});
 
-	const totalSteps = downloadName ? 5 : 4;
+	const totalSteps = downloadName ? 6 : 5;
 
 	const progressBar = CliInternals.createOverwriteableCliOutput(
 		CliInternals.quietFlagProvided()
@@ -173,6 +174,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			downloadInfo: null,
 			retriesInfo: status.retriesInfo,
 			verbose,
+			totalFrames: getTotalFrames(status),
+			timeToEncode: status.timeToEncode,
 		})
 	);
 
@@ -193,6 +196,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				retriesInfo: newStatus.retriesInfo,
 				downloadInfo: null,
 				verbose,
+				timeToEncode: newStatus.timeToEncode,
+				totalFrames: getTotalFrames(newStatus),
 			})
 		);
 
@@ -204,6 +209,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					downloadInfo: null,
 					retriesInfo: newStatus.retriesInfo,
 					verbose,
+					timeToEncode: newStatus.timeToEncode,
+					totalFrames: getTotalFrames(newStatus),
 				})
 			);
 			if (downloadName) {
@@ -225,6 +232,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 									totalSize,
 								},
 								verbose,
+								timeToEncode: newStatus.timeToEncode,
+								totalFrames: getTotalFrames(newStatus),
 							})
 						);
 					},
@@ -240,6 +249,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 							totalSize: sizeInBytes,
 						},
 						verbose,
+						timeToEncode: newStatus.timeToEncode,
+						totalFrames: getTotalFrames(newStatus),
 					})
 				);
 				Log.info();
@@ -301,3 +312,12 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		}
 	}
 };
+
+function getTotalFrames(status: RenderProgress): number | null {
+	return status.renderMetadata
+		? RenderInternals.getFramesToRender(
+				status.renderMetadata.frameRange,
+				status.renderMetadata.everyNthFrame
+		  ).length
+		: null;
+}

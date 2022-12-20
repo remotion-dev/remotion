@@ -5,6 +5,7 @@ import {truthy} from '../../truthy';
 import {Row} from '../components/layout';
 import type {Menu} from '../components/Menu/MenuItem';
 import type {SelectionItem} from '../components/NewComposition/ComboBox';
+import {notificationCenter} from '../components/Notifications/NotificationCenter';
 import type {TQuickSwitcherResult} from '../components/QuickSwitcher/QuickSwitcherResult';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
 import {inOutHandles} from '../components/TimelineInOutToggle';
@@ -17,6 +18,7 @@ import {RichTimelineContext} from '../state/rich-timeline';
 import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
 import {timelineRef} from '../state/timeline-ref';
+import {openInEditor} from './open-in-editor';
 import {pickColor} from './pick-color';
 import {areKeyboardShortcutsDisabled} from './use-keybinding';
 
@@ -151,7 +153,48 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						subMenu: null,
 						quickSwitcherLabel: 'New still...',
 					},
-				],
+					window.remotion_editorName
+						? {
+								id: 'open-in-editor',
+								value: 'open-in-editor',
+								label: `Open in ${window.remotion_editorName}`,
+								onClick: async () => {
+									await openInEditor({
+										originalFileName: `${window.remotion_cwd}`,
+										originalLineNumber: 1,
+										originalColumnNumber: 1,
+										originalFunctionName: null,
+										originalScriptCode: null,
+									})
+										.then((res) => res.json())
+										.then(({success}) => {
+											if (!success) {
+												notificationCenter.current?.addNotification({
+													content: `Could not open ${window.remotion_editorName}`,
+													duration: 2000,
+													created: Date.now(),
+													id: String(Math.random()),
+												});
+											}
+										})
+										.catch((err) => {
+											console.error(err);
+											notificationCenter.current?.addNotification({
+												content: `Could not open ${window.remotion_editorName}`,
+												duration: 2000,
+												created: Date.now(),
+												id: String(Math.random()),
+											});
+										});
+								},
+								type: 'item' as const,
+								keyHint: null,
+								leftItem: null,
+								subMenu: null,
+								quickSwitcherLabel: 'Open in editor...',
+						  }
+						: null,
+				].filter(truthy),
 				quickSwitcherLabel: null,
 			},
 			{

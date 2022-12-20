@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-using-fonts.png
 title: Using fonts
 id: fonts
+crumb: "Techniques"
 ---
 
 Here are some ways how you can use custom fonts in Remotion.

@@ -1,13 +1,17 @@
 import * as assert from 'assert';
 import type {Page} from './browser/BrowserPage';
-import type {ScreenshotOptions} from './browser/ScreenshotOptions';
 import type {StillImageFormat} from './image-format';
 import {screenshotTask} from './screenshot-task';
 
-export const screenshot = (
-	page: Page,
-	options: ScreenshotOptions
-): Promise<Buffer | string | void> => {
+export const screenshot = (options: {
+	page: Page;
+	type: 'png' | 'jpeg';
+	path?: string;
+	quality?: number;
+	omitBackground: boolean;
+	width: number;
+	height: number;
+}): Promise<Buffer | string | void> => {
 	let screenshotType: 'png' | 'jpeg' | null = null;
 	// options.type takes precedence over inferring the type from options.path
 	// because it may be a 0-length file with no extension created beforehand
@@ -57,38 +61,15 @@ export const screenshot = (
 		);
 	}
 
-	if (options.clip) {
-		assert.ok(
-			typeof options.clip.x === 'number',
-			'Expected options.clip.x to be a number but found ' +
-				typeof options.clip.x
-		);
-		assert.ok(
-			typeof options.clip.y === 'number',
-			'Expected options.clip.y to be a number but found ' +
-				typeof options.clip.y
-		);
-		assert.ok(
-			typeof options.clip.width === 'number',
-			'Expected options.clip.width to be a number but found ' +
-				typeof options.clip.width
-		);
-		assert.ok(
-			typeof options.clip.height === 'number',
-			'Expected options.clip.height to be a number but found ' +
-				typeof options.clip.height
-		);
-		assert.ok(
-			options.clip.width !== 0,
-			'Expected options.clip.width not to be 0.'
-		);
-		assert.ok(
-			options.clip.height !== 0,
-			'Expected options.clip.height not to be 0.'
-		);
-	}
-
-	return page.screenshotTaskQueue.postTask(() =>
-		screenshotTask(page, screenshotType as StillImageFormat, options)
+	return options.page.screenshotTaskQueue.postTask(() =>
+		screenshotTask({
+			page: options.page,
+			format: screenshotType as StillImageFormat,
+			height: options.height,
+			width: options.width,
+			omitBackground: options.omitBackground,
+			path: options.path,
+			quality: options.quality,
+		})
 	);
 };

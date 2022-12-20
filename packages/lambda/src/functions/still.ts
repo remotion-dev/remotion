@@ -129,6 +129,8 @@ const innerStillHandler = async (
 		renderId,
 		outName: lambdaParams.outName ?? undefined,
 		privacy: lambdaParams.privacy,
+		everyNthFrame: 1,
+		frameRange: [lambdaParams.frame, lambdaParams.frame],
 	};
 
 	await lambdaWriteFile({

@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-get-video-metadata.png
 title: getVideoMetadata()
 id: get-video-metadata
+crumb: "@remotion/media-utils"
 ---
 
 _Part of the `@remotion/media-utils` package of helper functions._

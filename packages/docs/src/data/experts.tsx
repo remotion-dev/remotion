@@ -81,7 +81,7 @@ export const experts: Expert[] = [
       <div>
         I made:{" "}
         <a target={"_blank"} href="https://middy.com">
-          https://middy.com
+          middy.com
         </a>
         !
       </div>
@@ -181,6 +181,23 @@ export const experts: Expert[] = [
           TikTok automation, ENS video
         </a>{" "}
         and many more!
+      </div>
+    ),
+  },
+  {
+    slug: "alex-fernandez",
+    name: "Alex Fernandez",
+    image: "/img/freelancers/alex.jpeg",
+    website: null,
+    twitter: null,
+    github: "alexfernandez803",
+    linkedin: "in/alex-f-17a5bb56/",
+    email: "alex.frndz@gmail.com",
+    since: new Date("2022-12-02").getTime(),
+    description: (
+      <div>
+        I am an experienced integration developer using Mulesoft, a backend
+        developer and on the side frontend and animation enthusiast.
       </div>
     ),
   },

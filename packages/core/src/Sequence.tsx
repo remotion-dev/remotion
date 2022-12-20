@@ -24,7 +24,7 @@ export type SequenceContextType = {
 
 export const SequenceContext = createContext<SequenceContextType | null>(null);
 
-type LayoutAndStyle =
+export type LayoutAndStyle =
 	| {
 			layout: 'none';
 	  }

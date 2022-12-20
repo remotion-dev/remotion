@@ -15,6 +15,7 @@ type LambdaCommandLineOptions = {
 	yes: boolean;
 	force: boolean;
 	f: boolean;
+	['default-only']: boolean;
 
 	['site-name']: string | undefined;
 	['disable-chunk-optimization']: boolean;

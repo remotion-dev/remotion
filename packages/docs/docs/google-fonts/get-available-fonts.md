@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-google-fonts-get-available-fonts.png
 title: getAvailableFonts()
+crumb: "@remotion/google-fonts"
 ---
 
 import {AvailableFonts} from '../../components/AvailableFonts'

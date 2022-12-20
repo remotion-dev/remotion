@@ -1,8 +1,5 @@
-import type {
-	ChromiumOptions,
-	LogLevel,
-	StillImageFormat,
-} from '@remotion/renderer';
+import type {LogLevel, StillImageFormat} from '@remotion/renderer';
+import type {ChromiumOptions} from '@remotion/renderer/src/open-browser';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';

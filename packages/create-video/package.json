@@ -1,6 +1,6 @@
 {
 	"name": "create-video",
-	"version": "3.3.3",
+	"version": "3.3.15",
 	"description": "",
 	"main": "dist/index.js",
 	"bin": {
@@ -12,7 +12,8 @@
 	"scripts": {
 		"build": "tsc -d",
 		"watch": "tsc -w",
-		"lint": "eslint src --ext ts,tsx"
+		"lint": "eslint src --ext ts,tsx",
+		"test": "vitest --run"
 	},
 	"author": "",
 	"license": "SEE LICENSE IN LICENSE.md",
