@@ -30,12 +30,14 @@ export const useMediaInTimeline = ({
 	mediaRef,
 	src,
 	mediaType,
+	playbackRate,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
 	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement>;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
+	playbackRate: number;
 }) => {
 	const videoConfig = useVideoConfig();
 	const {rootId, audioAndVideoTags} = useContext(TimelineContext);
@@ -112,6 +114,7 @@ export const useMediaInTimeline = ({
 			startMediaFrom: 0 - startsAt,
 			doesVolumeChange,
 			showLoopTimesInTimeline: undefined,
+			playbackRate,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -132,6 +135,7 @@ export const useMediaInTimeline = ({
 		mediaRef,
 		mediaType,
 		startsAt,
+		playbackRate,
 	]);
 
 	useEffect(() => {
