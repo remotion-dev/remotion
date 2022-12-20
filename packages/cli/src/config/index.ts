@@ -92,6 +92,10 @@ import {setQuality} from './quality';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
 import {setWebpackCaching} from './webpack-caching';
+import {
+	getWebpackPolling,
+	setWebpackPollingInMilliseconds,
+} from './webpack-poll';
 import {getWidth, overrideWidth} from './width';
 
 export const Config: ConfigType = {
@@ -99,6 +103,7 @@ export const Config: ConfigType = {
 		setMaxTimelineTracks,
 		setKeyboardShortcutsEnabled,
 		setNumberOfSharedAudioTags,
+		setWebpackPollingInMilliseconds,
 	},
 	Bundling: {
 		overrideWebpackConfig,
@@ -199,6 +204,7 @@ export const ConfigInternals = {
 	getCrfOrUndefined,
 	getEntryPoint,
 	getNumberOfGifLoops,
+	getWebpackPolling,
 };
 
 export const overrideRemotion = () => {

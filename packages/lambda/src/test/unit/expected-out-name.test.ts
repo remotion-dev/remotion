@@ -33,6 +33,8 @@ const testRenderMetadata: RenderMetadata = {
 		width: 1080,
 	},
 	privacy: 'public',
+	everyNthFrame: 1,
+	frameRange: [0, 199],
 };
 
 test('Should get a custom outname', () => {

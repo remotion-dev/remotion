@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-cli-cli.png
 title: Command line reference
 sidebar_label: CLI reference
 id: cli

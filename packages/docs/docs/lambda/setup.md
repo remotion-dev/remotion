@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-setup.png
 id: setup
 title: Setup
 slug: /lambda/setup
+crumb: "Lambda"
 ---
 
 import Tabs from '@theme/Tabs';
@@ -141,7 +143,7 @@ import { deployFunction } from "@remotion/lambda";
 const { functionName } = await deployFunction({
   region: "us-east-1",
   timeoutInSeconds: 120,
-  memorySizeInMb: 1536,
+  memorySizeInMb: 2048,
   createCloudWatchLogGroup: true,
   architecture: "arm64",
 });

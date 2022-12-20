@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-figma.png
 id: figma
 title: Import from Figma
+crumb: "The best of both"
 ---
 
 You can export a design from Figma as an SVG file and import it as a React component in Remotion and then animate it.

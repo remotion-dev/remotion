@@ -363,9 +363,6 @@ export type LambdaPayload = LambdaPayloads[LambdaRoutines];
 
 export type EncodingProgress = {
 	framesEncoded: number;
-	totalFrames: number | null;
-	doneIn: number | null;
-	timeToInvoke: number | null;
 };
 
 export type RenderMetadata = {
@@ -387,15 +384,19 @@ export type RenderMetadata = {
 	renderId: string;
 	outName: OutNameInputWithoutCredentials | undefined;
 	privacy: Privacy;
+	frameRange: [number, number];
+	everyNthFrame: number;
+};
+
+export type AfterRenderCost = {
+	estimatedCost: number;
+	estimatedDisplayCost: string;
+	currency: string;
+	disclaimer: string;
 };
 
 export type PostRenderData = {
-	cost: {
-		estimatedCost: number;
-		estimatedDisplayCost: string;
-		currency: string;
-		disclaimer: string;
-	};
+	cost: AfterRenderCost;
 	outputFile: string;
 	outputSize: number;
 	renderSize: number;
@@ -408,7 +409,6 @@ export type PostRenderData = {
 	timeToEncode: number;
 	timeToCleanUp: number;
 	timeToRenderChunks: number;
-	timeToInvokeLambdas: number;
 	retriesInfo: ChunkRetry[];
 	mostExpensiveFrameRanges: ExpensiveChunk[] | undefined;
 };
@@ -445,10 +445,12 @@ export type RenderProgress = {
 	lambdasInvoked: number;
 	cleanup: CleanupInfo | null;
 	timeToFinishChunks: number | null;
-	timeToInvokeLambdas: number | null;
+	timeToEncode: number | null;
 	overallProgress: number;
 	retriesInfo: ChunkRetry[];
 	mostExpensiveFrameRanges: ExpensiveChunk[] | null;
+	framesRendered: number;
+	outputSizeInBytes: number | null;
 };
 
 export type Privacy = 'public' | 'private' | 'no-acl';

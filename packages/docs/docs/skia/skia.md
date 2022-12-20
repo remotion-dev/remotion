@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-skia-skia.png
 id: skia
 sidebar_label: Overview
 title: "@remotion/skia"

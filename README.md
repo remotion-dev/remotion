@@ -30,7 +30,7 @@ Remotion is a framework for **creating videos programmatically using React.**
 <p>"This video was made with code" <em>- Fireship</em> <a href="https://youtu.be/deg8bOoziaE">Watch</a> • <a href="https://github.com/wcandillon/remotion-fireship">Source</a></p>
 </td>
 <td align="center">
-<img style="width: 240px" src="packages/docs/static/img/github-unwrapped.gif" />
+<img style="width: 240px" src="packages/docs/static/img/unwrapped-2022.gif" />
 <p>GitHub Unwrapped - Personalized year in Review <a href="https://githubunwrapped.com">Try</a> • <a href="https://github.com/remotion-dev/github-unwrapped">Source</a></p>
 </td>
 <td align="center">

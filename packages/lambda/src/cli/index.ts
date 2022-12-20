@@ -167,6 +167,18 @@ AWS returned an "TooManyRequestsException" error message which could mean you re
 			);
 		}
 
+		if (
+			error.stack?.includes(
+				'The security token included in the request is invalid'
+			)
+		) {
+			Log.error(
+				`
+AWS returned an error message "The security token included in the request is invalid". A possible reason for this is that you did not enable the region in your AWS account under "Account". The original message is: 
+`
+			);
+		}
+
 		Log.error(error.stack);
 		quit(1);
 	}

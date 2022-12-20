@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-cli-compositions.png
 title: npx remotion compositions
 sidebar_label: compositions
+crumb: CLI Reference
 ---
 
 _Available from v2.6.12._
@@ -78,6 +80,8 @@ Not to be confused with the [`--timeout` flag when deploying a Lambda function](
 Results in invalid SSL certificates in Chrome, such as self-signed ones, being ignored.
 
 ### `--disable-web-security`
+
+_available since v2.6.5_
 
 This will most notably disable CORS in Chrome among other security features.
 

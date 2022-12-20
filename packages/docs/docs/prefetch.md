@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-prefetch.png
 id: prefetch
 title: prefetch()
+crumb: "API"
 ---
 
 _Available in v3.2.23_

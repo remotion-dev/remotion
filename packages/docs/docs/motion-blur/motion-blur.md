@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-motion-blur-motion-blur.png
 title: "<MotionBlur>"
 slug: motion-blur
 ---

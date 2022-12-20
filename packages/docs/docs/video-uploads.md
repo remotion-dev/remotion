@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-video-uploads.png
 id: video-uploads
 title: Handling user video uploads
+crumb: "Building video apps"
 ---
 
 In an app where users can upload videos and edit them, we can create a better user experience by loading the video into a player even before the upload is finished. Good news: This can be done pretty easily!
@@ -41,6 +43,7 @@ const MyComposition: React.FC<{ videoUrl: string | null }> = (URL) => {
 const upload = async (file: File) => {
   return "https://exampleName.s3.examplesRegion.amazonaws.com";
 };
+
 // ---cut---
 import { Player } from "@remotion/player";
 import { useState } from "react";
@@ -150,3 +153,7 @@ export const RemotionPlayer: React.FC = () => {
 ```
 
 This will result in the user immediately seeing the video as they drag it into the input field. It is a good practice to call `URL.revokeObjectURL()` after the local video is not used anymore to free up the used memory.
+
+## See also
+
+- [Uploading with presigned URLs](/docs/presigned-urls)

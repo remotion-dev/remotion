@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-renderer.png
 slug: renderer
 sidebar_label: Overview
 title: "@remotion/renderer"

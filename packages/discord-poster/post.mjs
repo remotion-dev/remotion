@@ -17,8 +17,6 @@ const markdown = [
   .filter(Boolean)
   .join("\n");
 
-const formatBody = () => {};
-
 const res = await fetch(
   `https://discord.com/api/channels/994527481598070815/messages`,
   {

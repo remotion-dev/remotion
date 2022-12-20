@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-player-preloading.png
 sidebar_label: "Preloading"
 title: "Preloading assets"
+crumb: "@remotion/player"
 ---
 
 By default, assets such as videos, audio, or images will only be loaded as they enter the video. When using the [Remotion Player](/docs/terminology#remotion-player), you may want to preload those assets beforehand to make them play immediately once they enter the video.
@@ -13,7 +15,7 @@ Two ways of preloading are supported:
 ## Preloading videos using `@remotion/preload`
 
 By preloading, a `<link type='preload'>` tag is placed on the page, signaling to the browser that it may start loading the media.  
-For videos, use [`preloadVideo()`](/docs/preload/preload-video) API, for audio use [`preloadAudio()`](/docs/preload/preload-audio). Perform the preload outside a component or inside an [`useEffect()`](https://reactjs.org/docs/hooks-effect.html).
+For videos, use [`preloadVideo()`](/docs/preload/preload-video) API, for audio use [`preloadAudio()`](/docs/preload/preload-audio), for images use [`preloadImage()`](/docs/preload/preload-image). Perform the preload outside a component or inside an [`useEffect()`](https://reactjs.org/docs/hooks-effect.html).
 
 ```tsx twoslash
 import { preloadAudio, preloadVideo } from "@remotion/preload";
@@ -72,8 +74,7 @@ free();
   <tr>
     <td>Works with</td>
     <td>
-    All audio and video APIs
-    </td>
+    All audio and video APIs, images and fonts    </td>
     <td>
     <a href="/docs/audio"><code>{"<Audio/>"}</code></a>, <a href="/docs/video"><code>{"<Video/>"}</code></a>, <a href="/docs/img"><code>{"<Img/>"}</code></a>, <a href="/docs/offthreadvideo"><code>{"<OffthreadVideo/>"}</code></a>
     </td>

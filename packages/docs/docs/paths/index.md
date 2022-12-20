@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-paths-index.png
 title: "@remotion/paths"
+crumb: "SVG"
 ---
 
 import {TableOfContents} from '../../components/TableOfContents/paths';

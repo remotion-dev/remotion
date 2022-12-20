@@ -70,6 +70,8 @@ const handleFallback = async ({
 			numberOfAudioTags:
 				parsedCli['number-of-shared-audio-tags'] ??
 				getNumberOfSharedAudioTags(),
+			includeFavicon: true,
+			title: 'Remotion Preview',
 		})
 	);
 };

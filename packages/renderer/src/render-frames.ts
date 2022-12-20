@@ -149,7 +149,7 @@ const innerRenderFrames = ({
 	serveUrl,
 	composition,
 	timeoutInMilliseconds,
-	scale,
+	scale = 1,
 	actualConcurrency,
 	everyNthFrame = 1,
 	proxyPort,
@@ -292,11 +292,19 @@ const innerRenderFrames = ({
 		stopped = true;
 	});
 
-	const renderFrameWithOptionToReject = async (
-		frame: number,
-		index: number,
-		reject: (err: Error) => void
-	) => {
+	const renderFrameWithOptionToReject = async ({
+		frame,
+		index,
+		reject,
+		width,
+		height,
+	}: {
+		frame: number;
+		index: number;
+		reject: (err: Error) => void;
+		width: number;
+		height: number;
+	}) => {
 		const pool = await poolPromise;
 		const freePage = await pool.acquire();
 
@@ -329,6 +337,8 @@ const innerRenderFrames = ({
 						frame,
 						output: null,
 					},
+					height: composition.height,
+					width: composition.width,
 				});
 				stopPerfMeasure(id);
 
@@ -359,6 +369,8 @@ const innerRenderFrames = ({
 						frame,
 						output,
 					},
+					height,
+					width,
 				});
 			}
 		}
@@ -395,7 +407,13 @@ const innerRenderFrames = ({
 
 	const renderFrame = (frame: number, index: number) => {
 		return new Promise<void>((resolve, reject) => {
-			renderFrameWithOptionToReject(frame, index, reject)
+			renderFrameWithOptionToReject({
+				frame,
+				index,
+				reject,
+				width: composition.width,
+				height: composition.height,
+			})
 				.then(() => {
 					resolve();
 				})

@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-noise-visualization.png
 title: Noise visualization
 id: noise-visualization
+crumb: "Techniques"
 ---
 
 Using the [`@remotion/noise`](/docs/noise) package, you can add noise for your videos.

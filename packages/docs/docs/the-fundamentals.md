@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-the-fundamentals.png
 id: the-fundamentals
 title: The fundamentals
+crumb: "Getting started"
 ---
 
 ```twoslash include example

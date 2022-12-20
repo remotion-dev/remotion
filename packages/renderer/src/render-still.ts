@@ -32,7 +32,7 @@ import {validateScale} from './validate-scale';
 
 type InnerStillOptions = {
 	composition: SmallTCompMetadata;
-	output: string;
+	output?: string | null;
 	frame?: number;
 	inputProps?: unknown;
 	imageFormat?: StillImageFormat;
@@ -55,6 +55,8 @@ type InnerStillOptions = {
 	downloadMap?: DownloadMap;
 };
 
+type RenderStillReturnValue = {buffer: Buffer | null};
+
 export type RenderStillOptions = InnerStillOptions &
 	ServeUrlOrWebpackBundle & {
 		port?: number | null;
@@ -76,14 +78,14 @@ const innerRenderStill = async ({
 	browserExecutable,
 	timeoutInMilliseconds,
 	chromiumOptions,
-	scale,
+	scale = 1,
 	proxyPort,
 	cancelSignal,
 }: InnerStillOptions & {
 	serveUrl: string;
 	onError: (err: Error) => void;
 	proxyPort: number;
-}): Promise<void> => {
+}): Promise<RenderStillReturnValue> => {
 	Internals.validateDimension(
 		composition.height,
 		'height',
@@ -112,11 +114,8 @@ const innerRenderStill = async ({
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	validateScale(scale);
 
-	if (typeof output !== 'string') {
-		throw new TypeError('`output` parameter was not passed or is not a string');
-	}
-
-	output = path.resolve(process.cwd(), output);
+	output =
+		typeof output === 'string' ? path.resolve(process.cwd(), output) : null;
 
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
@@ -126,23 +125,25 @@ const innerRenderStill = async ({
 
 	validateQuality(quality);
 
-	if (fs.existsSync(output)) {
-		if (!overwrite) {
-			throw new Error(
-				`Cannot render still - "overwrite" option was set to false, but the output destination ${output} already exists.`
-			);
+	if (output) {
+		if (fs.existsSync(output)) {
+			if (!overwrite) {
+				throw new Error(
+					`Cannot render still - "overwrite" option was set to false, but the output destination ${output} already exists.`
+				);
+			}
+
+			const stat = statSync(output);
+
+			if (!stat.isFile()) {
+				throw new Error(
+					`The output location ${output} already exists, but is not a file, but something else (e.g. folder). Cannot save to it.`
+				);
+			}
 		}
 
-		const stat = statSync(output);
-
-		if (!stat.isFile()) {
-			throw new Error(
-				`The output location ${output} already exists, but is not a file, but something else (e.g. folder). Cannot save to it.`
-			);
-		}
+		ensureOutputDirectory(output);
 	}
-
-	ensureOutputDirectory(output);
 
 	const browserInstance =
 		puppeteerInstance ??
@@ -232,7 +233,7 @@ const innerRenderStill = async ({
 	});
 	await seekToFrame({frame: stillFrame, page});
 
-	await provideScreenshot({
+	const buffer = await provideScreenshot({
 		page,
 		imageFormat,
 		quality,
@@ -240,9 +241,13 @@ const innerRenderStill = async ({
 			frame: stillFrame,
 			output,
 		},
+		height: composition.height,
+		width: composition.width,
 	});
 
 	await cleanup();
+
+	return {buffer: output ? null : buffer};
 };
 
 /**
@@ -250,14 +255,16 @@ const innerRenderStill = async ({
  * @description Render a still frame from a composition
  * @link https://www.remotion.dev/docs/renderer/render-still
  */
-export const renderStill = (options: RenderStillOptions): Promise<void> => {
+export const renderStill = (
+	options: RenderStillOptions
+): Promise<RenderStillReturnValue> => {
 	const selectedServeUrl = getServeUrlWithFallback(options);
 
 	const downloadMap = options.downloadMap ?? makeDownloadMap();
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
 
-	const happyPath = new Promise<void>((resolve, reject) => {
+	const happyPath = new Promise<RenderStillReturnValue>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
 
 		let close: (() => void) | null = null;
@@ -296,7 +303,7 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 
 	return Promise.race([
 		happyPath,
-		new Promise<void>((_resolve, reject) => {
+		new Promise<RenderStillReturnValue>((_resolve, reject) => {
 			options.cancelSignal?.(() => {
 				reject(new Error('renderStill() got cancelled'));
 			});
