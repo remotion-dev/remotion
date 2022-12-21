@@ -8,6 +8,7 @@ export const Parametrize: React.FC = () => {
   const ref = useRef<HTMLInputElement>(null);
   const [username, setUsername] = useState("JonnyBurger");
   const [rendering, setRendering] = useState(false);
+  const [color, setColor] = useState("#ff0000");
 
   const render = useCallback(() => {
     fetch("https://color-demo.remotion.dev/api/render", {
@@ -17,14 +18,14 @@ export const Parametrize: React.FC = () => {
       method: "post",
       body: JSON.stringify({
         username,
-        color: "#ff0000",
+        color,
       }),
     })
       .then((res) => res.json())
       .then((r) => {
         console.log(r);
       });
-  }, [username]);
+  }, [color, username]);
 
   return (
     <div className={styles.parametrizerow}>
@@ -77,7 +78,7 @@ export const Parametrize: React.FC = () => {
           </form>
         </div>
       </div>
-      <ProgrammaticContent username={username} color="#ff0000" />
+      <ProgrammaticContent username={username} color={color} />
     </div>
   );
 };
