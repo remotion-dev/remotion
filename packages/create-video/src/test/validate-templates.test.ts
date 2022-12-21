@@ -4,16 +4,19 @@ import type {Template} from '../templates';
 import {FEATURED_TEMPLATES} from '../templates';
 
 const getFileForTemplate = (template: Template, file: string) => {
-	return `https://raw.githubusercontent.com/${template.org}/${template.repoName}/${template.defaultBranch}/${file}`;
+	return `https://github.com/${template.org}/${template.repoName}/raw/${template.defaultBranch}/${file}`;
 };
 
 for (const template of FEATURED_TEMPLATES) {
 	test(template.shortName + ' should have a valid package.json', async () => {
-		const packageLockJson = getFileForTemplate(template, 'package.json');
+		const packageJson = getFileForTemplate(template, 'package.json');
 
-		const res = await got(packageLockJson, {
+		const res = await got(packageJson, {
 			throwHttpErrors: false,
+			cache: false,
+			followRedirect: true,
 		});
+
 		expect(res.statusCode).toBe(200);
 		const body = JSON.parse(res.body);
 
