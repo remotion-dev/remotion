@@ -1,13 +1,20 @@
 import type { PlayerRef } from "@remotion/player";
 import { Player } from "@remotion/player";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import type { GithubResponse } from "./GithubDemo";
-import { GithubDemo } from "./GithubDemo";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import type { ColorDemoProps } from "../ColorDemo";
+import { ColorDemo } from "../ColorDemo";
 import styles from "./mobileplayer.module.css";
 
-export const ProgrammaticContent: React.FC<{ data: GithubResponse | null }> = ({
-  data,
-}) => {
+export const ProgrammaticContent: React.FC<{
+  username: string;
+  color: string;
+}> = ({ username, color }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<PlayerRef>(null);
 
@@ -48,20 +55,28 @@ export const ProgrammaticContent: React.FC<{ data: GithubResponse | null }> = ({
     if (isIntersecting) {
       playerRef.current?.play();
     }
-  }, [data, isIntersecting]);
+  }, [isIntersecting]);
+
+  const props: ColorDemoProps = useMemo(() => {
+    return {
+      color,
+      username,
+    };
+  }, [color, username]);
 
   return (
     <div ref={containerRef} className={styles.mobileplayer}>
       <Player
         ref={playerRef}
-        component={GithubDemo}
+        component={ColorDemo}
         compositionHeight={720}
         compositionWidth={1280}
         durationInFrames={100}
         fps={30}
         controls
         style={{ width: "100%" }}
-        inputProps={{ data }}
+        inputProps={props}
+        loop
       />
     </div>
   );
