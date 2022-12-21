@@ -5,7 +5,6 @@ import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
 import {LambdaRoutines} from '../defaults';
 import {callLambda} from '../shared/call-lambda';
-import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {serializeInputProps} from '../shared/serialize-input-props';
 
 export type GetCompositionsOnLambdaInput = {
@@ -44,8 +43,6 @@ export const getCompositionsOnLambda = async ({
 	logLevel,
 	timeoutInMilliseconds,
 }: GetCompositionsOnLambdaInput): Promise<GetCompositionsOnLambdaOutput> => {
-	const realServeUrl = await convertToServeUrl(serveUrl, region);
-
 	const serializedInputProps = await serializeInputProps({
 		inputProps,
 		region,
@@ -58,7 +55,7 @@ export const getCompositionsOnLambda = async ({
 			type: LambdaRoutines.compositions,
 			payload: {
 				chromiumOptions: chromiumOptions ?? {},
-				serveUrl: realServeUrl,
+				serveUrl,
 				envVariables,
 				inputProps: serializedInputProps,
 				logLevel: logLevel ?? 'info',
