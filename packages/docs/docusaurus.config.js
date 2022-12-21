@@ -209,7 +209,7 @@ module.exports = {
       },
     ],
     [
-      "@jonny/docusaurus-preset-shiki-twoslash",
+      "./shiki",
       {
         vfsRoot: process.cwd(),
         themes: ["github-light", "github-dark"],
@@ -237,6 +237,25 @@ module.exports = {
          */
         path: "./success-stories",
         blogSidebarTitle: "Success stories",
+      },
+    ],
+    [
+      "@docusaurus/plugin-content-blog",
+      {
+        /**
+         * Required for any multi-instance plugin
+         */
+        id: "learn",
+        /**
+         * URL route for the blog section of your site.
+         * *DO NOT* include a trailing slash.
+         */
+        routeBasePath: "learn",
+        /**
+         * Path to data on filesystem relative to site dir.
+         */
+        path: "./learn",
+        blogSidebarTitle: "Learn",
       },
     ],
     "./route-plugin",
