@@ -1738,6 +1738,13 @@ export const articles = [
     crumb: "@remotion/media-utils",
   },
   {
+    id: "workflows-integration",
+    title: "Generate videos with Workflows",
+    relativePath: "docs/workflows-integration.md",
+    compId: "articles-docs-workflows-integration",
+    crumb: null,
+  },
+  {
     id: "wrong-composition-mount",
     title: "Wrongly mounted <Composition>",
     relativePath: "docs/wrong-composition-mount.md",

@@ -1,7 +1,7 @@
 ---
-image: /generated/articles-docs-ssr.png
+image: /generated/articles-docs-workflows-integration.png
 id: workflows-integration
-title: Generate video with Workflows
+title: Generate videos with Workflows
 ---
 
 In order to generate videos, you can use your automated workflows in the tool of your choice.
@@ -24,7 +24,7 @@ The idea is to follow an implementation pattern regardless of the solution:
 
 Here is the example of integration with Github Action which is already available inside helloworld template.
 
-- [See also: Render using GitHub Actions](/docs/srr#render-using-github-actions)
+- [See also: Render using GitHub Actions](/docs/ssr#render-using-github-actions)
 
 ```yaml
 name: Render video
