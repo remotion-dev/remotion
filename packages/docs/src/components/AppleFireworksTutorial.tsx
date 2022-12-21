@@ -7,8 +7,8 @@ export const AppleFireworksTutorial = () => {
     <BrowserOnly>
       {() => (
         <VideoPlayerWithControls
-          playbackId="RDHz028sflhaMtuCm1ogQTdtq02aLTspWjLrnEIlDS1ZM"
-          poster="https://image.mux.com/RDHz028sflhaMtuCm1ogQTdtq02aLTspWjLrnEIlDS1ZM/thumbnail.png"
+          playbackId="eEsG2GbZXAqNxays7TqDz24FS1OGCyYVuGYjRg2w2IM"
+          poster="https://image.mux.com/eEsG2GbZXAqNxays7TqDz24FS1OGCyYVuGYjRg2w2IM/thumbnail.png"
           onError={(error) => {
             console.log(error);
           }}
