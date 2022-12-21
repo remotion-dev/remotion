@@ -92,8 +92,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 	{
 		homePageLabel: 'Remix',
 		shortName: 'Remix',
-		org: 'florentpergoud',
-		repoName: 'remotion-remix-template',
+		org: 'remotion-dev',
+		repoName: 'template-remix',
 		description: 'Remotion + Remix Starter Kit',
 		longerDescription:
 			'A software-as-a-service starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Built with remix.run.',
