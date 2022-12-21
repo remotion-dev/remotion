@@ -11,6 +11,7 @@ export const Parametrize: React.FC = () => {
   const [color, setColor] = useState("#ff0000");
 
   const render = useCallback(() => {
+    setRendering(true);
     fetch("https://color-demo.remotion.dev/api/render", {
       headers: {
         "content-type": "application/json",
@@ -64,7 +65,16 @@ export const Parametrize: React.FC = () => {
               ref={ref}
               className={styles.parametrizeinput}
               type="text"
-              placeholder="Your GitHub username"
+              placeholder="Your name"
+            />{" "}
+            <input
+              ref={ref}
+              className={styles.parametrizeinput}
+              type="text"
+              onChange={(e) => {
+                setColor(e.target.value);
+              }}
+              placeholder="Your favorite color"
             />{" "}
             <div style={{ width: 8, display: "inline-block" }} />
             <BlueButton

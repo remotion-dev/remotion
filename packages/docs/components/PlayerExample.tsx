@@ -1,18 +1,14 @@
-import { useEffect } from "react";
-import { useState } from "react";
-import { useRef } from "react";
-import { useCallback } from "react";
 import type { PlayerRef } from "@remotion/player";
 import { Player } from "@remotion/player";
-import React from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ColorDemo } from "./ColorDemo";
 import "./input-fields.css";
 
 export const PlayerExample: React.FC<{
-  name: string;
+  username: string;
   color: string;
   autoPlayOnFocus?: boolean;
-}> = ({ name, color }) => {
+}> = ({ username, color }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const playerRef = useRef<PlayerRef>(null);
@@ -56,7 +52,7 @@ export const PlayerExample: React.FC<{
         durationInFrames={350}
         fps={30}
         inputProps={{
-          name,
+          username,
           color,
         }}
         style={{
