@@ -9,7 +9,22 @@ export const Parametrize: React.FC = () => {
   const [username, setUsername] = useState("JonnyBurger");
   const [rendering, setRendering] = useState(false);
 
-  const render = useCallback(() => {}, []);
+  const render = useCallback(() => {
+    fetch("https://color-demo.remotion.dev/api/render", {
+      headers: {
+        "content-type": "application/json",
+      },
+      method: "post",
+      body: JSON.stringify({
+        username,
+        color: "#ff0000",
+      }),
+    })
+      .then((res) => res.json())
+      .then((r) => {
+        console.log(r);
+      });
+  }, [username]);
 
   return (
     <div className={styles.parametrizerow}>
