@@ -1,5 +1,5 @@
 import Hls from "hls.js";
-import Plyr from "plyr";
+import type Plyr from "plyr";
 import "plyr/dist/plyr.css";
 import type { MutableRefObject } from "react";
 import React, {
@@ -121,6 +121,7 @@ export const VideoPlayerWithControls = forwardRef<
     hls = null;
     if (video) {
       video.addEventListener("error", videoError);
+      const Plyr = require("plyr");
       playerRef.current = new Plyr(video, {
         previewThumbnails: {
           enabled: true,
