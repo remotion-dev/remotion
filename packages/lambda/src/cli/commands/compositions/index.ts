@@ -1,7 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {getCompositionsOnLambda} from '../../..';
 import {BINARY_NAME} from '../../../shared/constants';
-import {convertToServeUrl} from '../../../shared/convert-to-serve-url';
 import {validateServeUrl} from '../../../shared/validate-serveurl';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
@@ -42,10 +41,9 @@ export const compositionsCommand = async (
 	validateServeUrl(serveUrl);
 	const functionName = await findFunctionName();
 
-	const realServeUrl = await convertToServeUrl(serveUrl, region);
 	const comps = await getCompositionsOnLambda({
 		functionName,
-		serveUrl: realServeUrl,
+		serveUrl,
 		inputProps,
 		region,
 		chromiumOptions,

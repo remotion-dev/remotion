@@ -9,7 +9,6 @@ import {
 	DEFAULT_MAX_RETRIES,
 	DEFAULT_OUTPUT_PRIVACY,
 } from '../../../shared/constants';
-import {convertToServeUrl} from '../../../shared/convert-to-serve-url';
 import {sleep} from '../../../shared/sleep';
 import {validateFramesPerLambda} from '../../../shared/validate-frames-per-lambda';
 import type {LambdaCodec} from '../../../shared/validate-lambda-codec';
@@ -46,8 +45,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		Log.info('No compositions passed. Fetching compositions...');
 
 		validateServeUrl(serveUrl);
-		const realServeUrl = await convertToServeUrl(serveUrl, region);
-		const comps = await getCompositions(realServeUrl);
+		const comps = await getCompositions(serveUrl);
 		const {compositionId} = await CliInternals.selectComposition(comps);
 		composition = compositionId;
 	}
