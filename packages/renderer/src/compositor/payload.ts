@@ -38,3 +38,8 @@ export type CliInput = {
 	height: number;
 	layers: Layer[];
 };
+
+export type ErrorPayload = {
+	error: string;
+	backtrace: string;
+};
