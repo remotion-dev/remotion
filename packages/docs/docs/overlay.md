@@ -1,6 +1,6 @@
 ---
 id: prores-overlay
-title: ProRes Overlay
+title: Overlay
 ---
 
 If you want to export a remotion video to use it as an overlay or transition in an conventional video editing software, you can export it as an Apple ProRes file, which is supported by Final Cut Pro, Adobe Premiere and Davinci Resolve. Make sure your composition has no background color!
