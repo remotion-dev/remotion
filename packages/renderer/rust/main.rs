@@ -2,9 +2,12 @@ mod compositor;
 mod errors;
 mod payloads;
 use compositor::draw_layer;
-use image::{ImageBuffer, RgbaImage};
-use payloads::payloads::parse_cli;
-use std::io::Read;
+use payloads::payloads::{parse_cli, CliInput};
+use std::{
+    fs::File,
+    io::{BufWriter, Read},
+    path::Path,
+};
 
 extern crate png;
 
@@ -20,17 +23,59 @@ fn main() -> Result<(), std::io::Error> {
         Err(err) => errors::handle_error(&err),
     };
 
-    let opts = parse_cli(&input);
-    let mut img: RgbaImage = ImageBuffer::new(opts.width, opts.height);
-
-    for layer in opts.layers {
-        draw_layer(&mut img, layer)
-    }
-
-    match img.save(opts.output) {
+    let opts: CliInput = parse_cli(&input);
+    let len: usize = match (opts.width * opts.height).try_into() {
         Ok(content) => content,
         Err(err) => errors::handle_error(&err),
     };
+    let mut data: Vec<u8> = vec![0; len * 4];
 
+    for layer in opts.layers {
+        draw_layer(&mut data, opts.width, layer)
+    }
+
+    match save_as_png(opts.width, opts.height, data, opts.output) {
+        Ok(_) => (),
+        Err(err) => errors::handle_error(&err),
+    };
+
+    Ok(())
+}
+
+fn save_as_png(
+    width: u32,
+    height: u32,
+    data: Vec<u8>,
+    output: String,
+) -> Result<(), std::io::Error> {
+    let path = Path::new(&output);
+    let file = match File::create(path) {
+        Ok(content) => content,
+        Err(err) => return Err(err),
+    };
+    let ref mut w = BufWriter::new(file);
+
+    let mut encoder = png::Encoder::new(w, width, height);
+    encoder.set_color(png::ColorType::Rgba);
+    encoder.set_depth(png::BitDepth::Eight);
+    encoder.set_source_gamma(png::ScaledFloat::from_scaled(45455)); // 1.0 / 2.2, scaled by 100000
+    encoder.set_source_gamma(png::ScaledFloat::new(1.0 / 2.2)); // 1.0 / 2.2, unscaled, but rounded
+    let source_chromaticities = png::SourceChromaticities::new(
+        // Using unscaled instantiation here
+        (0.31270, 0.32900),
+        (0.64000, 0.33000),
+        (0.30000, 0.60000),
+        (0.15000, 0.06000),
+    );
+    encoder.set_source_chromaticities(source_chromaticities);
+    let mut writer = match encoder.write_header() {
+        Ok(content) => content,
+        Err(err) => return Err(err.into()),
+    };
+
+    match writer.write_image_data(&data) {
+        Ok(_) => (),
+        Err(err) => return Err(err.into()),
+    };
     Ok(())
 }

@@ -1,7 +1,5 @@
 use std::{error::Error, fmt, fs::File};
 
-use image::{ImageBuffer, Rgba};
-
 use crate::{
     errors,
     payloads::payloads::{ImageLayer, Layer, SolidLayer},
@@ -18,29 +16,55 @@ impl fmt::Display for NoMetadataError {
 
 impl Error for NoMetadataError {}
 
-fn draw_solid_layer(img: &mut ImageBuffer<image::Rgba<u8>, Vec<u8>>, layer: SolidLayer) {
+fn draw_solid_layer(img: &mut Vec<u8>, canvas_width: u32, layer: SolidLayer) {
     for y in layer.y..(layer.height + layer.y) {
         for x in layer.x..(layer.width + layer.x) {
-            let px: Rgba<u8> = Rgba(layer.fill);
-            img.put_pixel(x, y, px)
+            let r_index = ((y * canvas_width + x) * 3) as usize;
+            let g_index = ((y * canvas_width + x) * 3 + 1) as usize;
+            let b_index = ((y * canvas_width + x) * 3 + 2) as usize;
+            let a_index = ((y * canvas_width + x) * 3 + 3) as usize;
+
+            let new_pixel = alpha_compositing(
+                img[r_index],
+                img[g_index],
+                img[b_index],
+                img[a_index],
+                layer.fill[0],
+                layer.fill[1],
+                layer.fill[2],
+                layer.fill[3],
+            );
+
+            img[r_index] = new_pixel.0;
+            img[g_index] = new_pixel.1;
+            img[b_index] = new_pixel.2;
+            img[a_index] = new_pixel.3;
         }
     }
 }
 
-fn alpha_compositing(color1: &Rgba<u8>, color2: Rgba<u8>) -> Rgba<u8> {
-    let alpha1 = color1[3] as f32 / 255.0;
-    let alpha2 = color2[3] as f32 / 255.0;
+fn alpha_compositing(
+    prev_r: u8,
+    prev_g: u8,
+    prev_b: u8,
+    prev_a: u8,
+    new_r: u8,
+    new_g: u8,
+    new_b: u8,
+    new_a: u8,
+) -> (u8, u8, u8, u8) {
+    let alpha1 = prev_a as f32 / 255.0;
+    let alpha2 = new_a as f32 / 255.0;
 
-    let r = (alpha1 * color1[0] as f32 + alpha2 * (1.0 - alpha1) * color2[0] as f32) as u8;
-    let g = (alpha1 * color1[1] as f32 + alpha2 * (1.0 - alpha1) * color2[1] as f32) as u8;
-    let b = (alpha1 * color1[2] as f32 + alpha2 * (1.0 - alpha1) * color2[2] as f32) as u8;
+    let r = (alpha1 * prev_r as f32 + alpha2 * (1.0 - alpha1) * new_r as f32) as u8;
+    let g = (alpha1 * prev_g as f32 + alpha2 * (1.0 - alpha1) * new_g as f32) as u8;
+    let b = (alpha1 * prev_b as f32 + alpha2 * (1.0 - alpha1) * new_b as f32) as u8;
     let a = ((alpha1 + alpha2 * (1.0 - alpha1)) * 255.0) as u8;
 
-    let blended_color = Rgba([r, g, b, a]);
-    return blended_color;
+    return (r, g, b, a);
 }
 
-fn draw_png_image_layer(img: &mut ImageBuffer<image::Rgba<u8>, Vec<u8>>, layer: ImageLayer) {
+fn draw_png_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: ImageLayer) {
     let file = match File::open(layer.src) {
         Ok(content) => content,
         Err(err) => {
@@ -54,29 +78,46 @@ fn draw_png_image_layer(img: &mut ImageBuffer<image::Rgba<u8>, Vec<u8>>, layer: 
         Err(err) => errors::handle_error(&err),
     };
 
-    let mut buf = vec![0; reader.output_buffer_size()];
+    let size = reader.output_buffer_size();
+    let mut buf = vec![0; size];
     let info = match reader.next_frame(&mut buf) {
         Ok(content) => content,
         Err(err) => errors::handle_error(&err),
     };
 
     let bytes = &buf[..info.buffer_size()];
-    for y in layer.y..(layer.height + layer.y) {
-        for x in layer.x..(layer.width + layer.x) {
-            let r = bytes[((y * info.width + x) * 4) as usize];
-            let g = bytes[((y * info.width + x) * 4 + 1) as usize];
-            let b = bytes[((y * info.width + x) * 4 + 2) as usize];
-            let a = bytes[((y * info.width + x) * 4 + 3) as usize];
+    for y in 0..(layer.height) {
+        for x in 0..(layer.width) {
+            let r = bytes[((y * layer.width + x) * 4) as usize];
+            let g = bytes[((y * layer.width + x) * 4 + 1) as usize];
+            let b = bytes[((y * layer.width + x) * 4 + 2) as usize];
+            let a = bytes[((y * layer.width + x) * 4 + 3) as usize];
 
-            let px: Rgba<u8> = Rgba([r, g, b, a]);
-            let prev_pixel = img.get_pixel(x, y);
+            let r_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4) as usize;
+            let g_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 1) as usize;
+            let b_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 2) as usize;
+            let a_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 3) as usize;
 
-            img.put_pixel(x, y, alpha_compositing(prev_pixel, px))
+            let new_pixel = alpha_compositing(
+                img[r_index],
+                img[g_index],
+                img[b_index],
+                img[a_index],
+                r,
+                g,
+                b,
+                a,
+            );
+
+            img[r_index] = new_pixel.0;
+            img[g_index] = new_pixel.1;
+            img[b_index] = new_pixel.2;
+            img[a_index] = new_pixel.3;
         }
     }
 }
 
-fn draw_jpg_image_layer(img: &mut ImageBuffer<image::Rgba<u8>, Vec<u8>>, layer: ImageLayer) {
+fn draw_jpg_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: ImageLayer) {
     let file = match File::open(layer.src) {
         Ok(content) => content,
         Err(err) => {
@@ -90,37 +131,48 @@ fn draw_jpg_image_layer(img: &mut ImageBuffer<image::Rgba<u8>, Vec<u8>>, layer: 
         Ok(content) => content,
         Err(err) => errors::handle_error(&err),
     };
-    let metadata = match decoder.info() {
-        Some(content) => content,
-        None => errors::handle_error(&NoMetadataError {}),
-    };
-    let width = metadata.width as u32;
 
-    for y in layer.y..(layer.height + layer.y) {
-        for x in layer.x..(layer.width + layer.x) {
-            let r = pixels[((y * width + x) * 3) as usize];
-            let g = pixels[((y * width + x) * 3 + 1) as usize];
-            let b = pixels[((y * width + x) * 3 + 2) as usize];
-            let a = 255;
+    for y in 0..(layer.height) {
+        for x in 0..(layer.width) {
+            let layer_r_index = ((y * layer.width + x) * 4) as usize;
+            let layer_g_index = ((y * layer.width + x) * 4 + 1) as usize;
+            let layer_b_index = ((y * layer.width + x) * 4 + 2) as usize;
+            let layer_a_index = ((y * layer.width + x) * 4 + 3) as usize;
 
-            let px: Rgba<u8> = Rgba([r, g, b, a]);
-            let prev_pixel = img.get_pixel(x, y);
+            let prev_r = img[layer_r_index];
+            let prev_g = img[layer_g_index];
+            let prev_b = img[layer_b_index];
+            let prev_a = img[layer_a_index];
 
-            img.put_pixel(x, y, alpha_compositing(prev_pixel, px))
+            let r_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 3) as usize;
+            let g_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 3 + 1) as usize;
+            let b_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 3 + 2) as usize;
+            let a_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 3 + 3) as usize;
+
+            let r = pixels[layer_r_index];
+            let g = pixels[layer_g_index];
+            let b = pixels[layer_b_index];
+
+            let new_pixel = alpha_compositing(prev_r, prev_g, prev_b, prev_a, r, g, b, 255);
+
+            img[r_index] = new_pixel.0;
+            img[g_index] = new_pixel.1;
+            img[b_index] = new_pixel.2;
+            img[a_index] = new_pixel.3;
         }
     }
 }
 
-pub fn draw_layer(img: &mut ImageBuffer<image::Rgba<u8>, Vec<u8>>, layer: Layer) {
+pub fn draw_layer(img: &mut Vec<u8>, canvas_width: u32, layer: Layer) {
     match layer {
         Layer::PngImage(layer) => {
-            draw_png_image_layer(img, layer);
+            draw_png_image_layer(img, canvas_width, layer);
         }
         Layer::JpgImage(layer) => {
-            draw_jpg_image_layer(img, layer);
+            draw_jpg_image_layer(img, canvas_width, layer);
         }
         Layer::Solid(layer) => {
-            draw_solid_layer(img, layer);
+            draw_solid_layer(img, canvas_width, layer);
         }
     }
 }
