@@ -895,6 +895,13 @@ importers:
   packages/renderer:
     specifiers:
       '@jonny/eslint-config': 3.0.266
+      '@remotion/compositor-darwin-arm64': 3.3.16
+      '@remotion/compositor-darwin-x64': 3.3.16
+      '@remotion/compositor-linux-arm64-gnu': 3.3.16
+      '@remotion/compositor-linux-arm64-musl': 3.3.16
+      '@remotion/compositor-linux-x64-gnu': 3.3.16
+      '@remotion/compositor-linux-x64-musl': 3.3.16
+      '@remotion/compositor-win32-x64-msvc': 3.3.16
       '@testing-library/dom': ^8.16.0
       '@testing-library/react': 13.3.0
       '@types/node': ^16.7.5
@@ -919,6 +926,14 @@ importers:
       remotion: link:../core
       source-map: 0.8.0-beta.0
       ws: 8.7.0
+    optionalDependencies:
+      '@remotion/compositor-darwin-arm64': link:../compositor-darwin-arm64
+      '@remotion/compositor-darwin-x64': link:../compositor-darwin-x64
+      '@remotion/compositor-linux-arm64-gnu': link:../compositor-linux-arm64-gnu
+      '@remotion/compositor-linux-arm64-musl': link:../compositor-linux-arm64-musl
+      '@remotion/compositor-linux-x64-gnu': link:../compositor-linux-x64-gnu
+      '@remotion/compositor-linux-x64-musl': link:../compositor-linux-x64-musl
+      '@remotion/compositor-win32-x64-msvc': link:../compositor-win32-x64-msvc
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
       '@testing-library/dom': 8.16.0
