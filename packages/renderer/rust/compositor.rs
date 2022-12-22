@@ -53,6 +53,18 @@ fn alpha_compositing(
     new_b: u8,
     new_a: u8,
 ) -> (u8, u8, u8, u8) {
+    if new_a == 0 {
+        return (prev_r, prev_g, prev_b, prev_a);
+    }
+
+    if prev_a == 0 {
+        return (new_r, new_g, new_b, new_a);
+    }
+
+    if new_a == 255 {
+        return (new_r, new_g, new_b, new_a);
+    }
+
     let alpha1 = prev_a as f32 / 255.0;
     let alpha2 = new_a as f32 / 255.0;
 
