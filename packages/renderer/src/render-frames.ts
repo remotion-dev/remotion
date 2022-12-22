@@ -329,6 +329,10 @@ const innerRenderFrames = ({
 
 		const clipRegion = await puppeteerEvaluateWithCatch<ClipRegion | null>({
 			pageFunction: () => {
+				if (typeof window.remotion_getClipRegion === 'undefined') {
+					return null;
+				}
+
 				return window.remotion_getClipRegion();
 			},
 			args: [],
