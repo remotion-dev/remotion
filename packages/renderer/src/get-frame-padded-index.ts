@@ -30,18 +30,20 @@ export const getFrameOutputFileName = ({
 	countType: CountType;
 	lastFrame: number;
 	totalFrames: number;
-	type: 'element' | 'composed';
+	type: 'layer' | 'composed';
 }) => {
 	const filePadLength = getFilePadLength({lastFrame, countType, totalFrames});
 
+	const prefix = type === 'layer' ? 'layer-' : 'element-';
+
 	if (countType === 'actual-frames') {
 		const paddedIndex = padIndex({filePadLength, num: frame});
-		return `${type}-${paddedIndex}.${imageFormat}`;
+		return `${prefix}-${paddedIndex}.${imageFormat}`;
 	}
 
 	if (countType === 'from-zero') {
 		const paddedIndex = padIndex({filePadLength, num: index});
-		return `${type}-${paddedIndex}.${imageFormat}`;
+		return `${prefix}-${paddedIndex}.${imageFormat}`;
 	}
 
 	throw new TypeError('Unknown count type');
