@@ -218,7 +218,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		longerDescription:
 			'A starter template to create overlays to use in conventional video editing software.',
 		promoVideo: {
-			muxId: 'OAe00WUpvsAyqAVSd4gehDCeWI81cI024RhTs9l2eB48w',
+			muxId: 'zgy7XK01009y33Vfzhns02cZS00rOyeZ6WaanaxcrDysqmU',
 			height: 720,
 			width: 1280,
 		},
