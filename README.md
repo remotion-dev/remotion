@@ -11,7 +11,7 @@
 [![NPM Version](https://img.shields.io/npm/v/remotion.svg?style=flat)](https://www.npmjs.org/package/remotion)
 [![NPM Downloads](https://img.shields.io/npm/dm/remotion.svg?style=flat)](https://npmcharts.com/compare/remotion?minimal=true)
 [![Install Size](https://packagephobia.now.sh/badge?p=remotion)](https://packagephobia.now.sh/result?p=remotion)
-<a href="https://twitter.com/remotion_dev"><img src="https://img.shields.io/twitter/follow/remotion_dev?label=Twitter&style=social" alt="Twitter"></a>
+<a href="https://twitter.com/remotion"><img src="https://img.shields.io/twitter/follow/remotion?label=Twitter&style=social" alt="Twitter"></a>
 
 Remotion is a framework for **creating videos programmatically using React.**
 
@@ -30,7 +30,7 @@ Remotion is a framework for **creating videos programmatically using React.**
 <p>"This video was made with code" <em>- Fireship</em> <a href="https://youtu.be/deg8bOoziaE">Watch</a> • <a href="https://github.com/wcandillon/remotion-fireship">Source</a></p>
 </td>
 <td align="center">
-<img style="width: 240px" src="packages/docs/static/img/github-unwrapped.gif" />
+<img style="width: 240px" src="packages/docs/static/img/unwrapped-2022.gif" />
 <p>GitHub Unwrapped - Personalized year in Review <a href="https://githubunwrapped.com">Try</a> • <a href="https://github.com/remotion-dev/github-unwrapped">Source</a></p>
 </td>
 <td align="center">

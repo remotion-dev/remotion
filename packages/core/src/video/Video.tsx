@@ -32,8 +32,12 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	);
 
 	if (loop && props.src && durations[props.src as string] !== undefined) {
+		const naturalDuration = durations[props.src as string] * fps;
+		const playbackRate = props.playbackRate ?? 1;
+		const durationInFrames = Math.floor(naturalDuration / playbackRate);
+
 		return (
-			<Loop durationInFrames={Math.round(durations[props.src as string] * fps)}>
+			<Loop durationInFrames={durationInFrames}>
 				<Video {...propsOtherThanLoop} ref={ref} />
 			</Loop>
 		);

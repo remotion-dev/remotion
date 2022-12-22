@@ -51,7 +51,6 @@ export type CommandLineOptions = {
 	port: number;
 	frame: string | number;
 	['disable-headless']: boolean;
-	['enable-extensions']: boolean;
 	['disable-keyboard-shortcuts']: boolean;
 	muted: boolean;
 	height: number;
@@ -136,10 +135,6 @@ export const parseCommandLine = () => {
 
 	if (parsedCli['disable-headless']) {
 		Config.Puppeteer.setChromiumHeadlessMode(false);
-	}
-
-	if (parsedCli['enable-extensions']) {
-		Config.Puppeteer.setEnableChromiumExtensions(true);
 	}
 
 	if (parsedCli.log) {

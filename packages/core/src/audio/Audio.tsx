@@ -41,9 +41,11 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	if (loop && props.src && durations[props.src as string] !== undefined) {
 		const duration = Math.floor(durations[props.src as string] * fps);
+		const playbackRate = props.playbackRate ?? 1;
+		const actualDuration = duration / playbackRate;
 
 		return (
-			<Loop layout="none" durationInFrames={duration}>
+			<Loop layout="none" durationInFrames={Math.floor(actualDuration)}>
 				<Audio {...propsOtherThanLoop} ref={ref} />
 			</Loop>
 		);

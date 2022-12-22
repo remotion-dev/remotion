@@ -46,6 +46,10 @@ module.exports = {
           label: "More",
           position: "left",
           items: [
+            {
+              to: "/docs/resources",
+              label: "Resources",
+            },
             { to: "blog", label: "Blog" },
             { to: "showcase", label: "Showcase" },
             { to: "experts", label: "Experts" },
@@ -55,7 +59,7 @@ module.exports = {
           ],
         },
         {
-          href: "https://twitter.com/remotion_dev",
+          href: "https://twitter.com/remotion",
           label: "Twitter",
           position: "right",
           "data-splitbee-event": "External Link",
@@ -131,7 +135,7 @@ module.exports = {
             },
             {
               label: "Twitter",
-              href: "https://twitter.com/remotion_dev",
+              href: "https://twitter.com/remotion",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Twitter",
             },
@@ -205,7 +209,7 @@ module.exports = {
       },
     ],
     [
-      "@jonny/docusaurus-preset-shiki-twoslash",
+      "./shiki",
       {
         vfsRoot: process.cwd(),
         themes: ["github-light", "github-dark"],
@@ -233,6 +237,25 @@ module.exports = {
          */
         path: "./success-stories",
         blogSidebarTitle: "Success stories",
+      },
+    ],
+    [
+      "@docusaurus/plugin-content-blog",
+      {
+        /**
+         * Required for any multi-instance plugin
+         */
+        id: "learn",
+        /**
+         * URL route for the blog section of your site.
+         * *DO NOT* include a trailing slash.
+         */
+        routeBasePath: "learn",
+        /**
+         * Path to data on filesystem relative to site dir.
+         */
+        path: "./learn",
+        blogSidebarTitle: "Learn",
       },
     ],
     "./route-plugin",

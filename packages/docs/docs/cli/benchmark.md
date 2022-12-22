@@ -109,12 +109,6 @@ _optional_
 
 Inherited from [`npx remotion render`](/docs/cli/render#--disable-web-security)
 
-### `--enable-extensions`
-
-_optional_
-
-Inherited from [`npx remotion render`](/docs/cli/render#--enable-extensions)
-
 ### `--disable-headless`
 
 _optional_
