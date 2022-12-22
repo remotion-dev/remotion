@@ -1,3 +1,4 @@
+import {binaryPath} from '@remotion/compositor-darwin-arm64';
 import {spawn} from 'child_process';
 import type {CliInput, Layer} from './payload';
 
@@ -13,8 +14,7 @@ export const compose = ({
 	output: string;
 }) => {
 	// TODO: Unhardcode
-	const bin =
-		'/Users/jonathanburger/remotion/packages/compositor/dist/aarch64-apple-darwin/release/compositor';
+	const bin = binaryPath;
 
 	const payload: CliInput = {
 		v: 1,
