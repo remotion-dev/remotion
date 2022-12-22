@@ -385,7 +385,7 @@ const innerRenderFrames = ({
 						countType,
 						lastFrame,
 						totalFrames: framesToRender.length,
-						type: 'element',
+						type: 'layer',
 					})
 				);
 				const composedOutput = path.join(
