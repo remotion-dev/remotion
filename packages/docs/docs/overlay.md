@@ -56,3 +56,7 @@ Now, you can simply import the video into your video editing software. You can f
 import { OverlayInDavinci } from "../components/OverlayInDavinci";
 
 <OverlayInDavinci/>
+
+## See also
+
+- [Transparent videos](/docs/transparent-videos)
