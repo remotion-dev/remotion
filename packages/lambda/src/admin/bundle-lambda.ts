@@ -1,4 +1,5 @@
 import {BundlerInternals} from '@remotion/bundler';
+import {binaryPath} from '@remotion/compositor-linux-arm64-musl';
 import fs from 'fs';
 import path from 'path';
 import {quit} from '../cli/helpers/quit';
@@ -25,8 +26,9 @@ const bundleLambda = async () => {
 		outfile,
 		entryPoints: [template],
 		treeShaking: true,
-		external: ["./compositor"]
+		external: ['./compositor'],
 	});
+	fs.copyFileSync(binaryPath, outdir + '/compositor');
 
 	await zl.archiveFolder(outdir, FUNCTION_ZIP);
 	fs.unlinkSync(outfile);
