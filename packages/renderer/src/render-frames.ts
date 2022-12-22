@@ -417,7 +417,7 @@ const innerRenderFrames = ({
 				}
 
 				if (clipRegion) {
-					compose({
+					await compose({
 						height: composition.height,
 						width: composition.width,
 						layers: [
