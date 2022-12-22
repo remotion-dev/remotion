@@ -1,19 +1,37 @@
 import {spawn} from 'child_process';
+import {createHash} from 'crypto';
+import {copyFile} from 'fs/promises';
+import type {DownloadMap} from '../assets/download-map';
 import {getExecutablePath} from './get-executable-path';
 import type {CliInput, ErrorPayload, Layer} from './payload';
 
-export const compose = ({
+type CompositorInput = {
+	height: number;
+	width: number;
+	layers: Layer[];
+};
+
+const getCompositorHash = ({...input}: CompositorInput): string => {
+	return createHash('sha256').update(JSON.stringify(input)).digest('base64');
+};
+
+export const compose = async ({
 	height,
 	width,
 	layers,
 	output,
-}: {
-	height: number;
-	width: number;
-	layers: Layer[];
+	downloadMap,
+}: CompositorInput & {
+	downloadMap: DownloadMap;
 	output: string;
 }) => {
 	const bin = getExecutablePath();
+	const hash = getCompositorHash({height, width, layers});
+
+	if (downloadMap.compositorCache[hash]) {
+		await copyFile(downloadMap.compositorCache[hash], output);
+		return;
+	}
 
 	const payload: CliInput = {
 		v: 1,
@@ -23,7 +41,7 @@ export const compose = ({
 		output,
 	};
 
-	return new Promise<void>((resolve, reject) => {
+	await new Promise<void>((resolve, reject) => {
 		const child = spawn(bin);
 		child.stdin.write(JSON.stringify(payload));
 		child.stdin.end();
@@ -46,4 +64,6 @@ export const compose = ({
 			}
 		});
 	});
+
+	downloadMap.compositorCache[hash] = output;
 };
