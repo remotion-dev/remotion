@@ -27,3 +27,5 @@ brew install messense/macos-cross-toolchains/x86_64-unknown-linux-musl
 brew install messense/macos-cross-toolchains/aarch64-unknown-linux-musl
 brew install mingw-w64
 ```
+
+> This will take a few minutes.
