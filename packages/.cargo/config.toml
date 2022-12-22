@@ -4,4 +4,4 @@
 [build]
 # Calling the directory "target" and adding it to turbo.json
 # TODO: Add libc field to JS
-target-dir = "compositor/target"
+target-dir = "renderer/target"
