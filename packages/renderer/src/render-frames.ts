@@ -431,6 +431,7 @@ const innerRenderFrames = ({
 								  },
 						].filter(truthy),
 						output: composedOutput,
+						downloadMap,
 					});
 				}
 			}
@@ -533,7 +534,7 @@ const innerRenderFrames = ({
 		const returnValue: RenderFramesOutput = {
 			assetsInfo: {
 				assets,
-				imageSequenceName: `composed-%0${filePadLength}d.${imageFormat}`,
+				imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
 				firstFrameIndex,
 				downloadMap,
 			},

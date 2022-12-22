@@ -62,6 +62,7 @@ export type DownloadMap = {
 	audioPreprocessing: string;
 	stitchFrames: string;
 	assetDir: string;
+	compositorCache: {[key: string]: string};
 };
 
 export type RenderAssetInfo = {
@@ -108,6 +109,7 @@ export const makeDownloadMap = (): DownloadMap => {
 		audioMixing: makeAndReturn(dir, 'remotion-audio-mixing'),
 		audioPreprocessing: makeAndReturn(dir, 'remotion-audio-preprocessing'),
 		stitchFrames: makeAndReturn(dir, 'remotion-stitch-temp-dir'),
+		compositorCache: {},
 	};
 };
 
