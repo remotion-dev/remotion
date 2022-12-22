@@ -1,3 +1,4 @@
 node_modules
 ffmpeg
-remotionlambda.zip
+remotionlambda-arm64.zip
+remotionlambda-x64.zip

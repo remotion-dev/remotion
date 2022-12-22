@@ -34,14 +34,16 @@ const bundleLambda = async (arch: LambdaArchitecture) => {
 		external: ['./compositor', './compositor.exe'],
 	});
 
+	const compositorFile = `${outdir}/compositor`;
 	if (arch === 'arm64') {
-		fs.copyFileSync(armBinaryPath, outdir + '/compositor');
+		fs.copyFileSync(armBinaryPath, compositorFile);
 		await zl.archiveFolder(outdir, FUNCTION_ZIP_ARM64);
 	} else {
-		fs.copyFileSync(x64BinaryPath, outdir + '/compositor');
+		fs.copyFileSync(x64BinaryPath, compositorFile);
 		await zl.archiveFolder(outdir, FUNCTION_ZIP_X86_64);
 	}
 
+	fs.unlinkSync(compositorFile);
 	fs.unlinkSync(outfile);
 };
 
