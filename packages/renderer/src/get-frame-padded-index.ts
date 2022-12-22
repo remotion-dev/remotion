@@ -34,7 +34,7 @@ export const getFrameOutputFileName = ({
 }) => {
 	const filePadLength = getFilePadLength({lastFrame, countType, totalFrames});
 
-	const prefix = type === 'layer' ? 'layer-' : 'element-';
+	const prefix = type === 'layer' ? 'layer' : 'element';
 
 	if (countType === 'actual-frames') {
 		const paddedIndex = padIndex({filePadLength, num: frame});
