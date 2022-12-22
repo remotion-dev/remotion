@@ -2,6 +2,8 @@ mod compositor;
 mod errors;
 mod payloads;
 use compositor::draw_layer;
+use jpeg_encoder::{ColorType, Encoder};
+
 use payloads::payloads::{parse_cli, CliInput};
 use std::{
     fs::File,
@@ -34,9 +36,64 @@ fn main() -> Result<(), std::io::Error> {
         draw_layer(&mut data, opts.width, layer)
     }
 
-    match save_as_png(opts.width, opts.height, data, opts.output) {
+    if matches!(opts.output_format, payloads::payloads::ImageFormat::Jpeg) {
+        match save_as_jpeg(opts.width, opts.height, data, opts.output) {
+            Ok(_) => (),
+            Err(err) => errors::handle_error(&err),
+        }
+    } else {
+        match save_as_png(opts.width, opts.height, data, opts.output) {
+            Ok(_) => (),
+            Err(err) => errors::handle_error(&err),
+        };
+    }
+
+    Ok(())
+}
+
+fn save_as_jpeg(
+    width: u32,
+    height: u32,
+    data: Vec<u8>,
+    output: String,
+) -> Result<(), std::io::Error> {
+    let encoder = match Encoder::new_file(output, 100) {
+        Ok(content) => content,
+        Err(_) => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "could not create JPEG encoder",
+            ))
+        }
+    };
+
+    let width_u16: u16 = match width.try_into() {
+        Ok(content) => content,
+        Err(_) => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "could not convert width to u16",
+            ))
+        }
+    };
+    let height_u16: u16 = match height.try_into() {
+        Ok(content) => content,
+        Err(_) => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "could not convert height to u16",
+            ))
+        }
+    };
+
+    match encoder.encode(&data, width_u16, height_u16, ColorType::Rgba) {
         Ok(_) => (),
-        Err(err) => errors::handle_error(&err),
+        Err(_) => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "could not encode into JPEG",
+            ))
+        }
     };
 
     Ok(())

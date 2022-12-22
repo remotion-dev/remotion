@@ -40,12 +40,19 @@ pub mod payloads {
     }
 
     #[derive(Serialize, Deserialize, Debug)]
+    pub enum ImageFormat {
+        Png,
+        Jpeg,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
     pub struct CliInput {
         v: u8,
         pub output: String,
         pub width: u32,
         pub height: u32,
         pub layers: Vec<Layer>,
+        pub output_format: ImageFormat,
     }
 
     pub fn parse_cli(json: &str) -> CliInput {
