@@ -6,7 +6,10 @@ import {
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	RENDER_FN_PREFIX,
 } from '../shared/constants';
-import {FUNCTION_ZIP} from '../shared/function-zip-path';
+import {
+	FUNCTION_ZIP_ARM64,
+	FUNCTION_ZIP_X86_64,
+} from '../shared/function-zip-path';
 import {getAccountId} from '../shared/get-account-id';
 import {LAMBDA_VERSION_STRING} from '../shared/lambda-version-string';
 import type {LambdaArchitecture} from '../shared/validate-architecture';
@@ -84,7 +87,10 @@ export const deployFunction = async (
 	const created = await createFunction({
 		createCloudWatchLogGroup: options.createCloudWatchLogGroup,
 		region: options.region,
-		zipFile: FUNCTION_ZIP,
+		zipFile:
+			options.architecture === 'arm64'
+				? FUNCTION_ZIP_ARM64
+				: FUNCTION_ZIP_X86_64,
 		functionName: fnNameRender,
 		accountId,
 		memorySizeInMb: options.memorySizeInMb,
