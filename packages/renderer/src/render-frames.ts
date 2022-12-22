@@ -376,29 +376,22 @@ const innerRenderFrames = ({
 					);
 				}
 
-				const output = path.join(
-					outputDir,
-					getFrameOutputFileName({
-						frame,
-						imageFormat,
-						index,
-						countType,
-						lastFrame,
-						totalFrames: framesToRender.length,
-						type: 'layer',
-					})
-				);
-				const composedOutput = path.join(
-					outputDir,
-					getFrameOutputFileName({
-						frame,
-						imageFormat,
-						index,
-						countType,
-						lastFrame,
-						totalFrames: framesToRender.length,
-						type: 'composed',
-					})
+				const [output, composedOutput] = [
+					'layer' as const,
+					'composed' as const,
+				].map((type) =>
+					path.join(
+						outputDir,
+						getFrameOutputFileName({
+							frame,
+							imageFormat,
+							index,
+							countType,
+							lastFrame,
+							totalFrames: framesToRender.length,
+							type,
+						})
+					)
 				);
 
 				if (!clipRegion?.hide) {
