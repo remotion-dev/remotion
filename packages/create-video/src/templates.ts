@@ -33,7 +33,8 @@ export type Template = {
 		| 'tts'
 		| 'audiogram'
 		| 'skia'
-		| 'tailwind';
+		| 'tailwind'
+		| 'overlay';
 	defaultBranch: string;
 } & DynamicTemplate;
 
@@ -204,6 +205,24 @@ export const FEATURED_TEMPLATES: Template[] = [
 			width: 1280,
 		},
 		cliId: 'tailwind',
+		type: 'video',
+		defaultBranch: 'main',
+	},
+
+	{
+		homePageLabel: 'Overlay',
+		shortName: 'Overlay',
+		org: 'remotion-dev',
+		repoName: 'template-overlay',
+		description: 'TypeScript and Tailwind starter',
+		longerDescription:
+			'A starter template to create overlays to use in conventional video editing software.',
+		promoVideo: {
+			muxId: 'OAe00WUpvsAyqAVSd4gehDCeWI81cI024RhTs9l2eB48w',
+			height: 720,
+			width: 1280,
+		},
+		cliId: 'overlay',
 		type: 'video',
 		defaultBranch: 'main',
 	},
