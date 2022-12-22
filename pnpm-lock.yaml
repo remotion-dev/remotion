@@ -920,7 +920,7 @@ importers:
   packages/renderer:
     specifiers:
       '@jonny/eslint-config': 3.0.266
-      '@remotion/compositor': 3.3.11
+      '@remotion/compositor': 3.3.16
       '@testing-library/dom': ^8.16.0
       '@testing-library/react': 13.3.0
       '@types/node': ^16.7.5

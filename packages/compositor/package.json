@@ -1,6 +1,6 @@
 {
   "name": "@remotion/compositor",
-  "version": "3.3.11",
+  "version": "3.3.16",
   "description": "Image compositor written in Rust",
   "main": "dist/index.js",
   "files": [
