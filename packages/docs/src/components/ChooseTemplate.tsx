@@ -7,6 +7,7 @@ import { NavigateLeft, NavigateRight } from "./ArrowRight";
 import { Blank } from "./icons/blank";
 import { Cubes } from "./icons/cubes";
 import { JSIcon } from "./icons/js";
+import { OverlayIcon } from "./icons/overlay";
 import { RemixIcon } from "./icons/remix";
 import { SkiaIcon } from "./icons/skia";
 import { StillIcon } from "./icons/still";
@@ -118,6 +119,10 @@ const IconForTemplate: React.FC<{
         }}
       />
     );
+  }
+
+  if (template.homePageLabel === "Overlay") {
+    return <OverlayIcon style={{ height: 42 }} />;
   }
 
   return (
