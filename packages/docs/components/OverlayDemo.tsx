@@ -40,7 +40,13 @@ export const OverlayDemo: React.FC = () => {
 
         <p style={{ marginLeft: "10px" }}>
           {" "}
-          Want the source code? Check out the template
+          Want the source code? Check out the{" "}
+          <a
+            href="https://github.com/remotion-dev/template-overlay"
+            target="_blank"
+          >
+            template
+          </a>
         </p>
       </div>
     </div>
