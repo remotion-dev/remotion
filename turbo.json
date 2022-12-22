@@ -19,7 +19,7 @@
       "outputs": ["src", ".cache-css", "*.js", "*.d.ts"],
       "dependsOn": ["^build"]
     },
-    "@remotion/compositor#build": {
+    "@remotion/renderer#build": {
       "outputs": ["dist/**", "target/**"],
       "dependsOn": ["^build"]
     },

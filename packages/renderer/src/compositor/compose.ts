@@ -23,7 +23,6 @@ export const compose = ({
 		output,
 	};
 
-	// TODO: Don't use sync
 	// TODO: Get error message
 	return new Promise<void>((resolve, reject) => {
 		const child = spawn(bin);

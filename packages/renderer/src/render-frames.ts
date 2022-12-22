@@ -1,4 +1,3 @@
-import {compose} from '@remotion/compositor';
 import fs from 'fs';
 import path from 'path';
 import {performance} from 'perf_hooks';
@@ -14,6 +13,7 @@ import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
+import {compose} from './compositor/compose';
 import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';

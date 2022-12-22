@@ -94,4 +94,4 @@ pnpm start
 
 ### Developing Rust parts
 
-To develop the Rust parts of Remotion, see the README in [compositor/README.md](compositor/README.md)
+To develop the Rust parts of Remotion, see the README in [packages/renderer/README.md](packages/renderer/README.md)

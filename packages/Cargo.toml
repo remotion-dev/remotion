@@ -15,4 +15,4 @@ jpeg-decoder = "0.3"
 
 [[bin]]
 name = "compositor"
-path = "compositor/main.rs"
+path = "renderer/main.rs"
