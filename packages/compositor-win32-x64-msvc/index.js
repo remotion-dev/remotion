@@ -1,1 +1,1 @@
-exports.binaryPath = require.resolve("./compositor");
+exports.binaryPath = require.resolve("./compositor.exe");
