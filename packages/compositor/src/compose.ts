@@ -1,5 +1,5 @@
-import {binaryPath} from '@remotion/compositor-darwin-arm64';
 import {spawn} from 'child_process';
+import {getExecutablePath} from './get-executable-path';
 import type {CliInput, Layer} from './payload';
 
 export const compose = ({
@@ -13,8 +13,7 @@ export const compose = ({
 	layers: Layer[];
 	output: string;
 }) => {
-	// TODO: Unhardcode
-	const bin = binaryPath;
+	const bin = getExecutablePath();
 
 	const payload: CliInput = {
 		v: 1,
