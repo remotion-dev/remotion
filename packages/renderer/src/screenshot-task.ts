@@ -49,6 +49,7 @@ export const screenshotTask = async ({
 				width,
 			},
 			captureBeyondViewport: true,
+			optimizeForSpeed: true,
 		});
 
 		stopPerfMeasure(cap);
