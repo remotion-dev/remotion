@@ -230,22 +230,6 @@ Config.Puppeteer.setChromiumDisableWebSecurity(true);
 
 The [command line flag](/docs/cli/render#--disable-web-security) `--disable-web-security` will take precedence over this option.
 
-### setEnableChromiumExtensions()
-
-_Available from Version 3.3.11._
-
-If set to true, you installed Chrome extensions will be enabled.
-
-```tsx twoslash
-import { Config } from "remotion";
-
-// ---cut---
-
-Config.Puppeteer.setEnableChromiumExtensions(true);
-```
-
-The [command line flag](/docs/cli/render#--enable-extensions) `--enable-extensions` will take precedence over this option.
-
 ### setChromiumIgnoreCertificateErrors()
 
 _Available from Version 2.6.5._

@@ -560,7 +560,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						label: 'Twitter',
 						onClick: () => {
 							closeMenu();
-							openExternal('https://twitter.com/remotion_dev');
+							openExternal('https://twitter.com/remotion');
 						},
 						type: 'item' as const,
 						keyHint: null,

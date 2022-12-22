@@ -116,3 +116,32 @@ test('Should offset multiple channels', () => {
 		'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000,adelay=2667|2667|2667|2667[a0]'
 	);
 });
+
+test('Should calculate pad correctly with a lot of playbackRate', () => {
+	const naturalDurationInSeconds = 1000 / 30 / 16;
+	const expectedPadLength =
+		(2000 / 30) * 48000 - naturalDurationInSeconds * 48000;
+
+	expect(
+		calculateFfmpegFilter({
+			fps: 30,
+			asset: {
+				type: 'video',
+				src,
+				duration: 1000,
+				volume: 1,
+				id: '1',
+				trimLeft: 0,
+				startInVideo: 0,
+				playbackRate: 16,
+			},
+			durationInFrames: 2000,
+			channels: 1,
+			assetDuration: 33.333333,
+		})
+	).toBe(
+		'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.000000:33.333333,atempo=2.00000,atempo=2.00000,atempo=2.00000,atempo=2.00000,apad=pad_len=' +
+			expectedPadLength +
+			'[a0]'
+	);
+});

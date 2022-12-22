@@ -56,6 +56,16 @@ export const Re = () => {
   );
 }
                 `,
+    `
+import {Gif} from '@remotion/gif';
+import {staticFile} from 'remotion';
+
+export const Re = () => {
+  return (
+    <Gif src={staticFile('gif.gif')} />
+  );
+}
+                `,
   ],
   invalid: [
     {
