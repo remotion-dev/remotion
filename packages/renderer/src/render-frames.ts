@@ -327,18 +327,28 @@ const innerRenderFrames = ({
 		freePage.on('error', errorCallbackOnFrame);
 		await seekToFrame({frame, page: freePage});
 
-		const clipRegion = await puppeteerEvaluateWithCatch<ClipRegion | null>({
-			pageFunction: () => {
-				if (typeof window.remotion_getClipRegion === 'undefined') {
-					return null;
-				}
+		const [clipRegion, collectedAssets] = await Promise.all([
+			puppeteerEvaluateWithCatch<ClipRegion | null>({
+				pageFunction: () => {
+					if (typeof window.remotion_getClipRegion === 'undefined') {
+						return null;
+					}
 
-				return window.remotion_getClipRegion();
-			},
-			args: [],
-			frame,
-			page: freePage,
-		});
+					return window.remotion_getClipRegion();
+				},
+				args: [],
+				frame,
+				page: freePage,
+			}),
+			puppeteerEvaluateWithCatch<TAsset[]>({
+				pageFunction: () => {
+					return window.remotion_collectAssets();
+				},
+				args: [],
+				frame,
+				page: freePage,
+			}),
+		]);
 
 		if (imageFormat !== 'none') {
 			if (onFrameBuffer) {
@@ -433,14 +443,6 @@ const innerRenderFrames = ({
 			}
 		}
 
-		const collectedAssets = await puppeteerEvaluateWithCatch<TAsset[]>({
-			pageFunction: () => {
-				return window.remotion_collectAssets();
-			},
-			args: [],
-			frame,
-			page: freePage,
-		});
 		const compressedAssets = collectedAssets.map((asset) =>
 			compressAsset(assets.filter(truthy).flat(1), asset)
 		);
