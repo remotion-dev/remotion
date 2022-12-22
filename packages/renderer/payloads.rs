@@ -33,6 +33,12 @@ pub mod payloads {
         Solid(SolidLayer),
     }
 
+    #[derive(Serialize, Debug)]
+    pub struct ErrorPayload {
+        pub error: String,
+        pub backtrace: String,
+    }
+
     #[derive(Serialize, Deserialize, Debug)]
     pub struct CliInput {
         v: u8,
