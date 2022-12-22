@@ -19,10 +19,10 @@ impl Error for NoMetadataError {}
 fn draw_solid_layer(img: &mut Vec<u8>, canvas_width: u32, layer: SolidLayer) {
     for y in layer.y..(layer.height + layer.y) {
         for x in layer.x..(layer.width + layer.x) {
-            let r_index = ((y * canvas_width + x) * 3) as usize;
-            let g_index = ((y * canvas_width + x) * 3 + 1) as usize;
-            let b_index = ((y * canvas_width + x) * 3 + 2) as usize;
-            let a_index = ((y * canvas_width + x) * 3 + 3) as usize;
+            let r_index = ((y * canvas_width + x) * 4) as usize;
+            let g_index = ((y * canvas_width + x) * 4 + 1) as usize;
+            let b_index = ((y * canvas_width + x) * 4 + 2) as usize;
+            let a_index = ((y * canvas_width + x) * 4 + 3) as usize;
 
             let new_pixel = alpha_compositing(
                 img[r_index],
@@ -134,20 +134,19 @@ fn draw_jpg_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: ImageLayer)
 
     for y in 0..(layer.height) {
         for x in 0..(layer.width) {
-            let layer_r_index = ((y * layer.width + x) * 4) as usize;
-            let layer_g_index = ((y * layer.width + x) * 4 + 1) as usize;
-            let layer_b_index = ((y * layer.width + x) * 4 + 2) as usize;
-            let layer_a_index = ((y * layer.width + x) * 4 + 3) as usize;
+            let r_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4) as usize;
+            let g_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 1) as usize;
+            let b_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 2) as usize;
+            let a_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 3) as usize;
 
-            let prev_r = img[layer_r_index];
-            let prev_g = img[layer_g_index];
-            let prev_b = img[layer_b_index];
-            let prev_a = img[layer_a_index];
+            let prev_r = img[r_index];
+            let prev_g = img[g_index];
+            let prev_b = img[b_index];
+            let prev_a = img[a_index];
 
-            let r_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 3) as usize;
-            let g_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 3 + 1) as usize;
-            let b_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 3 + 2) as usize;
-            let a_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 3 + 3) as usize;
+            let layer_r_index = ((y * layer.width + x) * 3) as usize;
+            let layer_g_index = ((y * layer.width + x) * 3 + 1) as usize;
+            let layer_b_index = ((y * layer.width + x) * 3 + 2) as usize;
 
             let r = pixels[layer_r_index];
             let g = pixels[layer_g_index];

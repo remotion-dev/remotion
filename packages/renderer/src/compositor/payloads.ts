@@ -31,12 +31,15 @@ export type Layer =
 			};
 	  };
 
+export type CompositorImageFormat = 'Png' | 'Jpeg';
+
 export type CliInput = {
 	v: number;
 	output: string;
 	width: number;
 	height: number;
 	layers: Layer[];
+	output_format: CompositorImageFormat;
 };
 
 export type ErrorPayload = {

@@ -3,12 +3,18 @@ import {createHash} from 'crypto';
 import {copyFile} from 'fs/promises';
 import type {DownloadMap} from '../assets/download-map';
 import {getExecutablePath} from './get-executable-path';
-import type {CliInput, ErrorPayload, Layer} from './payload';
+import type {
+	CliInput,
+	CompositorImageFormat,
+	ErrorPayload,
+	Layer,
+} from './payloads';
 
 type CompositorInput = {
 	height: number;
 	width: number;
 	layers: Layer[];
+	imageFormat: CompositorImageFormat;
 };
 
 const getCompositorHash = ({...input}: CompositorInput): string => {
@@ -21,12 +27,13 @@ export const compose = async ({
 	layers,
 	output,
 	downloadMap,
+	imageFormat,
 }: CompositorInput & {
 	downloadMap: DownloadMap;
 	output: string;
 }) => {
 	const bin = getExecutablePath();
-	const hash = getCompositorHash({height, width, layers});
+	const hash = getCompositorHash({height, width, layers, imageFormat});
 
 	if (downloadMap.compositorCache[hash]) {
 		await copyFile(downloadMap.compositorCache[hash], output);
@@ -39,6 +46,7 @@ export const compose = async ({
 		width,
 		layers,
 		output,
+		output_format: imageFormat,
 	};
 
 	await new Promise<void>((resolve, reject) => {

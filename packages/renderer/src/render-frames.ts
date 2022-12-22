@@ -432,6 +432,7 @@ const innerRenderFrames = ({
 						].filter(truthy),
 						output: composedOutput,
 						downloadMap,
+						imageFormat: imageFormat === 'jpeg' ? 'Jpeg' : 'Png',
 					});
 				}
 			}
