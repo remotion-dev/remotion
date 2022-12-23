@@ -25,6 +25,7 @@ export type RenderJob = {
 	id: string;
 	outputLocation: string;
 	imageFormat: StillImageFormat;
+	quality: number | null;
 } & RenderJobDynamicStatus;
 
 export type AddRenderRequest = {
@@ -32,6 +33,7 @@ export type AddRenderRequest = {
 	type: 'still' | 'composition';
 	outName: string;
 	imageFormat: StillImageFormat;
+	quality: number | null;
 };
 
 export type RemoveRenderRequest = {

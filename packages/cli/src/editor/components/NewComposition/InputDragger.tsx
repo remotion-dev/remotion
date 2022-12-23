@@ -17,6 +17,7 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 export const InputDragger: React.FC<Props> = ({
 	onValueChange,
 	min: _min,
+	max: _max,
 	step: _step,
 	value,
 	...props
@@ -79,6 +80,7 @@ export const InputDragger: React.FC<Props> = ({
 				);
 				const step = Number(_step ?? 1);
 				const min = Number(_min ?? 0);
+				const max = Number(_max ?? Infinity);
 				if (distanceFromStart > 4) {
 					setClickLock(true);
 				}
@@ -88,7 +90,10 @@ export const InputDragger: React.FC<Props> = ({
 					[-5, -4, 0, 4, 5],
 					[-step, 0, 0, 0, step]
 				);
-				const newValue = Math.max(min, Math.floor(Number(value) + diff));
+				const newValue = Math.min(
+					max,
+					Math.max(min, Math.floor(Number(value) + diff))
+				);
 				const roundToStep = Math.floor(newValue / step) * step;
 				onValueChange(roundToStep);
 			};

@@ -119,8 +119,7 @@ export const processJob = async ({
 			port,
 			inputProps,
 			puppeteerInstance: await browserInstance,
-			// TODO: Allow to specify quality
-			// TODO: Allow to customize image format
+			quality: job.quality ?? undefined,
 			imageFormat: job.imageFormat,
 			// TODO: Allow specific frame
 			// TODO: Allow cancel signal
