@@ -111,7 +111,7 @@ export const processJob = async ({
 			envVariables,
 			ffmpegExecutable,
 			ffprobeExecutable,
-			scale,
+			scale: job.scale,
 			timeoutInMilliseconds: puppeteerTimeout,
 			// TODO: Write download progress to CLI
 			overwrite: false,
