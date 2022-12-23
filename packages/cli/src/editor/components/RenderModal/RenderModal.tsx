@@ -104,6 +104,9 @@ const input: React.CSSProperties = {
 const MIN_QUALITY = 1;
 const MAX_QUALITY = 100;
 
+const MIN_SCALE = 0.1;
+const MAX_SCALE = 10;
+
 export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 	composition,
 }) => {
@@ -119,6 +122,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 
 	const [imageFormat, setImageFormat] = useState<StillImageFormat>('png');
 	const [quality, setQuality] = useState(80);
+	const [scale, setScale] = useState(1);
 	const [outName, setOutName] = useState(() =>
 		getDefaultOutLocation({
 			compositionName: composition.id,
@@ -169,6 +173,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 			quality: imageFormat === 'jpeg' ? quality : null,
 			// TODO: Support still rendering for compositions
 			frame: 0,
+			scale,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -183,6 +188,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 		imageFormat,
 		outName,
 		quality,
+		scale,
 		setSelectedModal,
 	]);
 
@@ -203,6 +209,28 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 					Math.max(newQuality, MIN_QUALITY)
 				);
 				return newQualityClamped;
+			});
+		},
+		[]
+	);
+
+	const onScaleSetDirectly = useCallback((newScale: number) => {
+		setScale(newScale);
+	}, []);
+
+	const onScaleChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
+		(e) => {
+			setScale((q) => {
+				const newQuality = parseFloat(e.target.value);
+				if (Number.isNaN(newQuality)) {
+					return q;
+				}
+
+				const newScaleClamped = Math.min(
+					MAX_SCALE,
+					Math.max(newQuality, MIN_SCALE)
+				);
+				return newScaleClamped;
 			});
 		},
 		[]
@@ -249,6 +277,24 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 						</div>
 					</>
 				)}
+				<Spacing block y={0.5} />
+				<div style={row}>
+					<div style={label}>Scale</div>
+					<div style={rightRow}>
+						<InputDragger
+							value={scale}
+							onChange={onScaleChanged}
+							placeholder="0.1-10"
+							// TODO: Does not allow non-integer steps
+							// TODO: Cannot click and type in 0.2
+							onValueChange={onScaleSetDirectly}
+							name="scale"
+							step={0.05}
+							min={MIN_SCALE}
+							max={MAX_SCALE}
+						/>
+					</div>
+				</div>
 				<Spacing block y={0.5} />
 				<div style={row}>
 					<div style={label}>Output name</div>
