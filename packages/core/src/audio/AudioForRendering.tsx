@@ -93,6 +93,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			volume,
 			mediaFrame: frame,
 			playbackRate: props.playbackRate ?? 1,
+			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 		});
 		return () => unregisterAsset(id);
 	}, [
@@ -107,6 +108,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		frame,
 		playbackRate,
 		props.playbackRate,
+		allowAmplificationDuringRender,
 	]);
 
 	const {src, onDuration} = props;

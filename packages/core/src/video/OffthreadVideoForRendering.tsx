@@ -94,6 +94,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			volume,
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
+			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 		});
 
 		return () => unregisterAsset(id);
@@ -107,6 +108,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		frame,
 		absoluteFrame,
 		playbackRate,
+		allowAmplificationDuringRender,
 	]);
 
 	const currentTime = useMemo(() => {
