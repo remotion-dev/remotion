@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-overlay.png
 id: overlay
 title: Creating overlays
 ---
