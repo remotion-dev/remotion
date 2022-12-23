@@ -1,6 +1,6 @@
 {
 	"name": "create-video",
-	"version": "3.3.17",
+	"version": "3.3.18",
 	"description": "",
 	"main": "dist/index.js",
 	"bin": {
@@ -22,8 +22,8 @@
 		"execa": "5.1.1",
 		"minimist": "1.2.6",
 		"prompts": "2.4.1",
-		"tar": "6.1.11",
-		"react": "18.0.0"
+		"react": "18.0.0",
+		"tar": "6.1.11"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
