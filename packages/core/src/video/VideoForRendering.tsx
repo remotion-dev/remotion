@@ -107,6 +107,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			volume,
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
+			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 		});
 
 		return () => unregisterAsset(id);
@@ -120,6 +121,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		frame,
 		absoluteFrame,
 		playbackRate,
+		allowAmplificationDuringRender,
 	]);
 
 	useImperativeHandle(
