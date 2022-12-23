@@ -1,3 +1,4 @@
+import type {StillImageFormat} from '@remotion/renderer';
 import React, {
 	useCallback,
 	useContext,
@@ -77,12 +78,25 @@ const row: React.CSSProperties = {
 };
 
 const label: React.CSSProperties = {
-	width: 300,
+	width: 150,
 	fontSize: 14,
 };
 
-const spacer: React.CSSProperties = {
-	height: 6,
+const rightRow: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'row',
+	justifyContent: 'flex-end',
+	flex: 1,
+};
+
+const buttonRow: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'row',
+	justifyContent: 'flex-end',
+};
+
+const input: React.CSSProperties = {
+	minWidth: 250,
 };
 
 export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
@@ -98,11 +112,11 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 
 	const [state, dispatch] = useReducer(reducer, initialState);
 
+	const [imageFormat, setImageFormat] = useState<StillImageFormat>('png');
 	const [outName, setOutName] = useState(() =>
 		getDefaultOutLocation({
 			compositionName: composition.id,
-			// TODO: Set default extension
-			defaultExtension: 'png',
+			defaultExtension: imageFormat,
 		})
 	);
 
@@ -117,6 +131,28 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 		},
 		[]
 	);
+
+	const setPng = useCallback(() => {
+		setImageFormat('png');
+		setOutName((prev) => {
+			if (prev.endsWith('.jpeg') || prev.endsWith('.jpg')) {
+				return prev.replace(/.jpe?g$/g, '.png');
+			}
+
+			return prev;
+		});
+	}, []);
+
+	const setJpeg = useCallback(() => {
+		setImageFormat('jpeg');
+		setOutName((prev) => {
+			if (prev.endsWith('.png')) {
+				return prev.replace(/.png$/g, '.jpeg');
+			}
+
+			return prev;
+		});
+	}, []);
 
 	const onClick = useCallback(() => {
 		leftSidebarTabs.current?.selectRendersPanel();
@@ -144,16 +180,30 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 			<NewCompHeader title={`Render ${composition.id}`} />
 			<div style={container}>
 				<div style={row}>
-					<div style={label}>hi</div>
-					<RemotionInput type="text" value={outName} onChange={onValueChange} />
-				</div>
-				<div style={spacer} />
-				<div style={row}>
-					<div style={label}>hi</div>
-					<RemotionInput type="text" value={outName} onChange={onValueChange} />
+					<div style={label}>Format</div>
+					<div style={rightRow}>
+						<button type="button" onClick={setPng}>
+							PNG
+						</button>
+						<button type="button" onClick={setJpeg}>
+							JPEG
+						</button>
+					</div>
 				</div>
 				<Spacing block y={0.5} />
-				<div>
+				<div style={row}>
+					<div style={label}>Output name</div>
+					<div style={rightRow}>
+						<RemotionInput
+							style={input}
+							type="text"
+							value={outName}
+							onChange={onValueChange}
+						/>
+					</div>
+				</div>
+				<Spacing block y={0.5} />
+				<div style={buttonRow}>
 					<Button onClick={onClick} disabled={state.type === 'load'}>
 						{state.type === 'idle' ? 'Render' : 'Rendering...'}
 					</Button>
