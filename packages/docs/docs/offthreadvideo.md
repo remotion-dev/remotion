@@ -52,6 +52,13 @@ _Available since v3.0.22_
 Either `jpeg` or `png`. Default `jpeg`.  
 With `png`, transparent videos (VP8, VP9, ProRes) can be displayed, however it is around 40% slower, with VP8 videos being [much slower](/docs/slow-method-to-extract-frame).
 
+## `allowAmplificationDuringRender`
+
+_Available from v3.3.17_
+
+Make values for [`volume`](/docs/video#volume) greater than `1` result in amplification during renders.  
+During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
+
 ## Performance tips
 
 Avoid embedding a video beyond it's end (for example: Rendering a 5 second video inside 10 second composition). To create parity with the `<Video>` element, the video still displays its last frame in that case. However, to fetch the last frame specifically is a significantly more expensive operation than a frame from a known timestamp.
