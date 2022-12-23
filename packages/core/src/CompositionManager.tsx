@@ -78,6 +78,7 @@ export type TAsset = {
 	volume: number;
 	mediaFrame: number;
 	playbackRate: number;
+	allowAmplificationDuringRender: boolean;
 };
 
 type BaseMetadata = Pick<
