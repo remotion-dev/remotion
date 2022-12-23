@@ -235,6 +235,7 @@ importers:
       execa: 5.1.1
       minimist: 1.2.6
       prompts: 2.4.1
+      react: 18.0.0
       tar: 6.1.11
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
@@ -247,7 +248,6 @@ importers:
       got: 11.8.5
       prettier: 2.6.2
       prettier-plugin-organize-imports: 2.3.4_lbsuufegg2dnc4wh6qgf26kgdy
-      react: 18.0.0
       typescript: 4.7.2
       vitest: 0.24.3
 
