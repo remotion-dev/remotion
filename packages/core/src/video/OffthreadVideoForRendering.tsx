@@ -26,6 +26,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	src,
 	muted,
 	imageFormat,
+	allowAmplificationDuringRender,
 	...props
 }) => {
 	const absoluteFrame = useTimelinePosition();
@@ -65,6 +66,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		volume: volumeProp,
 		frame: volumePropsFrame,
 		mediaVolume: 1,
+		allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 	});
 
 	useEffect(() => {

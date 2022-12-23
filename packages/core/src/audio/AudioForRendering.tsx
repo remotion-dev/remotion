@@ -46,12 +46,18 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		[props.src, sequenceContext]
 	);
 
-	const {volume: volumeProp, playbackRate, ...nativeProps} = props;
+	const {
+		volume: volumeProp,
+		playbackRate,
+		allowAmplificationDuringRender,
+		...nativeProps
+	} = props;
 
 	const volume = evaluateVolume({
 		volume: volumeProp,
 		frame: volumePropFrame,
 		mediaVolume: 1,
+		allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 	});
 
 	useImperativeHandle(

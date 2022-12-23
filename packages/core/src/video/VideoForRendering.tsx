@@ -35,7 +35,14 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
 	VideoForRenderingProps
 > = (
-	{onError, volume: volumeProp, playbackRate, onDuration, ...props},
+	{
+		onError,
+		volume: volumeProp,
+		allowAmplificationDuringRender,
+		playbackRate,
+		onDuration,
+		...props
+	},
 	ref
 ) => {
 	const absoluteFrame = useTimelinePosition();
@@ -72,6 +79,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		volume: volumeProp,
 		frame: volumePropsFrame,
 		mediaVolume: 1,
+		allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 	});
 
 	useEffect(() => {
