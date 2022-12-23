@@ -10,7 +10,10 @@ type RenderJobDynamicStatus =
 	  }
 	| {
 			status: 'failed';
-			error: Error;
+			error: {
+				message: string;
+				stack: string | undefined;
+			};
 	  };
 
 export type RenderJob = {

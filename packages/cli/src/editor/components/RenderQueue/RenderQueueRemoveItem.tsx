@@ -1,33 +1,15 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import type {
-	RemoveRenderRequest,
-	RenderJob,
-} from '../../../preview-server/render-queue/job';
+import type {RenderJob} from '../../../preview-server/render-queue/job';
 import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
+import {removeRenderJob} from './actions';
 
 export const RenderQueueRemoveItem: React.FC<{job: RenderJob}> = ({job}) => {
 	const onClick = useCallback(() => {
-		const body: RemoveRenderRequest = {
-			jobId: job.id,
-		};
-
-		fetch(`/api/remove-render`, {
-			method: 'post',
-			headers: {
-				'content-type': 'application/json',
-			},
-			body: JSON.stringify(body),
-		})
-			.then((res) => res.json())
-			.then((data: {success: boolean}) => {
-				if (!data.success) {
-					// TODO: Handle error
-				}
-			})
-			.catch(() => {
-				// TODO: Handle error
-			});
-	}, [job.id]);
+		removeRenderJob(job).catch((err) => {
+			// TODO: Handle error
+			console.log(err);
+		});
+	}, [job]);
 
 	const [hovered, setHovered] = useState(false);
 

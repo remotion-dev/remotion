@@ -1,6 +1,7 @@
 import React from 'react';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
 import {Row, Spacing} from '../layout';
+import {RenderQueueError} from './RenderQueueError';
 import {RenderQueueItemStatus} from './RenderQueueItemStatus';
 import {RenderQueueOutputName} from './RenderQueueOutputName';
 import {RenderQueueRemoveItem} from './RenderQueueRemoveItem';
@@ -19,7 +20,12 @@ const title: React.CSSProperties = {
 
 const right: React.CSSProperties = {
 	flex: 1,
+	display: 'flex',
+	flexDirection: 'column',
+	overflow: 'hidden',
 };
+
+const subtitle: React.CSSProperties = {};
 
 export const RenderQueueItem: React.FC<{
 	job: RenderJob;
@@ -30,7 +36,13 @@ export const RenderQueueItem: React.FC<{
 			<Spacing x={1} />
 			<div style={right}>
 				<div style={title}>{job.compositionId}</div>
-				<RenderQueueOutputName job={job} />
+				<div style={subtitle}>
+					{job.status === 'done' ? (
+						<RenderQueueOutputName job={job} />
+					) : job.status === 'failed' ? (
+						<RenderQueueError job={job} />
+					) : null}
+				</div>
 			</div>
 			<RenderQueueRemoveItem job={job} />
 		</Row>

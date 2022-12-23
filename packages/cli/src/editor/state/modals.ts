@@ -1,6 +1,7 @@
 import type React from 'react';
 import {createContext} from 'react';
 import type {TCompMetadata} from 'remotion';
+import type {RenderJob} from '../../preview-server/render-queue/job';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {UpdateInfo} from '../components/UpdateCheck';
 
@@ -14,6 +15,10 @@ export type ModalState =
 	| {
 			type: 'render';
 			composition: TCompMetadata;
+	  }
+	| {
+			type: 'render-error';
+			job: RenderJob;
 	  }
 	| {
 			type: 'update';
