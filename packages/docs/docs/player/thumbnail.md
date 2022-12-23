@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-player-thumbnail.png
 id: thumbnail
 title: "<Thumbnail>"
+crumb: "@remotion/player"
 ---
 
 _available from v3.2.41_

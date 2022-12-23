@@ -1,9 +1,12 @@
 ---
+image: /generated/articles-docs-tailwind.png
 id: tailwind
 title: TailwindCSS
+crumb: "text-lg font-bold"
 ---
 
 import Tabs from "@theme/Tabs";
+import TabItem from '@theme/TabItem';
 
 ## Using the template
 

@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-parametrized-rendering.png
 id: parametrized-rendering
 title: Parametrized rendering
+crumb: "How To"
 ---
 
 ```twoslash include example
@@ -36,8 +38,8 @@ export const MyComponent: React.FC<{ propOne: string; propTwo: number }> = () =>
   null;
 
 // @filename: Root.tsx
-import React from "react";
 // ---cut---
+import React from "react";
 import { Composition } from "remotion";
 import { MyComponent } from "./MyComponent";
 

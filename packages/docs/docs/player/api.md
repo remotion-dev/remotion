@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-player-api.png
 title: "<Player>"
 slug: /player/player
+crumb: "@remotion/player"
 ---
 
 A component which can be rendered in a regular React App (for example: [Create React App](https://create-react-app.dev/), [Next.JS](https://nextjs.org)) to display a Remotion video.
@@ -544,15 +546,17 @@ Using a [player ref](#playerref), you can bind event listeners to get notified o
 import { PlayerRef } from "@remotion/player";
 import { useEffect, useRef } from "react";
 // ---cut---
+import { CallbackListener } from "@remotion/player";
 const playerRef = useRef<PlayerRef>(null);
 
 useEffect(() => {
   if (!playerRef.current) {
     return;
   }
-  playerRef.current.addEventListener("play", () => {
-    console.log("playing");
-  });
+  const onPlay: CallbackListener<"play"> = () => {
+    console.log("play");
+  };
+  playerRef.current.addEventListener("play", onPlay);
   playerRef.current.addEventListener("ratechange", () => {
     console.log("ratechange");
   });

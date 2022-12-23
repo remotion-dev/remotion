@@ -21,6 +21,7 @@ test('Should be able to extract a frame from a video', async () => {
 		time: 1,
 		imageFormat: 'jpeg',
 		downloadMap: makeDownloadMap(),
+		remotionRoot: process.cwd(),
 	});
 
 	expect(str.length).toBeGreaterThan(10000);
@@ -34,6 +35,7 @@ test('Should be able to extract a frame from a video as PNG', async () => {
 		time: 1,
 		imageFormat: 'png',
 		downloadMap: makeDownloadMap(),
+		remotionRoot: process.cwd(),
 	});
 
 	expect(str.length).toBeGreaterThan(10000);
@@ -47,6 +49,7 @@ test('Should get the last frame if out of range', async () => {
 		time: 100,
 		imageFormat: 'jpeg',
 		downloadMap: makeDownloadMap(),
+		remotionRoot: process.cwd(),
 	});
 
 	expect(str.length).toBeGreaterThan(10000);

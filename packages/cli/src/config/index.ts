@@ -79,6 +79,7 @@ import {setLogLevel} from './log';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
 import {getMuted, setMuted} from './muted';
 import {getNumberOfGifLoops, setNumberOfGifLoops} from './number-of-gif-loops';
+import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
 import {overrideWebpackConfig} from './override-webpack';
@@ -91,12 +92,18 @@ import {setQuality} from './quality';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
 import {setWebpackCaching} from './webpack-caching';
+import {
+	getWebpackPolling,
+	setWebpackPollingInMilliseconds,
+} from './webpack-poll';
 import {getWidth, overrideWidth} from './width';
 
 export const Config: ConfigType = {
 	Preview: {
 		setMaxTimelineTracks,
 		setKeyboardShortcutsEnabled,
+		setNumberOfSharedAudioTags,
+		setWebpackPollingInMilliseconds,
 	},
 	Bundling: {
 		overrideWebpackConfig,
@@ -197,6 +204,7 @@ export const ConfigInternals = {
 	getCrfOrUndefined,
 	getEntryPoint,
 	getNumberOfGifLoops,
+	getWebpackPolling,
 };
 
 export const overrideRemotion = () => {

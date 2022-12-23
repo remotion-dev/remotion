@@ -103,6 +103,7 @@ export const TimelineSequence: React.FC<{
 					fps={fps}
 					volume={s.volume}
 					setMaxMediaDuration={setMaxMediaDuration}
+					playbackRate={s.playbackRate}
 				/>
 			) : null}
 			{s.type === 'video' ? <TimelineVideoInfo src={s.src} /> : null}

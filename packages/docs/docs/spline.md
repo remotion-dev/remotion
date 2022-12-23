@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-spline.png
 title: "Import from Spline"
+crumb: "Integrations"
 ---
 
 import {SplineVideo} from '../components/SplineVideo'

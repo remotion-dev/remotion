@@ -1,9 +1,12 @@
 ---
+image: /generated/articles-docs-tailwind-2.png
 id: tailwind-legacy
 title: TailwindCSS v2 (Legacy)
+crumb: "Legacy docs"
 ---
 
 import Tabs from "@theme/Tabs";
+import TabItem from '@theme/TabItem';
 
 :::info
 This documentation concerns TailwindCSS v2. [See here for V3!](/docs/tailwind)

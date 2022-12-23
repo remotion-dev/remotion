@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-gpu.png
 id: gpu
 title: Using the GPU
 sidebar_label: Using the GPU
+crumb: "Need for Speed"
 ---
 
 Some types of content in Remotion can benefit from a GPU being available on the machine that is used for rendering. That is:
@@ -27,6 +29,10 @@ For rendering content that can benefit from a GPU, you might want to choose a cl
 
 You can still render all types of content without having a GPU, it will just be slower.
 The graphics content will be software-emulated using [ANGLE](https://github.com/google/angle) or [SwiftShader](https://github.com/google/swiftshader) (when using Lambda).
+
+## Using the GPU on Lambda
+
+AWS Lambda instances have no GPU, so it is not possible to use it.
 
 ## What are your experiences?
 

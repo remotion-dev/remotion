@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-static-file-relative-paths.png
 id: staticfile-relative-paths
 title: staticFile() does not support relative paths
 sidebar_label: staticFile() relative paths
+crumb: "Troubleshooting"
 ---
 
 If you got the following error message:

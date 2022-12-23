@@ -1,7 +1,10 @@
 module.exports = {
-  title: "Remotion",
+  title: "Remotion | Make videos programmatically in React",
   tagline: "Make videos programmatically",
-  url: "https://remotion.dev",
+  url:
+    process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production"
+      ? `https://${process.env.VERCEL_URL}`
+      : "https://www.remotion.dev",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
@@ -9,14 +12,6 @@ module.exports = {
   organizationName: "remotion-dev", // Usually your GitHub org/user name.
   projectName: "remotion", // Usually your repo name.
   themeConfig: {
-    announcementBar: {
-      id: "announcement",
-      content:
-        '<a style="text-decoration: none; font-size: 14px;" href="/blog/seed-funding">We have raised CHF 180.000 to simplify programmatic video!</a>',
-      backgroundColor: "var(--ifm-navbar-background-color)",
-      textColor: "var(--ifm-heading-color)",
-      isCloseable: false,
-    },
     algolia: {
       appId: "PLSDUOL1CA",
       apiKey: "3e42dbd4f895fe93ff5cf40d860c4a85",
@@ -51,6 +46,10 @@ module.exports = {
           label: "More",
           position: "left",
           items: [
+            {
+              to: "/docs/resources",
+              label: "Resources",
+            },
             { to: "blog", label: "Blog" },
             { to: "showcase", label: "Showcase" },
             { to: "experts", label: "Experts" },
@@ -60,7 +59,7 @@ module.exports = {
           ],
         },
         {
-          href: "https://twitter.com/remotion_dev",
+          href: "https://twitter.com/remotion",
           label: "Twitter",
           position: "right",
           "data-splitbee-event": "External Link",
@@ -136,7 +135,7 @@ module.exports = {
             },
             {
               label: "Twitter",
-              href: "https://twitter.com/remotion_dev",
+              href: "https://twitter.com/remotion",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Twitter",
             },
@@ -195,7 +194,6 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
-          // Please change this to your repo.
           editUrl:
             "https://github.com/remotion-dev/remotion/edit/main/packages/docs/",
         },
@@ -211,7 +209,7 @@ module.exports = {
       },
     ],
     [
-      "@jonny/docusaurus-preset-shiki-twoslash",
+      "./shiki",
       {
         vfsRoot: process.cwd(),
         themes: ["github-light", "github-dark"],
@@ -239,6 +237,25 @@ module.exports = {
          */
         path: "./success-stories",
         blogSidebarTitle: "Success stories",
+      },
+    ],
+    [
+      "@docusaurus/plugin-content-blog",
+      {
+        /**
+         * Required for any multi-instance plugin
+         */
+        id: "learn",
+        /**
+         * URL route for the blog section of your site.
+         * *DO NOT* include a trailing slash.
+         */
+        routeBasePath: "learn",
+        /**
+         * Path to data on filesystem relative to site dir.
+         */
+        path: "./learn",
+        blogSidebarTitle: "Learn",
       },
     ],
     "./route-plugin",

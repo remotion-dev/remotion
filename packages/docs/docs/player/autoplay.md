@@ -1,8 +1,10 @@
 ---
+image: /generated/articles-docs-player-autoplay.png
 id: autoplay
 sidebar_label: "Autoplay"
 title: "Combatting autoplay issues"
 slug: /player/autoplay
+crumb: "@remotion/player"
 ---
 
 Browsers place restrictions on websites that play audio without user interaction. Read on how to properly use the Remotion Player so you don't run into a browser policy.

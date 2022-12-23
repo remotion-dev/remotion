@@ -167,6 +167,7 @@ export const benchmarkCommand = async (
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
+		remotionRoot,
 	});
 
 	Log.verbose('Entry point:', file, 'reason:', reason);
@@ -242,6 +243,7 @@ export const benchmarkCommand = async (
 			outputLocation: undefined,
 			serveUrl: bundleLocation,
 			codec,
+			remotionRoot,
 		});
 		const concurrency = getValidConcurrency(renderMediaOptions);
 

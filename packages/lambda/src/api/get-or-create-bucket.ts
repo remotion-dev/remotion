@@ -1,8 +1,7 @@
 import type {AwsRegion} from '../pricing/aws-regions';
 import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
-import {randomHash} from '../shared/random-hash';
+import {makeBucketName} from '../shared/validate-bucketname';
 import {createBucket} from './create-bucket';
-import {enableS3Website} from './enable-s3-website';
 import {getRemotionS3Buckets} from './get-buckets';
 
 export type GetOrCreateBucketInput = {
@@ -38,17 +37,13 @@ export const getOrCreateBucket = async (
 		return {bucketName: remotionBuckets[0].name};
 	}
 
-	const bucketName = REMOTION_BUCKET_PREFIX + randomHash();
+	const bucketName = makeBucketName(options.region);
 
 	await createBucket({
 		bucketName,
 		region: options.region,
 	});
 	options.onBucketEnsured?.();
-	await enableS3Website({
-		region: options.region,
-		bucketName,
-	});
 
 	return {bucketName};
 };

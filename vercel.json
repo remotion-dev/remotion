@@ -124,6 +124,16 @@
       "source": "/brand",
       "destination": "https://github.com/remotion-dev/logo",
       "permanent": false
+    },
+    {
+      "source": "/docs/lottie/after-effects",
+      "destination": "/docs/after-effects",
+      "permanent": false
+    },
+    {
+      "source": "/docs/miscellaneous/render-all",
+      "destination": "docs/render-all",
+      "permanent": false
     }
   ]
 }

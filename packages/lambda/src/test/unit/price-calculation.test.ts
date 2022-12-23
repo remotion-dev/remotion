@@ -44,6 +44,8 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			},
 			outName: 'out.mp4',
 			privacy: 'public',
+			everyNthFrame: 1,
+			frameRange: [0, 99],
 		},
 		outputFileMetadata: {
 			url: 'out.mp4',

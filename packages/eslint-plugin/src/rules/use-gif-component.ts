@@ -38,6 +38,21 @@ export default createRule<Options, MessageIds>({
         if (node.name.name !== "src") {
           return;
         }
+        const parent = node.parent;
+        if (!parent) {
+          return;
+        }
+        if (parent.type !== "JSXOpeningElement") {
+          return;
+        }
+        const name = parent.name;
+        if (name.type !== "JSXIdentifier") {
+          return;
+        }
+        if (name.name !== "Img" && name.name !== "img") {
+          return;
+        }
+
         const value = node.value;
         // src={"some string"}
         if (!value) {
@@ -53,25 +68,12 @@ export default createRule<Options, MessageIds>({
             : null;
         // src="image.gif"
         if (typeof stringValue === "string") {
-          const parent = node.parent;
-          if (!parent) {
-            return;
-          }
-          if (parent.type !== "JSXOpeningElement") {
-            return;
-          }
-          const name = parent.name;
-          if (name.type !== "JSXIdentifier") {
-            return;
-          }
-          if (name.name === "Img" || name.name === "img") {
-            // Network and inline URLs are okay
-            if (stringValue.includes(".gif")) {
-              context.report({
-                messageId: "UseGifComponent",
-                node,
-              });
-            }
+          // Network and inline URLs are okay
+          if (stringValue.includes(".gif")) {
+            context.report({
+              messageId: "UseGifComponent",
+              node,
+            });
           }
         }
 
