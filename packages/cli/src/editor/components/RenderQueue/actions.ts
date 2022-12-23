@@ -38,16 +38,19 @@ export const addRenderJob = ({
 	composition,
 	outName,
 	imageFormat,
+	quality,
 }: {
 	composition: TCompMetadata;
 	outName: string;
 	imageFormat: StillImageFormat;
+	quality: number | null;
 }) => {
 	const body: AddRenderRequest = {
 		compositionId: composition.id,
 		type: 'still',
 		outName,
 		imageFormat,
+		quality,
 	};
 
 	return new Promise<void>((resolve, reject) => {

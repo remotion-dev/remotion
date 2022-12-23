@@ -1,4 +1,5 @@
 import type {StillImageFormat} from '@remotion/renderer';
+import type {ChangeEventHandler} from 'react';
 import React, {
 	useCallback,
 	useContext,
@@ -14,6 +15,7 @@ import {ModalsContext} from '../../state/modals';
 import {Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
+import {InputDragger} from '../NewComposition/InputDragger';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {addRenderJob} from '../RenderQueue/actions';
 import {leftSidebarTabs} from '../SidebarContent';
@@ -99,6 +101,9 @@ const input: React.CSSProperties = {
 	minWidth: 250,
 };
 
+const MIN_QUALITY = 1;
+const MAX_QUALITY = 100;
+
 export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 	composition,
 }) => {
@@ -113,6 +118,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 	const [state, dispatch] = useReducer(reducer, initialState);
 
 	const [imageFormat, setImageFormat] = useState<StillImageFormat>('png');
+	const [quality, setQuality] = useState(80);
 	const [outName, setOutName] = useState(() =>
 		getDefaultOutLocation({
 			compositionName: composition.id,
@@ -160,6 +166,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 			composition,
 			outName,
 			imageFormat,
+			quality: imageFormat === 'jpeg' ? quality : null,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -168,7 +175,36 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 			.catch(() => {
 				dispatchIfMounted({type: 'fail'});
 			});
-	}, [composition, dispatchIfMounted, imageFormat, outName, setSelectedModal]);
+	}, [
+		composition,
+		dispatchIfMounted,
+		imageFormat,
+		outName,
+		quality,
+		setSelectedModal,
+	]);
+
+	const onQualityChangedDirectly = useCallback((newQuality: number) => {
+		setQuality(newQuality);
+	}, []);
+
+	const onQualityChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
+		(e) => {
+			setQuality((q) => {
+				const newQuality = parseInt(e.target.value, 10);
+				if (Number.isNaN(newQuality)) {
+					return q;
+				}
+
+				const newQualityClamped = Math.min(
+					MAX_QUALITY,
+					Math.max(newQuality, MIN_QUALITY)
+				);
+				return newQualityClamped;
+			});
+		},
+		[]
+	);
 
 	useEffect(() => {
 		return () => {
@@ -191,6 +227,26 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 						</button>
 					</div>
 				</div>
+				{imageFormat === 'jpeg' && (
+					<>
+						<Spacing block y={0.5} />
+						<div style={row}>
+							<div style={label}>Quality</div>
+							<div style={rightRow}>
+								<InputDragger
+									value={quality}
+									onChange={onQualityChanged}
+									placeholder="0-100"
+									onValueChange={onQualityChangedDirectly}
+									name="quality"
+									step={1}
+									min={MIN_QUALITY}
+									max={MAX_QUALITY}
+								/>
+							</div>
+						</div>
+					</>
+				)}
 				<Spacing block y={0.5} />
 				<div style={row}>
 					<div style={label}>Output name</div>
