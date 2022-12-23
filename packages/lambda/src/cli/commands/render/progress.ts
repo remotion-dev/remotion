@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import type {
 	CleanupInfo,
@@ -6,17 +7,19 @@ import type {
 	RenderProgress,
 } from '../../../defaults';
 import type {ChunkRetry} from '../../../functions/helpers/get-retry-stats';
+import {truthy} from '../../../shared/truthy';
 
 type LambdaInvokeProgress = {
 	totalLambdas: number | null;
 	lambdasInvoked: number;
-	doneIn: number | null;
 };
 
 type ChunkProgress = {
+	doneIn: number | null;
+	framesRendered: number;
+	totalFrames: number | null;
 	totalChunks: number | null;
 	chunksInvoked: number;
-	doneIn: number | null;
 };
 
 type MultiRenderProgress = {
@@ -31,62 +34,77 @@ const makeInvokeProgress = (
 	totalSteps: number,
 	retriesInfo: ChunkRetry[]
 ) => {
-	const {lambdasInvoked, totalLambdas, doneIn} = invokeProgress;
-	const progress = doneIn
-		? 1
-		: totalLambdas === null
-		? 0
-		: lambdasInvoked / totalLambdas;
+	const {lambdasInvoked, totalLambdas} = invokeProgress;
+	const progress = totalLambdas === null ? 0 : lambdasInvoked / totalLambdas;
 	return [
 		'⚡️',
 		`(1/${totalSteps})`,
 		CliInternals.makeProgressBar(progress),
-		`${doneIn === null ? 'Invoking' : 'Invoked'} lambdas`,
-		doneIn === null
-			? `${Math.round(progress * 100)}%`
-			: CliInternals.chalk.gray(`${doneIn}ms`),
+		`${progress === 0 ? 'Invoked' : 'Invoking'} lambdas`,
+		progress === 1
+			? CliInternals.chalk.gray('100%')
+			: `${Math.round(progress * 100)}%`,
 		retriesInfo.length > 0 ? `(+${retriesInfo.length} retries)` : [],
 	].join(' ');
 };
 
-const makeChunkProgress = ({
+const makeRenderProgress = ({
 	chunkProgress,
-	invokeProgress,
 	totalSteps,
 }: {
 	chunkProgress: ChunkProgress;
-	invokeProgress: LambdaInvokeProgress;
 	totalSteps: number;
 }) => {
-	const lambdaIsDone = invokeProgress.doneIn !== null;
 	const {chunksInvoked, totalChunks, doneIn} = chunkProgress;
-	const progress = totalChunks === null ? 0 : chunksInvoked / totalChunks;
-	const shouldShow = lambdaIsDone || progress > 0;
-	if (!shouldShow) {
-		return '';
-	}
+	const renderProgress =
+		chunkProgress.totalFrames === null
+			? 0
+			: chunkProgress.framesRendered / chunkProgress.totalFrames;
+	const encodingProgress =
+		totalChunks === null ? 0 : chunksInvoked / totalChunks;
 
-	return [
+	const frames =
+		chunkProgress.totalFrames === null
+			? null
+			: `(${chunkProgress.framesRendered}/${chunkProgress.totalFrames})`;
+
+	const first = [
 		'🧩',
 		`(2/${totalSteps})`,
-		CliInternals.makeProgressBar(progress),
-		`${doneIn === null ? 'Rendering' : 'Rendered'} chunks`,
+		CliInternals.makeProgressBar(renderProgress),
+		doneIn === null ? 'Rendering frames' : 'Rendered frames',
+		doneIn === null ? frames : CliInternals.chalk.gray(`${doneIn}ms`),
+	]
+		.filter(truthy)
+		.join(' ');
+
+	const second = [
+		'🏗️ ',
+		`(3/${totalSteps})`,
+		CliInternals.makeProgressBar(encodingProgress),
+		`${doneIn === null ? 'Encoding' : 'Encoded'} chunks`,
 		doneIn === null
-			? `${Math.round(progress * 100)}%`
+			? `${Math.round(encodingProgress * 100)}%`
 			: CliInternals.chalk.gray(`${doneIn}ms`),
 	].join(' ');
+
+	return [first, second];
 };
 
 const makeEncodingProgress = ({
 	encodingProgress,
 	chunkProgress,
 	totalSteps,
+	totalFrames,
+	timeToEncode,
 }: {
 	encodingProgress: EncodingProgress;
 	chunkProgress: ChunkProgress;
 	totalSteps: number;
+	totalFrames: number | null;
+	timeToEncode: number | null;
 }) => {
-	const {framesEncoded, totalFrames, doneIn} = encodingProgress;
+	const {framesEncoded} = encodingProgress;
 	const progress = totalFrames === null ? 0 : framesEncoded / totalFrames;
 	const chunksDone = chunkProgress.doneIn !== null;
 	const shouldShow = progress > 0 || chunksDone;
@@ -96,12 +114,12 @@ const makeEncodingProgress = ({
 
 	return [
 		'📽 ',
-		`(3/${totalSteps})`,
+		`(4/${totalSteps})`,
 		CliInternals.makeProgressBar(progress),
-		`${doneIn === null ? 'Combining' : 'Combined'} videos`,
-		doneIn === null
+		`${timeToEncode === null ? 'Combining' : 'Combined'} videos`,
+		timeToEncode === null
 			? `${Math.round(progress * 100)}%`
-			: CliInternals.chalk.gray(`${doneIn}ms`),
+			: CliInternals.chalk.gray(`${timeToEncode}ms`),
 	].join(' ');
 };
 
@@ -117,7 +135,7 @@ const makeCleanupProgress = (
 	if (skipped) {
 		return [
 			'🪣 ',
-			`(4/${totalSteps})`,
+			`(5/${totalSteps})`,
 			CliInternals.chalk.blueBright(
 				`Not cleaning up because --log=verbose was set`
 			),
@@ -128,7 +146,7 @@ const makeCleanupProgress = (
 	const progress = filesDeleted / minFilesToDelete;
 	return [
 		'🪣 ',
-		`(4/${totalSteps})`,
+		`(5/${totalSteps})`,
 		CliInternals.makeProgressBar(progress),
 		`${doneIn === null ? 'Cleaning up' : 'Cleaned up'} artifacts`,
 		doneIn === null
@@ -143,7 +161,7 @@ const makeDownloadProgress = (
 ) => {
 	return [
 		'💾',
-		`(5/${totalSteps})`,
+		`(6/${totalSteps})`,
 		downloadInfo.totalSize === null
 			? CliInternals.getFileSizeDownloadBar(downloadInfo.downloaded)
 			: CliInternals.makeProgressBar(
@@ -171,15 +189,18 @@ export const makeMultiProgressFromStatus = (
 			chunksInvoked: status.chunks,
 			totalChunks: status.renderMetadata?.totalChunks ?? null,
 			doneIn: status.timeToFinishChunks,
+			framesRendered: status.framesRendered,
+			totalFrames: status.renderMetadata
+				? RenderInternals.getFramesToRender(
+						status.renderMetadata.frameRange,
+						status.renderMetadata.everyNthFrame
+				  ).length
+				: null,
 		},
 		encodingProgress: {
 			framesEncoded: status.encodingStatus?.framesEncoded ?? 0,
-			totalFrames: status.renderMetadata?.videoConfig.durationInFrames ?? 1,
-			doneIn: status.encodingStatus?.doneIn ?? null,
-			timeToInvoke: status.encodingStatus?.timeToInvoke ?? null,
 		},
 		lambdaInvokeProgress: {
-			doneIn: status.timeToInvokeLambdas,
 			lambdasInvoked: status.lambdasInvoked,
 			totalLambdas:
 				status.renderMetadata?.estimatedRenderLambdaInvokations ?? null,
@@ -200,24 +221,29 @@ export const makeProgressString = ({
 	downloadInfo,
 	retriesInfo,
 	verbose,
+	timeToEncode,
+	totalFrames,
 }: {
 	progress: MultiRenderProgress;
 	steps: number;
 	downloadInfo: DownloadedInfo | null;
 	retriesInfo: ChunkRetry[];
 	verbose: boolean;
+	timeToEncode: number | null;
+	totalFrames: number | null;
 }) => {
 	return [
 		makeInvokeProgress(progress.lambdaInvokeProgress, steps, retriesInfo),
-		makeChunkProgress({
+		...makeRenderProgress({
 			chunkProgress: progress.chunkProgress,
-			invokeProgress: progress.lambdaInvokeProgress,
 			totalSteps: steps,
 		}),
 		makeEncodingProgress({
 			encodingProgress: progress.encodingProgress,
 			chunkProgress: progress.chunkProgress,
 			totalSteps: steps,
+			timeToEncode,
+			totalFrames,
 		}),
 		makeCleanupProgress(progress.cleanupInfo, steps, verbose),
 		downloadInfo ? makeDownloadProgress(downloadInfo, steps) : null,

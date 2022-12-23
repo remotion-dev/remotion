@@ -1,7 +1,14 @@
 import type {ForwardRefExoticComponent, RefAttributes} from 'react';
-import React, {forwardRef, useEffect, useImperativeHandle, useRef} from 'react';
+import React, {
+	forwardRef,
+	useContext,
+	useEffect,
+	useImperativeHandle,
+	useRef,
+} from 'react';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame';
 import {usePreload} from '../prefetch';
+import {SequenceContext} from '../Sequence';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
@@ -9,11 +16,13 @@ import {
 } from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
+import {useVideoConfig} from '../use-video-config';
 import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state';
 import type {RemotionVideoProps} from './props';
+import {appendVideoFragment} from './video-fragment';
 
 type VideoForDevelopmentProps = RemotionVideoProps & {
 	onlyWarnForMediaSeekingError: boolean;
@@ -27,6 +36,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	const videoRef = useRef<HTMLVideoElement>(null);
 
 	const volumePropFrame = useFrameForVolumeProp();
+	const {fps, durationInFrames} = useVideoConfig();
+	const parentSequence = useContext(SequenceContext);
 
 	const {
 		volume,
@@ -35,9 +46,16 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		onlyWarnForMediaSeekingError,
 		src,
 		onDuration,
-		acceptableTimeshift,
+		// @ts-expect-error
+		acceptableTimeShift,
+		acceptableTimeShiftInSeconds,
 		...nativeProps
 	} = props;
+	if (typeof acceptableTimeShift !== 'undefined') {
+		throw new Error(
+			'acceptableTimeShift has been removed. Use acceptableTimeShiftInSeconds instead.'
+		);
+	}
 
 	const actualVolume = useMediaTagVolume(videoRef);
 
@@ -50,6 +68,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaVolume,
 		mediaType: 'video',
 		src,
+		playbackRate: props.playbackRate ?? 1,
 	});
 
 	useSyncVolumeWithMediaTag({
@@ -66,10 +85,23 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaType: 'video',
 		playbackRate: props.playbackRate ?? 1,
 		onlyWarnForMediaSeekingError,
-		acceptableTimeshift: acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
+		acceptableTimeshift:
+			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
 	});
 
-	const actualSrc = usePreload(src as string);
+	const actualFrom = parentSequence
+		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
+		: 0;
+	const duration = parentSequence
+		? Math.min(parentSequence.durationInFrames, durationInFrames)
+		: durationInFrames;
+
+	const actualSrc = appendVideoFragment({
+		actualSrc: usePreload(src as string),
+		actualFrom,
+		duration,
+		fps,
+	});
 
 	useImperativeHandle(
 		ref,

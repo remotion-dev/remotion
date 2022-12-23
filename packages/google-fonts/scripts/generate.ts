@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "path";
-import axios from "axios";
+import got from "got";
 import postcss from "postcss";
 import prettier from "prettier";
 
@@ -36,7 +36,7 @@ const generate = async (font: Font) => {
   let cssFile = path.resolve(CSS_CACHE_DIR, cssname);
   if (!fs.existsSync(cssFile)) {
     //  Get from url with user agent that support woff2
-    let res = await axios.get(url, {
+    const res = await got.get(url, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36",
@@ -44,9 +44,9 @@ const generate = async (font: Font) => {
     });
 
     // Save to cache
-    await fs.promises.writeFile(cssFile, res.data);
+    await fs.promises.writeFile(cssFile, res.body);
 
-    css = res.data;
+    css = res.body;
   } else {
     // Read css from cache
     css = await fs.promises.readFile(cssFile, "utf-8");

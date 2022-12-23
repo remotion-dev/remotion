@@ -43,6 +43,8 @@ export type LegacyBundleOptions = {
 	publicPath?: string;
 	rootDir?: string;
 	publicDir?: string | null;
+	onPublicDirCopyProgress?: (bytes: number) => void;
+	onSymlinkDetected?: (path: string) => void;
 };
 
 export const getConfig = ({
@@ -74,6 +76,7 @@ export const getConfig = ({
 		entryPoints: [],
 		remotionRoot: resolvedRemotionRoot,
 		keyboardShortcutsEnabled: false,
+		poll: null,
 	});
 };
 
@@ -180,8 +183,32 @@ export async function bundle(...args: Arguments): Promise<string> {
 		? path.resolve(resolvedRemotionRoot, options.publicDir)
 		: path.join(resolvedRemotionRoot, 'public');
 	const to = path.join(outDir, 'public');
+
+	let symlinkWarningShown = false;
+	const showSymlinkWarning = (ent: fs.Dirent, src: string) => {
+		if (symlinkWarningShown) {
+			return;
+		}
+
+		const absolutePath = path.join(src, ent.name);
+		if (options.onSymlinkDetected) {
+			options.onSymlinkDetected(absolutePath);
+			return;
+		}
+
+		symlinkWarningShown = true;
+		console.warn(
+			`\nFound a symbolic link in the public folder (${absolutePath}). The symlink will be forwarded into the bundle.`
+		);
+	};
+
 	if (fs.existsSync(from)) {
-		await copyDir(from, to);
+		await copyDir({
+			src: from,
+			dest: to,
+			onSymlinkDetected: showSymlinkWarning,
+			onProgress: (prog) => options.onPublicDirCopyProgress?.(prog),
+		});
 	}
 
 	const html = indexHtml({
@@ -192,6 +219,9 @@ export async function bundle(...args: Arguments): Promise<string> {
 		remotionRoot: resolvedRemotionRoot,
 		previewServerCommand: null,
 		renderQueue: null,
+		numberOfAudioTags: 0,
+		includeFavicon: false,
+		title: 'Remotion Bundle',
 	});
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 

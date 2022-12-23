@@ -4,34 +4,40 @@ import type {Template} from '../templates';
 import {FEATURED_TEMPLATES} from '../templates';
 
 const getFileForTemplate = (template: Template, file: string) => {
-	return `https://raw.githubusercontent.com/${template.org}/${template.repoName}/${template.defaultBranch}/${file}`;
+	return `https://github.com/${template.org}/${template.repoName}/raw/${template.defaultBranch}/${file}`;
 };
 
 for (const template of FEATURED_TEMPLATES) {
 	test(template.shortName + ' should have a valid package.json', async () => {
-		const packageLockJson = getFileForTemplate(template, 'package.json');
+		const packageJson = getFileForTemplate(template, 'package.json');
 
-		const res = await got(packageLockJson, {
+		const res = await got(packageJson, {
 			throwHttpErrors: false,
+			cache: false,
+			followRedirect: true,
 		});
+
 		expect(res.statusCode).toBe(200);
 		const body = JSON.parse(res.body);
 
-		if (!template.shortName.includes('Remix')) {
+		if (
+			!template.shortName.includes('Remix') &&
+			!template.shortName.includes('Still')
+		) {
 			expect(body.scripts.build).toMatch(/render/);
 			expect(body.scripts.build).not.toContain('index');
 		}
 
-		expect(body.dependencies.remotion).toMatch(/^\^3/);
-		expect(body.dependencies['@remotion/cli']).toMatch(/^\^3/);
+		expect(body.dependencies.remotion).toMatch(/^\^?3/);
+		expect(body.dependencies['@remotion/cli']).toMatch(/^\^?3/);
 		expect(body.dependencies.react).toMatch(/^\^?18/);
 		expect(body.dependencies['react-dom']).toMatch(/^\^?18/);
 
 		expect(body.devDependencies.prettier).toMatch(/^\^?2/);
 		expect(body.devDependencies.eslint).toMatch(/^\^?8/);
 		const eitherPluginOrConfig =
-			body.devDependencies['@remotion/eslint-config']?.match(/^\^3/) ||
-			body.devDependencies['@remotion/eslint-plugin']?.match(/^\^3/);
+			body.devDependencies['@remotion/eslint-config']?.match(/^\^?3/) ||
+			body.devDependencies['@remotion/eslint-plugin']?.match(/^\^?3/);
 
 		expect(eitherPluginOrConfig).toBeTruthy();
 

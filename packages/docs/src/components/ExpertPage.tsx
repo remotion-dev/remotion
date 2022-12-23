@@ -7,6 +7,9 @@ import { DARK_BLUE } from "../../components/layout/colors";
 import { Spacer } from "../../components/layout/Spacer";
 import { experts } from "../data/experts";
 
+import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
+import { Seo } from "./Seo";
+
 const layout: React.CSSProperties = {
   maxWidth: 900,
   margin: "auto",
@@ -79,11 +82,15 @@ const socialIconContainer: React.CSSProperties = {
   alignItems: "center",
 };
 
+const socialLink: React.CSSProperties = {
+  display: "block",
+  maxWidth: "fit-content",
+};
+
 const socialRow: React.CSSProperties = {
   flexDirection: "row",
   display: "flex",
   alignItems: "center",
-  marginTop: 10,
   marginBottom: 10,
 };
 
@@ -105,6 +112,7 @@ const cardIcon: React.CSSProperties = {
 
 export default () => {
   const location = useLocation();
+  const context = useDocusaurusContext();
 
   const expertSlug = location.pathname.match(/experts\/([a-zA-Z-]+)/);
 
@@ -113,6 +121,7 @@ export default () => {
   }
 
   const expert = experts.find((e) => e.slug === expertSlug[1]);
+  const imgSrc = `/generated/experts-${expert.slug}.png`;
 
   if (!expert) {
     throw new Error("no expert found");
@@ -121,11 +130,11 @@ export default () => {
   return (
     <Layout>
       <Head>
-        <title>{expert.name} | Remotion Experts</title>
-        <meta
-          name="description"
-          content={`Hire ${expert.name} and other Remotion experts, vetted by Remotion.`}
-        />
+        {Seo.renderTitle(`${expert.name} | Remotion Experts`)}
+        {Seo.renderDescription(
+          `Hire ${expert.name} and other Remotion experts, vetted by Remotion.`
+        )}
+        {Seo.renderImage(imgSrc, context.siteConfig.url)}
       </Head>
       <div style={header}>
         <div style={layout}>
@@ -168,7 +177,7 @@ export default () => {
         <h3>About me</h3>
         <p style={description}>{expert.description}</p>
         <h3>Socials</h3>
-        <a href={`mailto:${expert.email}`} target={"_blank"}>
+        <a style={socialLink} href={`mailto:${expert.email}`} target={"_blank"}>
           <div style={socialRow}>
             <div style={socialIconContainer}>
               <svg
@@ -186,7 +195,11 @@ export default () => {
           </div>
         </a>
         {expert.github ? (
-          <a href={`https://github.com/${expert.github}`} target={"_blank"}>
+          <a
+            style={socialLink}
+            href={`https://github.com/${expert.github}`}
+            target={"_blank"}
+          >
             <div style={socialRow}>
               <div style={socialIconContainer}>
                 <svg
@@ -205,7 +218,11 @@ export default () => {
           </a>
         ) : null}
         {expert.twitter ? (
-          <a href={`https://twitter.com/${expert.twitter}`} target={"_blank"}>
+          <a
+            style={socialLink}
+            href={`https://twitter.com/${expert.twitter}`}
+            target={"_blank"}
+          >
             <div style={socialRow}>
               <div style={socialIconContainer}>
                 <svg
@@ -224,7 +241,11 @@ export default () => {
           </a>
         ) : null}
         {expert.linkedin ? (
-          <a href={`https://linkedin.com/${expert.linkedin}`} target={"_blank"}>
+          <a
+            style={socialLink}
+            href={`https://linkedin.com/${expert.linkedin}`}
+            target={"_blank"}
+          >
             <div style={socialRow}>
               <div style={socialIconContainer}>
                 <svg

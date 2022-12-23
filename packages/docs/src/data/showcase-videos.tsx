@@ -1212,20 +1212,6 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
-    title: "Video Ad",
-    type: "mux_video",
-    muxId: "kfl1VFbNcRFntVKhdkvTB6mBmcivDv82UX64Na4TMGw",
-    description: "A simple video ad",
-    height: 1920,
-    width: 1080,
-    submittedOn: new Date("07-18-2022"),
-    links: [],
-    author: {
-      url: "https://www.linkedin.com/in/sepehrsafari/",
-      name: "Sepehr Safari",
-    },
-  },
-  {
     title: "Top 15 smallest animals in this planet",
     type: "mux_video",
     muxId: "bQ5bHzbVsYngW5GF4iQxH601HyPnxHZCcXZas1zzQRAU",
@@ -1285,6 +1271,30 @@ export const showcaseVideos: ShowcaseVideo[] = [
     author: {
       url: "https://blastworkout.app",
       name: "Mad Mustache Company",
+    },
+  },
+  {
+    title: "Funeral Collage/Slideshow",
+    type: "mux_video",
+    muxId: "3ZOyZm01dqewQjVUNP02MzqWooJlYJ00cVSLX9WjSwuYjs",
+    description:
+      "Online memorial photo slideshow maker. Create a fitting tribute video for your loved one.",
+    height: 1080,
+    width: 1920,
+    submittedOn: new Date("11-29-2022"),
+    links: [
+      {
+        type: "video",
+        url: "https://firebasestorage.googleapis.com/v0/b/funeral-collage.appspot.com/o/demo%2Fjoanna-bloggs-demo.mp4?alt=media&token=ed4dff7d-396d-4b97-9f95-85c58d669277",
+      },
+      {
+        type: "website",
+        url: "https://funeralcollage.com/",
+      },
+    ],
+    author: {
+      url: "https://funeralcollage.com/",
+      name: "Funeral Collage/Slideshow",
     },
   },
 ];

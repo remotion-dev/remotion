@@ -46,12 +46,18 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		[props.src, sequenceContext]
 	);
 
-	const {volume: volumeProp, playbackRate, ...nativeProps} = props;
+	const {
+		volume: volumeProp,
+		playbackRate,
+		allowAmplificationDuringRender,
+		...nativeProps
+	} = props;
 
 	const volume = evaluateVolume({
 		volume: volumeProp,
 		frame: volumePropFrame,
 		mediaVolume: 1,
+		allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 	});
 
 	useImperativeHandle(
@@ -87,6 +93,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			volume,
 			mediaFrame: frame,
 			playbackRate: props.playbackRate ?? 1,
+			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 		});
 		return () => unregisterAsset(id);
 	}, [
@@ -101,6 +108,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		frame,
 		playbackRate,
 		props.playbackRate,
+		allowAmplificationDuringRender,
 	]);
 
 	const {src, onDuration} = props;

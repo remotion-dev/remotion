@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-delay-render.png
 id: delay-render
 title: delayRender() and continueRender()
 sidebar_label: delayRender()
+crumb: "How to"
 ---
 
 By calling `delayRender()`, you are signaling that a frame should not be immediately rendered and instead should wait on an asynchronous task to complete.

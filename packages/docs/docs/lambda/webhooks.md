@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-webhooks.png
 sidebar_label: Webhooks
 title: Webhooks
 slug: /lambda/webhooks
+crumb: "Lambda"
 ---
 
 import { WebhookTest } from "../../components/lambda/webhook-test";
@@ -57,6 +59,13 @@ type WebhookPayload =
       renderId: string;
       expectedBucketOwner: string;
       bucketName: string;
+      // Available from v3.3.11
+      costs: {
+        estimatedCost: number;
+        estimatedDisplayCost: string;
+        currency: string;
+        disclaimer: string;
+      };
     }
   | {
       type: "timeout";

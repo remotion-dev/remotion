@@ -3,6 +3,7 @@ import type {Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
+import {redirectStatusCodes} from './redirect-status-codes';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 export const setPropsAndEnv = async ({
@@ -98,15 +99,7 @@ export const setPropsAndEnv = async ({
 		});
 	}
 
-	if (
-		status !== 200 &&
-		status !== 301 &&
-		status !== 302 &&
-		status !== 303 &&
-		status !== 304 &&
-		status !== 307 &&
-		status !== 308
-	) {
+	if (!redirectStatusCodes.every((code) => code !== status)) {
 		throw new Error(
 			`Error while getting compositions: Tried to go to ${urlToVisit} but the status code was ${status} instead of 200. Does the site you specified exist?`
 		);

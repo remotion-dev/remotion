@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-renderer-get-compositions.png
 title: getCompositions()
 id: get-compositions
+crumb: "@remotion/renderer"
 ---
 
 import {AngleChangelog} from '../../components/AngleChangelog';

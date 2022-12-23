@@ -1,5 +1,6 @@
 import type {Frame, ParsedFrameWithoutPatch, ParsedGif} from 'gifuct-js';
-import {decompressFrames, parseGIF} from 'gifuct-js';
+import {parseGIF} from 'gifuct-js';
+import {decompressFrames} from './parser/decompress-frames';
 import type {GifState} from './props';
 
 const validateAndFix = (gif: ParsedGif) => {
@@ -32,12 +33,13 @@ export const parse = (
 		})
 		.then((buffer) => parseGIF(buffer))
 		.then((gif) => {
+			console.log({gif});
 			validateAndFix(gif);
 			return gif;
 		})
 		.then((gif) =>
 			Promise.all([
-				decompressFrames(gif, false),
+				decompressFrames(gif),
 				{width: gif.lsd.width, height: gif.lsd.height},
 			])
 		)

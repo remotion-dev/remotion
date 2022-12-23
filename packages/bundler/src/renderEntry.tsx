@@ -155,7 +155,7 @@ const renderContent = () => {
 
 	if (bundleMode.type === 'composition' || bundleMode.type === 'evaluation') {
 		const markup = (
-			<Internals.RemotionRoot>
+			<Internals.RemotionRoot numberOfAudioTags={0}>
 				<WaitForRoot />
 				<GetVideo state={bundleMode} />
 			</Internals.RemotionRoot>

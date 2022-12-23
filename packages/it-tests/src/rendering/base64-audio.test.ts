@@ -2,6 +2,7 @@ import { beforeEach, expect, test } from "vitest";
 import path from "path";
 import fs from "fs";
 import execa from "execa";
+import { RenderInternals } from "@remotion/renderer";
 
 const outputPath = path.join(process.cwd(), "packages/example/out.mp3");
 
@@ -24,7 +25,10 @@ test("Should be able to render a MP3 audio file", async () => {
   const exists = fs.existsSync(outputPath);
   expect(exists).toBe(true);
 
-  const info = await execa("ffprobe", [outputPath]);
+  const info = await execa(
+    await RenderInternals.getExecutableBinary(null, process.cwd(), "ffprobe"),
+    [outputPath]
+  );
   const data = info.stderr;
   expect(data).toContain("mp3");
   expect(data).toContain("stereo");

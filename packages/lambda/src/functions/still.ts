@@ -18,6 +18,7 @@ import {
 	MAX_EPHEMERAL_STORAGE_IN_MB,
 	renderMetadataKey,
 } from '../shared/constants';
+import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {deserializeInputProps} from '../shared/deserialize-input-props';
 import {getServeUrlHash} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
@@ -54,17 +55,15 @@ const innerStillHandler = async (
 	}
 
 	if (lambdaParams.version !== VERSION) {
-		if (lambdaParams.version !== VERSION) {
-			if (!lambdaParams.version) {
-				throw new Error(
-					`Version mismatch: When calling renderMediaOnLambda(), you called the function ${process.env.AWS_LAMBDA_FUNCTION_NAME} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call renderMediaOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`
-				);
-			}
-
+		if (!lambdaParams.version) {
 			throw new Error(
-				`Version mismatch: When calling renderMediaOnLambda(), you passed ${process.env.AWS_LAMBDA_FUNCTION_NAME} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${lambdaParams.version}. Deploy a new function and use it to call renderMediaOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`
+				`Version mismatch: When calling renderStillOnLambda(), you called the function ${process.env.AWS_LAMBDA_FUNCTION_NAME} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call renderStillOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`
 			);
 		}
+
+		throw new Error(
+			`Version mismatch: When calling renderStillOnLambda(), you passed ${process.env.AWS_LAMBDA_FUNCTION_NAME} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${lambdaParams.version}. Deploy a new function and use it to call renderStillOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`
+		);
 	}
 
 	validateDownloadBehavior(lambdaParams.downloadBehavior);
@@ -89,15 +88,22 @@ const innerStillHandler = async (
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
+	const region = getCurrentRegionInFunction();
 	const inputProps = await deserializeInputProps({
 		bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
+		region,
 		serialized: lambdaParams.inputProps,
 	});
 
+	const serveUrl = convertToServeUrl({
+		urlOrId: lambdaParams.serveUrl,
+		region,
+		bucketName,
+	});
+
 	const composition = await validateComposition({
-		serveUrl: lambdaParams.serveUrl,
+		serveUrl,
 		browserInstance,
 		composition: lambdaParams.composition,
 		inputProps,
@@ -119,7 +125,7 @@ const innerStillHandler = async (
 		compositionId: lambdaParams.composition,
 		estimatedTotalLambdaInvokations: 1,
 		estimatedRenderLambdaInvokations: 1,
-		siteId: getServeUrlHash(lambdaParams.serveUrl),
+		siteId: getServeUrlHash(serveUrl),
 		totalChunks: 1,
 		type: 'still',
 		imageFormat: lambdaParams.imageFormat,
@@ -131,6 +137,8 @@ const innerStillHandler = async (
 		renderId,
 		outName: lambdaParams.outName ?? undefined,
 		privacy: lambdaParams.privacy,
+		everyNthFrame: 1,
+		frameRange: [lambdaParams.frame, lambdaParams.frame],
 	};
 
 	await lambdaWriteFile({
@@ -147,7 +155,7 @@ const innerStillHandler = async (
 	await renderStill({
 		composition,
 		output: outputPath,
-		serveUrl: lambdaParams.serveUrl,
+		serveUrl,
 		dumpBrowserLogs: false,
 		envVariables: lambdaParams.envVariables,
 		frame: RenderInternals.convertToPositiveFrameIndex({

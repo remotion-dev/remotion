@@ -3,6 +3,7 @@ export {extendViewBox} from './extend-viewbox';
 export {getLength} from './get-length';
 export {getParts} from './get-parts';
 export {getPointAtLength} from './get-point-at-length';
+export {getSubpaths} from './get-subpaths';
 export {getTangentAtLength} from './get-tangent-at-length';
 export {Part} from './helpers/types';
 export {interpolatePath} from './interpolate-path';

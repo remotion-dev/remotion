@@ -1,18 +1,17 @@
 import type {
-	ChromiumOptions,
 	FrameRange,
 	ImageFormat,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
 } from '@remotion/renderer';
+import type {ChromiumOptions} from '@remotion/renderer/src/open-browser';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
-import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {getCloudwatchStreamUrl, getS3RenderUrl} from '../shared/get-aws-urls';
 import {serializeInputProps} from '../shared/serialize-input-props';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
@@ -128,14 +127,11 @@ export const renderMediaOnLambda = async ({
 	});
 	validateDownloadBehavior(downloadBehavior);
 
-	const [realServeUrl, serializedInputProps] = await Promise.all([
-		convertToServeUrl(serveUrl, region),
-		serializeInputProps({
-			inputProps,
-			region,
-			type: 'video-or-audio',
-		}),
-	]);
+	const serializedInputProps = await serializeInputProps({
+		inputProps,
+		region,
+		type: 'video-or-audio',
+	});
 	try {
 		const res = await callLambda({
 			functionName,
@@ -143,7 +139,7 @@ export const renderMediaOnLambda = async ({
 			payload: {
 				framesPerLambda: framesPerLambda ?? null,
 				composition,
-				serveUrl: realServeUrl,
+				serveUrl,
 				inputProps: serializedInputProps,
 				codec: actualCodec,
 				imageFormat: imageFormat ?? 'jpeg',

@@ -1,10 +1,7 @@
-import type {openBrowser} from './open-browser';
-
-type Await<T> = T extends PromiseLike<infer U> ? U : T;
-type Browser = Await<ReturnType<typeof openBrowser>>;
+import type {BrowserReplacer} from './replace-browser';
 
 export const cycleBrowserTabs = (
-	puppeteerInstance: Browser,
+	puppeteerInstance: BrowserReplacer,
 	concurrency: number
 ): {
 	stopCycling: () => void;
@@ -21,6 +18,7 @@ export const cycleBrowserTabs = (
 	const set = () => {
 		interval = setTimeout(() => {
 			puppeteerInstance
+				.getBrowser()
 				.pages()
 				.then((pages) => {
 					if (pages.length === 0) {
@@ -30,17 +28,18 @@ export const cycleBrowserTabs = (
 					const currentPage = pages[i % pages.length];
 					i++;
 					if (
-						!currentPage?.isClosed?.() &&
+						!currentPage?.closed &&
 						!stopped &&
 						currentPage?.url() !== 'about:blank'
 					) {
 						return currentPage.bringToFront();
 					}
 				})
-				.then(() => {
+
+				.catch((err) => console.log(err))
+				.finally(() => {
 					set();
-				})
-				.catch((err) => console.log(err));
+				});
 		}, 200);
 	};
 

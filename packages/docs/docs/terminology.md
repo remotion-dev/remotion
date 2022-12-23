@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-terminology.png
 title: Terminology
+crumb: "The Remotion dictionary"
 ---
 
 Here we try to explain the meaning of some terms that are used often in the documentation, but are not self-explanatory. Which terms would you like to have explained? [Let us know](https://remotion.dev/issue)!
@@ -44,7 +46,14 @@ The Remotion Root is the directory in which Remotion commands get executed in. I
 
 ## Entry point
 
-The entry point is the file where the Remotion CLI and Node.JS APIs will look for a Remotion project. By default in most templates, it is `src/index.ts`. In older projects, it may have an `.tsx` extension instead of `.ts`. The entry point can be passed to the render command, for example: `npx remotion render src/index.ts`. The entry point should call [`registerRoot()`](/docs/register-root).
+The entry point is the file where the Remotion CLI and Node.JS APIs will look for a Remotion project.
+
+- By default in most templates, it is `src/index.ts`.
+- In older projects, it may have an `.tsx` extension instead of `.ts`.
+- The entry point can be passed to the render command, for example: `npx remotion render src/index.ts`.
+- The entry point should call [`registerRoot()`](/docs/register-root).
+- If you render a video using [`npx remotion render`](/docs/cli/render), the entry point is printed in grey.
+- You can customize the entry point in the config file using [`Config.Bundling.setEntryPoint()`](/docs/config#setentrypoint).
 
 In the [Remotion Player](#remotion-player), there is no concept of an entry point. You directly pass a React component and metadata to the [`<Player>`](/docs/player/player).
 

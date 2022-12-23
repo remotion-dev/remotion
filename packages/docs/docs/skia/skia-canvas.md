@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-skia-skia-canvas.png
 title: <SkiaCanvas />
+crumb: "@remotion/skia"
 ---
 
 A [React Native Skia `<Canvas />` component](https://shopify.github.io/react-native-skia/docs/canvas/overview) that wraps Remotion contexts.
@@ -7,10 +9,10 @@ A [React Native Skia `<Canvas />` component](https://shopify.github.io/react-nat
 You can place elements from `@shopify/react-native-skia` in it!
 
 ```tsx twoslash
-import React from "react";
-import { useVideoConfig } from "remotion";
 import { SkiaCanvas } from "@remotion/skia";
 import { Fill } from "@shopify/react-native-skia";
+import React from "react";
+import { useVideoConfig } from "remotion";
 
 const MySkiaVideo: React.FC = () => {
   const { width, height } = useVideoConfig();

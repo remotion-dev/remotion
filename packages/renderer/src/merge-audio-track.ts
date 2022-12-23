@@ -7,6 +7,7 @@ import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {createSilentAudio} from './create-silent-audio';
 import {deleteDirectory} from './delete-directory';
 import type {FfmpegExecutable} from './ffmpeg-executable';
+import {getExecutableBinary} from './ffmpeg-flags';
 import {pLimit} from './p-limit';
 import {tmpDir} from './tmp-dir';
 import {truthy} from './truthy';
@@ -17,6 +18,7 @@ type Options = {
 	outName: string;
 	numberOfSeconds: number;
 	downloadMap: DownloadMap;
+	remotionRoot: string;
 };
 
 const mergeAudioTrackUnlimited = async ({
@@ -25,12 +27,14 @@ const mergeAudioTrackUnlimited = async ({
 	files,
 	numberOfSeconds,
 	downloadMap,
+	remotionRoot,
 }: Options): Promise<void> => {
 	if (files.length === 0) {
 		await createSilentAudio({
 			outName,
 			ffmpegExecutable,
 			numberOfSeconds,
+			remotionRoot,
 		});
 		return;
 	}
@@ -40,6 +44,7 @@ const mergeAudioTrackUnlimited = async ({
 			outName,
 			ffmpegExecutable,
 			input: files[0],
+			remotionRoot,
 		});
 		return;
 	}
@@ -58,6 +63,7 @@ const mergeAudioTrackUnlimited = async ({
 					numberOfSeconds,
 					outName: chunkOutname,
 					downloadMap,
+					remotionRoot,
 				});
 				return chunkOutname;
 			})
@@ -69,6 +75,7 @@ const mergeAudioTrackUnlimited = async ({
 			numberOfSeconds,
 			outName,
 			downloadMap,
+			remotionRoot,
 		});
 		await deleteDirectory(tempPath);
 		return;
@@ -86,9 +93,10 @@ const mergeAudioTrackUnlimited = async ({
 	]
 		.filter(truthy)
 		.flat(2);
-
-	const task = execa(ffmpegExecutable ?? 'ffmpeg', args);
-
+	const task = execa(
+		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+		args
+	);
 	await task;
 	cleanup();
 };
