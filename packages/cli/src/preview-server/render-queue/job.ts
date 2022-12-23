@@ -24,6 +24,7 @@ type RenderJobDynamicFields =
 			imageFormat: StillImageFormat;
 			quality: number | null;
 			frame: number;
+			scale: number;
 	  }
 	| {
 			type: 'composition';
@@ -43,6 +44,7 @@ type AddRenderRequestDynamicFields =
 			imageFormat: StillImageFormat;
 			quality: number | null;
 			frame: number;
+			scale: number;
 	  }
 	| {
 			type: 'composition';

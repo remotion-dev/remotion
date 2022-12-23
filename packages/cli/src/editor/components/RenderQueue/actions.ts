@@ -40,12 +40,14 @@ export const addStillRenderJob = ({
 	imageFormat,
 	quality,
 	frame,
+	scale,
 }: {
 	composition: TCompMetadata;
 	outName: string;
 	imageFormat: StillImageFormat;
 	quality: number | null;
 	frame: number;
+	scale: number;
 }) => {
 	const body: AddRenderRequest = {
 		compositionId: composition.id,
@@ -54,6 +56,7 @@ export const addStillRenderJob = ({
 		imageFormat,
 		quality,
 		frame,
+		scale,
 	};
 
 	return new Promise<void>((resolve, reject) => {
