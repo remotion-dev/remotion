@@ -7,6 +7,7 @@ import {
 	TIMELINE_MAX_ZOOM,
 	TIMELINE_MIN_ZOOM,
 } from '../../state/timeline-zoom';
+import {useZIndex} from '../../state/z-index';
 import {ControlButton} from '../ControlButton';
 import {Spacing} from '../layout';
 
@@ -32,6 +33,7 @@ const slider: React.CSSProperties = {
 
 export const TimelineZoomControls: React.FC = () => {
 	const {setZoom, zoom} = useContext(TimelineZoomCtx);
+	const {tabIndex} = useZIndex();
 
 	const onMinusClicked = useCallback(() => {
 		setZoom((z) => Math.max(TIMELINE_MIN_ZOOM, z - 0.2));
@@ -77,6 +79,7 @@ export const TimelineZoomControls: React.FC = () => {
 				max={TIMELINE_MAX_ZOOM}
 				onChange={onChange}
 				style={slider}
+				tabIndex={tabIndex}
 			/>
 			<Spacing x={0.5} />
 			<ControlButton
