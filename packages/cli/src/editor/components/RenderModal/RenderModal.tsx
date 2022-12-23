@@ -83,8 +83,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 
 	const [state, dispatch] = useReducer(reducer, initialState);
 
-	// TODO: Allow to change out name
-	const [outName] = useState(() =>
+	const [outName, setOutName] = useState(() =>
 		getDefaultOutLocation({
 			compositionName: composition.id,
 			// TODO: Set default extension
@@ -96,6 +95,13 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 		if (isMounted.current === false) return;
 		dispatch(payload);
 	}, []);
+
+	const onValueChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
+		(e) => {
+			setOutName(e.target.value);
+		},
+		[]
+	);
 
 	const onClick = useCallback(() => {
 		const body: AddRenderRequest = {
@@ -136,7 +142,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 			<NewCompHeader title={`Render ${composition.id}`} />
 			<div style={container}>
 				<div>
-					<RemotionInput type="text" value={outName} />
+					<RemotionInput type="text" value={outName} onChange={onValueChange} />
 				</div>
 				<Spacing block y={0.5} />
 				<div>
