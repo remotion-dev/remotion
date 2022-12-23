@@ -121,14 +121,12 @@ export const processJob = async ({
 			puppeteerInstance: await browserInstance,
 			// TODO: Allow to specify quality
 			// TODO: Allow to customize image format
-			imageFormat: 'png',
+			imageFormat: job.imageFormat,
 			// TODO: Allow specific frame
 			// TODO: Allow cancel signal
 			// TODO: Accept CLI options
 		});
 	}
-
-	throw new TypeError(`Could not process job of type ${job.type}`);
 };
 
 export const addJob = ({
