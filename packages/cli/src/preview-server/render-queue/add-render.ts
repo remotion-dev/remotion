@@ -1,8 +1,8 @@
 import type {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';
-import {addJob} from '.';
 import {parseRequestBody} from '../parse-body';
 import type {AddRenderRequest} from './job';
+import {addJob} from './queue';
 
 export const handleAddRender = async (
 	remotionRoot: string,
@@ -18,8 +18,8 @@ export const handleAddRender = async (
 	try {
 		const body = (await parseRequestBody(req)) as AddRenderRequest;
 
-		addJob(
-			{
+		addJob({
+			job: {
 				compositionId: body.compositionId,
 				id: String(Math.random()).replace('0.', ''),
 				startedAt: Date.now(),
@@ -27,8 +27,9 @@ export const handleAddRender = async (
 				outputLocation: path.resolve(remotionRoot, body.outName),
 				status: 'idle',
 			},
-			entryPoint
-		);
+			entryPoint,
+			remotionRoot,
+		});
 
 		res.setHeader('content-type', 'application/json');
 		res.writeHead(200);

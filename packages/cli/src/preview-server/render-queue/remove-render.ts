@@ -1,7 +1,7 @@
 import type {IncomingMessage, ServerResponse} from 'http';
-import {removeJob} from '.';
 import {parseRequestBody} from '../parse-body';
 import type {RemoveRenderRequest} from './job';
+import {removeJob} from './queue';
 
 export const handleRemoveRender = async (
 	req: IncomingMessage,

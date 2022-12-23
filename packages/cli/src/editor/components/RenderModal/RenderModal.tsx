@@ -70,6 +70,21 @@ const container: React.CSSProperties = {
 	padding: 20,
 };
 
+const row: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'row',
+	alignItems: 'center',
+};
+
+const label: React.CSSProperties = {
+	width: 300,
+	fontSize: 14,
+};
+
+const spacer: React.CSSProperties = {
+	height: 6,
+};
+
 export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 	composition,
 }) => {
@@ -141,7 +156,13 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title={`Render ${composition.id}`} />
 			<div style={container}>
-				<div>
+				<div style={row}>
+					<div style={label}>hi</div>
+					<RemotionInput type="text" value={outName} onChange={onValueChange} />
+				</div>
+				<div style={spacer} />
+				<div style={row}>
+					<div style={label}>hi</div>
 					<RemotionInput type="text" value={outName} onChange={onValueChange} />
 				</div>
 				<Spacing block y={0.5} />
