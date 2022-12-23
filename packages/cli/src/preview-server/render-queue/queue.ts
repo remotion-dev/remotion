@@ -121,7 +121,7 @@ export const processJob = async ({
 			puppeteerInstance: await browserInstance,
 			quality: job.quality ?? undefined,
 			imageFormat: job.imageFormat,
-			// TODO: Allow specific frame
+			frame: job.frame,
 			// TODO: Allow cancel signal
 			// TODO: Accept CLI options
 		});

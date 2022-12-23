@@ -17,7 +17,7 @@ import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {RemotionInput} from '../NewComposition/RemInput';
-import {addRenderJob} from '../RenderQueue/actions';
+import {addStillRenderJob} from '../RenderQueue/actions';
 import {leftSidebarTabs} from '../SidebarContent';
 
 type State =
@@ -162,11 +162,13 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 
 	const onClick = useCallback(() => {
 		leftSidebarTabs.current?.selectRendersPanel();
-		addRenderJob({
+		addStillRenderJob({
 			composition,
 			outName,
 			imageFormat,
 			quality: imageFormat === 'jpeg' ? quality : null,
+			// TODO: Support still rendering for compositions
+			frame: 0,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
