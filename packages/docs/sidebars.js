@@ -323,7 +323,7 @@ module.exports = {
         "scaling",
         "video-manipulation",
         "render-as-gif",
-        "prores-overlay",
+        "overlay",
       ],
     },
     {

@@ -22,7 +22,7 @@ export type Template = {
 	org: string;
 	repoName: string;
 	homePageLabel: string;
-	longerDescription: string;
+	longerDescription: React.ReactNode;
 	cliId:
 		| 'hello-world'
 		| 'javascript'
@@ -215,8 +215,13 @@ export const FEATURED_TEMPLATES: Template[] = [
 		org: 'remotion-dev',
 		repoName: 'template-overlay',
 		description: 'TypeScript and Tailwind starter',
-		longerDescription:
-			'A starter template to create overlays to use in conventional video editing software.',
+		longerDescription: (
+			<span>
+				A starter template to create overlays to use in conventional video
+				editing software.{' '}
+				<a href="/docs/overlay">Read more about creating overlays.</a>
+			</span>
+		),
 		promoVideo: {
 			muxId: 'zgy7XK01009y33Vfzhns02cZS00rOyeZ6WaanaxcrDysqmU',
 			height: 720,

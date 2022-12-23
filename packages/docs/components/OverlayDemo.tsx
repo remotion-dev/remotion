@@ -28,9 +28,17 @@ export const OverlayDemo: React.FC = () => {
               flexDirection: "column",
               border: "1px solid var(--ifm-color-emphasis-300)",
               borderRadius: "var(--ifm-pre-border-radius)",
+              overflow: "hidden",
             }}
           >
-            <video ref={ref} src="/img/overlay.webm" controls autoPlay loop />
+            <video
+              ref={ref}
+              className="transparent"
+              src="/img/overlay.webm"
+              autoPlay
+              loop
+              muted
+            />
           </div>
           <div style={{ marginTop: "8px" }} />
           <p className="tr-centered" onClick={onClick}>
@@ -40,13 +48,14 @@ export const OverlayDemo: React.FC = () => {
 
         <p style={{ marginLeft: "10px" }}>
           {" "}
-          Want the source code? Check out the{" "}
+          Use our template by cloning the{" "}
           <a
             href="https://github.com/remotion-dev/template-overlay"
             target="_blank"
           >
-            template
-          </a>
+            GitHub repo
+          </a>{" "}
+          or running <code>npx create-video --overlay</code>.
         </p>
       </div>
     </div>
