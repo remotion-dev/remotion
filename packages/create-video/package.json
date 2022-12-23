@@ -37,6 +37,7 @@
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"typescript": "^4.7.0",
 		"vitest": "0.24.3",
-		"react": "^18.0.0"
+		"react": "^18.0.0",
+		"react-dom": "^18.0.0"
 	}
 }
