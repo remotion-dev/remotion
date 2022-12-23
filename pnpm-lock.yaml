@@ -216,6 +216,7 @@ importers:
       '@types/minimist': 1.2.2
       '@types/node': ^16.7.5
       '@types/prompts': ^2.0.12
+      '@types/react': 18.0.23
       '@types/tar': 6.1.1
       chalk: 4.1.2
       eslint: 8.25.0
@@ -239,6 +240,7 @@ importers:
       '@types/minimist': 1.2.2
       '@types/node': 16.10.2
       '@types/prompts': 2.0.14
+      '@types/react': 18.0.23
       '@types/tar': 6.1.1
       eslint: 8.25.0
       got: 11.8.5
