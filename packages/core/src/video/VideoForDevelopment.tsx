@@ -46,9 +46,16 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		onlyWarnForMediaSeekingError,
 		src,
 		onDuration,
-		acceptableTimeshift,
+		// @ts-expect-error
+		acceptableTimeShift,
+		acceptableTimeShiftInSeconds,
 		...nativeProps
 	} = props;
+	if (typeof acceptableTimeShift !== 'undefined') {
+		throw new Error(
+			'acceptableTimeShift has been removed. Use acceptableTimeShiftInSeconds instead.'
+		);
+	}
 
 	const actualVolume = useMediaTagVolume(videoRef);
 
@@ -78,7 +85,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaType: 'video',
 		playbackRate: props.playbackRate ?? 1,
 		onlyWarnForMediaSeekingError,
-		acceptableTimeshift: acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
+		acceptableTimeshift:
+			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
 	});
 
 	const actualFrom = parentSequence
