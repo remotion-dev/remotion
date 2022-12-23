@@ -214,7 +214,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		shortName: 'Overlay',
 		org: 'remotion-dev',
 		repoName: 'template-overlay',
-		description: 'TypeScript and Tailwind starter',
+		description: 'Overlays for video editing software',
 		longerDescription: (
 			<span>
 				A starter template to create overlays to use in conventional video
