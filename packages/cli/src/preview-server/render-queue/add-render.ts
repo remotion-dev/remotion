@@ -18,6 +18,11 @@ export const handleAddRender = async (
 	try {
 		const body = (await parseRequestBody(req)) as AddRenderRequest;
 
+		if (body.type !== 'still') {
+			// TODO support composition rendering
+			throw new Error('Only still images are supported for now');
+		}
+
 		addJob({
 			job: {
 				compositionId: body.compositionId,
@@ -28,6 +33,7 @@ export const handleAddRender = async (
 				status: 'idle',
 				imageFormat: body.imageFormat,
 				quality: body.quality,
+				frame: body.frame,
 			},
 			entryPoint,
 			remotionRoot,

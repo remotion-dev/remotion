@@ -34,16 +34,18 @@ export const removeRenderJob = (job: RenderJob) => {
 	});
 };
 
-export const addRenderJob = ({
+export const addStillRenderJob = ({
 	composition,
 	outName,
 	imageFormat,
 	quality,
+	frame,
 }: {
 	composition: TCompMetadata;
 	outName: string;
 	imageFormat: StillImageFormat;
 	quality: number | null;
+	frame: number;
 }) => {
 	const body: AddRenderRequest = {
 		compositionId: composition.id,
@@ -51,6 +53,7 @@ export const addRenderJob = ({
 		outName,
 		imageFormat,
 		quality,
+		frame,
 	};
 
 	return new Promise<void>((resolve, reject) => {

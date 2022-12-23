@@ -18,23 +18,40 @@ type RenderJobDynamicStatus =
 			};
 	  };
 
+type RenderJobDynamicFields =
+	| {
+			type: 'still';
+			imageFormat: StillImageFormat;
+			quality: number | null;
+			frame: number;
+	  }
+	| {
+			type: 'composition';
+	  };
+
 export type RenderJob = {
 	startedAt: number;
 	compositionId: string;
-	type: 'still' | 'composition';
 	id: string;
 	outputLocation: string;
-	imageFormat: StillImageFormat;
-	quality: number | null;
-} & RenderJobDynamicStatus;
+} & RenderJobDynamicStatus &
+	RenderJobDynamicFields;
+
+type AddRenderRequestDynamicFields =
+	| {
+			type: 'still';
+			imageFormat: StillImageFormat;
+			quality: number | null;
+			frame: number;
+	  }
+	| {
+			type: 'composition';
+	  };
 
 export type AddRenderRequest = {
 	compositionId: string;
-	type: 'still' | 'composition';
 	outName: string;
-	imageFormat: StillImageFormat;
-	quality: number | null;
-};
+} & AddRenderRequestDynamicFields;
 
 export type RemoveRenderRequest = {
 	jobId: string;
