@@ -33,6 +33,7 @@ const canvasContainer: React.CSSProperties = {
 const leftContainer: React.CSSProperties = {
 	flex: 1,
 	display: 'flex',
+	maxWidth: '100%',
 };
 
 export const TopPanel: React.FC = () => {

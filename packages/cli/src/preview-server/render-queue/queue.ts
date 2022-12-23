@@ -186,7 +186,10 @@ export const processJobIfPossible = async ({
 			return {
 				...job,
 				status: 'failed',
-				error: err as Error,
+				error: {
+					message: (err as Error).message,
+					stack: (err as Error).stack,
+				},
 			};
 		});
 

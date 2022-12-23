@@ -9,12 +9,12 @@ import React, {
 import type {TCompMetadata} from 'remotion';
 import {getDefaultOutLocation} from '../../../get-default-out-name';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
-import type {AddRenderRequest} from '../../../preview-server/render-queue/job';
 import {ModalsContext} from '../../state/modals';
 import {Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {RemotionInput} from '../NewComposition/RemInput';
+import {addRenderJob} from '../RenderQueue/actions';
 import {leftSidebarTabs} from '../SidebarContent';
 
 type State =
@@ -119,32 +119,19 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 	);
 
 	const onClick = useCallback(() => {
-		const body: AddRenderRequest = {
-			compositionId: composition.id,
-			type: 'still',
-			outName,
-		};
 		leftSidebarTabs.current?.selectRendersPanel();
-		fetch(`/api/render`, {
-			method: 'post',
-			headers: {
-				'content-type': 'application/json',
-			},
-			body: JSON.stringify(body),
+		addRenderJob({
+			composition,
+			outName,
 		})
-			.then((res) => res.json())
-			.then((data: {success: boolean}) => {
-				if (data.success) {
-					dispatchIfMounted({type: 'succeed'});
-					setSelectedModal(null);
-				} else {
-					dispatchIfMounted({type: 'fail'});
-				}
+			.then(() => {
+				dispatchIfMounted({type: 'succeed'});
+				setSelectedModal(null);
 			})
 			.catch(() => {
 				dispatchIfMounted({type: 'fail'});
 			});
-	}, [composition.id, dispatchIfMounted, outName, setSelectedModal]);
+	}, [composition, dispatchIfMounted, outName, setSelectedModal]);
 
 	useEffect(() => {
 		return () => {

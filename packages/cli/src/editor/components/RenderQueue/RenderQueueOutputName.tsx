@@ -3,21 +3,11 @@ import type {
 	OpenInFileExplorerRequest,
 	RenderJob,
 } from '../../../preview-server/render-queue/job';
-import {LIGHT_TEXT} from '../../helpers/colors';
-import {SPACING_UNIT} from '../layout';
 import {notificationCenter} from '../Notifications/NotificationCenter';
+import {renderQueueItemSubtitleStyle} from './item-style';
 
 const outputLocation: React.CSSProperties = {
-	fontSize: 13,
-	color: LIGHT_TEXT,
-	appearance: 'none',
-	border: 'none',
-	padding: 0,
-	cursor: 'pointer',
-	lineHeight: 1,
-	textAlign: 'left',
-	whiteSpace: 'nowrap',
-	marginRight: SPACING_UNIT,
+	...renderQueueItemSubtitleStyle,
 };
 
 const formatOutputLocation = (location: string) => {
