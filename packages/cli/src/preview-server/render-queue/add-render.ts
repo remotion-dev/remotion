@@ -26,6 +26,7 @@ export const handleAddRender = async (
 				type: 'still',
 				outputLocation: path.resolve(remotionRoot, body.outName),
 				status: 'idle',
+				imageFormat: body.imageFormat,
 			},
 			entryPoint,
 			remotionRoot,

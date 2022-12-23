@@ -1,3 +1,5 @@
+import type {StillImageFormat} from '@remotion/renderer';
+
 type RenderJobDynamicStatus =
 	| {
 			status: 'done';
@@ -22,12 +24,14 @@ export type RenderJob = {
 	type: 'still' | 'composition';
 	id: string;
 	outputLocation: string;
+	imageFormat: StillImageFormat;
 } & RenderJobDynamicStatus;
 
 export type AddRenderRequest = {
 	compositionId: string;
 	type: 'still' | 'composition';
 	outName: string;
+	imageFormat: StillImageFormat;
 };
 
 export type RemoveRenderRequest = {

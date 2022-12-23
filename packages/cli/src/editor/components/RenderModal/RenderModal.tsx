@@ -159,6 +159,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 		addRenderJob({
 			composition,
 			outName,
+			imageFormat,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -167,7 +168,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 			.catch(() => {
 				dispatchIfMounted({type: 'fail'});
 			});
-	}, [composition, dispatchIfMounted, outName, setSelectedModal]);
+	}, [composition, dispatchIfMounted, imageFormat, outName, setSelectedModal]);
 
 	useEffect(() => {
 		return () => {

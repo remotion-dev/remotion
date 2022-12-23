@@ -1,3 +1,4 @@
+import type {StillImageFormat} from '@remotion/renderer';
 import type {TCompMetadata} from 'remotion';
 import type {
 	AddRenderRequest,
@@ -36,14 +37,17 @@ export const removeRenderJob = (job: RenderJob) => {
 export const addRenderJob = ({
 	composition,
 	outName,
+	imageFormat,
 }: {
 	composition: TCompMetadata;
 	outName: string;
+	imageFormat: StillImageFormat;
 }) => {
 	const body: AddRenderRequest = {
 		compositionId: composition.id,
 		type: 'still',
 		outName,
+		imageFormat,
 	};
 
 	return new Promise<void>((resolve, reject) => {
