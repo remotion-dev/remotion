@@ -4,6 +4,7 @@ import {
 	LIGHT_TEXT,
 	SELECTED_BACKGROUND,
 } from '../../helpers/colors';
+import {useZIndex} from '../../state/z-index';
 
 const tabsContainer: React.CSSProperties = {
 	display: 'flex',
@@ -38,6 +39,7 @@ export const Tab: React.FC<{
 	selected: boolean;
 }> = ({children, onClick, style, selected}) => {
 	const [hovered, setHovered] = useState(false);
+	const {tabIndex} = useZIndex();
 
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
@@ -65,6 +67,7 @@ export const Tab: React.FC<{
 			style={definiteStyle}
 			type="button"
 			onClick={onClick}
+			tabIndex={tabIndex}
 			onPointerLeave={onPointerLeave}
 			onPointerEnter={onPointerEnter}
 		>
