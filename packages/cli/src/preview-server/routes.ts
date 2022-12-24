@@ -12,6 +12,10 @@ import {
 	launchEditor,
 } from './error-overlay/react-overlay/utils/open-in-editor';
 import type {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
+import {
+	handleSubscribeToFileExistence,
+	handleUnsubscribeToFileExistence,
+} from './file-existence-watchers';
 import {getPackageManager} from './get-package-manager';
 import type {LiveEventsServer} from './live-events';
 import {parseRequestBody} from './parse-body';
@@ -134,6 +138,7 @@ const handleOpenInEditor = async (
 	if (req.method === 'OPTIONS') {
 		res.statusCode = 200;
 		res.end();
+		return;
 	}
 
 	try {
@@ -238,6 +243,14 @@ export const handleRoutes = ({
 
 	if (url.pathname === '/api/render') {
 		return handleAddRender(remotionRoot, request, response, entryPoint);
+	}
+
+	if (url.pathname === '/api/subscribe-to-file-existence') {
+		return handleSubscribeToFileExistence(remotionRoot, request, response);
+	}
+
+	if (url.pathname === '/api/unsubscribe-from-file-existence') {
+		return handleUnsubscribeToFileExistence(remotionRoot, request, response);
 	}
 
 	if (url.pathname === '/api/remove-render') {

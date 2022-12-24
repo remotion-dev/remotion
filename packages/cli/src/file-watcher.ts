@@ -8,8 +8,9 @@ export const installFileWatcher = ({
 }: {
 	file: string;
 	onChange: (type: FileChangeType) => void;
-}): (() => void) => {
-	let existedBefore = fs.existsSync(file);
+}): {exists: boolean; unwatch: () => void} => {
+	const existedAtBeginning = fs.existsSync(file);
+	let existedBefore = existedAtBeginning;
 
 	const listener = () => {
 		const existsNow = fs.existsSync(file);
@@ -32,7 +33,10 @@ export const installFileWatcher = ({
 
 	fs.watchFile(file, {interval: 100}, listener);
 
-	return () => {
-		fs.unwatchFile(file, listener);
+	return {
+		exists: existedAtBeginning,
+		unwatch: () => {
+			fs.unwatchFile(file, listener);
+		},
 	};
 };

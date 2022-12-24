@@ -11,6 +11,7 @@ import React, {
 import type {TCompMetadata} from 'remotion';
 import {getDefaultOutLocation} from '../../../get-default-out-name';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
+import {useFileExistence} from '../../helpers/use-file-existence';
 import {ModalsContext} from '../../state/modals';
 import {Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
@@ -242,6 +243,8 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 		};
 	}, []);
 
+	const existence = useFileExistence(outName);
+
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title={`Render ${composition.id}`} />
@@ -307,6 +310,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 						/>
 					</div>
 				</div>
+				<div>Exists: {String(existence)}</div>
 				<Spacing block y={0.5} />
 				<div style={buttonRow}>
 					<Button onClick={onClick} disabled={state.type === 'load'}>
