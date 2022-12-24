@@ -29,6 +29,7 @@ button:focus,
 a:focus {
 	outline: none;
 	box-shadow: inset 1px 1px #555, inset -1px -1px #555, inset 1px -1px #555, inset -1px 1px #555;
+	border-radius: 0 !important;
 }
 
 input.no-focus-ring:focus,
