@@ -137,7 +137,7 @@
     },
     {
       "source": "/docs/overlays",
-      "destination": "docs/overlay",
+      "destination": "/docs/overlay",
       "permanent": false
     }
   ]
