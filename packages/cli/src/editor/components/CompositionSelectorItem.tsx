@@ -8,16 +8,16 @@ import {
 	SELECTED_BACKGROUND,
 } from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
-import {FilmIcon} from '../icons/film';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {StillIcon} from '../icons/still';
+import {FilmIcon} from '../icons/video';
 import {Row, Spacing} from './layout';
 import {RenderButton} from './RenderButton';
 
 const COMPOSITION_ITEM_HEIGHT = 32;
 
 const itemStyle: React.CSSProperties = {
-	paddingRight: 8,
+	paddingRight: 10,
 	paddingTop: 6,
 	paddingBottom: 6,
 	fontSize: 13,
@@ -103,7 +103,7 @@ export const CompositionSelectorItem: React.FC<{
 				? SELECTED_BACKGROUND
 				: 'transparent',
 			color: selected || hovered ? 'white' : LIGHT_TEXT,
-			paddingLeft: 8 + level * 8,
+			paddingLeft: 12 + level * 8,
 		};
 	}, [hovered, level, selected]);
 
@@ -138,9 +138,15 @@ export const CompositionSelectorItem: React.FC<{
 					type="button"
 				>
 					{item.expanded ? (
-						<ExpandedFolderIcon style={iconStyle} />
+						<ExpandedFolderIcon
+							style={iconStyle}
+							color={hovered ? 'white' : LIGHT_TEXT}
+						/>
 					) : (
-						<CollapsedFolderIcon style={iconStyle} />
+						<CollapsedFolderIcon
+							color={hovered ? 'white' : LIGHT_TEXT}
+							style={iconStyle}
+						/>
 					)}
 					<Spacing x={1} />
 					{item.folderName}
@@ -175,9 +181,9 @@ export const CompositionSelectorItem: React.FC<{
 				type="button"
 			>
 				{isCompositionStill(item.composition) ? (
-					<StillIcon style={iconStyle} />
+					<StillIcon color={hovered ? 'white' : LIGHT_TEXT} style={iconStyle} />
 				) : (
-					<FilmIcon style={iconStyle} />
+					<FilmIcon color={hovered ? 'white' : LIGHT_TEXT} style={iconStyle} />
 				)}
 				<Spacing x={1} />
 				<div style={label}>{item.composition.id}</div>
