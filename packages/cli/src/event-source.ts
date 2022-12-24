@@ -15,15 +15,12 @@ export const subscribeToEvent = (
 	listener: (event: EventSourceEvent) => void
 ) => {
 	listeners.push({type, listener});
-};
 
-export const unsubscribeFromEvent = (
-	type: EventSourceEvent['type'],
-	listener: (event: EventSourceEvent) => void
-) => {
-	listeners = listeners.filter(
-		(l) => l.type !== type || l.listener !== listener
-	);
+	return () => {
+		listeners = listeners.filter(
+			(l) => l.type !== type || l.listener !== listener
+		);
+	};
 };
 
 export const openEventSource = () => {
