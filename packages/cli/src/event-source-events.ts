@@ -20,4 +20,12 @@ export type EventSourceEvent =
 			type: 'render-job-failed';
 			compositionId: string;
 			error: Error;
+	  }
+	| {
+			type: 'watched-file-undeleted';
+			file: string;
+	  }
+	| {
+			type: 'watched-file-deleted';
+			file: string;
 	  };

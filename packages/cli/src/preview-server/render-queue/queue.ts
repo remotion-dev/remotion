@@ -188,7 +188,7 @@ export const processJobIfPossible = async ({
 			};
 		});
 		await processJob({job: nextJob, entryPoint, remotionRoot});
-		const unwatch = installFileWatcher({
+		const {unwatch} = installFileWatcher({
 			file: nextJob.outputLocation,
 			onChange: (type) => {
 				if (type === 'created') {

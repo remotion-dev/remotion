@@ -13,6 +13,7 @@ export const handleAddRender = async (
 	if (req.method === 'OPTIONS') {
 		res.statusCode = 200;
 		res.end();
+		return;
 	}
 
 	try {

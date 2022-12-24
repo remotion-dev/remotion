@@ -39,7 +39,7 @@ const watchEnvFile = ({
 		});
 	};
 
-	return installFileWatcher({
+	const {unwatch} = installFileWatcher({
 		file: envFile,
 		onChange: async (type) => {
 			try {
@@ -59,6 +59,7 @@ const watchEnvFile = ({
 			}
 		},
 	});
+	return unwatch;
 };
 
 const getEnvForEnvFile = async (

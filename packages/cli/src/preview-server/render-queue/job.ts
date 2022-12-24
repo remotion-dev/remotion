@@ -68,3 +68,11 @@ export type OpenInFileExplorerRequest = {
 	// TODO: Don't allow paths outside Remotion directory
 	directory: string;
 };
+
+export type SubscribeToFileExistence = {
+	file: string;
+};
+
+export type UnsubscribeFromFileExistence = {
+	file: string;
+};
