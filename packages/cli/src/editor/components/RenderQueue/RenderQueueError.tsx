@@ -1,6 +1,7 @@
 import React, {useCallback, useContext} from 'react';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
 import {ModalsContext} from '../../state/modals';
+import {useZIndex} from '../../state/z-index';
 import {renderQueueItemSubtitleStyle} from './item-style';
 
 const outputLocation: React.CSSProperties = {
@@ -11,6 +12,7 @@ export const RenderQueueError: React.FC<{
 	job: RenderJob;
 }> = ({job}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
+	const {tabIndex} = useZIndex();
 
 	const onClick = useCallback(() => {
 		setSelectedModal({
@@ -28,6 +30,7 @@ export const RenderQueueError: React.FC<{
 			onClick={onClick}
 			type="button"
 			style={outputLocation}
+			tabIndex={tabIndex}
 			title={job.error.message}
 		>
 			{job.error.message}

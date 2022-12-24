@@ -8,6 +8,9 @@ const style: React.CSSProperties = {
 	backgroundColor: 'transparent',
 	color: 'white',
 	cursor: 'pointer',
+	display: 'inline-flex',
+	justifyContent: 'center',
+	alignItems: 'center',
 };
 
 export const CancelButton: React.FC<
