@@ -18,6 +18,7 @@ import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {RemotionInput} from '../NewComposition/RemInput';
+import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {addStillRenderJob} from '../RenderQueue/actions';
 import {leftSidebarTabs} from '../SidebarContent';
 
@@ -74,15 +75,17 @@ const container: React.CSSProperties = {
 	padding: 20,
 };
 
-const row: React.CSSProperties = {
+const optionRow: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
-	alignItems: 'center',
+	alignItems: 'flex-start',
+	minHeight: 40,
 };
 
 const label: React.CSSProperties = {
 	width: 150,
 	fontSize: 14,
+	lineHeight: '40px',
 };
 
 const rightRow: React.CSSProperties = {
@@ -249,7 +252,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title={`Render ${composition.id}`} />
 			<div style={container}>
-				<div style={row}>
+				<div style={optionRow}>
 					<div style={label}>Format</div>
 					<div style={rightRow}>
 						<button type="button" onClick={setPng}>
@@ -263,7 +266,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 				{imageFormat === 'jpeg' && (
 					<>
 						<Spacing block y={0.5} />
-						<div style={row}>
+						<div style={optionRow}>
 							<div style={label}>Quality</div>
 							<div style={rightRow}>
 								<InputDragger
@@ -281,7 +284,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 					</>
 				)}
 				<Spacing block y={0.5} />
-				<div style={row}>
+				<div style={optionRow}>
 					<div style={label}>Scale</div>
 					<div style={rightRow}>
 						<InputDragger
@@ -299,18 +302,24 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 					</div>
 				</div>
 				<Spacing block y={0.5} />
-				<div style={row}>
+				<div style={optionRow}>
 					<div style={label}>Output name</div>
 					<div style={rightRow}>
-						<RemotionInput
-							style={input}
-							type="text"
-							value={outName}
-							onChange={onValueChange}
-						/>
+						<div>
+							<RemotionInput
+								// TODO: Validate and reject folders or weird file names
+								warning={existence}
+								style={input}
+								type="text"
+								value={outName}
+								onChange={onValueChange}
+							/>
+							{existence ? (
+								<ValidationMessage message="Will be overwritten" />
+							) : null}
+						</div>
 					</div>
 				</div>
-				<div>Exists: {String(existence)}</div>
 				<Spacing block y={0.5} />
 				<div style={buttonRow}>
 					<Button onClick={onClick} disabled={state.type === 'load'}>

@@ -11,13 +11,16 @@ import {
 	INPUT_BORDER_COLOR_HOVERED,
 	INPUT_BORDER_COLOR_UNHOVERED,
 	SELECTED_BACKGROUND,
+	WARNING_COLOR,
 } from '../../helpers/colors';
 import {useZIndex} from '../../state/z-index';
 
 type Props = React.DetailedHTMLProps<
 	React.InputHTMLAttributes<HTMLInputElement>,
 	HTMLInputElement
->;
+> & {
+	warning?: boolean;
+};
 
 export const inputBaseStyle: React.CSSProperties = {
 	padding: '8px 10px',
@@ -41,14 +44,16 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 			backgroundColor: INPUT_BACKGROUND,
 			...inputBaseStyle,
 			width: '100%',
-			borderColor: isFocused
+			borderColor: props.warning
+				? WARNING_COLOR
+				: isFocused
 				? SELECTED_BACKGROUND
 				: isHovered
 				? INPUT_BORDER_COLOR_HOVERED
 				: INPUT_BORDER_COLOR_UNHOVERED,
 			...(props.style ?? {}),
 		};
-	}, [isFocused, isHovered, props.style]);
+	}, [isFocused, isHovered, props.style, props.warning]);
 
 	useImperativeHandle(
 		ref,
