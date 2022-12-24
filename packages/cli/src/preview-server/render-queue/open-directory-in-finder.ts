@@ -14,12 +14,16 @@ export const openDirectoryInFinder = (dirToOpen: string) => {
 	// TODO: '-R' only works on macOS
 	const p = spawn(command, ['-R', dirToOpen]);
 
+	const stderrChunks: Buffer[] = [];
+	p.stderr.on('data', (d) => stderrChunks.push(d));
+
 	return new Promise<void>((resolve, reject) => {
 		p.on('exit', (code) => {
 			if (code === 0) {
 				resolve();
 			} else {
-				reject(new Error(`Exited with code ${code}`));
+				const message = Buffer.concat(stderrChunks).toString('utf-8');
+				reject(new Error(message));
 			}
 		});
 		p.on('error', (err) => {

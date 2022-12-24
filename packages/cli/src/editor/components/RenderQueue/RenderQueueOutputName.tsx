@@ -1,9 +1,6 @@
 import React, {useCallback} from 'react';
-import type {
-	OpenInFileExplorerRequest,
-	RenderJob,
-} from '../../../preview-server/render-queue/job';
-import {notificationCenter} from '../Notifications/NotificationCenter';
+import type {RenderJob} from '../../../preview-server/render-queue/job';
+import {openInFileExplorer} from './actions';
 import {renderQueueItemSubtitleStyle} from './item-style';
 
 const outputLocation: React.CSSProperties = {
@@ -28,37 +25,7 @@ export const RenderQueueOutputName: React.FC<{
 	job: RenderJob;
 }> = ({job}) => {
 	const onClick = useCallback(() => {
-		const body: OpenInFileExplorerRequest = {
-			directory: job.outputLocation,
-		};
-		fetch(`/api/open-in-file-explorer`, {
-			method: 'post',
-			headers: {
-				'content-type': 'application/json',
-			},
-			body: JSON.stringify(body),
-		})
-			.then((res) => res.json())
-			.then((data: {success: true} | {success: false; error: string}) => {
-				if (data.success) {
-					console.log('Opened file in explorer');
-				} else {
-					notificationCenter.current?.addNotification({
-						content: `Could not open file: ${data.error}`,
-						created: Date.now(),
-						duration: 2000,
-						id: String(Math.random()),
-					});
-				}
-			})
-			.catch((err) => {
-				notificationCenter.current?.addNotification({
-					content: `Could not open file: ${err.message}`,
-					created: Date.now(),
-					duration: 2000,
-					id: String(Math.random()),
-				});
-			});
+		openInFileExplorer({directory: job.outputLocation});
 	}, [job.outputLocation]);
 
 	return (
