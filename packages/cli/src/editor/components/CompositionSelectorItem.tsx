@@ -12,7 +12,9 @@ import {FilmIcon} from '../icons/film';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {StillIcon} from '../icons/still';
 import {Row, Spacing} from './layout';
-import {COMPOSITION_ITEM_HEIGHT, RenderButton} from './RenderButton';
+import {RenderButton} from './RenderButton';
+
+const COMPOSITION_ITEM_HEIGHT = 32;
 
 const itemStyle: React.CSSProperties = {
 	paddingRight: 8,
@@ -30,6 +32,13 @@ const itemStyle: React.CSSProperties = {
 	textAlign: 'left',
 	backgroundColor: BACKGROUND,
 	height: COMPOSITION_ITEM_HEIGHT,
+};
+
+const labelStyle: React.CSSProperties = {
+	textAlign: 'left',
+	textDecoration: 'none',
+	fontSize: 13,
+	flex: 1,
 };
 
 const iconStyle: React.CSSProperties = {
@@ -98,6 +107,13 @@ export const CompositionSelectorItem: React.FC<{
 		};
 	}, [hovered, level, selected]);
 
+	const label = useMemo(() => {
+		return {
+			...labelStyle,
+			color: selected || hovered ? 'white' : LIGHT_TEXT,
+		};
+	}, [hovered, selected]);
+
 	const onClick: MouseEventHandler = useCallback(
 		(evt) => {
 			evt.preventDefault();
@@ -164,14 +180,14 @@ export const CompositionSelectorItem: React.FC<{
 					<FilmIcon style={iconStyle} />
 				)}
 				<Spacing x={1} />
-				{item.composition.id}
+				<div style={label}>{item.composition.id}</div>
+				{isCompositionStill(item.composition) ? (
+					<>
+						<Spacing x={0.5} />
+						<RenderButton visible={hovered} composition={item.composition} />
+					</>
+				) : null}
 			</button>
-			{isCompositionStill(item.composition) ? (
-				<>
-					<Spacing x={0.5} />
-					<RenderButton composition={item.composition} />
-				</>
-			) : null}
 		</Row>
 	);
 };
