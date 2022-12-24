@@ -69,10 +69,14 @@ export type OpenInFileExplorerRequest = {
 	directory: string;
 };
 
-export type SubscribeToFileExistence = {
+export type SubscribeToFileExistenceRequest = {
 	file: string;
 };
 
-export type UnsubscribeFromFileExistence = {
+export type SubscribeToFileExistenceResponse = {
+	exists: boolean;
+};
+
+export type UnsubscribeFromFileExistenceRequest = {
 	file: string;
 };

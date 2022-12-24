@@ -5,8 +5,6 @@ import type {
 	OpenInFileExplorerRequest,
 	RemoveRenderRequest,
 	RenderJob,
-	SubscribeToFileExistence,
-	UnsubscribeFromFileExistence,
 } from '../../../preview-server/render-queue/job';
 import {notificationCenter} from '../Notifications/NotificationCenter';
 
@@ -96,54 +94,16 @@ export const addStillRenderJob = ({
 	});
 };
 
-export const unsubscribeFromFileExistenceWatcher = async ({
-	file,
-}: {
-	file: string;
-}) => {
-	const body: UnsubscribeFromFileExistence = {
-		file,
-	};
-	const res = await fetch(`/api/unsubscribe-from-file-existence`, {
-		method: 'post',
-		headers: {
-			'content-type': 'application/json',
-		},
-		body: JSON.stringify(body),
-	});
-	const data = (await res.json()) as
-		| {success: true}
-		| {success: false; error: string};
-
-	if (!data.success) {
-		throw new Error(data.error);
-	}
+export const unsubscribeFromFileExistenceWatcher = ({file}: {file: string}) => {
+	return callApi('/api/unsubscribe-from-file-existence', {file});
 };
 
 export const subscribeToFileExistenceWatcher = async ({
 	file,
 }: {
 	file: string;
-}) => {
-	const body: SubscribeToFileExistence = {
-		file,
-	};
-	const res = await fetch(`/api/subscribe-to-file-existence`, {
-		method: 'post',
-		headers: {
-			'content-type': 'application/json',
-		},
-		body: JSON.stringify(body),
-	});
-	const data = (await res.json()) as
-		| {success: true; data: {exists: boolean}}
-		| {success: false; error: string};
-
-	if (!data.success) {
-		throw new Error(data.error);
-	}
-
-	const {exists} = data.data;
+}): Promise<boolean> => {
+	const {exists} = await callApi('/api/subscribe-to-file-existence', {file});
 	return exists;
 };
 
