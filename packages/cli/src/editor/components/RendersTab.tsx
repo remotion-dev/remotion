@@ -1,6 +1,6 @@
 import type {MouseEventHandler} from 'react';
 import React, {useContext, useMemo} from 'react';
-import {FAIL_COLOR} from '../helpers/colors';
+import {FAIL_COLOR, LIGHT_TEXT} from '../helpers/colors';
 import {Spacing} from './layout';
 import {RenderQueueContext} from './RenderQueue/context';
 import {Tab} from './Tabs';
@@ -36,8 +36,11 @@ export const RendersTab: React.FC<{
 	const badgeStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...badge,
-			backgroundColor: failedJobs > 0 ? FAIL_COLOR : 'white',
-			color: failedJobs > 0 ? 'white' : 'black',
+			backgroundColor: failedJobs > 0 ? FAIL_COLOR : 'transparent',
+			color: failedJobs > 0 ? 'white' : LIGHT_TEXT,
+			borderWidth: failedJobs > 0 ? 0 : 1,
+			borderStyle: 'solid',
+			borderColor: LIGHT_TEXT,
 		};
 	}, [failedJobs]);
 
