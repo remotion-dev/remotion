@@ -122,6 +122,7 @@ export const processJob = async ({
 			quality: job.quality ?? undefined,
 			imageFormat: job.imageFormat,
 			frame: job.frame,
+
 			// TODO: Allow cancel signal
 			// TODO: Accept CLI options
 		});
