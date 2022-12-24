@@ -1297,6 +1297,25 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "Funeral Collage/Slideshow",
     },
   },
+  {
+	title: "JavaScript Code Execution demo",
+	type: "mux_video",
+	muxId: "psJ32DSTQqeLaZYhBC5sa3HH7gkzwt7HinQsHela01OA",
+	description: "In this video I had explained how Javascript code gets executed. I had made this video completely using Remotion and ReactJS.",
+	height: 720,
+	width: 1280,
+	submittedOn: new Date("12-25-2022"),
+	links: [
+		{
+			type: "source_code",
+			url: "https://github.com/AmitNemade/remotion-javascript-demo",
+		},
+	],
+	author: {
+  "url": "https://www.linkedin.com/in/amitnemade/?lipi=urn%3Ali%3Apage%3Ad_flagship3_pulse_read%3BLMVZoM6pQPu27qXFUtwi4Q%3D%3D",
+  "name": "Amit Nemade"
+  }
+},
 ];
 
 const dateString = (date: Date) =>
