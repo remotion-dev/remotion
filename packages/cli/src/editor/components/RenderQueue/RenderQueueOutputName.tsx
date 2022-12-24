@@ -1,11 +1,7 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
 import {openInFileExplorer} from './actions';
 import {renderQueueItemSubtitleStyle} from './item-style';
-
-const outputLocation: React.CSSProperties = {
-	...renderQueueItemSubtitleStyle,
-};
 
 const formatOutputLocation = (location: string) => {
 	if (location.startsWith(window.remotion_cwd)) {
@@ -28,12 +24,23 @@ export const RenderQueueOutputName: React.FC<{
 		openInFileExplorer({directory: job.outputLocation});
 	}, [job.outputLocation]);
 
+	const style = useMemo((): React.CSSProperties => {
+		return {
+			...renderQueueItemSubtitleStyle,
+			cursor: job.deletedOutputLocation ? 'inherit' : 'pointer',
+			textDecoration: job.deletedOutputLocation ? 'line-through' : 'none',
+		};
+	}, [job.deletedOutputLocation]);
+
 	return (
 		<button
 			onClick={onClick}
 			type="button"
-			style={outputLocation}
-			title={job.outputLocation}
+			style={style}
+			disabled={job.deletedOutputLocation}
+			title={
+				job.deletedOutputLocation ? 'File was deleted' : job.outputLocation
+			}
 		>
 			{formatOutputLocation(job.outputLocation)}
 		</button>
