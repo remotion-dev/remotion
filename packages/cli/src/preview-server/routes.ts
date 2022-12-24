@@ -6,6 +6,7 @@ import {URLSearchParams} from 'url';
 import {getNumberOfSharedAudioTags} from '../config/number-of-shared-audio-tags';
 import {parsedCli} from '../parse-command-line';
 import {allApiRoutes} from './api-routes';
+import type {ApiHandler, ApiRoutes} from './api-types';
 import {getFileSource} from './error-overlay/react-overlay/utils/get-file-source';
 import {
 	getDisplayNameForEditor,
@@ -13,10 +14,6 @@ import {
 	launchEditor,
 } from './error-overlay/react-overlay/utils/open-in-editor';
 import type {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
-import {
-	handleSubscribeToFileExistence,
-	handleUnsubscribeToFileExistence,
-} from './file-existence-watchers';
 import {getPackageManager} from './get-package-manager';
 import {handleRequest} from './handler';
 import type {LiveEventsServer} from './live-events';
@@ -247,19 +244,14 @@ export const handleRoutes = ({
 			return handleRequest({
 				remotionRoot,
 				entryPoint,
-				handler: value,
+				handler: value as ApiHandler<
+					ApiRoutes[keyof ApiRoutes]['Request'],
+					ApiRoutes[keyof ApiRoutes]['Response']
+				>,
 				request,
 				response,
 			});
 		}
-	}
-
-	if (url.pathname === '/api/subscribe-to-file-existence') {
-		return handleSubscribeToFileExistence(remotionRoot, request, response);
-	}
-
-	if (url.pathname === '/api/unsubscribe-from-file-existence') {
-		return handleUnsubscribeToFileExistence(remotionRoot, request, response);
 	}
 
 	if (url.pathname === '/api/remove-render') {

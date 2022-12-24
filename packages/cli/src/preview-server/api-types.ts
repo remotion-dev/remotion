@@ -1,5 +1,10 @@
 import type {IncomingMessage, ServerResponse} from 'http';
-import type {AddRenderRequest} from './render-queue/job';
+import type {
+	AddRenderRequest,
+	SubscribeToFileExistenceRequest,
+	SubscribeToFileExistenceResponse,
+	UnsubscribeFromFileExistenceRequest,
+} from './render-queue/job';
 
 export type ApiHandler<ReqData, ResData> = (params: {
 	input: ReqData;
@@ -21,4 +26,12 @@ type ReqAndRes<A, B> = {
 
 export type ApiRoutes = {
 	'/api/render': ReqAndRes<AddRenderRequest, undefined>;
+	'/api/unsubscribe-from-file-existence': ReqAndRes<
+		UnsubscribeFromFileExistenceRequest,
+		undefined
+	>;
+	'/api/subscribe-to-file-existence': ReqAndRes<
+		SubscribeToFileExistenceRequest,
+		SubscribeToFileExistenceResponse
+	>;
 };
