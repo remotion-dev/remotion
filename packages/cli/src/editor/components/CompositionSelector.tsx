@@ -25,7 +25,6 @@ const container: React.CSSProperties = {
 };
 
 const list: React.CSSProperties = {
-	padding: 5,
 	height: 'calc(100% - 100px)',
 	overflowY: 'auto',
 };

@@ -17,7 +17,6 @@ const container: React.CSSProperties = {
 };
 
 const tabsContainer: React.CSSProperties = {
-	padding: 4,
 	borderBottom: `1px solid ${BORDER_COLOR}`,
 };
 
