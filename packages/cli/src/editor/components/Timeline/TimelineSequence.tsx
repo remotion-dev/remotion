@@ -14,7 +14,7 @@ import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {sliderAreaRef} from './timeline-refs';
 import {TimelineVideoInfo} from './TimelineVideoInfo';
 
-const SEQUENCE_GRADIENT = 'linear-gradient(to bottom, #3697e1, #348AC7 60%)';
+const SEQUENCE_GRADIENT = 'var(--blue)';
 const AUDIO_GRADIENT = 'linear-gradient(rgb(16 171 58), rgb(43 165 63) 60%)';
 const VIDEO_GRADIENT = 'linear-gradient(to top, #8e44ad, #9b59b6)';
 
