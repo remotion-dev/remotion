@@ -1,5 +1,5 @@
-import {useEffect, useState} from 'react';
-import {subscribeToEvent, unsubscribeFromEvent} from '../../event-source';
+import {useEffect, useRef, useState} from 'react';
+import {subscribeToEvent} from '../../event-source';
 import type {EventSourceEvent} from '../../event-source-events';
 import {
 	subscribeToFileExistenceWatcher,
@@ -8,11 +8,14 @@ import {
 
 export const useFileExistence = (outName: string) => {
 	const [exists, setExists] = useState(false);
+	const currentOutName = useRef('');
+	currentOutName.current = outName;
 
-	// TODO: React to updates
 	useEffect(() => {
 		subscribeToFileExistenceWatcher({file: outName}).then((_exists) => {
-			setExists(_exists);
+			if (currentOutName.current === outName) {
+				setExists(_exists);
+			}
 		});
 
 		return () => {
@@ -26,15 +29,19 @@ export const useFileExistence = (outName: string) => {
 				return;
 			}
 
-			if (event.file !== outName) {
+			if (event.file !== currentOutName.current) {
 				return;
 			}
 
-			setExists(false);
+			if (currentOutName.current === outName) {
+				setExists(false);
+			}
 		};
 
-		subscribeToEvent('watched-file-deleted', listener);
-		return () => unsubscribeFromEvent('watched-file-deleted', listener);
+		const unsub = subscribeToEvent('watched-file-deleted', listener);
+		return () => {
+			unsub();
+		};
 	}, [outName]);
 
 	useEffect(() => {
@@ -47,11 +54,15 @@ export const useFileExistence = (outName: string) => {
 				return;
 			}
 
-			setExists(true);
+			if (currentOutName.current === outName) {
+				setExists(true);
+			}
 		};
 
-		subscribeToEvent('watched-file-undeleted', listener);
-		return () => unsubscribeFromEvent('watched-file-undeleted', listener);
+		const unsub = subscribeToEvent('watched-file-undeleted', listener);
+		return () => {
+			unsub();
+		};
 	}, [outName]);
 
 	return exists;
