@@ -5,6 +5,27 @@ import type {EventSourceEvent} from './event-source-events';
 
 let source: EventSource | null = null;
 
+let listeners: {
+	type: string;
+	listener: (event: EventSourceEvent) => void;
+}[] = [];
+
+export const subscribeToEvent = (
+	type: EventSourceEvent['type'],
+	listener: (event: EventSourceEvent) => void
+) => {
+	listeners.push({type, listener});
+};
+
+export const unsubscribeFromEvent = (
+	type: EventSourceEvent['type'],
+	listener: (event: EventSourceEvent) => void
+) => {
+	listeners = listeners.filter(
+		(l) => l.type !== type || l.listener !== listener
+	);
+};
+
 export const openEventSource = () => {
 	source = new EventSource('/events');
 
@@ -29,6 +50,12 @@ export const openEventSource = () => {
 				id: String(Math.random()).replace('0.', ''),
 			});
 		}
+
+		listeners.forEach((l) => {
+			if (l.type === newEvent.type) {
+				l.listener(newEvent);
+			}
+		});
 	});
 
 	source.addEventListener('open', () => {
