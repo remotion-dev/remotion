@@ -5,15 +5,19 @@ import {
 	renderStill,
 } from '@remotion/renderer';
 import {ConfigInternals} from '../../config';
+import {installFileWatcher} from '../../file-watcher';
 import {getCliOptions} from '../../get-cli-options';
 import {Log} from '../../log';
 import {bundleOnCli} from '../../setup-cache';
 import {waitForLiveEventsListener} from '../live-events';
-import type {RenderJob} from './job';
+import type {RenderJob, RenderJobWithCleanup} from './job';
 
-let jobQueue: RenderJob[] = [];
+let jobQueue: RenderJobWithCleanup[] = [];
 
-const updateJob = (id: string, updater: (job: RenderJob) => RenderJob) => {
+const updateJob = (
+	id: string,
+	updater: (job: RenderJobWithCleanup) => RenderJobWithCleanup
+) => {
 	jobQueue = jobQueue.map((j) => {
 		if (id === j.id) {
 			return updater(j);
@@ -24,15 +28,18 @@ const updateJob = (id: string, updater: (job: RenderJob) => RenderJob) => {
 	notifyClientsOfJobUpdate();
 };
 
-export const getRenderQueue = () => {
-	return jobQueue;
+export const getRenderQueue = (): RenderJob[] => {
+	return jobQueue.map((j) => {
+		const {cleanup, ...rest} = j;
+		return rest;
+	});
 };
 
 export const notifyClientsOfJobUpdate = () => {
 	waitForLiveEventsListener().then((listener) => {
 		listener.sendEventToClient({
 			type: 'render-queue-updated',
-			queue: jobQueue,
+			queue: getRenderQueue(),
 		});
 	});
 };
@@ -134,7 +141,7 @@ export const addJob = ({
 	entryPoint,
 	remotionRoot,
 }: {
-	job: RenderJob;
+	job: RenderJobWithCleanup;
 	entryPoint: string;
 	remotionRoot: string;
 }) => {
@@ -145,7 +152,16 @@ export const addJob = ({
 };
 
 export const removeJob = (jobId: string) => {
-	jobQueue = jobQueue.filter((job) => job.id !== jobId);
+	jobQueue = jobQueue.filter((job) => {
+		if (job.id === jobId) {
+			job.cleanup.forEach((c) => {
+				c();
+			});
+			return false;
+		}
+
+		return true;
+	});
 	notifyClientsOfJobUpdate();
 };
 
@@ -172,12 +188,29 @@ export const processJobIfPossible = async ({
 			};
 		});
 		await processJob({job: nextJob, entryPoint, remotionRoot});
-		updateJob(nextJob.id, (job) => {
-			return {
-				...job,
-				status: 'done',
-			};
+		const unwatch = installFileWatcher({
+			file: nextJob.outputLocation,
+			onChange: (type) => {
+				if (type === 'created') {
+					updateJob(nextJob.id, (job) => ({
+						...job,
+						deletedOutputLocation: false,
+					}));
+				}
+
+				if (type === 'deleted') {
+					updateJob(nextJob.id, (job) => ({
+						...job,
+						deletedOutputLocation: true,
+					}));
+				}
+			},
 		});
+		updateJob(nextJob.id, (job) => ({
+			...job,
+			status: 'done',
+			cleanup: [...job.cleanup, unwatch],
+		}));
 	} catch (err) {
 		Log.error('Job failed: ', err);
 		updateJob(nextJob.id, (job) => {

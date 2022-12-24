@@ -35,8 +35,13 @@ export type RenderJob = {
 	compositionId: string;
 	id: string;
 	outputLocation: string;
+	deletedOutputLocation: boolean;
 } & RenderJobDynamicStatus &
 	RenderJobDynamicFields;
+
+export type RenderJobWithCleanup = RenderJob & {
+	cleanup: (() => void)[];
+};
 
 type AddRenderRequestDynamicFields =
 	| {

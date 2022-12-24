@@ -35,6 +35,8 @@ export const handleAddRender = async (
 				quality: body.quality,
 				frame: body.frame,
 				scale: body.scale,
+				cleanup: [],
+				deletedOutputLocation: false,
 			},
 			entryPoint,
 			remotionRoot,
