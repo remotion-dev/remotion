@@ -21,7 +21,6 @@ import {parseRequestBody} from './parse-body';
 import {getProjectInfo} from './project-info';
 import {handleOpenInFileExplorer} from './render-queue/open-in-file-explorer';
 import {getRenderQueue} from './render-queue/queue';
-import {handleRemoveRender} from './render-queue/remove-render';
 import {serveStatic} from './serve-static';
 import {isUpdateAvailableWithTimeout} from './update-available';
 
@@ -252,10 +251,6 @@ export const handleRoutes = ({
 				response,
 			});
 		}
-	}
-
-	if (url.pathname === '/api/remove-render') {
-		return handleRemoveRender(request, response);
 	}
 
 	if (url.pathname === '/remotion.png') {

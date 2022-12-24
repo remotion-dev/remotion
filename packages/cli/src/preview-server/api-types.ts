@@ -1,6 +1,7 @@
 import type {IncomingMessage, ServerResponse} from 'http';
 import type {
 	AddRenderRequest,
+	RemoveRenderRequest,
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse,
 	UnsubscribeFromFileExistenceRequest,
@@ -34,4 +35,5 @@ export type ApiRoutes = {
 		SubscribeToFileExistenceRequest,
 		SubscribeToFileExistenceResponse
 	>;
+	'/api/remove-render': ReqAndRes<RemoveRenderRequest, undefined>;
 };
