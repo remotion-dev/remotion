@@ -26,7 +26,8 @@ export const subscribeToFileExistenceWatchers = ({
 				waitForLiveEventsListener().then((listener) => {
 					listener.sendEventToClient({
 						type: 'watched-file-undeleted',
-						file,
+						// Must be relative file because that's what the client expects
+						file: relativeFile,
 					});
 				});
 			}
@@ -35,7 +36,8 @@ export const subscribeToFileExistenceWatchers = ({
 				waitForLiveEventsListener().then((listener) => {
 					listener.sendEventToClient({
 						type: 'watched-file-deleted',
-						file,
+						// Must be relative file because that's what the client expects
+						file: relativeFile,
 					});
 				});
 			}
