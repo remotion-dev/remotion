@@ -44,6 +44,7 @@ export const RenderQueueItem: React.FC<{
 					) : null}
 				</div>
 			</div>
+			<Spacing x={1} />
 			<RenderQueueRemoveItem job={job} />
 		</Row>
 	);

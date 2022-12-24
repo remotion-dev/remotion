@@ -1,9 +1,12 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
 import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
+import {useZIndex} from '../../state/z-index';
 import {removeRenderJob} from './actions';
 
 export const RenderQueueRemoveItem: React.FC<{job: RenderJob}> = ({job}) => {
+	const {tabIndex} = useZIndex();
+
 	const onClick = useCallback(() => {
 		removeRenderJob(job).catch((err) => {
 			// TODO: Handle error
@@ -48,6 +51,7 @@ export const RenderQueueRemoveItem: React.FC<{job: RenderJob}> = ({job}) => {
 			type="button"
 			onClick={onClick}
 			style={style}
+			tabIndex={tabIndex}
 		>
 			<svg
 				style={icon}
