@@ -5,6 +5,7 @@ import path from 'path';
 import {URLSearchParams} from 'url';
 import {getNumberOfSharedAudioTags} from '../config/number-of-shared-audio-tags';
 import {parsedCli} from '../parse-command-line';
+import {allApiRoutes} from './api-routes';
 import {getFileSource} from './error-overlay/react-overlay/utils/get-file-source';
 import {
 	getDisplayNameForEditor,
@@ -17,10 +18,10 @@ import {
 	handleUnsubscribeToFileExistence,
 } from './file-existence-watchers';
 import {getPackageManager} from './get-package-manager';
+import {handleRequest} from './handler';
 import type {LiveEventsServer} from './live-events';
 import {parseRequestBody} from './parse-body';
 import {getProjectInfo} from './project-info';
-import {handleAddRender} from './render-queue/add-render';
 import {handleOpenInFileExplorer} from './render-queue/open-in-file-explorer';
 import {getRenderQueue} from './render-queue/queue';
 import {handleRemoveRender} from './render-queue/remove-render';
@@ -241,8 +242,16 @@ export const handleRoutes = ({
 		return handleOpenInFileExplorer(request, response);
 	}
 
-	if (url.pathname === '/api/render') {
-		return handleAddRender(remotionRoot, request, response, entryPoint);
+	for (const [key, value] of Object.entries(allApiRoutes)) {
+		if (url.pathname === key) {
+			return handleRequest({
+				remotionRoot,
+				entryPoint,
+				handler: value,
+				request,
+				response,
+			});
+		}
 	}
 
 	if (url.pathname === '/api/subscribe-to-file-existence') {

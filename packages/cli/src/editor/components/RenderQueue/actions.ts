@@ -1,7 +1,7 @@
 import type {StillImageFormat} from '@remotion/renderer';
 import type {TCompMetadata} from 'remotion';
+import type {ApiRoutes} from '../../../preview-server/api-types';
 import type {
-	AddRenderRequest,
 	OpenInFileExplorerRequest,
 	RemoveRenderRequest,
 	RenderJob,
@@ -38,6 +38,38 @@ export const removeRenderJob = (job: RenderJob) => {
 	});
 };
 
+export const callApi = <Endpoint extends keyof ApiRoutes>(
+	endpoint: Endpoint,
+	body: ApiRoutes[Endpoint]['Request']
+): Promise<ApiRoutes[Endpoint]['Response']> => {
+	return new Promise<ApiRoutes[Endpoint]['Response']>((resolve, reject) => {
+		fetch(endpoint, {
+			method: 'post',
+			headers: {
+				'content-type': 'application/json',
+			},
+			body: JSON.stringify(body),
+		})
+			.then((res) => res.json())
+			.then(
+				(
+					data:
+						| {success: true; data: ApiRoutes[Endpoint]['Response']}
+						| {success: false; error: string}
+				) => {
+					if (data.success) {
+						resolve(data.data);
+					} else {
+						reject(new Error(data.error));
+					}
+				}
+			)
+			.catch((err) => {
+				reject(err);
+			});
+	});
+};
+
 export const addStillRenderJob = ({
 	composition,
 	outName,
@@ -53,7 +85,7 @@ export const addStillRenderJob = ({
 	frame: number;
 	scale: number;
 }) => {
-	const body: AddRenderRequest = {
+	return callApi('/api/render', {
 		compositionId: composition.id,
 		type: 'still',
 		outName,
@@ -61,28 +93,6 @@ export const addStillRenderJob = ({
 		quality,
 		frame,
 		scale,
-	};
-
-	return new Promise<void>((resolve, reject) => {
-		fetch(`/api/render`, {
-			method: 'post',
-			headers: {
-				'content-type': 'application/json',
-			},
-			body: JSON.stringify(body),
-		})
-			.then((res) => res.json())
-			.then((data: {success: boolean}) => {
-				if (data.success) {
-					resolve();
-				} else {
-					// TODO: Why?
-					reject(new Error('Failed to add render job'));
-				}
-			})
-			.catch((err) => {
-				reject(err);
-			});
 	});
 };
 
