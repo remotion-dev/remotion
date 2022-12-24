@@ -3,36 +3,13 @@ import type {TCompMetadata} from 'remotion';
 import type {ApiRoutes} from '../../../preview-server/api-types';
 import type {
 	OpenInFileExplorerRequest,
-	RemoveRenderRequest,
 	RenderJob,
 } from '../../../preview-server/render-queue/job';
 import {notificationCenter} from '../Notifications/NotificationCenter';
 
 export const removeRenderJob = (job: RenderJob) => {
-	const body: RemoveRenderRequest = {
+	return callApi('/api/remove-render', {
 		jobId: job.id,
-	};
-
-	return new Promise<void>((resolve, reject) => {
-		fetch(`/api/remove-render`, {
-			method: 'post',
-			headers: {
-				'content-type': 'application/json',
-			},
-			body: JSON.stringify(body),
-		})
-			.then((res) => res.json())
-			.then((data: {success: boolean}) => {
-				if (data.success) {
-					resolve();
-				} else {
-					// TODO: Why?
-					reject(new Error('Failed to remove render job'));
-				}
-			})
-			.catch((err) => {
-				reject(err);
-			});
 	});
 };
 
