@@ -1,6 +1,7 @@
 import type {IncomingMessage, ServerResponse} from 'http';
 import type {
 	AddRenderRequest,
+	OpenInFileExplorerRequest,
 	RemoveRenderRequest,
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse,
@@ -36,4 +37,5 @@ export type ApiRoutes = {
 		SubscribeToFileExistenceResponse
 	>;
 	'/api/remove-render': ReqAndRes<RemoveRenderRequest, undefined>;
+	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
 };

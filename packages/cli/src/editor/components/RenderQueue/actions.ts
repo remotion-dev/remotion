@@ -5,13 +5,6 @@ import type {
 	OpenInFileExplorerRequest,
 	RenderJob,
 } from '../../../preview-server/render-queue/job';
-import {notificationCenter} from '../Notifications/NotificationCenter';
-
-export const removeRenderJob = (job: RenderJob) => {
-	return callApi('/api/remove-render', {
-		jobId: job.id,
-	});
-};
 
 export const callApi = <Endpoint extends keyof ApiRoutes>(
 	endpoint: Endpoint,
@@ -88,32 +81,11 @@ export const openInFileExplorer = ({directory}: {directory: string}) => {
 	const body: OpenInFileExplorerRequest = {
 		directory,
 	};
-	fetch(`/api/open-in-file-explorer`, {
-		method: 'post',
-		headers: {
-			'content-type': 'application/json',
-		},
-		body: JSON.stringify(body),
-	})
-		.then((res) => res.json())
-		.then((data: {success: true} | {success: false; error: string}) => {
-			if (data.success) {
-				console.log('Opened file in explorer');
-			} else {
-				notificationCenter.current?.addNotification({
-					content: `Could not open file: ${data.error}`,
-					created: Date.now(),
-					duration: 2000,
-					id: String(Math.random()),
-				});
-			}
-		})
-		.catch((err) => {
-			notificationCenter.current?.addNotification({
-				content: `Could not open file: ${err.message}`,
-				created: Date.now(),
-				duration: 2000,
-				id: String(Math.random()),
-			});
-		});
+	return callApi('/api/open-in-file-explorer', body);
+};
+
+export const removeRenderJob = (job: RenderJob) => {
+	return callApi('/api/remove-render', {
+		jobId: job.id,
+	});
 };

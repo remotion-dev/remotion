@@ -19,7 +19,6 @@ import {handleRequest} from './handler';
 import type {LiveEventsServer} from './live-events';
 import {parseRequestBody} from './parse-body';
 import {getProjectInfo} from './project-info';
-import {handleOpenInFileExplorer} from './render-queue/open-in-file-explorer';
 import {getRenderQueue} from './render-queue/queue';
 import {serveStatic} from './serve-static';
 import {isUpdateAvailableWithTimeout} from './update-available';
@@ -232,10 +231,6 @@ export const handleRoutes = ({
 
 	if (url.pathname === '/api/open-in-editor') {
 		return handleOpenInEditor(remotionRoot, request, response);
-	}
-
-	if (url.pathname === '/api/open-in-file-explorer') {
-		return handleOpenInFileExplorer(request, response);
 	}
 
 	for (const [key, value] of Object.entries(allApiRoutes)) {
