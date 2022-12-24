@@ -92,6 +92,7 @@ const rightRow: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	justifyContent: 'flex-end',
+	alignSelf: 'center',
 	flex: 1,
 };
 
