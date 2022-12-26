@@ -25,7 +25,7 @@ export const Flex: React.FC<{
 }> = ({children}) => <div style={flex}>{children}</div>;
 
 export const Row: React.FC<{
-	justify?: 'center';
+	justify?: 'center' | 'flex-start' | 'flex-end';
 	align?: 'center';
 	style?: React.CSSProperties;
 	className?: string;

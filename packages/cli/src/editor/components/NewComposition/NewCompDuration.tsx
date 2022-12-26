@@ -46,7 +46,10 @@ export const NewCompDuration: React.FC<{
 							onValueChange={onDurationChangedDirectly}
 						/>
 						{compDurationErrMessage ? (
-							<ValidationMessage message={compDurationErrMessage} />
+							<ValidationMessage
+								align="flex-start"
+								message={compDurationErrMessage}
+							/>
 						) : null}
 					</div>
 					<span style={rightLabel}>
