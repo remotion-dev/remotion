@@ -4,6 +4,7 @@ import {Row, Spacing} from '../layout';
 import {RenderQueueError} from './RenderQueueError';
 import {RenderQueueItemStatus} from './RenderQueueItemStatus';
 import {RenderQueueOutputName} from './RenderQueueOutputName';
+import {RenderQueueProgressMessage} from './RenderQueueProgressMessage';
 import {RenderQueueRemoveItem} from './RenderQueueRemoveItem';
 
 const container: React.CSSProperties = {
@@ -46,6 +47,8 @@ export const RenderQueueItem: React.FC<{
 						<RenderQueueOutputName job={job} />
 					) : job.status === 'failed' ? (
 						<RenderQueueError job={job} />
+					) : job.status === 'running' ? (
+						<RenderQueueProgressMessage job={job} />
 					) : null}
 				</div>
 			</div>

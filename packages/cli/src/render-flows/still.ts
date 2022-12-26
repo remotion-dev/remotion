@@ -107,13 +107,13 @@ export const renderStillFlow = async ({
 	let renderProgress: OverwriteableCliOutput | null = null;
 
 	const updateProgress = () => {
-		const {output, progress} = makeRenderingAndStitchingProgress(aggregate);
+		const {output, progress, message} =
+			makeRenderingAndStitchingProgress(aggregate);
 		if (renderProgress) {
 			renderProgress.update(output);
 		}
 
-		// TODO: Better message than Rendering...
-		onProgress({progress, message: 'Rendering...'});
+		onProgress({progress, message});
 	};
 
 	Log.verbose('Browser executable: ', browserExecutable);

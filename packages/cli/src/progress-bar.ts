@@ -211,12 +211,14 @@ export type AggregateRenderProgress = {
 	bundling: number;
 };
 
-export const makeRenderingAndStitchingProgress = ({
-	rendering,
-	stitching,
-	downloads,
-	bundling,
-}: AggregateRenderProgress) => {
+export const makeRenderingAndStitchingProgress = (
+	prog: AggregateRenderProgress
+): {
+	output: string;
+	progress: number;
+	message: string;
+} => {
+	const {rendering, stitching, downloads, bundling} = prog;
 	const output = [
 		rendering ? makeRenderingProgress(rendering) : null,
 		makeMultiDownloadProgress(downloads),
@@ -231,5 +233,14 @@ export const makeRenderingAndStitchingProgress = ({
 	// TODO: Factor in stitching progress
 	const progress = bundling * 0.3 + renderProgress * 0.7;
 
-	return {output, progress};
+	return {output, progress, message: getMessage(prog)};
+};
+
+export const getMessage = (progress: AggregateRenderProgress): string => {
+	if (progress.bundling < 1) {
+		return `Bundling ${Math.round(progress.bundling * 100)}%`;
+	}
+
+	// TODO: Better message than "Rendering..."
+	return `Rendering...`;
 };
