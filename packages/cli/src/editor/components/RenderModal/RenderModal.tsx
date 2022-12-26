@@ -301,7 +301,10 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 								onChange={onValueChange}
 							/>
 							{existence ? (
-								<ValidationMessage message="Will be overwritten" />
+								<ValidationMessage
+									align="flex-end"
+									message="Will be overwritten"
+								/>
 							) : null}
 						</div>
 					</div>

@@ -271,7 +271,10 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 										placeholder="Composition name"
 									/>
 									{compNameErrMessage ? (
-										<ValidationMessage message={compNameErrMessage} />
+										<ValidationMessage
+											align="flex-start"
+											message={compNameErrMessage}
+										/>
 									) : null}
 								</div>
 							</Row>
@@ -296,7 +299,10 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 													onValueChange={onWidthDirectlyChanged}
 												/>
 												{compWidthErrMessage ? (
-													<ValidationMessage message={compWidthErrMessage} />
+													<ValidationMessage
+														align="flex-start"
+														message={compWidthErrMessage}
+													/>
 												) : null}
 											</div>
 										</Row>
@@ -321,7 +327,10 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 												onValueChange={onHeightDirectlyChanged}
 											/>
 											{compHeightErrMessage ? (
-												<ValidationMessage message={compHeightErrMessage} />
+												<ValidationMessage
+													align="flex-start"
+													message={compHeightErrMessage}
+												/>
 											) : null}
 										</div>
 									</Row>

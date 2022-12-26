@@ -24,15 +24,15 @@ const container: React.CSSProperties = {
 
 const label: React.CSSProperties = {
 	fontSize: 13,
-	flex: 1,
 };
 
 export const ValidationMessage: React.FC<{
 	message: string;
-}> = ({message}) => {
+	align: 'flex-start' | 'flex-end';
+}> = ({message, align}) => {
 	return (
 		<div style={container}>
-			<Row align="center">
+			<Row align="center" justify={align}>
 				<Triangle style={style} color="#f1c40f" />
 				<Spacing x={1} />
 				<div style={label}>{message}</div>
