@@ -140,11 +140,11 @@ export const CompositionSelectorItem: React.FC<{
 					{item.expanded ? (
 						<ExpandedFolderIcon
 							style={iconStyle}
-							color={hovered ? 'white' : LIGHT_TEXT}
+							color={hovered || selected ? 'white' : LIGHT_TEXT}
 						/>
 					) : (
 						<CollapsedFolderIcon
-							color={hovered ? 'white' : LIGHT_TEXT}
+							color={hovered || selected ? 'white' : LIGHT_TEXT}
 							style={iconStyle}
 						/>
 					)}
@@ -181,9 +181,15 @@ export const CompositionSelectorItem: React.FC<{
 				type="button"
 			>
 				{isCompositionStill(item.composition) ? (
-					<StillIcon color={hovered ? 'white' : LIGHT_TEXT} style={iconStyle} />
+					<StillIcon
+						color={hovered || selected ? 'white' : LIGHT_TEXT}
+						style={iconStyle}
+					/>
 				) : (
-					<FilmIcon color={hovered ? 'white' : LIGHT_TEXT} style={iconStyle} />
+					<FilmIcon
+						color={hovered || selected ? 'white' : LIGHT_TEXT}
+						style={iconStyle}
+					/>
 				)}
 				<Spacing x={1} />
 				<div style={label}>{item.composition.id}</div>
