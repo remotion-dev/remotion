@@ -6,6 +6,7 @@ import type {
 	ChromiumOptions,
 	FfmpegExecutable,
 	RenderMediaOnDownload,
+	StillImageFormat,
 } from '@remotion/renderer';
 import {
 	getCompositions,
@@ -57,10 +58,10 @@ export const renderStillFlow = async ({
 	stillFrame,
 	width,
 	compositionIdFromUi,
+	imageFormatFromUi,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
-	entryPoint: string | null;
 	entryPointReason: string;
 	remainingArgs: string[];
 	inputProps: object;
@@ -80,6 +81,7 @@ export const renderStillFlow = async ({
 	height: number | null;
 	width: number | null;
 	compositionIdFromUi: string | null;
+	imageFormatFromUi: StillImageFormat | null;
 }) => {
 	const startTime = Date.now();
 
@@ -130,12 +132,12 @@ export const renderStillFlow = async ({
 			compositionIdFromUi,
 		});
 	const {format: imageFormat, source} = determineFinalImageFormat({
-		// TODO: Should factor in browser
 		cliFlag: parsedCli['image-format'] ?? null,
 		configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
 		downloadName: null,
 		outName: getUserPassedOutputLocation(argsAfterComposition),
 		isLambda: false,
+		fromUi: imageFormatFromUi,
 	});
 
 	const relativeOutputLocation = getOutputLocation({

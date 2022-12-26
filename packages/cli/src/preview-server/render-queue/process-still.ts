@@ -41,7 +41,6 @@ export const processStill = async ({
 		browserExecutable,
 		chromiumOptions,
 		entryPointReason: 'from preview',
-		entryPoint,
 		envVariables,
 		ffmpegExecutable,
 		ffprobeExecutable,
@@ -58,6 +57,7 @@ export const processStill = async ({
 		stillFrame: job.frame,
 		width: null,
 		compositionIdFromUi: job.compositionId,
+		imageFormatFromUi: job.imageFormat,
 	});
 	// TODO: Write download progress to CLI
 	// TODO: Allow cancel signal
