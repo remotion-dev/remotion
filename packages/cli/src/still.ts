@@ -57,7 +57,6 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		remotionRoot,
 		entryPointReason,
 		fullEntryPoint: fullPath,
-		entryPoint: file,
 		remainingArgs,
 		browser,
 		browserExecutable,
@@ -76,5 +75,6 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		stillFrame,
 		width,
 		compositionIdFromUi: null,
+		imageFormatFromUi: null,
 	});
 };

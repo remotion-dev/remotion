@@ -24,13 +24,19 @@ export const determineFinalImageFormat = ({
 	configImageFormat,
 	cliFlag,
 	isLambda,
+	fromUi,
 }: {
 	downloadName: string | null;
 	outName: string | null;
 	configImageFormat: ImageFormat | null;
 	cliFlag: ImageFormat | null;
 	isLambda: boolean;
+	fromUi: StillImageFormat | null;
 }): {format: StillImageFormat; source: string} => {
+	if (fromUi) {
+		return {format: fromUi, source: 'Specified via UI'};
+	}
+
 	const outNameExtension = deriveExtensionFromFilename(outName);
 	const downloadNameExtension = deriveExtensionFromFilename(downloadName);
 
