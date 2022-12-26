@@ -4,7 +4,7 @@ import path from 'path';
 export const convertEntryPointToServeUrl = (entryPoint: string) => {
 	const fullPath = RenderInternals.isServeUrl(entryPoint)
 		? entryPoint
-		: path.join(process.cwd(), entryPoint);
+		: path.resolve(process.cwd(), entryPoint);
 
 	return fullPath;
 };

@@ -91,11 +91,15 @@ export const renderStillFlow = async ({
 	const startTime = Date.now();
 
 	Log.verbose('Browser executable: ', browserExecutable);
+	const shouldDumpIo = RenderInternals.isEqualOrBelowLogLevel(
+		logLevel,
+		'verbose'
+	);
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
 		chromiumOptions,
-		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+		shouldDumpIo,
 		forceDeviceScaleFactor: scale,
 	});
 
@@ -212,10 +216,7 @@ export const renderStillFlow = async ({
 		output: absoluteOutputLocation,
 		serveUrl: urlOrBundle,
 		quality,
-		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
-			logLevel,
-			'verbose'
-		),
+		dumpBrowserLogs: shouldDumpIo,
 		envVariables,
 		imageFormat,
 		inputProps,

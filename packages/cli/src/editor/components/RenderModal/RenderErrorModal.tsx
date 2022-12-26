@@ -20,7 +20,8 @@ const codeBlock: React.CSSProperties = {
 	padding: 12,
 	borderRadius: 4,
 	fontFamily: 'monospace',
-	overflowX: 'auto',
+	overflow: 'auto',
+	maxHeight: 300,
 };
 
 const spacer: React.CSSProperties = {

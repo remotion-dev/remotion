@@ -25,7 +25,12 @@ const right: React.CSSProperties = {
 	overflow: 'hidden',
 };
 
-const subtitle: React.CSSProperties = {};
+const subtitle: React.CSSProperties = {
+	maxWidth: '100%',
+	flex: 1,
+	display: 'flex',
+	overflow: 'hidden',
+};
 
 export const RenderQueueItem: React.FC<{
 	job: RenderJob;

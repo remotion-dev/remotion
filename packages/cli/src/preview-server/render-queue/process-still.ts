@@ -42,7 +42,7 @@ export const processStill = async ({
 		browser,
 		browserExecutable,
 		chromiumOptions,
-		entryPointReason: 'from preview',
+		entryPointReason: 'same as preview',
 		envVariables,
 		ffmpegExecutable,
 		ffprobeExecutable,

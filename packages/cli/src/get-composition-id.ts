@@ -18,7 +18,7 @@ const getCompName = ({
 		return {
 			compName: compositionIdFromUi,
 			remainingArgs: [],
-			reason: 'from Preview',
+			reason: 'via UI',
 		};
 	}
 
