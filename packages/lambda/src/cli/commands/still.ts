@@ -1,4 +1,4 @@
-import {CliInternals, ConfigInternals} from '@remotion/cli';
+import {CliInternals} from '@remotion/cli';
 import {getCompositions, RenderInternals} from '@remotion/renderer';
 import {downloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
@@ -58,6 +58,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		scale,
 		height,
 		width,
+		configFileImageFormat,
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
@@ -76,9 +77,10 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		CliInternals.determineFinalImageFormat({
 			downloadName,
 			outName: outName ?? null,
-			configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
+			configImageFormat: configFileImageFormat ?? null,
 			cliFlag: CliInternals.parsedCli['image-format'] ?? null,
 			isLambda: true,
+			fromUi: null,
 		});
 
 	try {

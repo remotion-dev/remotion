@@ -42,13 +42,14 @@ export const getRenderMediaOptions = async ({
 		videoBitrate,
 		height,
 		width,
+		configFileImageFormat,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
 		remotionRoot,
 	});
 
-	const imageFormat = getImageFormat(codec);
+	const imageFormat = getImageFormat(codec, configFileImageFormat);
 
 	return {
 		outputLocation,

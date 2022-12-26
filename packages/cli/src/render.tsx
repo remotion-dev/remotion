@@ -86,6 +86,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		publicDir,
 		height,
 		width,
+		configFileImageFormat,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -252,7 +253,8 @@ export const render = async (remotionRoot: string, args: string[]) => {
 	};
 
 	const imageFormat = getImageFormat(
-		shouldOutputImageSequence ? undefined : codec
+		shouldOutputImageSequence ? undefined : codec,
+		configFileImageFormat
 	);
 
 	if (shouldOutputImageSequence) {

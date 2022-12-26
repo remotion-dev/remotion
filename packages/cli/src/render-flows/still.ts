@@ -5,6 +5,8 @@ import type {
 	BrowserExecutable,
 	ChromiumOptions,
 	FfmpegExecutable,
+	ImageFormat,
+	LogLevel,
 	RenderMediaOnDownload,
 	StillImageFormat,
 } from '@remotion/renderer';
@@ -17,7 +19,6 @@ import {
 import {mkdirSync} from 'fs';
 import path from 'path';
 import {chalk} from '../chalk';
-import {ConfigInternals} from '../config';
 import {determineFinalImageFormat} from '../determine-image-format';
 import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
@@ -59,6 +60,8 @@ export const renderStillFlow = async ({
 	width,
 	compositionIdFromUi,
 	imageFormatFromUi,
+	logLevel,
+	configFileImageFormat,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -82,6 +85,8 @@ export const renderStillFlow = async ({
 	width: number | null;
 	compositionIdFromUi: string | null;
 	imageFormatFromUi: StillImageFormat | null;
+	logLevel: LogLevel;
+	configFileImageFormat: ImageFormat | undefined;
 }) => {
 	const startTime = Date.now();
 
@@ -90,10 +95,7 @@ export const renderStillFlow = async ({
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
 		chromiumOptions,
-		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(
-			ConfigInternals.Logging.getLogLevel(),
-			'verbose'
-		),
+		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		forceDeviceScaleFactor: scale,
 	});
 
@@ -133,7 +135,7 @@ export const renderStillFlow = async ({
 		});
 	const {format: imageFormat, source} = determineFinalImageFormat({
 		cliFlag: parsedCli['image-format'] ?? null,
-		configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
+		configImageFormat: configFileImageFormat ?? null,
 		downloadName: null,
 		outName: getUserPassedOutputLocation(argsAfterComposition),
 		isLambda: false,
@@ -211,14 +213,14 @@ export const renderStillFlow = async ({
 		serveUrl: urlOrBundle,
 		quality,
 		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
-			ConfigInternals.Logging.getLogLevel(),
+			logLevel,
 			'verbose'
 		),
 		envVariables,
 		imageFormat,
 		inputProps,
 		chromiumOptions,
-		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: puppeteerTimeout,
 		scale,
 		ffmpegExecutable,
 		browserExecutable,
