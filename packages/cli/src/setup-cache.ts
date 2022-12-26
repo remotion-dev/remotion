@@ -77,14 +77,7 @@ export const bundleOnCli = async ({
 			steps,
 			doneIn: null,
 		};
-		bundlingProgress.update(
-			makeBundlingAndCopyProgress({
-				bundling: bundlingState,
-				copying: copyingState,
-				symLinks: symlinkState,
-			})
-		);
-		progCallback(progress / 100);
+		updateProgress(false);
 	};
 
 	let copyingState: CopyingState = {
@@ -102,6 +95,8 @@ export const bundleOnCli = async ({
 				symLinks: symlinkState,
 			}) + (newline ? '\n' : '')
 		);
+		// TODO: Take copying into account
+		progCallback(bundlingState.progress);
 	};
 
 	const onPublicDirCopyProgress = (bytes: number) => {
