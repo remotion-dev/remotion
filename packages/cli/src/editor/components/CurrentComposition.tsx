@@ -8,10 +8,10 @@ import {Spacing} from './layout';
 import {Thumbnail} from './Thumbnail';
 
 const container: React.CSSProperties = {
-	minHeight: 100,
+	minHeight: 70,
 	display: 'block',
 	borderBottom: `1px solid ${BORDER_COLOR}`,
-	padding: 16,
+	padding: 12,
 	color: 'white',
 	backgroundColor: BACKGROUND,
 };
