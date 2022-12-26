@@ -50,8 +50,7 @@ export const RenderQueueItemStatus: React.FC<{
 	}
 
 	if (job.status === 'running') {
-		// TODO: Put job progress
-		return <CircularProgress progress={0.5} />;
+		return <CircularProgress progress={job.progress} />;
 	}
 
 	throw new Error('Unknown job status');

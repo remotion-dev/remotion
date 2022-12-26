@@ -80,5 +80,6 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		imageFormatFromUi: null,
 		configFileImageFormat,
 		logLevel,
+		onProgress: () => undefined,
 	});
 };
