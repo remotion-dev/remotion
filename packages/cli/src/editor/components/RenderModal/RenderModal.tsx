@@ -15,6 +15,7 @@ import {Button} from '../../../preview-server/error-overlay/remotion-overlay/But
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {useFileExistence} from '../../helpers/use-file-existence';
 import {ModalsContext} from '../../state/modals';
+import {CollapsableOptions} from '../CollapsableOptions';
 import {Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
@@ -305,41 +306,45 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 						</div>
 					</div>
 				</div>
-				<div style={optionRow}>
-					<div style={label}>Scale</div>
-					<div style={rightRow}>
-						<InputDragger
-							value={scale}
-							onChange={onScaleChanged}
-							placeholder="0.1-10"
-							// TODO: Does not allow non-integer steps
-							// TODO: Cannot click and type in 0.2
-							onValueChange={onScaleSetDirectly}
-							name="scale"
-							step={0.05}
-							min={MIN_SCALE}
-							max={MAX_SCALE}
-						/>
-					</div>
-				</div>
-				{imageFormat === 'jpeg' && (
+				<CollapsableOptions
+					showLabel="Show advanced settings"
+					hideLabel="Hide advanced settings"
+				>
 					<div style={optionRow}>
-						<div style={label}>Quality</div>
+						<div style={label}>Scale</div>
 						<div style={rightRow}>
 							<InputDragger
-								value={quality}
-								onChange={onQualityChanged}
-								placeholder="0-100"
-								onValueChange={onQualityChangedDirectly}
-								name="quality"
-								step={1}
-								min={MIN_QUALITY}
-								max={MAX_QUALITY}
+								value={scale}
+								onChange={onScaleChanged}
+								placeholder="0.1-10"
+								// TODO: Does not allow non-integer steps
+								// TODO: Cannot click and type in 0.2
+								onValueChange={onScaleSetDirectly}
+								name="scale"
+								step={0.05}
+								min={MIN_SCALE}
+								max={MAX_SCALE}
 							/>
 						</div>
 					</div>
-				)}
-
+					{imageFormat === 'jpeg' && (
+						<div style={optionRow}>
+							<div style={label}>JPEG Quality</div>
+							<div style={rightRow}>
+								<InputDragger
+									value={quality}
+									onChange={onQualityChanged}
+									placeholder="0-100"
+									onValueChange={onQualityChangedDirectly}
+									name="quality"
+									step={1}
+									min={MIN_QUALITY}
+									max={MAX_QUALITY}
+								/>
+							</div>
+						</div>
+					)}
+				</CollapsableOptions>
 				<Spacing block y={0.5} />
 				<div style={buttonRow}>
 					<Button onClick={onClick} disabled={state.type === 'load'}>
