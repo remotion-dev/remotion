@@ -34,7 +34,7 @@ export const ValidationMessage: React.FC<{
 	return (
 		<div style={container}>
 			<Row align="center" justify={align}>
-				<WarningTriangle style={style} color={} />
+				<WarningTriangle style={style} />
 				<Spacing x={1} />
 				<div style={label}>{message}</div>
 			</Row>
