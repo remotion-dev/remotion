@@ -4,6 +4,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useMemo,
 	useReducer,
 	useRef,
 	useState,
@@ -21,6 +22,8 @@ import {InputDragger} from '../NewComposition/InputDragger';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {addStillRenderJob} from '../RenderQueue/actions';
+import type {SegmentedControlItem} from '../SegmentedControl';
+import {SegmentedControl} from '../SegmentedControl';
 import {leftSidebarTabs} from '../SidebarContent';
 
 type State =
@@ -256,6 +259,23 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 
 	const existence = useFileExistence(outName);
 
+	const imageFormatOptions = useMemo((): SegmentedControlItem[] => {
+		return [
+			{
+				label: 'PNG',
+				onClick: setPng,
+				key: 'png',
+				selected: imageFormat === 'png',
+			},
+			{
+				label: 'JPEG',
+				onClick: setJpeg,
+				key: 'jpeg',
+				selected: imageFormat === 'jpeg',
+			},
+		];
+	}, [imageFormat, setJpeg, setPng]);
+
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title={`Render ${composition.id}`} />
@@ -264,12 +284,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 				<div style={optionRow}>
 					<div style={label}>Format</div>
 					<div style={rightRow}>
-						<button type="button" onClick={setPng}>
-							PNG
-						</button>
-						<button type="button" onClick={setJpeg}>
-							JPEG
-						</button>
+						<SegmentedControl items={imageFormatOptions} />
 					</div>
 				</div>
 				<div style={optionRow}>
