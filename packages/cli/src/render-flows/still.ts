@@ -25,7 +25,11 @@ import {getCompositionWithDimensionOverride} from '../get-composition-with-dimen
 import {Log} from '../log';
 import {parsedCli, quietFlagProvided} from '../parse-command-line';
 import type {JobProgressCallback} from '../preview-server/render-queue/job';
-import type {DownloadProgress} from '../progress-bar';
+import type {
+	AggregateRenderProgress,
+	DownloadProgress,
+	OverwriteableCliOutput,
+} from '../progress-bar';
 import {
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,
@@ -92,6 +96,25 @@ export const renderStillFlow = async ({
 	onProgress: JobProgressCallback;
 }) => {
 	const startTime = Date.now();
+	const downloads: DownloadProgress[] = [];
+
+	const aggregate: AggregateRenderProgress = {
+		rendering: null,
+		downloads,
+		stitching: null,
+		bundling: 1,
+	};
+	let renderProgress: OverwriteableCliOutput | null = null;
+
+	const updateProgress = () => {
+		const {output, progress} = makeRenderingAndStitchingProgress(aggregate);
+		if (renderProgress) {
+			renderProgress.update(output);
+		}
+
+		// TODO: Better message than Rendering...
+		onProgress({progress, message: 'Rendering...'});
+	};
 
 	Log.verbose('Browser executable: ', browserExecutable);
 	const shouldDumpIo = RenderInternals.isEqualOrBelowLogLevel(
@@ -118,15 +141,11 @@ export const renderStillFlow = async ({
 			steps,
 			publicDir,
 			onProgress: (progress) => {
-				onProgress({message: 'Bundling...', progress});
+				aggregate.bundling = progress;
+				updateProgress();
 			},
 		}
 	);
-
-	onProgress({
-		message: 'Opening browser',
-		progress: 0,
-	});
 
 	const puppeteerInstance = await browserInstance;
 
@@ -184,27 +203,15 @@ export const renderStillFlow = async ({
 		)
 	);
 
-	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
+	renderProgress = createOverwriteableCliOutput(quietFlagProvided());
 	const renderStart = Date.now();
 
-	const downloads: DownloadProgress[] = [];
-	let frames = 0;
-	const totalFrames = 1;
-
-	const updateProgress = () => {
-		renderProgress.update(
-			makeRenderingAndStitchingProgress({
-				rendering: {
-					frames,
-					concurrency: 1,
-					doneIn: frames === totalFrames ? Date.now() - renderStart : null,
-					steps,
-					totalFrames,
-				},
-				downloads,
-				stitching: null,
-			})
-		);
+	aggregate.rendering = {
+		frames: 0,
+		concurrency: 1,
+		doneIn: null,
+		steps,
+		totalFrames: 1,
 	};
 
 	updateProgress();
@@ -248,7 +255,13 @@ export const renderStillFlow = async ({
 		downloadMap,
 	});
 
-	frames = 1;
+	aggregate.rendering = {
+		frames: 1,
+		concurrency: 1,
+		doneIn: Date.now() - renderStart,
+		steps,
+		totalFrames: 1,
+	};
 	updateProgress();
 	Log.info();
 

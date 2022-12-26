@@ -28,7 +28,13 @@ export const createProgressBar = (
 	return createOverwriteableCliOutput(quiet);
 };
 
-export const createOverwriteableCliOutput = (quiet: boolean) => {
+export type OverwriteableCliOutput = {
+	update: (up: string) => boolean;
+};
+
+export const createOverwriteableCliOutput = (
+	quiet: boolean
+): OverwriteableCliOutput => {
 	if (quiet) {
 		return {
 			update: () => false,
@@ -198,20 +204,32 @@ export type DownloadProgress = {
 	downloaded: number;
 };
 
+export type AggregateRenderProgress = {
+	rendering: RenderingProgressInput | null;
+	stitching: StitchingProgressInput | null;
+	downloads: DownloadProgress[];
+	bundling: number;
+};
+
 export const makeRenderingAndStitchingProgress = ({
 	rendering,
 	stitching,
 	downloads,
-}: {
-	rendering: RenderingProgressInput;
-	stitching: StitchingProgressInput | null;
-	downloads: DownloadProgress[];
-}) => {
-	return [
-		makeRenderingProgress(rendering),
+	bundling,
+}: AggregateRenderProgress) => {
+	const output = [
+		rendering ? makeRenderingProgress(rendering) : null,
 		makeMultiDownloadProgress(downloads),
 		stitching === null ? null : makeStitchingProgress(stitching),
 	]
 		.filter(truthy)
 		.join('\n');
+	const renderProgress = rendering
+		? rendering.frames / rendering.totalFrames
+		: 0;
+
+	// TODO: Factor in stitching progress
+	const progress = bundling * 0.3 + renderProgress * 0.7;
+
+	return {output, progress};
 };

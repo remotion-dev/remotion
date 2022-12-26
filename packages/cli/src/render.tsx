@@ -229,28 +229,28 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			throw new Error('totalFrames should not be 0');
 		}
 
-		return renderProgress.update(
-			makeRenderingAndStitchingProgress({
-				rendering: {
-					frames: renderedFrames,
-					totalFrames: totalFrames.length,
-					concurrency: RenderInternals.getActualConcurrency(concurrency),
-					doneIn: renderedDoneIn,
-					steps,
-				},
-				stitching: shouldOutputImageSequence
-					? null
-					: {
-							doneIn: encodedDoneIn,
-							frames: encodedFrames,
-							stage: stitchStage,
-							steps,
-							totalFrames: totalFrames.length,
-							codec,
-					  },
-				downloads,
-			})
-		);
+		const {output} = makeRenderingAndStitchingProgress({
+			rendering: {
+				frames: renderedFrames,
+				totalFrames: totalFrames.length,
+				concurrency: RenderInternals.getActualConcurrency(concurrency),
+				doneIn: renderedDoneIn,
+				steps,
+			},
+			stitching: shouldOutputImageSequence
+				? null
+				: {
+						doneIn: encodedDoneIn,
+						frames: encodedFrames,
+						stage: stitchStage,
+						steps,
+						totalFrames: totalFrames.length,
+						codec,
+				  },
+			downloads,
+			bundling: 1,
+		});
+		return renderProgress.update(output);
 	};
 
 	const imageFormat = getImageFormat(

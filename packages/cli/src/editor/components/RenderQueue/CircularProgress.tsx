@@ -31,9 +31,8 @@ export const CircularProgress: React.FC<{
 				cy={RENDER_STATUS_INDICATOR_SIZE / 2}
 				strokeDasharray={`${circumference} ${circumference}`}
 				strokeMiterlimit={0}
-				strokeDashoffset={progress * circumference}
+				strokeDashoffset={(1 - progress) * circumference}
 			/>
-			{progress}
 		</svg>
 	);
 };
