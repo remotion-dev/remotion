@@ -245,5 +245,6 @@ export const getCliOptions = async (options: {
 		videoBitrate,
 		height,
 		width,
+		configFileImageFormat: ConfigInternals.getUserPreferredImageFormat(),
 	};
 };

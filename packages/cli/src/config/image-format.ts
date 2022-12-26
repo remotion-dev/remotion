@@ -25,6 +25,6 @@ export const setImageFormat = (format: ImageFormat) => {
 	currentImageFormat = format;
 };
 
-export const getUserPreferredImageFormat = () => {
+export const getUserPreferredImageFormat = (): ImageFormat | undefined => {
 	return currentImageFormat;
 };
