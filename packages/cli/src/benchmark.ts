@@ -5,9 +5,9 @@ import {
 	RenderInternals,
 	renderMedia,
 } from '@remotion/renderer';
-import path from 'path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
+import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions, getFinalCodec} from './get-cli-options';
 import {getRenderMediaOptions} from './get-render-media-options';
@@ -150,7 +150,7 @@ export const benchmarkCommand = async (
 		process.exit(1);
 	}
 
-	const fullPath = path.join(process.cwd(), file);
+	const fullPath = convertEntryPointToServeUrl(file);
 
 	const {
 		inputProps,

@@ -1,12 +1,6 @@
-import {
-	getCompositions,
-	openBrowser,
-	RenderInternals,
-	renderStill,
-} from '@remotion/renderer';
-import {ConfigInternals} from '../../config';
+import {convertEntryPointToServeUrl} from '../../convert-entry-point-to-serve-url';
 import {getCliOptions} from '../../get-cli-options';
-import {bundleOnCli} from '../../setup-cache';
+import {renderStillFlow} from '../../render-flows/still';
 import type {RenderJob} from './job';
 
 export const processStill = async ({
@@ -31,74 +25,41 @@ export const processStill = async ({
 		envVariables,
 		inputProps,
 		port,
-		scale,
 		browser,
 		puppeteerTimeout,
 	} = await getCliOptions({
 		isLambda: false,
-		type: 'get-compositions',
+		type: 'still',
 		remotionRoot,
 	});
 
-	const browserInstance = openBrowser(browser, {
+	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
+
+	await renderStillFlow({
+		remotionRoot,
+		browser,
 		browserExecutable,
 		chromiumOptions,
-		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(
-			ConfigInternals.Logging.getLogLevel(),
-			'verbose'
-		),
-		forceDeviceScaleFactor: scale,
-	});
-
-	const serveUrl = await bundleOnCli({
-		fullPath: entryPoint,
+		entryPointReason: 'from preview',
+		entryPoint,
+		envVariables,
+		ffmpegExecutable,
+		ffprobeExecutable,
+		height: null,
+		fullEntryPoint,
+		inputProps,
+		overwrite: true,
+		port,
 		publicDir,
-		remotionRoot,
-		steps: ['bundling'],
-	});
-
-	const compositions = await getCompositions(serveUrl, {
-		browserExecutable,
-		chromiumOptions,
-		envVariables,
-		ffmpegExecutable,
-		ffprobeExecutable,
-		inputProps,
-		port,
-		puppeteerInstance: await browserInstance,
-		timeoutInMilliseconds: puppeteerTimeout,
-	});
-
-	const composition = compositions.find((c) => {
-		return c.id === job.compositionId;
-	});
-
-	if (!composition) {
-		throw new TypeError(`Composition ${job.compositionId} not found`);
-	}
-
-	await renderStill({
-		composition,
-		output: job.outputLocation,
-		serveUrl,
-		browserExecutable,
-		chromiumOptions,
-		envVariables,
-		ffmpegExecutable,
-		ffprobeExecutable,
-		scale: job.scale,
-		timeoutInMilliseconds: puppeteerTimeout,
-		// TODO: Write download progress to CLI
-		overwrite: false,
-		// TODO: Allow user to overwrite file
-		port,
-		inputProps,
-		puppeteerInstance: await browserInstance,
+		puppeteerTimeout,
 		quality: job.quality ?? undefined,
-		imageFormat: job.imageFormat,
-		frame: job.frame,
-
-		// TODO: Allow cancel signal
-		// TODO: Accept CLI options
+		remainingArgs: [],
+		scale: job.scale,
+		stillFrame: job.frame,
+		width: null,
 	});
+	// TODO: Allow user to overwrite file
+	// TODO: Write download progress to CLI
+	// TODO: Allow cancel signal
+	// TODO: Accept CLI options
 };

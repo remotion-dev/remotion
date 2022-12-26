@@ -1,6 +1,6 @@
-import {RenderInternals} from '@remotion/renderer';
-import path from 'path';
+import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
+import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {renderStillFlow} from './render-flows/still';
@@ -21,9 +21,7 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		process.exit(1);
 	}
 
-	const fullPath = RenderInternals.isServeUrl(file)
-		? file
-		: path.join(process.cwd(), file);
+	const fullPath = convertEntryPointToServeUrl(file);
 
 	if (parsedCli.frames) {
 		Log.error(
@@ -32,11 +30,50 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		process.exit(1);
 	}
 
+	const {
+		browser,
+		browserExecutable,
+		chromiumOptions,
+		envVariables,
+		ffmpegExecutable,
+		ffprobeExecutable,
+		height,
+		inputProps,
+		overwrite,
+		port,
+		publicDir,
+		puppeteerTimeout,
+		quality,
+		scale,
+		stillFrame,
+		width,
+	} = await getCliOptions({
+		isLambda: false,
+		type: 'still',
+		remotionRoot,
+	});
+
 	await renderStillFlow({
 		remotionRoot,
 		entryPointReason,
-		fullPath,
-		file,
+		fullEntryPoint: fullPath,
+		entryPoint: file,
 		remainingArgs,
+		browser,
+		browserExecutable,
+		chromiumOptions,
+		envVariables,
+		ffmpegExecutable,
+		ffprobeExecutable,
+		height,
+		inputProps,
+		overwrite,
+		port,
+		publicDir,
+		puppeteerTimeout,
+		quality,
+		scale,
+		stillFrame,
+		width,
 	});
 };

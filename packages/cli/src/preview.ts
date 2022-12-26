@@ -2,6 +2,7 @@ import betterOpn from 'better-opn';
 import path from 'path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
+import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
@@ -33,7 +34,8 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 	}
 
 	const {port: desiredPort} = parsedCli;
-	const fullPath = path.join(process.cwd(), file);
+
+	const fullPath = convertEntryPointToServeUrl(file);
 
 	let inputProps = getInputProps((newProps) => {
 		waitForLiveEventsListener().then((listener) => {
