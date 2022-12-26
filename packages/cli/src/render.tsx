@@ -13,6 +13,7 @@ import path from 'path';
 import {Internals} from 'remotion';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
+import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {
 	getAndValidateAbsoluteOutputFile,
@@ -52,9 +53,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		process.exit(1);
 	}
 
-	const fullPath = RenderInternals.isServeUrl(file)
-		? file
-		: path.join(process.cwd(), file);
+	const fullPath = convertEntryPointToServeUrl(file);
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 

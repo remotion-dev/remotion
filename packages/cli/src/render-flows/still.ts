@@ -1,6 +1,12 @@
 // Prints to CLI and also reports back to browser
 
-import type {RenderMediaOnDownload} from '@remotion/renderer';
+import type {
+	Browser,
+	BrowserExecutable,
+	ChromiumOptions,
+	FfmpegExecutable,
+	RenderMediaOnDownload,
+} from '@remotion/renderer';
 import {
 	getCompositions,
 	openBrowser,
@@ -12,10 +18,7 @@ import path from 'path';
 import {chalk} from '../chalk';
 import {ConfigInternals} from '../config';
 import {determineFinalImageFormat} from '../determine-image-format';
-import {
-	getAndValidateAbsoluteOutputFile,
-	getCliOptions,
-} from '../get-cli-options';
+import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
 import {Log} from '../log';
 import {parsedCli, quietFlagProvided} from '../parse-command-line';
@@ -34,41 +37,49 @@ import {
 
 export const renderStillFlow = async ({
 	remotionRoot,
-	fullPath,
+	fullEntryPoint,
 	entryPointReason,
-	file,
 	remainingArgs,
+	browser,
+	browserExecutable,
+	chromiumOptions,
+	envVariables,
+	ffmpegExecutable,
+	ffprobeExecutable,
+	height,
+	inputProps,
+	overwrite,
+	port,
+	publicDir,
+	puppeteerTimeout,
+	quality,
+	scale,
+	stillFrame,
+	width,
 }: {
 	remotionRoot: string;
-	fullPath: string;
-	file: string | null;
+	fullEntryPoint: string;
+	entryPoint: string | null;
 	entryPointReason: string;
 	remainingArgs: string[];
+	inputProps: object;
+	envVariables: Record<string, string>;
+	quality: number | undefined;
+	browser: Browser;
+	stillFrame: number;
+	browserExecutable: BrowserExecutable;
+	chromiumOptions: ChromiumOptions;
+	scale: number;
+	ffmpegExecutable: FfmpegExecutable;
+	ffprobeExecutable: FfmpegExecutable;
+	overwrite: boolean;
+	puppeteerTimeout: number;
+	port: number | null;
+	publicDir: string | null;
+	height: number | null;
+	width: number | null;
 }) => {
 	const startTime = Date.now();
-
-	const {
-		inputProps,
-		envVariables,
-		quality,
-		browser,
-		stillFrame,
-		browserExecutable,
-		chromiumOptions,
-		scale,
-		ffmpegExecutable,
-		ffprobeExecutable,
-		overwrite,
-		puppeteerTimeout,
-		port,
-		publicDir,
-		height,
-		width,
-	} = await getCliOptions({
-		isLambda: false,
-		type: 'still',
-		remotionRoot,
-	});
 
 	Log.verbose('Browser executable: ', browserExecutable);
 
@@ -83,12 +94,12 @@ export const renderStillFlow = async ({
 	});
 
 	const steps: RenderStep[] = [
-		RenderInternals.isServeUrl(fullPath) ? null : ('bundling' as const),
+		RenderInternals.isServeUrl(fullEntryPoint) ? null : ('bundling' as const),
 		'rendering' as const,
 	].filter(truthy);
 
 	const {cleanup: cleanupBundle, urlOrBundle} = await bundleOnCliOrTakeServeUrl(
-		{fullPath, remotionRoot, steps, publicDir}
+		{fullPath: fullEntryPoint, remotionRoot, steps, publicDir}
 	);
 
 	const puppeteerInstance = await browserInstance;
@@ -141,7 +152,7 @@ export const renderStillFlow = async ({
 
 	Log.info(
 		chalk.gray(
-			`Entry point = ${file} (${entryPointReason}), Output = ${relativeOutputLocation}, Format = ${imageFormat} (${source}), Composition = ${compositionId} (${reason})`
+			`Entry point = ${fullEntryPoint} (${entryPointReason}), Output = ${relativeOutputLocation}, Format = ${imageFormat} (${source}), Composition = ${compositionId} (${reason})`
 		)
 	);
 
