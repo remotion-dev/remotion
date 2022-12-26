@@ -165,6 +165,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			height,
 			width,
 			args: remainingArgs,
+			compositionIdFromUi: null,
 		});
 
 	const {codec, reason: codecReason} = getFinalCodec({

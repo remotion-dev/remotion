@@ -75,5 +75,6 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		scale,
 		stillFrame,
 		width,
+		compositionIdFromUi: null,
 	});
 };
