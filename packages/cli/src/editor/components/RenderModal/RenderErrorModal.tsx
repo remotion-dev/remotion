@@ -5,6 +5,7 @@ import {ModalsContext} from '../../state/modals';
 import {SPACING_UNIT} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
+import {notificationCenter} from '../Notifications/NotificationCenter';
 import {removeRenderJob} from '../RenderQueue/actions';
 
 const container: React.CSSProperties = {
@@ -43,7 +44,12 @@ export const RenderErrorModal: React.FC<{job: RenderJob}> = ({job}) => {
 	const onClickOnRemove = useCallback(() => {
 		setSelectedModal(null);
 		removeRenderJob(job).catch((err) => {
-			// TODO: Handle error
+			notificationCenter.current?.addNotification({
+				content: 'Failed to remove render job: ' + err.message,
+				created: Date.now(),
+				duration: 2000,
+				id: String(Math.random()),
+			});
 			console.log(err);
 		});
 	}, [job, setSelectedModal]);
