@@ -11,6 +11,7 @@ import React, {
 import type {TCompMetadata} from 'remotion';
 import {getDefaultOutLocation} from '../../../get-default-out-name';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
+import {LIGHT_TEXT} from '../../helpers/colors';
 import {useFileExistence} from '../../helpers/use-file-existence';
 import {ModalsContext} from '../../state/modals';
 import {Spacing} from '../layout';
@@ -71,21 +72,22 @@ const reducer = (state: State, action: Action): State => {
 	return state;
 };
 
-const container: React.CSSProperties = {
-	padding: 20,
-};
+const container: React.CSSProperties = {};
 
 const optionRow: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'flex-start',
 	minHeight: 40,
+	paddingLeft: 16,
+	paddingRight: 16,
 };
 
 const label: React.CSSProperties = {
 	width: 150,
 	fontSize: 14,
 	lineHeight: '40px',
+	color: LIGHT_TEXT,
 };
 
 const rightRow: React.CSSProperties = {
@@ -100,6 +102,11 @@ const buttonRow: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	justifyContent: 'flex-end',
+	borderTop: '1px solid black',
+	paddingTop: 8,
+	paddingBottom: 8,
+	paddingLeft: 16,
+	paddingRight: 16,
 };
 
 const input: React.CSSProperties = {
@@ -253,6 +260,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title={`Render ${composition.id}`} />
 			<div style={container}>
+				<Spacing block y={0.5} />
 				<div style={optionRow}>
 					<div style={label}>Format</div>
 					<div style={rightRow}>
@@ -264,45 +272,6 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 						</button>
 					</div>
 				</div>
-				{imageFormat === 'jpeg' && (
-					<>
-						<Spacing block y={0.5} />
-						<div style={optionRow}>
-							<div style={label}>Quality</div>
-							<div style={rightRow}>
-								<InputDragger
-									value={quality}
-									onChange={onQualityChanged}
-									placeholder="0-100"
-									onValueChange={onQualityChangedDirectly}
-									name="quality"
-									step={1}
-									min={MIN_QUALITY}
-									max={MAX_QUALITY}
-								/>
-							</div>
-						</div>
-					</>
-				)}
-				<Spacing block y={0.5} />
-				<div style={optionRow}>
-					<div style={label}>Scale</div>
-					<div style={rightRow}>
-						<InputDragger
-							value={scale}
-							onChange={onScaleChanged}
-							placeholder="0.1-10"
-							// TODO: Does not allow non-integer steps
-							// TODO: Cannot click and type in 0.2
-							onValueChange={onScaleSetDirectly}
-							name="scale"
-							step={0.05}
-							min={MIN_SCALE}
-							max={MAX_SCALE}
-						/>
-					</div>
-				</div>
-				<Spacing block y={0.5} />
 				<div style={optionRow}>
 					<div style={label}>Output name</div>
 					<div style={rightRow}>
@@ -321,6 +290,41 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 						</div>
 					</div>
 				</div>
+				<div style={optionRow}>
+					<div style={label}>Scale</div>
+					<div style={rightRow}>
+						<InputDragger
+							value={scale}
+							onChange={onScaleChanged}
+							placeholder="0.1-10"
+							// TODO: Does not allow non-integer steps
+							// TODO: Cannot click and type in 0.2
+							onValueChange={onScaleSetDirectly}
+							name="scale"
+							step={0.05}
+							min={MIN_SCALE}
+							max={MAX_SCALE}
+						/>
+					</div>
+				</div>
+				{imageFormat === 'jpeg' && (
+					<div style={optionRow}>
+						<div style={label}>Quality</div>
+						<div style={rightRow}>
+							<InputDragger
+								value={quality}
+								onChange={onQualityChanged}
+								placeholder="0-100"
+								onValueChange={onQualityChangedDirectly}
+								name="quality"
+								step={1}
+								min={MIN_QUALITY}
+								max={MAX_QUALITY}
+							/>
+						</div>
+					</div>
+				)}
+
 				<Spacing block y={0.5} />
 				<div style={buttonRow}>
 					<Button onClick={onClick} disabled={state.type === 'load'}>

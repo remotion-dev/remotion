@@ -1,7 +1,9 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {BACKGROUND, BORDER_COLOR} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
+import {useKeybinding} from '../helpers/use-keybinding';
+import {ModalsContext} from '../state/modals';
 import {renderFrame} from '../state/render-frame';
 import {RichTimelineContext} from '../state/rich-timeline';
 import {Spacing} from './layout';
@@ -45,6 +47,9 @@ const targetWidth = (targetHeight * 16) / 9;
 export const CurrentComposition = () => {
 	const richTimelineContext = useContext(RichTimelineContext);
 	const video = Internals.useVideo();
+	const keybindings = useKeybinding();
+	const {setSelectedModal} = useContext(ModalsContext);
+	const isStill = isCompositionStill(video);
 
 	useEffect(() => {
 		if (!video) {
@@ -54,6 +59,32 @@ export const CurrentComposition = () => {
 
 		document.title = `${video.id} / ${window.remotion_projectName} - Remotion Preview`;
 	}, [video]);
+
+	const renderStill = useCallback(() => {
+		if (!video) {
+			return null;
+		}
+
+		setSelectedModal({type: 'render', composition: video});
+	}, [setSelectedModal, video]);
+
+	useEffect(() => {
+		if (!isStill) {
+			return;
+		}
+
+		const binding = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'r',
+			commandCtrlKey: false,
+			callback: renderStill,
+			preventDefault: true,
+		});
+
+		return () => {
+			binding.unregister();
+		};
+	}, [isStill, keybindings, renderStill]);
 
 	if (!video) {
 		return <div style={container} />;
