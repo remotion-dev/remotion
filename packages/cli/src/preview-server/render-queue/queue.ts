@@ -1,7 +1,7 @@
 import {installFileWatcher} from '../../file-watcher';
 import {Log} from '../../log';
 import {waitForLiveEventsListener} from '../live-events';
-import type {RenderJob, RenderJobWithCleanup} from './job';
+import type {JobProgressCallback, RenderJob, RenderJobWithCleanup} from './job';
 import {processStill} from './process-still';
 
 let jobQueue: RenderJobWithCleanup[] = [];
@@ -40,13 +40,15 @@ export const processJob = async ({
 	job,
 	remotionRoot,
 	entryPoint,
+	onProgress,
 }: {
 	job: RenderJob;
 	remotionRoot: string;
 	entryPoint: string;
+	onProgress: JobProgressCallback;
 }) => {
 	if (job.type === 'still') {
-		await processStill({job, remotionRoot, entryPoint});
+		await processStill({job, remotionRoot, entryPoint, onProgress});
 	}
 };
 
@@ -99,9 +101,25 @@ export const processJobIfPossible = async ({
 			return {
 				...job,
 				status: 'running',
+				progress: 0,
+				message: 'Starting job...',
 			};
 		});
-		await processJob({job: nextJob, entryPoint, remotionRoot});
+		await processJob({
+			job: nextJob,
+			entryPoint,
+			remotionRoot,
+			onProgress: ({message, progress}) => {
+				updateJob(nextJob.id, (job) => {
+					return {
+						...job,
+						status: 'running',
+						progress,
+						message,
+					};
+				});
+			},
+		});
 		const {unwatch} = installFileWatcher({
 			file: nextJob.outputLocation,
 			onChange: (type) => {

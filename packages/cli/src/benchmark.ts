@@ -188,6 +188,7 @@ export const benchmarkCommand = async (
 			publicDir,
 			remotionRoot,
 			steps: ['bundling'],
+			onProgress: () => undefined,
 		});
 
 	const puppeteerInstance = await browserInstance;

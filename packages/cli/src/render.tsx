@@ -125,6 +125,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			remotionRoot,
 			steps,
 			publicDir,
+			onProgress: () => undefined,
 		}
 	);
 

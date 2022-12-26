@@ -6,6 +6,8 @@ type RenderJobDynamicStatus =
 	  }
 	| {
 			status: 'running';
+			progress: number;
+			message: string;
 	  }
 	| {
 			status: 'idle';
@@ -17,6 +19,11 @@ type RenderJobDynamicStatus =
 				stack: string | undefined;
 			};
 	  };
+
+export type JobProgressCallback = (options: {
+	progress: number;
+	message: string;
+}) => void;
 
 type RenderJobDynamicFields =
 	| {

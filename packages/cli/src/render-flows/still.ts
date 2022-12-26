@@ -24,6 +24,7 @@ import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
 import {Log} from '../log';
 import {parsedCli, quietFlagProvided} from '../parse-command-line';
+import type {JobProgressCallback} from '../preview-server/render-queue/job';
 import type {DownloadProgress} from '../progress-bar';
 import {
 	createOverwriteableCliOutput,
@@ -62,6 +63,7 @@ export const renderStillFlow = async ({
 	imageFormatFromUi,
 	logLevel,
 	configFileImageFormat,
+	onProgress,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -87,6 +89,7 @@ export const renderStillFlow = async ({
 	imageFormatFromUi: StillImageFormat | null;
 	logLevel: LogLevel;
 	configFileImageFormat: ImageFormat | undefined;
+	onProgress: JobProgressCallback;
 }) => {
 	const startTime = Date.now();
 
@@ -109,8 +112,21 @@ export const renderStillFlow = async ({
 	].filter(truthy);
 
 	const {cleanup: cleanupBundle, urlOrBundle} = await bundleOnCliOrTakeServeUrl(
-		{fullPath: fullEntryPoint, remotionRoot, steps, publicDir}
+		{
+			fullPath: fullEntryPoint,
+			remotionRoot,
+			steps,
+			publicDir,
+			onProgress: (progress) => {
+				onProgress({message: 'Bundling...', progress});
+			},
+		}
 	);
+
+	onProgress({
+		message: 'Opening browser',
+		progress: 0,
+	});
 
 	const puppeteerInstance = await browserInstance;
 
@@ -137,6 +153,7 @@ export const renderStillFlow = async ({
 			args: remainingArgs,
 			compositionIdFromUi,
 		});
+
 	const {format: imageFormat, source} = determineFinalImageFormat({
 		cliFlag: parsedCli['image-format'] ?? null,
 		configImageFormat: configFileImageFormat ?? null,

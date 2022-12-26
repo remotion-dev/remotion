@@ -1,16 +1,18 @@
 import {convertEntryPointToServeUrl} from '../../convert-entry-point-to-serve-url';
 import {getCliOptions} from '../../get-cli-options';
 import {renderStillFlow} from '../../render-flows/still';
-import type {RenderJob} from './job';
+import type {JobProgressCallback, RenderJob} from './job';
 
 export const processStill = async ({
 	job,
 	remotionRoot,
 	entryPoint,
+	onProgress,
 }: {
 	job: RenderJob;
 	remotionRoot: string;
 	entryPoint: string;
+	onProgress: JobProgressCallback;
 }) => {
 	if (job.type !== 'still') {
 		throw new Error('Expected still job');
@@ -62,8 +64,8 @@ export const processStill = async ({
 		imageFormatFromUi: job.imageFormat,
 		configFileImageFormat,
 		logLevel,
+		onProgress,
 	});
-	// TODO: Write download progress to CLI
 	// TODO: Allow cancel signal
 	// TODO: Accept CLI options
 };
