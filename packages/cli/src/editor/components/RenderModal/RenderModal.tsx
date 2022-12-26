@@ -115,6 +115,7 @@ const buttonRow: React.CSSProperties = {
 
 const input: React.CSSProperties = {
 	minWidth: 250,
+	textAlign: 'right',
 };
 
 const MIN_QUALITY = 1;
