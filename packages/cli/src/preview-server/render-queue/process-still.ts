@@ -57,8 +57,8 @@ export const processStill = async ({
 		scale: job.scale,
 		stillFrame: job.frame,
 		width: null,
+		compositionIdFromUi: job.compositionId,
 	});
-	// TODO: Allow user to overwrite file
 	// TODO: Write download progress to CLI
 	// TODO: Allow cancel signal
 	// TODO: Accept CLI options

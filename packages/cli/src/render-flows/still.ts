@@ -56,6 +56,7 @@ export const renderStillFlow = async ({
 	scale,
 	stillFrame,
 	width,
+	compositionIdFromUi,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -78,6 +79,7 @@ export const renderStillFlow = async ({
 	publicDir: string | null;
 	height: number | null;
 	width: number | null;
+	compositionIdFromUi: string | null;
 }) => {
 	const startTime = Date.now();
 
@@ -125,6 +127,7 @@ export const renderStillFlow = async ({
 			height,
 			width,
 			args: remainingArgs,
+			compositionIdFromUi,
 		});
 	const {format: imageFormat, source} = determineFinalImageFormat({
 		// TODO: Should factor in browser

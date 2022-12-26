@@ -3,16 +3,52 @@ import type {TCompMetadata} from 'remotion';
 import {Log} from './log';
 import {selectComposition} from './select-composition';
 
-export const getCompositionId = async (
-	validCompositions: TCompMetadata[],
-	args: string[]
-): Promise<{
+const getCompName = ({
+	cliArgs,
+	compositionIdFromUi,
+}: {
+	cliArgs: string[];
+	compositionIdFromUi: string | null;
+}): {
+	compName: string;
+	remainingArgs: string[];
+	reason: string;
+} => {
+	if (compositionIdFromUi) {
+		return {
+			compName: compositionIdFromUi,
+			remainingArgs: [],
+			reason: 'from Preview',
+		};
+	}
+
+	const [compName, ...remainingArgs] = cliArgs;
+
+	return {compName, remainingArgs, reason: 'Passed as argument'};
+};
+
+export const getCompositionId = async ({
+	validCompositions,
+	args,
+	compositionIdFromUi,
+}: {
+	validCompositions: TCompMetadata[];
+	args: string[];
+	compositionIdFromUi: string | null;
+}): Promise<{
 	compositionId: string;
 	reason: string;
 	config: TCompMetadata;
 	argsAfterComposition: string[];
 }> => {
-	const [compName, ...remainingArgs] = args;
+	const {
+		compName,
+		remainingArgs,
+		reason: compReason,
+	} = getCompName({
+		cliArgs: args,
+		compositionIdFromUi,
+	});
 	if (compName) {
 		const config = validCompositions.find((c) => c.id === compName);
 
@@ -26,7 +62,7 @@ export const getCompositionId = async (
 
 		return {
 			compositionId: compName,
-			reason: 'Passed as argument',
+			reason: compReason,
 			config,
 			argsAfterComposition: remainingArgs,
 		};
