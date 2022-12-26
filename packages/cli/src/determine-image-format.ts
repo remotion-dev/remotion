@@ -34,7 +34,7 @@ export const determineFinalImageFormat = ({
 	fromUi: StillImageFormat | null;
 }): {format: StillImageFormat; source: string} => {
 	if (fromUi) {
-		return {format: fromUi, source: 'Specified via UI'};
+		return {format: fromUi, source: 'via UI'};
 	}
 
 	const outNameExtension = deriveExtensionFromFilename(outName);
