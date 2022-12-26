@@ -1,10 +1,14 @@
 import React from 'react';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
 import {FAIL_COLOR, LIGHT_TEXT} from '../../helpers/colors';
+import {
+	CircularProgress,
+	RENDER_STATUS_INDICATOR_SIZE,
+} from './CircularProgress';
 
 const iconStyle: React.CSSProperties = {
-	height: 16,
-	width: 16,
+	height: RENDER_STATUS_INDICATOR_SIZE,
+	width: RENDER_STATUS_INDICATOR_SIZE,
 };
 
 export const RenderQueueItemStatus: React.FC<{
@@ -45,5 +49,10 @@ export const RenderQueueItemStatus: React.FC<{
 		);
 	}
 
-	return <div>{job.status}</div>;
+	if (job.status === 'running') {
+		// TODO: Put job progress
+		return <CircularProgress progress={0.5} />;
+	}
+
+	throw new Error('Unknown job status');
 };
