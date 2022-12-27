@@ -45,6 +45,7 @@ export const addStillRenderJob = ({
 	quality,
 	frame,
 	scale,
+	verbose,
 }: {
 	composition: TCompMetadata;
 	outName: string;
@@ -52,6 +53,7 @@ export const addStillRenderJob = ({
 	quality: number | null;
 	frame: number;
 	scale: number;
+	verbose: boolean;
 }) => {
 	return callApi('/api/render', {
 		compositionId: composition.id,
@@ -61,6 +63,7 @@ export const addStillRenderJob = ({
 		quality,
 		frame,
 		scale,
+		verbose,
 	});
 };
 

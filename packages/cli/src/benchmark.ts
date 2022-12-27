@@ -190,6 +190,7 @@ export const benchmarkCommand = async (
 			steps: ['bundling'],
 			onProgress: () => undefined,
 			indentOutput: false,
+			logLevel: ConfigInternals.Logging.getLogLevel(),
 		});
 
 	const puppeteerInstance = await browserInstance;

@@ -27,6 +27,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 			scale: input.scale,
 			cleanup: [],
 			deletedOutputLocation: false,
+			verbose: input.verbose,
 		},
 		entryPoint,
 		remotionRoot,

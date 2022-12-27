@@ -1,5 +1,6 @@
 import type {LegacyBundleOptions} from '@remotion/bundler';
 import {bundle, BundlerInternals} from '@remotion/bundler';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {ConfigInternals} from './config';
 import {Log} from './log';
@@ -22,6 +23,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	publicDir,
 	onProgress,
 	indentOutput,
+	logLevel,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -29,6 +31,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	publicDir: string | null;
 	onProgress: (params: {progress: number; message: string}) => void;
 	indentOutput: boolean;
+	logLevel: LogLevel;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => Promise<void>;
@@ -46,7 +49,8 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		steps,
 		publicDir,
 		onProgressCallback: onProgress,
-		indentOutput,
+		indent: indentOutput,
+		logLevel,
 	});
 
 	return {
@@ -61,14 +65,16 @@ export const bundleOnCli = async ({
 	remotionRoot,
 	publicDir,
 	onProgressCallback,
-	indentOutput,
+	indent,
+	logLevel,
 }: {
 	fullPath: string;
 	steps: RenderStep[];
 	remotionRoot: string;
 	publicDir: string | null;
 	onProgressCallback: (params: {progress: number; message: string}) => void;
-	indentOutput: boolean;
+	indent: boolean;
+	logLevel: LogLevel;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -147,13 +153,16 @@ export const bundleOnCli = async ({
 		hash
 	);
 	if (cacheExistedBefore !== 'does-not-exist' && !shouldCache) {
-		Log.infoIndent(indentOutput, '🧹 Cache disabled but found. Deleting... ');
+		Log.infoAdvanced(
+			{indent, logLevel},
+			'🧹 Cache disabled but found. Deleting... '
+		);
 		await BundlerInternals.clearCache(remotionRoot);
 	}
 
 	if (cacheExistedBefore === 'other-exists' && shouldCache) {
-		Log.infoIndent(
-			indentOutput,
+		Log.infoAdvanced(
+			{indent, logLevel},
 			'🧹 Webpack config change detected. Clearing cache... '
 		);
 		await BundlerInternals.clearCache(remotionRoot);
@@ -162,7 +171,7 @@ export const bundleOnCli = async ({
 	const bundleStartTime = Date.now();
 	const bundlingProgress = createOverwriteableCliOutput({
 		quiet: quietFlagProvided(),
-		indent: indentOutput,
+		indent,
 	});
 
 	let bundlingState: BundlingState = {
@@ -195,7 +204,7 @@ export const bundleOnCli = async ({
 	};
 	updateProgress(true);
 
-	Log.verboseIndent(indentOutput, 'Bundled under', bundled);
+	Log.verboseAdvanced({indent, logLevel}, 'Bundled under', bundled);
 	const cacheExistedAfter =
 		BundlerInternals.cacheExists(remotionRoot, 'production', hash) === 'exists';
 
@@ -204,8 +213,8 @@ export const bundleOnCli = async ({
 			cacheExistedBefore === 'does-not-exist' ||
 			cacheExistedBefore === 'other-exists'
 		) {
-			Log.infoIndent(
-				indentOutput,
+			Log.infoAdvanced(
+				{indent, logLevel},
 				'⚡️ Cached bundle. Subsequent renders will be faster.'
 			);
 		}

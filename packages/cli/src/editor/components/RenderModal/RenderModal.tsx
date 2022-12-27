@@ -1,5 +1,5 @@
 import type {StillImageFormat} from '@remotion/renderer';
-import type {ChangeEventHandler} from 'react';
+import type {ChangeEvent, ChangeEventHandler} from 'react';
 import React, {
 	useCallback,
 	useContext,
@@ -140,6 +140,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 	const [imageFormat, setImageFormat] = useState<StillImageFormat>('png');
 	const [quality, setQuality] = useState(80);
 	const [scale, setScale] = useState(1);
+	const [verbose, setVerboseLogging] = useState(false);
 	const [outName, setOutName] = useState(() =>
 		getDefaultOutLocation({
 			compositionName: composition.id,
@@ -191,6 +192,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 			// TODO: Support still rendering for compositions
 			frame: 0,
 			scale,
+			verbose,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -207,6 +209,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 		quality,
 		scale,
 		setSelectedModal,
+		verbose,
 	]);
 
 	const onQualityChangedDirectly = useCallback((newQuality: number) => {
@@ -278,6 +281,13 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 		];
 	}, [imageFormat, setJpeg, setPng]);
 
+	const onVerboseLoggingChanged = useCallback(
+		(e: ChangeEvent<HTMLInputElement>) => {
+			setVerboseLogging(e.target.checked);
+		},
+		[]
+	);
+
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title={`Render ${composition.id}`} />
@@ -328,6 +338,16 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 								step={0.05}
 								min={MIN_SCALE}
 								max={MAX_SCALE}
+							/>
+						</div>
+					</div>
+					<div style={optionRow}>
+						<div style={label}>Verbose logging</div>
+						<div style={rightRow}>
+							<input
+								type={'checkbox'}
+								checked={verbose}
+								onChange={onVerboseLoggingChanged}
 							/>
 						</div>
 					</div>

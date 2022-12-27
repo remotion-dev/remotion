@@ -127,6 +127,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			publicDir,
 			onProgress: () => undefined,
 			indentOutput: false,
+			logLevel: ConfigInternals.Logging.getLogLevel(),
 		}
 	);
 

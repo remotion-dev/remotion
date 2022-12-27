@@ -120,7 +120,11 @@ export const renderStillFlow = async ({
 		onProgress({progress, message});
 	};
 
-	Log.verboseIndent(indentOutput, 'Browser executable: ', browserExecutable);
+	Log.verboseAdvanced(
+		{indent: indentOutput, logLevel},
+		'Browser executable: ',
+		browserExecutable
+	);
 	const shouldDumpIo = RenderInternals.isEqualOrBelowLogLevel(
 		logLevel,
 		'verbose'
@@ -150,6 +154,7 @@ export const renderStillFlow = async ({
 				updateProgress();
 			},
 			indentOutput: true,
+			logLevel,
 		}
 	);
 
@@ -203,8 +208,8 @@ export const renderStillFlow = async ({
 		recursive: true,
 	});
 
-	Log.infoIndent(
-		indentOutput,
+	Log.infoAdvanced(
+		{indent: indentOutput, logLevel},
 		chalk.gray(
 			`Entry point = ${fullEntryPoint} (${entryPointReason}), Output = ${relativeOutputLocation}, Format = ${imageFormat} (${source}), Composition = ${compositionId} (${reason})`
 		)
@@ -274,14 +279,21 @@ export const renderStillFlow = async ({
 		totalFrames: 1,
 	};
 	updateProgress();
-	Log.infoIndent(indentOutput);
+	Log.infoAdvanced({indent: indentOutput, logLevel});
 
 	const closeBrowserPromise = puppeteerInstance.close(false);
 
-	Log.infoIndent(indentOutput, chalk.cyan(`▶️ ${absoluteOutputLocation}`));
+	Log.infoAdvanced(
+		{indent: indentOutput, logLevel},
+		chalk.cyan(`▶️ ${absoluteOutputLocation}`)
+	);
 	await closeBrowserPromise;
 	await RenderInternals.cleanDownloadMap(downloadMap);
 	await cleanupBundle();
 
-	Log.verboseIndent(indentOutput, 'Cleaned up', downloadMap.assetDir);
+	Log.verboseAdvanced(
+		{indent: indentOutput, logLevel},
+		'Cleaned up',
+		downloadMap.assetDir
+	);
 };
