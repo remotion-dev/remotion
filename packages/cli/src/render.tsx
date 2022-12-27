@@ -88,5 +88,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		frameRange,
 		configFileImageFormat,
 		quality,
+		onProgress: () => undefined,
 	});
 };

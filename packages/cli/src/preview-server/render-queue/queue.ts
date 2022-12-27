@@ -5,6 +5,7 @@ import {Log} from '../../log';
 import {waitForLiveEventsListener} from '../live-events';
 import type {JobProgressCallback, RenderJob, RenderJobWithCleanup} from './job';
 import {processStill} from './process-still';
+import {processVideoJob} from './process-video';
 
 let jobQueue: RenderJobWithCleanup[] = [];
 
@@ -51,7 +52,15 @@ export const processJob = async ({
 }) => {
 	if (job.type === 'still') {
 		await processStill({job, remotionRoot, entryPoint, onProgress});
+		return;
 	}
+
+	if (job.type === 'video') {
+		await processVideoJob({job, remotionRoot, entryPoint, onProgress});
+		return;
+	}
+
+	throw new Error(`Unknown job ${JSON.stringify(job)}`);
 };
 
 export const addJob = ({
@@ -151,7 +160,7 @@ export const processJobIfPossible = async ({
 		}));
 	} catch (err) {
 		// TODO: Tell to look in preview to find the error
-		Log.error(chalk.gray('\n╰─ Render failed:'), err);
+		Log.error(chalk.gray('╰─ Render failed:'), err);
 
 		updateJob(nextJob.id, (job) => {
 			return {
