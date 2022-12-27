@@ -1,4 +1,10 @@
-import React, {createRef, useImperativeHandle, useMemo, useState} from 'react';
+import React, {
+	createRef,
+	useContext,
+	useImperativeHandle,
+	useMemo,
+	useState,
+} from 'react';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
 
 declare global {
@@ -14,6 +20,11 @@ type RenderQueueContextType = {
 export const RenderQueueContext = React.createContext<RenderQueueContextType>({
 	jobs: [],
 });
+
+export const useShouldRenderLeftSidebarTabs = () => {
+	const context = useContext(RenderQueueContext);
+	return context.jobs.length > 0;
+};
 
 export const renderJobsRef = createRef<{
 	updateRenderJobs: (jobs: RenderJob[]) => void;

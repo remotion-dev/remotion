@@ -7,6 +7,7 @@ import React, {
 import {BORDER_COLOR} from '../helpers/colors';
 import {CompositionSelector} from './CompositionSelector';
 import {RenderQueue} from './RenderQueue';
+import {useShouldRenderLeftSidebarTabs} from './RenderQueue/context';
 import {RendersTab} from './RendersTab';
 import {Tab, Tabs} from './Tabs';
 
@@ -26,6 +27,7 @@ export const leftSidebarTabs = createRef<{
 
 export const SidebarContent: React.FC = () => {
 	const [panel, setPanel] = useState<SidebarPanel>('compositions');
+	const shouldRender = useShouldRenderLeftSidebarTabs();
 
 	const onCompositionsSelected = useCallback(() => {
 		setPanel('compositions');
@@ -47,21 +49,27 @@ export const SidebarContent: React.FC = () => {
 
 	return (
 		<div style={container}>
-			<div style={tabsContainer}>
-				<Tabs>
-					<Tab
-						selected={panel === 'compositions'}
-						onClick={onCompositionsSelected}
-					>
-						Compositions
-					</Tab>
-					<RendersTab
-						onClick={onRendersSelected}
-						selected={panel === 'renders'}
-					/>
-				</Tabs>
-			</div>
-			{panel === 'compositions' ? <CompositionSelector /> : <RenderQueue />}
+			{shouldRender ? (
+				<div style={tabsContainer}>
+					<Tabs>
+						<Tab
+							selected={panel === 'compositions'}
+							onClick={onCompositionsSelected}
+						>
+							Compositions
+						</Tab>
+						<RendersTab
+							onClick={onRendersSelected}
+							selected={panel === 'renders'}
+						/>
+					</Tabs>
+				</div>
+			) : null}
+			{panel === 'renders' && shouldRender ? (
+				<RenderQueue />
+			) : (
+				<CompositionSelector />
+			)}
 		</div>
 	);
 };

@@ -4,7 +4,7 @@ import {RenderQueueContext} from './context';
 import {RenderQueueItem} from './RenderQueueItem';
 
 const separatorStyle: React.CSSProperties = {
-	borderBottom: '1px solid ' + BORDER_COLOR,
+	borderBottom: `1px solid ${BORDER_COLOR}`,
 };
 
 export const RenderQueue: React.FC = () => {
