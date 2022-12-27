@@ -10,7 +10,7 @@ import {webpackOverride} from './webpack-override';
 
 const start = async () => {
 	const bundled = await bundle({
-		entryPoint: './src/index.tsx',
+		entryPoint: './src/index.ts',
 		webpackOverride,
 	});
 
@@ -48,6 +48,8 @@ const start = async () => {
 		onProgress: () => console.log('progress'),
 		output: 'out/combined.mp4',
 		numberOfGifLoops: null,
+		ffmpegExecutable: null,
+		remotionRoot: process.cwd(),
 	});
 };
 

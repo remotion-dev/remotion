@@ -1,4 +1,5 @@
 import React from "react";
+import { NewsletterButton } from "./NewsletterButton";
 import styles from "./pricing.module.css";
 import { PricingTable } from "./PricingTable";
 
@@ -18,6 +19,8 @@ export const FreePricing: React.FC = () => {
         </p>
       </div>
       <PricingTable />
+      <br />
+      <NewsletterButton />
       <br />
       <br />
       <br />

@@ -24,7 +24,7 @@ export type SequenceContextType = {
 
 export const SequenceContext = createContext<SequenceContextType | null>(null);
 
-type LayoutAndStyle =
+export type LayoutAndStyle =
 	| {
 			layout: 'none';
 	  }
@@ -35,7 +35,7 @@ type LayoutAndStyle =
 
 export type SequenceProps = {
 	children: React.ReactNode;
-	from: number;
+	from?: number;
 	durationInFrames?: number;
 	name?: string;
 	showInTimeline?: boolean;
@@ -47,7 +47,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	SequenceProps
 > = (
 	{
-		from,
+		from = 0,
 		durationInFrames = Infinity,
 		children,
 		name,

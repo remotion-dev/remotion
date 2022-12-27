@@ -12,18 +12,22 @@ import {useVideoConfig} from './use-video-config';
 import {getMediaTime} from './video/get-current-time';
 import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media';
 
+export const DEFAULT_ACCEPTABLE_TIMESHIFT = 0.45;
+
 export const useMediaPlayback = ({
 	mediaRef,
 	src,
 	mediaType,
 	playbackRate: localPlaybackRate,
 	onlyWarnForMediaSeekingError,
+	acceptableTimeshift,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
 	playbackRate: number;
 	onlyWarnForMediaSeekingError: boolean;
+	acceptableTimeshift: number;
 }) => {
 	const {playbackRate: globalPlaybackRate} = useContext(TimelineContext);
 	const frame = useCurrentFrame();
@@ -65,7 +69,7 @@ export const useMediaPlayback = ({
 
 		const isTime = mediaRef.current.currentTime;
 		const timeShift = Math.abs(shouldBeTime - isTime);
-		if (timeShift > 0.45 && !mediaRef.current.ended) {
+		if (timeShift > acceptableTimeshift && !mediaRef.current.ended) {
 			// If scrubbing around, adjust timing
 			// or if time shift is bigger than 0.2sec
 			mediaRef.current.currentTime = shouldBeTime;
@@ -98,5 +102,6 @@ export const useMediaPlayback = ({
 		mediaStartsAt,
 		localPlaybackRate,
 		onlyWarnForMediaSeekingError,
+		acceptableTimeshift,
 	]);
 };

@@ -7,6 +7,7 @@ import {ColorInterpolation} from './ColorInterpolation';
 import {MyCtx, WrappedInContext} from './Context';
 import CorruptVideo from './CorruptVideo';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
+import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
@@ -43,20 +44,20 @@ export const Index: React.FC = () => {
 		<>
 			<Folder name="components">
 				<Composition
-					id="iframe"
-					lazyComponent={() => import('./IframeTest')}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={10}
-				/>
-				<Composition
 					id="looped"
 					lazyComponent={() => import('./LoopedVideo')}
 					durationInFrames={200}
 					fps={60}
 					height={1080}
 					width={1080}
+				/>
+				<Composition
+					id="iframe"
+					lazyComponent={() => import('./IframeTest')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={10}
 				/>
 				<Composition
 					id="stagger-test"
@@ -408,6 +409,14 @@ export const Index: React.FC = () => {
 					durationInFrames={300}
 				/>
 				<Composition
+					id="audio-testing-amplify"
+					lazyComponent={() => import('./AudioTesting/Amplify')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
 					id="audio-testing-base64"
 					lazyComponent={() => import('./AudioTesting/Base64')}
 					width={1080}
@@ -478,6 +487,14 @@ export const Index: React.FC = () => {
 					width={850}
 				/>
 				<Composition
+					id="image-in-lottie"
+					lazyComponent={() => import('./Lottie/ImageInLottie')}
+					durationInFrames={300}
+					fps={30}
+					height={850}
+					width={850}
+				/>
+				<Composition
 					id="loader"
 					lazyComponent={() => import('./Lottie/Loader')}
 					durationInFrames={240}
@@ -536,6 +553,16 @@ export const Index: React.FC = () => {
 					lazyComponent={() => import('./GifTest/fill-modes')}
 					width={1920}
 					height={1080}
+					fps={30}
+					durationInFrames={150}
+				/>
+			</Folder>
+			<Folder name="og-images">
+				<Composition
+					id="expert"
+					component={Expert}
+					width={1200}
+					height={630}
 					fps={30}
 					durationInFrames={150}
 				/>

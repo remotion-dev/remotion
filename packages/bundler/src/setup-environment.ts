@@ -11,4 +11,9 @@ Internals.CSSUtils.injectCSS(`
     background: transparent;
     box-sizing: border-box;
   }
+
+  .algolia-docsearch-suggestion--highlight {
+    font-size: 15px;
+    line-height: 1.25;
+  }
 `);

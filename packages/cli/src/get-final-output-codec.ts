@@ -1,93 +1,103 @@
 import type {Codec, CodecOrUndefined} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {Log} from './log';
+
+const fileExtensions: Record<string, Codec[]> = {
+	webm: ['vp8', 'vp9'],
+	hevc: ['h265'],
+	mp3: ['mp3'],
+	mov: ['prores'],
+	wav: ['wav'],
+	aac: ['aac'],
+	mkv: ['h264-mkv'],
+	gif: ['gif'],
+	mp4: ['h264'],
+	m4a: ['aac'],
+};
+
+const deriveExtensionFromFilename = (extension: string | null) => {
+	if (extension === null) {
+		return [];
+	}
+
+	return fileExtensions[extension] ?? [];
+};
 
 export const getFinalOutputCodec = ({
-	codec: inputCodec,
-	fileExtension,
-	emitWarning,
+	cliFlag,
+	configFile,
+	downloadName,
+	outName,
 }: {
-	codec: CodecOrUndefined;
-	fileExtension: string | null;
-	emitWarning: boolean;
-}): Codec => {
-	if (inputCodec === undefined && fileExtension === 'webm') {
-		if (emitWarning) {
-			Log.info(
-				'You have specified a .webm extension, using the VP8 encoder. Use --codec=vp9 to use the Vp9 encoder.'
+	cliFlag: CodecOrUndefined;
+	outName: string | null;
+	downloadName: string | null;
+	configFile: Codec | null;
+}): {codec: Codec; reason: string} => {
+	const downloadNameExtension =
+		RenderInternals.getExtensionOfFilename(downloadName);
+	const outNameExtension = RenderInternals.getExtensionOfFilename(outName);
+
+	const derivedDownloadCodecs = deriveExtensionFromFilename(
+		downloadNameExtension
+	);
+	const derivedOutNameCodecs = deriveExtensionFromFilename(outNameExtension);
+
+	if (
+		derivedDownloadCodecs.length > 0 &&
+		derivedOutNameCodecs.length > 0 &&
+		derivedDownloadCodecs.join('') !== derivedOutNameCodecs.join('')
+	) {
+		throw new TypeError(
+			`The download name is ${downloadName} but the output name is ${outName}. The file extensions must match`
+		);
+	}
+
+	if (cliFlag) {
+		if (
+			derivedDownloadCodecs.length > 0 &&
+			derivedDownloadCodecs.indexOf(cliFlag) === -1
+		) {
+			throw new TypeError(
+				`The download name is ${downloadName} but --codec=${cliFlag} was passed. The download name implies a codec of ${derivedDownloadCodecs.join(
+					' or '
+				)} which does not align with the --codec flag.`
 			);
 		}
 
-		return 'vp8';
-	}
-
-	if (inputCodec === undefined && fileExtension === 'hevc') {
-		if (emitWarning) {
-			Log.info('You have specified a .hevc extension, using the H265 encoder.');
-		}
-
-		return 'h265';
-	}
-
-	if (inputCodec === undefined && fileExtension === 'mp3') {
-		if (emitWarning) {
-			Log.info('You have specified a .mp3 extension, using the MP3 encoder.');
-		}
-
-		return 'mp3';
-	}
-
-	if (inputCodec === undefined && fileExtension === 'mov') {
-		if (emitWarning) {
-			Log.info(
-				'You have specified a .mov extension, using the Apple ProRes encoder.'
+		if (
+			derivedOutNameCodecs.length > 0 &&
+			derivedOutNameCodecs.indexOf(cliFlag) === -1
+		) {
+			throw new TypeError(
+				`The out name is ${outName} but --codec=${cliFlag} was passed. The out name implies a codec of ${derivedOutNameCodecs.join(
+					' or '
+				)} which does not align with the --codec flag.`
 			);
 		}
 
-		return 'prores';
+		return {codec: cliFlag, reason: 'from --codec flag'};
 	}
 
-	if (inputCodec === undefined && fileExtension === 'wav') {
-		if (emitWarning) {
-			Log.info('You have specified a .wav extension, using the WAV encoder.');
-		}
-
-		return 'wav';
+	if (derivedDownloadCodecs.length > 0) {
+		return {
+			codec: derivedDownloadCodecs[0],
+			reason: 'derived from download name',
+		};
 	}
 
-	if (inputCodec === undefined && fileExtension === 'aac') {
-		if (emitWarning) {
-			Log.info('You have specified a .aac extension, using the AAC encoder.');
-		}
-
-		return 'aac';
+	if (derivedOutNameCodecs.length > 0) {
+		return {
+			codec: derivedOutNameCodecs[0],
+			reason: 'derived from out name',
+		};
 	}
 
-	if (inputCodec === undefined && fileExtension === 'm4a') {
-		if (emitWarning) {
-			Log.info('You have specified a .m4a extension, using the AAC encoder.');
-		}
-
-		return 'aac';
+	if (configFile) {
+		return {
+			codec: configFile,
+			reason: 'Config file',
+		};
 	}
 
-	if (inputCodec === undefined && fileExtension === 'mkv') {
-		if (emitWarning) {
-			Log.info(
-				'You have specified a .mkv extension, using the H264 encoder and WAV audio format.'
-			);
-		}
-
-		return 'h264-mkv';
-	}
-
-	if (inputCodec === undefined && fileExtension === 'gif') {
-		if (emitWarning) {
-			Log.info('You have specified a .gif extension, rendering a GIF');
-		}
-
-		return 'gif';
-	}
-
-	return inputCodec ?? RenderInternals.DEFAULT_CODEC;
+	return {codec: RenderInternals.DEFAULT_CODEC, reason: 'default'};
 };

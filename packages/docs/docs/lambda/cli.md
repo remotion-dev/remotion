@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-cli.png
 id: cli
 sidebar_label: Overview
 title: "@remotion/lambda - CLI"
@@ -13,6 +14,7 @@ To use the Remotion Lambda CLI, you first need to [install it](/docs/lambda/setu
 - [functions](/docs/lambda/cli/functions)
 - [render](/docs/lambda/cli/render)
 - [still](/docs/lambda/cli/still)
+- [compositions](/docs/lambda/cli/compositions)
 - [policies](/docs/lambda/cli/policies)
 - [quotas](/docs/lambda/cli/quotas)
 

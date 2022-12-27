@@ -1,12 +1,11 @@
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
 import type {LambdaReturnValues} from '../../../shared/return-values';
 import {disableLogs, enableLogs} from '../../disable-logs';
-
-jest.setTimeout(90000);
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
@@ -40,7 +39,10 @@ test('Should add silent audio if there is no audio', async () => {
 			frameRange: [0, 12],
 			framesPerLambda: 8,
 			imageFormat: 'png',
-			inputProps: {},
+			inputProps: {
+				type: 'payload',
+				payload: '{}',
+			},
 			logLevel: 'warn',
 			maxRetries: 3,
 			outName: 'out.mp4',
@@ -59,6 +61,11 @@ test('Should add silent audio if there is no audio', async () => {
 			muted: false,
 			version: VERSION,
 			overwrite: true,
+			webhook: null,
+			audioBitrate: null,
+			videoBitrate: null,
+			forceHeight: null,
+			forceWidth: null,
 		},
 		extraContext
 	);
@@ -80,9 +87,13 @@ test('Should add silent audio if there is no audio', async () => {
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 	});
-	const probe = await RenderInternals.execa('ffprobe', ['-'], {
-		stdin: file,
-	});
+	const probe = await RenderInternals.execa(
+		await RenderInternals.getExecutableBinary(null, process.cwd(), 'ffprobe'),
+		['-'],
+		{
+			stdin: file,
+		}
+	);
 	expect(probe.stderr).toMatch(/Stream #0:0/);
 	expect(probe.stderr).toMatch(/Video: h264/);
 	expect(probe.stderr).toMatch(/Stream #0:1/);

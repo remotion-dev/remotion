@@ -1,6 +1,8 @@
 ---
-id: api
+image: /generated/articles-docs-player-api.png
 title: "<Player>"
+slug: /player/player
+crumb: "@remotion/player"
 ---
 
 A component which can be rendered in a regular React App (for example: [Create React App](https://create-react-app.dev/), [Next.JS](https://nextjs.org)) to display a Remotion video.
@@ -52,11 +54,17 @@ The frame rate of the video. Must be a number.
 
 ### `compositionWidth`
 
-The width of the composition in pixels.
+The width you would like the video to have when rendered as an MP4. Use `style={{width: <width>}}` to define a width to be assumed in the browser.
+
+:::note
+**Example**:
+If you want to render a Full HD video, set `compositionWidth` to `1920` and `compositionHeight` to `1080`. By default, the Player will also assume these dimensions.
+To make it smaller, pass a `style` prop to give the player a different width: `{"style={{width: 400}}"}`. See [Player Scaling](/docs/player/scaling) to learn more.
+:::
 
 ### `compositionHeight`
 
-The height of the composition in pixels.
+The height you would like the video to have when rendered as an MP4. Use `style={{height: <height>}}` to define a height to be assumed in the browser.
 
 ### `loop`
 
@@ -170,7 +178,7 @@ _optional_
 
 A callback function that allows you to return a custom UI that gets displayed while the player is loading.
 
-The first parameter contains the `height` and `width` of the player as it gets rendered.
+The first parameter of the callback function contains the `height` and `width` of the player as it gets rendered.
 
 ```tsx twoslash
 import { Player, RenderLoading } from "@remotion/player";
@@ -286,6 +294,84 @@ Limit playback to only play before a certain frame. The video will end at this f
 _optional, available from v3.2.24_
 
 If true, the controls flash when the player enters the scene. After 2 seconds without hover, the controls fade out. This is similar to how YouTube does it, and signals to the user that the player is in fact controllable. You can also pass a `number`, with which you can customize the duration in milliseconds. Default `true` since `v3.2.24`, before that unsupported.
+
+### `renderPlayPauseButton`
+
+_optional, available from v3.2.32_
+
+Allows you to customize the Play/Pause button of the controls, must be a callback function that returns a valid React element.
+
+```tsx twoslash
+const MyPlayButton: React.FC = () => null;
+const MyPauseButton: React.FC = () => null;
+const MyVideo: React.FC = () => null;
+// ---cut---
+import { Player, RenderPlayPauseButton } from "@remotion/player";
+import { useCallback } from "react";
+
+export const App: React.FC = () => {
+  const renderPlayPauseButton: RenderPlayPauseButton = useCallback(
+    ({ playing }) => {
+      if (playing) {
+        return <MyPlayButton />;
+      }
+
+      return <MyPauseButton />;
+    },
+    []
+  );
+
+  return (
+    <Player
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+      renderPlayPauseButton={renderPlayPauseButton}
+    />
+  );
+};
+```
+
+### `renderFullscreenButton`
+
+_optional, available from v3.2.32_
+
+Allows you to customise the fullscreen button of the player controls, must return a valid React element. If fullscreen is disabled or not available in a browser, it will not be rendered.
+
+```tsx twoslash
+const FullScreenButton: React.FC = () => null;
+const MinimiseButton: React.FC = () => null;
+const MyVideo: React.FC = () => null;
+// ---cut---
+import { Player, RenderFullscreenButton } from "@remotion/player";
+import { useCallback } from "react";
+
+export const App: React.FC = () => {
+  const renderFullscreenButton: RenderFullscreenButton = useCallback(
+    ({ isFullscreen }) => {
+      if (isFullscreen) {
+        return <MinimiseButton />;
+      }
+
+      return <FullScreenButton />;
+    },
+    []
+  );
+
+  return (
+    <Player
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+      renderFullscreenButton={renderFullscreenButton}
+    />
+  );
+};
+```
 
 ## `PlayerRef`
 
@@ -460,15 +546,17 @@ Using a [player ref](#playerref), you can bind event listeners to get notified o
 import { PlayerRef } from "@remotion/player";
 import { useEffect, useRef } from "react";
 // ---cut---
+import { CallbackListener } from "@remotion/player";
 const playerRef = useRef<PlayerRef>(null);
 
 useEffect(() => {
   if (!playerRef.current) {
     return;
   }
-  playerRef.current.addEventListener("play", () => {
-    console.log("playing");
-  });
+  const onPlay: CallbackListener<"play"> = () => {
+    console.log("play");
+  };
+  playerRef.current.addEventListener("play", onPlay);
   playerRef.current.addEventListener("ratechange", () => {
     console.log("ratechange");
   });
@@ -497,7 +585,7 @@ useEffect(() => {
 
 ### `seeked`
 
-Fired when the time position changes. You may get the current frame by reading it from `e.detail.frame`.
+Fired when the time position is changed by the user using the playback bar or using [`seek()`](#seek). You may get the current frame by reading it from `e.detail.frame`.
 
 ```tsx twoslash
 import { PlayerRef } from "@remotion/player";
@@ -512,7 +600,9 @@ playerRef.current.addEventListener("seeked", (e) => {
 });
 ```
 
-This event fires on every single frame update. Don't update your UI based on this event as it will cause a lot of rerenders. Use the [`timeupdate`](#timeupdate) event instead.
+This event fires on every single frame update. Prefer the [`timeupdate`](#timeupdate) event instead if the excessive rerenders cause slowdown.
+
+This event is only fired during seeking. Use [`frameupdate`](#frameupdate) instead if you also want to get time updates during playback.
 
 ### `ended`
 
@@ -532,7 +622,7 @@ Fires when the video has paused or ended.
 
 ### `timeupdate`
 
-Fires periodically when the video is playing. Unlike the [`seeked`](#seeked) event, frames are skipped, and the event is throttled to only fire a few times a second.
+Fires periodic time updates when the video is playing. Unlike the [`seeked`](#seeked) event, frames are skipped, and the event is throttled to only fire a few times a second at most every 250ms.
 
 ```tsx twoslash
 import { PlayerRef } from "@remotion/player";
@@ -546,6 +636,33 @@ playerRef.current.addEventListener("timeupdate", (e) => {
   console.log("current frame is " + e.detail.frame); // current frame is 120
 });
 ```
+
+Prefer the [`seeked`](#seeked) event if you only want to get time updates during seeking.
+
+Prefer the [`frameupdate`](#frameupdate) event if you need an update for every single frame.
+
+### `frameupdate`
+
+_Available from v3.2.27_
+
+Fires whenever the current time has changed, during both playback and seeking.
+
+```tsx twoslash
+import { PlayerRef } from "@remotion/player";
+import { useRef } from "react";
+const playerRef = useRef<PlayerRef>(null);
+if (!playerRef.current) {
+  throw new Error();
+}
+// ---cut---
+playerRef.current.addEventListener("frameupdate", (e) => {
+  console.log("current frame is " + e.detail.frame); // current frame is 120
+});
+```
+
+Prefer the [`seeked`](#seeked) event if you only want to get time updates during seeking.
+
+Prefer the [`timeupdate`](#timeupdate) event if you only need periodical updates (at most every 250ms).
 
 ### `fullscreenchange`
 
@@ -634,3 +751,5 @@ const MyApp: React.FC = () => {
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/player/src/Player.tsx)
+- [`<Composition>`](/docs/composition)
+- [`<Thumbnail>`](/docs/player/thumbnail)

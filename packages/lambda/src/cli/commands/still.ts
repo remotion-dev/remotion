@@ -1,6 +1,5 @@
-import {CliInternals} from '@remotion/cli';
-import type {StillImageFormat} from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
+import {CliInternals, ConfigInternals} from '@remotion/cli';
+import {getCompositions, RenderInternals} from '@remotion/renderer';
 import {downloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
 import {
@@ -10,6 +9,7 @@ import {
 } from '../../shared/constants';
 import {validatePrivacy} from '../../shared/validate-privacy';
 import {validateMaxRetries} from '../../shared/validate-retries';
+import {validateServeUrl} from '../../shared/validate-serveurl';
 import {parsedLambdaCli} from '../args';
 import {getAwsRegion} from '../get-aws-region';
 import {findFunctionName} from '../helpers/find-function-name';
@@ -18,7 +18,7 @@ import {Log} from '../log';
 
 export const STILL_COMMAND = 'still';
 
-export const stillCommand = async (args: string[]) => {
+export const stillCommand = async (args: string[], remotionRoot: string) => {
 	const serveUrl = args[0];
 
 	if (!serveUrl) {
@@ -33,32 +33,35 @@ export const stillCommand = async (args: string[]) => {
 		quit(1);
 	}
 
-	const composition = args[1];
+	const region = getAwsRegion();
+	let composition = args[1];
 	if (!composition) {
-		Log.error('No composition ID passed.');
-		Log.info('Pass an additional argument specifying the composition ID.');
-		Log.info();
-		Log.info(
-			`${BINARY_NAME} ${STILL_COMMAND} <serve-url> <composition-id> [output-location]`
-		);
-		quit(1);
+		Log.info('No compositions passed. Fetching compositions...');
+
+		validateServeUrl(serveUrl);
+		const comps = await getCompositions(serveUrl);
+		const {compositionId} = await CliInternals.selectComposition(comps);
+		composition = compositionId;
 	}
 
-	const outName = args[2] ?? null;
+	const downloadName = args[2] ?? null;
+	const outName = parsedLambdaCli['out-name'];
 
 	const {
 		chromiumOptions,
 		envVariables,
-		imageFormat,
 		inputProps,
 		logLevel,
 		puppeteerTimeout,
 		quality,
 		stillFrame,
 		scale,
+		height,
+		width,
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
+		remotionRoot,
 	});
 
 	const functionName = await findFunctionName();
@@ -69,38 +72,55 @@ export const stillCommand = async (args: string[]) => {
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy);
 
+	const {format: imageFormat, source: imageFormatReason} =
+		CliInternals.determineFinalImageFormat({
+			downloadName,
+			outName: outName ?? null,
+			configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
+			cliFlag: CliInternals.parsedCli['image-format'] ?? null,
+			isLambda: true,
+		});
+
 	try {
+		Log.info(
+			CliInternals.chalk.gray(
+				`functionName = ${functionName}, imageFormat = ${imageFormat} (${imageFormatReason})`
+			)
+		);
+
 		const res = await renderStillOnLambda({
 			functionName,
 			serveUrl,
 			inputProps,
-			imageFormat: imageFormat as StillImageFormat,
+			imageFormat,
 			composition,
 			privacy,
-			region: getAwsRegion(),
+			region,
 			maxRetries,
 			envVariables,
 			frame: stillFrame,
 			quality,
 			logLevel,
-			outName: parsedLambdaCli['out-name'],
+			outName,
 			chromiumOptions,
 			timeoutInMilliseconds: puppeteerTimeout,
 			scale,
+			forceHeight: height,
+			forceWidth: width,
 		});
-		Log.verbose(
+		Log.info(
 			CliInternals.chalk.gray(
-				`Bucket = ${res.bucketName}, renderId = ${res.renderId}, functionName = ${functionName}`
+				`Bucket = ${res.bucketName}, renderId = ${res.renderId}`
 			)
 		);
 		Log.verbose(`CloudWatch logs (if enabled): ${res.cloudWatchLogs}`);
 
-		if (outName) {
+		if (downloadName) {
 			Log.info('Finished rendering. Downloading...');
 			const {outputPath, sizeInBytes} = await downloadMedia({
 				bucketName: res.bucketName,
-				outPath: outName,
-				region: getAwsRegion(),
+				outPath: downloadName,
+				region,
 				renderId: res.renderId,
 			});
 			Log.info('Done!', outputPath, CliInternals.formatBytes(sizeInBytes));

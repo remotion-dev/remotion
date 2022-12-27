@@ -9,7 +9,7 @@ A package providing utility functions for dealing with SVG paths. This package c
 
 No dependencies are needed, meaning this package can be used independently of Remotion.
 
-## API
+## API
 
 - [`getLength()`](https://remotion.dev/docs/paths/get-length)
 - [`getParts()`](https://remotion.dev/docs/paths/get-parts)

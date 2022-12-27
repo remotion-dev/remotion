@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-staticfile.png
 id: staticfile
 title: staticFile()
+crumb: "API"
 ---
 
 _Available from v2.5.7._
@@ -28,8 +30,8 @@ my-video/
 │  ├─ my-image.png
 │  ├─ font.woff2
 ├─ src/
-│  ├─ Video.tsx
-│  ├─ index.tsx
+│  ├─ Root.tsx
+│  ├─ index.ts
 ├─ package.json
 ```
 

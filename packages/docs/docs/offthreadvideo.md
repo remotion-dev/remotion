@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-offthreadvideo.png
 id: offthreadvideo
 title: "<OffthreadVideo>"
+crumb: "API"
 ---
 
 _Available from Remotion 3.0.11_
@@ -39,7 +41,7 @@ export const MyComposition = () => {
 
 ## Props
 
-The props [`volume`](/docs/video#volume), [`playbackRate`](/docs/video#playbackrate) and [`muted`](/docs/video#muted) are supported and work the same as in [`<Video>`](/docs/video).
+The props [`volume`](/docs/video#volume), [`playbackRate`](/docs/video#playbackrate), [`muted`](/docs/video#muted) and [`acceptableTimeShiftInSeconds`](/docs/video#acceptabletimeshiftinseconds) are supported and work the same as in [`<Video>`](/docs/video).
 
 The props [`onError`](/docs/img#onerror), `className` and `style` are supported and get passed to the underlying HTML element. Remember that during render, this is a `<img>` element, and during preview, this is a `<video>` element.
 
@@ -50,9 +52,62 @@ _Available since v3.0.22_
 Either `jpeg` or `png`. Default `jpeg`.  
 With `png`, transparent videos (VP8, VP9, ProRes) can be displayed, however it is around 40% slower, with VP8 videos being [much slower](/docs/slow-method-to-extract-frame).
 
+## `allowAmplificationDuringRender`
+
+_Available from v3.3.17_
+
+Make values for [`volume`](/docs/video#volume) greater than `1` result in amplification during renders.  
+During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
+
 ## Performance tips
 
 Avoid embedding a video beyond it's end (for example: Rendering a 5 second video inside 10 second composition). To create parity with the `<Video>` element, the video still displays its last frame in that case. However, to fetch the last frame specifically is a significantly more expensive operation than a frame from a known timestamp.
+
+## Looping a video
+
+Unlike [`<Video>`](/docs/video), `OffthreadVideo` does not currently implement the `loop` property. You can use the following snippet that uses [`@remotion/media-utils`](/docs/media-utils/) to loop a video.
+
+```tsx twoslash title="LoopedOffthreadVideo.tsx"
+import { getVideoMetadata } from "@remotion/media-utils";
+import React, { useEffect, useState } from "react";
+import {
+  continueRender,
+  delayRender,
+  Loop,
+  OffthreadVideo,
+  staticFile,
+  useVideoConfig,
+} from "remotion";
+
+const src = staticFile("myvideo.mp4");
+
+export const LoopedOffthreadVideo: React.FC = () => {
+  const [duration, setDuration] = useState<null | number>(null);
+  const [handle] = useState(() => delayRender());
+  const { fps } = useVideoConfig();
+
+  useEffect(() => {
+    getVideoMetadata(src)
+      .then(({ durationInSeconds }) => {
+        setDuration(durationInSeconds);
+        continueRender(handle);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [handle]);
+
+  if (duration === null) {
+    return null;
+  }
+
+  return (
+    <Loop durationInFrames={Math.floor(fps * duration)}>
+      <OffthreadVideo src={src} />
+    </Loop>
+  );
+};
+```
 
 ## See also
 

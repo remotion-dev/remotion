@@ -97,6 +97,7 @@ export const SizeSelector: React.FC = () => {
 				leftItem:
 					String(size.size) === String(newSize.size) ? <Checkmark /> : null,
 				subMenu: null,
+				quickSwitcherLabel: null,
 			};
 		});
 	}, [setSize, size]);

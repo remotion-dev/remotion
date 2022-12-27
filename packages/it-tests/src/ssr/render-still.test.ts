@@ -32,13 +32,14 @@ test("Render video with browser instance open", async () => {
 
   const outPath = path.join(tmpDir, "out.mp4");
 
-  await renderStill({
+  const { buffer } = await renderStill({
     output: outPath,
     serveUrl: "https://gleaming-wisp-de5d2a.netlify.app/",
     composition: reactSvg,
     puppeteerInstance,
   });
-  await puppeteerInstance.close();
+  expect(buffer).toBe(null);
+  await puppeteerInstance.close(false);
 });
 
 test("Render still with browser instance not open and legacy webpack config", async () => {

@@ -20,14 +20,7 @@ afterEach(() => {
 test("Should be able to render video that was wrapped in context", async () => {
   await execa(
     "pnpm",
-    [
-      "exec",
-      "remotion",
-      "still",
-      "src/index.tsx",
-      "wrapped-in-context",
-      outputPath,
-    ],
+    ["exec", "remotion", "still", "wrapped-in-context", outputPath],
     {
       cwd: path.join(process.cwd(), "..", "example"),
     }

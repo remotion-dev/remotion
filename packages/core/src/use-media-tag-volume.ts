@@ -1,5 +1,5 @@
 import type {RefObject} from 'react';
-import { useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 
 // Returns the real volume of the audio or video while playing,
 // no matter what the supposed volume should be

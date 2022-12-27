@@ -1,4 +1,7 @@
+import type {AwsRegion} from '../client';
+import {AWS_REGIONS} from '../regions';
 import {REMOTION_BUCKET_PREFIX} from './constants';
+import {randomHash} from './random-hash';
 
 export const validateBucketName = (
 	bucketName: unknown,
@@ -28,4 +31,31 @@ export const validateBucketName = (
 	) {
 		throw new Error(`The bucket ${bucketName} `);
 	}
+};
+
+export const parseBucketName = (
+	name: string
+): {
+	region: AwsRegion | null;
+} => {
+	const parsed = name.match(
+		new RegExp(`^${REMOTION_BUCKET_PREFIX}(.*)-([a-z0-9A-Z]+)$`)
+	);
+	const region = parsed?.[1] as AwsRegion;
+
+	if (!region) {
+		return {region: null};
+	}
+
+	const realRegionFound = AWS_REGIONS.find(
+		(r) => r.replace(/-/g, '') === region
+	);
+
+	return {region: realRegionFound ?? null};
+};
+
+export const makeBucketName = (region: AwsRegion) => {
+	return `${REMOTION_BUCKET_PREFIX}${region.replace(/-/g, '')}-${randomHash({
+		randomInTests: false,
+	})}`;
 };

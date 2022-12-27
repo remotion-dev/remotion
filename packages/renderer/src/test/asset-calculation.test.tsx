@@ -39,6 +39,7 @@ test('Should be able to collect assets', async () => {
 		trimLeft: 0,
 		volume: 1,
 		playbackRate: 1,
+		allowAmplificationDuringRender: false,
 	});
 });
 
@@ -58,6 +59,7 @@ test('Should get multiple assets', async () => {
 		trimLeft: 0,
 		volume: 1,
 		playbackRate: 1,
+		allowAmplificationDuringRender: false,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'audio',
@@ -67,6 +69,7 @@ test('Should get multiple assets', async () => {
 		trimLeft: 0,
 		volume: 1,
 		playbackRate: 1,
+		allowAmplificationDuringRender: false,
 	});
 });
 
@@ -90,6 +93,7 @@ test('Should handle jumps inbetween', async () => {
 		trimLeft: 0,
 		volume: 1,
 		playbackRate: 1,
+		allowAmplificationDuringRender: false,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'video',
@@ -99,6 +103,7 @@ test('Should handle jumps inbetween', async () => {
 		trimLeft: 21,
 		volume: 1,
 		playbackRate: 1,
+		allowAmplificationDuringRender: false,
 	});
 });
 
@@ -119,6 +124,7 @@ test('Should support sequencing', async () => {
 		trimLeft: 20,
 		volume: 1,
 		playbackRate: 1,
+		allowAmplificationDuringRender: false,
 	});
 });
 
@@ -149,6 +155,7 @@ test('Should calculate volumes correctly', async () => {
 				interpolate(i, [0, 4], [0, 1], {extrapolateRight: 'clamp'})
 			)
 			.filter((f) => f > 0),
+		allowAmplificationDuringRender: false,
 	});
 });
 
@@ -189,5 +196,6 @@ test('Should calculate startFrom correctly', async () => {
 				})
 			)
 			.filter((i) => i > 0),
+		allowAmplificationDuringRender: false,
 	});
 });

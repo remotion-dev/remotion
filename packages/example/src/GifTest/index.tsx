@@ -7,7 +7,7 @@ const GifTest: React.FC = () => {
 
 	return (
 		<div style={{flex: 1, backgroundColor: 'black'}}>
-			<Sequence from={0} durationInFrames={50}>
+			<Sequence durationInFrames={50}>
 				<Gif src={giphy} width={width} height={height} fit="fill" />
 			</Sequence>
 

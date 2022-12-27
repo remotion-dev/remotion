@@ -1,9 +1,12 @@
 ---
+image: /generated/articles-docs-overwriting-webpack-config.png
 id: webpack
 title: Custom Webpack config
+crumb: "How To"
 ---
 
 import Tabs from "@theme/Tabs";
+import TabItem from '@theme/TabItem';
 
 Remotion ships with [it's own Webpack configuration](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/webpack-config.ts).
 
@@ -275,7 +278,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i glsl-shader-loader glslify glslify-import-loader raw-roader
+npm i glsl-shader-loader glslify glslify-import-loader raw-loader
 ```
 
   </TabItem>
@@ -283,14 +286,14 @@ npm i glsl-shader-loader glslify glslify-import-loader raw-roader
   <TabItem value="yarn">
 
 ```bash
-yarn add glsl-shader-loader glslify glslify-import-loader raw-roader
+yarn add glsl-shader-loader glslify glslify-import-loader raw-loader
 ```
 
   </TabItem>
   <TabItem value="pnpm">
 
 ```bash
-pnpm i glsl-shader-loader glslify glslify-import-loader raw-roader
+pnpm i glsl-shader-loader glslify glslify-import-loader raw-loader
 ```
 
   </TabItem>
@@ -334,7 +337,7 @@ import { enableGlsl } from "./src/enable-glsl";
 Config.Bundling.overrideWebpackConfig(enableGlsl);
 ```
 
-3. Add the following to your entry file (e.g. `src/index.tsx`):
+3. Add the following to your [entry point](/docs/terminology#entry-point) (e.g. `src/index.ts`):
 
 ```ts
 declare module "*.glsl" {

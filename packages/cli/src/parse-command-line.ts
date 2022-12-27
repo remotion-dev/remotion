@@ -27,11 +27,14 @@ export type CommandLineOptions = {
 	['disable-web-security']: string;
 	['every-nth-frame']: number;
 	['number-of-gif-loops']: number;
+	['number-of-shared-audio-tags']: number;
 	codec: Codec;
 	concurrency: number;
 	timeout: number;
 	config: string;
 	['public-dir']: string;
+	['audio-bitrate']: string;
+	['video-bitrate']: string;
 	crf: number;
 	force: boolean;
 	overwrite: boolean;
@@ -50,8 +53,14 @@ export type CommandLineOptions = {
 	['disable-headless']: boolean;
 	['disable-keyboard-shortcuts']: boolean;
 	muted: boolean;
+	height: number;
+	width: number;
+	runs: number;
+	concurrencies: string;
 	['enforce-audio-track']: boolean;
 	gl: OpenGlRenderer;
+	['package-manager']: string;
+	['webpack-poll']: number;
 };
 
 export const BooleanFlags = [
@@ -74,15 +83,16 @@ export const BooleanFlags = [
 	'ignore-certificate-errors',
 	'disable-headless',
 	'disable-keyboard-shortcuts',
+	'default-only',
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: BooleanFlags,
-});
+}) as CommandLineOptions & {
+	_: string[];
+};
 
-export const parseCommandLine = (
-	type: 'still' | 'sequence' | 'lambda' | 'preview' | 'versions'
-) => {
+export const parseCommandLine = () => {
 	if (parsedCli['pixel-format']) {
 		Config.Output.setPixelFormat(parsedCli['pixel-format']);
 	}
@@ -149,25 +159,19 @@ export const parseCommandLine = (
 		Config.Puppeteer.setTimeoutInMilliseconds(parsedCli.timeout);
 	}
 
-	if (parsedCli.frames) {
-		if (type === 'still') {
-			Log.error(
-				'--frames flag was passed to the `still` command. This flag only works with the `render` command. Did you mean `--frame`? See reference: https://www.remotion.dev/docs/cli/'
-			);
-			process.exit(1);
-		}
+	if (parsedCli.height) {
+		Config.Output.overrideHeight(parsedCli.height);
+	}
 
+	if (parsedCli.width) {
+		Config.Output.overrideWidth(parsedCli.width);
+	}
+
+	if (parsedCli.frames) {
 		ConfigInternals.setFrameRangeFromCli(parsedCli.frames);
 	}
 
 	if (parsedCli.frame) {
-		if (type === 'sequence') {
-			Log.error(
-				'--frame flag was passed to the `render` command. This flag only works with the `still` command. Did you mean `--frames`? See reference: https://www.remotion.dev/docs/cli/'
-			);
-			process.exit(1);
-		}
-
 		ConfigInternals.setStillFrame(Number(parsedCli.frame));
 	}
 
@@ -185,10 +189,6 @@ export const parseCommandLine = (
 
 	if (typeof parsedCli.crf !== 'undefined') {
 		Config.Output.setCrf(parsedCli.crf);
-	}
-
-	if (parsedCli.codec) {
-		Config.Output.setCodec(parsedCli.codec);
 	}
 
 	if (parsedCli['every-nth-frame']) {
@@ -237,6 +237,18 @@ export const parseCommandLine = (
 
 	if (typeof parsedCli['public-dir'] !== 'undefined') {
 		Config.Bundling.setPublicDir(parsedCli['public-dir']);
+	}
+
+	if (typeof parsedCli['webpack-poll'] !== 'undefined') {
+		Config.Preview.setWebpackPollingInMilliseconds(parsedCli['webpack-poll']);
+	}
+
+	if (typeof parsedCli['audio-bitrate'] !== 'undefined') {
+		Config.Output.setAudioBitrate(parsedCli['audio-bitrate']);
+	}
+
+	if (typeof parsedCli['video-bitrate'] !== 'undefined') {
+		Config.Output.setVideoBitrate(parsedCli['video-bitrate']);
 	}
 };
 

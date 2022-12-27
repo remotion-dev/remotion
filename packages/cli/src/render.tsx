@@ -13,13 +13,17 @@ import path from 'path';
 import {Internals} from 'remotion';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
+import {findEntryPoint} from './entry-point';
 import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
+	getFinalCodec,
+	validateFfmepgCanUseCodec,
 } from './get-cli-options';
-import {getCompositionId} from './get-composition-id';
+import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {getOutputFilename} from './get-filename';
-import {initializeRenderCli} from './initialize-render-cli';
+import {getRenderMediaOptions} from './get-render-media-options';
+import {getImageFormat} from './image-formats';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import type {DownloadProgress} from './progress-bar';
@@ -29,11 +33,16 @@ import {
 } from './progress-bar';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import type {RenderStep} from './step';
-import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
+import {getUserPassedOutputLocation} from './user-passed-output-location';
 
-export const render = async (remotionRoot: string) => {
+export const render = async (remotionRoot: string, args: string[]) => {
 	const startTime = Date.now();
-	const file = parsedCli._[1];
+	const {
+		file,
+		remainingArgs,
+		reason: entryPointReason,
+	} = findEntryPoint(args, remotionRoot);
+
 	if (!file) {
 		Log.error('No entry point specified. Pass more arguments:');
 		Log.error(
@@ -49,13 +58,16 @@ export const render = async (remotionRoot: string) => {
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
-	await initializeRenderCli(remotionRoot, 'sequence');
+	if (parsedCli.frame) {
+		Log.error(
+			'--frame flag was passed to the `render` command. This flag only works with the `still` command. Did you mean `--frames`? See reference: https://www.remotion.dev/docs/cli/'
+		);
+		process.exit(1);
+	}
 
 	Log.verbose('Asset dirs', downloadMap.assetDir);
 
 	const {
-		codec,
-		proResProfile,
 		concurrency,
 		frameRange,
 		shouldOutputImageSequence,
@@ -64,52 +76,32 @@ export const render = async (remotionRoot: string) => {
 		envVariables,
 		quality,
 		browser,
-		crf,
-		pixelFormat,
-		imageFormat,
 		browserExecutable,
 		ffmpegExecutable,
 		ffprobeExecutable,
 		scale,
 		chromiumOptions,
 		port,
-		numberOfGifLoops,
 		everyNthFrame,
 		puppeteerTimeout,
-		muted,
-		enforceAudioTrack,
 		publicDir,
-		ffmpegOverride,
+		height,
+		width,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
+		remotionRoot,
 	});
 
-	const relativeOutputLocation = getOutputFilename({
-		codec,
-		imageSequence: shouldOutputImageSequence,
-		compositionName: getCompositionId(),
-		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec, 'final'),
-	});
-
-	const absoluteOutputFile = getAndValidateAbsoluteOutputFile(
-		relativeOutputLocation,
-		overwrite
-	);
-
-	const compositionId = getCompositionId();
-
-	Log.info(
-		chalk.gray(
-			`Composition = ${compositionId}, Codec = ${codec}, Output = ${relativeOutputLocation}`
-		)
-	);
-
-	Log.verbose('Browser executable: ', browserExecutable);
-
-	await checkAndValidateFfmpegVersion({
+	const ffmpegVersion = await RenderInternals.getFfmpegVersion({
 		ffmpegExecutable,
+		remotionRoot,
 	});
+	Log.verbose(
+		'FFMPEG Version:',
+		ffmpegVersion ? ffmpegVersion.join('.') : 'Built from source'
+	);
+	Log.verbose('Browser executable: ', browserExecutable);
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
@@ -161,17 +153,26 @@ export const render = async (remotionRoot: string) => {
 		inputProps,
 		puppeteerInstance,
 		envVariables,
-		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: puppeteerTimeout,
 		chromiumOptions,
 		browserExecutable,
 		downloadMap,
+		port,
 	});
 
-	const config = comps.find((c) => c.id === compositionId);
+	const {compositionId, config, reason, argsAfterComposition} =
+		await getCompositionWithDimensionOverride({
+			validCompositions: comps,
+			height,
+			width,
+			args: remainingArgs,
+		});
 
-	if (!config) {
-		throw new Error(`Cannot find composition with ID ${compositionId}`);
-	}
+	const {codec, reason: codecReason} = getFinalCodec({
+		downloadName: null,
+		outName: getUserPassedOutputLocation(argsAfterComposition),
+	});
+	validateFfmepgCanUseCodec(codec, remotionRoot);
 
 	RenderInternals.validateEvenDimensionsWithCodec({
 		width: config.width,
@@ -179,6 +180,25 @@ export const render = async (remotionRoot: string) => {
 		codec,
 		scale,
 	});
+
+	const relativeOutputLocation = getOutputFilename({
+		codec,
+		imageSequence: shouldOutputImageSequence,
+		compositionName: compositionId,
+		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec, 'final'),
+		args: argsAfterComposition,
+	});
+
+	Log.info(
+		chalk.gray(
+			`Entry point = ${file} (${entryPointReason}), Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
+		)
+	);
+
+	const absoluteOutputFile = getAndValidateAbsoluteOutputFile(
+		relativeOutputLocation,
+		overwrite
+	);
 
 	const outputDir = shouldOutputImageSequence
 		? absoluteOutputFile
@@ -230,6 +250,10 @@ export const render = async (remotionRoot: string) => {
 			})
 		);
 	};
+
+	const imageFormat = getImageFormat(
+		shouldOutputImageSequence ? undefined : codec
+	);
 
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
@@ -289,20 +313,21 @@ export const render = async (remotionRoot: string) => {
 		Log.info();
 		Log.info();
 		Log.info(chalk.green('\nYour image sequence is ready!'));
+		Log.info(chalk.cyan(`▶ ${absoluteOutputFile}`));
+
 		return;
 	}
 
-	await renderMedia({
+	const options = await getRenderMediaOptions({
+		config,
 		outputLocation: absoluteOutputFile,
+		serveUrl: urlOrBundle,
 		codec,
-		composition: config,
-		crf,
-		envVariables,
-		ffmpegExecutable,
-		ffprobeExecutable,
-		frameRange,
-		imageFormat,
-		inputProps,
+		remotionRoot,
+	});
+
+	await renderMedia({
+		...options,
 		onProgress: (update) => {
 			encodedDoneIn = update.encodedDoneIn;
 			encodedFrames = update.encodedFrames;
@@ -312,36 +337,20 @@ export const render = async (remotionRoot: string) => {
 			updateRenderProgress();
 		},
 		puppeteerInstance,
-		overwrite,
-		concurrency,
-		pixelFormat,
-		proResProfile,
-		quality,
-		serveUrl: urlOrBundle,
 		onDownload,
-		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
-			ConfigInternals.Logging.getLogLevel(),
-			'verbose'
-		),
-		chromiumOptions,
-		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
-		scale,
-		port,
-		numberOfGifLoops,
-		everyNthFrame,
-		verbose: RenderInternals.isEqualOrBelowLogLevel(
-			ConfigInternals.Logging.getLogLevel(),
-			'verbose'
-		),
 		downloadMap,
-		muted,
-		enforceAudioTrack,
-		browserExecutable,
-		ffmpegOverride,
+		onSlowestFrames: (slowestFrames) => {
+			Log.verbose();
+			Log.verbose(`Slowest frames:`);
+			slowestFrames.forEach(({frame, time}) => {
+				Log.verbose(`Frame ${frame} (${time.toFixed(3)}ms)`);
+			});
+		},
 	});
 
 	Log.info();
 	Log.info();
+
 	const seconds = Math.round((Date.now() - startTime) / 1000);
 	Log.info(
 		[

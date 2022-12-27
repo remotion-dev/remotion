@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-env-variables.png
 id: env-variables
 title: Environment variables
+crumb: "How To"
 ---
 
 _Available from v2.1.2._

@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const ICON_SIZE = 25;
-const fullscreenIconSize = 16;
+export const fullscreenIconSize = 16;
 
 const rotate: React.CSSProperties = {
 	transform: `rotate(90deg)`,
@@ -35,13 +35,15 @@ export const PauseIcon: React.FC = () => {
 	);
 };
 
-export const FullscreenIcon: React.FC<{minimized: boolean}> = ({minimized}) => {
+export const FullscreenIcon: React.FC<{isFullscreen: boolean}> = ({
+	isFullscreen,
+}) => {
 	const strokeWidth = 6;
 	const viewSize = 32;
 
-	const out = minimized ? strokeWidth / 2 : 0;
-	const middleInset = minimized ? strokeWidth / 2 : strokeWidth * 1.6;
-	const inset = minimized ? strokeWidth * 2 : strokeWidth * 1.6;
+	const out = isFullscreen ? 0 : strokeWidth / 2;
+	const middleInset = isFullscreen ? strokeWidth * 1.6 : strokeWidth / 2;
+	const inset = isFullscreen ? strokeWidth * 1.6 : strokeWidth * 2;
 
 	return (
 		<svg

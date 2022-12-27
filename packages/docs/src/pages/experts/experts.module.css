@@ -6,7 +6,7 @@
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-image: url('/img/background-hire-page.svg');
+  background-image: url("/img/background-hire-page.svg");
   background-size: 100%;
   background-repeat: no-repeat;
 }

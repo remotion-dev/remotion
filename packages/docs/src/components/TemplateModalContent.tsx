@@ -98,6 +98,28 @@ const separator: React.CSSProperties = {
 
 let copyTimeout: NodeJS.Timeout | null = null;
 
+const layout = ({
+  template,
+  containerHeight,
+  possibleVideoWidth,
+}: {
+  template: Template;
+  containerHeight: number;
+  possibleVideoWidth: number;
+}) => {
+  const dimensions =
+    template.type === "video" ? template.promoVideo : template.promoBanner;
+  const heightRatio = (containerHeight ?? 0) / dimensions.height;
+  const widthRatio = (possibleVideoWidth ?? 0) / dimensions.width;
+
+  const ratio = Math.min(heightRatio, widthRatio);
+
+  const height = ratio * dimensions.height;
+  const width = ratio * dimensions.width;
+
+  return { height, width };
+};
+
 export const TemplateModalContent: React.FC<{
   template: Template;
   onDismiss: () => void;
@@ -133,13 +155,11 @@ export const TemplateModalContent: React.FC<{
     ? Infinity
     : Math.min(containerSize?.height ?? 0, 800);
 
-  const heightRatio = (containerHeight ?? 0) / template.promoVideo.height;
-  const widthRatio = (possibleVideoWidth ?? 0) / template.promoVideo.width;
-
-  const ratio = Math.min(heightRatio, widthRatio);
-
-  const height = ratio * template.promoVideo.height;
-  const width = ratio * template.promoVideo.width;
+  const { height, width } = layout({
+    template,
+    containerHeight,
+    possibleVideoWidth,
+  });
 
   const loadingStyle = useMemo(() => {
     return {
@@ -195,19 +215,31 @@ export const TemplateModalContent: React.FC<{
             <Spinner style={spinner} />
           </div>
         )}
-        <MuxVideo
-          muxId={template.promoVideo.muxId}
-          loop
-          height={height}
-          width={width}
-          autoPlay
-          muted
-          playsInline
-          style={{
-            display: "inline-flex",
-          }}
-          onLoadedMetadata={onLoadedMetadata}
-        />
+        {template.type === "video" ? (
+          <MuxVideo
+            muxId={template.promoVideo.muxId}
+            loop
+            height={height}
+            width={width}
+            autoPlay
+            muted
+            playsInline
+            style={{
+              display: "inline-flex",
+            }}
+            onLoadedMetadata={onLoadedMetadata}
+          />
+        ) : (
+          <img
+            src={template.promoBanner.src}
+            height={height}
+            width={width}
+            style={{
+              display: "inline-flex",
+            }}
+            onLoad={onLoadedMetadata}
+          />
+        )}
       </div>
       <div
         style={{

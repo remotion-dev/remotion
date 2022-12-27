@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-runtime.png
 id: runtime
 title: Runtime
 slug: /lambda/runtime
+crumb: "Lambda"
 ---
 
 import {DefaultMemorySize} from '../../components/lambda/default-memory-size';
@@ -84,6 +86,6 @@ While the set of default fonts that we can include must be kept small in order t
 
 See: [Customize Lambda layers](/docs/lambda/custom-layers) to learn about how you can customize this stack.
 
-## See also
+## See also
 
 - [Customize Lambda layers](/docs/lambda/custom-layers)

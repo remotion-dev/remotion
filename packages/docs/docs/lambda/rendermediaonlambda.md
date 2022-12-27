@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-lambda-rendermediaonlambda.png
 id: rendermediaonlambda
 title: renderMediaOnLambda()
+crumb: "Lambda API"
 ---
 
 import { MinimumFramesPerLambda } from "../../components/lambda/default-frames-per-lambda";
@@ -19,14 +21,9 @@ const { bucketName, renderId } = await renderMediaOnLambda({
   region: "us-east-1",
   functionName: "remotion-render-bds9aab",
   composition: "MyVideo",
-  framesPerLambda: 20,
   serveUrl:
     "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
-  inputProps: {},
   codec: "h264",
-  imageFormat: "jpeg",
-  maxRetries: 1,
-  privacy: "public",
 });
 ```
 
@@ -39,6 +36,8 @@ An object with the following properties:
 In which region your Lambda function is deployed. It's highly recommended that your Remotion site is also in the same region.
 
 ### `privacy`
+
+_optional since v3.2.27_
 
 One of:
 
@@ -74,6 +73,8 @@ The `id` of the [composition](/docs/composition) you want to render.
 
 ### `inputProps`
 
+_optional since v3.2.27_
+
 React props that are passed to your composition. You define the shape of the props that the component accepts.
 
 ### `codec`
@@ -86,11 +87,25 @@ Audio codecs `mp3`, `aac` and `wav` are also supported.
 
 See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
 
+### `forceHeight`
+
+_available from v3.2.40_
+
+Overrides default composition height.
+
+### `forceWidth`
+
+_available from v3.2.40_
+
+Overrides default composition width.
+
 ### `muted`
 
 Disables audio output. See also [`renderMedia() -> muted`](/docs/renderer/render-media#muted).
 
 ### `imageFormat`
+
+_optional since v3.2.27_
 
 See [`renderMedia() -> imageFormat`](/docs/renderer/render-media#imageformat).
 
@@ -114,9 +129,17 @@ See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile
 
 See [`renderMedia() -> quality`](/docs/renderer/render-media#quality).
 
+### `audioBitrate`
+
+See [`renderMedia() -> audioBitrate`](/docs/renderer/render-media#audiobitrate).
+
+### `videoBitrate`
+
+See [`renderMedia() -> videoBitrate`](/docs/renderer/render-media#videobitrate).
+
 ### `maxRetries`
 
-_optional, default `1`_
+_optional since v3.2.27, default `1`_
 
 How often a chunk may be retried to render in case the render fails.
 If a rendering of a chunk is failed, the error will be reported in the [`getRenderProgress()`](/docs/lambda/getrenderprogress) object and retried up to as many times as you specify using this option.
@@ -208,6 +231,42 @@ Accepted values:
 The default for Lambda is `swangle`, but `null` elsewhere.
 :::
 
+### `overwrite`
+
+_available from v3.2.25_
+
+If a custom out name is specified and a file already exists at this key in the S3 bucket, decide whether that file will be deleted before the render begins. Default `false`.
+
+An existing file at the output S3 key will conflict with the render and must be deleted beforehand. If this setting is `false` and a conflict occurs, an error will be thrown.
+
+### `webhook`
+
+_optional, available from v3.2.30_
+
+If specified, Remotion will send a POST request to the provided endpoint to notify your application when the Lambda rendering process finishes, errors out or times out.
+
+```tsx twoslash
+import { RenderMediaOnLambdaInput } from "@remotion/lambda";
+
+const webhook: RenderMediaOnLambdaInput["webhook"] = {
+  url: "https://mapsnap.app/api/webhook",
+  secret: process.env.WEBHOOK_SECRET as string,
+};
+```
+
+If you don't want to set up validation, you can set `secret` to null:
+
+```tsx twoslash
+import { RenderMediaOnLambdaInput } from "@remotion/lambda";
+
+const webhook: RenderMediaOnLambdaInput["webhook"] = {
+  url: "https://mapsnap.app/api/webhook",
+  secret: null,
+};
+```
+
+[See here for detailed instructions on how to set up your webhook](/docs/lambda/webhooks).
+
 ## Return value
 
 Returns a promise resolving to an object containing two properties: `renderId`, `bucketName`, `cloudWatchLogs`. Those are useful for passing to `getRenderProgress()`
@@ -222,17 +281,15 @@ The S3 bucket name in which all files are being saved.
 
 ### `cloudWatchLogs`
 
-_Available from v3.2.10_
+_available from v3.2.10_
 
 A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
 
-### `overwrite`
+### `folderInS3Console`
 
-_available from v3.2.25_
+_available from v3.2.43_
 
-If a custom out name is specified and a file already exists at this key in the S3 bucket, decide whether that file will be deleted before the render begins. Default `false`.
-
-An existing file at the output S3 key will conflict with the render and must be deleted beforehand. If this setting is `false` and a conflict occurs, an error will be thrown.
+A link to the folder in the AWS console where each chunk and render is located.
 
 ## See also
 

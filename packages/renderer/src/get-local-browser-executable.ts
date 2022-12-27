@@ -53,9 +53,7 @@ const getBrowserRevision = (product: Product) => {
 		platform: null,
 	});
 	const revisionInfo = browserFetcher.revisionInfo(
-		product === 'firefox'
-			? PUPPETEER_REVISIONS.firefox
-			: PUPPETEER_REVISIONS.chromium
+		PUPPETEER_REVISIONS.chromium
 	);
 
 	return revisionInfo;

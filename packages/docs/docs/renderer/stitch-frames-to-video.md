@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-renderer-stitch-frames-to-video.png
 id: stitch-frames-to-video
 title: stitchFramesToVideo()
+crumb: "@remotion/renderer"
 ---
 
 _Part of the `@remotion/renderer` package._
@@ -60,6 +62,27 @@ Sets the pixel format. See [here](/docs/config#setpixelformat) for available val
 _optional_
 
 Set a codec. See the [encoding guide](/docs/encoding) for available values and guidance on which one to choose. The default is `h264`.
+
+### `audioBitrate?`
+
+_string - optional, available from v3.2.32_
+
+Specify the target bitrate for the generated video.  
+The syntax for FFMPEGs `-b:v` parameter should be used.  
+FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
+This option cannot be set if `--crf` is set.
+Example values: `512K` for 512 kbps, `1M` for 1 Mbps.  
+Default: `320k`
+
+### `videoBitrate?`
+
+_string - optional, available from v3.2.32_
+
+Specify the target bitrate for the generated video.  
+The syntax for FFMPEGs `-b:v` parameter should be used.  
+FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
+This option cannot be set if `--crf` is set.
+Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 ### `crf?`
 

@@ -4,6 +4,7 @@ import React, {
 	useContext,
 	useEffect,
 	useImperativeHandle,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 } from 'react';
@@ -14,6 +15,7 @@ import {
 } from '../audio/use-audio-frame';
 import {CompositionManager} from '../CompositionManager';
 import {continueRender, delayRender} from '../delay-render';
+import {getRemotionEnvironment} from '../get-environment';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {random} from '../random';
 import {SequenceContext} from '../Sequence';
@@ -25,10 +27,24 @@ import {warnAboutNonSeekableMedia} from '../warn-about-non-seekable-media';
 import {getMediaTime} from './get-current-time';
 import type {RemotionVideoProps} from './props';
 
+type VideoForRenderingProps = RemotionVideoProps & {
+	onDuration: (src: string, durationInSeconds: number) => void;
+};
+
 const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
-	RemotionVideoProps
-> = ({onError, volume: volumeProp, playbackRate, ...props}, ref) => {
+	VideoForRenderingProps
+> = (
+	{
+		onError,
+		volume: volumeProp,
+		allowAmplificationDuringRender,
+		playbackRate,
+		onDuration,
+		...props
+	},
+	ref
+) => {
 	const absoluteFrame = useTimelinePosition();
 
 	const frame = useCurrentFrame();
@@ -63,6 +79,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		volume: volumeProp,
 		frame: volumePropsFrame,
 		mediaVolume: 1,
+		allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 	});
 
 	useEffect(() => {
@@ -90,6 +107,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			volume,
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
+			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 		});
 
 		return () => unregisterAsset(id);
@@ -103,6 +121,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		frame,
 		absoluteFrame,
 		playbackRate,
+		allowAmplificationDuringRender,
 	]);
 
 	useImperativeHandle(
@@ -210,11 +229,47 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		mediaStartsAt,
 	]);
 
+	const {src} = props;
+
+	// If video source switches, make new handle
+	if (getRemotionEnvironment() === 'rendering') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			if (process.env.NODE_ENV === 'test') {
+				return;
+			}
+
+			const newHandle = delayRender('Loading <Video> duration with src=' + src);
+			const {current} = videoRef;
+
+			const didLoad = () => {
+				if (current) {
+					onDuration(src as string, current.duration);
+				}
+
+				continueRender(newHandle);
+			};
+
+			if (current?.duration) {
+				onDuration(src as string, current.duration);
+				continueRender(newHandle);
+			} else {
+				current?.addEventListener('loadedmetadata', didLoad, {once: true});
+			}
+
+			// If tag gets unmounted, clear pending handles because video metadata is not going to load
+			return () => {
+				current?.removeEventListener('loadedmetadata', didLoad);
+				continueRender(newHandle);
+			};
+		}, [src, onDuration]);
+	}
+
 	return <video ref={videoRef} {...props} onError={onError} />;
 };
 
 export const VideoForRendering = forwardRef(
 	VideoForRenderingForwardFunction
 ) as ForwardRefExoticComponent<
-	RemotionVideoProps & RefAttributes<HTMLVideoElement>
+	VideoForRenderingProps & RefAttributes<HTMLVideoElement>
 >;

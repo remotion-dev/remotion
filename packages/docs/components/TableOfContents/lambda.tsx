@@ -26,6 +26,10 @@ export const TableOfContents: React.FC = () => {
           <strong>getFunctions()</strong>
           <div>Lists available Remotion Lambda functions</div>
         </TOCItem>
+        <TOCItem link="/docs/lambda/getcompositionsonlambda">
+          <strong>getCompositionsOnLambda()</strong>
+          <div>Gets list of compositions inside a Lambda function</div>
+        </TOCItem>
         <TOCItem link="/docs/lambda/deletesite">
           <strong>deleteSite()</strong>
           <div>Delete a bundle from S3</div>
@@ -81,6 +85,10 @@ export const TableOfContents: React.FC = () => {
         <TOCItem link="/docs/lambda/simulatepermissions">
           <strong>simulatePermissions()</strong>
           <div>Ensure permissions are correctly set up</div>
+        </TOCItem>
+        <TOCItem link="/docs/lambda/validatewebhooksignature">
+          <strong>validateWebhookSignature()</strong>
+          <div>Validate an incoming webhook request is authentic</div>
         </TOCItem>
       </Grid>
     </div>

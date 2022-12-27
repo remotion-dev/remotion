@@ -1,10 +1,9 @@
 import type {
 	ComponentPropsWithRef,
 	ComponentType,
-	ExoticComponent} from 'react';
-import React, {
-	useMemo,
+	ExoticComponent,
 } from 'react';
+import React, {useMemo} from 'react';
 import type {CompProps} from './internals';
 
 type LazyExoticComponent<T extends ComponentType<any>> = ExoticComponent<

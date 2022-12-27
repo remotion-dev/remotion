@@ -1,14 +1,9 @@
 import type {
 	InputHTMLAttributes,
 	MouseEventHandler,
-	PointerEventHandler} from 'react';
-import React, {
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
+	PointerEventHandler,
 } from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {interpolate} from 'remotion';
 import {noop} from '../../helpers/noop';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';

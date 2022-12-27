@@ -41,8 +41,26 @@ export type ConfigType = {
 		 * @default true
 		 */
 		readonly setKeyboardShortcutsEnabled: (enableShortcuts: boolean) => void;
+		/**
+		 * Set number of shared audio tags. https://www.remotion.dev/docs/player/autoplay#use-the-numberofsharedaudiotags-property
+		 * @param numberOfAudioTags
+		 * @default 0
+		 */
+		readonly setNumberOfSharedAudioTags: (numberOfAudioTags: number) => void;
+		/**
+		 * Enable Webpack polling instead of file system listeners for hot reloading in the preview.
+		 * This is useful if you are using a remote directory or a virtual machine.
+		 * @param interval
+		 * @default null
+		 */
+		readonly setWebpackPollingInMilliseconds: (interval: number | null) => void;
 	};
 	readonly Bundling: {
+		/**
+		 * Specify the entry point so you don't have to specify it in the
+		 * CLI command
+		 */
+		readonly setEntryPoint: (src: string) => void;
 		/**
 		 * Pass in a function which takes the current Webpack config
 		 * and return a modified Webpack configuration.
@@ -228,6 +246,14 @@ export type ConfigType = {
 		 */
 		readonly setImageSequence: (newImageSequence: boolean) => void;
 		/**
+		 * Overrides the height of a composition
+		 */
+		readonly overrideHeight: (newHeight: number) => void;
+		/**
+		 * Overrides the width of a composition
+		 */
+		readonly overrideWidth: (newWidth: number) => void;
+		/**
 		 * Set the ProRes profile.
 		 * This method is only valid if the codec has been set to 'prores'.
 		 * Possible values: 4444-xq, 4444, hq, standard, light, proxy. Default: 'hq'
@@ -253,6 +279,17 @@ export type ConfigType = {
 				args: string[];
 			}) => string[]
 		) => void;
+
+		/**
+		 * Set a target audio bitrate to be passed to FFMPEG.
+		 */
+		readonly setAudioBitrate: (bitrate: string | null) => void;
+
+		/**
+		 * Set a target video bitrate to be passed to FFMPEG.
+		 * Mutually exclusive with setCrf().
+		 */
+		readonly setVideoBitrate: (bitrate: string | null) => void;
 	};
 };
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};

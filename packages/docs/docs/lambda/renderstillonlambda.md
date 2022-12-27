@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-renderstillonlambda.png
 id: renderstillonlambda
 title: renderStillOnLambda()
 slug: /lambda/renderstillonlambda
+crumb: "Lambda API"
 ---
 
 Renders a still image inside a lambda function and writes it to the specified output location.
@@ -70,7 +72,9 @@ One of:
 
 _optional - default `0`_
 
-Which frame of the composition should be rendered.
+Which frame of the composition should be rendered. Frames are zero-indexed.
+
+From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 ### `imageFormat?`
 
@@ -97,6 +101,18 @@ How often a frame render may be retried until it fails.
 _optional - default `{}`_
 
 See [`renderMedia() -> envVariables`](/docs/renderer/render-media#envvariables).
+
+### `forceHeight`
+
+_optional, available from v3.2.40_
+
+Overrides the default composition height.
+
+### `forceWidth`
+
+_optional, available from v3.2.40_
+
+Overrides the default composition width.
 
 ### `scale`
 

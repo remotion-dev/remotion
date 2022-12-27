@@ -1,4 +1,4 @@
-import type { MutableRefObject} from 'react';
+import type {MutableRefObject} from 'react';
 import {createContext, useContext, useMemo} from 'react';
 
 export type PlayableMediaTag = {

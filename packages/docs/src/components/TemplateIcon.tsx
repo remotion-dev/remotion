@@ -8,7 +8,7 @@ const outer: React.CSSProperties = {
   flexDirection: "column",
   color: "var(--light-text-color)",
   cursor: "pointer",
-  filter: 'drop-shadow(0px 0px 4px var(--background))',
+  filter: "drop-shadow(0px 0px 4px var(--background))",
 };
 
 const icon: React.CSSProperties = {

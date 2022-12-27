@@ -1,8 +1,10 @@
 ---
+image: /generated/articles-docs-getting-started.png
 id: getting-started
 title: Setup and Installation
 sidebar_label: Installation
 slug: /
+crumb: "Let's begin!"
 ---
 
 import Tabs from '@theme/Tabs';
@@ -10,12 +12,7 @@ import TabItem from '@theme/TabItem';
 
 ## Prerequisites
 
-The only dependencies for Remotion are Node.JS and FFMPEG.
-
-See:
-
-- [Installing Node.js](https://nodejs.org/en/download/) - Minimum: Version 14.0.0
-- [Installing FFMPEG](https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg) - Minimum version: 4.1.0 - only needed if you want to render your video.
+To use Remotion, you need at least Node 14. See: [Installing Node.js](https://nodejs.org/en/download/)
 
 ## Installation
 
@@ -89,6 +86,11 @@ Watch out for `apt` wanting to uninstall critical packages (e.g the Desktop) in 
 </Tabs>
 
 Got instructions for more Linux distributions? [Add them to this page](https://github.com/remotion-dev/remotion/edit/main/packages/docs/docs/getting-started.md)!
+
+## FFmpeg requirement
+
+Remotion requires `ffmpeg` and `ffprobe` binaries (minimum version 4.1) to render videos.  
+If you don't have them, [Remotion will try to install FFmpeg for you](/docs/ffmpeg).
 
 ## Installation in existing projects
 

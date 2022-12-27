@@ -30,14 +30,18 @@ const getUpgradeCommand = ({
 	return commands[manager];
 };
 
-export const upgrade = async (remotionRoot: string) => {
+export const upgrade = async (
+	remotionRoot: string,
+	packageManager: string | undefined
+) => {
 	const packageJsonFilePath = path.join(remotionRoot, 'package.json');
 
 	const packageJson = require(packageJsonFilePath);
 	const dependencies = Object.keys(packageJson.dependencies);
 	const latestRemotionVersion = await getLatestRemotionVersion();
+	Log.info('Newest Remotion version is', latestRemotionVersion);
 
-	const manager = getPackageManager(remotionRoot);
+	const manager = getPackageManager(remotionRoot, packageManager);
 
 	if (manager === 'unknown') {
 		throw new Error(
@@ -73,4 +77,5 @@ export const upgrade = async (remotionRoot: string) => {
 
 	await prom;
 	Log.info('⏫ Remotion has been upgraded!');
+	Log.info('https://remotion.dev/changelog');
 };

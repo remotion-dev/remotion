@@ -11,6 +11,7 @@ import { IfYouKnowReact } from "../../components/LandingPage/if-you-know-react";
 import { Parametrize } from "../../components/LandingPage/parametrize";
 import { RealMP4Videos } from "../../components/LandingPage/real-mp4-videos";
 import { WriteInReact } from "../../components/LandingPage/WriteInReact";
+import { Unwrapped } from "../../components/Unwrapped";
 import styles from "./landing.module.css";
 
 setTimeout(() => {
@@ -36,6 +37,9 @@ const NewLanding: React.FC = () => {
 
       <div className={styles.content}>
         <WriteInReact />
+        <br />
+        <br />
+        <Unwrapped />
         <br />
         <br />
         <IfYouKnowReact />

@@ -1,5 +1,5 @@
 import React, {Suspense, useContext, useMemo, useState} from 'react';
-import type { TComposition, TimelineContextValue} from 'remotion';
+import type {TComposition, TimelineContextValue} from 'remotion';
 import {Internals, random} from 'remotion';
 import {
 	checkerboardBackgroundColor,

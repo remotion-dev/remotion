@@ -113,4 +113,8 @@ export const usePlayback = ({
 
 		return () => clearInterval(interval);
 	}, [emitter]);
+
+	useEffect(() => {
+		emitter.dispatchFrameUpdate({frame});
+	}, [emitter, frame]);
 };

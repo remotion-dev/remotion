@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-cli-compositions.png
 title: npx remotion compositions
 sidebar_label: compositions
+crumb: CLI Reference
 ---
 
 _Available from v2.6.12._
@@ -10,6 +12,12 @@ Print list of composition IDs based on a path of an entry point.
 ```bash
 npx remotion compositions <entry-file>
 ```
+
+If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:
+
+1. Get the path from the Config (Can be set using `Config.Preview.setEntryPoint("<entry-point>")`).
+2. Look for some common paths i.e. `src/index.ts`, `src/index.tsx`, `src/index.js`, `remotion/index.js`.
+3. Fail as entry point could not be determined.
 
 ## Flags
 
@@ -73,6 +81,8 @@ Results in invalid SSL certificates in Chrome, such as self-signed ones, being i
 
 ### `--disable-web-security`
 
+_available since v2.6.5_
+
 This will most notably disable CORS in Chrome among other security features.
 
 ### `--disable-headless`
@@ -82,3 +92,10 @@ Opens an actual browser to observe the composition fetching.
 ### `--quiet`, `--q`
 
 Only prints the composition IDs, separated by a space.
+
+## See also
+
+- [`getCompositions()`](/docs/cli/compositions)
+- [`npx remotion compositions`](/docs/cli/compositions)
+- [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda)
+- [`npx remotion lambda compositions`](/docs/lambda/cli/compositions)

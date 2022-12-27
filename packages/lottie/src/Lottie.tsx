@@ -14,6 +14,7 @@ export const Lottie = ({
 	loop,
 	playbackRate,
 	style,
+	onAnimationLoaded,
 }: LottieProps) => {
 	if (typeof animationData !== 'object') {
 		throw new Error(
@@ -27,6 +28,10 @@ export const Lottie = ({
 	const animationRef = useRef<AnimationItem>();
 	const lastFrameRef = useRef<number | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
+
+	const onAnimationLoadedRef = useRef<LottieProps['onAnimationLoaded']>();
+	onAnimationLoadedRef.current = onAnimationLoaded;
+
 	const [handle] = useState(() =>
 		delayRender('Waiting for Lottie animation to load')
 	);
@@ -53,6 +58,8 @@ export const Lottie = ({
 		};
 
 		animation.addEventListener('DOMLoaded', onComplete);
+
+		onAnimationLoadedRef.current?.(animation);
 
 		return () => {
 			lastFrameRef.current = animation.currentFrame;
@@ -87,6 +94,29 @@ export const Lottie = ({
 		});
 
 		animationRef.current.goToAndStop(nextFrame, true);
+		const images = containerRef.current?.querySelectorAll(
+			'image'
+		) as NodeListOf<SVGImageElement>;
+		images.forEach((img) => {
+			const imgHandle = delayRender(
+				`Waiting for lottie image with src="${img.href.baseVal}" to load`
+			);
+
+			// https://stackoverflow.com/a/46839799
+			img.addEventListener(
+				'load',
+				() => {
+					continueRender(imgHandle);
+				},
+				{once: true}
+			);
+
+			img.setAttributeNS(
+				'http://www.w3.org/1999/xlink',
+				'xlink:href',
+				img.href.baseVal as string
+			);
+		});
 	}, [direction, frame, loop, playbackRate]);
 
 	return <div ref={containerRef} className={className} style={style} />;

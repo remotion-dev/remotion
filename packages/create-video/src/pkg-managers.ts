@@ -1,4 +1,6 @@
+import {exec} from 'child_process';
 import path from 'path';
+import type {Template} from './templates';
 
 export type PackageManager = 'npm' | 'yarn' | 'pnpm';
 
@@ -52,6 +54,29 @@ export const getInstallCommand = (manager: PackageManager) => {
 	}
 };
 
+export const getDevCommand = (manager: PackageManager, template: Template) => {
+	if (template.cliId === 'remix') {
+		return `${getRunCommand(manager)} dev`;
+	}
+
+	return getStartCommand(manager);
+};
+
+export const getRenderCommandForTemplate = (
+	manager: PackageManager,
+	template: Template
+) => {
+	if (template.cliId === 'remix') {
+		return `${getRunCommand(manager)} remotion:render`;
+	}
+
+	if (template.cliId === 'still') {
+		return `${getRunCommand(manager)} render`;
+	}
+
+	return getRenderCommand(manager);
+};
+
 export const getStartCommand = (manager: PackageManager) => {
 	if (manager === 'npm') {
 		return `npm start`;
@@ -80,16 +105,52 @@ export const getRenderCommand = (manager: PackageManager) => {
 	}
 };
 
-export const getUpgradeCommand = (manager: PackageManager) => {
+export const getRunCommand = (manager: PackageManager) => {
 	if (manager === 'npm') {
-		return `npm run upgrade`;
+		return `npm run`;
 	}
 
 	if (manager === 'yarn') {
-		return `yarn run upgrade`;
+		return `yarn run`;
 	}
 
 	if (manager === 'pnpm') {
-		return `pnpm run upgrade`;
+		return `pnpm run`;
+	}
+
+	throw new TypeError('unknown package manager');
+};
+
+export const getPackageManagerVersion = (
+	manager: PackageManager
+): Promise<string> => {
+	const cmd: `${PackageManager} -v` = `${manager} -v`;
+
+	return new Promise((resolve, reject) => {
+		exec(cmd, (error, stdout, stderr) => {
+			if (error) {
+				reject(error);
+				return;
+			}
+
+			if (stderr) {
+				reject(stderr);
+				return;
+			}
+
+			resolve(stdout.trim());
+		});
+	});
+};
+
+export const getPackageManagerVersionOrNull = async (
+	manager: PackageManager
+): Promise<string | null> => {
+	try {
+		const version = await getPackageManagerVersion(manager);
+		return version;
+	} catch (err) {
+		console.warn(`Could not determine the version of ${manager}.`);
+		return null;
 	}
 };

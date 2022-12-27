@@ -1,39 +1,19 @@
 import {RenderInternals} from '@remotion/renderer';
-import {canUseOptimization} from './can-use-optimization';
-import type {OptimizationProfile} from './types';
 
 export const planFrameRanges = ({
 	framesPerLambda,
-	optimization,
-	shouldUseOptimization,
 	frameRange,
 	everyNthFrame,
 }: {
 	framesPerLambda: number;
-	optimization: OptimizationProfile | null;
-	shouldUseOptimization: boolean;
 	frameRange: [number, number];
 	everyNthFrame: number;
-}): {chunks: [number, number][]; didUseOptimization: boolean} => {
+}): {chunks: [number, number][]} => {
 	const framesToRender = RenderInternals.getFramesToRender(
 		frameRange,
 		everyNthFrame
 	);
 	const chunkCount = Math.ceil(framesToRender.length / framesPerLambda);
-
-	if (
-		canUseOptimization({
-			optimization,
-			framesPerLambda,
-			frameRange,
-		}) &&
-		shouldUseOptimization
-	) {
-		return {
-			chunks: (optimization as OptimizationProfile).ranges,
-			didUseOptimization: true,
-		};
-	}
 
 	const firstFrame = frameRange[0];
 	return {
@@ -47,6 +27,5 @@ export const planFrameRanges = ({
 
 			return [start, end];
 		}),
-		didUseOptimization: false,
 	};
 };

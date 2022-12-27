@@ -9,6 +9,7 @@ declare global {
 		setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
 		remotion_editorName: string | null;
+		remotion_numberOfAudioTags: number;
 		remotion_projectName: string;
 		remotion_cwd: string;
 		remotion_previewServerCommand: string;
@@ -66,7 +67,7 @@ export * from './interpolate';
 export {interpolateColors} from './interpolate-colors';
 export {Loop} from './loop';
 export {prefetch} from './prefetch';
-export * from './random';
+export {random, RandomSeed} from './random';
 export {registerRoot} from './register-root';
 export {Sequence, SequenceProps} from './Sequence';
 export {Series} from './series';

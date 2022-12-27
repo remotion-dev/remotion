@@ -19,7 +19,7 @@ import type {BrowserConnectOptions} from './BrowserConnector';
 import type {BrowserFetcherOptions} from './BrowserFetcher';
 import {BrowserFetcher} from './BrowserFetcher';
 import type {ProductLauncher} from './Launcher';
-import Launcher from './Launcher';
+import {ChromeLauncher} from './Launcher';
 import type {
 	BrowserLaunchArgumentOptions,
 	LaunchOptions,
@@ -69,16 +69,12 @@ export class PuppeteerNode {
 			this.#lazyLauncher.product !== this.#productName
 		) {
 			switch (this.#productName) {
-				case 'firefox':
-					this._preferredRevision = PUPPETEER_REVISIONS.firefox;
-					break;
 				case 'chrome':
 				default:
 					this._preferredRevision = PUPPETEER_REVISIONS.chromium;
 			}
 
-			// eslint-disable-next-line new-cap
-			this.#lazyLauncher = Launcher(this._preferredRevision, this.#productName);
+			this.#lazyLauncher = new ChromeLauncher(this._preferredRevision);
 		}
 
 		return this.#lazyLauncher;

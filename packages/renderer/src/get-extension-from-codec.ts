@@ -1,9 +1,18 @@
 import type {Codec} from './codec';
+import {validCodecs} from './codec';
 
 export const getFileExtensionFromCodec = (
 	codec: Codec,
 	type: 'chunk' | 'final'
 ) => {
+	if (!validCodecs.includes(codec)) {
+		throw new Error(
+			`Codec must be one of the following: ${validCodecs.join(
+				', '
+			)}, but got ${codec}`
+		);
+	}
+
 	switch (codec) {
 		case 'aac':
 			return 'aac';

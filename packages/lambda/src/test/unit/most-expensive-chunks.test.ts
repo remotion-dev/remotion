@@ -1,3 +1,5 @@
+import {expect, test} from 'vitest';
+
 import {getMostExpensiveChunks} from '../../shared/get-most-expensive-chunks';
 
 test('Should calculate most expensive chunks', () => {

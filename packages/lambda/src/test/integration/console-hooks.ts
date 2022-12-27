@@ -1,4 +1,5 @@
 import {Internals} from 'remotion';
+import {afterEach, beforeEach} from 'vitest';
 import {cleanFnStore} from '../../api/mock-functions';
 
 let stdoutOutput: string[] = [];

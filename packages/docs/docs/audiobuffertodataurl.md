@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-audiobuffertodataurl.png
 id: audio-buffer-to-data-url
 title: audioBufferToDataUrl()
+crumb: "@remotion/media-utils"
 ---
 
 _Part of the `@remotion/media-utils` package of helper functions. Available from v2.5.7._
@@ -88,5 +90,5 @@ export const OfflineAudioBufferExample: React.FC = () => {
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/audio-buffer/audio-helpers.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/audio-buffer/audio-url-helpers.ts)
 - [Rendering audio only](/docs/using-audio/#rendering-audio-only)

@@ -52,6 +52,7 @@ export const PlaybackRateSelector: React.FC<{
 						<Checkmark />
 					) : null,
 				subMenu: null,
+				quickSwitcherLabel: null,
 			};
 		});
 		const middle = Math.floor(commonPlaybackRates.length / 2);
