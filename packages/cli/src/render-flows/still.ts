@@ -111,8 +111,10 @@ export const renderStillFlow = async ({
 	let renderProgress: OverwriteableCliOutput | null = null;
 
 	const updateProgress = () => {
-		const {output, progress, message} =
-			makeRenderingAndStitchingProgress(aggregate);
+		const {output, progress, message} = makeRenderingAndStitchingProgress(
+			aggregate,
+			indentOutput
+		);
 		if (renderProgress) {
 			renderProgress.update(output);
 		}
@@ -135,7 +137,7 @@ export const renderStillFlow = async ({
 		chromiumOptions,
 		shouldDumpIo,
 		forceDeviceScaleFactor: scale,
-		indentationString: chalk.gray(INDENT_TOKEN + ' '),
+		indentationString: indentOutput ? INDENT_TOKEN + ' ' : '',
 	});
 
 	const steps: RenderStep[] = [
@@ -217,7 +219,6 @@ export const renderStillFlow = async ({
 
 	renderProgress = createOverwriteableCliOutput({
 		quiet: quietFlagProvided(),
-		indent: true,
 	});
 	const renderStart = Date.now();
 
