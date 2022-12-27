@@ -1,5 +1,6 @@
 import {spawn} from 'child_process';
 import {platform} from 'os';
+import {truthy} from '../../truthy';
 
 export const openDirectoryInFinder = (dirToOpen: string) => {
 	const command =
@@ -7,12 +8,12 @@ export const openDirectoryInFinder = (dirToOpen: string) => {
 			? 'open'
 			: platform() === 'linux'
 			? 'xdg-open'
-			: 'explorer';
+			: 'start';
 
-	// TODO: What if file was deleted in the meanwhile?
-
-	// TODO: '-R' only works on macOS
-	const p = spawn(command, ['-R', dirToOpen]);
+	const p = spawn(
+		command,
+		[platform() === 'darwin' ? '-R' : null, dirToOpen].filter(truthy)
+	);
 
 	const stderrChunks: Buffer[] = [];
 	p.stderr.on('data', (d) => stderrChunks.push(d));
