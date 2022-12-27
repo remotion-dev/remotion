@@ -26,7 +26,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	remotionRoot: string;
 	steps: RenderStep[];
 	publicDir: string | null;
-	onProgress: (prog: number) => void;
+	onProgress: (params: {progress: number; message: string}) => void;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => Promise<void>;
@@ -43,7 +43,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		remotionRoot,
 		steps,
 		publicDir,
-		onProgress,
+		onProgressCallback: onProgress,
 	});
 
 	return {
@@ -57,13 +57,13 @@ export const bundleOnCli = async ({
 	steps,
 	remotionRoot,
 	publicDir,
-	onProgress: progCallback,
+	onProgressCallback,
 }: {
 	fullPath: string;
 	steps: RenderStep[];
 	remotionRoot: string;
 	publicDir: string | null;
-	onProgress: (prog: number) => void;
+	onProgressCallback: (params: {progress: number; message: string}) => void;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -96,7 +96,10 @@ export const bundleOnCli = async ({
 			}) + (newline ? '\n' : '')
 		);
 		// TODO: Take copying into account
-		progCallback(bundlingState.progress);
+		onProgressCallback({
+			progress: bundlingState.progress,
+			message: `Bundling (${Math.round(bundlingState.progress * 100)}%)`,
+		});
 	};
 
 	const onPublicDirCopyProgress = (bytes: number) => {
