@@ -97,7 +97,6 @@ export const renderStillFlow = async ({
 	onProgress: JobProgressCallback;
 	indentOutput: boolean;
 }) => {
-	const startTime = Date.now();
 	const downloads: DownloadProgress[] = [];
 
 	const aggregate: AggregateRenderProgress = {
@@ -277,19 +276,6 @@ export const renderStillFlow = async ({
 
 	const closeBrowserPromise = puppeteerInstance.close(false);
 
-	Log.infoIndent(indentOutput);
-	Log.infoIndent(indentOutput, chalk.green('Your still frame is ready!'));
-
-	const seconds = Math.round((Date.now() - startTime) / 1000);
-	Log.infoIndent(
-		indentOutput,
-		[
-			'- Total render time:',
-			seconds,
-			seconds === 1 ? 'second' : 'seconds',
-		].join(' ')
-	);
-	Log.infoIndent(indentOutput, '-', 'Output can be found at:');
 	Log.infoIndent(indentOutput, chalk.cyan(`▶️ ${absoluteOutputLocation}`));
 	await closeBrowserPromise;
 	await RenderInternals.cleanDownloadMap(downloadMap);
