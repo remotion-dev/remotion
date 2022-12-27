@@ -15,6 +15,7 @@ export type ModalState =
 	| {
 			type: 'render';
 			composition: TCompMetadata;
+			initialFrame: number;
 	  }
 	| {
 			type: 'render-error';
