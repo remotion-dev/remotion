@@ -173,7 +173,9 @@ export const makeRenderingProgress = (
 			.filter(truthy)
 			.join(' '),
 		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
-	].join(' ');
+	]
+		.filter(truthy)
+		.join(' ');
 };
 
 type StitchingProgressInput = {
@@ -205,7 +207,9 @@ export const makeStitchingProgress = (
 			? `${doneIn ? 'Muxed' : 'Muxing'} ${mediaType}`
 			: `${doneIn ? 'Encoded' : 'Encoding'} ${mediaType}`,
 		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
-	].join(' ');
+	]
+		.filter(truthy)
+		.join(' ');
 };
 
 export type DownloadProgress = {
