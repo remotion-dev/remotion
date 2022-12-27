@@ -9,14 +9,10 @@ export const INDENT_TOKEN = '│';
 
 export const Log = {
 	verbose: (...args: Parameters<typeof console.log>) => {
-		if (
-			RenderInternals.isEqualOrBelowLogLevel(
-				ConfigInternals.Logging.getLogLevel(),
-				'verbose'
-			)
-		) {
-			return console.log(...args.map((a) => chalk.blueBright(a)));
-		}
+		Log.verboseAdvanced(
+			{indent: false, logLevel: ConfigInternals.Logging.getLogLevel()},
+			...args
+		);
 	},
 	verboseAdvanced: (
 		options: {indent: boolean; logLevel: LogLevel},
@@ -31,14 +27,10 @@ export const Log = {
 		}
 	},
 	info: (...args: Parameters<typeof console.log>) => {
-		if (
-			RenderInternals.isEqualOrBelowLogLevel(
-				ConfigInternals.Logging.getLogLevel(),
-				'info'
-			)
-		) {
-			return console.log(...args);
-		}
+		Log.infoAdvanced(
+			{indent: false, logLevel: ConfigInternals.Logging.getLogLevel()},
+			...args
+		);
 	},
 	infoAdvanced: (
 		options: {indent: boolean; logLevel: LogLevel},
@@ -53,13 +45,21 @@ export const Log = {
 		}
 	},
 	warn: (...args: Parameters<typeof console.log>) => {
-		if (
-			RenderInternals.isEqualOrBelowLogLevel(
-				ConfigInternals.Logging.getLogLevel(),
-				'warn'
-			)
-		) {
-			return console.warn(...args.map((a) => chalk.yellow(a)));
+		Log.warnAdvanced(
+			{indent: false, logLevel: ConfigInternals.Logging.getLogLevel()},
+			...args
+		);
+	},
+	warnAdvanced: (
+		options: {indent: boolean; logLevel: LogLevel},
+		...args: Parameters<typeof console.log>
+	) => {
+		if (RenderInternals.isEqualOrBelowLogLevel(options.logLevel, 'warn')) {
+			return console.warn(
+				...[options.indent ? chalk.yellow(INDENT_TOKEN) : null, ...args].filter(
+					truthy
+				)
+			);
 		}
 	},
 	error: (...args: Parameters<typeof console.log>) => {
