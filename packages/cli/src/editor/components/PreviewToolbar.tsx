@@ -12,6 +12,7 @@ import {PlaybackKeyboardShortcutsManager} from './PlaybackKeyboardShortcutsManag
 import {PlaybackRatePersistor} from './PlaybackRatePersistor';
 import {PlaybackRateSelector} from './PlaybackRateSelector';
 import {PlayPause} from './PlayPause';
+import {RenderStillButton} from './RenderToolbarIcon';
 import {RichTimelineToggle} from './RichTimelineToggle';
 import {SizeSelector} from './SizeSelector';
 import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
@@ -70,6 +71,8 @@ export const PreviewToolbar: React.FC = () => {
 			<RichTimelineToggle />
 			<TimelineInOutPointToggle />
 			<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
+			<Spacing x={2} />
+			<RenderStillButton />
 			<Flex />
 			<div style={sideContainer}>
 				<Flex />
