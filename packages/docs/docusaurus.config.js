@@ -53,6 +53,7 @@ module.exports = {
             { to: "blog", label: "Blog" },
             { to: "showcase", label: "Showcase" },
             { to: "experts", label: "Experts" },
+            { to: "learn", label: "Learn" },
             { to: "about", label: "About" },
             { to: "success-stories", label: "Success Stories" },
             { to: "/docs/support", label: "Support" },
