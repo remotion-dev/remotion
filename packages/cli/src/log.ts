@@ -4,7 +4,7 @@ import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {truthy} from './truthy';
 
-export const INDENT_TOKEN = '|  ';
+export const INDENT_TOKEN = '|';
 
 export const Log = {
 	verbose: (...args: Parameters<typeof console.log>) => {
