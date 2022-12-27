@@ -15,6 +15,14 @@ export const OffthreadVideo: React.FC<
 
 	const onDuration = useCallback(() => undefined, []);
 
+	if (typeof props.src !== 'string') {
+		throw new TypeError(
+			`The \`<OffthreadVideo>\` tag requires a string for \`src\`, but got ${JSON.stringify(
+				props.src
+			)} instead.`
+		);
+	}
+
 	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined') {
 		validateStartFromProps(startFrom, endAt);
 

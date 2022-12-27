@@ -134,6 +134,11 @@
       "source": "/docs/miscellaneous/render-all",
       "destination": "docs/render-all",
       "permanent": false
+    },
+    {
+      "source": "/docs/overlays",
+      "destination": "/docs/overlay",
+      "permanent": false
     }
   ]
 }
