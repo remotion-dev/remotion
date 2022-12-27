@@ -47,8 +47,8 @@ This list tries to compile all templates, libraries, building blocks and example
 
 ## Full projects
 
-- [Github Unwrapped 2022](https://github.com/remotion-dev/github-unwrapped-2022)
-- [Github Unwrapped 2021](https://github.com/remotion-dev/github-unwrapped-2021)
+- [GitHub Unwrapped 2022](https://github.com/remotion-dev/github-unwrapped-2022)
+- [GitHub Unwrapped 2021](https://github.com/remotion-dev/github-unwrapped-2021)
 - [Podcast Maker](https://github.com/remotion-dev/podcast-maker)
 - [Stargazer](https://github.com/pomber/stargazer)
 - [MapSnap](https://companies.remotion.dev) _(exclusive for Company License subscribers)_
@@ -74,6 +74,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [OpenGL transitions](https://github.com/JonnyBurger/remotion-gl-transitions)
 - [Conference talk in React](https://github.com/pomber/record-talk-with-remotion)
 - [Conference talk in React #2](https://github.com/JonnyBurger/react-summit-talk)
+- [Twitch stinger example](https://github.com/JonnyBurger/ledevevent-stinger)
 
 ## Videos
 
