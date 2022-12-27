@@ -31,8 +31,6 @@ export const processStill = async ({
 		port,
 		browser,
 		puppeteerTimeout,
-		logLevel,
-		configFileImageFormat,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'still',
@@ -66,8 +64,8 @@ export const processStill = async ({
 		width: null,
 		compositionIdFromUi: job.compositionId,
 		imageFormatFromUi: job.imageFormat,
-		configFileImageFormat,
-		logLevel,
+		configFileImageFormat: undefined,
+		logLevel: job.verbose ? 'verbose' : 'info',
 		onProgress,
 		indentOutput: true,
 	});

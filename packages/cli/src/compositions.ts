@@ -1,4 +1,5 @@
 import {getCompositions, RenderInternals} from '@remotion/renderer';
+import {ConfigInternals} from './config';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
@@ -56,6 +57,7 @@ export const listCompositionsCommand = async (
 			publicDir,
 			onProgress: () => undefined,
 			indentOutput: false,
+			logLevel: ConfigInternals.Logging.getLogLevel(),
 		});
 
 	const compositions = await getCompositions(bundled, {
@@ -74,5 +76,5 @@ export const listCompositionsCommand = async (
 
 	await RenderInternals.cleanDownloadMap(downloadMap);
 	await cleanupBundle();
-	Log.verboseIndent(true, 'Cleaned up', downloadMap.assetDir);
+	Log.verbose('Cleaned up', downloadMap.assetDir);
 };

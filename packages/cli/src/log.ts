@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
@@ -17,12 +18,18 @@ export const Log = {
 			return console.log(...args.map((a) => chalk.blueBright(a)));
 		}
 	},
-	verboseIndent: (indent: boolean, ...args: Parameters<typeof console.log>) => {
-		Log.verbose(
-			...[indent ? chalk.gray(INDENT_TOKEN) : null, ...args].filter(truthy)
-		);
+	verboseAdvanced: (
+		options: {indent: boolean; logLevel: LogLevel},
+		...args: Parameters<typeof console.log>
+	) => {
+		if (RenderInternals.isEqualOrBelowLogLevel(options.logLevel, 'verbose')) {
+			return console.log(
+				...[options.indent ? chalk.gray(INDENT_TOKEN) : null, ...args].filter(
+					truthy
+				)
+			);
+		}
 	},
-
 	info: (...args: Parameters<typeof console.log>) => {
 		if (
 			RenderInternals.isEqualOrBelowLogLevel(
@@ -33,10 +40,17 @@ export const Log = {
 			return console.log(...args);
 		}
 	},
-	infoIndent: (indent: boolean, ...args: Parameters<typeof console.log>) => {
-		Log.info(
-			...[indent ? chalk.gray(INDENT_TOKEN) : null, ...args].filter(truthy)
-		);
+	infoAdvanced: (
+		options: {indent: boolean; logLevel: LogLevel},
+		...args: Parameters<typeof console.log>
+	) => {
+		if (RenderInternals.isEqualOrBelowLogLevel(options.logLevel, 'info')) {
+			return console.log(
+				...[options.indent ? chalk.gray(INDENT_TOKEN) : null, ...args].filter(
+					truthy
+				)
+			);
+		}
 	},
 	warn: (...args: Parameters<typeof console.log>) => {
 		if (

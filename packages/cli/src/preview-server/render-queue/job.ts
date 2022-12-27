@@ -43,6 +43,7 @@ export type RenderJob = {
 	id: string;
 	outputLocation: string;
 	deletedOutputLocation: boolean;
+	verbose: boolean;
 } & RenderJobDynamicStatus &
 	RenderJobDynamicFields;
 
@@ -57,6 +58,7 @@ type AddRenderRequestDynamicFields =
 			quality: number | null;
 			frame: number;
 			scale: number;
+			verbose: boolean;
 	  }
 	| {
 			type: 'composition';
