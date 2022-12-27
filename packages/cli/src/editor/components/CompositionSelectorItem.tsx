@@ -39,11 +39,15 @@ const labelStyle: React.CSSProperties = {
 	textDecoration: 'none',
 	fontSize: 13,
 	flex: 1,
+	whiteSpace: 'nowrap',
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
 };
 
 const iconStyle: React.CSSProperties = {
 	width: 18,
 	height: 18,
+	flexShrink: 0,
 };
 
 export type CompositionSelectorItemType =
@@ -102,7 +106,6 @@ export const CompositionSelectorItem: React.FC<{
 				: selected
 				? SELECTED_BACKGROUND
 				: 'transparent',
-			color: selected || hovered ? 'white' : LIGHT_TEXT,
 			paddingLeft: 12 + level * 8,
 		};
 	}, [hovered, level, selected]);
@@ -136,6 +139,7 @@ export const CompositionSelectorItem: React.FC<{
 					tabIndex={tabIndex}
 					onClick={onClick}
 					type="button"
+					title={item.folderName}
 				>
 					{item.expanded ? (
 						<ExpandedFolderIcon
@@ -149,7 +153,7 @@ export const CompositionSelectorItem: React.FC<{
 						/>
 					)}
 					<Spacing x={1} />
-					{item.folderName}
+					<div style={label}>{item.folderName}</div>
 				</button>
 				{item.expanded
 					? item.items.map((childItem) => {
@@ -179,6 +183,7 @@ export const CompositionSelectorItem: React.FC<{
 				tabIndex={tabIndex}
 				onClick={onClick}
 				type="button"
+				title={item.composition.id}
 			>
 				{isCompositionStill(item.composition) ? (
 					<StillIcon
