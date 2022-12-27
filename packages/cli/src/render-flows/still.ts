@@ -22,7 +22,7 @@ import {chalk} from '../chalk';
 import {determineFinalImageFormat} from '../determine-image-format';
 import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
-import {Log} from '../log';
+import {INDENT_TOKEN, Log} from '../log';
 import {parsedCli, quietFlagProvided} from '../parse-command-line';
 import type {JobProgressCallback} from '../preview-server/render-queue/job';
 import type {
@@ -120,7 +120,7 @@ export const renderStillFlow = async ({
 		onProgress({progress, message});
 	};
 
-	Log.verbose('Browser executable: ', browserExecutable);
+	Log.verboseIndent(indentOutput, 'Browser executable: ', browserExecutable);
 	const shouldDumpIo = RenderInternals.isEqualOrBelowLogLevel(
 		logLevel,
 		'verbose'
@@ -131,6 +131,7 @@ export const renderStillFlow = async ({
 		chromiumOptions,
 		shouldDumpIo,
 		forceDeviceScaleFactor: scale,
+		indentationString: chalk.gray(INDENT_TOKEN + ' '),
 	});
 
 	const steps: RenderStep[] = [
@@ -262,6 +263,7 @@ export const renderStillFlow = async ({
 		onDownload,
 		port,
 		downloadMap,
+		puppeteerInstance,
 	});
 
 	aggregate.rendering = {
@@ -272,7 +274,7 @@ export const renderStillFlow = async ({
 		totalFrames: 1,
 	};
 	updateProgress();
-	Log.info();
+	Log.infoIndent(indentOutput);
 
 	const closeBrowserPromise = puppeteerInstance.close(false);
 
@@ -281,5 +283,5 @@ export const renderStillFlow = async ({
 	await RenderInternals.cleanDownloadMap(downloadMap);
 	await cleanupBundle();
 
-	Log.verbose(indentOutput, 'Cleaned up', downloadMap.assetDir);
+	Log.verboseIndent(indentOutput, 'Cleaned up', downloadMap.assetDir);
 };

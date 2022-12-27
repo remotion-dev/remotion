@@ -17,6 +17,12 @@ export const Log = {
 			return console.log(...args.map((a) => chalk.blueBright(a)));
 		}
 	},
+	verboseIndent: (indent: boolean, ...args: Parameters<typeof console.log>) => {
+		Log.verbose(
+			...[indent ? chalk.gray(INDENT_TOKEN) : null, ...args].filter(truthy)
+		);
+	},
+
 	info: (...args: Parameters<typeof console.log>) => {
 		if (
 			RenderInternals.isEqualOrBelowLogLevel(
