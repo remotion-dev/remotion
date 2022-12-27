@@ -12,6 +12,7 @@ export const Spacing: React.FC<{
 			display: block ? 'block' : 'inline-block',
 			width: x * SPACING_UNIT,
 			height: y * SPACING_UNIT,
+			flexShrink: 0,
 		};
 	}, [block, x, y]);
 
