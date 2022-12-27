@@ -70,6 +70,7 @@ export const useMediaInTimeline = ({
 					frame: i + startsAt,
 					volume,
 					mediaVolume,
+					allowAmplificationDuringRender: false,
 				});
 			})
 			.join(',');

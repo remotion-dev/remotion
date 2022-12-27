@@ -1,3 +1,5 @@
+import React from 'react';
+
 type DynamicTemplate =
 	| {
 			type: 'video';
@@ -22,7 +24,7 @@ export type Template = {
 	org: string;
 	repoName: string;
 	homePageLabel: string;
-	longerDescription: string;
+	longerDescription: React.ReactNode;
 	cliId:
 		| 'hello-world'
 		| 'javascript'
@@ -33,7 +35,8 @@ export type Template = {
 		| 'tts'
 		| 'audiogram'
 		| 'skia'
-		| 'tailwind';
+		| 'tailwind'
+		| 'overlay';
 	defaultBranch: string;
 } & DynamicTemplate;
 
@@ -204,6 +207,29 @@ export const FEATURED_TEMPLATES: Template[] = [
 			width: 1280,
 		},
 		cliId: 'tailwind',
+		type: 'video',
+		defaultBranch: 'main',
+	},
+
+	{
+		homePageLabel: 'Overlay',
+		shortName: 'Overlay',
+		org: 'remotion-dev',
+		repoName: 'template-overlay',
+		description: 'Overlays for video editing software',
+		longerDescription: (
+			<span>
+				A starter template to create overlays to use in conventional video
+				editing software.{' '}
+				<a href="/docs/overlay">Read more about creating overlays.</a>
+			</span>
+		),
+		promoVideo: {
+			muxId: 'zgy7XK01009y33Vfzhns02cZS00rOyeZ6WaanaxcrDysqmU',
+			height: 720,
+			width: 1280,
+		},
+		cliId: 'overlay',
 		type: 'video',
 		defaultBranch: 'main',
 	},
