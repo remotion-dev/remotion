@@ -174,6 +174,7 @@ export const CompositionSelectorItem: React.FC<{
 		);
 	}
 
+	// TODO: Button nested inside of button
 	return (
 		<Row align="center">
 			<button

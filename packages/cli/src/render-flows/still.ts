@@ -102,7 +102,10 @@ export const renderStillFlow = async ({
 		rendering: null,
 		downloads,
 		stitching: null,
-		bundling: 1,
+		bundling: {
+			message: null,
+			progress: 0,
+		},
 	};
 	let renderProgress: OverwriteableCliOutput | null = null;
 

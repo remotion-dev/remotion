@@ -208,7 +208,7 @@ export type AggregateRenderProgress = {
 	rendering: RenderingProgressInput | null;
 	stitching: StitchingProgressInput | null;
 	downloads: DownloadProgress[];
-	bundling: number;
+	bundling: {progress: number; message: string | null};
 };
 
 export const makeRenderingAndStitchingProgress = (
@@ -231,14 +231,14 @@ export const makeRenderingAndStitchingProgress = (
 		: 0;
 
 	// TODO: Factor in stitching progress
-	const progress = bundling * 0.3 + renderProgress * 0.7;
+	const progress = bundling.progress * 0.3 + renderProgress * 0.7;
 
 	return {output, progress, message: getMessage(prog)};
 };
 
 export const getMessage = (progress: AggregateRenderProgress): string => {
-	if (progress.bundling < 1) {
-		return `Bundling ${Math.round(progress.bundling * 100)}%`;
+	if (progress.bundling.progress < 1 && progress.bundling.message) {
+		return progress.bundling.message;
 	}
 
 	// TODO: Better message than "Rendering..."

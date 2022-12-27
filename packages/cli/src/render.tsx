@@ -248,7 +248,10 @@ export const render = async (remotionRoot: string, args: string[]) => {
 						codec,
 				  },
 			downloads,
-			bundling: 1,
+			bundling: {
+				message: 'Bundled',
+				progress: 1,
+			},
 		});
 		return renderProgress.update(output);
 	};
