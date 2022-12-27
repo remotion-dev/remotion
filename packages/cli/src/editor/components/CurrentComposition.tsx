@@ -65,7 +65,7 @@ export const CurrentComposition = () => {
 			return null;
 		}
 
-		setSelectedModal({type: 'render', composition: video});
+		setSelectedModal({type: 'render', composition: video, initialFrame: 0});
 	}, [setSelectedModal, video]);
 
 	useEffect(() => {

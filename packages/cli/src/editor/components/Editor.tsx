@@ -80,7 +80,10 @@ export const Editor: React.FC = () => {
 			)}
 
 			{modalContextType && modalContextType.type === 'render' && (
-				<RenderModal composition={modalContextType.composition} />
+				<RenderModal
+					initialFrame={modalContextType.initialFrame}
+					composition={modalContextType.composition}
+				/>
 			)}
 
 			{modalContextType && modalContextType.type === 'render-error' && (

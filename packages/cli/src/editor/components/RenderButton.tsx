@@ -25,6 +25,7 @@ export const RenderButton: React.FC<{
 			setSelectedModal({
 				type: 'render',
 				composition,
+				initialFrame: 0,
 			});
 		},
 		[composition, setSelectedModal]

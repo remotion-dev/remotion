@@ -124,9 +124,12 @@ const MAX_QUALITY = 100;
 const MIN_SCALE = 0.1;
 const MAX_SCALE = 10;
 
-export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
-	composition,
-}) => {
+// TODO: Prevent rendering when preview server is disconnected
+
+export const RenderModal: React.FC<{
+	composition: TCompMetadata;
+	initialFrame: number;
+}> = ({composition, initialFrame}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
 	const onQuit = useCallback(() => {
@@ -136,6 +139,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 	const isMounted = useRef(true);
 
 	const [state, dispatch] = useReducer(reducer, initialState);
+	const [frame, setFrame] = useState(() => initialFrame);
 
 	const [imageFormat, setImageFormat] = useState<StillImageFormat>('png');
 	const [quality, setQuality] = useState(80);
@@ -189,8 +193,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 			outName,
 			imageFormat,
 			quality: imageFormat === 'jpeg' ? quality : null,
-			// TODO: Support still rendering for compositions
-			frame: 0,
+			frame,
 			scale,
 			verbose,
 		})
@@ -204,6 +207,7 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 	}, [
 		composition,
 		dispatchIfMounted,
+		frame,
 		imageFormat,
 		outName,
 		quality,
@@ -251,6 +255,25 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 					Math.max(newQuality, MIN_SCALE)
 				);
 				return newScaleClamped;
+			});
+		},
+		[]
+	);
+
+	const onFrameSetDirectly = useCallback((newFrame: number) => {
+		setFrame(newFrame);
+	}, []);
+
+	const onFrameChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
+		(e) => {
+			setFrame((q) => {
+				const newFrame = parseFloat(e.target.value);
+				if (Number.isNaN(newFrame)) {
+					return q;
+				}
+
+				// TODO: User could change frame inbetween 😈
+				return newFrame;
 			});
 		},
 		[]
@@ -318,6 +341,24 @@ export const RenderModal: React.FC<{composition: TCompMetadata}> = ({
 								/>
 							) : null}
 						</div>
+					</div>
+				</div>
+				<div style={optionRow}>
+					<div style={label}>Frame</div>
+					<div style={rightRow}>
+						<InputDragger
+							// TODO: Hide if it is a still
+							value={frame}
+							onChange={onFrameChanged}
+							// TODO: Actual frame
+							placeholder="0-100"
+							onValueChange={onFrameSetDirectly}
+							name="frame"
+							step={1}
+							min={0}
+							// TODO: Add actual frame
+							max={Infinity}
+						/>{' '}
 					</div>
 				</div>
 				<CollapsableOptions

@@ -24,6 +24,8 @@ const badge: React.CSSProperties = {
 	alignItems: 'center',
 };
 
+// TODO: Don't show if preview server is disconnected
+
 export const RendersTab: React.FC<{
 	selected: boolean;
 	onClick: MouseEventHandler<HTMLButtonElement>;
