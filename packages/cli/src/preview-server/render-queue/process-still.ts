@@ -1,7 +1,5 @@
-import {chalk} from '../../chalk';
 import {convertEntryPointToServeUrl} from '../../convert-entry-point-to-serve-url';
 import {getCliOptions} from '../../get-cli-options';
-import {Log} from '../../log';
 import {renderStillFlow} from '../../render-flows/still';
 import type {JobProgressCallback, RenderJob} from './job';
 
@@ -39,8 +37,6 @@ export const processStill = async ({
 
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
 
-	Log.info(chalk.gray('╭─ Rendering still ' + job.compositionId));
-	const startTime = Date.now();
 	await renderStillFlow({
 		remotionRoot,
 		browser,
@@ -69,7 +65,6 @@ export const processStill = async ({
 		onProgress,
 		indentOutput: true,
 	});
-	Log.info(chalk.gray('╰─ Done in ' + (Date.now() - startTime) + 'ms.'));
 	// TODO: Allow cancel signal
 	// TODO: Accept CLI options
 };

@@ -1,3 +1,4 @@
+import {chalk} from '../../chalk';
 import {installFileWatcher} from '../../file-watcher';
 import {Log} from '../../log';
 import {waitForLiveEventsListener} from '../live-events';
@@ -105,6 +106,8 @@ export const processJobIfPossible = async ({
 				message: 'Starting job...',
 			};
 		});
+		const startTime = Date.now();
+		Log.info(chalk.gray('╭─ Starting render '));
 		await processJob({
 			job: nextJob,
 			entryPoint,
@@ -120,6 +123,8 @@ export const processJobIfPossible = async ({
 				});
 			},
 		});
+		Log.info(chalk.gray('╰─ Done in ' + (Date.now() - startTime) + 'ms.'));
+
 		const {unwatch} = installFileWatcher({
 			file: nextJob.outputLocation,
 			onChange: (type) => {
@@ -144,7 +149,9 @@ export const processJobIfPossible = async ({
 			cleanup: [...job.cleanup, unwatch],
 		}));
 	} catch (err) {
-		Log.error('Job failed: ', err);
+		// TODO: Tell to look in preview to find the error
+		Log.error(chalk.gray('\n╰─ Render failed:'), err);
+
 		updateJob(nextJob.id, (job) => {
 			return {
 				...job,
