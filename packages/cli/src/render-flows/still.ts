@@ -155,7 +155,7 @@ export const renderStillFlow = async ({
 				aggregate.bundling = progress;
 				updateProgress();
 			},
-			indentOutput: true,
+			indentOutput,
 			logLevel,
 		}
 	);
