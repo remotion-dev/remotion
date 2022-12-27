@@ -6,6 +6,7 @@ import {RenderQueueItemStatus} from './RenderQueueItemStatus';
 import {RenderQueueOutputName} from './RenderQueueOutputName';
 import {RenderQueueProgressMessage} from './RenderQueueProgressMessage';
 import {RenderQueueRemoveItem} from './RenderQueueRemoveItem';
+import {RenderQueueRepeatItem} from './RenderQueueRepeat';
 
 const container: React.CSSProperties = {
 	padding: 12,
@@ -52,6 +53,8 @@ export const RenderQueueItem: React.FC<{
 					) : null}
 				</div>
 			</div>
+			<Spacing x={1} />
+			<RenderQueueRepeatItem job={job} />
 			<Spacing x={1} />
 			<RenderQueueRemoveItem job={job} />
 		</Row>

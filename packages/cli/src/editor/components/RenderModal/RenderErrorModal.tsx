@@ -1,8 +1,9 @@
 import React, {useCallback, useContext} from 'react';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
+import {makeRetryPayload} from '../../../preview-server/render-queue/make-retry-payload';
 import {ModalsContext} from '../../state/modals';
-import {SPACING_UNIT} from '../layout';
+import {Flex, SPACING_UNIT} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {notificationCenter} from '../Notifications/NotificationCenter';
@@ -42,6 +43,11 @@ export const RenderErrorModal: React.FC<{job: RenderJob}> = ({job}) => {
 		setSelectedModal(null);
 	}, [setSelectedModal]);
 
+	const onRetry = useCallback(() => {
+		const retryPayload = makeRetryPayload(job);
+		setSelectedModal(retryPayload);
+	}, [job, setSelectedModal]);
+
 	const onClickOnRemove = useCallback(() => {
 		setSelectedModal(null);
 		removeRenderJob(job).catch((err) => {
@@ -68,6 +74,8 @@ export const RenderErrorModal: React.FC<{job: RenderJob}> = ({job}) => {
 				<div style={spacer} />
 				<div style={buttonRow}>
 					<Button onClick={onClickOnRemove}>Remove render</Button>
+					<Flex />
+					<Button onClick={onRetry}>Retry</Button>
 					<div style={spacer} />
 					<Button onClick={onQuit}>Close</Button>
 				</div>
