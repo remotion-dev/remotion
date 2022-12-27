@@ -48,7 +48,7 @@ export const createOverwriteableCliOutput = (options: {
 	return {
 		update: (up: string): boolean =>
 			process.stdout.write(
-				diff.update((options.indent ? INDENT_TOKEN : '') + up)
+				diff.update((options.indent ? INDENT_TOKEN + ' ' : '') + up)
 			),
 	};
 };
