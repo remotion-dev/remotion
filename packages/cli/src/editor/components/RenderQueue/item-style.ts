@@ -9,11 +9,11 @@ export const renderQueueItemSubtitleStyle: React.CSSProperties = {
 	border: 'none',
 	padding: 0,
 	cursor: 'pointer',
-	lineHeight: 1,
+	lineHeight: 1.2,
 	textAlign: 'left',
 	whiteSpace: 'nowrap',
 	marginRight: SPACING_UNIT,
-	overflowY: 'hidden',
+	overflowX: 'hidden',
 	// size smaller than viewport causes actual ellipse
 	maxWidth: 500,
 	textOverflow: 'ellipsis',
