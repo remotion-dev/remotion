@@ -50,7 +50,8 @@ export const RenderQueueItemStatus: React.FC<{
 	}
 
 	if (job.status === 'running') {
-		return <CircularProgress progress={job.progress} />;
+		// Add a minimum progress to avoid the progress bar from disappearing
+		return <CircularProgress progress={Math.max(0.07, job.progress)} />;
 	}
 
 	throw new Error('Unknown job status');
