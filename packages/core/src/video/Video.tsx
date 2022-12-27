@@ -24,6 +24,14 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		throw new Error('string refs are not supported');
 	}
 
+	if (typeof props.src !== 'string') {
+		throw new TypeError(
+			`The \`<Video>\` tag requires a string for \`src\`, but got ${JSON.stringify(
+				props.src
+			)} instead.`
+		);
+	}
+
 	const onDuration = useCallback(
 		(src: string, durationInSeconds: number) => {
 			setDurations({type: 'got-duration', durationInSeconds, src});
