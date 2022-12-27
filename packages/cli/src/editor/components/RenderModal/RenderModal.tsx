@@ -20,7 +20,7 @@ import {NewCompHeader} from '../ModalHeader';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
-import {addStillRenderJob} from '../RenderQueue/actions';
+import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {leftSidebarTabs} from '../SidebarContent';
@@ -194,8 +194,9 @@ export const RenderModal: React.FC<{
 		});
 	}, []);
 
-	const onClick = useCallback(() => {
+	const onClickStill = useCallback(() => {
 		leftSidebarTabs.current?.selectRendersPanel();
+		dispatchIfMounted({type: 'start'});
 		addStillRenderJob({
 			compositionId,
 			outName,
@@ -216,6 +217,37 @@ export const RenderModal: React.FC<{
 		compositionId,
 		dispatchIfMounted,
 		frame,
+		imageFormat,
+		outName,
+		quality,
+		scale,
+		setSelectedModal,
+		verbose,
+	]);
+
+	const onClickVideo = useCallback(() => {
+		leftSidebarTabs.current?.selectRendersPanel();
+		dispatchIfMounted({type: 'start'});
+		addVideoRenderJob({
+			compositionId,
+			outName,
+			imageFormat,
+			quality: imageFormat === 'jpeg' ? quality : null,
+			scale,
+			verbose,
+			// TODO: Make this configurable
+			codec: 'h264',
+		})
+			.then(() => {
+				dispatchIfMounted({type: 'succeed'});
+				setSelectedModal(null);
+			})
+			.catch(() => {
+				dispatchIfMounted({type: 'fail'});
+			});
+	}, [
+		compositionId,
+		dispatchIfMounted,
 		imageFormat,
 		outName,
 		quality,
@@ -420,7 +452,19 @@ export const RenderModal: React.FC<{
 				</CollapsableOptions>
 				<Spacing block y={0.5} />
 				<div style={buttonRow}>
-					<Button autoFocus onClick={onClick} disabled={state.type === 'load'}>
+					<Button
+						autoFocus
+						onClick={onClickVideo}
+						disabled={state.type === 'load'}
+					>
+						{state.type === 'idle' ? 'Render video' : 'Rendering...'}
+					</Button>
+
+					<Button
+						autoFocus
+						onClick={onClickStill}
+						disabled={state.type === 'load'}
+					>
 						{state.type === 'idle' ? 'Render' : 'Rendering...'}
 					</Button>
 				</div>

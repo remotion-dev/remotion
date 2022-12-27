@@ -1,4 +1,4 @@
-import type {StillImageFormat} from '@remotion/renderer';
+import type {Codec, StillImageFormat} from '@remotion/renderer';
 import type {ApiRoutes} from '../../../preview-server/api-types';
 import type {
 	OpenInFileExplorerRequest,
@@ -63,6 +63,35 @@ export const addStillRenderJob = ({
 		frame,
 		scale,
 		verbose,
+	});
+};
+
+export const addVideoRenderJob = ({
+	compositionId,
+	outName,
+	imageFormat,
+	quality,
+	scale,
+	verbose,
+	codec,
+}: {
+	compositionId: string;
+	outName: string;
+	imageFormat: StillImageFormat;
+	quality: number | null;
+	scale: number;
+	verbose: boolean;
+	codec: Codec;
+}) => {
+	return callApi('/api/render', {
+		compositionId,
+		type: 'video',
+		outName,
+		imageFormat,
+		quality,
+		scale,
+		verbose,
+		codec,
 	});
 };
 

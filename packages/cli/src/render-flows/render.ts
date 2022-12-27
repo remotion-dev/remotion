@@ -30,6 +30,7 @@ import {getOutputFilename} from '../get-filename';
 import {getRenderMediaOptions} from '../get-render-media-options';
 import {getImageFormat} from '../image-formats';
 import {INDENT_TOKEN, Log} from '../log';
+import type {JobProgressCallback} from '../preview-server/render-queue/job';
 import type {DownloadProgress} from '../progress-bar';
 import {
 	createOverwriteableCliOutput,
@@ -68,6 +69,7 @@ export const renderCompFlow = async ({
 	everyNthFrame,
 	configFileImageFormat,
 	quality,
+	onProgress,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -97,6 +99,7 @@ export const renderCompFlow = async ({
 	everyNthFrame: number;
 	configFileImageFormat: ImageFormat | undefined;
 	quality: number | undefined;
+	onProgress: JobProgressCallback;
 }) => {
 	const downloads: DownloadProgress[] = [];
 	const downloadMap = RenderInternals.makeDownloadMap();
@@ -259,7 +262,7 @@ export const renderCompFlow = async ({
 			throw new Error('totalFrames should not be 0');
 		}
 
-		const {output} = makeRenderingAndStitchingProgress(
+		const {output, message, progress} = makeRenderingAndStitchingProgress(
 			{
 				rendering: {
 					frames: renderedFrames,
@@ -286,9 +289,12 @@ export const renderCompFlow = async ({
 			},
 			indentOutput
 		);
+		onProgress({progress, message});
+
 		return renderProgress.update(output);
 	};
 
+	// TODO: Should take the one from the UI instead
 	const imageFormat = getImageFormat(
 		shouldOutputImageSequence ? undefined : codec,
 		configFileImageFormat

@@ -7,30 +7,52 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 	entryPoint,
 	remotionRoot,
 }): Promise<undefined> => {
-	if (input.type !== 'still') {
-		// TODO support composition rendering
-		throw new Error('Only still images are supported for now');
+	const id = String(Math.random()).replace('0.', '');
+
+	if (input.type === 'video') {
+		addJob({
+			entryPoint,
+			remotionRoot,
+			job: {
+				cleanup: [],
+				// TODO: Allow to change codec
+				codec: 'h264',
+				compositionId: input.compositionId,
+				deletedOutputLocation: false,
+				type: 'video',
+				status: 'idle',
+				id,
+				imageFormat: input.imageFormat,
+				outName: input.outName,
+				quality: input.quality,
+				scale: input.scale,
+				startedAt: Date.now(),
+				verbose: input.verbose,
+			},
+		});
 	}
 
-	addJob({
-		job: {
-			compositionId: input.compositionId,
-			id: String(Math.random()).replace('0.', ''),
-			startedAt: Date.now(),
-			type: 'still',
-			outName: input.outName,
-			status: 'idle',
-			imageFormat: input.imageFormat,
-			quality: input.quality,
-			frame: input.frame,
-			scale: input.scale,
-			cleanup: [],
-			deletedOutputLocation: false,
-			verbose: input.verbose,
-		},
-		entryPoint,
-		remotionRoot,
-	});
+	if (input.type === 'still') {
+		addJob({
+			job: {
+				compositionId: input.compositionId,
+				id: String(Math.random()).replace('0.', ''),
+				startedAt: Date.now(),
+				type: 'still',
+				outName: input.outName,
+				status: 'idle',
+				imageFormat: input.imageFormat,
+				quality: input.quality,
+				frame: input.frame,
+				scale: input.scale,
+				cleanup: [],
+				deletedOutputLocation: false,
+				verbose: input.verbose,
+			},
+			entryPoint,
+			remotionRoot,
+		});
+	}
 
 	return Promise.resolve(undefined);
 };

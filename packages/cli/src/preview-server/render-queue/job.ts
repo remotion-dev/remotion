@@ -1,4 +1,4 @@
-import type {StillImageFormat} from '@remotion/renderer';
+import type {Codec, StillImageFormat} from '@remotion/renderer';
 
 type RenderJobDynamicStatus =
 	| {
@@ -34,7 +34,12 @@ type RenderJobDynamicFields =
 			scale: number;
 	  }
 	| {
-			type: 'composition';
+			type: 'video';
+			imageFormat: StillImageFormat;
+			quality: number | null;
+			scale: number;
+			codec: Codec;
+			// TODO: Add more fields like frame range
 	  };
 
 export type RenderJob = {
@@ -61,7 +66,12 @@ type AddRenderRequestDynamicFields =
 			verbose: boolean;
 	  }
 	| {
-			type: 'composition';
+			type: 'video';
+			codec: Codec;
+			imageFormat: StillImageFormat;
+			quality: number | null;
+			scale: number;
+			verbose: boolean;
 	  };
 
 export type AddRenderRequest = {
