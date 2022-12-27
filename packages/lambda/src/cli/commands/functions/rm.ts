@@ -34,7 +34,6 @@ export const functionsRmCommand = async (args: string[]) => {
 	for (const functionName of args) {
 		const infoOutput = CliInternals.createOverwriteableCliOutput({
 			quiet: CliInternals.quietFlagProvided(),
-			indent: false,
 		});
 		infoOutput.update('Getting function info...');
 		const info = await getFunctionInfo({
@@ -55,7 +54,6 @@ export const functionsRmCommand = async (args: string[]) => {
 		await confirmCli({delMessage: 'Delete? (Y/n)', allowForceFlag: true});
 		const output = CliInternals.createOverwriteableCliOutput({
 			quiet: CliInternals.quietFlagProvided(),
-			indent: false,
 		});
 		output.update('Deleting...');
 		await deleteFunction({region, functionName});

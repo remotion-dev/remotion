@@ -110,6 +110,7 @@ export type RenderMediaOptions = {
 	videoBitrate?: string | null;
 	onSlowestFrames?: OnSlowestFrames;
 	disallowParallelEncoding?: boolean;
+	printLog?: (...data: unknown[]) => void;
 } & ServeUrlOrWebpackBundle &
 	ConcurrencyOrParallelism;
 
@@ -228,24 +229,25 @@ export const renderMedia = ({
 		canUseParallelEncoding(codec);
 
 	if (options.verbose) {
-		console.log(
+		const log = options.printLog ?? console.log;
+		log(
 			'[PRESTITCHER] Free memory:',
 			freeMemory,
 			'Estimated usage parallel encoding',
 			estimatedUsage
 		);
-		console.log(
+		log(
 			'[PRESTITCHER]: Codec supports parallel rendering:',
 			canUseParallelEncoding(codec)
 		);
-		console.log(
+		log(
 			'[PRESTITCHER]: User disallowed parallel encoding:',
 			Boolean(options.disallowParallelEncoding)
 		);
 		if (parallelEncoding) {
-			console.log('[PRESTITCHER] Parallel encoding is enabled.');
+			log('[PRESTITCHER] Parallel encoding is enabled.');
 		} else {
-			console.log('[PRESTITCHER] Parallel encoding is disabled.');
+			log('[PRESTITCHER] Parallel encoding is disabled.');
 		}
 	}
 

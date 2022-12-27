@@ -65,7 +65,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		fullEntryPoint,
 		remotionRoot,
 		browserExecutable,
-		indentOutput: false,
+		indentOutput: true,
 		logLevel: ConfigInternals.Logging.getLogLevel(),
 		browser,
 		chromiumOptions,

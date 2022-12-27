@@ -100,11 +100,14 @@ export const bundleOnCli = async ({
 
 	const updateProgress = (newline: boolean) => {
 		bundlingProgress.update(
-			makeBundlingAndCopyProgress({
-				bundling: bundlingState,
-				copying: copyingState,
-				symLinks: symlinkState,
-			}) + (newline ? '\n' : '')
+			makeBundlingAndCopyProgress(
+				{
+					bundling: bundlingState,
+					copying: copyingState,
+					symLinks: symlinkState,
+				},
+				indent
+			) + (newline ? '\n' : '')
 		);
 		// TODO: Take copying into account
 		onProgressCallback({
@@ -171,7 +174,6 @@ export const bundleOnCli = async ({
 	const bundleStartTime = Date.now();
 	const bundlingProgress = createOverwriteableCliOutput({
 		quiet: quietFlagProvided(),
-		indent,
 	});
 
 	let bundlingState: BundlingState = {

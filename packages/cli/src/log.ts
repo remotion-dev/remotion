@@ -5,7 +5,7 @@ import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {truthy} from './truthy';
 
-export const INDENT_TOKEN = '│';
+export const INDENT_TOKEN = chalk.gray('│');
 
 export const Log = {
 	verbose: (...args: Parameters<typeof console.log>) => {
@@ -20,9 +20,10 @@ export const Log = {
 	) => {
 		if (RenderInternals.isEqualOrBelowLogLevel(options.logLevel, 'verbose')) {
 			return console.log(
-				...[options.indent ? chalk.gray(INDENT_TOKEN) : null, ...args].filter(
-					truthy
-				)
+				...[
+					options.indent ? INDENT_TOKEN : null,
+					...args.map((a) => chalk.blueBright(a)),
+				].filter(truthy)
 			);
 		}
 	},
@@ -38,9 +39,7 @@ export const Log = {
 	) => {
 		if (RenderInternals.isEqualOrBelowLogLevel(options.logLevel, 'info')) {
 			return console.log(
-				...[options.indent ? chalk.gray(INDENT_TOKEN) : null, ...args].filter(
-					truthy
-				)
+				...[options.indent ? INDENT_TOKEN : null, ...args].filter(truthy)
 			);
 		}
 	},
@@ -56,9 +55,10 @@ export const Log = {
 	) => {
 		if (RenderInternals.isEqualOrBelowLogLevel(options.logLevel, 'warn')) {
 			return console.warn(
-				...[options.indent ? chalk.yellow(INDENT_TOKEN) : null, ...args].filter(
-					truthy
-				)
+				...[
+					options.indent ? chalk.yellow(INDENT_TOKEN) : null,
+					...args.map((a) => chalk.yellow(a)),
+				].filter(truthy)
 			);
 		}
 	},

@@ -63,7 +63,6 @@ export const sitesCreateSubcommand = async (
 
 	const progressBar = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
-		indent: false,
 	});
 
 	const multiProgress: {

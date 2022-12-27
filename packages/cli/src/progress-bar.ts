@@ -13,8 +13,7 @@ import type {RenderStep} from './step';
 import {truthy} from './truthy';
 
 export const createProgressBar = (
-	quiet: boolean,
-	indent: boolean
+	quiet: boolean
 ): {
 	update: (str: string) => boolean;
 } => {
@@ -27,7 +26,7 @@ export const createProgressBar = (
 		return {update: () => false};
 	}
 
-	return createOverwriteableCliOutput({quiet, indent});
+	return createOverwriteableCliOutput({quiet});
 };
 
 export type OverwriteableCliOutput = {
@@ -36,7 +35,6 @@ export type OverwriteableCliOutput = {
 
 export const createOverwriteableCliOutput = (options: {
 	quiet: boolean;
-	indent: boolean;
 }): OverwriteableCliOutput => {
 	if (options.quiet) {
 		return {
@@ -46,23 +44,24 @@ export const createOverwriteableCliOutput = (options: {
 
 	const diff = new AnsiDiff();
 	return {
-		update: (up: string): boolean =>
-			process.stdout.write(
-				diff.update((options.indent ? chalk.gray(INDENT_TOKEN) + ' ' : '') + up)
-			),
+		update: (up: string): boolean => process.stdout.write(diff.update(up)),
 	};
 };
 
-const makeBundlingProgress = ({
-	progress,
-	steps,
-	doneIn,
-}: {
-	progress: number;
-	steps: RenderStep[];
-	doneIn: number | null;
-}) =>
+const makeBundlingProgress = (
+	{
+		progress,
+		steps,
+		doneIn,
+	}: {
+		progress: number;
+		steps: RenderStep[];
+		doneIn: number | null;
+	},
+	indent: boolean
+) =>
 	[
+		indent ? INDENT_TOKEN : null,
 		`(${steps.indexOf('bundling') + 1}/${steps.length})`,
 		makeProgressBar(progress),
 		`${doneIn ? 'Bundled' : 'Bundling'} code`,
@@ -73,13 +72,14 @@ const makeBundlingProgress = ({
 		.filter(truthy)
 		.join(' ');
 
-const makeCopyingProgress = (options: CopyingState) => {
+const makeCopyingProgress = (options: CopyingState, indent: boolean) => {
 	// Don't show copy progress lower than 200MB
 	if (options.bytes < 1000 * 1000 * 200) {
 		return null;
 	}
 
 	return [
+		indent ? INDENT_TOKEN : null,
 		'    +',
 		options.doneIn ? makeProgressBar(1) : getFileSizeDownloadBar(options.bytes),
 		'Copying public dir',
@@ -89,7 +89,7 @@ const makeCopyingProgress = (options: CopyingState) => {
 		.join(' ');
 };
 
-const makeSymlinkProgress = (options: SymbolicLinksState) => {
+const makeSymlinkProgress = (options: SymbolicLinksState, indent: boolean) => {
 	if (options.symlinks.length === 0) {
 		return null;
 	}
@@ -99,7 +99,11 @@ const makeSymlinkProgress = (options: SymbolicLinksState) => {
 			chalk.gray(`      Found a symbolic link in the public folder:`),
 			chalk.gray('      ' + options.symlinks[0]),
 			chalk.gray('      The symlink will be forwarded in to the bundle.'),
-		].join('\n');
+		]
+			.map((l) => {
+				return indent ? `${INDENT_TOKEN} ${l}` : null;
+			})
+			.join('\n');
 	}
 
 	return [
@@ -107,7 +111,11 @@ const makeSymlinkProgress = (options: SymbolicLinksState) => {
 			`      Found ${options.symlinks.length} symbolic links in the public folder.`
 		),
 		chalk.gray('      The symlinks will be forwarded in to the bundle.'),
-	].join('\n');
+	]
+		.map((l) => {
+			return indent ? `${INDENT_TOKEN} ${l}` : null;
+		})
+		.join('\n');
 };
 
 export type CopyingState = {
@@ -123,19 +131,22 @@ export type BundlingState = {
 
 export type SymbolicLinksState = {symlinks: string[]};
 
-export const makeBundlingAndCopyProgress = ({
-	bundling,
-	copying,
-	symLinks,
-}: {
-	bundling: BundlingState;
-	copying: CopyingState;
-	symLinks: SymbolicLinksState;
-}) => {
+export const makeBundlingAndCopyProgress = (
+	{
+		bundling,
+		copying,
+		symLinks,
+	}: {
+		bundling: BundlingState;
+		copying: CopyingState;
+		symLinks: SymbolicLinksState;
+	},
+	indent: boolean
+) => {
 	return [
-		makeBundlingProgress(bundling),
-		makeCopyingProgress(copying),
-		makeSymlinkProgress(symLinks),
+		makeBundlingProgress(bundling, indent),
+		makeCopyingProgress(copying, indent),
+		makeSymlinkProgress(symLinks, indent),
 	]
 		.filter(truthy)
 		.join('\n');
@@ -149,15 +160,13 @@ type RenderingProgressInput = {
 	doneIn: number | null;
 };
 
-export const makeRenderingProgress = ({
-	frames,
-	totalFrames,
-	steps,
-	concurrency,
-	doneIn,
-}: RenderingProgressInput) => {
+export const makeRenderingProgress = (
+	{frames, totalFrames, steps, concurrency, doneIn}: RenderingProgressInput,
+	indent: boolean
+) => {
 	const progress = frames / totalFrames;
 	return [
+		indent ? INDENT_TOKEN : null,
 		`(${steps.indexOf('rendering') + 1}/${steps.length})`,
 		makeProgressBar(progress),
 		[doneIn ? 'Rendered' : 'Rendering', `frames (${concurrency}x)`]
@@ -176,14 +185,10 @@ type StitchingProgressInput = {
 	codec: Codec;
 };
 
-export const makeStitchingProgress = ({
-	frames,
-	totalFrames,
-	steps,
-	doneIn,
-	stage,
-	codec,
-}: StitchingProgressInput) => {
+export const makeStitchingProgress = (
+	{frames, totalFrames, steps, doneIn, stage, codec}: StitchingProgressInput,
+	indent: boolean
+) => {
 	const progress = frames / totalFrames;
 	const mediaType =
 		codec === 'gif'
@@ -193,6 +198,7 @@ export const makeStitchingProgress = ({
 			: 'video';
 
 	return [
+		indent ? INDENT_TOKEN : null,
 		`(${steps.indexOf('stitching') + 1}/${steps.length})`,
 		makeProgressBar(progress),
 		stage === 'muxing' && RenderInternals.canUseParallelEncoding(codec)
@@ -218,7 +224,8 @@ export type AggregateRenderProgress = {
 };
 
 export const makeRenderingAndStitchingProgress = (
-	prog: AggregateRenderProgress
+	prog: AggregateRenderProgress,
+	indent: boolean
 ): {
 	output: string;
 	progress: number;
@@ -226,9 +233,9 @@ export const makeRenderingAndStitchingProgress = (
 } => {
 	const {rendering, stitching, downloads, bundling} = prog;
 	const output = [
-		rendering ? makeRenderingProgress(rendering) : null,
-		makeMultiDownloadProgress(downloads),
-		stitching === null ? null : makeStitchingProgress(stitching),
+		rendering ? makeRenderingProgress(rendering, indent) : null,
+		makeMultiDownloadProgress(downloads, indent),
+		stitching === null ? null : makeStitchingProgress(stitching, indent),
 	]
 		.filter(truthy)
 		.join('\n');

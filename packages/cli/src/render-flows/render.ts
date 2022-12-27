@@ -29,7 +29,7 @@ import {getCompositionWithDimensionOverride} from '../get-composition-with-dimen
 import {getOutputFilename} from '../get-filename';
 import {getRenderMediaOptions} from '../get-render-media-options';
 import {getImageFormat} from '../image-formats';
-import {Log} from '../log';
+import {INDENT_TOKEN, Log} from '../log';
 import type {DownloadProgress} from '../progress-bar';
 import {
 	createOverwriteableCliOutput,
@@ -127,6 +127,7 @@ export const renderCompFlow = async ({
 		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		chromiumOptions,
 		forceDeviceScaleFactor: scale,
+		indentationString: indentOutput ? INDENT_TOKEN + ' ' : '',
 	});
 
 	const steps: RenderStep[] = [
@@ -237,7 +238,6 @@ export const renderCompFlow = async ({
 
 	const renderProgress = createOverwriteableCliOutput({
 		quiet,
-		indent: indentOutput,
 	});
 
 	const realFrameRange = RenderInternals.getRealFrameRange(
@@ -259,30 +259,33 @@ export const renderCompFlow = async ({
 			throw new Error('totalFrames should not be 0');
 		}
 
-		const {output} = makeRenderingAndStitchingProgress({
-			rendering: {
-				frames: renderedFrames,
-				totalFrames: totalFrames.length,
-				concurrency: RenderInternals.getActualConcurrency(concurrency),
-				doneIn: renderedDoneIn,
-				steps,
+		const {output} = makeRenderingAndStitchingProgress(
+			{
+				rendering: {
+					frames: renderedFrames,
+					totalFrames: totalFrames.length,
+					concurrency: RenderInternals.getActualConcurrency(concurrency),
+					doneIn: renderedDoneIn,
+					steps,
+				},
+				stitching: shouldOutputImageSequence
+					? null
+					: {
+							doneIn: encodedDoneIn,
+							frames: encodedFrames,
+							stage: stitchStage,
+							steps,
+							totalFrames: totalFrames.length,
+							codec,
+					  },
+				downloads,
+				bundling: {
+					message: 'Bundled',
+					progress: 1,
+				},
 			},
-			stitching: shouldOutputImageSequence
-				? null
-				: {
-						doneIn: encodedDoneIn,
-						frames: encodedFrames,
-						stage: stitchStage,
-						steps,
-						totalFrames: totalFrames.length,
-						codec,
-				  },
-			downloads,
-			bundling: {
-				message: 'Bundled',
-				progress: 1,
-			},
-		});
+			indentOutput
+		);
 		return renderProgress.update(output);
 	};
 
@@ -349,6 +352,7 @@ export const renderCompFlow = async ({
 		});
 
 		updateRenderProgress();
+		Log.infoAdvanced({indent: indentOutput, logLevel});
 		Log.infoAdvanced(
 			{indent: indentOutput, logLevel},
 			chalk.cyan(`▶ ${absoluteOutputFile}`)
@@ -386,8 +390,11 @@ export const renderCompFlow = async ({
 				);
 			});
 		},
+		printLog: (...str) =>
+			Log.verboseAdvanced({indent: indentOutput, logLevel}, ...str),
 	});
 
+	Log.infoAdvanced({indent: indentOutput, logLevel});
 	Log.infoAdvanced(
 		{indent: indentOutput, logLevel},
 		chalk.cyan(`▶ ${absoluteOutputFile}`)
