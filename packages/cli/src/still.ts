@@ -21,7 +21,7 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		process.exit(1);
 	}
 
-	const fullPath = convertEntryPointToServeUrl(file);
+	const fullEntryPoint = convertEntryPointToServeUrl(file);
 
 	if (parsedCli.frames) {
 		Log.error(
@@ -58,7 +58,7 @@ export const still = async (remotionRoot: string, args: string[]) => {
 	await renderStillFlow({
 		remotionRoot,
 		entryPointReason,
-		fullEntryPoint: fullPath,
+		fullEntryPoint,
 		remainingArgs,
 		browser,
 		browserExecutable,
