@@ -41,7 +41,7 @@ export type RenderJob = {
 	startedAt: number;
 	compositionId: string;
 	id: string;
-	outputLocation: string;
+	outName: string;
 	deletedOutputLocation: boolean;
 	verbose: boolean;
 } & RenderJobDynamicStatus &

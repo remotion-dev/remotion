@@ -1,5 +1,6 @@
 import React, {useCallback, useContext} from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
+import {getDefaultOutLocation} from '../../get-default-out-name';
 import {RenderStill} from '../icons/RenderStillIcon';
 import {ModalsContext} from '../state/modals';
 import {ControlButton} from './ControlButton';
@@ -22,7 +23,20 @@ export const RenderStillButton: React.FC = () => {
 			return null;
 		}
 
-		setSelectedModal({type: 'render', composition: video, initialFrame: frame});
+		setSelectedModal({
+			type: 'render',
+			compositionId: video.id,
+			initialFrame: frame,
+			initialImageFormat: 'png',
+			initialOutName: getDefaultOutLocation({
+				compositionName: video.id,
+				defaultExtension: 'png',
+			}),
+			// TODO: Determine defaults from config file
+			initialQuality: 80,
+			initialScale: 1,
+			initialVerbose: false,
+		});
 	}, [frame, setSelectedModal, video]);
 
 	if (!video) {

@@ -1,5 +1,4 @@
 import type {StillImageFormat} from '@remotion/renderer';
-import type {TCompMetadata} from 'remotion';
 import type {ApiRoutes} from '../../../preview-server/api-types';
 import type {
 	OpenInFileExplorerRequest,
@@ -39,7 +38,7 @@ export const callApi = <Endpoint extends keyof ApiRoutes>(
 };
 
 export const addStillRenderJob = ({
-	composition,
+	compositionId,
 	outName,
 	imageFormat,
 	quality,
@@ -47,7 +46,7 @@ export const addStillRenderJob = ({
 	scale,
 	verbose,
 }: {
-	composition: TCompMetadata;
+	compositionId: string;
 	outName: string;
 	imageFormat: StillImageFormat;
 	quality: number | null;
@@ -56,7 +55,7 @@ export const addStillRenderJob = ({
 	verbose: boolean;
 }) => {
 	return callApi('/api/render', {
-		compositionId: composition.id,
+		compositionId,
 		type: 'still',
 		outName,
 		imageFormat,

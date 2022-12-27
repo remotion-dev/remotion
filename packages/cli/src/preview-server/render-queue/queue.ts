@@ -1,3 +1,4 @@
+import path from 'path';
 import {chalk} from '../../chalk';
 import {installFileWatcher} from '../../file-watcher';
 import {Log} from '../../log';
@@ -126,7 +127,7 @@ export const processJobIfPossible = async ({
 		Log.info(chalk.gray('╰─ Done in ' + (Date.now() - startTime) + 'ms.'));
 
 		const {unwatch} = installFileWatcher({
-			file: nextJob.outputLocation,
+			file: path.resolve(remotionRoot, nextJob.outName),
 			onChange: (type) => {
 				if (type === 'created') {
 					updateJob(nextJob.id, (job) => ({
