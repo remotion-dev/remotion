@@ -13,6 +13,7 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	paddingBottom: 10,
+	paddingRight: 4,
 };
 
 const title: React.CSSProperties = {
