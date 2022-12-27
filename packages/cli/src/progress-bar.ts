@@ -7,12 +7,14 @@ import {
 	getFileSizeDownloadBar,
 	makeMultiDownloadProgress,
 } from './download-progress';
+import {INDENT_TOKEN} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import type {RenderStep} from './step';
 import {truthy} from './truthy';
 
 export const createProgressBar = (
-	quiet: boolean
+	quiet: boolean,
+	indent: boolean
 ): {
 	update: (str: string) => boolean;
 } => {
@@ -25,17 +27,18 @@ export const createProgressBar = (
 		return {update: () => false};
 	}
 
-	return createOverwriteableCliOutput(quiet);
+	return createOverwriteableCliOutput({quiet, indent});
 };
 
 export type OverwriteableCliOutput = {
 	update: (up: string) => boolean;
 };
 
-export const createOverwriteableCliOutput = (
-	quiet: boolean
-): OverwriteableCliOutput => {
-	if (quiet) {
+export const createOverwriteableCliOutput = (options: {
+	quiet: boolean;
+	indent: boolean;
+}): OverwriteableCliOutput => {
+	if (options.quiet) {
 		return {
 			update: () => false,
 		};
@@ -43,7 +46,10 @@ export const createOverwriteableCliOutput = (
 
 	const diff = new AnsiDiff();
 	return {
-		update: (up: string): boolean => process.stdout.write(diff.update(up)),
+		update: (up: string): boolean =>
+			process.stdout.write(
+				diff.update((options.indent ? INDENT_TOKEN : '') + up)
+			),
 	};
 };
 

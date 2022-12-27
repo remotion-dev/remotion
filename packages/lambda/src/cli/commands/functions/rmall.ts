@@ -17,9 +17,10 @@ export const functionsRmallCommand = async () => {
 	});
 
 	for (const fun of functions) {
-		const infoOutput = CliInternals.createOverwriteableCliOutput(
-			CliInternals.quietFlagProvided()
-		);
+		const infoOutput = CliInternals.createOverwriteableCliOutput({
+			quiet: CliInternals.quietFlagProvided(),
+			indent: false,
+		});
 		infoOutput.update('Getting function info...');
 		const info = await getFunctionInfo({
 			region,
@@ -37,9 +38,10 @@ export const functionsRmallCommand = async () => {
 		Log.info();
 
 		await confirmCli({delMessage: 'Delete? (Y/n)', allowForceFlag: true});
-		const output = CliInternals.createOverwriteableCliOutput(
-			CliInternals.quietFlagProvided()
-		);
+		const output = CliInternals.createOverwriteableCliOutput({
+			quiet: CliInternals.quietFlagProvided(),
+			indent: false,
+		});
 		output.update('Deleting...');
 		await deleteFunction({region, functionName: fun.functionName});
 		output.update('Deleted!\n');

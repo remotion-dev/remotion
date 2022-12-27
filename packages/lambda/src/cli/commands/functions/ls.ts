@@ -13,9 +13,10 @@ export const FUNCTIONS_LS_SUBCOMMAND = 'ls';
 
 export const functionsLsCommand = async () => {
 	const region = getAwsRegion();
-	const fetchingOutput = CliInternals.createOverwriteableCliOutput(
-		CliInternals.quietFlagProvided()
-	);
+	const fetchingOutput = CliInternals.createOverwriteableCliOutput({
+		quiet: CliInternals.quietFlagProvided(),
+		indent: false,
+	});
 	fetchingOutput.update('Getting functions...');
 
 	const functions = await getFunctions({

@@ -126,6 +126,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			steps,
 			publicDir,
 			onProgress: () => undefined,
+			indentOutput: false,
 		}
 	);
 
@@ -208,7 +209,10 @@ export const render = async (remotionRoot: string, args: string[]) => {
 
 	Log.verbose('Output dir', outputDir);
 
-	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
+	const renderProgress = createOverwriteableCliOutput({
+		quiet: quietFlagProvided(),
+		indent: false,
+	});
 	const realFrameRange = RenderInternals.getRealFrameRange(
 		config.durationInFrames,
 		frameRange

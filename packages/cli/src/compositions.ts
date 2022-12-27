@@ -55,6 +55,7 @@ export const listCompositionsCommand = async (
 			steps: ['bundling'],
 			publicDir,
 			onProgress: () => undefined,
+			indentOutput: false,
 		});
 
 	const compositions = await getCompositions(bundled, {
