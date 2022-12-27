@@ -420,7 +420,7 @@ export const RenderModal: React.FC<{
 				</CollapsableOptions>
 				<Spacing block y={0.5} />
 				<div style={buttonRow}>
-					<Button onClick={onClick} disabled={state.type === 'load'}>
+					<Button autoFocus onClick={onClick} disabled={state.type === 'load'}>
 						{state.type === 'idle' ? 'Render' : 'Rendering...'}
 					</Button>
 				</div>

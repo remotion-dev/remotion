@@ -26,7 +26,8 @@ export const Button: React.FC<{
 	disabled?: boolean;
 	children: React.ReactNode;
 	style?: React.CSSProperties;
-}> = ({children, onClick, disabled, style}) => {
+	autoFocus?: boolean;
+}> = ({children, onClick, disabled, style, autoFocus}) => {
 	const combined = useMemo(() => {
 		return {
 			...button,
@@ -39,6 +40,7 @@ export const Button: React.FC<{
 			type="button"
 			disabled={disabled}
 			onClick={onClick}
+			autoFocus={autoFocus}
 		>
 			<div className="css-reset" style={buttonContainer}>
 				{children}
