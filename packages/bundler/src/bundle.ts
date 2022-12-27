@@ -222,6 +222,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 		numberOfAudioTags: 0,
 		includeFavicon: false,
 		title: 'Remotion Bundle',
+		renderDefaults: undefined,
 	});
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 

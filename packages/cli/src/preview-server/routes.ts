@@ -3,6 +3,7 @@ import {createReadStream, statSync} from 'fs';
 import type {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';
 import {URLSearchParams} from 'url';
+import {ConfigInternals} from '../config';
 import {getNumberOfSharedAudioTags} from '../config/number-of-shared-audio-tags';
 import {parsedCli} from '../parse-command-line';
 import {allApiRoutes} from './api-routes';
@@ -59,6 +60,10 @@ const handleFallback = async ({
 	const [edit] = await editorGuess;
 	const displayName = getDisplayNameForEditor(edit ? edit.command : null);
 
+	const defaultQuality = ConfigInternals.getQuality();
+	const defaultScale = ConfigInternals.getScale();
+	const logLevel = ConfigInternals.Logging.getLogLevel();
+
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
 	const packageManager = getPackageManager(remotionRoot, undefined);
@@ -78,6 +83,11 @@ const handleFallback = async ({
 				getNumberOfSharedAudioTags(),
 			includeFavicon: true,
 			title: 'Remotion Preview',
+			renderDefaults: {
+				quality: defaultQuality ?? 80,
+				scale: defaultScale ?? 1,
+				logLevel,
+			},
 		})
 	);
 };

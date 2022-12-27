@@ -1,5 +1,17 @@
 import path from 'path';
 
+export type RenderDefaults = {
+	quality: number;
+	scale: number;
+	logLevel: string;
+};
+
+declare global {
+	interface Window {
+		remotion_renderDefaults: RenderDefaults | undefined;
+	}
+}
+
 export const indexHtml = ({
 	baseDir,
 	editorName,
@@ -12,6 +24,7 @@ export const indexHtml = ({
 	numberOfAudioTags,
 	includeFavicon,
 	title,
+	renderDefaults,
 }: {
 	staticHash: string;
 	baseDir: string;
@@ -24,6 +37,7 @@ export const indexHtml = ({
 	numberOfAudioTags: number;
 	includeFavicon: boolean;
 	title: string;
+	renderDefaults: RenderDefaults | undefined;
 }) =>
 	`
 <!DOCTYPE html>
@@ -51,6 +65,9 @@ ${
 		}
 		<script>window.remotion_projectName = ${JSON.stringify(
 			path.basename(remotionRoot)
+		)};</script>
+		<script>window.remotion_renderDefaults = ${JSON.stringify(
+			renderDefaults
 		)};</script>
 		<script>window.remotion_cwd = ${JSON.stringify(remotionRoot)};</script>
 		<script>window.remotion_previewServerCommand = ${

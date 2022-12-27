@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import React, {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {getDefaultOutLocation} from '../../get-default-out-name';
@@ -69,14 +70,16 @@ export const CurrentComposition = () => {
 		setSelectedModal({
 			type: 'render',
 			compositionId: video.id,
-			// TODO: Derive defaults from config file
 			initialFrame: 0,
+			// TODO: Default PNG for stills, JPEG for videos
 			initialImageFormat: 'png',
-			initialQuality: 80,
-			initialScale: 1,
-			initialVerbose: false,
+			initialQuality: window.remotion_renderDefaults?.quality ?? 80,
+			initialScale: window.remotion_renderDefaults?.scale ?? 1,
+			initialVerbose:
+				(window.remotion_renderDefaults?.logLevel as LogLevel) === 'verbose',
 			initialOutName: getDefaultOutLocation({
 				compositionName: video.id,
+				// TODO: Default PNG for stills, JPEG for videos
 				defaultExtension: 'png',
 			}),
 		});

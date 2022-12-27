@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {TCompMetadata} from 'remotion';
@@ -27,11 +28,13 @@ export const RenderButton: React.FC<{
 				type: 'render',
 				compositionId: composition.id,
 				initialFrame: 0,
+				// TODO: JPEG for video, PNG for image
 				initialImageFormat: 'png',
 				// TODO: Determine defaults from config file
-				initialQuality: 80,
-				initialScale: 1,
-				initialVerbose: false,
+				initialQuality: window.remotion_renderDefaults?.quality ?? 80,
+				initialScale: window.remotion_renderDefaults?.scale ?? 1,
+				initialVerbose:
+					(window.remotion_renderDefaults?.logLevel as LogLevel) === 'verbose',
 				initialOutName: getDefaultOutLocation({
 					compositionName: composition.id,
 					defaultExtension: 'png',
