@@ -74,5 +74,5 @@ export const listCompositionsCommand = async (
 
 	await RenderInternals.cleanDownloadMap(downloadMap);
 	await cleanupBundle();
-	Log.verbose('Cleaned up', downloadMap.assetDir);
+	Log.verboseIndent(true, 'Cleaned up', downloadMap.assetDir);
 };
