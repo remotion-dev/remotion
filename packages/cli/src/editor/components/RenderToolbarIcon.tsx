@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import React, {useCallback, useContext} from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
 import {getDefaultOutLocation} from '../../get-default-out-name';
@@ -27,15 +28,17 @@ export const RenderStillButton: React.FC = () => {
 			type: 'render',
 			compositionId: video.id,
 			initialFrame: frame,
+			// TODO: JPEG for video, PNG for image
 			initialImageFormat: 'png',
 			initialOutName: getDefaultOutLocation({
 				compositionName: video.id,
 				defaultExtension: 'png',
 			}),
 			// TODO: Determine defaults from config file
-			initialQuality: 80,
-			initialScale: 1,
-			initialVerbose: false,
+			initialQuality: window.remotion_renderDefaults?.quality ?? 80,
+			initialScale: window.remotion_renderDefaults?.scale ?? 1,
+			initialVerbose:
+				(window.remotion_renderDefaults?.logLevel as LogLevel) === 'verbose',
 		});
 	}, [frame, setSelectedModal, video]);
 
