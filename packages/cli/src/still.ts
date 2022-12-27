@@ -81,5 +81,6 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		configFileImageFormat,
 		logLevel,
 		onProgress: () => undefined,
+		indentOutput: false,
 	});
 };

@@ -61,9 +61,10 @@ export const sitesCreateSubcommand = async (
 		validateSiteName(desiredSiteName);
 	}
 
-	const progressBar = CliInternals.createOverwriteableCliOutput(
-		CliInternals.quietFlagProvided()
-	);
+	const progressBar = CliInternals.createOverwriteableCliOutput({
+		quiet: CliInternals.quietFlagProvided(),
+		indent: false,
+	});
 
 	const multiProgress: {
 		bundleProgress: BundleProgress;

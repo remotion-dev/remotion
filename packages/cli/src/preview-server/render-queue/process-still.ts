@@ -65,6 +65,7 @@ export const processStill = async ({
 		configFileImageFormat,
 		logLevel,
 		onProgress,
+		indentOutput: true,
 	});
 	// TODO: Allow cancel signal
 	// TODO: Accept CLI options

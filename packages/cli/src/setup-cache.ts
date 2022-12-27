@@ -21,12 +21,14 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	steps,
 	publicDir,
 	onProgress,
+	indentOutput,
 }: {
 	fullPath: string;
 	remotionRoot: string;
 	steps: RenderStep[];
 	publicDir: string | null;
 	onProgress: (params: {progress: number; message: string}) => void;
+	indentOutput: boolean;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => Promise<void>;
@@ -44,6 +46,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		steps,
 		publicDir,
 		onProgressCallback: onProgress,
+		indentOutput,
 	});
 
 	return {
@@ -58,12 +61,14 @@ export const bundleOnCli = async ({
 	remotionRoot,
 	publicDir,
 	onProgressCallback,
+	indentOutput,
 }: {
 	fullPath: string;
 	steps: RenderStep[];
 	remotionRoot: string;
 	publicDir: string | null;
 	onProgressCallback: (params: {progress: number; message: string}) => void;
+	indentOutput: boolean;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -152,7 +157,10 @@ export const bundleOnCli = async ({
 	}
 
 	const bundleStartTime = Date.now();
-	const bundlingProgress = createOverwriteableCliOutput(quietFlagProvided());
+	const bundlingProgress = createOverwriteableCliOutput({
+		quiet: quietFlagProvided(),
+		indent: indentOutput,
+	});
 
 	let bundlingState: BundlingState = {
 		progress: 0,

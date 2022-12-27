@@ -189,6 +189,7 @@ export const benchmarkCommand = async (
 			remotionRoot,
 			steps: ['bundling'],
 			onProgress: () => undefined,
+			indentOutput: false,
 		});
 
 	const puppeteerInstance = await browserInstance;
@@ -250,9 +251,10 @@ export const benchmarkCommand = async (
 
 		benchmark[composition.id] = {};
 		for (const con of concurrency) {
-			const benchmarkProgress = createOverwriteableCliOutput(
-				quietFlagProvided()
-			);
+			const benchmarkProgress = createOverwriteableCliOutput({
+				quiet: quietFlagProvided(),
+				indent: false,
+			});
 			Log.info();
 			Log.info(
 				`${chalk.bold(`Benchmark #${count++}:`)} ${chalk.gray(

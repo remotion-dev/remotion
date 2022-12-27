@@ -138,9 +138,10 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 	const totalSteps = downloadName ? 6 : 5;
 
-	const progressBar = CliInternals.createOverwriteableCliOutput(
-		CliInternals.quietFlagProvided()
-	);
+	const progressBar = CliInternals.createOverwriteableCliOutput({
+		quiet: CliInternals.quietFlagProvided(),
+		indent: false,
+	});
 
 	Log.info(
 		CliInternals.chalk.gray(

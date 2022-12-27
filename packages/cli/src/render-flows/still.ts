@@ -68,6 +68,7 @@ export const renderStillFlow = async ({
 	logLevel,
 	configFileImageFormat,
 	onProgress,
+	indentOutput,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -94,6 +95,7 @@ export const renderStillFlow = async ({
 	logLevel: LogLevel;
 	configFileImageFormat: ImageFormat | undefined;
 	onProgress: JobProgressCallback;
+	indentOutput: boolean;
 }) => {
 	const startTime = Date.now();
 	const downloads: DownloadProgress[] = [];
@@ -147,6 +149,7 @@ export const renderStillFlow = async ({
 				aggregate.bundling = progress;
 				updateProgress();
 			},
+			indentOutput: true,
 		}
 	);
 
@@ -200,13 +203,17 @@ export const renderStillFlow = async ({
 		recursive: true,
 	});
 
-	Log.info(
+	Log.infoIndent(
+		indentOutput,
 		chalk.gray(
 			`Entry point = ${fullEntryPoint} (${entryPointReason}), Output = ${relativeOutputLocation}, Format = ${imageFormat} (${source}), Composition = ${compositionId} (${reason})`
 		)
 	);
 
-	renderProgress = createOverwriteableCliOutput(quietFlagProvided());
+	renderProgress = createOverwriteableCliOutput({
+		quiet: quietFlagProvided(),
+		indent: true,
+	});
 	const renderStart = Date.now();
 
 	aggregate.rendering = {
@@ -270,21 +277,23 @@ export const renderStillFlow = async ({
 
 	const closeBrowserPromise = puppeteerInstance.close(false);
 
-	Log.info(chalk.green('\nYour still frame is ready!'));
+	Log.infoIndent(indentOutput);
+	Log.infoIndent(indentOutput, chalk.green('Your still frame is ready!'));
 
 	const seconds = Math.round((Date.now() - startTime) / 1000);
-	Log.info(
+	Log.infoIndent(
+		indentOutput,
 		[
 			'- Total render time:',
 			seconds,
 			seconds === 1 ? 'second' : 'seconds',
 		].join(' ')
 	);
-	Log.info('-', 'Output can be found at:');
-	Log.info(chalk.cyan(`▶️ ${absoluteOutputLocation}`));
+	Log.infoIndent(indentOutput, '-', 'Output can be found at:');
+	Log.infoIndent(indentOutput, chalk.cyan(`▶️ ${absoluteOutputLocation}`));
 	await closeBrowserPromise;
 	await RenderInternals.cleanDownloadMap(downloadMap);
 	await cleanupBundle();
 
-	Log.verbose('Cleaned up', downloadMap.assetDir);
+	Log.verbose(indentOutput, 'Cleaned up', downloadMap.assetDir);
 };
