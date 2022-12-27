@@ -25,23 +25,45 @@ export const leftSidebarTabs = createRef<{
 	selectRendersPanel: () => void;
 }>();
 
+const localStorageKey = 'remotion.sidebarPanel';
+
+const persistSelectedPanel = (panel: SidebarPanel) => {
+	localStorage.setItem(localStorageKey, panel);
+};
+
+const getSelectedPanel = (shouldRender: boolean): SidebarPanel => {
+	const panel = localStorage.getItem(localStorageKey);
+	if (panel === 'renders' && shouldRender) {
+		return 'renders';
+	}
+
+	return 'compositions';
+};
+
 export const SidebarContent: React.FC = () => {
-	const [panel, setPanel] = useState<SidebarPanel>('compositions');
 	const shouldRender = useShouldRenderLeftSidebarTabs();
+	const [panel, setPanel] = useState<SidebarPanel>(() =>
+		getSelectedPanel(shouldRender)
+	);
 
 	const onCompositionsSelected = useCallback(() => {
 		setPanel('compositions');
+		persistSelectedPanel('compositions');
 	}, []);
 
 	const onRendersSelected = useCallback(() => {
 		setPanel('renders');
+		persistSelectedPanel('renders');
 	}, []);
 
 	useImperativeHandle(
 		leftSidebarTabs,
 		() => {
 			return {
-				selectRendersPanel: () => setPanel('renders'),
+				selectRendersPanel: () => {
+					setPanel('renders');
+					persistSelectedPanel('renders');
+				},
 			};
 		},
 		[]
