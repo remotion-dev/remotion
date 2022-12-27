@@ -19,7 +19,7 @@ const isUpdateAvailable = async ({
 	currentVersion: string;
 }): Promise<Info> => {
 	const latest = await getLatestRemotionVersion();
-	const pkgManager = getPackageManager(remotionRoot);
+	const pkgManager = getPackageManager(remotionRoot, undefined);
 
 	return {
 		updateAvailable: semver.lt(currentVersion, latest),
@@ -42,7 +42,7 @@ export const getRemotionVersion = () => {
 export const isUpdateAvailableWithTimeout = (remotionRoot: string) => {
 	const version = getRemotionVersion();
 	const threeSecTimeout = new Promise<Info>((resolve) => {
-		const pkgManager = getPackageManager(remotionRoot);
+		const pkgManager = getPackageManager(remotionRoot, undefined);
 		setTimeout(() => {
 			resolve({
 				currentVersion: version,

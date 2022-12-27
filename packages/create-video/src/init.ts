@@ -7,8 +7,9 @@ import {openInEditorFlow} from './open-in-editor-flow';
 import {patchPackageJson} from './patch-package-json';
 import {patchReadmeMd} from './patch-readme';
 import {
-	getRenderCommand,
-	getStartCommand,
+	getDevCommand,
+	getPackageManagerVersionOrNull,
+	getRenderCommandForTemplate,
 	selectPackageManager,
 } from './pkg-managers';
 import {resolveProjectRoot} from './resolve-project-root';
@@ -54,6 +55,7 @@ export const init = async () => {
 	const selectedTemplate = await selectTemplate();
 
 	const pkgManager = selectPackageManager();
+	const pkgManagerVersion = await getPackageManagerVersionOrNull(pkgManager);
 
 	try {
 		await degit({
@@ -67,6 +69,9 @@ export const init = async () => {
 			projectRoot,
 			projectName: folderName,
 			latestRemotionVersion: latestVersion,
+			packageManager: pkgManagerVersion
+				? `${pkgManager}@${pkgManagerVersion}`
+				: null,
 		});
 	} catch (e) {
 		Log.error(e);
@@ -123,10 +128,12 @@ export const init = async () => {
 
 	Log.info('Get started by running');
 	Log.info(chalk.blueBright(`cd ${folderName}`));
-	Log.info(chalk.blueBright(getStartCommand(pkgManager)));
+	Log.info(chalk.blueBright(getDevCommand(pkgManager, selectedTemplate)));
 	Log.info('');
 	Log.info('To render a video, run');
-	Log.info(chalk.blueBright(getRenderCommand(pkgManager)));
+	Log.info(
+		chalk.blueBright(getRenderCommandForTemplate(pkgManager, selectedTemplate))
+	);
 	Log.info('');
 	Log.info(
 		'Docs to get you started:',

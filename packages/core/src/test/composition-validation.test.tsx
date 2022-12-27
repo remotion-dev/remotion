@@ -15,7 +15,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 		expectToThrow(
 			() =>
 				render(
-					<RemotionRoot>
+					<RemotionRoot numberOfAudioTags={0}>
 						{/**
 						 // @ts-expect-error */}
 						<Composition
@@ -35,7 +35,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
+						<RemotionRoot numberOfAudioTags={0}>
 							<Composition
 								lazyComponent={() => Promise.resolve({default: AnyComp})}
 								durationInFrames={100}
@@ -53,7 +53,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
+						<RemotionRoot numberOfAudioTags={0}>
 							<Composition
 								lazyComponent={() => Promise.resolve({default: AnyComp})}
 								durationInFrames={100}
@@ -71,7 +71,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
+						<RemotionRoot numberOfAudioTags={0}>
 							<Composition
 								lazyComponent={() => Promise.resolve({default: AnyComp})}
 								durationInFrames={100}
@@ -90,7 +90,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
+						<RemotionRoot numberOfAudioTags={0}>
 							<Composition
 								lazyComponent={() => Promise.resolve({default: AnyComp})}
 								durationInFrames={100}
@@ -110,7 +110,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
+						<RemotionRoot numberOfAudioTags={0}>
 							<Composition
 								lazyComponent={() => Promise.resolve({default: AnyComp})}
 								durationInFrames={100}
@@ -128,7 +128,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
+						<RemotionRoot numberOfAudioTags={0}>
 							<Composition
 								lazyComponent={() => Promise.resolve({default: AnyComp})}
 								durationInFrames={100}
@@ -146,7 +146,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
+						<RemotionRoot numberOfAudioTags={0}>
 							<Composition
 								lazyComponent={() => Promise.resolve({default: AnyComp})}
 								durationInFrames={100}
@@ -167,7 +167,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
+						<RemotionRoot numberOfAudioTags={0}>
 							<Composition
 								lazyComponent={() => Promise.resolve({default: AnyComp})}
 								durationInFrames={-100}
@@ -185,7 +185,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
+						<RemotionRoot numberOfAudioTags={0}>
 							<Composition
 								lazyComponent={() => Promise.resolve({default: AnyComp})}
 								durationInFrames={0}
@@ -203,7 +203,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
+						<RemotionRoot numberOfAudioTags={0}>
 							<Composition
 								lazyComponent={() => Promise.resolve({default: AnyComp})}
 								durationInFrames={0.11}
@@ -221,7 +221,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
+						<RemotionRoot numberOfAudioTags={0}>
 							<Composition
 								lazyComponent={() => Promise.resolve({default: AnyComp})}
 								// @ts-expect-error
@@ -242,7 +242,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
+						<RemotionRoot numberOfAudioTags={0}>
 							<Composition
 								lazyComponent={() => Promise.resolve({default: AnyComp})}
 								durationInFrames={100}
@@ -260,7 +260,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
+						<RemotionRoot numberOfAudioTags={0}>
 							<Composition
 								lazyComponent={() => Promise.resolve({default: AnyComp})}
 								durationInFrames={100}
@@ -279,7 +279,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 			expectToThrow(
 				() =>
 					render(
-						<RemotionRoot>
+						<RemotionRoot numberOfAudioTags={0}>
 							<Composition
 								lazyComponent={() => Promise.resolve({default: AnyComp})}
 								durationInFrames={100}

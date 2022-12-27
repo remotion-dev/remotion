@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-encoding.png
 id: encoding
 title: Encoding Guide
+crumb: "Codecs and more"
 ---
 
 Backed by [FFMPEG](https://ffmpeg.org/), Remotion allows you to configure a variety of encoding settings. The goal of this page is to help you navigate through the settings and to help you choose the right one.

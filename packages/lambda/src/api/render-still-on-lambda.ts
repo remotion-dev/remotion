@@ -1,16 +1,13 @@
-import type {
-	ChromiumOptions,
-	LogLevel,
-	StillImageFormat,
-} from '@remotion/renderer';
+import type {LogLevel, StillImageFormat} from '@remotion/renderer';
+import type {ChromiumOptions} from '@remotion/renderer/src/open-browser';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
 import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
-import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {getCloudwatchStreamUrl} from '../shared/get-cloudwatch-stream-url';
+import {getCloudwatchStreamUrl} from '../shared/get-aws-urls';
+import {serializeInputProps} from '../shared/serialize-input-props';
 
 export type RenderStillOnLambdaInput = {
 	region: AwsRegion;
@@ -30,6 +27,8 @@ export type RenderStillOnLambdaInput = {
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
 	downloadBehavior?: DownloadBehavior;
+	forceWidth?: number | null;
+	forceHeight?: number | null;
 };
 
 export type RenderStillOnLambdaOutput = {
@@ -76,16 +75,23 @@ export const renderStillOnLambda = async ({
 	chromiumOptions,
 	scale,
 	downloadBehavior,
+	forceHeight,
+	forceWidth,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
-	const realServeUrl = await convertToServeUrl(serveUrl, region);
+	const serializedInputProps = await serializeInputProps({
+		inputProps,
+		region,
+		type: 'still',
+	});
+
 	try {
 		const res = await callLambda({
 			functionName,
 			type: LambdaRoutines.still,
 			payload: {
 				composition,
-				serveUrl: realServeUrl,
-				inputProps,
+				serveUrl,
+				inputProps: serializedInputProps,
 				imageFormat,
 				envVariables,
 				quality,
@@ -100,6 +106,8 @@ export const renderStillOnLambda = async ({
 				scale: scale ?? 1,
 				downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
 				version: VERSION,
+				forceHeight: forceHeight ?? null,
+				forceWidth: forceWidth ?? null,
 			},
 			region,
 		});

@@ -8,7 +8,7 @@ test("Should be able to render if remotion.config.ts is not provided", async () 
 
   const task = await execa(
     "pnpm",
-    ["exec", "remotion", "render", "src/index.tsx", "many-audio", outputPath],
+    ["exec", "remotion", "render", "many-audio", outputPath],
     {
       cwd: path.join(process.cwd(), "..", "example"),
     }

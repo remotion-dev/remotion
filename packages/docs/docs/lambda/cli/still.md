@@ -1,8 +1,10 @@
 ---
+image: /generated/articles-docs-lambda-cli-still.png
 id: still
 sidebar_label: still
 title: "npx remotion lambda still"
 slug: /lambda/cli/still
+crumb: "Lambda CLI Reference"
 ---
 
 Using the `npx remotion lambda still` command, you can render a still frame in the cloud.
@@ -10,11 +12,11 @@ Using the `npx remotion lambda still` command, you can render a still frame in t
 The command has the following structure:
 
 ```
-npx remotion lambda still <serve-url> <composition-id> [<output-location>]
+npx remotion lambda still <serve-url> [<composition-id>] [<output-location>]
 ```
 
 - The serve URL is obtained by deploying a project to Remotion using the [`sites create`](/docs/lambda/cli/sites#create) command or calling [`deploySite()`](/docs/lambda/deploysite).
-- The composition ID is the [`id` of your `<Composition/>`](/docs/the-fundamentals#defining-compositions).
+- The [composition ID](/docs/terminology#composition-id). If not specified, the list of compositions will be fetched and you can choose a composition.
 - The `output-location` parameter is optional. If you don't specify it, the still is stored in your S3 bucket. If you specify a location, it gets downloaded to your device in an additional step.
 
 ## Example commands
@@ -75,7 +77,7 @@ How many times a single chunk is being retried if it fails to render. Default `1
 
 ### `--out-name`
 
-The file name of the media output as stored in the S3 bucket. By default, it is `out` plus the appropriate file extension, for example: `out.png`. Must match `/([0-9a-zA-Z-!_.*'()]+)/g`.
+The file name of the media output as stored in the S3 bucket. By default, it is `out` plus the appropriate file extension, for example: `out.png`. Must match `/([0-9a-zA-Z-!_.*'()/]+)/g`.
 
 ### `--quality`
 

@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {estimatePrice} from '../../api/estimate-price';
 
 test('Should calculate costs accurately', () => {

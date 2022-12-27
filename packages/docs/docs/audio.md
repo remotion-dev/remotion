@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-audio.png
 title: <Audio>
 id: audio
+crumb: "How to"
 ---
 
 Using this component, you can add audio to your video. All audio formats which are supported by Chromium are supported by the component.
@@ -109,6 +111,38 @@ export const MyVideo = () => {
   );
 };
 ```
+
+### `loop`
+
+_Available from v3.2.29_
+
+You can use the `loop` prop to loop audio.
+
+```tsx twoslash
+import { AbsoluteFill, Audio, staticFile, useCurrentFrame } from "remotion";
+
+export const MyVideo = () => {
+  const frame = useCurrentFrame();
+  return (
+    <AbsoluteFill>
+      <Audio loop src={staticFile("audio.mp3")} />
+    </AbsoluteFill>
+  );
+};
+```
+
+## `acceptableTimeShiftInSeconds`
+
+_Available from v3.2.42_
+
+During [Preview](/docs/terminology#remotion-preview) or in the [Remotion Player](/docs/player), Remotion will seek the audio if it gets too much out of sync with Remotion's internal time - be it due to the audio loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
+
+## `allowAmplificationDuringRender`
+
+_Available from v3.3.17_
+
+Make values for [`volume`](#volume) greater than `1` result in amplification during renders.  
+During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
 
 ## See also
 

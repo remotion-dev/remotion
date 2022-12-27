@@ -1,9 +1,11 @@
 import betterOpn from 'better-opn';
 import path from 'path';
+import {chalk} from './chalk';
 import {ConfigInternals} from './config';
+import {findEntryPoint} from './entry-point';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
-import {initializeRenderCli} from './initialize-render-cli';
+import {getNetworkAddress} from './get-network-address';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import type {LiveEventsServer} from './preview-server/live-events';
@@ -32,14 +34,16 @@ const waitForLiveEventsListener = (): Promise<LiveEventsServer> => {
 	});
 };
 
-export const previewCommand = async (remotionRoot: string) => {
-	const file = parsedCli._[1];
+export const previewCommand = async (remotionRoot: string, args: string[]) => {
+	const {file, reason} = findEntryPoint(args, remotionRoot);
+
+	Log.verbose('Entry point:', file, 'reason:', reason);
 
 	if (!file) {
 		Log.error(
 			'The preview command requires you to specify a root file. For example'
 		);
-		Log.error('  npx remotion preview src/index.tsx');
+		Log.error('  npx remotion preview src/index.ts');
 		Log.error(
 			'See https://www.remotion.dev/docs/register-root for more information.'
 		);
@@ -48,8 +52,6 @@ export const previewCommand = async (remotionRoot: string) => {
 
 	const {port: desiredPort} = parsedCli;
 	const fullPath = path.join(process.cwd(), file);
-
-	await initializeRenderCli(remotionRoot, 'preview');
 
 	let inputProps = getInputProps((newProps) => {
 		waitForLiveEventsListener().then((listener) => {
@@ -60,25 +62,44 @@ export const previewCommand = async (remotionRoot: string) => {
 			});
 		});
 	});
-	const envVariables = await getEnvironmentVariables();
+	let envVariables = await getEnvironmentVariables((newEnvVariables) => {
+		waitForLiveEventsListener().then((listener) => {
+			envVariables = newEnvVariables;
+			listener.sendEventToClient({
+				type: 'new-env-variables',
+				newEnvVariables,
+			});
+		});
+	});
 
 	const {port, liveEventsServer} = await startServer(
 		path.resolve(__dirname, 'previewEntry.js'),
 		fullPath,
 		{
 			getCurrentInputProps: () => inputProps,
-			envVariables,
+			getEnvVariables: () => envVariables,
 			port: desiredPort,
 			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 			remotionRoot,
 			keyboardShortcutsEnabled: ConfigInternals.getKeyboardShortcutsEnabled(),
 			userPassedPublicDir: ConfigInternals.getPublicDir(),
 			webpackOverride: ConfigInternals.getWebpackOverrideFn(),
+			poll: ConfigInternals.getWebpackPolling(),
 		}
 	);
 
 	setLiveEventsListener(liveEventsServer);
-	Log.info(`Server running on http://localhost:${port}`);
+	const networkAddress = getNetworkAddress();
+	if (networkAddress) {
+		Log.info(
+			`Server ready - Local: ${chalk.underline(
+				`http://localhost:${port}`
+			)}, Network: ${chalk.underline(`http://${networkAddress}:${port}`)}`
+		);
+	} else {
+		Log.info(`Running on http://localhost:${port}`);
+	}
+
 	betterOpn(`http://localhost:${port}`);
 	await new Promise(noop);
 };

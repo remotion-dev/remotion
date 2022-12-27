@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-terminology.png
 title: Terminology
+crumb: "The Remotion dictionary"
 ---
 
 Here we try to explain the meaning of some terms that are used often in the documentation, but are not self-explanatory. Which terms would you like to have explained? [Let us know](https://remotion.dev/issue)!
@@ -15,6 +17,10 @@ In the [Remotion Player](#remotion-player), you don't use the `<Composition>` co
 A [`<Sequence>`](/docs/sequence) is a built-in component that manipulates the time for its children. For example, you might have an animation that starts at frame `0`. If you would like to delay the animation, rather than refactoring the animation, you can wrap it in a `<Sequence>` and define a delay using the [`from`](/docs/sequence#from) prop.
 
 Using a sequence, you can also trim the start and end of an animation by passing the [`durationInFrames`](/docs/sequence#durationinframes) prop.
+
+## Composition ID
+
+The string that you pass to the [`<Composition>` component](#composition). You need the composition ID to reference what you would like to render, for example: `npx remotion render src/index <composition-id>`. See: [Defining compositions](/docs/the-fundamentals#defining-compositions)
 
 ## Bundle
 
@@ -40,9 +46,16 @@ The Remotion Root is the directory in which Remotion commands get executed in. I
 
 ## Entry point
 
-The entry point is the file where the Remotion CLI and Node.JS APIs will look for a Remotion project. By default in most templates, it is `src/index.tsx`. The entry point can be passed to the render command, for example: `npx remotion render src/index.tsx`. The entry point should call [`registerRoot()`](/docs/register-root).
+The entry point is the file where the Remotion CLI and Node.JS APIs will look for a Remotion project.
 
-In the [Remotion Player](#remotion-player), there is no concept of an entry point. You directly pass a React component and metadata to the [`<Player>`](/docs/player/api).
+- By default in most templates, it is `src/index.ts`.
+- In older projects, it may have an `.tsx` extension instead of `.ts`.
+- The entry point can be passed to the render command, for example: `npx remotion render src/index.ts`.
+- The entry point should call [`registerRoot()`](/docs/register-root).
+- If you render a video using [`npx remotion render`](/docs/cli/render), the entry point is printed in grey.
+- You can customize the entry point in the config file using [`Config.Bundling.setEntryPoint()`](/docs/config#setentrypoint).
+
+In the [Remotion Player](#remotion-player), there is no concept of an entry point. You directly pass a React component and metadata to the [`<Player>`](/docs/player/player).
 
 ## Remotion Preview
 
@@ -69,4 +82,4 @@ Input props are data that can be passed to a render in order to parametrize the 
 
 In the [Remotion Preview](#remotion-preview), you can set [default props](/docs/composition#defaultprops) to serve as placeholder data for desigining your video. If your input props don't override the default props, the default props will be used.
 
-In the [Remotion Player](#remotion-player), there are no default props, but you can pass [`inputProps`](/docs/player/api#inputprops) directly to the [`<Player>`](/docs/player).
+In the [Remotion Player](#remotion-player), there are no default props, but you can pass [`inputProps`](/docs/player/player#inputprops) directly to the [`<Player>`](/docs/player).

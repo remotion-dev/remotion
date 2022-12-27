@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-custom-destination.png
 id: custom-destination
 sidebar_label: Custom output destination
 title: Customizing Lambda output destination
+crumb: "Lambda"
 ---
 
 By default a render artifact is saved into the same S3 bucket as where the site is located under the key `renders/${renderId}/out.{extension}` (for example: `renders/hy0k2siao8/out.mp4`)
@@ -49,7 +51,7 @@ If you like to use this feature:
 - You must extend the [default Remotion policy](/docs/lambda/permissions) to allow read and write access to that bucket.
 - The bucket must be in the same region.
 - When calling APIs such as [`downloadMedia()`](/docs/lambda/downloadmedia) or [`getRenderProgress()`](/docs/lambda/getrenderprogress), you must pass the `bucketName` where the site resides in, not the bucket where the video gets saved.
-- The `key` must match `/^([0-9a-zA-Z-!_.*'()]+)$/g`
+- The `key` must match `/^([0-9a-zA-Z-!_.*'()/]+)$/g`
 - The bucketName must match `/^(?=^.{3,63}$)(?!^(\d+\.)+\d+$)(^(([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])$)/`.
 
 This feature is not supported from the CLI.
@@ -58,7 +60,12 @@ This feature is not supported from the CLI.
 
 _Available from v3.2.23_
 
-You can upload the file to another S3-compatible provider. You must pass an `outName` [as specified above](#customizing-the-output-bucket) and also provide an `s3OutputProvider` like in the example below.
+You can upload the file to another S3-compatible provider.
+
+- List of supported providers (non-exhaustive): Cloudflare, DigitalOcean Spaces
+- List of unsupported providers (non-exhaustive): Azure Blob Storage (not S3 compatible)
+
+You must pass an `outName` [as specified above](#customizing-the-output-bucket) and also provide an `s3OutputProvider` like in the example below.
 
 ```tsx twoslash {13-21}
 // @module: esnext
@@ -76,7 +83,7 @@ const { bucketName, renderId } = await renderMediaOnLambda({
   codec: "h264",
   imageFormat: "jpeg",
   maxRetries: 1,
-  privacy: "public",
+  privacy: "no-acl",
   outName: {
     key: "my-output",
     bucketName: "output-bucket",
@@ -95,6 +102,7 @@ If you want to use this feature, note the following:
 
 - When calling [`downloadMedia()`](/docs/lambda/downloadmedia#bucketname) or [`getRenderProgress()`](/docs/lambda/getrenderprogress#bucketname), you must pass the AWS `bucketName` where the site resides in, not the bucket name of the foreign cloud.
 - When calling [`downloadMedia()`](/docs/lambda/downloadmedia#s3outputprovider) or [`getRenderProgress()`](/docs/lambda/getrenderprogress#s3outputprovider), you must provide the `s3OutputProvider` option with the same credentials again.
+- By default, Remotion [assumes you use ACL](/docs/lambda/troubleshooting/bucket-disallows-acl) which is less common on other clouds. You need to set `privacy: "no-acl"` if you don't want to use ACL.
 
 This feature is not supported from the CLI.
 

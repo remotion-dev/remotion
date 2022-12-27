@@ -1,9 +1,12 @@
 ---
+image: /generated/articles-docs-tailwind.png
 id: tailwind
 title: TailwindCSS
+crumb: "text-lg font-bold"
 ---
 
 import Tabs from "@theme/Tabs";
+import TabItem from '@theme/TabItem';
 
 ## Using the template
 
@@ -150,9 +153,9 @@ Config.Bundling.overrideWebpackConfig(enableTailwind);
 @tailwind utilities;
 ```
 
-6. Import the stylesheet in your `src/Video.tsx` file. Add to the top of the file:
+6. Import the stylesheet in your `src/Root.tsx` file. Add to the top of the file:
 
-```js title="src/Video.tsx"
+```js title="src/Root.tsx"
 import "./style.css";
 ```
 

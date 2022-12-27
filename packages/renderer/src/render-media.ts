@@ -13,18 +13,20 @@ import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import type {Codec} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
-import {validateSelectedCrfAndCodecCombination} from './crf';
+import {validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
+import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import type {ImageFormat} from './image-format';
+import {validateSelectedPixelFormatAndImageFormatCombination} from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
 import {getServeUrlWithFallback} from './legacy-webpack-config';
@@ -34,19 +36,29 @@ import type {ChromiumOptions} from './open-browser';
 import {DEFAULT_OVERWRITE} from './overwrite';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
 import type {PixelFormat} from './pixel-format';
+import {validateSelectedPixelFormatAndCodecCombination} from './pixel-format';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
+import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {validateQuality} from './quality';
 import {renderFrames} from './render-frames';
 import {stitchFramesToVideo} from './stitch-frames-to-video';
 import type {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
+import {validateEveryNthFrame} from './validate-every-nth-frame';
+import {validateFfmpeg} from './validate-ffmpeg';
 import {validateFfmpegOverride} from './validate-ffmpeg-override';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
+import {validateBitrate} from './validate-videobitrate';
 
 export type StitchingState = 'encoding' | 'muxing';
+
+const SLOWEST_FRAME_COUNT = 10;
+
+export type SlowFrame = {frame: number; time: number};
+export type OnSlowestFrames = (frames: SlowFrame[]) => void;
 
 export type RenderMediaOnProgress = (progress: {
 	renderedFrames: number;
@@ -94,6 +106,10 @@ export type RenderMediaOptions = {
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
 	ffmpegOverride?: FfmpegOverrideFn;
+	audioBitrate?: string | null;
+	videoBitrate?: string | null;
+	onSlowestFrames?: OnSlowestFrames;
+	disallowParallelEncoding?: boolean;
 } & ServeUrlOrWebpackBundle &
 	ConcurrencyOrParallelism;
 
@@ -155,13 +171,23 @@ export const renderMedia = ({
 	muted,
 	enforceAudioTrack,
 	ffmpegOverride,
+	audioBitrate,
+	videoBitrate,
+	onSlowestFrames,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
+	const remotionRoot = findRemotionRoot();
+	validateFfmpeg(ffmpegExecutable ?? null, remotionRoot, 'ffmpeg');
 	validateQuality(options.quality);
-	if (typeof crf !== 'undefined' && crf !== null) {
-		validateSelectedCrfAndCodecCombination(crf, codec);
-	}
+	validateQualitySettings({crf, codec, videoBitrate});
+	validateBitrate(audioBitrate, 'audioBitrate');
+	validateBitrate(videoBitrate, 'videoBitrate');
 
+	validateSelectedCodecAndProResCombination({
+		codec,
+		proResProfile,
+	});
+	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 	if (outputLocation) {
 		validateOutputFilename(codec, getExtensionOfFilename(outputLocation));
 	}
@@ -176,6 +202,7 @@ export const renderMedia = ({
 	validateFfmpegOverride(ffmpegOverride);
 
 	const everyNthFrame = options.everyNthFrame ?? 1;
+	validateEveryNthFrame(everyNthFrame, codec);
 	const numberOfGifLoops = options.numberOfGifLoops ?? null;
 	const serveUrl = getServeUrlWithFallback(options);
 
@@ -195,7 +222,10 @@ export const renderMedia = ({
 			height: composition.height,
 			width: composition.width,
 		});
-	const parallelEncoding = hasEnoughMemory && canUseParallelEncoding(codec);
+	const parallelEncoding =
+		!options.disallowParallelEncoding &&
+		hasEnoughMemory &&
+		canUseParallelEncoding(codec);
 
 	if (options.verbose) {
 		console.log(
@@ -205,11 +235,15 @@ export const renderMedia = ({
 			estimatedUsage
 		);
 		console.log(
-			'[PRESTICHER]: Codec supports parallel rendering:',
+			'[PRESTITCHER]: Codec supports parallel rendering:',
 			canUseParallelEncoding(codec)
 		);
+		console.log(
+			'[PRESTITCHER]: User disallowed parallel encoding:',
+			Boolean(options.disallowParallelEncoding)
+		);
 		if (parallelEncoding) {
-			console.log('[PRESTICHER] Parallel encoding is enabled.');
+			console.log('[PRESTITCHER] Parallel encoding is enabled.');
 		} else {
 			console.log('[PRESTITCHER] Parallel encoding is disabled.');
 		}
@@ -219,6 +253,11 @@ export const renderMedia = ({
 		? 'none'
 		: options.imageFormat ?? 'jpeg';
 	const quality = imageFormat === 'jpeg' ? options.quality : undefined;
+
+	validateSelectedPixelFormatAndImageFormatCombination(
+		pixelFormat,
+		imageFormat
+	);
 
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
@@ -275,25 +314,29 @@ export const renderMedia = ({
 
 	const createPrestitcherIfNecessary = async () => {
 		if (preEncodedFileLocation) {
-			preStitcher = await prespawnFfmpeg({
-				width: composition.width * (scale ?? 1),
-				height: composition.height * (scale ?? 1),
-				fps,
-				outputLocation: preEncodedFileLocation,
-				pixelFormat,
-				codec,
-				proResProfile,
-				crf,
-				onProgress: (frame: number) => {
-					encodedFrames = frame;
-					callUpdate();
+			preStitcher = await prespawnFfmpeg(
+				{
+					width: composition.width * (scale ?? 1),
+					height: composition.height * (scale ?? 1),
+					fps,
+					outputLocation: preEncodedFileLocation,
+					pixelFormat,
+					codec,
+					proResProfile,
+					crf,
+					onProgress: (frame: number) => {
+						encodedFrames = frame;
+						callUpdate();
+					},
+					verbose: options.verbose ?? false,
+					ffmpegExecutable,
+					imageFormat,
+					signal: cancelPrestitcher.cancelSignal,
+					ffmpegOverride: ffmpegOverride ?? (({args}) => args),
+					videoBitrate: videoBitrate ?? null,
 				},
-				verbose: options.verbose ?? false,
-				ffmpegExecutable,
-				imageFormat,
-				signal: cancelPrestitcher.cancelSignal,
-				ffmpegOverride,
-			});
+				remotionRoot
+			);
 			stitcherFfmpeg = preStitcher.task;
 		}
 	};
@@ -313,13 +356,48 @@ export const renderMedia = ({
 	const mediaSupport = codecSupportsMedia(codec);
 	const disableAudio = !mediaSupport.audio || muted;
 
+	const slowestFrames: SlowFrame[] = [];
+	let maxTime = 0;
+	let minTime = 0;
+
+	const recordFrameTime = (frameIndex: number, time: number) => {
+		const frameTime: SlowFrame = {frame: frameIndex, time};
+
+		if (time < minTime && slowestFrames.length === SLOWEST_FRAME_COUNT) {
+			return;
+		}
+
+		if (time > maxTime) {
+			// add at starting;
+			slowestFrames.unshift(frameTime);
+			maxTime = time;
+		} else {
+			// add frame at appropriate position
+			const index = slowestFrames.findIndex(
+				({time: indexTime}) => indexTime < time
+			);
+			slowestFrames.splice(index, 0, frameTime);
+		}
+
+		if (slowestFrames.length > SLOWEST_FRAME_COUNT) {
+			slowestFrames.pop();
+		}
+
+		minTime = slowestFrames[slowestFrames.length - 1]?.time ?? minTime;
+	};
+
 	const happyPath = createPrestitcherIfNecessary()
 		.then(() => {
 			const renderFramesProc = renderFrames({
 				config: composition,
-				onFrameUpdate: (frame: number) => {
+				onFrameUpdate: (
+					frame: number,
+					frameIndex: number,
+					timeToRenderInMilliseconds
+				) => {
 					renderedFrames = frame;
 					callUpdate();
+					recordFrameTime(frameIndex, timeToRenderInMilliseconds);
 				},
 				concurrency,
 				outputDir,
@@ -412,6 +490,8 @@ export const renderMedia = ({
 					muted: disableAudio,
 					enforceAudioTrack,
 					ffmpegOverride,
+					audioBitrate,
+					videoBitrate,
 				}),
 				stitchStart,
 			]);
@@ -420,6 +500,8 @@ export const renderMedia = ({
 			encodedFrames = getFramesToRender(realFrameRange, everyNthFrame).length;
 			encodedDoneIn = Date.now() - stitchStart;
 			callUpdate();
+			slowestFrames.sort((a, b) => b.time - a.time);
+			onSlowestFrames?.(slowestFrames);
 			return buffer;
 		})
 		.catch((err) => {
@@ -457,6 +539,11 @@ export const renderMedia = ({
 			// Clean download map if it was not passed in
 			if (!options?.downloadMap) {
 				cleanDownloadMap(downloadMap);
+			}
+
+			// Clean temporary image frames when rendering ends or fails
+			if (outputDir && fs.existsSync(outputDir)) {
+				deleteDirectory(outputDir);
 			}
 		});
 

@@ -17,7 +17,7 @@ export const getCustomOutName = ({
 	}
 
 	if (renderMetadata.outName.s3OutputProvider) {
-		if (!customCredentials && renderMetadata.privacy !== 'public') {
+		if (!customCredentials && renderMetadata.privacy === 'private') {
 			throw new TypeError(
 				`The file was rendered with a custom S3 implementation and is not public, but no custom credentials were passed to downloadMedia().`
 			);

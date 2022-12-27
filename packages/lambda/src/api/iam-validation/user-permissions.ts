@@ -22,12 +22,6 @@ export const requiredPermissions: {
 		resource: ['*'],
 	},
 	{
-		id: 'Identity',
-		actions: [iam.GetUser],
-		// eslint-disable-next-line no-template-curly-in-string
-		resource: ['arn:aws:iam::*:user/${aws:username}'],
-	},
-	{
 		id: 'PermissionValidation',
 		actions: [iam.SimulatePrincipalPolicy],
 		resource: ['*'],
@@ -49,8 +43,6 @@ export const requiredPermissions: {
 			s3.GetBucketLocation,
 			s3.PutBucketAcl,
 			s3.DeleteBucket,
-			s3.PutBucketWebsite,
-			s3.DeleteBucketWebsite,
 		],
 		resource: [`arn:aws:s3:::${REMOTION_BUCKET_PREFIX}*`],
 	},

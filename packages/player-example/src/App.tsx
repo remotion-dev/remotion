@@ -18,6 +18,7 @@ import React, {
 import {AbsoluteFill} from 'remotion';
 import {playerExampleComp} from './CarSlideshow';
 import {Loading} from './Loading';
+import { TimeDisplay } from './TimeDisplay';
 
 const fps = 30;
 
@@ -103,7 +104,7 @@ const ControlsOnly: React.FC<{
 			setLogs((l) => [...l, 'pausing ' + Date.now()]);
 		};
 
-		const seekedCallbackLitener: CallbackListener<'seeked'> = (e) => {
+		const seekedCallbackListener: CallbackListener<'seeked'> = (e) => {
 			setLogs((l) => [...l, 'seeked to ' + e.detail.frame + ' ' + Date.now()]);
 		};
 
@@ -115,8 +116,13 @@ const ControlsOnly: React.FC<{
 			setLogs((l) => [...l, 'error ' + Date.now()]);
 		};
 
-		const timeupdateCallbackLitener: CallbackListener<'timeupdate'> = (e) => {
+		const timeupdateCallbackListener: CallbackListener<'timeupdate'> = (e) => {
 			setLogs((l) => [...l, 'timeupdate ' + e.detail.frame]);
+		};
+		const frameupdateCallbackListener: CallbackListener<'frameupdate'> = (
+			e
+		) => {
+			setLogs((l) => [...l, 'frameupdate ' + e.detail.frame]);
 		};
 
 		const ratechangeCallbackListener: CallbackListener<'ratechange'> = (e) => {
@@ -141,10 +147,11 @@ const ControlsOnly: React.FC<{
 
 		current.addEventListener('play', playCallbackListener);
 		current.addEventListener('pause', pausedCallbackLitener);
-		current.addEventListener('seeked', seekedCallbackLitener);
+		current.addEventListener('seeked', seekedCallbackListener);
 		current.addEventListener('ended', endedCallbackListener);
 		current.addEventListener('error', errorCallbackListener);
-		current.addEventListener('timeupdate', timeupdateCallbackLitener);
+		current.addEventListener('timeupdate', timeupdateCallbackListener);
+		current.addEventListener('frameupdate', frameupdateCallbackListener);
 		current.addEventListener('ratechange', ratechangeCallbackListener);
 		current.addEventListener(
 			'fullscreenchange',
@@ -154,10 +161,11 @@ const ControlsOnly: React.FC<{
 		return () => {
 			current.removeEventListener('play', playCallbackListener);
 			current.removeEventListener('pause', pausedCallbackLitener);
-			current.removeEventListener('seeked', seekedCallbackLitener);
+			current.removeEventListener('seeked', seekedCallbackListener);
 			current.removeEventListener('ended', endedCallbackListener);
 			current.removeEventListener('error', errorCallbackListener);
-			current.removeEventListener('timeupdate', timeupdateCallbackLitener);
+			current.removeEventListener('timeupdate', timeupdateCallbackListener);
+			current.removeEventListener('frameupdate', frameupdateCallbackListener);
 			current.removeEventListener('ratechange', ratechangeCallbackListener);
 			current.removeEventListener(
 				'fullscreenchange',
@@ -176,6 +184,9 @@ const ControlsOnly: React.FC<{
 						setTitle(e.target.value);
 					}}
 				/>
+			</div>
+			<div>
+				<TimeDisplay playerRef={ref} />
 			</div>
 			<div style={{paddingTop: '0.5rem'}}>
 				<div>

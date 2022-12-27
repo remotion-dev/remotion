@@ -1,7 +1,13 @@
-import {AbsoluteFill, interpolate} from 'remotion';
-import {useCallback, useEffect, useState} from 'react';
-import {Audio, continueRender, delayRender, useVideoConfig} from 'remotion';
 import {audioBufferToDataUrl} from '@remotion/media-utils';
+import {useCallback, useEffect, useState} from 'react';
+import {
+	AbsoluteFill,
+	Audio,
+	continueRender,
+	delayRender,
+	interpolate,
+	useVideoConfig,
+} from 'remotion';
 
 const C4_FREQUENCY = 261.63;
 const sampleRate = 44100;

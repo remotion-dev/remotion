@@ -1,8 +1,10 @@
 ---
+image: /generated/articles-docs-lambda-cli-render.png
 id: render
 sidebar_label: render
 title: "npx remotion lambda render"
 slug: /lambda/cli/render
+crumb: "Lambda CLI Reference"
 ---
 
 import { MinimumFramesPerLambda } from "../../../components/lambda/default-frames-per-lambda";
@@ -12,11 +14,11 @@ Using the `npx remotion lambda render` command, you can render a video in the cl
 The structure of a command is as follows:
 
 ```
-npx remotion lambda render <serve-url> <composition-id> [<output-location>]
+npx remotion lambda render <serve-url> [<composition-id>] [<output-location>]
 ```
 
 - The serve URL is obtained by deploying a project to Remotion using the [`sites create`](/docs/lambda/cli/sites#create) command or calling [`deploySite()`](/docs/lambda/deploysite).
-- The composition ID is the [`id` of your `<Composition/>`](/docs/the-fundamentals#defining-compositions).
+- The [composition ID](/docs/terminology#composition-id). If not specified, the list of compositions will be fetched and you can choose a composition.
 - The `output-location` parameter is optional. If you don't specify it, the video is stored in your S3 bucket. If you specify a location, it gets downloaded to your device in an additional step.
 
 ## Example commands
@@ -120,6 +122,24 @@ _available from v3.2.1_
 
 [`h264` or `h265` or `png` or `vp8` or `mp3` or `aac` or `wav` or `prores`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264`.
 
+### `--audio-bitrate`
+
+_Available from v3.2.32_
+
+Specify the target bitrate for the generated audio.  
+The syntax for FFMPEGs `-b:a` parameter should be used.  
+FFMPEG may encode the video in a way that will not result in the exact audio bitrate specified.
+Example values: `128K` for 128 kbps, `1M` for 1 Mbps.  
+Default: `320k`
+
+### `--video-bitrate`
+
+Specify the target bitrate for the generated video.  
+The syntax for FFMPEGs `-b:v` parameter should be used.  
+FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
+This option cannot be set if `--crf` is set.
+Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
+
 ### `--prores-profile`
 
 [Set the ProRes profile](/docs/config#setproresprofile). This option is only valid if the [`codec`](#--codec) has been set to `prores`. Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`. See [here](https://video.stackexchange.com/a/14715) for explanation of possible values. Default: `hq`.
@@ -164,7 +184,7 @@ _available from v3.1_
 
 ### `--out-name`
 
-The file name of the media output as stored in the S3 bucket. By default, it is `out` plus the appropriate file extension, for example: `out.mp4`. Must match `/([0-9a-zA-Z-!_.*'()]+)/g`.
+The file name of the media output as stored in the S3 bucket. By default, it is `out` plus the appropriate file extension, for example: `out.mp4`. Must match `/([0-9a-zA-Z-!_.*'()/]+)/g`.
 
 ### `--overwrite`
 
@@ -173,3 +193,27 @@ _available from v3.2.25_
 If a custom out name is specified and a file already exists at this key in the S3 bucket, decide whether that file will be deleted before the render begins. Default `false`.
 
 An existing file at the output S3 key will conflict with the render and must be deleted beforehand. If this setting is `false` and a conflict occurs, an error will be thrown.
+
+### `--webhook`
+
+_available from v3.2.30_
+
+Sets a webhook to be called when the render finishes or fails. [`renderMediaOnLambda() -> webhook.url`](/docs/lambda/rendermediaonlambda#webhook). To be used together with `--webhook-secret`.
+
+### `--webhook-secret`
+
+_available from v3.2.30_
+
+Sets a webhook secret for the webhook (see above). [`renderMediaOnLambda() -> webhook.secret`](/docs/lambda/rendermediaonlambda#webhook). To be used together with `--webhook`.
+
+### `--height`
+
+_available from v3.2.40_
+
+[Overrides composition height.](/docs/config#overrideheight)
+
+### `--width`
+
+_available from v3.2.40_
+
+[Overrides composition width.](/docs/config#overridewidth)

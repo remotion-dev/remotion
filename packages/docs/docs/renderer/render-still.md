@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-renderer-render-still.png
 id: render-still
 title: renderStill()
+crumb: "@remotion/renderer"
 ---
 
 import {AngleChangelog} from '../../components/AngleChangelog';
@@ -77,7 +79,9 @@ _optional_
 
 _optional - default: 0_
 
-Which frame should be rendered based on its number.
+Which frame should be rendered based on its number. Frames are zero-indexed.
+
+From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 ### `imageFormat?`
 
@@ -185,9 +189,13 @@ Accepted values:
 Default: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
 
-## Return value
+## Return Value
 
-A promise with no value. If the render succeeded, the still has been saved to `output`. If the render failed, the promise rejects.
+The return value is a promise that resolves to an object with the following keys:
+
+- `buffer`: (_available from v3.3.9_) A `Buffer` that only exists if no `output` option was provided. Otherwise null.
+
+## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/render-still.ts)
 - [bundle()](/docs/bundle)

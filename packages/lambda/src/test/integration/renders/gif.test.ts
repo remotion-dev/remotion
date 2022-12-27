@@ -1,13 +1,13 @@
 import {RenderInternals} from '@remotion/renderer';
+import {getExecutableBinary} from '@remotion/renderer/src/ffmpeg-flags';
 import {createWriteStream} from 'fs';
 import {VERSION} from 'remotion/version';
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
 import type {LambdaReturnValues} from '../../../shared/return-values';
 import {disableLogs, enableLogs} from '../../disable-logs';
-
-jest.setTimeout(30000);
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
@@ -42,10 +42,13 @@ test('Should make a distributed GIF', async () => {
 			frameRange: [0, 60],
 			framesPerLambda: 8,
 			imageFormat: 'png',
-			inputProps: {},
+			inputProps: {
+				type: 'payload',
+				payload: '{}',
+			},
 			logLevel: 'warn',
 			maxRetries: 3,
-			outName: 'out.mp4',
+			outName: 'out.gif',
 			pixelFormat: 'yuv420p',
 			privacy: 'public',
 			proResProfile: undefined,
@@ -59,6 +62,11 @@ test('Should make a distributed GIF', async () => {
 			muted: false,
 			version: VERSION,
 			overwrite: true,
+			webhook: null,
+			audioBitrate: null,
+			videoBitrate: null,
+			forceHeight: null,
+			forceWidth: null,
 		},
 		extraContext
 	);
@@ -83,6 +91,9 @@ test('Should make a distributed GIF', async () => {
 	await new Promise<void>((resolve) => {
 		file.pipe(createWriteStream('gif.gif')).on('close', () => resolve());
 	});
-	const probe = await RenderInternals.execa('ffprobe', ['gif.gif']);
+	const probe = await RenderInternals.execa(
+		await getExecutableBinary(null, process.cwd(), 'ffprobe'),
+		['gif.gif']
+	);
 	expect(probe.stderr).toMatch(/Video: gif, bgra, 1080x1080/);
 }, 90000);

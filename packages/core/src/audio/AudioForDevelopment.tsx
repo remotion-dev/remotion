@@ -2,15 +2,20 @@ import type {ForwardRefExoticComponent, RefAttributes} from 'react';
 import React, {
 	forwardRef,
 	useContext,
+	useEffect,
 	useImperativeHandle,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {usePreload} from '../prefetch';
 import {random} from '../random';
 import {SequenceContext} from '../Sequence';
 import {useMediaInTimeline} from '../use-media-in-timeline';
-import {useMediaPlayback} from '../use-media-playback';
+import {
+	DEFAULT_ACCEPTABLE_TIMESHIFT,
+	useMediaPlayback,
+} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
 import {
@@ -23,6 +28,7 @@ import {useFrameForVolumeProp} from './use-audio-frame';
 
 type AudioForDevelopmentProps = RemotionAudioProps & {
 	shouldPreMountAudioTags: boolean;
+	onDuration: (src: string, durationInSeconds: number) => void;
 };
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
@@ -49,6 +55,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		shouldPreMountAudioTags,
 		src,
+		onDuration,
+		acceptableTimeShiftInSeconds,
 		...nativeProps
 	} = props;
 
@@ -96,6 +104,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		mediaRef: audioRef,
 		src,
 		mediaType: 'audio',
+		playbackRate: playbackRate ?? 1,
 	});
 
 	useMediaPlayback({
@@ -104,6 +113,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
 		onlyWarnForMediaSeekingError: false,
+		acceptableTimeshift:
+			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
 	});
 
 	useImperativeHandle(
@@ -113,6 +124,31 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		},
 		[audioRef]
 	);
+
+	const currentOnDurationCallback =
+		useRef<AudioForDevelopmentProps['onDuration']>();
+	currentOnDurationCallback.current = onDuration;
+
+	useEffect(() => {
+		const {current} = audioRef;
+		if (!current) {
+			return;
+		}
+
+		if (current.duration) {
+			currentOnDurationCallback.current?.(src, current.duration);
+			return;
+		}
+
+		const onLoadedMetadata = () => {
+			currentOnDurationCallback.current?.(src, current.duration);
+		};
+
+		current.addEventListener('loadedmetadata', onLoadedMetadata);
+		return () => {
+			current.removeEventListener('loadedmetadata', onLoadedMetadata);
+		};
+	}, [audioRef, src]);
 
 	if (initialShouldPreMountAudioElements) {
 		return null;

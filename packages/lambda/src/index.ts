@@ -1,5 +1,6 @@
 import type {DeleteFunctionInput} from './api/delete-function';
 import {deleteFunction} from './api/delete-function';
+import type {DeleteRenderInput} from './api/delete-render';
 import {deleteRender} from './api/delete-render';
 import type {DeleteSiteInput, DeleteSiteOutput} from './api/delete-site';
 import {deleteSite} from './api/delete-site';
@@ -19,6 +20,11 @@ import type {EstimatePriceInput} from './api/estimate-price';
 import {estimatePrice} from './api/estimate-price';
 import type {GetAwsClientInput, GetAwsClientOutput} from './api/get-aws-client';
 import {getAwsClient} from './api/get-aws-client';
+import type {
+	GetCompositionsOnLambdaInput,
+	GetCompositionsOnLambdaOutput,
+} from './api/get-compositions-on-lambda';
+import {getCompositionsOnLambda} from './api/get-compositions-on-lambda';
 import type {FunctionInfo, GetFunctionInfoInput} from './api/get-function-info';
 import {getFunctionInfo} from './api/get-function-info';
 import type {GetFunctionsInput} from './api/get-functions';
@@ -56,11 +62,17 @@ import type {
 	RenderStillOnLambdaOutput,
 } from './api/render-still-on-lambda';
 import {renderStillOnLambda} from './api/render-still-on-lambda';
+import {validateWebhookSignature} from './api/validate-webhook-signature';
 import type {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
+import type {
+	EnhancedErrorInfo,
+	LambdaErrorInfo,
+} from './functions/helpers/write-lambda-error';
 import {LambdaInternals} from './internals';
 import type {AwsRegion} from './pricing/aws-regions';
 import type {CustomCredentials} from './shared/aws-clients';
 import type {RenderProgress} from './shared/constants';
+import type {WebhookPayload} from './shared/invoke-webhook';
 import type {LambdaArchitecture} from './shared/validate-architecture';
 
 export {
@@ -87,6 +99,8 @@ export {
 	getAwsClient,
 	presignUrl,
 	deleteRender,
+	validateWebhookSignature,
+	getCompositionsOnLambda,
 };
 export type {
 	AwsRegion,
@@ -121,4 +135,10 @@ export type {
 	GetAwsClientOutput,
 	LambdaArchitecture,
 	CustomCredentials,
+	WebhookPayload,
+	LambdaErrorInfo,
+	EnhancedErrorInfo,
+	DeleteRenderInput,
+	GetCompositionsOnLambdaOutput,
+	GetCompositionsOnLambdaInput,
 };

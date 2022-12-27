@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-miscellaneous-ts-aliases.png
 title: "TypeScript aliases"
 id: typescript-aliases
 slug: /typescript-aliases
+crumb: "How to"
 ---
 
 Typescript aliases are not supported by default, since the ESBuild Webpack loader we have does not support them.
@@ -14,7 +16,7 @@ Assuming you have a file:
    ├── lib/
    │   ├── one.ts
    │   ├── two.ts
-   ├── Video.tsx
+   ├── Root.tsx
    └── index.ts
 ```
 

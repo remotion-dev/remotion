@@ -4,23 +4,21 @@ import {RenderInternals, renderMedia} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {getLambdaClient} from '../shared/aws-clients';
+import {writeLambdaInitializedFile} from '../shared/chunk-progress';
 import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
 import {
 	chunkKeyForIndex,
-	lambdaChunkInitializedKey,
 	LambdaRoutines,
 	lambdaTimingsKey,
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
+import {deserializeInputProps} from '../shared/deserialize-input-props';
 import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
 } from './chunk-optimization/types';
-import {deletedFiles, deletedFilesSize} from './helpers/clean-tmpdir';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
-import {getFolderFiles} from './helpers/get-files-in-folder';
-import {getFolderSizeRecursively} from './helpers/get-folder-size';
 import {lambdaWriteFile} from './helpers/io';
 import {
 	getTmpDirStateIfENoSp,
@@ -40,6 +38,13 @@ const renderHandler = async (
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
+
+	const inputPropsPromise = deserializeInputProps({
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+		serialized: params.inputProps,
+	});
 
 	const browserInstance = await getBrowserInstance(
 		RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
@@ -80,6 +85,7 @@ const renderHandler = async (
 
 	const downloads: Record<string, number> = {};
 
+	const inputProps = await inputPropsPromise;
 	await new Promise<void>((resolve, reject) => {
 		renderMedia({
 			composition: {
@@ -90,16 +96,24 @@ const renderHandler = async (
 				width: params.width,
 			},
 			imageFormat: params.imageFormat,
-			inputProps: params.inputProps,
+			inputProps,
 			frameRange: params.frameRange,
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
 				if (
-					renderedFrames % 10 === 0 &&
+					renderedFrames % 5 === 0 &&
 					RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
 				) {
 					console.log(
 						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`
 					);
+					writeLambdaInitializedFile({
+						attempt: params.attempt,
+						bucketName: params.bucketName,
+						chunk: params.chunk,
+						expectedBucketOwner: options.expectedBucketOwner,
+						framesRendered: renderedFrames,
+						renderId: params.renderId,
+					}).catch((err) => reject(err));
 				}
 
 				const allFrames = RenderInternals.getFramesToRender(
@@ -115,26 +129,13 @@ const renderHandler = async (
 			},
 			concurrency: params.concurrencyPerLambda,
 			onStart: () => {
-				lambdaWriteFile({
-					privacy: 'private',
+				writeLambdaInitializedFile({
+					attempt: params.attempt,
 					bucketName: params.bucketName,
-					body: JSON.stringify({
-						filesCleaned: deletedFilesSize,
-						filesInTmp: fs.readdirSync('/tmp'),
-						isWarm: options.isWarm,
-						deletedFiles,
-						tmpSize: getFolderSizeRecursively('/tmp'),
-						tmpDirFiles: getFolderFiles('/tmp'),
-					}),
-					key: lambdaChunkInitializedKey({
-						renderId: params.renderId,
-						chunk: params.chunk,
-						attempt: params.attempt,
-					}),
-					region: getCurrentRegionInFunction(),
+					chunk: params.chunk,
 					expectedBucketOwner: options.expectedBucketOwner,
-					downloadBehavior: null,
-					customCredentials: null,
+					framesRendered: 0,
+					renderId: params.renderId,
 				}).catch((err) => reject(err));
 			},
 			puppeteerInstance: browserInstance,
@@ -155,8 +156,7 @@ const renderHandler = async (
 			outputLocation,
 			codec: chunkCodec,
 			crf: params.crf ?? undefined,
-			ffmpegExecutable:
-				process.env.NODE_ENV === 'test' ? null : '/opt/bin/ffmpeg',
+
 			pixelFormat: params.pixelFormat,
 			proResProfile: params.proResProfile,
 			onDownload: (src: string) => {
@@ -199,6 +199,15 @@ const renderHandler = async (
 			downloadMap,
 			muted: params.muted,
 			enforceAudioTrack: true,
+			audioBitrate: params.audioBitrate,
+			videoBitrate: params.videoBitrate,
+			onSlowestFrames: (slowestFrames) => {
+				console.log();
+				console.log(`Slowest frames:`);
+				slowestFrames.forEach(({frame, time}) => {
+					console.log(`Frame ${frame} (${time.toFixed(3)}ms)`);
+				});
+			},
 		})
 			.then(() => resolve())
 			.catch((err) => reject(err));
@@ -258,6 +267,11 @@ export const rendererHandler = async (
 	try {
 		await renderHandler(params, options, logs);
 	} catch (err) {
+		if (process.env.NODE_ENV === 'test') {
+			console.log({err});
+			throw err;
+		}
+
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
 		const isBrowserError =

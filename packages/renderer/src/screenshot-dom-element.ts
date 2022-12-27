@@ -8,6 +8,8 @@ export const screenshotDOMElement = async ({
 	imageFormat,
 	quality,
 	opts,
+	height,
+	width,
 }: {
 	page: Page;
 	imageFormat: ImageFormat;
@@ -15,6 +17,8 @@ export const screenshotDOMElement = async ({
 	opts: {
 		path: string | null;
 	};
+	height: number;
+	width: number;
 }): Promise<Buffer> => {
 	const {path} = opts;
 
@@ -42,10 +46,13 @@ export const screenshotDOMElement = async ({
 		throw new TypeError('Tried to make a screenshot with format "none"');
 	}
 
-	return screenshot(page, {
+	return screenshot({
+		page,
 		omitBackground: imageFormat === 'png',
 		path: path ?? undefined,
 		type: imageFormat,
 		quality,
+		width,
+		height,
 	}) as Promise<Buffer>;
 };

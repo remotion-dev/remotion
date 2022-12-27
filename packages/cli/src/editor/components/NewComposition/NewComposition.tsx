@@ -1,11 +1,5 @@
-import type {
-	ChangeEventHandler} from 'react';
-import React, {
-	useCallback,
-	useContext,
-	useMemo,
-	useState,
-} from 'react';
+import type {ChangeEventHandler} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {
 	validateCompositionDimension,
@@ -17,12 +11,12 @@ import {
 	persistAspectRatioOption,
 } from '../../state/aspect-ratio-locked';
 import type {CompType} from '../../state/modals';
-import { ModalsContext} from '../../state/modals';
+import {ModalsContext} from '../../state/modals';
 import {CopyButton} from '../CopyButton';
 import {Flex, Row, Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
-import type { ComboboxValue} from './ComboBox';
+import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
 import {CopyHint} from './CopyHint';
 import {InputDragger} from './InputDragger';
@@ -208,6 +202,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 				leftItem:
 					String(frameRate) === selectedFrameRate ? <Checkmark /> : null,
 				subMenu: null,
+				quickSwitcherLabel: null,
 			};
 		});
 	}, [onFpsChange, selectedFrameRate]);
@@ -230,6 +225,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 				subMenu: null,
 				type: 'item',
 				value: 'composition' as CompType,
+				quickSwitcherLabel: null,
 			},
 			{
 				id: 'still',
@@ -240,6 +236,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 				subMenu: null,
 				type: 'item',
 				value: 'still' as CompType,
+				quickSwitcherLabel: null,
 			},
 		];
 	}, [onTypeChanged]);

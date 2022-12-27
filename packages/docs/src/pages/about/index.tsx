@@ -1,5 +1,5 @@
-import React from "react";
 import Layout from "@theme/Layout";
+import React from "react";
 import { AboutUsHeader } from "../../components/AboutUsHeader";
 
 import Head from "@docusaurus/Head";

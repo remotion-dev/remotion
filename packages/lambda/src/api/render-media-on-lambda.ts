@@ -1,19 +1,19 @@
 import type {
-	ChromiumOptions,
 	FrameRange,
 	ImageFormat,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
 } from '@remotion/renderer';
+import type {ChromiumOptions} from '@remotion/renderer/src/open-browser';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
-import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {getCloudwatchStreamUrl} from '../shared/get-cloudwatch-stream-url';
+import {getCloudwatchStreamUrl, getS3RenderUrl} from '../shared/get-aws-urls';
+import {serializeInputProps} from '../shared/serialize-input-props';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
@@ -25,16 +25,16 @@ export type RenderMediaOnLambdaInput = {
 	functionName: string;
 	serveUrl: string;
 	composition: string;
-	inputProps: unknown;
+	inputProps?: unknown;
 	codec: LambdaCodec;
-	imageFormat: ImageFormat;
+	imageFormat?: ImageFormat;
 	crf?: number | undefined;
 	envVariables?: Record<string, string>;
 	pixelFormat?: PixelFormat;
 	proResProfile?: ProResProfile;
-	privacy: Privacy;
+	privacy?: Privacy;
 	quality?: number;
-	maxRetries: number;
+	maxRetries?: number;
 	framesPerLambda?: number;
 	logLevel?: LogLevel;
 	frameRange?: FrameRange;
@@ -48,12 +48,21 @@ export type RenderMediaOnLambdaInput = {
 	downloadBehavior?: DownloadBehavior | null;
 	muted?: boolean;
 	overwrite?: boolean;
+	audioBitrate?: string | null;
+	videoBitrate?: string | null;
+	webhook?: {
+		url: string;
+		secret: string | null;
+	};
+	forceWidth?: number | null;
+	forceHeight?: number | null;
 };
 
 export type RenderMediaOnLambdaOutput = {
 	renderId: string;
 	bucketName: string;
 	cloudWatchLogs: string;
+	folderInS3Console: string;
 };
 
 /**
@@ -64,14 +73,15 @@ export type RenderMediaOnLambdaOutput = {
  * @param params.composition The ID of the composition which should be rendered.
  * @param params.inputProps The input props that should be passed to the composition.
  * @param params.codec The media codec which should be used for encoding.
- * @param params.imageFormat In which image format the frames should be rendered.
+ * @param params.imageFormat In which image format the frames should be rendered. Default "jpeg"
  * @param params.crf The constant rate factor to be used during encoding.
  * @param params.envVariables Object containing environment variables to be inserted into the video environment
  * @param params.proResProfile The ProRes profile if rendering a ProRes video
  * @param params.quality JPEG quality if JPEG was selected as the image format.
  * @param params.region The AWS region in which the media should be rendered.
- * @param params.maxRetries How often rendering a chunk may fail before the media render gets aborted.
+ * @param params.maxRetries How often rendering a chunk may fail before the media render gets aborted. Default "1"
  * @param params.logLevel Level of logging that Lambda function should perform. Default "info".
+ * @param params.webhook Configuration for webhook called upon completion or timeout of the render.
  * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
 
@@ -103,6 +113,11 @@ export const renderMediaOnLambda = async ({
 	downloadBehavior,
 	muted,
 	overwrite,
+	audioBitrate,
+	videoBitrate,
+	webhook,
+	forceHeight,
+	forceWidth,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
@@ -111,7 +126,12 @@ export const renderMediaOnLambda = async ({
 		durationInFrames: 1,
 	});
 	validateDownloadBehavior(downloadBehavior);
-	const realServeUrl = await convertToServeUrl(serveUrl, region);
+
+	const serializedInputProps = await serializeInputProps({
+		inputProps,
+		region,
+		type: 'video-or-audio',
+	});
 	try {
 		const res = await callLambda({
 			functionName,
@@ -119,17 +139,17 @@ export const renderMediaOnLambda = async ({
 			payload: {
 				framesPerLambda: framesPerLambda ?? null,
 				composition,
-				serveUrl: realServeUrl,
-				inputProps,
+				serveUrl,
+				inputProps: serializedInputProps,
 				codec: actualCodec,
-				imageFormat,
+				imageFormat: imageFormat ?? 'jpeg',
 				crf,
 				envVariables,
 				pixelFormat,
 				proResProfile,
 				quality,
-				maxRetries,
-				privacy,
+				maxRetries: maxRetries ?? 1,
+				privacy: privacy ?? 'public',
 				logLevel: logLevel ?? 'info',
 				frameRange: frameRange ?? null,
 				outName: outName ?? null,
@@ -143,6 +163,11 @@ export const renderMediaOnLambda = async ({
 				muted: muted ?? false,
 				version: VERSION,
 				overwrite: overwrite ?? false,
+				audioBitrate: audioBitrate ?? null,
+				videoBitrate: videoBitrate ?? null,
+				webhook: webhook ?? null,
+				forceHeight: forceHeight ?? null,
+				forceWidth: forceWidth ?? null,
 			},
 			region,
 		});
@@ -154,6 +179,11 @@ export const renderMediaOnLambda = async ({
 				method: LambdaRoutines.renderer,
 				region,
 				renderId: res.renderId,
+			}),
+			folderInS3Console: getS3RenderUrl({
+				bucketName: res.bucketName,
+				renderId: res.renderId,
+				region,
 			}),
 		};
 	} catch (err) {

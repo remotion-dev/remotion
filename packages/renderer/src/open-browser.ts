@@ -1,6 +1,3 @@
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
 import type {Browser} from './browser';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {puppeteer} from './browser/node';
@@ -45,7 +42,7 @@ const browserInstances: PuppeteerBrowser[] = [];
 export const killAllBrowsers = async () => {
 	for (const browser of browserInstances) {
 		try {
-			await browser.close();
+			await browser.close(true);
 		} catch (err) {}
 	}
 };
@@ -93,11 +90,11 @@ export const openBrowser = async (
 			'--disable-component-extensions-with-background-pages',
 			'--disable-default-apps',
 			'--disable-dev-shm-usage',
-			'--disable-extensions',
 			'--no-proxy-server',
 			"--proxy-server='direct://'",
 			'--proxy-bypass-list=*',
 			'--disable-hang-monitor',
+			'--disable-extensions',
 			'--disable-ipc-flooding-protection',
 			'--disable-popup-blocking',
 			'--disable-prompt-on-repost',
@@ -138,13 +135,7 @@ export const openBrowser = async (
 				? '--ignore-certificate-errors'
 				: null,
 			...(options?.chromiumOptions?.disableWebSecurity
-				? [
-						'--disable-web-security',
-						'--user-data-dir=' +
-							(await fs.promises.mkdtemp(
-								path.join(os.tmpdir(), 'chrome-user-dir')
-							)),
-				  ]
+				? ['--disable-web-security']
 				: []),
 		].filter(Boolean) as string[],
 		defaultViewport: options?.viewport ?? {

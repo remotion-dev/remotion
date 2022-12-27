@@ -1,9 +1,5 @@
-import type {
-	AudioData} from '@remotion/media-utils';
-import {
-	getAudioData,
-	getWaveformPortion,
-} from '@remotion/media-utils';
+import type {AudioData} from '@remotion/media-utils';
+import {getAudioData, getWaveformPortion} from '@remotion/media-utils';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
 	TIMELINE_BORDER,
@@ -46,6 +42,7 @@ export const AudioWaveform: React.FC<{
 	setMaxMediaDuration: React.Dispatch<React.SetStateAction<number>>;
 	volume: string | number;
 	doesVolumeChange: boolean;
+	playbackRate: number;
 }> = ({
 	src,
 	fps,
@@ -55,6 +52,7 @@ export const AudioWaveform: React.FC<{
 	setMaxMediaDuration,
 	volume,
 	doesVolumeChange,
+	playbackRate,
 }) => {
 	const [metadata, setMetadata] = useState<AudioData | null>(null);
 	const [error, setError] = useState<Error | null>(null);
@@ -133,10 +131,17 @@ export const AudioWaveform: React.FC<{
 		return getWaveformPortion({
 			audioData: metadata,
 			startTimeInSeconds: startFrom / fps,
-			durationInSeconds: durationInFrames / fps,
+			durationInSeconds: (durationInFrames / fps) * playbackRate,
 			numberOfSamples,
 		});
-	}, [durationInFrames, fps, metadata, startFrom, visualizationWidth]);
+	}, [
+		durationInFrames,
+		fps,
+		metadata,
+		playbackRate,
+		startFrom,
+		visualizationWidth,
+	]);
 
 	if (error) {
 		return (

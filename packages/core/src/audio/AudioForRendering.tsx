@@ -4,11 +4,14 @@ import React, {
 	useContext,
 	useEffect,
 	useImperativeHandle,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src';
 import {CompositionManager} from '../CompositionManager';
+import {continueRender, delayRender} from '../delay-render';
+import {getRemotionEnvironment} from '../get-environment';
 import {random} from '../random';
 import {SequenceContext} from '../Sequence';
 import {useTimelinePosition} from '../timeline-position-state';
@@ -17,9 +20,13 @@ import {evaluateVolume} from '../volume-prop';
 import type {RemotionAudioProps} from './props';
 import {useFrameForVolumeProp} from './use-audio-frame';
 
+type AudioForRenderingProps = RemotionAudioProps & {
+	onDuration: (src: string, durationInSeconds: number) => void;
+};
+
 const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
-	RemotionAudioProps
+	AudioForRenderingProps
 > = (props, ref) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -39,12 +46,18 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		[props.src, sequenceContext]
 	);
 
-	const {volume: volumeProp, playbackRate, ...nativeProps} = props;
+	const {
+		volume: volumeProp,
+		playbackRate,
+		allowAmplificationDuringRender,
+		...nativeProps
+	} = props;
 
 	const volume = evaluateVolume({
 		volume: volumeProp,
 		frame: volumePropFrame,
 		mediaVolume: 1,
+		allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 	});
 
 	useImperativeHandle(
@@ -80,6 +93,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			volume,
 			mediaFrame: frame,
 			playbackRate: props.playbackRate ?? 1,
+			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 		});
 		return () => unregisterAsset(id);
 	}, [
@@ -94,7 +108,44 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		frame,
 		playbackRate,
 		props.playbackRate,
+		allowAmplificationDuringRender,
 	]);
+
+	const {src, onDuration} = props;
+
+	// If audio source switches, make new handle
+	if (getRemotionEnvironment() === 'rendering') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			if (process.env.NODE_ENV === 'test') {
+				return;
+			}
+
+			const newHandle = delayRender('Loading <Audio> duration with src=' + src);
+			const {current} = audioRef;
+
+			const didLoad = () => {
+				if (current) {
+					onDuration(src as string, current.duration);
+				}
+
+				continueRender(newHandle);
+			};
+
+			if (current?.duration) {
+				onDuration(src as string, current.duration);
+				continueRender(newHandle);
+			} else {
+				current?.addEventListener('loadedmetadata', didLoad, {once: true});
+			}
+
+			// If tag gets unmounted, clear pending handles because video metadata is not going to load
+			return () => {
+				current?.removeEventListener('loadedmetadata', didLoad);
+				continueRender(newHandle);
+			};
+		}, [src, onDuration]);
+	}
 
 	return <audio ref={audioRef} {...nativeProps} />;
 };
@@ -102,5 +153,5 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 export const AudioForRendering = forwardRef(
 	AudioForRenderingRefForwardingFunction
 ) as ForwardRefExoticComponent<
-	RemotionAudioProps & RefAttributes<HTMLAudioElement>
+	AudioForRenderingProps & RefAttributes<HTMLAudioElement>
 >;

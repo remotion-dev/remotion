@@ -32,6 +32,7 @@ export const HelpLink: React.FC<{
 			key: 'h',
 			callback: onEditor,
 			commandCtrlKey: true,
+			preventDefault: true,
 		});
 		return () => unregister();
 	}, [canHaveKeyboardShortcuts, openLink, registerKeybinding]);

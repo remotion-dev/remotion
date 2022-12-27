@@ -233,6 +233,7 @@ export const Canvas: React.FC = () => {
 			key: '0',
 			commandCtrlKey: false,
 			callback: onReset,
+			preventDefault: true,
 		});
 
 		const zoomIn = keybindings.registerKeybinding({
@@ -240,6 +241,7 @@ export const Canvas: React.FC = () => {
 			key: '+',
 			commandCtrlKey: false,
 			callback: onZoomIn,
+			preventDefault: true,
 		});
 
 		const zoomOut = keybindings.registerKeybinding({
@@ -247,6 +249,7 @@ export const Canvas: React.FC = () => {
 			key: '-',
 			commandCtrlKey: false,
 			callback: onZoomOut,
+			preventDefault: true,
 		});
 
 		return () => {

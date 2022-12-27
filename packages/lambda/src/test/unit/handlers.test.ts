@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {handler} from '../../functions/index';
 import type {Await} from '../../shared/await';
 import {LambdaRoutines} from '../../shared/constants';

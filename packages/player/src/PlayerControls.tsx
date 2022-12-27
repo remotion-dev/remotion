@@ -1,4 +1,4 @@
-import type {MouseEventHandler} from 'react';
+import type {MouseEventHandler, ReactNode} from 'react';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {formatTime} from './format-time';
@@ -6,6 +6,15 @@ import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
 import {MediaVolumeSlider} from './MediaVolumeSlider';
 import {PlayerSeekBar} from './PlayerSeekBar';
 import type {usePlayer} from './use-player';
+import {useVideoControlsResize} from './use-video-controls-resize';
+
+export type RenderPlayPauseButton = (props: {playing: boolean}) => ReactNode;
+export type RenderFullscreenButton = (props: {
+	isFullscreen: boolean;
+}) => ReactNode;
+
+export const X_SPACER = 10;
+export const X_PADDING = 12;
 
 const containerStyle: React.CSSProperties = {
 	boxSizing: 'border-box',
@@ -16,8 +25,8 @@ const containerStyle: React.CSSProperties = {
 	paddingBottom: 10,
 	background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.4))',
 	display: 'flex',
-	paddingRight: 12,
-	paddingLeft: 12,
+	paddingRight: X_PADDING,
+	paddingLeft: X_PADDING,
 	flexDirection: 'column',
 	transition: 'opacity 0.3s',
 };
@@ -64,12 +73,6 @@ const flex1: React.CSSProperties = {
 
 const fullscreen: React.CSSProperties = {};
 
-const timeLabel: React.CSSProperties = {
-	color: 'white',
-	fontFamily: 'sans-serif',
-	fontSize: 14,
-};
-
 declare global {
 	interface Document {
 		webkitFullscreenEnabled?: boolean;
@@ -80,6 +83,9 @@ declare global {
 		webkitRequestFullScreen: HTMLDivElement['requestFullscreen'];
 	}
 }
+
+const PlayPauseButton: React.FC<{playing: boolean}> = ({playing}) =>
+	playing ? <PauseIcon /> : <PlayIcon />;
 
 export const Controls: React.FC<{
 	fps: number;
@@ -97,6 +103,9 @@ export const Controls: React.FC<{
 	inFrame: number | null;
 	outFrame: number | null;
 	initiallyShowControls: number | boolean;
+	playerWidth: number;
+	renderPlayPauseButton: RenderPlayPauseButton | null;
+	renderFullscreenButton: RenderFullscreenButton | null;
 }> = ({
 	durationInFrames,
 	hovered,
@@ -113,10 +122,16 @@ export const Controls: React.FC<{
 	inFrame,
 	outFrame,
 	initiallyShowControls,
+	playerWidth,
+	renderPlayPauseButton,
+	renderFullscreenButton,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
+
+	const {maxTimeLabelWidth, displayVerticalVolumeSlider} =
+		useVideoControlsResize({allowFullscreen, playerWidth});
 	const [shouldShowInitially, setInitiallyShowControls] = useState<
 		boolean | number
 	>(() => {
@@ -191,6 +206,17 @@ export const Controls: React.FC<{
 		};
 	}, [shouldShowInitially]);
 
+	const timeLabel: React.CSSProperties = useMemo(() => {
+		return {
+			color: 'white',
+			fontFamily: 'sans-serif',
+			fontSize: 14,
+			maxWidth: maxTimeLabelWidth,
+			overflow: 'hidden',
+			textOverflow: 'ellipsis',
+		};
+	}, [maxTimeLabelWidth]);
+
 	return (
 		<div style={containerCss}>
 			<div style={controlsRow}>
@@ -203,12 +229,18 @@ export const Controls: React.FC<{
 						aria-label={player.playing ? 'Pause video' : 'Play video'}
 						title={player.playing ? 'Pause video' : 'Play video'}
 					>
-						{player.playing ? <PauseIcon /> : <PlayIcon />}
+						{renderPlayPauseButton === null ? (
+							<PlayPauseButton playing={player.playing} />
+						) : (
+							renderPlayPauseButton({playing: player.playing})
+						)}
 					</button>
 					{showVolumeControls ? (
 						<>
 							<div style={xSpacer} />
-							<MediaVolumeSlider />
+							<MediaVolumeSlider
+								displayVerticalVolumeSlider={displayVerticalVolumeSlider}
+							/>
 						</>
 					) : null}
 					<div style={xSpacer} />
@@ -231,7 +263,11 @@ export const Controls: React.FC<{
 									: onFullscreenButtonClick
 							}
 						>
-							<FullscreenIcon minimized={!isFullscreen} />
+							{renderFullscreenButton === null ? (
+								<FullscreenIcon isFullscreen={isFullscreen} />
+							) : (
+								renderFullscreenButton({isFullscreen})
+							)}
 						</button>
 					) : null}
 				</div>

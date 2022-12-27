@@ -4,6 +4,7 @@ import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {LambdaPayload} from '../shared/constants';
 import {initalizedMetadataKey, LambdaRoutines} from '../shared/constants';
+import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {randomHash} from '../shared/random-hash';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
@@ -20,17 +21,23 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 	if (params.version !== VERSION) {
 		if (!params.version) {
 			throw new Error(
-				`Version mismatch: When calling renderMediaOnLambda(), the deployed Lambda function had version ${VERSION} but the @remotion/lambda package is an older version. Align the versions.`
+				`Version mismatch: When calling renderMediaOnLambda(), you called the function ${process.env.AWS_LAMBDA_FUNCTION_NAME} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call renderMediaOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`
 			);
 		}
 
 		throw new Error(
-			`Version mismatch: When calling renderMediaOnLambda(), get deployed Lambda function had version ${VERSION} and the @remotion/lambda package has version ${params.version}. Align the versions.`
+			`Version mismatch: When calling renderMediaOnLambda(), you passed ${process.env.AWS_LAMBDA_FUNCTION_NAME} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${params.version}. Deploy a new function and use it to call renderMediaOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`
 		);
 	}
 
+	const region = getCurrentRegionInFunction();
 	const {bucketName} = await getOrCreateBucket({
 		region: getCurrentRegionInFunction(),
+	});
+	const realServeUrl = convertToServeUrl({
+		urlOrId: params.serveUrl,
+		region,
+		bucketName,
 	});
 
 	const renderId = randomHash({randomInTests: true});
@@ -38,7 +45,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 	const initialFile = lambdaWriteFile({
 		bucketName,
 		downloadBehavior: null,
-		region: getCurrentRegionInFunction(),
+		region,
 		body: 'Render was initialized',
 		expectedBucketOwner: options.expectedBucketOwner,
 		key: initalizedMetadataKey(renderId),
@@ -50,7 +57,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		type: LambdaRoutines.launch,
 		framesPerLambda: params.framesPerLambda,
 		composition: params.composition,
-		serveUrl: params.serveUrl,
+		serveUrl: realServeUrl,
 		inputProps: params.inputProps,
 		bucketName,
 		renderId,
@@ -75,6 +82,11 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		downloadBehavior: params.downloadBehavior,
 		muted: params.muted,
 		overwrite: params.overwrite,
+		webhook: params.webhook,
+		audioBitrate: params.audioBitrate,
+		videoBitrate: params.videoBitrate,
+		forceHeight: params.forceHeight,
+		forceWidth: params.forceWidth,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({

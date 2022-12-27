@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-renderer-render-media.png
 id: render-media
 title: renderMedia()
+crumb: "@remotion/renderer"
 ---
 
 _Available since v3.0 - Part of the `@remotion/renderer` package._
@@ -41,6 +43,27 @@ _"h264" (default) | "h265" | "vp8" | "vp9" | "mp3" | "aac" | "wav" | "prores" | 
 
 Choose a suitable codec for your output media. Refer to the [Encoding guide](/docs/encoding) to find the best codec for your use case.
 
+### `audioBitrate?`
+
+_string - optional, available from v3.2.32_
+
+Specify the target bitrate for the generated video.  
+The syntax for FFMPEGs `-b:v` parameter should be used.  
+FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
+This option cannot be set if `--crf` is set.
+Example values: `512K` for 512 kbps, `1M` for 1 Mbps.  
+Default: `320k`
+
+### `videoBitrate?`
+
+_string - optional, available from v3.2.32_
+
+Specify the target bitrate for the generated video.  
+The syntax for FFMPEGs `-b:v` parameter should be used.  
+FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
+This option cannot be set if `--crf` is set.
+Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
+
 ### `inputProps?`
 
 _object - optional_
@@ -65,7 +88,7 @@ The constant rate factor, controlling the quality. See: [Controlling quality usi
 
 ### `imageFormat?`
 
-_"jpeg" (default) | "png" | "none" - optional_
+_"jpeg" (default) | "png" | "none" - optional since v3.2.27_
 
 In which image format the frames should be rendered.
 
@@ -181,7 +204,15 @@ _function - optional_
 
 React to render progress. The following callback function is similar to how Remotion displays render progress on it's CLI:
 
-```tsx twoslash
+```tsx twoslash title="Simple example - Log overall progress"
+import { RenderMediaOnProgress } from "@remotion/renderer";
+
+const onProgress: RenderMediaOnProgress = ({ progress }) => {
+  console.log(`Rendering is ${progress * 100}% complete`);
+};
+```
+
+```tsx twoslash title="Advanced example - Fine-grained progress values"
 import { RenderMediaOnProgress } from "@remotion/renderer";
 
 const onProgress: RenderMediaOnProgress = ({
@@ -190,10 +221,7 @@ const onProgress: RenderMediaOnProgress = ({
   encodedDoneIn,
   renderedDoneIn,
   stitchStage,
-  progress,
 }) => {
-  console.log(`Rendering is ${progress * 100}% complete`);
-
   if (stitchStage === "encoding") {
     // First pass, parallel rendering of frames and encoding into video
     console.log("Encoding...");
@@ -217,7 +245,7 @@ const onProgress: RenderMediaOnProgress = ({
 ```
 
 :::note
-The `progress` attribute is available from v3.2.17
+The `progress` attribute is available from v3.2.17.
 :::
 
 ### `onDownload?`
@@ -365,6 +393,36 @@ Using this feature is discouraged. Before using it, we want to make you aware of
 
 Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
 :::
+
+### `disallowParallelEncoding`
+
+_available from v3.2.29_
+
+Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
+
+### `onSlowestFrames?`
+
+_available from v3.2.29_
+
+Callback function that gets called right before `renderMedia()` resolves.  
+The only argument `slowestFrames` is an array of the 10 slowest frames in the shape of `{frame:<Frame number>, time:<Time to render frame ms>}`. You can use this information to optimise your render times.
+
+```tsx twoslash
+import type { OnSlowestFrames } from "@remotion/renderer";
+
+const onSlowestFrames: OnSlowestFrames = (slowestFrames) => {
+  console.log("The slowest 10 frames are:");
+  for (const slowFrame of slowestFrames) {
+    console.log(`Frame ${slowFrame.frame} (${slowFrame.time}ms)`);
+  }
+};
+```
+
+## Return Value
+
+_since v3.0.26_
+
+If `outputLocation` is not specified or `null`, the return value is a Promise that resolves a `Buffer`. If an output location is specified, the return value is a Promise that resolves no value.
 
 ## See also
 

@@ -42,6 +42,13 @@ export const playAndHandleNotAllowedError = (
 				return;
 			}
 
+			// Audio tag got unmounted
+			if (
+				err.message.includes('because the media was removed from the document')
+			) {
+				return;
+			}
+
 			console.log(`Could not play ${mediaType} due to following error: `, err);
 			if (!current.muted) {
 				console.log(`The video will be muted and we'll retry playing it.`, err);

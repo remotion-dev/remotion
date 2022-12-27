@@ -1,9 +1,9 @@
+import Head from "@docusaurus/Head";
 import Layout from "@theme/Layout";
 import clsx from "clsx";
 import React from "react";
 import headerStyles from "./header.module.css";
 import styles from "./styles.module.css";
-import Head from "@docusaurus/Head";
 
 const PageHeader: React.FC = () => {
   return (

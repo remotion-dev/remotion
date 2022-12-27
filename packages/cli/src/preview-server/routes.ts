@@ -3,6 +3,8 @@ import {createReadStream, statSync} from 'fs';
 import type {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';
 import {URLSearchParams} from 'url';
+import {getNumberOfSharedAudioTags} from '../config/number-of-shared-audio-tags';
+import {parsedCli} from '../parse-command-line';
 import {getFileSource} from './error-overlay/react-overlay/utils/get-file-source';
 import {
 	getDisplayNameForEditor,
@@ -41,27 +43,35 @@ const handleFallback = async ({
 	hash,
 	response,
 	getCurrentInputProps,
+	getEnvVariables,
 }: {
 	remotionRoot: string;
 	hash: string;
 	response: ServerResponse;
 	getCurrentInputProps: () => object;
+	getEnvVariables: () => Record<string, string>;
 }) => {
 	const [edit] = await editorGuess;
 	const displayName = getDisplayNameForEditor(edit ? edit.command : null);
 
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
-	const packageManager = getPackageManager(remotionRoot);
+	const packageManager = getPackageManager(remotionRoot, undefined);
 	response.end(
 		BundlerInternals.indexHtml({
 			staticHash: hash,
 			baseDir: '/',
 			editorName: displayName,
+			envVariables: getEnvVariables(),
 			inputProps: getCurrentInputProps(),
 			remotionRoot,
 			previewServerCommand:
 				packageManager === 'unknown' ? null : packageManager.startCommand,
+			numberOfAudioTags:
+				parsedCli['number-of-shared-audio-tags'] ??
+				getNumberOfSharedAudioTags(),
+			includeFavicon: true,
+			title: 'Remotion Preview',
 		})
 	);
 };
@@ -184,6 +194,7 @@ export const handleRoutes = ({
 	response,
 	liveEventsServer,
 	getCurrentInputProps,
+	getEnvVariables,
 	remotionRoot,
 	userPassedPublicDir,
 }: {
@@ -193,6 +204,7 @@ export const handleRoutes = ({
 	response: ServerResponse;
 	liveEventsServer: LiveEventsServer;
 	getCurrentInputProps: () => object;
+	getEnvVariables: () => Record<string, string>;
 	remotionRoot: string;
 	userPassedPublicDir: string | null;
 }) => {
@@ -243,5 +255,6 @@ export const handleRoutes = ({
 		hash,
 		response,
 		getCurrentInputProps,
+		getEnvVariables,
 	});
 };
