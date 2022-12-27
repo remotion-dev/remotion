@@ -78,13 +78,14 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		videoBitrate,
 		height,
 		width,
+		configFileImageFormat,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
 		remotionRoot,
 	});
 
-	const imageFormat = CliInternals.getImageFormat(codec);
+	const imageFormat = CliInternals.getImageFormat(codec, configFileImageFormat);
 
 	const functionName = await findFunctionName();
 
