@@ -1052,6 +1052,13 @@ export const articles = [
     crumb: "API",
   },
   {
+    id: "overlay",
+    title: "Creating overlays",
+    relativePath: "docs/overlay.md",
+    compId: "articles-docs-overlay",
+    crumb: null,
+  },
+  {
     id: "webpack",
     title: "Custom Webpack config",
     relativePath: "docs/overwriting-webpack-config.md",
