@@ -4,25 +4,11 @@ import {notificationCenter} from '../Notifications/NotificationCenter';
 import {openInFileExplorer} from './actions';
 import {renderQueueItemSubtitleStyle} from './item-style';
 
-const formatOutputLocation = (location: string) => {
-	if (location.startsWith(window.remotion_cwd)) {
-		const out = location.substring(window.remotion_cwd.length);
-
-		if (out.startsWith('/') || out.startsWith('\\')) {
-			return out.substring(1);
-		}
-
-		return out;
-	}
-
-	return location;
-};
-
 export const RenderQueueOutputName: React.FC<{
 	job: RenderJob;
 }> = ({job}) => {
 	const onClick = useCallback(() => {
-		openInFileExplorer({directory: job.outputLocation}).catch((err) => {
+		openInFileExplorer({directory: job.outName}).catch((err) => {
 			notificationCenter.current?.addNotification({
 				content: `Could not open file: ${err.message}`,
 				created: Date.now(),
@@ -30,7 +16,7 @@ export const RenderQueueOutputName: React.FC<{
 				id: String(Math.random()),
 			});
 		});
-	}, [job.outputLocation]);
+	}, [job.outName]);
 
 	const style = useMemo((): React.CSSProperties => {
 		return {
@@ -46,11 +32,9 @@ export const RenderQueueOutputName: React.FC<{
 			type="button"
 			style={style}
 			disabled={job.deletedOutputLocation}
-			title={
-				job.deletedOutputLocation ? 'File was deleted' : job.outputLocation
-			}
+			title={job.deletedOutputLocation ? 'File was deleted' : job.outName}
 		>
-			{formatOutputLocation(job.outputLocation)}
+			{job.outName}
 		</button>
 	);
 };

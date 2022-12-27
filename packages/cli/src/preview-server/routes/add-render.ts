@@ -1,4 +1,3 @@
-import path from 'path';
 import type {ApiHandler} from '../api-types';
 import type {AddRenderRequest} from '../render-queue/job';
 import {addJob} from '../render-queue/queue';
@@ -19,7 +18,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 			id: String(Math.random()).replace('0.', ''),
 			startedAt: Date.now(),
 			type: 'still',
-			outputLocation: path.resolve(remotionRoot, input.outName),
+			outName: input.outName,
 			status: 'idle',
 			imageFormat: input.imageFormat,
 			quality: input.quality,

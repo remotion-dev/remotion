@@ -9,8 +9,6 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import type {TCompMetadata} from 'remotion';
-import {getDefaultOutLocation} from '../../../get-default-out-name';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {useFileExistence} from '../../helpers/use-file-existence';
@@ -127,9 +125,22 @@ const MAX_SCALE = 10;
 // TODO: Prevent rendering when preview server is disconnected
 
 export const RenderModal: React.FC<{
-	composition: TCompMetadata;
+	compositionId: string;
 	initialFrame: number;
-}> = ({composition, initialFrame}) => {
+	initialImageFormat: StillImageFormat;
+	initialQuality: number | null;
+	initialScale: number;
+	initialVerbose: boolean;
+	initialOutName: string;
+}> = ({
+	compositionId,
+	initialFrame,
+	initialImageFormat,
+	initialQuality,
+	initialScale,
+	initialVerbose,
+	initialOutName,
+}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
 	const onQuit = useCallback(() => {
@@ -141,16 +152,13 @@ export const RenderModal: React.FC<{
 	const [state, dispatch] = useReducer(reducer, initialState);
 	const [frame, setFrame] = useState(() => initialFrame);
 
-	const [imageFormat, setImageFormat] = useState<StillImageFormat>('png');
-	const [quality, setQuality] = useState(80);
-	const [scale, setScale] = useState(1);
-	const [verbose, setVerboseLogging] = useState(false);
-	const [outName, setOutName] = useState(() =>
-		getDefaultOutLocation({
-			compositionName: composition.id,
-			defaultExtension: imageFormat,
-		})
+	const [imageFormat, setImageFormat] = useState<StillImageFormat>(
+		() => initialImageFormat
 	);
+	const [quality, setQuality] = useState<number>(() => initialQuality ?? 80);
+	const [scale, setScale] = useState(() => initialScale);
+	const [verbose, setVerboseLogging] = useState(() => initialVerbose);
+	const [outName, setOutName] = useState(() => initialOutName);
 
 	const dispatchIfMounted: typeof dispatch = useCallback((payload) => {
 		if (isMounted.current === false) return;
@@ -189,7 +197,7 @@ export const RenderModal: React.FC<{
 	const onClick = useCallback(() => {
 		leftSidebarTabs.current?.selectRendersPanel();
 		addStillRenderJob({
-			composition,
+			compositionId,
 			outName,
 			imageFormat,
 			quality: imageFormat === 'jpeg' ? quality : null,
@@ -205,7 +213,7 @@ export const RenderModal: React.FC<{
 				dispatchIfMounted({type: 'fail'});
 			});
 	}, [
-		composition,
+		compositionId,
 		dispatchIfMounted,
 		frame,
 		imageFormat,
@@ -313,7 +321,7 @@ export const RenderModal: React.FC<{
 
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
-			<NewCompHeader title={`Render ${composition.id}`} />
+			<NewCompHeader title={`Render ${compositionId}`} />
 			<div style={container}>
 				<Spacing block y={0.5} />
 				<div style={optionRow}>

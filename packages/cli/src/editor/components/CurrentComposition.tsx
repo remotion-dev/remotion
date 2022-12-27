@@ -1,5 +1,6 @@
 import React, {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
+import {getDefaultOutLocation} from '../../get-default-out-name';
 import {BACKGROUND, BORDER_COLOR} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {useKeybinding} from '../helpers/use-keybinding';
@@ -65,7 +66,20 @@ export const CurrentComposition = () => {
 			return null;
 		}
 
-		setSelectedModal({type: 'render', composition: video, initialFrame: 0});
+		setSelectedModal({
+			type: 'render',
+			compositionId: video.id,
+			// TODO: Derive defaults from config file
+			initialFrame: 0,
+			initialImageFormat: 'png',
+			initialQuality: 80,
+			initialScale: 1,
+			initialVerbose: false,
+			initialOutName: getDefaultOutLocation({
+				compositionName: video.id,
+				defaultExtension: 'png',
+			}),
+		});
 	}, [setSelectedModal, video]);
 
 	useEffect(() => {

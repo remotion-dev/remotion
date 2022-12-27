@@ -82,7 +82,12 @@ export const Editor: React.FC = () => {
 			{modalContextType && modalContextType.type === 'render' && (
 				<RenderModal
 					initialFrame={modalContextType.initialFrame}
-					composition={modalContextType.composition}
+					compositionId={modalContextType.compositionId}
+					initialImageFormat={modalContextType.initialImageFormat}
+					initialQuality={modalContextType.initialQuality}
+					initialOutName={modalContextType.initialOutName}
+					initialScale={modalContextType.initialScale}
+					initialVerbose={modalContextType.initialVerbose}
 				/>
 			)}
 
