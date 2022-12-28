@@ -45,7 +45,7 @@ export const renderCompFlow = async ({
 	fullEntryPoint,
 	ffmpegExecutable,
 	ffprobeExecutable,
-	indentOutput,
+	indent,
 	logLevel,
 	browserExecutable,
 	browser,
@@ -82,7 +82,7 @@ export const renderCompFlow = async ({
 	logLevel: LogLevel;
 	browser: Browser;
 	scale: number;
-	indentOutput: boolean;
+	indent: boolean;
 	shouldOutputImageSequence: boolean;
 	publicDir: string | null;
 	inputProps: object;
@@ -112,28 +112,24 @@ export const renderCompFlow = async ({
 		remotionRoot,
 	});
 	Log.verboseAdvanced(
-		{indent: indentOutput, logLevel},
+		{indent, logLevel},
 		'FFMPEG Version:',
 		ffmpegVersion ? ffmpegVersion.join('.') : 'Built from source'
 	);
 	Log.verboseAdvanced(
-		{indent: indentOutput, logLevel},
+		{indent, logLevel},
 		'Browser executable: ',
 		browserExecutable
 	);
 
-	Log.verboseAdvanced(
-		{indent: indentOutput, logLevel},
-		'Asset dirs',
-		downloadMap.assetDir
-	);
+	Log.verboseAdvanced({indent, logLevel}, 'Asset dirs', downloadMap.assetDir);
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
 		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		chromiumOptions,
 		forceDeviceScaleFactor: scale,
-		indentationString: indentOutput ? INDENT_TOKEN + ' ' : '',
+		indentationString: indent ? INDENT_TOKEN + ' ' : '',
 	});
 
 	const steps: RenderStep[] = [
@@ -150,7 +146,7 @@ export const renderCompFlow = async ({
 			publicDir,
 			// TODO: Implement onProgress
 			onProgress: () => undefined,
-			indentOutput,
+			indentOutput: indent,
 			logLevel,
 		}
 	);
@@ -223,7 +219,7 @@ export const renderCompFlow = async ({
 	});
 
 	Log.infoAdvanced(
-		{indent: indentOutput, logLevel},
+		{indent, logLevel},
 		chalk.gray(
 			`Entry point = ${fullEntryPoint} (${entryPointReason}), Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
 		)
@@ -238,11 +234,7 @@ export const renderCompFlow = async ({
 		? absoluteOutputFile
 		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
 
-	Log.verboseAdvanced(
-		{indent: indentOutput, logLevel},
-		'Output dir',
-		outputDir
-	);
+	Log.verboseAdvanced({indent, logLevel}, 'Output dir', outputDir);
 
 	const renderProgress = createOverwriteableCliOutput({
 		quiet,
@@ -292,7 +284,7 @@ export const renderCompFlow = async ({
 					progress: 1,
 				},
 			},
-			indentOutput
+			indent
 		);
 		onProgress({progress, message});
 
@@ -327,17 +319,13 @@ export const renderCompFlow = async ({
 			onDownload: (src: string) => {
 				if (src.startsWith('data:')) {
 					Log.infoAdvanced(
-						{indent: indentOutput, logLevel},
+						{indent, logLevel},
 
 						'\nWriting Data URL to file: ',
 						src.substring(0, 30) + '...'
 					);
 				} else {
-					Log.infoAdvanced(
-						{indent: indentOutput, logLevel},
-						'\nDownloading asset... ',
-						src
-					);
+					Log.infoAdvanced({indent, logLevel}, '\nDownloading asset... ', src);
 				}
 			},
 			outputDir,
@@ -363,11 +351,8 @@ export const renderCompFlow = async ({
 		});
 
 		updateRenderProgress();
-		Log.infoAdvanced({indent: indentOutput, logLevel});
-		Log.infoAdvanced(
-			{indent: indentOutput, logLevel},
-			chalk.cyan(`▶ ${absoluteOutputFile}`)
-		);
+		Log.infoAdvanced({indent, logLevel});
+		Log.infoAdvanced({indent, logLevel}, chalk.cyan(`▶ ${absoluteOutputFile}`));
 	}
 
 	const options = await getRenderMediaOptions({
@@ -392,27 +377,22 @@ export const renderCompFlow = async ({
 		onDownload,
 		downloadMap,
 		onSlowestFrames: (slowestFrames) => {
-			Log.verboseAdvanced({indent: indentOutput, logLevel});
-			Log.verboseAdvanced({indent: indentOutput, logLevel}, `Slowest frames:`);
+			Log.verboseAdvanced({indent, logLevel});
+			Log.verboseAdvanced({indent, logLevel}, `Slowest frames:`);
 			slowestFrames.forEach(({frame, time}) => {
 				Log.verboseAdvanced(
-					{indent: indentOutput, logLevel},
+					{indent, logLevel},
 					`Frame ${frame} (${time.toFixed(3)}ms)`
 				);
 			});
 		},
-		printLog: (...str) =>
-			Log.verboseAdvanced({indent: indentOutput, logLevel}, ...str),
+		printLog: (...str) => Log.verboseAdvanced({indent, logLevel}, ...str),
 	});
 
-	Log.infoAdvanced({indent: indentOutput, logLevel});
-	Log.infoAdvanced(
-		{indent: indentOutput, logLevel},
-		chalk.cyan(`▶ ${absoluteOutputFile}`)
-	);
+	Log.infoAdvanced({indent, logLevel});
+	Log.infoAdvanced({indent, logLevel}, chalk.cyan(`▶ ${absoluteOutputFile}`));
 
-	// TODO: This will not indent
-	if (RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose')) {
-		RenderInternals.perf.logPerf();
+	for (const line of RenderInternals.perf.getPerf()) {
+		Log.verboseAdvanced({indent, logLevel}, line);
 	}
 };

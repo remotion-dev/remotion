@@ -63,7 +63,7 @@ export const processVideoJob = async ({
 		configFileImageFormat: undefined,
 		logLevel: job.verbose ? 'verbose' : 'info',
 		onProgress,
-		indentOutput: true,
+		indent: true,
 		// TODO: Make configurable
 		concurrency: null,
 		// TODO: Make configurable
