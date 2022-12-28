@@ -55,32 +55,41 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		remotionRoot,
 	});
 
-	await renderStillFlow({
-		remotionRoot,
-		entryPointReason,
-		fullEntryPoint,
-		remainingArgs,
-		browser,
-		browserExecutable,
-		chromiumOptions,
-		envVariables,
-		ffmpegExecutable,
-		ffprobeExecutable,
-		height,
-		inputProps,
-		overwrite,
-		port,
-		publicDir,
-		puppeteerTimeout,
-		quality,
-		scale,
-		stillFrame,
-		width,
-		compositionIdFromUi: null,
-		imageFormatFromUi: null,
-		configFileImageFormat,
-		logLevel,
-		onProgress: () => undefined,
-		indentOutput: false,
-	});
+	const jobCleanups: (() => Promise<void>)[] = [];
+
+	try {
+		await renderStillFlow({
+			remotionRoot,
+			entryPointReason,
+			fullEntryPoint,
+			remainingArgs,
+			browser,
+			browserExecutable,
+			chromiumOptions,
+			envVariables,
+			ffmpegExecutable,
+			ffprobeExecutable,
+			height,
+			inputProps,
+			overwrite,
+			port,
+			publicDir,
+			puppeteerTimeout,
+			quality,
+			scale,
+			stillFrame,
+			width,
+			compositionIdFromUi: null,
+			imageFormatFromUi: null,
+			configFileImageFormat,
+			logLevel,
+			onProgress: () => undefined,
+			indentOutput: false,
+			addCleanupCallback: (c) => {
+				jobCleanups.push(c);
+			},
+		});
+	} finally {
+		await Promise.all(jobCleanups.map((c) => c()));
+	}
 };

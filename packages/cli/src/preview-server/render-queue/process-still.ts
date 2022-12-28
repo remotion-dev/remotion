@@ -8,11 +8,13 @@ export const processStill = async ({
 	remotionRoot,
 	entryPoint,
 	onProgress,
+	addCleanupCallback,
 }: {
 	job: RenderJob;
 	remotionRoot: string;
 	entryPoint: string;
 	onProgress: JobProgressCallback;
+	addCleanupCallback: (cb: () => Promise<void>) => void;
 }) => {
 	if (job.type !== 'still') {
 		throw new Error('Expected still job');
@@ -64,6 +66,7 @@ export const processStill = async ({
 		logLevel: job.verbose ? 'verbose' : 'info',
 		onProgress,
 		indentOutput: true,
+		addCleanupCallback,
 	});
 	// TODO: Allow cancel signal
 	// TODO: Accept CLI options
