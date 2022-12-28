@@ -33,7 +33,6 @@ export const parse = (
 		})
 		.then((buffer) => parseGIF(buffer))
 		.then((gif) => {
-			console.log({gif});
 			validateAndFix(gif);
 			return gif;
 		})
