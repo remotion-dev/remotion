@@ -142,7 +142,7 @@ module.exports = {
             },
             {
               label: "Instagram",
-              href: "https://instagram.com/remotion.dev",
+              href: "https://instagram.com/remotion",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Instagram",
             },
