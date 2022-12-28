@@ -73,6 +73,7 @@ export const processVideoJob = async ({
 		quiet: false,
 		shouldOutputImageSequence: false,
 		addCleanupCallback,
+		outputLocationFromUI: job.outName,
 	});
 	// TODO: Allow cancel signal
 	// TODO: Accept CLI options

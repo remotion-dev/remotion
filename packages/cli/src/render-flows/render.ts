@@ -68,6 +68,7 @@ export const renderCompFlow = async ({
 	frameRange,
 	everyNthFrame,
 	configFileImageFormat,
+	outputLocationFromUI,
 	quality,
 	onProgress,
 	addCleanupCallback,
@@ -93,6 +94,7 @@ export const renderCompFlow = async ({
 	width: number | null;
 	remainingArgs: string[];
 	compositionIdFromUi: string | null;
+	outputLocationFromUI: string | null;
 	overwrite: boolean;
 	quiet: boolean;
 	concurrency: number | null;
@@ -209,13 +211,15 @@ export const renderCompFlow = async ({
 		scale,
 	});
 
-	// TODO: Should use output location from UI if explicitly specified
 	const relativeOutputLocation = getOutputFilename({
 		codec,
 		imageSequence: shouldOutputImageSequence,
 		compositionName: compositionId,
 		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec, 'final'),
 		args: argsAfterComposition,
+		indent,
+		fromUi: outputLocationFromUI,
+		logLevel,
 	});
 
 	Log.infoAdvanced(

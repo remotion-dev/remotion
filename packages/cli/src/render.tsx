@@ -94,6 +94,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			addCleanupCallback: (c) => {
 				jobCleanups.push(c);
 			},
+			outputLocationFromUI: null,
 		});
 	} finally {
 		await Promise.all(jobCleanups.map((c) => c()));
