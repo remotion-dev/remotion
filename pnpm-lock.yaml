@@ -457,7 +457,6 @@ importers:
       typescript: ^4.7.0
       use-asset: ^1.0.4
       vitest: 0.24.3
-      webpack: 5.74.0
     dependencies:
       '@babel/plugin-syntax-jsx': 7.12.13_@babel+core@7.18.6
       '@babel/preset-env': 7.12.13_@babel+core@7.18.6
@@ -493,7 +492,6 @@ importers:
       typescript: 4.7.2
       use-asset: 1.0.4_react@18.0.0
       vitest: 0.24.3
-      webpack: 5.74.0
     devDependencies:
       '@types/babel__core': 7.1.16
       '@types/babel__template': 7.4.1
