@@ -70,6 +70,7 @@ export const renderCompFlow = async ({
 	configFileImageFormat,
 	quality,
 	onProgress,
+	addCleanupCallback,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -100,9 +101,11 @@ export const renderCompFlow = async ({
 	configFileImageFormat: ImageFormat | undefined;
 	quality: number | undefined;
 	onProgress: JobProgressCallback;
+	addCleanupCallback: (cb: () => Promise<void>) => void;
 }) => {
 	const downloads: DownloadProgress[] = [];
 	const downloadMap = RenderInternals.makeDownloadMap();
+	addCleanupCallback(() => RenderInternals.cleanDownloadMap(downloadMap));
 
 	const ffmpegVersion = await RenderInternals.getFfmpegVersion({
 		ffmpegExecutable,
@@ -151,6 +154,7 @@ export const renderCompFlow = async ({
 			logLevel,
 		}
 	);
+	addCleanupCallback(cleanupBundle);
 
 	const onDownload: RenderMediaOnDownload = (src) => {
 		const id = Math.random();
@@ -172,6 +176,7 @@ export const renderCompFlow = async ({
 	};
 
 	const puppeteerInstance = await browserInstance;
+	addCleanupCallback(() => puppeteerInstance.close(false));
 
 	const comps = await getCompositions(urlOrBundle, {
 		inputProps,
@@ -405,27 +410,6 @@ export const renderCompFlow = async ({
 		{indent: indentOutput, logLevel},
 		chalk.cyan(`▶ ${absoluteOutputFile}`)
 	);
-
-	try {
-		await cleanupBundle();
-		await RenderInternals.cleanDownloadMap(downloadMap);
-
-		Log.verboseAdvanced(
-			{indent: indentOutput, logLevel},
-			'Cleaned up',
-			downloadMap.assetDir
-		);
-	} catch (err) {
-		Log.warnAdvanced(
-			{indent: indentOutput, logLevel},
-			'Could not clean up directory.'
-		);
-		Log.warnAdvanced({indent: indentOutput, logLevel}, err);
-		Log.warnAdvanced(
-			{indent: indentOutput, logLevel},
-			'Do you have minimum required Node.js version?'
-		);
-	}
 
 	// TODO: This will not indent
 	if (RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose')) {

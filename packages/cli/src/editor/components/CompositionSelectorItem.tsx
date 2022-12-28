@@ -199,12 +199,8 @@ export const CompositionSelectorItem: React.FC<{
 				)}
 				<Spacing x={1} />
 				<div style={label}>{item.composition.id}</div>
-				{isCompositionStill(item.composition) ? (
-					<>
-						<Spacing x={0.5} />
-						<RenderButton visible={hovered} composition={item.composition} />
-					</>
-				) : null}
+				<Spacing x={0.5} />
+				<RenderButton visible={hovered} composition={item.composition} />
 			</button>
 		</Row>
 	);

@@ -59,6 +59,8 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		remotionRoot,
 	});
 
+	const jobCleanups: (() => Promise<void>)[] = [];
+
 	await renderCompFlow({
 		ffmpegExecutable,
 		ffprobeExecutable,
@@ -89,5 +91,8 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		configFileImageFormat,
 		quality,
 		onProgress: () => undefined,
+		addCleanupCallback: (c) => {
+			jobCleanups.push(c);
+		},
 	});
 };

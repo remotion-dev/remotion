@@ -69,6 +69,7 @@ export const renderStillFlow = async ({
 	configFileImageFormat,
 	onProgress,
 	indentOutput,
+	addCleanupCallback,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -96,6 +97,7 @@ export const renderStillFlow = async ({
 	configFileImageFormat: ImageFormat | undefined;
 	onProgress: JobProgressCallback;
 	indentOutput: boolean;
+	addCleanupCallback: (cb: () => Promise<void>) => void;
 }) => {
 	const downloads: DownloadProgress[] = [];
 
@@ -160,9 +162,14 @@ export const renderStillFlow = async ({
 		}
 	);
 
+	addCleanupCallback(cleanupBundle);
+
 	const puppeteerInstance = await browserInstance;
+	addCleanupCallback(() => puppeteerInstance.close(false));
 
 	const downloadMap = RenderInternals.makeDownloadMap();
+
+	addCleanupCallback(() => RenderInternals.cleanDownloadMap(downloadMap));
 
 	const comps = await getCompositions(urlOrBundle, {
 		inputProps,
@@ -282,19 +289,8 @@ export const renderStillFlow = async ({
 	updateProgress();
 	Log.infoAdvanced({indent: indentOutput, logLevel});
 
-	const closeBrowserPromise = puppeteerInstance.close(false);
-
 	Log.infoAdvanced(
 		{indent: indentOutput, logLevel},
 		chalk.cyan(`▶️ ${absoluteOutputLocation}`)
-	);
-	await closeBrowserPromise;
-	await RenderInternals.cleanDownloadMap(downloadMap);
-	await cleanupBundle();
-
-	Log.verboseAdvanced(
-		{indent: indentOutput, logLevel},
-		'Cleaned up',
-		downloadMap.assetDir
 	);
 };

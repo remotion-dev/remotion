@@ -459,13 +459,13 @@ export const RenderModal: React.FC<{
 					>
 						{state.type === 'idle' ? 'Render video' : 'Rendering...'}
 					</Button>
-
+					<Spacing block x={0.5} />
 					<Button
 						autoFocus
 						onClick={onClickStill}
 						disabled={state.type === 'load'}
 					>
-						{state.type === 'idle' ? 'Render' : 'Rendering...'}
+						{state.type === 'idle' ? 'Render still' : 'Rendering...'}
 					</Button>
 				</div>
 			</div>

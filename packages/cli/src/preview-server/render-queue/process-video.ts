@@ -8,14 +8,16 @@ export const processVideoJob = async ({
 	remotionRoot,
 	entryPoint,
 	onProgress,
+	addCleanupCallback,
 }: {
 	job: RenderJob;
 	remotionRoot: string;
 	entryPoint: string;
 	onProgress: JobProgressCallback;
+	addCleanupCallback: (cb: () => Promise<void>) => void;
 }) => {
 	if (job.type !== 'video') {
-		throw new Error('Expected still job');
+		throw new Error('Expected video job');
 	}
 
 	const {
@@ -70,6 +72,7 @@ export const processVideoJob = async ({
 		frameRange: null,
 		quiet: false,
 		shouldOutputImageSequence: false,
+		addCleanupCallback,
 	});
 	// TODO: Allow cancel signal
 	// TODO: Accept CLI options

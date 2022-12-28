@@ -51,7 +51,6 @@ export const CurrentComposition = () => {
 	const video = Internals.useVideo();
 	const keybindings = useKeybinding();
 	const {setSelectedModal} = useContext(ModalsContext);
-	const isStill = isCompositionStill(video);
 
 	useEffect(() => {
 		if (!video) {
@@ -86,10 +85,6 @@ export const CurrentComposition = () => {
 	}, [setSelectedModal, video]);
 
 	useEffect(() => {
-		if (!isStill) {
-			return;
-		}
-
 		const binding = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'r',
@@ -101,7 +96,7 @@ export const CurrentComposition = () => {
 		return () => {
 			binding.unregister();
 		};
-	}, [isStill, keybindings, renderStill]);
+	}, [keybindings, renderStill]);
 
 	if (!video) {
 		return <div style={container} />;

@@ -44,19 +44,33 @@ export const processJob = async ({
 	remotionRoot,
 	entryPoint,
 	onProgress,
+	addCleanupCallback,
 }: {
 	job: RenderJob;
 	remotionRoot: string;
 	entryPoint: string;
 	onProgress: JobProgressCallback;
+	addCleanupCallback: (cb: () => Promise<void>) => void;
 }) => {
 	if (job.type === 'still') {
-		await processStill({job, remotionRoot, entryPoint, onProgress});
+		await processStill({
+			job,
+			remotionRoot,
+			entryPoint,
+			onProgress,
+			addCleanupCallback,
+		});
 		return;
 	}
 
 	if (job.type === 'video') {
-		await processVideoJob({job, remotionRoot, entryPoint, onProgress});
+		await processVideoJob({
+			job,
+			remotionRoot,
+			entryPoint,
+			onProgress,
+			addCleanupCallback,
+		});
 		return;
 	}
 
@@ -107,6 +121,8 @@ export const processJobIfPossible = async ({
 		return;
 	}
 
+	const jobCleanups: (() => Promise<void>)[] = [];
+
 	try {
 		updateJob(nextJob.id, (job) => {
 			return {
@@ -131,6 +147,9 @@ export const processJobIfPossible = async ({
 						message,
 					};
 				});
+			},
+			addCleanupCallback: (cleanup) => {
+				jobCleanups.push(cleanup);
 			},
 		});
 		Log.info(chalk.gray('╰─ Done in ' + (Date.now() - startTime) + 'ms.'));
@@ -180,5 +199,7 @@ export const processJobIfPossible = async ({
 				error: err as Error,
 			});
 		});
+	} finally {
+		await Promise.all(jobCleanups.map((c) => c()));
 	}
 };
