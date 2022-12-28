@@ -33,7 +33,7 @@ export const inputBaseStyle: React.CSSProperties = {
 const RemInputForwardRef: React.ForwardRefRenderFunction<
 	HTMLInputElement,
 	Props
-> = (props, ref) => {
+> = ({warning, ...props}, ref) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -44,7 +44,7 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 			backgroundColor: INPUT_BACKGROUND,
 			...inputBaseStyle,
 			width: '100%',
-			borderColor: props.warning
+			borderColor: warning
 				? WARNING_COLOR
 				: isFocused
 				? SELECTED_BACKGROUND
@@ -53,7 +53,7 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 				: INPUT_BORDER_COLOR_UNHOVERED,
 			...(props.style ?? {}),
 		};
-	}, [isFocused, isHovered, props.style, props.warning]);
+	}, [isFocused, isHovered, props.style, warning]);
 
 	useImperativeHandle(
 		ref,

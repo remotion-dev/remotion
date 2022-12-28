@@ -174,7 +174,6 @@ export const CompositionSelectorItem: React.FC<{
 		);
 	}
 
-	// TODO: Button nested inside of button
 	return (
 		<Row align="center">
 			<button
@@ -200,7 +199,9 @@ export const CompositionSelectorItem: React.FC<{
 				<Spacing x={1} />
 				<div style={label}>{item.composition.id}</div>
 				<Spacing x={0.5} />
-				<RenderButton visible={hovered} composition={item.composition} />
+				<div>
+					<RenderButton visible={hovered} composition={item.composition} />
+				</div>
 			</button>
 		</Row>
 	);
