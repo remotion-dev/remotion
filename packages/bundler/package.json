@@ -24,7 +24,7 @@
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"css-loader": "5.2.7",
-		"esbuild": "0.15.13",
+		"esbuild": "0.16.12",
 		"react-refresh": "0.9.0",
 		"remotion": "3.3.18",
 		"style-loader": "2.0.0",
