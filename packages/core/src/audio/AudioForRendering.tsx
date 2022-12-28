@@ -125,7 +125,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			const {current} = audioRef;
 
 			const didLoad = () => {
-				if (current) {
+				if (current?.duration) {
 					onDuration(src as string, current.duration);
 				}
 
