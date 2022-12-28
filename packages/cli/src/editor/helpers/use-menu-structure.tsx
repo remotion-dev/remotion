@@ -569,6 +569,20 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						quickSwitcherLabel: 'Follow Remotion on Twitter',
 					},
 					{
+						id: 'linkedin',
+						value: 'linkedin',
+						label: 'LinkedIn',
+						onClick: () => {
+							closeMenu();
+							openExternal('https://www.linkedin.com/company/remotion-dev/');
+						},
+						type: 'item' as const,
+						keyHint: null,
+						leftItem: null,
+						subMenu: null,
+						quickSwitcherLabel: 'Follow Remotion on LinkedIn',
+					},
+					{
 						id: 'tiktok',
 						value: 'tiktok',
 						label: 'TikTok',
