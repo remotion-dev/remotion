@@ -139,6 +139,11 @@
       "source": "/docs/overlays",
       "destination": "/docs/overlay",
       "permanent": false
+    },
+    {
+      "source": "/links",
+      "destination": "https://linktr.ee/remotion",
+      "permanent": false
     }
   ]
 }
