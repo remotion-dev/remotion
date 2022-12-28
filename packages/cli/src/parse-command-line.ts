@@ -61,6 +61,7 @@ export type CommandLineOptions = {
 	gl: OpenGlRenderer;
 	['package-manager']: string;
 	['webpack-poll']: number;
+	['no-open']: boolean;
 };
 
 export const BooleanFlags = [
@@ -84,6 +85,7 @@ export const BooleanFlags = [
 	'disable-headless',
 	'disable-keyboard-shortcuts',
 	'default-only',
+	'no-open',
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
