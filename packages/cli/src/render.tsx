@@ -60,39 +60,42 @@ export const render = async (remotionRoot: string, args: string[]) => {
 	});
 
 	const jobCleanups: (() => Promise<void>)[] = [];
-
-	await renderCompFlow({
-		ffmpegExecutable,
-		ffprobeExecutable,
-		fullEntryPoint,
-		remotionRoot,
-		browserExecutable,
-		indentOutput: false,
-		logLevel: ConfigInternals.Logging.getLogLevel(),
-		browser,
-		chromiumOptions,
-		scale,
-		shouldOutputImageSequence,
-		publicDir,
-		envVariables,
-		inputProps,
-		puppeteerTimeout,
-		port,
-		height,
-		width,
-		remainingArgs,
-		compositionIdFromUi: null,
-		entryPointReason,
-		overwrite,
-		quiet: quietFlagProvided(),
-		concurrency,
-		everyNthFrame,
-		frameRange,
-		configFileImageFormat,
-		quality,
-		onProgress: () => undefined,
-		addCleanupCallback: (c) => {
-			jobCleanups.push(c);
-		},
-	});
+	try {
+		await renderCompFlow({
+			ffmpegExecutable,
+			ffprobeExecutable,
+			fullEntryPoint,
+			remotionRoot,
+			browserExecutable,
+			indentOutput: false,
+			logLevel: ConfigInternals.Logging.getLogLevel(),
+			browser,
+			chromiumOptions,
+			scale,
+			shouldOutputImageSequence,
+			publicDir,
+			envVariables,
+			inputProps,
+			puppeteerTimeout,
+			port,
+			height,
+			width,
+			remainingArgs,
+			compositionIdFromUi: null,
+			entryPointReason,
+			overwrite,
+			quiet: quietFlagProvided(),
+			concurrency,
+			everyNthFrame,
+			frameRange,
+			configFileImageFormat,
+			quality,
+			onProgress: () => undefined,
+			addCleanupCallback: (c) => {
+				jobCleanups.push(c);
+			},
+		});
+	} finally {
+		await Promise.all(jobCleanups.map((c) => c()));
+	}
 };
