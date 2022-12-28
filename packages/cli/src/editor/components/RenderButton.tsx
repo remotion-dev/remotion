@@ -21,7 +21,7 @@ export const RenderButton: React.FC<{
 		};
 	}, []);
 
-	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+	const onClick: React.MouseEventHandler<HTMLAnchorElement> = useCallback(
 		(e) => {
 			e.stopPropagation();
 			setSelectedModal({
