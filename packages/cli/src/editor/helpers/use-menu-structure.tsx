@@ -546,7 +546,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						label: 'Instagram',
 						onClick: () => {
 							closeMenu();
-							openExternal('https://instagram.com/remotion.dev');
+							openExternal('https://instagram.com/remotion');
 						},
 						type: 'item' as const,
 						keyHint: null,
