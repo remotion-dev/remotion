@@ -58,5 +58,15 @@
 	"exports": {
 		".": "./dist/index.js",
 		"./version": "./dist/version.js"
+	},
+	"typesVersions": {
+		">=1.0": {
+			".": [
+				"dist/index.d.ts"
+			],
+			"version": [
+				"dist/version.d.ts"
+			]
+		}
 	}
 }
