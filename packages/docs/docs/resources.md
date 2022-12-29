@@ -17,6 +17,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Audiogram](https://github.com/marcusstenbeck/template-audiogram)
 - [Skia](https://github.com/marcusstenbeck/template-skia)
 - [Tailwind](https://github.com/marcusstenbeck/template-tailwind)
+- [Hello World Template with pull request video previews](https://github.com/stoat-dev/example-remotion)
 
 ## SaaS starter Kits
 
