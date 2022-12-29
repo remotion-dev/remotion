@@ -152,6 +152,7 @@ export const loadFont = <T extends keyof Variants>(
   options?: {
     weights?: Variants[T]['weights'][];
     subsets?: Variants[T]['subsets'][];
+    document?: Document;
   }
 ) => { 
   return loadFonts(getInfo(), style, options);
