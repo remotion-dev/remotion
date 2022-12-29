@@ -27,6 +27,8 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {leftSidebarTabs} from '../SidebarContent';
 
+// TODO: fix pointer down inside, pointer
+
 type State =
 	| {
 			type: 'idle';
@@ -167,6 +169,8 @@ export const RenderModal: React.FC<{
 		() => initialImageFormat
 	);
 	const [videoCodec, setVideoCodec] = useState<Codec>('h264');
+	const [videoImageFormat, setVideoImageFormat] =
+		useState<StillImageFormat>('jpeg');
 	const [renderMode, setRenderMode] = useState<RenderType>('still');
 	const [quality, setQuality] = useState<number>(() => initialQuality ?? 80);
 	const [scale, setScale] = useState(() => initialScale);
@@ -240,17 +244,18 @@ export const RenderModal: React.FC<{
 	]);
 
 	const onClickVideo = useCallback(() => {
+		console.log('codec: ' + videoCodec);
 		leftSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
 		addVideoRenderJob({
 			compositionId,
 			outName,
-			imageFormat,
+			imageFormat: videoImageFormat,
 			quality: imageFormat === 'jpeg' ? quality : null,
 			scale,
 			verbose,
 			// TODO: Make this configurable
-			codec: 'h264',
+			codec: videoCodec,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -268,6 +273,8 @@ export const RenderModal: React.FC<{
 		scale,
 		setSelectedModal,
 		verbose,
+		videoCodec,
+		videoImageFormat,
 	]);
 
 	const onQualityChangedDirectly = useCallback((newQuality: number) => {
@@ -345,20 +352,33 @@ export const RenderModal: React.FC<{
 		return [
 			{
 				label: 'PNG',
-				onClick: () => setStillFormat('png'),
+				onClick:
+					renderMode === 'still'
+						? () => setStillFormat('png')
+						: () => setVideoImageFormat('png'),
 				key: 'png',
-				selected: imageFormat === 'png',
+				selected:
+					renderMode === 'still'
+						? imageFormat === 'png'
+						: videoImageFormat === 'png',
 			},
 			{
 				label: 'JPEG',
-				onClick: () => setStillFormat('jpeg'),
+				onClick:
+					renderMode === 'still'
+						? () => setStillFormat('jpeg')
+						: () => setVideoImageFormat('jpeg'),
 				key: 'jpeg',
-				selected: imageFormat === 'jpeg',
+				selected:
+					renderMode === 'still'
+						? imageFormat === 'jpeg'
+						: videoImageFormat === 'jpeg',
 			},
 		];
-	}, [imageFormat, setStillFormat]);
+	}, [imageFormat, renderMode, setStillFormat, videoImageFormat]);
 
 	const videoCodecOptions = useMemo((): SegmentedControlItem[] => {
+		// TODO: replace this hardcoded part with map
 		return [
 			{
 				label: 'h264',
@@ -371,6 +391,54 @@ export const RenderModal: React.FC<{
 				onClick: () => setCodec('h265'),
 				key: 'h265',
 				selected: videoCodec === 'h265',
+			},
+			{
+				label: 'vp8',
+				onClick: () => setCodec('vp8'),
+				key: 'vp8',
+				selected: videoCodec === 'vp8',
+			},
+			{
+				label: 'vp9',
+				onClick: () => setCodec('vp9'),
+				key: 'vp9',
+				selected: videoCodec === 'vp9',
+			},
+			{
+				label: 'mp3',
+				onClick: () => setCodec('mp3'),
+				key: 'mp3',
+				selected: videoCodec === 'mp3',
+			},
+			{
+				label: 'aac',
+				onClick: () => setCodec('aac'),
+				key: 'aac',
+				selected: videoCodec === 'aac',
+			},
+			{
+				label: 'wav',
+				onClick: () => setCodec('wav'),
+				key: 'wav',
+				selected: videoCodec === 'wav',
+			},
+			{
+				label: 'prores',
+				onClick: () => setCodec('prores'),
+				key: 'prores',
+				selected: videoCodec === 'prores',
+			},
+			{
+				label: 'h264-mkv',
+				onClick: () => setCodec('h264-mkv'),
+				key: 'h264-mkv',
+				selected: videoCodec === 'h264-mkv',
+			},
+			{
+				label: 'gif',
+				onClick: () => setCodec('gif'),
+				key: 'gif',
+				selected: videoCodec === 'gif',
 			},
 		];
 	}, [setCodec, videoCodec]);
@@ -414,7 +482,7 @@ export const RenderModal: React.FC<{
 			<div>
 				<Spacing block y={0.5} />
 				<div style={optionRow}>
-					<div style={label}>Format</div>
+					<div style={label}>{renderMode === 'still' ? 'Format' : 'Codec'}</div>
 					<div style={rightRow}>
 						<SegmentedControl
 							items={
@@ -500,7 +568,16 @@ export const RenderModal: React.FC<{
 							/>
 						</div>
 					</div>
-					{imageFormat === 'jpeg' && (
+					{renderMode === 'video' && (
+						<div style={optionRow}>
+							<div style={label}>Image Format</div>
+							<div style={rightRow}>
+								<SegmentedControl items={imageFormatOptions} />
+							</div>
+						</div>
+					)}
+					{/* TODO: check if jpeg quality for still and video should be handled seperately */}
+					{(imageFormat === 'jpeg' || videoImageFormat === 'jpeg') && (
 						<div style={optionRow}>
 							<div style={label}>JPEG Quality</div>
 							<div style={rightRow}>
