@@ -1,11 +1,5 @@
 import type {PropsWithChildren} from 'react';
-import {
-	createContext,
-	useCallback,
-	useLayoutEffect,
-	useMemo,
-	useState,
-} from 'react';
+import {createContext, useLayoutEffect, useMemo, useState} from 'react';
 
 export type ClipRegion =
 	| {
@@ -16,12 +10,12 @@ export type ClipRegion =
 	  }
 	| 'hide';
 
-export type CompositionManagerContext = {
+export type TNativeLayersContext = {
 	clipRegion: ClipRegion | null;
-	setClipRegion: (clip: ClipRegion | null) => void;
+	setClipRegion: React.Dispatch<React.SetStateAction<ClipRegion | null>>;
 };
 
-export const NativeLayersContext = createContext<CompositionManagerContext>({
+export const NativeLayersContext = createContext<TNativeLayersContext>({
 	setClipRegion: () => {
 		throw new Error('NativeLayers not set');
 	},
@@ -31,11 +25,7 @@ export const NativeLayersContext = createContext<CompositionManagerContext>({
 export const NativeLayersProvider: React.FC<PropsWithChildren> = ({
 	children,
 }) => {
-	const [clipRegion, setRegion] = useState<ClipRegion | null>(null);
-
-	const setClipRegion = useCallback((region: ClipRegion | null) => {
-		setRegion(region);
-	}, []);
+	const [clipRegion, setClipRegion] = useState<ClipRegion | null>(null);
 
 	const context = useMemo(() => {
 		return {

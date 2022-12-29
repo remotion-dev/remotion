@@ -29,19 +29,27 @@ export const MyComp: React.FC = () => {
 ## Rules
 
 <p>
-<Step>1</Step> If this component is rendered, nothing visual in the frame will be rendered.
+<Step>1</Step> If this component is rendered, no screenshot will be taken during rendering
 </p>
 <p>
-<Step>2</Step> Even elements <strong>outside</strong> of the <code>{"<Null>"}</code> component will disappear.
+<Step>2</Step> In the preview, the content will be rendered with zero opacity.
 </p>
 <p>
-<Step>3</Step> Audio will still be rendered.
+<Step>3</Step> Even elements <strong>outside</strong> of the <code>{"<Null>"}</code> component will disappear.
 </p>
 <p>
-<Step>4</Step> If the <code>imageFormat</code> is <code>jpeg</code>, a black frame will be generated, if the <code>imageFormat</code> is <code>png</code>, a transparent frame will be generated. 
+<Step>4</Step> Audio will still be rendered.
 </p>
 <p>
-<Step>5</Step> If this component is rendered, an <a href="/docs/clipper"><code>{"<Experimental.Clipper>"}</code></a> may not be rendered at the same time.
+<Step>5</Step> Effects will still be executed.
+</p>
+
+<p>
+<Step>6</Step> If the <code>imageFormat</code> is <code>jpeg</code>, a black frame will be generated, if the <code>imageFormat</code> is <code>png</code>, a transparent frame will be generated. 
+</p>
+<p>
+<Step>7</Step> Only one <code>{"<Experimental.Null>"}</code> or <a href="/docs/clipper"><code>{"<Experimental.Clipper>"}</code></a> component can be rendered per frame.  
+ Rendering multiple is an error.
 </p>
 
 ## See also

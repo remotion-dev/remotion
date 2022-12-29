@@ -11,7 +11,21 @@ export const Clipper: React.FC<{
 	const {setClipRegion} = useContext(NativeLayersContext);
 
 	useEffect(() => {
-		setClipRegion({height, width, x, y});
+		setClipRegion((c) => {
+			if (c === 'hide') {
+				throw new Error(
+					'Cannot render <Clipper>, because another <Null> is already rendered'
+				);
+			}
+
+			if (c === null) {
+				return {height, width, x, y};
+			}
+
+			throw new Error(
+				'Cannot render <Clipper>, because another component clipping the region was already rendered (most likely <Clipper>)'
+			);
+		});
 
 		return () => {
 			setClipRegion(null);
