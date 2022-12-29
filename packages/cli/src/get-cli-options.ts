@@ -9,10 +9,8 @@ import fs from 'fs';
 import path from 'path';
 import {ConfigInternals} from './config';
 import {getEnvironmentVariables} from './get-env';
-import {getFinalOutputCodec} from './get-final-output-codec';
 import {getInputProps} from './get-input-props';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
 
 const getAndValidateFrameRange = () => {
 	const frameRange = ConfigInternals.getRange();
@@ -79,20 +77,6 @@ export const validateFfmepgCanUseCodec = async (
 			'This does not work, please recompile your FFMPEG binary with --enable-gpl --enable-libx265 or choose a different codec.'
 		);
 	}
-};
-
-export const getFinalCodec = (options: {
-	downloadName: string | null;
-	outName: string | null;
-}): {codec: Codec; reason: string} => {
-	const {codec, reason} = getFinalOutputCodec({
-		cliFlag: parsedCli.codec,
-		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
-		downloadName: options.downloadName,
-		outName: options.outName,
-	});
-
-	return {codec, reason};
 };
 
 const getBrowser = () =>

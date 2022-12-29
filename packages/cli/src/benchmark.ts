@@ -9,7 +9,8 @@ import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
-import {getCliOptions, getFinalCodec} from './get-cli-options';
+import {getCliOptions} from './get-cli-options';
+import {getFinalOutputCodec} from './get-final-output-codec';
 import {getRenderMediaOptions} from './get-render-media-options';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
@@ -235,9 +236,12 @@ export const benchmarkCommand = async (
 
 	let count = 1;
 
-	const {codec, reason: codecReason} = getFinalCodec({
+	const {codec, reason: codecReason} = getFinalOutputCodec({
+		cliFlag: parsedCli.codec,
 		downloadName: null,
 		outName: null,
+		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+		uiCodec: null,
 	});
 
 	for (const composition of compositions) {

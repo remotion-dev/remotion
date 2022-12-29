@@ -2,6 +2,7 @@ import type {
 	Browser,
 	BrowserExecutable,
 	ChromiumOptions,
+	Codec,
 	FfmpegExecutable,
 	FrameRange,
 	ImageFormat,
@@ -20,16 +21,18 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {chalk} from '../chalk';
+import {ConfigInternals} from '../config';
 import {
 	getAndValidateAbsoluteOutputFile,
-	getFinalCodec,
 	validateFfmepgCanUseCodec,
 } from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
 import {getOutputFilename} from '../get-filename';
+import {getFinalOutputCodec} from '../get-final-output-codec';
 import {getRenderMediaOptions} from '../get-render-media-options';
 import {getImageFormat} from '../image-formats';
 import {INDENT_TOKEN, Log} from '../log';
+import {parsedCli} from '../parse-command-line';
 import type {JobProgressCallback} from '../preview-server/render-queue/job';
 import type {DownloadProgress} from '../progress-bar';
 import {
@@ -72,6 +75,7 @@ export const renderCompFlow = async ({
 	quality,
 	onProgress,
 	addCleanupCallback,
+	uiCodec,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -104,6 +108,7 @@ export const renderCompFlow = async ({
 	quality: number | undefined;
 	onProgress: JobProgressCallback;
 	addCleanupCallback: (cb: () => Promise<void>) => void;
+	uiCodec: Codec | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
 	const downloadMap = RenderInternals.makeDownloadMap();
@@ -197,9 +202,12 @@ export const renderCompFlow = async ({
 		});
 
 	// TODO: Should use codec from UI if explicitly specified
-	const {codec, reason: codecReason} = getFinalCodec({
+	const {codec, reason: codecReason} = getFinalOutputCodec({
+		cliFlag: parsedCli.codec,
+		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
 		downloadName: null,
 		outName: getUserPassedOutputLocation(argsAfterComposition),
+		uiCodec,
 	});
 
 	validateFfmepgCanUseCodec(codec, remotionRoot);
