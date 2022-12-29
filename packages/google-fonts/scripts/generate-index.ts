@@ -44,8 +44,9 @@ const generate = async () => {
     if (!read.exports) read.exports = {};
     read.exports[
       `./${removeWhitespace(unqoute(font.family))}`
-    ] = `dist/${removeWhitespace(unqoute(font.family))}.js`;
+    ] = `./dist/${removeWhitespace(unqoute(font.family))}.js`;
   }
+  read.exports["."] = `./dist/index.js`;
 
   await fs.promises.writeFile(packageFilename, JSON.stringify(read, null, 2));
 };
