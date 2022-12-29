@@ -91,6 +91,7 @@ See the [Showcase](/showcase) for videos made with Remotion.
 - [Fireship: Remotion Tutorial](https://www.youtube.com/watch?v=deg8bOoziaE&t=3s)
 - [A soft introduction to Remotion](https://www.youtube.com/watch?v=szh2Qgo9SVE&t=847s)
 - [CRT effect](https://www.youtube.com/watch?v=-7MOoWN2_nk)
+- ["Create videos with Code" by Prismic](https://prismic.io/blog/create-videos-with-code-remotion-tutorial)
 
 ## Humans
 
