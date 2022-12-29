@@ -2,7 +2,6 @@ import fs from "node:fs";
 import path from "path";
 import got from "got";
 import postcss from "postcss";
-import prettier from "prettier";
 
 type FontInfo = {
   fontFamily: string;
@@ -121,10 +120,6 @@ const generate = async (font: Font) => {
     fonts[style][weight][subset] = src;
   }
 
-  if (!process.env.VERCEL && !process.env.CI) {
-    console.log(`- Generating ${filename}`);
-  }
-
   // Prepare info data
   const info: FontInfo = {
     fontFamily,
@@ -164,22 +159,13 @@ export const loadFont = <T extends keyof Variants>(
 
 `;
 
-  //  Format output
-  output = prettier.format(output, {
-    parser: "typescript",
-    singleQuote: true,
-    quoteProps: "consistent",
-    printWidth: 180,
-  });
-
   //  Save
   await fs.promises.writeFile(path.resolve(OUTDIR, filename), output);
-  if (!process.env.VERCEL && !process.env.CI) {
-    console.log(`- ${filename} generated`);
-  }
 };
 
 const run = async () => {
+  const date = Date.now();
+
   // Prepare css cache dir
   if (!fs.existsSync(CSS_CACHE_DIR)) {
     await fs.promises.mkdir(CSS_CACHE_DIR, { recursive: true });
@@ -190,7 +176,7 @@ const run = async () => {
     await generate(font);
   }
 
-  console.log("- All done");
+  console.log("- Generated fonts in " + (Date.now() - date) + "ms");
 };
 
 run();
