@@ -52,7 +52,7 @@
 		"ffmpeg",
 		"video",
 		"react",
-		"puppeteer",
+		"lottie",
 		"player"
 	],
 	"publishConfig": {

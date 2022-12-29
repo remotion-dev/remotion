@@ -56,7 +56,6 @@
 		"ffmpeg",
 		"video",
 		"react",
-		"puppeteer",
 		"player"
 	],
 	"publishConfig": {
