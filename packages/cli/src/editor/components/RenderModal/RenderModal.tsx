@@ -244,7 +244,6 @@ export const RenderModal: React.FC<{
 	]);
 
 	const onClickVideo = useCallback(() => {
-		console.log('codec: ' + videoCodec);
 		leftSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
 		addVideoRenderJob({
@@ -379,68 +378,27 @@ export const RenderModal: React.FC<{
 
 	const videoCodecOptions = useMemo((): SegmentedControlItem[] => {
 		// TODO: replace this hardcoded part with map
-		return [
-			{
-				label: 'h264',
-				onClick: () => setCodec('h264'),
-				key: 'h264',
-				selected: videoCodec === 'h264',
-			},
-			{
-				label: 'h265',
-				onClick: () => setCodec('h265'),
-				key: 'h265',
-				selected: videoCodec === 'h265',
-			},
-			{
-				label: 'vp8',
-				onClick: () => setCodec('vp8'),
-				key: 'vp8',
-				selected: videoCodec === 'vp8',
-			},
-			{
-				label: 'vp9',
-				onClick: () => setCodec('vp9'),
-				key: 'vp9',
-				selected: videoCodec === 'vp9',
-			},
-			{
-				label: 'mp3',
-				onClick: () => setCodec('mp3'),
-				key: 'mp3',
-				selected: videoCodec === 'mp3',
-			},
-			{
-				label: 'aac',
-				onClick: () => setCodec('aac'),
-				key: 'aac',
-				selected: videoCodec === 'aac',
-			},
-			{
-				label: 'wav',
-				onClick: () => setCodec('wav'),
-				key: 'wav',
-				selected: videoCodec === 'wav',
-			},
-			{
-				label: 'prores',
-				onClick: () => setCodec('prores'),
-				key: 'prores',
-				selected: videoCodec === 'prores',
-			},
-			{
-				label: 'h264-mkv',
-				onClick: () => setCodec('h264-mkv'),
-				key: 'h264-mkv',
-				selected: videoCodec === 'h264-mkv',
-			},
-			{
-				label: 'gif',
-				onClick: () => setCodec('gif'),
-				key: 'gif',
-				selected: videoCodec === 'gif',
-			},
-		];
+
+		const codecs = [
+			'h264',
+			'h265',
+			'vp8',
+			'vp9',
+			'mp3',
+			'aac',
+			'wav',
+			'prores',
+			'h264-mkv',
+			'gif',
+		] as const;
+		return codecs.map((codec) => {
+			return {
+				label: codec,
+				onClick: () => setCodec(codec),
+				key: codec,
+				selected: videoCodec === codec,
+			};
+		});
 	}, [setCodec, videoCodec]);
 
 	const renderTabOptions = useMemo((): SegmentedControlItem[] => {
