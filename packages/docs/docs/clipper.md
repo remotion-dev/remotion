@@ -44,7 +44,8 @@ The properties `x`, `y`, `width` and `height` define a rect in pixels that shoul
 <Step>2</Step> If the <code>imageFormat</code> is <code>jpeg</code>, the remaining frame will become black, if the <code>imageFormat</code> is <code>png</code>, the remaining frame will become transparent. 
 </p>
 <p>
-<Step>3</Step> If this component is rendered, an <a href="/docs/null"><code>{"<Experimental.Null>"}</code></a> component may not be rendered at the same time.
+<Step>3</Step> Only one <a href="/docs/null"><code>{"<Experimental.Null>"}</code></a> or <code>{"<Experimental.Clipper>"}</code> component can be rendered per frame.  
+ Rendering multiple is an error.
 </p>
 
 ## See also
