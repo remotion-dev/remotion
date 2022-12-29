@@ -86,13 +86,14 @@ type BaseMetadata = Pick<
 	'durationInFrames' | 'fps' | 'defaultProps' | 'height' | 'width'
 >;
 
-export type ClipRegion = {
-	x: number;
-	y: number;
-	width: number;
-	height: number;
-	hide: boolean;
-};
+export type ClipRegion =
+	| {
+			x: number;
+			y: number;
+			width: number;
+			height: number;
+	  }
+	| 'hide';
 
 export type CompositionManagerContext = {
 	compositions: TComposition[];
