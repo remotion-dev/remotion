@@ -1,7 +1,8 @@
 import './asset-types';
 import {Clipper} from './Clipper';
-import type {ClipRegion, TAsset, TCompMetadata} from './CompositionManager';
+import type {TAsset, TCompMetadata} from './CompositionManager';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning';
+import type {ClipRegion} from './NativeLayers';
 import {Null} from './Null';
 
 declare global {
@@ -56,12 +57,7 @@ checkMultipleRemotionVersions();
 export * from './AbsoluteFill';
 export * from './audio';
 export * from './Composition';
-export {
-	ClipRegion,
-	SmallTCompMetadata,
-	TAsset,
-	TCompMetadata,
-} from './CompositionManager';
+export {SmallTCompMetadata, TAsset, TCompMetadata} from './CompositionManager';
 export {Config, ConfigType} from './config';
 export {getInputProps} from './config/input-props';
 export * from './delay-render';
@@ -74,6 +70,7 @@ export * from './internals';
 export * from './interpolate';
 export {interpolateColors} from './interpolate-colors';
 export {Loop} from './loop';
+export {ClipRegion} from './NativeLayers';
 export {prefetch} from './prefetch';
 export {random, RandomSeed} from './random';
 export {registerRoot} from './register-root';

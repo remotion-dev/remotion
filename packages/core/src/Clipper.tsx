@@ -1,33 +1,22 @@
-import type {PropsWithChildren} from 'react';
-import React, {useContext, useEffect, useMemo} from 'react';
-import {AbsoluteFill} from './AbsoluteFill';
-import {CompositionManager} from './CompositionManager';
+import type React from 'react';
+import {useContext, useEffect} from 'react';
+import {NativeLayersContext} from './NativeLayers';
 
-export const Clipper: React.FC<
-	PropsWithChildren<{
-		width: number;
-		height: number;
-		x: number;
-		y: number;
-	}>
-> = ({height, width, x, y, children}) => {
-	const context = useContext(CompositionManager);
+export const Clipper: React.FC<{
+	width: number;
+	height: number;
+	x: number;
+	y: number;
+}> = ({height, width, x, y}) => {
+	const {setClipRegion} = useContext(NativeLayersContext);
 
 	useEffect(() => {
-		context.setClipRegion({height, width, x, y});
+		setClipRegion({height, width, x, y});
 
 		return () => {
-			context.setClipRegion(null);
+			setClipRegion(null);
 		};
-	}, [context, height, width, x, y]);
+	}, [height, setClipRegion, width, x, y]);
 
-	const style: React.CSSProperties = useMemo(() => {
-		return {
-			clipPath: `polygon(${x}px ${y}px, ${x}px ${height + y}px, ${
-				width + x
-			}px ${height + y}px, ${width + x}px ${y}px)`,
-		};
-	}, [height, width, x, y]);
-
-	return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
+	return null;
 };
