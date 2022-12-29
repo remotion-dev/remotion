@@ -21,5 +21,15 @@ export const Clipper: React.FC<
 		};
 	}, [context, height, width, x, y]);
 
-	return <AbsoluteFill>{children}</AbsoluteFill>;
+	return (
+		<AbsoluteFill
+			style={{
+				clipPath: `polygon(${x}px ${y}px, ${x}px ${height + y}px, ${
+					width + x
+				}px ${height + y}px, ${width + x}px ${y}px)`,
+			}}
+		>
+			{children}
+		</AbsoluteFill>
+	);
 };

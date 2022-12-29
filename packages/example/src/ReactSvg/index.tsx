@@ -1,7 +1,7 @@
 import React from 'react';
 import {
-	Clipper,
 	Easing,
+	Experimental,
 	interpolate,
 	useCurrentFrame,
 	useVideoConfig,
@@ -89,8 +89,7 @@ const ReactSvg: React.FC<{
 	const scale = frame < 70 ? scaleIn : scaleOut;
 
 	return (
-		<Clipper
-			hide={frame < 150}
+		<Experimental.Clipper
 			x={0}
 			y={0}
 			width={videoConfig.width / 2}
@@ -133,7 +132,7 @@ const ReactSvg: React.FC<{
 					{transparent ? null : <Black scale={scaleOutBlackDot} />}
 				</div>
 			</div>
-		</Clipper>
+		</Experimental.Clipper>
 	);
 };
 

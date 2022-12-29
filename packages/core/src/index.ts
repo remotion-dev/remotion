@@ -55,7 +55,6 @@ checkMultipleRemotionVersions();
 
 export * from './AbsoluteFill';
 export * from './audio';
-export {Clipper} from './Clipper';
 export * from './Composition';
 export {
 	ClipRegion,
