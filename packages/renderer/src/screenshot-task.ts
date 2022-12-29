@@ -44,21 +44,22 @@ export const screenshotTask = async ({
 		const result = await client.send('Page.captureScreenshot', {
 			format,
 			quality,
-			clip: clipRegion
-				? {
-						x: clipRegion.x,
-						y: clipRegion.y,
-						height: clipRegion.height,
-						scale: 1,
-						width: clipRegion.width,
-				  }
-				: {
-						x: 0,
-						y: 0,
-						height,
-						scale: 1,
-						width,
-				  },
+			clip:
+				clipRegion !== null && clipRegion !== 'hide'
+					? {
+							x: clipRegion.x,
+							y: clipRegion.y,
+							height: clipRegion.height,
+							scale: 1,
+							width: clipRegion.width,
+					  }
+					: {
+							x: 0,
+							y: 0,
+							height,
+							scale: 1,
+							width,
+					  },
 			captureBeyondViewport: true,
 			optimizeForSpeed: true,
 		});

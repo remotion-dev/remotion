@@ -1,6 +1,8 @@
 import './asset-types';
+import {Clipper} from './Clipper';
 import type {ClipRegion, TAsset, TCompMetadata} from './CompositionManager';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning';
+import {Null} from './Null';
 
 declare global {
 	interface Window {
@@ -87,3 +89,8 @@ export * from './use-video-config';
 export * from './version';
 export * from './video';
 export * from './video-config';
+
+export const Experimental = {
+	Clipper,
+	Null,
+};
