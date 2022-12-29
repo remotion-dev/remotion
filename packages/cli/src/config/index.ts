@@ -80,6 +80,7 @@ import {setMaxTimelineTracks} from './max-timeline-tracks';
 import {getMuted, setMuted} from './muted';
 import {getNumberOfGifLoops, setNumberOfGifLoops} from './number-of-gif-loops';
 import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
+import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
 import {overrideWebpackConfig} from './override-webpack';
@@ -104,6 +105,7 @@ export const Config: ConfigType = {
 		setKeyboardShortcutsEnabled,
 		setNumberOfSharedAudioTags,
 		setWebpackPollingInMilliseconds,
+		setShouldOpenBrowser,
 	},
 	Bundling: {
 		overrideWebpackConfig,
@@ -205,6 +207,7 @@ export const ConfigInternals = {
 	getEntryPoint,
 	getNumberOfGifLoops,
 	getWebpackPolling,
+	getShouldOpenBrowser,
 };
 
 export const overrideRemotion = () => {

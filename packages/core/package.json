@@ -1,6 +1,6 @@
 {
 	"name": "remotion",
-	"version": "3.3.18",
+	"version": "3.3.19",
 	"description": "Render videos in React",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -49,7 +49,6 @@
 		"ffmpeg",
 		"video",
 		"react",
-		"puppeteer",
 		"player"
 	],
 	"publishConfig": {

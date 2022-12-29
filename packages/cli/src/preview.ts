@@ -17,6 +17,31 @@ import {startServer} from './preview-server/start-server';
 
 const noop = () => undefined;
 
+const getShouldOpenBrowser = (): {
+	shouldOpenBrowser: boolean;
+	reasonForBrowserDecision: string;
+} => {
+	if (parsedCli['no-open']) {
+		return {
+			shouldOpenBrowser: false,
+			reasonForBrowserDecision: '--no-open specified',
+		};
+	}
+
+	if (process.env.BROWSER === 'none') {
+		return {
+			shouldOpenBrowser: false,
+			reasonForBrowserDecision: 'env BROWSER=none was set',
+		};
+	}
+
+	if (ConfigInternals.getShouldOpenBrowser() === false) {
+		return {shouldOpenBrowser: false, reasonForBrowserDecision: 'Config file'};
+	}
+
+	return {shouldOpenBrowser: true, reasonForBrowserDecision: 'default'};
+};
+
 export const previewCommand = async (remotionRoot: string, args: string[]) => {
 	const {file, reason} = findEntryPoint(args, remotionRoot);
 
@@ -84,6 +109,13 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 		Log.info(`Running on http://localhost:${port}`);
 	}
 
-	betterOpn(`http://localhost:${port}`);
+	const {reasonForBrowserDecision, shouldOpenBrowser} = getShouldOpenBrowser();
+
+	if (shouldOpenBrowser) {
+		betterOpn(`http://localhost:${port}`);
+	} else {
+		Log.verbose(`Not opening browser, reason: ${reasonForBrowserDecision}`);
+	}
+
 	await new Promise(noop);
 };

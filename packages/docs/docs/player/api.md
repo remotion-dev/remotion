@@ -439,6 +439,8 @@ If you play the video from a user gesture, pass the `SyntheticEvent` in as an ar
 ### `getCurrentFrame()`
 
 Gets the current position expressed as the current frame. Divide by the `fps` you passed to get the time in seconds.
+  
+[Special considerations must be made](https://www.remotion.dev/docs/player/current-time) if you want to display a component that synchronizes with the time of the player.
 
 ### `isPlaying()`
 

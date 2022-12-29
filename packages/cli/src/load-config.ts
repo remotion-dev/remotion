@@ -33,16 +33,7 @@ export const loadConfigFile = async (
 		tsconfig: isJavascript ? undefined : tsconfigJson,
 		absWorkingDir: remotionRoot,
 		outfile: out,
-		external: [
-			'remotion',
-			// Dependencies of babel-loader that trigger a warning when used
-			'react-refresh/babel',
-			'@babel/plugin-proposal-class-properties',
-			'@babel/preset-typescript',
-			'@babel/preset-react',
-			'babel-loader',
-			'@babel/preset-env',
-		],
+		packages: 'external',
 	});
 	if (result.errors.length > 0) {
 		Log.error('Error in remotion.config.ts file');
