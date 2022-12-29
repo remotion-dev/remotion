@@ -1,5 +1,5 @@
 import type {PropsWithChildren} from 'react';
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useMemo} from 'react';
 import {AbsoluteFill} from './AbsoluteFill';
 import {CompositionManager} from './CompositionManager';
 
@@ -21,15 +21,13 @@ export const Clipper: React.FC<
 		};
 	}, [context, height, width, x, y]);
 
-	return (
-		<AbsoluteFill
-			style={{
-				clipPath: `polygon(${x}px ${y}px, ${x}px ${height + y}px, ${
-					width + x
-				}px ${height + y}px, ${width + x}px ${y}px)`,
-			}}
-		>
-			{children}
-		</AbsoluteFill>
-	);
+	const style: React.CSSProperties = useMemo(() => {
+		return {
+			clipPath: `polygon(${x}px ${y}px, ${x}px ${height + y}px, ${
+				width + x
+			}px ${height + y}px, ${width + x}px ${y}px)`,
+		};
+	}, [height, width, x, y]);
+
+	return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
 };
