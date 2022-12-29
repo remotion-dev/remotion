@@ -81,6 +81,8 @@ module.exports = {
         "series",
         "folder",
         "easing",
+        "null",
+        "clipper",
       ],
     },
     {

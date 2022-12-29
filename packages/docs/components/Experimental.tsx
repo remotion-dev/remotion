@@ -6,10 +6,11 @@ export const ExperimentalBadge: React.FC<{
   return (
     <div
       style={{
-        backgroundColor: "rgba(246, 229, 141,0.3)",
+        backgroundColor: "rgba(246, 229, 141, 0.3)",
         borderRadius: 8,
         padding: "12px 12px",
         marginBottom: 24,
+        paddingBottom: 1,
       }}
     >
       <div
