@@ -27,12 +27,18 @@ export const getFinalOutputCodec = ({
 	configFile,
 	downloadName,
 	outName,
+	uiCodec,
 }: {
 	cliFlag: CodecOrUndefined;
 	outName: string | null;
 	downloadName: string | null;
 	configFile: Codec | null;
+	uiCodec: Codec | null;
 }): {codec: Codec; reason: string} => {
+	if (uiCodec) {
+		return {codec: uiCodec, reason: 'via UI'};
+	}
+
 	const downloadNameExtension =
 		RenderInternals.getExtensionOfFilename(downloadName);
 	const outNameExtension = RenderInternals.getExtensionOfFilename(outName);

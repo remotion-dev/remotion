@@ -377,8 +377,6 @@ export const RenderModal: React.FC<{
 	}, [imageFormat, renderMode, setStillFormat, videoImageFormat]);
 
 	const videoCodecOptions = useMemo((): SegmentedControlItem[] => {
-		// TODO: replace this hardcoded part with map
-
 		const codecs = [
 			'h264',
 			'h265',

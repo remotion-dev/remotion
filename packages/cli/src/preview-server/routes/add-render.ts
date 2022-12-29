@@ -8,14 +8,14 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 	remotionRoot,
 }): Promise<undefined> => {
 	const id = String(Math.random()).replace('0.', '');
+
 	if (input.type === 'video') {
 		addJob({
 			entryPoint,
 			remotionRoot,
 			job: {
 				cleanup: [],
-				// TODO: Allow to change codec
-				codec: 'h264',
+				codec: input.codec,
 				compositionId: input.compositionId,
 				deletedOutputLocation: false,
 				type: 'video',
