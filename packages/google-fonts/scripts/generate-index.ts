@@ -31,6 +31,24 @@ const generate = async () => {
   //  Save
   await fs.promises.writeFile(path.resolve(OUTDIR, filename), output);
   console.log(`- ${filename} generated`);
+
+  // Generate file for package.json
+  const packageFilename = `package.json`;
+  const read = JSON.parse(await fs.promises.readFile(packageFilename, "utf-8"));
+  for (const font of googleFonts) {
+    if (!read.typesVersions) read.typesVersions = {};
+    if (!read.typesVersions[">=1.0"]) read.typesVersions[">=1.0"] = {};
+    read.typesVersions[">=1.0"][removeWhitespace(unqoute(font.family))] = [
+      `dist/${removeWhitespace(unqoute(font.family))}.d.ts`,
+    ];
+    if (!read.exports) read.exports = {};
+    read.exports[
+      `./${removeWhitespace(unqoute(font.family))}`
+    ] = `./dist/${removeWhitespace(unqoute(font.family))}.js`;
+  }
+  read.exports["."] = `./dist/index.js`;
+
+  await fs.promises.writeFile(packageFilename, JSON.stringify(read, null, 2));
 };
 
 generate();

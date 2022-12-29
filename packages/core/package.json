@@ -1,6 +1,6 @@
 {
 	"name": "remotion",
-	"version": "3.3.18",
+	"version": "3.3.19",
 	"description": "Render videos in React",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -49,11 +49,23 @@
 		"ffmpeg",
 		"video",
 		"react",
-		"puppeteer",
 		"player"
 	],
 	"publishConfig": {
 		"access": "public"
 	},
-	"gitHead": "f0f1e39c890ea9451597e77870310646ee5fcf67"
+	"exports": {
+		".": "./dist/index.js",
+		"./version": "./dist/version.js"
+	},
+	"typesVersions": {
+		">=1.0": {
+			".": [
+				"dist/index.d.ts"
+			],
+			"version": [
+				"dist/version.d.ts"
+			]
+		}
+	}
 }

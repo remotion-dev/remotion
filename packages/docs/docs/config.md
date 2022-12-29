@@ -184,6 +184,19 @@ import { Config } from "remotion";
 Config.Preview.setNumberOfSharedAudioTags(5);
 ```
 
+### setShouldOpenBrowser()
+
+_available from v3.3.19_
+
+Whether Remotion should open a browser when starting the Preview. Default `false`.
+
+```ts twoslash
+import { Config } from "remotion";
+
+// ---cut---
+Config.Preview.setShouldOpenBrowser(false);
+```
+
 ## Puppeteer
 
 ### setBrowserExecutable()

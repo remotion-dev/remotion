@@ -22,6 +22,14 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const {durations, setDurations} = useContext(DurationsContext);
 
+	if (typeof props.src !== 'string') {
+		throw new TypeError(
+			`The \`<Audio>\` tag requires a string for \`src\`, but got ${JSON.stringify(
+				props.src
+			)} instead.`
+		);
+	}
+
 	const onError: React.ReactEventHandler<HTMLAudioElement> = useCallback(
 		(e) => {
 			console.log(e.currentTarget.error);

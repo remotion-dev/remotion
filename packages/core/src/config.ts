@@ -54,6 +54,12 @@ export type ConfigType = {
 		 * @default null
 		 */
 		readonly setWebpackPollingInMilliseconds: (interval: number | null) => void;
+		/**
+		 * Whether Remotion should open a browser when starting the Preview.
+		 * @param should
+		 * @default true
+		 */
+		readonly setShouldOpenBrowser: (should: boolean) => void;
 	};
 	readonly Bundling: {
 		/**

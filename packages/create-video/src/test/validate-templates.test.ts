@@ -33,8 +33,8 @@ for (const template of FEATURED_TEMPLATES) {
 		expect(body.dependencies.react).toMatch(/^\^?18/);
 		expect(body.dependencies['react-dom']).toMatch(/^\^?18/);
 
-		expect(body.devDependencies.prettier).toMatch(/^\^?2/);
-		expect(body.devDependencies.eslint).toMatch(/^\^?8/);
+		expect(body.devDependencies.prettier).toMatch(/^\^?2.8.1/);
+		expect(body.devDependencies.eslint).toMatch(/^\^?8.30/);
 		const eitherPluginOrConfig =
 			body.devDependencies['@remotion/eslint-config']?.match(/^\^?3/) ||
 			body.devDependencies['@remotion/eslint-plugin']?.match(/^\^?3/);

@@ -17,6 +17,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Audiogram](https://github.com/marcusstenbeck/template-audiogram)
 - [Skia](https://github.com/marcusstenbeck/template-skia)
 - [Tailwind](https://github.com/marcusstenbeck/template-tailwind)
+- [Hello World Template with pull request video previews](https://github.com/stoat-dev/example-remotion)
 
 ## SaaS starter Kits
 
@@ -47,8 +48,8 @@ This list tries to compile all templates, libraries, building blocks and example
 
 ## Full projects
 
-- [Github Unwrapped 2022](https://github.com/remotion-dev/github-unwrapped-2022)
-- [Github Unwrapped 2021](https://github.com/remotion-dev/github-unwrapped-2021)
+- [GitHub Unwrapped 2022](https://github.com/remotion-dev/github-unwrapped-2022)
+- [GitHub Unwrapped 2021](https://github.com/remotion-dev/github-unwrapped-2021)
 - [Podcast Maker](https://github.com/remotion-dev/podcast-maker)
 - [Stargazer](https://github.com/pomber/stargazer)
 - [MapSnap](https://companies.remotion.dev) _(exclusive for Company License subscribers)_
