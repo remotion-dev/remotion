@@ -41,6 +41,8 @@ type State =
 
 const initialState: State = {type: 'idle'};
 
+type RenderType = 'still' | 'video';
+
 type Action =
 	| {
 			type: 'start';
@@ -74,7 +76,14 @@ const reducer = (state: State, action: Action): State => {
 	return state;
 };
 
-const container: React.CSSProperties = {};
+const container: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'row',
+	alignItems: 'center',
+	padding: '12px 16px',
+	width: '100%',
+	borderBottom: '1px solid black',
+};
 
 const optionRow: React.CSSProperties = {
 	display: 'flex',
@@ -155,6 +164,7 @@ export const RenderModal: React.FC<{
 	const [imageFormat, setImageFormat] = useState<StillImageFormat>(
 		() => initialImageFormat
 	);
+	const [renderMode, setRenderMode] = useState<RenderType>('still');
 	const [quality, setQuality] = useState<number>(() => initialQuality ?? 80);
 	const [scale, setScale] = useState(() => initialScale);
 	const [verbose, setVerboseLogging] = useState(() => initialVerbose);
@@ -344,6 +354,23 @@ export const RenderModal: React.FC<{
 		];
 	}, [imageFormat, setJpeg, setPng]);
 
+	const renderTabOptions = useMemo((): SegmentedControlItem[] => {
+		return [
+			{
+				label: 'Still',
+				onClick: () => setRenderMode('still'),
+				key: 'still',
+				selected: renderMode === 'still',
+			},
+			{
+				label: 'Video',
+				onClick: () => setRenderMode('video'),
+				key: 'video',
+				selected: renderMode === 'video',
+			},
+		];
+	}, [renderMode]);
+
 	const onVerboseLoggingChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
 			setVerboseLogging(e.target.checked);
@@ -355,6 +382,9 @@ export const RenderModal: React.FC<{
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title={`Render ${compositionId}`} />
 			<div style={container}>
+				<SegmentedControl items={renderTabOptions} />
+			</div>
+			<div>
 				<Spacing block y={0.5} />
 				<div style={optionRow}>
 					<div style={label}>Format</div>
@@ -384,22 +414,26 @@ export const RenderModal: React.FC<{
 					</div>
 				</div>
 				<div style={optionRow}>
-					<div style={label}>Frame</div>
-					<div style={rightRow}>
-						<InputDragger
-							// TODO: Hide if it is a still
-							value={frame}
-							onChange={onFrameChanged}
-							// TODO: Actual frame
-							placeholder="0-100"
-							onValueChange={onFrameSetDirectly}
-							name="frame"
-							step={1}
-							min={0}
-							// TODO: Add actual frame
-							max={Infinity}
-						/>{' '}
-					</div>
+					{renderMode === 'still' ? (
+						<>
+							<div style={label}>Frame</div>
+							<div style={rightRow}>
+								<InputDragger
+									// TODO: Hide if it is a still
+									value={frame}
+									onChange={onFrameChanged}
+									// TODO: Actual frame
+									placeholder="0-100"
+									onValueChange={onFrameSetDirectly}
+									name="frame"
+									step={1}
+									min={0}
+									// TODO: Add actual frame
+									max={Infinity}
+								/>{' '}
+							</div>
+						</>
+					) : null}
 				</div>
 				<CollapsableOptions
 					showLabel="Show advanced settings"
@@ -452,21 +486,23 @@ export const RenderModal: React.FC<{
 				</CollapsableOptions>
 				<Spacing block y={0.5} />
 				<div style={buttonRow}>
-					<Button
-						autoFocus
-						onClick={onClickVideo}
-						disabled={state.type === 'load'}
-					>
-						{state.type === 'idle' ? 'Render video' : 'Rendering...'}
-					</Button>
-					<Spacing block x={0.5} />
-					<Button
-						autoFocus
-						onClick={onClickStill}
-						disabled={state.type === 'load'}
-					>
-						{state.type === 'idle' ? 'Render still' : 'Rendering...'}
-					</Button>
+					{renderMode === 'still' ? (
+						<Button
+							autoFocus
+							onClick={onClickStill}
+							disabled={state.type === 'load'}
+						>
+							{state.type === 'idle' ? 'Render still' : 'Rendering...'}
+						</Button>
+					) : (
+						<Button
+							autoFocus
+							onClick={onClickVideo}
+							disabled={state.type === 'load'}
+						>
+							{state.type === 'idle' ? 'Render video' : 'Rendering...'}
+						</Button>
+					)}
 				</div>
 			</div>
 		</ModalContainer>
