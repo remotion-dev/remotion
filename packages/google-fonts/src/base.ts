@@ -17,6 +17,7 @@ export const loadFonts = (
   options?: {
     weights?: string[];
     subsets?: string[];
+    document?: Document;
   }
 ): {
   fontFamily: FontInfo["fontFamily"];
