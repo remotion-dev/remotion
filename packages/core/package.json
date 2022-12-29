@@ -55,5 +55,8 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"gitHead": "f0f1e39c890ea9451597e77870310646ee5fcf67"
+	"exports": {
+		".": "./dist/index.js",
+		"./version": "./dist/version.js"
+	}
 }
