@@ -1,4 +1,6 @@
-import type {StillImageFormat} from '@remotion/renderer';
+import type {Codec, StillImageFormat} from '@remotion/renderer';
+// TODO: refactor such that importing from '@remotion/renderer/src/get-extension-from-codec' is no longer needed
+import {getFileExtensionFromCodec} from '@remotion/renderer/src/get-extension-from-codec';
 import type {ChangeEvent, ChangeEventHandler} from 'react';
 import React, {
 	useCallback,
@@ -25,6 +27,8 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {leftSidebarTabs} from '../SidebarContent';
 
+// TODO: fix pointer down inside, pointer
+
 type State =
 	| {
 			type: 'idle';
@@ -40,6 +44,8 @@ type State =
 	  };
 
 const initialState: State = {type: 'idle'};
+
+type RenderType = 'still' | 'video';
 
 type Action =
 	| {
@@ -74,7 +80,14 @@ const reducer = (state: State, action: Action): State => {
 	return state;
 };
 
-const container: React.CSSProperties = {};
+const container: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'row',
+	alignItems: 'center',
+	padding: '12px 16px',
+	width: '100%',
+	borderBottom: '1px solid black',
+};
 
 const optionRow: React.CSSProperties = {
 	display: 'flex',
@@ -155,6 +168,10 @@ export const RenderModal: React.FC<{
 	const [imageFormat, setImageFormat] = useState<StillImageFormat>(
 		() => initialImageFormat
 	);
+	const [videoCodec, setVideoCodec] = useState<Codec>('h264');
+	const [videoImageFormat, setVideoImageFormat] =
+		useState<StillImageFormat>('jpeg');
+	const [renderMode, setRenderMode] = useState<RenderType>('still');
 	const [quality, setQuality] = useState<number>(() => initialQuality ?? 80);
 	const [scale, setScale] = useState(() => initialScale);
 	const [verbose, setVerboseLogging] = useState(() => initialVerbose);
@@ -172,25 +189,26 @@ export const RenderModal: React.FC<{
 		[]
 	);
 
-	const setPng = useCallback(() => {
-		setImageFormat('png');
-		setOutName((prev) => {
-			if (prev.endsWith('.jpeg') || prev.endsWith('.jpg')) {
-				return prev.replace(/.jpe?g$/g, '.png');
-			}
+	const getStringBeforeSuffix = useCallback((fileName: string) => {
+		const dotPos = fileName.lastIndexOf('.');
+		const bitBeforeDot = fileName.substring(0, dotPos);
+		return bitBeforeDot;
+	}, []);
 
-			return prev;
+	const setCodec = useCallback((codec: Codec) => {
+		setVideoCodec(codec);
+		setOutName((prev) => {
+			const codecSuffix = getFileExtensionFromCodec(codec, 'final');
+			const newFileName = getStringBeforeSuffix(prev) + '.' + codecSuffix;
+			return newFileName;
 		});
 	}, []);
 
-	const setJpeg = useCallback(() => {
-		setImageFormat('jpeg');
+	const setStillFormat = useCallback((format: StillImageFormat) => {
+		setImageFormat(format);
 		setOutName((prev) => {
-			if (prev.endsWith('.png')) {
-				return prev.replace(/.png$/g, '.jpeg');
-			}
-
-			return prev;
+			const newFileName = getStringBeforeSuffix(prev) + '.' + format;
+			return newFileName;
 		});
 	}, []);
 
@@ -231,12 +249,12 @@ export const RenderModal: React.FC<{
 		addVideoRenderJob({
 			compositionId,
 			outName,
-			imageFormat,
+			imageFormat: videoImageFormat,
 			quality: imageFormat === 'jpeg' ? quality : null,
 			scale,
 			verbose,
 			// TODO: Make this configurable
-			codec: 'h264',
+			codec: videoCodec,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -254,6 +272,8 @@ export const RenderModal: React.FC<{
 		scale,
 		setSelectedModal,
 		verbose,
+		videoCodec,
+		videoImageFormat,
 	]);
 
 	const onQualityChangedDirectly = useCallback((newQuality: number) => {
@@ -331,18 +351,78 @@ export const RenderModal: React.FC<{
 		return [
 			{
 				label: 'PNG',
-				onClick: setPng,
+				onClick:
+					renderMode === 'still'
+						? () => setStillFormat('png')
+						: () => setVideoImageFormat('png'),
 				key: 'png',
-				selected: imageFormat === 'png',
+				selected:
+					renderMode === 'still'
+						? imageFormat === 'png'
+						: videoImageFormat === 'png',
 			},
 			{
 				label: 'JPEG',
-				onClick: setJpeg,
+				onClick:
+					renderMode === 'still'
+						? () => setStillFormat('jpeg')
+						: () => setVideoImageFormat('jpeg'),
 				key: 'jpeg',
-				selected: imageFormat === 'jpeg',
+				selected:
+					renderMode === 'still'
+						? imageFormat === 'jpeg'
+						: videoImageFormat === 'jpeg',
 			},
 		];
-	}, [imageFormat, setJpeg, setPng]);
+	}, [imageFormat, renderMode, setStillFormat, videoImageFormat]);
+
+	const videoCodecOptions = useMemo((): SegmentedControlItem[] => {
+		// TODO: replace this hardcoded part with map
+
+		const codecs = [
+			'h264',
+			'h265',
+			'vp8',
+			'vp9',
+			'mp3',
+			'aac',
+			'wav',
+			'prores',
+			'h264-mkv',
+			'gif',
+		] as const;
+		return codecs.map((codec) => {
+			return {
+				label: codec,
+				onClick: () => setCodec(codec),
+				key: codec,
+				selected: videoCodec === codec,
+			};
+		});
+	}, [setCodec, videoCodec]);
+
+	const renderTabOptions = useMemo((): SegmentedControlItem[] => {
+		return [
+			{
+				label: 'Still',
+				onClick: () => {
+					setRenderMode('still');
+					setStillFormat(imageFormat);
+				},
+				key: 'still',
+				selected: renderMode === 'still',
+			},
+			{
+				label: 'Video',
+				onClick: () => {
+					setRenderMode('video');
+					setCodec(videoCodec);
+				},
+				key: 'video',
+				selected: renderMode === 'video',
+			},
+		];
+	}, [imageFormat, renderMode, setCodec, setStillFormat, videoCodec]);
 
 	const onVerboseLoggingChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
@@ -355,11 +435,18 @@ export const RenderModal: React.FC<{
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title={`Render ${compositionId}`} />
 			<div style={container}>
+				<SegmentedControl items={renderTabOptions} />
+			</div>
+			<div>
 				<Spacing block y={0.5} />
 				<div style={optionRow}>
-					<div style={label}>Format</div>
+					<div style={label}>{renderMode === 'still' ? 'Format' : 'Codec'}</div>
 					<div style={rightRow}>
-						<SegmentedControl items={imageFormatOptions} />
+						<SegmentedControl
+							items={
+								renderMode === 'still' ? imageFormatOptions : videoCodecOptions
+							}
+						/>
 					</div>
 				</div>
 				<div style={optionRow}>
@@ -383,23 +470,30 @@ export const RenderModal: React.FC<{
 						</div>
 					</div>
 				</div>
-				<div style={optionRow}>
-					<div style={label}>Frame</div>
-					<div style={rightRow}>
-						<InputDragger
-							// TODO: Hide if it is a still
-							value={frame}
-							onChange={onFrameChanged}
-							// TODO: Actual frame
-							placeholder="0-100"
-							onValueChange={onFrameSetDirectly}
-							name="frame"
-							step={1}
-							min={0}
-							// TODO: Add actual frame
-							max={Infinity}
-						/>{' '}
-					</div>
+				<div
+					style={optionRow}
+					// TODO: Add framerange for video
+				>
+					{renderMode === 'still' && (
+						<>
+							<div style={label}>Frame</div>
+							<div style={rightRow}>
+								<InputDragger
+									// TODO: Hide if it is a still
+									value={frame}
+									onChange={onFrameChanged}
+									// TODO: Actual frame
+									placeholder="0-100"
+									onValueChange={onFrameSetDirectly}
+									name="frame"
+									step={1}
+									min={0}
+									// TODO: Add actual frame
+									max={Infinity}
+								/>{' '}
+							</div>
+						</>
+					)}
 				</div>
 				<CollapsableOptions
 					showLabel="Show advanced settings"
@@ -432,7 +526,16 @@ export const RenderModal: React.FC<{
 							/>
 						</div>
 					</div>
-					{imageFormat === 'jpeg' && (
+					{renderMode === 'video' && (
+						<div style={optionRow}>
+							<div style={label}>Image Format</div>
+							<div style={rightRow}>
+								<SegmentedControl items={imageFormatOptions} />
+							</div>
+						</div>
+					)}
+					{/* TODO: check if jpeg quality for still and video should be handled seperately */}
+					{(imageFormat === 'jpeg' || videoImageFormat === 'jpeg') && (
 						<div style={optionRow}>
 							<div style={label}>JPEG Quality</div>
 							<div style={rightRow}>
@@ -452,21 +555,23 @@ export const RenderModal: React.FC<{
 				</CollapsableOptions>
 				<Spacing block y={0.5} />
 				<div style={buttonRow}>
-					<Button
-						autoFocus
-						onClick={onClickVideo}
-						disabled={state.type === 'load'}
-					>
-						{state.type === 'idle' ? 'Render video' : 'Rendering...'}
-					</Button>
-					<Spacing block x={0.5} />
-					<Button
-						autoFocus
-						onClick={onClickStill}
-						disabled={state.type === 'load'}
-					>
-						{state.type === 'idle' ? 'Render still' : 'Rendering...'}
-					</Button>
+					{renderMode === 'still' ? (
+						<Button
+							autoFocus
+							onClick={onClickStill}
+							disabled={state.type === 'load'}
+						>
+							{state.type === 'idle' ? 'Render still' : 'Rendering...'}
+						</Button>
+					) : (
+						<Button
+							autoFocus
+							onClick={onClickVideo}
+							disabled={state.type === 'load'}
+						>
+							{state.type === 'idle' ? 'Render video' : 'Rendering...'}
+						</Button>
+					)}
 				</div>
 			</div>
 		</ModalContainer>
