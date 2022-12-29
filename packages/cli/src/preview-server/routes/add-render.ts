@@ -8,7 +8,6 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 	remotionRoot,
 }): Promise<undefined> => {
 	const id = String(Math.random()).replace('0.', '');
-
 	if (input.type === 'video') {
 		addJob({
 			entryPoint,
