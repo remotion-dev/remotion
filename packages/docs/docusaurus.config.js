@@ -105,6 +105,10 @@ module.exports = {
               to: "/lambda",
             },
             {
+              label: "Learn",
+              to: "/learn",
+            },
+            {
               label: "Changelog",
               href: "https://github.com/remotion-dev/remotion/releases",
             },
@@ -142,9 +146,15 @@ module.exports = {
             },
             {
               label: "Instagram",
-              href: "https://instagram.com/remotion.dev",
+              href: "https://instagram.com/remotion",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Instagram",
+            },
+            {
+              label: "LinkedIn",
+              href: "https://www.linkedin.com/company/remotion-dev/",
+              "data-splitbee-event": "External Link",
+              "data-splitbee-event-target": "LinkedIn",
             },
             {
               label: "TikTok",
@@ -172,6 +182,10 @@ module.exports = {
             {
               label: "Support",
               to: "/docs/support",
+            },
+            {
+              label: "License",
+              href: "https://remotion.dev/license",
             },
             {
               label: "For companies",

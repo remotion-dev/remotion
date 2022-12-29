@@ -61,3 +61,9 @@ _Available from v3.3.11_
 
 [Enables Webpack polling](/docs/config#setwebpackpollinginmilliseconds) instead of the file system event listeners for hot reloading. This is useful if you are inside a virtual machine or have a remote file system.
 Pass a value in milliseconds, for example `--webpack-poll=1000`.
+
+### `--no-open`
+
+_Available from v3.3.19_
+
+[Prevents Remotion from trying to open a browser](/docs/config#setshouldopenbrowser). This is useful if you use a different browser for Remotion than the operating system default.

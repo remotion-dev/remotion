@@ -28,7 +28,7 @@ importers:
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
       react-refresh: 0.9.0
-      remotion: 3.3.18
+      remotion: 3.3.19
       typescript: ^4.7.0
       webpack: 5.74.0
     dependencies:
@@ -60,7 +60,7 @@ importers:
       '@typescript-eslint/eslint-plugin': 5.18.0
       '@typescript-eslint/parser': 5.18.0
       css-loader: 5.2.7
-      esbuild: 0.15.13
+      esbuild: 0.16.12
       eslint: 8.25.0
       eslint-plugin-10x: 1.5.2
       eslint-plugin-react: 7.29.4
@@ -70,18 +70,18 @@ importers:
       react: ^18.0.0
       react-dom: ^18.0.0
       react-refresh: 0.9.0
-      remotion: 3.3.18
+      remotion: 3.3.19
       style-loader: 2.0.0
       typescript: ^4.7.0
       vitest: 0.24.3
       webpack: 5.74.0
     dependencies:
       css-loader: 5.2.7_webpack@5.74.0
-      esbuild: 0.15.13
+      esbuild: 0.16.12
       react-refresh: 0.9.0
       remotion: link:../core
       style-loader: 2.0.0_webpack@5.74.0
-      webpack: 5.74.0_esbuild@0.15.13
+      webpack: 5.74.0_esbuild@0.16.12
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
       '@types/node': 16.10.2
@@ -104,10 +104,10 @@ importers:
   packages/cli:
     specifiers:
       '@jonny/eslint-config': 3.0.266
-      '@remotion/bundler': 3.3.18
-      '@remotion/media-utils': 3.3.18
-      '@remotion/player': 3.3.18
-      '@remotion/renderer': 3.3.18
+      '@remotion/bundler': 3.3.19
+      '@remotion/media-utils': 3.3.19
+      '@remotion/player': 3.3.19
+      '@remotion/renderer': 3.3.19
       '@types/minimist': ^1.2.2
       '@types/node': ^16.7.5
       '@types/prompts': ^2.4.1
@@ -130,7 +130,7 @@ importers:
       prompts: 2.4.1
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.3.18
+      remotion: 3.3.19
       semver: 7.3.5
       source-map: 0.6.1
       typescript: ^4.7.0
@@ -269,22 +269,22 @@ importers:
       '@docusaurus/theme-common': 2.2.0
       '@jonny/eslint-config': 3.0.266
       '@mdx-js/react': ^1.6.21
-      '@remotion/babel-loader': 3.3.18
-      '@remotion/bundler': 3.3.18
-      '@remotion/cli': 3.3.18
-      '@remotion/gif': 3.3.18
-      '@remotion/google-fonts': 3.3.18
-      '@remotion/lambda': 3.3.18
-      '@remotion/lottie': 3.3.18
-      '@remotion/media-utils': 3.3.18
-      '@remotion/motion-blur': 3.3.18
-      '@remotion/noise': 3.3.18
-      '@remotion/paths': 3.3.18
-      '@remotion/player': 3.3.18
-      '@remotion/preload': 3.3.18
-      '@remotion/renderer': 3.3.18
-      '@remotion/skia': 3.3.18
-      '@remotion/three': 3.3.18
+      '@remotion/babel-loader': 3.3.19
+      '@remotion/bundler': 3.3.19
+      '@remotion/cli': 3.3.19
+      '@remotion/gif': 3.3.19
+      '@remotion/google-fonts': 3.3.19
+      '@remotion/lambda': 3.3.19
+      '@remotion/lottie': 3.3.19
+      '@remotion/media-utils': 3.3.19
+      '@remotion/motion-blur': 3.3.19
+      '@remotion/noise': 3.3.19
+      '@remotion/paths': 3.3.19
+      '@remotion/player': 3.3.19
+      '@remotion/preload': 3.3.19
+      '@remotion/renderer': 3.3.19
+      '@remotion/skia': 3.3.19
+      '@remotion/three': 3.3.19
       '@shopify/react-native-skia': ^0.1.139
       '@splitbee/web': ^0.2.4
       '@tsconfig/docusaurus': ^1.0.5
@@ -298,7 +298,7 @@ importers:
       clsx: ^1.1.1
       color-namer: 1.4.0
       copy-text-to-clipboard: ^2
-      create-video: 3.3.18
+      create-video: 3.3.19
       eslint: 8.25.0
       got: ^11
       hls.js: ^0.14.17
@@ -311,7 +311,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0
       remark-shiki-twoslash: ^3.1.0
-      remotion: 3.3.18
+      remotion: 3.3.19
       three: 0.145.0
       typescript: ^4.7.0
       url-loader: ^4.1.1
@@ -378,7 +378,7 @@ importers:
 
   packages/eslint-config:
     specifiers:
-      '@remotion/eslint-plugin': 3.3.18
+      '@remotion/eslint-plugin': 3.3.19
       '@types/node': 17.0.17
       '@typescript-eslint/eslint-plugin': 5.19.0
       '@typescript-eslint/parser': 5.19.0
@@ -419,19 +419,19 @@ importers:
       '@babel/preset-react': 7.12.13
       '@mdx-js/react': ^1.6.21
       '@react-three/drei': ^9.37.0
-      '@remotion/babel-loader': 3.3.18
-      '@remotion/bundler': 3.3.18
-      '@remotion/cli': 3.3.18
-      '@remotion/eslint-config': 3.3.18
-      '@remotion/eslint-plugin': 3.3.18
-      '@remotion/gif': 3.3.18
-      '@remotion/google-fonts': 3.3.18
-      '@remotion/lambda': 3.3.18
-      '@remotion/lottie': 3.3.18
-      '@remotion/media-utils': 3.3.18
-      '@remotion/paths': 3.3.18
-      '@remotion/renderer': 3.3.18
-      '@remotion/three': 3.3.18
+      '@remotion/babel-loader': 3.3.19
+      '@remotion/bundler': 3.3.19
+      '@remotion/cli': 3.3.19
+      '@remotion/eslint-config': 3.3.19
+      '@remotion/eslint-plugin': 3.3.19
+      '@remotion/gif': 3.3.19
+      '@remotion/google-fonts': 3.3.19
+      '@remotion/lambda': 3.3.19
+      '@remotion/lottie': 3.3.19
+      '@remotion/media-utils': 3.3.19
+      '@remotion/paths': 3.3.19
+      '@remotion/renderer': 3.3.19
+      '@remotion/three': 3.3.19
       '@types/babel__core': ^7.1.12
       '@types/babel__template': ^7.4.0
       '@types/express': ^4.17.11
@@ -451,7 +451,7 @@ importers:
       polished: ^4.0.5
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.3.18
+      remotion: 3.3.19
       styled-components: ^5.1.1
       ts-unused-exports: ^7.0.1
       typescript: ^4.7.0
@@ -509,6 +509,7 @@ importers:
       '@types/node': ^16.7.5
       '@types/react': 18.0.23
       '@types/react-dom': 18.0.0
+      esbuild: 0.16.12
       eslint: 8.25.0
       gifuct-js: 2.1.2
       lru_map: 0.4.1
@@ -516,7 +517,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.3.18
+      remotion: 3.3.19
       typescript: ^4.7.0
       webpack: 5.74.0
     dependencies:
@@ -528,13 +529,14 @@ importers:
       '@types/node': 16.10.2
       '@types/react': 18.0.23
       '@types/react-dom': 18.0.0
+      esbuild: 0.16.12
       eslint: 8.25.0
       prettier: 2.6.2
       prettier-plugin-organize-imports: 2.3.4_lbsuufegg2dnc4wh6qgf26kgdy
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
       typescript: 4.7.2
-      webpack: 5.74.0
+      webpack: 5.74.0_esbuild@0.16.12
 
   packages/google-fonts:
     specifiers:
@@ -544,7 +546,7 @@ importers:
       got: ^11
       postcss: ^8.4.18
       prettier: ^2.7.1
-      remotion: 3.3.18
+      remotion: 3.3.19
       ts-node: ^10.8.0
       typescript: ^4.7.0
     dependencies:
@@ -561,13 +563,13 @@ importers:
 
   packages/it-tests:
     specifiers:
-      '@remotion/bundler': 3.3.18
-      '@remotion/cli': 3.3.18
-      '@remotion/lambda': 3.3.18
-      '@remotion/renderer': 3.3.18
+      '@remotion/bundler': 3.3.19
+      '@remotion/cli': 3.3.19
+      '@remotion/lambda': 3.3.19
+      '@remotion/renderer': 3.3.19
       '@types/sharp': ^0.28.5
       execa: 5.1.1
-      remotion: 3.3.18
+      remotion: 3.3.19
       sharp: 0.30.6
       typescript: ^4.7.0
       vitest: 0.24.3
@@ -596,9 +598,9 @@ importers:
       '@aws-sdk/lib-storage': 3.215.0
       '@aws-sdk/s3-request-presigner': 3.215.0
       '@jonny/eslint-config': 3.0.266
-      '@remotion/bundler': 3.3.18
-      '@remotion/cli': 3.3.18
-      '@remotion/renderer': 3.3.18
+      '@remotion/bundler': 3.3.19
+      '@remotion/cli': 3.3.19
+      '@remotion/renderer': 3.3.19
       '@types/mime-types': 2.1.1
       '@types/minimist': 1.2.2
       '@types/node': ^14.14.14
@@ -610,7 +612,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
-      remotion: 3.3.18
+      remotion: 3.3.19
       ts-node: ^10.8.0
       typescript: ^4.7.0
       vitest: ^0.24.3
@@ -660,7 +662,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.3.18
+      remotion: 3.3.19
       typescript: ^4.7.0
       vitest: 0.24.3
     dependencies:
@@ -689,7 +691,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
-      remotion: 3.3.18
+      remotion: 3.3.19
       typescript: ^4.7.0
     dependencies:
       react: 18.0.0
@@ -713,7 +715,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.3.18
+      remotion: 3.3.19
       typescript: ^4.7.0
     dependencies:
       remotion: link:../core
@@ -734,7 +736,7 @@ importers:
       eslint: 8.25.0
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.3.18
+      remotion: 3.3.19
       simplex-noise: 4.0.1
       typescript: ^4.7.0
       vitest: 0.24.3
@@ -783,7 +785,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.3.18
+      remotion: 3.3.19
       typescript: ^4.7.0
       vitest: 0.24.3
       webpack: 5.74.0
@@ -810,17 +812,17 @@ importers:
   packages/player-example:
     specifiers:
       '@pmmmwh/react-refresh-webpack-plugin': ^0.5.3
-      '@remotion/bundler': 3.3.18
-      '@remotion/eslint-config': 3.3.18
-      '@remotion/gif': 3.3.18
-      '@remotion/player': 3.3.18
-      '@remotion/preload': 3.3.18
+      '@remotion/bundler': 3.3.19
+      '@remotion/eslint-config': 3.3.19
+      '@remotion/gif': 3.3.19
+      '@remotion/player': 3.3.19
+      '@remotion/preload': 3.3.19
       '@types/node': ^12.0.0
       '@types/react': 18.0.23
       '@types/react-dom': 18.0.0
       browserslist: ^4.21.4
       camelcase: ^6.2.1
-      esbuild: 0.15.13
+      esbuild: 0.16.12
       eslint: ^8.3.0
       fs-extra: ^10.0.0
       html-webpack-plugin: ^5.5.0
@@ -828,7 +830,7 @@ importers:
       react-dev-utils: ^12.0.1
       react-dom: 18.0.0
       react-refresh: ^0.11.0
-      remotion: 3.3.18
+      remotion: 3.3.19
       typescript: ^4.7.0
       webpack: 5.74.0
       webpack-dev-server: ^4.6.0
@@ -844,7 +846,7 @@ importers:
       '@types/react-dom': 18.0.0
       browserslist: 4.21.4
       camelcase: 6.3.0
-      esbuild: 0.15.13
+      esbuild: 0.16.12
       eslint: 8.13.0
       fs-extra: 10.1.0
       html-webpack-plugin: 5.5.0_webpack@5.74.0
@@ -854,7 +856,7 @@ importers:
       react-refresh: 0.11.0
       remotion: link:../core
       typescript: 4.7.2
-      webpack: 5.74.0_esbuild@0.15.13
+      webpack: 5.74.0_esbuild@0.16.12
       webpack-dev-server: 4.8.1_webpack@5.74.0
 
   packages/preload:
@@ -887,7 +889,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.3.18
+      remotion: 3.3.19
       source-map: ^0.8.0-beta.0
       typescript: ^4.7.0
       vitest: 0.24.3
@@ -926,7 +928,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.3.18
+      remotion: 3.3.19
       typescript: ^4.7.0
     dependencies:
       copy-webpack-plugin: 11.0.0_webpack@5.74.0
@@ -957,7 +959,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.3.18
+      remotion: 3.3.19
       three: ^0.145.0
       typescript: ^4.7.0
     dependencies:
@@ -6558,22 +6560,180 @@ packages:
     resolution: {integrity: sha512-OWORNpfjMsSSUBVrRBVGECkhWcULOAJz9ZW8uK9qgxD+87M7jHRcvh/A96XXNhXTLmKcoYSQtBEX7lHMO7YRwg==}
     dev: false
 
-  /@esbuild/android-arm/0.15.13:
-    resolution: {integrity: sha512-RY2fVI8O0iFUNvZirXaQ1vMvK0xhCcl0gqRj74Z6yEiO1zAUa7hbsdwZM1kzqbxHK7LFyMizipfXT3JME+12Hw==}
+  /@esbuild/android-arm/0.16.12:
+    resolution: {integrity: sha512-CTWgMJtpCyCltrvipZrrcjjRu+rzm6pf9V8muCsJqtKujR3kPmU4ffbckvugNNaRmhxAF1ZI3J+0FUIFLFg8KA==}
     engines: {node: '>=12'}
     cpu: [arm]
     os: [android]
     requiresBuild: true
-    dev: false
     optional: true
 
-  /@esbuild/linux-loong64/0.15.13:
-    resolution: {integrity: sha512-+BoyIm4I8uJmH/QDIH0fu7MG0AEx9OXEDXnqptXCwKOlOqZiS4iraH1Nr7/ObLMokW3sOCeBNyD68ATcV9b9Ag==}
+  /@esbuild/android-arm64/0.16.12:
+    resolution: {integrity: sha512-0LacmiIW+X0/LOLMZqYtZ7d4uY9fxYABAYhSSOu+OGQVBqH4N5eIYgkT7bBFnR4Nm3qo6qS3RpHKVrDASqj/uQ==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [android]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/android-x64/0.16.12:
+    resolution: {integrity: sha512-sS5CR3XBKQXYpSGMM28VuiUnbX83Z+aWPZzClW+OB2JquKqxoiwdqucJ5qvXS8pM6Up3RtJfDnRQZkz3en2z5g==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [android]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/darwin-arm64/0.16.12:
+    resolution: {integrity: sha512-Dpe5hOAQiQRH20YkFAg+wOpcd4PEuXud+aGgKBQa/VriPJA8zuVlgCOSTwna1CgYl05lf6o5els4dtuyk1qJxQ==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [darwin]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/darwin-x64/0.16.12:
+    resolution: {integrity: sha512-ApGRA6X5txIcxV0095X4e4KKv87HAEXfuDRcGTniDWUUN+qPia8sl/BqG/0IomytQWajnUn4C7TOwHduk/FXBQ==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/freebsd-arm64/0.16.12:
+    resolution: {integrity: sha512-AMdK2gA9EU83ccXCWS1B/KcWYZCj4P3vDofZZkl/F/sBv/fphi2oUqUTox/g5GMcIxk8CF1CVYTC82+iBSyiUg==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [freebsd]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/freebsd-x64/0.16.12:
+    resolution: {integrity: sha512-KUKB9w8G/xaAbD39t6gnRBuhQ8vIYYlxGT2I+mT6UGRnCGRr1+ePFIGBQmf5V16nxylgUuuWVW1zU2ktKkf6WQ==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [freebsd]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/linux-arm/0.16.12:
+    resolution: {integrity: sha512-vhDdIv6z4eL0FJyNVfdr3C/vdd/Wc6h1683GJsFoJzfKb92dU/v88FhWdigg0i6+3TsbSDeWbsPUXb4dif2abg==}
+    engines: {node: '>=12'}
+    cpu: [arm]
+    os: [linux]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/linux-arm64/0.16.12:
+    resolution: {integrity: sha512-29HXMLpLklDfmw7T2buGqq3HImSUaZ1ArmrPOMaNiZZQptOSZs32SQtOHEl8xWX5vfdwZqrBfNf8Te4nArVzKQ==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/linux-ia32/0.16.12:
+    resolution: {integrity: sha512-JFDuNDTTfgD1LJg7wHA42o2uAO/9VzHYK0leAVnCQE/FdMB599YMH73ux+nS0xGr79pv/BK+hrmdRin3iLgQjg==}
+    engines: {node: '>=12'}
+    cpu: [ia32]
+    os: [linux]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/linux-loong64/0.16.12:
+    resolution: {integrity: sha512-xTGzVPqm6WKfCC0iuj1fryIWr1NWEM8DMhAIo+4rFgUtwy/lfHl+Obvus4oddzRDbBetLLmojfVZGmt/g/g+Rw==}
     engines: {node: '>=12'}
     cpu: [loong64]
     os: [linux]
     requiresBuild: true
-    dev: false
+    optional: true
+
+  /@esbuild/linux-mips64el/0.16.12:
+    resolution: {integrity: sha512-zI1cNgHa3Gol+vPYjIYHzKhU6qMyOQrvZ82REr5Fv7rlh5PG6SkkuCoH7IryPqR+BK2c/7oISGsvPJPGnO2bHQ==}
+    engines: {node: '>=12'}
+    cpu: [mips64el]
+    os: [linux]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/linux-ppc64/0.16.12:
+    resolution: {integrity: sha512-/C8OFXExoMmvTDIOAM54AhtmmuDHKoedUd0Otpfw3+AuuVGemA1nQK99oN909uZbLEU6Bi+7JheFMG3xGfZluQ==}
+    engines: {node: '>=12'}
+    cpu: [ppc64]
+    os: [linux]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/linux-riscv64/0.16.12:
+    resolution: {integrity: sha512-qeouyyc8kAGV6Ni6Isz8hUsKMr00EHgVwUKWNp1r4l88fHEoNTDB8mmestvykW6MrstoGI7g2EAsgr0nxmuGYg==}
+    engines: {node: '>=12'}
+    cpu: [riscv64]
+    os: [linux]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/linux-s390x/0.16.12:
+    resolution: {integrity: sha512-s9AyI/5vz1U4NNqnacEGFElqwnHusWa81pskAf8JNDM2eb6b2E6PpBmT8RzeZv6/TxE6/TADn2g9bb0jOUmXwQ==}
+    engines: {node: '>=12'}
+    cpu: [s390x]
+    os: [linux]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/linux-x64/0.16.12:
+    resolution: {integrity: sha512-e8YA7GQGLWhvakBecLptUiKxOk4E/EPtSckS1i0MGYctW8ouvNUoh7xnU15PGO2jz7BYl8q1R6g0gE5HFtzpqQ==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/netbsd-x64/0.16.12:
+    resolution: {integrity: sha512-z2+kUxmOqBS+6SRVd57iOLIHE8oGOoEnGVAmwjm2aENSP35HPS+5cK+FL1l+rhrsJOFIPrNHqDUNechpuG96Sg==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [netbsd]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/openbsd-x64/0.16.12:
+    resolution: {integrity: sha512-PAonw4LqIybwn2/vJujhbg1N9W2W8lw9RtXIvvZoyzoA/4rA4CpiuahVbASmQohiytRsixbNoIOUSjRygKXpyA==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [openbsd]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/sunos-x64/0.16.12:
+    resolution: {integrity: sha512-+wr1tkt1RERi+Zi/iQtkzmMH4nS8+7UIRxjcyRz7lur84wCkAITT50Olq/HiT4JN2X2bjtlOV6vt7ptW5Gw60Q==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [sunos]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/win32-arm64/0.16.12:
+    resolution: {integrity: sha512-XEjeUSHmjsAOJk8+pXJu9pFY2O5KKQbHXZWQylJzQuIBeiGrpMeq9sTVrHefHxMOyxUgoKQTcaTS+VK/K5SviA==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [win32]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/win32-ia32/0.16.12:
+    resolution: {integrity: sha512-eRKPM7e0IecUAUYr2alW7JGDejrFJXmpjt4MlfonmQ5Rz9HWpKFGCjuuIRgKO7W9C/CWVFXdJ2GjddsBXqQI4A==}
+    engines: {node: '>=12'}
+    cpu: [ia32]
+    os: [win32]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/win32-x64/0.16.12:
+    resolution: {integrity: sha512-iPYKN78t3op2+erv2frW568j1q0RpqX6JOLZ7oPPaAV1VaF7dDstOrNw37PVOYoTWE11pV4A1XUitpdEFNIsPg==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [win32]
+    requiresBuild: true
     optional: true
 
   /@eslint/eslintrc/1.2.1:
@@ -7716,7 +7876,7 @@ packages:
       react-refresh: 0.11.0
       schema-utils: 3.1.1
       source-map: 0.7.3
-      webpack: 5.74.0_esbuild@0.15.13
+      webpack: 5.74.0_esbuild@0.16.12
       webpack-dev-server: 4.8.1_webpack@5.74.0
     dev: false
 
@@ -8366,7 +8526,7 @@ packages:
     resolution: {integrity: sha512-a6bTJ21vFOGIkwM0kzh9Yr89ziVxq4vYH2fQ6N8AeipEzai/cFK6aGMArIkUeIdRIgpwQa+2bXiLuUJCpSf2Cg==}
     dependencies:
       '@types/connect': 3.4.35
-      '@types/node': 18.0.3
+      '@types/node': 18.11.2
     dev: false
 
   /@types/bonjour/3.5.10:
@@ -8405,7 +8565,7 @@ packages:
   /@types/connect/3.4.35:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
     dependencies:
-      '@types/node': 18.0.3
+      '@types/node': 18.11.2
     dev: false
 
   /@types/css-font-loading-module/0.0.7:
@@ -8430,7 +8590,7 @@ packages:
   /@types/express-serve-static-core/4.17.24:
     resolution: {integrity: sha512-3UJuW+Qxhzwjq3xhwXm2onQcFHn76frIYVbTu+kn24LFxI+dEhdfISDFovPB8VpEgW8oQCTpRuCe+0zJxB7NEA==}
     dependencies:
-      '@types/node': 18.0.3
+      '@types/node': 18.11.2
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
     dev: false
@@ -11153,7 +11313,7 @@ packages:
       postcss-value-parser: 4.1.0
       schema-utils: 3.1.1
       semver: 7.3.5
-      webpack: 5.74.0_esbuild@0.15.13
+      webpack: 5.74.0_esbuild@0.16.12
     dev: false
 
   /css-loader/6.7.1_webpack@5.74.0:
@@ -12055,7 +12215,6 @@ packages:
     cpu: [x64]
     os: [android]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild-android-arm64/0.14.19:
@@ -12081,7 +12240,6 @@ packages:
     cpu: [arm64]
     os: [android]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild-darwin-64/0.14.19:
@@ -12107,7 +12265,6 @@ packages:
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild-darwin-arm64/0.14.19:
@@ -12133,7 +12290,6 @@ packages:
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild-freebsd-64/0.14.19:
@@ -12159,7 +12315,6 @@ packages:
     cpu: [x64]
     os: [freebsd]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild-freebsd-arm64/0.14.19:
@@ -12185,7 +12340,6 @@ packages:
     cpu: [arm64]
     os: [freebsd]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild-linux-32/0.14.19:
@@ -12211,7 +12365,6 @@ packages:
     cpu: [ia32]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild-linux-64/0.14.19:
@@ -12237,7 +12390,6 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild-linux-arm/0.14.19:
@@ -12263,7 +12415,6 @@ packages:
     cpu: [arm]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild-linux-arm64/0.14.19:
@@ -12289,7 +12440,6 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild-linux-mips64le/0.14.19:
@@ -12315,7 +12465,6 @@ packages:
     cpu: [mips64el]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild-linux-ppc64le/0.14.19:
@@ -12341,7 +12490,6 @@ packages:
     cpu: [ppc64]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild-linux-riscv64/0.14.49:
@@ -12358,7 +12506,6 @@ packages:
     cpu: [riscv64]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild-linux-s390x/0.14.19:
@@ -12384,7 +12531,6 @@ packages:
     cpu: [s390x]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild-netbsd-64/0.14.19:
@@ -12410,7 +12556,6 @@ packages:
     cpu: [x64]
     os: [netbsd]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild-openbsd-64/0.14.19:
@@ -12436,7 +12581,6 @@ packages:
     cpu: [x64]
     os: [openbsd]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild-sunos-64/0.14.19:
@@ -12462,7 +12606,6 @@ packages:
     cpu: [x64]
     os: [sunos]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild-windows-32/0.14.19:
@@ -12488,7 +12631,6 @@ packages:
     cpu: [ia32]
     os: [win32]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild-windows-64/0.14.19:
@@ -12514,7 +12656,6 @@ packages:
     cpu: [x64]
     os: [win32]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild-windows-arm64/0.14.19:
@@ -12540,7 +12681,6 @@ packages:
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
-    dev: false
     optional: true
 
   /esbuild/0.14.19:
@@ -12596,14 +12736,34 @@ packages:
       esbuild-windows-64: 0.14.49
       esbuild-windows-arm64: 0.14.49
 
-  /esbuild/0.15.13:
-    resolution: {integrity: sha512-Cu3SC84oyzzhrK/YyN4iEVy2jZu5t2fz66HEOShHURcjSkOSAVL8C/gfUT+lDJxkVHpg8GZ10DD0rMHRPqMFaQ==}
+  /esbuild/0.16.12:
+    resolution: {integrity: sha512-eq5KcuXajf2OmivCl4e89AD3j8fbV+UTE9vczEzq5haA07U9oOTzBWlh3+6ZdjJR7Rz2QfWZ2uxZyhZxBgJ4+g==}
     engines: {node: '>=12'}
     hasBin: true
     requiresBuild: true
     optionalDependencies:
-      '@esbuild/android-arm': 0.15.13
-      '@esbuild/linux-loong64': 0.15.13
+      '@esbuild/android-arm': 0.16.12
+      '@esbuild/android-arm64': 0.16.12
+      '@esbuild/android-x64': 0.16.12
+      '@esbuild/darwin-arm64': 0.16.12
+      '@esbuild/darwin-x64': 0.16.12
+      '@esbuild/freebsd-arm64': 0.16.12
+      '@esbuild/freebsd-x64': 0.16.12
+      '@esbuild/linux-arm': 0.16.12
+      '@esbuild/linux-arm64': 0.16.12
+      '@esbuild/linux-ia32': 0.16.12
+      '@esbuild/linux-loong64': 0.16.12
+      '@esbuild/linux-mips64el': 0.16.12
+      '@esbuild/linux-ppc64': 0.16.12
+      '@esbuild/linux-riscv64': 0.16.12
+      '@esbuild/linux-s390x': 0.16.12
+      '@esbuild/linux-x64': 0.16.12
+      '@esbuild/netbsd-x64': 0.16.12
+      '@esbuild/openbsd-x64': 0.16.12
+      '@esbuild/sunos-x64': 0.16.12
+      '@esbuild/win32-arm64': 0.16.12
+      '@esbuild/win32-ia32': 0.16.12
+      '@esbuild/win32-x64': 0.16.12
       esbuild-android-64: 0.15.13
       esbuild-android-arm64: 0.15.13
       esbuild-darwin-64: 0.15.13
@@ -12624,7 +12784,6 @@ packages:
       esbuild-windows-32: 0.15.13
       esbuild-windows-64: 0.15.13
       esbuild-windows-arm64: 0.15.13
-    dev: false
 
   /escalade/3.1.1:
     resolution: {integrity: sha512-k0er2gUkLf8O0zKJiAhmkTnJlTvINGv7ygDNPbeIsX/TJjGJZHuh9B2UxbsaEkmlEo9MfhrSzmhIlhRlI2GXnw==}
@@ -13423,7 +13582,7 @@ packages:
       semver: 7.3.5
       tapable: 1.1.3
       typescript: 4.7.2
-      webpack: 5.74.0_esbuild@0.15.13
+      webpack: 5.74.0_esbuild@0.16.12
     dev: false
 
   /fork-ts-checker-webpack-plugin/6.5.1_v5dq5tvy5mxgxe2jcvr5h43l3u:
@@ -14207,7 +14366,7 @@ packages:
       lodash: 4.17.21
       pretty-error: 4.0.0
       tapable: 2.2.1
-      webpack: 5.74.0_esbuild@0.15.13
+      webpack: 5.74.0_esbuild@0.16.12
     dev: false
 
   /htmlparser2/6.1.0:
@@ -15031,7 +15190,7 @@ packages:
     resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 18.0.3
+      '@types/node': 18.11.2
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -20267,7 +20426,7 @@ packages:
     dependencies:
       loader-utils: 2.0.2
       schema-utils: 3.1.1
-      webpack: 5.74.0_esbuild@0.15.13
+      webpack: 5.74.0_esbuild@0.16.12
     dev: false
 
   /style-to-object/0.3.0:
@@ -20454,7 +20613,7 @@ packages:
     dependencies:
       rimraf: 2.6.3
 
-  /terser-webpack-plugin/5.3.6_6pyxixs7etwi43ixt5ayqk6jm4:
+  /terser-webpack-plugin/5.3.6_a7bsei4app5fvzhcyjgautqju4:
     resolution: {integrity: sha512-kfLFk+PoLUQIbLmB1+PZDMRSZS99Mp+/MHqDNmMA6tOItzRt+Npe3E+fsMs5mfcM0wCtrrdU387UnV+vnSffXQ==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
@@ -20471,13 +20630,12 @@ packages:
         optional: true
     dependencies:
       '@jridgewell/trace-mapping': 0.3.15
-      esbuild: 0.15.13
+      esbuild: 0.16.12
       jest-worker: 27.5.1
       schema-utils: 3.1.1
       serialize-javascript: 6.0.0
       terser: 5.15.0
-      webpack: 5.74.0_esbuild@0.15.13
-    dev: false
+      webpack: 5.74.0_esbuild@0.16.12
 
   /terser-webpack-plugin/5.3.6_kyeof2p4lofxc5k62ta223yg7i:
     resolution: {integrity: sha512-kfLFk+PoLUQIbLmB1+PZDMRSZS99Mp+/MHqDNmMA6tOItzRt+Npe3E+fsMs5mfcM0wCtrrdU387UnV+vnSffXQ==}
@@ -21814,7 +21972,7 @@ packages:
       mime-types: 2.1.34
       range-parser: 1.2.1
       schema-utils: 4.0.0
-      webpack: 5.74.0_esbuild@0.15.13
+      webpack: 5.74.0_esbuild@0.16.12
     dev: false
 
   /webpack-dev-server/4.11.1_webpack@5.74.0:
@@ -21903,7 +22061,7 @@ packages:
       serve-index: 1.9.1
       sockjs: 0.3.21
       spdy: 4.0.2
-      webpack: 5.74.0_esbuild@0.15.13
+      webpack: 5.74.0_esbuild@0.16.12
       webpack-dev-middleware: 5.3.1_webpack@5.74.0
       ws: 8.5.0
     transitivePeerDependencies:
@@ -22004,7 +22162,7 @@ packages:
       - uglify-js
     dev: false
 
-  /webpack/5.74.0_esbuild@0.15.13:
+  /webpack/5.74.0_esbuild@0.16.12:
     resolution: {integrity: sha512-A2InDwnhhGN4LYctJj6M1JEaGL7Luj6LOmyBHjcI8529cm5p6VXiTIW2sn6ffvEAKmveLzvu4jrihwXtPojlAA==}
     engines: {node: '>=10.13.0'}
     hasBin: true
@@ -22035,14 +22193,13 @@ packages:
       neo-async: 2.6.2
       schema-utils: 3.1.1
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.6_6pyxixs7etwi43ixt5ayqk6jm4
+      terser-webpack-plugin: 5.3.6_a7bsei4app5fvzhcyjgautqju4
       watchpack: 2.4.0
       webpack-sources: 3.2.3
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
       - uglify-js
-    dev: false
 
   /webpackbar/5.0.2_webpack@5.74.0:
     resolution: {integrity: sha512-BmFJo7veBDgQzfWXl/wwYXr/VFus0614qZ8i9znqcl9fnEdiVkdbi0TedLQ6xAK92HZHDJ0QmyQ0fmuZPAgCYQ==}

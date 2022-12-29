@@ -243,7 +243,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			const {current} = videoRef;
 
 			const didLoad = () => {
-				if (current) {
+				if (current?.duration) {
 					onDuration(src as string, current.duration);
 				}
 
