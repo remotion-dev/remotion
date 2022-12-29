@@ -1,6 +1,7 @@
-import type {ComponentType} from 'react';
-import React, {Suspense, useContext, useEffect} from 'react';
+import type {ComponentType, PropsWithChildren} from 'react';
+import React, {Suspense, useContext, useEffect, useMemo} from 'react';
 import {createPortal} from 'react-dom';
+import {AbsoluteFill} from './AbsoluteFill';
 import {CanUseRemotionHooksProvider} from './CanUseRemotionHooks';
 import {CompositionManager} from './CompositionManager';
 import {getInputProps} from './config/input-props';
@@ -9,6 +10,7 @@ import {FolderContext} from './Folder';
 import {getRemotionEnvironment} from './get-environment';
 import {Internals} from './internals';
 import {Loading} from './loading-indicator';
+import {NativeLayersContext} from './NativeLayers';
 import {useNonce} from './nonce';
 import {portalNode} from './portal-node';
 import {useLazyComponent} from './use-lazy-component';
@@ -134,11 +136,13 @@ export const Composition = <T,>({
 		const inputProps = getInputProps();
 
 		return createPortal(
-			<CanUseRemotionHooksProvider>
-				<Suspense fallback={<Loading />}>
-					<Comp {...defaultProps} {...inputProps} />
-				</Suspense>
-			</CanUseRemotionHooksProvider>,
+			<ClipComposition>
+				<CanUseRemotionHooksProvider>
+					<Suspense fallback={<Loading />}>
+						<Comp {...defaultProps} {...inputProps} />
+					</Suspense>
+				</CanUseRemotionHooksProvider>
+			</ClipComposition>,
 
 			portalNode()
 		);
@@ -158,10 +162,30 @@ export const Composition = <T,>({
 					<Comp {...defaultProps} {...inputProps} />
 				</Suspense>
 			</CanUseRemotionHooksProvider>,
-
 			portalNode()
 		);
 	}
 
 	return null;
+};
+
+export const ClipComposition: React.FC<PropsWithChildren> = ({children}) => {
+	const {clipRegion} = useContext(NativeLayersContext);
+	const style: React.CSSProperties = useMemo(() => {
+		return {
+			display: 'flex',
+			flexDirection: 'row',
+			opacity: clipRegion === 'hide' ? 0 : 1,
+			clipPath:
+				clipRegion && clipRegion !== 'hide'
+					? `polygon(${clipRegion.x}px ${clipRegion.y}px, ${clipRegion.x}px ${
+							clipRegion.height + clipRegion.y
+					  }px, ${clipRegion.width + clipRegion.x}px ${
+							clipRegion.height + clipRegion.y
+					  }px, ${clipRegion.width + clipRegion.x}px ${clipRegion.y}px)`
+					: undefined,
+		};
+	}, [clipRegion]);
+
+	return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
 };

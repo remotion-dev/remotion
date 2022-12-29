@@ -89,12 +89,13 @@ const ReactSvg: React.FC<{
 	const scale = frame < 70 ? scaleIn : scaleOut;
 
 	return (
-		<Experimental.Clipper
-			x={0}
-			y={0}
-			width={videoConfig.width / 2}
-			height={videoConfig.height}
-		>
+		<>
+			<Experimental.Clipper
+				x={0}
+				y={0}
+				width={videoConfig.width / 2}
+				height={videoConfig.height}
+			/>
 			<div
 				style={{flex: 1, backgroundColor: transparent ? undefined : 'white'}}
 			>
@@ -132,7 +133,7 @@ const ReactSvg: React.FC<{
 					{transparent ? null : <Black scale={scaleOutBlackDot} />}
 				</div>
 			</div>
-		</Experimental.Clipper>
+		</>
 	);
 };
 

@@ -1,16 +1,16 @@
 import {useContext, useEffect} from 'react';
-import {CompositionManager} from './CompositionManager';
+import {NativeLayersContext} from './NativeLayers';
 
 export const Null: React.FC = () => {
-	const context = useContext(CompositionManager);
+	const {setClipRegion} = useContext(NativeLayersContext);
 
 	useEffect(() => {
-		context.setClipRegion('hide');
+		setClipRegion('hide');
 
 		return () => {
-			context.setClipRegion(null);
+			setClipRegion(null);
 		};
-	}, [context]);
+	}, [setClipRegion]);
 
 	return null;
 };
