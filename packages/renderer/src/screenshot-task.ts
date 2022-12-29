@@ -1,5 +1,5 @@
 import fs from 'fs';
-import type {ClipRegion} from 'remotion/src/CompositionManager';
+import type {ClipRegion} from 'remotion';
 import type {Page} from './browser/BrowserPage';
 import type {StillImageFormat} from './image-format';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
