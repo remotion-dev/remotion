@@ -118,6 +118,7 @@ export const makeDownloadMap = (): DownloadMap => {
 export const cleanDownloadMap = async (downloadMap: DownloadMap) => {
 	await deleteDirectory(downloadMap.downloadDir);
 	await deleteDirectory(downloadMap.complexFilter);
-	await deleteDirectory(downloadMap.assetDir);
 	await deleteDirectory(downloadMap.compositingDir);
+	// Assets dir must be last since the others are contained
+	await deleteDirectory(downloadMap.assetDir);
 };
