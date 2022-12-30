@@ -1,5 +1,8 @@
+# Putting this file into packages/ because VSCode Rust extension
+# only searches 1 level for Cargofiles
+
 [package]
-name = "image-transformer"
+name = "remotion-renderer"
 version = "0.1.0"
 authors = ["Jonny Burger <jonny@remotion.dev>"]
 edition = "2021"
