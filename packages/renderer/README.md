@@ -29,3 +29,19 @@ brew install mingw-w64
 ```
 
 > This will take a few minutes.
+
+## Building
+
+To build the Rust parts for your operating system, run:
+
+```
+node build.mjs
+```
+
+To build the Rust binaries for all supported platforms, run:
+
+```
+node build.mjs --all
+```
+
+The resulting artifacts should be checked into Git.
