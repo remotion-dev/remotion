@@ -37,7 +37,6 @@ export const NativeLayersProvider: React.FC<PropsWithChildren> = ({
 	useLayoutEffect(() => {
 		if (typeof window !== 'undefined') {
 			window.remotion_getClipRegion = () => {
-				setClipRegion(null); // clear assets at next render
 				return clipRegion;
 			};
 		}
