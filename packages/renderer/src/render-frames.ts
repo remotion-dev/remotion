@@ -411,8 +411,8 @@ const innerRenderFrames = ({
 
 				if (clipRegion) {
 					await compose({
-						height: composition.height,
-						width: composition.width,
+						height: height * scale,
+						width: width * scale,
 						layers: [
 							clipRegion === 'hide'
 								? null
@@ -422,11 +422,11 @@ const innerRenderFrames = ({
 												? ('JpgImage' as const)
 												: ('PngImage' as const),
 										params: {
-											height: clipRegion.height,
-											width: clipRegion.width,
+											height: clipRegion.height * scale,
+											width: clipRegion.width * scale,
 											src: output,
-											x: clipRegion.x,
-											y: clipRegion.y,
+											x: clipRegion.x * scale,
+											y: clipRegion.y * scale,
 										},
 								  },
 						].filter(truthy),
