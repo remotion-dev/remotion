@@ -1,22 +1,46 @@
-import {Audio, interpolate, Sequence, staticFile} from 'remotion';
+import {
+	interpolateColors,
+	Satori,
+	spring,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
 const AudioTesting: React.FC = () => {
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+
+	const spr = spring({
+		fps,
+		frame,
+	});
+
 	return (
 		<div>
-			<Sequence from={100} durationInFrames={100}>
-				<Audio
-					loop
-					startFrom={100}
-					endAt={200}
-					src={staticFile('music.mp3')}
-					volume={(f) =>
-						interpolate(f, [0, 50, 100], [0, 1, 0], {
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						})
-					}
-				/>
-			</Sequence>
+			<Satori>
+				<div
+					style={{
+						justifyContent: 'center',
+						alignItems: 'center',
+						height: '100%',
+						width: '100%',
+						display: 'flex',
+					}}
+				>
+					<div
+						style={{
+							backgroundColor: interpolateColors(
+								frame,
+								[0, 30, 60, 90, 120],
+								['blue', 'red', 'yellow', 'green', 'pink']
+							),
+							height: 200,
+							width: 200,
+							borderRadius: 100,
+						}}
+					/>
+				</div>
+			</Satori>
 		</div>
 	);
 };
