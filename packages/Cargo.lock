@@ -104,17 +104,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "image-transformer"
-version = "0.1.0"
-dependencies = [
- "jpeg-decoder",
- "jpeg-encoder",
- "png",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "itoa"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -219,6 +208,17 @@ dependencies = [
  "crossbeam-deque",
  "crossbeam-utils",
  "num_cpus",
+]
+
+[[package]]
+name = "remotion-renderer"
+version = "0.1.0"
+dependencies = [
+ "jpeg-decoder",
+ "jpeg-encoder",
+ "png",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
