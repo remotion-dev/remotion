@@ -20,4 +20,6 @@ path = "renderer/rust/main.rs"
 
 [profile.release]
 strip="debuginfo"
+lto = "fat"
+opt-level = 'z'
 
