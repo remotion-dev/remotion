@@ -10,8 +10,8 @@
 		"test": "vitest --run",
 		"watch": "tsc -w",
 		"build": "node build.mjs && tsc -d",
-		"build-all": "sh cross_compile.sh && sh copy.sh",
-		"prepublishOnly": "sh cross_compile.sh && sh copy.sh"
+		"build-all": "node build.mjs --all && sh copy.sh",
+		"prepublishOnly": "node build.mjs --all && sh copy.sh"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
