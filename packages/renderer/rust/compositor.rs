@@ -66,13 +66,13 @@ fn alpha_compositing(
         return (new_r, new_g, new_b, new_a);
     }
 
-    let alpha1 = prev_a as f32 / 255.0;
-    let alpha2 = new_a as f32 / 255.0;
+    let alpha1 = new_a as f32 / 255.0;
+    let alpha2 = prev_a as f32 / 255.0;
 
-    let r = (alpha1 * prev_r as f32 + alpha2 * (1.0 - alpha1) * new_r as f32) as u8;
-    let g = (alpha1 * prev_g as f32 + alpha2 * (1.0 - alpha1) * new_g as f32) as u8;
-    let b = (alpha1 * prev_b as f32 + alpha2 * (1.0 - alpha1) * new_b as f32) as u8;
-    let a = ((alpha1 + alpha2 * (1.0 - alpha1)) * 255.0) as u8;
+    let r = (alpha1 * new_r as f32 + alpha2 * (1.0 - alpha1) * prev_r as f32) as u8;
+    let g = (alpha1 * new_g as f32 + alpha2 * (1.0 - alpha1) * prev_g as f32) as u8;
+    let b = (alpha1 * new_b as f32 + alpha2 * (1.0 - alpha1) * prev_b as f32) as u8;
+    let a = ((alpha1 * 255.0 + alpha2 * (1.0 - alpha1)) * 255.0) as u8;
 
     return (r, g, b, a);
 }
