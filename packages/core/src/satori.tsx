@@ -1,7 +1,7 @@
 import type {PropsWithChildren} from 'react';
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useLayoutEffect} from 'react';
 import nativeSatori from 'satori';
-import {Experimental} from '.';
+import {continueRender, delayRender, Experimental} from '.';
 import {getRemotionEnvironment} from './get-environment';
 import {NativeLayersContext} from './NativeLayers';
 import {useVideoConfig} from './use-video-config';
@@ -18,13 +18,15 @@ export const SatoriForRendering: React.FC<PropsWithChildren> = ({children}) => {
 	const {width, height} = useVideoConfig();
 	const {setSatoriStack} = useContext(NativeLayersContext);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
+		const handle = delayRender();
 		nativeSatori(children, {
 			width,
 			height,
 			fonts: [],
 		})
 			.then((svg) => {
+				continueRender(handle);
 				setSatoriStack(svg);
 				console.log({svg});
 			})
