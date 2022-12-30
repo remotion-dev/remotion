@@ -13,5 +13,8 @@
       "import": "./index.mjs",
       "types": "./index.d.ts"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
