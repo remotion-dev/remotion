@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "lerna": "^4.0.0",
-    "turbo": "1.5.6"
+    "turbo": "1.6.3"
   },
   "workspaces": [
     "packages/*"
