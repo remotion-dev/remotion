@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {performance} from 'perf_hooks';
-import type {ClipRegion, SmallTCompMetadata, TAsset} from 'remotion';
+import type {SmallTCompMetadata, TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
@@ -326,47 +326,28 @@ const innerRenderFrames = ({
 		freePage.on('error', errorCallbackOnFrame);
 		await seekToFrame({frame, page: freePage});
 
-		const [clipRegion, collectedAssets] = await Promise.all([
-			puppeteerEvaluateWithCatch<ClipRegion | null>({
-				pageFunction: () => {
-					if (typeof window.remotion_getClipRegion === 'undefined') {
-						return null;
-					}
+		if (!outputDir && !onFrameBuffer && imageFormat !== 'none') {
+			throw new Error(
+				'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`'
+			);
+		}
 
-					return window.remotion_getClipRegion();
-				},
-				args: [],
-				frame,
-				page: freePage,
-			}),
-			puppeteerEvaluateWithCatch<TAsset[]>({
-				pageFunction: () => {
-					return window.remotion_collectAssets();
-				},
-				args: [],
-				frame,
-				page: freePage,
-			}),
-		]);
+		if (outputDir && onFrameBuffer && imageFormat !== 'none') {
+			throw new Error(
+				'Pass either `outputDir` or `onFrameBuffer` to renderFrames(), not both.'
+			);
+		}
 
-		if (imageFormat !== 'none') {
-			if (!outputDir && !onFrameBuffer) {
-				throw new Error(
-					'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`'
-				);
-			}
+		const id = startPerfMeasure('save');
 
-			if (outputDir && onFrameBuffer) {
-				throw new Error(
-					'Pass either `outputDir` or `onFrameBuffer` to renderFrames(), not both.'
-				);
-			}
+		const frameDir = outputDir ?? downloadMap.compositingDir;
 
-			const id = startPerfMeasure('save');
-
-			const frameDir = outputDir ?? downloadMap.compositingDir;
-
-			const output = path.join(
+		const {buffer, collectedAssets} = await takeFrameAndCompose({
+			frame,
+			freePage,
+			height,
+			imageFormat,
+			output: path.join(
 				frameDir,
 				getFrameOutputFileName({
 					frame,
@@ -376,31 +357,22 @@ const innerRenderFrames = ({
 					lastFrame,
 					totalFrames: framesToRender.length,
 				})
-			);
-
-			const buf = await takeFrameAndCompose({
-				clipRegion,
-				frame,
-				freePage,
-				height,
-				imageFormat,
-				output,
-				quality,
-				width,
-				scale,
-				downloadMap,
-				wantsBuffer: Boolean(onFrameBuffer),
-			});
-			if (onFrameBuffer) {
-				if (!buf) {
-					throw new Error('unexpected null buffer');
-				}
-
-				onFrameBuffer(buf, frame);
+			),
+			quality,
+			width,
+			scale,
+			downloadMap,
+			wantsBuffer: Boolean(onFrameBuffer),
+		});
+		if (onFrameBuffer) {
+			if (!buffer) {
+				throw new Error('unexpected null buffer');
 			}
 
-			stopPerfMeasure(id);
+			onFrameBuffer(buffer, frame);
 		}
+
+		stopPerfMeasure(id);
 
 		const compressedAssets = collectedAssets.map((asset) =>
 			compressAsset(assets.filter(truthy).flat(1), asset)
