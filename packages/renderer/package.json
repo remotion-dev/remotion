@@ -9,9 +9,11 @@
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
 		"watch": "tsc -w",
-		"build": "tsc -d"
+		"build": "node build.mjs && tsc -d",
+		"build-all": "node build.mjs --all",
+		"prepublishOnly": "node build.mjs --all"
 	},
-	"author": "",
+	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
@@ -45,6 +47,15 @@
 		"react-dom": "18.0.0",
 		"typescript": "^4.7.0",
 		"vitest": "0.24.3"
+	},
+	"optionalDependencies": {
+		"@remotion/compositor-darwin-arm64": "3.3.19",
+		"@remotion/compositor-darwin-x64": "3.3.19",
+		"@remotion/compositor-linux-arm64-gnu": "3.3.19",
+		"@remotion/compositor-linux-x64-gnu": "3.3.19",
+		"@remotion/compositor-linux-arm64-musl": "3.3.19",
+		"@remotion/compositor-linux-x64-musl": "3.3.19",
+		"@remotion/compositor-win32-x64-msvc": "3.3.19"
 	},
 	"keywords": [
 		"remotion",

@@ -1,3 +1,4 @@
+import type {ClipRegion} from 'remotion';
 import type {Page} from './browser/BrowserPage';
 import type {ImageFormat} from './image-format';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
@@ -10,6 +11,7 @@ export const screenshotDOMElement = async ({
 	opts,
 	height,
 	width,
+	clipRegion,
 }: {
 	page: Page;
 	imageFormat: ImageFormat;
@@ -19,6 +21,7 @@ export const screenshotDOMElement = async ({
 	};
 	height: number;
 	width: number;
+	clipRegion: ClipRegion | null;
 }): Promise<Buffer> => {
 	const {path} = opts;
 
@@ -54,5 +57,6 @@ export const screenshotDOMElement = async ({
 		quality,
 		width,
 		height,
+		clipRegion,
 	}) as Promise<Buffer>;
 };

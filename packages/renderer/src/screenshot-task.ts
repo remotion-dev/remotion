@@ -1,4 +1,5 @@
 import fs from 'fs';
+import type {ClipRegion} from 'remotion';
 import type {Page} from './browser/BrowserPage';
 import type {StillImageFormat} from './image-format';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
@@ -11,6 +12,7 @@ export const screenshotTask = async ({
 	width,
 	path,
 	quality,
+	clipRegion,
 }: {
 	page: Page;
 	format: StillImageFormat;
@@ -19,6 +21,7 @@ export const screenshotTask = async ({
 	omitBackground: boolean;
 	width: number;
 	height: number;
+	clipRegion: ClipRegion | null;
 }): Promise<Buffer | string> => {
 	const client = page._client();
 	const target = page.target();
@@ -41,13 +44,22 @@ export const screenshotTask = async ({
 		const result = await client.send('Page.captureScreenshot', {
 			format,
 			quality,
-			clip: {
-				x: 0,
-				y: 0,
-				height,
-				scale: 1,
-				width,
-			},
+			clip:
+				clipRegion !== null && clipRegion !== 'hide'
+					? {
+							x: clipRegion.x,
+							y: clipRegion.y,
+							height: clipRegion.height,
+							scale: 1,
+							width: clipRegion.width,
+					  }
+					: {
+							x: 0,
+							y: 0,
+							height,
+							scale: 1,
+							width,
+					  },
 			captureBeyondViewport: true,
 			optimizeForSpeed: true,
 		});

@@ -21,11 +21,11 @@ import type {CancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {openBrowser} from './open-browser';
 import {prepareServer} from './prepare-server';
-import {provideScreenshot} from './provide-screenshot';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {validateQuality} from './quality';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
+import {takeFrameAndCompose} from './take-frame-and-compose';
 import {validateFrame} from './validate-frame';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
@@ -81,7 +81,9 @@ const innerRenderStill = async ({
 	scale = 1,
 	proxyPort,
 	cancelSignal,
+	downloadMap,
 }: InnerStillOptions & {
+	downloadMap: DownloadMap;
 	serveUrl: string;
 	onError: (err: Error) => void;
 	proxyPort: number;
@@ -233,16 +235,17 @@ const innerRenderStill = async ({
 	});
 	await seekToFrame({frame: stillFrame, page});
 
-	const buffer = await provideScreenshot({
-		page,
-		imageFormat,
-		quality,
-		options: {
-			frame: stillFrame,
-			output,
-		},
+	const {buffer} = await takeFrameAndCompose({
+		downloadMap,
+		frame: stillFrame,
+		freePage: page,
 		height: composition.height,
 		width: composition.width,
+		imageFormat,
+		scale,
+		output,
+		quality,
+		wantsBuffer: !output,
 	});
 
 	await cleanup();
@@ -286,6 +289,7 @@ export const renderStill = (
 					serveUrl,
 					onError: (err) => reject(err),
 					proxyPort: offthreadPort,
+					downloadMap,
 				});
 			})
 
