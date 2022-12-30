@@ -394,7 +394,7 @@ const innerRenderFrames = ({
 					)
 				);
 
-				if (clipRegion === 'hide') {
+				if (clipRegion !== 'hide') {
 					await provideScreenshot({
 						page: freePage,
 						imageFormat,
