@@ -1,0 +1,29 @@
+<svg id="svg1" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>`dy` with tiny coordinates</title>
+    <desc>
+        https://github.com/RazrFalcon/resvg/pull/291
+    </desc>
+
+    <g id="g1" transform="scale(100)">
+        <path id="pathForText1"
+              d="M 0.20 0.73 C 0.35 1.08 0.85 1.08 1.00 0.73 C 1.15 0.38 1.65 0.38 1.80 0.73"
+              fill="none" stroke="gray" stroke-width="0.01"/>
+
+        <path id="pathForText2"
+              d="M 0.20 1.27 C 0.35 1.62 0.85 1.62 1.00 1.27 C 1.15 0.92 1.65 0.92 1.80 1.27"
+              fill="none" stroke="gray" stroke-width="0.01"/>
+
+        <text id="text1" font-family="Noto Sans" font-size="0.24" dy="0.15">
+            <textPath id="textPath1" xlink:href="#pathForText1">
+                Some long text
+            </textPath>
+            <textPath id="textPath2" xlink:href="#pathForText2">
+                Some long text
+            </textPath>
+        </text>
+    </g>
+
+    <!-- image frame -->
+    <rect id="frame" x="1" y="1" width="198" height="198" fill="none" stroke="black"/>
+</svg>

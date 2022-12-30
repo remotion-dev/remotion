@@ -1,0 +1,29 @@
+{
+	"v": 1,
+	"height": 200,
+	"width": 200,
+	"output_format": "Png",
+	"layers": [
+		{
+			"type": "Solid",
+			"params": {
+				"height": 200,
+				"width": 200,
+				"x": 0,
+				"y": 0,
+				"fill": [255, 255, 0, 255]
+			}
+		},
+		{
+			"type": "SvgImage",
+			"params": {
+				"height": 200,
+				"width": 200,
+				"src": "/Users/jonathanburger/remotion/packages/renderer/e-textPath-035.svg",
+				"x": 0,
+				"y": 0
+			}
+		}
+	],
+	"output": "/Users/jonathanburger/remotion/packages/renderer/output2.png"
+}

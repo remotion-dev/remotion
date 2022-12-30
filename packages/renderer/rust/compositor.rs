@@ -1,3 +1,4 @@
+use resvg::usvg_text_layout::{fontdb, TreeTextToPath};
 use std::{error::Error, fmt, fs::File};
 
 use crate::{
@@ -129,6 +130,63 @@ fn draw_png_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: ImageLayer)
     }
 }
 
+fn draw_svg_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: ImageLayer) {
+    let mut fontdb = fontdb::Database::new();
+    fontdb.load_system_fonts();
+
+    let opt = usvg::Options::default();
+
+    let svg_data = std::fs::read(layer.src).unwrap();
+    let mut tree = usvg::Tree::from_data(&svg_data, &opt).unwrap();
+
+    tree.convert_text(&fontdb, opt.keep_named_groups);
+
+    let pixmap_size = tree.size.to_screen_size();
+    let mut pixmap = tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
+
+    resvg::render(
+        &tree,
+        usvg::FitTo::Original,
+        tiny_skia::Transform::default(),
+        pixmap.as_mut(),
+    )
+    .unwrap();
+
+    let bytes = pixmap.data();
+
+    for y in 0..(layer.height) {
+        for x in 0..(layer.width) {
+            let r = bytes[((y * layer.width + x) * 4) as usize];
+            let g = bytes[((y * layer.width + x) * 4 + 1) as usize];
+            let b = bytes[((y * layer.width + x) * 4 + 2) as usize];
+            let a = bytes[((y * layer.width + x) * 4 + 3) as usize];
+
+            let r_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4) as usize;
+            let g_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 1) as usize;
+            let b_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 2) as usize;
+            let a_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 3) as usize;
+
+            let new_pixel = alpha_compositing(
+                img[r_index],
+                img[g_index],
+                img[b_index],
+                img[a_index],
+                r,
+                g,
+                b,
+                a,
+            );
+
+            img[r_index] = new_pixel.0;
+            img[g_index] = new_pixel.1;
+            img[b_index] = new_pixel.2;
+            img[a_index] = new_pixel.3;
+        }
+    }
+
+    print!("Drawing SVG image layer... ");
+}
+
 fn draw_jpg_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: ImageLayer) {
     let file = match File::open(layer.src) {
         Ok(content) => content,
@@ -184,6 +242,9 @@ pub fn draw_layer(img: &mut Vec<u8>, canvas_width: u32, layer: Layer) {
         }
         Layer::Solid(layer) => {
             draw_solid_layer(img, canvas_width, layer);
+        }
+        Layer::SvgImage(layer) => {
+            draw_svg_image_layer(img, canvas_width, layer);
         }
     }
 }
