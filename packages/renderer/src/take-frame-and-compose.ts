@@ -1,15 +1,15 @@
 import fs from 'fs';
 import path from 'path';
-import type {ClipRegion} from 'remotion';
+import type {ClipRegion, TAsset} from 'remotion';
 import type {DownloadMap} from './assets/download-map';
 import type {Page} from './browser/BrowserPage';
 import {compose} from './compositor/compose';
 import type {ImageFormat} from './image-format';
 import {provideScreenshot} from './provide-screenshot';
+import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {truthy} from './truthy';
 
 export const takeFrameAndCompose = async ({
-	clipRegion,
 	freePage,
 	imageFormat,
 	quality,
@@ -21,7 +21,6 @@ export const takeFrameAndCompose = async ({
 	downloadMap,
 	wantsBuffer,
 }: {
-	clipRegion: ClipRegion | null;
 	freePage: Page;
 	imageFormat: ImageFormat;
 	quality: number | undefined;
@@ -32,7 +31,34 @@ export const takeFrameAndCompose = async ({
 	scale: number;
 	downloadMap: DownloadMap;
 	wantsBuffer: boolean;
-}): Promise<Buffer | null> => {
+}): Promise<{buffer: Buffer | null; collectedAssets: TAsset[]}> => {
+	const [clipRegion, collectedAssets] = await Promise.all([
+		puppeteerEvaluateWithCatch<ClipRegion | null>({
+			pageFunction: () => {
+				if (typeof window.remotion_getClipRegion === 'undefined') {
+					return null;
+				}
+
+				return window.remotion_getClipRegion();
+			},
+			args: [],
+			frame,
+			page: freePage,
+		}),
+		puppeteerEvaluateWithCatch<TAsset[]>({
+			pageFunction: () => {
+				return window.remotion_collectAssets();
+			},
+			args: [],
+			frame,
+			page: freePage,
+		}),
+	]);
+
+	if (imageFormat === 'none') {
+		return {buffer: null, collectedAssets};
+	}
+
 	const needsComposing =
 		clipRegion === null
 			? null
@@ -66,7 +92,7 @@ export const takeFrameAndCompose = async ({
 		});
 
 		if (shouldMakeBuffer) {
-			return buf;
+			return {buffer: buf, collectedAssets};
 		}
 	}
 
@@ -98,9 +124,9 @@ export const takeFrameAndCompose = async ({
 		if (wantsBuffer) {
 			const buffer = await fs.promises.readFile(needsComposing.finalOutfie);
 			await fs.promises.unlink(needsComposing.finalOutfie);
-			return buffer;
+			return {buffer, collectedAssets};
 		}
 	}
 
-	return null;
+	return {buffer: null, collectedAssets};
 };

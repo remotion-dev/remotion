@@ -235,8 +235,7 @@ const innerRenderStill = async ({
 	});
 	await seekToFrame({frame: stillFrame, page});
 
-	const buf = await takeFrameAndCompose({
-		clipRegion,
+	const {buffer} = await takeFrameAndCompose({
 		downloadMap,
 		frame: stillFrame,
 		freePage: page,
@@ -251,7 +250,7 @@ const innerRenderStill = async ({
 
 	await cleanup();
 
-	return {buffer: output ? null : buf};
+	return {buffer: output ? null : buffer};
 };
 
 /**
