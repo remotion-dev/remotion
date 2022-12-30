@@ -84,7 +84,7 @@ _optional_
 
 Array of font subsets that should be loaded. By default, all.
 
-### document
+#### document
 
 _optional_
 
