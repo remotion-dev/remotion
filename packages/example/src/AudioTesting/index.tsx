@@ -1,19 +1,7 @@
-import {
-	interpolateColors,
-	Satori,
-	spring,
-	useCurrentFrame,
-	useVideoConfig,
-} from 'remotion';
+import {interpolateColors, Satori, useCurrentFrame} from 'remotion';
 
 const AudioTesting: React.FC = () => {
 	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
-
-	const spr = spring({
-		fps,
-		frame,
-	});
 
 	return (
 		<div>

@@ -32,7 +32,7 @@ export const takeFrameAndCompose = async ({
 	downloadMap: DownloadMap;
 	wantsBuffer: boolean;
 }): Promise<{buffer: Buffer | null; collectedAssets: TAsset[]}> => {
-	const [clipRegion, collectedAssets] = await Promise.all([
+	const [clipRegion, collectedAssets, satoriString] = await Promise.all([
 		puppeteerEvaluateWithCatch<ClipRegion | null>({
 			pageFunction: () => {
 				if (typeof window.remotion_getClipRegion === 'undefined') {
@@ -53,6 +53,14 @@ export const takeFrameAndCompose = async ({
 			frame,
 			page: freePage,
 		}),
+		puppeteerEvaluateWithCatch<string | null>({
+			pageFunction: () => {
+				return window.remotion_getSatoriString();
+			},
+			args: [],
+			frame,
+			page: freePage,
+		}),
 	]);
 
 	if (imageFormat === 'none') {
@@ -60,7 +68,7 @@ export const takeFrameAndCompose = async ({
 	}
 
 	const needsComposing =
-		clipRegion === null
+		clipRegion === null && !satoriString
 			? null
 			: {
 					tmpFile: path.join(
@@ -116,6 +124,18 @@ export const takeFrameAndCompose = async ({
 								y: needsComposing.clipRegion.y * scale,
 							},
 					  },
+				satoriString
+					? {
+							type: 'SvgImage' as const,
+							params: {
+								height: height * scale,
+								width: width * scale,
+								markup: satoriString,
+								x: 0,
+								y: 0,
+							},
+					  }
+					: null,
 			].filter(truthy),
 			output: needsComposing.finalOutfie,
 			downloadMap,

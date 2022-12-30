@@ -3,7 +3,7 @@ use std::{error::Error, fmt, fs::File};
 
 use crate::{
     errors,
-    payloads::payloads::{ImageLayer, Layer, SolidLayer},
+    payloads::payloads::{ImageLayer, Layer, SolidLayer, SvgLayer},
 };
 
 #[derive(Debug)]
@@ -130,14 +130,13 @@ fn draw_png_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: ImageLayer)
     }
 }
 
-fn draw_svg_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: ImageLayer) {
+fn draw_svg_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: SvgLayer) {
     let mut fontdb = fontdb::Database::new();
     fontdb.load_system_fonts();
 
     let opt = usvg::Options::default();
 
-    let svg_data = std::fs::read(layer.src).unwrap();
-    let mut tree = usvg::Tree::from_data(&svg_data, &opt).unwrap();
+    let mut tree = usvg::Tree::from_data(layer.markup.as_bytes(), &opt).unwrap();
 
     tree.convert_text(&fontdb, opt.keep_named_groups);
 

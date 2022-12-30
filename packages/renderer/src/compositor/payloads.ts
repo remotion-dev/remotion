@@ -21,6 +21,16 @@ export type Layer =
 			};
 	  }
 	| {
+			type: 'SvgImage';
+			params: {
+				markup: string;
+				x: number;
+				y: number;
+				width: number;
+				height: number;
+			};
+	  }
+	| {
 			type: 'Solid';
 			params: {
 				fill: [number, number, number, number];

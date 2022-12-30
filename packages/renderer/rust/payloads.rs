@@ -8,6 +8,15 @@ pub mod payloads {
     use serde::{Deserialize, Serialize};
 
     #[derive(Serialize, Deserialize, Debug)]
+    pub struct SvgLayer {
+        pub markup: String,
+        pub x: u32,
+        pub y: u32,
+        pub width: u32,
+        pub height: u32,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
     pub struct ImageLayer {
         pub src: String,
         pub x: u32,
@@ -28,7 +37,7 @@ pub mod payloads {
     #[derive(Serialize, Deserialize, Debug)]
     #[serde(tag = "type", content = "params")]
     pub enum Layer {
-        SvgImage(ImageLayer),
+        SvgImage(SvgLayer),
         PngImage(ImageLayer),
         JpgImage(ImageLayer),
         Solid(SolidLayer),
