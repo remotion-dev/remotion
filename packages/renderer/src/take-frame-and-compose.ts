@@ -28,7 +28,7 @@ export const takeFrameAndCompose = async ({
 	frame: number;
 	height: number;
 	width: number;
-	output: string;
+	output: string | null;
 	scale: number;
 	downloadMap: DownloadMap;
 	wantsBuffer: boolean;
@@ -37,27 +37,35 @@ export const takeFrameAndCompose = async ({
 		clipRegion === null
 			? null
 			: {
-					filename: path.join(
+					tmpFile: path.join(
 						downloadMap.compositingDir,
 						`${frame}.${imageFormat}`
 					),
+					finalOutfie:
+						output ??
+						path.join(
+							downloadMap.compositingDir,
+							`${frame}-final.${imageFormat}`
+						),
 					clipRegion: clipRegion as ClipRegion,
 			  };
 	if (clipRegion !== 'hide') {
+		const shouldMakeBuffer = wantsBuffer && !needsComposing;
+
 		const buf = await provideScreenshot({
 			page: freePage,
 			imageFormat,
 			quality,
 			options: {
 				frame,
-				output: needsComposing?.filename ?? output,
+				output: shouldMakeBuffer ? null : needsComposing?.tmpFile ?? output,
 			},
 			height,
 			width,
 			clipRegion,
 		});
 
-		if (wantsBuffer && !needsComposing) {
+		if (shouldMakeBuffer) {
 			return buf;
 		}
 	}
@@ -77,21 +85,21 @@ export const takeFrameAndCompose = async ({
 							params: {
 								height: needsComposing.clipRegion.height * scale,
 								width: needsComposing.clipRegion.width * scale,
-								src: needsComposing.filename,
+								src: needsComposing.tmpFile,
 								x: needsComposing.clipRegion.x * scale,
 								y: needsComposing.clipRegion.y * scale,
 							},
 					  },
 			].filter(truthy),
-			output,
+			output: needsComposing.finalOutfie,
 			downloadMap,
 			imageFormat: imageFormat === 'jpeg' ? 'Jpeg' : 'Png',
 		});
-	}
-
-	if (wantsBuffer) {
-		const buffer = await fs.promises.readFile(output);
-		return buffer;
+		if (wantsBuffer) {
+			const buffer = await fs.promises.readFile(needsComposing.finalOutfie);
+			await fs.promises.unlink(needsComposing.finalOutfie);
+			return buffer;
+		}
 	}
 
 	return null;
