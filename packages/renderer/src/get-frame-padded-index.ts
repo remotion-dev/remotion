@@ -22,7 +22,6 @@ export const getFrameOutputFileName = ({
 	countType,
 	lastFrame,
 	totalFrames,
-	type,
 }: {
 	index: number;
 	frame: number;
@@ -30,11 +29,10 @@ export const getFrameOutputFileName = ({
 	countType: CountType;
 	lastFrame: number;
 	totalFrames: number;
-	type: 'layer' | 'composed';
 }) => {
 	const filePadLength = getFilePadLength({lastFrame, countType, totalFrames});
 
-	const prefix = type === 'layer' ? 'layer' : 'element';
+	const prefix = 'element';
 
 	if (countType === 'actual-frames') {
 		const paddedIndex = padIndex({filePadLength, num: frame});

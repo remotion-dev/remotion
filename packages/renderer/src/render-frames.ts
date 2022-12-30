@@ -13,7 +13,6 @@ import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
-import {compose} from './compositor/compose';
 import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
@@ -38,13 +37,13 @@ import {openBrowser} from './open-browser';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
 import {Pool} from './pool';
 import {prepareServer} from './prepare-server';
-import {provideScreenshot} from './provide-screenshot';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {validateQuality} from './quality';
 import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
+import {takeFrameAndCompose} from './take-frame-and-compose';
 import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
@@ -351,91 +350,56 @@ const innerRenderFrames = ({
 		]);
 
 		if (imageFormat !== 'none') {
-			if (onFrameBuffer) {
-				const id = startPerfMeasure('save');
-				const buffer = await provideScreenshot({
-					page: freePage,
-					imageFormat,
-					quality,
-					options: {
-						frame,
-						output: null,
-					},
-					height: composition.height,
-					width: composition.width,
-					clipRegion,
-				});
-
-				stopPerfMeasure(id);
-
-				onFrameBuffer(buffer, frame);
-			} else {
-				if (!outputDir) {
-					throw new Error(
-						'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`'
-					);
-				}
-
-				const [output, composedOutput] = [
-					'layer' as const,
-					'composed' as const,
-				].map((type) =>
-					path.join(
-						outputDir,
-						getFrameOutputFileName({
-							frame,
-							imageFormat,
-							index,
-							countType,
-							lastFrame,
-							totalFrames: framesToRender.length,
-							type,
-						})
-					)
+			if (!outputDir && !onFrameBuffer) {
+				throw new Error(
+					'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`'
 				);
-
-				if (clipRegion !== 'hide') {
-					await provideScreenshot({
-						page: freePage,
-						imageFormat,
-						quality,
-						options: {
-							frame,
-							output: clipRegion ? output : composedOutput,
-						},
-						height,
-						width,
-						clipRegion,
-					});
-				}
-
-				if (clipRegion) {
-					await compose({
-						height: height * scale,
-						width: width * scale,
-						layers: [
-							clipRegion === 'hide'
-								? null
-								: {
-										type:
-											imageFormat === 'jpeg'
-												? ('JpgImage' as const)
-												: ('PngImage' as const),
-										params: {
-											height: clipRegion.height * scale,
-											width: clipRegion.width * scale,
-											src: output,
-											x: clipRegion.x * scale,
-											y: clipRegion.y * scale,
-										},
-								  },
-						].filter(truthy),
-						output: composedOutput,
-						downloadMap,
-						imageFormat: imageFormat === 'jpeg' ? 'Jpeg' : 'Png',
-					});
-				}
 			}
+
+			if (outputDir && onFrameBuffer) {
+				throw new Error(
+					'Pass either `outputDir` or `onFrameBuffer` to renderFrames(), not both.'
+				);
+			}
+
+			const id = startPerfMeasure('save');
+
+			const frameDir = outputDir ?? downloadMap.compositingDir;
+
+			const output = path.join(
+				frameDir,
+				getFrameOutputFileName({
+					frame,
+					imageFormat,
+					index,
+					countType,
+					lastFrame,
+					totalFrames: framesToRender.length,
+				})
+			);
+
+			const buf = await takeFrameAndCompose({
+				clipRegion,
+				frame,
+				freePage,
+				height,
+				imageFormat,
+				output,
+				quality,
+				width,
+				scale,
+				downloadMap,
+				wantsBuffer: Boolean(onFrameBuffer),
+			});
+			if (onFrameBuffer) {
+				if (!buf) {
+					throw new Error('unexpected null buffer');
+				}
+
+				onFrameBuffer(buf, frame);
+			}
+
+			stopPerfMeasure(id);
 		}
 
 		const compressedAssets = collectedAssets.map((asset) =>
