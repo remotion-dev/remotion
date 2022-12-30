@@ -1,6 +1,9 @@
 import './asset-types';
+import {Clipper} from './Clipper';
 import type {TAsset, TCompMetadata} from './CompositionManager';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning';
+import type {ClipRegion} from './NativeLayers';
+import {Null} from './Null';
 
 declare global {
 	interface Window {
@@ -22,6 +25,7 @@ declare global {
 		remotion_inputProps: string;
 		remotion_envVariables: string;
 		remotion_collectAssets: () => TAsset[];
+		remotion_getClipRegion: () => ClipRegion | null;
 		remotion_isPlayer: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
@@ -66,6 +70,7 @@ export * from './internals';
 export * from './interpolate';
 export {interpolateColors} from './interpolate-colors';
 export {Loop} from './loop';
+export {ClipRegion} from './NativeLayers';
 export {prefetch} from './prefetch';
 export {random, RandomSeed} from './random';
 export {registerRoot} from './register-root';
@@ -80,3 +85,8 @@ export * from './use-video-config';
 export * from './version';
 export * from './video';
 export * from './video-config';
+
+export const Experimental = {
+	Clipper,
+	Null,
+};

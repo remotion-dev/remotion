@@ -1,0 +1,13 @@
+{
+  "version": "3.3.19",
+  "name": "@remotion/compositor-linux-x64-musl",
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "libc": [
+    "musl"
+  ]
+}

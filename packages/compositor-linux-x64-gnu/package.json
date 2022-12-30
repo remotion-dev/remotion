@@ -1,0 +1,13 @@
+{
+  "version": "3.3.19",
+  "name": "@remotion/compositor-linux-x64-gnu",
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "libc": [
+    "glibc"
+  ]
+}

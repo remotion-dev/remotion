@@ -72,7 +72,7 @@ pnpm test
 
 in either a subpackage to run tests for that package or in the root to run all tests.
 
-### Testing `@remotion/player`
+### Running the `@remotion/player` testbed
 
 You can test changes to [@remotion/player](https://remotion.dev/docs/player) by starting the Player testbed:
 
@@ -83,7 +83,7 @@ pnpm start
 
 For information about testing, please consult [TESTING.md](./TESTING.md).
 
-### Testing documentation
+### Running documentation
 
 You can run the Docusaurus server that powers our docs using:
 
@@ -91,3 +91,7 @@ You can run the Docusaurus server that powers our docs using:
 cd packages/docs
 pnpm start
 ```
+
+### Developing Rust parts
+
+To develop the Rust parts of Remotion, see the README in [packages/renderer/README.md](packages/renderer/README.md)

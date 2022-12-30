@@ -1,0 +1,10 @@
+{
+  "version": "3.3.19",
+  "name": "@remotion/compositor-darwin-x64",
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "x64"
+  ]
+}
