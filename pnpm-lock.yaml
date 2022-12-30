@@ -621,8 +621,8 @@ importers:
       '@jonny/eslint-config': 3.0.266
       '@remotion/bundler': 3.3.19
       '@remotion/cli': 3.3.19
-      '@remotion/compositor-linux-arm64-musl': 3.3.16
-      '@remotion/compositor-linux-x64-musl': 3.3.16
+      '@remotion/compositor-linux-arm64-musl': 3.3.19
+      '@remotion/compositor-linux-x64-musl': 3.3.19
       '@remotion/renderer': 3.3.19
       '@types/mime-types': 2.1.1
       '@types/minimist': 1.2.2
@@ -901,13 +901,13 @@ importers:
   packages/renderer:
     specifiers:
       '@jonny/eslint-config': 3.0.266
-      '@remotion/compositor-darwin-arm64': 3.3.16
-      '@remotion/compositor-darwin-x64': 3.3.16
-      '@remotion/compositor-linux-arm64-gnu': 3.3.16
-      '@remotion/compositor-linux-arm64-musl': 3.3.16
-      '@remotion/compositor-linux-x64-gnu': 3.3.16
-      '@remotion/compositor-linux-x64-musl': 3.3.16
-      '@remotion/compositor-win32-x64-msvc': 3.3.16
+      '@remotion/compositor-darwin-arm64': 3.3.19
+      '@remotion/compositor-darwin-x64': 3.3.19
+      '@remotion/compositor-linux-arm64-gnu': 3.3.19
+      '@remotion/compositor-linux-arm64-musl': 3.3.19
+      '@remotion/compositor-linux-x64-gnu': 3.3.19
+      '@remotion/compositor-linux-x64-musl': 3.3.19
+      '@remotion/compositor-win32-x64-msvc': 3.3.19
       '@testing-library/dom': ^8.16.0
       '@testing-library/react': 13.3.0
       '@types/node': ^16.7.5
