@@ -48,7 +48,10 @@ const generate = async () => {
   }
   read.exports["."] = `./dist/index.js`;
 
-  await fs.promises.writeFile(packageFilename, JSON.stringify(read, null, 2));
+  await fs.promises.writeFile(
+    packageFilename,
+    JSON.stringify(read + "\n", null, 2)
+  );
 };
 
 generate();
