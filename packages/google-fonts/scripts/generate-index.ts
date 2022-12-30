@@ -50,7 +50,7 @@ const generate = async () => {
 
   await fs.promises.writeFile(
     packageFilename,
-    JSON.stringify(read + "\n", null, 2)
+    JSON.stringify(read, null, 2) + "\n"
   );
 };
 
