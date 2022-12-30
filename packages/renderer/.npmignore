@@ -7,3 +7,8 @@ tsconfig.tsbuildinfo
 .turbo
 vitest.config.ts
 target
+rust
+install_platforms.sh
+build.mjs
+.prettierrc.js
+tsconfig.json
