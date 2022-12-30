@@ -22,6 +22,9 @@
     "ts-node": "^10.8.0",
     "typescript": "^4.7.0"
   },
+  "files": [
+    "dist"
+  ],
   "types": "dist/index.d.ts",
   "typesVersions": {
     ">=1.0": {
