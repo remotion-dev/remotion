@@ -63,6 +63,8 @@ export const renderOnServer = async (
 
 	const pool = new Pool(new Array(4).fill(true).map((_, i) => i));
 
+	const downloadMap = makeDownloadMap();
+
 	await Promise.all(
 		new Array(composition.durationInFrames).fill(true).map(async (_, i) => {
 			const frame = await pool.acquire();
@@ -88,8 +90,6 @@ export const renderOnServer = async (
 					</Internals.CompositionManager.Provider>
 				</Internals.Timeline.TimelineContext.Provider>
 			);
-
-			const downloadMap = makeDownloadMap();
 
 			const out = path.join(
 				downloadMap.compositingDir,
