@@ -55,27 +55,29 @@ export const renderOnServer = (
 		},
 	};
 
-	// eslint-disable-next-line react/jsx-no-constructed-context-values
-	const value: TimelineContextValue = {
-		audioAndVideoTags: {current: []},
-		rootId: composition.id,
-		playing: false,
-		playbackRate: 1,
-		imperativePlaying: {
-			current: false,
-		},
-		frame: 0,
-		setPlaybackRate: () => {
-			throw new Error('Not implemented');
-		},
-	};
+	for (let i = 0; i < composition.durationInFrames; i++) {
+		// eslint-disable-next-line react/jsx-no-constructed-context-values
+		const value: TimelineContextValue = {
+			audioAndVideoTags: {current: []},
+			rootId: composition.id,
+			playing: false,
+			playbackRate: 1,
+			imperativePlaying: {
+				current: false,
+			},
+			frame: i,
+			setPlaybackRate: () => {
+				throw new Error('Not implemented');
+			},
+		};
 
-	const selectComp = renderToStaticMarkup(
-		<Internals.Timeline.TimelineContext.Provider value={value}>
-			<Internals.CompositionManager.Provider value={memo}>
-				<Comp />
-			</Internals.CompositionManager.Provider>
-		</Internals.Timeline.TimelineContext.Provider>
-	);
-	console.log(selectComp);
+		renderToStaticMarkup(
+			<Internals.Timeline.TimelineContext.Provider value={value}>
+				<Internals.CompositionManager.Provider value={memo}>
+					<Comp />
+				</Internals.CompositionManager.Provider>
+			</Internals.Timeline.TimelineContext.Provider>
+		);
+		console.log(i);
+	}
 };
