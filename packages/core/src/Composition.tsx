@@ -128,6 +128,24 @@ export const Composition = <T,>({
 	]);
 
 	if (getRemotionEnvironment() === 'server-rendering') {
+		if (process.env.SELECT_COMP_ID === id) {
+			// @ts-expect-error
+			const Comp = compProps.component as ComponentType;
+			const inputProps = getInputProps();
+
+			// TODO: input props
+			return (
+				<CanUseRemotionHooksProvider>
+					<Comp {...defaultProps} {...inputProps} />
+				</CanUseRemotionHooksProvider>
+			);
+		}
+
+		// TODO: Unset env variables
+		if (process.env.SELECT_COMP_ID) {
+			return null;
+		}
+
 		return (
 			<div
 				// eslint-disable-next-line react/no-danger

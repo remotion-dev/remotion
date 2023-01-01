@@ -14,6 +14,7 @@ import {ManyAudio} from './ManyAudio';
 import {MissingImg} from './MissingImg';
 import {OffthreadRemoteVideo} from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OrbScene} from './Orb';
+import ReactSvg from './ReactSvg';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import {Scripts} from './Scripts';
@@ -201,7 +202,7 @@ export const Index: React.FC = () => {
 				/>
 				<Composition
 					id="react-svg"
-					lazyComponent={() => import('./ReactSvg')}
+					component={ReactSvg}
 					width={1920}
 					height={1080}
 					fps={60}

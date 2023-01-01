@@ -94,13 +94,13 @@ export {
 	SlowFrame,
 	StitchingState,
 } from './render-media';
+export {renderOnServer} from './render-on-server';
 export {renderStill, RenderStillOptions} from './render-still';
 export {StitcherOptions, stitchFramesToVideo} from './stitch-frames-to-video';
 export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {OpenGlRenderer} from './validate-opengl-renderer';
 export {validateOutputFilename} from './validate-output-filename';
-
 export const RenderInternals = {
 	ensureLocalBrowser,
 	ffmpegHasFeature,

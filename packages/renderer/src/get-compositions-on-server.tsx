@@ -14,5 +14,5 @@ export const getCompositionsOnServer = (Comp: ComponentType) => {
 		metadata.push(json);
 	}
 
-	console.log(metadata);
+	return metadata;
 };
