@@ -52,6 +52,7 @@
 		"prettier": "^2.7.1",
 		"remotion": "3.3.25",
 		"styled-components": "^5.1.1",
+		"ts-node": "^10.8.0",
 		"ts-unused-exports": "^7.0.1",
 		"typescript": "^4.7.0",
 		"use-asset": "^1.0.4",
