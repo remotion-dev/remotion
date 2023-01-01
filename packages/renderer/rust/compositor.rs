@@ -17,7 +17,7 @@ impl fmt::Display for NoMetadataError {
 
 impl Error for NoMetadataError {}
 
-fn draw_solid_layer(img: &mut Vec<u8>, canvas_width: u32, layer: SolidLayer) {
+fn draw_solid_layer(img: &mut [u8], canvas_width: u32, layer: SolidLayer) {
     for y in layer.y..(layer.height + layer.y) {
         for x in layer.x..(layer.width + layer.x) {
             let r_index = ((y * canvas_width + x) * 4) as usize;
@@ -77,7 +77,7 @@ fn alpha_compositing(
     return (r, g, b, a);
 }
 
-fn draw_png_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: ImageLayer) {
+fn draw_png_image_layer(img: &mut [u8], canvas_width: u32, layer: ImageLayer) {
     let file = match File::open(layer.src) {
         Ok(content) => content,
         Err(err) => {
@@ -130,16 +130,10 @@ fn draw_png_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: ImageLayer)
     }
 }
 
-fn draw_svg_image_layer(
-    img: &mut Vec<u8>,
-    canvas_width: u32,
-    layer: SvgLayer,
-    is_only_layer: bool,
-) {
+fn draw_svg_image_layer(img: &mut [u8], canvas_width: u32, layer: SvgLayer, is_only_layer: bool) {
     let fonts = Instant::now();
 
-    let mut fontdb = fontdb::Database::new();
-    fontdb.load_system_fonts();
+    let fontdb = fontdb::Database::new();
     let dur = fonts.elapsed();
     println!("Time to load fonts is: {:?}", dur);
 
@@ -166,7 +160,7 @@ fn draw_svg_image_layer(
     .unwrap();
 
     if is_only_layer {
-        *img = pixmap.data().clone().to_vec();
+        img.copy_from_slice(pixmap.data().clone());
     } else {
         let bytes = pixmap.data();
         for y in 0..(layer.height) {
@@ -201,7 +195,7 @@ fn draw_svg_image_layer(
     }
 }
 
-fn draw_jpg_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: ImageLayer) {
+fn draw_jpg_image_layer(img: &mut [u8], canvas_width: u32, layer: ImageLayer) {
     let file = match File::open(layer.src) {
         Ok(content) => content,
         Err(err) => {
@@ -246,7 +240,7 @@ fn draw_jpg_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: ImageLayer)
     }
 }
 
-pub fn draw_layer(img: &mut Vec<u8>, canvas_width: u32, layer: Layer, layer_count: usize) {
+pub fn draw_layer(img: &mut [u8], canvas_width: u32, layer: Layer, layer_count: usize) {
     match layer {
         Layer::PngImage(layer) => {
             draw_png_image_layer(img, canvas_width, layer);
