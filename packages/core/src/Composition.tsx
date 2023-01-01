@@ -127,6 +127,23 @@ export const Composition = <T,>({
 		parentName,
 	]);
 
+	if (getRemotionEnvironment() === 'server-rendering') {
+		return (
+			<div
+				// eslint-disable-next-line react/no-danger
+				dangerouslySetInnerHTML={{
+					__html: JSON.stringify({
+						width,
+						height,
+						fps,
+						durationInFrames,
+						id,
+					}),
+				}}
+			/>
+		);
+	}
+
 	if (
 		getRemotionEnvironment() === 'preview' &&
 		video &&

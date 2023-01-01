@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-	Audio,
-	Sequence,
-	useCurrentFrame,
-	useVideoConfig,
-	Video,
-} from 'remotion';
-import movie from '../resources/framer-music.mp4';
+import {Audio, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
 import music from '../resources/sound1.mp3';
 
 const AudioTestingMute: React.FC = () => {
@@ -33,7 +26,6 @@ const AudioTestingMute: React.FC = () => {
 
 	return (
 		<div>
-			<Video src={movie} muted={getMuteState('movie')} />
 			<Sequence from={20} durationInFrames={200}>
 				<Sequence from={20} durationInFrames={200}>
 					<Sequence from={20} durationInFrames={200}>

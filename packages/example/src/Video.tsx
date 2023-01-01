@@ -1,4 +1,3 @@
-import {alias} from 'lib/alias';
 import React from 'react';
 import {Composition, Folder, getInputProps, Still} from 'remotion';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
@@ -29,10 +28,6 @@ import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
-
-if (alias !== 'alias') {
-	throw new Error('should support TS aliases');
-}
 
 // Use it to test that UI does not regress on weird CSS
 // import './weird-css.css';

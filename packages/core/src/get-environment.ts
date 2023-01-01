@@ -1,10 +1,15 @@
 export type RemotionEnvironment =
 	| 'preview'
 	| 'rendering'
+	| 'server-rendering'
 	| 'player-development'
 	| 'player-production';
 
 export const getRemotionEnvironment = (): RemotionEnvironment => {
+	if (process.env.REMOTION_SERVER_RENDERING) {
+		return 'server-rendering';
+	}
+
 	if (process.env.NODE_ENV === 'production') {
 		if (typeof window !== 'undefined' && window.remotion_isPlayer) {
 			return 'player-production';
