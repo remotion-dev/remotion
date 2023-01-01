@@ -130,9 +130,18 @@ fn draw_png_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: ImageLayer)
     }
 }
 
-fn draw_svg_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: SvgLayer) {
+fn draw_svg_image_layer(
+    img: &mut Vec<u8>,
+    canvas_width: u32,
+    layer: SvgLayer,
+    is_only_layer: bool,
+) {
+    let fonts = Instant::now();
+
     let mut fontdb = fontdb::Database::new();
     fontdb.load_system_fonts();
+    let dur = fonts.elapsed();
+    println!("Time to load fonts is: {:?}", dur);
 
     let opt = usvg::Options::default();
 
@@ -148,7 +157,6 @@ fn draw_svg_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: SvgLayer) {
     let pixmap_size = tree.size.to_screen_size();
     let mut pixmap = tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
 
-    let start = Instant::now();
     resvg::render(
         &tree,
         usvg::FitTo::Original,
@@ -156,38 +164,39 @@ fn draw_svg_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: SvgLayer) {
         pixmap.as_mut(),
     )
     .unwrap();
-    let duration = start.elapsed();
-    println!("Time to render SVG is: {:?}", duration);
 
-    let bytes = pixmap.data();
+    if is_only_layer {
+        *img = pixmap.data().clone().to_vec();
+    } else {
+        let bytes = pixmap.data();
+        for y in 0..(layer.height) {
+            for x in 0..(layer.width) {
+                let r = bytes[((y * layer.width + x) * 4) as usize];
+                let g = bytes[((y * layer.width + x) * 4 + 1) as usize];
+                let b = bytes[((y * layer.width + x) * 4 + 2) as usize];
+                let a = bytes[((y * layer.width + x) * 4 + 3) as usize];
 
-    for y in 0..(layer.height) {
-        for x in 0..(layer.width) {
-            let r = bytes[((y * layer.width + x) * 4) as usize];
-            let g = bytes[((y * layer.width + x) * 4 + 1) as usize];
-            let b = bytes[((y * layer.width + x) * 4 + 2) as usize];
-            let a = bytes[((y * layer.width + x) * 4 + 3) as usize];
+                let r_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4) as usize;
+                let g_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 1) as usize;
+                let b_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 2) as usize;
+                let a_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 3) as usize;
 
-            let r_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4) as usize;
-            let g_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 1) as usize;
-            let b_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 2) as usize;
-            let a_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 3) as usize;
+                let new_pixel = alpha_compositing(
+                    img[r_index],
+                    img[g_index],
+                    img[b_index],
+                    img[a_index],
+                    r,
+                    g,
+                    b,
+                    a,
+                );
 
-            let new_pixel = alpha_compositing(
-                img[r_index],
-                img[g_index],
-                img[b_index],
-                img[a_index],
-                r,
-                g,
-                b,
-                a,
-            );
-
-            img[r_index] = new_pixel.0;
-            img[g_index] = new_pixel.1;
-            img[b_index] = new_pixel.2;
-            img[a_index] = new_pixel.3;
+                img[r_index] = new_pixel.0;
+                img[g_index] = new_pixel.1;
+                img[b_index] = new_pixel.2;
+                img[a_index] = new_pixel.3;
+            }
         }
     }
 }
@@ -237,7 +246,7 @@ fn draw_jpg_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: ImageLayer)
     }
 }
 
-pub fn draw_layer(img: &mut Vec<u8>, canvas_width: u32, layer: Layer) {
+pub fn draw_layer(img: &mut Vec<u8>, canvas_width: u32, layer: Layer, layer_count: usize) {
     match layer {
         Layer::PngImage(layer) => {
             draw_png_image_layer(img, canvas_width, layer);
@@ -249,7 +258,7 @@ pub fn draw_layer(img: &mut Vec<u8>, canvas_width: u32, layer: Layer) {
             draw_solid_layer(img, canvas_width, layer);
         }
         Layer::SvgImage(layer) => {
-            draw_svg_image_layer(img, canvas_width, layer);
+            draw_svg_image_layer(img, canvas_width, layer, layer_count == 1);
         }
     }
 }

@@ -49,6 +49,8 @@ export const compose = async ({
 		output_format: imageFormat,
 	};
 
+	const ran = Math.random();
+	console.time('start' + ran);
 	await new Promise<void>((resolve, reject) => {
 		const child = spawn(bin);
 		child.stdin.write(JSON.stringify(payload));
@@ -77,6 +79,7 @@ export const compose = async ({
 			}
 		});
 	});
+	console.timeEnd('start' + ran);
 
 	downloadMap.compositorCache[hash] = output;
 };

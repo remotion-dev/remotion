@@ -21,6 +21,8 @@ fn read_stdin_to_string() -> Result<String, std::io::Error> {
 }
 
 fn main() -> Result<(), std::io::Error> {
+    let parse_time = Instant::now();
+
     let input = match read_stdin_to_string() {
         Ok(content) => content,
         Err(err) => errors::handle_error(&err),
@@ -31,10 +33,15 @@ fn main() -> Result<(), std::io::Error> {
         Ok(content) => content,
         Err(err) => errors::handle_error(&err),
     };
+    let durationparsed = parse_time.elapsed();
+    println!("parsetime: {:?}", durationparsed);
+
+    let start = Instant::now();
     let mut data: Vec<u8> = vec![0; len * 4];
 
+    let size = opts.layers.len();
     for layer in opts.layers {
-        draw_layer(&mut data, opts.width, layer)
+        draw_layer(&mut data, opts.width, layer, size)
     }
 
     if matches!(opts.output_format, payloads::payloads::ImageFormat::Jpeg) {
@@ -48,6 +55,8 @@ fn main() -> Result<(), std::io::Error> {
             Err(err) => errors::handle_error(&err),
         };
     }
+    let duration = start.elapsed();
+    println!("Time to encode is: {:?}", duration);
 
     Ok(())
 }
@@ -58,7 +67,9 @@ fn save_as_jpeg(
     data: Vec<u8>,
     output: String,
 ) -> Result<(), std::io::Error> {
-    let encoder = match Encoder::new_file(output, 100) {
+    let start = Instant::now();
+
+    let encoder = match Encoder::new_file(output, 80) {
         Ok(content) => content,
         Err(_) => {
             return Err(std::io::Error::new(
@@ -87,8 +98,6 @@ fn save_as_jpeg(
         }
     };
 
-    let start = Instant::now();
-
     match encoder.encode(&data, width_u16, height_u16, ColorType::Rgba) {
         Ok(_) => (),
         Err(_) => {
@@ -100,7 +109,7 @@ fn save_as_jpeg(
     };
 
     let duration = start.elapsed();
-    println!("Time to encode is: {:?}", duration);
+    println!("Save as JPEG: {:?}", duration);
 
     Ok(())
 }

@@ -17,6 +17,7 @@ export const renderOnServer = async (
 	Comp: ComponentType,
 	composition: TCompMetadata
 ) => {
+	console.time('total');
 	process.env.REMOTION_SERVER_RENDERING = 'true';
 	process.env.SELECT_COMP_ID = composition.id;
 
@@ -60,7 +61,7 @@ export const renderOnServer = async (
 		},
 	};
 
-	const pool = new Pool(new Array(8).fill(true).map((_, i) => i));
+	const pool = new Pool(new Array(4).fill(true).map((_, i) => i));
 
 	await Promise.all(
 		new Array(composition.durationInFrames).fill(true).map(async (_, i) => {
@@ -94,7 +95,7 @@ export const renderOnServer = async (
 				downloadMap.compositingDir,
 				getFrameOutputFileName({
 					frame: i,
-					imageFormat: 'jpeg',
+					imageFormat: 'png',
 					index: i,
 					countType: 'from-zero',
 					lastFrame: composition.durationInFrames - 1,
@@ -125,4 +126,5 @@ export const renderOnServer = async (
 			pool.release(frame);
 		})
 	);
+	console.timeEnd('total');
 };
