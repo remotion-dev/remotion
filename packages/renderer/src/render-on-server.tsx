@@ -106,7 +106,7 @@ export const renderOnServer = async (
 				height: composition.height,
 				width: composition.width,
 				downloadMap,
-				imageFormat: 'Jpeg',
+				imageFormat: 'Bmp',
 				layers: [
 					{
 						type: 'SvgImage',

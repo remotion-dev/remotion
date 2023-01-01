@@ -7,7 +7,7 @@ use jpeg_encoder::{ColorType, Encoder};
 use payloads::payloads::{parse_cli, CliInput};
 use std::{
     fs::File,
-    io::{BufWriter, Read},
+    io::{self, BufWriter, Read},
     path::Path,
     time::Instant,
 };
@@ -37,7 +37,7 @@ fn main() -> Result<(), std::io::Error> {
     println!("parsetime: {:?}", durationparsed);
 
     let start = Instant::now();
-    let mut data: Vec<u8> = vec![0; len * 4];
+    let mut data = vec![0; len * 4];
 
     let size = opts.layers.len();
     for layer in opts.layers {
@@ -45,12 +45,17 @@ fn main() -> Result<(), std::io::Error> {
     }
 
     if matches!(opts.output_format, payloads::payloads::ImageFormat::Jpeg) {
-        match save_as_jpeg(opts.width, opts.height, data, opts.output) {
+        match save_as_jpeg(opts.width, opts.height, &mut data, opts.output) {
+            Ok(_) => (),
+            Err(err) => errors::handle_error(&err),
+        }
+    } else if matches!(opts.output_format, payloads::payloads::ImageFormat::Bmp) {
+        match save_as_bmp(opts.width, opts.height, &mut data, opts.output) {
             Ok(_) => (),
             Err(err) => errors::handle_error(&err),
         }
     } else {
-        match save_as_png(opts.width, opts.height, data, opts.output) {
+        match save_as_png(opts.width, opts.height, &mut data, opts.output) {
             Ok(_) => (),
             Err(err) => errors::handle_error(&err),
         };
@@ -61,10 +66,75 @@ fn main() -> Result<(), std::io::Error> {
     Ok(())
 }
 
+use byteorder::{LittleEndian, WriteBytesExt};
+use std::io::Write;
+
+fn create_bitmap_header(width: u32, height: u32, data: &[u8]) -> Vec<u8> {
+    let mut header = Vec::new();
+    const BITMAP_HEADER_SIZE: u32 = 14;
+    const BITMAP_INFO_HEADER_SIZE: u32 = 40;
+
+    // Bitmap file header
+    header.write_all(b"BM").unwrap(); // Magic number
+    header
+        .write_u32::<LittleEndian>(BITMAP_HEADER_SIZE + BITMAP_INFO_HEADER_SIZE + data.len() as u32)
+        .unwrap(); // File size
+    header.write_u16::<LittleEndian>(0).unwrap(); // Reserved
+    header.write_u16::<LittleEndian>(0).unwrap(); // Reserved
+    header
+        .write_u32::<LittleEndian>(BITMAP_HEADER_SIZE + BITMAP_INFO_HEADER_SIZE)
+        .unwrap(); // Pixel data offset
+
+    // Bitmap info header
+    header
+        .write_u32::<LittleEndian>(BITMAP_INFO_HEADER_SIZE)
+        .unwrap(); // Header size
+    header.write_i32::<LittleEndian>(width as i32).unwrap(); // Width
+    header.write_i32::<LittleEndian>(height as i32).unwrap(); // Height
+    header.write_u16::<LittleEndian>(1).unwrap(); // Number of planes
+    header.write_u16::<LittleEndian>(32).unwrap(); // Bits per pixel
+    header.write_u32::<LittleEndian>(0).unwrap(); // Compression
+    header.write_u32::<LittleEndian>(data.len() as u32).unwrap(); // Image size
+    header.write_i32::<LittleEndian>(0).unwrap(); // X pixels per meter
+    header.write_i32::<LittleEndian>(0).unwrap(); // Y pixels per meter
+    header.write_u32::<LittleEndian>(0).unwrap(); // Number of colors
+    header.write_u32::<LittleEndian>(0).unwrap(); // Important colors
+
+    header
+}
+
+fn save_as_bmp(width: u32, height: u32, data: &[u8], output: String) -> io::Result<()> {
+    println!("Saving as BMP");
+    let mut file = match File::create(output) {
+        Ok(content) => content,
+        Err(err) => return Err(err),
+    };
+
+    match file.write_all(&create_bitmap_header(width, height, data)) {
+        Ok(_) => (),
+        Err(err) => return Err(err),
+    };
+
+    let mut bgra = vec![0; data.len()];
+
+    for i in (0..data.len()).step_by(4) {
+        bgra[i] = data[i / 4 * 4 + 2];
+        bgra[i + 1] = data[i / 4 * 4 + 1];
+        bgra[i + 2] = data[i / 4 * 4];
+        bgra[i + 3] = data[i / 4 * 4 + 3]
+    }
+
+    match file.write_all(&bgra) {
+        Ok(_) => (),
+        Err(err) => return Err(err),
+    };
+    file.flush()
+}
+
 fn save_as_jpeg(
     width: u32,
     height: u32,
-    data: Vec<u8>,
+    data: &[u8],
     output: String,
 ) -> Result<(), std::io::Error> {
     let start = Instant::now();
@@ -114,12 +184,7 @@ fn save_as_jpeg(
     Ok(())
 }
 
-fn save_as_png(
-    width: u32,
-    height: u32,
-    data: Vec<u8>,
-    output: String,
-) -> Result<(), std::io::Error> {
+fn save_as_png(width: u32, height: u32, data: &[u8], output: String) -> Result<(), std::io::Error> {
     let path = Path::new(&output);
     let file = match File::create(path) {
         Ok(content) => content,

@@ -16,6 +16,7 @@ jpeg-encoder = "0.5.1"
 resvg = "0.28.0"
 usvg = "0.28.0" 
 tiny-skia = "0.8.2"
+byteorder = "1.4.3"
 
 
 [[bin]]

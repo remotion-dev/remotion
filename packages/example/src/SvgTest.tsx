@@ -19,7 +19,7 @@ export const SvgTest = () => {
 					transformOrigin: 'center center',
 					transformBox: 'fill-box',
 				}}
-				stroke="pink"
+				stroke="red"
 				strokeWidth={40}
 				fill="none"
 			/>

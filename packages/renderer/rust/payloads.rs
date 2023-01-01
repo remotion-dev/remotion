@@ -53,6 +53,7 @@ pub mod payloads {
     pub enum ImageFormat {
         Png,
         Jpeg,
+        Bmp,
     }
 
     #[derive(Serialize, Deserialize, Debug)]

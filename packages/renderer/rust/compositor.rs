@@ -129,6 +129,8 @@ fn draw_svg_image_layer(img: &mut [u8], canvas_width: u32, layer: SvgLayer, is_o
 
     let opt = usvg::Options::default();
 
+    let parse = Instant::now();
+
     let mut tree = match usvg::Tree::from_data(layer.markup.as_bytes(), &opt) {
         Ok(content) => content,
         Err(err) => {
@@ -138,6 +140,9 @@ fn draw_svg_image_layer(img: &mut [u8], canvas_width: u32, layer: SvgLayer, is_o
 
     tree.convert_text(&fontdb, opt.keep_named_groups);
 
+    println!("Time to parse svg is: {:?}", parse.elapsed());
+
+    let render = Instant::now();
     let mut pixmap = match tiny_skia::Pixmap::new(layer.width, layer.height) {
         Some(content) => content,
         None => errors::handle_error(&io::Error::new(
@@ -154,6 +159,8 @@ fn draw_svg_image_layer(img: &mut [u8], canvas_width: u32, layer: SvgLayer, is_o
         pixmap.as_mut(),
     )
     .unwrap();
+
+    println!("Time to render pixmap is: {:?}", render.elapsed());
 
     if is_only_layer {
         img.copy_from_slice(pixmap.data().clone());
