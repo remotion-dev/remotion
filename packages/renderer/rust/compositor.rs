@@ -1,5 +1,5 @@
 use resvg::usvg_text_layout::{fontdb, TreeTextToPath};
-use std::{error::Error, fmt, fs::File};
+use std::{error::Error, fmt, fs::File, time::Instant};
 
 use crate::{
     errors,
@@ -136,13 +136,19 @@ fn draw_svg_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: SvgLayer) {
 
     let opt = usvg::Options::default();
 
-    let mut tree = usvg::Tree::from_data(layer.markup.as_bytes(), &opt).unwrap();
+    let mut tree = match usvg::Tree::from_data(layer.markup.as_bytes(), &opt) {
+        Ok(content) => content,
+        Err(err) => {
+            errors::handle_error(&err);
+        }
+    };
 
     tree.convert_text(&fontdb, opt.keep_named_groups);
 
     let pixmap_size = tree.size.to_screen_size();
     let mut pixmap = tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
 
+    let start = Instant::now();
     resvg::render(
         &tree,
         usvg::FitTo::Original,
@@ -150,6 +156,8 @@ fn draw_svg_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: SvgLayer) {
         pixmap.as_mut(),
     )
     .unwrap();
+    let duration = start.elapsed();
+    println!("Time to render SVG is: {:?}", duration);
 
     let bytes = pixmap.data();
 
@@ -182,8 +190,6 @@ fn draw_svg_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: SvgLayer) {
             img[a_index] = new_pixel.3;
         }
     }
-
-    print!("Drawing SVG image layer... ");
 }
 
 fn draw_jpg_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: ImageLayer) {

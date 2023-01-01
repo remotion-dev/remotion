@@ -23,6 +23,7 @@ import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
 import {StillZoom} from './StillZoom';
+import {SvgTest} from './SvgTest';
 import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
 import {VideoOnCanvas} from './VideoOnCanvas';
@@ -551,6 +552,14 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 				/>
 			</Folder>
+			<Composition
+				id="svg-test"
+				component={SvgTest}
+				durationInFrames={300}
+				fps={30}
+				height={1080}
+				width={1920}
+			/>
 		</>
 	);
 };

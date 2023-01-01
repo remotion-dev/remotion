@@ -56,12 +56,17 @@ export const compose = async ({
 
 		const stderrChunks: Buffer[] = [];
 		child.stderr.on('data', (d) => stderrChunks.push(d));
+		const stdoutChunks: Buffer[] = [];
+		child.stdout.on('data', (d) => stdoutChunks.push(d));
 
 		child.on('close', (code) => {
 			if (code === 0) {
+				const message = Buffer.concat(stdoutChunks).toString('utf-8');
+				console.log(message);
 				resolve();
 			} else {
 				const message = Buffer.concat(stderrChunks).toString('utf-8');
+				console.log(message);
 
 				const parsed = JSON.parse(message) as ErrorPayload;
 

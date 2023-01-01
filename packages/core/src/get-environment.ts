@@ -6,7 +6,7 @@ export type RemotionEnvironment =
 	| 'player-production';
 
 export const getRemotionEnvironment = (): RemotionEnvironment => {
-	if (process.env.REMOTION_SERVER_RENDERING) {
+	if (typeof process !== 'undefined' && process.env.REMOTION_SERVER_RENDERING) {
 		return 'server-rendering';
 	}
 

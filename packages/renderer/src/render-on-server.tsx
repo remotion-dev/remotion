@@ -1,3 +1,4 @@
+import path from 'path';
 import type {ComponentType} from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import type {
@@ -7,8 +8,12 @@ import type {
 	TimelineContextValue,
 } from 'remotion';
 import {Internals} from 'remotion';
+import {makeDownloadMap} from './assets/download-map';
+import {compose} from './compositor/compose';
+import {getFrameOutputFileName} from './get-frame-padded-index';
+import {Pool} from './pool';
 
-export const renderOnServer = (
+export const renderOnServer = async (
 	Comp: ComponentType,
 	composition: TCompMetadata
 ) => {
@@ -55,29 +60,69 @@ export const renderOnServer = (
 		},
 	};
 
-	for (let i = 0; i < composition.durationInFrames; i++) {
-		// eslint-disable-next-line react/jsx-no-constructed-context-values
-		const value: TimelineContextValue = {
-			audioAndVideoTags: {current: []},
-			rootId: composition.id,
-			playing: false,
-			playbackRate: 1,
-			imperativePlaying: {
-				current: false,
-			},
-			frame: i,
-			setPlaybackRate: () => {
-				throw new Error('Not implemented');
-			},
-		};
+	const pool = new Pool(new Array(8).fill(true).map((_, i) => i));
 
-		renderToStaticMarkup(
-			<Internals.Timeline.TimelineContext.Provider value={value}>
-				<Internals.CompositionManager.Provider value={memo}>
-					<Comp />
-				</Internals.CompositionManager.Provider>
-			</Internals.Timeline.TimelineContext.Provider>
-		);
-		console.log(i);
-	}
+	await Promise.all(
+		new Array(composition.durationInFrames).fill(true).map(async (_, i) => {
+			const frame = await pool.acquire();
+			// eslint-disable-next-line react/jsx-no-constructed-context-values
+			const value: TimelineContextValue = {
+				audioAndVideoTags: {current: []},
+				rootId: composition.id,
+				playing: false,
+				playbackRate: 1,
+				imperativePlaying: {
+					current: false,
+				},
+				frame: i,
+				setPlaybackRate: () => {
+					throw new Error('Not implemented');
+				},
+			};
+
+			const svg = renderToStaticMarkup(
+				<Internals.Timeline.TimelineContext.Provider value={value}>
+					<Internals.CompositionManager.Provider value={memo}>
+						<Comp />
+					</Internals.CompositionManager.Provider>
+				</Internals.Timeline.TimelineContext.Provider>
+			);
+
+			const downloadMap = makeDownloadMap();
+
+			const out = path.join(
+				downloadMap.compositingDir,
+				getFrameOutputFileName({
+					frame: i,
+					imageFormat: 'jpeg',
+					index: i,
+					countType: 'from-zero',
+					lastFrame: composition.durationInFrames - 1,
+					totalFrames: composition.durationInFrames,
+				})
+			);
+			await compose({
+				height: composition.height,
+				width: composition.width,
+				downloadMap,
+				imageFormat: 'Jpeg',
+				layers: [
+					{
+						type: 'SvgImage',
+						params: {
+							height: composition.height,
+							width: composition.width,
+							markup: svg,
+							x: 0,
+							y: 0,
+						},
+					},
+				],
+				output: out,
+			});
+			console.log(i, out);
+
+			pool.release(frame);
+		})
+	);
 };

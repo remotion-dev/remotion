@@ -9,6 +9,7 @@ use std::{
     fs::File,
     io::{BufWriter, Read},
     path::Path,
+    time::Instant,
 };
 
 extern crate png;
@@ -86,6 +87,8 @@ fn save_as_jpeg(
         }
     };
 
+    let start = Instant::now();
+
     match encoder.encode(&data, width_u16, height_u16, ColorType::Rgba) {
         Ok(_) => (),
         Err(_) => {
@@ -95,6 +98,9 @@ fn save_as_jpeg(
             ))
         }
     };
+
+    let duration = start.elapsed();
+    println!("Time to encode is: {:?}", duration);
 
     Ok(())
 }

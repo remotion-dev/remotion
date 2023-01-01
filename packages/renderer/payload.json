@@ -1,29 +1,19 @@
 {
 	"v": 1,
-	"height": 200,
-	"width": 200,
-	"output_format": "Png",
+	"height": 1080,
+	"width": 1920,
 	"layers": [
-		{
-			"type": "Solid",
-			"params": {
-				"height": 200,
-				"width": 200,
-				"x": 0,
-				"y": 0,
-				"fill": [255, 255, 0, 255]
-			}
-		},
 		{
 			"type": "SvgImage",
 			"params": {
-				"height": 200,
-				"width": 200,
-				"src": "/Users/jonathanburger/remotion/packages/renderer/e-textPath-035.svg",
+				"height": 1080,
+				"width": 1920,
+				"markup": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1920 1080\"><ellipse ry=\"400\" rx=\"200\" cx=\"960\" cy=\"540\" transform=\"rotate(4)\" style=\"transform-origin:center center;transform-box:fill-box\" stroke=\"pink\" stroke-width=\"40\" fill=\"none\"></ellipse></svg>",
 				"x": 0,
 				"y": 0
 			}
 		}
 	],
-	"output": "/Users/jonathanburger/remotion/packages/renderer/output2.png"
+	"output": "/var/folders/hs/mbxg3j_55ls1b_dhn50w32t00000gn/T/remotion-v3-3-25-assetslj9nwfwjby/remotion-compositing-temp-dir/element-004.jpeg",
+	"output_format": "Png"
 }

@@ -3,5 +3,5 @@ import {TCompMetadata} from 'remotion';
 import {Index} from './Video';
 
 const comps = getCompositionsOnServer(Index);
-const reacSvg = comps.find((c) => c.id === 'react-svg');
+const reacSvg = comps.find((c) => c.id === 'svg-test');
 renderOnServer(Index, reacSvg as TCompMetadata);
