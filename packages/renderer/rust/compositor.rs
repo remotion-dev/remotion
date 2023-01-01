@@ -1,21 +1,10 @@
 use resvg::usvg_text_layout::{fontdb, TreeTextToPath};
-use std::{error::Error, fmt, fs::File, time::Instant};
+use std::{fs::File, io, time::Instant};
 
 use crate::{
     errors,
     payloads::payloads::{ImageLayer, Layer, SolidLayer, SvgLayer},
 };
-
-#[derive(Debug)]
-struct NoMetadataError {}
-
-impl fmt::Display for NoMetadataError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "No metadata")
-    }
-}
-
-impl Error for NoMetadataError {}
 
 fn draw_solid_layer(img: &mut [u8], canvas_width: u32, layer: SolidLayer) {
     for y in layer.y..(layer.height + layer.y) {
@@ -133,7 +122,8 @@ fn draw_png_image_layer(img: &mut [u8], canvas_width: u32, layer: ImageLayer) {
 fn draw_svg_image_layer(img: &mut [u8], canvas_width: u32, layer: SvgLayer, is_only_layer: bool) {
     let fonts = Instant::now();
 
-    let fontdb = fontdb::Database::new();
+    let mut fontdb = fontdb::Database::new();
+    fontdb.load_system_fonts();
     let dur = fonts.elapsed();
     println!("Time to load fonts is: {:?}", dur);
 
@@ -148,11 +138,17 @@ fn draw_svg_image_layer(img: &mut [u8], canvas_width: u32, layer: SvgLayer, is_o
 
     tree.convert_text(&fontdb, opt.keep_named_groups);
 
-    let pixmap_size = tree.size.to_screen_size();
-    let mut pixmap = tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
+    let mut pixmap = match tiny_skia::Pixmap::new(layer.width, layer.height) {
+        Some(content) => content,
+        None => errors::handle_error(&io::Error::new(
+            io::ErrorKind::Other,
+            "Could not create pixmap",
+        )),
+    };
 
     resvg::render(
         &tree,
+        // TODO: Should it be fitto?
         usvg::FitTo::Original,
         tiny_skia::Transform::default(),
         pixmap.as_mut(),
