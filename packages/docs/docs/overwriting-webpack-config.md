@@ -43,6 +43,7 @@ When using the Node.JS APIs - [`bundle()`](/docs/bundle) for SSR or [`deploySite
 
 ```ts twoslash title="src/webpack-override.ts"
 import { WebpackOverrideFn } from "remotion";
+
 export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
   return {
     ...currentConfiguration,
@@ -59,6 +60,7 @@ export const webpackOverride: WebpackOverrideFn = (c) => c;
 // ---cut---
 import { Config } from "remotion";
 import { webpackOverride } from "./src/webpack-override";
+
 Config.Bundling.overrideWebpackConfig(webpackOverride);
 ```
 
@@ -73,6 +75,7 @@ export const webpackOverride: WebpackOverrideFn = (c) => c;
 // ---cut---
 import { bundle } from "@remotion/bundler";
 import { webpackOverride } from "./src/webpack-override";
+
 await bundle({
   entryPoint: require.resolve("./src/index.ts"),
   webpackOverride,
@@ -90,6 +93,7 @@ export const webpackOverride: WebpackOverrideFn = (c) => c;
 // ---cut---
 import { deploySite } from "@remotion/lambda";
 import { webpackOverride } from "./src/webpack-override";
+
 await deploySite({
   entryPoint: require.resolve("./src/index.ts"),
   options: {
