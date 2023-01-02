@@ -7,16 +7,17 @@ use jpeg_encoder::{ColorType, Encoder};
 use payloads::payloads::{parse_cli, CliInput};
 use std::{
     fs::File,
-    io::{self, BufWriter, Read},
+    io::{self, BufWriter},
     path::Path,
     time::Instant,
 };
+use tiff::encoder::{colortype, TiffEncoder};
 
 extern crate png;
 
 fn read_stdin_to_string() -> Result<String, std::io::Error> {
     let mut input = String::new();
-    std::io::stdin().read_to_string(&mut input)?;
+    std::io::stdin().read_line(&mut input)?;
     Ok(input)
 }
 
@@ -54,6 +55,11 @@ fn main() -> Result<(), std::io::Error> {
             Ok(_) => (),
             Err(err) => errors::handle_error(&err),
         }
+    } else if matches!(opts.output_format, payloads::payloads::ImageFormat::Tiff) {
+        match save_as_tiff(opts.width, opts.height, &mut data, opts.output) {
+            Ok(_) => (),
+            Err(err) => errors::handle_error(&err),
+        }
     } else {
         match save_as_png(opts.width, opts.height, &mut data, opts.output) {
             Ok(_) => (),
@@ -62,6 +68,13 @@ fn main() -> Result<(), std::io::Error> {
     }
     let duration = start.elapsed();
     println!("Time to encode is: {:?}", duration);
+
+    let input2 = match read_stdin_to_string() {
+        Ok(content) => content,
+        Err(err) => errors::handle_error(&err),
+    };
+
+    println!("more input {}", input2);
 
     Ok(())
 }
@@ -129,6 +142,20 @@ fn save_as_bmp(width: u32, height: u32, data: &[u8], output: String) -> io::Resu
         Err(err) => return Err(err),
     };
     file.flush()
+}
+
+fn save_as_tiff(width: u32, height: u32, data: &[u8], output: String) -> io::Result<()> {
+    let mut file = match File::create(output) {
+        Ok(content) => content,
+        Err(err) => return Err(err),
+    };
+
+    let mut tiff = TiffEncoder::new(&mut file).unwrap();
+
+    let mut image = tiff.new_image::<colortype::RGBA8>(width, height).unwrap();
+    image.encoder();
+    image.write_data(&data).unwrap();
+    Ok(())
 }
 
 fn save_as_jpeg(

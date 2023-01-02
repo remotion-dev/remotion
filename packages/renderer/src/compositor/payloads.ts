@@ -41,7 +41,7 @@ export type Layer =
 			};
 	  };
 
-export type CompositorImageFormat = 'Png' | 'Jpeg' | 'Bmp';
+export type CompositorImageFormat = 'Png' | 'Jpeg' | 'Bmp' | 'Tiff';
 
 export type CliInput = {
 	v: number;

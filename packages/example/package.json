@@ -50,6 +50,7 @@
 		"mdx-loader": "3.0.2",
 		"polished": "^4.0.5",
 		"prettier": "^2.7.1",
+		"react": "^18.2.0",
 		"remotion": "3.3.25",
 		"styled-components": "^5.1.1",
 		"ts-node": "^10.8.0",

@@ -25,7 +25,7 @@ export const getFrameOutputFileName = ({
 }: {
 	index: number;
 	frame: number;
-	imageFormat: 'png' | 'jpeg' | 'none';
+	imageFormat: 'png' | 'jpeg' | 'bmp' | 'tiff' | 'none';
 	countType: CountType;
 	lastFrame: number;
 	totalFrames: number;

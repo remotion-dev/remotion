@@ -354,6 +354,7 @@ dependencies = [
  "resvg",
  "serde",
  "serde_json",
+ "tiff",
  "tiny-skia",
  "usvg",
 ]
@@ -512,6 +513,17 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
+]
+
+[[package]]
+name = "tiff"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7449334f9ff2baf290d55d73983a7d6fa15e01198faef72af07e2a8db851e471"
+dependencies = [
+ "flate2",
+ "jpeg-decoder",
+ "weezl",
 ]
 
 [[package]]

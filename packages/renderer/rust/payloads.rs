@@ -54,6 +54,7 @@ pub mod payloads {
         Png,
         Jpeg,
         Bmp,
+        Tiff,
     }
 
     #[derive(Serialize, Deserialize, Debug)]

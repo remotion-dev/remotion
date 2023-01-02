@@ -12,12 +12,14 @@ import {makeDownloadMap} from './assets/download-map';
 import {compose} from './compositor/compose';
 import {getFrameOutputFileName} from './get-frame-padded-index';
 import {Pool} from './pool';
+import {stitchFramesToVideo} from './stitch-frames-to-video';
 
 export const renderOnServer = async (
 	Comp: ComponentType,
 	composition: TCompMetadata
 ) => {
 	console.time('total');
+	console.time('frames');
 	process.env.REMOTION_SERVER_RENDERING = 'true';
 	process.env.SELECT_COMP_ID = composition.id;
 
@@ -92,10 +94,10 @@ export const renderOnServer = async (
 			);
 
 			const out = path.join(
-				downloadMap.compositingDir,
+				'/tmp/rdisk',
 				getFrameOutputFileName({
 					frame: i,
-					imageFormat: 'png',
+					imageFormat: 'tiff',
 					index: i,
 					countType: 'from-zero',
 					lastFrame: composition.durationInFrames - 1,
@@ -106,7 +108,7 @@ export const renderOnServer = async (
 				height: composition.height,
 				width: composition.width,
 				downloadMap,
-				imageFormat: 'Bmp',
+				imageFormat: 'Tiff',
 				layers: [
 					{
 						type: 'SvgImage',
@@ -121,10 +123,25 @@ export const renderOnServer = async (
 				],
 				output: out,
 			});
-			console.log(i, out);
 
 			pool.release(frame);
 		})
 	);
+	console.timeEnd('frames');
+
+	await stitchFramesToVideo({
+		assetsInfo: {
+			assets: [],
+			downloadMap,
+			firstFrameIndex: 0,
+			imageSequenceName: path.join('/tmp/rdisk', `element-%0${3}d.tiff`),
+		},
+		force: true,
+		fps: 30,
+		height: composition.height,
+		width: composition.width,
+		outputLocation: '/tmp/rdisk/out.mp4',
+	});
+	// cleanDownloadMap(downloadMap);
 	console.timeEnd('total');
 };

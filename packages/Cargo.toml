@@ -17,6 +17,7 @@ resvg = "0.28.0"
 usvg = "0.28.0" 
 tiny-skia = "0.8.2"
 byteorder = "1.4.3"
+tiff = "0.8.1"
 
 
 [[bin]]
