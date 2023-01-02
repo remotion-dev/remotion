@@ -2,7 +2,6 @@ use std::{
     fs::File,
     io::{self, BufWriter, Write},
     path::Path,
-    time::Instant,
 };
 
 use byteorder::{LittleEndian, WriteBytesExt};
@@ -44,7 +43,6 @@ fn create_bitmap_header(width: u32, height: u32, data: &[u8]) -> Vec<u8> {
 }
 
 pub fn save_as_bmp(width: u32, height: u32, data: &[u8], output: String) -> io::Result<()> {
-    println!("Saving as BMP");
     let mut file = match File::create(output) {
         Ok(content) => content,
         Err(err) => return Err(err),
@@ -91,8 +89,6 @@ pub fn save_as_jpeg(
     data: &[u8],
     output: String,
 ) -> Result<(), std::io::Error> {
-    let start = Instant::now();
-
     let encoder = match Encoder::new_file(output, 80) {
         Ok(content) => content,
         Err(_) => {
@@ -131,9 +127,6 @@ pub fn save_as_jpeg(
             ))
         }
     };
-
-    let duration = start.elapsed();
-    println!("Save as JPEG: {:?}", duration);
 
     Ok(())
 }

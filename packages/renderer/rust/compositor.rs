@@ -1,5 +1,23 @@
-use resvg::usvg_text_layout::{fontdb, TreeTextToPath};
+use lazy_static::lazy_static;
+use resvg::usvg_text_layout::fontdb;
+use resvg::usvg_text_layout::TreeTextToPath;
 use std::{fs::File, io, time::Instant};
+
+lazy_static! {
+    static ref FONT_DB_SINGLETON: SingletonFontDb = SingletonFontDb::new();
+}
+
+struct SingletonFontDb {
+    fontdb: fontdb::Database,
+}
+
+impl SingletonFontDb {
+    pub fn new() -> SingletonFontDb {
+        let mut fontdb = fontdb::Database::new();
+        fontdb.load_system_fonts();
+        SingletonFontDb { fontdb }
+    }
+}
 
 use crate::{
     errors,
@@ -120,16 +138,7 @@ fn draw_png_image_layer(img: &mut [u8], canvas_width: u32, layer: ImageLayer) {
 }
 
 fn draw_svg_image_layer(img: &mut [u8], canvas_width: u32, layer: SvgLayer, is_only_layer: bool) {
-    let fonts = Instant::now();
-
-    let mut fontdb = fontdb::Database::new();
-    fontdb.load_system_fonts();
-    let dur = fonts.elapsed();
-    println!("Time to load fonts is: {:?}", dur);
-
     let opt = usvg::Options::default();
-
-    let parse = Instant::now();
 
     let mut tree = match usvg::Tree::from_data(layer.markup.as_bytes(), &opt) {
         Ok(content) => content,
@@ -138,9 +147,7 @@ fn draw_svg_image_layer(img: &mut [u8], canvas_width: u32, layer: SvgLayer, is_o
         }
     };
 
-    tree.convert_text(&fontdb, opt.keep_named_groups);
-
-    println!("Time to parse svg is: {:?}", parse.elapsed());
+    tree.convert_text(&FONT_DB_SINGLETON.fontdb, opt.keep_named_groups);
 
     let render = Instant::now();
     let mut pixmap = match tiny_skia::Pixmap::new(layer.width, layer.height) {

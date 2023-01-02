@@ -67,17 +67,21 @@ const startCompositor = (): Compositor => {
 
 				const onStdout = (d: Buffer) => {
 					const str = d.toString('utf-8');
-					let parsed: TaskDonePayload | null = null;
-					try {
-						parsed = JSON.parse(str) as TaskDonePayload;
-					} catch (e) {
-						console.log(str);
-					}
+					const lineSplit = str.split('\n');
+					for (const line of lineSplit) {
+						let parsed: TaskDonePayload | null = null;
+						try {
+							parsed = JSON.parse(line) as TaskDonePayload;
+						} catch (e) {
+							console.log('Rust debug:', line);
+						}
 
-					if (parsed && parsed.nonce === actualPayload.nonce) {
-						resolve();
-						child.stderr.off('data', onStderr);
-						child.stdout.off('data', onStdout);
+						if (parsed && parsed.nonce === actualPayload.nonce) {
+							console.log('done', parsed.nonce);
+							resolve();
+							child.stderr.off('data', onStderr);
+							child.stdout.off('data', onStdout);
+						}
 					}
 				};
 
