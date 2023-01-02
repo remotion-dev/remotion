@@ -95,75 +95,6 @@ fn main() -> Result<(), std::io::Error> {
 
     // Process the messages in the thread pool
 
-    let encoder_thread = thread::spawn(move || {
-        let mut x264_encoder = x264::Encoder::builder()
-            .fps(FPS, 1)
-            .build(x264::Colorspace::RGB, WIDTH as _, HEIGHT as _)
-            .unwrap();
-
-        let mut file = File::create("fade.h264").unwrap();
-
-        {
-            let headers = x264_encoder.headers().unwrap();
-            file.write_all(headers.entirety()).unwrap();
-        }
-
-        let mut next_frame = 0;
-        let mut frames_found: Vec<NewFrame> = Vec::new();
-        loop {
-            if next_frame == 300 {
-                break;
-            }
-            let frame = match rx.recv() {
-                Ok(frame) => frame,
-                Err(_) => {
-                    break;
-                }
-            };
-
-            frames_found.push(frame);
-
-            loop {
-                let index = frames_found.iter().position(|x| x.nonce == next_frame);
-                match index {
-                    Some(f) => {
-                        let image =
-                            x264::Image::rgb(WIDTH as _, HEIGHT as _, &frames_found[f].data);
-
-                        let (frame, _) = match x264_encoder
-                            .encode((FPS * frames_found[f].nonce).into(), image)
-                        {
-                            Ok(frame) => frame,
-                            Err(err) => {
-                                println!("Error: {:#?}", err);
-                                errors::handle_error(&io::Error::new(
-                                    io::ErrorKind::Other,
-                                    "Could not encode frame",
-                                ))
-                            }
-                        };
-
-                        file.write_all(frame.entirety()).unwrap();
-                        handle_finish(frames_found[f].nonce);
-                        frames_found.remove(f);
-                        println!("flushed {}", next_frame);
-
-                        next_frame += 1;
-                    }
-                    None => {
-                        break;
-                    }
-                }
-            }
-        }
-        let mut flush = x264_encoder.flush();
-        while let Some(result) = flush.next() {
-            let (data, _) = result.unwrap();
-            file.write_all(data.entirety()).unwrap();
-        }
-        println!("proper flush");
-    });
-
     let another = thread::spawn(move || loop {
         let message = match command_rx.recv() {
             Ok(message) => message,
@@ -189,6 +120,71 @@ fn main() -> Result<(), std::io::Error> {
         });
     });
 
+    let mut x264_encoder = x264::Encoder::builder()
+        .fps(FPS, 1)
+        .build(x264::Colorspace::RGB, WIDTH as _, HEIGHT as _)
+        .unwrap();
+
+    let mut file = File::create("fade.h264").unwrap();
+
+    {
+        let headers = x264_encoder.headers().unwrap();
+        file.write_all(headers.entirety()).unwrap();
+    }
+
+    let mut next_frame = 0;
+    let mut frames_found: Vec<NewFrame> = Vec::new();
+    loop {
+        if next_frame == 300 {
+            break;
+        }
+        let frame = match rx.recv() {
+            Ok(frame) => frame,
+            Err(_) => {
+                break;
+            }
+        };
+
+        frames_found.push(frame);
+
+        loop {
+            let index = frames_found.iter().position(|x| x.nonce == next_frame);
+            match index {
+                Some(f) => {
+                    let image = x264::Image::rgb(WIDTH as _, HEIGHT as _, &frames_found[f].data);
+
+                    let (frame, _) =
+                        match x264_encoder.encode((FPS * frames_found[f].nonce).into(), image) {
+                            Ok(frame) => frame,
+                            Err(err) => {
+                                println!("Error: {:#?}", err);
+                                errors::handle_error(&io::Error::new(
+                                    io::ErrorKind::Other,
+                                    "Could not encode frame",
+                                ))
+                            }
+                        };
+
+                    file.write_all(frame.entirety()).unwrap();
+                    handle_finish(frames_found[f].nonce);
+                    frames_found.remove(f);
+                    println!("flushed {}", next_frame);
+
+                    next_frame += 1;
+                }
+                None => {
+                    break;
+                }
+            }
+        }
+    }
+    let mut flush = x264_encoder.flush();
+    while let Some(result) = flush.next() {
+        let (data, _) = result.unwrap();
+        file.write_all(data.entirety()).unwrap();
+    }
+    println!("proper flush");
+
     another.join().unwrap();
     match thread_handle.join() {
         Ok(_) => {}
@@ -197,8 +193,6 @@ fn main() -> Result<(), std::io::Error> {
             "Could not create pixmap",
         )),
     };
-
-    encoder_thread.join().unwrap();
 
     Ok(())
 }
