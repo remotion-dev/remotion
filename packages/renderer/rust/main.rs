@@ -5,7 +5,9 @@ mod payloads;
 use compositor::draw_layer;
 use jpeg_encoder::{ColorType, Encoder};
 
+use byteorder::{LittleEndian, WriteBytesExt};
 use payloads::payloads::{parse_command, CliInput};
+use std::io::Write;
 use std::{
     fs::File,
     io::{self, stdin, BufRead, BufWriter},
@@ -13,6 +15,9 @@ use std::{
     time::Instant,
 };
 use tiff::encoder::{colortype, TiffEncoder};
+
+use crate::errors::handle_error;
+use crate::finish::handle_finish;
 
 extern crate png;
 
@@ -69,12 +74,6 @@ fn main() -> Result<(), std::io::Error> {
         };
     }
 }
-
-use byteorder::{LittleEndian, WriteBytesExt};
-use std::io::Write;
-
-use crate::errors::handle_error;
-use crate::finish::handle_finish;
 
 fn create_bitmap_header(width: u32, height: u32, data: &[u8]) -> Vec<u8> {
     let mut header = Vec::new();
