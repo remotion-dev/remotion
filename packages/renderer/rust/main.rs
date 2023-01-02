@@ -16,14 +16,10 @@ use tiff::encoder::{colortype, TiffEncoder};
 extern crate png;
 
 fn process_command_line(opts: CliInput) {
-    let parse_time = Instant::now();
-
     let len: usize = match (opts.width * opts.height).try_into() {
         Ok(content) => content,
         Err(err) => errors::handle_error(&err),
     };
-    let durationparsed = parse_time.elapsed();
-    println!("parsetime: {:?}", durationparsed);
 
     let mut data = vec![0; len * 4];
 
