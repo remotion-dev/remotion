@@ -57,3 +57,8 @@ export type ErrorPayload = {
 	error: string;
 	backtrace: string;
 };
+
+export type TaskDonePayload = {
+	nonce: number;
+	time: number;
+};

@@ -1,5 +1,6 @@
 mod compositor;
 mod errors;
+mod finish;
 mod payloads;
 use compositor::draw_layer;
 use jpeg_encoder::{ColorType, Encoder};
@@ -57,25 +58,23 @@ fn main() -> Result<(), std::io::Error> {
         let mut handle = stdin().lock();
         match handle.read_line(&mut input) {
             Ok(_) => {
-                let task_start = Instant::now();
-                print!("got command {}", input);
                 let command = parse_command(&input);
+                let nonce = command.nonce;
                 process_command_line(command);
-
-                println!("Executed task: {:?}", task_start.elapsed());
+                handle_finish(nonce);
             }
             Err(err) => {
-                println!("Error: {}", err);
-                break;
+                handle_error(&err);
             }
         };
     }
-
-    Ok(())
 }
 
 use byteorder::{LittleEndian, WriteBytesExt};
 use std::io::Write;
+
+use crate::errors::handle_error;
+use crate::finish::handle_finish;
 
 fn create_bitmap_header(width: u32, height: u32, data: &[u8]) -> Vec<u8> {
     let mut header = Vec::new();

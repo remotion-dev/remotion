@@ -1,6 +1,6 @@
 import {spawn} from 'child_process';
 import {getExecutablePath} from './get-executable-path';
-import type {CliInput, ErrorPayload} from './payloads';
+import type {CliInput, ErrorPayload, TaskDonePayload} from './payloads';
 
 export type Compositor = {
 	finishCommands: () => void;
@@ -49,7 +49,6 @@ const startCompositor = (): Compositor => {
 			return new Promise((resolve, reject) => {
 				child.stdin.write(JSON.stringify(actualPayload) + '\n');
 				const stderrChunks: Buffer[] = [];
-				const stdoutChunks: Buffer[] = [];
 
 				const onStderr = (d: Buffer) => {
 					stderrChunks.push(d);
@@ -67,11 +66,19 @@ const startCompositor = (): Compositor => {
 				};
 
 				const onStdout = (d: Buffer) => {
-					stdoutChunks.push(d);
-					console.log(d.toString('utf-8'));
-					resolve();
-					child.stderr.off('data', onStderr);
-					child.stdout.off('data', onStdout);
+					const str = d.toString('utf-8');
+					let parsed: TaskDonePayload | null = null;
+					try {
+						parsed = JSON.parse(str) as TaskDonePayload;
+					} catch (e) {
+						console.log(str);
+					}
+
+					if (parsed && parsed.nonce === actualPayload.nonce) {
+						resolve();
+						child.stderr.off('data', onStderr);
+						child.stdout.off('data', onStdout);
+					}
 				};
 
 				child.stderr.on('data', onStderr);

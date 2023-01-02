@@ -64,7 +64,7 @@ export const renderOnServer = async (
 		},
 	};
 
-	const pool = new Pool(new Array(1).fill(true).map((_, i) => i));
+	const pool = new Pool(new Array(4).fill(true).map((_, i) => i));
 
 	const downloadMap = makeDownloadMap();
 

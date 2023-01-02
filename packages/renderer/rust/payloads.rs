@@ -49,6 +49,12 @@ pub mod payloads {
         pub backtrace: String,
     }
 
+    #[derive(Serialize, Debug)]
+    pub struct TaskDonePayload {
+        pub nonce: u32,
+        pub time: u128,
+    }
+
     #[derive(Serialize, Deserialize, Debug)]
     pub enum ImageFormat {
         Png,
