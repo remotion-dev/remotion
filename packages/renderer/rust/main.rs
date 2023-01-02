@@ -4,10 +4,10 @@ mod payloads;
 use compositor::draw_layer;
 use jpeg_encoder::{ColorType, Encoder};
 
-use payloads::payloads::{parse_cli, CliInput};
+use payloads::payloads::{parse_command, CliInput};
 use std::{
     fs::File,
-    io::{self, BufWriter},
+    io::{self, stdin, BufRead, BufWriter},
     path::Path,
     time::Instant,
 };
@@ -15,21 +15,9 @@ use tiff::encoder::{colortype, TiffEncoder};
 
 extern crate png;
 
-fn read_stdin_to_string() -> Result<String, std::io::Error> {
-    let mut input = String::new();
-    std::io::stdin().read_line(&mut input)?;
-    Ok(input)
-}
-
-fn main() -> Result<(), std::io::Error> {
+fn process_command_line(opts: CliInput) {
     let parse_time = Instant::now();
 
-    let input = match read_stdin_to_string() {
-        Ok(content) => content,
-        Err(err) => errors::handle_error(&err),
-    };
-
-    let opts: CliInput = parse_cli(&input);
     let len: usize = match (opts.width * opts.height).try_into() {
         Ok(content) => content,
         Err(err) => errors::handle_error(&err),
@@ -37,7 +25,6 @@ fn main() -> Result<(), std::io::Error> {
     let durationparsed = parse_time.elapsed();
     println!("parsetime: {:?}", durationparsed);
 
-    let start = Instant::now();
     let mut data = vec![0; len * 4];
 
     let size = opts.layers.len();
@@ -66,15 +53,27 @@ fn main() -> Result<(), std::io::Error> {
             Err(err) => errors::handle_error(&err),
         };
     }
-    let duration = start.elapsed();
-    println!("Time to encode is: {:?}", duration);
+}
 
-    let input2 = match read_stdin_to_string() {
-        Ok(content) => content,
-        Err(err) => errors::handle_error(&err),
-    };
+fn main() -> Result<(), std::io::Error> {
+    loop {
+        let mut input = String::new();
+        let mut handle = stdin().lock();
+        match handle.read_line(&mut input) {
+            Ok(_) => {
+                let task_start = Instant::now();
+                print!("got command {}", input);
+                let command = parse_command(&input);
+                process_command_line(command);
 
-    println!("more input {}", input2);
+                println!("Executed task: {:?}", task_start.elapsed());
+            }
+            Err(err) => {
+                println!("Error: {}", err);
+                break;
+            }
+        };
+    }
 
     Ok(())
 }

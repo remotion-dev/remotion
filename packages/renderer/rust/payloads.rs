@@ -67,7 +67,7 @@ pub mod payloads {
         pub output_format: ImageFormat,
     }
 
-    pub fn parse_cli(json: &str) -> CliInput {
+    pub fn parse_command(json: &str) -> CliInput {
         let cli_input: CliInput = match serde_json::from_str(json) {
             Ok(content) => content,
             Err(err) => errors::handle_error(&err),

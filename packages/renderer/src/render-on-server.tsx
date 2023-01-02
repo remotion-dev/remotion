@@ -10,6 +10,7 @@ import type {
 import {Internals} from 'remotion';
 import {makeDownloadMap} from './assets/download-map';
 import {compose} from './compositor/compose';
+import {releaseCompositorWithId} from './compositor/compositor';
 import {getFrameOutputFileName} from './get-frame-padded-index';
 import {Pool} from './pool';
 import {stitchFramesToVideo} from './stitch-frames-to-video';
@@ -63,9 +64,11 @@ export const renderOnServer = async (
 		},
 	};
 
-	const pool = new Pool(new Array(4).fill(true).map((_, i) => i));
+	const pool = new Pool(new Array(1).fill(true).map((_, i) => i));
 
 	const downloadMap = makeDownloadMap();
+
+	const renderId = 'abc';
 
 	await Promise.all(
 		new Array(composition.durationInFrames).fill(true).map(async (_, i) => {
@@ -94,7 +97,7 @@ export const renderOnServer = async (
 			);
 
 			const out = path.join(
-				'/tmp/rdisk',
+				downloadMap.compositingDir,
 				getFrameOutputFileName({
 					frame: i,
 					imageFormat: 'tiff',
@@ -104,6 +107,7 @@ export const renderOnServer = async (
 					totalFrames: composition.durationInFrames,
 				})
 			);
+
 			await compose({
 				height: composition.height,
 				width: composition.width,
@@ -122,11 +126,13 @@ export const renderOnServer = async (
 					},
 				],
 				output: out,
+				renderId,
 			});
 
 			pool.release(frame);
 		})
 	);
+	releaseCompositorWithId(renderId);
 	console.timeEnd('frames');
 
 	await stitchFramesToVideo({
@@ -134,14 +140,18 @@ export const renderOnServer = async (
 			assets: [],
 			downloadMap,
 			firstFrameIndex: 0,
-			imageSequenceName: path.join('/tmp/rdisk', `element-%0${3}d.tiff`),
+			imageSequenceName: path.join(
+				downloadMap.compositingDir,
+				`element-%0${3}d.tiff`
+			),
 		},
 		force: true,
 		fps: 30,
 		height: composition.height,
 		width: composition.width,
-		outputLocation: '/tmp/rdisk/out.mp4',
+		outputLocation: path.join(downloadMap.compositingDir, 'out.mp4'),
 	});
+	console.log(downloadMap.compositingDir);
 	// cleanDownloadMap(downloadMap);
 	console.timeEnd('total');
 };

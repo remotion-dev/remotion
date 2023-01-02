@@ -140,6 +140,8 @@ export const takeFrameAndCompose = async ({
 			output: needsComposing.finalOutfie,
 			downloadMap,
 			imageFormat: imageFormat === 'jpeg' ? 'Jpeg' : 'Png',
+			// TODO:
+			renderId: 'abc',
 		});
 		if (wantsBuffer) {
 			const buffer = await fs.promises.readFile(needsComposing.finalOutfie);

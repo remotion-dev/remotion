@@ -1,14 +1,8 @@
-import {spawn} from 'child_process';
 import {createHash} from 'crypto';
 import {copyFile} from 'fs/promises';
 import type {DownloadMap} from '../assets/download-map';
-import {getExecutablePath} from './get-executable-path';
-import type {
-	CliInput,
-	CompositorImageFormat,
-	ErrorPayload,
-	Layer,
-} from './payloads';
+import {spawnCompositorOrReuse} from './compositor';
+import type {CompositorImageFormat, Layer} from './payloads';
 
 type CompositorInput = {
 	height: number;
@@ -28,11 +22,12 @@ export const compose = async ({
 	output,
 	downloadMap,
 	imageFormat,
+	renderId,
 }: CompositorInput & {
 	downloadMap: DownloadMap;
 	output: string;
+	renderId: string;
 }) => {
-	const bin = getExecutablePath();
 	const hash = getCompositorHash({height, width, layers, imageFormat});
 
 	if (downloadMap.compositorCache[hash]) {
@@ -40,44 +35,17 @@ export const compose = async ({
 		return;
 	}
 
-	const payload: CliInput = {
+	const compositor = spawnCompositorOrReuse(renderId);
+
+	const ran = Math.random();
+	console.time('start' + ran);
+	await compositor.executeCommand({
 		v: 1,
 		height,
 		width,
 		layers,
 		output,
 		output_format: imageFormat,
-	};
-
-	const ran = Math.random();
-	console.time('start' + ran);
-	await new Promise<void>((resolve, reject) => {
-		const child = spawn(bin);
-		child.stdin.write(JSON.stringify(payload));
-		child.stdin.end();
-
-		const stderrChunks: Buffer[] = [];
-		child.stderr.on('data', (d) => stderrChunks.push(d));
-		const stdoutChunks: Buffer[] = [];
-		child.stdout.on('data', (d) => stdoutChunks.push(d));
-
-		child.on('close', (code) => {
-			if (code === 0) {
-				const message = Buffer.concat(stdoutChunks).toString('utf-8');
-				console.log(message);
-				resolve();
-			} else {
-				const message = Buffer.concat(stderrChunks).toString('utf-8');
-				console.log(message);
-
-				const parsed = JSON.parse(message) as ErrorPayload;
-
-				const err = new Error(parsed.error);
-				err.stack = parsed.error + '\n' + parsed.backtrace;
-
-				reject(err);
-			}
-		});
 	});
 	console.timeEnd('start' + ran);
 
