@@ -47,12 +47,14 @@ pub mod payloads {
     pub struct ErrorPayload {
         pub error: String,
         pub backtrace: String,
+        pub msg_type: String,
     }
 
     #[derive(Serialize, Debug)]
     pub struct TaskDonePayload {
         pub nonce: u32,
         pub time: u128,
+        pub msg_type: String,
     }
 
     #[derive(Serialize, Deserialize, Debug)]
@@ -61,6 +63,7 @@ pub mod payloads {
         Jpeg,
         Bmp,
         Tiff,
+        AddToH264,
     }
 
     #[derive(Serialize, Deserialize, Debug)]

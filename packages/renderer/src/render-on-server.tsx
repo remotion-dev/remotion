@@ -1,3 +1,4 @@
+import execa from 'execa';
 import path from 'path';
 import type {ComponentType} from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
@@ -10,10 +11,12 @@ import type {
 import {Internals} from 'remotion';
 import {makeDownloadMap} from './assets/download-map';
 import {compose} from './compositor/compose';
-import {releaseCompositorWithId} from './compositor/compositor';
+import {
+	releaseCompositorWithId,
+	waitForCompositorWithIdToQuit,
+} from './compositor/compositor';
 import {getFrameOutputFileName} from './get-frame-padded-index';
 import {Pool} from './pool';
-import {stitchFramesToVideo} from './stitch-frames-to-video';
 
 export const renderOnServer = async (
 	Comp: ComponentType,
@@ -112,7 +115,7 @@ export const renderOnServer = async (
 				height: composition.height,
 				width: composition.width,
 				downloadMap,
-				imageFormat: 'Tiff',
+				imageFormat: 'AddToH264',
 				layers: [
 					{
 						type: 'SvgImage',
@@ -134,24 +137,11 @@ export const renderOnServer = async (
 	);
 	releaseCompositorWithId(renderId);
 	console.timeEnd('frames');
+	await waitForCompositorWithIdToQuit(renderId);
 
-	await stitchFramesToVideo({
-		assetsInfo: {
-			assets: [],
-			downloadMap,
-			firstFrameIndex: 0,
-			imageSequenceName: path.join(
-				downloadMap.compositingDir,
-				`element-%0${3}d.tiff`
-			),
-		},
-		force: true,
-		fps: 30,
-		height: composition.height,
-		width: composition.width,
-		outputLocation: path.join(downloadMap.compositingDir, 'out.mp4'),
-	});
-	console.log(downloadMap.compositingDir);
-	// cleanDownloadMap(downloadMap);
+	console.time('convert');
+	await execa('ffmpeg', ['-i', 'fade.h264', '-c', 'copy', 'fade.mp4', '-y']);
+	console.timeEnd('convert');
+
 	console.timeEnd('total');
 };

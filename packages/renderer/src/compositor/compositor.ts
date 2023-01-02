@@ -1,10 +1,12 @@
 import {spawn} from 'child_process';
+import {truthy} from '../truthy';
 import {getExecutablePath} from './get-executable-path';
 import type {CliInput, ErrorPayload, TaskDonePayload} from './payloads';
 
 export type Compositor = {
 	finishCommands: () => void;
 	executeCommand: (payload: Omit<CliInput, 'nonce'>) => Promise<void>;
+	waitForDone: () => Promise<void>;
 };
 
 const compositorMap: Record<string, Compositor> = {};
@@ -20,9 +22,15 @@ export const spawnCompositorOrReuse = (renderId: string) => {
 export const releaseCompositorWithId = (renderId: string) => {
 	if (compositorMap[renderId]) {
 		compositorMap[renderId].finishCommands();
-		delete compositorMap[renderId];
-		console.log('RELEASED');
 	}
+};
+
+export const waitForCompositorWithIdToQuit = (renderId: string) => {
+	if (!compositorMap[renderId]) {
+		throw new TypeError('No compositor with that id');
+	}
+
+	return compositorMap[renderId].waitForDone();
 };
 
 const startCompositor = (): Compositor => {
@@ -30,15 +38,36 @@ const startCompositor = (): Compositor => {
 
 	const child = spawn(bin);
 
-	child.on('exit', () => {
-		console.log('CLOSED');
+	const _stderrChunks: Buffer[] = [];
+	const stdoutChunks: Buffer[] = [];
+
+	child.stderr.on('data', (d) => {
+		console.log(d.toString('utf-8'));
+
+		_stderrChunks.push(d);
+	});
+	child.stdout.on('data', (d) => {
+		console.log(d.toString('utf-8'));
+		stdoutChunks.push(d);
 	});
 
 	let nonce = 0;
 
 	return {
+		waitForDone: () => {
+			return new Promise((resolve, reject) => {
+				child.on('exit', (code) => {
+					console.log({code});
+					if (code === 0) {
+						resolve();
+					} else {
+						reject(Buffer.concat(_stderrChunks).toString('utf-8'));
+					}
+				});
+			});
+		},
 		finishCommands: () => {
-			child.stdin.end();
+			child.stdin.write('EOF\n');
 		},
 		executeCommand: (payload) => {
 			const actualPayload: CliInput = {
@@ -53,31 +82,40 @@ const startCompositor = (): Compositor => {
 				const onStderr = (d: Buffer) => {
 					stderrChunks.push(d);
 					const message = Buffer.concat(stderrChunks).toString('utf-8');
-					console.log(message);
+					let parsed: ErrorPayload | null = null;
+					try {
+						const content = JSON.parse(message) as ErrorPayload;
+						if (content.msg_type === 'error') {
+							parsed = content;
+						}
+					} catch (error) {
+						// TODO: Obviously bad, does not handle panics
+						console.log('Rust debug err:', message);
+					}
 
-					const parsed = JSON.parse(message) as ErrorPayload;
+					if (parsed) {
+						const err = new Error(parsed.error);
+						err.stack = parsed.error + '\n' + parsed.backtrace;
 
-					const err = new Error(parsed.error);
-					err.stack = parsed.error + '\n' + parsed.backtrace;
-
-					reject(err);
-					child.stderr.off('data', onStderr);
-					child.stdout.off('data', onStdout);
+						reject(err);
+						child.stderr.off('data', onStderr);
+						child.stdout.off('data', onStdout);
+					}
 				};
 
 				const onStdout = (d: Buffer) => {
 					const str = d.toString('utf-8');
 					const lineSplit = str.split('\n');
-					for (const line of lineSplit) {
+					for (const line of lineSplit.filter(truthy)) {
 						let parsed: TaskDonePayload | null = null;
 						try {
-							parsed = JSON.parse(line) as TaskDonePayload;
-						} catch (e) {
-							console.log('Rust debug:', line);
-						}
+							const p = JSON.parse(line) as TaskDonePayload;
+							if (p.msg_type === 'finish') {
+								parsed = p;
+							}
+						} catch (e) {}
 
 						if (parsed && parsed.nonce === actualPayload.nonce) {
-							console.log('done', parsed.nonce);
 							resolve();
 							child.stderr.off('data', onStderr);
 							child.stdout.off('data', onStdout);

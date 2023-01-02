@@ -20,12 +20,14 @@ byteorder = "1.4.3"
 tiff = "0.8.1"
 threadpool = "1.8.1"
 lazy_static = "1.4.0"
+x264 = { git = "https://github.com/JonnyBurger/x264", rev = "f4789b4c9872e567e3dbf0e898d3a6cf485ecbef" }
+
 
 [[bin]]
 name = "compositor"
 path = "renderer/rust/main.rs"
 
 [profile.release]
-strip="debuginfo"
+#strip="debuginfo"
 #lto = "fat"
 #opt-level = 'z'

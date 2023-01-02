@@ -41,7 +41,12 @@ export type Layer =
 			};
 	  };
 
-export type CompositorImageFormat = 'Png' | 'Jpeg' | 'Bmp' | 'Tiff';
+export type CompositorImageFormat =
+	| 'Png'
+	| 'Jpeg'
+	| 'Bmp'
+	| 'Tiff'
+	| 'AddToH264';
 
 export type CliInput = {
 	v: number;
@@ -56,9 +61,11 @@ export type CliInput = {
 export type ErrorPayload = {
 	error: string;
 	backtrace: string;
+	msg_type: 'error';
 };
 
 export type TaskDonePayload = {
 	nonce: number;
 	time: number;
+	msg_type: 'finish';
 };

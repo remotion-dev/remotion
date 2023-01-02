@@ -37,8 +37,6 @@ export const compose = async ({
 
 	const compositor = spawnCompositorOrReuse(renderId);
 
-	const ran = Math.random();
-	console.time('start' + ran);
 	await compositor.executeCommand({
 		v: 1,
 		height,
@@ -47,7 +45,6 @@ export const compose = async ({
 		output,
 		output_format: imageFormat,
 	});
-	console.timeEnd('start' + ran);
 
 	downloadMap.compositorCache[hash] = output;
 };

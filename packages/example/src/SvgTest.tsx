@@ -9,20 +9,17 @@ export const SvgTest = () => {
 	return (
 		// TODO: Does not work without xmlns
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${width} ${height}`}>
-			<ellipse
-				ry={radius}
-				rx={radius / 2}
-				cx={width / 2}
-				cy={height / 2}
-				transform={'rotate(' + frame + ')'}
-				style={{
-					transformOrigin: 'center center',
-					transformBox: 'fill-box',
-				}}
-				stroke="red"
-				strokeWidth={40}
-				fill="none"
-			/>
+			<g transform={'rotate(' + frame + ')'} origin="center center">
+				<ellipse
+					ry={radius}
+					rx={radius / 2}
+					cx={width / 2}
+					cy={height / 2}
+					stroke="red"
+					strokeWidth={40}
+					fill="none"
+				/>
+			</g>
 		</svg>
 	);
 };

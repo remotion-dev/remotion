@@ -1,7 +1,7 @@
 use lazy_static::lazy_static;
 use resvg::usvg_text_layout::fontdb;
 use resvg::usvg_text_layout::TreeTextToPath;
-use std::{fs::File, io, time::Instant};
+use std::{fs::File, io};
 
 lazy_static! {
     static ref FONT_DB_SINGLETON: SingletonFontDb = SingletonFontDb::new();
@@ -149,7 +149,6 @@ fn draw_svg_image_layer(img: &mut [u8], canvas_width: u32, layer: SvgLayer, is_o
 
     tree.convert_text(&FONT_DB_SINGLETON.fontdb, opt.keep_named_groups);
 
-    let render = Instant::now();
     let mut pixmap = match tiny_skia::Pixmap::new(layer.width, layer.height) {
         Some(content) => content,
         None => errors::handle_error(&io::Error::new(
@@ -162,12 +161,10 @@ fn draw_svg_image_layer(img: &mut [u8], canvas_width: u32, layer: SvgLayer, is_o
         &tree,
         // TODO: Should it be fitto?
         usvg::FitTo::Original,
-        tiny_skia::Transform::default(),
+        tiny_skia::Transform::identity(),
         pixmap.as_mut(),
     )
     .unwrap();
-
-    println!("Time to render pixmap is: {:?}", render.elapsed());
 
     if is_only_layer {
         img.copy_from_slice(pixmap.data().clone());
