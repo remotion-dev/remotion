@@ -50,6 +50,7 @@ export type CliInput = {
 	height: number;
 	layers: Layer[];
 	output_format: CompositorImageFormat;
+	nonce: number;
 };
 
 export type ErrorPayload = {

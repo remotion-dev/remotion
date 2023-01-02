@@ -4,7 +4,7 @@ import type {CliInput, ErrorPayload} from './payloads';
 
 export type Compositor = {
 	finishCommands: () => void;
-	executeCommand: (payload: CliInput) => Promise<void>;
+	executeCommand: (payload: Omit<CliInput, 'nonce'>) => Promise<void>;
 };
 
 const compositorMap: Record<string, Compositor> = {};
@@ -34,13 +34,20 @@ const startCompositor = (): Compositor => {
 		console.log('CLOSED');
 	});
 
+	let nonce = 0;
+
 	return {
 		finishCommands: () => {
 			child.stdin.end();
 		},
 		executeCommand: (payload) => {
+			const actualPayload: CliInput = {
+				...payload,
+				nonce,
+			};
+			nonce++;
 			return new Promise((resolve, reject) => {
-				child.stdin.write(JSON.stringify(payload) + '\n');
+				child.stdin.write(JSON.stringify(actualPayload) + '\n');
 				const stderrChunks: Buffer[] = [];
 				const stdoutChunks: Buffer[] = [];
 

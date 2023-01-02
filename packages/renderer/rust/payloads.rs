@@ -60,6 +60,7 @@ pub mod payloads {
     #[derive(Serialize, Deserialize, Debug)]
     pub struct CliInput {
         v: u8,
+        pub nonce: u32,
         pub output: String,
         pub width: u32,
         pub height: u32,
