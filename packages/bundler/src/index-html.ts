@@ -1,4 +1,5 @@
 import path from 'path';
+import type {StaticFile} from 'remotion';
 
 export type RenderDefaults = {
 	quality: number;
@@ -22,6 +23,7 @@ export const indexHtml = ({
 	previewServerCommand,
 	renderQueue,
 	numberOfAudioTags,
+	publicFiles,
 	includeFavicon,
 	title,
 	renderDefaults,
@@ -35,6 +37,7 @@ export const indexHtml = ({
 	previewServerCommand: string | null;
 	renderQueue: unknown | null;
 	numberOfAudioTags: number;
+	publicFiles: StaticFile[];
 	includeFavicon: boolean;
 	title: string;
 	renderDefaults: RenderDefaults | undefined;
@@ -97,6 +100,7 @@ ${
 			`
 				: ''
 		}
+		<script>window.remotion_staticFiles = ${JSON.stringify(publicFiles)}</script>
 		
 		<div id="container"></div>
 		<div id="menuportal-0"></div>
