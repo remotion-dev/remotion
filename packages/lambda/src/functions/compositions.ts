@@ -3,6 +3,7 @@ import {VERSION} from 'remotion/version';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import type {LambdaPayload} from '../defaults';
 import {LambdaRoutines} from '../defaults';
+import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {deserializeInputProps} from '../shared/deserialize-input-props';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
@@ -31,9 +32,11 @@ export const compositionsHandler = async (
 		);
 	}
 
+	const region = getCurrentRegionInFunction();
+
 	const [{bucketName}, browserInstance] = await Promise.all([
 		getOrCreateBucket({
-			region: getCurrentRegionInFunction(),
+			region,
 		}),
 		getBrowserInstance(
 			RenderInternals.isEqualOrBelowLogLevel(lambdaParams.logLevel, 'verbose'),
@@ -48,11 +51,17 @@ export const compositionsHandler = async (
 		serialized: lambdaParams.inputProps,
 	});
 
+	const realServeUrl = convertToServeUrl({
+		urlOrId: lambdaParams.serveUrl,
+		region,
+		bucketName,
+	});
+
 	const downloadMap = RenderInternals.makeDownloadMap();
 
-	const compositions = await getCompositions(lambdaParams.serveUrl, {
+	const compositions = await getCompositions(realServeUrl, {
 		puppeteerInstance: browserInstance,
-		inputProps: inputProps as object,
+		inputProps,
 		envVariables: lambdaParams.envVariables,
 		ffmpegExecutable: null,
 		ffprobeExecutable: null,

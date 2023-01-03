@@ -22,6 +22,14 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const {durations, setDurations} = useContext(DurationsContext);
 
+	if (typeof props.src !== 'string') {
+		throw new TypeError(
+			`The \`<Audio>\` tag requires a string for \`src\`, but got ${JSON.stringify(
+				props.src
+			)} instead.`
+		);
+	}
+
 	const onError: React.ReactEventHandler<HTMLAudioElement> = useCallback(
 		(e) => {
 			console.log(e.currentTarget.error);
@@ -41,9 +49,11 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	if (loop && props.src && durations[props.src as string] !== undefined) {
 		const duration = Math.floor(durations[props.src as string] * fps);
+		const playbackRate = props.playbackRate ?? 1;
+		const actualDuration = duration / playbackRate;
 
 		return (
-			<Loop layout="none" durationInFrames={duration}>
+			<Loop layout="none" durationInFrames={Math.floor(actualDuration)}>
 				<Audio {...propsOtherThanLoop} ref={ref} />
 			</Loop>
 		);

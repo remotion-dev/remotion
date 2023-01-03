@@ -434,6 +434,13 @@ export const articles = [
     crumb: "Render videos without servers",
   },
   {
+    id: "authentication",
+    title: "Authentication",
+    relativePath: "docs/lambda/authentication.md",
+    compId: "articles-docs-lambda-authentication",
+    crumb: "Lambda",
+  },
+  {
     id: "changelog",
     title: "Prerelease Changelog",
     relativePath: "docs/lambda/changelog.md",
@@ -917,6 +924,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "miscellaneous/changing-temp-dir",
+    title: "Changing the temporary directory",
+    relativePath: "docs/miscellaneous/changing-temp-dir.md",
+    compId: "articles-docs-miscellaneous-changing-temp-dir",
+    crumb: "Advanced configuration",
+  },
+  {
     id: "miscellaneous/render-in-browser",
     title: "Can I render videos in the browser?",
     relativePath: "docs/miscellaneous/render-in-browser.md",
@@ -1045,6 +1059,13 @@ export const articles = [
     crumb: "API",
   },
   {
+    id: "overlay",
+    title: "Creating overlays",
+    relativePath: "docs/overlay.md",
+    compId: "articles-docs-overlay",
+    crumb: null,
+  },
+  {
     id: "webpack",
     title: "Custom Webpack config",
     relativePath: "docs/overwriting-webpack-config.md",
@@ -1164,6 +1185,13 @@ export const articles = [
     crumb: "@remotion/player",
   },
   {
+    id: "current-time",
+    title: "Displaying the current time",
+    relativePath: "docs/player/current-time.md",
+    compId: "articles-docs-player-current-time",
+    crumb: "@remotion/player",
+  },
+  {
     id: "player/index",
     title: "@remotion/player",
     relativePath: "docs/player/index.md",
@@ -1224,6 +1252,20 @@ export const articles = [
     title: "preloadAudio()",
     relativePath: "docs/preload/preload-audio.md",
     compId: "articles-docs-preload-preload-audio",
+    crumb: "@remotion/preload",
+  },
+  {
+    id: "preload-font",
+    title: "preloadFont()",
+    relativePath: "docs/preload/preload-font.md",
+    compId: "articles-docs-preload-preload-font",
+    crumb: "@remotion/preload",
+  },
+  {
+    id: "preload-image",
+    title: "preloadImage()",
+    relativePath: "docs/preload/preload-image.md",
+    compId: "articles-docs-preload-preload-image",
     crumb: "@remotion/preload",
   },
   {

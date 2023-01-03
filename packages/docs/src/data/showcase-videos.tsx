@@ -1212,20 +1212,6 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
-    title: "Video Ad",
-    type: "mux_video",
-    muxId: "kfl1VFbNcRFntVKhdkvTB6mBmcivDv82UX64Na4TMGw",
-    description: "A simple video ad",
-    height: 1920,
-    width: 1080,
-    submittedOn: new Date("07-18-2022"),
-    links: [],
-    author: {
-      url: "https://www.linkedin.com/in/sepehrsafari/",
-      name: "Sepehr Safari",
-    },
-  },
-  {
     title: "Top 15 smallest animals in this planet",
     type: "mux_video",
     muxId: "bQ5bHzbVsYngW5GF4iQxH601HyPnxHZCcXZas1zzQRAU",
@@ -1288,28 +1274,67 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
-	title: "Funeral Collage/Slideshow",
-	type: "mux_video",
-	muxId: "3ZOyZm01dqewQjVUNP02MzqWooJlYJ00cVSLX9WjSwuYjs",
-	description: "Online memorial photo slideshow maker. Create a fitting tribute video for your loved one.",
-	height: 1080,
-	width: 1920,
-	submittedOn: new Date("11-29-2022"),
-	links: [
-		{
-			type: "video",
-			url: "https://firebasestorage.googleapis.com/v0/b/funeral-collage.appspot.com/o/demo%2Fjoanna-bloggs-demo.mp4?alt=media&token=ed4dff7d-396d-4b97-9f95-85c58d669277",
-		},
-		{
-			type: "website",
-			url: "https://funeralcollage.com/",
+    title: "Funeral Collage/Slideshow",
+    type: "mux_video",
+    muxId: "3ZOyZm01dqewQjVUNP02MzqWooJlYJ00cVSLX9WjSwuYjs",
+    description:
+      "Online memorial photo slideshow maker. Create a fitting tribute video for your loved one.",
+    height: 1080,
+    width: 1920,
+    submittedOn: new Date("11-29-2022"),
+    links: [
+      {
+        type: "video",
+        url: "https://firebasestorage.googleapis.com/v0/b/funeral-collage.appspot.com/o/demo%2Fjoanna-bloggs-demo.mp4?alt=media&token=ed4dff7d-396d-4b97-9f95-85c58d669277",
+      },
+      {
+        type: "website",
+        url: "https://funeralcollage.com/",
+      },
+    ],
+    author: {
+      url: "https://funeralcollage.com/",
+      name: "Funeral Collage/Slideshow",
+    },
+  },
+  {
+		title: "JavaScript Code Execution demo",
+		type: "mux_video",
+		muxId: "psJ32DSTQqeLaZYhBC5sa3HH7gkzwt7HinQsHela01OA",
+		description: "In this video I had explained how Javascript code gets executed. I had made this video completely using Remotion and ReactJS.",
+		height: 720,
+		width: 1280,
+		submittedOn: new Date("12-25-2022"),
+		links: [
+			{
+				type: "source_code",
+				url: "https://github.com/AmitNemade/remotion-javascript-demo",
+			},
+		],
+		author: {
+			"url": "https://www.linkedin.com/in/amitnemade/?lipi=urn%3Ali%3Apage%3Ad_flagship3_pulse_read%3BLMVZoM6pQPu27qXFUtwi4Q%3D%3D",
+			"name": "Amit Nemade"
 		}
-	],
-	author: {
-		"url": "https://funeralcollage.com/",
-		"name": "Funeral Collage/Slideshow"
+	},
+	{
+		title: "Stocks Year in Review",
+		type: "mux_video",
+		muxId: "tswSoVoFUjryYX8702phE801Fv00VwtB018cIy3a25fNo01c",
+		description: "Enter a stock ticker to see how the stock performed in 2022. Powered by the Polygon Stock API.",
+		height: 1194,
+		width: 2048,
+		submittedOn: new Date("01-02-2023"),
+		links: [
+			{
+				type: "website",
+				url: "https://polygon.io/2022",
+			}
+		],
+		author: {
+			"url": "https://polygon.io",
+			"name": "Polygon.io"
+		}
 	}
-},
 ];
 
 const dateString = (date: Date) =>

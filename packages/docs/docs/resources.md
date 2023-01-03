@@ -17,6 +17,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Audiogram](https://github.com/marcusstenbeck/template-audiogram)
 - [Skia](https://github.com/marcusstenbeck/template-skia)
 - [Tailwind](https://github.com/marcusstenbeck/template-tailwind)
+- [Hello World Template with pull request video previews](https://github.com/stoat-dev/example-remotion)
 
 ## SaaS starter Kits
 
@@ -47,7 +48,8 @@ This list tries to compile all templates, libraries, building blocks and example
 
 ## Full projects
 
-- [Github Unwrapped](https://github.com/remotion-dev/github-unwrapped)
+- [GitHub Unwrapped 2022](https://github.com/remotion-dev/github-unwrapped-2022)
+- [GitHub Unwrapped 2021](https://github.com/remotion-dev/github-unwrapped-2021)
 - [Podcast Maker](https://github.com/remotion-dev/podcast-maker)
 - [Stargazer](https://github.com/pomber/stargazer)
 - [MapSnap](https://companies.remotion.dev) _(exclusive for Company License subscribers)_
@@ -73,6 +75,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [OpenGL transitions](https://github.com/JonnyBurger/remotion-gl-transitions)
 - [Conference talk in React](https://github.com/pomber/record-talk-with-remotion)
 - [Conference talk in React #2](https://github.com/JonnyBurger/react-summit-talk)
+- [Twitch stinger example](https://github.com/JonnyBurger/ledevevent-stinger)
 
 ## Videos
 
@@ -88,6 +91,7 @@ See the [Showcase](/showcase) for videos made with Remotion.
 - [Fireship: Remotion Tutorial](https://www.youtube.com/watch?v=deg8bOoziaE&t=3s)
 - [A soft introduction to Remotion](https://www.youtube.com/watch?v=szh2Qgo9SVE&t=847s)
 - [CRT effect](https://www.youtube.com/watch?v=-7MOoWN2_nk)
+- ["Create videos with Code" by Prismic](https://prismic.io/blog/create-videos-with-code-remotion-tutorial)
 
 ## Humans
 

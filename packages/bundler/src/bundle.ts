@@ -77,6 +77,7 @@ export const getConfig = ({
 		entryPoints: [],
 		remotionRoot: resolvedRemotionRoot,
 		keyboardShortcutsEnabled: false,
+		poll: null,
 	});
 };
 
@@ -220,6 +221,8 @@ export async function bundle(...args: Arguments): Promise<string> {
 		previewServerCommand: null,
 		numberOfAudioTags: 0,
 		publicFiles: readRecursively({folder: '.', startPath: from}),
+		includeFavicon: false,
+		title: 'Remotion Bundle',
 	});
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 

@@ -22,7 +22,13 @@ const regions = getRegions();
 
 ## API
 
-The function takes no arguments.
+The function takes an optional object, with the following options:
+
+### `enabledByDefaultOnly`
+
+_available from v3.3.11_
+
+Only return [the regions which are enabled by default](https://docs.aws.amazon.com/general/latest/gr/rande-manage.html) in a new AWS account.
 
 ## Return value
 

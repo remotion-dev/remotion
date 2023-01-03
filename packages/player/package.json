@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player",
-	"version": "3.3.6",
+	"version": "3.3.25",
 	"description": "Remotion Player",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -27,7 +27,7 @@
 	],
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"remotion": "3.3.6"
+		"remotion": "3.3.25"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -37,8 +37,8 @@
 		"@jonny/eslint-config": "3.0.266",
 		"@testing-library/react": "13.1.1",
 		"@types/node": "^14.14.14",
-		"@types/react": "18.0.23",
-		"@types/react-dom": "18.0.0",
+		"@types/react": "18.0.26",
+		"@types/react-dom": "18.0.10",
 		"@vitejs/plugin-react": "^2.0.0",
 		"csstype": "^3.0.11",
 		"eslint": "8.25.0",
@@ -56,7 +56,6 @@
 		"ffmpeg",
 		"video",
 		"react",
-		"puppeteer",
 		"player"
 	],
 	"publishConfig": {
