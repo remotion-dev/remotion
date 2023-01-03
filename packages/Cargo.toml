@@ -1,0 +1,25 @@
+# Putting this file into packages/ because VSCode Rust extension
+# only searches 1 level for Cargofiles
+
+[package]
+name = "remotion-renderer"
+version = "0.1.0"
+authors = ["Jonny Burger <jonny@remotion.dev>"]
+edition = "2021"
+
+[dependencies]
+png = "0.17.7"
+serde = {version =  "1.0.151", features = ["derive"]}
+serde_json = "1.0.89"
+jpeg-decoder = "0.3"
+jpeg-encoder = "0.5.1"
+
+[[bin]]
+name = "compositor"
+path = "renderer/rust/main.rs"
+
+[profile.release]
+strip="debuginfo"
+lto = "fat"
+opt-level = 'z'
+

@@ -1,6 +1,6 @@
 {
   "name": "@remotion/google-fonts",
-  "version": "3.3.19",
+  "version": "3.3.25",
   "description": "Load Google Fonts in Remotion",
   "scripts": {
     "build": "pnpm run generate && tsc -d",
@@ -10,7 +10,7 @@
   },
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
-    "remotion": "3.3.19"
+    "remotion": "3.3.25"
   },
   "devDependencies": {
     "@types/css-font-loading-module": "^0.0.7",
@@ -21,5 +21,5837 @@
     "prettier": "^2.7.1",
     "ts-node": "^10.8.0",
     "typescript": "^4.7.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "types": "dist/index.d.ts",
+  "typesVersions": {
+    ">=1.0": {
+      "ABeeZee": [
+        "dist/ABeeZee.d.ts"
+      ],
+      "Abel": [
+        "dist/Abel.d.ts"
+      ],
+      "AbhayaLibre": [
+        "dist/AbhayaLibre.d.ts"
+      ],
+      "Aboreto": [
+        "dist/Aboreto.d.ts"
+      ],
+      "AbrilFatface": [
+        "dist/AbrilFatface.d.ts"
+      ],
+      "AbyssinicaSIL": [
+        "dist/AbyssinicaSIL.d.ts"
+      ],
+      "Aclonica": [
+        "dist/Aclonica.d.ts"
+      ],
+      "Acme": [
+        "dist/Acme.d.ts"
+      ],
+      "Actor": [
+        "dist/Actor.d.ts"
+      ],
+      "Adamina": [
+        "dist/Adamina.d.ts"
+      ],
+      "AdventPro": [
+        "dist/AdventPro.d.ts"
+      ],
+      "AguafinaScript": [
+        "dist/AguafinaScript.d.ts"
+      ],
+      "AkayaKanadaka": [
+        "dist/AkayaKanadaka.d.ts"
+      ],
+      "AkayaTelivigala": [
+        "dist/AkayaTelivigala.d.ts"
+      ],
+      "Akronim": [
+        "dist/Akronim.d.ts"
+      ],
+      "Akshar": [
+        "dist/Akshar.d.ts"
+      ],
+      "Aladin": [
+        "dist/Aladin.d.ts"
+      ],
+      "Alata": [
+        "dist/Alata.d.ts"
+      ],
+      "Alatsi": [
+        "dist/Alatsi.d.ts"
+      ],
+      "AlbertSans": [
+        "dist/AlbertSans.d.ts"
+      ],
+      "Aldrich": [
+        "dist/Aldrich.d.ts"
+      ],
+      "Alef": [
+        "dist/Alef.d.ts"
+      ],
+      "Alegreya": [
+        "dist/Alegreya.d.ts"
+      ],
+      "AlegreyaSC": [
+        "dist/AlegreyaSC.d.ts"
+      ],
+      "AlegreyaSans": [
+        "dist/AlegreyaSans.d.ts"
+      ],
+      "AlegreyaSansSC": [
+        "dist/AlegreyaSansSC.d.ts"
+      ],
+      "Aleo": [
+        "dist/Aleo.d.ts"
+      ],
+      "AlexBrush": [
+        "dist/AlexBrush.d.ts"
+      ],
+      "AlfaSlabOne": [
+        "dist/AlfaSlabOne.d.ts"
+      ],
+      "Alice": [
+        "dist/Alice.d.ts"
+      ],
+      "Alike": [
+        "dist/Alike.d.ts"
+      ],
+      "AlikeAngular": [
+        "dist/AlikeAngular.d.ts"
+      ],
+      "Alkalami": [
+        "dist/Alkalami.d.ts"
+      ],
+      "Allan": [
+        "dist/Allan.d.ts"
+      ],
+      "Allerta": [
+        "dist/Allerta.d.ts"
+      ],
+      "AllertaStencil": [
+        "dist/AllertaStencil.d.ts"
+      ],
+      "Allison": [
+        "dist/Allison.d.ts"
+      ],
+      "Allura": [
+        "dist/Allura.d.ts"
+      ],
+      "Almarai": [
+        "dist/Almarai.d.ts"
+      ],
+      "Almendra": [
+        "dist/Almendra.d.ts"
+      ],
+      "AlmendraDisplay": [
+        "dist/AlmendraDisplay.d.ts"
+      ],
+      "AlmendraSC": [
+        "dist/AlmendraSC.d.ts"
+      ],
+      "AlumniSans": [
+        "dist/AlumniSans.d.ts"
+      ],
+      "AlumniSansCollegiateOne": [
+        "dist/AlumniSansCollegiateOne.d.ts"
+      ],
+      "AlumniSansInlineOne": [
+        "dist/AlumniSansInlineOne.d.ts"
+      ],
+      "AlumniSansPinstripe": [
+        "dist/AlumniSansPinstripe.d.ts"
+      ],
+      "Amarante": [
+        "dist/Amarante.d.ts"
+      ],
+      "Amaranth": [
+        "dist/Amaranth.d.ts"
+      ],
+      "AmaticSC": [
+        "dist/AmaticSC.d.ts"
+      ],
+      "Amethysta": [
+        "dist/Amethysta.d.ts"
+      ],
+      "Amiko": [
+        "dist/Amiko.d.ts"
+      ],
+      "Amiri": [
+        "dist/Amiri.d.ts"
+      ],
+      "AmiriQuran": [
+        "dist/AmiriQuran.d.ts"
+      ],
+      "Amita": [
+        "dist/Amita.d.ts"
+      ],
+      "Anaheim": [
+        "dist/Anaheim.d.ts"
+      ],
+      "AndadaPro": [
+        "dist/AndadaPro.d.ts"
+      ],
+      "Andika": [
+        "dist/Andika.d.ts"
+      ],
+      "AnekBangla": [
+        "dist/AnekBangla.d.ts"
+      ],
+      "AnekDevanagari": [
+        "dist/AnekDevanagari.d.ts"
+      ],
+      "AnekGujarati": [
+        "dist/AnekGujarati.d.ts"
+      ],
+      "AnekGurmukhi": [
+        "dist/AnekGurmukhi.d.ts"
+      ],
+      "AnekKannada": [
+        "dist/AnekKannada.d.ts"
+      ],
+      "AnekLatin": [
+        "dist/AnekLatin.d.ts"
+      ],
+      "AnekMalayalam": [
+        "dist/AnekMalayalam.d.ts"
+      ],
+      "AnekOdia": [
+        "dist/AnekOdia.d.ts"
+      ],
+      "AnekTamil": [
+        "dist/AnekTamil.d.ts"
+      ],
+      "AnekTelugu": [
+        "dist/AnekTelugu.d.ts"
+      ],
+      "Angkor": [
+        "dist/Angkor.d.ts"
+      ],
+      "AnnieUseYourTelescope": [
+        "dist/AnnieUseYourTelescope.d.ts"
+      ],
+      "AnonymousPro": [
+        "dist/AnonymousPro.d.ts"
+      ],
+      "Antic": [
+        "dist/Antic.d.ts"
+      ],
+      "AnticDidone": [
+        "dist/AnticDidone.d.ts"
+      ],
+      "AnticSlab": [
+        "dist/AnticSlab.d.ts"
+      ],
+      "Anton": [
+        "dist/Anton.d.ts"
+      ],
+      "Antonio": [
+        "dist/Antonio.d.ts"
+      ],
+      "Anybody": [
+        "dist/Anybody.d.ts"
+      ],
+      "Arapey": [
+        "dist/Arapey.d.ts"
+      ],
+      "Arbutus": [
+        "dist/Arbutus.d.ts"
+      ],
+      "ArbutusSlab": [
+        "dist/ArbutusSlab.d.ts"
+      ],
+      "ArchitectsDaughter": [
+        "dist/ArchitectsDaughter.d.ts"
+      ],
+      "Archivo": [
+        "dist/Archivo.d.ts"
+      ],
+      "ArchivoBlack": [
+        "dist/ArchivoBlack.d.ts"
+      ],
+      "ArchivoNarrow": [
+        "dist/ArchivoNarrow.d.ts"
+      ],
+      "AreYouSerious": [
+        "dist/AreYouSerious.d.ts"
+      ],
+      "ArefRuqaa": [
+        "dist/ArefRuqaa.d.ts"
+      ],
+      "ArefRuqaaInk": [
+        "dist/ArefRuqaaInk.d.ts"
+      ],
+      "Arima": [
+        "dist/Arima.d.ts"
+      ],
+      "ArimaMadurai": [
+        "dist/ArimaMadurai.d.ts"
+      ],
+      "Arimo": [
+        "dist/Arimo.d.ts"
+      ],
+      "Arizonia": [
+        "dist/Arizonia.d.ts"
+      ],
+      "Armata": [
+        "dist/Armata.d.ts"
+      ],
+      "Arsenal": [
+        "dist/Arsenal.d.ts"
+      ],
+      "Artifika": [
+        "dist/Artifika.d.ts"
+      ],
+      "Arvo": [
+        "dist/Arvo.d.ts"
+      ],
+      "Arya": [
+        "dist/Arya.d.ts"
+      ],
+      "Asap": [
+        "dist/Asap.d.ts"
+      ],
+      "AsapCondensed": [
+        "dist/AsapCondensed.d.ts"
+      ],
+      "Asar": [
+        "dist/Asar.d.ts"
+      ],
+      "Asset": [
+        "dist/Asset.d.ts"
+      ],
+      "Assistant": [
+        "dist/Assistant.d.ts"
+      ],
+      "Astloch": [
+        "dist/Astloch.d.ts"
+      ],
+      "Asul": [
+        "dist/Asul.d.ts"
+      ],
+      "Athiti": [
+        "dist/Athiti.d.ts"
+      ],
+      "AtkinsonHyperlegible": [
+        "dist/AtkinsonHyperlegible.d.ts"
+      ],
+      "Atma": [
+        "dist/Atma.d.ts"
+      ],
+      "AtomicAge": [
+        "dist/AtomicAge.d.ts"
+      ],
+      "Aubrey": [
+        "dist/Aubrey.d.ts"
+      ],
+      "Audiowide": [
+        "dist/Audiowide.d.ts"
+      ],
+      "AutourOne": [
+        "dist/AutourOne.d.ts"
+      ],
+      "Average": [
+        "dist/Average.d.ts"
+      ],
+      "AverageSans": [
+        "dist/AverageSans.d.ts"
+      ],
+      "AveriaGruesaLibre": [
+        "dist/AveriaGruesaLibre.d.ts"
+      ],
+      "AveriaLibre": [
+        "dist/AveriaLibre.d.ts"
+      ],
+      "AveriaSansLibre": [
+        "dist/AveriaSansLibre.d.ts"
+      ],
+      "AveriaSerifLibre": [
+        "dist/AveriaSerifLibre.d.ts"
+      ],
+      "AzeretMono": [
+        "dist/AzeretMono.d.ts"
+      ],
+      "B612": [
+        "dist/B612.d.ts"
+      ],
+      "B612Mono": [
+        "dist/B612Mono.d.ts"
+      ],
+      "BIZUDGothic": [
+        "dist/BIZUDGothic.d.ts"
+      ],
+      "BIZUDMincho": [
+        "dist/BIZUDMincho.d.ts"
+      ],
+      "BIZUDPGothic": [
+        "dist/BIZUDPGothic.d.ts"
+      ],
+      "BIZUDPMincho": [
+        "dist/BIZUDPMincho.d.ts"
+      ],
+      "Babylonica": [
+        "dist/Babylonica.d.ts"
+      ],
+      "BadScript": [
+        "dist/BadScript.d.ts"
+      ],
+      "Bahiana": [
+        "dist/Bahiana.d.ts"
+      ],
+      "Bahianita": [
+        "dist/Bahianita.d.ts"
+      ],
+      "BaiJamjuree": [
+        "dist/BaiJamjuree.d.ts"
+      ],
+      "BakbakOne": [
+        "dist/BakbakOne.d.ts"
+      ],
+      "Ballet": [
+        "dist/Ballet.d.ts"
+      ],
+      "Baloo2": [
+        "dist/Baloo2.d.ts"
+      ],
+      "BalooBhai2": [
+        "dist/BalooBhai2.d.ts"
+      ],
+      "BalooBhaijaan2": [
+        "dist/BalooBhaijaan2.d.ts"
+      ],
+      "BalooBhaina2": [
+        "dist/BalooBhaina2.d.ts"
+      ],
+      "BalooChettan2": [
+        "dist/BalooChettan2.d.ts"
+      ],
+      "BalooDa2": [
+        "dist/BalooDa2.d.ts"
+      ],
+      "BalooPaaji2": [
+        "dist/BalooPaaji2.d.ts"
+      ],
+      "BalooTamma2": [
+        "dist/BalooTamma2.d.ts"
+      ],
+      "BalooTammudu2": [
+        "dist/BalooTammudu2.d.ts"
+      ],
+      "BalooThambi2": [
+        "dist/BalooThambi2.d.ts"
+      ],
+      "BalsamiqSans": [
+        "dist/BalsamiqSans.d.ts"
+      ],
+      "Balthazar": [
+        "dist/Balthazar.d.ts"
+      ],
+      "Bangers": [
+        "dist/Bangers.d.ts"
+      ],
+      "Barlow": [
+        "dist/Barlow.d.ts"
+      ],
+      "BarlowCondensed": [
+        "dist/BarlowCondensed.d.ts"
+      ],
+      "BarlowSemiCondensed": [
+        "dist/BarlowSemiCondensed.d.ts"
+      ],
+      "Barriecito": [
+        "dist/Barriecito.d.ts"
+      ],
+      "Barrio": [
+        "dist/Barrio.d.ts"
+      ],
+      "Basic": [
+        "dist/Basic.d.ts"
+      ],
+      "Baskervville": [
+        "dist/Baskervville.d.ts"
+      ],
+      "Battambang": [
+        "dist/Battambang.d.ts"
+      ],
+      "Baumans": [
+        "dist/Baumans.d.ts"
+      ],
+      "Bayon": [
+        "dist/Bayon.d.ts"
+      ],
+      "BeVietnamPro": [
+        "dist/BeVietnamPro.d.ts"
+      ],
+      "BeauRivage": [
+        "dist/BeauRivage.d.ts"
+      ],
+      "BebasNeue": [
+        "dist/BebasNeue.d.ts"
+      ],
+      "Belgrano": [
+        "dist/Belgrano.d.ts"
+      ],
+      "Bellefair": [
+        "dist/Bellefair.d.ts"
+      ],
+      "Belleza": [
+        "dist/Belleza.d.ts"
+      ],
+      "Bellota": [
+        "dist/Bellota.d.ts"
+      ],
+      "BellotaText": [
+        "dist/BellotaText.d.ts"
+      ],
+      "BenchNine": [
+        "dist/BenchNine.d.ts"
+      ],
+      "Benne": [
+        "dist/Benne.d.ts"
+      ],
+      "Bentham": [
+        "dist/Bentham.d.ts"
+      ],
+      "BerkshireSwash": [
+        "dist/BerkshireSwash.d.ts"
+      ],
+      "Besley": [
+        "dist/Besley.d.ts"
+      ],
+      "BethEllen": [
+        "dist/BethEllen.d.ts"
+      ],
+      "Bevan": [
+        "dist/Bevan.d.ts"
+      ],
+      "BhuTukaExpandedOne": [
+        "dist/BhuTukaExpandedOne.d.ts"
+      ],
+      "BigShouldersDisplay": [
+        "dist/BigShouldersDisplay.d.ts"
+      ],
+      "BigShouldersInlineDisplay": [
+        "dist/BigShouldersInlineDisplay.d.ts"
+      ],
+      "BigShouldersInlineText": [
+        "dist/BigShouldersInlineText.d.ts"
+      ],
+      "BigShouldersStencilDisplay": [
+        "dist/BigShouldersStencilDisplay.d.ts"
+      ],
+      "BigShouldersStencilText": [
+        "dist/BigShouldersStencilText.d.ts"
+      ],
+      "BigShouldersText": [
+        "dist/BigShouldersText.d.ts"
+      ],
+      "BigelowRules": [
+        "dist/BigelowRules.d.ts"
+      ],
+      "BigshotOne": [
+        "dist/BigshotOne.d.ts"
+      ],
+      "Bilbo": [
+        "dist/Bilbo.d.ts"
+      ],
+      "BilboSwashCaps": [
+        "dist/BilboSwashCaps.d.ts"
+      ],
+      "BioRhyme": [
+        "dist/BioRhyme.d.ts"
+      ],
+      "BioRhymeExpanded": [
+        "dist/BioRhymeExpanded.d.ts"
+      ],
+      "Birthstone": [
+        "dist/Birthstone.d.ts"
+      ],
+      "BirthstoneBounce": [
+        "dist/BirthstoneBounce.d.ts"
+      ],
+      "Biryani": [
+        "dist/Biryani.d.ts"
+      ],
+      "Bitter": [
+        "dist/Bitter.d.ts"
+      ],
+      "BlackAndWhitePicture": [
+        "dist/BlackAndWhitePicture.d.ts"
+      ],
+      "BlackHanSans": [
+        "dist/BlackHanSans.d.ts"
+      ],
+      "BlackOpsOne": [
+        "dist/BlackOpsOne.d.ts"
+      ],
+      "Blaka": [
+        "dist/Blaka.d.ts"
+      ],
+      "BlakaHollow": [
+        "dist/BlakaHollow.d.ts"
+      ],
+      "BlakaInk": [
+        "dist/BlakaInk.d.ts"
+      ],
+      "Blinker": [
+        "dist/Blinker.d.ts"
+      ],
+      "BodoniModa": [
+        "dist/BodoniModa.d.ts"
+      ],
+      "Bokor": [
+        "dist/Bokor.d.ts"
+      ],
+      "BonaNova": [
+        "dist/BonaNova.d.ts"
+      ],
+      "Bonbon": [
+        "dist/Bonbon.d.ts"
+      ],
+      "BonheurRoyale": [
+        "dist/BonheurRoyale.d.ts"
+      ],
+      "Boogaloo": [
+        "dist/Boogaloo.d.ts"
+      ],
+      "BowlbyOne": [
+        "dist/BowlbyOne.d.ts"
+      ],
+      "BowlbyOneSC": [
+        "dist/BowlbyOneSC.d.ts"
+      ],
+      "Brawler": [
+        "dist/Brawler.d.ts"
+      ],
+      "BreeSerif": [
+        "dist/BreeSerif.d.ts"
+      ],
+      "Brygada1918": [
+        "dist/Brygada1918.d.ts"
+      ],
+      "BubblegumSans": [
+        "dist/BubblegumSans.d.ts"
+      ],
+      "BubblerOne": [
+        "dist/BubblerOne.d.ts"
+      ],
+      "Buda": [
+        "dist/Buda.d.ts"
+      ],
+      "Buenard": [
+        "dist/Buenard.d.ts"
+      ],
+      "Bungee": [
+        "dist/Bungee.d.ts"
+      ],
+      "BungeeHairline": [
+        "dist/BungeeHairline.d.ts"
+      ],
+      "BungeeInline": [
+        "dist/BungeeInline.d.ts"
+      ],
+      "BungeeOutline": [
+        "dist/BungeeOutline.d.ts"
+      ],
+      "BungeeShade": [
+        "dist/BungeeShade.d.ts"
+      ],
+      "BungeeSpice": [
+        "dist/BungeeSpice.d.ts"
+      ],
+      "Butcherman": [
+        "dist/Butcherman.d.ts"
+      ],
+      "ButterflyKids": [
+        "dist/ButterflyKids.d.ts"
+      ],
+      "Cabin": [
+        "dist/Cabin.d.ts"
+      ],
+      "CabinCondensed": [
+        "dist/CabinCondensed.d.ts"
+      ],
+      "CabinSketch": [
+        "dist/CabinSketch.d.ts"
+      ],
+      "CaesarDressing": [
+        "dist/CaesarDressing.d.ts"
+      ],
+      "Cagliostro": [
+        "dist/Cagliostro.d.ts"
+      ],
+      "Cairo": [
+        "dist/Cairo.d.ts"
+      ],
+      "CairoPlay": [
+        "dist/CairoPlay.d.ts"
+      ],
+      "Caladea": [
+        "dist/Caladea.d.ts"
+      ],
+      "Calistoga": [
+        "dist/Calistoga.d.ts"
+      ],
+      "Calligraffitti": [
+        "dist/Calligraffitti.d.ts"
+      ],
+      "Cambay": [
+        "dist/Cambay.d.ts"
+      ],
+      "Cambo": [
+        "dist/Cambo.d.ts"
+      ],
+      "Candal": [
+        "dist/Candal.d.ts"
+      ],
+      "Cantarell": [
+        "dist/Cantarell.d.ts"
+      ],
+      "CantataOne": [
+        "dist/CantataOne.d.ts"
+      ],
+      "CantoraOne": [
+        "dist/CantoraOne.d.ts"
+      ],
+      "Capriola": [
+        "dist/Capriola.d.ts"
+      ],
+      "Caramel": [
+        "dist/Caramel.d.ts"
+      ],
+      "Carattere": [
+        "dist/Carattere.d.ts"
+      ],
+      "Cardo": [
+        "dist/Cardo.d.ts"
+      ],
+      "Carme": [
+        "dist/Carme.d.ts"
+      ],
+      "CarroisGothic": [
+        "dist/CarroisGothic.d.ts"
+      ],
+      "CarroisGothicSC": [
+        "dist/CarroisGothicSC.d.ts"
+      ],
+      "CarterOne": [
+        "dist/CarterOne.d.ts"
+      ],
+      "Castoro": [
+        "dist/Castoro.d.ts"
+      ],
+      "Catamaran": [
+        "dist/Catamaran.d.ts"
+      ],
+      "Caudex": [
+        "dist/Caudex.d.ts"
+      ],
+      "Caveat": [
+        "dist/Caveat.d.ts"
+      ],
+      "CaveatBrush": [
+        "dist/CaveatBrush.d.ts"
+      ],
+      "CedarvilleCursive": [
+        "dist/CedarvilleCursive.d.ts"
+      ],
+      "CevicheOne": [
+        "dist/CevicheOne.d.ts"
+      ],
+      "ChakraPetch": [
+        "dist/ChakraPetch.d.ts"
+      ],
+      "Changa": [
+        "dist/Changa.d.ts"
+      ],
+      "ChangaOne": [
+        "dist/ChangaOne.d.ts"
+      ],
+      "Chango": [
+        "dist/Chango.d.ts"
+      ],
+      "CharisSIL": [
+        "dist/CharisSIL.d.ts"
+      ],
+      "Charm": [
+        "dist/Charm.d.ts"
+      ],
+      "Charmonman": [
+        "dist/Charmonman.d.ts"
+      ],
+      "Chathura": [
+        "dist/Chathura.d.ts"
+      ],
+      "ChauPhilomeneOne": [
+        "dist/ChauPhilomeneOne.d.ts"
+      ],
+      "ChelaOne": [
+        "dist/ChelaOne.d.ts"
+      ],
+      "ChelseaMarket": [
+        "dist/ChelseaMarket.d.ts"
+      ],
+      "Chenla": [
+        "dist/Chenla.d.ts"
+      ],
+      "Cherish": [
+        "dist/Cherish.d.ts"
+      ],
+      "CherryCreamSoda": [
+        "dist/CherryCreamSoda.d.ts"
+      ],
+      "CherrySwash": [
+        "dist/CherrySwash.d.ts"
+      ],
+      "Chewy": [
+        "dist/Chewy.d.ts"
+      ],
+      "Chicle": [
+        "dist/Chicle.d.ts"
+      ],
+      "Chilanka": [
+        "dist/Chilanka.d.ts"
+      ],
+      "Chivo": [
+        "dist/Chivo.d.ts"
+      ],
+      "Chonburi": [
+        "dist/Chonburi.d.ts"
+      ],
+      "Cinzel": [
+        "dist/Cinzel.d.ts"
+      ],
+      "CinzelDecorative": [
+        "dist/CinzelDecorative.d.ts"
+      ],
+      "ClickerScript": [
+        "dist/ClickerScript.d.ts"
+      ],
+      "Coda": [
+        "dist/Coda.d.ts"
+      ],
+      "CodaCaption": [
+        "dist/CodaCaption.d.ts"
+      ],
+      "Codystar": [
+        "dist/Codystar.d.ts"
+      ],
+      "Coiny": [
+        "dist/Coiny.d.ts"
+      ],
+      "Combo": [
+        "dist/Combo.d.ts"
+      ],
+      "Comfortaa": [
+        "dist/Comfortaa.d.ts"
+      ],
+      "Comforter": [
+        "dist/Comforter.d.ts"
+      ],
+      "ComforterBrush": [
+        "dist/ComforterBrush.d.ts"
+      ],
+      "ComicNeue": [
+        "dist/ComicNeue.d.ts"
+      ],
+      "ComingSoon": [
+        "dist/ComingSoon.d.ts"
+      ],
+      "Commissioner": [
+        "dist/Commissioner.d.ts"
+      ],
+      "ConcertOne": [
+        "dist/ConcertOne.d.ts"
+      ],
+      "Condiment": [
+        "dist/Condiment.d.ts"
+      ],
+      "Content": [
+        "dist/Content.d.ts"
+      ],
+      "ContrailOne": [
+        "dist/ContrailOne.d.ts"
+      ],
+      "Convergence": [
+        "dist/Convergence.d.ts"
+      ],
+      "Cookie": [
+        "dist/Cookie.d.ts"
+      ],
+      "Copse": [
+        "dist/Copse.d.ts"
+      ],
+      "Corben": [
+        "dist/Corben.d.ts"
+      ],
+      "Corinthia": [
+        "dist/Corinthia.d.ts"
+      ],
+      "Cormorant": [
+        "dist/Cormorant.d.ts"
+      ],
+      "CormorantGaramond": [
+        "dist/CormorantGaramond.d.ts"
+      ],
+      "CormorantInfant": [
+        "dist/CormorantInfant.d.ts"
+      ],
+      "CormorantSC": [
+        "dist/CormorantSC.d.ts"
+      ],
+      "CormorantUnicase": [
+        "dist/CormorantUnicase.d.ts"
+      ],
+      "CormorantUpright": [
+        "dist/CormorantUpright.d.ts"
+      ],
+      "Courgette": [
+        "dist/Courgette.d.ts"
+      ],
+      "CourierPrime": [
+        "dist/CourierPrime.d.ts"
+      ],
+      "Cousine": [
+        "dist/Cousine.d.ts"
+      ],
+      "Coustard": [
+        "dist/Coustard.d.ts"
+      ],
+      "CoveredByYourGrace": [
+        "dist/CoveredByYourGrace.d.ts"
+      ],
+      "CraftyGirls": [
+        "dist/CraftyGirls.d.ts"
+      ],
+      "Creepster": [
+        "dist/Creepster.d.ts"
+      ],
+      "CreteRound": [
+        "dist/CreteRound.d.ts"
+      ],
+      "CrimsonPro": [
+        "dist/CrimsonPro.d.ts"
+      ],
+      "CrimsonText": [
+        "dist/CrimsonText.d.ts"
+      ],
+      "CroissantOne": [
+        "dist/CroissantOne.d.ts"
+      ],
+      "Crushed": [
+        "dist/Crushed.d.ts"
+      ],
+      "Cuprum": [
+        "dist/Cuprum.d.ts"
+      ],
+      "CuteFont": [
+        "dist/CuteFont.d.ts"
+      ],
+      "Cutive": [
+        "dist/Cutive.d.ts"
+      ],
+      "CutiveMono": [
+        "dist/CutiveMono.d.ts"
+      ],
+      "DMMono": [
+        "dist/DMMono.d.ts"
+      ],
+      "DMSans": [
+        "dist/DMSans.d.ts"
+      ],
+      "DMSerifDisplay": [
+        "dist/DMSerifDisplay.d.ts"
+      ],
+      "DMSerifText": [
+        "dist/DMSerifText.d.ts"
+      ],
+      "Damion": [
+        "dist/Damion.d.ts"
+      ],
+      "DancingScript": [
+        "dist/DancingScript.d.ts"
+      ],
+      "Dangrek": [
+        "dist/Dangrek.d.ts"
+      ],
+      "DarkerGrotesque": [
+        "dist/DarkerGrotesque.d.ts"
+      ],
+      "DavidLibre": [
+        "dist/DavidLibre.d.ts"
+      ],
+      "DawningofaNewDay": [
+        "dist/DawningofaNewDay.d.ts"
+      ],
+      "DaysOne": [
+        "dist/DaysOne.d.ts"
+      ],
+      "Dekko": [
+        "dist/Dekko.d.ts"
+      ],
+      "DelaGothicOne": [
+        "dist/DelaGothicOne.d.ts"
+      ],
+      "Delius": [
+        "dist/Delius.d.ts"
+      ],
+      "DeliusSwashCaps": [
+        "dist/DeliusSwashCaps.d.ts"
+      ],
+      "DeliusUnicase": [
+        "dist/DeliusUnicase.d.ts"
+      ],
+      "DellaRespira": [
+        "dist/DellaRespira.d.ts"
+      ],
+      "DenkOne": [
+        "dist/DenkOne.d.ts"
+      ],
+      "Devonshire": [
+        "dist/Devonshire.d.ts"
+      ],
+      "Dhurjati": [
+        "dist/Dhurjati.d.ts"
+      ],
+      "DidactGothic": [
+        "dist/DidactGothic.d.ts"
+      ],
+      "Diplomata": [
+        "dist/Diplomata.d.ts"
+      ],
+      "DiplomataSC": [
+        "dist/DiplomataSC.d.ts"
+      ],
+      "DoHyeon": [
+        "dist/DoHyeon.d.ts"
+      ],
+      "Dokdo": [
+        "dist/Dokdo.d.ts"
+      ],
+      "Domine": [
+        "dist/Domine.d.ts"
+      ],
+      "DonegalOne": [
+        "dist/DonegalOne.d.ts"
+      ],
+      "Dongle": [
+        "dist/Dongle.d.ts"
+      ],
+      "DoppioOne": [
+        "dist/DoppioOne.d.ts"
+      ],
+      "Dorsa": [
+        "dist/Dorsa.d.ts"
+      ],
+      "Dosis": [
+        "dist/Dosis.d.ts"
+      ],
+      "DotGothic16": [
+        "dist/DotGothic16.d.ts"
+      ],
+      "DrSugiyama": [
+        "dist/DrSugiyama.d.ts"
+      ],
+      "DuruSans": [
+        "dist/DuruSans.d.ts"
+      ],
+      "DynaPuff": [
+        "dist/DynaPuff.d.ts"
+      ],
+      "Dynalight": [
+        "dist/Dynalight.d.ts"
+      ],
+      "EBGaramond": [
+        "dist/EBGaramond.d.ts"
+      ],
+      "EagleLake": [
+        "dist/EagleLake.d.ts"
+      ],
+      "EastSeaDokdo": [
+        "dist/EastSeaDokdo.d.ts"
+      ],
+      "Eater": [
+        "dist/Eater.d.ts"
+      ],
+      "Economica": [
+        "dist/Economica.d.ts"
+      ],
+      "Eczar": [
+        "dist/Eczar.d.ts"
+      ],
+      "EduNSWACTFoundation": [
+        "dist/EduNSWACTFoundation.d.ts"
+      ],
+      "EduQLDBeginner": [
+        "dist/EduQLDBeginner.d.ts"
+      ],
+      "EduSABeginner": [
+        "dist/EduSABeginner.d.ts"
+      ],
+      "EduTASBeginner": [
+        "dist/EduTASBeginner.d.ts"
+      ],
+      "EduVICWANTBeginner": [
+        "dist/EduVICWANTBeginner.d.ts"
+      ],
+      "ElMessiri": [
+        "dist/ElMessiri.d.ts"
+      ],
+      "Electrolize": [
+        "dist/Electrolize.d.ts"
+      ],
+      "Elsie": [
+        "dist/Elsie.d.ts"
+      ],
+      "ElsieSwashCaps": [
+        "dist/ElsieSwashCaps.d.ts"
+      ],
+      "EmblemaOne": [
+        "dist/EmblemaOne.d.ts"
+      ],
+      "EmilysCandy": [
+        "dist/EmilysCandy.d.ts"
+      ],
+      "EncodeSans": [
+        "dist/EncodeSans.d.ts"
+      ],
+      "EncodeSansCondensed": [
+        "dist/EncodeSansCondensed.d.ts"
+      ],
+      "EncodeSansExpanded": [
+        "dist/EncodeSansExpanded.d.ts"
+      ],
+      "EncodeSansSC": [
+        "dist/EncodeSansSC.d.ts"
+      ],
+      "EncodeSansSemiCondensed": [
+        "dist/EncodeSansSemiCondensed.d.ts"
+      ],
+      "EncodeSansSemiExpanded": [
+        "dist/EncodeSansSemiExpanded.d.ts"
+      ],
+      "Engagement": [
+        "dist/Engagement.d.ts"
+      ],
+      "Englebert": [
+        "dist/Englebert.d.ts"
+      ],
+      "Enriqueta": [
+        "dist/Enriqueta.d.ts"
+      ],
+      "Ephesis": [
+        "dist/Ephesis.d.ts"
+      ],
+      "Epilogue": [
+        "dist/Epilogue.d.ts"
+      ],
+      "EricaOne": [
+        "dist/EricaOne.d.ts"
+      ],
+      "Esteban": [
+        "dist/Esteban.d.ts"
+      ],
+      "Estonia": [
+        "dist/Estonia.d.ts"
+      ],
+      "EuphoriaScript": [
+        "dist/EuphoriaScript.d.ts"
+      ],
+      "Ewert": [
+        "dist/Ewert.d.ts"
+      ],
+      "Exo": [
+        "dist/Exo.d.ts"
+      ],
+      "Exo2": [
+        "dist/Exo2.d.ts"
+      ],
+      "ExpletusSans": [
+        "dist/ExpletusSans.d.ts"
+      ],
+      "Explora": [
+        "dist/Explora.d.ts"
+      ],
+      "Fahkwang": [
+        "dist/Fahkwang.d.ts"
+      ],
+      "FamiljenGrotesk": [
+        "dist/FamiljenGrotesk.d.ts"
+      ],
+      "FanwoodText": [
+        "dist/FanwoodText.d.ts"
+      ],
+      "Farro": [
+        "dist/Farro.d.ts"
+      ],
+      "Farsan": [
+        "dist/Farsan.d.ts"
+      ],
+      "Fascinate": [
+        "dist/Fascinate.d.ts"
+      ],
+      "FascinateInline": [
+        "dist/FascinateInline.d.ts"
+      ],
+      "FasterOne": [
+        "dist/FasterOne.d.ts"
+      ],
+      "Fasthand": [
+        "dist/Fasthand.d.ts"
+      ],
+      "FaunaOne": [
+        "dist/FaunaOne.d.ts"
+      ],
+      "Faustina": [
+        "dist/Faustina.d.ts"
+      ],
+      "Federant": [
+        "dist/Federant.d.ts"
+      ],
+      "Federo": [
+        "dist/Federo.d.ts"
+      ],
+      "Felipa": [
+        "dist/Felipa.d.ts"
+      ],
+      "Fenix": [
+        "dist/Fenix.d.ts"
+      ],
+      "Festive": [
+        "dist/Festive.d.ts"
+      ],
+      "Figtree": [
+        "dist/Figtree.d.ts"
+      ],
+      "FingerPaint": [
+        "dist/FingerPaint.d.ts"
+      ],
+      "Finlandica": [
+        "dist/Finlandica.d.ts"
+      ],
+      "FiraCode": [
+        "dist/FiraCode.d.ts"
+      ],
+      "FiraMono": [
+        "dist/FiraMono.d.ts"
+      ],
+      "FiraSans": [
+        "dist/FiraSans.d.ts"
+      ],
+      "FiraSansCondensed": [
+        "dist/FiraSansCondensed.d.ts"
+      ],
+      "FiraSansExtraCondensed": [
+        "dist/FiraSansExtraCondensed.d.ts"
+      ],
+      "FjallaOne": [
+        "dist/FjallaOne.d.ts"
+      ],
+      "FjordOne": [
+        "dist/FjordOne.d.ts"
+      ],
+      "Flamenco": [
+        "dist/Flamenco.d.ts"
+      ],
+      "Flavors": [
+        "dist/Flavors.d.ts"
+      ],
+      "FleurDeLeah": [
+        "dist/FleurDeLeah.d.ts"
+      ],
+      "FlowBlock": [
+        "dist/FlowBlock.d.ts"
+      ],
+      "FlowCircular": [
+        "dist/FlowCircular.d.ts"
+      ],
+      "FlowRounded": [
+        "dist/FlowRounded.d.ts"
+      ],
+      "Fondamento": [
+        "dist/Fondamento.d.ts"
+      ],
+      "FontdinerSwanky": [
+        "dist/FontdinerSwanky.d.ts"
+      ],
+      "Forum": [
+        "dist/Forum.d.ts"
+      ],
+      "FrancoisOne": [
+        "dist/FrancoisOne.d.ts"
+      ],
+      "FrankRuhlLibre": [
+        "dist/FrankRuhlLibre.d.ts"
+      ],
+      "Fraunces": [
+        "dist/Fraunces.d.ts"
+      ],
+      "FreckleFace": [
+        "dist/FreckleFace.d.ts"
+      ],
+      "FrederickatheGreat": [
+        "dist/FrederickatheGreat.d.ts"
+      ],
+      "Fredoka": [
+        "dist/Fredoka.d.ts"
+      ],
+      "FredokaOne": [
+        "dist/FredokaOne.d.ts"
+      ],
+      "Freehand": [
+        "dist/Freehand.d.ts"
+      ],
+      "Fresca": [
+        "dist/Fresca.d.ts"
+      ],
+      "Frijole": [
+        "dist/Frijole.d.ts"
+      ],
+      "Fruktur": [
+        "dist/Fruktur.d.ts"
+      ],
+      "FugazOne": [
+        "dist/FugazOne.d.ts"
+      ],
+      "Fuggles": [
+        "dist/Fuggles.d.ts"
+      ],
+      "FuzzyBubbles": [
+        "dist/FuzzyBubbles.d.ts"
+      ],
+      "GFSDidot": [
+        "dist/GFSDidot.d.ts"
+      ],
+      "GFSNeohellenic": [
+        "dist/GFSNeohellenic.d.ts"
+      ],
+      "Gabriela": [
+        "dist/Gabriela.d.ts"
+      ],
+      "Gaegu": [
+        "dist/Gaegu.d.ts"
+      ],
+      "Gafata": [
+        "dist/Gafata.d.ts"
+      ],
+      "Galada": [
+        "dist/Galada.d.ts"
+      ],
+      "Galdeano": [
+        "dist/Galdeano.d.ts"
+      ],
+      "Galindo": [
+        "dist/Galindo.d.ts"
+      ],
+      "GamjaFlower": [
+        "dist/GamjaFlower.d.ts"
+      ],
+      "Gantari": [
+        "dist/Gantari.d.ts"
+      ],
+      "Gayathri": [
+        "dist/Gayathri.d.ts"
+      ],
+      "Gelasio": [
+        "dist/Gelasio.d.ts"
+      ],
+      "GemunuLibre": [
+        "dist/GemunuLibre.d.ts"
+      ],
+      "Genos": [
+        "dist/Genos.d.ts"
+      ],
+      "GentiumBookBasic": [
+        "dist/GentiumBookBasic.d.ts"
+      ],
+      "GentiumBookPlus": [
+        "dist/GentiumBookPlus.d.ts"
+      ],
+      "GentiumPlus": [
+        "dist/GentiumPlus.d.ts"
+      ],
+      "Geo": [
+        "dist/Geo.d.ts"
+      ],
+      "Georama": [
+        "dist/Georama.d.ts"
+      ],
+      "Geostar": [
+        "dist/Geostar.d.ts"
+      ],
+      "GeostarFill": [
+        "dist/GeostarFill.d.ts"
+      ],
+      "GermaniaOne": [
+        "dist/GermaniaOne.d.ts"
+      ],
+      "GideonRoman": [
+        "dist/GideonRoman.d.ts"
+      ],
+      "Gidugu": [
+        "dist/Gidugu.d.ts"
+      ],
+      "GildaDisplay": [
+        "dist/GildaDisplay.d.ts"
+      ],
+      "Girassol": [
+        "dist/Girassol.d.ts"
+      ],
+      "GiveYouGlory": [
+        "dist/GiveYouGlory.d.ts"
+      ],
+      "GlassAntiqua": [
+        "dist/GlassAntiqua.d.ts"
+      ],
+      "Glegoo": [
+        "dist/Glegoo.d.ts"
+      ],
+      "GloriaHallelujah": [
+        "dist/GloriaHallelujah.d.ts"
+      ],
+      "Glory": [
+        "dist/Glory.d.ts"
+      ],
+      "Gluten": [
+        "dist/Gluten.d.ts"
+      ],
+      "GoblinOne": [
+        "dist/GoblinOne.d.ts"
+      ],
+      "GochiHand": [
+        "dist/GochiHand.d.ts"
+      ],
+      "Goldman": [
+        "dist/Goldman.d.ts"
+      ],
+      "Gorditas": [
+        "dist/Gorditas.d.ts"
+      ],
+      "GothicA1": [
+        "dist/GothicA1.d.ts"
+      ],
+      "Gotu": [
+        "dist/Gotu.d.ts"
+      ],
+      "GoudyBookletter1911": [
+        "dist/GoudyBookletter1911.d.ts"
+      ],
+      "GowunBatang": [
+        "dist/GowunBatang.d.ts"
+      ],
+      "GowunDodum": [
+        "dist/GowunDodum.d.ts"
+      ],
+      "Graduate": [
+        "dist/Graduate.d.ts"
+      ],
+      "GrandHotel": [
+        "dist/GrandHotel.d.ts"
+      ],
+      "Grandstander": [
+        "dist/Grandstander.d.ts"
+      ],
+      "GrapeNuts": [
+        "dist/GrapeNuts.d.ts"
+      ],
+      "GravitasOne": [
+        "dist/GravitasOne.d.ts"
+      ],
+      "GreatVibes": [
+        "dist/GreatVibes.d.ts"
+      ],
+      "GrechenFuemen": [
+        "dist/GrechenFuemen.d.ts"
+      ],
+      "Grenze": [
+        "dist/Grenze.d.ts"
+      ],
+      "GrenzeGotisch": [
+        "dist/GrenzeGotisch.d.ts"
+      ],
+      "GreyQo": [
+        "dist/GreyQo.d.ts"
+      ],
+      "Griffy": [
+        "dist/Griffy.d.ts"
+      ],
+      "Gruppo": [
+        "dist/Gruppo.d.ts"
+      ],
+      "Gudea": [
+        "dist/Gudea.d.ts"
+      ],
+      "Gugi": [
+        "dist/Gugi.d.ts"
+      ],
+      "Gulzar": [
+        "dist/Gulzar.d.ts"
+      ],
+      "Gupter": [
+        "dist/Gupter.d.ts"
+      ],
+      "Gurajada": [
+        "dist/Gurajada.d.ts"
+      ],
+      "Gwendolyn": [
+        "dist/Gwendolyn.d.ts"
+      ],
+      "Habibi": [
+        "dist/Habibi.d.ts"
+      ],
+      "HachiMaruPop": [
+        "dist/HachiMaruPop.d.ts"
+      ],
+      "Hahmlet": [
+        "dist/Hahmlet.d.ts"
+      ],
+      "Halant": [
+        "dist/Halant.d.ts"
+      ],
+      "HammersmithOne": [
+        "dist/HammersmithOne.d.ts"
+      ],
+      "Hanalei": [
+        "dist/Hanalei.d.ts"
+      ],
+      "HanaleiFill": [
+        "dist/HanaleiFill.d.ts"
+      ],
+      "Handlee": [
+        "dist/Handlee.d.ts"
+      ],
+      "Hanuman": [
+        "dist/Hanuman.d.ts"
+      ],
+      "HappyMonkey": [
+        "dist/HappyMonkey.d.ts"
+      ],
+      "Harmattan": [
+        "dist/Harmattan.d.ts"
+      ],
+      "HeadlandOne": [
+        "dist/HeadlandOne.d.ts"
+      ],
+      "Heebo": [
+        "dist/Heebo.d.ts"
+      ],
+      "HennyPenny": [
+        "dist/HennyPenny.d.ts"
+      ],
+      "HeptaSlab": [
+        "dist/HeptaSlab.d.ts"
+      ],
+      "HerrVonMuellerhoff": [
+        "dist/HerrVonMuellerhoff.d.ts"
+      ],
+      "HiMelody": [
+        "dist/HiMelody.d.ts"
+      ],
+      "HinaMincho": [
+        "dist/HinaMincho.d.ts"
+      ],
+      "Hind": [
+        "dist/Hind.d.ts"
+      ],
+      "HindGuntur": [
+        "dist/HindGuntur.d.ts"
+      ],
+      "HindMadurai": [
+        "dist/HindMadurai.d.ts"
+      ],
+      "HindSiliguri": [
+        "dist/HindSiliguri.d.ts"
+      ],
+      "HindVadodara": [
+        "dist/HindVadodara.d.ts"
+      ],
+      "HoltwoodOneSC": [
+        "dist/HoltwoodOneSC.d.ts"
+      ],
+      "HomemadeApple": [
+        "dist/HomemadeApple.d.ts"
+      ],
+      "Homenaje": [
+        "dist/Homenaje.d.ts"
+      ],
+      "Hubballi": [
+        "dist/Hubballi.d.ts"
+      ],
+      "Hurricane": [
+        "dist/Hurricane.d.ts"
+      ],
+      "IBMPlexMono": [
+        "dist/IBMPlexMono.d.ts"
+      ],
+      "IBMPlexSans": [
+        "dist/IBMPlexSans.d.ts"
+      ],
+      "IBMPlexSansArabic": [
+        "dist/IBMPlexSansArabic.d.ts"
+      ],
+      "IBMPlexSansCondensed": [
+        "dist/IBMPlexSansCondensed.d.ts"
+      ],
+      "IBMPlexSansDevanagari": [
+        "dist/IBMPlexSansDevanagari.d.ts"
+      ],
+      "IBMPlexSansHebrew": [
+        "dist/IBMPlexSansHebrew.d.ts"
+      ],
+      "IBMPlexSansKR": [
+        "dist/IBMPlexSansKR.d.ts"
+      ],
+      "IBMPlexSansThai": [
+        "dist/IBMPlexSansThai.d.ts"
+      ],
+      "IBMPlexSansThaiLooped": [
+        "dist/IBMPlexSansThaiLooped.d.ts"
+      ],
+      "IBMPlexSerif": [
+        "dist/IBMPlexSerif.d.ts"
+      ],
+      "IMFellDWPica": [
+        "dist/IMFellDWPica.d.ts"
+      ],
+      "IMFellDWPicaSC": [
+        "dist/IMFellDWPicaSC.d.ts"
+      ],
+      "IMFellDoublePica": [
+        "dist/IMFellDoublePica.d.ts"
+      ],
+      "IMFellDoublePicaSC": [
+        "dist/IMFellDoublePicaSC.d.ts"
+      ],
+      "IMFellEnglish": [
+        "dist/IMFellEnglish.d.ts"
+      ],
+      "IMFellEnglishSC": [
+        "dist/IMFellEnglishSC.d.ts"
+      ],
+      "IMFellFrenchCanon": [
+        "dist/IMFellFrenchCanon.d.ts"
+      ],
+      "IMFellFrenchCanonSC": [
+        "dist/IMFellFrenchCanonSC.d.ts"
+      ],
+      "IMFellGreatPrimer": [
+        "dist/IMFellGreatPrimer.d.ts"
+      ],
+      "IMFellGreatPrimerSC": [
+        "dist/IMFellGreatPrimerSC.d.ts"
+      ],
+      "IbarraRealNova": [
+        "dist/IbarraRealNova.d.ts"
+      ],
+      "Iceberg": [
+        "dist/Iceberg.d.ts"
+      ],
+      "Iceland": [
+        "dist/Iceland.d.ts"
+      ],
+      "Imbue": [
+        "dist/Imbue.d.ts"
+      ],
+      "ImperialScript": [
+        "dist/ImperialScript.d.ts"
+      ],
+      "Imprima": [
+        "dist/Imprima.d.ts"
+      ],
+      "Inconsolata": [
+        "dist/Inconsolata.d.ts"
+      ],
+      "Inder": [
+        "dist/Inder.d.ts"
+      ],
+      "IndieFlower": [
+        "dist/IndieFlower.d.ts"
+      ],
+      "IngridDarling": [
+        "dist/IngridDarling.d.ts"
+      ],
+      "Inika": [
+        "dist/Inika.d.ts"
+      ],
+      "InknutAntiqua": [
+        "dist/InknutAntiqua.d.ts"
+      ],
+      "InriaSans": [
+        "dist/InriaSans.d.ts"
+      ],
+      "InriaSerif": [
+        "dist/InriaSerif.d.ts"
+      ],
+      "Inspiration": [
+        "dist/Inspiration.d.ts"
+      ],
+      "Inter": [
+        "dist/Inter.d.ts"
+      ],
+      "InterTight": [
+        "dist/InterTight.d.ts"
+      ],
+      "IrishGrover": [
+        "dist/IrishGrover.d.ts"
+      ],
+      "IslandMoments": [
+        "dist/IslandMoments.d.ts"
+      ],
+      "IstokWeb": [
+        "dist/IstokWeb.d.ts"
+      ],
+      "Italiana": [
+        "dist/Italiana.d.ts"
+      ],
+      "Italianno": [
+        "dist/Italianno.d.ts"
+      ],
+      "Itim": [
+        "dist/Itim.d.ts"
+      ],
+      "JacquesFrancois": [
+        "dist/JacquesFrancois.d.ts"
+      ],
+      "JacquesFrancoisShadow": [
+        "dist/JacquesFrancoisShadow.d.ts"
+      ],
+      "Jaldi": [
+        "dist/Jaldi.d.ts"
+      ],
+      "JetBrainsMono": [
+        "dist/JetBrainsMono.d.ts"
+      ],
+      "JimNightshade": [
+        "dist/JimNightshade.d.ts"
+      ],
+      "Joan": [
+        "dist/Joan.d.ts"
+      ],
+      "JockeyOne": [
+        "dist/JockeyOne.d.ts"
+      ],
+      "JollyLodger": [
+        "dist/JollyLodger.d.ts"
+      ],
+      "Jomhuria": [
+        "dist/Jomhuria.d.ts"
+      ],
+      "Jomolhari": [
+        "dist/Jomolhari.d.ts"
+      ],
+      "JosefinSans": [
+        "dist/JosefinSans.d.ts"
+      ],
+      "JosefinSlab": [
+        "dist/JosefinSlab.d.ts"
+      ],
+      "Jost": [
+        "dist/Jost.d.ts"
+      ],
+      "JotiOne": [
+        "dist/JotiOne.d.ts"
+      ],
+      "Jua": [
+        "dist/Jua.d.ts"
+      ],
+      "Judson": [
+        "dist/Judson.d.ts"
+      ],
+      "Julee": [
+        "dist/Julee.d.ts"
+      ],
+      "JuliusSansOne": [
+        "dist/JuliusSansOne.d.ts"
+      ],
+      "Junge": [
+        "dist/Junge.d.ts"
+      ],
+      "Jura": [
+        "dist/Jura.d.ts"
+      ],
+      "JustAnotherHand": [
+        "dist/JustAnotherHand.d.ts"
+      ],
+      "JustMeAgainDownHere": [
+        "dist/JustMeAgainDownHere.d.ts"
+      ],
+      "K2D": [
+        "dist/K2D.d.ts"
+      ],
+      "Kadwa": [
+        "dist/Kadwa.d.ts"
+      ],
+      "KaiseiDecol": [
+        "dist/KaiseiDecol.d.ts"
+      ],
+      "KaiseiHarunoUmi": [
+        "dist/KaiseiHarunoUmi.d.ts"
+      ],
+      "KaiseiOpti": [
+        "dist/KaiseiOpti.d.ts"
+      ],
+      "KaiseiTokumin": [
+        "dist/KaiseiTokumin.d.ts"
+      ],
+      "Kalam": [
+        "dist/Kalam.d.ts"
+      ],
+      "Kameron": [
+        "dist/Kameron.d.ts"
+      ],
+      "Kanit": [
+        "dist/Kanit.d.ts"
+      ],
+      "Kantumruy": [
+        "dist/Kantumruy.d.ts"
+      ],
+      "KantumruyPro": [
+        "dist/KantumruyPro.d.ts"
+      ],
+      "Karantina": [
+        "dist/Karantina.d.ts"
+      ],
+      "Karla": [
+        "dist/Karla.d.ts"
+      ],
+      "Karma": [
+        "dist/Karma.d.ts"
+      ],
+      "Katibeh": [
+        "dist/Katibeh.d.ts"
+      ],
+      "KaushanScript": [
+        "dist/KaushanScript.d.ts"
+      ],
+      "Kavivanar": [
+        "dist/Kavivanar.d.ts"
+      ],
+      "Kavoon": [
+        "dist/Kavoon.d.ts"
+      ],
+      "KdamThmorPro": [
+        "dist/KdamThmorPro.d.ts"
+      ],
+      "KeaniaOne": [
+        "dist/KeaniaOne.d.ts"
+      ],
+      "KellySlab": [
+        "dist/KellySlab.d.ts"
+      ],
+      "Kenia": [
+        "dist/Kenia.d.ts"
+      ],
+      "Khand": [
+        "dist/Khand.d.ts"
+      ],
+      "Khmer": [
+        "dist/Khmer.d.ts"
+      ],
+      "Khula": [
+        "dist/Khula.d.ts"
+      ],
+      "Kings": [
+        "dist/Kings.d.ts"
+      ],
+      "KirangHaerang": [
+        "dist/KirangHaerang.d.ts"
+      ],
+      "KiteOne": [
+        "dist/KiteOne.d.ts"
+      ],
+      "KiwiMaru": [
+        "dist/KiwiMaru.d.ts"
+      ],
+      "KleeOne": [
+        "dist/KleeOne.d.ts"
+      ],
+      "Knewave": [
+        "dist/Knewave.d.ts"
+      ],
+      "KoHo": [
+        "dist/KoHo.d.ts"
+      ],
+      "Kodchasan": [
+        "dist/Kodchasan.d.ts"
+      ],
+      "KohSantepheap": [
+        "dist/KohSantepheap.d.ts"
+      ],
+      "KolkerBrush": [
+        "dist/KolkerBrush.d.ts"
+      ],
+      "Kosugi": [
+        "dist/Kosugi.d.ts"
+      ],
+      "KosugiMaru": [
+        "dist/KosugiMaru.d.ts"
+      ],
+      "KottaOne": [
+        "dist/KottaOne.d.ts"
+      ],
+      "Koulen": [
+        "dist/Koulen.d.ts"
+      ],
+      "Kranky": [
+        "dist/Kranky.d.ts"
+      ],
+      "Kreon": [
+        "dist/Kreon.d.ts"
+      ],
+      "Kristi": [
+        "dist/Kristi.d.ts"
+      ],
+      "KronaOne": [
+        "dist/KronaOne.d.ts"
+      ],
+      "Krub": [
+        "dist/Krub.d.ts"
+      ],
+      "Kufam": [
+        "dist/Kufam.d.ts"
+      ],
+      "KulimPark": [
+        "dist/KulimPark.d.ts"
+      ],
+      "KumarOne": [
+        "dist/KumarOne.d.ts"
+      ],
+      "KumarOneOutline": [
+        "dist/KumarOneOutline.d.ts"
+      ],
+      "KumbhSans": [
+        "dist/KumbhSans.d.ts"
+      ],
+      "Kurale": [
+        "dist/Kurale.d.ts"
+      ],
+      "LaBelleAurore": [
+        "dist/LaBelleAurore.d.ts"
+      ],
+      "Lacquer": [
+        "dist/Lacquer.d.ts"
+      ],
+      "Laila": [
+        "dist/Laila.d.ts"
+      ],
+      "LakkiReddy": [
+        "dist/LakkiReddy.d.ts"
+      ],
+      "Lalezar": [
+        "dist/Lalezar.d.ts"
+      ],
+      "Lancelot": [
+        "dist/Lancelot.d.ts"
+      ],
+      "Langar": [
+        "dist/Langar.d.ts"
+      ],
+      "Lateef": [
+        "dist/Lateef.d.ts"
+      ],
+      "Lato": [
+        "dist/Lato.d.ts"
+      ],
+      "LavishlyYours": [
+        "dist/LavishlyYours.d.ts"
+      ],
+      "LeagueGothic": [
+        "dist/LeagueGothic.d.ts"
+      ],
+      "LeagueScript": [
+        "dist/LeagueScript.d.ts"
+      ],
+      "LeagueSpartan": [
+        "dist/LeagueSpartan.d.ts"
+      ],
+      "LeckerliOne": [
+        "dist/LeckerliOne.d.ts"
+      ],
+      "Ledger": [
+        "dist/Ledger.d.ts"
+      ],
+      "Lekton": [
+        "dist/Lekton.d.ts"
+      ],
+      "Lemon": [
+        "dist/Lemon.d.ts"
+      ],
+      "Lemonada": [
+        "dist/Lemonada.d.ts"
+      ],
+      "Lexend": [
+        "dist/Lexend.d.ts"
+      ],
+      "LexendDeca": [
+        "dist/LexendDeca.d.ts"
+      ],
+      "LexendExa": [
+        "dist/LexendExa.d.ts"
+      ],
+      "LexendGiga": [
+        "dist/LexendGiga.d.ts"
+      ],
+      "LexendMega": [
+        "dist/LexendMega.d.ts"
+      ],
+      "LexendPeta": [
+        "dist/LexendPeta.d.ts"
+      ],
+      "LexendTera": [
+        "dist/LexendTera.d.ts"
+      ],
+      "LexendZetta": [
+        "dist/LexendZetta.d.ts"
+      ],
+      "LibreBarcode128": [
+        "dist/LibreBarcode128.d.ts"
+      ],
+      "LibreBarcode128Text": [
+        "dist/LibreBarcode128Text.d.ts"
+      ],
+      "LibreBarcode39": [
+        "dist/LibreBarcode39.d.ts"
+      ],
+      "LibreBarcode39Extended": [
+        "dist/LibreBarcode39Extended.d.ts"
+      ],
+      "LibreBarcode39ExtendedText": [
+        "dist/LibreBarcode39ExtendedText.d.ts"
+      ],
+      "LibreBarcode39Text": [
+        "dist/LibreBarcode39Text.d.ts"
+      ],
+      "LibreBarcodeEAN13Text": [
+        "dist/LibreBarcodeEAN13Text.d.ts"
+      ],
+      "LibreBaskerville": [
+        "dist/LibreBaskerville.d.ts"
+      ],
+      "LibreBodoni": [
+        "dist/LibreBodoni.d.ts"
+      ],
+      "LibreCaslonDisplay": [
+        "dist/LibreCaslonDisplay.d.ts"
+      ],
+      "LibreCaslonText": [
+        "dist/LibreCaslonText.d.ts"
+      ],
+      "LibreFranklin": [
+        "dist/LibreFranklin.d.ts"
+      ],
+      "Licorice": [
+        "dist/Licorice.d.ts"
+      ],
+      "LifeSavers": [
+        "dist/LifeSavers.d.ts"
+      ],
+      "LilitaOne": [
+        "dist/LilitaOne.d.ts"
+      ],
+      "LilyScriptOne": [
+        "dist/LilyScriptOne.d.ts"
+      ],
+      "Limelight": [
+        "dist/Limelight.d.ts"
+      ],
+      "LindenHill": [
+        "dist/LindenHill.d.ts"
+      ],
+      "Literata": [
+        "dist/Literata.d.ts"
+      ],
+      "LiuJianMaoCao": [
+        "dist/LiuJianMaoCao.d.ts"
+      ],
+      "Livvic": [
+        "dist/Livvic.d.ts"
+      ],
+      "Lobster": [
+        "dist/Lobster.d.ts"
+      ],
+      "LobsterTwo": [
+        "dist/LobsterTwo.d.ts"
+      ],
+      "LondrinaOutline": [
+        "dist/LondrinaOutline.d.ts"
+      ],
+      "LondrinaShadow": [
+        "dist/LondrinaShadow.d.ts"
+      ],
+      "LondrinaSketch": [
+        "dist/LondrinaSketch.d.ts"
+      ],
+      "LondrinaSolid": [
+        "dist/LondrinaSolid.d.ts"
+      ],
+      "LongCang": [
+        "dist/LongCang.d.ts"
+      ],
+      "Lora": [
+        "dist/Lora.d.ts"
+      ],
+      "LoveLight": [
+        "dist/LoveLight.d.ts"
+      ],
+      "LoveYaLikeASister": [
+        "dist/LoveYaLikeASister.d.ts"
+      ],
+      "LovedbytheKing": [
+        "dist/LovedbytheKing.d.ts"
+      ],
+      "LoversQuarrel": [
+        "dist/LoversQuarrel.d.ts"
+      ],
+      "LuckiestGuy": [
+        "dist/LuckiestGuy.d.ts"
+      ],
+      "Lusitana": [
+        "dist/Lusitana.d.ts"
+      ],
+      "Lustria": [
+        "dist/Lustria.d.ts"
+      ],
+      "LuxuriousRoman": [
+        "dist/LuxuriousRoman.d.ts"
+      ],
+      "LuxuriousScript": [
+        "dist/LuxuriousScript.d.ts"
+      ],
+      "MPLUS1": [
+        "dist/MPLUS1.d.ts"
+      ],
+      "MPLUS1Code": [
+        "dist/MPLUS1Code.d.ts"
+      ],
+      "MPLUS1p": [
+        "dist/MPLUS1p.d.ts"
+      ],
+      "MPLUS2": [
+        "dist/MPLUS2.d.ts"
+      ],
+      "MPLUSCodeLatin": [
+        "dist/MPLUSCodeLatin.d.ts"
+      ],
+      "MPLUSRounded1c": [
+        "dist/MPLUSRounded1c.d.ts"
+      ],
+      "MaShanZheng": [
+        "dist/MaShanZheng.d.ts"
+      ],
+      "Macondo": [
+        "dist/Macondo.d.ts"
+      ],
+      "MacondoSwashCaps": [
+        "dist/MacondoSwashCaps.d.ts"
+      ],
+      "Mada": [
+        "dist/Mada.d.ts"
+      ],
+      "Magra": [
+        "dist/Magra.d.ts"
+      ],
+      "MaidenOrange": [
+        "dist/MaidenOrange.d.ts"
+      ],
+      "Maitree": [
+        "dist/Maitree.d.ts"
+      ],
+      "MajorMonoDisplay": [
+        "dist/MajorMonoDisplay.d.ts"
+      ],
+      "Mako": [
+        "dist/Mako.d.ts"
+      ],
+      "Mali": [
+        "dist/Mali.d.ts"
+      ],
+      "Mallanna": [
+        "dist/Mallanna.d.ts"
+      ],
+      "Mandali": [
+        "dist/Mandali.d.ts"
+      ],
+      "Manjari": [
+        "dist/Manjari.d.ts"
+      ],
+      "Manrope": [
+        "dist/Manrope.d.ts"
+      ],
+      "Mansalva": [
+        "dist/Mansalva.d.ts"
+      ],
+      "Manuale": [
+        "dist/Manuale.d.ts"
+      ],
+      "Marcellus": [
+        "dist/Marcellus.d.ts"
+      ],
+      "MarcellusSC": [
+        "dist/MarcellusSC.d.ts"
+      ],
+      "MarckScript": [
+        "dist/MarckScript.d.ts"
+      ],
+      "Margarine": [
+        "dist/Margarine.d.ts"
+      ],
+      "MarkaziText": [
+        "dist/MarkaziText.d.ts"
+      ],
+      "MarkoOne": [
+        "dist/MarkoOne.d.ts"
+      ],
+      "Marmelad": [
+        "dist/Marmelad.d.ts"
+      ],
+      "Martel": [
+        "dist/Martel.d.ts"
+      ],
+      "MartelSans": [
+        "dist/MartelSans.d.ts"
+      ],
+      "Marvel": [
+        "dist/Marvel.d.ts"
+      ],
+      "Mate": [
+        "dist/Mate.d.ts"
+      ],
+      "MateSC": [
+        "dist/MateSC.d.ts"
+      ],
+      "MavenPro": [
+        "dist/MavenPro.d.ts"
+      ],
+      "McLaren": [
+        "dist/McLaren.d.ts"
+      ],
+      "MeaCulpa": [
+        "dist/MeaCulpa.d.ts"
+      ],
+      "Meddon": [
+        "dist/Meddon.d.ts"
+      ],
+      "MedievalSharp": [
+        "dist/MedievalSharp.d.ts"
+      ],
+      "MedulaOne": [
+        "dist/MedulaOne.d.ts"
+      ],
+      "MeeraInimai": [
+        "dist/MeeraInimai.d.ts"
+      ],
+      "Megrim": [
+        "dist/Megrim.d.ts"
+      ],
+      "MeieScript": [
+        "dist/MeieScript.d.ts"
+      ],
+      "MeowScript": [
+        "dist/MeowScript.d.ts"
+      ],
+      "Merienda": [
+        "dist/Merienda.d.ts"
+      ],
+      "MeriendaOne": [
+        "dist/MeriendaOne.d.ts"
+      ],
+      "Merriweather": [
+        "dist/Merriweather.d.ts"
+      ],
+      "MerriweatherSans": [
+        "dist/MerriweatherSans.d.ts"
+      ],
+      "Metal": [
+        "dist/Metal.d.ts"
+      ],
+      "MetalMania": [
+        "dist/MetalMania.d.ts"
+      ],
+      "Metamorphous": [
+        "dist/Metamorphous.d.ts"
+      ],
+      "Metrophobic": [
+        "dist/Metrophobic.d.ts"
+      ],
+      "Michroma": [
+        "dist/Michroma.d.ts"
+      ],
+      "Milonga": [
+        "dist/Milonga.d.ts"
+      ],
+      "Miltonian": [
+        "dist/Miltonian.d.ts"
+      ],
+      "MiltonianTattoo": [
+        "dist/MiltonianTattoo.d.ts"
+      ],
+      "Mina": [
+        "dist/Mina.d.ts"
+      ],
+      "Mingzat": [
+        "dist/Mingzat.d.ts"
+      ],
+      "Miniver": [
+        "dist/Miniver.d.ts"
+      ],
+      "MiriamLibre": [
+        "dist/MiriamLibre.d.ts"
+      ],
+      "Mirza": [
+        "dist/Mirza.d.ts"
+      ],
+      "MissFajardose": [
+        "dist/MissFajardose.d.ts"
+      ],
+      "Mitr": [
+        "dist/Mitr.d.ts"
+      ],
+      "MochiyPopOne": [
+        "dist/MochiyPopOne.d.ts"
+      ],
+      "MochiyPopPOne": [
+        "dist/MochiyPopPOne.d.ts"
+      ],
+      "Modak": [
+        "dist/Modak.d.ts"
+      ],
+      "ModernAntiqua": [
+        "dist/ModernAntiqua.d.ts"
+      ],
+      "Mogra": [
+        "dist/Mogra.d.ts"
+      ],
+      "Mohave": [
+        "dist/Mohave.d.ts"
+      ],
+      "Molengo": [
+        "dist/Molengo.d.ts"
+      ],
+      "Molle": [
+        "dist/Molle.d.ts"
+      ],
+      "Monda": [
+        "dist/Monda.d.ts"
+      ],
+      "Monofett": [
+        "dist/Monofett.d.ts"
+      ],
+      "Monoton": [
+        "dist/Monoton.d.ts"
+      ],
+      "MonsieurLaDoulaise": [
+        "dist/MonsieurLaDoulaise.d.ts"
+      ],
+      "Montaga": [
+        "dist/Montaga.d.ts"
+      ],
+      "MontaguSlab": [
+        "dist/MontaguSlab.d.ts"
+      ],
+      "MonteCarlo": [
+        "dist/MonteCarlo.d.ts"
+      ],
+      "Montez": [
+        "dist/Montez.d.ts"
+      ],
+      "Montserrat": [
+        "dist/Montserrat.d.ts"
+      ],
+      "MontserratAlternates": [
+        "dist/MontserratAlternates.d.ts"
+      ],
+      "MontserratSubrayada": [
+        "dist/MontserratSubrayada.d.ts"
+      ],
+      "MooLahLah": [
+        "dist/MooLahLah.d.ts"
+      ],
+      "MoonDance": [
+        "dist/MoonDance.d.ts"
+      ],
+      "Moul": [
+        "dist/Moul.d.ts"
+      ],
+      "Moulpali": [
+        "dist/Moulpali.d.ts"
+      ],
+      "MountainsofChristmas": [
+        "dist/MountainsofChristmas.d.ts"
+      ],
+      "MouseMemoirs": [
+        "dist/MouseMemoirs.d.ts"
+      ],
+      "MrBedfort": [
+        "dist/MrBedfort.d.ts"
+      ],
+      "MrDafoe": [
+        "dist/MrDafoe.d.ts"
+      ],
+      "MrDeHaviland": [
+        "dist/MrDeHaviland.d.ts"
+      ],
+      "MrsSaintDelafield": [
+        "dist/MrsSaintDelafield.d.ts"
+      ],
+      "MrsSheppards": [
+        "dist/MrsSheppards.d.ts"
+      ],
+      "MsMadi": [
+        "dist/MsMadi.d.ts"
+      ],
+      "Mukta": [
+        "dist/Mukta.d.ts"
+      ],
+      "MuktaMahee": [
+        "dist/MuktaMahee.d.ts"
+      ],
+      "MuktaMalar": [
+        "dist/MuktaMalar.d.ts"
+      ],
+      "MuktaVaani": [
+        "dist/MuktaVaani.d.ts"
+      ],
+      "Mulish": [
+        "dist/Mulish.d.ts"
+      ],
+      "Murecho": [
+        "dist/Murecho.d.ts"
+      ],
+      "MuseoModerno": [
+        "dist/MuseoModerno.d.ts"
+      ],
+      "MySoul": [
+        "dist/MySoul.d.ts"
+      ],
+      "MysteryQuest": [
+        "dist/MysteryQuest.d.ts"
+      ],
+      "NTR": [
+        "dist/NTR.d.ts"
+      ],
+      "Nabla": [
+        "dist/Nabla.d.ts"
+      ],
+      "NanumBrushScript": [
+        "dist/NanumBrushScript.d.ts"
+      ],
+      "NanumGothic": [
+        "dist/NanumGothic.d.ts"
+      ],
+      "NanumGothicCoding": [
+        "dist/NanumGothicCoding.d.ts"
+      ],
+      "NanumMyeongjo": [
+        "dist/NanumMyeongjo.d.ts"
+      ],
+      "NanumPenScript": [
+        "dist/NanumPenScript.d.ts"
+      ],
+      "Neonderthaw": [
+        "dist/Neonderthaw.d.ts"
+      ],
+      "NerkoOne": [
+        "dist/NerkoOne.d.ts"
+      ],
+      "Neucha": [
+        "dist/Neucha.d.ts"
+      ],
+      "Neuton": [
+        "dist/Neuton.d.ts"
+      ],
+      "NewRocker": [
+        "dist/NewRocker.d.ts"
+      ],
+      "NewTegomin": [
+        "dist/NewTegomin.d.ts"
+      ],
+      "NewsCycle": [
+        "dist/NewsCycle.d.ts"
+      ],
+      "Newsreader": [
+        "dist/Newsreader.d.ts"
+      ],
+      "Niconne": [
+        "dist/Niconne.d.ts"
+      ],
+      "Niramit": [
+        "dist/Niramit.d.ts"
+      ],
+      "NixieOne": [
+        "dist/NixieOne.d.ts"
+      ],
+      "Nobile": [
+        "dist/Nobile.d.ts"
+      ],
+      "Nokora": [
+        "dist/Nokora.d.ts"
+      ],
+      "Norican": [
+        "dist/Norican.d.ts"
+      ],
+      "Nosifer": [
+        "dist/Nosifer.d.ts"
+      ],
+      "Notable": [
+        "dist/Notable.d.ts"
+      ],
+      "NothingYouCouldDo": [
+        "dist/NothingYouCouldDo.d.ts"
+      ],
+      "NoticiaText": [
+        "dist/NoticiaText.d.ts"
+      ],
+      "NotoColorEmoji": [
+        "dist/NotoColorEmoji.d.ts"
+      ],
+      "NotoEmoji": [
+        "dist/NotoEmoji.d.ts"
+      ],
+      "NotoKufiArabic": [
+        "dist/NotoKufiArabic.d.ts"
+      ],
+      "NotoMusic": [
+        "dist/NotoMusic.d.ts"
+      ],
+      "NotoNaskhArabic": [
+        "dist/NotoNaskhArabic.d.ts"
+      ],
+      "NotoNastaliqUrdu": [
+        "dist/NotoNastaliqUrdu.d.ts"
+      ],
+      "NotoRashiHebrew": [
+        "dist/NotoRashiHebrew.d.ts"
+      ],
+      "NotoSans": [
+        "dist/NotoSans.d.ts"
+      ],
+      "NotoSansAdlam": [
+        "dist/NotoSansAdlam.d.ts"
+      ],
+      "NotoSansAdlamUnjoined": [
+        "dist/NotoSansAdlamUnjoined.d.ts"
+      ],
+      "NotoSansAnatolianHieroglyphs": [
+        "dist/NotoSansAnatolianHieroglyphs.d.ts"
+      ],
+      "NotoSansArabic": [
+        "dist/NotoSansArabic.d.ts"
+      ],
+      "NotoSansArmenian": [
+        "dist/NotoSansArmenian.d.ts"
+      ],
+      "NotoSansAvestan": [
+        "dist/NotoSansAvestan.d.ts"
+      ],
+      "NotoSansBalinese": [
+        "dist/NotoSansBalinese.d.ts"
+      ],
+      "NotoSansBamum": [
+        "dist/NotoSansBamum.d.ts"
+      ],
+      "NotoSansBassaVah": [
+        "dist/NotoSansBassaVah.d.ts"
+      ],
+      "NotoSansBatak": [
+        "dist/NotoSansBatak.d.ts"
+      ],
+      "NotoSansBengali": [
+        "dist/NotoSansBengali.d.ts"
+      ],
+      "NotoSansBhaiksuki": [
+        "dist/NotoSansBhaiksuki.d.ts"
+      ],
+      "NotoSansBrahmi": [
+        "dist/NotoSansBrahmi.d.ts"
+      ],
+      "NotoSansBuginese": [
+        "dist/NotoSansBuginese.d.ts"
+      ],
+      "NotoSansBuhid": [
+        "dist/NotoSansBuhid.d.ts"
+      ],
+      "NotoSansCanadianAboriginal": [
+        "dist/NotoSansCanadianAboriginal.d.ts"
+      ],
+      "NotoSansCarian": [
+        "dist/NotoSansCarian.d.ts"
+      ],
+      "NotoSansCaucasianAlbanian": [
+        "dist/NotoSansCaucasianAlbanian.d.ts"
+      ],
+      "NotoSansChakma": [
+        "dist/NotoSansChakma.d.ts"
+      ],
+      "NotoSansCham": [
+        "dist/NotoSansCham.d.ts"
+      ],
+      "NotoSansCherokee": [
+        "dist/NotoSansCherokee.d.ts"
+      ],
+      "NotoSansCoptic": [
+        "dist/NotoSansCoptic.d.ts"
+      ],
+      "NotoSansCuneiform": [
+        "dist/NotoSansCuneiform.d.ts"
+      ],
+      "NotoSansCypriot": [
+        "dist/NotoSansCypriot.d.ts"
+      ],
+      "NotoSansDeseret": [
+        "dist/NotoSansDeseret.d.ts"
+      ],
+      "NotoSansDevanagari": [
+        "dist/NotoSansDevanagari.d.ts"
+      ],
+      "NotoSansDisplay": [
+        "dist/NotoSansDisplay.d.ts"
+      ],
+      "NotoSansDuployan": [
+        "dist/NotoSansDuployan.d.ts"
+      ],
+      "NotoSansEgyptianHieroglyphs": [
+        "dist/NotoSansEgyptianHieroglyphs.d.ts"
+      ],
+      "NotoSansElbasan": [
+        "dist/NotoSansElbasan.d.ts"
+      ],
+      "NotoSansElymaic": [
+        "dist/NotoSansElymaic.d.ts"
+      ],
+      "NotoSansEthiopic": [
+        "dist/NotoSansEthiopic.d.ts"
+      ],
+      "NotoSansGeorgian": [
+        "dist/NotoSansGeorgian.d.ts"
+      ],
+      "NotoSansGlagolitic": [
+        "dist/NotoSansGlagolitic.d.ts"
+      ],
+      "NotoSansGothic": [
+        "dist/NotoSansGothic.d.ts"
+      ],
+      "NotoSansGrantha": [
+        "dist/NotoSansGrantha.d.ts"
+      ],
+      "NotoSansGujarati": [
+        "dist/NotoSansGujarati.d.ts"
+      ],
+      "NotoSansGunjalaGondi": [
+        "dist/NotoSansGunjalaGondi.d.ts"
+      ],
+      "NotoSansGurmukhi": [
+        "dist/NotoSansGurmukhi.d.ts"
+      ],
+      "NotoSansHK": [
+        "dist/NotoSansHK.d.ts"
+      ],
+      "NotoSansHanifiRohingya": [
+        "dist/NotoSansHanifiRohingya.d.ts"
+      ],
+      "NotoSansHanunoo": [
+        "dist/NotoSansHanunoo.d.ts"
+      ],
+      "NotoSansHatran": [
+        "dist/NotoSansHatran.d.ts"
+      ],
+      "NotoSansHebrew": [
+        "dist/NotoSansHebrew.d.ts"
+      ],
+      "NotoSansImperialAramaic": [
+        "dist/NotoSansImperialAramaic.d.ts"
+      ],
+      "NotoSansIndicSiyaqNumbers": [
+        "dist/NotoSansIndicSiyaqNumbers.d.ts"
+      ],
+      "NotoSansInscriptionalPahlavi": [
+        "dist/NotoSansInscriptionalPahlavi.d.ts"
+      ],
+      "NotoSansInscriptionalParthian": [
+        "dist/NotoSansInscriptionalParthian.d.ts"
+      ],
+      "NotoSansJP": [
+        "dist/NotoSansJP.d.ts"
+      ],
+      "NotoSansJavanese": [
+        "dist/NotoSansJavanese.d.ts"
+      ],
+      "NotoSansKR": [
+        "dist/NotoSansKR.d.ts"
+      ],
+      "NotoSansKaithi": [
+        "dist/NotoSansKaithi.d.ts"
+      ],
+      "NotoSansKannada": [
+        "dist/NotoSansKannada.d.ts"
+      ],
+      "NotoSansKayahLi": [
+        "dist/NotoSansKayahLi.d.ts"
+      ],
+      "NotoSansKharoshthi": [
+        "dist/NotoSansKharoshthi.d.ts"
+      ],
+      "NotoSansKhmer": [
+        "dist/NotoSansKhmer.d.ts"
+      ],
+      "NotoSansKhojki": [
+        "dist/NotoSansKhojki.d.ts"
+      ],
+      "NotoSansKhudawadi": [
+        "dist/NotoSansKhudawadi.d.ts"
+      ],
+      "NotoSansLao": [
+        "dist/NotoSansLao.d.ts"
+      ],
+      "NotoSansLepcha": [
+        "dist/NotoSansLepcha.d.ts"
+      ],
+      "NotoSansLimbu": [
+        "dist/NotoSansLimbu.d.ts"
+      ],
+      "NotoSansLinearA": [
+        "dist/NotoSansLinearA.d.ts"
+      ],
+      "NotoSansLinearB": [
+        "dist/NotoSansLinearB.d.ts"
+      ],
+      "NotoSansLisu": [
+        "dist/NotoSansLisu.d.ts"
+      ],
+      "NotoSansLycian": [
+        "dist/NotoSansLycian.d.ts"
+      ],
+      "NotoSansLydian": [
+        "dist/NotoSansLydian.d.ts"
+      ],
+      "NotoSansMahajani": [
+        "dist/NotoSansMahajani.d.ts"
+      ],
+      "NotoSansMalayalam": [
+        "dist/NotoSansMalayalam.d.ts"
+      ],
+      "NotoSansMandaic": [
+        "dist/NotoSansMandaic.d.ts"
+      ],
+      "NotoSansManichaean": [
+        "dist/NotoSansManichaean.d.ts"
+      ],
+      "NotoSansMarchen": [
+        "dist/NotoSansMarchen.d.ts"
+      ],
+      "NotoSansMasaramGondi": [
+        "dist/NotoSansMasaramGondi.d.ts"
+      ],
+      "NotoSansMath": [
+        "dist/NotoSansMath.d.ts"
+      ],
+      "NotoSansMayanNumerals": [
+        "dist/NotoSansMayanNumerals.d.ts"
+      ],
+      "NotoSansMedefaidrin": [
+        "dist/NotoSansMedefaidrin.d.ts"
+      ],
+      "NotoSansMeeteiMayek": [
+        "dist/NotoSansMeeteiMayek.d.ts"
+      ],
+      "NotoSansMeroitic": [
+        "dist/NotoSansMeroitic.d.ts"
+      ],
+      "NotoSansMiao": [
+        "dist/NotoSansMiao.d.ts"
+      ],
+      "NotoSansModi": [
+        "dist/NotoSansModi.d.ts"
+      ],
+      "NotoSansMongolian": [
+        "dist/NotoSansMongolian.d.ts"
+      ],
+      "NotoSansMono": [
+        "dist/NotoSansMono.d.ts"
+      ],
+      "NotoSansMro": [
+        "dist/NotoSansMro.d.ts"
+      ],
+      "NotoSansMultani": [
+        "dist/NotoSansMultani.d.ts"
+      ],
+      "NotoSansMyanmar": [
+        "dist/NotoSansMyanmar.d.ts"
+      ],
+      "NotoSansNKo": [
+        "dist/NotoSansNKo.d.ts"
+      ],
+      "NotoSansNabataean": [
+        "dist/NotoSansNabataean.d.ts"
+      ],
+      "NotoSansNewTaiLue": [
+        "dist/NotoSansNewTaiLue.d.ts"
+      ],
+      "NotoSansNewa": [
+        "dist/NotoSansNewa.d.ts"
+      ],
+      "NotoSansNushu": [
+        "dist/NotoSansNushu.d.ts"
+      ],
+      "NotoSansOgham": [
+        "dist/NotoSansOgham.d.ts"
+      ],
+      "NotoSansOlChiki": [
+        "dist/NotoSansOlChiki.d.ts"
+      ],
+      "NotoSansOldHungarian": [
+        "dist/NotoSansOldHungarian.d.ts"
+      ],
+      "NotoSansOldItalic": [
+        "dist/NotoSansOldItalic.d.ts"
+      ],
+      "NotoSansOldNorthArabian": [
+        "dist/NotoSansOldNorthArabian.d.ts"
+      ],
+      "NotoSansOldPermic": [
+        "dist/NotoSansOldPermic.d.ts"
+      ],
+      "NotoSansOldPersian": [
+        "dist/NotoSansOldPersian.d.ts"
+      ],
+      "NotoSansOldSogdian": [
+        "dist/NotoSansOldSogdian.d.ts"
+      ],
+      "NotoSansOldSouthArabian": [
+        "dist/NotoSansOldSouthArabian.d.ts"
+      ],
+      "NotoSansOldTurkic": [
+        "dist/NotoSansOldTurkic.d.ts"
+      ],
+      "NotoSansOriya": [
+        "dist/NotoSansOriya.d.ts"
+      ],
+      "NotoSansOsage": [
+        "dist/NotoSansOsage.d.ts"
+      ],
+      "NotoSansOsmanya": [
+        "dist/NotoSansOsmanya.d.ts"
+      ],
+      "NotoSansPahawhHmong": [
+        "dist/NotoSansPahawhHmong.d.ts"
+      ],
+      "NotoSansPalmyrene": [
+        "dist/NotoSansPalmyrene.d.ts"
+      ],
+      "NotoSansPauCinHau": [
+        "dist/NotoSansPauCinHau.d.ts"
+      ],
+      "NotoSansPhagsPa": [
+        "dist/NotoSansPhagsPa.d.ts"
+      ],
+      "NotoSansPhoenician": [
+        "dist/NotoSansPhoenician.d.ts"
+      ],
+      "NotoSansPsalterPahlavi": [
+        "dist/NotoSansPsalterPahlavi.d.ts"
+      ],
+      "NotoSansRejang": [
+        "dist/NotoSansRejang.d.ts"
+      ],
+      "NotoSansRunic": [
+        "dist/NotoSansRunic.d.ts"
+      ],
+      "NotoSansSC": [
+        "dist/NotoSansSC.d.ts"
+      ],
+      "NotoSansSamaritan": [
+        "dist/NotoSansSamaritan.d.ts"
+      ],
+      "NotoSansSaurashtra": [
+        "dist/NotoSansSaurashtra.d.ts"
+      ],
+      "NotoSansSharada": [
+        "dist/NotoSansSharada.d.ts"
+      ],
+      "NotoSansShavian": [
+        "dist/NotoSansShavian.d.ts"
+      ],
+      "NotoSansSiddham": [
+        "dist/NotoSansSiddham.d.ts"
+      ],
+      "NotoSansSinhala": [
+        "dist/NotoSansSinhala.d.ts"
+      ],
+      "NotoSansSogdian": [
+        "dist/NotoSansSogdian.d.ts"
+      ],
+      "NotoSansSoraSompeng": [
+        "dist/NotoSansSoraSompeng.d.ts"
+      ],
+      "NotoSansSoyombo": [
+        "dist/NotoSansSoyombo.d.ts"
+      ],
+      "NotoSansSundanese": [
+        "dist/NotoSansSundanese.d.ts"
+      ],
+      "NotoSansSylotiNagri": [
+        "dist/NotoSansSylotiNagri.d.ts"
+      ],
+      "NotoSansSymbols": [
+        "dist/NotoSansSymbols.d.ts"
+      ],
+      "NotoSansSymbols2": [
+        "dist/NotoSansSymbols2.d.ts"
+      ],
+      "NotoSansSyriac": [
+        "dist/NotoSansSyriac.d.ts"
+      ],
+      "NotoSansTC": [
+        "dist/NotoSansTC.d.ts"
+      ],
+      "NotoSansTagalog": [
+        "dist/NotoSansTagalog.d.ts"
+      ],
+      "NotoSansTagbanwa": [
+        "dist/NotoSansTagbanwa.d.ts"
+      ],
+      "NotoSansTaiLe": [
+        "dist/NotoSansTaiLe.d.ts"
+      ],
+      "NotoSansTaiTham": [
+        "dist/NotoSansTaiTham.d.ts"
+      ],
+      "NotoSansTaiViet": [
+        "dist/NotoSansTaiViet.d.ts"
+      ],
+      "NotoSansTakri": [
+        "dist/NotoSansTakri.d.ts"
+      ],
+      "NotoSansTamil": [
+        "dist/NotoSansTamil.d.ts"
+      ],
+      "NotoSansTamilSupplement": [
+        "dist/NotoSansTamilSupplement.d.ts"
+      ],
+      "NotoSansTelugu": [
+        "dist/NotoSansTelugu.d.ts"
+      ],
+      "NotoSansThaana": [
+        "dist/NotoSansThaana.d.ts"
+      ],
+      "NotoSansThai": [
+        "dist/NotoSansThai.d.ts"
+      ],
+      "NotoSansThaiLooped": [
+        "dist/NotoSansThaiLooped.d.ts"
+      ],
+      "NotoSansTifinagh": [
+        "dist/NotoSansTifinagh.d.ts"
+      ],
+      "NotoSansTirhuta": [
+        "dist/NotoSansTirhuta.d.ts"
+      ],
+      "NotoSansUgaritic": [
+        "dist/NotoSansUgaritic.d.ts"
+      ],
+      "NotoSansVai": [
+        "dist/NotoSansVai.d.ts"
+      ],
+      "NotoSansWancho": [
+        "dist/NotoSansWancho.d.ts"
+      ],
+      "NotoSansWarangCiti": [
+        "dist/NotoSansWarangCiti.d.ts"
+      ],
+      "NotoSansYi": [
+        "dist/NotoSansYi.d.ts"
+      ],
+      "NotoSansZanabazarSquare": [
+        "dist/NotoSansZanabazarSquare.d.ts"
+      ],
+      "NotoSerif": [
+        "dist/NotoSerif.d.ts"
+      ],
+      "NotoSerifAhom": [
+        "dist/NotoSerifAhom.d.ts"
+      ],
+      "NotoSerifArmenian": [
+        "dist/NotoSerifArmenian.d.ts"
+      ],
+      "NotoSerifBalinese": [
+        "dist/NotoSerifBalinese.d.ts"
+      ],
+      "NotoSerifBengali": [
+        "dist/NotoSerifBengali.d.ts"
+      ],
+      "NotoSerifDevanagari": [
+        "dist/NotoSerifDevanagari.d.ts"
+      ],
+      "NotoSerifDisplay": [
+        "dist/NotoSerifDisplay.d.ts"
+      ],
+      "NotoSerifDogra": [
+        "dist/NotoSerifDogra.d.ts"
+      ],
+      "NotoSerifEthiopic": [
+        "dist/NotoSerifEthiopic.d.ts"
+      ],
+      "NotoSerifGeorgian": [
+        "dist/NotoSerifGeorgian.d.ts"
+      ],
+      "NotoSerifGrantha": [
+        "dist/NotoSerifGrantha.d.ts"
+      ],
+      "NotoSerifGujarati": [
+        "dist/NotoSerifGujarati.d.ts"
+      ],
+      "NotoSerifGurmukhi": [
+        "dist/NotoSerifGurmukhi.d.ts"
+      ],
+      "NotoSerifHK": [
+        "dist/NotoSerifHK.d.ts"
+      ],
+      "NotoSerifHebrew": [
+        "dist/NotoSerifHebrew.d.ts"
+      ],
+      "NotoSerifJP": [
+        "dist/NotoSerifJP.d.ts"
+      ],
+      "NotoSerifKR": [
+        "dist/NotoSerifKR.d.ts"
+      ],
+      "NotoSerifKannada": [
+        "dist/NotoSerifKannada.d.ts"
+      ],
+      "NotoSerifKhmer": [
+        "dist/NotoSerifKhmer.d.ts"
+      ],
+      "NotoSerifLao": [
+        "dist/NotoSerifLao.d.ts"
+      ],
+      "NotoSerifMalayalam": [
+        "dist/NotoSerifMalayalam.d.ts"
+      ],
+      "NotoSerifMyanmar": [
+        "dist/NotoSerifMyanmar.d.ts"
+      ],
+      "NotoSerifNyiakengPuachueHmong": [
+        "dist/NotoSerifNyiakengPuachueHmong.d.ts"
+      ],
+      "NotoSerifSC": [
+        "dist/NotoSerifSC.d.ts"
+      ],
+      "NotoSerifSinhala": [
+        "dist/NotoSerifSinhala.d.ts"
+      ],
+      "NotoSerifTC": [
+        "dist/NotoSerifTC.d.ts"
+      ],
+      "NotoSerifTamil": [
+        "dist/NotoSerifTamil.d.ts"
+      ],
+      "NotoSerifTangut": [
+        "dist/NotoSerifTangut.d.ts"
+      ],
+      "NotoSerifTelugu": [
+        "dist/NotoSerifTelugu.d.ts"
+      ],
+      "NotoSerifThai": [
+        "dist/NotoSerifThai.d.ts"
+      ],
+      "NotoSerifTibetan": [
+        "dist/NotoSerifTibetan.d.ts"
+      ],
+      "NotoSerifYezidi": [
+        "dist/NotoSerifYezidi.d.ts"
+      ],
+      "NotoTraditionalNushu": [
+        "dist/NotoTraditionalNushu.d.ts"
+      ],
+      "NovaCut": [
+        "dist/NovaCut.d.ts"
+      ],
+      "NovaFlat": [
+        "dist/NovaFlat.d.ts"
+      ],
+      "NovaMono": [
+        "dist/NovaMono.d.ts"
+      ],
+      "NovaOval": [
+        "dist/NovaOval.d.ts"
+      ],
+      "NovaRound": [
+        "dist/NovaRound.d.ts"
+      ],
+      "NovaScript": [
+        "dist/NovaScript.d.ts"
+      ],
+      "NovaSlim": [
+        "dist/NovaSlim.d.ts"
+      ],
+      "NovaSquare": [
+        "dist/NovaSquare.d.ts"
+      ],
+      "Numans": [
+        "dist/Numans.d.ts"
+      ],
+      "Nunito": [
+        "dist/Nunito.d.ts"
+      ],
+      "NunitoSans": [
+        "dist/NunitoSans.d.ts"
+      ],
+      "NuosuSIL": [
+        "dist/NuosuSIL.d.ts"
+      ],
+      "OdibeeSans": [
+        "dist/OdibeeSans.d.ts"
+      ],
+      "OdorMeanChey": [
+        "dist/OdorMeanChey.d.ts"
+      ],
+      "Offside": [
+        "dist/Offside.d.ts"
+      ],
+      "Oi": [
+        "dist/Oi.d.ts"
+      ],
+      "OldStandardTT": [
+        "dist/OldStandardTT.d.ts"
+      ],
+      "Oldenburg": [
+        "dist/Oldenburg.d.ts"
+      ],
+      "Ole": [
+        "dist/Ole.d.ts"
+      ],
+      "OleoScript": [
+        "dist/OleoScript.d.ts"
+      ],
+      "OleoScriptSwashCaps": [
+        "dist/OleoScriptSwashCaps.d.ts"
+      ],
+      "OoohBaby": [
+        "dist/OoohBaby.d.ts"
+      ],
+      "OpenSans": [
+        "dist/OpenSans.d.ts"
+      ],
+      "Oranienbaum": [
+        "dist/Oranienbaum.d.ts"
+      ],
+      "Orbitron": [
+        "dist/Orbitron.d.ts"
+      ],
+      "Oregano": [
+        "dist/Oregano.d.ts"
+      ],
+      "OrelegaOne": [
+        "dist/OrelegaOne.d.ts"
+      ],
+      "Orienta": [
+        "dist/Orienta.d.ts"
+      ],
+      "OriginalSurfer": [
+        "dist/OriginalSurfer.d.ts"
+      ],
+      "Oswald": [
+        "dist/Oswald.d.ts"
+      ],
+      "Outfit": [
+        "dist/Outfit.d.ts"
+      ],
+      "OvertheRainbow": [
+        "dist/OvertheRainbow.d.ts"
+      ],
+      "Overlock": [
+        "dist/Overlock.d.ts"
+      ],
+      "OverlockSC": [
+        "dist/OverlockSC.d.ts"
+      ],
+      "Overpass": [
+        "dist/Overpass.d.ts"
+      ],
+      "OverpassMono": [
+        "dist/OverpassMono.d.ts"
+      ],
+      "Ovo": [
+        "dist/Ovo.d.ts"
+      ],
+      "Oxanium": [
+        "dist/Oxanium.d.ts"
+      ],
+      "Oxygen": [
+        "dist/Oxygen.d.ts"
+      ],
+      "OxygenMono": [
+        "dist/OxygenMono.d.ts"
+      ],
+      "PTMono": [
+        "dist/PTMono.d.ts"
+      ],
+      "PTSans": [
+        "dist/PTSans.d.ts"
+      ],
+      "PTSansCaption": [
+        "dist/PTSansCaption.d.ts"
+      ],
+      "PTSansNarrow": [
+        "dist/PTSansNarrow.d.ts"
+      ],
+      "PTSerif": [
+        "dist/PTSerif.d.ts"
+      ],
+      "PTSerifCaption": [
+        "dist/PTSerifCaption.d.ts"
+      ],
+      "Pacifico": [
+        "dist/Pacifico.d.ts"
+      ],
+      "Padauk": [
+        "dist/Padauk.d.ts"
+      ],
+      "Palanquin": [
+        "dist/Palanquin.d.ts"
+      ],
+      "PalanquinDark": [
+        "dist/PalanquinDark.d.ts"
+      ],
+      "Pangolin": [
+        "dist/Pangolin.d.ts"
+      ],
+      "Paprika": [
+        "dist/Paprika.d.ts"
+      ],
+      "Parisienne": [
+        "dist/Parisienne.d.ts"
+      ],
+      "PasseroOne": [
+        "dist/PasseroOne.d.ts"
+      ],
+      "PassionOne": [
+        "dist/PassionOne.d.ts"
+      ],
+      "PassionsConflict": [
+        "dist/PassionsConflict.d.ts"
+      ],
+      "PathwayGothicOne": [
+        "dist/PathwayGothicOne.d.ts"
+      ],
+      "PatrickHand": [
+        "dist/PatrickHand.d.ts"
+      ],
+      "PatrickHandSC": [
+        "dist/PatrickHandSC.d.ts"
+      ],
+      "Pattaya": [
+        "dist/Pattaya.d.ts"
+      ],
+      "PatuaOne": [
+        "dist/PatuaOne.d.ts"
+      ],
+      "Pavanam": [
+        "dist/Pavanam.d.ts"
+      ],
+      "PaytoneOne": [
+        "dist/PaytoneOne.d.ts"
+      ],
+      "Peddana": [
+        "dist/Peddana.d.ts"
+      ],
+      "Peralta": [
+        "dist/Peralta.d.ts"
+      ],
+      "PermanentMarker": [
+        "dist/PermanentMarker.d.ts"
+      ],
+      "Petemoss": [
+        "dist/Petemoss.d.ts"
+      ],
+      "PetitFormalScript": [
+        "dist/PetitFormalScript.d.ts"
+      ],
+      "Petrona": [
+        "dist/Petrona.d.ts"
+      ],
+      "Philosopher": [
+        "dist/Philosopher.d.ts"
+      ],
+      "Piazzolla": [
+        "dist/Piazzolla.d.ts"
+      ],
+      "Piedra": [
+        "dist/Piedra.d.ts"
+      ],
+      "PinyonScript": [
+        "dist/PinyonScript.d.ts"
+      ],
+      "PirataOne": [
+        "dist/PirataOne.d.ts"
+      ],
+      "Plaster": [
+        "dist/Plaster.d.ts"
+      ],
+      "Play": [
+        "dist/Play.d.ts"
+      ],
+      "Playball": [
+        "dist/Playball.d.ts"
+      ],
+      "PlayfairDisplay": [
+        "dist/PlayfairDisplay.d.ts"
+      ],
+      "PlayfairDisplaySC": [
+        "dist/PlayfairDisplaySC.d.ts"
+      ],
+      "PlusJakartaSans": [
+        "dist/PlusJakartaSans.d.ts"
+      ],
+      "Podkova": [
+        "dist/Podkova.d.ts"
+      ],
+      "PoiretOne": [
+        "dist/PoiretOne.d.ts"
+      ],
+      "PollerOne": [
+        "dist/PollerOne.d.ts"
+      ],
+      "Poly": [
+        "dist/Poly.d.ts"
+      ],
+      "Pompiere": [
+        "dist/Pompiere.d.ts"
+      ],
+      "PontanoSans": [
+        "dist/PontanoSans.d.ts"
+      ],
+      "PoorStory": [
+        "dist/PoorStory.d.ts"
+      ],
+      "Poppins": [
+        "dist/Poppins.d.ts"
+      ],
+      "PortLligatSans": [
+        "dist/PortLligatSans.d.ts"
+      ],
+      "PortLligatSlab": [
+        "dist/PortLligatSlab.d.ts"
+      ],
+      "PottaOne": [
+        "dist/PottaOne.d.ts"
+      ],
+      "PragatiNarrow": [
+        "dist/PragatiNarrow.d.ts"
+      ],
+      "Praise": [
+        "dist/Praise.d.ts"
+      ],
+      "Prata": [
+        "dist/Prata.d.ts"
+      ],
+      "Preahvihear": [
+        "dist/Preahvihear.d.ts"
+      ],
+      "PressStart2P": [
+        "dist/PressStart2P.d.ts"
+      ],
+      "Pridi": [
+        "dist/Pridi.d.ts"
+      ],
+      "PrincessSofia": [
+        "dist/PrincessSofia.d.ts"
+      ],
+      "Prociono": [
+        "dist/Prociono.d.ts"
+      ],
+      "Prompt": [
+        "dist/Prompt.d.ts"
+      ],
+      "ProstoOne": [
+        "dist/ProstoOne.d.ts"
+      ],
+      "ProzaLibre": [
+        "dist/ProzaLibre.d.ts"
+      ],
+      "PublicSans": [
+        "dist/PublicSans.d.ts"
+      ],
+      "PuppiesPlay": [
+        "dist/PuppiesPlay.d.ts"
+      ],
+      "Puritan": [
+        "dist/Puritan.d.ts"
+      ],
+      "PurplePurse": [
+        "dist/PurplePurse.d.ts"
+      ],
+      "Qahiri": [
+        "dist/Qahiri.d.ts"
+      ],
+      "Quando": [
+        "dist/Quando.d.ts"
+      ],
+      "Quantico": [
+        "dist/Quantico.d.ts"
+      ],
+      "Quattrocento": [
+        "dist/Quattrocento.d.ts"
+      ],
+      "QuattrocentoSans": [
+        "dist/QuattrocentoSans.d.ts"
+      ],
+      "Questrial": [
+        "dist/Questrial.d.ts"
+      ],
+      "Quicksand": [
+        "dist/Quicksand.d.ts"
+      ],
+      "Quintessential": [
+        "dist/Quintessential.d.ts"
+      ],
+      "Qwigley": [
+        "dist/Qwigley.d.ts"
+      ],
+      "QwitcherGrypen": [
+        "dist/QwitcherGrypen.d.ts"
+      ],
+      "RacingSansOne": [
+        "dist/RacingSansOne.d.ts"
+      ],
+      "RadioCanada": [
+        "dist/RadioCanada.d.ts"
+      ],
+      "Radley": [
+        "dist/Radley.d.ts"
+      ],
+      "Rajdhani": [
+        "dist/Rajdhani.d.ts"
+      ],
+      "Rakkas": [
+        "dist/Rakkas.d.ts"
+      ],
+      "Raleway": [
+        "dist/Raleway.d.ts"
+      ],
+      "RalewayDots": [
+        "dist/RalewayDots.d.ts"
+      ],
+      "Ramabhadra": [
+        "dist/Ramabhadra.d.ts"
+      ],
+      "Ramaraja": [
+        "dist/Ramaraja.d.ts"
+      ],
+      "Rambla": [
+        "dist/Rambla.d.ts"
+      ],
+      "RammettoOne": [
+        "dist/RammettoOne.d.ts"
+      ],
+      "RampartOne": [
+        "dist/RampartOne.d.ts"
+      ],
+      "Ranchers": [
+        "dist/Ranchers.d.ts"
+      ],
+      "Rancho": [
+        "dist/Rancho.d.ts"
+      ],
+      "Ranga": [
+        "dist/Ranga.d.ts"
+      ],
+      "Rasa": [
+        "dist/Rasa.d.ts"
+      ],
+      "Rationale": [
+        "dist/Rationale.d.ts"
+      ],
+      "RaviPrakash": [
+        "dist/RaviPrakash.d.ts"
+      ],
+      "ReadexPro": [
+        "dist/ReadexPro.d.ts"
+      ],
+      "Recursive": [
+        "dist/Recursive.d.ts"
+      ],
+      "RedHatDisplay": [
+        "dist/RedHatDisplay.d.ts"
+      ],
+      "RedHatMono": [
+        "dist/RedHatMono.d.ts"
+      ],
+      "RedHatText": [
+        "dist/RedHatText.d.ts"
+      ],
+      "RedRose": [
+        "dist/RedRose.d.ts"
+      ],
+      "Redacted": [
+        "dist/Redacted.d.ts"
+      ],
+      "RedactedScript": [
+        "dist/RedactedScript.d.ts"
+      ],
+      "Redressed": [
+        "dist/Redressed.d.ts"
+      ],
+      "ReemKufi": [
+        "dist/ReemKufi.d.ts"
+      ],
+      "ReemKufiFun": [
+        "dist/ReemKufiFun.d.ts"
+      ],
+      "ReemKufiInk": [
+        "dist/ReemKufiInk.d.ts"
+      ],
+      "ReenieBeanie": [
+        "dist/ReenieBeanie.d.ts"
+      ],
+      "ReggaeOne": [
+        "dist/ReggaeOne.d.ts"
+      ],
+      "Revalia": [
+        "dist/Revalia.d.ts"
+      ],
+      "RhodiumLibre": [
+        "dist/RhodiumLibre.d.ts"
+      ],
+      "Ribeye": [
+        "dist/Ribeye.d.ts"
+      ],
+      "RibeyeMarrow": [
+        "dist/RibeyeMarrow.d.ts"
+      ],
+      "Righteous": [
+        "dist/Righteous.d.ts"
+      ],
+      "Risque": [
+        "dist/Risque.d.ts"
+      ],
+      "RoadRage": [
+        "dist/RoadRage.d.ts"
+      ],
+      "Roboto": [
+        "dist/Roboto.d.ts"
+      ],
+      "RobotoCondensed": [
+        "dist/RobotoCondensed.d.ts"
+      ],
+      "RobotoFlex": [
+        "dist/RobotoFlex.d.ts"
+      ],
+      "RobotoMono": [
+        "dist/RobotoMono.d.ts"
+      ],
+      "RobotoSerif": [
+        "dist/RobotoSerif.d.ts"
+      ],
+      "RobotoSlab": [
+        "dist/RobotoSlab.d.ts"
+      ],
+      "Rochester": [
+        "dist/Rochester.d.ts"
+      ],
+      "RockSalt": [
+        "dist/RockSalt.d.ts"
+      ],
+      "RocknRollOne": [
+        "dist/RocknRollOne.d.ts"
+      ],
+      "Rokkitt": [
+        "dist/Rokkitt.d.ts"
+      ],
+      "Romanesco": [
+        "dist/Romanesco.d.ts"
+      ],
+      "RopaSans": [
+        "dist/RopaSans.d.ts"
+      ],
+      "Rosario": [
+        "dist/Rosario.d.ts"
+      ],
+      "Rosarivo": [
+        "dist/Rosarivo.d.ts"
+      ],
+      "RougeScript": [
+        "dist/RougeScript.d.ts"
+      ],
+      "Rowdies": [
+        "dist/Rowdies.d.ts"
+      ],
+      "RozhaOne": [
+        "dist/RozhaOne.d.ts"
+      ],
+      "Rubik": [
+        "dist/Rubik.d.ts"
+      ],
+      "RubikBeastly": [
+        "dist/RubikBeastly.d.ts"
+      ],
+      "RubikBubbles": [
+        "dist/RubikBubbles.d.ts"
+      ],
+      "RubikBurned": [
+        "dist/RubikBurned.d.ts"
+      ],
+      "RubikDirt": [
+        "dist/RubikDirt.d.ts"
+      ],
+      "RubikDistressed": [
+        "dist/RubikDistressed.d.ts"
+      ],
+      "RubikGlitch": [
+        "dist/RubikGlitch.d.ts"
+      ],
+      "RubikIso": [
+        "dist/RubikIso.d.ts"
+      ],
+      "RubikMarkerHatch": [
+        "dist/RubikMarkerHatch.d.ts"
+      ],
+      "RubikMaze": [
+        "dist/RubikMaze.d.ts"
+      ],
+      "RubikMicrobe": [
+        "dist/RubikMicrobe.d.ts"
+      ],
+      "RubikMonoOne": [
+        "dist/RubikMonoOne.d.ts"
+      ],
+      "RubikMoonrocks": [
+        "dist/RubikMoonrocks.d.ts"
+      ],
+      "RubikPuddles": [
+        "dist/RubikPuddles.d.ts"
+      ],
+      "RubikWetPaint": [
+        "dist/RubikWetPaint.d.ts"
+      ],
+      "Ruda": [
+        "dist/Ruda.d.ts"
+      ],
+      "Rufina": [
+        "dist/Rufina.d.ts"
+      ],
+      "RugeBoogie": [
+        "dist/RugeBoogie.d.ts"
+      ],
+      "Ruluko": [
+        "dist/Ruluko.d.ts"
+      ],
+      "RumRaisin": [
+        "dist/RumRaisin.d.ts"
+      ],
+      "RuslanDisplay": [
+        "dist/RuslanDisplay.d.ts"
+      ],
+      "RussoOne": [
+        "dist/RussoOne.d.ts"
+      ],
+      "Ruthie": [
+        "dist/Ruthie.d.ts"
+      ],
+      "Rye": [
+        "dist/Rye.d.ts"
+      ],
+      "STIXTwoText": [
+        "dist/STIXTwoText.d.ts"
+      ],
+      "Sacramento": [
+        "dist/Sacramento.d.ts"
+      ],
+      "Sahitya": [
+        "dist/Sahitya.d.ts"
+      ],
+      "Sail": [
+        "dist/Sail.d.ts"
+      ],
+      "Saira": [
+        "dist/Saira.d.ts"
+      ],
+      "SairaCondensed": [
+        "dist/SairaCondensed.d.ts"
+      ],
+      "SairaExtraCondensed": [
+        "dist/SairaExtraCondensed.d.ts"
+      ],
+      "SairaSemiCondensed": [
+        "dist/SairaSemiCondensed.d.ts"
+      ],
+      "SairaStencilOne": [
+        "dist/SairaStencilOne.d.ts"
+      ],
+      "Salsa": [
+        "dist/Salsa.d.ts"
+      ],
+      "Sanchez": [
+        "dist/Sanchez.d.ts"
+      ],
+      "Sancreek": [
+        "dist/Sancreek.d.ts"
+      ],
+      "Sansita": [
+        "dist/Sansita.d.ts"
+      ],
+      "SansitaSwashed": [
+        "dist/SansitaSwashed.d.ts"
+      ],
+      "Sarabun": [
+        "dist/Sarabun.d.ts"
+      ],
+      "Sarala": [
+        "dist/Sarala.d.ts"
+      ],
+      "Sarina": [
+        "dist/Sarina.d.ts"
+      ],
+      "Sarpanch": [
+        "dist/Sarpanch.d.ts"
+      ],
+      "SassyFrass": [
+        "dist/SassyFrass.d.ts"
+      ],
+      "Satisfy": [
+        "dist/Satisfy.d.ts"
+      ],
+      "SawarabiGothic": [
+        "dist/SawarabiGothic.d.ts"
+      ],
+      "SawarabiMincho": [
+        "dist/SawarabiMincho.d.ts"
+      ],
+      "Scada": [
+        "dist/Scada.d.ts"
+      ],
+      "ScheherazadeNew": [
+        "dist/ScheherazadeNew.d.ts"
+      ],
+      "Schoolbell": [
+        "dist/Schoolbell.d.ts"
+      ],
+      "ScopeOne": [
+        "dist/ScopeOne.d.ts"
+      ],
+      "SeaweedScript": [
+        "dist/SeaweedScript.d.ts"
+      ],
+      "SecularOne": [
+        "dist/SecularOne.d.ts"
+      ],
+      "SedgwickAve": [
+        "dist/SedgwickAve.d.ts"
+      ],
+      "SedgwickAveDisplay": [
+        "dist/SedgwickAveDisplay.d.ts"
+      ],
+      "Sen": [
+        "dist/Sen.d.ts"
+      ],
+      "SendFlowers": [
+        "dist/SendFlowers.d.ts"
+      ],
+      "Sevillana": [
+        "dist/Sevillana.d.ts"
+      ],
+      "SeymourOne": [
+        "dist/SeymourOne.d.ts"
+      ],
+      "ShadowsIntoLight": [
+        "dist/ShadowsIntoLight.d.ts"
+      ],
+      "ShadowsIntoLightTwo": [
+        "dist/ShadowsIntoLightTwo.d.ts"
+      ],
+      "Shalimar": [
+        "dist/Shalimar.d.ts"
+      ],
+      "Shanti": [
+        "dist/Shanti.d.ts"
+      ],
+      "Share": [
+        "dist/Share.d.ts"
+      ],
+      "ShareTech": [
+        "dist/ShareTech.d.ts"
+      ],
+      "ShareTechMono": [
+        "dist/ShareTechMono.d.ts"
+      ],
+      "ShipporiAntique": [
+        "dist/ShipporiAntique.d.ts"
+      ],
+      "ShipporiAntiqueB1": [
+        "dist/ShipporiAntiqueB1.d.ts"
+      ],
+      "ShipporiMincho": [
+        "dist/ShipporiMincho.d.ts"
+      ],
+      "ShipporiMinchoB1": [
+        "dist/ShipporiMinchoB1.d.ts"
+      ],
+      "Shojumaru": [
+        "dist/Shojumaru.d.ts"
+      ],
+      "ShortStack": [
+        "dist/ShortStack.d.ts"
+      ],
+      "Shrikhand": [
+        "dist/Shrikhand.d.ts"
+      ],
+      "Siemreap": [
+        "dist/Siemreap.d.ts"
+      ],
+      "SigmarOne": [
+        "dist/SigmarOne.d.ts"
+      ],
+      "Signika": [
+        "dist/Signika.d.ts"
+      ],
+      "SignikaNegative": [
+        "dist/SignikaNegative.d.ts"
+      ],
+      "Silkscreen": [
+        "dist/Silkscreen.d.ts"
+      ],
+      "Simonetta": [
+        "dist/Simonetta.d.ts"
+      ],
+      "SingleDay": [
+        "dist/SingleDay.d.ts"
+      ],
+      "Sintony": [
+        "dist/Sintony.d.ts"
+      ],
+      "SirinStencil": [
+        "dist/SirinStencil.d.ts"
+      ],
+      "SixCaps": [
+        "dist/SixCaps.d.ts"
+      ],
+      "Skranji": [
+        "dist/Skranji.d.ts"
+      ],
+      "Slabo13px": [
+        "dist/Slabo13px.d.ts"
+      ],
+      "Slabo27px": [
+        "dist/Slabo27px.d.ts"
+      ],
+      "Slackey": [
+        "dist/Slackey.d.ts"
+      ],
+      "Smokum": [
+        "dist/Smokum.d.ts"
+      ],
+      "Smooch": [
+        "dist/Smooch.d.ts"
+      ],
+      "SmoochSans": [
+        "dist/SmoochSans.d.ts"
+      ],
+      "Smythe": [
+        "dist/Smythe.d.ts"
+      ],
+      "Sniglet": [
+        "dist/Sniglet.d.ts"
+      ],
+      "Snippet": [
+        "dist/Snippet.d.ts"
+      ],
+      "SnowburstOne": [
+        "dist/SnowburstOne.d.ts"
+      ],
+      "SofadiOne": [
+        "dist/SofadiOne.d.ts"
+      ],
+      "Sofia": [
+        "dist/Sofia.d.ts"
+      ],
+      "Solway": [
+        "dist/Solway.d.ts"
+      ],
+      "SongMyung": [
+        "dist/SongMyung.d.ts"
+      ],
+      "SonsieOne": [
+        "dist/SonsieOne.d.ts"
+      ],
+      "Sora": [
+        "dist/Sora.d.ts"
+      ],
+      "SortsMillGoudy": [
+        "dist/SortsMillGoudy.d.ts"
+      ],
+      "SourceCodePro": [
+        "dist/SourceCodePro.d.ts"
+      ],
+      "SourceSans3": [
+        "dist/SourceSans3.d.ts"
+      ],
+      "SourceSansPro": [
+        "dist/SourceSansPro.d.ts"
+      ],
+      "SourceSerif4": [
+        "dist/SourceSerif4.d.ts"
+      ],
+      "SourceSerifPro": [
+        "dist/SourceSerifPro.d.ts"
+      ],
+      "SpaceGrotesk": [
+        "dist/SpaceGrotesk.d.ts"
+      ],
+      "SpaceMono": [
+        "dist/SpaceMono.d.ts"
+      ],
+      "SpecialElite": [
+        "dist/SpecialElite.d.ts"
+      ],
+      "Spectral": [
+        "dist/Spectral.d.ts"
+      ],
+      "SpectralSC": [
+        "dist/SpectralSC.d.ts"
+      ],
+      "SpicyRice": [
+        "dist/SpicyRice.d.ts"
+      ],
+      "Spinnaker": [
+        "dist/Spinnaker.d.ts"
+      ],
+      "Spirax": [
+        "dist/Spirax.d.ts"
+      ],
+      "Splash": [
+        "dist/Splash.d.ts"
+      ],
+      "SplineSans": [
+        "dist/SplineSans.d.ts"
+      ],
+      "SplineSansMono": [
+        "dist/SplineSansMono.d.ts"
+      ],
+      "SquadaOne": [
+        "dist/SquadaOne.d.ts"
+      ],
+      "SquarePeg": [
+        "dist/SquarePeg.d.ts"
+      ],
+      "SreeKrushnadevaraya": [
+        "dist/SreeKrushnadevaraya.d.ts"
+      ],
+      "Sriracha": [
+        "dist/Sriracha.d.ts"
+      ],
+      "Srisakdi": [
+        "dist/Srisakdi.d.ts"
+      ],
+      "Staatliches": [
+        "dist/Staatliches.d.ts"
+      ],
+      "Stalemate": [
+        "dist/Stalemate.d.ts"
+      ],
+      "StalinistOne": [
+        "dist/StalinistOne.d.ts"
+      ],
+      "StardosStencil": [
+        "dist/StardosStencil.d.ts"
+      ],
+      "Stick": [
+        "dist/Stick.d.ts"
+      ],
+      "StickNoBills": [
+        "dist/StickNoBills.d.ts"
+      ],
+      "StintUltraCondensed": [
+        "dist/StintUltraCondensed.d.ts"
+      ],
+      "StintUltraExpanded": [
+        "dist/StintUltraExpanded.d.ts"
+      ],
+      "Stoke": [
+        "dist/Stoke.d.ts"
+      ],
+      "Strait": [
+        "dist/Strait.d.ts"
+      ],
+      "StyleScript": [
+        "dist/StyleScript.d.ts"
+      ],
+      "Stylish": [
+        "dist/Stylish.d.ts"
+      ],
+      "SueEllenFrancisco": [
+        "dist/SueEllenFrancisco.d.ts"
+      ],
+      "SuezOne": [
+        "dist/SuezOne.d.ts"
+      ],
+      "SulphurPoint": [
+        "dist/SulphurPoint.d.ts"
+      ],
+      "Sumana": [
+        "dist/Sumana.d.ts"
+      ],
+      "Sunflower": [
+        "dist/Sunflower.d.ts"
+      ],
+      "Sunshiney": [
+        "dist/Sunshiney.d.ts"
+      ],
+      "SupermercadoOne": [
+        "dist/SupermercadoOne.d.ts"
+      ],
+      "Sura": [
+        "dist/Sura.d.ts"
+      ],
+      "Suranna": [
+        "dist/Suranna.d.ts"
+      ],
+      "Suravaram": [
+        "dist/Suravaram.d.ts"
+      ],
+      "Suwannaphum": [
+        "dist/Suwannaphum.d.ts"
+      ],
+      "SwankyandMooMoo": [
+        "dist/SwankyandMooMoo.d.ts"
+      ],
+      "Syncopate": [
+        "dist/Syncopate.d.ts"
+      ],
+      "Syne": [
+        "dist/Syne.d.ts"
+      ],
+      "SyneMono": [
+        "dist/SyneMono.d.ts"
+      ],
+      "SyneTactile": [
+        "dist/SyneTactile.d.ts"
+      ],
+      "TaiHeritagePro": [
+        "dist/TaiHeritagePro.d.ts"
+      ],
+      "Tajawal": [
+        "dist/Tajawal.d.ts"
+      ],
+      "Tangerine": [
+        "dist/Tangerine.d.ts"
+      ],
+      "Tapestry": [
+        "dist/Tapestry.d.ts"
+      ],
+      "Taprom": [
+        "dist/Taprom.d.ts"
+      ],
+      "Tauri": [
+        "dist/Tauri.d.ts"
+      ],
+      "Taviraj": [
+        "dist/Taviraj.d.ts"
+      ],
+      "Teko": [
+        "dist/Teko.d.ts"
+      ],
+      "Telex": [
+        "dist/Telex.d.ts"
+      ],
+      "TenaliRamakrishna": [
+        "dist/TenaliRamakrishna.d.ts"
+      ],
+      "TenorSans": [
+        "dist/TenorSans.d.ts"
+      ],
+      "TextMeOne": [
+        "dist/TextMeOne.d.ts"
+      ],
+      "Texturina": [
+        "dist/Texturina.d.ts"
+      ],
+      "Thasadith": [
+        "dist/Thasadith.d.ts"
+      ],
+      "TheGirlNextDoor": [
+        "dist/TheGirlNextDoor.d.ts"
+      ],
+      "TheNautigal": [
+        "dist/TheNautigal.d.ts"
+      ],
+      "Tienne": [
+        "dist/Tienne.d.ts"
+      ],
+      "Tillana": [
+        "dist/Tillana.d.ts"
+      ],
+      "Timmana": [
+        "dist/Timmana.d.ts"
+      ],
+      "Tinos": [
+        "dist/Tinos.d.ts"
+      ],
+      "TiroBangla": [
+        "dist/TiroBangla.d.ts"
+      ],
+      "TiroDevanagariHindi": [
+        "dist/TiroDevanagariHindi.d.ts"
+      ],
+      "TiroDevanagariMarathi": [
+        "dist/TiroDevanagariMarathi.d.ts"
+      ],
+      "TiroDevanagariSanskrit": [
+        "dist/TiroDevanagariSanskrit.d.ts"
+      ],
+      "TiroGurmukhi": [
+        "dist/TiroGurmukhi.d.ts"
+      ],
+      "TiroKannada": [
+        "dist/TiroKannada.d.ts"
+      ],
+      "TiroTamil": [
+        "dist/TiroTamil.d.ts"
+      ],
+      "TiroTelugu": [
+        "dist/TiroTelugu.d.ts"
+      ],
+      "TitanOne": [
+        "dist/TitanOne.d.ts"
+      ],
+      "TitilliumWeb": [
+        "dist/TitilliumWeb.d.ts"
+      ],
+      "Tomorrow": [
+        "dist/Tomorrow.d.ts"
+      ],
+      "Tourney": [
+        "dist/Tourney.d.ts"
+      ],
+      "TradeWinds": [
+        "dist/TradeWinds.d.ts"
+      ],
+      "TrainOne": [
+        "dist/TrainOne.d.ts"
+      ],
+      "Trirong": [
+        "dist/Trirong.d.ts"
+      ],
+      "Trispace": [
+        "dist/Trispace.d.ts"
+      ],
+      "Trocchi": [
+        "dist/Trocchi.d.ts"
+      ],
+      "Trochut": [
+        "dist/Trochut.d.ts"
+      ],
+      "Truculenta": [
+        "dist/Truculenta.d.ts"
+      ],
+      "Trykker": [
+        "dist/Trykker.d.ts"
+      ],
+      "TulpenOne": [
+        "dist/TulpenOne.d.ts"
+      ],
+      "TurretRoad": [
+        "dist/TurretRoad.d.ts"
+      ],
+      "TwinkleStar": [
+        "dist/TwinkleStar.d.ts"
+      ],
+      "Ubuntu": [
+        "dist/Ubuntu.d.ts"
+      ],
+      "UbuntuCondensed": [
+        "dist/UbuntuCondensed.d.ts"
+      ],
+      "UbuntuMono": [
+        "dist/UbuntuMono.d.ts"
+      ],
+      "Uchen": [
+        "dist/Uchen.d.ts"
+      ],
+      "Ultra": [
+        "dist/Ultra.d.ts"
+      ],
+      "UncialAntiqua": [
+        "dist/UncialAntiqua.d.ts"
+      ],
+      "Underdog": [
+        "dist/Underdog.d.ts"
+      ],
+      "UnicaOne": [
+        "dist/UnicaOne.d.ts"
+      ],
+      "UnifrakturCook": [
+        "dist/UnifrakturCook.d.ts"
+      ],
+      "UnifrakturMaguntia": [
+        "dist/UnifrakturMaguntia.d.ts"
+      ],
+      "Unkempt": [
+        "dist/Unkempt.d.ts"
+      ],
+      "Unlock": [
+        "dist/Unlock.d.ts"
+      ],
+      "Unna": [
+        "dist/Unna.d.ts"
+      ],
+      "Updock": [
+        "dist/Updock.d.ts"
+      ],
+      "Urbanist": [
+        "dist/Urbanist.d.ts"
+      ],
+      "VT323": [
+        "dist/VT323.d.ts"
+      ],
+      "VampiroOne": [
+        "dist/VampiroOne.d.ts"
+      ],
+      "Varela": [
+        "dist/Varela.d.ts"
+      ],
+      "VarelaRound": [
+        "dist/VarelaRound.d.ts"
+      ],
+      "Varta": [
+        "dist/Varta.d.ts"
+      ],
+      "VastShadow": [
+        "dist/VastShadow.d.ts"
+      ],
+      "Vazirmatn": [
+        "dist/Vazirmatn.d.ts"
+      ],
+      "VesperLibre": [
+        "dist/VesperLibre.d.ts"
+      ],
+      "ViaodaLibre": [
+        "dist/ViaodaLibre.d.ts"
+      ],
+      "Vibes": [
+        "dist/Vibes.d.ts"
+      ],
+      "Vibur": [
+        "dist/Vibur.d.ts"
+      ],
+      "Vidaloka": [
+        "dist/Vidaloka.d.ts"
+      ],
+      "Viga": [
+        "dist/Viga.d.ts"
+      ],
+      "Voces": [
+        "dist/Voces.d.ts"
+      ],
+      "Volkhov": [
+        "dist/Volkhov.d.ts"
+      ],
+      "Vollkorn": [
+        "dist/Vollkorn.d.ts"
+      ],
+      "VollkornSC": [
+        "dist/VollkornSC.d.ts"
+      ],
+      "Voltaire": [
+        "dist/Voltaire.d.ts"
+      ],
+      "VujahdayScript": [
+        "dist/VujahdayScript.d.ts"
+      ],
+      "WaitingfortheSunrise": [
+        "dist/WaitingfortheSunrise.d.ts"
+      ],
+      "Wallpoet": [
+        "dist/Wallpoet.d.ts"
+      ],
+      "WalterTurncoat": [
+        "dist/WalterTurncoat.d.ts"
+      ],
+      "Warnes": [
+        "dist/Warnes.d.ts"
+      ],
+      "WaterBrush": [
+        "dist/WaterBrush.d.ts"
+      ],
+      "Waterfall": [
+        "dist/Waterfall.d.ts"
+      ],
+      "Wellfleet": [
+        "dist/Wellfleet.d.ts"
+      ],
+      "WendyOne": [
+        "dist/WendyOne.d.ts"
+      ],
+      "Whisper": [
+        "dist/Whisper.d.ts"
+      ],
+      "WindSong": [
+        "dist/WindSong.d.ts"
+      ],
+      "WireOne": [
+        "dist/WireOne.d.ts"
+      ],
+      "WorkSans": [
+        "dist/WorkSans.d.ts"
+      ],
+      "XanhMono": [
+        "dist/XanhMono.d.ts"
+      ],
+      "Yaldevi": [
+        "dist/Yaldevi.d.ts"
+      ],
+      "YanoneKaffeesatz": [
+        "dist/YanoneKaffeesatz.d.ts"
+      ],
+      "Yantramanav": [
+        "dist/Yantramanav.d.ts"
+      ],
+      "YatraOne": [
+        "dist/YatraOne.d.ts"
+      ],
+      "Yellowtail": [
+        "dist/Yellowtail.d.ts"
+      ],
+      "YeonSung": [
+        "dist/YeonSung.d.ts"
+      ],
+      "YesevaOne": [
+        "dist/YesevaOne.d.ts"
+      ],
+      "Yesteryear": [
+        "dist/Yesteryear.d.ts"
+      ],
+      "Yomogi": [
+        "dist/Yomogi.d.ts"
+      ],
+      "Yrsa": [
+        "dist/Yrsa.d.ts"
+      ],
+      "YujiBoku": [
+        "dist/YujiBoku.d.ts"
+      ],
+      "YujiMai": [
+        "dist/YujiMai.d.ts"
+      ],
+      "YujiSyuku": [
+        "dist/YujiSyuku.d.ts"
+      ],
+      "YuseiMagic": [
+        "dist/YuseiMagic.d.ts"
+      ],
+      "ZCOOLKuaiLe": [
+        "dist/ZCOOLKuaiLe.d.ts"
+      ],
+      "ZCOOLQingKeHuangYou": [
+        "dist/ZCOOLQingKeHuangYou.d.ts"
+      ],
+      "ZCOOLXiaoWei": [
+        "dist/ZCOOLXiaoWei.d.ts"
+      ],
+      "ZenAntique": [
+        "dist/ZenAntique.d.ts"
+      ],
+      "ZenAntiqueSoft": [
+        "dist/ZenAntiqueSoft.d.ts"
+      ],
+      "ZenDots": [
+        "dist/ZenDots.d.ts"
+      ],
+      "ZenKakuGothicAntique": [
+        "dist/ZenKakuGothicAntique.d.ts"
+      ],
+      "ZenKakuGothicNew": [
+        "dist/ZenKakuGothicNew.d.ts"
+      ],
+      "ZenKurenaido": [
+        "dist/ZenKurenaido.d.ts"
+      ],
+      "ZenLoop": [
+        "dist/ZenLoop.d.ts"
+      ],
+      "ZenMaruGothic": [
+        "dist/ZenMaruGothic.d.ts"
+      ],
+      "ZenOldMincho": [
+        "dist/ZenOldMincho.d.ts"
+      ],
+      "ZenTokyoZoo": [
+        "dist/ZenTokyoZoo.d.ts"
+      ],
+      "Zeyada": [
+        "dist/Zeyada.d.ts"
+      ],
+      "ZhiMangXing": [
+        "dist/ZhiMangXing.d.ts"
+      ],
+      "ZillaSlab": [
+        "dist/ZillaSlab.d.ts"
+      ],
+      "ZillaSlabHighlight": [
+        "dist/ZillaSlabHighlight.d.ts"
+      ]
+    }
+  },
+  "exports": {
+    "./ABeeZee": "./dist/ABeeZee.js",
+    "./Abel": "./dist/Abel.js",
+    "./AbhayaLibre": "./dist/AbhayaLibre.js",
+    "./Aboreto": "./dist/Aboreto.js",
+    "./AbrilFatface": "./dist/AbrilFatface.js",
+    "./AbyssinicaSIL": "./dist/AbyssinicaSIL.js",
+    "./Aclonica": "./dist/Aclonica.js",
+    "./Acme": "./dist/Acme.js",
+    "./Actor": "./dist/Actor.js",
+    "./Adamina": "./dist/Adamina.js",
+    "./AdventPro": "./dist/AdventPro.js",
+    "./AguafinaScript": "./dist/AguafinaScript.js",
+    "./AkayaKanadaka": "./dist/AkayaKanadaka.js",
+    "./AkayaTelivigala": "./dist/AkayaTelivigala.js",
+    "./Akronim": "./dist/Akronim.js",
+    "./Akshar": "./dist/Akshar.js",
+    "./Aladin": "./dist/Aladin.js",
+    "./Alata": "./dist/Alata.js",
+    "./Alatsi": "./dist/Alatsi.js",
+    "./AlbertSans": "./dist/AlbertSans.js",
+    "./Aldrich": "./dist/Aldrich.js",
+    "./Alef": "./dist/Alef.js",
+    "./Alegreya": "./dist/Alegreya.js",
+    "./AlegreyaSC": "./dist/AlegreyaSC.js",
+    "./AlegreyaSans": "./dist/AlegreyaSans.js",
+    "./AlegreyaSansSC": "./dist/AlegreyaSansSC.js",
+    "./Aleo": "./dist/Aleo.js",
+    "./AlexBrush": "./dist/AlexBrush.js",
+    "./AlfaSlabOne": "./dist/AlfaSlabOne.js",
+    "./Alice": "./dist/Alice.js",
+    "./Alike": "./dist/Alike.js",
+    "./AlikeAngular": "./dist/AlikeAngular.js",
+    "./Alkalami": "./dist/Alkalami.js",
+    "./Allan": "./dist/Allan.js",
+    "./Allerta": "./dist/Allerta.js",
+    "./AllertaStencil": "./dist/AllertaStencil.js",
+    "./Allison": "./dist/Allison.js",
+    "./Allura": "./dist/Allura.js",
+    "./Almarai": "./dist/Almarai.js",
+    "./Almendra": "./dist/Almendra.js",
+    "./AlmendraDisplay": "./dist/AlmendraDisplay.js",
+    "./AlmendraSC": "./dist/AlmendraSC.js",
+    "./AlumniSans": "./dist/AlumniSans.js",
+    "./AlumniSansCollegiateOne": "./dist/AlumniSansCollegiateOne.js",
+    "./AlumniSansInlineOne": "./dist/AlumniSansInlineOne.js",
+    "./AlumniSansPinstripe": "./dist/AlumniSansPinstripe.js",
+    "./Amarante": "./dist/Amarante.js",
+    "./Amaranth": "./dist/Amaranth.js",
+    "./AmaticSC": "./dist/AmaticSC.js",
+    "./Amethysta": "./dist/Amethysta.js",
+    "./Amiko": "./dist/Amiko.js",
+    "./Amiri": "./dist/Amiri.js",
+    "./AmiriQuran": "./dist/AmiriQuran.js",
+    "./Amita": "./dist/Amita.js",
+    "./Anaheim": "./dist/Anaheim.js",
+    "./AndadaPro": "./dist/AndadaPro.js",
+    "./Andika": "./dist/Andika.js",
+    "./AnekBangla": "./dist/AnekBangla.js",
+    "./AnekDevanagari": "./dist/AnekDevanagari.js",
+    "./AnekGujarati": "./dist/AnekGujarati.js",
+    "./AnekGurmukhi": "./dist/AnekGurmukhi.js",
+    "./AnekKannada": "./dist/AnekKannada.js",
+    "./AnekLatin": "./dist/AnekLatin.js",
+    "./AnekMalayalam": "./dist/AnekMalayalam.js",
+    "./AnekOdia": "./dist/AnekOdia.js",
+    "./AnekTamil": "./dist/AnekTamil.js",
+    "./AnekTelugu": "./dist/AnekTelugu.js",
+    "./Angkor": "./dist/Angkor.js",
+    "./AnnieUseYourTelescope": "./dist/AnnieUseYourTelescope.js",
+    "./AnonymousPro": "./dist/AnonymousPro.js",
+    "./Antic": "./dist/Antic.js",
+    "./AnticDidone": "./dist/AnticDidone.js",
+    "./AnticSlab": "./dist/AnticSlab.js",
+    "./Anton": "./dist/Anton.js",
+    "./Antonio": "./dist/Antonio.js",
+    "./Anybody": "./dist/Anybody.js",
+    "./Arapey": "./dist/Arapey.js",
+    "./Arbutus": "./dist/Arbutus.js",
+    "./ArbutusSlab": "./dist/ArbutusSlab.js",
+    "./ArchitectsDaughter": "./dist/ArchitectsDaughter.js",
+    "./Archivo": "./dist/Archivo.js",
+    "./ArchivoBlack": "./dist/ArchivoBlack.js",
+    "./ArchivoNarrow": "./dist/ArchivoNarrow.js",
+    "./AreYouSerious": "./dist/AreYouSerious.js",
+    "./ArefRuqaa": "./dist/ArefRuqaa.js",
+    "./ArefRuqaaInk": "./dist/ArefRuqaaInk.js",
+    "./Arima": "./dist/Arima.js",
+    "./ArimaMadurai": "./dist/ArimaMadurai.js",
+    "./Arimo": "./dist/Arimo.js",
+    "./Arizonia": "./dist/Arizonia.js",
+    "./Armata": "./dist/Armata.js",
+    "./Arsenal": "./dist/Arsenal.js",
+    "./Artifika": "./dist/Artifika.js",
+    "./Arvo": "./dist/Arvo.js",
+    "./Arya": "./dist/Arya.js",
+    "./Asap": "./dist/Asap.js",
+    "./AsapCondensed": "./dist/AsapCondensed.js",
+    "./Asar": "./dist/Asar.js",
+    "./Asset": "./dist/Asset.js",
+    "./Assistant": "./dist/Assistant.js",
+    "./Astloch": "./dist/Astloch.js",
+    "./Asul": "./dist/Asul.js",
+    "./Athiti": "./dist/Athiti.js",
+    "./AtkinsonHyperlegible": "./dist/AtkinsonHyperlegible.js",
+    "./Atma": "./dist/Atma.js",
+    "./AtomicAge": "./dist/AtomicAge.js",
+    "./Aubrey": "./dist/Aubrey.js",
+    "./Audiowide": "./dist/Audiowide.js",
+    "./AutourOne": "./dist/AutourOne.js",
+    "./Average": "./dist/Average.js",
+    "./AverageSans": "./dist/AverageSans.js",
+    "./AveriaGruesaLibre": "./dist/AveriaGruesaLibre.js",
+    "./AveriaLibre": "./dist/AveriaLibre.js",
+    "./AveriaSansLibre": "./dist/AveriaSansLibre.js",
+    "./AveriaSerifLibre": "./dist/AveriaSerifLibre.js",
+    "./AzeretMono": "./dist/AzeretMono.js",
+    "./B612": "./dist/B612.js",
+    "./B612Mono": "./dist/B612Mono.js",
+    "./BIZUDGothic": "./dist/BIZUDGothic.js",
+    "./BIZUDMincho": "./dist/BIZUDMincho.js",
+    "./BIZUDPGothic": "./dist/BIZUDPGothic.js",
+    "./BIZUDPMincho": "./dist/BIZUDPMincho.js",
+    "./Babylonica": "./dist/Babylonica.js",
+    "./BadScript": "./dist/BadScript.js",
+    "./Bahiana": "./dist/Bahiana.js",
+    "./Bahianita": "./dist/Bahianita.js",
+    "./BaiJamjuree": "./dist/BaiJamjuree.js",
+    "./BakbakOne": "./dist/BakbakOne.js",
+    "./Ballet": "./dist/Ballet.js",
+    "./Baloo2": "./dist/Baloo2.js",
+    "./BalooBhai2": "./dist/BalooBhai2.js",
+    "./BalooBhaijaan2": "./dist/BalooBhaijaan2.js",
+    "./BalooBhaina2": "./dist/BalooBhaina2.js",
+    "./BalooChettan2": "./dist/BalooChettan2.js",
+    "./BalooDa2": "./dist/BalooDa2.js",
+    "./BalooPaaji2": "./dist/BalooPaaji2.js",
+    "./BalooTamma2": "./dist/BalooTamma2.js",
+    "./BalooTammudu2": "./dist/BalooTammudu2.js",
+    "./BalooThambi2": "./dist/BalooThambi2.js",
+    "./BalsamiqSans": "./dist/BalsamiqSans.js",
+    "./Balthazar": "./dist/Balthazar.js",
+    "./Bangers": "./dist/Bangers.js",
+    "./Barlow": "./dist/Barlow.js",
+    "./BarlowCondensed": "./dist/BarlowCondensed.js",
+    "./BarlowSemiCondensed": "./dist/BarlowSemiCondensed.js",
+    "./Barriecito": "./dist/Barriecito.js",
+    "./Barrio": "./dist/Barrio.js",
+    "./Basic": "./dist/Basic.js",
+    "./Baskervville": "./dist/Baskervville.js",
+    "./Battambang": "./dist/Battambang.js",
+    "./Baumans": "./dist/Baumans.js",
+    "./Bayon": "./dist/Bayon.js",
+    "./BeVietnamPro": "./dist/BeVietnamPro.js",
+    "./BeauRivage": "./dist/BeauRivage.js",
+    "./BebasNeue": "./dist/BebasNeue.js",
+    "./Belgrano": "./dist/Belgrano.js",
+    "./Bellefair": "./dist/Bellefair.js",
+    "./Belleza": "./dist/Belleza.js",
+    "./Bellota": "./dist/Bellota.js",
+    "./BellotaText": "./dist/BellotaText.js",
+    "./BenchNine": "./dist/BenchNine.js",
+    "./Benne": "./dist/Benne.js",
+    "./Bentham": "./dist/Bentham.js",
+    "./BerkshireSwash": "./dist/BerkshireSwash.js",
+    "./Besley": "./dist/Besley.js",
+    "./BethEllen": "./dist/BethEllen.js",
+    "./Bevan": "./dist/Bevan.js",
+    "./BhuTukaExpandedOne": "./dist/BhuTukaExpandedOne.js",
+    "./BigShouldersDisplay": "./dist/BigShouldersDisplay.js",
+    "./BigShouldersInlineDisplay": "./dist/BigShouldersInlineDisplay.js",
+    "./BigShouldersInlineText": "./dist/BigShouldersInlineText.js",
+    "./BigShouldersStencilDisplay": "./dist/BigShouldersStencilDisplay.js",
+    "./BigShouldersStencilText": "./dist/BigShouldersStencilText.js",
+    "./BigShouldersText": "./dist/BigShouldersText.js",
+    "./BigelowRules": "./dist/BigelowRules.js",
+    "./BigshotOne": "./dist/BigshotOne.js",
+    "./Bilbo": "./dist/Bilbo.js",
+    "./BilboSwashCaps": "./dist/BilboSwashCaps.js",
+    "./BioRhyme": "./dist/BioRhyme.js",
+    "./BioRhymeExpanded": "./dist/BioRhymeExpanded.js",
+    "./Birthstone": "./dist/Birthstone.js",
+    "./BirthstoneBounce": "./dist/BirthstoneBounce.js",
+    "./Biryani": "./dist/Biryani.js",
+    "./Bitter": "./dist/Bitter.js",
+    "./BlackAndWhitePicture": "./dist/BlackAndWhitePicture.js",
+    "./BlackHanSans": "./dist/BlackHanSans.js",
+    "./BlackOpsOne": "./dist/BlackOpsOne.js",
+    "./Blaka": "./dist/Blaka.js",
+    "./BlakaHollow": "./dist/BlakaHollow.js",
+    "./BlakaInk": "./dist/BlakaInk.js",
+    "./Blinker": "./dist/Blinker.js",
+    "./BodoniModa": "./dist/BodoniModa.js",
+    "./Bokor": "./dist/Bokor.js",
+    "./BonaNova": "./dist/BonaNova.js",
+    "./Bonbon": "./dist/Bonbon.js",
+    "./BonheurRoyale": "./dist/BonheurRoyale.js",
+    "./Boogaloo": "./dist/Boogaloo.js",
+    "./BowlbyOne": "./dist/BowlbyOne.js",
+    "./BowlbyOneSC": "./dist/BowlbyOneSC.js",
+    "./Brawler": "./dist/Brawler.js",
+    "./BreeSerif": "./dist/BreeSerif.js",
+    "./Brygada1918": "./dist/Brygada1918.js",
+    "./BubblegumSans": "./dist/BubblegumSans.js",
+    "./BubblerOne": "./dist/BubblerOne.js",
+    "./Buda": "./dist/Buda.js",
+    "./Buenard": "./dist/Buenard.js",
+    "./Bungee": "./dist/Bungee.js",
+    "./BungeeHairline": "./dist/BungeeHairline.js",
+    "./BungeeInline": "./dist/BungeeInline.js",
+    "./BungeeOutline": "./dist/BungeeOutline.js",
+    "./BungeeShade": "./dist/BungeeShade.js",
+    "./BungeeSpice": "./dist/BungeeSpice.js",
+    "./Butcherman": "./dist/Butcherman.js",
+    "./ButterflyKids": "./dist/ButterflyKids.js",
+    "./Cabin": "./dist/Cabin.js",
+    "./CabinCondensed": "./dist/CabinCondensed.js",
+    "./CabinSketch": "./dist/CabinSketch.js",
+    "./CaesarDressing": "./dist/CaesarDressing.js",
+    "./Cagliostro": "./dist/Cagliostro.js",
+    "./Cairo": "./dist/Cairo.js",
+    "./CairoPlay": "./dist/CairoPlay.js",
+    "./Caladea": "./dist/Caladea.js",
+    "./Calistoga": "./dist/Calistoga.js",
+    "./Calligraffitti": "./dist/Calligraffitti.js",
+    "./Cambay": "./dist/Cambay.js",
+    "./Cambo": "./dist/Cambo.js",
+    "./Candal": "./dist/Candal.js",
+    "./Cantarell": "./dist/Cantarell.js",
+    "./CantataOne": "./dist/CantataOne.js",
+    "./CantoraOne": "./dist/CantoraOne.js",
+    "./Capriola": "./dist/Capriola.js",
+    "./Caramel": "./dist/Caramel.js",
+    "./Carattere": "./dist/Carattere.js",
+    "./Cardo": "./dist/Cardo.js",
+    "./Carme": "./dist/Carme.js",
+    "./CarroisGothic": "./dist/CarroisGothic.js",
+    "./CarroisGothicSC": "./dist/CarroisGothicSC.js",
+    "./CarterOne": "./dist/CarterOne.js",
+    "./Castoro": "./dist/Castoro.js",
+    "./Catamaran": "./dist/Catamaran.js",
+    "./Caudex": "./dist/Caudex.js",
+    "./Caveat": "./dist/Caveat.js",
+    "./CaveatBrush": "./dist/CaveatBrush.js",
+    "./CedarvilleCursive": "./dist/CedarvilleCursive.js",
+    "./CevicheOne": "./dist/CevicheOne.js",
+    "./ChakraPetch": "./dist/ChakraPetch.js",
+    "./Changa": "./dist/Changa.js",
+    "./ChangaOne": "./dist/ChangaOne.js",
+    "./Chango": "./dist/Chango.js",
+    "./CharisSIL": "./dist/CharisSIL.js",
+    "./Charm": "./dist/Charm.js",
+    "./Charmonman": "./dist/Charmonman.js",
+    "./Chathura": "./dist/Chathura.js",
+    "./ChauPhilomeneOne": "./dist/ChauPhilomeneOne.js",
+    "./ChelaOne": "./dist/ChelaOne.js",
+    "./ChelseaMarket": "./dist/ChelseaMarket.js",
+    "./Chenla": "./dist/Chenla.js",
+    "./Cherish": "./dist/Cherish.js",
+    "./CherryCreamSoda": "./dist/CherryCreamSoda.js",
+    "./CherrySwash": "./dist/CherrySwash.js",
+    "./Chewy": "./dist/Chewy.js",
+    "./Chicle": "./dist/Chicle.js",
+    "./Chilanka": "./dist/Chilanka.js",
+    "./Chivo": "./dist/Chivo.js",
+    "./Chonburi": "./dist/Chonburi.js",
+    "./Cinzel": "./dist/Cinzel.js",
+    "./CinzelDecorative": "./dist/CinzelDecorative.js",
+    "./ClickerScript": "./dist/ClickerScript.js",
+    "./Coda": "./dist/Coda.js",
+    "./CodaCaption": "./dist/CodaCaption.js",
+    "./Codystar": "./dist/Codystar.js",
+    "./Coiny": "./dist/Coiny.js",
+    "./Combo": "./dist/Combo.js",
+    "./Comfortaa": "./dist/Comfortaa.js",
+    "./Comforter": "./dist/Comforter.js",
+    "./ComforterBrush": "./dist/ComforterBrush.js",
+    "./ComicNeue": "./dist/ComicNeue.js",
+    "./ComingSoon": "./dist/ComingSoon.js",
+    "./Commissioner": "./dist/Commissioner.js",
+    "./ConcertOne": "./dist/ConcertOne.js",
+    "./Condiment": "./dist/Condiment.js",
+    "./Content": "./dist/Content.js",
+    "./ContrailOne": "./dist/ContrailOne.js",
+    "./Convergence": "./dist/Convergence.js",
+    "./Cookie": "./dist/Cookie.js",
+    "./Copse": "./dist/Copse.js",
+    "./Corben": "./dist/Corben.js",
+    "./Corinthia": "./dist/Corinthia.js",
+    "./Cormorant": "./dist/Cormorant.js",
+    "./CormorantGaramond": "./dist/CormorantGaramond.js",
+    "./CormorantInfant": "./dist/CormorantInfant.js",
+    "./CormorantSC": "./dist/CormorantSC.js",
+    "./CormorantUnicase": "./dist/CormorantUnicase.js",
+    "./CormorantUpright": "./dist/CormorantUpright.js",
+    "./Courgette": "./dist/Courgette.js",
+    "./CourierPrime": "./dist/CourierPrime.js",
+    "./Cousine": "./dist/Cousine.js",
+    "./Coustard": "./dist/Coustard.js",
+    "./CoveredByYourGrace": "./dist/CoveredByYourGrace.js",
+    "./CraftyGirls": "./dist/CraftyGirls.js",
+    "./Creepster": "./dist/Creepster.js",
+    "./CreteRound": "./dist/CreteRound.js",
+    "./CrimsonPro": "./dist/CrimsonPro.js",
+    "./CrimsonText": "./dist/CrimsonText.js",
+    "./CroissantOne": "./dist/CroissantOne.js",
+    "./Crushed": "./dist/Crushed.js",
+    "./Cuprum": "./dist/Cuprum.js",
+    "./CuteFont": "./dist/CuteFont.js",
+    "./Cutive": "./dist/Cutive.js",
+    "./CutiveMono": "./dist/CutiveMono.js",
+    "./DMMono": "./dist/DMMono.js",
+    "./DMSans": "./dist/DMSans.js",
+    "./DMSerifDisplay": "./dist/DMSerifDisplay.js",
+    "./DMSerifText": "./dist/DMSerifText.js",
+    "./Damion": "./dist/Damion.js",
+    "./DancingScript": "./dist/DancingScript.js",
+    "./Dangrek": "./dist/Dangrek.js",
+    "./DarkerGrotesque": "./dist/DarkerGrotesque.js",
+    "./DavidLibre": "./dist/DavidLibre.js",
+    "./DawningofaNewDay": "./dist/DawningofaNewDay.js",
+    "./DaysOne": "./dist/DaysOne.js",
+    "./Dekko": "./dist/Dekko.js",
+    "./DelaGothicOne": "./dist/DelaGothicOne.js",
+    "./Delius": "./dist/Delius.js",
+    "./DeliusSwashCaps": "./dist/DeliusSwashCaps.js",
+    "./DeliusUnicase": "./dist/DeliusUnicase.js",
+    "./DellaRespira": "./dist/DellaRespira.js",
+    "./DenkOne": "./dist/DenkOne.js",
+    "./Devonshire": "./dist/Devonshire.js",
+    "./Dhurjati": "./dist/Dhurjati.js",
+    "./DidactGothic": "./dist/DidactGothic.js",
+    "./Diplomata": "./dist/Diplomata.js",
+    "./DiplomataSC": "./dist/DiplomataSC.js",
+    "./DoHyeon": "./dist/DoHyeon.js",
+    "./Dokdo": "./dist/Dokdo.js",
+    "./Domine": "./dist/Domine.js",
+    "./DonegalOne": "./dist/DonegalOne.js",
+    "./Dongle": "./dist/Dongle.js",
+    "./DoppioOne": "./dist/DoppioOne.js",
+    "./Dorsa": "./dist/Dorsa.js",
+    "./Dosis": "./dist/Dosis.js",
+    "./DotGothic16": "./dist/DotGothic16.js",
+    "./DrSugiyama": "./dist/DrSugiyama.js",
+    "./DuruSans": "./dist/DuruSans.js",
+    "./DynaPuff": "./dist/DynaPuff.js",
+    "./Dynalight": "./dist/Dynalight.js",
+    "./EBGaramond": "./dist/EBGaramond.js",
+    "./EagleLake": "./dist/EagleLake.js",
+    "./EastSeaDokdo": "./dist/EastSeaDokdo.js",
+    "./Eater": "./dist/Eater.js",
+    "./Economica": "./dist/Economica.js",
+    "./Eczar": "./dist/Eczar.js",
+    "./EduNSWACTFoundation": "./dist/EduNSWACTFoundation.js",
+    "./EduQLDBeginner": "./dist/EduQLDBeginner.js",
+    "./EduSABeginner": "./dist/EduSABeginner.js",
+    "./EduTASBeginner": "./dist/EduTASBeginner.js",
+    "./EduVICWANTBeginner": "./dist/EduVICWANTBeginner.js",
+    "./ElMessiri": "./dist/ElMessiri.js",
+    "./Electrolize": "./dist/Electrolize.js",
+    "./Elsie": "./dist/Elsie.js",
+    "./ElsieSwashCaps": "./dist/ElsieSwashCaps.js",
+    "./EmblemaOne": "./dist/EmblemaOne.js",
+    "./EmilysCandy": "./dist/EmilysCandy.js",
+    "./EncodeSans": "./dist/EncodeSans.js",
+    "./EncodeSansCondensed": "./dist/EncodeSansCondensed.js",
+    "./EncodeSansExpanded": "./dist/EncodeSansExpanded.js",
+    "./EncodeSansSC": "./dist/EncodeSansSC.js",
+    "./EncodeSansSemiCondensed": "./dist/EncodeSansSemiCondensed.js",
+    "./EncodeSansSemiExpanded": "./dist/EncodeSansSemiExpanded.js",
+    "./Engagement": "./dist/Engagement.js",
+    "./Englebert": "./dist/Englebert.js",
+    "./Enriqueta": "./dist/Enriqueta.js",
+    "./Ephesis": "./dist/Ephesis.js",
+    "./Epilogue": "./dist/Epilogue.js",
+    "./EricaOne": "./dist/EricaOne.js",
+    "./Esteban": "./dist/Esteban.js",
+    "./Estonia": "./dist/Estonia.js",
+    "./EuphoriaScript": "./dist/EuphoriaScript.js",
+    "./Ewert": "./dist/Ewert.js",
+    "./Exo": "./dist/Exo.js",
+    "./Exo2": "./dist/Exo2.js",
+    "./ExpletusSans": "./dist/ExpletusSans.js",
+    "./Explora": "./dist/Explora.js",
+    "./Fahkwang": "./dist/Fahkwang.js",
+    "./FamiljenGrotesk": "./dist/FamiljenGrotesk.js",
+    "./FanwoodText": "./dist/FanwoodText.js",
+    "./Farro": "./dist/Farro.js",
+    "./Farsan": "./dist/Farsan.js",
+    "./Fascinate": "./dist/Fascinate.js",
+    "./FascinateInline": "./dist/FascinateInline.js",
+    "./FasterOne": "./dist/FasterOne.js",
+    "./Fasthand": "./dist/Fasthand.js",
+    "./FaunaOne": "./dist/FaunaOne.js",
+    "./Faustina": "./dist/Faustina.js",
+    "./Federant": "./dist/Federant.js",
+    "./Federo": "./dist/Federo.js",
+    "./Felipa": "./dist/Felipa.js",
+    "./Fenix": "./dist/Fenix.js",
+    "./Festive": "./dist/Festive.js",
+    "./Figtree": "./dist/Figtree.js",
+    "./FingerPaint": "./dist/FingerPaint.js",
+    "./Finlandica": "./dist/Finlandica.js",
+    "./FiraCode": "./dist/FiraCode.js",
+    "./FiraMono": "./dist/FiraMono.js",
+    "./FiraSans": "./dist/FiraSans.js",
+    "./FiraSansCondensed": "./dist/FiraSansCondensed.js",
+    "./FiraSansExtraCondensed": "./dist/FiraSansExtraCondensed.js",
+    "./FjallaOne": "./dist/FjallaOne.js",
+    "./FjordOne": "./dist/FjordOne.js",
+    "./Flamenco": "./dist/Flamenco.js",
+    "./Flavors": "./dist/Flavors.js",
+    "./FleurDeLeah": "./dist/FleurDeLeah.js",
+    "./FlowBlock": "./dist/FlowBlock.js",
+    "./FlowCircular": "./dist/FlowCircular.js",
+    "./FlowRounded": "./dist/FlowRounded.js",
+    "./Fondamento": "./dist/Fondamento.js",
+    "./FontdinerSwanky": "./dist/FontdinerSwanky.js",
+    "./Forum": "./dist/Forum.js",
+    "./FrancoisOne": "./dist/FrancoisOne.js",
+    "./FrankRuhlLibre": "./dist/FrankRuhlLibre.js",
+    "./Fraunces": "./dist/Fraunces.js",
+    "./FreckleFace": "./dist/FreckleFace.js",
+    "./FrederickatheGreat": "./dist/FrederickatheGreat.js",
+    "./Fredoka": "./dist/Fredoka.js",
+    "./FredokaOne": "./dist/FredokaOne.js",
+    "./Freehand": "./dist/Freehand.js",
+    "./Fresca": "./dist/Fresca.js",
+    "./Frijole": "./dist/Frijole.js",
+    "./Fruktur": "./dist/Fruktur.js",
+    "./FugazOne": "./dist/FugazOne.js",
+    "./Fuggles": "./dist/Fuggles.js",
+    "./FuzzyBubbles": "./dist/FuzzyBubbles.js",
+    "./GFSDidot": "./dist/GFSDidot.js",
+    "./GFSNeohellenic": "./dist/GFSNeohellenic.js",
+    "./Gabriela": "./dist/Gabriela.js",
+    "./Gaegu": "./dist/Gaegu.js",
+    "./Gafata": "./dist/Gafata.js",
+    "./Galada": "./dist/Galada.js",
+    "./Galdeano": "./dist/Galdeano.js",
+    "./Galindo": "./dist/Galindo.js",
+    "./GamjaFlower": "./dist/GamjaFlower.js",
+    "./Gantari": "./dist/Gantari.js",
+    "./Gayathri": "./dist/Gayathri.js",
+    "./Gelasio": "./dist/Gelasio.js",
+    "./GemunuLibre": "./dist/GemunuLibre.js",
+    "./Genos": "./dist/Genos.js",
+    "./GentiumBookBasic": "./dist/GentiumBookBasic.js",
+    "./GentiumBookPlus": "./dist/GentiumBookPlus.js",
+    "./GentiumPlus": "./dist/GentiumPlus.js",
+    "./Geo": "./dist/Geo.js",
+    "./Georama": "./dist/Georama.js",
+    "./Geostar": "./dist/Geostar.js",
+    "./GeostarFill": "./dist/GeostarFill.js",
+    "./GermaniaOne": "./dist/GermaniaOne.js",
+    "./GideonRoman": "./dist/GideonRoman.js",
+    "./Gidugu": "./dist/Gidugu.js",
+    "./GildaDisplay": "./dist/GildaDisplay.js",
+    "./Girassol": "./dist/Girassol.js",
+    "./GiveYouGlory": "./dist/GiveYouGlory.js",
+    "./GlassAntiqua": "./dist/GlassAntiqua.js",
+    "./Glegoo": "./dist/Glegoo.js",
+    "./GloriaHallelujah": "./dist/GloriaHallelujah.js",
+    "./Glory": "./dist/Glory.js",
+    "./Gluten": "./dist/Gluten.js",
+    "./GoblinOne": "./dist/GoblinOne.js",
+    "./GochiHand": "./dist/GochiHand.js",
+    "./Goldman": "./dist/Goldman.js",
+    "./Gorditas": "./dist/Gorditas.js",
+    "./GothicA1": "./dist/GothicA1.js",
+    "./Gotu": "./dist/Gotu.js",
+    "./GoudyBookletter1911": "./dist/GoudyBookletter1911.js",
+    "./GowunBatang": "./dist/GowunBatang.js",
+    "./GowunDodum": "./dist/GowunDodum.js",
+    "./Graduate": "./dist/Graduate.js",
+    "./GrandHotel": "./dist/GrandHotel.js",
+    "./Grandstander": "./dist/Grandstander.js",
+    "./GrapeNuts": "./dist/GrapeNuts.js",
+    "./GravitasOne": "./dist/GravitasOne.js",
+    "./GreatVibes": "./dist/GreatVibes.js",
+    "./GrechenFuemen": "./dist/GrechenFuemen.js",
+    "./Grenze": "./dist/Grenze.js",
+    "./GrenzeGotisch": "./dist/GrenzeGotisch.js",
+    "./GreyQo": "./dist/GreyQo.js",
+    "./Griffy": "./dist/Griffy.js",
+    "./Gruppo": "./dist/Gruppo.js",
+    "./Gudea": "./dist/Gudea.js",
+    "./Gugi": "./dist/Gugi.js",
+    "./Gulzar": "./dist/Gulzar.js",
+    "./Gupter": "./dist/Gupter.js",
+    "./Gurajada": "./dist/Gurajada.js",
+    "./Gwendolyn": "./dist/Gwendolyn.js",
+    "./Habibi": "./dist/Habibi.js",
+    "./HachiMaruPop": "./dist/HachiMaruPop.js",
+    "./Hahmlet": "./dist/Hahmlet.js",
+    "./Halant": "./dist/Halant.js",
+    "./HammersmithOne": "./dist/HammersmithOne.js",
+    "./Hanalei": "./dist/Hanalei.js",
+    "./HanaleiFill": "./dist/HanaleiFill.js",
+    "./Handlee": "./dist/Handlee.js",
+    "./Hanuman": "./dist/Hanuman.js",
+    "./HappyMonkey": "./dist/HappyMonkey.js",
+    "./Harmattan": "./dist/Harmattan.js",
+    "./HeadlandOne": "./dist/HeadlandOne.js",
+    "./Heebo": "./dist/Heebo.js",
+    "./HennyPenny": "./dist/HennyPenny.js",
+    "./HeptaSlab": "./dist/HeptaSlab.js",
+    "./HerrVonMuellerhoff": "./dist/HerrVonMuellerhoff.js",
+    "./HiMelody": "./dist/HiMelody.js",
+    "./HinaMincho": "./dist/HinaMincho.js",
+    "./Hind": "./dist/Hind.js",
+    "./HindGuntur": "./dist/HindGuntur.js",
+    "./HindMadurai": "./dist/HindMadurai.js",
+    "./HindSiliguri": "./dist/HindSiliguri.js",
+    "./HindVadodara": "./dist/HindVadodara.js",
+    "./HoltwoodOneSC": "./dist/HoltwoodOneSC.js",
+    "./HomemadeApple": "./dist/HomemadeApple.js",
+    "./Homenaje": "./dist/Homenaje.js",
+    "./Hubballi": "./dist/Hubballi.js",
+    "./Hurricane": "./dist/Hurricane.js",
+    "./IBMPlexMono": "./dist/IBMPlexMono.js",
+    "./IBMPlexSans": "./dist/IBMPlexSans.js",
+    "./IBMPlexSansArabic": "./dist/IBMPlexSansArabic.js",
+    "./IBMPlexSansCondensed": "./dist/IBMPlexSansCondensed.js",
+    "./IBMPlexSansDevanagari": "./dist/IBMPlexSansDevanagari.js",
+    "./IBMPlexSansHebrew": "./dist/IBMPlexSansHebrew.js",
+    "./IBMPlexSansKR": "./dist/IBMPlexSansKR.js",
+    "./IBMPlexSansThai": "./dist/IBMPlexSansThai.js",
+    "./IBMPlexSansThaiLooped": "./dist/IBMPlexSansThaiLooped.js",
+    "./IBMPlexSerif": "./dist/IBMPlexSerif.js",
+    "./IMFellDWPica": "./dist/IMFellDWPica.js",
+    "./IMFellDWPicaSC": "./dist/IMFellDWPicaSC.js",
+    "./IMFellDoublePica": "./dist/IMFellDoublePica.js",
+    "./IMFellDoublePicaSC": "./dist/IMFellDoublePicaSC.js",
+    "./IMFellEnglish": "./dist/IMFellEnglish.js",
+    "./IMFellEnglishSC": "./dist/IMFellEnglishSC.js",
+    "./IMFellFrenchCanon": "./dist/IMFellFrenchCanon.js",
+    "./IMFellFrenchCanonSC": "./dist/IMFellFrenchCanonSC.js",
+    "./IMFellGreatPrimer": "./dist/IMFellGreatPrimer.js",
+    "./IMFellGreatPrimerSC": "./dist/IMFellGreatPrimerSC.js",
+    "./IbarraRealNova": "./dist/IbarraRealNova.js",
+    "./Iceberg": "./dist/Iceberg.js",
+    "./Iceland": "./dist/Iceland.js",
+    "./Imbue": "./dist/Imbue.js",
+    "./ImperialScript": "./dist/ImperialScript.js",
+    "./Imprima": "./dist/Imprima.js",
+    "./Inconsolata": "./dist/Inconsolata.js",
+    "./Inder": "./dist/Inder.js",
+    "./IndieFlower": "./dist/IndieFlower.js",
+    "./IngridDarling": "./dist/IngridDarling.js",
+    "./Inika": "./dist/Inika.js",
+    "./InknutAntiqua": "./dist/InknutAntiqua.js",
+    "./InriaSans": "./dist/InriaSans.js",
+    "./InriaSerif": "./dist/InriaSerif.js",
+    "./Inspiration": "./dist/Inspiration.js",
+    "./Inter": "./dist/Inter.js",
+    "./InterTight": "./dist/InterTight.js",
+    "./IrishGrover": "./dist/IrishGrover.js",
+    "./IslandMoments": "./dist/IslandMoments.js",
+    "./IstokWeb": "./dist/IstokWeb.js",
+    "./Italiana": "./dist/Italiana.js",
+    "./Italianno": "./dist/Italianno.js",
+    "./Itim": "./dist/Itim.js",
+    "./JacquesFrancois": "./dist/JacquesFrancois.js",
+    "./JacquesFrancoisShadow": "./dist/JacquesFrancoisShadow.js",
+    "./Jaldi": "./dist/Jaldi.js",
+    "./JetBrainsMono": "./dist/JetBrainsMono.js",
+    "./JimNightshade": "./dist/JimNightshade.js",
+    "./Joan": "./dist/Joan.js",
+    "./JockeyOne": "./dist/JockeyOne.js",
+    "./JollyLodger": "./dist/JollyLodger.js",
+    "./Jomhuria": "./dist/Jomhuria.js",
+    "./Jomolhari": "./dist/Jomolhari.js",
+    "./JosefinSans": "./dist/JosefinSans.js",
+    "./JosefinSlab": "./dist/JosefinSlab.js",
+    "./Jost": "./dist/Jost.js",
+    "./JotiOne": "./dist/JotiOne.js",
+    "./Jua": "./dist/Jua.js",
+    "./Judson": "./dist/Judson.js",
+    "./Julee": "./dist/Julee.js",
+    "./JuliusSansOne": "./dist/JuliusSansOne.js",
+    "./Junge": "./dist/Junge.js",
+    "./Jura": "./dist/Jura.js",
+    "./JustAnotherHand": "./dist/JustAnotherHand.js",
+    "./JustMeAgainDownHere": "./dist/JustMeAgainDownHere.js",
+    "./K2D": "./dist/K2D.js",
+    "./Kadwa": "./dist/Kadwa.js",
+    "./KaiseiDecol": "./dist/KaiseiDecol.js",
+    "./KaiseiHarunoUmi": "./dist/KaiseiHarunoUmi.js",
+    "./KaiseiOpti": "./dist/KaiseiOpti.js",
+    "./KaiseiTokumin": "./dist/KaiseiTokumin.js",
+    "./Kalam": "./dist/Kalam.js",
+    "./Kameron": "./dist/Kameron.js",
+    "./Kanit": "./dist/Kanit.js",
+    "./Kantumruy": "./dist/Kantumruy.js",
+    "./KantumruyPro": "./dist/KantumruyPro.js",
+    "./Karantina": "./dist/Karantina.js",
+    "./Karla": "./dist/Karla.js",
+    "./Karma": "./dist/Karma.js",
+    "./Katibeh": "./dist/Katibeh.js",
+    "./KaushanScript": "./dist/KaushanScript.js",
+    "./Kavivanar": "./dist/Kavivanar.js",
+    "./Kavoon": "./dist/Kavoon.js",
+    "./KdamThmorPro": "./dist/KdamThmorPro.js",
+    "./KeaniaOne": "./dist/KeaniaOne.js",
+    "./KellySlab": "./dist/KellySlab.js",
+    "./Kenia": "./dist/Kenia.js",
+    "./Khand": "./dist/Khand.js",
+    "./Khmer": "./dist/Khmer.js",
+    "./Khula": "./dist/Khula.js",
+    "./Kings": "./dist/Kings.js",
+    "./KirangHaerang": "./dist/KirangHaerang.js",
+    "./KiteOne": "./dist/KiteOne.js",
+    "./KiwiMaru": "./dist/KiwiMaru.js",
+    "./KleeOne": "./dist/KleeOne.js",
+    "./Knewave": "./dist/Knewave.js",
+    "./KoHo": "./dist/KoHo.js",
+    "./Kodchasan": "./dist/Kodchasan.js",
+    "./KohSantepheap": "./dist/KohSantepheap.js",
+    "./KolkerBrush": "./dist/KolkerBrush.js",
+    "./Kosugi": "./dist/Kosugi.js",
+    "./KosugiMaru": "./dist/KosugiMaru.js",
+    "./KottaOne": "./dist/KottaOne.js",
+    "./Koulen": "./dist/Koulen.js",
+    "./Kranky": "./dist/Kranky.js",
+    "./Kreon": "./dist/Kreon.js",
+    "./Kristi": "./dist/Kristi.js",
+    "./KronaOne": "./dist/KronaOne.js",
+    "./Krub": "./dist/Krub.js",
+    "./Kufam": "./dist/Kufam.js",
+    "./KulimPark": "./dist/KulimPark.js",
+    "./KumarOne": "./dist/KumarOne.js",
+    "./KumarOneOutline": "./dist/KumarOneOutline.js",
+    "./KumbhSans": "./dist/KumbhSans.js",
+    "./Kurale": "./dist/Kurale.js",
+    "./LaBelleAurore": "./dist/LaBelleAurore.js",
+    "./Lacquer": "./dist/Lacquer.js",
+    "./Laila": "./dist/Laila.js",
+    "./LakkiReddy": "./dist/LakkiReddy.js",
+    "./Lalezar": "./dist/Lalezar.js",
+    "./Lancelot": "./dist/Lancelot.js",
+    "./Langar": "./dist/Langar.js",
+    "./Lateef": "./dist/Lateef.js",
+    "./Lato": "./dist/Lato.js",
+    "./LavishlyYours": "./dist/LavishlyYours.js",
+    "./LeagueGothic": "./dist/LeagueGothic.js",
+    "./LeagueScript": "./dist/LeagueScript.js",
+    "./LeagueSpartan": "./dist/LeagueSpartan.js",
+    "./LeckerliOne": "./dist/LeckerliOne.js",
+    "./Ledger": "./dist/Ledger.js",
+    "./Lekton": "./dist/Lekton.js",
+    "./Lemon": "./dist/Lemon.js",
+    "./Lemonada": "./dist/Lemonada.js",
+    "./Lexend": "./dist/Lexend.js",
+    "./LexendDeca": "./dist/LexendDeca.js",
+    "./LexendExa": "./dist/LexendExa.js",
+    "./LexendGiga": "./dist/LexendGiga.js",
+    "./LexendMega": "./dist/LexendMega.js",
+    "./LexendPeta": "./dist/LexendPeta.js",
+    "./LexendTera": "./dist/LexendTera.js",
+    "./LexendZetta": "./dist/LexendZetta.js",
+    "./LibreBarcode128": "./dist/LibreBarcode128.js",
+    "./LibreBarcode128Text": "./dist/LibreBarcode128Text.js",
+    "./LibreBarcode39": "./dist/LibreBarcode39.js",
+    "./LibreBarcode39Extended": "./dist/LibreBarcode39Extended.js",
+    "./LibreBarcode39ExtendedText": "./dist/LibreBarcode39ExtendedText.js",
+    "./LibreBarcode39Text": "./dist/LibreBarcode39Text.js",
+    "./LibreBarcodeEAN13Text": "./dist/LibreBarcodeEAN13Text.js",
+    "./LibreBaskerville": "./dist/LibreBaskerville.js",
+    "./LibreBodoni": "./dist/LibreBodoni.js",
+    "./LibreCaslonDisplay": "./dist/LibreCaslonDisplay.js",
+    "./LibreCaslonText": "./dist/LibreCaslonText.js",
+    "./LibreFranklin": "./dist/LibreFranklin.js",
+    "./Licorice": "./dist/Licorice.js",
+    "./LifeSavers": "./dist/LifeSavers.js",
+    "./LilitaOne": "./dist/LilitaOne.js",
+    "./LilyScriptOne": "./dist/LilyScriptOne.js",
+    "./Limelight": "./dist/Limelight.js",
+    "./LindenHill": "./dist/LindenHill.js",
+    "./Literata": "./dist/Literata.js",
+    "./LiuJianMaoCao": "./dist/LiuJianMaoCao.js",
+    "./Livvic": "./dist/Livvic.js",
+    "./Lobster": "./dist/Lobster.js",
+    "./LobsterTwo": "./dist/LobsterTwo.js",
+    "./LondrinaOutline": "./dist/LondrinaOutline.js",
+    "./LondrinaShadow": "./dist/LondrinaShadow.js",
+    "./LondrinaSketch": "./dist/LondrinaSketch.js",
+    "./LondrinaSolid": "./dist/LondrinaSolid.js",
+    "./LongCang": "./dist/LongCang.js",
+    "./Lora": "./dist/Lora.js",
+    "./LoveLight": "./dist/LoveLight.js",
+    "./LoveYaLikeASister": "./dist/LoveYaLikeASister.js",
+    "./LovedbytheKing": "./dist/LovedbytheKing.js",
+    "./LoversQuarrel": "./dist/LoversQuarrel.js",
+    "./LuckiestGuy": "./dist/LuckiestGuy.js",
+    "./Lusitana": "./dist/Lusitana.js",
+    "./Lustria": "./dist/Lustria.js",
+    "./LuxuriousRoman": "./dist/LuxuriousRoman.js",
+    "./LuxuriousScript": "./dist/LuxuriousScript.js",
+    "./MPLUS1": "./dist/MPLUS1.js",
+    "./MPLUS1Code": "./dist/MPLUS1Code.js",
+    "./MPLUS1p": "./dist/MPLUS1p.js",
+    "./MPLUS2": "./dist/MPLUS2.js",
+    "./MPLUSCodeLatin": "./dist/MPLUSCodeLatin.js",
+    "./MPLUSRounded1c": "./dist/MPLUSRounded1c.js",
+    "./MaShanZheng": "./dist/MaShanZheng.js",
+    "./Macondo": "./dist/Macondo.js",
+    "./MacondoSwashCaps": "./dist/MacondoSwashCaps.js",
+    "./Mada": "./dist/Mada.js",
+    "./Magra": "./dist/Magra.js",
+    "./MaidenOrange": "./dist/MaidenOrange.js",
+    "./Maitree": "./dist/Maitree.js",
+    "./MajorMonoDisplay": "./dist/MajorMonoDisplay.js",
+    "./Mako": "./dist/Mako.js",
+    "./Mali": "./dist/Mali.js",
+    "./Mallanna": "./dist/Mallanna.js",
+    "./Mandali": "./dist/Mandali.js",
+    "./Manjari": "./dist/Manjari.js",
+    "./Manrope": "./dist/Manrope.js",
+    "./Mansalva": "./dist/Mansalva.js",
+    "./Manuale": "./dist/Manuale.js",
+    "./Marcellus": "./dist/Marcellus.js",
+    "./MarcellusSC": "./dist/MarcellusSC.js",
+    "./MarckScript": "./dist/MarckScript.js",
+    "./Margarine": "./dist/Margarine.js",
+    "./MarkaziText": "./dist/MarkaziText.js",
+    "./MarkoOne": "./dist/MarkoOne.js",
+    "./Marmelad": "./dist/Marmelad.js",
+    "./Martel": "./dist/Martel.js",
+    "./MartelSans": "./dist/MartelSans.js",
+    "./Marvel": "./dist/Marvel.js",
+    "./Mate": "./dist/Mate.js",
+    "./MateSC": "./dist/MateSC.js",
+    "./MavenPro": "./dist/MavenPro.js",
+    "./McLaren": "./dist/McLaren.js",
+    "./MeaCulpa": "./dist/MeaCulpa.js",
+    "./Meddon": "./dist/Meddon.js",
+    "./MedievalSharp": "./dist/MedievalSharp.js",
+    "./MedulaOne": "./dist/MedulaOne.js",
+    "./MeeraInimai": "./dist/MeeraInimai.js",
+    "./Megrim": "./dist/Megrim.js",
+    "./MeieScript": "./dist/MeieScript.js",
+    "./MeowScript": "./dist/MeowScript.js",
+    "./Merienda": "./dist/Merienda.js",
+    "./MeriendaOne": "./dist/MeriendaOne.js",
+    "./Merriweather": "./dist/Merriweather.js",
+    "./MerriweatherSans": "./dist/MerriweatherSans.js",
+    "./Metal": "./dist/Metal.js",
+    "./MetalMania": "./dist/MetalMania.js",
+    "./Metamorphous": "./dist/Metamorphous.js",
+    "./Metrophobic": "./dist/Metrophobic.js",
+    "./Michroma": "./dist/Michroma.js",
+    "./Milonga": "./dist/Milonga.js",
+    "./Miltonian": "./dist/Miltonian.js",
+    "./MiltonianTattoo": "./dist/MiltonianTattoo.js",
+    "./Mina": "./dist/Mina.js",
+    "./Mingzat": "./dist/Mingzat.js",
+    "./Miniver": "./dist/Miniver.js",
+    "./MiriamLibre": "./dist/MiriamLibre.js",
+    "./Mirza": "./dist/Mirza.js",
+    "./MissFajardose": "./dist/MissFajardose.js",
+    "./Mitr": "./dist/Mitr.js",
+    "./MochiyPopOne": "./dist/MochiyPopOne.js",
+    "./MochiyPopPOne": "./dist/MochiyPopPOne.js",
+    "./Modak": "./dist/Modak.js",
+    "./ModernAntiqua": "./dist/ModernAntiqua.js",
+    "./Mogra": "./dist/Mogra.js",
+    "./Mohave": "./dist/Mohave.js",
+    "./Molengo": "./dist/Molengo.js",
+    "./Molle": "./dist/Molle.js",
+    "./Monda": "./dist/Monda.js",
+    "./Monofett": "./dist/Monofett.js",
+    "./Monoton": "./dist/Monoton.js",
+    "./MonsieurLaDoulaise": "./dist/MonsieurLaDoulaise.js",
+    "./Montaga": "./dist/Montaga.js",
+    "./MontaguSlab": "./dist/MontaguSlab.js",
+    "./MonteCarlo": "./dist/MonteCarlo.js",
+    "./Montez": "./dist/Montez.js",
+    "./Montserrat": "./dist/Montserrat.js",
+    "./MontserratAlternates": "./dist/MontserratAlternates.js",
+    "./MontserratSubrayada": "./dist/MontserratSubrayada.js",
+    "./MooLahLah": "./dist/MooLahLah.js",
+    "./MoonDance": "./dist/MoonDance.js",
+    "./Moul": "./dist/Moul.js",
+    "./Moulpali": "./dist/Moulpali.js",
+    "./MountainsofChristmas": "./dist/MountainsofChristmas.js",
+    "./MouseMemoirs": "./dist/MouseMemoirs.js",
+    "./MrBedfort": "./dist/MrBedfort.js",
+    "./MrDafoe": "./dist/MrDafoe.js",
+    "./MrDeHaviland": "./dist/MrDeHaviland.js",
+    "./MrsSaintDelafield": "./dist/MrsSaintDelafield.js",
+    "./MrsSheppards": "./dist/MrsSheppards.js",
+    "./MsMadi": "./dist/MsMadi.js",
+    "./Mukta": "./dist/Mukta.js",
+    "./MuktaMahee": "./dist/MuktaMahee.js",
+    "./MuktaMalar": "./dist/MuktaMalar.js",
+    "./MuktaVaani": "./dist/MuktaVaani.js",
+    "./Mulish": "./dist/Mulish.js",
+    "./Murecho": "./dist/Murecho.js",
+    "./MuseoModerno": "./dist/MuseoModerno.js",
+    "./MySoul": "./dist/MySoul.js",
+    "./MysteryQuest": "./dist/MysteryQuest.js",
+    "./NTR": "./dist/NTR.js",
+    "./Nabla": "./dist/Nabla.js",
+    "./NanumBrushScript": "./dist/NanumBrushScript.js",
+    "./NanumGothic": "./dist/NanumGothic.js",
+    "./NanumGothicCoding": "./dist/NanumGothicCoding.js",
+    "./NanumMyeongjo": "./dist/NanumMyeongjo.js",
+    "./NanumPenScript": "./dist/NanumPenScript.js",
+    "./Neonderthaw": "./dist/Neonderthaw.js",
+    "./NerkoOne": "./dist/NerkoOne.js",
+    "./Neucha": "./dist/Neucha.js",
+    "./Neuton": "./dist/Neuton.js",
+    "./NewRocker": "./dist/NewRocker.js",
+    "./NewTegomin": "./dist/NewTegomin.js",
+    "./NewsCycle": "./dist/NewsCycle.js",
+    "./Newsreader": "./dist/Newsreader.js",
+    "./Niconne": "./dist/Niconne.js",
+    "./Niramit": "./dist/Niramit.js",
+    "./NixieOne": "./dist/NixieOne.js",
+    "./Nobile": "./dist/Nobile.js",
+    "./Nokora": "./dist/Nokora.js",
+    "./Norican": "./dist/Norican.js",
+    "./Nosifer": "./dist/Nosifer.js",
+    "./Notable": "./dist/Notable.js",
+    "./NothingYouCouldDo": "./dist/NothingYouCouldDo.js",
+    "./NoticiaText": "./dist/NoticiaText.js",
+    "./NotoColorEmoji": "./dist/NotoColorEmoji.js",
+    "./NotoEmoji": "./dist/NotoEmoji.js",
+    "./NotoKufiArabic": "./dist/NotoKufiArabic.js",
+    "./NotoMusic": "./dist/NotoMusic.js",
+    "./NotoNaskhArabic": "./dist/NotoNaskhArabic.js",
+    "./NotoNastaliqUrdu": "./dist/NotoNastaliqUrdu.js",
+    "./NotoRashiHebrew": "./dist/NotoRashiHebrew.js",
+    "./NotoSans": "./dist/NotoSans.js",
+    "./NotoSansAdlam": "./dist/NotoSansAdlam.js",
+    "./NotoSansAdlamUnjoined": "./dist/NotoSansAdlamUnjoined.js",
+    "./NotoSansAnatolianHieroglyphs": "./dist/NotoSansAnatolianHieroglyphs.js",
+    "./NotoSansArabic": "./dist/NotoSansArabic.js",
+    "./NotoSansArmenian": "./dist/NotoSansArmenian.js",
+    "./NotoSansAvestan": "./dist/NotoSansAvestan.js",
+    "./NotoSansBalinese": "./dist/NotoSansBalinese.js",
+    "./NotoSansBamum": "./dist/NotoSansBamum.js",
+    "./NotoSansBassaVah": "./dist/NotoSansBassaVah.js",
+    "./NotoSansBatak": "./dist/NotoSansBatak.js",
+    "./NotoSansBengali": "./dist/NotoSansBengali.js",
+    "./NotoSansBhaiksuki": "./dist/NotoSansBhaiksuki.js",
+    "./NotoSansBrahmi": "./dist/NotoSansBrahmi.js",
+    "./NotoSansBuginese": "./dist/NotoSansBuginese.js",
+    "./NotoSansBuhid": "./dist/NotoSansBuhid.js",
+    "./NotoSansCanadianAboriginal": "./dist/NotoSansCanadianAboriginal.js",
+    "./NotoSansCarian": "./dist/NotoSansCarian.js",
+    "./NotoSansCaucasianAlbanian": "./dist/NotoSansCaucasianAlbanian.js",
+    "./NotoSansChakma": "./dist/NotoSansChakma.js",
+    "./NotoSansCham": "./dist/NotoSansCham.js",
+    "./NotoSansCherokee": "./dist/NotoSansCherokee.js",
+    "./NotoSansCoptic": "./dist/NotoSansCoptic.js",
+    "./NotoSansCuneiform": "./dist/NotoSansCuneiform.js",
+    "./NotoSansCypriot": "./dist/NotoSansCypriot.js",
+    "./NotoSansDeseret": "./dist/NotoSansDeseret.js",
+    "./NotoSansDevanagari": "./dist/NotoSansDevanagari.js",
+    "./NotoSansDisplay": "./dist/NotoSansDisplay.js",
+    "./NotoSansDuployan": "./dist/NotoSansDuployan.js",
+    "./NotoSansEgyptianHieroglyphs": "./dist/NotoSansEgyptianHieroglyphs.js",
+    "./NotoSansElbasan": "./dist/NotoSansElbasan.js",
+    "./NotoSansElymaic": "./dist/NotoSansElymaic.js",
+    "./NotoSansEthiopic": "./dist/NotoSansEthiopic.js",
+    "./NotoSansGeorgian": "./dist/NotoSansGeorgian.js",
+    "./NotoSansGlagolitic": "./dist/NotoSansGlagolitic.js",
+    "./NotoSansGothic": "./dist/NotoSansGothic.js",
+    "./NotoSansGrantha": "./dist/NotoSansGrantha.js",
+    "./NotoSansGujarati": "./dist/NotoSansGujarati.js",
+    "./NotoSansGunjalaGondi": "./dist/NotoSansGunjalaGondi.js",
+    "./NotoSansGurmukhi": "./dist/NotoSansGurmukhi.js",
+    "./NotoSansHK": "./dist/NotoSansHK.js",
+    "./NotoSansHanifiRohingya": "./dist/NotoSansHanifiRohingya.js",
+    "./NotoSansHanunoo": "./dist/NotoSansHanunoo.js",
+    "./NotoSansHatran": "./dist/NotoSansHatran.js",
+    "./NotoSansHebrew": "./dist/NotoSansHebrew.js",
+    "./NotoSansImperialAramaic": "./dist/NotoSansImperialAramaic.js",
+    "./NotoSansIndicSiyaqNumbers": "./dist/NotoSansIndicSiyaqNumbers.js",
+    "./NotoSansInscriptionalPahlavi": "./dist/NotoSansInscriptionalPahlavi.js",
+    "./NotoSansInscriptionalParthian": "./dist/NotoSansInscriptionalParthian.js",
+    "./NotoSansJP": "./dist/NotoSansJP.js",
+    "./NotoSansJavanese": "./dist/NotoSansJavanese.js",
+    "./NotoSansKR": "./dist/NotoSansKR.js",
+    "./NotoSansKaithi": "./dist/NotoSansKaithi.js",
+    "./NotoSansKannada": "./dist/NotoSansKannada.js",
+    "./NotoSansKayahLi": "./dist/NotoSansKayahLi.js",
+    "./NotoSansKharoshthi": "./dist/NotoSansKharoshthi.js",
+    "./NotoSansKhmer": "./dist/NotoSansKhmer.js",
+    "./NotoSansKhojki": "./dist/NotoSansKhojki.js",
+    "./NotoSansKhudawadi": "./dist/NotoSansKhudawadi.js",
+    "./NotoSansLao": "./dist/NotoSansLao.js",
+    "./NotoSansLepcha": "./dist/NotoSansLepcha.js",
+    "./NotoSansLimbu": "./dist/NotoSansLimbu.js",
+    "./NotoSansLinearA": "./dist/NotoSansLinearA.js",
+    "./NotoSansLinearB": "./dist/NotoSansLinearB.js",
+    "./NotoSansLisu": "./dist/NotoSansLisu.js",
+    "./NotoSansLycian": "./dist/NotoSansLycian.js",
+    "./NotoSansLydian": "./dist/NotoSansLydian.js",
+    "./NotoSansMahajani": "./dist/NotoSansMahajani.js",
+    "./NotoSansMalayalam": "./dist/NotoSansMalayalam.js",
+    "./NotoSansMandaic": "./dist/NotoSansMandaic.js",
+    "./NotoSansManichaean": "./dist/NotoSansManichaean.js",
+    "./NotoSansMarchen": "./dist/NotoSansMarchen.js",
+    "./NotoSansMasaramGondi": "./dist/NotoSansMasaramGondi.js",
+    "./NotoSansMath": "./dist/NotoSansMath.js",
+    "./NotoSansMayanNumerals": "./dist/NotoSansMayanNumerals.js",
+    "./NotoSansMedefaidrin": "./dist/NotoSansMedefaidrin.js",
+    "./NotoSansMeeteiMayek": "./dist/NotoSansMeeteiMayek.js",
+    "./NotoSansMeroitic": "./dist/NotoSansMeroitic.js",
+    "./NotoSansMiao": "./dist/NotoSansMiao.js",
+    "./NotoSansModi": "./dist/NotoSansModi.js",
+    "./NotoSansMongolian": "./dist/NotoSansMongolian.js",
+    "./NotoSansMono": "./dist/NotoSansMono.js",
+    "./NotoSansMro": "./dist/NotoSansMro.js",
+    "./NotoSansMultani": "./dist/NotoSansMultani.js",
+    "./NotoSansMyanmar": "./dist/NotoSansMyanmar.js",
+    "./NotoSansNKo": "./dist/NotoSansNKo.js",
+    "./NotoSansNabataean": "./dist/NotoSansNabataean.js",
+    "./NotoSansNewTaiLue": "./dist/NotoSansNewTaiLue.js",
+    "./NotoSansNewa": "./dist/NotoSansNewa.js",
+    "./NotoSansNushu": "./dist/NotoSansNushu.js",
+    "./NotoSansOgham": "./dist/NotoSansOgham.js",
+    "./NotoSansOlChiki": "./dist/NotoSansOlChiki.js",
+    "./NotoSansOldHungarian": "./dist/NotoSansOldHungarian.js",
+    "./NotoSansOldItalic": "./dist/NotoSansOldItalic.js",
+    "./NotoSansOldNorthArabian": "./dist/NotoSansOldNorthArabian.js",
+    "./NotoSansOldPermic": "./dist/NotoSansOldPermic.js",
+    "./NotoSansOldPersian": "./dist/NotoSansOldPersian.js",
+    "./NotoSansOldSogdian": "./dist/NotoSansOldSogdian.js",
+    "./NotoSansOldSouthArabian": "./dist/NotoSansOldSouthArabian.js",
+    "./NotoSansOldTurkic": "./dist/NotoSansOldTurkic.js",
+    "./NotoSansOriya": "./dist/NotoSansOriya.js",
+    "./NotoSansOsage": "./dist/NotoSansOsage.js",
+    "./NotoSansOsmanya": "./dist/NotoSansOsmanya.js",
+    "./NotoSansPahawhHmong": "./dist/NotoSansPahawhHmong.js",
+    "./NotoSansPalmyrene": "./dist/NotoSansPalmyrene.js",
+    "./NotoSansPauCinHau": "./dist/NotoSansPauCinHau.js",
+    "./NotoSansPhagsPa": "./dist/NotoSansPhagsPa.js",
+    "./NotoSansPhoenician": "./dist/NotoSansPhoenician.js",
+    "./NotoSansPsalterPahlavi": "./dist/NotoSansPsalterPahlavi.js",
+    "./NotoSansRejang": "./dist/NotoSansRejang.js",
+    "./NotoSansRunic": "./dist/NotoSansRunic.js",
+    "./NotoSansSC": "./dist/NotoSansSC.js",
+    "./NotoSansSamaritan": "./dist/NotoSansSamaritan.js",
+    "./NotoSansSaurashtra": "./dist/NotoSansSaurashtra.js",
+    "./NotoSansSharada": "./dist/NotoSansSharada.js",
+    "./NotoSansShavian": "./dist/NotoSansShavian.js",
+    "./NotoSansSiddham": "./dist/NotoSansSiddham.js",
+    "./NotoSansSinhala": "./dist/NotoSansSinhala.js",
+    "./NotoSansSogdian": "./dist/NotoSansSogdian.js",
+    "./NotoSansSoraSompeng": "./dist/NotoSansSoraSompeng.js",
+    "./NotoSansSoyombo": "./dist/NotoSansSoyombo.js",
+    "./NotoSansSundanese": "./dist/NotoSansSundanese.js",
+    "./NotoSansSylotiNagri": "./dist/NotoSansSylotiNagri.js",
+    "./NotoSansSymbols": "./dist/NotoSansSymbols.js",
+    "./NotoSansSymbols2": "./dist/NotoSansSymbols2.js",
+    "./NotoSansSyriac": "./dist/NotoSansSyriac.js",
+    "./NotoSansTC": "./dist/NotoSansTC.js",
+    "./NotoSansTagalog": "./dist/NotoSansTagalog.js",
+    "./NotoSansTagbanwa": "./dist/NotoSansTagbanwa.js",
+    "./NotoSansTaiLe": "./dist/NotoSansTaiLe.js",
+    "./NotoSansTaiTham": "./dist/NotoSansTaiTham.js",
+    "./NotoSansTaiViet": "./dist/NotoSansTaiViet.js",
+    "./NotoSansTakri": "./dist/NotoSansTakri.js",
+    "./NotoSansTamil": "./dist/NotoSansTamil.js",
+    "./NotoSansTamilSupplement": "./dist/NotoSansTamilSupplement.js",
+    "./NotoSansTelugu": "./dist/NotoSansTelugu.js",
+    "./NotoSansThaana": "./dist/NotoSansThaana.js",
+    "./NotoSansThai": "./dist/NotoSansThai.js",
+    "./NotoSansThaiLooped": "./dist/NotoSansThaiLooped.js",
+    "./NotoSansTifinagh": "./dist/NotoSansTifinagh.js",
+    "./NotoSansTirhuta": "./dist/NotoSansTirhuta.js",
+    "./NotoSansUgaritic": "./dist/NotoSansUgaritic.js",
+    "./NotoSansVai": "./dist/NotoSansVai.js",
+    "./NotoSansWancho": "./dist/NotoSansWancho.js",
+    "./NotoSansWarangCiti": "./dist/NotoSansWarangCiti.js",
+    "./NotoSansYi": "./dist/NotoSansYi.js",
+    "./NotoSansZanabazarSquare": "./dist/NotoSansZanabazarSquare.js",
+    "./NotoSerif": "./dist/NotoSerif.js",
+    "./NotoSerifAhom": "./dist/NotoSerifAhom.js",
+    "./NotoSerifArmenian": "./dist/NotoSerifArmenian.js",
+    "./NotoSerifBalinese": "./dist/NotoSerifBalinese.js",
+    "./NotoSerifBengali": "./dist/NotoSerifBengali.js",
+    "./NotoSerifDevanagari": "./dist/NotoSerifDevanagari.js",
+    "./NotoSerifDisplay": "./dist/NotoSerifDisplay.js",
+    "./NotoSerifDogra": "./dist/NotoSerifDogra.js",
+    "./NotoSerifEthiopic": "./dist/NotoSerifEthiopic.js",
+    "./NotoSerifGeorgian": "./dist/NotoSerifGeorgian.js",
+    "./NotoSerifGrantha": "./dist/NotoSerifGrantha.js",
+    "./NotoSerifGujarati": "./dist/NotoSerifGujarati.js",
+    "./NotoSerifGurmukhi": "./dist/NotoSerifGurmukhi.js",
+    "./NotoSerifHK": "./dist/NotoSerifHK.js",
+    "./NotoSerifHebrew": "./dist/NotoSerifHebrew.js",
+    "./NotoSerifJP": "./dist/NotoSerifJP.js",
+    "./NotoSerifKR": "./dist/NotoSerifKR.js",
+    "./NotoSerifKannada": "./dist/NotoSerifKannada.js",
+    "./NotoSerifKhmer": "./dist/NotoSerifKhmer.js",
+    "./NotoSerifLao": "./dist/NotoSerifLao.js",
+    "./NotoSerifMalayalam": "./dist/NotoSerifMalayalam.js",
+    "./NotoSerifMyanmar": "./dist/NotoSerifMyanmar.js",
+    "./NotoSerifNyiakengPuachueHmong": "./dist/NotoSerifNyiakengPuachueHmong.js",
+    "./NotoSerifSC": "./dist/NotoSerifSC.js",
+    "./NotoSerifSinhala": "./dist/NotoSerifSinhala.js",
+    "./NotoSerifTC": "./dist/NotoSerifTC.js",
+    "./NotoSerifTamil": "./dist/NotoSerifTamil.js",
+    "./NotoSerifTangut": "./dist/NotoSerifTangut.js",
+    "./NotoSerifTelugu": "./dist/NotoSerifTelugu.js",
+    "./NotoSerifThai": "./dist/NotoSerifThai.js",
+    "./NotoSerifTibetan": "./dist/NotoSerifTibetan.js",
+    "./NotoSerifYezidi": "./dist/NotoSerifYezidi.js",
+    "./NotoTraditionalNushu": "./dist/NotoTraditionalNushu.js",
+    "./NovaCut": "./dist/NovaCut.js",
+    "./NovaFlat": "./dist/NovaFlat.js",
+    "./NovaMono": "./dist/NovaMono.js",
+    "./NovaOval": "./dist/NovaOval.js",
+    "./NovaRound": "./dist/NovaRound.js",
+    "./NovaScript": "./dist/NovaScript.js",
+    "./NovaSlim": "./dist/NovaSlim.js",
+    "./NovaSquare": "./dist/NovaSquare.js",
+    "./Numans": "./dist/Numans.js",
+    "./Nunito": "./dist/Nunito.js",
+    "./NunitoSans": "./dist/NunitoSans.js",
+    "./NuosuSIL": "./dist/NuosuSIL.js",
+    "./OdibeeSans": "./dist/OdibeeSans.js",
+    "./OdorMeanChey": "./dist/OdorMeanChey.js",
+    "./Offside": "./dist/Offside.js",
+    "./Oi": "./dist/Oi.js",
+    "./OldStandardTT": "./dist/OldStandardTT.js",
+    "./Oldenburg": "./dist/Oldenburg.js",
+    "./Ole": "./dist/Ole.js",
+    "./OleoScript": "./dist/OleoScript.js",
+    "./OleoScriptSwashCaps": "./dist/OleoScriptSwashCaps.js",
+    "./OoohBaby": "./dist/OoohBaby.js",
+    "./OpenSans": "./dist/OpenSans.js",
+    "./Oranienbaum": "./dist/Oranienbaum.js",
+    "./Orbitron": "./dist/Orbitron.js",
+    "./Oregano": "./dist/Oregano.js",
+    "./OrelegaOne": "./dist/OrelegaOne.js",
+    "./Orienta": "./dist/Orienta.js",
+    "./OriginalSurfer": "./dist/OriginalSurfer.js",
+    "./Oswald": "./dist/Oswald.js",
+    "./Outfit": "./dist/Outfit.js",
+    "./OvertheRainbow": "./dist/OvertheRainbow.js",
+    "./Overlock": "./dist/Overlock.js",
+    "./OverlockSC": "./dist/OverlockSC.js",
+    "./Overpass": "./dist/Overpass.js",
+    "./OverpassMono": "./dist/OverpassMono.js",
+    "./Ovo": "./dist/Ovo.js",
+    "./Oxanium": "./dist/Oxanium.js",
+    "./Oxygen": "./dist/Oxygen.js",
+    "./OxygenMono": "./dist/OxygenMono.js",
+    "./PTMono": "./dist/PTMono.js",
+    "./PTSans": "./dist/PTSans.js",
+    "./PTSansCaption": "./dist/PTSansCaption.js",
+    "./PTSansNarrow": "./dist/PTSansNarrow.js",
+    "./PTSerif": "./dist/PTSerif.js",
+    "./PTSerifCaption": "./dist/PTSerifCaption.js",
+    "./Pacifico": "./dist/Pacifico.js",
+    "./Padauk": "./dist/Padauk.js",
+    "./Palanquin": "./dist/Palanquin.js",
+    "./PalanquinDark": "./dist/PalanquinDark.js",
+    "./Pangolin": "./dist/Pangolin.js",
+    "./Paprika": "./dist/Paprika.js",
+    "./Parisienne": "./dist/Parisienne.js",
+    "./PasseroOne": "./dist/PasseroOne.js",
+    "./PassionOne": "./dist/PassionOne.js",
+    "./PassionsConflict": "./dist/PassionsConflict.js",
+    "./PathwayGothicOne": "./dist/PathwayGothicOne.js",
+    "./PatrickHand": "./dist/PatrickHand.js",
+    "./PatrickHandSC": "./dist/PatrickHandSC.js",
+    "./Pattaya": "./dist/Pattaya.js",
+    "./PatuaOne": "./dist/PatuaOne.js",
+    "./Pavanam": "./dist/Pavanam.js",
+    "./PaytoneOne": "./dist/PaytoneOne.js",
+    "./Peddana": "./dist/Peddana.js",
+    "./Peralta": "./dist/Peralta.js",
+    "./PermanentMarker": "./dist/PermanentMarker.js",
+    "./Petemoss": "./dist/Petemoss.js",
+    "./PetitFormalScript": "./dist/PetitFormalScript.js",
+    "./Petrona": "./dist/Petrona.js",
+    "./Philosopher": "./dist/Philosopher.js",
+    "./Piazzolla": "./dist/Piazzolla.js",
+    "./Piedra": "./dist/Piedra.js",
+    "./PinyonScript": "./dist/PinyonScript.js",
+    "./PirataOne": "./dist/PirataOne.js",
+    "./Plaster": "./dist/Plaster.js",
+    "./Play": "./dist/Play.js",
+    "./Playball": "./dist/Playball.js",
+    "./PlayfairDisplay": "./dist/PlayfairDisplay.js",
+    "./PlayfairDisplaySC": "./dist/PlayfairDisplaySC.js",
+    "./PlusJakartaSans": "./dist/PlusJakartaSans.js",
+    "./Podkova": "./dist/Podkova.js",
+    "./PoiretOne": "./dist/PoiretOne.js",
+    "./PollerOne": "./dist/PollerOne.js",
+    "./Poly": "./dist/Poly.js",
+    "./Pompiere": "./dist/Pompiere.js",
+    "./PontanoSans": "./dist/PontanoSans.js",
+    "./PoorStory": "./dist/PoorStory.js",
+    "./Poppins": "./dist/Poppins.js",
+    "./PortLligatSans": "./dist/PortLligatSans.js",
+    "./PortLligatSlab": "./dist/PortLligatSlab.js",
+    "./PottaOne": "./dist/PottaOne.js",
+    "./PragatiNarrow": "./dist/PragatiNarrow.js",
+    "./Praise": "./dist/Praise.js",
+    "./Prata": "./dist/Prata.js",
+    "./Preahvihear": "./dist/Preahvihear.js",
+    "./PressStart2P": "./dist/PressStart2P.js",
+    "./Pridi": "./dist/Pridi.js",
+    "./PrincessSofia": "./dist/PrincessSofia.js",
+    "./Prociono": "./dist/Prociono.js",
+    "./Prompt": "./dist/Prompt.js",
+    "./ProstoOne": "./dist/ProstoOne.js",
+    "./ProzaLibre": "./dist/ProzaLibre.js",
+    "./PublicSans": "./dist/PublicSans.js",
+    "./PuppiesPlay": "./dist/PuppiesPlay.js",
+    "./Puritan": "./dist/Puritan.js",
+    "./PurplePurse": "./dist/PurplePurse.js",
+    "./Qahiri": "./dist/Qahiri.js",
+    "./Quando": "./dist/Quando.js",
+    "./Quantico": "./dist/Quantico.js",
+    "./Quattrocento": "./dist/Quattrocento.js",
+    "./QuattrocentoSans": "./dist/QuattrocentoSans.js",
+    "./Questrial": "./dist/Questrial.js",
+    "./Quicksand": "./dist/Quicksand.js",
+    "./Quintessential": "./dist/Quintessential.js",
+    "./Qwigley": "./dist/Qwigley.js",
+    "./QwitcherGrypen": "./dist/QwitcherGrypen.js",
+    "./RacingSansOne": "./dist/RacingSansOne.js",
+    "./RadioCanada": "./dist/RadioCanada.js",
+    "./Radley": "./dist/Radley.js",
+    "./Rajdhani": "./dist/Rajdhani.js",
+    "./Rakkas": "./dist/Rakkas.js",
+    "./Raleway": "./dist/Raleway.js",
+    "./RalewayDots": "./dist/RalewayDots.js",
+    "./Ramabhadra": "./dist/Ramabhadra.js",
+    "./Ramaraja": "./dist/Ramaraja.js",
+    "./Rambla": "./dist/Rambla.js",
+    "./RammettoOne": "./dist/RammettoOne.js",
+    "./RampartOne": "./dist/RampartOne.js",
+    "./Ranchers": "./dist/Ranchers.js",
+    "./Rancho": "./dist/Rancho.js",
+    "./Ranga": "./dist/Ranga.js",
+    "./Rasa": "./dist/Rasa.js",
+    "./Rationale": "./dist/Rationale.js",
+    "./RaviPrakash": "./dist/RaviPrakash.js",
+    "./ReadexPro": "./dist/ReadexPro.js",
+    "./Recursive": "./dist/Recursive.js",
+    "./RedHatDisplay": "./dist/RedHatDisplay.js",
+    "./RedHatMono": "./dist/RedHatMono.js",
+    "./RedHatText": "./dist/RedHatText.js",
+    "./RedRose": "./dist/RedRose.js",
+    "./Redacted": "./dist/Redacted.js",
+    "./RedactedScript": "./dist/RedactedScript.js",
+    "./Redressed": "./dist/Redressed.js",
+    "./ReemKufi": "./dist/ReemKufi.js",
+    "./ReemKufiFun": "./dist/ReemKufiFun.js",
+    "./ReemKufiInk": "./dist/ReemKufiInk.js",
+    "./ReenieBeanie": "./dist/ReenieBeanie.js",
+    "./ReggaeOne": "./dist/ReggaeOne.js",
+    "./Revalia": "./dist/Revalia.js",
+    "./RhodiumLibre": "./dist/RhodiumLibre.js",
+    "./Ribeye": "./dist/Ribeye.js",
+    "./RibeyeMarrow": "./dist/RibeyeMarrow.js",
+    "./Righteous": "./dist/Righteous.js",
+    "./Risque": "./dist/Risque.js",
+    "./RoadRage": "./dist/RoadRage.js",
+    "./Roboto": "./dist/Roboto.js",
+    "./RobotoCondensed": "./dist/RobotoCondensed.js",
+    "./RobotoFlex": "./dist/RobotoFlex.js",
+    "./RobotoMono": "./dist/RobotoMono.js",
+    "./RobotoSerif": "./dist/RobotoSerif.js",
+    "./RobotoSlab": "./dist/RobotoSlab.js",
+    "./Rochester": "./dist/Rochester.js",
+    "./RockSalt": "./dist/RockSalt.js",
+    "./RocknRollOne": "./dist/RocknRollOne.js",
+    "./Rokkitt": "./dist/Rokkitt.js",
+    "./Romanesco": "./dist/Romanesco.js",
+    "./RopaSans": "./dist/RopaSans.js",
+    "./Rosario": "./dist/Rosario.js",
+    "./Rosarivo": "./dist/Rosarivo.js",
+    "./RougeScript": "./dist/RougeScript.js",
+    "./Rowdies": "./dist/Rowdies.js",
+    "./RozhaOne": "./dist/RozhaOne.js",
+    "./Rubik": "./dist/Rubik.js",
+    "./RubikBeastly": "./dist/RubikBeastly.js",
+    "./RubikBubbles": "./dist/RubikBubbles.js",
+    "./RubikBurned": "./dist/RubikBurned.js",
+    "./RubikDirt": "./dist/RubikDirt.js",
+    "./RubikDistressed": "./dist/RubikDistressed.js",
+    "./RubikGlitch": "./dist/RubikGlitch.js",
+    "./RubikIso": "./dist/RubikIso.js",
+    "./RubikMarkerHatch": "./dist/RubikMarkerHatch.js",
+    "./RubikMaze": "./dist/RubikMaze.js",
+    "./RubikMicrobe": "./dist/RubikMicrobe.js",
+    "./RubikMonoOne": "./dist/RubikMonoOne.js",
+    "./RubikMoonrocks": "./dist/RubikMoonrocks.js",
+    "./RubikPuddles": "./dist/RubikPuddles.js",
+    "./RubikWetPaint": "./dist/RubikWetPaint.js",
+    "./Ruda": "./dist/Ruda.js",
+    "./Rufina": "./dist/Rufina.js",
+    "./RugeBoogie": "./dist/RugeBoogie.js",
+    "./Ruluko": "./dist/Ruluko.js",
+    "./RumRaisin": "./dist/RumRaisin.js",
+    "./RuslanDisplay": "./dist/RuslanDisplay.js",
+    "./RussoOne": "./dist/RussoOne.js",
+    "./Ruthie": "./dist/Ruthie.js",
+    "./Rye": "./dist/Rye.js",
+    "./STIXTwoText": "./dist/STIXTwoText.js",
+    "./Sacramento": "./dist/Sacramento.js",
+    "./Sahitya": "./dist/Sahitya.js",
+    "./Sail": "./dist/Sail.js",
+    "./Saira": "./dist/Saira.js",
+    "./SairaCondensed": "./dist/SairaCondensed.js",
+    "./SairaExtraCondensed": "./dist/SairaExtraCondensed.js",
+    "./SairaSemiCondensed": "./dist/SairaSemiCondensed.js",
+    "./SairaStencilOne": "./dist/SairaStencilOne.js",
+    "./Salsa": "./dist/Salsa.js",
+    "./Sanchez": "./dist/Sanchez.js",
+    "./Sancreek": "./dist/Sancreek.js",
+    "./Sansita": "./dist/Sansita.js",
+    "./SansitaSwashed": "./dist/SansitaSwashed.js",
+    "./Sarabun": "./dist/Sarabun.js",
+    "./Sarala": "./dist/Sarala.js",
+    "./Sarina": "./dist/Sarina.js",
+    "./Sarpanch": "./dist/Sarpanch.js",
+    "./SassyFrass": "./dist/SassyFrass.js",
+    "./Satisfy": "./dist/Satisfy.js",
+    "./SawarabiGothic": "./dist/SawarabiGothic.js",
+    "./SawarabiMincho": "./dist/SawarabiMincho.js",
+    "./Scada": "./dist/Scada.js",
+    "./ScheherazadeNew": "./dist/ScheherazadeNew.js",
+    "./Schoolbell": "./dist/Schoolbell.js",
+    "./ScopeOne": "./dist/ScopeOne.js",
+    "./SeaweedScript": "./dist/SeaweedScript.js",
+    "./SecularOne": "./dist/SecularOne.js",
+    "./SedgwickAve": "./dist/SedgwickAve.js",
+    "./SedgwickAveDisplay": "./dist/SedgwickAveDisplay.js",
+    "./Sen": "./dist/Sen.js",
+    "./SendFlowers": "./dist/SendFlowers.js",
+    "./Sevillana": "./dist/Sevillana.js",
+    "./SeymourOne": "./dist/SeymourOne.js",
+    "./ShadowsIntoLight": "./dist/ShadowsIntoLight.js",
+    "./ShadowsIntoLightTwo": "./dist/ShadowsIntoLightTwo.js",
+    "./Shalimar": "./dist/Shalimar.js",
+    "./Shanti": "./dist/Shanti.js",
+    "./Share": "./dist/Share.js",
+    "./ShareTech": "./dist/ShareTech.js",
+    "./ShareTechMono": "./dist/ShareTechMono.js",
+    "./ShipporiAntique": "./dist/ShipporiAntique.js",
+    "./ShipporiAntiqueB1": "./dist/ShipporiAntiqueB1.js",
+    "./ShipporiMincho": "./dist/ShipporiMincho.js",
+    "./ShipporiMinchoB1": "./dist/ShipporiMinchoB1.js",
+    "./Shojumaru": "./dist/Shojumaru.js",
+    "./ShortStack": "./dist/ShortStack.js",
+    "./Shrikhand": "./dist/Shrikhand.js",
+    "./Siemreap": "./dist/Siemreap.js",
+    "./SigmarOne": "./dist/SigmarOne.js",
+    "./Signika": "./dist/Signika.js",
+    "./SignikaNegative": "./dist/SignikaNegative.js",
+    "./Silkscreen": "./dist/Silkscreen.js",
+    "./Simonetta": "./dist/Simonetta.js",
+    "./SingleDay": "./dist/SingleDay.js",
+    "./Sintony": "./dist/Sintony.js",
+    "./SirinStencil": "./dist/SirinStencil.js",
+    "./SixCaps": "./dist/SixCaps.js",
+    "./Skranji": "./dist/Skranji.js",
+    "./Slabo13px": "./dist/Slabo13px.js",
+    "./Slabo27px": "./dist/Slabo27px.js",
+    "./Slackey": "./dist/Slackey.js",
+    "./Smokum": "./dist/Smokum.js",
+    "./Smooch": "./dist/Smooch.js",
+    "./SmoochSans": "./dist/SmoochSans.js",
+    "./Smythe": "./dist/Smythe.js",
+    "./Sniglet": "./dist/Sniglet.js",
+    "./Snippet": "./dist/Snippet.js",
+    "./SnowburstOne": "./dist/SnowburstOne.js",
+    "./SofadiOne": "./dist/SofadiOne.js",
+    "./Sofia": "./dist/Sofia.js",
+    "./Solway": "./dist/Solway.js",
+    "./SongMyung": "./dist/SongMyung.js",
+    "./SonsieOne": "./dist/SonsieOne.js",
+    "./Sora": "./dist/Sora.js",
+    "./SortsMillGoudy": "./dist/SortsMillGoudy.js",
+    "./SourceCodePro": "./dist/SourceCodePro.js",
+    "./SourceSans3": "./dist/SourceSans3.js",
+    "./SourceSansPro": "./dist/SourceSansPro.js",
+    "./SourceSerif4": "./dist/SourceSerif4.js",
+    "./SourceSerifPro": "./dist/SourceSerifPro.js",
+    "./SpaceGrotesk": "./dist/SpaceGrotesk.js",
+    "./SpaceMono": "./dist/SpaceMono.js",
+    "./SpecialElite": "./dist/SpecialElite.js",
+    "./Spectral": "./dist/Spectral.js",
+    "./SpectralSC": "./dist/SpectralSC.js",
+    "./SpicyRice": "./dist/SpicyRice.js",
+    "./Spinnaker": "./dist/Spinnaker.js",
+    "./Spirax": "./dist/Spirax.js",
+    "./Splash": "./dist/Splash.js",
+    "./SplineSans": "./dist/SplineSans.js",
+    "./SplineSansMono": "./dist/SplineSansMono.js",
+    "./SquadaOne": "./dist/SquadaOne.js",
+    "./SquarePeg": "./dist/SquarePeg.js",
+    "./SreeKrushnadevaraya": "./dist/SreeKrushnadevaraya.js",
+    "./Sriracha": "./dist/Sriracha.js",
+    "./Srisakdi": "./dist/Srisakdi.js",
+    "./Staatliches": "./dist/Staatliches.js",
+    "./Stalemate": "./dist/Stalemate.js",
+    "./StalinistOne": "./dist/StalinistOne.js",
+    "./StardosStencil": "./dist/StardosStencil.js",
+    "./Stick": "./dist/Stick.js",
+    "./StickNoBills": "./dist/StickNoBills.js",
+    "./StintUltraCondensed": "./dist/StintUltraCondensed.js",
+    "./StintUltraExpanded": "./dist/StintUltraExpanded.js",
+    "./Stoke": "./dist/Stoke.js",
+    "./Strait": "./dist/Strait.js",
+    "./StyleScript": "./dist/StyleScript.js",
+    "./Stylish": "./dist/Stylish.js",
+    "./SueEllenFrancisco": "./dist/SueEllenFrancisco.js",
+    "./SuezOne": "./dist/SuezOne.js",
+    "./SulphurPoint": "./dist/SulphurPoint.js",
+    "./Sumana": "./dist/Sumana.js",
+    "./Sunflower": "./dist/Sunflower.js",
+    "./Sunshiney": "./dist/Sunshiney.js",
+    "./SupermercadoOne": "./dist/SupermercadoOne.js",
+    "./Sura": "./dist/Sura.js",
+    "./Suranna": "./dist/Suranna.js",
+    "./Suravaram": "./dist/Suravaram.js",
+    "./Suwannaphum": "./dist/Suwannaphum.js",
+    "./SwankyandMooMoo": "./dist/SwankyandMooMoo.js",
+    "./Syncopate": "./dist/Syncopate.js",
+    "./Syne": "./dist/Syne.js",
+    "./SyneMono": "./dist/SyneMono.js",
+    "./SyneTactile": "./dist/SyneTactile.js",
+    "./TaiHeritagePro": "./dist/TaiHeritagePro.js",
+    "./Tajawal": "./dist/Tajawal.js",
+    "./Tangerine": "./dist/Tangerine.js",
+    "./Tapestry": "./dist/Tapestry.js",
+    "./Taprom": "./dist/Taprom.js",
+    "./Tauri": "./dist/Tauri.js",
+    "./Taviraj": "./dist/Taviraj.js",
+    "./Teko": "./dist/Teko.js",
+    "./Telex": "./dist/Telex.js",
+    "./TenaliRamakrishna": "./dist/TenaliRamakrishna.js",
+    "./TenorSans": "./dist/TenorSans.js",
+    "./TextMeOne": "./dist/TextMeOne.js",
+    "./Texturina": "./dist/Texturina.js",
+    "./Thasadith": "./dist/Thasadith.js",
+    "./TheGirlNextDoor": "./dist/TheGirlNextDoor.js",
+    "./TheNautigal": "./dist/TheNautigal.js",
+    "./Tienne": "./dist/Tienne.js",
+    "./Tillana": "./dist/Tillana.js",
+    "./Timmana": "./dist/Timmana.js",
+    "./Tinos": "./dist/Tinos.js",
+    "./TiroBangla": "./dist/TiroBangla.js",
+    "./TiroDevanagariHindi": "./dist/TiroDevanagariHindi.js",
+    "./TiroDevanagariMarathi": "./dist/TiroDevanagariMarathi.js",
+    "./TiroDevanagariSanskrit": "./dist/TiroDevanagariSanskrit.js",
+    "./TiroGurmukhi": "./dist/TiroGurmukhi.js",
+    "./TiroKannada": "./dist/TiroKannada.js",
+    "./TiroTamil": "./dist/TiroTamil.js",
+    "./TiroTelugu": "./dist/TiroTelugu.js",
+    "./TitanOne": "./dist/TitanOne.js",
+    "./TitilliumWeb": "./dist/TitilliumWeb.js",
+    "./Tomorrow": "./dist/Tomorrow.js",
+    "./Tourney": "./dist/Tourney.js",
+    "./TradeWinds": "./dist/TradeWinds.js",
+    "./TrainOne": "./dist/TrainOne.js",
+    "./Trirong": "./dist/Trirong.js",
+    "./Trispace": "./dist/Trispace.js",
+    "./Trocchi": "./dist/Trocchi.js",
+    "./Trochut": "./dist/Trochut.js",
+    "./Truculenta": "./dist/Truculenta.js",
+    "./Trykker": "./dist/Trykker.js",
+    "./TulpenOne": "./dist/TulpenOne.js",
+    "./TurretRoad": "./dist/TurretRoad.js",
+    "./TwinkleStar": "./dist/TwinkleStar.js",
+    "./Ubuntu": "./dist/Ubuntu.js",
+    "./UbuntuCondensed": "./dist/UbuntuCondensed.js",
+    "./UbuntuMono": "./dist/UbuntuMono.js",
+    "./Uchen": "./dist/Uchen.js",
+    "./Ultra": "./dist/Ultra.js",
+    "./UncialAntiqua": "./dist/UncialAntiqua.js",
+    "./Underdog": "./dist/Underdog.js",
+    "./UnicaOne": "./dist/UnicaOne.js",
+    "./UnifrakturCook": "./dist/UnifrakturCook.js",
+    "./UnifrakturMaguntia": "./dist/UnifrakturMaguntia.js",
+    "./Unkempt": "./dist/Unkempt.js",
+    "./Unlock": "./dist/Unlock.js",
+    "./Unna": "./dist/Unna.js",
+    "./Updock": "./dist/Updock.js",
+    "./Urbanist": "./dist/Urbanist.js",
+    "./VT323": "./dist/VT323.js",
+    "./VampiroOne": "./dist/VampiroOne.js",
+    "./Varela": "./dist/Varela.js",
+    "./VarelaRound": "./dist/VarelaRound.js",
+    "./Varta": "./dist/Varta.js",
+    "./VastShadow": "./dist/VastShadow.js",
+    "./Vazirmatn": "./dist/Vazirmatn.js",
+    "./VesperLibre": "./dist/VesperLibre.js",
+    "./ViaodaLibre": "./dist/ViaodaLibre.js",
+    "./Vibes": "./dist/Vibes.js",
+    "./Vibur": "./dist/Vibur.js",
+    "./Vidaloka": "./dist/Vidaloka.js",
+    "./Viga": "./dist/Viga.js",
+    "./Voces": "./dist/Voces.js",
+    "./Volkhov": "./dist/Volkhov.js",
+    "./Vollkorn": "./dist/Vollkorn.js",
+    "./VollkornSC": "./dist/VollkornSC.js",
+    "./Voltaire": "./dist/Voltaire.js",
+    "./VujahdayScript": "./dist/VujahdayScript.js",
+    "./WaitingfortheSunrise": "./dist/WaitingfortheSunrise.js",
+    "./Wallpoet": "./dist/Wallpoet.js",
+    "./WalterTurncoat": "./dist/WalterTurncoat.js",
+    "./Warnes": "./dist/Warnes.js",
+    "./WaterBrush": "./dist/WaterBrush.js",
+    "./Waterfall": "./dist/Waterfall.js",
+    "./Wellfleet": "./dist/Wellfleet.js",
+    "./WendyOne": "./dist/WendyOne.js",
+    "./Whisper": "./dist/Whisper.js",
+    "./WindSong": "./dist/WindSong.js",
+    "./WireOne": "./dist/WireOne.js",
+    "./WorkSans": "./dist/WorkSans.js",
+    "./XanhMono": "./dist/XanhMono.js",
+    "./Yaldevi": "./dist/Yaldevi.js",
+    "./YanoneKaffeesatz": "./dist/YanoneKaffeesatz.js",
+    "./Yantramanav": "./dist/Yantramanav.js",
+    "./YatraOne": "./dist/YatraOne.js",
+    "./Yellowtail": "./dist/Yellowtail.js",
+    "./YeonSung": "./dist/YeonSung.js",
+    "./YesevaOne": "./dist/YesevaOne.js",
+    "./Yesteryear": "./dist/Yesteryear.js",
+    "./Yomogi": "./dist/Yomogi.js",
+    "./Yrsa": "./dist/Yrsa.js",
+    "./YujiBoku": "./dist/YujiBoku.js",
+    "./YujiMai": "./dist/YujiMai.js",
+    "./YujiSyuku": "./dist/YujiSyuku.js",
+    "./YuseiMagic": "./dist/YuseiMagic.js",
+    "./ZCOOLKuaiLe": "./dist/ZCOOLKuaiLe.js",
+    "./ZCOOLQingKeHuangYou": "./dist/ZCOOLQingKeHuangYou.js",
+    "./ZCOOLXiaoWei": "./dist/ZCOOLXiaoWei.js",
+    "./ZenAntique": "./dist/ZenAntique.js",
+    "./ZenAntiqueSoft": "./dist/ZenAntiqueSoft.js",
+    "./ZenDots": "./dist/ZenDots.js",
+    "./ZenKakuGothicAntique": "./dist/ZenKakuGothicAntique.js",
+    "./ZenKakuGothicNew": "./dist/ZenKakuGothicNew.js",
+    "./ZenKurenaido": "./dist/ZenKurenaido.js",
+    "./ZenLoop": "./dist/ZenLoop.js",
+    "./ZenMaruGothic": "./dist/ZenMaruGothic.js",
+    "./ZenOldMincho": "./dist/ZenOldMincho.js",
+    "./ZenTokyoZoo": "./dist/ZenTokyoZoo.js",
+    "./Zeyada": "./dist/Zeyada.js",
+    "./ZhiMangXing": "./dist/ZhiMangXing.js",
+    "./ZillaSlab": "./dist/ZillaSlab.js",
+    "./ZillaSlabHighlight": "./dist/ZillaSlabHighlight.js",
+    "./index": "./dist/index.js",
+    ".": "./dist/index.js"
   }
 }

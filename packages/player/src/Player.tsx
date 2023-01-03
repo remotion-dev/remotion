@@ -359,14 +359,11 @@ const PlayerFn = <T,>(
 	);
 };
 
-declare module 'react' {
-	// eslint-disable-next-line @typescript-eslint/no-shadow
-	function forwardRef<T, P = {}>(
-		render: (
-			props: P,
-			ref: React.MutableRefObject<T>
-		) => React.ReactElement | null
-	): (props: P & React.RefAttributes<T>) => React.ReactElement | null;
-}
+const forward = forwardRef as <T, P = {}>(
+	render: (
+		props: P,
+		ref: React.MutableRefObject<T>
+	) => React.ReactElement | null
+) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
-export const Player = forwardRef(PlayerFn);
+export const Player = forward(PlayerFn);
