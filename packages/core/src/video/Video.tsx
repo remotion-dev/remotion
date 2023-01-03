@@ -86,4 +86,11 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	);
 };
 
-export const Video = forwardRef(VideoForwardingFunction);
+const forward = forwardRef as <T, P = {}>(
+	render: (
+		props: P,
+		ref: React.MutableRefObject<T>
+	) => React.ReactElement | null
+) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
+
+export const Video = forward(VideoForwardingFunction);
