@@ -130,6 +130,7 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 			publicDir,
 			webpackOverride: ConfigInternals.getWebpackOverrideFn(),
 			poll: ConfigInternals.getWebpackPolling(),
+			userPassedPublicDir: ConfigInternals.getPublicDir(),
 		}
 	);
 
