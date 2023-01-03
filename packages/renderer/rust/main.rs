@@ -12,6 +12,7 @@ use std::io::{self, Write};
 use std::sync::mpsc;
 use std::thread;
 use threadpool::ThreadPool;
+use x264::{Encoder, Param, Picture};
 
 use crate::finish::handle_finish;
 
@@ -66,7 +67,7 @@ fn process_command_line(opts: CliInput) -> Option<Vec<u8>> {
 fn main() -> Result<(), std::io::Error> {
     const WIDTH: usize = 1920;
     const HEIGHT: usize = 1080;
-    const FPS: u32 = 60;
+    const FPS: u32 = 30;
 
     // Initialize things.
 
@@ -120,17 +121,28 @@ fn main() -> Result<(), std::io::Error> {
         });
     });
 
-    let mut x264_encoder = x264::Encoder::builder()
-        .fps(FPS, 1)
-        .build(x264::Colorspace::RGB, WIDTH as _, HEIGHT as _)
-        .unwrap();
+    let mut par = Param::default_preset("medium", "zerolatency").unwrap();
 
-    let mut file = File::create("fade.h264").unwrap();
+    par = par.set_dimension(HEIGHT, WIDTH);
+    par = par.apply_profile("high").unwrap();
+    par = par.param_parse("repeat_headers", "1").unwrap();
+    par = par.param_parse("annexb", "1").unwrap();
 
-    {
-        let headers = x264_encoder.headers().unwrap();
-        file.write_all(headers.entirety()).unwrap();
-    }
+    par.par.i_threads = 1;
+    par.par.i_fps_num = FPS;
+    par.par.i_fps_den = 1;
+    par.par.i_keyint_max = 30;
+    par.par.b_intra_refresh = 1;
+
+    let mut output = File::create("fade.h264").unwrap();
+
+    let mut pic = Picture::from_param(&par).unwrap();
+
+    let mut enc = Encoder::open(&mut par).unwrap();
+
+    let h = enc.get_headers().unwrap();
+    let headers = h.as_bytes();
+    output.write_all(headers).unwrap();
 
     let mut next_frame = 0;
     let mut frames_found: Vec<NewFrame> = Vec::new();
@@ -151,24 +163,20 @@ fn main() -> Result<(), std::io::Error> {
             let index = frames_found.iter().position(|x| x.nonce == next_frame);
             match index {
                 Some(f) => {
-                    let image = x264::Image::rgb(WIDTH as _, HEIGHT as _, &frames_found[f].data);
+                    let frame = to_i420(&frames_found[f].data, WIDTH, HEIGHT);
 
-                    let (frame, _) =
-                        match x264_encoder.encode((FPS * frames_found[f].nonce).into(), image) {
-                            Ok(frame) => frame,
-                            Err(err) => {
-                                println!("Error: {:#?}", err);
-                                errors::handle_error(&io::Error::new(
-                                    io::ErrorKind::Other,
-                                    "Could not encode frame",
-                                ))
-                            }
-                        };
+                    pic.as_mut_slice(0).unwrap().copy_from_slice(&frame.0);
+                    pic.as_mut_slice(1).unwrap().copy_from_slice(&frame.1);
+                    pic.as_mut_slice(2).unwrap().copy_from_slice(&frame.2);
 
-                    file.write_all(frame.entirety()).unwrap();
+                    pic = pic.set_timestamp(frames_found[f].nonce as i64);
+
+                    if let Some((nal, _, _)) = enc.encode(&pic).unwrap() {
+                        let buf = nal.as_bytes();
+                        output.write_all(buf).unwrap();
+                    }
                     handle_finish(frames_found[f].nonce);
                     frames_found.remove(f);
-                    println!("flushed {}", next_frame);
 
                     next_frame += 1;
                 }
@@ -178,10 +186,11 @@ fn main() -> Result<(), std::io::Error> {
             }
         }
     }
-    let mut flush = x264_encoder.flush();
-    while let Some(result) = flush.next() {
-        let (data, _) = result.unwrap();
-        file.write_all(data.entirety()).unwrap();
+    while enc.delayed_frames() {
+        if let Some((nal, _, _)) = enc.encode(None).unwrap() {
+            let buf = nal.as_bytes();
+            output.write(buf).unwrap();
+        }
     }
     println!("proper flush");
 
@@ -195,4 +204,55 @@ fn main() -> Result<(), std::io::Error> {
     };
 
     Ok(())
+}
+
+fn to_i420(frame: &[u8], width: usize, height: usize) -> (Vec<u8>, Vec<u8>, Vec<u8>) {
+    let mut y_plane: Vec<u8> = vec![0; width * height];
+    let mut u_plane: Vec<u8> = vec![0; width * height / 4];
+    let mut v_plane: Vec<u8> = vec![0; width * height / 4];
+
+    for i in 0..width * height {
+        let red = frame[i * 3] as f64;
+        let green = frame[i * 3 + 1] as f64;
+        let blue = frame[i * 3 + 2] as f64;
+
+        let y = (0.257 * red) + (0.504 * green) + (0.098 * blue) + 16.0;
+        let u = -(0.148 * red) - (0.291 * green) + (0.439 * blue) + 128.0;
+        let v = (0.439 * red) - (0.368 * green) - (0.071 * blue) + 128.0;
+
+        let y = if y < 0.0 {
+            0.0
+        } else if y > 255.0 {
+            255.0
+        } else {
+            y
+        };
+        let u = if u < 0.0 {
+            0.0
+        } else if u > 255.0 {
+            255.0
+        } else {
+            u
+        };
+        let v = if v < 0.0 {
+            0.0
+        } else if v > 255.0 {
+            255.0
+        } else {
+            v
+        };
+
+        let y = y as u8;
+        let u = u as u8;
+        let v = v as u8;
+        y_plane[i] = y;
+
+        let row = i % width;
+        let col = i / width;
+
+        u_plane[(row / 2) + (col / 2) * width / 2] += u / 4;
+        v_plane[(row / 2) + (col / 2) * width / 2] += v / 4;
+    }
+
+    (y_plane, u_plane, v_plane)
 }
