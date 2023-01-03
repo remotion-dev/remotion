@@ -27,8 +27,8 @@
 		"react-dev-utils": "^12.0.1",
 		"react-dom": "18.0.0",
 		"react-refresh": "^0.11.0",
-		"typescript": "^4.8.0",
 		"remotion": "3.3.25",
+		"typescript": "^4.7.0",
 		"webpack": "5.74.0",
 		"webpack-dev-server": "^4.6.0"
 	},
