@@ -75,6 +75,7 @@ export const processVideoJob = async ({
 		addCleanupCallback,
 		outputLocationFromUI: job.outName,
 		uiCodec: job.codec,
+		uiImageFormat: job.imageFormat,
 	});
 	// TODO: Allow cancel signal
 	// TODO: Accept CLI options
