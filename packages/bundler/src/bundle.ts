@@ -223,7 +223,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 		publicFiles: readRecursively({
 			folder: '.',
 			startPath: from,
-			staticHash: '',
+			staticHash,
 		}),
 		includeFavicon: false,
 		title: 'Remotion Bundle',
