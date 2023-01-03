@@ -96,8 +96,10 @@ import { webpackOverride } from "./src/webpack-override";
 
 await deploySite({
   entryPoint: require.resolve("./src/index.ts"),
+  region: "us-east-1",
+  bucketName: "remotionlambda-c7fsl3d",
   options: {
-    webpackOverride
+    webpackOverride,
   },
   // ...other parameters
 });
