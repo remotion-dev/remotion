@@ -1,14 +1,8 @@
-import {
-	Audio,
-	getStaticFiles,
-	interpolate,
-	Sequence,
-	staticFile,
-} from 'remotion';
+import {Audio, getStaticFiles, interpolate, Sequence} from 'remotion';
 
 const AudioTesting: React.FC = () => {
 	const files = getStaticFiles();
-	const music = files.find((f) => f.path.startsWith('music.mp3'));
+	const music = files.find((f) => f.name.startsWith('music.mp3'));
 
 	return (
 		<div>
@@ -17,7 +11,7 @@ const AudioTesting: React.FC = () => {
 					loop
 					startFrom={100}
 					endAt={200}
-					src={staticFile(music?.path as string)}
+					src={music?.src}
 					volume={(f) =>
 						interpolate(f, [0, 50, 100], [0, 1, 0], {
 							extrapolateLeft: 'clamp',
