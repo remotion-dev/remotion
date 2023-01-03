@@ -224,6 +224,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 			folder: '.',
 			startPath: from,
 			staticHash,
+			limit: 1000,
 		}),
 		includeFavicon: false,
 		title: 'Remotion Bundle',

@@ -7,15 +7,21 @@ export const readRecursively = ({
 	output = [],
 	startPath,
 	staticHash,
+	limit,
 }: {
 	folder: string;
 	startPath: string;
 	output?: StaticFile[];
 	staticHash: string;
+	limit: number;
 }): StaticFile[] => {
 	const absFolder = path.join(startPath, folder);
 	const files = fs.readdirSync(absFolder);
 	for (const file of files) {
+		if (output.length >= limit) {
+			break;
+		}
+
 		if (file.startsWith('.DS_Store')) {
 			continue;
 		}
@@ -27,6 +33,7 @@ export const readRecursively = ({
 				folder: path.join(folder, file),
 				output,
 				staticHash,
+				limit,
 			});
 		} else if (stat.isFile()) {
 			output.push({
