@@ -29,7 +29,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react-refresh: 0.9.0
       remotion: 3.3.25
-      typescript: ^4.8.0
+      typescript: ^4.7.0
       webpack: 5.74.0
     dependencies:
       '@babel/core': 7.15.5
@@ -72,7 +72,7 @@ importers:
       react-refresh: 0.9.0
       remotion: 3.3.25
       style-loader: 2.0.0
-      typescript: ^4.8.0
+      typescript: ^4.7.0
       vitest: 0.24.3
       webpack: 5.74.0
     dependencies:
@@ -133,7 +133,7 @@ importers:
       remotion: 3.3.25
       semver: 7.3.5
       source-map: 0.6.1
-      typescript: ^4.8.0
+      typescript: ^4.7.0
       vitest: 0.24.3
     dependencies:
       '@remotion/bundler': link:../bundler
@@ -208,7 +208,7 @@ importers:
       react-dom: ^18.0.0
       react-test-renderer: ^18.0.0
       rimraf: ^3.0.2
-      typescript: ^4.8.0
+      typescript: ^4.7.0
       vitest: 0.24.3
       webpack: 5.74.0
     devDependencies:
@@ -249,7 +249,7 @@ importers:
       prompts: 2.4.1
       react: 18.0.0
       tar: 6.1.11
-      typescript: ^4.8.0
+      typescript: ^4.7.0
       vitest: 0.24.3
     dependencies:
       chalk: 4.1.2
@@ -275,7 +275,7 @@ importers:
   packages/discord-poster:
     specifiers:
       '@types/node': ^18.0.3
-      typescript: ^4.8.0
+      typescript: ^4.7.0
     devDependencies:
       '@types/node': 18.0.3
       typescript: 4.9.3
@@ -334,7 +334,7 @@ importers:
       remark-shiki-twoslash: ^3.1.0
       remotion: 3.3.25
       three: 0.145.0
-      typescript: ^4.8.0
+      typescript: ^4.7.0
       url-loader: ^4.1.1
       uuid: ^8.3.2
       vitest: 0.24.3
@@ -407,7 +407,7 @@ importers:
       eslint-plugin-10x: 1.5.2
       eslint-plugin-react: 7.29.4
       eslint-plugin-react-hooks: 4.4.0
-      typescript: ^4.8.0
+      typescript: ^4.7.0
     dependencies:
       '@remotion/eslint-plugin': link:../eslint-plugin
       '@typescript-eslint/eslint-plugin': 5.19.0_gejo2nfstutnyhh7no5dvvs3sq
@@ -424,7 +424,7 @@ importers:
     specifiers:
       '@typescript-eslint/utils': 5.19.0
       eslint: 8.25.0
-      typescript: ^4.8.0
+      typescript: ^4.7.0
       vitest: 0.24.3
     dependencies:
       '@typescript-eslint/utils': 5.19.0_5ldjemcacbssrrv7slgrertrym
@@ -475,7 +475,7 @@ importers:
       remotion: 3.3.25
       styled-components: ^5.1.1
       ts-unused-exports: ^7.0.1
-      typescript: ^4.8.0
+      typescript: ^4.7.0
       use-asset: ^1.0.4
       vitest: 0.24.3
     dependencies:
@@ -539,7 +539,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0
       remotion: 3.3.25
-      typescript: ^4.8.0
+      typescript: ^4.7.0
       webpack: 5.74.0
     dependencies:
       gifuct-js: 2.1.2
@@ -569,7 +569,7 @@ importers:
       prettier: ^2.7.1
       remotion: 3.3.25
       ts-node: ^10.8.0
-      typescript: ^4.8.0
+      typescript: ^4.7.0
     dependencies:
       remotion: link:../core
     devDependencies:
@@ -592,7 +592,7 @@ importers:
       execa: 5.1.1
       remotion: 3.3.25
       sharp: 0.30.6
-      typescript: ^4.8.0
+      typescript: ^4.7.0
       vitest: 0.24.3
     devDependencies:
       '@remotion/bundler': link:../bundler
@@ -637,7 +637,7 @@ importers:
       react-dom: '>=16.8.0'
       remotion: 3.3.25
       ts-node: ^10.8.0
-      typescript: ^4.8.0
+      typescript: ^4.7.0
       vitest: ^0.24.3
       zip-lib: ^0.7.2
     dependencies:
@@ -688,7 +688,7 @@ importers:
       react: ^18.0.0
       react-dom: ^18.0.0
       remotion: 3.3.25
-      typescript: ^4.8.0
+      typescript: ^4.7.0
       vitest: 0.24.3
     dependencies:
       lottie-web: 5.9.6
@@ -717,7 +717,7 @@ importers:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
       remotion: 3.3.25
-      typescript: ^4.8.0
+      typescript: ^4.7.0
     dependencies:
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
@@ -741,7 +741,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0
       remotion: 3.3.25
-      typescript: ^4.8.0
+      typescript: ^4.7.0
     dependencies:
       remotion: link:../core
     devDependencies:
@@ -763,7 +763,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       remotion: 3.3.25
       simplex-noise: 4.0.1
-      typescript: ^4.8.0
+      typescript: ^4.7.0
       vitest: 0.24.3
     dependencies:
       remotion: link:../core
@@ -784,7 +784,7 @@ importers:
       eslint: 8.25.0
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
-      typescript: ^4.8.0
+      typescript: ^4.7.0
       vitest: 0.24.3
     devDependencies:
       '@jonny/eslint-config': 3.0.266_5ldjemcacbssrrv7slgrertrym
@@ -811,7 +811,7 @@ importers:
       react: ^18.0.0
       react-dom: ^18.0.0
       remotion: 3.3.25
-      typescript: ^4.8.0
+      typescript: ^4.7.0
       vitest: 0.24.3
       webpack: 5.74.0
     dependencies:
@@ -856,7 +856,7 @@ importers:
       react-dom: 18.0.0
       react-refresh: ^0.11.0
       remotion: 3.3.25
-      typescript: ^4.8.0
+      typescript: ^4.7.0
       webpack: 5.74.0
       webpack-dev-server: ^4.6.0
     dependencies:
@@ -923,7 +923,7 @@ importers:
       react-dom: 18.0.0
       remotion: 3.3.25
       source-map: ^0.8.0-beta.0
-      typescript: ^4.8.0
+      typescript: ^4.7.0
       vitest: 0.24.3
       ws: 8.7.0
     dependencies:
@@ -969,7 +969,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0
       remotion: 3.3.25
-      typescript: ^4.8.0
+      typescript: ^4.7.0
     dependencies:
       copy-webpack-plugin: 11.0.0_webpack@5.74.0
       remotion: link:../core
@@ -1001,7 +1001,7 @@ importers:
       react-dom: 18.0.0
       remotion: 3.3.25
       three: ^0.145.0
-      typescript: ^4.8.0
+      typescript: ^4.7.0
     dependencies:
       remotion: link:../core
     devDependencies:
