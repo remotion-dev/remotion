@@ -23,7 +23,6 @@ export const previewServerConnectionRef = createRef<{
 
 export const PreviewServerConnection: React.FC<{
 	children: React.ReactNode;
-	type: 'editor';
 }> = ({children}) => {
 	const [state, setState] = React.useState<PreviewServerState>({
 		type: 'init',
