@@ -10,7 +10,7 @@
 			"lib/*": ["./src/lib/*"]
 		}
 	},
-	"include": ["src", "autocomplete.d.ts"],
+	"include": ["src"],
 	"references": [
 		{"path": "../core"},
 		{"path": "../media-utils"},
