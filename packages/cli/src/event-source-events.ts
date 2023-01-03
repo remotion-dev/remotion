@@ -1,4 +1,6 @@
 import type {RenderJob} from './preview-server/render-queue/job';
+// eslint-disable-next-line no-restricted-imports
+import type {StaticFile} from 'remotion';
 
 export type EventSourceEvent =
 	| {
@@ -29,4 +31,8 @@ export type EventSourceEvent =
 	| {
 			type: 'watched-file-deleted';
 			file: string;
+	  }
+	| {
+			type: 'new-public-folder';
+			files: StaticFile[];
 	  };

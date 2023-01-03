@@ -20,6 +20,7 @@ import {handleRequest} from './handler';
 import type {LiveEventsServer} from './live-events';
 import {parseRequestBody} from './parse-body';
 import {getProjectInfo} from './project-info';
+import {fetchFolder, getFiles} from './public-folder';
 import {getRenderQueue} from './render-queue/queue';
 import {serveStatic} from './serve-static';
 import {isUpdateAvailableWithTimeout} from './update-available';
@@ -50,10 +51,12 @@ const handleFallback = async ({
 	response,
 	getCurrentInputProps,
 	getEnvVariables,
+	publicDir,
 }: {
 	remotionRoot: string;
 	hash: string;
 	response: ServerResponse;
+	publicDir: string;
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
 }) => {
@@ -67,6 +70,8 @@ const handleFallback = async ({
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
 	const packageManager = getPackageManager(remotionRoot, undefined);
+	fetchFolder({publicDir, staticHash: hash});
+
 	response.end(
 		BundlerInternals.indexHtml({
 			staticHash: hash,
@@ -81,6 +86,7 @@ const handleFallback = async ({
 			numberOfAudioTags:
 				parsedCli['number-of-shared-audio-tags'] ??
 				getNumberOfSharedAudioTags(),
+			publicFiles: getFiles(),
 			includeFavicon: true,
 			title: 'Remotion Preview',
 			renderDefaults: {
@@ -206,8 +212,8 @@ export const handleRoutes = ({
 	getCurrentInputProps,
 	getEnvVariables,
 	remotionRoot,
-	userPassedPublicDir,
 	entryPoint,
+	publicDir,
 }: {
 	hash: string;
 	hashPrefix: string;
@@ -217,8 +223,8 @@ export const handleRoutes = ({
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
 	remotionRoot: string;
-	userPassedPublicDir: string | null;
 	entryPoint: string;
+	publicDir: string;
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -267,9 +273,6 @@ export const handleRoutes = ({
 	}
 
 	if (url.pathname.startsWith(hash)) {
-		const publicDir = userPassedPublicDir
-			? path.resolve(remotionRoot, userPassedPublicDir)
-			: path.join(remotionRoot, 'public');
 		return serveStatic(publicDir, hash, request, response);
 	}
 
@@ -283,5 +286,6 @@ export const handleRoutes = ({
 		response,
 		getCurrentInputProps,
 		getEnvVariables,
+		publicDir,
 	});
 };

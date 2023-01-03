@@ -55,6 +55,10 @@ export const openEventSource = () => {
 			});
 		}
 
+		if (newEvent.type === 'new-public-folder') {
+			window.remotion_staticFiles = newEvent.files;
+		}
+
 		listeners.forEach((l) => {
 			if (l.type === newEvent.type) {
 				l.listener(newEvent);
