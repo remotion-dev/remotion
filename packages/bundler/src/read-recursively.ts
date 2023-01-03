@@ -16,7 +16,13 @@ export const readRecursively = ({
 	limit: number;
 }): StaticFile[] => {
 	const absFolder = path.join(startPath, folder);
+
+	if (!fs.existsSync(absFolder)) {
+		return [];
+	}
+
 	const files = fs.readdirSync(absFolder);
+
 	for (const file of files) {
 		if (output.length >= limit) {
 			break;
