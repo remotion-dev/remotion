@@ -76,6 +76,7 @@ export const renderCompFlow = async ({
 	onProgress,
 	addCleanupCallback,
 	uiCodec,
+	uiImageFormat,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -109,6 +110,7 @@ export const renderCompFlow = async ({
 	onProgress: JobProgressCallback;
 	addCleanupCallback: (cb: () => Promise<void>) => void;
 	uiCodec: Codec | null;
+	uiImageFormat: ImageFormat | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
 	const downloadMap = RenderInternals.makeDownloadMap();
@@ -303,11 +305,11 @@ export const renderCompFlow = async ({
 		return renderProgress.update(output);
 	};
 
-	// TODO: Should take the one from the UI instead
-	const imageFormat = getImageFormat(
-		shouldOutputImageSequence ? undefined : codec,
-		configFileImageFormat
-	);
+	const imageFormat = getImageFormat({
+		codec: shouldOutputImageSequence ? undefined : codec,
+		configFileImageFormat,
+		uiImageFormat,
+	});
 
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {

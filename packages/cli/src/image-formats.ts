@@ -2,12 +2,21 @@ import type {ImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {ConfigInternals} from './config';
 
-export const getImageFormat = (
-	codec: ReturnType<typeof ConfigInternals.getOutputCodecOrUndefined>,
+export const getImageFormat = ({
+	codec,
+	configFileImageFormat,
+	uiImageFormat,
+}: {
+	codec: ReturnType<typeof ConfigInternals.getOutputCodecOrUndefined>;
 	configFileImageFormat: ReturnType<
 		typeof ConfigInternals.getUserPreferredImageFormat
-	>
-): ImageFormat => {
+	>;
+	uiImageFormat: ImageFormat | null;
+}): ImageFormat => {
+	if (uiImageFormat !== null) {
+		return uiImageFormat;
+	}
+
 	if (typeof configFileImageFormat !== 'undefined') {
 		return configFileImageFormat;
 	}
