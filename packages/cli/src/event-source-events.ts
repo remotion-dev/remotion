@@ -7,6 +7,7 @@ export type EventSourceEvent =
 	  }
 	| {
 			type: 'init';
+			clientId: string;
 	  }
 	| {
 			type: 'new-env-variables';

@@ -90,6 +90,7 @@ export type OpenInFileExplorerRequest = {
 
 export type SubscribeToFileExistenceRequest = {
 	file: string;
+	clientId: string;
 };
 
 export type SubscribeToFileExistenceResponse = {
@@ -98,4 +99,5 @@ export type SubscribeToFileExistenceResponse = {
 
 export type UnsubscribeFromFileExistenceRequest = {
 	file: string;
+	clientId: string;
 };

@@ -95,16 +95,27 @@ export const addVideoRenderJob = ({
 	});
 };
 
-export const unsubscribeFromFileExistenceWatcher = ({file}: {file: string}) => {
-	return callApi('/api/unsubscribe-from-file-existence', {file});
+export const unsubscribeFromFileExistenceWatcher = ({
+	file,
+	clientId,
+}: {
+	file: string;
+	clientId: string;
+}) => {
+	return callApi('/api/unsubscribe-from-file-existence', {file, clientId});
 };
 
 export const subscribeToFileExistenceWatcher = async ({
 	file,
+	clientId,
 }: {
 	file: string;
+	clientId: string;
 }): Promise<boolean> => {
-	const {exists} = await callApi('/api/subscribe-to-file-existence', {file});
+	const {exists} = await callApi('/api/subscribe-to-file-existence', {
+		file,
+		clientId,
+	});
 	return exists;
 };
 

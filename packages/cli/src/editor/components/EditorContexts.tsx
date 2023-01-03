@@ -5,6 +5,7 @@ import type {
 	SetMediaVolumeContextValue,
 } from 'remotion';
 import {Internals} from 'remotion';
+import {PreviewServerConnection} from '../helpers/client-id';
 import {
 	CheckerboardContext,
 	loadCheckerboardOption,
@@ -118,44 +119,46 @@ export const EditorContexts: React.FC<{
 	}, [modalContextType]);
 
 	return (
-		<RenderQueueContextProvider>
-			<KeybindingContextProvider>
-				<RichTimelineContext.Provider value={richTimelineCtx}>
-					<CheckerboardContext.Provider value={checkerboardCtx}>
-						<PreviewSizeProvider>
-							<ModalsContext.Provider value={modalsContext}>
-								<Internals.MediaVolumeContext.Provider
-									value={mediaVolumeContextValue}
-								>
-									<Internals.SetMediaVolumeContext.Provider
-										value={setMediaVolumeContextValue}
+		<PreviewServerConnection>
+			<RenderQueueContextProvider>
+				<KeybindingContextProvider>
+					<RichTimelineContext.Provider value={richTimelineCtx}>
+						<CheckerboardContext.Provider value={checkerboardCtx}>
+							<PreviewSizeProvider>
+								<ModalsContext.Provider value={modalsContext}>
+									<Internals.MediaVolumeContext.Provider
+										value={mediaVolumeContextValue}
 									>
-										<PlayerInternals.PlayerEventEmitterContext.Provider
-											value={emitter}
+										<Internals.SetMediaVolumeContext.Provider
+											value={setMediaVolumeContextValue}
 										>
-											<SidebarContextProvider>
-												<FolderContextProvider>
-													<HighestZIndexProvider>
-														<TimelineInOutContext.Provider
-															value={timelineInOutContextValue}
-														>
-															<SetTimelineInOutContext.Provider
-																value={setTimelineInOutContextValue}
+											<PlayerInternals.PlayerEventEmitterContext.Provider
+												value={emitter}
+											>
+												<SidebarContextProvider>
+													<FolderContextProvider>
+														<HighestZIndexProvider>
+															<TimelineInOutContext.Provider
+																value={timelineInOutContextValue}
 															>
-																{children}
-															</SetTimelineInOutContext.Provider>
-														</TimelineInOutContext.Provider>
-													</HighestZIndexProvider>
-												</FolderContextProvider>
-											</SidebarContextProvider>
-										</PlayerInternals.PlayerEventEmitterContext.Provider>
-									</Internals.SetMediaVolumeContext.Provider>
-								</Internals.MediaVolumeContext.Provider>
-							</ModalsContext.Provider>
-						</PreviewSizeProvider>
-					</CheckerboardContext.Provider>
-				</RichTimelineContext.Provider>
-			</KeybindingContextProvider>
-		</RenderQueueContextProvider>
+																<SetTimelineInOutContext.Provider
+																	value={setTimelineInOutContextValue}
+																>
+																	{children}
+																</SetTimelineInOutContext.Provider>
+															</TimelineInOutContext.Provider>
+														</HighestZIndexProvider>
+													</FolderContextProvider>
+												</SidebarContextProvider>
+											</PlayerInternals.PlayerEventEmitterContext.Provider>
+										</Internals.SetMediaVolumeContext.Provider>
+									</Internals.MediaVolumeContext.Provider>
+								</ModalsContext.Provider>
+							</PreviewSizeProvider>
+						</CheckerboardContext.Provider>
+					</RichTimelineContext.Provider>
+				</KeybindingContextProvider>
+			</RenderQueueContextProvider>
+		</PreviewServerConnection>
 	);
 };

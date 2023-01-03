@@ -8,11 +8,11 @@ import type {
 export const subscribeToFileExistence: ApiHandler<
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse
-> = ({input: {file}, remotionRoot}) => {
-	// TODO: What if the user reloads the page? The file watcher doesn't get cleared
+> = ({input: {file, clientId}, remotionRoot}) => {
 	const {exists} = subscribeToFileExistenceWatchers({
 		file,
 		remotionRoot,
+		clientId,
 	});
 
 	return Promise.resolve({exists});
