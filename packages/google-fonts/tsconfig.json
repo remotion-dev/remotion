@@ -1,13 +1,11 @@
 {
-	"extends": "../tsconfig.settings.json",
-	"compilerOptions": {
-		"composite": true,
-		"rootDir": "./src",
-		"outDir": "",
-		"skipLibCheck": true,
-		"noUnusedLocals": true
-	},
-	"include": [
-		"./src"
-	]
+  "extends": "../tsconfig.settings.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "skipLibCheck": true,
+    "noUnusedLocals": true
+  },
+  "include": ["./src"]
 }

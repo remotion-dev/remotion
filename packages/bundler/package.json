@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "3.3.19",
+	"version": "3.3.25",
 	"description": "Bundler for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -26,7 +26,7 @@
 		"css-loader": "5.2.7",
 		"esbuild": "0.16.12",
 		"react-refresh": "0.9.0",
-		"remotion": "3.3.19",
+		"remotion": "3.3.25",
 		"style-loader": "2.0.0",
 		"webpack": "5.74.0"
 	},
@@ -37,8 +37,8 @@
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
 		"@types/node": "^16.7.5",
-		"@types/react": "18.0.23",
-		"@types/react-dom": "18.0.0",
+		"@types/react": "18.0.26",
+		"@types/react-dom": "18.0.10",
 		"@types/webpack-env": "^1.16.0",
 		"@typescript-eslint/eslint-plugin": "5.18.0",
 		"@typescript-eslint/parser": "5.18.0",
