@@ -20,7 +20,7 @@ export const initPublicFolderWatch = ({
 	watchPublicFolder({publicDir, onUpdate, staticHash});
 };
 
-const fetchFolder = ({
+export const fetchFolder = ({
 	publicDir,
 	staticHash,
 }: {

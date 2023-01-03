@@ -15,7 +15,7 @@ import type {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/s
 import {getPackageManager} from './get-package-manager';
 import type {LiveEventsServer} from './live-events';
 import {getProjectInfo} from './project-info';
-import {getFiles} from './public-folder';
+import {fetchFolder, getFiles} from './public-folder';
 import {serveStatic} from './serve-static';
 import {isUpdateAvailableWithTimeout} from './update-available';
 
@@ -45,10 +45,12 @@ const handleFallback = async ({
 	response,
 	getCurrentInputProps,
 	getEnvVariables,
+	publicDir,
 }: {
 	remotionRoot: string;
 	hash: string;
 	response: ServerResponse;
+	publicDir: string;
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
 }) => {
@@ -58,6 +60,7 @@ const handleFallback = async ({
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
 	const packageManager = getPackageManager(remotionRoot, undefined);
+	fetchFolder({publicDir, staticHash: hash});
 
 	response.end(
 		BundlerInternals.indexHtml({
@@ -256,5 +259,6 @@ export const handleRoutes = ({
 		response,
 		getCurrentInputProps,
 		getEnvVariables,
+		publicDir,
 	});
 };
