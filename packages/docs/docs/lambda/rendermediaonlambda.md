@@ -14,8 +14,8 @@ Triggers a render on a lambda given a composition and a lambda function.
 ```tsx twoslash
 // @module: esnext
 // @target: es2017
-import { renderMediaOnLambda } from "@remotion/lambda";
 // ---cut---
+import { renderMediaOnLambda } from "@remotion/lambda/client";
 
 const { bucketName, renderId } = await renderMediaOnLambda({
   region: "us-east-1",
@@ -26,6 +26,10 @@ const { bucketName, renderId } = await renderMediaOnLambda({
   codec: "h264",
 });
 ```
+
+:::note
+Preferrably import this function from `@remotion/lambda/client` to avoid problems [inside serverless functions](/docs/lambda/light-client).
+:::
 
 ## Arguments
 
