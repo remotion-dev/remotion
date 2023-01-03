@@ -48,7 +48,9 @@ export const ffmpegInNodeModules = (
 ): string | null => {
 	const folderName = getFfmpegFolderName(remotionRoot);
 	if (!fs.existsSync(folderName)) {
-		fs.mkdirSync(folderName);
+		fs.mkdirSync(folderName, {
+			recursive: true,
+		});
 	}
 
 	// Check if a version of FFMPEG is already installed.
