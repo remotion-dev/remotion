@@ -1,10 +1,10 @@
 import './asset-types';
 import {Clipper} from './Clipper';
 import type {TAsset, TCompMetadata} from './CompositionManager';
+import type {StaticFile} from './get-static-files';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning';
 import type {ClipRegion} from './NativeLayers';
 import {Null} from './Null';
-import type {StaticFile} from './static-file';
 
 declare global {
 	interface Window {
@@ -66,7 +66,7 @@ export * from './delay-render';
 export * from './easing';
 export * from './Folder';
 export * from './freeze';
-export {getStaticFiles} from './get-static-files';
+export {getStaticFiles, StaticFile} from './get-static-files';
 export * from './IFrame';
 export * from './Img';
 export * from './internals';
@@ -80,7 +80,7 @@ export {registerRoot} from './register-root';
 export {Sequence} from './Sequence';
 export {Series} from './series';
 export * from './spring';
-export {staticFile, StaticFile} from './static-file';
+export {staticFile} from './static-file';
 export * from './Still';
 export type {PlayableMediaTag} from './timeline-position-state';
 export {useCurrentFrame} from './use-current-frame';

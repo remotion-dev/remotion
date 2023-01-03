@@ -14,12 +14,6 @@ const inner = (path: string): string => {
 	return `/${trimLeadingSlash(path)}`;
 };
 
-export type StaticFile = {
-	path: string;
-	sizeInBytes: number;
-	lastModified: number;
-};
-
 /**
  * Reference a file from the public/ folder.
  * If the file does not appear in the autocomplete, type the path manually.

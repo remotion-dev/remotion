@@ -1,4 +1,5 @@
 import betterOpn from 'better-opn';
+import crypto from 'crypto';
 import path from 'path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
@@ -104,6 +105,9 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 		remotionRoot,
 	});
 
+	const hashPrefix = '/static-';
+	const staticHash = `${hashPrefix}${crypto.randomBytes(6).toString('hex')}`;
+
 	initPublicFolderWatch({
 		publicDir,
 		remotionRoot,
@@ -115,24 +119,25 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 				});
 			});
 		},
+		staticHash,
 	});
 
-	const {port, liveEventsServer} = await startServer(
-		path.resolve(__dirname, 'previewEntry.js'),
-		fullPath,
-		{
-			getCurrentInputProps: () => inputProps,
-			getEnvVariables: () => envVariables,
-			port: desiredPort,
-			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
-			remotionRoot,
-			keyboardShortcutsEnabled: ConfigInternals.getKeyboardShortcutsEnabled(),
-			publicDir,
-			webpackOverride: ConfigInternals.getWebpackOverrideFn(),
-			poll: ConfigInternals.getWebpackPolling(),
-			userPassedPublicDir: ConfigInternals.getPublicDir(),
-		}
-	);
+	const {port, liveEventsServer} = await startServer({
+		entry: path.resolve(__dirname, 'previewEntry.js'),
+		userDefinedComponent: fullPath,
+		getCurrentInputProps: () => inputProps,
+		getEnvVariables: () => envVariables,
+		port: desiredPort,
+		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
+		remotionRoot,
+		keyboardShortcutsEnabled: ConfigInternals.getKeyboardShortcutsEnabled(),
+		publicDir,
+		webpackOverride: ConfigInternals.getWebpackOverrideFn(),
+		poll: ConfigInternals.getWebpackPolling(),
+		userPassedPublicDir: ConfigInternals.getPublicDir(),
+		hash: staticHash,
+		hashPrefix,
+	});
 
 	setLiveEventsListener(liveEventsServer);
 	const networkAddress = getNetworkAddress();
