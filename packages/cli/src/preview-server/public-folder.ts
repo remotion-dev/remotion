@@ -9,23 +9,32 @@ let files: StaticFile[] = [];
 export const initPublicFolderWatch = ({
 	publicDir,
 	onUpdate,
+	staticHash,
 }: {
 	publicDir: string;
 	remotionRoot: string;
 	onUpdate: () => void;
+	staticHash: string;
 }) => {
-	fetchFolder({publicDir});
-	watchPublicFolder({publicDir, onUpdate});
+	fetchFolder({publicDir, staticHash});
+	watchPublicFolder({publicDir, onUpdate, staticHash});
 };
 
-const fetchFolder = ({publicDir}: {publicDir: string}) => {
+const fetchFolder = ({
+	publicDir,
+	staticHash,
+}: {
+	publicDir: string;
+	staticHash: string;
+}) => {
 	files = BundlerInternals.readRecursively({
 		folder: '.',
 		startPath: publicDir,
+		staticHash,
 	}).map((f) => {
 		return {
 			...f,
-			path: f.path.split(path.sep).join('/'),
+			name: f.name.split(path.sep).join('/'),
 		};
 	});
 };
@@ -33,12 +42,14 @@ const fetchFolder = ({publicDir}: {publicDir: string}) => {
 export const watchPublicFolder = ({
 	publicDir,
 	onUpdate,
+	staticHash,
 }: {
 	publicDir: string;
 	onUpdate: () => void;
+	staticHash: string;
 }) => {
 	watch(publicDir, {recursive: true}, () => {
-		fetchFolder({publicDir});
+		fetchFolder({publicDir, staticHash});
 		onUpdate();
 	});
 };

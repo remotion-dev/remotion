@@ -220,7 +220,11 @@ export async function bundle(...args: Arguments): Promise<string> {
 		remotionRoot: resolvedRemotionRoot,
 		previewServerCommand: null,
 		numberOfAudioTags: 0,
-		publicFiles: readRecursively({folder: '.', startPath: from}),
+		publicFiles: readRecursively({
+			folder: '.',
+			startPath: from,
+			staticHash: '',
+		}),
 		includeFavicon: false,
 		title: 'Remotion Bundle',
 	});

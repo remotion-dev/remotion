@@ -1,6 +1,5 @@
 import {BundlerInternals, webpack} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
-import crypto from 'crypto';
 import fs from 'fs';
 import http from 'http';
 import os from 'os';
@@ -15,22 +14,22 @@ import type {LiveEventsServer} from './live-events';
 import {makeLiveEventsRouter} from './live-events';
 import {handleRoutes} from './routes';
 
-export const startServer = async (
-	entry: string,
-	userDefinedComponent: string,
-	options: {
-		webpackOverride: WebpackOverrideFn;
-		getCurrentInputProps: () => object;
-		getEnvVariables: () => Record<string, string>;
-		port: number | null;
-		maxTimelineTracks?: number;
-		remotionRoot: string;
-		keyboardShortcutsEnabled: boolean;
-		publicDir: string;
-		userPassedPublicDir: string | null;
-		poll: number | null;
-	}
-): Promise<{
+export const startServer = async (options: {
+	entry: string;
+	userDefinedComponent: string;
+	webpackOverride: WebpackOverrideFn;
+	getCurrentInputProps: () => object;
+	getEnvVariables: () => Record<string, string>;
+	port: number | null;
+	maxTimelineTracks?: number;
+	remotionRoot: string;
+	keyboardShortcutsEnabled: boolean;
+	publicDir: string;
+	userPassedPublicDir: string | null;
+	poll: number | null;
+	hash: string;
+	hashPrefix: string;
+}): Promise<{
 	port: number;
 	liveEventsServer: LiveEventsServer;
 }> => {
@@ -39,8 +38,8 @@ export const startServer = async (
 	);
 
 	const [, config] = BundlerInternals.webpackConfig({
-		entry,
-		userDefinedComponent,
+		entry: options.entry,
+		userDefinedComponent: options.userDefinedComponent,
 		outDir: tmpDir,
 		environment: 'development',
 		webpackOverride:
@@ -57,9 +56,6 @@ export const startServer = async (
 	});
 
 	const compiler = webpack(config);
-
-	const hashPrefix = '/static-';
-	const hash = `${hashPrefix}${crypto.randomBytes(6).toString('hex')}`;
 
 	const wdmMiddleware = wdm(compiler);
 	const whm = webpackHotMiddleware(compiler);
@@ -81,8 +77,8 @@ export const startServer = async (
 			})
 			.then(() => {
 				return handleRoutes({
-					hash,
-					hashPrefix,
+					hash: options.hash,
+					hashPrefix: options.hashPrefix,
 					request,
 					response,
 					liveEventsServer,

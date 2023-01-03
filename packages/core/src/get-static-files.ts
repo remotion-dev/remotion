@@ -1,5 +1,3 @@
-import type {StaticFile} from './static-file';
-
 let warnedServer = false;
 let warnedPlayer = false;
 
@@ -37,4 +35,11 @@ export const getStaticFiles = (): StaticFile[] => {
 	}
 
 	return window.remotion_staticFiles;
+};
+
+export type StaticFile = {
+	src: string;
+	name: string;
+	sizeInBytes: number;
+	lastModified: number;
 };
