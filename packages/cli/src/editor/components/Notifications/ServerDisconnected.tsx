@@ -1,4 +1,5 @@
-import React, {createRef, useImperativeHandle, useState} from 'react';
+import React, {createRef, useContext} from 'react';
+import {PreviewServerConnectionCtx} from '../../helpers/client-id';
 
 const container: React.CSSProperties = {
 	position: 'fixed',
@@ -42,24 +43,9 @@ window.addEventListener('beforeunload', () => {
 });
 
 export const ServerDisconnected: React.FC = () => {
-	const [serverDisconnected, setServerDisconnected] = useState(false);
+	const ctx = useContext(PreviewServerConnectionCtx);
 
-	useImperativeHandle(
-		serverDisconnectedRef,
-		() => {
-			return {
-				setServerDisconnected: () => {
-					setServerDisconnected(true);
-				},
-				setServerConnected: () => {
-					setServerDisconnected(false);
-				},
-			};
-		},
-		[]
-	);
-
-	if (!serverDisconnected) {
+	if (ctx.type !== 'disconnected') {
 		return null;
 	}
 

@@ -1,4 +1,5 @@
 import type {render} from 'react-dom';
+import {createPortal} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 // eslint-disable-next-line no-restricted-imports
 import {Internals} from 'remotion';
@@ -20,6 +21,10 @@ const content = (
 	<Internals.RemotionRoot numberOfAudioTags={window.remotion_numberOfAudioTags}>
 		<EditorContexts>
 			<Editor />
+			{createPortal(
+				<ServerDisconnected />,
+				getServerDisconnectedDomElement() as HTMLElement
+			)}
 		</EditorContexts>
 	</Internals.RemotionRoot>
 );
@@ -28,17 +33,10 @@ if (ReactDOM.createRoot) {
 	ReactDOM.createRoot(Internals.getPreviewDomElement() as HTMLElement).render(
 		content
 	);
-	ReactDOM.createRoot(getServerDisconnectedDomElement() as HTMLElement).render(
-		<ServerDisconnected />
-	);
 } else {
 	(ReactDOM as unknown as {render: typeof render}).render(
 		content,
 		Internals.getPreviewDomElement()
-	);
-	(ReactDOM as unknown as {render: typeof render}).render(
-		<ServerDisconnected />,
-		getServerDisconnectedDomElement()
 	);
 }
 

@@ -2,14 +2,16 @@ import path from 'path';
 import {installFileWatcher} from '../file-watcher';
 import {waitForLiveEventsListener} from './live-events';
 
-const fileExistenceWatchers: Record<string, () => void> = {};
+const fileExistenceWatchers: Record<string, Record<string, () => void>> = {};
 
 export const subscribeToFileExistenceWatchers = ({
 	file: relativeFile,
 	remotionRoot,
+	clientId,
 }: {
 	file: string;
 	remotionRoot: string;
+	clientId: string;
 }): {exists: boolean} => {
 	const file = path.resolve(remotionRoot, relativeFile);
 
@@ -37,7 +39,11 @@ export const subscribeToFileExistenceWatchers = ({
 			}
 		},
 	});
-	fileExistenceWatchers[file] = unwatch;
+	if (!fileExistenceWatchers[clientId]) {
+		fileExistenceWatchers[clientId] = {};
+	}
+
+	fileExistenceWatchers[clientId][file] = unwatch;
 
 	return {exists};
 };
@@ -45,11 +51,29 @@ export const subscribeToFileExistenceWatchers = ({
 export const unsubscribeFromFileExistenceWatchers = ({
 	file,
 	remotionRoot,
+	clientId,
 }: {
 	file: string;
 	remotionRoot: string;
+	clientId: string;
 }) => {
 	const actualPath = path.resolve(remotionRoot, file);
-	fileExistenceWatchers[actualPath]?.();
-	delete fileExistenceWatchers[actualPath];
+	if (!fileExistenceWatchers[clientId]) {
+		return;
+	}
+
+	fileExistenceWatchers[clientId][actualPath]?.();
+	delete fileExistenceWatchers[clientId][actualPath];
+};
+
+export const unsubscribeClientFileExistenceWatchers = (clientId: string) => {
+	if (!fileExistenceWatchers[clientId]) {
+		return;
+	}
+
+	Object.values(fileExistenceWatchers[clientId]).forEach((unwatch) => {
+		unwatch();
+	});
+
+	delete fileExistenceWatchers[clientId];
 };

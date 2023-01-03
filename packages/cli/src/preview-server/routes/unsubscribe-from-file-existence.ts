@@ -6,6 +6,10 @@ export const unsubscribeFromFileExistence: ApiHandler<
 	UnsubscribeFromFileExistenceRequest,
 	undefined
 > = ({input, remotionRoot}) => {
-	unsubscribeFromFileExistenceWatchers({file: input.file, remotionRoot});
+	unsubscribeFromFileExistenceWatchers({
+		file: input.file,
+		clientId: input.clientId,
+		remotionRoot,
+	});
 	return Promise.resolve(undefined);
 };
