@@ -48,6 +48,7 @@ export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 					trimLeft: asset.mediaFrame,
 					volume: [],
 					playbackRate: asset.playbackRate,
+					allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
 				});
 			}
 

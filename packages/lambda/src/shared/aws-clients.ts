@@ -3,6 +3,9 @@ import {IAMClient} from '@aws-sdk/client-iam';
 import {LambdaClient} from '@aws-sdk/client-lambda';
 import {S3Client} from '@aws-sdk/client-s3';
 import {ServiceQuotasClient} from '@aws-sdk/client-service-quotas';
+import {STSClient} from '@aws-sdk/client-sts';
+import {fromIni} from '@aws-sdk/credential-providers';
+import {createHash} from 'crypto';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {checkCredentials} from './check-credentials';
 import {isInsideLambda} from './is-in-lambda';
@@ -15,14 +18,25 @@ const _clients: Partial<
 		| S3Client
 		| IAMClient
 		| ServiceQuotasClient
+		| STSClient
 	>
 > = {};
 
 type CredentialPair = {accessKeyId: string; secretAccessKey: string};
+type AwsCredentialIdentityProvider = ReturnType<typeof fromIni>;
 
-const getCredentials = (): CredentialPair | undefined => {
+const getCredentials = ():
+	| CredentialPair
+	| AwsCredentialIdentityProvider
+	| undefined => {
 	if (isInsideLambda()) {
 		return undefined;
+	}
+
+	if (process.env.REMOTION_AWS_PROFILE) {
+		return fromIni({
+			profile: process.env.REMOTION_AWS_PROFILE,
+		});
 	}
 
 	if (
@@ -35,6 +49,12 @@ const getCredentials = (): CredentialPair | undefined => {
 		};
 	}
 
+	if (process.env.AWS_PROFILE) {
+		return fromIni({
+			profile: process.env.AWS_PROFILE,
+		});
+	}
+
 	if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
 		return {
 			accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
@@ -45,26 +65,51 @@ const getCredentials = (): CredentialPair | undefined => {
 	return undefined;
 };
 
-const getKey = ({
-	credentials,
+const getCredentialsHash = ({
 	customCredentials,
 	region,
 	service,
 }: {
-	credentials: CredentialPair | null;
 	region: AwsRegion;
 	customCredentials: CustomCredentials | null;
 	service: keyof ServiceMapping;
-}) =>
-	[
-		credentials?.accessKeyId,
-		credentials?.secretAccessKey,
-		customCredentials?.accessKeyId,
-		customCredentials?.endpoint,
-		customCredentials?.secretAccessKey,
-		region,
-		service,
-	].join('-');
+}): string => {
+	const hashComponents: {[key: string]: unknown} = {};
+
+	if (process.env.REMOTION_AWS_PROFILE) {
+		hashComponents.credentials = {
+			awsProfile: process.env.REMOTION_AWS_PROFILE,
+		};
+	} else if (
+		process.env.REMOTION_AWS_ACCESS_KEY_ID &&
+		process.env.REMOTION_AWS_SECRET_ACCESS_KEY
+	) {
+		hashComponents.credentials = {
+			accessKeyId: process.env.REMOTION_AWS_ACCESS_KEY_ID,
+			secretAccessKey: process.env.REMOTION_AWS_SECRET_ACCESS_KEY,
+		};
+	} else if (process.env.AWS_PROFILE) {
+		hashComponents.credentials = {
+			awsProfile: process.env.AWS_PROFILE,
+		};
+	} else if (
+		process.env.AWS_ACCESS_KEY_ID &&
+		process.env.AWS_SECRET_ACCESS_KEY
+	) {
+		hashComponents.credentials = {
+			accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
+			secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
+		};
+	}
+
+	hashComponents.customCredentials = customCredentials;
+	hashComponents.region = region;
+	hashComponents.service = service;
+
+	return createHash('sha256')
+		.update(JSON.stringify(hashComponents))
+		.digest('base64');
+};
 
 export type ServiceMapping = {
 	s3: S3Client;
@@ -72,6 +117,7 @@ export type ServiceMapping = {
 	iam: IAMClient;
 	lambda: LambdaClient;
 	servicequotas: ServiceQuotasClient;
+	sts: STSClient;
 };
 
 export type CustomCredentialsWithoutSensitiveData = {
@@ -113,11 +159,14 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 			return ServiceQuotasClient;
 		}
 
+		if (service === 'sts') {
+			return STSClient;
+		}
+
 		throw new TypeError('unknown client ' + service);
 	})();
 
-	const key = getKey({
-		credentials: getCredentials() ?? null,
+	const key = getCredentialsHash({
 		region,
 		customCredentials,
 		service,
@@ -186,4 +235,8 @@ export const getServiceQuotasClient = (
 		service: 'servicequotas',
 		customCredentials: null,
 	});
+};
+
+export const getStsClient = (region: AwsRegion): STSClient => {
+	return getServiceClient({region, service: 'sts', customCredentials: null});
 };

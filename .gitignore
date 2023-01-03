@@ -13,3 +13,4 @@ packages/example/autocomplete.d.ts
 .vscode/taskmarks.json
 .turbo
 .vercel
+packages/renderer/target

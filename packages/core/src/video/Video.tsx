@@ -24,6 +24,14 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		throw new Error('string refs are not supported');
 	}
 
+	if (typeof props.src !== 'string') {
+		throw new TypeError(
+			`The \`<Video>\` tag requires a string for \`src\`, but got ${JSON.stringify(
+				props.src
+			)} instead.`
+		);
+	}
+
 	const onDuration = useCallback(
 		(src: string, durationInSeconds: number) => {
 			setDurations({type: 'got-duration', durationInSeconds, src});
@@ -32,8 +40,12 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	);
 
 	if (loop && props.src && durations[props.src as string] !== undefined) {
+		const naturalDuration = durations[props.src as string] * fps;
+		const playbackRate = props.playbackRate ?? 1;
+		const durationInFrames = Math.floor(naturalDuration / playbackRate);
+
 		return (
-			<Loop durationInFrames={Math.round(durations[props.src as string] * fps)}>
+			<Loop durationInFrames={durationInFrames}>
 				<Video {...propsOtherThanLoop} ref={ref} />
 			</Loop>
 		);
@@ -74,4 +86,11 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	);
 };
 
-export const Video = forwardRef(VideoForwardingFunction);
+const forward = forwardRef as <T, P = {}>(
+	render: (
+		props: P,
+		ref: React.MutableRefObject<T>
+	) => React.ReactElement | null
+) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
+
+export const Video = forward(VideoForwardingFunction);

@@ -73,6 +73,8 @@ const handleFallback = async ({
 				parsedCli['number-of-shared-audio-tags'] ??
 				getNumberOfSharedAudioTags(),
 			publicFiles: getFiles(),
+			includeFavicon: true,
+			title: 'Remotion Preview',
 		})
 	);
 };

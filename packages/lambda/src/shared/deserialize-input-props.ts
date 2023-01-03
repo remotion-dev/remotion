@@ -14,7 +14,7 @@ export const deserializeInputProps = async ({
 	region: AwsRegion;
 	bucketName: string;
 	expectedBucketOwner: string;
-}): Promise<unknown> => {
+}): Promise<object> => {
 	if (serialized.type === 'payload') {
 		return JSON.parse(serialized.payload as string);
 	}
@@ -32,6 +32,10 @@ export const deserializeInputProps = async ({
 
 		return payload;
 	} catch (err) {
-		throw new Error('Failed to parse input props that were');
+		throw new Error(
+			`Failed to parse input props that were serialized: ${
+				(err as Error).stack
+			}`
+		);
 	}
 };

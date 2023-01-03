@@ -1,6 +1,9 @@
 import './asset-types';
+import {Clipper} from './Clipper';
 import type {TAsset, TCompMetadata} from './CompositionManager';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning';
+import type {ClipRegion} from './NativeLayers';
+import {Null} from './Null';
 import type {StaticFile} from './static-file';
 
 declare global {
@@ -24,6 +27,7 @@ declare global {
 		remotion_inputProps: string;
 		remotion_envVariables: string;
 		remotion_collectAssets: () => TAsset[];
+		remotion_getClipRegion: () => ClipRegion | null;
 		remotion_isPlayer: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
@@ -62,12 +66,14 @@ export * from './delay-render';
 export * from './easing';
 export * from './Folder';
 export * from './freeze';
+export {getStaticFiles} from './get-static-files';
 export * from './IFrame';
 export * from './Img';
 export * from './internals';
 export * from './interpolate';
 export {interpolateColors} from './interpolate-colors';
 export {Loop} from './loop';
+export {ClipRegion} from './NativeLayers';
 export {prefetch} from './prefetch';
 export {random, RandomSeed} from './random';
 export {registerRoot} from './register-root';
@@ -82,4 +88,8 @@ export * from './use-video-config';
 export * from './version';
 export * from './video';
 export * from './video-config';
-export {getStaticFiles} from './get-static-files';
+
+export const Experimental = {
+	Clipper,
+	Null,
+};
