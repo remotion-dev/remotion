@@ -7,7 +7,6 @@ coverage
 */**/.env
 .cache
 packages/example/out
-packages/example/autocomplete.d.ts
 .env
 .pnpm-debug.log
 .vscode/taskmarks.json
