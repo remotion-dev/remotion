@@ -1,8 +1,6 @@
 import path from 'path';
 import type {StaticFile} from 'remotion';
 
-// TODO: Move to Remotion
-
 export const indexHtml = ({
 	baseDir,
 	editorName,
