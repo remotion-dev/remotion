@@ -203,7 +203,6 @@ export const renderCompFlow = async ({
 			compositionIdFromUi,
 		});
 
-	// TODO: Should use codec from UI if explicitly specified
 	const {codec, reason: codecReason} = getFinalOutputCodec({
 		cliFlag: parsedCli.codec,
 		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
