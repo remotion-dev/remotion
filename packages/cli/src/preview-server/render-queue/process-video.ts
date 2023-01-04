@@ -78,6 +78,5 @@ export const processVideoJob = async ({
 		uiImageFormat: job.imageFormat,
 		cancelSignal: job.cancelToken.cancelSignal,
 	});
-	// TODO: Allow cancel signal
 	// TODO: Accept CLI options
 };
