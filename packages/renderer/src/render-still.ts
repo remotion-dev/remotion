@@ -18,6 +18,7 @@ import {validateNonNullImageFormat} from './image-format';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
 import {getServeUrlWithFallback} from './legacy-webpack-config';
 import type {CancelSignal} from './make-cancel-signal';
+import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {openBrowser} from './open-browser';
 import {prepareServer} from './prepare-server';
@@ -309,7 +310,7 @@ export const renderStill = (
 		happyPath,
 		new Promise<RenderStillReturnValue>((_resolve, reject) => {
 			options.cancelSignal?.(() => {
-				reject(new Error('renderStill() got cancelled'));
+				reject(new Error(cancelErrorMessages.renderStill));
 			});
 		}),
 	]);

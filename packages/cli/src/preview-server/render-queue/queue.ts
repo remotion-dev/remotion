@@ -106,6 +106,19 @@ export const removeJob = (jobId: string) => {
 	notifyClientsOfJobUpdate();
 };
 
+export const cancelJob = (jobId: string) => {
+	for (const job of jobQueue) {
+		if (job.id === jobId) {
+			if (job.status !== 'running') {
+				throw new Error('Job is not running');
+			}
+
+			job.cancelToken.cancel();
+			break;
+		}
+	}
+};
+
 export const processJobIfPossible = async ({
 	remotionRoot,
 	entryPoint,
@@ -140,6 +153,11 @@ export const processJobIfPossible = async ({
 			remotionRoot,
 			onProgress: ({message, progress}) => {
 				updateJob(nextJob.id, (job) => {
+					// Ignore late callbacks of progress updates after cancelling
+					if (job.status === 'failed' || job.status === 'done') {
+						return job;
+					}
+
 					return {
 						...job,
 						status: 'running',

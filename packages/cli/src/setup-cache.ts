@@ -174,6 +174,7 @@ export const bundleOnCli = async ({
 	const bundleStartTime = Date.now();
 	const bundlingProgress = createOverwriteableCliOutput({
 		quiet: quietFlagProvided(),
+		cancelSignal: null,
 	});
 
 	let bundlingState: BundlingState = {

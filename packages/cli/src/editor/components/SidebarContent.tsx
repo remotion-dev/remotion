@@ -42,6 +42,7 @@ const getSelectedPanel = (shouldRender: boolean): SidebarPanel => {
 
 export const SidebarContent: React.FC = () => {
 	const shouldRender = useShouldRenderLeftSidebarTabs();
+
 	const [panel, setPanel] = useState<SidebarPanel>(() =>
 		getSelectedPanel(shouldRender)
 	);

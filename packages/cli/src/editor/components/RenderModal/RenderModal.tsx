@@ -1,6 +1,5 @@
 import type {Codec, StillImageFormat} from '@remotion/renderer';
-// TODO: refactor such that importing from '@remotion/renderer/src/get-extension-from-codec' is no longer needed
-import {getFileExtensionFromCodec} from '@remotion/renderer/src/get-extension-from-codec';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {ChangeEvent, ChangeEventHandler} from 'react';
 import React, {
 	useCallback,
@@ -195,22 +194,31 @@ export const RenderModal: React.FC<{
 		return bitBeforeDot;
 	}, []);
 
-	const setCodec = useCallback((codec: Codec) => {
-		setVideoCodec(codec);
-		setOutName((prev) => {
-			const codecSuffix = getFileExtensionFromCodec(codec, 'final');
-			const newFileName = getStringBeforeSuffix(prev) + '.' + codecSuffix;
-			return newFileName;
-		});
-	}, []);
+	const setCodec = useCallback(
+		(codec: Codec) => {
+			setVideoCodec(codec);
+			setOutName((prev) => {
+				const codecSuffix = BrowserSafeApis.getFileExtensionFromCodec(
+					codec,
+					'final'
+				);
+				const newFileName = getStringBeforeSuffix(prev) + '.' + codecSuffix;
+				return newFileName;
+			});
+		},
+		[getStringBeforeSuffix]
+	);
 
-	const setStillFormat = useCallback((format: StillImageFormat) => {
-		setImageFormat(format);
-		setOutName((prev) => {
-			const newFileName = getStringBeforeSuffix(prev) + '.' + format;
-			return newFileName;
-		});
-	}, []);
+	const setStillFormat = useCallback(
+		(format: StillImageFormat) => {
+			setImageFormat(format);
+			setOutName((prev) => {
+				const newFileName = getStringBeforeSuffix(prev) + '.' + format;
+				return newFileName;
+			});
+		},
+		[getStringBeforeSuffix]
+	);
 
 	const onClickStill = useCallback(() => {
 		leftSidebarTabs.current?.selectRendersPanel();

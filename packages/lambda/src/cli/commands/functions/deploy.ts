@@ -54,6 +54,7 @@ CloudWatch Retention Period = ${cloudWatchLogRetentionPeriodInDays} days
 
 	const output = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
+		cancelSignal: null,
 	});
 	output.update('Deploying Lambda...');
 	const {functionName, alreadyExisted} = await deployFunction({

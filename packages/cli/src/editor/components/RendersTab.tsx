@@ -24,14 +24,11 @@ const badge: React.CSSProperties = {
 	alignItems: 'center',
 };
 
-// TODO: Don't show if preview server is disconnected
-
 export const RendersTab: React.FC<{
 	selected: boolean;
 	onClick: MouseEventHandler<HTMLButtonElement>;
 }> = ({selected, onClick}) => {
 	const {jobs} = useContext(RenderQueueContext);
-
 	const failedJobs = jobs.filter((j) => j.status === 'failed').length;
 	const jobCount = jobs.length;
 
