@@ -71,6 +71,7 @@ export const renderStillFlow = async ({
 	onProgress,
 	indentOutput,
 	addCleanupCallback,
+	cancelSignal,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -228,6 +229,7 @@ export const renderStillFlow = async ({
 
 	renderProgress = createOverwriteableCliOutput({
 		quiet: quietFlagProvided(),
+		cancelSignal,
 	});
 	const renderStart = Date.now();
 
@@ -289,7 +291,6 @@ export const renderStillFlow = async ({
 		totalFrames: 1,
 	};
 	updateProgress();
-	Log.infoAdvanced({indent: indentOutput, logLevel});
 
 	Log.infoAdvanced(
 		{indent: indentOutput, logLevel},
