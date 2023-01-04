@@ -784,6 +784,13 @@ export const articles = [
     crumb: "Lambda Troubleshooting",
   },
   {
+    id: "debug",
+    title: "Debugging failed Lambda renders",
+    relativePath: "docs/lambda/troubleshooting/debug.md",
+    compId: "articles-docs-lambda-troubleshooting-debug",
+    crumb: "Lambda",
+  },
+  {
     id: "permissions",
     title: "AWS Permissions Troubleshooting",
     relativePath: "docs/lambda/troubleshooting/permissions.md",
