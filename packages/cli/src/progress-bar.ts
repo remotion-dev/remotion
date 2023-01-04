@@ -1,4 +1,4 @@
-import type {Codec, StitchingState} from '@remotion/renderer';
+import type {CancelSignal, Codec, StitchingState} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {AnsiDiff} from './ansi/ansi-diff';
 import {chalk} from './chalk';
@@ -13,7 +13,8 @@ import type {RenderStep} from './step';
 import {truthy} from './truthy';
 
 export const createProgressBar = (
-	quiet: boolean
+	quiet: boolean,
+	cancelSignal: CancelSignal | null
 ): {
 	update: (str: string) => boolean;
 } => {
@@ -26,7 +27,7 @@ export const createProgressBar = (
 		return {update: () => false};
 	}
 
-	return createOverwriteableCliOutput({quiet});
+	return createOverwriteableCliOutput({quiet, cancelSignal});
 };
 
 export type OverwriteableCliOutput = {
@@ -35,6 +36,7 @@ export type OverwriteableCliOutput = {
 
 export const createOverwriteableCliOutput = (options: {
 	quiet: boolean;
+	cancelSignal: CancelSignal | null;
 }): OverwriteableCliOutput => {
 	if (options.quiet) {
 		return {
@@ -43,6 +45,11 @@ export const createOverwriteableCliOutput = (options: {
 	}
 
 	const diff = new AnsiDiff();
+
+	options.cancelSignal?.(() => {
+		process.stdout.write(diff.finish());
+	});
+
 	return {
 		update: (up: string): boolean => process.stdout.write(diff.update(up)),
 	};

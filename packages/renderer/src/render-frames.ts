@@ -13,6 +13,7 @@ import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
+import {isTargetClosedErr} from './browser/is-target-closed-err';
 import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
@@ -422,16 +423,20 @@ const innerRenderFrames = ({
 		attempt: number
 	) => {
 		try {
-			await renderFrame(frame, index);
+			await Promise.race([
+				renderFrame(frame, index),
+				new Promise((_, reject) => {
+					cancelSignal?.(() => {
+						reject(new Error(cancelErrorMessages.renderFrames));
+					});
+				}),
+			]);
 		} catch (err) {
-			if (
-				!(err as Error)?.message?.includes('Target closed') &&
-				!(err as Error)?.message?.includes('Session closed')
-			) {
+			if (isUserCancelledRender(err)) {
 				throw err;
 			}
 
-			if (isUserCancelledRender(err)) {
+			if (!isTargetClosedErr(err as Error)) {
 				throw err;
 			}
 
@@ -616,6 +621,10 @@ export const renderFrames = (
 
 				if (options.puppeteerInstance) {
 					Promise.all(openedPages.map((p) => p.close())).catch((err) => {
+						if (isTargetClosedErr(err)) {
+							return;
+						}
+
 						console.log('Unable to close browser tab', err);
 					});
 				} else {
