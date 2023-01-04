@@ -161,6 +161,13 @@ export const articles = [
     crumb: "CLI Reference",
   },
   {
+    id: "clipper",
+    title: "<Experimental.Clipper>",
+    relativePath: "docs/clipper.md",
+    compId: "articles-docs-clipper",
+    crumb: "Experimental API",
+  },
+  {
     id: "composition",
     title: "<Composition>",
     relativePath: "docs/composition.md",
@@ -784,6 +791,13 @@ export const articles = [
     crumb: "Lambda Troubleshooting",
   },
   {
+    id: "debug",
+    title: "Debugging failed Lambda renders",
+    relativePath: "docs/lambda/troubleshooting/debug.md",
+    compId: "articles-docs-lambda-troubleshooting-debug",
+    crumb: "Lambda",
+  },
+  {
     id: "permissions",
     title: "AWS Permissions Troubleshooting",
     relativePath: "docs/lambda/troubleshooting/permissions.md",
@@ -1050,6 +1064,13 @@ export const articles = [
     relativePath: "docs/non-seekable-media.md",
     compId: "articles-docs-non-seekable-media",
     crumb: "Troubleshooting",
+  },
+  {
+    id: '"null"',
+    title: "<Experimental.Null>",
+    relativePath: "docs/null.md",
+    compId: "articles-docs-null",
+    crumb: "Experimental API",
   },
   {
     id: "offthreadvideo",
@@ -1620,7 +1641,7 @@ export const articles = [
   },
   {
     id: "timeout",
-    title: "Puppeteer timeout",
+    title: "Debugging timeouts",
     relativePath: "docs/timeout.md",
     compId: "articles-docs-timeout",
     crumb: "Troubleshooting",

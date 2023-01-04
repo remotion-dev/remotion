@@ -27,3 +27,28 @@ export const makeCancelSignal = (): {
 		},
 	};
 };
+
+export const cancelErrorMessages = {
+	renderMedia: 'renderMedia() got cancelled',
+	renderFrames: 'renderFrames() got cancelled',
+	renderStill: 'renderStill() got cancelled',
+	stitchFramesToVideo: 'stitchFramesToVideo() got cancelled',
+};
+
+export const isUserCancelledRender = (err: unknown) => {
+	if (
+		typeof err === 'object' &&
+		err !== null &&
+		'message' in err &&
+		typeof err.message === 'string'
+	) {
+		return (
+			err.message.includes(cancelErrorMessages.renderMedia) ||
+			err.message.includes(cancelErrorMessages.renderFrames) ||
+			err.message.includes(cancelErrorMessages.renderStill) ||
+			err.message.includes(cancelErrorMessages.stitchFramesToVideo)
+		);
+	}
+
+	return false;
+};

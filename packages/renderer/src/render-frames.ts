@@ -32,6 +32,7 @@ import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
 import {getServeUrlWithFallback} from './legacy-webpack-config';
 import type {CancelSignal} from './make-cancel-signal';
+import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {openBrowser} from './open-browser';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
@@ -430,6 +431,10 @@ const innerRenderFrames = ({
 				throw err;
 			}
 
+			if (isUserCancelledRender(err)) {
+				throw err;
+			}
+
 			if (retriesLeft === 0) {
 				console.warn(
 					err,
@@ -558,7 +563,7 @@ export const renderFrames = (
 		Promise.race([
 			new Promise<RenderFramesOutput>((_, rej) => {
 				options.cancelSignal?.(() => {
-					rej(new Error('renderFrames() got cancelled'));
+					rej(new Error(cancelErrorMessages.renderFrames));
 				});
 			}),
 			Promise.all([

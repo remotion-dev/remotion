@@ -25,6 +25,7 @@ import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getProResProfileName} from './get-prores-profile-name';
 import type {ImageFormat} from './image-format';
 import type {CancelSignal} from './make-cancel-signal';
+import {cancelErrorMessages} from './make-cancel-signal';
 import {mergeAudioTrack} from './merge-audio-track';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import type {PixelFormat} from './pixel-format';
@@ -481,7 +482,7 @@ export const stitchFramesToVideo = async (
 		happyPath,
 		new Promise<Buffer | null>((_resolve, reject) => {
 			options.cancelSignal?.(() => {
-				reject(new Error('stitchFramesToVideo() got cancelled'));
+				reject(new Error(cancelErrorMessages.stitchFramesToVideo));
 			});
 		}),
 	]);
