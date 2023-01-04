@@ -88,6 +88,7 @@ export const still = async (remotionRoot: string, args: string[]) => {
 			addCleanupCallback: (c) => {
 				jobCleanups.push(c);
 			},
+			cancelSignal: null,
 		});
 	} finally {
 		await Promise.all(jobCleanups.map((c) => c()));
