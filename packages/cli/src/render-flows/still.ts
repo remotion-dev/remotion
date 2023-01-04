@@ -3,6 +3,7 @@
 import type {
 	Browser,
 	BrowserExecutable,
+	CancelSignal,
 	ChromiumOptions,
 	FfmpegExecutable,
 	ImageFormat,
@@ -98,6 +99,7 @@ export const renderStillFlow = async ({
 	onProgress: JobProgressCallback;
 	indentOutput: boolean;
 	addCleanupCallback: (cb: () => Promise<void>) => void;
+	cancelSignal: CancelSignal | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
 

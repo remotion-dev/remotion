@@ -1,4 +1,4 @@
-import {notificationCenter} from './editor/components/Notifications/NotificationCenter';
+import {sendErrorNotification} from './editor/components/Notifications/NotificationCenter';
 import {renderJobsRef} from './editor/components/RenderQueue/context';
 import {previewServerConnectionRef} from './editor/helpers/client-id';
 import type {EventSourceEvent} from './event-source-events';
@@ -47,12 +47,7 @@ export const openEventSource = () => {
 		}
 
 		if (newEvent.type === 'render-job-failed') {
-			notificationCenter.current?.addNotification({
-				content: `Rendering "${newEvent.compositionId}" failed`,
-				duration: 2000,
-				created: Date.now(),
-				id: String(Math.random()).replace('0.', ''),
-			});
+			sendErrorNotification(`Rendering "${newEvent.compositionId}" failed`);
 		}
 
 		if (newEvent.type === 'new-public-folder') {

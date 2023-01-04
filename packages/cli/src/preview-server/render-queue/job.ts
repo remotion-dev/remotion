@@ -1,4 +1,8 @@
-import type {Codec, StillImageFormat} from '@remotion/renderer';
+import type {
+	Codec,
+	makeCancelSignal,
+	StillImageFormat,
+} from '@remotion/renderer';
 
 type RenderJobDynamicStatus =
 	| {
@@ -49,6 +53,7 @@ export type RenderJob = {
 	outName: string;
 	deletedOutputLocation: boolean;
 	verbose: boolean;
+	cancelToken: ReturnType<typeof makeCancelSignal>;
 } & RenderJobDynamicStatus &
 	RenderJobDynamicFields;
 
@@ -73,6 +78,11 @@ type AddRenderRequestDynamicFields =
 			scale: number;
 			verbose: boolean;
 	  };
+
+export type CancelRenderRequest = {
+	jobId: string;
+};
+export type CancelRenderResponse = {};
 
 export type AddRenderRequest = {
 	compositionId: string;
