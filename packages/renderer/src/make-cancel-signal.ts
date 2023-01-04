@@ -40,13 +40,13 @@ export const isUserCancelledRender = (err: unknown) => {
 		typeof err === 'object' &&
 		err !== null &&
 		'message' in err &&
-		typeof err.message === 'string'
+		typeof (err as Error).message === 'string'
 	) {
 		return (
-			err.message.includes(cancelErrorMessages.renderMedia) ||
-			err.message.includes(cancelErrorMessages.renderFrames) ||
-			err.message.includes(cancelErrorMessages.renderStill) ||
-			err.message.includes(cancelErrorMessages.stitchFramesToVideo)
+			(err as Error).message.includes(cancelErrorMessages.renderMedia) ||
+			(err as Error).message.includes(cancelErrorMessages.renderFrames) ||
+			(err as Error).message.includes(cancelErrorMessages.renderStill) ||
+			(err as Error).message.includes(cancelErrorMessages.stitchFramesToVideo)
 		);
 	}
 
