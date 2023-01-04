@@ -254,6 +254,7 @@ export const renderCompFlow = async ({
 
 	const renderProgress = createOverwriteableCliOutput({
 		quiet,
+		cancelSignal,
 	});
 
 	const realFrameRange = RenderInternals.getRealFrameRange(
@@ -368,7 +369,6 @@ export const renderCompFlow = async ({
 		});
 
 		updateRenderProgress();
-		Log.infoAdvanced({indent, logLevel});
 		Log.infoAdvanced({indent, logLevel}, chalk.cyan(`▶ ${absoluteOutputFile}`));
 	}
 
