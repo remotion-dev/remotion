@@ -258,6 +258,7 @@ export const benchmarkCommand = async (
 		for (const con of concurrency) {
 			const benchmarkProgress = createOverwriteableCliOutput({
 				quiet: quietFlagProvided(),
+				cancelSignal: null,
 			});
 			Log.info();
 			Log.info(

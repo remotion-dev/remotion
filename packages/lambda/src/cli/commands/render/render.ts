@@ -147,6 +147,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 	const progressBar = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
+		cancelSignal: null,
 	});
 
 	Log.info(
