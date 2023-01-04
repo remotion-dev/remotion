@@ -1,3 +1,4 @@
+import {makeCancelSignal} from '@remotion/renderer';
 import type {ApiHandler} from '../api-types';
 import type {AddRenderRequest} from '../render-queue/job';
 import {addJob} from '../render-queue/queue';
@@ -27,6 +28,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				scale: input.scale,
 				startedAt: Date.now(),
 				verbose: input.verbose,
+				cancelToken: makeCancelSignal(),
 			},
 		});
 	}
@@ -47,6 +49,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				cleanup: [],
 				deletedOutputLocation: false,
 				verbose: input.verbose,
+				cancelToken: makeCancelSignal(),
 			},
 			entryPoint,
 			remotionRoot,

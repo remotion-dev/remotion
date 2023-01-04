@@ -1,6 +1,6 @@
 import React, {useCallback, useMemo} from 'react';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
-import {notificationCenter} from '../Notifications/NotificationCenter';
+import {sendErrorNotification} from '../Notifications/NotificationCenter';
 import {openInFileExplorer} from './actions';
 import {renderQueueItemSubtitleStyle} from './item-style';
 
@@ -9,12 +9,7 @@ export const RenderQueueOutputName: React.FC<{
 }> = ({job}) => {
 	const onClick = useCallback(() => {
 		openInFileExplorer({directory: job.outName}).catch((err) => {
-			notificationCenter.current?.addNotification({
-				content: `Could not open file: ${err.message}`,
-				created: Date.now(),
-				duration: 2000,
-				id: String(Math.random()),
-			});
+			sendErrorNotification(`Could not open file: ${err.message}`);
 		});
 	}, [job.outName]);
 

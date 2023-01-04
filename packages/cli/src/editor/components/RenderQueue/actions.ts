@@ -131,3 +131,9 @@ export const removeRenderJob = (job: RenderJob) => {
 		jobId: job.id,
 	});
 };
+
+export const cancelRenderJob = (job: RenderJob) => {
+	return callApi('/api/cancel', {
+		jobId: job.id,
+	});
+};
