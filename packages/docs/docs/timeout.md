@@ -1,17 +1,18 @@
 ---
 image: /generated/articles-docs-timeout.png
 id: timeout
-title: Puppeteer timeout
+title: Debugging timeouts
+sidebar_label: Timeouts
 crumb: "Troubleshooting"
 ---
 
 The following error:
 
 ```bash
-TimeoutError: waiting for function failed: timeout 30000ms exceeded
+A delayRender() was called but not cleared after 28000ms. See https://remotion.dev/docs/timeout for help. The delayRender was called
 ```
 
-generally happens when an unrecoverable error prevented the component to be mounted or if a [`delayRender()`](/docs/delay-render) handle has been created and not been cleared afterwards. Puppeteer will wait to make a screenshot, but aborts it after 30 seconds to not hang forever.
+generally happens if a [`delayRender()`](/docs/delay-render) handle has been created and not been cleared afterwards. Remotion will wait to make a screenshot, but aborts it by default after 30 seconds to not hang forever.
 
 ## Possible causes
 

@@ -2,6 +2,7 @@ import React from 'react';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
 import {Row, Spacing} from '../layout';
 import {RenderQueueError} from './RenderQueueError';
+import {RenderQueueCancelButton} from './RenderQueueItemCancelButton';
 import {RenderQueueItemStatus} from './RenderQueueItemStatus';
 import {RenderQueueOutputName} from './RenderQueueOutputName';
 import {RenderQueueProgressMessage} from './RenderQueueProgressMessage';
@@ -55,9 +56,14 @@ export const RenderQueueItem: React.FC<{
 				</div>
 			</div>
 			<Spacing x={1} />
-			<RenderQueueRepeatItem job={job} />
-			<Spacing x={1} />
-			<RenderQueueRemoveItem job={job} />
+			{job.status === 'done' || job.status === 'failed' ? (
+				<RenderQueueRepeatItem job={job} />
+			) : null}
+			{job.status === 'running' ? (
+				<RenderQueueCancelButton job={job} />
+			) : (
+				<RenderQueueRemoveItem job={job} />
+			)}
 		</Row>
 	);
 };

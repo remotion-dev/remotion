@@ -15,6 +15,7 @@ export const functionsLsCommand = async () => {
 	const region = getAwsRegion();
 	const fetchingOutput = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
+		cancelSignal: null,
 	});
 	fetchingOutput.update('Getting functions...');
 

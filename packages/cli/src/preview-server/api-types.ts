@@ -1,6 +1,8 @@
 import type {IncomingMessage, ServerResponse} from 'http';
 import type {
 	AddRenderRequest,
+	CancelRenderRequest,
+	CancelRenderResponse,
 	OpenInFileExplorerRequest,
 	RemoveRenderRequest,
 	SubscribeToFileExistenceRequest,
@@ -27,6 +29,7 @@ type ReqAndRes<A, B> = {
 };
 
 export type ApiRoutes = {
+	'/api/cancel': ReqAndRes<CancelRenderRequest, CancelRenderResponse>;
 	'/api/render': ReqAndRes<AddRenderRequest, undefined>;
 	'/api/unsubscribe-from-file-existence': ReqAndRes<
 		UnsubscribeFromFileExistenceRequest,

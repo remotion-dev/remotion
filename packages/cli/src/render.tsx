@@ -97,6 +97,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			outputLocationFromUI: null,
 			uiCodec: null,
 			uiImageFormat: null,
+			cancelSignal: null,
 		});
 	} finally {
 		await Promise.all(jobCleanups.map((c) => c()));

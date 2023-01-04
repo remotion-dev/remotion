@@ -1,6 +1,7 @@
 import type {
 	Browser,
 	BrowserExecutable,
+	CancelSignal,
 	ChromiumOptions,
 	Codec,
 	FfmpegExecutable,
@@ -77,6 +78,7 @@ export const renderCompFlow = async ({
 	addCleanupCallback,
 	uiCodec,
 	uiImageFormat,
+	cancelSignal,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -111,6 +113,7 @@ export const renderCompFlow = async ({
 	addCleanupCallback: (cb: () => Promise<void>) => void;
 	uiCodec: Codec | null;
 	uiImageFormat: ImageFormat | null;
+	cancelSignal: CancelSignal | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
 	const downloadMap = RenderInternals.makeDownloadMap();
@@ -251,6 +254,7 @@ export const renderCompFlow = async ({
 
 	const renderProgress = createOverwriteableCliOutput({
 		quiet,
+		cancelSignal,
 	});
 
 	const realFrameRange = RenderInternals.getRealFrameRange(
@@ -341,6 +345,7 @@ export const renderCompFlow = async ({
 					Log.infoAdvanced({indent, logLevel}, '\nDownloading asset... ', src);
 				}
 			},
+			cancelSignal: cancelSignal ?? undefined,
 			outputDir,
 			serveUrl: urlOrBundle,
 			dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
@@ -364,7 +369,6 @@ export const renderCompFlow = async ({
 		});
 
 		updateRenderProgress();
-		Log.infoAdvanced({indent, logLevel});
 		Log.infoAdvanced({indent, logLevel}, chalk.cyan(`▶ ${absoluteOutputFile}`));
 	}
 
@@ -389,6 +393,7 @@ export const renderCompFlow = async ({
 		puppeteerInstance,
 		onDownload,
 		downloadMap,
+		cancelSignal: cancelSignal ?? undefined,
 		onSlowestFrames: (slowestFrames) => {
 			Log.verboseAdvanced({indent, logLevel});
 			Log.verboseAdvanced({indent, logLevel}, `Slowest frames:`);

@@ -3,6 +3,7 @@
 import type {
 	Browser,
 	BrowserExecutable,
+	CancelSignal,
 	ChromiumOptions,
 	FfmpegExecutable,
 	ImageFormat,
@@ -70,6 +71,7 @@ export const renderStillFlow = async ({
 	onProgress,
 	indentOutput,
 	addCleanupCallback,
+	cancelSignal,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -98,6 +100,7 @@ export const renderStillFlow = async ({
 	onProgress: JobProgressCallback;
 	indentOutput: boolean;
 	addCleanupCallback: (cb: () => Promise<void>) => void;
+	cancelSignal: CancelSignal | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
 
@@ -226,6 +229,7 @@ export const renderStillFlow = async ({
 
 	renderProgress = createOverwriteableCliOutput({
 		quiet: quietFlagProvided(),
+		cancelSignal,
 	});
 	const renderStart = Date.now();
 
@@ -288,7 +292,6 @@ export const renderStillFlow = async ({
 	};
 	updateProgress();
 	Log.infoAdvanced({indent: indentOutput, logLevel});
-
 	Log.infoAdvanced(
 		{indent: indentOutput, logLevel},
 		chalk.cyan(`▶️ ${absoluteOutputLocation}`)

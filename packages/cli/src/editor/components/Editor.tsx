@@ -1,20 +1,15 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {continueRender, delayRender, Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
-import {ModalsContext} from '../state/modals';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
 import {FramePersistor} from './FramePersistor';
 import {GlobalKeybindings} from './GlobalKeybindings';
-import NewComposition from './NewComposition/NewComposition';
+import {Modals} from './Modals';
 import {NoRegisterRoot} from './NoRegisterRoot';
 import {NotificationCenter} from './Notifications/NotificationCenter';
-import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
-import {RenderErrorModal} from './RenderModal/RenderErrorModal';
-import {RenderModal} from './RenderModal/RenderModal';
-import {UpdateModal} from './UpdateModal/UpdateModal';
 import {ZoomPersistor} from './ZoomPersistor';
 
 const background: React.CSSProperties = {
@@ -28,8 +23,6 @@ const background: React.CSSProperties = {
 
 export const Editor: React.FC = () => {
 	const [Root, setRoot] = useState<React.FC | null>(() => Internals.getRoot());
-
-	const {selectedModal: modalContextType} = useContext(ModalsContext);
 
 	const [waitForRoot] = useState(() => {
 		if (Root) {
@@ -64,40 +57,9 @@ export const Editor: React.FC = () => {
 						<GlobalKeybindings />
 					</Internals.CanUseRemotionHooksProvider>
 					<NotificationCenter />
-
-					{modalContextType && modalContextType.type === 'quick-switcher' && (
-						// Quick switcher here because requires timeline zoom ctx
-						<QuickSwitcher
-							invocationTimestamp={modalContextType.invocationTimestamp}
-							initialMode={modalContextType.mode}
-						/>
-					)}
 				</div>
+				<Modals />
 			</TimelineZoomContext>
-
-			{modalContextType && modalContextType.type === 'new-comp' && (
-				<NewComposition initialCompType={modalContextType.compType} />
-			)}
-
-			{modalContextType && modalContextType.type === 'render' && (
-				<RenderModal
-					initialFrame={modalContextType.initialFrame}
-					compositionId={modalContextType.compositionId}
-					initialImageFormat={modalContextType.initialImageFormat}
-					initialQuality={modalContextType.initialQuality}
-					initialOutName={modalContextType.initialOutName}
-					initialScale={modalContextType.initialScale}
-					initialVerbose={modalContextType.initialVerbose}
-				/>
-			)}
-
-			{modalContextType && modalContextType.type === 'render-error' && (
-				<RenderErrorModal job={modalContextType.job} />
-			)}
-
-			{modalContextType && modalContextType.type === 'update' && (
-				<UpdateModal info={modalContextType.info} />
-			)}
 		</HigherZIndex>
 	);
 };

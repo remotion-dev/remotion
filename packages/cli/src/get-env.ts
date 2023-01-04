@@ -65,11 +65,14 @@ const watchEnvFile = ({
 const getEnvForEnvFile = async (
 	processEnv: ReturnType<typeof getProcessEnv>,
 	envFile: string,
-	onUpdate: (newProps: Record<string, string>) => void
+	onUpdate: null | ((newProps: Record<string, string>) => void)
 ) => {
 	try {
 		const envFileData = await fs.promises.readFile(envFile);
-		watchEnvFile({processEnv, envFile, onUpdate});
+		if (onUpdate) {
+			watchEnvFile({processEnv, envFile, onUpdate});
+		}
+
 		return {
 			...processEnv,
 			...dotenv.parse(envFileData),
@@ -82,7 +85,7 @@ const getEnvForEnvFile = async (
 };
 
 export const getEnvironmentVariables = (
-	onUpdate: (newProps: Record<string, string>) => void
+	onUpdate: null | ((newProps: Record<string, string>) => void)
 ): Promise<Record<string, string>> => {
 	const processEnv = getProcessEnv();
 
@@ -117,11 +120,14 @@ export const getEnvironmentVariables = (
 
 	const defaultEnvFile = path.resolve(remotionRoot, '.env');
 	if (!fs.existsSync(defaultEnvFile)) {
-		watchEnvFile({
-			processEnv,
-			envFile: defaultEnvFile,
-			onUpdate,
-		});
+		if (onUpdate) {
+			watchEnvFile({
+				processEnv,
+				envFile: defaultEnvFile,
+				onUpdate,
+			});
+		}
+
 		return Promise.resolve(processEnv);
 	}
 
