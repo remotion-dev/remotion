@@ -36,17 +36,16 @@ The properties `x`, `y`, `width` and `height` define a rect in pixels that shoul
 
 ## Rules
 
-<p>
+<div>
 <Step>1</Step> Even elements <strong>outside</strong> of the <code>{"<Clipper>"}</code> component will be clipped.
-</p>
-
-<p>
-<Step>2</Step> If the <code>imageFormat</code> is <code>jpeg</code>, the remaining frame will become black, if the <code>imageFormat</code> is <code>png</code>, the remaining frame will become transparent. 
-</p>
-<p>
+</div>
+<div>
+<Step>2</Step> If the <code>imageFormat</code> is <code>jpeg</code>, the remaining frame will become black, if the <code>imageFormat</code> is <code>png</code>, the remaining frame will become transparent.
+</div>
+<div>
 <Step>3</Step> Only one <a href="/docs/null"><code>{"<Experimental.Null>"}</code></a> or <code>{"<Experimental.Clipper>"}</code> component can be rendered per frame.  
  Rendering multiple is an error.
-</p>
+</div>
 
 ## See also
 

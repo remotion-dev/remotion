@@ -31,8 +31,10 @@ export const Step: React.FC<{
     <span
       style={{
         marginRight: 7,
-        display: "inline",
+        display: "inline-block",
         position: "relative",
+        marginTop: 4,
+        marginBottom: 4,
       }}
     >
       <InlineStep>{children}</InlineStep>{" "}

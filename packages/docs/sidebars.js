@@ -381,6 +381,7 @@ module.exports = {
           type: "category",
           label: "Troubleshooting",
           items: [
+            "lambda/troubleshooting/debug",
             "lambda/troubleshooting/permissions",
             "lambda/troubleshooting/rate-limit",
             "lambda/troubleshooting/unrecognizedclientexception",
