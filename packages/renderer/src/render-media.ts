@@ -31,7 +31,7 @@ import {isAudioCodec} from './is-audio-codec';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
 import {getServeUrlWithFallback} from './legacy-webpack-config';
 import type {CancelSignal} from './make-cancel-signal';
-import {makeCancelSignal} from './make-cancel-signal';
+import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {DEFAULT_OVERWRITE} from './overwrite';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
@@ -551,7 +551,7 @@ export const renderMedia = ({
 		happyPath,
 		new Promise<Buffer | null>((_resolve, reject) => {
 			cancelSignal?.(() => {
-				reject(new Error('renderMedia() got cancelled'));
+				reject(new Error(cancelErrorMessages.renderMedia));
 			});
 		}),
 	]);
