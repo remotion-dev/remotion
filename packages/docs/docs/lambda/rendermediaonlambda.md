@@ -7,7 +7,10 @@ crumb: "Lambda API"
 
 import { MinimumFramesPerLambda } from "../../components/lambda/default-frames-per-lambda";
 
-Triggers a render on a lambda given a composition and a lambda function.
+Kicks off a render process on Remotion Lambda. The progress can be tracked using [getRenderProgress()](/docs/lambda/getrenderprogress).
+
+Requires a [function](/docs/lambda/deployfunction) to already be deployed to execute the render.  
+A [site](/docs/lambda/deploysite) or a [Serve URL](/docs/terminology#serve-url) needs to be specified to determine what will be rendered.
 
 ## Example
 
