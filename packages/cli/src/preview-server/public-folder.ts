@@ -1,5 +1,5 @@
 import {BundlerInternals} from '@remotion/bundler';
-import {watch} from 'fs';
+import {existsSync, watch} from 'fs';
 import path from 'path';
 // eslint-disable-next-line no-restricted-imports
 import type {StaticFile} from 'remotion';
@@ -49,6 +49,23 @@ export const watchPublicFolder = ({
 	onUpdate: () => void;
 	staticHash: string;
 }) => {
+	if (!existsSync(publicDir)) {
+		const parentDir = path.dirname(publicDir);
+		const onDirChange = () => {
+			if (existsSync(publicDir)) {
+				watchPublicFolder({
+					publicDir,
+					onUpdate,
+					staticHash,
+				});
+				watcher.close();
+			}
+		};
+
+		const watcher = watch(parentDir, {}, onDirChange);
+		return;
+	}
+
 	watch(publicDir, {recursive: true}, () => {
 		fetchFolder({publicDir, staticHash});
 		onUpdate();
