@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-clipper.png
 id: clipper
 title: <Experimental.Clipper>
 crumb: "Experimental API"

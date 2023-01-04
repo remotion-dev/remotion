@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-null.png
 id: "null"
 title: <Experimental.Null>
 crumb: "Experimental API"
