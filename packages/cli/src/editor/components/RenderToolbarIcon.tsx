@@ -2,11 +2,10 @@ import type {LogLevel} from '@remotion/renderer';
 import React, {useCallback, useContext} from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
 import {getDefaultOutLocation} from '../../get-default-out-name';
+import {PreviewServerConnectionCtx} from '../helpers/client-id';
 import {RenderStill} from '../icons/RenderStillIcon';
 import {ModalsContext} from '../state/modals';
 import {ControlButton} from './ControlButton';
-
-const tooltip = 'Export the current frame as a still image';
 
 const style: React.CSSProperties = {
 	width: 18,
@@ -16,6 +15,13 @@ const style: React.CSSProperties = {
 
 export const RenderStillButton: React.FC = () => {
 	const {setSelectedModal} = useContext(ModalsContext);
+	const {type} = useContext(PreviewServerConnectionCtx);
+
+	const tooltip =
+		type === 'connected'
+			? 'Export the current frame as a still image'
+			: 'Connect to the preview server to render';
+
 	const video = Internals.useVideo();
 	const frame = useCurrentFrame();
 
@@ -47,7 +53,12 @@ export const RenderStillButton: React.FC = () => {
 	}
 
 	return (
-		<ControlButton title={tooltip} aria-label={tooltip} onClick={onClick}>
+		<ControlButton
+			disabled={type !== 'connected'}
+			title={tooltip}
+			aria-label={tooltip}
+			onClick={onClick}
+		>
 			<RenderStill style={style} />
 		</ControlButton>
 	);
