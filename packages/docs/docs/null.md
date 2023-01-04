@@ -28,29 +28,29 @@ export const MyComp: React.FC = () => {
 
 ## Rules
 
-<p>
+<div>
 <Step>1</Step> If this component is rendered, no screenshot will be taken during rendering
-</p>
-<p>
+</div>
+<div>
 <Step>2</Step> In the preview, the content will be rendered with zero opacity.
-</p>
-<p>
+</div>
+<div>
 <Step>3</Step> Even elements <strong>outside</strong> of the <code>{"<Null>"}</code> component will disappear.
-</p>
-<p>
+</div>
+<div>
 <Step>4</Step> Audio will still be rendered.
-</p>
-<p>
+</div>
+<div>
 <Step>5</Step> Effects will still be executed.
-</p>
+</div>
 
-<p>
+<div>
 <Step>6</Step> If the <code>imageFormat</code> is <code>jpeg</code>, a black frame will be generated, if the <code>imageFormat</code> is <code>png</code>, a transparent frame will be generated. 
-</p>
-<p>
+</div>
+<div>
 <Step>7</Step> Only one <code>{"<Experimental.Null>"}</code> or <a href="/docs/clipper"><code>{"<Experimental.Clipper>"}</code></a> component can be rendered per frame.  
  Rendering multiple is an error.
-</p>
+</div>
 
 ## See also
 
