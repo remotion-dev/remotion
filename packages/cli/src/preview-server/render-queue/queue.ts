@@ -153,6 +153,11 @@ export const processJobIfPossible = async ({
 			remotionRoot,
 			onProgress: ({message, progress}) => {
 				updateJob(nextJob.id, (job) => {
+					// Ignore late callbacks of progress updates after cancelling
+					if (job.status === 'failed' || job.status === 'done') {
+						return job;
+					}
+
 					return {
 						...job,
 						status: 'running',
