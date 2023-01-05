@@ -409,6 +409,20 @@ export const RenderModal: React.FC<{
 	}, [setCodec, videoCodec]);
 
 	const renderTabOptions = useMemo((): SegmentedControlItem[] => {
+		if (initialRenderType === 'still') {
+			return [
+				{
+					label: 'Still',
+					onClick: () => {
+						setRenderMode('still');
+						setStillFormat(imageFormat);
+					},
+					key: 'still',
+					selected: renderMode === 'still',
+				},
+			];
+		}
+
 		return [
 			{
 				label: 'Still',
