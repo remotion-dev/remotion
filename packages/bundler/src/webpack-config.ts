@@ -48,11 +48,13 @@ export const webpackConfig = ({
 	remotionRoot,
 	keyboardShortcutsEnabled,
 	poll,
+	runtime,
 }: {
 	entry: string;
 	userDefinedComponent: string;
 	outDir: string;
 	environment: 'development' | 'production';
+	runtime: 'browser' | 'node';
 	webpackOverride: WebpackOverrideFn;
 	onProgress?: (f: number) => void;
 	enableCaching?: boolean;
@@ -67,8 +69,7 @@ export const webpackConfig = ({
 		optimization: {
 			minimize: false,
 		},
-		// TODO: Agnostic to the bundler
-		target: 'node',
+		target: runtime === 'browser' ? undefined : 'node',
 		experiments: {
 			lazyCompilation:
 				environment === 'production'
@@ -97,11 +98,14 @@ export const webpackConfig = ({
 			require.resolve('../react-shim.js'),
 			entry,
 		].filter(Boolean) as [string, ...string[]],
-		externals: {
-			react: 'commonjs react',
-			'react-dom': 'commonjs react-dom',
-			remotion: 'commonjs remotion',
-		},
+		externals:
+			runtime === 'browser'
+				? undefined
+				: {
+						react: 'commonjs react',
+						'react-dom': 'commonjs react-dom',
+						remotion: 'commonjs remotion',
+				  },
 		mode: environment,
 		plugins:
 			environment === 'development'

@@ -125,6 +125,8 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			remotionRoot,
 			steps,
 			publicDir,
+			// TODO: Parametrize
+			runtime: 'browser',
 		}
 	);
 

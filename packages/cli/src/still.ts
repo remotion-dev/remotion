@@ -100,7 +100,8 @@ export const still = async (remotionRoot: string, args: string[]) => {
 	].filter(truthy);
 
 	const {cleanup: cleanupBundle, urlOrBundle} = await bundleOnCliOrTakeServeUrl(
-		{fullPath, remotionRoot, steps, publicDir}
+		// TODO: Parametrize
+		{fullPath, remotionRoot, steps, publicDir, runtime: 'browser'}
 	);
 
 	const puppeteerInstance = await browserInstance;

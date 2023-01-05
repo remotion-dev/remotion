@@ -9,6 +9,7 @@ import {handleJavascriptException} from './error-handling/handle-javascript-exce
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
+import type {ServeUrl} from './legacy-webpack-config';
 import type {ChromiumOptions} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
@@ -35,7 +36,7 @@ export type GetCompositionsConfig = {
 };
 
 const innerGetCompositions = async (
-	serveUrl: string,
+	serveUrl: ServeUrl,
 	page: Page,
 	config: GetCompositionsConfig,
 	proxyPort: number
@@ -123,7 +124,7 @@ export const getCompositions = async (
 		let close: (() => void) | null = null;
 
 		prepareServer({
-			webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
+			browserWebpackConfigOrServeUrl: serveUrlOrWebpackUrl,
 			onDownload: () => undefined,
 			onError,
 			ffmpegExecutable: config?.ffmpegExecutable ?? null,
@@ -132,10 +133,11 @@ export const getCompositions = async (
 			downloadMap,
 			remotionRoot: findRemotionRoot(),
 		})
-			.then(({serveUrl, closeServer, offthreadPort}) => {
+			.then(({closeServer, offthreadPort}) => {
 				close = closeServer;
+				// TODO: Not using the serve URL anymore
 				return innerGetCompositions(
-					serveUrl,
+					serveUrlOrWebpackUrl,
 					page,
 					config ?? {},
 					offthreadPort

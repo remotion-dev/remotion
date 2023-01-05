@@ -8,6 +8,7 @@ import React, {
 	useState,
 } from 'react';
 import type {TFolder} from './Folder';
+import type {Layer} from './LayerMaster';
 
 export type TComposition<T = unknown> = {
 	width: number;
@@ -20,6 +21,7 @@ export type TComposition<T = unknown> = {
 	component: LazyExoticComponent<ComponentType<T>>;
 	defaultProps: T | undefined;
 	nonce: number;
+	layers: Layer<T>[];
 };
 
 export type TCompMetadata = Pick<

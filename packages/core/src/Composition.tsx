@@ -38,6 +38,34 @@ export type CompProps<T> =
 			layers: Layer<T>[];
 	  };
 
+export const convertComponentTypesToLayers = <T,>(
+	compProps: CompProps<T>
+): Layer<T>[] => {
+	if ('component' in compProps) {
+		return [
+			{
+				component: compProps.component,
+				type: 'web',
+			},
+		];
+	}
+
+	if ('lazyComponent' in compProps) {
+		return [
+			{
+				component: compProps.lazyComponent,
+				type: 'web',
+			},
+		];
+	}
+
+	if ('layers' in compProps) {
+		return compProps.layers;
+	}
+
+	throw new Error('Unknown component type');
+};
+
 export type StillProps<T> = {
 	width: number;
 	height: number;
@@ -131,6 +159,7 @@ export const Composition = <T extends object>({
 			defaultProps,
 			nonce,
 			parentFolderName: parentName,
+			layers: convertComponentTypesToLayers(compProps),
 		});
 
 		return () => {

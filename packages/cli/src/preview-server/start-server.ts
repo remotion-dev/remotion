@@ -53,6 +53,7 @@ export const startServer = async (options: {
 		remotionRoot: options.remotionRoot,
 		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
 		poll: options.poll,
+		runtime: 'browser',
 	});
 
 	const compiler = webpack(config);

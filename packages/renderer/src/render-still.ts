@@ -15,8 +15,11 @@ import type {FfmpegExecutable} from './ffmpeg-executable';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {StillImageFormat} from './image-format';
 import {validateNonNullImageFormat} from './image-format';
-import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
-import {getServeUrlWithFallback} from './legacy-webpack-config';
+import type {ServeUrl, ServeUrlOrWebpackBundle} from './legacy-webpack-config';
+import {
+	getBrowserServeUrl,
+	getServeUrlWithFallback,
+} from './legacy-webpack-config';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -85,7 +88,7 @@ const innerRenderStill = async ({
 	downloadMap,
 }: InnerStillOptions & {
 	downloadMap: DownloadMap;
-	serveUrl: string;
+	serveUrl: ServeUrl;
 	onError: (err: Error) => void;
 	proxyPort: number;
 }): Promise<RenderStillReturnValue> => {
@@ -274,7 +277,7 @@ export const renderStill = (
 		let close: (() => void) | null = null;
 
 		prepareServer({
-			webpackConfigOrServeUrl: selectedServeUrl,
+			browserWebpackConfigOrServeUrl: getBrowserServeUrl(selectedServeUrl),
 			onDownload,
 			onError,
 			ffmpegExecutable: options.ffmpegExecutable ?? null,
@@ -283,11 +286,11 @@ export const renderStill = (
 			downloadMap,
 			remotionRoot: findRemotionRoot(),
 		})
-			.then(({serveUrl, closeServer, offthreadPort}) => {
+			.then(({closeServer, offthreadPort}) => {
 				close = closeServer;
 				return innerRenderStill({
 					...options,
-					serveUrl,
+					serveUrl: selectedServeUrl,
 					onError: (err) => reject(err),
 					proxyPort: offthreadPort,
 					downloadMap,

@@ -29,8 +29,11 @@ import {
 import {getRealFrameRange} from './get-frame-to-render';
 import type {ImageFormat} from './image-format';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
-import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
-import {getServeUrlWithFallback} from './legacy-webpack-config';
+import type {ServeUrl, ServeUrlOrWebpackBundle} from './legacy-webpack-config';
+import {
+	getBrowserServeUrl,
+	getServeUrlWithFallback,
+} from './legacy-webpack-config';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -159,17 +162,18 @@ const innerRenderFrames = ({
 	muted,
 	makeBrowser,
 	browserReplacer,
-}: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
+}: Omit<RenderFramesOptions, 'url' | 'onDownload' | 'puppeteerInstance'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
-	serveUrl: string;
+	serveUrl: ServeUrl;
 	composition: SmallTCompMetadata;
 	actualConcurrency: number;
 	onDownload: RenderMediaOnDownload;
 	proxyPort: number;
 	downloadMap: DownloadMap;
 	makeBrowser: () => Promise<Browser>;
-	browserReplacer: BrowserReplacer;
+	browserReplacer: BrowserReplacer | null;
+	puppeteerInstance: Browser | null;
 }): Promise<RenderFramesOutput> => {
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
@@ -190,6 +194,10 @@ const innerRenderFrames = ({
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
 	const makePage = async () => {
+		if (!browserReplacer) {
+			throw new Error('canonot make page without browser replacer');
+		}
+
 		const page = await browserReplacer.getBrowser().newPage();
 		pagesArray.push(page);
 		await page.setViewport({
@@ -397,7 +405,7 @@ const innerRenderFrames = ({
 		pool.release(freePage);
 	};
 
-	const renderFrame = (frame: number, index: number) => {
+	const renderWebFrame = (frame: number, index: number) => {
 		return new Promise<void>((resolve, reject) => {
 			renderFrameWithOptionToReject({
 				frame,
@@ -415,14 +423,14 @@ const innerRenderFrames = ({
 		});
 	};
 
-	const renderFrameAndRetryTargetClose = async (
+	const renderWebFrameAndRetryTargetClose = async (
 		frame: number,
 		index: number,
 		retriesLeft: number,
 		attempt: number
 	) => {
 		try {
-			await renderFrame(frame, index);
+			await renderWebFrame(frame, index);
 		} catch (err) {
 			if (
 				!(err as Error)?.message?.includes('Target closed') &&
@@ -446,6 +454,10 @@ const innerRenderFrames = ({
 			console.warn(
 				`The browser crashed while rendering frame ${frame}, retrying ${retriesLeft} more times. Learn more about this error under https://www.remotion.dev/docs/target-closed`
 			);
+			if (!browserReplacer) {
+				throw new Error('Did not have browser replacer for web frame');
+			}
+
 			await browserReplacer.replaceBrowser(makeBrowser, async () => {
 				const pages = new Array(actualConcurrency)
 					.fill(true)
@@ -456,7 +468,7 @@ const innerRenderFrames = ({
 					pool.release(newPage);
 				}
 			});
-			await renderFrameAndRetryTargetClose(
+			await renderWebFrameAndRetryTargetClose(
 				frame,
 				index,
 				retriesLeft - 1,
@@ -467,7 +479,7 @@ const innerRenderFrames = ({
 
 	const progress = Promise.all(
 		framesToRender.map((frame, index) =>
-			renderFrameAndRetryTargetClose(frame, index, MAX_RETRIES_PER_FRAME, 1)
+			renderWebFrameAndRetryTargetClose(frame, index, MAX_RETRIES_PER_FRAME, 1)
 		)
 	);
 
@@ -560,6 +572,8 @@ export const renderFrames = (
 			reject(err);
 		};
 
+		const browserServeUrl = getBrowserServeUrl(selectedServeUrl);
+
 		Promise.race([
 			new Promise<RenderFramesOutput>((_, rej) => {
 				options.cancelSignal?.(() => {
@@ -568,7 +582,7 @@ export const renderFrames = (
 			}),
 			Promise.all([
 				prepareServer({
-					webpackConfigOrServeUrl: selectedServeUrl,
+					browserWebpackConfigOrServeUrl: browserServeUrl,
 					onDownload,
 					onError,
 					ffmpegExecutable: options.ffmpegExecutable ?? null,
@@ -577,16 +591,21 @@ export const renderFrames = (
 					downloadMap,
 					remotionRoot: findRemotionRoot(),
 				}),
-				browserInstance,
-			]).then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {
-				const browserReplacer = handleBrowserCrash(puppeteerInstance);
+				browserServeUrl ? browserInstance : null,
+			]).then(([maybeBrowser, puppeteerInstance]) => {
+				const {closeServer, offthreadPort} = maybeBrowser;
+				const browserReplacer = puppeteerInstance
+					? handleBrowserCrash(puppeteerInstance)
+					: null;
 
-				const {stopCycling} = cycleBrowserTabs(
-					browserReplacer,
-					actualConcurrency
-				);
+				if (browserReplacer) {
+					const {stopCycling} = cycleBrowserTabs(
+						browserReplacer,
+						actualConcurrency
+					);
+					cleanup.push(stopCycling);
+				}
 
-				cleanup.push(stopCycling);
 				cleanup.push(closeServer);
 
 				return innerRenderFrames({
@@ -594,7 +613,7 @@ export const renderFrames = (
 					puppeteerInstance,
 					onError,
 					pagesArray: openedPages,
-					serveUrl,
+					serveUrl: selectedServeUrl,
 					composition,
 					actualConcurrency,
 					onDownload,

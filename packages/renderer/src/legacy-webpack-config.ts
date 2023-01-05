@@ -1,6 +1,13 @@
+export type ServeUrl =
+	| string
+	| {
+			browserUrl: string;
+			nodeUrl: string;
+	  };
+
 export type ServeUrlOrWebpackBundle =
 	| {
-			serveUrl: string;
+			serveUrl: ServeUrl;
 	  }
 	| {
 			/**
@@ -19,4 +26,12 @@ export const getServeUrlWithFallback = (serve: ServeUrlOrWebpackBundle) => {
 	}
 
 	throw new Error('You must pass the `serveUrl` parameter');
+};
+
+export const getBrowserServeUrl = (serve: ServeUrl): string | null => {
+	if (typeof serve === 'string') {
+		return serve;
+	}
+
+	return serve.browserUrl ?? null;
 };

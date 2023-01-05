@@ -46,6 +46,7 @@ export type LegacyBundleOptions = {
 	publicDir?: string | null;
 	onPublicDirCopyProgress?: (bytes: number) => void;
 	onSymlinkDetected?: (path: string) => void;
+	runtime?: 'browser' | 'node';
 };
 
 export const getConfig = ({
@@ -54,12 +55,14 @@ export const getConfig = ({
 	resolvedRemotionRoot,
 	onProgress,
 	options,
+	runtime,
 }: {
 	outDir: string;
 	entryPoint: string;
 	resolvedRemotionRoot: string;
 	onProgress?: (progress: number) => void;
 	options?: LegacyBundleOptions;
+	runtime: 'browser' | 'node';
 }) => {
 	const entry = require.resolve('./renderEntry');
 
@@ -78,6 +81,7 @@ export const getConfig = ({
 		remotionRoot: resolvedRemotionRoot,
 		keyboardShortcutsEnabled: false,
 		poll: null,
+		runtime,
 	});
 };
 
@@ -157,6 +161,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 		resolvedRemotionRoot,
 		onProgress,
 		options,
+		runtime: actualArgs.runtime ?? 'browser',
 	});
 
 	const output = await promisified([config]);

@@ -54,6 +54,8 @@ export const listCompositionsCommand = async (
 			fullPath,
 			steps: ['bundling'],
 			publicDir,
+			// TODO: Parametrize
+			runtime: 'browser',
 		});
 
 	// TODO: Remove and make it an option

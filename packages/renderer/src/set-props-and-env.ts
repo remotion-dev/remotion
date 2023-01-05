@@ -1,6 +1,8 @@
 import {VERSION} from 'remotion/version';
 import type {Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
+import type {ServeUrl} from './legacy-webpack-config';
+import {getBrowserServeUrl} from './legacy-webpack-config';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {redirectStatusCodes} from './redirect-status-codes';
@@ -21,7 +23,7 @@ export const setPropsAndEnv = async ({
 	inputProps: unknown;
 	envVariables: Record<string, string> | undefined;
 	page: Page;
-	serveUrl: string;
+	serveUrl: ServeUrl;
 	initialFrame: number;
 	timeoutInMilliseconds: number | undefined;
 	proxyPort: number;
@@ -29,12 +31,17 @@ export const setPropsAndEnv = async ({
 	audioEnabled: boolean;
 	videoEnabled: boolean;
 }): Promise<void> => {
+	const browserServeUrl = getBrowserServeUrl(serveUrl);
+	if (!browserServeUrl) {
+		return;
+	}
+
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	const actualTimeout = timeoutInMilliseconds ?? DEFAULT_TIMEOUT;
 	page.setDefaultTimeout(actualTimeout);
 	page.setDefaultNavigationTimeout(actualTimeout);
 
-	const urlToVisit = normalizeServeUrl(serveUrl);
+	const urlToVisit = normalizeServeUrl(browserServeUrl);
 
 	await page.evaluateOnNewDocument((timeout: number) => {
 		window.remotion_puppeteerTimeout = timeout;

@@ -12,12 +12,12 @@ export const prepareServer = async ({
 	ffprobeExecutable,
 	onDownload,
 	onError,
-	webpackConfigOrServeUrl,
+	browserWebpackConfigOrServeUrl,
 	port,
 	downloadMap,
 	remotionRoot,
 }: {
-	webpackConfigOrServeUrl: string;
+	browserWebpackConfigOrServeUrl: string | null;
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
 	ffmpegExecutable: FfmpegExecutable;
@@ -26,11 +26,14 @@ export const prepareServer = async ({
 	downloadMap: DownloadMap;
 	remotionRoot: string;
 }): Promise<{
-	serveUrl: string;
+	serveUrl: string | null;
 	closeServer: () => Promise<unknown>;
 	offthreadPort: number;
 }> => {
-	if (isServeUrl(webpackConfigOrServeUrl)) {
+	if (
+		!browserWebpackConfigOrServeUrl ||
+		isServeUrl(browserWebpackConfigOrServeUrl)
+	) {
 		const {port: offthreadPort, close: closeProxy} = await serveStatic(null, {
 			onDownload,
 			onError,
@@ -42,7 +45,7 @@ export const prepareServer = async ({
 		});
 
 		return Promise.resolve({
-			serveUrl: webpackConfigOrServeUrl,
+			serveUrl: browserWebpackConfigOrServeUrl,
 			closeServer: () => {
 				return closeProxy();
 			},
@@ -51,7 +54,7 @@ export const prepareServer = async ({
 	}
 
 	// Check if the path has a `index.html` file
-	const indexFile = path.join(webpackConfigOrServeUrl, 'index.html');
+	const indexFile = path.join(browserWebpackConfigOrServeUrl, 'index.html');
 	const exists = existsSync(indexFile);
 	if (!exists) {
 		throw new Error(
@@ -59,15 +62,18 @@ export const prepareServer = async ({
 		);
 	}
 
-	const {port: serverPort, close} = await serveStatic(webpackConfigOrServeUrl, {
-		onDownload,
-		onError,
-		ffmpegExecutable,
-		ffprobeExecutable,
-		port,
-		downloadMap,
-		remotionRoot,
-	});
+	const {port: serverPort, close} = await serveStatic(
+		browserWebpackConfigOrServeUrl,
+		{
+			onDownload,
+			onError,
+			ffmpegExecutable,
+			ffprobeExecutable,
+			port,
+			downloadMap,
+			remotionRoot,
+		}
+	);
 	return Promise.resolve({
 		closeServer: () => {
 			return waitForSymbolicationToBeDone().then(() => close());
