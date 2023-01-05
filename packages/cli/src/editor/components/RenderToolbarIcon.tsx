@@ -39,7 +39,7 @@ export const RenderStillButton: React.FC = () => {
 			initialImageFormat: 'png',
 			initialOutName: getDefaultOutLocation({
 				compositionName: video.id,
-				defaultExtension: 'png',
+				defaultExtension: video.durationInFrames > 1 ? 'mp4' : 'png',
 			}),
 			// TODO: Determine defaults from config file
 			initialQuality: window.remotion_renderDefaults?.quality ?? 80,
@@ -47,6 +47,7 @@ export const RenderStillButton: React.FC = () => {
 			initialVerbose:
 				(window.remotion_renderDefaults?.logLevel as LogLevel) === 'verbose',
 			initialRenderType: video.durationInFrames > 1 ? 'video' : 'still',
+			initialCodec: video.durationInFrames > 1 ? 'h264' : null,
 		});
 	}, [video, frame, setSelectedModal]);
 

@@ -1,4 +1,4 @@
-import type {StillImageFormat} from '@remotion/renderer';
+import type {Codec, StillImageFormat} from '@remotion/renderer';
 import type React from 'react';
 import {createContext} from 'react';
 import type {RenderJob} from '../../preview-server/render-queue/job';
@@ -18,6 +18,7 @@ export type RenderModalState = {
 	initialScale: number;
 	initialVerbose: boolean;
 	initialRenderType: RenderType;
+	initialCodec: Codec | null;
 };
 
 export type ModalState =

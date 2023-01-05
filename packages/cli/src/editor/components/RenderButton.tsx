@@ -40,6 +40,7 @@ export const RenderButton: React.FC<{
 					defaultExtension: 'png',
 				}),
 				initialRenderType: composition.durationInFrames > 1 ? 'video' : 'still',
+				initialCodec: composition.durationInFrames > 1 ? 'h264' : null,
 			});
 		},
 		[composition, setSelectedModal]

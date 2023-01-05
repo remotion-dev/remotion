@@ -27,6 +27,7 @@ export const Modals: React.FC = () => {
 					initialScale={modalContextType.initialScale}
 					initialVerbose={modalContextType.initialVerbose}
 					initialRenderType={modalContextType.initialRenderType}
+					initialCodec={modalContextType.initialCodec}
 				/>
 			)}
 
