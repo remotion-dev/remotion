@@ -10,6 +10,7 @@ import {
 	CanUseRemotionHooksProvider,
 } from './CanUseRemotionHooks';
 import type {CompProps} from './Composition';
+import {GetCompositionsFromMarkupModeProvider} from './Composition';
 import type {
 	CompositionManagerContext,
 	TAsset,
@@ -105,6 +106,7 @@ export const Internals = {
 	PrefetchProvider,
 	DurationsContextProvider,
 	NativeLayersContext,
+	GetCompositionsFromMarkupModeProvider,
 };
 
 type WebpackConfiguration = Configuration;

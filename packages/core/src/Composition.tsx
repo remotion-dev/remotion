@@ -1,5 +1,11 @@
 import type {ComponentType, PropsWithChildren} from 'react';
-import React, {Suspense, useContext, useEffect, useMemo} from 'react';
+import React, {
+	createContext,
+	Suspense,
+	useContext,
+	useEffect,
+	useMemo,
+} from 'react';
 import {createPortal} from 'react-dom';
 import {AbsoluteFill} from './AbsoluteFill';
 import {CanUseRemotionHooksProvider} from './CanUseRemotionHooks';
@@ -52,6 +58,18 @@ const Fallback: React.FC = () => {
 	return null;
 };
 
+const GetCompositionsFromMarkupMode = createContext(false);
+
+export const GetCompositionsFromMarkupModeProvider: React.FC<{
+	children: React.ReactNode;
+}> = ({children}) => {
+	return (
+		<GetCompositionsFromMarkupMode.Provider value>
+			{children}
+		</GetCompositionsFromMarkupMode.Provider>
+	);
+};
+
 export const Composition = <T extends object>({
 	width,
 	height,
@@ -67,6 +85,10 @@ export const Composition = <T extends object>({
 
 	const lazy = useLazyComponent<T>(compProps);
 	const nonce = useNonce();
+
+	const isInGetCompositionsFromMarkupMode = useContext(
+		GetCompositionsFromMarkupMode
+	);
 
 	const canUseComposition = useContext(Internals.CanUseRemotionHooks);
 	if (canUseComposition) {
@@ -130,6 +152,23 @@ export const Composition = <T extends object>({
 	]);
 
 	if (getRemotionEnvironment() === 'server-rendering') {
+		if (isInGetCompositionsFromMarkupMode) {
+			return (
+				<div
+					// eslint-disable-next-line react/no-danger
+					dangerouslySetInnerHTML={{
+						__html: JSON.stringify({
+							width,
+							height,
+							fps,
+							durationInFrames,
+							id,
+						}),
+					}}
+				/>
+			);
+		}
+
 		if (process.env.SELECT_COMP_ID === id) {
 			// @ts-expect-error
 			const Comp = compProps.component as ComponentType;
@@ -148,20 +187,7 @@ export const Composition = <T extends object>({
 			return null;
 		}
 
-		return (
-			<div
-				// eslint-disable-next-line react/no-danger
-				dangerouslySetInnerHTML={{
-					__html: JSON.stringify({
-						width,
-						height,
-						fps,
-						durationInFrames,
-						id,
-					}),
-				}}
-			/>
-		);
+		throw new Error('unexpected state in server rendering');
 	}
 
 	if (

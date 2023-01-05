@@ -31,6 +31,7 @@ const getEnvVariables = (): Record<string, string> => {
 
 export const setupEnvVariables = () => {
 	const env = getEnvVariables();
+
 	if (!window.process) {
 		window.process = {} as NodeJS.Process;
 	}

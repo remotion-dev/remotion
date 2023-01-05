@@ -38,13 +38,14 @@ export const getCompositionsFromBundle = (
 			},
 		},
 		require,
+		Buffer,
 	};
-	vm.createContext(context);
+	const vmContext = vm.createContext(context);
 
 	// TODO: Set props and env
 
 	const code = content;
-	vm.runInContext(code, context, {
+	vm.runInContext(code, vmContext, {
 		filename: bundleFile,
 		breakOnSigint: true,
 	});
@@ -53,7 +54,7 @@ export const getCompositionsFromBundle = (
 		return window.remotion_getRoot();
 	}).toString();
 
-	const theRoot = vm.runInContext(`(${script})();`, context);
+	const theRoot = vm.runInContext(`(${script})();`, vmContext);
 
 	if (!theRoot) {
 		throw new Error(
@@ -63,6 +64,7 @@ export const getCompositionsFromBundle = (
 
 	const Comp = theRoot as ComponentType;
 
+	console.log({Comp});
 	const comps = getCompositionsFromMarkup(Comp);
 
 	return comps;
