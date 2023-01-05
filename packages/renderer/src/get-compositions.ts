@@ -17,7 +17,7 @@ import {setPropsAndEnv} from './set-props-and-env';
 import {validateFfmpeg} from './validate-ffmpeg';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
-type GetCompositionsConfig = {
+export type GetCompositionsConfig = {
 	inputProps?: object | null;
 	envVariables?: Record<string, string>;
 	puppeteerInstance?: Browser;

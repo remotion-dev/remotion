@@ -56,7 +56,7 @@ export const listCompositionsCommand = async (
 			publicDir,
 		});
 
-	await RenderInternals.getCompositionsFromBundle(bundled);
+	await RenderInternals.getCompositionsFromBundle(bundled, {});
 
 	const compositions = await getCompositions(bundled, {
 		browserExecutable,

@@ -97,6 +97,11 @@ export const webpackConfig = ({
 			require.resolve('../react-shim.js'),
 			entry,
 		].filter(Boolean) as [string, ...string[]],
+		externals: {
+			react: 'commonjs react',
+			'react-dom': 'commonjs react-dom',
+			remotion: 'commonjs remotion',
+		},
 		mode: environment,
 		plugins:
 			environment === 'development'

@@ -73,7 +73,7 @@ export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FrameRange} from './frame-range';
 export {getCanExtractFramesFast} from './get-can-extract-frames-fast';
 export {getCompositions} from './get-compositions';
-export {getCompositionsOnServer} from './get-compositions-on-server';
+export {getCompositionsFromMarkup} from './get-compositions-on-server';
 export {
 	ImageFormat,
 	StillImageFormat,

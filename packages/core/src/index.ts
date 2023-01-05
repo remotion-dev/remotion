@@ -22,6 +22,7 @@ declare global {
 		remotion_initialFrame: number;
 		remotion_proxyPort: number;
 		remotion_audioEnabled: boolean;
+		remotion_getRoot: () => React.FC<{}> | null;
 		remotion_videoEnabled: boolean;
 		remotion_puppeteerTimeout: number;
 		remotion_inputProps: string;

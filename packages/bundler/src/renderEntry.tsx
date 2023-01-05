@@ -107,20 +107,26 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	);
 };
 
-const videoContainer = document.getElementById(
-	'video-container'
-) as HTMLElement;
+const videoContainer =
+	typeof document === 'undefined'
+		? null
+		: (document.getElementById('video-container') as HTMLElement);
 
-const explainerContainer = document.getElementById(
-	'explainer-container'
-) as HTMLElement;
+const explainerContainer =
+	typeof document === 'undefined'
+		? null
+		: (document.getElementById('explainer-container') as HTMLElement);
 
 let cleanupVideoContainer = () => {
-	videoContainer.innerHTML = '';
+	if (videoContainer) {
+		videoContainer.innerHTML = '';
+	}
 };
 
 let cleanupExplainerContainer = () => {
-	explainerContainer.innerHTML = '';
+	if (explainerContainer) {
+		explainerContainer.innerHTML = '';
+	}
 };
 
 const waitForRootHandle = delayRender(
@@ -152,6 +158,10 @@ const WaitForRoot: React.FC = () => {
 
 const renderContent = () => {
 	const bundleMode = getBundleMode();
+
+	if (!videoContainer || !explainerContainer) {
+		return;
+	}
 
 	if (bundleMode.type === 'composition' || bundleMode.type === 'evaluation') {
 		const markup = (

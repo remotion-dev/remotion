@@ -3,7 +3,10 @@ import {getRemotionEnvironment} from './get-environment';
 export const ENV_VARIABLES_ENV_NAME = 'ENV_VARIABLES' as const;
 
 const getEnvVariables = (): Record<string, string> => {
-	if (getRemotionEnvironment() === 'rendering') {
+	if (
+		getRemotionEnvironment() === 'rendering' ||
+		getRemotionEnvironment() === 'server-rendering'
+	) {
 		const param = window.remotion_envVariables;
 		if (!param) {
 			return {};

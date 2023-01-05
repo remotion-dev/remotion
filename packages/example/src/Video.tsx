@@ -36,6 +36,7 @@ import {VideoTesting} from './VideoTesting';
 
 export const Index: React.FC = () => {
 	const inputProps = getInputProps();
+
 	return (
 		<>
 			<Folder name="components">
@@ -582,3 +583,5 @@ export const Index: React.FC = () => {
 		</>
 	);
 };
+
+Index.displayName = 'hitheer';

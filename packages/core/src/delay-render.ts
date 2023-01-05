@@ -29,6 +29,13 @@ export const delayRender = (label?: string): number => {
 	handles.push(handle);
 	const called = Error().stack?.replace(/^Error/g, '') ?? '';
 
+	if (getRemotionEnvironment() === 'server-rendering') {
+		console.trace(
+			'delayRender() is not supported in server rendering mode. Nothing was delayed.'
+		);
+		return 0;
+	}
+
 	if (getRemotionEnvironment() === 'rendering') {
 		const timeoutToUse =
 			typeof window === 'undefined'
