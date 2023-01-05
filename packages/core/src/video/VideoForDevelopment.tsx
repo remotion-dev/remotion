@@ -22,7 +22,7 @@ import {
 	useMediaVolumeState,
 } from '../volume-position-state';
 import type {RemotionVideoProps} from './props';
-import {appendVideoFragment} from './video-fragment';
+import {useAppendVideoFragment} from './video-fragment';
 
 type VideoForDevelopmentProps = RemotionVideoProps & {
 	onlyWarnForMediaSeekingError: boolean;
@@ -96,7 +96,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		? Math.min(parentSequence.durationInFrames, durationInFrames)
 		: durationInFrames;
 
-	const actualSrc = appendVideoFragment({
+	const actualSrc = useAppendVideoFragment({
 		actualSrc: usePreload(src as string),
 		actualFrom,
 		duration,

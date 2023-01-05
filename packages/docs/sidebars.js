@@ -67,6 +67,7 @@ module.exports = {
         "register-root",
         "spring",
         "staticfile",
+        "getstaticfiles",
         "prefetch",
         "audio",
         "sequence",
@@ -380,6 +381,7 @@ module.exports = {
           type: "category",
           label: "Troubleshooting",
           items: [
+            "lambda/troubleshooting/debug",
             "lambda/troubleshooting/permissions",
             "lambda/troubleshooting/rate-limit",
             "lambda/troubleshooting/unrecognizedclientexception",

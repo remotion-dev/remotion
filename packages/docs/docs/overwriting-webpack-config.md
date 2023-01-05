@@ -64,6 +64,8 @@ import { webpackOverride } from "./src/webpack-override";
 Config.Bundling.overrideWebpackConfig(webpackOverride);
 ```
 
+With `bundle`:
+
 ```ts twoslash title="my-script.js"
 // @filename: ./src/webpack-override.ts
 import { WebpackOverrideFn } from "remotion";
@@ -77,6 +79,29 @@ import { webpackOverride } from "./src/webpack-override";
 await bundle({
   entryPoint: require.resolve("./src/index.ts"),
   webpackOverride,
+});
+```
+
+Or while using with `deploySite`:
+
+```ts twoslash title="my-script.js"
+// @filename: ./src/webpack-override.ts
+import { WebpackOverrideFn } from "remotion";
+export const webpackOverride: WebpackOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// @target: esnext
+// ---cut---
+import { deploySite } from "@remotion/lambda";
+import { webpackOverride } from "./src/webpack-override";
+
+await deploySite({
+  entryPoint: require.resolve("./src/index.ts"),
+  region: "us-east-1",
+  bucketName: "remotionlambda-c7fsl3d",
+  options: {
+    webpackOverride,
+  },
+  // ...other parameters
 });
 ```
 

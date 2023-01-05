@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/renderer",
-	"version": "3.3.25",
+	"version": "3.3.27",
 	"description": "Renderer for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -24,7 +24,7 @@
 	"dependencies": {
 		"execa": "5.1.1",
 		"extract-zip": "2.0.1",
-		"remotion": "3.3.25",
+		"remotion": "3.3.27",
 		"source-map": "^0.8.0-beta.0",
 		"ws": "8.7.0"
 	},
@@ -38,8 +38,8 @@
 		"@testing-library/react": "13.3.0",
 		"@types/node": "^16.7.5",
 		"@types/progress": "2.0.5",
-		"@types/react": "18.0.23",
-		"@types/react-dom": "18.0.0",
+		"@types/react": "18.0.26",
+		"@types/react-dom": "18.0.10",
 		"eslint": "8.25.0",
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
@@ -49,13 +49,13 @@
 		"vitest": "0.24.3"
 	},
 	"optionalDependencies": {
-		"@remotion/compositor-darwin-arm64": "3.3.25",
-		"@remotion/compositor-darwin-x64": "3.3.25",
-		"@remotion/compositor-linux-arm64-gnu": "3.3.25",
-		"@remotion/compositor-linux-arm64-musl": "3.3.25",
-		"@remotion/compositor-linux-x64-gnu": "3.3.25",
-		"@remotion/compositor-linux-x64-musl": "3.3.25",
-		"@remotion/compositor-win32-x64-msvc": "3.3.25"
+		"@remotion/compositor-darwin-arm64": "3.3.27",
+		"@remotion/compositor-darwin-x64": "3.3.27",
+		"@remotion/compositor-linux-arm64-gnu": "3.3.27",
+		"@remotion/compositor-linux-arm64-musl": "3.3.27",
+		"@remotion/compositor-linux-x64-gnu": "3.3.27",
+		"@remotion/compositor-linux-x64-musl": "3.3.27",
+		"@remotion/compositor-win32-x64-msvc": "3.3.27"
 	},
 	"keywords": [
 		"remotion",

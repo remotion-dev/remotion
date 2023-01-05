@@ -7,15 +7,18 @@ crumb: "Lambda API"
 
 import { MinimumFramesPerLambda } from "../../components/lambda/default-frames-per-lambda";
 
-Triggers a render on a lambda given a composition and a lambda function.
+Kicks off a render process on Remotion Lambda. The progress can be tracked using [getRenderProgress()](/docs/lambda/getrenderprogress).
+
+Requires a [function](/docs/lambda/deployfunction) to already be deployed to execute the render.  
+A [site](/docs/lambda/deploysite) or a [Serve URL](/docs/terminology#serve-url) needs to be specified to determine what will be rendered.
 
 ## Example
 
 ```tsx twoslash
 // @module: esnext
 // @target: es2017
-import { renderMediaOnLambda } from "@remotion/lambda";
 // ---cut---
+import { renderMediaOnLambda } from "@remotion/lambda/client";
 
 const { bucketName, renderId } = await renderMediaOnLambda({
   region: "us-east-1",
@@ -26,6 +29,10 @@ const { bucketName, renderId } = await renderMediaOnLambda({
   codec: "h264",
 });
 ```
+
+:::note
+Preferrably import this function from `@remotion/lambda/client` to avoid problems [inside serverless functions](/docs/lambda/light-client).
+:::
 
 ## Arguments
 
