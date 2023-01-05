@@ -42,12 +42,9 @@ const startCompositor = (): Compositor => {
 	const stdoutChunks: Buffer[] = [];
 
 	child.stderr.on('data', (d) => {
-		console.log(d.toString('utf-8'));
-
 		_stderrChunks.push(d);
 	});
 	child.stdout.on('data', (d) => {
-		console.log(d.toString('utf-8'));
 		stdoutChunks.push(d);
 	});
 
