@@ -11,6 +11,7 @@ use std::fs::File;
 use std::io::{self, Write};
 use std::sync::mpsc;
 use std::thread;
+use std::time::Instant;
 use threadpool::ThreadPool;
 use x264::{Encoder, Param, Picture};
 
@@ -170,10 +171,12 @@ fn main() -> Result<(), std::io::Error> {
 
                     pic = pic.set_timestamp(frames_found[f].nonce as i64);
 
+                    let time = Instant::now();
                     if let Some((nal, _, _)) = enc.encode(&pic).unwrap() {
                         let buf = nal.as_bytes();
                         output.write_all(buf).unwrap();
                     }
+                    println!("time to convert yuv {}", time.elapsed().as_millis());
                     handle_finish(frames_found[f].nonce);
                     frames_found.remove(f);
 
