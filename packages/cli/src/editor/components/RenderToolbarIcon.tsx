@@ -1,22 +1,24 @@
 import type {LogLevel} from '@remotion/renderer';
-import React, {useCallback, useContext} from 'react';
+import type {SVGProps} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
 import {getDefaultOutLocation} from '../../get-default-out-name';
 import {PreviewServerConnectionCtx} from '../helpers/client-id';
-import {RenderStill} from '../icons/RenderStillIcon';
+import {RenderIcon} from '../icons/render';
 import {ModalsContext} from '../state/modals';
 import {ControlButton} from './ControlButton';
-
-const style: React.CSSProperties = {
-	width: 18,
-	height: 18,
-	color: 'white',
-};
 
 export const RenderStillButton: React.FC = () => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {type} = useContext(PreviewServerConnectionCtx);
 
+	const iconStyle: SVGProps<SVGSVGElement> = useMemo(() => {
+		return {
+			style: {
+				height: 15,
+			},
+		};
+	}, []);
 	const tooltip =
 		type === 'connected'
 			? 'Export the current frame as a still image'
@@ -59,7 +61,7 @@ export const RenderStillButton: React.FC = () => {
 			aria-label={tooltip}
 			onClick={onClick}
 		>
-			<RenderStill style={style} />
+			<RenderIcon svgProps={iconStyle} />
 		</ControlButton>
 	);
 };

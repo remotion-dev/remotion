@@ -134,8 +134,6 @@ const MAX_QUALITY = 100;
 const MIN_SCALE = 0.1;
 const MAX_SCALE = 10;
 
-// TODO: Prevent rendering when preview server is disconnected
-
 export const RenderModal: React.FC<{
 	compositionId: string;
 	initialFrame: number;
