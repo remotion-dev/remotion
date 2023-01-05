@@ -958,6 +958,45 @@ importers:
       typescript: 4.7.2
       vitest: 0.24.3
 
+  packages/satori:
+    specifiers:
+      '@jonny/eslint-config': 3.0.266
+      '@react-three/fiber': '>=8.0.0'
+      '@types/node': ^14.14.14
+      '@types/react': 18.0.26
+      '@types/react-reconciler': ^0.26.4
+      '@types/three': ^0.134.0
+      '@types/web': 0.0.78
+      emoji-regex: ^10.2.1
+      eslint: 8.25.0
+      prettier: ^2.7.1
+      prettier-plugin-organize-imports: ^2.3.4
+      react: 18.0.0
+      react-dom: 18.0.0
+      remotion: 3.3.27
+      satori: ^0.0.44
+      three: ^0.145.0
+      typescript: ^4.7.0
+    dependencies:
+      emoji-regex: 10.2.1
+      remotion: link:../core
+      satori: 0.0.44
+    devDependencies:
+      '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
+      '@react-three/fiber': 8.8.10_u3n4asvhgbrwklmocjcudrf5be
+      '@types/node': 14.17.20
+      '@types/react': 18.0.26
+      '@types/react-reconciler': 0.26.7
+      '@types/three': 0.134.0
+      '@types/web': 0.0.78
+      eslint: 8.25.0
+      prettier: 2.7.1
+      prettier-plugin-organize-imports: 2.3.4_j2odc4yr77iddtreafyicbq5hi
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
+      three: 0.145.0
+      typescript: 4.7.2
+
   packages/skia:
     specifiers:
       '@jonny/eslint-config': 3.0.266
@@ -8285,6 +8324,15 @@ packages:
       react-native-reanimated: 2.9.1_onc77t3nmpogs5splz4447qs4q
       react-reconciler: 0.26.2_react@18.0.0
 
+  /@shuding/opentype.js/1.4.0-beta.0:
+    resolution: {integrity: sha512-3NgmNyH3l/Hv6EvsWJbsvpcpUba6R8IREQ83nH83cyakCw7uM1arZKNfHwv1Wz6jgqrF/j4x5ELvR6PnK9nTcA==}
+    engines: {node: '>= 8.0.0'}
+    hasBin: true
+    dependencies:
+      fflate: 0.7.4
+      string.prototype.codepointat: 0.2.1
+    dev: false
+
   /@sideway/address/4.1.4:
     resolution: {integrity: sha512-7vwq+rOHVWjyXxVlR76Agnvhy8I9rpzjosTESvmhNeXOXdZZB15Fl+TI9x1SiHZH5Jv2wTGduSxFDIaq0m3DUw==}
     dependencies:
@@ -9008,6 +9056,10 @@ packages:
       '@types/node': 18.0.3
     dev: false
     optional: true
+
+  /@types/yoga-layout/1.9.2:
+    resolution: {integrity: sha512-S9q47ByT2pPvD65IvrWp7qppVMpk9WGMbVq9wbWZOHg6tnXSD4vyhao6nOSBwwfDdV2p3Kx9evA9vI+XWTfDvw==}
+    dev: false
 
   /@typescript-eslint/eslint-plugin/5.18.0_sjor5xiixfpkviiagy75ykktdy:
     resolution: {integrity: sha512-tzrmdGMJI/uii9/V6lurMo4/o+dMTKDH82LkNjhJ3adCW22YQydoRs5MwTiqxGF9CSYxPxQ7EYb4jLNlIs+E+A==}
@@ -11347,6 +11399,14 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
+  /css-background-parser/0.1.0:
+    resolution: {integrity: sha512-2EZLisiZQ+7m4wwur/qiYJRniHX4K5Tc9w93MT3AS0WS1u5kaZ4FKXlOTBhOjc+CgEgPiGY+fX1yWD8UwpEqUA==}
+    dev: false
+
+  /css-box-shadow/1.0.0-3:
+    resolution: {integrity: sha512-9jaqR6e7Ohds+aWwmhe6wILJ99xYQbfmK9QQB9CcMjDbTxPZjwEmUQpU91OG05Xgm8BahT5fW+svbsQGjS/zPg==}
+    dev: false
+
   /css-color-keywords/1.0.0:
     resolution: {integrity: sha1-/qJhbcZ2spYmhrOvjb2+GAskTgU=}
     engines: {node: '>=4'}
@@ -12079,6 +12139,10 @@ packages:
 
   /electron-to-chromium/1.4.258:
     resolution: {integrity: sha512-vutF4q0dTUXoAFI7Vbtdwen/BJVwPgj8GRg/SElOodfH7VTX+svUe62A5BG41QRQGk5HsZPB0M++KH1lAlOt0A==}
+
+  /emoji-regex/10.2.1:
+    resolution: {integrity: sha512-97g6QgOk8zlDRdgq1WxwgTMgEWGVAQvB5Fdpgc1MkNy56la5SKP9GsMXKDOdqwn90/41a8yPwIGk1Y6WVbeMQA==}
+    dev: false
 
   /emoji-regex/8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -13421,6 +13485,10 @@ packages:
 
   /fflate/0.6.10:
     resolution: {integrity: sha512-IQrh3lEPM93wVCEczc9SaAOvkmcoQn/G8Bo1e8ZPlY3X3bnAxWaBdvTdvM1hP62iZp0BXWDy4vTAy4fF0+Dlpg==}
+    dev: false
+
+  /fflate/0.7.4:
+    resolution: {integrity: sha512-5u2V/CDW15QM1XbbgS+0DfPxVB+jUKhWEKuuFuHncbk3tEEqzmoXL+2KyOFuKGqOnmdIy0/davWF1CkuwtibCw==}
     dev: false
 
   /figures/3.2.0:
@@ -19594,6 +19662,19 @@ packages:
   /safer-buffer/2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
+  /satori/0.0.44:
+    resolution: {integrity: sha512-WKUxXC2qeyno6J3ucwwLozPL6j1HXOZiN5wIUf7iqAhlx1RUC/6ePIKHi7iPc3Cy6DYuZcJriZXxXkSdo2FQHg==}
+    engines: {node: '>=16'}
+    dependencies:
+      '@shuding/opentype.js': 1.4.0-beta.0
+      css-background-parser: 0.1.0
+      css-box-shadow: 1.0.0-3
+      css-to-react-native: 3.0.0
+      emoji-regex: 10.2.1
+      postcss-value-parser: 4.2.0
+      yoga-layout-prebuilt: 1.10.0
+    dev: false
+
   /sax/1.2.4:
     resolution: {integrity: sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==}
     dev: false
@@ -21046,7 +21127,6 @@ packages:
       typescript: 4.7.2
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
-    dev: false
 
   /ts-node/10.8.0_vnj66vw6pmisrnpmmxy72mdbpa:
     resolution: {integrity: sha512-/fNd5Qh+zTt8Vt1KbYZjRHCE9sI5i7nqfD/dzBBRDeVXZXS6kToW6R7tTU6Nd4XavFs0mAVCg29Q//ML7WsZYA==}
@@ -22687,6 +22767,13 @@ packages:
   /yocto-queue/0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  /yoga-layout-prebuilt/1.10.0:
+    resolution: {integrity: sha512-YnOmtSbv4MTf7RGJMK0FvZ+KD8OEe/J5BNnR0GHhD8J/XcG/Qvxgszm0Un6FTHWW4uHlTgP0IztiXQnGyIR45g==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@types/yoga-layout': 1.9.2
+    dev: false
 
   /zip-lib/0.7.2:
     resolution: {integrity: sha512-yOHG2x9vrpeO1VYSfBmixNL3E2lo5RjGOapUmGeroRSosht4vsYlM8Ci8v5Sulv5hd9ZU2ILZrOtZ4xEYmhf0A==}
