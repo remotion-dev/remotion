@@ -10,6 +10,8 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {Internals} from 'remotion';
+import type {TComposition} from 'remotion/src/internals';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {useFileExistence} from '../../helpers/use-file-existence';
@@ -188,6 +190,18 @@ export const RenderModal: React.FC<{
 		},
 		[]
 	);
+
+	const {compositions} = useContext(Internals.CompositionManager);
+
+	const currentComposition = useMemo((): TComposition | null => {
+		for (const composition of compositions) {
+			if (composition.id === compositionId) {
+				return composition;
+			}
+		}
+
+		return null;
+	}, [compositionId, compositions]);
 
 	const getStringBeforeSuffix = useCallback((fileName: string) => {
 		const dotPos = fileName.lastIndexOf('.');
@@ -408,8 +422,12 @@ export const RenderModal: React.FC<{
 		});
 	}, [setCodec, videoCodec]);
 
+	if (currentComposition === null) {
+		throw new Error('This composition does not exist');
+	}
+
 	const renderTabOptions = useMemo((): SegmentedControlItem[] => {
-		if (initialRenderType === 'still') {
+		if (currentComposition?.durationInFrames < 2) {
 			return [
 				{
 					label: 'Still',
