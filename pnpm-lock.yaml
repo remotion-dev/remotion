@@ -200,7 +200,6 @@ importers:
       '@types/react-dom': 18.0.10
       '@types/webpack-env': ^1.16.0
       '@vitejs/plugin-react': ^2.0.0
-      emoji-regex: ^10.2.1
       eslint: 8.25.0
       jsdom: 20.0.1
       prettier: ^2.7.1
@@ -209,13 +208,9 @@ importers:
       react-dom: ^18.0.0
       react-test-renderer: ^18.0.0
       rimraf: ^3.0.2
-      satori: ^0.0.44
       typescript: ^4.7.0
       vitest: 0.24.3
       webpack: 5.74.0
-    dependencies:
-      emoji-regex: 10.2.1
-      satori: 0.0.44
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
       '@testing-library/react': 13.3.0_zpnidt7m3osuk7shl3s4oenomq
@@ -962,6 +957,45 @@ importers:
       react-dom: 18.0.0_react@18.0.0
       typescript: 4.7.2
       vitest: 0.24.3
+
+  packages/satori:
+    specifiers:
+      '@jonny/eslint-config': 3.0.266
+      '@react-three/fiber': '>=8.0.0'
+      '@types/node': ^14.14.14
+      '@types/react': 18.0.26
+      '@types/react-reconciler': ^0.26.4
+      '@types/three': ^0.134.0
+      '@types/web': 0.0.78
+      emoji-regex: ^10.2.1
+      eslint: 8.25.0
+      prettier: ^2.7.1
+      prettier-plugin-organize-imports: ^2.3.4
+      react: 18.0.0
+      react-dom: 18.0.0
+      remotion: 3.3.27
+      satori: ^0.0.44
+      three: ^0.145.0
+      typescript: ^4.7.0
+    dependencies:
+      emoji-regex: 10.2.1
+      remotion: link:../core
+      satori: 0.0.44
+    devDependencies:
+      '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
+      '@react-three/fiber': 8.8.10_u3n4asvhgbrwklmocjcudrf5be
+      '@types/node': 14.17.20
+      '@types/react': 18.0.26
+      '@types/react-reconciler': 0.26.7
+      '@types/three': 0.134.0
+      '@types/web': 0.0.78
+      eslint: 8.25.0
+      prettier: 2.7.1
+      prettier-plugin-organize-imports: 2.3.4_j2odc4yr77iddtreafyicbq5hi
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
+      three: 0.145.0
+      typescript: 4.7.2
 
   packages/skia:
     specifiers:

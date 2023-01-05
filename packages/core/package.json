@@ -67,9 +67,5 @@
 				"dist/version.d.ts"
 			]
 		}
-	},
-	"dependencies": {
-		"satori": "^0.0.44",
-		"emoji-regex": "^10.2.1"
 	}
 }

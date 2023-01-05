@@ -23,6 +23,7 @@ import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render';
 import type {RemotionEnvironment} from './get-environment';
 import {getRemotionEnvironment} from './get-environment';
 import {getPreviewDomElement} from './get-preview-dom-element';
+import {NativeLayersContext} from './NativeLayers';
 import {portalNode} from './portal-node';
 import {PrefetchProvider} from './prefetch-state';
 import {getRoot, waitForRoot} from './register-root';
@@ -103,6 +104,7 @@ export const Internals = {
 	enableLegacyRemotionConfig,
 	PrefetchProvider,
 	DurationsContextProvider,
+	NativeLayersContext,
 };
 
 type WebpackConfiguration = Configuration;

@@ -78,7 +78,6 @@ export {ClipRegion} from './NativeLayers';
 export {prefetch} from './prefetch';
 export {random, RandomSeed} from './random';
 export {registerRoot} from './register-root';
-export {Satori} from './Satori';
 export {Sequence} from './Sequence';
 export {Series} from './series';
 export * from './spring';
