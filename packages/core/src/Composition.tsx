@@ -132,7 +132,6 @@ export const Composition = <T extends object>({
 		width,
 		nonce,
 		parentName,
-		compProps,
 		layers,
 	]);
 
