@@ -1,15 +1,7 @@
-import type {ComponentType, LazyExoticComponent} from 'react';
+import type {ComponentType} from 'react';
 import React, {Suspense} from 'react';
 import {AbsoluteFill} from './AbsoluteFill';
-
-export type LooseComponentType<T> =
-	| ComponentType<T>
-	| ((props: T) => React.ReactNode);
-
-export type Layer<T> = {
-	component: LazyExoticComponent<ComponentType<T>>;
-	type: 'web' | 'svg';
-};
+import type {Layer} from './layers';
 
 export const LayerMaster = <T extends object>({
 	layers,
@@ -20,7 +12,7 @@ export const LayerMaster = <T extends object>({
 	layers: Layer<T>[];
 	defaultProps: T | undefined;
 	inputProps: any;
-	fallbackComponent: React.FC;
+	fallbackComponent: React.FC | null;
 }) => {
 	return (
 		// TODO: Same styles as normal
@@ -28,6 +20,11 @@ export const LayerMaster = <T extends object>({
 			{layers.map((layer, i) => {
 				const Comp = layer.component as unknown as ComponentType<T>;
 				if (layer.type === 'web') {
+					if (FallbackComponent === null) {
+						// eslint-disable-next-line react/no-array-index-key
+						return <Comp key={String(i)} {...defaultProps} {...inputProps} />;
+					}
+
 					return (
 						// eslint-disable-next-line react/no-array-index-key
 						<Suspense key={String(i)} fallback={<FallbackComponent />}>
@@ -36,13 +33,9 @@ export const LayerMaster = <T extends object>({
 					);
 				}
 
+				// SVG should not support suspense
 				if (layer.type === 'svg') {
-					return (
-						// eslint-disable-next-line react/no-array-index-key
-						<Suspense key={String(i)} fallback={<FallbackComponent />}>
-							<Comp {...defaultProps} {...inputProps} />
-						</Suspense>
-					);
+					return <Comp {...defaultProps} {...inputProps} />;
 				}
 
 				throw new Error('Unknown layer type');

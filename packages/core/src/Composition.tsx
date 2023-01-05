@@ -1,11 +1,5 @@
 import type {ComponentType, PropsWithChildren} from 'react';
-import React, {
-	createContext,
-	useContext,
-	useEffect,
-	useMemo,
-	useRef,
-} from 'react';
+import React, {createContext, useContext, useEffect, useMemo} from 'react';
 import {createPortal} from 'react-dom';
 import {AbsoluteFill} from './AbsoluteFill';
 import {CanUseRemotionHooksProvider} from './CanUseRemotionHooks';
@@ -15,8 +9,9 @@ import {continueRender, delayRender} from './delay-render';
 import {FolderContext} from './Folder';
 import {getRemotionEnvironment} from './get-environment';
 import {Internals} from './internals';
-import type {Layer, LooseComponentType} from './LayerMaster';
 import {LayerMaster} from './LayerMaster';
+import type {CompProps} from './layers';
+import {useLayers} from './layers';
 import {Loading} from './loading-indicator';
 import {NativeLayersContext} from './NativeLayers';
 import {useNonce} from './nonce';
@@ -27,158 +22,12 @@ import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
 
-export type CompProps<T> =
-	| {
-			lazyComponent: () => Promise<{default: LooseComponentType<T>}>;
-	  }
-	| {
-			component: LooseComponentType<T>;
-	  }
-	| {
-			layers: Layer<T>[];
-	  };
-
 const Fallback: React.FC = () => {
 	useEffect(() => {
 		const fallback = delayRender('Waiting for Root component to unsuspend');
 		return () => continueRender(fallback);
 	}, []);
 	return null;
-};
-
-export const convertComponentTypesToLayers = <T,>(
-	compProps: CompProps<T>
-): Layer<T>[] => {
-	if ('component' in compProps) {
-		// In SSR, suspense is not yet supported, we cannot use React.lazy
-		if (typeof document === 'undefined') {
-			return [
-				{
-					component:
-						compProps.component as unknown as React.LazyExoticComponent<
-							ComponentType<T>
-						>,
-					type: 'web',
-				},
-			];
-		}
-
-		return [
-			{
-				component: React.lazy(() =>
-					Promise.resolve({default: compProps.component as ComponentType<T>})
-				),
-				type: 'web',
-			},
-		];
-	}
-
-	if ('lazyComponent' in compProps) {
-		return [
-			{
-				component: React.lazy(
-					compProps.lazyComponent as () => Promise<{
-						default: ComponentType<T>;
-					}>
-				),
-				type: 'web',
-			},
-		];
-	}
-
-	if ('layers' in compProps) {
-		return compProps.layers;
-	}
-
-	throw new Error('Unknown component type');
-};
-
-export const convertComponentTypesToLayersWithCache = <T,>(
-	compProps: CompProps<T>,
-	prevCompProps: CompProps<T> | null,
-	prevReturnValue: Layer<T>[] | null
-): Layer<T>[] => {
-	if ('component' in compProps) {
-		if (
-			prevCompProps &&
-			'component' in prevCompProps &&
-			compProps.component === prevCompProps.component &&
-			prevReturnValue
-		) {
-			return prevReturnValue;
-		}
-
-		return [
-			{
-				type: 'web',
-				component: React.lazy(() =>
-					Promise.resolve({default: compProps.component as ComponentType<T>})
-				),
-			},
-		];
-	}
-
-	if ('lazyComponent' in compProps) {
-		if (
-			prevCompProps &&
-			'lazyComponent' in prevCompProps &&
-			compProps.lazyComponent === prevCompProps.lazyComponent &&
-			prevReturnValue
-		) {
-			return prevReturnValue;
-		}
-
-		return [
-			{
-				type: 'web',
-				component: React.lazy(
-					compProps.lazyComponent as () => Promise<{
-						default: ComponentType<T>;
-					}>
-				),
-			},
-		];
-	}
-
-	if ('layers' in compProps) {
-		const isTheSame = () => {
-			if (!prevCompProps) {
-				return false;
-			}
-
-			if (!('layers' in prevCompProps)) {
-				return false;
-			}
-
-			if (compProps.layers.length !== prevCompProps.layers.length) {
-				return false;
-			}
-
-			for (let i = 0; i < compProps.layers.length; i++) {
-				if (
-					compProps.layers[i].component !== prevCompProps.layers[i].component
-				) {
-					return false;
-				}
-
-				if (compProps.layers[i].type !== prevCompProps.layers[i].type) {
-					return false;
-				}
-			}
-
-			return true;
-		};
-
-		if (isTheSame()) {
-			return prevReturnValue as Layer<T>[];
-		}
-
-		const newComp = compProps.layers;
-
-		return newComp;
-	}
-
-	throw new Error('Unknown component type');
 };
 
 export type StillProps<T> = {
@@ -217,16 +66,7 @@ export const Composition = <T extends object>({
 	const {registerComposition, unregisterComposition} =
 		useContext(CompositionManager);
 	const video = useVideo();
-
-	const prevCompProps = useRef<typeof compProps>();
-	const prevLayers = useRef<Layer<T>[]>();
-	const layers = convertComponentTypesToLayersWithCache(
-		compProps,
-		prevCompProps.current ?? null,
-		prevLayers.current ?? null
-	);
-	prevCompProps.current = compProps;
-	prevLayers.current = layers;
+	const layers = useLayers(compProps);
 
 	const nonce = useNonce();
 

@@ -1,9 +1,9 @@
 // Contexts shared between <Player> and <Thumbnail>
 
-import type {ComponentType, LazyExoticComponent} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import type {
 	CompositionManagerContext,
+	Layer,
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
 	TimelineContextValue,
@@ -11,17 +11,8 @@ import type {
 import {Internals} from 'remotion';
 import {getPreferredVolume, persistVolume} from './volume-persistance';
 
-export const SharedPlayerContexts: React.FC<{
-	children: React.ReactNode;
-	timelineContext: TimelineContextValue;
-	inputProps?: unknown;
-	fps: number;
-	compositionWidth: number;
-	compositionHeight: number;
-	durationInFrames: number;
-	component: LazyExoticComponent<ComponentType<unknown>>;
-	numberOfSharedAudioTags: number;
-}> = ({
+// eslint-disable-next-line react/function-component-definition
+export function SharedPlayerContexts<T>({
 	children,
 	timelineContext,
 	inputProps,
@@ -29,22 +20,30 @@ export const SharedPlayerContexts: React.FC<{
 	compositionHeight,
 	compositionWidth,
 	durationInFrames,
-	component,
+	layers,
 	numberOfSharedAudioTags,
-}) => {
+}: {
+	children: React.ReactNode;
+	timelineContext: TimelineContextValue;
+	inputProps?: T;
+	fps: number;
+	compositionWidth: number;
+	compositionHeight: number;
+	durationInFrames: number;
+	layers: Layer<T>[];
+	numberOfSharedAudioTags: number;
+}) {
 	const compositionManagerContext: CompositionManagerContext = useMemo(() => {
 		return {
 			compositions: [
 				{
-					component: component as React.LazyExoticComponent<
-						ComponentType<unknown>
-					>,
+					layers: layers as Layer<unknown>[],
 					durationInFrames,
 					height: compositionHeight,
 					width: compositionWidth,
 					fps,
 					id: 'player-comp',
-					props: inputProps as unknown,
+					props: inputProps,
 					nonce: 777,
 					scale: 1,
 					folderName: null,
@@ -70,7 +69,7 @@ export const SharedPlayerContexts: React.FC<{
 			setClipRegion: () => undefined,
 		};
 	}, [
-		component,
+		layers,
 		durationInFrames,
 		compositionHeight,
 		compositionWidth,
@@ -127,4 +126,4 @@ export const SharedPlayerContexts: React.FC<{
 			</Internals.Timeline.TimelineContext.Provider>
 		</Internals.CanUseRemotionHooksProvider>
 	);
-};
+}

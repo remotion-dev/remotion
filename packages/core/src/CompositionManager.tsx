@@ -7,7 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import type {TFolder} from './Folder';
-import type {Layer} from './LayerMaster';
+import type {Layer} from './layers';
 
 export type TComposition<T = unknown> = {
 	width: number;

@@ -76,8 +76,6 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 		[scale, thumbnail.emitter]
 	);
 
-	const VideoComponent = video ? video.component : null;
-
 	const outerStyle: React.CSSProperties = useMemo(() => {
 		return calculateOuterStyle({config, style, canvasSize});
 	}, [canvasSize, config, style]);
@@ -122,11 +120,13 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 	const content = (
 		<div style={outer}>
 			<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
-				{VideoComponent ? (
+				{video?.layers ? (
 					<ErrorBoundary onError={onError} errorFallback={errorFallback}>
-						<VideoComponent
-							{...((video?.defaultProps as unknown as {}) ?? {})}
-							{...((inputProps as unknown as {}) ?? {})}
+						<Internals.LayerMaster
+							fallbackComponent={null}
+							defaultProps={(video?.defaultProps as unknown as {}) ?? {}}
+							inputProps={(inputProps as unknown as {}) ?? {}}
+							layers={video.layers}
 						/>
 					</ErrorBoundary>
 				) : null}

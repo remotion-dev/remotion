@@ -1,4 +1,4 @@
-import type {ComponentType, LazyExoticComponent, MutableRefObject} from 'react';
+import type {ComponentType, MutableRefObject} from 'react';
 import React, {
 	forwardRef,
 	useEffect,
@@ -143,9 +143,7 @@ const PlayerFn = <T extends object>(
 		);
 	}
 
-	const component = Internals.useLazyComponent(
-		componentProps
-	) as LazyExoticComponent<ComponentType<unknown>>;
+	const layers = Internals.useLayers(componentProps);
 
 	validateInitialFrame({initialFrame, durationInFrames});
 
@@ -312,7 +310,7 @@ const PlayerFn = <T extends object>(
 	return (
 		<SharedPlayerContexts
 			timelineContext={timelineContextValue}
-			component={component}
+			layers={layers}
 			compositionHeight={compositionHeight}
 			compositionWidth={compositionWidth}
 			durationInFrames={durationInFrames}

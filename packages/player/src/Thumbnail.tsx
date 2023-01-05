@@ -1,9 +1,4 @@
-import type {
-	ComponentType,
-	CSSProperties,
-	LazyExoticComponent,
-	MutableRefObject,
-} from 'react';
+import type {CSSProperties, MutableRefObject} from 'react';
 import {
 	forwardRef,
 	useImperativeHandle,
@@ -72,9 +67,7 @@ export const ThumbnailFn = <T extends object>(
 
 	useImperativeHandle(ref, () => rootRef.current as ThumbnailMethods, []);
 
-	const Component = Internals.useLazyComponent(
-		componentProps
-	) as LazyExoticComponent<ComponentType<unknown>>;
+	const layers = Internals.useLayers(componentProps);
 
 	const [emitter] = useState(() => new ThumbnailEmitter());
 
@@ -85,7 +78,7 @@ export const ThumbnailFn = <T extends object>(
 	return (
 		<SharedPlayerContexts
 			timelineContext={timelineState}
-			component={Component}
+			layers={layers}
 			compositionHeight={compositionHeight}
 			compositionWidth={compositionWidth}
 			durationInFrames={durationInFrames}

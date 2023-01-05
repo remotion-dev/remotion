@@ -10,6 +10,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {Layer} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	calculateCanvasTransformation,
@@ -335,8 +336,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		]
 	);
 
-	const VideoComponent = video ? video.component : null;
-
 	const outerStyle: React.CSSProperties = useMemo(() => {
 		return calculateOuterStyle({canvasSize, config, style});
 	}, [canvasSize, config, style]);
@@ -454,11 +453,13 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				onDoubleClick={doubleClickToFullscreen ? handleDoubleClick : undefined}
 			>
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
-					{VideoComponent ? (
+					{video?.layers ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
-							<VideoComponent
-								{...((video?.defaultProps as unknown as {}) ?? {})}
-								{...((inputProps as unknown as {}) ?? {})}
+							<Internals.LayerMaster
+								defaultProps={(video?.defaultProps as unknown as {}) ?? {}}
+								inputProps={(inputProps as unknown as {}) ?? {}}
+								fallbackComponent={null}
+								layers={video.layers as Layer<unknown>[]}
 							/>
 						</ErrorBoundary>
 					) : null}
