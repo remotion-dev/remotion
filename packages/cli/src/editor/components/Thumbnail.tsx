@@ -1,5 +1,5 @@
 import React, {Suspense, useContext, useMemo, useState} from 'react';
-import type {TComposition, TimelineContextValue} from 'remotion';
+import type {Layer, TComposition, TimelineContextValue} from 'remotion';
 import {Internals, random} from 'remotion';
 import {
 	checkerboardBackgroundColor,
@@ -90,7 +90,7 @@ export const Thumbnail: React.FC<{
 								fallbackComponent={null}
 								defaultProps={(composition.defaultProps as unknown as {}) ?? {}}
 								inputProps={undefined}
-								layers={composition.layers}
+								layers={composition.layers as Layer<unknown>[]}
 							/>
 						</Internals.Timeline.TimelineContext.Provider>
 					</div>
