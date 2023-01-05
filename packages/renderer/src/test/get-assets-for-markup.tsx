@@ -80,11 +80,16 @@ export const getAssetsForMarkup = async (
 					{
 						...config,
 						id: 'markup',
-						component: React.lazy(() =>
-							Promise.resolve({
-								default: Markup as ComponentType<unknown>,
-							})
-						),
+						layers: [
+							{
+								type: 'web',
+								component: React.lazy(() =>
+									Promise.resolve({
+										default: Markup as ComponentType<unknown>,
+									})
+								),
+							},
+						],
 						nonce: 0,
 						defaultProps: undefined,
 						folderName: null,
