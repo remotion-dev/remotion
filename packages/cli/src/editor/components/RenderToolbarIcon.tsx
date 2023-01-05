@@ -24,7 +24,6 @@ export const RenderStillButton: React.FC = () => {
 
 	const video = Internals.useVideo();
 	const frame = useCurrentFrame();
-
 	const onClick = useCallback(() => {
 		if (!video) {
 			return null;
@@ -45,8 +44,9 @@ export const RenderStillButton: React.FC = () => {
 			initialScale: window.remotion_renderDefaults?.scale ?? 1,
 			initialVerbose:
 				(window.remotion_renderDefaults?.logLevel as LogLevel) === 'verbose',
+			initialRenderType: video.durationInFrames > 1 ? 'video' : 'still',
 		});
-	}, [frame, setSelectedModal, video]);
+	}, [video, frame, setSelectedModal]);
 
 	if (!video) {
 		return null;

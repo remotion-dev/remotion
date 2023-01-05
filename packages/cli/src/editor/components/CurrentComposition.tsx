@@ -81,6 +81,7 @@ export const CurrentComposition = () => {
 				// TODO: Default PNG for stills, JPEG for videos
 				defaultExtension: 'png',
 			}),
+			initialRenderType: 'video',
 		});
 	}, [setSelectedModal, video]);
 

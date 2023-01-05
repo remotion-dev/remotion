@@ -12,6 +12,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialOutName: job.outName,
 			initialScale: job.scale,
 			initialVerbose: job.verbose,
+			initialRenderType: 'still',
 		};
 	}
 
@@ -26,6 +27,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialScale: job.scale,
 			initialVerbose: job.verbose,
 			initialFrame: 0,
+			initialRenderType: 'video',
 		};
 	}
 

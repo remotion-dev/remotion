@@ -44,7 +44,7 @@ type State =
 
 const initialState: State = {type: 'idle'};
 
-type RenderType = 'still' | 'video';
+export type RenderType = 'still' | 'video';
 
 type Action =
 	| {
@@ -144,6 +144,7 @@ export const RenderModal: React.FC<{
 	initialScale: number;
 	initialVerbose: boolean;
 	initialOutName: string;
+	initialRenderType: RenderType;
 }> = ({
 	compositionId,
 	initialFrame,
@@ -152,6 +153,7 @@ export const RenderModal: React.FC<{
 	initialScale,
 	initialVerbose,
 	initialOutName,
+	initialRenderType,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -170,12 +172,12 @@ export const RenderModal: React.FC<{
 	const [videoCodec, setVideoCodec] = useState<Codec>('h264');
 	const [videoImageFormat, setVideoImageFormat] =
 		useState<StillImageFormat>('jpeg');
-	const [renderMode, setRenderMode] = useState<RenderType>('still');
+	const [renderMode, setRenderMode] = useState<RenderType>(initialRenderType);
 	const [quality, setQuality] = useState<number>(() => initialQuality ?? 80);
 	const [scale, setScale] = useState(() => initialScale);
 	const [verbose, setVerboseLogging] = useState(() => initialVerbose);
 	const [outName, setOutName] = useState(() => initialOutName);
-
+	console.log({initialRenderType});
 	const dispatchIfMounted: typeof dispatch = useCallback((payload) => {
 		if (isMounted.current === false) return;
 		dispatch(payload);
