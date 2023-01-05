@@ -35,7 +35,7 @@ type ThumbnailProps<T> = PropsIfHasProps<T> &
 		className?: string;
 	};
 
-export const ThumbnailFn = <T,>(
+export const ThumbnailFn = <T extends object>(
 	{
 		frameToDisplay,
 		style,

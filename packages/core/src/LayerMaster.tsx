@@ -40,11 +40,15 @@ export const LayerMaster = <T extends object>({
 };
 
 export const useLayers = <T extends object>(compProps: CompProps<T>) => {
-	const lastProps = useRef(compProps);
+	const lastProps = useRef<CompProps<T> | null>(null);
 	const last = useRef<((props: T) => JSX.Element) | null>(null);
 
 	if ('layers' in compProps) {
 		const isTheSame = () => {
+			if (!lastProps.current) {
+				return false;
+			}
+
 			if (!('layers' in lastProps.current)) {
 				return false;
 			}

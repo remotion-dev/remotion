@@ -42,7 +42,6 @@ export const useLazyComponent = <T extends object>(
 		}
 
 		if ('layers' in compProps) {
-			// TODO: Render multiple components
 			if (layers === null) {
 				throw new Error('No layers found');
 			}
