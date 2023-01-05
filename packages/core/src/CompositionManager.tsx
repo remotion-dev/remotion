@@ -1,4 +1,3 @@
-import type {ComponentType, LazyExoticComponent} from 'react';
 import React, {
 	createContext,
 	useCallback,
@@ -18,7 +17,6 @@ export type TComposition<T = unknown> = {
 	id: string;
 	folderName: string | null;
 	parentFolderName: string | null;
-	component: LazyExoticComponent<ComponentType<T>>;
 	defaultProps: T | undefined;
 	nonce: number;
 	layers: Layer<T>[];

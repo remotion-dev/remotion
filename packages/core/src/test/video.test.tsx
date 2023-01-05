@@ -29,11 +29,16 @@ const Wrapper: React.FC<{
 								durationInFrames: 30,
 								id: 'markup',
 								nonce: 0,
-								component: React.lazy(() =>
-									Promise.resolve({
-										default: (() => null) as ComponentType<unknown>,
-									})
-								),
+								layers: [
+									{
+										component: React.lazy(() =>
+											Promise.resolve({
+												default: (() => null) as ComponentType<unknown>,
+											})
+										),
+										type: 'web',
+									},
+								],
 								defaultProps: undefined,
 								folderName: null,
 								parentFolderName: null,

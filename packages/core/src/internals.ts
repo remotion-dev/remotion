@@ -37,7 +37,6 @@ import type {
 } from './timeline-position-state';
 import * as TimelinePosition from './timeline-position-state';
 import {truthy} from './truthy';
-import {useLazyComponent} from './use-lazy-component';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';
 import {
@@ -76,7 +75,6 @@ export const Internals = {
 	getRoot,
 	useMediaVolumeState,
 	useMediaMutedState,
-	useLazyComponent,
 	truthy,
 	SequenceContext,
 	useRemotionContexts,

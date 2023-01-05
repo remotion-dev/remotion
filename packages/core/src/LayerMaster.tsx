@@ -1,87 +1,52 @@
-import type {ComponentType} from 'react';
-import {useRef} from 'react';
+import type {ComponentType, LazyExoticComponent} from 'react';
+import React, {Suspense} from 'react';
 import {AbsoluteFill} from './AbsoluteFill';
-import type {CompProps} from './internals';
 
 export type LooseComponentType<T> =
 	| ComponentType<T>
 	| ((props: T) => React.ReactNode);
 
 export type Layer<T> = {
-	// TODO: Support lazy component again?
-	component: LooseComponentType<T>;
+	component: LazyExoticComponent<ComponentType<T>>;
 	type: 'web' | 'svg';
 };
 
 export const LayerMaster = <T extends object>({
 	layers,
-	props,
+	defaultProps,
+	inputProps,
+	fallbackComponent: FallbackComponent,
 }: {
 	layers: Layer<T>[];
-	props: T;
+	defaultProps: T | undefined;
+	inputProps: any;
+	fallbackComponent: React.FC;
 }) => {
 	return (
 		// TODO: Same styles as normal
 		<AbsoluteFill>
-			{layers.map((layer) => {
-				const Comp = layer.component as ComponentType<T>;
+			{layers.map((layer, i) => {
+				const Comp = layer.component as unknown as ComponentType<T>;
 				if (layer.type === 'web') {
-					return <Comp {...props} />;
+					return (
+						// eslint-disable-next-line react/no-array-index-key
+						<Suspense key={String(i)} fallback={<FallbackComponent />}>
+							<Comp {...defaultProps} {...inputProps} />
+						</Suspense>
+					);
 				}
 
 				if (layer.type === 'svg') {
-					return <Comp {...props} />;
+					return (
+						// eslint-disable-next-line react/no-array-index-key
+						<Suspense key={String(i)} fallback={<FallbackComponent />}>
+							<Comp {...defaultProps} {...inputProps} />
+						</Suspense>
+					);
 				}
 
 				throw new Error('Unknown layer type');
 			})}
 		</AbsoluteFill>
 	);
-};
-
-export const useLayers = <T extends object>(compProps: CompProps<T>) => {
-	const lastProps = useRef<CompProps<T> | null>(null);
-	const last = useRef<((props: T) => JSX.Element) | null>(null);
-
-	if ('layers' in compProps) {
-		const isTheSame = () => {
-			if (!lastProps.current) {
-				return false;
-			}
-
-			if (!('layers' in lastProps.current)) {
-				return false;
-			}
-
-			if (compProps.layers.length !== lastProps.current.layers.length) {
-				return false;
-			}
-
-			for (let i = 0; i < compProps.layers.length; i++) {
-				if (
-					compProps.layers[i].component !==
-					lastProps.current.layers[i].component
-				) {
-					return false;
-				}
-			}
-
-			return true;
-		};
-
-		if (isTheSame()) {
-			return last.current;
-		}
-
-		const newComp = (props: T) => {
-			return <LayerMaster layers={compProps.layers} props={props} />;
-		};
-
-		lastProps.current = compProps;
-		last.current = newComp;
-
-		return newComp;
-	}
-
-	return null;
 };

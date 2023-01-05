@@ -1,10 +1,10 @@
 import type {ComponentType, PropsWithChildren} from 'react';
 import React, {
 	createContext,
-	Suspense,
 	useContext,
 	useEffect,
 	useMemo,
+	useRef,
 } from 'react';
 import {createPortal} from 'react-dom';
 import {AbsoluteFill} from './AbsoluteFill';
@@ -16,11 +16,11 @@ import {FolderContext} from './Folder';
 import {getRemotionEnvironment} from './get-environment';
 import {Internals} from './internals';
 import type {Layer, LooseComponentType} from './LayerMaster';
+import {LayerMaster} from './LayerMaster';
 import {Loading} from './loading-indicator';
 import {NativeLayersContext} from './NativeLayers';
 import {useNonce} from './nonce';
 import {portalNode} from './portal-node';
-import {useLazyComponent} from './use-lazy-component';
 import {useVideo} from './use-video';
 import {validateCompositionId} from './validation/validate-composition-id';
 import {validateDimension} from './validation/validate-dimensions';
@@ -38,13 +38,36 @@ export type CompProps<T> =
 			layers: Layer<T>[];
 	  };
 
+const Fallback: React.FC = () => {
+	useEffect(() => {
+		const fallback = delayRender('Waiting for Root component to unsuspend');
+		return () => continueRender(fallback);
+	}, []);
+	return null;
+};
+
 export const convertComponentTypesToLayers = <T,>(
 	compProps: CompProps<T>
 ): Layer<T>[] => {
 	if ('component' in compProps) {
+		// In SSR, suspense is not yet supported, we cannot use React.lazy
+		if (typeof document === 'undefined') {
+			return [
+				{
+					component:
+						compProps.component as unknown as React.LazyExoticComponent<
+							ComponentType<T>
+						>,
+					type: 'web',
+				},
+			];
+		}
+
 		return [
 			{
-				component: compProps.component,
+				component: React.lazy(() =>
+					Promise.resolve({default: compProps.component as ComponentType<T>})
+				),
 				type: 'web',
 			},
 		];
@@ -53,7 +76,11 @@ export const convertComponentTypesToLayers = <T,>(
 	if ('lazyComponent' in compProps) {
 		return [
 			{
-				component: compProps.lazyComponent,
+				component: React.lazy(
+					compProps.lazyComponent as () => Promise<{
+						default: ComponentType<T>;
+					}>
+				),
 				type: 'web',
 			},
 		];
@@ -61,6 +88,94 @@ export const convertComponentTypesToLayers = <T,>(
 
 	if ('layers' in compProps) {
 		return compProps.layers;
+	}
+
+	throw new Error('Unknown component type');
+};
+
+export const convertComponentTypesToLayersWithCache = <T,>(
+	compProps: CompProps<T>,
+	prevCompProps: CompProps<T> | null,
+	prevReturnValue: Layer<T>[] | null
+): Layer<T>[] => {
+	if ('component' in compProps) {
+		if (
+			prevCompProps &&
+			'component' in prevCompProps &&
+			compProps.component === prevCompProps.component &&
+			prevReturnValue
+		) {
+			return prevReturnValue;
+		}
+
+		return [
+			{
+				type: 'web',
+				component: React.lazy(() =>
+					Promise.resolve({default: compProps.component as ComponentType<T>})
+				),
+			},
+		];
+	}
+
+	if ('lazyComponent' in compProps) {
+		if (
+			prevCompProps &&
+			'lazyComponent' in prevCompProps &&
+			compProps.lazyComponent === prevCompProps.lazyComponent &&
+			prevReturnValue
+		) {
+			return prevReturnValue;
+		}
+
+		return [
+			{
+				type: 'web',
+				component: React.lazy(
+					compProps.lazyComponent as () => Promise<{
+						default: ComponentType<T>;
+					}>
+				),
+			},
+		];
+	}
+
+	if ('layers' in compProps) {
+		const isTheSame = () => {
+			if (!prevCompProps) {
+				return false;
+			}
+
+			if (!('layers' in prevCompProps)) {
+				return false;
+			}
+
+			if (compProps.layers.length !== prevCompProps.layers.length) {
+				return false;
+			}
+
+			for (let i = 0; i < compProps.layers.length; i++) {
+				if (
+					compProps.layers[i].component !== prevCompProps.layers[i].component
+				) {
+					return false;
+				}
+
+				if (compProps.layers[i].type !== prevCompProps.layers[i].type) {
+					return false;
+				}
+			}
+
+			return true;
+		};
+
+		if (isTheSame()) {
+			return prevReturnValue as Layer<T>[];
+		}
+
+		const newComp = compProps.layers;
+
+		return newComp;
 	}
 
 	throw new Error('Unknown component type');
@@ -76,14 +191,6 @@ export type StillProps<T> = {
 type CompositionProps<T> = StillProps<T> & {
 	fps: number;
 	durationInFrames: number;
-};
-
-const Fallback: React.FC = () => {
-	useEffect(() => {
-		const fallback = delayRender('Waiting for Root component to unsuspend');
-		return () => continueRender(fallback);
-	}, []);
-	return null;
 };
 
 const GetCompositionsFromMarkupMode = createContext(false);
@@ -111,7 +218,16 @@ export const Composition = <T extends object>({
 		useContext(CompositionManager);
 	const video = useVideo();
 
-	const lazy = useLazyComponent<T>(compProps);
+	const prevCompProps = useRef<typeof compProps>();
+	const prevLayers = useRef<Layer<T>[]>();
+	const layers = convertComponentTypesToLayersWithCache(
+		compProps,
+		prevCompProps.current ?? null,
+		prevLayers.current ?? null
+	);
+	prevCompProps.current = compProps;
+	prevLayers.current = layers;
+
 	const nonce = useNonce();
 
 	const isInGetCompositionsFromMarkupMode = useContext(
@@ -155,11 +271,10 @@ export const Composition = <T extends object>({
 			width,
 			id,
 			folderName,
-			component: lazy,
 			defaultProps,
 			nonce,
 			parentFolderName: parentName,
-			layers: convertComponentTypesToLayers(compProps),
+			layers,
 		});
 
 		return () => {
@@ -169,7 +284,6 @@ export const Composition = <T extends object>({
 		durationInFrames,
 		fps,
 		height,
-		lazy,
 		id,
 		folderName,
 		defaultProps,
@@ -178,6 +292,8 @@ export const Composition = <T extends object>({
 		width,
 		nonce,
 		parentName,
+		compProps,
+		layers,
 	]);
 
 	if (getRemotionEnvironment() === 'server-rendering') {
@@ -219,40 +335,35 @@ export const Composition = <T extends object>({
 		throw new Error('unexpected state in server rendering');
 	}
 
-	if (
-		getRemotionEnvironment() === 'preview' &&
-		video &&
-		video.component === lazy
-	) {
-		const Comp = lazy;
+	if (getRemotionEnvironment() === 'preview' && video && video.id === id) {
 		const inputProps = getInputProps();
 
 		return createPortal(
 			<ClipComposition>
 				<CanUseRemotionHooksProvider>
-					<Suspense fallback={<Loading />}>
-						<Comp {...defaultProps} {...inputProps} />
-					</Suspense>
+					<LayerMaster<T>
+						layers={layers}
+						defaultProps={defaultProps}
+						inputProps={inputProps}
+						fallbackComponent={Loading}
+					/>
 				</CanUseRemotionHooksProvider>
 			</ClipComposition>,
-
 			portalNode()
 		);
 	}
 
-	if (
-		getRemotionEnvironment() === 'rendering' &&
-		video &&
-		video.component === lazy
-	) {
-		const Comp = lazy;
+	if (getRemotionEnvironment() === 'rendering' && video && video.id === id) {
 		const inputProps = getInputProps();
 
 		return createPortal(
 			<CanUseRemotionHooksProvider>
-				<Suspense fallback={<Fallback />}>
-					<Comp {...defaultProps} {...inputProps} />
-				</Suspense>
+				<LayerMaster<T>
+					layers={layers}
+					defaultProps={defaultProps}
+					inputProps={inputProps}
+					fallbackComponent={Fallback}
+				/>
 			</CanUseRemotionHooksProvider>,
 			portalNode()
 		);
@@ -263,6 +374,7 @@ export const Composition = <T extends object>({
 
 export const ClipComposition: React.FC<PropsWithChildren> = ({children}) => {
 	const {clipRegion} = useContext(NativeLayersContext);
+
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			display: 'flex',
