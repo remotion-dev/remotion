@@ -68,6 +68,7 @@ export * from './delay-render';
 export * from './easing';
 export * from './Folder';
 export * from './freeze';
+export {getCompositionsFromMarkup} from './get-compositions-from-markup';
 export {getStaticFiles, StaticFile} from './get-static-files';
 export * from './IFrame';
 export * from './Img';
@@ -90,6 +91,7 @@ export * from './use-video-config';
 export * from './version';
 export * from './video';
 export * from './video-config';
+
 export const Experimental = {
 	Clipper,
 	Null,

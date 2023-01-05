@@ -1,5 +1,5 @@
-import {getCompositionsFromMarkup, renderOnServer} from '@remotion/renderer';
-import {TCompMetadata} from 'remotion';
+import {renderOnServer} from '@remotion/renderer';
+import {getCompositionsFromMarkup, TCompMetadata} from 'remotion';
 import {Index} from './Video';
 
 const comps = getCompositionsFromMarkup(Index);

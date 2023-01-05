@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import type {ComponentType} from 'react';
+import {getCompositionsFromMarkup} from 'remotion';
 import vm from 'vm';
 import type {GetCompositionsConfig} from './get-compositions';
-import {getCompositionsFromMarkup} from './get-compositions-from-markup';
 import {isServeUrl} from './is-serve-url';
 
 export const getCompositionsFromBundle = (
