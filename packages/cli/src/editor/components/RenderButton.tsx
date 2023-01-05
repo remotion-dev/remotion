@@ -24,8 +24,6 @@ export const RenderButton: React.FC<{
 	const onClick: React.MouseEventHandler<HTMLAnchorElement> = useCallback(
 		(e) => {
 			e.stopPropagation();
-			console.log('hello');
-			console.log('duration in frames: ', composition.durationInFrames);
 			setSelectedModal({
 				type: 'render',
 				compositionId: composition.id,
