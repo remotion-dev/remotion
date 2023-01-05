@@ -143,7 +143,7 @@ export const RenderModal: React.FC<{
 	initialVerbose: boolean;
 	initialOutName: string;
 	initialRenderType: RenderType;
-	initialCodec: Codec | null;
+	initialCodec: Codec;
 }> = ({
 	compositionId,
 	initialFrame,
@@ -169,7 +169,7 @@ export const RenderModal: React.FC<{
 	const [imageFormat, setImageFormat] = useState<StillImageFormat>(
 		() => initialImageFormat
 	);
-	const [videoCodec, setVideoCodec] = useState<Codec | null>(initialCodec);
+	const [videoCodec, setVideoCodec] = useState<Codec>(initialCodec);
 	const [videoImageFormat, setVideoImageFormat] =
 		useState<StillImageFormat>('jpeg');
 	const [renderMode, setRenderMode] = useState<RenderType>(initialRenderType);

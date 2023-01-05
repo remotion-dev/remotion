@@ -47,7 +47,7 @@ export const RenderStillButton: React.FC = () => {
 			initialVerbose:
 				(window.remotion_renderDefaults?.logLevel as LogLevel) === 'verbose',
 			initialRenderType: video.durationInFrames > 1 ? 'video' : 'still',
-			initialCodec: video.durationInFrames > 1 ? 'h264' : null,
+			initialCodec: 'h264',
 		});
 	}, [video, frame, setSelectedModal]);
 

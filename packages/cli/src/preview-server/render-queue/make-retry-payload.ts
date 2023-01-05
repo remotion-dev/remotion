@@ -13,12 +13,12 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialScale: job.scale,
 			initialVerbose: job.verbose,
 			initialRenderType: 'still',
-			initialCodec: null,
+			// TODO: take initial codec from config file
+			initialCodec: 'h264',
 		};
 	}
 
 	if (job.type === 'video') {
-		console.log(job.codec);
 		// TODO: Implement correct retry mechanism for video
 		return {
 			type: 'render',
