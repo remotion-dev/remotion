@@ -9,6 +9,7 @@ import {continueRender, delayRender} from './delay-render';
 import {FolderContext} from './Folder';
 import {getRemotionEnvironment} from './get-environment';
 import {Internals} from './internals';
+import type {Layer, LooseComponentType} from './LayerMaster';
 import {Loading} from './loading-indicator';
 import {NativeLayersContext} from './NativeLayers';
 import {useNonce} from './nonce';
@@ -19,14 +20,6 @@ import {validateCompositionId} from './validation/validate-composition-id';
 import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
-
-type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
-
-type Layer<T> = {
-	// TODO: Support lazy component again?
-	component: LooseComponentType<T>;
-	type: 'web' | 'svg';
-};
 
 export type CompProps<T> =
 	| {
