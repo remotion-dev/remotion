@@ -35,7 +35,8 @@ export const LayerMaster = <T extends object>({
 
 				// SVG should not support suspense
 				if (layer.type === 'svg') {
-					return <Comp {...defaultProps} {...inputProps} />;
+					// eslint-disable-next-line react/no-array-index-key
+					return <Comp key={String(i)} {...defaultProps} {...inputProps} />;
 				}
 
 				throw new Error('Unknown layer type');
