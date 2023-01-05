@@ -552,14 +552,33 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 				/>
 			</Folder>
-			<Composition
-				id="svg-test"
-				component={SvgTest}
-				durationInFrames={300}
-				fps={30}
-				height={1080}
-				width={1920}
-			/>
+			<Folder name="experiments">
+				<Composition
+					id="svg-test"
+					component={SvgTest}
+					durationInFrames={300}
+					fps={30}
+					height={1080}
+					width={1920}
+				/>
+				<Composition
+					id="layers"
+					layers={[
+						{
+							type: 'web',
+							component: ReactSvg,
+						},
+						{
+							type: 'svg',
+							component: SvgTest,
+						},
+					]}
+					durationInFrames={300}
+					fps={30}
+					height={1080}
+					width={1920}
+				/>
+			</Folder>
 		</>
 	);
 };

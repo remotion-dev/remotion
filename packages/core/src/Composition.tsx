@@ -22,12 +22,21 @@ import {validateFps} from './validation/validate-fps';
 
 type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
 
+type Layer<T> = {
+	// TODO: Support lazy component again?
+	component: LooseComponentType<T>;
+	type: 'web' | 'svg';
+};
+
 export type CompProps<T> =
 	| {
 			lazyComponent: () => Promise<{default: LooseComponentType<T>}>;
 	  }
 	| {
 			component: LooseComponentType<T>;
+	  }
+	| {
+			layers: Layer<T>[];
 	  };
 
 export type StillProps<T> = {

@@ -38,7 +38,18 @@ export const useLazyComponent = <T>(
 			);
 		}
 
-		throw new Error("You must pass either 'component' or 'lazyComponent'");
+		if ('layers' in compProps) {
+			// TODO: Render multiple components
+			return React.lazy(() =>
+				Promise.resolve({
+					default: compProps.layers[0].component as ComponentType<T>,
+				})
+			);
+		}
+
+		throw new Error(
+			"You must pass either 'component' or 'lazyComponent' or 'layers'"
+		);
 
 		// Very important to leave the dependencies as they are, or instead
 		// the player will remount on every frame.
