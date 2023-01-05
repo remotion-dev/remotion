@@ -128,7 +128,6 @@ fn main() -> Result<(), std::io::Error> {
     par = par.param_parse("repeat_headers", "1").unwrap();
     par = par.param_parse("annexb", "1").unwrap();
 
-    par.par.i_threads = 1;
     par.par.i_fps_num = FPS;
     par.par.i_fps_den = 1;
     par.par.i_keyint_max = 30;
