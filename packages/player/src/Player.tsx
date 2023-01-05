@@ -76,7 +76,7 @@ export const componentOrNullIfLazy = <T,>(
 	return null;
 };
 
-const PlayerFn = <T,>(
+const PlayerFn = <T extends object>(
 	{
 		durationInFrames,
 		compositionHeight,

@@ -5,6 +5,7 @@ import type {
 } from 'react';
 import React, {useMemo} from 'react';
 import type {CompProps} from './internals';
+import {useLayers} from './LayerMaster';
 
 type LazyExoticComponent<T extends ComponentType<any>> = ExoticComponent<
 	ComponentPropsWithRef<T>
@@ -13,9 +14,11 @@ type LazyExoticComponent<T extends ComponentType<any>> = ExoticComponent<
 };
 
 // Expected, it can be any component props
-export const useLazyComponent = <T>(
+export const useLazyComponent = <T extends object>(
 	compProps: CompProps<T>
 ): LazyExoticComponent<ComponentType<T>> => {
+	const layers = useLayers<T>(compProps);
+
 	const lazy = useMemo(() => {
 		if ('lazyComponent' in compProps) {
 			return React.lazy(
@@ -40,9 +43,13 @@ export const useLazyComponent = <T>(
 
 		if ('layers' in compProps) {
 			// TODO: Render multiple components
+			if (layers === null) {
+				throw new Error('No layers found');
+			}
+
 			return React.lazy(() =>
 				Promise.resolve({
-					default: compProps.layers[0].component as ComponentType<T>,
+					default: layers as ComponentType<T>,
 				})
 			);
 		}
@@ -57,5 +64,6 @@ export const useLazyComponent = <T>(
 		// @ts-expect-error
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [compProps.component, compProps.lazyComponent]);
+
 	return lazy;
 };

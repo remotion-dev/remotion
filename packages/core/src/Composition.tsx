@@ -52,7 +52,7 @@ const Fallback: React.FC = () => {
 	return null;
 };
 
-export const Composition = <T,>({
+export const Composition = <T extends object>({
 	width,
 	height,
 	fps,
@@ -65,7 +65,7 @@ export const Composition = <T,>({
 		useContext(CompositionManager);
 	const video = useVideo();
 
-	const lazy = useLazyComponent(compProps);
+	const lazy = useLazyComponent<T>(compProps);
 	const nonce = useNonce();
 
 	const canUseComposition = useContext(Internals.CanUseRemotionHooks);

@@ -13,7 +13,7 @@ export type Layer<T> = {
 	type: 'web' | 'svg';
 };
 
-export const LayerMaster = <T extends JSX.IntrinsicAttributes>({
+export const LayerMaster = <T extends object>({
 	layers,
 	props,
 }: {
@@ -39,9 +39,7 @@ export const LayerMaster = <T extends JSX.IntrinsicAttributes>({
 	);
 };
 
-export const useLayers = <T extends JSX.IntrinsicAttributes>(
-	compProps: CompProps<T>
-) => {
+export const useLayers = <T extends object>(compProps: CompProps<T>) => {
 	const lastProps = useRef(compProps);
 	const last = useRef<((props: T) => JSX.Element) | null>(null);
 
