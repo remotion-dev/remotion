@@ -24,13 +24,8 @@ export const registerRoot = (comp: React.FC) => {
 };
 
 export const getRoot = () => {
-	console.log('returning', Root);
 	return Root;
 };
-
-if (typeof window !== 'undefined') {
-	window.remotion_getRoot = getRoot;
-}
 
 export const waitForRoot = (fn: (comp: React.FC) => void): (() => void) => {
 	if (Root) {

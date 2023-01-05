@@ -3,10 +3,12 @@ import {getRemotionEnvironment} from './get-environment';
 export const ENV_VARIABLES_ENV_NAME = 'ENV_VARIABLES' as const;
 
 const getEnvVariables = (): Record<string, string> => {
-	if (
-		getRemotionEnvironment() === 'rendering' ||
-		getRemotionEnvironment() === 'server-rendering'
-	) {
+	if (getRemotionEnvironment() === 'server-rendering') {
+		// TODO!!
+		return {};
+	}
+
+	if (getRemotionEnvironment() === 'rendering') {
 		const param = window.remotion_envVariables;
 		if (!param) {
 			return {};
@@ -31,6 +33,10 @@ const getEnvVariables = (): Record<string, string> => {
 
 export const setupEnvVariables = () => {
 	const env = getEnvVariables();
+	if (getRemotionEnvironment() === 'server-rendering') {
+		// TODO
+		return;
+	}
 
 	if (!window.process) {
 		window.process = {} as NodeJS.Process;

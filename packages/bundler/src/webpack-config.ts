@@ -100,6 +100,7 @@ export const webpackConfig = ({
 		externals: {
 			react: 'commonjs react',
 			'react-dom': 'commonjs react-dom',
+			remotion: 'commonjs remotion',
 		},
 		mode: environment,
 		plugins:

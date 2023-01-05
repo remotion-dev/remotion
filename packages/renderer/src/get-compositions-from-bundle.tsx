@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import type {ComponentType} from 'react';
-import {getCompositionsFromMarkup} from 'remotion';
+import {getCompositionsFromMarkup, Internals} from 'remotion';
 import vm from 'vm';
 import type {GetCompositionsConfig} from './get-compositions';
 import {isServeUrl} from './is-serve-url';
@@ -17,6 +17,9 @@ export const getCompositionsFromBundle = (
 	}
 
 	const content = fs.readFileSync(bundleFile, 'utf-8');
+
+	// @ts-éxpect-error
+	process.env.REMOTION_SERVER_RENDERING = 'true';
 
 	const context = {
 		window: {
@@ -39,6 +42,7 @@ export const getCompositionsFromBundle = (
 		},
 		require,
 		Buffer,
+		console,
 	};
 	const vmContext = vm.createContext(context);
 
@@ -50,11 +54,7 @@ export const getCompositionsFromBundle = (
 		breakOnSigint: true,
 	});
 
-	const script = (() => {
-		return window.remotion_getRoot();
-	}).toString();
-
-	const theRoot = vm.runInContext(`(${script})();`, vmContext);
+	const theRoot = Internals.getRoot();
 
 	if (!theRoot) {
 		throw new Error(
@@ -63,8 +63,7 @@ export const getCompositionsFromBundle = (
 	}
 
 	const Comp = theRoot as ComponentType;
-
-	console.log({Comp});
+	console.log({Comp1: Comp});
 	const comps = getCompositionsFromMarkup(Comp);
 
 	return comps;

@@ -1,14 +1,14 @@
 import type {ComponentType} from 'react';
 import {renderToString} from 'react-dom/server';
+import {GetCompositionsFromMarkupModeProvider} from './Composition';
 import type {TCompMetadata} from './CompositionManager';
-import {Internals} from './internals';
 
 export const getCompositionsFromMarkup = (Comp: ComponentType) => {
 	process.env.REMOTION_SERVER_RENDERING = 'true';
 	const str = renderToString(
-		<Internals.GetCompositionsFromMarkupModeProvider>
+		<GetCompositionsFromMarkupModeProvider>
 			<Comp />
-		</Internals.GetCompositionsFromMarkupModeProvider>
+		</GetCompositionsFromMarkupModeProvider>
 	);
 
 	const matches = str.matchAll(/<div>(.*?)<\/div>/g);
