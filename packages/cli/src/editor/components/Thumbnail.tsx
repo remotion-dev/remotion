@@ -1,6 +1,7 @@
 import React, {Suspense, useContext, useMemo, useState} from 'react';
 import type {TComposition, TimelineContextValue} from 'remotion';
 import {Internals, random} from 'remotion';
+import {LayerMaster} from 'remotion/src/LayerMaster';
 import {
 	checkerboardBackgroundColor,
 	checkerboardBackgroundImage,
@@ -80,19 +81,18 @@ export const Thumbnail: React.FC<{
 		};
 	}, [frameToDisplay, thumbnailId]);
 
-	const props = useMemo(() => {
-		return (composition.defaultProps as unknown as {}) ?? {};
-	}, [composition.defaultProps]);
-
-	const ThumbnailComponent = composition.component;
-
 	return (
 		<div style={container}>
 			<Suspense fallback={null}>
 				<div style={outer}>
 					<div style={inner}>
 						<Internals.Timeline.TimelineContext.Provider value={timelineState}>
-							<ThumbnailComponent {...props} />
+							<LayerMaster
+								fallbackComponent={null}
+								defaultProps={(composition.defaultProps as unknown as {}) ?? {}}
+								inputProps={undefined}
+								layers={composition.layers}
+							/>
 						</Internals.Timeline.TimelineContext.Provider>
 					</div>
 				</div>

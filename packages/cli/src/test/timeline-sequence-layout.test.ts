@@ -14,12 +14,17 @@ test('Should test timeline sequence layout without max media duration', () => {
 				height: 1080,
 				width: 1920,
 				id: 'main',
-				component: {
-					// @ts-expect-error
-					_payload: {
-						_status: 1,
+				layers: [
+					{
+						type: 'web',
+						component: {
+							// @ts-expect-error
+							_payload: {
+								_status: 1,
+							},
+						},
 					},
-				},
+				],
 				props: {},
 				nonce: 16,
 			},
@@ -43,12 +48,17 @@ test('Should test timeline sequence layout with max media duration', () => {
 				height: 1080,
 				width: 1920,
 				id: 'main',
-				component: {
-					// @ts-expect-error
-					_payload: {
-						_status: 1,
+				layers: [
+					{
+						type: 'web',
+						component: {
+							// @ts-expect-error
+							_payload: {
+								_status: 1,
+							},
+						},
 					},
-				},
+				],
 				props: {},
 				nonce: 16,
 			},

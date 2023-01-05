@@ -5,6 +5,11 @@ export type LooseComponentType<T> =
 	| ComponentType<T>
 	| ((props: T) => React.ReactNode);
 
+export type InputLayer<T> = {
+	component: LooseComponentType<T>;
+	type: 'web' | 'svg';
+};
+
 export type CompProps<T> =
 	| {
 			lazyComponent: () => Promise<{default: LooseComponentType<T>}>;
@@ -13,12 +18,33 @@ export type CompProps<T> =
 			component: LooseComponentType<T>;
 	  }
 	| {
-			layers: Layer<T>[];
+			layers: InputLayer<T>[];
 	  };
 
 export type Layer<T> = {
 	component: LazyExoticComponent<ComponentType<T>>;
 	type: 'web' | 'svg';
+};
+
+const inputLayersToLayers = <T>(layers: InputLayer<T>[]) => {
+	return layers.map((layer) => {
+		if (layer.type === 'web') {
+			return {
+				component: React.lazy(() =>
+					Promise.resolve({default: layer.component as ComponentType<T>})
+				),
+				type: 'web' as const,
+			};
+		}
+
+		// No lazy for SVG allowed!
+		return {
+			component: layer.component as unknown as React.LazyExoticComponent<
+				ComponentType<T>
+			>,
+			type: 'svg' as const,
+		};
+	});
 };
 
 export const convertComponentTypesToLayers = <T>(
@@ -62,7 +88,7 @@ export const convertComponentTypesToLayers = <T>(
 	}
 
 	if ('layers' in compProps) {
-		return compProps.layers;
+		return inputLayersToLayers(compProps.layers);
 	}
 
 	throw new Error('Unknown component type');
@@ -148,9 +174,7 @@ export const convertComponentTypesToLayersWithCache = <T>(
 			return prevReturnValue as Layer<T>[];
 		}
 
-		const newComp = compProps.layers;
-
-		return newComp;
+		return inputLayersToLayers(compProps.layers);
 	}
 
 	throw new Error('Unknown component type');

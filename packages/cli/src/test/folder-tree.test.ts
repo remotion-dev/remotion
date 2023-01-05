@@ -12,7 +12,12 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', (
 	const tree = createFolderTree(
 		[
 			{
-				component,
+				layers: [
+					{
+						type: 'web',
+						component,
+					},
+				],
 				defaultProps: {},
 				durationInFrames: 200,
 				folderName: 'my-folder',
@@ -24,7 +29,12 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', (
 				parentFolderName: null,
 			},
 			{
-				component,
+				layers: [
+					{
+						type: 'web',
+						component,
+					},
+				],
 				defaultProps: {},
 				durationInFrames: 200,
 				folderName: null,
@@ -94,7 +104,12 @@ test('Should handle nested folders well', () => {
 	const tree = createFolderTree(
 		[
 			{
-				component,
+				layers: [
+					{
+						type: 'web',
+						component,
+					},
+				],
 				defaultProps: {},
 				durationInFrames: 200,
 				folderName: 'my-folder',
