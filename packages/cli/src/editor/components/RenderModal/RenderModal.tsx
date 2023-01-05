@@ -177,7 +177,6 @@ export const RenderModal: React.FC<{
 	const [scale, setScale] = useState(() => initialScale);
 	const [verbose, setVerboseLogging] = useState(() => initialVerbose);
 	const [outName, setOutName] = useState(() => initialOutName);
-	console.log({initialRenderType});
 	const dispatchIfMounted: typeof dispatch = useCallback((payload) => {
 		if (isMounted.current === false) return;
 		dispatch(payload);
