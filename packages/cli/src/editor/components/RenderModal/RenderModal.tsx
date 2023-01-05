@@ -203,6 +203,10 @@ export const RenderModal: React.FC<{
 		return null;
 	}, [compositionId, compositions]);
 
+	if (currentComposition === null) {
+		throw new Error('This composition does not exist');
+	}
+
 	const getStringBeforeSuffix = useCallback((fileName: string) => {
 		const dotPos = fileName.lastIndexOf('.');
 		const bitBeforeDot = fileName.substring(0, dotPos);
@@ -343,9 +347,17 @@ export const RenderModal: React.FC<{
 		[]
 	);
 
-	const onFrameSetDirectly = useCallback((newFrame: number) => {
-		setFrame(newFrame);
-	}, []);
+	const onFrameSetDirectly = useCallback(
+		(newFrame: number) => {
+			console.log(newFrame);
+			if (newFrame > currentComposition.durationInFrames - 1) {
+				setFrame(currentComposition.durationInFrames - 1);
+			} else {
+				setFrame(newFrame);
+			}
+		},
+		[currentComposition.durationInFrames, setFrame]
+	);
 
 	const onFrameChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
@@ -356,7 +368,9 @@ export const RenderModal: React.FC<{
 				}
 
 				// TODO: User could change frame inbetween 😈
-				return newFrame;
+				return newFrame > currentComposition.durationInFrames - 1
+					? currentComposition.durationInFrames - 1
+					: newFrame;
 			});
 		},
 		[]
@@ -421,10 +435,6 @@ export const RenderModal: React.FC<{
 			};
 		});
 	}, [setCodec, videoCodec]);
-
-	if (currentComposition === null) {
-		throw new Error('This composition does not exist');
-	}
 
 	const renderTabOptions = useMemo((): SegmentedControlItem[] => {
 		if (currentComposition?.durationInFrames < 2) {
@@ -523,12 +533,13 @@ export const RenderModal: React.FC<{
 									onChange={onFrameChanged}
 									// TODO: Actual frame
 									placeholder="0-100"
+									// TODO: Debug the number input field
 									onValueChange={onFrameSetDirectly}
 									name="frame"
 									step={1}
 									min={0}
 									// TODO: Add actual frame
-									max={Infinity}
+									max={currentComposition.durationInFrames - 1}
 								/>{' '}
 							</div>
 						</>
