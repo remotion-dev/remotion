@@ -67,6 +67,8 @@ export const webpackConfig = ({
 		optimization: {
 			minimize: false,
 		},
+		// TODO: Agnostic to the bundler
+		target: 'node',
 		experiments: {
 			lazyCompilation:
 				environment === 'production'

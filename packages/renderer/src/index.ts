@@ -18,6 +18,7 @@ import {
 } from './ffmpeg-flags';
 import {findRemotionRoot} from './find-closest-package-json';
 import {validateFrameRange} from './frame-range';
+import {getCompositionsFromBundle} from './get-compositions-from-bundle';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
@@ -101,6 +102,7 @@ export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {OpenGlRenderer} from './validate-opengl-renderer';
 export {validateOutputFilename} from './validate-output-filename';
+
 export const RenderInternals = {
 	ensureLocalBrowser,
 	ffmpegHasFeature,
@@ -122,6 +124,7 @@ export const RenderInternals = {
 	SymbolicateableError,
 	getFramesToRender,
 	getExtensionOfFilename,
+	getCompositionsFromBundle,
 	getDesiredPort,
 	isPathInside,
 	execa,
