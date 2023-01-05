@@ -18,7 +18,7 @@ export type RenderModalState = {
 	initialScale: number;
 	initialVerbose: boolean;
 	initialRenderType: RenderType;
-	initialCodec: Codec | null;
+	initialCodec: Codec;
 };
 
 export type ModalState =

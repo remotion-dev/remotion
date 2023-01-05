@@ -82,7 +82,7 @@ export const CurrentComposition = () => {
 				defaultExtension: 'png',
 			}),
 			initialRenderType: 'video',
-			initialCodec: null,
+			initialCodec: 'h264',
 		});
 	}, [setSelectedModal, video]);
 
