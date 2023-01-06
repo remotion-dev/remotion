@@ -119,16 +119,22 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		shouldOutputImageSequence ? null : ('stitching' as const),
 	].filter(Internals.truthy);
 
-	const {urlOrBundle, cleanup: cleanupBundle} = await bundleOnCliOrTakeServeUrl(
-		{
+	const {urlOrBundle: browserBundle, cleanup: cleanupBrowserBundle} =
+		await bundleOnCliOrTakeServeUrl({
 			fullPath,
 			remotionRoot,
 			steps,
 			publicDir,
-			// TODO: Parametrize
 			runtime: 'browser',
-		}
-	);
+		});
+	const {urlOrBundle: serverBundle, cleanup: cleanupServerBundle} =
+		await bundleOnCliOrTakeServeUrl({
+			fullPath,
+			remotionRoot,
+			steps,
+			publicDir,
+			runtime: 'node',
+		});
 
 	const onDownload: RenderMediaOnDownload = (src) => {
 		const id = Math.random();
@@ -151,7 +157,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 
 	const puppeteerInstance = await browserInstance;
 
-	const comps = await getCompositions(urlOrBundle, {
+	const comps = await getCompositions(browserBundle, {
 		inputProps,
 		puppeteerInstance,
 		envVariables,
@@ -289,7 +295,10 @@ export const render = async (remotionRoot: string, args: string[]) => {
 				}
 			},
 			outputDir,
-			serveUrl: urlOrBundle,
+			serveUrl: {
+				browserUrl: browserBundle,
+				nodeUrl: serverBundle,
+			},
 			dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
 				ConfigInternals.Logging.getLogLevel(),
 				'verbose'
@@ -323,7 +332,10 @@ export const render = async (remotionRoot: string, args: string[]) => {
 	const options = await getRenderMediaOptions({
 		config,
 		outputLocation: absoluteOutputFile,
-		serveUrl: urlOrBundle,
+		serveUrl: {
+			browserUrl: browserBundle,
+			nodeUrl: serverBundle,
+		},
 		codec,
 		remotionRoot,
 	});
@@ -365,7 +377,8 @@ export const render = async (remotionRoot: string, args: string[]) => {
 	Log.info(chalk.cyan(`▶ ${absoluteOutputFile}`));
 
 	try {
-		await cleanupBundle();
+		await cleanupBrowserBundle();
+		await cleanupServerBundle();
 		await RenderInternals.cleanDownloadMap(downloadMap);
 
 		Log.verbose('Cleaned up', downloadMap.assetDir);

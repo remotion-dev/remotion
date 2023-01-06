@@ -79,6 +79,7 @@ export {
 	validateSelectedPixelFormatAndImageFormatCombination,
 	validImageFormats,
 } from './image-format';
+export {ServeUrl} from './legacy-webpack-config';
 export type {LogLevel} from './log-level';
 export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
 export {openBrowser} from './open-browser';

@@ -1,4 +1,4 @@
-import type {Codec, RenderMediaOptions} from '@remotion/renderer';
+import type {Codec, RenderMediaOptions, ServeUrl} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {ConfigInternals} from './config';
 import {getCliOptions} from './get-cli-options';
@@ -13,7 +13,7 @@ export const getRenderMediaOptions = async ({
 }: {
 	outputLocation: RenderMediaOptions['outputLocation'];
 	config: RenderMediaOptions['composition'];
-	serveUrl: string;
+	serveUrl: ServeUrl;
 	codec: Codec;
 	remotionRoot: string;
 }): Promise<RenderMediaOptions> => {
