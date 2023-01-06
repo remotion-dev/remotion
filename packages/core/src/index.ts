@@ -29,7 +29,6 @@ declare global {
 		remotion_envVariables: string;
 		remotion_collectAssets: () => TAsset[];
 		remotion_getClipRegion: () => ClipRegion | null;
-		remotion_getSatoriString: () => string | null;
 		remotion_isPlayer: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
