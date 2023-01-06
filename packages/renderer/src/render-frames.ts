@@ -1,31 +1,21 @@
 import fs from 'fs';
-import path from 'path';
-import {performance} from 'perf_hooks';
 import type {SmallTCompMetadata, TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import {makeDownloadMap} from './assets/download-map';
-import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
-import type {ConsoleMessage} from './browser/ConsoleMessage';
-import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
-import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import type {CountType} from './get-frame-padded-index';
-import {
-	getFilePadLength,
-	getFrameOutputFileName,
-} from './get-frame-padded-index';
+import {getFilePadLength} from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
 import type {ImageFormat} from './image-format';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
@@ -35,20 +25,18 @@ import {
 	getServeUrlWithFallback,
 } from './legacy-webpack-config';
 import type {CancelSignal} from './make-cancel-signal';
-import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
+import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
-import {openBrowser} from './open-browser';
-import {startPerfMeasure, stopPerfMeasure} from './perf';
 import {Pool} from './pool';
 import {prepareServer} from './prepare-server';
-import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {validateQuality} from './quality';
+import {
+	makeBrowser,
+	makePage,
+	renderWebFrameAndRetryTargetClose,
+} from './render-web-frame';
 import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
-import {seekToFrame} from './seek-to-frame';
-import {setPropsAndEnv} from './set-props-and-env';
-import {takeFrameAndCompose} from './take-frame-and-compose';
-import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
 
@@ -160,8 +148,10 @@ const innerRenderFrames = ({
 	cancelSignal,
 	downloadMap,
 	muted,
-	makeBrowser,
 	browserReplacer,
+	browserExecutable,
+	chromiumOptions,
+	dumpBrowserLogs,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload' | 'puppeteerInstance'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -171,8 +161,7 @@ const innerRenderFrames = ({
 	onDownload: RenderMediaOnDownload;
 	proxyPort: number;
 	downloadMap: DownloadMap;
-	makeBrowser: () => Promise<Browser>;
-	browserReplacer: BrowserReplacer | null;
+	browserReplacer: BrowserReplacer;
 	puppeteerInstance: Browser | null;
 }): Promise<RenderFramesOutput> => {
 	if (outputDir) {
@@ -193,85 +182,24 @@ const innerRenderFrames = ({
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
-	const makePage = async () => {
-		if (!browserReplacer) {
-			throw new Error('canonot make page without browser replacer');
-		}
-
-		const page = await browserReplacer.getBrowser().newPage();
-		pagesArray.push(page);
-		await page.setViewport({
-			width: composition.width,
-			height: composition.height,
-			deviceScaleFactor: scale ?? 1,
-		});
-
-		const logCallback = (log: ConsoleMessage) => {
-			onBrowserLog?.({
-				stackTrace: log.stackTrace(),
-				text: log.text,
-				type: log.type,
-			});
-		};
-
-		if (onBrowserLog) {
-			page.on('console', logCallback);
-		}
-
-		const initialFrame = realFrameRange[0];
-
-		await setPropsAndEnv({
-			inputProps,
-			envVariables,
-			page,
-			serveUrl,
-			initialFrame,
-			timeoutInMilliseconds,
-			proxyPort,
-			retriesRemaining: 2,
-			audioEnabled: !muted,
-			videoEnabled: imageFormat !== 'none',
-		});
-
-		await puppeteerEvaluateWithCatch({
-			// eslint-disable-next-line max-params
-			pageFunction: (
-				id: string,
-				defaultProps: unknown,
-				durationInFrames: number,
-				fps: number,
-				height: number,
-				width: number
-			) => {
-				window.setBundleMode({
-					type: 'composition',
-					compositionName: id,
-					compositionDefaultProps: defaultProps,
-					compositionDurationInFrames: durationInFrames,
-					compositionFps: fps,
-					compositionHeight: height,
-					compositionWidth: width,
-				});
-			},
-			args: [
-				composition.id,
-				composition.defaultProps,
-				composition.durationInFrames,
-				composition.fps,
-				composition.height,
-				composition.width,
-			],
-			frame: null,
-			page,
-		});
-
-		page.off('console', logCallback);
-
-		return page;
-	};
-
 	const getPool = async () => {
-		const pages = new Array(actualConcurrency).fill(true).map(() => makePage());
+		const pages = new Array(actualConcurrency).fill(true).map(() =>
+			makePage({
+				pagesArray,
+				browserReplacer,
+				composition,
+				imageFormat,
+				inputProps,
+				muted: muted ?? false,
+				proxyPort,
+				realFrameRange,
+				scale,
+				serveUrl,
+				timeoutInMilliseconds,
+				envVariables,
+				onBrowserLog,
+			})
+		);
 		const puppeteerPages = await Promise.all(pages);
 		const pool = new Pool(puppeteerPages);
 		return pool;
@@ -287,7 +215,7 @@ const innerRenderFrames = ({
 		totalFrames: framesToRender.length,
 		countType,
 	});
-	let framesRendered = 0;
+	const framesRendered = {frames: 0};
 
 	const poolPromise = getPool();
 
@@ -296,190 +224,50 @@ const innerRenderFrames = ({
 	});
 
 	const assets: TAsset[][] = new Array(framesToRender.length).fill(undefined);
-	let stopped = false;
+	const stopState = {isStopped: false};
 	cancelSignal?.(() => {
-		stopped = true;
+		stopState.isStopped = true;
 	});
-
-	const renderFrameWithOptionToReject = async ({
-		frame,
-		index,
-		reject,
-		width,
-		height,
-	}: {
-		frame: number;
-		index: number;
-		reject: (err: Error) => void;
-		width: number;
-		height: number;
-	}) => {
-		const pool = await poolPromise;
-		const freePage = await pool.acquire();
-
-		if (stopped) {
-			return reject(new Error('Render was stopped'));
-		}
-
-		const startTime = performance.now();
-
-		const errorCallbackOnFrame = (err: Error) => {
-			reject(err);
-		};
-
-		const cleanupPageError = handleJavascriptException({
-			page: freePage,
-			onError: errorCallbackOnFrame,
-			frame,
-		});
-		freePage.on('error', errorCallbackOnFrame);
-		await seekToFrame({frame, page: freePage});
-
-		if (!outputDir && !onFrameBuffer && imageFormat !== 'none') {
-			throw new Error(
-				'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`'
-			);
-		}
-
-		if (outputDir && onFrameBuffer && imageFormat !== 'none') {
-			throw new Error(
-				'Pass either `outputDir` or `onFrameBuffer` to renderFrames(), not both.'
-			);
-		}
-
-		const id = startPerfMeasure('save');
-
-		const frameDir = outputDir ?? downloadMap.compositingDir;
-
-		const {buffer, collectedAssets} = await takeFrameAndCompose({
-			frame,
-			freePage,
-			height,
-			imageFormat,
-			output: path.join(
-				frameDir,
-				getFrameOutputFileName({
-					frame,
-					imageFormat,
-					index,
-					countType,
-					lastFrame,
-					totalFrames: framesToRender.length,
-				})
-			),
-			quality,
-			width,
-			scale,
-			downloadMap,
-			wantsBuffer: Boolean(onFrameBuffer),
-		});
-		if (onFrameBuffer) {
-			if (!buffer) {
-				throw new Error('unexpected null buffer');
-			}
-
-			onFrameBuffer(buffer, frame);
-		}
-
-		stopPerfMeasure(id);
-
-		const compressedAssets = collectedAssets.map((asset) =>
-			compressAsset(assets.filter(truthy).flat(1), asset)
-		);
-		assets[index] = compressedAssets;
-		compressedAssets.forEach((asset) => {
-			downloadAndMapAssetsToFileUrl({
-				asset,
-				onDownload,
-				downloadMap,
-			}).catch((err) => {
-				onError(
-					new Error(`Error while downloading asset: ${(err as Error).stack}`)
-				);
-			});
-		});
-		framesRendered++;
-		onFrameUpdate(framesRendered, frame, performance.now() - startTime);
-		cleanupPageError();
-		freePage.off('error', errorCallbackOnFrame);
-		pool.release(freePage);
-	};
-
-	const renderWebFrame = (frame: number, index: number) => {
-		return new Promise<void>((resolve, reject) => {
-			renderFrameWithOptionToReject({
-				frame,
-				index,
-				reject,
-				width: composition.width,
-				height: composition.height,
-			})
-				.then(() => {
-					resolve();
-				})
-				.catch((err) => {
-					reject(err);
-				});
-		});
-	};
-
-	const renderWebFrameAndRetryTargetClose = async (
-		frame: number,
-		index: number,
-		retriesLeft: number,
-		attempt: number
-	) => {
-		try {
-			await renderWebFrame(frame, index);
-		} catch (err) {
-			if (
-				!(err as Error)?.message?.includes('Target closed') &&
-				!(err as Error)?.message?.includes('Session closed')
-			) {
-				throw err;
-			}
-
-			if (isUserCancelledRender(err)) {
-				throw err;
-			}
-
-			if (retriesLeft === 0) {
-				console.warn(
-					err,
-					`The browser crashed ${attempt} times while rendering frame ${frame}. Not retrying anymore. Learn more about this error under https://www.remotion.dev/docs/target-closed`
-				);
-				throw err;
-			}
-
-			console.warn(
-				`The browser crashed while rendering frame ${frame}, retrying ${retriesLeft} more times. Learn more about this error under https://www.remotion.dev/docs/target-closed`
-			);
-			if (!browserReplacer) {
-				throw new Error('Did not have browser replacer for web frame');
-			}
-
-			await browserReplacer.replaceBrowser(makeBrowser, async () => {
-				const pages = new Array(actualConcurrency)
-					.fill(true)
-					.map(() => makePage());
-				const puppeteerPages = await Promise.all(pages);
-				const pool = await poolPromise;
-				for (const newPage of puppeteerPages) {
-					pool.release(newPage);
-				}
-			});
-			await renderWebFrameAndRetryTargetClose(
-				frame,
-				index,
-				retriesLeft - 1,
-				attempt + 1
-			);
-		}
-	};
 
 	const progress = Promise.all(
 		framesToRender.map((frame, index) =>
-			renderWebFrameAndRetryTargetClose(frame, index, MAX_RETRIES_PER_FRAME, 1)
+			renderWebFrameAndRetryTargetClose({
+				frame,
+				index,
+				retriesLeft: MAX_RETRIES_PER_FRAME,
+				attempt: 1,
+				poolPromise,
+				countType,
+				actualConcurrency,
+				assets,
+				browserReplacer,
+				composition,
+				downloadMap,
+				imageFormat,
+				onFrameBuffer,
+				onFrameUpdate,
+				outputDir,
+				quality,
+				scale,
+				stopState,
+				framesRendered,
+				framesToRender,
+				inputProps,
+				lastFrame,
+				muted: muted ?? false,
+				onDownload,
+				onError,
+				pagesArray,
+				proxyPort,
+				realFrameRange,
+				serveUrl,
+				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
+				browserExecutable,
+				chromiumOptions,
+				dumpBrowserLogs,
+				envVariables,
+				onBrowserLog,
+			})
 		)
 	);
 
@@ -548,15 +336,14 @@ export const renderFrames = (
 	validateQuality(options.quality);
 	validateScale(options.scale);
 
-	const makeBrowser = () =>
-		openBrowser(DEFAULT_BROWSER, {
-			shouldDumpIo: options.dumpBrowserLogs,
+	const browserInstance =
+		options.puppeteerInstance ??
+		makeBrowser({
 			browserExecutable: options.browserExecutable,
 			chromiumOptions: options.chromiumOptions,
-			forceDeviceScaleFactor: options.scale ?? 1,
+			dumpBrowserLogs: options.dumpBrowserLogs,
+			scale: options.scale,
 		});
-
-	const browserInstance = options.puppeteerInstance ?? makeBrowser();
 
 	const downloadMap = options.downloadMap ?? makeDownloadMap();
 
@@ -591,13 +378,10 @@ export const renderFrames = (
 					downloadMap,
 					remotionRoot: findRemotionRoot(),
 				}),
-				browserServeUrl ? browserInstance : null,
+				browserInstance,
 			]).then(([maybeBrowser, puppeteerInstance]) => {
 				const {closeServer, offthreadPort, serveUrl} = maybeBrowser;
-				const browserReplacer = puppeteerInstance
-					? handleBrowserCrash(puppeteerInstance)
-					: null;
-
+				const browserReplacer = handleBrowserCrash(puppeteerInstance);
 				if (browserReplacer) {
 					const {stopCycling} = cycleBrowserTabs(
 						browserReplacer,
@@ -619,7 +403,6 @@ export const renderFrames = (
 					onDownload,
 					proxyPort: offthreadPort,
 					downloadMap,
-					makeBrowser,
 					browserReplacer,
 				});
 			}),
