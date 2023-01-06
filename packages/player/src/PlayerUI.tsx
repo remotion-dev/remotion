@@ -459,7 +459,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 								defaultProps={(video?.defaultProps as unknown as {}) ?? {}}
 								inputProps={(inputProps as unknown as {}) ?? {}}
 								fallbackComponent={null}
-								layers={video.layers as Layer<unknown>[]}
+								layers={video.layers as Layer<object>[]}
 							/>
 						</ErrorBoundary>
 					) : null}

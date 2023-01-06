@@ -6,6 +6,7 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
+import type {Layer} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	calculateCanvasTransformation,
@@ -126,7 +127,7 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 							fallbackComponent={null}
 							defaultProps={(video?.defaultProps as unknown as {}) ?? {}}
 							inputProps={(inputProps as unknown as {}) ?? {}}
-							layers={video.layers}
+							layers={video.layers as Layer<object>[]}
 						/>
 					</ErrorBoundary>
 				) : null}
