@@ -12,6 +12,11 @@ test('Need to pass valid metadata', () => {
 				durationInFrames: 30,
 				id: 'hithere',
 				defaultProps: undefined,
+				layers: [
+					{
+						type: 'web',
+					},
+				],
 			},
 			frame: 0,
 			output: '/file/output.png',
@@ -30,6 +35,11 @@ test('Returns buffer in promise result', async () => {
 			durationInFrames: 30,
 			id: 'react-svg',
 			defaultProps: undefined,
+			layers: [
+				{
+					type: 'web',
+				},
+			],
 		},
 		frame: 0,
 		serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
@@ -48,6 +58,11 @@ test('Need to pass valid metadata', () => {
 				durationInFrames: 30,
 				id: 'hithere',
 				defaultProps: undefined,
+				layers: [
+					{
+						type: 'web',
+					},
+				],
 			},
 			frame: 200,
 			output: '/file/output.png',
@@ -69,6 +84,11 @@ test('Catches invalid image format', () => {
 				durationInFrames: 30,
 				id: 'hithere',
 				defaultProps: undefined,
+				layers: [
+					{
+						type: 'web',
+					},
+				],
 			},
 			// @ts-expect-error
 			imageFormat: 'jjj',

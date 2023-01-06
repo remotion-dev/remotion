@@ -12,6 +12,11 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					height: 1000,
 					width: 1000,
 					id: 'hithere',
+					layers: [
+						{
+							type: 'web',
+						},
+					],
 				},
 			})
 		).to.throw(
@@ -28,6 +33,11 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					height: 1000,
 					width: 1000,
 					id: 'hithere',
+					layers: [
+						{
+							type: 'web',
+						},
+					],
 				},
 			})
 		).toThrow(
@@ -44,6 +54,11 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					height: 1000.5,
 					width: 1000,
 					id: 'hithere',
+					layers: [
+						{
+							type: 'web',
+						},
+					],
 				},
 			})
 		).toThrow(
@@ -60,6 +75,11 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					width: 1000.5,
 					height: 1000,
 					id: 'hithere',
+					layers: [
+						{
+							type: 'web',
+						},
+					],
 				},
 			})
 		).toThrow(

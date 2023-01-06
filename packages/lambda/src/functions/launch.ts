@@ -261,6 +261,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			muted: params.muted,
 			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,
+			layers: comp.layers,
 		};
 		return payload;
 	});

@@ -273,6 +273,11 @@ if (typeof window !== 'undefined') {
 				height: c.height,
 				id: c.id,
 				width: c.width,
+				layers: c.layers.map((l) => {
+					return {
+						type: l.type,
+					};
+				}),
 			};
 		});
 	};

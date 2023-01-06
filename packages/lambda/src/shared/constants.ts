@@ -7,7 +7,7 @@ import type {
 	PixelFormat,
 	ProResProfile,
 } from '@remotion/renderer';
-import type {VideoConfig} from 'remotion';
+import type {SmallLayer, VideoConfig} from 'remotion';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';
@@ -324,6 +324,7 @@ export type LambdaPayloads = {
 		muted: boolean;
 		audioBitrate: string | null;
 		videoBitrate: string | null;
+		layers: SmallLayer[];
 	};
 	still: {
 		type: LambdaRoutines.still;

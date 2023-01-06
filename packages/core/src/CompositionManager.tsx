@@ -7,7 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import type {TFolder} from './Folder';
-import type {Layer} from './layers';
+import type {Layer, SmallLayer} from './layers';
 
 export type TComposition<T = unknown> = {
 	width: number;
@@ -25,13 +25,17 @@ export type TComposition<T = unknown> = {
 export type TCompMetadata = Pick<
 	TComposition,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames' | 'defaultProps'
->;
+> & {
+	layers: SmallLayer[];
+};
 
 export type SmallTCompMetadata = Pick<
 	TComposition,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames'
 > &
-	Partial<Pick<TComposition, 'defaultProps'>>;
+	Partial<Pick<TComposition, 'defaultProps'>> & {
+		layers: SmallLayer[];
+	};
 
 type EnhancedTSequenceData =
 	| {

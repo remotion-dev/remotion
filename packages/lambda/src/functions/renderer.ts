@@ -94,6 +94,7 @@ const renderHandler = async (
 				fps: params.fps,
 				height: params.height,
 				width: params.width,
+				layers: params.layers,
 			},
 			imageFormat: params.imageFormat,
 			inputProps,

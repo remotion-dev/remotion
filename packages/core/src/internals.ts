@@ -24,7 +24,7 @@ import type {RemotionEnvironment} from './get-environment';
 import {getRemotionEnvironment} from './get-environment';
 import {getPreviewDomElement} from './get-preview-dom-element';
 import {LayerMaster} from './LayerMaster';
-import type {CompProps, Layer} from './layers';
+import type {CompProps, Layer, SmallLayer} from './layers';
 import {useLayers} from './layers';
 import {NativeLayersContext} from './NativeLayers';
 import {portalNode} from './portal-node';
@@ -133,4 +133,5 @@ export type {
 	SetMediaVolumeContextValue,
 	RemotionEnvironment,
 	Layer,
+	SmallLayer,
 };

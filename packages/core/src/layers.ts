@@ -26,6 +26,8 @@ export type Layer<T> = {
 	type: 'web' | 'svg';
 };
 
+export type SmallLayer = Pick<Layer<unknown>, 'type'>;
+
 const inputLayersToLayers = <T>(layers: InputLayer<T>[]) => {
 	return layers.map((layer) => {
 		if (layer.type === 'web') {
