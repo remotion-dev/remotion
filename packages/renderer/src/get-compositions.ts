@@ -133,11 +133,10 @@ export const getCompositions = async (
 			downloadMap,
 			remotionRoot: findRemotionRoot(),
 		})
-			.then(({closeServer, offthreadPort}) => {
+			.then(({serveUrl, closeServer, offthreadPort}) => {
 				close = closeServer;
-				// TODO: Not using the serve URL anymore
 				return innerGetCompositions(
-					serveUrlOrWebpackUrl,
+					serveUrl as string,
 					page,
 					config ?? {},
 					offthreadPort

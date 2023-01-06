@@ -593,7 +593,7 @@ export const renderFrames = (
 				}),
 				browserServeUrl ? browserInstance : null,
 			]).then(([maybeBrowser, puppeteerInstance]) => {
-				const {closeServer, offthreadPort} = maybeBrowser;
+				const {closeServer, offthreadPort, serveUrl} = maybeBrowser;
 				const browserReplacer = puppeteerInstance
 					? handleBrowserCrash(puppeteerInstance)
 					: null;
@@ -613,7 +613,7 @@ export const renderFrames = (
 					puppeteerInstance,
 					onError,
 					pagesArray: openedPages,
-					serveUrl: selectedServeUrl,
+					serveUrl: serveUrl as string,
 					composition,
 					actualConcurrency,
 					onDownload,
