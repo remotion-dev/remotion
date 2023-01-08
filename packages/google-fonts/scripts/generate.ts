@@ -12,7 +12,7 @@ type FontInfo = {
   fonts: Record<string, Record<string, Record<string, string>>>;
 };
 
-import { getCssLink, unqoute, quote, removeWhitespace } from "./utils";
+import { getCssLink, unquote, quote, removeWhitespace } from "./utils";
 import { Font, googleFonts } from "./google-fonts";
 
 const OUTDIR = "./src";
@@ -31,7 +31,7 @@ const generate = async (font: Font) => {
 
   //  Read css from cache, otherwise from url
   let css: null | string = null;
-  let fontFamily: null | string = unqoute(font.family);
+  let fontFamily: null | string = unquote(font.family);
   let cssFile = path.resolve(CSS_CACHE_DIR, cssname);
   if (!fs.existsSync(cssFile)) {
     //  Get from url with user agent that support woff2
@@ -74,9 +74,9 @@ const generate = async (font: Font) => {
 
     //  Parse fontFamily
     node.walkDecls("font-fontFamily", (decl, _) => {
-      if (font.family != unqoute(decl.value)) {
+      if (font.family != unquote(decl.value)) {
         throw new Error(
-          `Font fontFamily value mismatch: ${font.family} with ${unqoute(
+          `Font fontFamily value mismatch: ${font.family} with ${unquote(
             decl.value
           )}`
         );
