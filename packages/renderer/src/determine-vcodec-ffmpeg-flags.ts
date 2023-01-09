@@ -1,7 +1,7 @@
 import type {SpecialVCodecForTransparency} from './assets/download-map';
 import {truthy} from './truthy';
 
-export const determineVcodecFfmepgFlags = (
+export const determineVcodecFfmpegFlags = (
 	vcodecFlag: SpecialVCodecForTransparency
 ) => {
 	return [
