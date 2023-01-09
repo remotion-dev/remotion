@@ -172,7 +172,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		downloadName: null,
 		outName: getUserPassedOutputLocation(argsAfterComposition),
 	});
-	validateFfmpegCanUseCodec(codec, remotionRoot);
+	await validateFfmpegCanUseCodec(codec, remotionRoot);
 
 	RenderInternals.validateEvenDimensionsWithCodec({
 		width: config.width,
