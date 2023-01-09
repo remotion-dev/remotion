@@ -158,13 +158,14 @@ const getAssetsData = async ({
 		remotionRoot,
 	});
 
-	await deleteDirectory(downloadMap.audioMixing);
-
 	onProgress(1);
 
-	for (const p of preprocessed) {
-		await deleteDirectory(p);
-	}
+	await Promise.all([
+		deleteDirectory(downloadMap.audioMixing),
+		...preprocessed.map((p) => {
+			return deleteDirectory(p);
+		}),
+	]);
 
 	return outName;
 };
