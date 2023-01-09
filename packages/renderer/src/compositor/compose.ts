@@ -2,12 +2,12 @@ import {createHash} from 'crypto';
 import {copyFile} from 'fs/promises';
 import type {DownloadMap} from '../assets/download-map';
 import {spawnCompositorOrReuse} from './compositor';
-import type {CompositorImageFormat, Layer} from './payloads';
+import type {CompositorImageFormat, CompositorLayer} from './payloads';
 
 type CompositorInput = {
 	height: number;
 	width: number;
-	layers: Layer[];
+	layers: CompositorLayer[];
 	imageFormat: CompositorImageFormat;
 };
 

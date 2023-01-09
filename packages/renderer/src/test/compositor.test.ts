@@ -1,7 +1,7 @@
 import {expect, test} from 'vitest';
 import {RenderInternals} from '..';
 import {compose} from '../compositor/compose';
-import type {Layer} from '../compositor/payloads';
+import type {CompositorLayer} from '../compositor/payloads';
 
 test('Should handle the overlay', async () => {
 	try {
@@ -13,7 +13,7 @@ test('Should handle the overlay', async () => {
 		await compose({
 			height: 1080,
 			width: 1080,
-			layers: layers as unknown as Layer[],
+			layers: layers as unknown as CompositorLayer[],
 			output: 'test.mp4',
 			downloadMap: RenderInternals.makeDownloadMap(),
 			imageFormat: 'Png',

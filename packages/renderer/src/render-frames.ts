@@ -230,46 +230,63 @@ const innerRenderFrames = ({
 	});
 
 	const progress = Promise.all(
-		framesToRender.map((frame, index) =>
-			renderWebFrameAndRetryTargetClose({
-				frame,
-				index,
-				retriesLeft: MAX_RETRIES_PER_FRAME,
-				attempt: 1,
-				poolPromise,
-				countType,
-				actualConcurrency,
-				assets,
-				browserReplacer,
-				composition,
-				downloadMap,
-				imageFormat,
-				onFrameBuffer,
-				onFrameUpdate,
-				outputDir,
-				quality,
-				scale,
-				stopState,
-				framesRendered,
-				framesToRender,
-				inputProps,
-				lastFrame,
-				muted: muted ?? false,
-				onDownload,
-				onError,
-				pagesArray,
-				proxyPort,
-				realFrameRange,
-				serveUrl,
-				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
-				browserExecutable,
-				chromiumOptions,
-				dumpBrowserLogs,
-				envVariables,
-				onBrowserLog,
-			})
-		)
+		framesToRender.map(async (frame, index) => {
+			const layers = Promise.all(
+				composition.layers.map((l) => {
+					if (l.type === 'svg') {
+						console.log('DO SVG here 😄');
+						return null;
+					}
+
+					if (l.type === 'web') {
+						return renderWebFrameAndRetryTargetClose({
+							frame,
+							index,
+							retriesLeft: MAX_RETRIES_PER_FRAME,
+							attempt: 1,
+							poolPromise,
+							countType,
+							actualConcurrency,
+							assets,
+							browserReplacer,
+							composition,
+							downloadMap,
+							imageFormat,
+							onFrameBuffer,
+							onFrameUpdate,
+							outputDir,
+							quality,
+							scale,
+							stopState,
+							framesRendered,
+							framesToRender,
+							inputProps,
+							lastFrame,
+							muted: muted ?? false,
+							onDownload,
+							onError,
+							pagesArray,
+							proxyPort,
+							realFrameRange,
+							serveUrl,
+							timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
+							browserExecutable,
+							chromiumOptions,
+							dumpBrowserLogs,
+							envVariables,
+							onBrowserLog,
+						});
+					}
+
+					throw new Error('unknown layer type');
+				})
+			);
+
+			return layers;
+		})
 	);
+
+	console.log(progress);
 
 	const happyPath = progress.then(() => {
 		const firstFrameIndex = countType === 'from-zero' ? 0 : framesToRender[0];

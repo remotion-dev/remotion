@@ -1,5 +1,5 @@
 // Must keep this file synced with payloads.rs!
-export type Layer =
+export type CompositorLayer =
 	| {
 			type: 'PngImage';
 			params: {
@@ -53,7 +53,7 @@ export type CliInput = {
 	output: string;
 	width: number;
 	height: number;
-	layers: Layer[];
+	layers: CompositorLayer[];
 	output_format: CompositorImageFormat;
 	nonce: number;
 };

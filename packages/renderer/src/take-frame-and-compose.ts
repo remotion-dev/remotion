@@ -1,25 +1,16 @@
-import fs from 'fs';
-import path from 'path';
 import type {ClipRegion, TAsset} from 'remotion';
-import type {DownloadMap} from './assets/download-map';
 import type {Page} from './browser/BrowserPage';
-import {compose} from './compositor/compose';
 import type {ImageFormat} from './image-format';
 import {provideScreenshot} from './provide-screenshot';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
-import {truthy} from './truthy';
 
-export const takeFrameAndCompose = async ({
+export const takeFrame = async ({
 	freePage,
 	imageFormat,
 	quality,
 	frame,
 	width,
 	height,
-	output,
-	scale,
-	downloadMap,
-	wantsBuffer,
 }: {
 	freePage: Page;
 	imageFormat: ImageFormat;
@@ -27,11 +18,11 @@ export const takeFrameAndCompose = async ({
 	frame: number;
 	height: number;
 	width: number;
-	output: string | null;
-	scale: number;
-	downloadMap: DownloadMap;
-	wantsBuffer: boolean;
-}): Promise<{buffer: Buffer | null; collectedAssets: TAsset[]}> => {
+}): Promise<{
+	buffer: Buffer | null;
+	collectedAssets: TAsset[];
+	clipRegion: ClipRegion | null;
+}> => {
 	const [clipRegion, collectedAssets] = await Promise.all([
 		puppeteerEvaluateWithCatch<ClipRegion | null>({
 			pageFunction: () => {
@@ -55,80 +46,22 @@ export const takeFrameAndCompose = async ({
 		}),
 	]);
 
-	if (imageFormat === 'none') {
-		return {buffer: null, collectedAssets};
+	if (imageFormat === 'none' || clipRegion === 'hide') {
+		return {buffer: null, collectedAssets, clipRegion};
 	}
 
-	const needsComposing =
-		clipRegion === null
-			? null
-			: {
-					tmpFile: path.join(
-						downloadMap.compositingDir,
-						`${frame}.${imageFormat}`
-					),
-					finalOutfie:
-						output ??
-						path.join(
-							downloadMap.compositingDir,
-							`${frame}-final.${imageFormat}`
-						),
-					clipRegion: clipRegion as ClipRegion,
-			  };
-	if (clipRegion !== 'hide') {
-		const shouldMakeBuffer = wantsBuffer && !needsComposing;
+	const buf = await provideScreenshot({
+		page: freePage,
+		imageFormat,
+		quality,
+		options: {
+			frame,
+			output: null,
+		},
+		height,
+		width,
+		clipRegion,
+	});
 
-		const buf = await provideScreenshot({
-			page: freePage,
-			imageFormat,
-			quality,
-			options: {
-				frame,
-				output: shouldMakeBuffer ? null : needsComposing?.tmpFile ?? output,
-			},
-			height,
-			width,
-			clipRegion,
-		});
-
-		if (shouldMakeBuffer) {
-			return {buffer: buf, collectedAssets};
-		}
-	}
-
-	if (needsComposing) {
-		await compose({
-			height: height * scale,
-			width: width * scale,
-			layers: [
-				needsComposing.clipRegion === 'hide'
-					? null
-					: {
-							type:
-								imageFormat === 'jpeg'
-									? ('JpgImage' as const)
-									: ('PngImage' as const),
-							params: {
-								height: needsComposing.clipRegion.height * scale,
-								width: needsComposing.clipRegion.width * scale,
-								src: needsComposing.tmpFile,
-								x: needsComposing.clipRegion.x * scale,
-								y: needsComposing.clipRegion.y * scale,
-							},
-					  },
-			].filter(truthy),
-			output: needsComposing.finalOutfie,
-			downloadMap,
-			imageFormat: imageFormat === 'jpeg' ? 'Jpeg' : 'Png',
-			// TODO:
-			renderId: 'abc',
-		});
-		if (wantsBuffer) {
-			const buffer = await fs.promises.readFile(needsComposing.finalOutfie);
-			await fs.promises.unlink(needsComposing.finalOutfie);
-			return {buffer, collectedAssets};
-		}
-	}
-
-	return {buffer: null, collectedAssets};
+	return {buffer: buf, collectedAssets, clipRegion};
 };

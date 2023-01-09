@@ -29,7 +29,7 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {validateQuality} from './quality';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
-import {takeFrameAndCompose} from './take-frame-and-compose';
+import {takeFrame} from './take-frame-and-compose';
 import {validateFrame} from './validate-frame';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
@@ -239,7 +239,7 @@ const innerRenderStill = async ({
 	});
 	await seekToFrame({frame: stillFrame, page});
 
-	const {buffer} = await takeFrameAndCompose({
+	const {buffer} = await takeFrame({
 		downloadMap,
 		frame: stillFrame,
 		freePage: page,

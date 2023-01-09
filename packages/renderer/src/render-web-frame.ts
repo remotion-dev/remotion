@@ -1,5 +1,5 @@
 import path from 'path';
-import type {SmallTCompMetadata, TAsset} from 'remotion/src';
+import type {ClipRegion, SmallTCompMetadata, TAsset} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
@@ -8,6 +8,7 @@ import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
+import type {CompositorLayer} from './compositor/payloads';
 import {compressAsset} from './compress-assets';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import type {CountType} from './get-frame-padded-index';
@@ -22,7 +23,7 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import type {BrowserReplacer} from './replace-browser';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
-import {takeFrameAndCompose} from './take-frame-and-compose';
+import {takeFrame} from './take-frame-and-compose';
 import {truthy} from './truthy';
 
 const renderFrameWithOptionToReject = async ({
@@ -75,12 +76,13 @@ const renderFrameWithOptionToReject = async ({
 	};
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
-}) => {
+}): Promise<CompositorLayer | null> => {
 	const pool = await poolPromise;
 	const freePage = await pool.acquire();
 
 	if (stopState.isStopped) {
-		return reject(new Error('Render was stopped'));
+		reject(new Error('Render was stopped'));
+		return null;
 	}
 
 	const startTime = performance.now();
@@ -113,28 +115,62 @@ const renderFrameWithOptionToReject = async ({
 
 	const frameDir = outputDir ?? downloadMap.compositingDir;
 
-	const {buffer, collectedAssets} = await takeFrameAndCompose({
+	// TODO: Reimplement onBuffer()
+	const output = path.join(
+		frameDir,
+		getFrameOutputFileName({
+			frame,
+			imageFormat,
+			index,
+			countType,
+			lastFrame,
+			totalFrames: framesToRender.length,
+		})
+	);
+
+	const {buffer, collectedAssets, clipRegion} = await takeFrame({
 		frame,
 		freePage,
 		height,
 		imageFormat,
-		output: path.join(
-			frameDir,
-			getFrameOutputFileName({
-				frame,
-				imageFormat,
-				index,
-				countType,
-				lastFrame,
-				totalFrames: framesToRender.length,
-			})
-		),
 		quality,
 		width,
-		scale,
-		downloadMap,
-		wantsBuffer: Boolean(onFrameBuffer),
 	});
+
+	const needsComposing =
+		clipRegion === null
+			? null
+			: {
+					tmpFile: path.join(
+						downloadMap.compositingDir,
+						`${frame}.${imageFormat}`
+					),
+					finalOutfie:
+						output ??
+						path.join(
+							downloadMap.compositingDir,
+							`${frame}-final.${imageFormat}`
+						),
+					clipRegion: clipRegion as ClipRegion,
+			  };
+
+	const compositionLayer: CompositorLayer | null =
+		!needsComposing || needsComposing.clipRegion === 'hide'
+			? null
+			: {
+					type:
+						imageFormat === 'jpeg'
+							? ('JpgImage' as const)
+							: ('PngImage' as const),
+					params: {
+						height: needsComposing.clipRegion.height * scale,
+						width: needsComposing.clipRegion.width * scale,
+						src: needsComposing.tmpFile,
+						x: needsComposing.clipRegion.x * scale,
+						y: needsComposing.clipRegion.y * scale,
+					},
+			  };
+
 	if (onFrameBuffer) {
 		if (!buffer) {
 			throw new Error('unexpected null buffer');
@@ -165,6 +201,8 @@ const renderFrameWithOptionToReject = async ({
 	cleanupPageError();
 	freePage.off('error', errorCallbackOnFrame);
 	pool.release(freePage);
+
+	return compositionLayer;
 };
 
 const renderWebFrame = ({
@@ -216,7 +254,7 @@ const renderWebFrame = ({
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
 }) => {
-	return new Promise<void>((resolve, reject) => {
+	return new Promise<CompositorLayer | null>((resolve, reject) => {
 		renderFrameWithOptionToReject({
 			frame,
 			index,
@@ -240,8 +278,8 @@ const renderWebFrame = ({
 			onDownload,
 			onError,
 		})
-			.then(() => {
-				resolve();
+			.then((res) => {
+				resolve(res);
 			})
 			.catch((err) => {
 				reject(err);
@@ -329,9 +367,9 @@ export const renderWebFrameAndRetryTargetClose = async ({
 	timeoutInMilliseconds: number;
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
-}) => {
+}): Promise<CompositorLayer | null> => {
 	try {
-		await renderWebFrame({
+		const returnval = await renderWebFrame({
 			frame,
 			index,
 			poolPromise,
@@ -352,6 +390,8 @@ export const renderWebFrameAndRetryTargetClose = async ({
 			onDownload,
 			onError,
 		});
+
+		return returnval;
 	} catch (err) {
 		if (
 			!(err as Error)?.message?.includes('Target closed') &&
@@ -412,7 +452,7 @@ export const renderWebFrameAndRetryTargetClose = async ({
 				}
 			}
 		);
-		await renderWebFrameAndRetryTargetClose({
+		const fram = await renderWebFrameAndRetryTargetClose({
 			frame,
 			index,
 			retriesLeft: retriesLeft - 1,
@@ -449,6 +489,8 @@ export const renderWebFrameAndRetryTargetClose = async ({
 			onDownload,
 			onError,
 		});
+
+		return fram;
 	}
 };
 
