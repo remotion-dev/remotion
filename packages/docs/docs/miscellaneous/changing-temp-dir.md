@@ -16,7 +16,7 @@ TMPDIR=/var/tmp npx remotion render
 ```
 
 Remotion will make a new temporary directory in the path that you have specified.
-This is because Remotion uses the the Node.JS [`os.tmpdir()`][tmpdir] API, which checks for these environment variables in priority order:
+This is because Remotion uses the the Node.JS [`os.tmpdir()`][tmpdir] API, which checks for environment variables in the following order:
 
 * `TMPDIR`, `TMP`, `TEMP` on non-Windows platforms
 * `TEMP` and `TMP` on Windows platforms
