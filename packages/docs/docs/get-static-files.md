@@ -9,6 +9,11 @@ _Available from v3.3.26._
 
 Gets an array containing all files in the `public/` folder. You can reference them by using [`staticFile()`](/docs/staticfile).
 
+:::note
+This feature does not work in the Remotion Player and returns an empty array.  
+On Linux, watching for changes in subdirectories is only supported from Node.js v19.1.0. If you use a version earlier than that, you need to refresh the Remotion Preview browser tab manually.
+:::
+
 ```tsx twoslash title="example.ts"
 import { getStaticFiles, StaticFile, Video } from "remotion";
 
