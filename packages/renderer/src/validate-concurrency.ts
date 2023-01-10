@@ -28,6 +28,6 @@ export const validateConcurrency = (value: unknown, setting: string) => {
 			);
 		}
 	} else if(!(/^\d+(\.\d+)?%$/.test(value))) {
-		throw new Error(setting + ' must be a valid percentage, but is ' + value);
+		throw new Error(setting + ' must be a number or percentage, but is ' + value);
 	}
 };
