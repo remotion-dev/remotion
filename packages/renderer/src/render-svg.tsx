@@ -29,23 +29,29 @@ const makeTimelineContextValue = (
 	return value;
 };
 
-export const renderSvg = (
-	composition: TCompMetadata,
-	Comp: ComponentType,
-	frame: number
-) => {
+export const renderSvg = ({
+	composition,
+	Comp,
+	frame,
+	layer,
+}: {
+	composition: TCompMetadata;
+	Comp: ComponentType;
+	frame: number;
+	layer: number;
+}) => {
 	const svg = renderToStaticMarkup(
-		<Internals.Timeline.TimelineContext.Provider
-			value={makeTimelineContextValue(composition, frame)}
-		>
-			<Internals.CompositionManager.Provider
-				value={makeCompManagerContext(composition)}
+		<Internals.SelectCompositionMode layer={layer} id={composition.id}>
+			<Internals.Timeline.TimelineContext.Provider
+				value={makeTimelineContextValue(composition, frame)}
 			>
-				<Internals.SelectCompositionMode id={composition.id}>
+				<Internals.CompositionManager.Provider
+					value={makeCompManagerContext(composition)}
+				>
 					<Comp />
-				</Internals.SelectCompositionMode>
-			</Internals.CompositionManager.Provider>
-		</Internals.Timeline.TimelineContext.Provider>
+				</Internals.CompositionManager.Provider>
+			</Internals.Timeline.TimelineContext.Provider>
+		</Internals.SelectCompositionMode>
 	);
 
 	return svg;

@@ -26,7 +26,6 @@ export const renderOnServer = async (
 	console.time('total');
 	console.time('frames');
 	process.env.REMOTION_SERVER_RENDERING = 'true';
-	process.env.SELECT_COMP_ID = composition.id;
 
 	// eslint-disable-next-line react/jsx-no-constructed-context-values
 	const memo: CompositionManagerContext = makeCompManagerContext(
@@ -58,11 +57,13 @@ export const renderOnServer = async (
 			};
 
 			const svg = renderToStaticMarkup(
-				<Internals.Timeline.TimelineContext.Provider value={value}>
-					<Internals.CompositionManager.Provider value={memo}>
-						<Comp />
-					</Internals.CompositionManager.Provider>
-				</Internals.Timeline.TimelineContext.Provider>
+				<Internals.SelectCompositionMode layer={0} id={composition.id}>
+					<Internals.Timeline.TimelineContext.Provider value={value}>
+						<Internals.CompositionManager.Provider value={memo}>
+							<Comp />
+						</Internals.CompositionManager.Provider>
+					</Internals.Timeline.TimelineContext.Provider>
+				</Internals.SelectCompositionMode>
 			);
 
 			const out = path.join(

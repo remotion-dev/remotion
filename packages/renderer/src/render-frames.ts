@@ -240,7 +240,7 @@ const innerRenderFrames = ({
 	const progress = Promise.all(
 		framesToRender.map((frame, index) => {
 			const layers = Promise.all(
-				composition.layers.map((l) => {
+				composition.layers.map((l, i) => {
 					if (l.type === 'svg') {
 						const comp = compositions.find(
 							(c) => c.id === composition.id
@@ -248,7 +248,12 @@ const innerRenderFrames = ({
 
 						// TODO: Select composition now
 
-						const str = renderSvg(comp, root, frame);
+						const str = renderSvg({
+							composition: comp,
+							Comp: root,
+							frame,
+							layer: i,
+						});
 						console.log(str);
 
 						return null;

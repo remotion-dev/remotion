@@ -1,15 +1,17 @@
-import type {ComponentType, PropsWithChildren} from 'react';
+import type {PropsWithChildren} from 'react';
 import React, {createContext, useContext, useEffect, useMemo} from 'react';
 import {createPortal} from 'react-dom';
 import {AbsoluteFill} from './AbsoluteFill';
-import {CanUseRemotionHooksProvider} from './CanUseRemotionHooks';
+import {
+	CanUseRemotionHooks,
+	CanUseRemotionHooksProvider,
+} from './CanUseRemotionHooks';
 import type {TCompMetadata} from './CompositionManager';
 import {CompositionManager} from './CompositionManager';
 import {getInputProps} from './config/input-props';
 import {continueRender, delayRender} from './delay-render';
 import {FolderContext} from './Folder';
 import {getRemotionEnvironment} from './get-environment';
-import {Internals} from './internals';
 import {LayerMaster} from './LayerMaster';
 import type {CompProps} from './layers';
 import {useLayers} from './layers';
@@ -53,6 +55,7 @@ type CompositionMode =
 	| {
 			type: 'selected';
 			id: string;
+			layer: number;
 	  };
 
 const compMode: CompositionMode = {
@@ -76,13 +79,15 @@ export const GetCompositionsFromMarkupModeProvider: React.FC<{
 export const SelectCompositionMode: React.FC<{
 	children: React.ReactNode;
 	id: string;
-}> = ({children, id}) => {
+	layer: number;
+}> = ({children, id, layer}) => {
 	const mode = useMemo((): CompositionMode => {
 		return {
 			type: 'selected',
 			id,
+			layer,
 		};
-	}, [id]);
+	}, [id, layer]);
 
 	return (
 		<GetCompositionsFromMarkupMode.Provider value={mode}>
@@ -112,8 +117,7 @@ export const Composition = <T extends object>({
 		getCompositionsContext.type === 'compositions';
 
 	const isInSelectMode = getCompositionsContext.type === 'selected';
-
-	const canUseComposition = useContext(Internals.CanUseRemotionHooks);
+	const canUseComposition = useContext(CanUseRemotionHooks);
 	if (canUseComposition) {
 		if (typeof window !== 'undefined' && window.remotion_isPlayer) {
 			throw new Error(
@@ -195,9 +199,12 @@ export const Composition = <T extends object>({
 			);
 		}
 
-		if (isInSelectMode && video?.id === getCompositionsContext.id) {
-			// @ts-expect-error
-			const Comp = compProps.component as ComponentType;
+		if (isInSelectMode) {
+			if (id !== getCompositionsContext.id) {
+				return null;
+			}
+
+			const Comp = layers[getCompositionsContext.layer].component;
 			const inputProps = getInputProps();
 
 			// TODO: input props
@@ -206,11 +213,6 @@ export const Composition = <T extends object>({
 					<Comp {...defaultProps} {...inputProps} />
 				</CanUseRemotionHooksProvider>
 			);
-		}
-
-		// TODO: Unset env variables
-		if (process.env.SELECT_COMP_ID) {
-			return null;
 		}
 
 		throw new Error('unexpected state in server rendering');
