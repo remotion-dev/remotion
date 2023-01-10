@@ -32,7 +32,7 @@ import {useLayers} from './layers';
 import {NativeLayersContext} from './NativeLayers';
 import {portalNode} from './portal-node';
 import {PrefetchProvider} from './prefetch-state';
-import {getRoot, waitForRoot} from './register-root';
+import {clearRoot, getRoot, waitForRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
 import {SequenceContext} from './Sequence';
 import {ENV_VARIABLES_ENV_NAME, setupEnvVariables} from './setup-env-variables';
@@ -78,6 +78,7 @@ export const Internals = {
 	RemotionRoot,
 	useVideo,
 	getRoot,
+	clearRoot,
 	useMediaVolumeState,
 	useMediaMutedState,
 	truthy,

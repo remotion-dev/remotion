@@ -27,6 +27,10 @@ export const getRoot = () => {
 	return Root;
 };
 
+export const clearRoot = () => {
+	Root = null;
+};
+
 export const waitForRoot = (fn: (comp: React.FC) => void): (() => void) => {
 	if (Root) {
 		fn(Root);

@@ -69,5 +69,7 @@ export const getCompositionsFromBundle = (
 	const Comp = theRoot as ComponentType;
 	const comps = getCompositionsFromMarkup(Comp);
 
+	Internals.clearRoot();
+
 	return {compositions: comps, root: Comp};
 };

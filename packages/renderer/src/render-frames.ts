@@ -230,20 +230,18 @@ const innerRenderFrames = ({
 	cancelSignal?.(() => {
 		stopState.isStopped = true;
 	});
+	// TODO: Only if there is an SVG layer 😛
+	if (typeof serveUrl !== 'object') {
+		throw new Error('expected serve URL to be a object');
+	}
+
+	const {root, compositions} = getCompositionsFromBundle(serveUrl.nodeUrl, {});
 
 	const progress = Promise.all(
 		framesToRender.map((frame, index) => {
 			const layers = Promise.all(
 				composition.layers.map((l) => {
 					if (l.type === 'svg') {
-						if (typeof serveUrl !== 'object') {
-							throw new Error('expected serve URL to be a object');
-						}
-
-						const {root, compositions} = getCompositionsFromBundle(
-							serveUrl.nodeUrl,
-							{}
-						);
 						const comp = compositions.find(
 							(c) => c.id === composition.id
 						) as TCompMetadata;
