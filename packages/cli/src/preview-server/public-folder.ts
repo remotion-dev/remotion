@@ -3,6 +3,7 @@ import {existsSync, watch} from 'fs';
 import path from 'path';
 // eslint-disable-next-line no-restricted-imports
 import type {StaticFile} from 'remotion';
+import {envSupportsFsRecursive} from './env-supports-fs-recursive';
 
 let files: StaticFile[] = [];
 
@@ -66,7 +67,7 @@ export const watchPublicFolder = ({
 		return;
 	}
 
-	watch(publicDir, {recursive: true}, () => {
+	watch(publicDir, {recursive: envSupportsFsRecursive()}, () => {
 		fetchFolder({publicDir, staticHash});
 		onUpdate();
 	});

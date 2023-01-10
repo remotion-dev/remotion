@@ -158,7 +158,7 @@ module.exports = {
             },
             {
               label: "TikTok",
-              href: "https://www.tiktok.com/@remotion.dev",
+              href: "https://www.tiktok.com/@remotion",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "TikTok",
             },

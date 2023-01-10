@@ -1,3 +1,5 @@
+import path from 'path';
+
 export const getExtensionOfFilename = (
 	filename: string | null
 ): string | null => {
@@ -5,7 +7,7 @@ export const getExtensionOfFilename = (
 		return null;
 	}
 
-	const filenameArr = filename.split('.');
+	const filenameArr = path.normalize(filename).split('.');
 
 	const hasExtension = filenameArr.length >= 2;
 	const filenameArrLength = filenameArr.length;

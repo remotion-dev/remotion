@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "path";
 import prettier from "prettier";
 import { googleFonts } from "./google-fonts";
-import { removeWhitespace, unqoute } from "./utils";
+import { removeWhitespace, unquote } from "./utils";
 
 const OUTDIR = "./src";
 
@@ -13,8 +13,8 @@ const generate = async () => {
   console.log(`- Generating ${filename}`);
   let output = `export const getAvailableFonts = () => ${JSON.stringify(
     googleFonts.map((f) => ({
-      fontFamily: unqoute(f.family),
-      importName: removeWhitespace(unqoute(f.family)),
+      fontFamily: unquote(f.family),
+      importName: removeWhitespace(unquote(f.family)),
     })),
     null,
     2
@@ -38,13 +38,13 @@ const generate = async () => {
   for (const font of googleFonts) {
     if (!read.typesVersions) read.typesVersions = {};
     if (!read.typesVersions[">=1.0"]) read.typesVersions[">=1.0"] = {};
-    read.typesVersions[">=1.0"][removeWhitespace(unqoute(font.family))] = [
-      `dist/${removeWhitespace(unqoute(font.family))}.d.ts`,
+    read.typesVersions[">=1.0"][removeWhitespace(unquote(font.family))] = [
+      `dist/${removeWhitespace(unquote(font.family))}.d.ts`,
     ];
     if (!read.exports) read.exports = {};
     read.exports[
-      `./${removeWhitespace(unqoute(font.family))}`
-    ] = `./dist/${removeWhitespace(unqoute(font.family))}.js`;
+      `./${removeWhitespace(unquote(font.family))}`
+    ] = `./dist/${removeWhitespace(unquote(font.family))}.js`;
   }
   read.exports["."] = `./dist/index.js`;
 

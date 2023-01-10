@@ -13,7 +13,7 @@ export const screenshot = (options: {
 	width: number;
 	height: number;
 	clipRegion: ClipRegion | null;
-}): Promise<Buffer | string | void> => {
+}): Promise<Buffer | string> => {
 	let screenshotType: 'png' | 'jpeg' | null = null;
 	// options.type takes precedence over inferring the type from options.path
 	// because it may be a 0-length file with no extension created beforehand
