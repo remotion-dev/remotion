@@ -7,12 +7,12 @@ import {downloadFile} from '../assets/download-file';
 test('Should be able to download file', async () => {
 	const downloadDir = tmpdir();
 	const {to} = await downloadFile({
-		url: 'https://example.org/',
+		url: 'https://remotion.dev/',
 		to: (contentDisposition, contentType) => {
 			return getSanitizedFilenameForAssetUrl({
 				contentDisposition,
 				downloadDir,
-				src: 'https://example.org/',
+				src: 'https://remotion.dev/',
 				contentType,
 			});
 		},
