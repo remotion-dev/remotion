@@ -127,6 +127,7 @@ export const bundleOnCli = async ({
 		publicDir,
 		onPublicDirCopyProgress,
 		onSymlinkDetected,
+		runtime,
 	};
 
 	const [hash] = BundlerInternals.getConfig({

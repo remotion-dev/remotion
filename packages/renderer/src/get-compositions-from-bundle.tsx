@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import type {ComponentType} from 'react';
+import type {TCompMetadata} from 'remotion';
 import {getCompositionsFromMarkup, Internals} from 'remotion';
 import vm from 'vm';
 import type {GetCompositionsConfig} from './get-compositions';
@@ -9,7 +10,10 @@ import {isServeUrl} from './is-serve-url';
 export const getCompositionsFromBundle = (
 	bundle: string,
 	options: GetCompositionsConfig
-) => {
+): {
+	compositions: TCompMetadata[];
+	root: ComponentType;
+} => {
 	const bundleFile = path.join(bundle, 'bundle.js');
 
 	if (isServeUrl(bundle)) {
@@ -65,5 +69,5 @@ export const getCompositionsFromBundle = (
 	const Comp = theRoot as ComponentType;
 	const comps = getCompositionsFromMarkup(Comp);
 
-	return comps;
+	return {compositions: comps, root: Comp};
 };

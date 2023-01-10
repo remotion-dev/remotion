@@ -59,7 +59,10 @@ export const listCompositionsCommand = async (
 		});
 
 	// TODO: Remove and make it an option
-	const comps = RenderInternals.getCompositionsFromBundle(bundled, {});
+	const {compositions: comps} = RenderInternals.getCompositionsFromBundle(
+		bundled,
+		{}
+	);
 	printCompositions(comps);
 
 	const compositions = await getCompositions(bundled, {

@@ -9,7 +9,10 @@ import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
 } from './CanUseRemotionHooks';
-import {GetCompositionsFromMarkupModeProvider} from './Composition';
+import {
+	GetCompositionsFromMarkupModeProvider,
+	SelectCompositionMode,
+} from './Composition';
 import type {
 	CompositionManagerContext,
 	TAsset,
@@ -107,6 +110,7 @@ export const Internals = {
 	DurationsContextProvider,
 	NativeLayersContext,
 	GetCompositionsFromMarkupModeProvider,
+	SelectCompositionMode,
 	useLayers,
 	LayerMaster,
 };

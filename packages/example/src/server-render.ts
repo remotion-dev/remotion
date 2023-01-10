@@ -12,10 +12,10 @@ const start = async () => {
 	const nodeBundle = await bundle({
 		entryPoint: require.resolve('./index'),
 		webpackOverride,
-		runtime: 'browser',
+		runtime: 'node',
 	});
 
-	const comps = getCompositionsFromBundle(nodeBundle, {});
+	const {compositions: comps} = getCompositionsFromBundle(nodeBundle, {});
 
 	const comp = comps.find((c) => c.id === 'layers');
 

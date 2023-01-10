@@ -1,5 +1,5 @@
 import fs from 'fs';
-import type {SmallTCompMetadata, TAsset} from 'remotion';
+import type {SmallTCompMetadata, TAsset, TCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
@@ -31,6 +31,7 @@ import type {ChromiumOptions} from './open-browser';
 import {Pool} from './pool';
 import {prepareServer} from './prepare-server';
 import {validateQuality} from './quality';
+import {renderSvg} from './render-svg';
 import {
 	makeBrowser,
 	makePage,
@@ -231,7 +232,7 @@ const innerRenderFrames = ({
 	});
 
 	const progress = Promise.all(
-		framesToRender.map(async (frame, index) => {
+		framesToRender.map((frame, index) => {
 			const layers = Promise.all(
 				composition.layers.map((l) => {
 					if (l.type === 'svg') {
@@ -239,11 +240,18 @@ const innerRenderFrames = ({
 							throw new Error('expected serve URL to be a object');
 						}
 
-						const comps = getCompositionsFromBundle(serveUrl.nodeUrl, {});
-						// TODO: Don't hardcode 🙈
-						const Comp = comps.find((c) => c.id === 'layers');
+						const {root, compositions} = getCompositionsFromBundle(
+							serveUrl.nodeUrl,
+							{}
+						);
+						const comp = compositions.find(
+							(c) => c.id === composition.id
+						) as TCompMetadata;
 
 						// TODO: Select composition now
+
+						const str = renderSvg(comp, root, frame);
+						console.log(str);
 
 						return null;
 					}
@@ -295,8 +303,6 @@ const innerRenderFrames = ({
 			return layers;
 		})
 	);
-
-	console.log(progress);
 
 	const happyPath = progress.then(() => {
 		const firstFrameIndex = countType === 'from-zero' ? 0 : framesToRender[0];
@@ -407,7 +413,7 @@ export const renderFrames = (
 				}),
 				browserInstance,
 			]).then(([maybeBrowser, puppeteerInstance]) => {
-				const {closeServer, offthreadPort, serveUrl} = maybeBrowser;
+				const {closeServer, offthreadPort} = maybeBrowser;
 				const browserReplacer = handleBrowserCrash(puppeteerInstance);
 				if (browserReplacer) {
 					const {stopCycling} = cycleBrowserTabs(
@@ -424,7 +430,7 @@ export const renderFrames = (
 					puppeteerInstance,
 					onError,
 					pagesArray: openedPages,
-					serveUrl: serveUrl as string,
+					serveUrl: selectedServeUrl,
 					composition,
 					actualConcurrency,
 					onDownload,

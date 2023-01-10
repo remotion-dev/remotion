@@ -1,6 +1,10 @@
-import type {CompositionManagerContext, TComposition} from 'remotion';
+import type {
+	CompositionManagerContext,
+	TCompMetadata,
+	TComposition,
+} from 'remotion';
 
-export const makeCompManagerContext = (composition: TComposition<unknown>) => {
+export const makeCompManagerContext = (composition: TCompMetadata) => {
 	const memo: CompositionManagerContext = {
 		assets: [],
 		compositions: [composition as unknown as TComposition<unknown>],

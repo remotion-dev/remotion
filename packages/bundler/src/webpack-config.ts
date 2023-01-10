@@ -134,6 +134,7 @@ export const webpackConfig = ({
 			devtoolModuleFilenameTemplate: '[resource-path]',
 			assetModuleFilename:
 				environment === 'development' ? '[path][name][ext]' : '[hash][ext]',
+			publicPath: runtime === 'browser' ? undefined : '',
 		},
 		resolve: {
 			extensions: ['.ts', '.tsx', '.web.js', '.js', '.jsx'],
@@ -193,7 +194,7 @@ export const webpackConfig = ({
 							: null,
 					].filter(truthy),
 				},
-			],
+			].filter(truthy),
 		},
 	});
 	const hash = createHash('md5')

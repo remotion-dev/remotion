@@ -3,6 +3,7 @@ import React, {createContext, useContext, useEffect, useMemo} from 'react';
 import {createPortal} from 'react-dom';
 import {AbsoluteFill} from './AbsoluteFill';
 import {CanUseRemotionHooksProvider} from './CanUseRemotionHooks';
+import type {TCompMetadata} from './CompositionManager';
 import {CompositionManager} from './CompositionManager';
 import {getInputProps} from './config/input-props';
 import {continueRender, delayRender} from './delay-render';
@@ -42,13 +43,49 @@ type CompositionProps<T> = StillProps<T> & {
 	durationInFrames: number;
 };
 
-const GetCompositionsFromMarkupMode = createContext(false);
+type CompositionMode =
+	| {
+			type: 'none';
+	  }
+	| {
+			type: 'compositions';
+	  }
+	| {
+			type: 'selected';
+			id: string;
+	  };
+
+const compMode: CompositionMode = {
+	type: 'compositions',
+};
+
+const GetCompositionsFromMarkupMode = createContext<CompositionMode>({
+	type: 'none',
+});
 
 export const GetCompositionsFromMarkupModeProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
 	return (
-		<GetCompositionsFromMarkupMode.Provider value>
+		<GetCompositionsFromMarkupMode.Provider value={compMode}>
+			{children}
+		</GetCompositionsFromMarkupMode.Provider>
+	);
+};
+
+export const SelectCompositionMode: React.FC<{
+	children: React.ReactNode;
+	id: string;
+}> = ({children, id}) => {
+	const mode = useMemo((): CompositionMode => {
+		return {
+			type: 'selected',
+			id,
+		};
+	}, [id]);
+
+	return (
+		<GetCompositionsFromMarkupMode.Provider value={mode}>
 			{children}
 		</GetCompositionsFromMarkupMode.Provider>
 	);
@@ -70,9 +107,11 @@ export const Composition = <T extends object>({
 
 	const nonce = useNonce();
 
-	const isInGetCompositionsFromMarkupMode = useContext(
-		GetCompositionsFromMarkupMode
-	);
+	const getCompositionsContext = useContext(GetCompositionsFromMarkupMode);
+	const isInGetCompositionsFromMarkupMode =
+		getCompositionsContext.type === 'compositions';
+
+	const isInSelectMode = getCompositionsContext.type === 'selected';
 
 	const canUseComposition = useContext(Internals.CanUseRemotionHooks);
 	if (canUseComposition) {
@@ -137,23 +176,26 @@ export const Composition = <T extends object>({
 
 	if (getRemotionEnvironment() === 'server-rendering') {
 		if (isInGetCompositionsFromMarkupMode) {
+			const metadata = {
+				width,
+				height,
+				fps,
+				durationInFrames,
+				id,
+				defaultProps,
+				layers,
+			} as TCompMetadata;
 			return (
 				<div
 					// eslint-disable-next-line react/no-danger
 					dangerouslySetInnerHTML={{
-						__html: JSON.stringify({
-							width,
-							height,
-							fps,
-							durationInFrames,
-							id,
-						}),
+						__html: JSON.stringify(metadata),
 					}}
 				/>
 			);
 		}
 
-		if (process.env.SELECT_COMP_ID === id) {
+		if (isInSelectMode && video?.id === getCompositionsContext.id) {
 			// @ts-expect-error
 			const Comp = compProps.component as ComponentType;
 			const inputProps = getInputProps();
