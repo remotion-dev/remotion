@@ -16,6 +16,7 @@ import {
 	waitForCompositorWithIdToQuit,
 } from './compositor/compositor';
 import {getFrameOutputFileName} from './get-frame-padded-index';
+import {makeCompManagerContext} from './make-comp-manager-context';
 import {Pool} from './pool';
 
 export const renderOnServer = async (
@@ -28,44 +29,9 @@ export const renderOnServer = async (
 	process.env.SELECT_COMP_ID = composition.id;
 
 	// eslint-disable-next-line react/jsx-no-constructed-context-values
-	const memo: CompositionManagerContext = {
-		assets: [],
-		compositions: [composition as unknown as TComposition<unknown>],
-		currentComposition: composition.id,
-		currentCompositionMetadata: composition,
-		folders: [],
-		registerAsset: () => {
-			throw new Error('Not implemented');
-		},
-		registerComposition: () => {
-			throw new Error('Not implemented');
-		},
-		registerFolder: () => {
-			throw new Error('Not implemented');
-		},
-		setCurrentComposition: () => {
-			throw new Error('Not implemented');
-		},
-		registerSequence() {
-			throw new Error('Not implemented');
-		},
-		sequences: [],
-		setCurrentCompositionMetadata: () => {
-			throw new Error('Not implemented');
-		},
-		unregisterAsset: () => {
-			throw new Error('Not implemented');
-		},
-		unregisterComposition: () => {
-			throw new Error('Not implemented');
-		},
-		unregisterFolder: () => {
-			throw new Error('Not implemented');
-		},
-		unregisterSequence: () => {
-			throw new Error('Not implemented');
-		},
-	};
+	const memo: CompositionManagerContext = makeCompManagerContext(
+		composition as unknown as TComposition<unknown>
+	);
 
 	const pool = new Pool(new Array(4).fill(true).map((_, i) => i));
 

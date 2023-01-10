@@ -4,6 +4,7 @@ import {GetCompositionsFromMarkupModeProvider} from './Composition';
 import type {TCompMetadata} from './CompositionManager';
 
 export const getCompositionsFromMarkup = (Comp: ComponentType) => {
+	// TODO: Is this still necessary?
 	process.env.REMOTION_SERVER_RENDERING = 'true';
 	const str = renderToString(
 		<GetCompositionsFromMarkupModeProvider>

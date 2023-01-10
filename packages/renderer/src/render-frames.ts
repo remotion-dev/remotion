@@ -12,6 +12,7 @@ import {cycleBrowserTabs} from './cycle-browser-tabs';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
+import {getCompositionsFromBundle} from './get-compositions-from-bundle';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import type {CountType} from './get-frame-padded-index';
@@ -238,7 +239,12 @@ const innerRenderFrames = ({
 							throw new Error('expected serve URL to be a object');
 						}
 
-						console.log('DO SVG here 😄');
+						const comps = getCompositionsFromBundle(serveUrl.nodeUrl, {});
+						// TODO: Don't hardcode 🙈
+						const Comp = comps.find((c) => c.id === 'layers');
+
+						// TODO: Select composition now
+
 						return null;
 					}
 
