@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import type {SmallTCompMetadata, TAsset, TCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -8,6 +9,8 @@ import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
+import {compose} from './compositor/compose';
+import type {CompositorLayer} from './compositor/payloads';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {findRemotionRoot} from './find-closest-package-json';
@@ -16,7 +19,10 @@ import {getCompositionsFromBundle} from './get-compositions-from-bundle';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import type {CountType} from './get-frame-padded-index';
-import {getFilePadLength} from './get-frame-padded-index';
+import {
+	getFilePadLength,
+	getFrameOutputFileName,
+} from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
 import type {ImageFormat} from './image-format';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
@@ -39,6 +45,7 @@ import {
 } from './render-web-frame';
 import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
+import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
 
@@ -154,6 +161,7 @@ const innerRenderFrames = ({
 	browserExecutable,
 	chromiumOptions,
 	dumpBrowserLogs,
+	webServeUrl,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload' | 'puppeteerInstance'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -165,6 +173,7 @@ const innerRenderFrames = ({
 	downloadMap: DownloadMap;
 	browserReplacer: BrowserReplacer;
 	puppeteerInstance: Browser | null;
+	webServeUrl: string | null;
 }): Promise<RenderFramesOutput> => {
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
@@ -185,6 +194,10 @@ const innerRenderFrames = ({
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
 	const getPool = async () => {
+		if (!webServeUrl) {
+			throw new Error('Web serve url not defined');
+		}
+
 		const pages = new Array(actualConcurrency).fill(true).map(() =>
 			makePage({
 				pagesArray,
@@ -196,7 +209,7 @@ const innerRenderFrames = ({
 				proxyPort,
 				realFrameRange,
 				scale,
-				serveUrl,
+				serveUrl: webServeUrl,
 				timeoutInMilliseconds,
 				envVariables,
 				onBrowserLog,
@@ -236,74 +249,138 @@ const innerRenderFrames = ({
 	}
 
 	const {root, compositions} = getCompositionsFromBundle(serveUrl.nodeUrl, {});
+	const comp = compositions.find(
+		(c) => c.id === composition.id
+	) as TCompMetadata;
 
 	const progress = Promise.all(
-		framesToRender.map((frame, index) => {
-			const layers = Promise.all(
-				composition.layers.map((l, i) => {
-					if (l.type === 'svg') {
-						const comp = compositions.find(
-							(c) => c.id === composition.id
-						) as TCompMetadata;
+		framesToRender.map(async (frame, index) => {
+			const layers = await Promise.all(
+				composition.layers.map(
+					async (l, i): Promise<CompositorLayer | null> => {
+						if (l.type === 'svg') {
+							const svg = renderSvg({
+								composition: comp,
+								Comp: root,
+								frame,
+								layer: i,
+							});
 
-						// TODO: Select composition now
+							return Promise.resolve({
+								type: 'SvgImage',
+								params: {
+									height: comp.height,
+									markup: svg,
+									width: comp.width,
+									x: 0,
+									y: 0,
+								},
+							});
+						}
 
-						const str = renderSvg({
-							composition: comp,
-							Comp: root,
-							frame,
-							layer: i,
-						});
-						console.log(str);
+						if (l.type === 'web') {
+							if (!webServeUrl) {
+								throw new Error('expected web serve URL');
+							}
 
-						return null;
+							const output = path.join(
+								outputDir ?? downloadMap.compositingDir,
+								'pre-' +
+									getFrameOutputFileName({
+										countType,
+										frame,
+										imageFormat,
+										index,
+										lastFrame,
+										totalFrames: framesToRender.length,
+									})
+							);
+							const {layer, buffer} = await renderWebFrameAndRetryTargetClose({
+								frame,
+								index,
+								retriesLeft: MAX_RETRIES_PER_FRAME,
+								attempt: 1,
+								poolPromise,
+								countType,
+								actualConcurrency,
+								assets,
+								browserReplacer,
+								composition,
+								downloadMap,
+								imageFormat,
+								// TODO onFrameBuffer is not supported
+								onFrameBuffer,
+								onFrameUpdate,
+								outputDir,
+								quality,
+								scale,
+								stopState,
+								framesRendered,
+								framesToRender,
+								inputProps,
+								lastFrame,
+								muted: muted ?? false,
+								onDownload,
+								onError,
+								pagesArray,
+								proxyPort,
+								realFrameRange,
+								serveUrl: webServeUrl,
+								timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
+								browserExecutable,
+								chromiumOptions,
+								dumpBrowserLogs,
+								envVariables,
+								onBrowserLog,
+							});
+
+							if (!layer) {
+								throw new Error('handle this');
+							}
+
+							if (!buffer) {
+								throw new Error('handle this');
+							}
+
+							fs.writeFileSync(output, buffer);
+							const newLayer = {
+								...layer,
+							};
+
+							if (
+								newLayer.type === 'JpgImage' ||
+								newLayer.type === 'PngImage'
+							) {
+								newLayer.params.src = output;
+							}
+
+							return newLayer;
+						}
+
+						throw new Error('unknown layer type');
 					}
-
-					if (l.type === 'web') {
-						return renderWebFrameAndRetryTargetClose({
-							frame,
-							index,
-							retriesLeft: MAX_RETRIES_PER_FRAME,
-							attempt: 1,
-							poolPromise,
-							countType,
-							actualConcurrency,
-							assets,
-							browserReplacer,
-							composition,
-							downloadMap,
-							imageFormat,
-							onFrameBuffer,
-							onFrameUpdate,
-							outputDir,
-							quality,
-							scale,
-							stopState,
-							framesRendered,
-							framesToRender,
-							inputProps,
-							lastFrame,
-							muted: muted ?? false,
-							onDownload,
-							onError,
-							pagesArray,
-							proxyPort,
-							realFrameRange,
-							serveUrl,
-							timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
-							browserExecutable,
-							chromiumOptions,
-							dumpBrowserLogs,
-							envVariables,
-							onBrowserLog,
-						});
-					}
-
-					throw new Error('unknown layer type');
-				})
+				)
 			);
 
-			return layers;
+			return compose({
+				downloadMap,
+				height: comp.height,
+				imageFormat: imageFormat === 'png' ? 'Png' : 'Jpeg',
+				layers: layers.filter(truthy),
+				output: path.join(
+					outputDir ?? downloadMap.compositingDir,
+					getFrameOutputFileName({
+						countType,
+						frame,
+						imageFormat,
+						index,
+						lastFrame,
+						totalFrames: framesToRender.length,
+					})
+				),
+				renderId: downloadMap.id,
+				width: comp.width,
+			});
 		})
 	);
 
@@ -416,7 +493,7 @@ export const renderFrames = (
 				}),
 				browserInstance,
 			]).then(([maybeBrowser, puppeteerInstance]) => {
-				const {closeServer, offthreadPort} = maybeBrowser;
+				const {closeServer, offthreadPort, serveUrl} = maybeBrowser;
 				const browserReplacer = handleBrowserCrash(puppeteerInstance);
 				if (browserReplacer) {
 					const {stopCycling} = cycleBrowserTabs(
@@ -440,6 +517,7 @@ export const renderFrames = (
 					proxyPort: offthreadPort,
 					downloadMap,
 					browserReplacer,
+					webServeUrl: serveUrl,
 				});
 			}),
 		])

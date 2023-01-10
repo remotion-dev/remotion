@@ -12,7 +12,6 @@ import type {CompositorLayer} from './compositor/payloads';
 import {compressAsset} from './compress-assets';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import type {CountType} from './get-frame-padded-index';
-import {getFrameOutputFileName} from './get-frame-padded-index';
 import type {ServeUrl} from './legacy-webpack-config';
 import {isUserCancelledRender} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -34,17 +33,12 @@ const renderFrameWithOptionToReject = async ({
 	height,
 	poolPromise,
 	stopState,
-	outputDir,
-	onFrameBuffer,
 	imageFormat,
 	downloadMap,
 	onFrameUpdate,
 	scale,
 	assets,
-	countType,
 	quality,
-	framesToRender,
-	lastFrame,
 	framesRendered,
 	onDownload,
 	onError,
@@ -56,8 +50,6 @@ const renderFrameWithOptionToReject = async ({
 	height: number;
 	poolPromise: Promise<Pool<Page>>;
 	stopState: {isStopped: boolean};
-	outputDir: string | null;
-	onFrameBuffer: ((buffer: Buffer, frame: number) => void) | undefined;
 	imageFormat: 'png' | 'jpeg' | 'none';
 	downloadMap: DownloadMap;
 	onFrameUpdate: (
@@ -67,22 +59,19 @@ const renderFrameWithOptionToReject = async ({
 	) => void;
 	scale: number;
 	assets: TAsset[][];
-	countType: CountType;
 	quality: number | undefined;
-	framesToRender: number[];
-	lastFrame: number;
 	framesRendered: {
 		frames: number;
 	};
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
-}): Promise<CompositorLayer | null> => {
+}): Promise<{layer: CompositorLayer | null; buffer: Buffer | null}> => {
 	const pool = await poolPromise;
 	const freePage = await pool.acquire();
 
 	if (stopState.isStopped) {
 		reject(new Error('Render was stopped'));
-		return null;
+		throw new Error('stopped');
 	}
 
 	const startTime = performance.now();
@@ -99,33 +88,11 @@ const renderFrameWithOptionToReject = async ({
 	freePage.on('error', errorCallbackOnFrame);
 	await seekToFrame({frame, page: freePage});
 
-	if (!outputDir && !onFrameBuffer && imageFormat !== 'none') {
-		throw new Error(
-			'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`'
-		);
-	}
-
-	if (outputDir && onFrameBuffer && imageFormat !== 'none') {
-		throw new Error(
-			'Pass either `outputDir` or `onFrameBuffer` to renderFrames(), not both.'
-		);
-	}
-
 	const id = startPerfMeasure('save');
 
-	const frameDir = outputDir ?? downloadMap.compositingDir;
-
-	// TODO: Reimplement onBuffer()
 	const output = path.join(
-		frameDir,
-		getFrameOutputFileName({
-			frame,
-			imageFormat,
-			index,
-			countType,
-			lastFrame,
-			totalFrames: framesToRender.length,
-		})
+		downloadMap.compositingDir,
+		`preframe-${index}.${imageFormat}`
 	);
 
 	const {buffer, collectedAssets, clipRegion} = await takeFrame({
@@ -171,13 +138,7 @@ const renderFrameWithOptionToReject = async ({
 					},
 			  };
 
-	if (onFrameBuffer) {
-		if (!buffer) {
-			throw new Error('unexpected null buffer');
-		}
-
-		onFrameBuffer(buffer, frame);
-	}
+	// TODO: Always return buffer
 
 	stopPerfMeasure(id);
 
@@ -202,7 +163,7 @@ const renderFrameWithOptionToReject = async ({
 	freePage.off('error', errorCallbackOnFrame);
 	pool.release(freePage);
 
-	return compositionLayer;
+	return {layer: compositionLayer, buffer};
 };
 
 const renderWebFrame = ({
@@ -210,18 +171,13 @@ const renderWebFrame = ({
 	index,
 	downloadMap,
 	imageFormat,
-	onFrameBuffer,
 	onFrameUpdate,
-	outputDir,
 	poolPromise,
 	stopState,
 	composition,
 	assets,
-	countType,
 	scale,
 	quality,
-	lastFrame,
-	framesToRender,
 	framesRendered,
 	onDownload,
 	onError,
@@ -230,61 +186,53 @@ const renderWebFrame = ({
 	index: number;
 	downloadMap: DownloadMap;
 	imageFormat: 'png' | 'jpeg' | 'none';
-	onFrameBuffer: ((buffer: Buffer, frame: number) => void) | undefined;
 	onFrameUpdate: (
 		framesRendered: number,
 		frameIndex: number,
 		timeToRenderInMilliseconds: number
 	) => void;
-	outputDir: string | null;
 	poolPromise: Promise<Pool<Page>>;
 	stopState: {
 		isStopped: boolean;
 	};
 	composition: SmallTCompMetadata;
 	assets: TAsset[][];
-	countType: CountType;
 	scale: number;
 	quality: number | undefined;
-	framesToRender: number[];
-	lastFrame: number;
 	framesRendered: {
 		frames: number;
 	};
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
 }) => {
-	return new Promise<CompositorLayer | null>((resolve, reject) => {
-		renderFrameWithOptionToReject({
-			frame,
-			index,
-			reject,
-			width: composition.width,
-			height: composition.height,
-			downloadMap,
-			imageFormat,
-			onFrameBuffer,
-			onFrameUpdate,
-			outputDir,
-			poolPromise,
-			stopState,
-			assets,
-			countType,
-			scale,
-			quality,
-			framesToRender,
-			lastFrame,
-			framesRendered,
-			onDownload,
-			onError,
-		})
-			.then((res) => {
-				resolve(res);
+	return new Promise<{layer: CompositorLayer | null; buffer: Buffer | null}>(
+		(resolve, reject) => {
+			renderFrameWithOptionToReject({
+				frame,
+				index,
+				reject,
+				width: composition.width,
+				height: composition.height,
+				downloadMap,
+				imageFormat,
+				onFrameUpdate,
+				poolPromise,
+				stopState,
+				assets,
+				scale,
+				quality,
+				framesRendered,
+				onDownload,
+				onError,
 			})
-			.catch((err) => {
-				reject(err);
-			});
-	});
+				.then((res) => {
+					resolve(res);
+				})
+				.catch((err) => {
+					reject(err);
+				});
+		}
+	);
 };
 
 export const renderWebFrameAndRetryTargetClose = async ({
@@ -367,7 +315,7 @@ export const renderWebFrameAndRetryTargetClose = async ({
 	timeoutInMilliseconds: number;
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
-}): Promise<CompositorLayer | null> => {
+}): Promise<{layer: CompositorLayer | null; buffer: Buffer | null}> => {
 	try {
 		const returnval = await renderWebFrame({
 			frame,
@@ -376,16 +324,11 @@ export const renderWebFrameAndRetryTargetClose = async ({
 			composition,
 			downloadMap,
 			imageFormat,
-			onFrameBuffer,
 			onFrameUpdate,
-			outputDir,
 			stopState,
 			assets,
-			countType,
 			scale,
 			quality,
-			framesToRender,
-			lastFrame,
 			framesRendered,
 			onDownload,
 			onError,
