@@ -234,6 +234,10 @@ const innerRenderFrames = ({
 			const layers = Promise.all(
 				composition.layers.map((l) => {
 					if (l.type === 'svg') {
+						if (typeof serveUrl !== 'object') {
+							throw new Error('expected serve URL to be a object');
+						}
+
 						console.log('DO SVG here 😄');
 						return null;
 					}

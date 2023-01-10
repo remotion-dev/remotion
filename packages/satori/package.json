@@ -1,6 +1,6 @@
 {
   "name": "@remotion/satori",
-  "version": "3.3.27",
+  "version": "3.3.28",
   "description": "Utility functions for using react-three-fiber with remotion",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -20,7 +20,7 @@
     "url": "https://github.com/remotion-dev/remotion/issues"
   },
   "dependencies": {
-    "remotion": "3.3.27",
+    "remotion": "3.3.28",
     "satori": "^0.0.44",
     "emoji-regex": "^10.2.1"
   },

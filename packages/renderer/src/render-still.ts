@@ -85,9 +85,7 @@ const innerRenderStill = async ({
 	scale = 1,
 	proxyPort,
 	cancelSignal,
-	downloadMap,
 }: InnerStillOptions & {
-	downloadMap: DownloadMap;
 	serveUrl: ServeUrl;
 	onError: (err: Error) => void;
 	proxyPort: number;
@@ -240,17 +238,17 @@ const innerRenderStill = async ({
 	await seekToFrame({frame: stillFrame, page});
 
 	const {buffer} = await takeFrame({
-		downloadMap,
 		frame: stillFrame,
 		freePage: page,
 		height: composition.height,
 		width: composition.width,
 		imageFormat,
-		scale,
-		output,
 		quality,
-		wantsBuffer: !output,
 	});
+
+	if (output && buffer) {
+		await fs.promises.writeFile(output, buffer);
+	}
 
 	await cleanup();
 

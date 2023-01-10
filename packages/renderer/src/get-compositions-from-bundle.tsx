@@ -63,7 +63,6 @@ export const getCompositionsFromBundle = (
 	}
 
 	const Comp = theRoot as ComponentType;
-	console.log({Comp1: Comp});
 	const comps = getCompositionsFromMarkup(Comp);
 
 	return comps;
