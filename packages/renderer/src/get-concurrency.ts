@@ -7,14 +7,15 @@ export const getActualConcurrency = (userPreference: number | string | null) => 
 
 	const max = os.cpus().length;
 	const min = 1;
+	let rounded;
 
 	if (typeof userPreference === 'string') {
-		const percentage = parseInt(userPreference.slice(0, -1));
-		const rounded = Math.floor(percentage/100 * max);
-		return rounded;
+		const percentage = parseInt(userPreference.slice(0, -1), 10);
+		rounded = Math.floor(percentage/100 * max);
+	} else {
+		rounded = Math.floor(userPreference);
 	}
 
-	const rounded = Math.floor(userPreference);
 	if (rounded > max) {
 		throw new Error(
 			`Maximum for --concurrency is ${max} (number of cores on this system)`
