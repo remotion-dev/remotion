@@ -272,7 +272,7 @@ export const renderStill = (
 	const happyPath = new Promise<RenderStillReturnValue>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
 
-		let close: (() => void) | null = null;
+		let close: ((force: boolean) => Promise<unknown>) | null = null;
 
 		prepareServer({
 			browserWebpackConfigOrServeUrl: getBrowserServeUrl(selectedServeUrl),
@@ -303,7 +303,7 @@ export const renderStill = (
 					cleanDownloadMap(downloadMap);
 				}
 
-				return close?.();
+				return close?.(false);
 			});
 	});
 

@@ -12,7 +12,7 @@ beforeEach(() => {
   }
 });
 
-test("Should be able to render video", async () => {
+test("Should be able to render video with custom port", async () => {
   const task = execa(
     "pnpm",
     [
@@ -22,6 +22,7 @@ test("Should be able to render video", async () => {
       "ten-frame-tester",
       "--codec",
       "h264",
+      "--port=3536",
       outputPath,
     ],
     {
