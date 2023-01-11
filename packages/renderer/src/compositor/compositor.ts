@@ -41,19 +41,19 @@ const startCompositor = (willH264Encode: boolean): Compositor => {
 
 	const child = spawn(`${bin}`, [willH264Encode ? 'h264' : 'png']);
 
-	const _stderrChunks: Buffer[] = [];
-	const stdoutChunks: Buffer[] = [];
+	const stderrChunks: Buffer[] = [];
 
-	let stdoutListeners: ((d: Buffer) => void)[] = [];
-	let stderrListeners: ((d: Buffer) => void)[] = [];
+	let stdoutListeners: ((d: string) => void)[] = [];
+	let stderrListeners: ((d: string) => void)[] = [];
 
 	child.stderr.on('data', (d) => {
-		_stderrChunks.push(d);
-		stderrListeners.forEach((s) => s(d));
+		stderrChunks.push(d);
+		const str = d.toString('utf-8');
+		stderrListeners.forEach((s) => s(str));
 	});
 	child.stdout.on('data', (d) => {
-		stdoutChunks.push(d);
-		stdoutListeners.forEach((s) => s(d));
+		const str = d.toString('utf-8');
+		stdoutListeners.forEach((s) => s(str));
 	});
 
 	let nonce = 0;
@@ -65,7 +65,7 @@ const startCompositor = (willH264Encode: boolean): Compositor => {
 					if (code === 0) {
 						resolve();
 					} else {
-						reject(Buffer.concat(_stderrChunks).toString('utf-8'));
+						reject(Buffer.concat(stderrChunks).toString('utf-8'));
 					}
 				});
 			});
@@ -82,8 +82,7 @@ const startCompositor = (willH264Encode: boolean): Compositor => {
 			return new Promise((resolve, reject) => {
 				child.stdin.write(JSON.stringify(actualPayload) + '\n');
 
-				const onStderr = (d: Buffer) => {
-					const message = d.toString('utf-8');
+				const onStderr = (message: string) => {
 					let parsed: ErrorPayload | null = null;
 					try {
 						const content = JSON.parse(message) as ErrorPayload;
@@ -105,8 +104,7 @@ const startCompositor = (willH264Encode: boolean): Compositor => {
 					}
 				};
 
-				const onStdout = (d: Buffer) => {
-					const str = d.toString('utf-8');
+				const onStdout = (str: string) => {
 					const lineSplit = str.split('\n');
 					for (const line of lineSplit.filter(truthy)) {
 						let parsed: TaskDonePayload | null = null;
