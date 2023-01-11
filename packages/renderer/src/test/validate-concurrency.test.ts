@@ -18,3 +18,13 @@ test('setConcurrency should throw if concurrency is too high', () => {
 		/concurrencyPerLambda is set higher than the amount of CPU cores available/
 	);
 });
+
+test('setConcurrency should throw if concurrency is too high', () => {
+	expect(() => validateConcurrency('0', 'concurrency')).toThrow(
+		/concurrency must be a number or percentage, but is "0"/
+	);
+});
+
+test('setConcurrency should throw if concurrency is too high', () => {
+	expect(validateConcurrency('50%', 'concurrency')).toBe(undefined);
+});

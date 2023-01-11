@@ -27,7 +27,11 @@ export const validateConcurrency = (value: unknown, setting: string) => {
 				}, value set: ${value}`
 			);
 		}
-	} else if(!(/^\d+(\.\d+)?%$/.test(value))) {
-		throw new Error(setting + ' must be a number or percentage, but is ' + value);
+	} else if (!/^\d+(\.\d+)?%$/.test(value)) {
+		throw new Error(
+			`${setting} must be a number or percentage, but is ${JSON.stringify(
+				value
+			)}`
+		);
 	}
 };
