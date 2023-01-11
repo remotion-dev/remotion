@@ -4,18 +4,18 @@ import {getActualConcurrency} from '../get-concurrency';
 
 test('Actual concurrency null should choose a good result', () => {
 	expect(getActualConcurrency(null)).toBe(
-		Math.round(Math.min(8, Math.max(1, os.cpus().length / 2)))
+		Math.floor(Math.min(8, Math.max(1, os.cpus().length / 2)))
 	);
 });
 
 test('50% should yield half the cores', () => {
 	expect(getActualConcurrency('50%')).toBe(
-		Math.round(Math.min(8, Math.max(1, os.cpus().length / 2)))
+		Math.floor(Math.min(8, Math.max(1, os.cpus().length / 2)))
 	);
 });
 
 test('75% should be 3/4 of the cores', () => {
-	expect(getActualConcurrency('75%')).toBe(Math.round(os.cpus().length * 0.75));
+	expect(getActualConcurrency('75%')).toBe(Math.floor(os.cpus().length * 0.75));
 });
 
 test('Slightly over 100% is ok as long as it is rounded', () => {
