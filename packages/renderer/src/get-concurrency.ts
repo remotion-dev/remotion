@@ -1,6 +1,8 @@
 import os from 'os';
 
-export const getActualConcurrency = (userPreference: number | string | null) => {
+export const getActualConcurrency = (
+	userPreference: number | string | null
+) => {
 	if (userPreference === null) {
 		return Math.round(Math.min(8, Math.max(1, os.cpus().length / 2)));
 	}
@@ -11,7 +13,7 @@ export const getActualConcurrency = (userPreference: number | string | null) => 
 
 	if (typeof userPreference === 'string') {
 		const percentage = parseInt(userPreference.slice(0, -1), 10);
-		rounded = Math.floor(percentage/100 * max);
+		rounded = Math.floor((percentage / 100) * max);
 	} else {
 		rounded = Math.floor(userPreference);
 	}
