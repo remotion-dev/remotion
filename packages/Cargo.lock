@@ -103,6 +103,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
+name = "cc"
+version = "1.0.78"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a20104e2335ce8a659d6dd92a51a767a0c062599c73b343fd152cb401e828c3d"
+
+[[package]]
 name = "cexpr"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -224,6 +230,31 @@ dependencies = [
  "log",
  "regex",
  "termcolor",
+]
+
+[[package]]
+name = "ffmpeg-next"
+version = "5.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a80971eee67be0079a1c8890bde68226fe9bd0441740fd6ddd0cee131486b321"
+dependencies = [
+ "bitflags",
+ "ffmpeg-sys-next",
+ "libc",
+]
+
+[[package]]
+name = "ffmpeg-sys-next"
+version = "5.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d780b36e092254367e2f1f21191992735c8e23f31a5a5a8678db3a79f775021f"
+dependencies = [
+ "bindgen",
+ "cc",
+ "libc",
+ "num_cpus",
+ "pkg-config",
+ "vcpkg",
 ]
 
 [[package]]
@@ -548,6 +579,7 @@ name = "remotion-renderer"
 version = "0.1.0"
 dependencies = [
  "byteorder",
+ "ffmpeg-next",
  "jpeg-decoder",
  "jpeg-encoder",
  "lazy_static",
@@ -956,6 +988,12 @@ dependencies = [
  "unicode-vo",
  "usvg",
 ]
+
+[[package]]
+name = "vcpkg"
+version = "0.2.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
 
 [[package]]
 name = "vec_map"

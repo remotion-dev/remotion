@@ -20,12 +20,17 @@ byteorder = "1.4.3"
 tiff = "0.8.1"
 threadpool = "1.8.1"
 lazy_static = "1.4.0"
+ffmpeg-next = "5.1.1"
 x264 = { git = "https://github.com/jonnyburger/x264-rs", rev = "e76453bd565c23f3cc1adb0d4c17fdff5393fff5" }
 
 
 [[bin]]
 name = "compositor"
 path = "renderer/rust/main.rs"
+
+[[bin]]
+name = "ffprobe"
+path = "renderer/rust/ffprobe.rs"
 
 [profile.release]
 #strip="debuginfo"
