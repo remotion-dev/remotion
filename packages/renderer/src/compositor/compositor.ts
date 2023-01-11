@@ -11,9 +11,12 @@ export type Compositor = {
 
 const compositorMap: Record<string, Compositor> = {};
 
-export const spawnCompositorOrReuse = (renderId: string) => {
+export const spawnCompositorOrReuse = (
+	willH264Encode: boolean,
+	renderId: string
+) => {
 	if (!compositorMap[renderId]) {
-		compositorMap[renderId] = startCompositor();
+		compositorMap[renderId] = startCompositor(willH264Encode);
 	}
 
 	return compositorMap[renderId];
@@ -33,19 +36,24 @@ export const waitForCompositorWithIdToQuit = (renderId: string) => {
 	return compositorMap[renderId].waitForDone();
 };
 
-const startCompositor = (): Compositor => {
+const startCompositor = (willH264Encode: boolean): Compositor => {
 	const bin = getExecutablePath();
 
-	const child = spawn(bin);
+	const child = spawn(`${bin}`, [willH264Encode ? 'h264' : 'png']);
 
 	const _stderrChunks: Buffer[] = [];
 	const stdoutChunks: Buffer[] = [];
 
+	let stdoutListeners: ((d: Buffer) => void)[] = [];
+	let stderrListeners: ((d: Buffer) => void)[] = [];
+
 	child.stderr.on('data', (d) => {
 		_stderrChunks.push(d);
+		stderrListeners.forEach((s) => s(d));
 	});
 	child.stdout.on('data', (d) => {
 		stdoutChunks.push(d);
+		stdoutListeners.forEach((s) => s(d));
 	});
 
 	let nonce = 0;
@@ -54,7 +62,6 @@ const startCompositor = (): Compositor => {
 		waitForDone: () => {
 			return new Promise((resolve, reject) => {
 				child.on('exit', (code) => {
-					console.log({code});
 					if (code === 0) {
 						resolve();
 					} else {
@@ -93,8 +100,8 @@ const startCompositor = (): Compositor => {
 						err.stack = parsed.error + '\n' + parsed.backtrace;
 
 						reject(err);
-						child.stderr.off('data', onStderr);
-						child.stdout.off('data', onStdout);
+						stdoutListeners = stdoutListeners.filter((s) => s !== onStdout);
+						stderrListeners = stderrListeners.filter((s) => s !== onStderr);
 					}
 				};
 
@@ -112,14 +119,14 @@ const startCompositor = (): Compositor => {
 
 						if (parsed && parsed.nonce === actualPayload.nonce) {
 							resolve();
-							child.stderr.off('data', onStderr);
-							child.stdout.off('data', onStdout);
+							stdoutListeners = stdoutListeners.filter((s) => s !== onStdout);
+							stderrListeners = stderrListeners.filter((s) => s !== onStderr);
 						}
 					}
 				};
 
-				child.stderr.on('data', onStderr);
-				child.stdout.on('data', onStdout);
+				stdoutListeners.push(onStdout);
+				stderrListeners.push(onStderr);
 			});
 		},
 	};
