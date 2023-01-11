@@ -87,7 +87,7 @@ A `string` which must be either `png`, `jpeg` or `none`.
 
 _optional_
 
-A `number` specifying how many render processes should be started in parallel or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
+A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use, or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
 
 ### ~~`parallelism?`~~
 
