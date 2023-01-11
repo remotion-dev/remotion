@@ -74,11 +74,9 @@ const startCompositor = (): Compositor => {
 			nonce++;
 			return new Promise((resolve, reject) => {
 				child.stdin.write(JSON.stringify(actualPayload) + '\n');
-				const stderrChunks: Buffer[] = [];
 
 				const onStderr = (d: Buffer) => {
-					stderrChunks.push(d);
-					const message = Buffer.concat(stderrChunks).toString('utf-8');
+					const message = d.toString('utf-8');
 					let parsed: ErrorPayload | null = null;
 					try {
 						const content = JSON.parse(message) as ErrorPayload;

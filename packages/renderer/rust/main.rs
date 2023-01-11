@@ -114,10 +114,15 @@ fn main() -> Result<(), std::io::Error> {
             let command = parse_command(&message);
             let nonce = command.nonce;
             let data = process_command_line(command);
-            let rgb = colorspaces::rgba8_to_rgb8(data.unwrap(), WIDTH, HEIGHT);
-            match sender.send(NewFrame { data: rgb, nonce }) {
-                Ok(_) => {}
-                Err(err) => errors::handle_error(&err),
+            match data {
+                Some(d) => {
+                    let rgb = colorspaces::rgba8_to_rgb8(d, WIDTH, HEIGHT);
+                    match sender.send(NewFrame { data: rgb, nonce }) {
+                        Ok(_) => {}
+                        Err(err) => errors::handle_error(&err),
+                    };
+                }
+                None => {}
             };
         });
     });
@@ -131,6 +136,7 @@ fn main() -> Result<(), std::io::Error> {
 
     par.par.i_fps_num = FPS;
     par.par.i_fps_den = 1;
+    par.par.i_log_level = 0;
 
     let mut output = File::create("fade.h264").unwrap();
 
@@ -192,7 +198,6 @@ fn main() -> Result<(), std::io::Error> {
             output.write(buf).unwrap();
         }
     }
-    println!("proper flush");
 
     another.join().unwrap();
     match thread_handle.join() {
