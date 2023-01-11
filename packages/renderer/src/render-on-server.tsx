@@ -97,6 +97,7 @@ export const renderOnServer = async (
 				],
 				output: out,
 				renderId,
+				willH264Encode: true,
 			});
 
 			pool.release(frame);

@@ -23,10 +23,12 @@ export const compose = async ({
 	downloadMap,
 	imageFormat,
 	renderId,
+	willH264Encode,
 }: CompositorInput & {
 	downloadMap: DownloadMap;
 	output: string;
 	renderId: string;
+	willH264Encode: boolean;
 }) => {
 	const hash = getCompositorHash({height, width, layers, imageFormat});
 
@@ -35,7 +37,7 @@ export const compose = async ({
 		return;
 	}
 
-	const compositor = spawnCompositorOrReuse(renderId);
+	const compositor = spawnCompositorOrReuse(willH264Encode, renderId);
 
 	await compositor.executeCommand({
 		v: 1,

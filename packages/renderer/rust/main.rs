@@ -10,8 +10,8 @@ use payloads::payloads::{parse_command, CliInput};
 use std::fs::File;
 use std::io::{self, Write};
 use std::sync::mpsc;
-use std::thread;
 use std::time::Instant;
+use std::{env, thread};
 use threadpool::ThreadPool;
 use x264::{Encoder, Param, Picture};
 
@@ -70,6 +70,13 @@ fn main() -> Result<(), std::io::Error> {
     const HEIGHT: usize = 1080;
     const FPS: u32 = 30;
 
+    let args = env::args();
+    let first_arg = args.skip(1).next();
+    let should_create_h264_queue = match first_arg {
+        Some(arg) => arg == "h264",
+        None => false,
+    };
+
     // Initialize things.
 
     // TODO: Dimensions and FPS via
@@ -97,7 +104,7 @@ fn main() -> Result<(), std::io::Error> {
 
     // Process the messages in the thread pool
 
-    let another = thread::spawn(move || loop {
+    let worker_queue = thread::spawn(move || loop {
         let message = match command_rx.recv() {
             Ok(message) => message,
             Err(_) => {
@@ -122,84 +129,88 @@ fn main() -> Result<(), std::io::Error> {
                         Err(err) => errors::handle_error(&err),
                     };
                 }
-                None => {}
+                None => {
+                    handle_finish(nonce);
+                }
             };
         });
     });
 
-    let mut par = Param::default_preset("medium", "zerolatency").unwrap();
+    if should_create_h264_queue {
+        let mut par = Param::default_preset("medium", "zerolatency").unwrap();
 
-    par = par.set_dimension(HEIGHT, WIDTH);
-    par = par.apply_profile("high").unwrap();
-    par = par.param_parse("repeat_headers", "1").unwrap();
-    par = par.param_parse("annexb", "1").unwrap();
+        par = par.set_dimension(HEIGHT, WIDTH);
+        par = par.apply_profile("high").unwrap();
+        par = par.param_parse("repeat_headers", "1").unwrap();
+        par = par.param_parse("annexb", "1").unwrap();
 
-    par.par.i_fps_num = FPS;
-    par.par.i_fps_den = 1;
-    par.par.i_log_level = 0;
+        par.par.i_fps_num = FPS;
+        par.par.i_fps_den = 1;
+        par.par.i_log_level = 0;
 
-    let mut output = File::create("fade.h264").unwrap();
+        let mut output = File::create("fade.h264").unwrap();
 
-    let mut pic = Picture::from_param(&par).unwrap();
+        let mut pic = Picture::from_param(&par).unwrap();
 
-    let mut enc = Encoder::open(&mut par).unwrap();
+        let mut enc = Encoder::open(&mut par).unwrap();
 
-    let h = enc.get_headers().unwrap();
-    let headers = h.as_bytes();
-    output.write_all(headers).unwrap();
+        let h = enc.get_headers().unwrap();
+        let headers = h.as_bytes();
+        output.write_all(headers).unwrap();
 
-    let mut next_frame = 0;
-    let mut frames_found: Vec<NewFrame> = Vec::new();
-    loop {
-        if next_frame == 300 {
-            break;
-        }
-        let frame = match rx.recv() {
-            Ok(frame) => frame,
-            Err(_) => {
+        let mut next_frame = 0;
+        let mut frames_found: Vec<NewFrame> = Vec::new();
+        loop {
+            if next_frame == 300 {
                 break;
             }
-        };
-
-        frames_found.push(frame);
-
-        loop {
-            let index = frames_found.iter().position(|x| x.nonce == next_frame);
-            match index {
-                Some(f) => {
-                    let frame = to_i420(&frames_found[f].data, WIDTH, HEIGHT);
-
-                    pic.as_mut_slice(0).unwrap().copy_from_slice(&frame.0);
-                    pic.as_mut_slice(1).unwrap().copy_from_slice(&frame.1);
-                    pic.as_mut_slice(2).unwrap().copy_from_slice(&frame.2);
-
-                    pic = pic.set_timestamp(frames_found[f].nonce as i64);
-
-                    let time = Instant::now();
-                    if let Some((nal, _, _)) = enc.encode(&pic).unwrap() {
-                        let buf = nal.as_bytes();
-                        output.write_all(buf).unwrap();
-                    }
-                    println!("time to convert yuv {}", time.elapsed().as_millis());
-                    handle_finish(frames_found[f].nonce);
-                    frames_found.remove(f);
-
-                    next_frame += 1;
-                }
-                None => {
+            let frame = match rx.recv() {
+                Ok(frame) => frame,
+                Err(_) => {
                     break;
+                }
+            };
+
+            frames_found.push(frame);
+
+            loop {
+                let index = frames_found.iter().position(|x| x.nonce == next_frame);
+                match index {
+                    Some(f) => {
+                        let frame = to_i420(&frames_found[f].data, WIDTH, HEIGHT);
+
+                        pic.as_mut_slice(0).unwrap().copy_from_slice(&frame.0);
+                        pic.as_mut_slice(1).unwrap().copy_from_slice(&frame.1);
+                        pic.as_mut_slice(2).unwrap().copy_from_slice(&frame.2);
+
+                        pic = pic.set_timestamp(frames_found[f].nonce as i64);
+
+                        let time = Instant::now();
+                        if let Some((nal, _, _)) = enc.encode(&pic).unwrap() {
+                            let buf = nal.as_bytes();
+                            output.write_all(buf).unwrap();
+                        }
+                        println!("time to convert yuv {}", time.elapsed().as_millis());
+                        handle_finish(frames_found[f].nonce);
+                        frames_found.remove(f);
+
+                        next_frame += 1;
+                    }
+                    None => {
+                        break;
+                    }
                 }
             }
         }
-    }
-    while enc.delayed_frames() {
-        if let Some((nal, _, _)) = enc.encode(None).unwrap() {
-            let buf = nal.as_bytes();
-            output.write(buf).unwrap();
+        while enc.delayed_frames() {
+            if let Some((nal, _, _)) = enc.encode(None).unwrap() {
+                let buf = nal.as_bytes();
+                output.write(buf).unwrap();
+            }
         }
     }
 
-    another.join().unwrap();
+    worker_queue.join().unwrap();
     match thread_handle.join() {
         Ok(_) => {}
         Err(_) => errors::handle_error(&io::Error::new(

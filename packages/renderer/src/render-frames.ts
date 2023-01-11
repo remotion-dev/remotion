@@ -10,6 +10,10 @@ import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import {compose} from './compositor/compose';
+import {
+	releaseCompositorWithId,
+	waitForCompositorWithIdToQuit,
+} from './compositor/compositor';
 import type {CompositorLayer} from './compositor/payloads';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import type {FfmpegExecutable} from './ffmpeg-executable';
@@ -361,8 +365,9 @@ const innerRenderFrames = ({
 					}
 				)
 			);
+			console.log({frame});
 
-			return compose({
+			await compose({
 				downloadMap,
 				height: comp.height,
 				imageFormat: imageFormat === 'png' ? 'Png' : 'Jpeg',
@@ -380,23 +385,29 @@ const innerRenderFrames = ({
 				),
 				renderId: downloadMap.id,
 				width: comp.width,
+				willH264Encode: false,
 			});
 		})
 	);
 
-	const happyPath = progress.then(() => {
-		const firstFrameIndex = countType === 'from-zero' ? 0 : framesToRender[0];
-		const returnValue: RenderFramesOutput = {
-			assetsInfo: {
-				assets,
-				imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
-				firstFrameIndex,
-				downloadMap,
-			},
-			frameCount: framesToRender.length,
-		};
-		return returnValue;
-	});
+	const happyPath = progress
+		.then(() => {
+			releaseCompositorWithId(downloadMap.id);
+			return waitForCompositorWithIdToQuit(downloadMap.id);
+		})
+		.then(() => {
+			const firstFrameIndex = countType === 'from-zero' ? 0 : framesToRender[0];
+			const returnValue: RenderFramesOutput = {
+				assetsInfo: {
+					assets,
+					imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
+					firstFrameIndex,
+					downloadMap,
+				},
+				frameCount: framesToRender.length,
+			};
+			return returnValue;
+		});
 
 	return happyPath
 		.then(() => {
