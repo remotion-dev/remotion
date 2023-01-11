@@ -365,7 +365,6 @@ const innerRenderFrames = ({
 					}
 				)
 			);
-			console.log({frame});
 
 			await compose({
 				downloadMap,
