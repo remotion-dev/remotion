@@ -42,7 +42,7 @@ export const SegmentedControl: React.FC<{
 			return {
 				...container,
 				flexWrap: 'wrap',
-				maxWidth: '295px',
+				maxWidth: '248px',
 				justifyContent: 'flex-end',
 				marginBottom: '8px',
 			};
