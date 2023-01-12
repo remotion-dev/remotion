@@ -69,6 +69,5 @@ export const processStill = async ({
 		addCleanupCallback,
 		cancelSignal: job.cancelToken.cancelSignal,
 	});
-	// TODO: Cancel signal does not work
 	// TODO: Accept CLI options
 };
