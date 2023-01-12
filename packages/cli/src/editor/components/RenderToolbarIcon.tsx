@@ -31,21 +31,23 @@ export const RenderStillButton: React.FC = () => {
 			return null;
 		}
 
+		const isVideo = video.durationInFrames > 1;
+
 		setSelectedModal({
 			type: 'render',
 			compositionId: video.id,
 			initialFrame: frame,
-			initialImageFormat: video.durationInFrames > 1 ? 'jpeg' : 'png',
+			initialImageFormat: isVideo ? 'jpeg' : 'png',
 			initialOutName: getDefaultOutLocation({
 				compositionName: video.id,
-				defaultExtension: video.durationInFrames > 1 ? 'mp4' : 'png',
+				defaultExtension: isVideo ? 'mp4' : 'png',
 			}),
 			// TODO: Determine defaults from config file
 			initialQuality: window.remotion_renderDefaults?.quality ?? 80,
 			initialScale: window.remotion_renderDefaults?.scale ?? 1,
 			initialVerbose:
 				(window.remotion_renderDefaults?.logLevel as LogLevel) === 'verbose',
-			initialRenderType: video.durationInFrames > 1 ? 'video' : 'still',
+			initialRenderType: isVideo ? 'video' : 'still',
 			initialCodec: 'h264',
 		});
 	}, [video, frame, setSelectedModal]);
@@ -56,6 +58,7 @@ export const RenderStillButton: React.FC = () => {
 
 	return (
 		<ControlButton
+			id="render-settings-button"
 			disabled={type !== 'connected'}
 			title={tooltip}
 			aria-label={tooltip}
