@@ -1,3 +1,4 @@
+use ffmpeg_next::mathematics;
 use lazy_static::lazy_static;
 use resvg::usvg_text_layout::fontdb;
 use resvg::usvg_text_layout::TreeTextToPath;
@@ -172,15 +173,35 @@ fn draw_svg_image_layer(img: &mut [u8], canvas_width: u32, layer: SvgLayer, is_o
         img.copy_from_slice(pixmap.data().clone());
     } else {
         let bytes = pixmap.data();
-        draw_bitmap(
-            img,
-            canvas_width,
-            layer.width,
-            layer.height,
-            layer.x,
-            layer.y,
-            bytes,
-        );
+        for y in 0..(layer.height) {
+            for x in 0..(layer.width) {
+                let r = bytes[((y * layer.width + x) * 4) as usize];
+                let g = bytes[((y * layer.width + x) * 4 + 1) as usize];
+                let b = bytes[((y * layer.width + x) * 4 + 2) as usize];
+                let a = bytes[((y * layer.width + x) * 4 + 3) as usize];
+
+                let r_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4) as usize;
+                let g_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 1) as usize;
+                let b_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 2) as usize;
+                let a_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 3) as usize;
+
+                let new_pixel = alpha_compositing(
+                    img[r_index],
+                    img[g_index],
+                    img[b_index],
+                    img[a_index],
+                    r,
+                    g,
+                    b,
+                    a,
+                );
+
+                img[r_index] = new_pixel.0;
+                img[g_index] = new_pixel.1;
+                img[b_index] = new_pixel.2;
+                img[a_index] = new_pixel.3;
+            }
+        }
     }
 }
 
@@ -192,6 +213,7 @@ fn draw_bitmap(
     layer_x: u32,
     layer_y: u32,
     pixels: &[u8],
+    channels: u32,
 ) {
     for y in 0..(layer_height) {
         for x in 0..(layer_width) {
@@ -205,15 +227,20 @@ fn draw_bitmap(
             let prev_b = img[b_index];
             let prev_a = img[a_index];
 
-            let layer_r_index = ((y * layer_width + x) * 3) as usize;
-            let layer_g_index = ((y * layer_width + x) * 3 + 1) as usize;
-            let layer_b_index = ((y * layer_width + x) * 3 + 2) as usize;
+            let layer_r_index = ((y * layer_width + x) * channels) as usize;
+            let layer_g_index = ((y * layer_width + x) * channels + 1) as usize;
+            let layer_b_index = ((y * layer_width + x) * channels + 2) as usize;
+            let layer_a_index = ((y * layer_width + x) * channels + 2) as usize;
 
             let r = pixels[layer_r_index];
             let g = pixels[layer_g_index];
             let b = pixels[layer_b_index];
+            let a = match channels {
+                4 => pixels[layer_a_index],
+                _ => 255,
+            };
 
-            let new_pixel = alpha_compositing(prev_r, prev_g, prev_b, prev_a, r, g, b, 255);
+            let new_pixel = alpha_compositing(prev_r, prev_g, prev_b, prev_a, r, g, b, a);
 
             img[r_index] = new_pixel.0;
             img[g_index] = new_pixel.1;
@@ -246,6 +273,7 @@ fn draw_jpg_image_layer(img: &mut [u8], canvas_width: u32, layer: ImageLayer) {
         layer.x,
         layer.y,
         &pixels,
+        3,
     );
 }
 
@@ -268,6 +296,7 @@ pub fn draw_video_layer(img: &mut [u8], canvas_width: u32, fps: u32, layer: Vide
         layer_x,
         layer_y,
         &buffer,
+        3,
     )
 }
 

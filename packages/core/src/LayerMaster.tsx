@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import type {ComponentType} from 'react';
 import React, {Suspense} from 'react';
 import {AbsoluteFill} from './AbsoluteFill';
@@ -40,8 +41,11 @@ export const LayerMaster = <T extends object>({
 						return null;
 					}
 
-					// eslint-disable-next-line react/no-array-index-key
-					return <Comp key={String(i)} {...defaultProps} {...inputProps} />;
+					return (
+						<AbsoluteFill>
+							<Comp key={String(i)} {...defaultProps} {...inputProps} />
+						</AbsoluteFill>
+					);
 				}
 
 				if (layer.type === 'video') {
@@ -49,8 +53,11 @@ export const LayerMaster = <T extends object>({
 						return null;
 					}
 
-					// eslint-disable-next-line react/no-array-index-key
-					return <Comp key={String(i)} {...defaultProps} {...inputProps} />;
+					return (
+						<AbsoluteFill>
+							<Comp key={String(i)} {...defaultProps} {...inputProps} />
+						</AbsoluteFill>
+					);
 				}
 
 				throw new Error('Unknown layer type');
