@@ -523,28 +523,30 @@ export const RenderModal: React.FC<{
 							</div>
 						</div>
 					</div>
-					<div
-						style={optionRow}
-						// TODO: Add framerange for video
-					>
-						<div style={label}>Frame</div>
-						<div style={rightRow}>
-							<InputDragger
-								// TODO: Hide if it is a still
-								value={frame}
-								onChange={onFrameChanged}
-								// TODO: Actual frame
-								placeholder="0-100"
-								// TODO: Debug the number input field
-								onValueChange={onFrameSetDirectly}
-								name="frame"
-								step={1}
-								min={0}
-								// TODO: Add actual frame
-								max={currentComposition.durationInFrames - 1}
-							/>{' '}
+					{currentComposition.durationInFrames > 1 ? (
+						<div
+							style={optionRow}
+							// TODO: Add framerange for video
+						>
+							<div style={label}>Frame</div>
+							<div style={rightRow}>
+								<InputDragger
+									value={frame}
+									onChange={onFrameChanged}
+									// TODO: Actual frame
+									placeholder="0-100"
+									// TODO: Debug the number input field
+									onValueChange={onFrameSetDirectly}
+									name="frame"
+									step={1}
+									min={0}
+									// TODO: Add actual frame
+									max={currentComposition.durationInFrames - 1}
+								/>{' '}
+							</div>
 						</div>
-					</div>
+					) : null}
+
 					<CollapsableOptions
 						showLabel="Show advanced settings"
 						hideLabel="Hide advanced settings"
@@ -677,17 +679,16 @@ export const RenderModal: React.FC<{
 							/>
 						</div>
 					</div>
-					{renderMode === 'video' && (
-						<div style={optionRow}>
-							<div style={label}>Image Format</div>
-							<div style={rightRow}>
-								<SegmentedControl
-									items={imageFormatOptions}
-									needsWrapping={false}
-								/>
-							</div>
+					<div style={optionRow}>
+						<div style={label}>Image Format</div>
+						<div style={rightRow}>
+							<SegmentedControl
+								items={imageFormatOptions}
+								needsWrapping={false}
+							/>
 						</div>
-					)}
+					</div>
+
 					{/* TODO: check if jpeg quality for still and video should be handled seperately */}
 					{videoImageFormat === 'jpeg' && (
 						<div style={optionRow}>
