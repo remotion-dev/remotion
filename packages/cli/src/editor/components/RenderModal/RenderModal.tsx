@@ -487,6 +487,130 @@ export const RenderModal: React.FC<{
 		[]
 	);
 
+	if (renderMode === 'still') {
+		return (
+			<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
+				<NewCompHeader title={`Render ${compositionId}`} />
+				<div style={container}>
+					<SegmentedControl items={renderTabOptions} needsWrapping={false} />
+				</div>
+				<div>
+					<Spacing block y={0.5} />
+					<div style={optionRow}>
+						<div style={label}>Format</div>
+						<div style={rightRow}>
+							<SegmentedControl items={imageFormatOptions} needsWrapping />
+						</div>
+					</div>
+					<div style={optionRow}>
+						<div style={label}>Output name</div>
+						<div style={rightRow}>
+							<div>
+								<RemotionInput
+									// TODO: Validate and reject folders or weird file names
+									warning={existence}
+									style={input}
+									type="text"
+									value={outName}
+									onChange={onValueChange}
+								/>
+								{existence ? (
+									<ValidationMessage
+										align="flex-end"
+										message="Will be overwritten"
+									/>
+								) : null}
+							</div>
+						</div>
+					</div>
+					<div
+						style={optionRow}
+						// TODO: Add framerange for video
+					>
+						<div style={label}>Frame</div>
+						<div style={rightRow}>
+							<InputDragger
+								// TODO: Hide if it is a still
+								value={frame}
+								onChange={onFrameChanged}
+								// TODO: Actual frame
+								placeholder="0-100"
+								// TODO: Debug the number input field
+								onValueChange={onFrameSetDirectly}
+								name="frame"
+								step={1}
+								min={0}
+								// TODO: Add actual frame
+								max={currentComposition.durationInFrames - 1}
+							/>{' '}
+						</div>
+					</div>
+					<CollapsableOptions
+						showLabel="Show advanced settings"
+						hideLabel="Hide advanced settings"
+					>
+						<div style={optionRow}>
+							<div style={label}>Scale</div>
+							<div style={rightRow}>
+								<InputDragger
+									value={scale}
+									onChange={onScaleChanged}
+									placeholder="0.1-10"
+									// TODO: Does not allow non-integer steps
+									// TODO: Cannot click and type in 0.2
+									onValueChange={onScaleSetDirectly}
+									name="scale"
+									step={0.05}
+									min={MIN_SCALE}
+									max={MAX_SCALE}
+								/>
+							</div>
+						</div>
+						<div style={optionRow}>
+							<div style={label}>Verbose logging</div>
+							<div style={rightRow}>
+								<input
+									type={'checkbox'}
+									checked={verbose}
+									onChange={onVerboseLoggingChanged}
+								/>
+							</div>
+						</div>
+
+						{/* TODO: check if jpeg quality for still and video should be handled seperately */}
+						{imageFormat === 'jpeg' && (
+							<div style={optionRow}>
+								<div style={label}>JPEG Quality</div>
+								<div style={rightRow}>
+									<InputDragger
+										value={quality}
+										onChange={onQualityChanged}
+										placeholder="0-100"
+										onValueChange={onQualityChangedDirectly}
+										name="quality"
+										step={1}
+										min={MIN_QUALITY}
+										max={MAX_QUALITY}
+									/>
+								</div>
+							</div>
+						)}
+					</CollapsableOptions>
+					<Spacing block y={0.5} />
+					<div style={buttonRow}>
+						<Button
+							autoFocus
+							onClick={onClickStill}
+							disabled={state.type === 'load'}
+						>
+							{state.type === 'idle' ? 'Render still' : 'Rendering...'}
+						</Button>
+					</div>
+				</div>
+			</ModalContainer>
+		);
+	}
+
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title={`Render ${compositionId}`} />
@@ -496,15 +620,9 @@ export const RenderModal: React.FC<{
 			<div>
 				<Spacing block y={0.5} />
 				<div style={optionRow}>
-					{renderMode === 'still'}
-					<div style={label}>{renderMode === 'still' ? 'Format' : 'Codec'}</div>
+					<div style={label}>Codec</div>
 					<div style={rightRow}>
-						<SegmentedControl
-							items={
-								renderMode === 'still' ? imageFormatOptions : videoCodecOptions
-							}
-							needsWrapping
-						/>
+						<SegmentedControl items={videoCodecOptions} needsWrapping />
 					</div>
 				</div>
 				<div style={optionRow}>
@@ -527,32 +645,6 @@ export const RenderModal: React.FC<{
 							) : null}
 						</div>
 					</div>
-				</div>
-				<div
-					style={optionRow}
-					// TODO: Add framerange for video
-				>
-					{renderMode === 'still' && (
-						<>
-							<div style={label}>Frame</div>
-							<div style={rightRow}>
-								<InputDragger
-									// TODO: Hide if it is a still
-									value={frame}
-									onChange={onFrameChanged}
-									// TODO: Actual frame
-									placeholder="0-100"
-									// TODO: Debug the number input field
-									onValueChange={onFrameSetDirectly}
-									name="frame"
-									step={1}
-									min={0}
-									// TODO: Add actual frame
-									max={currentComposition.durationInFrames - 1}
-								/>{' '}
-							</div>
-						</>
-					)}
 				</div>
 				<CollapsableOptions
 					showLabel="Show advanced settings"
@@ -597,7 +689,7 @@ export const RenderModal: React.FC<{
 						</div>
 					)}
 					{/* TODO: check if jpeg quality for still and video should be handled seperately */}
-					{(imageFormat === 'jpeg' || videoImageFormat === 'jpeg') && (
+					{videoImageFormat === 'jpeg' && (
 						<div style={optionRow}>
 							<div style={label}>JPEG Quality</div>
 							<div style={rightRow}>
@@ -617,23 +709,13 @@ export const RenderModal: React.FC<{
 				</CollapsableOptions>
 				<Spacing block y={0.5} />
 				<div style={buttonRow}>
-					{renderMode === 'still' ? (
-						<Button
-							autoFocus
-							onClick={onClickStill}
-							disabled={state.type === 'load'}
-						>
-							{state.type === 'idle' ? 'Render still' : 'Rendering...'}
-						</Button>
-					) : (
-						<Button
-							autoFocus
-							onClick={onClickVideo}
-							disabled={state.type === 'load'}
-						>
-							{state.type === 'idle' ? 'Render video' : 'Rendering...'}
-						</Button>
-					)}
+					<Button
+						autoFocus
+						onClick={onClickVideo}
+						disabled={state.type === 'load'}
+					>
+						{state.type === 'idle' ? 'Render video' : 'Rendering...'}
+					</Button>
 				</div>
 			</div>
 		</ModalContainer>
