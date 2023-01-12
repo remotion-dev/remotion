@@ -1,3 +1,4 @@
+export {NativeVideo} from './NativeVideo';
 export {OffthreadVideo} from './OffthreadVideo';
 export {
 	OffthreadVideoImageFormat,
