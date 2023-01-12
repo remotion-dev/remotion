@@ -1,4 +1,5 @@
 extern crate ffmpeg_next as ffmpeg;
+use ffmpeg::{rescale, Rescale};
 
 use ffmpeg::format::{input, Pixel};
 use ffmpeg::media::Type;
@@ -7,11 +8,15 @@ use ffmpeg::util::frame::video::Video;
 use std::env;
 use std::fs::File;
 use std::io::prelude::*;
+use std::time::Instant;
 
 fn main() -> Result<(), ffmpeg::Error> {
     ffmpeg::init().unwrap();
 
     if let Ok(mut ictx) = input(&env::args().nth(1).expect("Cannot open file.")) {
+        let position = 159.rescale((1, 1), rescale::TIME_BASE);
+        let seeked = ictx.seek(position, ..position).unwrap();
+
         let input = ictx
             .streams()
             .best(Type::Video)
@@ -37,10 +42,14 @@ fn main() -> Result<(), ffmpeg::Error> {
             |decoder: &mut ffmpeg::decoder::Video| -> Result<(), ffmpeg::Error> {
                 let mut decoded = Video::empty();
                 while decoder.receive_frame(&mut decoded).is_ok() {
+                    let time = Instant::now();
                     let mut rgb_frame = Video::empty();
                     scaler.run(&decoded, &mut rgb_frame)?;
                     save_file(&rgb_frame, frame_index).unwrap();
                     frame_index += 1;
+                    decoder.delay();
+
+                    println!("{} {} ms", frame_index, time.elapsed().as_millis());
                 }
                 Ok(())
             };
