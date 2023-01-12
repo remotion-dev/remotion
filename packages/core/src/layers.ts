@@ -7,7 +7,7 @@ export type LooseComponentType<T> =
 
 export type InputLayer<T> = {
 	component: LooseComponentType<T>;
-	type: 'web' | 'svg';
+	type: 'web' | 'svg' | 'video';
 };
 
 export type CompProps<T> =
@@ -23,7 +23,7 @@ export type CompProps<T> =
 
 export type Layer<T> = {
 	component: LazyExoticComponent<ComponentType<T>>;
-	type: 'web' | 'svg';
+	type: 'web' | 'svg' | 'video';
 };
 
 export type SmallLayer = Pick<Layer<unknown>, 'type'>;
@@ -36,6 +36,16 @@ const inputLayersToLayers = <T>(layers: InputLayer<T>[]) => {
 					Promise.resolve({default: layer.component as ComponentType<T>})
 				),
 				type: 'web' as const,
+			};
+		}
+
+		// No lazy for Video allowed!
+		if (layer.type === 'video') {
+			return {
+				component: layer.component as unknown as React.LazyExoticComponent<
+					ComponentType<T>
+				>,
+				type: 'video' as const,
 			};
 		}
 
