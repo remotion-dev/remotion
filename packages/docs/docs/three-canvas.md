@@ -58,6 +58,10 @@ const ThreeBasic: React.FC = () => {
 export default ThreeBasic;
 ```
 
+## Note on `<Sequence>`
+
+A [`<Sequence>`](/docs/sequence) by default will return a `<div>` component which is not allows inside a `<ThreeCanvas>`. To avoid an error, pass `layout="none"` to `<Sequence>`.
+
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/three/src/ThreeCanvas.tsx)
