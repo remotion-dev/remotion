@@ -19,6 +19,8 @@ impl SingletonFontDb {
     }
 }
 
+use crate::payloads::payloads::VideoLayer;
+use crate::video::get_video_frame;
 use crate::{
     errors,
     payloads::payloads::{ImageLayer, Layer, SolidLayer, SvgLayer},
@@ -170,34 +172,53 @@ fn draw_svg_image_layer(img: &mut [u8], canvas_width: u32, layer: SvgLayer, is_o
         img.copy_from_slice(pixmap.data().clone());
     } else {
         let bytes = pixmap.data();
-        for y in 0..(layer.height) {
-            for x in 0..(layer.width) {
-                let r = bytes[((y * layer.width + x) * 4) as usize];
-                let g = bytes[((y * layer.width + x) * 4 + 1) as usize];
-                let b = bytes[((y * layer.width + x) * 4 + 2) as usize];
-                let a = bytes[((y * layer.width + x) * 4 + 3) as usize];
+        draw_bitmap(
+            img,
+            canvas_width,
+            layer.width,
+            layer.height,
+            layer.x,
+            layer.y,
+            bytes,
+        );
+    }
+}
 
-                let r_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4) as usize;
-                let g_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 1) as usize;
-                let b_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 2) as usize;
-                let a_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 3) as usize;
+fn draw_bitmap(
+    img: &mut [u8],
+    canvas_width: u32,
+    layer_width: u32,
+    layer_height: u32,
+    layer_x: u32,
+    layer_y: u32,
+    pixels: &[u8],
+) {
+    for y in 0..(layer_height) {
+        for x in 0..(layer_width) {
+            let r_index = (((y + layer_y) * canvas_width + (x + layer_x)) * 4) as usize;
+            let g_index = (((y + layer_y) * canvas_width + (x + layer_x)) * 4 + 1) as usize;
+            let b_index = (((y + layer_y) * canvas_width + (x + layer_x)) * 4 + 2) as usize;
+            let a_index = (((y + layer_y) * canvas_width + (x + layer_x)) * 4 + 3) as usize;
 
-                let new_pixel = alpha_compositing(
-                    img[r_index],
-                    img[g_index],
-                    img[b_index],
-                    img[a_index],
-                    r,
-                    g,
-                    b,
-                    a,
-                );
+            let prev_r = img[r_index];
+            let prev_g = img[g_index];
+            let prev_b = img[b_index];
+            let prev_a = img[a_index];
 
-                img[r_index] = new_pixel.0;
-                img[g_index] = new_pixel.1;
-                img[b_index] = new_pixel.2;
-                img[a_index] = new_pixel.3;
-            }
+            let layer_r_index = ((y * layer_width + x) * 3) as usize;
+            let layer_g_index = ((y * layer_width + x) * 3 + 1) as usize;
+            let layer_b_index = ((y * layer_width + x) * 3 + 2) as usize;
+
+            let r = pixels[layer_r_index];
+            let g = pixels[layer_g_index];
+            let b = pixels[layer_b_index];
+
+            let new_pixel = alpha_compositing(prev_r, prev_g, prev_b, prev_a, r, g, b, 255);
+
+            img[r_index] = new_pixel.0;
+            img[g_index] = new_pixel.1;
+            img[b_index] = new_pixel.2;
+            img[a_index] = new_pixel.3;
         }
     }
 }
@@ -217,37 +238,40 @@ fn draw_jpg_image_layer(img: &mut [u8], canvas_width: u32, layer: ImageLayer) {
         Err(err) => errors::handle_error(&err),
     };
 
-    for y in 0..(layer.height) {
-        for x in 0..(layer.width) {
-            let r_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4) as usize;
-            let g_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 1) as usize;
-            let b_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 2) as usize;
-            let a_index = (((y + layer.y) * canvas_width + (x + layer.x)) * 4 + 3) as usize;
-
-            let prev_r = img[r_index];
-            let prev_g = img[g_index];
-            let prev_b = img[b_index];
-            let prev_a = img[a_index];
-
-            let layer_r_index = ((y * layer.width + x) * 3) as usize;
-            let layer_g_index = ((y * layer.width + x) * 3 + 1) as usize;
-            let layer_b_index = ((y * layer.width + x) * 3 + 2) as usize;
-
-            let r = pixels[layer_r_index];
-            let g = pixels[layer_g_index];
-            let b = pixels[layer_b_index];
-
-            let new_pixel = alpha_compositing(prev_r, prev_g, prev_b, prev_a, r, g, b, 255);
-
-            img[r_index] = new_pixel.0;
-            img[g_index] = new_pixel.1;
-            img[b_index] = new_pixel.2;
-            img[a_index] = new_pixel.3;
-        }
-    }
+    draw_bitmap(
+        img,
+        canvas_width,
+        layer.width,
+        layer.height,
+        layer.x,
+        layer.y,
+        &pixels,
+    );
 }
 
-pub fn draw_layer(img: &mut [u8], canvas_width: u32, layer: Layer, layer_count: usize) {
+pub fn draw_video_layer(img: &mut [u8], canvas_width: u32, fps: u32, layer: VideoLayer) {
+    let layer_width = layer.width;
+    let layer_height = layer.height;
+    let layer_x = layer.x;
+    let layer_y = layer.y;
+    let buffer = match get_video_frame(layer, fps) {
+        Ok(content) => content,
+        Err(err) => {
+            errors::handle_error(&err);
+        }
+    };
+    draw_bitmap(
+        img,
+        canvas_width,
+        layer_width,
+        layer_height,
+        layer_x,
+        layer_y,
+        &buffer,
+    )
+}
+
+pub fn draw_layer(img: &mut [u8], canvas_width: u32, layer: Layer, layer_count: usize, fps: u32) {
     match layer {
         Layer::PngImage(layer) => {
             draw_png_image_layer(img, canvas_width, layer);
@@ -262,7 +286,7 @@ pub fn draw_layer(img: &mut [u8], canvas_width: u32, layer: Layer, layer_count: 
             draw_svg_image_layer(img, canvas_width, layer, layer_count == 1);
         }
         Layer::VideoFrame(layer) => {
-            // TODO
+            draw_video_layer(img, canvas_width, fps, layer);
         }
     }
 }

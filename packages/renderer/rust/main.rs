@@ -4,6 +4,7 @@ mod errors;
 mod finish;
 mod payloads;
 mod save;
+mod video;
 use compositor::draw_layer;
 
 use payloads::payloads::{parse_command, CliInput};
@@ -24,7 +25,7 @@ struct NewFrame {
     nonce: u32,
 }
 
-fn process_command_line(opts: CliInput) -> Option<Vec<u8>> {
+fn process_command_line(opts: CliInput, fps: u32) -> Option<Vec<u8>> {
     let len: usize = match (opts.width * opts.height).try_into() {
         Ok(content) => content,
         Err(err) => errors::handle_error(&err),
@@ -34,7 +35,7 @@ fn process_command_line(opts: CliInput) -> Option<Vec<u8>> {
 
     let size = opts.layers.len();
     for layer in opts.layers {
-        draw_layer(&mut data, opts.width, layer, size)
+        draw_layer(&mut data, opts.width, layer, size, fps)
     }
 
     if matches!(opts.output_format, payloads::payloads::ImageFormat::Jpeg) {
@@ -120,7 +121,7 @@ fn main() -> Result<(), std::io::Error> {
             // Process the message here
             let command = parse_command(&message);
             let nonce = command.nonce;
-            let data = process_command_line(command);
+            let data = process_command_line(command, FPS);
             match data {
                 Some(d) => {
                     let rgb = colorspaces::rgba8_to_rgb8(d, WIDTH, HEIGHT);

@@ -35,11 +35,9 @@ const renderFrameWithOptionToReject = async ({
 	stopState,
 	imageFormat,
 	downloadMap,
-	onFrameUpdate,
 	scale,
 	assets,
 	quality,
-	framesRendered,
 	onDownload,
 	onError,
 }: {
@@ -52,17 +50,9 @@ const renderFrameWithOptionToReject = async ({
 	stopState: {isStopped: boolean};
 	imageFormat: 'png' | 'jpeg' | 'none';
 	downloadMap: DownloadMap;
-	onFrameUpdate: (
-		framesRendered: number,
-		frameIndex: number,
-		timeToRenderInMilliseconds: number
-	) => void;
 	scale: number;
 	assets: TAsset[][];
 	quality: number | undefined;
-	framesRendered: {
-		frames: number;
-	};
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
 }): Promise<{layer: CompositorLayer | null; buffer: Buffer | null}> => {
@@ -73,8 +63,6 @@ const renderFrameWithOptionToReject = async ({
 		reject(new Error('Render was stopped'));
 		throw new Error('stopped');
 	}
-
-	const startTime = performance.now();
 
 	const errorCallbackOnFrame = (err: Error) => {
 		reject(err);
@@ -157,8 +145,6 @@ const renderFrameWithOptionToReject = async ({
 			);
 		});
 	});
-	framesRendered.frames++;
-	onFrameUpdate(framesRendered.frames, frame, performance.now() - startTime);
 	cleanupPageError();
 	freePage.off('error', errorCallbackOnFrame);
 	pool.release(freePage);
@@ -171,14 +157,12 @@ const renderWebFrame = ({
 	index,
 	downloadMap,
 	imageFormat,
-	onFrameUpdate,
 	poolPromise,
 	stopState,
 	composition,
 	assets,
 	scale,
 	quality,
-	framesRendered,
 	onDownload,
 	onError,
 }: {
@@ -186,11 +170,6 @@ const renderWebFrame = ({
 	index: number;
 	downloadMap: DownloadMap;
 	imageFormat: 'png' | 'jpeg' | 'none';
-	onFrameUpdate: (
-		framesRendered: number,
-		frameIndex: number,
-		timeToRenderInMilliseconds: number
-	) => void;
 	poolPromise: Promise<Pool<Page>>;
 	stopState: {
 		isStopped: boolean;
@@ -199,9 +178,6 @@ const renderWebFrame = ({
 	assets: TAsset[][];
 	scale: number;
 	quality: number | undefined;
-	framesRendered: {
-		frames: number;
-	};
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
 }) => {
@@ -215,13 +191,11 @@ const renderWebFrame = ({
 				height: composition.height,
 				downloadMap,
 				imageFormat,
-				onFrameUpdate,
 				poolPromise,
 				stopState,
 				assets,
 				scale,
 				quality,
-				framesRendered,
 				onDownload,
 				onError,
 			})
@@ -247,7 +221,6 @@ export const renderWebFrameAndRetryTargetClose = async ({
 	downloadMap,
 	imageFormat,
 	onFrameBuffer,
-	onFrameUpdate,
 	outputDir,
 	stopState,
 	assets,
@@ -283,11 +256,6 @@ export const renderWebFrameAndRetryTargetClose = async ({
 	downloadMap: DownloadMap;
 	imageFormat: 'png' | 'jpeg' | 'none';
 	onFrameBuffer: ((buffer: Buffer, frame: number) => void) | undefined;
-	onFrameUpdate: (
-		framesRendered: number,
-		frameIndex: number,
-		timeToRenderInMilliseconds: number
-	) => void;
 	outputDir: string | null;
 	stopState: {
 		isStopped: boolean;
@@ -324,12 +292,10 @@ export const renderWebFrameAndRetryTargetClose = async ({
 			composition,
 			downloadMap,
 			imageFormat,
-			onFrameUpdate,
 			stopState,
 			assets,
 			scale,
 			quality,
-			framesRendered,
 			onDownload,
 			onError,
 		});
@@ -406,7 +372,6 @@ export const renderWebFrameAndRetryTargetClose = async ({
 			downloadMap,
 			imageFormat,
 			onFrameBuffer,
-			onFrameUpdate,
 			outputDir,
 			poolPromise,
 			stopState,

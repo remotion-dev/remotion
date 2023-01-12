@@ -1,5 +1,4 @@
 extern crate ffmpeg_next as ffmpeg;
-use ffmpeg::{rescale, Rescale};
 
 use ffmpeg::format::{input, Pixel};
 use ffmpeg::media::Type;
@@ -14,8 +13,9 @@ fn main() -> Result<(), ffmpeg::Error> {
     ffmpeg::init().unwrap();
 
     if let Ok(mut ictx) = input(&env::args().nth(1).expect("Cannot open file.")) {
-        let position = 159.rescale((1, 1), rescale::TIME_BASE);
-        let seeked = ictx.seek(position, ..position).unwrap();
+        let position = 159 * 1000000;
+        println!("position: {}", position);
+        ictx.seek(position, ..position).unwrap();
 
         let input = ictx
             .streams()
@@ -47,7 +47,6 @@ fn main() -> Result<(), ffmpeg::Error> {
                     scaler.run(&decoded, &mut rgb_frame)?;
                     save_file(&rgb_frame, frame_index).unwrap();
                     frame_index += 1;
-                    decoder.delay();
 
                     println!("{} {} ms", frame_index, time.elapsed().as_millis());
                 }

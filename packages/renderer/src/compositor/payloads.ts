@@ -41,7 +41,7 @@ export type CompositorLayer =
 			};
 	  }
 	| {
-			type: 'VideoLayer';
+			type: 'VideoFrame';
 			params: {
 				src: string;
 				frame: number;

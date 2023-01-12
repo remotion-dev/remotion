@@ -566,6 +566,11 @@ export const Index: React.FC = () => {
 					id="layers"
 					layers={[
 						{
+							type: 'video',
+							// TODO: Should support props on a layer basis
+							component: NativeVideoLayerTest,
+						},
+						{
 							type: 'web',
 							// @ts-expect-error fix types of layer system
 							component: ReactSvg,
@@ -573,11 +578,6 @@ export const Index: React.FC = () => {
 						{
 							type: 'svg',
 							component: SvgTest,
-						},
-						{
-							type: 'video',
-							// TODO: Should support props on a layer basis
-							component: NativeVideoLayerTest,
 						},
 					]}
 					durationInFrames={300}

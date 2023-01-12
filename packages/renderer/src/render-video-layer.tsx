@@ -17,7 +17,9 @@ export const renderVideoLayer = ({
 	frame: number;
 	layer: number;
 }) => {
-	const svg = renderToStaticMarkup(
+	process.env.REMOTION_SERVER_RENDERING = 'true';
+
+	const markup = renderToStaticMarkup(
 		<Internals.SelectCompositionMode layer={layer} id={composition.id}>
 			<Internals.Timeline.TimelineContext.Provider
 				value={makeTimelineContextValue(composition, frame)}
@@ -31,7 +33,7 @@ export const renderVideoLayer = ({
 		</Internals.SelectCompositionMode>
 	);
 
-	const matches = svg.matchAll(/<div>(.*?)<\/div>/g);
+	const matches = markup.matchAll(/<div>(.*?)<\/div>/g);
 
 	let parsed: NativeVideoLayerInfo | null = null;
 

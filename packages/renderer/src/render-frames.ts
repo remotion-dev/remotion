@@ -167,6 +167,7 @@ const innerRenderFrames = ({
 	chromiumOptions,
 	dumpBrowserLogs,
 	webServeUrl,
+	publicFolder,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload' | 'puppeteerInstance'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -179,6 +180,7 @@ const innerRenderFrames = ({
 	browserReplacer: BrowserReplacer;
 	puppeteerInstance: Browser | null;
 	webServeUrl: string | null;
+	publicFolder: string;
 }): Promise<RenderFramesOutput> => {
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
@@ -260,6 +262,7 @@ const innerRenderFrames = ({
 
 	const progress = Promise.all(
 		framesToRender.map(async (frame, index) => {
+			const startTime = Date.now();
 			const layers = await Promise.all(
 				composition.layers.map(
 					async (l, i): Promise<CompositorLayer | null> => {
@@ -270,8 +273,23 @@ const innerRenderFrames = ({
 								frame,
 								layer: i,
 							});
-							console.log(str);
-							return null;
+							if (!str) {
+								throw new Error('did not get str yet');
+							}
+
+							const absolute = path.join(publicFolder, str.src);
+
+							return Promise.resolve({
+								type: 'VideoFrame',
+								params: {
+									frame,
+									height: comp.height,
+									src: absolute,
+									width: comp.width,
+									x: 0,
+									y: 0,
+								},
+							});
 						}
 
 						if (l.type === 'svg') {
@@ -326,7 +344,6 @@ const innerRenderFrames = ({
 								imageFormat,
 								// TODO onFrameBuffer is not supported
 								onFrameBuffer,
-								onFrameUpdate,
 								outputDir,
 								quality,
 								scale,
@@ -398,6 +415,7 @@ const innerRenderFrames = ({
 				width: comp.width,
 				willH264Encode: false,
 			});
+			onFrameUpdate(++framesRendered.frames, index, Date.now() - startTime);
 		})
 	);
 
@@ -540,6 +558,8 @@ export const renderFrames = (
 					downloadMap,
 					browserReplacer,
 					webServeUrl: serveUrl,
+					// TODO: Doesn't really hold up 🙈
+					publicFolder: path.join(browserServeUrl as string, 'public'),
 				});
 			}),
 		])

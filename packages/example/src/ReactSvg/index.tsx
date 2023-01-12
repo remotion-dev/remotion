@@ -11,9 +11,8 @@ import {Atom} from './Atom';
 import {Black} from './Black';
 import {DotGrid} from './DotGrid';
 
-const ReactSvg: React.FC<{
-	transparent: boolean;
-}> = ({transparent}) => {
+const ReactSvg: React.FC<{}> = ({}) => {
+	const transparent = true;
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const start = 0;

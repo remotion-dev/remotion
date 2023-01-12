@@ -1,6 +1,7 @@
 import type {ComponentType} from 'react';
 import React, {Suspense} from 'react';
 import {AbsoluteFill} from './AbsoluteFill';
+import {getRemotionEnvironment} from './get-environment';
 import type {Layer} from './layers';
 
 export const LayerMaster = <T extends object>({
@@ -35,6 +36,19 @@ export const LayerMaster = <T extends object>({
 
 				// SVG should not support suspense
 				if (layer.type === 'svg') {
+					if (getRemotionEnvironment() === 'rendering') {
+						return null;
+					}
+
+					// eslint-disable-next-line react/no-array-index-key
+					return <Comp key={String(i)} {...defaultProps} {...inputProps} />;
+				}
+
+				if (layer.type === 'video') {
+					if (getRemotionEnvironment() === 'rendering') {
+						return null;
+					}
+
 					// eslint-disable-next-line react/no-array-index-key
 					return <Comp key={String(i)} {...defaultProps} {...inputProps} />;
 				}
