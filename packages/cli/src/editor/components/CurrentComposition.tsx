@@ -1,11 +1,8 @@
-import type {LogLevel} from '@remotion/renderer';
 import React, {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
-import {getDefaultOutLocation} from '../../get-default-out-name';
 import {BACKGROUND, BORDER_COLOR} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {useKeybinding} from '../helpers/use-keybinding';
-import {ModalsContext} from '../state/modals';
 import {renderFrame} from '../state/render-frame';
 import {RichTimelineContext} from '../state/rich-timeline';
 import {Spacing} from './layout';
@@ -50,8 +47,6 @@ export const CurrentComposition = () => {
 	const richTimelineContext = useContext(RichTimelineContext);
 	const video = Internals.useVideo();
 	const keybindings = useKeybinding();
-	const {setSelectedModal} = useContext(ModalsContext);
-
 	useEffect(() => {
 		if (!video) {
 			document.title = 'Remotion Preview';
@@ -66,25 +61,12 @@ export const CurrentComposition = () => {
 			return null;
 		}
 
-		setSelectedModal({
-			type: 'render',
-			compositionId: video.id,
-			initialFrame: 0,
-			// TODO: Default PNG for stills, JPEG for videos
-			initialImageFormat: 'png',
-			initialQuality: window.remotion_renderDefaults?.quality ?? 80,
-			initialScale: window.remotion_renderDefaults?.scale ?? 1,
-			initialVerbose:
-				(window.remotion_renderDefaults?.logLevel as LogLevel) === 'verbose',
-			initialOutName: getDefaultOutLocation({
-				compositionName: video.id,
-				// TODO: Default PNG for stills, JPEG for videos
-				defaultExtension: 'png',
-			}),
-			initialRenderType: 'video',
-			initialCodec: 'h264',
-		});
-	}, [setSelectedModal, video]);
+		const renderButton = document.getElementById(
+			'render-settings-button'
+		) as HTMLDivElement;
+
+		renderButton.click();
+	}, [video]);
 
 	useEffect(() => {
 		const binding = keybindings.registerKeybinding({

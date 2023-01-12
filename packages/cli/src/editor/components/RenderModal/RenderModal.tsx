@@ -471,7 +471,14 @@ export const RenderModal: React.FC<{
 				selected: renderMode === 'video',
 			},
 		];
-	}, [imageFormat, renderMode, setCodec, setStillFormat, videoCodec]);
+	}, [
+		currentComposition?.durationInFrames,
+		imageFormat,
+		renderMode,
+		setCodec,
+		setStillFormat,
+		videoCodec,
+	]);
 
 	const onVerboseLoggingChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
