@@ -19,6 +19,7 @@ export const InputDragger: React.FC<Props> = ({
 	min: _min,
 	step: _step,
 	value,
+	onChange,
 	...props
 }) => {
 	const [inputFallback, setInputFallback] = useState(false);
@@ -57,7 +58,7 @@ export const InputDragger: React.FC<Props> = ({
 	}, []);
 
 	const onBlur = useCallback(() => {
-		setInputFallback(false);
+		if (fallbackRef.current) setInputFallback(false);
 	}, []);
 
 	const onKeyPress: React.KeyboardEventHandler<HTMLInputElement> = useCallback(
@@ -124,7 +125,6 @@ export const InputDragger: React.FC<Props> = ({
 					autoFocus
 					onKeyPress={onKeyPress}
 					onBlur={onBlur}
-					value={value}
 					min={_min}
 					step={_step}
 					{...props}
