@@ -659,7 +659,7 @@ export const RenderModal: React.FC<{
 								value={scale}
 								onChange={onScaleChanged}
 								placeholder="0.1-10"
-								// TODO: Does not allow non-integer steps
+								// TODO: Direct input does not allow non-integer steps
 								// TODO: Cannot click and type in 0.2
 								onValueChange={onScaleSetDirectly}
 								name="scale"
