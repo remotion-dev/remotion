@@ -56,13 +56,13 @@ export const CurrentComposition = () => {
 		document.title = `${video.id} / ${window.remotion_projectName} - Remotion Preview`;
 	}, [video]);
 
-	const renderStill = useCallback(() => {
+	const openRenderModal = useCallback(() => {
 		if (!video) {
 			return null;
 		}
 
 		const renderButton = document.getElementById(
-			'render-settings-button'
+			'render-modal-button'
 		) as HTMLDivElement;
 
 		renderButton.click();
@@ -73,14 +73,14 @@ export const CurrentComposition = () => {
 			event: 'keydown',
 			key: 'r',
 			commandCtrlKey: false,
-			callback: renderStill,
+			callback: openRenderModal,
 			preventDefault: true,
 		});
 
 		return () => {
 			binding.unregister();
 		};
-	}, [keybindings, renderStill]);
+	}, [keybindings, openRenderModal]);
 
 	if (!video) {
 		return <div style={container} />;

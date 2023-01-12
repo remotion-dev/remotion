@@ -58,7 +58,7 @@ export const RenderStillButton: React.FC = () => {
 
 	return (
 		<ControlButton
-			id="render-settings-button"
+			id="render-modal-button"
 			disabled={type !== 'connected'}
 			title={tooltip}
 			aria-label={tooltip}
