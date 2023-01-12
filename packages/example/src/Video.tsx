@@ -29,7 +29,7 @@ import ThreeBasic from './ThreeBasic';
 import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoSpeed} from './VideoSpeed';
-import {VideoTesting} from './VideoTesting';
+import {NativeVideoLayerTest, VideoTesting} from './VideoTesting';
 
 // Use it to test that UI does not regress on weird CSS
 // import './weird-css.css';
@@ -567,6 +567,7 @@ export const Index: React.FC = () => {
 					layers={[
 						{
 							type: 'web',
+							// @ts-expect-error fix types of layer system
 							component: ReactSvg,
 						},
 						{
@@ -576,14 +577,14 @@ export const Index: React.FC = () => {
 						{
 							type: 'video',
 							// TODO: Should support props on a layer basis
-							// @ts-expect-error - props are not supported on a layer basis
-							component: VideoTesting,
+							component: NativeVideoLayerTest,
 						},
 					]}
 					durationInFrames={300}
 					fps={30}
 					height={1080}
 					width={1920}
+					defaultProps={{transparent: true}}
 				/>
 			</Folder>
 		</>

@@ -2,6 +2,7 @@ import type {ComponentType} from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import type {TCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
+import type {NativeVideoLayerInfo} from 'remotion/src/video/NativeVideoForRendering';
 import {makeCompManagerContext} from './make-comp-manager-context';
 import {makeTimelineContextValue} from './make-timeline-context-value';
 
@@ -29,7 +30,19 @@ export const renderVideoLayer = ({
 			</Internals.Timeline.TimelineContext.Provider>
 		</Internals.SelectCompositionMode>
 	);
-	console.log({svg});
 
-	return svg;
+	const matches = svg.matchAll(/<div>(.*?)<\/div>/g);
+
+	let parsed: NativeVideoLayerInfo | null = null;
+
+	for (const match of matches) {
+		if (parsed) {
+			throw new Error('cannot have more than one video layer');
+		}
+
+		const json = JSON.parse(match[1]);
+		parsed = json as NativeVideoLayerInfo;
+	}
+
+	return parsed;
 };

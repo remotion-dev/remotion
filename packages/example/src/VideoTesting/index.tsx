@@ -1,4 +1,6 @@
+import React from 'react';
 import {
+	NativeVideo,
 	OffthreadVideo,
 	Sequence,
 	staticFile,
@@ -23,4 +25,8 @@ export const VideoTesting: React.FC<{
 			</Sequence>
 		</div>
 	);
+};
+
+export const NativeVideoLayerTest: React.FC = () => {
+	return <NativeVideo src={staticFile('framer.webm')} />;
 };
