@@ -333,14 +333,14 @@ export const RenderModal: React.FC<{
 	const onScaleChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			setScale((q) => {
-				const newQuality = parseFloat(e.target.value);
-				if (Number.isNaN(newQuality)) {
+				const newScale = parseFloat(e.target.value);
+				if (Number.isNaN(newScale)) {
 					return q;
 				}
 
 				const newScaleClamped = Math.min(
 					MAX_SCALE,
-					Math.max(newQuality, MIN_SCALE)
+					Math.max(newScale, MIN_SCALE)
 				);
 				return newScaleClamped;
 			});
@@ -562,7 +562,7 @@ export const RenderModal: React.FC<{
 									// TODO: Cannot click and type in 0.2
 									onValueChange={onScaleSetDirectly}
 									name="scale"
-									step={0.05}
+									step={0.1}
 									min={MIN_SCALE}
 									max={MAX_SCALE}
 								/>
@@ -663,7 +663,7 @@ export const RenderModal: React.FC<{
 								// TODO: Cannot click and type in 0.2
 								onValueChange={onScaleSetDirectly}
 								name="scale"
-								step={0.05}
+								step={0.1}
 								min={MIN_SCALE}
 								max={MAX_SCALE}
 							/>

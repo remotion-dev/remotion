@@ -24,7 +24,6 @@ export const InputDragger: React.FC<Props> = ({
 }) => {
 	const [inputFallback, setInputFallback] = useState(false);
 	const fallbackRef = useRef<HTMLInputElement>(null);
-
 	const style = useMemo(() => {
 		return {
 			...inputBaseStyle,
@@ -70,6 +69,11 @@ export const InputDragger: React.FC<Props> = ({
 		[]
 	);
 
+	const roundToStep = (val: number, stepSize: number) => {
+		const factor = 1 / stepSize;
+		return Math.ceil(val * factor) / factor;
+	};
+
 	const onPointerDown: PointerEventHandler = useCallback(
 		(e) => {
 			const {pageX, pageY} = e;
@@ -81,6 +85,7 @@ export const InputDragger: React.FC<Props> = ({
 				const step = Number(_step ?? 1);
 				const min = Number(_min ?? 0);
 				const max = Number(_max ?? Infinity);
+
 				if (distanceFromStart > 4) {
 					setClickLock(true);
 				}
@@ -90,12 +95,9 @@ export const InputDragger: React.FC<Props> = ({
 					[-5, -4, 0, 4, 5],
 					[-step, 0, 0, 0, step]
 				);
-				const newValue = Math.min(
-					max,
-					Math.max(min, Math.floor(Number(value) + diff))
-				);
-				const roundToStep = Math.floor(newValue / step) * step;
-				onValueChange(roundToStep);
+				const newValue = Math.min(max, Math.max(min, Number(value) + diff));
+				const roundedToStep = roundToStep(newValue, step);
+				onValueChange(roundedToStep);
 			};
 
 			window.addEventListener('mousemove', moveListener);
@@ -112,7 +114,7 @@ export const InputDragger: React.FC<Props> = ({
 				}
 			);
 		},
-		[_step, _min, value, onValueChange]
+		[_step, _min, _max, value, onValueChange]
 	);
 
 	useEffect(() => {
