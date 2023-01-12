@@ -5,7 +5,7 @@ import {Internals} from 'remotion';
 import {makeCompManagerContext} from './make-comp-manager-context';
 import {makeTimelineContextValue} from './make-timeline-context-value';
 
-export const renderSvg = ({
+export const renderVideoLayer = ({
 	composition,
 	Comp,
 	frame,
@@ -29,6 +29,7 @@ export const renderSvg = ({
 			</Internals.Timeline.TimelineContext.Provider>
 		</Internals.SelectCompositionMode>
 	);
+	console.log({svg});
 
 	return svg;
 };

@@ -42,6 +42,7 @@ import {Pool} from './pool';
 import {prepareServer} from './prepare-server';
 import {validateQuality} from './quality';
 import {renderSvg} from './render-svg';
+import {renderVideoLayer} from './render-video-layer';
 import {
 	makeBrowser,
 	makePage,
@@ -262,6 +263,17 @@ const innerRenderFrames = ({
 			const layers = await Promise.all(
 				composition.layers.map(
 					async (l, i): Promise<CompositorLayer | null> => {
+						if (l.type === 'video') {
+							const str = renderVideoLayer({
+								composition: comp,
+								Comp: root,
+								frame,
+								layer: i,
+							});
+							console.log(str);
+							return null;
+						}
+
 						if (l.type === 'svg') {
 							const svg = renderSvg({
 								composition: comp,

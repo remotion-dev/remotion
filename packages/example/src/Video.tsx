@@ -573,6 +573,12 @@ export const Index: React.FC = () => {
 							type: 'svg',
 							component: SvgTest,
 						},
+						{
+							type: 'video',
+							// TODO: Should support props on a layer basis
+							// @ts-expect-error - props are not supported on a layer basis
+							component: VideoTesting,
+						},
 					]}
 					durationInFrames={300}
 					fps={30}
