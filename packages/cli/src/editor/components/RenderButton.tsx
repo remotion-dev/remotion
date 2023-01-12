@@ -20,7 +20,7 @@ export const RenderButton: React.FC<{
 			},
 		};
 	}, []);
-
+	const isVideo = composition.durationInFrames > 1;
 	const onClick: React.MouseEventHandler<HTMLAnchorElement> = useCallback(
 		(e) => {
 			e.stopPropagation();
@@ -28,8 +28,7 @@ export const RenderButton: React.FC<{
 				type: 'render',
 				compositionId: composition.id,
 				initialFrame: 0,
-				// TODO: JPEG for video, PNG for image
-				initialImageFormat: 'png',
+				initialImageFormat: isVideo ? 'jpeg' : 'png',
 				// TODO: Determine defaults from config file
 				initialQuality: window.remotion_renderDefaults?.quality ?? 80,
 				initialScale: window.remotion_renderDefaults?.scale ?? 1,
@@ -37,13 +36,13 @@ export const RenderButton: React.FC<{
 					(window.remotion_renderDefaults?.logLevel as LogLevel) === 'verbose',
 				initialOutName: getDefaultOutLocation({
 					compositionName: composition.id,
-					defaultExtension: 'png',
+					defaultExtension: isVideo ? 'mp4' : 'png',
 				}),
-				initialRenderType: composition.durationInFrames > 1 ? 'video' : 'still',
+				initialRenderType: isVideo ? 'video' : 'still',
 				initialCodec: 'h264',
 			});
 		},
-		[composition, setSelectedModal]
+		[composition.id, isVideo, setSelectedModal]
 	);
 
 	if (!visible) {
