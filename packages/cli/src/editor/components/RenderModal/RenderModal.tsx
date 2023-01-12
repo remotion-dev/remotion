@@ -217,6 +217,7 @@ export const RenderModal: React.FC<{
 		(codec: Codec) => {
 			setVideoCodec(codec);
 			setOutName((prev) => {
+				// TODO: Check file extension for h264-mkv (render throws error atm)
 				const codecSuffix = BrowserSafeApis.getFileExtensionFromCodec(
 					codec,
 					'final'
@@ -423,7 +424,6 @@ export const RenderModal: React.FC<{
 			'aac',
 			'wav',
 			'prores',
-			'h264-mkv',
 			'gif',
 		] as const;
 		return codecs.map((codec) => {
