@@ -17,6 +17,16 @@ pub mod payloads {
     }
 
     #[derive(Serialize, Deserialize, Debug)]
+    pub struct VideoLayer {
+        pub src: String,
+        pub frame: u32,
+        pub x: u32,
+        pub y: u32,
+        pub width: u32,
+        pub height: u32,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
     pub struct ImageLayer {
         pub src: String,
         pub x: u32,
@@ -37,6 +47,7 @@ pub mod payloads {
     #[derive(Serialize, Deserialize, Debug)]
     #[serde(tag = "type", content = "params")]
     pub enum Layer {
+        VideoFrame(VideoLayer),
         SvgImage(SvgLayer),
         PngImage(ImageLayer),
         JpgImage(ImageLayer),

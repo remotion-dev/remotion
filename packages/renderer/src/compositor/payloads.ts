@@ -39,6 +39,17 @@ export type CompositorLayer =
 				width: number;
 				height: number;
 			};
+	  }
+	| {
+			type: 'VideoLayer';
+			params: {
+				src: string;
+				frame: number;
+				x: number;
+				y: number;
+				width: number;
+				height: number;
+			};
 	  };
 
 export type CompositorImageFormat =

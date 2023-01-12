@@ -261,5 +261,8 @@ pub fn draw_layer(img: &mut [u8], canvas_width: u32, layer: Layer, layer_count: 
         Layer::SvgImage(layer) => {
             draw_svg_image_layer(img, canvas_width, layer, layer_count == 1);
         }
+        Layer::VideoFrame(layer) => {
+            // TODO
+        }
     }
 }
