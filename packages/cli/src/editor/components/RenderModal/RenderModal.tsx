@@ -491,17 +491,19 @@ export const RenderModal: React.FC<{
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title={`Render ${compositionId}`} />
 			<div style={container}>
-				<SegmentedControl items={renderTabOptions} />
+				<SegmentedControl items={renderTabOptions} needsWrapping={false} />
 			</div>
 			<div>
 				<Spacing block y={0.5} />
 				<div style={optionRow}>
+					{renderMode === 'still'}
 					<div style={label}>{renderMode === 'still' ? 'Format' : 'Codec'}</div>
 					<div style={rightRow}>
 						<SegmentedControl
 							items={
 								renderMode === 'still' ? imageFormatOptions : videoCodecOptions
 							}
+							needsWrapping
 						/>
 					</div>
 				</div>
@@ -587,7 +589,10 @@ export const RenderModal: React.FC<{
 						<div style={optionRow}>
 							<div style={label}>Image Format</div>
 							<div style={rightRow}>
-								<SegmentedControl items={imageFormatOptions} />
+								<SegmentedControl
+									items={imageFormatOptions}
+									needsWrapping={false}
+								/>
 							</div>
 						</div>
 					)}

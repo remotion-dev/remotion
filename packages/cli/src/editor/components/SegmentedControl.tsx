@@ -12,6 +12,9 @@ const container: React.CSSProperties = {
 	flexDirection: 'row',
 	overflow: 'hidden',
 	border: '1px solid ' + INPUT_BORDER_COLOR_UNHOVERED,
+	flexWrap: 'wrap',
+	maxWidth: '295px',
+	justifyContent: 'flex-end',
 };
 
 const item: React.CSSProperties = {
@@ -32,9 +35,26 @@ export type SegmentedControlItem = {
 
 export const SegmentedControl: React.FC<{
 	items: SegmentedControlItem[];
-}> = ({items}) => {
+	needsWrapping: boolean;
+}> = ({items, needsWrapping}) => {
+	const controlStyle: React.CSSProperties = useMemo(() => {
+		if (needsWrapping) {
+			return {
+				...container,
+				flexWrap: 'wrap',
+				maxWidth: '295px',
+				justifyContent: 'flex-end',
+				marginBottom: '8px',
+			};
+		}
+
+		return {
+			...container,
+		};
+	}, [needsWrapping]);
+
 	return (
-		<div style={container}>
+		<div style={controlStyle}>
 			{items.map((i) => {
 				return (
 					<Item key={i.key} onClick={i.onClick} selected={i.selected}>
