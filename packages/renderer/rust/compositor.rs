@@ -20,7 +20,7 @@ impl SingletonFontDb {
 }
 
 use crate::payloads::payloads::VideoLayer;
-use crate::video::get_video_frame;
+use crate::video::FfmpegFrameProvider;
 use crate::{
     errors,
     payloads::payloads::{ImageLayer, Layer, SolidLayer, SvgLayer},
@@ -276,12 +276,18 @@ fn draw_jpg_image_layer(img: &mut [u8], canvas_width: u32, layer: ImageLayer) {
     );
 }
 
-pub fn draw_video_layer(img: &mut [u8], canvas_width: u32, fps: u32, layer: VideoLayer) {
+pub fn draw_video_layer(
+    img: &mut [u8],
+    canvas_width: u32,
+    fps: u32,
+    layer: VideoLayer,
+    frame_provider: FfmpegFrameProvider,
+) {
     let layer_width = layer.width;
     let layer_height = layer.height;
     let layer_x = layer.x;
     let layer_y = layer.y;
-    let buffer = match get_video_frame(layer, fps) {
+    let buffer = match frame_provider.get_video_frame(layer, fps) {
         Ok(content) => content,
         Err(err) => {
             errors::handle_error(&err);
@@ -299,7 +305,14 @@ pub fn draw_video_layer(img: &mut [u8], canvas_width: u32, fps: u32, layer: Vide
     )
 }
 
-pub fn draw_layer(img: &mut [u8], canvas_width: u32, layer: Layer, layer_count: usize, fps: u32) {
+pub fn draw_layer(
+    img: &mut [u8],
+    canvas_width: u32,
+    layer: Layer,
+    layer_count: usize,
+    fps: u32,
+    frame_provider: FfmpegFrameProvider,
+) {
     match layer {
         Layer::PngImage(layer) => {
             draw_png_image_layer(img, canvas_width, layer);
@@ -314,7 +327,7 @@ pub fn draw_layer(img: &mut [u8], canvas_width: u32, layer: Layer, layer_count: 
             draw_svg_image_layer(img, canvas_width, layer, layer_count == 1);
         }
         Layer::VideoFrame(layer) => {
-            draw_video_layer(img, canvas_width, fps, layer);
+            draw_video_layer(img, canvas_width, fps, layer, frame_provider);
         }
     }
 }

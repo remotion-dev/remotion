@@ -7,6 +7,7 @@ mod save;
 mod video;
 use compositor::draw_layer;
 
+use ffmpeg_next::frame;
 use payloads::payloads::{parse_command, CompositorCommand};
 use std::fs::File;
 use std::io::{self, Write};
@@ -14,7 +15,7 @@ use std::sync::mpsc;
 use std::time::Instant;
 use std::{env, thread};
 use threadpool::ThreadPool;
-use video::initialize_videos;
+use video::FfmpegFrameProvider;
 use x264::{Encoder, Param, Picture};
 
 use crate::finish::handle_finish;
@@ -27,7 +28,11 @@ struct NewFrame {
     nonce: u32,
 }
 
-fn process_command_line(opts: CompositorCommand, fps: u32) -> Option<Vec<u8>> {
+fn process_command_line(
+    opts: CompositorCommand,
+    fps: u32,
+    frame_provider: FfmpegFrameProvider,
+) -> Option<Vec<u8>> {
     let len: usize = match (opts.width * opts.height).try_into() {
         Ok(content) => content,
         Err(err) => errors::handle_error(&err),
@@ -37,7 +42,7 @@ fn process_command_line(opts: CompositorCommand, fps: u32) -> Option<Vec<u8>> {
 
     let size = opts.layers.len();
     for layer in opts.layers {
-        draw_layer(&mut data, opts.width, layer, size, fps)
+        draw_layer(&mut data, opts.width, layer, size, fps, frame_provider)
     }
 
     if matches!(opts.output_format, payloads::payloads::ImageFormat::Jpeg) {
@@ -77,7 +82,9 @@ fn main() -> Result<(), std::io::Error> {
 
     // Initialize things.
 
-    initialize_videos(config.video_signals);
+    let frame_provider = FfmpegFrameProvider();
+
+    frame_provider.initialize_videos(config.video_signals);
 
     // TODO: Dimensions and FPS via
 
@@ -120,7 +127,7 @@ fn main() -> Result<(), std::io::Error> {
             // Process the message here
             let command = parse_command(&message);
             let nonce = command.nonce;
-            let data = process_command_line(command, config.fps);
+            let data = process_command_line(command, config.fps, frame_provider);
             match data {
                 Some(d) => {
                     let rgb = colorspaces::rgba8_to_rgb8(
