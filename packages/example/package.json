@@ -39,6 +39,7 @@
 		"@remotion/media-utils": "3.3.31",
 		"@remotion/paths": "3.3.31",
 		"@remotion/renderer": "3.3.31",
+		"@remotion/shapes": "workspace:^3.3.31",
 		"@remotion/three": "3.3.31",
 		"@types/express": "^4.17.11",
 		"@types/node": "^16.7.5",
