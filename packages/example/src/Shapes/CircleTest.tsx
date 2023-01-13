@@ -3,16 +3,6 @@ import React from 'react';
 import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 
 const CircleTest: React.FC = () => {
-	const {fps} = useVideoConfig();
-	const frame = useCurrentFrame();
-	const spr = spring({
-		fps,
-		frame,
-		config: {
-			damping: 200,
-		},
-	});
-
 	return (
 		<AbsoluteFill
 			style={{
