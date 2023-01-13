@@ -27,7 +27,7 @@ Example Triangle path generation
 import { makeTriangle } from "@remotion/shapes";
 const rightTriangle = makeTriangle({width : 100, height : 100, direction : 'right'});
 
-console.log(rightTriangle); // M 100,0 L 100,100 L 0,50 z
+console.log(rightTriangle); // M 0,0 L 0,100 L 100,50 z
 
 ```
 

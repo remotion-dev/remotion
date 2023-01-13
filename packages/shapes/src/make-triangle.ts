@@ -17,5 +17,5 @@ export const makeTriangle = ({
 		bottom: [`0,0`, 'L', `${width},0`, 'L', `${width / 2},${height}`],
 		left: [`${width},0`, 'L', `${width},${height}`, 'L', `0,${height / 2}`],
 	};
-	return `M${points[direction].join(' ')}z`;
+	return `M ${points[direction].join(' ')} z`;
 };
