@@ -15,15 +15,26 @@ Generates Square SVG path
 
 An object with the following arguments:
 
-- `cx`: `number` - The x axis coordinate of the center of the circle
-- `cy`: `number` - The y axis coordinate of the center of the circle
-- `radius`: `number` - The radius of the circle. A value lower or equal to zero disables rendering of the circle
+- `x`: `number` `defaults: 50`- The x axis coordinate to start drawing the square
+- `y`: `number` `defaults: 50` - The y axis coordinate to start drawing the square
+- `size`: `number` - The size of the square inside the path
 
+
+
+Generate Square path
+
+```tsx twoslash
+import { makeSquare } from "@remotion/shapes";
+const square = makeSquare({x : 50, y : 50, size : 100});
+
+console.log(square); // M 50, 50 l 100, 0 l 0, 100 l -100, 0 Z
+
+```
 
 
 ## See also
 
-- [makeTriangle()](/docs/paths/make-triangle)
-- [makeCircle()](/docs/paths/make-circle)
-- [`@remotion/shapes`](/docs/paths)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/make-square.tsx)
+- [makeTriangle()](/docs/shapes/make-triangle)
+- [makeCircle()](/docs/shapes/make-circle)
+- [`@remotion/shapes`](/docs/shapes)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/make-square.tsx)

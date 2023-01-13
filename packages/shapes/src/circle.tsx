@@ -4,9 +4,6 @@ import {makeCircle} from './make-circle';
 export type CircleProps = React.SVGProps<SVGPathElement> & {
 	width: number;
 	height: number;
-	cx: number;
-	cy: number;
-	radius?: number;
 	fill?: string;
 	stroke?: string;
 	strokeWidth?: number;
@@ -16,10 +13,7 @@ export type CircleProps = React.SVGProps<SVGPathElement> & {
 export const Circle: React.FC<CircleProps> = ({
 	width,
 	height,
-	cx,
-	cy,
 	fill,
-	radius,
 	stroke,
 	strokeWidth,
 	style,
@@ -34,9 +28,9 @@ export const Circle: React.FC<CircleProps> = ({
 		>
 			<path
 				d={makeCircle({
-					cx,
-					cy,
-					radius,
+					cx: 50,
+					cy: 50,
+					radius: 50,
 				})}
 				fill={fill}
 				stroke={stroke}
