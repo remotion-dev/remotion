@@ -13,4 +13,3 @@ packages/example/out
 .turbo
 .vercel
 packages/renderer/target
-pnpm-lock.yaml
