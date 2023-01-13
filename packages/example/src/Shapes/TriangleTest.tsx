@@ -21,7 +21,6 @@ const TriangleTest: React.FC = () => {
 				height={100}
 				fill="red"
 				direction="left"
-				color="green"
 			/>
 
 			<Triangle
@@ -32,7 +31,6 @@ const TriangleTest: React.FC = () => {
 				height={100}
 				fill="red"
 				direction="right"
-				color="green"
 			/>
 			<Triangle
 				style={{
@@ -42,7 +40,6 @@ const TriangleTest: React.FC = () => {
 				height={100}
 				fill="red"
 				direction="top"
-				color="green"
 			/>
 			<Triangle
 				style={{
@@ -52,7 +49,6 @@ const TriangleTest: React.FC = () => {
 				height={100}
 				fill="red"
 				direction="bottom"
-				color="green"
 			/>
 		</AbsoluteFill>
 	);

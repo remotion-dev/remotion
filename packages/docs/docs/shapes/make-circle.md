@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-paths-make-circle.png
+image: /generated/articles-docs-shapes-make-circle.png
 title: makeCircle()
 crumb: "@remotion/shapes"
 ---
@@ -19,7 +19,7 @@ An object with the following arguments:
 - `radius`: `number` - The radius of the circle. A value lower or equal to zero disables rendering of the circle
 
 
-Generate Circle path
+Example Circle path generation
 
 ```tsx twoslash
 import { makeCircle } from "@remotion/shapes";
@@ -34,4 +34,4 @@ console.log(circlePath); // M 50 50 m -50, 0 a 50,50 0 1,0 100,0  50,50 0 1,0 -1
 - [makeTriangle()](/docs/shapes/make-triangle)
 - [makeSquare()](/docs/shapes/make-square)
 - [`@remotion/shapes`](/docs/shapes)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/make-triangle.tsx)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/make-triangle.ts)

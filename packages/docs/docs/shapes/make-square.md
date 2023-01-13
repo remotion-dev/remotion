@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-paths-make-square.png
+image: /generated/articles-docs-shapes-make-square.png
 title: makeSquare()
 crumb: "@remotion/shapes"
 ---
@@ -20,8 +20,7 @@ An object with the following arguments:
 - `size`: `number` - The size of the square inside the path
 
 
-
-Generate Square path
+Example Square path generation
 
 ```tsx twoslash
 import { makeSquare } from "@remotion/shapes";
@@ -37,4 +36,4 @@ console.log(square); // M 50, 50 l 100, 0 l 0, 100 l -100, 0 Z
 - [makeTriangle()](/docs/shapes/make-triangle)
 - [makeCircle()](/docs/shapes/make-circle)
 - [`@remotion/shapes`](/docs/shapes)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/make-square.tsx)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/make-square.ts)

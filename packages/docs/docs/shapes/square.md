@@ -13,19 +13,18 @@ Generate Square SVG component
 ### `options`
 An object with the following arguments:
 
-- `width`: `number` - The x axis coordinate of the center of the circle
-- `height`: `number` - The y axis coordinate of the center of the circle
-- `fill`: `string` `optional` - The radius of the circle. A value lower or equal to zero disables rendering of the circle
-- `stroke`: `number` - The x axis coordinate of the center of the circle
-- `strokeWidth`: `number` - The y axis coordinate of the center of the circle
-- `style`: `React.CSSProperties` - The radius of the circle. A value lower or equal to zero disables rendering of the circle
+- `width`: `number` - The width of the svg
+- `height`: `number` - The height of the svg
+- `size`: `number`  - The size of the square
+- `fill`: `string`  - The fill color
+- `style`: `React.CSSProperties` - The css styles applied to `svg` component
 
 
-Use Square SVG into Remotion
+Example Square SVG
 
 ```tsx twoslash
 
-import { Circle } from "@remotion/shapes";
+import { Square } from "@remotion/shapes";
 import { AbsoluteFill } from "remotion";
 
 export const MyComposition = () => {
@@ -37,13 +36,7 @@ export const MyComposition = () => {
           alignItems: "center",
         }}
       >
-       <Circle
-				width={100}
-				height={100}
-				fill="green"
-				stroke="red"
-				strokeWidth={1}
-			/>
+      	<Square width={200} height={200} size={100} fill="red" />
       </AbsoluteFill>
   );
 };
@@ -53,4 +46,4 @@ export const MyComposition = () => {
 - [makeTriangle()](/docs/shapes/make-triangle)
 - [makeSquare()](/docs/shapes/make-square)
 - [`@remotion/shapes`](/docs/shapes)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/make-triangle.tsx)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/square.tsx)
