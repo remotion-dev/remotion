@@ -7,7 +7,7 @@ mod save;
 mod video;
 use compositor::draw_layer;
 
-use payloads::payloads::{parse_command, CliInput};
+use payloads::payloads::{parse_command, CompositorCommand};
 use std::fs::File;
 use std::io::{self, Write};
 use std::sync::mpsc;
@@ -25,7 +25,7 @@ struct NewFrame {
     nonce: u32,
 }
 
-fn process_command_line(opts: CliInput, fps: u32) -> Option<Vec<u8>> {
+fn process_command_line(opts: CompositorCommand, fps: u32) -> Option<Vec<u8>> {
     let len: usize = match (opts.width * opts.height).try_into() {
         Ok(content) => content,
         Err(err) => errors::handle_error(&err),

@@ -59,7 +59,7 @@ export type CompositorImageFormat =
 	| 'Tiff'
 	| 'AddToH264';
 
-export type CliInput = {
+export type CompositorCommand = {
 	v: number;
 	output: string;
 	width: number;

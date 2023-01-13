@@ -1,11 +1,15 @@
 import {spawn} from 'child_process';
 import {truthy} from '../truthy';
 import {getExecutablePath} from './get-executable-path';
-import type {CliInput, ErrorPayload, TaskDonePayload} from './payloads';
+import type {
+	CompositorCommand,
+	ErrorPayload,
+	TaskDonePayload,
+} from './payloads';
 
 export type Compositor = {
 	finishCommands: () => void;
-	executeCommand: (payload: Omit<CliInput, 'nonce'>) => Promise<void>;
+	executeCommand: (payload: Omit<CompositorCommand, 'nonce'>) => Promise<void>;
 	waitForDone: () => Promise<void>;
 };
 
@@ -74,7 +78,7 @@ const startCompositor = (willH264Encode: boolean): Compositor => {
 			child.stdin.write('EOF\n');
 		},
 		executeCommand: (payload) => {
-			const actualPayload: CliInput = {
+			const actualPayload: CompositorCommand = {
 				...payload,
 				nonce,
 			};

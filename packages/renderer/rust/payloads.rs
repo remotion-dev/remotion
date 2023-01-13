@@ -78,7 +78,7 @@ pub mod payloads {
     }
 
     #[derive(Serialize, Deserialize, Debug)]
-    pub struct CliInput {
+    pub struct CompositorCommand {
         v: u8,
         pub nonce: u32,
         pub output: String,
@@ -88,8 +88,8 @@ pub mod payloads {
         pub output_format: ImageFormat,
     }
 
-    pub fn parse_command(json: &str) -> CliInput {
-        let cli_input: CliInput = match serde_json::from_str(json) {
+    pub fn parse_command(json: &str) -> CompositorCommand {
+        let cli_input: CompositorCommand = match serde_json::from_str(json) {
             Ok(content) => content,
             Err(err) => errors::handle_error(&err),
         };
