@@ -69,6 +69,13 @@ export type CompositorCommand = {
 	nonce: number;
 };
 
+export type CompositorInitiatePayload = {
+	create_h264_queue: boolean;
+	video_signals: Record<string, Record<number, number>>;
+	fps: number;
+	duration_in_frames: number;
+};
+
 export type ErrorPayload = {
 	error: string;
 	backtrace: string;

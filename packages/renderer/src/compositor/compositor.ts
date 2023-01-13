@@ -3,6 +3,7 @@ import {truthy} from '../truthy';
 import {getExecutablePath} from './get-executable-path';
 import type {
 	CompositorCommand,
+	CompositorInitiatePayload,
 	ErrorPayload,
 	TaskDonePayload,
 } from './payloads';
@@ -15,12 +16,15 @@ export type Compositor = {
 
 const compositorMap: Record<string, Compositor> = {};
 
-export const spawnCompositorOrReuse = (
-	willH264Encode: boolean,
-	renderId: string
-) => {
+export const spawnCompositorOrReuse = ({
+	initiatePayload,
+	renderId,
+}: {
+	initiatePayload: CompositorInitiatePayload;
+	renderId: string;
+}) => {
 	if (!compositorMap[renderId]) {
-		compositorMap[renderId] = startCompositor(willH264Encode);
+		compositorMap[renderId] = startCompositor(initiatePayload);
 	}
 
 	return compositorMap[renderId];
@@ -40,10 +44,12 @@ export const waitForCompositorWithIdToQuit = (renderId: string) => {
 	return compositorMap[renderId].waitForDone();
 };
 
-const startCompositor = (willH264Encode: boolean): Compositor => {
+const startCompositor = (
+	compositorInitiatePayload: CompositorInitiatePayload
+): Compositor => {
 	const bin = getExecutablePath();
 
-	const child = spawn(`${bin}`, [willH264Encode ? 'h264' : 'png']);
+	const child = spawn(`${bin}`, [JSON.stringify(compositorInitiatePayload)]);
 
 	const stderrChunks: Buffer[] = [];
 

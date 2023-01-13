@@ -15,7 +15,10 @@ import {
 	releaseCompositorWithId,
 	waitForCompositorWithIdToQuit,
 } from './compositor/compositor';
-import type {CompositorLayer} from './compositor/payloads';
+import type {
+	CompositorInitiatePayload,
+	CompositorLayer,
+} from './compositor/payloads';
 import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import type {FfmpegExecutable} from './ffmpeg-executable';
@@ -304,7 +307,13 @@ const innerRenderFrames = ({
 			.filter((l) => l?.layer !== null)
 			.map((l) => (l as {layer: CompositorLayer; assets: TAsset[]}).layer)
 	);
-	console.log({nativeVideoSignals});
+
+	const compositorInitiatePayload: CompositorInitiatePayload = {
+		create_h264_queue: false,
+		duration_in_frames: composition.durationInFrames,
+		fps: composition.fps,
+		video_signals: nativeVideoSignals,
+	};
 
 	const progress = Promise.all(
 		framesToRender.map(async (frame, index) => {
@@ -465,7 +474,7 @@ const innerRenderFrames = ({
 				),
 				renderId: downloadMap.id,
 				width: comp.width,
-				willH264Encode: false,
+				compositorInitiatePayload,
 			});
 			onFrameUpdate(++framesRendered.frames, index, Date.now() - startTime);
 		})

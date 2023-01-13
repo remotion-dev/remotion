@@ -97,7 +97,12 @@ export const renderOnServer = async (
 				],
 				output: out,
 				renderId,
-				willH264Encode: true,
+				compositorInitiatePayload: {
+					create_h264_queue: true,
+					duration_in_frames: 300,
+					fps: 30,
+					video_signals: {},
+				},
 			});
 
 			pool.release(frame);

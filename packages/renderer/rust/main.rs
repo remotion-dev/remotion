@@ -17,6 +17,7 @@ use threadpool::ThreadPool;
 use x264::{Encoder, Param, Picture};
 
 use crate::finish::handle_finish;
+use crate::payloads::payloads::parse_init_command;
 
 extern crate png;
 
@@ -69,14 +70,12 @@ fn process_command_line(opts: CompositorCommand, fps: u32) -> Option<Vec<u8>> {
 fn main() -> Result<(), std::io::Error> {
     const WIDTH: usize = 1920;
     const HEIGHT: usize = 1080;
-    const FPS: u32 = 30;
 
     let args = env::args();
+
     let first_arg = args.skip(1).next();
-    let should_create_h264_queue = match first_arg {
-        Some(arg) => arg == "h264",
-        None => false,
-    };
+
+    let config = parse_init_command(&first_arg.unwrap());
 
     // Initialize things.
 
@@ -121,7 +120,7 @@ fn main() -> Result<(), std::io::Error> {
             // Process the message here
             let command = parse_command(&message);
             let nonce = command.nonce;
-            let data = process_command_line(command, FPS);
+            let data = process_command_line(command, config.fps);
             match data {
                 Some(d) => {
                     let rgb = colorspaces::rgba8_to_rgb8(d, WIDTH, HEIGHT);
@@ -137,7 +136,7 @@ fn main() -> Result<(), std::io::Error> {
         });
     });
 
-    if should_create_h264_queue {
+    if config.create_h264_queue {
         let mut par = Param::default_preset("medium", "zerolatency").unwrap();
 
         par = par.set_dimension(HEIGHT, WIDTH);
@@ -145,7 +144,7 @@ fn main() -> Result<(), std::io::Error> {
         par = par.param_parse("repeat_headers", "1").unwrap();
         par = par.param_parse("annexb", "1").unwrap();
 
-        par.par.i_fps_num = FPS;
+        par.par.i_fps_num = config.fps;
         par.par.i_fps_den = 1;
         par.par.i_log_level = 0;
 

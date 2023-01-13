@@ -2,7 +2,11 @@ import {createHash} from 'crypto';
 import {copyFile} from 'fs/promises';
 import type {DownloadMap} from '../assets/download-map';
 import {spawnCompositorOrReuse} from './compositor';
-import type {CompositorImageFormat, CompositorLayer} from './payloads';
+import type {
+	CompositorImageFormat,
+	CompositorInitiatePayload,
+	CompositorLayer,
+} from './payloads';
 
 type CompositorInput = {
 	height: number;
@@ -23,12 +27,12 @@ export const compose = async ({
 	downloadMap,
 	imageFormat,
 	renderId,
-	willH264Encode,
+	compositorInitiatePayload,
 }: CompositorInput & {
 	downloadMap: DownloadMap;
 	output: string;
 	renderId: string;
-	willH264Encode: boolean;
+	compositorInitiatePayload: CompositorInitiatePayload;
 }) => {
 	const hash = getCompositorHash({height, width, layers, imageFormat});
 
@@ -37,7 +41,10 @@ export const compose = async ({
 		return;
 	}
 
-	const compositor = spawnCompositorOrReuse(willH264Encode, renderId);
+	const compositor = spawnCompositorOrReuse({
+		initiatePayload: compositorInitiatePayload,
+		renderId,
+	});
 
 	await compositor.executeCommand({
 		v: 1,

@@ -17,7 +17,12 @@ test('Should handle the overlay', async () => {
 			output: 'test.mp4',
 			downloadMap: RenderInternals.makeDownloadMap(),
 			imageFormat: 'Png',
-			willH264Encode: false,
+			compositorInitiatePayload: {
+				create_h264_queue: false,
+				duration_in_frames: 300,
+				fps: 30,
+				video_signals: {},
+			},
 			renderId: 'abc',
 		});
 

@@ -4,8 +4,18 @@ extern crate serde;
 extern crate serde_json;
 
 pub mod payloads {
+    use std::collections::HashMap;
+
     use crate::errors;
     use serde::{Deserialize, Serialize};
+
+    #[derive(Serialize, Deserialize, Debug)]
+    pub struct CompositorInitiateCommand {
+        pub fps: u32,
+        pub duration_in_frames: u32,
+        pub create_h264_queue: bool,
+        pub video_signals: HashMap<String, HashMap<u16, u8>>,
+    }
 
     #[derive(Serialize, Deserialize, Debug)]
     pub struct SvgLayer {
@@ -90,6 +100,15 @@ pub mod payloads {
 
     pub fn parse_command(json: &str) -> CompositorCommand {
         let cli_input: CompositorCommand = match serde_json::from_str(json) {
+            Ok(content) => content,
+            Err(err) => errors::handle_error(&err),
+        };
+
+        return cli_input;
+    }
+
+    pub fn parse_init_command(json: &str) -> CompositorInitiateCommand {
+        let cli_input: CompositorInitiateCommand = match serde_json::from_str(json) {
             Ok(content) => content,
             Err(err) => errors::handle_error(&err),
         };
