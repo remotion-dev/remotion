@@ -1,6 +1,6 @@
 import {Circle} from '@remotion/shapes';
 import React from 'react';
-import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill} from 'remotion';
 
 const CircleTest: React.FC = () => {
 	return (
