@@ -41,7 +41,7 @@ The amount of cores inside a Lambda is dependent on the amount of memory you giv
 | 7077 - 8845 MB | 5     |
 | 8846+ MB       | 6     |
 
-You can render multiple frames at once inside a Lambda function by using the [`concurrencyPerLambda`](/docs/lambda/rendermediaonlambda#concurrencyperlambda) option
+You can render multiple frames at once inside a Lambda function by using the [`concurrencyPerLambda`](/docs/lambda/rendermediaonlambda#concurrencyperlambda) option.
 
 ## Chromium
 
