@@ -4,7 +4,7 @@ title: makeSquare()
 crumb: "@remotion/shapes"
 ---
 
-_Part of the [` @remotion/shapes`](/docs/paths) package._
+_Part of the [` @remotion/shapes`](/docs/shapes) package._
 
 
 Generates Square SVG path
