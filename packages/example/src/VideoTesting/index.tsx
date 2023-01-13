@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+	Loop,
 	NativeVideo,
 	OffthreadVideo,
 	Sequence,
@@ -28,5 +29,11 @@ export const VideoTesting: React.FC<{
 };
 
 export const NativeVideoLayerTest: React.FC = () => {
-	return <NativeVideo src={staticFile('framer.webm')} />;
+	return (
+		<Loop durationInFrames={30} layout="none">
+			<Sequence from={-250} layout="none">
+				<NativeVideo src={staticFile('framer.webm')} />
+			</Sequence>
+		</Loop>
+	);
 };

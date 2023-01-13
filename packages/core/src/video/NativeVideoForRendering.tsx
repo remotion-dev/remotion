@@ -3,7 +3,7 @@ import {useCurrentFrame} from '../use-current-frame';
 
 export type NativeVideoLayerInfo = {
 	src: string;
-	frame: string;
+	frame: number;
 };
 
 export const NativeVideoForRendering: React.FC<{

@@ -282,7 +282,7 @@ const innerRenderFrames = ({
 							? {
 									type: 'VideoFrame',
 									params: {
-										frame: f,
+										frame: str.frame,
 										height: comp.height,
 										src: path.join(publicFolder, str.src),
 										width: comp.width,
