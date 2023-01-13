@@ -4,7 +4,6 @@ import {makeTriangle} from './make-triangle';
 export type TriangleProps = {
 	width: number;
 	height: number;
-	color: string;
 	fill?: string;
 	direction: 'right' | 'left' | 'top' | 'bottom';
 	style?: React.CSSProperties;

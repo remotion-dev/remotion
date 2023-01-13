@@ -13,19 +13,18 @@ Generate Triangle SVG component
 ### `options`
 An object with the following arguments:
 
-- `width`: `number` - The x axis coordinate of the center of the circle
-- `height`: `number` - The y axis coordinate of the center of the circle
-- `fill`: `string` `optional` - The radius of the circle. A value lower or equal to zero disables rendering of the circle
-- `stroke`: `number` - The x axis coordinate of the center of the circle
-- `strokeWidth`: `number` - The y axis coordinate of the center of the circle
+- `width`: `number` - The width of the triangle
+- `height`: `number` - he height of the triangle
+- `fill`: `string` `optional` - The fill color 
+- `direction`: `string`  - The identifier what kind of rectangle, possible values `left`, `right`, `top` and `bottom`
 - `style`: `React.CSSProperties` - The radius of the circle. A value lower or equal to zero disables rendering of the circle
 
 
-Use Triangle SVG into Remotion
+Example Triangle SVG
 
 ```tsx twoslash
 
-import { Circle } from "@remotion/shapes";
+import { Triangle } from "@remotion/shapes";
 import { AbsoluteFill } from "remotion";
 
 export const MyComposition = () => {
@@ -37,13 +36,12 @@ export const MyComposition = () => {
           alignItems: "center",
         }}
       >
-       <Circle
-				width={100}
-				height={100}
-				fill="green"
-				stroke="red"
-				strokeWidth={1}
-			/>
+       	<Triangle
+          width={100}
+          height={100}
+          fill="red"
+          direction="left"
+          />
       </AbsoluteFill>
   );
 };
@@ -51,4 +49,4 @@ export const MyComposition = () => {
 
 ## See also
 - [makeTriangle()](/docs/shapes/make-triangle)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/make-triangle.tsx)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/triangle.tsx)

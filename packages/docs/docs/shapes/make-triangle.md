@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-paths-make-triangle.png
+image: /generated/articles-docs-shapes-make-triangle.png
 title: makeTriangle()
 crumb: "@remotion/shapes"
 ---
@@ -20,7 +20,8 @@ An object with the following arguments:
 - `height`: `number` - The height of the triangle.
 - `direction`: `string`  - The identifier what kind of rectangle, possible values `left`, `right`, `top` and `bottom`
 
-Generate Right Triangle string path
+
+Example Triangle path generation
 
 ```tsx twoslash
 import { makeTriangle } from "@remotion/shapes";
@@ -41,4 +42,4 @@ Source code stems mostly from [triangle](https://stackblitz.com/edit/react-trian
 - [makeCircle()](/docs/shapes/make-circle)
 - [makeSquare()](/docs/shapes/make-square)
 - [`@remotion/shapes`](/docs/shapes)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/make-triangle.tsx)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/make-triangle.ts)
