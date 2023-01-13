@@ -14,6 +14,7 @@ use std::sync::mpsc;
 use std::time::Instant;
 use std::{env, thread};
 use threadpool::ThreadPool;
+use video::initialize_videos;
 use x264::{Encoder, Param, Picture};
 
 use crate::finish::handle_finish;
@@ -75,6 +76,8 @@ fn main() -> Result<(), std::io::Error> {
     let config = parse_init_command(&first_arg.unwrap());
 
     // Initialize things.
+
+    initialize_videos(config.video_signals);
 
     // TODO: Dimensions and FPS via
 
