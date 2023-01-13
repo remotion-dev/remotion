@@ -26,7 +26,7 @@ export const Square: React.FC<SquareProps> = ({
 		>
 			<path
 				d={makeSquare({
-					size: size,
+					size,
 				})}
 				fill={fill}
 			/>
