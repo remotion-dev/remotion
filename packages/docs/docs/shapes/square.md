@@ -46,4 +46,4 @@ export const MyComposition = () => {
 - [makeTriangle()](/docs/shapes/make-triangle)
 - [makeSquare()](/docs/shapes/make-square)
 - [`@remotion/shapes`](/docs/shapes)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/square.tsx)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/square.tsx)
