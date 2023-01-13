@@ -1,5 +1,5 @@
 import type {Codec, FfmpegExecutable} from '@remotion/renderer';
-import {combineVideos, RenderInternals} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import fs, {createWriteStream, promises} from 'fs';
 import path, {join} from 'path';
 import type {AwsRegion} from '../../pricing/aws-regions';
@@ -200,7 +200,7 @@ export const concatVideosS3 = async ({
 	const filelistDir = RenderInternals.tmpDir(REMOTION_FILELIST_TOKEN);
 	const codecForCombining: Codec = codec === 'h264-mkv' ? 'h264' : codec;
 
-	await combineVideos({
+	await RenderInternals.combineVideos({
 		files,
 		filelistDir,
 		output: outfile,
