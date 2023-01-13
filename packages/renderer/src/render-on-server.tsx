@@ -102,6 +102,8 @@ export const renderOnServer = async (
 					duration_in_frames: 300,
 					fps: 30,
 					video_signals: {},
+					height: composition.height,
+					width: composition.width,
 				},
 			});
 

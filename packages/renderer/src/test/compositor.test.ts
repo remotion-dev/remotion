@@ -22,6 +22,8 @@ test('Should handle the overlay', async () => {
 				duration_in_frames: 300,
 				fps: 30,
 				video_signals: {},
+				height: 1080,
+				width: 1080,
 			},
 			renderId: 'abc',
 		});

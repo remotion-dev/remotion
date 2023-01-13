@@ -68,9 +68,6 @@ fn process_command_line(opts: CompositorCommand, fps: u32) -> Option<Vec<u8>> {
 }
 
 fn main() -> Result<(), std::io::Error> {
-    const WIDTH: usize = 1920;
-    const HEIGHT: usize = 1080;
-
     let args = env::args();
 
     let first_arg = args.skip(1).next();
@@ -123,7 +120,11 @@ fn main() -> Result<(), std::io::Error> {
             let data = process_command_line(command, config.fps);
             match data {
                 Some(d) => {
-                    let rgb = colorspaces::rgba8_to_rgb8(d, WIDTH, HEIGHT);
+                    let rgb = colorspaces::rgba8_to_rgb8(
+                        d,
+                        config.width as usize,
+                        config.height as usize,
+                    );
                     match sender.send(NewFrame { data: rgb, nonce }) {
                         Ok(_) => {}
                         Err(err) => errors::handle_error(&err),
@@ -139,7 +140,7 @@ fn main() -> Result<(), std::io::Error> {
     if config.create_h264_queue {
         let mut par = Param::default_preset("medium", "zerolatency").unwrap();
 
-        par = par.set_dimension(HEIGHT, WIDTH);
+        par = par.set_dimension(config.height as usize, config.width as usize);
         par = par.apply_profile("high").unwrap();
         par = par.param_parse("repeat_headers", "1").unwrap();
         par = par.param_parse("annexb", "1").unwrap();
@@ -161,7 +162,7 @@ fn main() -> Result<(), std::io::Error> {
         let mut next_frame = 0;
         let mut frames_found: Vec<NewFrame> = Vec::new();
         loop {
-            if next_frame == 300 {
+            if next_frame == config.duration_in_frames {
                 break;
             }
             let frame = match rx.recv() {
@@ -177,7 +178,11 @@ fn main() -> Result<(), std::io::Error> {
                 let index = frames_found.iter().position(|x| x.nonce == next_frame);
                 match index {
                     Some(f) => {
-                        let frame = to_i420(&frames_found[f].data, WIDTH, HEIGHT);
+                        let frame = to_i420(
+                            &frames_found[f].data,
+                            config.width as usize,
+                            config.height as usize,
+                        );
 
                         pic.as_mut_slice(0).unwrap().copy_from_slice(&frame.0);
                         pic.as_mut_slice(1).unwrap().copy_from_slice(&frame.1);

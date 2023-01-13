@@ -74,6 +74,8 @@ export type CompositorInitiatePayload = {
 	video_signals: Record<string, Record<number, number>>;
 	fps: number;
 	duration_in_frames: number;
+	width: number;
+	height: number;
 };
 
 export type ErrorPayload = {

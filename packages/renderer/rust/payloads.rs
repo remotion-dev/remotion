@@ -13,6 +13,8 @@ pub mod payloads {
     pub struct CompositorInitiateCommand {
         pub fps: u32,
         pub duration_in_frames: u32,
+        pub width: u32,
+        pub height: u32,
         pub create_h264_queue: bool,
         pub video_signals: HashMap<String, HashMap<u16, u8>>,
     }

@@ -313,6 +313,8 @@ const innerRenderFrames = ({
 		duration_in_frames: composition.durationInFrames,
 		fps: composition.fps,
 		video_signals: nativeVideoSignals,
+		height: composition.height,
+		width: composition.width,
 	};
 
 	const progress = Promise.all(
