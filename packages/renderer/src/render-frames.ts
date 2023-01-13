@@ -30,6 +30,7 @@ import {
 	getFrameOutputFileName,
 } from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
+import {getNativeVideoSignals} from './get-video-signals';
 import type {ImageFormat} from './image-format';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import type {ServeUrl, ServeUrlOrWebpackBundle} from './legacy-webpack-config';
@@ -262,6 +263,49 @@ const innerRenderFrames = ({
 		(c) => c.id === composition.id
 	) as TCompMetadata;
 
+	const precomputeLayers = framesToRender.map((f) => {
+		return composition.layers.map(
+			(l, i): {layer: CompositorLayer | null; assets: TAsset[]} | null => {
+				if (l.type === 'video') {
+					const str = renderVideoLayer({
+						composition: comp,
+						Comp: root,
+						frame: f,
+						layer: i,
+					});
+
+					return {
+						layer: str
+							? {
+									type: 'VideoFrame',
+									params: {
+										frame: f,
+										height: comp.height,
+										src: path.join(publicFolder, str.src),
+										width: comp.width,
+										x: 0,
+										y: 0,
+									},
+							  }
+							: null,
+						assets: [],
+					};
+				}
+
+				return null;
+			}
+		);
+	});
+
+	const nativeVideoSignals = getNativeVideoSignals(
+		precomputeLayers
+			.flat(1)
+			.filter((l) => l !== null)
+			.filter((l) => l?.layer !== null)
+			.map((l) => (l as {layer: CompositorLayer; assets: TAsset[]}).layer)
+	);
+	console.log({nativeVideoSignals});
+
 	const progress = Promise.all(
 		framesToRender.map(async (frame, index) => {
 			const startTime = Date.now();
@@ -272,33 +316,12 @@ const innerRenderFrames = ({
 						i
 					): Promise<{layer: CompositorLayer | null; assets: TAsset[]}> => {
 						if (l.type === 'video') {
-							const str = renderVideoLayer({
-								composition: comp,
-								Comp: root,
-								frame,
-								layer: i,
-							});
-							if (!str) {
-								throw new Error('did not get str yet');
+							const precomputed = precomputeLayers[frame][i];
+							if (!precomputed) {
+								throw new Error('Expected video layer to be precomputer');
 							}
 
-							const absolute = path.join(publicFolder, str.src);
-
-							return Promise.resolve({
-								layer: {
-									type: 'VideoFrame',
-									params: {
-										frame,
-										height: comp.height,
-										src: absolute,
-										width: comp.width,
-										x: 0,
-										y: 0,
-									},
-								},
-								// TODO: A video frame can also have assets!
-								assets: [],
-							});
+							return precomputed;
 						}
 
 						if (l.type === 'svg') {
