@@ -113,7 +113,9 @@ const startCompositor = (willH264Encode: boolean): Compositor => {
 							if (p.msg_type === 'finish') {
 								parsed = p;
 							}
-						} catch (e) {}
+						} catch (e) {
+							console.log({line});
+						}
 
 						if (parsed && parsed.nonce === actualPayload.nonce) {
 							resolve();

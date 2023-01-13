@@ -13,7 +13,7 @@ fn main() -> Result<(), ffmpeg::Error> {
     ffmpeg::init().unwrap();
 
     if let Ok(mut ictx) = input(&env::args().nth(1).expect("Cannot open file.")) {
-        let position = 159 * 1000000;
+        let position = 1 * 1000;
         println!("position: {}", position);
         ictx.seek(position, ..position).unwrap();
 
