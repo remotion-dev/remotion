@@ -14,15 +14,19 @@ use crate::payloads::payloads::VideoLayer;
 pub fn get_video_frame(layer: VideoLayer, video_fps: u32) -> Result<Vec<u8>, std::io::Error> {
     ffmpeg::init().unwrap();
     let time: f64 = (layer.frame as f64) / (video_fps as f64);
-    let position = (time * 1000000.0) as i64;
 
+    // TODO: Improve so only needs to open once
+    let mut stream_input = ffmpeg::format::input(&layer.src)?;
     let mut input = ffmpeg::format::input(&layer.src)?;
-    input.seek(position, ..position)?;
 
-    let stream = input
-        .streams()
-        .best(Type::Video)
+    let stream = stream_input
+        .streams_mut()
+        .find(|s| s.parameters().medium() == Type::Video)
         .ok_or(ffmpeg::Error::StreamNotFound)?;
+    let time_base = stream.time_base();
+    let position = (time * time_base.1 as f64 / time_base.0 as f64) as i64;
+
+    input.seek(position, ..position)?;
 
     let stream_index = stream.index();
     let context_decoder = ffmpeg::codec::context::Context::from_parameters(stream.parameters())?;
@@ -55,10 +59,13 @@ pub fn get_video_frame(layer: VideoLayer, video_fps: u32) -> Result<Vec<u8>, std
 
     for (stream, packet) in input.packets() {
         if stream.index() == stream_index {
+            // -1 because uf 67 and we want to process 66.66 -> rounding error
+            if (packet.dts().unwrap() - 1) > position {
+                break;
+            }
             decoder.send_packet(&packet)?;
             let rgb_frame = process_frame(&mut decoder)?;
             frame = rgb_frame;
-            break;
         }
     }
 
