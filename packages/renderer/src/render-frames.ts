@@ -3,6 +3,7 @@ import path from 'path';
 import type {SmallTCompMetadata, TAsset, TCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import {makeDownloadMap} from './assets/download-map';
 import type {BrowserExecutable} from './browser-executable';
@@ -15,6 +16,7 @@ import {
 	waitForCompositorWithIdToQuit,
 } from './compositor/compositor';
 import type {CompositorLayer} from './compositor/payloads';
+import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {findRemotionRoot} from './find-closest-package-json';
@@ -146,11 +148,9 @@ const innerRenderFrames = ({
 	quality,
 	imageFormat = DEFAULT_IMAGE_FORMAT,
 	frameRange,
-	onError,
 	envVariables,
 	onBrowserLog,
 	onFrameBuffer,
-	onDownload,
 	pagesArray,
 	serveUrl,
 	composition,
@@ -168,6 +168,8 @@ const innerRenderFrames = ({
 	dumpBrowserLogs,
 	webServeUrl,
 	publicFolder,
+	onDownload,
+	onError,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload' | 'puppeteerInstance'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -263,9 +265,12 @@ const innerRenderFrames = ({
 	const progress = Promise.all(
 		framesToRender.map(async (frame, index) => {
 			const startTime = Date.now();
-			const layers = await Promise.all(
+			const layersAndAssets = await Promise.all(
 				composition.layers.map(
-					async (l, i): Promise<CompositorLayer | null> => {
+					async (
+						l,
+						i
+					): Promise<{layer: CompositorLayer | null; assets: TAsset[]}> => {
 						if (l.type === 'video') {
 							const str = renderVideoLayer({
 								composition: comp,
@@ -280,15 +285,19 @@ const innerRenderFrames = ({
 							const absolute = path.join(publicFolder, str.src);
 
 							return Promise.resolve({
-								type: 'VideoFrame',
-								params: {
-									frame,
-									height: comp.height,
-									src: absolute,
-									width: comp.width,
-									x: 0,
-									y: 0,
+								layer: {
+									type: 'VideoFrame',
+									params: {
+										frame,
+										height: comp.height,
+										src: absolute,
+										width: comp.width,
+										x: 0,
+										y: 0,
+									},
 								},
+								// TODO: A video frame can also have assets!
+								assets: [],
 							});
 						}
 
@@ -301,13 +310,16 @@ const innerRenderFrames = ({
 							});
 
 							return Promise.resolve({
-								type: 'SvgImage',
-								params: {
-									height: comp.height,
-									markup: svg,
-									width: comp.width,
-									x: 0,
-									y: 0,
+								assets: [],
+								layer: {
+									type: 'SvgImage',
+									params: {
+										height: comp.height,
+										markup: svg,
+										width: comp.width,
+										x: 0,
+										y: 0,
+									},
 								},
 							});
 						}
@@ -329,7 +341,11 @@ const innerRenderFrames = ({
 										totalFrames: framesToRender.length,
 									})
 							);
-							const {layer, buffer} = await renderWebFrameAndRetryTargetClose({
+							const {
+								layer,
+								buffer,
+								assets: newAssets,
+							} = await renderWebFrameAndRetryTargetClose({
 								frame,
 								index,
 								retriesLeft: MAX_RETRIES_PER_FRAME,
@@ -337,7 +353,6 @@ const innerRenderFrames = ({
 								poolPromise,
 								countType,
 								actualConcurrency,
-								assets,
 								browserReplacer,
 								composition,
 								downloadMap,
@@ -353,8 +368,6 @@ const innerRenderFrames = ({
 								inputProps,
 								lastFrame,
 								muted: muted ?? false,
-								onDownload,
-								onError,
 								pagesArray,
 								proxyPort,
 								realFrameRange,
@@ -387,7 +400,7 @@ const innerRenderFrames = ({
 								newLayer.params.src = output;
 							}
 
-							return newLayer;
+							return {layer: newLayer, assets: newAssets};
 						}
 
 						throw new Error('unknown layer type');
@@ -395,11 +408,27 @@ const innerRenderFrames = ({
 				)
 			);
 
+			const collectedAssets = assets.filter(truthy).flat(1);
+			const compressedAssets = collectedAssets.map((asset) =>
+				compressAsset(assets.filter(truthy).flat(1), asset)
+			);
+			assets[index] = compressedAssets;
+			compressedAssets.forEach((asset) => {
+				downloadAndMapAssetsToFileUrl({
+					asset,
+					onDownload,
+					downloadMap,
+				}).catch((err) => {
+					onError(
+						new Error(`Error while downloading asset: ${(err as Error).stack}`)
+					);
+				});
+			});
 			await compose({
 				downloadMap,
 				height: comp.height,
 				imageFormat: imageFormat === 'png' ? 'Png' : 'Jpeg',
-				layers: layers.filter(truthy),
+				layers: layersAndAssets.map((l) => l.layer).filter(truthy),
 				output: path.join(
 					outputDir ?? downloadMap.compositingDir,
 					getFrameOutputFileName({

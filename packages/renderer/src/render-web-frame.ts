@@ -1,7 +1,5 @@
 import path from 'path';
 import type {ClipRegion, SmallTCompMetadata, TAsset} from 'remotion';
-import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
@@ -9,7 +7,6 @@ import type {BrowserLog} from './browser-log';
 import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
 import type {CompositorLayer} from './compositor/payloads';
-import {compressAsset} from './compress-assets';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import type {CountType} from './get-frame-padded-index';
 import type {ServeUrl} from './legacy-webpack-config';
@@ -23,7 +20,6 @@ import type {BrowserReplacer} from './replace-browser';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {takeFrame} from './take-frame-and-compose';
-import {truthy} from './truthy';
 
 const renderFrameWithOptionToReject = async ({
 	frame,
@@ -36,10 +32,7 @@ const renderFrameWithOptionToReject = async ({
 	imageFormat,
 	downloadMap,
 	scale,
-	assets,
 	quality,
-	onDownload,
-	onError,
 }: {
 	frame: number;
 	index: number;
@@ -51,11 +44,12 @@ const renderFrameWithOptionToReject = async ({
 	imageFormat: 'png' | 'jpeg' | 'none';
 	downloadMap: DownloadMap;
 	scale: number;
-	assets: TAsset[][];
 	quality: number | undefined;
-	onDownload: RenderMediaOnDownload;
-	onError: (err: Error) => void;
-}): Promise<{layer: CompositorLayer | null; buffer: Buffer | null}> => {
+}): Promise<{
+	layer: CompositorLayer | null;
+	buffer: Buffer | null;
+	assets: TAsset[];
+}> => {
 	const pool = await poolPromise;
 	const freePage = await pool.acquire();
 
@@ -130,26 +124,11 @@ const renderFrameWithOptionToReject = async ({
 
 	stopPerfMeasure(id);
 
-	const compressedAssets = collectedAssets.map((asset) =>
-		compressAsset(assets.filter(truthy).flat(1), asset)
-	);
-	assets[index] = compressedAssets;
-	compressedAssets.forEach((asset) => {
-		downloadAndMapAssetsToFileUrl({
-			asset,
-			onDownload,
-			downloadMap,
-		}).catch((err) => {
-			onError(
-				new Error(`Error while downloading asset: ${(err as Error).stack}`)
-			);
-		});
-	});
 	cleanupPageError();
 	freePage.off('error', errorCallbackOnFrame);
 	pool.release(freePage);
 
-	return {layer: compositionLayer, buffer};
+	return {layer: compositionLayer, buffer, assets: collectedAssets};
 };
 
 const renderWebFrame = ({
@@ -160,11 +139,8 @@ const renderWebFrame = ({
 	poolPromise,
 	stopState,
 	composition,
-	assets,
 	scale,
 	quality,
-	onDownload,
-	onError,
 }: {
 	frame: number;
 	index: number;
@@ -175,38 +151,34 @@ const renderWebFrame = ({
 		isStopped: boolean;
 	};
 	composition: SmallTCompMetadata;
-	assets: TAsset[][];
 	scale: number;
 	quality: number | undefined;
-	onDownload: RenderMediaOnDownload;
-	onError: (err: Error) => void;
 }) => {
-	return new Promise<{layer: CompositorLayer | null; buffer: Buffer | null}>(
-		(resolve, reject) => {
-			renderFrameWithOptionToReject({
-				frame,
-				index,
-				reject,
-				width: composition.width,
-				height: composition.height,
-				downloadMap,
-				imageFormat,
-				poolPromise,
-				stopState,
-				assets,
-				scale,
-				quality,
-				onDownload,
-				onError,
+	return new Promise<{
+		layer: CompositorLayer | null;
+		buffer: Buffer | null;
+		assets: TAsset[];
+	}>((resolve, reject) => {
+		renderFrameWithOptionToReject({
+			frame,
+			index,
+			reject,
+			width: composition.width,
+			height: composition.height,
+			downloadMap,
+			imageFormat,
+			poolPromise,
+			stopState,
+			scale,
+			quality,
+		})
+			.then((res) => {
+				resolve(res);
 			})
-				.then((res) => {
-					resolve(res);
-				})
-				.catch((err) => {
-					reject(err);
-				});
-		}
-	);
+			.catch((err) => {
+				reject(err);
+			});
+	});
 };
 
 export const renderWebFrameAndRetryTargetClose = async ({
@@ -223,7 +195,6 @@ export const renderWebFrameAndRetryTargetClose = async ({
 	onFrameBuffer,
 	outputDir,
 	stopState,
-	assets,
 	countType,
 	scale,
 	quality,
@@ -242,8 +213,6 @@ export const renderWebFrameAndRetryTargetClose = async ({
 	realFrameRange,
 	serveUrl,
 	timeoutInMilliseconds,
-	onDownload,
-	onError,
 }: {
 	frame: number;
 	index: number;
@@ -260,7 +229,6 @@ export const renderWebFrameAndRetryTargetClose = async ({
 	stopState: {
 		isStopped: boolean;
 	};
-	assets: TAsset[][];
 	countType: CountType;
 	scale: number;
 	quality: number | undefined;
@@ -281,9 +249,11 @@ export const renderWebFrameAndRetryTargetClose = async ({
 	realFrameRange: [number, number];
 	serveUrl: ServeUrl;
 	timeoutInMilliseconds: number;
-	onDownload: RenderMediaOnDownload;
-	onError: (err: Error) => void;
-}): Promise<{layer: CompositorLayer | null; buffer: Buffer | null}> => {
+}): Promise<{
+	layer: CompositorLayer | null;
+	buffer: Buffer | null;
+	assets: TAsset[];
+}> => {
 	try {
 		const returnval = await renderWebFrame({
 			frame,
@@ -293,11 +263,8 @@ export const renderWebFrameAndRetryTargetClose = async ({
 			downloadMap,
 			imageFormat,
 			stopState,
-			assets,
 			scale,
 			quality,
-			onDownload,
-			onError,
 		});
 
 		return returnval;
@@ -375,7 +342,6 @@ export const renderWebFrameAndRetryTargetClose = async ({
 			outputDir,
 			poolPromise,
 			stopState,
-			assets,
 			countType,
 			scale,
 			quality,
@@ -394,8 +360,6 @@ export const renderWebFrameAndRetryTargetClose = async ({
 			realFrameRange,
 			serveUrl,
 			timeoutInMilliseconds,
-			onDownload,
-			onError,
 		});
 
 		return fram;
