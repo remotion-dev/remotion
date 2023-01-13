@@ -15,10 +15,20 @@ Generates Triangle SVG path
 
 An object with the following arguments:
 
-- `audioData`: `AudioData` - information about the audio. Use [`getAudioData()`](/docs/get-audio-data) to fetch it.
-- `startTimeInSeconds`: `number` - trim the waveform to exclude all data before `startTimeInSeconds`.
-- `durationInSeconds`: `number` - trim the waveform to exclude all data after `startTimeInSeconds + durationInSeconds`.
-- `numberOfSamples`: `number` - how big you want the result array to be. The function will compress the waveform to fit in `numberOfSamples` data points.
+
+- `width`: `number` - The width of the triangle
+- `height`: `number` - The height of the triangle.
+- `direction`: `string`  - The identifier what kind of rectangle, possible values `left`, `right`, `top` and `bottom`
+
+Generate Right Triangle string path
+
+```tsx twoslash
+import { makeTriangle } from "@remotion/shapes";
+const rightTriangle = makeTriangle({width : 100, height : 100, direction : 'right'});
+
+console.log(rightTriangle); // M 100,0 L 100,100 L 0,50 z
+
+```
 
 
 
@@ -28,7 +38,7 @@ Source code stems mostly from [triangle](https://stackblitz.com/edit/react-trian
 
 ## See also
 
-- [makeCircle()](/docs/paths/make-circle)
-- [makeSquare()](/docs/paths/make-square)
-- [`@remotion/shapes`](/docs/paths)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/make-triangle.tsx)
+- [makeCircle()](/docs/shapes/make-circle)
+- [makeSquare()](/docs/shapes/make-square)
+- [`@remotion/shapes`](/docs/shapes)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/make-triangle.tsx)

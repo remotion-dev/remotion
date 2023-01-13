@@ -25,11 +25,8 @@ const CircleTest: React.FC = () => {
 			<Circle
 				width={100}
 				height={100}
-				cx={50}
-				cy={50}
-				radius={50}
 				fill="green"
-				stroke="green"
+				stroke="red"
 				strokeWidth={1}
 			/>
 		</AbsoluteFill>
