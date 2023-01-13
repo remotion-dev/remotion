@@ -123,9 +123,7 @@ const startCompositor = (
 							if (p.msg_type === 'finish') {
 								parsed = p;
 							}
-						} catch (e) {
-							console.log({line});
-						}
+						} catch (e) {}
 
 						if (parsed && parsed.nonce === actualPayload.nonce) {
 							resolve();

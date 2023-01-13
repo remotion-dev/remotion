@@ -7,7 +7,6 @@ mod save;
 mod video;
 use compositor::draw_layer;
 
-use ffmpeg_next::frame;
 use payloads::payloads::{parse_command, CompositorCommand};
 use std::fs::File;
 use std::io::{self, Write};
@@ -15,7 +14,7 @@ use std::sync::mpsc;
 use std::time::Instant;
 use std::{env, thread};
 use threadpool::ThreadPool;
-use video::FfmpegFrameProvider;
+use video::process_frames;
 use x264::{Encoder, Param, Picture};
 
 use crate::finish::handle_finish;
@@ -28,11 +27,7 @@ struct NewFrame {
     nonce: u32,
 }
 
-fn process_command_line(
-    opts: CompositorCommand,
-    fps: u32,
-    frame_provider: FfmpegFrameProvider,
-) -> Option<Vec<u8>> {
+fn process_command_line(opts: CompositorCommand, fps: u32) -> Option<Vec<u8>> {
     let len: usize = match (opts.width * opts.height).try_into() {
         Ok(content) => content,
         Err(err) => errors::handle_error(&err),
@@ -42,7 +37,7 @@ fn process_command_line(
 
     let size = opts.layers.len();
     for layer in opts.layers {
-        draw_layer(&mut data, opts.width, layer, size, fps, frame_provider)
+        draw_layer(&mut data, opts.width, layer, size, fps)
     }
 
     if matches!(opts.output_format, payloads::payloads::ImageFormat::Jpeg) {
@@ -82,11 +77,26 @@ fn main() -> Result<(), std::io::Error> {
 
     // Initialize things.
 
-    let frame_provider = FfmpegFrameProvider();
+    let (send_input, receive_output) = process_frames(config.video_signals);
 
-    frame_provider.initialize_videos(config.video_signals);
+    println!("spawn once");
+    let thread_process = thread::spawn(move || loop {
+        let message = match receive_output.recv() {
+            Ok(message) => message,
+            Err(_) => {
+                break;
+            }
+        };
+        println!("Got message from child thread: {}", message);
+        break;
+    });
 
-    // TODO: Dimensions and FPS via
+    send_input
+        .send("Hello from child thread!".to_string())
+        .unwrap();
+
+    thread_process.join().unwrap();
+    println!("child thread exited");
 
     let (tx, rx) = mpsc::channel::<NewFrame>();
     let (command_tx, command_rx) = mpsc::channel::<String>();
@@ -127,7 +137,7 @@ fn main() -> Result<(), std::io::Error> {
             // Process the message here
             let command = parse_command(&message);
             let nonce = command.nonce;
-            let data = process_command_line(command, config.fps, frame_provider);
+            let data = process_command_line(command, config.fps);
             match data {
                 Some(d) => {
                     let rgb = colorspaces::rgba8_to_rgb8(
