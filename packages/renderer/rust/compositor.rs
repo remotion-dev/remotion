@@ -1,4 +1,3 @@
-use ffmpeg_next::mathematics;
 use lazy_static::lazy_static;
 use resvg::usvg_text_layout::fontdb;
 use resvg::usvg_text_layout::TreeTextToPath;
