@@ -58,6 +58,7 @@ pub fn get_video_frame(layer: VideoLayer, video_fps: u32) -> Result<Vec<u8>, std
             decoder.send_packet(&packet)?;
             let rgb_frame = process_frame(&mut decoder)?;
             frame = rgb_frame;
+            break;
         }
     }
 
