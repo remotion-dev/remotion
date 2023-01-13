@@ -40,7 +40,7 @@
     "@remotion/player": "3.3.31",
     "@remotion/preload": "3.3.31",
     "@remotion/renderer": "3.3.31",
-    "@remotion/shapes": "workspace:3.3.31",
+    "@remotion/shapes": "3.3.31",
     "@remotion/skia": "3.3.31",
     "@remotion/three": "3.3.31",
     "@shopify/react-native-skia": "^0.1.139",
