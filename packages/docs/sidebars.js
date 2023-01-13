@@ -286,6 +286,22 @@ module.exports = {
         "google-fonts/get-info",
       ],
     },
+    {
+      type: "category",
+      label: "@remotion/shapes",
+      link: {
+        type: "doc",
+        id: "shapes/index",
+      },
+      items: [
+        "shapes/make-circle",
+        "shapes/make-square",
+        "shapes/make-triangle",
+        "shapes/square",
+        "shapes/triangle",
+        "shapes/circle",
+      ],
+    },
   ],
   mainSidebar: [
     {

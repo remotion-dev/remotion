@@ -29,6 +29,9 @@ import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
+import CircleTest from './Shapes/CircleTest';
+import SquareTest from './Shapes/SquareTest';
+import TriangleTest from './Shapes/TriangleTest';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -549,6 +552,33 @@ export const Index: React.FC = () => {
 				<Composition
 					id="expert"
 					component={Expert}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+				/>
+			</Folder>
+
+			<Folder name="shapes">
+				<Composition
+					id="circle-test"
+					component={CircleTest}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="square-test"
+					component={SquareTest}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="triangle-test"
+					component={TriangleTest}
 					width={1200}
 					height={630}
 					fps={30}
