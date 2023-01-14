@@ -68,7 +68,7 @@ export const MyComposition = () => {
 };
 ```
 
-A video's first frame is `0` and it's last frame is `durationInFrames - 1`.
+A video's first frame is `0` and its last frame is `durationInFrames - 1`.
 
 ## Defining compositions
 
