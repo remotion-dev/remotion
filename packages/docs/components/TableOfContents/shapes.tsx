@@ -20,15 +20,15 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/shapes/circle">
           <strong>{`<Circle/>`}</strong>
-          <div>Circle</div>
+          <div>Generates Circle SVG</div>
         </TOCItem>
         <TOCItem link="/docs/shapes/square">
           <strong>{`<Square/>`}</strong>
-          <div>Square</div>
+          <div>Generates Square SVG</div>
         </TOCItem>
         <TOCItem link="/docs/shapes/triangle">
           <strong>{`<Triangle/>`}</strong>
-          <div>Triangle</div>
+          <div>Generates Triangle SVG</div>
         </TOCItem>
       </Grid>
     </div>
