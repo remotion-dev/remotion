@@ -1,9 +1,10 @@
 export type MakeSquareProps = {
 	x?: number;
 	y?: number;
-	size: number;
+	width: number;
+	height: number;
 };
 
-export const makeSquare = ({x = 50, y = 50, size}: MakeSquareProps) => {
-	return `M ${x}, ${y} l ${size}, 0 l 0, ${size} l ${-size}, 0 Z`;
+export const makeSquare = ({x = 0, y = 0, width, height}: MakeSquareProps) => {
+	return `M ${x} ${y} l ${width} 0 l 0 ${height} l ${-width} 0 Z`;
 };
