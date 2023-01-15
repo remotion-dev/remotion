@@ -7,5 +7,5 @@ test('Should be able to make a triangle path', () => {
 		height: 100,
 		direction: 'right',
 	});
-	expect(rightTriangle).toEqual('M 0,0 L 0,100 L 100,50 z');
+	expect(rightTriangle).toEqual('M 0 0 L 0 100 L 100 50 z');
 });

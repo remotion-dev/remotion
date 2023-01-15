@@ -19,6 +19,7 @@ import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import {Scripts} from './Scripts';
 import CircleTest from './Shapes/CircleTest';
+import EllipseTest from './Shapes/EllipseTest';
 import RectTest from './Shapes/RectTest';
 import TriangleTest from './Shapes/TriangleTest';
 import {SkipZeroFrame} from './SkipZeroFrame';
@@ -579,6 +580,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="triangle-test"
 					component={TriangleTest}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="ellipse-test"
+					component={EllipseTest}
 					width={1200}
 					height={630}
 					fps={30}

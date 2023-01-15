@@ -1,17 +1,16 @@
 import {expect, test} from 'vitest';
-import {Triangle} from '../triangle';
+import {Ellipse} from '../ellipse';
 import {render} from './test-utils';
 
-test('Should be able to make a triangle svg', () => {
+test('Should be able to make a circle svg', () => {
 	const {container} = render(
-		<Triangle width={100} height={100} fill="red" direction="left" />
+		<Ellipse rx={100} ry={100} fill="green" stroke="red" strokeWidth={1} />
 	);
+	// assert shape type
 	expect(
 		container.querySelector('svg')?.getAttribute('data-shape-type')
-	).toEqual('triangle');
-
-	// assert path
+	).toEqual('ellipse');
 	expect(container.querySelector('path')?.getAttribute('d')).toEqual(
-		'M 100 0 L 100 100 L 0 50 z'
+		'M 100 0 a 100 100 0 1 0 1 0'
 	);
 });
