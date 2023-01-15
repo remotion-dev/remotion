@@ -1,5 +1,4 @@
 ---
-image: /generated/articles-docs-shapes-make-triangle.png
 title: makeTriangle()
 crumb: "@remotion/shapes"
 ---
