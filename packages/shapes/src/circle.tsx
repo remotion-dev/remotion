@@ -25,7 +25,7 @@ export const Circle: React.FC<CircleProps> = ({
 			viewBox={`0 0 ${width} ${height}`}
 			xmlns="http://www.w3.org/2000/svg"
 			style={style}
-			data-shape-type="circle"
+			data-shape-type="ellipse"
 		>
 			<path
 				d={makeCircle({

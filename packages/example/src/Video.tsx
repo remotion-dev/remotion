@@ -19,7 +19,7 @@ import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import {Scripts} from './Scripts';
 import CircleTest from './Shapes/CircleTest';
-import RectTest from './Shapes/SquareTest';
+import RectTest from './Shapes/RectTest';
 import TriangleTest from './Shapes/TriangleTest';
 import {SkipZeroFrame} from './SkipZeroFrame';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
