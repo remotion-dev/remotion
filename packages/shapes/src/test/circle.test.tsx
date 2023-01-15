@@ -15,7 +15,7 @@ test('Should be able to make a circle svg', () => {
 	// assert shape type
 	expect(
 		container.querySelector('svg')?.getAttribute('data-shape-type')
-	).toEqual('ellipse');
+	).toEqual('circle');
 	expect(container.querySelector('path')?.getAttribute('d')).toEqual(
 		'M 50 50 m -50 0 a 50 50 0 1 0 100 0 50 50 0 1 0 -100 0'
 	);
