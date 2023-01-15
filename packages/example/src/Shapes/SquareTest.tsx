@@ -12,7 +12,7 @@ const SquareTest: React.FC = () => {
 				alignItems: 'center',
 			}}
 		>
-			<Square width={200} height={200} size={100} fill="red" />
+			<Square width={200} height={400} fill="red" />
 		</AbsoluteFill>
 	);
 };

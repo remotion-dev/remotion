@@ -4,18 +4,11 @@ import {makeSquare} from './make-square';
 export type SquareProps = {
 	width: number;
 	height: number;
-	size: number;
 	fill?: string;
 	style?: React.CSSProperties;
 };
 
-export const Square: React.FC<SquareProps> = ({
-	width,
-	height,
-	size,
-	fill,
-	style,
-}) => {
+export const Square: React.FC<SquareProps> = ({width, height, fill, style}) => {
 	return (
 		<svg
 			width={width}
@@ -27,7 +20,8 @@ export const Square: React.FC<SquareProps> = ({
 		>
 			<path
 				d={makeSquare({
-					size,
+					width,
+					height,
 				})}
 				fill={fill}
 			/>
