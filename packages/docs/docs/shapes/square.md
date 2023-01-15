@@ -1,12 +1,11 @@
 ---
-image: /generated/articles-docs-shapes-square.png
-title: <Square />
+title: <Rect />
 crumb: "@remotion/shapes"
 ---
 
 _Part of the [` @remotion/shapes`](/docs/shapes) package._
 
-Generate Square SVG component
+Generate a rectangle using SVG
 
 ## Props
 
@@ -34,10 +33,9 @@ _`React.CSSProperties`, optional_
 
 CSS styles applied to `svg` element.
 
-Example Square SVG
+## Example
 
 ```tsx twoslash
-import { Square } from "@remotion/shapes";
 import { AbsoluteFill } from "remotion";
 
 export const MyComposition = () => {
@@ -49,7 +47,7 @@ export const MyComposition = () => {
         alignItems: "center",
       }}
     >
-      <Square width={200} height={200} fill="red" />
+      <Rect width={200} height={200} fill="red" />
     </AbsoluteFill>
   );
 };
@@ -58,6 +56,6 @@ export const MyComposition = () => {
 ## See also
 
 - [makeTriangle()](/docs/shapes/make-triangle)
-- [makeSquare()](/docs/shapes/make-square)
+- [makeRect()](/docs/shapes/make-rect)
 - [`@remotion/shapes`](/docs/shapes)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/square.tsx)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/rect.tsx)

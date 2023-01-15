@@ -18,6 +18,9 @@ import {OrbScene} from './Orb';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import {Scripts} from './Scripts';
+import CircleTest from './Shapes/CircleTest';
+import RectTest from './Shapes/SquareTest';
+import TriangleTest from './Shapes/TriangleTest';
 import {SkipZeroFrame} from './SkipZeroFrame';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
@@ -29,9 +32,6 @@ import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
-import CircleTest from './Shapes/CircleTest';
-import SquareTest from './Shapes/SquareTest';
-import TriangleTest from './Shapes/TriangleTest';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -569,8 +569,8 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 				/>
 				<Composition
-					id="square-test"
-					component={SquareTest}
+					id="rect-test"
+					component={RectTest}
 					width={1200}
 					height={630}
 					fps={30}
