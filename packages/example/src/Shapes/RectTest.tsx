@@ -1,8 +1,8 @@
-import {Square} from '@remotion/shapes';
+import {Rect} from '@remotion/shapes';
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 
-const SquareTest: React.FC = () => {
+const RectTest: React.FC = () => {
 	return (
 		<AbsoluteFill
 			style={{
@@ -12,9 +12,9 @@ const SquareTest: React.FC = () => {
 				alignItems: 'center',
 			}}
 		>
-			<Square width={200} height={400} fill="red" />
+			<Rect width={200} height={400} fill="red" />
 		</AbsoluteFill>
 	);
 };
 
-export default SquareTest;
+export default RectTest;

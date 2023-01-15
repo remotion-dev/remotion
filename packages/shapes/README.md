@@ -1,6 +1,6 @@
 ## @remotion/paths
 
-A package providing utility functions for creating shapes with SVG. 
+A package providing utility functions for creating shapes with SVG.
 
 - Functional style APIs
 - First class Typescript types
@@ -11,11 +11,11 @@ No dependencies are needed, meaning this package can be used independently of Re
 
 ## API
 
-- [`makeSquare()`](https://remotion.dev/docs/shapes/make-squares)
+- [`makeRect()`](https://remotion.dev/docs/shapes/make-rect)
 - [`makeCircle()`](https://remotion.dev/docs/shapes/make-circle)
 - [`makeTriangle()`](https://remotion.dev/docs/shapes/make-triangle)
 - [`<Circle />`](https://remotion.dev/docs/shapes/circle)
-- [`<Square />`](https://remotion.dev/shapes/shapes/square)
+- [`<Rect />`](https://remotion.dev/shapes/shapes/rect)
 - [`<Triangle />`](https://remotion.dev/shapes/shapes/triangle)
 
 ## License

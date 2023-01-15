@@ -10,11 +10,11 @@ export const TableOfContents: React.FC = () => {
           <strong>makeCircle()</strong>
           <div>Generate circle path</div>
         </TOCItem>
-        <TOCItem link="/docs/shapes/make-square">
-          <strong>makeSquare()</strong>
+        <TOCItem link="/docs/shapes/make-rect">
+          <strong>makeRect()</strong>
           <div>Generate circle path</div>
         </TOCItem>
-        <TOCItem link="/docs/shapes/make-square">
+        <TOCItem link="/docs/shapes/make-triangle">
           <strong>makeTriangle()</strong>
           <div>Generate triangle path</div>
         </TOCItem>
@@ -22,9 +22,9 @@ export const TableOfContents: React.FC = () => {
           <strong>{`<Circle/>`}</strong>
           <div>Generates Circle SVG</div>
         </TOCItem>
-        <TOCItem link="/docs/shapes/square">
-          <strong>{`<Square/>`}</strong>
-          <div>Generates Square SVG</div>
+        <TOCItem link="/docs/shapes/rect">
+          <strong>{`<Rect/>`}</strong>
+          <div>Generates a Rectangle SVG</div>
         </TOCItem>
         <TOCItem link="/docs/shapes/triangle">
           <strong>{`<Triangle/>`}</strong>

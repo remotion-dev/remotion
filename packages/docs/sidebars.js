@@ -295,9 +295,9 @@ module.exports = {
       },
       items: [
         "shapes/make-circle",
-        "shapes/make-square",
+        "shapes/make-rect",
         "shapes/make-triangle",
-        "shapes/square",
+        "shapes/rect",
         "shapes/triangle",
         "shapes/circle",
       ],

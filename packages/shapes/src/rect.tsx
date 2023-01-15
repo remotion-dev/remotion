@@ -1,5 +1,5 @@
 import React from 'react';
-import {makeSquare} from './make-square';
+import {makeRect} from './make-rect';
 
 export type SquareProps = {
 	width: number;
@@ -8,7 +8,7 @@ export type SquareProps = {
 	style?: React.CSSProperties;
 };
 
-export const Square: React.FC<SquareProps> = ({width, height, fill, style}) => {
+export const Rect: React.FC<SquareProps> = ({width, height, fill, style}) => {
 	return (
 		<svg
 			width={width}
@@ -16,10 +16,10 @@ export const Square: React.FC<SquareProps> = ({width, height, fill, style}) => {
 			viewBox={`0 0 ${width} ${height}`}
 			xmlns="http://www.w3.org/2000/svg"
 			style={style}
-			data-shape-type="square"
+			data-shape-type="rect"
 		>
 			<path
-				d={makeSquare({
+				d={makeRect({
 					width,
 					height,
 				})}
