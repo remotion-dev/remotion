@@ -34,7 +34,7 @@ console.log(transformOrigin); // '28.867513459481287 50'
 
 ## Return type
 
-<MakeShapeReturnType shape="rect"/>
+<MakeShapeReturnType shape="triangle"/>
 
 ## Credits
 
