@@ -10,5 +10,6 @@ export const makeEllipse = ({rx, ry}: MakeEllipseOptions): ShapeInfo => {
 		width: rx * 2,
 		height: ry * 2,
 		path: `M ${rx} ${0} a ${rx} ${ry} 0 1 0 1 0`,
+		transformOrigin: `${rx} ${ry}`,
 	};
 };

@@ -1,8 +1,11 @@
 import {Triangle} from '@remotion/shapes';
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 
 const TriangleTest: React.FC = () => {
+	const frame = useCurrentFrame();
+	const rotation = interpolate(frame, [0, 100], [0, 360]);
+
 	return (
 		<AbsoluteFill
 			style={{
@@ -14,8 +17,8 @@ const TriangleTest: React.FC = () => {
 			}}
 		>
 			<Triangle
-				style={{
-					margin: '10px',
+				pathStyle={{
+					transform: `rotate(${rotation}deg)`,
 				}}
 				length={100}
 				fill="red"
@@ -23,24 +26,24 @@ const TriangleTest: React.FC = () => {
 			/>
 
 			<Triangle
-				style={{
-					margin: '10px',
+				pathStyle={{
+					transform: `rotate(${rotation}deg)`,
 				}}
 				length={100}
 				fill="red"
 				direction="right"
 			/>
 			<Triangle
-				style={{
-					margin: '10px',
+				pathStyle={{
+					transform: `rotate(${rotation}deg)`,
 				}}
 				length={100}
 				fill="red"
 				direction="top"
 			/>
 			<Triangle
-				style={{
-					margin: '10px',
+				pathStyle={{
+					transform: `rotate(${rotation}deg)`,
 				}}
 				length={100}
 				fill="red"

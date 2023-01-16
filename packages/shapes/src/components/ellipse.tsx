@@ -7,9 +7,5 @@ import {RenderSvg} from './render-svg';
 export type EllipseProps = MakeEllipseOptions & AllShapesProps;
 
 export const Ellipse: React.FC<EllipseProps> = ({rx, ry, ...props}) => {
-	const {path, width, height} = makeEllipse({
-		rx,
-		ry,
-	});
-	return <RenderSvg width={width} height={height} path={path} {...props} />;
+	return <RenderSvg {...makeEllipse({rx, ry})} {...props} />;
 };

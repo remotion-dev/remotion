@@ -7,7 +7,5 @@ import {RenderSvg} from './render-svg';
 export type CircleProps = MakeCircleProps & AllShapesProps;
 
 export const Circle: React.FC<CircleProps> = ({radius, ...props}) => {
-	const {path, height, width} = makeCircle({radius});
-
-	return <RenderSvg width={width} height={height} path={path} {...props} />;
+	return <RenderSvg {...makeCircle({radius})} {...props} />;
 };

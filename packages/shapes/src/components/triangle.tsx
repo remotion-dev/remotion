@@ -11,9 +11,5 @@ export const Triangle: React.FC<TriangleProps> = ({
 	direction,
 	...props
 }) => {
-	const {path, height, width} = makeTriangle({
-		length,
-		direction,
-	});
-	return <RenderSvg height={height} width={width} path={path} {...props} />;
+	return <RenderSvg {...makeTriangle({length, direction})} {...props} />;
 };

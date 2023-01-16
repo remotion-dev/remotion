@@ -45,10 +45,25 @@ export const makeTriangle = ({
 		],
 	};
 
+	const transformOriginX = {
+		left: (shorterSize / 3) * 2,
+		right: shorterSize / 3,
+		top: longerDimension / 2,
+		bottom: longerDimension / 2,
+	}[direction];
+
+	const transformOriginY = {
+		top: (shorterSize / 3) * 2,
+		bottom: shorterSize / 3,
+		left: longerDimension / 2,
+		right: longerDimension / 2,
+	}[direction];
+
 	return {
 		path: `M ${points[direction].join(' ')} z`,
 		width: direction === 'top' || direction === 'bottom' ? length : shorterSize,
 		height:
 			direction === 'top' || direction === 'bottom' ? shorterSize : length,
+		transformOrigin: `${transformOriginX} ${transformOriginY}`,
 	};
 };
