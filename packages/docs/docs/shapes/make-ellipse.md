@@ -4,7 +4,7 @@ title: makeEllipse()
 crumb: "@remotion/shapes"
 ---
 
-import {MakeShapeSeeAlso, ShapeOptions} from "../../components/shapes/shapes-info"
+import {MakeShapeSeeAlso, ShapeOptions, MakeShapeReturnType} from "../../components/shapes/shapes-info"
 
 _Part of the [`@remotion/shapes`](/docs/shapes) package._
 
