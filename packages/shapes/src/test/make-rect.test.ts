@@ -7,5 +7,6 @@ test('Should be able to make a rect path', () => {
 		height: 100,
 		width: 100,
 		path: 'M 0 0 l 100 0 l 0 100 l -100 0 Z',
+		transformOrigin: '50 50',
 	});
 });

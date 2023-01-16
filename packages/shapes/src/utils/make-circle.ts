@@ -1,4 +1,3 @@
-import {makeEllipse} from './make-ellipse';
 import type {ShapeInfo} from './shape-info';
 
 export type MakeCircleProps = {
@@ -6,5 +5,12 @@ export type MakeCircleProps = {
 };
 
 export const makeCircle = ({radius}: MakeCircleProps): ShapeInfo => {
-	return makeEllipse({rx: radius, ry: radius});
+	return {
+		height: radius * 2,
+		width: radius * 2,
+		path: `M ${radius} ${radius} m -${radius} 0 a ${radius} ${radius} 0 1 0 ${
+			(radius as number) * 2
+		} 0 ${radius} ${radius} 0 1 0 ${-radius * 2} 0`,
+		transformOrigin: `${radius} ${radius}`,
+	};
 };
