@@ -3,19 +3,17 @@ title: makeTriangle()
 crumb: "@remotion/shapes"
 ---
 
-_Part of the [` @remotion/shapes`](/docs/shapes) package._
+import {MakeShapeSeeAlso, ShapeOptions} from "../../components/shapes/shapes-info"
+
+_Part of the [`@remotion/shapes`](/docs/shapes) package._
 
 Generates a triangle SVG path.
 
 ## Arguments
 
-### `options`
+<ShapeOptions shape="triangle"/>
 
-An object with the following arguments:
-
-- `width`: `number` - The width of the triangle
-- `height`: `number` - The height of the triangle.
-- `direction`: `string` - The identifier what kind of rectangle, possible values are `left`, `right`, `top` and `bottom`
+## Example
 
 Example Triangle path generation
 
@@ -34,7 +32,7 @@ console.log(height); // 100
 
 ## Credits
 
-Source code stems mostly from [triangle](https://stackblitz.com/edit/react-triangle-svg?file=index.js).
+Source code partially taken from [this StackBlitz](https://stackblitz.com/edit/react-triangle-svg?file=index.js).
 
 ## See also
 
