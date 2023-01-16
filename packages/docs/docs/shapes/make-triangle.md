@@ -36,7 +36,4 @@ Source code stems mostly from [triangle](https://stackblitz.com/edit/react-trian
 
 ## See also
 
-- [makeCircle()](/docs/shapes/make-circle)
-- [makeRect()](/docs/shapes/make-rect)
-- [`@remotion/shapes`](/docs/shapes)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/make-triangle.ts)
+<MakeShapeSeeAlso shape="triangle"/>
