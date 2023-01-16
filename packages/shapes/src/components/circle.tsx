@@ -1,14 +1,10 @@
 import type React from 'react';
-import type {MakeCircleProps} from './make-circle';
-import {makeCircle} from './make-circle';
+import type {MakeCircleProps} from '../make-circle';
+import {makeCircle} from '../make-circle';
+import type {AllShapesProps} from './render-svg';
 import {renderSvg} from './render-svg';
 
-export type CircleProps = Omit<MakeCircleProps, 'cx' | 'cy'> & {
-	fill?: string;
-	stroke?: string;
-	strokeWidth?: number;
-	style?: React.CSSProperties;
-};
+export type CircleProps = MakeCircleProps & AllShapesProps;
 
 export const Circle: React.FC<CircleProps> = ({
 	fill,
@@ -21,8 +17,6 @@ export const Circle: React.FC<CircleProps> = ({
 
 	return renderSvg({
 		path: makeCircle({
-			cx: radius,
-			cy: radius,
 			radius,
 		}),
 		height: size,

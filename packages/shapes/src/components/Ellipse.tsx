@@ -1,6 +1,6 @@
 import type React from 'react';
-import type {MakeEllipseOptions} from './make-ellipse';
-import {makeEllipse} from './make-ellipse';
+import type {MakeEllipseOptions} from '../make-ellipse';
+import {makeEllipse} from '../make-ellipse';
 import {renderSvg} from './render-svg';
 
 export type EllipseProps = MakeEllipseOptions & {

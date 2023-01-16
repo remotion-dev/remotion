@@ -1,20 +1,25 @@
 import React from 'react';
 
+export type AllShapesProps = {
+	style?: React.CSSProperties;
+	stroke?: string;
+	strokeWidth?: number;
+	fill?: string;
+};
+
 export const renderSvg = ({
 	width,
 	height,
 	path,
 	fill,
 	style,
+	stroke,
+	strokeWidth,
 }: {
 	width: number;
 	height: number;
 	path: string;
-	fill?: string;
-	style?: React.CSSProperties;
-	stroke?: string;
-	strokeWidth?: number;
-}) => {
+} & AllShapesProps) => {
 	return (
 		<svg
 			width={width}
@@ -24,7 +29,7 @@ export const renderSvg = ({
 			style={style}
 			data-shape-type="triangle"
 		>
-			<path d={path} fill={fill} />
+			<path d={path} fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
 		</svg>
 	);
 };
