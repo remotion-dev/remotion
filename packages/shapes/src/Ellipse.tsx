@@ -1,9 +1,9 @@
-import React from 'react';
+import type React from 'react';
+import type {MakeEllipseOptions} from './make-ellipse';
 import {makeEllipse} from './make-ellipse';
+import {renderSvg} from './render-svg';
 
-export type EllipseProps = React.SVGProps<SVGPathElement> & {
-	rx: number;
-	ry: number;
+export type EllipseProps = MakeEllipseOptions & {
 	fill?: string;
 	stroke?: string;
 	strokeWidth?: number;
@@ -18,24 +18,18 @@ export const Ellipse: React.FC<EllipseProps> = ({
 	ry,
 	style,
 }) => {
-	return (
-		<svg
-			width={rx * 2}
-			height={ry * 2}
-			viewBox={`0 0 ${rx * 2} ${ry * 2}`}
-			xmlns="http://www.w3.org/2000/svg"
-			style={style}
-			data-shape-type="ellipse"
-		>
-			<path
-				d={makeEllipse({
-					rx,
-					ry,
-				})}
-				fill={fill}
-				stroke={stroke}
-				strokeWidth={strokeWidth}
-			/>
-		</svg>
-	);
+	const path = makeEllipse({
+		rx,
+		ry,
+	});
+
+	return renderSvg({
+		height: ry * 2,
+		path,
+		width: rx * 2,
+		fill,
+		style,
+		strokeWidth,
+		stroke,
+	});
 };

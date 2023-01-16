@@ -1,6 +1,6 @@
 export type MakeEllipseOptions = {
-	rx?: number | string;
-	ry?: number | string;
+	rx: number;
+	ry: number;
 };
 
 export const makeEllipse = ({rx = 50, ry = 50}: MakeEllipseOptions) => {
