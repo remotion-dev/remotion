@@ -5,7 +5,7 @@ crumb: "@remotion/shapes"
 
 _Part of the [` @remotion/shapes`](/docs/shapes) package._
 
-Generates Triangle SVG path
+Generates a triangle SVG path.
 
 ## Arguments
 
@@ -15,19 +15,21 @@ An object with the following arguments:
 
 - `width`: `number` - The width of the triangle
 - `height`: `number` - The height of the triangle.
-- `direction`: `string` - The identifier what kind of rectangle, possible values `left`, `right`, `top` and `bottom`
+- `direction`: `string` - The identifier what kind of rectangle, possible values are `left`, `right`, `top` and `bottom`
 
 Example Triangle path generation
 
-```tsx twoslash
+```tsx twoslash title="triangle.ts"
 import { makeTriangle } from "@remotion/shapes";
-const rightTriangle = makeTriangle({
-  width: 100,
-  height: 100,
+
+const { path, width, height } = makeTriangle({
+  length: 100,
   direction: "right",
 });
 
-console.log(rightTriangle); // M 0,0 L 0,100 L 100,50 z
+console.log(path); // M 0 0 L 0 100 L 86.60254037844386 50 z
+console.log(width); // 86.60254037844386
+console.log(height); // 100
 ```
 
 ## Credits
