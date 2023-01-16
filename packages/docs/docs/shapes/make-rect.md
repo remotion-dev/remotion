@@ -5,23 +5,11 @@ crumb: "@remotion/shapes"
 
 _Part of the [` @remotion/shapes`](/docs/shapes) package._
 
-Generates an SVG path for a rectangle
+Generates an SVG path for a rectangle.
 
 ## Arguments
 
 An object with the following entries:
-
-### `x`
-
-_`number`, optional_
-
-The x-axis coordinate to start drawing the rect. Defaults to `0`.
-
-### `y`
-
-_`number`, optional_
-
-The y-axis coordinate to start drawing the rect. Defaults to `0`.
 
 ### `width`
 
@@ -31,11 +19,13 @@ The width of the rectangle
 
 The height of the rectangle
 
+## Example
+
 ```tsx twoslash
 import { makeRect } from "@remotion/shapes";
-const rect = makeRect({ x: 50, y: 50, width: 100, height: 100 });
+const rect = makeRect({ width: 100, height: 100 });
 
-console.log(rect); // M 50 50 l 100 0 l 0 100 l -100 0 Z
+console.log(rect); // M 0 0 l 100 0 l 0 100 l -100 0 Z
 ```
 
 ## See also
