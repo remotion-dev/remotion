@@ -133,7 +133,7 @@ export const PlayPause: React.FC<{
 				ensureFrameIsInViewport({
 					direction: 'fit-right',
 					durationInFrames: getCurrentDuration(),
-					frame: getCurrentFrame() + 1,
+					frame: Math.min(getCurrentDuration() - 1, getCurrentFrame() + 1),
 				});
 			}
 
