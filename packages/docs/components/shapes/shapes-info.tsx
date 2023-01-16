@@ -14,7 +14,6 @@ type Param = {
 
 type ShapeComponent = {
   shape: string;
-  name: string;
   fn: (options: unknown) => unknown;
   params: Param[];
 };
@@ -22,7 +21,6 @@ type ShapeComponent = {
 export const shapeComponents: ShapeComponent[] = [
   {
     shape: "Rect",
-    name: "<Rect>",
     fn: makeRect,
     params: [
       {
@@ -39,7 +37,6 @@ export const shapeComponents: ShapeComponent[] = [
   },
   {
     shape: "Circle",
-    name: "<Circle>",
     fn: makeCircle,
     params: [
       {
@@ -51,7 +48,6 @@ export const shapeComponents: ShapeComponent[] = [
   },
   {
     shape: "Ellipse",
-    name: "<Ellipse>",
     fn: makeEllipse,
     params: [
       {
@@ -68,7 +64,6 @@ export const shapeComponents: ShapeComponent[] = [
   },
   {
     shape: "Triangle",
-    name: "<Triangle>",
     fn: makeTriangle,
     params: [
       {
@@ -117,7 +112,10 @@ const globalParams: Param[] = [
     description: (
       <>
         CSS properties that will be applied to the <code>{"<path>"}</code> tag.
-        Default style: <code>{"overflow: 'visible'"}</code>
+        Default style: <code>{"transform-box: 'fill-box'"}</code> and a
+        dynamically calculated <code>{"transform-origin"}</code> which is the
+        center of the shape, so that the shape rotates around its center by
+        default.
       </>
     ),
   },
@@ -189,6 +187,56 @@ export const ShapeOptions: React.FC<{
         </>
       ) : null}
     </React.Fragment>
+  );
+};
+
+export const MakeShapeReturnType: React.FC<{
+  shape: string;
+}> = ({ shape }) => {
+  const shapeComponent = shapeComponents.find(
+    (c) => c.shape.toLowerCase() === shape.toLowerCase()
+  );
+
+  return (
+    <div>
+      <h3>
+        <code>path</code>
+      </h3>
+      <p>
+        A string that is suitable as an argument for <code>d</code> in a{" "}
+        <code>{"<path>"}</code> element.
+      </p>
+      <h3>
+        <code>width</code>
+      </h3>
+      <p>
+        The width of the {shapeComponent.shape.toLowerCase()}. Suitable for
+        defining the <code>viewBox</code> of an <code>{"<svg>"}</code> tag.
+      </p>
+      <h3>
+        <code>height</code>
+      </h3>
+      <p>
+        The height of the {shapeComponent.shape.toLowerCase()}. Suitable for
+        defining the <code>viewBox</code> of an <code>{"<svg>"}</code> tag.
+      </p>
+      <h3>
+        <code>transformOrigin</code>
+      </h3>
+      <p>
+        A string representing the point of origin if a shape should be rotated
+        around itself.
+      </p>
+      <p>
+        If you want to rotate the shape around its center, use the{" "}
+        <code>transform-origin</code> CSS property and pass this value, and also
+        add <code>transform-box: fill-box</code>. This is the default for{" "}
+        <a href={`/docs/shapes/${shapeComponent.shape.toLowerCase()}`}>
+          <code>{`<${shapeComponent.shape} />`}</code>
+        </a>
+        .
+      </p>
+    </div>
   );
 };
 

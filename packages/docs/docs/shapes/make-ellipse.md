@@ -18,7 +18,7 @@ Generates an ellipse SVG path.
 ```tsx twoslash title="ellipse.ts"
 import { makeEllipse } from "@remotion/shapes";
 
-const { path, width, height } = makeEllipse({
+const { path, width, height, transformOrigin } = makeEllipse({
   rx: 100,
   ry: 50,
 });
@@ -26,11 +26,16 @@ const { path, width, height } = makeEllipse({
 console.log(path); // M 100 0 a 100 100 0 1 0 1 0
 console.log(width); // 200
 console.log(height); // 100
+console.log(transformOrigin); // '100 50'
 ```
 
-## Credits
+## Arguments
 
-Source code stems mostly from [triangle](https://stackblitz.com/edit/react-triangle-svg?file=index.js).
+<ShapeOptions shape="ellipse"/>
+
+## Return type
+
+<MakeShapeReturnType shape="ellipse"/>
 
 ## See also
 
