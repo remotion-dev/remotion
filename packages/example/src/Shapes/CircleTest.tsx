@@ -12,13 +12,7 @@ const CircleTest: React.FC = () => {
 				alignItems: 'center',
 			}}
 		>
-			<Circle
-				width={100}
-				height={100}
-				fill="green"
-				stroke="red"
-				strokeWidth={1}
-			/>
+			<Circle radius={100} fill="green" stroke="red" strokeWidth={10} />
 		</AbsoluteFill>
 	);
 };

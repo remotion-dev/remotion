@@ -1,11 +1,9 @@
 import React, {useMemo} from 'react';
 
-export type AllShapesProps = {
-	style?: React.CSSProperties;
-	stroke?: string;
-	strokeWidth?: number;
-	fill?: string;
-};
+export type AllShapesProps = Omit<
+	React.SVGProps<SVGPathElement>,
+	'width' | 'height' | 'd'
+>;
 
 export const RenderSvg = ({
 	width,
@@ -22,8 +20,7 @@ export const RenderSvg = ({
 } & AllShapesProps) => {
 	const actualStyle = useMemo(() => {
 		return {
-			display: 'inline-block',
-			verticalAlign: 'middle',
+			overflow: 'visible',
 			...(style ?? {}),
 		};
 	}, [style]);

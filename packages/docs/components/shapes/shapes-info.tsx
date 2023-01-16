@@ -102,12 +102,41 @@ const globalParams: Param[] = [
     ),
   },
   {
+    name: "style",
+    type: "string",
+    description: (
+      <>
+        CSS properties that will be applied to the <code>{"<svg>"}</code> tag.
+      </>
+    ),
+  },
+  {
     name: "strokeWidth",
     type: "string",
     description: (
       <>
         The width of the stroke. Should be used together with{" "}
         <code>stroke</code>.
+      </>
+    ),
+  },
+  {
+    name: "strokeDasharray",
+    type: "string",
+    description: (
+      <>
+        Allows to animate a path. See{" "}
+        <a href="/docs/paths/evolve-path">evolvePath()</a> for an example.
+      </>
+    ),
+  },
+  {
+    name: "strokeDashoffset",
+    type: "string",
+    description: (
+      <>
+        Allows to animate a path. See{" "}
+        <a href="/docs/paths/evolve-path">evolvePath()</a> for an example.
       </>
     ),
   },
@@ -139,6 +168,15 @@ export const ShapeOptions: React.FC<{
           </React.Fragment>
         );
       })}
+      {all ? (
+        <>
+          <h3>Other props</h3>{" "}
+          <p>
+            All other props that can be passed to a <code>{"<path>"}</code> are
+            accepted and will be forwarded.
+          </p>
+        </>
+      ) : null}
     </React.Fragment>
   );
 };
