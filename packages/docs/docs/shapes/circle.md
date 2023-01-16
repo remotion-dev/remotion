@@ -3,7 +3,7 @@ title: <Circle />
 crumb: "@remotion/shapes"
 ---
 
-import {ShapeSeeAlso, ShapeOptions} from "../../components/shapes/shapes-info"
+import {ShapeSeeAlso, ShapeOptions, ShapeSeeAlso} from "../../components/shapes/shapes-info"
 
 _Part of the [`@remotion/shapes`](/docs/shapes) package._
 
@@ -36,6 +36,4 @@ export const MyComposition = () => {
 
 ## See also
 
-- [makeCircle()](/docs/shapes/make-circle)
-- [`@remotion/shapes`](/docs/shapes)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/circle.tsx)
+<ShapeSeeAlso shape="ellipse"/>
