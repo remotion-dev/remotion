@@ -1,38 +1,30 @@
-import React from 'react';
+import type React from 'react';
+import type {MakeTriangleProps} from './make-triangle';
 import {makeTriangle} from './make-triangle';
+import {renderSvg} from './render-svg';
 
-export type TriangleProps = {
-	width: number;
-	height: number;
+export type TriangleProps = MakeTriangleProps & {
 	fill?: string;
-	direction: 'right' | 'left' | 'top' | 'bottom';
 	style?: React.CSSProperties;
 };
 
 export const Triangle: React.FC<TriangleProps> = ({
+	// TODO: Do not use width and height, but use length of a side
 	width,
 	height,
 	fill,
 	direction,
 	style,
 }) => {
-	return (
-		<svg
-			width={width}
-			height={height}
-			viewBox={`0 0 ${width} ${height}`}
-			xmlns="http://www.w3.org/2000/svg"
-			style={style}
-			data-shape-type="triangle"
-		>
-			<path
-				d={makeTriangle({
-					width,
-					height,
-					direction,
-				})}
-				fill={fill}
-			/>
-		</svg>
-	);
+	return renderSvg({
+		fill,
+		height,
+		path: makeTriangle({
+			width,
+			height,
+			direction,
+		}),
+		style,
+		width,
+	});
 };
