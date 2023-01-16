@@ -4,13 +4,7 @@ import {render} from './test-utils';
 
 test('Should be able to make a circle svg', () => {
 	const {container} = render(
-		<Circle
-			width={100}
-			height={100}
-			fill="green"
-			stroke="red"
-			strokeWidth={1}
-		/>
+		<Circle radius={100} fill="green" stroke="red" strokeWidth={1} />
 	);
 	// assert shape type
 	expect(
