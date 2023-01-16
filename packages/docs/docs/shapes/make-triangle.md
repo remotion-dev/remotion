@@ -8,7 +8,7 @@ import {MakeShapeSeeAlso, ShapeOptions, MakeShapeReturnType} from "../../compone
 
 _Part of the [`@remotion/shapes`](/docs/shapes) package._
 
-Generates a triangle SVG path.
+Generates an SVG path for a triangle with the same length on all sides.
 
 ## Example
 
