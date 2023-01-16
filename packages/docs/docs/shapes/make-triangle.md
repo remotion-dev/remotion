@@ -38,6 +38,4 @@ Source code stems mostly from [triangle](https://stackblitz.com/edit/react-trian
 
 ## See also
 
-import {MakeShapeSeeAlso} from "../../components/shapes/shapes-info"
-
 <MakeShapeSeeAlso shape="triangle"/>
