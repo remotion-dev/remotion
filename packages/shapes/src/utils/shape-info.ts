@@ -3,3 +3,9 @@ export type ShapeInfo = {
 	width: number;
 	height: number;
 };
+
+export type ShapeOption<Name, Type> = {
+	name: Name;
+	description: string;
+	exampleValue: Type;
+};
