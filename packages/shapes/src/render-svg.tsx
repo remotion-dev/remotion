@@ -12,6 +12,8 @@ export const renderSvg = ({
 	path: string;
 	fill?: string;
 	style?: React.CSSProperties;
+	stroke?: string;
+	strokeWidth?: number;
 }) => {
 	return (
 		<svg

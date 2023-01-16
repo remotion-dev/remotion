@@ -1,9 +1,9 @@
-import React from 'react';
+import type React from 'react';
+import type {MakeCircleProps} from './make-circle';
 import {makeCircle} from './make-circle';
+import {renderSvg} from './render-svg';
 
-export type CircleProps = React.SVGProps<SVGPathElement> & {
-	width: number;
-	height: number;
+export type CircleProps = Omit<MakeCircleProps, 'cx' | 'cy'> & {
 	fill?: string;
 	stroke?: string;
 	strokeWidth?: number;
@@ -11,32 +11,25 @@ export type CircleProps = React.SVGProps<SVGPathElement> & {
 };
 
 export const Circle: React.FC<CircleProps> = ({
-	width,
-	height,
 	fill,
 	stroke,
 	strokeWidth,
 	style,
+	radius,
 }) => {
-	return (
-		<svg
-			width={width}
-			height={height}
-			viewBox={`0 0 ${width} ${height}`}
-			xmlns="http://www.w3.org/2000/svg"
-			style={style}
-			data-shape-type="circle"
-		>
-			<path
-				d={makeCircle({
-					cx: 50,
-					cy: 50,
-					radius: 50,
-				})}
-				fill={fill}
-				stroke={stroke}
-				strokeWidth={strokeWidth}
-			/>
-		</svg>
-	);
+	const size = radius * 2;
+
+	return renderSvg({
+		path: makeCircle({
+			cx: radius,
+			cy: radius,
+			radius,
+		}),
+		height: size,
+		width: size,
+		fill,
+		stroke,
+		strokeWidth,
+		style,
+	});
 };
