@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-shapes-make-rect.png
 title: makeRect()
 crumb: "@remotion/shapes"
 ---

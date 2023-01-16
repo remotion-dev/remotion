@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-shapes-triangle.png
 title: <Triangle />
 crumb: "@remotion/shapes"
 ---

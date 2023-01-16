@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-shapes-make-circle.png
 title: makeCircle()
 crumb: "@remotion/shapes"
 ---
