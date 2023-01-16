@@ -7,7 +7,7 @@ import {ShapeSeeAlso, ShapeOptions} from "../../components/shapes/shapes-info"
 
 _Part of the [` @remotion/shapes`](/docs/shapes) package._
 
-Renders an SVG element containing a triangle.
+Renders an SVG element containing a triangle with same length on all sides.
 
 ## Example
 
