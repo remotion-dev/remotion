@@ -188,7 +188,7 @@ Config.Preview.setNumberOfSharedAudioTags(5);
 
 _available from v3.3.19_
 
-Whether Remotion should open a browser when starting the Preview. Default `false`.
+Whether Remotion should open a browser when starting the Preview. Default `true`.
 
 ```ts twoslash
 import { Config } from "remotion";
