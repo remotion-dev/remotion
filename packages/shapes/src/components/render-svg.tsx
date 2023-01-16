@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 
 export type AllShapesProps = {
 	style?: React.CSSProperties;
@@ -7,7 +7,7 @@ export type AllShapesProps = {
 	fill?: string;
 };
 
-export const renderSvg = ({
+export const RenderSvg = ({
 	width,
 	height,
 	path,
@@ -20,13 +20,21 @@ export const renderSvg = ({
 	height: number;
 	path: string;
 } & AllShapesProps) => {
+	const actualStyle = useMemo(() => {
+		return {
+			display: 'inline-block',
+			verticalAlign: 'middle',
+			...(style ?? {}),
+		};
+	}, [style]);
+
 	return (
 		<svg
 			width={width}
 			height={height}
 			viewBox={`0 0 ${width} ${height}`}
 			xmlns="http://www.w3.org/2000/svg"
-			style={style}
+			style={actualStyle}
 			data-shape-type="triangle"
 		>
 			<path d={path} fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
