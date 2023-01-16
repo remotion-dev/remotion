@@ -9,10 +9,6 @@ _Part of the [`@remotion/shapes`](/docs/shapes) package._
 
 Renders an SVG element drawing a circle.
 
-## Props
-
-<ShapeOptions shape="circle" all />
-
 ## Example
 
 ```tsx twoslash title="src/Circle.tsx"
@@ -33,6 +29,10 @@ export const MyComposition = () => {
   );
 };
 ```
+
+## Props
+
+<ShapeOptions shape="circle" all />
 
 ## See also
 
