@@ -6,13 +6,7 @@ import {renderSvg} from './render-svg';
 
 export type CircleProps = MakeCircleProps & AllShapesProps;
 
-export const Circle: React.FC<CircleProps> = ({
-	fill,
-	stroke,
-	strokeWidth,
-	style,
-	radius,
-}) => {
+export const Circle: React.FC<CircleProps> = ({fill, radius, ...props}) => {
 	const size = radius * 2;
 
 	return renderSvg({
@@ -22,8 +16,6 @@ export const Circle: React.FC<CircleProps> = ({
 		height: size,
 		width: size,
 		fill,
-		stroke,
-		strokeWidth,
-		style,
+		...props,
 	});
 };

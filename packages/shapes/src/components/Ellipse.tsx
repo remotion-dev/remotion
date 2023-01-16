@@ -1,23 +1,12 @@
 import type React from 'react';
 import type {MakeEllipseOptions} from '../make-ellipse';
 import {makeEllipse} from '../make-ellipse';
+import type {AllShapesProps} from './render-svg';
 import {renderSvg} from './render-svg';
 
-export type EllipseProps = MakeEllipseOptions & {
-	fill?: string;
-	stroke?: string;
-	strokeWidth?: number;
-	style?: React.CSSProperties;
-};
+export type EllipseProps = MakeEllipseOptions & AllShapesProps;
 
-export const Ellipse: React.FC<EllipseProps> = ({
-	fill,
-	stroke,
-	strokeWidth,
-	rx,
-	ry,
-	style,
-}) => {
+export const Ellipse: React.FC<EllipseProps> = ({rx, ry, ...props}) => {
 	const path = makeEllipse({
 		rx,
 		ry,
@@ -27,9 +16,6 @@ export const Ellipse: React.FC<EllipseProps> = ({
 		height: ry * 2,
 		path,
 		width: rx * 2,
-		fill,
-		style,
-		strokeWidth,
-		stroke,
+		...props,
 	});
 };
