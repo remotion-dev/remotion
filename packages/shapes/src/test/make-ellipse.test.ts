@@ -7,5 +7,6 @@ test('Should be able to make a circle path', () => {
 		path: 'M 100 0 a 100 50 0 1 0 1 0',
 		height: 100,
 		width: 200,
+		transformOrigin: '100 50',
 	});
 });
