@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-shapes-circle.png
 title: <Circle />
 crumb: "@remotion/shapes"
 ---
@@ -36,4 +37,4 @@ export const MyComposition = () => {
 
 ## See also
 
-<ShapeSeeAlso shape="ellipse"/>
+<ShapeSeeAlso shape="circle"/>

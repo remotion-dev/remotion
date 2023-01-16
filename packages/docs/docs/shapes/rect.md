@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-shapes-rect.png
 title: <Rect />
 crumb: "@remotion/shapes"
 ---

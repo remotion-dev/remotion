@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-shapes-make-ellipse.png
 title: makeEllipse()
 crumb: "@remotion/shapes"
 ---
