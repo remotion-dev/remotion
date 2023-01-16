@@ -3,39 +3,20 @@ title: <Rect />
 crumb: "@remotion/shapes"
 ---
 
+import {ShapeSeeAlso, ShapeOptions} from "../../components/shapes/shapes-info"
+
 _Part of the [` @remotion/shapes`](/docs/shapes) package._
 
-Generate a rectangle using SVG
+Renders an SVG element containing a rectangle.
 
 ## Props
 
-### `width`
-
-_number_
-
-The width of the rect and the view box.
-
-### `height`
-
-_number_
-
-The height of the rect and the view box.
-
-### `fill`
-
-_string_
-
-The fill color of the rect.
-
-### `style`
-
-_`React.CSSProperties`, optional_
-
-CSS styles applied to `svg` element.
+<ShapeOptions shape="rect" all />
 
 ## Example
 
-```tsx twoslash
+```tsx twoslash title="src/Rect.tsx"
+import { Rect } from "@remotion/shapes";
 import { AbsoluteFill } from "remotion";
 
 export const MyComposition = () => {
@@ -55,7 +36,4 @@ export const MyComposition = () => {
 
 ## See also
 
-- [makeTriangle()](/docs/shapes/make-triangle)
-- [makeRect()](/docs/shapes/make-rect)
-- [`@remotion/shapes`](/docs/shapes)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/rect.tsx)
+<ShapeSeeAlso shape="rect"/>

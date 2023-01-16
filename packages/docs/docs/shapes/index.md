@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-shapes-index.png
 title: "@remotion/shapes"
-crumb: "SVG"
+crumb: "SVG component library"
 ---
 
 import {TableOfContents} from '../../components/TableOfContents/shapes';

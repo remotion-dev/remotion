@@ -3,26 +3,19 @@ title: <Circle />
 crumb: "@remotion/shapes"
 ---
 
-_Part of the [` @remotion/shapes`](/docs/shapes) package._
+import {ShapeSeeAlso, ShapeOptions} from "../../components/shapes/shapes-info"
 
-Generates Circle SVG component
+_Part of the [`@remotion/shapes`](/docs/shapes) package._
 
-## Arguments
+Renders an SVG element drawing a circle.
 
-### `options`
+## Props
 
-An object with the following arguments:
+<ShapeOptions shape="circle" all />
 
-- `width`: `number` - The width of the circle
-- `height`: `number` - The height of the circle
-- `fill`: `string` `optional` - The color of the fill
-- `stroke`: `string` - The color of the stroke
-- `strokeWidth`: `number` - The width of the stroke
-- `style`: `React.CSSProperties` - The css styles applied to `svg` component
+## Example
 
-Use Circle SVG into Remotion
-
-```tsx twoslash
+```tsx twoslash title="src/Circle.tsx"
 import { Circle } from "@remotion/shapes";
 import { AbsoluteFill } from "remotion";
 
@@ -35,13 +28,7 @@ export const MyComposition = () => {
         alignItems: "center",
       }}
     >
-      <Circle
-        width={100}
-        height={100}
-        fill="green"
-        stroke="red"
-        strokeWidth={1}
-      />
+      <Circle radius={100} fill="green" stroke="red" strokeWidth={1} />
     </AbsoluteFill>
   );
 };

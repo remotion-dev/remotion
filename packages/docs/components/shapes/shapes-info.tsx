@@ -74,7 +74,8 @@ export const shapeComponents = [
 
 export const ShapeOptions: React.FC<{
   shape: string;
-}> = ({ shape }) => {
+  all: boolean;
+}> = ({ shape, all }) => {
   const shapeComponent = shapeComponents.find(
     (c) => c.shape.toLowerCase() === shape.toLowerCase()
   );
@@ -94,6 +95,7 @@ export const ShapeOptions: React.FC<{
           </React.Fragment>
         );
       })}
+      ALL
     </React.Fragment>
   );
 };
@@ -119,7 +121,37 @@ export const MakeShapeSeeAlso: React.FC<{
       </li>
       <li>
         <a
-          href={`https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/make-${shape.toLowerCase()}.ts`}
+          href={`https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/utils/make-${shape.toLowerCase()}.ts`}
+        >
+          Source code for this function
+        </a>
+      </li>
+    </ul>
+  );
+};
+
+export const ShapeSeeAlso: React.FC<{
+  shape: string;
+}> = ({ shape }) => {
+  const shapeComponent = shapeComponents.find(
+    (c) => c.shape.toLowerCase() === shape.toLowerCase()
+  );
+
+  return (
+    <ul>
+      <li>
+        <a
+          href={`/docs/shapes/${shapeComponent.shape.toLowerCase()}`}
+        >{`make${shapeComponent.shape}()`}</a>
+      </li>
+      <li>
+        <a href={`/docs/shapes`}>
+          <code>@remotion/shapes</code>
+        </a>
+      </li>
+      <li>
+        <a
+          href={`https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/components/${shape.toLowerCase()}.tsx`}
         >
           Source code for this function
         </a>

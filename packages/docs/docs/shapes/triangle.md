@@ -3,25 +3,19 @@ title: <Triangle />
 crumb: "@remotion/shapes"
 ---
 
+import {ShapeSeeAlso, ShapeOptions} from "../../components/shapes/shapes-info"
+
 _Part of the [` @remotion/shapes`](/docs/shapes) package._
 
-Generate Triangle SVG component
+Renders an SVG element containing a triangle.
 
-## Arguments
+## Props
 
-### `options`
+<ShapeOptions shape="ellipse" all />
 
-An object with the following arguments:
+## Example
 
-- `width`: `number` - The width of the triangle
-- `height`: `number` - he height of the triangle
-- `fill`: `string` `optional` - The fill color
-- `direction`: `string` - The identifier what kind of rectangle, possible values `left`, `right`, `top` and `bottom`
-- `style`: `React.CSSProperties` - The radius of the circle. A value lower or equal to zero disables rendering of the circle
-
-Example Triangle SVG
-
-```tsx twoslash
+```tsx twoslash title="src/Triangle.tsx"
 import { Triangle } from "@remotion/shapes";
 import { AbsoluteFill } from "remotion";
 
@@ -34,7 +28,7 @@ export const MyComposition = () => {
         alignItems: "center",
       }}
     >
-      <Triangle width={100} height={100} fill="red" direction="left" />
+      <Triangle length={100} fill="red" direction="left" />
     </AbsoluteFill>
   );
 };
@@ -42,5 +36,4 @@ export const MyComposition = () => {
 
 ## See also
 
-- [makeTriangle()](/docs/shapes/make-triangle)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/triangle.tsx)
+<ShapeSeeAlso shape="triangle"/>
