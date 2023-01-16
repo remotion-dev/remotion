@@ -17,8 +17,7 @@ const TriangleTest: React.FC = () => {
 				style={{
 					margin: '10px',
 				}}
-				width={100}
-				height={100}
+				length={100}
 				fill="red"
 				direction="left"
 			/>
@@ -27,8 +26,7 @@ const TriangleTest: React.FC = () => {
 				style={{
 					margin: '10px',
 				}}
-				width={100}
-				height={100}
+				length={100}
 				fill="red"
 				direction="right"
 			/>
@@ -36,8 +34,7 @@ const TriangleTest: React.FC = () => {
 				style={{
 					margin: '10px',
 				}}
-				width={100}
-				height={100}
+				length={100}
 				fill="red"
 				direction="top"
 			/>
@@ -45,8 +42,7 @@ const TriangleTest: React.FC = () => {
 				style={{
 					margin: '10px',
 				}}
-				width={100}
-				height={100}
+				length={100}
 				fill="red"
 				direction="bottom"
 			/>
