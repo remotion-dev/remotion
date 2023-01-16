@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest';
-import {makeEllipse} from '../make-ellipse';
+import {makeEllipse} from '../utils/make-ellipse';
 
 test('Should be able to make a circle path', () => {
 	const circlePath = makeEllipse({rx: 50, ry: 50});

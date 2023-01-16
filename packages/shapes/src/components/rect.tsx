@@ -1,6 +1,6 @@
 import React from 'react';
-import type {MakeRectOptions} from '../make-rect';
-import {makeRect} from '../make-rect';
+import type {MakeRectOptions} from '../utils/make-rect';
+import {makeRect} from '../utils/make-rect';
 import type {AllShapesProps} from './render-svg';
 import {RenderSvg} from './render-svg';
 
