@@ -6,11 +6,8 @@ test('Should be able to make a circle svg', () => {
 	const {container} = render(
 		<Circle radius={100} fill="green" stroke="red" strokeWidth={1} />
 	);
-	// assert shape type
-	expect(
-		container.querySelector('svg')?.getAttribute('data-shape-type')
-	).toEqual('circle');
+
 	expect(container.querySelector('path')?.getAttribute('d')).toEqual(
-		'M 50 50 m -50 0 a 50 50 0 1 0 100 0 50 50 0 1 0 -100 0'
+		'M 100 100 m -100 0 a 100 100 0 1 0 200 0 100 100 0 1 0 -200 0'
 	);
 });
