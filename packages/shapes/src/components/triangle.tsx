@@ -8,18 +8,16 @@ export type TriangleProps = MakeTriangleProps & AllShapesProps;
 
 export const Triangle: React.FC<TriangleProps> = ({
 	// TODO: Do not use width and height, but use length of a side
-	width,
-	height,
+	length,
 	direction,
 	...props
 }) => {
 	return (
 		<RenderSvg
-			height={height}
-			width={width}
+			height={100}
+			width={100}
 			path={makeTriangle({
-				width,
-				height,
+				length,
 				direction,
 			})}
 			{...props}
