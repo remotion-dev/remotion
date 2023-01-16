@@ -1,6 +1,6 @@
 import React from 'react';
-import type {MakeTriangleProps} from '../make-triangle';
-import {makeTriangle} from '../make-triangle';
+import type {MakeTriangleProps} from '../utils/make-triangle';
+import {makeTriangle} from '../utils/make-triangle';
 import type {AllShapesProps} from './render-svg';
 import {RenderSvg} from './render-svg';
 

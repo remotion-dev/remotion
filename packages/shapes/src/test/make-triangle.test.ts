@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest';
-import {makeTriangle} from '../make-triangle';
+import {makeTriangle} from '../utils/make-triangle';
 
 test('Should be able to make a triangle path', () => {
 	const rightTriangle = makeTriangle({

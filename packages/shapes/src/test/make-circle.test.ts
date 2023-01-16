@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest';
-import {makeCircle} from '../make-circle';
+import {makeCircle} from '../utils/make-circle';
 
 test('Should be able to make a circle path', () => {
 	const circlePath = makeCircle({radius: 50});

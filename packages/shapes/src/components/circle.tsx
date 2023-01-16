@@ -1,6 +1,6 @@
 import React from 'react';
-import type {MakeCircleProps} from '../make-circle';
-import {makeCircle} from '../make-circle';
+import type {MakeCircleProps} from '../utils/make-circle';
+import {makeCircle} from '../utils/make-circle';
 import type {AllShapesProps} from './render-svg';
 import {RenderSvg} from './render-svg';
 
