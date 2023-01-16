@@ -10,13 +10,11 @@ export const TableOfContents: React.FC = () => {
         {shapeComponents.map((c) => {
           return (
             <React.Fragment key={c.shape}>
-              <TOCItem
-                link={"/docs/shapes/make" + Number(c.shape.toLowerCase())}
-              >
+              <TOCItem link={"/docs/shapes/make-" + c.shape.toLowerCase()}>
                 <strong>make{c.shape}()</strong>
                 <div>Generate SVG Path for a {c.shape.toLowerCase()}</div>
               </TOCItem>
-              <TOCItem link={"/docs/shapes/make-" + c.shape.toLowerCase()}>
+              <TOCItem link={"/docs/shapes/" + c.shape.toLowerCase()}>
                 <strong>{"<" + c.shape + "/>"}</strong>
                 <div>Render a {c.shape.toLowerCase()}</div>
               </TOCItem>
