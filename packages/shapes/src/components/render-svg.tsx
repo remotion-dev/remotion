@@ -35,7 +35,6 @@ export const RenderSvg = ({
 			viewBox={`0 0 ${width} ${height}`}
 			xmlns="http://www.w3.org/2000/svg"
 			style={actualStyle}
-			data-shape-type="triangle"
 		>
 			<path d={path} fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
 		</svg>
