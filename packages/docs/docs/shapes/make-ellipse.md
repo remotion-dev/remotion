@@ -35,7 +35,6 @@ Source code stems mostly from [triangle](https://stackblitz.com/edit/react-trian
 
 ## See also
 
-- [`<Ellipse>`](/docs/shapes/ellipse)
-- [makeRect()](/docs/shapes/make-rect)
-- [`@remotion/shapes`](/docs/shapes)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/make-triangle.ts)
+import {MakeShapeSeeAlso} from "../../components/shapes/shapes-info"
+
+<MakeShapeSeeAlso shape="ellipse"/>

@@ -40,7 +40,6 @@ console.log(rect); // M 50 50 l 100 0 l 0 100 l -100 0 Z
 
 ## See also
 
-- [makeTriangle()](/docs/shapes/make-triangle)
-- [makeCircle()](/docs/shapes/make-circle)
-- [`@remotion/shapes`](/docs/shapes)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/make-rect.ts)
+import {MakeShapeSeeAlso} from "../../components/shapes/shapes-info"
+
+<MakeShapeSeeAlso shape="rect"/>

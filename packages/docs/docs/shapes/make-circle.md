@@ -28,7 +28,6 @@ console.log(circlePath); // M 50 50 m -50, 0 a 50,50 0 1,0 100,0  50,50 0 1,0 -1
 
 ## See also
 
-- [makeTriangle()](/docs/shapes/make-triangle)
-- [makeRect()](/docs/shapes/make-rect)
-- [`@remotion/shapes`](/docs/shapes)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/make-triangle.ts)
+import {MakeShapeSeeAlso} from "../../components/shapes/shapes-info"
+
+<MakeShapeSeeAlso shape="circle"/>
