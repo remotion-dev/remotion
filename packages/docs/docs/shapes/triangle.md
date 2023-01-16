@@ -9,10 +9,6 @@ _Part of the [` @remotion/shapes`](/docs/shapes) package._
 
 Renders an SVG element containing a triangle.
 
-## Props
-
-<ShapeOptions shape="ellipse" all />
-
 ## Example
 
 ```tsx twoslash title="src/Triangle.tsx"
@@ -33,6 +29,10 @@ export const MyComposition = () => {
   );
 };
 ```
+
+## Props
+
+<ShapeOptions shape="ellipse" all />
 
 ## See also
 

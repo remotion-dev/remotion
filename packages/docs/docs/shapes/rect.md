@@ -9,10 +9,6 @@ _Part of the [` @remotion/shapes`](/docs/shapes) package._
 
 Renders an SVG element containing a rectangle.
 
-## Props
-
-<ShapeOptions shape="rect" all />
-
 ## Example
 
 ```tsx twoslash title="src/Rect.tsx"
@@ -33,6 +29,10 @@ export const MyComposition = () => {
   );
 };
 ```
+
+## Props
+
+<ShapeOptions shape="rect" all />
 
 ## See also
 
