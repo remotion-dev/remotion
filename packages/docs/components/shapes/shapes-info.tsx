@@ -107,6 +107,17 @@ const globalParams: Param[] = [
     description: (
       <>
         CSS properties that will be applied to the <code>{"<svg>"}</code> tag.
+        Default style: <code>{"overflow: 'visible'"}</code>
+      </>
+    ),
+  },
+  {
+    name: "pathStyle",
+    type: "string",
+    description: (
+      <>
+        CSS properties that will be applied to the <code>{"<path>"}</code> tag.
+        Default style: <code>{"overflow: 'visible'"}</code>
       </>
     ),
   },
