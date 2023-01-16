@@ -1,5 +1,7 @@
 // Copied from https://stackblitz.com/edit/react-triangle-svg?file=index.js
 
+import type {ShapeInfo} from './shape-info';
+
 export type MakeTriangleProps = {
 	length: number;
 	direction: 'right' | 'left' | 'top' | 'bottom';
@@ -8,7 +10,7 @@ export type MakeTriangleProps = {
 export const makeTriangle = ({
 	length,
 	direction = 'right',
-}: MakeTriangleProps) => {
+}: MakeTriangleProps): ShapeInfo => {
 	const longerDimension = length;
 	const shorterSize = Math.sqrt(length ** 2 * 0.75); // Calculated on paper;
 
@@ -42,5 +44,11 @@ export const makeTriangle = ({
 			`0 ${longerDimension / 2}`,
 		],
 	};
-	return `M ${points[direction].join(' ')} z`;
+
+	return {
+		path: `M ${points[direction].join(' ')} z`,
+		width: direction === 'top' || direction === 'bottom' ? length : shorterSize,
+		height:
+			direction === 'top' || direction === 'bottom' ? shorterSize : length,
+	};
 };
