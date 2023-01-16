@@ -4,7 +4,7 @@ title: <Circle />
 crumb: "@remotion/shapes"
 ---
 
-import {ShapeSeeAlso, ShapeOptions, ShapeSeeAlso} from "../../components/shapes/shapes-info"
+import {ShapeSeeAlso, ShapeOptions} from "../../components/shapes/shapes-info"
 
 _Part of the [`@remotion/shapes`](/docs/shapes) package._
 
