@@ -3,31 +3,28 @@ title: makeCircle()
 crumb: "@remotion/shapes"
 ---
 
-_Part of the [` @remotion/shapes`](/docs/shapes) package._
+_Part of the [`@remotion/shapes`](/docs/shapes) package._
 
-Generates Circle SVG path
+Generates a circle SVG path.
 
 ## Arguments
 
-### `options`
+<ShapeOptions shape="circle"/>
 
-An object with the following arguments:
+## Example
 
-- `cx`: `number` - The x axis coordinate of the center of the circle
-- `cy`: `number` - The y axis coordinate of the center of the circle
-- `radius`: `number` - The radius of the circle. A value lower or equal to zero disables rendering of the circle
-
-Example Circle path generation
-
-```tsx twoslash
+```tsx twoslash title="circle.ts"
 import { makeCircle } from "@remotion/shapes";
-const circlePath = makeCircle({ cx: 50, cy: 50, radius: 50 });
 
-console.log(circlePath); // M 50 50 m -50, 0 a 50,50 0 1,0 100,0  50,50 0 1,0 -100,0
+const { path, width, height } = makeCircle({ radius: 50 });
+
+console.log(path); // M 0 0 m -50, 0 a 50,50 0 1,0 100,0  50,50 0 1,0 -100,0
+console.log(width); // 100
+console.log(height); // 100
 ```
 
 ## See also
 
-import {MakeShapeSeeAlso} from "../../components/shapes/shapes-info"
+import {MakeShapeSeeAlso, ShapeOptions} from "../../components/shapes/shapes-info"
 
 <MakeShapeSeeAlso shape="circle"/>
