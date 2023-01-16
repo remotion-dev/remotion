@@ -1,8 +1,15 @@
 import type {ShapeInfo} from './shape-info';
 
-export type MakeCircleProps = {
-	radius: number;
+const circleParams = {
+	name: 'radius' as const,
+	description: 'The radius of the circle',
+	exampleValue: 10 as number,
 };
+
+const options = [circleParams] as const;
+
+type Values = typeof options[number];
+export type MakeCircleProps = {[key in Values['name']]: Values['exampleValue']};
 
 export const makeCircle = ({radius}: MakeCircleProps): ShapeInfo => {
 	const cx = radius;
