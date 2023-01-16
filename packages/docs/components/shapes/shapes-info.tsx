@@ -97,6 +97,16 @@ const globalParams: Param[] = [
     ),
   },
   {
+    name: "strokeWidth",
+    type: "string",
+    description: (
+      <>
+        The width of the stroke. Should be used together with{" "}
+        <code>stroke</code>.
+      </>
+    ),
+  },
+  {
     name: "style",
     type: "string",
     description: (
@@ -119,16 +129,7 @@ const globalParams: Param[] = [
       </>
     ),
   },
-  {
-    name: "strokeWidth",
-    type: "string",
-    description: (
-      <>
-        The width of the stroke. Should be used together with{" "}
-        <code>stroke</code>.
-      </>
-    ),
-  },
+
   {
     name: "strokeDasharray",
     type: "string",
