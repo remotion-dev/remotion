@@ -6,7 +6,20 @@ import {
 } from "@remotion/shapes";
 import React from "react";
 
-export const shapeComponents = [
+type Param = {
+  name: string;
+  type: string;
+  description: React.ReactNode;
+};
+
+type ShapeComponent = {
+  shape: string;
+  name: string;
+  fn: (options: unknown) => unknown;
+  params: Param[];
+};
+
+export const shapeComponents: ShapeComponent[] = [
   {
     shape: "Rect",
     name: "<Rect>",
@@ -72,6 +85,34 @@ export const shapeComponents = [
   },
 ];
 
+const globalParams: Param[] = [
+  {
+    name: "fill",
+    type: "string",
+    description: "The color of the shape.",
+  },
+  {
+    name: "stroke",
+    type: "string",
+    description: (
+      <>
+        The color of the stroke. Should be used together with{" "}
+        <code>strokeWidth</code>.
+      </>
+    ),
+  },
+  {
+    name: "strokeWidth",
+    type: "string",
+    description: (
+      <>
+        The width of the stroke. Should be used together with{" "}
+        <code>stroke</code>.
+      </>
+    ),
+  },
+];
+
 export const ShapeOptions: React.FC<{
   shape: string;
   all: boolean;
@@ -82,7 +123,10 @@ export const ShapeOptions: React.FC<{
 
   return (
     <React.Fragment>
-      {shapeComponent.params.map((p) => {
+      {(all
+        ? [...shapeComponent.params, ...globalParams]
+        : shapeComponent.params
+      ).map((p) => {
         return (
           <React.Fragment key={p.name}>
             <h3>
@@ -95,7 +139,6 @@ export const ShapeOptions: React.FC<{
           </React.Fragment>
         );
       })}
-      ALL
     </React.Fragment>
   );
 };
