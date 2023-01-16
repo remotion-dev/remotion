@@ -1,5 +1,5 @@
 import type React from 'react';
-import {makeRect} from './make-rect';
+import {makeRect} from '../make-rect';
 import {renderSvg} from './render-svg';
 
 export type SquareProps = {

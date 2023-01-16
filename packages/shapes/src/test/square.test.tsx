@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest';
-import {Rect} from '../rect';
+import {Rect} from '../components/rect';
 import {render} from './test-utils';
 
 test('Should be able to make a rect svg', () => {

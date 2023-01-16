@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest';
-import {Circle} from '../circle';
+import {Circle} from '../components/circle';
 import {render} from './test-utils';
 
 test('Should be able to make a circle svg', () => {

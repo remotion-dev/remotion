@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest';
-import {Triangle} from '../triangle';
+import {Triangle} from '../components/triangle';
 import {render} from './test-utils';
 
 test('Should be able to make a triangle svg', () => {
