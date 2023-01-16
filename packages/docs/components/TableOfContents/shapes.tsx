@@ -1,4 +1,5 @@
 import React from "react";
+import { shapeComponents } from "../shapes/shapes-info";
 import { Grid } from "./Grid";
 import { TOCItem } from "./TOCItem";
 
@@ -6,30 +7,22 @@ export const TableOfContents: React.FC = () => {
   return (
     <div>
       <Grid>
-        <TOCItem link="/docs/shapes/make-circle">
-          <strong>makeCircle()</strong>
-          <div>Generate circle path</div>
-        </TOCItem>
-        <TOCItem link="/docs/shapes/make-rect">
-          <strong>makeRect()</strong>
-          <div>Generate circle path</div>
-        </TOCItem>
-        <TOCItem link="/docs/shapes/make-triangle">
-          <strong>makeTriangle()</strong>
-          <div>Generate triangle path</div>
-        </TOCItem>
-        <TOCItem link="/docs/shapes/circle">
-          <strong>{`<Circle/>`}</strong>
-          <div>Generates Circle SVG</div>
-        </TOCItem>
-        <TOCItem link="/docs/shapes/rect">
-          <strong>{`<Rect/>`}</strong>
-          <div>Generates a Rectangle SVG</div>
-        </TOCItem>
-        <TOCItem link="/docs/shapes/triangle">
-          <strong>{`<Triangle/>`}</strong>
-          <div>Generates Triangle SVG</div>
-        </TOCItem>
+        {shapeComponents.map((c) => {
+          return (
+            <React.Fragment key={c.shape}>
+              <TOCItem
+                link={"/docs/shapes/make" + Number(c.shape.toLowerCase())}
+              >
+                <strong>make{c.shape}()</strong>
+                <div>Generate SVG Path for a {c.shape.toLowerCase()}</div>
+              </TOCItem>
+              <TOCItem link={"/docs/shapes/make-" + c.shape.toLowerCase()}>
+                <strong>{"<" + c.shape + "/>"}</strong>
+                <div>Render a {c.shape.toLowerCase()}</div>
+              </TOCItem>
+            </React.Fragment>
+          );
+        })}
       </Grid>
     </div>
   );
