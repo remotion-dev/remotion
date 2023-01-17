@@ -6,6 +6,7 @@ import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {checkNodeVersionAndWarnAboutRosetta} from './check-apple-silicon';
 import {DEFAULT_CODEC, validCodecs} from './codec';
+import {combineVideos} from './combine-videos';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
@@ -58,7 +59,6 @@ export {Browser} from './browser';
 export {BrowserExecutable} from './browser-executable';
 export {BrowserLog} from './browser-log';
 export {Codec, CodecOrUndefined} from './codec';
-export {combineVideos} from './combine-videos';
 export {Crf} from './crf';
 export {
 	ensureFfmpeg,
@@ -153,6 +153,7 @@ export const RenderInternals = {
 	getExecutableBinary,
 	validateBitrate,
 	getFfmpegVersion,
+	combineVideos,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
