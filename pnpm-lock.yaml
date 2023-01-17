@@ -542,7 +542,7 @@ importers:
       '@types/react-dom': 18.0.10
       esbuild: 0.16.12
       eslint: 8.25.0
-      gifuct-js: 2.1.2
+      js-binary-schema-parser: ^2.0.3
       lru_map: 0.4.1
       prettier: 2.6.2
       prettier-plugin-organize-imports: ^2.3.4
@@ -552,7 +552,7 @@ importers:
       typescript: ^4.7.0
       webpack: 5.74.0
     dependencies:
-      gifuct-js: 2.1.2
+      js-binary-schema-parser: 2.0.3
       lru_map: 0.4.1
       remotion: link:../core
     devDependencies:
@@ -11298,7 +11298,7 @@ packages:
       normalize-path: 3.0.0
       schema-utils: 4.0.0
       serialize-javascript: 6.0.0
-      webpack: 5.74.0_@swc+core@1.3.27
+      webpack: 5.74.0
     dev: false
 
   /core-js-compat/3.18.1:
@@ -13730,12 +13730,6 @@ packages:
       assert-plus: 1.0.0
     dev: false
 
-  /gifuct-js/2.1.2:
-    resolution: {integrity: sha512-rI2asw77u0mGgwhV3qA+OEgYqaDn5UNqgs+Bx0FGwSpuqfYn+Ir6RQY5ENNQ8SbIiG/m5gVa7CD5RriO4f4Lsg==}
-    dependencies:
-      js-binary-schema-parser: 2.0.3
-    dev: false
-
   /git-raw-commits/2.0.10:
     resolution: {integrity: sha512-sHhX5lsbG9SOO6yXdlwgEMQ/ljIn7qMpAbJZCGfXX2fq5T8M5SrDnpYk9/4HswTildcIqatsWa91vty6VhWSaQ==}
     engines: {node: '>=10'}
@@ -14277,7 +14271,7 @@ packages:
       lodash: 4.17.21
       pretty-error: 4.0.0
       tapable: 2.2.1
-      webpack: 5.74.0_@swc+core@1.3.27
+      webpack: 5.74.0_esbuild@0.16.12
     dev: false
 
   /htmlparser2/6.1.0:
@@ -21932,7 +21926,7 @@ packages:
       mime-types: 2.1.34
       range-parser: 1.2.1
       schema-utils: 4.0.0
-      webpack: 5.74.0_@swc+core@1.3.27
+      webpack: 5.74.0_esbuild@0.16.12
     dev: false
 
   /webpack-dev-server/4.11.1_webpack@5.74.0:
