@@ -113,11 +113,11 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 		setType(newType);
 	}, []);
 
-	const onWidthChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
-		(e) => {
+	const onWidthChanged = useCallback(
+		(newValue: string) => {
 			setSize((s) => {
 				const {height} = s;
-				const newWidth = Number(e.target.value);
+				const newWidth = Number(newValue);
 				return {
 					height:
 						lockedAspectRatio === null
@@ -164,11 +164,11 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 		[lockedAspectRatio]
 	);
 
-	const onHeightChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
-		(e) => {
+	const onHeightChanged = useCallback(
+		(newValue: string) => {
 			setSize((s) => {
 				const {width} = s;
-				const newHeight = Number(e.target.value);
+				const newHeight = Number(newValue);
 				return {
 					width:
 						lockedAspectRatio === null
@@ -289,10 +289,11 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 													type="number"
 													value={size.width}
 													placeholder="Width (px)"
-													onChange={onWidthChanged}
+													onTextChange={onWidthChanged}
 													name="width"
 													step={2}
 													min={2}
+													required
 													max={100000000}
 													onValueChange={onWidthDirectlyChanged}
 												/>
@@ -313,10 +314,11 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 											<InputDragger
 												type="number"
 												value={size.height}
-												onChange={onHeightChanged}
+												onTextChange={onHeightChanged}
 												placeholder="Height (px)"
 												name="height"
 												step={2}
+												required
 												min={2}
 												max={100000000}
 												onValueChange={onHeightDirectlyChanged}
