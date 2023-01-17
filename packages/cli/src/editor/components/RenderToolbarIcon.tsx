@@ -41,6 +41,7 @@ export const RenderStillButton: React.FC = () => {
 			initialOutName: getDefaultOutLocation({
 				compositionName: video.id,
 				defaultExtension: isVideo ? 'mp4' : 'png',
+				type: 'asset',
 			}),
 			// TODO: Determine defaults from config file
 			initialQuality: window.remotion_renderDefaults?.quality ?? 80,

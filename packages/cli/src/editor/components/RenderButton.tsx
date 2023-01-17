@@ -37,6 +37,7 @@ export const RenderButton: React.FC<{
 				initialOutName: getDefaultOutLocation({
 					compositionName: composition.id,
 					defaultExtension: isVideo ? 'mp4' : 'png',
+					type: 'asset',
 				}),
 				initialRenderType: isVideo ? 'video' : 'still',
 				initialCodec: 'h264',

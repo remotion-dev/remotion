@@ -25,7 +25,7 @@ import {chalk} from '../chalk';
 import {ConfigInternals} from '../config';
 import {
 	getAndValidateAbsoluteOutputFile,
-	validateFfmepgCanUseCodec,
+	validateFfmpegCanUseCodec,
 } from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
 import {getOutputFilename} from '../get-filename';
@@ -104,7 +104,7 @@ export const renderCompFlow = async ({
 	outputLocationFromUI: string | null;
 	overwrite: boolean;
 	quiet: boolean;
-	concurrency: number | null;
+	concurrency: number | string | null;
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
 	configFileImageFormat: ImageFormat | undefined;
@@ -214,7 +214,7 @@ export const renderCompFlow = async ({
 		uiCodec,
 	});
 
-	validateFfmepgCanUseCodec(codec, remotionRoot);
+	validateFfmpegCanUseCodec(codec, remotionRoot);
 
 	RenderInternals.validateEvenDimensionsWithCodec({
 		width: config.width,
