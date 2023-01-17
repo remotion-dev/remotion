@@ -51,6 +51,8 @@ export const parse = (
 			for (let i = 0; i < frames.length; ++i) {
 				const frame = frames[i];
 
+				// Read about different disposal types
+				// https://giflib.sourceforge.net/whatsinagif/animation_and_transparency.html
 				const prevCanvas = frames[i].disposalType === 3 ? canvas.slice() : null;
 
 				readyFrames.push(putPixels(canvas, frame, options));
