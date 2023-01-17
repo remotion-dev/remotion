@@ -17,5 +17,6 @@ export const listOfRemotionPackages = [
 	'@remotion/preload',
 	'@remotion/three',
 	'@remotion/gif',
+	'@remotion/shapes',
 	'remotion',
 ];
