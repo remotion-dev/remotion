@@ -63,6 +63,10 @@ pnpm i three @react-three/fiber @remotion/three @types/three
 
 You are now set up and can render a [`<ThreeCanvas />`](/docs/three-canvas) in your project.
 
+## Note on `<Sequence>`
+
+A [`<Sequence>`](/docs/sequence) by default will return a `<div>` component which is not allows inside a `<ThreeCanvas>`. To avoid an error, pass `layout="none"` to `<Sequence>`.
+
 ## Thanks
 
 Big thanks to [Björn Zeutzheim](https://github.com/olee) for researching and discovering the techniques needed for React Three Fiber integration and for doing the initial implementation of the @remotion/three APIs.
