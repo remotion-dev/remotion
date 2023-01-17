@@ -1,5 +1,5 @@
-import type {Frame, ParsedFrameWithoutPatch, ParsedGif} from 'gifuct-js';
-import {parseGIF} from 'gifuct-js';
+import {parseGIF} from './gifuct';
+import type {Frame, ParsedFrameWithoutPatch, ParsedGif} from './gifuct/types';
 import {decompressFrames} from './parser/decompress-frames';
 import type {GifState} from './props';
 
@@ -43,17 +43,34 @@ export const parse = (
 			])
 		)
 		.then(([frames, options]) => {
-			const readyFrames = [];
+			const readyFrames: Uint8ClampedArray[] = [];
 			const size = options.width * options.height * 4;
+
+			let canvas = new Uint8ClampedArray(size);
 
 			for (let i = 0; i < frames.length; ++i) {
 				const frame = frames[i];
-				const typedArray: Uint8ClampedArray =
-					i === 0 || frames[i - 1].disposalType === 2
-						? new Uint8ClampedArray(size)
-						: readyFrames[i - 1].slice();
 
-				readyFrames.push(putPixels(typedArray, frame, options));
+				const prevCanvas = frames[i].disposalType === 3 ? canvas.slice() : null;
+
+				readyFrames.push(putPixels(canvas, frame, options));
+
+				// Disposal type 2: The canvas should be restored to the background color
+				if (frames[i].disposalType === 2) {
+					canvas = new Uint8ClampedArray(size);
+				}
+				// Disposal type 3: The decoder should restore the canvas to its previous state before the current image was drawn
+				else if (frames[i].disposalType === 3) {
+					if (!prevCanvas) {
+						throw Error('Disposal type 3 without previous frame');
+					}
+
+					canvas = prevCanvas;
+				}
+				// Disposal type 1: Draw the next image on top of it
+				else {
+					canvas = readyFrames[i].slice();
+				}
 			}
 
 			return {
@@ -80,11 +97,12 @@ const putPixels = (
 			const colorIndex = frame.pixels[pPos];
 			if (colorIndex !== frame.transparentIndex) {
 				const taPos = offset + y * gifSize.width + x;
-				const color = frame.colorTable[colorIndex] || [0, 0, 0];
+				const color = frame.colorTable[colorIndex];
 				typedArray[taPos * 4] = color[0];
 				typedArray[taPos * 4 + 1] = color[1];
 				typedArray[taPos * 4 + 2] = color[2];
-				typedArray[taPos * 4 + 3] = 255;
+				typedArray[taPos * 4 + 3] =
+					colorIndex === frame.transparentIndex ? 0 : 255;
 			}
 		}
 	}
