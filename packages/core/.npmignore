@@ -9,3 +9,4 @@ generate-badges.js
 coverage
 ensure-correct-version.js
 vitest.config.ts
+.turbo

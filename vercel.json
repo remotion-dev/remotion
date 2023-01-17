@@ -51,6 +51,11 @@
       "permanent": false
     },
     {
+      "source": "/shapes",
+      "destination": "/docs/shapes",
+      "permanent": false
+    },
+    {
       "source": "/api",
       "destination": "/docs/api",
       "permanent": false
