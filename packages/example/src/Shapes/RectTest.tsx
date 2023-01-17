@@ -12,7 +12,7 @@ const RectTest: React.FC = () => {
 				alignItems: 'center',
 			}}
 		>
-			<Rect width={200} height={400} fill="red" />
+			<Rect width={200} height={400} />
 		</AbsoluteFill>
 	);
 };

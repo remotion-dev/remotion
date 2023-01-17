@@ -59,7 +59,7 @@ export const makeTriangle = ({
 		right: longerDimension / 2,
 	}[direction];
 
-	const instructions = joinPoints(points[direction], {squircleFactor: 1});
+	const instructions = joinPoints(points[direction], {squircleFactor: 0.7});
 	const path = serializeInstructions(instructions);
 
 	return {
