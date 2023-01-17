@@ -310,6 +310,7 @@ importers:
       '@remotion/three': 3.3.32
       '@shopify/react-native-skia': ^0.1.139
       '@splitbee/web': ^0.2.4
+      '@swc/core': ^1.3.27
       '@tsconfig/docusaurus': ^1.0.5
       '@types/color-namer': ^1.3.0
       '@types/hls.js': ^0.13.3
@@ -370,6 +371,7 @@ importers:
       '@remotion/three': link:../three
       '@shopify/react-native-skia': 0.1.139_rlxvagb2l2jceoxbyljoesn5oa
       '@splitbee/web': 0.2.4
+      '@swc/core': 1.3.27
       '@types/uuid': 8.3.4
       chalk: 4.1.2
       clipboard: 2.0.8
@@ -11296,7 +11298,7 @@ packages:
       normalize-path: 3.0.0
       schema-utils: 4.0.0
       serialize-javascript: 6.0.0
-      webpack: 5.74.0
+      webpack: 5.74.0_@swc+core@1.3.27
     dev: false
 
   /core-js-compat/3.18.1:
@@ -14275,7 +14277,7 @@ packages:
       lodash: 4.17.21
       pretty-error: 4.0.0
       tapable: 2.2.1
-      webpack: 5.74.0_esbuild@0.16.12
+      webpack: 5.74.0_@swc+core@1.3.27
     dev: false
 
   /htmlparser2/6.1.0:
@@ -21930,7 +21932,7 @@ packages:
       mime-types: 2.1.34
       range-parser: 1.2.1
       schema-utils: 4.0.0
-      webpack: 5.74.0_esbuild@0.16.12
+      webpack: 5.74.0_@swc+core@1.3.27
     dev: false
 
   /webpack-dev-server/4.11.1_webpack@5.74.0:
