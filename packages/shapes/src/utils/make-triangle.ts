@@ -1,10 +1,13 @@
 // Copied from https://stackblitz.com/edit/react-triangle-svg?file=index.js
 
+import {joinPoints} from './join-points';
 import type {ShapeInfo} from './shape-info';
+
+type Direction = 'right' | 'left' | 'top' | 'bottom';
 
 export type MakeTriangleProps = {
 	length: number;
-	direction: 'right' | 'left' | 'top' | 'bottom';
+	direction: Direction;
 };
 
 export const makeTriangle = ({
@@ -14,34 +17,26 @@ export const makeTriangle = ({
 	const longerDimension = length;
 	const shorterSize = Math.sqrt(length ** 2 * 0.75); // Calculated on paper;
 
-	const points = {
+	const points: {[key in Direction]: [number, number][]} = {
 		top: [
-			`${longerDimension / 2} 0`,
-			'L',
-			`0 ${shorterSize}`,
-			'L',
-			`${longerDimension} ${shorterSize}`,
+			[longerDimension / 2, 0],
+			[0, shorterSize],
+			[longerDimension, shorterSize],
 		],
 		right: [
-			`0 0`,
-			'L',
-			`0 ${longerDimension}`,
-			'L',
-			`${shorterSize} ${longerDimension / 2}`,
+			[0, 0],
+			[0, longerDimension],
+			[shorterSize, longerDimension / 2],
 		],
 		bottom: [
-			`0 0`,
-			'L',
-			`${longerDimension} 0`,
-			'L',
-			`${longerDimension / 2} ${shorterSize}`,
+			[0, 0],
+			[longerDimension, 0],
+			[longerDimension / 2, shorterSize],
 		],
 		left: [
-			`${shorterSize} 0`,
-			'L',
-			`${shorterSize} ${longerDimension}`,
-			'L',
-			`0 ${longerDimension / 2}`,
+			[shorterSize, 0],
+			[shorterSize, longerDimension],
+			[0, longerDimension / 2],
 		],
 	};
 
@@ -60,7 +55,7 @@ export const makeTriangle = ({
 	}[direction];
 
 	return {
-		path: `M ${points[direction].join(' ')} z`,
+		path: joinPoints(points[direction]),
 		width: direction === 'top' || direction === 'bottom' ? length : shorterSize,
 		height:
 			direction === 'top' || direction === 'bottom' ? shorterSize : length,
