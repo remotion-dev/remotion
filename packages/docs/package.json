@@ -12,7 +12,7 @@
     "deploy": "docusaurus deploy",
     "serve": "docusaurus serve",
     "clear": "docusaurus clear",
-    "lint": "eslint src && eslint components",
+    "lint": "eslint components && eslint src",
     "test": "vitest --run",
     "remotion": "remotion preview src/remotion/entry.ts"
   },
