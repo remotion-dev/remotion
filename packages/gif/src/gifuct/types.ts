@@ -49,6 +49,7 @@ export type Frame = {
 			height: number;
 			lct: Lct;
 		};
+		lct: [number, number, number][] | undefined;
 	};
 };
 
