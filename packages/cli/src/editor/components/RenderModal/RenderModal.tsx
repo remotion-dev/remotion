@@ -1,6 +1,6 @@
 import type {Codec, StillImageFormat} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import type {ChangeEvent, ChangeEventHandler} from 'react';
+import type {ChangeEvent} from 'react';
 import React, {
 	useCallback,
 	useContext,
@@ -308,45 +308,39 @@ export const RenderModal: React.FC<{
 		setQuality(newQuality);
 	}, []);
 
-	const onQualityChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
-		(e) => {
-			setQuality((q) => {
-				const newQuality = parseInt(e.target.value, 10);
-				if (Number.isNaN(newQuality)) {
-					return q;
-				}
+	const onQualityChanged = useCallback((e: string) => {
+		setQuality((q) => {
+			const newQuality = parseInt(e, 10);
+			if (Number.isNaN(newQuality)) {
+				return q;
+			}
 
-				const newQualityClamped = Math.min(
-					MAX_QUALITY,
-					Math.max(newQuality, MIN_QUALITY)
-				);
-				return newQualityClamped;
-			});
-		},
-		[]
-	);
+			const newQualityClamped = Math.min(
+				MAX_QUALITY,
+				Math.max(newQuality, MIN_QUALITY)
+			);
+			return newQualityClamped;
+		});
+	}, []);
 
 	const onScaleSetDirectly = useCallback((newScale: number) => {
 		setScale(newScale);
 	}, []);
 
-	const onScaleChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
-		(e) => {
-			setScale((q) => {
-				const newScale = parseFloat(e.target.value);
-				if (Number.isNaN(newScale)) {
-					return q;
-				}
+	const onScaleChanged = useCallback((e: string) => {
+		setScale((q) => {
+			const newScale = parseFloat(e);
+			if (Number.isNaN(newScale)) {
+				return q;
+			}
 
-				const newScaleClamped = Math.min(
-					MAX_SCALE,
-					Math.max(newScale, MIN_SCALE)
-				);
-				return newScaleClamped;
-			});
-		},
-		[]
-	);
+			const newScaleClamped = Math.min(
+				MAX_SCALE,
+				Math.max(newScale, MIN_SCALE)
+			);
+			return newScaleClamped;
+		});
+	}, []);
 
 	const onFrameSetDirectly = useCallback(
 		(newFrame: number) => {
@@ -360,22 +354,19 @@ export const RenderModal: React.FC<{
 		[currentComposition.durationInFrames, setFrame]
 	);
 
-	const onFrameChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
-		(e) => {
-			setFrame((q) => {
-				const newFrame = parseFloat(e.target.value);
-				if (Number.isNaN(newFrame)) {
-					return q;
-				}
+	const onFrameChanged = useCallback((e: string) => {
+		setFrame((q) => {
+			const newFrame = parseFloat(e);
+			if (Number.isNaN(newFrame)) {
+				return q;
+			}
 
-				// TODO: User could change frame inbetween 😈
-				return newFrame > currentComposition.durationInFrames - 1
-					? currentComposition.durationInFrames - 1
-					: newFrame;
-			});
-		},
-		[]
-	);
+			// TODO: User could change frame inbetween 😈
+			return newFrame > currentComposition.durationInFrames - 1
+				? currentComposition.durationInFrames - 1
+				: newFrame;
+		});
+	}, []);
 
 	useEffect(() => {
 		return () => {
@@ -532,7 +523,7 @@ export const RenderModal: React.FC<{
 							<div style={rightRow}>
 								<InputDragger
 									value={frame}
-									onChange={onFrameChanged}
+									onTextChange={onFrameChanged}
 									// TODO: Actual frame
 									placeholder="0-100"
 									// TODO: Debug the number input field
@@ -556,7 +547,7 @@ export const RenderModal: React.FC<{
 							<div style={rightRow}>
 								<InputDragger
 									value={scale}
-									onChange={onScaleChanged}
+									onTextChange={onScaleChanged}
 									placeholder="0.1-10"
 									// TODO: Does not allow non-integer steps
 									// TODO: Cannot click and type in 0.2
@@ -586,7 +577,7 @@ export const RenderModal: React.FC<{
 								<div style={rightRow}>
 									<InputDragger
 										value={quality}
-										onChange={onQualityChanged}
+										onTextChange={onQualityChanged}
 										placeholder="0-100"
 										onValueChange={onQualityChangedDirectly}
 										name="quality"
@@ -657,7 +648,7 @@ export const RenderModal: React.FC<{
 						<div style={rightRow}>
 							<InputDragger
 								value={scale}
-								onChange={onScaleChanged}
+								onTextChange={onScaleChanged}
 								placeholder="0.1-10"
 								// TODO: Direct input does not allow non-integer steps
 								// TODO: Cannot click and type in 0.2
@@ -696,7 +687,7 @@ export const RenderModal: React.FC<{
 							<div style={rightRow}>
 								<InputDragger
 									value={quality}
-									onChange={onQualityChanged}
+									onTextChange={onQualityChanged}
 									placeholder="0-100"
 									onValueChange={onQualityChangedDirectly}
 									name="quality"

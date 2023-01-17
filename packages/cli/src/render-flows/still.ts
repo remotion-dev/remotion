@@ -209,6 +209,7 @@ export const renderStillFlow = async ({
 		compositionId,
 		defaultExtension: imageFormat,
 		args: argsAfterComposition,
+		type: 'asset',
 	});
 
 	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(
