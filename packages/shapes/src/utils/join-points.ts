@@ -5,9 +5,15 @@ export const joinPoints = (
 	{squircleFactor}: {squircleFactor: number}
 ) => {
 	return points.map(([x, y], i): Instruction => {
-		const prevPoint = i === 0 ? points[points.length - 2] : points[i - 1];
-		const nextPoint = i === points.length - 1 ? points[1] : points[i + 1];
-		const middleOfLine = [(x + prevPoint[0]) / 2, (y + prevPoint[1]) / 2];
+		const prevPointIndex = i === 0 ? points.length - 2 : i - 1;
+		const prevPoint = points[prevPointIndex];
+		const nextPointIndex = i === points.length - 1 ? 1 : i + 1;
+		const nextPoint = points[nextPointIndex];
+		const middleOfLine = [(x + nextPoint[0]) / 2, (y + nextPoint[1]) / 2];
+		const prevPointMiddleOfLine = [
+			(x + prevPoint[0]) / 2,
+			(y + prevPoint[1]) / 2,
+		];
 
 		if (i === 0) {
 			if (squircleFactor > 0) {
@@ -37,13 +43,13 @@ export const joinPoints = (
 		const nextVector = [nextPoint[0] - x, nextPoint[1] - y] as const;
 
 		const controlPoint1 = [
-			prevPoint[0] + prevVector[0] * squircleFactor * 0.5,
-			prevPoint[1] + prevVector[1] * squircleFactor * 0.5,
+			prevPointMiddleOfLine[0] + prevVector[0] * squircleFactor * 0.5,
+			prevPointMiddleOfLine[1] + prevVector[1] * squircleFactor * 0.5,
 		] as const;
 
 		const controlPoint2 = [
-			x - nextVector[0] * squircleFactor * 0.5,
-			y - nextVector[1] * squircleFactor * 0.5,
+			middleOfLine[0] - nextVector[0] * squircleFactor * 0.5,
+			middleOfLine[1] - nextVector[1] * squircleFactor * 0.5,
 		] as const;
 
 		return {
