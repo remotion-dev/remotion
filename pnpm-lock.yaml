@@ -28,7 +28,7 @@ importers:
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
       react-refresh: 0.9.0
-      remotion: 3.3.31
+      remotion: 3.3.32
       typescript: ^4.7.0
       webpack: 5.74.0
     dependencies:
@@ -70,7 +70,7 @@ importers:
       react: ^18.0.0
       react-dom: ^18.0.0
       react-refresh: 0.9.0
-      remotion: 3.3.31
+      remotion: 3.3.32
       style-loader: 2.0.0
       typescript: ^4.7.0
       vitest: 0.24.3
@@ -104,10 +104,10 @@ importers:
   packages/cli:
     specifiers:
       '@jonny/eslint-config': 3.0.266
-      '@remotion/bundler': 3.3.31
-      '@remotion/media-utils': 3.3.31
-      '@remotion/player': 3.3.31
-      '@remotion/renderer': 3.3.31
+      '@remotion/bundler': 3.3.32
+      '@remotion/media-utils': 3.3.32
+      '@remotion/player': 3.3.32
+      '@remotion/renderer': 3.3.32
       '@types/minimist': ^1.2.2
       '@types/node': ^16.7.5
       '@types/prompts': ^2.4.1
@@ -130,7 +130,7 @@ importers:
       prompts: 2.4.1
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.3.31
+      remotion: 3.3.32
       semver: 7.3.5
       source-map: 0.6.1
       typescript: ^4.7.0
@@ -291,23 +291,23 @@ importers:
       '@docusaurus/types': 2.2.0
       '@jonny/eslint-config': 3.0.266
       '@mdx-js/react': ^1.6.21
-      '@remotion/babel-loader': 3.3.31
-      '@remotion/bundler': 3.3.31
-      '@remotion/cli': 3.3.31
-      '@remotion/gif': 3.3.31
-      '@remotion/google-fonts': 3.3.31
-      '@remotion/lambda': 3.3.31
-      '@remotion/lottie': 3.3.31
-      '@remotion/media-utils': 3.3.31
-      '@remotion/motion-blur': 3.3.31
-      '@remotion/noise': 3.3.31
-      '@remotion/paths': 3.3.31
-      '@remotion/player': 3.3.31
-      '@remotion/preload': 3.3.31
-      '@remotion/renderer': 3.3.31
-      '@remotion/shapes': 3.3.31
-      '@remotion/skia': 3.3.31
-      '@remotion/three': 3.3.31
+      '@remotion/babel-loader': 3.3.32
+      '@remotion/bundler': 3.3.32
+      '@remotion/cli': 3.3.32
+      '@remotion/gif': 3.3.32
+      '@remotion/google-fonts': 3.3.32
+      '@remotion/lambda': 3.3.32
+      '@remotion/lottie': 3.3.32
+      '@remotion/media-utils': 3.3.32
+      '@remotion/motion-blur': 3.3.32
+      '@remotion/noise': 3.3.32
+      '@remotion/paths': 3.3.32
+      '@remotion/player': 3.3.32
+      '@remotion/preload': 3.3.32
+      '@remotion/renderer': 3.3.32
+      '@remotion/shapes': 3.3.32
+      '@remotion/skia': 3.3.32
+      '@remotion/three': 3.3.32
       '@shopify/react-native-skia': ^0.1.139
       '@splitbee/web': ^0.2.4
       '@tsconfig/docusaurus': ^1.0.5
@@ -321,7 +321,7 @@ importers:
       clsx: ^1.1.1
       color-namer: 1.4.0
       copy-text-to-clipboard: ^2
-      create-video: 3.3.31
+      create-video: 3.3.32
       eslint: 8.25.0
       got: ^11
       hls.js: ^0.14.17
@@ -334,7 +334,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0
       remark-shiki-twoslash: ^3.1.0
-      remotion: 3.3.31
+      remotion: 3.3.32
       three: 0.145.0
       typescript: ^4.7.0
       url-loader: ^4.1.1
@@ -403,7 +403,7 @@ importers:
 
   packages/eslint-config:
     specifiers:
-      '@remotion/eslint-plugin': 3.3.31
+      '@remotion/eslint-plugin': 3.3.32
       '@types/node': 17.0.17
       '@typescript-eslint/eslint-plugin': 5.19.0
       '@typescript-eslint/parser': 5.19.0
@@ -444,20 +444,20 @@ importers:
       '@babel/preset-react': 7.12.13
       '@mdx-js/react': ^1.6.21
       '@react-three/drei': ^9.37.0
-      '@remotion/babel-loader': 3.3.31
-      '@remotion/bundler': 3.3.31
-      '@remotion/cli': 3.3.31
-      '@remotion/eslint-config': 3.3.31
-      '@remotion/eslint-plugin': 3.3.31
-      '@remotion/gif': 3.3.31
-      '@remotion/google-fonts': 3.3.31
-      '@remotion/lambda': 3.3.31
-      '@remotion/lottie': 3.3.31
-      '@remotion/media-utils': 3.3.31
-      '@remotion/paths': 3.3.31
-      '@remotion/renderer': 3.3.31
-      '@remotion/shapes': 3.3.31
-      '@remotion/three': 3.3.31
+      '@remotion/babel-loader': 3.3.32
+      '@remotion/bundler': 3.3.32
+      '@remotion/cli': 3.3.32
+      '@remotion/eslint-config': 3.3.32
+      '@remotion/eslint-plugin': 3.3.32
+      '@remotion/gif': 3.3.32
+      '@remotion/google-fonts': 3.3.32
+      '@remotion/lambda': 3.3.32
+      '@remotion/lottie': 3.3.32
+      '@remotion/media-utils': 3.3.32
+      '@remotion/paths': 3.3.32
+      '@remotion/renderer': 3.3.32
+      '@remotion/shapes': 3.3.32
+      '@remotion/three': 3.3.32
       '@types/babel__core': ^7.1.12
       '@types/babel__template': ^7.4.0
       '@types/express': ^4.17.11
@@ -477,7 +477,7 @@ importers:
       polished: ^4.0.5
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.3.31
+      remotion: 3.3.32
       styled-components: ^5.1.1
       ts-unused-exports: ^7.0.1
       typescript: ^4.7.0
@@ -544,7 +544,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.3.31
+      remotion: 3.3.32
       typescript: ^4.7.0
       webpack: 5.74.0
     dependencies:
@@ -573,7 +573,7 @@ importers:
       got: ^11
       postcss: ^8.4.18
       prettier: ^2.7.1
-      remotion: 3.3.31
+      remotion: 3.3.32
       ts-node: ^10.8.0
       typescript: ^4.7.0
     dependencies:
@@ -590,13 +590,13 @@ importers:
 
   packages/it-tests:
     specifiers:
-      '@remotion/bundler': 3.3.31
-      '@remotion/cli': 3.3.31
-      '@remotion/lambda': 3.3.31
-      '@remotion/renderer': 3.3.31
+      '@remotion/bundler': 3.3.32
+      '@remotion/cli': 3.3.32
+      '@remotion/lambda': 3.3.32
+      '@remotion/renderer': 3.3.32
       '@types/sharp': ^0.28.5
       execa: 5.1.1
-      remotion: 3.3.31
+      remotion: 3.3.32
       sharp: 0.30.6
       typescript: ^4.7.0
       vitest: 0.24.3
@@ -625,11 +625,11 @@ importers:
       '@aws-sdk/lib-storage': 3.215.0
       '@aws-sdk/s3-request-presigner': 3.215.0
       '@jonny/eslint-config': 3.0.266
-      '@remotion/bundler': 3.3.31
-      '@remotion/cli': 3.3.31
-      '@remotion/compositor-linux-arm64-musl': 3.3.31
-      '@remotion/compositor-linux-x64-musl': 3.3.31
-      '@remotion/renderer': 3.3.31
+      '@remotion/bundler': 3.3.32
+      '@remotion/cli': 3.3.32
+      '@remotion/compositor-linux-arm64-musl': 3.3.32
+      '@remotion/compositor-linux-x64-musl': 3.3.32
+      '@remotion/renderer': 3.3.32
       '@types/mime-types': 2.1.1
       '@types/minimist': 1.2.2
       '@types/node': ^14.14.14
@@ -641,7 +641,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
-      remotion: 3.3.31
+      remotion: 3.3.32
       ts-node: ^10.8.0
       typescript: ^4.7.0
       vitest: ^0.24.3
@@ -693,7 +693,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.3.31
+      remotion: 3.3.32
       typescript: ^4.7.0
       vitest: 0.24.3
     dependencies:
@@ -722,7 +722,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
-      remotion: 3.3.31
+      remotion: 3.3.32
       typescript: ^4.7.0
     dependencies:
       react: 18.0.0
@@ -746,7 +746,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.3.31
+      remotion: 3.3.32
       typescript: ^4.7.0
     dependencies:
       remotion: link:../core
@@ -767,7 +767,7 @@ importers:
       eslint: 8.25.0
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.3.31
+      remotion: 3.3.32
       simplex-noise: 4.0.1
       typescript: ^4.7.0
       vitest: 0.24.3
@@ -816,7 +816,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.3.31
+      remotion: 3.3.32
       typescript: ^4.7.0
       vitest: 0.24.3
       webpack: 5.74.0
@@ -843,11 +843,11 @@ importers:
   packages/player-example:
     specifiers:
       '@pmmmwh/react-refresh-webpack-plugin': ^0.5.3
-      '@remotion/bundler': 3.3.31
-      '@remotion/eslint-config': 3.3.31
-      '@remotion/gif': 3.3.31
-      '@remotion/player': 3.3.31
-      '@remotion/preload': 3.3.31
+      '@remotion/bundler': 3.3.32
+      '@remotion/eslint-config': 3.3.32
+      '@remotion/gif': 3.3.32
+      '@remotion/player': 3.3.32
+      '@remotion/preload': 3.3.32
       '@types/node': ^12.0.0
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
@@ -861,7 +861,7 @@ importers:
       react-dev-utils: ^12.0.1
       react-dom: 18.0.0
       react-refresh: ^0.11.0
-      remotion: 3.3.31
+      remotion: 3.3.32
       typescript: ^4.7.0
       webpack: 5.74.0
       webpack-dev-server: ^4.6.0
@@ -907,13 +907,13 @@ importers:
   packages/renderer:
     specifiers:
       '@jonny/eslint-config': 3.0.266
-      '@remotion/compositor-darwin-arm64': 3.3.31
-      '@remotion/compositor-darwin-x64': 3.3.31
-      '@remotion/compositor-linux-arm64-gnu': 3.3.31
-      '@remotion/compositor-linux-arm64-musl': 3.3.31
-      '@remotion/compositor-linux-x64-gnu': 3.3.31
-      '@remotion/compositor-linux-x64-musl': 3.3.31
-      '@remotion/compositor-win32-x64-msvc': 3.3.31
+      '@remotion/compositor-darwin-arm64': 3.3.32
+      '@remotion/compositor-darwin-x64': 3.3.32
+      '@remotion/compositor-linux-arm64-gnu': 3.3.32
+      '@remotion/compositor-linux-arm64-musl': 3.3.32
+      '@remotion/compositor-linux-x64-gnu': 3.3.32
+      '@remotion/compositor-linux-x64-musl': 3.3.32
+      '@remotion/compositor-win32-x64-msvc': 3.3.32
       '@testing-library/dom': ^8.16.0
       '@testing-library/react': 13.3.0
       '@types/node': ^16.7.5
@@ -927,7 +927,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.3.31
+      remotion: 3.3.32
       source-map: ^0.8.0-beta.0
       typescript: ^4.7.0
       vitest: 0.24.3
@@ -1002,7 +1002,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.3.31
+      remotion: 3.3.32
       typescript: ^4.7.0
     dependencies:
       copy-webpack-plugin: 11.0.0_webpack@5.74.0
@@ -1033,7 +1033,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.3.31
+      remotion: 3.3.32
       three: ^0.145.0
       typescript: ^4.7.0
     dependencies:
