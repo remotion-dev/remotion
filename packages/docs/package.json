@@ -12,7 +12,7 @@
     "deploy": "docusaurus deploy",
     "serve": "docusaurus serve",
     "clear": "docusaurus clear",
-    "lint": "eslint src && eslint components",
+    "lint": "eslint components && eslint src",
     "test": "vitest --run",
     "remotion": "remotion preview src/remotion/entry.ts"
   },
@@ -45,6 +45,7 @@
     "@remotion/three": "3.3.32",
     "@shopify/react-native-skia": "^0.1.139",
     "@splitbee/web": "^0.2.4",
+    "@swc/core": "^1.3.27",
     "@types/uuid": "^8.3.4",
     "chalk": "4.1.2",
     "clipboard": "^2.0.8",
@@ -62,6 +63,7 @@
     "react-dom": "18.0.0",
     "remark-shiki-twoslash": "^3.1.0",
     "remotion": "3.3.32",
+    "swc-loader": "^0.2.3",
     "three": "0.145.0",
     "uuid": "^8.3.2",
     "vitest": "0.24.3"
@@ -77,17 +79,5 @@
     "prettier-plugin-organize-imports": "^2.3.4",
     "typescript": "^4.7.0",
     "url-loader": "^4.1.1"
-  },
-  "browserslist": {
-    "production": [
-      ">0.5%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   }
 }
