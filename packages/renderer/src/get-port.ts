@@ -43,11 +43,12 @@ const getPort = async (from: number, to: number) => {
 
 const portLocks = createLock({timeout: 10000});
 
-const getDesiredPortUnlimited = async (
+export const getDesiredPort = async (
 	desiredPort: number | undefined,
 	from: number,
 	to: number
 ) => {
+	await portLocks.waitForAllToBeDone();
 	const lockPortSelection = portLocks.lock();
 	const didUsePort = () => portLocks.unlock(lockPortSelection);
 	if (
@@ -67,14 +68,6 @@ const getDesiredPortUnlimited = async (
 	}
 
 	return {port: actualPort, didUsePort};
-};
-
-export const getDesiredPort = (
-	desiredPort: number | undefined,
-	from: number,
-	to: number
-) => {
-	return getDesiredPortUnlimited(desiredPort, from, to);
 };
 
 const makeRange = (from: number, to: number): number[] => {
