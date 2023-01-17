@@ -1,3 +1,4 @@
+import {joinPoints} from './join-points';
 import type {ShapeInfo} from './shape-info';
 
 export type MakeRectOptions = {
@@ -6,10 +7,17 @@ export type MakeRectOptions = {
 };
 
 export const makeRect = ({width, height}: MakeRectOptions): ShapeInfo => {
+	const path = joinPoints([
+		[0, 0],
+		[width, 0],
+		[width, height],
+		[0, height],
+	]);
+
 	return {
 		width,
 		height,
-		path: `M 0 0 l ${width} 0 l 0 ${height} l ${-width} 0 Z`,
+		path,
 		transformOrigin: `${width / 2} ${height / 2}`,
 	};
 };
