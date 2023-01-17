@@ -1,11 +1,15 @@
 export const getDefaultOutLocation = ({
 	compositionName,
 	defaultExtension,
+	type,
 }: {
 	compositionName: string;
 	defaultExtension: string;
+	type: 'asset' | 'sequence';
 }) => {
-	const defaultName = `out/${compositionName}.${defaultExtension}`;
+	if (type === 'sequence') {
+		return `out/${compositionName}`;
+	}
 
-	return defaultName;
+	return `out/${compositionName}.${defaultExtension}`;
 };
