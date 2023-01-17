@@ -63,7 +63,7 @@ type ConfigOrComposition =
 
 type ConcurrencyOrParallelism =
 	| {
-			concurrency?: number | null;
+			concurrency?: number | string | null;
 	  }
 	| {
 			/**
@@ -592,7 +592,7 @@ export const renderFrames = (
 				);
 
 				cleanup.push(stopCycling);
-				cleanup.push(closeServer);
+				cleanup.push(() => closeServer(false));
 
 				return innerRenderFrames({
 					...options,

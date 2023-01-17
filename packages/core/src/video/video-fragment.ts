@@ -47,6 +47,15 @@ export const useAppendVideoFragment = ({
 	return appended;
 };
 
+// https://github.com/remotion-dev/remotion/issues/1655
+const isIOSSafariCase = (actualSrc: string) => {
+	return (
+		/iP(ad|od|hone)/i.test(window.navigator.userAgent) &&
+		Boolean(navigator.userAgent.match(/Version\/[\d.]+.*Safari/)) &&
+		actualSrc.startsWith('blob:')
+	);
+};
+
 export const appendVideoFragment = ({
 	actualSrc,
 	actualFrom,
@@ -58,6 +67,10 @@ export const appendVideoFragment = ({
 	duration: number;
 	fps: number;
 }): string => {
+	if (isIOSSafariCase(actualSrc)) {
+		return actualSrc;
+	}
+
 	if (actualSrc.startsWith('data:')) {
 		return actualSrc;
 	}

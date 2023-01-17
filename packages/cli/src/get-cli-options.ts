@@ -25,7 +25,7 @@ const getAndValidateFrameRange = () => {
 	return frameRange;
 };
 
-export const validateFfmepgCanUseCodec = async (
+export const validateFfmpegCanUseCodec = async (
 	codec: Codec,
 	remotionRoot: string
 ) => {

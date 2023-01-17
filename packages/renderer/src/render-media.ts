@@ -116,7 +116,7 @@ export type RenderMediaOptions = {
 
 type ConcurrencyOrParallelism =
 	| {
-			concurrency?: number | null;
+			concurrency?: number | string | null;
 	  }
 	| {
 			/**

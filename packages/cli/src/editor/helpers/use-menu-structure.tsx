@@ -582,7 +582,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						label: 'TikTok',
 						onClick: () => {
 							closeMenu();
-							openExternal('https://www.tiktok.com/@remotion.dev');
+							openExternal('https://www.tiktok.com/@remotion');
 						},
 						type: 'item' as const,
 						keyHint: null,

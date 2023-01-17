@@ -263,7 +263,9 @@ export const stillHandler = async (
 				region: getCurrentRegionInFunction(),
 			});
 
-			writeLambdaError({
+			// `await` elided on purpose here; using `void` to mark it as intentional
+			// eslint-disable-next-line no-void
+			void writeLambdaError({
 				bucketName,
 				errorInfo: {
 					chunk: null,

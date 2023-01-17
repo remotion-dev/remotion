@@ -30,6 +30,7 @@ export const getOutputFilename = ({
 		compositionId: compositionName,
 		defaultExtension,
 		args,
+		type: imageSequence ? 'sequence' : 'asset',
 	});
 
 	let extension = RenderInternals.getExtensionOfFilename(filename);
