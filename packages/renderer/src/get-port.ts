@@ -1,6 +1,5 @@
 import net from 'net';
 import {createLock} from './locks';
-import {pLimit} from './p-limit';
 
 const getAvailablePort = (portToTry: number) =>
 	new Promise<'available' | 'unavailable'>((resolve) => {
@@ -70,13 +69,12 @@ const getDesiredPortUnlimited = async (
 	return {port: actualPort, didUsePort};
 };
 
-const limit = pLimit(1);
 export const getDesiredPort = (
 	desiredPort: number | undefined,
 	from: number,
 	to: number
 ) => {
-	return limit(() => getDesiredPortUnlimited(desiredPort, from, to));
+	return getDesiredPortUnlimited(desiredPort, from, to);
 };
 
 const makeRange = (from: number, to: number): number[] => {
