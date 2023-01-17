@@ -530,7 +530,7 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1080}
 					fps={30}
-					durationInFrames={150}
+					durationInFrames={200}
 				/>
 				<Composition
 					id="gif-duration"
