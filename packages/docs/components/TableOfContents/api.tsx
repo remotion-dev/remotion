@@ -76,6 +76,10 @@ export const TableOfContents: React.FC = () => {
           <strong>@remotion/noise</strong>
           <div>Generate noise effects</div>
         </TOCItem>
+        <TOCItem link="/docs/shapes">
+          <strong>@remotion/shapes</strong>
+          <div>Generate SVG shapes</div>
+        </TOCItem>
       </Grid>
     </div>
   );

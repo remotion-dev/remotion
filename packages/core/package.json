@@ -1,6 +1,6 @@
 {
 	"name": "remotion",
-	"version": "3.3.27",
+	"version": "3.3.32",
 	"description": "Render videos in React",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -60,9 +60,6 @@
 	},
 	"typesVersions": {
 		">=1.0": {
-			".": [
-				"dist/index.d.ts"
-			],
 			"version": [
 				"dist/version.d.ts"
 			]

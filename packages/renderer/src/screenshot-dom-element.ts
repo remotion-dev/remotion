@@ -49,7 +49,7 @@ export const screenshotDOMElement = async ({
 		throw new TypeError('Tried to make a screenshot with format "none"');
 	}
 
-	return screenshot({
+	const buf = await screenshot({
 		page,
 		omitBackground: imageFormat === 'png',
 		path: path ?? undefined,
@@ -58,5 +58,10 @@ export const screenshotDOMElement = async ({
 		width,
 		height,
 		clipRegion,
-	}) as Promise<Buffer>;
+	});
+	if (typeof buf === 'string') {
+		throw new TypeError('Expected a buffer');
+	}
+
+	return buf;
 };

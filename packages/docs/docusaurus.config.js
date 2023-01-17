@@ -11,6 +11,23 @@ module.exports = {
   favicon: "img/favicon.png",
   organizationName: "remotion-dev", // Usually your GitHub org/user name.
   projectName: "remotion", // Usually your repo name.
+  webpack: {
+    jsLoader: (isServer) => ({
+      loader: require.resolve("swc-loader"),
+      options: {
+        jsc: {
+          parser: {
+            syntax: "typescript",
+            tsx: true,
+          },
+          target: "es2017",
+        },
+        module: {
+          type: isServer ? "commonjs" : "es6",
+        },
+      },
+    }),
+  },
   themeConfig: {
     algolia: {
       appId: "PLSDUOL1CA",
@@ -158,7 +175,7 @@ module.exports = {
             },
             {
               label: "TikTok",
-              href: "https://www.tiktok.com/@remotion.dev",
+              href: "https://www.tiktok.com/@remotion",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "TikTok",
             },

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/renderer",
-	"version": "3.3.27",
+	"version": "3.3.32",
 	"description": "Renderer for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -24,7 +24,7 @@
 	"dependencies": {
 		"execa": "5.1.1",
 		"extract-zip": "2.0.1",
-		"remotion": "3.3.27",
+		"remotion": "3.3.32",
 		"source-map": "^0.8.0-beta.0",
 		"ws": "8.7.0"
 	},
@@ -49,13 +49,13 @@
 		"vitest": "0.24.3"
 	},
 	"optionalDependencies": {
-		"@remotion/compositor-darwin-arm64": "3.3.27",
-		"@remotion/compositor-darwin-x64": "3.3.27",
-		"@remotion/compositor-linux-arm64-gnu": "3.3.27",
-		"@remotion/compositor-linux-arm64-musl": "3.3.27",
-		"@remotion/compositor-linux-x64-gnu": "3.3.27",
-		"@remotion/compositor-linux-x64-musl": "3.3.27",
-		"@remotion/compositor-win32-x64-msvc": "3.3.27"
+		"@remotion/compositor-darwin-arm64": "3.3.32",
+		"@remotion/compositor-darwin-x64": "3.3.32",
+		"@remotion/compositor-linux-arm64-gnu": "3.3.32",
+		"@remotion/compositor-linux-arm64-musl": "3.3.32",
+		"@remotion/compositor-linux-x64-gnu": "3.3.32",
+		"@remotion/compositor-linux-x64-musl": "3.3.32",
+		"@remotion/compositor-win32-x64-msvc": "3.3.32"
 	},
 	"keywords": [
 		"remotion",

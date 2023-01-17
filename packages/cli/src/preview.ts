@@ -45,6 +45,19 @@ const getShouldOpenBrowser = (): {
 	return {shouldOpenBrowser: true, reasonForBrowserDecision: 'default'};
 };
 
+const getPort = () => {
+	if (parsedCli.port) {
+		return parsedCli.port;
+	}
+
+	const serverPort = ConfigInternals.getServerPort();
+	if (serverPort) {
+		return serverPort;
+	}
+
+	return null;
+};
+
 export const previewCommand = async (remotionRoot: string, args: string[]) => {
 	const {file, reason} = findEntryPoint(args, remotionRoot);
 
@@ -61,7 +74,7 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 		process.exit(1);
 	}
 
-	const {port: desiredPort} = parsedCli;
+	const desiredPort = getPort();
 
 	const fullPath = convertEntryPointToServeUrl(file);
 
