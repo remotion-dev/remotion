@@ -46,6 +46,7 @@ export const RenderSvg = ({
 			<path
 				transform-origin={transformOrigin}
 				d={path}
+				fill="none"
 				style={actualPathStyle}
 				{...props}
 			/>

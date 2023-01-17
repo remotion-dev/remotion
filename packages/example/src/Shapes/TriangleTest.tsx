@@ -21,7 +21,7 @@ const TriangleTest: React.FC = () => {
 					transform: `rotate(${rotation}deg)`,
 				}}
 				length={100}
-				fill="red"
+				stroke="red"
 				direction="left"
 			/>
 

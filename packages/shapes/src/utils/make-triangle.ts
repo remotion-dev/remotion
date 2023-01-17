@@ -22,21 +22,25 @@ export const makeTriangle = ({
 			[longerDimension / 2, 0],
 			[0, shorterSize],
 			[longerDimension, shorterSize],
+			[longerDimension / 2, 0],
 		],
 		right: [
 			[0, 0],
 			[0, longerDimension],
 			[shorterSize, longerDimension / 2],
+			[0, 0],
 		],
 		bottom: [
 			[0, 0],
 			[longerDimension, 0],
 			[longerDimension / 2, shorterSize],
+			[0, 0],
 		],
 		left: [
 			[shorterSize, 0],
 			[shorterSize, longerDimension],
 			[0, longerDimension / 2],
+			[shorterSize, 0],
 		],
 	};
 
@@ -55,7 +59,7 @@ export const makeTriangle = ({
 	}[direction];
 
 	return {
-		path: joinPoints(points[direction]),
+		path: joinPoints(points[direction], {squircleFactor: 1}),
 		width: direction === 'top' || direction === 'bottom' ? length : shorterSize,
 		height:
 			direction === 'top' || direction === 'bottom' ? shorterSize : length,
