@@ -1,3 +1,5 @@
+import { CircleDemo } from "./Circle";
+import { EllipseDemo } from "./Ellipse";
 import { NoiseComp } from "./NoiseDemo";
 import { RectDemo } from "./Rect";
 import { TriangleDemo } from "./Triangle";
@@ -108,6 +110,57 @@ export const triangleDemo: DemoType = {
       type: "enum",
       default: "up",
       values: ["up", "down", "left", "right"],
+      optional: "no",
+    },
+  ],
+};
+
+export const circleDemo: DemoType = {
+  comp: CircleDemo,
+  compHeight: 720,
+  compWidth: 1280,
+  durationInFrames: 150,
+  fps: 30,
+  id: "circle",
+  autoPlay: true,
+  options: [
+    {
+      default: 200,
+      max: 1000,
+      step: 5,
+      min: 1,
+      type: "numeric",
+      name: "radius",
+      optional: "no",
+    },
+  ],
+};
+
+export const ellipseDemo: DemoType = {
+  comp: EllipseDemo,
+  compHeight: 720,
+  compWidth: 1280,
+  durationInFrames: 150,
+  fps: 30,
+  id: "ellipse",
+  autoPlay: true,
+  options: [
+    {
+      default: 150,
+      max: 1000,
+      step: 5,
+      min: 1,
+      type: "numeric",
+      name: "rx",
+      optional: "no",
+    },
+    {
+      default: 200,
+      max: 1000,
+      step: 5,
+      min: 1,
+      type: "numeric",
+      name: "ry",
       optional: "no",
     },
   ],
