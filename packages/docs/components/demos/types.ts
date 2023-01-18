@@ -18,8 +18,6 @@ export type Option = {
   | {
       type: "boolean";
       default: boolean;
-      max: number;
-      step: number;
     }
   | {
       type: "enum";
@@ -75,6 +73,12 @@ export const rectDemo: DemoType = {
       type: "numeric",
       optional: "default-disabled",
     },
+    {
+      name: "debug",
+      type: "boolean",
+      optional: "no",
+      default: false,
+    },
   ],
 };
 
@@ -111,6 +115,12 @@ export const triangleDemo: DemoType = {
       default: "up",
       values: ["up", "down", "left", "right"],
       optional: "no",
+    },
+    {
+      name: "debug",
+      type: "boolean",
+      optional: "no",
+      default: false,
     },
   ],
 };

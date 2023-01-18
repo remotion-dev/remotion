@@ -26,8 +26,8 @@ export const Control = ({
   setValue,
 }: {
   option: Option;
-  value: number | string;
-  setValue: (value: number | string) => void;
+  value: number | string | boolean;
+  setValue: (value: number | string | boolean) => void;
 }) => {
   const enabled = value !== null;
 
@@ -48,10 +48,6 @@ export const Control = ({
     []
   );
 
-  if (option.type !== "numeric" && option.type !== "enum") {
-    throw new Error("numeric");
-  }
-
   return (
     <label style={labelStyle} className={styles.item}>
       <div style={left}>
@@ -59,7 +55,6 @@ export const Control = ({
           <input
             onChange={(c) => {
               if (c.target.checked) {
-                console.log(c.target.checked);
                 setValue(option.default);
               } else {
                 setValue(null);
@@ -88,11 +83,10 @@ export const Control = ({
         <div style={right}>
           <code>{value}</code>
         </div>
-      ) : (
+      ) : option.type === "enum" ? (
         <div>
           <select
             onChange={(e) => {
-              console.log(e.target.value);
               setValue(e.target.value);
             }}
           >
@@ -105,7 +99,16 @@ export const Control = ({
             })}
           </select>
         </div>
-      )}
+      ) : option.type === "boolean" ? (
+        <input
+          onChange={(c) => {
+            setValue(c.target.checked);
+          }}
+          style={check}
+          checked={value as boolean}
+          type={"checkbox"}
+        />
+      ) : null}
     </label>
   );
 };
