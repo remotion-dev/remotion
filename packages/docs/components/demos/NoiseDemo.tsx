@@ -1,35 +1,22 @@
----
-image: /generated/articles-docs-noise-visualization.png
-title: Noise visualization
-id: noise-visualization
-crumb: "Techniques"
----
-
-Using the [`@remotion/noise`](/docs/noise) package, you can add noise for your videos.
-
-## Noise Dot Grid Demo
-
-This example shows how to create a floating dot grid "surface" using [`noise3D()`](/docs/noise/noise-3d) function.
-
-- 1st and 2nd dimensions used for space domain.
-- 3rd dimension used for time domain.
-
-<Demo type="noise"/>
-
-```tsx twoslash
 import { noise3D } from "@remotion/noise";
 import React from "react";
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+
+interface Props {
+  speed: number;
+  circleRadius: number;
+  maxOffset: number;
+}
 
 const OVERSCAN_MARGIN = 100;
 const ROWS = 10;
 const COLS = 15;
 
-const NoiseComp: React.FC<{
-  speed: number;
-  circleRadius: number;
-  maxOffset: number;
-}> = ({ speed, circleRadius, maxOffset }) => {
+export const NoiseComp: React.FC<Props> = ({
+  speed,
+  circleRadius,
+  maxOffset,
+}) => {
   const frame = useCurrentFrame();
   const { height, width } = useVideoConfig();
 
@@ -66,8 +53,3 @@ const NoiseComp: React.FC<{
     </svg>
   );
 };
-```
-
-## See also
-
-- [`@remotion/noise`](/docs/noise)
