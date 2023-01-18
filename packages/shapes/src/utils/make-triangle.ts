@@ -9,11 +9,13 @@ type Direction = 'right' | 'left' | 'top' | 'bottom';
 export type MakeTriangleProps = {
 	length: number;
 	direction: Direction;
+	squircleFactor?: number | null;
 };
 
 export const makeTriangle = ({
 	length,
 	direction = 'right',
+	squircleFactor = null,
 }: MakeTriangleProps): ShapeInfo => {
 	const longerDimension = length;
 	const shorterSize = Math.sqrt(length ** 2 * 0.75); // Calculated on paper;
@@ -59,7 +61,7 @@ export const makeTriangle = ({
 		right: longerDimension / 2,
 	}[direction];
 
-	const instructions = joinPoints(points[direction], {squircleFactor: 0.7});
+	const instructions = joinPoints(points[direction], {squircleFactor});
 	const path = serializeInstructions(instructions);
 
 	return {

@@ -5,9 +5,14 @@ import type {ShapeInfo} from './shape-info';
 export type MakeRectOptions = {
 	width: number;
 	height: number;
+	squircleFactor?: number | null;
 };
 
-export const makeRect = ({width, height}: MakeRectOptions): ShapeInfo => {
+export const makeRect = ({
+	width,
+	height,
+	squircleFactor = null,
+}: MakeRectOptions): ShapeInfo => {
 	const transformOrigin: [number, number] = [width / 2, height / 2];
 	const instructions = joinPoints(
 		[
@@ -17,7 +22,7 @@ export const makeRect = ({width, height}: MakeRectOptions): ShapeInfo => {
 			[0, height],
 			[0, 0],
 		],
-		{squircleFactor: 1}
+		{squircleFactor}
 	);
 	const path = serializeInstructions(instructions);
 
