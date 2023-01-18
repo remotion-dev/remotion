@@ -24,7 +24,7 @@ export const makeRect = ({
 			[0, height],
 			[0, 0],
 		],
-		{edgeRoundness, cornerRadius}
+		{edgeRoundness, cornerRadius, largeArcFlag: false, sweepFlag: true}
 	);
 	const path = serializeInstructions(instructions);
 
