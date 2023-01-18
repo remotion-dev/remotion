@@ -8,12 +8,14 @@ export type Option = { name: string } & (
       default: number;
       max: number;
       step: number;
+      optional: "no" | "default-enabled" | "default-disabled";
     }
   | {
       type: "boolean";
       default: boolean;
       max: number;
       step: number;
+      optional: boolean;
     }
 );
 
@@ -44,6 +46,7 @@ export const triangleDemo: DemoType = {
       min: 1,
       type: "numeric",
       name: "length",
+      optional: "no",
     },
     {
       name: "edgeRoundness",
@@ -52,6 +55,7 @@ export const triangleDemo: DemoType = {
       min: -2,
       step: 0.01,
       type: "numeric",
+      optional: "default-disabled",
     },
   ],
 };
@@ -72,6 +76,7 @@ export const noiseDemo: DemoType = {
       step: 0.001,
       type: "numeric",
       name: "speed",
+      optional: "no",
     },
     {
       min: 0,
@@ -80,6 +85,7 @@ export const noiseDemo: DemoType = {
       default: 50,
       name: "maxOffset",
       type: "numeric",
+      optional: "no",
     },
     {
       name: "circleRadius",
@@ -88,6 +94,7 @@ export const noiseDemo: DemoType = {
       min: 2,
       step: 1,
       type: "numeric",
+      optional: "no",
     },
   ],
 };

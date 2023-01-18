@@ -6,10 +6,17 @@ const left: React.CSSProperties = {
   width: 100,
   fontFamily: "GTPlanar",
   flex: 1,
+  flexDirection: "row",
+  display: "flex",
+  alignItems: "center",
+};
+
+const check: React.CSSProperties = {
+  marginRight: 5,
 };
 
 const right: React.CSSProperties = {
-  width: 50,
+  width: 40,
   textAlign: "right",
   fontVariantNumeric: "tabular-nums",
 };
@@ -23,6 +30,8 @@ export const Control = ({
   value: number;
   setValue: (value: number) => void;
 }) => {
+  const enabled = value !== null;
+
   const labelStyle = useMemo<React.CSSProperties>(
     () => ({
       display: "flex",
@@ -34,7 +43,7 @@ export const Control = ({
 
   const inputStyle = useMemo<React.CSSProperties>(
     () => ({
-      width: 90,
+      width: 80,
       marginRight: 8,
     }),
     []
@@ -46,7 +55,24 @@ export const Control = ({
 
   return (
     <label style={labelStyle} className={styles.item}>
-      <div style={left}>{`${option.name}`}</div>
+      <div style={left}>
+        {option.optional === "no" ? null : (
+          <input
+            onChange={(c) => {
+              if (c.target.checked) {
+                console.log(c.target.checked);
+                setValue(option.default);
+              } else {
+                setValue(null);
+              }
+            }}
+            style={check}
+            checked={enabled}
+            type={"checkbox"}
+          />
+        )}
+        {`${option.name}`}
+      </div>
       <input
         type="range"
         min={option.min}
@@ -54,6 +80,7 @@ export const Control = ({
         step={option.step}
         value={value as number}
         style={inputStyle}
+        disabled={!enabled}
         onChange={(e) => setValue(Number(e.target.value))}
       />
       <div style={right}>

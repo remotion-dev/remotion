@@ -28,7 +28,13 @@ export const Demo: React.FC<{
 
   const [state, setState] = useState(() =>
     demo.options
-      .map((o) => [o.name, o.default] as const)
+      .map(
+        (o) =>
+          [
+            o.name,
+            o.optional === "default-disabled" ? null : o.default,
+          ] as const
+      )
       .reduce((a, b) => {
         a[b[0]] = b[1];
         return a;
