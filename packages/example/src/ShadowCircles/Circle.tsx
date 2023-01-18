@@ -32,7 +32,7 @@ export const Circle: React.FC<{
 		to: 1,
 	});
 	const angle = interpolate(progress, [0, 1], [0, Math.PI * 2]);
-	const edgeRoundness = interpolate(progress, [0, 1], [0.5, 1.05]);
+	const squircleFactor = interpolate(progress, [0, 1], [0.5, 1.05]);
 	const radius = videoConfig.width / 2;
 	const left = videoConfig.width / 2 - size / 2;
 	const top = videoConfig.height / 2 - size / 2;
@@ -54,7 +54,7 @@ export const Circle: React.FC<{
 				WebkitFilter: 'drop-shadow(0 0 5px #5851db)',
 			}}
 		>
-			<path d={makeSquircle(size, size, edgeRoundness)} fill={color} />
+			<path d={makeSquircle(size, size, squircleFactor)} fill={color} />
 		</svg>
 	);
 };
