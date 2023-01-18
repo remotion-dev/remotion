@@ -5,13 +5,13 @@ import type {ShapeInfo} from './shape-info';
 export type MakeRectOptions = {
 	width: number;
 	height: number;
-	squircleFactor?: number | null;
+	edgeRoundness?: number | null;
 };
 
 export const makeRect = ({
 	width,
 	height,
-	squircleFactor = null,
+	edgeRoundness = null,
 }: MakeRectOptions): ShapeInfo => {
 	const transformOrigin: [number, number] = [width / 2, height / 2];
 	const instructions = joinPoints(
@@ -22,7 +22,7 @@ export const makeRect = ({
 			[0, height],
 			[0, 0],
 		],
-		{squircleFactor}
+		{edgeRoundness}
 	);
 	const path = serializeInstructions(instructions);
 

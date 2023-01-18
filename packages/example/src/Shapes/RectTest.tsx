@@ -18,7 +18,7 @@ const RectTest: React.FC = () => {
 		config: {},
 	});
 
-	const squircleFactor = interpolate(frame, [0, 100], [0, 1], {
+	const edgeRoundness = interpolate(frame, [0, 100], [0, 1], {
 		extrapolateRight: 'clamp',
 	});
 	return (
@@ -41,7 +41,7 @@ const RectTest: React.FC = () => {
 				<Rect
 					debug
 					fill="rgba(0, 255, 0, 0.5)"
-					squircleFactor={squircleFactor}
+					edgeRoundness={edgeRoundness}
 					width={450}
 					height={450}
 				/>
@@ -66,7 +66,7 @@ const RectTest: React.FC = () => {
 					fontFamily: 'sans-serif',
 				}}
 			>
-				{squircleFactor.toFixed(3)}
+				{edgeRoundness.toFixed(3)}
 			</AbsoluteFill>
 		</AbsoluteFill>
 	);

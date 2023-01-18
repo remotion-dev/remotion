@@ -2,7 +2,7 @@ import type {Instruction} from './instructions';
 
 export const joinPoints = (
 	points: [number, number][],
-	{squircleFactor}: {squircleFactor: number | null}
+	{edgeRoundness}: {edgeRoundness: number | null}
 ) => {
 	return points.map(([x, y], i): Instruction => {
 		const prevPointIndex = i === 0 ? points.length - 2 : i - 1;
@@ -16,7 +16,7 @@ export const joinPoints = (
 		];
 
 		if (i === 0) {
-			if (squircleFactor !== null) {
+			if (edgeRoundness !== null) {
 				return {
 					type: 'M',
 					x: middleOfLine[0],
@@ -31,7 +31,7 @@ export const joinPoints = (
 			};
 		}
 
-		if (squircleFactor === null) {
+		if (edgeRoundness === null) {
 			return {
 				type: 'L',
 				x,
@@ -43,13 +43,13 @@ export const joinPoints = (
 		const nextVector = [nextPoint[0] - x, nextPoint[1] - y] as const;
 
 		const controlPoint1 = [
-			prevPointMiddleOfLine[0] + prevVector[0] * squircleFactor * 0.5,
-			prevPointMiddleOfLine[1] + prevVector[1] * squircleFactor * 0.5,
+			prevPointMiddleOfLine[0] + prevVector[0] * edgeRoundness * 0.5,
+			prevPointMiddleOfLine[1] + prevVector[1] * edgeRoundness * 0.5,
 		] as const;
 
 		const controlPoint2 = [
-			middleOfLine[0] - nextVector[0] * squircleFactor * 0.5,
-			middleOfLine[1] - nextVector[1] * squircleFactor * 0.5,
+			middleOfLine[0] - nextVector[0] * edgeRoundness * 0.5,
+			middleOfLine[1] - nextVector[1] * edgeRoundness * 0.5,
 		] as const;
 
 		return {

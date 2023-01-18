@@ -8,11 +8,9 @@ export type RectProps = MakeRectOptions & AllShapesProps;
 
 export const Rect: React.FC<RectProps> = ({
 	width,
-	squircleFactor,
+	edgeRoundness,
 	height,
 	...props
 }) => {
-	return (
-		<RenderSvg {...makeRect({height, width, squircleFactor})} {...props} />
-	);
+	return <RenderSvg {...makeRect({height, width, edgeRoundness})} {...props} />;
 };
