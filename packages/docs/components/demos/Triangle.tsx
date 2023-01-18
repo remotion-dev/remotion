@@ -17,7 +17,7 @@ export const TriangleDemo: React.FC<{
       }}
     >
       <Triangle
-        fill={darkMode ? "white" : "#222"}
+        fill={darkMode ? "white" : "var(--ifm-link-color)"}
         edgeRoundness={edgeRoundness}
         direction={direction}
         length={length}

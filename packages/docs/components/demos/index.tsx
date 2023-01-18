@@ -4,7 +4,13 @@ import React, { useState } from "react";
 import { Control } from "./control";
 import styles from "./styles.module.css";
 import type { DemoType } from "./types";
-import { noiseDemo, rectDemo, triangleDemo } from "./types";
+import {
+  circleDemo,
+  ellipseDemo,
+  noiseDemo,
+  rectDemo,
+  triangleDemo,
+} from "./types";
 
 const container: React.CSSProperties = {
   overflow: "hidden",
@@ -14,7 +20,13 @@ const container: React.CSSProperties = {
   marginBottom: 40,
 };
 
-const demos: DemoType[] = [noiseDemo, triangleDemo, rectDemo];
+const demos: DemoType[] = [
+  noiseDemo,
+  triangleDemo,
+  rectDemo,
+  circleDemo,
+  ellipseDemo,
+];
 
 export const Demo: React.FC<{
   type: string;

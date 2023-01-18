@@ -1,13 +1,11 @@
-import { Rect } from "@remotion/shapes";
+import { Circle } from "@remotion/shapes";
 import React from "react";
 import { AbsoluteFill } from "remotion";
 
-export const RectDemo: React.FC<{
-  width: number;
-  height: number;
-  edgeRoundness: number;
+export const CircleDemo: React.FC<{
+  radius: number;
   darkMode: boolean;
-}> = ({ width, height, edgeRoundness, darkMode }) => {
+}> = ({ radius, darkMode }) => {
   return (
     <AbsoluteFill
       style={{
@@ -15,11 +13,9 @@ export const RectDemo: React.FC<{
         alignItems: "center",
       }}
     >
-      <Rect
+      <Circle
         fill={darkMode ? "white" : "var(--ifm-link-color)"}
-        edgeRoundness={edgeRoundness}
-        width={width}
-        height={height}
+        radius={radius}
       />
     </AbsoluteFill>
   );

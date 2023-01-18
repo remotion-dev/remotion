@@ -1,13 +1,12 @@
-import { Rect } from "@remotion/shapes";
+import { Ellipse } from "@remotion/shapes";
 import React from "react";
 import { AbsoluteFill } from "remotion";
 
-export const RectDemo: React.FC<{
-  width: number;
-  height: number;
-  edgeRoundness: number;
+export const EllipseDemo: React.FC<{
   darkMode: boolean;
-}> = ({ width, height, edgeRoundness, darkMode }) => {
+  rx: number;
+  ry: number;
+}> = ({ rx, ry, darkMode }) => {
   return (
     <AbsoluteFill
       style={{
@@ -15,11 +14,10 @@ export const RectDemo: React.FC<{
         alignItems: "center",
       }}
     >
-      <Rect
+      <Ellipse
         fill={darkMode ? "white" : "var(--ifm-link-color)"}
-        edgeRoundness={edgeRoundness}
-        width={width}
-        height={height}
+        rx={rx}
+        ry={ry}
       />
     </AbsoluteFill>
   );
