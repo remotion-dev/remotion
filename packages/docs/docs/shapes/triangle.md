@@ -33,7 +33,7 @@ export const MyComposition = () => {
 
 ## Props
 
-<ShapeOptions shape="ellipse" all />
+<ShapeOptions shape="triangle" all />
 
 ## See also
 

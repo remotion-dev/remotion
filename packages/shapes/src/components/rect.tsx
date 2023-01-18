@@ -6,6 +6,11 @@ import {RenderSvg} from './render-svg';
 
 export type RectProps = MakeRectOptions & AllShapesProps;
 
-export const Rect: React.FC<RectProps> = ({width, height, ...props}) => {
-	return <RenderSvg {...makeRect({height, width})} {...props} />;
+export const Rect: React.FC<RectProps> = ({
+	width,
+	edgeRoundness,
+	height,
+	...props
+}) => {
+	return <RenderSvg {...makeRect({height, width, edgeRoundness})} {...props} />;
 };
