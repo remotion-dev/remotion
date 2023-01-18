@@ -22,7 +22,14 @@ export const joinPoints = (
 	{
 		edgeRoundness,
 		cornerRadius,
-	}: {edgeRoundness: number | null; cornerRadius: number}
+		largeArcFlag,
+		sweepFlag,
+	}: {
+		edgeRoundness: number | null;
+		cornerRadius: number;
+		largeArcFlag: boolean;
+		sweepFlag: boolean;
+	}
 ) => {
 	return points
 		.map(([x, y], i): Instruction | Instruction[] => {
@@ -57,6 +64,7 @@ export const joinPoints = (
 
 			if (edgeRoundness === null) {
 				const prevVectorMinusRadius = shortenVector(prevVector, cornerRadius);
+				const prevVectorLenght = scaleVectorToLength(prevVector, cornerRadius);
 				const nextVectorMinusRadius = scaleVectorToLength(
 					nextVector,
 					cornerRadius
@@ -69,13 +77,14 @@ export const joinPoints = (
 						y: prevPoint[1] + prevVectorMinusRadius[1],
 					},
 					{
-						type: 'C',
-						cp1x: x,
-						cp1y: y,
-						cp2x: x,
-						cp2y: y,
-						x: x + nextVectorMinusRadius[0],
-						y: y + nextVectorMinusRadius[1],
+						type: 'a',
+						rx: cornerRadius,
+						ry: cornerRadius,
+						xAxisRotation: 0,
+						x: prevVectorLenght[0] + nextVectorMinusRadius[0],
+						y: prevVectorLenght[1] + nextVectorMinusRadius[1],
+						largeArcFlag,
+						sweepFlag,
 					},
 				];
 			}
