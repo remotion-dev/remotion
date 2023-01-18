@@ -1,4 +1,5 @@
 import { NoiseComp } from "./NoiseDemo";
+import { TriangleDemo } from "./Triangle";
 
 export type Option = { name: string } & (
   | {
@@ -24,6 +25,35 @@ export type DemoType = {
   fps: number;
   durationInFrames: number;
   options: Option[];
+  autoPlay: boolean;
+};
+
+export const triangleDemo: DemoType = {
+  comp: TriangleDemo,
+  compWidth: 1280,
+  compHeight: 400,
+  durationInFrames: 150,
+  fps: 30,
+  id: "triangle",
+  autoPlay: false,
+  options: [
+    {
+      default: 200,
+      max: 1000,
+      step: 5,
+      min: 1,
+      type: "numeric",
+      name: "length",
+    },
+    {
+      name: "edgeRoundness",
+      default: 1,
+      max: 2,
+      min: -2,
+      step: 0.01,
+      type: "numeric",
+    },
+  ],
 };
 
 export const noiseDemo: DemoType = {
@@ -33,6 +63,7 @@ export const noiseDemo: DemoType = {
   durationInFrames: 150,
   fps: 30,
   id: "noise",
+  autoPlay: true,
   options: [
     {
       default: 0.01,
