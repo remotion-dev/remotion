@@ -10,6 +10,10 @@ _Part of the [` @remotion/shapes`](/docs/shapes) package._
 
 Renders an SVG element containing a triangle with same length on all sides.
 
+## Explorer
+
+<Demo type="triangle" />
+
 ## Example
 
 ```tsx twoslash title="src/Triangle.tsx"

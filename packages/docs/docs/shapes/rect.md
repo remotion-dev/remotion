@@ -10,6 +10,10 @@ _Part of the [` @remotion/shapes`](/docs/shapes) package._
 
 Renders an SVG element containing a rectangle.
 
+## Explorer
+
+<Demo type="rect"/>
+
 ## Example
 
 ```tsx twoslash title="src/Rect.tsx"
