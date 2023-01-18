@@ -5,7 +5,8 @@ import { AbsoluteFill } from "remotion";
 export const TriangleDemo: React.FC<{
   length: number;
   edgeRoundness: number;
-}> = ({ length, edgeRoundness }) => {
+  darkMode: boolean;
+}> = ({ length, edgeRoundness, darkMode }) => {
   return (
     <AbsoluteFill
       style={{
@@ -13,7 +14,12 @@ export const TriangleDemo: React.FC<{
         alignItems: "center",
       }}
     >
-      <Triangle edgeRoundness={edgeRoundness} direction="up" length={length} />
+      <Triangle
+        fill={darkMode ? "white" : "#222"}
+        edgeRoundness={edgeRoundness}
+        direction="up"
+        length={length}
+      />
     </AbsoluteFill>
   );
 };
