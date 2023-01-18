@@ -8,5 +8,18 @@ test('Should be able to make a circle path', () => {
 		height: 100,
 		width: 200,
 		transformOrigin: '100 50',
+		instructions: [
+			{type: 'M', x: 100, y: 0},
+			{
+				type: 'a',
+				rx: 100,
+				ry: 50,
+				xAxisRotation: 0,
+				largeArcFlag: true,
+				sweepFlag: false,
+				x: 1,
+				y: 0,
+			},
+		],
 	});
 });

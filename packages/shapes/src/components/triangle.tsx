@@ -9,7 +9,13 @@ export type TriangleProps = MakeTriangleProps & AllShapesProps;
 export const Triangle: React.FC<TriangleProps> = ({
 	length,
 	direction,
+	edgeRoundness,
 	...props
 }) => {
-	return <RenderSvg {...makeTriangle({length, direction})} {...props} />;
+	return (
+		<RenderSvg
+			{...makeTriangle({length, direction, edgeRoundness})}
+			{...props}
+		/>
+	);
 };
