@@ -5,6 +5,7 @@ import {
   makeTriangle,
 } from "@remotion/shapes";
 import React from "react";
+import { RectEdgeRoundness } from "./rect-edge-roundness";
 
 type Param = {
   name: string;
@@ -178,6 +179,7 @@ export const ShapeOptions: React.FC<{
           </React.Fragment>
         );
       })}
+      <RectEdgeRoundness />
       {all ? (
         <>
           <h3>Other props</h3>{" "}
