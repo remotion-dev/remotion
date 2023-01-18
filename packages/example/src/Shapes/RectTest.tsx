@@ -1,22 +1,9 @@
 import {Circle, Rect} from '@remotion/shapes';
 import React from 'react';
-import {
-	AbsoluteFill,
-	interpolate,
-	spring,
-	useCurrentFrame,
-	useVideoConfig,
-} from 'remotion';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 
 const RectTest: React.FC = () => {
 	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
-
-	const spr = spring({
-		fps,
-		frame,
-		config: {},
-	});
 
 	const edgeRoundness = interpolate(frame, [0, 100], [0, 1], {
 		extrapolateRight: 'clamp',

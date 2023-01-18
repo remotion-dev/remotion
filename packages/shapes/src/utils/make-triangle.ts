@@ -4,7 +4,7 @@ import {serializeInstructions} from './instructions';
 import {joinPoints} from './join-points';
 import type {ShapeInfo} from './shape-info';
 
-type Direction = 'right' | 'left' | 'top' | 'bottom';
+type Direction = 'right' | 'left' | 'up' | 'down';
 
 export type MakeTriangleProps = {
 	length: number;
@@ -21,7 +21,7 @@ export const makeTriangle = ({
 	const shorterSize = Math.sqrt(length ** 2 * 0.75); // Calculated on paper;
 
 	const points: {[key in Direction]: [number, number][]} = {
-		top: [
+		up: [
 			[longerDimension / 2, 0],
 			[0, shorterSize],
 			[longerDimension, shorterSize],
@@ -33,7 +33,7 @@ export const makeTriangle = ({
 			[shorterSize, longerDimension / 2],
 			[0, 0],
 		],
-		bottom: [
+		down: [
 			[0, 0],
 			[longerDimension, 0],
 			[longerDimension / 2, shorterSize],
@@ -50,13 +50,13 @@ export const makeTriangle = ({
 	const transformOriginX = {
 		left: (shorterSize / 3) * 2,
 		right: shorterSize / 3,
-		top: longerDimension / 2,
-		bottom: longerDimension / 2,
+		up: longerDimension / 2,
+		down: longerDimension / 2,
 	}[direction];
 
 	const transformOriginY = {
-		top: (shorterSize / 3) * 2,
-		bottom: shorterSize / 3,
+		up: (shorterSize / 3) * 2,
+		down: shorterSize / 3,
 		left: longerDimension / 2,
 		right: longerDimension / 2,
 	}[direction];
@@ -67,9 +67,8 @@ export const makeTriangle = ({
 	return {
 		path,
 		instructions,
-		width: direction === 'top' || direction === 'bottom' ? length : shorterSize,
-		height:
-			direction === 'top' || direction === 'bottom' ? shorterSize : length,
+		width: direction === 'up' || direction === 'down' ? length : shorterSize,
+		height: direction === 'up' || direction === 'down' ? shorterSize : length,
 		transformOrigin: `${transformOriginX} ${transformOriginY}`,
 	};
 };

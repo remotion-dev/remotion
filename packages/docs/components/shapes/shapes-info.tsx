@@ -5,7 +5,7 @@ import {
   makeTriangle,
 } from "@remotion/shapes";
 import React from "react";
-import { RectEdgeRoundness } from "./rect-edge-roundness";
+import { RectEdgeRoundness, TriangleEdgeRoundness } from "./edge-roundness";
 
 type Param = {
   name: string;
@@ -13,7 +13,7 @@ type Param = {
   description: React.ReactNode;
 };
 
-type ShapeComponent = {
+export type ShapeComponent = {
   shape: string;
   fn: (options: unknown) => unknown;
   params: Param[];
@@ -179,7 +179,12 @@ export const ShapeOptions: React.FC<{
           </React.Fragment>
         );
       })}
-      <RectEdgeRoundness />
+      {shapeComponent.shape === "Rect" ? (
+        <RectEdgeRoundness component={shapeComponent} />
+      ) : null}
+      {shapeComponent.shape === "Triangle" ? (
+        <TriangleEdgeRoundness component={shapeComponent} />
+      ) : null}
       {all ? (
         <>
           <h3>Other props</h3>{" "}
