@@ -18,14 +18,6 @@ const Header: React.FC = () => {
   );
 };
 
-const Footer: React.FC = () => {
-  return (
-    <p>
-      Values below <code>0</code> and above <code>1</code> are possible{" "}
-    </p>
-  );
-};
-
 export const RectEdgeRoundness: React.FC = () => {
   return (
     <table>
