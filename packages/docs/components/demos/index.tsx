@@ -52,6 +52,7 @@ export const Demo: React.FC<{
         return a;
       }, {})
   );
+
   return (
     <div style={container}>
       <Player

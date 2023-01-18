@@ -8,7 +8,8 @@ export const TriangleDemo: React.FC<{
   edgeRoundness: number;
   darkMode: boolean;
   direction: TriangleProps["direction"];
-}> = ({ length, edgeRoundness, direction, darkMode }) => {
+  debug: boolean;
+}> = ({ length, edgeRoundness, debug, direction, darkMode }) => {
   return (
     <AbsoluteFill
       style={{
@@ -21,6 +22,7 @@ export const TriangleDemo: React.FC<{
         edgeRoundness={edgeRoundness}
         direction={direction}
         length={length}
+        debug={debug}
       />
     </AbsoluteFill>
   );

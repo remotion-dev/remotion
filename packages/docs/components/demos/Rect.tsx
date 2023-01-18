@@ -7,7 +7,8 @@ export const RectDemo: React.FC<{
   height: number;
   edgeRoundness: number;
   darkMode: boolean;
-}> = ({ width, height, edgeRoundness, darkMode }) => {
+  debug: boolean;
+}> = ({ width, height, debug, edgeRoundness, darkMode }) => {
   return (
     <AbsoluteFill
       style={{
@@ -20,6 +21,7 @@ export const RectDemo: React.FC<{
         edgeRoundness={edgeRoundness}
         width={width}
         height={height}
+        debug={debug}
       />
     </AbsoluteFill>
   );
