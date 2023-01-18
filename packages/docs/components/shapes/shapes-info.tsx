@@ -231,6 +231,14 @@ export const MakeShapeReturnType: React.FC<{
         defining the <code>viewBox</code> of an <code>{"<svg>"}</code> tag.
       </p>
       <h3>
+        <code>instructions</code>
+      </h3>
+      <p>
+        An array with SVG instructions. The type for a instruction can be seen
+        by importing <code>Instruction</code> from <code>@remotion/shapes</code>
+        .
+      </p>
+      <h3>
         <code>transformOrigin</code>
       </h3>
       <p>
