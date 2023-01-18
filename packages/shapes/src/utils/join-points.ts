@@ -79,8 +79,8 @@ export const joinPoints = (
 					{
 						type: 'a',
 						rx: cornerRadius,
-						ry: cornerRadius,
-						xAxisRotation: 0,
+						ry: cornerRadius * 3,
+						xAxisRotation: i * -120,
 						x: prevVectorLenght[0] + nextVectorMinusRadius[0],
 						y: prevVectorLenght[1] + nextVectorMinusRadius[1],
 						largeArcFlag,
