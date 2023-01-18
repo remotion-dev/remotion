@@ -1,3 +1,4 @@
+import type { TriangleProps } from "@remotion/shapes";
 import { Triangle } from "@remotion/shapes";
 import React from "react";
 import { AbsoluteFill } from "remotion";
@@ -6,7 +7,8 @@ export const TriangleDemo: React.FC<{
   length: number;
   edgeRoundness: number;
   darkMode: boolean;
-}> = ({ length, edgeRoundness, darkMode }) => {
+  direction: TriangleProps["direction"];
+}> = ({ length, edgeRoundness, direction, darkMode }) => {
   return (
     <AbsoluteFill
       style={{
@@ -17,7 +19,7 @@ export const TriangleDemo: React.FC<{
       <Triangle
         fill={darkMode ? "white" : "#222"}
         edgeRoundness={edgeRoundness}
-        direction="up"
+        direction={direction}
         length={length}
       />
     </AbsoluteFill>
