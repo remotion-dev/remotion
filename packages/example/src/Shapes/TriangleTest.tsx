@@ -18,7 +18,7 @@ const TriangleTest: React.FC = () => {
 		config: {},
 	});
 
-	const squircleFactor = interpolate(spr, [0, 1], [0, 1.4]);
+	const squircleFactor = interpolate(spr, [0, 1], [0, 1]);
 
 	return (
 		<AbsoluteFill
