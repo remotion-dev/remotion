@@ -12,6 +12,7 @@ import {inputBaseStyle, RemotionInput} from './RemInput';
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
 	onValueChange: (newVal: number) => void;
+	onTextChange: (newVal: string) => void;
 };
 
 export const InputDragger: React.FC<Props> = ({
@@ -19,6 +20,7 @@ export const InputDragger: React.FC<Props> = ({
 	min: _min,
 	step: _step,
 	value,
+	onTextChange,
 	...props
 }) => {
 	const [inputFallback, setInputFallback] = useState(false);
@@ -56,14 +58,33 @@ export const InputDragger: React.FC<Props> = ({
 		setInputFallback(true);
 	}, []);
 
-	const onBlur = useCallback(() => {
+	const onEscape = useCallback(() => {
 		setInputFallback(false);
 	}, []);
+
+	const onBlur = useCallback(() => {
+		if (!fallbackRef.current) {
+			return;
+		}
+
+		const newValue = fallbackRef.current.value;
+		if (newValue.trim() === '') {
+			onEscape();
+			return;
+		}
+
+		if (fallbackRef.current.checkValidity()) {
+			onTextChange?.(newValue);
+			setInputFallback(false);
+		} else {
+			fallbackRef.current.reportValidity();
+		}
+	}, [onEscape, onTextChange]);
 
 	const onKeyPress: React.KeyboardEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			if (e.key === 'Enter') {
-				setInputFallback(false);
+				fallbackRef.current?.blur();
 			}
 		},
 		[]
@@ -118,15 +139,15 @@ export const InputDragger: React.FC<Props> = ({
 
 	if (inputFallback) {
 		return (
-			<HigherZIndex onEscape={onBlur} onOutsideClick={noop}>
+			<HigherZIndex onEscape={onEscape} onOutsideClick={noop}>
 				<RemotionInput
 					ref={fallbackRef}
 					autoFocus
 					onKeyPress={onKeyPress}
 					onBlur={onBlur}
-					value={value}
 					min={_min}
 					step={_step}
+					defaultValue={value}
 					{...props}
 				/>
 			</HigherZIndex>
