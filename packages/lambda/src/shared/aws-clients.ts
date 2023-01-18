@@ -22,7 +22,11 @@ const _clients: Partial<
 	>
 > = {};
 
-type CredentialPair = {accessKeyId: string; secretAccessKey: string};
+type CredentialPair = {
+	accessKeyId: string;
+	secretAccessKey: string;
+	sessionToken?: string;
+};
 type AwsCredentialIdentityProvider = ReturnType<typeof fromIni>;
 
 const getCredentials = ():
@@ -49,6 +53,18 @@ const getCredentials = ():
 		};
 	}
 
+	if (
+		process.env.REMOTION_AWS_ACCESS_KEY_ID &&
+		process.env.REMOTION_AWS_SECRET_ACCESS_KEY &&
+		process.env.REMOTION_AWS_SESSION_TOKEN
+	) {
+		return {
+			accessKeyId: process.env.REMOTION_AWS_ACCESS_KEY_ID,
+			secretAccessKey: process.env.REMOTION_AWS_SECRET_ACCESS_KEY,
+			sessionToken: process.env.REMOTION_AWS_SESSION_TOKEN,
+		};
+	}
+
 	if (process.env.AWS_PROFILE) {
 		return fromIni({
 			profile: process.env.AWS_PROFILE,
@@ -59,6 +75,18 @@ const getCredentials = ():
 		return {
 			accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
 			secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
+		};
+	}
+
+	if (
+		process.env.AWS_ACCESS_KEY_ID &&
+		process.env.AWS_SECRET_ACCESS_KEY &&
+		process.env.AWS_SESSION_TOKEN
+	) {
+		return {
+			accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
+			secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
+			sessionToken: process.env.AWS_SESSION_TOKEN as string,
 		};
 	}
 
