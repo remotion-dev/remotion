@@ -1,5 +1,18 @@
 import React, { useMemo } from "react";
+import styles from "./styles.module.css";
 import type { Option } from "./types";
+
+const left: React.CSSProperties = {
+  width: 100,
+  fontFamily: "GTPlanar",
+  flex: 1,
+};
+
+const right: React.CSSProperties = {
+  width: 50,
+  textAlign: "right",
+  fontVariantNumeric: "tabular-nums",
+};
 
 export const Control = ({
   option,
@@ -15,7 +28,6 @@ export const Control = ({
       display: "flex",
       flexDirection: "row",
       alignItems: "center",
-      margin: 8,
     }),
     []
   );
@@ -33,7 +45,8 @@ export const Control = ({
   }
 
   return (
-    <label style={labelStyle}>
+    <label style={labelStyle} className={styles.item}>
+      <div style={left}>{`${option.name}`}</div>
       <input
         type="range"
         min={option.min}
@@ -43,7 +56,9 @@ export const Control = ({
         style={inputStyle}
         onChange={(e) => setValue(Number(e.target.value))}
       />
-      <code>{`${option.name}={${value}}`}</code>
+      <div style={right}>
+        <code>{value}</code>
+      </div>
     </label>
   );
 };
