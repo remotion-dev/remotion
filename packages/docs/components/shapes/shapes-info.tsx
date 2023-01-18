@@ -5,7 +5,11 @@ import {
   makeTriangle,
 } from "@remotion/shapes";
 import React from "react";
-import { RectEdgeRoundness, TriangleEdgeRoundness } from "./edge-roundness";
+import {
+  DebugOption,
+  RectEdgeRoundness,
+  TriangleEdgeRoundness,
+} from "./edge-roundness";
 
 type Param = {
   name: string;
@@ -181,6 +185,8 @@ export const ShapeOptions: React.FC<{
       })}
       {shapeComponent.shape === "Rect" ? <RectEdgeRoundness /> : null}
       {shapeComponent.shape === "Triangle" ? <TriangleEdgeRoundness /> : null}
+      {all && shapeComponent.shape === "Rect" ? <DebugOption /> : null}
+      {all && shapeComponent.shape === "Triangle" ? <DebugOption /> : null}
       {all ? (
         <>
           <h3>Other props</h3>{" "}
