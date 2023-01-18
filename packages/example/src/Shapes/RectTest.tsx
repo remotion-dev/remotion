@@ -1,4 +1,4 @@
-import {Rect} from '@remotion/shapes';
+import {Circle, Rect} from '@remotion/shapes';
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -18,7 +18,9 @@ const RectTest: React.FC = () => {
 		config: {},
 	});
 
-	const squircleFactor = interpolate(spr, [0, 1], [0, 1.4]);
+	const squircleFactor = interpolate(frame, [0, 100], [0, 1], {
+		extrapolateRight: 'clamp',
+	});
 	return (
 		<AbsoluteFill
 			style={{
@@ -28,13 +30,44 @@ const RectTest: React.FC = () => {
 				alignItems: 'center',
 			}}
 		>
-			<Rect
-				debug
-				fill="rgba(255, 0, 0, 0.1)"
-				squircleFactor={squircleFactor}
-				width={200}
-				height={400}
-			/>
+			<AbsoluteFill
+				style={{
+					display: 'flex',
+					justifyContent: 'center',
+					alignContent: 'center',
+					alignItems: 'center',
+				}}
+			>
+				<Rect
+					debug
+					fill="rgba(0, 255, 0, 0.5)"
+					squircleFactor={squircleFactor}
+					width={450}
+					height={450}
+				/>
+			</AbsoluteFill>
+			<AbsoluteFill
+				style={{
+					display: 'flex',
+					justifyContent: 'center',
+					alignContent: 'center',
+					alignItems: 'center',
+				}}
+			>
+				<Circle fill="rgba(255, 0, 0, 0.1)" radius={225} />
+			</AbsoluteFill>
+			<AbsoluteFill
+				style={{
+					display: 'flex',
+					justifyContent: 'center',
+					alignContent: 'center',
+					alignItems: 'center',
+					fontSize: 40,
+					fontFamily: 'sans-serif',
+				}}
+			>
+				{squircleFactor.toFixed(3)}
+			</AbsoluteFill>
 		</AbsoluteFill>
 	);
 };
