@@ -10,11 +10,12 @@ export const Triangle: React.FC<TriangleProps> = ({
 	length,
 	direction,
 	edgeRoundness,
+	cornerRadius,
 	...props
 }) => {
 	return (
 		<RenderSvg
-			{...makeTriangle({length, direction, edgeRoundness})}
+			{...makeTriangle({length, direction, edgeRoundness, cornerRadius})}
 			{...props}
 		/>
 	);
