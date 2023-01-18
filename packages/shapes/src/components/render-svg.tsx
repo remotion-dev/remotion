@@ -40,7 +40,6 @@ export const RenderSvg = ({
 		};
 	}, [pathStyle]);
 
-	console.log(instructions);
 	return (
 		<svg
 			width={width}
@@ -69,26 +68,28 @@ export const RenderSvg = ({
 									<path
 										d={`M ${prevX} ${prevY} ${i.cp1x} ${i.cp1y}`}
 										strokeWidth={2}
-										stroke="blue"
+										stroke="rgba(0, 0, 0, 0.4)"
 									/>
 									<path
 										d={`M ${i.x} ${i.y} ${i.cp2x} ${i.cp2y}`}
 										strokeWidth={2}
-										stroke="green"
+										stroke="rgba(0, 0, 0, 0.4)"
 									/>
 									<circle
 										cx={i.cp1x}
 										cy={i.cp1y}
 										r={3}
+										fill="white"
 										strokeWidth={2}
-										fill="red"
+										stroke="black"
 									/>
 									<circle
 										cx={i.cp2x}
 										cy={i.cp2y}
 										r={3}
 										strokeWidth={2}
-										fill="orange"
+										fill="white"
+										stroke="black"
 									/>
 								</>
 							);

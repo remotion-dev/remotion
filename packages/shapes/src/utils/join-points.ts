@@ -2,7 +2,7 @@ import type {Instruction} from './instructions';
 
 export const joinPoints = (
 	points: [number, number][],
-	{squircleFactor}: {squircleFactor: number}
+	{squircleFactor}: {squircleFactor: number | null}
 ) => {
 	return points.map(([x, y], i): Instruction => {
 		const prevPointIndex = i === 0 ? points.length - 2 : i - 1;
@@ -16,7 +16,7 @@ export const joinPoints = (
 		];
 
 		if (i === 0) {
-			if (squircleFactor > 0) {
+			if (squircleFactor !== null) {
 				return {
 					type: 'M',
 					x: middleOfLine[0],
@@ -31,7 +31,7 @@ export const joinPoints = (
 			};
 		}
 
-		if (squircleFactor === 0) {
+		if (squircleFactor === null) {
 			return {
 				type: 'L',
 				x,
