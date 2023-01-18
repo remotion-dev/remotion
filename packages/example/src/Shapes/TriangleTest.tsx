@@ -34,7 +34,7 @@ const TriangleTest: React.FC = () => {
 				debug
 				edgeRoundness={edgeRoundness}
 				length={100}
-				direction="top"
+				direction="up"
 			/>
 		</AbsoluteFill>
 	);
