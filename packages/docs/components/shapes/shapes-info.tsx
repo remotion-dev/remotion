@@ -179,12 +179,8 @@ export const ShapeOptions: React.FC<{
           </React.Fragment>
         );
       })}
-      {shapeComponent.shape === "Rect" ? (
-        <RectEdgeRoundness component={shapeComponent} />
-      ) : null}
-      {shapeComponent.shape === "Triangle" ? (
-        <TriangleEdgeRoundness component={shapeComponent} />
-      ) : null}
+      {shapeComponent.shape === "Rect" ? <RectEdgeRoundness /> : null}
+      {shapeComponent.shape === "Triangle" ? <TriangleEdgeRoundness /> : null}
       {all ? (
         <>
           <h3>Other props</h3>{" "}
