@@ -9,7 +9,8 @@ export const TriangleDemo: React.FC<{
   darkMode: boolean;
   direction: TriangleProps["direction"];
   debug: boolean;
-}> = ({ length, edgeRoundness, debug, direction, darkMode }) => {
+  cornerRadius: number;
+}> = ({ length, edgeRoundness, debug, direction, cornerRadius, darkMode }) => {
   return (
     <AbsoluteFill
       style={{
@@ -23,6 +24,7 @@ export const TriangleDemo: React.FC<{
         direction={direction}
         length={length}
         debug={debug}
+        cornerRadius={cornerRadius}
       />
     </AbsoluteFill>
   );

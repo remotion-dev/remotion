@@ -67,7 +67,7 @@ export const Demo: React.FC<{
           borderBottom: "1px solid var(--ifm-color-emphasis-300)",
         }}
         inputProps={{ ...state, darkMode: isDarkTheme }}
-        autoPlay
+        autoPlay={demo.autoPlay}
         loop
       />
       <div className={styles.containerrow}>

@@ -6,12 +6,14 @@ export type MakeRectOptions = {
 	width: number;
 	height: number;
 	edgeRoundness?: number | null;
+	cornerRadius?: number;
 };
 
 export const makeRect = ({
 	width,
 	height,
 	edgeRoundness = null,
+	cornerRadius = 0,
 }: MakeRectOptions): ShapeInfo => {
 	const transformOrigin: [number, number] = [width / 2, height / 2];
 	const instructions = joinPoints(
@@ -22,7 +24,7 @@ export const makeRect = ({
 			[0, height],
 			[0, 0],
 		],
-		{edgeRoundness}
+		{edgeRoundness, cornerRadius}
 	);
 	const path = serializeInstructions(instructions);
 
