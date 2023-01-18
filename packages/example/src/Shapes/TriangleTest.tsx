@@ -18,7 +18,7 @@ const TriangleTest: React.FC = () => {
 		config: {},
 	});
 
-	const squircleFactor = interpolate(spr, [0, 1], [0, 1]);
+	const edgeRoundness = interpolate(spr, [0, 1], [0, 1]);
 
 	return (
 		<AbsoluteFill
@@ -32,7 +32,7 @@ const TriangleTest: React.FC = () => {
 		>
 			<Triangle
 				debug
-				squircleFactor={squircleFactor}
+				edgeRoundness={edgeRoundness}
 				length={100}
 				direction="top"
 			/>
