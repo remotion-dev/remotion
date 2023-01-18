@@ -1,4 +1,5 @@
 import { NoiseComp } from "./NoiseDemo";
+import { RectDemo } from "./Rect";
 import { TriangleDemo } from "./Triangle";
 
 export type Option = {
@@ -34,6 +35,45 @@ export type DemoType = {
   durationInFrames: number;
   options: Option[];
   autoPlay: boolean;
+};
+
+export const rectDemo: DemoType = {
+  comp: RectDemo,
+  compWidth: 1280,
+  compHeight: 400,
+  durationInFrames: 150,
+  fps: 30,
+  id: "rect",
+  autoPlay: false,
+  options: [
+    {
+      default: 200,
+      max: 1000,
+      step: 5,
+      min: 1,
+      type: "numeric",
+      name: "width",
+      optional: "no",
+    },
+    {
+      default: 200,
+      max: 1000,
+      step: 5,
+      min: 1,
+      type: "numeric",
+      name: "height",
+      optional: "no",
+    },
+    {
+      name: "edgeRoundness",
+      default: 1,
+      max: 2,
+      min: -2,
+      step: 0.01,
+      type: "numeric",
+      optional: "default-disabled",
+    },
+  ],
 };
 
 export const triangleDemo: DemoType = {
