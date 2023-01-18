@@ -1,6 +1,7 @@
 import { Player } from "@remotion/player";
 import React, { useState } from "react";
 import { Control } from "./control";
+import styles from "./styles.module.css";
 import type { DemoType } from "./types";
 import { noiseDemo } from "./types";
 
@@ -9,6 +10,7 @@ const container: React.CSSProperties = {
   width: "100%",
   border: "1px solid var(--ifm-color-emphasis-300)",
   borderRadius: "var(--ifm-pre-border-radius)",
+  marginBottom: 40,
 };
 
 const demos: DemoType[] = [noiseDemo];
@@ -41,12 +43,13 @@ export const Demo: React.FC<{
         style={{
           width: "100%",
           aspectRatio: demo.compWidth / demo.compHeight,
+          borderBottom: "1px solid var(--ifm-color-emphasis-300)",
         }}
         inputProps={state}
         autoPlay
         loop
       />
-      <div>
+      <div className={styles.containerrow}>
         {demo.options.map((option) => {
           return (
             <Control
