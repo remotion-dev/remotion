@@ -112,7 +112,7 @@ export const TriangleEdgeRoundness = () => {
             debug
             edgeRoundness={Math.sqrt(2) - 1}
             length={80}
-            direction="right"
+            direction="up"
           />
         </td>
         <td>
