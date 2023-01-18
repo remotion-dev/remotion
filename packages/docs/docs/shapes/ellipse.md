@@ -10,6 +10,10 @@ _Part of the [` @remotion/shapes`](/docs/shapes) package._
 
 Renders an SVG element drawing an ellipse.
 
+## Explorer
+
+<Demo type="ellipse" />
+
 ## Example
 
 ```tsx twoslash title="src/Ellipse.tsx"
