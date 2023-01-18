@@ -1,21 +1,27 @@
 import { NoiseComp } from "./NoiseDemo";
 import { TriangleDemo } from "./Triangle";
 
-export type Option = { name: string } & (
+export type Option = {
+  name: string;
+  optional: "no" | "default-enabled" | "default-disabled";
+} & (
   | {
       type: "numeric";
       min: number;
       default: number;
       max: number;
       step: number;
-      optional: "no" | "default-enabled" | "default-disabled";
     }
   | {
       type: "boolean";
       default: boolean;
       max: number;
       step: number;
-      optional: boolean;
+    }
+  | {
+      type: "enum";
+      default: string;
+      values: string[];
     }
 );
 
@@ -56,6 +62,13 @@ export const triangleDemo: DemoType = {
       step: 0.01,
       type: "numeric",
       optional: "default-disabled",
+    },
+    {
+      name: "direction",
+      type: "enum",
+      default: "up",
+      values: ["up", "down", "left", "right"],
+      optional: "no",
     },
   ],
 };

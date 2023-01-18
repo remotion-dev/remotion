@@ -5,7 +5,10 @@
 
 .item {
   grid-gap: 15px;
-  padding: 10px;
+  padding-left: 6px;
+  padding-right: 6px;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .item:not(:last-child) {
