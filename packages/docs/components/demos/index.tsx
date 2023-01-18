@@ -1,3 +1,4 @@
+import { useColorMode } from "@docusaurus/theme-common";
 import { Player } from "@remotion/player";
 import React, { useState } from "react";
 import { Control } from "./control";
@@ -19,6 +20,7 @@ export const Demo: React.FC<{
   type: string;
 }> = ({ type }) => {
   const demo = demos.find((d) => d.id === type);
+  const { isDarkTheme } = useColorMode();
 
   if (!demo) {
     throw new Error("Demo not found");
@@ -45,7 +47,7 @@ export const Demo: React.FC<{
           aspectRatio: demo.compWidth / demo.compHeight,
           borderBottom: "1px solid var(--ifm-color-emphasis-300)",
         }}
-        inputProps={state}
+        inputProps={{ ...state, darkMode: isDarkTheme }}
         autoPlay
         loop
       />
