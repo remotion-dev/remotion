@@ -17,6 +17,7 @@
     "remotion": "remotion preview src/remotion/entry.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.252.0",
     "@aws-sdk/s3-request-presigner": "3.215.0",
     "@babel/plugin-transform-modules-commonjs": "^7.15.4",
     "@docusaurus/core": "2.2.0",
