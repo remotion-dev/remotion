@@ -33,7 +33,9 @@ export const RenderButton: React.FC<{
 				type: 'render',
 				compositionId: composition.id,
 				initialFrame: 0,
-				initialImageFormat: isVideo ? 'jpeg' : 'png',
+				// TODO: Take from config
+				initialVideoImageFormat: 'jpeg',
+				initialStillImageFormat: 'png',
 				initialQuality: defaults.quality,
 				initialScale: defaults.scale,
 				initialVerbose: (defaults.logLevel as LogLevel) === 'verbose',

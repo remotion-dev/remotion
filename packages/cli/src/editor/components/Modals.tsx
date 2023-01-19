@@ -21,7 +21,7 @@ export const Modals: React.FC = () => {
 				<RenderModal
 					initialFrame={modalContextType.initialFrame}
 					compositionId={modalContextType.compositionId}
-					initialImageFormat={modalContextType.initialImageFormat}
+					initialVideoImageFormat={modalContextType.initialVideoImageFormat}
 					initialQuality={modalContextType.initialQuality}
 					initialOutName={modalContextType.initialOutName}
 					initialScale={modalContextType.initialScale}
@@ -31,6 +31,7 @@ export const Modals: React.FC = () => {
 					initialConcurrency={modalContextType.initialConcurrency}
 					maxConcurrency={modalContextType.maxConcurrency}
 					minConcurrency={modalContextType.minConcurrency}
+					initialStillImageFormat={modalContextType.initialStillImageFormat}
 				/>
 			)}
 

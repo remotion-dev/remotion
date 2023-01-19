@@ -13,7 +13,9 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			type: 'render',
 			compositionId: job.compositionId,
 			initialFrame: job.frame,
-			initialImageFormat: job.imageFormat,
+			initialStillImageFormat: job.imageFormat,
+			// TODO: Take from config
+			initialVideoImageFormat: 'jpeg',
 			initialQuality: job.quality,
 			initialOutName: job.outName,
 			initialScale: job.scale,
@@ -30,7 +32,9 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 		return {
 			type: 'render',
 			compositionId: job.compositionId,
-			initialImageFormat: job.imageFormat,
+			// TODO: Take from config
+			initialStillImageFormat: 'png',
+			initialVideoImageFormat: job.imageFormat,
 			initialQuality: job.quality,
 			initialOutName: job.outName,
 			initialScale: job.scale,

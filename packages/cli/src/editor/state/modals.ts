@@ -12,7 +12,8 @@ export type RenderModalState = {
 	type: 'render';
 	compositionId: string;
 	initialFrame: number;
-	initialImageFormat: StillImageFormat;
+	initialStillImageFormat: StillImageFormat;
+	initialVideoImageFormat: StillImageFormat;
 	initialQuality: number | null;
 	initialOutName: string;
 	initialScale: number;
