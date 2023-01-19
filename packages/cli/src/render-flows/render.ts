@@ -44,6 +44,7 @@ import {bundleOnCliOrTakeServeUrl} from '../setup-cache';
 import type {RenderStep} from '../step';
 import {truthy} from '../truthy';
 import {getUserPassedOutputLocation} from '../user-passed-output-location';
+
 export const renderCompFlow = async ({
 	remotionRoot,
 	fullEntryPoint,
@@ -79,6 +80,7 @@ export const renderCompFlow = async ({
 	uiCodec,
 	uiImageFormat,
 	cancelSignal,
+	uiCrf,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -112,6 +114,7 @@ export const renderCompFlow = async ({
 	onProgress: JobProgressCallback;
 	addCleanupCallback: (cb: () => Promise<void>) => void;
 	uiCodec: Codec | null;
+	uiCrf: number | null;
 	uiImageFormat: ImageFormat | null;
 	cancelSignal: CancelSignal | null;
 }) => {
@@ -379,6 +382,8 @@ export const renderCompFlow = async ({
 		serveUrl: urlOrBundle,
 		codec,
 		remotionRoot,
+		uiImageFormat,
+		uiCrf,
 	});
 
 	await renderMedia({

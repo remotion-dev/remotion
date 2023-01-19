@@ -272,6 +272,7 @@ export const RenderModal: React.FC<{
 			verbose,
 			codec: videoCodec,
 			concurrency,
+			crf,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -281,17 +282,18 @@ export const RenderModal: React.FC<{
 				dispatchIfMounted({type: 'fail'});
 			});
 	}, [
-		compositionId,
 		dispatchIfMounted,
-		stillImageFormat,
+		compositionId,
 		outName,
+		videoImageFormat,
+		stillImageFormat,
 		quality,
 		scale,
-		setSelectedModal,
 		verbose,
 		videoCodec,
-		videoImageFormat,
 		concurrency,
+		crf,
+		setSelectedModal,
 	]);
 
 	const onConcurrencyChangedDirectly = useCallback((newConcurrency: number) => {
