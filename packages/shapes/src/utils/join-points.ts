@@ -67,6 +67,14 @@ export const joinPoints = (
 			}
 
 			if (edgeRoundness === null) {
+				if (cornerRadius === 0) {
+					return {
+						type: 'L',
+						x,
+						y,
+					};
+				}
+
 				const prevVectorMinusRadius = shortenVector(prevVector, cornerRadius);
 				const prevVectorLenght = scaleVectorToLength(prevVector, cornerRadius);
 				const nextVectorMinusRadius = scaleVectorToLength(
