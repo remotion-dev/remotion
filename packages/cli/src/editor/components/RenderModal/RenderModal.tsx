@@ -559,17 +559,23 @@ export const RenderModal: React.FC<{
 					showLabel="Show advanced settings"
 					hideLabel="Hide advanced settings"
 				>
-					<ScaleSetting scale={scale} setScale={setScale} />
 					<div style={optionRow}>
-						<div style={label}>Verbose logging</div>
+						<div style={label}>Concurrency</div>
 						<div style={rightRow}>
-							<input
-								type={'checkbox'}
-								checked={verbose}
-								onChange={onVerboseLoggingChanged}
+							<InputDragger
+								value={concurrency}
+								onTextChange={onConcurrencyChanged}
+								placeholder={`${minConcurrency}-${maxConcurrency}`}
+								onValueChange={onConcurrencyChangedDirectly}
+								name="concurrency"
+								step={1}
+								min={minConcurrency}
+								max={maxConcurrency}
 							/>
 						</div>
 					</div>
+					<ScaleSetting scale={scale} setScale={setScale} />
+
 					<div style={optionRow}>
 						<div style={label}>Image Format</div>
 						<div style={rightRow}>
@@ -584,17 +590,12 @@ export const RenderModal: React.FC<{
 						<QualitySetting setQuality={setQuality} quality={quality} />
 					)}
 					<div style={optionRow}>
-						<div style={label}>Concurrency</div>
+						<div style={label}>Verbose logging</div>
 						<div style={rightRow}>
-							<InputDragger
-								value={concurrency}
-								onTextChange={onConcurrencyChanged}
-								placeholder={`${minConcurrency}-${maxConcurrency}`}
-								onValueChange={onConcurrencyChangedDirectly}
-								name="concurrency"
-								step={1}
-								min={minConcurrency}
-								max={maxConcurrency}
+							<input
+								type={'checkbox'}
+								checked={verbose}
+								onChange={onVerboseLoggingChanged}
 							/>
 						</div>
 					</div>
