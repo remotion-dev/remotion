@@ -543,9 +543,8 @@ export const RenderModal: React.FC<{
 									name="frame"
 									step={1}
 									min={0}
-									// TODO: Add actual frame
 									max={currentComposition.durationInFrames - 1}
-								/>{' '}
+								/>
 							</div>
 						</div>
 					) : null}
@@ -560,9 +559,7 @@ export const RenderModal: React.FC<{
 								<InputDragger
 									value={scale}
 									onTextChange={onScaleChanged}
-									placeholder="0.1-10"
-									// TODO: Does not allow non-integer steps
-									// TODO: Cannot click and type in 0.2
+									placeholder={`${MIN_SCALE}-${MAX_SCALE}`}
 									onValueChange={onScaleSetDirectly}
 									name="scale"
 									step={0.1}
