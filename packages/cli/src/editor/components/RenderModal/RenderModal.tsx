@@ -284,7 +284,6 @@ export const RenderModal: React.FC<{
 			quality: imageFormat === 'jpeg' ? quality : null,
 			scale,
 			verbose,
-			// TODO: Make this configurable
 			codec: videoCodec,
 		})
 			.then(() => {
@@ -410,18 +409,7 @@ export const RenderModal: React.FC<{
 	}, [imageFormat, renderMode, setStillFormat, videoImageFormat]);
 
 	const videoCodecOptions = useMemo((): SegmentedControlItem[] => {
-		const codecs = [
-			'h264',
-			'h265',
-			'vp8',
-			'vp9',
-			'mp3',
-			'aac',
-			'wav',
-			'prores',
-			'gif',
-		] as const;
-		return codecs.map((codec) => {
+		return BrowserSafeApis.validCodecs.map((codec) => {
 			return {
 				label: codec,
 				onClick: () => setCodec(codec),

@@ -231,6 +231,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 		title: 'Remotion Bundle',
 		renderDefaults: undefined,
 	});
+
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 
 	return outDir;
