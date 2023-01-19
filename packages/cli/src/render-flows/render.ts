@@ -369,6 +369,7 @@ export const renderCompFlow = async ({
 		});
 
 		updateRenderProgress();
+		process.stdout.write('\n');
 		Log.infoAdvanced({indent, logLevel}, chalk.cyan(`▶ ${absoluteOutputFile}`));
 	}
 
@@ -407,7 +408,8 @@ export const renderCompFlow = async ({
 		printLog: (...str) => Log.verboseAdvanced({indent, logLevel}, ...str),
 	});
 
-	Log.infoAdvanced({indent, logLevel});
+	updateRenderProgress();
+	process.stdout.write('\n');
 	Log.infoAdvanced({indent, logLevel}, chalk.cyan(`▶ ${absoluteOutputFile}`));
 
 	for (const line of RenderInternals.perf.getPerf()) {
