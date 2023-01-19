@@ -146,6 +146,9 @@ export const RenderModal: React.FC<{
 	initialOutName: string;
 	initialRenderType: RenderType;
 	initialCodec: Codec;
+	initialConcurrency: number;
+	minConcurrency: number;
+	maxConcurrency: number;
 }> = ({
 	compositionId,
 	initialFrame,
@@ -156,6 +159,9 @@ export const RenderModal: React.FC<{
 	initialOutName,
 	initialRenderType,
 	initialCodec,
+	initialConcurrency,
+	maxConcurrency,
+	minConcurrency,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -171,6 +177,7 @@ export const RenderModal: React.FC<{
 	const [imageFormat, setImageFormat] = useState<StillImageFormat>(
 		() => initialImageFormat
 	);
+	const [concurrency, setConcurrency] = useState(() => initialConcurrency);
 	const [videoCodec, setVideoCodec] = useState<Codec>(initialCodec);
 	const [videoImageFormat, setVideoImageFormat] =
 		useState<StillImageFormat>('jpeg');
@@ -285,6 +292,7 @@ export const RenderModal: React.FC<{
 			scale,
 			verbose,
 			codec: videoCodec,
+			concurrency,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -304,6 +312,7 @@ export const RenderModal: React.FC<{
 		verbose,
 		videoCodec,
 		videoImageFormat,
+		concurrency,
 	]);
 
 	const onQualityChangedDirectly = useCallback((newQuality: number) => {
@@ -324,6 +333,28 @@ export const RenderModal: React.FC<{
 			return newQualityClamped;
 		});
 	}, []);
+
+	const onConcurrencyChangedDirectly = useCallback((newConcurrency: number) => {
+		setConcurrency(newConcurrency);
+	}, []);
+
+	const onConcurrencyChanged = useCallback(
+		(e: string) => {
+			setConcurrency((q) => {
+				const newConcurrency = parseInt(e, 10);
+				if (Number.isNaN(newConcurrency)) {
+					return q;
+				}
+
+				const newConcurrencyClamped = Math.min(
+					maxConcurrency,
+					Math.max(newConcurrency, minConcurrency)
+				);
+				return newConcurrencyClamped;
+			});
+		},
+		[maxConcurrency, minConcurrency]
+	);
 
 	const onScaleSetDirectly = useCallback((newScale: number) => {
 		setScale(newScale);
@@ -690,6 +721,22 @@ export const RenderModal: React.FC<{
 							</div>
 						</div>
 					)}
+					<div style={optionRow}>
+						<div style={label}>Concurrency</div>
+						<div style={rightRow}>
+							<InputDragger
+								value={concurrency}
+								onTextChange={onConcurrencyChanged}
+								// TODO: Set possible values
+								placeholder="0-100"
+								onValueChange={onConcurrencyChangedDirectly}
+								name="concurrency"
+								step={1}
+								min={minConcurrency}
+								max={maxConcurrency}
+							/>
+						</div>
+					</div>
 				</CollapsableOptions>
 				<Spacing block y={0.5} />
 				<div style={buttonRow}>

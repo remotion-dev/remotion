@@ -1,4 +1,5 @@
 import {BundlerInternals} from '@remotion/bundler';
+import {RenderInternals} from '@remotion/renderer';
 import {createReadStream, statSync} from 'fs';
 import type {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';
@@ -67,6 +68,11 @@ const handleFallback = async ({
 	const defaultScale = ConfigInternals.getScale();
 	const logLevel = ConfigInternals.Logging.getLogLevel();
 	const defaultCodec = ConfigInternals.getOutputCodecOrUndefined();
+	const concurrency = RenderInternals.getActualConcurrency(
+		ConfigInternals.getConcurrency()
+	);
+	const maxConcurrency = RenderInternals.getMaxConcurrency();
+	const minConcurrency = RenderInternals.getMinConcurrency();
 
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
@@ -95,6 +101,9 @@ const handleFallback = async ({
 				scale: defaultScale ?? 1,
 				logLevel,
 				codec: defaultCodec ?? 'h264',
+				concurrency,
+				maxConcurrency,
+				minConcurrency,
 			},
 		})
 	);

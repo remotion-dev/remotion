@@ -43,6 +43,7 @@ type RenderJobDynamicFields =
 			quality: number | null;
 			scale: number;
 			codec: Codec;
+			concurrency: number;
 			// TODO: Add more fields like frame range
 	  };
 
@@ -77,6 +78,7 @@ type AddRenderRequestDynamicFields =
 			quality: number | null;
 			scale: number;
 			verbose: boolean;
+			concurrency: number;
 	  };
 
 export type CancelRenderRequest = {

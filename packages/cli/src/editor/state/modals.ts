@@ -19,6 +19,9 @@ export type RenderModalState = {
 	initialVerbose: boolean;
 	initialRenderType: RenderType;
 	initialCodec: Codec;
+	initialConcurrency: number;
+	minConcurrency: number;
+	maxConcurrency: number;
 };
 
 export type ModalState =

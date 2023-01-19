@@ -64,8 +64,7 @@ export const processVideoJob = async ({
 		logLevel: job.verbose ? 'verbose' : 'info',
 		onProgress,
 		indent: true,
-		// TODO: Make configurable
-		concurrency: null,
+		concurrency: job.concurrency,
 		// TODO: Make configurable
 		everyNthFrame: 1,
 		// TODO: Make configurable

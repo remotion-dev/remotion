@@ -74,6 +74,7 @@ export const addVideoRenderJob = ({
 	scale,
 	verbose,
 	codec,
+	concurrency,
 }: {
 	compositionId: string;
 	outName: string;
@@ -82,6 +83,7 @@ export const addVideoRenderJob = ({
 	scale: number;
 	verbose: boolean;
 	codec: Codec;
+	concurrency: number;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -92,6 +94,7 @@ export const addVideoRenderJob = ({
 		scale,
 		verbose,
 		codec,
+		concurrency,
 	});
 };
 

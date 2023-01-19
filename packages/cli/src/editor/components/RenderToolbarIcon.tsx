@@ -54,6 +54,9 @@ export const RenderStillButton: React.FC = () => {
 			initialVerbose: (defaults.logLevel as LogLevel) === 'verbose',
 			initialRenderType: isVideo ? 'video' : 'still',
 			initialCodec: defaults.codec as Codec,
+			initialConcurrency: defaults.concurrency,
+			maxConcurrency: defaults.maxConcurrency,
+			minConcurrency: defaults.minConcurrency,
 		});
 	}, [video, frame, setSelectedModal]);
 

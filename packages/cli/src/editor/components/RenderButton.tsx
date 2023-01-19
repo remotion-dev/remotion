@@ -44,6 +44,9 @@ export const RenderButton: React.FC<{
 				}),
 				initialRenderType: isVideo ? 'video' : 'still',
 				initialCodec: defaults.codec as Codec,
+				initialConcurrency: defaults.concurrency,
+				maxConcurrency: defaults.maxConcurrency,
+				minConcurrency: defaults.minConcurrency,
 			});
 		},
 		[composition.id, isVideo, setSelectedModal]
