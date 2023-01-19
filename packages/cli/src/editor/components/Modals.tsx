@@ -27,7 +27,8 @@ export const Modals: React.FC = () => {
 					initialScale={modalContextType.initialScale}
 					initialVerbose={modalContextType.initialVerbose}
 					initialRenderType={modalContextType.initialRenderType}
-					initialCodec={modalContextType.initialCodec}
+					initialAudioCodec={modalContextType.initialAudioCodec}
+					initialVideoCodec={modalContextType.initialVideoCodec}
 					initialConcurrency={modalContextType.initialConcurrency}
 					maxConcurrency={modalContextType.maxConcurrency}
 					minConcurrency={modalContextType.minConcurrency}

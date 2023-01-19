@@ -47,7 +47,7 @@ type State =
 
 const initialState: State = {type: 'idle'};
 
-export type RenderType = 'still' | 'video';
+export type RenderType = 'still' | 'video' | 'audio';
 
 type Action =
 	| {
@@ -117,7 +117,8 @@ export const RenderModal: React.FC<{
 	initialVerbose: boolean;
 	initialOutName: string;
 	initialRenderType: RenderType;
-	initialCodec: Codec;
+	initialAudioCodec: Codec;
+	initialVideoCodec: Codec;
 	initialConcurrency: number;
 	minConcurrency: number;
 	maxConcurrency: number;
@@ -131,7 +132,8 @@ export const RenderModal: React.FC<{
 	initialVerbose,
 	initialOutName,
 	initialRenderType,
-	initialCodec,
+	initialAudioCodec,
+	initialVideoCodec,
 	initialConcurrency,
 	maxConcurrency,
 	minConcurrency,
@@ -154,14 +156,28 @@ export const RenderModal: React.FC<{
 		() => initialVideoImageFormat
 	);
 	const [concurrency, setConcurrency] = useState(() => initialConcurrency);
-	const [videoCodec, setVideoCodec] = useState<Codec>(initialCodec);
-	const {crf, maxCrf, minCrf, setCrf, shouldDisplayOption} =
-		useCrfState(videoCodec);
-	const [renderMode, setRenderMode] = useState<RenderType>(initialRenderType);
+	const [videoCodec, setVideoSpecificalCodec] = useState<Codec>(
+		() => initialVideoCodec
+	);
+	const [audioCodec, setAudioSpecificalCodec] = useState<Codec>(
+		() => initialAudioCodec
+	);
+
+	const [renderMode, setRenderModeState] =
+		useState<RenderType>(initialRenderType);
 	const [quality, setQuality] = useState<number>(() => initialQuality ?? 80);
 	const [scale, setScale] = useState(() => initialScale);
 	const [verbose, setVerboseLogging] = useState(() => initialVerbose);
 	const [outName, setOutName] = useState(() => initialOutName);
+
+	const codec = useMemo(() => {
+		if (renderMode === 'audio') {
+			return audioCodec;
+		}
+
+		return videoCodec;
+	}, [audioCodec, renderMode, videoCodec]);
+	const {crf, maxCrf, minCrf, setCrf, shouldDisplayOption} = useCrfState(codec);
 
 	const dispatchIfMounted: typeof dispatch = useCallback((payload) => {
 		if (isMounted.current === false) return;
@@ -206,27 +222,53 @@ export const RenderModal: React.FC<{
 		return bitBeforeDot;
 	}, []);
 
-	const setCodec = useCallback(
-		(codec: Codec) => {
-			setVideoCodec(codec);
-			setOutName((prev) => {
-				const codecSuffix = BrowserSafeApis.getFileExtensionFromCodec(codec);
-				const newFileName = getStringBeforeSuffix(prev) + '.' + codecSuffix;
-				return newFileName;
-			});
+	const setDefaultOutName = useCallback(
+		(
+			options:
+				| {type: 'still'; imageFormat: StillImageFormat}
+				| {
+						type: 'render';
+						codec: Codec;
+				  }
+		) => {
+			if (options.type === 'still') {
+				setOutName((prev) => {
+					const newFileName =
+						getStringBeforeSuffix(prev) + '.' + options.imageFormat;
+					return newFileName;
+				});
+			} else {
+				setOutName((prev) => {
+					const codecSuffix = BrowserSafeApis.getFileExtensionFromCodec(
+						options.codec
+					);
+					const newFileName = getStringBeforeSuffix(prev) + '.' + codecSuffix;
+					return newFileName;
+				});
+			}
 		},
 		[getStringBeforeSuffix]
+	);
+
+	const setCodec = useCallback(
+		(newCodec: Codec) => {
+			if (renderMode === 'audio') {
+				setAudioSpecificalCodec(newCodec);
+			} else {
+				setVideoSpecificalCodec(newCodec);
+			}
+
+			setDefaultOutName({type: 'render', codec: newCodec});
+		},
+		[renderMode, setDefaultOutName]
 	);
 
 	const setStillFormat = useCallback(
 		(format: StillImageFormat) => {
 			setStillImageFormat(format);
-			setOutName((prev) => {
-				const newFileName = getStringBeforeSuffix(prev) + '.' + format;
-				return newFileName;
-			});
+			setDefaultOutName({type: 'still', imageFormat: format});
 		},
-		[getStringBeforeSuffix]
+		[setDefaultOutName]
 	);
 
 	const onClickStill = useCallback(() => {
@@ -270,7 +312,7 @@ export const RenderModal: React.FC<{
 			quality: stillImageFormat === 'jpeg' ? quality : null,
 			scale,
 			verbose,
-			codec: videoCodec,
+			codec,
 			concurrency,
 			crf,
 		})
@@ -290,7 +332,7 @@ export const RenderModal: React.FC<{
 		quality,
 		scale,
 		verbose,
-		videoCodec,
+		codec,
 		concurrency,
 		crf,
 		setSelectedModal,
@@ -374,15 +416,38 @@ export const RenderModal: React.FC<{
 	}, [stillImageFormat, renderMode, setStillFormat, videoImageFormat]);
 
 	const videoCodecOptions = useMemo((): SegmentedControlItem[] => {
-		return BrowserSafeApis.validCodecs.map((codec) => {
-			return {
-				label: codec,
-				onClick: () => setCodec(codec),
-				key: codec,
-				selected: videoCodec === codec,
-			};
-		});
-	}, [setCodec, videoCodec]);
+		return BrowserSafeApis.validCodecs
+			.filter((c) => {
+				return BrowserSafeApis.isAudioCodec(c) === (renderMode === 'audio');
+			})
+			.map((codecOption) => {
+				return {
+					label: codecOption,
+					onClick: () => setCodec(codecOption),
+					key: codecOption,
+					selected: codec === codecOption,
+				};
+			});
+	}, [renderMode, setCodec, codec]);
+
+	const setRenderMode = useCallback(
+		(newRenderMode: RenderType) => {
+			setRenderModeState(newRenderMode);
+			if (newRenderMode === 'audio') {
+				console.log({audioCodec});
+				setDefaultOutName({type: 'render', codec: audioCodec});
+			}
+
+			if (newRenderMode === 'video') {
+				setDefaultOutName({type: 'render', codec: videoCodec});
+			}
+
+			if (newRenderMode === 'still') {
+				setDefaultOutName({type: 'still', imageFormat: stillImageFormat});
+			}
+		},
+		[audioCodec, setDefaultOutName, stillImageFormat, videoCodec]
+	);
 
 	const renderTabOptions = useMemo((): SegmentedControlItem[] => {
 		if (currentComposition?.durationInFrames < 2) {
@@ -391,7 +456,6 @@ export const RenderModal: React.FC<{
 					label: 'Still',
 					onClick: () => {
 						setRenderMode('still');
-						setStillFormat(stillImageFormat);
 					},
 					key: 'still',
 					selected: renderMode === 'still',
@@ -404,7 +468,6 @@ export const RenderModal: React.FC<{
 				label: 'Still',
 				onClick: () => {
 					setRenderMode('still');
-					setStillFormat(stillImageFormat);
 				},
 				key: 'still',
 				selected: renderMode === 'still',
@@ -413,20 +476,20 @@ export const RenderModal: React.FC<{
 				label: 'Video',
 				onClick: () => {
 					setRenderMode('video');
-					setCodec(videoCodec);
 				},
 				key: 'video',
 				selected: renderMode === 'video',
 			},
+			{
+				label: 'Audio',
+				onClick: () => {
+					setRenderMode('audio');
+				},
+				key: 'audio',
+				selected: renderMode === 'audio',
+			},
 		];
-	}, [
-		currentComposition?.durationInFrames,
-		stillImageFormat,
-		renderMode,
-		setCodec,
-		setStillFormat,
-		videoCodec,
-	]);
+	}, [currentComposition?.durationInFrames, renderMode]);
 
 	const onVerboseLoggingChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
@@ -580,17 +643,21 @@ export const RenderModal: React.FC<{
 							/>
 						</div>
 					</div>
-					<ScaleSetting scale={scale} setScale={setScale} />
-					<div style={optionRow}>
-						<div style={label}>Image Format</div>
-						<div style={rightRow}>
-							<SegmentedControl
-								items={imageFormatOptions}
-								needsWrapping={false}
-							/>
+					{renderMode === 'video' ? (
+						<ScaleSetting scale={scale} setScale={setScale} />
+					) : null}
+					{renderMode === 'video' ? (
+						<div style={optionRow}>
+							<div style={label}>Image Format</div>
+							<div style={rightRow}>
+								<SegmentedControl
+									items={imageFormatOptions}
+									needsWrapping={false}
+								/>
+							</div>
 						</div>
-					</div>
-					{videoImageFormat === 'jpeg' && (
+					) : null}
+					{renderMode === 'video' && videoImageFormat === 'jpeg' && (
 						<QualitySetting setQuality={setQuality} quality={quality} />
 					)}
 					{shouldDisplayOption ? (
@@ -614,7 +681,9 @@ export const RenderModal: React.FC<{
 						onClick={onClickVideo}
 						disabled={state.type === 'load'}
 					>
-						{state.type === 'idle' ? 'Render video' : 'Rendering...'}
+						{state.type === 'idle'
+							? 'Render ' + (renderMode === 'audio' ? 'audio' : 'video')
+							: 'Rendering...'}
 					</Button>
 				</div>
 			</div>

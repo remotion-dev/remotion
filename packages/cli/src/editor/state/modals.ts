@@ -19,7 +19,8 @@ export type RenderModalState = {
 	initialScale: number;
 	initialVerbose: boolean;
 	initialRenderType: RenderType;
-	initialCodec: Codec;
+	initialAudioCodec: Codec;
+	initialVideoCodec: Codec;
 	initialConcurrency: number;
 	minConcurrency: number;
 	maxConcurrency: number;

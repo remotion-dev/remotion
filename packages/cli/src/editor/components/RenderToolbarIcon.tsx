@@ -3,6 +3,7 @@ import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
 import {getDefaultOutLocation} from '../../get-default-out-name';
+import {getDefaultCodecs} from '../../preview-server/render-queue/get-default-video-contexts';
 import {PreviewServerConnectionCtx} from '../helpers/client-id';
 import {RenderIcon} from '../icons/render';
 import {ModalsContext} from '../state/modals';
@@ -54,8 +55,10 @@ export const RenderStillButton: React.FC = () => {
 			initialQuality: defaults.quality,
 			initialScale: window.remotion_renderDefaults?.scale ?? 1,
 			initialVerbose: (defaults.logLevel as LogLevel) === 'verbose',
-			initialRenderType: isVideo ? 'video' : 'still',
-			initialCodec: defaults.codec as Codec,
+			...getDefaultCodecs({
+				defaultCodec: defaults.codec as Codec,
+				isStill: !isVideo,
+			}),
 			initialConcurrency: defaults.concurrency,
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,
