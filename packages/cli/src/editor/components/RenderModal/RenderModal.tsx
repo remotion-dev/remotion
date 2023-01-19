@@ -166,7 +166,7 @@ export const RenderModal: React.FC<{
 	const isMounted = useRef(true);
 
 	const [state, dispatch] = useReducer(reducer, initialState);
-	const [frame, setFrame] = useState(() => initialFrame);
+	const [unclampedFrame, setFrame] = useState(() => initialFrame);
 
 	const [imageFormat, setImageFormat] = useState<StillImageFormat>(
 		() => initialImageFormat
@@ -206,6 +206,10 @@ export const RenderModal: React.FC<{
 	if (currentComposition === null) {
 		throw new Error('This composition does not exist');
 	}
+
+	const frame = useMemo(() => {
+		return Math.min(currentComposition.durationInFrames - 1, unclampedFrame);
+	}, [currentComposition.durationInFrames, unclampedFrame]);
 
 	const getStringBeforeSuffix = useCallback((fileName: string) => {
 		const dotPos = fileName.lastIndexOf('.');
@@ -343,7 +347,6 @@ export const RenderModal: React.FC<{
 
 	const onFrameSetDirectly = useCallback(
 		(newFrame: number) => {
-			console.log(newFrame);
 			if (newFrame > currentComposition.durationInFrames - 1) {
 				setFrame(currentComposition.durationInFrames - 1);
 			} else {
@@ -353,19 +356,21 @@ export const RenderModal: React.FC<{
 		[currentComposition.durationInFrames, setFrame]
 	);
 
-	const onFrameChanged = useCallback((e: string) => {
-		setFrame((q) => {
-			const newFrame = parseFloat(e);
-			if (Number.isNaN(newFrame)) {
-				return q;
-			}
+	const onFrameChanged = useCallback(
+		(e: string) => {
+			setFrame((q) => {
+				const newFrame = parseFloat(e);
+				if (Number.isNaN(newFrame)) {
+					return q;
+				}
 
-			// TODO: User could change frame inbetween 😈
-			return newFrame > currentComposition.durationInFrames - 1
-				? currentComposition.durationInFrames - 1
-				: newFrame;
-		});
-	}, []);
+				return newFrame > currentComposition.durationInFrames - 1
+					? currentComposition.durationInFrames - 1
+					: newFrame;
+			});
+		},
+		[currentComposition.durationInFrames]
+	);
 
 	useEffect(() => {
 		return () => {
