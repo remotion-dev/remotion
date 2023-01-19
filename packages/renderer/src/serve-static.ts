@@ -22,7 +22,11 @@ export const serveStatic = async (
 	port: number;
 	close: () => Promise<void>;
 }> => {
-	const port = await getDesiredPort(options?.port ?? undefined, 3000, 3100);
+	const {port, didUsePort} = await getDesiredPort(
+		options?.port ?? undefined,
+		3000,
+		3100
+	);
 
 	const offthreadRequest = startOffthreadVideoServer({
 		ffmpegExecutable: options.ffmpegExecutable,
@@ -63,6 +67,10 @@ export const serveStatic = async (
 			conn.on('close', () => {
 				delete connections[key];
 			});
+		});
+
+		server.on('listening', () => {
+			didUsePort();
 		});
 
 		const destroyConnections = function () {

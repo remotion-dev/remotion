@@ -10,6 +10,10 @@ _Part of the [`@remotion/shapes`](/docs/shapes) package._
 
 Renders an SVG element drawing a circle.
 
+## Explorer
+
+<Demo type="circle" />
+
 ## Example
 
 ```tsx twoslash title="src/Circle.tsx"

@@ -1,9 +1,11 @@
 import React, {useMemo} from 'react';
+import type {Instruction} from '../utils/instructions';
 
 export type AllShapesProps = Omit<
 	React.SVGProps<SVGPathElement>,
 	'width' | 'height' | 'd'
 > & {
+	debug?: boolean;
 	pathStyle?: React.CSSProperties;
 };
 
@@ -14,11 +16,14 @@ export const RenderSvg = ({
 	style,
 	pathStyle,
 	transformOrigin,
+	debug,
+	instructions,
 	...props
 }: {
 	width: number;
 	height: number;
 	path: string;
+	instructions: Instruction[];
 	transformOrigin: string;
 } & AllShapesProps) => {
 	const actualStyle = useMemo((): React.CSSProperties => {
@@ -49,6 +54,50 @@ export const RenderSvg = ({
 				style={actualPathStyle}
 				{...props}
 			/>
+			{debug
+				? instructions.map((i, index) => {
+						if (i.type === 'C') {
+							const prevInstruction =
+								index === 0
+									? instructions[instructions.length - 1]
+									: instructions[index - 1];
+							const prevX = prevInstruction.x;
+							const prevY = prevInstruction.y;
+							return (
+								<>
+									<path
+										d={`M ${prevX} ${prevY} ${i.cp1x} ${i.cp1y}`}
+										strokeWidth={2}
+										stroke="rgba(0, 0, 0, 0.4)"
+									/>
+									<path
+										d={`M ${i.x} ${i.y} ${i.cp2x} ${i.cp2y}`}
+										strokeWidth={2}
+										stroke="rgba(0, 0, 0, 0.4)"
+									/>
+									<circle
+										cx={i.cp1x}
+										cy={i.cp1y}
+										r={3}
+										fill="white"
+										strokeWidth={2}
+										stroke="black"
+									/>
+									<circle
+										cx={i.cp2x}
+										cy={i.cp2y}
+										r={3}
+										strokeWidth={2}
+										fill="white"
+										stroke="black"
+									/>
+								</>
+							);
+						}
+
+						return null;
+				  })
+				: null}
 		</svg>
 	);
 };
