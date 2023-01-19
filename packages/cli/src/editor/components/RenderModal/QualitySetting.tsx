@@ -1,5 +1,6 @@
 import React, {useCallback} from 'react';
 import {InputDragger} from '../NewComposition/InputDragger';
+import {RightAlignInput} from '../NewComposition/RemInput';
 import {label, optionRow, rightRow} from './layout';
 
 const MIN_QUALITY = 1;
@@ -38,16 +39,18 @@ export const QualitySetting: React.FC<{
 		<div style={optionRow}>
 			<div style={label}>JPEG Quality</div>
 			<div style={rightRow}>
-				<InputDragger
-					value={quality}
-					onTextChange={onQualityChanged}
-					placeholder={`${MIN_QUALITY}-${MAX_QUALITY}`}
-					onValueChange={onQualityChangedDirectly}
-					name="quality"
-					step={1}
-					min={MIN_QUALITY}
-					max={MAX_QUALITY}
-				/>
+				<RightAlignInput>
+					<InputDragger
+						value={quality}
+						onTextChange={onQualityChanged}
+						placeholder={`${MIN_QUALITY}-${MAX_QUALITY}`}
+						onValueChange={onQualityChangedDirectly}
+						name="quality"
+						step={1}
+						min={MIN_QUALITY}
+						max={MAX_QUALITY}
+					/>
+				</RightAlignInput>
 			</div>
 		</div>
 	);

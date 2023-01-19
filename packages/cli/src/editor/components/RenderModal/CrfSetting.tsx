@@ -2,6 +2,7 @@ import type {Codec} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {useCallback, useState} from 'react';
 import {InputDragger} from '../NewComposition/InputDragger';
+import {RightAlignInput} from '../NewComposition/RemInput';
 import {label, optionRow, rightRow} from './layout';
 
 type CrfState = Record<Codec, number>;
@@ -70,16 +71,18 @@ export const CrfSetting: React.FC<{
 		<div style={optionRow}>
 			<div style={label}>CRF</div>
 			<div style={rightRow}>
-				<InputDragger
-					value={crf}
-					onTextChange={onCrfChanged}
-					placeholder={`${min}-${max}`}
-					onValueChange={onCrfSetDirectly}
-					name="crf"
-					step={1}
-					min={min}
-					max={max}
-				/>
+				<RightAlignInput>
+					<InputDragger
+						value={crf}
+						onTextChange={onCrfChanged}
+						placeholder={`${min}-${max}`}
+						onValueChange={onCrfSetDirectly}
+						name="crf"
+						step={1}
+						min={min}
+						max={max}
+					/>
+				</RightAlignInput>
 			</div>
 		</div>
 	);

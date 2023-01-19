@@ -21,7 +21,7 @@ import {Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {InputDragger} from '../NewComposition/InputDragger';
-import {RemotionInput} from '../NewComposition/RemInput';
+import {RemotionInput, RightAlignInput} from '../NewComposition/RemInput';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
@@ -542,16 +542,18 @@ export const RenderModal: React.FC<{
 						>
 							<div style={label}>Frame</div>
 							<div style={rightRow}>
-								<InputDragger
-									value={frame}
-									onTextChange={onFrameChanged}
-									placeholder={`0-${currentComposition.durationInFrames - 1}`}
-									onValueChange={onFrameSetDirectly}
-									name="frame"
-									step={1}
-									min={0}
-									max={currentComposition.durationInFrames - 1}
-								/>
+								<RightAlignInput>
+									<InputDragger
+										value={frame}
+										onTextChange={onFrameChanged}
+										placeholder={`0-${currentComposition.durationInFrames - 1}`}
+										onValueChange={onFrameSetDirectly}
+										name="frame"
+										step={1}
+										min={0}
+										max={currentComposition.durationInFrames - 1}
+									/>
+								</RightAlignInput>
 							</div>
 						</div>
 					) : null}
@@ -631,16 +633,18 @@ export const RenderModal: React.FC<{
 					<div style={optionRow}>
 						<div style={label}>Concurrency</div>
 						<div style={rightRow}>
-							<InputDragger
-								value={concurrency}
-								onTextChange={onConcurrencyChanged}
-								placeholder={`${minConcurrency}-${maxConcurrency}`}
-								onValueChange={onConcurrencyChangedDirectly}
-								name="concurrency"
-								step={1}
-								min={minConcurrency}
-								max={maxConcurrency}
-							/>
+							<RightAlignInput>
+								<InputDragger
+									value={concurrency}
+									onTextChange={onConcurrencyChanged}
+									placeholder={`${minConcurrency}-${maxConcurrency}`}
+									onValueChange={onConcurrencyChangedDirectly}
+									name="concurrency"
+									step={1}
+									min={minConcurrency}
+									max={maxConcurrency}
+								/>
+							</RightAlignInput>
 						</div>
 					</div>
 					{renderMode === 'video' ? (

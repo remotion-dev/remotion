@@ -1,3 +1,4 @@
+import type {PropsWithChildren} from 'react';
 import React, {
 	forwardRef,
 	useEffect,
@@ -22,8 +23,18 @@ type Props = React.DetailedHTMLProps<
 	warning?: boolean;
 };
 
+export const INPUT_HORIZONTAL_PADDING = 8;
+
+const aligner: React.CSSProperties = {
+	marginRight: -INPUT_HORIZONTAL_PADDING,
+};
+
+export const RightAlignInput: React.FC<PropsWithChildren> = ({children}) => {
+	return <div style={aligner}>{children}</div>;
+};
+
 export const inputBaseStyle: React.CSSProperties = {
-	padding: '8px 10px',
+	padding: `${INPUT_HORIZONTAL_PADDING}px 10px`,
 	color: 'white',
 	borderStyle: 'solid',
 	borderWidth: 1,
