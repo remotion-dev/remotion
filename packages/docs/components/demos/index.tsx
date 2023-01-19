@@ -89,7 +89,14 @@ export const Demo: React.FC<{
               }}
             >
               {error.message}
-              <button onClick={restart} type="button">
+              <br />
+              <button
+                style={{
+                  fontSize: 30,
+                }}
+                onClick={restart}
+                type="button"
+              >
                 Restart
               </button>
             </AbsoluteFill>
