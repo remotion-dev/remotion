@@ -28,8 +28,6 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {leftSidebarTabs} from '../SidebarContent';
 
-// TODO: fix pointer down inside, pointer
-
 type State =
 	| {
 			type: 'idle';
