@@ -55,7 +55,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [MapSnap](https://companies.remotion.dev) _(exclusive for Company License subscribers)_
 - [Mockoops](https://github.com/Just-Moh-it/Mockoops)
 - [Product Hunt Today](https://github.com/Kamigami55/product-hunt-today)
-- [Remotion Wether](https://github.com/florentpergoud/remotion-weather)
+- [Remotion Weather](https://github.com/florentpergoud/remotion-weather)
 
 ## Examples
 
