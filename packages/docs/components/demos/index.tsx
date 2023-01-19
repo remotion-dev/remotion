@@ -1,6 +1,7 @@
 import { useColorMode } from "@docusaurus/theme-common";
 import { Player } from "@remotion/player";
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
+import { AbsoluteFill } from "remotion";
 import { Control } from "./control";
 import styles from "./styles.module.css";
 import type { DemoType } from "./types";
@@ -34,12 +35,10 @@ export const Demo: React.FC<{
   const demo = demos.find((d) => d.id === type);
   const { isDarkTheme } = useColorMode();
 
-  if (!demo) {
-    throw new Error("Demo not found");
-  }
+  const [key, setKey] = useState(() => 0);
 
-  const [state, setState] = useState(() =>
-    demo.options
+  const initialState = useMemo(() => {
+    return demo.options
       .map(
         (o) =>
           [
@@ -50,12 +49,24 @@ export const Demo: React.FC<{
       .reduce((a, b) => {
         a[b[0]] = b[1];
         return a;
-      }, {})
-  );
+      }, {});
+  }, [demo.options]);
+
+  const restart = useCallback(() => {
+    setState(initialState);
+    setKey((k) => k + 1);
+  }, [initialState]);
+
+  if (!demo) {
+    throw new Error("Demo not found");
+  }
+
+  const [state, setState] = useState(() => initialState);
 
   return (
     <div style={container}>
       <Player
+        key={key}
         component={demo.comp}
         compositionWidth={demo.compWidth}
         compositionHeight={demo.compHeight}
@@ -65,6 +76,24 @@ export const Demo: React.FC<{
           width: "100%",
           aspectRatio: demo.compWidth / demo.compHeight,
           borderBottom: "1px solid var(--ifm-color-emphasis-300)",
+        }}
+        errorFallback={({ error }) => {
+          return (
+            <AbsoluteFill
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                fontSize: 30,
+                textAlign: "center",
+                lineHeight: 1.5,
+              }}
+            >
+              {error.message}
+              <button onClick={restart} type="button">
+                Restart
+              </button>
+            </AbsoluteFill>
+          );
         }}
         inputProps={{ ...state, darkMode: isDarkTheme }}
         autoPlay={demo.autoPlay}
