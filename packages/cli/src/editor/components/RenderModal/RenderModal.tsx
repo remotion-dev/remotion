@@ -489,7 +489,7 @@ export const RenderModal: React.FC<{
 				selected: renderMode === 'audio',
 			},
 		];
-	}, [currentComposition?.durationInFrames, renderMode]);
+	}, [currentComposition?.durationInFrames, renderMode, setRenderMode]);
 
 	const onVerboseLoggingChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
