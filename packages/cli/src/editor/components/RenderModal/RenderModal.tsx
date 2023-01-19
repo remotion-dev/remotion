@@ -638,8 +638,7 @@ export const RenderModal: React.FC<{
 							<InputDragger
 								value={concurrency}
 								onTextChange={onConcurrencyChanged}
-								// TODO: Set possible values
-								placeholder="0-100"
+								placeholder={`${minConcurrency}-${maxConcurrency}`}
 								onValueChange={onConcurrencyChangedDirectly}
 								name="concurrency"
 								step={1}
