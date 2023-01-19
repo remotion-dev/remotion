@@ -27,6 +27,7 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {leftSidebarTabs} from '../SidebarContent';
 import {label, optionRow, rightRow} from './layout';
+import {QualitySetting} from './QualitySetting';
 import {ScaleSetting} from './ScaleSetting';
 
 type State =
@@ -104,9 +105,6 @@ const input: React.CSSProperties = {
 	minWidth: 250,
 	textAlign: 'right',
 };
-
-const MIN_QUALITY = 1;
-const MAX_QUALITY = 100;
 
 export const RenderModal: React.FC<{
 	compositionId: string;
@@ -288,25 +286,6 @@ export const RenderModal: React.FC<{
 		videoImageFormat,
 		concurrency,
 	]);
-
-	const onQualityChangedDirectly = useCallback((newQuality: number) => {
-		setQuality(newQuality);
-	}, []);
-
-	const onQualityChanged = useCallback((e: string) => {
-		setQuality((q) => {
-			const newQuality = parseInt(e, 10);
-			if (Number.isNaN(newQuality)) {
-				return q;
-			}
-
-			const newQualityClamped = Math.min(
-				MAX_QUALITY,
-				Math.max(newQuality, MIN_QUALITY)
-			);
-			return newQualityClamped;
-		});
-	}, []);
 
 	const onConcurrencyChangedDirectly = useCallback((newConcurrency: number) => {
 		setConcurrency(newConcurrency);
@@ -519,24 +498,8 @@ export const RenderModal: React.FC<{
 								/>
 							</div>
 						</div>
-
-						{/* TODO: check if jpeg quality for still and video should be handled seperately */}
 						{imageFormat === 'jpeg' && (
-							<div style={optionRow}>
-								<div style={label}>JPEG Quality</div>
-								<div style={rightRow}>
-									<InputDragger
-										value={quality}
-										onTextChange={onQualityChanged}
-										placeholder="0-100"
-										onValueChange={onQualityChangedDirectly}
-										name="quality"
-										step={1}
-										min={MIN_QUALITY}
-										max={MAX_QUALITY}
-									/>
-								</div>
-							</div>
+							<QualitySetting setQuality={setQuality} quality={quality} />
 						)}
 					</CollapsableOptions>
 					<Spacing block y={0.5} />
@@ -614,23 +577,8 @@ export const RenderModal: React.FC<{
 						</div>
 					</div>
 
-					{/* TODO: check if jpeg quality for still and video should be handled seperately */}
 					{videoImageFormat === 'jpeg' && (
-						<div style={optionRow}>
-							<div style={label}>JPEG Quality</div>
-							<div style={rightRow}>
-								<InputDragger
-									value={quality}
-									onTextChange={onQualityChanged}
-									placeholder="0-100"
-									onValueChange={onQualityChangedDirectly}
-									name="quality"
-									step={1}
-									min={MIN_QUALITY}
-									max={MAX_QUALITY}
-								/>
-							</div>
-						</div>
+						<QualitySetting setQuality={setQuality} quality={quality} />
 					)}
 					<div style={optionRow}>
 						<div style={label}>Concurrency</div>
