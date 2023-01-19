@@ -542,8 +542,7 @@ export const RenderModal: React.FC<{
 								<InputDragger
 									value={frame}
 									onTextChange={onFrameChanged}
-									// TODO: Actual frame
-									placeholder="0-100"
+									placeholder={`0-${currentComposition.durationInFrames - 1}`}
 									// TODO: Debug the number input field
 									onValueChange={onFrameSetDirectly}
 									name="frame"

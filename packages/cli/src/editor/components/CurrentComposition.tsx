@@ -68,6 +68,7 @@ export const CurrentComposition = () => {
 		renderButton.click();
 	}, [video]);
 
+	// TODO: Should work even if in different tab
 	useEffect(() => {
 		const binding = keybindings.registerKeybinding({
 			event: 'keydown',
