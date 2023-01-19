@@ -6,6 +6,10 @@ import React, {
 } from 'react';
 import {BORDER_COLOR} from '../helpers/colors';
 import {CompositionSelector} from './CompositionSelector';
+import {
+	CurrentCompositionKeybindings,
+	TitleUpdater,
+} from './CurrentCompositionSideEffects';
 import {RenderQueue} from './RenderQueue';
 import {useShouldRenderLeftSidebarTabs} from './RenderQueue/context';
 import {RendersTab} from './RendersTab';
@@ -93,6 +97,8 @@ export const SidebarContent: React.FC = () => {
 			) : (
 				<CompositionSelector />
 			)}
+			<CurrentCompositionKeybindings />
+			<TitleUpdater />
 		</div>
 	);
 };

@@ -1,8 +1,7 @@
-import React, {useCallback, useContext, useEffect} from 'react';
+import React, {useContext} from 'react';
 import {Internals} from 'remotion';
 import {BACKGROUND, BORDER_COLOR} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
-import {useKeybinding} from '../helpers/use-keybinding';
 import {renderFrame} from '../state/render-frame';
 import {RichTimelineContext} from '../state/rich-timeline';
 import {Spacing} from './layout';
@@ -46,42 +45,6 @@ const targetWidth = (targetHeight * 16) / 9;
 export const CurrentComposition = () => {
 	const richTimelineContext = useContext(RichTimelineContext);
 	const video = Internals.useVideo();
-	const keybindings = useKeybinding();
-	useEffect(() => {
-		if (!video) {
-			document.title = 'Remotion Preview';
-			return;
-		}
-
-		document.title = `${video.id} / ${window.remotion_projectName} - Remotion Preview`;
-	}, [video]);
-
-	const openRenderModal = useCallback(() => {
-		if (!video) {
-			return null;
-		}
-
-		const renderButton = document.getElementById(
-			'render-modal-button'
-		) as HTMLDivElement;
-
-		renderButton.click();
-	}, [video]);
-
-	// TODO: Should work even if in different tab
-	useEffect(() => {
-		const binding = keybindings.registerKeybinding({
-			event: 'keydown',
-			key: 'r',
-			commandCtrlKey: false,
-			callback: openRenderModal,
-			preventDefault: true,
-		});
-
-		return () => {
-			binding.unregister();
-		};
-	}, [keybindings, openRenderModal]);
 
 	if (!video) {
 		return <div style={container} />;
