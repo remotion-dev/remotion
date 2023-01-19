@@ -213,7 +213,12 @@ export const RenderModal: React.FC<{
 	}
 
 	const frame = useMemo(() => {
-		return Math.min(currentComposition.durationInFrames - 1, unclampedFrame);
+		const parsed = Math.floor(unclampedFrame);
+
+		return Math.max(
+			0,
+			Math.min(currentComposition.durationInFrames - 1, parsed)
+		);
 	}, [currentComposition.durationInFrames, unclampedFrame]);
 
 	const getStringBeforeSuffix = useCallback((fileName: string) => {
@@ -372,30 +377,21 @@ export const RenderModal: React.FC<{
 
 	const onFrameSetDirectly = useCallback(
 		(newFrame: number) => {
-			if (newFrame > currentComposition.durationInFrames - 1) {
-				setFrame(currentComposition.durationInFrames - 1);
-			} else {
-				setFrame(newFrame);
+			setFrame(newFrame);
+		},
+		[setFrame]
+	);
+
+	const onFrameChanged = useCallback((e: string) => {
+		setFrame((q) => {
+			const newFrame = parseFloat(e);
+			if (Number.isNaN(newFrame)) {
+				return q;
 			}
-		},
-		[currentComposition.durationInFrames, setFrame]
-	);
 
-	const onFrameChanged = useCallback(
-		(e: string) => {
-			setFrame((q) => {
-				const newFrame = parseFloat(e);
-				if (Number.isNaN(newFrame)) {
-					return q;
-				}
-
-				return newFrame > currentComposition.durationInFrames - 1
-					? currentComposition.durationInFrames - 1
-					: newFrame;
-			});
-		},
-		[currentComposition.durationInFrames]
-	);
+			return newFrame;
+		});
+	}, []);
 
 	useEffect(() => {
 		return () => {
@@ -543,7 +539,6 @@ export const RenderModal: React.FC<{
 									value={frame}
 									onTextChange={onFrameChanged}
 									placeholder={`0-${currentComposition.durationInFrames - 1}`}
-									// TODO: Debug the number input field
 									onValueChange={onFrameSetDirectly}
 									name="frame"
 									step={1}
