@@ -66,8 +66,6 @@ export const makeTriangle = ({
 	const instructions = joinPoints(points[direction], {
 		edgeRoundness,
 		cornerRadius,
-		largeArcFlag: false,
-		sweepFlag: false,
 	});
 	const path = serializeInstructions(instructions);
 

@@ -22,13 +22,9 @@ export const joinPoints = (
 	{
 		edgeRoundness,
 		cornerRadius,
-		largeArcFlag,
-		sweepFlag,
 	}: {
 		edgeRoundness: number | null;
 		cornerRadius: number;
-		largeArcFlag: boolean;
-		sweepFlag: boolean;
 	}
 ) => {
 	return points
@@ -70,21 +66,25 @@ export const joinPoints = (
 					cornerRadius
 				);
 
+				const firstDraw = [
+					prevPoint[0] + prevVectorMinusRadius[0],
+					prevPoint[1] + prevVectorMinusRadius[1],
+				];
+
 				return [
 					{
 						type: 'L',
-						x: prevPoint[0] + prevVectorMinusRadius[0],
-						y: prevPoint[1] + prevVectorMinusRadius[1],
+						x: firstDraw[0],
+						y: firstDraw[1],
 					},
 					{
-						type: 'a',
-						rx: cornerRadius,
-						ry: cornerRadius * 3,
-						xAxisRotation: i * -120,
-						x: prevVectorLenght[0] + nextVectorMinusRadius[0],
-						y: prevVectorLenght[1] + nextVectorMinusRadius[1],
-						largeArcFlag,
-						sweepFlag,
+						type: 'C',
+						x: firstDraw[0] + prevVectorLenght[0] + nextVectorMinusRadius[0],
+						y: firstDraw[1] + prevVectorLenght[1] + nextVectorMinusRadius[1],
+						cp1x: x,
+						cp1y: y,
+						cp2x: x,
+						cp2y: y,
 					},
 				];
 			}
