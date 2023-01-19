@@ -10,12 +10,16 @@ export const getRenderMediaOptions = async ({
 	serveUrl,
 	codec,
 	remotionRoot,
+	uiImageFormat,
+	uiCrf,
 }: {
 	outputLocation: RenderMediaOptions['outputLocation'];
 	config: RenderMediaOptions['composition'];
 	serveUrl: string;
 	codec: Codec;
 	remotionRoot: string;
+	uiImageFormat: 'png' | 'jpeg' | 'none' | null;
+	uiCrf: number | null;
 }): Promise<RenderMediaOptions> => {
 	const {
 		proResProfile,
@@ -25,7 +29,7 @@ export const getRenderMediaOptions = async ({
 		inputProps,
 		envVariables,
 		quality,
-		crf,
+		crf: defaultCrf,
 		pixelFormat,
 		browserExecutable,
 		ffmpegExecutable,
@@ -52,7 +56,7 @@ export const getRenderMediaOptions = async ({
 	const imageFormat = getImageFormat({
 		codec,
 		configFileImageFormat,
-		uiImageFormat: null,
+		uiImageFormat,
 	});
 
 	return {
@@ -62,7 +66,7 @@ export const getRenderMediaOptions = async ({
 			width: width ?? config.width,
 			height: height ?? config.height,
 		},
-		crf,
+		crf: uiCrf ?? defaultCrf,
 		envVariables,
 		ffmpegExecutable,
 		ffprobeExecutable,

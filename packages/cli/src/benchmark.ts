@@ -251,6 +251,8 @@ export const benchmarkCommand = async (
 			serveUrl: bundleLocation,
 			codec,
 			remotionRoot,
+			uiCrf: null,
+			uiImageFormat: null,
 		});
 		const concurrency = getValidConcurrency(renderMediaOptions);
 
