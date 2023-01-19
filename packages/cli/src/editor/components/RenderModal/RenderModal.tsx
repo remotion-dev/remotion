@@ -13,7 +13,6 @@ import React, {
 import {Internals} from 'remotion';
 import type {TComposition} from 'remotion/src/internals';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
-import {LIGHT_TEXT} from '../../helpers/colors';
 import {useFileExistence} from '../../helpers/use-file-existence';
 import {ModalsContext} from '../../state/modals';
 import {CollapsableOptions} from '../CollapsableOptions';
@@ -27,6 +26,8 @@ import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {leftSidebarTabs} from '../SidebarContent';
+import {label, optionRow, rightRow} from './layout';
+import {ScaleSetting} from './ScaleSetting';
 
 type State =
 	| {
@@ -88,30 +89,6 @@ const container: React.CSSProperties = {
 	borderBottom: '1px solid black',
 };
 
-const optionRow: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'flex-start',
-	minHeight: 40,
-	paddingLeft: 16,
-	paddingRight: 16,
-};
-
-const label: React.CSSProperties = {
-	width: 150,
-	fontSize: 14,
-	lineHeight: '40px',
-	color: LIGHT_TEXT,
-};
-
-const rightRow: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-	justifyContent: 'flex-end',
-	alignSelf: 'center',
-	flex: 1,
-};
-
 const buttonRow: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
@@ -130,9 +107,6 @@ const input: React.CSSProperties = {
 
 const MIN_QUALITY = 1;
 const MAX_QUALITY = 100;
-
-const MIN_SCALE = 0.1;
-const MAX_SCALE = 10;
 
 export const RenderModal: React.FC<{
 	compositionId: string;
@@ -356,25 +330,6 @@ export const RenderModal: React.FC<{
 		[maxConcurrency, minConcurrency]
 	);
 
-	const onScaleSetDirectly = useCallback((newScale: number) => {
-		setScale(newScale);
-	}, []);
-
-	const onScaleChanged = useCallback((e: string) => {
-		setScale((q) => {
-			const newScale = parseFloat(e);
-			if (Number.isNaN(newScale)) {
-				return q;
-			}
-
-			const newScaleClamped = Math.min(
-				MAX_SCALE,
-				Math.max(newScale, MIN_SCALE)
-			);
-			return newScaleClamped;
-		});
-	}, []);
-
 	const onFrameSetDirectly = useCallback(
 		(newFrame: number) => {
 			setFrame(newFrame);
@@ -553,21 +508,7 @@ export const RenderModal: React.FC<{
 						showLabel="Show advanced settings"
 						hideLabel="Hide advanced settings"
 					>
-						<div style={optionRow}>
-							<div style={label}>Scale</div>
-							<div style={rightRow}>
-								<InputDragger
-									value={scale}
-									onTextChange={onScaleChanged}
-									placeholder={`${MIN_SCALE}-${MAX_SCALE}`}
-									onValueChange={onScaleSetDirectly}
-									name="scale"
-									step={0.1}
-									min={MIN_SCALE}
-									max={MAX_SCALE}
-								/>
-							</div>
-						</div>
+						<ScaleSetting scale={scale} setScale={setScale} />
 						<div style={optionRow}>
 							<div style={label}>Verbose logging</div>
 							<div style={rightRow}>
@@ -652,23 +593,7 @@ export const RenderModal: React.FC<{
 					showLabel="Show advanced settings"
 					hideLabel="Hide advanced settings"
 				>
-					<div style={optionRow}>
-						<div style={label}>Scale</div>
-						<div style={rightRow}>
-							<InputDragger
-								value={scale}
-								onTextChange={onScaleChanged}
-								placeholder="0.1-10"
-								// TODO: Direct input does not allow non-integer steps
-								// TODO: Cannot click and type in 0.2
-								onValueChange={onScaleSetDirectly}
-								name="scale"
-								step={0.1}
-								min={MIN_SCALE}
-								max={MAX_SCALE}
-							/>
-						</div>
-					</div>
+					<ScaleSetting scale={scale} setScale={setScale} />
 					<div style={optionRow}>
 						<div style={label}>Verbose logging</div>
 						<div style={rightRow}>
