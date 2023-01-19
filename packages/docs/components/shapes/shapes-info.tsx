@@ -183,10 +183,31 @@ export const ShapeOptions: React.FC<{
           </React.Fragment>
         );
       })}
+      {all &&
+      (shapeComponent.shape === "Rect" ||
+        shapeComponent.shape === "Triangle") ? (
+        <>
+          <h3>
+            <code>cornerRadius</code>
+          </h3>
+          <p>
+            <em>number</em>
+          </p>
+          <p>
+            Rounds the corner using an arc. Similar to {"CSS's"}{" "}
+            <code>border-radius</code>. Cannot be used together with{" "}
+            <code>edgeRoundness</code>.
+          </p>
+        </>
+      ) : null}
+
       {shapeComponent.shape === "Rect" ? <RectEdgeRoundness /> : null}
       {shapeComponent.shape === "Triangle" ? <TriangleEdgeRoundness /> : null}
-      {all && shapeComponent.shape === "Rect" ? <DebugOption /> : null}
-      {all && shapeComponent.shape === "Triangle" ? <DebugOption /> : null}
+      {all &&
+      (shapeComponent.shape === "Rect" ||
+        shapeComponent.shape === "Triangle") ? (
+        <DebugOption />
+      ) : null}
       {all ? (
         <>
           <h3>Other props</h3>{" "}

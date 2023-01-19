@@ -28,9 +28,13 @@
   .item:nth-child(2n+1):nth-last-child(-n+2) ~ .item {
     border-bottom: transparent;
   }
+
+  .item:nth-child(2n) {
+    border-right: transparent;
+  }
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1300px) {
   .containerrow {
     grid-template-columns: 1fr;
   }
