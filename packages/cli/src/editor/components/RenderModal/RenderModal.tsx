@@ -15,6 +15,7 @@ import type {TComposition} from 'remotion/src/internals';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import {useFileExistence} from '../../helpers/use-file-existence';
 import {ModalsContext} from '../../state/modals';
+import {Checkbox} from '../Checkbox';
 import {CollapsableOptions} from '../CollapsableOptions';
 import {Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
@@ -563,8 +564,7 @@ export const RenderModal: React.FC<{
 						<div style={optionRow}>
 							<div style={label}>Verbose logging</div>
 							<div style={rightRow}>
-								<input
-									type={'checkbox'}
+								<Checkbox
 									checked={verbose}
 									onChange={onVerboseLoggingChanged}
 								/>
@@ -666,11 +666,7 @@ export const RenderModal: React.FC<{
 					<div style={optionRow}>
 						<div style={label}>Verbose logging</div>
 						<div style={rightRow}>
-							<input
-								type={'checkbox'}
-								checked={verbose}
-								onChange={onVerboseLoggingChanged}
-							/>
+							<Checkbox checked={verbose} onChange={onVerboseLoggingChanged} />
 						</div>
 					</div>
 				</CollapsableOptions>
