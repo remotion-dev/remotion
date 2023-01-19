@@ -214,7 +214,7 @@ export const renderCompFlow = async ({
 		uiCodec,
 	});
 
-	validateFfmpegCanUseCodec(codec, remotionRoot);
+	await validateFfmpegCanUseCodec(codec, remotionRoot);
 
 	RenderInternals.validateEvenDimensionsWithCodec({
 		width: config.width,
