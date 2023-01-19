@@ -1,7 +1,13 @@
+import type {Codec} from '@remotion/renderer';
 import type {RenderModalState} from '../../editor/state/modals';
 import type {RenderJob} from './job';
 
 export const makeRetryPayload = (job: RenderJob): RenderModalState => {
+	const defaults = window.remotion_renderDefaults;
+	if (!defaults) {
+		throw new Error('defaults not set');
+	}
+
 	if (job.type === 'still') {
 		return {
 			type: 'render',
@@ -13,13 +19,14 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialScale: job.scale,
 			initialVerbose: job.verbose,
 			initialRenderType: 'still',
-			// TODO: take initial codec from config file
-			initialCodec: 'h264',
+			initialCodec: defaults.codec as Codec,
+			initialConcurrency: defaults.concurrency,
+			maxConcurrency: defaults.maxConcurrency,
+			minConcurrency: defaults.minConcurrency,
 		};
 	}
 
 	if (job.type === 'video') {
-		// TODO: Implement correct retry mechanism for video
 		return {
 			type: 'render',
 			compositionId: job.compositionId,
@@ -31,6 +38,9 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialFrame: 0,
 			initialRenderType: 'video',
 			initialCodec: job.codec,
+			initialConcurrency: job.concurrency,
+			maxConcurrency: defaults.maxConcurrency,
+			minConcurrency: defaults.minConcurrency,
 		};
 	}
 

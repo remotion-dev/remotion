@@ -39,7 +39,11 @@ import {validateQuality} from './quality';
 import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
 import {tmpDir} from './tmp-dir';
-import {validateConcurrency} from './validate-concurrency';
+import {
+	getMaxConcurrency,
+	getMinConcurrency,
+	validateConcurrency,
+} from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 import {validateFrame} from './validate-frame';
@@ -72,6 +76,7 @@ export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FrameRange} from './frame-range';
 export {getCanExtractFramesFast} from './get-can-extract-frames-fast';
 export {getCompositions} from './get-compositions';
+export {getActualConcurrency} from './get-concurrency';
 export {
 	ImageFormat,
 	StillImageFormat,
@@ -99,6 +104,7 @@ export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {OpenGlRenderer} from './validate-opengl-renderer';
 export {validateOutputFilename} from './validate-output-filename';
+
 export const RenderInternals = {
 	ensureLocalBrowser,
 	ffmpegHasFeature,
@@ -154,6 +160,8 @@ export const RenderInternals = {
 	validateBitrate,
 	getFfmpegVersion,
 	combineVideos,
+	getMinConcurrency,
+	getMaxConcurrency,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

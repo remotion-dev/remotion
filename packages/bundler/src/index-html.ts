@@ -6,6 +6,9 @@ export type RenderDefaults = {
 	scale: number;
 	logLevel: string;
 	codec: string;
+	concurrency: number;
+	minConcurrency: number;
+	maxConcurrency: number;
 };
 
 declare global {
