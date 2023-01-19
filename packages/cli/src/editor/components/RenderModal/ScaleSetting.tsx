@@ -1,5 +1,6 @@
 import {useCallback} from 'react';
 import {InputDragger} from '../NewComposition/InputDragger';
+import {RightAlignInput} from '../NewComposition/RemInput';
 import {label, optionRow, rightRow} from './layout';
 
 const MIN_SCALE = 0.1;
@@ -38,16 +39,18 @@ export const ScaleSetting: React.FC<{
 		<div style={optionRow}>
 			<div style={label}>Scale</div>
 			<div style={rightRow}>
-				<InputDragger
-					value={scale}
-					onTextChange={onScaleChanged}
-					placeholder={`${MIN_SCALE}-${MAX_SCALE}`}
-					onValueChange={onScaleSetDirectly}
-					name="scale"
-					step={0.1}
-					min={MIN_SCALE}
-					max={MAX_SCALE}
-				/>
+				<RightAlignInput>
+					<InputDragger
+						value={scale}
+						onTextChange={onScaleChanged}
+						placeholder={`${MIN_SCALE}-${MAX_SCALE}`}
+						onValueChange={onScaleSetDirectly}
+						name="scale"
+						step={0.1}
+						min={MIN_SCALE}
+						max={MAX_SCALE}
+					/>
+				</RightAlignInput>
 			</div>
 		</div>
 	);
