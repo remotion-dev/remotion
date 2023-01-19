@@ -1,12 +1,13 @@
 import React, {useCallback, useMemo} from 'react';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
 import {InlineAction} from '../InlineAction';
+import {sendErrorNotification} from '../Notifications/NotificationCenter';
 import {removeRenderJob} from './actions';
 
 export const RenderQueueRemoveItem: React.FC<{job: RenderJob}> = ({job}) => {
 	const onClick = useCallback(() => {
 		removeRenderJob(job).catch((err) => {
-			// TODO: Handle error
+			sendErrorNotification(`Could not remove item: ${err.message}`);
 			console.log(err);
 		});
 	}, [job]);
