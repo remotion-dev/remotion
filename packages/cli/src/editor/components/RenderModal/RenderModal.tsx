@@ -226,10 +226,7 @@ export const RenderModal: React.FC<{
 		(codec: Codec) => {
 			setVideoCodec(codec);
 			setOutName((prev) => {
-				const codecSuffix = BrowserSafeApis.getFileExtensionFromCodec(
-					codec,
-					'final'
-				);
+				const codecSuffix = BrowserSafeApis.getFileExtensionFromCodec(codec);
 				const newFileName = getStringBeforeSuffix(prev) + '.' + codecSuffix;
 				return newFileName;
 			});
