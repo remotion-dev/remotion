@@ -1,69 +1,80 @@
 // Copied from https://stackblitz.com/edit/react-triangle-svg?file=index.js
 
+import {serializeInstructions} from './instructions';
+import {joinPoints} from './join-points';
 import type {ShapeInfo} from './shape-info';
+
+type Direction = 'right' | 'left' | 'up' | 'down';
 
 export type MakeTriangleProps = {
 	length: number;
-	direction: 'right' | 'left' | 'top' | 'bottom';
+	direction: Direction;
+	edgeRoundness?: number | null;
+	cornerRadius?: number;
 };
 
 export const makeTriangle = ({
 	length,
 	direction = 'right',
+	edgeRoundness = null,
+	cornerRadius = 0,
 }: MakeTriangleProps): ShapeInfo => {
 	const longerDimension = length;
 	const shorterSize = Math.sqrt(length ** 2 * 0.75); // Calculated on paper;
 
-	const points = {
-		top: [
-			`${longerDimension / 2} 0`,
-			'L',
-			`0 ${shorterSize}`,
-			'L',
-			`${longerDimension} ${shorterSize}`,
+	const points: {[key in Direction]: [number, number][]} = {
+		up: [
+			[longerDimension / 2, 0],
+			[0, shorterSize],
+			[longerDimension, shorterSize],
+			[longerDimension / 2, 0],
 		],
 		right: [
-			`0 0`,
-			'L',
-			`0 ${longerDimension}`,
-			'L',
-			`${shorterSize} ${longerDimension / 2}`,
+			[0, 0],
+			[0, longerDimension],
+			[shorterSize, longerDimension / 2],
+			[0, 0],
 		],
-		bottom: [
-			`0 0`,
-			'L',
-			`${longerDimension} 0`,
-			'L',
-			`${longerDimension / 2} ${shorterSize}`,
+		down: [
+			[0, 0],
+			[longerDimension, 0],
+			[longerDimension / 2, shorterSize],
+			[0, 0],
 		],
 		left: [
-			`${shorterSize} 0`,
-			'L',
-			`${shorterSize} ${longerDimension}`,
-			'L',
-			`0 ${longerDimension / 2}`,
+			[shorterSize, 0],
+			[shorterSize, longerDimension],
+			[0, longerDimension / 2],
+			[shorterSize, 0],
 		],
 	};
 
 	const transformOriginX = {
 		left: (shorterSize / 3) * 2,
 		right: shorterSize / 3,
-		top: longerDimension / 2,
-		bottom: longerDimension / 2,
+		up: longerDimension / 2,
+		down: longerDimension / 2,
 	}[direction];
 
 	const transformOriginY = {
-		top: (shorterSize / 3) * 2,
-		bottom: shorterSize / 3,
+		up: (shorterSize / 3) * 2,
+		down: shorterSize / 3,
 		left: longerDimension / 2,
 		right: longerDimension / 2,
 	}[direction];
 
+	const instructions = joinPoints(points[direction], {
+		edgeRoundness,
+		cornerRadius,
+		roundCornerStrategy: 'bezier',
+	});
+	const path = serializeInstructions(instructions);
+
 	return {
-		path: `M ${points[direction].join(' ')} z`,
-		width: direction === 'top' || direction === 'bottom' ? length : shorterSize,
-		height:
-			direction === 'top' || direction === 'bottom' ? shorterSize : length,
+		path,
+		instructions,
+		width: direction === 'up' || direction === 'down' ? length : shorterSize,
+		height: direction === 'up' || direction === 'down' ? shorterSize : length,
 		transformOrigin: `${transformOriginX} ${transformOriginY}`,
 	};
 };
