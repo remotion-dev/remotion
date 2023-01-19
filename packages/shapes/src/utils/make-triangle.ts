@@ -10,12 +10,14 @@ export type MakeTriangleProps = {
 	length: number;
 	direction: Direction;
 	edgeRoundness?: number | null;
+	cornerRadius?: number;
 };
 
 export const makeTriangle = ({
 	length,
 	direction = 'right',
 	edgeRoundness = null,
+	cornerRadius = 0,
 }: MakeTriangleProps): ShapeInfo => {
 	const longerDimension = length;
 	const shorterSize = Math.sqrt(length ** 2 * 0.75); // Calculated on paper;
@@ -61,7 +63,11 @@ export const makeTriangle = ({
 		right: longerDimension / 2,
 	}[direction];
 
-	const instructions = joinPoints(points[direction], {edgeRoundness});
+	const instructions = joinPoints(points[direction], {
+		edgeRoundness,
+		cornerRadius,
+		roundCornerStrategy: 'bezier',
+	});
 	const path = serializeInstructions(instructions);
 
 	return {
