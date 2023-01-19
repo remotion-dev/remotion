@@ -26,6 +26,7 @@ import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {leftSidebarTabs} from '../SidebarContent';
+import {CrfSetting, useCrfState} from './CrfSetting';
 import {label, optionRow, rightRow} from './layout';
 import {QualitySetting} from './QualitySetting';
 import {ScaleSetting} from './ScaleSetting';
@@ -154,11 +155,14 @@ export const RenderModal: React.FC<{
 	);
 	const [concurrency, setConcurrency] = useState(() => initialConcurrency);
 	const [videoCodec, setVideoCodec] = useState<Codec>(initialCodec);
+	const {crf, maxCrf, minCrf, setCrf, shouldDisplayOption} =
+		useCrfState(videoCodec);
 	const [renderMode, setRenderMode] = useState<RenderType>(initialRenderType);
 	const [quality, setQuality] = useState<number>(() => initialQuality ?? 80);
 	const [scale, setScale] = useState(() => initialScale);
 	const [verbose, setVerboseLogging] = useState(() => initialVerbose);
 	const [outName, setOutName] = useState(() => initialOutName);
+
 	const dispatchIfMounted: typeof dispatch = useCallback((payload) => {
 		if (isMounted.current === false) return;
 		dispatch(payload);
@@ -575,7 +579,6 @@ export const RenderModal: React.FC<{
 						</div>
 					</div>
 					<ScaleSetting scale={scale} setScale={setScale} />
-
 					<div style={optionRow}>
 						<div style={label}>Image Format</div>
 						<div style={rightRow}>
@@ -585,10 +588,12 @@ export const RenderModal: React.FC<{
 							/>
 						</div>
 					</div>
-
 					{videoImageFormat === 'jpeg' && (
 						<QualitySetting setQuality={setQuality} quality={quality} />
 					)}
+					{shouldDisplayOption ? (
+						<CrfSetting crf={crf} max={maxCrf} min={minCrf} setCrf={setCrf} />
+					) : null}
 					<div style={optionRow}>
 						<div style={label}>Verbose logging</div>
 						<div style={rightRow}>
