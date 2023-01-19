@@ -65,6 +65,15 @@ export const rectDemo: DemoType = {
       optional: "no",
     },
     {
+      name: "cornerRadius",
+      default: 0,
+      max: 100,
+      min: 0,
+      step: 1,
+      type: "numeric",
+      optional: "no",
+    },
+    {
       name: "edgeRoundness",
       default: 1,
       max: 2,
@@ -108,6 +117,15 @@ export const triangleDemo: DemoType = {
       step: 0.01,
       type: "numeric",
       optional: "default-disabled",
+    },
+    {
+      name: "cornerRadius",
+      default: 0,
+      max: 100,
+      min: 0,
+      step: 1,
+      type: "numeric",
+      optional: "no",
     },
     {
       name: "direction",

@@ -8,7 +8,8 @@ export const RectDemo: React.FC<{
   edgeRoundness: number;
   darkMode: boolean;
   debug: boolean;
-}> = ({ width, height, debug, edgeRoundness, darkMode }) => {
+  cornerRadius: number;
+}> = ({ width, height, debug, edgeRoundness, cornerRadius, darkMode }) => {
   return (
     <AbsoluteFill
       style={{
@@ -22,6 +23,7 @@ export const RectDemo: React.FC<{
         width={width}
         height={height}
         debug={debug}
+        cornerRadius={cornerRadius}
       />
     </AbsoluteFill>
   );

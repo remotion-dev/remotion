@@ -10,7 +10,13 @@ export const Rect: React.FC<RectProps> = ({
 	width,
 	edgeRoundness,
 	height,
+	cornerRadius,
 	...props
 }) => {
-	return <RenderSvg {...makeRect({height, width, edgeRoundness})} {...props} />;
+	return (
+		<RenderSvg
+			{...makeRect({height, width, edgeRoundness, cornerRadius})}
+			{...props}
+		/>
+	);
 };
