@@ -51,10 +51,7 @@ export const getExpectedOutName = (
 			renderBucketName: bucketName,
 			key: outName(
 				renderMetadata.renderId,
-				RenderInternals.getFileExtensionFromCodec(
-					renderMetadata.codec as Codec,
-					'final'
-				)
+				RenderInternals.getFileExtensionFromCodec(renderMetadata.codec as Codec)
 			),
 			customCredentials: null,
 		};
