@@ -22,9 +22,11 @@ export const joinPoints = (
 	{
 		edgeRoundness,
 		cornerRadius,
+		roundCornerStrategy,
 	}: {
 		edgeRoundness: number | null;
 		cornerRadius: number;
+		roundCornerStrategy: 'arc' | 'bezier';
 	}
 ) => {
 	return points
@@ -83,15 +85,28 @@ export const joinPoints = (
 						x: firstDraw[0],
 						y: firstDraw[1],
 					},
-					{
-						type: 'C',
-						x: firstDraw[0] + prevVectorLenght[0] + nextVectorMinusRadius[0],
-						y: firstDraw[1] + prevVectorLenght[1] + nextVectorMinusRadius[1],
-						cp1x: x,
-						cp1y: y,
-						cp2x: x,
-						cp2y: y,
-					},
+					roundCornerStrategy === 'arc'
+						? {
+								type: 'a',
+								rx: cornerRadius,
+								ry: cornerRadius,
+								xAxisRotation: 0,
+								x: prevVectorLenght[0] + nextVectorMinusRadius[0],
+								y: prevVectorLenght[1] + nextVectorMinusRadius[1],
+								largeArcFlag: false,
+								sweepFlag: true,
+						  }
+						: {
+								type: 'C',
+								x:
+									firstDraw[0] + prevVectorLenght[0] + nextVectorMinusRadius[0],
+								y:
+									firstDraw[1] + prevVectorLenght[1] + nextVectorMinusRadius[1],
+								cp1x: x,
+								cp1y: y,
+								cp2x: x,
+								cp2y: y,
+						  },
 				];
 			}
 

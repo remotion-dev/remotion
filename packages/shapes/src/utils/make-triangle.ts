@@ -66,6 +66,7 @@ export const makeTriangle = ({
 	const instructions = joinPoints(points[direction], {
 		edgeRoundness,
 		cornerRadius,
+		roundCornerStrategy: 'bezier',
 	});
 	const path = serializeInstructions(instructions);
 
