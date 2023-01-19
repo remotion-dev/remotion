@@ -1,4 +1,4 @@
-import type {LogLevel} from '@remotion/renderer';
+import type {Codec, LogLevel} from '@remotion/renderer';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
@@ -33,6 +33,12 @@ export const RenderStillButton: React.FC = () => {
 
 		const isVideo = video.durationInFrames > 1;
 
+		const defaults = window.remotion_renderDefaults;
+
+		if (!defaults) {
+			throw new TypeError('Expected defaults');
+		}
+
 		setSelectedModal({
 			type: 'render',
 			compositionId: video.id,
@@ -43,13 +49,11 @@ export const RenderStillButton: React.FC = () => {
 				defaultExtension: isVideo ? 'mp4' : 'png',
 				type: 'asset',
 			}),
-			// TODO: Determine defaults from config file
-			initialQuality: window.remotion_renderDefaults?.quality ?? 80,
+			initialQuality: defaults.quality,
 			initialScale: window.remotion_renderDefaults?.scale ?? 1,
-			initialVerbose:
-				(window.remotion_renderDefaults?.logLevel as LogLevel) === 'verbose',
+			initialVerbose: (defaults.logLevel as LogLevel) === 'verbose',
 			initialRenderType: isVideo ? 'video' : 'still',
-			initialCodec: 'h264',
+			initialCodec: defaults.codec as Codec,
 		});
 	}, [video, frame, setSelectedModal]);
 

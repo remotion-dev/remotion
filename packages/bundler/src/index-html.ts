@@ -5,6 +5,7 @@ export type RenderDefaults = {
 	quality: number;
 	scale: number;
 	logLevel: string;
+	codec: string;
 };
 
 declare global {
