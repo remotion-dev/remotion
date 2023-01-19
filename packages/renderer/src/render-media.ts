@@ -264,7 +264,7 @@ export const renderMedia = ({
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
 				downloadMap.preEncode,
-				'pre-encode.' + getFileExtensionFromCodec(codec, 'chunk')
+				'pre-encode.' + getFileExtensionFromCodec(codec)
 		  )
 		: null;
 

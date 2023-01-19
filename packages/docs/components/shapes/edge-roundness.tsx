@@ -111,6 +111,9 @@ export const RectEdgeRoundness: React.FC = () => {
           </td>
         </tr>
       </table>{" "}
+      <p>
+        Cannot be used together with <code>cornerRadius</code>.
+      </p>
     </>
   );
 };
@@ -192,6 +195,9 @@ export const TriangleEdgeRoundness = () => {
           </td>
         </tr>
       </table>{" "}
+      <p>
+        Cannot be used together with <code>cornerRadius</code>.
+      </p>
     </>
   );
 };
