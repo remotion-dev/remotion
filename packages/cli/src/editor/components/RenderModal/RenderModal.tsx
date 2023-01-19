@@ -109,7 +109,8 @@ const input: React.CSSProperties = {
 export const RenderModal: React.FC<{
 	compositionId: string;
 	initialFrame: number;
-	initialImageFormat: StillImageFormat;
+	initialVideoImageFormat: StillImageFormat;
+	initialStillImageFormat: StillImageFormat;
 	initialQuality: number | null;
 	initialScale: number;
 	initialVerbose: boolean;
@@ -122,7 +123,8 @@ export const RenderModal: React.FC<{
 }> = ({
 	compositionId,
 	initialFrame,
-	initialImageFormat,
+	initialVideoImageFormat,
+	initialStillImageFormat,
 	initialQuality,
 	initialScale,
 	initialVerbose,
@@ -144,13 +146,14 @@ export const RenderModal: React.FC<{
 	const [state, dispatch] = useReducer(reducer, initialState);
 	const [unclampedFrame, setFrame] = useState(() => initialFrame);
 
-	const [imageFormat, setImageFormat] = useState<StillImageFormat>(
-		() => initialImageFormat
+	const [stillImageFormat, setStillImageFormat] = useState<StillImageFormat>(
+		() => initialStillImageFormat
+	);
+	const [videoImageFormat, setVideoImageFormat] = useState<StillImageFormat>(
+		() => initialVideoImageFormat
 	);
 	const [concurrency, setConcurrency] = useState(() => initialConcurrency);
 	const [videoCodec, setVideoCodec] = useState<Codec>(initialCodec);
-	const [videoImageFormat, setVideoImageFormat] =
-		useState<StillImageFormat>('jpeg');
 	const [renderMode, setRenderMode] = useState<RenderType>(initialRenderType);
 	const [quality, setQuality] = useState<number>(() => initialQuality ?? 80);
 	const [scale, setScale] = useState(() => initialScale);
@@ -213,7 +216,7 @@ export const RenderModal: React.FC<{
 
 	const setStillFormat = useCallback(
 		(format: StillImageFormat) => {
-			setImageFormat(format);
+			setStillImageFormat(format);
 			setOutName((prev) => {
 				const newFileName = getStringBeforeSuffix(prev) + '.' + format;
 				return newFileName;
@@ -228,8 +231,8 @@ export const RenderModal: React.FC<{
 		addStillRenderJob({
 			compositionId,
 			outName,
-			imageFormat,
-			quality: imageFormat === 'jpeg' ? quality : null,
+			imageFormat: stillImageFormat,
+			quality: stillImageFormat === 'jpeg' ? quality : null,
 			frame,
 			scale,
 			verbose,
@@ -245,7 +248,7 @@ export const RenderModal: React.FC<{
 		compositionId,
 		dispatchIfMounted,
 		frame,
-		imageFormat,
+		stillImageFormat,
 		outName,
 		quality,
 		scale,
@@ -260,7 +263,7 @@ export const RenderModal: React.FC<{
 			compositionId,
 			outName,
 			imageFormat: videoImageFormat,
-			quality: imageFormat === 'jpeg' ? quality : null,
+			quality: stillImageFormat === 'jpeg' ? quality : null,
 			scale,
 			verbose,
 			codec: videoCodec,
@@ -276,7 +279,7 @@ export const RenderModal: React.FC<{
 	}, [
 		compositionId,
 		dispatchIfMounted,
-		imageFormat,
+		stillImageFormat,
 		outName,
 		quality,
 		scale,
@@ -346,7 +349,7 @@ export const RenderModal: React.FC<{
 				key: 'png',
 				selected:
 					renderMode === 'still'
-						? imageFormat === 'png'
+						? stillImageFormat === 'png'
 						: videoImageFormat === 'png',
 			},
 			{
@@ -358,11 +361,11 @@ export const RenderModal: React.FC<{
 				key: 'jpeg',
 				selected:
 					renderMode === 'still'
-						? imageFormat === 'jpeg'
+						? stillImageFormat === 'jpeg'
 						: videoImageFormat === 'jpeg',
 			},
 		];
-	}, [imageFormat, renderMode, setStillFormat, videoImageFormat]);
+	}, [stillImageFormat, renderMode, setStillFormat, videoImageFormat]);
 
 	const videoCodecOptions = useMemo((): SegmentedControlItem[] => {
 		return BrowserSafeApis.validCodecs.map((codec) => {
@@ -382,7 +385,7 @@ export const RenderModal: React.FC<{
 					label: 'Still',
 					onClick: () => {
 						setRenderMode('still');
-						setStillFormat(imageFormat);
+						setStillFormat(stillImageFormat);
 					},
 					key: 'still',
 					selected: renderMode === 'still',
@@ -395,7 +398,7 @@ export const RenderModal: React.FC<{
 				label: 'Still',
 				onClick: () => {
 					setRenderMode('still');
-					setStillFormat(imageFormat);
+					setStillFormat(stillImageFormat);
 				},
 				key: 'still',
 				selected: renderMode === 'still',
@@ -412,7 +415,7 @@ export const RenderModal: React.FC<{
 		];
 	}, [
 		currentComposition?.durationInFrames,
-		imageFormat,
+		stillImageFormat,
 		renderMode,
 		setCodec,
 		setStillFormat,
@@ -498,7 +501,7 @@ export const RenderModal: React.FC<{
 								/>
 							</div>
 						</div>
-						{imageFormat === 'jpeg' && (
+						{stillImageFormat === 'jpeg' && (
 							<QualitySetting setQuality={setQuality} quality={quality} />
 						)}
 					</CollapsableOptions>
