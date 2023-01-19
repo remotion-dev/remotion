@@ -227,7 +227,7 @@ export const renderCompFlow = async ({
 		codec,
 		imageSequence: shouldOutputImageSequence,
 		compositionName: compositionId,
-		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec, 'final'),
+		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec),
 		args: argsAfterComposition,
 		indent,
 		fromUi: outputLocationFromUI,
