@@ -5,6 +5,11 @@ import {
   makeTriangle,
 } from "@remotion/shapes";
 import React from "react";
+import {
+  DebugOption,
+  RectEdgeRoundness,
+  TriangleEdgeRoundness,
+} from "./edge-roundness";
 
 type Param = {
   name: string;
@@ -12,7 +17,7 @@ type Param = {
   description: React.ReactNode;
 };
 
-type ShapeComponent = {
+export type ShapeComponent = {
   shape: string;
   fn: (options: unknown) => unknown;
   params: Param[];
@@ -178,6 +183,31 @@ export const ShapeOptions: React.FC<{
           </React.Fragment>
         );
       })}
+      {all &&
+      (shapeComponent.shape === "Rect" ||
+        shapeComponent.shape === "Triangle") ? (
+        <>
+          <h3>
+            <code>cornerRadius</code>
+          </h3>
+          <p>
+            <em>number</em>
+          </p>
+          <p>
+            Rounds the corner using an arc. Similar to {"CSS's"}{" "}
+            <code>border-radius</code>. Cannot be used together with{" "}
+            <code>edgeRoundness</code>.
+          </p>
+        </>
+      ) : null}
+
+      {shapeComponent.shape === "Rect" ? <RectEdgeRoundness /> : null}
+      {shapeComponent.shape === "Triangle" ? <TriangleEdgeRoundness /> : null}
+      {all &&
+      (shapeComponent.shape === "Rect" ||
+        shapeComponent.shape === "Triangle") ? (
+        <DebugOption />
+      ) : null}
       {all ? (
         <>
           <h3>Other props</h3>{" "}
@@ -220,6 +250,14 @@ export const MakeShapeReturnType: React.FC<{
       <p>
         The height of the {shapeComponent.shape.toLowerCase()}. Suitable for
         defining the <code>viewBox</code> of an <code>{"<svg>"}</code> tag.
+      </p>
+      <h3>
+        <code>instructions</code>
+      </h3>
+      <p>
+        An array with SVG instructions. The type for a instruction can be seen
+        by importing <code>Instruction</code> from <code>@remotion/shapes</code>
+        .
       </p>
       <h3>
         <code>transformOrigin</code>

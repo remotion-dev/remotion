@@ -10,10 +10,6 @@ _Part of the [`@remotion/shapes`](/docs/shapes) package._
 
 Generates an ellipse SVG path.
 
-## Arguments
-
-<ShapeOptions shape="ellipse"/>
-
 ## Example
 
 ```tsx twoslash title="ellipse.ts"

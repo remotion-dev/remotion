@@ -7,6 +7,6 @@ test('Should be able to make a rect svg', () => {
 
 	// assert path
 	expect(container.querySelector('path')?.getAttribute('d')).toEqual(
-		'M 0 0 l 200 0 l 0 200 l -200 0 Z'
+		'M 0 0 L 200 0 L 200 200 L 0 200 L 0 0'
 	);
 });
