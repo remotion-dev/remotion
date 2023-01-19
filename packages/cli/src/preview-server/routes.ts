@@ -66,6 +66,7 @@ const handleFallback = async ({
 	const defaultQuality = ConfigInternals.getQuality();
 	const defaultScale = ConfigInternals.getScale();
 	const logLevel = ConfigInternals.Logging.getLogLevel();
+	const defaultCodec = ConfigInternals.getOutputCodecOrUndefined();
 
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
@@ -93,6 +94,7 @@ const handleFallback = async ({
 				quality: defaultQuality ?? 80,
 				scale: defaultScale ?? 1,
 				logLevel,
+				codec: defaultCodec ?? 'h264',
 			},
 		})
 	);
