@@ -395,6 +395,7 @@ module.exports = {
         "lambda/custom-destination",
         "lambda/checklist",
         "lambda/webhooks",
+        "lambda/triggerlambdafromaws",
         {
           type: "category",
           label: "Troubleshooting",
