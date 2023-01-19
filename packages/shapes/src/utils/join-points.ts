@@ -58,6 +58,12 @@ export const joinPoints = (
 			const prevVector = [x - prevPoint[0], y - prevPoint[1]] as const;
 			const nextVector = [nextPoint[0] - x, nextPoint[1] - y] as const;
 
+			if (cornerRadius && edgeRoundness !== null) {
+				throw new Error(
+					`"cornerRadius" and "edgeRoundness" cannot be specified at the same time.`
+				);
+			}
+
 			if (edgeRoundness === null) {
 				const prevVectorMinusRadius = shortenVector(prevVector, cornerRadius);
 				const prevVectorLenght = scaleVectorToLength(prevVector, cornerRadius);
