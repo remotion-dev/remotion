@@ -28,6 +28,20 @@ const GifTest: React.FC = () => {
 					fit="contain"
 				/>
 			</Sequence>
+			<Sequence
+				from={150}
+				durationInFrames={50}
+				style={{
+					backgroundColor: 'white',
+				}}
+			>
+				<Gif
+					src={staticFile('disposal-type-3.gif')}
+					width={width}
+					height={height}
+					fit="fill"
+				/>
+			</Sequence>
 		</div>
 	);
 };

@@ -108,8 +108,14 @@ export const startServer = async (options: {
 
 	const desiredPort = options?.port ?? undefined;
 
-	const port = await RenderInternals.getDesiredPort(desiredPort, 3000, 3100);
+	const {port, didUsePort} = await RenderInternals.getDesiredPort(
+		desiredPort,
+		3000,
+		3100
+	);
 
 	server.listen(port);
+	server.on('listening', () => didUsePort());
+
 	return {port, liveEventsServer};
 };
