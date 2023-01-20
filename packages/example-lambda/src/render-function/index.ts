@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/require-await */
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { renderMediaOnLambda } from "@remotion/lambda/client";
+
 export async function main(
+  //@ts-ignore
   event: APIGatewayProxyEventV2
 ): Promise<APIGatewayProxyResultV2> {
   try {
