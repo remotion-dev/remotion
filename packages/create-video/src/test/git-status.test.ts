@@ -6,7 +6,7 @@ test('Get git status', async () => {
 	const status = await checkGitAvailability(process.cwd(), 'git');
 	expect(status).toEqual({
 		type: 'is-git-repo',
-		location: path.join(__dirname, '..', '..', '..', '..'),
+		location: path.posix.join(__dirname, '..', '..', '..', '..'),
 	});
 
 	if (status.type !== 'is-git-repo') {
