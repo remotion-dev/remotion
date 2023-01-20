@@ -8,7 +8,19 @@ import {parseGif} from './react-tools';
 import {useCurrentGifIndex} from './useCurrentGifIndex';
 
 export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
-	({src, width, height, onLoad, onError, fit = 'fill', ...props}, ref) => {
+	(
+		{
+			src,
+			width,
+			height,
+			onLoad,
+			onError,
+			loopBehavior = 'loop',
+			fit = 'fill',
+			...props
+		},
+		ref
+	) => {
 		const resolvedSrc = new URL(src, window.location.origin).href;
 		const [state, update] = useState<GifState>(() => {
 			const parsedGif = gifCache.get(resolvedSrc);
@@ -30,7 +42,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			delayRender(`Rendering <Gif/> with src="${resolvedSrc}"`)
 		);
 
-		const index = useCurrentGifIndex(state.delays);
+		const index = useCurrentGifIndex(state.delays, loopBehavior);
 		const currentOnLoad = useRef(onLoad);
 		const currentOnError = useRef(onError);
 		currentOnLoad.current = onLoad;
@@ -85,6 +97,10 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			throw new Error(
 				`Failed to render GIF with source ${src}: "${error.message}". Render with --log=verbose to see the full stack.`
 			);
+		}
+
+		if (index === -1) {
+			return null;
 		}
 
 		return (
