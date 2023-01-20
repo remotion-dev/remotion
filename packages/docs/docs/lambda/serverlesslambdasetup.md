@@ -16,7 +16,7 @@ This is a follow up write up for a serverless function from [lamdbda permissions
 ### Setup
 
 #### 1. Clone or download the project 
-Project is located inside the [`remotion project`](https://github.com/remotion-dev/remotion/tree/main/packages/example-lambda) 
+Project is located inside the [`remotion project`](https://github.com/alexfernandez803/example-lambda) 
 
 #### 2. Install dependencies
 
@@ -189,12 +189,12 @@ That's it, you now have an API to invoke rendering of video.
 
 
 :::warning
-Don't allow the lambda function to be called by an `unauthenticated` user.
+Don't allow the lambda function to be called by an `unauthenticated` user. And the lambda function uses CDK 2 which is actively on development which may break in the future.
 :::warn
 
 ### Next Steps
-- Customize the lambda [`function`](https://github.com/remotion-dev/remotion/tree/main/packages/example-lambda/src/render-function/index.ts) so that the rendered video will be moved to another directory.
-- Try assigning the remotion [role](/docs/lambda/lambda-role-permissions#1--create-role-policy) via CDK [`code`](https://github.com/remotion-dev/remotion/tree/main/packages/example-lambda/lib/remotion-cdk-starter-stack.ts).
+- Customize the lambda [`function`](https://github.com/alexfernandez803/example-lambda/blob/main/src/render-function/index.ts) so that the rendered video will be moved to another directory.
+- Try assigning the remotion [role](/docs/lambda/lambda-role-permissions#1--create-role-policy) via CDK [`code`](https://github.com/alexfernandez803/example-lambda/blob/main/lib/remotion-cdk-starter-stack.ts).
 - Add request parameters to the lambda function as input parameters for[`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
  
 ## See also
