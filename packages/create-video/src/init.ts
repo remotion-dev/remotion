@@ -37,6 +37,11 @@ export const checkGitAvailability = async (
 			return {type: 'git-not-installed'};
 		}
 
+		// win32
+		if ((e as {stderr: string}).stderr.includes('is not recognized')) {
+			return {type: 'git-not-installed'};
+		}
+
 		throw e;
 	}
 };
