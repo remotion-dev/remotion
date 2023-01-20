@@ -81,12 +81,22 @@ export const Timeline: React.FC = () => {
 		[timeline]
 	);
 
-	const withoutHidden = useMemo(() => {
-		return timeline.filter((t) => !isTrackHidden(t, timeline, state));
-	}, [state, timeline]);
+	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 
-	const shown = withoutHidden.slice(0, MAX_TIMELINE_TRACKS);
-	const hasBeenCut = withoutHidden.length > shown.length;
+	const filtered = useMemo(() => {
+		const withoutHidden = timeline.filter(
+			(t) => !isTrackHidden(t, timeline, state)
+		);
+
+		const withoutAfter = withoutHidden.filter((t) => {
+			return t.sequence.from <= durationInFrames && t.sequence.duration > 0;
+		});
+
+		return withoutAfter;
+	}, [durationInFrames, state, timeline]);
+
+	const shown = filtered.slice(0, MAX_TIMELINE_TRACKS);
+	const hasBeenCut = filtered.length > shown.length;
 
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
