@@ -557,7 +557,6 @@ importers:
       eslint-plugin-import: ^2.26.0
       eslint-plugin-jest: ^26.1.4
       eslint-plugin-prettier: ^4.0.0
-      jest: ^27.5.1
       prettier: ^2.6.2
       remotion: ^3.3.33
       source-map-support: ^0.5.21
@@ -589,7 +588,6 @@ importers:
       eslint-plugin-import: 2.27.5_e3x2kyknr3siwrh36c72mqspke
       eslint-plugin-jest: 26.9.0_oklwt3ywjozre5ielzfah3spye
       eslint-plugin-prettier: 4.2.1_bwiznj6mum4nx2xtr6b6ecukoq
-      jest: 27.5.1_ts-node@10.9.1
       prettier: 2.7.1
       ts-jest: 27.1.5_mbundltyzth62jrwpmjtiimjbm
       ts-node: 10.9.1_zpb5kzpnyozdjq4cwaojlul57u
