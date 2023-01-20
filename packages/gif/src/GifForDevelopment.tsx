@@ -24,7 +24,10 @@ export const GifForDevelopment = forwardRef<
 		},
 		ref
 	) => {
-		const resolvedSrc = new URL(src, window.location.origin).href;
+		const resolvedSrc = new URL(
+			src,
+			typeof window === 'undefined' ? undefined : window.location.origin
+		).href;
 		const [state, update] = useState<GifState>(() => {
 			const parsedGif = gifCache.get(resolvedSrc);
 
