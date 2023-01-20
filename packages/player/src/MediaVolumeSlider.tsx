@@ -81,6 +81,10 @@ export const MediaVolumeSlider: React.FC<{
 			cursor: 'pointer',
 			height: BAR_HEIGHT,
 			width: VOLUME_SLIDER_WIDTH,
+			backgroundImage: `linear-gradient(
+				to right,
+				white ${mediaVolume * 100}%, rgba(255, 255, 255, 0) ${mediaVolume * 100}%
+			)`,
 		};
 		if (displayVerticalVolumeSlider) {
 			return {
@@ -95,7 +99,7 @@ export const MediaVolumeSlider: React.FC<{
 			...commonStyle,
 			marginLeft: 5,
 		};
-	}, [displayVerticalVolumeSlider]);
+	}, [displayVerticalVolumeSlider, mediaVolume]);
 
 	const sliderStyle = `
 	.${randomClass}::-webkit-slider-thumb {
@@ -105,12 +109,6 @@ export const MediaVolumeSlider: React.FC<{
 		box-shadow: 0 0 2px black;
 		height: ${KNOB_SIZE}px;
 		width: ${KNOB_SIZE}px;
-	}
-	.${randomClass} {
-		background-image: linear-gradient(
-			to right,
-			white ${mediaVolume * 100}%, rgba(255, 255, 255, 0) ${mediaVolume * 100}%
-		);
 	}
 
 	.${randomClass}::-moz-range-thumb {
