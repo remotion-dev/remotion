@@ -121,7 +121,7 @@ npx aws-cdk destroy
 ```
 
 ## Lamdbda role
-The CDK creates an IAM role named `remotionLambdaServerlessRole` which needs the remotion policy[setup](/docs/lambda/usinglambdawithoutiamuser).
+The CDK creates an IAM role named `remotionLambdaServerlessRole` which needs the remotion policy [setup](/docs/lambda/using-lambda-without-iam-user).
 
 
 ## Test your endpoint
@@ -155,7 +155,7 @@ aws cognito-idp initiate-auth \
   --client-id YOUR_USER_POOL_CLIENT_ID
 
 ```
-YOUR_USER_POOL_CLIENT_ID and YOUR_USER_POOL_ID are part of CDK [output](/docs/lambda/examplesetupwithoutiamuser#output).
+YOUR_USER_POOL_CLIENT_ID and YOUR_USER_POOL_ID are part of CDK [output](/docs/lambda/example-setup-without-iam-user#output).
 
 Output
 ```bash
