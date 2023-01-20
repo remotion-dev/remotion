@@ -253,6 +253,7 @@ export const benchmarkCommand = async (
 			remotionRoot,
 			uiCrf: null,
 			uiImageFormat: null,
+			uiFrameRange: null,
 		});
 		const concurrency = getValidConcurrency(renderMediaOptions);
 

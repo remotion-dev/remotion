@@ -1,4 +1,4 @@
-import type {Codec, RenderMediaOptions} from '@remotion/renderer';
+import type {Codec, FrameRange, RenderMediaOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {ConfigInternals} from './config';
 import {getCliOptions} from './get-cli-options';
@@ -12,6 +12,7 @@ export const getRenderMediaOptions = async ({
 	remotionRoot,
 	uiImageFormat,
 	uiCrf,
+	uiFrameRange,
 }: {
 	outputLocation: RenderMediaOptions['outputLocation'];
 	config: RenderMediaOptions['composition'];
@@ -20,11 +21,14 @@ export const getRenderMediaOptions = async ({
 	remotionRoot: string;
 	uiImageFormat: 'png' | 'jpeg' | 'none' | null;
 	uiCrf: number | null;
+	uiFrameRange: FrameRange | null;
 }): Promise<RenderMediaOptions> => {
+	// TODO: Lots of these options can have difference defaults
+	// TODO: Scale option for example is not being applied
 	const {
 		proResProfile,
 		concurrency,
-		frameRange,
+		frameRange: defaultFrameRange,
 		overwrite,
 		inputProps,
 		envVariables,
@@ -70,7 +74,7 @@ export const getRenderMediaOptions = async ({
 		envVariables,
 		ffmpegExecutable,
 		ffprobeExecutable,
-		frameRange,
+		frameRange: uiFrameRange ?? defaultFrameRange,
 		imageFormat,
 		inputProps,
 		overwrite,
