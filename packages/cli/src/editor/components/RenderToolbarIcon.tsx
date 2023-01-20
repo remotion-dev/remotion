@@ -44,9 +44,8 @@ export const RenderStillButton: React.FC = () => {
 			type: 'render',
 			compositionId: video.id,
 			initialFrame: frame,
-			initialStillImageFormat: 'png',
-			// TODO: Take from config
-			initialVideoImageFormat: 'jpeg',
+			initialStillImageFormat: defaults.stillImageFormat,
+			initialVideoImageFormat: defaults.videoImageFormat,
 			initialOutName: getDefaultOutLocation({
 				compositionName: video.id,
 				defaultExtension: isVideo ? 'mp4' : 'png',
