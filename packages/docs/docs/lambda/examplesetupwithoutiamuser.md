@@ -17,7 +17,7 @@ This is a follow up write up for the serverless function from [using lambda with
 ### Setup
 
 #### 1. Clone or download the project 
-  Project is located inside the [`reference project`](https://github.com/alexfernandez803/example-lambda) 
+Project is located from the [`reference project`](https://github.com/alexfernandez803/example-lambda).
 
 #### 2. Install dependencies
 
