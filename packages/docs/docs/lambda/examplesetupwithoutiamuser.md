@@ -3,8 +3,6 @@ id: examplesetupwithoutiamuser
 title: Example setup without IAM user
 slug: /lambda/example-setup-without-iam-user
 crumb: "Lambda"
-
-
 ---
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
