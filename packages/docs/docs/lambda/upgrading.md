@@ -31,7 +31,7 @@ npx remotion lambda functions deploy
 - Update the site:
 
 ```
-npx remotion sites create src/index.ts --site-name=my-name
+npx remotion lambda sites create src/index.ts --site-name=my-name
 ```
 
 :::info
