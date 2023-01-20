@@ -62,7 +62,7 @@ export class RemotionLambdaStarterStack extends cdk.Stack {
       }
     );
 
-    // 👇 create render function
+    // 👇 create the render function
     const remotionRenderFunction = new NodejsFunction(this, "render-function", {
       runtime: lambda.Runtime.NODEJS_16_X,
       handler: "main",
@@ -95,6 +95,7 @@ export class RemotionLambdaStarterStack extends cdk.Stack {
       authorizer,
     });
 
+    // 👇 Output
     new cdk.CfnOutput(this, "region", { value: cdk.Stack.of(this).region });
     new cdk.CfnOutput(this, "userPoolId", { value: userPool.userPoolId });
     new cdk.CfnOutput(this, "userPoolClientId", {
