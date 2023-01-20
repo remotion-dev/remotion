@@ -1,7 +1,11 @@
 import {useMemo} from 'react';
 import {useCurrentFrame, useVideoConfig} from 'remotion';
+import type {GifLoopBehavior} from './props';
 
-export function useCurrentGifIndex(delays: number[]): number {
+export function useCurrentGifIndex(
+	delays: number[],
+	loopBehavior: GifLoopBehavior
+): number {
 	const currentFrame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 
@@ -16,23 +20,30 @@ export function useCurrentGifIndex(delays: number[]): number {
 		return 1;
 	}, [delays]);
 
-	const index = useMemo(() => {
-		if (delays.length === 0) {
-			return 0;
-		}
-
-		let currentTime = ((currentFrame / videoConfig.fps) * 1000) % duration;
-
-		for (const [i, delay] of delays.entries()) {
-			if (currentTime < delay) {
-				return i;
-			}
-
-			currentTime -= delay;
-		}
-
+	if (delays.length === 0) {
 		return 0;
-	}, [delays, duration, currentFrame, videoConfig]);
+	}
 
-	return index;
+	const time = (currentFrame / videoConfig.fps) * 1000;
+
+	if (loopBehavior === 'pause-after-finish' && time >= duration) {
+		return delays.length - 1;
+	}
+
+	if (loopBehavior === 'unmount-after-finish' && time >= duration) {
+		return -1;
+	}
+
+	let currentTime = time % duration;
+
+	for (let i = 0; i < delays.length; i++) {
+		const delay = delays[i];
+		if (currentTime < delay) {
+			return i;
+		}
+
+		currentTime -= delay;
+	}
+
+	return 0;
 }
