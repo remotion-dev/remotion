@@ -121,7 +121,7 @@ npx aws-cdk destroy
 ```
 
 ### Lamdbda role
-The CDK creates an IAM role named `remotionLambdaServerlessRole` which needs the remotion role [setup](/docs/lambda/lambdarolepermissions).
+The CDK creates an IAM role named `remotionLambdaServerlessRole` which needs the remotion policy[setup](/docs/lambda/lambdarolepermissions).
 
 
 ### Test your endpoint
