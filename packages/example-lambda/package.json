@@ -1,29 +1,46 @@
 {
   "name": "example-lambda",
-  "version": "0.1.0",
+  "version": "0.0.1",
+  "bin": {
+    "cdk-starter": "bin/remotion-cdk-starter.js"
+  },
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
-  },
-  "devDependencies": {
-    "@types/aws-lambda": "^8.10.109",
-    "@types/jest": "^29.2.5",
-    "@types/node": "18.11.18",
-    "aws-cdk": "2.61.0",
-    "jest": "^29.3.1",
-    "ts-jest": "^29.0.3",
-    "ts-node": "^10.9.1",
-    "typescript": "~4.9.4"
+    "cdk": "cdk",
+    "type-check": "tsc --project tsconfig.json --pretty --noEmit",
+    "lint": "eslint . --ext js,jsx,ts,tsx --fix"
   },
   "dependencies": {
-    "@aws-cdk/aws-apigateway": "^1.189.0",
-    "@remotion/lambda": "workspace:3.3.33",
-    "aws-cdk-lib": "2.61.0",
-    "aws-lambda": "^1.0.7",
-    "constructs": "^10.0.0",
-    "remotion": "workspace:3.3.33",
+    "@aws-cdk/aws-apigatewayv2-alpha": "^2.50.0-alpha.0",
+    "@aws-cdk/aws-apigatewayv2-authorizers-alpha": "^2.50.0-alpha.0",
+    "@aws-cdk/aws-apigatewayv2-integrations-alpha": "^2.50.0-alpha.0",
+    "@remotion/lambda": "^3.3.33",
+    "aws-cdk-lib": "^2.50.0",
+    "constructs": "^10.1.147",
+    "remotion": "^3.3.33",
     "source-map-support": "^0.5.21"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.108",
+    "@types/jest": "^27.4.1",
+    "@types/node": "^17.0.23",
+    "@typescript-eslint/eslint-plugin": "^5.19.0",
+    "@typescript-eslint/parser": "^5.19.0",
+    "aws-cdk": "^2.50.0",
+    "aws-lambda": "^1.0.7",
+    "esbuild": "^0.15.12",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-typescript": "^2.7.1",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^26.1.4",
+    "eslint-plugin-prettier": "^4.0.0",
+    "jest": "^27.5.1",
+    "prettier": "^2.6.2",
+    "ts-jest": "^27.1.4",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.3"
   }
 }
