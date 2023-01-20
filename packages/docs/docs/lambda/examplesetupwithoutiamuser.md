@@ -1,14 +1,15 @@
 ---
-image: /generated/articles-docs-lambda-serverlesslambdasetup.png
-id: serverlesslambdasetup
-title: Serverless lambda setup
-slug: /lambda/serverless-lambdas-setup
+id: examplesetupwithoutiamuser
+title: Example setup without IAM user
+slug: /lambda/example-setup-without-iam-user
 crumb: "Lambda"
+
+
 ---
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-This is a follow up write up for a serverless function from [lamdbda permissions](/docs/lambda/lambda-role-permissions).
+This is a follow up write up for the serverless function from [using lambda without IAM user](/docs/lambda/using-lambda-without-iam-user).
 
 ### Prequisites
 - Make sure that you're local AWS profile is able to deploy to AWS.
@@ -16,7 +17,7 @@ This is a follow up write up for a serverless function from [lamdbda permissions
 ### Setup
 
 #### 1. Clone or download the project 
-Project is located inside the [`remotion project`](https://github.com/alexfernandez803/example-lambda) 
+  Project is located inside the [`reference project`](https://github.com/alexfernandez803/example-lambda) 
 
 #### 2. Install dependencies
 
@@ -98,7 +99,7 @@ cdk-stack: deploying... [1/1]
 ✨  Deployment time: 1.39s
 ```
 
-### Output
+ Output
 
 ```bash
 Outputs:
@@ -120,11 +121,11 @@ This will delete the function, in case it's not needed anymore.
 npx aws-cdk destroy
 ```
 
-### Lamdbda role
-The CDK creates an IAM role named `remotionLambdaServerlessRole` which needs the remotion policy[setup](/docs/lambda/lambdarolepermissions).
+## Lamdbda role
+The CDK creates an IAM role named `remotionLambdaServerlessRole` which needs the remotion policy[setup](/docs/lambda/usinglambdawithoutiamuser).
 
 
-### Test your endpoint
+## Test your endpoint
 The API is secured by Cognito which requires an authorization token.
 
 In order to test the API need to do the steps below, just in case you still don't have frontend.
@@ -155,7 +156,7 @@ aws cognito-idp initiate-auth \
   --client-id YOUR_USER_POOL_CLIENT_ID
 
 ```
-YOUR_USER_POOL_CLIENT_ID and YOUR_USER_POOL_ID are part of CDK [output](/docs/lambda/serverless-lambdas-setup#output).
+YOUR_USER_POOL_CLIENT_ID and YOUR_USER_POOL_ID are part of CDK [output](/docs/lambda/examplesetupwithoutiamuser#output).
 
 Output
 ```bash
@@ -192,12 +193,12 @@ That's it, you now have an API to invoke rendering of video.
 Don't allow the lambda function to be called by an `unauthenticated` user. And the lambda function uses CDK 2 which is actively on development which may break in the future.
 :::warn
 
-### Next Steps
+## Next Steps
 - Customize the lambda [`function`](https://github.com/alexfernandez803/example-lambda/blob/main/src/render-function/index.ts) so that the rendered video will be moved to another directory.
-- Try assigning the remotion [role](/docs/lambda/lambda-role-permissions#1--create-role-policy) via CDK [`code`](https://github.com/alexfernandez803/example-lambda/blob/main/lib/remotion-cdk-starter-stack.ts).
-- Add request parameters to the lambda function as input parameters for[`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
+- Try assigning the remotion [role](/docs/lambda/using-lambda-without-iam-user#1--create-role-policy) via CDK [`code`](https://github.com/alexfernandez803/example-lambda/blob/main/lib/remotion-cdk-starter-stack.ts).
+- Add request parameters to the lambda function as input parameters for [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
  
 ## See also
-- [Lambda permissions](/docs/lambda/lambdarolepermissions)
+- [Using lambda without IAM user](/docs/lambda/using-lambda-without-iam-user)
 - [Permissions](/docs/lambda/permissions)
 - [Some code are borrowed from bobbyhadz.com](https://bobbyhadz.com/blog/aws-cdk-api-authorizer)
