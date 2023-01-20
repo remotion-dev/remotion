@@ -74,7 +74,7 @@ From the example above, the `renderMediaOnLambda()` is configured to output the 
 ### Steps
 - From your lambda function assign the policy to the lambda execution role. To do so, go to the [AWS console](https://console.aws.amazon.com/console/home) ➞ [Lambda(change to your function region)](https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/discover) ➞ [Functions](https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions) ➞ Your lambda function ➞ Configuration tab ➞ Permissions tab ➞ Click the role under `Execution role` ➞ When redirected, click Permissions tab ➞ click `add permissions` ➞ Click create inline policy.
 - Click JSON tab
-- Add policy statement similar below defining the bucket the lambda needs to transfer the rendered file.
+- Add policy statement similar below defining the bucket the lambda needs to transfer the rendered video.
 
 ```json
   {
