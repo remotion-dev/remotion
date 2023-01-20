@@ -13,6 +13,9 @@ export const getRenderMediaOptions = async ({
 	uiImageFormat,
 	uiCrf,
 	uiFrameRange,
+	uiScale,
+	uiMuted,
+	uiQuality,
 }: {
 	outputLocation: RenderMediaOptions['outputLocation'];
 	config: RenderMediaOptions['composition'];
@@ -22,6 +25,9 @@ export const getRenderMediaOptions = async ({
 	uiImageFormat: 'png' | 'jpeg' | 'none' | null;
 	uiCrf: number | null;
 	uiFrameRange: FrameRange | null;
+	uiScale: number | null;
+	uiMuted: boolean | null;
+	uiQuality: number | null;
 }): Promise<RenderMediaOptions> => {
 	// TODO: Lots of these options can have difference defaults
 	// TODO: Scale option for example is not being applied
@@ -33,12 +39,12 @@ export const getRenderMediaOptions = async ({
 		inputProps,
 		envVariables,
 		quality,
-		crf: defaultCrf,
+		crf: configFileCrf,
 		pixelFormat,
 		browserExecutable,
 		ffmpegExecutable,
 		ffprobeExecutable,
-		scale,
+		scale: configFileScale,
 		chromiumOptions,
 		port,
 		numberOfGifLoops,
@@ -64,7 +70,7 @@ export const getRenderMediaOptions = async ({
 			width: width ?? config.width,
 			height: height ?? config.height,
 		},
-		crf: uiCrf ?? defaultCrf,
+		crf: uiCrf ?? configFileCrf,
 		envVariables,
 		ffmpegExecutable,
 		ffprobeExecutable,
@@ -74,10 +80,14 @@ export const getRenderMediaOptions = async ({
 			configFileImageFormat,
 			uiImageFormat,
 		}),
+		// TODO: Take from UI
 		inputProps,
 		overwrite,
+		// TODO: Take from UI
 		pixelFormat,
+		// TODO: Take from UI
 		proResProfile,
+		// TODO: Take from UI
 		quality,
 		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
 			ConfigInternals.Logging.getLogLevel(),
@@ -85,7 +95,7 @@ export const getRenderMediaOptions = async ({
 		),
 		chromiumOptions,
 		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
-		scale,
+		scale: uiScale ?? configFileScale,
 		port,
 		numberOfGifLoops,
 		everyNthFrame,
@@ -93,12 +103,15 @@ export const getRenderMediaOptions = async ({
 			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
 		),
-		muted,
+		muted: uiMuted ?? muted,
+		// TODO: Take from UI
 		enforceAudioTrack,
 		browserExecutable,
 		ffmpegOverride,
+		// TODO: Take from UI
 		concurrency,
 		serveUrl,
+		// TODO: Take from UI
 		codec,
 		audioBitrate,
 		videoBitrate,

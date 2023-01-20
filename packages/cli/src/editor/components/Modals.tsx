@@ -33,6 +33,7 @@ export const Modals: React.FC = () => {
 					maxConcurrency={modalContextType.maxConcurrency}
 					minConcurrency={modalContextType.minConcurrency}
 					initialStillImageFormat={modalContextType.initialStillImageFormat}
+					initialMuted={modalContextType.initialMuted}
 				/>
 			)}
 

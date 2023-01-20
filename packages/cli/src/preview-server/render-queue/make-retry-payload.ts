@@ -28,6 +28,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialConcurrency: defaults.concurrency,
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,
+			initialMuted: defaults.muted,
 		};
 	}
 
@@ -50,6 +51,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialConcurrency: job.concurrency,
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,
+			initialMuted: defaults.muted,
 		};
 	}
 

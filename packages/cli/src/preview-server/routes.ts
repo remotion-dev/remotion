@@ -72,6 +72,7 @@ const handleFallback = async ({
 		ConfigInternals.getConcurrency()
 	);
 	const imageFormat = ConfigInternals.getUserPreferredImageFormat();
+	const muted = ConfigInternals.getMuted();
 
 	// TODO: Separate image and video formats in the future. Default should be PNG for images and JPEG for videos.
 	const stillImageFormat: 'png' | 'jpeg' =
@@ -114,6 +115,7 @@ const handleFallback = async ({
 				minConcurrency,
 				stillImageFormat,
 				videoImageFormat,
+				muted,
 			},
 		})
 	);

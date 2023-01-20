@@ -52,6 +52,7 @@ export const RenderButton: React.FC<{
 				initialConcurrency: defaults.concurrency,
 				maxConcurrency: defaults.maxConcurrency,
 				minConcurrency: defaults.minConcurrency,
+				initialMuted: defaults.muted,
 			});
 		},
 		[composition.id, isVideo, setSelectedModal]
