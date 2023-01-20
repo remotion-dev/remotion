@@ -16,8 +16,8 @@ pnpx aws-cdk deploy \
   --outputs-file ./cdk-outputs.json
 ```
 
-4. Open the AWS Console and the stack should be created in your default region
-
+4. Open the AWS Console and find the lambda 
+  
 5. Cleanup
 
 ```bash

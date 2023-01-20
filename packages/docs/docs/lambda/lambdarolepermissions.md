@@ -85,8 +85,8 @@ From the example above, the `renderMediaOnLambda()` is configured to output the 
                "s3:PutObject"
             ],
             "Resource": [
-                "arn:aws:s3:::{buckername}",
-                "arn:aws:s3:::{buckername}/*"
+                "arn:aws:s3:::{bucketname}",
+                "arn:aws:s3:::{bucketname}/*"
             ],
             "Effect": "Allow"
         }
