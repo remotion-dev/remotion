@@ -71,6 +71,14 @@ const handleFallback = async ({
 	const concurrency = RenderInternals.getActualConcurrency(
 		ConfigInternals.getConcurrency()
 	);
+	const imageFormat = ConfigInternals.getUserPreferredImageFormat();
+
+	// TODO: Separate image and video formats in the future. Default should be PNG for images and JPEG for videos.
+	const stillImageFormat: 'png' | 'jpeg' =
+		imageFormat === 'jpeg' || imageFormat === 'png' ? imageFormat : 'png';
+	const videoImageFormat =
+		imageFormat === 'jpeg' || imageFormat === 'png' ? imageFormat : 'jpeg';
+
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
 
@@ -104,6 +112,8 @@ const handleFallback = async ({
 				concurrency,
 				maxConcurrency,
 				minConcurrency,
+				stillImageFormat,
+				videoImageFormat,
 			},
 		})
 	);
