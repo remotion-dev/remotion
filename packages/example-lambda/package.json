@@ -19,6 +19,7 @@
     "aws-cdk-lib": "2.50.0",
     "constructs": "^10.1.147",
     "remotion": "^3.3.33",
+    "semver": "7.3.5",
     "source-map-support": "^0.5.21"
   },
   "devDependencies": {

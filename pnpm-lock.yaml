@@ -557,6 +557,7 @@ importers:
       eslint-plugin-prettier: ^4.0.0
       prettier: ^2.6.2
       remotion: ^3.3.33
+      semver: 7.3.5
       source-map-support: ^0.5.21
       ts-node: ^10.7.0
       typescript: ^4.6.3
@@ -568,6 +569,7 @@ importers:
       aws-cdk-lib: 2.50.0_constructs@10.1.224
       constructs: 10.1.224
       remotion: link:../core
+      semver: 7.3.5
       source-map-support: 0.5.21
     devDependencies:
       '@types/aws-lambda': 8.10.109
@@ -6982,6 +6984,10 @@ packages:
       '@babel/helper-validator-identifier': 7.19.1
       to-fast-properties: 2.0.0
 
+  /@balena/dockerignore/1.0.2:
+    resolution: {integrity: sha512-wMue2Sy4GAVTk6Ic4tJVcnfdau+gx2EnG7S+uAEe+TWJFqE4YoWN4/H8MSLj4eYJKxGg26lZwboEniNiNwZQ6Q==}
+    dev: false
+
   /@chevrotain/cst-dts-gen/10.4.0:
     resolution: {integrity: sha512-8c+1t+lCWT1HSqIa5nbRwhqeTC4IEgBE6+UQJt1DIM8VdxiRlbEM57TxMq5VoF5PJWXsLSCUR0YCUFc/Rxy8kQ==}
     dependencies:
@@ -11551,7 +11557,16 @@ packages:
     peerDependencies:
       constructs: ^10.0.0
     dependencies:
+      '@balena/dockerignore': 1.0.2
+      case: 1.6.3
       constructs: 10.1.224
+      fs-extra: 9.1.0
+      ignore: 5.2.4
+      jsonschema: 1.4.1
+      minimatch: 3.1.2
+      punycode: 2.2.0
+      semver: 7.3.8
+      yaml: 1.10.2
     dev: false
     bundledDependencies:
       - '@balena/dockerignore'
@@ -12258,6 +12273,11 @@ packages:
     resolution: {integrity: sha512-y/eTJ4xoIBkKzD37aQAvBL451LIp9YiB8Vs1e8J3Qwe7WcTHsAD00E5WocPzZo+0+XaSCkJ6cS/BxBDXTSnW1g==}
     dependencies:
       '@webgpu/types': 0.1.21
+
+  /case/1.6.3:
+    resolution: {integrity: sha512-mzDSXIPaFwVDvZAHqZ9VlbyF4yyXRuX6IvB06WvPYkqJVO24kX1PPhv9bfpKNFZyxYFmmgo03HUiD8iklmJYRQ==}
+    engines: {node: '>= 0.8.0'}
+    dev: false
 
   /caseless/0.12.0:
     resolution: {integrity: sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw=}
@@ -17467,6 +17487,10 @@ packages:
   /jsonparse/1.3.1:
     resolution: {integrity: sha1-P02uSpH6wxX3EGL4UhzCOfE2YoA=}
     engines: {'0': node >= 0.2.0}
+    dev: false
+
+  /jsonschema/1.4.1:
+    resolution: {integrity: sha512-S6cATIPVv1z0IlxdN+zUk5EPjkGCdnhN4wVSBlvoUO1tOLJootbo9CquNJmbIh4yikWHiUedhRYrNPn1arpEmQ==}
     dev: false
 
   /jsprim/1.4.1:
