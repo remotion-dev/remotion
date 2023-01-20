@@ -76,6 +76,8 @@ export const addVideoRenderJob = ({
 	codec,
 	concurrency,
 	crf,
+	startFrame,
+	endFrame,
 }: {
 	compositionId: string;
 	outName: string;
@@ -86,6 +88,8 @@ export const addVideoRenderJob = ({
 	codec: Codec;
 	concurrency: number;
 	crf: number;
+	startFrame: number;
+	endFrame: number;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -98,6 +102,8 @@ export const addVideoRenderJob = ({
 		codec,
 		concurrency,
 		crf,
+		endFrame,
+		startFrame,
 	});
 };
 

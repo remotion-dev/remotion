@@ -28,6 +28,7 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {leftSidebarTabs} from '../SidebarContent';
 import {CrfSetting, useCrfState} from './CrfSetting';
+import {FrameRangeSetting} from './FrameRangeSetting';
 import {label, optionRow, rightRow} from './layout';
 import {QualitySetting} from './QualitySetting';
 import {ScaleSetting} from './ScaleSetting';
@@ -170,6 +171,8 @@ export const RenderModal: React.FC<{
 	const [scale, setScale] = useState(() => initialScale);
 	const [verbose, setVerboseLogging] = useState(() => initialVerbose);
 	const [outName, setOutName] = useState(() => initialOutName);
+	const [endFrameOrNull, setEndFrame] = useState<number | null>(() => null);
+	const [startFrameOrNull, setStartFrame] = useState<number | null>(() => null);
 
 	const codec = useMemo(() => {
 		if (renderMode === 'audio') {
@@ -207,6 +210,25 @@ export const RenderModal: React.FC<{
 	if (currentComposition === null) {
 		throw new Error('This composition does not exist');
 	}
+
+	const endFrame = useMemo((): number => {
+		if (endFrameOrNull === null) {
+			return currentComposition.durationInFrames - 1;
+		}
+
+		return Math.max(
+			0,
+			Math.min(currentComposition.durationInFrames - 1, endFrameOrNull)
+		);
+	}, [currentComposition.durationInFrames, endFrameOrNull]);
+
+	const startFrame = useMemo((): number => {
+		if (startFrameOrNull === null) {
+			return 0;
+		}
+
+		return Math.max(0, Math.min(endFrame - 1, startFrameOrNull));
+	}, [endFrame, startFrameOrNull]);
 
 	const frame = useMemo(() => {
 		const parsed = Math.floor(unclampedFrame);
@@ -316,6 +338,8 @@ export const RenderModal: React.FC<{
 			codec,
 			concurrency,
 			crf,
+			endFrame,
+			startFrame,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -336,6 +360,8 @@ export const RenderModal: React.FC<{
 		codec,
 		concurrency,
 		crf,
+		endFrame,
+		startFrame,
 		setSelectedModal,
 	]);
 
@@ -435,7 +461,6 @@ export const RenderModal: React.FC<{
 		(newRenderMode: RenderType) => {
 			setRenderModeState(newRenderMode);
 			if (newRenderMode === 'audio') {
-				console.log({audioCodec});
 				setDefaultOutName({type: 'render', codec: audioCodec});
 			}
 
@@ -536,10 +561,7 @@ export const RenderModal: React.FC<{
 						</div>
 					</div>
 					{currentComposition.durationInFrames > 1 ? (
-						<div
-							style={optionRow}
-							// TODO: Add framerange for video
-						>
+						<div style={optionRow}>
 							<div style={label}>Frame</div>
 							<div style={rightRow}>
 								<RightAlignInput>
@@ -667,6 +689,13 @@ export const RenderModal: React.FC<{
 					{shouldDisplayOption ? (
 						<CrfSetting crf={crf} max={maxCrf} min={minCrf} setCrf={setCrf} />
 					) : null}
+					<FrameRangeSetting
+						durationInFrames={currentComposition.durationInFrames}
+						endFrame={endFrame}
+						setEndFrame={setEndFrame}
+						setStartFrame={setStartFrame}
+						startFrame={startFrame}
+					/>
 					<div style={optionRow}>
 						<div style={label}>Verbose logging</div>
 						<div style={rightRow}>

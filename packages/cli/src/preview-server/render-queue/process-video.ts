@@ -67,8 +67,7 @@ export const processVideoJob = async ({
 		concurrency: job.concurrency,
 		// TODO: Make configurable
 		everyNthFrame: 1,
-		// TODO: Make configurable
-		frameRange: null,
+		frameRange: [job.startFrame, job.endFrame],
 		quiet: false,
 		shouldOutputImageSequence: false,
 		addCleanupCallback,
