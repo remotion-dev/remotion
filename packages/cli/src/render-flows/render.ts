@@ -384,6 +384,7 @@ export const renderCompFlow = async ({
 		remotionRoot,
 		uiImageFormat,
 		uiCrf,
+		uiFrameRange: frameRange,
 	});
 
 	await renderMedia({
