@@ -1,8 +1,8 @@
 ---
-image: /generated/articles-docs-lambda-lambda-role-permissions.png
-id: lambdarolepermissions
-title: Lambda permissions
-slug: /lambda/lambda-role-permissions
+image: /generated/articles-docs-lambda-usinglambdawithoutiamuser.png
+id: usinglambdawithoutiamuser
+title: Using Lambda without IAM user
+slug: /lambda/using-lambda-without-iam-user
 crumb: "Lambda"
 ---
 
@@ -16,12 +16,12 @@ There also some that has requirements to execute the [`renderMediaOnLambda()`](/
 
 The steps below provides authorization to the lambda function to execute `renderMediaOnLambda()` without permission issues.
 
-#### Prerequisites
-1. This assumes that you have deployed a `lambda` function running in AWS. An example is created in [`here`](https://github.com/remotion-dev/remotion/tree/main/packages/example-lambda) using [`CDK`](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-typescript.html) to give you an idea how to call [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) inside another a lambda function, the function is triggered by [API Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html). This assumes that you have knowledge on using [`CDK`](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-typescript.html), a [write up](/docs/lambda/serverless-lambdas-setup) for this is also created for anyone to follow.
+## Prerequisites
+1. This assumes that you have deployed a `lambda` function running in AWS. An example is created in [`here`](https://github.com/alexfernandez803/example-lambda) using [`CDK`](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-typescript.html) to give you an idea how to call [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) inside another a lambda function, the function is triggered by [API Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html). This assumes that you have knowledge on using [`CDK`](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-typescript.html), a [write up](/docs/lambda/examplesetupwithoutiamuser) for this is also created for anyone to follow.
 2. Lambda execution role assigned to the lambda
 3. User Policy [user permissions](/docs/lambda/permissions#user-permissions). 
 
-### Setup
+## Setup
 
 #### 1.  Create role policy
 - Go to AWS account IAM Policies section
@@ -50,26 +50,26 @@ This activity can be also applied to other AWS compute services such as `EC2`, `
 ## Optional 
 If you want to move the video to another s3 bucket when the video is rendered, the `lambda` also needs a permission to do so into the new bucket.
 
-#### Example
-```ts twoslash
-// @module: esnext
-// @target: es2017
-// ---cut---
+  #### Example
+  ```ts twoslash
+  // @module: esnext
+  // @target: es2017
+  // ---cut---
 
-import { renderMediaOnLambda } from "@remotion/lambda/client";
- 
-const { bucketName, renderId } = await renderMediaOnLambda({
-  region: "us-east-1",
-  functionName: "remotion-render-bds9aab",
-  composition: "MyVideo",
-  serveUrl:
-    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
-  codec: "h264",
-  outName: "transfer-to-this-bucket-after-render/the-filename.mp4",
-});
-```
+  import { renderMediaOnLambda } from "@remotion/lambda/client";
+  
+  const { bucketName, renderId } = await renderMediaOnLambda({
+    region: "us-east-1",
+    functionName: "remotion-render-bds9aab",
+    composition: "MyVideo",
+    serveUrl:
+      "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
+    codec: "h264",
+    outName: "transfer-to-this-bucket-after-render/the-filename.mp4",
+  });
+  ```
 
-From the example above, the `renderMediaOnLambda()` is configured to output the video to `transfer-to-this-bucket-after-render` bucket. The steps to allows the lambda to move the file to the other bucket, which is similar to [this](/docs/lambda/trigger-lambda-from-aws#setup).
+  From the example above, the `renderMediaOnLambda()` is configured to output the video to `transfer-to-this-bucket-after-render` bucket. The steps to allows the lambda to move the file to the other bucket, which is similar to [this](/docs/lambda/trigger-lambda-from-aws#setup).
 
 ### Steps
 - From your lambda function assign the policy to the lambda execution role. To do so, go to the [AWS console](https://console.aws.amazon.com/console/home) ➞ [Lambda(change to your function region)](https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/discover) ➞ [Functions](https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions) ➞ Your lambda function ➞ Configuration tab ➞ Permissions tab ➞ Click the role under `Execution role` ➞ When redirected, click Permissions tab ➞ click `add permissions` ➞ Click create inline policy.
@@ -99,4 +99,4 @@ From the example above, the `renderMediaOnLambda()` is configured to output the 
 The lambda function can now move the rendered video to the other bucket when render process is completed.
 
 ## See also
-- [Serverless lambda setup](/docs/lambda/serverlesslambdasetup)
+- [Example setup without IAM user](/docs/lambda/example-setup-without-iam-user)

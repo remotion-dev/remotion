@@ -616,6 +616,13 @@ export const articles = [
     crumb: "Lambda API",
   },
   {
+    id: "examplesetupwithoutiamuser",
+    title: "Example setup without IAM user",
+    relativePath: "docs/lambda/examplesetupwithoutiamuser.md",
+    compId: "articles-docs-lambda-examplesetupwithoutiamuser",
+    crumb: "Lambda",
+  },
+  {
     id: "lambda/faq",
     title: "FAQ",
     relativePath: "docs/lambda/faq.md",
@@ -831,6 +838,13 @@ export const articles = [
     relativePath: "docs/lambda/upgrading.md",
     compId: "articles-docs-lambda-upgrading",
     crumb: null,
+  },
+  {
+    id: "usinglambdawithoutiamuser",
+    title: "Using Lambda without IAM user",
+    relativePath: "docs/lambda/usinglambdawithoutiamuser.md",
+    compId: "articles-docs-lambda-usinglambdawithoutiamuser",
+    crumb: "Lambda",
   },
   {
     id: "validatewebhooksignature",
