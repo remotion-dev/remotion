@@ -435,9 +435,12 @@ const innerRenderFrames = ({
 				throw err;
 			}
 
+			if (stopped) {
+				return;
+			}
+
 			if (retriesLeft === 0) {
 				console.warn(
-					err,
 					`The browser crashed ${attempt} times while rendering frame ${frame}. Not retrying anymore. Learn more about this error under https://www.remotion.dev/docs/target-closed`
 				);
 				throw err;
@@ -616,7 +619,11 @@ export const renderFrames = (
 
 				if (options.puppeteerInstance) {
 					Promise.all(openedPages.map((p) => p.close())).catch((err) => {
-						console.log('Unable to close browser tab', err);
+						if (
+							!(err as Error | undefined)?.message.includes('Target closed')
+						) {
+							console.log('Unable to close browser tab', err);
+						}
 					});
 				} else {
 					Promise.resolve(browserInstance)
@@ -624,7 +631,11 @@ export const renderFrames = (
 							return puppeteerInstance.close(true);
 						})
 						.catch((err) => {
-							console.log('Unable to close browser', err);
+							if (
+								!(err as Error | undefined)?.message.includes('Target closed')
+							) {
+								console.log('Unable to close browser', err);
+							}
 						});
 				}
 
