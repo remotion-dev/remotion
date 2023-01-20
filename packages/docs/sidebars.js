@@ -395,7 +395,6 @@ module.exports = {
         "lambda/custom-destination",
         "lambda/checklist",
         "lambda/webhooks",
-        "lambda/triggerlambdafromaws",
         {
           type: "category",
           label: "Troubleshooting",
@@ -407,6 +406,8 @@ module.exports = {
             "lambda/troubleshooting/bucket-disallows-acl",
           ],
         },
+        "lambda/lambdarolepermissions",
+        "lambda/serverlesslambdasetup",
         "lambda/optimizing-cost",
         "lambda/optimizing-speed",
         "lambda/limits",
