@@ -548,6 +548,14 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={150}
 				/>
+				<Composition
+					id="gif-loop-behavior"
+					lazyComponent={() => import('./GifTest/loop-behavior')}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={540}
+				/>
 			</Folder>
 			<Folder name="og-images">
 				<Composition
