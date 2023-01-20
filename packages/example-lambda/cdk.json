@@ -1,4 +1,0 @@
-{
-  "app": "npx ts-node --prefer-ts-exts bin/remotion-cdk-starter.ts",
-  "context": {}
-}
