@@ -92,6 +92,8 @@ Video codecs `h264` and `vp8` are supported, `prores` is supported since `v3.2.0
 
 Audio codecs `mp3`, `aac` and `wav` are also supported.
 
+The option `h264-mkv` has been renamed to just `h264` since `v3.3.34`. Use `h264` to get the same behavior.
+
 See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
 
 ### `forceHeight`

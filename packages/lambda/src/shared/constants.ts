@@ -308,7 +308,7 @@ export type LambdaPayloads = {
 		inputProps: SerializedInputProps;
 		renderId: string;
 		imageFormat: ImageFormat;
-		codec: Exclude<Codec, 'h264'>;
+		codec: LambdaCodec;
 		crf: number | undefined;
 		proResProfile: ProResProfile | undefined;
 		pixelFormat: PixelFormat | undefined;
