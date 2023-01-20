@@ -49,11 +49,11 @@ export const useAppendVideoFragment = ({
 
 // https://github.com/remotion-dev/remotion/issues/1655
 const isIOSSafariCase = (actualSrc: string) => {
-	return (
-		/iP(ad|od|hone)/i.test(window.navigator.userAgent) &&
-		Boolean(navigator.userAgent.match(/Version\/[\d.]+.*Safari/)) &&
-		actualSrc.startsWith('blob:')
-	);
+	return typeof window === 'undefined'
+		? false
+		: /iP(ad|od|hone)/i.test(window.navigator.userAgent) &&
+				Boolean(navigator.userAgent.match(/Version\/[\d.]+.*Safari/)) &&
+				actualSrc.startsWith('blob:');
 };
 
 export const appendVideoFragment = ({
@@ -76,7 +76,11 @@ export const appendVideoFragment = ({
 	}
 
 	const existingHash = Boolean(
-		new URL(actualSrc, window.location.href ?? 'http://localhost:3000').hash
+		new URL(
+			actualSrc,
+			(typeof window === 'undefined' ? null : window.location.href) ??
+				'http://localhost:3000'
+		).hash
 	);
 
 	if (existingHash) {
