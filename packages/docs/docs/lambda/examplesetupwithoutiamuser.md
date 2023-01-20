@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-examplesetupwithoutiamuser.png
 id: examplesetupwithoutiamuser
 title: Example setup without IAM user
 slug: /lambda/example-setup-without-iam-user
