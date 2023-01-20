@@ -33,6 +33,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				crf: input.crf,
 				endFrame: input.endFrame,
 				startFrame: input.startFrame,
+				muted: input.muted,
 			},
 		});
 	}

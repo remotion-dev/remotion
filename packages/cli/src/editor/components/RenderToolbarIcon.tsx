@@ -61,6 +61,7 @@ export const RenderStillButton: React.FC = () => {
 			initialConcurrency: defaults.concurrency,
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,
+			initialMuted: defaults.muted,
 		});
 	}, [video, frame, setSelectedModal]);
 

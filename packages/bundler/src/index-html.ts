@@ -8,6 +8,7 @@ export type RenderDefaults = {
 	codec: string;
 	concurrency: number;
 	minConcurrency: number;
+	muted: boolean;
 	maxConcurrency: number;
 	stillImageFormat: 'png' | 'jpeg';
 	videoImageFormat: 'png' | 'jpeg';

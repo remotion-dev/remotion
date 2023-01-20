@@ -81,6 +81,7 @@ export const renderCompFlow = async ({
 	uiImageFormat,
 	cancelSignal,
 	uiCrf,
+	uiMuted,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -116,6 +117,7 @@ export const renderCompFlow = async ({
 	uiCodec: Codec | null;
 	uiCrf: number | null;
 	uiImageFormat: ImageFormat | null;
+	uiMuted: boolean | null;
 	cancelSignal: CancelSignal | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
@@ -385,6 +387,9 @@ export const renderCompFlow = async ({
 		uiImageFormat,
 		uiCrf,
 		uiFrameRange: frameRange,
+		uiMuted,
+		uiQuality: quality ?? null,
+		uiScale: scale,
 	});
 
 	await renderMedia({

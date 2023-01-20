@@ -30,6 +30,7 @@ import {leftSidebarTabs} from '../SidebarContent';
 import {CrfSetting, useCrfState} from './CrfSetting';
 import {FrameRangeSetting} from './FrameRangeSetting';
 import {label, optionRow, rightRow} from './layout';
+import {MutedSetting} from './MutedSetting';
 import {QualitySetting} from './QualitySetting';
 import {ScaleSetting} from './ScaleSetting';
 
@@ -124,6 +125,7 @@ export const RenderModal: React.FC<{
 	initialConcurrency: number;
 	minConcurrency: number;
 	maxConcurrency: number;
+	initialMuted: boolean;
 }> = ({
 	compositionId,
 	initialFrame,
@@ -139,6 +141,7 @@ export const RenderModal: React.FC<{
 	initialConcurrency,
 	maxConcurrency,
 	minConcurrency,
+	initialMuted,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -164,6 +167,8 @@ export const RenderModal: React.FC<{
 	const [audioCodec, setAudioSpecificalCodec] = useState<Codec>(
 		() => initialAudioCodec
 	);
+
+	const [mutedState, setMuted] = useState(() => initialMuted);
 
 	const [renderMode, setRenderModeState] =
 		useState<RenderType>(initialRenderType);
@@ -194,6 +199,14 @@ export const RenderModal: React.FC<{
 		},
 		[]
 	);
+
+	const muted = useMemo(() => {
+		if (renderMode === 'video') {
+			return mutedState;
+		}
+
+		return false;
+	}, [mutedState, renderMode]);
 
 	const {compositions} = useContext(Internals.CompositionManager);
 
@@ -340,6 +353,7 @@ export const RenderModal: React.FC<{
 			crf,
 			endFrame,
 			startFrame,
+			muted,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -362,6 +376,7 @@ export const RenderModal: React.FC<{
 		crf,
 		endFrame,
 		startFrame,
+		muted,
 		setSelectedModal,
 	]);
 
@@ -685,6 +700,9 @@ export const RenderModal: React.FC<{
 					) : null}
 					{renderMode === 'video' && videoImageFormat === 'jpeg' && (
 						<QualitySetting setQuality={setQuality} quality={quality} />
+					)}
+					{renderMode === 'video' && (
+						<MutedSetting muted={muted} setMuted={setMuted} />
 					)}
 					{shouldDisplayOption ? (
 						<CrfSetting crf={crf} max={maxCrf} min={minCrf} setCrf={setCrf} />
