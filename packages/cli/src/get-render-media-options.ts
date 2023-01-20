@@ -57,12 +57,6 @@ export const getRenderMediaOptions = async ({
 		remotionRoot,
 	});
 
-	const imageFormat = getImageFormat({
-		codec,
-		configFileImageFormat,
-		uiImageFormat,
-	});
-
 	return {
 		outputLocation,
 		composition: {
@@ -75,7 +69,11 @@ export const getRenderMediaOptions = async ({
 		ffmpegExecutable,
 		ffprobeExecutable,
 		frameRange: uiFrameRange ?? defaultFrameRange,
-		imageFormat,
+		imageFormat: getImageFormat({
+			codec,
+			configFileImageFormat,
+			uiImageFormat,
+		}),
 		inputProps,
 		overwrite,
 		pixelFormat,
