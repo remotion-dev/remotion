@@ -5,7 +5,7 @@ import {
 } from '../helpers/colors';
 import {Checkmark} from '../icons/Checkmark';
 
-const size = 24;
+const size = 20;
 
 const background: React.CSSProperties = {
 	height: size,
