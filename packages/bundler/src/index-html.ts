@@ -9,6 +9,8 @@ export type RenderDefaults = {
 	concurrency: number;
 	minConcurrency: number;
 	maxConcurrency: number;
+	stillImageFormat: 'png' | 'jpeg';
+	videoImageFormat: 'png' | 'jpeg';
 };
 
 declare global {
