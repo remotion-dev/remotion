@@ -73,7 +73,7 @@ The Remotion packages are also bundled into the stack, these ensures that [`rend
 }
 
 ```
-The full dependencies is included in the [reference project](https://github.com/alexfernandez803/example-lambda/blob/main/package.json).
+The full dependencies are included in the [reference project](https://github.com/alexfernandez803/example-lambda/blob/main/package.json).
 
 
 #### 4. After deployment
