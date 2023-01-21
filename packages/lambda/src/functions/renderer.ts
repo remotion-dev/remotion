@@ -71,15 +71,18 @@ const renderHandler = async (
 
 	const outdir = RenderInternals.tmpDir(RENDERER_PATH_TOKEN);
 
+	const chunkCodec: Codec =
+		params.codec === 'gif' || params.codec === 'h264'
+			? 'h264-mkv'
+			: params.codec;
+
 	const outputLocation = path.join(
 		outdir,
 		`localchunk-${String(params.chunk).padStart(
 			8,
 			'0'
-		)}.${RenderInternals.getFileExtensionFromCodec(params.codec, 'chunk')}`
+		)}.${RenderInternals.getFileExtensionFromCodec(chunkCodec)}`
 	);
-
-	const chunkCodec: Codec = params.codec === 'gif' ? 'h264-mkv' : params.codec;
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 

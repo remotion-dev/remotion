@@ -1,10 +1,24 @@
 import {Triangle} from '@remotion/shapes';
 import React from 'react';
-import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {
+	AbsoluteFill,
+	interpolate,
+	spring,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
 const TriangleTest: React.FC = () => {
 	const frame = useCurrentFrame();
-	const rotation = interpolate(frame, [0, 100], [0, 360]);
+	const {fps} = useVideoConfig();
+
+	const spr = spring({
+		fps,
+		frame,
+		config: {},
+	});
+
+	const edgeRoundness = interpolate(spr, [0, 1], [0, 1]);
 
 	return (
 		<AbsoluteFill
@@ -17,37 +31,10 @@ const TriangleTest: React.FC = () => {
 			}}
 		>
 			<Triangle
-				pathStyle={{
-					transform: `rotate(${rotation}deg)`,
-				}}
+				debug
+				edgeRoundness={edgeRoundness}
 				length={100}
-				fill="red"
-				direction="left"
-			/>
-
-			<Triangle
-				pathStyle={{
-					transform: `rotate(${rotation}deg)`,
-				}}
-				length={100}
-				fill="red"
-				direction="right"
-			/>
-			<Triangle
-				pathStyle={{
-					transform: `rotate(${rotation}deg)`,
-				}}
-				length={100}
-				fill="red"
-				direction="top"
-			/>
-			<Triangle
-				pathStyle={{
-					transform: `rotate(${rotation}deg)`,
-				}}
-				length={100}
-				fill="red"
-				direction="bottom"
+				direction="up"
 			/>
 		</AbsoluteFill>
 	);
