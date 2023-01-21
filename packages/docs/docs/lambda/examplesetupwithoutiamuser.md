@@ -60,7 +60,7 @@ This command will deploy the Lambda function and any other resources in the stac
 npx aws-cdk deploy \
   --outputs-file ./cdk-outputs.json
 ```
-The Remotion packages are also packaged into the stack, these ensures that [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) can be executed by the [lambda function](https://github.com/alexfernandez803/example-lambda/blob/main/src/render-function/index.ts).
+The Remotion packages are also bundled into the stack, these ensures that [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) can be executed by the [lambda function](https://github.com/alexfernandez803/example-lambda/blob/main/src/render-function/index.ts).
 
 
 ```json title="package.json"
