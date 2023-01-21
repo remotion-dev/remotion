@@ -12,8 +12,6 @@ Generates an SVG path for a triangle with the same length on all sides.
 
 ## Example
 
-Example Triangle path generation
-
 ```tsx twoslash title="triangle.ts"
 import { makeTriangle } from "@remotion/shapes";
 

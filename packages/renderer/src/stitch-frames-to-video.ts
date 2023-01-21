@@ -217,7 +217,7 @@ export const spawnFfmpeg = async (
 		? null
 		: path.join(
 				options.assetsInfo.downloadMap.stitchFrames,
-				`out.${getFileExtensionFromCodec(codec, 'final')}`
+				`out.${getFileExtensionFromCodec(codec)}`
 		  );
 
 	const shouldRenderAudio =
