@@ -60,6 +60,21 @@ This command will deploy the Lambda function and any other resources in the stac
 npx aws-cdk deploy \
   --outputs-file ./cdk-outputs.json
 ```
+The Remotion packages are also packaged into the stack, these ensures that [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) can be executed by the [lambda function](https://github.com/alexfernandez803/example-lambda/blob/main/src/render-function/index.ts).
+
+
+```json title="package.json"
+{
+  "dependencies": {
+    ...
+     "remotion": "^3.3.33",
+    "@remotion/lambda": "^3.3.33",
+  }
+}
+
+```
+The full dependencies is included in the [reference project](https://github.com/alexfernandez803/example-lambda/blob/main/package.json).
+
 
 #### 4. After deployment
 
@@ -127,7 +142,7 @@ The CDK creates an IAM role named `remotionLambdaServerlessRole` which needs the
 ## Test your endpoint
 The API is secured by Cognito which requires an authorization token.
 
-In order to test, the API needs to do the steps below, just in case you still don't have frontend.
+In order to test, you need to do the steps below, just in case you still don't have frontend.
 
 1. Create a Cognito User
 
@@ -146,7 +161,7 @@ aws cognito-idp admin-confirm-sign-up \
 ```
 
 
-3. Log the user ti retrieve an identity JWT token
+3. Log the user to retrieve an identity JWT token
 ```bash
 aws cognito-idp initiate-auth \
   --auth-flow USER_PASSWORD_AUTH \
