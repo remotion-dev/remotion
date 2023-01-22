@@ -847,6 +847,20 @@ export const articles = [
     crumb: "Lambda",
   },
   {
+    id: "lambda/without-iam/example",
+    title: "Example setup without IAM user",
+    relativePath: "docs/lambda/without-iam/example.md",
+    compId: "articles-docs-lambda-without-iam-example",
+    crumb: "Lambda without IAM",
+  },
+  {
+    id: "lambda/without-iam/index",
+    title: "Using Lambda without an IAM user",
+    relativePath: "docs/lambda/without-iam/index.md",
+    compId: "articles-docs-lambda-without-iam-index",
+    crumb: "Lambda without IAM",
+  },
+  {
     id: "lambda",
     title: "@remotion/lambda",
     relativePath: "docs/lambda.md",
