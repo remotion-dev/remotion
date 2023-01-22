@@ -1,6 +1,7 @@
 import type {
 	Codec,
 	makeCancelSignal,
+	ProResProfile,
 	StillImageFormat,
 } from '@remotion/renderer';
 
@@ -49,6 +50,7 @@ type RenderJobDynamicFields =
 			endFrame: number;
 			muted: boolean;
 			enforceAudioTrack: boolean;
+			proResProfile: ProResProfile | null;
 			// TODO: Add more fields like frame range
 	  };
 
@@ -89,6 +91,7 @@ type AddRenderRequestDynamicFields =
 			endFrame: number;
 			muted: boolean;
 			enforceAudioTrack: boolean;
+			proResProfile: ProResProfile | null;
 	  };
 
 export type CancelRenderRequest = {

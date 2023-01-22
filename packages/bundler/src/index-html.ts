@@ -13,6 +13,7 @@ export type RenderDefaults = {
 	stillImageFormat: 'png' | 'jpeg';
 	videoImageFormat: 'png' | 'jpeg';
 	enforceAudioTrack: boolean;
+	proResProfile: string;
 };
 
 declare global {

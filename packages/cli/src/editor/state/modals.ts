@@ -1,4 +1,4 @@
-import type {Codec, StillImageFormat} from '@remotion/renderer';
+import type {Codec, ProResProfile, StillImageFormat} from '@remotion/renderer';
 import type React from 'react';
 import {createContext} from 'react';
 import type {RenderJob} from '../../preview-server/render-queue/job';
@@ -24,6 +24,7 @@ export type RenderModalState = {
 	initialConcurrency: number;
 	initialMuted: boolean;
 	initialEnforceAudioTrack: boolean;
+	initialProResProfile: ProResProfile;
 	minConcurrency: number;
 	maxConcurrency: number;
 };
