@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import execa from 'execa';
+import os from 'os';
 import {degit} from './degit';
 import {getLatestRemotionVersion} from './latest-remotion-version';
 import {Log} from './log';
@@ -15,6 +16,17 @@ import {
 import {resolveProjectRoot} from './resolve-project-root';
 import {selectTemplate} from './select-template';
 
+const binaryExists = (name: string) => {
+	const isWin = os.platform() === 'win32';
+	const where = isWin ? 'where' : 'which';
+	try {
+		execa.sync(where, [name]);
+		return true;
+	} catch (err) {
+		return false;
+	}
+};
+
 export const checkGitAvailability = async (
 	cwd: string,
 	command: string
@@ -23,26 +35,19 @@ export const checkGitAvailability = async (
 	| {type: 'is-git-repo'; location: string}
 	| {type: 'git-not-installed'}
 > => {
+	if (!binaryExists(command)) {
+		return {type: 'git-not-installed'};
+	}
+
 	try {
 		const result = await execa(command, ['rev-parse', '--show-toplevel'], {
 			cwd,
 		});
 		return {type: 'is-git-repo', location: result.stdout};
 	} catch (e) {
-		if ((e as Error).message.toLowerCase().includes('not a git repository')) {
-			return {type: 'no-git-repo'};
-		}
-
-		if ((e as {code: string}).code === 'ENOENT') {
-			return {type: 'git-not-installed'};
-		}
-
-		// win32
-		if ((e as {stderr: string}).stderr.includes('is not recognized')) {
-			return {type: 'git-not-installed'};
-		}
-
-		throw e;
+		return {
+			type: 'no-git-repo',
+		};
 	}
 };
 
