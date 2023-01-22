@@ -1,5 +1,6 @@
 import deterministicRandomness from "./rules/deterministic-randomness";
 import evenDimensions from "./rules/even-dimensions";
+import noBackgroundImage from "./rules/no-background-image";
 import durationInFrames from "./rules/no-duration-frames-infinity";
 import noFrom0 from "./rules/no-from-0";
 import nomp4Import from "./rules/no-mp4-import";
@@ -22,6 +23,7 @@ const rules = {
   "use-gif-component": useGifComponent,
   "staticfile-no-relative": staticFileNoRelative,
   "staticfile-no-remote": staticFileNoRemote,
+  "no-background-image": noBackgroundImage,
 };
 
 export = {
@@ -40,6 +42,7 @@ export = {
         "@remotion/use-gif-component": "error",
         "@remotion/staticfile-no-relative": "error",
         "@remotion/staticfile-no-remote": "error",
+        "@remotion/no-background-image": "error",
       },
     },
   },

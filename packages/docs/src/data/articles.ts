@@ -847,6 +847,20 @@ export const articles = [
     crumb: "Lambda",
   },
   {
+    id: "lambda/without-iam/example",
+    title: "Example setup without IAM user",
+    relativePath: "docs/lambda/without-iam/example.md",
+    compId: "articles-docs-lambda-without-iam-example",
+    crumb: "Lambda without IAM",
+  },
+  {
+    id: "lambda/without-iam/index",
+    title: "Using Lambda without an IAM user",
+    relativePath: "docs/lambda/without-iam/index.md",
+    compId: "articles-docs-lambda-without-iam-index",
+    crumb: "Lambda without IAM",
+  },
+  {
     id: "lambda",
     title: "@remotion/lambda",
     relativePath: "docs/lambda.md",
@@ -1715,6 +1729,13 @@ export const articles = [
     relativePath: "docs/transparent-videos.md",
     compId: "articles-docs-transparent-videos",
     crumb: "Techniques",
+  },
+  {
+    id: "troubleshooting/background-image",
+    title: "Flickering when using background-image",
+    relativePath: "docs/troubleshooting/background-image.md",
+    compId: "articles-docs-troubleshooting-background-image",
+    crumb: "Common mistakes",
   },
   {
     id: "defaultprops-too-big",
