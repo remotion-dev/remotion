@@ -40,6 +40,12 @@ export const RenderStillButton: React.FC = () => {
 			throw new TypeError('Expected defaults');
 		}
 
+		const {initialAudioCodec, initialRenderType, initialVideoCodec} =
+			getDefaultCodecs({
+				defaultCodec: defaults.codec as Codec,
+				isStill: !isVideo,
+			});
+
 		setSelectedModal({
 			type: 'render',
 			compositionId: video.id,
@@ -54,14 +60,14 @@ export const RenderStillButton: React.FC = () => {
 			initialQuality: defaults.quality,
 			initialScale: window.remotion_renderDefaults?.scale ?? 1,
 			initialVerbose: (defaults.logLevel as LogLevel) === 'verbose',
-			...getDefaultCodecs({
-				defaultCodec: defaults.codec as Codec,
-				isStill: !isVideo,
-			}),
+			initialAudioCodec,
+			initialRenderType,
+			initialVideoCodec,
 			initialConcurrency: defaults.concurrency,
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,
 			initialMuted: defaults.muted,
+			initialEnforceAudioTrack: defaults.enforceAudioTrack,
 		});
 	}, [video, frame, setSelectedModal]);
 

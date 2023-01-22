@@ -48,6 +48,7 @@ type RenderJobDynamicFields =
 			startFrame: number;
 			endFrame: number;
 			muted: boolean;
+			enforceAudioTrack: boolean;
 			// TODO: Add more fields like frame range
 	  };
 
@@ -87,6 +88,7 @@ type AddRenderRequestDynamicFields =
 			startFrame: number;
 			endFrame: number;
 			muted: boolean;
+			enforceAudioTrack: boolean;
 	  };
 
 export type CancelRenderRequest = {

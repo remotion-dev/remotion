@@ -9,6 +9,12 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 		throw new Error('defaults not set');
 	}
 
+	const {initialAudioCodec, initialRenderType, initialVideoCodec} =
+		getDefaultCodecs({
+			defaultCodec: defaults.codec as Codec,
+			isStill: true,
+		});
+
 	if (job.type === 'still') {
 		return {
 			type: 'render',
@@ -21,14 +27,14 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialOutName: job.outName,
 			initialScale: job.scale,
 			initialVerbose: job.verbose,
-			...getDefaultCodecs({
-				defaultCodec: defaults.codec as Codec,
-				isStill: true,
-			}),
+			initialAudioCodec,
+			initialRenderType,
+			initialVideoCodec,
 			initialConcurrency: defaults.concurrency,
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,
 			initialMuted: defaults.muted,
+			initialEnforceAudioTrack: defaults.enforceAudioTrack,
 		};
 	}
 
@@ -44,14 +50,14 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialScale: job.scale,
 			initialVerbose: job.verbose,
 			initialFrame: 0,
-			...getDefaultCodecs({
-				defaultCodec: defaults.codec as Codec,
-				isStill: false,
-			}),
 			initialConcurrency: job.concurrency,
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,
 			initialMuted: defaults.muted,
+			initialAudioCodec,
+			initialEnforceAudioTrack: defaults.enforceAudioTrack,
+			initialRenderType,
+			initialVideoCodec,
 		};
 	}
 

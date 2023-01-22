@@ -31,6 +31,11 @@ export const RenderButton: React.FC<{
 			}
 
 			e.stopPropagation();
+			const {initialAudioCodec, initialRenderType, initialVideoCodec} =
+				getDefaultCodecs({
+					defaultCodec: defaults.codec as Codec,
+					isStill: !isVideo,
+				});
 			setSelectedModal({
 				type: 'render',
 				compositionId: composition.id,
@@ -45,14 +50,14 @@ export const RenderButton: React.FC<{
 					defaultExtension: isVideo ? 'mp4' : 'png',
 					type: 'asset',
 				}),
-				...getDefaultCodecs({
-					defaultCodec: defaults.codec as Codec,
-					isStill: !isVideo,
-				}),
+				initialAudioCodec,
+				initialRenderType,
+				initialVideoCodec,
 				initialConcurrency: defaults.concurrency,
 				maxConcurrency: defaults.maxConcurrency,
 				minConcurrency: defaults.minConcurrency,
 				initialMuted: defaults.muted,
+				initialEnforceAudioTrack: defaults.enforceAudioTrack,
 			});
 		},
 		[composition.id, isVideo, setSelectedModal]

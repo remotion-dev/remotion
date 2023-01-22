@@ -20,6 +20,7 @@ export const processVideoJob = async ({
 		throw new Error('Expected video job');
 	}
 
+	// TODO: Change until none can be derived from UI
 	const {
 		publicDir,
 		browserExecutable,
@@ -31,6 +32,8 @@ export const processVideoJob = async ({
 		port,
 		browser,
 		puppeteerTimeout,
+		ffmpegOverride,
+		audioBitrate,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'still',
@@ -77,6 +80,10 @@ export const processVideoJob = async ({
 		cancelSignal: job.cancelToken.cancelSignal,
 		crf: job.crf,
 		uiMuted: job.muted,
+		ffmpegOverride,
+		audioBitrate,
+		muted: job.muted,
+		enforceAudioTrack: job.enforceAudioTrack,
 	});
 	// TODO: Accept CLI options
 };

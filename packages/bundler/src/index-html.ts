@@ -12,6 +12,7 @@ export type RenderDefaults = {
 	maxConcurrency: number;
 	stillImageFormat: 'png' | 'jpeg';
 	videoImageFormat: 'png' | 'jpeg';
+	enforceAudioTrack: boolean;
 };
 
 declare global {

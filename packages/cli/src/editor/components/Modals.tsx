@@ -34,6 +34,7 @@ export const Modals: React.FC = () => {
 					minConcurrency={modalContextType.minConcurrency}
 					initialStillImageFormat={modalContextType.initialStillImageFormat}
 					initialMuted={modalContextType.initialMuted}
+					initialEnforceAudioTrack={modalContextType.initialEnforceAudioTrack}
 				/>
 			)}
 

@@ -6,6 +6,7 @@ import type {
 	Codec,
 	Crf,
 	FfmpegExecutable,
+	FfmpegOverrideFn,
 	FrameRange,
 	ImageFormat,
 	LogLevel,
@@ -83,6 +84,10 @@ export const renderCompFlow = async ({
 	uiCodec,
 	uiImageFormat,
 	uiMuted,
+	ffmpegOverride,
+	audioBitrate,
+	muted,
+	enforceAudioTrack,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -120,6 +125,10 @@ export const renderCompFlow = async ({
 	uiCodec: Codec | null;
 	uiImageFormat: 'png' | 'jpeg' | 'none' | null;
 	uiMuted: boolean | null;
+	ffmpegOverride: FfmpegOverrideFn;
+	audioBitrate: string | null;
+	muted: boolean;
+	enforceAudioTrack: boolean;
 }) => {
 	const downloads: DownloadProgress[] = [];
 	const downloadMap = RenderInternals.makeDownloadMap();
@@ -141,20 +150,12 @@ export const renderCompFlow = async ({
 	);
 
 	// TODO: Don't parse CLI here
-	const {
-		proResProfile,
-		pixelFormat,
-		numberOfGifLoops,
-		muted,
-		enforceAudioTrack,
-		ffmpegOverride,
-		audioBitrate,
-		videoBitrate,
-	} = await getCliOptions({
-		isLambda: false,
-		type: 'series',
-		remotionRoot,
-	});
+	const {proResProfile, pixelFormat, numberOfGifLoops, videoBitrate} =
+		await getCliOptions({
+			isLambda: false,
+			type: 'series',
+			remotionRoot,
+		});
 
 	Log.verboseAdvanced({indent, logLevel}, 'Asset dirs', downloadMap.assetDir);
 
@@ -377,19 +378,13 @@ export const renderCompFlow = async ({
 				'verbose'
 			),
 			everyNthFrame,
-			// TODO: Take from UI
 			envVariables,
-			// TODO: Take from UI
 			frameRange,
-			// TODO: Take from UI
 			concurrency: actualConcurrency,
 			puppeteerInstance,
-			// TODO: Take from UI
 			quality,
 			timeoutInMilliseconds: puppeteerTimeout,
-			// TODO: Take from UI
 			chromiumOptions,
-			// TODO: Take from UI
 			scale,
 			ffmpegExecutable,
 			ffprobeExecutable,
@@ -431,6 +426,7 @@ export const renderCompFlow = async ({
 		port,
 		numberOfGifLoops,
 		everyNthFrame,
+		// TODO: Take from UI
 		verbose: RenderInternals.isEqualOrBelowLogLevel(
 			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
@@ -442,7 +438,6 @@ export const renderCompFlow = async ({
 		ffmpegOverride,
 		concurrency,
 		serveUrl: urlOrBundle,
-		// TODO: Take from UI
 		codec,
 		audioBitrate,
 		videoBitrate,
