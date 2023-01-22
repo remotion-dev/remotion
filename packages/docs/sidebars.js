@@ -408,7 +408,7 @@ module.exports = {
         },
         {
           type: "category",
-          label: "Using without IAM",
+          label: "Using without IAM users",
           link: {
             type: "doc",
             id: "lambda/without-iam/index",
