@@ -1,4 +1,4 @@
-import type {Codec, ProResProfile} from '@remotion/renderer';
+import type {Codec, PixelFormat, ProResProfile} from '@remotion/renderer';
 import type {RenderModalState} from '../../editor/state/modals';
 import {getDefaultCodecs} from './get-default-video-contexts';
 import type {RenderJob} from './job';
@@ -36,6 +36,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialMuted: defaults.muted,
 			initialEnforceAudioTrack: defaults.enforceAudioTrack,
 			initialProResProfile: defaults.proResProfile as ProResProfile,
+			initialPixelFormat: defaults.pixelFormat as PixelFormat,
 		};
 	}
 
@@ -54,12 +55,14 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialConcurrency: job.concurrency,
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,
-			initialMuted: defaults.muted,
+			initialMuted: job.muted,
 			initialAudioCodec,
-			initialEnforceAudioTrack: defaults.enforceAudioTrack,
+			initialEnforceAudioTrack: job.enforceAudioTrack,
 			initialRenderType,
 			initialVideoCodec,
-			initialProResProfile: defaults.proResProfile as ProResProfile,
+			initialProResProfile:
+				job.proResProfile ?? (defaults.proResProfile as ProResProfile),
+			initialPixelFormat: job.pixelFormat,
 		};
 	}
 

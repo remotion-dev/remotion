@@ -14,6 +14,7 @@ export type RenderDefaults = {
 	videoImageFormat: 'png' | 'jpeg';
 	enforceAudioTrack: boolean;
 	proResProfile: string;
+	pixelFormat: string;
 };
 
 declare global {
