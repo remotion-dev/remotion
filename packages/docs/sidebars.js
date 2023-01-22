@@ -406,6 +406,15 @@ module.exports = {
             "lambda/troubleshooting/bucket-disallows-acl",
           ],
         },
+        {
+          type: "category",
+          label: "Using without IAM users",
+          link: {
+            type: "doc",
+            id: "lambda/without-iam/index",
+          },
+          items: ["lambda/without-iam/index", "lambda/without-iam/example"],
+        },
         "lambda/optimizing-cost",
         "lambda/optimizing-speed",
         "lambda/limits",
