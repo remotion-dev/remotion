@@ -276,6 +276,25 @@ export const renderCompFlow = async ({
 	let renderedDoneIn: number | null = null;
 	let stitchStage: StitchingState = 'encoding';
 
+	const options = await getRenderMediaOptions({
+		config,
+		outputLocation: absoluteOutputFile,
+		serveUrl: urlOrBundle,
+		codec,
+		remotionRoot,
+		uiImageFormat,
+		uiCrf,
+		uiFrameRange: frameRange,
+		uiMuted,
+		uiQuality: quality ?? null,
+		uiScale: scale,
+		uiConcurrency: concurrency,
+	});
+
+	const actualConcurrency = RenderInternals.getActualConcurrency(
+		'concurrency' in options ? concurrency : null
+	);
+
 	const updateRenderProgress = () => {
 		if (totalFrames.length === 0) {
 			throw new Error('totalFrames should not be 0');
@@ -286,7 +305,7 @@ export const renderCompFlow = async ({
 				rendering: {
 					frames: renderedFrames,
 					totalFrames: totalFrames.length,
-					concurrency: RenderInternals.getActualConcurrency(concurrency),
+					concurrency: actualConcurrency,
 					doneIn: renderedDoneIn,
 					steps,
 				},
@@ -358,13 +377,19 @@ export const renderCompFlow = async ({
 				'verbose'
 			),
 			everyNthFrame,
+			// TODO: Take from UI
 			envVariables,
+			// TODO: Take from UI
 			frameRange,
-			concurrency,
+			// TODO: Take from UI
+			concurrency: actualConcurrency,
 			puppeteerInstance,
+			// TODO: Take from UI
 			quality,
 			timeoutInMilliseconds: puppeteerTimeout,
+			// TODO: Take from UI
 			chromiumOptions,
+			// TODO: Take from UI
 			scale,
 			ffmpegExecutable,
 			ffprobeExecutable,
@@ -377,20 +402,6 @@ export const renderCompFlow = async ({
 		process.stdout.write('\n');
 		Log.infoAdvanced({indent, logLevel}, chalk.cyan(`▶ ${absoluteOutputFile}`));
 	}
-
-	const options = await getRenderMediaOptions({
-		config,
-		outputLocation: absoluteOutputFile,
-		serveUrl: urlOrBundle,
-		codec,
-		remotionRoot,
-		uiImageFormat,
-		uiCrf,
-		uiFrameRange: frameRange,
-		uiMuted,
-		uiQuality: quality ?? null,
-		uiScale: scale,
-	});
 
 	await renderMedia({
 		...options,
