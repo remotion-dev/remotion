@@ -404,6 +404,7 @@ module.exports = {
             "lambda/troubleshooting/rate-limit",
             "lambda/troubleshooting/unrecognizedclientexception",
             "lambda/troubleshooting/bucket-disallows-acl",
+            "lambda/troubleshooting/security-token",
           ],
         },
         {
