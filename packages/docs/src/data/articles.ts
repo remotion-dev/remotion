@@ -616,13 +616,6 @@ export const articles = [
     crumb: "Lambda API",
   },
   {
-    id: "examplesetupwithoutiamuser",
-    title: "Example setup without IAM user",
-    relativePath: "docs/lambda/examplesetupwithoutiamuser.md",
-    compId: "articles-docs-lambda-examplesetupwithoutiamuser",
-    crumb: "Lambda",
-  },
-  {
     id: "lambda/faq",
     title: "FAQ",
     relativePath: "docs/lambda/faq.md",
@@ -840,13 +833,6 @@ export const articles = [
     crumb: null,
   },
   {
-    id: "usinglambdawithoutiamuser",
-    title: "Using Lambda without IAM user",
-    relativePath: "docs/lambda/usinglambdawithoutiamuser.md",
-    compId: "articles-docs-lambda-usinglambdawithoutiamuser",
-    crumb: "Lambda",
-  },
-  {
     id: "validatewebhooksignature",
     title: "validateWebhookSignature()",
     relativePath: "docs/lambda/validatewebhooksignature.md",
@@ -859,6 +845,20 @@ export const articles = [
     relativePath: "docs/lambda/webhooks.md",
     compId: "articles-docs-lambda-webhooks",
     crumb: "Lambda",
+  },
+  {
+    id: "lambda/without-iam/example",
+    title: "Example setup without IAM user",
+    relativePath: "docs/lambda/without-iam/example.md",
+    compId: "articles-docs-lambda-without-iam-example",
+    crumb: "Lambda without IAM",
+  },
+  {
+    id: "lambda/without-iam/index",
+    title: "Using Lambda without IAM user",
+    relativePath: "docs/lambda/without-iam/index.md",
+    compId: "articles-docs-lambda-without-iam-index",
+    crumb: "Lambda without IAM",
   },
   {
     id: "lambda",
