@@ -53,6 +53,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		height,
 		width,
 		configFileImageFormat,
+		crf,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -98,7 +99,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			uiCodec: null,
 			uiImageFormat: null,
 			cancelSignal: null,
-			uiCrf: null,
+			crf,
 			uiMuted: null,
 		});
 	} finally {

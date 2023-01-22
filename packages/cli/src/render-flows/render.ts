@@ -4,6 +4,7 @@ import type {
 	CancelSignal,
 	ChromiumOptions,
 	Codec,
+	Crf,
 	FfmpegExecutable,
 	FrameRange,
 	ImageFormat,
@@ -77,10 +78,10 @@ export const renderCompFlow = async ({
 	quality,
 	onProgress,
 	addCleanupCallback,
+	cancelSignal,
+	crf,
 	uiCodec,
 	uiImageFormat,
-	cancelSignal,
-	uiCrf,
 	uiMuted,
 }: {
 	remotionRoot: string;
@@ -114,11 +115,11 @@ export const renderCompFlow = async ({
 	quality: number | undefined;
 	onProgress: JobProgressCallback;
 	addCleanupCallback: (cb: () => Promise<void>) => void;
-	uiCodec: Codec | null;
-	uiCrf: number | null;
-	uiImageFormat: ImageFormat | null;
-	uiMuted: boolean | null;
+	crf: Crf | null;
 	cancelSignal: CancelSignal | null;
+	uiCodec: Codec | null;
+	uiImageFormat: 'png' | 'jpeg' | 'none' | null;
+	uiMuted: boolean | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
 	const downloadMap = RenderInternals.makeDownloadMap();
@@ -142,7 +143,6 @@ export const renderCompFlow = async ({
 	// TODO: Don't parse CLI here
 	const {
 		proResProfile,
-		crf: configFileCrf,
 		pixelFormat,
 		numberOfGifLoops,
 		muted,
@@ -410,7 +410,7 @@ export const renderCompFlow = async ({
 			width: width ?? config.width,
 			height: height ?? config.height,
 		},
-		crf: uiCrf ?? configFileCrf,
+		crf,
 		envVariables,
 		ffmpegExecutable,
 		ffprobeExecutable,
