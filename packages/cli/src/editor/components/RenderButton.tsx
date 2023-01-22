@@ -1,4 +1,4 @@
-import type {Codec, LogLevel} from '@remotion/renderer';
+import type {Codec, LogLevel, ProResProfile} from '@remotion/renderer';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {TCompMetadata} from 'remotion';
@@ -58,6 +58,7 @@ export const RenderButton: React.FC<{
 				minConcurrency: defaults.minConcurrency,
 				initialMuted: defaults.muted,
 				initialEnforceAudioTrack: defaults.enforceAudioTrack,
+				initialProResProfile: defaults.proResProfile as ProResProfile,
 			});
 		},
 		[composition.id, isVideo, setSelectedModal]

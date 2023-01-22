@@ -1,4 +1,4 @@
-import type {Codec, StillImageFormat} from '@remotion/renderer';
+import type {Codec, ProResProfile, StillImageFormat} from '@remotion/renderer';
 import type {ApiRoutes} from '../../../preview-server/api-types';
 import type {
 	OpenInFileExplorerRequest,
@@ -80,6 +80,7 @@ export const addVideoRenderJob = ({
 	endFrame,
 	muted,
 	enforceAudioTrack,
+	proResProfile,
 }: {
 	compositionId: string;
 	outName: string;
@@ -94,6 +95,7 @@ export const addVideoRenderJob = ({
 	endFrame: number;
 	muted: boolean;
 	enforceAudioTrack: boolean;
+	proResProfile: ProResProfile | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -110,6 +112,7 @@ export const addVideoRenderJob = ({
 		startFrame,
 		muted,
 		enforceAudioTrack,
+		proResProfile,
 	});
 };
 

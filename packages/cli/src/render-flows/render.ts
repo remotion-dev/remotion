@@ -10,6 +10,7 @@ import type {
 	FrameRange,
 	ImageFormat,
 	LogLevel,
+	ProResProfile,
 	RenderMediaOnDownload,
 	StitchingState,
 } from '@remotion/renderer';
@@ -88,6 +89,7 @@ export const renderCompFlow = async ({
 	audioBitrate,
 	muted,
 	enforceAudioTrack,
+	proResProfile,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -129,6 +131,7 @@ export const renderCompFlow = async ({
 	audioBitrate: string | null;
 	muted: boolean;
 	enforceAudioTrack: boolean;
+	proResProfile: ProResProfile | undefined;
 }) => {
 	const downloads: DownloadProgress[] = [];
 	const downloadMap = RenderInternals.makeDownloadMap();
@@ -150,12 +153,11 @@ export const renderCompFlow = async ({
 	);
 
 	// TODO: Don't parse CLI here
-	const {proResProfile, pixelFormat, numberOfGifLoops, videoBitrate} =
-		await getCliOptions({
-			isLambda: false,
-			type: 'series',
-			remotionRoot,
-		});
+	const {pixelFormat, numberOfGifLoops, videoBitrate} = await getCliOptions({
+		isLambda: false,
+		type: 'series',
+		remotionRoot,
+	});
 
 	Log.verboseAdvanced({indent, logLevel}, 'Asset dirs', downloadMap.assetDir);
 

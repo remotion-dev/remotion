@@ -1,4 +1,4 @@
-import type {Codec, StillImageFormat} from '@remotion/renderer';
+import type {Codec, ProResProfile, StillImageFormat} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {ChangeEvent} from 'react';
 import React, {
@@ -128,6 +128,7 @@ export const RenderModal: React.FC<{
 	maxConcurrency: number;
 	initialMuted: boolean;
 	initialEnforceAudioTrack: boolean;
+	initialProResProfile: ProResProfile;
 }> = ({
 	compositionId,
 	initialFrame,
@@ -145,6 +146,7 @@ export const RenderModal: React.FC<{
 	minConcurrency,
 	initialMuted,
 	initialEnforceAudioTrack,
+	initialProResProfile,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -184,6 +186,9 @@ export const RenderModal: React.FC<{
 	const [outName, setOutName] = useState(() => initialOutName);
 	const [endFrameOrNull, setEndFrame] = useState<number | null>(() => null);
 	const [startFrameOrNull, setStartFrame] = useState<number | null>(() => null);
+	const [proResProfileSetting, setProResProfile] = useState<ProResProfile>(
+		() => initialProResProfile
+	);
 
 	const codec = useMemo(() => {
 		if (renderMode === 'audio') {
@@ -221,6 +226,14 @@ export const RenderModal: React.FC<{
 
 		return false;
 	}, [enforceAudioTrackState, renderMode]);
+
+	const proResProfile = useMemo(() => {
+		if (renderMode === 'video' && codec === 'prores') {
+			return proResProfileSetting;
+		}
+
+		return null;
+	}, [codec, proResProfileSetting, renderMode]);
 
 	const {compositions} = useContext(Internals.CompositionManager);
 
@@ -369,6 +382,7 @@ export const RenderModal: React.FC<{
 			startFrame,
 			muted,
 			enforceAudioTrack,
+			proResProfile,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -393,6 +407,7 @@ export const RenderModal: React.FC<{
 		startFrame,
 		muted,
 		enforceAudioTrack,
+		proResProfile,
 		setSelectedModal,
 	]);
 
@@ -487,6 +502,17 @@ export const RenderModal: React.FC<{
 				};
 			});
 	}, [renderMode, setCodec, codec]);
+
+	const proResProfileOptions = useMemo((): SegmentedControlItem[] => {
+		return BrowserSafeApis.proResProfileOptions.map((option) => {
+			return {
+				label: option,
+				onClick: () => setProResProfile(option),
+				key: option,
+				selected: proResProfile === option,
+			};
+		});
+	}, [proResProfile]);
 
 	const setRenderMode = useCallback(
 		(newRenderMode: RenderType) => {
@@ -658,6 +684,14 @@ export const RenderModal: React.FC<{
 						<SegmentedControl items={videoCodecOptions} needsWrapping />
 					</div>
 				</div>
+				{renderMode === 'video' && codec === 'prores' ? (
+					<div style={optionRow}>
+						<div style={label}>ProRes profile</div>
+						<div style={rightRow}>
+							<SegmentedControl items={proResProfileOptions} needsWrapping />
+						</div>
+					</div>
+				) : null}
 				<div style={optionRow}>
 					<div style={label}>Output name</div>
 					<div style={rightRow}>
