@@ -75,7 +75,7 @@ export const processVideoJob = async ({
 		uiCodec: job.codec,
 		uiImageFormat: job.imageFormat,
 		cancelSignal: job.cancelToken.cancelSignal,
-		uiCrf: job.crf,
+		crf: job.crf,
 		uiMuted: job.muted,
 	});
 	// TODO: Accept CLI options
