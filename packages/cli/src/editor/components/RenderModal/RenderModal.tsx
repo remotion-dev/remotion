@@ -111,6 +111,11 @@ const buttonRow: React.CSSProperties = {
 	paddingRight: 16,
 };
 
+const scrollPanel: React.CSSProperties = {
+	maxHeight: '50vh',
+	overflow: 'auto',
+};
+
 const input: React.CSSProperties = {
 	minWidth: 250,
 	textAlign: 'right',
@@ -617,7 +622,7 @@ export const RenderModal: React.FC<{
 				<div style={container}>
 					<SegmentedControl items={renderTabOptions} needsWrapping={false} />
 				</div>
-				<div>
+				<div style={scrollPanel}>
 					<Spacing block y={0.5} />
 					<div style={optionRow}>
 						<div style={label}>Format</div>
@@ -685,15 +690,15 @@ export const RenderModal: React.FC<{
 						)}
 					</CollapsableOptions>
 					<Spacing block y={0.5} />
-					<div style={buttonRow}>
-						<Button
-							autoFocus
-							onClick={onClickStill}
-							disabled={state.type === 'load'}
-						>
-							{state.type === 'idle' ? 'Render still' : 'Rendering...'}
-						</Button>
-					</div>
+				</div>
+				<div style={buttonRow}>
+					<Button
+						autoFocus
+						onClick={onClickStill}
+						disabled={state.type === 'load'}
+					>
+						{state.type === 'idle' ? 'Render still' : 'Rendering...'}
+					</Button>
 				</div>
 			</ModalContainer>
 		);
@@ -705,7 +710,7 @@ export const RenderModal: React.FC<{
 			<div style={container}>
 				<SegmentedControl items={renderTabOptions} needsWrapping={false} />
 			</div>
-			<div>
+			<div style={scrollPanel}>
 				<Spacing block y={0.5} />
 				<div style={optionRow}>
 					<div style={label}>Codec</div>
@@ -818,17 +823,17 @@ export const RenderModal: React.FC<{
 					</div>
 				</CollapsableOptions>
 				<Spacing block y={0.5} />
-				<div style={buttonRow}>
-					<Button
-						autoFocus
-						onClick={onClickVideo}
-						disabled={state.type === 'load'}
-					>
-						{state.type === 'idle'
-							? 'Render ' + (renderMode === 'audio' ? 'audio' : 'video')
-							: 'Rendering...'}
-					</Button>
-				</div>
+			</div>
+			<div style={buttonRow}>
+				<Button
+					autoFocus
+					onClick={onClickVideo}
+					disabled={state.type === 'load'}
+				>
+					{state.type === 'idle'
+						? 'Render ' + (renderMode === 'audio' ? 'audio' : 'video')
+						: 'Rendering...'}
+				</Button>
 			</div>
 		</ModalContainer>
 	);
