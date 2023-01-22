@@ -1717,6 +1717,13 @@ export const articles = [
     crumb: "Techniques",
   },
   {
+    id: "troubleshooting/background-image",
+    title: "Flickering when using background-image",
+    relativePath: "docs/troubleshooting/background-image.md",
+    compId: "articles-docs-troubleshooting-background-image",
+    crumb: "Common mistakes",
+  },
+  {
     id: "defaultprops-too-big",
     title: "defaultProps too big - could not serialize",
     relativePath: "docs/troubleshooting/defaultprops-too-big.md",
