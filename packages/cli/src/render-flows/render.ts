@@ -25,12 +25,12 @@ import {chalk} from '../chalk';
 import {ConfigInternals} from '../config';
 import {
 	getAndValidateAbsoluteOutputFile,
+	getCliOptions,
 	validateFfmpegCanUseCodec,
 } from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
 import {getOutputFilename} from '../get-filename';
 import {getFinalOutputCodec} from '../get-final-output-codec';
-import {getRenderMediaOptions} from '../get-render-media-options';
 import {getImageFormat} from '../image-formats';
 import {INDENT_TOKEN, Log} from '../log';
 import {parsedCli} from '../parse-command-line';
@@ -138,6 +138,23 @@ export const renderCompFlow = async ({
 		'Browser executable: ',
 		browserExecutable
 	);
+
+	// TODO: Don't parse CLI here
+	const {
+		proResProfile,
+		crf: configFileCrf,
+		pixelFormat,
+		numberOfGifLoops,
+		muted,
+		enforceAudioTrack,
+		ffmpegOverride,
+		audioBitrate,
+		videoBitrate,
+	} = await getCliOptions({
+		isLambda: false,
+		type: 'series',
+		remotionRoot,
+	});
 
 	Log.verboseAdvanced({indent, logLevel}, 'Asset dirs', downloadMap.assetDir);
 
@@ -276,24 +293,7 @@ export const renderCompFlow = async ({
 	let renderedDoneIn: number | null = null;
 	let stitchStage: StitchingState = 'encoding';
 
-	const options = await getRenderMediaOptions({
-		config,
-		outputLocation: absoluteOutputFile,
-		serveUrl: urlOrBundle,
-		codec,
-		remotionRoot,
-		uiImageFormat,
-		uiCrf,
-		uiFrameRange: frameRange,
-		uiMuted,
-		uiQuality: quality ?? null,
-		uiScale: scale,
-		uiConcurrency: concurrency,
-	});
-
-	const actualConcurrency = RenderInternals.getActualConcurrency(
-		'concurrency' in options ? concurrency : null
-	);
+	const actualConcurrency = RenderInternals.getActualConcurrency(concurrency);
 
 	const updateRenderProgress = () => {
 		if (totalFrames.length === 0) {
@@ -404,7 +404,48 @@ export const renderCompFlow = async ({
 	}
 
 	await renderMedia({
-		...options,
+		outputLocation: absoluteOutputFile,
+		composition: {
+			...config,
+			width: width ?? config.width,
+			height: height ?? config.height,
+		},
+		crf: uiCrf ?? configFileCrf,
+		envVariables,
+		ffmpegExecutable,
+		ffprobeExecutable,
+		frameRange,
+		inputProps,
+		overwrite,
+		pixelFormat,
+		proResProfile,
+		quality,
+		// TODO: Take from UI
+		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
+			'verbose'
+		),
+		chromiumOptions,
+		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
+		scale,
+		port,
+		numberOfGifLoops,
+		everyNthFrame,
+		verbose: RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
+			'verbose'
+		),
+		muted: uiMuted ?? muted,
+		// TODO: Take from UI
+		enforceAudioTrack,
+		browserExecutable,
+		ffmpegOverride,
+		concurrency,
+		serveUrl: urlOrBundle,
+		// TODO: Take from UI
+		codec,
+		audioBitrate,
+		videoBitrate,
 		onProgress: (update) => {
 			encodedDoneIn = update.encodedDoneIn;
 			encodedFrames = update.encodedFrames;

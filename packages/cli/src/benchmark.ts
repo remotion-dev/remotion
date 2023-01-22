@@ -11,7 +11,7 @@ import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
 import {getFinalOutputCodec} from './get-final-output-codec';
-import {getRenderMediaOptions} from './get-render-media-options';
+import {getImageFormat} from './image-formats';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
@@ -22,16 +22,11 @@ import {truthy} from './truthy';
 
 const DEFAULT_RUNS = 3;
 
-const getValidConcurrency = (renderMediaOptions: RenderMediaOptions) => {
-	const concurrency =
-		'concurrency' in renderMediaOptions
-			? renderMediaOptions.concurrency ?? null
-			: null;
-
+const getValidConcurrency = (cliConcurrency: number | string | null) => {
 	const {concurrencies} = parsedCli;
 
 	if (!concurrencies) {
-		return [RenderInternals.getActualConcurrency(concurrency)];
+		return [RenderInternals.getActualConcurrency(cliConcurrency)];
 	}
 
 	return (concurrencies as string)
@@ -245,21 +240,32 @@ export const benchmarkCommand = async (
 	});
 
 	for (const composition of compositions) {
-		const renderMediaOptions = await getRenderMediaOptions({
-			config: composition,
-			outputLocation: undefined,
-			serveUrl: bundleLocation,
-			codec,
+		const {
+			proResProfile,
+			frameRange: defaultFrameRange,
+			overwrite,
+			quality,
+			crf: configFileCrf,
+			pixelFormat,
+			scale: configFileScale,
+			numberOfGifLoops,
+			everyNthFrame,
+			muted,
+			enforceAudioTrack,
+			ffmpegOverride,
+			audioBitrate,
+			videoBitrate,
+			height,
+			width,
+			configFileImageFormat,
+			concurrency: unparsedConcurrency,
+		} = await getCliOptions({
+			isLambda: false,
+			type: 'series',
 			remotionRoot,
-			uiCrf: null,
-			uiImageFormat: null,
-			uiFrameRange: null,
-			uiMuted: null,
-			uiQuality: null,
-			uiScale: null,
-			uiConcurrency: null,
 		});
-		const concurrency = getValidConcurrency(renderMediaOptions);
+
+		const concurrency = getValidConcurrency(unparsedConcurrency);
 
 		benchmark[composition.id] = {};
 		for (const con of concurrency) {
@@ -277,7 +283,49 @@ export const benchmarkCommand = async (
 			const timeTaken = await runBenchmark(
 				runs,
 				{
-					...renderMediaOptions,
+					outputLocation: undefined,
+					composition: {
+						...composition,
+						width: width ?? composition.width,
+						height: height ?? composition.height,
+					},
+					crf: configFileCrf,
+					envVariables,
+					ffmpegExecutable,
+					ffprobeExecutable,
+					frameRange: defaultFrameRange,
+					imageFormat: getImageFormat({
+						codec,
+						configFileImageFormat,
+						uiImageFormat: null,
+					}),
+					inputProps,
+					overwrite,
+					pixelFormat,
+					proResProfile,
+					quality,
+					dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
+						ConfigInternals.Logging.getLogLevel(),
+						'verbose'
+					),
+					chromiumOptions,
+					timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
+					scale: configFileScale,
+					port,
+					numberOfGifLoops,
+					everyNthFrame,
+					verbose: RenderInternals.isEqualOrBelowLogLevel(
+						ConfigInternals.Logging.getLogLevel(),
+						'verbose'
+					),
+					muted,
+					enforceAudioTrack,
+					browserExecutable,
+					ffmpegOverride,
+					serveUrl: bundleLocation,
+					codec,
+					audioBitrate,
+					videoBitrate,
 					puppeteerInstance,
 					concurrency: con,
 				},
