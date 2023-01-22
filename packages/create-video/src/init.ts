@@ -29,7 +29,7 @@ export const checkGitAvailability = async (
 		});
 		return {type: 'is-git-repo', location: result.stdout};
 	} catch (e) {
-		if ((e as Error).message.includes('not a git repository')) {
+		if ((e as Error).message.toLowerCase().includes('not a git repository')) {
 			return {type: 'no-git-repo'};
 		}
 
