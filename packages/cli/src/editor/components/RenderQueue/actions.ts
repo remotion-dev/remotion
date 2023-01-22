@@ -79,6 +79,7 @@ export const addVideoRenderJob = ({
 	startFrame,
 	endFrame,
 	muted,
+	enforceAudioTrack,
 }: {
 	compositionId: string;
 	outName: string;
@@ -92,6 +93,7 @@ export const addVideoRenderJob = ({
 	startFrame: number;
 	endFrame: number;
 	muted: boolean;
+	enforceAudioTrack: boolean;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -107,6 +109,7 @@ export const addVideoRenderJob = ({
 		endFrame,
 		startFrame,
 		muted,
+		enforceAudioTrack,
 	});
 };
 

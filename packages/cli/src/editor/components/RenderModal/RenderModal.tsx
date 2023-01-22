@@ -28,6 +28,7 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {leftSidebarTabs} from '../SidebarContent';
 import {CrfSetting, useCrfState} from './CrfSetting';
+import {EnforceAudioTrackSetting} from './EnforceAudioTrackSetting';
 import {FrameRangeSetting} from './FrameRangeSetting';
 import {label, optionRow, rightRow} from './layout';
 import {MutedSetting} from './MutedSetting';
@@ -126,6 +127,7 @@ export const RenderModal: React.FC<{
 	minConcurrency: number;
 	maxConcurrency: number;
 	initialMuted: boolean;
+	initialEnforceAudioTrack: boolean;
 }> = ({
 	compositionId,
 	initialFrame,
@@ -142,6 +144,7 @@ export const RenderModal: React.FC<{
 	maxConcurrency,
 	minConcurrency,
 	initialMuted,
+	initialEnforceAudioTrack,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -169,6 +172,9 @@ export const RenderModal: React.FC<{
 	);
 
 	const [mutedState, setMuted] = useState(() => initialMuted);
+	const [enforceAudioTrackState, setEnforceAudioTrackState] = useState(
+		() => initialEnforceAudioTrack
+	);
 
 	const [renderMode, setRenderModeState] =
 		useState<RenderType>(initialRenderType);
@@ -207,6 +213,14 @@ export const RenderModal: React.FC<{
 
 		return false;
 	}, [mutedState, renderMode]);
+
+	const enforceAudioTrack = useMemo(() => {
+		if (renderMode === 'video') {
+			return enforceAudioTrackState;
+		}
+
+		return false;
+	}, [enforceAudioTrackState, renderMode]);
 
 	const {compositions} = useContext(Internals.CompositionManager);
 
@@ -354,6 +368,7 @@ export const RenderModal: React.FC<{
 			endFrame,
 			startFrame,
 			muted,
+			enforceAudioTrack,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -377,6 +392,7 @@ export const RenderModal: React.FC<{
 		endFrame,
 		startFrame,
 		muted,
+		enforceAudioTrack,
 		setSelectedModal,
 	]);
 
@@ -703,6 +719,12 @@ export const RenderModal: React.FC<{
 					)}
 					{renderMode === 'video' && (
 						<MutedSetting muted={muted} setMuted={setMuted} />
+					)}
+					{renderMode === 'video' && (
+						<EnforceAudioTrackSetting
+							enforceAudioTrack={enforceAudioTrack}
+							setEnforceAudioTrack={setEnforceAudioTrackState}
+						/>
 					)}
 					{shouldDisplayOption ? (
 						<CrfSetting crf={crf} max={maxCrf} min={minCrf} setCrf={setCrf} />

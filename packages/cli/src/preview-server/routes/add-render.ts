@@ -34,6 +34,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				endFrame: input.endFrame,
 				startFrame: input.startFrame,
 				muted: input.muted,
+				enforceAudioTrack: input.enforceAudioTrack,
 			},
 		});
 	}

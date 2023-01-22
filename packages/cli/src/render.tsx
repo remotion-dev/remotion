@@ -54,6 +54,10 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		width,
 		configFileImageFormat,
 		crf,
+		ffmpegOverride,
+		audioBitrate,
+		muted,
+		enforceAudioTrack,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -101,6 +105,10 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			cancelSignal: null,
 			crf,
 			uiMuted: null,
+			ffmpegOverride,
+			audioBitrate,
+			muted,
+			enforceAudioTrack,
 		});
 	} finally {
 		await Promise.all(jobCleanups.map((c) => c()));

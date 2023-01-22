@@ -73,6 +73,7 @@ const handleFallback = async ({
 	);
 	const imageFormat = ConfigInternals.getUserPreferredImageFormat();
 	const muted = ConfigInternals.getMuted();
+	const enforceAudioTrack = ConfigInternals.getEnforceAudioTrack();
 
 	// TODO: Separate image and video formats in the future. Default should be PNG for images and JPEG for videos.
 	const stillImageFormat: 'png' | 'jpeg' =
@@ -116,6 +117,7 @@ const handleFallback = async ({
 				stillImageFormat,
 				videoImageFormat,
 				muted,
+				enforceAudioTrack,
 			},
 		})
 	);
