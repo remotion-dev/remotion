@@ -257,6 +257,7 @@ export const benchmarkCommand = async (
 			uiMuted: null,
 			uiQuality: null,
 			uiScale: null,
+			uiConcurrency: null,
 		});
 		const concurrency = getValidConcurrency(renderMediaOptions);
 

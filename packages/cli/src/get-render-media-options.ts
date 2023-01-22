@@ -16,6 +16,7 @@ export const getRenderMediaOptions = async ({
 	uiScale,
 	uiMuted,
 	uiQuality,
+	uiConcurrency,
 }: {
 	outputLocation: RenderMediaOptions['outputLocation'];
 	config: RenderMediaOptions['composition'];
@@ -28,6 +29,7 @@ export const getRenderMediaOptions = async ({
 	uiScale: number | null;
 	uiMuted: boolean | null;
 	uiQuality: number | null;
+	uiConcurrency: number | string | null;
 }): Promise<RenderMediaOptions> => {
 	// TODO: Lots of these options can have difference defaults
 	// TODO: Scale option for example is not being applied
@@ -87,8 +89,7 @@ export const getRenderMediaOptions = async ({
 		pixelFormat,
 		// TODO: Take from UI
 		proResProfile,
-		// TODO: Take from UI
-		quality,
+		quality: uiQuality ?? quality,
 		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
 			ConfigInternals.Logging.getLogLevel(),
 			'verbose'
@@ -108,8 +109,7 @@ export const getRenderMediaOptions = async ({
 		enforceAudioTrack,
 		browserExecutable,
 		ffmpegOverride,
-		// TODO: Take from UI
-		concurrency,
+		concurrency: uiConcurrency ?? concurrency,
 		serveUrl,
 		// TODO: Take from UI
 		codec,
