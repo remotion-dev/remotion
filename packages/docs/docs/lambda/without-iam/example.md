@@ -1,6 +1,7 @@
 ---
 image: /generated/articles-docs-lambda-without-iam-example.png
 title: Example setup without IAM user
+sidebar_label: Example
 crumb: "Lambda without IAM"
 ---
 
