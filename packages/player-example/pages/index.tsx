@@ -1,12 +1,9 @@
-import React, {ComponentType} from 'react';
-import {createRoot} from 'react-dom/client';
-import App from './App';
-import CarSlideshow from './CarSlideshow';
-import {VideoautoplayDemo} from './VideoAutoplay';
 import {Thumbnail} from '@remotion/player';
-import {ThumbnailDemo} from './ThumbnailDemo';
-
-const rootElement = document.getElementById('root');
+import React, {ComponentType} from 'react';
+import App from '../src/App';
+import CarSlideshow from '../src/CarSlideshow';
+import {ThumbnailDemo} from '../src/ThumbnailDemo';
+import {VideoautoplayDemo} from '../src/VideoAutoplay';
 
 const Car = () =>
 	new Promise<{default: ComponentType<unknown>}>((resolve) => {
@@ -19,8 +16,8 @@ const Car = () =>
 		);
 	});
 
-createRoot(rootElement as HTMLElement).render(
-	<div style={{}}>
+export default function () {
+	return (
 		<React.StrictMode>
 			<h2>Player</h2>
 			<div
@@ -50,5 +47,5 @@ createRoot(rootElement as HTMLElement).render(
 			/>
 			<ThumbnailDemo />
 		</React.StrictMode>
-	</div>
-);
+	);
+}

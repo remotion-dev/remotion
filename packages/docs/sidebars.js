@@ -433,6 +433,7 @@ module.exports = {
         "wrong-composition-mount",
         "staticfile-relative-paths",
         "staticfile-remote-urls",
+        "troubleshooting/background-image",
         "troubleshooting/rosetta",
         "troubleshooting/loading-root-component",
         "troubleshooting/defaultprops-too-big",
