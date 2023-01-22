@@ -85,6 +85,7 @@ export const processVideoJob = async ({
 		muted: job.muted,
 		enforceAudioTrack: job.enforceAudioTrack,
 		proResProfile: job.proResProfile ?? undefined,
+		pixelFormat: job.pixelFormat,
 	});
 	// TODO: Accept CLI options
 };

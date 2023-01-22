@@ -1,4 +1,9 @@
-import type {Codec, ProResProfile, StillImageFormat} from '@remotion/renderer';
+import type {
+	Codec,
+	PixelFormat,
+	ProResProfile,
+	StillImageFormat,
+} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {ChangeEvent} from 'react';
 import React, {
@@ -129,6 +134,7 @@ export const RenderModal: React.FC<{
 	initialMuted: boolean;
 	initialEnforceAudioTrack: boolean;
 	initialProResProfile: ProResProfile;
+	initialPixelFormat: PixelFormat;
 }> = ({
 	compositionId,
 	initialFrame,
@@ -147,6 +153,7 @@ export const RenderModal: React.FC<{
 	initialMuted,
 	initialEnforceAudioTrack,
 	initialProResProfile,
+	initialPixelFormat,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -189,6 +196,9 @@ export const RenderModal: React.FC<{
 	const [proResProfileSetting, setProResProfile] = useState<ProResProfile>(
 		() => initialProResProfile
 	);
+	const [pixelFormat, setPixelFormat] = useState<PixelFormat>(
+		() => initialPixelFormat
+	);
 
 	const codec = useMemo(() => {
 		if (renderMode === 'audio') {
@@ -197,7 +207,13 @@ export const RenderModal: React.FC<{
 
 		return videoCodec;
 	}, [audioCodec, renderMode, videoCodec]);
-	const {crf, maxCrf, minCrf, setCrf, shouldDisplayOption} = useCrfState(codec);
+	const {
+		crf,
+		maxCrf,
+		minCrf,
+		setCrf,
+		shouldDisplayOption: shouldDisplayCrfOption,
+	} = useCrfState(codec);
 
 	const dispatchIfMounted: typeof dispatch = useCallback((payload) => {
 		if (isMounted.current === false) return;
@@ -383,6 +399,7 @@ export const RenderModal: React.FC<{
 			muted,
 			enforceAudioTrack,
 			proResProfile,
+			pixelFormat,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -409,6 +426,7 @@ export const RenderModal: React.FC<{
 		enforceAudioTrack,
 		proResProfile,
 		setSelectedModal,
+		pixelFormat,
 	]);
 
 	const onConcurrencyChangedDirectly = useCallback((newConcurrency: number) => {
@@ -513,6 +531,17 @@ export const RenderModal: React.FC<{
 			};
 		});
 	}, [proResProfile]);
+
+	const pixelFormatOptions = useMemo((): SegmentedControlItem[] => {
+		return BrowserSafeApis.validPixelFormats.map((option) => {
+			return {
+				label: option,
+				onClick: () => setPixelFormat(option),
+				key: option,
+				selected: pixelFormat === option,
+			};
+		});
+	}, [pixelFormat]);
 
 	const setRenderMode = useCallback(
 		(newRenderMode: RenderType) => {
@@ -748,6 +777,17 @@ export const RenderModal: React.FC<{
 							</div>
 						</div>
 					) : null}
+					{renderMode === 'video' ? (
+						<div style={optionRow}>
+							<div style={label}>Pixel format</div>
+							<div style={rightRow}>
+								<SegmentedControl
+									items={pixelFormatOptions}
+									needsWrapping={false}
+								/>
+							</div>
+						</div>
+					) : null}
 					{renderMode === 'video' && videoImageFormat === 'jpeg' && (
 						<QualitySetting setQuality={setQuality} quality={quality} />
 					)}
@@ -760,7 +800,7 @@ export const RenderModal: React.FC<{
 							setEnforceAudioTrack={setEnforceAudioTrackState}
 						/>
 					)}
-					{shouldDisplayOption ? (
+					{shouldDisplayCrfOption ? (
 						<CrfSetting crf={crf} max={maxCrf} min={minCrf} setCrf={setCrf} />
 					) : null}
 					<FrameRangeSetting

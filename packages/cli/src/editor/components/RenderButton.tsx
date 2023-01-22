@@ -1,4 +1,9 @@
-import type {Codec, LogLevel, ProResProfile} from '@remotion/renderer';
+import type {
+	Codec,
+	LogLevel,
+	PixelFormat,
+	ProResProfile,
+} from '@remotion/renderer';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {TCompMetadata} from 'remotion';
@@ -59,6 +64,7 @@ export const RenderButton: React.FC<{
 				initialMuted: defaults.muted,
 				initialEnforceAudioTrack: defaults.enforceAudioTrack,
 				initialProResProfile: defaults.proResProfile as ProResProfile,
+				initialPixelFormat: defaults.pixelFormat as PixelFormat,
 			});
 		},
 		[composition.id, isVideo, setSelectedModal]
