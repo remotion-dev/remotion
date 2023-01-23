@@ -25,7 +25,7 @@ import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {leftSidebarTabs} from '../SidebarContent';
-import {Tab, Tabs} from '../Tabs';
+import {Tab} from '../Tabs';
 import {useCrfState} from './CrfSetting';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalAdvanced} from './RenderModalAdvanced';
@@ -105,8 +105,25 @@ const buttonRow: React.CSSProperties = {
 };
 
 const scrollPanel: React.CSSProperties = {
+	minHeight: '35vh',
 	maxHeight: '50vh',
 	overflow: 'auto',
+	minWidth: 700,
+};
+
+const horizontalLayout: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'row',
+};
+
+const leftSidebar: React.CSSProperties = {
+	padding: 12,
+};
+
+const horizontalTab: React.CSSProperties = {
+	width: 250,
+	display: 'block',
+	textAlign: 'left',
 };
 
 export const RenderModal: React.FC<{
@@ -601,108 +618,132 @@ export const RenderModal: React.FC<{
 			<div style={container}>
 				<SegmentedControl items={renderTabOptions} needsWrapping={false} />
 			</div>
-			<div>
-				<Tabs>
-					<Tab selected={tab === 'general'} onClick={() => setTab('general')}>
+			<div style={horizontalLayout}>
+				<div style={leftSidebar}>
+					<Tab
+						style={horizontalTab}
+						selected={tab === 'general'}
+						onClick={() => setTab('general')}
+					>
 						General
 					</Tab>
-					<Tab selected={tab === 'picture'} onClick={() => setTab('picture')}>
+					<Tab
+						style={horizontalTab}
+						selected={tab === 'picture'}
+						onClick={() => setTab('picture')}
+					>
 						Picture
 					</Tab>
-					<Tab selected={tab === 'audio'} onClick={() => setTab('audio')}>
+					<Tab
+						style={horizontalTab}
+						selected={tab === 'audio'}
+						onClick={() => setTab('audio')}
+					>
 						Audio
 					</Tab>
 					{codec === 'gif' ? (
-						<Tab selected={tab === 'gif'} onClick={() => setTab('gif')}>
+						<Tab
+							style={horizontalTab}
+							selected={tab === 'gif'}
+							onClick={() => setTab('gif')}
+						>
 							GIF
 						</Tab>
 					) : null}
-					<Tab selected={tab === 'advanced'} onClick={() => setTab('advanced')}>
+					<Tab
+						style={horizontalTab}
+						selected={tab === 'advanced'}
+						onClick={() => setTab('advanced')}
+					>
 						Other
 					</Tab>
-				</Tabs>
-			</div>
-			<div style={scrollPanel}>
-				<Spacing block y={0.5} />
-				{tab === 'general' ? (
-					<RenderModalBasic
-						codec={codec}
-						currentComposition={currentComposition}
-						frame={frame}
-						imageFormatOptions={imageFormatOptions}
-						outName={outName}
-						proResProfile={proResProfile}
-						renderMode={renderMode}
-						setCodec={setCodec}
-						setFrame={setFrame}
-						setOutName={setOutName}
-						setProResProfile={setProResProfile}
-					/>
-				) : tab === 'picture' ? (
-					<RenderModalPicture
-						renderMode={renderMode}
-						scale={scale}
-						setScale={setScale}
-						pixelFormat={pixelFormat}
-						setPixelFormat={setPixelFormat}
-						imageFormatOptions={imageFormatOptions}
-						crf={crf}
-						setCrf={setCrf}
-						customTargetVideoBitrate={customTargetVideoBitrate}
-						maxCrf={maxCrf}
-						minCrf={minCrf}
-						quality={quality}
-						qualityControlType={qualityControlType}
-						setQuality={setQuality}
-						setCustomTargetVideoBitrateValue={setCustomTargetVideoBitrateValue}
-						setQualityControl={setQualityControl}
-						shouldDisplayCrfOption={shouldDisplayCrfOption}
-						videoImageFormat={videoImageFormat}
-						stillImageFormat={stillImageFormat}
-					/>
-				) : tab === 'audio' ? (
-					<RenderModalAudio
-						muted={muted}
-						renderMode={renderMode}
-						setMuted={setMuted}
-						enforceAudioTrack={enforceAudioTrack}
-						setEnforceAudioTrackState={setEnforceAudioTrackState}
-						customTargetAudioBitrate={customTargetAudioBitrate}
-						setCustomTargetAudioBitrateValue={setCustomTargetAudioBitrateValue}
-						setShouldHaveCustomTargetAudioBitrate={
-							setShouldHaveCustomTargetAudioBitrate
-						}
-						shouldHaveCustomTargetAudioBitrate={
-							shouldHaveCustomTargetAudioBitrate
-						}
-					/>
-				) : tab === 'gif' ? (
-					<RenderModalGif
-						everyNthFrame={everyNthFrame}
-						limitNumberOfGifLoops={limitNumberOfGifLoops}
-						numberOfGifLoopsSetting={numberOfGifLoopsSetting}
-						setEveryNthFrameSetting={setEveryNthFrameSetting}
-						setLimitNumberOfGifLoops={setLimitNumberOfGifLoops}
-						setNumberOfGifLoopsSetting={setNumberOfGifLoopsSetting}
-					/>
-				) : (
-					<RenderModalAdvanced
-						concurrency={concurrency}
-						maxConcurrency={maxConcurrency}
-						minConcurrency={minConcurrency}
-						renderMode={renderMode}
-						setConcurrency={setConcurrency}
-						currentComposition={currentComposition}
-						endFrame={endFrame}
-						setEndFrame={setEndFrame}
-						setStartFrame={setStartFrame}
-						setVerboseLogging={setVerboseLogging}
-						startFrame={startFrame}
-						verbose={verbose}
-					/>
-				)}
+				</div>
+				<div style={scrollPanel}>
+					<Spacing block y={0.5} />
+					{tab === 'general' ? (
+						<RenderModalBasic
+							codec={codec}
+							currentComposition={currentComposition}
+							frame={frame}
+							imageFormatOptions={imageFormatOptions}
+							outName={outName}
+							proResProfile={proResProfile}
+							renderMode={renderMode}
+							setCodec={setCodec}
+							setFrame={setFrame}
+							setOutName={setOutName}
+							setProResProfile={setProResProfile}
+						/>
+					) : tab === 'picture' ? (
+						<RenderModalPicture
+							renderMode={renderMode}
+							scale={scale}
+							setScale={setScale}
+							pixelFormat={pixelFormat}
+							setPixelFormat={setPixelFormat}
+							imageFormatOptions={imageFormatOptions}
+							crf={crf}
+							setCrf={setCrf}
+							customTargetVideoBitrate={customTargetVideoBitrate}
+							maxCrf={maxCrf}
+							minCrf={minCrf}
+							quality={quality}
+							qualityControlType={qualityControlType}
+							setQuality={setQuality}
+							setCustomTargetVideoBitrateValue={
+								setCustomTargetVideoBitrateValue
+							}
+							setQualityControl={setQualityControl}
+							shouldDisplayCrfOption={shouldDisplayCrfOption}
+							videoImageFormat={videoImageFormat}
+							stillImageFormat={stillImageFormat}
+						/>
+					) : tab === 'audio' ? (
+						<RenderModalAudio
+							muted={muted}
+							renderMode={renderMode}
+							setMuted={setMuted}
+							enforceAudioTrack={enforceAudioTrack}
+							setEnforceAudioTrackState={setEnforceAudioTrackState}
+							customTargetAudioBitrate={customTargetAudioBitrate}
+							setCustomTargetAudioBitrateValue={
+								setCustomTargetAudioBitrateValue
+							}
+							setShouldHaveCustomTargetAudioBitrate={
+								setShouldHaveCustomTargetAudioBitrate
+							}
+							shouldHaveCustomTargetAudioBitrate={
+								shouldHaveCustomTargetAudioBitrate
+							}
+						/>
+					) : tab === 'gif' ? (
+						<RenderModalGif
+							everyNthFrame={everyNthFrame}
+							limitNumberOfGifLoops={limitNumberOfGifLoops}
+							numberOfGifLoopsSetting={numberOfGifLoopsSetting}
+							setEveryNthFrameSetting={setEveryNthFrameSetting}
+							setLimitNumberOfGifLoops={setLimitNumberOfGifLoops}
+							setNumberOfGifLoopsSetting={setNumberOfGifLoopsSetting}
+						/>
+					) : (
+						<RenderModalAdvanced
+							concurrency={concurrency}
+							maxConcurrency={maxConcurrency}
+							minConcurrency={minConcurrency}
+							renderMode={renderMode}
+							setConcurrency={setConcurrency}
+							currentComposition={currentComposition}
+							endFrame={endFrame}
+							setEndFrame={setEndFrame}
+							setStartFrame={setStartFrame}
+							setVerboseLogging={setVerboseLogging}
+							startFrame={startFrame}
+							verbose={verbose}
+						/>
+					)}
 
-				<Spacing block y={0.5} />
+					<Spacing block y={0.5} />
+				</div>
 			</div>
 			<div style={buttonRow}>
 				<Button
