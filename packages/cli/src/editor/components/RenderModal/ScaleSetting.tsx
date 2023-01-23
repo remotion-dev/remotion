@@ -12,7 +12,7 @@ export const ScaleSetting: React.FC<{
 			min={MIN_SCALE}
 			max={MAX_SCALE}
 			step={0.1}
-			name="scale"
+			name="Scale"
 			onValueChanged={setScale}
 			value={scale}
 		/>
