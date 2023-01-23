@@ -40,6 +40,7 @@ export const Modals: React.FC = () => {
 					initialAudioBitrate={modalContextType.initialAudioBitrate}
 					initialVideoBitrate={modalContextType.initialVideoBitrate}
 					initialEveryNthFrame={modalContextType.initialEveryNthFrame}
+					initialNumberOfGifLoops={modalContextType.initialNumberOfGifLoops}
 				/>
 			)}
 

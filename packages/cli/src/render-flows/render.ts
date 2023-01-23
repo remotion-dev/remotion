@@ -27,9 +27,9 @@ import os from 'os';
 import path from 'path';
 import {chalk} from '../chalk';
 import {ConfigInternals} from '../config';
+import type {Loop} from '../config/number-of-gif-loops';
 import {
 	getAndValidateAbsoluteOutputFile,
-	getCliOptions,
 	validateFfmpegCanUseCodec,
 } from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
@@ -92,6 +92,7 @@ export const renderCompFlow = async ({
 	proResProfile,
 	pixelFormat,
 	videoBitrate,
+	numberOfGifLoops,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -135,6 +136,7 @@ export const renderCompFlow = async ({
 	enforceAudioTrack: boolean;
 	proResProfile: ProResProfile | undefined;
 	pixelFormat: PixelFormat;
+	numberOfGifLoops: Loop;
 }) => {
 	const downloads: DownloadProgress[] = [];
 	const downloadMap = RenderInternals.makeDownloadMap();
@@ -154,13 +156,6 @@ export const renderCompFlow = async ({
 		'Browser executable: ',
 		browserExecutable
 	);
-
-	// TODO: Don't parse CLI here
-	const {numberOfGifLoops} = await getCliOptions({
-		isLambda: false,
-		type: 'series',
-		remotionRoot,
-	});
 
 	Log.verboseAdvanced({indent, logLevel}, 'Asset dirs', downloadMap.assetDir);
 

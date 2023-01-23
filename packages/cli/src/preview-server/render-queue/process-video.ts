@@ -84,6 +84,7 @@ export const processVideoJob = async ({
 		proResProfile: job.proResProfile ?? undefined,
 		pixelFormat: job.pixelFormat,
 		videoBitrate: job.videoBitrate,
+		numberOfGifLoops: job.numberOfGifLoops,
 	});
 	// TODO: Accept CLI options
 };

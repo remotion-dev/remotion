@@ -38,6 +38,7 @@ import {EveryNthFrameSetting} from './EveryNthFrameSetting';
 import {FrameRangeSetting} from './FrameRangeSetting';
 import {label, optionRow, rightRow} from './layout';
 import {MutedSetting} from './MutedSetting';
+import {NumberOfLoopsSetting} from './NumberOfLoopsSetting';
 import {QualitySetting} from './QualitySetting';
 import {ScaleSetting} from './ScaleSetting';
 
@@ -147,6 +148,7 @@ export const RenderModal: React.FC<{
 	initialVideoBitrate: string | null;
 	initialAudioBitrate: string | null;
 	initialEveryNthFrame: number;
+	initialNumberOfGifLoops: number | null;
 }> = ({
 	compositionId,
 	initialFrame,
@@ -169,6 +171,7 @@ export const RenderModal: React.FC<{
 	initialVideoBitrate,
 	initialAudioBitrate,
 	initialEveryNthFrame,
+	initialNumberOfGifLoops,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -228,6 +231,13 @@ export const RenderModal: React.FC<{
 	const [customTargetVideoBitrate, setCustomTargetVideoBitrateValue] = useState(
 		() => initialVideoBitrate ?? '1M'
 	);
+	const [limitNumberOfGifLoops, setLimitNumberOfGifLoops] = useState(
+		() => initialNumberOfGifLoops !== null
+	);
+
+	const [numberOfGifLoopsSetting, setNumberOfGifLoopsSetting] = useState(
+		() => initialNumberOfGifLoops ?? 1
+	);
 
 	const codec = useMemo(() => {
 		if (renderMode === 'audio') {
@@ -236,6 +246,14 @@ export const RenderModal: React.FC<{
 
 		return videoCodec;
 	}, [audioCodec, renderMode, videoCodec]);
+
+	const numberOfGifLoops = useMemo(() => {
+		if (codec === 'gif' && limitNumberOfGifLoops) {
+			return numberOfGifLoopsSetting;
+		}
+
+		return null;
+	}, [codec, limitNumberOfGifLoops, numberOfGifLoopsSetting]);
 
 	const audioBitrate = useMemo(() => {
 		if (shouldHaveCustomTargetAudioBitrate) {
@@ -471,6 +489,7 @@ export const RenderModal: React.FC<{
 			audioBitrate,
 			videoBitrate,
 			everyNthFrame,
+			numberOfGifLoops,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -501,6 +520,7 @@ export const RenderModal: React.FC<{
 		audioBitrate,
 		videoBitrate,
 		everyNthFrame,
+		numberOfGifLoops,
 		setSelectedModal,
 	]);
 
@@ -696,6 +716,13 @@ export const RenderModal: React.FC<{
 		[]
 	);
 
+	const onShouldLimitNumberOfGifLoops = useCallback(
+		(e: ChangeEvent<HTMLInputElement>) => {
+			setLimitNumberOfGifLoops(e.target.checked);
+		},
+		[]
+	);
+
 	const onShouldHaveTargetAudioBitrateChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
 			setShouldHaveCustomTargetAudioBitrate(e.target.checked);
@@ -844,6 +871,23 @@ export const RenderModal: React.FC<{
 						<EveryNthFrameSetting
 							everyNthFrame={everyNthFrameSetting}
 							setEveryNthFrameSetting={setEveryNthFrameSetting}
+						/>
+					) : null}
+					{codec === 'gif' ? (
+						<div style={optionRow}>
+							<div style={label}>Limit GIF loops</div>
+							<div style={rightRow}>
+								<Checkbox
+									checked={limitNumberOfGifLoops}
+									onChange={onShouldLimitNumberOfGifLoops}
+								/>
+							</div>
+						</div>
+					) : null}
+					{codec === 'gif' && limitNumberOfGifLoops ? (
+						<NumberOfLoopsSetting
+							numberOfGifLoops={numberOfGifLoopsSetting}
+							setNumberOfGifLoops={setNumberOfGifLoopsSetting}
 						/>
 					) : null}
 					<div style={optionRow}>
