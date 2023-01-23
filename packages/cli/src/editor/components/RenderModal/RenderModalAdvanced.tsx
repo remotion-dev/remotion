@@ -6,7 +6,6 @@ import type {TComposition} from 'remotion';
 import {Checkmark} from '../../icons/Checkmark';
 
 import {Checkbox} from '../Checkbox';
-import {CollapsableOptions} from '../CollapsableOptions';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {RemotionInput} from '../NewComposition/RemInput';
@@ -189,159 +188,154 @@ export const RenderModalAdvanced: React.FC<{
 
 	return (
 		<div>
-			<CollapsableOptions
-				showLabel="Show advanced settings"
-				hideLabel="Hide advanced settings"
-			>
-				{codec === 'gif' ? (
-					<NumberSetting
-						name="Every nth frame"
-						min={1}
-						onValueChanged={setEveryNthFrameSetting}
-						value={everyNthFrame}
-						step={1}
-					/>
-				) : null}
-				{codec === 'gif' ? (
-					<div style={optionRow}>
-						<div style={label}>Limit GIF loops</div>
-						<div style={rightRow}>
-							<Checkbox
-								checked={limitNumberOfGifLoops}
-								onChange={onShouldLimitNumberOfGifLoops}
-							/>
-						</div>
-					</div>
-				) : null}
-				{codec === 'gif' && limitNumberOfGifLoops ? (
-					<NumberOfLoopsSetting
-						numberOfGifLoops={numberOfGifLoopsSetting}
-						setNumberOfGifLoops={setNumberOfGifLoopsSetting}
-					/>
-				) : null}
-				{renderMode === 'still' ? null : (
-					<NumberSetting
-						min={minConcurrency}
-						max={maxConcurrency}
-						step={1}
-						name="Concurrency"
-						onValueChanged={setConcurrency}
-						value={concurrency}
-					/>
-				)}
-				{renderMode === 'video' ? (
-					<ScaleSetting scale={scale} setScale={setScale} />
-				) : null}
-				{renderMode === 'video' ? (
-					<div style={optionRow}>
-						<div style={label}>Image Format</div>
-						<div style={rightRow}>
-							<SegmentedControl
-								items={imageFormatOptions}
-								needsWrapping={false}
-							/>
-						</div>
-					</div>
-				) : null}
-				{renderMode === 'video' ? (
-					<div style={optionRow}>
-						<div style={label}>Pixel format</div>
-						<div style={rightRow}>
-							<Combobox
-								values={pixelFormatOptions}
-								selectedId={pixelFormat}
-								title="Pixel Format"
-							/>
-						</div>
-					</div>
-				) : null}
-				{renderMode === 'video' && videoImageFormat === 'jpeg' && (
-					<QualitySetting setQuality={setQuality} quality={quality} />
-				)}
-				{renderMode === 'video' && (
-					<MutedSetting muted={muted} setMuted={setMuted} />
-				)}
-				{renderMode === 'video' && (
-					<EnforceAudioTrackSetting
-						enforceAudioTrack={enforceAudioTrack}
-						setEnforceAudioTrack={setEnforceAudioTrackState}
-					/>
-				)}
-				{renderMode === 'video' ? (
-					<div style={optionRow}>
-						<div style={label}>Quality control</div>
-						<div style={rightRow}>
-							<SegmentedControl items={qualityControlOptions} needsWrapping />
-						</div>
-					</div>
-				) : null}
-				{shouldDisplayCrfOption &&
-				qualityControlType === 'crf' &&
-				renderMode !== 'still' ? (
-					<NumberSetting
-						min={minCrf}
-						max={maxCrf}
-						name="CRF"
-						onValueChanged={setCrf}
-						value={crf}
-						step={1}
-					/>
-				) : null}
-				{qualityControlType === 'bitrate' && renderMode !== 'still' ? (
-					<div style={optionRow}>
-						<div style={label}>Target video bitrate</div>
-						<div style={rightRow}>
-							<div>
-								<RemotionInput
-									style={input}
-									value={customTargetVideoBitrate}
-									onChange={onTargetVideoBitrateChanged}
-								/>
-							</div>
-						</div>
-					</div>
-				) : null}
-				{renderMode === 'still' ? null : (
-					<div style={optionRow}>
-						<div style={label}>Custom audio bitrate</div>
-						<div style={rightRow}>
-							<Checkbox
-								checked={shouldHaveCustomTargetAudioBitrate}
-								onChange={onShouldHaveTargetAudioBitrateChanged}
-							/>
-						</div>
-					</div>
-				)}
-				{shouldHaveCustomTargetAudioBitrate && renderMode !== 'still' ? (
-					<div style={optionRow}>
-						<div style={label}>Target audio bitrate</div>
-						<div style={rightRow}>
-							<div>
-								<RemotionInput
-									style={input}
-									value={customTargetAudioBitrate}
-									onChange={onTargetAudioBitrateChanged}
-								/>
-							</div>
-						</div>
-					</div>
-				) : null}
-				{renderMode === 'still' ? null : (
-					<FrameRangeSetting
-						durationInFrames={currentComposition.durationInFrames}
-						endFrame={endFrame}
-						setEndFrame={setEndFrame}
-						setStartFrame={setStartFrame}
-						startFrame={startFrame}
-					/>
-				)}
+			{codec === 'gif' ? (
+				<NumberSetting
+					name="Every nth frame"
+					min={1}
+					onValueChanged={setEveryNthFrameSetting}
+					value={everyNthFrame}
+					step={1}
+				/>
+			) : null}
+			{codec === 'gif' ? (
 				<div style={optionRow}>
-					<div style={label}>Verbose logging</div>
+					<div style={label}>Limit GIF loops</div>
 					<div style={rightRow}>
-						<Checkbox checked={verbose} onChange={onVerboseLoggingChanged} />
+						<Checkbox
+							checked={limitNumberOfGifLoops}
+							onChange={onShouldLimitNumberOfGifLoops}
+						/>
 					</div>
 				</div>
-			</CollapsableOptions>
+			) : null}
+			{codec === 'gif' && limitNumberOfGifLoops ? (
+				<NumberOfLoopsSetting
+					numberOfGifLoops={numberOfGifLoopsSetting}
+					setNumberOfGifLoops={setNumberOfGifLoopsSetting}
+				/>
+			) : null}
+			{renderMode === 'still' ? null : (
+				<NumberSetting
+					min={minConcurrency}
+					max={maxConcurrency}
+					step={1}
+					name="Concurrency"
+					onValueChanged={setConcurrency}
+					value={concurrency}
+				/>
+			)}
+			{renderMode === 'video' ? (
+				<ScaleSetting scale={scale} setScale={setScale} />
+			) : null}
+			{renderMode === 'video' ? (
+				<div style={optionRow}>
+					<div style={label}>Image Format</div>
+					<div style={rightRow}>
+						<SegmentedControl
+							items={imageFormatOptions}
+							needsWrapping={false}
+						/>
+					</div>
+				</div>
+			) : null}
+			{renderMode === 'video' ? (
+				<div style={optionRow}>
+					<div style={label}>Pixel format</div>
+					<div style={rightRow}>
+						<Combobox
+							values={pixelFormatOptions}
+							selectedId={pixelFormat}
+							title="Pixel Format"
+						/>
+					</div>
+				</div>
+			) : null}
+			{renderMode === 'video' && videoImageFormat === 'jpeg' && (
+				<QualitySetting setQuality={setQuality} quality={quality} />
+			)}
+			{renderMode === 'video' && (
+				<MutedSetting muted={muted} setMuted={setMuted} />
+			)}
+			{renderMode === 'video' && (
+				<EnforceAudioTrackSetting
+					enforceAudioTrack={enforceAudioTrack}
+					setEnforceAudioTrack={setEnforceAudioTrackState}
+				/>
+			)}
+			{renderMode === 'video' ? (
+				<div style={optionRow}>
+					<div style={label}>Quality control</div>
+					<div style={rightRow}>
+						<SegmentedControl items={qualityControlOptions} needsWrapping />
+					</div>
+				</div>
+			) : null}
+			{shouldDisplayCrfOption &&
+			qualityControlType === 'crf' &&
+			renderMode !== 'still' ? (
+				<NumberSetting
+					min={minCrf}
+					max={maxCrf}
+					name="CRF"
+					onValueChanged={setCrf}
+					value={crf}
+					step={1}
+				/>
+			) : null}
+			{qualityControlType === 'bitrate' && renderMode !== 'still' ? (
+				<div style={optionRow}>
+					<div style={label}>Target video bitrate</div>
+					<div style={rightRow}>
+						<div>
+							<RemotionInput
+								style={input}
+								value={customTargetVideoBitrate}
+								onChange={onTargetVideoBitrateChanged}
+							/>
+						</div>
+					</div>
+				</div>
+			) : null}
+			{renderMode === 'still' ? null : (
+				<div style={optionRow}>
+					<div style={label}>Custom audio bitrate</div>
+					<div style={rightRow}>
+						<Checkbox
+							checked={shouldHaveCustomTargetAudioBitrate}
+							onChange={onShouldHaveTargetAudioBitrateChanged}
+						/>
+					</div>
+				</div>
+			)}
+			{shouldHaveCustomTargetAudioBitrate && renderMode !== 'still' ? (
+				<div style={optionRow}>
+					<div style={label}>Target audio bitrate</div>
+					<div style={rightRow}>
+						<div>
+							<RemotionInput
+								style={input}
+								value={customTargetAudioBitrate}
+								onChange={onTargetAudioBitrateChanged}
+							/>
+						</div>
+					</div>
+				</div>
+			) : null}
+			{renderMode === 'still' ? null : (
+				<FrameRangeSetting
+					durationInFrames={currentComposition.durationInFrames}
+					endFrame={endFrame}
+					setEndFrame={setEndFrame}
+					setStartFrame={setStartFrame}
+					startFrame={startFrame}
+				/>
+			)}
+			<div style={optionRow}>
+				<div style={label}>Verbose logging</div>
+				<div style={rightRow}>
+					<Checkbox checked={verbose} onChange={onVerboseLoggingChanged} />
+				</div>
+			</div>
 		</div>
 	);
 };

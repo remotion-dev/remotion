@@ -17,27 +17,19 @@ import React, {
 import {Internals} from 'remotion';
 import type {TComposition} from 'remotion/src/internals';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
-import {useFileExistence} from '../../helpers/use-file-existence';
-import {Checkmark} from '../../icons/Checkmark';
 import {ModalsContext} from '../../state/modals';
 import {Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
-import type {ComboboxValue} from '../NewComposition/ComboBox';
-import {Combobox} from '../NewComposition/ComboBox';
-import {InputDragger} from '../NewComposition/InputDragger';
-import {RemotionInput, RightAlignInput} from '../NewComposition/RemInput';
-import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {leftSidebarTabs} from '../SidebarContent';
 import {Tab, Tabs} from '../Tabs';
 import {useCrfState} from './CrfSetting';
-import {humanReadableCodec} from './human-readable-codec';
-import {input, label, optionRow, rightRow} from './layout';
 import type {QualityControl, RenderType} from './RenderModalAdvanced';
 import {RenderModalAdvanced} from './RenderModalAdvanced';
+import {RenderModalBasic} from './RenderModalBasic';
 
 type State =
 	| {
@@ -275,13 +267,6 @@ export const RenderModal: React.FC<{
 		dispatch(payload);
 	}, []);
 
-	const onValueChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
-		(e) => {
-			setOutName(e.target.value);
-		},
-		[]
-	);
-
 	const muted = useMemo(() => {
 		if (renderMode === 'video') {
 			return mutedState;
@@ -507,31 +492,11 @@ export const RenderModal: React.FC<{
 		setSelectedModal,
 	]);
 
-	const onFrameSetDirectly = useCallback(
-		(newFrame: number) => {
-			setFrame(newFrame);
-		},
-		[setFrame]
-	);
-
-	const onFrameChanged = useCallback((e: string) => {
-		setFrame((q) => {
-			const newFrame = parseFloat(e);
-			if (Number.isNaN(newFrame)) {
-				return q;
-			}
-
-			return newFrame;
-		});
-	}, []);
-
 	useEffect(() => {
 		return () => {
 			isMounted.current = false;
 		};
 	}, []);
-
-	const existence = useFileExistence(outName);
 
 	const imageFormatOptions = useMemo((): SegmentedControlItem[] => {
 		return [
@@ -561,38 +526,6 @@ export const RenderModal: React.FC<{
 			},
 		];
 	}, [stillImageFormat, renderMode, setStillFormat, videoImageFormat]);
-
-	const videoCodecOptions = useMemo((): ComboboxValue[] => {
-		return BrowserSafeApis.validCodecs
-			.filter((c) => {
-				return BrowserSafeApis.isAudioCodec(c) === (renderMode === 'audio');
-			})
-			.map((codecOption) => {
-				return {
-					label: humanReadableCodec(codecOption),
-					onClick: () => setCodec(codecOption),
-					key: codecOption,
-					leftItem: codec === codecOption ? <Checkmark /> : null,
-					id: codecOption,
-					keyHint: null,
-					quickSwitcherLabel: null,
-					subMenu: null,
-					type: 'item',
-					value: codecOption,
-				};
-			});
-	}, [renderMode, setCodec, codec]);
-
-	const proResProfileOptions = useMemo((): SegmentedControlItem[] => {
-		return BrowserSafeApis.proResProfileOptions.map((option) => {
-			return {
-				label: option,
-				onClick: () => setProResProfile(option),
-				key: option,
-				selected: proResProfile === option,
-			};
-		});
-	}, [proResProfile]);
 
 	const setRenderMode = useCallback(
 		(newRenderMode: RenderType) => {
@@ -674,130 +607,73 @@ export const RenderModal: React.FC<{
 			</div>
 			<div style={scrollPanel}>
 				<Spacing block y={0.5} />
-				{renderMode === 'still' ? (
-					<div style={optionRow}>
-						<div style={label}>Format</div>
-						<div style={rightRow}>
-							<SegmentedControl items={imageFormatOptions} needsWrapping />
-						</div>
-						<Spacing block y={1} />
-					</div>
+				{tab === 'general' ? (
+					<RenderModalBasic
+						codec={codec}
+						currentComposition={currentComposition}
+						frame={frame}
+						imageFormatOptions={imageFormatOptions}
+						outName={outName}
+						proResProfile={proResProfile}
+						renderMode={renderMode}
+						setCodec={setCodec}
+						setFrame={setFrame}
+						setOutName={setOutName}
+						setProResProfile={setProResProfile}
+					/>
 				) : (
-					<>
-						<div style={optionRow}>
-							<div style={label}>Codec</div>
-							<div style={rightRow}>
-								<Combobox
-									values={videoCodecOptions}
-									selectedId={codec}
-									title="Codec"
-								/>
-							</div>
-						</div>
-						<Spacing block y={1} />
-					</>
+					<RenderModalAdvanced
+						concurrency={concurrency}
+						enforceAudioTrack={enforceAudioTrack}
+						everyNthFrame={everyNthFrame}
+						imageFormatOptions={imageFormatOptions}
+						limitNumberOfGifLoops={limitNumberOfGifLoops}
+						maxConcurrency={maxConcurrency}
+						maxCrf={maxCrf}
+						minConcurrency={minConcurrency}
+						minCrf={minCrf}
+						muted={muted}
+						numberOfGifLoopsSetting={numberOfGifLoopsSetting}
+						pixelFormat={pixelFormat}
+						quality={quality}
+						qualityControlType={qualityControlType}
+						renderMode={renderMode}
+						scale={scale}
+						setConcurrency={setConcurrency}
+						setCrf={setCrf}
+						setEnforceAudioTrackState={setEnforceAudioTrackState}
+						setEveryNthFrameSetting={setEveryNthFrameSetting}
+						setLimitNumberOfGifLoops={setLimitNumberOfGifLoops}
+						setMuted={setMuted}
+						setNumberOfGifLoopsSetting={setNumberOfGifLoopsSetting}
+						setPixelFormat={setPixelFormat}
+						setQuality={setQuality}
+						setQualityControl={setQualityControl}
+						setScale={setScale}
+						shouldDisplayCrfOption={shouldDisplayCrfOption}
+						codec={codec}
+						videoImageFormat={videoImageFormat}
+						crf={crf}
+						currentComposition={currentComposition}
+						customTargetAudioBitrate={customTargetAudioBitrate}
+						customTargetVideoBitrate={customTargetVideoBitrate}
+						endFrame={endFrame}
+						setCustomTargetAudioBitrateValue={setCustomTargetAudioBitrateValue}
+						setCustomTargetVideoBitrateValue={setCustomTargetVideoBitrateValue}
+						setEndFrame={setEndFrame}
+						setShouldHaveCustomTargetAudioBitrate={
+							setShouldHaveCustomTargetAudioBitrate
+						}
+						setStartFrame={setStartFrame}
+						setVerboseLogging={setVerboseLogging}
+						shouldHaveCustomTargetAudioBitrate={
+							shouldHaveCustomTargetAudioBitrate
+						}
+						startFrame={startFrame}
+						verbose={verbose}
+					/>
 				)}
-				{renderMode === 'still' && currentComposition.durationInFrames > 1 ? (
-					<div style={optionRow}>
-						<div style={label}>Frame</div>
-						<div style={rightRow}>
-							<RightAlignInput>
-								<InputDragger
-									value={frame}
-									onTextChange={onFrameChanged}
-									placeholder={`0-${currentComposition.durationInFrames - 1}`}
-									onValueChange={onFrameSetDirectly}
-									name="frame"
-									step={1}
-									min={0}
-									max={currentComposition.durationInFrames - 1}
-								/>
-							</RightAlignInput>
-						</div>
-						<Spacing block y={1} />
-					</div>
-				) : null}
 
-				{renderMode === 'video' && codec === 'prores' ? (
-					<div style={optionRow}>
-						<div style={label}>ProRes profile</div>
-						<div style={rightRow}>
-							<SegmentedControl items={proResProfileOptions} needsWrapping />
-						</div>
-					</div>
-				) : null}
-
-				<div style={optionRow}>
-					<div style={label}>Output name</div>
-					<div style={rightRow}>
-						<div>
-							<RemotionInput
-								// TODO: Validate and reject folders or weird file names
-								warning={existence}
-								style={input}
-								type="text"
-								value={outName}
-								onChange={onValueChange}
-							/>
-							{existence ? (
-								<ValidationMessage
-									align="flex-end"
-									message="Will be overwritten"
-								/>
-							) : null}
-						</div>
-					</div>
-				</div>
-				<RenderModalAdvanced
-					concurrency={concurrency}
-					enforceAudioTrack={enforceAudioTrack}
-					everyNthFrame={everyNthFrame}
-					imageFormatOptions={imageFormatOptions}
-					limitNumberOfGifLoops={limitNumberOfGifLoops}
-					maxConcurrency={maxConcurrency}
-					maxCrf={maxCrf}
-					minConcurrency={minConcurrency}
-					minCrf={minCrf}
-					muted={muted}
-					numberOfGifLoopsSetting={numberOfGifLoopsSetting}
-					pixelFormat={pixelFormat}
-					quality={quality}
-					qualityControlType={qualityControlType}
-					renderMode={renderMode}
-					scale={scale}
-					setConcurrency={setConcurrency}
-					setCrf={setCrf}
-					setEnforceAudioTrackState={setEnforceAudioTrackState}
-					setEveryNthFrameSetting={setEveryNthFrameSetting}
-					setLimitNumberOfGifLoops={setLimitNumberOfGifLoops}
-					setMuted={setMuted}
-					setNumberOfGifLoopsSetting={setNumberOfGifLoopsSetting}
-					setPixelFormat={setPixelFormat}
-					setQuality={setQuality}
-					setQualityControl={setQualityControl}
-					setScale={setScale}
-					shouldDisplayCrfOption={shouldDisplayCrfOption}
-					codec={codec}
-					videoImageFormat={videoImageFormat}
-					crf={crf}
-					currentComposition={currentComposition}
-					customTargetAudioBitrate={customTargetAudioBitrate}
-					customTargetVideoBitrate={customTargetVideoBitrate}
-					endFrame={endFrame}
-					setCustomTargetAudioBitrateValue={setCustomTargetAudioBitrateValue}
-					setCustomTargetVideoBitrateValue={setCustomTargetVideoBitrateValue}
-					setEndFrame={setEndFrame}
-					setShouldHaveCustomTargetAudioBitrate={
-						setShouldHaveCustomTargetAudioBitrate
-					}
-					setStartFrame={setStartFrame}
-					setVerboseLogging={setVerboseLogging}
-					shouldHaveCustomTargetAudioBitrate={
-						shouldHaveCustomTargetAudioBitrate
-					}
-					startFrame={startFrame}
-					verbose={verbose}
-				/>
 				<Spacing block y={0.5} />
 			</div>
 			<div style={buttonRow}>
