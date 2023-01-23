@@ -19,12 +19,15 @@ import {Internals} from 'remotion';
 import type {TComposition} from 'remotion/src/internals';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import {useFileExistence} from '../../helpers/use-file-existence';
+import {Checkmark} from '../../icons/Checkmark';
 import {ModalsContext} from '../../state/modals';
 import {Checkbox} from '../Checkbox';
 import {CollapsableOptions} from '../CollapsableOptions';
 import {Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {Combobox} from '../NewComposition/ComboBox';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {RemotionInput, RightAlignInput} from '../NewComposition/RemInput';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
@@ -585,7 +588,7 @@ export const RenderModal: React.FC<{
 		];
 	}, [stillImageFormat, renderMode, setStillFormat, videoImageFormat]);
 
-	const videoCodecOptions = useMemo((): SegmentedControlItem[] => {
+	const videoCodecOptions = useMemo((): ComboboxValue[] => {
 		return BrowserSafeApis.validCodecs
 			.filter((c) => {
 				return BrowserSafeApis.isAudioCodec(c) === (renderMode === 'audio');
@@ -595,7 +598,13 @@ export const RenderModal: React.FC<{
 					label: codecOption,
 					onClick: () => setCodec(codecOption),
 					key: codecOption,
-					selected: codec === codecOption,
+					leftItem: codec === codecOption ? <Checkmark /> : null,
+					id: codecOption,
+					keyHint: null,
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item',
+					value: codecOption,
 				};
 			});
 	}, [renderMode, setCodec, codec]);
@@ -611,13 +620,19 @@ export const RenderModal: React.FC<{
 		});
 	}, [proResProfile]);
 
-	const pixelFormatOptions = useMemo((): SegmentedControlItem[] => {
+	const pixelFormatOptions = useMemo((): ComboboxValue[] => {
 		return BrowserSafeApis.validPixelFormats.map((option) => {
 			return {
 				label: option,
 				onClick: () => setPixelFormat(option),
 				key: option,
-				selected: pixelFormat === option,
+				id: option,
+				keyHint: null,
+				leftItem: pixelFormat === option ? <Checkmark /> : null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: option,
 			};
 		});
 	}, [pixelFormat]);
@@ -814,9 +829,15 @@ export const RenderModal: React.FC<{
 				<div style={optionRow}>
 					<div style={label}>Codec</div>
 					<div style={rightRow}>
-						<SegmentedControl items={videoCodecOptions} needsWrapping />
+						<Combobox
+							values={videoCodecOptions}
+							selectedId={codec}
+							title="Codec"
+						/>
 					</div>
 				</div>
+				<Spacing block y={1} />
+
 				{renderMode === 'video' && codec === 'prores' ? (
 					<div style={optionRow}>
 						<div style={label}>ProRes profile</div>
@@ -903,9 +924,10 @@ export const RenderModal: React.FC<{
 						<div style={optionRow}>
 							<div style={label}>Pixel format</div>
 							<div style={rightRow}>
-								<SegmentedControl
-									items={pixelFormatOptions}
-									needsWrapping={false}
+								<Combobox
+									values={pixelFormatOptions}
+									selectedId={pixelFormat}
+									title="Pixel Format"
 								/>
 							</div>
 						</div>
