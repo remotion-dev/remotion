@@ -85,7 +85,6 @@ export const renderCompFlow = async ({
 	crf,
 	uiCodec,
 	uiImageFormat,
-	uiMuted,
 	ffmpegOverride,
 	audioBitrate,
 	muted,
@@ -128,7 +127,6 @@ export const renderCompFlow = async ({
 	cancelSignal: CancelSignal | null;
 	uiCodec: Codec | null;
 	uiImageFormat: 'png' | 'jpeg' | 'none' | null;
-	uiMuted: boolean | null;
 	ffmpegOverride: FfmpegOverrideFn;
 	audioBitrate: string | null;
 	muted: boolean;
@@ -420,9 +418,8 @@ export const renderCompFlow = async ({
 		pixelFormat,
 		proResProfile,
 		quality,
-		// TODO: Take from UI
 		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
-			ConfigInternals.Logging.getLogLevel(),
+			logLevel,
 			'verbose'
 		),
 		chromiumOptions,
@@ -431,13 +428,8 @@ export const renderCompFlow = async ({
 		port,
 		numberOfGifLoops,
 		everyNthFrame,
-		// TODO: Take from UI
-		verbose: RenderInternals.isEqualOrBelowLogLevel(
-			ConfigInternals.Logging.getLogLevel(),
-			'verbose'
-		),
-		muted: uiMuted ?? muted,
-		// TODO: Take from UI
+		verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+		muted,
 		enforceAudioTrack,
 		browserExecutable,
 		ffmpegOverride,
