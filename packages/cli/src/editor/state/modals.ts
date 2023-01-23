@@ -19,7 +19,7 @@ export type RenderModalState = {
 	initialFrame: number;
 	initialStillImageFormat: StillImageFormat;
 	initialVideoImageFormat: StillImageFormat;
-	initialQuality: number | null;
+	initialQuality: number;
 	initialOutName: string;
 	initialScale: number;
 	initialVerbose: boolean;
