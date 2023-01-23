@@ -11,10 +11,8 @@ import {Combobox} from '../NewComposition/ComboBox';
 import {RemotionInput} from '../NewComposition/RemInput';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
-import {EnforceAudioTrackSetting} from './EnforceAudioTrackSetting';
 import {FrameRangeSetting} from './FrameRangeSetting';
 import {input, label, optionRow, rightRow} from './layout';
-import {MutedSetting} from './MutedSetting';
 import {NumberOfLoopsSetting} from './NumberOfLoopsSetting';
 import {NumberSetting} from './NumberSetting';
 import {QualitySetting} from './QualitySetting';
@@ -50,28 +48,18 @@ export const RenderModalAdvanced: React.FC<{
 	quality: number;
 	muted: boolean;
 	setMuted: React.Dispatch<React.SetStateAction<boolean>>;
-	enforceAudioTrack: boolean;
-	setEnforceAudioTrackState: React.Dispatch<React.SetStateAction<boolean>>;
 	maxCrf: number;
 	minCrf: number;
 	setCrf: React.Dispatch<React.SetStateAction<number>>;
 	shouldDisplayCrfOption: boolean;
 	setVerboseLogging: React.Dispatch<React.SetStateAction<boolean>>;
 	setEndFrame: React.Dispatch<React.SetStateAction<number | null>>;
-	setShouldHaveCustomTargetAudioBitrate: React.Dispatch<
-		React.SetStateAction<boolean>
-	>;
 	setCustomTargetVideoBitrateValue: React.Dispatch<
-		React.SetStateAction<string>
-	>;
-	setCustomTargetAudioBitrateValue: React.Dispatch<
 		React.SetStateAction<string>
 	>;
 	customTargetVideoBitrate: string;
 	crf: number;
-	shouldHaveCustomTargetAudioBitrate: boolean;
 	verbose: boolean;
-	customTargetAudioBitrate: string;
 	startFrame: number;
 	currentComposition: TComposition<unknown>;
 	endFrame: number;
@@ -99,10 +87,6 @@ export const RenderModalAdvanced: React.FC<{
 	videoImageFormat,
 	setQuality,
 	quality,
-	muted,
-	setMuted,
-	enforceAudioTrack,
-	setEnforceAudioTrackState,
 	maxCrf,
 	minCrf,
 	setCrf,
@@ -110,13 +94,9 @@ export const RenderModalAdvanced: React.FC<{
 	setEndFrame,
 	setVerboseLogging,
 	setCustomTargetVideoBitrateValue,
-	setShouldHaveCustomTargetAudioBitrate,
-	setCustomTargetAudioBitrateValue,
 	customTargetVideoBitrate,
 	crf,
-	shouldHaveCustomTargetAudioBitrate,
 	verbose,
-	customTargetAudioBitrate,
 	startFrame,
 	currentComposition,
 	endFrame,
@@ -163,27 +143,12 @@ export const RenderModalAdvanced: React.FC<{
 		[setVerboseLogging]
 	);
 
-	const onShouldHaveTargetAudioBitrateChanged = useCallback(
-		(e: ChangeEvent<HTMLInputElement>) => {
-			setShouldHaveCustomTargetAudioBitrate(e.target.checked);
-		},
-		[setShouldHaveCustomTargetAudioBitrate]
-	);
-
 	const onTargetVideoBitrateChanged: React.ChangeEventHandler<HTMLInputElement> =
 		useCallback(
 			(e) => {
 				setCustomTargetVideoBitrateValue(e.target.value);
 			},
 			[setCustomTargetVideoBitrateValue]
-		);
-
-	const onTargetAudioBitrateChanged: React.ChangeEventHandler<HTMLInputElement> =
-		useCallback(
-			(e) => {
-				setCustomTargetAudioBitrateValue(e.target.value);
-			},
-			[setCustomTargetAudioBitrateValue]
 		);
 
 	return (
@@ -253,15 +218,6 @@ export const RenderModalAdvanced: React.FC<{
 			{renderMode === 'video' && videoImageFormat === 'jpeg' && (
 				<QualitySetting setQuality={setQuality} quality={quality} />
 			)}
-			{renderMode === 'video' && (
-				<MutedSetting muted={muted} setMuted={setMuted} />
-			)}
-			{renderMode === 'video' && (
-				<EnforceAudioTrackSetting
-					enforceAudioTrack={enforceAudioTrack}
-					setEnforceAudioTrack={setEnforceAudioTrackState}
-				/>
-			)}
 			{renderMode === 'video' ? (
 				<div style={optionRow}>
 					<div style={label}>Quality control</div>
@@ -296,31 +252,7 @@ export const RenderModalAdvanced: React.FC<{
 					</div>
 				</div>
 			) : null}
-			{renderMode === 'still' ? null : (
-				<div style={optionRow}>
-					<div style={label}>Custom audio bitrate</div>
-					<div style={rightRow}>
-						<Checkbox
-							checked={shouldHaveCustomTargetAudioBitrate}
-							onChange={onShouldHaveTargetAudioBitrateChanged}
-						/>
-					</div>
-				</div>
-			)}
-			{shouldHaveCustomTargetAudioBitrate && renderMode !== 'still' ? (
-				<div style={optionRow}>
-					<div style={label}>Target audio bitrate</div>
-					<div style={rightRow}>
-						<div>
-							<RemotionInput
-								style={input}
-								value={customTargetAudioBitrate}
-								onChange={onTargetAudioBitrateChanged}
-							/>
-						</div>
-					</div>
-				</div>
-			) : null}
+
 			{renderMode === 'still' ? null : (
 				<FrameRangeSetting
 					durationInFrames={currentComposition.durationInFrames}

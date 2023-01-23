@@ -29,6 +29,7 @@ import {Tab, Tabs} from '../Tabs';
 import {useCrfState} from './CrfSetting';
 import type {QualityControl, RenderType} from './RenderModalAdvanced';
 import {RenderModalAdvanced} from './RenderModalAdvanced';
+import {RenderModalAudio} from './RenderModalAudio';
 import {RenderModalBasic} from './RenderModalBasic';
 
 type State =
@@ -587,7 +588,7 @@ export const RenderModal: React.FC<{
 		];
 	}, [currentComposition?.durationInFrames, renderMode, setRenderMode]);
 
-	const [tab, setTab] = useState<'general' | 'advanced'>('general');
+	const [tab, setTab] = useState<'general' | 'advanced' | 'audio'>('general');
 
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
@@ -599,6 +600,9 @@ export const RenderModal: React.FC<{
 				<Tabs>
 					<Tab selected={tab === 'general'} onClick={() => setTab('general')}>
 						General
+					</Tab>
+					<Tab selected={tab === 'audio'} onClick={() => setTab('audio')}>
+						Audio
 					</Tab>
 					<Tab selected={tab === 'advanced'} onClick={() => setTab('advanced')}>
 						Other
@@ -621,10 +625,25 @@ export const RenderModal: React.FC<{
 						setOutName={setOutName}
 						setProResProfile={setProResProfile}
 					/>
+				) : tab === 'audio' ? (
+					<RenderModalAudio
+						muted={muted}
+						renderMode={renderMode}
+						setMuted={setMuted}
+						enforceAudioTrack={enforceAudioTrack}
+						setEnforceAudioTrackState={setEnforceAudioTrackState}
+						customTargetAudioBitrate={customTargetAudioBitrate}
+						setCustomTargetAudioBitrateValue={setCustomTargetAudioBitrateValue}
+						setShouldHaveCustomTargetAudioBitrate={
+							setShouldHaveCustomTargetAudioBitrate
+						}
+						shouldHaveCustomTargetAudioBitrate={
+							shouldHaveCustomTargetAudioBitrate
+						}
+					/>
 				) : (
 					<RenderModalAdvanced
 						concurrency={concurrency}
-						enforceAudioTrack={enforceAudioTrack}
 						everyNthFrame={everyNthFrame}
 						imageFormatOptions={imageFormatOptions}
 						limitNumberOfGifLoops={limitNumberOfGifLoops}
@@ -641,7 +660,6 @@ export const RenderModal: React.FC<{
 						scale={scale}
 						setConcurrency={setConcurrency}
 						setCrf={setCrf}
-						setEnforceAudioTrackState={setEnforceAudioTrackState}
 						setEveryNthFrameSetting={setEveryNthFrameSetting}
 						setLimitNumberOfGifLoops={setLimitNumberOfGifLoops}
 						setMuted={setMuted}
@@ -655,20 +673,12 @@ export const RenderModal: React.FC<{
 						videoImageFormat={videoImageFormat}
 						crf={crf}
 						currentComposition={currentComposition}
-						customTargetAudioBitrate={customTargetAudioBitrate}
 						customTargetVideoBitrate={customTargetVideoBitrate}
 						endFrame={endFrame}
-						setCustomTargetAudioBitrateValue={setCustomTargetAudioBitrateValue}
 						setCustomTargetVideoBitrateValue={setCustomTargetVideoBitrateValue}
 						setEndFrame={setEndFrame}
-						setShouldHaveCustomTargetAudioBitrate={
-							setShouldHaveCustomTargetAudioBitrate
-						}
 						setStartFrame={setStartFrame}
 						setVerboseLogging={setVerboseLogging}
-						shouldHaveCustomTargetAudioBitrate={
-							shouldHaveCustomTargetAudioBitrate
-						}
 						startFrame={startFrame}
 						verbose={verbose}
 					/>
