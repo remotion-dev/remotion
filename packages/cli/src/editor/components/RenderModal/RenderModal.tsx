@@ -27,10 +27,13 @@ import {SegmentedControl} from '../SegmentedControl';
 import {leftSidebarTabs} from '../SidebarContent';
 import {Tab, Tabs} from '../Tabs';
 import {useCrfState} from './CrfSetting';
-import type {QualityControl, RenderType} from './RenderModalAdvanced';
+import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalAdvanced} from './RenderModalAdvanced';
 import {RenderModalAudio} from './RenderModalAudio';
 import {RenderModalBasic} from './RenderModalBasic';
+import {RenderModalGif} from './RenderModalGif';
+import type {QualityControl} from './RenderModalPicture';
+import {RenderModalPicture} from './RenderModalPicture';
 
 type State =
 	| {
@@ -588,7 +591,9 @@ export const RenderModal: React.FC<{
 		];
 	}, [currentComposition?.durationInFrames, renderMode, setRenderMode]);
 
-	const [tab, setTab] = useState<'general' | 'advanced' | 'audio'>('general');
+	const [tab, setTab] = useState<
+		'general' | 'picture' | 'advanced' | 'gif' | 'audio'
+	>('general');
 
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
@@ -601,8 +606,14 @@ export const RenderModal: React.FC<{
 					<Tab selected={tab === 'general'} onClick={() => setTab('general')}>
 						General
 					</Tab>
+					<Tab selected={tab === 'picture'} onClick={() => setTab('picture')}>
+						Picture
+					</Tab>
 					<Tab selected={tab === 'audio'} onClick={() => setTab('audio')}>
 						Audio
+					</Tab>
+					<Tab selected={tab === 'gif'} onClick={() => setTab('gif')}>
+						GIF
 					</Tab>
 					<Tab selected={tab === 'advanced'} onClick={() => setTab('advanced')}>
 						Other
@@ -625,6 +636,28 @@ export const RenderModal: React.FC<{
 						setOutName={setOutName}
 						setProResProfile={setProResProfile}
 					/>
+				) : tab === 'picture' ? (
+					<RenderModalPicture
+						renderMode={renderMode}
+						scale={scale}
+						setScale={setScale}
+						pixelFormat={pixelFormat}
+						setPixelFormat={setPixelFormat}
+						imageFormatOptions={imageFormatOptions}
+						crf={crf}
+						setCrf={setCrf}
+						customTargetVideoBitrate={customTargetVideoBitrate}
+						maxCrf={maxCrf}
+						minCrf={minCrf}
+						quality={quality}
+						qualityControlType={qualityControlType}
+						setQuality={setQuality}
+						setCustomTargetVideoBitrateValue={setCustomTargetVideoBitrateValue}
+						setQualityControl={setQualityControl}
+						shouldDisplayCrfOption={shouldDisplayCrfOption}
+						videoImageFormat={videoImageFormat}
+						stillImageFormat={stillImageFormat}
+					/>
 				) : tab === 'audio' ? (
 					<RenderModalAudio
 						muted={muted}
@@ -641,41 +674,24 @@ export const RenderModal: React.FC<{
 							shouldHaveCustomTargetAudioBitrate
 						}
 					/>
+				) : tab === 'gif' ? (
+					<RenderModalGif
+						everyNthFrame={everyNthFrame}
+						limitNumberOfGifLoops={limitNumberOfGifLoops}
+						numberOfGifLoopsSetting={numberOfGifLoopsSetting}
+						setEveryNthFrameSetting={setEveryNthFrameSetting}
+						setLimitNumberOfGifLoops={setLimitNumberOfGifLoops}
+						setNumberOfGifLoopsSetting={setNumberOfGifLoopsSetting}
+					/>
 				) : (
 					<RenderModalAdvanced
 						concurrency={concurrency}
-						everyNthFrame={everyNthFrame}
-						imageFormatOptions={imageFormatOptions}
-						limitNumberOfGifLoops={limitNumberOfGifLoops}
 						maxConcurrency={maxConcurrency}
-						maxCrf={maxCrf}
 						minConcurrency={minConcurrency}
-						minCrf={minCrf}
-						muted={muted}
-						numberOfGifLoopsSetting={numberOfGifLoopsSetting}
-						pixelFormat={pixelFormat}
-						quality={quality}
-						qualityControlType={qualityControlType}
 						renderMode={renderMode}
-						scale={scale}
 						setConcurrency={setConcurrency}
-						setCrf={setCrf}
-						setEveryNthFrameSetting={setEveryNthFrameSetting}
-						setLimitNumberOfGifLoops={setLimitNumberOfGifLoops}
-						setMuted={setMuted}
-						setNumberOfGifLoopsSetting={setNumberOfGifLoopsSetting}
-						setPixelFormat={setPixelFormat}
-						setQuality={setQuality}
-						setQualityControl={setQualityControl}
-						setScale={setScale}
-						shouldDisplayCrfOption={shouldDisplayCrfOption}
-						codec={codec}
-						videoImageFormat={videoImageFormat}
-						crf={crf}
 						currentComposition={currentComposition}
-						customTargetVideoBitrate={customTargetVideoBitrate}
 						endFrame={endFrame}
-						setCustomTargetVideoBitrateValue={setCustomTargetVideoBitrateValue}
 						setEndFrame={setEndFrame}
 						setStartFrame={setStartFrame}
 						setVerboseLogging={setVerboseLogging}
