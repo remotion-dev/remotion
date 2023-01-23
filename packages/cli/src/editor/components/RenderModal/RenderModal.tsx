@@ -99,16 +99,6 @@ const container: React.CSSProperties = {
 	borderBottom: '1px solid black',
 };
 
-const buttonRow: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-	justifyContent: 'flex-end',
-	paddingTop: 8,
-	paddingBottom: 8,
-	paddingLeft: 16,
-	paddingRight: 16,
-};
-
 const scrollPanel: React.CSSProperties = {
 	minHeight: '35vh',
 	maxHeight: '50vh',
@@ -134,6 +124,8 @@ const horizontalTab: React.CSSProperties = {
 	fontSize: 16,
 	fontWeight: 'bold',
 	paddingLeft: 15,
+	paddingTop: 12,
+	paddingBottom: 12,
 };
 
 const iconContainer: React.CSSProperties = {
@@ -148,6 +140,15 @@ const iconContainer: React.CSSProperties = {
 const icon: React.CSSProperties = {
 	color: 'currentcolor',
 	height: 20,
+};
+
+const buttonStyle: React.CSSProperties = {
+	backgroundColor: 'var(--blue)',
+	color: 'white',
+};
+
+const flexer: React.CSSProperties = {
+	flex: 1,
 };
 
 export const RenderModal: React.FC<{
@@ -641,6 +642,15 @@ export const RenderModal: React.FC<{
 			<NewCompHeader title={`Render ${compositionId}`} />
 			<div style={container}>
 				<SegmentedControl items={renderTabOptions} needsWrapping={false} />
+				<div style={flexer} />
+				<Button
+					autoFocus
+					onClick={renderMode === 'still' ? onClickStill : onClickVideo}
+					disabled={state.type === 'load'}
+					style={buttonStyle}
+				>
+					{state.type === 'idle' ? `Render ${renderMode}` : 'Rendering...'}
+				</Button>
 			</div>
 			<div style={horizontalLayout}>
 				<div style={leftSidebar}>
@@ -784,15 +794,6 @@ export const RenderModal: React.FC<{
 
 					<Spacing block y={0.5} />
 				</div>
-			</div>
-			<div style={buttonRow}>
-				<Button
-					autoFocus
-					onClick={renderMode === 'still' ? onClickStill : onClickVideo}
-					disabled={state.type === 'load'}
-				>
-					{state.type === 'idle' ? `Render ${renderMode}` : 'Rendering...'}
-				</Button>
 			</div>
 		</ModalContainer>
 	);

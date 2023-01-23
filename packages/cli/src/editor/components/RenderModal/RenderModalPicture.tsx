@@ -11,6 +11,7 @@ import {input, label, optionRow, rightRow} from './layout';
 import {NumberSetting} from './NumberSetting';
 import {QualitySetting} from './QualitySetting';
 import type {RenderType} from './RenderModalAdvanced';
+import {RenderModalHr} from './RenderModalHr';
 import {ScaleSetting} from './ScaleSetting';
 
 const qualityControlModes = ['crf', 'bitrate'] as const;
@@ -114,6 +115,7 @@ export const RenderModalPicture: React.FC<{
 			{renderMode === 'still' && stillImageFormat === 'jpeg' && (
 				<QualitySetting setQuality={setQuality} quality={quality} />
 			)}
+			<RenderModalHr />
 			{renderMode === 'video' ? (
 				<div style={optionRow}>
 					<div style={label}>Quality control</div>
@@ -148,9 +150,11 @@ export const RenderModalPicture: React.FC<{
 					</div>
 				</div>
 			) : null}
+			<RenderModalHr />
 			{renderMode === 'video' ? (
 				<ScaleSetting scale={scale} setScale={setScale} />
 			) : null}
+			<RenderModalHr />
 			{renderMode === 'video' ? (
 				<div style={optionRow}>
 					<div style={label}>Pixel format</div>
