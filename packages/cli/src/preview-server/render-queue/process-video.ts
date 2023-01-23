@@ -79,7 +79,6 @@ export const processVideoJob = async ({
 		uiImageFormat: job.imageFormat,
 		cancelSignal: job.cancelToken.cancelSignal,
 		crf: job.crf,
-		uiMuted: job.muted,
 		ffmpegOverride,
 		audioBitrate,
 		muted: job.muted,
