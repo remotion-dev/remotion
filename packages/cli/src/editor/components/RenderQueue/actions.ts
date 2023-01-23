@@ -91,6 +91,7 @@ export const addVideoRenderJob = ({
 	videoBitrate,
 	everyNthFrame,
 	numberOfGifLoops,
+	delayRenderTimeout,
 }: {
 	compositionId: string;
 	outName: string;
@@ -111,6 +112,7 @@ export const addVideoRenderJob = ({
 	videoBitrate: string | null;
 	everyNthFrame: number;
 	numberOfGifLoops: number | null;
+	delayRenderTimeout: number;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -133,6 +135,7 @@ export const addVideoRenderJob = ({
 		videoBitrate,
 		everyNthFrame,
 		numberOfGifLoops,
+		delayRenderTimeout,
 	});
 };
 

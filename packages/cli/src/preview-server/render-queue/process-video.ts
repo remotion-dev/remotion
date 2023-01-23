@@ -31,7 +31,6 @@ export const processVideoJob = async ({
 		inputProps,
 		port,
 		browser,
-		puppeteerTimeout,
 		ffmpegOverride,
 	} = await getCliOptions({
 		isLambda: false,
@@ -56,7 +55,7 @@ export const processVideoJob = async ({
 		overwrite: true,
 		port,
 		publicDir,
-		puppeteerTimeout,
+		puppeteerTimeout: job.delayRenderTimeout,
 		quality: job.quality ?? undefined,
 		remainingArgs: [],
 		scale: job.scale,

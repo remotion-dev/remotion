@@ -149,6 +149,7 @@ export const RenderModal: React.FC<{
 	initialAudioBitrate: string | null;
 	initialEveryNthFrame: number;
 	initialNumberOfGifLoops: number | null;
+	initialDelayRenderTimeout: number;
 }> = ({
 	compositionId,
 	initialFrame,
@@ -172,6 +173,7 @@ export const RenderModal: React.FC<{
 	initialAudioBitrate,
 	initialEveryNthFrame,
 	initialNumberOfGifLoops,
+	initialDelayRenderTimeout,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -238,6 +240,8 @@ export const RenderModal: React.FC<{
 	const [numberOfGifLoopsSetting, setNumberOfGifLoopsSetting] = useState(
 		() => initialNumberOfGifLoops ?? 1
 	);
+	// TODO: Allow to modify
+	const [delayRenderTimeout] = useState(() => initialDelayRenderTimeout);
 
 	const codec = useMemo(() => {
 		if (renderMode === 'audio') {
@@ -490,6 +494,7 @@ export const RenderModal: React.FC<{
 			videoBitrate,
 			everyNthFrame,
 			numberOfGifLoops,
+			delayRenderTimeout,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -521,6 +526,7 @@ export const RenderModal: React.FC<{
 		videoBitrate,
 		everyNthFrame,
 		numberOfGifLoops,
+		delayRenderTimeout,
 		setSelectedModal,
 	]);
 

@@ -19,6 +19,7 @@ export type RenderDefaults = {
 	videoBitrate: string | null;
 	everyNthFrame: number;
 	numberOfGifLoops: number | null;
+	delayRenderTimeout: number;
 };
 
 declare global {

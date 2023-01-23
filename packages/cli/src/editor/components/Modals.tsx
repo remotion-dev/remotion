@@ -41,6 +41,7 @@ export const Modals: React.FC = () => {
 					initialVideoBitrate={modalContextType.initialVideoBitrate}
 					initialEveryNthFrame={modalContextType.initialEveryNthFrame}
 					initialNumberOfGifLoops={modalContextType.initialNumberOfGifLoops}
+					initialDelayRenderTimeout={modalContextType.initialDelayRenderTimeout}
 				/>
 			)}
 

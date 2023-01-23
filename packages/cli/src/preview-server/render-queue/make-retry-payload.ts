@@ -40,6 +40,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialVideoBitrate: defaults.videoBitrate,
 			initialEveryNthFrame: defaults.everyNthFrame,
 			initialNumberOfGifLoops: defaults.numberOfGifLoops,
+			initialDelayRenderTimeout: defaults.delayRenderTimeout,
 		};
 	}
 
@@ -75,6 +76,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialVideoBitrate: job.videoBitrate,
 			initialEveryNthFrame: job.everyNthFrame,
 			initialNumberOfGifLoops: job.numberOfGifLoops,
+			initialDelayRenderTimeout: job.delayRenderTimeout,
 		};
 	}
 

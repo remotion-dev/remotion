@@ -79,6 +79,7 @@ export const RenderStillButton: React.FC = () => {
 			initialVideoBitrate: defaults.videoBitrate,
 			initialEveryNthFrame: defaults.everyNthFrame,
 			initialNumberOfGifLoops: defaults.numberOfGifLoops,
+			initialDelayRenderTimeout: defaults.delayRenderTimeout,
 		});
 	}, [video, frame, setSelectedModal]);
 

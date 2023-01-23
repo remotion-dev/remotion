@@ -80,6 +80,7 @@ const handleFallback = async ({
 	const videoBitrate = ConfigInternals.getVideoBitrate();
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 	const numberOfGifLoops = ConfigInternals.getNumberOfGifLoops();
+	const delayRenderTimeout = ConfigInternals.getCurrentPuppeteerTimeout();
 
 	// TODO: Separate image and video formats in the future. Default should be PNG for images and JPEG for videos.
 	const stillImageFormat: 'png' | 'jpeg' =
@@ -130,6 +131,7 @@ const handleFallback = async ({
 				videoBitrate,
 				everyNthFrame,
 				numberOfGifLoops,
+				delayRenderTimeout,
 			},
 		})
 	);

@@ -35,6 +35,7 @@ export type RenderModalState = {
 	initialAudioBitrate: string | null;
 	initialEveryNthFrame: number;
 	initialNumberOfGifLoops: number | null;
+	initialDelayRenderTimeout: number;
 	minConcurrency: number;
 	maxConcurrency: number;
 };

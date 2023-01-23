@@ -69,6 +69,7 @@ export const RenderButton: React.FC<{
 				initialVideoBitrate: defaults.videoBitrate,
 				initialEveryNthFrame: defaults.everyNthFrame,
 				initialNumberOfGifLoops: defaults.numberOfGifLoops,
+				initialDelayRenderTimeout: defaults.delayRenderTimeout,
 			});
 		},
 		[composition.id, isVideo, setSelectedModal]
