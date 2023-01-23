@@ -23,3 +23,8 @@ export const rightRow: React.CSSProperties = {
 	alignSelf: 'center',
 	flex: 1,
 };
+
+export const input: React.CSSProperties = {
+	minWidth: 250,
+	textAlign: 'right',
+};

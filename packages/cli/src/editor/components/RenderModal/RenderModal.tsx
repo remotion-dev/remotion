@@ -5,7 +5,6 @@ import type {
 	StillImageFormat,
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import type {ChangeEvent} from 'react';
 import React, {
 	useCallback,
 	useContext,
@@ -21,8 +20,6 @@ import {Button} from '../../../preview-server/error-overlay/remotion-overlay/But
 import {useFileExistence} from '../../helpers/use-file-existence';
 import {Checkmark} from '../../icons/Checkmark';
 import {ModalsContext} from '../../state/modals';
-import {Checkbox} from '../Checkbox';
-import {CollapsableOptions} from '../CollapsableOptions';
 import {Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
@@ -35,16 +32,12 @@ import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {leftSidebarTabs} from '../SidebarContent';
+import {Tab, Tabs} from '../Tabs';
 import {useCrfState} from './CrfSetting';
-import {EnforceAudioTrackSetting} from './EnforceAudioTrackSetting';
-import {FrameRangeSetting} from './FrameRangeSetting';
 import {humanReadableCodec} from './human-readable-codec';
-import {label, optionRow, rightRow} from './layout';
-import {MutedSetting} from './MutedSetting';
-import {NumberOfLoopsSetting} from './NumberOfLoopsSetting';
-import {NumberSetting} from './NumberSetting';
-import {QualitySetting} from './QualitySetting';
-import {ScaleSetting} from './ScaleSetting';
+import {input, label, optionRow, rightRow} from './layout';
+import type {QualityControl, RenderType} from './RenderModalAdvanced';
+import {RenderModalAdvanced} from './RenderModalAdvanced';
 
 type State =
 	| {
@@ -61,8 +54,6 @@ type State =
 	  };
 
 const initialState: State = {type: 'idle'};
-
-export type RenderType = 'still' | 'video' | 'audio';
 
 type Action =
 	| {
@@ -121,14 +112,6 @@ const scrollPanel: React.CSSProperties = {
 	maxHeight: '50vh',
 	overflow: 'auto',
 };
-
-const input: React.CSSProperties = {
-	minWidth: 250,
-	textAlign: 'right',
-};
-
-const qualityControlModes = ['crf', 'bitrate'] as const;
-type QualityControl = typeof qualityControlModes[number];
 
 export const RenderModal: React.FC<{
 	compositionId: string;
@@ -298,16 +281,6 @@ export const RenderModal: React.FC<{
 		},
 		[]
 	);
-
-	const onTargetVideoBitrateChanged: React.ChangeEventHandler<HTMLInputElement> =
-		useCallback((e) => {
-			setCustomTargetVideoBitrateValue(e.target.value);
-		}, []);
-
-	const onTargetAudioBitrateChanged: React.ChangeEventHandler<HTMLInputElement> =
-		useCallback((e) => {
-			setCustomTargetAudioBitrateValue(e.target.value);
-		}, []);
 
 	const muted = useMemo(() => {
 		if (renderMode === 'video') {
@@ -621,34 +594,6 @@ export const RenderModal: React.FC<{
 		});
 	}, [proResProfile]);
 
-	const pixelFormatOptions = useMemo((): ComboboxValue[] => {
-		return BrowserSafeApis.validPixelFormats.map((option) => {
-			return {
-				label: option,
-				onClick: () => setPixelFormat(option),
-				key: option,
-				id: option,
-				keyHint: null,
-				leftItem: pixelFormat === option ? <Checkmark /> : null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: option,
-			};
-		});
-	}, [pixelFormat]);
-
-	const qualityControlOptions = useMemo((): SegmentedControlItem[] => {
-		return qualityControlModes.map((option) => {
-			return {
-				label: option === 'crf' ? 'CRF' : 'Bitrate',
-				onClick: () => setQualityControl(option),
-				key: option,
-				selected: qualityControlType === option,
-			};
-		});
-	}, [qualityControlType]);
-
 	const setRenderMode = useCallback(
 		(newRenderMode: RenderType) => {
 			setRenderModeState(newRenderMode);
@@ -709,32 +654,23 @@ export const RenderModal: React.FC<{
 		];
 	}, [currentComposition?.durationInFrames, renderMode, setRenderMode]);
 
-	const onVerboseLoggingChanged = useCallback(
-		(e: ChangeEvent<HTMLInputElement>) => {
-			setVerboseLogging(e.target.checked);
-		},
-		[]
-	);
-
-	const onShouldLimitNumberOfGifLoops = useCallback(
-		(e: ChangeEvent<HTMLInputElement>) => {
-			setLimitNumberOfGifLoops(e.target.checked);
-		},
-		[]
-	);
-
-	const onShouldHaveTargetAudioBitrateChanged = useCallback(
-		(e: ChangeEvent<HTMLInputElement>) => {
-			setShouldHaveCustomTargetAudioBitrate(e.target.checked);
-		},
-		[]
-	);
+	const [tab, setTab] = useState<'general' | 'advanced'>('general');
 
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title={`Render ${compositionId}`} />
 			<div style={container}>
 				<SegmentedControl items={renderTabOptions} needsWrapping={false} />
+			</div>
+			<div>
+				<Tabs>
+					<Tab selected={tab === 'general'} onClick={() => setTab('general')}>
+						General
+					</Tab>
+					<Tab selected={tab === 'advanced'} onClick={() => setTab('advanced')}>
+						Other
+					</Tab>
+				</Tabs>
 			</div>
 			<div style={scrollPanel}>
 				<Spacing block y={0.5} />
@@ -812,159 +748,56 @@ export const RenderModal: React.FC<{
 						</div>
 					</div>
 				</div>
-				<CollapsableOptions
-					showLabel="Show advanced settings"
-					hideLabel="Hide advanced settings"
-				>
-					{codec === 'gif' ? (
-						<NumberSetting
-							name="Every nth frame"
-							min={1}
-							onValueChanged={setEveryNthFrameSetting}
-							value={everyNthFrame}
-							step={1}
-						/>
-					) : null}
-					{codec === 'gif' ? (
-						<div style={optionRow}>
-							<div style={label}>Limit GIF loops</div>
-							<div style={rightRow}>
-								<Checkbox
-									checked={limitNumberOfGifLoops}
-									onChange={onShouldLimitNumberOfGifLoops}
-								/>
-							</div>
-						</div>
-					) : null}
-					{codec === 'gif' && limitNumberOfGifLoops ? (
-						<NumberOfLoopsSetting
-							numberOfGifLoops={numberOfGifLoopsSetting}
-							setNumberOfGifLoops={setNumberOfGifLoopsSetting}
-						/>
-					) : null}
-					{renderMode === 'still' ? null : (
-						<NumberSetting
-							min={minConcurrency}
-							max={maxConcurrency}
-							step={1}
-							name="Concurrency"
-							onValueChanged={setConcurrency}
-							value={concurrency}
-						/>
-					)}
-					{renderMode === 'video' ? (
-						<ScaleSetting scale={scale} setScale={setScale} />
-					) : null}
-					{renderMode === 'video' ? (
-						<div style={optionRow}>
-							<div style={label}>Image Format</div>
-							<div style={rightRow}>
-								<SegmentedControl
-									items={imageFormatOptions}
-									needsWrapping={false}
-								/>
-							</div>
-						</div>
-					) : null}
-					{renderMode === 'video' ? (
-						<div style={optionRow}>
-							<div style={label}>Pixel format</div>
-							<div style={rightRow}>
-								<Combobox
-									values={pixelFormatOptions}
-									selectedId={pixelFormat}
-									title="Pixel Format"
-								/>
-							</div>
-						</div>
-					) : null}
-					{renderMode === 'video' && videoImageFormat === 'jpeg' && (
-						<QualitySetting setQuality={setQuality} quality={quality} />
-					)}
-					{renderMode === 'video' && (
-						<MutedSetting muted={muted} setMuted={setMuted} />
-					)}
-					{renderMode === 'video' && (
-						<EnforceAudioTrackSetting
-							enforceAudioTrack={enforceAudioTrack}
-							setEnforceAudioTrack={setEnforceAudioTrackState}
-						/>
-					)}
-					{renderMode === 'video' ? (
-						<div style={optionRow}>
-							<div style={label}>Quality control</div>
-							<div style={rightRow}>
-								<SegmentedControl items={qualityControlOptions} needsWrapping />
-							</div>
-						</div>
-					) : null}
-					{shouldDisplayCrfOption &&
-					qualityControlType === 'crf' &&
-					renderMode !== 'still' ? (
-						<NumberSetting
-							min={minCrf}
-							max={maxCrf}
-							name="CRF"
-							onValueChanged={setCrf}
-							value={crf}
-							step={1}
-						/>
-					) : null}
-					{qualityControlType === 'bitrate' && renderMode !== 'still' ? (
-						<div style={optionRow}>
-							<div style={label}>Target video bitrate</div>
-							<div style={rightRow}>
-								<div>
-									<RemotionInput
-										style={input}
-										value={customTargetVideoBitrate}
-										onChange={onTargetVideoBitrateChanged}
-									/>
-								</div>
-							</div>
-						</div>
-					) : null}
-					{renderMode === 'still' ? null : (
-						<div style={optionRow}>
-							<div style={label}>Custom audio bitrate</div>
-							<div style={rightRow}>
-								<Checkbox
-									checked={shouldHaveCustomTargetAudioBitrate}
-									onChange={onShouldHaveTargetAudioBitrateChanged}
-								/>
-							</div>
-						</div>
-					)}
-					{shouldHaveCustomTargetAudioBitrate && renderMode !== 'still' ? (
-						<div style={optionRow}>
-							<div style={label}>Target audio bitrate</div>
-							<div style={rightRow}>
-								<div>
-									<RemotionInput
-										style={input}
-										value={customTargetAudioBitrate}
-										onChange={onTargetAudioBitrateChanged}
-									/>
-								</div>
-							</div>
-						</div>
-					) : null}
-					{renderMode === 'still' ? null : (
-						<FrameRangeSetting
-							durationInFrames={currentComposition.durationInFrames}
-							endFrame={endFrame}
-							setEndFrame={setEndFrame}
-							setStartFrame={setStartFrame}
-							startFrame={startFrame}
-						/>
-					)}
-					<div style={optionRow}>
-						<div style={label}>Verbose logging</div>
-						<div style={rightRow}>
-							<Checkbox checked={verbose} onChange={onVerboseLoggingChanged} />
-						</div>
-					</div>
-				</CollapsableOptions>
+				<RenderModalAdvanced
+					concurrency={concurrency}
+					enforceAudioTrack={enforceAudioTrack}
+					everyNthFrame={everyNthFrame}
+					imageFormatOptions={imageFormatOptions}
+					limitNumberOfGifLoops={limitNumberOfGifLoops}
+					maxConcurrency={maxConcurrency}
+					maxCrf={maxCrf}
+					minConcurrency={minConcurrency}
+					minCrf={minCrf}
+					muted={muted}
+					numberOfGifLoopsSetting={numberOfGifLoopsSetting}
+					pixelFormat={pixelFormat}
+					quality={quality}
+					qualityControlType={qualityControlType}
+					renderMode={renderMode}
+					scale={scale}
+					setConcurrency={setConcurrency}
+					setCrf={setCrf}
+					setEnforceAudioTrackState={setEnforceAudioTrackState}
+					setEveryNthFrameSetting={setEveryNthFrameSetting}
+					setLimitNumberOfGifLoops={setLimitNumberOfGifLoops}
+					setMuted={setMuted}
+					setNumberOfGifLoopsSetting={setNumberOfGifLoopsSetting}
+					setPixelFormat={setPixelFormat}
+					setQuality={setQuality}
+					setQualityControl={setQualityControl}
+					setScale={setScale}
+					shouldDisplayCrfOption={shouldDisplayCrfOption}
+					codec={codec}
+					videoImageFormat={videoImageFormat}
+					crf={crf}
+					currentComposition={currentComposition}
+					customTargetAudioBitrate={customTargetAudioBitrate}
+					customTargetVideoBitrate={customTargetVideoBitrate}
+					endFrame={endFrame}
+					setCustomTargetAudioBitrateValue={setCustomTargetAudioBitrateValue}
+					setCustomTargetVideoBitrateValue={setCustomTargetVideoBitrateValue}
+					setEndFrame={setEndFrame}
+					setShouldHaveCustomTargetAudioBitrate={
+						setShouldHaveCustomTargetAudioBitrate
+					}
+					setStartFrame={setStartFrame}
+					setVerboseLogging={setVerboseLogging}
+					shouldHaveCustomTargetAudioBitrate={
+						shouldHaveCustomTargetAudioBitrate
+					}
+					startFrame={startFrame}
+					verbose={verbose}
+				/>
 				<Spacing block y={0.5} />
 			</div>
 			<div style={buttonRow}>
@@ -973,14 +806,7 @@ export const RenderModal: React.FC<{
 					onClick={renderMode === 'still' ? onClickStill : onClickVideo}
 					disabled={state.type === 'load'}
 				>
-					{state.type === 'idle'
-						? 'Render ' +
-						  (renderMode === 'still'
-								? 'still'
-								: renderMode === 'audio'
-								? 'audio'
-								: 'video')
-						: 'Rendering...'}
+					{state.type === 'idle' ? `Render ${renderMode}` : 'Rendering...'}
 				</Button>
 			</div>
 		</ModalContainer>
