@@ -38,6 +38,7 @@ import {leftSidebarTabs} from '../SidebarContent';
 import {useCrfState} from './CrfSetting';
 import {EnforceAudioTrackSetting} from './EnforceAudioTrackSetting';
 import {FrameRangeSetting} from './FrameRangeSetting';
+import {humanReadableCodec} from './human-readable-codec';
 import {label, optionRow, rightRow} from './layout';
 import {MutedSetting} from './MutedSetting';
 import {NumberOfLoopsSetting} from './NumberOfLoopsSetting';
@@ -595,7 +596,7 @@ export const RenderModal: React.FC<{
 			})
 			.map((codecOption) => {
 				return {
-					label: codecOption,
+					label: humanReadableCodec(codecOption),
 					onClick: () => setCodec(codecOption),
 					key: codecOption,
 					leftItem: codec === codecOption ? <Checkmark /> : null,
@@ -640,7 +641,7 @@ export const RenderModal: React.FC<{
 	const qualityControlOptions = useMemo((): SegmentedControlItem[] => {
 		return qualityControlModes.map((option) => {
 			return {
-				label: option,
+				label: option === 'crf' ? 'CRF' : 'Bitrate',
 				onClick: () => setQualityControl(option),
 				key: option,
 				selected: qualityControlType === option,
