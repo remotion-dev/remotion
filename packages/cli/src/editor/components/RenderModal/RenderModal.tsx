@@ -131,14 +131,15 @@ const horizontalTab: React.CSSProperties = {
 	flexDirection: 'row',
 	alignItems: 'center',
 	textAlign: 'left',
-	fontSize: 14,
+	fontSize: 16,
+	fontWeight: 'bold',
 	paddingLeft: 15,
 };
 
 const iconContainer: React.CSSProperties = {
 	width: 20,
 	height: 20,
-	marginRight: 10,
+	marginRight: 15,
 	display: 'inline-flex',
 	justifyContent: 'center',
 	alignItems: 'center',
@@ -663,16 +664,18 @@ export const RenderModal: React.FC<{
 						</div>
 						Picture
 					</Tab>
-					<Tab
-						style={horizontalTab}
-						selected={tab === 'audio'}
-						onClick={() => setTab('audio')}
-					>
-						<div style={iconContainer}>
-							<AudioIcon style={icon} />
-						</div>
-						Audio
-					</Tab>
+					{renderMode === 'still' ? null : (
+						<Tab
+							style={horizontalTab}
+							selected={tab === 'audio'}
+							onClick={() => setTab('audio')}
+						>
+							<div style={iconContainer}>
+								<AudioIcon style={icon} />
+							</div>
+							Audio
+						</Tab>
+					)}
 					{codec === 'gif' ? (
 						<Tab
 							style={horizontalTab}
