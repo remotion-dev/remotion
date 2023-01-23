@@ -17,12 +17,12 @@ export const EveryNthFrameSetting: React.FC<{
 	const onConcurrencyChanged = useCallback(
 		(e: string) => {
 			setEveryNthFrameSetting((q) => {
-				const newConcurrency = parseInt(e, 10);
-				if (Number.isNaN(newConcurrency)) {
+				const newEveryNthFrameSetting = parseInt(e, 10);
+				if (Number.isNaN(newEveryNthFrameSetting)) {
 					return q;
 				}
 
-				const newConcurrencyClamped = Math.max(newConcurrency, 1);
+				const newConcurrencyClamped = Math.max(newEveryNthFrameSetting, 1);
 				return newConcurrencyClamped;
 			});
 		},

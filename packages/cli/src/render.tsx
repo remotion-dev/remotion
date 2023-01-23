@@ -61,6 +61,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		proResProfile,
 		pixelFormat,
 		videoBitrate,
+		numberOfGifLoops,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -114,6 +115,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			proResProfile,
 			pixelFormat,
 			videoBitrate,
+			numberOfGifLoops,
 		});
 	} finally {
 		await Promise.all(jobCleanups.map((c) => c()));

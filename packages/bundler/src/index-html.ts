@@ -18,6 +18,7 @@ export type RenderDefaults = {
 	audioBitrate: string | null;
 	videoBitrate: string | null;
 	everyNthFrame: number;
+	numberOfGifLoops: number | null;
 };
 
 declare global {

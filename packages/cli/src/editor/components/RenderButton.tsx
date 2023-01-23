@@ -68,6 +68,7 @@ export const RenderButton: React.FC<{
 				initialAudioBitrate: defaults.audioBitrate,
 				initialVideoBitrate: defaults.videoBitrate,
 				initialEveryNthFrame: defaults.everyNthFrame,
+				initialNumberOfGifLoops: defaults.numberOfGifLoops,
 			});
 		},
 		[composition.id, isVideo, setSelectedModal]

@@ -40,6 +40,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				audioBitrate: input.audioBitrate,
 				videoBitrate: input.videoBitrate,
 				everyNthFrame: input.everyNthFrame,
+				numberOfGifLoops: input.numberOfGifLoops,
 			},
 		});
 	}

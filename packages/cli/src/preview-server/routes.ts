@@ -79,6 +79,7 @@ const handleFallback = async ({
 	const audioBitrate = ConfigInternals.getAudioBitrate();
 	const videoBitrate = ConfigInternals.getVideoBitrate();
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
+	const numberOfGifLoops = ConfigInternals.getNumberOfGifLoops();
 
 	// TODO: Separate image and video formats in the future. Default should be PNG for images and JPEG for videos.
 	const stillImageFormat: 'png' | 'jpeg' =
@@ -128,6 +129,7 @@ const handleFallback = async ({
 				audioBitrate,
 				videoBitrate,
 				everyNthFrame,
+				numberOfGifLoops,
 			},
 		})
 	);
