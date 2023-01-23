@@ -530,28 +530,6 @@ export const RenderModal: React.FC<{
 		setSelectedModal,
 	]);
 
-	const onConcurrencyChangedDirectly = useCallback((newConcurrency: number) => {
-		setConcurrency(newConcurrency);
-	}, []);
-
-	const onConcurrencyChanged = useCallback(
-		(e: string) => {
-			setConcurrency((q) => {
-				const newConcurrency = parseInt(e, 10);
-				if (Number.isNaN(newConcurrency)) {
-					return q;
-				}
-
-				const newConcurrencyClamped = Math.min(
-					maxConcurrency,
-					Math.max(newConcurrency, minConcurrency)
-				);
-				return newConcurrencyClamped;
-			});
-		},
-		[maxConcurrency, minConcurrency]
-	);
-
 	const onFrameSetDirectly = useCallback(
 		(newFrame: number) => {
 			setFrame(newFrame);
@@ -879,6 +857,7 @@ export const RenderModal: React.FC<{
 							min={1}
 							onValueChanged={setEveryNthFrameSetting}
 							value={everyNthFrame}
+							step={1}
 						/>
 					) : null}
 					{codec === 'gif' ? (
@@ -898,23 +877,14 @@ export const RenderModal: React.FC<{
 							setNumberOfGifLoops={setNumberOfGifLoopsSetting}
 						/>
 					) : null}
-					<div style={optionRow}>
-						<div style={label}>Concurrency</div>
-						<div style={rightRow}>
-							<RightAlignInput>
-								<InputDragger
-									value={concurrency}
-									onTextChange={onConcurrencyChanged}
-									placeholder={`${minConcurrency}-${maxConcurrency}`}
-									onValueChange={onConcurrencyChangedDirectly}
-									name="concurrency"
-									step={1}
-									min={minConcurrency}
-									max={maxConcurrency}
-								/>
-							</RightAlignInput>
-						</div>
-					</div>
+					<NumberSetting
+						min={minConcurrency}
+						max={maxConcurrency}
+						step={1}
+						name="Concurrency"
+						onValueChanged={setConcurrency}
+						value={concurrency}
+					/>
 					{renderMode === 'video' ? (
 						<ScaleSetting scale={scale} setScale={setScale} />
 					) : null}
@@ -967,6 +937,7 @@ export const RenderModal: React.FC<{
 							name="CRF"
 							onValueChanged={setCrf}
 							value={crf}
+							step={1}
 						/>
 					) : null}
 
