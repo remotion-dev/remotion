@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/paths",
-	"version": "3.3.34",
+	"version": "3.3.36",
 	"description": "Utility functions for SVG paths",
 	"main": "dist/index.js",
 	"sideEffects": false,
