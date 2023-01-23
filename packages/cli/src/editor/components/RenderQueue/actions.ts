@@ -87,6 +87,8 @@ export const addVideoRenderJob = ({
 	enforceAudioTrack,
 	proResProfile,
 	pixelFormat,
+	audioBitrate,
+	videoBitrate,
 }: {
 	compositionId: string;
 	outName: string;
@@ -96,13 +98,15 @@ export const addVideoRenderJob = ({
 	verbose: boolean;
 	codec: Codec;
 	concurrency: number;
-	crf: number;
+	crf: number | null;
 	startFrame: number;
 	endFrame: number;
 	muted: boolean;
 	enforceAudioTrack: boolean;
 	proResProfile: ProResProfile | null;
 	pixelFormat: PixelFormat;
+	audioBitrate: string | null;
+	videoBitrate: string | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -121,6 +125,8 @@ export const addVideoRenderJob = ({
 		enforceAudioTrack,
 		proResProfile,
 		pixelFormat,
+		audioBitrate,
+		videoBitrate,
 	});
 };
 

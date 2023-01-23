@@ -121,6 +121,9 @@ const input: React.CSSProperties = {
 	textAlign: 'right',
 };
 
+const qualityControlModes = ['crf', 'bitrate'] as const;
+type QualityControl = typeof qualityControlModes[number];
+
 export const RenderModal: React.FC<{
 	compositionId: string;
 	initialFrame: number;
@@ -204,6 +207,22 @@ export const RenderModal: React.FC<{
 	const [pixelFormat, setPixelFormat] = useState<PixelFormat>(
 		() => initialPixelFormat
 	);
+	// TODO: Initial
+	const [qualityControlType, setQualityControl] = useState<QualityControl>(
+		() => 'crf'
+	);
+	// TODO: Initial
+	const [
+		shouldHaveCustomTargetAudioBitrate,
+		setShouldHaveCustomTargetAudioBitrate,
+	] = useState(false);
+
+	// TODO: Defaults
+	const [customTargetAudioBitrate, setCustomTargetAudioBitrateValue] =
+		useState('128K');
+	// TODO: Validate bitrate
+	const [customTargetVideoBitrate, setCustomTargetVideoBitrateValue] =
+		useState('1M');
 
 	const codec = useMemo(() => {
 		if (renderMode === 'audio') {
@@ -212,6 +231,23 @@ export const RenderModal: React.FC<{
 
 		return videoCodec;
 	}, [audioCodec, renderMode, videoCodec]);
+
+	const audioBitrate = useMemo(() => {
+		if (shouldHaveCustomTargetAudioBitrate) {
+			return customTargetAudioBitrate;
+		}
+
+		return null;
+	}, [customTargetAudioBitrate, shouldHaveCustomTargetAudioBitrate]);
+
+	const videoBitrate = useMemo(() => {
+		if (qualityControlType === 'bitrate') {
+			return customTargetVideoBitrate;
+		}
+
+		return null;
+	}, [customTargetVideoBitrate, qualityControlType]);
+
 	const {
 		crf,
 		maxCrf,
@@ -231,6 +267,16 @@ export const RenderModal: React.FC<{
 		},
 		[]
 	);
+
+	const onTargetVideoBitrateChanged: React.ChangeEventHandler<HTMLInputElement> =
+		useCallback((e) => {
+			setCustomTargetVideoBitrateValue(e.target.value);
+		}, []);
+
+	const onTargetAudioBitrateChanged: React.ChangeEventHandler<HTMLInputElement> =
+		useCallback((e) => {
+			setCustomTargetAudioBitrateValue(e.target.value);
+		}, []);
 
 	const muted = useMemo(() => {
 		if (renderMode === 'video') {
@@ -398,13 +444,15 @@ export const RenderModal: React.FC<{
 			verbose,
 			codec,
 			concurrency,
-			crf,
+			crf: qualityControlType === 'crf' ? crf : null,
 			endFrame,
 			startFrame,
 			muted,
 			enforceAudioTrack,
 			proResProfile,
 			pixelFormat,
+			audioBitrate,
+			videoBitrate,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -424,14 +472,17 @@ export const RenderModal: React.FC<{
 		verbose,
 		codec,
 		concurrency,
+		qualityControlType,
 		crf,
 		endFrame,
 		startFrame,
 		muted,
 		enforceAudioTrack,
 		proResProfile,
-		setSelectedModal,
 		pixelFormat,
+		audioBitrate,
+		videoBitrate,
+		setSelectedModal,
 	]);
 
 	const onConcurrencyChangedDirectly = useCallback((newConcurrency: number) => {
@@ -548,6 +599,17 @@ export const RenderModal: React.FC<{
 		});
 	}, [pixelFormat]);
 
+	const qualityControlOptions = useMemo((): SegmentedControlItem[] => {
+		return qualityControlModes.map((option) => {
+			return {
+				label: option,
+				onClick: () => setQualityControl(option),
+				key: option,
+				selected: qualityControlType === option,
+			};
+		});
+	}, [qualityControlType]);
+
 	const setRenderMode = useCallback(
 		(newRenderMode: RenderType) => {
 			setRenderModeState(newRenderMode);
@@ -611,6 +673,13 @@ export const RenderModal: React.FC<{
 	const onVerboseLoggingChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
 			setVerboseLogging(e.target.checked);
+		},
+		[]
+	);
+
+	const onShouldHaveTargetAudioBitrateChanged = useCallback(
+		(e: ChangeEvent<HTMLInputElement>) => {
+			setShouldHaveCustomTargetAudioBitrate(e.target.checked);
 		},
 		[]
 	);
@@ -726,6 +795,7 @@ export const RenderModal: React.FC<{
 						</div>
 					</div>
 				) : null}
+
 				<div style={optionRow}>
 					<div style={label}>Output name</div>
 					<div style={rightRow}>
@@ -805,8 +875,54 @@ export const RenderModal: React.FC<{
 							setEnforceAudioTrack={setEnforceAudioTrackState}
 						/>
 					)}
-					{shouldDisplayCrfOption ? (
+					{renderMode === 'video' ? (
+						<div style={optionRow}>
+							<div style={label}>Quality control</div>
+							<div style={rightRow}>
+								<SegmentedControl items={qualityControlOptions} needsWrapping />
+							</div>
+						</div>
+					) : null}
+					{shouldDisplayCrfOption && qualityControlType === 'crf' ? (
 						<CrfSetting crf={crf} max={maxCrf} min={minCrf} setCrf={setCrf} />
+					) : null}
+
+					{qualityControlType === 'bitrate' ? (
+						<div style={optionRow}>
+							<div style={label}>Target video bitrate</div>
+							<div style={rightRow}>
+								<div>
+									<RemotionInput
+										style={input}
+										value={customTargetVideoBitrate}
+										onChange={onTargetVideoBitrateChanged}
+									/>
+								</div>
+							</div>
+						</div>
+					) : null}
+					<div style={optionRow}>
+						<div style={label}>Custom audio bitrate</div>
+						<div style={rightRow}>
+							<Checkbox
+								checked={shouldHaveCustomTargetAudioBitrate}
+								onChange={onShouldHaveTargetAudioBitrateChanged}
+							/>
+						</div>
+					</div>
+					{shouldHaveCustomTargetAudioBitrate ? (
+						<div style={optionRow}>
+							<div style={label}>Target audio bitrate</div>
+							<div style={rightRow}>
+								<div>
+									<RemotionInput
+										style={input}
+										value={customTargetAudioBitrate}
+										onChange={onTargetAudioBitrateChanged}
+									/>
+								</div>
+							</div>
+						</div>
 					) : null}
 					<FrameRangeSetting
 						durationInFrames={currentComposition.durationInFrames}

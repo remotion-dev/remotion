@@ -46,13 +46,15 @@ type RenderJobDynamicFields =
 			scale: number;
 			codec: Codec;
 			concurrency: number;
-			crf: number;
+			crf: number | null;
 			startFrame: number;
 			endFrame: number;
 			muted: boolean;
 			enforceAudioTrack: boolean;
 			proResProfile: ProResProfile | null;
 			pixelFormat: PixelFormat;
+			audioBitrate: string | null;
+			videoBitrate: string | null;
 			// TODO: Add more fields like frame range
 	  };
 
@@ -88,13 +90,15 @@ type AddRenderRequestDynamicFields =
 			scale: number;
 			verbose: boolean;
 			concurrency: number;
-			crf: number;
+			crf: number | null;
 			startFrame: number;
 			endFrame: number;
 			muted: boolean;
 			enforceAudioTrack: boolean;
 			proResProfile: ProResProfile | null;
 			pixelFormat: PixelFormat;
+			audioBitrate: string | null;
+			videoBitrate: string | null;
 	  };
 
 export type CancelRenderRequest = {
