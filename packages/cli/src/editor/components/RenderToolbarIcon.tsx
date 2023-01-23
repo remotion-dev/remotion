@@ -75,6 +75,8 @@ export const RenderStillButton: React.FC = () => {
 			initialEnforceAudioTrack: defaults.enforceAudioTrack,
 			initialProResProfile: defaults.proResProfile as ProResProfile,
 			initialPixelFormat: defaults.pixelFormat as PixelFormat,
+			initialAudioBitrate: defaults.audioBitrate,
+			initialVideoBitrate: defaults.videoBitrate,
 		});
 	}, [video, frame, setSelectedModal]);
 
