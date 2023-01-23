@@ -57,6 +57,7 @@ type RenderJobDynamicFields =
 			videoBitrate: string | null;
 			everyNthFrame: number;
 			numberOfGifLoops: number | null;
+			delayRenderTimeout: number;
 	  };
 
 export type RenderJob = {
@@ -102,6 +103,7 @@ type AddRenderRequestDynamicFields =
 			videoBitrate: string | null;
 			everyNthFrame: number;
 			numberOfGifLoops: number | null;
+			delayRenderTimeout: number;
 	  };
 
 export type CancelRenderRequest = {

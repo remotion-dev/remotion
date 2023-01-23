@@ -41,6 +41,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				videoBitrate: input.videoBitrate,
 				everyNthFrame: input.everyNthFrame,
 				numberOfGifLoops: input.numberOfGifLoops,
+				delayRenderTimeout: input.delayRenderTimeout,
 			},
 		});
 	}
