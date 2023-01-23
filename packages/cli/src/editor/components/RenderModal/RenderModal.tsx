@@ -129,7 +129,7 @@ export const RenderModal: React.FC<{
 	initialFrame: number;
 	initialVideoImageFormat: StillImageFormat;
 	initialStillImageFormat: StillImageFormat;
-	initialQuality: number | null;
+	initialQuality: number;
 	initialScale: number;
 	initialVerbose: boolean;
 	initialOutName: string;
@@ -195,7 +195,7 @@ export const RenderModal: React.FC<{
 
 	const [renderMode, setRenderModeState] =
 		useState<RenderType>(initialRenderType);
-	const [quality, setQuality] = useState<number>(() => initialQuality ?? 80);
+	const [quality, setQuality] = useState<number>(() => initialQuality);
 	const [scale, setScale] = useState(() => initialScale);
 	const [verbose, setVerboseLogging] = useState(() => initialVerbose);
 	const [outName, setOutName] = useState(() => initialOutName);
