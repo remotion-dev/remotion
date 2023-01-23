@@ -6,6 +6,7 @@ import {EnforceAudioTrackSetting} from './EnforceAudioTrackSetting';
 import {input, label, optionRow, rightRow} from './layout';
 import {MutedSetting} from './MutedSetting';
 import type {RenderType} from './RenderModalAdvanced';
+import {RenderModalHr} from './RenderModalHr';
 
 export const RenderModalAudio: React.FC<{
 	muted: boolean;
@@ -58,6 +59,8 @@ export const RenderModalAudio: React.FC<{
 					setEnforceAudioTrack={setEnforceAudioTrackState}
 				/>
 			)}
+
+			<RenderModalHr />
 			{renderMode === 'still' ? null : (
 				<div style={optionRow}>
 					<div style={label}>Custom audio bitrate</div>
@@ -69,6 +72,7 @@ export const RenderModalAudio: React.FC<{
 					</div>
 				</div>
 			)}
+
 			{shouldHaveCustomTargetAudioBitrate && renderMode !== 'still' ? (
 				<div style={optionRow}>
 					<div style={label}>Target audio bitrate</div>
