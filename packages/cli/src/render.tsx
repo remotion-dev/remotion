@@ -60,6 +60,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		enforceAudioTrack,
 		proResProfile,
 		pixelFormat,
+		videoBitrate,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -112,6 +113,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			enforceAudioTrack,
 			proResProfile,
 			pixelFormat,
+			videoBitrate,
 		});
 	} finally {
 		await Promise.all(jobCleanups.map((c) => c()));

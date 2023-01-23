@@ -33,7 +33,6 @@ export const processVideoJob = async ({
 		browser,
 		puppeteerTimeout,
 		ffmpegOverride,
-		audioBitrate,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'still',
@@ -80,11 +79,12 @@ export const processVideoJob = async ({
 		cancelSignal: job.cancelToken.cancelSignal,
 		crf: job.crf,
 		ffmpegOverride,
-		audioBitrate,
+		audioBitrate: job.audioBitrate,
 		muted: job.muted,
 		enforceAudioTrack: job.enforceAudioTrack,
 		proResProfile: job.proResProfile ?? undefined,
 		pixelFormat: job.pixelFormat,
+		videoBitrate: job.videoBitrate,
 	});
 	// TODO: Accept CLI options
 };

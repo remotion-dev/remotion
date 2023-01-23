@@ -91,6 +91,7 @@ export const renderCompFlow = async ({
 	enforceAudioTrack,
 	proResProfile,
 	pixelFormat,
+	videoBitrate,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -129,6 +130,7 @@ export const renderCompFlow = async ({
 	uiImageFormat: 'png' | 'jpeg' | 'none' | null;
 	ffmpegOverride: FfmpegOverrideFn;
 	audioBitrate: string | null;
+	videoBitrate: string | null;
 	muted: boolean;
 	enforceAudioTrack: boolean;
 	proResProfile: ProResProfile | undefined;
@@ -154,7 +156,7 @@ export const renderCompFlow = async ({
 	);
 
 	// TODO: Don't parse CLI here
-	const {numberOfGifLoops, videoBitrate} = await getCliOptions({
+	const {numberOfGifLoops} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
 		remotionRoot,

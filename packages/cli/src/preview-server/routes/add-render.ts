@@ -37,6 +37,8 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				enforceAudioTrack: input.enforceAudioTrack,
 				proResProfile: input.proResProfile,
 				pixelFormat: input.pixelFormat,
+				audioBitrate: input.audioBitrate,
+				videoBitrate: input.videoBitrate,
 			},
 		});
 	}
