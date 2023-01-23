@@ -17,6 +17,12 @@ import React, {
 import {Internals} from 'remotion';
 import type {TComposition} from 'remotion/src/internals';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
+import {AudioIcon} from '../../icons/audio';
+import {FileIcon} from '../../icons/file';
+import {PicIcon} from '../../icons/frame';
+import {GearIcon} from '../../icons/gear';
+import {GifIcon} from '../../icons/gif';
+
 import {ModalsContext} from '../../state/modals';
 import {Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
@@ -97,7 +103,6 @@ const buttonRow: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	justifyContent: 'flex-end',
-	borderTop: '1px solid black',
 	paddingTop: 8,
 	paddingBottom: 8,
 	paddingLeft: 16,
@@ -108,7 +113,7 @@ const scrollPanel: React.CSSProperties = {
 	minHeight: '35vh',
 	maxHeight: '50vh',
 	overflow: 'auto',
-	minWidth: 700,
+	minWidth: 650,
 };
 
 const horizontalLayout: React.CSSProperties = {
@@ -122,8 +127,26 @@ const leftSidebar: React.CSSProperties = {
 
 const horizontalTab: React.CSSProperties = {
 	width: 250,
-	display: 'block',
+	display: 'flex',
+	flexDirection: 'row',
+	alignItems: 'center',
 	textAlign: 'left',
+	fontSize: 14,
+	paddingLeft: 15,
+};
+
+const iconContainer: React.CSSProperties = {
+	width: 20,
+	height: 20,
+	marginRight: 10,
+	display: 'inline-flex',
+	justifyContent: 'center',
+	alignItems: 'center',
+};
+
+const icon: React.CSSProperties = {
+	color: 'currentcolor',
+	height: 20,
 };
 
 export const RenderModal: React.FC<{
@@ -625,6 +648,9 @@ export const RenderModal: React.FC<{
 						selected={tab === 'general'}
 						onClick={() => setTab('general')}
 					>
+						<div style={iconContainer}>
+							<FileIcon style={icon} />
+						</div>
 						General
 					</Tab>
 					<Tab
@@ -632,6 +658,9 @@ export const RenderModal: React.FC<{
 						selected={tab === 'picture'}
 						onClick={() => setTab('picture')}
 					>
+						<div style={iconContainer}>
+							<PicIcon style={icon} />
+						</div>
 						Picture
 					</Tab>
 					<Tab
@@ -639,6 +668,9 @@ export const RenderModal: React.FC<{
 						selected={tab === 'audio'}
 						onClick={() => setTab('audio')}
 					>
+						<div style={iconContainer}>
+							<AudioIcon style={icon} />
+						</div>
 						Audio
 					</Tab>
 					{codec === 'gif' ? (
@@ -647,6 +679,9 @@ export const RenderModal: React.FC<{
 							selected={tab === 'gif'}
 							onClick={() => setTab('gif')}
 						>
+							<div style={iconContainer}>
+								<GifIcon style={icon} />
+							</div>
 							GIF
 						</Tab>
 					) : null}
@@ -655,6 +690,9 @@ export const RenderModal: React.FC<{
 						selected={tab === 'advanced'}
 						onClick={() => setTab('advanced')}
 					>
+						<div style={iconContainer}>
+							<GearIcon style={icon} />
+						</div>
 						Other
 					</Tab>
 				</div>
@@ -673,6 +711,10 @@ export const RenderModal: React.FC<{
 							setFrame={setFrame}
 							setOutName={setOutName}
 							setProResProfile={setProResProfile}
+							endFrame={endFrame}
+							setEndFrame={setEndFrame}
+							setStartFrame={setStartFrame}
+							startFrame={startFrame}
 						/>
 					) : tab === 'picture' ? (
 						<RenderModalPicture
@@ -732,12 +774,7 @@ export const RenderModal: React.FC<{
 							minConcurrency={minConcurrency}
 							renderMode={renderMode}
 							setConcurrency={setConcurrency}
-							currentComposition={currentComposition}
-							endFrame={endFrame}
-							setEndFrame={setEndFrame}
-							setStartFrame={setStartFrame}
 							setVerboseLogging={setVerboseLogging}
-							startFrame={startFrame}
 							verbose={verbose}
 						/>
 					)}
