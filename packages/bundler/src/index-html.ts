@@ -17,6 +17,7 @@ export type RenderDefaults = {
 	pixelFormat: string;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
+	everyNthFrame: number;
 };
 
 declare global {

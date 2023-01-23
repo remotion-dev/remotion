@@ -34,6 +34,7 @@ import {SegmentedControl} from '../SegmentedControl';
 import {leftSidebarTabs} from '../SidebarContent';
 import {CrfSetting, useCrfState} from './CrfSetting';
 import {EnforceAudioTrackSetting} from './EnforceAudioTrackSetting';
+import {EveryNthFrameSetting} from './EveryNthFrameSetting';
 import {FrameRangeSetting} from './FrameRangeSetting';
 import {label, optionRow, rightRow} from './layout';
 import {MutedSetting} from './MutedSetting';
@@ -145,6 +146,7 @@ export const RenderModal: React.FC<{
 	initialPixelFormat: PixelFormat;
 	initialVideoBitrate: string | null;
 	initialAudioBitrate: string | null;
+	initialEveryNthFrame: number;
 }> = ({
 	compositionId,
 	initialFrame,
@@ -166,6 +168,7 @@ export const RenderModal: React.FC<{
 	initialPixelFormat,
 	initialVideoBitrate,
 	initialAudioBitrate,
+	initialEveryNthFrame,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -434,6 +437,18 @@ export const RenderModal: React.FC<{
 		verbose,
 	]);
 
+	const [everyNthFrameSetting, setEveryNthFrameSetting] = useState(
+		() => initialEveryNthFrame
+	);
+
+	const everyNthFrame = useMemo(() => {
+		if (codec === 'gif') {
+			return everyNthFrameSetting;
+		}
+
+		return 1;
+	}, [codec, everyNthFrameSetting]);
+
 	const onClickVideo = useCallback(() => {
 		leftSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
@@ -455,6 +470,7 @@ export const RenderModal: React.FC<{
 			pixelFormat,
 			audioBitrate,
 			videoBitrate,
+			everyNthFrame,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -484,6 +500,7 @@ export const RenderModal: React.FC<{
 		pixelFormat,
 		audioBitrate,
 		videoBitrate,
+		everyNthFrame,
 		setSelectedModal,
 	]);
 
@@ -823,6 +840,12 @@ export const RenderModal: React.FC<{
 					showLabel="Show advanced settings"
 					hideLabel="Hide advanced settings"
 				>
+					{codec === 'gif' ? (
+						<EveryNthFrameSetting
+							everyNthFrame={everyNthFrameSetting}
+							setEveryNthFrameSetting={setEveryNthFrameSetting}
+						/>
+					) : null}
 					<div style={optionRow}>
 						<div style={label}>Concurrency</div>
 						<div style={rightRow}>

@@ -39,6 +39,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				pixelFormat: input.pixelFormat,
 				audioBitrate: input.audioBitrate,
 				videoBitrate: input.videoBitrate,
+				everyNthFrame: input.everyNthFrame,
 			},
 		});
 	}

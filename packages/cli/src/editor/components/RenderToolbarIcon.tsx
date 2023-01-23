@@ -77,6 +77,7 @@ export const RenderStillButton: React.FC = () => {
 			initialPixelFormat: defaults.pixelFormat as PixelFormat,
 			initialAudioBitrate: defaults.audioBitrate,
 			initialVideoBitrate: defaults.videoBitrate,
+			initialEveryNthFrame: defaults.everyNthFrame,
 		});
 	}, [video, frame, setSelectedModal]);
 

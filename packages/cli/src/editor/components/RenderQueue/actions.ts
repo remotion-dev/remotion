@@ -89,6 +89,7 @@ export const addVideoRenderJob = ({
 	pixelFormat,
 	audioBitrate,
 	videoBitrate,
+	everyNthFrame,
 }: {
 	compositionId: string;
 	outName: string;
@@ -107,6 +108,7 @@ export const addVideoRenderJob = ({
 	pixelFormat: PixelFormat;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
+	everyNthFrame: number;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -127,6 +129,7 @@ export const addVideoRenderJob = ({
 		pixelFormat,
 		audioBitrate,
 		videoBitrate,
+		everyNthFrame,
 	});
 };
 
