@@ -19,7 +19,7 @@ const container: React.CSSProperties = {
 
 const item: React.CSSProperties = {
 	display: 'flex',
-	fontSize: 13,
+	fontSize: 15,
 	padding: '4px 12px',
 	cursor: 'pointer',
 	appearance: 'none',
