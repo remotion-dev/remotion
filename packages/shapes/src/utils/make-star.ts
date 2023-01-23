@@ -18,8 +18,8 @@ export const makeStar = ({
 	innerRadius,
 	outerRadius,
 }: MakeStarProps): ShapeInfo => {
-	const centerX = width;
-	const centerY = height;
+	const centerX = width / 2;
+	const centerY = height / 2;
 
 	const starPath = star({
 		centerX,
@@ -34,5 +34,6 @@ export const makeStar = ({
 		width,
 		height,
 		transformOrigin: `${centerX} ${centerY}`,
+		instructions: [],
 	};
 };

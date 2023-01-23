@@ -96,7 +96,7 @@ export const star = ({
 	outerRadius,
 }: StarProps): string => {
 	const degreeIncrement = 360 / (points * 2);
-	const d = new Array(points * 2).fill('foo').map((_p, i) => {
+	const d = new Array(points * 2).fill('true').map((_p, i) => {
 		const radius = i % 2 === 0 ? outerRadius : innerRadius;
 		const degrees = degreeIncrement * i;
 		const point = polarToCartesian({

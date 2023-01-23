@@ -21,6 +21,7 @@ import {Scripts} from './Scripts';
 import CircleTest from './Shapes/CircleTest';
 import EllipseTest from './Shapes/EllipseTest';
 import RectTest from './Shapes/RectTest';
+import StarTest from './Shapes/StarTest';
 import TriangleTest from './Shapes/TriangleTest';
 import {SkipZeroFrame} from './SkipZeroFrame';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
@@ -596,6 +597,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="ellipse-test"
 					component={EllipseTest}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="star-test"
+					component={StarTest}
 					width={1200}
 					height={630}
 					fps={30}
