@@ -66,7 +66,7 @@ Some regions that are supported by Remotion are not enabled by default in an AWS
 The security token included in the request is invalid
 ```
 
-Go to the AWS console, click on your name, then click `Account` and enable the regions that you would like to use.
+see [here]
 
 ## Other considerations
 
