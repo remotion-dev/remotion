@@ -56,6 +56,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Mockoops](https://github.com/Just-Moh-it/Mockoops)
 - [Product Hunt Today](https://github.com/Kamigami55/product-hunt-today)
 - [Remotion Weather](https://github.com/florentpergoud/remotion-weather)
+- [Rewind Table](https://github.com/gregonarash/rewind-table) _(Airtable templates for Remotion)_
 
 ## Examples
 
