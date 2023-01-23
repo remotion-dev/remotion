@@ -9,7 +9,8 @@ export const NumberSetting: React.FC<{
 	onValueChanged: React.Dispatch<React.SetStateAction<number>>;
 	max?: number;
 	min: number;
-}> = ({name, value, onValueChanged, max, min}) => {
+	step: number;
+}> = ({name, value, step, onValueChanged, max, min}) => {
 	const onTextChanged = useCallback(
 		(e: string) => {
 			onValueChanged((q) => {
@@ -18,10 +19,10 @@ export const NumberSetting: React.FC<{
 					return q;
 				}
 
-				return Math.min(max ?? Infinity, Math.max(newSetting, 1));
+				return Math.min(max ?? Infinity, Math.max(newSetting, min));
 			});
 		},
-		[max, onValueChanged]
+		[max, min, onValueChanged]
 	);
 
 	const onValueChange = useCallback(
@@ -41,9 +42,12 @@ export const NumberSetting: React.FC<{
 						name={name.toLowerCase()}
 						onTextChange={onTextChanged}
 						onValueChange={onValueChange}
+						step={step}
 						placeholder={[min, max]
 							.map((f) => (f !== null && f !== undefined ? f : ''))
 							.join('-')}
+						min={min}
+						max={max}
 					/>
 				</RightAlignInput>
 			</div>

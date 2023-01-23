@@ -53,6 +53,7 @@ export const CrfSetting: React.FC<{
 			name="CRF"
 			onValueChanged={setCrf}
 			value={crf}
+			step={1}
 		/>
 	);
 };
