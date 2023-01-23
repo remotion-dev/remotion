@@ -612,9 +612,11 @@ export const RenderModal: React.FC<{
 					<Tab selected={tab === 'audio'} onClick={() => setTab('audio')}>
 						Audio
 					</Tab>
-					<Tab selected={tab === 'gif'} onClick={() => setTab('gif')}>
-						GIF
-					</Tab>
+					{codec === 'gif' ? (
+						<Tab selected={tab === 'gif'} onClick={() => setTab('gif')}>
+							GIF
+						</Tab>
+					) : null}
 					<Tab selected={tab === 'advanced'} onClick={() => setTab('advanced')}>
 						Other
 					</Tab>
