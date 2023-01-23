@@ -1,6 +1,6 @@
 import type {Codec} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import type {RenderType} from '../../editor/components/RenderModal/RenderModal';
+import type {RenderType} from '../../editor/components/RenderModal/RenderModalAdvanced';
 
 export const getDefaultCodecs = ({
 	defaultCodec,
