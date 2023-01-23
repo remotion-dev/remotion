@@ -4,7 +4,6 @@ import React, {useCallback, useMemo} from 'react';
 import type {TComposition} from 'remotion';
 import {useFileExistence} from '../../helpers/use-file-existence';
 import {Checkmark} from '../../icons/Checkmark';
-import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {InputDragger} from '../NewComposition/InputDragger';
@@ -133,7 +132,6 @@ export const RenderModalBasic: React.FC<{
 					</div>
 				</div>
 			)}
-			<Spacing block y={1} />
 			{renderMode === 'still' && currentComposition.durationInFrames > 1 ? (
 				<div style={optionRow}>
 					<div style={label}>Frame</div>
@@ -153,6 +151,7 @@ export const RenderModalBasic: React.FC<{
 					</div>
 				</div>
 			) : null}
+
 			{renderMode === 'video' && codec === 'prores' ? (
 				<div style={optionRow}>
 					<div style={label}>ProRes profile</div>

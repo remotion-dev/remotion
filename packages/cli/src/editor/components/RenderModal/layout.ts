@@ -7,11 +7,13 @@ export const optionRow: React.CSSProperties = {
 	minHeight: 40,
 	paddingLeft: 16,
 	paddingRight: 16,
+	paddingTop: 8,
+	paddingBottom: 8,
 };
 
 export const label: React.CSSProperties = {
 	width: 150,
-	fontSize: 14,
+	fontSize: 15,
 	lineHeight: '40px',
 	color: LIGHT_TEXT,
 };

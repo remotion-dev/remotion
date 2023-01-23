@@ -38,6 +38,7 @@ export const RenderModalAudio: React.FC<{
 		},
 		[setShouldHaveCustomTargetAudioBitrate]
 	);
+	// TODO: When rendering, mp3 does not support the "crf" option. Ignoring.
 
 	const onTargetAudioBitrateChanged: React.ChangeEventHandler<HTMLInputElement> =
 		useCallback(
