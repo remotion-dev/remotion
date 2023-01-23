@@ -32,13 +32,13 @@ import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {leftSidebarTabs} from '../SidebarContent';
-import {CrfSetting, useCrfState} from './CrfSetting';
+import {useCrfState} from './CrfSetting';
 import {EnforceAudioTrackSetting} from './EnforceAudioTrackSetting';
-import {EveryNthFrameSetting} from './EveryNthFrameSetting';
 import {FrameRangeSetting} from './FrameRangeSetting';
 import {label, optionRow, rightRow} from './layout';
 import {MutedSetting} from './MutedSetting';
 import {NumberOfLoopsSetting} from './NumberOfLoopsSetting';
+import {NumberSetting} from './NumberSetting';
 import {QualitySetting} from './QualitySetting';
 import {ScaleSetting} from './ScaleSetting';
 
@@ -874,9 +874,11 @@ export const RenderModal: React.FC<{
 					hideLabel="Hide advanced settings"
 				>
 					{codec === 'gif' ? (
-						<EveryNthFrameSetting
-							everyNthFrame={everyNthFrameSetting}
-							setEveryNthFrameSetting={setEveryNthFrameSetting}
+						<NumberSetting
+							name="Every nth frame"
+							min={1}
+							onValueChanged={setEveryNthFrameSetting}
+							value={everyNthFrame}
 						/>
 					) : null}
 					{codec === 'gif' ? (
@@ -959,7 +961,13 @@ export const RenderModal: React.FC<{
 						</div>
 					) : null}
 					{shouldDisplayCrfOption && qualityControlType === 'crf' ? (
-						<CrfSetting crf={crf} max={maxCrf} min={minCrf} setCrf={setCrf} />
+						<NumberSetting
+							min={minCrf}
+							max={maxCrf}
+							name="CRF"
+							onValueChanged={setCrf}
+							value={crf}
+						/>
 					) : null}
 
 					{qualityControlType === 'bitrate' ? (
