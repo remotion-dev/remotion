@@ -12,6 +12,7 @@ import {RemotionInput, RightAlignInput} from '../NewComposition/RemInput';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
+import {FrameRangeSetting} from './FrameRangeSetting';
 import {humanReadableCodec} from './human-readable-codec';
 import {input, label, optionRow, rightRow} from './layout';
 import type {RenderType} from './RenderModalAdvanced';
@@ -28,6 +29,10 @@ export const RenderModalBasic: React.FC<{
 	setFrame: React.Dispatch<React.SetStateAction<number>>;
 	currentComposition: TComposition<unknown>;
 	setOutName: (value: React.SetStateAction<string>) => void;
+	setEndFrame: React.Dispatch<React.SetStateAction<number | null>>;
+	startFrame: number;
+	endFrame: number;
+	setStartFrame: React.Dispatch<React.SetStateAction<number | null>>;
 }> = ({
 	renderMode,
 	imageFormatOptions,
@@ -40,6 +45,10 @@ export const RenderModalBasic: React.FC<{
 	setFrame,
 	currentComposition,
 	setOutName,
+	setEndFrame,
+	endFrame,
+	setStartFrame,
+	startFrame,
 }) => {
 	const existence = useFileExistence(outName);
 
@@ -111,23 +120,20 @@ export const RenderModalBasic: React.FC<{
 					<div style={rightRow}>
 						<SegmentedControl items={imageFormatOptions} needsWrapping />
 					</div>
-					<Spacing block y={1} />
 				</div>
 			) : (
-				<>
-					<div style={optionRow}>
-						<div style={label}>Codec</div>
-						<div style={rightRow}>
-							<Combobox
-								values={videoCodecOptions}
-								selectedId={codec}
-								title="Codec"
-							/>
-						</div>
+				<div style={optionRow}>
+					<div style={label}>Codec</div>
+					<div style={rightRow}>
+						<Combobox
+							values={videoCodecOptions}
+							selectedId={codec}
+							title="Codec"
+						/>
 					</div>
-					<Spacing block y={1} />
-				</>
+				</div>
 			)}
+			<Spacing block y={1} />
 			{renderMode === 'still' && currentComposition.durationInFrames > 1 ? (
 				<div style={optionRow}>
 					<div style={label}>Frame</div>
@@ -145,7 +151,6 @@ export const RenderModalBasic: React.FC<{
 							/>
 						</RightAlignInput>
 					</div>
-					<Spacing block y={1} />
 				</div>
 			) : null}
 			{renderMode === 'video' && codec === 'prores' ? (
@@ -156,6 +161,15 @@ export const RenderModalBasic: React.FC<{
 					</div>
 				</div>
 			) : null}
+			{renderMode === 'still' ? null : (
+				<FrameRangeSetting
+					durationInFrames={currentComposition.durationInFrames}
+					endFrame={endFrame}
+					setEndFrame={setEndFrame}
+					setStartFrame={setStartFrame}
+					startFrame={startFrame}
+				/>
+			)}
 			<div style={optionRow}>
 				<div style={label}>Output name</div>
 				<div style={rightRow}>
