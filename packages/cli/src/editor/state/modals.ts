@@ -31,6 +31,8 @@ export type RenderModalState = {
 	initialEnforceAudioTrack: boolean;
 	initialProResProfile: ProResProfile;
 	initialPixelFormat: PixelFormat;
+	initialVideoBitrate: string | null;
+	initialAudioBitrate: string | null;
 	minConcurrency: number;
 	maxConcurrency: number;
 };

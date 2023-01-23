@@ -37,6 +37,8 @@ export const Modals: React.FC = () => {
 					initialEnforceAudioTrack={modalContextType.initialEnforceAudioTrack}
 					initialProResProfile={modalContextType.initialProResProfile}
 					initialPixelFormat={modalContextType.initialPixelFormat}
+					initialAudioBitrate={modalContextType.initialAudioBitrate}
+					initialVideoBitrate={modalContextType.initialVideoBitrate}
 				/>
 			)}
 

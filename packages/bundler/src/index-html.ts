@@ -15,6 +15,8 @@ export type RenderDefaults = {
 	enforceAudioTrack: boolean;
 	proResProfile: string;
 	pixelFormat: string;
+	audioBitrate: string | null;
+	videoBitrate: string | null;
 };
 
 declare global {

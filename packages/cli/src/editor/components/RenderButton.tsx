@@ -65,6 +65,8 @@ export const RenderButton: React.FC<{
 				initialEnforceAudioTrack: defaults.enforceAudioTrack,
 				initialProResProfile: defaults.proResProfile as ProResProfile,
 				initialPixelFormat: defaults.pixelFormat as PixelFormat,
+				initialAudioBitrate: defaults.audioBitrate,
+				initialVideoBitrate: defaults.videoBitrate,
 			});
 		},
 		[composition.id, isVideo, setSelectedModal]

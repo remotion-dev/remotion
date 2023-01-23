@@ -143,6 +143,8 @@ export const RenderModal: React.FC<{
 	initialEnforceAudioTrack: boolean;
 	initialProResProfile: ProResProfile;
 	initialPixelFormat: PixelFormat;
+	initialVideoBitrate: string | null;
+	initialAudioBitrate: string | null;
 }> = ({
 	compositionId,
 	initialFrame,
@@ -162,6 +164,8 @@ export const RenderModal: React.FC<{
 	initialEnforceAudioTrack,
 	initialProResProfile,
 	initialPixelFormat,
+	initialVideoBitrate,
+	initialAudioBitrate,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -207,22 +211,20 @@ export const RenderModal: React.FC<{
 	const [pixelFormat, setPixelFormat] = useState<PixelFormat>(
 		() => initialPixelFormat
 	);
-	// TODO: Initial
-	const [qualityControlType, setQualityControl] = useState<QualityControl>(
-		() => 'crf'
+	const [qualityControlType, setQualityControl] = useState<QualityControl>(() =>
+		initialVideoBitrate === null ? 'crf' : 'bitrate'
 	);
-	// TODO: Initial
 	const [
 		shouldHaveCustomTargetAudioBitrate,
 		setShouldHaveCustomTargetAudioBitrate,
-	] = useState(false);
+	] = useState(() => initialAudioBitrate !== null);
 
-	// TODO: Defaults
-	const [customTargetAudioBitrate, setCustomTargetAudioBitrateValue] =
-		useState('128K');
-	// TODO: Validate bitrate
-	const [customTargetVideoBitrate, setCustomTargetVideoBitrateValue] =
-		useState('1M');
+	const [customTargetAudioBitrate, setCustomTargetAudioBitrateValue] = useState(
+		() => initialAudioBitrate ?? '256K'
+	);
+	const [customTargetVideoBitrate, setCustomTargetVideoBitrateValue] = useState(
+		() => initialVideoBitrate ?? '1M'
+	);
 
 	const codec = useMemo(() => {
 		if (renderMode === 'audio') {

@@ -37,6 +37,8 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialEnforceAudioTrack: defaults.enforceAudioTrack,
 			initialProResProfile: defaults.proResProfile as ProResProfile,
 			initialPixelFormat: defaults.pixelFormat as PixelFormat,
+			initialAudioBitrate: defaults.audioBitrate,
+			initialVideoBitrate: defaults.videoBitrate,
 		};
 	}
 
@@ -63,6 +65,8 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialProResProfile:
 				job.proResProfile ?? (defaults.proResProfile as ProResProfile),
 			initialPixelFormat: job.pixelFormat,
+			initialAudioBitrate: job.audioBitrate,
+			initialVideoBitrate: job.videoBitrate,
 		};
 	}
 
