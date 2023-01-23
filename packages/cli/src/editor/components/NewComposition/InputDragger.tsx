@@ -42,6 +42,7 @@ export const InputDragger: React.FC<Props> = ({
 			cursor: 'ew-resize',
 			userSelect: 'none',
 			fontSize: 13,
+			fontVariantNumeric: 'tabular-nums',
 		}),
 		[]
 	);
