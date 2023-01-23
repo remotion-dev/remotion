@@ -33,6 +33,7 @@ export type RenderModalState = {
 	initialPixelFormat: PixelFormat;
 	initialVideoBitrate: string | null;
 	initialAudioBitrate: string | null;
+	initialEveryNthFrame: number;
 	minConcurrency: number;
 	maxConcurrency: number;
 };

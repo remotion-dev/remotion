@@ -78,6 +78,7 @@ const handleFallback = async ({
 	const proResProfile = ConfigInternals.getProResProfile() ?? 'hq';
 	const audioBitrate = ConfigInternals.getAudioBitrate();
 	const videoBitrate = ConfigInternals.getVideoBitrate();
+	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 
 	// TODO: Separate image and video formats in the future. Default should be PNG for images and JPEG for videos.
 	const stillImageFormat: 'png' | 'jpeg' =
@@ -126,6 +127,7 @@ const handleFallback = async ({
 				pixelFormat,
 				audioBitrate,
 				videoBitrate,
+				everyNthFrame,
 			},
 		})
 	);

@@ -55,7 +55,7 @@ type RenderJobDynamicFields =
 			pixelFormat: PixelFormat;
 			audioBitrate: string | null;
 			videoBitrate: string | null;
-			// TODO: Add more fields like frame range
+			everyNthFrame: number;
 	  };
 
 export type RenderJob = {
@@ -99,6 +99,7 @@ type AddRenderRequestDynamicFields =
 			pixelFormat: PixelFormat;
 			audioBitrate: string | null;
 			videoBitrate: string | null;
+			everyNthFrame: number;
 	  };
 
 export type CancelRenderRequest = {

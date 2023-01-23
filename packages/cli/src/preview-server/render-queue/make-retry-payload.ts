@@ -39,6 +39,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialPixelFormat: defaults.pixelFormat as PixelFormat,
 			initialAudioBitrate: defaults.audioBitrate,
 			initialVideoBitrate: defaults.videoBitrate,
+			initialEveryNthFrame: defaults.everyNthFrame,
 		};
 	}
 
@@ -67,6 +68,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialPixelFormat: job.pixelFormat,
 			initialAudioBitrate: job.audioBitrate,
 			initialVideoBitrate: job.videoBitrate,
+			initialEveryNthFrame: job.everyNthFrame,
 		};
 	}
 
