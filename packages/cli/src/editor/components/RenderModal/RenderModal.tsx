@@ -730,95 +730,6 @@ export const RenderModal: React.FC<{
 		[]
 	);
 
-	if (renderMode === 'still') {
-		return (
-			<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
-				<NewCompHeader title={`Render ${compositionId}`} />
-				<div style={container}>
-					<SegmentedControl items={renderTabOptions} needsWrapping={false} />
-				</div>
-				<div style={scrollPanel}>
-					<Spacing block y={0.5} />
-					<div style={optionRow}>
-						<div style={label}>Format</div>
-						<div style={rightRow}>
-							<SegmentedControl items={imageFormatOptions} needsWrapping />
-						</div>
-					</div>
-					<div style={optionRow}>
-						<div style={label}>Output name</div>
-						<div style={rightRow}>
-							<div>
-								<RemotionInput
-									// TODO: Validate and reject folders or weird file names
-									warning={existence}
-									style={input}
-									type="text"
-									value={outName}
-									onChange={onValueChange}
-								/>
-								{existence ? (
-									<ValidationMessage
-										align="flex-end"
-										message="Will be overwritten"
-									/>
-								) : null}
-							</div>
-						</div>
-					</div>
-					{currentComposition.durationInFrames > 1 ? (
-						<div style={optionRow}>
-							<div style={label}>Frame</div>
-							<div style={rightRow}>
-								<RightAlignInput>
-									<InputDragger
-										value={frame}
-										onTextChange={onFrameChanged}
-										placeholder={`0-${currentComposition.durationInFrames - 1}`}
-										onValueChange={onFrameSetDirectly}
-										name="frame"
-										step={1}
-										min={0}
-										max={currentComposition.durationInFrames - 1}
-									/>
-								</RightAlignInput>
-							</div>
-						</div>
-					) : null}
-
-					<CollapsableOptions
-						showLabel="Show advanced settings"
-						hideLabel="Hide advanced settings"
-					>
-						<ScaleSetting scale={scale} setScale={setScale} />
-						<div style={optionRow}>
-							<div style={label}>Verbose logging</div>
-							<div style={rightRow}>
-								<Checkbox
-									checked={verbose}
-									onChange={onVerboseLoggingChanged}
-								/>
-							</div>
-						</div>
-						{stillImageFormat === 'jpeg' && (
-							<QualitySetting setQuality={setQuality} quality={quality} />
-						)}
-					</CollapsableOptions>
-					<Spacing block y={0.5} />
-				</div>
-				<div style={buttonRow}>
-					<Button
-						autoFocus
-						onClick={onClickStill}
-						disabled={state.type === 'load'}
-					>
-						{state.type === 'idle' ? 'Render still' : 'Rendering...'}
-					</Button>
-				</div>
-			</ModalContainer>
-		);
-	}
-
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title={`Render ${compositionId}`} />
@@ -827,17 +738,49 @@ export const RenderModal: React.FC<{
 			</div>
 			<div style={scrollPanel}>
 				<Spacing block y={0.5} />
-				<div style={optionRow}>
-					<div style={label}>Codec</div>
-					<div style={rightRow}>
-						<Combobox
-							values={videoCodecOptions}
-							selectedId={codec}
-							title="Codec"
-						/>
+				{renderMode === 'still' ? (
+					<div style={optionRow}>
+						<div style={label}>Format</div>
+						<div style={rightRow}>
+							<SegmentedControl items={imageFormatOptions} needsWrapping />
+						</div>
+						<Spacing block y={1} />
 					</div>
-				</div>
-				<Spacing block y={1} />
+				) : (
+					<>
+						<div style={optionRow}>
+							<div style={label}>Codec</div>
+							<div style={rightRow}>
+								<Combobox
+									values={videoCodecOptions}
+									selectedId={codec}
+									title="Codec"
+								/>
+							</div>
+						</div>
+						<Spacing block y={1} />
+					</>
+				)}
+				{renderMode === 'still' && currentComposition.durationInFrames > 1 ? (
+					<div style={optionRow}>
+						<div style={label}>Frame</div>
+						<div style={rightRow}>
+							<RightAlignInput>
+								<InputDragger
+									value={frame}
+									onTextChange={onFrameChanged}
+									placeholder={`0-${currentComposition.durationInFrames - 1}`}
+									onValueChange={onFrameSetDirectly}
+									name="frame"
+									step={1}
+									min={0}
+									max={currentComposition.durationInFrames - 1}
+								/>
+							</RightAlignInput>
+						</div>
+						<Spacing block y={1} />
+					</div>
+				) : null}
 
 				{renderMode === 'video' && codec === 'prores' ? (
 					<div style={optionRow}>
@@ -899,14 +842,16 @@ export const RenderModal: React.FC<{
 							setNumberOfGifLoops={setNumberOfGifLoopsSetting}
 						/>
 					) : null}
-					<NumberSetting
-						min={minConcurrency}
-						max={maxConcurrency}
-						step={1}
-						name="Concurrency"
-						onValueChanged={setConcurrency}
-						value={concurrency}
-					/>
+					{renderMode === 'still' ? null : (
+						<NumberSetting
+							min={minConcurrency}
+							max={maxConcurrency}
+							step={1}
+							name="Concurrency"
+							onValueChanged={setConcurrency}
+							value={concurrency}
+						/>
+					)}
 					{renderMode === 'video' ? (
 						<ScaleSetting scale={scale} setScale={setScale} />
 					) : null}
@@ -953,7 +898,9 @@ export const RenderModal: React.FC<{
 							</div>
 						</div>
 					) : null}
-					{shouldDisplayCrfOption && qualityControlType === 'crf' ? (
+					{shouldDisplayCrfOption &&
+					qualityControlType === 'crf' &&
+					renderMode !== 'still' ? (
 						<NumberSetting
 							min={minCrf}
 							max={maxCrf}
@@ -963,8 +910,7 @@ export const RenderModal: React.FC<{
 							step={1}
 						/>
 					) : null}
-
-					{qualityControlType === 'bitrate' ? (
+					{qualityControlType === 'bitrate' && renderMode !== 'still' ? (
 						<div style={optionRow}>
 							<div style={label}>Target video bitrate</div>
 							<div style={rightRow}>
@@ -978,16 +924,18 @@ export const RenderModal: React.FC<{
 							</div>
 						</div>
 					) : null}
-					<div style={optionRow}>
-						<div style={label}>Custom audio bitrate</div>
-						<div style={rightRow}>
-							<Checkbox
-								checked={shouldHaveCustomTargetAudioBitrate}
-								onChange={onShouldHaveTargetAudioBitrateChanged}
-							/>
+					{renderMode === 'still' ? null : (
+						<div style={optionRow}>
+							<div style={label}>Custom audio bitrate</div>
+							<div style={rightRow}>
+								<Checkbox
+									checked={shouldHaveCustomTargetAudioBitrate}
+									onChange={onShouldHaveTargetAudioBitrateChanged}
+								/>
+							</div>
 						</div>
-					</div>
-					{shouldHaveCustomTargetAudioBitrate ? (
+					)}
+					{shouldHaveCustomTargetAudioBitrate && renderMode !== 'still' ? (
 						<div style={optionRow}>
 							<div style={label}>Target audio bitrate</div>
 							<div style={rightRow}>
@@ -1001,13 +949,15 @@ export const RenderModal: React.FC<{
 							</div>
 						</div>
 					) : null}
-					<FrameRangeSetting
-						durationInFrames={currentComposition.durationInFrames}
-						endFrame={endFrame}
-						setEndFrame={setEndFrame}
-						setStartFrame={setStartFrame}
-						startFrame={startFrame}
-					/>
+					{renderMode === 'still' ? null : (
+						<FrameRangeSetting
+							durationInFrames={currentComposition.durationInFrames}
+							endFrame={endFrame}
+							setEndFrame={setEndFrame}
+							setStartFrame={setStartFrame}
+							startFrame={startFrame}
+						/>
+					)}
 					<div style={optionRow}>
 						<div style={label}>Verbose logging</div>
 						<div style={rightRow}>
@@ -1020,11 +970,16 @@ export const RenderModal: React.FC<{
 			<div style={buttonRow}>
 				<Button
 					autoFocus
-					onClick={onClickVideo}
+					onClick={renderMode === 'still' ? onClickStill : onClickVideo}
 					disabled={state.type === 'load'}
 				>
 					{state.type === 'idle'
-						? 'Render ' + (renderMode === 'audio' ? 'audio' : 'video')
+						? 'Render ' +
+						  (renderMode === 'still'
+								? 'still'
+								: renderMode === 'audio'
+								? 'audio'
+								: 'video')
 						: 'Rendering...'}
 				</Button>
 			</div>
