@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-paths-translate-path.png
 title: translatePath()
 crumb: "@remotion/paths"
 ---

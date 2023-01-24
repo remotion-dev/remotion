@@ -812,6 +812,13 @@ export const articles = [
     crumb: "Lambda Troubleshooting",
   },
   {
+    id: "lambda/troubleshooting/security-token",
+    title: "'\"The security token included in the request is invalid\"'",
+    relativePath: "docs/lambda/troubleshooting/security-token.md",
+    compId: "articles-docs-lambda-troubleshooting-security-token",
+    crumb: "Lambda",
+  },
+  {
     id: "unrecognizedclientexception",
     title: "UnrecognizedClientException",
     relativePath: "docs/lambda/troubleshooting/unrecognizedclientexception.md",
@@ -1189,6 +1196,13 @@ export const articles = [
     title: "reversePath()",
     relativePath: "docs/paths/reverse-path.md",
     compId: "articles-docs-paths-reverse-path",
+    crumb: "@remotion/paths",
+  },
+  {
+    id: "paths/translate-path",
+    title: "translatePath()",
+    relativePath: "docs/paths/translate-path.md",
+    compId: "articles-docs-paths-translate-path",
     crumb: "@remotion/paths",
   },
   {
