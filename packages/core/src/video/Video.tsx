@@ -1,5 +1,5 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
-import {getRemotionEnvironment} from '../get-environment';
+import {useRemotionEnvironment} from '../get-environment';
 import {Loop} from '../loop';
 import {Sequence} from '../Sequence';
 import {useVideoConfig} from '../use-video-config';
@@ -17,6 +17,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	const {startFrom, endAt, ...otherProps} = props;
 	const {loop, ...propsOtherThanLoop} = props;
 	const {fps} = useVideoConfig();
+	const environment = useRemotionEnvironment();
 
 	const {durations, setDurations} = useContext(DurationsContext);
 
@@ -70,7 +71,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 
 	validateMediaProps(props, 'Video');
 
-	if (getRemotionEnvironment() === 'rendering') {
+	if (environment === 'rendering') {
 		return (
 			<VideoForRendering onDuration={onDuration} {...otherProps} ref={ref} />
 		);
