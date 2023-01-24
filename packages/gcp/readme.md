@@ -1,0 +1,1 @@
+`npm run start` will trigger a build command, which will compile the typescript into dist folder as javascript. It will then start the server.
