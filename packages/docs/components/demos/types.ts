@@ -2,6 +2,7 @@ import { CircleDemo } from "./Circle";
 import { EllipseDemo } from "./Ellipse";
 import { NoiseComp } from "./NoiseDemo";
 import { RectDemo } from "./Rect";
+import { StarDemo } from "./Star";
 import { TriangleDemo } from "./Triangle";
 
 export type Option = {
@@ -189,6 +190,36 @@ export const ellipseDemo: DemoType = {
       min: 1,
       type: "numeric",
       name: "ry",
+      optional: "no",
+    },
+  ],
+};
+
+export const starDemo: DemoType = {
+  comp: StarDemo,
+  compHeight: 720,
+  compWidth: 1280,
+  durationInFrames: 150,
+  fps: 30,
+  id: "star",
+  autoPlay: true,
+  options: [
+    {
+      default: 150,
+      max: 400,
+      step: 5,
+      min: 1,
+      type: "numeric",
+      name: "innerRadius",
+      optional: "no",
+    },
+    {
+      default: 200,
+      max: 400,
+      step: 5,
+      min: 1,
+      type: "numeric",
+      name: "outerRadius",
       optional: "no",
     },
   ],

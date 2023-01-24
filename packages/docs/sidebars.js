@@ -298,6 +298,7 @@ module.exports = {
         "shapes/triangle",
         "shapes/circle",
         "shapes/ellipse",
+        "shapes/star",
         "shapes/make-rect",
         "shapes/make-triangle",
         "shapes/make-circle",

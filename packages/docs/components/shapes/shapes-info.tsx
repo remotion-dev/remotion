@@ -2,6 +2,7 @@ import {
   makeCircle,
   makeEllipse,
   makeRect,
+  makeStar,
   makeTriangle,
 } from "@remotion/shapes";
 import React from "react";
@@ -80,6 +81,22 @@ export const shapeComponents: ShapeComponent[] = [
         name: "direction",
         type: '"left" | "right" | "up" | "down"',
         description: "The direction of the triangle.",
+      },
+    ],
+  },
+  {
+    shape: "Star",
+    fn: makeStar,
+    params: [
+      {
+        name: "width",
+        type: "number",
+        description: "The width of one triangle side.",
+      },
+      {
+        name: "height",
+        type: "number",
+        description: "The width of one triangle side.",
       },
     ],
   },
