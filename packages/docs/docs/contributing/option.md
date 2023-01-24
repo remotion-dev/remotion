@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-contributing-option.png
 title: Implementing a new option
+crumb: Contributing
 ---
 
 Adding a new option to a feature is a great way to contribute to Remotion and enable more use cases.
@@ -41,3 +43,5 @@ Note from which version the option is available.
 ## See also
 
 - [Implementing a new feature](/docs/contributing/feature)
+- [Implement a new feature](/docs/contributing/features)
+- [Writing documentation](/docs/contributing/docs)

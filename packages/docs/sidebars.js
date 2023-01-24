@@ -506,6 +506,7 @@ module.exports = {
         "contributing/index",
         "contributing/feature",
         "contributing/option",
+        "contributing/docs",
       ],
     },
     "license",

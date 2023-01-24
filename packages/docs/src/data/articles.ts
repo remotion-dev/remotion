@@ -189,6 +189,34 @@ export const articles = [
     crumb: "API",
   },
   {
+    id: "contributing/docs",
+    title: "Contributing to the documentation",
+    relativePath: "docs/contributing/docs.md",
+    compId: "articles-docs-contributing-docs",
+    crumb: "Contributing",
+  },
+  {
+    id: "contributing/feature",
+    title: "Implementing a new feature",
+    relativePath: "docs/contributing/feature.md",
+    compId: "articles-docs-contributing-feature",
+    crumb: "Contributing",
+  },
+  {
+    id: "contributing/index",
+    title: "Contributing to Remotion",
+    relativePath: "docs/contributing/index.md",
+    compId: "articles-docs-contributing-index",
+    crumb: "How to be awesome",
+  },
+  {
+    id: "contributing/option",
+    title: "Implementing a new option",
+    relativePath: "docs/contributing/option.md",
+    compId: "articles-docs-contributing-option",
+    crumb: "Contributing",
+  },
+  {
     id: "data-fetching",
     title: "Data fetching",
     relativePath: "docs/data-fetching.md",
@@ -810,6 +838,13 @@ export const articles = [
     relativePath: "docs/lambda/troubleshooting/rate-limit.md",
     compId: "articles-docs-lambda-troubleshooting-rate-limit",
     crumb: "Lambda Troubleshooting",
+  },
+  {
+    id: "lambda/troubleshooting/security-token",
+    title: "'\"The security token included in the request is invalid\"'",
+    relativePath: "docs/lambda/troubleshooting/security-token.md",
+    compId: "articles-docs-lambda-troubleshooting-security-token",
+    crumb: "Lambda",
   },
   {
     id: "unrecognizedclientexception",

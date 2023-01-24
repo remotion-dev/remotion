@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-contributing-feature.png
 title: Implementing a new feature
+crumb: Contributing
 ---
 
 We are happy to accept contributions to the Remotion project that implement new features.
@@ -31,3 +33,5 @@ Use the `#development` channel on [Discord](https://remotion.dev/discord) to qui
 ## See also
 
 - [Implementing a new option](/docs/contributing/option)
+- [Writing documentation](/docs/contributing/docs)
+- [Implement a new feature](/docs/contributing/features)
