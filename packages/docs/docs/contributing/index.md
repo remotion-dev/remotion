@@ -1,29 +1,110 @@
 ---
-title: Implementing a new feature
+title: Contributing to Remotion
+sidebar_label: General information
 ---
 
-We are happy to accept contributions to the Remotion project that implement new features.
+Issues and pull requests of all sorts are welcome!
+
+For bigger projects, please coordinate with [Jonny Burger](https://jonny.io) to make sure your changes get merged.
+
+Please note that since we charge for Remotion when companies are using it, this is a **commercial project**.  
+By sending pull requests, you agree that I can use your code changes in a commercial context.
+
+Furthermore, also note that you **cannot redistribute** this project. Please see [LICENSE.md](https://remotion.dev/license) for what's allowed and what's not.
+
+This project is released with a [Contributor Code of Conduct](https://remotion.dev/coc). By participating in this project you agree to abide by its terms.
 
 ## Setup
 
-See the [CONTRIBUTING.md](https://github.com/remotion-dev/remotion/blob/main/CONTRIBUTING.md) file for instructions on how to set up the project.
+<Step>1</Step> Remotion uses <a href="https://pnpm.io/"><code>pnpm</code></a> as the package manager for development in this repository. We recommend using Corepack so you get the same version of pnpm as we have. <br/><br/>
 
-## What's important to us
+```sh
+corepack enable
+```
 
-- **Planning**: Signal beforehand that you would like to propose the feature by opening an issue and mentioning that you would like to work on it.  
-  This gives us the chance to comment on whether we like the feature and lets us discuss the architecture.
-- **Generic:** The feature should be as unopinionated as possible. Instead of making decisions that are specific to your usecase, try to make the feature as generic as possible so that it can be used by everyone.
-- **Size**: The feature should not bloat lightweight packages by adding dependencies that can be avoided. Consider if the feature should be a new package in a monorepo if there are a lot of dependencies that are not needed by everyone.
-- **Documentation:** The feature should be documented and the documentation should have the same level of quality as the rest docs.
+If you don't have `corepack`, install pnpm manually:
 
-## Technical standards
+```sh
+npm i -g pnpm@7.7.1
+```
 
-- **TypeScript or Rust**: The code should be written in one of these two languages.
-- **Tests**: Add tests if you think it makes sense.
-- **Forward-compatibility**: Be mindful of how the feature might evolve in the future. Using objects in the input and output of an API makes it easier to add new properties in the future.
-- **Backwards-compatibility**: Your feature cannot break existing code if Remotion is upgraded, unless the feature lands in a major version.
-- **Naming conventions**: Use `camelCase` for variables. If the API interfaces with numeric values, the unit should be included. For example `durationInFrames` instead of `duration` or `timeoutInMilliseconds` instead of `timeout`.
+Prefix with `sudo` if necessary.
 
-## Communicate with us
+<Step>2</Step> Clone the Remotion repository:<br/>
 
-Use the `#development` channel on [Discord](https://remotion.dev/discord) to quickly ask questions and get feedback.
+```sh
+git clone https://github.com/remotion-dev/remotion.git && cd remotion
+```
+
+<Step>3</Step> Install all dependencies:<br/>
+
+```sh
+pnpm i
+```
+
+<Step>4</Step> Build the project initially:<br/>
+
+```sh
+pnpm build
+```
+
+<Step>5</Step> Rebuild whenever a file changes:
+
+```sh
+pnpm watch
+```
+
+<Step>6</Step> You can start making changes!
+
+## Testing your changes
+
+You can start the Testbed using
+
+```sh
+cd packages/example
+npm start
+```
+
+You can render a test video using
+
+```sh
+cd packages/example
+pnpm render
+```
+
+You can run tests using
+
+```sh
+pnpm test
+```
+
+in either a subpackage to run tests for that package or in the root to run all tests.
+
+## Running the `@remotion/player` testbed
+
+You can test changes to [@remotion/player](https://remotion.dev/docs/player) by starting the Player testbed:
+
+```sh
+cd packages/player-example
+pnpm start
+```
+
+For information about testing, please consult [TESTING.md](./TESTING.md).
+
+## Running documentation
+
+You can run the Docusaurus server that powers our docs using:
+
+```sh
+cd packages/docs
+pnpm start
+```
+
+## Developing Rust parts
+
+To develop the Rust parts of Remotion, see the README in [packages/renderer/README.md](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/README.md)
+
+## See also
+
+- [Implementing a new feature](/docs/contributing/feature)
+- [Implementing a new option](/docs/contributing/option)
