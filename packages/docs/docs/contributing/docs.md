@@ -87,7 +87,7 @@ Use `<ExperimentalBadge />` to mark something as experimental:
 
 ### Demos
 
-Using `<Demo type="[demo-name]" />` you can render a [Remotion Player](/terminology#remotion-player) and specify props that can be updated.
+Using `<Demo type="[demo-name]" />` you can render a [Remotion Player](/docs/terminology#remotion-player) and specify props that can be updated.
 
 ```md
 <Demo type="rect"/>
