@@ -303,6 +303,7 @@ module.exports = {
         "shapes/make-triangle",
         "shapes/make-circle",
         "shapes/make-ellipse",
+        "shapes/make-star",
       ],
     },
   ],
