@@ -4,7 +4,7 @@ import {makeStar} from '../utils/make-star';
 import type {AllShapesProps} from './render-svg';
 import {RenderSvg} from './render-svg';
 
-export type StarProps = MakeStarProps & AllShapesProps;
+export type StarProps = MakeStarProps & Omit<AllShapesProps, 'points'>;
 
 export const Star: React.FC<StarProps> = ({
 	width,
