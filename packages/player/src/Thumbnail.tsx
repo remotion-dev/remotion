@@ -83,26 +83,28 @@ export const ThumbnailFn = <T,>(
 	}, [inputProps]);
 
 	return (
-		<SharedPlayerContexts
-			timelineContext={timelineState}
-			component={Component}
-			compositionHeight={compositionHeight}
-			compositionWidth={compositionWidth}
-			durationInFrames={durationInFrames}
-			fps={fps}
-			inputProps={inputProps}
-			numberOfSharedAudioTags={0}
-		>
-			<ThumbnailEmitterContext.Provider value={emitter}>
-				<ThumbnailUI
-					className={className}
-					errorFallback={errorFallback}
-					inputProps={passedInputProps}
-					renderLoading={renderLoading}
-					style={style}
-				/>
-			</ThumbnailEmitterContext.Provider>
-		</SharedPlayerContexts>
+		<Internals.IsPlayerContextProvider>
+			<SharedPlayerContexts
+				timelineContext={timelineState}
+				component={Component}
+				compositionHeight={compositionHeight}
+				compositionWidth={compositionWidth}
+				durationInFrames={durationInFrames}
+				fps={fps}
+				inputProps={inputProps}
+				numberOfSharedAudioTags={0}
+			>
+				<ThumbnailEmitterContext.Provider value={emitter}>
+					<ThumbnailUI
+						className={className}
+						errorFallback={errorFallback}
+						inputProps={passedInputProps}
+						renderLoading={renderLoading}
+						style={style}
+					/>
+				</ThumbnailEmitterContext.Provider>
+			</SharedPlayerContexts>
+		</Internals.IsPlayerContextProvider>
 	);
 };
 
