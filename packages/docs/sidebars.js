@@ -502,7 +502,11 @@ module.exports = {
     {
       type: "category",
       label: "Contributing",
-      items: ["contributing/index"],
+      items: [
+        "contributing/index",
+        "contributing/feature",
+        "contributing/option",
+      ],
     },
     "license",
   ],
