@@ -12,11 +12,21 @@ export const Star: React.FC<StarProps> = ({
 	innerRadius,
 	outerRadius,
 	points,
+	cornerRadius,
+	edgeRoundness,
 	...props
 }) => {
 	return (
 		<RenderSvg
-			{...makeStar({height, width, innerRadius, outerRadius, points})}
+			{...makeStar({
+				height,
+				width,
+				innerRadius,
+				outerRadius,
+				points,
+				cornerRadius,
+				edgeRoundness,
+			})}
 			{...props}
 		/>
 	);

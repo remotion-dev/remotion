@@ -1,3 +1,6 @@
+import {serializeInstructions} from './instructions';
+import {joinPoints} from './join-points';
+
 type PolarToCartesianProps = {
 	centerX: number;
 	centerY: number;
@@ -25,6 +28,8 @@ export type StarProps = {
 	points: number;
 	innerRadius: number;
 	outerRadius: number;
+	edgeRoundness: number | null;
+	cornerRadius: number;
 };
 
 export const star = ({
@@ -33,18 +38,30 @@ export const star = ({
 	points,
 	innerRadius,
 	outerRadius,
+	cornerRadius,
+	edgeRoundness,
 }: StarProps): string => {
 	const degreeIncrement = 360 / (points * 2);
-	const d = new Array(points * 2).fill('true').map((_p, i) => {
-		const radius = i % 2 === 0 ? outerRadius : innerRadius;
-		const degrees = degreeIncrement * i;
-		const point = polarToCartesian({
-			centerX,
-			centerY,
-			radius,
-			angleInDegrees: degrees,
+	const d = new Array(points * 2)
+		.fill('true')
+		.map((_p, i): [number, number] => {
+			const radius = i % 2 === 0 ? outerRadius : innerRadius;
+			const degrees = degreeIncrement * i;
+			const point = polarToCartesian({
+				centerX,
+				centerY,
+				radius,
+				angleInDegrees: degrees,
+			});
+
+			return [point.x, point.y];
 		});
-		return `${point.x},${point.y}`;
-	});
-	return `M${d}Z`;
+
+	return serializeInstructions(
+		joinPoints([...d, d[0]], {
+			edgeRoundness,
+			cornerRadius,
+			roundCornerStrategy: 'arc',
+		})
+	);
 };
