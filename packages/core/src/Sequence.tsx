@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import {AbsoluteFill} from './AbsoluteFill';
 import {CompositionManager} from './CompositionManager';
-import {getRemotionEnvironment} from './get-environment';
+import {useRemotionEnvironment} from './get-environment';
 import {getTimelineClipName} from './get-timeline-clip-name';
 import {useNonce} from './nonce';
 import {TimelineContext, useTimelinePosition} from './timeline-position-state';
@@ -65,6 +65,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
 	const nonce = useNonce();
+	const environment = useRemotionEnvironment();
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
 		throw new TypeError(
@@ -141,7 +142,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, [children, name]);
 
 	useEffect(() => {
-		if (getRemotionEnvironment() !== 'preview') {
+		if (environment !== 'preview') {
 			return;
 		}
 

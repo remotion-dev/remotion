@@ -6,7 +6,7 @@ import React, {
 	useRef,
 } from 'react';
 import {continueRender, delayRender} from './delay-render';
-import {getRemotionEnvironment} from './get-environment';
+import {useRemotionEnvironment} from './get-environment';
 import {usePreload} from './prefetch';
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
@@ -17,6 +17,8 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 	>
 > = ({onError, src, ...props}, ref) => {
 	const imageRef = useRef<HTMLImageElement>(null);
+
+	const environment = useRemotionEnvironment();
 
 	useImperativeHandle(
 		ref,
@@ -45,7 +47,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 	);
 
 	// If image source switches, make new handle
-	if (getRemotionEnvironment() === 'rendering') {
+	if (environment === 'rendering') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
 			if (process.env.NODE_ENV === 'test') {
