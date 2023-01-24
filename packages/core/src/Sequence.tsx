@@ -175,6 +175,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		nonce,
 		showLoopTimesInTimeline,
+		environment,
 	]);
 
 	const endThreshold = cumulatedFrom + from + durationInFrames - 1;
