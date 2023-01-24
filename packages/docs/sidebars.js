@@ -499,6 +499,11 @@ module.exports = {
         "miscellaneous/changing-temp-dir",
       ],
     },
+    {
+      type: "category",
+      label: "Contributing",
+      items: ["contributing/index"],
+    },
     "license",
   ],
 };
