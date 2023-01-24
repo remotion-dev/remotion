@@ -8,11 +8,11 @@ const serialize = (path: (Instruction | number[])[]) => {
 	}, '');
 };
 
-const translateSegments = (path: string, x: number, y?: number) => {
+const translateSegments = (path: string, x: number, y: number) => {
 	const segments = parsePath(path);
 
 	return segments.map((segment) => {
-		const cmd = segment[0] as string;
+		const cmd = segment[0];
 
 		// Shift coords only for commands with absolute values
 		if ('ACHLMRQSTVZ'.indexOf(cmd) === -1) {
@@ -46,6 +46,6 @@ const translateSegments = (path: string, x: number, y?: number) => {
 	});
 };
 
-export const translatePath = (path: string, x: number, y?: number) => {
+export const translatePath = (path: string, x: number, y: number) => {
 	return serialize(translateSegments(path, x, y));
 };
