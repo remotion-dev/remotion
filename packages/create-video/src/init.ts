@@ -15,6 +15,7 @@ import {
 } from './pkg-managers';
 import {resolveProjectRoot} from './resolve-project-root';
 import {selectTemplate} from './select-template';
+import {yesOrNo} from './yesno';
 
 const binaryExists = (name: string) => {
 	const isWin = os.platform() === 'win32';
@@ -81,9 +82,14 @@ export const init = async () => {
 	}
 
 	if (result.type === 'is-git-repo') {
-		Log.error(`You are already inside a Git repo (${result.location}).`);
-		Log.error('Create a Remotion project somewhere else.');
-		process.exit(1);
+		const should = await yesOrNo({
+			defaultValue: false,
+			question: `You are already inside a Git repo (${result.location}).\nThis might lead to a Git Submodule being created. Do you want to continue? (y/N):`,
+		});
+		if (!should) {
+			Log.error('Aborting.');
+			process.exit(1);
+		}
 	}
 
 	const [projectRoot, folderName] = await resolveProjectRoot();
