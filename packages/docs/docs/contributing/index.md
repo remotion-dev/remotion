@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-contributing-index.png
 title: Contributing to Remotion
 sidebar_label: General information
+crumb: How to be awesome
 ---
 
 Issues and pull requests of all sorts are welcome!
@@ -109,3 +111,4 @@ To develop the Rust parts of Remotion, see the README in [packages/renderer/READ
 
 - [Implementing a new feature](/docs/contributing/feature)
 - [Implementing a new option](/docs/contributing/option)
+- [Writing documentation](/docs/contributing/docs)
