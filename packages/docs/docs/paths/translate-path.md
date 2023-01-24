@@ -6,37 +6,42 @@ crumb: "@remotion/paths"
 
 _Part of the [`@remotion/paths`](/docs/paths) package._
 
-Translates the X or Y coordinates of the path
+Translates the path by the given `x` and `y` coordinates.
 
- The function takes three arguments:
+## Arguments
 
-- `path`, string SVG paths coordinates.
-- `x`, a number representing path x coordinate
-- `y`, `optional` a number representing path y coordinate
+The function takes three arguments:
 
+- `path`, the original SVG path.
+- `x`, the amount of horizontal translation.
+- `y` the amount of vertical translation.
 
-Returns a SVG path string if the path is valid:
+## Return value
 
-```tsx twoslash title='Translate path x coordinates'
+Returns a new `string` containing a path if it is valid:
+
+```tsx twoslash title='translate-x.ts'
 import { translatePath } from "@remotion/paths";
 
-const translatedPath = translatePath("M 50 50 L 150 50", 10);
+const translatedPath = translatePath("M 50 50 L 150 50", 10, 0);
 console.log(translatedPath); // "M 50 50 L 150 50"
 ```
 
-
-```tsx twoslash title='Translate path x and y coordinates'
+```tsx twoslash title='translate-y.ts'
 import { translatePath } from "@remotion/paths";
 
-const translatedPath = translatePath('M10 10 L15 15', 10, 10);
+const translatedPath = translatePath("M10 10 L15 15", 10, 10);
 console.log(translatedPath); // "M 20,20 L 25,25"
 ```
 
-
-```tsx twoslash title='Translate circle path x and y coordinates'
+```tsx twoslash title='translate-x-and-y.ts'
 import { translatePath } from "@remotion/paths";
 
-const translatedPath = translatePath('M 35,50 a 25,25,0,1,1,50,0 a 25,25,0,1,1,-50,0', 10, 20);
+const translatedPath = translatePath(
+  "M 35,50 a 25,25,0,1,1,50,0 a 25,25,0,1,1,-50,0",
+  10,
+  20
+);
 console.log(translatedPath); // "M 45,70 a 25,25,0,1,1,50,0 a 25,25,0,1,1,-50,0"
 ```
 
