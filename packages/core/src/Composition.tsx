@@ -7,7 +7,7 @@ import {CompositionManager} from './CompositionManager';
 import {getInputProps} from './config/input-props';
 import {continueRender, delayRender} from './delay-render';
 import {FolderContext} from './Folder';
-import {getRemotionEnvironment} from './get-environment';
+import {useRemotionEnvironment} from './get-environment';
 import {Internals} from './internals';
 import {Loading} from './loading-indicator';
 import {NativeLayersContext} from './NativeLayers';
@@ -65,10 +65,14 @@ export const Composition = <T,>({
 
 	const lazy = useLazyComponent(compProps);
 	const nonce = useNonce();
+	const environment = useRemotionEnvironment();
 
 	const canUseComposition = useContext(Internals.CanUseRemotionHooks);
 	if (canUseComposition) {
-		if (typeof window !== 'undefined' && window.remotion_isPlayer) {
+		if (
+			environment === 'player-development' ||
+			environment === 'player-production'
+		) {
 			throw new Error(
 				'<Composition> was mounted inside the `component` that was passed to the <Player>. See https://remotion.dev/docs/wrong-composition-mount for help.'
 			);
@@ -127,11 +131,7 @@ export const Composition = <T,>({
 		parentName,
 	]);
 
-	if (
-		getRemotionEnvironment() === 'preview' &&
-		video &&
-		video.component === lazy
-	) {
+	if (environment === 'preview' && video && video.component === lazy) {
 		const Comp = lazy;
 		const inputProps = getInputProps();
 
@@ -148,11 +148,7 @@ export const Composition = <T,>({
 		);
 	}
 
-	if (
-		getRemotionEnvironment() === 'rendering' &&
-		video &&
-		video.component === lazy
-	) {
+	if (environment === 'rendering' && video && video.component === lazy) {
 		const Comp = lazy;
 		const inputProps = getInputProps();
 
