@@ -43,5 +43,4 @@ Note from which version the option is available.
 ## See also
 
 - [Implementing a new feature](/docs/contributing/feature)
-- [Implement a new feature](/docs/contributing/features)
 - [Writing documentation](/docs/contributing/docs)
