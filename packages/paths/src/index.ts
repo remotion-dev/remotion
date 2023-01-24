@@ -9,3 +9,4 @@ export {Part} from './helpers/types';
 export {interpolatePath} from './interpolate-path';
 export {normalizePath} from './normalize-path';
 export {reversePath} from './reverse-path';
+export {translatePath} from './translate-path';
