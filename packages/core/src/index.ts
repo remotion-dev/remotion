@@ -2,6 +2,7 @@ import './asset-types';
 import {Clipper} from './Clipper';
 import type {TAsset, TCompMetadata} from './CompositionManager';
 import type {StaticFile} from './get-static-files';
+import {useIsPlayer} from './is-player';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning';
 import type {ClipRegion} from './NativeLayers';
 import {Null} from './Null';
@@ -92,4 +93,5 @@ export * from './video-config';
 export const Experimental = {
 	Clipper,
 	Null,
+	useIsPlayer,
 };

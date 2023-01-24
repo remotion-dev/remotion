@@ -28,7 +28,7 @@ Every webhook has the following headers:
 {
   "Content-Type": "application/json",
   "X-Remotion-Mode": "production" | "demo",
-  "X-Remotion-Signature": "sha1=HASHED_SIGNATURE" | "NO_SECRET_PROVIDED",
+  "X-Remotion-Signature": "sha512=HASHED_SIGNATURE" | "NO_SECRET_PROVIDED",
   "X-Remotion-Status": "success" | "timeout" | "error",
 }
 ```
