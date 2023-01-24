@@ -6,7 +6,17 @@ export const StarDemo: React.FC<{
   darkMode: boolean;
   innerRadius: number;
   outerRadius: number;
-}> = ({ innerRadius, outerRadius, darkMode }) => {
+  cornerRadius: number;
+  edgeRoundness: number | null;
+  points: number;
+}> = ({
+  innerRadius,
+  points,
+  outerRadius,
+  darkMode,
+  cornerRadius,
+  edgeRoundness,
+}) => {
   return (
     <AbsoluteFill
       style={{
@@ -18,9 +28,11 @@ export const StarDemo: React.FC<{
         fill={darkMode ? "white" : "var(--ifm-link-color)"}
         height={200}
         width={200}
-        points={5}
+        points={points}
         innerRadius={innerRadius}
         outerRadius={outerRadius}
+        cornerRadius={cornerRadius}
+        edgeRoundness={edgeRoundness}
       />
     </AbsoluteFill>
   );

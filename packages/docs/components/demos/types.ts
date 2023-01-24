@@ -222,6 +222,33 @@ export const starDemo: DemoType = {
       name: "outerRadius",
       optional: "no",
     },
+    {
+      name: "edgeRoundness",
+      default: 1,
+      max: 2,
+      min: -2,
+      step: 0.01,
+      type: "numeric",
+      optional: "default-disabled",
+    },
+    {
+      name: "points",
+      default: 5,
+      max: 20,
+      min: 3,
+      step: 1,
+      type: "numeric",
+      optional: "no",
+    },
+    {
+      name: "cornerRadius",
+      default: 0,
+      max: 100,
+      min: 0,
+      step: 1,
+      type: "numeric",
+      optional: "no",
+    },
   ],
 };
 

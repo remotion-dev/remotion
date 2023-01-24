@@ -9,6 +9,8 @@ export type MakeStarProps = {
 	points: number;
 	innerRadius: number;
 	outerRadius: number;
+	edgeRoundness: number | null;
+	cornerRadius: number;
 };
 
 export const makeStar = ({
@@ -17,6 +19,8 @@ export const makeStar = ({
 	points,
 	innerRadius,
 	outerRadius,
+	cornerRadius,
+	edgeRoundness,
 }: MakeStarProps): ShapeInfo => {
 	const centerX = width / 2;
 	const centerY = height / 2;
@@ -27,6 +31,8 @@ export const makeStar = ({
 		points,
 		innerRadius,
 		outerRadius,
+		cornerRadius,
+		edgeRoundness,
 	});
 
 	return {
