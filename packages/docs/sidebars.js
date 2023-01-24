@@ -262,6 +262,7 @@ module.exports = {
         "paths/evolve-path",
         "paths/extend-viewbox",
         "paths/get-subpaths",
+        "paths/translate-path",
       ],
     },
     {
