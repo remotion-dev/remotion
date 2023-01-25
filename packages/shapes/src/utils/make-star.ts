@@ -32,20 +32,17 @@ const star = ({
 	cornerRadius,
 	edgeRoundness,
 }: StarProps): Instruction[] => {
-	const degreeIncrement = 360 / (points * 2);
-	const d = new Array(points * 2)
-		.fill('true')
-		.map((_p, i): [number, number] => {
-			const radius = i % 2 === 0 ? outerRadius : innerRadius;
-			const degrees = degreeIncrement * i;
-			const angleInRadians = ((degrees - 90) * Math.PI) / 180.0;
-			const point = {
-				x: centerX + radius * Math.cos(angleInRadians),
-				y: centerY + radius * Math.sin(angleInRadians),
-			};
+	const degreeIncrement = (Math.PI * 2) / (points * 2);
+	const d = new Array(points * 2).fill(true).map((_p, i): [number, number] => {
+		const radius = i % 2 === 0 ? outerRadius : innerRadius;
+		const angle = degreeIncrement * i - Math.PI / 2;
+		const point = {
+			x: centerX + radius * Math.cos(angle),
+			y: centerY + radius * Math.sin(angle),
+		};
 
-			return [point.x, point.y];
-		});
+		return [point.x, point.y];
+	});
 
 	return joinPoints([...d, d[0]], {
 		edgeRoundness,
