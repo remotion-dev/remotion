@@ -21,9 +21,27 @@ const containerStyle: React.CSSProperties = {
 	position: 'absolute',
 	bottom: 0,
 	width: '100%',
-	paddingTop: 10,
+	paddingTop: 40,
 	paddingBottom: 10,
-	background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.4))',
+  backgroundImage: "linear-gradient(to bottom," +
+    "hsla(0, 0%, 0%, 0) 0%," +
+    "hsla(0, 0%, 0%, 0.013) 8.1%," +
+    "hsla(0, 0%, 0%, 0.049) 15.5%," +
+    "hsla(0, 0%, 0%, 0.104) 22.5%," +
+    "hsla(0, 0%, 0%, 0.175) 29%," +
+    "hsla(0, 0%, 0%, 0.259) 35.3%," +
+    "hsla(0, 0%, 0%, 0.352) 41.2%," +
+    "hsla(0, 0%, 0%, 0.45) 47.1%," +
+    "hsla(0, 0%, 0%, 0.55) 52.9%," +
+    "hsla(0, 0%, 0%, 0.648) 58.8%," +
+    "hsla(0, 0%, 0%, 0.741) 64.7%," +
+    "hsla(0, 0%, 0%, 0.825) 71%," +
+    "hsla(0, 0%, 0%, 0.896) 77.5%," +
+    "hsla(0, 0%, 0%, 0.951) 84.5%," +
+    "hsla(0, 0%, 0%, 0.987) 91.9%," +
+    "hsl(0, 0%, 0%) 100%" +
+    ")",
+  backgroundSize: 'auto 145px',
 	display: 'flex',
 	paddingRight: X_PADDING,
 	paddingLeft: X_PADDING,
