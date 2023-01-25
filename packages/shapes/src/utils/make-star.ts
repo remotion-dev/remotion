@@ -9,8 +9,8 @@ export type MakeStarProps = {
 	points: number;
 	innerRadius: number;
 	outerRadius: number;
-	edgeRoundness: number | null;
-	cornerRadius: number;
+	edgeRoundness?: number | null;
+	cornerRadius?: number;
 };
 
 export type StarProps = {
@@ -47,7 +47,7 @@ const star = ({
 	return joinPoints([...d, d[0]], {
 		edgeRoundness,
 		cornerRadius,
-		roundCornerStrategy: 'arc',
+		roundCornerStrategy: cornerRadius > 0 ? 'bezier' : 'arc',
 	});
 };
 
@@ -55,8 +55,8 @@ export const makeStar = ({
 	points,
 	innerRadius,
 	outerRadius,
-	cornerRadius,
-	edgeRoundness,
+	cornerRadius = 0,
+	edgeRoundness = null,
 }: MakeStarProps): ShapeInfo => {
 	const width = outerRadius * 2;
 	const height = outerRadius * 2;

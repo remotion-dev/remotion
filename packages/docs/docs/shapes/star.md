@@ -28,14 +28,7 @@ export const MyComposition = () => {
         alignItems: "center",
       }}
     >
-      <Star
-        height={200}
-        width={200}
-        points={5}
-        innerRadius={150}
-        outerRadius={200}
-        fill="red"
-      />
+      <Star points={5} innerRadius={150} outerRadius={200} fill="red" />
     </AbsoluteFill>
   );
 };

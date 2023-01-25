@@ -243,7 +243,7 @@ export const starDemo: DemoType = {
     {
       name: "cornerRadius",
       default: 0,
-      max: 100,
+      max: 200,
       min: 0,
       step: 1,
       type: "numeric",
