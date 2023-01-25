@@ -312,7 +312,7 @@ export const MakeShapeSeeAlso: React.FC<{
     <ul>
       <li>
         <a
-          href={`/docs/shapes/${shapeComponent.shape.toLowerCase()}`}
+          href={`/docs/shapes/make-${shapeComponent.shape.toLowerCase()}`}
         >{`<${shapeComponent.shape} />`}</a>
       </li>
       <li>
