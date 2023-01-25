@@ -12,13 +12,7 @@ const StarTest: React.FC = () => {
 				flexDirection: 'row',
 			}}
 		>
-			<Star
-				width={200}
-				height={200}
-				points={5}
-				innerRadius={80}
-				outerRadius={200}
-			/>
+			<Star points={5} innerRadius={80} outerRadius={200} />
 		</AbsoluteFill>
 	);
 };
