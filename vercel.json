@@ -149,6 +149,11 @@
       "source": "/links",
       "destination": "https://linktr.ee/remotion.dev",
       "permanent": false
+    },
+    {
+      "source": "/contributing",
+      "destination": "https://www.remotion.dev/docs/contributing",
+      "permanent": false
     }
   ]
 }

@@ -55,6 +55,10 @@ export const TableOfContents: React.FC = () => {
           <strong>getSubpaths()</strong>
           <div>Split SVG path into its parts</div>
         </TOCItem>
+        <TOCItem link="/docs/paths/translate-path">
+          <strong>translatePath()</strong>
+          <div>Translates the position of an path against X/Y coordinates</div>
+        </TOCItem>
       </Grid>
     </div>
   );
