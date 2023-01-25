@@ -13,27 +13,6 @@ export type MakeStarProps = {
 	cornerRadius: number;
 };
 
-type PolarToCartesianProps = {
-	centerX: number;
-	centerY: number;
-	radius: number;
-	angleInDegrees: number;
-	outerRadius?: number;
-};
-
-const polarToCartesian = ({
-	centerX,
-	centerY,
-	radius,
-	angleInDegrees,
-}: PolarToCartesianProps) => {
-	const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
-	return {
-		x: centerX + radius * Math.cos(angleInRadians),
-		y: centerY + radius * Math.sin(angleInRadians),
-	};
-};
-
 export type StarProps = {
 	centerX: number;
 	centerY: number;
@@ -59,12 +38,11 @@ const star = ({
 		.map((_p, i): [number, number] => {
 			const radius = i % 2 === 0 ? outerRadius : innerRadius;
 			const degrees = degreeIncrement * i;
-			const point = polarToCartesian({
-				centerX,
-				centerY,
-				radius,
-				angleInDegrees: degrees,
-			});
+			const angleInRadians = ((degrees - 90) * Math.PI) / 180.0;
+			const point = {
+				x: centerX + radius * Math.cos(angleInRadians),
+				y: centerY + radius * Math.sin(angleInRadians),
+			};
 
 			return [point.x, point.y];
 		});
