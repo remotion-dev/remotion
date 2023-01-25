@@ -64,7 +64,7 @@ You can start the Testbed using
 
 ```sh
 cd packages/example
-npm start
+pnpm start
 ```
 
 You can render a test video using
