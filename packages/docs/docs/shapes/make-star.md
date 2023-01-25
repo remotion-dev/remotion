@@ -24,7 +24,7 @@ console.log(path); // M 200 0 L 288.167787843871 78.64745084375788 L 390.2113032
 console.log(width); // 400
 console.log(height); // 400
 console.log(transformOrigin); // '200 200'
-console.log(instructions); // '200 200'
+console.log(instructions); // '[{type: "M"}, ...]'
 ```
 
 ## Arguments
