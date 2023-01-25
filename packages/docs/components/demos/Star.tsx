@@ -26,8 +26,6 @@ export const StarDemo: React.FC<{
     >
       <Star
         fill={darkMode ? "white" : "var(--ifm-link-color)"}
-        height={200}
-        width={200}
         points={points}
         innerRadius={innerRadius}
         outerRadius={outerRadius}
