@@ -1,9 +1,9 @@
 {
-	"extends": "../tsconfig-esm.settings.json",
+	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
 		"composite": true,
 		"rootDir": "./src",
-		"outDir": "./dist/esm",
+		"outDir": "./dist/cjs",
 		"skipLibCheck": true,
 		"jsx": "react-jsx"
 	},
