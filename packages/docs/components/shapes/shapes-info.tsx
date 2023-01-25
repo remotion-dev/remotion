@@ -89,14 +89,19 @@ export const shapeComponents: ShapeComponent[] = [
     fn: makeStar,
     params: [
       {
-        name: "width",
+        name: "points",
         type: "number",
-        description: "The width of one triangle side.",
+        description: "The amount of points of the star.",
       },
       {
-        name: "height",
+        name: "innerRadius",
         type: "number",
-        description: "The width of one triangle side.",
+        description: "The inner radius of the star.",
+      },
+      {
+        name: "outerRadius",
+        type: "number",
+        description: "The outer radius of the star.",
       },
     ],
   },
