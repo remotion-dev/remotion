@@ -8,7 +8,7 @@
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"build": "tsc -d && tsc -d -p tsconfig-esm.json",
+		"build": "tsc -d && tsc -d -p tsconfig-cjs.json",
 		"watch": "tsc -w",
 		"prerelease": "cp ../../README.md ."
 	},
@@ -51,7 +51,7 @@
 		"@types/react": "18.0.26",
 		"@types/react-dom": "18.0.10",
 		"@vitejs/plugin-react": "^2.0.0",
-		"csstype": "^3.0.11",
+		"csstype": "^3.1.1",
 		"eslint": "8.25.0",
 		"jsdom": "20.0.1",
 		"prettier": "^2.7.1",

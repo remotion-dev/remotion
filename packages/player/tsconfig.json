@@ -5,7 +5,8 @@
 		"rootDir": "./src",
 		"outDir": "./dist/esm",
 		"skipLibCheck": true,
-		"jsx": "react-jsx"
+		"jsx": "react-jsx",
+		"moduleResolution": "node"
 	},
 	"references": [{"path": "../core"}],
 	"include": ["./src"]
