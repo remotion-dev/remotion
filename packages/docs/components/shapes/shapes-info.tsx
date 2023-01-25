@@ -2,6 +2,7 @@ import {
   makeCircle,
   makeEllipse,
   makeRect,
+  makeStar,
   makeTriangle,
 } from "@remotion/shapes";
 import React from "react";
@@ -80,6 +81,27 @@ export const shapeComponents: ShapeComponent[] = [
         name: "direction",
         type: '"left" | "right" | "up" | "down"',
         description: "The direction of the triangle.",
+      },
+    ],
+  },
+  {
+    shape: "Star",
+    fn: makeStar,
+    params: [
+      {
+        name: "points",
+        type: "number",
+        description: "The amount of points of the star.",
+      },
+      {
+        name: "innerRadius",
+        type: "number",
+        description: "The inner radius of the star.",
+      },
+      {
+        name: "outerRadius",
+        type: "number",
+        description: "The outer radius of the star.",
       },
     ],
   },
@@ -290,7 +312,7 @@ export const MakeShapeSeeAlso: React.FC<{
     <ul>
       <li>
         <a
-          href={`/docs/shapes/${shapeComponent.shape.toLowerCase()}`}
+          href={`/docs/shapes/make-${shapeComponent.shape.toLowerCase()}`}
         >{`<${shapeComponent.shape} />`}</a>
       </li>
       <li>
