@@ -7,8 +7,6 @@ import {RenderSvg} from './render-svg';
 export type StarProps = MakeStarProps & Omit<AllShapesProps, 'points'>;
 
 export const Star: React.FC<StarProps> = ({
-	width,
-	height,
 	innerRadius,
 	outerRadius,
 	points,
@@ -19,8 +17,6 @@ export const Star: React.FC<StarProps> = ({
 	return (
 		<RenderSvg
 			{...makeStar({
-				height,
-				width,
 				innerRadius,
 				outerRadius,
 				points,

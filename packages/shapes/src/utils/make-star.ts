@@ -4,8 +4,6 @@ import type {ShapeInfo} from './shape-info';
 import {star} from './star';
 
 export type MakeStarProps = {
-	width: number;
-	height: number;
 	points: number;
 	innerRadius: number;
 	outerRadius: number;
@@ -14,14 +12,15 @@ export type MakeStarProps = {
 };
 
 export const makeStar = ({
-	width,
-	height,
 	points,
 	innerRadius,
 	outerRadius,
 	cornerRadius,
 	edgeRoundness,
 }: MakeStarProps): ShapeInfo => {
+	const width = outerRadius * 2;
+	const height = outerRadius * 2;
+
 	const centerX = width / 2;
 	const centerY = height / 2;
 
