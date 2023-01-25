@@ -262,6 +262,7 @@ module.exports = {
         "paths/evolve-path",
         "paths/extend-viewbox",
         "paths/get-subpaths",
+        "paths/translate-path",
       ],
     },
     {
@@ -499,6 +500,16 @@ module.exports = {
         "miscellaneous/typescript-aliases",
         "miscellaneous/render-in-browser",
         "miscellaneous/changing-temp-dir",
+      ],
+    },
+    {
+      type: "category",
+      label: "Contributing",
+      items: [
+        "contributing/index",
+        "contributing/feature",
+        "contributing/option",
+        "contributing/docs",
       ],
     },
     "license",
