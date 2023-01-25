@@ -12,7 +12,7 @@ export const LoopedTimelineIndicator: React.FC<{
 }> = ({loops}) => {
 	return (
 		<AbsoluteFill style={row}>
-			{new Array(loops).fill(true).map((l, i) => {
+			{new Array(loops).fill(true).map((_l, i) => {
 				return (
 					<React.Fragment
 						// eslint-disable-next-line

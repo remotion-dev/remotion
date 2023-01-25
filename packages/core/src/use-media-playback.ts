@@ -1,26 +1,37 @@
-import {RefObject, useContext, useEffect} from 'react';
+import type {RefObject} from 'react';
+import {useContext, useEffect} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error';
-import {TimelineContext, usePlayingState} from './timeline-position-state';
-import {useAbsoluteCurrentFrame, useCurrentFrame} from './use-frame';
+import {
+	TimelineContext,
+	usePlayingState,
+	useTimelinePosition,
+} from './timeline-position-state';
+import {useCurrentFrame} from './use-current-frame';
 import {useVideoConfig} from './use-video-config';
 import {getMediaTime} from './video/get-current-time';
 import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media';
+
+export const DEFAULT_ACCEPTABLE_TIMESHIFT = 0.45;
 
 export const useMediaPlayback = ({
 	mediaRef,
 	src,
 	mediaType,
 	playbackRate: localPlaybackRate,
+	onlyWarnForMediaSeekingError,
+	acceptableTimeshift,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
 	playbackRate: number;
+	onlyWarnForMediaSeekingError: boolean;
+	acceptableTimeshift: number;
 }) => {
 	const {playbackRate: globalPlaybackRate} = useContext(TimelineContext);
 	const frame = useCurrentFrame();
-	const absoluteFrame = useAbsoluteCurrentFrame();
+	const absoluteFrame = useTimelinePosition();
 	const [playing] = usePlayingState();
 	const {fps} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
@@ -53,21 +64,21 @@ export const useMediaPlayback = ({
 			src,
 			playbackRate: localPlaybackRate,
 			startFrom: -mediaStartsAt,
+			mediaType,
 		});
 
 		const isTime = mediaRef.current.currentTime;
 		const timeShift = Math.abs(shouldBeTime - isTime);
-		if (timeShift > 0.45 && !mediaRef.current.ended) {
-			console.log(
-				'Time has shifted by',
-				timeShift,
-				'sec. Fixing...',
-				`(isTime=${isTime},shouldBeTime=${shouldBeTime})`
-			);
+		if (timeShift > acceptableTimeshift && !mediaRef.current.ended) {
 			// If scrubbing around, adjust timing
 			// or if time shift is bigger than 0.2sec
 			mediaRef.current.currentTime = shouldBeTime;
-			warnAboutNonSeekableMedia(mediaRef.current);
+			if (!onlyWarnForMediaSeekingError) {
+				warnAboutNonSeekableMedia(
+					mediaRef.current,
+					onlyWarnForMediaSeekingError ? 'console-warning' : 'console-error'
+				);
+			}
 		}
 
 		if (!playing || absoluteFrame === 0) {
@@ -90,5 +101,7 @@ export const useMediaPlayback = ({
 		src,
 		mediaStartsAt,
 		localPlaybackRate,
+		onlyWarnForMediaSeekingError,
+		acceptableTimeshift,
 	]);
 };

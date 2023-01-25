@@ -1,36 +1,123 @@
-import http from 'http';
-import https from 'https';
 import {createWriteStream} from 'fs';
+import {ensureOutputDirectory} from '../ensure-output-directory';
+import {readFile} from './read-file';
 
-const getHttpClient = (url: string) => {
-	if (url.startsWith('http://')) {
-		return http.get;
-	}
+type Response = {sizeInBytes: number; to: string};
 
-	if (url.startsWith('https://')) {
-		return https.get;
-	}
+export const downloadFile = ({
+	onProgress,
+	url,
+	to: toFn,
+}: {
+	url: string;
+	to: (contentDisposition: string | null, contentType: string | null) => string;
+	onProgress:
+		| ((progress: {
+				percent: number | null;
+				downloaded: number;
+				totalSize: number | null;
+		  }) => void)
+		| undefined;
+}) => {
+	return new Promise<Response>((resolve, reject) => {
+		let rejected = false;
+		let resolved = false;
+		let timeout: NodeJS.Timeout | undefined;
 
-	throw new Error(
-		'URL must start with http:// or https:// for it to be downloaded. Passed: ' +
-			url
-	);
-};
+		const resolveAndFlag = (val: Response) => {
+			resolved = true;
+			resolve(val);
+			if (timeout) {
+				clearTimeout(timeout);
+			}
+		};
 
-export const downloadFile = (url: string, to: string) => {
-	return new Promise<void>((resolve, reject) => {
-		const writeStream = createWriteStream(to);
+		const rejectAndFlag = (err: Error) => {
+			if (timeout) {
+				clearTimeout(timeout);
+			}
 
-		// Listen to 'close' event instead of more
-		// concise method to avoid this problem
-		// https://github.com/remotion-dev/remotion/issues/384#issuecomment-844398183
-		writeStream.on('close', () => resolve());
-		writeStream.on('error', (err) => reject(err));
+			reject(err);
+			rejected = true;
+		};
 
-		getHttpClient(url)(url, (res) => {
-			res.pipe(writeStream).on('error', (err) => reject(err));
-		}).on('error', (err) => {
-			return reject(err);
-		});
+		const refreshTimeout = () => {
+			if (timeout) {
+				clearTimeout(timeout);
+			}
+
+			timeout = setTimeout(() => {
+				if (resolved) {
+					return;
+				}
+
+				rejectAndFlag(
+					new Error(
+						`Tried to download file ${url}, but the server sent no data for 20 seconds`
+					)
+				);
+			}, 20000);
+		};
+
+		refreshTimeout();
+
+		readFile(url)
+			.then((res) => {
+				const contentDisposition = res.headers['content-disposition'] ?? null;
+				const contentType = res.headers['content-type'] ?? null;
+				const to = toFn(contentDisposition, contentType);
+				ensureOutputDirectory(to);
+
+				const sizeHeader = res.headers['content-length'];
+
+				const totalSize =
+					typeof sizeHeader === 'undefined' ? null : Number(sizeHeader);
+				const writeStream = createWriteStream(to);
+
+				let downloaded = 0;
+				// Listen to 'close' event instead of more
+				// concise method to avoid this problem
+				// https://github.com/remotion-dev/remotion/issues/384#issuecomment-844398183
+				writeStream.on('close', () => {
+					if (rejected) {
+						return;
+					}
+
+					onProgress?.({
+						downloaded,
+						percent: 1,
+						totalSize: downloaded,
+					});
+					refreshTimeout();
+					return resolveAndFlag({sizeInBytes: downloaded, to});
+				});
+				writeStream.on('error', (err) => rejectAndFlag(err));
+				res.on('error', (err) => rejectAndFlag(err));
+				res.pipe(writeStream).on('error', (err) => rejectAndFlag(err));
+				res.on('data', (d) => {
+					refreshTimeout();
+					downloaded += d.length;
+					refreshTimeout();
+					onProgress?.({
+						downloaded,
+						percent: totalSize === null ? null : downloaded / totalSize,
+						totalSize,
+					});
+				});
+				res.on('close', () => {
+					if (totalSize !== null && downloaded !== totalSize) {
+						rejectAndFlag(
+							new Error(
+								`Download finished with ${downloaded} bytes, but expected ${totalSize} bytes from 'Content-Length'.`
+							)
+						);
+					}
+
+					writeStream.close();
+				});
+			})
+			.catch((err) => {
+				rejectAndFlag(err);
+			});
 	});
 };

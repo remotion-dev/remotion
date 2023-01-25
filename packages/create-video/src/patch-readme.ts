@@ -1,11 +1,11 @@
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
+import type {PackageManager} from './pkg-managers';
 import {
 	getInstallCommand,
 	getRenderCommand,
+	getRunCommand,
 	getStartCommand,
-	getUpgradeCommand,
-	PackageManager,
 } from './pkg-managers';
 
 export const patchReadmeMd = (
@@ -30,8 +30,8 @@ export const patchReadmeMd = (
 				return getRenderCommand(packageManager);
 			}
 
-			if (c.startsWith('npm run upgrade')) {
-				return getUpgradeCommand(packageManager);
+			if (c.startsWith('npm run ')) {
+				return getRunCommand(packageManager) + c.replace('npm run', '');
 			}
 
 			return c;

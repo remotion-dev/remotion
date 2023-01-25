@@ -1,3 +1,5 @@
+import {useIsPlayer} from './is-player';
+
 export type RemotionEnvironment =
 	| 'preview'
 	| 'rendering'
@@ -13,7 +15,7 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 		return 'rendering';
 	}
 
-	// The Jest framework sets NODE_ENV as test.
+	// The Vitest framework sets NODE_ENV as test.
 	// Right now we don't need to treat it in a special
 	// way which is good - defaulting to `rendering`.
 	if (process.env.NODE_ENV === 'test') {
@@ -25,4 +27,17 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 	}
 
 	return 'preview';
+};
+
+export const useRemotionEnvironment = (): RemotionEnvironment => {
+	const isPlayer = useIsPlayer();
+	if (isPlayer) {
+		if (process.env.NODE_ENV === 'production') {
+			return 'player-production';
+		}
+
+		return 'player-development';
+	}
+
+	return getRemotionEnvironment();
 };

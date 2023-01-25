@@ -1,4 +1,4 @@
-import {RefObject} from 'react';
+import type {RefObject} from 'react';
 
 export const playAndHandleNotAllowedError = (
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>,
@@ -38,6 +38,13 @@ export const playAndHandleNotAllowedError = (
 			// Got replaced by a different audio source in Chromium
 			if (
 				err.message.includes('request was interrupted by a new load request')
+			) {
+				return;
+			}
+
+			// Audio tag got unmounted
+			if (
+				err.message.includes('because the media was removed from the document')
 			) {
 				return;
 			}

@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-target-closed.png
 id: target-closed
 title: "'Target closed' error message"
 sidebar_label: Target closed
+crumb: "Troubleshooting"
 ---
 
 This error message **comes up when a Chromium Tab crashes**. Read on for possible reasons for this message.
@@ -14,7 +16,7 @@ Make sure that you [installed the necessary dependencies](/docs/#additional-step
 
 A Chrome tab can crash if the process runs out of memory, or if the website stops responding because it uses the CPU too heavily.
 
-- [Decrease the concurrency so each tab has more resources](/docs/cli#--concurrency)
+- [Decrease the concurrency so each tab has more resources](/docs/cli/render#--concurrency)
 - In Remotion Lambda, increase the memory size.
 
 ## Corrupt Google Chrome binary

@@ -1,11 +1,19 @@
 import * as assert from 'assert';
-import {Page, ScreenshotOptions} from 'puppeteer-core';
-import {_screenshotTask} from './screenshot-task';
+import type {ClipRegion} from 'remotion';
+import type {Page} from './browser/BrowserPage';
+import type {StillImageFormat} from './image-format';
+import {screenshotTask} from './screenshot-task';
 
-export const screenshot = (
-	page: Page,
-	options: ScreenshotOptions = {}
-): Promise<Buffer | string | void> => {
+export const screenshot = (options: {
+	page: Page;
+	type: 'png' | 'jpeg';
+	path?: string;
+	quality?: number;
+	omitBackground: boolean;
+	width: number;
+	height: number;
+	clipRegion: ClipRegion | null;
+}): Promise<Buffer | string> => {
 	let screenshotType: 'png' | 'jpeg' | null = null;
 	// options.type takes precedence over inferring the type from options.path
 	// because it may be a 0-length file with no extension created beforehand
@@ -55,43 +63,16 @@ export const screenshot = (
 		);
 	}
 
-	assert.ok(
-		!options.clip || !options.fullPage,
-		'options.clip and options.fullPage are exclusive'
-	);
-	if (options.clip) {
-		assert.ok(
-			typeof options.clip.x === 'number',
-			'Expected options.clip.x to be a number but found ' +
-				typeof options.clip.x
-		);
-		assert.ok(
-			typeof options.clip.y === 'number',
-			'Expected options.clip.y to be a number but found ' +
-				typeof options.clip.y
-		);
-		assert.ok(
-			typeof options.clip.width === 'number',
-			'Expected options.clip.width to be a number but found ' +
-				typeof options.clip.width
-		);
-		assert.ok(
-			typeof options.clip.height === 'number',
-			'Expected options.clip.height to be a number but found ' +
-				typeof options.clip.height
-		);
-		assert.ok(
-			options.clip.width !== 0,
-			'Expected options.clip.width not to be 0.'
-		);
-		assert.ok(
-			options.clip.height !== 0,
-			'Expected options.clip.height not to be 0.'
-		);
-	}
-
-	// @ts-expect-error
-	return (page as Page)._screenshotTaskQueue.postTask(() =>
-		_screenshotTask(page, screenshotType as 'png' | 'jpeg', options)
+	return options.page.screenshotTaskQueue.postTask(() =>
+		screenshotTask({
+			page: options.page,
+			format: screenshotType as StillImageFormat,
+			height: options.height,
+			width: options.width,
+			omitBackground: options.omitBackground,
+			path: options.path,
+			quality: options.quality,
+			clipRegion: options.clipRegion,
+		})
 	);
 };

@@ -1,11 +1,12 @@
 import {
+	CallbackListener,
+	ErrorFallback,
 	Player,
 	PlayerRef,
-	CallbackListener,
 	RenderLoading,
-	ErrorFallback,
+	RenderPoster,
 } from '@remotion/player';
-import {
+import React, {
 	ComponentType,
 	ReactNode,
 	useCallback,
@@ -17,6 +18,7 @@ import {
 import {AbsoluteFill} from 'remotion';
 import {playerExampleComp} from './CarSlideshow';
 import {Loading} from './Loading';
+import { TimeDisplay } from './TimeDisplay';
 
 const fps = 30;
 
@@ -30,23 +32,68 @@ type CompProps<T> =
 			component: AnyComponent<T>;
 	  };
 
-export default function App({
-	durationInFrames,
-	...props
-}: {
+const ControlsOnly: React.FC<{
+	playerRef: React.RefObject<PlayerRef>;
+	color: string;
+	setColor: React.Dispatch<React.SetStateAction<string>>;
+	title: string;
+	setTitle: React.Dispatch<React.SetStateAction<string>>;
+	bgColor: string;
+	setBgColor: React.Dispatch<React.SetStateAction<string>>;
+	setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
+	loop: boolean;
+	setLoop: React.Dispatch<React.SetStateAction<boolean>>;
+	clickToPlay: boolean;
+	setClickToPlay: React.Dispatch<React.SetStateAction<boolean>>;
+	doubleClickToFullscreen: boolean;
+	setDoubleClickToFullscreen: React.Dispatch<React.SetStateAction<boolean>>;
+	spaceKeyToPlayOrPause: boolean;
+	setSpaceKeyToPlayOrPause: React.Dispatch<React.SetStateAction<boolean>>;
+	moveToBeginningWhenEnded: boolean;
+	setMoveToBeginningWhenEnded: React.Dispatch<React.SetStateAction<boolean>>;
+	showPosterWhenUnplayed: boolean;
+	setshowPosterWhenUnplayed: React.Dispatch<React.SetStateAction<boolean>>;
+	showPosterWhenEnded: boolean;
+	setShowPosterWhenEnded: React.Dispatch<React.SetStateAction<boolean>>;
+	showPosterWhenPaused: boolean;
+	setShowPosterWhenPaused: React.Dispatch<React.SetStateAction<boolean>>;
+	inFrame: number | null;
+	setInFrame: React.Dispatch<React.SetStateAction<number | null>>;
+	outFrame: number | null;
+	setOutFrame: React.Dispatch<React.SetStateAction<number | null>>;
 	durationInFrames: number;
-} & CompProps<any>) {
-	const [title, setTitle] = useState('Hello World');
-	const [color, setColor] = useState('#ffffff');
-	const [bgColor, setBgColor] = useState('#000000');
-	const [loop, setLoop] = useState(false);
-	const [doubleClickToFullscreen, setDoubleClickToFullscreen] = useState(true);
-	const [clickToPlay, setClickToPlay] = useState(true);
+}> = ({
+	playerRef: ref,
+	color,
+	title,
+	setTitle,
+	setColor,
+	bgColor,
+	setBgColor,
+	setPlaybackRate,
+	loop,
+	setLoop,
+	clickToPlay,
+	setClickToPlay,
+	doubleClickToFullscreen,
+	setDoubleClickToFullscreen,
+	setSpaceKeyToPlayOrPause,
+	spaceKeyToPlayOrPause,
+	moveToBeginningWhenEnded,
+	setMoveToBeginningWhenEnded,
+	setshowPosterWhenUnplayed,
+	setShowPosterWhenEnded,
+	setShowPosterWhenPaused,
+	showPosterWhenUnplayed,
+	showPosterWhenEnded,
+	showPosterWhenPaused,
+	inFrame,
+	outFrame,
+	setInFrame,
+	setOutFrame,
+	durationInFrames,
+}) => {
 	const [logs, setLogs] = useState<string[]>(() => []);
-	const [spaceKeyToPlayOrPause, setspaceKeyToPlayOrPause] = useState(true);
-	const [playbackRate, setPlaybackRate] = useState(1);
-
-	const ref = useRef<PlayerRef>(null);
 
 	useEffect(() => {
 		const playCallbackListener: CallbackListener<'play'> = () => {
@@ -57,26 +104,39 @@ export default function App({
 			setLogs((l) => [...l, 'pausing ' + Date.now()]);
 		};
 
-		const seekedCallbackLitener: CallbackListener<'seeked'> = (e) => {
+		const seekedCallbackListener: CallbackListener<'seeked'> = (e) => {
 			setLogs((l) => [...l, 'seeked to ' + e.detail.frame + ' ' + Date.now()]);
 		};
 
-		const endedCallbackListener: CallbackListener<'ended'> = (e) => {
+		const endedCallbackListener: CallbackListener<'ended'> = () => {
 			setLogs((l) => [...l, 'ended ' + Date.now()]);
 		};
 
-		const errorCallbackListener: CallbackListener<'error'> = (e) => {
+		const errorCallbackListener: CallbackListener<'error'> = () => {
 			setLogs((l) => [...l, 'error ' + Date.now()]);
 		};
 
-		const timeupdateCallbackLitener: CallbackListener<'timeupdate'> = (e) => {
+		const timeupdateCallbackListener: CallbackListener<'timeupdate'> = (e) => {
 			setLogs((l) => [...l, 'timeupdate ' + e.detail.frame]);
+		};
+		const frameupdateCallbackListener: CallbackListener<'frameupdate'> = (
+			e
+		) => {
+			setLogs((l) => [...l, 'frameupdate ' + e.detail.frame]);
 		};
 
 		const ratechangeCallbackListener: CallbackListener<'ratechange'> = (e) => {
 			setLogs((l) => [
 				...l,
 				'ratechange ' + e.detail.playbackRate + ' ' + Date.now(),
+			]);
+		};
+		const fullscreenChangeCallbackListener: CallbackListener<
+			'fullscreenchange'
+		> = (e) => {
+			setLogs((l) => [
+				...l,
+				'fullscreenchange ' + e.detail.isFullscreen + ' ' + Date.now(),
 			]);
 		};
 
@@ -87,74 +147,35 @@ export default function App({
 
 		current.addEventListener('play', playCallbackListener);
 		current.addEventListener('pause', pausedCallbackLitener);
-		current.addEventListener('seeked', seekedCallbackLitener);
+		current.addEventListener('seeked', seekedCallbackListener);
 		current.addEventListener('ended', endedCallbackListener);
 		current.addEventListener('error', errorCallbackListener);
-		current.addEventListener('timeupdate', timeupdateCallbackLitener);
+		current.addEventListener('timeupdate', timeupdateCallbackListener);
+		current.addEventListener('frameupdate', frameupdateCallbackListener);
 		current.addEventListener('ratechange', ratechangeCallbackListener);
+		current.addEventListener(
+			'fullscreenchange',
+			fullscreenChangeCallbackListener
+		);
 
 		return () => {
 			current.removeEventListener('play', playCallbackListener);
 			current.removeEventListener('pause', pausedCallbackLitener);
-			current.removeEventListener('seeked', seekedCallbackLitener);
+			current.removeEventListener('seeked', seekedCallbackListener);
 			current.removeEventListener('ended', endedCallbackListener);
 			current.removeEventListener('error', errorCallbackListener);
-			current.removeEventListener('timeupdate', timeupdateCallbackLitener);
+			current.removeEventListener('timeupdate', timeupdateCallbackListener);
+			current.removeEventListener('frameupdate', frameupdateCallbackListener);
 			current.removeEventListener('ratechange', ratechangeCallbackListener);
+			current.removeEventListener(
+				'fullscreenchange',
+				fullscreenChangeCallbackListener
+			);
 		};
-	}, []);
-
-	const inputProps = useMemo(() => {
-		return {
-			title: String(title),
-			bgColor: String(bgColor),
-			color: String(color),
-		};
-	}, [bgColor, color, title]);
-
-	const renderLoading: RenderLoading = useCallback(() => {
-		return (
-			<AbsoluteFill style={{backgroundColor: 'yellow'}}>
-				<Loading size={200} />
-				<div>Loading for 3 seconds...</div>
-			</AbsoluteFill>
-		);
-	}, []);
-
-	const errorFallback: ErrorFallback = useCallback(({error}) => {
-		return (
-			<AbsoluteFill
-				style={{
-					backgroundColor: 'yellow',
-					justifyContent: 'center',
-					alignItems: 'center',
-				}}
-			>
-				Sorry about this! An error occurred: {error.message}
-			</AbsoluteFill>
-		);
-	}, []);
+	}, [ref]);
 
 	return (
-		<div style={{margin: '2rem'}}>
-			<Player
-				ref={ref}
-				compositionWidth={500}
-				compositionHeight={432}
-				fps={fps}
-				durationInFrames={durationInFrames}
-				{...props}
-				controls
-				doubleClickToFullscreen={doubleClickToFullscreen}
-				loop={loop}
-				showVolumeControls={true}
-				clickToPlay={clickToPlay}
-				inputProps={inputProps}
-				renderLoading={renderLoading}
-				errorFallback={errorFallback}
-				playbackRate={playbackRate}
-				spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
-			/>
+		<div>
 			<div style={{paddingTop: '0.5rem'}}>
 				Enter Text{' '}
 				<input
@@ -164,7 +185,9 @@ export default function App({
 					}}
 				/>
 			</div>
-
+			<div>
+				<TimeDisplay playerRef={ref} />
+			</div>
 			<div style={{paddingTop: '0.5rem'}}>
 				<div>
 					Select Text Color{' '}
@@ -183,7 +206,6 @@ export default function App({
 					/>
 				</div>
 			</div>
-
 			<br />
 			<button type="button" onClick={(e) => ref.current?.play(e)}>
 				▶️ Play
@@ -208,7 +230,6 @@ export default function App({
 			>
 				5 seconds forward
 			</button>
-
 			<br />
 			<button
 				type="button"
@@ -235,7 +256,6 @@ export default function App({
 			>
 				pause and seek
 			</button>
-
 			<br />
 			<button
 				type="button"
@@ -269,8 +289,7 @@ export default function App({
 			>
 				-1x speed
 			</button>
-
-			<br/>
+			<br />
 			<button type="button" onClick={() => ref.current?.mute()}>
 				🔇 Mute
 			</button>
@@ -287,7 +306,6 @@ export default function App({
 				set volume to 1
 			</button>
 			<br />
-
 			<button type="button" onClick={() => setLoop((l) => !l)}>
 				loop = {String(loop)}
 			</button>
@@ -300,10 +318,29 @@ export default function App({
 			>
 				doubleClickToFullscreen = {String(doubleClickToFullscreen)}
 			</button>
-			<button type="button" onClick={() => setspaceKeyToPlayOrPause((l) => !l)}>
+			<button type="button" onClick={() => setSpaceKeyToPlayOrPause((l) => !l)}>
 				spaceKeyToPlayOrPause = {String(spaceKeyToPlayOrPause)}
 			</button>
 			<br />
+			<button
+				type="button"
+				onClick={() => setshowPosterWhenUnplayed((l) => !l)}
+			>
+				showPosterWhenUnplayed = {String(showPosterWhenUnplayed)}
+			</button>
+			<button type="button" onClick={() => setShowPosterWhenEnded((l) => !l)}>
+				showPosterWhenEnded = {String(showPosterWhenEnded)}
+			</button>
+			<button type="button" onClick={() => setShowPosterWhenPaused((l) => !l)}>
+				showPosterWhenPaused = {String(showPosterWhenPaused)}
+			</button>
+			<br />
+			<button
+				type="button"
+				onClick={() => setMoveToBeginningWhenEnded((l) => !l)}
+			>
+				moveToBeginningWhenEnded = {String(moveToBeginningWhenEnded)}
+			</button>
 			<button
 				type="button"
 				onClick={() =>
@@ -315,7 +352,6 @@ export default function App({
 			>
 				log currentFrame
 			</button>
-
 			<button
 				type="button"
 				onClick={() =>
@@ -340,7 +376,48 @@ export default function App({
 			>
 				trigger error
 			</button>
-
+			<br />
+			<label>
+				<input
+					type="checkbox"
+					onChange={(e) => {
+						setInFrame(e.target.checked ? 0 : null);
+					}}
+				/>
+				Enable inFrame
+			</label>{' '}
+			{inFrame === null ? null : (
+				<input
+					type="range"
+					min={0}
+					max={durationInFrames}
+					step={1}
+					onChange={(e) => {
+						setInFrame(Number(e.target.value));
+					}}
+				/>
+			)}
+			<br />
+			<label>
+				<input
+					type="checkbox"
+					onChange={(e) => {
+						setOutFrame(e.target.checked ? 0 : null);
+					}}
+				/>
+				Enable outFrame
+			</label>{' '}
+			{outFrame === null ? null : (
+				<input
+					type="range"
+					min={0}
+					max={durationInFrames}
+					step={1}
+					onChange={(e) => {
+						setOutFrame(Number(e.target.value));
+					}}
+				/>
+			)}
 			<br />
 			<br />
 			{logs
@@ -353,4 +430,184 @@ export default function App({
 				})}
 		</div>
 	);
-}
+};
+
+const PlayerOnly: React.FC<
+	{
+		playerRef: React.RefObject<PlayerRef>;
+		inputProps: object;
+		clickToPlay: boolean;
+		loop: boolean;
+		durationInFrames: number;
+		doubleClickToFullscreen: boolean;
+		playbackRate: number;
+		spaceKeyToPlayOrPause: boolean;
+		moveToBeginningWhenEnded: boolean;
+		showPosterWhenPaused: boolean;
+		showPosterWhenEnded: boolean;
+		showPosterWhenUnplayed: boolean;
+		inFrame: number | null;
+		outFrame: number | null;
+	} & CompProps<any>
+> = ({
+	playerRef,
+	inputProps,
+	clickToPlay,
+	loop,
+	durationInFrames,
+	doubleClickToFullscreen,
+	playbackRate,
+	spaceKeyToPlayOrPause,
+	moveToBeginningWhenEnded,
+	showPosterWhenPaused,
+	showPosterWhenEnded,
+	showPosterWhenUnplayed,
+	inFrame,
+	outFrame,
+	...props
+}) => {
+	const renderLoading: RenderLoading = useCallback(() => {
+		return (
+			<AbsoluteFill style={{backgroundColor: 'yellow'}}>
+				<Loading size={200} />
+				<div>Loading for 3 seconds...</div>
+			</AbsoluteFill>
+		);
+	}, []);
+	const renderPoster: RenderPoster = useCallback(() => {
+		return (
+			<AbsoluteFill style={{backgroundColor: 'yellow'}}>
+				<div>Click to play</div>
+			</AbsoluteFill>
+		);
+	}, []);
+
+	const errorFallback: ErrorFallback = useCallback(({error}) => {
+		return (
+			<AbsoluteFill
+				style={{
+					backgroundColor: 'yellow',
+					justifyContent: 'center',
+					alignItems: 'center',
+				}}
+			>
+				Sorry about this! An error occurred: {error.message}
+			</AbsoluteFill>
+		);
+	}, []);
+
+	return (
+		<Player
+			ref={playerRef}
+			controls
+			showVolumeControls
+			compositionWidth={500}
+			compositionHeight={432}
+			fps={fps}
+			{...props}
+			durationInFrames={durationInFrames}
+			doubleClickToFullscreen={doubleClickToFullscreen}
+			loop={loop}
+			clickToPlay={clickToPlay}
+			inputProps={inputProps}
+			renderLoading={renderLoading}
+			errorFallback={errorFallback}
+			playbackRate={playbackRate}
+			spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
+			moveToBeginningWhenEnded={moveToBeginningWhenEnded}
+			renderPoster={renderPoster}
+			initialFrame={30}
+			showPosterWhenUnplayed={showPosterWhenUnplayed}
+			showPosterWhenEnded={showPosterWhenEnded}
+			showPosterWhenPaused={showPosterWhenPaused}
+			inFrame={inFrame}
+			outFrame={outFrame}
+		/>
+	);
+};
+
+export default ({
+	durationInFrames,
+	...props
+}: {
+	durationInFrames: number;
+} & CompProps<any>) => {
+	const [title, setTitle] = useState('Hello World');
+	const [color, setColor] = useState('#ffffff');
+	const [bgColor, setBgColor] = useState('#000000');
+	const [loop, setLoop] = useState(false);
+	const [doubleClickToFullscreen, setDoubleClickToFullscreen] = useState(true);
+	const [clickToPlay, setClickToPlay] = useState(true);
+	const [spaceKeyToPlayOrPause, setSpaceKeyToPlayOrPause] = useState(true);
+	const [moveToBeginningWhenEnded, setMoveToBeginningWhenEnded] =
+		useState(true);
+	const [playbackRate, setPlaybackRate] = useState(1);
+	const [showPosterWhenUnplayed, setshowPosterWhenUnplayed] = useState(true);
+	const [showPosterWhenEnded, setShowPosterWhenEnded] = useState(true);
+	const [showPosterWhenPaused, setShowPosterWhenPaused] = useState(true);
+	const [inFrame, setInFrame] = useState<number | null>(null);
+	const [outFrame, setOutFrame] = useState<number | null>(null);
+
+	const ref = useRef<PlayerRef>(null);
+
+	const inputProps = useMemo(() => {
+		return {
+			title: String(title),
+			bgColor: String(bgColor),
+			color: String(color),
+		};
+	}, [bgColor, color, title]);
+
+	return (
+		<div style={{margin: '2rem'}}>
+			<PlayerOnly
+				clickToPlay={clickToPlay}
+				{...props}
+				doubleClickToFullscreen={doubleClickToFullscreen}
+				durationInFrames={durationInFrames}
+				inputProps={inputProps}
+				loop={loop}
+				moveToBeginningWhenEnded={moveToBeginningWhenEnded}
+				playbackRate={playbackRate}
+				spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
+				playerRef={ref}
+				showPosterWhenEnded={showPosterWhenEnded}
+				showPosterWhenPaused={showPosterWhenPaused}
+				showPosterWhenUnplayed={showPosterWhenUnplayed}
+				inFrame={inFrame}
+				outFrame={outFrame}
+			/>
+			<ControlsOnly
+				bgColor={bgColor}
+				clickToPlay={clickToPlay}
+				color={color}
+				doubleClickToFullscreen={doubleClickToFullscreen}
+				loop={loop}
+				moveToBeginningWhenEnded={moveToBeginningWhenEnded}
+				setBgColor={setBgColor}
+				setClickToPlay={setClickToPlay}
+				setColor={setColor}
+				setDoubleClickToFullscreen={setDoubleClickToFullscreen}
+				setLoop={setLoop}
+				setMoveToBeginningWhenEnded={setMoveToBeginningWhenEnded}
+				setPlaybackRate={setPlaybackRate}
+				setSpaceKeyToPlayOrPause={setSpaceKeyToPlayOrPause}
+				setTitle={setTitle}
+				spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
+				title={title}
+				playerRef={ref}
+				setshowPosterWhenUnplayed={setshowPosterWhenUnplayed}
+				setShowPosterWhenEnded={setShowPosterWhenEnded}
+				setShowPosterWhenPaused={setShowPosterWhenPaused}
+				showPosterWhenUnplayed={showPosterWhenUnplayed}
+				showPosterWhenEnded={showPosterWhenEnded}
+				showPosterWhenPaused={showPosterWhenPaused}
+				setInFrame={setInFrame}
+				setOutFrame={setOutFrame}
+				inFrame={inFrame}
+				outFrame={outFrame}
+				durationInFrames={durationInFrames}
+			/>
+		</div>
+	);
+};

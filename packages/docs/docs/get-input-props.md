@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-get-input-props.png
 title: getInputProps()
 id: get-input-props
+crumb: "API"
 ---
 
 _Available from v2.0_.
@@ -18,7 +20,7 @@ This method is not available when inside a Remotion Player. Instead, get the pro
 Pass in a [parseable](/docs/cli) JSON representation using the `--props` flag to either `remotion preview` or `remotion render`:
 
 ```bash
-npx remotion render --props='{"hello": "world"}' src/index.tsx my-composition out/video.mp4
+npx remotion render --props='{"hello": "world"}' my-composition out/video.mp4
 ```
 
 You can then access the props in JavaScript:
@@ -33,4 +35,5 @@ In this example, the props also get passed to the component of the composition w
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/config/input-props.ts)
 - [Dynamic duration, FPS & dimensions](/docs/dynamic-metadata)

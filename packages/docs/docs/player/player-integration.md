@@ -1,11 +1,18 @@
 ---
+image: /generated/articles-docs-player-player-integration.png
 id: integration
 title: "Code sharing"
+crumb: "@remotion/player"
 ---
 
 import Tabs from "@theme/Tabs";
+import TabItem from '@theme/TabItem';
 
 If you are using the player, a common desire is to share the code with your Remotion Preview and/or server-side rendering. With the correct setup, you can write the component once and use it for previewing, displaying and rendering.
+
+:::note
+Remotion and your React app use a different Webpack config. Therefore, if you want to override your [Webpack configuration](/docs/webpack), you need to override both the Remotion one and the React app one.
+:::
 
 ## Setup
 
@@ -24,40 +31,40 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i remotion @remotion/renderer @remotion/cli @remotion/bundler @remotion/player
+npm i remotion @remotion/cli @remotion/player
 ```
 
   </TabItem>
 
-  <TabItem value="yarn">
-
-```bash
-yarn add remotion @remotion/renderer @remotion/cli @remotion/bundler @remotion/player
-```
-
-  </TabItem>
   <TabItem value="pnpm">
 
 ```bash
-pnpm i remotion @remotion/renderer @remotion/cli @remotion/bundler @remotion/player
+pnpm i remotion @remotion/cli @remotion/player
+```
+
+  </TabItem>
+  <TabItem value="yarn">
+
+```bash
+yarn add remotion @remotion/cli @remotion/player
 ```
 
   </TabItem>
 </Tabs>
 
-Afterwards, create a subfolder for Remotion within your project and add three files: An index file, a `Video.tsx` file for your list of compositions, and a file with your composition. It could look like this:
+Afterwards, create a subfolder for Remotion within your project and add three files: An index file, a `Root.tsx` file for your list of compositions, and a file with your composition. It could look like this:
 
 ```diff
  └── src/
 +  ├── remotion/
-+  │   ├── index.tsx
++  │   ├── index.ts
 +  │   ├── MyComp.tsx
-+  │   └── Video.tsx
++  │   └── Root.tsx
    └── app/
        └── App.tsx
 ```
 
-Your composition (`remotion/MyComp.tsx` in the example) could look for example look like this:
+Your composition (`remotion/MyComp.tsx` in the example) could look for example like this:
 
 ```tsx twoslash
 export const MyComp: React.FC<{ text: string }> = ({ text }) => {
@@ -65,7 +72,7 @@ export const MyComp: React.FC<{ text: string }> = ({ text }) => {
 };
 ```
 
-Your list of videos (`remotion/Video.tsx` in the example) could look like this:
+Your list of videos (`remotion/Root.tsx` in the example) could look like this:
 
 ```tsx twoslash
 // @allowUmdGlobalAccess
@@ -74,7 +81,6 @@ export const MyComp = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import React from "react";
 import { Composition } from "remotion";
 import { MyComp } from "./MyComp";
 
@@ -95,10 +101,10 @@ export const MyVideo = () => {
 };
 ```
 
-Your index file (`remotion/index.tsx` in the example) could look like this:
+Your index file (`remotion/index.ts` in the example) could look like this:
 
 ```tsx twoslash
-// @filename: ./Video.tsx
+// @filename: ./Root.tsx
 export const MyVideo: React.FC<{ text: string }> = () => <></>;
 
 // ---cut---
@@ -109,7 +115,7 @@ registerRoot(MyVideo);
 ```
 
 :::tip
-Don't move these statements together into one file, as you might break Fast Refresh.
+Don't move these statements together into one file, as you might break hot reloading.
 :::
 
 ## Using Remotion Preview
@@ -117,14 +123,14 @@ Don't move these statements together into one file, as you might break Fast Refr
 You can open the Remotion Preview using the `npx remotion preview command`:
 
 ```bash
-npx remotion preview src/remotion/index.tsx
+npx remotion preview src/remotion/index.ts
 ```
 
 We recommend adding a new script into your package.json for easy access:
 
 ```diff
   "scripts": {
-+    "video": "remotion preview src/remotion/index.tsx"
++    "video": "remotion preview src/remotion/index.ts"
   }
 ```
 
@@ -161,15 +167,15 @@ export const App: React.FC = () => {
 };
 ```
 
-:::tip
-Don't import your composition list or index file into your webapp. It will do nothing.
+:::note
+Pass your React component directly to the `component` prop. Don't pass the list of compositions.
 :::
 
 If everything worked, you can now run your webapp and preview your video.
 
 ## Creating a bundle for server-side rendering
 
-In any Node.JS context, you can call [`bundle()`](/docs/bundle) to bundle your video using Webpack and to server-side render the video.
+In any Node.JS context, you can call [`bundle()`](/docs/bundle) to bundle your video using Webpack and to server-side render the video. You need to add `@remotion/bundler` to your package.json for this.
 
 ```ts twoslash title="server.tsx"
 // @module: ESNext
@@ -179,14 +185,14 @@ import path from "path";
 import { bundle } from "@remotion/bundler";
 
 const bundled = await bundle(
-  path.join(process.cwd(), "src", "remotion", "index.tsx")
+  path.join(process.cwd(), "src", "remotion", "index.ts")
 );
 ```
 
 See [Server-side rendering](/docs/ssr) for a full example.
 
 :::tip
-When using Lambda, you don't need this, you can use the CLI or `deploySite()` which will bundle the video for you.
+When using Lambda, you don't need this, you can use the CLI or [`deploySite()`](/docs/lambda/deploysite) which will bundle the video for you.
 :::
 
 ## See also

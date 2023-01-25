@@ -1,4 +1,9 @@
+/**
+ * @vitest-environment jsdom
+ */
+import type {ComponentType} from 'react';
 import {Composition} from 'remotion';
+import {expect, test} from 'vitest';
 import {Player} from '../index';
 import {HelloWorld, render} from './test-utils';
 
@@ -105,7 +110,7 @@ test('No durationInFrames should give errors', () => {
 		);
 	} catch (e) {
 		expect((e as Error).message).toMatch(
-			/The "durationInFrames" prop of the <Player\/> component must be a number, but you passed a value of type undefined/
+			/durationInFrames` must be a number, but is undefined/
 		);
 	}
 });
@@ -206,7 +211,7 @@ test('passing in <Composition /> instance should not be possible', () => {
 					height: 400,
 					fps: 30,
 					durationInFrames: 500,
-					component: HelloWorld,
+					component: HelloWorld as ComponentType<unknown>,
 				}}
 			/>
 		);

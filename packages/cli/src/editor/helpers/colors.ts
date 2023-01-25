@@ -8,6 +8,7 @@ export const SELECTED_HOVER_BACKGROUND = 'hsla(0, 0%, 100%, 0.25)';
 export const CLEAR_HOVER = 'rgba(255, 255, 255, 0.06)';
 export const INPUT_BORDER_COLOR_UNHOVERED = 'rgba(0, 0, 0, 0.6)';
 export const INPUT_BORDER_COLOR_HOVERED = 'rgba(255, 255, 255, 0.05)';
+export const TIMELINE_BACKGROUND = '#111';
 
 export const getBackgroundFromHoverState = ({
 	selected,

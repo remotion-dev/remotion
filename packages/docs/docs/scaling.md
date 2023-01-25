@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-scaling.png
 id: scaling
 title: Output scaling
+crumb: "How To"
 ---
 
 _Available from v2.6.7._
@@ -13,11 +15,9 @@ Remotion can support this higher resolution by setting the [`deviceScaleFactor`]
 
 ## How to scale
 
-- In the CLI, during a render of a video or a still, pass the [`--scale`](/docs/cli#--scale) flag. For example: `--scale=2`
+- In the CLI, during a render of a video or a still, pass the [`--scale`](/docs/cli/render#--scale) flag. For example: `--scale=2`
 
-<!-- TODO: Update for lambda --->
-
-- In the Node.JS functions [`renderStill()`](/docs/render-still#scale) and [`renderFrames()`](/docs/render-frames#scale), you can pass a `scale` option.
+- In the Node.JS functions [`renderStill()`](/docs/renderer/render-still#scale), [`renderFrames()`](/docs/renderer/render-frames#scale), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), you can pass a `scale` option.
 
 - In the [config file](/docs/config), you can pass the scale using the following statement:
 
@@ -31,9 +31,11 @@ Remotion can support this higher resolution by setting the [`deviceScaleFactor`]
 
 The highest scale possible is `16` (sixteen times higher dimensions on each size or 256 times more pixels).
 
-Values between and 1 are allowed. For example, `0.5` will half each dimension.
+Positive values below 1 are allowed. For example, `0.5` will half each dimension.
 
-The scale must result in a value that will result in even pixels. A value of `1.00000001` for a composition with a width of `1920` pixels is now allowed.
+The scale must result in a value that will result in integer pixels. A value of `1.00000001` for a composition with a width of `1920` pixels is not allowed.
+
+For MP4 videos, the scale must resolve in a value where both dimensions are divisible by 2, since the codec does not support odd numbers.
 
 If you would like to downscale a composition from `1920` to `1280` pixels, pass a scale of `2/3` to avoid rounding errors. This does not currently work as a CLI flag.
 

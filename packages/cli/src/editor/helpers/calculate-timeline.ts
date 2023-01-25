@@ -1,4 +1,4 @@
-import {TSequence} from 'remotion';
+import type {TSequence} from 'remotion';
 import {
 	getCascadedStart,
 	getTimelineVisibleDuration,
@@ -6,11 +6,11 @@ import {
 } from './get-sequence-visible-range';
 import {getTimelineNestedLevel} from './get-timeline-nestedness';
 import {getTimelineSequenceHash} from './get-timeline-sequence-hash';
-import {
-	getTimelineSequenceSequenceSortKey,
+import type {
 	TrackWithHash,
 	TrackWithHashAndOriginalTimings,
 } from './get-timeline-sequence-sort-key';
+import {getTimelineSequenceSequenceSortKey} from './get-timeline-sequence-sort-key';
 
 export type SequenceWithOverlap = {
 	sequence: TSequence;

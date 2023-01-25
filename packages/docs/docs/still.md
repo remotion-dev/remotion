@@ -1,9 +1,11 @@
 ---
+image: /generated/articles-docs-still.png
 id: still
-title: <Still />
+title: <Still>
+crumb: "API"
 ---
 
-A `<Still />` is a [`<Composition />`](/docs/composition) that is only 1 frame long. It is a convienience component for defining a composition that is meant to be rendered an image rather than a video.
+A `<Still />` is a [`<Composition />`](/docs/composition) that is only 1 frame long. It is a convenience component for defining a composition that is meant to be rendered an image rather than a video.
 
 ## Example
 
@@ -38,4 +40,5 @@ export const MyVideo = () => {
 
 ## See also
 
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Still.tsx)
 - [`<Composition />`](/docs/composition)

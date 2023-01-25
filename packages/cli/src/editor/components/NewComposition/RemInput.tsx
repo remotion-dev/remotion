@@ -50,9 +50,13 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 		};
 	}, [isFocused, isHovered, props.style]);
 
-	useImperativeHandle(ref, () => {
-		return inputRef.current as HTMLInputElement;
-	});
+	useImperativeHandle(
+		ref,
+		() => {
+			return inputRef.current as HTMLInputElement;
+		},
+		[]
+	);
 
 	useEffect(() => {
 		if (!inputRef.current) {

@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-parametrized-rendering.png
 id: parametrized-rendering
 title: Parametrized rendering
+crumb: "How To"
 ---
 
 ```twoslash include example
@@ -29,19 +31,19 @@ To define which props your video accepts, simply give your component the `React.
 
 When registering the component as a sequence, you can define the default props:
 
-```tsx twoslash {13-16}
+```tsx twoslash {14-17}
 // @filename: MyComponent.tsx
 import React from "react";
 export const MyComponent: React.FC<{ propOne: string; propTwo: number }> = () =>
   null;
 
 // @filename: Root.tsx
-import React from "react";
 // ---cut---
+import React from "react";
 import { Composition } from "remotion";
 import { MyComponent } from "./MyComponent";
 
-export const Root = () => {
+export const Root: React.FC = () => {
   return (
     <>
       <Composition
@@ -74,49 +76,45 @@ When rendering (for example using the `npm run build` script defined in `package
 **Using inline JSON**
 
 ```bash
-npx remotion render src/index.tsx HelloWorld out/helloworld.mp4 --props='{"propOne": "Hi", "propTwo": 10}'
+npx remotion render HelloWorld out/helloworld.mp4 --props='{"propOne": "Hi", "propTwo": 10}'
 ```
 
 **Using a file path:**
 
 ```bash
-npx remotion render src/index.tsx HelloWorld out/helloworld.mp4 --props=./path/to/props.json
+npx remotion render HelloWorld out/helloworld.mp4 --props=./path/to/props.json
 ```
 
 [See also: CLI flags](/docs/cli)
 
 ### Passing input props when server rendering
 
-When server-rendering using `renderFrames`, you can pass props using the `inputProps` option:
+When server-rendering using [`renderMedia()`](/docs/renderer/render-media), you can pass props using the [`inputProps`](/docs/renderer/render-media#inputprops) option:
 
-```tsx twoslash {9-11}
+```tsx twoslash {8-10}
 // @module: esnext
 // @target: es2017
-const video = { fps: 30, durationInFrames: 30, width: 1080, height: 1080 };
-const bundled = "/path/to/bundle";
-const framesDir = "/path/to/frames";
+const composition = {
+  fps: 30,
+  durationInFrames: 30,
+  width: 1080,
+  height: 1080,
+  id: "my-video",
+  defaultProps: {},
+};
+const serveUrl = "/path/to/bundle";
+const outputLocation = "/path/to/frames";
 // ---cut---
-import { renderFrames } from "@remotion/renderer";
+import { renderMedia } from "@remotion/renderer";
 
-await renderFrames({
-  config: video,
-  webpackBundle: bundled,
-  onStart: () => undefined,
-  onFrameUpdate: (f) => undefined,
-  onError: (info) => {
-    if (info.frame === null) {
-      console.error("Got error while initalizing video rendering", info.error);
-    } else {
-      console.error("Got error at frame ", info.frame, info.error);
-    }
-  },
-  parallelism: null,
-  outputDir: framesDir,
+await renderMedia({
+  composition,
+  serveUrl,
+  codec: "h264",
+  outputLocation,
   inputProps: {
     titleText: "Hello World",
   },
-  compositionId: "HelloWorld",
-  imageFormat: "jpeg",
 });
 ```
 
@@ -147,11 +145,15 @@ _Available since v2.0._: You can also use the `getInputProps()` function to retr
 
 ## You can still use components as normal
 
-Even if you have registered a component as a sequence,
-you can still use it as normal in your videos and pass it's props directly. Default props don't apply in this case.
+Even if you have registered a component as a composition,
+you can still use it normally in your videos and pass its props directly. Default props don't apply in this case.
 
 ```tsx twoslash
 // @include: example-MyComponent
 // ---cut---
 <MyComponent propOne="hi" propTwo={10} />
 ```
+
+## See also
+
+- [Avoid huge payloads for `defaultProps`](/docs/troubleshooting/defaultprops-too-big)

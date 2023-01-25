@@ -1,7 +1,5 @@
-import {useVideoConfig, Video} from 'remotion';
-import {useCallback, useEffect, useRef} from 'react';
-import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import React, {useCallback, useEffect, useRef} from 'react';
+import {AbsoluteFill, useVideoConfig, Video} from 'remotion';
 
 export const Greenscreen: React.FC = () => {
 	const video = useRef<HTMLVideoElement>(null);
@@ -16,6 +14,7 @@ export const Greenscreen: React.FC = () => {
 		) {
 			return;
 		}
+
 		const context = canvas.current.getContext('2d');
 
 		if (!context) {
@@ -34,6 +33,7 @@ export const Greenscreen: React.FC = () => {
 				imageFrame.data[i + 3] = 0;
 			}
 		}
+
 		context.putImageData(imageFrame, 0, 0);
 
 		video.current.requestVideoFrameCallback(() => onVideoFrame());
@@ -43,6 +43,7 @@ export const Greenscreen: React.FC = () => {
 		if (!video.current || !video.current.requestVideoFrameCallback) {
 			return;
 		}
+
 		video.current.requestVideoFrameCallback(() => onVideoFrame());
 	}, [onVideoFrame]);
 

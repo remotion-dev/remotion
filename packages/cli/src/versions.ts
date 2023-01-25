@@ -1,25 +1,17 @@
+import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
-import {Internals} from 'remotion';
+import {ConfigInternals} from './config';
+import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 import {parseCommandLine} from './parse-command-line';
 import {resolveFrom} from './resolve-from';
 
-const packages = [
-	'@remotion/bundler',
-	'@remotion/cli',
-	'@remotion/eslint-config',
-	'@remotion/renderer',
-	'@remotion/media-utils',
-	'@remotion/babel-loader',
-	'@remotion/lambda',
-	'@remotion/three',
-	'@remotion/gif',
-	'remotion',
-];
-
-const getVersion = async (p: string): Promise<string | null> => {
+const getVersion = async (
+	remotionRoot: string,
+	p: string
+): Promise<string | null> => {
 	try {
-		const remotionPkgJson = resolveFrom(process.cwd(), `${p}/package.json`);
+		const remotionPkgJson = resolveFrom(remotionRoot, `${p}/package.json`);
 		const file = await fs.promises.readFile(remotionPkgJson, 'utf-8');
 		const packageJson = JSON.parse(file);
 		return packageJson.version;
@@ -41,18 +33,22 @@ const groupBy = (vals: [string, string][]) => {
 	return groups;
 };
 
-const getAllVersions = async (): Promise<[string, string][]> => {
+const getAllVersions = async (
+	remotionRoot: string
+): Promise<[string, string][]> => {
 	return (
 		await Promise.all(
-			packages.map(async (p) => [p, await getVersion(p)] as [string, string])
+			listOfRemotionPackages.map(
+				async (p) => [p, await getVersion(remotionRoot, p)] as [string, string]
+			)
 		)
 	).filter(([, version]) => version);
 };
 
 export const VERSIONS_COMMAND = 'versions';
 
-export const validateVersionsBeforeCommand = async () => {
-	const versions = await getAllVersions();
+export const validateVersionsBeforeCommand = async (remotionRoot: string) => {
+	const versions = await getAllVersions(remotionRoot);
 
 	const grouped = groupBy(versions);
 
@@ -85,7 +81,12 @@ export const validateVersionsBeforeCommand = async () => {
 	Log.warn(
 		'- Remove the `^` character in front of a version to pin a package.'
 	);
-	if (!Internals.Logging.isEqualOrBelowLogLevel('verbose')) {
+	if (
+		!RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
+			'verbose'
+		)
+	) {
 		Log.warn(
 			'- Run `npx remotion versions --log=verbose` to see the path of the modules resolved.'
 		);
@@ -95,19 +96,21 @@ export const validateVersionsBeforeCommand = async () => {
 	Log.info();
 };
 
-export const versionsCommand = async () => {
-	parseCommandLine('versions');
-	const versions = await getAllVersions();
+export const versionsCommand = async (remotionRoot: string) => {
+	parseCommandLine();
+	const versions = await getAllVersions(remotionRoot);
 
 	const grouped = groupBy(versions);
 
 	const installedVersions = Object.keys(grouped);
 
+	Log.info(`Node.JS = ${process.version}, OS = ${process.platform}`);
+	Log.info();
 	for (const version of installedVersions) {
 		Log.info(`On version: ${version}`);
 		for (const pkg of grouped[version]) {
 			Log.info(`- ${pkg}`);
-			Log.verbose(`  ${resolveFrom(process.cwd(), `${pkg}/package.json`)}`);
+			Log.verbose(`  ${resolveFrom(remotionRoot, `${pkg}/package.json`)}`);
 		}
 
 		Log.info();
@@ -125,7 +128,12 @@ export const versionsCommand = async () => {
 		Log.info(
 			'- Remove the `^` character in front of a version to pin a package.'
 		);
-		if (!Internals.Logging.isEqualOrBelowLogLevel('verbose')) {
+		if (
+			!RenderInternals.isEqualOrBelowLogLevel(
+				ConfigInternals.Logging.getLogLevel(),
+				'verbose'
+			)
+		) {
 			Log.info(
 				'- Rerun this command with --log=verbose to see the path of the modules resolved.'
 			);

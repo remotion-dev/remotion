@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-measure-spring.png
 title: measureSpring()
 id: measure-spring
+crumb: "API"
 ---
 
 _Available from v2.0.8_
@@ -62,4 +64,5 @@ The end value of the animation. Note that depending on the parameters, spring an
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/spring/measure-spring.ts)
 - [spring()](/docs/spring)

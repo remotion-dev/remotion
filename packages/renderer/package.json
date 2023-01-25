@@ -1,19 +1,21 @@
 {
 	"name": "@remotion/renderer",
-	"version": "2.6.12",
+	"version": "3.3.36",
 	"description": "Renderer for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
-    "module": "dist/esm/index.js",
+	"module": "dist/esm/index.js",
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"test": "jest",
+		"test": "vitest --run",
 		"watch": "tsc -w",
-		"build": "tsc -d",
-        "build:esm": "tsc -d -p tsconfig-esm.json"
-    },
-	"author": "",
+		"build:esm": "tsc -d -p tsconfig-esm.json",
+		"build": "node build.mjs && tsc -d",
+		"build-all": "node build.mjs --all",
+		"prepublishOnly": "node build.mjs --all"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
@@ -22,39 +24,46 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"@remotion/bundler": "2.6.12",
 		"execa": "5.1.1",
-		"p-limit": "3.1.0",
-		"puppeteer-core": "13.1.2",
-		"remotion": "2.6.12",
-		"serve-handler": "6.1.3"
+		"extract-zip": "2.0.1",
+		"remotion": "3.3.36",
+		"source-map": "^0.8.0-beta.0",
+		"ws": "8.7.0"
 	},
 	"peerDependencies": {
-		"react": "^17.0.1",
-		"react-dom": "^17.0.1"
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.251",
-		"@testing-library/dom": "^8.7.2",
-		"@testing-library/react": "^11.2.5",
-		"@types/jest": "^27.4.0",
+		"@jonny/eslint-config": "3.0.266",
+		"@testing-library/dom": "^8.16.0",
+		"@testing-library/react": "13.3.0",
 		"@types/node": "^16.7.5",
-		"@types/react": "17.0.39",
-		"@types/react-dom": "^17.0.11",
-		"@types/serve-handler": "^6.1.0",
-		"eslint": "^7.25.0",
-		"jest": "^27.2.4",
-		"prettier": "^2.0.5",
-		"prettier-plugin-organize-imports": "^1.1.1",
-		"ts-jest": "^27.0.5",
-		"typescript": "^4.5.5"
+		"@types/progress": "2.0.5",
+		"@types/react": "18.0.26",
+		"@types/react-dom": "18.0.10",
+		"eslint": "8.25.0",
+		"prettier": "^2.7.1",
+		"prettier-plugin-organize-imports": "^2.3.4",
+		"react": "18.0.0",
+		"react-dom": "18.0.0",
+		"typescript": "^4.7.0",
+		"vitest": "0.24.3"
+	},
+	"optionalDependencies": {
+		"@remotion/compositor-darwin-arm64": "3.3.36",
+		"@remotion/compositor-darwin-x64": "3.3.36",
+		"@remotion/compositor-linux-arm64-gnu": "3.3.36",
+		"@remotion/compositor-linux-arm64-musl": "3.3.36",
+		"@remotion/compositor-linux-x64-gnu": "3.3.36",
+		"@remotion/compositor-linux-x64-musl": "3.3.36",
+		"@remotion/compositor-win32-x64-msvc": "3.3.36"
 	},
 	"keywords": [
 		"remotion",
 		"ffmpeg",
 		"video",
 		"react",
-		"puppeteer",
 		"player"
 	],
 	"publishConfig": {

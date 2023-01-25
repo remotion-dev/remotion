@@ -1,5 +1,5 @@
 import React from "react";
-import { BlueButton, Button } from "../layout/Button";
+import { BlueButton } from "../layout/Button";
 import styles from "./footer.module.css";
 
 const container: React.CSSProperties = {
@@ -23,7 +23,7 @@ const inner: React.CSSProperties = {
   paddingTop: 80,
   borderRadius: 10,
   flex: 1,
-  backgroundColor: "white",
+  backgroundColor: "var(--background)",
   width: "100%",
 };
 

@@ -1,9 +1,14 @@
-import {BundlerInternals, PackageManager} from '@remotion/bundler';
-import execa from 'execa';
-import fs from 'fs';
+import {RenderInternals} from '@remotion/renderer';
 import path from 'path';
-import {Internals} from 'remotion';
+import {ConfigInternals} from './config';
+import {getLatestRemotionVersion} from './get-latest-remotion-version';
+import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
+import type {PackageManager} from './preview-server/get-package-manager';
+import {
+	getPackageManager,
+	lockFilePaths,
+} from './preview-server/get-package-manager';
 
 const getUpgradeCommand = ({
 	manager,
@@ -14,58 +19,46 @@ const getUpgradeCommand = ({
 	packages: string[];
 	version: string;
 }): string[] => {
-	const pkgList = packages.map((p) => `${p}@^${version}`);
+	const pkgList = packages.map((p) => `${p}@${version}`);
 
 	const commands: {[key in PackageManager]: string[]} = {
-		npm: ['i', ...pkgList],
-		pnpm: ['i', ...pkgList],
-		yarn: ['add', ...pkgList],
+		npm: ['i', '--save-exact', ...pkgList],
+		pnpm: ['i', '--save-exact', ...pkgList],
+		yarn: ['add', '--exact', ...pkgList],
 	};
 
 	return commands[manager];
 };
 
-export const upgrade = async () => {
-	const packageJsonFilePath = path.join(process.cwd(), 'package.json');
-	if (!fs.existsSync(packageJsonFilePath)) {
-		Log.error(
-			'Could not upgrade because no package.json could be found in your project.'
-		);
-		process.exit(1);
-	}
+export const upgrade = async (
+	remotionRoot: string,
+	packageManager: string | undefined
+) => {
+	const packageJsonFilePath = path.join(remotionRoot, 'package.json');
 
 	const packageJson = require(packageJsonFilePath);
 	const dependencies = Object.keys(packageJson.dependencies);
-	const latestRemotionVersion =
-		await BundlerInternals.getLatestRemotionVersion();
+	const latestRemotionVersion = await getLatestRemotionVersion();
+	Log.info('Newest Remotion version is', latestRemotionVersion);
 
-	const manager = BundlerInternals.getPackageManager();
+	const manager = getPackageManager(remotionRoot, packageManager);
 
 	if (manager === 'unknown') {
 		throw new Error(
-			`No lockfile was found in your project (one of ${BundlerInternals.lockFilePaths
+			`No lockfile was found in your project (one of ${lockFilePaths
 				.map((p) => p.path)
 				.join(', ')}). Install dependencies using your favorite manager!`
 		);
 	}
 
-	const toUpgrade = [
-		'@remotion/bundler',
-		'@remotion/cli',
-		'@remotion/eslint-config',
-		'@remotion/renderer',
-		'@remotion/media-utils',
-		'@remotion/babel-loader',
-		'@remotion/lambda',
-		'@remotion/three',
-		'@remotion/gif',
-		'remotion',
-	].filter((u) => dependencies.includes(u));
+	const toUpgrade = listOfRemotionPackages.filter((u) =>
+		dependencies.includes(u)
+	);
 
-	const prom = execa(
-		manager,
+	const prom = RenderInternals.execa(
+		manager.manager,
 		getUpgradeCommand({
-			manager,
+			manager: manager.manager,
 			packages: toUpgrade,
 			version: latestRemotionVersion,
 		}),
@@ -73,10 +66,16 @@ export const upgrade = async () => {
 			stdio: 'inherit',
 		}
 	);
-	if (Internals.Logging.isEqualOrBelowLogLevel('info')) {
+	if (
+		RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
+			'info'
+		)
+	) {
 		prom.stdout?.pipe(process.stdout);
 	}
 
 	await prom;
 	Log.info('⏫ Remotion has been upgraded!');
+	Log.info('https://remotion.dev/changelog');
 };

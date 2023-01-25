@@ -1,6 +1,6 @@
 {
-  "name": "remotion",
-  "version": "2.6.12",
+  "name": "remotion-monorepo",
+  "version": "0.0.0",
   "private": true,
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
@@ -8,24 +8,24 @@
     "lint": "turbo run lint",
     "build": "turbo run build",
     "postbuild": "turbo run build:esm",
-    "ci": "turbo run build lint test",
-    "watch": "pnpm run watch --recursive --stream --parallel",
+    "ci": "turbo run build lint test --concurrency=50%",
+    "watch": "pnpm run --recursive --stream --parallel watch",
     "release": "lerna publish --force-publish",
-    "postinstall": "lerna bootstrap"
+    "clean": "rm -rf packages/**/dist && lerna clean --yes && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo  && rm -rf packages/**/.turbo"
   },
   "engines": {
-    "node": ">=12",
+    "node": ">=14",
     "pnpm": ">=3"
   },
   "devDependencies": {
-    "remotion": "2.6.12"
+    "@types/node": "^18.11.2"
   },
   "dependencies": {
     "lerna": "^4.0.0",
-    "turbo": "^1.1.2"
+    "turbo": "1.6.3"
   },
   "workspaces": [
     "packages/*"
   ],
-  "packageManager": "pnpm@6.26.1"
+  "packageManager": "pnpm@7.7.1"
 }

@@ -1,5 +1,6 @@
 import { opacify } from "polished";
-import React, { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
+import type { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
+import React from "react";
 import styles from "./button.module.css";
 import { RED, UNDERLAY_RED } from "./colors";
 

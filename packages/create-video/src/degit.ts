@@ -1,9 +1,8 @@
 import fs from 'fs';
-import path from 'path';
-import tar from 'tar';
-
 import https from 'https';
 import {tmpdir} from 'os';
+import path from 'path';
+import tar from 'tar';
 import {mkdirp} from './mkdirp';
 
 export function fetch(url: string, dest: string) {

@@ -1,9 +1,11 @@
 ---
+image: /generated/articles-docs-flickering.png
 id: flickering
 title: Flickering
+crumb: "How to avoid"
 ---
 
-If your video flickers or suffers from choppyness during rendering, it is an indication that you have a **multi-threading issue**.
+If your video flickers or suffers from choppiness during rendering, it is an indication that you have a **multi-threading issue**.
 
 The rendering process of Remotion works as follows:
 
@@ -28,7 +30,7 @@ Head over to [**the list of integrations**](/docs/third-party) to see if there i
 
 ## Bypass multithreading
 
-If your animation will not break if the frames are rendered in order, users often use the [`--concurrency=1`](/docs/cli#--concurrency) flag. This will fix flickering / choppyness in many cases and is a viable path if the effort of refactoring is too big. The drawback of this technique is that it is way slower and that the correct timing of the animations is still not guaranteed.
+If your animation will not break if the frames are rendered in order, users often use the [`--concurrency=1`](/docs/cli/render#--concurrency) flag. This will fix flickering / choppiness in many cases and is a viable path if the effort of refactoring is too big. The drawback of this technique is that it is way slower and that the correct timing of the animations is still not guaranteed.
 
 ## Why Remotion works this way
 

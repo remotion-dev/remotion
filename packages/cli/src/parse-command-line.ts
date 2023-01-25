@@ -1,22 +1,23 @@
-import minimist from 'minimist';
-import {resolve} from 'path';
-import {
+import type {
 	BrowserExecutable,
 	Codec,
-	Config,
 	FfmpegExecutable,
 	ImageFormat,
-	Internals,
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
-} from 'remotion';
+} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
+import minimist from 'minimist';
+import {resolve} from 'path';
+import {Config, ConfigInternals} from './config';
 import {Log} from './log';
 
 export type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
 	['ffmpeg-executable']: FfmpegExecutable;
+	['ffprobe-executable']: FfmpegExecutable;
 	['pixel-format']: PixelFormat;
 	['image-format']: ImageFormat;
 	['prores-profile']: ProResProfile;
@@ -24,10 +25,16 @@ export type CommandLineOptions = {
 	['env-file']: string;
 	['ignore-certificate-errors']: string;
 	['disable-web-security']: string;
+	['every-nth-frame']: number;
+	['number-of-gif-loops']: number;
+	['number-of-shared-audio-tags']: number;
 	codec: Codec;
 	concurrency: number;
 	timeout: number;
 	config: string;
+	['public-dir']: string;
+	['audio-bitrate']: string;
+	['video-bitrate']: string;
 	crf: number;
 	force: boolean;
 	overwrite: boolean;
@@ -37,27 +44,57 @@ export type CommandLineOptions = {
 	frames: string | number;
 	scale: number;
 	sequence: boolean;
+	quiet: boolean;
+	q: boolean;
 	log: string;
 	help: boolean;
 	port: number;
 	frame: string | number;
 	['disable-headless']: boolean;
+	['disable-keyboard-shortcuts']: boolean;
+	muted: boolean;
+	height: number;
+	width: number;
+	runs: number;
+	concurrencies: string;
+	['enforce-audio-track']: boolean;
 	gl: OpenGlRenderer;
+	['package-manager']: string;
+	['webpack-poll']: number;
+	['no-open']: boolean;
 };
 
-export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
-	boolean: [
-		'force',
-		'overwrite',
-		'sequence',
-		'help',
-		'disable-web-security',
-		'ignore-certificate-errors',
-		'disable-headless',
-	],
-});
+export const BooleanFlags = [
+	'force',
+	'overwrite',
+	'sequence',
+	'help',
+	'quiet',
+	'q',
+	'muted',
+	'enforce-audio-track',
+	// Lambda flags
+	'force',
+	'disable-chunk-optimization',
+	'save-browser-logs',
+	'disable-cloudwatch',
+	'yes',
+	'y',
+	'disable-web-security',
+	'ignore-certificate-errors',
+	'disable-headless',
+	'disable-keyboard-shortcuts',
+	'default-only',
+	'no-open',
+];
 
-export const parseCommandLine = (type: 'still' | 'sequence' | 'versions') => {
+export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
+	boolean: BooleanFlags,
+}) as CommandLineOptions & {
+	_: string[];
+};
+
+export const parseCommandLine = () => {
 	if (parsedCli['pixel-format']) {
 		Config.Output.setPixelFormat(parsedCli['pixel-format']);
 	}
@@ -73,6 +110,16 @@ export const parseCommandLine = (type: 'still' | 'sequence' | 'versions') => {
 	if (parsedCli['ffmpeg-executable']) {
 		Config.Rendering.setFfmpegExecutable(
 			resolve(parsedCli['ffmpeg-executable'])
+		);
+	}
+
+	if (parsedCli['number-of-gif-loops']) {
+		Config.Rendering.setNumberOfGifLoops(parsedCli['number-of-gif-loops']);
+	}
+
+	if (parsedCli['ffprobe-executable']) {
+		Config.Rendering.setFfprobeExecutable(
+			resolve(parsedCli['ffprobe-executable'])
 		);
 	}
 
@@ -92,22 +139,18 @@ export const parseCommandLine = (type: 'still' | 'sequence' | 'versions') => {
 		Config.Puppeteer.setChromiumHeadlessMode(false);
 	}
 
-	if (parsedCli.gl) {
-		Config.Puppeteer.setChromiumOpenGlRenderer(parsedCli.gl);
-	}
-
 	if (parsedCli.log) {
-		if (!Internals.Logging.isValidLogLevel(parsedCli.log)) {
+		if (!RenderInternals.isValidLogLevel(parsedCli.log)) {
 			Log.error('Invalid `--log` value passed.');
 			Log.error(
-				`Accepted values: ${Internals.Logging.logLevels
+				`Accepted values: ${RenderInternals.logLevels
 					.map((l) => `'${l}'`)
 					.join(', ')}.`
 			);
 			process.exit(1);
 		}
 
-		Internals.Logging.setLogLevel(parsedCli.log as LogLevel);
+		ConfigInternals.Logging.setLogLevel(parsedCli.log as LogLevel);
 	}
 
 	if (parsedCli.concurrency) {
@@ -118,26 +161,20 @@ export const parseCommandLine = (type: 'still' | 'sequence' | 'versions') => {
 		Config.Puppeteer.setTimeoutInMilliseconds(parsedCli.timeout);
 	}
 
-	if (parsedCli.frames) {
-		if (type === 'still') {
-			Log.error(
-				'--frames flag was passed to the `still` command. This flag only works with the `render` command. Did you mean `--frame`? See reference: https://www.remotion.dev/docs/cli/'
-			);
-			process.exit(1);
-		}
+	if (parsedCli.height) {
+		Config.Output.overrideHeight(parsedCli.height);
+	}
 
-		Internals.setFrameRangeFromCli(parsedCli.frames);
+	if (parsedCli.width) {
+		Config.Output.overrideWidth(parsedCli.width);
+	}
+
+	if (parsedCli.frames) {
+		ConfigInternals.setFrameRangeFromCli(parsedCli.frames);
 	}
 
 	if (parsedCli.frame) {
-		if (type === 'sequence') {
-			Log.error(
-				'--frame flag was passed to the `render` command. This flag only works with the `still` command. Did you mean `--frames`? See reference: https://www.remotion.dev/docs/cli/'
-			);
-			process.exit(1);
-		}
-
-		Internals.setStillFrame(Number(parsedCli.frame));
+		ConfigInternals.setStillFrame(Number(parsedCli.frame));
 	}
 
 	if (parsedCli.png) {
@@ -156,8 +193,12 @@ export const parseCommandLine = (type: 'still' | 'sequence' | 'versions') => {
 		Config.Output.setCrf(parsedCli.crf);
 	}
 
-	if (parsedCli.codec) {
-		Config.Output.setCodec(parsedCli.codec);
+	if (parsedCli['every-nth-frame']) {
+		Config.Rendering.setEveryNthFrame(parsedCli['every-nth-frame']);
+	}
+
+	if (parsedCli.gl) {
+		Config.Puppeteer.setChromiumOpenGlRenderer(parsedCli.gl);
 	}
 
 	if (parsedCli['prores-profile']) {
@@ -177,4 +218,40 @@ export const parseCommandLine = (type: 'still' | 'sequence' | 'versions') => {
 	if (typeof parsedCli.scale !== 'undefined') {
 		Config.Rendering.setScale(parsedCli.scale);
 	}
+
+	if (typeof parsedCli.port !== 'undefined') {
+		Config.Bundling.setPort(parsedCli.port);
+	}
+
+	if (typeof parsedCli.muted !== 'undefined') {
+		Config.Rendering.setMuted(parsedCli.muted);
+	}
+
+	if (typeof parsedCli['disable-keyboard-shortcuts'] !== 'undefined') {
+		Config.Preview.setKeyboardShortcutsEnabled(
+			!parsedCli['disable-keyboard-shortcuts']
+		);
+	}
+
+	if (typeof parsedCli['enforce-audio-track'] !== 'undefined') {
+		Config.Rendering.setEnforceAudioTrack(parsedCli['enforce-audio-track']);
+	}
+
+	if (typeof parsedCli['public-dir'] !== 'undefined') {
+		Config.Bundling.setPublicDir(parsedCli['public-dir']);
+	}
+
+	if (typeof parsedCli['webpack-poll'] !== 'undefined') {
+		Config.Preview.setWebpackPollingInMilliseconds(parsedCli['webpack-poll']);
+	}
+
+	if (typeof parsedCli['audio-bitrate'] !== 'undefined') {
+		Config.Output.setAudioBitrate(parsedCli['audio-bitrate']);
+	}
+
+	if (typeof parsedCli['video-bitrate'] !== 'undefined') {
+		Config.Output.setVideoBitrate(parsedCli['video-bitrate']);
+	}
 };
+
+export const quietFlagProvided = () => parsedCli.quiet || parsedCli.q;

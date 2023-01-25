@@ -1,5 +1,9 @@
+/**
+ * @vitest-environment jsdom
+ */
 import {render} from '@testing-library/react';
 import React from 'react';
+import {beforeEach, expect, test} from 'vitest';
 import {Img} from '../Img';
 
 const ref = React.createRef<HTMLImageElement>();

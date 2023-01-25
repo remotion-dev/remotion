@@ -1,4 +1,5 @@
-import React, {SVGProps} from 'react';
+import type {SVGProps} from 'react';
+import React from 'react';
 import {useZIndex} from '../../state/z-index';
 
 const style: React.CSSProperties = {

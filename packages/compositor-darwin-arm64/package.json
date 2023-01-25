@@ -1,0 +1,20 @@
+{
+  "version": "3.3.36",
+  "name": "@remotion/compositor-darwin-arm64",
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "exports": {
+    ".": {
+      "require": "./index.js",
+      "import": "./index.mjs",
+      "types": "./index.d.ts"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -11,8 +11,8 @@ export const IfYouKnowReact: React.FC = () => {
       <div style={{ width: 40 }} />
       <div>
         <h2 className={styles.ifyouknowtitle}>
-          If you know <span className={styles.rea}>React</span> <br />
-          you can make videos.
+          Leverage <span className={styles.rea}>React</span> <br />
+          to express yourself.
         </h2>
         <p>
           Remotion gives you the tools for video creation, <br /> but the rules

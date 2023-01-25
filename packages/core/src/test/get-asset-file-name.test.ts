@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest';
 import {getAssetDisplayName} from '../get-asset-file-name';
 
 describe('get asset file name test', () => {

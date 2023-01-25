@@ -1,7 +1,8 @@
-import {TAsset} from 'remotion';
+import type {TAsset} from 'remotion';
 import {resolveAssetSrc} from '../resolve-asset-src';
-import {splitAssetsIntoSegments} from './split-assets-into-segments';
-import {Assets, MediaAsset, uncompressMediaAsset, UnsafeAsset} from './types';
+import {convertAssetToFlattenedVolume} from './flatten-volume-array';
+import type {Assets, MediaAsset, UnsafeAsset} from './types';
+import {uncompressMediaAsset} from './types';
 
 const areEqual = (a: TAsset | UnsafeAsset, b: TAsset) => {
 	return a.id === b.id;
@@ -46,8 +47,8 @@ export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 					startInVideo: frame,
 					trimLeft: asset.mediaFrame,
 					volume: [],
-					isRemote: asset.isRemote,
 					playbackRate: asset.playbackRate,
+					allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
 				});
 			}
 
@@ -72,8 +73,5 @@ export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 		}
 	}
 
-	return splitAssetsIntoSegments({
-		assets: assets as MediaAsset[],
-		duration: frames.length,
-	});
+	return (assets as MediaAsset[]).map((a) => convertAssetToFlattenedVolume(a));
 };

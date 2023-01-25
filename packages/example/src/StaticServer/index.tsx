@@ -2,12 +2,13 @@ import React, {useState} from 'react';
 import {continueRender, delayRender, Img, staticFile} from 'remotion';
 
 export const StaticDemo: React.FC = () => {
-	const [handle1] = useState(() => delayRender());
-	const [handle2] = useState(() => delayRender());
+	const [handle1] = useState(() => delayRender('handle1'));
+	const [handle2] = useState(() => delayRender('handle2'));
+
 	return (
 		<>
 			<Img
-				src={staticFile('logo.png')}
+				src={staticFile('nested/logö.png')}
 				onLoad={() => continueRender(handle1)}
 			/>
 			<Img

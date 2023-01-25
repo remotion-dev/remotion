@@ -2,7 +2,7 @@
 // [1, 1, 1, 1, 1, ...].
 // If all elements are the same, we flatten it to `1`, otherwise we leave it as an array.
 
-import {AssetVolume, MediaAsset} from './types';
+import type {AssetVolume, MediaAsset} from './types';
 
 export const flattenVolumeArray = (volume: AssetVolume): AssetVolume => {
 	if (typeof volume === 'number') {

@@ -1,22 +1,44 @@
-import {Log} from './log';
-import {parsedCli} from './parse-command-line';
+import {ConfigInternals} from './config';
 
-export const getUserPassedOutputLocation = () => {
-	if (!parsedCli._[3]) {
-		Log.error('Pass an extra argument <output-filename>.');
-		process.exit(1);
-	}
+export const getUserPassedOutputLocation = (args: string[]) => {
+	const filename = args[0] ?? ConfigInternals.getOutputLocation();
 
-	const filename = parsedCli._[3];
 	return filename;
 };
 
-export const getUserPassedFileExtension = () => {
-	const filename = getUserPassedOutputLocation();
-	const filenameArr = filename.split('.');
+const getDefaultOutLocation = ({
+	compositionName,
+	defaultExtension,
+	type,
+}: {
+	compositionName: string;
+	defaultExtension: string;
+	type: 'asset' | 'sequence';
+}) => {
+	if (type === 'sequence') {
+		return `out/${compositionName}`;
+	}
 
-	const hasExtension = filenameArr.length >= 2;
-	const filenameArrLength = filenameArr.length;
-	const extension = hasExtension ? filenameArr[filenameArrLength - 1] : null;
-	return extension;
+	return `out/${compositionName}.${defaultExtension}`;
+};
+
+export const getOutputLocation = ({
+	compositionId,
+	defaultExtension,
+	args,
+	type,
+}: {
+	compositionId: string;
+	defaultExtension: string;
+	args: string[];
+	type: 'asset' | 'sequence';
+}) => {
+	return (
+		getUserPassedOutputLocation(args) ??
+		getDefaultOutLocation({
+			compositionName: compositionId,
+			defaultExtension,
+			type,
+		})
+	);
 };

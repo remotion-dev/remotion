@@ -1,6 +1,6 @@
 import {getVisualization} from './fft/get-visualization';
 import {getMaxPossibleMagnitude} from './fft/max-value-cached';
-import {AudioData} from './types';
+import type {AudioData} from './types';
 
 const cache: {[key: string]: number[]} = {};
 
@@ -52,7 +52,7 @@ export const visualizeAudio = ({
 	const all = toSmooth.map((s) => {
 		return visualizeAudioFrame({...parameters, frame: s});
 	});
-	return new Array(parameters.numberOfSamples).fill(true).map((x, i) => {
+	return new Array(parameters.numberOfSamples).fill(true).map((_x, i) => {
 		return (
 			new Array(toSmooth.length)
 				.fill(true)

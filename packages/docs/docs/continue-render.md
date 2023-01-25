@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-continue-render.png
 id: continue-render
 title: continueRender()
+crumb: "API"
 ---
 
 import {Redirect} from '@docusaurus/router';
@@ -9,4 +11,5 @@ Using `continueRender`, you can unblock a rendering that has been deferred using
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/delay-render.ts)
 - [Data fetching](/docs/data-fetching)

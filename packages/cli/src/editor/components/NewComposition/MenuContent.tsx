@@ -2,9 +2,10 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {INPUT_BORDER_COLOR_UNHOVERED} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {MenuDivider} from '../Menu/MenuDivider';
-import {MenuSubItem, SubMenuActivated} from '../Menu/MenuSubItem';
+import type {SubMenuActivated} from '../Menu/MenuSubItem';
+import {MenuSubItem} from '../Menu/MenuSubItem';
 import {MENU_VERTICAL_PADDING} from '../Menu/styles';
-import {ComboboxValue} from './ComboBox';
+import type {ComboboxValue} from './ComboBox';
 
 const BORDER_SIZE = 1;
 const container: React.CSSProperties = {
@@ -34,9 +35,8 @@ export const MenuContent: React.FC<{
 	const keybindings = useKeybinding();
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	const [subMenuActivated, setSubMenuActivated] = useState<SubMenuActivated>(
-		false
-	);
+	const [subMenuActivated, setSubMenuActivated] =
+		useState<SubMenuActivated>(false);
 
 	if (values[0].type === 'divider') {
 		throw new Error('first value cant be divide');
@@ -145,37 +145,55 @@ export const MenuContent: React.FC<{
 	}, [onNextMenu, selectedItem, values]);
 
 	useEffect(() => {
-		const escapeBinding = keybindings.registerKeybinding(
-			'keydown',
-			'Escape',
-			onEscape
-		);
-		const rightBinding = keybindings.registerKeybinding(
-			'keydown',
-			'ArrowRight',
-			onArrowRight
-		);
-		const leftBinding = keybindings.registerKeybinding(
-			'keydown',
-			'ArrowLeft',
-			onPreviousMenu
-		);
-		const downBinding = keybindings.registerKeybinding(
-			'keydown',
-			'ArrowDown',
-			onArrowDown
-		);
-		const upBinding = keybindings.registerKeybinding(
-			'keydown',
-			'ArrowUp',
-			onArrowUp
-		);
-		const enterBinding = keybindings.registerKeybinding(
-			'keydown',
-			'Enter',
-			onEnter
-		);
-		const spaceBinding = keybindings.registerKeybinding('keyup', ' ', onEnter);
+		const escapeBinding = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'Escape',
+			callback: onEscape,
+			commandCtrlKey: false,
+			preventDefault: true,
+		});
+		const rightBinding = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'ArrowRight',
+			commandCtrlKey: false,
+			callback: onArrowRight,
+			preventDefault: true,
+		});
+		const leftBinding = keybindings.registerKeybinding({
+			event: 'keydown',
+			commandCtrlKey: false,
+			key: 'ArrowLeft',
+			callback: onPreviousMenu,
+			preventDefault: true,
+		});
+		const downBinding = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'ArrowDown',
+			commandCtrlKey: false,
+			callback: onArrowDown,
+			preventDefault: true,
+		});
+		const upBinding = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'ArrowUp',
+			callback: onArrowUp,
+			commandCtrlKey: false,
+			preventDefault: true,
+		});
+		const enterBinding = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'Enter',
+			callback: onEnter,
+			commandCtrlKey: false,
+			preventDefault: true,
+		});
+		const spaceBinding = keybindings.registerKeybinding({
+			event: 'keyup',
+			key: ' ',
+			callback: onEnter,
+			commandCtrlKey: false,
+			preventDefault: true,
+		});
 		return () => {
 			escapeBinding.unregister();
 			leftBinding.unregister();

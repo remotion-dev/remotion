@@ -1,4 +1,5 @@
-import { getVideoMetadata, VideoMetadata } from "@remotion/media-utils";
+import type { VideoMetadata } from "@remotion/media-utils";
+import { getVideoMetadata } from "@remotion/media-utils";
 import { ThreeCanvas, useVideoTexture } from "@remotion/three";
 import React, { useEffect, useRef, useState } from "react";
 import { AbsoluteFill, useVideoConfig, Video } from "remotion";

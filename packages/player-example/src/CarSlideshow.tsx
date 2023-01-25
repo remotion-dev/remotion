@@ -6,6 +6,7 @@ import {
 	useVideoConfig,
 	Video,
 	staticFile,
+	Sequence,
 } from 'remotion';
 
 type Props = {
@@ -48,8 +49,8 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 		<div
 			style={{
 				backgroundColor: bgColor,
-				width: width,
-				height: height,
+				width,
+				height,
 				position: 'absolute',
 				left: 0,
 				top: 0,
@@ -62,7 +63,7 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 					position: 'absolute',
 					top: height / 2 - 100,
 					left,
-					color: color,
+					color,
 					whiteSpace: 'nowrap',
 				}}
 			>
@@ -75,12 +76,14 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 					width: 40,
 				}}
 			/>
-			<Video
-				style={{
-					height: 200,
-				}}
-				src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-			/>
+			<Sequence from={10}>
+				<Video
+					style={{
+						height: 200,
+					}}
+					src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+				/>
+			</Sequence>
 		</div>
 	);
 };

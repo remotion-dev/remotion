@@ -1,6 +1,7 @@
-import {TAsset} from 'remotion';
-import {compressAsset} from 'remotion/src/compress-assets';
+import type {TAsset} from 'remotion';
+import {expect, test} from 'vitest';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
+import {compressAsset} from '../compress-assets';
 
 test('Should compress and uncompress assets', () => {
 	const uncompressed: TAsset[] = [
@@ -9,11 +10,11 @@ test('Should compress and uncompress assets', () => {
 				frame: 0,
 				id: 'my-id',
 				src: String('x').repeat(1000),
-				isRemote: true,
 				mediaFrame: 0,
 				playbackRate: 1,
 				type: 'video' as const,
 				volume: 1,
+				allowAmplificationDuringRender: false,
 			},
 		],
 		[
@@ -21,11 +22,11 @@ test('Should compress and uncompress assets', () => {
 				frame: 1,
 				id: 'my-id',
 				src: String('x').repeat(1000),
-				isRemote: true,
 				mediaFrame: 0,
 				playbackRate: 1,
 				type: 'video' as const,
 				volume: 1,
+				allowAmplificationDuringRender: false,
 			},
 		],
 	].flat(1);
@@ -42,13 +43,13 @@ test('Should compress and uncompress assets', () => {
 		{
 			duration: 1,
 			id: 'my-id',
-			isRemote: true,
 			playbackRate: 1,
 			src: String('x').repeat(1000),
 			startInVideo: 0,
 			trimLeft: 0,
 			type: 'video',
 			volume: 1,
+			allowAmplificationDuringRender: false,
 		},
 	]);
 });

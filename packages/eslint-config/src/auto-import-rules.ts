@@ -21,6 +21,7 @@ export const autoImports = {
   Composition: "import {Composition} from 'remotion'",
   Audio: "import {Audio} from 'remotion'",
   Video: "import {Video} from 'remotion'",
+  OffthreadVideo: "import {OffthreadVideo} from 'remotion'",
   Series: "import {Series} from 'remotion'",
   Still: "import {Still} from 'remotion'",
   Freeze: "import {Freeze} from 'remotion'",
@@ -29,5 +30,6 @@ export const autoImports = {
   Config: "import {Config} from 'remotion'",
   Img: "import {Img} from 'remotion'",
   IFrame: "import {IFrame} from 'remotion'",
+  Folder: "import {Folder} from 'remotion'",
   styled: "import styled from 'styled-components'",
 };

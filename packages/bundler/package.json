@@ -1,10 +1,10 @@
 {
 	"name": "@remotion/bundler",
-	"version": "2.6.12",
+	"version": "3.3.36",
 	"description": "Bundler for Remotion",
-    "main": "dist/cjs/index.js",
-    "types": "dist/cjs/index.d.ts",
-    "module": "dist/esm/index.js",
+	"main": "dist/cjs/index.js",
+	"types": "dist/cjs/index.d.ts",
+	"module": "dist/esm/index.js",
 	"sideEffects": false,
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
@@ -14,63 +14,54 @@
 	},
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"test": "jest",
 		"build": "tsc -d",
-        "build:esm": "tsc -d -p tsconfig-esm.json",
-		"watch": "tsc -w"
+		"build:esm": "tsc -d -p tsconfig-esm.json",
+		"watch": "tsc -w",
+		"test": "vitest --run"
 	},
 	"files": [
 		"dist",
-		"web",
 		"react-shim.js"
 	],
 	"author": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"css-loader": "5.2.7",
-		"esbuild-loader": "2.15.1",
-		"execa": "5.1.1",
-		"express": "4.17.1",
-		"file-loader": "6.2.0",
-		"memfs": "3.4.0",
-		"mime-types": "2.1.34",
+		"esbuild": "0.16.12",
 		"react-refresh": "0.9.0",
-		"remotion": "2.6.12",
-		"semver": "7.3.4",
-		"source-map": "0.6.1",
-		"source-map-loader": "3.0.0",
+		"remotion": "3.3.36",
 		"style-loader": "2.0.0",
-		"webpack": "5.60.0"
+		"webpack": "5.74.0"
 	},
 	"peerDependencies": {
-		"react": "^17.0.1",
-		"react-dom": "^17.0.1"
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.251",
-		"@types/express": "^4.17.7",
-		"@types/jest": "^27.4.0",
-		"@types/mime-types": "^2.1.1",
+		"@jonny/eslint-config": "3.0.266",
 		"@types/node": "^16.7.5",
-		"@types/react": "17.0.39",
-		"@types/react-dom": "^17.0.11",
-		"@types/semver": "^7.3.4",
+		"@types/react": "18.0.26",
+		"@types/react-dom": "18.0.10",
 		"@types/webpack-env": "^1.16.0",
-		"eslint": "^7.25.0",
-		"jest": "^27.2.4",
-		"prettier": "^2.0.5",
-		"prettier-plugin-organize-imports": "^1.1.1",
-		"react": "^17.0.1",
-		"react-dom": "^17.0.1",
-		"ts-jest": "^27.0.5",
-		"typescript": "^4.5.5"
+		"@typescript-eslint/eslint-plugin": "5.18.0",
+		"@typescript-eslint/parser": "5.18.0",
+		"eslint": "8.25.0",
+		"eslint-plugin-10x": "1.5.2",
+		"eslint-plugin-react": "7.29.4",
+		"eslint-plugin-react-hooks": "4.4.0",
+		"prettier": "^2.7.1",
+		"prettier-plugin-organize-imports": "^2.3.4",
+		"react": "^18.0.0",
+		"react-dom": "^18.0.0",
+		"typescript": "^4.7.0",
+		"vitest": "0.24.3"
 	},
 	"keywords": [
 		"remotion",
 		"ffmpeg",
 		"video",
 		"react",
-		"puppeteer",
+		"webpack",
 		"player"
 	],
 	"publishConfig": {

@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-enametoolong.png
 id: enametoolong
 title: ENAMETOOLONG
+crumb: "Troubleshooting"
 ---
 
 ```
@@ -21,4 +23,4 @@ macOS and Linux have a much longer maximum command length. Render the same video
 
 ## Render the video partially
 
-Render only a portion of a video using the [`--frames`](/docs/cli#--frames) property, and add portions together using an [FFMPEG concat command](https://stackoverflow.com/a/11175851)
+Render only a portion of a video using the [`--frames`](/docs/cli/render#--frames) property, and add portions together using an [FFMPEG concat command](https://stackoverflow.com/a/11175851)

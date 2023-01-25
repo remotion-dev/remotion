@@ -2,13 +2,14 @@ import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
-import {Caret} from '../../icons/caret';
+import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
+import {CaretRight} from '../../icons/caret';
 import {useZIndex} from '../../state/z-index';
 import {Flex, Row, Spacing} from '../layout';
-import {SubMenu} from '../NewComposition/ComboBox';
+import type {SubMenu} from '../NewComposition/ComboBox';
 import {getPortal} from './portals';
 import {
-	menuContainer,
+	menuContainerTowardsBottom,
 	MENU_VERTICAL_PADDING,
 	SUBMENU_LEFT_INSET,
 } from './styles';
@@ -109,7 +110,7 @@ export const MenuSubItem: React.FC<{
 		}
 
 		return {
-			...menuContainer,
+			...menuContainerTowardsBottom,
 			left: size.left + size.width + SUBMENU_LEFT_INSET,
 			top: size.top - MENU_VERTICAL_PADDING,
 		};
@@ -143,8 +144,10 @@ export const MenuSubItem: React.FC<{
 				) : null}
 				<div style={labelStyle}>{label}</div> <Flex />
 				<Spacing x={2} />
-				{subMenu ? <Caret /> : null}
-				{keyHint ? <span style={keyHintCss}>{keyHint}</span> : null}
+				{subMenu ? <CaretRight /> : null}
+				{keyHint && !areKeyboardShortcutsDisabled() ? (
+					<span style={keyHintCss}>{keyHint}</span>
+				) : null}
 				{portalStyle && subMenu
 					? ReactDOM.createPortal(
 							<SubMenuComponent

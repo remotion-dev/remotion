@@ -1,0 +1,13 @@
+{
+  "version": "3.3.36",
+  "name": "@remotion/compositor-darwin-x64",
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

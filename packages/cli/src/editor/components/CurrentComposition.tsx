@@ -1,5 +1,6 @@
 import React, {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
+import {BACKGROUND} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {renderFrame} from '../state/render-frame';
 import {RichTimelineContext} from '../state/rich-timeline';
@@ -12,6 +13,7 @@ const container: React.CSSProperties = {
 	borderBottom: '1px solid black',
 	padding: 16,
 	color: 'white',
+	backgroundColor: BACKGROUND,
 };
 
 const title: React.CSSProperties = {
@@ -19,6 +21,7 @@ const title: React.CSSProperties = {
 	fontSize: 12,
 	whiteSpace: 'nowrap',
 	lineHeight: '18px',
+	backgroundColor: BACKGROUND,
 };
 
 const subtitle: React.CSSProperties = {
@@ -26,12 +29,14 @@ const subtitle: React.CSSProperties = {
 	opacity: 0.8,
 	whiteSpace: 'nowrap',
 	lineHeight: '18px',
+	backgroundColor: BACKGROUND,
 };
 
 const row: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	lineHeight: '18px',
+	backgroundColor: BACKGROUND,
 };
 
 const targetHeight = 60;

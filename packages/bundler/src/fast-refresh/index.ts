@@ -31,8 +31,8 @@
 //
 // https://github.com/vercel/next.js/blob/canary/packages/react-refresh-utils/ReactRefreshWebpackPlugin.ts
 
-import webpack from 'webpack';
-import {Template, RuntimeModule, RuntimeGlobals, version} from 'webpack';
+import type webpack from 'webpack';
+import {RuntimeGlobals, RuntimeModule, Template, version} from 'webpack';
 
 class ReactRefreshRuntimeModule extends RuntimeModule {
 	constructor() {

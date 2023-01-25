@@ -1,5 +1,7 @@
-import React, {Children, FC, PropsWithChildren, useMemo} from 'react';
-import {Sequence, SequenceProps} from '../sequencing';
+import type {FC, PropsWithChildren} from 'react';
+import {Children, forwardRef, useMemo} from 'react';
+import type {LayoutAndStyle, SequenceProps} from '../Sequence';
+import {Sequence} from '../Sequence';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames';
 import {flattenChildren} from './flatten-children';
 
@@ -7,24 +9,35 @@ type SeriesSequenceProps = PropsWithChildren<
 	{
 		durationInFrames: number;
 		offset?: number;
-	} & Pick<SequenceProps, 'layout' | 'name'>
+	} & Pick<SequenceProps, 'layout' | 'name'> &
+		LayoutAndStyle
 >;
 
-const SeriesSequence = ({children}: SeriesSequenceProps) => {
+const SeriesSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	SeriesSequenceProps
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+> = ({children}, _ref) => {
+	// Discard ref
 	// eslint-disable-next-line react/jsx-no-useless-fragment
 	return <>{children}</>;
 };
 
-const Series: FC & {
+const SeriesSequence = forwardRef(SeriesSequenceRefForwardingFunction);
+
+const Series: FC<{
+	children: React.ReactNode;
+}> & {
 	Sequence: typeof SeriesSequence;
 } = ({children}) => {
 	const childrenValue = useMemo(() => {
 		let startFrame = 0;
 		return Children.map(flattenChildren(children), (child, i) => {
-			const castedChild = (child as unknown) as
+			const castedChild = child as unknown as
 				| {
 						props: SeriesSequenceProps;
 						type: typeof SeriesSequence;
+						ref: React.MutableRefObject<HTMLDivElement>;
 				  }
 				| string;
 			if (typeof castedChild === 'string') {
@@ -88,6 +101,7 @@ const Series: FC & {
 					from={currentStartFrame}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
+					ref={castedChild.ref}
 				>
 					{child}
 				</Sequence>

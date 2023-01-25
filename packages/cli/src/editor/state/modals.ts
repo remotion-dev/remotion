@@ -1,5 +1,7 @@
-import React, {createContext} from 'react';
-import {UpdateInfo} from '../components/UpdateCheck';
+import type React from 'react';
+import {createContext} from 'react';
+import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
+import type {UpdateInfo} from '../components/UpdateCheck';
 
 export type CompType = 'composition' | 'still';
 
@@ -13,7 +15,9 @@ export type ModalState =
 			info: UpdateInfo;
 	  }
 	| {
-			type: 'shortcuts';
+			type: 'quick-switcher';
+			mode: QuickSwitcherMode;
+			invocationTimestamp: number;
 	  };
 
 export type ModalContextType = {

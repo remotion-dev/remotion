@@ -23,11 +23,13 @@ const EscapeHook: React.FC<{
 	const keybindings = useKeybinding();
 
 	useEffect(() => {
-		const escape = keybindings.registerKeybinding(
-			'keydown',
-			'Escape',
-			onEscape
-		);
+		const escape = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'Escape',
+			callback: onEscape,
+			commandCtrlKey: false,
+			preventDefault: true,
+		});
 
 		return () => {
 			escape.unregister();
@@ -40,6 +42,7 @@ const EscapeHook: React.FC<{
 export const HigherZIndex: React.FC<{
 	onEscape: () => void;
 	onOutsideClick: () => void;
+	children: React.ReactNode;
 }> = ({children, onEscape, onOutsideClick}) => {
 	const context = useContext(ZIndexContext);
 	const highestContext = useContext(HighestZIndexContext);
@@ -53,22 +56,41 @@ export const HigherZIndex: React.FC<{
 	}, [currentIndex, highestContext]);
 
 	useEffect(() => {
-		const listener = (e: MouseEvent) => {
-			const outsideClick = !containerRef.current?.contains(e.target as Node);
-			if (
-				outsideClick &&
-				highestContext.highestIndex === currentIndex &&
-				!getClickLock() &&
-				// Don't trigger if that click removed that node
-				document.contains(e.target as Node)
-			) {
-				e.stopPropagation();
-				onOutsideClick();
+		let onUp: ((upEvent: MouseEvent) => void) | null = null;
+
+		const listener = (downEvent: MouseEvent) => {
+			const outsideClick = !containerRef.current?.contains(
+				downEvent.target as Node
+			);
+			if (!outsideClick) {
+				return;
 			}
+
+			onUp = (upEvent: MouseEvent) => {
+				if (
+					outsideClick &&
+					highestContext.highestIndex === currentIndex &&
+					!getClickLock() &&
+					// Don't trigger if that click removed that node
+					document.contains(upEvent.target as Node)
+				) {
+					upEvent.stopPropagation();
+					onOutsideClick();
+				}
+			};
+
+			window.addEventListener('pointerup', onUp, {once: true});
 		};
 
-		window.addEventListener('click', listener);
-		return () => window.removeEventListener('click', listener);
+		window.addEventListener('pointerdown', listener);
+		return () => {
+			if (onUp) {
+				// @ts-expect-error
+				window.removeEventListener('pointerup', onUp, {once: true});
+			}
+
+			return window.removeEventListener('pointerdown', listener);
+		};
 	}, [currentIndex, highestContext.highestIndex, onOutsideClick]);
 
 	const value = useMemo((): ZIndex => {

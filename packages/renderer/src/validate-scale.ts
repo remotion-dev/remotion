@@ -22,8 +22,10 @@ export const validateScale = (scale: unknown) => {
 	if (scale <= 0) {
 		throw new Error(`"scale" must be bigger than 0, but is ${scale}`);
 	}
-	
+
 	if (scale > 16) {
-		throw new Error(`"scale" must be smaller or equal than 16, but is ${scale}`);
+		throw new Error(
+			`"scale" must be smaller or equal than 16, but is ${scale}`
+		);
 	}
 };

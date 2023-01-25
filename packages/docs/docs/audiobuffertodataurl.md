@@ -1,9 +1,11 @@
 ---
+image: /generated/articles-docs-audiobuffertodataurl.png
 id: audio-buffer-to-data-url
 title: audioBufferToDataUrl()
+crumb: "@remotion/media-utils"
 ---
 
-_Part of the `@remotion/media-utils`package of helper functions. Available from v2.5.7._
+_Part of the `@remotion/media-utils` package of helper functions. Available from v2.5.7._
 
 This API takes an [`AudioBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/AudioBuffer) instance and converts it to a Base 64 Data URL so it can be passed to an [`<Audio />`](/docs/audio) tag.
 
@@ -22,10 +24,15 @@ const str = audioBufferToDataUrl(audioBuffer);
 The following composition will render a sine tone with a C4 pitch.
 
 ```tsx twoslash
-import { interpolate } from "remotion";
-import { useCallback, useEffect, useState } from "react";
-import { Audio, continueRender, delayRender, useVideoConfig } from "remotion";
 import { audioBufferToDataUrl } from "@remotion/media-utils";
+import { useCallback, useEffect, useState } from "react";
+import {
+  Audio,
+  continueRender,
+  delayRender,
+  interpolate,
+  useVideoConfig,
+} from "remotion";
 
 const C4_FREQUENCY = 261.63;
 const sampleRate = 44100;
@@ -83,4 +90,5 @@ export const OfflineAudioBufferExample: React.FC = () => {
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/audio-buffer/audio-url-helpers.ts)
 - [Rendering audio only](/docs/using-audio/#rendering-audio-only)

@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {truthy} from '../truthy';
 
 test.each<[unknown, boolean]>([

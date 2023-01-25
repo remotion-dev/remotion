@@ -1,18 +1,24 @@
 {
   "name": "@remotion/it-tests",
-  "version": "2.6.12",
+  "version": "3.3.36",
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
-    "test": "jest --runInBand"
+    "test": "vitest src/rendering --run",
+    "testssr": "node --max_old_space_size=4096 node_modules/vitest/vitest.mjs src/ssr --run",
+    "testlambda": "vitest src/lambda --run"
   },
   "private": true,
   "devDependencies": {
-    "@types/jest": "^27.4.0",
+    "@remotion/bundler": "3.3.36",
+    "@remotion/cli": "3.3.36",
+    "@remotion/lambda": "3.3.36",
+    "@remotion/renderer": "3.3.36",
     "@types/sharp": "^0.28.5",
     "execa": "5.1.1",
-    "jest": "^27.2.4",
-    "sharp": "0.30.0",
-    "ts-jest": "^27.0.5",
-    "typescript": "^4.5.5"
+    "remotion": "3.3.36",
+    "sharp": "0.30.6",
+    "typescript": "^4.7.0",
+    "vite": "^4.0.4",
+    "vitest": "^0.27.2"
   }
 }

@@ -1,0 +1,16 @@
+{
+  "version": "3.3.36",
+  "name": "@remotion/compositor-linux-x64-gnu",
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "libc": [
+    "glibc"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

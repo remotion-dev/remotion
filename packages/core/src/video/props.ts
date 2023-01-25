@@ -1,4 +1,5 @@
-import {VolumeProp} from '../volume-prop';
+import type React from 'react';
+import type {VolumeProp} from '../volume-prop';
 
 export type RemotionMainVideoProps = {
 	startFrom?: number;
@@ -10,8 +11,25 @@ export type RemotionVideoProps = Omit<
 		React.VideoHTMLAttributes<HTMLVideoElement>,
 		HTMLVideoElement
 	>,
-	'autoPlay' | 'controls' | 'loop' | 'onEnded'
+	'autoPlay' | 'controls' | 'onEnded' | 'nonce'
 > & {
 	volume?: VolumeProp;
 	playbackRate?: number;
+	acceptableTimeShiftInSeconds?: number;
+	allowAmplificationDuringRender?: boolean;
+};
+
+export type OffthreadVideoImageFormat = 'png' | 'jpeg';
+
+export type OffthreadVideoProps = {
+	src: string;
+	className?: string;
+	style?: React.CSSProperties;
+	volume?: VolumeProp;
+	playbackRate?: number;
+	muted?: boolean;
+	onError?: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement>;
+	imageFormat?: OffthreadVideoImageFormat;
+	acceptableTimeShiftInSeconds?: number;
+	allowAmplificationDuringRender?: boolean;
 };

@@ -1,36 +1,105 @@
 import fs from 'fs';
-import {mkdirSync} from 'fs';
-import path from 'path';
-
-import {Internals, random, TAsset} from 'remotion';
-import {sanitizeFilePath} from './sanitize-filepath';
+import path, {extname} from 'path';
+import type {TAsset} from 'remotion';
+import {random} from 'remotion';
+import {isAssetCompressed} from '../compress-assets';
+import {ensureOutputDirectory} from '../ensure-output-directory';
+import {getExt} from '../mime-types';
 import {downloadFile} from './download-file';
+import type {DownloadMap} from './download-map';
+import {sanitizeFilePath} from './sanitize-filepath';
 
-const isDownloadingMap: {[key: string]: boolean} = {};
-const hasBeenDownloadedMap: {[key: string]: boolean} = {};
-const listeners: {[key: string]: (() => void)[]} = {};
+export type RenderMediaOnDownload = (
+	src: string
+) =>
+	| ((progress: {
+			percent: number | null;
+			downloaded: number;
+			totalSize: number | null;
+	  }) => void)
+	| undefined
+	| void;
 
-const waitForAssetToBeDownloaded = (src: string) => {
-	if (!listeners[src]) {
-		listeners[src] = [];
+const waitForAssetToBeDownloaded = ({
+	src,
+	downloadDir,
+	downloadMap,
+}: {
+	src: string;
+	downloadDir: string;
+	downloadMap: DownloadMap;
+}): Promise<string> => {
+	if (downloadMap.hasBeenDownloadedMap[src]?.[downloadDir]) {
+		return Promise.resolve(
+			downloadMap.hasBeenDownloadedMap[src]?.[downloadDir] as string
+		);
 	}
 
-	return new Promise<void>((resolve) => {
-		listeners[src].push(() => resolve());
+	if (!downloadMap.listeners[src]) {
+		downloadMap.listeners[src] = {};
+	}
+
+	if (!downloadMap.listeners[src][downloadDir]) {
+		downloadMap.listeners[src][downloadDir] = [];
+	}
+
+	return new Promise<string>((resolve) => {
+		downloadMap.listeners[src][downloadDir].push(() => {
+			const srcMap = downloadMap.hasBeenDownloadedMap[src];
+			if (!srcMap || !srcMap[downloadDir]) {
+				throw new Error(
+					'Expected file for ' + src + 'to be available in ' + downloadDir
+				);
+			}
+
+			resolve(srcMap[downloadDir] as string);
+		});
 	});
 };
 
-const notifyAssetIsDownloaded = (src: string) => {
-	if (!listeners[src]) {
-		listeners[src] = [];
+const notifyAssetIsDownloaded = ({
+	src,
+	downloadDir,
+	to,
+	downloadMap,
+}: {
+	src: string;
+	downloadDir: string;
+	to: string;
+	downloadMap: DownloadMap;
+}) => {
+	if (!downloadMap.listeners[src]) {
+		downloadMap.listeners[src] = {};
 	}
 
-	listeners[src].forEach((fn) => fn());
-	isDownloadingMap[src] = false;
-	hasBeenDownloadedMap[src] = true;
+	if (!downloadMap.listeners[src][downloadDir]) {
+		downloadMap.listeners[src][downloadDir] = [];
+	}
+
+	if (!downloadMap.isDownloadingMap[src]) {
+		downloadMap.isDownloadingMap[src] = {};
+	}
+
+	(
+		downloadMap.isDownloadingMap[src] as {
+			[downloadDir: string]: boolean;
+		}
+	)[downloadDir] = false;
+
+	if (!downloadMap.hasBeenDownloadedMap[src]) {
+		downloadMap.hasBeenDownloadedMap[src] = {};
+	}
+
+	(
+		downloadMap.hasBeenDownloadedMap[src] as {
+			[downloadDir: string]: string | null;
+		}
+	)[downloadDir] = to;
+
+	downloadMap.listeners[src][downloadDir].forEach((fn) => fn());
 };
 
-export const validateMimeType = (mimeType: string, src: string) => {
+const validateMimeType = (mimeType: string, src: string) => {
 	if (!mimeType.includes('/')) {
 		const errMessage = [
 			'A data URL was passed but did not have the correct format so that Remotion could convert it for the video to be rendered.',
@@ -74,24 +143,55 @@ function validateBufferEncoding(
 	}
 }
 
-const downloadAsset = async (
-	src: string,
-	to: string,
-	onDownload: (src: string) => void
-) => {
-	if (hasBeenDownloadedMap[src]) {
-		return;
+export const downloadAsset = async ({
+	src,
+	onDownload,
+	downloadMap,
+}: {
+	src: string;
+	onDownload: RenderMediaOnDownload;
+	downloadMap: DownloadMap;
+}): Promise<string> => {
+	if (isAssetCompressed(src)) {
+		return src;
 	}
 
-	if (isDownloadingMap[src]) {
-		return waitForAssetToBeDownloaded(src);
+	const {downloadDir} = downloadMap;
+
+	if (downloadMap.hasBeenDownloadedMap[src]?.[downloadDir]) {
+		const claimedDownloadLocation = downloadMap.hasBeenDownloadedMap[src]?.[
+			downloadDir
+		] as string;
+		// The OS might have deleted the file since even though we marked it as downloaded. In that case we reset the state and download it again
+		if (fs.existsSync(claimedDownloadLocation)) {
+			return claimedDownloadLocation;
+		}
+
+		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+		downloadMap.hasBeenDownloadedMap[src]![downloadDir] = null;
+		if (!downloadMap.isDownloadingMap[src]) {
+			downloadMap.isDownloadingMap[src] = {};
+		}
+
+		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+		downloadMap.isDownloadingMap[src]![downloadDir] = false;
 	}
 
-	isDownloadingMap[src] = true;
-	onDownload(src);
-	mkdirSync(path.resolve(to, '..'), {
-		recursive: true,
-	});
+	if (downloadMap.isDownloadingMap[src]?.[downloadDir]) {
+		return waitForAssetToBeDownloaded({downloadMap, src, downloadDir});
+	}
+
+	if (!downloadMap.isDownloadingMap[src]) {
+		downloadMap.isDownloadingMap[src] = {};
+	}
+
+	(
+		downloadMap.isDownloadingMap[src] as {
+			[downloadDir: string]: boolean;
+		}
+	)[downloadDir] = true;
+
+	const onProgress = onDownload(src);
 
 	if (src.startsWith('data:')) {
 		const [assetDetails, assetData] = src.substring('data:'.length).split(',');
@@ -100,7 +200,7 @@ const downloadAsset = async (
 				'A data URL was passed but did not have the correct format so that Remotion could convert it for the video to be rendered.',
 				'The format of the data URL must be `data:[mime-type];[encoding],[data]`.',
 				'The data that was received is (truncated to 100 characters):',
-				src.substr(0, 100),
+				src.substring(0, 100),
 			].join(' ');
 			throw new TypeError(errMessage);
 		}
@@ -110,44 +210,113 @@ const downloadAsset = async (
 		validateMimeType(mimeType, src);
 		validateBufferEncoding(encoding, src);
 
+		const output = getSanitizedFilenameForAssetUrl({
+			contentDisposition: null,
+			downloadDir,
+			src,
+			contentType: mimeType,
+		});
+		ensureOutputDirectory(output);
+
 		const buff = Buffer.from(assetData, encoding);
-		await fs.promises.writeFile(to, buff);
-		notifyAssetIsDownloaded(src);
-		return;
+		await fs.promises.writeFile(output, buff);
+		notifyAssetIsDownloaded({src, downloadMap, downloadDir, to: output});
+		return output;
 	}
 
-	await downloadFile(src, to);
-	notifyAssetIsDownloaded(src);
-};
-
-export const markAllAssetsAsDownloaded = () => {
-	Object.keys(hasBeenDownloadedMap).forEach((key) => {
-		delete hasBeenDownloadedMap[key];
+	const {to} = await downloadFile({
+		url: src,
+		onProgress: (progress) => {
+			onProgress?.(progress);
+		},
+		to: (contentDisposition, contentType) =>
+			getSanitizedFilenameForAssetUrl({
+				contentDisposition,
+				downloadDir,
+				src,
+				contentType,
+			}),
 	});
 
-	Object.keys(isDownloadingMap).forEach((key) => {
-		delete isDownloadingMap[key];
+	notifyAssetIsDownloaded({src, downloadMap, downloadDir, to});
+
+	return to;
+};
+
+export const markAllAssetsAsDownloaded = (downloadMap: DownloadMap) => {
+	Object.keys(downloadMap.hasBeenDownloadedMap).forEach((key) => {
+		delete downloadMap.hasBeenDownloadedMap[key];
+	});
+
+	Object.keys(downloadMap.isDownloadingMap).forEach((key) => {
+		delete downloadMap.isDownloadingMap[key];
 	});
 };
 
-export const getSanitizedFilenameForAssetUrl = ({
+const getFilename = ({
+	contentDisposition,
 	src,
-	isRemote,
-	webpackBundle,
+	contentType,
 }: {
 	src: string;
-	isRemote: boolean;
-	webpackBundle: string;
-}) => {
-	if (Internals.AssetCompression.isAssetCompressed(src)) {
-		return src;
+	contentDisposition: string | null;
+	contentType: string | null;
+}): {pathname: string; search: string} => {
+	const filenameProbe = 'filename=';
+	if (contentDisposition?.includes(filenameProbe)) {
+		const start = contentDisposition.indexOf(filenameProbe);
+		const onlyFromFileName = contentDisposition.substring(
+			start + filenameProbe.length
+		);
+
+		const hasSemi = onlyFromFileName.indexOf(';');
+		if (hasSemi === -1) {
+			return {pathname: onlyFromFileName.trim(), search: ''};
+		}
+
+		return {
+			search: '',
+			pathname: onlyFromFileName.substring(0, hasSemi).trim(),
+		};
 	}
 
 	const {pathname, search} = new URL(src);
 
-	if (!isRemote) {
-		return path.join(webpackBundle, sanitizeFilePath(pathname));
+	const ext = extname(pathname);
+
+	// Has no file extension, check if we can derive it from contentType
+	if (!ext && contentType) {
+		const matchedExt = getExt(contentType);
+
+		return {
+			pathname: `${pathname}.${matchedExt}`,
+			search,
+		};
 	}
+
+	return {pathname, search};
+};
+
+export const getSanitizedFilenameForAssetUrl = ({
+	src,
+	downloadDir,
+	contentDisposition,
+	contentType,
+}: {
+	src: string;
+	downloadDir: string;
+	contentDisposition: string | null;
+	contentType: string | null;
+}) => {
+	if (isAssetCompressed(src)) {
+		return src;
+	}
+
+	const {pathname, search} = getFilename({
+		contentDisposition,
+		contentType,
+		src,
+	});
 
 	const split = pathname.split('.');
 	const fileExtension =
@@ -158,36 +327,29 @@ export const getSanitizedFilenameForAssetUrl = ({
 		'0.',
 		''
 	);
-	return path.join(
-		webpackBundle,
-		sanitizeFilePath(hashedFileName + fileExtension)
-	);
+
+	const filename = hashedFileName + fileExtension;
+
+	return path.join(downloadDir, sanitizeFilePath(filename));
 };
 
 export const downloadAndMapAssetsToFileUrl = async ({
-	localhostAsset,
-	webpackBundle,
+	asset,
 	onDownload,
+	downloadMap,
 }: {
-	localhostAsset: TAsset;
-	webpackBundle: string;
-	onDownload: (src: string) => void;
+	asset: TAsset;
+	onDownload: RenderMediaOnDownload;
+	downloadMap: DownloadMap;
 }): Promise<TAsset> => {
-	const newSrc = getSanitizedFilenameForAssetUrl({
-		src: localhostAsset.src,
-		isRemote: localhostAsset.isRemote,
-		webpackBundle,
+	const newSrc = await downloadAsset({
+		src: asset.src,
+		onDownload,
+		downloadMap,
 	});
 
-	if (
-		localhostAsset.isRemote &&
-		!Internals.AssetCompression.isAssetCompressed(newSrc)
-	) {
-		await downloadAsset(localhostAsset.src, newSrc, onDownload);
-	}
-
 	return {
-		...localhostAsset,
+		...asset,
 		src: newSrc,
 	};
 };

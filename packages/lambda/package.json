@@ -1,0 +1,62 @@
+{
+	"name": "@remotion/lambda",
+	"version": "3.3.36",
+	"description": "Distributed renderer for Remotion based on AWS Lambda",
+	"main": "dist/index.js",
+	"sideEffects": false,
+	"bin": {
+		"remotion-lambda": "remotion-lambda-cli.js"
+	},
+	"scripts": {
+		"testintegration": "vitest src/test/integration --run",
+		"lint": "eslint src --ext ts,tsx",
+		"test": "vitest src/test/unit --run",
+		"watch": "tsc -w",
+		"build": "tsc -d && pnpm run buildlambda",
+		"buildlambda": "ts-node src/admin/bundle-lambda.ts",
+		"start": "ts-node src/run.ts",
+		"prepublishOnly": "ts-node src/admin/bundle-lambda.ts && node ensure-version-match.js"
+	},
+	"author": "",
+	"license": "MIT",
+	"repository": {
+		"url": "https://github.com/JonnyBurger/remotion"
+	},
+	"dependencies": {
+		"@aws-sdk/abort-controller": "3.215.0",
+		"@aws-sdk/client-cloudwatch-logs": "3.215.0",
+		"@aws-sdk/client-iam": "3.215.0",
+		"@aws-sdk/client-lambda": "3.215.0",
+		"@aws-sdk/client-s3": "3.215.0",
+		"@aws-sdk/client-service-quotas": "3.215.0",
+		"@aws-sdk/client-sts": "3.215.0",
+		"@aws-sdk/credential-providers": "3.215.0",
+		"@aws-sdk/lib-storage": "3.215.0",
+		"@aws-sdk/s3-request-presigner": "3.215.0",
+		"@remotion/bundler": "3.3.36",
+		"@remotion/cli": "3.3.36",
+		"@remotion/renderer": "3.3.36",
+		"aws-policies": "^1.0.1",
+		"mime-types": "2.1.34",
+		"remotion": "3.3.36"
+	},
+	"devDependencies": {
+		"@jonny/eslint-config": "3.0.266",
+		"@remotion/compositor-linux-arm64-musl": "3.3.36",
+		"@remotion/compositor-linux-x64-musl": "3.3.36",
+		"@types/mime-types": "2.1.1",
+		"@types/minimist": "1.2.2",
+		"@types/node": "^14.14.14",
+		"@types/prompt": "^1.1.0",
+		"eslint": "8.25.0",
+		"prettier": "^2.4.1",
+		"prettier-plugin-organize-imports": "^2.3.4",
+		"ts-node": "^10.8.0",
+		"typescript": "^4.7.0",
+		"vitest": "^0.24.3",
+		"zip-lib": "^0.7.2"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}

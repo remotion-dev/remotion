@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ShowcaseVideo } from "../data/showcase-videos";
+import type { ShowcaseVideo } from "../data/showcase-videos";
 
 const videoStyle: React.CSSProperties = {
   display: "flex",

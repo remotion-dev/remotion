@@ -1,18 +1,14 @@
-import {Sequence, useVideoConfig} from 'remotion';
 import {Gif} from '@remotion/gif';
+import {Sequence, staticFile, useVideoConfig} from 'remotion';
 
 const GifTest: React.FC = () => {
 	const {width, height} = useVideoConfig();
+	const giphy = staticFile('giphy.gif');
 
 	return (
 		<div style={{flex: 1, backgroundColor: 'black'}}>
-			<Sequence from={0} durationInFrames={50}>
-				<Gif
-					src="https://media.giphy.com/media/S9RJG5q2YnWd2nYLZ3/giphy.gif"
-					width={width}
-					height={height}
-					fit="fill"
-				/>
+			<Sequence durationInFrames={50}>
+				<Gif src={giphy} width={width} height={height} fit="fill" />
 			</Sequence>
 
 			<Sequence from={50} durationInFrames={50}>
@@ -30,6 +26,20 @@ const GifTest: React.FC = () => {
 					width={width}
 					height={height}
 					fit="contain"
+				/>
+			</Sequence>
+			<Sequence
+				from={150}
+				durationInFrames={50}
+				style={{
+					backgroundColor: 'white',
+				}}
+			>
+				<Gif
+					src={staticFile('disposal-type-3.gif')}
+					width={width}
+					height={height}
+					fit="fill"
 				/>
 			</Sequence>
 		</div>

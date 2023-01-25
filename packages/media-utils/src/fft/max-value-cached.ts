@@ -1,7 +1,7 @@
 // Adapted from node-fft project by Joshua Wong and Ben Bryan
 // https://github.com/vail-systems/node-fft
 
-import {AudioData} from '..';
+import type {AudioData} from '../types';
 import {toInt16} from './to-int-16';
 
 const getMax = (array: Float32Array) => {

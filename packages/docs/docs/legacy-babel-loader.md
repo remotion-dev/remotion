@@ -1,7 +1,12 @@
 ---
+image: /generated/articles-docs-legacy-babel-loader.png
 title: Using legacy Babel transpilation
 id: legacy-babel
+crumb: "How To"
 ---
+
+import Tabs from "@theme/Tabs";
+import TabItem from '@theme/TabItem';
 
 In Remotion 2.0, the traditional transpilation of Javascript and Typescript using the `babel-loader` has been replaced by the faster `esbuild-loader` by default.
 
@@ -13,9 +18,37 @@ This should not be necessary in general, it is encouraged to [report issues](htt
 
 ## Example
 
-```bash title="Console"
-npm i @remotion/babel-loader
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm i mdx-loader babel-loader @babel/preset-env @babel/preset-react
 ```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i mdx-loader babel-loader @babel/preset-env @babel/preset-react
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn add mdx-loader babel-loader @babel/preset-env @babel/preset-react
+```
+
+  </TabItem>
+</Tabs>
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "remotion";
@@ -24,6 +57,26 @@ import { replaceLoadersWithBabel } from "@remotion/babel-loader";
 
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
   return replaceLoadersWithBabel(currentConfiguration);
+});
+```
+
+## When using `bundle` or `deploySite`
+
+When using the Node.JS APIs - [`bundle()`](/docs/bundle) for SSR or [`deploySite()`](/docs/lambda/deploysite) for Lambda, you also need to provide the Webpack override, since the Node.JS APIs do not read from the config file.
+
+```ts twoslash title="my-script.js"
+// @filename: ./src/webpack-override.ts
+import { WebpackOverrideFn } from "remotion";
+export const webpackOverride: WebpackOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// @target: esnext
+// ---cut---
+import { bundle } from "@remotion/bundler";
+import { replaceLoadersWithBabel } from "@remotion/babel-loader";
+
+await bundle({
+  entryPoint: require.resolve("./src/index.ts"),
+  webpackOverride: (config) => replaceLoadersWithBabel(config),
 });
 ```
 

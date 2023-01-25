@@ -1,8 +1,5 @@
-import {
-	AudioData,
-	getAudioData,
-	getWaveformPortion,
-} from '@remotion/media-utils';
+import type {AudioData} from '@remotion/media-utils';
+import {getAudioData, getWaveformPortion} from '@remotion/media-utils';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
 	TIMELINE_BORDER,
@@ -21,6 +18,16 @@ const container: React.CSSProperties = {
 	position: 'absolute',
 	height: TIMELINE_LAYER_HEIGHT,
 };
+const errorMessage: React.CSSProperties = {
+	fontSize: 13,
+	paddingTop: 6,
+	paddingBottom: 6,
+	paddingLeft: 12,
+	paddingRight: 12,
+	alignSelf: 'flex-start',
+	maxWidth: 450,
+	opacity: 0.75,
+};
 
 const canvasStyle: React.CSSProperties = {
 	position: 'absolute',
@@ -35,6 +42,7 @@ export const AudioWaveform: React.FC<{
 	setMaxMediaDuration: React.Dispatch<React.SetStateAction<number>>;
 	volume: string | number;
 	doesVolumeChange: boolean;
+	playbackRate: number;
 }> = ({
 	src,
 	fps,
@@ -44,8 +52,10 @@ export const AudioWaveform: React.FC<{
 	setMaxMediaDuration,
 	volume,
 	doesVolumeChange,
+	playbackRate,
 }) => {
 	const [metadata, setMetadata] = useState<AudioData | null>(null);
+	const [error, setError] = useState<Error | null>(null);
 	const mountState = useRef({isMounted: true});
 
 	const canvas = useRef<HTMLCanvasElement>(null);
@@ -93,6 +103,7 @@ export const AudioWaveform: React.FC<{
 	}, [visualizationWidth, metadata, startFrom, volume, doesVolumeChange]);
 
 	useEffect(() => {
+		setError(null);
 		getAudioData(src)
 			.then((data) => {
 				if (mountState.current.isMounted) {
@@ -101,7 +112,10 @@ export const AudioWaveform: React.FC<{
 				}
 			})
 			.catch((err) => {
-				console.error(`Could not load waveform for ${src}`, err);
+				console.log(err);
+				if (mountState.current.isMounted) {
+					setError(err);
+				}
 			});
 	}, [fps, setMaxMediaDuration, src]);
 
@@ -117,10 +131,27 @@ export const AudioWaveform: React.FC<{
 		return getWaveformPortion({
 			audioData: metadata,
 			startTimeInSeconds: startFrom / fps,
-			durationInSeconds: durationInFrames / fps,
+			durationInSeconds: (durationInFrames / fps) * playbackRate,
 			numberOfSamples,
 		});
-	}, [durationInFrames, fps, metadata, startFrom, visualizationWidth]);
+	}, [
+		durationInFrames,
+		fps,
+		metadata,
+		playbackRate,
+		startFrom,
+		visualizationWidth,
+	]);
+
+	if (error) {
+		return (
+			<div style={container}>
+				<div style={errorMessage}>
+					No waveform available. Audio might not support CORS.
+				</div>
+			</div>
+		);
+	}
 
 	if (!metadata) {
 		return null;
@@ -131,6 +162,7 @@ export const AudioWaveform: React.FC<{
 			{normalized.map((w) => {
 				return <AudioWaveformBar key={w.index} amplitude={w.amplitude} />;
 			})}
+
 			<canvas
 				ref={canvas}
 				style={canvasStyle}

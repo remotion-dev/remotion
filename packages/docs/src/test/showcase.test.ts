@@ -1,3 +1,4 @@
+import { describe, expect, test } from "vitest";
 import { showcaseVideos } from "../data/showcase-videos";
 
 describe("Showcase videos should adhere to format guidelines", () => {

@@ -33,10 +33,6 @@ const wouldYouRather: React.CSSProperties = {
   fontSize: ".9em",
 };
 
-const light: React.CSSProperties = {
-  opacity: 0.5,
-};
-
 export const YouTube: React.FC<{
   minutes: number;
   href: string;

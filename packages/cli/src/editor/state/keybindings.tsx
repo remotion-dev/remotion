@@ -19,12 +19,16 @@ export type KeybindingContextType = {
 };
 
 export const KeybindingContext = createContext<KeybindingContextType>({
-	registerKeybinding: () => undefined,
+	registerKeybinding: () => {
+		throw new Error('Has no keybinding context');
+	},
 	unregisterKeybinding: () => undefined,
 	unregisterPane: () => undefined,
 });
 
-export const KeybindingContextProvider: React.FC = ({children}) => {
+export const KeybindingContextProvider: React.FC<{
+	children: React.ReactNode;
+}> = ({children}) => {
 	const registered = useRef<RegisteredKeybinding[]>([]);
 
 	const registerKeybinding = useCallback((binding: RegisteredKeybinding) => {

@@ -1,29 +1,15 @@
 ---
+image: /generated/articles-docs-dynamic-import.png
 title: Webpack dynamic imports
 id: webpack-dynamic-imports
+crumb: "Knowledge Base"
 ---
 
 A common need in Remotion is to import assets from dynamic paths. This means that sometimes you don't know the exact path of an asset that should be imported upfront and you want to calculate it during runtime.
 
 This can become an unexpected hurdle in Webpack. On this page we collect some tips how to handle dynamic assets.
 
-## Write dynamic expressions correctly
-
-Consider you have a PNG sequence of images with the following file structure:
-
-```bash
-my-video/
-├─ src/
-│  ├─ assets/
-│  │  ├─ image0.png
-│  │  ├─ image1.png
-│  │  ├─ image2.png
-│  │  ├─ ...
-│  │  ├─ image99.png
-│  ├─ index.tsx
-```
-
-Note that the following pattern doesn't work:
+Take this scenario for an example:
 
 ```tsx twoslash
 import { Img, useCurrentFrame } from "remotion";
@@ -35,11 +21,26 @@ export const DynamicImports: React.FC = () => {
 };
 ```
 
+may result in:
+
 ```bash
 Error: Cannot find module './image0.png'
 ```
 
-However the following example **does** work:
+even if the file exists. This is because Webpack needs to figure out using static code analysis which assets it should bundle and cannot do so.
+
+## Recommended: Use `staticFile()` instead
+
+We recommend that you put the asset inside the `public/` folder and use `staticFile()` to reference it. This new way does not suffer from the underlying problem.
+
+- [Importing assets](/docs/assets)
+- [`staticFile()`](/docs/staticfile)
+
+## Write dynamic expressions correctly
+
+While the example at the top did not work, Webpack is smart enough to do so if you place your expression inside the `require()` or `import()` statement. In this case, Webpack will automatically bundle all `.png` files in the `assets/image` folder even if the asset is never used.
+
+The following **does** work:
 
 ```tsx twoslash
 import { Img, useCurrentFrame } from "remotion";
@@ -49,8 +50,6 @@ export const DynamicImports: React.FC = () => {
   return <Img src={require("./assets/image" + frame + ".png")} />;
 };
 ```
-
-Webpack needs to figure out which assets it should bundle and cannot do it in the first example. However, it is smart enough to do so if you place your expression inside the `require()` or `import()` statement. In this case, Webpack will automatically bundle all `.png` files in the `assets/image` folder even if the asset is never used. Therefore you have to be careful to not bundle too many assets.
 
 Please read [the Webpack documentation page](https://webpack.js.org/api/module-methods/#dynamic-expressions-in-import) about this behavior if you would like to learn more.
 
@@ -80,51 +79,6 @@ const DynamicAsset: React.FC = () => {
 };
 ```
 
-## Adding assets after bundling
-
-If you server-side render your video using the Node.JS APIs, you might find yourself in a situation where you want to add new assets after you have already bundled the Remotion application. In this scenario, it is simply impossible for Webpack to interpret a `require()` statement correctly.
-
-You can use the following workaround that relies on the fact that Remotion creates a static web server while rendering:
-
-1. [`bundle()`](/docs/bundle) the video - the return value is a promise resolving to the folder where the bundle got saved.
-2. Copy a new asset into this folder.
-3. Rely on the fact that the asset is available via the static HTTP server. Since you only want this during rendering, use the `process.env.NODE_ENV === 'production'` statement to differentiate between development and rendering.
-
-```tsx twoslash
-import { getInputProps, Img } from "remotion";
-
-export const DynamicAsset: React.FC = () => {
-  const inputProps = getInputProps(); // {"imageSrc": "assets/img0.png"}
-  return (
-    <Img
-      src={
-        process.env.NODE_ENV === "production"
-          ? `/${inputProps.imageSrc}`
-          : require("./assets/default-asset.png")
-      }
-    />
-  );
-};
-```
-
-## Set up an HTTP server
-
-As a last resort, you can spin up your own static HTTP server and import the assets via HTTP:
-
-```sh
-# From any directory
-npx serve --cors ./src
-```
-
-```tsx twoslash
-import { getInputProps, Img } from "remotion";
-
-const HttpAsset: React.FC = () => {
-  const inputProps = getInputProps(); // {"imageSrc": "assets/img0.png"}
-  return <Img src={`http://localhost:5000/${inputProps.imageSrc}`} />;
-};
-```
-
 ## Struggling?
 
-If you still have troubles importing your assets, hit us up on [Discord](https://discord.gg/6VzzNDwUwV) or file an issue. We'd love to hear your input about how we can improve and will help you out.
+If you still have troubles importing your assets, hit us up on [Discord](https://remotion.dev/discord) or file an issue. We'd love to hear your input about how we can improve and will help you out.

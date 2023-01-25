@@ -1,114 +1,178 @@
+import type {RenderMediaOnDownload, StitchingState} from '@remotion/renderer';
 import {
 	getCompositions,
-	OnErrorInfo,
-	OnStartData,
+	openBrowser,
 	renderFrames,
 	RenderInternals,
-	stitchFramesToVideo,
+	renderMedia,
 } from '@remotion/renderer';
-import chalk from 'chalk';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+// eslint-disable-next-line no-restricted-imports
 import {Internals} from 'remotion';
-import {deleteDirectory} from './delete-directory';
-import {getCliOptions} from './get-cli-options';
-import {getCompositionId} from './get-composition-id';
-import {handleCommonError} from './handle-common-errors';
-import {initializeRenderCli} from './initialize-render-cli';
-import {Log} from './log';
-import {parsedCli} from './parse-command-line';
+import {chalk} from './chalk';
+import {ConfigInternals} from './config';
+import {findEntryPoint} from './entry-point';
 import {
-	createProgressBar,
-	makeRenderingProgress,
-	makeStitchingProgress,
+	getAndValidateAbsoluteOutputFile,
+	getCliOptions,
+	getFinalCodec,
+	validateFfmpegCanUseCodec,
+} from './get-cli-options';
+import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
+import {getOutputFilename} from './get-filename';
+import {getRenderMediaOptions} from './get-render-media-options';
+import {getImageFormat} from './image-formats';
+import {Log} from './log';
+import {parsedCli, quietFlagProvided} from './parse-command-line';
+import type {DownloadProgress} from './progress-bar';
+import {
+	createOverwriteableCliOutput,
+	makeRenderingAndStitchingProgress,
 } from './progress-bar';
-import {bundleOnCli} from './setup-cache';
-import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
+import {bundleOnCliOrTakeServeUrl} from './setup-cache';
+import type {RenderStep} from './step';
+import {getUserPassedOutputLocation} from './user-passed-output-location';
 
-const onError = (info: OnErrorInfo) => {
-	Log.error();
-	if (info.frame === null) {
+export const render = async (remotionRoot: string, args: string[]) => {
+	const startTime = Date.now();
+	const {
+		file,
+		remainingArgs,
+		reason: entryPointReason,
+	} = findEntryPoint(args, remotionRoot);
+
+	if (!file) {
+		Log.error('No entry point specified. Pass more arguments:');
 		Log.error(
-			'The following error occured when trying to initialize the video rendering:'
+			'   npx remotion render [entry-point] [composition-name] [out-name]'
 		);
-	} else {
-		Log.error(
-			`The following error occurred when trying to render frame ${info.frame}:`
-		);
+		Log.error('Documentation: https://www.remotion.dev/docs/render');
+		process.exit(1);
 	}
 
-	handleCommonError(info.error);
+	const fullPath = RenderInternals.isServeUrl(file)
+		? file
+		: path.join(process.cwd(), file);
 
-	process.exit(1);
-};
+	const downloadMap = RenderInternals.makeDownloadMap();
 
-export const render = async () => {
-	const startTime = Date.now();
-	const file = parsedCli._[1];
-	const fullPath = path.join(process.cwd(), file);
+	if (parsedCli.frame) {
+		Log.error(
+			'--frame flag was passed to the `render` command. This flag only works with the `still` command. Did you mean `--frames`? See reference: https://www.remotion.dev/docs/cli/'
+		);
+		process.exit(1);
+	}
 
-	initializeRenderCli('sequence');
+	Log.verbose('Asset dirs', downloadMap.assetDir);
 
 	const {
-		codec,
-		proResProfile,
-		parallelism,
+		concurrency,
 		frameRange,
 		shouldOutputImageSequence,
-		absoluteOutputFile,
 		overwrite,
 		inputProps,
 		envVariables,
 		quality,
 		browser,
-		crf,
-		pixelFormat,
-		imageFormat,
 		browserExecutable,
 		ffmpegExecutable,
+		ffprobeExecutable,
 		scale,
 		chromiumOptions,
-	} = await getCliOptions('series');
+		port,
+		everyNthFrame,
+		puppeteerTimeout,
+		publicDir,
+		height,
+		width,
+	} = await getCliOptions({
+		isLambda: false,
+		type: 'series',
+		remotionRoot,
+	});
 
+	const ffmpegVersion = await RenderInternals.getFfmpegVersion({
+		ffmpegExecutable,
+		remotionRoot,
+	});
+	Log.verbose(
+		'FFMPEG Version:',
+		ffmpegVersion ? ffmpegVersion.join('.') : 'Built from source'
+	);
 	Log.verbose('Browser executable: ', browserExecutable);
 
-	await checkAndValidateFfmpegVersion({
-		ffmpegExecutable: Internals.getCustomFfmpegExecutable(),
-	});
-
-	const browserInstance = RenderInternals.openBrowser(browser, {
+	const browserInstance = openBrowser(browser, {
 		browserExecutable,
-		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
+			'verbose'
+		),
 		chromiumOptions,
+		forceDeviceScaleFactor: scale,
 	});
-	if (shouldOutputImageSequence) {
-		fs.mkdirSync(absoluteOutputFile, {
-			recursive: true,
-		});
-	}
 
-	const steps = shouldOutputImageSequence ? 2 : 3;
+	const steps: RenderStep[] = [
+		RenderInternals.isServeUrl(fullPath) ? null : ('bundling' as const),
+		'rendering' as const,
+		shouldOutputImageSequence ? null : ('stitching' as const),
+	].filter(Internals.truthy);
 
-	const bundled = await bundleOnCli(fullPath, steps);
+	const {urlOrBundle, cleanup: cleanupBundle} = await bundleOnCliOrTakeServeUrl(
+		{
+			fullPath,
+			remotionRoot,
+			steps,
+			publicDir,
+		}
+	);
 
-	const openedBrowser = await browserInstance;
-	const comps = await getCompositions(bundled, {
-		browser,
+	const onDownload: RenderMediaOnDownload = (src) => {
+		const id = Math.random();
+		const download: DownloadProgress = {
+			id,
+			name: src,
+			progress: 0,
+			downloaded: 0,
+			totalBytes: null,
+		};
+		downloads.push(download);
+		updateRenderProgress();
+		return ({percent, downloaded, totalSize}) => {
+			download.progress = percent;
+			download.totalBytes = totalSize;
+			download.downloaded = downloaded;
+			updateRenderProgress();
+		};
+	};
+
+	const puppeteerInstance = await browserInstance;
+
+	const comps = await getCompositions(urlOrBundle, {
 		inputProps,
-		browserInstance: openedBrowser,
+		puppeteerInstance,
 		envVariables,
-		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: puppeteerTimeout,
 		chromiumOptions,
 		browserExecutable,
+		downloadMap,
+		port,
 	});
-	const compositionId = getCompositionId(comps);
 
-	const config = comps.find((c) => c.id === compositionId);
+	const {compositionId, config, reason, argsAfterComposition} =
+		await getCompositionWithDimensionOverride({
+			validCompositions: comps,
+			height,
+			width,
+			args: remainingArgs,
+		});
 
-	if (!config) {
-		throw new Error(`Cannot find composition with ID ${compositionId}`);
-	}
+	const {codec, reason: codecReason} = getFinalCodec({
+		downloadName: null,
+		outName: getUserPassedOutputLocation(argsAfterComposition),
+	});
+	await validateFfmpegCanUseCodec(codec, remotionRoot);
 
 	RenderInternals.validateEvenDimensionsWithCodec({
 		width: config.width,
@@ -117,122 +181,101 @@ export const render = async () => {
 		scale,
 	});
 
+	const relativeOutputLocation = getOutputFilename({
+		codec,
+		imageSequence: shouldOutputImageSequence,
+		compositionName: compositionId,
+		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec),
+		args: argsAfterComposition,
+	});
+
+	Log.info(
+		chalk.gray(
+			`Entry point = ${file} (${entryPointReason}), Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
+		)
+	);
+
+	const absoluteOutputFile = getAndValidateAbsoluteOutputFile(
+		relativeOutputLocation,
+		overwrite
+	);
+
 	const outputDir = shouldOutputImageSequence
 		? absoluteOutputFile
 		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
 
 	Log.verbose('Output dir', outputDir);
 
-	const renderProgress = createProgressBar();
-	let totalFrames = 0;
-	const renderStart = Date.now();
-	const {assetsInfo} = await renderFrames({
-		config,
-		onFrameUpdate: (frame: number) => {
-			renderProgress.update(
-				makeRenderingProgress({
-					frames: frame,
-					totalFrames,
-					concurrency: RenderInternals.getActualConcurrency(parallelism),
-					doneIn: null,
-					steps,
-				})
-			);
-		},
-		parallelism,
-		compositionId,
-		outputDir,
-		onError,
-		onStart: ({frameCount: fc}: OnStartData) => {
-			renderProgress.update(
-				makeRenderingProgress({
-					frames: 0,
-					totalFrames: fc,
-					concurrency: RenderInternals.getActualConcurrency(parallelism),
-					doneIn: null,
-					steps,
-				})
-			);
-			totalFrames = fc;
-		},
-		inputProps,
-		envVariables,
-		webpackBundle: bundled,
-		imageFormat,
-		quality,
-		browser,
-		frameRange: frameRange ?? null,
-		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
-		puppeteerInstance: openedBrowser,
-		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
-		scale,
-	});
-
-	const closeBrowserPromise = openedBrowser.close();
-	renderProgress.update(
-		makeRenderingProgress({
-			frames: totalFrames,
-			totalFrames,
-			steps,
-			concurrency: RenderInternals.getActualConcurrency(parallelism),
-			doneIn: Date.now() - renderStart,
-		}) + '\n'
+	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
+	const realFrameRange = RenderInternals.getRealFrameRange(
+		config.durationInFrames,
+		frameRange
 	);
-	if (process.env.DEBUG) {
-		Internals.perf.logPerf();
-	}
+	const totalFrames: number[] = RenderInternals.getFramesToRender(
+		realFrameRange,
+		everyNthFrame
+	);
+	let encodedFrames = 0;
+	let renderedFrames = 0;
+	let encodedDoneIn: number | null = null;
+	let renderedDoneIn: number | null = null;
+	let stitchStage: StitchingState = 'encoding';
+	const downloads: DownloadProgress[] = [];
 
-	if (shouldOutputImageSequence) {
-		Log.info(chalk.green('\nYour image sequence is ready!'));
-	} else {
-		if (typeof crf !== 'number') {
-			throw new TypeError('CRF is unexpectedly not a number');
+	const updateRenderProgress = () => {
+		if (totalFrames.length === 0) {
+			throw new Error('totalFrames should not be 0');
 		}
 
-		const dirName = path.dirname(absoluteOutputFile);
-
-		if (!fs.existsSync(dirName)) {
-			fs.mkdirSync(dirName, {
-				recursive: true,
-			});
-		}
-
-		const stitchingProgress = createProgressBar();
-
-		stitchingProgress.update(
-			makeStitchingProgress({
-				doneIn: null,
-				frames: 0,
-				steps,
-				totalFrames,
+		return renderProgress.update(
+			makeRenderingAndStitchingProgress({
+				rendering: {
+					frames: renderedFrames,
+					totalFrames: totalFrames.length,
+					concurrency: RenderInternals.getActualConcurrency(concurrency),
+					doneIn: renderedDoneIn,
+					steps,
+				},
+				stitching: shouldOutputImageSequence
+					? null
+					: {
+							doneIn: encodedDoneIn,
+							frames: encodedFrames,
+							stage: stitchStage,
+							steps,
+							totalFrames: totalFrames.length,
+							codec,
+					  },
+				downloads,
 			})
 		);
-		const stitchStart = Date.now();
-		await stitchFramesToVideo({
-			dir: outputDir,
-			width: config.width * scale,
-			height: config.height * scale,
-			fps: config.fps,
-			outputLocation: absoluteOutputFile,
-			force: overwrite,
+	};
+
+	const imageFormat = getImageFormat(
+		shouldOutputImageSequence ? undefined : codec
+	);
+
+	if (shouldOutputImageSequence) {
+		fs.mkdirSync(absoluteOutputFile, {
+			recursive: true,
+		});
+		if (imageFormat === 'none') {
+			Log.error(
+				'Cannot render an image sequence with a codec that renders no images.'
+			);
+			Log.error(`codec = ${codec}, imageFormat = ${imageFormat}`);
+			process.exit(1);
+		}
+
+		await renderFrames({
+			config,
 			imageFormat,
-			pixelFormat,
-			codec,
-			proResProfile,
-			crf,
-			assetsInfo,
-			parallelism,
-			ffmpegExecutable,
-			onProgress: (frame: number) => {
-				stitchingProgress.update(
-					makeStitchingProgress({
-						doneIn: null,
-						frames: frame,
-						steps,
-						totalFrames,
-					})
-				);
+			inputProps,
+			onFrameUpdate: (rendered) => {
+				renderedFrames = rendered;
+				updateRenderProgress();
 			},
+			onStart: () => undefined,
 			onDownload: (src: string) => {
 				if (src.startsWith('data:')) {
 					Log.info(
@@ -243,41 +286,70 @@ export const render = async () => {
 					Log.info('\nDownloading asset... ', src);
 				}
 			},
-			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+			outputDir,
+			serveUrl: urlOrBundle,
+			dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
+				ConfigInternals.Logging.getLogLevel(),
+				'verbose'
+			),
+			everyNthFrame,
+			envVariables,
+			frameRange,
+			concurrency,
+			puppeteerInstance,
+			quality,
+			timeoutInMilliseconds: puppeteerTimeout,
+			chromiumOptions,
+			scale,
+			ffmpegExecutable,
+			ffprobeExecutable,
+			browserExecutable,
+			port,
+			downloadMap,
 		});
-		stitchingProgress.update(
-			makeStitchingProgress({
-				doneIn: Date.now() - stitchStart,
-				frames: totalFrames,
-				steps,
-				totalFrames,
-			}) + '\n'
-		);
+		renderedDoneIn = Date.now() - startTime;
 
-		Log.verbose('Cleaning up...');
-		try {
-			if (process.platform === 'win32') {
-				// Properly delete directories because Windows doesn't seem to like fs.
-				await deleteDirectory(outputDir);
-				await deleteDirectory(bundled);
-			} else {
-				await Promise.all([
-					(fs.promises.rm ?? fs.promises.rmdir)(outputDir, {
-						recursive: true,
-					}),
-					(fs.promises.rm ?? fs.promises.rmdir)(bundled, {
-						recursive: true,
-					}),
-				]);
-			}
-		} catch (err) {
-			Log.warn('Could not clean up directory.');
-			Log.warn(err);
-			Log.warn('Do you have minimum required Node.js version?');
-		}
+		updateRenderProgress();
+		Log.info();
+		Log.info();
+		Log.info(chalk.green('\nYour image sequence is ready!'));
+		Log.info(chalk.cyan(`▶ ${absoluteOutputFile}`));
 
-		Log.info(chalk.green('\nYour video is ready!'));
+		return;
 	}
+
+	const options = await getRenderMediaOptions({
+		config,
+		outputLocation: absoluteOutputFile,
+		serveUrl: urlOrBundle,
+		codec,
+		remotionRoot,
+	});
+
+	await renderMedia({
+		...options,
+		onProgress: (update) => {
+			encodedDoneIn = update.encodedDoneIn;
+			encodedFrames = update.encodedFrames;
+			renderedDoneIn = update.renderedDoneIn;
+			stitchStage = update.stitchStage;
+			renderedFrames = update.renderedFrames;
+			updateRenderProgress();
+		},
+		puppeteerInstance,
+		onDownload,
+		downloadMap,
+		onSlowestFrames: (slowestFrames) => {
+			Log.verbose();
+			Log.verbose(`Slowest frames:`);
+			slowestFrames.forEach(({frame, time}) => {
+				Log.verbose(`Frame ${frame} (${time.toFixed(3)}ms)`);
+			});
+		},
+	});
+
+	Log.info();
+	Log.info();
 
 	const seconds = Math.round((Date.now() - startTime) / 1000);
 	Log.info(
@@ -289,5 +361,28 @@ export const render = async () => {
 	);
 	Log.info('-', 'Output can be found at:');
 	Log.info(chalk.cyan(`▶ ${absoluteOutputFile}`));
-	await closeBrowserPromise;
+
+	try {
+		await cleanupBundle();
+		await RenderInternals.cleanDownloadMap(downloadMap);
+
+		Log.verbose('Cleaned up', downloadMap.assetDir);
+	} catch (err) {
+		Log.warn('Could not clean up directory.');
+		Log.warn(err);
+		Log.warn('Do you have minimum required Node.js version?');
+	}
+
+	Log.info(
+		chalk.green(`\nYour ${codec === 'gif' ? 'GIF' : 'video'} is ready!`)
+	);
+
+	if (
+		RenderInternals.isEqualOrBelowLogLevel(
+			ConfigInternals.Logging.getLogLevel(),
+			'verbose'
+		)
+	) {
+		RenderInternals.perf.logPerf();
+	}
 };

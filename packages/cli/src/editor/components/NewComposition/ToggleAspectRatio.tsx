@@ -1,4 +1,5 @@
-import React, {MouseEventHandler, useCallback} from 'react';
+import type {MouseEventHandler} from 'react';
+import React, {useCallback} from 'react';
 import {BACKGROUND} from '../../helpers/colors';
 import {LockIcon, UnlockIcon} from '../../icons/lock';
 

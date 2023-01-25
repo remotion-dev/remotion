@@ -5,7 +5,8 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { ShowcaseVideo } from "../data/showcase-videos";
+import type { ShowcaseVideo } from "../data/showcase-videos";
+import { useMobileLayout } from "../helpers/mobile-layout";
 import { useElementSize } from "../helpers/use-el-size";
 import { PausedIcon } from "../icons/arrows";
 import { MuxVideo } from "./MuxVideo";
@@ -65,7 +66,7 @@ export const VideoPlayerContent: React.FC<{
   const containerSize = useElementSize(
     typeof document === "undefined" ? null : document.body
   );
-  const mobileLayout = (containerSize?.width ?? Infinity) < 900;
+  const mobileLayout = useMobileLayout();
 
   const possibleVideoWidth = mobileLayout
     ? containerSize?.width
@@ -160,6 +161,7 @@ export const VideoPlayerContent: React.FC<{
         onLoadedMetadata={onLoadedMetadata}
         loop
         height={height}
+        playsInline
         width={width}
         autoPlay={userHasInteractedWithPage}
       />

@@ -1,17 +1,19 @@
+/**
+ * @vitest-environment jsdom
+ */
 import React from 'react';
 import {Audio, interpolate, Sequence, useCurrentFrame, Video} from 'remotion';
+import {expect, test} from 'vitest';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
-import {MediaAsset} from '../assets/types';
+import type {MediaAsset} from '../assets/types';
 import {getAssetsForMarkup} from './get-assets-for-markup';
-
-jest.setTimeout(30000);
 
 const basicConfig = {
 	width: 1080,
 	height: 1080,
 	fps: 30,
 	durationInFrames: 60,
-	scale: 1,
+	id: 'hithere',
 };
 
 const getPositions = async (Markup: React.FC) => {
@@ -36,8 +38,8 @@ test('Should be able to collect assets', async () => {
 		startInVideo: 0,
 		trimLeft: 0,
 		volume: 1,
-		isRemote: true,
 		playbackRate: 1,
+		allowAmplificationDuringRender: false,
 	});
 });
 
@@ -56,8 +58,8 @@ test('Should get multiple assets', async () => {
 		startInVideo: 0,
 		trimLeft: 0,
 		volume: 1,
-		isRemote: true,
 		playbackRate: 1,
+		allowAmplificationDuringRender: false,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'audio',
@@ -66,8 +68,8 @@ test('Should get multiple assets', async () => {
 		startInVideo: 0,
 		trimLeft: 0,
 		volume: 1,
-		isRemote: true,
 		playbackRate: 1,
+		allowAmplificationDuringRender: false,
 	});
 });
 
@@ -91,7 +93,7 @@ test('Should handle jumps inbetween', async () => {
 		trimLeft: 0,
 		volume: 1,
 		playbackRate: 1,
-		isRemote: true,
+		allowAmplificationDuringRender: false,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'video',
@@ -101,7 +103,7 @@ test('Should handle jumps inbetween', async () => {
 		trimLeft: 21,
 		volume: 1,
 		playbackRate: 1,
-		isRemote: true,
+		allowAmplificationDuringRender: false,
 	});
 });
 
@@ -122,7 +124,7 @@ test('Should support sequencing', async () => {
 		trimLeft: 20,
 		volume: 1,
 		playbackRate: 1,
-		isRemote: true,
+		allowAmplificationDuringRender: false,
 	});
 });
 
@@ -143,16 +145,17 @@ test('Should calculate volumes correctly', async () => {
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'video',
 		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
-		duration: 60,
-		startInVideo: 0,
-		trimLeft: 0,
-		isRemote: true,
+		duration: 59,
+		startInVideo: 1,
+		trimLeft: 1,
 		playbackRate: 1,
 		volume: new Array(60)
 			.fill(true)
 			.map((_, i) =>
 				interpolate(i, [0, 4], [0, 1], {extrapolateRight: 'clamp'})
-			),
+			)
+			.filter((f) => f > 0),
+		allowAmplificationDuringRender: false,
 	});
 });
 
@@ -180,16 +183,19 @@ test('Should calculate startFrom correctly', async () => {
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'audio',
 		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
-		duration: 59,
-		startInVideo: 1,
-		trimLeft: 100,
-		isRemote: true,
+		duration: 58,
+		startInVideo: 2,
+		trimLeft: 101,
 		playbackRate: 1,
-		volume: new Array(59).fill(true).map((_, i) =>
-			interpolate(i, [0, 50, 100], [0, 1, 0], {
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-			})
-		),
+		volume: new Array(59)
+			.fill(true)
+			.map((_, i) =>
+				interpolate(i, [0, 50, 100], [0, 1, 0], {
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+				})
+			)
+			.filter((i) => i > 0),
+		allowAmplificationDuringRender: false,
 	});
 });

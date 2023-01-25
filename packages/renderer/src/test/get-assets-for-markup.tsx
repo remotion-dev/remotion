@@ -1,4 +1,8 @@
+/**
+ * @vitest-environment jsdom
+ */
 import {render} from '@testing-library/react';
+import type {ComponentType} from 'react';
 import React, {
 	useCallback,
 	useContext,
@@ -7,7 +11,11 @@ import React, {
 	useState,
 } from 'react';
 import {act} from 'react-dom/test-utils';
-import {Internals, LooseAnyComponent, TAsset} from 'remotion';
+import type {CompositionManagerContext, TAsset} from 'remotion';
+import {Internals} from 'remotion';
+
+// @ts-expect-error
+global.IS_REACT_ACT_ENVIRONMENT = true;
 
 let collectAssets = (): TAsset[] => [];
 
@@ -32,11 +40,12 @@ export const getAssetsForMarkup = async (
 		width: number;
 		height: number;
 		fps: number;
-		scale: number;
 	}
 ) => {
 	const collectedAssets: TAsset[][] = [];
 	const Wrapped = () => {
+		window.remotion_audioEnabled = true;
+		window.remotion_videoEnabled = true;
 		const [assets, setAssets] = useState<TAsset[]>([]);
 
 		const registerAsset = useCallback((asset: TAsset) => {
@@ -59,10 +68,9 @@ export const getAssetsForMarkup = async (
 				};
 			}
 		}, [assets]);
-		Internals.setupPuppeteerTimeout();
 		const compositions = useContext(Internals.CompositionManager);
 
-		const value = useMemo(() => {
+		const value: CompositionManagerContext = useMemo(() => {
 			return {
 				...compositions,
 				assets,
@@ -74,11 +82,13 @@ export const getAssetsForMarkup = async (
 						id: 'markup',
 						component: React.lazy(() =>
 							Promise.resolve({
-								default: Markup as LooseAnyComponent<unknown>,
+								default: Markup as ComponentType<unknown>,
 							})
 						),
 						nonce: 0,
 						defaultProps: undefined,
+						folderName: null,
+						parentFolderName: null,
 					},
 				],
 				currentComposition: 'markup',
@@ -86,11 +96,13 @@ export const getAssetsForMarkup = async (
 		}, [assets, compositions, registerAsset, unregisterAsset]);
 
 		return (
-			<Internals.RemotionRoot>
-				<Internals.CompositionManager.Provider value={value}>
-					<Markup />
-				</Internals.CompositionManager.Provider>
-			</Internals.RemotionRoot>
+			<Internals.CanUseRemotionHooksProvider>
+				<Internals.RemotionRoot numberOfAudioTags={0}>
+					<Internals.CompositionManager.Provider value={value}>
+						<Markup />
+					</Internals.CompositionManager.Provider>
+				</Internals.RemotionRoot>
+			</Internals.CanUseRemotionHooksProvider>
 		);
 	};
 

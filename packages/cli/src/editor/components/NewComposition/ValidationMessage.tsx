@@ -1,4 +1,5 @@
-import React, {SVGProps} from 'react';
+import type {SVGProps} from 'react';
+import React from 'react';
 import {Row, Spacing} from '../layout';
 
 const Triangle: React.FC<SVGProps<SVGSVGElement>> = (props) => {

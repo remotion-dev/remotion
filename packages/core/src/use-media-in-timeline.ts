@@ -1,17 +1,17 @@
-import {RefObject, useContext, useEffect, useMemo, useState} from 'react';
+import type {RefObject} from 'react';
+import {useContext, useEffect, useMemo, useState} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame';
 import {CompositionManager} from './CompositionManager';
 import {getAssetDisplayName} from './get-asset-file-name';
+import {useRemotionEnvironment} from './get-environment';
 import {useNonce} from './nonce';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error';
-import {SequenceContext} from './sequencing';
-import {
-	PlayableMediaTag,
-	TimelineContext,
-	usePlayingState,
-} from './timeline-position-state';
+import {SequenceContext} from './Sequence';
+import type {PlayableMediaTag} from './timeline-position-state';
+import {TimelineContext, usePlayingState} from './timeline-position-state';
 import {useVideoConfig} from './use-video-config';
-import {evaluateVolume, VolumeProp} from './volume-prop';
+import type {VolumeProp} from './volume-prop';
+import {evaluateVolume} from './volume-prop';
 
 const didWarn: {[key: string]: boolean} = {};
 
@@ -30,12 +30,14 @@ export const useMediaInTimeline = ({
 	mediaRef,
 	src,
 	mediaType,
+	playbackRate,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
 	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement>;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
+	playbackRate: number;
 }) => {
 	const videoConfig = useVideoConfig();
 	const {rootId, audioAndVideoTags} = useContext(TimelineContext);
@@ -51,13 +53,12 @@ export const useMediaInTimeline = ({
 
 	const nonce = useNonce();
 
-	const duration = (() => {
-		return parentSequence
-			? Math.min(parentSequence.durationInFrames, videoConfig.durationInFrames)
-			: videoConfig.durationInFrames;
-	})();
-
+	const duration = parentSequence
+		? Math.min(parentSequence.durationInFrames, videoConfig.durationInFrames)
+		: videoConfig.durationInFrames;
 	const doesVolumeChange = typeof volume === 'function';
+
+	const environment = useRemotionEnvironment();
 
 	const volumes: string | number = useMemo(() => {
 		if (typeof volume === 'number') {
@@ -71,6 +72,7 @@ export const useMediaInTimeline = ({
 					frame: i + startsAt,
 					volume,
 					mediaVolume,
+					allowAmplificationDuringRender: false,
 				});
 			})
 			.join(',');
@@ -93,6 +95,10 @@ export const useMediaInTimeline = ({
 			throw new Error('No src passed');
 		}
 
+		if (environment !== 'preview' && process.env.NODE_ENV !== 'test') {
+			return;
+		}
+
 		registerSequence({
 			type: mediaType,
 			src,
@@ -108,6 +114,7 @@ export const useMediaInTimeline = ({
 			startMediaFrom: 0 - startsAt,
 			doesVolumeChange,
 			showLoopTimesInTimeline: undefined,
+			playbackRate,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -128,6 +135,8 @@ export const useMediaInTimeline = ({
 		mediaRef,
 		mediaType,
 		startsAt,
+		playbackRate,
+		environment,
 	]);
 
 	useEffect(() => {

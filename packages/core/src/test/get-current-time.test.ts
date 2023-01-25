@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest';
 import {getMediaTime} from '../video/get-current-time';
 
 describe('correctly calculate media time of video element', () => {
@@ -13,6 +14,7 @@ describe('correctly calculate media time of video element', () => {
 					playbackRate: 1,
 					src: 'video.mp4',
 					startFrom: 0,
+					mediaType: 'video',
 				})
 			).toBeCloseTo(1, mp4Precision);
 		});
@@ -25,6 +27,7 @@ describe('correctly calculate media time of video element', () => {
 					playbackRate: 2,
 					src: 'video.mp4',
 					startFrom: 0,
+					mediaType: 'video',
 				})
 			).toBeCloseTo(2, mp4Precision);
 		});
@@ -38,6 +41,7 @@ describe('correctly calculate media time of video element', () => {
 					playbackRate: 2,
 					src: 'video.mp4',
 					startFrom: 30,
+					mediaType: 'video',
 				})
 			).toBeCloseTo(3, mp4Precision);
 		});
@@ -52,6 +56,7 @@ describe('correctly calculate media time of video element', () => {
 					playbackRate: 1,
 					src: 'video.webm',
 					startFrom: 0,
+					mediaType: 'video',
 				})
 			).toBeCloseTo(1, webmPrecision);
 		});
@@ -64,6 +69,7 @@ describe('correctly calculate media time of video element', () => {
 					playbackRate: 2,
 					src: 'video.webm',
 					startFrom: 0,
+					mediaType: 'video',
 				})
 			).toBeCloseTo(2, webmPrecision);
 		});
@@ -77,6 +83,7 @@ describe('correctly calculate media time of video element', () => {
 					playbackRate: 2,
 					src: 'video.webm',
 					startFrom: 30,
+					mediaType: 'video',
 				})
 			).toBeCloseTo(3, webmPrecision);
 		});

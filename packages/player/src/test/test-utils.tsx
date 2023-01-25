@@ -1,11 +1,14 @@
-import {queries, render, RenderOptions} from '@testing-library/react';
-import {FC, ReactElement} from 'react';
+import type {queries, RenderOptions} from '@testing-library/react';
+import {render} from '@testing-library/react';
+import type {FC, ReactElement} from 'react';
 
 const HelloWorld: FC = () => {
 	return <div>Hello World</div>;
 };
 
-const AllTheProviders: FC = ({children}) => {
+const AllTheProviders: FC<{
+	children: React.ReactNode;
+}> = ({children}) => {
 	// overwriting console.error console does not gets poluted with all the errors
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	window.console.error = () => {};

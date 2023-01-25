@@ -1,27 +1,31 @@
-import { Canvas, RootState, useThree } from '@react-three/fiber';
-import React, { useCallback, useLayoutEffect, useState } from 'react';
-import { continueRender, delayRender, Internals } from 'remotion';
-import { SuspenseLoader } from './SuspenseLoader';
+import type {RootState} from '@react-three/fiber';
+import {Canvas, useThree} from '@react-three/fiber';
+import React, {useCallback, useLayoutEffect, useState} from 'react';
+import {continueRender, delayRender, Internals} from 'remotion';
+import {SuspenseLoader} from './SuspenseLoader';
 
 export type ThreeCanvasProps = React.ComponentProps<typeof Canvas> & {
 	width: number;
 	height: number;
+	children: React.ReactNode;
 };
 
-const Scale = ({ width, height }: { width: number; height: number }) => {
-	const { set, setSize: threeSetSize } = useThree();
+const Scale = ({width, height}: {width: number; height: number}) => {
+	const {set, setSize: threeSetSize} = useThree();
 	const [setSize] = useState(() => threeSetSize);
 	useLayoutEffect(() => {
 		setSize(width, height);
-		set({ setSize: () => null });
-		return () => set({ setSize });
+		set({setSize: () => null});
+		return () => set({setSize});
 	}, [setSize, width, height, set]);
 	return null;
 };
 
 export const ThreeCanvas = (props: ThreeCanvasProps) => {
-	const { children, width, height, style, onCreated, ...rest } = props;
-	const [waitForCreated] = useState(() => delayRender());
+	const {children, width, height, style, onCreated, ...rest} = props;
+	const [waitForCreated] = useState(() =>
+		delayRender('Waiting for <ThreeCanvas/> to be created')
+	);
 
 	Internals.validateDimension(
 		width,

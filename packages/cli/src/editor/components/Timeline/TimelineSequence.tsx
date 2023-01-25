@@ -1,6 +1,7 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useMemo, useState} from 'react';
-import {Internals, TSequence} from 'remotion';
+import type {TSequence} from 'remotion';
+import {Internals} from 'remotion';
 import {
 	getTimelineSequenceLayout,
 	SEQUENCE_BORDER_WIDTH,
@@ -25,6 +26,7 @@ export const TimelineSequence: React.FC<{
 		triggerOnWindowResize: false,
 		shouldApplyCssTransforms: true,
 	});
+
 	const {richTimeline} = useContext(RichTimelineContext);
 
 	const windowWidth = size?.width ?? 0;
@@ -101,6 +103,7 @@ export const TimelineSequence: React.FC<{
 					fps={fps}
 					volume={s.volume}
 					setMaxMediaDuration={setMaxMediaDuration}
+					playbackRate={s.playbackRate}
 				/>
 			) : null}
 			{s.type === 'video' ? <TimelineVideoInfo src={s.src} /> : null}

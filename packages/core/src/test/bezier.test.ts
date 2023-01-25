@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {bezier} from '../bezier';
 
 const identity = (x: number) => {

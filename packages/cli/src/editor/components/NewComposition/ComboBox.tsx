@@ -12,7 +12,11 @@ import {CaretDown} from '../../icons/caret';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {Flex, Spacing} from '../layout';
 import {getPortal} from '../Menu/portals';
-import {menuContainer, outerPortal} from '../Menu/styles';
+import {
+	menuContainerTowardsBottom,
+	menuContainerTowardsTop,
+	outerPortal,
+} from '../Menu/styles';
 import {MenuContent} from './MenuContent';
 
 const container: React.CSSProperties = {
@@ -35,7 +39,7 @@ export type SubMenu = {
 	items: ComboboxValue[];
 };
 
-type SelectionItem = {
+export type SelectionItem = {
 	type: 'item';
 	id: string;
 	label: React.ReactNode;
@@ -44,6 +48,7 @@ type SelectionItem = {
 	keyHint: string | null;
 	leftItem: React.ReactNode;
 	subMenu: SubMenu | null;
+	quickSwitcherLabel: string | null;
 };
 
 export type ComboboxValue = DividerItem | SelectionItem;
@@ -63,6 +68,8 @@ export const Combobox: React.FC<{
 		shouldApplyCssTransforms: true,
 	});
 
+	const refresh = size?.refresh;
+
 	const onHide = useCallback(() => {
 		setOpened(false);
 	}, []);
@@ -77,7 +84,13 @@ export const Combobox: React.FC<{
 		const onMouseLeave = () => setIsHovered(false);
 		const onClick = (e: MouseEvent) => {
 			e.stopPropagation();
-			return setOpened((o) => !o);
+			return setOpened((o) => {
+				if (!o) {
+					refresh?.();
+				}
+
+				return !o;
+			});
 		};
 
 		current.addEventListener('mouseenter', onMouseEnter);
@@ -89,17 +102,29 @@ export const Combobox: React.FC<{
 			current.removeEventListener('mouseleave', onMouseLeave);
 			current.removeEventListener('click', onClick);
 		};
-	}, []);
+	}, [refresh]);
 
 	const portalStyle = useMemo((): React.CSSProperties | null => {
 		if (!opened || !size) {
 			return null;
 		}
 
+		const spaceToBottom = size.windowSize.height - (size.top + size.height);
+		const spaceToTop = size.top;
+
+		const layout = spaceToTop > spaceToBottom ? 'bottom' : 'top';
+
 		return {
-			...menuContainer,
+			...(layout === 'top'
+				? {
+						...menuContainerTowardsBottom,
+						top: size.top + size.height,
+				  }
+				: {
+						...menuContainerTowardsTop,
+						bottom: size.windowSize.height - size.top,
+				  }),
 			left: size.left,
-			top: size.top + size.height,
 		};
 	}, [opened, size]);
 

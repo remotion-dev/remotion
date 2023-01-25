@@ -1,4 +1,5 @@
-import React, { SVGProps } from "react";
+import type { SVGProps } from "react";
+import React from "react";
 
 export const IconLeft: React.FC<SVGProps<SVGSVGElement>> = (props) => (
   <svg viewBox="0 0 320 512" {...props}>

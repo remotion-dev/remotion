@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/cli",
-	"version": "2.6.12",
+	"version": "3.3.36",
 	"description": "CLI for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -11,7 +11,7 @@
 	},
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"test": "jest",
+		"test": "vitest --run",
 		"build": "tsc -d",
 		"build:esm": "tsc -d -p tsconfig-esm.json",
 		"watch": "tsc -w"
@@ -25,46 +25,52 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"@remotion/bundler": "2.6.12",
-		"@remotion/media-utils": "2.6.12",
-		"@remotion/player": "2.6.12",
-		"@remotion/renderer": "2.6.12",
+		"@remotion/bundler": "3.3.36",
+		"@remotion/media-utils": "3.3.36",
+		"@remotion/player": "3.3.36",
+		"@remotion/renderer": "3.3.36",
 		"better-opn": "2.1.1",
-		"chalk": "4.1.2",
 		"dotenv": "9.0.2",
-		"execa": "5.1.1",
+		"memfs": "3.4.3",
 		"minimist": "1.2.6",
-		"remotion": "2.6.12",
+		"prompts": "2.4.1",
+		"remotion": "3.3.36",
 		"semver": "7.3.5",
-		"webpack": "5.60.0"
+		"source-map": "0.6.1"
 	},
 	"peerDependencies": {
-		"react": "^17.0.1",
-		"react-dom": "^17.0.1"
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.251",
-		"@types/jest": "^27.4.0",
+		"@jonny/eslint-config": "3.0.266",
 		"@types/minimist": "^1.2.2",
 		"@types/node": "^16.7.5",
-		"@types/react": "17.0.39",
-		"@types/react-dom": "^17.0.11",
 		"@types/semver": "^7.3.9",
-		"eslint": "^7.25.0",
 		"jest": "^27.2.4",
-		"prettier": "^2.0.5",
-		"prettier-plugin-organize-imports": "^1.1.1",
-		"react": "17.0.2",
-		"react-dom": "17.0.2",
 		"ts-jest": "^27.0.5",
-		"typescript": "^4.5.5"
+		"@types/prompts": "^2.4.1",
+		"@types/react": "18.0.26",
+		"@types/react-dom": "18.0.10",
+		"@types/webpack-env": "^1.16.0",
+		"@typescript-eslint/eslint-plugin": "5.18.0",
+		"@typescript-eslint/parser": "5.18.0",
+		"eslint": "8.25.0",
+		"eslint-plugin-10x": "1.5.2",
+		"eslint-plugin-react": "7.29.4",
+		"eslint-plugin-react-hooks": "4.4.0",
+		"prettier": "^2.7.1",
+		"prettier-plugin-organize-imports": "^2.3.4",
+		"react": "^18.0.0",
+		"react-dom": "^18.0.0",
+		"typescript": "^4.7.0",
+		"vitest": "0.24.3"
 	},
 	"keywords": [
 		"remotion",
 		"ffmpeg",
 		"video",
 		"react",
-		"puppeteer",
 		"player"
 	],
 	"publishConfig": {

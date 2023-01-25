@@ -1,10 +1,10 @@
-import fs from 'fs';
 import chalk from 'chalk';
+import fs from 'fs';
 import path from 'path';
 import {Log} from './log';
+import {mkdirp} from './mkdirp';
 import prompts from './prompts';
 import {validateName} from './validate-name';
-import {mkdirp} from './mkdirp';
 
 function assertValidName(folderName: string) {
 	const validation = validateName(folderName);

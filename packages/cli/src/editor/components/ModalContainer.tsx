@@ -22,6 +22,7 @@ const panel: React.CSSProperties = {
 export const ModalContainer: React.FC<{
 	onEscape: () => void;
 	onOutsideClick: () => void;
+	children: React.ReactNode;
 }> = ({children, onEscape, onOutsideClick}) => {
 	return (
 		<div

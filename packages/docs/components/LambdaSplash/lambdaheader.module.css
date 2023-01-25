@@ -1,0 +1,37 @@
+.writeincss {
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+}
+
+.writeincsstitle {
+  font-size: 5em;
+  font-weight: 700;
+  line-height: 1;
+  max-width: 500px;
+}
+
+.writeright {
+  flex: 1;
+}
+
+@media screen and (max-width: 900px) {
+  .writeincss {
+    flex-direction: column;
+  }
+  .writeincsstitle {
+    font-size: 3.5em;
+  }
+  .writeright {
+    margin-top: 30px;
+  }
+}
+
+.spacer {
+  height: 50px;
+  width: 50px;
+}
+
+.a:hover {
+  text-decoration: none;
+}

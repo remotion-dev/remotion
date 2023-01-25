@@ -9,13 +9,24 @@
       "outputs": ["dist/esm/**"]
     },
     "test": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "build"],
       "outputs": []
     },
     "lint": {
       "outputs": []
     },
     "@remotion/example#lint": {
+      "dependsOn": ["@remotion/eslint-config#build"]
+    },
+    "@remotion/google-fonts#build": {
+      "outputs": ["src", ".cache-css", "dist/**"],
+      "dependsOn": ["^build"]
+    },
+    "@remotion/renderer#build": {
+      "outputs": ["dist/**", "target/**"],
+      "dependsOn": ["^build"]
+    },
+    "@remotion/player-example#lint": {
       "dependsOn": ["@remotion/eslint-config#build"]
     },
     "@remotion/it-tests#test": {

@@ -12,6 +12,7 @@ const errorStyle: React.CSSProperties = {
 export class ErrorBoundary extends React.Component<
 	{
 		onError: (error: Error) => void;
+		children: React.ReactNode;
 		errorFallback: (info: {error: Error}) => React.ReactNode;
 	},
 	{hasError: Error | null}

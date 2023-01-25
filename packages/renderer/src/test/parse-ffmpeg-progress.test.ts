@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {parseFfmpegProgress} from '../parse-ffmpeg-progress';
 
 test('Should be able to parse FFMPEG progress', () => {

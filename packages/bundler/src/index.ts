@@ -1,19 +1,22 @@
-import {getLatestRemotionVersion} from './get-latest-remotion-version';
-import {getPackageManager, lockFilePaths} from './get-package-manager';
-import {overrideWebpackConfig} from './override-webpack';
-import {startServer} from './start-server';
+import {getConfig} from './bundle';
+import {indexHtml} from './index-html';
 import {cacheExists, clearCache} from './webpack-cache';
+import {webpackConfig} from './webpack-config';
+import esbuild = require('esbuild');
+import webpack = require('webpack');
+import {readRecursively} from './read-recursively';
 
 export const BundlerInternals = {
-	startServer,
+	esbuild,
+	webpackConfig,
+	indexHtml,
 	cacheExists,
 	clearCache,
-	getLatestRemotionVersion,
-	getPackageManager,
-	lockFilePaths,
+	getConfig,
+	readRecursively,
 };
 
-export {bundle} from './bundler';
-export {overrideWebpackConfig};
-export {ProjectInfo} from './project-info';
-export {PackageManager} from './get-package-manager';
+export {bundle, BundleOptions, LegacyBundleOptions} from './bundle';
+export {webpack};
+
+export type WebpackConfiguration = webpack.Configuration;

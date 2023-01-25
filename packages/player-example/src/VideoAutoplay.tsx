@@ -1,4 +1,12 @@
-import {Series, Video, AbsoluteFill, Audio} from 'remotion';
+import {preloadAudio, preloadVideo} from '@remotion/preload';
+import {Gif} from '@remotion/gif';
+import {AbsoluteFill, Audio, Sequence, Series, staticFile} from 'remotion';
+
+preloadVideo(
+	'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4'
+);
+
+preloadAudio(staticFile('sample.mp3'));
 
 export const VideoautoplayDemo = () => {
 	return (
@@ -7,57 +15,22 @@ export const VideoautoplayDemo = () => {
 				backgroundColor: 'red',
 			}}
 		>
-			<Audio
-				src={'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'}
-				volume={0.2}
-			/>
+			<Sequence from={20}>
+				<Audio src={staticFile('sample.mp3')} volume={0.2} />
+			</Sequence>
 			<Series>
-				<Series.Sequence name="Video 1" key={'video-1'} durationInFrames={450}>
-					<Video
-						src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
-						volume={0.8}
-						startFrom={0}
-						endAt={450}
-						style={{
-							height: '100%',
-							width: '100%',
-							backgroundColor: '#000',
-						}}
-					/>
-				</Series.Sequence>
-				<Series.Sequence
-					name={`Video 2`}
-					key={`video-2`}
-					durationInFrames={1800}
-				>
-					<Video
-						src={
-							'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4'
-						}
-						volume={1}
-						startFrom={0}
-						endAt={1800}
-						style={{
-							height: '100%',
-							width: '100%',
-							backgroundColor: '#000',
-						}}
-					/>
-				</Series.Sequence>
-				<Series.Sequence name="Video 3" key={'video-3'} durationInFrames={450}>
-					<Video
-						src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
-						volume={0.8}
-						startFrom={0}
-						endAt={450}
-						style={{
-							height: '100%',
-							width: '100%',
-							backgroundColor: '#000',
-						}}
-					/>
+				<Series.Sequence durationInFrames={10}>
+					<AbsoluteFill />
 				</Series.Sequence>
 			</Series>
+			<AbsoluteFill>
+				<Gif
+					src="https://media.giphy.com/media/xT0GqH01ZyKwd3aT3G/giphy.gif"
+					fit="cover"
+					height={200}
+					width={200}
+				/>
+			</AbsoluteFill>
 		</AbsoluteFill>
 	);
 };

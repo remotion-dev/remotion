@@ -5,6 +5,11 @@ export type Size = {
 	height: number;
 	left: number;
 	top: number;
+	windowSize: {
+		width: number;
+		height: number;
+	};
+	refresh: () => void;
 };
 
 // If a pane has been moved, it will cause a layout shift without
@@ -28,7 +33,8 @@ export const useElementSize = (
 		shouldApplyCssTransforms: boolean;
 	}
 ): Size | null => {
-	const [size, setSize] = useState<Size | null>(null);
+	const [size, setSize] = useState<Omit<Size, 'refresh'> | null>(null);
+
 	const observer = useMemo(() => {
 		if (typeof ResizeObserver === 'undefined') {
 			return null;
@@ -59,9 +65,14 @@ export const useElementSize = (
 				height,
 				left: newSize[0].x,
 				top: newSize[0].y,
+				windowSize: {
+					height: window.innerHeight,
+					width: window.innerWidth,
+				},
 			});
 		});
 	}, [options.shouldApplyCssTransforms]);
+
 	const updateSize = useCallback(() => {
 		if (!ref.current) {
 			return;
@@ -78,6 +89,10 @@ export const useElementSize = (
 			height: rect[0].height as number,
 			left: rect[0].x as number,
 			top: rect[0].y as number,
+			windowSize: {
+				height: window.innerHeight,
+				width: window.innerWidth,
+			},
 		});
 	}, [ref]);
 
@@ -119,5 +134,5 @@ export const useElementSize = (
 		};
 	}, [updateSize]);
 
-	return size;
+	return size ? {...size, refresh: updateSize} : null;
 };

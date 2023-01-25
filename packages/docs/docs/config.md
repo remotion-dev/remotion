@@ -1,11 +1,17 @@
 ---
+image: /generated/articles-docs-config.png
 id: config
 title: Configuration file
+crumb: "remotion.config.ts"
 ---
 
 To configure Remotion, create a `remotion.config.ts` file in the root of your Remotion project.
 
-These options will apply to CLI commands such as `npm start` and `npm run build`, but have no effect in the Node.JS API.
+These options will apply to CLI commands such as `npm start` and `npm run build`.
+
+:::warning
+The configuration file has no effect when using [SSR](/docs/renderer) APIs.
+:::warn
 
 You can control several behaviors of Remotion here.
 
@@ -49,13 +55,18 @@ import { Config } from "remotion";
 Config.Bundling.setCachingEnabled(false);
 ```
 
-The [command line flag](/docs/cli#--bundle-cache) `--bundle-cache` will take precedence over this option.
+The [command line flag](/docs/cli/render#--bundle-cache) `--bundle-cache` will take precedence over this option.
 
 ### setPort()
 
-Define on which port Remotion should start it's HTTP servers during preview and rendering.
+Define on which port Remotion should start it's HTTP servers.
 By default, Remotion will try to find a free port.
 If you specify a port, but it's not available, Remotion will throw an error.
+
+:::note
+When starting the [Remotion Preview](/docs/terminology#remotion-preview), a server will be started to host it.  
+During rendering, a HTTP server is also started in the background to serve the Webpack [bundle](/docs/terminology#bundle).
+:::
 
 ```ts twoslash
 import { Config } from "remotion";
@@ -63,7 +74,37 @@ import { Config } from "remotion";
 Config.Bundling.setPort(3003);
 ```
 
-The [command line flag](/docs/cli#--port) `--port` will take precedence over this option.
+The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option.
+
+### setPublicDir()
+
+_Available from v3.2.13_
+
+Define the location of the `public/` directory.  
+By default it is a folder named "public" inside the current working directory.  
+You can either set an absolute path, or a relative path that will be resolved from the closest package.json location.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Bundling.setPublicDir("./publico");
+```
+
+The [command line flag](/docs/cli/render#--public-dir) `--public-dir` will take precedence over this option.
+
+### setEntryPoint()
+
+_Available from v3.2.40_
+
+Sets the Remotion [entry point](/docs/terminology#entry-point), you don't have to specify it for CLI commands.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Bundling.setEntryPoint("./src/index.ts");
+```
+
+If you pass an entry point as a CLI argument, it will take precedence.
 
 ## Log
 
@@ -85,13 +126,13 @@ import { Config } from "remotion";
 Config.Log.setLevel("verbose");
 ```
 
-The [command line flag](/docs/cli#--log) `--log` will take precedence over this option.
+The [command line flag](/docs/cli/render#--log) `--log` will take precedence over this option.
 
 ## Preview
 
-_Available from Version 2.1.10._
-
 ### setMaxTimelineTracks()
+
+_Available from Version 2.1.10._
 
 Set how many tracks are being displayed in the timeline at most. This does not affect your video, just the amount of tracks shown when previewing. Default `15`.
 
@@ -99,6 +140,61 @@ Set how many tracks are being displayed in the timeline at most. This does not a
 import { Config } from "remotion";
 // ---cut---
 Config.Preview.setMaxTimelineTracks(20);
+```
+
+### setKeyboardShortcutsEnabled()
+
+_available from v3.2.11_
+
+Whether the Preview should react to keyboard shortcuts. Default `true`.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Preview.setKeyboardShortcutsEnabled(false);
+```
+
+The [command line flag](/docs/cli/preview#--disable-keyboard-shortcuts) `--disable-keyboard-shortcuts` will take precedence over this option.
+
+### setWebpackPollingInMilliseconds()
+
+_available from v3.3.11_
+
+Enables Webpack polling instead of the file system event listeners for hot reloading.
+This is useful if you are inside a virtual machine or have a remote file system.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Preview.setWebpackPollingInMilliseconds(1000);
+```
+
+The [command line flag](/docs/cli/preview#--webpack-poll) `--webpack-poll` will take precedence over this option.
+
+### setNumberOfSharedAudioTags()
+
+_available from v3.3.2_
+
+How many shared audio tags should be mounted. Shared audio tags can help prevent playback issues due to audio autoplay policies of the browser. Default 0
+
+```ts twoslash
+import { Config } from "remotion";
+
+// ---cut---
+Config.Preview.setNumberOfSharedAudioTags(5);
+```
+
+### setShouldOpenBrowser()
+
+_available from v3.3.19_
+
+Whether Remotion should open a browser when starting the Preview. Default `true`.
+
+```ts twoslash
+import { Config } from "remotion";
+
+// ---cut---
+Config.Preview.setShouldOpenBrowser(false);
 ```
 
 ## Puppeteer
@@ -115,13 +211,13 @@ import { Config } from "remotion";
 Config.Puppeteer.setBrowserExecutable("/usr/bin/google-chrome-stable");
 ```
 
-The [command line flag](/docs/cli#--browser-executable) `--browser-executable` will take precedence over this option.
+The [command line flag](/docs/cli/render#--browser-executable) `--browser-executable` will take precedence over this option.
 
 ### setTimeoutInMilliseconds()
 
 _Available from Version 2.6.3._
 
-Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before it times out. Default: `30000`
+Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
 ```ts twoslash
 import { Config } from "remotion";
@@ -129,7 +225,7 @@ import { Config } from "remotion";
 Config.Puppeteer.setTimeoutInMilliseconds(60000);
 ```
 
-The [command line flag](/docs/cli#--timeout) `--timeout` will take precedence over this option.
+The [command line flag](/docs/cli/render#--timeout) `--timeout` will take precedence over this option.
 
 ### setChromiumDisableWebSecurity()
 
@@ -145,13 +241,13 @@ import { Config } from "remotion";
 Config.Puppeteer.setChromiumDisableWebSecurity(true);
 ```
 
-The [command line flag](/docs/cli#--disable-web-security) `--disable-web-security` will take precedence over this option.
+The [command line flag](/docs/cli/render#--disable-web-security) `--disable-web-security` will take precedence over this option.
 
 ### setChromiumIgnoreCertificateErrors()
 
 _Available from Version 2.6.5._
 
-Results in invalid SSL certificates, such as self-signed ones being ignored.
+Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 ```tsx twoslash
 import { Config } from "remotion";
@@ -161,7 +257,7 @@ import { Config } from "remotion";
 Config.Puppeteer.setChromiumIgnoreCertificateErrors(true);
 ```
 
-The [command line flag](/docs/cli#--ignore-certificate-errors) `--ignore-certificate-errors` will take precedence over this option.
+The [command line flag](/docs/cli/render#--ignore-certificate-errors) `--ignore-certificate-errors` will take precedence over this option.
 
 ### setChromiumHeadlessMode()
 
@@ -177,7 +273,7 @@ import { Config } from "remotion";
 Config.Puppeteer.setChromiumHeadlessMode(false);
 ```
 
-The [command line flag](/docs/cli#--disable-headless) `--disable-headless` will take precedence over this option.
+The [command line flag](/docs/cli/render#--disable-headless) `--disable-headless` will take precedence over this option.
 
 ## Rendering
 
@@ -192,7 +288,7 @@ import { Config } from "remotion";
 Config.Rendering.setConcurrency(8);
 ```
 
-The [command line flag](/docs/cli#--concurrency) `--concurrency` will take precedence over this option.
+The [command line flag](/docs/cli/render#--concurrency) `--concurrency` will take precedence over this option.
 
 :::tip
 Try to set your concurrency to `os.cpus().length` to all the threads available on your CPU for faster rendering. The drawback is that other parts of your system might slow down.
@@ -214,7 +310,7 @@ import { Config } from "remotion";
 Config.Rendering.setImageFormat("png");
 ```
 
-The [command line flag](/docs/cli#--image-format) `--image-format` will take precedence over this option.
+The [command line flag](/docs/cli/render#--image-format) `--image-format` will take precedence over this option.
 
 ### setScale()
 
@@ -228,7 +324,35 @@ import { Config } from "remotion";
 Config.Rendering.setScale(2);
 ```
 
-The [command line flag](/docs/cli#--scale) `--scale` will take precedence over this option.
+The [command line flag](/docs/cli/render#--scale) `--scale` will take precedence over this option.
+
+### setMuted()
+
+_Available from Version 3.2.1._
+
+Disables audio output. Default `false`.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Rendering.setMuted(true);
+```
+
+The [command line flag](/docs/cli/render#--muted) `--muted` will take precedence over this option.
+
+### setEnforceAudioTrack()
+
+_Available from Version 3.2.1._
+
+Render a silent audio track if there would be none otherwise. Default `false`.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Rendering.setEnforceAudioTrack(true);
+```
+
+The [command line flag](/docs/cli/render#--enforce-audio-track) `--enforce-audio-track` will take precedence over this option.
 
 ### setFrameRange()
 
@@ -250,7 +374,7 @@ import { Config } from "remotion";
 Config.Rendering.setFrameRange([0, 20]); // Render a video only containing the first 21 frames
 ```
 
-The [command line flag](/docs/cli#--frames) `--frames` will take precedence over this option.
+The [command line flag](/docs/cli/render#--frames) `--frames` will take precedence over this option.
 
 ### setQuality()
 
@@ -262,7 +386,7 @@ import { Config } from "remotion";
 Config.Rendering.setQuality(90);
 ```
 
-The [command line flag](/docs/cli#--quality) `--quality` will take precedence over this option.
+The [command line flag](/docs/cli/render#--quality) `--quality` will take precedence over this option.
 
 ### setDotEnvLocation()
 
@@ -274,7 +398,7 @@ import { Config } from "remotion";
 Config.Rendering.setDotEnvLocation(".my-env");
 ```
 
-The [command line flag](/docs/cli#--env-file) `--env-file` will take precedence over this option.
+The [command line flag](/docs/cli/render#--env-file) `--env-file` will take precedence over this option.
 
 ### setFfmpegExecutable()
 
@@ -286,9 +410,61 @@ import { Config } from "remotion";
 Config.Rendering.setFfmpegExecutable("/path/to/custom/ffmpeg");
 ```
 
-The [command line flag](/docs/cli#--ffmpeg-executable) `--ffmpeg-executable` will take precedence over this option.
+The [command line flag](/docs/cli/render#--ffmpeg-executable) `--ffmpeg-executable` will take precedence over this option.
+
+### setFfprobeExecutable()
+
+Allows you to use a custom `ffprobe` binary. Must be an absolute path. By default, this is null and the `ffprobe` in `PATH` will be used.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Rendering.setFfprobeExecutable("/path/to/custom/ffprobe");
+```
+
+The [command line flag](/docs/cli/render#--ffprobe-executable) `--ffprobe-executable` will take precedence over this option.
+
+### setEveryNthFrame()
+
+This option may only be set when rendering GIFs. [It determines how many frames are rendered, while the other ones gets skipped in order to lower the FPS of the GIF.](/docs/render-as-gif)
+
+For example, if the `fps` is 30, and `everyNthFrame` is 2, the FPS of the GIF is `15`.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Rendering.setEveryNthFrame(2);
+```
+
+The [command line flag](/docs/cli/render#--every-nth-frame) `--every-nth-frame` will take precedence over this option.
+
+### setNumberOfGifLoops()
+
+This option may only be set when rendering GIFs. [If it is set, it will limit the amount of times a GIF will loop. If set to `0`, the GIF will play once, if set to `1`, it will play twice. If set to `null` or not set at all, it will play forever](/docs/render-as-gif).
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Rendering.setNumberOfGifLoops(2);
+```
+
+The [command line flag](/docs/cli/render#--number-of-gif-loops) `--number-of-gif-loops` will take precedence over this option.
 
 ## Output
+
+### setOutputLocation()
+
+_Available from v3.1.6_
+
+Set the output location of the video or still, relative to the current working directory. The default is `out/{composition}.{container}`. For example, `out/HelloWorld.mp4`.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Output.setOutputLocation("out/video.mp4");
+```
+
+If you pass another argument to the render command, it will take precedence: `npx remotion render src/index.ts HelloWorld out/video.mp4`.
 
 ### setOverwriteOutput()
 
@@ -315,7 +491,7 @@ import { Config } from "remotion";
 Config.Output.setPixelFormat("yuv420p");
 ```
 
-The [command line flag](/docs/cli#--pixel-format) `--pixel-format` will take precedence over this option.
+The [command line flag](/docs/cli/render#--pixel-format) `--pixel-format` will take precedence over this option.
 
 ### setCodec()
 
@@ -339,7 +515,7 @@ import { Config } from "remotion";
 Config.Output.setCodec("h265");
 ```
 
-The [command line flag](/docs/cli#--codec) `--codec` will take precedence over this option.
+The [command line flag](/docs/cli/render#--codec) `--codec` will take precedence over this option.
 
 **See also**: [Encoding guide](/docs/encoding)
 
@@ -358,7 +534,7 @@ import { Config } from "remotion";
 Config.Output.setProResProfile("4444");
 ```
 
-The [command line flag](/docs/cli#--prores-profile) `--prores-profile` will take precedence over this option.
+The [command line flag](/docs/cli/render#--prores-profile) `--prores-profile` will take precedence over this option.
 
 **See also**: [Encoding guide](/docs/encoding), [Transparent videos](/docs/transparent-videos)
 
@@ -374,7 +550,36 @@ import { Config } from "remotion";
 Config.Output.setImageSequence(true);
 ```
 
-The [command line flag](/docs/cli#--sequence) `--sequence` will take precedence over this option.
+The [command line flag](/docs/cli/render#--sequence) `--sequence` will take precedence over this option.
+
+### overrideHeight()
+
+_Available from v3.2.40_
+
+Overrides the height of the rendered video.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Output.overrideHeight(600);
+```
+
+The [command line flag](/docs/cli/render#--height) `--height` will take precedence over this option.
+(see h264 validation?)
+
+### overrideWidth()
+
+_Available from v3.2.40_
+
+Overrides the width of the rendered video.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Output.overrideWidth(900);
+```
+
+The [command line flag](/docs/cli/render#--width) `--width` will take precedence over this option
 
 ### ~~setOutputFormat()~~
 
@@ -400,7 +605,7 @@ The "Constant Rate Factor" (CRF) of the output. [Use this setting to tell FFMPEG
 
 Ranges for CRF scale, by codec:
 
-- `h264` crf range is 0-51 where crf 18 is _default_.
+- `h264` crf range is 1-51 where crf 18 is _default_.
 - `h265` crf range is 0-51 where crf 23 is _default_.
 - `vp8` crf range is 4-63 where crf 9 is _default_.
 - `vp9` crf range is 0-63 where crf 28 is _default_.
@@ -417,7 +622,38 @@ import { Config } from "remotion";
 Config.Output.setCrf(16);
 ```
 
-The [command line flag](/docs/cli#--crf) `--crf` will take precedence over this option.
+The [command line flag](/docs/cli/render#--crf) `--crf` will take precedence over this option.
+
+### overrideFfmpegCommand
+
+_available from v3.2.22_
+
+Modifies the FFMPEG command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
+
+```tsx twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Output.overrideFfmpegCommand(({ args }) => {
+  return [...args, "-vf", "eq=brightness=0:saturation=1"];
+});
+```
+
+The function you pass must accept an object as it's only parameter which contains the following properties:
+
+- `type`: Either `"stitcher"` or `"pre-stitcher"`. If enough memory and CPU is available, Remotion may use parallel rendering and encoding, which means that a pre-stitcher process gets spawned before all frames are rendered. You can tell whether parallel encoding is enabled by adding `--log=verbose` to your render command.
+- `args`: An array of strings that is passed as arguments to the FFMPEG command.
+
+Your function must return a modified array of strings.
+
+:::warning
+Using this feature is discouraged. Before using it, we want to make you aware of some caveats:
+
+- The render command can change with any new Remotion version, even when it is a patch upgrade. This might break your usage of this feature.
+- Depending on the selected codec, available CPU and RAM, Remotion may or may not use "parallel encoding" which will result in multiple FFMPEG commands being executed. Your function must be able to handle being called multiple times.
+- This feature is not available when using Remotion Lambda.
+
+Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
+:::
 
 ## See also
 

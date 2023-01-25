@@ -17,6 +17,7 @@ export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
 			));
 			return replaceLoadersWithBabel(currentConfiguration);
 		}
+
 		return currentConfiguration;
 	})();
 	return {
@@ -46,6 +47,13 @@ export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
 					],
 				},
 			],
+		},
+		resolve: {
+			...replaced.resolve,
+			alias: {
+				...replaced.resolve.alias,
+				lib: path.join(process.cwd(), 'src', 'lib'),
+			},
 		},
 	};
 };

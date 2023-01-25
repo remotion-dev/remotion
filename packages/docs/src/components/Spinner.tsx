@@ -1,4 +1,5 @@
-import React, { SVGProps } from "react";
+import type { SVGProps } from "react";
+import React from "react";
 
 export const Spinner: React.FC<SVGProps<SVGSVGElement>> = (props) => {
   return (
@@ -8,7 +9,7 @@ export const Spinner: React.FC<SVGProps<SVGSVGElement>> = (props) => {
       viewBox="0 0 32 32"
       width="32"
       height="32"
-      fill="black"
+      fill="currentColor"
       {...props}
     >
       <path opacity=".1" d="M14 0 H18 V8 H14 z" transform="rotate(0 16 16)">

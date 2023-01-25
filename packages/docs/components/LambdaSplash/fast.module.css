@@ -1,0 +1,34 @@
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.tile {
+  flex: 1;
+}
+
+.title {
+  font-size: 2.5em;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.realgradient {
+  color: rgb(66, 144, 245);
+}
+
+
+@media screen and (max-width: 900px) {
+  .row {
+    flex-direction: column-reverse;
+  }
+  .realmp4container {
+    justify-content: flex-start;
+  }
+  .icon {
+    animation: none;
+    margin-bottom: 30px;
+  }
+}
+

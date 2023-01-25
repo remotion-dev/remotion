@@ -3,6 +3,10 @@ src
 .eslintrc
 tsconfig.tsbuildinfo
 .prettierrc
-jest.config.js
+vitest.config.ts
 *.tgz
 generate-badges.js
+coverage
+ensure-correct-version.js
+vitest.config.ts
+.turbo

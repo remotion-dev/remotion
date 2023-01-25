@@ -1,3 +1,4 @@
+import {describe, test} from 'vitest';
 import {validateStartFromProps} from '../validate-start-from-props';
 import {expectToThrow} from './expect-to-throw';
 

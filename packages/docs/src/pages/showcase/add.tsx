@@ -1,3 +1,4 @@
+import Head from "@docusaurus/Head";
 import Layout from "@theme/Layout";
 import clsx from "clsx";
 import React from "react";
@@ -97,7 +98,11 @@ const PageHeader: React.FC = () => {
 
 const ShowcaseAdd: React.FC = () => {
   return (
-    <Layout title="Add to showcase" description="hihi">
+    <Layout>
+      <Head>
+        <title>Add to showcase</title>
+      </Head>
+
       <header className={clsx("hero ", styles.heroBanner)}>
         <div className="container">
           <PageHeader />

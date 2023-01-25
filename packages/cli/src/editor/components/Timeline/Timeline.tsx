@@ -6,7 +6,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
-import {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
@@ -16,12 +16,19 @@ import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
 import {isTrackHidden} from './is-collapsed';
-import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
+import {
+	MAX_TIMELINE_TRACKS,
+	MAX_TIMELINE_TRACKS_NOTICE_HEIGHT,
+} from './MaxTimelineTracks';
+import {timelineVerticalScroll} from './timeline-refs';
 import {timelineStateReducer} from './timeline-state-reducer';
 import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineInOutPointer} from './TimelineInOutPointer';
 import {TimelineList} from './TimelineList';
+import {TimelinePlayCursorSyncer} from './TimelinePlayCursorSyncer';
+import {TimelineScrollable} from './TimelineScrollable';
 import {TimelineSlider} from './TimelineSlider';
+import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
 import {TimelineTracks} from './TimelineTracks';
 
 const container: React.CSSProperties = {
@@ -29,8 +36,10 @@ const container: React.CSSProperties = {
 	flex: 1,
 	display: 'flex',
 	height: 0,
-	overflow: 'auto',
+	overflowY: 'auto',
 };
+
+const noop = () => undefined;
 
 export const Timeline: React.FC = () => {
 	const {sequences} = useContext(Internals.CompositionManager);
@@ -51,45 +60,63 @@ export const Timeline: React.FC = () => {
 		});
 	}, [sequences, videoConfig]);
 
-	useImperativeHandle(timelineRef, () => {
-		return {
-			expandAll: () => {
-				dispatch({
-					type: 'expand-all',
-					allHashes: timeline.map((t) => t.hash),
-				});
-			},
-			collapseAll: () => {
-				dispatch({
-					type: 'collapse-all',
-					allHashes: timeline.map((t) => t.hash),
-				});
-			},
-		};
-	});
+	useImperativeHandle(
+		timelineRef,
+		() => {
+			return {
+				expandAll: () => {
+					dispatch({
+						type: 'expand-all',
+						allHashes: timeline.map((t) => t.hash),
+					});
+				},
+				collapseAll: () => {
+					dispatch({
+						type: 'collapse-all',
+						allHashes: timeline.map((t) => t.hash),
+					});
+				},
+			};
+		},
+		[timeline]
+	);
 
-	const withoutHidden = useMemo(() => {
-		return timeline.filter((t) => !isTrackHidden(t, timeline, state));
-	}, [state, timeline]);
+	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 
-	const shown = withoutHidden.slice(0, MAX_TIMELINE_TRACKS);
+	const filtered = useMemo(() => {
+		const withoutHidden = timeline.filter(
+			(t) => !isTrackHidden(t, timeline, state)
+		);
+
+		const withoutAfter = withoutHidden.filter((t) => {
+			return t.sequence.from <= durationInFrames && t.sequence.duration > 0;
+		});
+
+		return withoutAfter;
+	}, [durationInFrames, state, timeline]);
+
+	const shown = filtered.slice(0, MAX_TIMELINE_TRACKS);
+	const hasBeenCut = filtered.length > shown.length;
 
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
-			height: shown.length * (TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2),
+			height:
+				shown.length * (TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2) +
+				(hasBeenCut ? MAX_TIMELINE_TRACKS_NOTICE_HEIGHT : 0) +
+				TIMELINE_TIME_INDICATOR_HEIGHT,
 			display: 'flex',
 			flex: 1,
 			minHeight: '100%',
 			overflowX: 'hidden',
 		};
-	}, [shown.length]);
+	}, [hasBeenCut, shown.length]);
 
 	if (!videoConfig) {
 		return null;
 	}
 
 	return (
-		<div style={container} className="css-reset">
+		<div ref={timelineVerticalScroll} style={container} className="css-reset">
 			<div style={inner}>
 				<SplitterContainer
 					orientation="vertical"
@@ -105,17 +132,20 @@ export const Timeline: React.FC = () => {
 							timeline={shown}
 						/>
 					</SplitterElement>
-					<SplitterHandle />
+					<SplitterHandle onCollapse={noop} allowToCollapse={false} />
 					<SplitterElement type="anti-flexer">
-						<TimelineTracks
-							viewState={state}
-							timeline={shown}
-							fps={videoConfig.fps}
-							hasBeenCut={withoutHidden.length > shown.length}
-						/>
-						<TimelineInOutPointer />
-						<TimelineDragHandler />
-						<TimelineSlider />
+						<TimelineScrollable>
+							<TimelineTracks
+								viewState={state}
+								timeline={shown}
+								fps={videoConfig.fps}
+								hasBeenCut={hasBeenCut}
+							/>
+							<TimelineInOutPointer />
+							<TimelineDragHandler />
+							<TimelineSlider />
+							<TimelinePlayCursorSyncer />
+						</TimelineScrollable>
 					</SplitterElement>
 				</SplitterContainer>
 			</div>

@@ -1,34 +1,47 @@
-import puppeteer from 'puppeteer-core';
-import {ImageFormat} from 'remotion';
+import type {ClipRegion} from 'remotion';
+import type {Page} from './browser/BrowserPage';
+import type {ImageFormat} from './image-format';
+import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {screenshot} from './puppeteer-screenshot';
 
 export const screenshotDOMElement = async ({
 	page,
 	imageFormat,
 	quality,
-	opts = {},
+	opts,
+	height,
+	width,
+	clipRegion,
 }: {
-	page: puppeteer.Page;
+	page: Page;
 	imageFormat: ImageFormat;
 	quality: number | undefined;
-	opts?: {
-		path?: string;
-		selector?: string;
+	opts: {
+		path: string | null;
 	};
+	height: number;
+	width: number;
+	clipRegion: ClipRegion | null;
 }): Promise<Buffer> => {
-	const path = 'path' in opts ? opts.path : null;
-	const {selector} = opts;
-
-	if (!selector) throw Error('Please provide a selector.');
-	if (!path) throw Error('Please provide a path.');
+	const {path} = opts;
 
 	if (imageFormat === 'png') {
-		await page.evaluate(() => {
-			document.body.style.background = 'transparent';
+		await puppeteerEvaluateWithCatch({
+			pageFunction: () => {
+				document.body.style.background = 'transparent';
+			},
+			args: [],
+			frame: null,
+			page,
 		});
 	} else {
-		await page.evaluate(() => {
-			document.body.style.background = 'black';
+		await puppeteerEvaluateWithCatch({
+			pageFunction: () => {
+				document.body.style.background = 'black';
+			},
+			args: [],
+			frame: null,
+			page,
 		});
 	}
 
@@ -36,10 +49,19 @@ export const screenshotDOMElement = async ({
 		throw new TypeError('Tried to make a screenshot with format "none"');
 	}
 
-	return screenshot(page, {
+	const buf = await screenshot({
+		page,
 		omitBackground: imageFormat === 'png',
-		path,
+		path: path ?? undefined,
 		type: imageFormat,
 		quality,
-	}) as Promise<Buffer>;
+		width,
+		height,
+		clipRegion,
+	});
+	if (typeof buf === 'string') {
+		throw new TypeError('Expected a buffer');
+	}
+
+	return buf;
 };

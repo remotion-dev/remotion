@@ -1,4 +1,5 @@
-import {Internals, TComposition} from 'remotion';
+import type {TComposition} from 'remotion';
+import {Internals} from 'remotion';
 
 export const validateCompositionName = (
 	compName: string,

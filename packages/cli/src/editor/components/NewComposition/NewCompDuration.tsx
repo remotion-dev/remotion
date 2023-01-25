@@ -1,4 +1,4 @@
-import React, {ChangeEventHandler, useCallback} from 'react';
+import React, {useCallback} from 'react';
 import {validateCompositionDuration} from '../../helpers/validate-new-comp-data';
 import {Row} from '../layout';
 import {InputDragger} from './InputDragger';
@@ -10,9 +10,9 @@ export const NewCompDuration: React.FC<{
 	fps: string;
 	setDurationInFrames: React.Dispatch<React.SetStateAction<string>>;
 }> = ({durationInFrames, setDurationInFrames, fps}) => {
-	const onDurationInFramesChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
-		(e) => {
-			setDurationInFrames(String(Number(e.target.value)));
+	const onDurationInFramesChanged = useCallback(
+		(newValue: string) => {
+			setDurationInFrames(String(Number(newValue)));
 		},
 		[setDurationInFrames]
 	);
@@ -35,12 +35,14 @@ export const NewCompDuration: React.FC<{
 						<InputDragger
 							type="number"
 							value={durationInFrames}
-							onChange={onDurationInFramesChanged}
+							onTextChange={onDurationInFramesChanged}
 							placeholder="Duration (frames)"
 							name="durationInFrames"
 							min={1}
 							step={1}
-							max={100000000}
+							required
+							// Hitting Promise.all() limit in Chrome
+							max={300_000}
 							onValueChange={onDurationChangedDirectly}
 						/>
 						{compDurationErrMessage ? (

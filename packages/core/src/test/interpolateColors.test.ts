@@ -1,4 +1,5 @@
-import {interpolateColors} from '../interpolateColors';
+import {describe, expect, test} from 'vitest';
+import {interpolateColors} from '../interpolate-colors';
 import {expectToThrow} from './expect-to-throw';
 
 test('Throws if color string is not right', () => {

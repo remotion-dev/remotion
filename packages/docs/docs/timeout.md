@@ -1,15 +1,18 @@
 ---
+image: /generated/articles-docs-timeout.png
 id: timeout
-title: Puppeteer timeout
+title: Debugging timeouts
+sidebar_label: Timeouts
+crumb: "Troubleshooting"
 ---
 
 The following error:
 
 ```bash
-TimeoutError: waiting for function failed: timeout 30000ms exceeded
+A delayRender() was called but not cleared after 28000ms. See https://remotion.dev/docs/timeout for help. The delayRender was called
 ```
 
-generally happens when an unrecoverable error prevented the component to be mounted or if a [`delayRender()`](/docs/delay-render) handle has been created and not been cleared afterwards. Puppeteer will wait to make a screenshot, but aborts it after 30 seconds to not hang forever.
+generally happens if a [`delayRender()`](/docs/delay-render) handle has been created and not been cleared afterwards. Remotion will wait to make a screenshot, but aborts it by default after 30 seconds to not hang forever.
 
 ## Possible causes
 
@@ -28,6 +31,10 @@ If you rely on network assets such as fonts, images, videos or audio and you don
 ### Importing MP4 videos in Chromium
 
 Chrome has the codecs needed for displaying MP4 videos, but Chromium doesn't. If you try to load an MP4 video or an unsupported audio codec in Chromium, it currently leads to a timeout.
+
+:::warning
+On Linux, if no version of Chrome is installed, one will be downloaded that does not contain codecs for MP3 or MP4. We will address this in a future version of Remotion.
+:::
 
 **Workaround**: Convert videos to WebM or use Chrome instead of Chromium.
 
@@ -59,11 +66,32 @@ Sometimes, you cannot avoid a render taking longer than 30 seconds. For example:
 
 You can increase the default timeout from v2.6.3 on:
 
-- Using the [`--timeout`](/docs/cli#--timeout) CLI flag
-- Using the `timeoutInMilliseconds` option in [`renderStill()`](/docs/render-still#timeoutinmilliseconds), [`renderFrames()`](/docs/render-frames#timeoutinmilliseconds) and [`getCompositions()`](/docs/get-compositions#timeoutinmilliseconds)
+- Using the [`--timeout`](/docs/cli/render#--timeout) CLI flag
+- Using the `timeoutInMilliseconds` option in [`renderStill()`](/docs/renderer/render-still#timeoutinmilliseconds), [`renderFrames()`](/docs/renderer/render-frames#timeoutinmilliseconds), [`getCompositions()`](/docs/renderer/get-compositions#timeoutinmilliseconds), [`renderMedia()`](/docs/renderer/render-media#timeoutinmilliseconds), [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#timeoutinmilliseconds) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#timeoutinmilliseconds)
 - Using the [`Config.Puppeteer.setTimeoutInMilliseconds()`](/docs/config#settimeoutinmilliseconds) option in the config file
+
+## Adding a label to help debugging
+
+_Available from v2.6.13_
+
+If you encounter a timeout and don't know where it came from, you can add a label as a parameter:
+
+```tsx twoslash
+import { delayRender } from "remotion";
+
+// ---cut---
+
+delayRender("Fetching data from API...");
+```
+
+If the call times out, the label will be referenced in the error message:
+
+```
+Uncaught Error: A delayRender() "Fetching data from API..." was called but not cleared after 28000ms. See https://remotion.dev/docs/timeout for help. The delayRender was called
+```
 
 ## See also
 
 - [delayRender()](/docs/delay-render)
 - [Data fetching](/docs/data-fetching)
+- [Loading Root Component Timeout](/docs/troubleshooting/loading-root-component)

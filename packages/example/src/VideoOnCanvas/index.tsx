@@ -1,7 +1,5 @@
-import {useVideoConfig, Video} from 'remotion';
-import {useCallback, useEffect, useRef} from 'react';
-import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import React, {useCallback, useEffect, useRef} from 'react';
+import {AbsoluteFill, useVideoConfig, Video} from 'remotion';
 
 export const VideoOnCanvas: React.FC = () => {
 	const video = useRef<HTMLVideoElement>(null);
@@ -16,6 +14,7 @@ export const VideoOnCanvas: React.FC = () => {
 		) {
 			return;
 		}
+
 		const context = canvas.current.getContext('2d');
 
 		if (!context) {
@@ -31,6 +30,7 @@ export const VideoOnCanvas: React.FC = () => {
 		if (!video.current || !video.current.requestVideoFrameCallback) {
 			return;
 		}
+
 		video.current.requestVideoFrameCallback(() => onVideoFrame());
 	}, [onVideoFrame]);
 

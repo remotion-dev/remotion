@@ -17,3 +17,25 @@ export const useIsStill = () => {
 
 	return isCompositionStill(selected);
 };
+
+export const useDimensions = () => {
+	const {compositions, currentComposition} = useContext(
+		Internals.CompositionManager
+	);
+
+	const selected = useMemo(
+		() => compositions.find((c) => c.id === currentComposition),
+		[compositions, currentComposition]
+	);
+
+	return useMemo(() => {
+		if (!selected) {
+			return null;
+		}
+
+		return {
+			width: selected.width,
+			height: selected.height,
+		};
+	}, [selected]);
+};

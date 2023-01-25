@@ -1,0 +1,14 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"composite": true,
+		"rootDir": "src",
+		"outDir": "dist",
+		"skipLibCheck": true
+	},
+	"references": [
+		{
+			"path": "../core"
+		}
+	]
+}

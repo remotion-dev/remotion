@@ -1,4 +1,4 @@
-import {TAsset} from 'remotion';
+import type {TAsset} from 'remotion';
 
 // An unsafe asset is an asset with looser types, which occurs
 // during construction of the asset list. Prefer the MediaAsset
@@ -13,6 +13,7 @@ export type UnsafeAsset = Omit<
 	volume: number[];
 	id: string;
 	playbackRate: number;
+	allowAmplificationDuringRender: boolean;
 };
 
 // Volume can either be static, for all frames the same,
@@ -50,10 +51,6 @@ export const uncompressMediaAsset = (
 		...assetToUncompress,
 		src: assetToFill.src,
 	};
-};
-
-export type AssetAudioDetails = {
-	channels: number;
 };
 
 export type Assets = MediaAsset[];
