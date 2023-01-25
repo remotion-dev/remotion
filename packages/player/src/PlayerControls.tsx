@@ -16,6 +16,18 @@ export type RenderFullscreenButton = (props: {
 export const X_SPACER = 10;
 export const X_PADDING = 12;
 
+const gradientSteps = [
+	0, 0.013, 0.049, 0.104, 0.175, 0.259, 0.352, 0.45, 0.55, 0.648, 0.741, 0.825,
+	0.896, 0.951, 0.987,
+];
+
+const gradientOpacities = [
+	0, 8.1, 15.5, 22.5, 29, 35.3, 41.2, 47.1, 52.9, 58.8, 64.7, 71, 77.5, 84.5,
+	91.9,
+];
+
+const globalGradientOpacity = 1 / 0.7;
+
 const containerStyle: React.CSSProperties = {
 	boxSizing: 'border-box',
 	position: 'absolute',
@@ -23,25 +35,14 @@ const containerStyle: React.CSSProperties = {
 	width: '100%',
 	paddingTop: 40,
 	paddingBottom: 10,
-  backgroundImage: "linear-gradient(to bottom," +
-    "hsla(0, 0%, 0%, 0) 0%," +
-    "hsla(0, 0%, 0%, 0.013) 8.1%," +
-    "hsla(0, 0%, 0%, 0.049) 15.5%," +
-    "hsla(0, 0%, 0%, 0.104) 22.5%," +
-    "hsla(0, 0%, 0%, 0.175) 29%," +
-    "hsla(0, 0%, 0%, 0.259) 35.3%," +
-    "hsla(0, 0%, 0%, 0.352) 41.2%," +
-    "hsla(0, 0%, 0%, 0.45) 47.1%," +
-    "hsla(0, 0%, 0%, 0.55) 52.9%," +
-    "hsla(0, 0%, 0%, 0.648) 58.8%," +
-    "hsla(0, 0%, 0%, 0.741) 64.7%," +
-    "hsla(0, 0%, 0%, 0.825) 71%," +
-    "hsla(0, 0%, 0%, 0.896) 77.5%," +
-    "hsla(0, 0%, 0%, 0.951) 84.5%," +
-    "hsla(0, 0%, 0%, 0.987) 91.9%," +
-    "hsl(0, 0%, 0%) 100%" +
-    ")",
-  backgroundSize: 'auto 145px',
+	backgroundImage: `linear-gradient(to bottom,${gradientSteps
+		.map((g, i) => {
+			return `hsla(0, 0%, 0%, ${g}) ${
+				gradientOpacities[i] * globalGradientOpacity
+			}%`;
+		})
+		.join(', ')}, hsl(0, 0%, 0%) 100%)`,
+	backgroundSize: 'auto 145px',
 	display: 'flex',
 	paddingRight: X_PADDING,
 	paddingLeft: X_PADDING,
