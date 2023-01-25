@@ -205,7 +205,7 @@ export const starDemo: DemoType = {
   autoPlay: true,
   options: [
     {
-      default: 150,
+      default: 100,
       max: 400,
       step: 5,
       min: 1,
