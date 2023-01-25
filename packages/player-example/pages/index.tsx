@@ -27,12 +27,12 @@ export default function () {
 					justifyContent: 'center',
 				}}
 			>
-				<App lazyComponent={Car} durationInFrames={500} />
+				<App component={CarSlideshow} durationInFrames={500} />
 				<App component={VideoautoplayDemo} durationInFrames={2700} />
 			</div>
 			<h2>Thumbnail</h2>
 			<Thumbnail
-				lazyComponent={Car}
+				component={CarSlideshow}
 				frameToDisplay={480}
 				compositionHeight={200}
 				compositionWidth={500}
@@ -43,6 +43,8 @@ export default function () {
 				}}
 				inputProps={{
 					title: 'Hi there',
+					bgColor: 'black',
+					color: 'white',
 				}}
 			/>
 			<ThumbnailDemo />
