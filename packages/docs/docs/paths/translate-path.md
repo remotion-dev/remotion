@@ -50,7 +50,7 @@ The function will throw if the path is invalid:
 ```tsx twoslash
 import { translatePath } from "@remotion/paths";
 // ---cut---
-translatePath("remotion", 10); // Malformed path data: "m" ...
+translatePath("remotion", 10, 0); // Malformed path data: "m" ...
 ```
 
 ## Credits
