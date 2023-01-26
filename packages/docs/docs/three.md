@@ -1,4 +1,3 @@
-
 ---
 image: /generated/articles-docs-three.png
 id: three
