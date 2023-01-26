@@ -7,7 +7,7 @@ crumb: How to be awesome
 
 Issues and pull requests of all sorts are welcome!
 
-For bigger projects, please coordinate with Jonny Burger (<a href="jonny@remotion.dev">jonny@remotion.dev</a>, <a href="https://remotion.dev/discord">Discord</a>: <code>Jonny Burger#1111</code>) to make sure your changes get merged.
+For bigger projects, please coordinate with Jonny Burger (<a href="mailto:jonny@remotion.dev">jonny@remotion.dev</a>, <a href="https://remotion.dev/discord">Discord</a>: <code>Jonny Burger#1111</code>) to make sure your changes get merged.
 
 Please note that since we charge for Remotion when companies are using it, this is a **commercial project**.  
 By sending pull requests, you agree that we can use your code changes in a commercial context.
