@@ -14,3 +14,4 @@ packages/example/out
 .vercel
 packages/renderer/target
 packages/gcp/src/remotion-lambda-gcp.code-workspace
+packages/gcp/chromium-x64/
