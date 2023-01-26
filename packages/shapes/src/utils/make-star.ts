@@ -44,11 +44,14 @@ const star = ({
 		return [point.x, point.y];
 	});
 
-	return joinPoints([...d, d[0]], {
-		edgeRoundness,
-		cornerRadius,
-		roundCornerStrategy: cornerRadius > 0 ? 'bezier' : 'arc',
-	});
+	return [
+		...joinPoints([...d, d[0]], {
+			edgeRoundness,
+			cornerRadius,
+			roundCornerStrategy: cornerRadius > 0 ? 'bezier' : 'arc',
+		}),
+		{type: 'z'},
+	];
 };
 
 export const makeStar = ({

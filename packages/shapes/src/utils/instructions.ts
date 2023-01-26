@@ -32,10 +32,13 @@ export type Instruction =
 			sweepFlag: boolean;
 			x: number;
 			y: number;
+	  }
+	| {
+			type: 'z';
 	  };
 
 export const serializeInstructions = (instructions: Instruction[]) => {
-	return instructions.map(serializeInstruction).join(' ');
+	return instructions.map((i) => serializeInstruction(i)).join(' ');
 };
 
 export const serializeInstruction = (instruction: Instruction) => {
@@ -62,4 +65,10 @@ export const serializeInstruction = (instruction: Instruction) => {
 			instruction.sweepFlag ? 1 : 0
 		)} ${instruction.x} ${instruction.y}`;
 	}
+
+	if (instruction.type === 'z') {
+		return 'z';
+	}
+
+	throw new Error('not implemented');
 };
