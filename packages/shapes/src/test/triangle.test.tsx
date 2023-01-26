@@ -9,6 +9,6 @@ test('Should be able to make a triangle svg', () => {
 
 	// assert path
 	expect(container.querySelector('path')?.getAttribute('d')).toEqual(
-		'M 86.60254037844386 0 L 86.60254037844386 100 L 0 50 L 86.60254037844386 0'
+		'M 86.60254037844386 0 L 86.60254037844386 100 L 0 50 L 86.60254037844386 0 z'
 	);
 });

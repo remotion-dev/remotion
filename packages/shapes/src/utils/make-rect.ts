@@ -1,3 +1,4 @@
+import type {Instruction} from './instructions';
 import {serializeInstructions} from './instructions';
 import {joinPoints} from './join-points';
 import type {ShapeInfo} from './shape-info';
@@ -16,16 +17,21 @@ export const makeRect = ({
 	cornerRadius = 0,
 }: MakeRectOptions): ShapeInfo => {
 	const transformOrigin: [number, number] = [width / 2, height / 2];
-	const instructions = joinPoints(
-		[
-			[0, 0],
-			[width, 0],
-			[width, height],
-			[0, height],
-			[0, 0],
-		],
-		{edgeRoundness, cornerRadius, roundCornerStrategy: 'arc'}
-	);
+	const instructions: Instruction[] = [
+		...joinPoints(
+			[
+				[0, 0],
+				[width, 0],
+				[width, height],
+				[0, height],
+				[0, 0],
+			],
+			{edgeRoundness, cornerRadius, roundCornerStrategy: 'arc'}
+		),
+		{
+			type: 'z',
+		},
+	];
 	const path = serializeInstructions(instructions);
 
 	return {

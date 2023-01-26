@@ -24,6 +24,9 @@ export const makeEllipse = ({rx, ry}: MakeEllipseOptions): ShapeInfo => {
 			x: 1,
 			y: 0,
 		},
+		{
+			type: 'z',
+		},
 	];
 
 	const path = serializeInstructions(instructions);
