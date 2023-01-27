@@ -22,6 +22,7 @@
 	},
 	"dependencies": {
 		"js-binary-schema-parser": "^2.0.3",
+		"lru_map": "0.4.1",
 		"remotion": "3.3.37"
 	},
 	"devDependencies": {
