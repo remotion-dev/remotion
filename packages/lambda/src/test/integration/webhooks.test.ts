@@ -105,6 +105,7 @@ describe('Webhooks', () => {
 				videoBitrate: null,
 				forceHeight: null,
 				forceWidth: null,
+				rendererFunctionName: null,
 			},
 			extraContext
 		);
@@ -181,6 +182,7 @@ describe('Webhooks', () => {
 				renderId: 'abc',
 				forceHeight: null,
 				forceWidth: null,
+				rendererFunctionName: null,
 			},
 			{
 				...extraContext,

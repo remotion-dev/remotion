@@ -133,6 +133,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					secret: parsedLambdaCli['webhook-secret'] ?? null,
 			  }
 			: undefined,
+		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
 	});
 
 	const totalSteps = downloadName ? 6 : 5;

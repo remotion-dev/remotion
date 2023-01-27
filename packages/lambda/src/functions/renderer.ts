@@ -3,6 +3,7 @@ import type {BrowserLog, Codec} from '@remotion/renderer';
 import {RenderInternals, renderMedia} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
+import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
 import {writeLambdaInitializedFile} from '../shared/chunk-progress';
 import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
@@ -37,6 +38,12 @@ const renderHandler = async (
 ) => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
+	}
+
+	if (params.launchFunctionConfig.version !== VERSION) {
+		throw new Error(
+			`The version of the function that was specified as "rendererFunctionName" is ${VERSION} but the version of the function that invoked the render is ${params.launchFunctionConfig.version}. Please make sure that the version of the function that is specified as "rendererFunctionName" is the same as the version of the function that is invoked.`
+		);
 	}
 
 	const inputPropsPromise = deserializeInputProps({
