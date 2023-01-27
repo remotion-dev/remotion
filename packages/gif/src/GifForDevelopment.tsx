@@ -85,8 +85,6 @@ export const GifForDevelopment = forwardRef<
 					cancel();
 				}
 
-				gifCache.delete(resolvedSrc);
-
 				continueRender(newHandle);
 			};
 		}, [id, resolvedSrc]);
