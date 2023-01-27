@@ -11,7 +11,7 @@ import { ThreeDPlayer } from "../components/3DPhonePlayer.tsx";
 
 is a package for integrating [React Three Fiber](https://github.com/pmndrs/react-three-fiber) with Remotion.
 
-- [`<ThreeCanvas />`](/docs/three-canvas) will allow you to use `useCurrentFrame()` and other Remotion hooks within a R3F Canvas. Animations are now not inside a `useFrame()` hook but directly rendered into the markup.
+- [`<ThreeCanvas />`](/docs/three-canvas) will allow you to use `useCurrentFrame()` and other Remotion hooks within a R3F Canvas. Animations are now not inside a `useFrame()` hook, but directly rendered into the markup.
 
 - [`useVideoTexture()`](/docs/use-video-texture) allows you to use a Remotion [`<Video />`](/docs/video) as a texture map.
 
@@ -25,7 +25,7 @@ Check out [remotion-template-three](https://github.com/remotion-dev/template-thr
 
 The template features a 3D phone with a video inside which you can effortlessly swap out. Just as easily, you can change properties like the color, size, thickness, corner radius of the phone.
 
-The template serves as an soft introduction on how to use `<ThreeCanvas />` and `useVideoTexture()`. You can easily delete everything inside the canvas to start working on a different idea.
+The template serves as a soft introduction on how to use `<ThreeCanvas />` and `useVideoTexture()`. You can easily delete everything inside the canvas to start working on a different idea.
 
 ## Installation
 
@@ -65,8 +65,8 @@ You are now set up and can render a [`<ThreeCanvas />`](/docs/three-canvas) in y
 
 ## Note on `<Sequence>`
 
-A [`<Sequence>`](/docs/sequence) by default will return a `<div>` component which is not allows inside a `<ThreeCanvas>`. To avoid an error, pass `layout="none"` to `<Sequence>`.
+A [`<Sequence>`](/docs/sequence) by default will return a `<div>` component, which is not allowed inside a `<ThreeCanvas>`. To avoid an error, pass `layout="none"` to `<Sequence>`.
 
 ## Thanks
 
-Big thanks to [Björn Zeutzheim](https://github.com/olee) for researching and discovering the techniques needed for React Three Fiber integration and for doing the initial implementation of the @remotion/three APIs.
+A big thanks to [Björn Zeutzheim](https://github.com/olee) for researching and discovering the techniques needed for React Three Fiber integration and for doing the initial implementation of the @remotion/three APIs.
