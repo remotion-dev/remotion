@@ -11,6 +11,8 @@ import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
+import {HlsOffthreadVideo} from './Hls/HlsOffthreadVideo';
+import {HlsRegularVideo} from './Hls/HlsRegularVideo';
 import {ManyAudio} from './ManyAudio';
 import {MissingImg} from './MissingImg';
 import {OffthreadRemoteVideo} from './OffthreadRemoteVideo/OffthreadRemoteVideo';
@@ -605,6 +607,24 @@ export const Index: React.FC = () => {
 				<Composition
 					id="star-test"
 					component={StarTest}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+				/>
+			</Folder>
+			<Folder name="hls">
+				<Composition
+					id="hls"
+					component={HlsRegularVideo}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="hls-offthread"
+					component={HlsOffthreadVideo}
 					width={1200}
 					height={630}
 					fps={30}
