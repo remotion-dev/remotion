@@ -131,7 +131,7 @@ module.exports = {
         type: "doc",
         id: "gif/index",
       },
-      items: ["gif/gif", "gif/get-gif-duration-in-seconds"],
+      items: ["gif/gif", "gif/get-gif-duration-in-seconds", "gif/preload-gif"],
     },
     {
       type: "category",
