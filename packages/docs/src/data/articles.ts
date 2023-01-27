@@ -1577,6 +1577,13 @@ export const articles = [
     crumb: "@remotion/shapes",
   },
   {
+    id: "shapes/make-star",
+    title: "makeStar()",
+    relativePath: "docs/shapes/make-star.md",
+    compId: "articles-docs-shapes-make-star",
+    crumb: "@remotion/shapes",
+  },
+  {
     id: "shapes/make-triangle",
     title: "makeTriangle()",
     relativePath: "docs/shapes/make-triangle.md",
@@ -1588,6 +1595,13 @@ export const articles = [
     title: "<Rect />",
     relativePath: "docs/shapes/rect.md",
     compId: "articles-docs-shapes-rect",
+    crumb: "@remotion/shapes",
+  },
+  {
+    id: "shapes/star",
+    title: "<Star />",
+    relativePath: "docs/shapes/star.md",
+    compId: "articles-docs-shapes-star",
     crumb: "@remotion/shapes",
   },
   {

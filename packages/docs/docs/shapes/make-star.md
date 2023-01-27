@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-shapes-make-star.png
 title: makeStar()
 crumb: "@remotion/shapes"
 ---
