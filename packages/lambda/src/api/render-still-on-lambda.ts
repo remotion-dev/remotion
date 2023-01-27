@@ -122,6 +122,7 @@ export const renderStillOnLambda = async ({
 				method: LambdaRoutines.still,
 				region,
 				renderId: res.renderId,
+				rendererFunctionName: null,
 			}),
 		};
 	} catch (err) {
