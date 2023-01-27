@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "../../../../remotion-lambda-gcp"
+		},
+		{
+			"path": "../../../../tempDir"
+		},
+		{
+			"path": "../../../../lambda-binaries"
+		},
+		{
+			"path": "../../.."
+		}
+	]
+}

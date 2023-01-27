@@ -15,3 +15,5 @@ packages/example/out
 packages/renderer/target
 packages/gcp/src/remotion-lambda-gcp.code-workspace
 packages/gcp/chromium-x64/
+gcpStandalone/chromium-x64/
+gcpStandalone/ffmpeg-x64/
