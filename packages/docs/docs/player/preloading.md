@@ -157,6 +157,10 @@ free();
   </tr>
 </table>
 
+## Preloading GIFs
+
+You can preload and preparse GIFs using [`preloadGif()`](/docs/gif/preload-gif)
+
 ## See also
 
 - [`@remotion/preload`](/docs/preload)

@@ -385,6 +385,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "gif/preload-gif",
+    title: "preloadGif()",
+    relativePath: "docs/gif/preload-gif.md",
+    compId: "articles-docs-gif-preload-gif",
+    crumb: "@remotion/gif",
+  },
+  {
     id: "google-fonts/get-available-fonts",
     title: "getAvailableFonts()",
     relativePath: "docs/google-fonts/get-available-fonts.md",
