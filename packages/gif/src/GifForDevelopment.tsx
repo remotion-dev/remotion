@@ -5,6 +5,7 @@ import {gifCache} from './gif-cache';
 import {isCorsError} from './is-cors-error';
 import type {GifState, RemotionGifProps} from './props';
 import {parseWithWorker} from './react-tools';
+import {resolveGifSource} from './resolve-gif-source';
 import {useCurrentGifIndex} from './useCurrentGifIndex';
 
 export const GifForDevelopment = forwardRef<
@@ -24,10 +25,7 @@ export const GifForDevelopment = forwardRef<
 		},
 		ref
 	) => {
-		const resolvedSrc = new URL(
-			src,
-			typeof window === 'undefined' ? undefined : window.location.origin
-		).href;
+		const resolvedSrc = resolveGifSource(src);
 		const [state, update] = useState<GifState>(() => {
 			const parsedGif = gifCache.get(resolvedSrc);
 
