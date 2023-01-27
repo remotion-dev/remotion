@@ -38,6 +38,9 @@ export const makeCircle = ({radius}: MakeCircleProps): ShapeInfo => {
 			x: -radius * 2,
 			y: 0,
 		},
+		{
+			type: 'z',
+		},
 	];
 
 	const path = serializeInstructions(instructions);

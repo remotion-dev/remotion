@@ -1,5 +1,6 @@
 // Copied from https://stackblitz.com/edit/react-triangle-svg?file=index.js
 
+import type {Instruction} from './instructions';
 import {serializeInstructions} from './instructions';
 import {joinPoints} from './join-points';
 import type {ShapeInfo} from './shape-info';
@@ -63,11 +64,16 @@ export const makeTriangle = ({
 		right: longerDimension / 2,
 	}[direction];
 
-	const instructions = joinPoints(points[direction], {
-		edgeRoundness,
-		cornerRadius,
-		roundCornerStrategy: 'bezier',
-	});
+	const instructions: Instruction[] = [
+		...joinPoints(points[direction], {
+			edgeRoundness,
+			cornerRadius,
+			roundCornerStrategy: 'bezier',
+		}),
+		{
+			type: 'z',
+		},
+	];
 	const path = serializeInstructions(instructions);
 
 	return {
