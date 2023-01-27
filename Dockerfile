@@ -13,12 +13,15 @@ WORKDIR /usr/app
 
 # Instructions from PNPM docs for using Docker - https://pnpm.io/cli/fetch
 COPY pnpm-lock.yaml ./
-RUN pnpm fetch
+COPY .npmrc ./
+# RUN pnpm --filter @remotion/gcp fetch
+RUN pnpm --filter @remotion/gcp fetch
 
 COPY ./packages/gcp/package*.json ./
 COPY ./packages/gcp/tsconfig.json ./
 COPY ./packages/gcp/src src
 
+# RUN pnpm --filter @remotion/gcp i && pnpm --filter @remotion/gcp build
 RUN pnpm i && pnpm build
 # RUN npm i
 

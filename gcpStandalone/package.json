@@ -6,7 +6,7 @@
 	"scripts": {
 		"build": "tsc",
 		"start": "functions-framework --target=TypescriptFunction",
-		"prestart": "pnpm run build",
+		"prestart": "npm run build",
 		"gcp-build": "npm run build"
 	},
 	"dependencies": {
@@ -15,7 +15,9 @@
 		"remotion": "3.3.36"
 	},
 	"devDependencies": {
+		"@types/react": "^18.0.27",
 		"prettier-plugin-organize-imports": "^3.2.2",
-		"typescript": "^4.7.0"
+		"typescript": "^4.7.0",
+		"webpack": "5.74.0"
 	}
 }

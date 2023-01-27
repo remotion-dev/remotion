@@ -1,26 +1,22 @@
 FROM node:alpine
 
-RUN curl -f https://get.pnpm.io/v7.7.1.js | node - add --global pnpm
+ADD ./packages/gcp/chromium-x64 /opt/bin/chromium
 
-ADD ./chromium-x64 /opt/bin/chromium
+ARG PNPM_VERSION=7.7.1
+RUN npm --no-update-notifier --no-fund --global install pnpm@${PNPM_VERSION}
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/opt/bin/chromium
 
-WORKDIR /usr/app
+WORKDIR /root/monorepo
+COPY . .
 
-# Instructions from PNPM docs for using Docker - https://pnpm.io/cli/fetch
-# COPY pnpm-lock.yaml ./
-# RUN pnpm fetch
+RUN pnpm install --filter "@remotion/gcp..."
+# RUN pnpm build --filter "@remotion/gcp..."
 
-COPY package*.json ./
-COPY tsconfig.json ./
-COPY src src
-
-# RUN pnpm i
-RUN npm i
+WORKDIR /root/monorepo/packages/gcp
 
 EXPOSE 8080
 
-# CMD ["pnpm", "run", "start"] 
-CMD ["npm", "run", "start"] 
+CMD ["pnpm", "run", "start"] 
+# CMD ["npm", "run", "start"] 
