@@ -56,7 +56,7 @@ export type RenderMediaOnLambdaInput = {
 	};
 	forceWidth?: number | null;
 	forceHeight?: number | null;
-	rendererFunctionName?: string;
+	rendererFunctionName?: string | null;
 };
 
 export type RenderMediaOnLambdaOutput = {
