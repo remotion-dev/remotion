@@ -182,6 +182,7 @@ export const renderMediaOnLambda = async ({
 				method: LambdaRoutines.renderer,
 				region,
 				renderId: res.renderId,
+				rendererFunctionName: rendererFunctionName ?? null,
 			}),
 			folderInS3Console: getS3RenderUrl({
 				bucketName: res.bucketName,
