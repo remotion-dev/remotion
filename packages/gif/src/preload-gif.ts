@@ -1,4 +1,4 @@
-import {gifCache} from './gif-cache';
+import {manuallyManagedGifCache, volatileGifCache} from './gif-cache';
 import {parseWithWorker} from './react-tools';
 import {resolveGifSource} from './resolve-gif-source';
 
@@ -10,20 +10,36 @@ export const preloadGif = (
 } => {
 	const resolvedSrc = resolveGifSource(src);
 
-	if (gifCache.has(resolvedSrc)) {
+	if (volatileGifCache.has(resolvedSrc)) {
 		return {
 			waitUntilDone: () => Promise.resolve(),
-			free: () => gifCache.delete(resolvedSrc),
+			free: () => volatileGifCache.delete(resolvedSrc),
+		};
+	}
+
+	if (manuallyManagedGifCache.has(resolvedSrc)) {
+		return {
+			waitUntilDone: () => Promise.resolve(),
+			free: () => manuallyManagedGifCache.delete(resolvedSrc),
 		};
 	}
 
 	const {prom, cancel} = parseWithWorker(resolvedSrc);
 
+	let deleted = false;
+
+	prom.then((p) => {
+		if (!deleted) {
+			manuallyManagedGifCache.set(resolvedSrc, p);
+		}
+	});
+
 	return {
 		waitUntilDone: () => prom.then(() => undefined),
 		free: () => {
 			cancel();
-			gifCache.delete(resolvedSrc);
+			deleted = true;
+			manuallyManagedGifCache.delete(resolvedSrc);
 		},
 	};
 };

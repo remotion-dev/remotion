@@ -1,5 +1,5 @@
 import {Internals} from 'remotion';
-import {gifCache} from './gif-cache';
+import {manuallyManagedGifCache, volatileGifCache} from './gif-cache';
 import type {GifState} from './props';
 import {parseGif, parseWithWorker} from './react-tools';
 
@@ -11,7 +11,9 @@ const calcDuration = (parsed: GifState) => {
 
 export const getGifDurationInSeconds = async (src: string) => {
 	const resolvedSrc = new URL(src, window.location.origin).href;
-	const inCache = gifCache.get(resolvedSrc);
+	const inCache =
+		volatileGifCache.get(resolvedSrc) ??
+		manuallyManagedGifCache.get(resolvedSrc);
 	if (inCache) {
 		return calcDuration(inCache);
 	}
@@ -19,7 +21,7 @@ export const getGifDurationInSeconds = async (src: string) => {
 	if (Internals.getRemotionEnvironment() === 'rendering') {
 		const renderingParsed = parseWithWorker(resolvedSrc);
 		const resolved = await renderingParsed.prom;
-		gifCache.set(resolvedSrc, resolved);
+		volatileGifCache.set(resolvedSrc, resolved);
 		return calcDuration(resolved);
 	}
 
@@ -27,7 +29,7 @@ export const getGifDurationInSeconds = async (src: string) => {
 		src: resolvedSrc,
 		controller: new AbortController(),
 	});
-	gifCache.set(resolvedSrc, parsed);
+	volatileGifCache.set(resolvedSrc, parsed);
 
 	return calcDuration(parsed);
 };
