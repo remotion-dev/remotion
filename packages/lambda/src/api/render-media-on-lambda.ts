@@ -56,6 +56,7 @@ export type RenderMediaOnLambdaInput = {
 	};
 	forceWidth?: number | null;
 	forceHeight?: number | null;
+	rendererFunctionName?: string | null;
 };
 
 export type RenderMediaOnLambdaOutput = {
@@ -118,6 +119,7 @@ export const renderMediaOnLambda = async ({
 	webhook,
 	forceHeight,
 	forceWidth,
+	rendererFunctionName,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
@@ -137,6 +139,7 @@ export const renderMediaOnLambda = async ({
 			functionName,
 			type: LambdaRoutines.start,
 			payload: {
+				rendererFunctionName: rendererFunctionName ?? null,
 				framesPerLambda: framesPerLambda ?? null,
 				composition,
 				serveUrl,
