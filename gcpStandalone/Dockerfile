@@ -1,16 +1,20 @@
 FROM node:alpine
 
-ADD ./chromium-x64 /opt/bin/chromium
-ADD ./ffmpeg-x64 /opt/bin/ffmpeg
+# Installs latest Chromium (85) package.
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    freetype-dev \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    ffmpeg \
+    font-noto-emoji
 
+# Tell Puppeteer to skip installing Chrome. We'll be using the installed package.
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/opt/bin/chromium
-
-WORKDIR /usr/app
-
-# Instructions from PNPM docs for using Docker - https://pnpm.io/cli/fetch
-# COPY pnpm-lock.yaml ./
-# RUN pnpm fetch
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 COPY package*.json ./
 COPY tsconfig.json ./
@@ -18,6 +22,14 @@ COPY src src
 
 RUN npm i
 
-EXPOSE 8080
+# Add user so we don't need --no-sandbox.
+RUN addgroup -S pptruser && adduser -S -g pptruser pptruser \
+    && mkdir -p /home/pptruser/Downloads /app \
+    && chown -R pptruser:pptruser /home/pptruser \
+    && chown -R pptruser:pptruser /app
+# Run everything after as non-privileged user.
+USER pptruser
+
+EXPOSE 8000
 
 CMD ["npm", "run", "start"] 
