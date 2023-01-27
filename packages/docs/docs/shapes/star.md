@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-shapes-star.png
 title: <Star />
 crumb: "@remotion/shapes"
 ---
