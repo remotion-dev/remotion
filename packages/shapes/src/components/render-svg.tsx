@@ -61,6 +61,10 @@ export const RenderSvg = ({
 								index === 0
 									? instructions[instructions.length - 1]
 									: instructions[index - 1];
+							if (prevInstruction.type === 'z') {
+								return null;
+							}
+
 							const prevX = prevInstruction.x;
 							const prevY = prevInstruction.y;
 							return (
