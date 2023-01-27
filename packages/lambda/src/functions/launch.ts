@@ -50,14 +50,19 @@ type Options = {
 	getRemainingTimeInMillis: () => number;
 };
 
-const callFunctionWithRetry = async (
-	payload: unknown,
-	retries = 0
-): Promise<unknown> => {
+const callFunctionWithRetry = async ({
+	payload,
+	retries,
+	functionName,
+}: {
+	payload: unknown;
+	retries: number;
+	functionName: string;
+}): Promise<unknown> => {
 	try {
 		await getLambdaClient(getCurrentRegionInFunction()).send(
 			new InvokeCommand({
-				FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
+				FunctionName: functionName,
 				// @ts-expect-error
 				Payload: JSON.stringify(payload),
 				InvocationType: 'Event',
@@ -73,7 +78,11 @@ const callFunctionWithRetry = async (
 			await new Promise((resolve) => {
 				setTimeout(resolve, 1000);
 			});
-			return callFunctionWithRetry(payload, retries + 1);
+			return callFunctionWithRetry({
+				payload,
+				retries: retries + 1,
+				functionName,
+			});
 		}
 	}
 };
@@ -82,6 +91,10 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
+
+	const functionName =
+		params.rendererFunctionName ??
+		(process.env.AWS_LAMBDA_FUNCTION_NAME as string);
 
 	const startedDate = Date.now();
 
@@ -261,6 +274,9 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			muted: params.muted,
 			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,
+			launchFunctionConfig: {
+				version: VERSION,
+			},
 		};
 		return payload;
 	});
@@ -344,7 +360,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		lambdaPayloads.map(async (payload, index) => {
 			const callingLambdaTimer = timer('Calling chunk ' + index);
 
-			await callFunctionWithRetry(payload);
+			await callFunctionWithRetry({payload, retries: 0, functionName});
 			callingLambdaTimer.end();
 		})
 	);

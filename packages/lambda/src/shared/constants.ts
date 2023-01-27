@@ -217,6 +217,7 @@ export type LambdaPayloads = {
 		type: LambdaRoutines.info;
 	};
 	start: {
+		rendererFunctionName: string | null;
 		type: LambdaRoutines.start;
 		serveUrl: string;
 		composition: string;
@@ -251,6 +252,7 @@ export type LambdaPayloads = {
 		forceWidth: number | null;
 	};
 	launch: {
+		rendererFunctionName: string | null;
 		type: LambdaRoutines.launch;
 		serveUrl: string;
 		composition: string;
@@ -324,6 +326,9 @@ export type LambdaPayloads = {
 		muted: boolean;
 		audioBitrate: string | null;
 		videoBitrate: string | null;
+		launchFunctionConfig: {
+			version: string;
+		};
 	};
 	still: {
 		type: LambdaRoutines.still;

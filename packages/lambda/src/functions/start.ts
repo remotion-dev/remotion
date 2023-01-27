@@ -87,6 +87,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		videoBitrate: params.videoBitrate,
 		forceHeight: params.forceHeight,
 		forceWidth: params.forceWidth,
+		rendererFunctionName: params.rendererFunctionName,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({
