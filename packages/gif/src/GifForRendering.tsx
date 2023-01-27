@@ -84,6 +84,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 				}
 
 				continueRender(newHandle);
+				gifCache.delete(resolvedSrc);
 			};
 		}, [id, resolvedSrc]);
 
