@@ -302,7 +302,7 @@ importers:
       '@remotion/motion-blur': 3.3.37
       '@remotion/noise': 3.3.37
       '@remotion/paths': 3.3.37
-      '@remotion/player': workspace:3.3.37
+      '@remotion/player': 3.3.37
       '@remotion/preload': 3.3.37
       '@remotion/renderer': 3.3.37
       '@remotion/shapes': 3.3.37
@@ -615,7 +615,7 @@ importers:
       remotion: link:../core
       sharp: 0.30.6
       typescript: 4.7.2
-      vite: 4.0.4_@types+node@18.11.2
+      vite: 4.0.4
       vitest: 0.27.2
 
   packages/lambda:
@@ -11379,7 +11379,7 @@ packages:
       normalize-path: 3.0.0
       schema-utils: 4.0.0
       serialize-javascript: 6.0.0
-      webpack: 5.74.0_@swc+core@1.3.27
+      webpack: 5.74.0
     dev: false
 
   /core-js-compat/3.18.1:
@@ -18493,6 +18493,12 @@ packages:
   /react-dev-utils/11.0.4_v5dq5tvy5mxgxe2jcvr5h43l3u:
     resolution: {integrity: sha512-dx0LvIGHcOPtKbeiSUM4jqpBl3TcY7CDjZdfOIcKeznE7BWr9dg0iPG90G5yfVQ+p/rGNMXdbfStvzQZEVEi4A==}
     engines: {node: '>=10'}
+    peerDependencies:
+      typescript: '>=2.7'
+      webpack: '>=4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
     dependencies:
       '@babel/code-frame': 7.10.4
       address: 1.1.2
@@ -18523,9 +18529,7 @@ packages:
     transitivePeerDependencies:
       - eslint
       - supports-color
-      - typescript
       - vue-template-compiler
-      - webpack
     dev: false
 
   /react-dev-utils/12.0.1_v5dq5tvy5mxgxe2jcvr5h43l3u:
@@ -21900,6 +21904,39 @@ packages:
       rollup: 2.76.0
     optionalDependencies:
       fsevents: 2.3.2
+
+  /vite/4.0.4:
+    resolution: {integrity: sha512-xevPU7M8FU0i/80DMR+YhgrzR5KS2ORy1B4xcX/cXLsvnUWvfHuqMmVU6N0YiJ4JWGRJJsLCgjEzKjG9/GKoSw==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': '>= 14'
+      less: '*'
+      sass: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      esbuild: 0.16.12
+      postcss: 8.4.21
+      resolve: 1.22.1
+      rollup: 3.10.0
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
 
   /vite/4.0.4_@types+node@18.11.2:
     resolution: {integrity: sha512-xevPU7M8FU0i/80DMR+YhgrzR5KS2ORy1B4xcX/cXLsvnUWvfHuqMmVU6N0YiJ4JWGRJJsLCgjEzKjG9/GKoSw==}
