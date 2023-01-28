@@ -7,8 +7,14 @@ export const PieDemo: React.FC<{
   darkMode: boolean;
   fillAmount: number;
   closePath: boolean;
-  stroke: boolean;
-}> = ({ radius, darkMode, fillAmount, closePath, stroke }) => {
+  showStrokeInsteadPreviewOnly: boolean;
+}> = ({
+  radius,
+  darkMode,
+  fillAmount,
+  closePath,
+  showStrokeInsteadPreviewOnly,
+}) => {
   return (
     <AbsoluteFill
       style={{
@@ -19,12 +25,16 @@ export const PieDemo: React.FC<{
       <Pie
         fillAmount={fillAmount}
         fill={
-          stroke ? "transparent" : darkMode ? "white" : "var(--ifm-link-color)"
+          showStrokeInsteadPreviewOnly
+            ? "transparent"
+            : darkMode
+            ? "white"
+            : "var(--ifm-link-color)"
         }
         radius={radius}
         closePath={closePath}
         stroke={darkMode ? "white" : "var(--ifm-link-color)"}
-        strokeWidth={stroke ? 5 : 0}
+        strokeWidth={showStrokeInsteadPreviewOnly ? 5 : 0}
       />
     </AbsoluteFill>
   );

@@ -202,7 +202,7 @@ export const pieDemo: DemoType = {
     {
       default: false,
       type: "boolean",
-      name: "stroke",
+      name: "showStrokeInsteadPreviewOnly",
       optional: "no",
     },
   ],
