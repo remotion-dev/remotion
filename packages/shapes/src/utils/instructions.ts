@@ -19,11 +19,6 @@ export type Instruction =
 			y: number;
 	  }
 	| {
-			type: 'm';
-			x: number;
-			y: number;
-	  }
-	| {
 			type: 'a';
 			rx: number;
 			ry: number;
@@ -52,10 +47,6 @@ export const serializeInstruction = (instruction: Instruction) => {
 
 	if (instruction.type === 'C') {
 		return `C ${instruction.cp1x} ${instruction.cp1y} ${instruction.cp2x} ${instruction.cp2y} ${instruction.x} ${instruction.y}`;
-	}
-
-	if (instruction.type === 'm') {
-		return `m ${instruction.x} ${instruction.y}`;
 	}
 
 	if (instruction.type === 'a') {
