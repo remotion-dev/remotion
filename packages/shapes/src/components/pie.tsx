@@ -11,11 +11,12 @@ export const Pie: React.FC<PieProps> = ({
 	progress,
 	closePath,
 	counterClockwise,
+	rotation,
 	...props
 }) => {
 	return (
 		<RenderSvg
-			{...makePie({radius, progress, closePath, counterClockwise})}
+			{...makePie({radius, progress, closePath, counterClockwise, rotation})}
 			{...props}
 		/>
 	);

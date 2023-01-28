@@ -6,6 +6,31 @@ export type MakePieProps = {
 	progress: number;
 	closePath?: boolean;
 	counterClockwise?: boolean;
+	rotation?: number;
+};
+
+const getCoord = ({
+	counterClockwise,
+	actualProgress,
+	rotation,
+	radius,
+	coord,
+}: {
+	counterClockwise: boolean;
+	actualProgress: number;
+	rotation: number;
+	radius: number;
+	coord: 'x' | 'y';
+}): number => {
+	const factor = counterClockwise ? -1 : 1;
+
+	return (
+		Math[coord === 'x' ? 'cos' : 'sin'](
+			factor * actualProgress * Math.PI * 2 + Math.PI * 1.5 + rotation
+		) *
+			radius +
+		radius
+	);
 };
 
 export const makePie = ({
@@ -13,18 +38,41 @@ export const makePie = ({
 	radius,
 	closePath = true,
 	counterClockwise = false,
+	rotation = 0,
 }: MakePieProps) => {
 	const actualProgress = Math.min(Math.max(progress, 0), 1);
 
-	const factor = counterClockwise ? -1 : 1;
-	const endAngleX =
-		Math.cos(factor * actualProgress * Math.PI * 2 + Math.PI * 1.5) * radius +
-		radius;
-	const endAngleY =
-		Math.sin(factor * actualProgress * Math.PI * 2 + Math.PI * 1.5) * radius +
-		radius;
+	const endAngleX = getCoord({
+		actualProgress,
+		coord: 'x',
+		counterClockwise,
+		radius,
+		rotation,
+	});
+	const endAngleY = getCoord({
+		actualProgress,
+		coord: 'y',
+		counterClockwise,
+		radius,
+		rotation,
+	});
 
-	const start = {x: radius, y: 0};
+	const start = {
+		x: getCoord({
+			actualProgress: 0,
+			coord: 'x',
+			counterClockwise,
+			radius,
+			rotation,
+		}),
+		y: getCoord({
+			actualProgress: 0,
+			coord: 'y',
+			counterClockwise,
+			radius,
+			rotation,
+		}),
+	};
 	const end = {x: endAngleX, y: endAngleY};
 
 	const instructions: Instruction[] = [
@@ -39,8 +87,26 @@ export const makePie = ({
 			xAxisRotation: 0,
 			largeArcFlag: false,
 			sweepFlag: !counterClockwise,
-			x: actualProgress <= 0.5 ? endAngleX : radius,
-			y: actualProgress <= 0.5 ? endAngleY : radius * 2,
+			x:
+				actualProgress <= 0.5
+					? endAngleX
+					: getCoord({
+							actualProgress: 0.5,
+							coord: 'x',
+							counterClockwise,
+							radius,
+							rotation,
+					  }),
+			y:
+				actualProgress <= 0.5
+					? endAngleY
+					: getCoord({
+							actualProgress: 0.5,
+							coord: 'y',
+							counterClockwise,
+							radius,
+							rotation,
+					  }),
 		},
 		actualProgress > 0.5
 			? {
