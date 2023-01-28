@@ -4,10 +4,14 @@ import {serializeInstructions} from './instructions';
 export type MakePieProps = {
 	radius: number;
 	fillAmount: number;
-	closePath: boolean;
+	closePath?: boolean;
 };
 
-export const makePie = ({fillAmount, radius, closePath}: MakePieProps) => {
+export const makePie = ({
+	fillAmount,
+	radius,
+	closePath = true,
+}: MakePieProps) => {
 	const actualFillAmount = Math.min(Math.max(fillAmount, 0), 1);
 
 	const endAngleX =
@@ -15,11 +19,13 @@ export const makePie = ({fillAmount, radius, closePath}: MakePieProps) => {
 	const endAngleY =
 		Math.sin(actualFillAmount * Math.PI * 2 + Math.PI * 1.5) * radius + radius;
 
+	const start = {x: radius, y: 0};
+	const end = {x: endAngleX, y: endAngleY};
+
 	const instructions: Instruction[] = [
 		{
 			type: 'M',
-			x: radius,
-			y: 0,
+			...start,
 		},
 		{
 			type: 'A',
@@ -39,8 +45,7 @@ export const makePie = ({fillAmount, radius, closePath}: MakePieProps) => {
 					xAxisRotation: 0,
 					largeArcFlag: false,
 					sweepFlag: true,
-					x: endAngleX,
-					y: endAngleY,
+					...end,
 			  }
 			: null,
 		actualFillAmount > 0 && actualFillAmount < 1 && closePath
