@@ -6,6 +6,11 @@ import {RenderSvg} from './render-svg';
 
 export type PieProps = MakePieProps & AllShapesProps;
 
-export const Pie: React.FC<PieProps> = ({radius, fillAmount, ...props}) => {
-	return <RenderSvg {...makePie({radius, fillAmount})} {...props} />;
+export const Pie: React.FC<PieProps> = ({
+	radius,
+	fillAmount,
+	closePath,
+	...props
+}) => {
+	return <RenderSvg {...makePie({radius, fillAmount, closePath})} {...props} />;
 };

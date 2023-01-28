@@ -4,9 +4,10 @@ import {serializeInstructions} from './instructions';
 export type MakePieProps = {
 	radius: number;
 	fillAmount: number;
+	closePath: boolean;
 };
 
-export const makePie = ({fillAmount, radius}: MakePieProps) => {
+export const makePie = ({fillAmount, radius, closePath}: MakePieProps) => {
 	const actualFillAmount = Math.min(Math.max(fillAmount, 0), 1);
 
 	const endAngleX =
@@ -42,16 +43,18 @@ export const makePie = ({fillAmount, radius}: MakePieProps) => {
 					y: endAngleY,
 			  }
 			: null,
-		actualFillAmount > 0 && actualFillAmount < 1
+		actualFillAmount > 0 && actualFillAmount < 1 && closePath
 			? {
 					type: 'L',
 					x: radius,
 					y: radius,
 			  }
 			: null,
-		{
-			type: 'z',
-		},
+		closePath
+			? {
+					type: 'z',
+			  }
+			: null,
 	].filter(Boolean) as Instruction[];
 
 	const path = serializeInstructions(instructions);
