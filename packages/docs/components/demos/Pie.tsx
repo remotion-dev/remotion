@@ -5,13 +5,13 @@ import { AbsoluteFill } from "remotion";
 export const PieDemo: React.FC<{
   radius: number;
   darkMode: boolean;
-  fillAmount: number;
+  progress: number;
   closePath: boolean;
   showStrokeInsteadPreviewOnly: boolean;
 }> = ({
   radius,
   darkMode,
-  fillAmount,
+  progress,
   closePath,
   showStrokeInsteadPreviewOnly,
 }) => {
@@ -23,7 +23,7 @@ export const PieDemo: React.FC<{
       }}
     >
       <Pie
-        fillAmount={fillAmount}
+        progress={progress}
         fill={
           showStrokeInsteadPreviewOnly
             ? "transparent"

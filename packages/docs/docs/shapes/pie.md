@@ -30,7 +30,7 @@ export const MyComposition = () => {
     >
       <Pie
         radius={100}
-        fillAmount={0.5}
+        progress={0.5}
         fill="green"
         stroke="red"
         strokeWidth={1}

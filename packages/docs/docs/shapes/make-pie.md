@@ -16,7 +16,7 @@ import { makePie } from "@remotion/shapes";
 
 const { path, width, height, transformOrigin } = makePie({
   radius: 50,
-  fillAmount: 0.5,
+  progress: 0.5,
 });
 
 // TOOD: Wrong paths

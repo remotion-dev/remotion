@@ -190,7 +190,7 @@ export const pieDemo: DemoType = {
       min: 0,
       max: 1,
       type: "numeric",
-      name: "fillAmount",
+      name: "progress",
       optional: "no",
     },
     {
