@@ -419,6 +419,15 @@ module.exports = {
           },
           items: ["lambda/without-iam/index", "lambda/without-iam/example"],
         },
+        {
+          type: "category",
+          label: "Using Remotion with Serverless.com",
+          link: {
+            type: "doc",
+            id: "lambda/serverless-com/index",
+          },
+          items: ["lambda/serverless-com/index"],
+        },
         "lambda/optimizing-cost",
         "lambda/optimizing-speed",
         "lambda/limits",
