@@ -1,6 +1,7 @@
 import {
   makeCircle,
   makeEllipse,
+  makePie,
   makeRect,
   makeStar,
   makeTriangle,
@@ -49,6 +50,23 @@ export const shapeComponents: ShapeComponent[] = [
         name: "radius",
         type: "number",
         description: "The radius of the circle.",
+      },
+    ],
+  },
+  {
+    shape: "Pie",
+    fn: makePie,
+    params: [
+      {
+        name: "radius",
+        type: "number",
+        description: "The radius of the circle.",
+      },
+      {
+        name: "fillAmount",
+        type: "number",
+        description:
+          "The percentage of the circle that is filled. 0 means fully empty, 1 means fully filled.",
       },
     ],
   },
