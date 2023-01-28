@@ -194,6 +194,15 @@ export const pieDemo: DemoType = {
       optional: "no",
     },
     {
+      default: 0,
+      step: 0.01,
+      min: -3.14 * 2,
+      max: 3.14 * 2,
+      type: "numeric",
+      name: "rotation",
+      optional: "no",
+    },
+    {
       default: true,
       type: "boolean",
       name: "closePath",

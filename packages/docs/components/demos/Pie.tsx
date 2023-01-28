@@ -9,6 +9,7 @@ export const PieDemo: React.FC<{
   closePath: boolean;
   showStrokeInsteadPreviewOnly: boolean;
   counterClockwise: boolean;
+  rotation: number;
 }> = ({
   radius,
   darkMode,
@@ -16,6 +17,7 @@ export const PieDemo: React.FC<{
   closePath,
   showStrokeInsteadPreviewOnly,
   counterClockwise,
+  rotation,
 }) => {
   return (
     <AbsoluteFill
@@ -38,6 +40,7 @@ export const PieDemo: React.FC<{
         stroke={darkMode ? "white" : "var(--ifm-link-color)"}
         strokeWidth={showStrokeInsteadPreviewOnly ? 5 : 0}
         counterClockwise={counterClockwise}
+        rotation={rotation}
       />
     </AbsoluteFill>
   );

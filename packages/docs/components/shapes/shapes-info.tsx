@@ -65,14 +65,28 @@ export const shapeComponents: ShapeComponent[] = [
       {
         name: "progress",
         type: "number",
-        description:
-          "The percentage of the circle that is filled. 0 means fully empty, 1 means fully filled.",
+        description: (
+          <>
+            The percentage of the circle that is filled. <code>0</code> means
+            fully empty, <code>1</code> means fully filled.
+          </>
+        ),
       },
       {
         name: "counterClockwise",
         type: "boolean",
         description:
           "If set, the circle gets filled counterclockwise instead of clockwise. Default false.",
+      },
+      {
+        name: "rotation",
+        type: "boolean",
+        description: (
+          <>
+            Add rotation to the path. <code>0</code> means no rotation,{" "}
+            <code>Math.PI * 2</code> means 1 full clockwise rotation{" "}
+          </>
+        ),
       },
     ],
   },
