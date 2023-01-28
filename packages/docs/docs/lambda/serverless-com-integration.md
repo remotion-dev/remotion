@@ -254,7 +254,7 @@ Each of the function is assigned with a role named `remotionLambdaServerlessRole
 
 This steps creates a role named `remotionLambdaServerlessRole` with permissions from `remotion-executionrole-policy` and `AWSLambdaBasicExecutionRole` which allows the lambda function to create Cloudwatch logs. The role is referenced by the two functions in the [serverless.yml](https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/serverless.yml#L78) file, which enables the two Lambda functions to render video and check the progress of the render.
 
-#### 5. Login in to serverless
+#### 5. Login into serverless
 From the `serverless-app` directory, execute the `serverless` command.
 ```bash
  serverless login
@@ -346,7 +346,7 @@ curl --location --request POST 'https://xxxxxxxx.execute-api.ap-southeast-2.amaz
 ```
 This will initiate the render of the video and provide output with the `renderId` and `bucketName`. The code for the Lambda function is located [here](https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/render_handler.ts).
 
-#### 2. Get the progress of the video
+#### 2. Get the progress of the render
 
 ```bash title="progress"
 curl --location --request GET 'https://xxxxxxxx.execute-api.ap-southeast-2.amazonaws.com/dev/render/i9xnfrgXXXX?bucketName=remotionlambda-apsoutheast2-xxxxxxxx' \
