@@ -14,8 +14,7 @@ export const CircleDemo: React.FC<{
       }}
     >
       <Circle
-        strokeWidth={5}
-        stroke={darkMode ? "white" : "var(--ifm-link-color)"}
+        fill={darkMode ? "white" : "var(--ifm-link-color)"}
         radius={radius}
       />
     </AbsoluteFill>
