@@ -1,14 +1,14 @@
 ---
-image: /generated/articles-docs-lambda-serverless-com-integration.png
-title: Serverless and Remotion integration with AWS
-slug: /lambda/serverless-com-integration
+image: /generated/articles-docs-lambda-serverless-framework-integration.png
+title: Serverless Framework and Remotion integration with AWS
+slug: /lambda/serverless-framework-integration
 crumb: "Serverless"
 ---
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-This guide will show you how to use Remotion with [Serverless](https://www.serverless.com/). To supplement this guide, two projects have been created. The [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app) contains a remotion composition and utility scripts for deploying and deleting Remotion Lambda in AWS. The [serverless-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/serverless-app) contains a Serverless project that deploys two Lambda functions. The [render_handler](https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/render_handler.ts) function, when invoked, will call the deployed Remotion Lambda function to render a video. The [progress_handler]([https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/progress_handler.ts]) function tracks the progress of the render. Both functions are configured to be invoked through [API Gateway](https://aws.amazon.com/api-gateway/) and are secured by [Cognito](https://aws.amazon.com/cognito/). The API Gateway and Cognito setup are automatically created by the Serverless deployment script upon execution of `serverless deploy`.
-This assumes that you have knowledge in using [Serverless](https://www.serverless.com/) and understanding the syntax of [serverless.yml](https://www.serverless.com/framework/docs/providers/aws/guide/serverless.yml).
+This guide will show you how to use Remotion with [Serverless Framework](https://www.serverless.com/). To supplement this guide, two projects have been created. The [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app) contains a remotion composition and utility scripts for deploying and deleting Remotion Lambda in AWS. The [serverless-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/serverless-app) contains a Serverless project that deploys two Lambda functions. The [render_handler](https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/render_handler.ts) function, when invoked, will call the deployed Remotion Lambda function to render a video. The [progress_handler]([https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/progress_handler.ts]) function tracks the progress of the render. Both functions are configured to be invoked through [API Gateway](https://aws.amazon.com/api-gateway/) and are secured by [Cognito](https://aws.amazon.com/cognito/). The API Gateway and Cognito setup are automatically created by the Serverless deployment script upon execution of `serverless deploy`.
+This assumes that you have knowledge in using [Serverless Framework](https://www.serverless.com/) and understanding the syntax of [serverless.yml](https://www.serverless.com/framework/docs/providers/aws/guide/serverless.yml).
 
 ## remotion-app
 
@@ -16,7 +16,6 @@ This contains instructions for setting up and installing the `remotion` Lambda t
 
 ### Prequisites
 - Make sure that your local AWS profile is able to deploy to AWS, or follow this [guide](/docs/lambda/setup) to set up a user for your local machine.
-
 ### Setup
 
 #### 1. Clone or download the project
@@ -121,7 +120,7 @@ pnpm run deploy-fn
   <TabItem value="yarn">
 
 ```bash
-yarnrun deploy-fn
+yarn run deploy-fn
 ```
 
   </TabItem>
@@ -248,7 +247,7 @@ Each of the function is assigned with a role named `remotionLambdaServerlessRole
  - Click "Create role".
  - Under "Use cases", select "Lambda". Click next.
  - Under "Permissions policies", filter for `remotion-executionrole-policy` and click the checkbox to assign this policy. This `policy` should have been created, if not, follow this [guide](/docs/lambda/without-iam/#1-create-role-policy) in setting this up.
- - Additionally, still in "Permission policies" clear the filter and filter again for `AWSLambdaBasicExecutionRole`. Click next.
+ - Additionally, still in "Permission policies" clear the filter and filter again for `AWSLambdaBasicExecutionRole`. Click the checkbox and click next.
  - In the final step, name the role `remotionLambdaServerlessRole` exactly. You can leave the other fields as is.
  - Click "Create role" to confirm.
 
@@ -373,5 +372,5 @@ This API will provide the progress details of the render, indicating whether it 
 ## See also
 - [Using Lambda without IAM user](/docs/lambda/without-iam)
 - [Permissions](/docs/lambda/permissions)
-- [Serverless](https://www.serverless.com/framework/docs/getting-started)
+- [Serverless Framework](https://www.serverless.com/framework/docs/getting-started)
 - Some codes are borrowed from [github-unwrapped-2021](https://github.com/remotion-dev/github-unwrapped-2021/tree/main/src)
