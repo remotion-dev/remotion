@@ -7,6 +7,11 @@ export type MakePieProps = {
 };
 
 export const makePie = ({fillAmount, radius}: MakePieProps) => {
+	const endAngleX =
+		Math.cos(-fillAmount * Math.PI * 2 + Math.PI) * radius + radius;
+	const endAngleY =
+		Math.sin(-fillAmount * Math.PI * 2 + Math.PI) * radius + radius;
+
 	const instructions: Instruction[] = [
 		{
 			type: 'M',
@@ -14,25 +19,32 @@ export const makePie = ({fillAmount, radius}: MakePieProps) => {
 			y: radius,
 		},
 		{
-			type: 'a',
+			type: 'A',
 			rx: radius,
 			ry: radius,
 			xAxisRotation: 0,
-			largeArcFlag: true,
+			largeArcFlag: false,
 			sweepFlag: false,
-			x: radius * 2,
-			y: 0,
+			x: fillAmount <= 0.5 ? endAngleX : radius * 2,
+			y: fillAmount <= 0.5 ? endAngleY : radius,
 		},
 		fillAmount > 0.5
 			? {
-					type: 'a',
+					type: 'A',
 					rx: radius,
 					ry: radius,
 					xAxisRotation: 0,
-					largeArcFlag: true,
+					largeArcFlag: false,
 					sweepFlag: false,
-					x: -radius * 2,
-					y: 0,
+					x: endAngleX,
+					y: endAngleY,
+			  }
+			: null,
+		fillAmount > 0 && fillAmount < 1
+			? {
+					type: 'L',
+					x: radius,
+					y: radius,
 			  }
 			: null,
 		{
