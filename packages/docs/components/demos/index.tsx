@@ -9,6 +9,7 @@ import {
   circleDemo,
   ellipseDemo,
   noiseDemo,
+  pieDemo,
   rectDemo,
   starDemo,
   triangleDemo,
@@ -29,6 +30,7 @@ const demos: DemoType[] = [
   circleDemo,
   ellipseDemo,
   starDemo,
+  pieDemo,
 ];
 
 export const Demo: React.FC<{
