@@ -798,6 +798,13 @@ export const articles = [
     crumb: "Lambda",
   },
   {
+    id: "serverless-com-integration",
+    title: "Serverless.com integration",
+    relativePath: "docs/lambda/serverless-com/index.md",
+    compId: "articles-docs-lambda-serverless-com-index",
+    crumb: "Serverless",
+  },
+  {
     id: "setup",
     title: "Setup",
     relativePath: "docs/lambda/setup.md",
