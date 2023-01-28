@@ -68,6 +68,12 @@ export const shapeComponents: ShapeComponent[] = [
         description:
           "The percentage of the circle that is filled. 0 means fully empty, 1 means fully filled.",
       },
+      {
+        name: "counterClockwise",
+        type: "boolean",
+        description:
+          "If set, the circle gets filled counterclockwise instead of clockwise. Default false.",
+      },
     ],
   },
   {
