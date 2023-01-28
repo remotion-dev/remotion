@@ -193,6 +193,18 @@ export const pieDemo: DemoType = {
       name: "fillAmount",
       optional: "no",
     },
+    {
+      default: true,
+      type: "boolean",
+      name: "closePath",
+      optional: "no",
+    },
+    {
+      default: false,
+      type: "boolean",
+      name: "stroke",
+      optional: "no",
+    },
   ],
 };
 

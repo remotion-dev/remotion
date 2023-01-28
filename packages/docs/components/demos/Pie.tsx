@@ -6,7 +6,9 @@ export const PieDemo: React.FC<{
   radius: number;
   darkMode: boolean;
   fillAmount: number;
-}> = ({ radius, darkMode, fillAmount }) => {
+  closePath: boolean;
+  stroke: boolean;
+}> = ({ radius, darkMode, fillAmount, closePath, stroke }) => {
   return (
     <AbsoluteFill
       style={{
@@ -16,8 +18,13 @@ export const PieDemo: React.FC<{
     >
       <Pie
         fillAmount={fillAmount}
-        fill={darkMode ? "white" : "var(--ifm-link-color)"}
+        fill={
+          stroke ? "transparent" : darkMode ? "white" : "var(--ifm-link-color)"
+        }
         radius={radius}
+        closePath={closePath}
+        stroke={darkMode ? "white" : "var(--ifm-link-color)"}
+        strokeWidth={stroke ? 5 : 0}
       />
     </AbsoluteFill>
   );
