@@ -798,10 +798,10 @@ export const articles = [
     crumb: "Lambda",
   },
   {
-    id: "lambda/serverless-com-integration",
-    title: "Serverless and Remotion integration with AWS",
-    relativePath: "docs/lambda/serverless-com-integration.md",
-    compId: "articles-docs-lambda-serverless-com-integration",
+    id: "lambda/serverless-framework-integration",
+    title: "Serverless Framework and Remotion integration with AWS",
+    relativePath: "docs/lambda/serverless-framework-integration.md",
+    compId: "articles-docs-lambda-serverless-framework-integration",
     crumb: "Serverless",
   },
   {
