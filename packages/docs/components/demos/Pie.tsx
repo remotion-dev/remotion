@@ -8,12 +8,14 @@ export const PieDemo: React.FC<{
   progress: number;
   closePath: boolean;
   showStrokeInsteadPreviewOnly: boolean;
+  counterClockwise: boolean;
 }> = ({
   radius,
   darkMode,
   progress,
   closePath,
   showStrokeInsteadPreviewOnly,
+  counterClockwise,
 }) => {
   return (
     <AbsoluteFill
@@ -35,6 +37,7 @@ export const PieDemo: React.FC<{
         closePath={closePath}
         stroke={darkMode ? "white" : "var(--ifm-link-color)"}
         strokeWidth={showStrokeInsteadPreviewOnly ? 5 : 0}
+        counterClockwise={counterClockwise}
       />
     </AbsoluteFill>
   );

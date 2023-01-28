@@ -202,6 +202,12 @@ export const pieDemo: DemoType = {
     {
       default: false,
       type: "boolean",
+      name: "counterClockwise",
+      optional: "no",
+    },
+    {
+      default: false,
+      type: "boolean",
       name: "showStrokeInsteadPreviewOnly",
       optional: "no",
     },
