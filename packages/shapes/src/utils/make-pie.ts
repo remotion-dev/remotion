@@ -3,21 +3,17 @@ import {serializeInstructions} from './instructions';
 
 export type MakePieProps = {
 	radius: number;
-	fillAmount: number;
+	progress: number;
 	closePath?: boolean;
 };
 
-export const makePie = ({
-	fillAmount,
-	radius,
-	closePath = true,
-}: MakePieProps) => {
-	const actualFillAmount = Math.min(Math.max(fillAmount, 0), 1);
+export const makePie = ({progress, radius, closePath = true}: MakePieProps) => {
+	const actualProgress = Math.min(Math.max(progress, 0), 1);
 
 	const endAngleX =
-		Math.cos(actualFillAmount * Math.PI * 2 + Math.PI * 1.5) * radius + radius;
+		Math.cos(actualProgress * Math.PI * 2 + Math.PI * 1.5) * radius + radius;
 	const endAngleY =
-		Math.sin(actualFillAmount * Math.PI * 2 + Math.PI * 1.5) * radius + radius;
+		Math.sin(actualProgress * Math.PI * 2 + Math.PI * 1.5) * radius + radius;
 
 	const start = {x: radius, y: 0};
 	const end = {x: endAngleX, y: endAngleY};
@@ -34,10 +30,10 @@ export const makePie = ({
 			xAxisRotation: 0,
 			largeArcFlag: false,
 			sweepFlag: true,
-			x: actualFillAmount <= 0.5 ? endAngleX : radius,
-			y: actualFillAmount <= 0.5 ? endAngleY : radius * 2,
+			x: actualProgress <= 0.5 ? endAngleX : radius,
+			y: actualProgress <= 0.5 ? endAngleY : radius * 2,
 		},
-		actualFillAmount > 0.5
+		actualProgress > 0.5
 			? {
 					type: 'A',
 					rx: radius,
@@ -48,7 +44,7 @@ export const makePie = ({
 					...end,
 			  }
 			: null,
-		actualFillAmount > 0 && actualFillAmount < 1 && closePath
+		actualProgress > 0 && actualProgress < 1 && closePath
 			? {
 					type: 'L',
 					x: radius,

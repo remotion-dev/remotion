@@ -8,9 +8,9 @@ export type PieProps = MakePieProps & AllShapesProps;
 
 export const Pie: React.FC<PieProps> = ({
 	radius,
-	fillAmount,
+	progress,
 	closePath,
 	...props
 }) => {
-	return <RenderSvg {...makePie({radius, fillAmount, closePath})} {...props} />;
+	return <RenderSvg {...makePie({radius, progress, closePath})} {...props} />;
 };

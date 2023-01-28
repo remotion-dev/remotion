@@ -63,7 +63,7 @@ export const shapeComponents: ShapeComponent[] = [
         description: "The radius of the circle.",
       },
       {
-        name: "fillAmount",
+        name: "progress",
         type: "number",
         description:
           "The percentage of the circle that is filled. 0 means fully empty, 1 means fully filled.",
