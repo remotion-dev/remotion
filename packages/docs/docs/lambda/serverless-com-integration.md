@@ -8,7 +8,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 This guide will show you how to use Remotion with [Serverless](https://www.serverless.com/). To supplement this guide, two projects have been created. The [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app) contains a remotion composition and utility scripts for deploying and deleting Remotion Lambda in AWS. The [serverless-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/serverless-app) contains a Serverless project that deploys two Lambda functions. The [render_handler](https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/render_handler.ts) function, when invoked, will call the deployed Remotion Lambda function to render a video. The [progress_handler]([https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/progress_handler.ts]) function tracks the progress of the render. Both functions are configured to be invoked through [API Gateway](https://aws.amazon.com/api-gateway/) and are secured by [Cognito](https://aws.amazon.com/cognito/). The API Gateway and Cognito setup are automatically created by the Serverless deployment script upon execution of `serverless deploy`.
-
+This assumes that you have knowledge in using [Serverless](https://www.serverless.com/) and understanding the syntax of [serverless.yml](https://www.serverless.com/framework/docs/providers/aws/guide/serverless.yml).
 
 ## remotion-app
 
@@ -174,7 +174,7 @@ This contains instructions for setting up and installing Lambda services [render
 
 
 ### Context
-This application has been created by an application example from [serverless examples repo](https://github.com/serverless/examples/tree/v3/aws-node-http-api-typescript) and bootstrapped using this command.
+This application has been created by an application example from [serverless examples repo](https://github.com/serverless/examples/tree/v3/aws-node-http-api-typescript) and bootstrapped the application using this command.
 
 ```bash title="serverless"
 serverless --template-url=https://github.com/serverless/examples/tree/v3/aws-node-http-api-typescript
@@ -186,10 +186,13 @@ npm update
 ```
 
 ### Prerequisites
+
 - AWS deployment profile on your local machine, to configure an AWS deployment profile on your local machine, follow the guide provided by the [serverless website](https://www.serverless.com/framework/docs/providers/aws/guide/credentials).
 - To install Serverless, follow this [guide](https://www.serverless.com/framework/docs/getting-started).  
 - Register for an [serverless account](https://app.serverless.com/), this give you a dashboard that has features such as function lambda invocations.
 - Create an [organization](https://www.serverless.com/console/docs/product/create-org) on your serverless account to associate your `lambda` applications.
+- A AWS policy created named `remotion-executionrole-policy` which is created from this [guide](/docs/lambda/without-iam/#1-create-role-policy).
+
 
 ### Setup
 
@@ -311,12 +314,22 @@ app: aws-remotion-serverless
 service: api-render-video
 ....
 ```
+
+#### 8. Remove the serverless project from your AWS account, if not needed anymore
+From the `serverless-app` directory.
+```bash
+ serverless remove
+```
+
+
 ### Interacting with the API
 The API requires an authorization token to interact with it. To obtain the token, first go to the serverless dashboard to retrieve outputs such as `UserPoolRegion`, `UserPoolId`, and `UserPoolClientId`, which are used to authenticate with Cognito. If you do not have a frontend application, you can create a user and an authentication token manually for the API by following this [guide](docs/lambda/without-iam/example#test-your-endpoint).
 
 <img src="/img/serverless-com-integration-serverlesss-output.png" /> <br/><br/>
 
 From the guide, `YOUR_USER_POOL_CLIENT_ID` is `UserpoolClientId`  and `YOUR_USER_POOL_ID` is the `UserPoolId`, the steps should be followed up to retrieving the `IdToken`.
+
+The base API URL is `https://25w651t09g.execute-api.ap-southeast-2.amazonaws.com/dev/render` from the dashboard output `APIGatewayUrl`.
 
 #### 1. Render a video
 ```bash title="render video"
@@ -360,4 +373,5 @@ This API will provide the progress details of the render, indicating whether it 
 ## See also
 - [Using Lambda without IAM user](/docs/lambda/without-iam)
 - [Permissions](/docs/lambda/permissions)
+- [Serverless](https://www.serverless.com/framework/docs/getting-started)
 - Some codes are borrowed from [github-unwrapped-2021](https://github.com/remotion-dev/github-unwrapped-2021/tree/main/src)
