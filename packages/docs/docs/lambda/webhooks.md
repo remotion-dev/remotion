@@ -248,7 +248,7 @@ export default async function handler(
   });
 
   // If code reaches this path, the webhook is authentic.
-  const payload = JSON.parse(req.body) as WebhookPayload;
+  const payload = req.body as WebhookPayload;
   if (payload.type === "success") {
     // ...
   } else if (payload.type === "timeout") {
