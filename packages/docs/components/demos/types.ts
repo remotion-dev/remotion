@@ -1,6 +1,7 @@
 import { CircleDemo } from "./Circle";
 import { EllipseDemo } from "./Ellipse";
 import { NoiseComp } from "./NoiseDemo";
+import { PieDemo } from "./Pie";
 import { RectDemo } from "./Rect";
 import { StarDemo } from "./Star";
 import { TriangleDemo } from "./Triangle";
@@ -151,7 +152,7 @@ export const circleDemo: DemoType = {
   durationInFrames: 150,
   fps: 30,
   id: "circle",
-  autoPlay: true,
+  autoPlay: false,
   options: [
     {
       default: 200,
@@ -165,6 +166,63 @@ export const circleDemo: DemoType = {
   ],
 };
 
+export const pieDemo: DemoType = {
+  comp: PieDemo,
+  compHeight: 720,
+  compWidth: 1280,
+  durationInFrames: 150,
+  fps: 30,
+  id: "pie",
+  autoPlay: false,
+  options: [
+    {
+      default: 200,
+      max: 1000,
+      step: 5,
+      min: 1,
+      type: "numeric",
+      name: "radius",
+      optional: "no",
+    },
+    {
+      default: 0.5,
+      step: 0.01,
+      min: 0,
+      max: 1,
+      type: "numeric",
+      name: "progress",
+      optional: "no",
+    },
+    {
+      default: 0,
+      step: 0.01,
+      min: -3.14 * 2,
+      max: 3.14 * 2,
+      type: "numeric",
+      name: "rotation",
+      optional: "no",
+    },
+    {
+      default: true,
+      type: "boolean",
+      name: "closePath",
+      optional: "no",
+    },
+    {
+      default: false,
+      type: "boolean",
+      name: "counterClockwise",
+      optional: "no",
+    },
+    {
+      default: false,
+      type: "boolean",
+      name: "showStrokeInsteadPreviewOnly",
+      optional: "no",
+    },
+  ],
+};
+
 export const ellipseDemo: DemoType = {
   comp: EllipseDemo,
   compHeight: 720,
@@ -172,7 +230,7 @@ export const ellipseDemo: DemoType = {
   durationInFrames: 150,
   fps: 30,
   id: "ellipse",
-  autoPlay: true,
+  autoPlay: false,
   options: [
     {
       default: 150,
@@ -202,7 +260,7 @@ export const starDemo: DemoType = {
   durationInFrames: 150,
   fps: 30,
   id: "star",
-  autoPlay: true,
+  autoPlay: false,
   options: [
     {
       default: 100,
