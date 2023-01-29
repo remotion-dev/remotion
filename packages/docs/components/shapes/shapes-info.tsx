@@ -79,6 +79,16 @@ export const shapeComponents: ShapeComponent[] = [
           "If set, the circle gets filled counterclockwise instead of clockwise. Default false.",
       },
       {
+        name: "closePath",
+        type: "boolean",
+        description: (
+          <>
+            If set to <code>false</code>, no path to the middle of the circle
+            will be drawn, leading to an open arc. Default <code>true</code>.
+          </>
+        ),
+      },
+      {
         name: "rotation",
         type: "boolean",
         description: (
