@@ -211,7 +211,7 @@ type NextApiRequest = {
   method: string;
 };
 type NextApiResponse = {
-  status: (code: number) => { json: (body: object) => void };
+  status: (code: number) => { json: (body: object) => void; end: () => void };
   setHeader: (key: string, value: string) => void;
   end: () => void;
 };
