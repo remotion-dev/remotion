@@ -38,6 +38,7 @@ export const upgrade = async (
 
 	const packageJson = require(packageJsonFilePath);
 	const dependencies = Object.keys(packageJson.dependencies);
+	const devDependencies = Object.keys(packageJson.devDependencies ?? {});
 	const latestRemotionVersion = await getLatestRemotionVersion();
 	Log.info('Newest Remotion version is', latestRemotionVersion);
 
@@ -51,8 +52,8 @@ export const upgrade = async (
 		);
 	}
 
-	const toUpgrade = listOfRemotionPackages.filter((u) =>
-		dependencies.includes(u)
+	const toUpgrade = listOfRemotionPackages.filter(
+		(u) => dependencies.includes(u) || devDependencies.includes(u)
 	);
 
 	const prom = RenderInternals.execa(
