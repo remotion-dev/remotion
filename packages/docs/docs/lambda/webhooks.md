@@ -208,9 +208,12 @@ Since this endpoint is going to be executed in an AWS Lambda function on it's ow
 type NextApiRequest = {
   body: string;
   headers: Record<string, string>;
+  method: string;
 };
 type NextApiResponse = {
   status: (code: number) => { json: (body: object) => void };
+  setHeader: (key: string, value: string) => void;
+  end: () => void;
 };
 // ---cut---
 import {
