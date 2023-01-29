@@ -210,6 +210,7 @@ export default async function handler(
 ) {
   if (enableTesting) {
     res.setHeader("Access-Control-Allow-Origin", "https://www.remotion.dev");
+    res.setHeader("Access-Control-Allow-Methods", "OPTIONS,POST");
     res.setHeader(
       "Access-Control-Allow-Headers",
       "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode"
@@ -248,9 +249,10 @@ You can use this tool to verify that your webhook endpoint is working properly. 
 This tool sends the demo webhook requests directly from your browser, which has the following implications:
 
 - **CORS requirements**:
-  - Make sure your API endpoint is configured to accept requests from `remotion.dev` by setting `"Access-Control-Allow-Origin": "true"`. This is necessary for this tool to work, but **not** for your production webhook endpoint.
+  - Make sure your API endpoint is configured to accept requests from `remotion.dev` by setting `"Access-Control-Allow-Origin": "https://www.remotion.dev"`. This is necessary for this tool to work, but **not** for your production webhook endpoint.
   - You must set `"Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode"`
   - You must set `"Access-Control-Allow-Methods": "OPTIONS,POST"`.
+  - Read the error messages in the DevTools to debug potential CORS issues.
 - You can use a server listening on `localhost` and don't need to use a reverse proxy.
 
 :::info
