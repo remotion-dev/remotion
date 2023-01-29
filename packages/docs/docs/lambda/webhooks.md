@@ -206,7 +206,7 @@ Since this endpoint is going to be executed in an AWS Lambda function on it's ow
 
 ```tsx twoslash title="pages/api/webhook.ts"
 type NextApiRequest = {
-  body: string;
+  body: object;
   headers: Record<string, string>;
   method: string;
 };
