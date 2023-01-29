@@ -24,13 +24,15 @@ const getCoord = ({
 }): number => {
 	const factor = counterClockwise ? -1 : 1;
 
-	return (
+	const val =
 		Math[coord === 'x' ? 'cos' : 'sin'](
 			factor * actualProgress * Math.PI * 2 + Math.PI * 1.5 + rotation
 		) *
 			radius +
-		radius
-	);
+		radius;
+
+	const rounded = Math.round(val * 100000) / 100000;
+	return rounded;
 };
 
 export const makePie = ({
