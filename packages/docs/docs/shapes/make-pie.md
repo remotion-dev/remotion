@@ -15,15 +15,14 @@ Generates a piece of pie SVG path.
 import { makePie } from "@remotion/shapes";
 
 const { path, width, height, transformOrigin } = makePie({
-  radius: 50,
+  radius: 100,
   progress: 0.5,
 });
 
-// TOOD: Wrong paths
-console.log(path); // M 0 0 m -50, 0 a 50,50 0 1,0 100,0  50,50 0 1,0 -100,0
-console.log(width); // 100
-console.log(height); // 100
-console.log(transformOrigin); // '50 50'
+console.log(path); // M 100 0 A 100 100 0 0 1 100 200 L 100 100 z
+console.log(width); // 200
+console.log(height); // 200
+console.log(transformOrigin); // '100 100'
 ```
 
 ## Arguments
