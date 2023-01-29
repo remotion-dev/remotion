@@ -10,13 +10,8 @@ export const makeCircle = ({radius}: MakeCircleProps): ShapeInfo => {
 	const instructions: Instruction[] = [
 		{
 			type: 'M',
-			x: radius,
+			x: 0,
 			y: radius,
-		},
-		{
-			type: 'm',
-			x: -radius,
-			y: 0,
 		},
 		{
 			type: 'a',

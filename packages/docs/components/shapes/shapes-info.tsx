@@ -1,6 +1,7 @@
 import {
   makeCircle,
   makeEllipse,
+  makePie,
   makeRect,
   makeStar,
   makeTriangle,
@@ -49,6 +50,53 @@ export const shapeComponents: ShapeComponent[] = [
         name: "radius",
         type: "number",
         description: "The radius of the circle.",
+      },
+    ],
+  },
+  {
+    shape: "Pie",
+    fn: makePie,
+    params: [
+      {
+        name: "radius",
+        type: "number",
+        description: "The radius of the circle.",
+      },
+      {
+        name: "progress",
+        type: "number",
+        description: (
+          <>
+            The percentage of the circle that is filled. <code>0</code> means
+            fully empty, <code>1</code> means fully filled.
+          </>
+        ),
+      },
+      {
+        name: "counterClockwise",
+        type: "boolean",
+        description:
+          "If set, the circle gets filled counterclockwise instead of clockwise. Default false.",
+      },
+      {
+        name: "closePath",
+        type: "boolean",
+        description: (
+          <>
+            If set to <code>false</code>, no path to the middle of the circle
+            will be drawn, leading to an open arc. Default <code>true</code>.
+          </>
+        ),
+      },
+      {
+        name: "rotation",
+        type: "boolean",
+        description: (
+          <>
+            Add rotation to the path. <code>0</code> means no rotation,{" "}
+            <code>Math.PI * 2</code> means 1 full clockwise rotation{" "}
+          </>
+        ),
       },
     ],
   },
