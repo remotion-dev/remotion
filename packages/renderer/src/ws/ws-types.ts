@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-// @ts-expect-error
 import NodeWebSocket from 'ws';
 
 export declare class WS {
