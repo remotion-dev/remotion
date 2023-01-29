@@ -199,11 +199,27 @@ import {
   validateWebhookSignature,
   WebhookPayload,
 } from "@remotion/lambda/client";
+import { NextApiRequest, NextApiResponse } from "next";
+
+// Enable testing through the tool below
+const enableTesting = true;
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  if (enableTesting) {
+    res.setHeader("Access-Control-Allow-Origin", "https://www.remotion.dev");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode"
+    );
+  }
+  if (req.method === "OPTIONS") {
+    res.status(200).end();
+    return;
+  }
+
   validateWebhookSignature({
     secret: process.env.WEBHOOK_SECRET as string,
     body: req.body,
