@@ -217,7 +217,6 @@ import {
   validateWebhookSignature,
   WebhookPayload,
 } from "@remotion/lambda/client";
-import { NextApiRequest, NextApiResponse } from "next";
 
 // Enable testing through the tool below
 const ENABLE_TESTING = true;
