@@ -799,10 +799,10 @@ export const articles = [
   },
   {
     id: "lambda/serverless-framework-integration",
-    title: "Serverless Framework and Remotion integration with AWS",
+    title: "Using the Serverless Framework with Remotion Lambda",
     relativePath: "docs/lambda/serverless-framework-integration.md",
     compId: "articles-docs-lambda-serverless-framework-integration",
-    crumb: "Serverless",
+    crumb: "@remotion/lambda",
   },
   {
     id: "setup",
@@ -1584,6 +1584,13 @@ export const articles = [
     crumb: "@remotion/shapes",
   },
   {
+    id: "shapes/make-pie",
+    title: "makePie()",
+    relativePath: "docs/shapes/make-pie.md",
+    compId: "articles-docs-shapes-make-pie",
+    crumb: "@remotion/shapes",
+  },
+  {
     id: "shapes/make-rect",
     title: "makeRect()",
     relativePath: "docs/shapes/make-rect.md",
@@ -1602,6 +1609,13 @@ export const articles = [
     title: "makeTriangle()",
     relativePath: "docs/shapes/make-triangle.md",
     compId: "articles-docs-shapes-make-triangle",
+    crumb: "@remotion/shapes",
+  },
+  {
+    id: "shapes/pie",
+    title: "<Pie />",
+    relativePath: "docs/shapes/pie.md",
+    compId: "articles-docs-shapes-pie",
     crumb: "@remotion/shapes",
   },
   {
