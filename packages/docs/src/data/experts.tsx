@@ -244,8 +244,7 @@ export const experts: Expert[] = [
           Romrif.com
         </a>
         ! <br />
-        I am an experienced integration developer using Mulesoft, a backend
-        developer and on the side frontend and animation enthusiast.
+        I build Websites & Videos with Remotion. I&apos;m alway interested in the latest Tech and love building stuff. Feel free to contact me - I&apos;m available for hire.
       </div>
     ),
   },
