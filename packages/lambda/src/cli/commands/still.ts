@@ -7,7 +7,6 @@ import {
 	DEFAULT_MAX_RETRIES,
 	DEFAULT_OUTPUT_PRIVACY,
 } from '../../shared/constants';
-import {convertToServeUrl} from '../../shared/convert-to-serve-url';
 import {validatePrivacy} from '../../shared/validate-privacy';
 import {validateMaxRetries} from '../../shared/validate-retries';
 import {validateServeUrl} from '../../shared/validate-serveurl';
@@ -19,7 +18,7 @@ import {Log} from '../log';
 
 export const STILL_COMMAND = 'still';
 
-export const stillCommand = async (args: string[]) => {
+export const stillCommand = async (args: string[], remotionRoot: string) => {
 	const serveUrl = args[0];
 
 	if (!serveUrl) {
@@ -37,15 +36,12 @@ export const stillCommand = async (args: string[]) => {
 	const region = getAwsRegion();
 	let composition = args[1];
 	if (!composition) {
-		if (!composition) {
-			Log.info('No compositions passed. Fetching compositions...');
+		Log.info('No compositions passed. Fetching compositions...');
 
-			validateServeUrl(serveUrl);
-			const realServeUrl = await convertToServeUrl(serveUrl, region);
-			const comps = await getCompositions(realServeUrl);
-			const {compositionId} = await CliInternals.selectComposition(comps);
-			composition = compositionId;
-		}
+		validateServeUrl(serveUrl);
+		const comps = await getCompositions(serveUrl);
+		const {compositionId} = await CliInternals.selectComposition(comps);
+		composition = compositionId;
 	}
 
 	const downloadName = args[2] ?? null;
@@ -65,6 +61,7 @@ export const stillCommand = async (args: string[]) => {
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
+		remotionRoot,
 	});
 
 	const functionName = await findFunctionName();

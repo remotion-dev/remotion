@@ -1,8 +1,10 @@
 ---
+image: /generated/articles-docs-lambda-cli-sites.png
 id: sites
 sidebar_label: sites
 title: "npx remotion lambda sites"
 slug: /lambda/cli/sites
+crumb: "Lambda CLI Reference"
 ---
 
 The `npx remotion lambda sites` command allows to create, view and delete Remotion projects in your S3 bucket.
@@ -15,12 +17,16 @@ The `npx remotion lambda sites` command allows to create, view and delete Remoti
 ## create
 
 ```
-npx remotion lambda sites create src/index.tsx
+npx remotion lambda sites create src/index.ts
 ```
 
 Bundle and upload a Remotion video to an S3 bucket.
 
 The result will be a URL such as `https://remotionlambda-12345.s3.eu-central-1.amazonaws.com/sites/abcdef/index.html`.
+
+:::note
+If you make changes locally, you need to redeploy the site. Use [`--site-name`](#--site-name) to overwrite an existing site.
+:::
 
 You can use this "Serve URL" to render a video on Remotion Lambda using:
 
@@ -55,7 +61,7 @@ The [AWS region](/docs/lambda/region-selection) to select. Both project and func
 Uploads the project to a specific directory and returns a deterministic URL. If a site already existed under this name, it will be overwritten. Can only contain the following characters: `0-9`, `a-z`, `A-Z`, `-`, `!`, `_`, `.`, `*`, `'`, `(`, `)`
 
 ```
-npx remotion lambda sites create src/index.tsx --site-name=my-project
+npx remotion lambda sites create src/index.ts --site-name=my-project
 ```
 
 <details>

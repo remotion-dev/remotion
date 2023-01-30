@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-render.png
 id: render
 title: Render your video
+crumb: "How To"
 ---
 
 Now here comes the magic! Turn your creation into an MP4.
@@ -12,7 +14,7 @@ npm run build
 The underlying command in package.json is defined as follows:
 
 ```bash
-npx remotion render src/index.tsx HelloWorld out/video.mp4
+npx remotion render HelloWorld out/video.mp4
 ```
 
 Modify it to select a different video to render, or change its output location.
@@ -24,9 +26,9 @@ Learn about all the options on the [CLI reference page](/docs/cli).
 
 Remotion has a full-featured server-side rendering API. Read more about it on the [server-side rendering API](/docs/ssr).
 
-### Github Actions
+### GitHub Actions
 
-You can also render a [video using a Github Action.](/docs/ssr#render-using-github-actions)
+You can also render a [video using a GitHub Action.](/docs/ssr#render-using-github-actions)
 
 ### AWS Lambda
 

@@ -12,7 +12,7 @@ export const validateWebhookSignature = ({
 	signatureHeader,
 }: {
 	secret: string;
-	body: string;
+	body: unknown;
 	signatureHeader: string;
 }) => {
 	if (!secret) {

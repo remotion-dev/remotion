@@ -79,6 +79,7 @@ export const still = async (remotionRoot: string, args: string[]) => {
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'still',
+		remotionRoot,
 	});
 
 	Log.verbose('Browser executable: ', browserExecutable);
@@ -138,6 +139,7 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		compositionId,
 		defaultExtension: imageFormat,
 		args: argsAfterComposition,
+		type: 'asset',
 	});
 
 	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(
@@ -226,7 +228,7 @@ export const still = async (remotionRoot: string, args: string[]) => {
 	updateProgress();
 	Log.info();
 
-	const closeBrowserPromise = puppeteerInstance.close();
+	const closeBrowserPromise = puppeteerInstance.close(false);
 
 	Log.info(chalk.green('\nYour still frame is ready!'));
 

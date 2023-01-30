@@ -1,8 +1,10 @@
 ---
+image: /generated/articles-docs-lambda-cli-functions.png
 id: functions
 sidebar_label: functions
 title: "npx remotion lambda functions"
 slug: /lambda/cli/functions
+crumb: "Lambda CLI Reference"
 ---
 
 import {DefaultMemorySize} from '../../../components/lambda/default-memory-size';

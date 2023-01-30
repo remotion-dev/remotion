@@ -1,8 +1,10 @@
 ---
+image: /generated/articles-docs-lottie-lottie-lottiefiles.png
 id: lottie-lottiefiles
 sidebar_label: "Finding Lottie files"
 title: "Finding Lottie files to use"
 slug: lottiefiles
+crumb: "Resources"
 ---
 
 import {InlineStep} from '../../components/InlineStep';
@@ -22,9 +24,9 @@ If you find a file that you like, click on it, then click `Download` <InlineStep
 Copy the file into the Remotion project. The recommended way is to put the JSON inside the `public/` folder of Remotion (create it if necessary) and then load it using [`staticFile()`](/docs/staticfile):
 
 ```tsx twoslash title="Animation.tsx"
-import { continueRender, delayRender, staticFile } from "remotion";
-import { useEffect, useState } from "react";
 import { Lottie, LottieAnimationData } from "@remotion/lottie";
+import { useEffect, useState } from "react";
+import { continueRender, delayRender, staticFile } from "remotion";
 
 const Balloons = () => {
   const [handle] = useState(() => delayRender("Loading Lottie animation"));
@@ -54,4 +56,4 @@ const Balloons = () => {
 
 ## See also
 
-- [Importing from After Effects](/docs/lottie/after-effects)
+- [Import from After Effects](/docs/after-effects)

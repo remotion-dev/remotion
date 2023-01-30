@@ -1,14 +1,16 @@
 ---
+image: /generated/articles-docs-lambda-deploysite.png
 id: deploysite
 title: deploySite()
 slug: /lambda/deploysite
+crumb: "Lambda API"
 ---
 
 Takes a Remotion project, bundles it and uploads it to an S3 bucket. Once uploaded, a Lambda function can render any composition in the Remotion project by specifying the URL.
 
-Note that the Remotion project will be deployed to a subdirectory, not the root of the domain. Therefore you must ensure that if you have specified paths in your Remotion project, they are able to handle this scenario.
-
-Before calling this function, you should create a bucket, see [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket).
+- If you make changes locally, you need to redeploy the site. You can use [`siteName`](#sitename) to overwrite the previous site.
+- Note that the Remotion project will be deployed to a subdirectory, not the root of the domain. Therefore you must ensure that if you have specified paths in your Remotion project, they are able to handle this scenario.
+- Before calling this function, you should create a bucket, see [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket).
 
 ## Example
 
@@ -19,7 +21,7 @@ import { deploySite } from "@remotion/lambda";
 import path from "path";
 
 const { serveUrl } = await deploySite({
-  entryPoint: path.resolve(process.cwd(), "src/index.tsx"),
+  entryPoint: path.resolve(process.cwd(), "src/index.ts"),
   bucketName: "remotionlambda-c7fsl3d",
   region: "us-east-1",
   options: {
@@ -131,6 +133,12 @@ An object with the following values:
   If you are rendering on Lambda, you can also pass the site name (in this case `abcdef`) as an abbreviation.
 
 - `siteName` _(string)_: The identifier of the site that was given. Is either the site name that you have passed into this function, or a random string that was generated if you didn't pass a site name.
+
+- `stats`: (_available from v3.3.7_) An object with 3 entries: `uploadedFiles`, `deletedFiles` and `untouchedFiles`. Each one is a `number`.
+
+## Changelog
+
+From `v3.3.7`, this function is incremental: It only compares the contents of the local files and the files on S3 and only executes the necessary operations.
 
 ## See also
 

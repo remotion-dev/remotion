@@ -69,6 +69,7 @@ test('Should make a transparent video', async () => {
 			videoBitrate: null,
 			forceHeight: null,
 			forceWidth: null,
+			rendererFunctionName: null,
 		},
 		extraContext
 	);
@@ -101,7 +102,10 @@ test('Should make a transparent video', async () => {
 	await new Promise<void>((resolve) => {
 		file.on('close', () => resolve());
 	});
-	const probe = await RenderInternals.execa('ffprobe', [out]);
+	const probe = await RenderInternals.execa(
+		await RenderInternals.getExecutableBinary(null, process.cwd(), 'ffprobe'),
+		[out]
+	);
 	expect(probe.stderr).toMatch(/ALPHA_MODE(\s+): 1/);
 	expect(probe.stderr).toMatch(/Video: vp8, yuv420p/);
 	expect(probe.stderr).toMatch(/Audio: opus, 48000 Hz/);

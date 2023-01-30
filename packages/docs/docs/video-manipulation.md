@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-video-manipulation.png
 id: video-manipulation
 title: Video manipulation
+crumb: "How To"
 ---
 
 import { VideoCanvasExamples } from "../components/GreenscreenExamples/index";
@@ -19,10 +21,8 @@ In this example, a Video is rendered and made invisible. Then it is rendered ont
 <br/>
 
 ```tsx twoslash
-import { useVideoConfig, Video } from "remotion";
-import { useCallback, useEffect, useRef } from "react";
-import React from "react";
-import { AbsoluteFill } from "remotion";
+import React, { useCallback, useEffect, useRef } from "react";
+import { AbsoluteFill, useVideoConfig, Video } from "remotion";
 declare global {
   interface VideoFrameMetadata {
     presentationTime: DOMHighResTimeStamp;
@@ -133,10 +133,8 @@ declare global {
     cancelVideoFrameCallback(handle: VideoFrameRequestCallbackId): void;
   }
 }
-import { useVideoConfig, Video } from "remotion";
-import { useCallback, useEffect, useRef } from "react";
-import React from "react";
-import { AbsoluteFill } from "remotion";
+import React, { useCallback, useEffect, useRef } from "react";
+import { AbsoluteFill, useVideoConfig, Video } from "remotion";
 
 // ---cut---
 export const Greenscreen: React.FC<{

@@ -27,11 +27,14 @@ export type CommandLineOptions = {
 	['disable-web-security']: string;
 	['every-nth-frame']: number;
 	['number-of-gif-loops']: number;
+	['number-of-shared-audio-tags']: number;
 	codec: Codec;
 	concurrency: number;
 	timeout: number;
 	config: string;
 	['public-dir']: string;
+	['audio-bitrate']: string;
+	['video-bitrate']: string;
 	crf: number;
 	force: boolean;
 	overwrite: boolean;
@@ -52,9 +55,13 @@ export type CommandLineOptions = {
 	muted: boolean;
 	height: number;
 	width: number;
+	runs: number;
+	concurrencies: string;
 	['enforce-audio-track']: boolean;
 	gl: OpenGlRenderer;
 	['package-manager']: string;
+	['webpack-poll']: number;
+	['no-open']: boolean;
 };
 
 export const BooleanFlags = [
@@ -77,11 +84,15 @@ export const BooleanFlags = [
 	'ignore-certificate-errors',
 	'disable-headless',
 	'disable-keyboard-shortcuts',
+	'default-only',
+	'no-open',
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: BooleanFlags,
-});
+}) as CommandLineOptions & {
+	_: string[];
+};
 
 export const parseCommandLine = () => {
 	if (parsedCli['pixel-format']) {
@@ -228,6 +239,10 @@ export const parseCommandLine = () => {
 
 	if (typeof parsedCli['public-dir'] !== 'undefined') {
 		Config.Bundling.setPublicDir(parsedCli['public-dir']);
+	}
+
+	if (typeof parsedCli['webpack-poll'] !== 'undefined') {
+		Config.Preview.setWebpackPollingInMilliseconds(parsedCli['webpack-poll']);
 	}
 
 	if (typeof parsedCli['audio-bitrate'] !== 'undefined') {

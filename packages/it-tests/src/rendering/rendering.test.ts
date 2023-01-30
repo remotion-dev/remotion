@@ -12,7 +12,7 @@ beforeEach(() => {
   }
 });
 
-test("Should be able to render video", async () => {
+test("Should be able to render video with custom port", async () => {
   const task = execa(
     "pnpm",
     [
@@ -22,6 +22,7 @@ test("Should be able to render video", async () => {
       "ten-frame-tester",
       "--codec",
       "h264",
+      "--port=3536",
       outputPath,
     ],
     {
@@ -33,7 +34,10 @@ test("Should be able to render video", async () => {
   const exists = fs.existsSync(outputPath);
   expect(exists).toBe(true);
 
-  const info = await execa("ffprobe", [outputPath]);
+  const info = await execa(
+    await RenderInternals.getExecutableBinary(null, process.cwd(), "ffprobe"),
+    [outputPath]
+  );
   const data = info.stderr;
   expect(data).toContain("Video: h264");
   expect(data).toContain("yuv420p");
@@ -133,7 +137,10 @@ test("Should render a ProRes video", async () => {
   const exists = fs.existsSync(out);
   expect(exists).toBe(true);
 
-  const info = await execa("ffprobe", [out]);
+  const info = await execa(
+    await RenderInternals.getExecutableBinary(null, process.cwd(), "ffprobe"),
+    [out]
+  );
   const data = info.stderr;
   expect(data.includes("prores (4444)") || data.includes("prores (ap4h")).toBe(
     true
@@ -155,7 +162,10 @@ test("Should render a still image if single frame specified", async () => {
   expect(task.exitCode).toBe(0);
   expect(fs.existsSync(outImg)).toBe(true);
 
-  const info = await execa("ffprobe", [outImg]);
+  const info = await execa(
+    await RenderInternals.getExecutableBinary(null, process.cwd(), "ffprobe"),
+    [outImg]
+  );
   const data = info.stderr;
   expect(data).toContain("Video: png");
   expect(data).toContain("png_pipe");
@@ -178,7 +188,10 @@ test("Should be able to render a WAV audio file", async () => {
   const exists = fs.existsSync(out);
   expect(exists).toBe(true);
 
-  const info = await execa("ffprobe", [out]);
+  const info = await execa(
+    await RenderInternals.getExecutableBinary(null, process.cwd(), "ffprobe"),
+    [out]
+  );
   const data = info.stderr;
   expect(data).toContain("pcm_s16le");
   expect(data).toContain("2 channels");
@@ -203,7 +216,10 @@ test("Should be able to render a MP3 audio file", async () => {
   const exists = fs.existsSync(out);
   expect(exists).toBe(true);
 
-  const info = await execa("ffprobe", [out]);
+  const info = await execa(
+    await RenderInternals.getExecutableBinary(null, process.cwd(), "ffprobe"),
+    [out]
+  );
   const data = info.stderr;
   expect(data).toContain("mp3");
   expect(data).toContain("stereo");
@@ -229,7 +245,10 @@ test("Should be able to render a AAC audio file", async () => {
   const exists = fs.existsSync(out);
   expect(exists).toBe(true);
 
-  const info = await execa("ffprobe", [out]);
+  const info = await execa(
+    await RenderInternals.getExecutableBinary(null, process.cwd(), "ffprobe"),
+    [out]
+  );
   const data = info.stderr;
   expect(data).toContain("aac");
   expect(data).toContain("stereo");
@@ -253,7 +272,10 @@ test("Should render a video with GIFs", async () => {
   expect(task.exitCode).toBe(0);
   expect(fs.existsSync(outputPath)).toBe(true);
 
-  const info = await execa("ffprobe", [outputPath]);
+  const info = await execa(
+    await RenderInternals.getExecutableBinary(null, process.cwd(), "ffprobe"),
+    [outputPath]
+  );
   const data = info.stderr;
   expect(data).toContain("Video: h264");
 
@@ -276,7 +298,10 @@ test("Should render a video with Offline Audio-context", async () => {
   expect(task.exitCode).toBe(0);
   expect(fs.existsSync(out)).toBe(true);
 
-  const info = await execa("ffprobe", [out]);
+  const info = await execa(
+    await RenderInternals.getExecutableBinary(null, process.cwd(), "ffprobe"),
+    [out]
+  );
   const data = info.stderr;
   expect(data).toContain("Stream #0:0: Audio: mp3");
   expect(data).toContain("48000 Hz, stereo");
@@ -294,7 +319,10 @@ test("Should succeed to render an audio file that doesn't have any audio inputs"
     }
   );
   expect(task.exitCode).toBe(0);
-  const info = await execa("ffprobe", [out]);
+  const info = await execa(
+    await RenderInternals.getExecutableBinary(null, process.cwd(), "ffprobe"),
+    [out]
+  );
   const data = info.stderr;
   expect(data).toContain("Duration: 00:00:00.36");
   expect(data).toContain("Audio: mp3, 48000 Hz");
@@ -328,14 +356,14 @@ test("Dynamic duration should work, and render from inside src/", async () => {
     ),
     [
       "render",
-      "index.tsx",
+      "src/index.ts",
       "dynamic-duration",
       `--props`,
       `{"duration": ${randomDuration}}`,
       outputPath,
     ],
     {
-      cwd: path.join(process.cwd(), "..", "example", "src"),
+      cwd: path.join(process.cwd(), "..", "example"),
       reject: false,
     }
   );
@@ -343,12 +371,16 @@ test("Dynamic duration should work, and render from inside src/", async () => {
   expect(task.exitCode).toBe(0);
   expect(fs.existsSync(outputPath)).toBe(true);
 
-  const info = await execa("ffprobe", [outputPath]);
+  const info = await execa(
+    await RenderInternals.getExecutableBinary(null, process.cwd(), "ffprobe"),
+    [outputPath]
+  );
   const data = info.stderr;
   expect(data).toContain("Video: h264");
   const expectedDuration = (randomDuration / 30).toFixed(2);
   const ffmpegVersion = await RenderInternals.getFfmpegVersion({
     ffmpegExecutable: null,
+    remotionRoot: process.cwd(),
   });
   if (ffmpegVersion && ffmpegVersion[0] === 4 && ffmpegVersion[1] > 1) {
     expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);

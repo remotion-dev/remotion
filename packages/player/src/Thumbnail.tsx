@@ -83,37 +83,36 @@ export const ThumbnailFn = <T,>(
 	}, [inputProps]);
 
 	return (
-		<SharedPlayerContexts
-			timelineContext={timelineState}
-			component={Component}
-			compositionHeight={compositionHeight}
-			compositionWidth={compositionWidth}
-			durationInFrames={durationInFrames}
-			fps={fps}
-			inputProps={inputProps}
-			numberOfSharedAudioTags={0}
-		>
-			<ThumbnailEmitterContext.Provider value={emitter}>
-				<ThumbnailUI
-					className={className}
-					errorFallback={errorFallback}
-					inputProps={passedInputProps}
-					renderLoading={renderLoading}
-					style={style}
-				/>
-			</ThumbnailEmitterContext.Provider>
-		</SharedPlayerContexts>
+		<Internals.IsPlayerContextProvider>
+			<SharedPlayerContexts
+				timelineContext={timelineState}
+				component={Component}
+				compositionHeight={compositionHeight}
+				compositionWidth={compositionWidth}
+				durationInFrames={durationInFrames}
+				fps={fps}
+				inputProps={inputProps}
+				numberOfSharedAudioTags={0}
+			>
+				<ThumbnailEmitterContext.Provider value={emitter}>
+					<ThumbnailUI
+						className={className}
+						errorFallback={errorFallback}
+						inputProps={passedInputProps}
+						renderLoading={renderLoading}
+						style={style}
+					/>
+				</ThumbnailEmitterContext.Provider>
+			</SharedPlayerContexts>
+		</Internals.IsPlayerContextProvider>
 	);
 };
 
-declare module 'react' {
-	// eslint-disable-next-line @typescript-eslint/no-shadow
-	function forwardRef<T, P = {}>(
-		render: (
-			props: P,
-			ref: React.MutableRefObject<T>
-		) => React.ReactElement | null
-	): (props: P & React.RefAttributes<T>) => React.ReactElement | null;
-}
+const forward = forwardRef as <T, P = {}>(
+	render: (
+		props: P,
+		ref: React.MutableRefObject<T>
+	) => React.ReactElement | null
+) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
-export const Thumbnail = forwardRef(ThumbnailFn);
+export const Thumbnail = forward(ThumbnailFn);

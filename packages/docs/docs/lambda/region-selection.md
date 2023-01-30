@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-region-selection.png
 id: region-selection
 title: Region selection
 slug: /lambda/region-selection
+crumb: "Lambda"
 ---
 
 import {LambdaRegionList} from '../../components/lambda/regions.tsx';
@@ -17,6 +19,10 @@ The following AWS regions are available:
 <LambdaRegionList />
 
 You can call [`getRegions()`](/docs/lambda/getregions) or type [`npx remotion lambda regions`](/docs/lambda/cli/regions) to get this list programmatically.
+
+:::note
+Support for regions `eu-west-3`, `eu-south-1`, `eu-north-1`, `us-west-1`, `af-south-1`, `ap-east-1`, `ap-northeast-2`, `ap-northeast-3`, `ca-central-1`, `me-south-1`, `sa-east-1` has been added in v3.3.7.
+:::
 
 ## Default region
 
@@ -51,6 +57,16 @@ Note that different regions have a different limit on how many Lambda functions 
 - All other regions = 500
 
 **Because of this, we recommend hosting your primary infrastructure in `us-east-1`, `us-west-2` or `eu-west-1` for maximum scalability.**
+
+## Enabling regions in the AWS console
+
+Some regions that are supported by Remotion are not enabled by default in an AWS account. If you get a message:
+
+```
+The security token included in the request is invalid
+```
+
+see [here]
 
 ## Other considerations
 

@@ -57,7 +57,7 @@ export const getBrowserInstance = async (
 	});
 	_browserInstance.on('disconnected', () => {
 		console.log('Browser disconnected / crashed');
-		_browserInstance?.close().catch(() => undefined);
+		_browserInstance?.close(true).catch(() => undefined);
 		_browserInstance = null;
 	});
 	launching = false;

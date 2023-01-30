@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2018",
+    "module": "ES2020",
+    "declaration": true,
+    "declarationMap": false,
+    "sourceMap": false,
+    "lib": ["es2019", "dom"],
+    "jsx": "react-jsx",
+    "noEmit": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  }
+}

@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-getfunctions.png
 title: getFunctions()
 id: getfunctions
 slug: /lambda/getfunctions
+crumb: "Lambda API"
 ---
 
 Retrieves a list of functions that Remotion deployed to AWS Lambda in a certain region.
@@ -16,7 +18,7 @@ To get information about only a single function, use [`getFunctionInfo()`](/docs
 // @module: esnext
 // @target: es2017
 
-import { getFunctions } from "@remotion/lambda";
+import { getFunctions } from "@remotion/lambda/client";
 
 const info = await getFunctions({
   region: "eu-central-1",
@@ -31,6 +33,10 @@ for (const fn of info) {
   console.log(fn.version); // "2021-07-25"
 }
 ```
+
+:::note
+Preferrably import this function from `@remotion/lambda/client` to avoid problems [inside serverless functions](/docs/lambda/light-client).
+:::
 
 ## Argument
 

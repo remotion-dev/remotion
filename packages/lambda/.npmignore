@@ -2,8 +2,9 @@ dist/test/**
 src
 .eslintrc
 tsconfig.tsbuildinfo
-.prettierrc
 *.tgz
 .turbo
 ensure-version-match.js
 vitest.config.ts
+tsconfig.json
+.prettierrc.js

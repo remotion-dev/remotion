@@ -6,12 +6,18 @@ import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {checkNodeVersionAndWarnAboutRosetta} from './check-apple-silicon';
 import {DEFAULT_CODEC, validCodecs} from './codec';
+import {combineVideos} from './combine-videos';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
-import {ffmpegHasFeature, getFfmpegVersion} from './ffmpeg-flags';
+import {
+	ffmpegHasFeature,
+	getExecutableBinary,
+	getFfmpegVersion,
+} from './ffmpeg-flags';
+import {findRemotionRoot} from './find-closest-package-json';
 import {validateFrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
@@ -53,13 +59,18 @@ export {Browser} from './browser';
 export {BrowserExecutable} from './browser-executable';
 export {BrowserLog} from './browser-log';
 export {Codec, CodecOrUndefined} from './codec';
-export {combineVideos} from './combine-videos';
 export {Crf} from './crf';
+export {
+	ensureFfmpeg,
+	EnsureFfmpegOptions,
+	ensureFfprobe,
+} from './ensure-ffmpeg';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
 export {FfmpegExecutable} from './ffmpeg-executable';
 export {FfmpegVersion} from './ffmpeg-flags';
 export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FrameRange} from './frame-range';
+export {getCanExtractFramesFast} from './get-can-extract-frames-fast';
 export {getCompositions} from './get-compositions';
 export {
 	ImageFormat,
@@ -138,8 +149,11 @@ export const RenderInternals = {
 	makeDownloadMap,
 	cleanDownloadMap,
 	convertToPositiveFrameIndex,
+	findRemotionRoot,
+	getExecutableBinary,
 	validateBitrate,
 	getFfmpegVersion,
+	combineVideos,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

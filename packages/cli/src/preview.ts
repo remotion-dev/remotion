@@ -1,4 +1,5 @@
 import betterOpn from 'better-opn';
+import crypto from 'crypto';
 import path from 'path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
@@ -8,7 +9,9 @@ import {getInputProps} from './get-input-props';
 import {getNetworkAddress} from './get-network-address';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
+import {getAbsolutePublicDir} from './preview-server/get-absolute-public-dir';
 import type {LiveEventsServer} from './preview-server/live-events';
+import {getFiles, initPublicFolderWatch} from './preview-server/public-folder';
 import {startServer} from './preview-server/start-server';
 
 const noop = () => undefined;
@@ -34,6 +37,44 @@ const waitForLiveEventsListener = (): Promise<LiveEventsServer> => {
 	});
 };
 
+const getShouldOpenBrowser = (): {
+	shouldOpenBrowser: boolean;
+	reasonForBrowserDecision: string;
+} => {
+	if (parsedCli['no-open']) {
+		return {
+			shouldOpenBrowser: false,
+			reasonForBrowserDecision: '--no-open specified',
+		};
+	}
+
+	if (process.env.BROWSER === 'none') {
+		return {
+			shouldOpenBrowser: false,
+			reasonForBrowserDecision: 'env BROWSER=none was set',
+		};
+	}
+
+	if (ConfigInternals.getShouldOpenBrowser() === false) {
+		return {shouldOpenBrowser: false, reasonForBrowserDecision: 'Config file'};
+	}
+
+	return {shouldOpenBrowser: true, reasonForBrowserDecision: 'default'};
+};
+
+const getPort = () => {
+	if (parsedCli.port) {
+		return parsedCli.port;
+	}
+
+	const serverPort = ConfigInternals.getServerPort();
+	if (serverPort) {
+		return serverPort;
+	}
+
+	return null;
+};
+
 export const previewCommand = async (remotionRoot: string, args: string[]) => {
 	const {file, reason} = findEntryPoint(args, remotionRoot);
 
@@ -43,14 +84,14 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 		Log.error(
 			'The preview command requires you to specify a root file. For example'
 		);
-		Log.error('  npx remotion preview src/index.tsx');
+		Log.error('  npx remotion preview src/index.ts');
 		Log.error(
 			'See https://www.remotion.dev/docs/register-root for more information.'
 		);
 		process.exit(1);
 	}
 
-	const {port: desiredPort} = parsedCli;
+	const desiredPort = getPort();
 	const fullPath = path.join(process.cwd(), file);
 
 	let inputProps = getInputProps((newProps) => {
@@ -72,20 +113,44 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 		});
 	});
 
-	const {port, liveEventsServer} = await startServer(
-		path.resolve(__dirname, 'previewEntry.js'),
-		fullPath,
-		{
-			getCurrentInputProps: () => inputProps,
-			getEnvVariables: () => envVariables,
-			port: desiredPort,
-			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
-			remotionRoot,
-			keyboardShortcutsEnabled: ConfigInternals.getKeyboardShortcutsEnabled(),
-			userPassedPublicDir: ConfigInternals.getPublicDir(),
-			webpackOverride: ConfigInternals.getWebpackOverrideFn(),
-		}
-	);
+	const publicDir = getAbsolutePublicDir({
+		userPassedPublicDir: ConfigInternals.getPublicDir(),
+		remotionRoot,
+	});
+
+	const hashPrefix = '/static-';
+	const staticHash = `${hashPrefix}${crypto.randomBytes(6).toString('hex')}`;
+
+	initPublicFolderWatch({
+		publicDir,
+		remotionRoot,
+		onUpdate: () => {
+			waitForLiveEventsListener().then((listener) => {
+				listener.sendEventToClient({
+					type: 'new-public-folder',
+					files: getFiles(),
+				});
+			});
+		},
+		staticHash,
+	});
+
+	const {port, liveEventsServer} = await startServer({
+		entry: path.resolve(__dirname, 'previewEntry.js'),
+		userDefinedComponent: fullPath,
+		getCurrentInputProps: () => inputProps,
+		getEnvVariables: () => envVariables,
+		port: desiredPort,
+		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
+		remotionRoot,
+		keyboardShortcutsEnabled: ConfigInternals.getKeyboardShortcutsEnabled(),
+		publicDir,
+		webpackOverride: ConfigInternals.getWebpackOverrideFn(),
+		poll: ConfigInternals.getWebpackPolling(),
+		userPassedPublicDir: ConfigInternals.getPublicDir(),
+		hash: staticHash,
+		hashPrefix,
+	});
 
 	setLiveEventsListener(liveEventsServer);
 	const networkAddress = getNetworkAddress();
@@ -99,6 +164,13 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 		Log.info(`Running on http://localhost:${port}`);
 	}
 
-	betterOpn(`http://localhost:${port}`);
+	const {reasonForBrowserDecision, shouldOpenBrowser} = getShouldOpenBrowser();
+
+	if (shouldOpenBrowser) {
+		betterOpn(`http://localhost:${port}`);
+	} else {
+		Log.verbose(`Not opening browser, reason: ${reasonForBrowserDecision}`);
+	}
+
 	await new Promise(noop);
 };

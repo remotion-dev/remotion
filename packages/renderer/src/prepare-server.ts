@@ -15,6 +15,7 @@ export const prepareServer = async ({
 	webpackConfigOrServeUrl,
 	port,
 	downloadMap,
+	remotionRoot,
 }: {
 	webpackConfigOrServeUrl: string;
 	onDownload: RenderMediaOnDownload;
@@ -23,9 +24,10 @@ export const prepareServer = async ({
 	ffprobeExecutable: FfmpegExecutable;
 	port: number | null;
 	downloadMap: DownloadMap;
+	remotionRoot: string;
 }): Promise<{
 	serveUrl: string;
-	closeServer: () => Promise<unknown>;
+	closeServer: (force: boolean) => Promise<unknown>;
 	offthreadPort: number;
 }> => {
 	if (isServeUrl(webpackConfigOrServeUrl)) {
@@ -36,6 +38,7 @@ export const prepareServer = async ({
 			ffprobeExecutable,
 			port,
 			downloadMap,
+			remotionRoot,
 		});
 
 		return Promise.resolve({
@@ -63,10 +66,15 @@ export const prepareServer = async ({
 		ffprobeExecutable,
 		port,
 		downloadMap,
+		remotionRoot,
 	});
 	return Promise.resolve({
-		closeServer: () => {
-			return waitForSymbolicationToBeDone().then(() => close());
+		closeServer: async (force: boolean) => {
+			if (!force) {
+				await waitForSymbolicationToBeDone();
+			}
+
+			return close();
 		},
 		serveUrl: `http://localhost:${serverPort}`,
 		offthreadPort: serverPort,

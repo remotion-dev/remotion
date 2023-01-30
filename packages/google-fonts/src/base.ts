@@ -17,6 +17,7 @@ export const loadFonts = (
   options?: {
     weights?: string[];
     subsets?: string[];
+    document?: Document;
   }
 ): {
   fontFamily: FontInfo["fontFamily"];
@@ -25,6 +26,11 @@ export const loadFonts = (
 } => {
   const styles = style ? [style] : Object.keys(meta.fonts);
   for (const style of styles) {
+    // Don't load fonts on server
+    if (typeof FontFace === "undefined") {
+      continue;
+    }
+
     if (!meta.fonts[style]) {
       throw new Error(
         `The font ${meta.fontFamily} does not have a style ${style}`

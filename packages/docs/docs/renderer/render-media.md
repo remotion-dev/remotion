@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-renderer-render-media.png
 id: render-media
 title: renderMedia()
+crumb: "@remotion/renderer"
 ---
 
 _Available since v3.0 - Part of the `@remotion/renderer` package._
@@ -72,7 +74,7 @@ An object of arbitrary shape that will be passed as [props to your composition](
 
 _optional_
 
-A `number` specifying how many render processes should be started in parallel or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
+A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use, or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
 
 ### ~~`parallelism?`~~
 

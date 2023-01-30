@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-noise-noise-3d.png
 title: noise3D()
+crumb: "Make some"
 ---
 
 _Part of the [`@remotion/noise`](/docs/noise) package._
@@ -12,7 +14,7 @@ The function takes four arguments:
 
 ### `seed`
 
-Pass any _string_ or _number_. If the seed is the same, you will get the same result for same `x`, `y` and `z` values. Change the seed to to get different results for your `x`, `y` and `z` values.
+Pass any _string_ or _number_. If the seed is the same, you will get the same result for same `x`, `y` and `z` values. Change the seed to get different results for your `x`, `y` and `z` values.
 
 ### `x`
 

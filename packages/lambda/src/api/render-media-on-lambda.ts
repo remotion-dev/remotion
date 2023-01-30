@@ -1,19 +1,18 @@
 import type {
-	ChromiumOptions,
 	FrameRange,
 	ImageFormat,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
 } from '@remotion/renderer';
+import type {ChromiumOptions} from '@remotion/renderer/src/open-browser';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
-import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {getCloudwatchStreamUrl} from '../shared/get-cloudwatch-stream-url';
+import {getCloudwatchStreamUrl, getS3RenderUrl} from '../shared/get-aws-urls';
 import {serializeInputProps} from '../shared/serialize-input-props';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
@@ -57,12 +56,14 @@ export type RenderMediaOnLambdaInput = {
 	};
 	forceWidth?: number | null;
 	forceHeight?: number | null;
+	rendererFunctionName?: string | null;
 };
 
 export type RenderMediaOnLambdaOutput = {
 	renderId: string;
 	bucketName: string;
 	cloudWatchLogs: string;
+	folderInS3Console: string;
 };
 
 /**
@@ -118,6 +119,7 @@ export const renderMediaOnLambda = async ({
 	webhook,
 	forceHeight,
 	forceWidth,
+	rendererFunctionName,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
@@ -127,22 +129,20 @@ export const renderMediaOnLambda = async ({
 	});
 	validateDownloadBehavior(downloadBehavior);
 
-	const [realServeUrl, serializedInputProps] = await Promise.all([
-		convertToServeUrl(serveUrl, region),
-		serializeInputProps({
-			inputProps,
-			region,
-			type: 'video-or-audio',
-		}),
-	]);
+	const serializedInputProps = await serializeInputProps({
+		inputProps,
+		region,
+		type: 'video-or-audio',
+	});
 	try {
 		const res = await callLambda({
 			functionName,
 			type: LambdaRoutines.start,
 			payload: {
+				rendererFunctionName: rendererFunctionName ?? null,
 				framesPerLambda: framesPerLambda ?? null,
 				composition,
-				serveUrl: realServeUrl,
+				serveUrl,
 				inputProps: serializedInputProps,
 				codec: actualCodec,
 				imageFormat: imageFormat ?? 'jpeg',
@@ -182,6 +182,12 @@ export const renderMediaOnLambda = async ({
 				method: LambdaRoutines.renderer,
 				region,
 				renderId: res.renderId,
+				rendererFunctionName: rendererFunctionName ?? null,
+			}),
+			folderInS3Console: getS3RenderUrl({
+				bucketName: res.bucketName,
+				renderId: res.renderId,
+				region,
 			}),
 		};
 	} catch (err) {

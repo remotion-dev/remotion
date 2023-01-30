@@ -3,11 +3,12 @@ import type {BrowserLog, Codec} from '@remotion/renderer';
 import {RenderInternals, renderMedia} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
+import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
+import {writeLambdaInitializedFile} from '../shared/chunk-progress';
 import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
 import {
 	chunkKeyForIndex,
-	lambdaChunkInitializedKey,
 	LambdaRoutines,
 	lambdaTimingsKey,
 	RENDERER_PATH_TOKEN,
@@ -17,11 +18,8 @@ import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
 } from './chunk-optimization/types';
-import {deletedFiles, deletedFilesSize} from './helpers/clean-tmpdir';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
-import {getFolderFiles} from './helpers/get-files-in-folder';
-import {getFolderSizeRecursively} from './helpers/get-folder-size';
 import {lambdaWriteFile} from './helpers/io';
 import {
 	getTmpDirStateIfENoSp,
@@ -40,6 +38,12 @@ const renderHandler = async (
 ) => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
+	}
+
+	if (params.launchFunctionConfig.version !== VERSION) {
+		throw new Error(
+			`The version of the function that was specified as "rendererFunctionName" is ${VERSION} but the version of the function that invoked the render is ${params.launchFunctionConfig.version}. Please make sure that the version of the function that is specified as "rendererFunctionName" is the same as the version of the function that is invoked.`
+		);
 	}
 
 	const inputPropsPromise = deserializeInputProps({
@@ -74,15 +78,18 @@ const renderHandler = async (
 
 	const outdir = RenderInternals.tmpDir(RENDERER_PATH_TOKEN);
 
+	const chunkCodec: Codec =
+		params.codec === 'gif' || params.codec === 'h264'
+			? 'h264-mkv'
+			: params.codec;
+
 	const outputLocation = path.join(
 		outdir,
 		`localchunk-${String(params.chunk).padStart(
 			8,
 			'0'
-		)}.${RenderInternals.getFileExtensionFromCodec(params.codec, 'chunk')}`
+		)}.${RenderInternals.getFileExtensionFromCodec(chunkCodec)}`
 	);
-
-	const chunkCodec: Codec = params.codec === 'gif' ? 'h264-mkv' : params.codec;
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
@@ -103,12 +110,20 @@ const renderHandler = async (
 			frameRange: params.frameRange,
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
 				if (
-					renderedFrames % 10 === 0 &&
+					renderedFrames % 5 === 0 &&
 					RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
 				) {
 					console.log(
 						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`
 					);
+					writeLambdaInitializedFile({
+						attempt: params.attempt,
+						bucketName: params.bucketName,
+						chunk: params.chunk,
+						expectedBucketOwner: options.expectedBucketOwner,
+						framesRendered: renderedFrames,
+						renderId: params.renderId,
+					}).catch((err) => reject(err));
 				}
 
 				const allFrames = RenderInternals.getFramesToRender(
@@ -124,26 +139,13 @@ const renderHandler = async (
 			},
 			concurrency: params.concurrencyPerLambda,
 			onStart: () => {
-				lambdaWriteFile({
-					privacy: 'private',
+				writeLambdaInitializedFile({
+					attempt: params.attempt,
 					bucketName: params.bucketName,
-					body: JSON.stringify({
-						filesCleaned: deletedFilesSize,
-						filesInTmp: fs.readdirSync('/tmp'),
-						isWarm: options.isWarm,
-						deletedFiles,
-						tmpSize: getFolderSizeRecursively('/tmp'),
-						tmpDirFiles: getFolderFiles('/tmp'),
-					}),
-					key: lambdaChunkInitializedKey({
-						renderId: params.renderId,
-						chunk: params.chunk,
-						attempt: params.attempt,
-					}),
-					region: getCurrentRegionInFunction(),
+					chunk: params.chunk,
 					expectedBucketOwner: options.expectedBucketOwner,
-					downloadBehavior: null,
-					customCredentials: null,
+					framesRendered: 0,
+					renderId: params.renderId,
 				}).catch((err) => reject(err));
 			},
 			puppeteerInstance: browserInstance,
@@ -164,8 +166,7 @@ const renderHandler = async (
 			outputLocation,
 			codec: chunkCodec,
 			crf: params.crf ?? undefined,
-			ffmpegExecutable:
-				process.env.NODE_ENV === 'test' ? null : '/opt/bin/ffmpeg',
+
 			pixelFormat: params.pixelFormat,
 			proResProfile: params.proResProfile,
 			onDownload: (src: string) => {

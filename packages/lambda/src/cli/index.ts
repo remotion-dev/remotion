@@ -1,9 +1,14 @@
 import {CliInternals} from '@remotion/cli';
+import {RenderInternals} from '@remotion/renderer';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
 import {BINARY_NAME} from '../defaults';
 import {checkCredentials} from '../shared/check-credentials';
 import {DOCS_URL} from '../shared/docs-url';
 import {parsedLambdaCli} from './args';
+import {
+	compositionsCommand,
+	COMPOSITIONS_COMMAND,
+} from './commands/compositions';
 import {functionsCommand, FUNCTIONS_COMMAND} from './commands/functions';
 import {policiesCommand, POLICIES_COMMAND} from './commands/policies/policies';
 import {ROLE_SUBCOMMAND} from './commands/policies/role';
@@ -47,11 +52,15 @@ const matchCommand = (args: string[], remotionRoot: string) => {
 	}
 
 	if (args[0] === RENDER_COMMAND) {
-		return renderCommand(args.slice(1));
+		return renderCommand(args.slice(1), remotionRoot);
 	}
 
 	if (args[0] === STILL_COMMAND) {
-		return stillCommand(args.slice(1));
+		return stillCommand(args.slice(1), remotionRoot);
+	}
+
+	if (args[0] === COMPOSITIONS_COMMAND) {
+		return compositionsCommand(args.slice(1), remotionRoot);
 	}
 
 	if (args[0] === FUNCTIONS_COMMAND) {
@@ -158,13 +167,25 @@ AWS returned an "TooManyRequestsException" error message which could mean you re
 			);
 		}
 
+		if (
+			error.stack?.includes(
+				'The security token included in the request is invalid'
+			)
+		) {
+			Log.error(
+				`
+AWS returned an error message "The security token included in the request is invalid". A possible reason for this is that you did not enable the region in your AWS account under "Account". The original message is: 
+`
+			);
+		}
+
 		Log.error(error.stack);
 		quit(1);
 	}
 };
 
 export const cli = async () => {
-	const remotionRoot = CliInternals.findRemotionRoot();
+	const remotionRoot = RenderInternals.findRemotionRoot();
 	await CliInternals.initializeCli(remotionRoot);
 
 	await executeCommand(parsedLambdaCli._, remotionRoot);
