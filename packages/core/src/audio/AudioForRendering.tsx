@@ -11,7 +11,7 @@ import React, {
 import {getAbsoluteSrc} from '../absolute-src';
 import {CompositionManager} from '../CompositionManager';
 import {continueRender, delayRender} from '../delay-render';
-import {getRemotionEnvironment} from '../get-environment';
+import {useRemotionEnvironment} from '../get-environment';
 import {random} from '../random';
 import {SequenceContext} from '../Sequence';
 import {useTimelinePosition} from '../timeline-position-state';
@@ -35,6 +35,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	const frame = useCurrentFrame();
 	const sequenceContext = useContext(SequenceContext);
 	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
+	const environment = useRemotionEnvironment();
 
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads
@@ -46,12 +47,18 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		[props.src, sequenceContext]
 	);
 
-	const {volume: volumeProp, playbackRate, ...nativeProps} = props;
+	const {
+		volume: volumeProp,
+		playbackRate,
+		allowAmplificationDuringRender,
+		...nativeProps
+	} = props;
 
 	const volume = evaluateVolume({
 		volume: volumeProp,
 		frame: volumePropFrame,
 		mediaVolume: 1,
+		allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 	});
 
 	useImperativeHandle(
@@ -87,6 +94,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			volume,
 			mediaFrame: frame,
 			playbackRate: props.playbackRate ?? 1,
+			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 		});
 		return () => unregisterAsset(id);
 	}, [
@@ -101,12 +109,13 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		frame,
 		playbackRate,
 		props.playbackRate,
+		allowAmplificationDuringRender,
 	]);
 
 	const {src, onDuration} = props;
 
 	// If audio source switches, make new handle
-	if (getRemotionEnvironment() === 'rendering') {
+	if (environment === 'rendering') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
 			if (process.env.NODE_ENV === 'test') {
@@ -117,7 +126,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			const {current} = audioRef;
 
 			const didLoad = () => {
-				if (current) {
+				if (current?.duration) {
 					onDuration(src as string, current.duration);
 				}
 

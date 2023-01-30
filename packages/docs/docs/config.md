@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-config.png
 id: config
 title: Configuration file
+crumb: "remotion.config.ts"
 ---
 
 To configure Remotion, create a `remotion.config.ts` file in the root of your Remotion project.
@@ -57,9 +59,14 @@ The [command line flag](/docs/cli/render#--bundle-cache) `--bundle-cache` will t
 
 ### setPort()
 
-Define on which port Remotion should start it's HTTP servers during preview and rendering.
+Define on which port Remotion should start it's HTTP servers.
 By default, Remotion will try to find a free port.
 If you specify a port, but it's not available, Remotion will throw an error.
+
+:::note
+When starting the [Remotion Preview](/docs/terminology#remotion-preview), a server will be started to host it.  
+During rendering, a HTTP server is also started in the background to serve the Webpack [bundle](/docs/terminology#bundle).
+:::
 
 ```ts twoslash
 import { Config } from "remotion";
@@ -85,7 +92,7 @@ Config.Bundling.setPublicDir("./publico");
 
 The [command line flag](/docs/cli/render#--public-dir) `--public-dir` will take precedence over this option.
 
-### setEntryPoint()
+### setEntryPoint()
 
 _Available from v3.2.40_
 
@@ -94,7 +101,7 @@ Sets the Remotion [entry point](/docs/terminology#entry-point), you don't have t
 ```ts twoslash
 import { Config } from "remotion";
 // ---cut---
-Config.Bundling.setEntryPoint("./src/index.tsx");
+Config.Bundling.setEntryPoint("./src/index.ts");
 ```
 
 If you pass an entry point as a CLI argument, it will take precedence.
@@ -137,6 +144,8 @@ Config.Preview.setMaxTimelineTracks(20);
 
 ### setKeyboardShortcutsEnabled()
 
+_available from v3.2.11_
+
 Whether the Preview should react to keyboard shortcuts. Default `true`.
 
 ```ts twoslash
@@ -146,6 +155,47 @@ Config.Preview.setKeyboardShortcutsEnabled(false);
 ```
 
 The [command line flag](/docs/cli/preview#--disable-keyboard-shortcuts) `--disable-keyboard-shortcuts` will take precedence over this option.
+
+### setWebpackPollingInMilliseconds()
+
+_available from v3.3.11_
+
+Enables Webpack polling instead of the file system event listeners for hot reloading.
+This is useful if you are inside a virtual machine or have a remote file system.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Preview.setWebpackPollingInMilliseconds(1000);
+```
+
+The [command line flag](/docs/cli/preview#--webpack-poll) `--webpack-poll` will take precedence over this option.
+
+### setNumberOfSharedAudioTags()
+
+_available from v3.3.2_
+
+How many shared audio tags should be mounted. Shared audio tags can help prevent playback issues due to audio autoplay policies of the browser. Default 0
+
+```ts twoslash
+import { Config } from "remotion";
+
+// ---cut---
+Config.Preview.setNumberOfSharedAudioTags(5);
+```
+
+### setShouldOpenBrowser()
+
+_available from v3.3.19_
+
+Whether Remotion should open a browser when starting the Preview. Default `true`.
+
+```ts twoslash
+import { Config } from "remotion";
+
+// ---cut---
+Config.Preview.setShouldOpenBrowser(false);
+```
 
 ## Puppeteer
 
@@ -414,7 +464,7 @@ import { Config } from "remotion";
 Config.Output.setOutputLocation("out/video.mp4");
 ```
 
-If you pass another argument to the render command, it will take precedence: `npx remotion render src/index.tsx HelloWorld out/video.mp4`.
+If you pass another argument to the render command, it will take precedence: `npx remotion render src/index.ts HelloWorld out/video.mp4`.
 
 ### setOverwriteOutput()
 

@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-ssr.png
 id: ssr
 title: Server-Side Rendering
+crumb: "The power of"
 ---
 
 :::info
@@ -22,9 +24,9 @@ The NPM package `@remotion/renderer` provides you with an API for rendering the 
 Follow this commented example to see how to render a video:
 
 ```tsx twoslash
-import path from "path";
 import { bundle } from "@remotion/bundler";
 import { getCompositions, renderMedia } from "@remotion/renderer";
+import path from "path";
 
 const start = async () => {
   // The composition you want to render

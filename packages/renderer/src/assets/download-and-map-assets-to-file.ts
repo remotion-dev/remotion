@@ -194,13 +194,6 @@ export const downloadAsset = async ({
 	const onProgress = onDownload(src);
 
 	if (src.startsWith('data:')) {
-		const output = getSanitizedFilenameForAssetUrl({
-			contentDisposition: null,
-			downloadDir,
-			src,
-			contentType: null,
-		});
-		ensureOutputDirectory(output);
 		const [assetDetails, assetData] = src.substring('data:'.length).split(',');
 		if (!assetDetails.includes(';')) {
 			const errMessage = [
@@ -216,6 +209,14 @@ export const downloadAsset = async ({
 
 		validateMimeType(mimeType, src);
 		validateBufferEncoding(encoding, src);
+
+		const output = getSanitizedFilenameForAssetUrl({
+			contentDisposition: null,
+			downloadDir,
+			src,
+			contentType: mimeType,
+		});
+		ensureOutputDirectory(output);
 
 		const buff = Buffer.from(assetData, encoding);
 		await fs.promises.writeFile(output, buff);

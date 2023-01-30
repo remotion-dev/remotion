@@ -278,19 +278,21 @@ export const useSharedAudio = (aud: RemotionAudioProps, audioId: string) => {
 	 */
 	const effectToUse = useInsertionEffect ?? useLayoutEffect;
 
-	effectToUse(() => {
-		if (ctx && ctx.numberOfAudioTags > 0) {
-			ctx.updateAudio(elem.id, aud);
-		}
-	}, [aud, ctx, elem.id]);
-
-	effectToUse(() => {
-		return () => {
+	if (typeof document !== 'undefined') {
+		effectToUse(() => {
 			if (ctx && ctx.numberOfAudioTags > 0) {
-				ctx.unregisterAudio(elem.id);
+				ctx.updateAudio(elem.id, aud);
 			}
-		};
-	}, [ctx, elem.id]);
+		}, [aud, ctx, elem.id]);
+
+		effectToUse(() => {
+			return () => {
+				if (ctx && ctx.numberOfAudioTags > 0) {
+					ctx.unregisterAudio(elem.id);
+				}
+			};
+		}, [ctx, elem.id]);
+	}
 
 	return elem;
 };

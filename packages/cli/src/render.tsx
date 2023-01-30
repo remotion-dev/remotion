@@ -90,10 +90,12 @@ export const render = async (remotionRoot: string, args: string[]) => {
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
+		remotionRoot,
 	});
 
 	const ffmpegVersion = await RenderInternals.getFfmpegVersion({
 		ffmpegExecutable,
+		remotionRoot,
 	});
 	Log.verbose(
 		'FFMPEG Version:',
@@ -170,7 +172,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		downloadName: null,
 		outName: getUserPassedOutputLocation(argsAfterComposition),
 	});
-	validateFfmpegCanUseCodec(codec);
+	await validateFfmpegCanUseCodec(codec, remotionRoot);
 
 	RenderInternals.validateEvenDimensionsWithCodec({
 		width: config.width,
@@ -183,7 +185,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		codec,
 		imageSequence: shouldOutputImageSequence,
 		compositionName: compositionId,
-		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec, 'final'),
+		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec),
 		args: argsAfterComposition,
 	});
 
@@ -321,6 +323,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		outputLocation: absoluteOutputFile,
 		serveUrl: urlOrBundle,
 		codec,
+		remotionRoot,
 	});
 
 	await renderMedia({

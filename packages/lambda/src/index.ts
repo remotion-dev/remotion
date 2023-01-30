@@ -20,6 +20,11 @@ import type {EstimatePriceInput} from './api/estimate-price';
 import {estimatePrice} from './api/estimate-price';
 import type {GetAwsClientInput, GetAwsClientOutput} from './api/get-aws-client';
 import {getAwsClient} from './api/get-aws-client';
+import type {
+	GetCompositionsOnLambdaInput,
+	GetCompositionsOnLambdaOutput,
+} from './api/get-compositions-on-lambda';
+import {getCompositionsOnLambda} from './api/get-compositions-on-lambda';
 import type {FunctionInfo, GetFunctionInfoInput} from './api/get-function-info';
 import {getFunctionInfo} from './api/get-function-info';
 import type {GetFunctionsInput} from './api/get-functions';
@@ -49,14 +54,14 @@ import type {
 	RenderMediaOnLambdaOutput,
 } from './api/render-media-on-lambda';
 import {
-	renderMediaOnLambda,
+	renderMediaOnLambda as deprecatedRenderMediaOnLambda,
 	renderVideoOnLambda,
 } from './api/render-media-on-lambda';
 import type {
 	RenderStillOnLambdaInput,
 	RenderStillOnLambdaOutput,
 } from './api/render-still-on-lambda';
-import {renderStillOnLambda} from './api/render-still-on-lambda';
+import {renderStillOnLambda as deprecatedRenderStillOnLambda} from './api/render-still-on-lambda';
 import {validateWebhookSignature} from './api/validate-webhook-signature';
 import type {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
 import type {
@@ -69,6 +74,16 @@ import type {CustomCredentials} from './shared/aws-clients';
 import type {RenderProgress} from './shared/constants';
 import type {WebhookPayload} from './shared/invoke-webhook';
 import type {LambdaArchitecture} from './shared/validate-architecture';
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const renderMediaOnLambda = deprecatedRenderMediaOnLambda;
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const renderStillOnLambda = deprecatedRenderStillOnLambda;
 
 export {
 	deleteSite,
@@ -95,6 +110,7 @@ export {
 	presignUrl,
 	deleteRender,
 	validateWebhookSignature,
+	getCompositionsOnLambda,
 };
 export type {
 	AwsRegion,
@@ -133,4 +149,6 @@ export type {
 	LambdaErrorInfo,
 	EnhancedErrorInfo,
 	DeleteRenderInput,
+	GetCompositionsOnLambdaOutput,
+	GetCompositionsOnLambdaInput,
 };

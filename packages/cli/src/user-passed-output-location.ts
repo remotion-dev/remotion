@@ -9,26 +9,36 @@ export const getUserPassedOutputLocation = (args: string[]) => {
 const getDefaultOutLocation = ({
 	compositionName,
 	defaultExtension,
+	type,
 }: {
 	compositionName: string;
 	defaultExtension: string;
+	type: 'asset' | 'sequence';
 }) => {
-	const defaultName = `out/${compositionName}.${defaultExtension}`;
+	if (type === 'sequence') {
+		return `out/${compositionName}`;
+	}
 
-	return defaultName;
+	return `out/${compositionName}.${defaultExtension}`;
 };
 
 export const getOutputLocation = ({
 	compositionId,
 	defaultExtension,
 	args,
+	type,
 }: {
 	compositionId: string;
 	defaultExtension: string;
 	args: string[];
+	type: 'asset' | 'sequence';
 }) => {
 	return (
 		getUserPassedOutputLocation(args) ??
-		getDefaultOutLocation({compositionName: compositionId, defaultExtension})
+		getDefaultOutLocation({
+			compositionName: compositionId,
+			defaultExtension,
+			type,
+		})
 	);
 };

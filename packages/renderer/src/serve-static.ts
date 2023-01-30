@@ -16,12 +16,17 @@ export const serveStatic = async (
 		onDownload: RenderMediaOnDownload;
 		onError: (err: Error) => void;
 		downloadMap: DownloadMap;
+		remotionRoot: string;
 	}
 ): Promise<{
 	port: number;
 	close: () => Promise<void>;
 }> => {
-	const port = await getDesiredPort(options?.port ?? undefined, 3000, 3100);
+	const {port, didUsePort} = await getDesiredPort(
+		options?.port ?? undefined,
+		3000,
+		3100
+	);
 
 	const offthreadRequest = startOffthreadVideoServer({
 		ffmpegExecutable: options.ffmpegExecutable,
@@ -29,6 +34,7 @@ export const serveStatic = async (
 		onDownload: options.onDownload,
 		onError: options.onError,
 		downloadMap: options.downloadMap,
+		remotionRoot: options.remotionRoot,
 	});
 
 	try {
@@ -61,6 +67,10 @@ export const serveStatic = async (
 			conn.on('close', () => {
 				delete connections[key];
 			});
+		});
+
+		server.on('listening', () => {
+			didUsePort();
 		});
 
 		const destroyConnections = function () {

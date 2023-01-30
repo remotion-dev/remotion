@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-video.png
 title: <Video>
 id: video
+crumb: "API"
 ---
 
 This component allows you to include a video file in your Remotion project. It wraps the native [`HTMLVideoElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement).
@@ -180,6 +182,21 @@ export const MyComposition = () => {
 };
 ```
 
+## `acceptableTimeShiftInSeconds`
+
+_Available from v3.2.42_
+
+During [Preview](/docs/terminology#remotion-preview) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
+
+## `allowAmplificationDuringRender`
+
+_Available from v3.3.17_
+
+Make values for [`volume`](#volume) greater than `1` result in amplification during renders.  
+During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
+
+## Speed up renders for video with silent audio
+
 Remotion will download the whole video during render in order to mix its audio. If the video contains a silent audio track, you can add the muted property to signal to Remotion that it does not need to download the video and make the render more efficient.
 
 ## Codec support
@@ -203,3 +220,4 @@ If you would like Remotion to warn you when you import an MP4 video, you can tur
 - [`<Audio />`](/docs/audio)
 - [`<OffthreadVideo />`](/docs/offthreadvideo)
 - [`<Video>` vs `<OffthreadVideo>`](/docs/video-vs-offthreadvideo)
+- [`Change the speed of a video over time`](/docs/miscellaneous/snippets/accelerated-video)

@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-cli-preview.png
 title: npx remotion preview
 sidebar_label: preview
+crumb: CLI Reference
 ---
 
 Start the server which allows you to preview the Remotion video. The only argument to pass is the entry file:
@@ -10,8 +12,9 @@ npx remotion preview <entry-file>
 ```
 
 If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:
+
 1. Get the path from the Config (Can be set using `Config.Preview.setEntryPoint("<entry-point>")`).
-2. Look for some common paths i.e. `src/index.tsx`, `src/index.ts`, `src/index.js`, `remotion/index.js`.
+2. Look for some common paths i.e. `src/index.ts`, `src/index.tsx`, `src/index.js`, `remotion/index.js`.
 3. Fail as entry point could not be determined.
 
 ## Flags
@@ -50,4 +53,17 @@ _Available from v3.2.13_
 
 _Available from v3.2.11_
 
-Disables all keyboard shortcuts in the Preview.
+[Disables all keyboard shortcuts in the Preview](/docs/config#setkeyboardshortcutsenabled).
+
+### `--webpack-poll`
+
+_Available from v3.3.11_
+
+[Enables Webpack polling](/docs/config#setwebpackpollinginmilliseconds) instead of the file system event listeners for hot reloading. This is useful if you are inside a virtual machine or have a remote file system.
+Pass a value in milliseconds, for example `--webpack-poll=1000`.
+
+### `--no-open`
+
+_Available from v3.3.19_
+
+[Prevents Remotion from trying to open a browser](/docs/config#setshouldopenbrowser). This is useful if you use a different browser for Remotion than the operating system default.

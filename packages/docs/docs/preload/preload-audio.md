@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-preload-preload-audio.png
 id: preload-audio
 slug: preload-audio
 title: "preloadAudio()"
+crumb: "@remotion/preload"
 ---
 
 _This function is part of the [`@remotion/preload`](/docs/preload) package._

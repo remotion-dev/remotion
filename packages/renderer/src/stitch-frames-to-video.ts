@@ -1,6 +1,5 @@
 import execa from 'execa';
-import fs from 'fs';
-import {readFile} from 'fs/promises';
+import fs, {promises} from 'fs';
 import path from 'path';
 import type {TAsset} from 'remotion';
 import {Internals} from 'remotion';
@@ -17,13 +16,16 @@ import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loo
 import {validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
 import type {FfmpegExecutable} from './ffmpeg-executable';
+import {getExecutableBinary} from './ffmpeg-flags';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
+import {findRemotionRoot} from './find-closest-package-json';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getProResProfileName} from './get-prores-profile-name';
 import type {ImageFormat} from './image-format';
 import type {CancelSignal} from './make-cancel-signal';
+import {cancelErrorMessages} from './make-cancel-signal';
 import {mergeAudioTrack} from './merge-audio-track';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import type {PixelFormat} from './pixel-format';
@@ -90,6 +92,7 @@ const getAssetsData = async ({
 	ffprobeExecutable,
 	onProgress,
 	downloadMap,
+	remotionRoot,
 }: {
 	assets: TAsset[][];
 	onDownload: RenderMediaOnDownload | undefined;
@@ -100,6 +103,7 @@ const getAssetsData = async ({
 	ffprobeExecutable: FfmpegExecutable | null;
 	onProgress: (progress: number) => void;
 	downloadMap: DownloadMap;
+	remotionRoot: string;
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
@@ -134,6 +138,7 @@ const getAssetsData = async ({
 					expectedFrames,
 					fps,
 					downloadMap,
+					remotionRoot,
 				});
 				preprocessProgress[index] = 1;
 				updateProgress();
@@ -150,20 +155,25 @@ const getAssetsData = async ({
 		outName,
 		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
 		downloadMap,
+		remotionRoot,
 	});
-
-	deleteDirectory(downloadMap.audioMixing);
 
 	onProgress(1);
 
-	preprocessed.forEach((p) => {
-		deleteDirectory(p);
-	});
+	await Promise.all([
+		deleteDirectory(downloadMap.audioMixing),
+		...preprocessed.map((p) => {
+			return deleteDirectory(p);
+		}),
+	]);
 
 	return outName;
 };
 
-const spawnFfmpeg = async (options: StitcherOptions): Promise<ReturnType> => {
+export const spawnFfmpeg = async (
+	options: StitcherOptions,
+	remotionRoot: string
+): Promise<ReturnType> => {
 	Internals.validateDimension(
 		options.height,
 		'height',
@@ -191,7 +201,11 @@ const spawnFfmpeg = async (options: StitcherOptions): Promise<ReturnType> => {
 
 	Internals.validateFps(options.fps, 'in `stitchFramesToVideo()`', false);
 	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
-	await validateFfmpeg(options.ffmpegExecutable ?? null);
+	await validateFfmpeg(
+		options.ffmpegExecutable ?? null,
+		remotionRoot,
+		'ffmpeg'
+	);
 
 	const encoderName = getCodecName(codec);
 	const audioCodecName = getAudioCodecName(codec);
@@ -203,7 +217,7 @@ const spawnFfmpeg = async (options: StitcherOptions): Promise<ReturnType> => {
 		? null
 		: path.join(
 				options.assetsInfo.downloadMap.stitchFrames,
-				`out.${getFileExtensionFromCodec(codec, 'final')}`
+				`out.${getFileExtensionFromCodec(codec)}`
 		  );
 
 	const shouldRenderAudio =
@@ -211,6 +225,7 @@ const spawnFfmpeg = async (options: StitcherOptions): Promise<ReturnType> => {
 		(options.assetsInfo.assets.flat(1).length > 0 ||
 			options.enforceAudioTrack) &&
 		!options.muted;
+
 	const shouldRenderVideo = mediaSupport.video;
 
 	if (!shouldRenderAudio && !shouldRenderVideo) {
@@ -264,6 +279,7 @@ const spawnFfmpeg = async (options: StitcherOptions): Promise<ReturnType> => {
 				ffprobeExecutable: options.ffprobeExecutable ?? null,
 				onProgress: (prog) => updateProgress(prog, 0),
 				downloadMap: options.assetsInfo.downloadMap,
+				remotionRoot,
 		  })
 		: null;
 
@@ -275,7 +291,11 @@ const spawnFfmpeg = async (options: StitcherOptions): Promise<ReturnType> => {
 		}
 
 		const ffmpegTask = execa(
-			'ffmpeg',
+			await getExecutableBinary(
+				options.ffmpegExecutable ?? null,
+				remotionRoot,
+				'ffmpeg'
+			),
 			[
 				'-i',
 				audio,
@@ -300,7 +320,8 @@ const spawnFfmpeg = async (options: StitcherOptions): Promise<ReturnType> => {
 
 		const file = await new Promise<Buffer | null>((resolve, reject) => {
 			if (tempFile) {
-				readFile(tempFile)
+				promises
+					.readFile(tempFile)
 					.then((f) => {
 						return resolve(f);
 					})
@@ -386,9 +407,17 @@ const spawnFfmpeg = async (options: StitcherOptions): Promise<ReturnType> => {
 		console.log(finalFfmpegString);
 	}
 
-	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', finalFfmpegString, {
-		cwd: options.dir,
-	});
+	const task = execa(
+		await getExecutableBinary(
+			options.ffmpegExecutable ?? null,
+			remotionRoot,
+			'ffmpeg'
+		),
+		finalFfmpegString,
+		{
+			cwd: options.dir,
+		}
+	);
 	options.cancelSignal?.(() => {
 		task.kill();
 	});
@@ -425,7 +454,8 @@ const spawnFfmpeg = async (options: StitcherOptions): Promise<ReturnType> => {
 				return null;
 			}
 
-			return readFile(tempFile)
+			return promises
+				.readFile(tempFile)
 				.then((file) => {
 					return Promise.all([
 						file,
@@ -442,7 +472,8 @@ const spawnFfmpeg = async (options: StitcherOptions): Promise<ReturnType> => {
 export const stitchFramesToVideo = async (
 	options: StitcherOptions
 ): Promise<Buffer | null> => {
-	const {task, getLogs} = await spawnFfmpeg(options);
+	const remotionRoot = findRemotionRoot();
+	const {task, getLogs} = await spawnFfmpeg(options, remotionRoot);
 
 	const happyPath = task.catch(() => {
 		throw new Error(getLogs());
@@ -452,7 +483,7 @@ export const stitchFramesToVideo = async (
 		happyPath,
 		new Promise<Buffer | null>((_resolve, reject) => {
 			options.cancelSignal?.(() => {
-				reject(new Error('stitchFramesToVideo() got cancelled'));
+				reject(new Error(cancelErrorMessages.stitchFramesToVideo));
 			});
 		}),
 	]);

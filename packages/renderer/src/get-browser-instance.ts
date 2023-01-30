@@ -41,7 +41,7 @@ export const getPageAndCleanupFn = async ({
 		page: browserPage,
 		cleanup: () => {
 			// Close whole browser that was just created and don't wait for it to finish.
-			browserInstance.close().catch((err) => {
+			browserInstance.close(true).catch((err) => {
 				console.error('Was not able to close puppeteer page', err);
 			});
 		},

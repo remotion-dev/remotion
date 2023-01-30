@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-spline.png
 title: "Import from Spline"
+crumb: "Integrations"
 ---
 
 import {SplineVideo} from '../components/SplineVideo'
@@ -83,12 +85,12 @@ Your 3D model should look like this:
 
 5. In `src/Scene.tsx`, replace the default scene with:
 
-```tsx twoslash title="src/Video.tsx"
+```tsx twoslash title="src/Root.tsx"
 // @filename: src/Torus.tsx
 import React from "react";
 const Torus: React.FC = () => null;
 export default Torus;
-// @filename: src/Video.tsx
+// @filename: src/Root.tsx
 // ---cut---
 // @jsx: react-jsx
 import { ThreeCanvas } from "@remotion/three";

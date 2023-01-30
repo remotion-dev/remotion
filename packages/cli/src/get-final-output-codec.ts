@@ -1,25 +1,25 @@
 import type {Codec, CodecOrUndefined} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 
-const fileExtensions: Record<string, Codec> = {
-	webm: 'vp8',
-	hevc: 'h265',
-	mp3: 'mp3',
-	mov: 'prores',
-	wav: 'wav',
-	aac: 'aac',
-	mkv: 'h264-mkv',
-	gif: 'gif',
-	mp4: 'h264',
-	m4a: 'aac',
+const fileExtensions: Record<string, Codec[]> = {
+	webm: ['vp8', 'vp9'],
+	hevc: ['h265'],
+	mp3: ['mp3'],
+	mov: ['prores'],
+	wav: ['wav'],
+	aac: ['aac'],
+	mkv: ['h264-mkv'],
+	gif: ['gif'],
+	mp4: ['h264'],
+	m4a: ['aac'],
 };
 
 const deriveExtensionFromFilename = (extension: string | null) => {
 	if (extension === null) {
-		return null;
+		return [];
 	}
 
-	return fileExtensions[extension] ?? null;
+	return fileExtensions[extension] ?? [];
 };
 
 export const getFinalOutputCodec = ({
@@ -37,55 +37,59 @@ export const getFinalOutputCodec = ({
 		RenderInternals.getExtensionOfFilename(downloadName);
 	const outNameExtension = RenderInternals.getExtensionOfFilename(outName);
 
-	const derivedDownloadCodec = deriveExtensionFromFilename(
+	const derivedDownloadCodecs = deriveExtensionFromFilename(
 		downloadNameExtension
 	);
-	const derivedOutNameCodec = deriveExtensionFromFilename(outNameExtension);
+	const derivedOutNameCodecs = deriveExtensionFromFilename(outNameExtension);
 
 	if (
-		derivedDownloadCodec &&
-		derivedOutNameCodec &&
-		derivedDownloadCodec !== derivedOutNameCodec
+		derivedDownloadCodecs.length > 0 &&
+		derivedOutNameCodecs.length > 0 &&
+		derivedDownloadCodecs.join('') !== derivedOutNameCodecs.join('')
 	) {
 		throw new TypeError(
 			`The download name is ${downloadName} but the output name is ${outName}. The file extensions must match`
 		);
 	}
 
-	if (derivedDownloadCodec) {
-		if (cliFlag && derivedDownloadCodec !== cliFlag) {
+	if (cliFlag) {
+		if (
+			derivedDownloadCodecs.length > 0 &&
+			derivedDownloadCodecs.indexOf(cliFlag) === -1
+		) {
 			throw new TypeError(
-				`The download name is ${downloadName} but --codec=${cliFlag} was passed. The download name implies a codec of ${derivedDownloadCodec} which does not align with the --codec flag.`
+				`The download name is ${downloadName} but --codec=${cliFlag} was passed. The download name implies a codec of ${derivedDownloadCodecs.join(
+					' or '
+				)} which does not align with the --codec flag.`
 			);
 		}
 
+		if (
+			derivedOutNameCodecs.length > 0 &&
+			derivedOutNameCodecs.indexOf(cliFlag) === -1
+		) {
+			throw new TypeError(
+				`The out name is ${outName} but --codec=${cliFlag} was passed. The out name implies a codec of ${derivedOutNameCodecs.join(
+					' or '
+				)} which does not align with the --codec flag.`
+			);
+		}
+
+		return {codec: cliFlag, reason: 'from --codec flag'};
+	}
+
+	if (derivedDownloadCodecs.length > 0) {
 		return {
-			codec: derivedDownloadCodec,
+			codec: derivedDownloadCodecs[0],
 			reason: 'derived from download name',
 		};
 	}
 
-	if (derivedOutNameCodec) {
-		if (cliFlag && derivedOutNameCodec !== cliFlag) {
-			throw new TypeError(
-				`The out name is ${outName} but --codec=${cliFlag} was passed. The out name implies a codec of ${derivedOutNameCodec} which does not align with the --codec flag.`
-			);
-		}
-
-		if (configFile && derivedOutNameCodec !== configFile) {
-			throw new TypeError(
-				`The out name is ${outName} but ${configFile} was set as the codec in the config file. The out name implies a codec of ${derivedOutNameCodec} which does not align with the codec set in the config file.`
-			);
-		}
-
+	if (derivedOutNameCodecs.length > 0) {
 		return {
-			codec: derivedOutNameCodec,
+			codec: derivedOutNameCodecs[0],
 			reason: 'derived from out name',
 		};
-	}
-
-	if (cliFlag) {
-		return {codec: cliFlag, reason: 'from --codec flag'};
 	}
 
 	if (configFile) {

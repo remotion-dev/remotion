@@ -38,7 +38,7 @@ export interface ProductLauncher {
 	product: Product;
 }
 
-class ChromeLauncher implements ProductLauncher {
+export class ChromeLauncher implements ProductLauncher {
 	_preferredRevision: string;
 
 	constructor(preferredRevision: string) {
@@ -128,7 +128,7 @@ class ChromeLauncher implements ProductLauncher {
 				{timeout}
 			);
 		} catch (error) {
-			await browser.close();
+			await browser.close(false);
 			throw error;
 		}
 
@@ -167,8 +167,4 @@ function resolveExecutablePath(launcher: ChromeLauncher): {
 				product === 'chrome' ? chromeHelp : firefoxHelp
 		  }`;
 	return {executablePath: revisionInfo.executablePath, missingText};
-}
-
-export default function Launcher(preferredRevision: string): ProductLauncher {
-	return new ChromeLauncher(preferredRevision);
 }

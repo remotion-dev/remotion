@@ -472,7 +472,6 @@ const getRules = (typescript: boolean) => {
       },
     ],
     "react/no-this-in-sfc": "error",
-    "react/no-unescaped-entities": "error",
     "react/no-unknown-property": "error",
     "react/no-unsafe": "error",
     "react/no-unused-prop-types": "error",
@@ -541,7 +540,7 @@ const getRules = (typescript: boolean) => {
           "@typescript-eslint/no-var-requires": "off",
         }
       : {}),
-    // In Video.tsx we encourage using fragment for just a single composition
+    // In Root.tsx we encourage using fragment for just a single composition
     // since we intend to add more compositions later and you should then use a fragment.
     "react/jsx-no-useless-fragment": "off",
     // This is generally okay because on every frame, there will be a full rerender anyway!

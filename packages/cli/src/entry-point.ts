@@ -4,12 +4,12 @@ import {ConfigInternals} from './config';
 import {Log} from './log';
 
 const candidates = [
+	path.join('src', 'index.ts'),
+	path.join('src', 'index.tsx'),
+	path.join('src', 'index.js'),
 	path.join('remotion', 'index.tsx'),
 	path.join('remotion', 'index.ts'),
 	path.join('remotion', 'index.js'),
-	path.join('src', 'index.tsx'),
-	path.join('src', 'index.ts'),
-	path.join('src', 'index.js'),
 ];
 
 const findCommonPath = (remotionRoot: string) => {

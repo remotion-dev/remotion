@@ -15,7 +15,7 @@ test(
 	'Can render a still using Node.JS APIs',
 	async () => {
 		const bundled = await bundle({
-			entryPoint: path.join(process.cwd(), 'src/index.tsx'),
+			entryPoint: path.join(process.cwd(), 'src/index.ts'),
 			webpackOverride,
 		});
 
@@ -36,6 +36,7 @@ test(
 			ffmpegExecutable: null,
 			ffprobeExecutable: null,
 			downloadMap: RenderInternals.makeDownloadMap(),
+			remotionRoot: process.cwd(),
 		});
 
 		const serveUrl = `http://localhost:${port}`;
@@ -63,7 +64,7 @@ test(
 		expect(() =>
 			renderStill({
 				composition,
-				output: 'src/index.tsx',
+				output: 'src/index.ts',
 				serveUrl,
 				overwrite: false,
 			})

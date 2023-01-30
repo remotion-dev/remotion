@@ -1,4 +1,5 @@
 import path from 'path';
+import type {StaticFile} from 'remotion';
 
 export const indexHtml = ({
 	baseDir,
@@ -8,6 +9,10 @@ export const indexHtml = ({
 	staticHash,
 	remotionRoot,
 	previewServerCommand,
+	numberOfAudioTags,
+	publicFiles,
+	includeFavicon,
+	title,
 }: {
 	staticHash: string;
 	baseDir: string;
@@ -16,6 +21,10 @@ export const indexHtml = ({
 	envVariables?: Record<string, string>;
 	remotionRoot: string;
 	previewServerCommand: string | null;
+	numberOfAudioTags: number;
+	publicFiles: StaticFile[];
+	includeFavicon: boolean;
+	title: string;
 }) =>
 	`
 <!DOCTYPE html>
@@ -24,10 +33,15 @@ export const indexHtml = ({
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" />
-		<link rel="icon" type="image/png" href="/remotion.png" />
-		<title>Remotion Preview</title>
+${
+	includeFavicon
+		? `		<link rel="icon" type="image/png" href="/remotion.png" />\n`
+		: ''
+}
+		<title>${title}</title>
 	</head>
 	<body>
+    <script>window.remotion_numberOfAudioTags = ${numberOfAudioTags};</script>
     <script>window.remotion_staticBase = "${staticHash}";</script>
 		<div id="video-container"></div>
 		<div id="explainer-container"></div>
@@ -59,6 +73,7 @@ export const indexHtml = ({
 			`
 				: ''
 		}
+		<script>window.remotion_staticFiles = ${JSON.stringify(publicFiles)}</script>
 		
 		<div id="container"></div>
 		<div id="menuportal-0"></div>

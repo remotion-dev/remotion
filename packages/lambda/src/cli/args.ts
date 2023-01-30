@@ -15,6 +15,7 @@ type LambdaCommandLineOptions = {
 	yes: boolean;
 	force: boolean;
 	f: boolean;
+	['default-only']: boolean;
 
 	['site-name']: string | undefined;
 	['disable-chunk-optimization']: boolean;
@@ -29,6 +30,8 @@ type LambdaCommandLineOptions = {
 	privacy: Privacy;
 	webhook: string | undefined;
 	['webhook-secret']: string | undefined;
+	['renderer-function-name']: string | undefined;
+	['function-name']: string | undefined;
 };
 
 export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(

@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-gif-gif.png
 slug: gif
 sidebar_label: "<Gif>"
 title: "<Gif>"
+crumb: "@remotion/gif"
 ---
 
 _Part of the [`@remotion/gif`](/docs/gif) package_
@@ -60,6 +62,16 @@ Callback that gets called once the GIF has loaded and finished processing. As it
 ### `style`
 
 Allows to pass in custom CSS styles.
+
+### `loopingBehavior`
+
+_available from v3.3.4_
+
+The looping behavior of the GIF. Can be one of these values:
+
+- `'loop'`: The GIF will loop infinitely. (_default_)
+- `'pause-after-finish'`: The GIF will play once and then show the last frame.
+- `'unmount-after-finish'`: The GIF will play once and then unmount. Note that if you attach a `ref`, it will become `null` after the GIF has finished playing.
 
 ## Example
 

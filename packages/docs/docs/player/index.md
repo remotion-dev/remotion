@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-player-index.png
 title: "@remotion/player"
 ---
 

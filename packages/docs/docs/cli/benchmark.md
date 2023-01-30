@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-cli-benchmark.png
 title: npx remotion benchmark
 sidebar_label: benchmark
+crumb: CLI Reference
 ---
 
 _available from v3.2.28_
@@ -8,7 +10,7 @@ _available from v3.2.28_
 Measures render time by running a render multiple times, if desired with multiple compositions and concurrency values to compare against each other.
 
 ```bash
-npx remotion benchmark src/index.tsx [composition-ids]
+npx remotion benchmark src/index.ts [composition-ids]
 ```
 
 You can provide multiple composition IDs separated by comma, ex: `npx remotion benchmark src/index.ts --codec=h264 Main,Canvas,CSS`

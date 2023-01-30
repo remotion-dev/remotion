@@ -181,7 +181,7 @@ export const TemplateModalContent: React.FC<{
         name: permissionName,
       });
       if (result.state === "granted" || result.state === "prompt") {
-        navigator.clipboard.writeText(command);
+        await navigator.clipboard.writeText(command);
         setCopied(command);
       }
     } catch (err) {

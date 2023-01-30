@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-parametrized-rendering.png
 id: parametrized-rendering
 title: Parametrized rendering
+crumb: "How To"
 ---
 
 ```twoslash include example
@@ -36,8 +38,8 @@ export const MyComponent: React.FC<{ propOne: string; propTwo: number }> = () =>
   null;
 
 // @filename: Root.tsx
-import React from "react";
 // ---cut---
+import React from "react";
 import { Composition } from "remotion";
 import { MyComponent } from "./MyComponent";
 
@@ -74,13 +76,13 @@ When rendering (for example using the `npm run build` script defined in `package
 **Using inline JSON**
 
 ```bash
-npx remotion render src/index.tsx HelloWorld out/helloworld.mp4 --props='{"propOne": "Hi", "propTwo": 10}'
+npx remotion render HelloWorld out/helloworld.mp4 --props='{"propOne": "Hi", "propTwo": 10}'
 ```
 
 **Using a file path:**
 
 ```bash
-npx remotion render src/index.tsx HelloWorld out/helloworld.mp4 --props=./path/to/props.json
+npx remotion render HelloWorld out/helloworld.mp4 --props=./path/to/props.json
 ```
 
 [See also: CLI flags](/docs/cli)
@@ -144,7 +146,7 @@ _Available since v2.0._: You can also use the `getInputProps()` function to retr
 ## You can still use components as normal
 
 Even if you have registered a component as a composition,
-you can still use it as normal in your videos and pass it's props directly. Default props don't apply in this case.
+you can still use it normally in your videos and pass its props directly. Default props don't apply in this case.
 
 ```tsx twoslash
 // @include: example-MyComponent

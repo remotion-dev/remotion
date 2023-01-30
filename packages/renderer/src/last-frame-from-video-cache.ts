@@ -16,6 +16,7 @@ export type LastFrameOptions = {
 	imageFormat: OffthreadVideoImageFormat;
 	needsResize: [number, number] | null;
 	downloadMap: DownloadMap;
+	remotionRoot: string;
 };
 
 const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50MB

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-cli-cli.png
 title: Command line reference
 sidebar_label: CLI reference
 id: cli
@@ -21,7 +22,7 @@ The following commands are available - you can always run them using `npx remoti
 ## Example command
 
 ```
-npx remotion render --codec=vp8 src/index.tsx HelloWorld out/video.webm
+npx remotion render --codec=vp8 HelloWorld out/video.webm
 ```
 
 ## Fig.io autocompletion

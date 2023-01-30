@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-sequence.png
 id: sequence
 title: <Sequence>
+crumb: "API"
 ---
 
 import { SequenceForwardExample } from "../components/SequenceExamples/SequenceForward";
@@ -181,6 +183,10 @@ const MyComp = () => {
   );
 };
 ```
+
+## Note for `@remotion/three`
+
+A `<Sequence>` by default will return a `<div>` component which is not allows inside a [`<ThreeCanvas>`](/docs/three-canvas). To avoid an error, pass `layout="none"` to `<Sequence>`.
 
 ## See also
 
