@@ -30,6 +30,14 @@ export const handleCommonError = async (err: Error) => {
 		);
 	}
 
+	if (err.message.includes('Error creating WebGL context')) {
+		Log.info();
+		Log.info('💡 You might need to set the OpenGL renderer to "angle"');
+		Log.info(
+			'💡 Get help for this issue at https://www.remotion.dev/docs/three'
+		);
+	}
+
 	if (err.message.includes('The bucket does not allow ACLs')) {
 		Log.info();
 		Log.info(
