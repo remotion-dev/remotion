@@ -4,6 +4,7 @@ title: Serverless Framework and Remotion integration with AWS
 slug: /lambda/serverless-framework-integration
 crumb: "Serverless"
 ---
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
@@ -15,7 +16,9 @@ This assumes that you have knowledge in using [Serverless Framework](https://www
 This contains instructions for setting up and installing the `remotion` Lambda to your AWS account. This deployment is designed to be executed on your local machine.
 
 ### Prequisites
+
 - Make sure that your local AWS profile is able to deploy to AWS, or follow this [guide](/docs/lambda/setup) to set up a user for your local machine.
+
 ### Setup
 
 #### 1. Clone or download the project
@@ -27,6 +30,7 @@ The project can be found at [`remotion-serverless project`](https://github.com/a
 ```bash
 cd remotion-serverless && cd remotion-app
 ```
+
 #### 3. Install dependencies
 
 <Tabs
@@ -62,15 +66,17 @@ yarn install
 
 </Tabs>
 
-
 #### 4. Confgure credentials
+
 An `.env` file needs to be added to the directory to configure the AWS credentials that the project will use for deployment.
 
 ```bash title=".env"
 AWS_KEY_1=
 AWS_SECRET_1=
 ```
+
 If you have more than one accounts you can set them like this.
+
 ```bash title=".env"
 AWS_KEY_1=
 AWS_SECRET_1=
@@ -166,18 +172,18 @@ yarnrun delete-fn
 
 This will execute the [delete function](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-app/src/infra/delete-lambda-fn.ts) which removes the remotion Lambda function from your AWS account.
 
-
 ## serverless-app
 
-This contains instructions for setting up and installing Lambda services [render_handler](https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/render_handler.ts) and [progress_handler]([https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/progress_handler.ts]) to your AWS account. This guide is designed to be executed on your local machine.
-
+This contains instructions for setting up and installing Lambda services [render_handler](https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/render_handler.ts) and [progress_handler](https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/progress_handler.ts) to your AWS account. This guide is designed to be executed on your local machine.
 
 ### Context
+
 This application has been created by an application example from [serverless examples repo](https://github.com/serverless/examples/tree/v3/aws-node-http-api-typescript) and bootstrapped the application using this command.
 
 ```bash title="serverless"
 serverless --template-url=https://github.com/serverless/examples/tree/v3/aws-node-http-api-typescript
 ```
+
 After creating the `serverless` application, update it to the latest version by navigating to the application directory using the terminal.
 
 ```bash
@@ -187,11 +193,10 @@ npm update
 ### Prerequisites
 
 - AWS deployment profile on your local machine, to configure an AWS deployment profile on your local machine, follow the guide provided by the [serverless website](https://www.serverless.com/framework/docs/providers/aws/guide/credentials).
-- To install Serverless, follow this [guide](https://www.serverless.com/framework/docs/getting-started).  
+- To install Serverless, follow this [guide](https://www.serverless.com/framework/docs/getting-started).
 - Register for an [serverless account](https://app.serverless.com/), this give you a dashboard that has features such as function lambda invocations.
 - Create an [organization](https://www.serverless.com/console/docs/product/create-org) on your serverless account to associate your `lambda` applications.
 - A AWS policy created named `remotion-executionrole-policy` which is created from this [guide](/docs/lambda/without-iam/#1-create-role-policy).
-
 
 ### Setup
 
@@ -204,6 +209,7 @@ The project can be found at [`remotion-serverless project`](https://github.com/a
 ```bash
 cd remotion-serverless && cd serverless-app
 ```
+
 #### 3. Install dependencies
 
 <Tabs
@@ -240,31 +246,39 @@ yarn install
 </Tabs>
 
 #### 4. Configure the serverless execution role
+
 Each of the function is assigned with a role named `remotionLambdaServerlessRole` as both function has the same access patterns to the emotion Lambda.
 
 #### Steps
- - Go to AWS account IAM Roles section
- - Click "Create role".
- - Under "Use cases", select "Lambda". Click next.
- - Under "Permissions policies", filter for `remotion-executionrole-policy` and click the checkbox to assign this policy. This `policy` should have been created, if not, follow this [guide](/docs/lambda/without-iam/#1-create-role-policy) in setting this up.
- - Additionally, still in "Permission policies" clear the filter and filter again for `AWSLambdaBasicExecutionRole`. Click the checkbox and click next.
- - In the final step, name the role `remotionLambdaServerlessRole` exactly. You can leave the other fields as is.
- - Click "Create role" to confirm.
+
+- Go to AWS account IAM Roles section
+- Click "Create role".
+- Under "Use cases", select "Lambda". Click next.
+- Under "Permissions policies", filter for `remotion-executionrole-policy` and click the checkbox to assign this policy. This `policy` should have been created, if not, follow this [guide](/docs/lambda/without-iam/#1-create-role-policy) in setting this up.
+- Additionally, still in "Permission policies" clear the filter and filter again for `AWSLambdaBasicExecutionRole`. Click the checkbox and click next.
+- In the final step, name the role `remotionLambdaServerlessRole` exactly. You can leave the other fields as is.
+- Click "Create role" to confirm.
 
 This steps creates a role named `remotionLambdaServerlessRole` with permissions from `remotion-executionrole-policy` and `AWSLambdaBasicExecutionRole` which allows the lambda function to create Cloudwatch logs. The role is referenced by the two functions in the [serverless.yml](https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/serverless.yml#L78) file, which enables the two Lambda functions to render video and check the progress of the render.
 
 #### 5. Login into serverless
+
 From the `serverless-app` directory, execute the `serverless` command.
+
 ```bash
  serverless login
 ```
+
 Follow the prompt, select `Serverless Framework Dashboard`, this will log you into the serverless website so that your application can have a dashboard.
 
 #### 6. Initialize the serverless project
+
 From the `serverless-app` directory, execute the `serverless` command.
+
 ```bash
  serverless
 ```
+
 This will setup your project for deployment.
 
 ```bash title="serverless"
@@ -273,20 +287,22 @@ Running "serverless" from node_modules
 
 Your service is configured with Serverless Dashboard and is ready to be deployed.
 
-? Do you want to deploy now? (Y/n) 
+? Do you want to deploy now? (Y/n)
 
 ```
 
 Select 'n' for the answer of the prompt.
 
 #### 7. Deploy the serverless project
+
 From the `serverless-app` directory.
+
 ```bash title="serverless deploy"
  serverless deploy
 ```
 
 ```bash title="deploy response"
-serverless deploy        
+serverless deploy
 
 Running "serverless" from node_modules
 
@@ -305,6 +321,7 @@ functions:
   render: api-render-video-dev-render (44 MB)
   render_progress: api-render-video-dev-render_progress (44 MB)
 ```
+
 The serverless application is configured to be associated in `changeme` organization dashboard from [serverless dashboard](https://app.serverless.com/).
 
 ```bash title="serverless.yml"
@@ -315,22 +332,25 @@ service: api-render-video
 ```
 
 #### 8. Remove the serverless project from your AWS account, if not needed anymore
+
 From the `serverless-app` directory.
+
 ```bash
  serverless remove
 ```
 
-
 ### Interacting with the API
+
 The API requires an authorization token to interact with it. To obtain the token, first go to the serverless dashboard to retrieve outputs such as `UserPoolRegion`, `UserPoolId`, and `UserPoolClientId`, which are used to authenticate with Cognito. If you do not have a frontend application, you can create a user and an authentication token manually for the API by following this [guide](docs/lambda/without-iam/example#test-your-endpoint).
 
 <img src="/img/serverless-com-integration-serverlesss-output.png" /> <br/><br/>
 
-From the guide, `YOUR_USER_POOL_CLIENT_ID` is `UserpoolClientId`  and `YOUR_USER_POOL_ID` is the `UserPoolId`, the steps should be followed up to retrieving the `IdToken`.
+From the guide, `YOUR_USER_POOL_CLIENT_ID` is `UserpoolClientId` and `YOUR_USER_POOL_ID` is the `UserPoolId`, the steps should be followed up to retrieving the `IdToken`.
 
 The base API URL is `https://25w651t09g.execute-api.ap-southeast-2.amazonaws.com/dev/render` from the dashboard output `APIGatewayUrl`.
 
 #### 1. Render a video
+
 ```bash title="render video"
 curl --location --request POST 'https://xxxxxxxx.execute-api.ap-southeast-2.amazonaws.com/dev/render' \
 --header 'Authorization: Bearer eyJraWQiOiJMVVVVZGtIQ1JXWEEyWEEXXXXXXXXXjMKR1t5S-oA'
@@ -343,6 +363,7 @@ curl --location --request POST 'https://xxxxxxxx.execute-api.ap-southeast-2.amaz
     "bucketName": "remotionlambda-apsoutheast2-xxxxxxxx"
 }
 ```
+
 This will initiate the render of the video and provide output with the `renderId` and `bucketName`. The code for the Lambda function is located [here](https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/render_handler.ts).
 
 #### 2. Get the progress of the render
@@ -351,6 +372,7 @@ This will initiate the render of the video and provide output with the `renderId
 curl --location --request GET 'https://xxxxxxxx.execute-api.ap-southeast-2.amazonaws.com/dev/render/i9xnfrgXXXX?bucketName=remotionlambda-apsoutheast2-xxxxxxxx' \
 --header 'Authorization: Bearer eyJraWQiOiJMVVVVZGtIQ1JXWEEXXXXXXXXXXXvaQ'
 ```
+
 ```bash title="response"
 {
     "message": "Render found.",
@@ -367,9 +389,11 @@ curl --location --request GET 'https://xxxxxxxx.execute-api.ap-southeast-2.amazo
 This API will provide the progress details of the render, indicating whether it is a `success` or `failure`. If the video render is completed, it will provide the `mediaUrl`, which is a pre-signed URL that makes the video downloadable. The code for the Lambda function is located [here](https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/progress_handler.ts).
 
 ## Notes
+
 - The deployment of remotion Lambda is configured to be deployed only to `ap-southeast-2` region to simplify the project, adjust this in the code at [region.ts](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-app/src/infra/regions.ts).
 
 ## See also
+
 - [Using Lambda without IAM user](/docs/lambda/without-iam)
 - [Permissions](/docs/lambda/permissions)
 - [Serverless Framework](https://www.serverless.com/framework/docs/getting-started)
