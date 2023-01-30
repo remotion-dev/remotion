@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-shapes-pie.png
 title: <Pie />
 crumb: "@remotion/shapes"
 ---
