@@ -67,6 +67,26 @@ You are now set up and can render a [`<ThreeCanvas />`](/docs/three-canvas) in y
 
 A [`<Sequence>`](/docs/sequence) by default will return a `<div>` component, which is not allowed inside a `<ThreeCanvas>`. To avoid an error, pass `layout="none"` to `<Sequence>`.
 
+## Note on server-side rendering
+
+Three.JS does not render with the default OpenGL renderer - we recommend to set it to `angle`. The config file of new projects includes by default:
+
+```ts twoslash
+import { Config } from "remotion";
+
+Config.Puppeteer.setChromiumOpenGlRenderer("angle");
+```
+
+Since the config file does not apply to server-side rendering, you need to explicitly add
+
+```json
+"chromiumOptions": {
+  "gl": "angle"
+}
+```
+
+to server-side rendering APIs like [`renderMedia()`](/docs/renderer/render-media), [`renderFrames()`](/docs/renderer/render-frames), [`getCompositions()`](/docs/renderer/get-compositions) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
+
 ## Thanks
 
 A big thanks to [Björn Zeutzheim](https://github.com/olee) for researching and discovering the techniques needed for React Three Fiber integration and for doing the initial implementation of the @remotion/three APIs.
