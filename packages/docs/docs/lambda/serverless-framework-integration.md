@@ -1,9 +1,9 @@
 ---
 image: /generated/articles-docs-lambda-serverless-framework-integration.png
-title: Using the Serverless Framework
+title: Using the Serverless Framework with Remotion Lambda
 slug: /lambda/serverless-framework-integration
 sidebar_label: Serverless.com integration
-crumb: "Serverless"
+crumb: "@remotion/lambda"
 ---
 
 import Tabs from '@theme/Tabs';

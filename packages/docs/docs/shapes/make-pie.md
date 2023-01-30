@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-shapes-make-pie.png
 title: makePie()
 crumb: "@remotion/shapes"
 ---
