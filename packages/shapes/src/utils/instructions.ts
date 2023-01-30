@@ -19,12 +19,17 @@ export type Instruction =
 			y: number;
 	  }
 	| {
-			type: 'm';
+			type: 'a';
+			rx: number;
+			ry: number;
+			xAxisRotation: number;
+			largeArcFlag: boolean;
+			sweepFlag: boolean;
 			x: number;
 			y: number;
 	  }
 	| {
-			type: 'a';
+			type: 'A';
 			rx: number;
 			ry: number;
 			xAxisRotation: number;
@@ -54,12 +59,16 @@ export const serializeInstruction = (instruction: Instruction) => {
 		return `C ${instruction.cp1x} ${instruction.cp1y} ${instruction.cp2x} ${instruction.cp2y} ${instruction.x} ${instruction.y}`;
 	}
 
-	if (instruction.type === 'm') {
-		return `m ${instruction.x} ${instruction.y}`;
-	}
-
 	if (instruction.type === 'a') {
 		return `a ${instruction.rx} ${instruction.ry} ${
+			instruction.xAxisRotation
+		} ${Number(instruction.largeArcFlag)} ${Number(
+			instruction.sweepFlag ? 1 : 0
+		)} ${instruction.x} ${instruction.y}`;
+	}
+
+	if (instruction.type === 'A') {
+		return `A ${instruction.rx} ${instruction.ry} ${
 			instruction.xAxisRotation
 		} ${Number(instruction.largeArcFlag)} ${Number(
 			instruction.sweepFlag ? 1 : 0
