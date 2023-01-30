@@ -1,15 +1,22 @@
 ---
 image: /generated/articles-docs-lambda-serverless-framework-integration.png
-title: Serverless Framework and Remotion integration with AWS
+title: Using the Serverless Framework
 slug: /lambda/serverless-framework-integration
+sidebar_label: Serverless.com integration
 crumb: "Serverless"
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-This guide will show you how to use Remotion with [Serverless Framework](https://www.serverless.com/). To supplement this guide, two projects have been created. The [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app) contains a remotion composition and utility scripts for deploying and deleting Remotion Lambda in AWS. The [serverless-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/serverless-app) contains a Serverless project that deploys two Lambda functions. The [render_handler](https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/render_handler.ts) function, when invoked, will call the deployed Remotion Lambda function to render a video. The [progress_handler](https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/progress_handler.ts) function tracks the progress of the render. Both functions are configured to be invoked through [API Gateway](https://aws.amazon.com/api-gateway/) and are secured by [Cognito](https://aws.amazon.com/cognito/). The API Gateway and Cognito setup are automatically created by the Serverless deployment script upon execution of `serverless deploy`.
-This assumes that you have knowledge in using [Serverless Framework](https://www.serverless.com/) and understanding the syntax of [serverless.yml](https://www.serverless.com/framework/docs/providers/aws/guide/serverless.yml).
+This guide will show you how to use Remotion with [Serverless Framework (serverless.com)](https://www.serverless.com/).
+
+To supplement this guide, two projects have been created. The [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app) contains a Remotion composition and utility scripts for deploying and deleting Remotion Lambda infrastructure in AWS.
+
+The [serverless-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/serverless-app) contains a Serverless project that deploys two Lambda functions. The [render_handler](https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/render_handler.ts) function, when invoked, will call the deployed Remotion Lambda function to render a video. The [progress_handler](https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/progress_handler.ts) function tracks the progress of the render.
+
+Both functions are configured to be invoked through [API Gateway](https://aws.amazon.com/api-gateway/) and are secured by [Cognito](https://aws.amazon.com/cognito/). The API Gateway and Cognito setup is automatically created by the Serverless deployment script upon execution of `serverless deploy`.
+This assumes that you have knowledge in using [Serverless Framework](https://www.serverless.com/) and understand the syntax of [serverless.yml](https://www.serverless.com/framework/docs/providers/aws/guide/serverless.yml).
 
 ## remotion-app
 
@@ -25,7 +32,11 @@ This contains instructions for setting up and installing the `remotion` Lambda t
 
 The project can be found at [`remotion-serverless project`](https://github.com/alexfernandez803/remotion-serverless).
 
-#### 2. Go to the `remotion-serverless` and traverse to `remotion-app` directory
+```bash
+git clone https://github.com/alexfernandez803/remotion-serverless
+```
+
+#### 2. Go to `remotion-serverless` and traverse to the `remotion-app` directory
 
 ```bash
 cd remotion-serverless && cd remotion-app
@@ -59,14 +70,14 @@ pnpm i
   <TabItem value="yarn">
 
 ```bash
-yarn install
+yarn
 ```
 
   </TabItem>
 
 </Tabs>
 
-#### 4. Confgure credentials
+#### 4. Configure credentials
 
 An `.env` file needs to be added to the directory to configure the AWS credentials that the project will use for deployment.
 
@@ -75,7 +86,7 @@ AWS_KEY_1=
 AWS_SECRET_1=
 ```
 
-If you have more than one accounts you can set them like this.
+You can use multiple accounts if you would like to do load-balancing.
 
 ```bash title=".env"
 AWS_KEY_1=
@@ -84,20 +95,22 @@ AWS_KEY_2=
 AWS_SECRET_2=
 ```
 
-The `AWS_KEY_*` and `AWS_SECRET_*` represent the AWS account credentials that are allowed to deploy the remotion Lambda function.
+The `AWS_KEY_*` and `AWS_SECRET_*` represent the AWS account credentials that are allowed to deploy the Remotion Lambda function.
 
-#### 5. Deploy the lambda function
+#### 5. Deploy the Lambda function
 
 The project has the deployment script configured in [package.json](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-app/package.json).
 
 ```json title="package.json"
-...
+{
+  // ...
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy-fn": "ts-nodwe src/infra/deploy-lambda-fn.ts",
     "delete-fn": "ts-node src/infra/delete-lambda-fn.ts",
     "render-fn": "ts-node src/infra/local-render-fn.ts"
-  },
+  }
+}
 ```
 
 <Tabs
@@ -126,16 +139,16 @@ pnpm run deploy-fn
   <TabItem value="yarn">
 
 ```bash
-yarn run deploy-fn
+yarn deploy-fn
 ```
 
   </TabItem>
 
 </Tabs>
 
-This will execute the [deploy function](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-app/src/infra/deploy-lambda-fn.ts) that will deploy the remotion Lambda to your AWS account.
+This will execute the [deploy function](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-app/src/infra/deploy-lambda-fn.ts) that will deploy the Remotion Lambda to your AWS account.
 
-#### 6. (Optional) To delete the lambda function if not needed.
+#### 6. (Optional) Delete the lambda function if not needed.
 
 <Tabs
 defaultValue="npm"
@@ -163,14 +176,14 @@ pnpm run delete-fn
   <TabItem value="yarn">
 
 ```bash
-yarnrun delete-fn
+yarn delete-fn
 ```
 
   </TabItem>
 
 </Tabs>
 
-This will execute the [delete function](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-app/src/infra/delete-lambda-fn.ts) which removes the remotion Lambda function from your AWS account.
+This will execute the [delete function](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-app/src/infra/delete-lambda-fn.ts) which removes the Remotion Lambda function from your AWS account.
 
 ## serverless-app
 
@@ -202,9 +215,14 @@ npm update
 
 #### 1. Clone or download the project
 
-The project can be found at [`remotion-serverless project`](https://github.com/alexfernandez803/remotion-serverless).
+The project can be found at [`remotion-serverless project`](https://github.com/alexfernandez803/remotion-serverless).  
+If not done in the previous step, clone the project using:
 
-#### 2. Go to the `remotion-serverless` and traverse to `serverless-app` directory
+```bash
+git clone https://github.com/alexfernandez803/remotion-serverless
+```
+
+#### 2. Go to `remotion-serverless` and traverse to `serverless-app` directory
 
 ```bash
 cd remotion-serverless && cd serverless-app
@@ -238,7 +256,7 @@ pnpm i
   <TabItem value="yarn">
 
 ```bash
-yarn install
+yarn
 ```
 
   </TabItem>
@@ -247,7 +265,7 @@ yarn install
 
 #### 4. Configure the serverless execution role
 
-Each of the function is assigned with a role named `remotionLambdaServerlessRole` as both function has the same access patterns to the emotion Lambda.
+Each of the function is assigned with a role named `remotionLambdaServerlessRole` as both function has the same access patterns to the Remotion Lambda.
 
 #### Steps
 
@@ -390,7 +408,7 @@ This API will provide the progress details of the render, indicating whether it 
 
 ## Notes
 
-- The deployment of remotion Lambda is configured to be deployed only to `ap-southeast-2` region to simplify the project, adjust this in the code at [region.ts](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-app/src/infra/regions.ts).
+- The deployment of Remotion Lambda is configured to be deployed only to `ap-southeast-2` region to simplify the project, adjust this in the code at [region.ts](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-app/src/infra/regions.ts).
 
 ## See also
 
