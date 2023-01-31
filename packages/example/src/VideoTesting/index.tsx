@@ -31,9 +31,7 @@ export const VideoTesting: React.FC<{
 export const NativeVideoLayerTest: React.FC = () => {
 	return (
 		<Loop durationInFrames={30} layout="none">
-			<Sequence from={-250} layout="none">
-				<NativeVideo src={staticFile('framer.webm')} />
-			</Sequence>
+			<NativeVideo src={staticFile('framer.webm')} />
 		</Loop>
 	);
 };
