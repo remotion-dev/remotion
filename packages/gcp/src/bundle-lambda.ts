@@ -5,7 +5,7 @@ import path from 'path';
 import zl = require('zip-lib');
 
 const bundleLambda = async () => {
-	const outdir = path.join(__dirname, '..', `build-render`);
+	const outdir = path.join(__dirname, '..', `dist`);
 	fs.mkdirSync(outdir, {
 		recursive: true,
 	});
@@ -30,10 +30,6 @@ const bundleLambda = async () => {
 	const compositorFile = `${outdir}/compositor`;
 
 	fs.copyFileSync(x64BinaryPath, compositorFile);
-	await zl.archiveFolder(outdir, 'gcp.zip');
-
-	fs.unlinkSync(compositorFile);
-	fs.unlinkSync(outfile);
 };
 
 bundleLambda()
