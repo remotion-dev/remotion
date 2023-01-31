@@ -53,6 +53,11 @@ const startCompositor = (
 
 	let stdoutListeners: ((d: SomePayload) => void)[] = [];
 
+	// TODO: Without this the render gets stuck!! :O
+	child.stderr.on('data', (d) => {
+		console.log('stderr', d.toString('utf-8'));
+	});
+
 	child.stdout.on('data', (d) => {
 		const str = d.toString('utf-8') as string;
 		try {

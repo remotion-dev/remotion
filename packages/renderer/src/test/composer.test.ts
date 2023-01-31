@@ -1,8 +1,11 @@
+import {unlinkSync} from 'fs';
 import {test} from 'vitest';
 import {RenderInternals} from '..';
 import {compose} from '../compositor/compose';
 import {releaseCompositorWithId} from '../compositor/compositor';
 import type {CompositorInitiatePayload} from '../compositor/payloads';
+
+const keep = false;
 
 test('Video layers', async () => {
 	const renderId = 'abc';
@@ -31,28 +34,35 @@ test('Video layers', async () => {
 		},
 	};
 
-	await compose({
-		height: 1080,
-		width: 1080,
-		layers: [
-			{
-				type: 'VideoFrame',
-				params: {
-					frame: 0,
-					height: 1080,
-					width: 1080,
-					src: '/Users/jonathanburger/remotion/packages/example/src/resources/framer.mp4',
-					x: 0,
-					y: 0,
+	for (let i = 0; i < 10; i++) {
+		const output = `${process.cwd()}/test${i}.jpeg`;
+
+		await compose({
+			height: 1080,
+			width: 1080,
+			layers: [
+				{
+					type: 'VideoFrame',
+					params: {
+						frame: i,
+						height: 1080,
+						width: 1080,
+						src: '/Users/jonathanburger/remotion/packages/example/src/resources/framer.mp4',
+						x: 0,
+						y: 0,
+					},
 				},
-			},
-		],
-		compositorInitiatePayload,
-		downloadMap: RenderInternals.makeDownloadMap(),
-		imageFormat: 'Png',
-		output: process.cwd() + '/test.png',
-		renderId,
-	});
+			],
+			compositorInitiatePayload,
+			downloadMap: RenderInternals.makeDownloadMap(),
+			imageFormat: 'Jpeg',
+			output,
+			renderId,
+		});
+		if (!keep) {
+			unlinkSync(output);
+		}
+	}
 
 	releaseCompositorWithId(renderId);
 });
