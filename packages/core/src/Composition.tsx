@@ -11,7 +11,7 @@ import {CompositionManager} from './CompositionManager';
 import {getInputProps} from './config/input-props';
 import {continueRender, delayRender} from './delay-render';
 import {FolderContext} from './Folder';
-import {getRemotionEnvironment} from './get-environment';
+import {useRemotionEnvironment} from './get-environment';
 import {LayerMaster} from './LayerMaster';
 import type {CompProps} from './layers';
 import {useLayers} from './layers';
@@ -111,6 +111,7 @@ export const Composition = <T extends object>({
 	const layers = useLayers(compProps);
 
 	const nonce = useNonce();
+	const environment = useRemotionEnvironment();
 
 	const getCompositionsContext = useContext(GetCompositionsFromMarkupMode);
 	const isInGetCompositionsFromMarkupMode =
@@ -119,7 +120,10 @@ export const Composition = <T extends object>({
 	const isInSelectMode = getCompositionsContext.type === 'selected';
 	const canUseComposition = useContext(CanUseRemotionHooks);
 	if (canUseComposition) {
-		if (typeof window !== 'undefined' && window.remotion_isPlayer) {
+		if (
+			environment === 'player-development' ||
+			environment === 'player-production'
+		) {
 			throw new Error(
 				'<Composition> was mounted inside the `component` that was passed to the <Player>. See https://remotion.dev/docs/wrong-composition-mount for help.'
 			);
@@ -178,7 +182,7 @@ export const Composition = <T extends object>({
 		layers,
 	]);
 
-	if (getRemotionEnvironment() === 'server-rendering') {
+	if (environment === 'server-rendering') {
 		if (isInGetCompositionsFromMarkupMode) {
 			const metadata = {
 				width,
@@ -218,7 +222,7 @@ export const Composition = <T extends object>({
 		throw new Error('unexpected state in server rendering');
 	}
 
-	if (getRemotionEnvironment() === 'preview' && video && video.id === id) {
+	if (environment === 'preview' && video && video.id === id) {
 		const inputProps = getInputProps();
 
 		return createPortal(
@@ -236,7 +240,7 @@ export const Composition = <T extends object>({
 		);
 	}
 
-	if (getRemotionEnvironment() === 'rendering' && video && video.id === id) {
+	if (environment === 'rendering' && video && video.id === id) {
 		const inputProps = getInputProps();
 
 		return createPortal(

@@ -51,6 +51,11 @@
       "permanent": false
     },
     {
+      "source": "/shapes",
+      "destination": "/docs/shapes",
+      "permanent": false
+    },
+    {
       "source": "/api",
       "destination": "/docs/api",
       "permanent": false
@@ -143,6 +148,11 @@
     {
       "source": "/links",
       "destination": "https://linktr.ee/remotion.dev",
+      "permanent": false
+    },
+    {
+      "source": "/contributing",
+      "destination": "https://www.remotion.dev/docs/contributing",
       "permanent": false
     }
   ]

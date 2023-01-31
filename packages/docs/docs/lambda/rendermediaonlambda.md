@@ -92,6 +92,8 @@ Video codecs `h264` and `vp8` are supported, `prores` is supported since `v3.2.0
 
 Audio codecs `mp3`, `aac` and `wav` are also supported.
 
+The option `h264-mkv` has been renamed to just `h264` since `v3.3.34`. Use `h264` to get the same behavior.
+
 See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
 
 ### `forceHeight`
@@ -245,6 +247,14 @@ _available from v3.2.25_
 If a custom out name is specified and a file already exists at this key in the S3 bucket, decide whether that file will be deleted before the render begins. Default `false`.
 
 An existing file at the output S3 key will conflict with the render and must be deleted beforehand. If this setting is `false` and a conflict occurs, an error will be thrown.
+
+### `rendererFunctionName`
+
+_optional, available from v3.3.38_
+
+If specified, this function will be used for rendering the individual chunks. This is useful if you want to use a function with higher or lower power for rendering the chunks than the main orchestration function.
+
+If you want to use this option, the function must be in the same region, the same account and have the same version as the main function.
 
 ### `webhook`
 

@@ -24,8 +24,12 @@ import {CompositionManager, compositionsRef} from './CompositionManager';
 import * as CSSUtils from './default-css';
 import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render';
 import type {RemotionEnvironment} from './get-environment';
-import {getRemotionEnvironment} from './get-environment';
+import {
+	getRemotionEnvironment,
+	useRemotionEnvironment,
+} from './get-environment';
 import {getPreviewDomElement} from './get-preview-dom-element';
+import {IsPlayerContextProvider, useIsPlayer} from './is-player';
 import {LayerMaster} from './LayerMaster';
 import type {CompProps, Layer, SmallLayer} from './layers';
 import {useLayers} from './layers';
@@ -114,6 +118,9 @@ export const Internals = {
 	SelectCompositionMode,
 	useLayers,
 	LayerMaster,
+	IsPlayerContextProvider,
+	useIsPlayer,
+	useRemotionEnvironment,
 };
 
 type WebpackConfiguration = Configuration;

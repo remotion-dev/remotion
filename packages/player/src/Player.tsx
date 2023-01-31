@@ -308,52 +308,56 @@ const PlayerFn = <T extends object>(
 	}
 
 	return (
-		<SharedPlayerContexts
-			timelineContext={timelineContextValue}
-			layers={layers}
-			compositionHeight={compositionHeight}
-			compositionWidth={compositionWidth}
-			durationInFrames={durationInFrames}
-			fps={fps}
-			inputProps={inputProps}
-			numberOfSharedAudioTags={numberOfSharedAudioTags}
-		>
-			<Internals.Timeline.SetTimelineContext.Provider
-				value={setTimelineContextValue}
+		<Internals.IsPlayerContextProvider>
+			<SharedPlayerContexts
+				timelineContext={timelineContextValue}
+				layers={layers}
+				compositionHeight={compositionHeight}
+				compositionWidth={compositionWidth}
+				durationInFrames={durationInFrames}
+				fps={fps}
+				inputProps={inputProps}
+				numberOfSharedAudioTags={numberOfSharedAudioTags}
 			>
-				<PlayerEventEmitterContext.Provider value={emitter}>
-					<PlayerUI
-						ref={rootRef}
-						renderLoading={renderLoading}
-						autoPlay={Boolean(autoPlay)}
-						loop={Boolean(loop)}
-						controls={Boolean(controls)}
-						errorFallback={errorFallback}
-						style={style}
-						inputProps={passedInputProps}
-						allowFullscreen={Boolean(allowFullscreen)}
-						moveToBeginningWhenEnded={Boolean(moveToBeginningWhenEnded)}
-						clickToPlay={
-							typeof clickToPlay === 'boolean' ? clickToPlay : Boolean(controls)
-						}
-						showVolumeControls={Boolean(showVolumeControls)}
-						doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
-						spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
-						playbackRate={playbackRate}
-						className={className ?? undefined}
-						showPosterWhenUnplayed={Boolean(showPosterWhenUnplayed)}
-						showPosterWhenEnded={Boolean(showPosterWhenEnded)}
-						showPosterWhenPaused={Boolean(showPosterWhenPaused)}
-						renderPoster={renderPoster}
-						inFrame={inFrame ?? null}
-						outFrame={outFrame ?? null}
-						initiallyShowControls={initiallyShowControls ?? true}
-						renderFullscreen={renderFullscreenButton ?? null}
-						renderPlayPauseButton={renderPlayPauseButton ?? null}
-					/>
-				</PlayerEventEmitterContext.Provider>
-			</Internals.Timeline.SetTimelineContext.Provider>
-		</SharedPlayerContexts>
+				<Internals.Timeline.SetTimelineContext.Provider
+					value={setTimelineContextValue}
+				>
+					<PlayerEventEmitterContext.Provider value={emitter}>
+						<PlayerUI
+							ref={rootRef}
+							renderLoading={renderLoading}
+							autoPlay={Boolean(autoPlay)}
+							loop={Boolean(loop)}
+							controls={Boolean(controls)}
+							errorFallback={errorFallback}
+							style={style}
+							inputProps={passedInputProps}
+							allowFullscreen={Boolean(allowFullscreen)}
+							moveToBeginningWhenEnded={Boolean(moveToBeginningWhenEnded)}
+							clickToPlay={
+								typeof clickToPlay === 'boolean'
+									? clickToPlay
+									: Boolean(controls)
+							}
+							showVolumeControls={Boolean(showVolumeControls)}
+							doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
+							spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
+							playbackRate={playbackRate}
+							className={className ?? undefined}
+							showPosterWhenUnplayed={Boolean(showPosterWhenUnplayed)}
+							showPosterWhenEnded={Boolean(showPosterWhenEnded)}
+							showPosterWhenPaused={Boolean(showPosterWhenPaused)}
+							renderPoster={renderPoster}
+							inFrame={inFrame ?? null}
+							outFrame={outFrame ?? null}
+							initiallyShowControls={initiallyShowControls ?? true}
+							renderFullscreen={renderFullscreenButton ?? null}
+							renderPlayPauseButton={renderPlayPauseButton ?? null}
+						/>
+					</PlayerEventEmitterContext.Provider>
+				</Internals.Timeline.SetTimelineContext.Provider>
+			</SharedPlayerContexts>
+		</Internals.IsPlayerContextProvider>
 	);
 };
 

@@ -11,7 +11,7 @@ import React, {
 import {getAbsoluteSrc} from '../absolute-src';
 import {CompositionManager} from '../CompositionManager';
 import {continueRender, delayRender} from '../delay-render';
-import {getRemotionEnvironment} from '../get-environment';
+import {useRemotionEnvironment} from '../get-environment';
 import {random} from '../random';
 import {SequenceContext} from '../Sequence';
 import {useTimelinePosition} from '../timeline-position-state';
@@ -35,6 +35,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	const frame = useCurrentFrame();
 	const sequenceContext = useContext(SequenceContext);
 	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
+	const environment = useRemotionEnvironment();
 
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads
@@ -114,7 +115,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	const {src, onDuration} = props;
 
 	// If audio source switches, make new handle
-	if (getRemotionEnvironment() === 'rendering') {
+	if (environment === 'rendering') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
 			if (process.env.NODE_ENV === 'test') {

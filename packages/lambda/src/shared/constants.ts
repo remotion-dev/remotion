@@ -217,6 +217,7 @@ export type LambdaPayloads = {
 		type: LambdaRoutines.info;
 	};
 	start: {
+		rendererFunctionName: string | null;
 		type: LambdaRoutines.start;
 		serveUrl: string;
 		composition: string;
@@ -251,6 +252,7 @@ export type LambdaPayloads = {
 		forceWidth: number | null;
 	};
 	launch: {
+		rendererFunctionName: string | null;
 		type: LambdaRoutines.launch;
 		serveUrl: string;
 		composition: string;
@@ -308,7 +310,7 @@ export type LambdaPayloads = {
 		inputProps: SerializedInputProps;
 		renderId: string;
 		imageFormat: ImageFormat;
-		codec: Exclude<Codec, 'h264'>;
+		codec: LambdaCodec;
 		crf: number | undefined;
 		proResProfile: ProResProfile | undefined;
 		pixelFormat: PixelFormat | undefined;
@@ -325,6 +327,9 @@ export type LambdaPayloads = {
 		audioBitrate: string | null;
 		videoBitrate: string | null;
 		layers: SmallLayer[];
+		launchFunctionConfig: {
+			version: string;
+		};
 	};
 	still: {
 		type: LambdaRoutines.still;
