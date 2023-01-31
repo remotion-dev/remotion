@@ -181,6 +181,7 @@ const renderWebFrame = ({
 	});
 };
 
+// TODO: Bring fixes for retrying here
 export const renderWebFrameAndRetryTargetClose = async ({
 	frame,
 	index,
