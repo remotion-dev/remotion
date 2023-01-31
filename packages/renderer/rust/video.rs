@@ -15,7 +15,7 @@ use ffmpeg::{
     software::scaling::{Context, Flags},
 };
 
-use crate::errors::print_debug;
+use crate::errors::{handle_error, print_debug};
 use crate::payloads::payloads::VideoLayer;
 
 pub fn process_frames(
@@ -124,9 +124,22 @@ pub fn get_video_frame(layer: VideoLayer, video_fps: u32) -> Result<Vec<u8>, std
             if (packet.dts().unwrap() - 1) > position {
                 break;
             }
-            decoder.send_packet(&packet)?;
-            let rgb_frame = process_frame(&mut decoder)?;
-            frame = rgb_frame;
+            loop {
+                decoder.send_packet(&packet)?;
+                let rgb_frame = process_frame(&mut decoder);
+
+                if rgb_frame.is_err() {
+                    let err = rgb_frame.err().unwrap();
+                    if err.to_string().contains("Resource temporarily unavailable") {
+                        // Need to send another packet
+                    } else {
+                        handle_error(&err);
+                    }
+                } else {
+                    frame = rgb_frame.unwrap();
+                    break;
+                }
+            }
         }
     }
 
