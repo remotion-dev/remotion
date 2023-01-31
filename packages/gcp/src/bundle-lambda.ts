@@ -5,7 +5,7 @@ import path from 'path';
 import zl = require('zip-lib');
 
 const bundleLambda = async () => {
-	const outdir = path.join(__dirname, '..', `dist`);
+	const outdir = path.join(__dirname, '..', 'container', '/', 'dist');
 	fs.mkdirSync(outdir, {
 		recursive: true,
 	});
