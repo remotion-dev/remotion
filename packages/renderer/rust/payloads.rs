@@ -80,6 +80,12 @@ pub mod payloads {
         pub msg_type: String,
     }
 
+    #[derive(Serialize, Debug)]
+    pub struct DebugPayload {
+        pub msg: String,
+        pub msg_type: String,
+    }
+
     #[derive(Serialize, Deserialize, Debug)]
     pub enum ImageFormat {
         Png,

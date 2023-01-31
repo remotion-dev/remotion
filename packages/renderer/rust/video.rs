@@ -1,4 +1,5 @@
 extern crate ffmpeg_next as ffmpeg;
+use std::arch::aarch64::int32x2_t;
 use std::sync::mpsc::{self, Sender};
 
 use std::thread;
@@ -14,6 +15,7 @@ use ffmpeg::{
     software::scaling::{Context, Flags},
 };
 
+use crate::errors::print_debug;
 use crate::payloads::payloads::VideoLayer;
 
 pub fn process_frames(
@@ -44,6 +46,8 @@ pub fn process_frames(
         let position = (first_frame as f64 * time_base.1 as f64 / time_base.0 as f64) as i64;
 
         stream_input.seek(position, ..position).unwrap();
+
+        print_debug(format!("Seeked to frame ({}): {}", src, first_frame));
 
         videos.insert(src, stream_input);
     }
@@ -101,7 +105,9 @@ pub fn get_video_frame(layer: VideoLayer, video_fps: u32) -> Result<Vec<u8>, std
     let mut process_frame =
         |decoder: &mut ffmpeg::decoder::Video| -> Result<Vec<u8>, ffmpeg::Error> {
             let mut input = Video::empty();
+            print_debug(format!("getting frame {}", layer.frame));
             decoder.receive_frame(&mut input)?;
+            print_debug(format!("receiving frame {}", layer.frame));
             let mut rgb_frame = Video::empty();
             scaler.run(&input, &mut rgb_frame)?;
 

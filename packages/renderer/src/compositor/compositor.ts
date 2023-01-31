@@ -1,11 +1,10 @@
 import {spawn} from 'child_process';
-import {truthy} from '../truthy';
 import {getExecutablePath} from './get-executable-path';
 import type {
 	CompositorCommand,
 	CompositorInitiatePayload,
-	ErrorPayload,
-	TaskDonePayload,
+	DebugPayload,
+	SomePayload,
 } from './payloads';
 
 export type Compositor = {
@@ -53,17 +52,28 @@ const startCompositor = (
 
 	const stderrChunks: Buffer[] = [];
 
-	let stdoutListeners: ((d: string) => void)[] = [];
-	let stderrListeners: ((d: string) => void)[] = [];
+	let stdoutListeners: ((d: SomePayload) => void)[] = [];
 
-	child.stderr.on('data', (d) => {
-		stderrChunks.push(d);
-		const str = d.toString('utf-8');
-		stderrListeners.forEach((s) => s(str));
-	});
 	child.stdout.on('data', (d) => {
-		const str = d.toString('utf-8');
-		stdoutListeners.forEach((s) => s(str));
+		const str = d.toString('utf-8') as string;
+		try {
+			const payloads = str
+				.split('--debug-end--')
+				.map((t) => t.trim())
+				.filter(Boolean);
+			for (const payload of payloads) {
+				const p = JSON.parse(
+					payload.replace('--debug-start--', '')
+				) as DebugPayload;
+				if (p.msg_type === 'debug') {
+					console.log('Rust debug', p.msg);
+				}
+
+				stdoutListeners.forEach((s) => s(p));
+			}
+		} catch (e) {
+			console.log({str});
+		}
 	});
 
 	let nonce = 0;
@@ -92,49 +102,22 @@ const startCompositor = (
 			return new Promise((resolve, reject) => {
 				child.stdin.write(JSON.stringify(actualPayload) + '\n');
 
-				const onStderr = (message: string) => {
-					let parsed: ErrorPayload | null = null;
-					try {
-						const content = JSON.parse(message) as ErrorPayload;
-						if (content.msg_type === 'error') {
-							parsed = content;
-						}
-					} catch (error) {
-						// TODO: Obviously bad, does not handle panics
-						console.log('Rust debug err:', message);
+				const onStdout = (p: SomePayload) => {
+					if (p.msg_type === 'finish' && p.nonce === actualPayload.nonce) {
+						resolve();
+						stdoutListeners = stdoutListeners.filter((s) => s !== onStdout);
 					}
 
-					if (parsed) {
-						const err = new Error(parsed.error);
-						err.stack = parsed.error + '\n' + parsed.backtrace;
+					if (p.msg_type === 'error') {
+						const err = new Error(p.error);
+						err.stack = p.error + '\n' + p.backtrace;
 
 						reject(err);
 						stdoutListeners = stdoutListeners.filter((s) => s !== onStdout);
-						stderrListeners = stderrListeners.filter((s) => s !== onStderr);
-					}
-				};
-
-				const onStdout = (str: string) => {
-					const lineSplit = str.split('\n');
-					for (const line of lineSplit.filter(truthy)) {
-						let parsed: TaskDonePayload | null = null;
-						try {
-							const p = JSON.parse(line) as TaskDonePayload;
-							if (p.msg_type === 'finish') {
-								parsed = p;
-							}
-						} catch (e) {}
-
-						if (parsed && parsed.nonce === actualPayload.nonce) {
-							resolve();
-							stdoutListeners = stdoutListeners.filter((s) => s !== onStdout);
-							stderrListeners = stderrListeners.filter((s) => s !== onStderr);
-						}
 					}
 				};
 
 				stdoutListeners.push(onStdout);
-				stderrListeners.push(onStderr);
 			});
 		},
 	};

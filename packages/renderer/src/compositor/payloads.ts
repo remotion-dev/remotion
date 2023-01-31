@@ -89,3 +89,10 @@ export type TaskDonePayload = {
 	time: number;
 	msg_type: 'finish';
 };
+
+export type DebugPayload = {
+	msg_type: 'debug';
+	msg: string;
+};
+
+export type SomePayload = ErrorPayload | TaskDonePayload | DebugPayload;
