@@ -3,7 +3,6 @@ import {getExecutablePath} from './get-executable-path';
 import type {
 	CompositorCommand,
 	CompositorInitiatePayload,
-	DebugPayload,
 	SomePayload,
 } from './payloads';
 
@@ -64,7 +63,7 @@ const startCompositor = (
 			for (const payload of payloads) {
 				const p = JSON.parse(
 					payload.replace('--debug-start--', '')
-				) as DebugPayload;
+				) as SomePayload;
 				if (p.msg_type === 'debug') {
 					console.log('Rust debug', p.msg);
 				}
