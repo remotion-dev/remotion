@@ -9,5 +9,5 @@ pub fn handle_finish(nonce: u32) {
     };
     let j = serde_json::to_string(&task_done).unwrap();
 
-    println!("{}", j);
+    print!("--debug-start--{}--debug-end--\n", j);
 }
