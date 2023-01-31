@@ -111,9 +111,17 @@ pub fn get_video_frame(layer: VideoLayer, video_fps: u32) -> Result<Vec<u8>, std
             let mut rgb_frame = Video::empty();
             scaler.run(&input, &mut rgb_frame)?;
 
-            let data = rgb_frame.data(0).clone();
+            let stride = rgb_frame.stride(0);
+            let byte_width: usize = 3 * rgb_frame.width() as usize;
+            let height: usize = rgb_frame.height() as usize;
+            let mut new_data: Vec<u8> = Vec::with_capacity(byte_width * height);
+            for line in 0..height {
+                let begin = line * stride;
+                let end = begin + byte_width;
+                new_data.append(&mut rgb_frame.data(0)[begin..end].to_vec());
+            }
 
-            Ok(data.to_vec())
+            Ok(new_data)
         };
 
     let mut frame = Vec::new();
