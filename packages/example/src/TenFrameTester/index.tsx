@@ -4,7 +4,7 @@ import ReactSvg from '../ReactSvg';
 // Short video that is fast to render for testing
 export const TenFrameTester: React.FC = () => (
 	<AbsoluteFill>
-		<ReactSvg transparent={false} />
+		<ReactSvg />
 		<Audio src={staticFile('music.mp3')} />
 	</AbsoluteFill>
 );

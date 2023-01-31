@@ -10,7 +10,7 @@ const SeriesTesting: FC = () => {
 				<Tiles />
 			</Series.Sequence>
 			<Series.Sequence durationInFrames={50}>
-				<ReactSvg transparent={false} />
+				<ReactSvg />
 			</Series.Sequence>
 			<Series.Sequence durationInFrames={80}>
 				<Tiles />
