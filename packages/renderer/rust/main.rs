@@ -14,7 +14,6 @@ use std::sync::mpsc;
 use std::time::Instant;
 use std::{env, thread};
 use threadpool::ThreadPool;
-use video::process_frames;
 use x264::{Encoder, Param, Picture};
 
 use crate::finish::handle_finish;
@@ -76,27 +75,6 @@ fn main() -> Result<(), std::io::Error> {
     let config = parse_init_command(&first_arg.unwrap());
 
     // Initialize things.
-
-    let (send_input, receive_output) = process_frames(config.video_signals);
-
-    println!("spawn once");
-    let thread_process = thread::spawn(move || loop {
-        let message = match receive_output.recv() {
-            Ok(message) => message,
-            Err(_) => {
-                break;
-            }
-        };
-        println!("Got message from child thread: {}", message);
-        break;
-    });
-
-    send_input
-        .send("Hello from child thread!".to_string())
-        .unwrap();
-
-    thread_process.join().unwrap();
-    println!("child thread exited");
 
     let (tx, rx) = mpsc::channel::<NewFrame>();
     let (command_tx, command_rx) = mpsc::channel::<String>();
