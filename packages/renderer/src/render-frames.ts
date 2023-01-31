@@ -310,7 +310,7 @@ const innerRenderFrames = ({
 
 	const compositorInitiatePayload: CompositorInitiatePayload = {
 		create_h264_queue: false,
-		duration_in_frames: composition.durationInFrames,
+		duration_in_frames: framesToRender.length,
 		fps: composition.fps,
 		video_signals: nativeVideoSignals,
 		height: composition.height,
@@ -327,7 +327,7 @@ const innerRenderFrames = ({
 						i
 					): Promise<{layer: CompositorLayer | null; assets: TAsset[]}> => {
 						if (l.type === 'video') {
-							const precomputed = precomputeLayers[frame][i];
+							const precomputed = precomputeLayers[index][i];
 							if (!precomputed) {
 								throw new Error('Expected video layer to be precomputed');
 							}
