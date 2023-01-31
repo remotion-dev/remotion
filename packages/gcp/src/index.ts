@@ -1,10 +1,9 @@
 import * as ff from '@google-cloud/functions-framework';
 // import {getCompositions} from '@remotion/renderer';
 import {getBrowserInstance} from './helpers/get-browser-instance';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 
-
-ff.http('TypescriptFunction', async (req: ff.Request, res: ff.Response) => {
+export const functionStart = async (req: ff.Request, res: ff.Response) => {
 	const AWSUrl =
 		'https://remotionlambda-11kow3vq6f.s3.us-east-1.amazonaws.com/sites/xmycbufjs3/index.html';
 	const GCPUrl =
@@ -15,20 +14,14 @@ ff.http('TypescriptFunction', async (req: ff.Request, res: ff.Response) => {
 	// const comps = await getCompositions(AWSUrl);
 	// console.log('comps', comps);
 
-	// const browserInstance = await getBrowserInstance(true, {});
-	// console.log('browserInstance', browserInstance);
+	const browserInstance = await getBrowserInstance(true, {});
+	console.log('browserInstance', browserInstance);
 
-	console.log('inside index.ts');
-
-
-	if (existsSync('/opt/bin/chromium')) {
+	if (existsSync('/usr/bin/chromium-browser')) {
 		console.log('The path exists.');
-			readdirSync('/opt/bin/chromium/bin').forEach(file => {
-				console.log(file);
-			});
 	} else {
 		console.log('The path does not exist.');
 	}
 
 	res.send('OK');
-});
+};

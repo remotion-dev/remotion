@@ -12,5 +12,5 @@ if (
 }
 
 export const executablePath = async (): Promise<string | undefined> => {
-	return '/opt/bin/chromium';
+	return '/usr/bin/chromium-browser';
 };
