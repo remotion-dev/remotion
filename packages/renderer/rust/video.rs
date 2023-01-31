@@ -1,5 +1,4 @@
 extern crate ffmpeg_next as ffmpeg;
-use std::arch::aarch64::int32x2_t;
 use std::sync::mpsc::{self, Sender};
 
 use std::thread;
@@ -72,6 +71,7 @@ pub fn process_frames(
 
 pub fn get_video_frame(layer: VideoLayer, video_fps: u32) -> Result<Vec<u8>, std::io::Error> {
     ffmpeg::init().unwrap();
+
     let time: f64 = (layer.frame as f64) / (video_fps as f64);
 
     // TODO: Improve so only needs to open once
@@ -105,12 +105,11 @@ pub fn get_video_frame(layer: VideoLayer, video_fps: u32) -> Result<Vec<u8>, std
     let mut process_frame =
         |decoder: &mut ffmpeg::decoder::Video| -> Result<Vec<u8>, ffmpeg::Error> {
             let mut input = Video::empty();
-            print_debug(format!("getting frame {}", layer.frame));
             decoder.receive_frame(&mut input)?;
-            print_debug(format!("receiving frame {}", layer.frame));
             let mut rgb_frame = Video::empty();
             scaler.run(&input, &mut rgb_frame)?;
 
+            // https://github.com/zmwangx/rust-ffmpeg/issues/64
             let stride = rgb_frame.stride(0);
             let byte_width: usize = 3 * rgb_frame.width() as usize;
             let height: usize = rgb_frame.height() as usize;
