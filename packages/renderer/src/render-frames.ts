@@ -329,7 +329,7 @@ const innerRenderFrames = ({
 						if (l.type === 'video') {
 							const precomputed = precomputeLayers[frame][i];
 							if (!precomputed) {
-								throw new Error('Expected video layer to be precomputer');
+								throw new Error('Expected video layer to be precomputed');
 							}
 
 							return precomputed;
