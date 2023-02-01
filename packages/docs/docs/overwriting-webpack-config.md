@@ -19,7 +19,7 @@ In your `remotion.config.ts` file, you can call `Config.Bundler.overrideWebpackC
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "remotion";
 
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+Config.overrideWebpackConfig((currentConfiguration) => {
   return {
     ...currentConfiguration,
     module: {
@@ -61,7 +61,7 @@ export const webpackOverride: WebpackOverrideFn = (c) => c;
 import { Config } from "remotion";
 import { webpackOverride } from "./src/webpack-override";
 
-Config.Bundling.overrideWebpackConfig(webpackOverride);
+Config.overrideWebpackConfig(webpackOverride);
 ```
 
 With `bundle`:
@@ -194,7 +194,7 @@ export const enableMdx: WebpackOverrideFn = (c) => c;
 import { Config } from "remotion";
 import { enableMdx } from "./src/enable-mdx";
 
-Config.Bundling.overrideWebpackConfig(enableMdx);
+Config.overrideWebpackConfig(enableMdx);
 ```
 
 4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
@@ -281,7 +281,7 @@ export const enableSass: WebpackOverrideFn = (c) => c;
 import { Config } from "remotion";
 import { enableSass } from "./src/enable-sass";
 
-Config.Bundling.overrideWebpackConfig(enableSass);
+Config.overrideWebpackConfig(enableSass);
 ```
 
 4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
@@ -359,7 +359,7 @@ export const enableGlsl: WebpackOverrideFn = (c) => c;
 import { Config } from "remotion";
 import { enableGlsl } from "./src/enable-glsl";
 
-Config.Bundling.overrideWebpackConfig(enableGlsl);
+Config.overrideWebpackConfig(enableGlsl);
 ```
 
 3. Add the following to your [entry point](/docs/terminology#entry-point) (e.g. `src/index.ts`):
@@ -383,7 +383,7 @@ There are two WebAssembly modes: asynchronous and synchronous. We recommend test
 ```ts twoslash title="remotion.config.ts - synchronous"
 import { Config } from "remotion";
 
-Config.Bundling.overrideWebpackConfig((conf) => {
+Config.overrideWebpackConfig((conf) => {
   return {
     ...conf,
     experiments: {
@@ -400,7 +400,7 @@ Since Webpack does not allow synchronous WebAssembly code in the main chunk, you
 ```ts twoslash title="remotion.config.ts - asynchronous"
 import { Config } from "remotion";
 
-Config.Bundling.overrideWebpackConfig((conf) => {
+Config.overrideWebpackConfig((conf) => {
   return {
     ...conf,
     experiments: {
