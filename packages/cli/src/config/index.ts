@@ -154,6 +154,7 @@ export const Config: ConfigType = {
 		overrideWidth,
 		overrideFfmpegCommand: setFfmpegOverrideFunction,
 	},
+	setChromiumOpenGlRenderer,
 } as ConfigType;
 
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};

@@ -77,6 +77,15 @@ import { Config } from "remotion";
 Config.Puppeteer.setChromiumOpenGlRenderer("angle");
 ```
 
+Alternatively, you can set the configuration directly from the `Config` object. 
+
+```ts twoslash
+import { Config } from "remotion";
+
+Config.setChromiumOpenGlRenderer("angle");
+```
+
+
 Since the config file does not apply to server-side rendering, you need to explicitly add
 
 ```json

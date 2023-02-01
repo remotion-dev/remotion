@@ -119,6 +119,18 @@ import { Config } from "remotion";
 Config.Puppeteer.setChromiumOpenGlRenderer("swiftshader");
 ```
 
+Alternatively, you can set the configuration directly from the `Config` object. 
+
+```tsx twoslash
+import { Config } from "remotion";
+
+// ---cut---
+
+Config.setChromiumOpenGlRenderer("swiftshader");
+```
+
+
+
 ## Need more flags?
 
 Open a [GitHub issue](https://github.com/remotion-dev/remotion/issues/new?assignees=&labels=&template=feature_request.md&title=) to request it.
