@@ -74,7 +74,7 @@ Three.JS does not render with the default OpenGL renderer - we recommend to set 
 ```ts twoslash
 import { Config } from "remotion";
 
-Config.Puppeteer.setChromiumOpenGlRenderer("angle");
+Config.setChromiumOpenGlRenderer("angle");
 ```
 
 Alternatively, you can set the configuration directly from the `Config` object. 

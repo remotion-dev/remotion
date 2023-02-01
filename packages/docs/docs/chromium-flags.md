@@ -34,7 +34,7 @@ import { Config } from "remotion";
 
 // ---cut---
 
-Config.Puppeteer.setChromiumDisableWebSecurity(true);
+Config.setChromiumDisableWebSecurity(true);
 ```
 
 ## `--ignore-certificate-errors`
@@ -58,7 +58,7 @@ import { Config } from "remotion";
 
 // ---cut---
 
-Config.Puppeteer.setChromiumIgnoreCertificateErrors(true);
+Config.setChromiumIgnoreCertificateErrors(true);
 ```
 
 ## `--disable-headless`
@@ -82,7 +82,7 @@ import { Config } from "remotion";
 
 // ---cut---
 
-Config.Puppeteer.setChromiumHeadlessMode(false);
+Config.setChromiumHeadlessMode(false);
 ```
 
 ## `--gl`
@@ -116,7 +116,7 @@ import { Config } from "remotion";
 
 // ---cut---
 
-Config.Puppeteer.setChromiumOpenGlRenderer("swiftshader");
+Config.setChromiumOpenGlRenderer("swiftshader");
 ```
 
 Alternatively, you can set the configuration directly from the `Config` object. 
