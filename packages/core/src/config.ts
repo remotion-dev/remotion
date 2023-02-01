@@ -297,6 +297,13 @@ export type ConfigType = {
 		 */
 		readonly setVideoBitrate: (bitrate: string | null) => void;
 	};
+	/**
+	 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle', 'swiftshader' and 'swangle'.
+	 * Default: 'swangle' in Lambda, null elsewhere.
+	 */
+	readonly setChromiumOpenGlRenderer: (
+		renderer: 'swangle' | 'angle' | 'egl' | 'swiftshader'
+	) => void;
 };
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 
