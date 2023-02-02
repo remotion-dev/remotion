@@ -122,6 +122,7 @@ const Log = {
 const Puppeteer = {
 	setBrowserExecutable,
 	setTimeoutInMilliseconds: setPuppeteerTimeout,
+	setDelayRenderTimeoutInMilliseconds: setPuppeteerTimeout,
 	setChromiumDisableWebSecurity,
 	setChromiumIgnoreCertificateErrors,
 	setChromiumHeadlessMode,

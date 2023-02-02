@@ -151,7 +151,7 @@ The [command line flag](/docs/cli/render#--log) `--log` will take precedence ove
 
 _Available from Version 2.1.10._
 
-Set how many tracks are being displayed in the timeline at most. This does not affect your video, just the amount of tracks shown when previewing. Default `15`.
+Set how many tracks are being displayed in the timeline in the Preview at most. This does not affect your video, just the amount of tracks shown when previewing. Default `15`.
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "remotion";
@@ -192,7 +192,7 @@ The [command line flag](/docs/cli/preview#--webpack-poll) `--webpack-poll` will 
 
 _available from v3.3.2_
 
-How many shared audio tags should be mounted in reht preview. Shared audio tags can help prevent playback issues due to audio autoplay policies of the browser. Default 0
+How many shared audio tags should be mounted in the Preview. Shared audio tags can help prevent playback issues due to audio autoplay policies of the browser. See [this article](/docs/player/autoplay#use-the-numberofsharedaudiotags-property) which covers the same option but for the Player. Default `0`, meaning no autoplay policies are circumvented.
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "remotion";
@@ -228,16 +228,18 @@ Config.setBrowserExecutable("/usr/bin/google-chrome-stable");
 
 The [command line flag](/docs/cli/render#--browser-executable) `--browser-executable` will take precedence over this option.
 
-## setTimeoutInMilliseconds()
+## setDelayRenderTimeoutInMilliseconds()
 
 _Available from Version 2.6.3._
+
+_previously named "setTimeoutInMilliseconds"_
 
 Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "remotion";
 // ---cut---
-Config.setTimeoutInMilliseconds(60000);
+Config.setDelayRenderTimeoutInMilliseconds(60000);
 ```
 
 The [command line flag](/docs/cli/render#--timeout) `--timeout` will take precedence over this option.
