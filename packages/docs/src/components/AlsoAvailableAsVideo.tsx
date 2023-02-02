@@ -7,22 +7,17 @@ const link: React.CSSProperties = {
   all: "unset",
   display: "block",
   cursor: "pointer",
+  width: "100%",
 };
 
 const container: React.CSSProperties = {
-  border: "1px solid #888",
+  background: "var(--ifm-color-emphasis-100)",
   borderRadius: 10,
   overflow: "hidden",
   marginBottom: 30,
   display: "flex",
   flexDirection: "row",
-};
-
-const thumbnail: React.CSSProperties = {
-  height: 100,
-  display: "inline",
-  marginBottom: 0,
-  borderRight: "1px solid #888",
+  alignItems: "center",
 };
 
 const right: React.CSSProperties = {
@@ -32,6 +27,11 @@ const right: React.CSSProperties = {
   flex: 1,
   flexDirection: "column",
   justifyContent: "center",
+};
+
+const icon: React.CSSProperties = {
+  height: 40,
+  marginLeft: 20,
 };
 
 const wouldYouRather: React.CSSProperties = {
@@ -74,7 +74,13 @@ export const AlsoAvailableAsVideo: React.FC<{
   return (
     <button type="button" style={link} onClick={onClick}>
       <div style={container}>
-        <img style={thumbnail} src={thumb} />
+        <svg
+          style={icon}
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 512 512"
+        >
+          <path d="M512 256c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256zM188.3 147.1c-7.6 4.2-12.3 12.3-12.3 20.9V344c0 8.7 4.7 16.7 12.3 20.9s16.8 4.1 24.3-.5l144-88c7.1-4.4 11.5-12.1 11.5-20.5s-4.4-16.1-11.5-20.5l-144-88c-7.4-4.5-16.7-4.7-24.3-.5z" />
+        </svg>
         <div style={right}>
           <div style={wouldYouRather}>
             Also available as a {minutes}min video
