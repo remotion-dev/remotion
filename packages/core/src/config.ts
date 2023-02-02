@@ -32,7 +32,8 @@ type FlatConfig = ObjectConfig['Bundling'] &
 	ObjectConfig['Log'] &
 	ObjectConfig['Preview'] &
 	ObjectConfig['Puppeteer'] &
-	ObjectConfig['Output'];
+	ObjectConfig['Output'] &
+	ObjectConfig['Rendering'];
 // LEGACY CONFIG FORMAT: New options to not need to be added here.
 type ObjectConfig = {
 	/**
