@@ -1,0 +1,12 @@
+{
+	"name": "gcp-cloud-run-render-media",
+	"version": "0.1.0",
+	"description": "Render media on Cloud Run",
+	"main": "dist/index.js",
+	"scripts": {
+		"start": "functions-framework --target=renderMediaSingleThread"
+	},
+	"dependencies": {
+		"@google-cloud/functions-framework": "^3.1.3"
+	}
+}
