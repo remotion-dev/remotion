@@ -95,7 +95,7 @@ export const uploadDir = async ({
 
 	const client = getS3Client(region, null);
 
-	const uploads = files.map(async (filePath) => {
+	const uploads = files.map((filePath) => {
 		const Key = makeS3Key(keyPrefix, localDir, filePath.name);
 		const Body = createReadStream(filePath.name);
 		const ContentType = mimeTypes.lookup(Key) || 'application/octet-stream';
