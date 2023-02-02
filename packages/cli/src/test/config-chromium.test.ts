@@ -9,7 +9,7 @@ test('getChromiumOpenGlRenderer from Config - angle value', () => {
 });
 
 test('getChromiumOpenGlRenderer from old Puppeter Config - egl value', () => {
-	Config.Puppeteer.setChromiumOpenGlRenderer('egl');
+	Config.setChromiumOpenGlRenderer('egl');
 	expect(getChromiumOpenGlRenderer()).toEqual('egl');
 });
 
