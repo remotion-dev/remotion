@@ -8,43 +8,47 @@ const getFileForTemplate = (template: Template, file: string) => {
 };
 
 for (const template of FEATURED_TEMPLATES) {
-	test(template.shortName + ' should have a valid package.json', async () => {
-		const packageJson = getFileForTemplate(template, 'package.json');
+	test(
+		template.shortName + ' should have a valid package.json',
+		async () => {
+			const packageJson = getFileForTemplate(template, 'package.json');
 
-		const res = await got(packageJson, {
-			throwHttpErrors: false,
-			cache: false,
-			followRedirect: true,
-		});
+			const res = await got(packageJson, {
+				throwHttpErrors: false,
+				cache: false,
+				followRedirect: true,
+			});
 
-		expect(res.statusCode).toBe(200);
-		const body = JSON.parse(res.body);
+			expect(res.statusCode).toBe(200);
+			const body = JSON.parse(res.body);
 
-		if (
-			!template.shortName.includes('Remix') &&
-			!template.shortName.includes('Still')
-		) {
-			expect(body.scripts.build).toMatch(/render/);
-			expect(body.scripts.build).not.toContain('index');
-		}
+			if (
+				!template.shortName.includes('Remix') &&
+				!template.shortName.includes('Still')
+			) {
+				expect(body.scripts.build).toMatch(/render/);
+				expect(body.scripts.build).not.toContain('index');
+			}
 
-		expect(body.dependencies.remotion).toMatch(/^\^?3/);
-		expect(body.dependencies['@remotion/cli']).toMatch(/^\^?3/);
-		expect(body.dependencies.react).toMatch(/^\^?18/);
-		expect(body.dependencies['react-dom']).toMatch(/^\^?18/);
+			expect(body.dependencies.remotion).toMatch(/^\^?3/);
+			expect(body.dependencies['@remotion/cli']).toMatch(/^\^?3/);
+			expect(body.dependencies.react).toMatch(/^\^?18/);
+			expect(body.dependencies['react-dom']).toMatch(/^\^?18/);
 
-		expect(body.devDependencies.prettier).toMatch(/^\^?2.8.1/);
-		expect(body.devDependencies.eslint).toMatch(/^\^?8.30/);
-		const eitherPluginOrConfig =
-			body.devDependencies['@remotion/eslint-config']?.match(/^\^?3/) ||
-			body.devDependencies['@remotion/eslint-plugin']?.match(/^\^?3/);
+			expect(body.devDependencies.prettier).toMatch(/^\^?2.8.1/);
+			expect(body.devDependencies.eslint).toMatch(/^\^?8.30/);
+			const eitherPluginOrConfig =
+				body.devDependencies['@remotion/eslint-config']?.match(/^\^?3/) ||
+				body.devDependencies['@remotion/eslint-plugin']?.match(/^\^?3/);
 
-		expect(eitherPluginOrConfig).toBeTruthy();
+			expect(eitherPluginOrConfig).toBeTruthy();
 
-		if (!template.shortName.includes('JavaScript')) {
-			expect(body.devDependencies.typescript).toMatch(/^\^?4/);
-		}
-	});
+			if (!template.shortName.includes('JavaScript')) {
+				expect(body.devDependencies.typescript).toMatch(/^\^?4/);
+			}
+		},
+		12000
+	);
 
 	test(
 		template.shortName + ' should not have a package-lock.json',
@@ -55,26 +59,35 @@ for (const template of FEATURED_TEMPLATES) {
 				throwHttpErrors: false,
 			});
 			expect(res.statusCode).toBe(404);
-		}
+		},
+		12000
 	);
 
-	test(template.shortName + ' should not have a yarn.lock', async () => {
-		const packageLockJson = getFileForTemplate(template, 'yarn.lock');
+	test(
+		template.shortName + ' should not have a yarn.lock',
+		async () => {
+			const packageLockJson = getFileForTemplate(template, 'yarn.lock');
 
-		const res = await got(packageLockJson, {
-			throwHttpErrors: false,
-		});
-		expect(res.statusCode).toBe(404);
-	});
+			const res = await got(packageLockJson, {
+				throwHttpErrors: false,
+			});
+			expect(res.statusCode).toBe(404);
+		},
+		12000
+	);
 
-	test(template.shortName + ' should not have a pnpm-lock.yaml', async () => {
-		const packageLockJson = getFileForTemplate(template, 'pnpm-lock.yaml');
+	test(
+		template.shortName + ' should not have a pnpm-lock.yaml',
+		async () => {
+			const packageLockJson = getFileForTemplate(template, 'pnpm-lock.yaml');
 
-		const res = await got(packageLockJson, {
-			throwHttpErrors: false,
-		});
-		expect(res.statusCode).toBe(404);
-	});
+			const res = await got(packageLockJson, {
+				throwHttpErrors: false,
+			});
+			expect(res.statusCode).toBe(404);
+		},
+		12000
+	);
 
 	test(
 		template.shortName + ' should not have a standard entry point',
@@ -87,7 +100,8 @@ for (const template of FEATURED_TEMPLATES) {
 			]);
 			expect(entryPoint).toBeTruthy();
 			expect(contents).toMatch(/RemotionRoot/);
-		}
+		},
+		12000
 	);
 	test(
 		template.shortName + ' should not have a standard Root file',
@@ -100,7 +114,8 @@ for (const template of FEATURED_TEMPLATES) {
 			]);
 			expect(entryPoint).toBeTruthy();
 			expect(contents).toMatch(/export const RemotionRoot/);
-		}
+		},
+		12000
 	);
 }
 
