@@ -4,8 +4,18 @@ import fs from 'fs';
 import path from 'path';
 import zl = require('zip-lib');
 
-const bundleLambda = async () => {
-	const outdir = path.join(__dirname, '..', 'container', '/', 'dist');
+const bundleRenderLogic = async () => {
+	let renderTypeParam = process.argv[2];
+
+	if (renderTypeParam === undefined) {
+		throw new Error('renderTypeParam is undefined');
+	}
+
+	if (renderTypeParam !== 'renderStill' && renderTypeParam !== 'renderMedia') {
+		throw new Error('renderTypeParam must be either renderStill or renderMedia');
+	}
+
+	const outdir = path.join(__dirname, '../../containers/', renderTypeParam, '/dist');
 	fs.mkdirSync(outdir, {
 		recursive: true,
 	});
@@ -14,7 +24,7 @@ const bundleLambda = async () => {
 	(fs.rmSync ?? fs.rmdirSync)(outdir, {recursive: true});
 	fs.mkdirSync(outdir, {recursive: true});
 	const template = require.resolve(
-		path.join(__dirname, 'index')
+		path.join(__dirname, '../index')
 	);
 
 	await BundlerInternals.esbuild.build({
@@ -30,13 +40,8 @@ const bundleLambda = async () => {
 	const compositorFile = `${outdir}/compositor`;
 
 	fs.copyFileSync(x64BinaryPath, compositorFile);
+
+	console.log(renderTypeParam + ' bundled.');
 };
 
-bundleLambda()
-	.then(() => {
-		console.log('Lambda bundled for gcp');
-	})
-	.catch((err) => {
-		console.log(err);
-		process.exit(1);
-	});
+bundleRenderLogic()
