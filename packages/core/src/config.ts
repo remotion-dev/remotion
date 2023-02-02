@@ -27,14 +27,14 @@ type CodecOrUndefined =
 	| undefined;
 type Crf = number | undefined;
 
-// NEW CONFIG FORMAT: Add new options only here.
+// New config format: Add new options only here.
 type FlatConfig = ObjectConfig['Bundling'] &
 	ObjectConfig['Log'] &
 	ObjectConfig['Preview'] &
 	ObjectConfig['Puppeteer'] &
 	ObjectConfig['Output'] &
 	ObjectConfig['Rendering'];
-// LEGACY CONFIG FORMAT: New options to not need to be added here.
+// Legacy config format: New options to not need to be added here.
 type ObjectConfig = {
 	/**
 	 * @deprecated New flat config format: You can now replace `Config.Preview.` with `Config.`
