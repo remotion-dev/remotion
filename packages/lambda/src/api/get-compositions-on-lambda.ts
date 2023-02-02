@@ -1,5 +1,4 @@
-import type {LogLevel} from '@remotion/renderer';
-import type {ChromiumOptions} from '@remotion/renderer/src/open-browser';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import type {TCompMetadata} from 'remotion';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
