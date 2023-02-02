@@ -1,4 +1,3 @@
-import {PutObjectCommand} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
 import type {Dirent} from 'fs';
 import {createReadStream, promises as fs} from 'fs';
@@ -106,35 +105,22 @@ export const uploadDir = async ({
 				: privacy === 'private'
 				? 'private'
 				: 'public-read';
-		if (filePath.size > 5 * 1024 * 1024) {
-			const paralellUploads3 = new Upload({
-				client,
-				queueSize: 4,
-				partSize: 5 * 1024 * 1024,
-				params: {
-					Key,
-					Bucket: bucket,
-					Body,
-					ACL,
-					ContentType,
-				},
-			});
-			paralellUploads3.on('httpUploadProgress', (progress) => {
-				progresses[filePath.name] = progress.loaded ?? 0;
-			});
-			return paralellUploads3.done();
-		}
-
-		await client.send(
-			new PutObjectCommand({
+		const paralellUploads3 = new Upload({
+			client,
+			queueSize: 4,
+			partSize: 5 * 1024 * 1024,
+			params: {
 				Key,
 				Bucket: bucket,
 				Body,
 				ACL,
 				ContentType,
-			})
-		);
-		progresses[filePath.name] = filePath.size;
+			},
+		});
+		paralellUploads3.on('httpUploadProgress', (progress) => {
+			progresses[filePath.name] = progress.loaded ?? 0;
+		});
+		return paralellUploads3.done();
 	});
 	const promise = Promise.all(uploads);
 
