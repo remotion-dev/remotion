@@ -45,7 +45,7 @@ By default, the background of your video is a checkerboard pattern signifying th
 
 ## In / Out Markers
 
-Use the <svg viewBox="0 0 256 256" fill="none" style={{width: 16, height: 16}}><path d="M158 25H99V230.5H158" stroke="black" strokeWidth="42" strokeLinecap="round" strokeLinejoin="round"/></svg> and <svg viewBox="0 0 256 256" fill="none" style={{width: 16, height: 16}}><path d="M98 25H157V230.5H98" stroke="black" strokeWidth="42" strokeLinecap="round" strokeLinejoin="round"/></svg> buttons to set an In or Out marker. When you play the video again, only the range within the markers will play.
+Use the <svg viewBox="0 0 256 256" fill="none" style={{width: 16, height: 16}}><path d="M158 25H99V230.5H158" stroke="currentcolor" strokeWidth="42" strokeLinecap="round" strokeLinejoin="round"/></svg> and <svg viewBox="0 0 256 256" fill="none" style={{width: 16, height: 16}}><path d="M98 25H157V230.5H98" stroke="currentcolor" strokeWidth="42" strokeLinecap="round" strokeLinejoin="round"/></svg> buttons to set an In or Out marker. When you play the video again, only the range within the markers will play.
 
 You may also set markers using the <kbd>I</kbd> and <kbd>O</kbd> keys.
 
