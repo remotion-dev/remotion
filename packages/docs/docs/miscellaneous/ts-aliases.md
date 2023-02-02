@@ -38,7 +38,7 @@ you can add the aliases to Webpack, however you need to add each of them manuall
 import path from "path";
 import { Config } from "remotion";
 
-Config.Bundling.overrideWebpackConfig((config) => {
+Config.overrideWebpackConfig((config) => {
   return {
     ...config,
     resolve: {

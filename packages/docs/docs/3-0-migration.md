@@ -208,7 +208,7 @@ To align the name with `renderStill()`, `renderFrames()` and `renderMedia()`, `b
 
 ### `overrideWebpackConfig()`: Config file option is removed
 
-The import `overrideWebpackConfig` was deprecated and now removed. Use `Config.Bundling.overrideWebpackConfig()` instead.
+The import `overrideWebpackConfig` was deprecated and now removed. Use `Config.overrideWebpackConfig()` instead.
 
 **Upgrade path**: Change import in `remotion.config.ts`and use `overrideWebpackConfig()`.
 
@@ -219,5 +219,5 @@ The import `overrideWebpackConfig` was deprecated and now removed. Use `Config.B
 ```tsx title="Now"
 import { Config } from "remotion";
 
-Config.Bundling.overrideWebpackConfig();
+Config.overrideWebpackConfig();
 ```
