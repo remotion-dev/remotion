@@ -99,24 +99,36 @@ import {
 } from './webpack-poll';
 import {getWidth, overrideWidth} from './width';
 
-export const Config: ConfigType = {
+const Preview = {
 	setMaxTimelineTracks,
 	setKeyboardShortcutsEnabled,
 	setNumberOfSharedAudioTags,
 	setWebpackPollingInMilliseconds,
 	setShouldOpenBrowser,
+};
+
+const Bundling = {
 	overrideWebpackConfig,
 	setCachingEnabled: setWebpackCaching,
 	setPort,
 	setPublicDir,
 	setEntryPoint,
+};
+
+const Log = {
 	setLevel: setLogLevel,
+};
+
+const Puppeteer = {
 	setBrowserExecutable,
 	setTimeoutInMilliseconds: setPuppeteerTimeout,
 	setChromiumDisableWebSecurity,
 	setChromiumIgnoreCertificateErrors,
 	setChromiumHeadlessMode,
 	setChromiumOpenGlRenderer,
+};
+
+const Rendering = {
 	setDotEnvLocation,
 	setConcurrency,
 	setQuality,
@@ -129,6 +141,9 @@ export const Config: ConfigType = {
 	setNumberOfGifLoops,
 	setMuted,
 	setEnforceAudioTrack,
+};
+
+const Output = {
 	setOutputLocation,
 	setOverwriteOutput,
 	setPixelFormat,
@@ -142,65 +157,26 @@ export const Config: ConfigType = {
 	overrideHeight,
 	overrideWidth,
 	overrideFfmpegCommand: setFfmpegOverrideFunction,
-	Preview: {
-		setMaxTimelineTracks,
-		setKeyboardShortcutsEnabled,
-		setNumberOfSharedAudioTags,
-		setWebpackPollingInMilliseconds,
-		setShouldOpenBrowser,
-	},
-	Bundling: {
-		overrideWebpackConfig,
-		setCachingEnabled: setWebpackCaching,
-		setPort,
-		setPublicDir,
-		setEntryPoint,
-	},
-	Log: {
-		setLevel: setLogLevel,
-	},
-	Puppeteer: {
-		setBrowserExecutable,
-		setTimeoutInMilliseconds: setPuppeteerTimeout,
-		setChromiumDisableWebSecurity,
-		setChromiumIgnoreCertificateErrors,
-		setChromiumHeadlessMode,
-		setChromiumOpenGlRenderer,
-	},
-	Rendering: {
-		setDotEnvLocation,
-		setConcurrency,
-		setQuality,
-		setImageFormat,
-		setFrameRange,
-		setFfmpegExecutable,
-		setFfprobeExecutable,
-		setScale,
-		setEveryNthFrame,
-		setNumberOfGifLoops,
-		setMuted,
-		setEnforceAudioTrack,
-	},
-	Output: {
-		setOutputLocation,
-		setOverwriteOutput,
-		setPixelFormat,
-		setOutputFormat,
-		setCodec,
-		setCrf,
-		setImageSequence,
-		setProResProfile,
-		setAudioBitrate,
-		setVideoBitrate,
-		overrideHeight,
-		overrideWidth,
-		overrideFfmpegCommand: setFfmpegOverrideFunction,
-	},
+};
+
+export const Config: ConfigType = {
+	// New flat config format
+	...Preview,
+	...Bundling,
+	...Log,
+	...Puppeteer,
+	...Rendering,
+	...Output,
+	// Legacy config format
+	Preview,
+	Bundling,
+	Log,
+	Puppeteer,
+	Rendering,
+	Output,
 } as ConfigType;
 
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
-
-// eslint-disable-next-line no-restricted-imports
 
 export const ConfigInternals = {
 	getRange,
