@@ -11,6 +11,10 @@ When rendering a [`<Player>`](/docs/player) in your app, special considerations 
 
 This is why the [`useCurrentFrame()`](/docs/use-current-frame) hook does not work outside a composition.
 
+:::warn
+Do not put this hook into the same component in which the `<Player>` is rendered, otherwise you'll see constant re-renders. Instead, put it inside a component that is rendered alongside the Player.
+:::
+
 ## Synchronizing a component with the Player time
 
 If you want to display a component that synchronizes with the time of the player, for example the cursor of a timeline component or a custom time display, you can use the following hook:
