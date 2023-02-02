@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-transforms.png
 id: transforms
 title: Transforms
+crumb: "The fundamentals"
 ---
 
 import {Transforms} from '../components/DocsDark'
