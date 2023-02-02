@@ -248,7 +248,7 @@ The [command line flag](/docs/cli/render#--timeout) `--timeout` will take preced
 
 _Available from Version 2.6.5._
 
-This will most notably disable CORS among other security features.
+This will most notably disable CORS among other security features during rendering.
 
 ```tsx twoslash title="remotion.config.ts"
 import { Config } from "remotion";
@@ -264,7 +264,7 @@ The [command line flag](/docs/cli/render#--disable-web-security) `--disable-web-
 
 _Available from Version 2.6.5._
 
-Results in invalid SSL certificates, such as self-signed ones, being ignored.
+Results in invalid SSL certificates, such as self-signed ones, being ignored during rendering.
 
 ```tsx twoslash title="remotion.config.ts"
 import { Config } from "remotion";
