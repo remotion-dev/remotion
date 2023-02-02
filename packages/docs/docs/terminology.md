@@ -53,7 +53,7 @@ The entry point is the file where the Remotion CLI and Node.JS APIs will look fo
 - The entry point can be passed to the render command, for example: `npx remotion render src/index.ts`.
 - The entry point should call [`registerRoot()`](/docs/register-root).
 - If you render a video using [`npx remotion render`](/docs/cli/render), the entry point is printed in grey.
-- You can customize the entry point in the config file using [`Config.Bundling.setEntryPoint()`](/docs/config#setentrypoint).
+- You can customize the entry point in the config file using [`Config.setEntryPoint()`](/docs/config#setentrypoint).
 
 In the [Remotion Player](#remotion-player), there is no concept of an entry point. You directly pass a React component and metadata to the [`<Player>`](/docs/player/player).
 
