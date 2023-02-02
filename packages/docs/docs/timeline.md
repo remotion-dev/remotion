@@ -41,7 +41,7 @@ and <svg viewBox="0 0 448 512" style={{height: 18, width: 18}}><path fill="curre
 
 ## Toggling transparency mode
 
-By default, the background of your video is a checkerboard pattern signifying that the pixels are transparent. You can press <svg viewBox="0 0 512 512" style={{width: 16, height: 16}}> <path d="M480 0H32A32 32 0 0 0 0 32v448a32 32 0 0 0 32 32h448a32 32 0 0 0 32-32V32a32 32 0 0 0-32-32zm-32 256H256v192H64V256h192V64h192z"/></svg> button to disable this behavior which will render a black background.
+By default, the background of your video is a checkerboard pattern signifying that the pixels are transparent. You can press <svg viewBox="0 0 512 512" style={{width: 16, height: 16}}> <path d="M480 0H32A32 32 0 0 0 0 32v448a32 32 0 0 0 32 32h448a32 32 0 0 0 32-32V32a32 32 0 0 0-32-32zm-32 256H256v192H64V256h192V64h192z" fill="currentcolor"/></svg> button to disable this behavior which will render a black background.
 
 ## In / Out Markers
 
