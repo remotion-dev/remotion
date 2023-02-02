@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-skia-enable-skia.png
 title: enableSkia()
+crumb: "@remotion/skia"
 ---
 
 A function that modifies the default Webpack configuration to make the necessary changes to support Skia.
@@ -8,7 +10,7 @@ A function that modifies the default Webpack configuration to make the necessary
 import { Config } from "remotion";
 import { enableSkia } from "@remotion/skia/enable";
 
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+Config.overrideWebpackConfig((currentConfiguration) => {
   return enableSkia(currentConfiguration);
 });
 ```
@@ -19,7 +21,7 @@ If you want to make other configuration changes, you can do so by doing them red
 import { Config } from "remotion";
 import { enableSkia } from "@remotion/skia/enable";
 
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+Config.overrideWebpackConfig((currentConfiguration) => {
   const newConfig = enableSkia(currentConfiguration);
 
   return {

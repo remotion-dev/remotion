@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-getrenderprogress.png
 id: getrenderprogress
 title: getRenderProgress()
 slug: /lambda/getrenderprogress
+crumb: "Lambda API"
 ---
 
 Gets the current status of a render originally triggered via [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
@@ -11,9 +13,8 @@ Gets the current status of a render originally triggered via [`renderMediaOnLamb
 ```tsx twoslash
 // @module: esnext
 // @target: es2017
-import { getRenderProgress } from "@remotion/lambda";
 
-// ---cut---
+import { getRenderProgress } from "@remotion/lambda/client";
 
 const progress = await getRenderProgress({
   renderId: "d7nlc2y",
@@ -22,6 +23,10 @@ const progress = await getRenderProgress({
   region: "us-east-1",
 });
 ```
+
+:::note
+Preferrably import this function from `@remotion/lambda/client` to avoid problems [inside serverless functions](/docs/lambda/light-client).
+:::
 
 ## API
 
@@ -103,15 +108,15 @@ In which bucket the render and other artifacts get saved.
 
 ### `timeToFinish`
 
-`null` is the video is not yet rendered, a `number` describing how long the render took to finish in miliseconds.
+`null` is the video is not yet rendered, a `number` describing how long the render took to finish in milliseconds.
 
 ### `errors`
 
-An array which contains errors that occured.
+An array which contains errors that occurred.
 
 ### `fatalErrorEncountered`
 
-`true` if an error occured and the video cannot be rendered. You should stop polling for progress and check the `errors` array.
+`true` if an error occurred and the video cannot be rendered. You should stop polling for progress and check the `errors` array.
 
 ### `currentTime`
 
@@ -121,9 +126,21 @@ The current time at which the Lambda function responded to the progress request.
 
 How many bytes have been saved to the S3 bucket as a result of this render.
 
+### `outputSizeInBytes`
+
+_available from v.3.3.9_
+
+The size of the output artifact in bytes.
+
 ### `lambdasInvoked`
 
 How many lambdas that render a chunk have been invoked yet and have started rendering.
+
+### `framesRendered`
+
+_available from v3.3.8_
+
+How many frames have been rendered so far, approximated to a number divisible by `5`.
 
 ### `costs`
 

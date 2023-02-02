@@ -1,8 +1,10 @@
 ---
+image: /generated/articles-docs-lambda-cli-still.png
 id: still
 sidebar_label: still
 title: "npx remotion lambda still"
 slug: /lambda/cli/still
+crumb: "Lambda CLI Reference"
 ---
 
 Using the `npx remotion lambda still` command, you can render a still frame in the cloud.

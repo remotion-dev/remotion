@@ -2,7 +2,6 @@ import fs from "node:fs";
 import path from "path";
 import got from "got";
 import postcss from "postcss";
-import prettier from "prettier";
 
 type FontInfo = {
   fontFamily: string;
@@ -13,7 +12,7 @@ type FontInfo = {
   fonts: Record<string, Record<string, Record<string, string>>>;
 };
 
-import { getCssLink, unqoute, quote, removeWhitespace } from "./utils";
+import { getCssLink, unquote, quote, removeWhitespace } from "./utils";
 import { Font, googleFonts } from "./google-fonts";
 
 const OUTDIR = "./src";
@@ -32,7 +31,7 @@ const generate = async (font: Font) => {
 
   //  Read css from cache, otherwise from url
   let css: null | string = null;
-  let fontFamily: null | string = unqoute(font.family);
+  let fontFamily: null | string = unquote(font.family);
   let cssFile = path.resolve(CSS_CACHE_DIR, cssname);
   if (!fs.existsSync(cssFile)) {
     //  Get from url with user agent that support woff2
@@ -75,9 +74,9 @@ const generate = async (font: Font) => {
 
     //  Parse fontFamily
     node.walkDecls("font-fontFamily", (decl, _) => {
-      if (font.family != unqoute(decl.value)) {
+      if (font.family != unquote(decl.value)) {
         throw new Error(
-          `Font fontFamily value mismatch: ${font.family} with ${unqoute(
+          `Font fontFamily value mismatch: ${font.family} with ${unquote(
             decl.value
           )}`
         );
@@ -121,10 +120,6 @@ const generate = async (font: Font) => {
     fonts[style][weight][subset] = src;
   }
 
-  if (!process.env.VERCEL && !process.env.CI) {
-    console.log(`- Generating ${filename}`);
-  }
-
   // Prepare info data
   const info: FontInfo = {
     fontFamily,
@@ -157,6 +152,7 @@ export const loadFont = <T extends keyof Variants>(
   options?: {
     weights?: Variants[T]['weights'][];
     subsets?: Variants[T]['subsets'][];
+    document?: Document;
   }
 ) => { 
   return loadFonts(getInfo(), style, options);
@@ -164,22 +160,13 @@ export const loadFont = <T extends keyof Variants>(
 
 `;
 
-  //  Format output
-  output = prettier.format(output, {
-    parser: "typescript",
-    singleQuote: true,
-    quoteProps: "consistent",
-    printWidth: 180,
-  });
-
   //  Save
   await fs.promises.writeFile(path.resolve(OUTDIR, filename), output);
-  if (!process.env.VERCEL && !process.env.CI) {
-    console.log(`- ${filename} generated`);
-  }
 };
 
 const run = async () => {
+  const date = Date.now();
+
   // Prepare css cache dir
   if (!fs.existsSync(CSS_CACHE_DIR)) {
     await fs.promises.mkdir(CSS_CACHE_DIR, { recursive: true });
@@ -190,7 +177,7 @@ const run = async () => {
     await generate(font);
   }
 
-  console.log("- All done");
+  console.log("- Generated fonts in " + (Date.now() - date) + "ms");
 };
 
 run();

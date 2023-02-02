@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-legacy-babel-loader.png
 title: Using legacy Babel transpilation
 id: legacy-babel
+crumb: "How To"
 ---
 
 import Tabs from "@theme/Tabs";
@@ -53,7 +55,7 @@ import { Config } from "remotion";
 // ---cut---
 import { replaceLoadersWithBabel } from "@remotion/babel-loader";
 
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+Config.overrideWebpackConfig((currentConfiguration) => {
   return replaceLoadersWithBabel(currentConfiguration);
 });
 ```

@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-get-waveform-portion.png
 title: getWaveformPortion()
 id: get-waveform-portion
+crumb: "@remotion/media-utils"
 ---
 
 _Part of the `@remotion/media-utils` package of helper functions._

@@ -18,6 +18,11 @@ import {OrbScene} from './Orb';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import {Scripts} from './Scripts';
+import CircleTest from './Shapes/CircleTest';
+import EllipseTest from './Shapes/EllipseTest';
+import RectTest from './Shapes/RectTest';
+import StarTest from './Shapes/StarTest';
+import TriangleTest from './Shapes/TriangleTest';
 import {SkipZeroFrame} from './SkipZeroFrame';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
@@ -408,6 +413,14 @@ export const Index: React.FC = () => {
 					durationInFrames={300}
 				/>
 				<Composition
+					id="audio-testing-amplify"
+					lazyComponent={() => import('./AudioTesting/Amplify')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
 					id="audio-testing-base64"
 					lazyComponent={() => import('./AudioTesting/Base64')}
 					width={1080}
@@ -518,7 +531,7 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1080}
 					fps={30}
-					durationInFrames={150}
+					durationInFrames={200}
 				/>
 				<Composition
 					id="gif-duration"
@@ -536,11 +549,62 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={150}
 				/>
+				<Composition
+					id="gif-loop-behavior"
+					lazyComponent={() => import('./GifTest/loop-behavior')}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={540}
+				/>
 			</Folder>
 			<Folder name="og-images">
 				<Composition
 					id="expert"
 					component={Expert}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+				/>
+			</Folder>
+
+			<Folder name="shapes">
+				<Composition
+					id="circle-test"
+					component={CircleTest}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="rect-test"
+					component={RectTest}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="triangle-test"
+					component={TriangleTest}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="ellipse-test"
+					component={EllipseTest}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="star-test"
+					component={StarTest}
 					width={1200}
 					height={630}
 					fps={30}

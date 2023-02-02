@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-skia-skia.png
 id: skia
 sidebar_label: Overview
 title: "@remotion/skia"
@@ -65,7 +66,7 @@ Make sure no package version number has a `^` character in front of it as it can
 import { Config } from "remotion";
 import { enableSkia } from "@remotion/skia/enable";
 
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+Config.overrideWebpackConfig((currentConfiguration) => {
   return enableSkia(currentConfiguration);
 });
 ```

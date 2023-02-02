@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-google-fonts-index.png
 id: google-fonts
 sidebar_label: Overview
 title: "@remotion/google-fonts"

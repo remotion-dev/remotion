@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lottie-index.png
 id: lottie-index
 sidebar_label: Overview
 title: "@remotion/lottie"

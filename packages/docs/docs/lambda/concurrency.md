@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-lambda-concurrency.png
 id: concurrency
 title: Concurrency
+crumb: "Lambda"
 ---
 
 Remotion Lambda is a highly concurrent distributed video rendering system. That means that the video rendering work is split up across many Lambda functions. How many Lambda functions exactly can be defined by you, or you let Remotions defaults decide.

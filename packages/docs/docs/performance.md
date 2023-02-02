@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-performance.png
 id: performance
 title: Performance Tips
+crumb: "Need for Speed"
 ---
 
 Video rendering is one of the most heavy workloads a computer can take on. Remotion aims to at least perform similarly than traditional video editing programs. This section describes several aspects that influence render speed that you can influence.

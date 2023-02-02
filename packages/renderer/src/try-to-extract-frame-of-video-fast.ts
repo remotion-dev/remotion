@@ -5,7 +5,7 @@ import type {
 	SpecialVCodecForTransparency,
 } from './assets/download-map';
 import {determineResizeParams} from './determine-resize-params';
-import {determineVcodecFfmepgFlags} from './determine-vcodec-ffmepg-flags';
+import {determineVcodecFfmpegFlags} from './determine-vcodec-ffmpeg-flags';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getExecutableBinary} from './ffmpeg-flags';
 import {truthy} from './truthy';
@@ -31,7 +31,7 @@ export const tryToExtractFrameOfVideoFast = async ({
 		[
 			'-ss',
 			actualOffset,
-			...determineVcodecFfmepgFlags(specialVCodecForTransparency),
+			...determineVcodecFfmpegFlags(specialVCodecForTransparency),
 			'-i',
 			src,
 			'-frames:v',

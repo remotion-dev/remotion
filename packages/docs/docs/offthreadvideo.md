@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-offthreadvideo.png
 id: offthreadvideo
 title: "<OffthreadVideo>"
+crumb: "API"
 ---
 
 _Available from Remotion 3.0.11_
@@ -49,6 +51,13 @@ _Available since v3.0.22_
 
 Either `jpeg` or `png`. Default `jpeg`.  
 With `png`, transparent videos (VP8, VP9, ProRes) can be displayed, however it is around 40% slower, with VP8 videos being [much slower](/docs/slow-method-to-extract-frame).
+
+## `allowAmplificationDuringRender`
+
+_Available from v3.3.17_
+
+Make values for [`volume`](/docs/video#volume) greater than `1` result in amplification during renders.  
+During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
 
 ## Performance tips
 

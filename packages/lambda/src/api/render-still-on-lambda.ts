@@ -9,7 +9,6 @@ import {callLambda} from '../shared/call-lambda';
 import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
 import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
-import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {getCloudwatchStreamUrl} from '../shared/get-aws-urls';
 import {serializeInputProps} from '../shared/serialize-input-props';
 
@@ -82,8 +81,6 @@ export const renderStillOnLambda = async ({
 	forceHeight,
 	forceWidth,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
-	const realServeUrl = await convertToServeUrl(serveUrl, region);
-
 	const serializedInputProps = await serializeInputProps({
 		inputProps,
 		region,
@@ -96,7 +93,7 @@ export const renderStillOnLambda = async ({
 			type: LambdaRoutines.still,
 			payload: {
 				composition,
-				serveUrl: realServeUrl,
+				serveUrl,
 				inputProps: serializedInputProps,
 				imageFormat,
 				envVariables,
@@ -128,6 +125,7 @@ export const renderStillOnLambda = async ({
 				method: LambdaRoutines.still,
 				region,
 				renderId: res.renderId,
+				rendererFunctionName: null,
 			}),
 		};
 	} catch (err) {

@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-video-uploads.png
 id: video-uploads
 title: Handling user video uploads
+crumb: "Building video apps"
 ---
 
 In an app where users can upload videos and edit them, we can create a better user experience by loading the video into a player even before the upload is finished. Good news: This can be done pretty easily!

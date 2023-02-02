@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-chromium-flags.png
 id: chromium-flags
 title: Chromium flags
+crumb: "Tweaks"
 ---
 
 import {AngleChangelog} from '../components/AngleChangelog';
@@ -32,7 +34,7 @@ import { Config } from "remotion";
 
 // ---cut---
 
-Config.Puppeteer.setChromiumDisableWebSecurity(true);
+Config.setChromiumDisableWebSecurity(true);
 ```
 
 ## `--ignore-certificate-errors`
@@ -56,7 +58,7 @@ import { Config } from "remotion";
 
 // ---cut---
 
-Config.Puppeteer.setChromiumIgnoreCertificateErrors(true);
+Config.setChromiumIgnoreCertificateErrors(true);
 ```
 
 ## `--disable-headless`
@@ -80,7 +82,7 @@ import { Config } from "remotion";
 
 // ---cut---
 
-Config.Puppeteer.setChromiumHeadlessMode(false);
+Config.setChromiumHeadlessMode(false);
 ```
 
 ## `--gl`
@@ -114,7 +116,7 @@ import { Config } from "remotion";
 
 // ---cut---
 
-Config.Puppeteer.setChromiumOpenGlRenderer("swiftshader");
+Config.setChromiumOpenGlRenderer("swiftshader");
 ```
 
 ## Need more flags?

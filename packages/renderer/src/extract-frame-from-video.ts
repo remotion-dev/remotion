@@ -3,7 +3,7 @@ import type {OffthreadVideoImageFormat} from 'remotion';
 import type {DownloadMap} from './assets/download-map';
 import {getVideoStreamDuration} from './assets/get-video-stream-duration';
 import {determineResizeParams} from './determine-resize-params';
-import {determineVcodecFfmepgFlags} from './determine-vcodec-ffmepg-flags';
+import {determineVcodecFfmpegFlags} from './determine-vcodec-ffmpeg-flags';
 import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getExecutableBinary} from './ffmpeg-flags';
@@ -182,7 +182,7 @@ const extractFrameFromVideoFn = async ({
 		[
 			'-ss',
 			ffmpegTimestamp,
-			...determineVcodecFfmepgFlags(specialVcodec),
+			...determineVcodecFfmpegFlags(specialVcodec),
 			'-i',
 			src,
 			'-frames:v',

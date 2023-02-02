@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-audiobuffertodataurl.png
 id: audio-buffer-to-data-url
 title: audioBufferToDataUrl()
+crumb: "@remotion/media-utils"
 ---
 
 _Part of the `@remotion/media-utils` package of helper functions. Available from v2.5.7._

@@ -54,14 +54,14 @@ import type {
 	RenderMediaOnLambdaOutput,
 } from './api/render-media-on-lambda';
 import {
-	renderMediaOnLambda,
+	renderMediaOnLambda as deprecatedRenderMediaOnLambda,
 	renderVideoOnLambda,
 } from './api/render-media-on-lambda';
 import type {
 	RenderStillOnLambdaInput,
 	RenderStillOnLambdaOutput,
 } from './api/render-still-on-lambda';
-import {renderStillOnLambda} from './api/render-still-on-lambda';
+import {renderStillOnLambda as deprecatedRenderStillOnLambda} from './api/render-still-on-lambda';
 import {validateWebhookSignature} from './api/validate-webhook-signature';
 import type {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
 import type {
@@ -74,6 +74,16 @@ import type {CustomCredentials} from './shared/aws-clients';
 import type {RenderProgress} from './shared/constants';
 import type {WebhookPayload} from './shared/invoke-webhook';
 import type {LambdaArchitecture} from './shared/validate-architecture';
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const renderMediaOnLambda = deprecatedRenderMediaOnLambda;
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const renderStillOnLambda = deprecatedRenderStillOnLambda;
 
 export {
 	deleteSite,

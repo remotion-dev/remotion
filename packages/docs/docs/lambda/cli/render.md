@@ -1,8 +1,10 @@
 ---
+image: /generated/articles-docs-lambda-cli-render.png
 id: render
 sidebar_label: render
 title: "npx remotion lambda render"
 slug: /lambda/cli/render
+crumb: "Lambda CLI Reference"
 ---
 
 import { MinimumFramesPerLambda } from "../../../components/lambda/default-frames-per-lambda";
@@ -215,3 +217,17 @@ _available from v3.2.40_
 _available from v3.2.40_
 
 [Overrides composition width.](/docs/config#overridewidth)
+
+### `--function-name`
+
+_available from v3.3.38_
+
+Specify the name of the function which should be used to invoke and orchestrate the render. You only need to pass it if there are multiple functions with different configurations.
+
+### `--renderer-function-name`
+
+_available from v3.3.38_
+
+If specified, this function will be used for rendering the individual chunks. This is useful if you want to use a function with higher or lower power for rendering the chunks than the main orchestration function.
+
+If you want to use this option, the function must be in the same region, the same account and have the same version as the main function.

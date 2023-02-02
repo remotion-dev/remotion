@@ -47,6 +47,7 @@ type EnhancedTSequenceData =
 			volume: string | number;
 			doesVolumeChange: boolean;
 			startMediaFrom: number;
+			playbackRate: number;
 	  }
 	| {
 			type: 'video';
@@ -54,6 +55,7 @@ type EnhancedTSequenceData =
 			volume: string | number;
 			doesVolumeChange: boolean;
 			startMediaFrom: number;
+			playbackRate: number;
 	  };
 
 export type TSequence = {
@@ -76,6 +78,7 @@ export type TAsset = {
 	volume: number;
 	mediaFrame: number;
 	playbackRate: number;
+	allowAmplificationDuringRender: boolean;
 };
 
 type BaseMetadata = Pick<

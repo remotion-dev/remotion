@@ -13,6 +13,7 @@ export type UnsafeAsset = Omit<
 	volume: number[];
 	id: string;
 	playbackRate: number;
+	allowAmplificationDuringRender: boolean;
 };
 
 // Volume can either be static, for all frames the same,

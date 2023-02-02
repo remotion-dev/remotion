@@ -4,6 +4,7 @@ import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {LambdaPayload} from '../shared/constants';
 import {initalizedMetadataKey, LambdaRoutines} from '../shared/constants';
+import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {randomHash} from '../shared/random-hash';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
@@ -29,8 +30,14 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		);
 	}
 
+	const region = getCurrentRegionInFunction();
 	const {bucketName} = await getOrCreateBucket({
 		region: getCurrentRegionInFunction(),
+	});
+	const realServeUrl = convertToServeUrl({
+		urlOrId: params.serveUrl,
+		region,
+		bucketName,
 	});
 
 	const renderId = randomHash({randomInTests: true});
@@ -38,7 +45,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 	const initialFile = lambdaWriteFile({
 		bucketName,
 		downloadBehavior: null,
-		region: getCurrentRegionInFunction(),
+		region,
 		body: 'Render was initialized',
 		expectedBucketOwner: options.expectedBucketOwner,
 		key: initalizedMetadataKey(renderId),
@@ -50,7 +57,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		type: LambdaRoutines.launch,
 		framesPerLambda: params.framesPerLambda,
 		composition: params.composition,
-		serveUrl: params.serveUrl,
+		serveUrl: realServeUrl,
 		inputProps: params.inputProps,
 		bucketName,
 		renderId,
@@ -80,6 +87,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		videoBitrate: params.videoBitrate,
 		forceHeight: params.forceHeight,
 		forceWidth: params.forceWidth,
+		rendererFunctionName: params.rendererFunctionName,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({

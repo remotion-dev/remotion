@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-target-closed.png
 id: target-closed
 title: "'Target closed' error message"
 sidebar_label: Target closed
+crumb: "Troubleshooting"
 ---
 
 This error message **comes up when a Chromium Tab crashes**. Read on for possible reasons for this message.

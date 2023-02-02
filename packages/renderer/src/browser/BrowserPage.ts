@@ -297,7 +297,7 @@ export class Page extends EventEmitter {
 			}
 		}
 
-		this.#client.send('Runtime.evaluate', {
+		await this.#client.send('Runtime.evaluate', {
 			expression,
 			contextId: event.executionContextId,
 		});

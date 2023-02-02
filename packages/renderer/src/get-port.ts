@@ -1,5 +1,5 @@
 import net from 'net';
-import {pLimit} from './p-limit';
+import {createLock} from './locks';
 
 const getAvailablePort = (portToTry: number) =>
 	new Promise<'available' | 'unavailable'>((resolve) => {
@@ -41,16 +41,21 @@ const getPort = async (from: number, to: number) => {
 	throw new Error('No available ports found');
 };
 
-const getDesiredPortUnlimited = async (
+const portLocks = createLock({timeout: 10000});
+
+export const getDesiredPort = async (
 	desiredPort: number | undefined,
 	from: number,
 	to: number
 ) => {
+	await portLocks.waitForAllToBeDone();
+	const lockPortSelection = portLocks.lock();
+	const didUsePort = () => portLocks.unlock(lockPortSelection);
 	if (
 		typeof desiredPort !== 'undefined' &&
 		(await getAvailablePort(desiredPort)) === 'available'
 	) {
-		return desiredPort;
+		return {port: desiredPort, didUsePort};
 	}
 
 	const actualPort = await getPort(from, to);
@@ -62,16 +67,7 @@ const getDesiredPortUnlimited = async (
 		);
 	}
 
-	return actualPort;
-};
-
-const limit = pLimit(1);
-export const getDesiredPort = (
-	desiredPort: number | undefined,
-	from: number,
-	to: number
-) => {
-	return limit(() => getDesiredPortUnlimited(desiredPort, from, to));
+	return {port: actualPort, didUsePort};
 };
 
 const makeRange = (from: number, to: number): number[] => {
