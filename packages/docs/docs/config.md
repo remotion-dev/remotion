@@ -23,6 +23,28 @@ Config.setPixelFormat("yuv444p");
 Config.setCodec("h265");
 ```
 
+## Old config file format
+
+In v3.3.39, a new config file format was introduced which flattens the options so they can more easily be discovered using TypeScript autocompletion.
+
+Previously, each config option was two levels deep:
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "remotion";
+// ---cut---
+Config.Bundling.setCachingEnabled(false);
+```
+
+From v3.3.39 on, all options can be accessed directly from the `Config` object.
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "remotion";
+// ---cut---
+Config.setCachingEnabled(false);
+```
+
+The old way is deprecated, but will work for the foreseeable future.
+
 ## overrideWebpackConfig()
 
 _Available from Version 1.1._
