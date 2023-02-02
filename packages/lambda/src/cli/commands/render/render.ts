@@ -3,12 +3,12 @@ import {getCompositions, RenderInternals} from '@remotion/renderer';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {renderMediaOnLambda} from '../../../api/render-media-on-lambda';
+import type {RenderProgress} from '../../../shared/constants';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
 	DEFAULT_OUTPUT_PRIVACY,
 } from '../../../shared/constants';
-import {convertToServeUrl} from '../../../shared/convert-to-serve-url';
 import {sleep} from '../../../shared/sleep';
 import {validateFramesPerLambda} from '../../../shared/validate-frames-per-lambda';
 import type {LambdaCodec} from '../../../shared/validate-lambda-codec';
@@ -45,8 +45,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		Log.info('No compositions passed. Fetching compositions...');
 
 		validateServeUrl(serveUrl);
-		const realServeUrl = await convertToServeUrl(serveUrl, region);
-		const comps = await getCompositions(realServeUrl);
+		const comps = await getCompositions(serveUrl);
 		const {compositionId} = await CliInternals.selectComposition(comps);
 		composition = compositionId;
 	}
@@ -134,9 +133,10 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					secret: parsedLambdaCli['webhook-secret'] ?? null,
 			  }
 			: undefined,
+		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
 	});
 
-	const totalSteps = downloadName ? 5 : 4;
+	const totalSteps = downloadName ? 6 : 5;
 
 	const progressBar = CliInternals.createOverwriteableCliOutput(
 		CliInternals.quietFlagProvided()
@@ -173,6 +173,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			downloadInfo: null,
 			retriesInfo: status.retriesInfo,
 			verbose,
+			totalFrames: getTotalFrames(status),
+			timeToEncode: status.timeToEncode,
 		})
 	);
 
@@ -193,6 +195,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				retriesInfo: newStatus.retriesInfo,
 				downloadInfo: null,
 				verbose,
+				timeToEncode: newStatus.timeToEncode,
+				totalFrames: getTotalFrames(newStatus),
 			})
 		);
 
@@ -204,6 +208,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					downloadInfo: null,
 					retriesInfo: newStatus.retriesInfo,
 					verbose,
+					timeToEncode: newStatus.timeToEncode,
+					totalFrames: getTotalFrames(newStatus),
 				})
 			);
 			if (downloadName) {
@@ -225,6 +231,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 									totalSize,
 								},
 								verbose,
+								timeToEncode: newStatus.timeToEncode,
+								totalFrames: getTotalFrames(newStatus),
 							})
 						);
 					},
@@ -240,6 +248,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 							totalSize: sizeInBytes,
 						},
 						verbose,
+						timeToEncode: newStatus.timeToEncode,
+						totalFrames: getTotalFrames(newStatus),
 					})
 				);
 				Log.info();
@@ -301,3 +311,12 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		}
 	}
 };
+
+function getTotalFrames(status: RenderProgress): number | null {
+	return status.renderMetadata
+		? RenderInternals.getFramesToRender(
+				status.renderMetadata.frameRange,
+				status.renderMetadata.everyNthFrame
+		  ).length
+		: null;
+}

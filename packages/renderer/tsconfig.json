@@ -5,6 +5,7 @@
 		"rootDir": "src",
 		"outDir": "dist"
 	},
+	"include": ["src"],
 	"references": [{"path": "../core"}, {"path": "../bundler"}],
-	"exclude": ["vitest.config.ts", "dist"]
+	"exclude": ["vitest.config.ts"]
 }

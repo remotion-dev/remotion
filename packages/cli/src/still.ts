@@ -139,6 +139,7 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		compositionId,
 		defaultExtension: imageFormat,
 		args: argsAfterComposition,
+		type: 'asset',
 	});
 
 	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(

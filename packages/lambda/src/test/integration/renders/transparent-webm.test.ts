@@ -69,6 +69,7 @@ test('Should make a transparent video', async () => {
 			videoBitrate: null,
 			forceHeight: null,
 			forceWidth: null,
+			rendererFunctionName: null,
 		},
 		extraContext
 	);

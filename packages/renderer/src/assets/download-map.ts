@@ -62,6 +62,8 @@ export type DownloadMap = {
 	audioPreprocessing: string;
 	stitchFrames: string;
 	assetDir: string;
+	compositingDir: string;
+	compositorCache: {[key: string]: string};
 };
 
 export type RenderAssetInfo = {
@@ -108,11 +110,15 @@ export const makeDownloadMap = (): DownloadMap => {
 		audioMixing: makeAndReturn(dir, 'remotion-audio-mixing'),
 		audioPreprocessing: makeAndReturn(dir, 'remotion-audio-preprocessing'),
 		stitchFrames: makeAndReturn(dir, 'remotion-stitch-temp-dir'),
+		compositingDir: makeAndReturn(dir, 'remotion-compositing-temp-dir'),
+		compositorCache: {},
 	};
 };
 
 export const cleanDownloadMap = async (downloadMap: DownloadMap) => {
 	await deleteDirectory(downloadMap.downloadDir);
 	await deleteDirectory(downloadMap.complexFilter);
+	await deleteDirectory(downloadMap.compositingDir);
+	// Assets dir must be last since the others are contained
 	await deleteDirectory(downloadMap.assetDir);
 };

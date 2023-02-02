@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-transparent-videos.png
 id: transparent-videos
 title: Transparent videos
+crumb: "Techniques"
 ---
 
 import { TransparentVideoDemo } from "../components/TransparentVideoDemo";
@@ -37,9 +39,9 @@ If you want to set these options and persist them, add this to your `remotion.co
 ```tsx twoslash
 import { Config } from "remotion";
 
-Config.Rendering.setImageFormat("png");
-Config.Output.setPixelFormat("yuva420p");
-Config.Output.setCodec("vp8");
+Config.setImageFormat("png");
+Config.setPixelFormat("yuva420p");
+Config.setCodec("vp8");
 ```
 
 You can also set the settings on the command line:
@@ -58,10 +60,10 @@ Supported since v2.1.7, you can set the codec to `prores` and choose a ProRes pr
 ```tsx twoslash
 import { Config } from "remotion";
 
-Config.Rendering.setImageFormat("png");
-Config.Output.setPixelFormat("yuva444p10le");
-Config.Output.setCodec("prores");
-Config.Output.setProResProfile("4444");
+Config.setImageFormat("png");
+Config.setPixelFormat("yuva444p10le");
+Config.setCodec("prores");
+Config.setProResProfile("4444");
 ```
 
 You can also set the settings on the command line:

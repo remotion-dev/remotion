@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-getcompositionsonlambda.png
 id: getcompositionsonlambda
 title: getCompositionsOnLambda()
 slug: /lambda/getcompositionsonlambda
+crumb: "Lambda API"
 ---
 
 _available from v3.3.2_
@@ -17,7 +19,7 @@ You should use `getCompositionsOnLambda()` if you cannot use [`getCompositions()
 ```tsx twoslash
 // @module: esnext
 // @target: es2017
-import { getCompositionsOnLambda } from "@remotion/lambda";
+import { getCompositionsOnLambda } from "@remotion/lambda/client";
 
 const compositions = await getCompositionsOnLambda({
   region: "us-east-1",
@@ -29,6 +31,10 @@ const compositions = await getCompositionsOnLambda({
 
 console.log(compositions); // See below for an example value
 ```
+
+:::note
+Preferrably import this function from `@remotion/lambda/client` to avoid problems [inside serverless functions](/docs/lambda/light-client).
+:::
 
 ## Arguments
 

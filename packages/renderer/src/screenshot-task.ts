@@ -1,14 +1,28 @@
 import fs from 'fs';
+import type {ClipRegion} from 'remotion';
 import type {Page} from './browser/BrowserPage';
-import type {ScreenshotOptions} from './browser/ScreenshotOptions';
 import type {StillImageFormat} from './image-format';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
 
-export const screenshotTask = async (
-	page: Page,
-	format: StillImageFormat,
-	options: ScreenshotOptions
-): Promise<Buffer | string> => {
+export const screenshotTask = async ({
+	format,
+	height,
+	omitBackground,
+	page,
+	width,
+	path,
+	quality,
+	clipRegion,
+}: {
+	page: Page;
+	format: StillImageFormat;
+	path?: string;
+	quality?: number;
+	omitBackground: boolean;
+	width: number;
+	height: number;
+	clipRegion: ClipRegion | null;
+}): Promise<Buffer | string> => {
 	const client = page._client();
 	const target = page.target();
 
@@ -19,7 +33,7 @@ export const screenshotTask = async (
 	});
 	stopPerfMeasure(perfTarget);
 
-	const shouldSetDefaultBackground = options.omitBackground && format === 'png';
+	const shouldSetDefaultBackground = omitBackground && format === 'png';
 	if (shouldSetDefaultBackground)
 		await client.send('Emulation.setDefaultBackgroundColorOverride', {
 			color: {r: 0, g: 0, b: 0, a: 0},
@@ -29,10 +43,27 @@ export const screenshotTask = async (
 	try {
 		const result = await client.send('Page.captureScreenshot', {
 			format,
-			quality: options.quality,
-			clip: undefined,
+			quality,
+			clip:
+				clipRegion !== null && clipRegion !== 'hide'
+					? {
+							x: clipRegion.x,
+							y: clipRegion.y,
+							height: clipRegion.height,
+							scale: 1,
+							width: clipRegion.width,
+					  }
+					: {
+							x: 0,
+							y: 0,
+							height,
+							scale: 1,
+							width,
+					  },
 			captureBeyondViewport: true,
+			optimizeForSpeed: true,
 		});
+
 		stopPerfMeasure(cap);
 		if (shouldSetDefaultBackground)
 			await client.send('Emulation.setDefaultBackgroundColorOverride');
@@ -40,7 +71,7 @@ export const screenshotTask = async (
 		const saveMarker = startPerfMeasure('save');
 
 		const buffer = Buffer.from(result.data, 'base64');
-		if (options.path) await fs.promises.writeFile(options.path, buffer);
+		if (path) await fs.promises.writeFile(path, buffer);
 		stopPerfMeasure(saveMarker);
 		return buffer;
 	} catch (err) {

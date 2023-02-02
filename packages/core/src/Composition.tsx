@@ -1,14 +1,16 @@
-import type {ComponentType} from 'react';
-import React, {Suspense, useContext, useEffect} from 'react';
+import type {ComponentType, PropsWithChildren} from 'react';
+import React, {Suspense, useContext, useEffect, useMemo} from 'react';
 import {createPortal} from 'react-dom';
+import {AbsoluteFill} from './AbsoluteFill';
 import {CanUseRemotionHooksProvider} from './CanUseRemotionHooks';
 import {CompositionManager} from './CompositionManager';
 import {getInputProps} from './config/input-props';
 import {continueRender, delayRender} from './delay-render';
 import {FolderContext} from './Folder';
-import {getRemotionEnvironment} from './get-environment';
+import {useRemotionEnvironment} from './get-environment';
 import {Internals} from './internals';
 import {Loading} from './loading-indicator';
+import {NativeLayersContext} from './NativeLayers';
 import {useNonce} from './nonce';
 import {portalNode} from './portal-node';
 import {useLazyComponent} from './use-lazy-component';
@@ -63,10 +65,14 @@ export const Composition = <T,>({
 
 	const lazy = useLazyComponent(compProps);
 	const nonce = useNonce();
+	const environment = useRemotionEnvironment();
 
 	const canUseComposition = useContext(Internals.CanUseRemotionHooks);
 	if (canUseComposition) {
-		if (typeof window !== 'undefined' && window.remotion_isPlayer) {
+		if (
+			environment === 'player-development' ||
+			environment === 'player-production'
+		) {
 			throw new Error(
 				'<Composition> was mounted inside the `component` that was passed to the <Player>. See https://remotion.dev/docs/wrong-composition-mount for help.'
 			);
@@ -125,30 +131,24 @@ export const Composition = <T,>({
 		parentName,
 	]);
 
-	if (
-		getRemotionEnvironment() === 'preview' &&
-		video &&
-		video.component === lazy
-	) {
+	if (environment === 'preview' && video && video.component === lazy) {
 		const Comp = lazy;
 		const inputProps = getInputProps();
 
 		return createPortal(
-			<CanUseRemotionHooksProvider>
-				<Suspense fallback={<Loading />}>
-					<Comp {...defaultProps} {...inputProps} />
-				</Suspense>
-			</CanUseRemotionHooksProvider>,
+			<ClipComposition>
+				<CanUseRemotionHooksProvider>
+					<Suspense fallback={<Loading />}>
+						<Comp {...defaultProps} {...inputProps} />
+					</Suspense>
+				</CanUseRemotionHooksProvider>
+			</ClipComposition>,
 
 			portalNode()
 		);
 	}
 
-	if (
-		getRemotionEnvironment() === 'rendering' &&
-		video &&
-		video.component === lazy
-	) {
+	if (environment === 'rendering' && video && video.component === lazy) {
 		const Comp = lazy;
 		const inputProps = getInputProps();
 
@@ -158,10 +158,30 @@ export const Composition = <T,>({
 					<Comp {...defaultProps} {...inputProps} />
 				</Suspense>
 			</CanUseRemotionHooksProvider>,
-
 			portalNode()
 		);
 	}
 
 	return null;
+};
+
+export const ClipComposition: React.FC<PropsWithChildren> = ({children}) => {
+	const {clipRegion} = useContext(NativeLayersContext);
+	const style: React.CSSProperties = useMemo(() => {
+		return {
+			display: 'flex',
+			flexDirection: 'row',
+			opacity: clipRegion === 'hide' ? 0 : 1,
+			clipPath:
+				clipRegion && clipRegion !== 'hide'
+					? `polygon(${clipRegion.x}px ${clipRegion.y}px, ${clipRegion.x}px ${
+							clipRegion.height + clipRegion.y
+					  }px, ${clipRegion.width + clipRegion.x}px ${
+							clipRegion.height + clipRegion.y
+					  }px, ${clipRegion.width + clipRegion.x}px ${clipRegion.y}px)`
+					: undefined,
+		};
+	}, [clipRegion]);
+
+	return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
 };

@@ -1,13 +1,33 @@
 module.exports = {
   title: "Remotion | Make videos programmatically in React",
   tagline: "Make videos programmatically",
-  url: "https://www.remotion.dev",
+  url:
+    process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production"
+      ? `https://${process.env.VERCEL_URL}`
+      : "https://www.remotion.dev",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.png",
   organizationName: "remotion-dev", // Usually your GitHub org/user name.
   projectName: "remotion", // Usually your repo name.
+  webpack: {
+    jsLoader: (isServer) => ({
+      loader: require.resolve("swc-loader"),
+      options: {
+        jsc: {
+          parser: {
+            syntax: "typescript",
+            tsx: true,
+          },
+          target: "es2017",
+        },
+        module: {
+          type: isServer ? "commonjs" : "es6",
+        },
+      },
+    }),
+  },
   themeConfig: {
     algolia: {
       appId: "PLSDUOL1CA",
@@ -43,16 +63,21 @@ module.exports = {
           label: "More",
           position: "left",
           items: [
+            {
+              to: "/docs/resources",
+              label: "Resources",
+            },
             { to: "blog", label: "Blog" },
             { to: "showcase", label: "Showcase" },
             { to: "experts", label: "Experts" },
+            { to: "learn", label: "Learn" },
             { to: "about", label: "About" },
             { to: "success-stories", label: "Success Stories" },
             { to: "/docs/support", label: "Support" },
           ],
         },
         {
-          href: "https://twitter.com/remotion_dev",
+          href: "https://twitter.com/remotion",
           label: "Twitter",
           position: "right",
           "data-splitbee-event": "External Link",
@@ -70,7 +95,7 @@ module.exports = {
           label: "GitHub",
           position: "right",
           "data-splitbee-event": "External Link",
-          "data-splitbee-event-target": "Github",
+          "data-splitbee-event-target": "GitHub",
         },
       ],
     },
@@ -97,6 +122,10 @@ module.exports = {
               to: "/lambda",
             },
             {
+              label: "Learn",
+              to: "/learn",
+            },
+            {
               label: "Changelog",
               href: "https://github.com/remotion-dev/remotion/releases",
             },
@@ -104,7 +133,7 @@ module.exports = {
               label: "GitHub",
               href: "https://github.com/remotion-dev/remotion",
               "data-splitbee-event": "External Link",
-              "data-splitbee-event-target": "Github",
+              "data-splitbee-event-target": "GitHub",
             },
           ],
         },
@@ -128,19 +157,25 @@ module.exports = {
             },
             {
               label: "Twitter",
-              href: "https://twitter.com/remotion_dev",
+              href: "https://twitter.com/remotion",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Twitter",
             },
             {
               label: "Instagram",
-              href: "https://instagram.com/remotion.dev",
+              href: "https://instagram.com/remotion",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Instagram",
             },
             {
+              label: "LinkedIn",
+              href: "https://www.linkedin.com/company/remotion-dev/",
+              "data-splitbee-event": "External Link",
+              "data-splitbee-event-target": "LinkedIn",
+            },
+            {
               label: "TikTok",
-              href: "https://www.tiktok.com/@remotion.dev",
+              href: "https://www.tiktok.com/@remotion",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "TikTok",
             },
@@ -164,6 +199,10 @@ module.exports = {
             {
               label: "Support",
               to: "/docs/support",
+            },
+            {
+              label: "License",
+              href: "https://remotion.dev/license",
             },
             {
               label: "For companies",
@@ -202,7 +241,7 @@ module.exports = {
       },
     ],
     [
-      "@jonny/docusaurus-preset-shiki-twoslash",
+      "./shiki",
       {
         vfsRoot: process.cwd(),
         themes: ["github-light", "github-dark"],
@@ -230,6 +269,25 @@ module.exports = {
          */
         path: "./success-stories",
         blogSidebarTitle: "Success stories",
+      },
+    ],
+    [
+      "@docusaurus/plugin-content-blog",
+      {
+        /**
+         * Required for any multi-instance plugin
+         */
+        id: "learn",
+        /**
+         * URL route for the blog section of your site.
+         * *DO NOT* include a trailing slash.
+         */
+        routeBasePath: "learn",
+        /**
+         * Path to data on filesystem relative to site dir.
+         */
+        path: "./learn",
+        blogSidebarTitle: "Learn",
       },
     ],
     "./route-plugin",

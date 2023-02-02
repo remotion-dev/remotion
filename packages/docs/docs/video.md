@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-video.png
 title: <Video>
 id: video
+crumb: "API"
 ---
 
 This component allows you to include a video file in your Remotion project. It wraps the native [`HTMLVideoElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement).
@@ -186,6 +188,13 @@ _Available from v3.2.42_
 
 During [Preview](/docs/terminology#remotion-preview) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
 
+## `allowAmplificationDuringRender`
+
+_Available from v3.3.17_
+
+Make values for [`volume`](#volume) greater than `1` result in amplification during renders.  
+During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
+
 ## Speed up renders for video with silent audio
 
 Remotion will download the whole video during render in order to mix its audio. If the video contains a silent audio track, you can add the muted property to signal to Remotion that it does not need to download the video and make the render more efficient.
@@ -194,7 +203,7 @@ Remotion will download the whole video during render in order to mix its audio. 
 
 Pay attention to the codec of the video that you are importing. During the render process, Chrome needs to support playing the video that you are embedding. If Remotion cannot find a preinstalled version of Chrome, it will download a Chromium executable which does not support the playback of H264 (common codec for MP4 videos). To work around this problem, you have multiple options:
 
-- Tell Remotion which path for Chrome to use by using the command line flag `--browser-executable` or [configure](/docs/config#setbrowserexecutable) `Config.Puppeteer.setBrowserExecutable()` in a config file.
+- Tell Remotion which path for Chrome to use by using the command line flag `--browser-executable` or [configure](/docs/config#setbrowserexecutable) `Config.setBrowserExecutable()` in a config file.
 - Convert your videos to WebM before embedding them.
 
 Prior to Remotion 1.5, Remotion will always use an internal Puppeteer binary and MP4 videos are therefore not supported.

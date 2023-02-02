@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-custom-destination.png
 id: custom-destination
 sidebar_label: Custom output destination
 title: Customizing Lambda output destination
+crumb: "Lambda"
 ---
 
 By default a render artifact is saved into the same S3 bucket as where the site is located under the key `renders/${renderId}/out.{extension}` (for example: `renders/hy0k2siao8/out.mp4`)

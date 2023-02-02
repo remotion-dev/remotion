@@ -1,11 +1,12 @@
 {
-	"extends": "../tsconfig.settings.json",
+	"extends": "../tsconfig-esm.settings.json",
 	"compilerOptions": {
 		"composite": true,
 		"rootDir": "./src",
-		"outDir": "./dist",
+		"outDir": "./dist/esm",
 		"skipLibCheck": true,
-		"jsx": "react-jsx"
+		"jsx": "react-jsx",
+		"moduleResolution": "node"
 	},
 	"references": [{"path": "../core"}],
 	"include": ["./src"]

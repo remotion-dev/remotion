@@ -21,8 +21,12 @@ import {CompositionManager, compositionsRef} from './CompositionManager';
 import * as CSSUtils from './default-css';
 import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render';
 import type {RemotionEnvironment} from './get-environment';
-import {getRemotionEnvironment} from './get-environment';
+import {
+	getRemotionEnvironment,
+	useRemotionEnvironment,
+} from './get-environment';
 import {getPreviewDomElement} from './get-preview-dom-element';
+import {IsPlayerContextProvider, useIsPlayer} from './is-player';
 import {portalNode} from './portal-node';
 import {PrefetchProvider} from './prefetch-state';
 import {getRoot, waitForRoot} from './register-root';
@@ -103,6 +107,9 @@ export const Internals = {
 	enableLegacyRemotionConfig,
 	PrefetchProvider,
 	DurationsContextProvider,
+	IsPlayerContextProvider,
+	useIsPlayer,
+	useRemotionEnvironment,
 };
 
 type WebpackConfiguration = Configuration;

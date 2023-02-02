@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-cli-compositions.png
 title: npx remotion compositions
 sidebar_label: compositions
+crumb: CLI Reference
 ---
 
 _Available from v2.6.12._
@@ -13,7 +15,7 @@ npx remotion compositions <entry-file>
 
 If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:
 
-1. Get the path from the Config (Can be set using `Config.Preview.setEntryPoint("<entry-point>")`).
+1. Get the path from the Config (Can be set using `Config.setEntryPoint("<entry-point>")`).
 2. Look for some common paths i.e. `src/index.ts`, `src/index.tsx`, `src/index.js`, `remotion/index.js`.
 3. Fail as entry point could not be determined.
 
@@ -78,6 +80,8 @@ Not to be confused with the [`--timeout` flag when deploying a Lambda function](
 Results in invalid SSL certificates in Chrome, such as self-signed ones, being ignored.
 
 ### `--disable-web-security`
+
+_available since v2.6.5_
 
 This will most notably disable CORS in Chrome among other security features.
 

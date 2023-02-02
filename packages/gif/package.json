@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/gif",
-	"version": "3.3.5",
+	"version": "3.3.38",
 	"description": "Gif component for remotion",
 	"sideEffects": false,
 	"repository": {
@@ -17,19 +17,20 @@
 	],
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"build": "tsc -d",
+		"build": "node build.mjs && tsc -d",
 		"watch": "tsc -w"
 	},
 	"dependencies": {
-		"gifuct-js": "2.1.2",
+		"js-binary-schema-parser": "^2.0.3",
 		"lru_map": "0.4.1",
-		"remotion": "3.3.5"
+		"remotion": "3.3.38"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
 		"@types/node": "^16.7.5",
-		"@types/react": "18.0.23",
-		"@types/react-dom": "18.0.0",
+		"@types/react": "18.0.26",
+		"@types/react-dom": "18.0.10",
+		"esbuild": "0.16.12",
 		"eslint": "8.25.0",
 		"prettier": "2.6.2",
 		"prettier-plugin-organize-imports": "^2.3.4",
@@ -47,7 +48,6 @@
 		"ffmpeg",
 		"video",
 		"react",
-		"puppeteer",
 		"player"
 	],
 	"publishConfig": {

@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-google-fonts-load-font.png
 title: loadFont()
+crumb: "@remotion/google-fonts"
 ---
 
 _Part of the [`@remotion/google-fonts`](/docs/google-fonts) package_
@@ -72,11 +74,21 @@ The font style we want to load. While each font has a different set of styles, c
 
 #### weights
 
+_optional_
+
 Array of weights that should be loaded. By default, all.
 
 #### subsets
 
+_optional_
+
 Array of font subsets that should be loaded. By default, all.
+
+#### document
+
+_optional_
+
+Allows you to specify a [`Document`](https://developer.mozilla.org/en-US/docs/Web/API/Document?retiredLocale=de). If you want to inject the fonts into an iframe, you want to give it a ref and pass `iframeRef.contentDocument` to this parameter. By default, the global `window.document` is used.
 
 ## Return value
 

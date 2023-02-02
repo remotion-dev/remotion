@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-spring.png
 id: spring
 title: spring()
+crumb: "API"
 ---
 
 A physics-based animation primitive.

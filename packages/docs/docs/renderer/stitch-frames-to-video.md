@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-renderer-stitch-frames-to-video.png
 id: stitch-frames-to-video
 title: stitchFramesToVideo()
+crumb: "@remotion/renderer"
 ---
 
 _Part of the `@remotion/renderer` package._
@@ -17,7 +19,7 @@ An object with the following properties:
 
 ### `dir`
 
-A `string` containing the absolute path of the directory where the frames are located. This will be the directory where the `ffmepg` command will be executed.
+A `string` containing the absolute path of the directory where the frames are located. This will be the directory where the `ffmpeg` command will be executed.
 
 ### `fps`
 

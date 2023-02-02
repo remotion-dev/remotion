@@ -6,6 +6,9 @@ test("Should not have carets in Remotion versions", async () => {
   const packagesDir = path.join(process.cwd(), "..");
   const packages = await fs.promises.readdir(packagesDir);
   for (const pkg of packages) {
+    if (pkg.startsWith(".")) {
+      continue;
+    }
     const stat = fs.statSync(path.join(packagesDir, pkg));
     if (!stat.isDirectory()) {
       continue;

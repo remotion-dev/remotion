@@ -9,6 +9,7 @@ export type Size = {
 		width: number;
 		height: number;
 	};
+	refresh: () => void;
 };
 
 // If a pane has been moved, it will cause a layout shift without
@@ -32,7 +33,8 @@ export const useElementSize = (
 		shouldApplyCssTransforms: boolean;
 	}
 ): Size | null => {
-	const [size, setSize] = useState<Size | null>(null);
+	const [size, setSize] = useState<Omit<Size, 'refresh'> | null>(null);
+
 	const observer = useMemo(() => {
 		if (typeof ResizeObserver === 'undefined') {
 			return null;
@@ -70,6 +72,7 @@ export const useElementSize = (
 			});
 		});
 	}, [options.shouldApplyCssTransforms]);
+
 	const updateSize = useCallback(() => {
 		if (!ref.current) {
 			return;
@@ -131,5 +134,5 @@ export const useElementSize = (
 		};
 	}, [updateSize]);
 
-	return size;
+	return size ? {...size, refresh: updateSize} : null;
 };

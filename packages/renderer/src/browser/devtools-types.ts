@@ -612,6 +612,10 @@ export interface CaptureScreenshotRequest {
 	 * Capture the screenshot beyond the viewport. Defaults to false.
 	 */
 	captureBeyondViewport?: boolean;
+	/**
+	 * Optimize image encoding for speed, not for resulting size (defaults to false) EXPERIMENTAL
+	 */
+	optimizeForSpeed?: boolean;
 }
 
 export interface CaptureScreenshotResponse {

@@ -25,6 +25,7 @@ import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getProResProfileName} from './get-prores-profile-name';
 import type {ImageFormat} from './image-format';
 import type {CancelSignal} from './make-cancel-signal';
+import {cancelErrorMessages} from './make-cancel-signal';
 import {mergeAudioTrack} from './merge-audio-track';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import type {PixelFormat} from './pixel-format';
@@ -157,13 +158,14 @@ const getAssetsData = async ({
 		remotionRoot,
 	});
 
-	deleteDirectory(downloadMap.audioMixing);
-
 	onProgress(1);
 
-	preprocessed.forEach((p) => {
-		deleteDirectory(p);
-	});
+	await Promise.all([
+		deleteDirectory(downloadMap.audioMixing),
+		...preprocessed.map((p) => {
+			return deleteDirectory(p);
+		}),
+	]);
 
 	return outName;
 };
@@ -215,7 +217,7 @@ export const spawnFfmpeg = async (
 		? null
 		: path.join(
 				options.assetsInfo.downloadMap.stitchFrames,
-				`out.${getFileExtensionFromCodec(codec, 'final')}`
+				`out.${getFileExtensionFromCodec(codec)}`
 		  );
 
 	const shouldRenderAudio =
@@ -481,7 +483,7 @@ export const stitchFramesToVideo = async (
 		happyPath,
 		new Promise<Buffer | null>((_resolve, reject) => {
 			options.cancelSignal?.(() => {
-				reject(new Error('stitchFramesToVideo() got cancelled'));
+				reject(new Error(cancelErrorMessages.stitchFramesToVideo));
 			});
 		}),
 	]);

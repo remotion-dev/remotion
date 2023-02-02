@@ -51,9 +51,13 @@ export const TableOfContents: React.FC = () => {
           <strong>extendViewBox()</strong>
           <div>Widen an SVG viewBox in all directions</div>
         </TOCItem>
-        <TOCItem link="/docs/paths/split-parts">
-          <strong>splitParts()</strong>
+        <TOCItem link="/docs/paths/get-subpaths">
+          <strong>getSubpaths()</strong>
           <div>Split SVG path into its parts</div>
+        </TOCItem>
+        <TOCItem link="/docs/paths/translate-path">
+          <strong>translatePath()</strong>
+          <div>Translates the position of an path against X/Y coordinates</div>
         </TOCItem>
       </Grid>
     </div>

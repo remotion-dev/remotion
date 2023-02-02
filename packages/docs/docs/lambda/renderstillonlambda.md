@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-renderstillonlambda.png
 id: renderstillonlambda
 title: renderStillOnLambda()
 slug: /lambda/renderstillonlambda
+crumb: "Lambda API"
 ---
 
 Renders a still image inside a lambda function and writes it to the specified output location.
@@ -15,8 +17,7 @@ If you want to render a still locally instead, use [`renderStill()`](/docs/rende
 ```tsx twoslash
 // @module: esnext
 // @target: es2017
-import { renderStillOnLambda } from "@remotion/lambda";
-// ---cut---
+import { renderStillOnLambda } from "@remotion/lambda/client";
 
 const { estimatedPrice, url, sizeInBytes } = await renderStillOnLambda({
   region: "us-east-1",
@@ -32,6 +33,10 @@ const { estimatedPrice, url, sizeInBytes } = await renderStillOnLambda({
   frame: 10,
 });
 ```
+
+:::note
+Preferrably import this function from `@remotion/lambda/client` to avoid problems [inside serverless functions](/docs/lambda/light-client).
+:::
 
 ## Arguments
 

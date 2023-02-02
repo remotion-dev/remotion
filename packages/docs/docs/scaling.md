@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-scaling.png
 id: scaling
 title: Output scaling
+crumb: "How To"
 ---
 
 _Available from v2.6.7._
@@ -22,7 +24,7 @@ Remotion can support this higher resolution by setting the [`deviceScaleFactor`]
   ```ts twoslash
   import { Config } from "remotion";
   // ---cut---
-  Config.Rendering.setScale(2);
+  Config.setScale(2);
   ```
 
 ## Allowed values

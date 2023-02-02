@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-support.png
 id: support
 title: Support Policy
+crumb: "Let us help you"
 ---
 
 We welcome you to ask questions and invest a lot of time into supporting our users. Follow the steps below if have a question that you would like to get answered.

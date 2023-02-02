@@ -27,7 +27,7 @@ export const prepareServer = async ({
 	remotionRoot: string;
 }): Promise<{
 	serveUrl: string;
-	closeServer: () => Promise<unknown>;
+	closeServer: (force: boolean) => Promise<unknown>;
 	offthreadPort: number;
 }> => {
 	if (isServeUrl(webpackConfigOrServeUrl)) {
@@ -69,8 +69,12 @@ export const prepareServer = async ({
 		remotionRoot,
 	});
 	return Promise.resolve({
-		closeServer: () => {
-			return waitForSymbolicationToBeDone().then(() => close());
+		closeServer: async (force: boolean) => {
+			if (!force) {
+				await waitForSymbolicationToBeDone();
+			}
+
+			return close();
 		},
 		serveUrl: `http://localhost:${serverPort}`,
 		offthreadPort: serverPort,

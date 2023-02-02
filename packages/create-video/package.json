@@ -1,6 +1,6 @@
 {
 	"name": "create-video",
-	"version": "3.3.5",
+	"version": "3.3.38",
 	"description": "",
 	"main": "dist/index.js",
 	"bin": {
@@ -12,7 +12,8 @@
 	"scripts": {
 		"build": "tsc -d",
 		"watch": "tsc -w",
-		"lint": "eslint src --ext ts,tsx"
+		"lint": "eslint src --ext ts,tsx",
+		"test": "vitest --run"
 	},
 	"author": "",
 	"license": "SEE LICENSE IN LICENSE.md",
@@ -21,6 +22,7 @@
 		"execa": "5.1.1",
 		"minimist": "1.2.6",
 		"prompts": "2.4.1",
+		"react": "18.0.0",
 		"tar": "6.1.11"
 	},
 	"devDependencies": {
@@ -28,6 +30,7 @@
 		"@types/minimist": "1.2.2",
 		"@types/node": "^16.7.5",
 		"@types/prompts": "^2.0.12",
+		"@types/react": "18.0.26",
 		"@types/tar": "6.1.1",
 		"eslint": "8.25.0",
 		"got": "^11",

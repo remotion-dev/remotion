@@ -22,12 +22,7 @@ export const getStackFrames = async (
 	if (
 		enhancedFrames
 			.map((f) => f.originalFileName)
-			.filter(
-				(f_1) =>
-					f_1 !== null &&
-					f_1 !== undefined &&
-					f_1.indexOf('node_modules') === -1
-			).length === 0
+			.filter((f_1) => f_1 !== null && f_1 !== undefined).length === 0
 	) {
 		return null;
 	}

@@ -18,6 +18,7 @@ import {
 	MAX_EPHEMERAL_STORAGE_IN_MB,
 	renderMetadataKey,
 } from '../shared/constants';
+import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {deserializeInputProps} from '../shared/deserialize-input-props';
 import {getServeUrlHash} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
@@ -87,15 +88,22 @@ const innerStillHandler = async (
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
+	const region = getCurrentRegionInFunction();
 	const inputProps = await deserializeInputProps({
 		bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
+		region,
 		serialized: lambdaParams.inputProps,
 	});
 
+	const serveUrl = convertToServeUrl({
+		urlOrId: lambdaParams.serveUrl,
+		region,
+		bucketName,
+	});
+
 	const composition = await validateComposition({
-		serveUrl: lambdaParams.serveUrl,
+		serveUrl,
 		browserInstance,
 		composition: lambdaParams.composition,
 		inputProps,
@@ -117,7 +125,7 @@ const innerStillHandler = async (
 		compositionId: lambdaParams.composition,
 		estimatedTotalLambdaInvokations: 1,
 		estimatedRenderLambdaInvokations: 1,
-		siteId: getServeUrlHash(lambdaParams.serveUrl),
+		siteId: getServeUrlHash(serveUrl),
 		totalChunks: 1,
 		type: 'still',
 		imageFormat: lambdaParams.imageFormat,
@@ -129,6 +137,8 @@ const innerStillHandler = async (
 		renderId,
 		outName: lambdaParams.outName ?? undefined,
 		privacy: lambdaParams.privacy,
+		everyNthFrame: 1,
+		frameRange: [lambdaParams.frame, lambdaParams.frame],
 	};
 
 	await lambdaWriteFile({
@@ -145,7 +155,7 @@ const innerStillHandler = async (
 	await renderStill({
 		composition,
 		output: outputPath,
-		serveUrl: lambdaParams.serveUrl,
+		serveUrl,
 		dumpBrowserLogs: false,
 		envVariables: lambdaParams.envVariables,
 		frame: RenderInternals.convertToPositiveFrameIndex({
@@ -253,7 +263,9 @@ export const stillHandler = async (
 				region: getCurrentRegionInFunction(),
 			});
 
-			writeLambdaError({
+			// `await` elided on purpose here; using `void` to mark it as intentional
+			// eslint-disable-next-line no-void
+			void writeLambdaError({
 				bucketName,
 				errorInfo: {
 					chunk: null,

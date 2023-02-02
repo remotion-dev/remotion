@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-lambda-permissions.png
 sidebar_label: Permissions
 title: Permissions
+crumb: "Lambda"
 ---
 
 import {UserPolicy} from '../../components/lambda/user-permissions.tsx';
@@ -74,17 +76,6 @@ The following table is a breakdown of why Remotion Lambda requires the permissio
   </tr>
   <tr>
     <td>
-      <code>iam:GetUser</code>
-    </td>
-    <td>
-      <code>{"arn:aws:iam::*:user/${aws:username}"}</code>
-    </td>
-    <td>
-    Get the authenticated user in order to do a permission validation.
-    </td>
-  </tr>
-  <tr>
-    <td>
       <code>iam:SimulatePrincipalPolicy</code>
     </td>
     <td><code>*</code></td>
@@ -112,8 +103,6 @@ The following table is a breakdown of why Remotion Lambda requires the permissio
       <code>s3:GetBucketLocation</code> <br />
       <code>s3:PutBucketAcl</code> <br />
       <code>s3:DeleteBucket</code> <br />
-      <code>s3:PutBucketWebsite</code> <br />
-      <code>s3:DeleteBucketWebsite</code> <br />
     </td>
     <td>
       <code>{'arn:aws:s3:::remotionlambda-*'}</code>

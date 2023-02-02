@@ -3,7 +3,7 @@ import {useContext, useEffect, useMemo, useState} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame';
 import {CompositionManager} from './CompositionManager';
 import {getAssetDisplayName} from './get-asset-file-name';
-import {getRemotionEnvironment} from './get-environment';
+import {useRemotionEnvironment} from './get-environment';
 import {useNonce} from './nonce';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error';
 import {SequenceContext} from './Sequence';
@@ -30,12 +30,14 @@ export const useMediaInTimeline = ({
 	mediaRef,
 	src,
 	mediaType,
+	playbackRate,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
 	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement>;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
+	playbackRate: number;
 }) => {
 	const videoConfig = useVideoConfig();
 	const {rootId, audioAndVideoTags} = useContext(TimelineContext);
@@ -56,6 +58,8 @@ export const useMediaInTimeline = ({
 		: videoConfig.durationInFrames;
 	const doesVolumeChange = typeof volume === 'function';
 
+	const environment = useRemotionEnvironment();
+
 	const volumes: string | number = useMemo(() => {
 		if (typeof volume === 'number') {
 			return volume;
@@ -68,6 +72,7 @@ export const useMediaInTimeline = ({
 					frame: i + startsAt,
 					volume,
 					mediaVolume,
+					allowAmplificationDuringRender: false,
 				});
 			})
 			.join(',');
@@ -90,10 +95,7 @@ export const useMediaInTimeline = ({
 			throw new Error('No src passed');
 		}
 
-		if (
-			getRemotionEnvironment() !== 'preview' &&
-			process.env.NODE_ENV !== 'test'
-		) {
+		if (environment !== 'preview' && process.env.NODE_ENV !== 'test') {
 			return;
 		}
 
@@ -112,6 +114,7 @@ export const useMediaInTimeline = ({
 			startMediaFrom: 0 - startsAt,
 			doesVolumeChange,
 			showLoopTimesInTimeline: undefined,
+			playbackRate,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -132,6 +135,8 @@ export const useMediaInTimeline = ({
 		mediaRef,
 		mediaType,
 		startsAt,
+		playbackRate,
+		environment,
 	]);
 
 	useEffect(() => {

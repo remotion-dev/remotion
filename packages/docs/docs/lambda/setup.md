@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-setup.png
 id: setup
 title: Setup
 slug: /lambda/setup
+crumb: "Lambda"
 ---
 
 import Tabs from '@theme/Tabs';

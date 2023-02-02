@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-cli-render.png
 title: npx remotion render
 sidebar_label: render
+crumb: CLI Reference
 ---
 
 import {AngleChangelog} from '../../components/AngleChangelog';
@@ -13,7 +15,7 @@ npx remotion render <entry-file> [<composition-id>] [<output-location>]
 
 If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:
 
-1. Get the path from the Config (Can be set using `Config.Preview.setEntryPoint("<entry-point>")`).
+1. Get the path from the Config (Can be set using `Config.setEntryPoint("<entry-point>")`).
 2. Look for some common paths i.e. `src/index.ts`, `src/index.tsx` `src/index.js`, `remotion/index.ts`, `app/remotion/index.ts`.
 3. Fail as entry point could not be determined.
 
@@ -46,7 +48,7 @@ _available from v3.2.40_
 
 ### `--concurrency`
 
-[How many CPU threads to use.](/docs/config#setconcurrency) Minimum 1. The maximum is the amount of threads you have (In Node.JS `os.cpus().length`).
+[How many CPU threads to use.](/docs/config#setconcurrency) Minimum 1. The maximum is the amount of threads you have (In Node.JS `os.cpus().length`). You can also provide a percentage value (e.g. 50%).
 
 ### `--pixel-format`
 
@@ -188,13 +190,15 @@ Results in invalid SSL certificates in Chrome, such as self-signed ones, being i
 
 ### `--disable-web-security`
 
+_available since v2.6.5_
+
 This will most notably disable CORS in Chrome among other security features.
-Available since v2.6.5.
 
 ### `--disable-headless`
 
+_available since v2.6.5_
+
 Opens an actual browser during rendering to observe the render.
-Available since v2.6.5.
 
 ### `--gl`
 
