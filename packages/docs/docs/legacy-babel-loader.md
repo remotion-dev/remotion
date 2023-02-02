@@ -55,7 +55,7 @@ import { Config } from "remotion";
 // ---cut---
 import { replaceLoadersWithBabel } from "@remotion/babel-loader";
 
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+Config.overrideWebpackConfig((currentConfiguration) => {
   return replaceLoadersWithBabel(currentConfiguration);
 });
 ```
