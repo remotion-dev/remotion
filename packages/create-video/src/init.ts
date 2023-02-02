@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import execa from 'execa';
 import os from 'os';
+import {createYarnYmlFile} from './add-yarn2-support';
 import {degit} from './degit';
 import {getLatestRemotionVersion} from './latest-remotion-version';
 import {Log} from './log';
@@ -128,6 +129,12 @@ export const init = async () => {
 			selectedTemplate.shortName
 		)} to ${chalk.blueBright(folderName)}. Installing dependencies...`
 	);
+
+	createYarnYmlFile({
+		pkgManager,
+		pkgManagerVersion,
+		projectRoot,
+	});
 
 	if (pkgManager === 'yarn') {
 		Log.info('> yarn');
