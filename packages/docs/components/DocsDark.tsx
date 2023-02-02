@@ -24,7 +24,7 @@ export const SingleVideoDemo: React.FC<{
       border:
         "1px solid " +
         (colorMode === "dark"
-          ? "transparent"
+          ? "var(--ifm-color-emphasis-200)"
           : "var(--ifm-color-emphasis-300)"),
       flex: 1,
       display: "block",

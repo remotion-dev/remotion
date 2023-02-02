@@ -4,6 +4,13 @@ import { NoiseComp } from "./NoiseDemo";
 import { PieDemo } from "./Pie";
 import { RectDemo } from "./Rect";
 import { StarDemo } from "./Star";
+import {
+  OpacityDemo,
+  RotateDemo,
+  ScaleDemo,
+  SkewDemo,
+  TranslateDemo,
+} from "./Translate";
 import { TriangleDemo } from "./Triangle";
 
 export type Option = {
@@ -161,6 +168,120 @@ export const circleDemo: DemoType = {
       min: 1,
       type: "numeric",
       name: "radius",
+      optional: "no",
+    },
+  ],
+};
+
+export const translateDemo: DemoType = {
+  comp: TranslateDemo,
+  autoPlay: false,
+  compHeight: 400,
+  compWidth: 1280,
+  durationInFrames: 150,
+  fps: 30,
+  id: "translate",
+  options: [
+    {
+      default: 0,
+      max: 800,
+      step: 5,
+      min: -800,
+      type: "numeric",
+      name: "translateX",
+      optional: "no",
+    },
+    {
+      default: 0,
+      max: 800,
+      step: 5,
+      min: -800,
+      type: "numeric",
+      name: "translateY",
+      optional: "no",
+    },
+  ],
+};
+
+export const skewDemo: DemoType = {
+  comp: SkewDemo,
+  autoPlay: false,
+  compHeight: 400,
+  compWidth: 1280,
+  durationInFrames: 150,
+  fps: 30,
+  id: "skew",
+  options: [
+    {
+      default: 0,
+      max: 180,
+      step: 1,
+      min: -180,
+      type: "numeric",
+      name: "skew",
+      optional: "no",
+    },
+  ],
+};
+
+export const scaleDemo: DemoType = {
+  comp: ScaleDemo,
+  autoPlay: false,
+  compHeight: 400,
+  compWidth: 1280,
+  durationInFrames: 150,
+  fps: 30,
+  id: "scale",
+  options: [
+    {
+      default: 1,
+      max: 4,
+      step: 0.01,
+      min: -4,
+      type: "numeric",
+      name: "scale",
+      optional: "no",
+    },
+  ],
+};
+
+export const opacityDemo: DemoType = {
+  comp: OpacityDemo,
+  autoPlay: false,
+  compHeight: 400,
+  compWidth: 1280,
+  durationInFrames: 150,
+  fps: 30,
+  id: "opacity",
+  options: [
+    {
+      default: 1,
+      max: 1,
+      step: 0.01,
+      min: 0,
+      type: "numeric",
+      name: "opacity",
+      optional: "no",
+    },
+  ],
+};
+
+export const rotateDemo: DemoType = {
+  comp: RotateDemo,
+  autoPlay: false,
+  compHeight: 400,
+  compWidth: 1280,
+  durationInFrames: 150,
+  fps: 30,
+  id: "rotate",
+  options: [
+    {
+      default: 0,
+      max: 180,
+      step: 1,
+      min: -180,
+      type: "numeric",
+      name: "rotateZ",
       optional: "no",
     },
   ],

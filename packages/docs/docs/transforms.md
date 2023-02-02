@@ -7,12 +7,11 @@ import {Transforms} from '../components/DocsDark'
 import {MuxVideo} from '../src/components/MuxVideo';
 import {TransformsTutorial} from '../src/components/tutorials';
 
+<TransformsTutorial />
 Animations occur by transforming the properties of an element over time.  
 Let's take a look at five common transforms that we can apply to any element.
 
 If you are already familiar with how to apply CSS transforms in React, you can [skip this page](/docs/animating-properties).
-
-<TransformsTutorial />
 
 ## The 5 basic transformations
 
@@ -41,6 +40,8 @@ You can set the opacity of an element using the `opacity` property.
 />
 ```
 
+<Demo type="opacity" />
+
 Values below `0` and above `1` are accepted, but have no further effect.
 
 ### Scale
@@ -61,15 +62,17 @@ You can set the scale of an element using the `transform` property.
 />
 ```
 
+<Demo type="scale" />
+
 The difference to changing the size of the element using `height` and `width` is that using `scale()` will not change the layout of the other elements.
 
 ### Skew
 
 Skewing an element will lead to a distorted appearance as if the the element has been stretched on two corners of the element. Skew takes an angle that can be specified using `rad` (radians) and `deg` (degrees).
 
-See the explorer below to see how skewing affects an element.
-
 You can set the skew of an element using the `transform` property.
+
+See the explorer below to see how skewing affects an element.
 
 ```tsx twoslash {6} title="MyComponent.tsx"
 <div
@@ -81,6 +84,8 @@ You can set the skew of an element using the `transform` property.
   }}
 />
 ```
+
+<Demo type="skew" />
 
 ### Translate
 
@@ -98,6 +103,8 @@ You can set the translation of an element using the `transform` property.
   }}
 />
 ```
+
+<Demo type="translate" />
 
 As opposed to changing the position of an element using `margin-top` and `margin-left`, using `translate()` will not change the position of the other elements.
 
@@ -117,6 +124,8 @@ You can set the translation of an element using the `transform` property.
   }}
 />
 ```
+
+<Demo type="rotate" />
 
 If you want to rotate an element around the X or Y axis, you should apply the [`perspective`](https://developer.mozilla.org/en-US/docs/Web/CSS/perspective) property to the parent element.
 
