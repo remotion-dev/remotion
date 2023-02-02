@@ -135,6 +135,14 @@ type ObjectConfig = {
 		 * Set how many milliseconds a frame may take to render before it times out.
 		 * Default: `30000`
 		 */
+		readonly setDelayRenderTimeoutInMilliseconds: (
+			newPuppeteerTimeout: number
+		) => void;
+		/**
+		 * @deprecated Renamed to `setDelayRenderTimeoutInMilliseconds`.
+		 * Set how many milliseconds a frame may take to render before it times out.
+		 * Default: `30000`
+		 */
 		readonly setTimeoutInMilliseconds: (newPuppeteerTimeout: number) => void;
 		/**
 		 * Setting deciding whether to disable CORS and other Chrome security features.

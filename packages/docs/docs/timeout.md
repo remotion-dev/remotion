@@ -68,7 +68,7 @@ You can increase the default timeout from v2.6.3 on:
 
 - Using the [`--timeout`](/docs/cli/render#--timeout) CLI flag
 - Using the `timeoutInMilliseconds` option in [`renderStill()`](/docs/renderer/render-still#timeoutinmilliseconds), [`renderFrames()`](/docs/renderer/render-frames#timeoutinmilliseconds), [`getCompositions()`](/docs/renderer/get-compositions#timeoutinmilliseconds), [`renderMedia()`](/docs/renderer/render-media#timeoutinmilliseconds), [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#timeoutinmilliseconds) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#timeoutinmilliseconds)
-- Using the [`Config.setTimeoutInMilliseconds()`](/docs/config#settimeoutinmilliseconds) option in the config file
+- Using the [`Config.setDelayRenderTimeoutInMilliseconds()`](/docs/config#setdelayrendertimeoutinmilliseconds) option in the config file
 
 ## Adding a label to help debugging
 
