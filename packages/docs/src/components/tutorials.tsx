@@ -1,5 +1,6 @@
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import React from "react";
+import { AlsoAvailableAsVideo } from "./AlsoAvailableAsVideo";
 import { VideoPlayerWithControls } from "./VideoPlayerWithControls";
 
 export const AppleFireworksTutorial = () => {
@@ -14,6 +15,21 @@ export const AppleFireworksTutorial = () => {
           }}
           onLoaded={() => undefined}
           onSize={() => undefined}
+        />
+      )}
+    </BrowserOnly>
+  );
+};
+
+export const TransformsTutorial = () => {
+  return (
+    <BrowserOnly>
+      {() => (
+        <AlsoAvailableAsVideo
+          playbackId="T0015eD012a4pB26i8veyHA88IRTro2BxVGtGCY3Eq81o"
+          thumb="https://image.mux.com/T0015eD012a4pB26i8veyHA88IRTro2BxVGtGCY3Eq81o/thumbnail.png"
+          minutes={9}
+          title="The 5 basic transformations"
         />
       )}
     </BrowserOnly>
