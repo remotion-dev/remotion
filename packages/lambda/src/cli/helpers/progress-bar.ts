@@ -8,7 +8,6 @@ export type BundleProgress = {
 
 export const makeBundleProgress = ({progress, doneIn}: BundleProgress) => {
 	return [
-		'📦',
 		`(1/3)`,
 		CliInternals.makeProgressBar(progress / 100),
 		`${doneIn === null ? 'Bundling' : 'Bundled'} video`,
@@ -32,7 +31,6 @@ export const makeBucketProgress = ({
 	const progress = statesFinished / states.length;
 
 	return [
-		'🪣 ',
 		`(2/3)`,
 		CliInternals.makeProgressBar(progress),
 		`${doneIn === null ? 'Creating' : 'Created'} bucket`,
@@ -83,7 +81,6 @@ export const makeDeployProgressBar = ({
 }: DeployToS3Progress) => {
 	const progress = totalSize === null ? 0 : sizeUploaded / totalSize;
 	return [
-		'☁️ ',
 		`(3/3)`,
 		CliInternals.makeProgressBar(progress),
 		`${doneIn === null ? 'Uploading' : 'Uploaded'} to S3`,
