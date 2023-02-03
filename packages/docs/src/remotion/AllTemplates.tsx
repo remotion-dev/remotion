@@ -4,9 +4,7 @@ import { AbsoluteFill, Img } from "remotion";
 import { IconForTemplate } from "../components/IconForTemplate";
 import "./font.css";
 
-export const AllTemplates: React.FC<{
-  templateId: string;
-}> = ({ templateId }) => {
+export const AllTemplates: React.FC = () => {
   return (
     <AbsoluteFill
       style={{
