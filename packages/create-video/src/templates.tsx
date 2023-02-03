@@ -29,6 +29,7 @@ export type Template = {
 		| 'hello-world'
 		| 'javascript'
 		| 'blank'
+		| 'next'
 		| 'remix'
 		| 'three'
 		| 'still'
@@ -90,6 +91,24 @@ export const FEATURED_TEMPLATES: Template[] = [
 		},
 		cliId: 'blank',
 		type: 'video',
+		defaultBranch: 'main',
+	},
+	{
+		homePageLabel: 'Next.js',
+		shortName: 'Next.js',
+		org: 'remotion-dev',
+		repoName: 'template-next',
+		description: 'SaaS template for video generation apps',
+		longerDescription:
+			'A software-as-a-service starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Our recommended choice for people who want to build a video generation app.',
+		promoBanner: {
+			width: 1280,
+			height: 720,
+			// TODO: Update this image
+			src: '/img/remix-template.png',
+		},
+		cliId: 'next',
+		type: 'image',
 		defaultBranch: 'main',
 	},
 	{
