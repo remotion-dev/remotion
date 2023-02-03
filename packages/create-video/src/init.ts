@@ -108,7 +108,7 @@ export const init = async () => {
 			repoName: selectedTemplate.repoName,
 			dest: projectRoot,
 		});
-		patchReadmeMd(projectRoot, pkgManager);
+		patchReadmeMd(projectRoot, pkgManager, selectedTemplate);
 		const latestVersion = await latestRemotionVersionPromise;
 		patchPackageJson({
 			projectRoot,
