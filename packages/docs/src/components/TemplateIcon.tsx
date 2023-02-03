@@ -1,20 +1,10 @@
-import React from "react";
-
-const outer: React.CSSProperties = {
-  width: 90,
-  textAlign: "center",
-  display: "flex",
-  alignItems: "center",
-  flexDirection: "column",
-  color: "var(--light-text-color)",
-  cursor: "pointer",
-  filter: "drop-shadow(0px 0px 4px var(--background))",
-};
+import React, { useMemo } from "react";
+import { useMobileLayout } from "../helpers/mobile-layout";
 
 const icon: React.CSSProperties = {
   display: "flex",
-  width: 50,
-  height: 50,
+  width: 36,
+  height: 36,
   justifyContent: "center",
   alignItems: "center",
   margin: 0,
@@ -28,10 +18,25 @@ export const TemplateIcon: React.FC<{
   label: string;
   children: React.ReactNode;
 }> = ({ children, label }) => {
+  const mobileLayout = useMobileLayout();
+
+  const outer: React.CSSProperties = useMemo(() => {
+    return {
+      width: mobileLayout ? 50 : 90,
+      textAlign: "center",
+      display: "flex",
+      alignItems: "center",
+      flexDirection: "column",
+      color: "var(--ifm-font-color-base)",
+      cursor: "pointer",
+      filter: "drop-shadow(0px 0px 4px var(--background))",
+    };
+  }, [mobileLayout]);
+
   return (
     <a style={outer}>
       <div style={icon}>{children}</div>
-      <div style={labelStyle}>{label}</div>
+      {mobileLayout ? null : <div style={labelStyle}>{label}</div>}
     </a>
   );
 };

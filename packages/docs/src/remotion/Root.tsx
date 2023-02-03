@@ -3,6 +3,7 @@ import React from "react";
 import { Folder, Still } from "remotion";
 import { articles } from "../data/articles";
 import { experts } from "../data/experts";
+import { AllTemplates } from "./AllTemplates";
 import { Article } from "./Article";
 import { Expert } from "./Expert";
 import { TemplateComp } from "./Template";
@@ -58,6 +59,12 @@ export const RemotionRoot: React.FC = () => {
           );
         })}
       </Folder>
+      <Still
+        component={AllTemplates}
+        width={1200}
+        height={630}
+        id="template-all"
+      />
     </>
   );
 };

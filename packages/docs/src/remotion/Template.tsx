@@ -1,6 +1,7 @@
 import { CreateVideoInternals } from "create-video";
 import React from "react";
 import { AbsoluteFill, Img } from "remotion";
+import { IconForTemplate } from "../components/IconForTemplate";
 import "./font.css";
 
 export const TemplateComp: React.FC<{
@@ -42,7 +43,7 @@ export const TemplateComp: React.FC<{
               backgroundColor: "white",
             }}
           >
-            Jumpstart your Remotion Project
+            Starter Template
           </div>
         </div>
 
@@ -60,17 +61,20 @@ export const TemplateComp: React.FC<{
               padding: 50,
               minWidth: 500,
               width: "100%",
+              color: "white",
+              fontFamily: "GTPlanar",
+              fontSize: 50,
+              alignItems: "center",
             }}
           >
+            <IconForTemplate scale={1.6} template={template} />{" "}
             <div
               style={{
-                color: "white",
-                fontFamily: "GTPlanar",
-                fontSize: 80,
+                width: 25,
+                display: "inline-block",
               }}
-            >
-              {template.shortName} Template
-            </div>
+            />
+            {template.shortName}
           </div>
         </div>
 
@@ -98,7 +102,10 @@ export const TemplateComp: React.FC<{
               marginRight: 200,
             }}
           >
-            npx create-video --template {template.cliId}
+            <div>
+              <div style={{ opacity: 0.7 }}>Install this template</div>
+              <div>npx create-video --template {template.cliId}</div>
+            </div>
           </div>
           <div
             style={{

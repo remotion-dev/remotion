@@ -6,12 +6,10 @@ import { CommandCopyButton } from "./CommandCopyButton";
 import { MuxVideo } from "./MuxVideo";
 import { Spinner } from "./Spinner";
 
-const RESERVED_FOR_SIDEBAR = 500;
+const RESERVED_FOR_SIDEBAR = 550;
 
 const column: React.CSSProperties = {
   width: RESERVED_FOR_SIDEBAR,
-  paddingLeft: 16,
-  paddingRight: 16,
   overflow: "auto",
 };
 
@@ -217,6 +215,8 @@ export const TemplateModalContent: React.FC<{
         <div
           style={{
             ...column,
+            marginLeft: mobileLayout ? 0 : 20,
+            marginTop: mobileLayout ? 20 : 0,
             width: mobileLayout ? "100%" : RESERVED_FOR_SIDEBAR,
           }}
         >
