@@ -1,8 +1,11 @@
+import Head from "@docusaurus/Head";
 import Link from "@docusaurus/Link";
+import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import { CreateVideoInternals } from "create-video";
 import React from "react";
 import { IconForTemplate } from "../../components/IconForTemplate";
+import { Seo } from "../../components/Seo";
 import styles from "./styles.module.css";
 
 const content: React.CSSProperties = {
@@ -22,8 +25,18 @@ const lowerpara: React.CSSProperties = {
 };
 
 export default () => {
+  const imgSrc = `/generated/template-all.png`;
+  const context = useDocusaurusContext();
+
   return (
     <Layout>
+      <Head>
+        {Seo.renderTitle(`Starter Templates | Remotion`)}
+        {Seo.renderDescription(
+          "Jumpstart your Remotion project with a template."
+        )}
+        {Seo.renderImage(imgSrc, context.siteConfig.url)}
+      </Head>
       <div style={content}>
         <h1 className={styles.title}>
           Find the right

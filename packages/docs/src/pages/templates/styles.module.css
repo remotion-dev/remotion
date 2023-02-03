@@ -24,3 +24,19 @@
   border: 1px solid var(--ifm-color-emphasis-300);
   padding: 14px;
 }
+.item:hover {
+  border: 1px solid var(--ifm-color-emphasis-500);  
+}
+
+
+@media (max-width: 1000px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -17,7 +17,7 @@ export const IconForTemplate: React.FC<{
   template: Template;
   scale: number;
 }> = ({ template, scale = 1 }) => {
-  if (template.homePageLabel === "TypeScript") {
+  if (template.cliId === "hello-world") {
     return (
       <TypeScriptIcon
         style={{
@@ -27,7 +27,7 @@ export const IconForTemplate: React.FC<{
     );
   }
 
-  if (template.homePageLabel === "Blank") {
+  if (template.cliId === "blank") {
     return (
       <Blank
         style={{
@@ -37,7 +37,7 @@ export const IconForTemplate: React.FC<{
     );
   }
 
-  if (template.homePageLabel === "JavaScript") {
+  if (template.cliId === "javascript") {
     return (
       <JSIcon
         style={{
@@ -47,7 +47,7 @@ export const IconForTemplate: React.FC<{
     );
   }
 
-  if (template.homePageLabel === "3D") {
+  if (template.cliId === "three") {
     return (
       <Cubes
         style={{
@@ -57,7 +57,7 @@ export const IconForTemplate: React.FC<{
     );
   }
 
-  if (template.homePageLabel === "Stills") {
+  if (template.cliId === "still") {
     return (
       <StillIcon
         style={{
@@ -67,7 +67,7 @@ export const IconForTemplate: React.FC<{
     );
   }
 
-  if (template.homePageLabel === "Audiogram") {
+  if (template.cliId === "audiogram") {
     return (
       <Waveform
         style={{
@@ -77,7 +77,7 @@ export const IconForTemplate: React.FC<{
     );
   }
 
-  if (template.homePageLabel === "Text-To-Speech") {
+  if (template.cliId === "tts") {
     return (
       <TTSIcon
         style={{
@@ -87,7 +87,7 @@ export const IconForTemplate: React.FC<{
     );
   }
 
-  if (template.homePageLabel === "Tailwind") {
+  if (template.cliId === "tailwind") {
     return (
       <Tailwind
         style={{
@@ -97,7 +97,7 @@ export const IconForTemplate: React.FC<{
     );
   }
 
-  if (template.homePageLabel === "Skia") {
+  if (template.cliId === "skia") {
     return (
       <SkiaIcon
         style={{
@@ -107,7 +107,7 @@ export const IconForTemplate: React.FC<{
     );
   }
 
-  if (template.homePageLabel === "Remix") {
+  if (template.cliId === "remix") {
     return (
       <RemixIcon
         style={{
@@ -117,7 +117,7 @@ export const IconForTemplate: React.FC<{
     );
   }
 
-  if (template.homePageLabel === "Overlay") {
+  if (template.cliId === "overlay") {
     return <OverlayIcon style={{ height: scale * 42 }} />;
   }
 

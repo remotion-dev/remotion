@@ -41,9 +41,11 @@ export type Template = {
 	defaultBranch: string;
 } & DynamicTemplate;
 
+const ENABLE_NEXT = false;
+
 export const FEATURED_TEMPLATES: Template[] = [
 	{
-		homePageLabel: 'TypeScript',
+		homePageLabel: 'Hello World',
 		shortName: 'Hello World',
 		org: 'remotion-dev',
 		repoName: 'template-helloworld',
@@ -59,25 +61,26 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video',
 		defaultBranch: 'main',
 	},
-
-	{
-		homePageLabel: 'Next.js',
-		shortName: 'Next.js',
-		org: 'remotion-dev',
-		repoName: 'template-next',
-		description: 'SaaS template for video generation apps',
-		longerDescription:
-			'A software-as-a-service starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Our recommended choice for people who want to build a video generation app.',
-		promoBanner: {
-			width: 1280,
-			height: 720,
-			// TODO: Update this image
-			src: '/img/remix-template.png',
-		},
-		cliId: 'next',
-		type: 'image',
-		defaultBranch: 'main',
-	},
+	ENABLE_NEXT
+		? {
+				homePageLabel: 'Next.js',
+				shortName: 'Next.js',
+				org: 'remotion-dev',
+				repoName: 'template-next',
+				description: 'SaaS template for video generation apps',
+				longerDescription:
+					'A software-as-a-service starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Our recommended choice for people who want to build a video generation app.',
+				promoBanner: {
+					width: 1280,
+					height: 720,
+					// TODO: Update this image
+					src: '/img/remix-template.png',
+				},
+				cliId: 'next',
+				type: 'image',
+				defaultBranch: 'main',
+		  }
+		: null,
 	{
 		homePageLabel: 'Blank',
 		shortName: 'Blank',
@@ -253,4 +256,4 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video',
 		defaultBranch: 'main',
 	},
-];
+].filter(Boolean);
