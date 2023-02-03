@@ -133,23 +133,39 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 		throw error;
 	}
 
-	const {exceptionDetails, result: remoteObject} = await callFunctionOnPromise;
-	if (exceptionDetails) {
-		const err = new SymbolicateableError({
-			stack: exceptionDetails.exception?.description as string,
-			name: exceptionDetails.exception?.className as string,
-			message: exceptionDetails.exception?.description?.split(
-				'\n'
-			)[0] as string,
-			frame,
-			stackFrame: parseStack(
-				(exceptionDetails.exception?.description as string).split('\n')
-			),
-		});
-		throw err;
-	}
+	try {
+		const {exceptionDetails, result: remoteObject} =
+			await callFunctionOnPromise;
 
-	return valueFromRemoteObject(remoteObject);
+		if (exceptionDetails) {
+			const err = new SymbolicateableError({
+				stack: exceptionDetails.exception?.description as string,
+				name: exceptionDetails.exception?.className as string,
+				message: exceptionDetails.exception?.description?.split(
+					'\n'
+				)[0] as string,
+				frame,
+				stackFrame: parseStack(
+					(exceptionDetails.exception?.description as string).split('\n')
+				),
+			});
+			throw err;
+		}
+
+		return valueFromRemoteObject(remoteObject);
+	} catch (error) {
+		if (
+			(error as {originalMessage: string})?.originalMessage.startsWith(
+				"Object couldn't be returned by value"
+			)
+		) {
+			throw new Error(
+				'Could not serialize the return value of the function. Did you pass non-serializable values to defaultProps?'
+			);
+		}
+
+		throw error;
+	}
 }
 
 /**
