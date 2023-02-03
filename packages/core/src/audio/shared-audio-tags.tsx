@@ -39,7 +39,7 @@ type SharedContext = {
 	updateAudio: (options: {
 		id: number;
 		aud: RemotionAudioProps;
-		auidoId: string;
+		audioId: string;
 	}) => void;
 	playAllAudios: () => void;
 	numberOfAudioTags: number;
@@ -294,7 +294,7 @@ export const useSharedAudio = (aud: RemotionAudioProps, audioId: string) => {
 	if (typeof document !== 'undefined') {
 		effectToUse(() => {
 			if (ctx && ctx.numberOfAudioTags > 0) {
-				ctx.updateAudio(elem.id, aud, audioId);
+				ctx.updateAudio({id: elem.id, aud, audioId});
 			}
 		}, [aud, ctx, elem.id, audioId]);
 
