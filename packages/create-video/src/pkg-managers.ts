@@ -55,7 +55,7 @@ export const getInstallCommand = (manager: PackageManager) => {
 };
 
 export const getDevCommand = (manager: PackageManager, template: Template) => {
-	if (template.cliId === 'remix') {
+	if (template.cliId === 'remix' || template.cliId === 'next') {
 		return `${getRunCommand(manager)} dev`;
 	}
 
@@ -66,7 +66,7 @@ export const getRenderCommandForTemplate = (
 	manager: PackageManager,
 	template: Template
 ) => {
-	if (template.cliId === 'remix') {
+	if (template.cliId === 'remix' || template.cliId === 'next') {
 		return `${getRunCommand(manager)} remotion:render`;
 	}
 
@@ -77,7 +77,7 @@ export const getRenderCommandForTemplate = (
 	return getRenderCommand(manager);
 };
 
-export const getStartCommand = (manager: PackageManager) => {
+const getStartCommand = (manager: PackageManager) => {
 	if (manager === 'npm') {
 		return `npm start`;
 	}
