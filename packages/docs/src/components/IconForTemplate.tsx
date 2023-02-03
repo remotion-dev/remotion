@@ -77,7 +77,7 @@ export const IconForTemplate: React.FC<{
     );
   }
 
-  if (template.homePageLabel === "TTS") {
+  if (template.homePageLabel === "Text-To-Speech") {
     return (
       <TTSIcon
         style={{
@@ -122,7 +122,7 @@ export const IconForTemplate: React.FC<{
   }
 
   if (template.cliId === "next") {
-    return <NextIcon style={{ height: scale * 42 }} />;
+    return <NextIcon style={{ height: scale * 36 }} />;
   }
 
   return (
