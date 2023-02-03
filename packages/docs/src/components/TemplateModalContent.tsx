@@ -176,7 +176,7 @@ export const TemplateModalContent: React.FC<{
             width: "100%",
           }}
         >
-          {loaded ? null : (
+          {loaded || template.type === "image" ? null : (
             <div style={loadingStyle}>
               <Spinner style={spinner} />
             </div>
