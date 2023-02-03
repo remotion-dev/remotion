@@ -8,8 +8,8 @@ const serveUrl = await bundle({
 });
 const compositions = await getCompositions(serveUrl);
 
-for (const composition of compositions.filter((c) =>
-  c.id.startsWith("expert")
+for (const composition of compositions.filter(
+  (c) => c.id.startsWith("expert") || c.id.startsWith("template")
 )) {
   await renderStill({
     composition,

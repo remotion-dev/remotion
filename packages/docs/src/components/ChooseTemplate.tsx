@@ -1,24 +1,14 @@
-import type { Template } from "create-video";
+import Link from "@docusaurus/Link";
 import { CreateVideoInternals } from "create-video";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+
 import { chunk } from "../helpers/chunk";
 import { NavigateLeft, NavigateRight } from "./ArrowRight";
 import { IconForTemplate } from "./IconForTemplate";
 import { TemplateIcon } from "./TemplateIcon";
-import { TemplateModal } from "./TemplateModal";
 
 export const ChooseTemplate: React.FC = () => {
-  const [modal, setModal] = useState<Template | null>(null);
-
   const mobileLayout = true;
-
-  const onClick = useCallback((template: Template) => {
-    setModal(template);
-  }, []);
-
-  const onDismiss = useCallback(() => {
-    setModal(null);
-  }, []);
 
   const [rightVisible, setRightVisible] = useState(true);
   const [leftVisible, setLeftVisible] = useState(false);
@@ -66,9 +56,6 @@ export const ChooseTemplate: React.FC = () => {
         flexDirection: "column",
       }}
     >
-      {modal ? (
-        <TemplateModal selectedTemplate={modal} onDismiss={onDismiss} />
-      ) : null}
       <div
         style={{
           position: "relative",
@@ -100,13 +87,14 @@ export const ChooseTemplate: React.FC = () => {
               >
                 {c.map((template) => {
                   return (
-                    <TemplateIcon
+                    <Link
                       key={template.cliId}
-                      onClick={() => onClick(template)}
-                      label={template.homePageLabel}
+                      to={`/templates/${template.cliId}`}
                     >
-                      <IconForTemplate template={template} />
-                    </TemplateIcon>
+                      <TemplateIcon label={template.homePageLabel}>
+                        <IconForTemplate scale={1} template={template} />
+                      </TemplateIcon>
+                    </Link>
                   );
                 })}
               </div>

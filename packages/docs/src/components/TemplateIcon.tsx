@@ -27,10 +27,9 @@ const labelStyle: React.CSSProperties = {
 export const TemplateIcon: React.FC<{
   label: string;
   children: React.ReactNode;
-  onClick: () => void;
-}> = ({ children, label, onClick }) => {
+}> = ({ children, label }) => {
   return (
-    <a style={outer} onClick={onClick}>
+    <a style={outer}>
       <div style={icon}>{children}</div>
       <div style={labelStyle}>{label}</div>
     </a>
