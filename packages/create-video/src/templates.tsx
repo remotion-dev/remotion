@@ -47,7 +47,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		shortName: 'Hello World',
 		org: 'remotion-dev',
 		repoName: 'template-helloworld',
-		description: 'The default starter template (recommended)',
+		description: 'A "Hello World" starter template',
 		longerDescription:
 			'A basic template with TypeScript, Prettier and ESLint preconfigured. Our recommended choice for beginners.',
 		promoVideo: {
@@ -59,21 +59,23 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video',
 		defaultBranch: 'main',
 	},
+
 	{
-		homePageLabel: 'JavaScript',
-		shortName: 'Hello World (JavaScript)',
+		homePageLabel: 'Next.js',
+		shortName: 'Next.js',
 		org: 'remotion-dev',
-		repoName: 'template-helloworld-javascript',
-		description: 'The default starter template in plain JS',
+		repoName: 'template-next',
+		description: 'SaaS template for video generation apps',
 		longerDescription:
-			'The Hello World template, but in plain JavaScript. Recommended for people who detest TypeScript.',
-		promoVideo: {
-			muxId: 'dRIuc00f8QWnKedM8GBGPqXJWqU01DPJFgPTHpJgixxas',
-			width: 1920,
-			height: 1080,
+			'A software-as-a-service starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Our recommended choice for people who want to build a video generation app.',
+		promoBanner: {
+			width: 1280,
+			height: 720,
+			// TODO: Update this image
+			src: '/img/remix-template.png',
 		},
-		cliId: 'javascript',
-		type: 'video',
+		cliId: 'next',
+		type: 'image',
 		defaultBranch: 'main',
 	},
 	{
@@ -94,21 +96,20 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 	},
 	{
-		homePageLabel: 'Next.js',
-		shortName: 'Next.js',
+		homePageLabel: 'JavaScript',
+		shortName: 'Hello World (JavaScript)',
 		org: 'remotion-dev',
-		repoName: 'template-next',
-		description: 'SaaS template for video generation apps',
+		repoName: 'template-helloworld-javascript',
+		description: 'The default starter template in plain JS',
 		longerDescription:
-			'A software-as-a-service starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Our recommended choice for people who want to build a video generation app.',
-		promoBanner: {
-			width: 1280,
-			height: 720,
-			// TODO: Update this image
-			src: '/img/remix-template.png',
+			'The Hello World template, but in plain JavaScript. Recommended for people who detest TypeScript.',
+		promoVideo: {
+			muxId: 'dRIuc00f8QWnKedM8GBGPqXJWqU01DPJFgPTHpJgixxas',
+			width: 1920,
+			height: 1080,
 		},
-		cliId: 'next',
-		type: 'image',
+		cliId: 'javascript',
+		type: 'video',
 		defaultBranch: 'main',
 	},
 	{
