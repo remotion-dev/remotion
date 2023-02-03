@@ -164,7 +164,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 	},
 	{
-		homePageLabel: 'TTS',
+		homePageLabel: 'Text-To-Speech',
 		shortName: 'Text To Speech',
 		org: 'FelippeChemello',
 		repoName: 'Remotion-TTS-Example',

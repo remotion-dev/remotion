@@ -16,6 +16,11 @@ const para: React.CSSProperties = {
   marginBottom: 50,
 };
 
+const lowerpara: React.CSSProperties = {
+  textAlign: "center",
+  color: "var(--light-text-color)",
+};
+
 export default () => {
   return (
     <Layout>
@@ -47,10 +52,12 @@ export default () => {
             );
           })}
         </div>
+        <br />
+        <p style={lowerpara}>
+          {"Couldn't"} find what you need? Check out the list of{" "}
+          <Link to={"/docs/resources"}>Resources</Link>.
+        </p>
       </div>
-      <br />
-      <br />
-      <br />
       <br />
     </Layout>
   );
