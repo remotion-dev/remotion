@@ -203,9 +203,9 @@ export const TemplateModalContent: React.FC<{
             <img
               src={template.promoBanner.src}
               style={{
-                display: "inline-flex",
                 borderRadius: 5,
                 width: "100%",
+                height: "auto",
                 border: "1px solid var(--ifm-color-emphasis-300)",
               }}
               onLoad={onLoadedMetadata}
