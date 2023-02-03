@@ -28,6 +28,11 @@ export default () => {
   const template = CreateVideoInternals.FEATURED_TEMPLATES.find(
     (e) => e.cliId === templatePathname[1]
   );
+  // After Next.js is enabled we can throw an error instead
+  if (!template) {
+    return null;
+  }
+
   const imgSrc = `/generated/template-${template.cliId}.png`;
 
   return (
