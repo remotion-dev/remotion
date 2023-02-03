@@ -2,142 +2,15 @@ import type { Template } from "create-video";
 import { CreateVideoInternals } from "create-video";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { chunk } from "../helpers/chunk";
-import { useMobileLayout } from "../helpers/mobile-layout";
 import { NavigateLeft, NavigateRight } from "./ArrowRight";
-import { Blank } from "./icons/blank";
-import { Cubes } from "./icons/cubes";
-import { JSIcon } from "./icons/js";
-import { OverlayIcon } from "./icons/overlay";
-import { RemixIcon } from "./icons/remix";
-import { SkiaIcon } from "./icons/skia";
-import { StillIcon } from "./icons/still";
-import { Tailwind } from "./icons/tailwind";
-import { TypeScriptIcon } from "./icons/ts";
-import { TTSIcon } from "./icons/tts";
-import { Waveform } from "./icons/waveform";
+import { IconForTemplate } from "./IconForTemplate";
 import { TemplateIcon } from "./TemplateIcon";
 import { TemplateModal } from "./TemplateModal";
-
-const IconForTemplate: React.FC<{
-  template: Template;
-}> = ({ template }) => {
-  if (template.homePageLabel === "TypeScript") {
-    return (
-      <TypeScriptIcon
-        style={{
-          height: 48,
-        }}
-      />
-    );
-  }
-
-  if (template.homePageLabel === "Blank") {
-    return (
-      <Blank
-        style={{
-          height: 36,
-        }}
-      />
-    );
-  }
-
-  if (template.homePageLabel === "JavaScript") {
-    return (
-      <JSIcon
-        style={{
-          height: 40,
-        }}
-      />
-    );
-  }
-
-  if (template.homePageLabel === "3D") {
-    return (
-      <Cubes
-        style={{
-          height: 36,
-        }}
-      />
-    );
-  }
-
-  if (template.homePageLabel === "Stills") {
-    return (
-      <StillIcon
-        style={{
-          height: 36,
-        }}
-      />
-    );
-  }
-
-  if (template.homePageLabel === "Audiogram") {
-    return (
-      <Waveform
-        style={{
-          height: 36,
-        }}
-      />
-    );
-  }
-
-  if (template.homePageLabel === "TTS") {
-    return (
-      <TTSIcon
-        style={{
-          height: 36,
-        }}
-      />
-    );
-  }
-
-  if (template.homePageLabel === "Tailwind") {
-    return (
-      <Tailwind
-        style={{
-          height: 36,
-        }}
-      />
-    );
-  }
-
-  if (template.homePageLabel === "Skia") {
-    return (
-      <SkiaIcon
-        style={{
-          height: 32,
-        }}
-      />
-    );
-  }
-
-  if (template.homePageLabel === "Remix") {
-    return (
-      <RemixIcon
-        style={{
-          height: 32,
-        }}
-      />
-    );
-  }
-
-  if (template.homePageLabel === "Overlay") {
-    return <OverlayIcon style={{ height: 42 }} />;
-  }
-
-  return (
-    <Blank
-      style={{
-        height: 40,
-      }}
-    />
-  );
-};
 
 export const ChooseTemplate: React.FC = () => {
   const [modal, setModal] = useState<Template | null>(null);
 
-  const mobileLayout = useMobileLayout();
+  const mobileLayout = true;
 
   const onClick = useCallback((template: Template) => {
     setModal(template);
@@ -157,7 +30,7 @@ export const ChooseTemplate: React.FC = () => {
 
   const onClickRight = useCallback(() => {
     scrollable.current.scrollTo({
-      left: 1000,
+      left: 1900,
     });
   }, []);
 
