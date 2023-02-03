@@ -17,6 +17,10 @@ In some advanced use cases, you want to replace certain parts of the stack:
 
 Before you create a custom stack, feel free to contact us to see if Remotion can provide the changes upstream.
 
+Also consider that the AWS Lambda layers may not exceed 250MB extracted, so you need to sacrifice an equal amount of other files.
+
+If you just want to add fonts, we recommend to use [Web fonts](/docs/fonts) instead.
+
 ## Ensure Remotion version
 
 Customizing Remotion Lambda Layers is possible from v3.0.17.  
