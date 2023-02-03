@@ -49,7 +49,6 @@ module.exports = function () {
           exact: true,
         });
       });
-      console.log(templateSlugs);
       templateSlugs.forEach((c) => {
         actions.addRoute({
           path: "/templates/" + c,
