@@ -1,3 +1,4 @@
+import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
 import { CreateVideoInternals } from "create-video";
 import React from "react";
@@ -30,14 +31,19 @@ export default () => {
         <div className={styles.grid}>
           {CreateVideoInternals.FEATURED_TEMPLATES.map((template) => {
             return (
-              <Item
+              <Link
                 key={template.cliId}
-                onClick={() => onClick(template)}
-                label={template.homePageLabel}
-                description={template.description}
+                className={styles.item}
+                style={outer}
+                to={`/templates/${template.cliId}`}
               >
-                <IconForTemplate scale={0.7} template={template} />
-              </Item>
+                <Item
+                  label={template.homePageLabel}
+                  description={template.description}
+                >
+                  <IconForTemplate scale={0.7} template={template} />
+                </Item>
+              </Link>
             );
           })}
         </div>
@@ -54,10 +60,9 @@ const Item: React.FC<{
   label: string;
   description: React.ReactNode;
   children: React.ReactNode;
-  onClick: () => void;
-}> = ({ children, label, onClick, description }) => {
+}> = ({ children, label, description }) => {
   return (
-    <a className={styles.item} style={outer} onClick={onClick}>
+    <div>
       <div
         style={{ flexDirection: "row", display: "flex", alignItems: "center" }}
       >
@@ -67,13 +72,15 @@ const Item: React.FC<{
       <div>
         <p style={descriptionStyle}>{description}</p>
       </div>
-    </a>
+    </div>
   );
 };
 
 const outer: React.CSSProperties = {
   display: "flex",
   cursor: "pointer",
+  color: "var(--text-color)",
+  textDecoration: "none",
 };
 
 const icon: React.CSSProperties = {

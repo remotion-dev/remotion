@@ -1,9 +1,11 @@
+import { CreateVideoInternals } from "create-video";
 import React from "react";
 import { Folder, Still } from "remotion";
 import { articles } from "../data/articles";
 import { experts } from "../data/experts";
 import { Article } from "./Article";
 import { Expert } from "./Expert";
+import { TemplateComp } from "./Template";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -36,6 +38,22 @@ export const RemotionRoot: React.FC = () => {
               height={630}
               width={1200}
               id={e.compId}
+            />
+          );
+        })}
+      </Folder>
+      <Folder name="templates">
+        {CreateVideoInternals.FEATURED_TEMPLATES.map((e) => {
+          return (
+            <Still
+              key={e.cliId}
+              component={TemplateComp}
+              defaultProps={{
+                templateId: e.cliId,
+              }}
+              height={630}
+              width={1200}
+              id={`template-${e.cliId}`}
             />
           );
         })}
