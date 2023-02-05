@@ -202,6 +202,9 @@ export const getBoundingBox = (d: string): BoundingBox => {
 				break;
 			}
 
+			case 'Z':
+				break;
+
 			default:
 				throw new Error(`Unknown instruction ${seg[0]}`);
 		}
