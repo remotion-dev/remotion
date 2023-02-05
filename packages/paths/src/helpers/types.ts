@@ -35,3 +35,5 @@ export type pathOrders =
 	| 't'
 	| 'v'
 	| 'z';
+
+export type BoundingBox = {x1: number; y1: number; x2: number; y2: number};
