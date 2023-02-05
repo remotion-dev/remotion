@@ -1,11 +1,11 @@
 'use strict';
 
+import type {BoundingBox} from './helpers/types';
 import {normalizePath} from './normalize-path';
 import {unarc} from './unarc';
 import {unshort} from './unshort';
 
 type minMax = [min: number, max: number];
-export type BBox = [minX: number, minY: number, maxX: number, maxY: number];
 
 // Precision for consider cubic polynom as quadratic one
 const CBEZIER_MINMAX_EPSILON = 0.00000001;
@@ -86,12 +86,7 @@ function minmaxC(A: [number, number, number, number]): minMax {
 	return [min, max];
 }
 
-/**
- * Compute bounding boxes of SVG paths.
- * @param {String} d SVG path for which their bounding box will be computed.
- * @returns {BBox}
- */
-export default function svgPathBbox(d: string): BBox {
+export const getBoundingBox = (d: string): BoundingBox => {
 	const min = [Infinity, Infinity];
 	const max = [-Infinity, -Infinity];
 	const abs = normalizePath(d);
@@ -210,5 +205,5 @@ export default function svgPathBbox(d: string): BBox {
 		}
 	}
 
-	return [min[0], min[1], max[0], max[1]];
-}
+	return {x1: min[0], y1: min[1], x2: max[0], y2: max[1]};
+};
