@@ -23,17 +23,27 @@ function approximate_unit_arc(theta1: number, delta_theta: number) {
 	];
 }
 
-function a2c(
-	x1: number,
-	y1: number,
-	x2: number,
-	y2: number,
-	fa: number,
-	fs: number,
-	rx: number,
-	ry: number,
-	phi: number
-) {
+function a2c({
+	x1,
+	y1,
+	x2,
+	y2,
+	fa,
+	fs,
+	rx,
+	ry,
+	phi,
+}: {
+	x1: number;
+	y1: number;
+	x2: number;
+	y2: number;
+	fa: number;
+	fs: number;
+	rx: number;
+	ry: number;
+	phi: number;
+}) {
 	const sin_phi = Math.sin((phi * TAU) / 360);
 	const cos_phi = Math.cos((phi * TAU) / 360);
 
@@ -65,7 +75,7 @@ function a2c(
 
 	// Get center parameters (cx, cy, theta1, delta_theta)
 	//
-	const cc = get_arc_center(x1, y1, x2, y2, fa, fs, rx, ry, sin_phi, cos_phi);
+	const cc = get_arc_center({x1, y1, x2, y2, fa, fs, rx, ry, sin_phi, cos_phi});
 
 	const result = [];
 	let theta1 = cc[2];
@@ -125,17 +135,17 @@ export const unarc = (d: string) => {
 				const nextX = s[6];
 				const nextY = s[7];
 
-				const new_segments = a2c(
-					x,
-					y,
-					nextX,
-					nextY,
-					s[4],
-					s[5],
-					s[1],
-					s[2],
-					s[3]
-				);
+				const new_segments = a2c({
+					x1: x,
+					y1: y,
+					x2: nextX,
+					y2: nextY,
+					fa: s[4],
+					fs: s[5],
+					rx: s[1],
+					ry: s[2],
+					phi: s[3],
+				});
 
 				// Degenerated arcs can be ignored by renderer, but should not be dropped
 				// to avoid collisions with `S A S` and so on. Replace with empty line.
@@ -187,18 +197,29 @@ export const unarc = (d: string) => {
 	return flatted;
 };
 
-function get_arc_center(
-	x1: number,
-	y1: number,
-	x2: number,
-	y2: number,
-	fa: number,
-	fs: number,
-	rx: number,
-	ry: number,
-	sin_phi: number,
-	cos_phi: number
-) {
+function get_arc_center({
+	x1,
+	y1,
+	x2,
+	y2,
+	fa,
+	fs,
+	rx,
+	ry,
+	sin_phi,
+	cos_phi,
+}: {
+	x1: number;
+	y1: number;
+	x2: number;
+	y2: number;
+	fa: number;
+	fs: number;
+	rx: number;
+	ry: number;
+	sin_phi: number;
+	cos_phi: number;
+}) {
 	// Step 1.
 	//
 	// Moving an ellipse so origin will be the middlepoint between our two
