@@ -25,27 +25,31 @@ export const unshort = function (segments: Instruction[]): Instruction[] {
 			case 'V': {
 				y = s[1];
 
-				return [s];
+				newSegments[i] = s;
+				break;
 			}
 
 			case 'H': {
 				x = s[1];
 
-				return [s];
+				newSegments[i] = s;
+				break;
 			}
 
 			case 'C': {
 				x = s[5];
 				y = s[6];
 
-				return [s];
+				newSegments[i] = s;
+				break;
 			}
 
 			case 'Q': {
 				x = s[3];
 				y = s[4];
 
-				return [s];
+				newSegments[i] = s;
+				break;
 			}
 
 			default:
