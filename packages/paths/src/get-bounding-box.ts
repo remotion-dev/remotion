@@ -87,8 +87,10 @@ function minmaxC(A: [number, number, number, number]): minMax {
 }
 
 export const getBoundingBox = (d: string): BoundingBox => {
-	const min = [Infinity, Infinity];
-	const max = [-Infinity, -Infinity];
+	let minX = Infinity;
+	let minY = Infinity;
+	let maxX = -Infinity;
+	let maxY = -Infinity;
 	const abs = normalizePath(d);
 	const unarced = unarc(abs);
 	const unshortened = unshort(unarced);
@@ -100,20 +102,20 @@ export const getBoundingBox = (d: string): BoundingBox => {
 		switch (seg[0]) {
 			case 'M':
 			case 'L': {
-				if (min[0] > seg[1]) {
-					min[0] = seg[1];
+				if (minX > seg[1]) {
+					minX = seg[1];
 				}
 
-				if (min[1] > seg[2]) {
-					min[1] = seg[2];
+				if (minY > seg[2]) {
+					minY = seg[2];
 				}
 
-				if (max[0] < seg[1]) {
-					max[0] = seg[1];
+				if (maxX < seg[1]) {
+					maxX = seg[1];
 				}
 
-				if (max[1] < seg[2]) {
-					max[1] = seg[2];
+				if (maxY < seg[2]) {
+					maxY = seg[2];
 				}
 
 				x = seg[1];
@@ -123,12 +125,12 @@ export const getBoundingBox = (d: string): BoundingBox => {
 			}
 
 			case 'V': {
-				if (min[1] > seg[1]) {
-					min[1] = seg[1];
+				if (minY > seg[1]) {
+					minY = seg[1];
 				}
 
-				if (max[1] < seg[1]) {
-					max[1] = seg[1];
+				if (maxY < seg[1]) {
+					maxY = seg[1];
 				}
 
 				y = seg[1];
@@ -137,12 +139,12 @@ export const getBoundingBox = (d: string): BoundingBox => {
 			}
 
 			case 'H': {
-				if (min[0] > seg[1]) {
-					min[0] = seg[1];
+				if (minX > seg[1]) {
+					minX = seg[1];
 				}
 
-				if (max[0] < seg[1]) {
-					max[0] = seg[1];
+				if (maxX < seg[1]) {
+					maxX = seg[1];
 				}
 
 				x = seg[1];
@@ -152,21 +154,21 @@ export const getBoundingBox = (d: string): BoundingBox => {
 
 			case 'C': {
 				const cxMinMax = minmaxC([x, seg[1], seg[3], seg[5]]);
-				if (min[0] > cxMinMax[0]) {
-					min[0] = cxMinMax[0];
+				if (minX > cxMinMax[0]) {
+					minX = cxMinMax[0];
 				}
 
-				if (max[0] < cxMinMax[1]) {
-					max[0] = cxMinMax[1];
+				if (maxX < cxMinMax[1]) {
+					maxX = cxMinMax[1];
 				}
 
 				const cyMinMax = minmaxC([y, seg[2], seg[4], seg[6]]);
-				if (min[1] > cyMinMax[0]) {
-					min[1] = cyMinMax[0];
+				if (minY > cyMinMax[0]) {
+					minY = cyMinMax[0];
 				}
 
-				if (max[1] < cyMinMax[1]) {
-					max[1] = cyMinMax[1];
+				if (maxY < cyMinMax[1]) {
+					maxY = cyMinMax[1];
 				}
 
 				x = seg[5];
@@ -177,21 +179,21 @@ export const getBoundingBox = (d: string): BoundingBox => {
 
 			case 'Q': {
 				const qxMinMax = minmaxQ([x, seg[1], seg[3]]);
-				if (min[0] > qxMinMax[0]) {
-					min[0] = qxMinMax[0];
+				if (minX > qxMinMax[0]) {
+					minX = qxMinMax[0];
 				}
 
-				if (max[0] < qxMinMax[1]) {
-					max[0] = qxMinMax[1];
+				if (maxX < qxMinMax[1]) {
+					maxX = qxMinMax[1];
 				}
 
 				const qyMinMax = minmaxQ([y, seg[2], seg[4]]);
-				if (min[1] > qyMinMax[0]) {
-					min[1] = qyMinMax[0];
+				if (minY > qyMinMax[0]) {
+					minY = qyMinMax[0];
 				}
 
-				if (max[1] < qyMinMax[1]) {
-					max[1] = qyMinMax[1];
+				if (maxY < qyMinMax[1]) {
+					maxY = qyMinMax[1];
 				}
 
 				x = seg[3];
@@ -205,5 +207,5 @@ export const getBoundingBox = (d: string): BoundingBox => {
 		}
 	}
 
-	return {x1: min[0], y1: min[1], x2: max[0], y2: max[1]};
+	return {x1: minX, y1: minY, x2: maxX, y2: maxY};
 };
