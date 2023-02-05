@@ -422,6 +422,7 @@ module.exports = {
           items: ["lambda/without-iam/index", "lambda/without-iam/example"],
         },
         "lambda/serverless-framework-integration",
+        "lambda/aws-sqs-lambda-integration",
         "lambda/optimizing-cost",
         "lambda/optimizing-speed",
         "lambda/limits",
