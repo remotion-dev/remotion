@@ -9,5 +9,6 @@ export {getTangentAtLength} from './get-tangent-at-length';
 export {BoundingBox, Part} from './helpers/types';
 export {interpolatePath} from './interpolate-path';
 export {normalizePath} from './normalize-path';
+export {resetPath} from './reset-path';
 export {reversePath} from './reverse-path';
 export {translatePath} from './translate-path';

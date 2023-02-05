@@ -4,7 +4,7 @@ import {parsePath} from './helpers/parse';
 
 const serialize = (path: (Instruction | number[])[]) => {
 	return path.reduce((str: string, seg: Instruction | number[]) => {
-		return (str + ' ' + seg[0] + ' ' + seg.slice(1).join(',')).trim();
+		return (str + ' ' + seg[0] + ' ' + seg.slice(1).join(' ')).trim();
 	}, '');
 };
 
