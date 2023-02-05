@@ -19,26 +19,25 @@ The `enqueue-function` is configured to be invoked through [API Gateway](https:/
 This assumes that you have knowledge in using [CDK with TypeScript](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html) and [AWS SQS knowledge](https://aws.amazon.com/sqs/). The AWS Cloud Development Kit (CDK) has been chosen to provision infrastructure as it is an official library from [AWS](https://aws.amazon.com). Using manual creation in the AWS console can lead to errors, making the CDK a more reliable option.
 
 ## remotion-app
-- Follow exactly the same setup instruction from [remotion-app guide](/lambda/serverless-framework-integration#remotion-app).
+- Follow exactly the same setup instruction from [remotion-app guide](/lambda/serverless-framework-integration#remotion-app) we will just re-using the application.
 
 ## apigw-sqs-app
 
 This contains instructions for setting up and installing Lambda services [enqueue-function](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/src/enqueue-function/index.ts) and [render-lambda-function](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/src/render-lambda-function/index.ts) to your AWS account. This guide is designed to be executed on your local machine.
 
-### Context
-- TODO
+The project will create all the resources defined by the CDK stack, including setting up [Cognito](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L19) for the project's authentication and authorization system, uploading Lambda code, generating and associating IAM roles to your AWS account.
 
 ### Prerequisites
 
 - AWS deployment profile on your local machine, to configure an AWS deployment profile on your local machine.
 - A AWS policy created named `remotion-executionrole-policy` which is created from this [guide](/docs/lambda/without-iam/#1-create-role-policy).
+- The AWS CDK should be installed globally on your local machine. If not yet done, follow the instructions in the "Install the AWS CDK" section here.
 
 ### Setup
 
 #### 1. Clone or download the project
 
-The project can be found at [`remotion-serverless project`](https://github.com/alexfernandez803/remotion-serverless).  
-If not done in the previous step, clone the project using:
+The project can be found at [`remotion-serverless project`](https://github.com/alexfernandez803/remotion-serverless). If not done in the previous step, clone the project using:
 
 ```bash
 git clone https://github.com/alexfernandez803/remotion-serverless
@@ -119,7 +118,7 @@ From the `apigw-sqs-app` directory, execute the `cdk  synthesize` command.
 ```bash
  cdk synthesize
 ```
-This command will show the [Cloud Formation Template](https://aws.amazon.com/cloudformation/) that CDK will deploy to your AWS account.
+This command will show the [Cloud Formation Template](https://aws.amazon.com/cloudformation/) that CDK will execute to your AWS account.
 
 
 #### 6. Deploy the apigw-sqs-app project
@@ -130,7 +129,7 @@ From the `apigw-sqs-app` directory, execute the `cdk deploy` command.
  cdk deploy
 ```
 
-This will deploy the functions, 
+This will orchestrate the generation of resources defined in the CDK stack, which are CloudFormation templates in the background.
 
 ```bash title="deploy"
  Bundling asset apigw-sqs-app-stack/enqueue-function/Code/Stage...
@@ -242,7 +241,7 @@ Stack ARN:
 arn:aws:cloudformation:ap-southeast-2:XXXXXXXXXX:stack/apigw-sqs-app-stack/acb8b8f0-a52a-11ed-a440-024da00b5a8e
 
 ```
-The deployment will provide an output such as `apigw-sqs-app-stack.region`, `apigw-sqs-app-stack.userPoolClientId`, and `apigw-sqs-app-stack.userPoolId `. 
+The deployment will provide an output such as `apigw-sqs-app-stack.region`, `apigw-sqs-app-stack.userPoolClientId`, and `apigw-sqs-app-stack.userPoolId`. 
 
 
 #### 8. Remove the apigw-sqs-app from your AWS account, if not needed anymore
@@ -252,11 +251,13 @@ From the `apigw-sqs-app` directory.
 ```bash
  cdk destroy
 ```
-### CDK Stack
 
-### API Gateway, Remotion Lambda, and Queue
 
-  From [CDK stack code](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L64). 
+### Combining API Gateway, Remotion Lambda, and Queue together.
+
+These are important information on how IAM roles are used by the function and instructions to enable the [render-lambda-function](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L97) to consume SQS messages.
+
+  From [CDK stack code](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L64), here are the important snippet to take note of.
 
   - The stack creates a queue named `remotion_queue`.
   ```bash title="create queue"
@@ -307,6 +308,7 @@ From the `apigw-sqs-app` directory.
     // 👇 grant permission to render function consume the queue
     remotionQueue.grantConsumeMessages(renderFunctionLambdaRole);
     ```
+
   - Allow render function to listen to the queue
 
   ```bash title="listen to queue"
@@ -328,45 +330,30 @@ From the guide, `YOUR_USER_POOL_CLIENT_ID` is `apigw-sqs-app-stack.userPoolClien
 
 The base API URL is `https://25w651t09g.execute-api.ap-southeast-2.amazonaws.com/dev/render` from the dashboard output `APIGatewayUrl`.
 
-#### 1. Render a video
+#### Trigger a video generation request
 
 ```bash title="render video"
-curl --location --request POST 'https://xxxxxxxx.execute-api.ap-southeast-2.amazonaws.com/dev/render' \
---header 'Authorization: Bearer eyJraWQiOiJMVVVVZGtIQ1JXWEEyWEEXXXXXXXXXjMKR1t5S-oA'
+curl --location --request POST 'https://xxxxxxxx.execute-api.ap-southeast-2.amazonaws.com/dev/enqueue' \
+--header 'Authorization: Bearer eyJraWQiOiJMVVVVZGtIQ1JXWEEyWEEXXXXXXXXXjMKR1t5S-oA' \
+--data-raw '{
+    "message": "Hello"
+}'
 ```
 
 ```bash title="response"
 {
-    "message": "Video sent for rendering.",
-    "renderId": "i9xnfrgXXXX",
-    "bucketName": "remotionlambda-apsoutheast2-xxxxxxxx"
+   {"message":"Message Send to SQS- Here is MessageId: a6abd0bc-b838-48b5-a562-4c511fac5b2f"}
 }
 ```
 
-This will initiate the render of the video and provide output with the `renderId` and `bucketName`. The code for the Lambda function is located [here](https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/render_handler.ts).
-
-#### 2. Get the progress of the render
-
-```bash title="progress"
-curl --location --request GET 'https://xxxxxxxx.execute-api.ap-southeast-2.amazonaws.com/dev/render/i9xnfrgXXXX?bucketName=remotionlambda-apsoutheast2-xxxxxxxx' \
---header 'Authorization: Bearer eyJraWQiOiJMVVVVZGtIQ1JXWEEXXXXXXXXXXXvaQ'
-```
-
-```bash title="response"
-{ 
-    "message":"Message Send to SQS- Here is MessageId: a6abd0bc-b838-48b5-a562-4c511fac5b2f"
-}
-```
-
-This API will provide the progress details of the render, indicating whether it is a `success` or `failure`. If the video render is completed, it will provide the `mediaUrl`, which is a pre-signed URL that makes the video downloadable. The code for the Lambda function is located [here](https://github.com/alexfernandez803/remotion-serverless/blob/main/serverless-app/progress_handler.ts).
+This will initiate the render request of a video, although the JSON request is not used. The function takes the JSON and put in the queue, on the other end, [render-lambda-function](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/src/render-lambda-function/index.ts) will be notified by `SQS` that is a video render request, it will consume the data from request and generate the video as per instruction, the function executes [rendermediaonlambda](/docs/lambda/rendermediaonlambda) as part of the process.
 
 ## Notes
 
 - The deployment of Remotion Lambda is configured to be deployed only to `ap-southeast-2` region to simplify the project, adjust this in the code at [region.ts](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-app/src/infra/regions.ts).
-
+- The deployment of apigw-sqs-app is configured to be deployed at `ap-southeast-2` region to simplify the project, adjust this in the code at [remotion-cdk-starter.ts](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/bin/remotion-cdk-starter.ts).
+- Remotion packages should be bundled inside the function when deployed, you can this in `nodeModules` from `bundling`, the code for this located in [here](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L103). 
 ## See also
 
 - [Using Lambda without IAM user](/docs/lambda/without-iam)
-- [Permissions](/docs/lambda/permissions)
-- [Serverless Framework](https://www.serverless.com/framework/docs/getting-started)
-- Some codes are borrowed from [github-unwrapped-2021](https://github.com/remotion-dev/github-unwrapped-2021/tree/main/src)
+- [Using the Serverless Framework with Remotion Lambda](/docs/lambda/serverless-framework-integration)
