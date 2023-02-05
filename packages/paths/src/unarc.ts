@@ -187,6 +187,10 @@ export const unarc = (d: string) => {
 				return [s];
 			}
 
+			case 'Z': {
+				return [s];
+			}
+
 			default:
 				throw new Error(`Unexpected instruction ${s[0]}`);
 		}

@@ -25,14 +25,12 @@ export const unshort = function (segments: Instruction[]): Instruction[] {
 			case 'V': {
 				y = s[1];
 
-				newSegments[i] = s;
 				break;
 			}
 
 			case 'H': {
 				x = s[1];
 
-				newSegments[i] = s;
 				break;
 			}
 
@@ -40,7 +38,6 @@ export const unshort = function (segments: Instruction[]): Instruction[] {
 				x = s[5];
 				y = s[6];
 
-				newSegments[i] = s;
 				break;
 			}
 
@@ -48,9 +45,11 @@ export const unshort = function (segments: Instruction[]): Instruction[] {
 				x = s[3];
 				y = s[4];
 
-				newSegments[i] = s;
 				break;
 			}
+
+			case 'Z':
+				break;
 
 			default:
 				throw new Error('Unexpected command: ' + s[0]);
