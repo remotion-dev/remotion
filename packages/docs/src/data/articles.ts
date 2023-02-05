@@ -483,6 +483,13 @@ export const articles = [
     crumb: "Lambda",
   },
   {
+    id: "lambda/aws-sqs-lambda-integration",
+    title: "Using AWS SQS with Remotion Lambda",
+    relativePath: "docs/lambda/aws-sqs-lambda-integration.md",
+    compId: "articles-docs-lambda-aws-sqs-lambda-integration",
+    crumb: "@remotion/lambda",
+  },
+  {
     id: "changelog",
     title: "Prerelease Changelog",
     relativePath: "docs/lambda/changelog.md",

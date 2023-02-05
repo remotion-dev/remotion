@@ -1,5 +1,6 @@
 ---
-title: Using the AWS SQS with Remotion Lambda
+image: /generated/articles-docs-lambda-aws-sqs-lambda-integration.png
+title: Using AWS SQS with Remotion Lambda
 slug: /lambda/aws-sqs-lambda-integration
 sidebar_label: AWS SQS and Remotion Lambda
 crumb: "@remotion/lambda"
