@@ -147,7 +147,4 @@ export type Instruction =
 			sweepFlag: boolean;
 			dx: number;
 			dy: number;
-	  }
-	| {
-			type: 'z';
 	  };
