@@ -1,54 +1,41 @@
-import type {Instruction} from './parse';
+import type {AbsoluteInstruction, UnarcedAbsoluteInstruction} from './types';
 
-export const iterateOverSegments = ({
+export const iterateOverSegments = <T extends UnarcedAbsoluteInstruction>({
 	segments,
 	iterate,
 }: {
-	segments: Instruction[];
+	segments: AbsoluteInstruction[];
 	iterate: (options: {
-		segment: Instruction;
+		segment: AbsoluteInstruction;
 		x: number;
 		y: number;
-	}) => Instruction[];
-}): Instruction[] => {
+	}) => T[];
+}): T[] => {
 	let x = 0;
 	let y = 0;
 
 	const newSegments = segments.map((s) => {
 		const newSeg = iterate({segment: s, x, y});
-		switch (s[0]) {
+		switch (s.type) {
 			case 'M':
+			case 'A':
+			case 'C':
+			case 'Q':
+			case 'S':
+			case 'T':
 			case 'L': {
-				x = s[1];
-				y = s[2];
-				break;
-			}
-
-			case 'A': {
-				x = s[6];
-				y = s[7];
+				x = s.x;
+				y = s.y;
 				break;
 			}
 
 			case 'V': {
-				y = s[1];
+				y = s.y;
 				break;
 			}
 
 			case 'H': {
-				x = s[1];
-				break;
-			}
-
-			case 'C': {
-				x = s[5];
-				y = s[6];
-				break;
-			}
-
-			case 'Q': {
-				x = s[3];
-				y = s[4];
+				x = s.x;
 				break;
 			}
 
@@ -57,7 +44,8 @@ export const iterateOverSegments = ({
 			}
 
 			default:
-				throw new Error(`Unexpected instruction ${s[0]}`);
+				// @ts-expect-error
+				throw new Error(`Unexpected instruction ${s.type}`);
 		}
 
 		return newSeg;

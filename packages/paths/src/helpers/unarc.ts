@@ -1,6 +1,5 @@
 import {iterateOverSegments} from './iterate';
-import type {Instruction} from './parse';
-import {parsePath} from './parse';
+import type {AbsoluteInstruction, UnarcedAbsoluteInstruction} from './types';
 
 const TAU = Math.PI * 2;
 
@@ -24,13 +23,13 @@ function approximate_unit_arc(theta1: number, delta_theta: number) {
 	];
 }
 
-function a2c({
+function arcToCircle({
 	x1,
 	y1,
 	x2,
 	y2,
-	fa,
-	fs,
+	largeArcFlag,
+	sweepFlag,
 	rx,
 	ry,
 	phi,
@@ -39,8 +38,8 @@ function a2c({
 	y1: number;
 	x2: number;
 	y2: number;
-	fa: number;
-	fs: number;
+	largeArcFlag: boolean;
+	sweepFlag: boolean;
 	rx: number;
 	ry: number;
 	phi: number;
@@ -76,7 +75,18 @@ function a2c({
 
 	// Get center parameters (cx, cy, theta1, delta_theta)
 	//
-	const cc = get_arc_center({x1, y1, x2, y2, fa, fs, rx, ry, sin_phi, cos_phi});
+	const cc = get_arc_center({
+		x1,
+		y1,
+		x2,
+		y2,
+		largeArcFlag,
+		sweepFlag,
+		rx,
+		ry,
+		sin_phi,
+		cos_phi,
+	});
 
 	const result = [];
 	let theta1 = cc[2];
@@ -119,38 +129,52 @@ function a2c({
 }
 
 // Requires path to be normalized
-export const unarc = (d: string) => {
-	const segments = parsePath(d);
-
-	return iterateOverSegments({
+export const removeArcInstructions = (
+	segments: AbsoluteInstruction[]
+): UnarcedAbsoluteInstruction[] => {
+	return iterateOverSegments<UnarcedAbsoluteInstruction>({
 		segments,
 		iterate: ({segment, x, y}) => {
-			if (segment[0] !== 'A') {
+			if (segment.type !== 'A') {
 				return [segment];
 			}
 
-			const nextX = segment[6];
-			const nextY = segment[7];
-			const new_segments = a2c({
+			const nextX = segment.x;
+			const nextY = segment.y;
+			const new_segments = arcToCircle({
 				x1: x,
 				y1: y,
 				x2: nextX,
 				y2: nextY,
-				fa: segment[4],
-				fs: segment[5],
-				rx: segment[1],
-				ry: segment[2],
-				phi: segment[3],
+				largeArcFlag: segment.largeArcFlag,
+				sweepFlag: segment.sweepFlag,
+				rx: segment.rx,
+				ry: segment.ry,
+				phi: segment.xAxisRotation,
 			});
 
 			// Degenerated arcs can be ignored by renderer, but should not be dropped
 			// to avoid collisions with `S A S` and so on. Replace with empty line.
 			if (new_segments.length === 0) {
-				return [['L', segment[6], segment[7]]];
+				return [
+					{
+						type: 'L',
+						x: segment.x,
+						y: segment.y,
+					},
+				];
 			}
 
-			const result = new_segments.map((_s) => {
-				return ['C', _s[2], _s[3], _s[4], _s[5], _s[6], _s[7]] as Instruction;
+			const result = new_segments.map((_s): UnarcedAbsoluteInstruction => {
+				return {
+					type: 'C',
+					cp1x: _s[2],
+					cp1y: _s[3],
+					cp2x: _s[4],
+					cp2y: _s[5],
+					x: _s[6],
+					y: _s[7],
+				};
 			});
 			return result;
 		},
@@ -162,8 +186,8 @@ function get_arc_center({
 	y1,
 	x2,
 	y2,
-	fa,
-	fs,
+	largeArcFlag,
+	sweepFlag,
 	rx,
 	ry,
 	sin_phi,
@@ -173,8 +197,8 @@ function get_arc_center({
 	y1: number;
 	x2: number;
 	y2: number;
-	fa: number;
-	fs: number;
+	largeArcFlag: boolean;
+	sweepFlag: boolean;
 	rx: number;
 	ry: number;
 	sin_phi: number;
@@ -207,7 +231,7 @@ function get_arc_center({
 	}
 
 	radicant /= rx_sq * y1p_sq + ry_sq * x1p_sq;
-	radicant = Math.sqrt(radicant) * (fa === fs ? -1 : 1);
+	radicant = Math.sqrt(radicant) * (largeArcFlag === sweepFlag ? -1 : 1);
 
 	const cxp = ((radicant * rx) / ry) * y1p;
 	const cyp = ((radicant * -ry) / rx) * x1p;
@@ -232,11 +256,11 @@ function get_arc_center({
 	const theta1 = unit_vector_angle(1, 0, v1x, v1y);
 	let delta_theta = unit_vector_angle(v1x, v1y, v2x, v2y);
 
-	if (fs === 0 && delta_theta > 0) {
+	if (sweepFlag === false && delta_theta > 0) {
 		delta_theta -= TAU;
 	}
 
-	if (fs === 1 && delta_theta < 0) {
+	if (sweepFlag === true && delta_theta < 0) {
 		delta_theta += TAU;
 	}
 

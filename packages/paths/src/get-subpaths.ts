@@ -1,4 +1,5 @@
 import {construct} from './helpers/construct';
+import {serializePath} from './helpers/serialize';
 
 /**
  * Splits a valid SVG path into it's parts.
@@ -8,9 +9,7 @@ import {construct} from './helpers/construct';
 export const getSubpaths = (path: string): string[] => {
 	const {segments} = construct(path);
 
-	return segments
-		.map((seg) => {
-			return seg.map((s) => s.join(' '));
-		})
-		.map((_s) => _s.join(' '));
+	return segments.map((seg) => {
+		return serializePath(seg);
+	});
 };
