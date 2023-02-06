@@ -264,9 +264,10 @@ module.exports = {
         "paths/translate-path",
         "paths/get-bounding-box",
         "paths/extend-viewbox",
-        "paths/get-parts",
         "paths/parse-path",
         "paths/serialize-instructions",
+        "paths/simplify-instructions",
+        "paths/get-parts",
       ],
     },
     {
