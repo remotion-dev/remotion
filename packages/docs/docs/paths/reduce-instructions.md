@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-paths-reduce-instructions.png
 title: reduceInstructions()
 crumb: "@remotion/paths"
 ---

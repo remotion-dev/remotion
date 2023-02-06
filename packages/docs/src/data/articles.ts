@@ -1248,6 +1248,13 @@ export const articles = [
     crumb: "@remotion/paths",
   },
   {
+    id: "paths/reduce-instructions",
+    title: "reduceInstructions()",
+    relativePath: "docs/paths/reduce-instructions.md",
+    compId: "articles-docs-paths-reduce-instructions",
+    crumb: "@remotion/paths",
+  },
+  {
     id: "paths/reset-path",
     title: "resetPath()",
     relativePath: "docs/paths/reset-path.md",
