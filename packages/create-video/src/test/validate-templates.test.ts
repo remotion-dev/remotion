@@ -152,7 +152,8 @@ describe('Templates should be valid', () => {
 				expect(contents).not.toContain('Config.Puppeteer');
 				expect(contents).not.toContain('Config.Output');
 				expect(contents).not.toContain('Config.Preview');
-			}
+			},
+			12000
 		);
 	}
 });

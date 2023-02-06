@@ -71,6 +71,10 @@ Config.overrideWebpackConfig((currentConfiguration) => {
 });
 ```
 
+:::note
+Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
+:::
+
 Next, you need to refactor the [entry point](/docs/terminology#entry-point) file to first load the Skia WebAssembly binary before calling registerRoot():
 
 ```ts twoslash title="src/index.ts"
