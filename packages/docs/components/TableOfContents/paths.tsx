@@ -10,16 +10,7 @@ export const TableOfContents: React.FC = () => {
           <strong>getLength()</strong>
           <div>Obtain length of an SVG path</div>
         </TOCItem>
-        <TOCItem link="/docs/paths/get-parts">
-          <strong
-            style={{
-              textDecoration: "line-through",
-            }}
-          >
-            getParts()
-          </strong>
-          <div>Split SVG path into its parts</div>
-        </TOCItem>
+
         <TOCItem link="/docs/paths/get-tangent-at-length">
           <strong>getPointAtLength()</strong>
           <div>Get coordinates at a certain point of an SVG path</div>
@@ -47,14 +38,6 @@ export const TableOfContents: React.FC = () => {
           <strong>evolvePath()</strong>
           <div>Animate an SVG path</div>
         </TOCItem>
-        <TOCItem link="/docs/paths/extend-viewbox">
-          <strong>extendViewBox()</strong>
-          <div>Widen an SVG viewBox in all directions</div>
-        </TOCItem>
-        <TOCItem link="/docs/paths/get-subpaths">
-          <strong>getSubpaths()</strong>
-          <div>Split SVG path into its parts</div>
-        </TOCItem>
         <TOCItem link="/docs/paths/translate-path">
           <strong>translatePath()</strong>
           <div>Translates the position of an path against X/Y coordinates</div>
@@ -68,6 +51,24 @@ export const TableOfContents: React.FC = () => {
           <div>
             Translates an SVG path to <code>(0, 0)</code>
           </div>
+        </TOCItem>
+        <TOCItem link="/docs/paths/extend-viewbox">
+          <strong>extendViewBox()</strong>
+          <div>Widen an SVG viewBox in all directions</div>
+        </TOCItem>
+        <TOCItem link="/docs/paths/get-subpaths">
+          <strong>getSubpaths()</strong>
+          <div>Split SVG path into its parts</div>
+        </TOCItem>
+        <TOCItem link="/docs/paths/get-parts">
+          <strong
+            style={{
+              textDecoration: "line-through",
+            }}
+          >
+            getParts()
+          </strong>
+          <div>Split SVG path into its parts</div>
         </TOCItem>
       </Grid>
     </div>
