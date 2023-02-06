@@ -1,46 +1,4 @@
-export type Instruction =
-	| {
-			type: 'M';
-			x: number;
-			y: number;
-	  }
-	| {
-			type: 'L';
-			x: number;
-			y: number;
-	  }
-	| {
-			type: 'C';
-			cp1x: number;
-			cp1y: number;
-			cp2x: number;
-			cp2y: number;
-			x: number;
-			y: number;
-	  }
-	| {
-			type: 'a';
-			rx: number;
-			ry: number;
-			xAxisRotation: number;
-			largeArcFlag: boolean;
-			sweepFlag: boolean;
-			x: number;
-			y: number;
-	  }
-	| {
-			type: 'A';
-			rx: number;
-			ry: number;
-			xAxisRotation: number;
-			largeArcFlag: boolean;
-			sweepFlag: boolean;
-			x: number;
-			y: number;
-	  }
-	| {
-			type: 'z';
-	  };
+import type {Instruction} from '@remotion/paths';
 
 export const serializeInstructions = (instructions: Instruction[]) => {
 	return instructions.map((i) => serializeInstruction(i)).join(' ');

@@ -1,7 +1,8 @@
-import type {BoundingBox} from './helpers/types';
-import {unarc} from './helpers/unarc';
+import {parsePath} from './helpers/parse';
+import type {AbsoluteInstruction, BoundingBox} from './helpers/types';
+import {removeArcInstructions} from './helpers/unarc';
+import {unshort} from './helpers/unshort';
 import {normalizePath} from './normalize-path';
-import {unshort} from './unshort';
 
 type minMax = [min: number, max: number];
 
@@ -89,69 +90,69 @@ export const getBoundingBox = (d: string): BoundingBox => {
 	let minY = Infinity;
 	let maxX = -Infinity;
 	let maxY = -Infinity;
-	const abs = normalizePath(d);
-	const unarced = unarc(abs);
+	const parsed = parsePath(normalizePath(d)) as AbsoluteInstruction[];
+	const unarced = removeArcInstructions(parsed);
 	const unshortened = unshort(unarced);
 
 	let x = 0;
 	let y = 0;
 
 	for (const seg of unshortened) {
-		switch (seg[0]) {
+		switch (seg.type) {
 			case 'M':
 			case 'L': {
-				if (minX > seg[1]) {
-					minX = seg[1];
+				if (minX > seg.x) {
+					minX = seg.x;
 				}
 
-				if (minY > seg[2]) {
-					minY = seg[2];
+				if (minY > seg.y) {
+					minY = seg.y;
 				}
 
-				if (maxX < seg[1]) {
-					maxX = seg[1];
+				if (maxX < seg.x) {
+					maxX = seg.x;
 				}
 
-				if (maxY < seg[2]) {
-					maxY = seg[2];
+				if (maxY < seg.y) {
+					maxY = seg.y;
 				}
 
-				x = seg[1];
-				y = seg[2];
+				x = seg.x;
+				y = seg.y;
 
 				break;
 			}
 
 			case 'V': {
-				if (minY > seg[1]) {
-					minY = seg[1];
+				if (minY > seg.y) {
+					minY = seg.y;
 				}
 
-				if (maxY < seg[1]) {
-					maxY = seg[1];
+				if (maxY < seg.y) {
+					maxY = seg.y;
 				}
 
-				y = seg[1];
+				y = seg.y;
 
 				break;
 			}
 
 			case 'H': {
-				if (minX > seg[1]) {
-					minX = seg[1];
+				if (minX > seg.x) {
+					minX = seg.x;
 				}
 
-				if (maxX < seg[1]) {
-					maxX = seg[1];
+				if (maxX < seg.x) {
+					maxX = seg.x;
 				}
 
-				x = seg[1];
+				x = seg.x;
 
 				break;
 			}
 
 			case 'C': {
-				const cxMinMax = minmaxC([x, seg[1], seg[3], seg[5]]);
+				const cxMinMax = minmaxC([x, seg.cp1x, seg.cp2x, seg.x]);
 				if (minX > cxMinMax[0]) {
 					minX = cxMinMax[0];
 				}
@@ -160,7 +161,7 @@ export const getBoundingBox = (d: string): BoundingBox => {
 					maxX = cxMinMax[1];
 				}
 
-				const cyMinMax = minmaxC([y, seg[2], seg[4], seg[6]]);
+				const cyMinMax = minmaxC([y, seg.cp1y, seg.cp2y, seg.y]);
 				if (minY > cyMinMax[0]) {
 					minY = cyMinMax[0];
 				}
@@ -169,14 +170,14 @@ export const getBoundingBox = (d: string): BoundingBox => {
 					maxY = cyMinMax[1];
 				}
 
-				x = seg[5];
-				y = seg[6];
+				x = seg.x;
+				y = seg.y;
 
 				break;
 			}
 
 			case 'Q': {
-				const qxMinMax = minmaxQ([x, seg[1], seg[3]]);
+				const qxMinMax = minmaxQ([x, seg.cpx, seg.x]);
 				if (minX > qxMinMax[0]) {
 					minX = qxMinMax[0];
 				}
@@ -185,7 +186,7 @@ export const getBoundingBox = (d: string): BoundingBox => {
 					maxX = qxMinMax[1];
 				}
 
-				const qyMinMax = minmaxQ([y, seg[2], seg[4]]);
+				const qyMinMax = minmaxQ([y, seg.cpy, seg.y]);
 				if (minY > qyMinMax[0]) {
 					minY = qyMinMax[0];
 				}
@@ -194,8 +195,8 @@ export const getBoundingBox = (d: string): BoundingBox => {
 					maxY = qyMinMax[1];
 				}
 
-				x = seg[3];
-				y = seg[4];
+				x = seg.x;
+				y = seg.y;
 
 				break;
 			}
@@ -204,7 +205,7 @@ export const getBoundingBox = (d: string): BoundingBox => {
 				break;
 
 			default:
-				throw new Error(`Unknown instruction ${seg[0]}`);
+				throw new Error(`Unknown instruction ${seg.type}`);
 		}
 	}
 

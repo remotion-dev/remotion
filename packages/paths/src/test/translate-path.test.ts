@@ -42,5 +42,5 @@ test('Should be able to translate example path, update x', () => {
 test('Translation should throw error', () => {
 	expect(() => {
 		translatePath('remotion', 10, 0);
-	}).toThrow('Malformed path data: "m" must have 2 elements and has 0: mo');
+	}).toThrow('Malformed path data: m was expected to have numbers afterwards');
 });
