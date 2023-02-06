@@ -1,4 +1,4 @@
-import type {Instruction} from './instructions';
+import type {Instruction} from '@remotion/paths';
 
 export type ShapeInfo = {
 	path: string;

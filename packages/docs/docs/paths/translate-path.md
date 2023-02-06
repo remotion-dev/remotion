@@ -31,7 +31,7 @@ console.log(translatedPath); // "M 50 50 L 150 50"
 import { translatePath } from "@remotion/paths";
 
 const translatedPath = translatePath("M10 10 L15 15", 10, 10);
-console.log(translatedPath); // "M 20,20 L 25,25"
+console.log(translatedPath); // "M 20 20 L 25 25"
 ```
 
 ```tsx twoslash title='translate-x-and-y.ts'
@@ -42,7 +42,7 @@ const translatedPath = translatePath(
   10,
   20
 );
-console.log(translatedPath); // "M 45,70 a 25,25,0,1,1,50,0 a 25,25,0,1,1,-50,0"
+console.log(translatedPath); // "M 45 70 a 25 25 0 1 1 50 0 a 25, 5 0 1 1 -50 0"
 ```
 
 The function will throw if the path is invalid:
