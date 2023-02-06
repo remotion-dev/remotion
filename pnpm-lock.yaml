@@ -599,6 +599,7 @@ importers:
       '@remotion/lambda': 3.3.39
       '@remotion/renderer': 3.3.39
       '@types/sharp': ^0.28.5
+      create-video: 3.3.39
       execa: 5.1.1
       remotion: 3.3.39
       sharp: 0.30.6
@@ -611,6 +612,7 @@ importers:
       '@remotion/lambda': link:../lambda
       '@remotion/renderer': link:../renderer
       '@types/sharp': 0.28.6
+      create-video: link:../create-video
       execa: 5.1.1
       remotion: link:../core
       sharp: 0.30.6
