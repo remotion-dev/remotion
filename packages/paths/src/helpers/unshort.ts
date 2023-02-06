@@ -1,5 +1,6 @@
-import type {Instruction} from './helpers/parse';
+import type {Instruction} from './parse';
 
+// Requires that the path is already normalized
 export const unshort = function (segments: Instruction[]): Instruction[] {
 	let prevControlX = 0;
 	let prevControlY = 0;
