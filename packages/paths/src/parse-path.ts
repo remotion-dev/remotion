@@ -1,6 +1,6 @@
 // Copied from: https://github.com/rveciana/svg-path-properties
 
-import type {Instruction} from './types';
+import type {Instruction} from './helpers/types';
 
 const length: {[key in Instruction['type']]: number} = {
 	a: 7,
