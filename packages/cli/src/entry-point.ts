@@ -61,19 +61,28 @@ export const findEntryPoint = (
 	if (file) {
 		Log.verbose('Entry point from config file is', file);
 
-		return {file, remainingArgs: args, reason: 'config file'};
+		return {
+			file: path.resolve(remotionRoot, file),
+			remainingArgs: args,
+			reason: 'config file',
+		};
 	}
 
 	// 3rd priority: Common paths
 	const found = findCommonPath(remotionRoot);
 
 	if (found) {
+		const absolutePath = path.resolve(remotionRoot, found);
 		Log.verbose(
 			'Selected',
-			found,
+			absolutePath,
 			'as the entry point because file exists and is a common entry point and no entry point was explicitly selected'
 		);
-		return {file: found, remainingArgs: args, reason: 'common paths'};
+		return {
+			file: absolutePath,
+			remainingArgs: args,
+			reason: 'common paths',
+		};
 	}
 
 	return {file: null, remainingArgs: args, reason: 'none found'};
