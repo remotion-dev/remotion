@@ -9,7 +9,7 @@ _Part of the [`@remotion/paths`](/docs/paths) package. Available since v3.2.25_
 Widens an SVG `viewBox` in all directions by a certain scale factor.
 
 :::note
-This function may be unnecessary: If you want the drawing of an SVG to go out of bounds, you can set `style={{overflow: 'visible'}}` on the SVG container.
+This function may be unnecessary: If you want the parts that go outside of the viewbox to be visible, you can also set `style={{overflow: 'visible'}}` on the SVG container.
 :::
 
 ```tsx twoslash
