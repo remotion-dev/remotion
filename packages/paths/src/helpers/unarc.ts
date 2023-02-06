@@ -1,6 +1,6 @@
-import {iterateOverSegments} from './helpers/iterate';
-import type {Instruction} from './helpers/parse';
-import {parsePath} from './helpers/parse';
+import {iterateOverSegments} from './iterate';
+import type {Instruction} from './parse';
+import {parsePath} from './parse';
 
 const TAU = Math.PI * 2;
 
@@ -124,33 +124,38 @@ export const unarc = (d: string) => {
 	const x = 0;
 	const y = 0;
 
-	return iterateOverSegments(segments, ({segment}) => {
-		const nextX = segment[6];
-		const nextY = segment[7];
-		const new_segments = a2c({
-			x1: x,
-			y1: y,
-			x2: nextX,
-			y2: nextY,
-			fa: segment[4],
-			fs: segment[5],
-			rx: segment[1],
-			ry: segment[2],
-			phi: segment[3],
-		});
+	return iterateOverSegments({
+		segments,
+		iterate: ({segment}) => {
+			if (segment[0] !== 'A') {
+				return [segment];
+			}
 
-		// Degenerated arcs can be ignored by renderer, but should not be dropped
-		// to avoid collisions with `S A S` and so on. Replace with empty line.
-		if (new_segments.length === 0) {
-			return [['L', segment[6], segment[7]]];
-		}
+			const nextX = segment[6];
+			const nextY = segment[7];
+			const new_segments = a2c({
+				x1: x,
+				y1: y,
+				x2: nextX,
+				y2: nextY,
+				fa: segment[4],
+				fs: segment[5],
+				rx: segment[1],
+				ry: segment[2],
+				phi: segment[3],
+			});
 
-		const result: Instruction[] = [];
+			// Degenerated arcs can be ignored by renderer, but should not be dropped
+			// to avoid collisions with `S A S` and so on. Replace with empty line.
+			if (new_segments.length === 0) {
+				return [['L', segment[6], segment[7]]];
+			}
 
-		new_segments.forEach((_s) => {
-			result.push(['C', _s[2], _s[3], _s[4], _s[5], _s[6], _s[7]]);
-		});
-		return result;
+			const result = new_segments.map((_s) => {
+				return ['C', _s[2], _s[3], _s[4], _s[5], _s[6], _s[7]] as Instruction;
+			});
+			return result;
+		},
 	});
 };
 

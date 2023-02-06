@@ -1,6 +1,6 @@
 import type {BoundingBox} from './helpers/types';
+import {unarc} from './helpers/unarc';
 import {normalizePath} from './normalize-path';
-import {unarc} from './unarc';
 import {unshort} from './unshort';
 
 type minMax = [min: number, max: number];

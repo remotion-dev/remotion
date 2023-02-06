@@ -1,13 +1,16 @@
 import type {Instruction} from './parse';
 
-export const iterateOverSegments = (
-	segments: Instruction[],
+export const iterateOverSegments = ({
+	segments,
+	iterate,
+}: {
+	segments: Instruction[];
 	iterate: (options: {
 		segment: Instruction;
 		x: number;
 		y: number;
-	}) => Instruction[]
-): Instruction[] => {
+	}) => Instruction[];
+}): Instruction[] => {
 	let x = 0;
 	let y = 0;
 
