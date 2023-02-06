@@ -1,5 +1,5 @@
 import {construct} from './helpers/construct';
-import {serializeInstructions} from './helpers/serialize';
+import {serializeInstructions} from './serialize-instructions';
 
 /**
  * Splits a valid SVG path into it's parts.
