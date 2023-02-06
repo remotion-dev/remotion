@@ -30,6 +30,7 @@ Each page has a button `Improve this page` at the bottom. This is the easiest wa
 - **Avoid emotions** and filler language ("Great! Let's move on to the next step"). Usually it can be removed without losing any information.
 - **Separate into multiple paragraphs** if a section is becoming too long.
 - **Address the reader as "you"** and not "we".
+- **Don't blame the user**: Instead of "You have provided the wrong input", say "The input is invalid" or "the wrong input was provided".
 
 ## Adding code snippets
 

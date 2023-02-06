@@ -317,6 +317,7 @@ module.exports = {
       items: [
         "getting-started",
         "the-fundamentals",
+        "transforms",
         "animating-properties",
         "reusability",
         "timeline",
