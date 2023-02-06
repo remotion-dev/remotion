@@ -1,6 +1,6 @@
-import type {AbsoluteInstruction, ReducesAbsoluteInstruction} from './types';
+import type {AbsoluteInstruction, ReducedInstruction} from './types';
 
-export const iterateOverSegments = <T extends ReducesAbsoluteInstruction>({
+export const iterateOverSegments = <T extends ReducedInstruction>({
 	segments,
 	iterate,
 }: {
