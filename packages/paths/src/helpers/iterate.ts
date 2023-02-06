@@ -10,10 +10,14 @@ export const iterateOverSegments = <T extends ReducesAbsoluteInstruction>({
 		prevSegment: AbsoluteInstruction | null;
 		x: number;
 		y: number;
+		initialX: number;
+		initialY: number;
 	}) => T[];
 }): T[] => {
 	let x = 0;
 	let y = 0;
+	let initialX = 0;
+	let initialY = 0;
 
 	const newSegments = segments.map((s, i) => {
 		const newSeg = iterate({
@@ -21,9 +25,14 @@ export const iterateOverSegments = <T extends ReducesAbsoluteInstruction>({
 			x,
 			y,
 			prevSegment: segments[i - 1] ?? null,
+			initialX,
+			initialY,
 		});
 		switch (s.type) {
 			case 'M':
+				initialX = s.x;
+				initialY = s.y;
+			// fallthrough
 			case 'A':
 			case 'C':
 			case 'Q':
