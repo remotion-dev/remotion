@@ -13,6 +13,7 @@
     "@remotion/cli": "3.3.39",
     "@remotion/lambda": "3.3.39",
     "@remotion/renderer": "3.3.39",
+    "create-video": "3.3.39",
     "@types/sharp": "^0.28.5",
     "execa": "5.1.1",
     "remotion": "3.3.39",
