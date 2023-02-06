@@ -332,7 +332,7 @@ The API requires an authorization token to interact with it. To obtain the token
 
 From the guide, `YOUR_USER_POOL_CLIENT_ID` is `apigw-sqs-app-stack.userPoolClientId` and `YOUR_USER_POOL_ID` is the `apigw-sqs-app-stack.userPoolId`, the steps should be followed up to retrieving the `IdToken`.
 
-The base API URL is `https://25w651t09g.execute-api.ap-southeast-2.amazonaws.com/dev/render` from the dashboard output `APIGatewayUrl`.
+The base API URL is `https://25w651t09g.execute-api.ap-southeast-2.amazonaws.com/dev/enqueue` from the dashboard output `APIGatewayUrl`.
 
 #### Trigger a video generation request
 
@@ -355,8 +355,8 @@ This will initiate the render request of a video, although the JSON request is n
 ## Notes
 
 - The deployment of Remotion Lambda is configured to be deployed only to `ap-southeast-2` region to simplify the project, adjust this in the code at [region.ts](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-app/src/infra/regions.ts).
-- The deployment of apigw-sqs-app is configured to be deployed at `ap-southeast-2` region to simplify the project, adjust this in the code at [remotion-cdk-starter.ts](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/bin/remotion-cdk-starter.ts).
-- Remotion packages should be bundled inside the function when deployed, you can this in `nodeModules` from `bundling`, the code for this located in [here](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L103). 
+- The deployment of `apigw-sqs-app` is configured to be deployed at `ap-southeast-2` region to simplify the project, adjust this in the code at [remotion-cdk-starter.ts](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/bin/remotion-cdk-starter.ts).
+- Remotion packages should be bundled inside the function when deployed, you can this in `nodeModules` property from `bundling` object, the code for this located in [here](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L103). 
   
 ## See also
 
