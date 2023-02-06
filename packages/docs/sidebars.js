@@ -266,7 +266,7 @@ module.exports = {
         "paths/extend-viewbox",
         "paths/parse-path",
         "paths/serialize-instructions",
-        "paths/simplify-instructions",
+        "paths/reduce-instructions",
         "paths/get-parts",
       ],
     },

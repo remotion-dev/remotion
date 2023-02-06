@@ -1,5 +1,5 @@
 ---
-title: simplifyInstructions()
+title: reduceInstructions()
 crumb: "@remotion/paths"
 ---
 
@@ -11,9 +11,9 @@ This is useful if you want to manually edit a path and want to make sure it's as
 Note that this may result in a longer path.
 
 ```ts twoslash
-import { simplifyInstructions } from "@remotion/paths";
+import { reduceInstructions } from "@remotion/paths";
 
-const simplified = simplifyInstructions([
+const simplified = reduceInstructions([
   { type: "m", dx: 10, dy: 10 },
   { type: "h", dx: 100 },
 ]);
@@ -30,4 +30,4 @@ const simplified = simplifyInstructions([
 
 - [`@remotion/paths`](/docs/paths)
 - [`parsePath()`](/docs/paths/parse-path)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/simplify-instructions.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/reduce-instructions.ts)
