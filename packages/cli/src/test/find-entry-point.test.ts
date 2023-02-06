@@ -19,7 +19,9 @@ test('Should find entry point automatically', () => {
 		path.resolve(process.cwd(), '..', 'example')
 	);
 
-	expect(entryPoint.file).toBe('src/index.ts');
+	expect(entryPoint.file).toBe(
+		path.resolve(process.cwd(), '..', 'example/src/index.ts')
+	);
 	expect(entryPoint.remainingArgs).toEqual([]);
 	expect(entryPoint.reason).toEqual('common paths');
 });
