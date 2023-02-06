@@ -263,6 +263,7 @@ module.exports = {
         "paths/extend-viewbox",
         "paths/get-subpaths",
         "paths/translate-path",
+        "paths/get-bounding-box",
       ],
     },
     {

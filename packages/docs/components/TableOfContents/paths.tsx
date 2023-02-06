@@ -59,6 +59,10 @@ export const TableOfContents: React.FC = () => {
           <strong>translatePath()</strong>
           <div>Translates the position of an path against X/Y coordinates</div>
         </TOCItem>
+        <TOCItem link="/docs/paths/get-bounding-box">
+          <strong>getBoundingBox()</strong>
+          <div>Get the bounding box of a SVG path</div>
+        </TOCItem>
       </Grid>
     </div>
   );
