@@ -1,4 +1,4 @@
-import type {Instruction} from './types';
+import type {Instruction} from './helpers/types';
 
 const serializeInstruction = (instruction: Instruction): string => {
 	if (instruction.type === 'A') {

@@ -1,8 +1,8 @@
-import {parsePath} from './helpers/parse';
 import type {AbsoluteInstruction, BoundingBox} from './helpers/types';
 import {removeArcInstructions} from './helpers/unarc';
 import {unshort} from './helpers/unshort';
 import {normalizePath} from './normalize-path';
+import {parsePath} from './parse-path';
 
 type minMax = [min: number, max: number];
 

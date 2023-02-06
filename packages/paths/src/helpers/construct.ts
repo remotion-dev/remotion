@@ -1,9 +1,9 @@
 // Copied from: https://github.com/rveciana/svg-path-properties
 
+import {parsePath} from '../parse-path';
 import {makeArc} from './arc';
 import {makeBezier} from './bezier';
 import {makeLinearPosition} from './linear';
-import {parsePath} from './parse';
 import type {Instruction, Point, PointArray, Properties} from './types';
 
 export const construct = (string: string) => {
