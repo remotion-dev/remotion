@@ -11,7 +11,10 @@ export const handleCommonError = async (err: Error) => {
 		);
 	}
 
-	if (err.message.includes('A delayRender was called')) {
+	if (
+		err.message.includes('A delayRender()') &&
+		err.message.includes('was called but not cleared after')
+	) {
 		Log.info();
 		Log.info('💡 Get help for this issue at https://remotion.dev/docs/timeout');
 	}
