@@ -121,12 +121,10 @@ function a2c({
 // Requires path to be normalized
 export const unarc = (d: string) => {
 	const segments = parsePath(d);
-	const x = 0;
-	const y = 0;
 
 	return iterateOverSegments({
 		segments,
-		iterate: ({segment}) => {
+		iterate: ({segment, x, y}) => {
 			if (segment[0] !== 'A') {
 				return [segment];
 			}
