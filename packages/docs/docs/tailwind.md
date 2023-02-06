@@ -143,6 +143,10 @@ import { enableTailwind } from "./src/enable-tailwind";
 Config.overrideWebpackConfig(enableTailwind);
 ```
 
+:::note
+Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
+:::
+
 4. If you use the [`bundle()` or `deploySite()` Node.JS API, add the Webpack override to it as well](/docs/webpack#when-using-bundle-and-deploysite).
 
 5. Create a file `src/style.css` with the following content:

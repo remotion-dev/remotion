@@ -15,6 +15,10 @@ Config.overrideWebpackConfig((currentConfiguration) => {
 });
 ```
 
+:::note
+Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
+:::
+
 If you want to make other configuration changes, you can do so by doing them reducer-style:
 
 ```ts twoslash title="remotion.config.ts"
@@ -30,5 +34,9 @@ Config.overrideWebpackConfig((currentConfiguration) => {
   };
 });
 ```
+
+:::note
+Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
+:::
 
 See the [setup](/docs/skia) to see full instructions on how to setup React Native Skia in Remotion.
