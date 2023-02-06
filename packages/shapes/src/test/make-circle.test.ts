@@ -17,8 +17,8 @@ test('Should be able to make a circle path', () => {
 				xAxisRotation: 0,
 				largeArcFlag: true,
 				sweepFlag: false,
-				x: 100,
-				y: 0,
+				dx: 100,
+				dy: 0,
 			},
 			{
 				type: 'a',
@@ -27,8 +27,8 @@ test('Should be able to make a circle path', () => {
 				xAxisRotation: 0,
 				largeArcFlag: true,
 				sweepFlag: false,
-				x: -100,
-				y: 0,
+				dx: -100,
+				dy: 0,
 			},
 			{
 				type: 'z',

@@ -949,6 +949,7 @@ importers:
   packages/shapes:
     specifiers:
       '@jonny/eslint-config': 3.0.266
+      '@remotion/paths': 3.3.39
       '@testing-library/react': ^13.4.0
       '@types/node': ^16.7.5
       '@types/react': 18.0.26
@@ -960,6 +961,8 @@ importers:
       react-dom: 18.0.0
       typescript: ^4.7.0
       vitest: 0.24.3
+    dependencies:
+      '@remotion/paths': link:../paths
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
       '@testing-library/react': 13.4.0_zpnidt7m3osuk7shl3s4oenomq

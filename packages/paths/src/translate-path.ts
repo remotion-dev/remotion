@@ -1,51 +1,68 @@
 // Copied partially from https://github.com/michaelrhodes/translate-svg-path/blob/master/index.js
-import type {Instruction} from './helpers/parse';
-import {parsePath} from './helpers/parse';
+import type {Instruction} from './helpers/types';
+import {parsePath} from './parse-path';
+import {serializeInstructions} from './serialize-instructions';
 
-const serialize = (path: (Instruction | number[])[]) => {
-	return path.reduce((str: string, seg: Instruction | number[]) => {
-		return (str + ' ' + seg[0] + ' ' + seg.slice(1).join(',')).trim();
-	}, '');
-};
-
-const translateSegments = (path: string, x: number, y: number) => {
-	const segments = parsePath(path);
-
-	return segments.map((segment) => {
-		const cmd = segment[0];
-
+const translateSegments = (segments: Instruction[], x: number, y: number) => {
+	return segments.map((segment): Instruction => {
 		// Shift coords only for commands with absolute values
-		if ('ACHLMRQSTVZ'.indexOf(cmd) === -1) {
+		if (
+			segment.type === 'a' ||
+			segment.type === 'c' ||
+			segment.type === 'v' ||
+			segment.type === 's' ||
+			segment.type === 'z' ||
+			segment.type === 'h' ||
+			segment.type === 'l' ||
+			segment.type === 'm' ||
+			segment.type === 'q' ||
+			segment.type === 't'
+		) {
 			return segment;
 		}
 
-		const name = cmd.toLowerCase();
-
 		// V is the only command, with shifted coords parity
-		if (name === 'v') {
-			segment[1] = (segment[1] as number) + (y as number);
-			return segment;
+		if (segment.type === 'V') {
+			return {
+				type: 'V',
+				y: segment.y + y,
+			};
+		}
+
+		if (segment.type === 'H') {
+			return {
+				type: 'H',
+				x: segment.x + x,
+			};
 		}
 
 		// ARC is: ['A', rx, ry, x-axis-rotation, large-arc-flag, sweep-flag, x, y]
 		// touch x, y only
-		if (name === 'a') {
-			segment[6] = (segment[6] as number) + x;
-			segment[7] = (segment[7] as number) + (y ?? 0);
+		if (segment.type === 'A') {
+			return {
+				type: 'A',
+				rx: segment.rx,
+				ry: segment.ry,
+				largeArcFlag: segment.largeArcFlag,
+				sweepFlag: segment.sweepFlag,
+				xAxisRotation: segment.xAxisRotation,
+				x: segment.x + x,
+				y: segment.y + y,
+			};
+		}
+
+		if (segment.type === 'Z') {
 			return segment;
 		}
 
-		// All other commands have [cmd, x1, y1, x2, y2, x3, y3, ...] format
-		return segment.map((val, i) => {
-			if (!i) {
-				return val as number;
-			}
-
-			return i % 2 ? (val as number) + x : (val as number) + (y ?? 0);
-		});
+		return {
+			...segment,
+			x: segment.x + x,
+			y: segment.y + y,
+		};
 	});
 };
 
 export const translatePath = (path: string, x: number, y: number) => {
-	return serialize(translateSegments(path, x, y));
+	return serializeInstructions(translateSegments(parsePath(path), x, y));
 };

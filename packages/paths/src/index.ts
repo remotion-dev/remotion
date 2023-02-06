@@ -1,12 +1,16 @@
 export {evolvePath} from './evolve-path';
 export {extendViewBox} from './extend-viewbox';
+export {getBoundingBox} from './get-bounding-box';
 export {getLength} from './get-length';
 export {getParts} from './get-parts';
 export {getPointAtLength} from './get-point-at-length';
 export {getSubpaths} from './get-subpaths';
 export {getTangentAtLength} from './get-tangent-at-length';
-export {Part} from './helpers/types';
+export {BoundingBox, Instruction, Part} from './helpers/types';
 export {interpolatePath} from './interpolate-path';
 export {normalizePath} from './normalize-path';
+export {parsePath} from './parse-path';
+export {resetPath} from './reset-path';
 export {reversePath} from './reverse-path';
+export {serializeInstructions} from './serialize-instructions';
 export {translatePath} from './translate-path';
