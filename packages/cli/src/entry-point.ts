@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {existsSync} from 'fs';
+import {existsSync, lstatSync} from 'fs';
 import path from 'path';
 import {ConfigInternals} from './config';
 import {Log} from './log';
@@ -20,6 +20,34 @@ const findCommonPath = (remotionRoot: string) => {
 };
 
 export const findEntryPoint = (
+	args: string[],
+	remotionRoot: string
+): {
+	file: string | null;
+	remainingArgs: string[];
+	reason: string;
+} => {
+	const result = findEntryPointInner(args, remotionRoot);
+	if (result.file === null) {
+		return result;
+	}
+
+	if (!existsSync(result.file)) {
+		throw new Error(
+			`${result.file} was chosen as the entry point (reason = ${result.reason}) but it does not exist.`
+		);
+	}
+
+	if (lstatSync(result.file).isDirectory()) {
+		throw new Error(
+			`${result.file} was chosen as an entry point (reason = ${result.reason}) but it is a directory - it needs to be a file.`
+		);
+	}
+
+	return result;
+};
+
+const findEntryPointInner = (
 	args: string[],
 	remotionRoot: string
 ): {
