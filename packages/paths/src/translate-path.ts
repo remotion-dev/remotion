@@ -1,6 +1,6 @@
 // Copied partially from https://github.com/michaelrhodes/translate-svg-path/blob/master/index.js
 import {parsePath} from './helpers/parse';
-import {serializePath} from './helpers/serialize';
+import {serializeInstructions} from './helpers/serialize';
 import type {Instruction} from './helpers/types';
 
 const translateSegments = (segments: Instruction[], x: number, y: number) => {
@@ -64,5 +64,5 @@ const translateSegments = (segments: Instruction[], x: number, y: number) => {
 };
 
 export const translatePath = (path: string, x: number, y: number) => {
-	return serializePath(translateSegments(parsePath(path), x, y));
+	return serializeInstructions(translateSegments(parsePath(path), x, y));
 };

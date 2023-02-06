@@ -1,5 +1,5 @@
-import type {Instruction} from './instructions';
-import {serializeInstructions} from './instructions';
+import type {Instruction} from '@remotion/paths';
+import {serializeInstructions} from '@remotion/paths';
 import type {ShapeInfo} from './shape-info';
 
 export type MakeEllipseOptions = {
@@ -21,8 +21,8 @@ export const makeEllipse = ({rx, ry}: MakeEllipseOptions): ShapeInfo => {
 			xAxisRotation: 0,
 			largeArcFlag: true,
 			sweepFlag: false,
-			x: 1,
-			y: 0,
+			dx: 1,
+			dy: 0,
 		},
 		{
 			type: 'z',

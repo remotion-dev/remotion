@@ -93,7 +93,7 @@ const serializeInstruction = (instruction: Instruction): string => {
 	throw new Error(`Unknown instruction type: ${instruction.type}`);
 };
 
-export const serializePath = (path: Instruction[]): string => {
+export const serializeInstructions = (path: Instruction[]): string => {
 	return path
 		.map((p) => {
 			return serializeInstruction(p);
