@@ -41,10 +41,6 @@ const serializeInstruction = (instruction: Instruction): string => {
 		return `q ${instruction.cpdx} ${instruction.cpdy} ${instruction.dx} ${instruction.dy}`;
 	}
 
-	if (instruction.type === 'z') {
-		return 'z';
-	}
-
 	if (instruction.type === 'Z') {
 		return 'Z';
 	}

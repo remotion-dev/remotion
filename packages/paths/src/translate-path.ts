@@ -11,7 +11,6 @@ const translateSegments = (segments: Instruction[], x: number, y: number) => {
 			segment.type === 'c' ||
 			segment.type === 'v' ||
 			segment.type === 's' ||
-			segment.type === 'z' ||
 			segment.type === 'h' ||
 			segment.type === 'l' ||
 			segment.type === 'm' ||

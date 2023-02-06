@@ -26,7 +26,7 @@ export interface PointProperties {
 
 export type BoundingBox = {x1: number; y1: number; x2: number; y2: number};
 
-export type ReducesAbsoluteInstruction =
+export type ReducedInstruction =
 	| {
 			type: 'M';
 			x: number;
@@ -35,14 +35,6 @@ export type ReducesAbsoluteInstruction =
 	| {
 			type: 'L';
 			x: number;
-			y: number;
-	  }
-	| {
-			type: 'H';
-			x: number;
-	  }
-	| {
-			type: 'V';
 			y: number;
 	  }
 	| {
@@ -66,7 +58,7 @@ export type ReducesAbsoluteInstruction =
 	  };
 
 export type AbsoluteInstruction =
-	| ReducesAbsoluteInstruction
+	| ReducedInstruction
 	| {
 			type: 'A';
 			rx: number;
@@ -87,6 +79,14 @@ export type AbsoluteInstruction =
 	| {
 			type: 'T';
 			x: number;
+			y: number;
+	  }
+	| {
+			type: 'H';
+			x: number;
+	  }
+	| {
+			type: 'V';
 			y: number;
 	  };
 
@@ -147,7 +147,4 @@ export type Instruction =
 			sweepFlag: boolean;
 			dx: number;
 			dy: number;
-	  }
-	| {
-			type: 'z';
 	  };

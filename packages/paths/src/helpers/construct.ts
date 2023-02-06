@@ -114,7 +114,7 @@ export const construct = (string: string) => {
 			);
 			cur[1] = instruction.dy + cur[1];
 			// Close path
-		} else if (instruction.type === 'z' || instruction.type === 'Z') {
+		} else if (instruction.type === 'Z') {
 			length += Math.sqrt(
 				(ringStart[0] - cur[0]) ** 2 + (ringStart[1] - cur[1]) ** 2
 			);

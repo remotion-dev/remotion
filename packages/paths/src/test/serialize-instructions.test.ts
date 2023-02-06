@@ -10,10 +10,10 @@ test('Should serialize instructions', () => {
 				y: 100,
 			},
 			{
-				type: 'z',
+				type: 'Z',
 			},
 		])
-	).toBe('M 100 100 z');
+	).toBe('M 100 100 Z');
 });
 
 test('Should not serialize bad instructions', () => {

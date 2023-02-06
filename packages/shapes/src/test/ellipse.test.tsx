@@ -8,6 +8,6 @@ test('Should be able to make a circle svg', () => {
 	);
 
 	expect(container.querySelector('path')?.getAttribute('d')).toEqual(
-		'M 100 0 a 100 100 0 1 0 1 0 z'
+		'M 100 0 a 100 100 0 1 0 1 0 Z'
 	);
 });
