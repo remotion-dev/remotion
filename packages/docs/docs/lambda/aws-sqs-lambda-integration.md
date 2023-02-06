@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-lambda-aws-sqs-lambda-integration.png
-title: Using AWS SQS with Remotion Lambda
-slug: /lambda/aws-sqs-lambda-integration
+title: Using Lambda with SQS
+slug: /lambda/sqs
 sidebar_label: Queueing with SQS
 crumb: "@remotion/lambda"
 ---
@@ -332,11 +332,14 @@ const remotionQueue = new sqs.Queue(this, "queue", {
 
 ### Interacting with the API
 
-The API requires an authorization token to interact with it. To obtain the token, first go to the Serverless dashboard to retrieve outputs such as `apigw-sqs-app-stack.region`, `apigw-sqs-app-stack.userPoolClientId`, and `apigw-sqs-app-stack.userPoolId`, which are used to authenticate with Cognito. If you do not have a frontend application, you can create a user and an authentication token manually for the API by following this [guide](docs/lambda/without-iam/example#test-your-endpoint).
+The API requires an authorization token to interact with it. To obtain the token:
+
+- If you use the Serverless framework, go to the Serverless dashboard to retrieve outputs such as `apigw-sqs-app-stack.region`, `apigw-sqs-app-stack.userPoolClientId`, and `apigw-sqs-app-stack.userPoolId`, which are used to authenticate with Cognito.
+- If you don't, you can create a user and an authentication token manually for the API by following this [guide](docs/lambda/without-iam/example#test-your-endpoint).
 
 From the guide, `YOUR_USER_POOL_CLIENT_ID` is `apigw-sqs-app-stack.userPoolClientId` and `YOUR_USER_POOL_ID` is the `apigw-sqs-app-stack.userPoolId`, the steps should be followed up to retrieving the `IdToken`.
 
-The base API URL is `https://25w651t09g.execute-api.ap-southeast-2.amazonaws.com/dev/enqueue` from the dashboard output `APIGatewayUrl`.
+The base API URL has the format of `https://25w651t09g.execute-api.ap-southeast-2.amazonaws.com/dev/enqueue` from the dashboard output `APIGatewayUrl`.
 
 #### Trigger a video generation request
 
@@ -354,12 +357,13 @@ curl --location --request POST 'https://xxxxxxxx.execute-api.ap-southeast-2.amaz
 }
 ```
 
-This will initiate the render request of a video, although the JSON request is not used. The function takes the JSON and put in the queue, on the other end, [render-lambda-function](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/src/render-lambda-function/index.ts) will be notified by `SQS` that is a video render request, it will consume the data from request and generate the video as per instruction, the function executes [rendermediaonlambda](/docs/lambda/rendermediaonlambda) as part of the process.
+This will initiate the render request of a video by taking the JSON and putting it in the queue.  
+On the other end, [`render-lambda-function`](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/src/render-lambda-function/index.ts) will be notified by SQS that is a video render request, it will consume the data from the render request and generate the video as per instruction, the function executes [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) as part of the process.
 
 ## Notes
 
-- The deployment of Remotion Lambda is configured to be deployed only to `ap-southeast-2` region to simplify the project, adjust this in the code at [region.ts](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-app/src/infra/regions.ts).
-- The deployment of `apigw-sqs-app` is configured to be deployed at `ap-southeast-2` region to simplify the project, adjust this in the code at [remotion-cdk-starter.ts](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/bin/remotion-cdk-starter.ts).
+- The deployment of Remotion Lambda is configured to be deployed only to `ap-southeast-2` region to simplify the project, adjust this in the code at [`region.ts`](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-app/src/infra/regions.ts).
+- The deployment of `apigw-sqs-app` is configured to be deployed at `ap-southeast-2` region to simplify the project, adjust this in the code at [`remotion-cdk-starter.ts`](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/bin/remotion-cdk-starter.ts).
 - Remotion packages should be bundled inside the function when deployed, you can this in `nodeModules` property from `bundling` object, the code for this located in [here](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L103).
 
 ## See also
