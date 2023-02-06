@@ -54,11 +54,64 @@ const translateSegments = (segments: Instruction[], x: number, y: number) => {
 			return segment;
 		}
 
-		return {
-			...segment,
-			x: segment.x + x,
-			y: segment.y + y,
-		};
+		if (segment.type === 'C') {
+			return {
+				type: 'C',
+				cp1x: segment.cp1x + x,
+				cp1y: segment.cp1y + y,
+				cp2x: segment.cp2x + x,
+				cp2y: segment.cp2y + y,
+				x: segment.x + x,
+				y: segment.y + y,
+			};
+		}
+
+		if (segment.type === 'Q') {
+			return {
+				type: 'Q',
+				cpx: segment.cpx + x,
+				cpy: segment.cpy + y,
+				x: segment.x + x,
+				y: segment.y + y,
+			};
+		}
+
+		if (segment.type === 'S') {
+			return {
+				type: 'S',
+				cpx: segment.cpx + x,
+				cpy: segment.cpy + y,
+				x: segment.x + x,
+				y: segment.y + y,
+			};
+		}
+
+		if (segment.type === 'T') {
+			return {
+				type: 'T',
+				x: segment.x + x,
+				y: segment.y + y,
+			};
+		}
+
+		if (segment.type === 'L') {
+			return {
+				type: 'L',
+				x: segment.x + x,
+				y: segment.y + y,
+			};
+		}
+
+		if (segment.type === 'M') {
+			return {
+				type: 'M',
+				x: segment.x + x,
+				y: segment.y + y,
+			};
+		}
+
+		// @ts-expect-error
+		throw new Error(`Unknown segment type: ${segment.type}`);
 	});
 };
 
