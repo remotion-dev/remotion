@@ -25,7 +25,7 @@ export const makeEllipse = ({rx, ry}: MakeEllipseOptions): ShapeInfo => {
 			dy: 0,
 		},
 		{
-			type: 'z',
+			type: 'Z',
 		},
 	];
 

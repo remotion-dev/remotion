@@ -7,6 +7,6 @@ test('Should be able to make a pie svg', () => {
 
 	// assert path
 	expect(container.querySelector('path')?.getAttribute('d')).toEqual(
-		'M 100 0 A 100 100 0 0 1 100 200 L 100 100 z'
+		'M 100 0 A 100 100 0 0 1 100 200 L 100 100 Z'
 	);
 });

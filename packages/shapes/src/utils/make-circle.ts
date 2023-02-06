@@ -34,7 +34,7 @@ export const makeCircle = ({radius}: MakeCircleProps): ShapeInfo => {
 			dy: 0,
 		},
 		{
-			type: 'z',
+			type: 'Z',
 		},
 	];
 
