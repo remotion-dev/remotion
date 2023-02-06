@@ -1815,6 +1815,13 @@ export const articles = [
     crumb: "Troubleshooting",
   },
   {
+    id: "transforms",
+    title: "Transforms",
+    relativePath: "docs/transforms.md",
+    compId: "articles-docs-transforms",
+    crumb: "The fundamentals",
+  },
+  {
     id: "transparent-videos",
     title: "Transparent videos",
     relativePath: "docs/transparent-videos.md",

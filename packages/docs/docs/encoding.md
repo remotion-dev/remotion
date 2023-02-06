@@ -60,7 +60,7 @@ Remotion supports 5 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9` and `
 Click on a browser compatibility link to see exactly which browsers are supported on caniuse.com.
 :::
 
-You can set a config using [`Config.Output.setCodec()` in the config file](/docs/config#setcodec) or the [`--codec`](/docs/cli) CLI flag.
+You can set a config using [`Config.setCodec()` in the config file](/docs/config#setcodec) or the [`--codec`](/docs/cli) CLI flag.
 
 ## Controlling quality using the CRF setting
 
@@ -150,7 +150,7 @@ VP9
 </tr>
 </table>
 
-You can [set a CRF in the config file using the `Config.Output.setCrf()`](/docs/config#setcrf) function or use the [`--crf`](/docs/cli#flags) command line flag.
+You can [set a CRF in the config file using the `Config.setCrf()`](/docs/config#setcrf) function or use the [`--crf`](/docs/cli#flags) command line flag.
 
 ## Controlling quality using ProRes profile
 
