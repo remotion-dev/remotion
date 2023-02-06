@@ -1,8 +1,8 @@
 import {expect, test} from 'vitest';
-import {simplifyInstructions} from '..';
+import {reduceInstructions} from '..';
 
 test('Should simplify simple instructions', () => {
-	const simplified = simplifyInstructions([
+	const simplified = reduceInstructions([
 		{type: 'm', dx: 10, dy: 10},
 		{type: 'h', dx: 100},
 	]);
@@ -14,7 +14,7 @@ test('Should simplify simple instructions', () => {
 });
 
 test('Should reduce A instructions', () => {
-	const simplified = simplifyInstructions([
+	const simplified = reduceInstructions([
 		{
 			type: 'A',
 			largeArcFlag: true,

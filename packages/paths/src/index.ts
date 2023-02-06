@@ -16,8 +16,8 @@ export {
 export {interpolatePath} from './interpolate-path';
 export {normalizePath} from './normalize-path';
 export {parsePath} from './parse-path';
+export {reduceInstructions} from './reduce-instructions';
 export {resetPath} from './reset-path';
 export {reversePath} from './reverse-path';
 export {serializeInstructions} from './serialize-instructions';
-export {simplifyInstructions} from './simplify-instructions';
 export {translatePath} from './translate-path';
