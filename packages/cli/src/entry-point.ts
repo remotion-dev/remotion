@@ -1,3 +1,4 @@
+import {RenderInternals} from '@remotion/renderer';
 import {existsSync} from 'fs';
 import path from 'path';
 import {ConfigInternals} from './config';
@@ -30,8 +31,27 @@ export const findEntryPoint = (
 	let file: string | null = args[0];
 	if (file) {
 		Log.verbose('Checking if', file, 'is the entry file');
-		// Intentionally resolving CLI files to CWD, while resolving config file to remotionRoot
-		if (existsSync(path.resolve(process.cwd(), file))) {
+		const cwdResolution = path.resolve(process.cwd(), file);
+		const remotionRootResolution = path.resolve(remotionRoot, file);
+		// Checking if file was found in CWD
+		if (existsSync(cwdResolution)) {
+			return {
+				file: cwdResolution,
+				remainingArgs: args.slice(1),
+				reason: 'argument passed - found in cwd',
+			};
+		}
+
+		// Checking if file was found in remotion root
+		if (existsSync(remotionRootResolution)) {
+			return {
+				file: remotionRootResolution,
+				remainingArgs: args.slice(1),
+				reason: 'argument passed - found in root',
+			};
+		}
+
+		if (RenderInternals.isServeUrl(file)) {
 			return {file, remainingArgs: args.slice(1), reason: 'argument passed'};
 		}
 	}
