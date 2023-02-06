@@ -29,7 +29,7 @@ export const makeRect = ({
 			{edgeRoundness, cornerRadius, roundCornerStrategy: 'arc'}
 		),
 		{
-			type: 'z',
+			type: 'Z',
 		},
 	];
 	const path = serializeInstructions(instructions);

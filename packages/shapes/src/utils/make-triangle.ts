@@ -71,7 +71,7 @@ export const makeTriangle = ({
 			roundCornerStrategy: 'bezier',
 		}),
 		{
-			type: 'z',
+			type: 'Z',
 		},
 	];
 	const path = serializeInstructions(instructions);

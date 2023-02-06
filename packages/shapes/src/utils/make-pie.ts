@@ -130,7 +130,7 @@ export const makePie = ({
 			: null,
 		closePath
 			? {
-					type: 'z',
+					type: 'Z',
 			  }
 			: null,
 	].filter(Boolean) as Instruction[];

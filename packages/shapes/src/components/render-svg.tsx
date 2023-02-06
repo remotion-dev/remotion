@@ -65,7 +65,6 @@ export const RenderSvg = ({
 								prevInstruction.type === 'V' ||
 								prevInstruction.type === 'H' ||
 								prevInstruction.type === 'a' ||
-								prevInstruction.type === 'z' ||
 								prevInstruction.type === 'Z' ||
 								prevInstruction.type === 't' ||
 								prevInstruction.type === 'q' ||
