@@ -264,6 +264,7 @@ module.exports = {
         "paths/get-subpaths",
         "paths/translate-path",
         "paths/get-bounding-box",
+        "paths/reset-path",
       ],
     },
     {
