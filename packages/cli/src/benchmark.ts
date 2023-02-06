@@ -5,7 +5,6 @@ import {
 	RenderInternals,
 	renderMedia,
 } from '@remotion/renderer';
-import path from 'path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {findEntryPoint} from './entry-point';
@@ -150,8 +149,6 @@ export const benchmarkCommand = async (
 		process.exit(1);
 	}
 
-	const fullPath = path.join(process.cwd(), file);
-
 	const {
 		inputProps,
 		envVariables,
@@ -184,7 +181,7 @@ export const benchmarkCommand = async (
 
 	const {urlOrBundle: bundleLocation, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({
-			fullPath,
+			fullPath: file,
 			publicDir,
 			remotionRoot,
 			steps: ['bundling'],
