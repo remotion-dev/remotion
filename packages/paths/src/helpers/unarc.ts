@@ -1,3 +1,4 @@
+import {iterateOverSegments} from './helpers/iterate';
 import type {Instruction} from './helpers/parse';
 import {parsePath} from './helpers/parse';
 
@@ -117,88 +118,40 @@ function a2c({
 	});
 }
 
+// Requires path to be normalized
 export const unarc = (d: string) => {
 	const segments = parsePath(d);
-	let x = 0;
-	let y = 0;
+	const x = 0;
+	const y = 0;
 
-	const newSegments = segments.map((s): Instruction[] => {
-		switch (s[0]) {
-			case 'M':
-			case 'L': {
-				x = s[1];
-				y = s[2];
-				return [s];
-			}
+	return iterateOverSegments(segments, ({segment}) => {
+		const nextX = segment[6];
+		const nextY = segment[7];
+		const new_segments = a2c({
+			x1: x,
+			y1: y,
+			x2: nextX,
+			y2: nextY,
+			fa: segment[4],
+			fs: segment[5],
+			rx: segment[1],
+			ry: segment[2],
+			phi: segment[3],
+		});
 
-			case 'A': {
-				const nextX = s[6];
-				const nextY = s[7];
-
-				const new_segments = a2c({
-					x1: x,
-					y1: y,
-					x2: nextX,
-					y2: nextY,
-					fa: s[4],
-					fs: s[5],
-					rx: s[1],
-					ry: s[2],
-					phi: s[3],
-				});
-
-				// Degenerated arcs can be ignored by renderer, but should not be dropped
-				// to avoid collisions with `S A S` and so on. Replace with empty line.
-				if (new_segments.length === 0) {
-					return [['L', s[6], s[7]]];
-				}
-
-				const result: Instruction[] = [];
-
-				new_segments.forEach((_s) => {
-					result.push(['C', _s[2], _s[3], _s[4], _s[5], _s[6], _s[7]]);
-				});
-				return result;
-			}
-
-			case 'V': {
-				y = s[1];
-
-				return [s];
-			}
-
-			case 'H': {
-				x = s[1];
-
-				return [s];
-			}
-
-			case 'C': {
-				x = s[5];
-				y = s[6];
-
-				return [s];
-			}
-
-			case 'Q': {
-				x = s[3];
-				y = s[4];
-
-				return [s];
-			}
-
-			case 'Z': {
-				return [s];
-			}
-
-			default:
-				throw new Error(`Unexpected instruction ${s[0]}`);
+		// Degenerated arcs can be ignored by renderer, but should not be dropped
+		// to avoid collisions with `S A S` and so on. Replace with empty line.
+		if (new_segments.length === 0) {
+			return [['L', segment[6], segment[7]]];
 		}
+
+		const result: Instruction[] = [];
+
+		new_segments.forEach((_s) => {
+			result.push(['C', _s[2], _s[3], _s[4], _s[5], _s[6], _s[7]]);
+		});
+		return result;
 	});
-
-	const flatted = newSegments.flat(1);
-
-	return flatted;
 };
 
 function get_arc_center({

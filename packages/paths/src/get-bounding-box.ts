@@ -1,5 +1,3 @@
-'use strict';
-
 import type {BoundingBox} from './helpers/types';
 import {normalizePath} from './normalize-path';
 import {unarc} from './unarc';
