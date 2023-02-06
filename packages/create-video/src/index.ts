@@ -1,4 +1,4 @@
-import {listOfRemotionPackages} from './patch-package-json';
+import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {FEATURED_TEMPLATES} from './templates';
 
 export const CreateVideoInternals = {
