@@ -31,7 +31,7 @@ test('Should use explicit entry point', () => {
 	);
 
 	expect(entryPoint.file).toBe(
-		'/Users/jonathanburger/remotion/packages/example/src/ts-entry.tsx'
+		path.resolve(process.cwd(), '..', 'example/src/ts-entry.tsx')
 	);
 	expect(entryPoint.remainingArgs).toEqual([]);
 	expect(entryPoint.reason).toEqual('argument passed - found in root');
