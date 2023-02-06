@@ -1,4 +1,4 @@
-import {removeATSInstructions} from './helpers/remove-a-s-t-curves';
+import {removeATSHVInstructions} from './helpers/remove-a-s-t-curves';
 import type {AbsoluteInstruction, BoundingBox} from './helpers/types';
 import {normalizePath} from './normalize-path';
 import {parsePath} from './parse-path';
@@ -90,7 +90,7 @@ export const getBoundingBox = (d: string): BoundingBox => {
 	let maxX = -Infinity;
 	let maxY = -Infinity;
 	const parsed = parsePath(normalizePath(d)) as AbsoluteInstruction[];
-	const unarced = removeATSInstructions(parsed);
+	const unarced = removeATSHVInstructions(parsed);
 
 	let x = 0;
 	let y = 0;
@@ -117,34 +117,6 @@ export const getBoundingBox = (d: string): BoundingBox => {
 
 				x = seg.x;
 				y = seg.y;
-
-				break;
-			}
-
-			case 'V': {
-				if (minY > seg.y) {
-					minY = seg.y;
-				}
-
-				if (maxY < seg.y) {
-					maxY = seg.y;
-				}
-
-				y = seg.y;
-
-				break;
-			}
-
-			case 'H': {
-				if (minX > seg.x) {
-					minX = seg.x;
-				}
-
-				if (maxX < seg.x) {
-					maxX = seg.x;
-				}
-
-				x = seg.x;
 
 				break;
 			}

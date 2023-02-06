@@ -26,7 +26,7 @@ export interface PointProperties {
 
 export type BoundingBox = {x1: number; y1: number; x2: number; y2: number};
 
-export type ReducesAbsoluteInstruction =
+export type ReducedInstruction =
 	| {
 			type: 'M';
 			x: number;
@@ -58,7 +58,7 @@ export type ReducesAbsoluteInstruction =
 	  };
 
 export type AbsoluteInstruction =
-	| ReducesAbsoluteInstruction
+	| ReducedInstruction
 	| {
 			type: 'A';
 			rx: number;
