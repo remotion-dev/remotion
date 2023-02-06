@@ -2,7 +2,7 @@
 
 import type {Instruction} from './helpers/types';
 
-const length: {[key in Instruction['type']]: number} = {
+const length: {[key in Instruction['type'] | 'z']: number} = {
 	a: 7,
 	A: 7,
 	C: 6,
@@ -72,7 +72,7 @@ export const parsePath = (path: string): Instruction[] => {
 
 	return segments
 		.map((segmentString: string): Instruction[] => {
-			const command = segmentString.charAt(0) as Instruction['type'];
+			const command = segmentString.charAt(0) as Instruction['type'] | 'z';
 			const args = parseValues(segmentString.substring(1), command);
 
 			// overloaded moveTo
@@ -116,14 +116,6 @@ export const parsePath = (path: string): Instruction[] => {
 				return [
 					{
 						type: 'Z',
-					},
-				];
-			}
-
-			if (command === 'z') {
-				return [
-					{
-						type: 'z',
 					},
 				];
 			}
@@ -299,7 +291,10 @@ export const parsePath = (path: string): Instruction[] => {
 		.flat(1);
 };
 
-const parseValues = (args: string, instructionType: Instruction['type']) => {
+const parseValues = (
+	args: string,
+	instructionType: Instruction['type'] | 'z'
+) => {
 	const numbers = args.match(numberRegExp);
 	if (!numbers) {
 		if (instructionType === 'Z' || instructionType === 'z') {
