@@ -67,6 +67,10 @@ export const TableOfContents: React.FC = () => {
           <strong>serializeInstructions()</strong>
           <div>Turn an array of instructions into a SVG path</div>
         </TOCItem>{" "}
+        <TOCItem link="/docs/paths/reduce-instructions">
+          <strong>reduceInstructions()</strong>
+          <div>Reduce the amount of instruction types</div>
+        </TOCItem>{" "}
         <TOCItem link="/docs/paths/get-parts">
           <strong
             style={{
