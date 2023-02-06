@@ -1,6 +1,5 @@
+import {removeATSInstructions} from './helpers/remove-a-s-t-curves';
 import type {AbsoluteInstruction, BoundingBox} from './helpers/types';
-import {removeArcInstructions} from './helpers/unarc';
-import {unshort} from './helpers/unshort';
 import {normalizePath} from './normalize-path';
 import {parsePath} from './parse-path';
 
@@ -91,13 +90,12 @@ export const getBoundingBox = (d: string): BoundingBox => {
 	let maxX = -Infinity;
 	let maxY = -Infinity;
 	const parsed = parsePath(normalizePath(d)) as AbsoluteInstruction[];
-	const unarced = removeArcInstructions(parsed);
-	const unshortened = unshort(unarced);
+	const unarced = removeATSInstructions(parsed);
 
 	let x = 0;
 	let y = 0;
 
-	for (const seg of unshortened) {
+	for (const seg of unarced) {
 		switch (seg.type) {
 			case 'M':
 			case 'L': {
@@ -205,6 +203,7 @@ export const getBoundingBox = (d: string): BoundingBox => {
 				break;
 
 			default:
+				// @ts-expect-error
 				throw new Error(`Unknown instruction ${seg.type}`);
 		}
 	}
