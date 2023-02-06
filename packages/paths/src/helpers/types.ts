@@ -38,14 +38,6 @@ export type ReducesAbsoluteInstruction =
 			y: number;
 	  }
 	| {
-			type: 'H';
-			x: number;
-	  }
-	| {
-			type: 'V';
-			y: number;
-	  }
-	| {
 			type: 'C';
 			cp1x: number;
 			cp1y: number;
@@ -87,6 +79,14 @@ export type AbsoluteInstruction =
 	| {
 			type: 'T';
 			x: number;
+			y: number;
+	  }
+	| {
+			type: 'H';
+			x: number;
+	  }
+	| {
+			type: 'V';
 			y: number;
 	  };
 

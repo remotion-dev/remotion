@@ -129,7 +129,7 @@ function arcToCircle({
 }
 
 // Requires path to be normalized
-export const removeATSInstructions = (
+export const removeATSHVInstructions = (
 	segments: AbsoluteInstruction[]
 ): ReducesAbsoluteInstruction[] => {
 	let prevControlX = 0;
@@ -140,6 +140,14 @@ export const removeATSInstructions = (
 	return iterateOverSegments<ReducesAbsoluteInstruction>({
 		segments,
 		iterate: ({segment, prevSegment, x, y}) => {
+			if (segment.type === 'H') {
+				return [{type: 'L', x: segment.x, y}];
+			}
+
+			if (segment.type === 'V') {
+				return [{type: 'L', x, y: segment.y}];
+			}
+
 			if (segment.type === 'A') {
 				const nextX = segment.x;
 				const nextY = segment.y;
