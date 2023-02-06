@@ -37,6 +37,10 @@ import { Config } from "remotion";
 Config.setChromiumDisableWebSecurity(true);
 ```
 
+:::note
+Prior to `v3.3.39`, the option was called `Config.Puppeteer.setChromiumDisableWebSecurity()`.
+:::
+
 ## `--ignore-certificate-errors`
 
 Results in invalid SSL certificates, such as self-signed ones, being ignored.
@@ -61,6 +65,10 @@ import { Config } from "remotion";
 Config.setChromiumIgnoreCertificateErrors(true);
 ```
 
+:::note
+Prior to `v3.3.39`, the option was called `Config.Puppeteer.setChromiumIgnoreCertificateErrors()`.
+:::
+
 ## `--disable-headless`
 
 Setting this flag will open an actual Chrome during render where you can see the render happen.
@@ -84,6 +92,10 @@ import { Config } from "remotion";
 
 Config.setChromiumHeadlessMode(false);
 ```
+
+:::note
+Prior to `v3.3.39`, the option was called `Config.Puppeteer.setChromiumHeadlessMode()`.
+:::
 
 ## `--gl`
 
@@ -118,6 +130,10 @@ import { Config } from "remotion";
 
 Config.setChromiumOpenGlRenderer("swiftshader");
 ```
+
+:::note
+Prior to `v3.3.39`, the option was called `Config.Puppeteer.setChromiumOpenGlRenderer()`.
+:::
 
 ## Need more flags?
 

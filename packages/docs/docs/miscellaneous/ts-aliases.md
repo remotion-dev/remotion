@@ -52,6 +52,10 @@ Config.overrideWebpackConfig((config) => {
 });
 ```
 
+:::note
+Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
+:::
+
 Remember that in Node.JS APIs, the config file does not apply, so you need to add the Webpack override also to the [`bundle()`](/docs/bundle) and [`deploySite()`](/docs/lambda/deploysite) functions.
 
 ## See also
