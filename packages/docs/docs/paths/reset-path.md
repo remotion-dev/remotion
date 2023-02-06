@@ -5,7 +5,7 @@ crumb: "@remotion/paths"
 
 _Part of the [`@remotion/paths`](/docs/paths) package. Available from v3.3.40_
 
-Translates an SVG path so that the top-left corner of the [bounding box](/docs/paths/bounding-box) is at `0, 0`. Useful for simplifying the math when transforming the coordinates of an SVG path.
+Translates an SVG path so that the top-left corner of the [bounding box](/docs/paths/get-bounding-box) is at `0, 0`. Useful for simplifying the math when transforming the coordinates of an SVG path.
 
 ```tsx twoslash title="reset-path.ts"
 import { resetPath } from "@remotion/paths";
