@@ -15,7 +15,7 @@ import { getBoundingBox } from "@remotion/paths";
 const boundingBox = getBoundingBox(
   "M 35,50 a 25,25,0,1,1,50,0 a 25,25,0,1,1,-50,0"
 );
-// {x1: 35, x2: 85, y1: 24.999999999999993, y2: 75};
+// { x1: 35, x2: 85, y1: 24.999999999999993, y2: 75 };
 ```
 
 This function will throw if the SVG path is invalid.
