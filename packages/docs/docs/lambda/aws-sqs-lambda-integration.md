@@ -9,23 +9,26 @@ crumb: "@remotion/lambda"
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-This guide will show you how to use [Amazon SQS](https://aws.amazon.com/sqs/) and Remotion's [renderMediaOnLambda](/docs/lambda/rendermediaonlambda). Queues are used to park request to make way for the underlying resources to cope up demand. For Remotion there can be instances that demands exceeds the Lambda concurrency limit on rendering the videos, the use of SQS is a workaround to handle the load as the render process is executed in the background and you just notify the user when the render process is completed by the sending them email or means of notification.
+This guide will show you how to use [Amazon SQS](https://aws.amazon.com/sqs/) (Simple Queue Service) and Remotion's [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) API.
 
-To supplement this guide, two projects have been created. The [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app) contains a Remotion composition and utility scripts for deploying and deleting Remotion Lambda infrastructure in AWS. Note that this is the same application from [Serverless Framework guide](/docs/lambda/serverless-framework-integration).
+Queues are used to park requests to make way for the underlying resources to cope up demand. Since AWS Lambda is subject to a [concurrency limit](/docs/lambda/troubleshooting/rate-limit), you can use SQS to queue renders in the background and you notify the user when the render process is completed by sending them an email or using other means of notification.
 
-The [apigw-sqs-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/apigw-sqs-app) contains a [CDK](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html) project that deploys two Lambda functions. The [enqueue-function](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/src/enqueue-function/index.ts) function, when invoked, queues a `JSON` data sent by the user; this can be an `input` properties for the Remotion Lambda. The [render-lambda-function](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/src/render-lambda-function/index.ts) function listens to enqueued message from `SQS`, processe it and for this instance render the video.
+To supplement this guide, two projects have been created:
 
-The `enqueue-function` is configured to be invoked through [API Gateway](https://aws.amazon.com/api-gateway/) and are secured by [Cognito](https://aws.amazon.com/cognito/). The API Gateway and Cognito setup is automatically created by the [CDK Stack](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts) deployment upon execution of `cdk deploy`.
+- The [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app) contains a Remotion composition and utility scripts for deploying and deleting Remotion Lambda infrastructure in AWS. Note that this is the same application as from the [Serverless Framework guide](/docs/lambda/serverless-framework-integration).
+- The [apigw-sqs-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/apigw-sqs-app) (API Gateway SQS) contains a [CDK](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html) project that deploys two Lambda functions. The [enqueue-function](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/src/enqueue-function/index.ts) function, when invoked, queues JSON data sent by the user; this can be an input payload for the Remotion Lambda function. The [render-lambda-function](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/src/render-lambda-function/index.ts) function listens to enqueued message from SQS, processes it and renders videos.
 
-This assumes that you have knowledge in using [CDK with TypeScript](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html) and [AWS SQS knowledge](https://aws.amazon.com/sqs/). The AWS Cloud Development Kit (CDK) has been chosen to provision infrastructure as it is an official library from [AWS](https://aws.amazon.com). Using manual creation in the AWS console can lead to errors, making the CDK a more reliable option.
+The `enqueue-function` is configured to be invoked through [API Gateway](https://aws.amazon.com/api-gateway/) and is secured by [Cognito](https://aws.amazon.com/cognito/). The API Gateway and Cognito setup is automatically created by the [CDK Stack](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts) deployment upon execution of `cdk deploy`.
+
+This guide assumes that you have knowledge in using [CDK with TypeScript](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html) and [AWS SQS knowledge](https://aws.amazon.com/sqs/). The AWS Cloud Development Kit (CDK) has been chosen to provision infrastructure as it is an official library from [AWS](https://aws.amazon.com).
 
 ## remotion-app
 
-- Follow exactly the same setup instruction from [remotion-app guide](/docs/lambda/serverless-framework-integration#remotion-app) we will just re-using the application.
+- Follow the same setup instruction from [remotion-app guide](/docs/lambda/serverless-framework-integration#remotion-app) as we will just re-use the application.
 
 ## apigw-sqs-app
 
-This contains instructions for setting up and installing Lambda services [enqueue-function](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/src/enqueue-function/index.ts) and [render-lambda-function](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/src/render-lambda-function/index.ts) to your AWS account. This guide is designed to be executed on your local machine.
+In the following step, the Lambda functions [`enqueue-function`](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/src/enqueue-function/index.ts) and [`render-lambda-function`](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/src/render-lambda-function/index.ts) will be deployed to your AWS account. This guide is designed to be executed on your local machine.
 
 The project will create all the resources defined by the CDK stack, including setting up [Cognito](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L19) for the project's authentication and authorization system, uploading Lambda code, generating and associating IAM roles to your AWS account.
 
@@ -93,7 +96,7 @@ yarn
 The `remotion-executionrole-policy` is referenced from [here](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L64). The `CDK` stack creates a role for `render-lambda-function` with the `remotion-executionrole-policy`.
 
 ```ts
-// 👇 create a role with custom name
+// 👇 Create a role with custom name
 const renderFunctionLambdaRole = new Role(this, "remotionSQSLambdaRole", {
   roleName: "remotionSQSLambdaRole",
   assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
@@ -112,30 +115,30 @@ const renderFunctionLambdaRole = new Role(this, "remotionSQSLambdaRole", {
 
 This creates a role in AWS with the name of `remotionSQSLambdaRole` with 2 policies attached:
 
-- `service-role/AWSLambdaBasicExecutionRole` grants permission to the Lambda function to interact with and log information to [Cloudwatch](https://aws.amazon.com/cloudwatch/). This policy is part of the AWS library of policies.
-- `remotion-executionrole-policy` policy grants permission to the Lambda function to interact to AWS services that Remotion Lambda needs access to, in this render a video. This policy is exactly the same policy from this [guide](/docs/lambda/without-iam/#1-create-role-policy).
+- `service-role/AWSLambdaBasicExecutionRole` grants permission to the Lambda function to interact with and log information to [CloudWatch](https://aws.amazon.com/cloudwatch/). This policy is part of the AWS library of policies.
+- `remotion-executionrole-policy` policy grants permission to the Lambda function to interact to AWS services that Remotion Lambda needs access to in order to render a video. This policy is exactly the same policy from this [guide](/docs/lambda/without-iam/#1-create-role-policy).
 
 #### 5. Optional - Synthesize
 
 From the `apigw-sqs-app` directory, execute the `cdk synthesize` command.
 
 ```bash
- cdk synthesize
+cdk synthesize
 ```
 
-This command will show the [Cloud Formation Template](https://aws.amazon.com/cloudformation/) that CDK will execute to your AWS account.
+This command will show the [CloudFormation Template](https://aws.amazon.com/cloudformation/) that CDK will execute to your AWS account.
 
 #### 6. Deploy the apigw-sqs-app project
 
 From the `apigw-sqs-app` directory, execute the `cdk deploy` command.
 
 ```bash
- cdk deploy
+cdk deploy
 ```
 
 This will orchestrate the generation of resources defined in the CDK stack, which are CloudFormation templates in the background.
 
-```bash title="deploy"
+```bash title="Deploy output"
  Bundling asset apigw-sqs-app-stack/enqueue-function/Code/Stage...
 
   cdk.out/bundling-temp-a813aece2454684086de775f918faac45b1b77c67fff24ec6aad4bff8c978ebe/index.js  881.5kb
@@ -246,35 +249,35 @@ arn:aws:cloudformation:ap-southeast-2:XXXXXXXXXX:stack/apigw-sqs-app-stack/acb8b
 
 ```
 
-The deployment will provide an output such as `apigw-sqs-app-stack.region`, `apigw-sqs-app-stack.userPoolClientId`, and `apigw-sqs-app-stack.userPoolId`.
+The deployment will provide variables such as `apigw-sqs-app-stack.region`, `apigw-sqs-app-stack.userPoolClientId`, and `apigw-sqs-app-stack.userPoolId`.
 
 #### 8. Remove the apigw-sqs-app from your AWS account, if not needed anymore
 
 From the `apigw-sqs-app` directory.
 
 ```bash
- cdk destroy
+cdk destroy
 ```
 
-### Combining API Gateway, Remotion Lambda, and Queue together.
+### Combining API Gateway, Remotion Lambda and SQS together.
 
 These are important information on how IAM roles are used by the function and instructions to enable the [render-lambda-function](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L97) to consume SQS messages.
 
-From [CDK stack code](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L64), here are the important snippet to take note of.
+From [CDK stack code](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L64), here are the important parts to take note of.
 
 - The stack creates a queue named `remotion_queue`.
 
-```bash title="create queue"
-  // 👇 create the queue
-  const remotionQueue = new sqs.Queue(this, "queue", {
-    encryption: sqs.QueueEncryption.KMS_MANAGED,
-    queueName: "remotion_queue",
-  });
+```js title="create queue"
+// 👇 create the queue
+const remotionQueue = new sqs.Queue(this, "queue", {
+  encryption: sqs.QueueEncryption.KMS_MANAGED,
+  queueName: "remotion_queue",
+});
 ```
 
-- `remotion_queue` grants access to 2 Lambda functions to interact with it. Each individual role are assigned to there respective Lambda function.
+- `remotion_queue` grants access to 2 Lambda functions to interact with it. Each individual role are assigned to their respective Lambda function.
 
-  ```bash title="apiIntegrationRole"
+  ```js title="apiIntegrationRole"
   // 👇 create the apiIntegrationRole role
   const apiIntegrationRole = new IAM.Role(this, "api-integration-role", {
     assumedBy: new IAM.ServicePrincipal("lambda.amazonaws.com"),
@@ -286,10 +289,10 @@ From [CDK stack code](https://github.com/alexfernandez803/remotion-serverless/bl
   });
   ```
 
-  This role is assigned to [enqueue-function](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L86), to allow it to write Cloudwatch logs.
+- This role is assigned to [`enqueue-function`](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L86), to allow it to write CloudWatch logs.
 
-````bash title="remotionSQSLambdaRole"
-   // 👇 create a role with custom name
+  ```js title="remotionSQSLambdaRole"
+  // 👇 create a role with custom name
   const renderFunctionLambdaRole = new Role(this, "remotionSQSLambdaRole", {
     roleName: "remotionSQSLambdaRole",
     assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
@@ -306,9 +309,9 @@ From [CDK stack code](https://github.com/alexfernandez803/remotion-serverless/bl
   });
   ```
 
-  The  [render-lambda-function](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L97) has been assigned this role, which includes access to interact with Cloudwatch and permission to access other AWS services as specified in the `remotion-executionrole-policy`.
+- The [`render-lambda-function`](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L97) has been assigned this role, which includes access to interact with Cloudwatch and permission to access other AWS services as specified in the `remotion-executionrole-policy`.
 
-  ```bash title="grant access to the queue"
+  ```js title="Grant access to the queue"
   // 👇 Grant permission to publish to the queue
   remotionQueue.grantSendMessages(apiIntegrationRole);
   // 👇 grant permission to consume messages from the queue
@@ -317,19 +320,19 @@ From [CDK stack code](https://github.com/alexfernandez803/remotion-serverless/bl
 
 - Allow the render function to listen to the queue.
 
-```bash title="listen to queue"
-   remotionRenderFunction.addEventSource(
+  ```js title="Listen to queue"
+  remotionRenderFunction.addEventSource(
     new SqsEventSource(remotionQueue, {
       batchSize: 1,
       maxBatchingWindow: Duration.minutes(5),
       reportBatchItemFailures: true, // default to false
     })
   );
-````
+  ```
 
 ### Interacting with the API
 
-The API requires an authorization token to interact with it. To obtain the token, first go to the serverless dashboard to retrieve outputs such as `apigw-sqs-app-stack.region`, `apigw-sqs-app-stack.userPoolClientId`, and `apigw-sqs-app-stack.userPoolId`, which are used to authenticate with Cognito. If you do not have a frontend application, you can create a user and an authentication token manually for the API by following this [guide](docs/lambda/without-iam/example#test-your-endpoint).
+The API requires an authorization token to interact with it. To obtain the token, first go to the Serverless dashboard to retrieve outputs such as `apigw-sqs-app-stack.region`, `apigw-sqs-app-stack.userPoolClientId`, and `apigw-sqs-app-stack.userPoolId`, which are used to authenticate with Cognito. If you do not have a frontend application, you can create a user and an authentication token manually for the API by following this [guide](docs/lambda/without-iam/example#test-your-endpoint).
 
 From the guide, `YOUR_USER_POOL_CLIENT_ID` is `apigw-sqs-app-stack.userPoolClientId` and `YOUR_USER_POOL_ID` is the `apigw-sqs-app-stack.userPoolId`, the steps should be followed up to retrieving the `IdToken`.
 
