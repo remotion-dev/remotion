@@ -10,7 +10,6 @@ export const TableOfContents: React.FC = () => {
           <strong>getLength()</strong>
           <div>Obtain length of an SVG path</div>
         </TOCItem>
-
         <TOCItem link="/docs/paths/get-tangent-at-length">
           <strong>getPointAtLength()</strong>
           <div>Get coordinates at a certain point of an SVG path</div>
@@ -64,6 +63,10 @@ export const TableOfContents: React.FC = () => {
           <strong>parsePath()</strong>
           <div>Parse a string into an array of instructions</div>
         </TOCItem>
+        <TOCItem link="/docs/paths/serialize-instructions">
+          <strong>serializeInstructions()</strong>
+          <div>Turn an array of instructions into a SVG path</div>
+        </TOCItem>{" "}
         <TOCItem link="/docs/paths/get-parts">
           <strong
             style={{
