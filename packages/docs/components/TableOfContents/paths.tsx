@@ -63,6 +63,12 @@ export const TableOfContents: React.FC = () => {
           <strong>getBoundingBox()</strong>
           <div>Get the bounding box of a SVG path</div>
         </TOCItem>
+        <TOCItem link="/docs/paths/reset-path">
+          <strong>resetPath()</strong>
+          <div>
+            Translates an SVG path to <code>(0, 0)</code>
+          </div>
+        </TOCItem>
       </Grid>
     </div>
   );
