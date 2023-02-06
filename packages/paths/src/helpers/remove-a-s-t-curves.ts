@@ -1,5 +1,5 @@
 import {iterateOverSegments} from './iterate';
-import type {AbsoluteInstruction, ReducesAbsoluteInstruction} from './types';
+import type {AbsoluteInstruction, ReducedInstruction} from './types';
 
 const TAU = Math.PI * 2;
 
@@ -129,17 +129,25 @@ function arcToCircle({
 }
 
 // Requires path to be normalized
-export const removeATSInstructions = (
+export const removeATSHVInstructions = (
 	segments: AbsoluteInstruction[]
-): ReducesAbsoluteInstruction[] => {
+): ReducedInstruction[] => {
 	let prevControlX = 0;
 	let prevControlY = 0;
 	let curControlX = 0;
 	let curControlY = 0;
 
-	return iterateOverSegments<ReducesAbsoluteInstruction>({
+	return iterateOverSegments<ReducedInstruction>({
 		segments,
 		iterate: ({segment, prevSegment, x, y}) => {
+			if (segment.type === 'H') {
+				return [{type: 'L', x: segment.x, y}];
+			}
+
+			if (segment.type === 'V') {
+				return [{type: 'L', x, y: segment.y}];
+			}
+
 			if (segment.type === 'A') {
 				const nextX = segment.x;
 				const nextY = segment.y;
@@ -167,7 +175,7 @@ export const removeATSInstructions = (
 					];
 				}
 
-				const result = new_segments.map((_s): ReducesAbsoluteInstruction => {
+				const result = new_segments.map((_s): ReducedInstruction => {
 					return {
 						type: 'C',
 						cp1x: _s[2],

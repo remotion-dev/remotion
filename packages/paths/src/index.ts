@@ -6,10 +6,17 @@ export {getParts} from './get-parts';
 export {getPointAtLength} from './get-point-at-length';
 export {getSubpaths} from './get-subpaths';
 export {getTangentAtLength} from './get-tangent-at-length';
-export {BoundingBox, Instruction, Part} from './helpers/types';
+export {
+	AbsoluteInstruction,
+	BoundingBox,
+	Instruction,
+	Part,
+	ReducedInstruction,
+} from './helpers/types';
 export {interpolatePath} from './interpolate-path';
 export {normalizePath} from './normalize-path';
 export {parsePath} from './parse-path';
+export {reduceInstructions} from './reduce-instructions';
 export {resetPath} from './reset-path';
 export {reversePath} from './reverse-path';
 export {serializeInstructions} from './serialize-instructions';

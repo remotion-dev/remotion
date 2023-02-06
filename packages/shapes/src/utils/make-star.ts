@@ -50,7 +50,7 @@ const star = ({
 			cornerRadius,
 			roundCornerStrategy: cornerRadius > 0 ? 'bezier' : 'arc',
 		}),
-		{type: 'z'},
+		{type: 'Z'},
 	];
 };
 
