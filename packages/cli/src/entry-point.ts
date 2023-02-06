@@ -32,6 +32,10 @@ export const findEntryPoint = (
 		return result;
 	}
 
+	if (RenderInternals.isServeUrl(result.file)) {
+		return result;
+	}
+
 	if (!existsSync(result.file)) {
 		throw new Error(
 			`${result.file} was chosen as the entry point (reason = ${result.reason}) but it does not exist.`
@@ -40,7 +44,7 @@ export const findEntryPoint = (
 
 	if (lstatSync(result.file).isDirectory()) {
 		throw new Error(
-			`${result.file} was chosen as an entry point (reason = ${result.reason}) but it is a directory - it needs to be a file.`
+			`${result.file} was chosen as the entry point (reason = ${result.reason}) but it is a directory - it needs to be a file.`
 		);
 	}
 
