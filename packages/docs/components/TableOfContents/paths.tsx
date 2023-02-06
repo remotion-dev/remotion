@@ -60,6 +60,10 @@ export const TableOfContents: React.FC = () => {
           <strong>getSubpaths()</strong>
           <div>Split SVG path into its parts</div>
         </TOCItem>
+        <TOCItem link="/docs/paths/parse-path">
+          <strong>parsePath()</strong>
+          <div>Parse a string into an array of instructions</div>
+        </TOCItem>
         <TOCItem link="/docs/paths/get-parts">
           <strong
             style={{
