@@ -2,14 +2,14 @@
 image: /generated/articles-docs-lambda-aws-sqs-lambda-integration.png
 title: Using AWS SQS with Remotion Lambda
 slug: /lambda/aws-sqs-lambda-integration
-sidebar_label: AWS SQS and Remotion Lambda
+sidebar_label: Queueing with SQS
 crumb: "@remotion/lambda"
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-This guide will show you how to use [Amazon SQS](https://aws.amazon.com/sqs/) and Remotion's [rendermediaonlambda](/docs/lambda/rendermediaonlambda). Queues are used to park request to make way for the underlying resources to cope up demand. For Remotion there can be instances that demands exceeds the Lambda concurrency limit on rendering the videos, the use of SQS is a workaround to handle the load as the render process is executed in the background and you just notify the user when the render process is completed by the sending them email or means of notification.
+This guide will show you how to use [Amazon SQS](https://aws.amazon.com/sqs/) and Remotion's [renderMediaOnLambda](/docs/lambda/rendermediaonlambda). Queues are used to park request to make way for the underlying resources to cope up demand. For Remotion there can be instances that demands exceeds the Lambda concurrency limit on rendering the videos, the use of SQS is a workaround to handle the load as the render process is executed in the background and you just notify the user when the render process is completed by the sending them email or means of notification.
 
 To supplement this guide, two projects have been created. The [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app) contains a Remotion composition and utility scripts for deploying and deleting Remotion Lambda infrastructure in AWS. Note that this is the same application from [Serverless Framework guide](/docs/lambda/serverless-framework-integration).
 
@@ -21,7 +21,7 @@ This assumes that you have knowledge in using [CDK with TypeScript](https://docs
 
 ## remotion-app
 
-- Follow exactly the same setup instruction from [remotion-app guide](/lambda/serverless-framework-integration#remotion-app) we will just re-using the application.
+- Follow exactly the same setup instruction from [remotion-app guide](/docs/lambda/serverless-framework-integration#remotion-app) we will just re-using the application.
 
 ## apigw-sqs-app
 
@@ -87,41 +87,43 @@ yarn
 </Tabs>
 
 #### 4. Create the Remotion policy
+
 - The `remotion-executionrole-policy` should have been created, if not, follow this [guide](/docs/lambda/without-iam/#1-create-role-policy) in setting this up.
-  
+
 The `remotion-executionrole-policy` is referenced from [here](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L64). The `CDK` stack creates a role for `render-lambda-function` with the `remotion-executionrole-policy`.
 
 ```ts
 // 👇 create a role with custom name
-    const renderFunctionLambdaRole = new Role(this, "remotionSQSLambdaRole", {
-      roleName: "remotionSQSLambdaRole",
-      assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
-      managedPolicies: [
-        ManagedPolicy.fromAwsManagedPolicyName(
-          "service-role/AWSLambdaBasicExecutionRole"
-        ),
-        ManagedPolicy.fromManagedPolicyName(
-          this,
-          "remotion-executionrole-policy",
-          "remotion-executionrole-policy"
-        ),
-      ],
-    });
+const renderFunctionLambdaRole = new Role(this, "remotionSQSLambdaRole", {
+  roleName: "remotionSQSLambdaRole",
+  assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
+  managedPolicies: [
+    ManagedPolicy.fromAwsManagedPolicyName(
+      "service-role/AWSLambdaBasicExecutionRole"
+    ),
+    ManagedPolicy.fromManagedPolicyName(
+      this,
+      "remotion-executionrole-policy",
+      "remotion-executionrole-policy"
+    ),
+  ],
+});
 ```
 
 This creates a role in AWS with the name of `remotionSQSLambdaRole` with 2 policies attached:
+
 - `service-role/AWSLambdaBasicExecutionRole` grants permission to the Lambda function to interact with and log information to [Cloudwatch](https://aws.amazon.com/cloudwatch/). This policy is part of the AWS library of policies.
 - `remotion-executionrole-policy` policy grants permission to the Lambda function to interact to AWS services that Remotion Lambda needs access to, in this render a video. This policy is exactly the same policy from this [guide](/docs/lambda/without-iam/#1-create-role-policy).
 
 #### 5. Optional - Synthesize
 
-From the `apigw-sqs-app` directory, execute the `cdk  synthesize` command.
+From the `apigw-sqs-app` directory, execute the `cdk synthesize` command.
 
 ```bash
  cdk synthesize
 ```
-This command will show the [Cloud Formation Template](https://aws.amazon.com/cloudformation/) that CDK will execute to your AWS account.
 
+This command will show the [Cloud Formation Template](https://aws.amazon.com/cloudformation/) that CDK will execute to your AWS account.
 
 #### 6. Deploy the apigw-sqs-app project
 
@@ -215,7 +217,7 @@ Do you wish to deploy these changes (y/n)? y
 
 ```
 
-Select 'y' for the answer of the prompt and  CDK will continue to deploy the Stack, with the 2 function.
+Select 'y' for the answer of the prompt and CDK will continue to deploy the Stack, with the 2 function.
 
 ```bash title="final output"
 apigw-sqs-app-stack: deploying... [1/1]
@@ -243,8 +245,8 @@ Stack ARN:
 arn:aws:cloudformation:ap-southeast-2:XXXXXXXXXX:stack/apigw-sqs-app-stack/acb8b8f0-a52a-11ed-a440-024da00b5a8e
 
 ```
-The deployment will provide an output such as `apigw-sqs-app-stack.region`, `apigw-sqs-app-stack.userPoolClientId`, and `apigw-sqs-app-stack.userPoolId`. 
 
+The deployment will provide an output such as `apigw-sqs-app-stack.region`, `apigw-sqs-app-stack.userPoolClientId`, and `apigw-sqs-app-stack.userPoolId`.
 
 #### 8. Remove the apigw-sqs-app from your AWS account, if not needed anymore
 
@@ -254,77 +256,76 @@ From the `apigw-sqs-app` directory.
  cdk destroy
 ```
 
-
 ### Combining API Gateway, Remotion Lambda, and Queue together.
 
 These are important information on how IAM roles are used by the function and instructions to enable the [render-lambda-function](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L97) to consume SQS messages.
 
-  From [CDK stack code](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L64), here are the important snippet to take note of.
+From [CDK stack code](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L64), here are the important snippet to take note of.
 
-  - The stack creates a queue named `remotion_queue`.
-  ```bash title="create queue"
-    // 👇 create the queue
-    const remotionQueue = new sqs.Queue(this, "queue", {
-      encryption: sqs.QueueEncryption.KMS_MANAGED,
-      queueName: "remotion_queue",
-    });
+- The stack creates a queue named `remotion_queue`.
+
+```bash title="create queue"
+  // 👇 create the queue
+  const remotionQueue = new sqs.Queue(this, "queue", {
+    encryption: sqs.QueueEncryption.KMS_MANAGED,
+    queueName: "remotion_queue",
+  });
+```
+
+- `remotion_queue` grants access to 2 Lambda functions to interact with it. Each individual role are assigned to there respective Lambda function.
+
+  ```bash title="apiIntegrationRole"
+  // 👇 create the apiIntegrationRole role
+  const apiIntegrationRole = new IAM.Role(this, "api-integration-role", {
+    assumedBy: new IAM.ServicePrincipal("lambda.amazonaws.com"),
+    managedPolicies: [
+      ManagedPolicy.fromAwsManagedPolicyName(
+        "service-role/AWSLambdaBasicExecutionRole"
+      ),
+    ],
+  });
   ```
 
-  - `remotion_queue` grants access to 2 Lambda functions to interact with it. Each individual role are assigned to there respective Lambda function.
-    ```bash title="apiIntegrationRole"
-    // 👇 create the apiIntegrationRole role
-    const apiIntegrationRole = new IAM.Role(this, "api-integration-role", {
-      assumedBy: new IAM.ServicePrincipal("lambda.amazonaws.com"),
-      managedPolicies: [
-        ManagedPolicy.fromAwsManagedPolicyName(
-          "service-role/AWSLambdaBasicExecutionRole"
-        ),
-      ],
-    });
-    ```
+  This role is assigned to [enqueue-function](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L86), to allow it to write Cloudwatch logs.
 
-    This role is assigned to [enqueue-function](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L86), to allow it to write Cloudwatch logs.
+````bash title="remotionSQSLambdaRole"
+   // 👇 create a role with custom name
+  const renderFunctionLambdaRole = new Role(this, "remotionSQSLambdaRole", {
+    roleName: "remotionSQSLambdaRole",
+    assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
+    managedPolicies: [
+      ManagedPolicy.fromAwsManagedPolicyName(
+        "service-role/AWSLambdaBasicExecutionRole"
+      ),
+      ManagedPolicy.fromManagedPolicyName(
+        this,
+        "remotion-executionrole-policy",
+        "remotion-executionrole-policy"
+      ),
+    ],
+  });
+  ```
 
-    
-  ```bash title="remotionSQSLambdaRole"
-     // 👇 create a role with custom name
-    const renderFunctionLambdaRole = new Role(this, "remotionSQSLambdaRole", {
-      roleName: "remotionSQSLambdaRole",
-      assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
-      managedPolicies: [
-        ManagedPolicy.fromAwsManagedPolicyName(
-          "service-role/AWSLambdaBasicExecutionRole"
-        ),
-        ManagedPolicy.fromManagedPolicyName(
-          this,
-          "remotion-executionrole-policy",
-          "remotion-executionrole-policy"
-        ),
-      ],
-    });
-    ```
+  The  [render-lambda-function](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L97) has been assigned this role, which includes access to interact with Cloudwatch and permission to access other AWS services as specified in the `remotion-executionrole-policy`.
 
-    The  [render-lambda-function](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L97) has been assigned this role, which includes access to interact with Cloudwatch and permission to access other AWS services as specified in the `remotion-executionrole-policy`.
+  ```bash title="grant access to the queue"
+  // 👇 Grant permission to publish to the queue
+  remotionQueue.grantSendMessages(apiIntegrationRole);
+  // 👇 grant permission to consume messages from the queue
+  remotionQueue.grantConsumeMessages(renderFunctionLambdaRole);
+  ```
 
-    ```bash title="grant access to the queue"
-    // 👇 Grant permission to publish to the queue
-    remotionQueue.grantSendMessages(apiIntegrationRole);
-    // 👇 grant permission to consume messages from the queue
-    remotionQueue.grantConsumeMessages(renderFunctionLambdaRole);
-    ```
+- Allow the render function to listen to the queue.
 
-  - Allow the render function to listen to the queue.
-
-  ```bash title="listen to queue"
-     remotionRenderFunction.addEventSource(
-      new SqsEventSource(remotionQueue, {
-        batchSize: 1,
-        maxBatchingWindow: Duration.minutes(5),
-        reportBatchItemFailures: true, // default to false
-      })
-    );
-  ``` 
-
+```bash title="listen to queue"
+   remotionRenderFunction.addEventSource(
+    new SqsEventSource(remotionQueue, {
+      batchSize: 1,
+      maxBatchingWindow: Duration.minutes(5),
+      reportBatchItemFailures: true, // default to false
+    })
+  );
+````
 
 ### Interacting with the API
 
@@ -356,8 +357,8 @@ This will initiate the render request of a video, although the JSON request is n
 
 - The deployment of Remotion Lambda is configured to be deployed only to `ap-southeast-2` region to simplify the project, adjust this in the code at [region.ts](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-app/src/infra/regions.ts).
 - The deployment of `apigw-sqs-app` is configured to be deployed at `ap-southeast-2` region to simplify the project, adjust this in the code at [remotion-cdk-starter.ts](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/bin/remotion-cdk-starter.ts).
-- Remotion packages should be bundled inside the function when deployed, you can this in `nodeModules` property from `bundling` object, the code for this located in [here](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L103). 
-  
+- Remotion packages should be bundled inside the function when deployed, you can this in `nodeModules` property from `bundling` object, the code for this located in [here](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L103).
+
 ## See also
 
 - [Using Lambda without IAM user](/docs/lambda/without-iam)
