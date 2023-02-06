@@ -1,5 +1,5 @@
 import {iterateOverSegments} from './iterate';
-import type {AbsoluteInstruction, UnarcedAbsoluteInstruction} from './types';
+import type {AbsoluteInstruction, ReducesAbsoluteInstruction} from './types';
 
 const TAU = Math.PI * 2;
 
@@ -129,54 +129,107 @@ function arcToCircle({
 }
 
 // Requires path to be normalized
-export const removeArcInstructions = (
+export const removeATSInstructions = (
 	segments: AbsoluteInstruction[]
-): UnarcedAbsoluteInstruction[] => {
-	return iterateOverSegments<UnarcedAbsoluteInstruction>({
+): ReducesAbsoluteInstruction[] => {
+	let prevControlX = 0;
+	let prevControlY = 0;
+	let curControlX = 0;
+	let curControlY = 0;
+
+	return iterateOverSegments<ReducesAbsoluteInstruction>({
 		segments,
-		iterate: ({segment, x, y}) => {
-			if (segment.type !== 'A') {
-				return [segment];
+		iterate: ({segment, prevSegment, x, y}) => {
+			if (segment.type === 'A') {
+				const nextX = segment.x;
+				const nextY = segment.y;
+				const new_segments = arcToCircle({
+					x1: x,
+					y1: y,
+					x2: nextX,
+					y2: nextY,
+					largeArcFlag: segment.largeArcFlag,
+					sweepFlag: segment.sweepFlag,
+					rx: segment.rx,
+					ry: segment.ry,
+					phi: segment.xAxisRotation,
+				});
+
+				// Degenerated arcs can be ignored by renderer, but should not be dropped
+				// to avoid collisions with `S A S` and so on. Replace with empty line.
+				if (new_segments.length === 0) {
+					return [
+						{
+							type: 'L',
+							x: segment.x,
+							y: segment.y,
+						},
+					];
+				}
+
+				const result = new_segments.map((_s): ReducesAbsoluteInstruction => {
+					return {
+						type: 'C',
+						cp1x: _s[2],
+						cp1y: _s[3],
+						cp2x: _s[4],
+						cp2y: _s[5],
+						x: _s[6],
+						y: _s[7],
+					};
+				});
+				return result;
 			}
 
-			const nextX = segment.x;
-			const nextY = segment.y;
-			const new_segments = arcToCircle({
-				x1: x,
-				y1: y,
-				x2: nextX,
-				y2: nextY,
-				largeArcFlag: segment.largeArcFlag,
-				sweepFlag: segment.sweepFlag,
-				rx: segment.rx,
-				ry: segment.ry,
-				phi: segment.xAxisRotation,
-			});
+			if (segment.type === 'T') {
+				if (prevSegment && prevSegment.type === 'Q') {
+					prevControlX = prevSegment.cpx;
+					prevControlY = prevSegment.cpy;
+				} else {
+					prevControlX = 0;
+					prevControlY = 0;
+				}
 
-			// Degenerated arcs can be ignored by renderer, but should not be dropped
-			// to avoid collisions with `S A S` and so on. Replace with empty line.
-			if (new_segments.length === 0) {
+				curControlX = -prevControlX;
+				curControlY = -prevControlY;
+
 				return [
 					{
-						type: 'L',
+						type: 'Q',
+						cpx: curControlX,
+						cpy: curControlY,
 						x: segment.x,
 						y: segment.y,
 					},
 				];
 			}
 
-			const result = new_segments.map((_s): UnarcedAbsoluteInstruction => {
-				return {
-					type: 'C',
-					cp1x: _s[2],
-					cp1y: _s[3],
-					cp2x: _s[4],
-					cp2y: _s[5],
-					x: _s[6],
-					y: _s[7],
-				};
-			});
-			return result;
+			if (segment.type === 'S') {
+				if (prevSegment && prevSegment.type === 'C') {
+					prevControlX = prevSegment.cp2x;
+					prevControlY = prevSegment.cp2y;
+				} else {
+					prevControlX = 0;
+					prevControlY = 0;
+				}
+
+				curControlX = -prevControlX;
+				curControlY = -prevControlY;
+
+				return [
+					{
+						type: 'C',
+						cp1x: curControlX,
+						cp1y: curControlY,
+						cp2x: segment.cpx,
+						cp2y: segment.cpy,
+						x: segment.x,
+						y: segment.y,
+					},
+				];
+			}
+
+			return [segment];
 		},
 	});
 };

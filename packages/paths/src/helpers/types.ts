@@ -26,7 +26,7 @@ export interface PointProperties {
 
 export type BoundingBox = {x1: number; y1: number; x2: number; y2: number};
 
-export type UnarcedAbsoluteInstruction =
+export type ReducesAbsoluteInstruction =
 	| {
 			type: 'M';
 			x: number;
@@ -55,21 +55,9 @@ export type UnarcedAbsoluteInstruction =
 			y: number;
 	  }
 	| {
-			type: 'S';
-			cpx: number;
-			cpy: number;
-			x: number;
-			y: number;
-	  }
-	| {
 			type: 'Q';
 			cpx: number;
 			cpy: number;
-			x: number;
-			y: number;
-	  }
-	| {
-			type: 'T';
 			x: number;
 			y: number;
 	  }
@@ -78,7 +66,7 @@ export type UnarcedAbsoluteInstruction =
 	  };
 
 export type AbsoluteInstruction =
-	| UnarcedAbsoluteInstruction
+	| ReducesAbsoluteInstruction
 	| {
 			type: 'A';
 			rx: number;
@@ -86,6 +74,18 @@ export type AbsoluteInstruction =
 			xAxisRotation: number;
 			largeArcFlag: boolean;
 			sweepFlag: boolean;
+			x: number;
+			y: number;
+	  }
+	| {
+			type: 'S';
+			cpx: number;
+			cpy: number;
+			x: number;
+			y: number;
+	  }
+	| {
+			type: 'T';
 			x: number;
 			y: number;
 	  };
