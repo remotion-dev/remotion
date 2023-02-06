@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-paths-reset-path.png
 title: resetPath()
 crumb: "@remotion/paths"
 ---

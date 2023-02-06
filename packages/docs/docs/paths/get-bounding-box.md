@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-paths-get-bounding-box.png
 title: getBoundingBox()
 crumb: "@remotion/paths"
 ---

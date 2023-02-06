@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-paths-parse-path.png
 title: parsePath()
 crumb: "@remotion/paths"
 ---

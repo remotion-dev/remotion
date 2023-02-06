@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-paths-serialize-instructions.png
 title: serializeInstructions()
 crumb: "@remotion/paths"
 ---
