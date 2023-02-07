@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/shapes",
-	"version": "3.3.39",
+	"version": "3.3.40",
 	"description": "Utility functions and components for SVG shapes",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -43,5 +43,8 @@
 	"peerDependencies": {
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
+	},
+	"dependencies": {
+		"@remotion/paths": "3.3.40"
 	}
 }

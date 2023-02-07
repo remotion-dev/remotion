@@ -1,5 +1,5 @@
-import type {Instruction} from './instructions';
-import {serializeInstructions} from './instructions';
+import type {Instruction} from '@remotion/paths';
+import {serializeInstructions} from '@remotion/paths';
 import type {ShapeInfo} from './shape-info';
 
 export type MakeCircleProps = {
@@ -20,8 +20,8 @@ export const makeCircle = ({radius}: MakeCircleProps): ShapeInfo => {
 			xAxisRotation: 0,
 			largeArcFlag: true,
 			sweepFlag: false,
-			x: radius * 2,
-			y: 0,
+			dx: radius * 2,
+			dy: 0,
 		},
 		{
 			type: 'a',
@@ -30,11 +30,11 @@ export const makeCircle = ({radius}: MakeCircleProps): ShapeInfo => {
 			xAxisRotation: 0,
 			largeArcFlag: true,
 			sweepFlag: false,
-			x: -radius * 2,
-			y: 0,
+			dx: -radius * 2,
+			dy: 0,
 		},
 		{
-			type: 'z',
+			type: 'Z',
 		},
 	];
 

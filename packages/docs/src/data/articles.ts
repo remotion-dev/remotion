@@ -1185,6 +1185,13 @@ export const articles = [
     crumb: "@remotion/paths",
   },
   {
+    id: "paths/get-bounding-box",
+    title: "getBoundingBox()",
+    relativePath: "docs/paths/get-bounding-box.md",
+    compId: "articles-docs-paths-get-bounding-box",
+    crumb: "@remotion/paths",
+  },
+  {
     id: "paths/get-length",
     title: "getLength()",
     relativePath: "docs/paths/get-length.md",
@@ -1241,10 +1248,38 @@ export const articles = [
     crumb: "@remotion/paths",
   },
   {
+    id: "paths/parse-path",
+    title: "parsePath()",
+    relativePath: "docs/paths/parse-path.md",
+    compId: "articles-docs-paths-parse-path",
+    crumb: "@remotion/paths",
+  },
+  {
+    id: "paths/reduce-instructions",
+    title: "reduceInstructions()",
+    relativePath: "docs/paths/reduce-instructions.md",
+    compId: "articles-docs-paths-reduce-instructions",
+    crumb: "@remotion/paths",
+  },
+  {
+    id: "paths/reset-path",
+    title: "resetPath()",
+    relativePath: "docs/paths/reset-path.md",
+    compId: "articles-docs-paths-reset-path",
+    crumb: "@remotion/paths",
+  },
+  {
     id: "paths/reverse-path",
     title: "reversePath()",
     relativePath: "docs/paths/reverse-path.md",
     compId: "articles-docs-paths-reverse-path",
+    crumb: "@remotion/paths",
+  },
+  {
+    id: "paths/serialize-instructions",
+    title: "serializeInstructions()",
+    relativePath: "docs/paths/serialize-instructions.md",
+    compId: "articles-docs-paths-serialize-instructions",
     crumb: "@remotion/paths",
   },
   {
