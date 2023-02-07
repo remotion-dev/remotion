@@ -36,7 +36,7 @@ The project will create all the resources defined by the CDK stack, including se
 
 - AWS deployment profile on your local machine, to configure an AWS deployment profile on your local machine.
 - A AWS policy created named `remotion-executionrole-policy` which is created from this [guide](/docs/lambda/without-iam/#1-create-role-policy).
-- The AWS CDK should be installed globally on your local machine. If not yet done, follow the instructions in the "Install the AWS CDK" section here.
+- The AWS CDK should be installed globally on your local machine. If not yet done, follow the instructions in the "Install the AWS CDK" section [here](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html).
 
 ### Setup
 
