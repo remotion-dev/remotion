@@ -339,7 +339,7 @@ The API requires an authorization token to interact with it. To obtain the token
 
 From the guide, `YOUR_USER_POOL_CLIENT_ID` is `apigw-sqs-app-stack.userPoolClientId` and `YOUR_USER_POOL_ID` is the `apigw-sqs-app-stack.userPoolId`, the steps should be followed up to retrieving the `IdToken`.
 
-The base API URL has the format of `https://25w651t09g.execute-api.ap-southeast-2.amazonaws.com/dev/enqueue` from the dashboard output `APIGatewayUrl`.
+The base API URL has the format of `https://25w651t09g.execute-api.ap-southeast-2.amazonaws.com/dev/enqueue` from the output `apigw-sqs-app-stack.apiUrl`.
 
 #### Trigger a video generation request
 
