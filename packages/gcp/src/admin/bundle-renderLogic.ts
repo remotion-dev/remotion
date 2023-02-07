@@ -2,20 +2,9 @@ import {BundlerInternals} from '@remotion/bundler';
 import {binaryPath as x64BinaryPath} from '@remotion/compositor-linux-x64-musl';
 import fs from 'fs';
 import path from 'path';
-import zl = require('zip-lib');
 
 const bundleRenderLogic = async () => {
-	let renderTypeParam = process.argv[2];
-
-	if (renderTypeParam === undefined) {
-		throw new Error('renderTypeParam is undefined');
-	}
-
-	if (renderTypeParam !== 'renderStill' && renderTypeParam !== 'renderMedia') {
-		throw new Error('renderTypeParam must be either renderStill or renderMedia');
-	}
-
-	const outdir = path.join(__dirname, '../../containers/', renderTypeParam, '/dist');
+	const outdir = path.join(__dirname, '../../container/dist');
 	fs.mkdirSync(outdir, {
 		recursive: true,
 	});
@@ -41,7 +30,7 @@ const bundleRenderLogic = async () => {
 
 	fs.copyFileSync(x64BinaryPath, compositorFile);
 
-	console.log(renderTypeParam + ' bundled.');
+	console.log('distribution bundled.');
 };
 
 bundleRenderLogic()
