@@ -6,7 +6,7 @@ test('Test makePie() function', () => {
 	expect(pie).toEqual({
 		height: 200,
 		width: 200,
-		path: 'M 100 0 A 100 100 0 0 1 100 200 L 100 100 z',
+		path: 'M 100 0 A 100 100 0 0 1 100 200 L 100 100 Z',
 		instructions: [
 			{type: 'M', x: 100, y: 0},
 			{
@@ -20,7 +20,7 @@ test('Test makePie() function', () => {
 				y: 200,
 			},
 			{type: 'L', x: 100, y: 100},
-			{type: 'z'},
+			{type: 'Z'},
 		],
 		transformOrigin: '100 100',
 	});

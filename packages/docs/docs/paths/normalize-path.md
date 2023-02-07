@@ -32,4 +32,5 @@ Source code stems mostly from [svg-path-reverse](https://www.npmjs.com/package/s
 ## See also
 
 - [`@remotion/paths`](/docs/paths)
+- [`reduceInstructions()`](/docs/paths/reduce-instructions)
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/normalize-path.ts)
