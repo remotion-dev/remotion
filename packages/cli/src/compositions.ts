@@ -1,5 +1,4 @@
 import {getCompositions, RenderInternals} from '@remotion/renderer';
-import path from 'path';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
@@ -28,8 +27,6 @@ export const listCompositionsCommand = async (
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
-	const fullPath = path.join(process.cwd(), file);
-
 	await loadConfig(remotionRoot);
 
 	const {
@@ -51,7 +48,7 @@ export const listCompositionsCommand = async (
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({
 			remotionRoot,
-			fullPath,
+			fullPath: file,
 			steps: ['bundling'],
 			publicDir,
 		});
