@@ -1,10 +1,10 @@
+export {Instruction} from '@remotion/paths';
 export {Circle, CircleProps} from './components/circle';
 export {Ellipse, EllipseProps} from './components/ellipse';
 export {Pie, PieProps} from './components/pie';
 export {Rect, RectProps} from './components/rect';
 export {Star, StarProps} from './components/star';
 export {Triangle, TriangleProps} from './components/triangle';
-export {Instruction} from './utils/instructions';
 export {makeCircle, MakeCircleProps} from './utils/make-circle';
 export {makeEllipse, MakeEllipseOptions} from './utils/make-ellipse';
 export {makePie, MakePieProps} from './utils/make-pie';

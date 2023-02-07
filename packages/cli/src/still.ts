@@ -48,10 +48,6 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		process.exit(1);
 	}
 
-	const fullPath = RenderInternals.isServeUrl(file)
-		? file
-		: path.join(process.cwd(), file);
-
 	if (parsedCli.frames) {
 		Log.error(
 			'--frames flag was passed to the `still` command. This flag only works with the `render` command. Did you mean `--frame`? See reference: https://www.remotion.dev/docs/cli/'
@@ -95,12 +91,12 @@ export const still = async (remotionRoot: string, args: string[]) => {
 	});
 
 	const steps: RenderStep[] = [
-		RenderInternals.isServeUrl(fullPath) ? null : ('bundling' as const),
+		RenderInternals.isServeUrl(file) ? null : ('bundling' as const),
 		'rendering' as const,
 	].filter(truthy);
 
 	const {cleanup: cleanupBundle, urlOrBundle} = await bundleOnCliOrTakeServeUrl(
-		{fullPath, remotionRoot, steps, publicDir}
+		{fullPath: file, remotionRoot, steps, publicDir}
 	);
 
 	const puppeteerInstance = await browserInstance;

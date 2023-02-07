@@ -1,7 +1,7 @@
 // Copied from https://stackblitz.com/edit/react-triangle-svg?file=index.js
 
-import type {Instruction} from './instructions';
-import {serializeInstructions} from './instructions';
+import type {Instruction} from '@remotion/paths';
+import {serializeInstructions} from '@remotion/paths';
 import {joinPoints} from './join-points';
 import type {ShapeInfo} from './shape-info';
 
@@ -71,7 +71,7 @@ export const makeTriangle = ({
 			roundCornerStrategy: 'bezier',
 		}),
 		{
-			type: 'z',
+			type: 'Z',
 		},
 	];
 	const path = serializeInstructions(instructions);

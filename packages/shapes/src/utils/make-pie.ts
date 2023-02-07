@@ -1,5 +1,5 @@
-import type {Instruction} from './instructions';
-import {serializeInstructions} from './instructions';
+import type {Instruction} from '@remotion/paths';
+import {serializeInstructions} from '@remotion/paths';
 
 export type MakePieProps = {
 	radius: number;
@@ -130,7 +130,7 @@ export const makePie = ({
 			: null,
 		closePath
 			? {
-					type: 'z',
+					type: 'Z',
 			  }
 			: null,
 	].filter(Boolean) as Instruction[];

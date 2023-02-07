@@ -1,27 +1,7 @@
 import fs from 'fs';
 import path from 'path';
+import {listOfRemotionPackages} from './list-of-remotion-packages';
 import type {PackageManager} from './pkg-managers';
-
-export const listOfRemotionPackages = [
-	'@remotion/bundler',
-	'@remotion/cli',
-	'@remotion/eslint-config',
-	'@remotion/renderer',
-	'@remotion/skia',
-	'@remotion/lottie',
-	'@remotion/media-utils',
-	'@remotion/motion-blur',
-	'@remotion/google-fonts',
-	'@remotion/noise',
-	'@remotion/paths',
-	'@remotion/babel-loader',
-	'@remotion/lambda',
-	'@remotion/player',
-	'@remotion/preload',
-	'@remotion/three',
-	'@remotion/gif',
-	'remotion',
-];
 
 export const patchPackageJson = (
 	{

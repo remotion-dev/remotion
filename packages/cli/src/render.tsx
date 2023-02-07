@@ -52,10 +52,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		process.exit(1);
 	}
 
-	const fullPath = RenderInternals.isServeUrl(file)
-		? file
-		: path.join(process.cwd(), file);
-
 	const downloadMap = RenderInternals.makeDownloadMap();
 
 	if (parsedCli.frame) {
@@ -114,14 +110,14 @@ export const render = async (remotionRoot: string, args: string[]) => {
 	});
 
 	const steps: RenderStep[] = [
-		RenderInternals.isServeUrl(fullPath) ? null : ('bundling' as const),
+		RenderInternals.isServeUrl(file) ? null : ('bundling' as const),
 		'rendering' as const,
 		shouldOutputImageSequence ? null : ('stitching' as const),
 	].filter(Internals.truthy);
 
 	const {urlOrBundle, cleanup: cleanupBundle} = await bundleOnCliOrTakeServeUrl(
 		{
-			fullPath,
+			fullPath: file,
 			remotionRoot,
 			steps,
 			publicDir,
@@ -191,7 +187,10 @@ export const render = async (remotionRoot: string, args: string[]) => {
 
 	Log.info(
 		chalk.gray(
-			`Entry point = ${file} (${entryPointReason}), Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
+			`Entry point = ${path.relative(
+				process.cwd(),
+				file
+			)} (${entryPointReason}), Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
 		)
 	);
 
