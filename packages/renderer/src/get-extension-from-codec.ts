@@ -2,13 +2,30 @@ import type {AudioCodec, supportedAudioCodec} from './audio-codec';
 import type {Codec} from './codec';
 import {validCodecs} from './codec';
 
+export type FileExtension =
+	| 'aac'
+	| '3gp'
+	| 'm4a'
+	| 'm4b'
+	| 'mpg'
+	| 'mpeg'
+	| 'mkv'
+	| 'mp4'
+	| 'gif'
+	| 'hevc'
+	| 'mp3'
+	| 'mov'
+	| 'mxf'
+	| 'wav'
+	| 'webm';
+
 export const defaultFileExtensionMap: {
 	[key in Codec]: {
-		default: string;
+		default: FileExtension;
 		forAudioCodec: {
 			[k in typeof supportedAudioCodec[key][number]]: {
-				possible: string[];
-				default: string;
+				possible: FileExtension[];
+				default: FileExtension;
 			};
 		};
 	};
@@ -43,6 +60,7 @@ export const defaultFileExtensionMap: {
 		default: 'mp4',
 		forAudioCodec: {
 			aac: {possible: ['mp4', 'mkv', 'hevc'], default: 'mp4'},
+			'pcm-16': {possible: ['mkv'], default: 'mkv'},
 		},
 	},
 	mp3: {
@@ -54,21 +72,21 @@ export const defaultFileExtensionMap: {
 	prores: {
 		default: 'mov',
 		forAudioCodec: {
-			aac: {possible: ['mov'], default: 'mov'},
+			aac: {possible: ['mov', 'mkv', 'mxf'], default: 'mov'},
 			'pcm-16': {possible: ['mov', 'mkv', 'mxf'], default: 'mov'},
 		},
 	},
 	vp8: {
 		default: 'webm',
 		forAudioCodec: {
-			'pcm-16': {possible: ['webm'], default: 'webm'},
+			'pcm-16': {possible: ['mkv'], default: 'mkv'},
 			opus: {possible: ['webm'], default: 'webm'},
 		},
 	},
 	vp9: {
 		default: 'webm',
 		forAudioCodec: {
-			'pcm-16': {possible: ['webm'], default: 'webm'},
+			'pcm-16': {possible: ['mkv'], default: 'mkv'},
 			opus: {possible: ['webm'], default: 'webm'},
 		},
 	},

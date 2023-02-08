@@ -9,7 +9,7 @@ export const supportedAudioCodec = {
 	'h264-mkv': ['pcm-16'] as const,
 	aac: ['aac'] as const,
 	gif: [] as const,
-	h265: ['aac'] as const,
+	h265: ['aac', 'pcm-16'] as const,
 	mp3: ['mp3'] as const,
 	prores: ['pcm-16', 'aac'] as const,
 	vp8: ['opus', 'pcm-16'] as const,
@@ -54,11 +54,15 @@ export const mapAudioCodecToFfmpegAudioCodecName = (
 };
 
 export const defaultAudioCodecs: {
-	[key in Codec]: {[k in 'compressed' | 'lossless']: AudioCodec | null};
+	[key in Codec]: {
+		[k in 'compressed' | 'lossless']:
+			| typeof supportedAudioCodec[key][number]
+			| null;
+	};
 } = {
 	'h264-mkv': {
 		lossless: 'pcm-16',
-		compressed: 'aac',
+		compressed: 'pcm-16',
 	},
 	aac: {
 		lossless: 'aac',
@@ -87,11 +91,11 @@ export const defaultAudioCodecs: {
 	},
 	vp8: {
 		lossless: 'pcm-16',
-		compressed: 'aac',
+		compressed: 'opus',
 	},
 	vp9: {
 		lossless: 'pcm-16',
-		compressed: 'aac',
+		compressed: 'opus',
 	},
 	wav: {
 		lossless: 'pcm-16',
