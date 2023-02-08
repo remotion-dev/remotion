@@ -35,3 +35,48 @@ export const getFileExtensionFromCodec = <T extends Codec>(
 	return map.forAudioCodec[audioCodec as typeof supportedAudioCodecs[T][number]]
 		.default;
 };
+
+export const deriveExtensionFromFilename = (extension: string | null) => {
+	if (extension === null) {
+		return [];
+	}
+
+	return makeFileExtensionMap()[extension] ?? [];
+};
+
+export const makeFileExtensionMap = () => {
+	const map: Record<string, Codec[]> = {};
+	Object.keys(defaultFileExtensionMap).forEach(
+		<T extends Codec>(_codec: string) => {
+			const codec = _codec as T;
+			const fileExtMap = defaultFileExtensionMap[
+				codec
+			] as typeof defaultFileExtensionMap[T];
+			const audioCodecs = Object.keys(fileExtMap.forAudioCodec);
+
+			const possibleExtensionsForAudioCodec = audioCodecs.map(
+				(audioCodec) =>
+					fileExtMap.forAudioCodec[
+						audioCodec as typeof supportedAudioCodecs[T][number]
+					].possible
+			);
+
+			const allPossibleExtensions = [
+				fileExtMap.default,
+				...possibleExtensionsForAudioCodec.flat(1),
+			];
+
+			for (const extension of allPossibleExtensions) {
+				if (!map[extension]) {
+					map[extension] = [];
+				}
+
+				if (!map[extension].includes(codec)) {
+					map[extension].push(codec);
+				}
+			}
+		}
+	);
+
+	return map;
+};
