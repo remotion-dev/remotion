@@ -31,6 +31,7 @@ Each page has a button `Improve this page` at the bottom. This is the easiest wa
 - **Separate into multiple paragraphs** if a section is becoming too long.
 - **Address the reader as "you"** and not "we".
 - **Don't blame the user**: Instead of "You have provided the wrong input", say "The input is invalid" or "the wrong input was provided".
+- **Don't assume it is easy**: Avoid using the words "simply" and "just" as beginners might not find it as simple as you do.
 
 ## Adding code snippets
 
