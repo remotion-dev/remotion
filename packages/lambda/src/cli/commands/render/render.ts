@@ -134,6 +134,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			  }
 			: undefined,
 		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
+		audioCodec: CliInternals.parsedCli['audio-codec'],
 	});
 
 	const totalSteps = downloadName ? 6 : 5;
