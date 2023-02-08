@@ -88,7 +88,13 @@ const renderHandler = async (
 		`localchunk-${String(params.chunk).padStart(
 			8,
 			'0'
-		)}.${RenderInternals.getFileExtensionFromCodec(chunkCodec)}`
+		)}.${RenderInternals.getFileExtensionFromCodec(
+			chunkCodec,
+			RenderInternals.getDefaultAudioCodec({
+				codec: params.codec,
+				preferLossless: true,
+			})
+		)}`
 	);
 
 	const downloadMap = RenderInternals.makeDownloadMap();
@@ -166,7 +172,6 @@ const renderHandler = async (
 			outputLocation,
 			codec: chunkCodec,
 			crf: params.crf ?? undefined,
-
 			pixelFormat: params.pixelFormat,
 			proResProfile: params.proResProfile,
 			onDownload: (src: string) => {
@@ -218,6 +223,11 @@ const renderHandler = async (
 					console.log(`Frame ${frame} (${time.toFixed(3)}ms)`);
 				});
 			},
+			// Lossless flag takes priority over audio codec
+			// https://github.com/remotion-dev/remotion/issues/1647
+			// Special flag only in Lambda renderer which improves the audio quality
+			audioCodec: null,
+			preferLossless: true,
 		})
 			.then(() => resolve())
 			.catch((err) => reject(err));

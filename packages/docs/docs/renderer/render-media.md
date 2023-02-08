@@ -43,6 +43,19 @@ _"h264" (default) | "h265" | "vp8" | "vp9" | "mp3" | "aac" | "wav" | "prores" | 
 
 Choose a suitable codec for your output media. Refer to the [Encoding guide](/docs/encoding) to find the best codec for your use case.
 
+### `audioCodec?`
+
+_"pcm-16" | "aac" | "mp3" | "opus", available from v3.3.41_
+
+Choose the encoding of your audio.
+
+- The default is dependent on the chosen `codec`.
+- Choose `pcm-16` if you need uncompressed audio.
+- Not all video containers support all audio codecs.
+- This option takes precedence if the `codec` option also specifies an audio codec.
+
+Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and supported combinations.
+
 ### `audioBitrate?`
 
 _string - optional, available from v3.2.32_

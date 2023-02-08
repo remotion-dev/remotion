@@ -1,4 +1,4 @@
-import type {FfmpegExecutable} from '@remotion/renderer';
+import type {AudioCodec, FfmpegExecutable} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs, {createWriteStream, promises} from 'fs';
 import path, {join} from 'path';
@@ -181,6 +181,7 @@ export const concatVideosS3 = async ({
 	remotionRoot,
 	files,
 	outdir,
+	audioCodec,
 }: {
 	onProgress: (frames: number) => void;
 	numberOfFrames: number;
@@ -191,10 +192,11 @@ export const concatVideosS3 = async ({
 	remotionRoot: string;
 	files: string[];
 	outdir: string;
+	audioCodec: AudioCodec | null;
 }) => {
 	const outfile = join(
 		RenderInternals.tmpDir(REMOTION_CONCATED_TOKEN),
-		'concat.' + RenderInternals.getFileExtensionFromCodec(codec)
+		'concat.' + RenderInternals.getFileExtensionFromCodec(codec, audioCodec)
 	);
 	const combine = timer('Combine videos');
 	const filelistDir = RenderInternals.tmpDir(REMOTION_FILELIST_TOKEN);
@@ -210,6 +212,7 @@ export const concatVideosS3 = async ({
 		numberOfGifLoops,
 		ffmpegExecutable,
 		remotionRoot,
+		audioCodec,
 	});
 	combine.end();
 

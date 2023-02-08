@@ -71,6 +71,7 @@ test('Should make a transparent video', async () => {
 			forceWidth: null,
 			rendererFunctionName: null,
 			bucketName: null,
+			audioCodec: null,
 		},
 		extraContext
 	);
