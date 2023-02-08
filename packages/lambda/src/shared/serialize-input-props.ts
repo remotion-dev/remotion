@@ -9,10 +9,12 @@ export const serializeInputProps = async ({
 	inputProps,
 	region,
 	type,
+	bucketName: userSpecifiedBucketName,
 }: {
 	inputProps: unknown;
 	region: AwsRegion;
 	type: 'still' | 'video-or-audio';
+	bucketName: string | null;
 }): Promise<SerializedInputProps> => {
 	try {
 		const payload = JSON.stringify(inputProps);
@@ -28,9 +30,13 @@ export const serializeInputProps = async ({
 					payload.length / 1024
 				)}KB) in size. Uploading them to S3 to circumvent AWS Lambda payload size.`
 			);
-			const {bucketName} = await getOrCreateBucket({
-				region,
-			});
+			const bucketName =
+				userSpecifiedBucketName ??
+				(
+					await getOrCreateBucket({
+						region,
+					})
+				).bucketName;
 
 			await lambdaWriteFile({
 				body: payload,

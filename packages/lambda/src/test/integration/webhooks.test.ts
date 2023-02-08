@@ -106,6 +106,7 @@ describe('Webhooks', () => {
 				forceHeight: null,
 				forceWidth: null,
 				rendererFunctionName: null,
+				bucketName: null,
 			},
 			extraContext
 		);

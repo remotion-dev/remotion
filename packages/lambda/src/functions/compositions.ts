@@ -34,10 +34,11 @@ export const compositionsHandler = async (
 
 	const region = getCurrentRegionInFunction();
 
-	const [{bucketName}, browserInstance] = await Promise.all([
-		getOrCreateBucket({
-			region,
-		}),
+	const [bucketName, browserInstance] = await Promise.all([
+		lambdaParams.bucketName ??
+			getOrCreateBucket({
+				region,
+			}).then((b) => b.bucketName),
 		getBrowserInstance(
 			RenderInternals.isEqualOrBelowLogLevel(lambdaParams.logLevel, 'verbose'),
 			lambdaParams.chromiumOptions ?? {}

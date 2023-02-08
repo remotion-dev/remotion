@@ -250,6 +250,7 @@ export type LambdaPayloads = {
 		webhook: WebhookOption;
 		forceHeight: number | null;
 		forceWidth: number | null;
+		bucketName: string | null;
 	};
 	launch: {
 		rendererFunctionName: string | null;
@@ -351,6 +352,7 @@ export type LambdaPayloads = {
 		version: string;
 		forceHeight: number | null;
 		forceWidth: number | null;
+		bucketName: string | null;
 	};
 	compositions: {
 		type: LambdaRoutines.compositions;
@@ -361,6 +363,7 @@ export type LambdaPayloads = {
 		envVariables: Record<string, string> | undefined;
 		timeoutInMilliseconds: number;
 		serveUrl: string;
+		bucketName: string | null;
 	};
 };
 

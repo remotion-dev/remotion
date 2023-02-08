@@ -67,6 +67,7 @@ test('Should make a distributed GIF', async () => {
 			forceHeight: null,
 			forceWidth: null,
 			rendererFunctionName: null,
+			bucketName: null,
 		},
 		extraContext
 	);
