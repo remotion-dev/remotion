@@ -5,6 +5,7 @@ import {rmdirSync, rmSync, writeFileSync} from 'fs';
 import {join} from 'path';
 import {RenderInternals} from '.';
 import type {AudioCodec} from './audio-codec';
+import {getDefaultAudioCodec} from './audio-codec';
 import type {Codec} from './codec';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getExecutableBinary} from './ffmpeg-flags';
@@ -45,6 +46,9 @@ export const combineVideos = async (options: Options) => {
 	const fileListTxt = join(filelistDir, 'files.txt');
 	writeFileSync(fileListTxt, fileList);
 
+	const resolvedAudioCodec =
+		audioCodec ?? getDefaultAudioCodec({codec, preferLossless: false});
+
 	try {
 		const task = execa(
 			await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
@@ -65,9 +69,11 @@ export const combineVideos = async (options: Options) => {
 					: '-1',
 				isAudioCodec(codec) ? null : '-c:v',
 				isAudioCodec(codec) ? null : codec === 'gif' ? 'gif' : 'copy',
-				audioCodec ? '-c:a' : null,
-				audioCodec
-					? RenderInternals.mapAudioCodecToFfmpegAudioCodecName(audioCodec)
+				resolvedAudioCodec ? '-c:a' : null,
+				resolvedAudioCodec
+					? RenderInternals.mapAudioCodecToFfmpegAudioCodecName(
+							resolvedAudioCodec
+					  )
 					: null,
 				// Set max bitrate up to 512kbps, will choose lower if that's too much
 				'-b:a',
