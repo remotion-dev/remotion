@@ -58,6 +58,7 @@ export type RenderMediaOnLambdaInput = {
 	forceWidth?: number | null;
 	forceHeight?: number | null;
 	rendererFunctionName?: string | null;
+	forceBucketName?: string;
 	audioCodec?: AudioCodec | null;
 };
 
@@ -122,6 +123,7 @@ export const renderMediaOnLambda = async ({
 	forceHeight,
 	forceWidth,
 	rendererFunctionName,
+	forceBucketName: bucketName,
 	audioCodec,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	const actualCodec = validateLambdaCodec(codec);
@@ -136,6 +138,7 @@ export const renderMediaOnLambda = async ({
 		inputProps,
 		region,
 		type: 'video-or-audio',
+		userSpecifiedBucketName: bucketName ?? null,
 	});
 	try {
 		const res = await callLambda({
@@ -174,6 +177,7 @@ export const renderMediaOnLambda = async ({
 				webhook: webhook ?? null,
 				forceHeight: forceHeight ?? null,
 				forceWidth: forceWidth ?? null,
+				bucketName: bucketName ?? null,
 				audioCodec: audioCodec ?? null,
 			},
 			region,

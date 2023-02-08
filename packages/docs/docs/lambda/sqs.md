@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-lambda-aws-sqs-lambda-integration.png
+image: /generated/articles-docs-lambda-sqs.png
 title: Using Lambda with SQS
 slug: /lambda/sqs
 sidebar_label: Queueing with SQS

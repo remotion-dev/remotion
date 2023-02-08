@@ -70,6 +70,7 @@ test('Should be able to render to another bucket', async () => {
 			forceHeight: null,
 			forceWidth: null,
 			rendererFunctionName: null,
+			bucketName: null,
 			audioCodec: null,
 		},
 		extraContext
