@@ -217,13 +217,6 @@ export const articles = [
     crumb: "Contributing",
   },
   {
-    id: "contributing/bounty",
-    title: "How to take a bounty issue",
-    relativePath: "docs/contributing/bounty.md",
-    compId: "articles-docs-contributing-bounty",
-    crumb: "Contributing",
-  },
-  {
     id: "data-fetching",
     title: "Data fetching",
     relativePath: "docs/data-fetching.md",

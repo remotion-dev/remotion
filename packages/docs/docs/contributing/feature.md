@@ -33,5 +33,5 @@ Use the `#development` channel on [Discord](https://remotion.dev/discord) to qui
 ## See also
 
 - [Implementing a new option](/docs/contributing/option)
-- [Implementing a new feature](/docs/contributing/feature)
 - [Writing documentation](/docs/contributing/docs)
+- [How to take a bounty issue](/docs/contributing/bounty)
