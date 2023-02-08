@@ -85,13 +85,15 @@ export const sitesCreateSubcommand = async (
 
 	const bucketName =
 		cliBucketName ??
-		((await getOrCreateBucket({
-			region: getAwsRegion(),
-			onBucketEnsured: () => {
-				multiProgress.bucketProgress.bucketCreated = true;
-				updateProgress();
-			},
-		}).then((b) => b.bucketName)) as string);
+		(
+			await getOrCreateBucket({
+				region: getAwsRegion(),
+				onBucketEnsured: () => {
+					multiProgress.bucketProgress.bucketCreated = true;
+					updateProgress();
+				},
+			})
+		).bucketName;
 
 	multiProgress.bucketProgress.doneIn = Date.now() - bucketStart;
 	updateProgress();
