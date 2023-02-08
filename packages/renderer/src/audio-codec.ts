@@ -81,7 +81,7 @@ export const defaultAudioCodecs: {
 		compressed: 'aac',
 	},
 	mp3: {
-		lossless: 'mp3',
+		lossless: 'pcm-16',
 		compressed: 'mp3',
 	},
 	prores: {
