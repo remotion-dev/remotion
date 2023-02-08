@@ -126,7 +126,7 @@ _available from v3.2.1_
 
 _Available from v3.3.42_
 
-[Set which codec the audio should have.](/docs/config#setaudiocodec) For defaults and possible values, refer to the [Encoding guide](/docs/encoding).
+[Set which codec the audio should have.](/docs/config#setaudiocodec) For defaults and possible values, refer to the [Encoding guide](/docs/encoding/#audio-codec).
 
 ### `--audio-bitrate`
 

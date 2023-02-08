@@ -108,7 +108,7 @@ Choose the encoding of your audio.
 - Not all video containers support all audio codecs.
 - This option takes precedence if the `codec` option also specifies an audio codec.
 
-Refer to the [Encoding guide](/docs/encoding) to see defaults and supported combinations.
+Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and supported combinations.
 
 ### `forceHeight`
 

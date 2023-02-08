@@ -1,8 +1,8 @@
-import type {AudioCodec, supportedAudioCodec} from './audio-codec';
+import type {AudioCodec} from './audio-codec';
 import {getDefaultAudioCodec} from './audio-codec';
 import type {Codec} from './codec';
-import type {FileExtension} from './get-extension-from-codec';
-import {defaultFileExtensionMap} from './get-extension-from-codec';
+import type {FileExtension, supportedAudioCodecs} from './file-extensions';
+import {defaultFileExtensionMap} from './file-extensions';
 
 export const validateOutputFilename = <T extends Codec>({
 	codec,
@@ -45,7 +45,7 @@ export const validateOutputFilename = <T extends Codec>({
 
 	const acceptableExtensions =
 		map.forAudioCodec[
-			resolvedAudioCodec as typeof supportedAudioCodec[T][number]
+			resolvedAudioCodec as typeof supportedAudioCodecs[T][number]
 		].possible;
 
 	if (!acceptableExtensions.includes(extension as FileExtension)) {
