@@ -21,6 +21,8 @@ It is not necessary to create multiple buckets because:
 
 You might intuitively create multiple buckets because you have multiple environments, but it is usually not needed.
 
+In addition to that, Remotion was not designed for multiple buckets. While you can explicitly specify a bucket name, it is optional and therefore easy to forget.
+
 ## Using multiple buckets
 
 If you want to use multiple buckets nonetheless (applying different policies to them or fulfilling business or compliance requirements), you can create more buckets in the AWS console. Don't use [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket) to create them.
@@ -42,7 +44,9 @@ Also you must pass a `--bucket-name=your-bucket-name` option to the following CL
 
 Also you are unable to use the following APIs:
 
-- [`npx remotion lambda sites rm`]
+- [`npx remotion lambda sites ls`](/docs/lambda/cli/sites#ls)
+- [`getSites()`](/docs/lambda/getsites)
+- [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket)
 
 ## Deleting extraneous buckets
 
