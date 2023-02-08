@@ -72,10 +72,11 @@ const innerStillHandler = async (
 
 	const start = Date.now();
 
-	const [{bucketName}, browserInstance] = await Promise.all([
-		getOrCreateBucket({
-			region: getCurrentRegionInFunction(),
-		}),
+	const [bucketName, browserInstance] = await Promise.all([
+		lambdaParams.bucketName ??
+			getOrCreateBucket({
+				region: getCurrentRegionInFunction(),
+			}).then((b) => b.bucketName),
 		getBrowserInstance(
 			RenderInternals.isEqualOrBelowLogLevel(lambdaParams.logLevel, 'verbose'),
 			lambdaParams.chromiumOptions ?? {}
@@ -259,9 +260,13 @@ export const stillHandler = async (
 					Payload: JSON.stringify(retryPayload),
 				})
 			);
-			const {bucketName} = await getOrCreateBucket({
-				region: getCurrentRegionInFunction(),
-			});
+			const bucketName =
+				params.bucketName ??
+				(
+					await getOrCreateBucket({
+						region: getCurrentRegionInFunction(),
+					})
+				).bucketName;
 
 			// `await` elided on purpose here; using `void` to mark it as intentional
 			// eslint-disable-next-line no-void
