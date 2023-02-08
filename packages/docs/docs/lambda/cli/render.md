@@ -122,6 +122,12 @@ _available from v3.2.1_
 
 [`h264` or `h265` or `png` or `vp8` or `mp3` or `aac` or `wav` or `prores`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264`.
 
+### `--audio-codec`
+
+_Available from v3.3.42_
+
+[Set which codec the audio should have.](/docs/config#setaudiocodec) For defaults and possible values, refer to the [Encoding guide](/docs/encoding).
+
 ### `--audio-bitrate`
 
 _Available from v3.2.32_
