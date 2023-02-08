@@ -29,7 +29,7 @@ export const sitesRmSubcommand = async (args: string[]) => {
 
 	for (const siteName of args) {
 		const bucketName =
-			parsedLambdaCli['bucket-name'] ??
+			parsedLambdaCli['force-bucket-name'] ??
 			(await getOrCreateBucket({region})).bucketName;
 
 		const site = deployedSites.sites.find((s) => s.id === siteName.trim());
