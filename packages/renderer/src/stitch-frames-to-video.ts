@@ -239,9 +239,11 @@ export const spawnFfmpeg = async (
 		);
 	}
 
+	// Explanation: https://github.com/remotion-dev/remotion/issues/1647
 	const resolvedAudioCodec = options.internalOptions?.preferLossless
-		? getDefaultAudioCodec(codec, true)
-		: options.audioCodec ?? getDefaultAudioCodec(codec, false);
+		? getDefaultAudioCodec({codec, preferLossless: true})
+		: options.audioCodec ??
+		  getDefaultAudioCodec({codec, preferLossless: false});
 
 	if (options.verbose) {
 		console.log(
