@@ -48,7 +48,7 @@ import {
 	getRolePolicy,
 	getUserPolicy,
 } from './api/iam-validation/suggested-policy';
-import {presignUrl} from './api/presign-url';
+import {presignUrl as deprecatedPresignUrl} from './api/presign-url';
 import type {
 	RenderMediaOnLambdaInput,
 	RenderMediaOnLambdaOutput,
@@ -84,6 +84,11 @@ const renderMediaOnLambda = deprecatedRenderMediaOnLambda;
  * @deprecated Import this from `@remotion/lambda/client` instead
  */
 const renderStillOnLambda = deprecatedRenderStillOnLambda;
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const presignUrl = deprecatedPresignUrl;
 
 export {
 	deleteSite,
