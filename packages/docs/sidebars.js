@@ -520,6 +520,7 @@ module.exports = {
         "contributing/feature",
         "contributing/option",
         "contributing/docs",
+        "contributing/bounty",
       ],
     },
     "license",

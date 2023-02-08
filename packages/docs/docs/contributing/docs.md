@@ -104,3 +104,4 @@ The demo needs to be implemented in `packages/docs/components/demos/index.tsx`.
 - [General information](/docs/contributing)
 - [Implementing a new feature](/docs/contributing/feature)
 - [Implementing a new option](/docs/contributing/option)
+- [How to take a bounty issue](/docs/contributing/bounty)
