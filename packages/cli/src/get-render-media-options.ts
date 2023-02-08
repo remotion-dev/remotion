@@ -1,9 +1,9 @@
 import type {Codec, RenderMediaOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {ConfigInternals} from './config';
+import {getResolvedAudioCodec} from './get-audio-codec';
 import {getCliOptions} from './get-cli-options';
 import {getImageFormat} from './image-formats';
-import {parsedCli} from './parse-command-line';
 
 export const getRenderMediaOptions = async ({
 	outputLocation,
@@ -50,9 +50,7 @@ export const getRenderMediaOptions = async ({
 	});
 
 	const imageFormat = getImageFormat(codec);
-
-	const audioCodec =
-		parsedCli['audio-codec'] ?? ConfigInternals.getAudioCodec();
+	const audioCodec = getResolvedAudioCodec();
 
 	return {
 		outputLocation,
