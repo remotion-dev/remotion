@@ -1,10 +1,7 @@
 import execa from 'execa';
 import {downloadFile} from './assets/download-file';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
-import {
-	getDefaultAudioCodec,
-	mapAudioCodecToFfmpegAudioCodecName,
-} from './audio-codec';
+import {getDefaultAudioCodec} from './audio-codec';
 import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
@@ -160,7 +157,6 @@ export const RenderInternals = {
 	getFfmpegVersion,
 	combineVideos,
 	getDefaultAudioCodec,
-	mapAudioCodecToFfmpegAudioCodecName,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
