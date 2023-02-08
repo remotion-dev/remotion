@@ -29,7 +29,7 @@ If you want to use multiple buckets nonetheless (applying different policies to 
 
 Remotion will by default discover buckets automatically and re-use them. If it detects multiple buckets, it will throw an error.
 
-In order to avoid this error, you need to additionally explicitly pass the `bucketName` option to the following APIs:
+In order to avoid this error, you need to additionally explicitly pass the `forceBucketName` option to the following APIs:
 
 - [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda)
 - [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda)
