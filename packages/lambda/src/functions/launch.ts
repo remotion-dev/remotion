@@ -472,6 +472,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		remotionRoot: process.cwd(),
 		files,
 		outdir,
+		audioCodec: params.audioCodec,
 	});
 	const encodingStop = Date.now();
 

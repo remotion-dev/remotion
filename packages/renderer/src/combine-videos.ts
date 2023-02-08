@@ -3,10 +3,11 @@
 import execa from 'execa';
 import {rmdirSync, rmSync, writeFileSync} from 'fs';
 import {join} from 'path';
+import {RenderInternals} from '.';
+import type {AudioCodec} from './audio-codec';
 import type {Codec} from './codec';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getExecutableBinary} from './ffmpeg-flags';
-import {getAudioCodecName} from './get-audio-codec-name';
 import {isAudioCodec} from './is-audio-codec';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {truthy} from './truthy';
@@ -22,6 +23,7 @@ type Options = {
 	numberOfGifLoops: number | null;
 	remotionRoot: string;
 	ffmpegExecutable: FfmpegExecutable;
+	audioCodec: AudioCodec | null;
 };
 
 export const combineVideos = async (options: Options) => {
@@ -36,6 +38,7 @@ export const combineVideos = async (options: Options) => {
 		numberOfGifLoops,
 		ffmpegExecutable,
 		remotionRoot,
+		audioCodec,
 	} = options;
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 
@@ -62,8 +65,10 @@ export const combineVideos = async (options: Options) => {
 					: '-1',
 				isAudioCodec(codec) ? null : '-c:v',
 				isAudioCodec(codec) ? null : codec === 'gif' ? 'gif' : 'copy',
-				'-c:a',
-				getAudioCodecName(codec),
+				audioCodec ? '-c:a' : null,
+				audioCodec
+					? RenderInternals.mapAudioCodecToFfmpegAudioCodecName(audioCodec)
+					: null,
 				// Set max bitrate up to 512kbps, will choose lower if that's too much
 				'-b:a',
 				'512K',
