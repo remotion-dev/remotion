@@ -49,6 +49,7 @@ const start = async () => {
 		numberOfGifLoops: null,
 		ffmpegExecutable: null,
 		remotionRoot: process.cwd(),
+		audioCodec: 'aac',
 	});
 };
 

@@ -1,4 +1,5 @@
 import type {
+	AudioCodec,
 	BrowserExecutable,
 	Codec,
 	FfmpegExecutable,
@@ -35,6 +36,7 @@ export type CommandLineOptions = {
 	['public-dir']: string;
 	['audio-bitrate']: string;
 	['video-bitrate']: string;
+	['audio-codec']: AudioCodec;
 	crf: number;
 	force: boolean;
 	overwrite: boolean;
