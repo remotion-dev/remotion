@@ -17,6 +17,6 @@ test('Derive codec from file extension', () => {
 		mov: ['prores'],
 		mxf: ['prores'],
 		webm: ['vp8', 'vp9'],
-		wav: ['wav'],
+		wav: ['aac', 'mp3', 'wav'],
 	});
 });
