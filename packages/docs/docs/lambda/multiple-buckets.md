@@ -35,7 +35,7 @@ In order to avoid this error, you need to additionally explicitly pass the `forc
 - [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda)
 - [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda)
 
-Also you must pass a `--bucket-name=your-bucket-name` option to the following CLI commands:
+Also you must pass a `--force-bucket-name=your-bucket-name` option to the following CLI commands:
 
 - [`npx remotion lambda render`](/docs/lambda/cli/render)
 - [`npx remotion lambda still`](/docs/lambda/cli/render)
