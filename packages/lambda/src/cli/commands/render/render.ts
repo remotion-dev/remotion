@@ -134,7 +134,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			  }
 			: undefined,
 		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
-		bucketName: parsedLambdaCli['bucket-name'],
+		bucketName: parsedLambdaCli['force-bucket-name'],
 		audioCodec: CliInternals.parsedCli['audio-codec'],
 	});
 

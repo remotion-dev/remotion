@@ -81,7 +81,7 @@ export const sitesCreateSubcommand = async (
 
 	const bucketStart = Date.now();
 
-	const cliBucketName = parsedLambdaCli['bucket-name'] ?? null;
+	const cliBucketName = parsedLambdaCli['force-bucket-name'] ?? null;
 
 	const bucketName =
 		cliBucketName ??

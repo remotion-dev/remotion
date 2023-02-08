@@ -41,6 +41,8 @@ Also you must pass a `--bucket-name=your-bucket-name` option to the following CL
 - [`npx remotion lambda still`](/docs/lambda/cli/render)
 - [`npx remotion lambda compositions`](/docs/lambda/cli/render)
 - [`npx remotion lambda sites create`](/docs/lambda/cli/sites#create)
+- [`npx remotion lambda sites rm`](/docs/lambda/cli/sites#rm)
+- [`npx remotion lambda sites rmall`](/docs/lambda/cli/sites#rmall)
 
 Also you are unable to use the following APIs:
 
