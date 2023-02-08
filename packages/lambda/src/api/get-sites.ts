@@ -16,6 +16,7 @@ type Site = {
 
 export type GetSitesInput = {
 	region: AwsRegion;
+	bucketName?: string;
 };
 
 export type GetSitesOutput = {

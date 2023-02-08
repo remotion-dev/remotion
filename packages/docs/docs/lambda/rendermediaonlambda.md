@@ -254,7 +254,7 @@ Accepted values:
 The default for Lambda is `swangle`, but `null` elsewhere.
 :::
 
-### `overwrite`
+### `overwrite?`
 
 _available from v3.2.25_
 
@@ -262,7 +262,7 @@ If a custom out name is specified and a file already exists at this key in the S
 
 An existing file at the output S3 key will conflict with the render and must be deleted beforehand. If this setting is `false` and a conflict occurs, an error will be thrown.
 
-### `rendererFunctionName`
+### `rendererFunctionName?`
 
 _optional, available from v3.3.38_
 
@@ -270,7 +270,7 @@ If specified, this function will be used for rendering the individual chunks. Th
 
 If you want to use this option, the function must be in the same region, the same account and have the same version as the main function.
 
-### `webhook`
+### `webhook?`
 
 _optional, available from v3.2.30_
 
@@ -295,6 +295,12 @@ const webhook: RenderMediaOnLambdaInput["webhook"] = {
   secret: null,
 };
 ```
+
+### `forceBucketName?`
+
+_optional, available from v3.3.42_
+
+Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
 
 [See here for detailed instructions on how to set up your webhook](/docs/lambda/webhooks).
 
