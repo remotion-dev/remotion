@@ -9,12 +9,12 @@ export const serializeInputProps = async ({
 	inputProps,
 	region,
 	type,
-	bucketName: userSpecifiedBucketName,
+	userSpecifiedBucketName,
 }: {
 	inputProps: unknown;
 	region: AwsRegion;
 	type: 'still' | 'video-or-audio';
-	bucketName: string | null;
+	userSpecifiedBucketName: string | null;
 }): Promise<SerializedInputProps> => {
 	try {
 		const payload = JSON.stringify(inputProps);

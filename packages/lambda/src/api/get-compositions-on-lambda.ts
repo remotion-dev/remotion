@@ -15,7 +15,7 @@ export type GetCompositionsOnLambdaInput = {
 	envVariables?: Record<string, string>;
 	logLevel?: LogLevel;
 	timeoutInMilliseconds?: number;
-	bucketName?: string;
+	forceBucketName?: string;
 };
 
 export type GetCompositionsOnLambdaOutput = TCompMetadata[];
@@ -42,13 +42,13 @@ export const getCompositionsOnLambda = async ({
 	envVariables,
 	logLevel,
 	timeoutInMilliseconds,
-	bucketName,
+	forceBucketName: bucketName,
 }: GetCompositionsOnLambdaInput): Promise<GetCompositionsOnLambdaOutput> => {
 	const serializedInputProps = await serializeInputProps({
 		inputProps,
 		region,
 		type: 'still',
-		bucketName: bucketName ?? null,
+		userSpecifiedBucketName: bucketName ?? null,
 	});
 
 	try {

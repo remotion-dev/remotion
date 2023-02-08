@@ -51,7 +51,7 @@ export const compositionsCommand = async (
 		envVariables,
 		logLevel,
 		timeoutInMilliseconds: puppeteerTimeout,
-		bucketName: parsedLambdaCli['force-bucket-name'],
+		forceBucketName: parsedLambdaCli['force-bucket-name'],
 	});
 
 	CliInternals.printCompositions(comps);
