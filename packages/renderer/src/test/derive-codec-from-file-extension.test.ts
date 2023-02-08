@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest';
-import {makeFileExtensionMap} from '../derive-codec-from-file-extension';
+import {makeFileExtensionMap} from '../get-extension-from-codec';
 
 test('Derive codec from file extension', () => {
 	expect(makeFileExtensionMap()).toEqual({
