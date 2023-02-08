@@ -51,3 +51,17 @@ Within the Cloud Run service, you can see the URL of the service. You can run th
 
 Add firestore option for storing progress
 https://www.remotion.dev/docs/renderer/render-media#onprogress
+
+# To investigate
+How can people get the :latest version from artifact registry?
+How to program a CLI command that will deploy the container to Cloud Run?
+
+## Created public artifact repo in GCP
+Public artifact registry that contains the container images
+  us-docker.pkg.dev/remotion-dev/cloud-run/render
+Image is tagged with the same semver as the remotion packages
+  us-docker.pkg.dev/remotion-dev/cloud-run/render:3.3.36-alpha
+Part of the CI/CD pipeline should be to push a new container image to the artifact registry, with the right version:
+`gcloud builds submit --tag us-docker.pkg.dev/remotion-dev/cloud-run/render:${version}`
+
+## deployCloudRun()

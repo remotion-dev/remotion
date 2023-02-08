@@ -15,6 +15,7 @@ import {getImageFormat} from './image-formats';
 import {initializeCli} from './initialize-cli';
 import {installCommand, INSTALL_COMMAND} from './install';
 import {lambdaCommand} from './lambda-command';
+import {gcpCommand} from './gcp-command';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {BooleanFlags, parsedCli, quietFlagProvided} from './parse-command-line';
@@ -58,6 +59,8 @@ export const cli = async () => {
 			await previewCommand(remotionRoot, args);
 		} else if (command === 'lambda') {
 			await lambdaCommand(remotionRoot, args);
+		} else if (command === 'gcp') {
+			await gcpCommand(remotionRoot, args);
 		} else if (command === 'render') {
 			await render(remotionRoot, args);
 		} else if (command === 'still') {

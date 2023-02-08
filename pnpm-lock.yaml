@@ -539,8 +539,10 @@ importers:
       '@google-cloud/functions-framework': ^3.1.3
       '@google-cloud/storage': ^6.9.1
       '@remotion/bundler': 3.3.36
+      '@remotion/cli': 3.3.36
       '@remotion/compositor-linux-x64-musl': 3.3.36
       '@remotion/renderer': 3.3.36
+      minimist: 1.2.6
       prettier-plugin-organize-imports: ^3.2.2
       remotion: 3.3.36
       ts-node: ^10.8.0
@@ -549,7 +551,9 @@ importers:
       '@google-cloud/functions-framework': 3.1.3
       '@google-cloud/storage': 6.9.1
       '@remotion/bundler': link:../bundler
+      '@remotion/cli': link:../cli
       '@remotion/renderer': link:../renderer
+      minimist: 1.2.6
       remotion: link:../core
     devDependencies:
       '@remotion/compositor-linux-x64-musl': link:../compositor-linux-x64-musl
@@ -557,13 +561,7 @@ importers:
       ts-node: 10.8.0_vnj66vw6pmisrnpmmxy72mdbpa
       typescript: 4.7.2
 
-  packages/gcp/containers/renderMedia:
-    specifiers:
-      '@google-cloud/functions-framework': ^3.1.3
-    dependencies:
-      '@google-cloud/functions-framework': 3.1.3
-
-  packages/gcp/containers/renderStill:
+  packages/gcp/container:
     specifiers:
       '@google-cloud/functions-framework': ^3.1.3
     dependencies:
