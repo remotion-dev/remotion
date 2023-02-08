@@ -3,6 +3,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {ConfigInternals} from './config';
 import {getCliOptions} from './get-cli-options';
 import {getImageFormat} from './image-formats';
+import {parsedCli} from './parse-command-line';
 
 export const getRenderMediaOptions = async ({
 	outputLocation,
@@ -50,6 +51,9 @@ export const getRenderMediaOptions = async ({
 
 	const imageFormat = getImageFormat(codec);
 
+	const audioCodec =
+		parsedCli['audio-codec'] ?? ConfigInternals.getAudioCodec();
+
 	return {
 		outputLocation,
 		composition: {
@@ -91,5 +95,6 @@ export const getRenderMediaOptions = async ({
 		codec,
 		audioBitrate,
 		videoBitrate,
+		audioCodec,
 	};
 };
