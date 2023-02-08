@@ -63,6 +63,19 @@ _optional_
 
 Set a codec. See the [encoding guide](/docs/encoding) for available values and guidance on which one to choose. The default is `h264`.
 
+### `audioCodec?`
+
+_"pcm-16" | "aac" | "mp3" | "opus", available from v3.3.41_
+
+Choose the encoding of your audio.
+
+- Default is dependent on the chosen `codec`
+- Choose `pcm-16` if you need uncompressed audio
+- Not all video containers support all audio codecs.
+- This option takes precedence if the `codec` option also specifies an audio codec.
+
+Refer to the [Encoding guide](/docs/encoding) to see defaults and supported combinations.
+
 ### `audioBitrate?`
 
 _string - optional, available from v3.2.32_
