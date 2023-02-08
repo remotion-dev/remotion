@@ -1,4 +1,5 @@
 import type {
+	AudioCodec,
 	ChromiumOptions,
 	FrameRange,
 	ImageFormat,
@@ -57,6 +58,7 @@ export type RenderMediaOnLambdaInput = {
 	forceWidth?: number | null;
 	forceHeight?: number | null;
 	rendererFunctionName?: string | null;
+	audioCodec?: AudioCodec | null;
 };
 
 export type RenderMediaOnLambdaOutput = {
@@ -120,6 +122,7 @@ export const renderMediaOnLambda = async ({
 	forceHeight,
 	forceWidth,
 	rendererFunctionName,
+	audioCodec,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
@@ -171,6 +174,7 @@ export const renderMediaOnLambda = async ({
 				webhook: webhook ?? null,
 				forceHeight: forceHeight ?? null,
 				forceWidth: forceWidth ?? null,
+				audioCodec: audioCodec ?? null,
 			},
 			region,
 		});

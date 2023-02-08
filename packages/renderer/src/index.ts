@@ -1,6 +1,10 @@
 import execa from 'execa';
 import {downloadFile} from './assets/download-file';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
+import {
+	getDefaultAudioCodec,
+	mapAudioCodecToFfmpegAudioCodecName,
+} from './audio-codec';
 import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
@@ -55,6 +59,7 @@ import {
 } from './wait-for-symbolication-error-to-be-done';
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 export type {DownloadMap} from './assets/download-map';
+export {AudioCodec} from './audio-codec';
 export {Browser} from './browser';
 export {BrowserExecutable} from './browser-executable';
 export {BrowserLog} from './browser-log';
@@ -154,6 +159,8 @@ export const RenderInternals = {
 	validateBitrate,
 	getFfmpegVersion,
 	combineVideos,
+	getDefaultAudioCodec,
+	mapAudioCodecToFfmpegAudioCodecName,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
