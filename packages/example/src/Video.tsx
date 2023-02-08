@@ -3,6 +3,7 @@ import React from 'react';
 import {Composition, Folder, getInputProps, Still} from 'remotion';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText from './BetaText';
+import {BaseRender} from './CancelRender';
 import {ColorInterpolation} from './ColorInterpolation';
 import {MyCtx, WrappedInContext} from './Context';
 import CorruptVideo from './CorruptVideo';
@@ -54,6 +55,14 @@ export const Index: React.FC = () => {
 					fps={60}
 					height={1080}
 					width={1080}
+				/>
+				<Composition
+					fps={30}
+					id="cancel-render"
+					width={920}
+					height={720}
+					component={BaseRender}
+					durationInFrames={100}
 				/>
 				<Composition
 					id="iframe"
