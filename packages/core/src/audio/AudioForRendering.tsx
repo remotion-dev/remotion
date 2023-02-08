@@ -51,6 +51,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		volume: volumeProp,
 		playbackRate,
 		allowAmplificationDuringRender,
+		onDuration,
 		...nativeProps
 	} = props;
 
@@ -112,7 +113,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		allowAmplificationDuringRender,
 	]);
 
-	const {src, onDuration} = props;
+	const {src} = props;
 
 	// If audio source switches, make new handle
 	if (environment === 'rendering') {
