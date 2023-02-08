@@ -1,6 +1,7 @@
 import type {AudioCodec, supportedAudioCodec} from './audio-codec';
 import {getDefaultAudioCodec} from './audio-codec';
 import type {Codec} from './codec';
+import type {FileExtension} from './get-extension-from-codec';
 import {defaultFileExtensionMap} from './get-extension-from-codec';
 
 export const validateOutputFilename = <T extends Codec>({
@@ -47,7 +48,7 @@ export const validateOutputFilename = <T extends Codec>({
 			resolvedAudioCodec as typeof supportedAudioCodec[T][number]
 		].possible;
 
-	if (!acceptableExtensions.includes(extension)) {
+	if (!acceptableExtensions.includes(extension as FileExtension)) {
 		throw new TypeError(
 			`When using the ${codec} codec with the ${resolvedAudioCodec} audio codec, the output filename must end in one of the following: ${acceptableExtensions.join(
 				', '
