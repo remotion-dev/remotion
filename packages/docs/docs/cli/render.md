@@ -82,6 +82,12 @@ Specify a location for a dotenv file. Default `.env`. Available in v2.2 and late
 
 [`h264` or `h265` or `png` or `vp8` or `vp9` or `mp3` or `aac` or `wav` or `prores` or `h264-mkv`](/docs/config#setcodec). If you don't supply `--codec`, it will use the H.264 encoder. Available since v1.4.
 
+### `--audio-codec`
+
+_Available from v3.3.42_
+
+[Set which codec the audio should have.](/docs/config#setaudiocodec) For defaults and possible values, refer to the [Encoding guide](/docs/encoding).
+
 ### `--audio-bitrate`
 
 _Available from v3.2.32_
