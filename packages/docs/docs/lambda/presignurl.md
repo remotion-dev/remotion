@@ -36,7 +36,7 @@ console.log(url); // always a string, or exception if object doesn't exist
 ```
 
 :::note
-Preferrably import this function from `@remotion/lambda/client` to avoid problems [inside serverless functions](/docs/lambda/light-client).
+Preferrably import this function from `@remotion/lambda/client` (available from v3.3.42) to avoid problems [inside serverless functions](/docs/lambda/light-client).
 :::
 
 ## Arguments
