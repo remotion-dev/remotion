@@ -1,7 +1,11 @@
 import execa from 'execa';
 import {downloadFile} from './assets/download-file';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
-import {getDefaultAudioCodec, validAudioCodecs} from './audio-codec';
+import {
+	getDefaultAudioCodec,
+	supportedAudioCodec,
+	validAudioCodecs,
+} from './audio-codec';
 import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
@@ -22,7 +26,10 @@ import {findRemotionRoot} from './find-closest-package-json';
 import {validateFrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
-import {getFileExtensionFromCodec} from './get-extension-from-codec';
+import {
+	defaultFileExtensionMap,
+	getFileExtensionFromCodec,
+} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
@@ -74,6 +81,7 @@ export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FrameRange} from './frame-range';
 export {getCanExtractFramesFast} from './get-can-extract-frames-fast';
 export {getCompositions} from './get-compositions';
+export {FileExtension} from './get-extension-from-codec';
 export {
 	ImageFormat,
 	StillImageFormat,
@@ -101,6 +109,7 @@ export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {OpenGlRenderer} from './validate-opengl-renderer';
 export {validateOutputFilename} from './validate-output-filename';
+
 export const RenderInternals = {
 	ensureLocalBrowser,
 	ffmpegHasFeature,
@@ -158,6 +167,8 @@ export const RenderInternals = {
 	combineVideos,
 	getDefaultAudioCodec,
 	validAudioCodecs,
+	defaultFileExtensionMap,
+	supportedAudioCodec,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

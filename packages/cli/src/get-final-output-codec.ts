@@ -1,25 +1,13 @@
 import type {Codec, CodecOrUndefined} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-
-const fileExtensions: Record<string, Codec[]> = {
-	webm: ['vp8', 'vp9'],
-	hevc: ['h265'],
-	mp3: ['mp3'],
-	mov: ['prores'],
-	wav: ['wav'],
-	aac: ['aac'],
-	mkv: ['h264-mkv'],
-	gif: ['gif'],
-	mp4: ['h264'],
-	m4a: ['aac'],
-};
+import {makeFileExtensionMap} from './derive-codec-from-file-extension';
 
 const deriveExtensionFromFilename = (extension: string | null) => {
 	if (extension === null) {
 		return [];
 	}
 
-	return fileExtensions[extension] ?? [];
+	return makeFileExtensionMap()[extension] ?? [];
 };
 
 export const getFinalOutputCodec = ({
