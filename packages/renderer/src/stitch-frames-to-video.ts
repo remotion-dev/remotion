@@ -63,7 +63,7 @@ export type StitcherOptions = {
 	pixelFormat?: PixelFormat;
 	numberOfGifLoops?: number | null;
 	codec?: Codec;
-	audioCodec: AudioCodec | null;
+	audioCodec?: AudioCodec | null;
 	crf?: number | null;
 	onProgress?: (progress: number) => void;
 	onDownload?: RenderMediaOnDownload;

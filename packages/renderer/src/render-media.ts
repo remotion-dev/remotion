@@ -115,7 +115,7 @@ export type RenderMediaOptions = {
 	videoBitrate?: string | null;
 	onSlowestFrames?: OnSlowestFrames;
 	disallowParallelEncoding?: boolean;
-	audioCodec?: AudioCodec;
+	audioCodec?: AudioCodec | null;
 } & ServeUrlOrWebpackBundle &
 	ConcurrencyOrParallelism;
 

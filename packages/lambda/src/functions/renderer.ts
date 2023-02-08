@@ -217,8 +217,10 @@ const renderHandler = async (
 					console.log(`Frame ${frame} (${time.toFixed(3)}ms)`);
 				});
 			},
-			// Special flag only in Lambda renderer which improves the audio quality
+			// Lossless flag takes priority over audio codec
 			// https://github.com/remotion-dev/remotion/issues/1647
+			// Special flag only in Lambda renderer which improves the audio quality
+			audioCodec: null,
 			preferLossless: true,
 		})
 			.then(() => resolve())
