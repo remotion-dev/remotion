@@ -1,13 +1,12 @@
 import type {Codec, CodecOrUndefined} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {makeFileExtensionMap} from './derive-codec-from-file-extension';
 
 const deriveExtensionFromFilename = (extension: string | null) => {
 	if (extension === null) {
 		return [];
 	}
 
-	return makeFileExtensionMap()[extension] ?? [];
+	return RenderInternals.makeFileExtensionMap()[extension] ?? [];
 };
 
 export const getFinalOutputCodec = ({

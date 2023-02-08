@@ -23,7 +23,11 @@ import {findRemotionRoot} from './find-closest-package-json';
 import {validateFrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
-import {getFileExtensionFromCodec} from './get-extension-from-codec';
+import {
+	deriveExtensionFromFilename,
+	getFileExtensionFromCodec,
+	makeFileExtensionMap,
+} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
@@ -163,6 +167,8 @@ export const RenderInternals = {
 	validAudioCodecs,
 	defaultFileExtensionMap,
 	supportedAudioCodecs,
+	deriveExtensionFromFilename,
+	makeFileExtensionMap,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
