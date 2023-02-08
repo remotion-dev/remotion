@@ -34,7 +34,11 @@ export const getExpectedOutName = (
 		renderMetadata,
 	});
 	if (outNameValue) {
-		validateOutname(outNameValue);
+		validateOutname(
+			outNameValue,
+			renderMetadata.codec,
+			renderMetadata.audioCodec
+		);
 		return customOutName(renderMetadata.renderId, bucketName, outNameValue);
 	}
 

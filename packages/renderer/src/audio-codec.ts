@@ -4,18 +4,23 @@ export const validAudioCodecs = ['pcm-16', 'aac', 'mp3', 'opus'] as const;
 
 export type AudioCodec = typeof validAudioCodecs[number];
 
-export const supportedAudioCodec: {[key in Codec]: AudioCodec[]} = {
-	h264: ['aac'],
-	'h264-mkv': ['pcm-16'],
-	aac: ['aac'],
-	gif: [],
-	h265: ['aac'],
-	mp3: ['mp3'],
-	prores: ['pcm-16', 'aac'],
-	vp8: ['opus', 'pcm-16'],
-	vp9: ['opus', 'pcm-16'],
-	wav: ['pcm-16'],
-};
+export const supportedAudioCodec = {
+	h264: ['aac', 'pcm-16'] as const,
+	'h264-mkv': ['pcm-16'] as const,
+	aac: ['aac'] as const,
+	gif: [] as const,
+	h265: ['aac'] as const,
+	mp3: ['mp3'] as const,
+	prores: ['pcm-16', 'aac'] as const,
+	vp8: ['opus', 'pcm-16'] as const,
+	vp9: ['opus', 'pcm-16'] as const,
+	wav: ['pcm-16'] as const,
+} as const;
+
+const _satisfies: {[key in Codec]: readonly AudioCodec[]} = supportedAudioCodec;
+if (_satisfies) {
+	// Just for type checking
+}
 
 export const audioCodecNames = [
 	'pcm_s16le',

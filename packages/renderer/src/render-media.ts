@@ -196,7 +196,12 @@ export const renderMedia = ({
 	});
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 	if (outputLocation) {
-		validateOutputFilename(codec, getExtensionOfFilename(outputLocation));
+		validateOutputFilename({
+			codec,
+			audioCodec: audioCodec ?? null,
+			extension: getExtensionOfFilename(outputLocation) as string,
+			preferLossless: options.preferLossless ?? false,
+		});
 	}
 
 	const absoluteOutputLocation = outputLocation

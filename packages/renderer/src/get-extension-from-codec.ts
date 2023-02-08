@@ -1,9 +1,87 @@
-import type {AudioCodec} from './audio-codec';
+import type {AudioCodec, supportedAudioCodec} from './audio-codec';
 import type {Codec} from './codec';
 import {validCodecs} from './codec';
 
-export const getFileExtensionFromCodec = (
-	codec: Codec,
+export const defaultFileExtensionMap: {
+	[key in Codec]: {
+		default: string;
+		forAudioCodec: {
+			[k in typeof supportedAudioCodec[key][number]]: {
+				possible: string[];
+				default: string;
+			};
+		};
+	};
+} = {
+	'h264-mkv': {
+		default: 'mkv',
+		forAudioCodec: {
+			'pcm-16': {possible: ['mkv'], default: 'mkv'},
+		},
+	},
+	aac: {
+		default: 'aac',
+		forAudioCodec: {
+			aac: {
+				possible: ['aac', '3gp', 'm4a', 'm4b', 'mpg', 'mpeg'],
+				default: 'aac',
+			},
+		},
+	},
+	gif: {
+		default: 'gif',
+		forAudioCodec: {},
+	},
+	h264: {
+		default: 'mp4',
+		forAudioCodec: {
+			'pcm-16': {possible: ['mkv'], default: 'mkv'},
+			aac: {possible: ['mp4', 'mkv'], default: 'mp4'},
+		},
+	},
+	h265: {
+		default: 'mp4',
+		forAudioCodec: {
+			aac: {possible: ['mp4', 'mkv', 'hevc'], default: 'mp4'},
+		},
+	},
+	mp3: {
+		default: 'mp3',
+		forAudioCodec: {
+			mp3: {possible: ['mp3'], default: 'mp3'},
+		},
+	},
+	prores: {
+		default: 'mov',
+		forAudioCodec: {
+			aac: {possible: ['mov'], default: 'mov'},
+			'pcm-16': {possible: ['mov', 'mkv', 'mxf'], default: 'mov'},
+		},
+	},
+	vp8: {
+		default: 'webm',
+		forAudioCodec: {
+			'pcm-16': {possible: ['webm'], default: 'webm'},
+			opus: {possible: ['webm'], default: 'webm'},
+		},
+	},
+	vp9: {
+		default: 'webm',
+		forAudioCodec: {
+			'pcm-16': {possible: ['webm'], default: 'webm'},
+			opus: {possible: ['webm'], default: 'webm'},
+		},
+	},
+	wav: {
+		default: 'wav',
+		forAudioCodec: {
+			'pcm-16': {possible: ['wav'], default: 'wav'},
+		},
+	},
+};
+
+export const getFileExtensionFromCodec = <T extends Codec>(
+	codec: T,
 	audioCodec: AudioCodec | null
 ) => {
 	if (!validCodecs.includes(codec)) {
@@ -14,37 +92,22 @@ export const getFileExtensionFromCodec = (
 		);
 	}
 
-	switch (codec) {
-		case 'aac':
-			return 'aac';
-		case 'h264': {
-			if (audioCodec === 'pcm-16') {
-				return 'mkv';
-			}
-
-			return 'mp4';
-		}
-
-		// The chunks will be rendered as mkv, but the final output will still be MP4
-		case 'h264-mkv':
-			return 'mkv';
-		case 'h265':
-			return 'mp4';
-		case 'mp3':
-			return 'mp3';
-		case 'prores':
-			return 'mov';
-		case 'vp8':
-			return 'webm';
-		case 'vp9':
-			return 'webm';
-		case 'gif':
-			return 'gif';
-		case 'wav':
-			return 'wav';
-		default:
-			throw new Error(
-				"Don't know which file extension to use for codec " + codec
-			);
+	const map = defaultFileExtensionMap[
+		codec
+	] as typeof defaultFileExtensionMap[T];
+	if (audioCodec === null) {
+		return map.default;
 	}
+
+	const typedAudioCodec =
+		audioCodec as keyof typeof defaultFileExtensionMap[Codec]['forAudioCodec'];
+
+	if (!(typedAudioCodec in map.forAudioCodec)) {
+		throw new Error(
+			`Audio codec ${typedAudioCodec} is not supported for codec ${codec}`
+		);
+	}
+
+	return map.forAudioCodec[audioCodec as typeof supportedAudioCodec[T][number]]
+		.default;
 };
