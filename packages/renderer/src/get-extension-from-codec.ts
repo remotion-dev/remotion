@@ -43,6 +43,10 @@ export const defaultFileExtensionMap: {
 				possible: ['aac', '3gp', 'm4a', 'm4b', 'mpg', 'mpeg'],
 				default: 'aac',
 			},
+			'pcm-16': {
+				possible: ['wav'],
+				default: 'wav',
+			},
 		},
 	},
 	gif: {
@@ -67,6 +71,7 @@ export const defaultFileExtensionMap: {
 		default: 'mp3',
 		forAudioCodec: {
 			mp3: {possible: ['mp3'], default: 'mp3'},
+			'pcm-16': {possible: ['wav'], default: 'wav'},
 		},
 	},
 	prores: {
