@@ -3,9 +3,11 @@
 import execa from 'execa';
 import {rmdirSync, rmSync, writeFileSync} from 'fs';
 import {join} from 'path';
-import {RenderInternals} from '.';
 import type {AudioCodec} from './audio-codec';
-import {getDefaultAudioCodec} from './audio-codec';
+import {
+	getDefaultAudioCodec,
+	mapAudioCodecToFfmpegAudioCodecName,
+} from './audio-codec';
 import type {Codec} from './codec';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getExecutableBinary} from './ffmpeg-flags';
@@ -71,9 +73,7 @@ export const combineVideos = async (options: Options) => {
 				isAudioCodec(codec) ? null : codec === 'gif' ? 'gif' : 'copy',
 				resolvedAudioCodec ? '-c:a' : null,
 				resolvedAudioCodec
-					? RenderInternals.mapAudioCodecToFfmpegAudioCodecName(
-							resolvedAudioCodec
-					  )
+					? mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec)
 					: null,
 				// Set max bitrate up to 512kbps, will choose lower if that's too much
 				'-b:a',
