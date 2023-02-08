@@ -12,7 +12,7 @@ export const makeFileExtensionMap = () => {
 			const possibleExtensionsForAudioCodec = audioCodecs.map(
 				(audioCodec) =>
 					forAudioCodec[
-						audioCodec as typeof RenderInternals.supportedAudioCodec[T][number]
+						audioCodec as typeof RenderInternals.supportedAudioCodecs[T][number]
 					].possible
 			);
 
