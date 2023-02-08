@@ -218,13 +218,6 @@ export const spawnFfmpeg = async (
 
 	const mediaSupport = codecSupportsMedia(codec);
 
-	const tempFile = options.outputLocation
-		? null
-		: path.join(
-				options.assetsInfo.downloadMap.stitchFrames,
-				`out.${getFileExtensionFromCodec(codec)}`
-		  );
-
 	const shouldRenderAudio =
 		mediaSupport.audio &&
 		(options.assetsInfo.assets.flat(1).length > 0 ||
@@ -244,6 +237,13 @@ export const spawnFfmpeg = async (
 		? getDefaultAudioCodec({codec, preferLossless: true})
 		: options.audioCodec ??
 		  getDefaultAudioCodec({codec, preferLossless: false});
+
+	const tempFile = options.outputLocation
+		? null
+		: path.join(
+				options.assetsInfo.downloadMap.stitchFrames,
+				`out.${getFileExtensionFromCodec(codec, resolvedAudioCodec)}`
+		  );
 
 	if (options.verbose) {
 		console.log(

@@ -1,7 +1,11 @@
+import type {AudioCodec} from './audio-codec';
 import type {Codec} from './codec';
 import {validCodecs} from './codec';
 
-export const getFileExtensionFromCodec = (codec: Codec) => {
+export const getFileExtensionFromCodec = (
+	codec: Codec,
+	audioCodec: AudioCodec | null
+) => {
 	if (!validCodecs.includes(codec)) {
 		throw new Error(
 			`Codec must be one of the following: ${validCodecs.join(
@@ -13,8 +17,14 @@ export const getFileExtensionFromCodec = (codec: Codec) => {
 	switch (codec) {
 		case 'aac':
 			return 'aac';
-		case 'h264':
+		case 'h264': {
+			if (audioCodec === 'pcm-16') {
+				return 'mkv';
+			}
+
 			return 'mp4';
+		}
+
 		// The chunks will be rendered as mkv, but the final output will still be MP4
 		case 'h264-mkv':
 			return 'mkv';

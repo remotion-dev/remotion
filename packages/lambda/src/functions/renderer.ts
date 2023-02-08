@@ -88,7 +88,13 @@ const renderHandler = async (
 		`localchunk-${String(params.chunk).padStart(
 			8,
 			'0'
-		)}.${RenderInternals.getFileExtensionFromCodec(chunkCodec)}`
+		)}.${RenderInternals.getFileExtensionFromCodec(
+			chunkCodec,
+			RenderInternals.getDefaultAudioCodec({
+				codec: params.codec,
+				preferLossless: true,
+			})
+		)}`
 	);
 
 	const downloadMap = RenderInternals.makeDownloadMap();

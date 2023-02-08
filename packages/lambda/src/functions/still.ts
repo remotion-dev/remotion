@@ -139,6 +139,7 @@ const innerStillHandler = async (
 		privacy: lambdaParams.privacy,
 		everyNthFrame: 1,
 		frameRange: [lambdaParams.frame, lambdaParams.frame],
+		audioCodec: null,
 	};
 
 	await lambdaWriteFile({

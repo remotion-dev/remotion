@@ -308,6 +308,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		privacy: params.privacy,
 		everyNthFrame: params.everyNthFrame,
 		frameRange: realFrameRange,
+		audioCodec: params.audioCodec,
 	};
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(

@@ -382,6 +382,7 @@ export type RenderMetadata = {
 	estimatedRenderLambdaInvokations: number;
 	compositionId: string;
 	codec: Codec | null;
+	audioCodec: AudioCodec | null;
 	type: 'still' | 'video';
 	imageFormat: ImageFormat;
 	inputProps: SerializedInputProps;
