@@ -32,7 +32,7 @@ export type RenderStillOnLambdaInput = {
 	downloadBehavior?: DownloadBehavior;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
-	bucketName?: string;
+	forceBucketName?: string;
 };
 
 export type RenderStillOnLambdaOutput = {
@@ -81,13 +81,13 @@ export const renderStillOnLambda = async ({
 	downloadBehavior,
 	forceHeight,
 	forceWidth,
-	bucketName,
+	forceBucketName,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	const serializedInputProps = await serializeInputProps({
 		inputProps,
 		region,
 		type: 'still',
-		bucketName: bucketName ?? null,
+		userSpecifiedBucketName: forceBucketName ?? null,
 	});
 
 	try {
@@ -114,7 +114,7 @@ export const renderStillOnLambda = async ({
 				version: VERSION,
 				forceHeight: forceHeight ?? null,
 				forceWidth: forceWidth ?? null,
-				bucketName: bucketName ?? null,
+				bucketName: forceBucketName ?? null,
 			},
 			region,
 		});
