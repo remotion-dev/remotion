@@ -4,20 +4,21 @@ export const validAudioCodecs = ['pcm-16', 'aac', 'mp3', 'opus'] as const;
 
 export type AudioCodec = typeof validAudioCodecs[number];
 
-export const supportedAudioCodec = {
+export const supportedAudioCodecs = {
 	h264: ['aac', 'pcm-16'] as const,
 	'h264-mkv': ['pcm-16'] as const,
 	aac: ['aac', 'pcm-16'] as const,
 	gif: [] as const,
 	h265: ['aac', 'pcm-16'] as const,
 	mp3: ['mp3', 'pcm-16'] as const,
-	prores: ['pcm-16', 'aac'] as const,
+	prores: ['aac', 'pcm-16'] as const,
 	vp8: ['opus', 'pcm-16'] as const,
 	vp9: ['opus', 'pcm-16'] as const,
 	wav: ['pcm-16'] as const,
 } as const;
 
-const _satisfies: {[key in Codec]: readonly AudioCodec[]} = supportedAudioCodec;
+const _satisfies: {[key in Codec]: readonly AudioCodec[]} =
+	supportedAudioCodecs;
 if (_satisfies) {
 	// Just for type checking
 }
@@ -56,7 +57,7 @@ export const mapAudioCodecToFfmpegAudioCodecName = (
 export const defaultAudioCodecs: {
 	[key in Codec]: {
 		[k in 'compressed' | 'lossless']:
-			| typeof supportedAudioCodec[key][number]
+			| typeof supportedAudioCodecs[key][number]
 			| null;
 	};
 } = {
