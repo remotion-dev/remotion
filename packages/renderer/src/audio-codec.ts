@@ -94,9 +94,12 @@ export const defaultAudioCodecs: {
 	},
 };
 
-export const getDefaultAudioCodec = (
-	codec: Codec,
-	preferLossless: boolean
-): AudioCodec | null => {
+export const getDefaultAudioCodec = ({
+	codec,
+	preferLossless,
+}: {
+	codec: Codec;
+	preferLossless: boolean;
+}): AudioCodec | null => {
 	return defaultAudioCodecs[codec][preferLossless ? 'lossless' : 'compressed'];
 };

@@ -166,7 +166,6 @@ const renderHandler = async (
 			outputLocation,
 			codec: chunkCodec,
 			crf: params.crf ?? undefined,
-
 			pixelFormat: params.pixelFormat,
 			proResProfile: params.proResProfile,
 			onDownload: (src: string) => {
@@ -218,6 +217,9 @@ const renderHandler = async (
 					console.log(`Frame ${frame} (${time.toFixed(3)}ms)`);
 				});
 			},
+			// Special flag only in Lambda renderer which improves the audio quality
+			// https://github.com/remotion-dev/remotion/issues/1647
+			preferLossless: true,
 		})
 			.then(() => resolve())
 			.catch((err) => reject(err));
