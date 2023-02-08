@@ -430,6 +430,7 @@ module.exports = {
         "lambda/serverless-framework-integration",
         "lambda/sqs",
         "lambda/multiple-buckets",
+        "lambda/bucket-naming",
         "lambda/optimizing-cost",
         "lambda/optimizing-speed",
         "lambda/limits",
