@@ -1,7 +1,7 @@
 import type {AudioCodec} from './audio-codec';
 import type {Codec} from './codec';
 import {validCodecs} from './codec';
-import type {supportedAudioCodecs} from './file-extensions';
+import type {FileExtension, supportedAudioCodecs} from './file-extensions';
 import {defaultFileExtensionMap} from './file-extensions';
 
 export const getFileExtensionFromCodec = <T extends Codec>(
@@ -34,14 +34,6 @@ export const getFileExtensionFromCodec = <T extends Codec>(
 
 	return map.forAudioCodec[audioCodec as typeof supportedAudioCodecs[T][number]]
 		.default;
-};
-
-export const deriveExtensionFromFilename = (extension: string | null) => {
-	if (extension === null) {
-		return [];
-	}
-
-	return makeFileExtensionMap()[extension] ?? [];
 };
 
 export const makeFileExtensionMap = () => {
@@ -79,4 +71,22 @@ export const makeFileExtensionMap = () => {
 	);
 
 	return map;
+};
+
+export const defaultCodecsForFileExtension: Record<FileExtension, Codec> = {
+	'3gp': 'aac',
+	aac: 'aac',
+	gif: 'gif',
+	hevc: 'h265',
+	m4a: 'aac',
+	m4b: 'aac',
+	mkv: 'h264-mkv',
+	mov: 'prores',
+	mp3: 'mp3',
+	mp4: 'h264',
+	mpeg: 'aac',
+	mpg: 'aac',
+	mxf: 'prores',
+	wav: 'wav',
+	webm: 'vp8',
 };

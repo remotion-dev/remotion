@@ -24,7 +24,7 @@ import {validateFrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {
-	deriveExtensionFromFilename,
+	defaultCodecsForFileExtension,
 	getFileExtensionFromCodec,
 	makeFileExtensionMap,
 } from './get-extension-from-codec';
@@ -167,8 +167,8 @@ export const RenderInternals = {
 	validAudioCodecs,
 	defaultFileExtensionMap,
 	supportedAudioCodecs,
-	deriveExtensionFromFilename,
 	makeFileExtensionMap,
+	defaultCodecsForFileExtension,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
