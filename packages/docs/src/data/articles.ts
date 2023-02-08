@@ -483,13 +483,6 @@ export const articles = [
     crumb: "Lambda",
   },
   {
-    id: "lambda/aws-sqs-lambda-integration",
-    title: "Using Lambda with SQS",
-    relativePath: "docs/lambda/aws-sqs-lambda-integration.md",
-    compId: "articles-docs-lambda-aws-sqs-lambda-integration",
-    crumb: "@remotion/lambda",
-  },
-  {
     id: "changelog",
     title: "Prerelease Changelog",
     relativePath: "docs/lambda/changelog.md",
@@ -756,6 +749,13 @@ export const articles = [
     crumb: "Lambda",
   },
   {
+    id: "lambda/multiple-buckets",
+    title: "Multiple buckets in Remotion Lambda",
+    relativePath: "docs/lambda/multiple-buckets.md",
+    compId: "articles-docs-lambda-multiple-buckets",
+    crumb: "@remotion/lambda",
+  },
+  {
     id: "lambda/permissions",
     title: "Permissions",
     relativePath: "docs/lambda/permissions.md",
@@ -831,6 +831,13 @@ export const articles = [
     relativePath: "docs/lambda/speed.md",
     compId: "articles-docs-lambda-speed",
     crumb: "Lambda",
+  },
+  {
+    id: "lambda/sqs",
+    title: "Using Lambda with SQS",
+    relativePath: "docs/lambda/sqs.md",
+    compId: "articles-docs-lambda-sqs",
+    crumb: "@remotion/lambda",
   },
   {
     id: "bucket-disallows-acl",
