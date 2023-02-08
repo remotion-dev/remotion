@@ -14,6 +14,7 @@ import {Internals} from 'remotion';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {findEntryPoint} from './entry-point';
+import {getResolvedAudioCodec} from './get-audio-codec';
 import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
@@ -177,11 +178,15 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		scale,
 	});
 
+	const audioCodec = getResolvedAudioCodec();
+
 	const relativeOutputLocation = getOutputFilename({
-		codec,
 		imageSequence: shouldOutputImageSequence,
 		compositionName: compositionId,
-		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec),
+		defaultExtension: RenderInternals.getFileExtensionFromCodec(
+			codec,
+			audioCodec
+		),
 		args: argsAfterComposition,
 	});
 

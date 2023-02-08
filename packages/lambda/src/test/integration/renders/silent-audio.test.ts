@@ -68,6 +68,7 @@ test('Should add silent audio if there is no audio', async () => {
 			forceWidth: null,
 			rendererFunctionName: null,
 			bucketName: null,
+			audioCodec: null,
 		},
 		extraContext
 	);

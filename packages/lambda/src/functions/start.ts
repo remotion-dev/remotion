@@ -92,6 +92,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		forceHeight: params.forceHeight,
 		forceWidth: params.forceWidth,
 		rendererFunctionName: params.rendererFunctionName,
+		audioCodec: params.audioCodec,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({

@@ -96,6 +96,20 @@ The option `h264-mkv` has been renamed to just `h264` since `v3.3.34`. Use `h264
 
 See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
 
+### `audioCodec?`
+
+_"pcm-16" | "aac" | "mp3" | "opus", available from v3.3.41_
+
+Choose the encoding of your audio.
+
+- Each Lambda chunk might actually choose an uncompressed codec and convert it in the final encoding stage to prevent audio artifacts.
+- The default is dependent on the chosen `codec`.
+- Choose `pcm-16` if you need uncompressed audio.
+- Not all video containers support all audio codecs.
+- This option takes precedence if the `codec` option also specifies an audio codec.
+
+Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and supported combinations.
+
 ### `forceHeight`
 
 _available from v3.2.40_
