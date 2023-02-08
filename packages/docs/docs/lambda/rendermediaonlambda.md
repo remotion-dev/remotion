@@ -103,8 +103,8 @@ _"pcm-16" | "aac" | "mp3" | "opus", available from v3.3.41_
 Choose the encoding of your audio.
 
 - Each Lambda chunk might actually choose an uncompressed codec and convert it in the final encoding stage to prevent audio artifacts.
-- Default is dependent on the chosen `codec`
-- Choose `pcm-16` if you need uncompressed audio
+- The default is dependent on the chosen `codec`.
+- Choose `pcm-16` if you need uncompressed audio.
 - Not all video containers support all audio codecs.
 - This option takes precedence if the `codec` option also specifies an audio codec.
 

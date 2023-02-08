@@ -34,6 +34,10 @@ type FlatConfig = ObjectConfig['Bundling'] &
 	ObjectConfig['Puppeteer'] &
 	ObjectConfig['Output'] &
 	ObjectConfig['Rendering'] & {
+		/**
+		 * Set the audio codec to use for the output video.
+		 * See the Encoding guide in the docs for defaults and available options.
+		 */
 		setAudioCodec: (codec: 'pcm-16' | 'aac' | 'mp3' | 'opus') => void;
 	};
 
