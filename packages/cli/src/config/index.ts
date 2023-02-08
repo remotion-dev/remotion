@@ -38,6 +38,7 @@ import {getWebpackCaching} from './webpack-caching';
 import type {WebpackConfiguration} from '@remotion/bundler';
 // eslint-disable-next-line no-restricted-imports
 import type {ConfigType} from 'remotion';
+import {getAudioCodec, setAudioCodec} from './audio-codec';
 import {
 	getAudioBitrate,
 	getVideoBitrate,
@@ -175,6 +176,8 @@ export const Config: ConfigType = {
 	Puppeteer,
 	Rendering,
 	Output,
+	// Options added after migration
+	setAudioCodec,
 } as ConfigType;
 
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
@@ -199,6 +202,7 @@ export const ConfigInternals = {
 	getConcurrency,
 	getCurrentPuppeteerTimeout,
 	getQuality,
+	getAudioCodec,
 	getStillFrame,
 	getShouldOutputImageSequence,
 	getDotEnvLocation,
