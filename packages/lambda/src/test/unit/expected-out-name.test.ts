@@ -76,6 +76,8 @@ test('For stills', () => {
 test('Just a custom name', () => {
 	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
+		type: 'still',
+		codec: null,
 		outName: 'justaname.jpeg',
 	};
 	expect(getExpectedOutName(newRenderMetadata, bucketName, null)).toEqual({
@@ -88,6 +90,8 @@ test('Just a custom name', () => {
 test('Should throw on invalid names', () => {
 	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
+		type: 'still',
+		codec: null,
 		outName: '👺.jpeg',
 	};
 	expect(() => {
@@ -98,6 +102,9 @@ test('Should throw on invalid names', () => {
 test('Should allow outName an outname with a slash', () => {
 	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
+		codec: null,
+		audioCodec: null,
+		type: 'still',
 		outName: 'justa/name.jpeg',
 	};
 	expect(getExpectedOutName(newRenderMetadata, bucketName, null)).toEqual({
