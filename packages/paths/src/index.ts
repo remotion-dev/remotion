@@ -19,6 +19,7 @@ export {parsePath} from './parse-path';
 export {reduceInstructions} from './reduce-instructions';
 export {resetPath} from './reset-path';
 export {reversePath} from './reverse-path';
+export {scalePath} from './scale-path';
 export {serializeInstructions} from './serialize-instructions';
 export {translatePath} from './translate-path';
 export {warpPath, WarpPathFn} from './warp-path';
