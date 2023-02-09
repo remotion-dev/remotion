@@ -1304,6 +1304,13 @@ export const articles = [
     crumb: "@remotion/paths",
   },
   {
+    id: "paths/warp-path",
+    title: "warpPath()",
+    relativePath: "docs/paths/warp-path.md",
+    compId: "articles-docs-paths-warp-path",
+    crumb: "@remotion/paths",
+  },
+  {
     id: "performance",
     title: "Performance Tips",
     relativePath: "docs/performance.md",

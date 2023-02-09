@@ -262,11 +262,13 @@ module.exports = {
         "paths/reset-path",
         "paths/get-subpaths",
         "paths/translate-path",
+        "paths/warp-path",
         "paths/get-bounding-box",
         "paths/extend-viewbox",
         "paths/parse-path",
         "paths/serialize-instructions",
         "paths/reduce-instructions",
+
         "paths/get-parts",
       ],
     },
