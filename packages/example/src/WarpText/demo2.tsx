@@ -72,9 +72,7 @@ export const WarpDemo2 = () => {
 		};
 	};
 
-	const warped = warpPath(reset, warpPathFn, {
-		interpolationThreshold: 0.3,
-	});
+	const warped = warpPath(reset, warpPathFn);
 	const box = getBoundingBox(warped);
 
 	const {x1, x2, y1, y2} = box;
