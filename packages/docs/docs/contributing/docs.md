@@ -21,7 +21,7 @@ Each page has a button `Improve this page` at the bottom. This is the easiest wa
 <Step>2</Step> Create a new <code>.md</code> document in the <code>packages/docs/docs</code> folder. <br/>
 <Step>3</Step> Add the document to <code>packages/docs/sidebars.js</code>.<br/>
 <Step>4</Step> Write what you have to say!<br/>
-<Step>5</Step> Run <code>node extract-articles.mjs</code> in <code>packages/docs</code> to generate preview cards that will show up if the documentation page is shared on social media.<br/>
+<Step>5</Step> Run <code>node render-cards.mjs</code> in <code>packages/docs</code> to generate preview cards that will show up if the documentation page is shared on social media.<br/>
 
 ## Language guidelines
 
