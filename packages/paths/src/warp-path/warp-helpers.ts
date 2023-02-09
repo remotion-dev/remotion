@@ -1,6 +1,6 @@
 import type {ReducedInstruction} from '../helpers/types';
 
-export type PointTransformer = (point: {x: number; y: number}) => {
+export type WarpPathFn = (point: {x: number; y: number}) => {
 	x: number;
 	y: number;
 };
@@ -95,7 +95,7 @@ function warpInterpolate(
 
 export const warpTransform = (
 	path: ReducedInstruction[],
-	transformer: PointTransformer
+	transformer: WarpPathFn
 ) => {
 	return pathTransform(path, (segment): ReducedInstruction[] => {
 		if (segment.type === 'L') {

@@ -21,4 +21,4 @@ export {resetPath} from './reset-path';
 export {reversePath} from './reverse-path';
 export {serializeInstructions} from './serialize-instructions';
 export {translatePath} from './translate-path';
-export {warpPath} from './warp-path';
+export {warpPath, WarpPathFn} from './warp-path';
