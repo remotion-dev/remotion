@@ -1,3 +1,5 @@
+import {getBoundingBoxFromInstructions} from '../get-bounding-box';
+import type {ReducedInstruction} from '../helpers/types';
 import {parsePath} from '../parse-path';
 import {reduceInstructions} from '../reduce-instructions';
 import {serializeInstructions} from '../serialize-instructions';
@@ -8,14 +10,28 @@ import {
 	warpTransform,
 } from './warp-helpers';
 
+const getDefaultInterpolationThreshold = (
+	instructions: ReducedInstruction[]
+) => {
+	const boundingBox = getBoundingBoxFromInstructions(instructions);
+	const longer = Math.max(
+		boundingBox.y2 - boundingBox.y1,
+		boundingBox.x2 - boundingBox.x1
+	);
+	return longer * 0.01;
+};
+
 export const warpPath = (
 	path: string,
 	transformer: WarpPathFn,
-	interpolationThreshold: number
+	options?: {
+		interpolationThreshold?: number;
+	}
 ): string => {
 	const reduced = reduceInstructions(parsePath(path));
 	const withZFix = fixZInstruction(reduced);
-	const interpolated = svgPathInterpolate(withZFix, interpolationThreshold);
+
+	const interpolated = svgPathInterpolate(withZFix, options?.interpolationThreshold ?? getDefaultInterpolationThreshold(withZFix)));
 
 	return serializeInstructions(warpTransform(interpolated, transformer));
 };
