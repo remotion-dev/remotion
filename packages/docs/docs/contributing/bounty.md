@@ -19,7 +19,7 @@ Initially, there is no difference to a common contribution, that has no bounty. 
 
 ## Before starting to solve the issue
 
-Bounties are paid through a third-party platform (i.e., Algora). Before you start solving the issue, it’s recommended to create an account on <a href="https://algora.io/">Algora</a>, where you also need to set up and connect your Stripe account. Once you have been assigned the issue and created an account on Algora, you are ready to go. You can start hacking.
+Bounties are paid through a third-party platform (i.e., Algora). Before you start solving the issue, it’s recommended to create an account on <a href="https://algora.io/">Algora</a>, where you also need to set up and connect your Stripe account. Once you have been assigned the issue and created an account on Algora, you are ready to go.
 
 ## Start with hacking
 
