@@ -1,12 +1,6 @@
 import opentype from 'opentype.js';
 import {useEffect, useRef, useState} from 'react';
-import {
-	AbsoluteFill,
-	spring,
-	staticFile,
-	useCurrentFrame,
-	useVideoConfig,
-} from 'remotion';
+import {AbsoluteFill, staticFile, useCurrentFrame} from 'remotion';
 
 import {getBoundingBox, resetPath, warpPath, WarpPathFn} from '@remotion/paths';
 
@@ -14,6 +8,7 @@ type FontInfo = {
 	path: string;
 };
 
+// Recreating the album cover typography from https://en.wikipedia.org/wiki/So_Good_(Zara_Larsson_album)
 const getPath = () => {
 	return new Promise<FontInfo>((resolve, reject) => {
 		opentype.load(staticFile('Roboto-Medium.ttf'), (err, font) => {
@@ -26,38 +21,27 @@ const getPath = () => {
 				return;
 			}
 
-			const path = font.getPath('REMOTION', 0, 150, 72);
+			const path = font.getPath('SO GOOD', 0, 150, 72);
 			const p = path.toPathData(2);
 			resolve({path: p});
 		});
 	});
 };
 
-export const WarpDemo = () => {
+function normalDistribution(x: number): number {
+	return Math.exp(-(x ** 2) / 2) / Math.sqrt(2 * Math.PI);
+}
+
+console.log('hi');
+console.log(normalDistribution(-1));
+console.log(normalDistribution(0.5));
+console.log(normalDistribution(1));
+console.log('hi');
+
+export const WarpDemo2 = () => {
 	const [path, setPath] = useState<string | null>(() => null);
 	const ref = useRef<SVGSVGElement>(null);
 	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
-	const sprX =
-		spring({
-			fps,
-			frame,
-			config: {
-				damping: 200,
-			},
-		}) *
-			2.5 +
-		1;
-	const sprY =
-		spring({
-			fps,
-			frame: frame - 30,
-			config: {
-				damping: 200,
-			},
-		}) *
-			2.5 +
-		1;
 
 	useEffect(() => {
 		getPath().then((p) => {
@@ -71,12 +55,26 @@ export const WarpDemo = () => {
 
 	const reset = resetPath(path);
 
-	const warpPathFn: WarpPathFn = ({x, y}) => ({
-		x: x * sprY + Math.sin(y / 4 + frame / 20) * 5,
-		y: y * sprX,
-	});
+	const boundingBox = getBoundingBox(reset);
+	const height = boundingBox.y2 - boundingBox.y1;
 
-	const warped = warpPath(reset, warpPathFn);
+	const start = 0.4 * height;
+	const end = 0.5 * height;
+
+	const warpPathFn: WarpPathFn = ({x, y}) => {
+		const currentPos = y - start;
+
+		const ease = normalDistribution(currentPos / (end - start));
+
+		return {
+			x: x + 80 * ease,
+			y: y * 5,
+		};
+	};
+
+	const warped = warpPath(reset, warpPathFn, {
+		interpolationThreshold: 0.3,
+	});
 	const box = getBoundingBox(warped);
 
 	const {x1, x2, y1, y2} = box;
@@ -84,7 +82,7 @@ export const WarpDemo = () => {
 	return (
 		<AbsoluteFill
 			style={{
-				backgroundColor: 'white',
+				backgroundColor: 'rgb(87 132 153)',
 				justifyContent: 'center',
 				alignItems: 'center',
 			}}
@@ -94,11 +92,16 @@ export const WarpDemo = () => {
 					ref={ref}
 					style={{
 						overflow: 'visible',
-						height: 50 * sprX,
+						height: 500,
 					}}
 					viewBox={`${x1} ${y1} ${x2 - x1} ${y2 - y1}`}
 				>
-					<path d={warped} fill="black" stroke="black" strokeWidth={3} />
+					<path
+						d={warped}
+						fill="transparent"
+						stroke="#E2BECC"
+						strokeWidth={2}
+					/>
 				</svg>
 			) : null}
 		</AbsoluteFill>
