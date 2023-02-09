@@ -12,7 +12,7 @@ Takes a private S3 object and turns it into a public URL by signing with your AW
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import { presignUrl } from "@remotion/lambda";
+import { presignUrl } from "@remotion/lambda/client";
 
 const url = await presignUrl({
   region: "us-east-1",
