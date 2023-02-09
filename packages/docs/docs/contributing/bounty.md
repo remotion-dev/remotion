@@ -9,7 +9,9 @@ It’s nice to see community members contribute to Remotion’s code base. There
 
 ## Find bounties
 
-All bounties can be tracked in Remotion’s GitHub repository under issues. Issues with a bounty have a label (💎 Bounty) on them. You can filter issues based on this bounty label to get an overview of all <a href="https://github.com/remotion-dev/remotion/issues?q=is%3Aopen+label%3A%22%F0%9F%92%8E+Bounty%22+sort%3Aupdated-desc">open</a> or <a href="https://github.com/remotion-dev/remotion/issues?q=label%3A%22%F0%9F%92%8E+Bounty%22+sort%3Aupdated-desc+is%3Aclosed">closed</a> issues. Furthermore, bounties are announced in the <a href="https://remotion.dev/discord">Remotion Discord Server</a>.
+All bounties can be tracked in Remotion’s GitHub Issues. Issues with a bounty have a label `💎 Bounty` on them. [View open bounties](https://github.com/remotion-dev/remotion/issues?q=is%3Aopen+label%3A%22%F0%9F%92%8E+Bounty%22+sort%3Aupdated-desc) [View completed bounties](https://github.com/remotion-dev/remotion/issues?q=label%3A%22%F0%9F%92%8E+Bounty%22+sort%3Aupdated-desc+is%3Aclosed)
+
+Bounties are also announced in the <a href="https://remotion.dev/discord">Remotion Discord Server</a> in the `#bounties` channel.
 
 ## Taking a bounty
 
