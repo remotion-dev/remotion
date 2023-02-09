@@ -189,6 +189,13 @@ export const articles = [
     crumb: "API",
   },
   {
+    id: "contributing/bounty",
+    title: "How to take a bounty issue",
+    relativePath: "docs/contributing/bounty.md",
+    compId: "articles-docs-contributing-bounty",
+    crumb: "Contributing",
+  },
+  {
     id: "contributing/docs",
     title: "Contributing to the documentation",
     relativePath: "docs/contributing/docs.md",
@@ -481,13 +488,6 @@ export const articles = [
     relativePath: "docs/lambda/authentication.md",
     compId: "articles-docs-lambda-authentication",
     crumb: "Lambda",
-  },
-  {
-    id: "lambda/aws-sqs-lambda-integration",
-    title: "Using Lambda with SQS",
-    relativePath: "docs/lambda/aws-sqs-lambda-integration.md",
-    compId: "articles-docs-lambda-aws-sqs-lambda-integration",
-    crumb: "@remotion/lambda",
   },
   {
     id: "changelog",
@@ -831,6 +831,13 @@ export const articles = [
     relativePath: "docs/lambda/speed.md",
     compId: "articles-docs-lambda-speed",
     crumb: "Lambda",
+  },
+  {
+    id: "lambda/sqs",
+    title: "Using Lambda with SQS",
+    relativePath: "docs/lambda/sqs.md",
+    compId: "articles-docs-lambda-sqs",
+    crumb: "@remotion/lambda",
   },
   {
     id: "bucket-disallows-acl",
