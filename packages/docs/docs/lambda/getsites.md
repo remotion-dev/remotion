@@ -17,7 +17,7 @@ Gets all sites and logs information about them.
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import { getSites } from "@remotion/lambda";
+import { getSites } from "@remotion/lambda/client";
 
 const { sites, buckets } = await getSites({
   region: "eu-central-1",
@@ -37,6 +37,10 @@ for (const bucket of buckets) {
   console.log(bucket.creationDate); // A unix timestamp of when the site was created.
 }
 ```
+
+:::note
+Preferrably import this function from `@remotion/lambda/client` (available from v3.3.42) to avoid problems [inside serverless functions](/docs/lambda/light-client).
+:::
 
 ## Arguments
 
