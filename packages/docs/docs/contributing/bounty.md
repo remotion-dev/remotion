@@ -1,15 +1,18 @@
 ---
 image: /generated/articles-docs-contributing-bounty.png
-title: How to take a bounty issue
-sidebar_label: How to take a bounty issue
+title: Take and solve bounty issues
+sidebar_label: Take and solve bounty issues
 crumb: Contributing
 ---
 
-It’s nice to see community members contribute to Remotion’s code base. There are rewards for specific issues on GitHub to keep engagement high. These rewards are called bounties.
+It’s nice to see community members contribute to Remotion’s code base. Some issues carry cash bounties that you can earn by solving them.
 
 ## Find bounties
 
-All bounties can be tracked in Remotion’s GitHub Issues. Issues with a bounty have a label `💎 Bounty` on them. [View open bounties](https://github.com/remotion-dev/remotion/issues?q=is%3Aopen+label%3A%22%F0%9F%92%8E+Bounty%22+sort%3Aupdated-desc) [View completed bounties](https://github.com/remotion-dev/remotion/issues?q=label%3A%22%F0%9F%92%8E+Bounty%22+sort%3Aupdated-desc+is%3Aclosed)
+All bounties can be tracked in Remotion’s GitHub Issues. Issues with a bounty have a label `💎 Bounty` on them. <br/>
+
+- [View open bounties](https://github.com/remotion-dev/remotion/issues?q=is%3Aopen+label%3A%22%F0%9F%92%8E+Bounty%22+sort%3Aupdated-desc) <br/>
+- [View completed bounties](https://github.com/remotion-dev/remotion/issues?q=label%3A%22%F0%9F%92%8E+Bounty%22+sort%3Aupdated-desc+is%3Aclosed) <br/>
 
 Bounties are also announced in the <a href="https://remotion.dev/discord">Remotion Discord Server</a> in the `#bounties` channel.
 
@@ -23,11 +26,11 @@ Bounties are paid through a third-party platform (i.e., Algora). Before you star
 
 ## Start with hacking
 
-It's assumed that you start working on the issue right after it has been assigned to you. Getting stuck is not an issue, but you should communicate it. By telling and describing the challenges, you might get some input from the community, which can help you to solve the issue faster. If there is no communication done within one week since you started hacking, it is assumed you left the issue, and the bounty is going to be reassigned to someone else.
+It's assumed that you start working on the issue within a reasonable time after it has been assigned to you. Getting stuck is not an issue, but you should communicate it. By telling and describing the challenges, you might get some input from the community, which can help you to solve the issue faster. In case an issue should take longer to solve than expected it's not a problem. But it's important that you communicate, if no communication is done within one week since you got the assignment, it is assumed you left the issue, and the bounty is going to be reassigned to someone else.
 
 ## Help during hacking
 
-During Hacktoberfest (i.e., October), the Remotion team provides guidance to some degree, since there is a focus on new contributors. Besides Hacktoberfest, no guidance is provided when tackling a bounty issue. Of course, questions about stylistic matters and important implementation behaviors are welcome.
+During Hacktoberfest (i.e., October), the Remotion team provides guidance to some degree, since there is a focus on new contributors and beginners. Besides Hacktoberfest, there is less guidance provided when tackling a bounty issue. It is expected that you have a basic idea how to solve it. Of course, questions about stylistic matters and important implementation behaviors are always welcome.
 
 ## See also
 
