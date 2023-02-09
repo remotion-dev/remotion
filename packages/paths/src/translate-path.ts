@@ -3,7 +3,11 @@ import type {Instruction} from './helpers/types';
 import {parsePath} from './parse-path';
 import {serializeInstructions} from './serialize-instructions';
 
-const translateSegments = (segments: Instruction[], x: number, y: number) => {
+export const translateSegments = (
+	segments: Instruction[],
+	x: number,
+	y: number
+) => {
 	return segments.map((segment): Instruction => {
 		// Shift coords only for commands with absolute values
 		if (
