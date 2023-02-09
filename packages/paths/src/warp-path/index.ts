@@ -31,7 +31,11 @@ export const warpPath = (
 	const reduced = reduceInstructions(parsePath(path));
 	const withZFix = fixZInstruction(reduced);
 
-	const interpolated = svgPathInterpolate(withZFix, options?.interpolationThreshold ?? getDefaultInterpolationThreshold(withZFix)));
+	const interpolated = svgPathInterpolate(
+		withZFix,
+		options?.interpolationThreshold ??
+			getDefaultInterpolationThreshold(withZFix)
+	);
 
 	return serializeInstructions(warpTransform(interpolated, transformer));
 };
