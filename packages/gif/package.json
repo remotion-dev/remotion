@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/gif",
-	"version": "3.3.41",
+	"version": "3.3.42",
 	"description": "Gif component for remotion",
 	"sideEffects": false,
 	"repository": {
@@ -23,7 +23,7 @@
 	"dependencies": {
 		"js-binary-schema-parser": "^2.0.3",
 		"lru_map": "0.4.1",
-		"remotion": "3.3.41"
+		"remotion": "3.3.42"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
