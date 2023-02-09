@@ -483,6 +483,13 @@ export const articles = [
     crumb: "Lambda",
   },
   {
+    id: "lambda/bucket-naming",
+    title: "Bucket names in Remotion Lambda",
+    relativePath: "docs/lambda/bucket-naming.md",
+    compId: "articles-docs-lambda-bucket-naming",
+    crumb: "@remotion/lambda",
+  },
+  {
     id: "changelog",
     title: "Prerelease Changelog",
     relativePath: "docs/lambda/changelog.md",
