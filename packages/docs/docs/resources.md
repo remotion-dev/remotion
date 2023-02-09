@@ -94,6 +94,14 @@ See the [Showcase](/showcase) for videos made with Remotion.
 - [CRT effect](https://www.youtube.com/watch?v=-7MOoWN2_nk)
 - ["Create videos with Code" by Prismic](https://prismic.io/blog/create-videos-with-code-remotion-tutorial)
 
+## Hacks
+
+- [GitHub Actions Matrix renderer](https://github.com/yuvraj108c/Remotion-Matrix-Renderer)
+- [WebKit renderer](https://iosexample.com/using-wkwebview-as-a-faster-alternative-for-rendering-remotion-compositions/)
+- [VS Code extension](https://marketplace.visualstudio.com/items?itemName=KarelNagel.remotion-vscode)
+- [GIF Pull request previews](https://github.com/stoat-dev/example-remotion)
+- [Side-by-side editor](https://www.loom.com/share/7b2aa7fe14c04e858838f137ed19dfd8)
+
 ## Humans
 
 - [Experts](/experts)

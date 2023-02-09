@@ -756,6 +756,13 @@ export const articles = [
     crumb: "Lambda",
   },
   {
+    id: "lambda/multiple-buckets",
+    title: "Multiple buckets in Remotion Lambda",
+    relativePath: "docs/lambda/multiple-buckets.md",
+    compId: "articles-docs-lambda-multiple-buckets",
+    crumb: "@remotion/lambda",
+  },
+  {
     id: "lambda/permissions",
     title: "Permissions",
     relativePath: "docs/lambda/permissions.md",
