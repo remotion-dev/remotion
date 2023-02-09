@@ -190,7 +190,7 @@ export const articles = [
   },
   {
     id: "contributing/bounty",
-    title: "How to take a bounty issue",
+    title: "Take and solve bounty issues",
     relativePath: "docs/contributing/bounty.md",
     compId: "articles-docs-contributing-bounty",
     crumb: "Contributing",

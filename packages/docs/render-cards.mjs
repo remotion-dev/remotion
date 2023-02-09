@@ -1,30 +1,29 @@
 import { bundle } from "@remotion/bundler";
 import { getCompositions, renderStill } from "@remotion/renderer";
 import path from "path";
+import { execSync } from "child_process";
+import fs from "fs";
+import { readDir } from "./get-pages.mjs";
 
 // render cards
-const serveUrl_1 = await bundle({
+const serveUrl = await bundle({
   entryPoint: path.join(process.cwd(), "./src/remotion/entry.ts"),
   publicDir: path.join(process.cwd(), "static"),
 });
-const compositions_1 = await getCompositions(serveUrl_1);
+const compositions = await getCompositions(serveUrl);
 
-for (const composition of compositions_1.filter(
+for (const composition of compositions.filter(
   (c) => c.id.startsWith("expert") || c.id.startsWith("template")
 )) {
   await renderStill({
     composition,
     output: `static/generated/${composition.id}.png`,
-    serveUrl: serveUrl_1,
+    serveUrl,
   });
   console.log("Rendered", composition.id);
 }
 
 
-// extract articles
-import { execSync } from "child_process";
-import fs from "fs";
-import { readDir } from "./get-pages.mjs";
 
 const root = path.join(process.cwd(), "docs");
 
@@ -90,14 +89,8 @@ fs.writeFileSync(
 
 execSync("pnpm exec prettier src/data/articles.ts --write");
 
-const serveUrl_2 = await bundle({
-  entryPoint: path.join(process.cwd(), "./src/remotion/entry.ts"),
-  publicDir: path.join(process.cwd(), "static"),
-});
-const compositions_2 = await getCompositions(serveUrl_2);
-
 for (const entry of data) {
-  const composition = compositions_2.find((c) => c.id === entry.compId);
+  const composition = compositions.find((c) => c.id === entry.compId);
   const output = `static/generated/${composition.id}.png`;
   if (fs.existsSync(output)) {
     console.log("Existed", composition.id);
@@ -108,7 +101,7 @@ for (const entry of data) {
   await renderStill({
     composition,
     output,
-    serveUrl: serveUrl_2,
+    serveUrl,
   });
 
   const fileContents = fs.readFileSync(out, "utf-8");
