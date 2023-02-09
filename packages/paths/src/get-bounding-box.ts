@@ -1,6 +1,9 @@
 import {removeATSHVInstructions} from './helpers/remove-a-s-t-curves';
-import type {AbsoluteInstruction, BoundingBox} from './helpers/types';
-import {normalizePath} from './normalize-path';
+import type {
+	AbsoluteInstruction,
+	BoundingBox,
+	ReducedInstruction,
+} from './helpers/types';
 import {parsePath} from './parse-path';
 
 type minMax = [min: number, max: number];
@@ -85,17 +88,24 @@ function minmaxC(A: [number, number, number, number]): minMax {
 }
 
 export const getBoundingBox = (d: string): BoundingBox => {
+	const parsed = parsePath(d) as AbsoluteInstruction[];
+	const unarced = removeATSHVInstructions(parsed);
+
+	return getBoundingBoxFromInstructions(unarced);
+};
+
+export const getBoundingBoxFromInstructions = (
+	instructions: ReducedInstruction[]
+): BoundingBox => {
 	let minX = Infinity;
 	let minY = Infinity;
 	let maxX = -Infinity;
 	let maxY = -Infinity;
-	const parsed = parsePath(normalizePath(d)) as AbsoluteInstruction[];
-	const unarced = removeATSHVInstructions(parsed);
 
 	let x = 0;
 	let y = 0;
 
-	for (const seg of unarced) {
+	for (const seg of instructions) {
 		switch (seg.type) {
 			case 'M':
 			case 'L': {
