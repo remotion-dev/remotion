@@ -59,7 +59,7 @@ export const WarpDemo2 = () => {
 	const height = boundingBox.y2 - boundingBox.y1;
 
 	const start = 0.4 * height;
-	const end = 0.5 * height;
+	const end = 0.47 * height;
 
 	const warpPathFn: WarpPathFn = ({x, y}) => {
 		const currentPos = y - start;
@@ -67,7 +67,7 @@ export const WarpDemo2 = () => {
 		const ease = normalDistribution(currentPos / (end - start));
 
 		return {
-			x: x + 80 * ease,
+			x: x + 50 * ease,
 			y: y * 5,
 		};
 	};
@@ -98,7 +98,7 @@ export const WarpDemo2 = () => {
 						d={warped}
 						fill="transparent"
 						stroke="#E2BECC"
-						strokeWidth={2}
+						strokeWidth={3}
 					/>
 				</svg>
 			) : null}
