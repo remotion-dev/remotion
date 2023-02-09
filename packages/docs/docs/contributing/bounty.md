@@ -15,7 +15,7 @@ Bounties are also announced in the <a href="https://remotion.dev/discord">Remoti
 
 ## Taking a bounty
 
-Initially, there is no difference to a common contribution, that has no bounty. To tackle an issue, you simply need to comment with the intention of solving that issue. For issues with bounties, the Remotion team does a quick screening to see if the experience matches the problem difficulty. In the best case, describe your approach of solving that issue when initially commenting on it. If everything looks good, you get the issue assigned. The assignment is done on a first-come-first-served basis, and only one bounty at a time is assigned to the same contributor.
+Like a regular issue, you can ask to work on it by commenting on it. For issues with bounties, the Remotion team does a quick screening to see if the experience matches the problem difficulty. In the best case, describe your approach of solving that issue when initially commenting on it. If everything looks good, you get the issue assigned. The assignment is done on a first-come-first-served basis, and only one bounty at a time is assigned to the same contributor.
 
 ## Before starting to solve the issue
 
