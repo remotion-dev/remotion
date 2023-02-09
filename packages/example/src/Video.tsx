@@ -34,6 +34,7 @@ import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
+import {WarpDemo} from './WarpText';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -518,6 +519,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="path-morph"
 					lazyComponent={() => import('./Paths/PathMorph')}
+					durationInFrames={500}
+					fps={30}
+					height={1080}
+					width={1080}
+				/>
+				<Composition
+					id="path-warp"
+					component={WarpDemo}
 					durationInFrames={500}
 					fps={30}
 					height={1080}
