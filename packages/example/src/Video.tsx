@@ -17,6 +17,7 @@ import {OffthreadRemoteVideo} from './OffthreadRemoteVideo/OffthreadRemoteVideo'
 import {OrbScene} from './Orb';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
+import {ScalePath} from './ScalePath';
 import {Scripts} from './Scripts';
 import CircleTest from './Shapes/CircleTest';
 import EllipseTest from './Shapes/EllipseTest';
@@ -520,6 +521,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="path-morph"
 					lazyComponent={() => import('./Paths/PathMorph')}
+					durationInFrames={500}
+					fps={30}
+					height={1080}
+					width={1080}
+				/>
+				<Composition
+					id="scale-path"
+					component={ScalePath}
 					durationInFrames={500}
 					fps={30}
 					height={1080}
