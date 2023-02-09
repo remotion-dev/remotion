@@ -4,6 +4,7 @@ import type {
 	BoundingBox,
 	ReducedInstruction,
 } from './helpers/types';
+import {normalizeInstructions} from './normalize-path';
 import {parsePath} from './parse-path';
 
 type minMax = [min: number, max: number];
@@ -89,7 +90,7 @@ function minmaxC(A: [number, number, number, number]): minMax {
 
 export const getBoundingBox = (d: string): BoundingBox => {
 	const parsed = parsePath(d) as AbsoluteInstruction[];
-	const unarced = removeATSHVInstructions(parsed);
+	const unarced = removeATSHVInstructions(normalizeInstructions(parsed));
 
 	return getBoundingBoxFromInstructions(unarced);
 };
