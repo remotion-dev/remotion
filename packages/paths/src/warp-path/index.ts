@@ -1,7 +1,7 @@
 import {parsePath} from '../parse-path';
 import {reduceInstructions} from '../reduce-instructions';
 import {serializeInstructions} from '../serialize-instructions';
-import type {PointTransformer} from './warp-helpers';
+import type {WarpPathFn} from './warp-helpers';
 import {
 	fixZInstruction,
 	svgPathInterpolate,
@@ -10,7 +10,7 @@ import {
 
 export const warpPath = (
 	path: string,
-	transformer: PointTransformer,
+	transformer: WarpPathFn,
 	interpolationThreshold: number
 ): string => {
 	const reduced = reduceInstructions(parsePath(path));
@@ -19,3 +19,5 @@ export const warpPath = (
 
 	return serializeInstructions(warpTransform(interpolated, transformer));
 };
+
+export type {WarpPathFn} from './warp-helpers';
