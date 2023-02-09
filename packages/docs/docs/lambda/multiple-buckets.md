@@ -59,3 +59,7 @@ You have multiple buckets [a,b,c] in your S3 region [us-east-1] starting with "r
 ```
 
 but you were not intending to use multiple buckets, delete the extraneous buckets in the AWS console to fix the error.
+
+## See also
+
+- [Bucket naming](/docs/lambda/bucket-naming)
