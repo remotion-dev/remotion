@@ -520,7 +520,6 @@ Choose one of the supported codecs: `h264` _(default)_, `h265`, `vp8`, `vp9`.
 - `mp3` will export audio only as an MP3 file _(available from v2.0)_
 - `wav` will export audio only as an WAV file _(available from v2.0)_
 - `aac` will export audio only as an AAC file _(available from v2.0)_
-- `mkv` will export using H264 codec, MKV container format and WAV audio codec. _(available from v2.1.12)_
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "remotion";
@@ -531,6 +530,25 @@ Config.setCodec("h265");
 The [command line flag](/docs/cli/render#--codec) `--codec` will take precedence over this option.
 
 **See also**: [Encoding guide](/docs/encoding)
+
+## setAudioCodec()
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "remotion";
+// ---cut---
+Config.setAudioCodec("pcm-16");
+```
+
+Choose the encoding of your audio.
+
+- The default is dependent on the chosen `codec`.
+- Choose `pcm-16` if you need uncompressed audio.
+- Not all video containers support all audio codecs.
+- This option takes precedence if the `codec` option also specifies an audio codec.
+
+The [command line flag](/docs/cli/render#--audio-codec) `--audio-codec` will take precedence over this option.
+
+Refer to the [Encoding guide](/docs/encoding) to see defaults and supported combinations.
 
 ## setProResProfile()
 
