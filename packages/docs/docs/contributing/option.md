@@ -44,3 +44,4 @@ Note from which version the option is available.
 
 - [Implementing a new feature](/docs/contributing/feature)
 - [Writing documentation](/docs/contributing/docs)
+- [How to take a bounty issue](/docs/contributing/bounty)
