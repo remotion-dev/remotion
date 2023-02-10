@@ -45,6 +45,10 @@ export const TableOfContents: React.FC = () => {
           <strong>warpPath()</strong>
           <div>Remap the coordinates of a path</div>
         </TOCItem>
+        <TOCItem link="/docs/paths/scale-path">
+          <strong>scalePath()</strong>
+          <div>Grow or shrink the size of the path</div>
+        </TOCItem>
         <TOCItem link="/docs/paths/get-bounding-box">
           <strong>getBoundingBox()</strong>
           <div>Get the bounding box of a SVG path</div>

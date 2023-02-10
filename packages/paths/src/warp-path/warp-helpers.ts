@@ -5,30 +5,6 @@ export type WarpPathFn = (point: {x: number; y: number}) => {
 	y: number;
 };
 
-type TTransformer = (
-	segment: ReducedInstruction,
-	i: number,
-	path: ReducedInstruction[],
-	newPath: ReducedInstruction[]
-) => ReducedInstruction[] | false;
-
-function pathTransform(
-	path: ReducedInstruction[],
-	transformer: TTransformer
-): ReducedInstruction[] {
-	const newPath = [];
-
-	for (let i = 0; i < path.length; i++) {
-		const result = transformer(path[i], i, path, newPath);
-
-		if (result) {
-			newPath.push(...result);
-		}
-	}
-
-	return newPath;
-}
-
 export function svgPathInterpolate(
 	path: ReducedInstruction[],
 	threshold: number
@@ -56,113 +32,121 @@ function warpInterpolate(
 	path: ReducedInstruction[],
 	threshold: number,
 	deltaFunction: DeltaFunction
-) {
+): ReducedInstruction[] {
 	let prexX = 0;
 	let prexY = 0;
 
-	return pathTransform(path, (segment) => {
-		const points: [number, number][] = [[prexX, prexY]];
+	return path
+		.map((segment) => {
+			const points: [number, number][] = [[prexX, prexY]];
 
-		if (segment.type !== 'Z') {
-			prexX = segment.x;
-			prexY = segment.y;
-		}
+			if (segment.type !== 'Z') {
+				prexX = segment.x;
+				prexY = segment.y;
+			}
 
-		if (segment.type === 'C') {
-			points.push([segment.cp1x, segment.cp1y]);
-			points.push([segment.cp2x, segment.cp2y]);
-			points.push([segment.x, segment.y]);
-		}
+			if (segment.type === 'C') {
+				points.push([segment.cp1x, segment.cp1y]);
+				points.push([segment.cp2x, segment.cp2y]);
+				points.push([segment.x, segment.y]);
+			}
 
-		if (segment.type === 'L') {
-			points.push([segment.x, segment.y]);
-		}
+			if (segment.type === 'L') {
+				points.push([segment.x, segment.y]);
+			}
 
-		if (segment.type === 'Q') {
-			points.push([segment.cpx, segment.cpy]);
-			points.push([segment.x, segment.y]);
-		}
+			if (segment.type === 'Q') {
+				points.push([segment.cpx, segment.cpy]);
+				points.push([segment.x, segment.y]);
+			}
 
-		if (segment.type === 'C' || segment.type === 'Q' || segment.type === 'L') {
-			return interpolateUntil(points, threshold, deltaFunction).map(
-				(rawSegment) => createLineSegment(rawSegment)
-			);
-		}
+			if (
+				segment.type === 'C' ||
+				segment.type === 'Q' ||
+				segment.type === 'L'
+			) {
+				return interpolateUntil(points, threshold, deltaFunction).map(
+					(rawSegment) => createLineSegment(rawSegment)
+				);
+			}
 
-		return [segment];
-	});
+			return [segment];
+		})
+		.flat(1);
 }
 
 export const warpTransform = (
 	path: ReducedInstruction[],
 	transformer: WarpPathFn
-) => {
-	return pathTransform(path, (segment): ReducedInstruction[] => {
-		if (segment.type === 'L') {
-			const {x, y} = transformer({x: segment.x, y: segment.y});
-			return [
-				{
-					type: 'L',
-					x,
-					y,
-				},
-			];
-		}
+): ReducedInstruction[] => {
+	return path
+		.map((segment): ReducedInstruction[] => {
+			if (segment.type === 'L') {
+				const {x, y} = transformer({x: segment.x, y: segment.y});
+				return [
+					{
+						type: 'L',
+						x,
+						y,
+					},
+				];
+			}
 
-		if (segment.type === 'Q') {
-			const {x, y} = transformer({x: segment.x, y: segment.y});
-			const {x: cpx, y: cpy} = transformer({
-				x: segment.cpx,
-				y: segment.cpy,
-			});
-			return [
-				{
-					type: 'Q',
-					x,
-					y,
-					cpx,
-					cpy,
-				},
-			];
-		}
+			if (segment.type === 'Q') {
+				const {x, y} = transformer({x: segment.x, y: segment.y});
+				const {x: cpx, y: cpy} = transformer({
+					x: segment.cpx,
+					y: segment.cpy,
+				});
+				return [
+					{
+						type: 'Q',
+						x,
+						y,
+						cpx,
+						cpy,
+					},
+				];
+			}
 
-		if (segment.type === 'C') {
-			const {x, y} = transformer({x: segment.x, y: segment.y});
-			const {x: cp1x, y: cp1y} = transformer({
-				x: segment.cp1x,
-				y: segment.cp1y,
-			});
-			const {x: cp2x, y: cp2y} = transformer({
-				x: segment.cp2x,
-				y: segment.cp2y,
-			});
+			if (segment.type === 'C') {
+				const {x, y} = transformer({x: segment.x, y: segment.y});
+				const {x: cp1x, y: cp1y} = transformer({
+					x: segment.cp1x,
+					y: segment.cp1y,
+				});
+				const {x: cp2x, y: cp2y} = transformer({
+					x: segment.cp2x,
+					y: segment.cp2y,
+				});
 
-			return [
-				{
-					type: 'C',
-					x,
-					y,
-					cp1x,
-					cp1y,
-					cp2x,
-					cp2y,
-				},
-			];
-		}
+				return [
+					{
+						type: 'C',
+						x,
+						y,
+						cp1x,
+						cp1y,
+						cp2x,
+						cp2y,
+					},
+				];
+			}
 
-		if (segment.type === 'M') {
-			const {x, y} = transformer({x: segment.x, y: segment.y});
-			return [
-				{
-					type: 'M',
-					x,
-					y,
-				},
-			];
-		}
+			if (segment.type === 'M') {
+				const {x, y} = transformer({x: segment.x, y: segment.y});
+				return [
+					{
+						type: 'M',
+						x,
+						y,
+					},
+				];
+			}
 
-		return [segment];
-	});
+			return [segment];
+		})
+		.flat(1);
 };
 
 // Add a line from second to last point to last point and then keep Z so it can be transformed as well
