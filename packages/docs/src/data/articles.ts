@@ -189,6 +189,13 @@ export const articles = [
     crumb: "API",
   },
   {
+    id: "contributing/bounty",
+    title: "Take and solve bounty issues",
+    relativePath: "docs/contributing/bounty.md",
+    compId: "articles-docs-contributing-bounty",
+    crumb: "Contributing",
+  },
+  {
     id: "contributing/docs",
     title: "Contributing to the documentation",
     relativePath: "docs/contributing/docs.md",

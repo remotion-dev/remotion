@@ -112,3 +112,4 @@ To develop the Rust parts of Remotion, see the README in [packages/renderer/READ
 - [Implementing a new feature](/docs/contributing/feature)
 - [Implementing a new option](/docs/contributing/option)
 - [Writing documentation](/docs/contributing/docs)
+- [How to take a bounty issue](/docs/contributing/bounty)
