@@ -75,6 +75,10 @@ Since SVG is unitless, the threshold is measured in SVG units.
 
 By default the threshold is the 1% width or height of the [bounding box](/docs/paths/get-bounding-box) of the path, whichever is bigger. In other terms, it is `Math.max(width, height) * 0.01`.
 
+## Credits
+
+This function is based on the [WarpJS](https://benjamminf.github.io/warpjs/) library and has been converted to use TypeScript and a pure functional programming API.
+
 ## See also
 
 - [`@remotion/paths`](/docs/paths)
