@@ -35,3 +35,18 @@ export const TransformsTutorial = () => {
     </BrowserOnly>
   );
 };
+
+export const WarpTextTutorial = () => {
+  return (
+    <BrowserOnly>
+      {() => (
+        <AlsoAvailableAsVideo
+          playbackId="925Vqjb0002WjmpV7l1qsUXjhKM8vABxW01FKyfAMckX01U"
+          thumb="https://image.mux.com/925Vqjb0002WjmpV7l1qsUXjhKM8vABxW01FKyfAMckX01U/thumbnail.png"
+          minutes={5}
+          title="Cool text effects with warpPath()"
+        />
+      )}
+    </BrowserOnly>
+  );
+};

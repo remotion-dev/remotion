@@ -72,6 +72,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Apple "Spring loaded" animation](https://github.com/JonnyBurger/spring-loaded)
 - [ThreeJS particles demo](https://github.com/JonnyBurger/three-particles)
 - [Text Morphing](https://github.com/JonnyBurger/morph-text)
+- [Text warping](https://github.com/remotion-dev/text-warping)
 - [Include GLTF models](https://github.com/JonnyBurger/remotion-three-gltf-example)
 - [OpenGL transitions](https://github.com/JonnyBurger/remotion-gl-transitions)
 - [Conference talk in React](https://github.com/pomber/record-talk-with-remotion)

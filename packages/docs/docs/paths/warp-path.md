@@ -4,6 +4,10 @@ title: warpPath()
 crumb: "@remotion/paths"
 ---
 
+import {WarpTextTutorial} from '../../src/components/tutorials';
+
+<WarpTextTutorial />
+
 _Part of the [`@remotion/paths`](/docs/paths) package. Available from v3.3.43_
 
 Allows you to remap the coordinates of an SVG using a function in order to create a warp effect.
@@ -82,4 +86,5 @@ This function is based on the [WarpJS](https://benjamminf.github.io/warpjs/) lib
 ## See also
 
 - [`@remotion/paths`](/docs/paths)
+- [Example repo](https://github.com/remotion-dev/text-warping)
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/warp-path.ts)
