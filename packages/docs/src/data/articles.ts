@@ -1290,6 +1290,13 @@ export const articles = [
     crumb: "@remotion/paths",
   },
   {
+    id: "paths/scale-path",
+    title: "scalePath()",
+    relativePath: "docs/paths/scale-path.md",
+    compId: "articles-docs-paths-scale-path",
+    crumb: "@remotion/paths",
+  },
+  {
     id: "paths/serialize-instructions",
     title: "serializeInstructions()",
     relativePath: "docs/paths/serialize-instructions.md",
