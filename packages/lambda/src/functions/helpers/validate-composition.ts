@@ -7,6 +7,7 @@ import type {
 import {getCompositions} from '@remotion/renderer';
 import type {TCompMetadata} from 'remotion';
 import type {Await} from '../../shared/await';
+import {executablePath} from './get-chromium-executable-path';
 
 type ValidateCompositionOptions = {
 	serveUrl: string;
@@ -49,6 +50,7 @@ export const validateComposition = async ({
 		chromiumOptions,
 		port,
 		downloadMap,
+		browserExecutable: executablePath(),
 	});
 
 	const found = compositions.find((c) => c.id === composition);
