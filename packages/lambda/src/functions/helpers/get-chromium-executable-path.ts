@@ -11,6 +11,6 @@ if (
 	process.env.LD_LIBRARY_PATH = '/opt/lib:/opt/bin';
 }
 
-export const executablePath = async (): Promise<string | undefined> => {
+export const executablePath = (): string => {
 	return '/opt/bin/chromium';
 };

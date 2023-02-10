@@ -19,6 +19,7 @@ import type {
 	ObjectChunkTimingData,
 } from './chunk-optimization/types';
 import {getBrowserInstance} from './helpers/get-browser-instance';
+import {executablePath} from './helpers/get-chromium-executable-path';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
 import {
@@ -228,6 +229,7 @@ const renderHandler = async (
 			// Special flag only in Lambda renderer which improves the audio quality
 			audioCodec: null,
 			preferLossless: true,
+			browserExecutable: executablePath(),
 		})
 			.then(() => resolve())
 			.catch((err) => reject(err));
