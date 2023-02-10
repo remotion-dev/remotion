@@ -263,6 +263,7 @@ module.exports = {
         "paths/get-subpaths",
         "paths/translate-path",
         "paths/warp-path",
+        "paths/scale-path",
         "paths/get-bounding-box",
         "paths/extend-viewbox",
         "paths/parse-path",
