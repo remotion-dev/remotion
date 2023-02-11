@@ -34,7 +34,7 @@ Before you start solving the issue, it’s recommended to create an account on <
 
 It's assumed that you start working on the issue within a reasonable time after it has been assigned to you. Getting stuck is not an issue, but you should communicate it. By telling and describing the challenges, you might get some input from the community, which can help you to solve the issue faster.
 
-If there is no update from you for a week, and it looks like the issue is abdandones, we reserve the right to reassign the issue to someone else.
+If there is no update from you for a week, and it looks like the issue is abdandoned, we reserve the right to reassign the issue to someone else.
 
 ## Get help
 
