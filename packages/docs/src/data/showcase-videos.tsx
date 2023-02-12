@@ -1358,6 +1358,27 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		"name": "Ben Brophy"
 	}
 },
+	{
+	title: "TVFoodMaps Tik Tok",
+	type: "mux_video",
+	muxId: "5ON0000Gg9ov1z01in02jC02k2xjltp01xg3h9CVfymANi01iE",
+	description: "Video generated from TVFoodMaps lists",
+	height: 1920,
+	width: 1080,
+	submittedOn: new Date("02-11-2023"),
+	links: [
+
+		{
+			type: "website",
+			url: "https://www.tvfoodmaps.com",
+		},
+
+	],
+	author: {
+		"url": "https://twitter.com/tvfoodmaps",
+		"name": "TVFoodMaps"
+	}
+},
 ];
 
 const dateString = (date: Date) =>
