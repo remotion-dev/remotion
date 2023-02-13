@@ -84,6 +84,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "cancel-render",
+    title: "cancelRender()",
+    relativePath: "docs/cancel-render.md",
+    compId: "articles-docs-cancel-render",
+    crumb: "How to",
+  },
+  {
     id: "chromium-flags",
     title: "Chromium flags",
     relativePath: "docs/chromium-flags.md",
