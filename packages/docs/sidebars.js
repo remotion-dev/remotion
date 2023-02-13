@@ -60,6 +60,7 @@ module.exports = {
         "interpolate",
         "continue-render",
         "delay-render",
+        "cancel-render",
         "interpolate-colors",
         "get-input-props",
         "measure-spring",

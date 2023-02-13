@@ -10,6 +10,7 @@ import {Null} from './Null';
 declare global {
 	interface Window {
 		ready: boolean;
+		remotion_cancelledError: string | undefined;
 		getStaticCompositions: () => TCompMetadata[];
 		setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
@@ -59,11 +60,12 @@ checkMultipleRemotionVersions();
 
 export * from './AbsoluteFill';
 export * from './audio';
+export {cancelRender} from './cancel-render';
 export * from './Composition';
 export {SmallTCompMetadata, TAsset, TCompMetadata} from './CompositionManager';
 export {Config, ConfigType} from './config';
 export {getInputProps} from './config/input-props';
-export * from './delay-render';
+export {continueRender, delayRender} from './delay-render';
 export * from './easing';
 export * from './Folder';
 export * from './freeze';
