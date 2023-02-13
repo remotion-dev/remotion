@@ -1,12 +1,11 @@
 ---
-image: /generated/articles/docs-cancel-render.png
 id: cancel-render
 title: cancelRender()
 sidebar_label: cancelRender()
 crumb: "How to"
 ---
 
-When you invoke the `cancelRender()` function, you're telling remotion to stop rendering all the frames.
+By invoking `cancelRender()`, Remotion will stop rendering all the frames, and
 
 `cancelRender()` throws a simple error &mdash; `"Rendering Cancelled"` &mdash; for now, and it prevents any video from being rendered.
 
@@ -14,12 +13,25 @@ When you invoke the `cancelRender()` function, you're telling remotion to stop r
 
 The `cancelRender()` function can be triggered in any way. But in this example, a button element is used to call the API.
 
-```tsx twoSlash {2, 30}
-import React from "react";
-import { AbsoluteFill, cancelRender, useCurrentFrame } from "remotion";
+```tsx twoslash
+import React, { useEffect, useState } from "react";
+import {
+  AbsoluteFill,
+  cancelRender,
+  continueRender,
+  delayRender,
+} from "remotion";
 
 export const BaseRender: React.FC = () => {
-  const frame = useCurrentFrame();
+  const [handle] = useState(() => delayRender("Fetching audio data..."));
+
+  useEffect(() => {
+    fetch("https://example.com")
+      .then(() => {
+        continueRender(handle);
+      })
+      .catch((err) => cancelRender(err));
+  }, []);
 
   return (
     <AbsoluteFill
@@ -30,29 +42,7 @@ export const BaseRender: React.FC = () => {
         alignItems: "center",
         backgroundColor: "#fff",
       }}
-    >
-      <h1>The current frame is {frame}</h1>
-      <button
-        type="button"
-        style={{
-          color: "#fff",
-          height: "50px",
-          width: "35%",
-          fontSize: "22px",
-          textAlign: "center",
-          borderRadius: "4px",
-          backgroundColor: "#0b84f3",
-          border: "none",
-        }}
-        onClick={cancelRender}
-      >
-        Click me to cancel this render
-      </button>
-    </AbsoluteFill>
+    ></AbsoluteFill>
   );
 };
 ```
-
-When you click the button, you'd get an error similar to the one in the image below
-
-![cancel-render error](/img/cancel-render/error.png)
