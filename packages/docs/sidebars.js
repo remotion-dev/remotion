@@ -359,6 +359,7 @@ module.exports = {
         "video-manipulation",
         "render-as-gif",
         "overlay",
+        "docker",
       ],
     },
     {
