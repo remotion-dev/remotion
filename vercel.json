@@ -154,6 +154,11 @@
       "source": "/contributing",
       "destination": "https://www.remotion.dev/docs/contributing",
       "permanent": false
+    },
+    {
+      "source": "/docs/resources",
+      "destination": "https://www.remotion.dev/docs/resources",
+      "permanent": false
     }
   ]
 }

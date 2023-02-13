@@ -1,7 +1,7 @@
 // Copied from https://stackblitz.com/edit/svg-star-generator?file=index.js
 
-import type {Instruction} from './instructions';
-import {serializeInstructions} from './instructions';
+import type {Instruction} from '@remotion/paths';
+import {serializeInstructions} from '@remotion/paths';
 import {joinPoints} from './join-points';
 import type {ShapeInfo} from './shape-info';
 
@@ -50,7 +50,7 @@ const star = ({
 			cornerRadius,
 			roundCornerStrategy: cornerRadius > 0 ? 'bezier' : 'arc',
 		}),
-		{type: 'z'},
+		{type: 'Z'},
 	];
 };
 

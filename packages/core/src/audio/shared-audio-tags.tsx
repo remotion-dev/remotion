@@ -36,7 +36,11 @@ const EMPTY_AUDIO =
 type SharedContext = {
 	registerAudio: (aud: RemotionAudioProps, audioId: string) => AudioElem;
 	unregisterAudio: (id: number) => void;
-	updateAudio: (id: number, aud: RemotionAudioProps) => void;
+	updateAudio: (options: {
+		id: number;
+		aud: RemotionAudioProps;
+		audioId: string;
+	}) => void;
 	playAllAudios: () => void;
 	numberOfAudioTags: number;
 };
@@ -193,7 +197,15 @@ export const SharedAudioContextProvider: React.FC<{
 	);
 
 	const updateAudio = useCallback(
-		(id: number, aud: RemotionAudioProps) => {
+		({
+			aud,
+			audioId,
+			id,
+		}: {
+			id: number;
+			aud: RemotionAudioProps;
+			audioId: string;
+		}) => {
 			let changed = false;
 
 			audios.current = audios.current?.map((prevA): AudioElem => {
@@ -207,6 +219,7 @@ export const SharedAudioContextProvider: React.FC<{
 					return {
 						...prevA,
 						props: aud,
+						audioId,
 					};
 				}
 
@@ -281,9 +294,9 @@ export const useSharedAudio = (aud: RemotionAudioProps, audioId: string) => {
 	if (typeof document !== 'undefined') {
 		effectToUse(() => {
 			if (ctx && ctx.numberOfAudioTags > 0) {
-				ctx.updateAudio(elem.id, aud);
+				ctx.updateAudio({id: elem.id, aud, audioId});
 			}
-		}, [aud, ctx, elem.id]);
+		}, [aud, ctx, elem.id, audioId]);
 
 		effectToUse(() => {
 			return () => {

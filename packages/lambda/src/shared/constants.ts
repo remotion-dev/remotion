@@ -1,4 +1,5 @@
 import type {
+	AudioCodec,
 	ChromiumOptions,
 	Codec,
 	FrameRange,
@@ -224,6 +225,7 @@ export type LambdaPayloads = {
 		framesPerLambda: number | null;
 		inputProps: SerializedInputProps;
 		codec: LambdaCodec;
+		audioCodec: AudioCodec | null;
 		imageFormat: ImageFormat;
 		crf: number | undefined;
 		envVariables: Record<string, string> | undefined;
@@ -250,6 +252,7 @@ export type LambdaPayloads = {
 		webhook: WebhookOption;
 		forceHeight: number | null;
 		forceWidth: number | null;
+		bucketName: string | null;
 	};
 	launch: {
 		rendererFunctionName: string | null;
@@ -262,6 +265,7 @@ export type LambdaPayloads = {
 		renderId: string;
 		imageFormat: ImageFormat;
 		codec: LambdaCodec;
+		audioCodec: AudioCodec | null;
 		crf: number | undefined;
 		envVariables: Record<string, string> | undefined;
 		pixelFormat: PixelFormat | undefined;
@@ -351,6 +355,7 @@ export type LambdaPayloads = {
 		version: string;
 		forceHeight: number | null;
 		forceWidth: number | null;
+		bucketName: string | null;
 	};
 	compositions: {
 		type: LambdaRoutines.compositions;
@@ -361,6 +366,7 @@ export type LambdaPayloads = {
 		envVariables: Record<string, string> | undefined;
 		timeoutInMilliseconds: number;
 		serveUrl: string;
+		bucketName: string | null;
 	};
 };
 
@@ -379,6 +385,7 @@ export type RenderMetadata = {
 	estimatedRenderLambdaInvokations: number;
 	compositionId: string;
 	codec: Codec | null;
+	audioCodec: AudioCodec | null;
 	type: 'still' | 'video';
 	imageFormat: ImageFormat;
 	inputProps: SerializedInputProps;

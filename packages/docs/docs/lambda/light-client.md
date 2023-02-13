@@ -20,6 +20,8 @@ import {
   RenderProgress,
   validateWebhookSignature,
   WebhookPayload,
+  presignUrl,
+  PresignUrlInput,
 } from "@remotion/lambda/client";
 ```
 

@@ -1,11 +1,12 @@
 import type {
+	AudioCodec,
+	ChromiumOptions,
 	FrameRange,
 	ImageFormat,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
 } from '@remotion/renderer';
-import type {ChromiumOptions} from '@remotion/renderer/src/open-browser';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
@@ -57,6 +58,8 @@ export type RenderMediaOnLambdaInput = {
 	forceWidth?: number | null;
 	forceHeight?: number | null;
 	rendererFunctionName?: string | null;
+	forceBucketName?: string;
+	audioCodec?: AudioCodec | null;
 };
 
 export type RenderMediaOnLambdaOutput = {
@@ -120,6 +123,8 @@ export const renderMediaOnLambda = async ({
 	forceHeight,
 	forceWidth,
 	rendererFunctionName,
+	forceBucketName: bucketName,
+	audioCodec,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
@@ -133,6 +138,7 @@ export const renderMediaOnLambda = async ({
 		inputProps,
 		region,
 		type: 'video-or-audio',
+		userSpecifiedBucketName: bucketName ?? null,
 	});
 	try {
 		const res = await callLambda({
@@ -171,6 +177,8 @@ export const renderMediaOnLambda = async ({
 				webhook: webhook ?? null,
 				forceHeight: forceHeight ?? null,
 				forceWidth: forceWidth ?? null,
+				bucketName: bucketName ?? null,
+				audioCodec: audioCodec ?? null,
 			},
 			region,
 		});

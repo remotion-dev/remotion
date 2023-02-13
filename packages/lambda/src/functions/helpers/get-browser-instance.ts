@@ -42,7 +42,7 @@ export const getBrowserInstance = async (
 
 	launching = true;
 
-	const execPath = await executablePath();
+	const execPath = executablePath();
 
 	const actualChromiumOptions: ChromiumOptions = {
 		...chromiumOptions,

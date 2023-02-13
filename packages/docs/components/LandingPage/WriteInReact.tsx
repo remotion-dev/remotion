@@ -24,6 +24,7 @@ export const WriteInReact: React.FC = () => {
         <GetStarted />
       </div>
       <br />
+      <br />
       <div>
         <ChooseTemplate />
       </div>

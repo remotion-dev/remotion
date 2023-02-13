@@ -72,6 +72,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Apple "Spring loaded" animation](https://github.com/JonnyBurger/spring-loaded)
 - [ThreeJS particles demo](https://github.com/JonnyBurger/three-particles)
 - [Text Morphing](https://github.com/JonnyBurger/morph-text)
+- [Text warping](https://github.com/remotion-dev/text-warping)
 - [Include GLTF models](https://github.com/JonnyBurger/remotion-three-gltf-example)
 - [OpenGL transitions](https://github.com/JonnyBurger/remotion-gl-transitions)
 - [Conference talk in React](https://github.com/pomber/record-talk-with-remotion)
@@ -93,6 +94,14 @@ See the [Showcase](/showcase) for videos made with Remotion.
 - [A soft introduction to Remotion](https://www.youtube.com/watch?v=szh2Qgo9SVE&t=847s)
 - [CRT effect](https://www.youtube.com/watch?v=-7MOoWN2_nk)
 - ["Create videos with Code" by Prismic](https://prismic.io/blog/create-videos-with-code-remotion-tutorial)
+
+## Hacks
+
+- [GitHub Actions Matrix renderer](https://github.com/yuvraj108c/Remotion-Matrix-Renderer)
+- [WebKit renderer](https://iosexample.com/using-wkwebview-as-a-faster-alternative-for-rendering-remotion-compositions/)
+- [VS Code extension](https://marketplace.visualstudio.com/items?itemName=KarelNagel.remotion-vscode)
+- [GIF Pull request previews](https://github.com/stoat-dev/example-remotion)
+- [Side-by-side editor](https://www.loom.com/share/7b2aa7fe14c04e858838f137ed19dfd8)
 
 ## Humans
 

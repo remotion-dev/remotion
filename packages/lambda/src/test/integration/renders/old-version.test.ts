@@ -64,6 +64,8 @@ test('Should fail when using an incompatible version', async () => {
 				forceHeight: null,
 				forceWidth: null,
 				rendererFunctionName: null,
+				bucketName: null,
+				audioCodec: null,
 			},
 			extraContext
 		)
