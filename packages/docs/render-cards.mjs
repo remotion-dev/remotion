@@ -1,33 +1,12 @@
 import { bundle } from "@remotion/bundler";
 import { getCompositions, renderStill } from "@remotion/renderer";
-import path from "path";
 import { execSync } from "child_process";
 import fs from "fs";
+import path from "path";
 import { readDir } from "./get-pages.mjs";
 
-// render cards
-const serveUrl = await bundle({
-  entryPoint: path.join(process.cwd(), "./src/remotion/entry.ts"),
-  publicDir: path.join(process.cwd(), "static"),
-});
-const compositions = await getCompositions(serveUrl);
-
-for (const composition of compositions.filter(
-  (c) => c.id.startsWith("expert") || c.id.startsWith("template")
-)) {
-  await renderStill({
-    composition,
-    output: `static/generated/${composition.id}.png`,
-    serveUrl,
-  });
-  console.log("Rendered", composition.id);
-}
-
-
-
+const data = [];
 const root = path.join(process.cwd(), "docs");
-
-const pages = readDir(root);
 
 const findId = (split, page) => {
   const found = split.find((s) => s.startsWith("id: "));
@@ -62,7 +41,7 @@ const findCrumb = (split) => {
   return crumb ?? null;
 };
 
-const data = [];
+const pages = readDir(root);
 
 for (const page of pages) {
   const opened = fs.readFileSync(page, "utf8");
@@ -88,6 +67,24 @@ fs.writeFileSync(
 );
 
 execSync("pnpm exec prettier src/data/articles.ts --write");
+
+// render cards
+const serveUrl = await bundle({
+  entryPoint: path.join(process.cwd(), "./src/remotion/entry.ts"),
+  publicDir: path.join(process.cwd(), "static"),
+});
+const compositions = await getCompositions(serveUrl);
+
+for (const composition of compositions.filter(
+  (c) => c.id.startsWith("expert") || c.id.startsWith("template")
+)) {
+  await renderStill({
+    composition,
+    output: `static/generated/${composition.id}.png`,
+    serveUrl,
+  });
+  console.log("Rendered", composition.id);
+}
 
 for (const entry of data) {
   const composition = compositions.find((c) => c.id === entry.compId);
