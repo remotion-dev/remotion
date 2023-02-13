@@ -32,18 +32,19 @@ import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
 import {getServeUrlWithFallback} from './legacy-webpack-config';
 import type {CancelSignal} from './make-cancel-signal';
+import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {openBrowser} from './open-browser';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
 import {Pool} from './pool';
 import {prepareServer} from './prepare-server';
-import {provideScreenshot} from './provide-screenshot';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {validateQuality} from './quality';
 import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
+import {takeFrameAndCompose} from './take-frame-and-compose';
 import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
@@ -61,7 +62,7 @@ type ConfigOrComposition =
 
 type ConcurrencyOrParallelism =
 	| {
-			concurrency?: number | null;
+			concurrency?: number | string | null;
 	  }
 	| {
 			/**
@@ -326,63 +327,54 @@ const innerRenderFrames = ({
 		freePage.on('error', errorCallbackOnFrame);
 		await seekToFrame({frame, page: freePage});
 
-		if (imageFormat !== 'none') {
-			if (onFrameBuffer) {
-				const id = startPerfMeasure('save');
-				const buffer = await provideScreenshot({
-					page: freePage,
-					imageFormat,
-					quality,
-					options: {
-						frame,
-						output: null,
-					},
-					height: composition.height,
-					width: composition.width,
-				});
-				stopPerfMeasure(id);
-
-				onFrameBuffer(buffer, frame);
-			} else {
-				if (!outputDir) {
-					throw new Error(
-						'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`'
-					);
-				}
-
-				const output = path.join(
-					outputDir,
-					getFrameOutputFileName({
-						frame,
-						imageFormat,
-						index,
-						countType,
-						lastFrame,
-						totalFrames: framesToRender.length,
-					})
-				);
-				await provideScreenshot({
-					page: freePage,
-					imageFormat,
-					quality,
-					options: {
-						frame,
-						output,
-					},
-					height,
-					width,
-				});
-			}
+		if (!outputDir && !onFrameBuffer && imageFormat !== 'none') {
+			throw new Error(
+				'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`'
+			);
 		}
 
-		const collectedAssets = await puppeteerEvaluateWithCatch<TAsset[]>({
-			pageFunction: () => {
-				return window.remotion_collectAssets();
-			},
-			args: [],
+		if (outputDir && onFrameBuffer && imageFormat !== 'none') {
+			throw new Error(
+				'Pass either `outputDir` or `onFrameBuffer` to renderFrames(), not both.'
+			);
+		}
+
+		const id = startPerfMeasure('save');
+
+		const frameDir = outputDir ?? downloadMap.compositingDir;
+
+		const {buffer, collectedAssets} = await takeFrameAndCompose({
 			frame,
-			page: freePage,
+			freePage,
+			height,
+			imageFormat,
+			output: path.join(
+				frameDir,
+				getFrameOutputFileName({
+					frame,
+					imageFormat,
+					index,
+					countType,
+					lastFrame,
+					totalFrames: framesToRender.length,
+				})
+			),
+			quality,
+			width,
+			scale,
+			downloadMap,
+			wantsBuffer: Boolean(onFrameBuffer),
 		});
+		if (onFrameBuffer) {
+			if (!buffer) {
+				throw new Error('unexpected null buffer');
+			}
+
+			onFrameBuffer(buffer, frame);
+		}
+
+		stopPerfMeasure(id);
+
 		const compressedAssets = collectedAssets.map((asset) =>
 			compressAsset(assets.filter(truthy).flat(1), asset)
 		);
@@ -439,9 +431,16 @@ const innerRenderFrames = ({
 				throw err;
 			}
 
+			if (isUserCancelledRender(err)) {
+				throw err;
+			}
+
+			if (stopped) {
+				return;
+			}
+
 			if (retriesLeft === 0) {
 				console.warn(
-					err,
 					`The browser crashed ${attempt} times while rendering frame ${frame}. Not retrying anymore. Learn more about this error under https://www.remotion.dev/docs/target-closed`
 				);
 				throw err;
@@ -567,7 +566,7 @@ export const renderFrames = (
 		Promise.race([
 			new Promise<RenderFramesOutput>((_, rej) => {
 				options.cancelSignal?.(() => {
-					rej(new Error('renderFrames() got cancelled'));
+					rej(new Error(cancelErrorMessages.renderFrames));
 				});
 			}),
 			Promise.all([
@@ -591,7 +590,7 @@ export const renderFrames = (
 				);
 
 				cleanup.push(stopCycling);
-				cleanup.push(closeServer);
+				cleanup.push(() => closeServer(false));
 
 				return innerRenderFrames({
 					...options,
@@ -620,7 +619,11 @@ export const renderFrames = (
 
 				if (options.puppeteerInstance) {
 					Promise.all(openedPages.map((p) => p.close())).catch((err) => {
-						console.log('Unable to close browser tab', err);
+						if (
+							!(err as Error | undefined)?.message.includes('Target closed')
+						) {
+							console.log('Unable to close browser tab', err);
+						}
 					});
 				} else {
 					Promise.resolve(browserInstance)
@@ -628,7 +631,11 @@ export const renderFrames = (
 							return puppeteerInstance.close(true);
 						})
 						.catch((err) => {
-							console.log('Unable to close browser', err);
+							if (
+								!(err as Error | undefined)?.message.includes('Target closed')
+							) {
+								console.log('Unable to close browser', err);
+							}
 						});
 				}
 

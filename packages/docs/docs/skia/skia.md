@@ -66,10 +66,14 @@ Make sure no package version number has a `^` character in front of it as it can
 import { Config } from "remotion";
 import { enableSkia } from "@remotion/skia/enable";
 
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+Config.overrideWebpackConfig((currentConfiguration) => {
   return enableSkia(currentConfiguration);
 });
 ```
+
+:::note
+Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
+:::
 
 Next, you need to refactor the [entry point](/docs/terminology#entry-point) file to first load the Skia WebAssembly binary before calling registerRoot():
 

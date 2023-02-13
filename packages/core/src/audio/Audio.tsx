@@ -1,5 +1,5 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
-import {getRemotionEnvironment} from '../get-environment';
+import {useRemotionEnvironment} from '../get-environment';
 import {Loop} from '../loop';
 import {Sequence} from '../Sequence';
 import {useVideoConfig} from '../use-video-config';
@@ -19,8 +19,17 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	const {startFrom, endAt, ...otherProps} = props;
 	const {loop, ...propsOtherThanLoop} = props;
 	const {fps} = useVideoConfig();
+	const environment = useRemotionEnvironment();
 
 	const {durations, setDurations} = useContext(DurationsContext);
+
+	if (typeof props.src !== 'string') {
+		throw new TypeError(
+			`The \`<Audio>\` tag requires a string for \`src\`, but got ${JSON.stringify(
+				props.src
+			)} instead.`
+		);
+	}
 
 	const onError: React.ReactEventHandler<HTMLAudioElement> = useCallback(
 		(e) => {
@@ -70,7 +79,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	validateMediaProps(props, 'Audio');
 
-	if (getRemotionEnvironment() === 'rendering') {
+	if (environment === 'rendering') {
 		return (
 			<AudioForRendering
 				onDuration={onDuration}

@@ -26,6 +26,7 @@ export type DeploySiteInput = {
 		enableCaching?: boolean;
 		publicDir?: string | null;
 		rootDir?: string;
+		bypassBucketNameValidation?: boolean;
 	};
 };
 
@@ -56,7 +57,9 @@ export const deploySite = async ({
 	region,
 }: DeploySiteInput): DeploySiteOutput => {
 	validateAwsRegion(region);
-	validateBucketName(bucketName, {mustStartWithRemotion: true});
+	validateBucketName(bucketName, {
+		mustStartWithRemotion: !options?.bypassBucketNameValidation,
+	});
 
 	const siteId = siteName ?? randomHash();
 	validateSiteName(siteId);

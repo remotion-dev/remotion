@@ -120,7 +120,7 @@ export const getCompositions = async (
 			onError,
 		});
 
-		let close: (() => void) | null = null;
+		let close: ((force: boolean) => Promise<unknown>) | null = null;
 
 		prepareServer({
 			webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
@@ -142,13 +142,21 @@ export const getCompositions = async (
 				);
 			})
 
-			.then((comp) => resolve(comp))
+			.then((comp): Promise<[TCompMetadata[], unknown]> => {
+				if (close) {
+					return Promise.all([comp, close(true)]);
+				}
+
+				return Promise.resolve([comp, null]);
+			})
+			.then(([comp]) => {
+				return resolve(comp);
+			})
 			.catch((err) => {
 				reject(err);
 			})
 			.finally(() => {
 				cleanup();
-				close?.();
 				cleanupPageError();
 				// Clean download map if it was not passed in
 				if (!config?.downloadMap) {

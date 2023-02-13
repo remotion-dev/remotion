@@ -1,5 +1,4 @@
 import {RenderInternals} from '@remotion/renderer';
-import {getExecutableBinary} from '@remotion/renderer/src/ffmpeg-flags';
 import {VERSION} from 'remotion/version';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
@@ -70,6 +69,9 @@ test('Should be able to render to another bucket', async () => {
 			videoBitrate: null,
 			forceHeight: null,
 			forceWidth: null,
+			rendererFunctionName: null,
+			bucketName: null,
+			audioCodec: null,
 		},
 		extraContext
 	);
@@ -92,7 +94,7 @@ test('Should be able to render to another bucket', async () => {
 		region: 'eu-central-1',
 	});
 	const probe = await RenderInternals.execa(
-		await getExecutableBinary(null, process.cwd(), 'ffprobe'),
+		await RenderInternals.getExecutableBinary(null, process.cwd(), 'ffprobe'),
 		['-'],
 		{
 			stdin: file,

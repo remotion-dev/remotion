@@ -38,6 +38,7 @@ import {getWebpackCaching} from './webpack-caching';
 import type {WebpackConfiguration} from '@remotion/bundler';
 // eslint-disable-next-line no-restricted-imports
 import type {ConfigType} from 'remotion';
+import {getAudioCodec, setAudioCodec} from './audio-codec';
 import {
 	getAudioBitrate,
 	getVideoBitrate,
@@ -80,6 +81,7 @@ import {setMaxTimelineTracks} from './max-timeline-tracks';
 import {getMuted, setMuted} from './muted';
 import {getNumberOfGifLoops, setNumberOfGifLoops} from './number-of-gif-loops';
 import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
+import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
 import {overrideWebpackConfig} from './override-webpack';
@@ -98,65 +100,87 @@ import {
 } from './webpack-poll';
 import {getWidth, overrideWidth} from './width';
 
+const Preview = {
+	setMaxTimelineTracks,
+	setKeyboardShortcutsEnabled,
+	setNumberOfSharedAudioTags,
+	setWebpackPollingInMilliseconds,
+	setShouldOpenBrowser,
+};
+
+const Bundling = {
+	overrideWebpackConfig,
+	setCachingEnabled: setWebpackCaching,
+	setPort,
+	setPublicDir,
+	setEntryPoint,
+};
+
+const Log = {
+	setLevel: setLogLevel,
+};
+
+const Puppeteer = {
+	setBrowserExecutable,
+	setTimeoutInMilliseconds: setPuppeteerTimeout,
+	setDelayRenderTimeoutInMilliseconds: setPuppeteerTimeout,
+	setChromiumDisableWebSecurity,
+	setChromiumIgnoreCertificateErrors,
+	setChromiumHeadlessMode,
+	setChromiumOpenGlRenderer,
+};
+
+const Rendering = {
+	setDotEnvLocation,
+	setConcurrency,
+	setQuality,
+	setImageFormat,
+	setFrameRange,
+	setFfmpegExecutable,
+	setFfprobeExecutable,
+	setScale,
+	setEveryNthFrame,
+	setNumberOfGifLoops,
+	setMuted,
+	setEnforceAudioTrack,
+};
+
+const Output = {
+	setOutputLocation,
+	setOverwriteOutput,
+	setPixelFormat,
+	setOutputFormat,
+	setCodec,
+	setCrf,
+	setImageSequence,
+	setProResProfile,
+	setAudioBitrate,
+	setVideoBitrate,
+	overrideHeight,
+	overrideWidth,
+	overrideFfmpegCommand: setFfmpegOverrideFunction,
+};
+
 export const Config: ConfigType = {
-	Preview: {
-		setMaxTimelineTracks,
-		setKeyboardShortcutsEnabled,
-		setNumberOfSharedAudioTags,
-		setWebpackPollingInMilliseconds,
-	},
-	Bundling: {
-		overrideWebpackConfig,
-		setCachingEnabled: setWebpackCaching,
-		setPort,
-		setPublicDir,
-		setEntryPoint,
-	},
-	Log: {
-		setLevel: setLogLevel,
-	},
-	Puppeteer: {
-		setBrowserExecutable,
-		setTimeoutInMilliseconds: setPuppeteerTimeout,
-		setChromiumDisableWebSecurity,
-		setChromiumIgnoreCertificateErrors,
-		setChromiumHeadlessMode,
-		setChromiumOpenGlRenderer,
-	},
-	Rendering: {
-		setDotEnvLocation,
-		setConcurrency,
-		setQuality,
-		setImageFormat,
-		setFrameRange,
-		setFfmpegExecutable,
-		setFfprobeExecutable,
-		setScale,
-		setEveryNthFrame,
-		setNumberOfGifLoops,
-		setMuted,
-		setEnforceAudioTrack,
-	},
-	Output: {
-		setOutputLocation,
-		setOverwriteOutput,
-		setPixelFormat,
-		setOutputFormat,
-		setCodec,
-		setCrf,
-		setImageSequence,
-		setProResProfile,
-		setAudioBitrate,
-		setVideoBitrate,
-		overrideHeight,
-		overrideWidth,
-		overrideFfmpegCommand: setFfmpegOverrideFunction,
-	},
+	// New flat config format
+	...Preview,
+	...Bundling,
+	...Log,
+	...Puppeteer,
+	...Rendering,
+	...Output,
+	// Legacy config format
+	Preview,
+	Bundling,
+	Log,
+	Puppeteer,
+	Rendering,
+	Output,
+	// Options added after migration
+	setAudioCodec,
 } as ConfigType;
 
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
-
-// eslint-disable-next-line no-restricted-imports
 
 export const ConfigInternals = {
 	getRange,
@@ -178,6 +202,7 @@ export const ConfigInternals = {
 	getConcurrency,
 	getCurrentPuppeteerTimeout,
 	getQuality,
+	getAudioCodec,
 	getStillFrame,
 	getShouldOutputImageSequence,
 	getDotEnvLocation,
@@ -205,6 +230,7 @@ export const ConfigInternals = {
 	getEntryPoint,
 	getNumberOfGifLoops,
 	getWebpackPolling,
+	getShouldOpenBrowser,
 };
 
 export const overrideRemotion = () => {

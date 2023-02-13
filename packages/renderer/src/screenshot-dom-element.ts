@@ -1,3 +1,4 @@
+import type {ClipRegion} from 'remotion';
 import type {Page} from './browser/BrowserPage';
 import type {ImageFormat} from './image-format';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
@@ -10,6 +11,7 @@ export const screenshotDOMElement = async ({
 	opts,
 	height,
 	width,
+	clipRegion,
 }: {
 	page: Page;
 	imageFormat: ImageFormat;
@@ -19,6 +21,7 @@ export const screenshotDOMElement = async ({
 	};
 	height: number;
 	width: number;
+	clipRegion: ClipRegion | null;
 }): Promise<Buffer> => {
 	const {path} = opts;
 
@@ -46,7 +49,7 @@ export const screenshotDOMElement = async ({
 		throw new TypeError('Tried to make a screenshot with format "none"');
 	}
 
-	return screenshot({
+	const buf = await screenshot({
 		page,
 		omitBackground: imageFormat === 'png',
 		path: path ?? undefined,
@@ -54,5 +57,11 @@ export const screenshotDOMElement = async ({
 		quality,
 		width,
 		height,
-	}) as Promise<Buffer>;
+		clipRegion,
+	});
+	if (typeof buf === 'string') {
+		throw new TypeError('Expected a buffer');
+	}
+
+	return buf;
 };

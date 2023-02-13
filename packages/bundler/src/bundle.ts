@@ -7,6 +7,7 @@ import webpack from 'webpack';
 import {isMainThread} from 'worker_threads';
 import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
+import {readRecursively} from './read-recursively';
 import {webpackConfig} from './webpack-config';
 
 const promisified = promisify(webpack);
@@ -219,6 +220,12 @@ export async function bundle(...args: Arguments): Promise<string> {
 		remotionRoot: resolvedRemotionRoot,
 		previewServerCommand: null,
 		numberOfAudioTags: 0,
+		publicFiles: readRecursively({
+			folder: '.',
+			startPath: from,
+			staticHash,
+			limit: 1000,
+		}),
 		includeFavicon: false,
 		title: 'Remotion Bundle',
 	});

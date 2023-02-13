@@ -1,6 +1,5 @@
 import {bundle} from '@remotion/bundler';
 import {
-	combineVideos,
 	getCompositions,
 	RenderInternals,
 	renderMedia,
@@ -37,7 +36,7 @@ const start = async () => {
 		console.log({i});
 	}
 
-	await combineVideos({
+	await RenderInternals.combineVideos({
 		codec: 'h264',
 		filelistDir,
 		files: new Array(dur / framesPerLambda).fill(true).map((_, i) => {
@@ -50,6 +49,7 @@ const start = async () => {
 		numberOfGifLoops: null,
 		ffmpegExecutable: null,
 		remotionRoot: process.cwd(),
+		audioCodec: 'aac',
 	});
 };
 

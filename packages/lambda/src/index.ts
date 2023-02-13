@@ -38,7 +38,7 @@ import {getRegions} from './api/get-regions';
 import type {GetRenderInput} from './api/get-render-progress';
 import {getRenderProgress} from './api/get-render-progress';
 import type {GetSitesInput, GetSitesOutput} from './api/get-sites';
-import {getSites} from './api/get-sites';
+import {getSites as deprecatedGetSites} from './api/get-sites';
 import type {
 	SimulatePermissionsInput,
 	SimulatePermissionsOutput,
@@ -48,20 +48,20 @@ import {
 	getRolePolicy,
 	getUserPolicy,
 } from './api/iam-validation/suggested-policy';
-import {presignUrl} from './api/presign-url';
+import {presignUrl as deprecatedPresignUrl} from './api/presign-url';
 import type {
 	RenderMediaOnLambdaInput,
 	RenderMediaOnLambdaOutput,
 } from './api/render-media-on-lambda';
 import {
-	renderMediaOnLambda,
+	renderMediaOnLambda as deprecatedRenderMediaOnLambda,
 	renderVideoOnLambda,
 } from './api/render-media-on-lambda';
 import type {
 	RenderStillOnLambdaInput,
 	RenderStillOnLambdaOutput,
 } from './api/render-still-on-lambda';
-import {renderStillOnLambda} from './api/render-still-on-lambda';
+import {renderStillOnLambda as deprecatedRenderStillOnLambda} from './api/render-still-on-lambda';
 import {validateWebhookSignature} from './api/validate-webhook-signature';
 import type {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
 import type {
@@ -74,6 +74,26 @@ import type {CustomCredentials} from './shared/aws-clients';
 import type {RenderProgress} from './shared/constants';
 import type {WebhookPayload} from './shared/invoke-webhook';
 import type {LambdaArchitecture} from './shared/validate-architecture';
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const renderMediaOnLambda = deprecatedRenderMediaOnLambda;
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const renderStillOnLambda = deprecatedRenderStillOnLambda;
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const presignUrl = deprecatedPresignUrl;
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const getSites = deprecatedGetSites;
 
 export {
 	deleteSite,

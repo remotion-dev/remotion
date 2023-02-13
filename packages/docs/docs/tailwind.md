@@ -140,8 +140,12 @@ export const enableTailwind: WebpackOverrideFn = (c) => c;
 import { Config } from "remotion";
 import { enableTailwind } from "./src/enable-tailwind";
 
-Config.Bundling.overrideWebpackConfig(enableTailwind);
+Config.overrideWebpackConfig(enableTailwind);
 ```
+
+:::note
+Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
+:::
 
 4. If you use the [`bundle()` or `deploySite()` Node.JS API, add the Webpack override to it as well](/docs/webpack#when-using-bundle-and-deploysite).
 

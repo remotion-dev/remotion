@@ -19,7 +19,7 @@ You should use `getCompositionsOnLambda()` if you cannot use [`getCompositions()
 ```tsx twoslash
 // @module: esnext
 // @target: es2017
-import { getCompositionsOnLambda } from "@remotion/lambda";
+import { getCompositionsOnLambda } from "@remotion/lambda/client";
 
 const compositions = await getCompositionsOnLambda({
   region: "us-east-1",
@@ -31,6 +31,10 @@ const compositions = await getCompositionsOnLambda({
 
 console.log(compositions); // See below for an example value
 ```
+
+:::note
+Preferrably import this function from `@remotion/lambda/client` to avoid problems [inside serverless functions](/docs/lambda/light-client).
+:::
 
 ## Arguments
 
@@ -95,6 +99,12 @@ Accepted values:
 :::note
 The default for Lambda is `"swangle"`, but `null` elsewhere.
 :::
+
+### `forceBucketName?`
+
+_available from v3.3.42_
+
+Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
 
 ## Return value
 

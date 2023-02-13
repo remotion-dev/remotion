@@ -8,7 +8,21 @@ crumb: "Lambda"
 The following methods and types can be imported from `@remotion/lambda/client`:
 
 ```tsx twoslash
-
+// organize-imports-ignore
+// ---cut---
+import {
+  renderMediaOnLambda,
+  renderStillOnLambda,
+  getRenderProgress,
+  getCompositionsOnLambda,
+  getFunctions,
+  AwsRegion,
+  RenderProgress,
+  validateWebhookSignature,
+  WebhookPayload,
+  presignUrl,
+  PresignUrlInput,
+} from "@remotion/lambda/client";
 ```
 
 These functions don't have any Node.JS dependencies and can be bundled with a bundler such as Webpack or ESBuild.

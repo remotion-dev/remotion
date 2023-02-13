@@ -1,18 +1,15 @@
 import type { Template } from "create-video";
 import React, { useCallback, useMemo, useState } from "react";
 import { useMobileLayout } from "../helpers/mobile-layout";
-import { useElementSize } from "../helpers/use-el-size";
+import { BackButton } from "./BackButton";
 import { CommandCopyButton } from "./CommandCopyButton";
 import { MuxVideo } from "./MuxVideo";
 import { Spinner } from "./Spinner";
 
-const RESERVED_FOR_SIDEBAR = 350;
+const RESERVED_FOR_SIDEBAR = 550;
 
 const column: React.CSSProperties = {
   width: RESERVED_FOR_SIDEBAR,
-  paddingLeft: 16,
-  paddingRight: 16,
-  paddingTop: 24,
   overflow: "auto",
 };
 
@@ -34,9 +31,7 @@ const link: React.CSSProperties = {
   userSelect: "none",
 };
 
-const description: React.CSSProperties = {
-  fontSize: 14,
-};
+const description: React.CSSProperties = {};
 
 const githubrow: React.CSSProperties = {
   flexDirection: "row",
@@ -49,7 +44,6 @@ const githubrow: React.CSSProperties = {
 };
 
 const loadingContainer: React.CSSProperties = {
-  position: "absolute",
   justifyContent: "center",
   alignItems: "center",
   display: "flex",
@@ -98,76 +92,39 @@ const separator: React.CSSProperties = {
 
 let copyTimeout: NodeJS.Timeout | null = null;
 
-const layout = ({
-  template,
-  containerHeight,
-  possibleVideoWidth,
-}: {
-  template: Template;
-  containerHeight: number;
-  possibleVideoWidth: number;
-}) => {
-  const dimensions =
-    template.type === "video" ? template.promoVideo : template.promoBanner;
-  const heightRatio = (containerHeight ?? 0) / dimensions.height;
-  const widthRatio = (possibleVideoWidth ?? 0) / dimensions.width;
-
-  const ratio = Math.min(heightRatio, widthRatio);
-
-  const height = ratio * dimensions.height;
-  const width = ratio * dimensions.width;
-
-  return { height, width };
-};
-
 export const TemplateModalContent: React.FC<{
   template: Template;
-  onDismiss: () => void;
-}> = ({ template, onDismiss }) => {
+}> = ({ template }) => {
   const [copied, setCopied] = useState<string | false>(false);
   const [showPkgManagers, setShowPackageManagers] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  const containerSize = useElementSize(
-    typeof document === "undefined" ? null : document.body
-  );
   const mobileLayout = useMobileLayout();
 
   const containerCss: React.CSSProperties = useMemo(() => {
     return {
-      backgroundColor: "var(--ifm-hero-background-color)",
       marginBottom: 0,
       display: "flex",
       flexDirection: mobileLayout ? "column" : "row",
       overflow: "auto",
       height: mobileLayout ? "100%" : undefined,
-      position: mobileLayout ? "absolute" : undefined,
       left: mobileLayout ? 0 : undefined,
       top: mobileLayout ? 0 : undefined,
     };
   }, [mobileLayout]);
 
-  const possibleVideoWidth = mobileLayout
-    ? containerSize?.width
-    : Math.min(containerSize?.width ?? 0, 1200) -
-      (mobileLayout ? 0 : RESERVED_FOR_SIDEBAR);
-  const containerHeight = mobileLayout
-    ? Infinity
-    : Math.min(containerSize?.height ?? 0, 800);
-
-  const { height, width } = layout({
-    template,
-    containerHeight,
-    possibleVideoWidth,
-  });
-
   const loadingStyle = useMemo(() => {
     return {
       ...loadingContainer,
-      height,
-      width,
+      width: "100%",
+      border: "1px solid var(--ifm-color-emphasis-300)",
+      borderRadius: 5,
+      aspectRatio:
+        template.type === "video"
+          ? `${template.promoVideo.width} / ${template.promoVideo.height}`
+          : "",
     };
-  }, [height, width]);
+  }, [template]);
 
   const onLoadedMetadata = useCallback(() => {
     setLoaded(true);
@@ -181,7 +138,7 @@ export const TemplateModalContent: React.FC<{
         name: permissionName,
       });
       if (result.state === "granted" || result.state === "prompt") {
-        navigator.clipboard.writeText(command);
+        await navigator.clipboard.writeText(command);
         setCopied(command);
       }
     } catch (err) {
@@ -204,178 +161,167 @@ export const TemplateModalContent: React.FC<{
   const pnpmCommand = `pnpm create video --${template.cliId}`;
 
   return (
-    <div style={containerCss}>
-      <div
-        style={{
-          display: "inline-flex",
-        }}
-      >
-        {loaded ? null : (
-          <div style={loadingStyle}>
-            <Spinner style={spinner} />
-          </div>
-        )}
-        {template.type === "video" ? (
-          <MuxVideo
-            muxId={template.promoVideo.muxId}
-            loop
-            height={height}
-            width={width}
-            autoPlay
-            muted
-            playsInline
-            style={{
-              display: "inline-flex",
-            }}
-            onLoadedMetadata={onLoadedMetadata}
-          />
-        ) : (
-          <img
-            src={template.promoBanner.src}
-            height={height}
-            width={width}
-            style={{
-              display: "inline-flex",
-            }}
-            onLoad={onLoadedMetadata}
-          />
-        )}
-      </div>
-      <div
-        style={{
-          ...column,
-          width: mobileLayout ? "100%" : RESERVED_FOR_SIDEBAR,
-        }}
-      >
+    <div>
+      <BackButton
+        link="/templates"
+        text="Back to Templates"
+        color="currentcolor"
+      />
+      <br />
+      <br />
+      <div style={containerCss}>
         <div
           style={{
             display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
+            width: "100%",
           }}
         >
-          <div style={{ flex: 1 }}>
-            <h1
-              style={{
-                marginTop: 0,
-                marginBottom: 0,
-              }}
-            >
-              {template.shortName}
-            </h1>
-          </div>
-          <a
-            style={{
-              cursor: "pointer",
-              opacity: 0.4,
-              display: "inline-flex",
-              color: "var(--text-color)",
-            }}
-            onClick={onDismiss}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 320 512"
-              style={{
-                height: 24,
-              }}
-            >
-              <path
-                fill="currentColor"
-                d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z"
-              />
-            </svg>
-          </a>
-        </div>
-        <br />
-        <div style={description}>{template.longerDescription}</div>
-        <br />
-        <div style={githubrow}>
-          <a style={link} onPointerDown={() => copyCommand(npmCommand)}>
-            <div style={iconContainer}>
-              <CommandCopyButton copied={copied === npmCommand} />
+          {loaded || template.type === "image" ? null : (
+            <div style={loadingStyle}>
+              <Spinner style={spinner} />
             </div>
-            <div style={installCommand}>{npmCommand}</div>
-          </a>
-          <div style={{ flex: 1 }} />
-          {showPkgManagers ? null : (
-            <a style={link} onPointerDown={togglePkgManagers}>
-              <span
-                style={{ whiteSpace: "pre", color: "var(--light-text-color)" }}
-              >
-                More
-              </span>{" "}
-            </a>
           )}
-          <div
-            style={{
-              width: 8,
-            }}
-          />
+          {template.type === "video" ? (
+            <MuxVideo
+              muxId={template.promoVideo.muxId}
+              loop
+              autoPlay
+              muted
+              playsInline
+              style={{
+                aspectRatio: `${template.promoVideo.width} / ${template.promoVideo.height}`,
+                width: "100%",
+                height: "auto",
+                opacity: Number(loaded),
+                display: loaded ? "inline-flex" : "none",
+                borderRadius: 5,
+                border: "1px solid var(--ifm-color-emphasis-300)",
+              }}
+              onLoadedMetadata={onLoadedMetadata}
+            />
+          ) : (
+            <img
+              src={template.promoBanner.src}
+              style={{
+                borderRadius: 5,
+                width: "100%",
+                height: "auto",
+                border: "1px solid var(--ifm-color-emphasis-300)",
+              }}
+              onLoad={onLoadedMetadata}
+            />
+          )}
         </div>
-        {showPkgManagers ? (
+        <div
+          style={{
+            ...column,
+            marginLeft: mobileLayout ? 0 : 20,
+            marginTop: mobileLayout ? 20 : 0,
+            width: mobileLayout ? "100%" : RESERVED_FOR_SIDEBAR,
+          }}
+        >
           <div style={githubrow}>
-            <a style={link} onPointerDown={() => copyCommand(pnpmCommand)}>
+            <a style={link} onPointerDown={() => copyCommand(npmCommand)}>
               <div style={iconContainer}>
-                <CommandCopyButton copied={copied === pnpmCommand} />
+                <CommandCopyButton copied={copied === npmCommand} />
               </div>
-              <div style={installCommand}>{pnpmCommand}</div>
+              <div style={installCommand}>{npmCommand}</div>
             </a>
+            <div style={{ width: 2 }} />
+            {showPkgManagers ? null : (
+              <a style={link} onPointerDown={togglePkgManagers}>
+                <span
+                  style={{
+                    whiteSpace: "pre",
+                    color: "var(--light-text-color)",
+                  }}
+                >
+                  More
+                </span>{" "}
+              </a>
+            )}
+            <div
+              style={{
+                width: 8,
+              }}
+            />
           </div>
-        ) : null}
-        {showPkgManagers ? (
+          {showPkgManagers ? (
+            <div style={githubrow}>
+              <a style={link} onPointerDown={() => copyCommand(pnpmCommand)}>
+                <div style={iconContainer}>
+                  <CommandCopyButton copied={copied === pnpmCommand} />
+                </div>
+                <div style={installCommand}>{pnpmCommand}</div>
+              </a>
+            </div>
+          ) : null}
+          {showPkgManagers ? (
+            <div style={githubrow}>
+              <a
+                target={"_blank"}
+                style={link}
+                onPointerDown={() => copyCommand(yarnCommand)}
+              >
+                <div style={iconContainer}>
+                  <CommandCopyButton copied={copied === yarnCommand} />
+                </div>
+                <div style={installCommand}>{yarnCommand}</div>
+              </a>
+            </div>
+          ) : null}
           <div style={githubrow}>
             <a
               target={"_blank"}
               style={link}
-              onPointerDown={() => copyCommand(yarnCommand)}
+              href={`https://github.com/${template.org}/${template.repoName}/generate`}
             >
               <div style={iconContainer}>
-                <CommandCopyButton copied={copied === yarnCommand} />
-              </div>
-              <div style={installCommand}>{yarnCommand}</div>
+                <GithubIcon />
+              </div>{" "}
+              Use template
+            </a>
+            <div style={separator} />
+            <a
+              target={"_blank"}
+              style={link}
+              href={`https://github.com/${template.org}/${template.repoName}`}
+            >
+              View source
             </a>
           </div>
-        ) : null}
-        <div style={githubrow}>
           <a
             target={"_blank"}
             style={link}
-            href={`https://github.com/${template.org}/${template.repoName}/generate`}
+            href={`https://stackblitz.com/github/${template.org}/${template.repoName}`}
           >
-            <div style={iconContainer}>
-              <GithubIcon />
-            </div>{" "}
-            Use template
-          </a>
-          <div style={separator} />
-          <a
-            target={"_blank"}
-            style={link}
-            href={`https://github.com/${template.org}/${template.repoName}`}
-          >
-            View source
+            <div style={githubrow}>
+              <div style={iconContainer}>
+                <StackBlitzIcon />
+              </div>
+              Try online{" "}
+              <span
+                style={{ whiteSpace: "pre", color: "var(--light-text-color)" }}
+              >
+                {" "}
+                via StackBlitz
+              </span>
+            </div>
           </a>
         </div>
-        <a
-          target={"_blank"}
-          style={link}
-          href={`https://stackblitz.com/github/${template.org}/${template.repoName}`}
-        >
-          <div style={githubrow}>
-            <div style={iconContainer}>
-              <StackBlitzIcon />
-            </div>
-            Try online{" "}
-            <span
-              style={{ whiteSpace: "pre", color: "var(--light-text-color)" }}
-            >
-              {" "}
-              via StackBlitz
-            </span>
-          </div>
-        </a>
-      </div>
+      </div>{" "}
+      <br />
+      <br />
+      <h1
+        style={{
+          marginTop: 0,
+        }}
+      >
+        {template.shortName}
+      </h1>
+      <div style={description}>{template.longerDescription}</div>
+      <br />
+      <br />
     </div>
   );
 };

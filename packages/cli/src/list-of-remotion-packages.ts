@@ -1,7 +1,9 @@
+// Keep in sync with create-video
 export const listOfRemotionPackages = [
 	'@remotion/bundler',
 	'@remotion/cli',
 	'@remotion/eslint-config',
+	'@remotion/eslint-plugin',
 	'@remotion/renderer',
 	'@remotion/skia',
 	'@remotion/lottie',
@@ -16,5 +18,6 @@ export const listOfRemotionPackages = [
 	'@remotion/preload',
 	'@remotion/three',
 	'@remotion/gif',
+	'@remotion/shapes',
 	'remotion',
 ];

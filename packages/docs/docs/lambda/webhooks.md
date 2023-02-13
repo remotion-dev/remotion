@@ -28,7 +28,7 @@ Every webhook has the following headers:
 {
   "Content-Type": "application/json",
   "X-Remotion-Mode": "production" | "demo",
-  "X-Remotion-Signature": "sha1=HASHED_SIGNATURE" | "NO_SECRET_PROVIDED",
+  "X-Remotion-Signature": "sha512=HASHED_SIGNATURE" | "NO_SECRET_PROVIDED",
   "X-Remotion-Status": "success" | "timeout" | "error",
 }
 ```
@@ -160,8 +160,26 @@ const router = express();
 // body.
 const jsonParser = bodyParser.json();
 
+// Enable testing through the tool below
+const ENABLE_TESTING = true;
+
 // Express API endpoint
 router.post("/my-remotion-webhook-endpoint", jsonParser, (req, res) => {
+  if (ENABLE_TESTING) {
+    res.setHeader("Access-Control-Allow-Origin", "https://www.remotion.dev");
+    res.setHeader("Access-Control-Allow-Methods", "OPTIONS,POST");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode"
+    );
+  }
+
+  if (req.method === "OPTIONS") {
+    res.status(200).end();
+    return;
+  }
+
+
   validateWebhookSignature({
     signatureHeader: req.header("X-Remotion-Signature"),
     body: req.body,
@@ -188,11 +206,14 @@ Since this endpoint is going to be executed in an AWS Lambda function on it's ow
 
 ```tsx twoslash title="pages/api/webhook.ts"
 type NextApiRequest = {
-  body: string;
+  body: object;
   headers: Record<string, string>;
+  method: string;
 };
 type NextApiResponse = {
-  status: (code: number) => { json: (body: object) => void };
+  status: (code: number) => { json: (body: object) => void; end: () => void };
+  setHeader: (key: string, value: string) => void;
+  end: () => void;
 };
 // ---cut---
 import {
@@ -200,10 +221,26 @@ import {
   WebhookPayload,
 } from "@remotion/lambda/client";
 
+// Enable testing through the tool below
+const ENABLE_TESTING = true;
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  if (ENABLE_TESTING) {
+    res.setHeader("Access-Control-Allow-Origin", "https://www.remotion.dev");
+    res.setHeader("Access-Control-Allow-Methods", "OPTIONS,POST");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode"
+    );
+  }
+  if (req.method === "OPTIONS") {
+    res.status(200).end();
+    return;
+  }
+
   validateWebhookSignature({
     secret: process.env.WEBHOOK_SECRET as string,
     body: req.body,
@@ -211,7 +248,7 @@ export default async function handler(
   });
 
   // If code reaches this path, the webhook is authentic.
-  const payload = JSON.parse(req.body) as WebhookPayload;
+  const payload = req.body as WebhookPayload;
   if (payload.type === "success") {
     // ...
   } else if (payload.type === "timeout") {
@@ -232,9 +269,10 @@ You can use this tool to verify that your webhook endpoint is working properly. 
 This tool sends the demo webhook requests directly from your browser, which has the following implications:
 
 - **CORS requirements**:
-  - Make sure your API endpoint is configured to accept requests from `remotion.dev` by setting `"Access-Control-Allow-Origin": "true"`. This is necessary for this tool to work, but **not** for your production webhook endpoint.
+  - Make sure your API endpoint is configured to accept requests from `remotion.dev` by setting `"Access-Control-Allow-Origin": "https://www.remotion.dev"`. This is necessary for this tool to work, but **not** for your production webhook endpoint.
   - You must set `"Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode"`
   - You must set `"Access-Control-Allow-Methods": "OPTIONS,POST"`.
+  - Read the error messages in the DevTools to debug potential CORS issues.
 - You can use a server listening on `localhost` and don't need to use a reverse proxy.
 
 :::info

@@ -15,7 +15,7 @@ npx remotion render <entry-file> [<composition-id>] [<output-location>]
 
 If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:
 
-1. Get the path from the Config (Can be set using `Config.Preview.setEntryPoint("<entry-point>")`).
+1. Get the path from the Config (Can be set using `Config.setEntryPoint("<entry-point>")`).
 2. Look for some common paths i.e. `src/index.ts`, `src/index.tsx` `src/index.js`, `remotion/index.ts`, `app/remotion/index.ts`.
 3. Fail as entry point could not be determined.
 
@@ -48,7 +48,7 @@ _available from v3.2.40_
 
 ### `--concurrency`
 
-[How many CPU threads to use.](/docs/config#setconcurrency) Minimum 1. The maximum is the amount of threads you have (In Node.JS `os.cpus().length`).
+[How many CPU threads to use.](/docs/config#setconcurrency) Minimum 1. The maximum is the amount of threads you have (In Node.JS `os.cpus().length`). You can also provide a percentage value (e.g. 50%).
 
 ### `--pixel-format`
 
@@ -81,6 +81,12 @@ Specify a location for a dotenv file. Default `.env`. Available in v2.2 and late
 ### `--codec`
 
 [`h264` or `h265` or `png` or `vp8` or `vp9` or `mp3` or `aac` or `wav` or `prores` or `h264-mkv`](/docs/config#setcodec). If you don't supply `--codec`, it will use the H.264 encoder. Available since v1.4.
+
+### `--audio-codec`
+
+_Available from v3.3.42_
+
+[Set which codec the audio should have.](/docs/config#setaudiocodec) For defaults and possible values, refer to the [Encoding guide](/docs/encoding/#audio-codec).
 
 ### `--audio-bitrate`
 

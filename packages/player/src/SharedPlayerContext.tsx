@@ -67,6 +67,7 @@ export const SharedPlayerContexts: React.FC<{
 			currentCompositionMetadata: null,
 			setCurrentCompositionMetadata: () => undefined,
 			assets: [],
+			setClipRegion: () => undefined,
 		};
 	}, [
 		component,

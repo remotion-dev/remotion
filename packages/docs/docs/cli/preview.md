@@ -13,7 +13,7 @@ npx remotion preview <entry-file>
 
 If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:
 
-1. Get the path from the Config (Can be set using `Config.Preview.setEntryPoint("<entry-point>")`).
+1. Get the path from the Config (Can be set using `Config.setEntryPoint("<entry-point>")`).
 2. Look for some common paths i.e. `src/index.ts`, `src/index.tsx`, `src/index.js`, `remotion/index.js`.
 3. Fail as entry point could not be determined.
 
@@ -61,3 +61,9 @@ _Available from v3.3.11_
 
 [Enables Webpack polling](/docs/config#setwebpackpollinginmilliseconds) instead of the file system event listeners for hot reloading. This is useful if you are inside a virtual machine or have a remote file system.
 Pass a value in milliseconds, for example `--webpack-poll=1000`.
+
+### `--no-open`
+
+_Available from v3.3.19_
+
+[Prevents Remotion from trying to open a browser](/docs/config#setshouldopenbrowser). This is useful if you use a different browser for Remotion than the operating system default.

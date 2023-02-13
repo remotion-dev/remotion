@@ -17,6 +17,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Audiogram](https://github.com/marcusstenbeck/template-audiogram)
 - [Skia](https://github.com/marcusstenbeck/template-skia)
 - [Tailwind](https://github.com/marcusstenbeck/template-tailwind)
+- [Hello World Template with pull request video previews](https://github.com/stoat-dev/example-remotion)
 
 ## SaaS starter Kits
 
@@ -47,14 +48,15 @@ This list tries to compile all templates, libraries, building blocks and example
 
 ## Full projects
 
-- [Github Unwrapped 2022](https://github.com/remotion-dev/github-unwrapped-2022)
-- [Github Unwrapped 2021](https://github.com/remotion-dev/github-unwrapped-2021)
+- [GitHub Unwrapped 2022](https://github.com/remotion-dev/github-unwrapped-2022)
+- [GitHub Unwrapped 2021](https://github.com/remotion-dev/github-unwrapped-2021)
 - [Podcast Maker](https://github.com/remotion-dev/podcast-maker)
 - [Stargazer](https://github.com/pomber/stargazer)
 - [MapSnap](https://companies.remotion.dev) _(exclusive for Company License subscribers)_
 - [Mockoops](https://github.com/Just-Moh-it/Mockoops)
 - [Product Hunt Today](https://github.com/Kamigami55/product-hunt-today)
-- [Remotion Wether](https://github.com/florentpergoud/remotion-weather)
+- [Remotion Weather](https://github.com/florentpergoud/remotion-weather)
+- [Rewind Table](https://github.com/gregonarash/rewind-table) _(Airtable templates for Remotion)_
 
 ## Examples
 
@@ -70,10 +72,12 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Apple "Spring loaded" animation](https://github.com/JonnyBurger/spring-loaded)
 - [ThreeJS particles demo](https://github.com/JonnyBurger/three-particles)
 - [Text Morphing](https://github.com/JonnyBurger/morph-text)
+- [Text warping](https://github.com/remotion-dev/text-warping)
 - [Include GLTF models](https://github.com/JonnyBurger/remotion-three-gltf-example)
 - [OpenGL transitions](https://github.com/JonnyBurger/remotion-gl-transitions)
 - [Conference talk in React](https://github.com/pomber/record-talk-with-remotion)
 - [Conference talk in React #2](https://github.com/JonnyBurger/react-summit-talk)
+- [Twitch stinger example](https://github.com/JonnyBurger/ledevevent-stinger)
 
 ## Videos
 
@@ -89,6 +93,15 @@ See the [Showcase](/showcase) for videos made with Remotion.
 - [Fireship: Remotion Tutorial](https://www.youtube.com/watch?v=deg8bOoziaE&t=3s)
 - [A soft introduction to Remotion](https://www.youtube.com/watch?v=szh2Qgo9SVE&t=847s)
 - [CRT effect](https://www.youtube.com/watch?v=-7MOoWN2_nk)
+- ["Create videos with Code" by Prismic](https://prismic.io/blog/create-videos-with-code-remotion-tutorial)
+
+## Hacks
+
+- [GitHub Actions Matrix renderer](https://github.com/yuvraj108c/Remotion-Matrix-Renderer)
+- [WebKit renderer](https://iosexample.com/using-wkwebview-as-a-faster-alternative-for-rendering-remotion-compositions/)
+- [VS Code extension](https://marketplace.visualstudio.com/items?itemName=KarelNagel.remotion-vscode)
+- [GIF Pull request previews](https://github.com/stoat-dev/example-remotion)
+- [Side-by-side editor](https://www.loom.com/share/7b2aa7fe14c04e858838f137ed19dfd8)
 
 ## Humans
 

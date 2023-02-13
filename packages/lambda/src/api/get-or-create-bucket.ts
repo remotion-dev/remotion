@@ -28,7 +28,7 @@ export const getOrCreateBucket = async (
 				(b) => b.name
 			)}) in your S3 region (${
 				options.region
-			}) starting with "${REMOTION_BUCKET_PREFIX}". This is an error, please delete buckets so that you have one maximum.`
+			}) starting with "${REMOTION_BUCKET_PREFIX}". Please see https://remotion.dev/docs/lambda/multiple-buckets.`
 		);
 	}
 

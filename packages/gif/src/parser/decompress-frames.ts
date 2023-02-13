@@ -1,5 +1,5 @@
-import type {Frame, ParsedGif} from 'gifuct-js';
-import {decompressFrame} from 'gifuct-js';
+import {decompressFrame} from '../gifuct';
+import type {Frame, ParsedFrameWithoutPatch, ParsedGif} from '../gifuct/types';
 
 export const decompressFrames = (parsedGif: ParsedGif) => {
 	return parsedGif.frames
@@ -7,6 +7,11 @@ export const decompressFrames = (parsedGif: ParsedGif) => {
 			return !('application' in f);
 		})
 		.map((f) => {
-			return decompressFrame(f as Frame, parsedGif.gct, false);
-		});
+			const fr = (f as Frame).image
+				? decompressFrame(f as Frame, parsedGif.gct)
+				: null;
+			return fr;
+		})
+		.filter(Boolean)
+		.map((f) => f as ParsedFrameWithoutPatch);
 };

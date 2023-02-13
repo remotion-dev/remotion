@@ -51,6 +51,11 @@
       "permanent": false
     },
     {
+      "source": "/shapes",
+      "destination": "/docs/shapes",
+      "permanent": false
+    },
+    {
       "source": "/api",
       "destination": "/docs/api",
       "permanent": false
@@ -133,6 +138,26 @@
     {
       "source": "/docs/miscellaneous/render-all",
       "destination": "docs/render-all",
+      "permanent": false
+    },
+    {
+      "source": "/docs/overlays",
+      "destination": "/docs/overlay",
+      "permanent": false
+    },
+    {
+      "source": "/links",
+      "destination": "https://linktr.ee/remotion",
+      "permanent": false
+    },
+    {
+      "source": "/contributing",
+      "destination": "https://www.remotion.dev/docs/contributing",
+      "permanent": false
+    },
+    {
+      "source": "/docs/resources",
+      "destination": "https://www.remotion.dev/docs/resources",
       "permanent": false
     }
   ]
