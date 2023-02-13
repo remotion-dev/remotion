@@ -124,7 +124,34 @@ const MyComp: React.FC = () => {
 };
 ```
 
+## Failing with an error
+
+_available from v3.3.44_
+
+If your code fails to do an asynchronous operation and you want to cancel the render, you can call `cancelRender()` with an error message. This will automatically cancel all `delayRender()` calls to not further delay the render.
+
+```tsx twoslash title="MyComposition.tsx"
+import React, { useEffect, useState } from "react";
+import { cancelRender, continueRender, delayRender } from "remotion";
+
+export const MyComp: React.FC = () => {
+  const [handle] = useState(() => delayRender("Fetching data..."));
+
+  useEffect(() => {
+    fetch("https://example.com")
+      .then(() => {
+        continueRender(handle);
+      })
+      .catch((err) => cancelRender(err));
+  }, []);
+
+  return null;
+};
+```
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/delay-render.ts)
 - [Data fetching](/docs/data-fetching)
+- [continueRender()](/docs/continue-render)
+- [cancelRender()](/docs/cancel-render)

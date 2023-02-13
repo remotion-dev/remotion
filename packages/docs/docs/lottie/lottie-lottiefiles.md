@@ -26,7 +26,12 @@ Copy the file into the Remotion project. The recommended way is to put the JSON 
 ```tsx twoslash title="Animation.tsx"
 import { Lottie, LottieAnimationData } from "@remotion/lottie";
 import { useEffect, useState } from "react";
-import { continueRender, delayRender, staticFile } from "remotion";
+import {
+  cancelRender,
+  continueRender,
+  delayRender,
+  staticFile,
+} from "remotion";
 
 const Balloons = () => {
   const [handle] = useState(() => delayRender("Loading Lottie animation"));
@@ -42,7 +47,7 @@ const Balloons = () => {
         continueRender(handle);
       })
       .catch((err) => {
-        console.log("Animation failed to load", err);
+        cancelRender(err);
       });
   }, [handle]);
 

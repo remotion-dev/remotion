@@ -71,6 +71,7 @@ Unlike [`<Video>`](/docs/video), `OffthreadVideo` does not currently implement t
 import { getVideoMetadata } from "@remotion/media-utils";
 import React, { useEffect, useState } from "react";
 import {
+  cancelRender,
   continueRender,
   delayRender,
   Loop,
@@ -93,6 +94,7 @@ export const LoopedOffthreadVideo: React.FC = () => {
         continueRender(handle);
       })
       .catch((err) => {
+        cancelRender(handle);
         console.log(err);
       });
   }, [handle]);
