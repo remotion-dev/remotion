@@ -1,12 +1,31 @@
 const isErrorLink = (err: unknown) => {
-	return (
-		typeof err === 'object' &&
-		err !== null &&
-		'stack' in err &&
-		typeof err.stack === 'string' &&
-		'message' in err &&
-		typeof err.message === 'string'
-	);
+	if (err === null) {
+		return false;
+	}
+
+	if (typeof err !== 'object') {
+		return false;
+	}
+
+	if (!('stack' in err)) {
+		return false;
+	}
+
+	// eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
+	// @ts-ignore we just asserted
+	if (typeof err.stack !== 'string') {
+		return false;
+	}
+
+	if (!('message' in err)) {
+		return false;
+	}
+
+	// eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
+	// @ts-ignore we just asserted
+	if (typeof err.message !== 'string') {
+		return false;
+	}
 };
 
 export function cancelRender(err: unknown): never {
