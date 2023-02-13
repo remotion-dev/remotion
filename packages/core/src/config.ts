@@ -27,7 +27,25 @@ type CodecOrUndefined =
 	| undefined;
 type Crf = number | undefined;
 
-export type ConfigType = {
+// New config format: Add new options only here.
+type FlatConfig = ObjectConfig['Bundling'] &
+	ObjectConfig['Log'] &
+	ObjectConfig['Preview'] &
+	ObjectConfig['Puppeteer'] &
+	ObjectConfig['Output'] &
+	ObjectConfig['Rendering'] & {
+		/**
+		 * Set the audio codec to use for the output video.
+		 * See the Encoding guide in the docs for defaults and available options.
+		 */
+		setAudioCodec: (codec: 'pcm-16' | 'aac' | 'mp3' | 'opus') => void;
+	};
+
+// Legacy config format: New options to not need to be added here.
+type ObjectConfig = {
+	/**
+	 * @deprecated New flat config format: You can now replace `Config.Preview.` with `Config.`
+	 */
 	readonly Preview: {
 		/**
 		 * Change the maximum amount of tracks that are shown in the timeline.
@@ -41,8 +59,35 @@ export type ConfigType = {
 		 * @default true
 		 */
 		readonly setKeyboardShortcutsEnabled: (enableShortcuts: boolean) => void;
+		/**
+		 * Set number of shared audio tags. https://www.remotion.dev/docs/player/autoplay#use-the-numberofsharedaudiotags-property
+		 * @param numberOfAudioTags
+		 * @default 0
+		 */
+		readonly setNumberOfSharedAudioTags: (numberOfAudioTags: number) => void;
+		/**
+		 * Enable Webpack polling instead of file system listeners for hot reloading in the preview.
+		 * This is useful if you are using a remote directory or a virtual machine.
+		 * @param interval
+		 * @default null
+		 */
+		readonly setWebpackPollingInMilliseconds: (interval: number | null) => void;
+		/**
+		 * Whether Remotion should open a browser when starting the Preview.
+		 * @param should
+		 * @default true
+		 */
+		readonly setShouldOpenBrowser: (should: boolean) => void;
 	};
+	/**
+	 * @deprecated New flat config format: You can now replace `Config.Bundling.` with `Config.`
+	 */
 	readonly Bundling: {
+		/**
+		 * Specify the entry point so you don't have to specify it in the
+		 * CLI command
+		 */
+		readonly setEntryPoint: (src: string) => void;
 		/**
 		 * Pass in a function which takes the current Webpack config
 		 * and return a modified Webpack configuration.
@@ -67,6 +112,9 @@ export type ConfigType = {
 		 */
 		readonly setPublicDir: (publicDir: string | null) => void;
 	};
+	/**
+	 * @deprecated New flat config format: You can now replace `Config.Log.` with `Config.`
+	 */
 	readonly Log: {
 		/**
 		 * Set the log level.
@@ -79,6 +127,9 @@ export type ConfigType = {
 			newLogLevel: 'verbose' | 'info' | 'warn' | 'error'
 		) => void;
 	};
+	/**
+	 * @deprecated New flat config format: You can now replace `Config.Puppeteer.` with `Config.`
+	 */
 	readonly Puppeteer: {
 		/**
 		 * Specify executable path for the browser to use.
@@ -88,6 +139,14 @@ export type ConfigType = {
 			newBrowserExecutablePath: BrowserExecutable
 		) => void;
 		/**
+		 * Set how many milliseconds a frame may take to render before it times out.
+		 * Default: `30000`
+		 */
+		readonly setDelayRenderTimeoutInMilliseconds: (
+			newPuppeteerTimeout: number
+		) => void;
+		/**
+		 * @deprecated Renamed to `setDelayRenderTimeoutInMilliseconds`.
 		 * Set how many milliseconds a frame may take to render before it times out.
 		 * Default: `30000`
 		 */
@@ -115,6 +174,9 @@ export type ConfigType = {
 			renderer: 'swangle' | 'angle' | 'egl' | 'swiftshader'
 		) => void;
 	};
+	/**
+	 * @deprecated New flat config format: You can now replace `Config.Rendering.` with `Config.`
+	 */
 	readonly Rendering: {
 		/**
 		 * Set a custom location for a .env file.
@@ -181,6 +243,9 @@ export type ConfigType = {
 		 */
 		readonly setEnforceAudioTrack: (enforceAudioTrack: boolean) => void;
 	};
+	/**
+	 * @deprecated New flat config format: You can now replace `Config.Output.` with `Config.`
+	 */
 	readonly Output: {
 		/**
 		 * Set the output file location string. Default: `out/{composition}.{codec}`
@@ -228,6 +293,14 @@ export type ConfigType = {
 		 */
 		readonly setImageSequence: (newImageSequence: boolean) => void;
 		/**
+		 * Overrides the height of a composition
+		 */
+		readonly overrideHeight: (newHeight: number) => void;
+		/**
+		 * Overrides the width of a composition
+		 */
+		readonly overrideWidth: (newWidth: number) => void;
+		/**
 		 * Set the ProRes profile.
 		 * This method is only valid if the codec has been set to 'prores'.
 		 * Possible values: 4444-xq, 4444, hq, standard, light, proxy. Default: 'hq'
@@ -266,6 +339,9 @@ export type ConfigType = {
 		readonly setVideoBitrate: (bitrate: string | null) => void;
 	};
 };
+
+export type ConfigType = ObjectConfig & FlatConfig;
+
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 
 const conf = {} as unknown as ConfigType;

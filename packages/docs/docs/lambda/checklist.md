@@ -1,8 +1,10 @@
 ---
+image: /generated/articles-docs-lambda-checklist.png
 id: checklist
 sidebar_label: Production Checklist
 title: Production Checklist
 slug: /lambda/checklist
+crumb: "Lambda"
 ---
 
 import {DefaultTimeout} from '../../components/lambda/default-timeout';
@@ -26,10 +28,6 @@ Make sure your AWS user only has as many permissions as needed and store your cr
 ### AWS burst limit
 
 Familiarize yourself with the [AWS burst limit](https://docs.aws.amazon.com/lambda/latest/dg/invocation-scaling.html). Essentially, you need to avoid a quick spike in video renders that will cause the burst limit to take effect. If you need to scale beyond the burst limit, consider scaling across multiple regions as the burst limit only applies for a certain region. Another strategy to consider is creating multiple sub-accounts in your AWS organization as the burst limit only affects a single account.
-
-### AWS payload limit
-
-The maximum payload for invoking a Lambda function is 256KB. Ensure that in your application, the `inputProps` payload does not exceed this amount and introduce validation and error handling if necessary.
 
 ### Selecting the right concurrency
 

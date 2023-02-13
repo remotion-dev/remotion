@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-cli-still.png
 title: npx remotion still
 sidebar_label: still
+crumb: CLI Reference
 ---
 
 import {AngleChangelog} from '../../components/AngleChangelog';
@@ -10,8 +12,11 @@ _Available from v2.3._
 Render a still frame based on the entry point, the composition ID and save it to the output location.
 
 ```bash
-npx remotion still <entry-file> <composition-id> <output-location>
+npx remotion still <entry-file> [<composition-id>] [<output-location>]
 ```
+
+If `output-location` is not passed, the still will be rendered into the `out` folder.  
+If `composition-id` is also not passed, Remotion will let you select a composition.
 
 ## Flags
 
@@ -96,13 +101,15 @@ Results in invalid SSL certificates in Chrome, such as self-signed ones, being i
 
 ### `--disable-web-security`
 
+_Available since v2.6.5_
+
 This will most notably disable CORS in Chrome among other security features.
-Available since v2.6.5.
 
 ### `--disable-headless`
 
+_Available since v2.6.5_
+
 Opens an actual browser during rendering to observe the render.
-Available since v2.6.5.
 
 ### `--gl`
 

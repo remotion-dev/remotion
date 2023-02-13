@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-skia-skia.png
 id: skia
 sidebar_label: Overview
 title: "@remotion/skia"
@@ -65,16 +66,20 @@ Make sure no package version number has a `^` character in front of it as it can
 import { Config } from "remotion";
 import { enableSkia } from "@remotion/skia/enable";
 
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+Config.overrideWebpackConfig((currentConfiguration) => {
   return enableSkia(currentConfiguration);
 });
 ```
 
-Next, you need to refactor entrypoint file (most commonly `src/index.tsx`) to first load the Skia WebAssembly binary before calling registerRoot():
+:::note
+Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
+:::
 
-```ts twoslash title="src/index.tsx"
-// @filename: ./Video.tsx
-export const RemotionVideo = () => <></>;
+Next, you need to refactor the [entry point](/docs/terminology#entry-point) file to first load the Skia WebAssembly binary before calling registerRoot():
+
+```ts twoslash title="src/index.ts"
+// @filename: ./Root.tsx
+export const RemotionRoot = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
@@ -83,8 +88,8 @@ import { registerRoot } from "remotion";
 
 (async () => {
   await LoadSkia();
-  const { RemotionVideo } = await import("./Video");
-  registerRoot(RemotionVideo);
+  const { RemotionRoot } = await import("./Root");
+  registerRoot(RemotionRoot);
 })();
 ```
 
@@ -132,7 +137,7 @@ pnpm create video -- --skia
 By default Remotion rendering are done on the CPU. Some Skia effects rely on advanced GPU features, which may be slow to run on the CPU depending on the kind of effect you are using. If your Skia export is extremely slow, we found that enabling the GPU via the `--gl=angle` option improves things substantially. Please check out the documentation on [GPU rendering](/docs/gpu).
 
 ```sh
-remotion render src/index.tsx Main out/video.mp4 --gl=angle
+remotion render Main out/video.mp4 --gl=angle
 ```
 
 ## Resources

@@ -1,6 +1,5 @@
 import {bundle} from '@remotion/bundler';
 import {
-	combineVideos,
 	getCompositions,
 	RenderInternals,
 	renderMedia,
@@ -10,7 +9,7 @@ import {webpackOverride} from './webpack-override';
 
 const start = async () => {
 	const bundled = await bundle({
-		entryPoint: './src/index.tsx',
+		entryPoint: './src/index.ts',
 		webpackOverride,
 	});
 
@@ -37,7 +36,7 @@ const start = async () => {
 		console.log({i});
 	}
 
-	await combineVideos({
+	await RenderInternals.combineVideos({
 		codec: 'h264',
 		filelistDir,
 		files: new Array(dur / framesPerLambda).fill(true).map((_, i) => {
@@ -48,6 +47,9 @@ const start = async () => {
 		onProgress: () => console.log('progress'),
 		output: 'out/combined.mp4',
 		numberOfGifLoops: null,
+		ffmpegExecutable: null,
+		remotionRoot: process.cwd(),
+		audioCodec: 'aac',
 	});
 };
 

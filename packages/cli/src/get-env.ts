@@ -1,9 +1,9 @@
+import {RenderInternals} from '@remotion/renderer';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
-import {findRemotionRoot} from './find-closest-package-json';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 
@@ -112,14 +112,14 @@ export const getEnvironmentVariables = (
 		return getEnvForEnvFile(processEnv, envFile, onUpdate);
 	}
 
-	const remotionRoot = findRemotionRoot();
+	const remotionRoot = RenderInternals.findRemotionRoot();
 
 	const configFileSetting = ConfigInternals.getDotEnvLocation();
 	if (configFileSetting) {
 		const envFile = path.resolve(remotionRoot, configFileSetting);
 		if (!fs.existsSync(envFile)) {
 			Log.error(
-				'You specified a custom .env file using `Config.Rendering.setDotEnvLocation()` in the config file but it could not be found'
+				'You specified a custom .env file using `Config.setDotEnvLocation()` in the config file but it could not be found'
 			);
 			Log.error('We looked for the file at:', envFile);
 			Log.error('Check that your path is correct and try again.');

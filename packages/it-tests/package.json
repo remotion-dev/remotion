@@ -1,23 +1,25 @@
 {
   "name": "@remotion/it-tests",
-  "version": "3.2.33",
+  "version": "3.3.43",
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "test": "vitest src/rendering --run",
-    "testssr": "vitest src/ssr --run",
+    "testssr": "node --max_old_space_size=4096 node_modules/vitest/vitest.mjs src/ssr --run",
     "testlambda": "vitest src/lambda --run"
   },
   "private": true,
   "devDependencies": {
-    "@remotion/bundler": "3.2.33",
-    "@remotion/cli": "3.2.33",
-    "@remotion/lambda": "3.2.33",
-    "@remotion/renderer": "3.2.33",
+    "@remotion/bundler": "3.3.43",
+    "@remotion/cli": "3.3.43",
+    "@remotion/lambda": "3.3.43",
+    "@remotion/renderer": "3.3.43",
     "@types/sharp": "^0.28.5",
+    "create-video": "3.3.43",
     "execa": "5.1.1",
-    "remotion": "3.2.33",
+    "remotion": "3.3.43",
     "sharp": "0.30.6",
     "typescript": "^4.7.0",
-    "vitest": "0.24.3"
+    "vite": "^4.0.4",
+    "vitest": "^0.27.2"
   }
 }

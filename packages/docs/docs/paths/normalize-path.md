@@ -1,5 +1,7 @@
 ---
+image: /generated/articles-docs-paths-normalize-path.png
 title: normalizePath()
+crumb: "@remotion/paths"
 ---
 
 _Part of the [`@remotion/paths`](/docs/paths) package._
@@ -30,4 +32,5 @@ Source code stems mostly from [svg-path-reverse](https://www.npmjs.com/package/s
 ## See also
 
 - [`@remotion/paths`](/docs/paths)
+- [`reduceInstructions()`](/docs/paths/reduce-instructions)
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/normalize-path.ts)

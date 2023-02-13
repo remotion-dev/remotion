@@ -1,5 +1,9 @@
+import {getCompositionsOnLambda} from './api/get-compositions-on-lambda';
 import {getFunctions} from './api/get-functions';
 import {getRenderProgress} from './api/get-render-progress';
+import {getSites} from './api/get-sites';
+import type {PresignUrlInput} from './api/presign-url';
+import {presignUrl} from './api/presign-url';
 import {
 	renderMediaOnLambda,
 	renderVideoOnLambda,
@@ -17,5 +21,8 @@ export {
 	getRenderProgress,
 	getFunctions,
 	validateWebhookSignature,
+	getCompositionsOnLambda,
+	presignUrl,
+	getSites,
 };
-export type {AwsRegion, RenderProgress, WebhookPayload};
+export type {AwsRegion, RenderProgress, WebhookPayload, PresignUrlInput};

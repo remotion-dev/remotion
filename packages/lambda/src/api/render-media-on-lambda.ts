@@ -1,4 +1,5 @@
 import type {
+	AudioCodec,
 	ChromiumOptions,
 	FrameRange,
 	ImageFormat,
@@ -12,8 +13,8 @@ import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
-import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {getCloudwatchStreamUrl} from '../shared/get-cloudwatch-stream-url';
+import {getCloudwatchStreamUrl, getS3RenderUrl} from '../shared/get-aws-urls';
+import {serializeInputProps} from '../shared/serialize-input-props';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
@@ -54,12 +55,18 @@ export type RenderMediaOnLambdaInput = {
 		url: string;
 		secret: string | null;
 	};
+	forceWidth?: number | null;
+	forceHeight?: number | null;
+	rendererFunctionName?: string | null;
+	forceBucketName?: string;
+	audioCodec?: AudioCodec | null;
 };
 
 export type RenderMediaOnLambdaOutput = {
 	renderId: string;
 	bucketName: string;
 	cloudWatchLogs: string;
+	folderInS3Console: string;
 };
 
 /**
@@ -113,6 +120,11 @@ export const renderMediaOnLambda = async ({
 	audioBitrate,
 	videoBitrate,
 	webhook,
+	forceHeight,
+	forceWidth,
+	rendererFunctionName,
+	forceBucketName: bucketName,
+	audioCodec,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
@@ -122,16 +134,22 @@ export const renderMediaOnLambda = async ({
 	});
 	validateDownloadBehavior(downloadBehavior);
 
-	const realServeUrl = await convertToServeUrl(serveUrl, region);
+	const serializedInputProps = await serializeInputProps({
+		inputProps,
+		region,
+		type: 'video-or-audio',
+		userSpecifiedBucketName: bucketName ?? null,
+	});
 	try {
 		const res = await callLambda({
 			functionName,
 			type: LambdaRoutines.start,
 			payload: {
+				rendererFunctionName: rendererFunctionName ?? null,
 				framesPerLambda: framesPerLambda ?? null,
 				composition,
-				serveUrl: realServeUrl,
-				inputProps: inputProps ?? {},
+				serveUrl,
+				inputProps: serializedInputProps,
 				codec: actualCodec,
 				imageFormat: imageFormat ?? 'jpeg',
 				crf,
@@ -157,6 +175,10 @@ export const renderMediaOnLambda = async ({
 				audioBitrate: audioBitrate ?? null,
 				videoBitrate: videoBitrate ?? null,
 				webhook: webhook ?? null,
+				forceHeight: forceHeight ?? null,
+				forceWidth: forceWidth ?? null,
+				bucketName: bucketName ?? null,
+				audioCodec: audioCodec ?? null,
 			},
 			region,
 		});
@@ -168,6 +190,12 @@ export const renderMediaOnLambda = async ({
 				method: LambdaRoutines.renderer,
 				region,
 				renderId: res.renderId,
+				rendererFunctionName: rendererFunctionName ?? null,
+			}),
+			folderInS3Console: getS3RenderUrl({
+				bucketName: res.bucketName,
+				renderId: res.renderId,
+				region,
 			}),
 		};
 	} catch (err) {

@@ -263,6 +263,7 @@ export class CDPSession extends EventEmitter {
 	}
 
 	_onClosed(): void {
+		this.#connection = undefined;
 		for (const callback of this.#callbacks.values()) {
 			callback.reject(
 				rewriteError(
@@ -273,7 +274,6 @@ export class CDPSession extends EventEmitter {
 		}
 
 		this.#callbacks.clear();
-		this.#connection = undefined;
 		this.emit(CDPSessionEmittedEvents.Disconnected);
 	}
 

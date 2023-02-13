@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-figma.png
 id: figma
 title: Import from Figma
+crumb: "The best of both"
 ---
 
 You can export a design from Figma as an SVG file and import it as a React component in Remotion and then animate it.
@@ -130,3 +132,4 @@ You have animated a rocket! 🚀
 
 - [Blog - SVG Animation with Remotion](https://meje.dev/blog/svg-animtion-with-remotion)
 - [Video - Animating Figma Mockups with Remotion](https://twitter.com/jnybgr/status/1496748768821133312)
+- [Locofy - Export Figma mockups as React components](https://www.locofy.ai)

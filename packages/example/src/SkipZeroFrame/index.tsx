@@ -2,7 +2,7 @@ import React from 'react';
 import {useCurrentFrame} from 'remotion';
 
 // Try to render using:
-// npx remotion render src/index.tsx skip-zero-frame --frames=10-20 skip.mp4
+// npx remotion render src/index.ts skip-zero-frame --frames=10-20 skip.mp4
 
 export const SkipZeroFrame: React.FC = () => {
 	const frame = useCurrentFrame();

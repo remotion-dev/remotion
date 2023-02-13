@@ -16,9 +16,13 @@ export type PixelFormat = typeof validPixelFormats[number];
 export const DEFAULT_PIXEL_FORMAT: PixelFormat = 'yuv420p';
 
 export const validateSelectedPixelFormatAndCodecCombination = (
-	pixelFormat: PixelFormat,
+	pixelFormat: PixelFormat | undefined,
 	codec: Codec
 ) => {
+	if (typeof pixelFormat === 'undefined') {
+		return pixelFormat;
+	}
+
 	if (!validPixelFormats.includes(pixelFormat)) {
 		throw new TypeError(`Value ${pixelFormat} is not valid as a pixel format.`);
 	}

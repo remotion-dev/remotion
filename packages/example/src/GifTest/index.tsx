@@ -7,7 +7,7 @@ const GifTest: React.FC = () => {
 
 	return (
 		<div style={{flex: 1, backgroundColor: 'black'}}>
-			<Sequence from={0} durationInFrames={50}>
+			<Sequence durationInFrames={50}>
 				<Gif src={giphy} width={width} height={height} fit="fill" />
 			</Sequence>
 
@@ -26,6 +26,20 @@ const GifTest: React.FC = () => {
 					width={width}
 					height={height}
 					fit="contain"
+				/>
+			</Sequence>
+			<Sequence
+				from={150}
+				durationInFrames={50}
+				style={{
+					backgroundColor: 'white',
+				}}
+			>
+				<Gif
+					src={staticFile('disposal-type-3.gif')}
+					width={width}
+					height={height}
+					fit="fill"
 				/>
 			</Sequence>
 		</div>

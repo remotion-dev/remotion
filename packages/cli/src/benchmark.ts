@@ -5,15 +5,16 @@ import {
 	RenderInternals,
 	renderMedia,
 } from '@remotion/renderer';
-import path from 'path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
+import {findEntryPoint} from './entry-point';
 import {getCliOptions, getFinalCodec} from './get-cli-options';
 import {getRenderMediaOptions} from './get-render-media-options';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {createOverwriteableCliOutput} from './progress-bar';
+import {selectCompositions} from './select-composition';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import {truthy} from './truthy';
 
@@ -138,17 +139,15 @@ export const benchmarkCommand = async (
 ) => {
 	const runs: number = parsedCli.runs ?? DEFAULT_RUNS;
 
-	const filePath = args[0];
+	const {file, reason, remainingArgs} = findEntryPoint(args, remotionRoot);
 
-	if (!filePath) {
+	if (!file) {
 		Log.error('No entry file passed.');
 		Log.info('Pass an additional argument specifying the entry file');
 		Log.info();
 		Log.info(`$ remotion benchmark <entry file>`);
 		process.exit(1);
 	}
-
-	const fullPath = path.join(process.cwd(), filePath);
 
 	const {
 		inputProps,
@@ -165,8 +164,10 @@ export const benchmarkCommand = async (
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
-		codec: 'h264',
+		remotionRoot,
 	});
+
+	Log.verbose('Entry point:', file, 'reason:', reason);
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
@@ -180,7 +181,7 @@ export const benchmarkCommand = async (
 
 	const {urlOrBundle: bundleLocation, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({
-			fullPath,
+			fullPath: file,
 			publicDir,
 			remotionRoot,
 			steps: ['bundling'],
@@ -199,10 +200,14 @@ export const benchmarkCommand = async (
 		puppeteerInstance,
 	});
 
-	const ids = (args[1] ?? '')
-		.split(',')
-		.map((c) => c.trim())
-		.filter(truthy);
+	const ids = (
+		remainingArgs[0]
+			? remainingArgs[0]
+					.split(',')
+					.map((c) => c.trim())
+					.filter(truthy)
+			: await selectCompositions(comps)
+	) as string[];
 
 	const compositions = ids.map((compId) => {
 		const composition = comps.find((c) => c.id === compId);
@@ -235,6 +240,7 @@ export const benchmarkCommand = async (
 			outputLocation: undefined,
 			serveUrl: bundleLocation,
 			codec,
+			remotionRoot,
 		});
 		const concurrency = getValidConcurrency(renderMediaOptions);
 

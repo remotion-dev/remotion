@@ -1,9 +1,12 @@
 ---
+image: /generated/articles-docs-tailwind-2.png
 id: tailwind-legacy
 title: TailwindCSS v2 (Legacy)
+crumb: "Legacy docs"
 ---
 
 import Tabs from "@theme/Tabs";
+import TabItem from '@theme/TabItem';
 
 :::info
 This documentation concerns TailwindCSS v2. [See here for V3!](/docs/tailwind)
@@ -48,7 +51,7 @@ yarn add postcss-loader postcss postcss-preset-env tailwindcss@2 autoprefixer
 ```ts twoslash
 import { Config } from "remotion";
 // ---cut---
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+Config.overrideWebpackConfig((currentConfiguration) => {
   return {
     ...currentConfiguration,
     module: {
@@ -99,7 +102,7 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 @tailwind utilities;
 ```
 
-4. Import the stylesheet in your `src/Video.tsx` file. Add to the top of the file:
+4. Import the stylesheet in your `src/Root.tsx` file. Add to the top of the file:
 
 ```js
 import "./style.css";

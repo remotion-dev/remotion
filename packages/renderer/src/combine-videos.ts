@@ -3,22 +3,19 @@
 import execa from 'execa';
 import {rmdirSync, rmSync, writeFileSync} from 'fs';
 import {join} from 'path';
+import type {AudioCodec} from './audio-codec';
+import {
+	getDefaultAudioCodec,
+	mapAudioCodecToFfmpegAudioCodecName,
+} from './audio-codec';
 import type {Codec} from './codec';
-import {getAudioCodecName} from './get-audio-codec-name';
+import type {FfmpegExecutable} from './ffmpeg-executable';
+import {getExecutableBinary} from './ffmpeg-flags';
 import {isAudioCodec} from './is-audio-codec';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {truthy} from './truthy';
 
-export const combineVideos = async ({
-	files,
-	filelistDir,
-	output,
-	onProgress,
-	numberOfFrames,
-	codec,
-	fps,
-	numberOfGifLoops,
-}: {
+type Options = {
 	files: string[];
 	filelistDir: string;
 	output: string;
@@ -27,15 +24,36 @@ export const combineVideos = async ({
 	codec: Codec;
 	fps: number;
 	numberOfGifLoops: number | null;
-}) => {
+	remotionRoot: string;
+	ffmpegExecutable: FfmpegExecutable;
+	audioCodec: AudioCodec | null;
+};
+
+export const combineVideos = async (options: Options) => {
+	const {
+		files,
+		filelistDir,
+		output,
+		onProgress,
+		numberOfFrames,
+		codec,
+		fps,
+		numberOfGifLoops,
+		ffmpegExecutable,
+		remotionRoot,
+		audioCodec,
+	} = options;
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 
 	const fileListTxt = join(filelistDir, 'files.txt');
 	writeFileSync(fileListTxt, fileList);
 
+	const resolvedAudioCodec =
+		audioCodec ?? getDefaultAudioCodec({codec, preferLossless: false});
+
 	try {
 		const task = execa(
-			'ffmpeg',
+			await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
 			[
 				isAudioCodec(codec) ? null : '-r',
 				isAudioCodec(codec) ? null : String(fps),
@@ -53,14 +71,15 @@ export const combineVideos = async ({
 					: '-1',
 				isAudioCodec(codec) ? null : '-c:v',
 				isAudioCodec(codec) ? null : codec === 'gif' ? 'gif' : 'copy',
-				'-c:a',
-				getAudioCodecName(codec),
+				resolvedAudioCodec ? '-c:a' : null,
+				resolvedAudioCodec
+					? mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec)
+					: null,
 				// Set max bitrate up to 512kbps, will choose lower if that's too much
 				'-b:a',
 				'512K',
 				codec === 'h264' ? '-movflags' : null,
 				codec === 'h264' ? 'faststart' : null,
-				'-shortest',
 				'-y',
 				output,
 			].filter(truthy)

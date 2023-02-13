@@ -7,6 +7,7 @@ import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
+import type {AudioCodec} from './audio-codec';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
@@ -19,21 +20,24 @@ import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import type {FfmpegExecutable} from './ffmpeg-executable';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
+import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import type {ImageFormat} from './image-format';
+import {validateSelectedPixelFormatAndImageFormatCombination} from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
 import {getServeUrlWithFallback} from './legacy-webpack-config';
 import type {CancelSignal} from './make-cancel-signal';
-import {makeCancelSignal} from './make-cancel-signal';
+import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {DEFAULT_OVERWRITE} from './overwrite';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
 import type {PixelFormat} from './pixel-format';
+import {validateSelectedPixelFormatAndCodecCombination} from './pixel-format';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
@@ -43,6 +47,7 @@ import {renderFrames} from './render-frames';
 import {stitchFramesToVideo} from './stitch-frames-to-video';
 import type {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
+import {validateEveryNthFrame} from './validate-every-nth-frame';
 import {validateFfmpeg} from './validate-ffmpeg';
 import {validateFfmpegOverride} from './validate-ffmpeg-override';
 import {validateOutputFilename} from './validate-output-filename';
@@ -99,6 +104,10 @@ export type RenderMediaOptions = {
 	 * @deprecated Only for Remotion internal usage
 	 */
 	downloadMap?: DownloadMap;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	preferLossless?: boolean;
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
 	ffmpegOverride?: FfmpegOverrideFn;
@@ -106,12 +115,13 @@ export type RenderMediaOptions = {
 	videoBitrate?: string | null;
 	onSlowestFrames?: OnSlowestFrames;
 	disallowParallelEncoding?: boolean;
+	audioCodec?: AudioCodec | null;
 } & ServeUrlOrWebpackBundle &
 	ConcurrencyOrParallelism;
 
 type ConcurrencyOrParallelism =
 	| {
-			concurrency?: number | null;
+			concurrency?: number | string | null;
 	  }
 	| {
 			/**
@@ -170,9 +180,11 @@ export const renderMedia = ({
 	audioBitrate,
 	videoBitrate,
 	onSlowestFrames,
+	audioCodec,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
-	validateFfmpeg(ffmpegExecutable ?? null);
+	const remotionRoot = findRemotionRoot();
+	validateFfmpeg(ffmpegExecutable ?? null, remotionRoot, 'ffmpeg');
 	validateQuality(options.quality);
 	validateQualitySettings({crf, codec, videoBitrate});
 	validateBitrate(audioBitrate, 'audioBitrate');
@@ -182,9 +194,14 @@ export const renderMedia = ({
 		codec,
 		proResProfile,
 	});
-
+	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 	if (outputLocation) {
-		validateOutputFilename(codec, getExtensionOfFilename(outputLocation));
+		validateOutputFilename({
+			codec,
+			audioCodec: audioCodec ?? null,
+			extension: getExtensionOfFilename(outputLocation) as string,
+			preferLossless: options.preferLossless ?? false,
+		});
 	}
 
 	const absoluteOutputLocation = outputLocation
@@ -197,6 +214,7 @@ export const renderMedia = ({
 	validateFfmpegOverride(ffmpegOverride);
 
 	const everyNthFrame = options.everyNthFrame ?? 1;
+	validateEveryNthFrame(everyNthFrame, codec);
 	const numberOfGifLoops = options.numberOfGifLoops ?? null;
 	const serveUrl = getServeUrlWithFallback(options);
 
@@ -248,10 +266,15 @@ export const renderMedia = ({
 		: options.imageFormat ?? 'jpeg';
 	const quality = imageFormat === 'jpeg' ? options.quality : undefined;
 
+	validateSelectedPixelFormatAndImageFormatCombination(
+		pixelFormat,
+		imageFormat
+	);
+
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
 				downloadMap.preEncode,
-				'pre-encode.' + getFileExtensionFromCodec(codec, 'chunk')
+				'pre-encode.' + getFileExtensionFromCodec(codec, audioCodec ?? null)
 		  )
 		: null;
 
@@ -303,26 +326,29 @@ export const renderMedia = ({
 
 	const createPrestitcherIfNecessary = async () => {
 		if (preEncodedFileLocation) {
-			preStitcher = await prespawnFfmpeg({
-				width: composition.width * (scale ?? 1),
-				height: composition.height * (scale ?? 1),
-				fps,
-				outputLocation: preEncodedFileLocation,
-				pixelFormat,
-				codec,
-				proResProfile,
-				crf,
-				onProgress: (frame: number) => {
-					encodedFrames = frame;
-					callUpdate();
+			preStitcher = await prespawnFfmpeg(
+				{
+					width: composition.width * (scale ?? 1),
+					height: composition.height * (scale ?? 1),
+					fps,
+					outputLocation: preEncodedFileLocation,
+					pixelFormat,
+					codec,
+					proResProfile,
+					crf,
+					onProgress: (frame: number) => {
+						encodedFrames = frame;
+						callUpdate();
+					},
+					verbose: options.verbose ?? false,
+					ffmpegExecutable,
+					imageFormat,
+					signal: cancelPrestitcher.cancelSignal,
+					ffmpegOverride: ffmpegOverride ?? (({args}) => args),
+					videoBitrate: videoBitrate ?? null,
 				},
-				verbose: options.verbose ?? false,
-				ffmpegExecutable,
-				imageFormat,
-				signal: cancelPrestitcher.cancelSignal,
-				ffmpegOverride: ffmpegOverride ?? (({args}) => args),
-				videoBitrate: videoBitrate ?? null,
-			});
+				remotionRoot
+			);
 			stitcherFfmpeg = preStitcher.task;
 		}
 	};
@@ -454,6 +480,7 @@ export const renderMedia = ({
 					internalOptions: {
 						preEncodedFileLocation,
 						imageFormat,
+						preferLossless: options.preferLossless ?? false,
 					},
 					force: overwrite ?? DEFAULT_OVERWRITE,
 					pixelFormat,
@@ -478,6 +505,7 @@ export const renderMedia = ({
 					ffmpegOverride,
 					audioBitrate,
 					videoBitrate,
+					audioCodec: audioCodec ?? null,
 				}),
 				stitchStart,
 			]);
@@ -537,7 +565,7 @@ export const renderMedia = ({
 		happyPath,
 		new Promise<Buffer | null>((_resolve, reject) => {
 			cancelSignal?.(() => {
-				reject(new Error('renderMedia() got cancelled'));
+				reject(new Error(cancelErrorMessages.renderMedia));
 			});
 		}),
 	]);

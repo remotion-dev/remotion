@@ -1,20 +1,27 @@
 ---
+image: /generated/articles-docs-lambda-light-client.png
 sidebar_label: Light client
 title: Light client
+crumb: "Lambda"
 ---
 
 The following methods and types can be imported from `@remotion/lambda/client`:
 
 ```tsx twoslash
+// organize-imports-ignore
+// ---cut---
 import {
   renderMediaOnLambda,
   renderStillOnLambda,
   getRenderProgress,
+  getCompositionsOnLambda,
   getFunctions,
   AwsRegion,
   RenderProgress,
   validateWebhookSignature,
-  WebhookPayload
+  WebhookPayload,
+  presignUrl,
+  PresignUrlInput,
 } from "@remotion/lambda/client";
 ```
 

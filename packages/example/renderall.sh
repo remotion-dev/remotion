@@ -1,8 +1,8 @@
-compositions=($(npx remotion compositions src/index.tsx -q))
+compositions=($(npx remotion compositions src/index.ts -q))
 
 
 for composition in "${compositions[@]}"
 do
   echo $composition
-  npx remotion render src/index.tsx $composition $composition.mp4
+  npx remotion render src/index.ts $composition $composition.mp4
 done

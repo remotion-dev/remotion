@@ -1,5 +1,6 @@
 import type {DeleteFunctionInput} from './api/delete-function';
 import {deleteFunction} from './api/delete-function';
+import type {DeleteRenderInput} from './api/delete-render';
 import {deleteRender} from './api/delete-render';
 import type {DeleteSiteInput, DeleteSiteOutput} from './api/delete-site';
 import {deleteSite} from './api/delete-site';
@@ -19,6 +20,11 @@ import type {EstimatePriceInput} from './api/estimate-price';
 import {estimatePrice} from './api/estimate-price';
 import type {GetAwsClientInput, GetAwsClientOutput} from './api/get-aws-client';
 import {getAwsClient} from './api/get-aws-client';
+import type {
+	GetCompositionsOnLambdaInput,
+	GetCompositionsOnLambdaOutput,
+} from './api/get-compositions-on-lambda';
+import {getCompositionsOnLambda} from './api/get-compositions-on-lambda';
 import type {FunctionInfo, GetFunctionInfoInput} from './api/get-function-info';
 import {getFunctionInfo} from './api/get-function-info';
 import type {GetFunctionsInput} from './api/get-functions';
@@ -32,7 +38,7 @@ import {getRegions} from './api/get-regions';
 import type {GetRenderInput} from './api/get-render-progress';
 import {getRenderProgress} from './api/get-render-progress';
 import type {GetSitesInput, GetSitesOutput} from './api/get-sites';
-import {getSites} from './api/get-sites';
+import {getSites as deprecatedGetSites} from './api/get-sites';
 import type {
 	SimulatePermissionsInput,
 	SimulatePermissionsOutput,
@@ -42,20 +48,20 @@ import {
 	getRolePolicy,
 	getUserPolicy,
 } from './api/iam-validation/suggested-policy';
-import {presignUrl} from './api/presign-url';
+import {presignUrl as deprecatedPresignUrl} from './api/presign-url';
 import type {
 	RenderMediaOnLambdaInput,
 	RenderMediaOnLambdaOutput,
 } from './api/render-media-on-lambda';
 import {
-	renderMediaOnLambda,
+	renderMediaOnLambda as deprecatedRenderMediaOnLambda,
 	renderVideoOnLambda,
 } from './api/render-media-on-lambda';
 import type {
 	RenderStillOnLambdaInput,
 	RenderStillOnLambdaOutput,
 } from './api/render-still-on-lambda';
-import {renderStillOnLambda} from './api/render-still-on-lambda';
+import {renderStillOnLambda as deprecatedRenderStillOnLambda} from './api/render-still-on-lambda';
 import {validateWebhookSignature} from './api/validate-webhook-signature';
 import type {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
 import type {
@@ -68,6 +74,26 @@ import type {CustomCredentials} from './shared/aws-clients';
 import type {RenderProgress} from './shared/constants';
 import type {WebhookPayload} from './shared/invoke-webhook';
 import type {LambdaArchitecture} from './shared/validate-architecture';
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const renderMediaOnLambda = deprecatedRenderMediaOnLambda;
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const renderStillOnLambda = deprecatedRenderStillOnLambda;
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const presignUrl = deprecatedPresignUrl;
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const getSites = deprecatedGetSites;
 
 export {
 	deleteSite,
@@ -94,6 +120,7 @@ export {
 	presignUrl,
 	deleteRender,
 	validateWebhookSignature,
+	getCompositionsOnLambda,
 };
 export type {
 	AwsRegion,
@@ -131,4 +158,7 @@ export type {
 	WebhookPayload,
 	LambdaErrorInfo,
 	EnhancedErrorInfo,
+	DeleteRenderInput,
+	GetCompositionsOnLambdaOutput,
+	GetCompositionsOnLambdaInput,
 };

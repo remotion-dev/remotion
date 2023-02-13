@@ -11,3 +11,5 @@ packages/example/out
 .pnpm-debug.log
 .vscode/taskmarks.json
 .turbo
+.vercel
+packages/renderer/target

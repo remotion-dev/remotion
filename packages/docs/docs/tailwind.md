@@ -1,9 +1,12 @@
 ---
+image: /generated/articles-docs-tailwind.png
 id: tailwind
 title: TailwindCSS
+crumb: "text-lg font-bold"
 ---
 
 import Tabs from "@theme/Tabs";
+import TabItem from '@theme/TabItem';
 
 ## Using the template
 
@@ -137,8 +140,12 @@ export const enableTailwind: WebpackOverrideFn = (c) => c;
 import { Config } from "remotion";
 import { enableTailwind } from "./src/enable-tailwind";
 
-Config.Bundling.overrideWebpackConfig(enableTailwind);
+Config.overrideWebpackConfig(enableTailwind);
 ```
+
+:::note
+Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
+:::
 
 4. If you use the [`bundle()` or `deploySite()` Node.JS API, add the Webpack override to it as well](/docs/webpack#when-using-bundle-and-deploysite).
 
@@ -150,9 +157,9 @@ Config.Bundling.overrideWebpackConfig(enableTailwind);
 @tailwind utilities;
 ```
 
-6. Import the stylesheet in your `src/Video.tsx` file. Add to the top of the file:
+6. Import the stylesheet in your `src/Root.tsx` file. Add to the top of the file:
 
-```js title="src/Video.tsx"
+```js title="src/Root.tsx"
 import "./style.css";
 ```
 

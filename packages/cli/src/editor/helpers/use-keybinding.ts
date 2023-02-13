@@ -24,6 +24,7 @@ export const useKeybinding = () => {
 			key: string;
 			commandCtrlKey: boolean;
 			callback: (e: KeyboardEvent) => void;
+			preventDefault: boolean;
 		}) => {
 			if (!process.env.KEYBOARD_SHORTCUTS_ENABLED) {
 				return {
@@ -46,7 +47,9 @@ export const useKeybinding = () => {
 					options.commandCtrlKey === commandKey
 				) {
 					options.callback(e);
-					e.preventDefault();
+					if (options.preventDefault) {
+						e.preventDefault();
+					}
 				}
 			};
 

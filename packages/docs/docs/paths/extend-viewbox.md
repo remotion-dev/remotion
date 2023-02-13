@@ -1,10 +1,16 @@
 ---
+image: /generated/articles-docs-paths-extend-viewbox.png
 title: extendViewBox()
+crumb: "@remotion/paths"
 ---
 
 _Part of the [`@remotion/paths`](/docs/paths) package. Available since v3.2.25_
 
 Widens an SVG `viewBox` in all directions by a certain scale factor.
+
+:::note
+This function may be unnecessary: If you want the parts that go outside of the viewbox to be visible, you can also set `style={{overflow: 'visible'}}` on the SVG container.
+:::
 
 ```tsx twoslash
 import { extendViewBox } from "@remotion/paths";

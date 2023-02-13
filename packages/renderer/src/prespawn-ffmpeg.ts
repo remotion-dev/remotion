@@ -4,6 +4,7 @@ import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {validateQualitySettings} from './crf';
 import type {FfmpegExecutable} from './ffmpeg-executable';
+import {getExecutableBinary} from './ffmpeg-flags';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
@@ -37,7 +38,10 @@ type PreSticherOptions = {
 	videoBitrate: string | null;
 };
 
-export const prespawnFfmpeg = async (options: PreSticherOptions) => {
+export const prespawnFfmpeg = async (
+	options: PreSticherOptions,
+	remotionRoot: string
+) => {
 	Internals.validateDimension(
 		options.height,
 		'height',
@@ -61,7 +65,11 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 		scale: 1,
 	});
 	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
-	await validateFfmpeg(options.ffmpegExecutable ?? null);
+	await validateFfmpeg(
+		options.ffmpegExecutable ?? null,
+		remotionRoot,
+		'ffmpeg'
+	);
 
 	const encoderName = getCodecName(codec);
 	const proResProfileName = getProResProfileName(codec, options.proResProfile);
@@ -128,7 +136,14 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 		? options.ffmpegOverride({type: 'pre-stitcher', args: ffmpegString})
 		: ffmpegString;
 
-	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', finalFfmpegString);
+	const task = execa(
+		await getExecutableBinary(
+			options.ffmpegExecutable ?? null,
+			remotionRoot,
+			'ffmpeg'
+		),
+		finalFfmpegString
+	);
 
 	options.signal(() => {
 		task.kill();

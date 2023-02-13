@@ -1,118 +1,175 @@
 // Copied from: https://github.com/rveciana/svg-path-properties
 
+import {parsePath} from '../parse-path';
 import {makeArc} from './arc';
 import {makeBezier} from './bezier';
 import {makeLinearPosition} from './linear';
-import parse from './parse';
-import type {Point, PointArray, Properties} from './types';
+import type {Instruction, Point, PointArray, Properties} from './types';
 
 export const construct = (string: string) => {
 	let length = 0;
 	const partial_lengths: number[] = [];
 	const functions: (null | Properties)[] = [];
 	let initial_point: null | Point = null;
-	const parsed = parse(string);
+	const parsed = parsePath(string);
 	let cur: PointArray = [0, 0];
 	let prev_point: PointArray = [0, 0];
 	let curve: ReturnType<typeof makeBezier> | undefined;
 	let ringStart: PointArray = [0, 0];
+
+	const segments: Instruction[][] = [];
+
 	for (let i = 0; i < parsed.length; i++) {
+		const instruction = parsed[i];
+
+		if (
+			instruction.type !== 'm' &&
+			instruction.type !== 'M' &&
+			segments.length > 0
+		) {
+			segments[segments.length - 1].push(instruction);
+		}
+
 		// moveTo
-		if (parsed[i][0] === 'M') {
-			cur = [parsed[i][1], parsed[i][2]];
+		if (instruction.type === 'M') {
+			cur = [instruction.x, instruction.y];
 			ringStart = [cur[0], cur[1]];
+			segments.push([instruction]);
 			functions.push(null);
 			if (i === 0) {
-				initial_point = {x: parsed[i][1], y: parsed[i][2]};
+				initial_point = {x: instruction.x, y: instruction.y};
 			}
-		} else if (parsed[i][0] === 'm') {
-			cur = [parsed[i][1] + cur[0], parsed[i][2] + cur[1]];
+		} else if (instruction.type === 'm') {
+			cur = [instruction.dx + cur[0], instruction.dy + cur[1]];
 			ringStart = [cur[0], cur[1]];
+			segments.push([{type: 'M', x: cur[0], y: cur[1]}]);
 			functions.push(null);
 			// lineTo
-		} else if (parsed[i][0] === 'L') {
+		} else if (instruction.type === 'L') {
 			length += Math.sqrt(
-				(cur[0] - parsed[i][1]) ** 2 + (cur[1] - parsed[i][2]) ** 2
+				(cur[0] - instruction.x) ** 2 + (cur[1] - instruction.y) ** 2
 			);
 			functions.push(
-				makeLinearPosition(cur[0], parsed[i][1], cur[1], parsed[i][2])
+				makeLinearPosition({
+					x0: cur[0],
+					x1: instruction.x,
+					y0: cur[1],
+					y1: instruction.y,
+				})
 			);
-			cur = [parsed[i][1], parsed[i][2]];
-		} else if (parsed[i][0] === 'l') {
-			length += Math.sqrt(parsed[i][1] ** 2 + parsed[i][2] ** 2);
+			cur = [instruction.x, instruction.y];
+		} else if (instruction.type === 'l') {
+			length += Math.sqrt(instruction.dx ** 2 + instruction.dy ** 2);
 			functions.push(
-				makeLinearPosition(
-					cur[0],
-					parsed[i][1] + cur[0],
-					cur[1],
-					parsed[i][2] + cur[1]
-				)
+				makeLinearPosition({
+					x0: cur[0],
+					x1: instruction.dx + cur[0],
+					y0: cur[1],
+					y1: instruction.dy + cur[1],
+				})
 			);
-			cur = [parsed[i][1] + cur[0], parsed[i][2] + cur[1]];
-		} else if (parsed[i][0] === 'H') {
-			length += Math.abs(cur[0] - parsed[i][1]);
-			functions.push(makeLinearPosition(cur[0], parsed[i][1], cur[1], cur[1]));
-			cur[0] = parsed[i][1];
-		} else if (parsed[i][0] === 'h') {
-			length += Math.abs(parsed[i][1]);
+			cur = [instruction.dx + cur[0], instruction.dy + cur[1]];
+		} else if (instruction.type === 'H') {
+			length += Math.abs(cur[0] - instruction.x);
 			functions.push(
-				makeLinearPosition(cur[0], cur[0] + parsed[i][1], cur[1], cur[1])
+				makeLinearPosition({
+					x0: cur[0],
+					x1: instruction.x,
+					y0: cur[1],
+					y1: cur[1],
+				})
 			);
-			cur[0] = parsed[i][1] + cur[0];
-		} else if (parsed[i][0] === 'V') {
-			length += Math.abs(cur[1] - parsed[i][1]);
-			functions.push(makeLinearPosition(cur[0], cur[0], cur[1], parsed[i][1]));
-			cur[1] = parsed[i][1];
-		} else if (parsed[i][0] === 'v') {
-			length += Math.abs(parsed[i][1]);
+			cur[0] = instruction.x;
+		} else if (instruction.type === 'h') {
+			length += Math.abs(instruction.dx);
 			functions.push(
-				makeLinearPosition(cur[0], cur[0], cur[1], cur[1] + parsed[i][1])
+				makeLinearPosition({
+					x0: cur[0],
+					x1: cur[0] + instruction.dx,
+					y0: cur[1],
+					y1: cur[1],
+				})
 			);
-			cur[1] = parsed[i][1] + cur[1];
+			cur[0] = instruction.dx + cur[0];
+		} else if (instruction.type === 'V') {
+			length += Math.abs(cur[1] - instruction.y);
+			functions.push(
+				makeLinearPosition({
+					x0: cur[0],
+					x1: cur[0],
+					y0: cur[1],
+					y1: instruction.y,
+				})
+			);
+			cur[1] = instruction.y;
+		} else if (instruction.type === 'v') {
+			length += Math.abs(instruction.dy);
+			functions.push(
+				makeLinearPosition({
+					x0: cur[0],
+					x1: cur[0],
+					y0: cur[1],
+					y1: cur[1] + instruction.dy,
+				})
+			);
+			cur[1] = instruction.dy + cur[1];
 			// Close path
-		} else if (parsed[i][0] === 'z' || parsed[i][0] === 'Z') {
+		} else if (instruction.type === 'Z') {
 			length += Math.sqrt(
 				(ringStart[0] - cur[0]) ** 2 + (ringStart[1] - cur[1]) ** 2
 			);
 			functions.push(
-				makeLinearPosition(cur[0], ringStart[0], cur[1], ringStart[1])
+				makeLinearPosition({
+					x0: cur[0],
+					x1: ringStart[0],
+					y0: cur[1],
+					y1: ringStart[1],
+				})
 			);
 			cur = [ringStart[0], ringStart[1]];
 			// Cubic Bezier curves
-		} else if (parsed[i][0] === 'C') {
+		} else if (instruction.type === 'C') {
 			curve = makeBezier({
 				ax: cur[0],
 				ay: cur[1],
-				bx: parsed[i][1],
-				by: parsed[i][2],
-				cx: parsed[i][3],
-				cy: parsed[i][4],
-				dx: parsed[i][5],
-				dy: parsed[i][6],
+				bx: instruction.cp1x,
+				by: instruction.cp1y,
+				cx: instruction.cp2x,
+				cy: instruction.cp2y,
+				dx: instruction.x,
+				dy: instruction.y,
 			});
 			length += curve.getTotalLength();
-			cur = [parsed[i][5], parsed[i][6]];
+			cur = [instruction.x, instruction.y];
 			functions.push(curve);
-		} else if (parsed[i][0] === 'c') {
+		} else if (instruction.type === 'c') {
 			curve = makeBezier({
 				ax: cur[0],
 				ay: cur[1],
-				bx: cur[0] + parsed[i][1],
-				by: cur[1] + parsed[i][2],
-				cx: cur[0] + parsed[i][3],
-				cy: cur[1] + parsed[i][4],
-				dx: cur[0] + parsed[i][5],
-				dy: cur[1] + parsed[i][6],
+				bx: cur[0] + instruction.cp1dx,
+				by: cur[1] + instruction.cp1dy,
+				cx: cur[0] + instruction.cp2dx,
+				cy: cur[1] + instruction.cp2dy,
+				dx: cur[0] + instruction.dx,
+				dy: cur[1] + instruction.dy,
 			});
 			if (curve.getTotalLength() > 0) {
 				length += curve.getTotalLength();
 				functions.push(curve);
-				cur = [parsed[i][5] + cur[0], parsed[i][6] + cur[1]];
+				cur = [instruction.dx + cur[0], instruction.dy + cur[1]];
 			} else {
-				functions.push(makeLinearPosition(cur[0], cur[0], cur[1], cur[1]));
+				functions.push(
+					makeLinearPosition({x0: cur[0], x1: cur[0], y0: cur[1], y1: cur[1]})
+				);
 			}
-		} else if (parsed[i][0] === 'S') {
-			if (i > 0 && ['C', 'c', 'S', 's'].indexOf(parsed[i - 1][0]) > -1) {
+		} else if (instruction.type === 'S') {
+			const prev = parsed[i - 1];
+			const prevWasCurve =
+				prev.type === 'C' ||
+				prev.type === 'c' ||
+				prev.type === 'S' ||
+				prev.type === 's';
+			if (i > 0 && prevWasCurve) {
 				if (curve) {
 					const c = curve.getC();
 					curve = makeBezier({
@@ -120,10 +177,10 @@ export const construct = (string: string) => {
 						ay: cur[1],
 						bx: 2 * cur[0] - c.x,
 						by: 2 * cur[1] - c.y,
-						cx: parsed[i][1],
-						cy: parsed[i][2],
-						dx: parsed[i][3],
-						dy: parsed[i][4],
+						cx: instruction.cpx,
+						cy: instruction.cpy,
+						dx: instruction.x,
+						dy: instruction.y,
 					});
 				}
 			} else {
@@ -132,21 +189,27 @@ export const construct = (string: string) => {
 					ay: cur[1],
 					bx: cur[0],
 					by: cur[1],
-					cx: parsed[i][1],
-					cy: parsed[i][2],
-					dx: parsed[i][3],
-					dy: parsed[i][4],
+					cx: instruction.cpx,
+					cy: instruction.cpy,
+					dx: instruction.x,
+					dy: instruction.y,
 				});
 			}
 
 			if (curve) {
 				length += curve.getTotalLength();
-				cur = [parsed[i][3], parsed[i][4]];
+				cur = [instruction.x, instruction.y];
 				functions.push(curve);
 			}
-		} else if (parsed[i][0] === 's') {
-			// 240 225
-			if (i > 0 && ['C', 'c', 'S', 's'].indexOf(parsed[i - 1][0]) > -1) {
+		} else if (instruction.type === 's') {
+			const prev = parsed[i - 1];
+			const prevWasCurve =
+				prev.type === 'C' ||
+				prev.type === 'c' ||
+				prev.type === 'S' ||
+				prev.type === 's';
+
+			if (i > 0 && prevWasCurve) {
 				if (curve) {
 					const c = curve.getC();
 					const d = curve.getD();
@@ -155,10 +218,10 @@ export const construct = (string: string) => {
 						ay: cur[1],
 						bx: cur[0] + d.x - c.x,
 						by: cur[1] + d.y - c.y,
-						cx: cur[0] + parsed[i][1],
-						cy: cur[1] + parsed[i][2],
-						dx: cur[0] + parsed[i][3],
-						dy: cur[1] + parsed[i][4],
+						cx: cur[0] + instruction.cpdx,
+						cy: cur[1] + instruction.cpdy,
+						dx: cur[0] + instruction.dx,
+						dy: cur[1] + instruction.dy,
 					});
 				}
 			} else {
@@ -167,38 +230,38 @@ export const construct = (string: string) => {
 					ay: cur[1],
 					bx: cur[0],
 					by: cur[1],
-					cx: cur[0] + parsed[i][1],
-					cy: cur[1] + parsed[i][2],
-					dx: cur[0] + parsed[i][3],
-					dy: cur[1] + parsed[i][4],
+					cx: cur[0] + instruction.cpdx,
+					cy: cur[1] + instruction.cpdy,
+					dx: cur[0] + instruction.dx,
+					dy: cur[1] + instruction.dy,
 				});
 			}
 
 			if (curve) {
 				length += curve.getTotalLength();
-				cur = [parsed[i][3] + cur[0], parsed[i][4] + cur[1]];
+				cur = [instruction.dx + cur[0], instruction.dy + cur[1]];
 				functions.push(curve);
 			}
 		}
 		// Quadratic Bezier curves
-		else if (parsed[i][0] === 'Q') {
-			if (cur[0] === parsed[i][1] && cur[1] === parsed[i][2]) {
-				const linearCurve = makeLinearPosition(
-					parsed[i][1],
-					parsed[i][3],
-					parsed[i][2],
-					parsed[i][4]
-				);
+		else if (instruction.type === 'Q') {
+			if (cur[0] === instruction.cpx && cur[1] === instruction.cpy) {
+				const linearCurve = makeLinearPosition({
+					x0: instruction.cpx,
+					x1: instruction.x,
+					y0: instruction.cpy,
+					y1: instruction.y,
+				});
 				length += linearCurve.getTotalLength();
 				functions.push(linearCurve);
 			} else {
 				curve = makeBezier({
 					ax: cur[0],
 					ay: cur[1],
-					bx: parsed[i][1],
-					by: parsed[i][2],
-					cx: parsed[i][3],
-					cy: parsed[i][4],
+					bx: instruction.cpx,
+					by: instruction.cpy,
+					cx: instruction.x,
+					cy: instruction.y,
 					dx: null,
 					dy: null,
 				});
@@ -206,26 +269,26 @@ export const construct = (string: string) => {
 				functions.push(curve);
 			}
 
-			cur = [parsed[i][3], parsed[i][4]];
-			prev_point = [parsed[i][1], parsed[i][2]];
-		} else if (parsed[i][0] === 'q') {
-			if (parsed[i][1] === 0 && parsed[i][2] === 0) {
-				const linearCurve = makeLinearPosition(
-					cur[0] + parsed[i][1],
-					cur[0] + parsed[i][3],
-					cur[1] + parsed[i][2],
-					cur[1] + parsed[i][4]
-				);
+			cur = [instruction.x, instruction.y];
+			prev_point = [instruction.cpx, instruction.cpy];
+		} else if (instruction.type === 'q') {
+			if (instruction.cpdx === 0 && instruction.cpdy === 0) {
+				const linearCurve = makeLinearPosition({
+					x0: cur[0] + instruction.cpdx,
+					x1: cur[0] + instruction.cpdy,
+					y0: cur[1] + instruction.dx,
+					y1: cur[1] + instruction.dy,
+				});
 				length += linearCurve.getTotalLength();
 				functions.push(linearCurve);
 			} else {
 				curve = makeBezier({
 					ax: cur[0],
 					ay: cur[1],
-					bx: cur[0] + parsed[i][1],
-					by: cur[1] + parsed[i][2],
-					cx: cur[0] + parsed[i][3],
-					cy: cur[1] + parsed[i][4],
+					bx: cur[0] + instruction.cpdx,
+					by: cur[1] + instruction.cpdy,
+					cx: cur[0] + instruction.dx,
+					cy: cur[1] + instruction.dy,
 					dx: null,
 					dy: null,
 				});
@@ -233,98 +296,116 @@ export const construct = (string: string) => {
 				functions.push(curve);
 			}
 
-			prev_point = [cur[0] + parsed[i][1], cur[1] + parsed[i][2]];
-			cur = [parsed[i][3] + cur[0], parsed[i][4] + cur[1]];
-		} else if (parsed[i][0] === 'T') {
-			if (i > 0 && ['Q', 'q', 'T', 't'].indexOf(parsed[i - 1][0]) > -1) {
-				curve = makeBezier({
-					ax: cur[0],
-					ay: cur[1],
-					bx: 2 * cur[0] - prev_point[0],
-					by: 2 * cur[1] - prev_point[1],
-					cx: parsed[i][1],
-					cy: parsed[i][2],
-					dx: null,
-					dy: null,
-				});
-				functions.push(curve);
-				length += curve.getTotalLength();
-			} else {
-				const linearCurve = makeLinearPosition(
-					cur[0],
-					parsed[i][1],
-					cur[1],
-					parsed[i][2]
-				);
-				functions.push(linearCurve);
-				length += linearCurve.getTotalLength();
-			}
-
-			prev_point = [2 * cur[0] - prev_point[0], 2 * cur[1] - prev_point[1]];
-			cur = [parsed[i][1], parsed[i][2]];
-		} else if (parsed[i][0] === 't') {
-			if (i > 0 && ['Q', 'q', 'T', 't'].indexOf(parsed[i - 1][0]) > -1) {
+			prev_point = [cur[0] + instruction.cpdx, cur[1] + instruction.cpdy];
+			cur = [instruction.dx + cur[0], instruction.dy + cur[1]];
+		} else if (instruction.type === 'T') {
+			const prev = parsed[i - 1];
+			const prevWasQ =
+				prev.type === 'Q' ||
+				prev.type === 'q' ||
+				prev.type === 'T' ||
+				prev.type === 't';
+			if (i > 0 && prevWasQ) {
 				curve = makeBezier({
 					ax: cur[0],
 					ay: cur[1],
 					bx: 2 * cur[0] - prev_point[0],
 					by: 2 * cur[1] - prev_point[1],
-					cx: cur[0] + parsed[i][1],
-					cy: cur[1] + parsed[i][2],
+					cx: instruction.x,
+					cy: instruction.y,
+					dx: null,
+					dy: null,
+				});
+				functions.push(curve);
+				length += curve.getTotalLength();
+			} else {
+				const linearCurve = makeLinearPosition({
+					x0: cur[0],
+					x1: instruction.x,
+					y0: cur[1],
+					y1: instruction.y,
+				});
+				functions.push(linearCurve);
+				length += linearCurve.getTotalLength();
+			}
+
+			prev_point = [2 * cur[0] - prev_point[0], 2 * cur[1] - prev_point[1]];
+			cur = [instruction.x, instruction.y];
+		} else if (instruction.type === 't') {
+			const prev = parsed[i - 1];
+			const prevWasQ =
+				prev.type === 'Q' ||
+				prev.type === 'q' ||
+				prev.type === 'T' ||
+				prev.type === 't';
+			if (i > 0 && prevWasQ) {
+				curve = makeBezier({
+					ax: cur[0],
+					ay: cur[1],
+					bx: 2 * cur[0] - prev_point[0],
+					by: 2 * cur[1] - prev_point[1],
+					cx: cur[0] + instruction.dx,
+					cy: cur[1] + instruction.dy,
 					dx: null,
 					dy: null,
 				});
 				length += curve.getTotalLength();
 				functions.push(curve);
 			} else {
-				const linearCurve = makeLinearPosition(
-					cur[0],
-					cur[0] + parsed[i][1],
-					cur[1],
-					cur[1] + parsed[i][2]
-				);
+				const linearCurve = makeLinearPosition({
+					x0: cur[0],
+					x1: cur[0] + instruction.dx,
+					y0: cur[1],
+					y1: cur[1] + instruction.dy,
+				});
 				length += linearCurve.getTotalLength();
 				functions.push(linearCurve);
 			}
 
 			prev_point = [2 * cur[0] - prev_point[0], 2 * cur[1] - prev_point[1]];
-			cur = [parsed[i][1] + cur[0], parsed[i][2] + cur[1]];
-		} else if (parsed[i][0] === 'A') {
+			cur = [instruction.dx + cur[0], instruction.dy + cur[1]];
+		} else if (instruction.type === 'A') {
 			const arcCurve = makeArc({
 				x0: cur[0],
 				y0: cur[1],
-				rx: parsed[i][1],
-				ry: parsed[i][2],
-				xAxisRotate: parsed[i][3],
-				LargeArcFlag: parsed[i][4] === 1,
-				SweepFlag: parsed[i][5] === 1,
-				x1: parsed[i][6],
-				y1: parsed[i][7],
+				rx: instruction.rx,
+				ry: instruction.ry,
+				xAxisRotate: instruction.xAxisRotation,
+				LargeArcFlag: instruction.largeArcFlag,
+				SweepFlag: instruction.sweepFlag,
+				x1: instruction.x,
+				y1: instruction.y,
 			});
 
 			length += arcCurve.getTotalLength();
-			cur = [parsed[i][6], parsed[i][7]];
+			cur = [instruction.x, instruction.y];
 			functions.push(arcCurve);
-		} else if (parsed[i][0] === 'a') {
+		} else if (instruction.type === 'a') {
 			const arcCurve = makeArc({
 				x0: cur[0],
 				y0: cur[1],
-				rx: parsed[i][1],
-				ry: parsed[i][2],
-				xAxisRotate: parsed[i][3],
-				LargeArcFlag: parsed[i][4] === 1,
-				SweepFlag: parsed[i][5] === 1,
-				x1: cur[0] + parsed[i][6],
-				y1: cur[1] + parsed[i][7],
+				rx: instruction.rx,
+				ry: instruction.ry,
+				xAxisRotate: instruction.xAxisRotation,
+				LargeArcFlag: instruction.largeArcFlag,
+				SweepFlag: instruction.sweepFlag,
+				x1: cur[0] + instruction.dx,
+				y1: cur[1] + instruction.dy,
 			});
 
 			length += arcCurve.getTotalLength();
-			cur = [cur[0] + parsed[i][6], cur[1] + parsed[i][7]];
+			cur = [cur[0] + instruction.dx, cur[1] + instruction.dy];
 			functions.push(arcCurve);
 		}
 
 		partial_lengths.push(length);
 	}
 
-	return {initial_point, length, partial_lengths, functions};
+	return {
+		segments,
+		initial_point,
+		length,
+		partial_lengths,
+		functions,
+	};
 };

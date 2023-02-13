@@ -50,5 +50,12 @@ export const getHelpLink = (message: string): THelpLink | null => {
 		};
 	}
 
+	if (message.includes('Div is not part of the THREE')) {
+		return {
+			title: '<Sequence> inside <ThreeCanvas>',
+			url: 'https://remotion.dev/docs/sequence#note-for-remotionthree',
+		};
+	}
+
 	return null;
 };

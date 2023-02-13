@@ -15,6 +15,14 @@
     "@remotion/example#lint": {
       "dependsOn": ["@remotion/eslint-config#build"]
     },
+    "@remotion/google-fonts#build": {
+      "outputs": ["src", ".cache-css", "dist/**"],
+      "dependsOn": ["^build"]
+    },
+    "@remotion/renderer#build": {
+      "outputs": ["dist/**", "target/**"],
+      "dependsOn": ["^build"]
+    },
     "@remotion/player-example#lint": {
       "dependsOn": ["@remotion/eslint-config#build"]
     },

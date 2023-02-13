@@ -1,8 +1,14 @@
 ---
+image: /generated/articles-docs-paths-get-parts.png
 title: getParts()
+crumb: "@remotion/paths"
 ---
 
 _Part of the [`@remotion/paths`](/docs/paths) package._
+
+:::warning
+**Deprecated** in favor of [`getSubpaths()`](/docs/paths/get-subpaths).
+:::
 
 Takes an SVG path and returns an array of parts of the path.
 

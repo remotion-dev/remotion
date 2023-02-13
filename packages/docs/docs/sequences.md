@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-sequences.png
 id: reusability
 title: Reuse components using Sequences
 sidebar_label: Reuse components
+crumb: "The power of React"
 ---
 
 ```twoslash include example
@@ -57,7 +59,7 @@ export const MyVideo = () => {
         backgroundColor: "white",
       }}
     >
-      <Sequence from={0} durationInFrames={40}>
+      <Sequence durationInFrames={40}>
         <Title title="Hello" />
       </Sequence>
       <Sequence from={40}>

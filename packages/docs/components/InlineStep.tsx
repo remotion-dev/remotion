@@ -16,9 +16,28 @@ export const InlineStep: React.FC<{
         borderRadius: 12,
         fontSize: 13,
         fontWeight: "bold",
+        verticalAlign: "top",
       }}
     >
       {children}
     </div>
+  );
+};
+
+export const Step: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => {
+  return (
+    <span
+      style={{
+        marginRight: 7,
+        display: "inline-block",
+        position: "relative",
+        marginTop: 4,
+        marginBottom: 4,
+      }}
+    >
+      <InlineStep>{children}</InlineStep>{" "}
+    </span>
   );
 };
