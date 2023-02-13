@@ -301,7 +301,10 @@ export const rendererHandler = async (
 			(err as Error).message.includes(
 				'error while loading shared libraries: libnss3.so'
 			);
-		const willRetry = isBrowserError || params.retriesLeft > 0;
+		const shouldNotRetry = (err as Error).name === 'CancelledError';
+
+		const willRetry =
+			(isBrowserError || params.retriesLeft > 0) && !shouldNotRetry;
 
 		console.log('Error occurred');
 		console.log(err);
