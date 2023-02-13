@@ -252,6 +252,13 @@ export const articles = [
     crumb: "How to",
   },
   {
+    id: "docker",
+    title: "Dockerizing a Remotion app",
+    relativePath: "docs/docker.md",
+    compId: "articles-docs-docker",
+    crumb: "Building video apps",
+  },
+  {
     id: "webpack-dynamic-imports",
     title: "Webpack dynamic imports",
     relativePath: "docs/dynamic-import.md",
