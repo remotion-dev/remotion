@@ -37,12 +37,13 @@ const printCodeFrame = (frame: SymbolicatedStackFrame) => {
 	Log.info(
 		`${frame.originalScriptCode
 			.map((c) => {
-				const content = `${String(c.lineNumber).padStart(
-					longestLineNumber,
-					' '
-				)} | ${c.content.substring(alignLeftAmount)}`;
+				const left = String(c.lineNumber).padStart(longestLineNumber, ' ');
+				const right = c.content.substring(alignLeftAmount);
+				if (c.highlight) {
+					return `${left} │ ${right}`;
+				}
 
-				return c.highlight ? content : chalk.gray(content);
+				return `${chalk.gray(left)} │ ${chalk.gray(right)}`;
 			})
 			.join('\n')}`
 	);
@@ -81,7 +82,14 @@ export const printCodeFrameAndStack = (err: ErrorWithStackFrame) => {
 			continue;
 		}
 
-		logLine(frame);
+		const isUserCode =
+			!frame.originalFileName?.includes('node_modules') &&
+			!frame.originalFileName?.startsWith('webpack/');
+		if (isUserCode) {
+			printCodeFrame(frame);
+		} else {
+			logLine(frame);
+		}
 	}
 
 	if (err.delayRenderCall) {
