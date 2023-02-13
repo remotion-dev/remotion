@@ -230,7 +230,7 @@ export const Controls: React.FC<{
 			color: 'white',
 			fontFamily: 'sans-serif',
 			fontSize: 14,
-			maxWidth: maxTimeLabelWidth,
+			maxWidth: maxTimeLabelWidth === null ? undefined : maxTimeLabelWidth,
 			overflow: 'hidden',
 			textOverflow: 'ellipsis',
 		};
