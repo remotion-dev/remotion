@@ -8,6 +8,10 @@ export const makeProgressBar = (percentage: number) => {
 
 	const base = full.repeat(barsToShow) + (extraBar > 0.5 ? half : '');
 	if (percentage === 0) {
+		return `${' '.repeat(totalBars + 1)}`;
+	}
+
+	if (percentage > 0 && barsToShow < 1) {
 		return `╷${' '.repeat(totalBars)}`;
 	}
 
