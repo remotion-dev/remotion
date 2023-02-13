@@ -10,13 +10,16 @@ const isErrorLink = (err: unknown) => {
 };
 
 export function cancelRender(err: unknown): never {
+	let error: Error;
+
 	if (isErrorLink(err)) {
-		throw err;
+		error = err as Error;
+	} else if (typeof err === 'string') {
+		error = Error(err);
+	} else {
+		error = Error('Rendering was cancelled');
 	}
 
-	if (typeof err === 'string') {
-		throw new Error(err);
-	}
-
-	throw new Error('Rendering was cancelled');
+	window.remotion_cancelledError = error.stack;
+	throw error;
 }
