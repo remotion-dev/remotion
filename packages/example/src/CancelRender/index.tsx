@@ -15,7 +15,7 @@ export const CancelRender: React.FC = () => {
 			.then(() => {
 				// Worst case: Inside a promise without a catch handler
 				// and with a timeout running
-				cancelRender(null);
+				cancelRender(new Error('This should be the error message'));
 			})
 			// And then with a catch handler
 			.catch((err) => {
