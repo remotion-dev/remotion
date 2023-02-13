@@ -1,4 +1,4 @@
-const isErrorLink = (err: unknown) => {
+const isErrorLike = (err: unknown) => {
 	if (err === null) {
 		return false;
 	}
@@ -31,7 +31,7 @@ const isErrorLink = (err: unknown) => {
 export function cancelRender(err: unknown): never {
 	let error: Error;
 
-	if (isErrorLink(err)) {
+	if (isErrorLike(err)) {
 		error = err as Error;
 	} else if (typeof err === 'string') {
 		error = Error(err);
