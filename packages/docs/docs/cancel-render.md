@@ -17,7 +17,7 @@ import React, { useEffect, useState } from "react";
 import { cancelRender, continueRender, delayRender } from "remotion";
 
 export const MyComp: React.FC = () => {
-  const [handle] = useState(() => delayRender("Fetching audio data..."));
+  const [handle] = useState(() => delayRender("Fetching data..."));
 
   useEffect(() => {
     fetch("https://example.com")
@@ -33,5 +33,6 @@ export const MyComp: React.FC = () => {
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/cancel-render.ts)
 - [delayRender()](/docs/delay-render)
 - [continueRender()](/docs/continue-render)
