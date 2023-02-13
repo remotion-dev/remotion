@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-renderer-stitch-frames-to-video.png
 id: stitch-frames-to-video
 title: stitchFramesToVideo()
+crumb: "@remotion/renderer"
 ---
 
 _Part of the `@remotion/renderer` package._
@@ -17,7 +19,7 @@ An object with the following properties:
 
 ### `dir`
 
-A `string` containing the absolute path of the directory where the frames are located. This will be the directory where the `ffmepg` command will be executed.
+A `string` containing the absolute path of the directory where the frames are located. This will be the directory where the `ffmpeg` command will be executed.
 
 ### `fps`
 
@@ -60,6 +62,19 @@ Sets the pixel format. See [here](/docs/config#setpixelformat) for available val
 _optional_
 
 Set a codec. See the [encoding guide](/docs/encoding) for available values and guidance on which one to choose. The default is `h264`.
+
+### `audioCodec?`
+
+_"pcm-16" | "aac" | "mp3" | "opus", available from v3.3.41_
+
+Choose the encoding of your audio.
+
+- The default is dependent on the chosen `codec`.
+- Choose `pcm-16` if you need uncompressed audio.
+- Not all video containers support all audio codecs.
+- This option takes precedence if the `codec` option also specifies an audio codec.
+
+Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and supported combinations.
 
 ### `audioBitrate?`
 

@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-cli-render.png
 title: npx remotion render
 sidebar_label: render
+crumb: CLI Reference
 ---
 
 import {AngleChangelog} from '../../components/AngleChangelog';
@@ -8,8 +10,17 @@ import {AngleChangelog} from '../../components/AngleChangelog';
 Render a video or audio based on the entry point, the composition ID and save it to the output location.
 
 ```bash
-npx remotion render <entry-file> <composition-id> <output-location>
+npx remotion render <entry-file> [<composition-id>] [<output-location>]
 ```
+
+If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:
+
+1. Get the path from the Config (Can be set using `Config.setEntryPoint("<entry-point>")`).
+2. Look for some common paths i.e. `src/index.ts`, `src/index.tsx` `src/index.js`, `remotion/index.ts`, `app/remotion/index.ts`.
+3. Fail as entry point could not be determined.
+
+If `output-location` is not passed, the media will be rendered into the `out` folder.  
+If `composition-id` is also not passed, Remotion will let you select a composition.
 
 ## Flags
 
@@ -23,9 +34,21 @@ Besides choosing a video and output location with the command line arguments, th
 Inline JSON string isn't supported on Windows because it removes the `"` character, use a temporary file instead.
 :::
 
+### `--height`
+
+_available from v3.2.40_
+
+[Overrides composition height.](/docs/config#overrideheight)
+
+### `--width`
+
+_available from v3.2.40_
+
+[Overrides composition width.](/docs/config#overridewidth)
+
 ### `--concurrency`
 
-[How many CPU threads to use.](/docs/config#setconcurrency) Minimum 1. The maximum is the amount of threads you have (In Node.JS `os.cpus().length`).
+[How many CPU threads to use.](/docs/config#setconcurrency) Minimum 1. The maximum is the amount of threads you have (In Node.JS `os.cpus().length`). You can also provide a percentage value (e.g. 50%).
 
 ### `--pixel-format`
 
@@ -58,6 +81,12 @@ Specify a location for a dotenv file. Default `.env`. Available in v2.2 and late
 ### `--codec`
 
 [`h264` or `h265` or `png` or `vp8` or `vp9` or `mp3` or `aac` or `wav` or `prores` or `h264-mkv`](/docs/config#setcodec). If you don't supply `--codec`, it will use the H.264 encoder. Available since v1.4.
+
+### `--audio-codec`
+
+_Available from v3.3.42_
+
+[Set which codec the audio should have.](/docs/config#setaudiocodec) For defaults and possible values, refer to the [Encoding guide](/docs/encoding/#audio-codec).
 
 ### `--audio-bitrate`
 
@@ -167,13 +196,15 @@ Results in invalid SSL certificates in Chrome, such as self-signed ones, being i
 
 ### `--disable-web-security`
 
+_available since v2.6.5_
+
 This will most notably disable CORS in Chrome among other security features.
-Available since v2.6.5.
 
 ### `--disable-headless`
 
+_available since v2.6.5_
+
 Opens an actual browser during rendering to observe the render.
-Available since v2.6.5.
 
 ### `--gl`
 

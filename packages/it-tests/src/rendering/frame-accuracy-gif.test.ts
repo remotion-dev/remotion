@@ -5,6 +5,7 @@ import path from "path";
 import sharp from "sharp";
 import { random } from "remotion";
 import { expect, test } from "vitest";
+import { RenderInternals } from "@remotion/renderer";
 
 function selectColor(color: string, frame: number) {
   return Math.floor((random(`${color}-${frame}`) * 255) % 255);
@@ -24,7 +25,6 @@ const getMissedFramesforCodec = async () => {
       "exec",
       "remotion",
       "render",
-      "src/index.tsx",
       `video-testing-mp4-offthread`,
       "--codec=gif",
       "--every-nth-frame=2",
@@ -37,14 +37,17 @@ const getMissedFramesforCodec = async () => {
 
   console.log(outputPath);
 
-  await execa("ffmpeg", [
-    "-i",
-    outputPath,
-    "-f",
-    "image2",
-    path.join(outputDir, "out%2d.jpeg"),
-    "-y",
-  ]);
+  await execa(
+    await RenderInternals.getExecutableBinary(null, process.cwd(), "ffmpeg"),
+    [
+      "-i",
+      outputPath,
+      "-f",
+      "image2",
+      path.join(outputDir, "out%2d.jpeg"),
+      "-y",
+    ]
+  );
 
   let missedFrames = 0;
 
@@ -89,7 +92,13 @@ const getMissedFramesforCodec = async () => {
   return missedFrames;
 };
 
-test("should render correct frames from embedded videos - MP4 offthread", async () => {
-  const missedFrames = await getMissedFramesforCodec();
-  expect(missedFrames).toBe(0);
-});
+test(
+  "should render correct frames from embedded videos - MP4 offthread",
+  async () => {
+    const missedFrames = await getMissedFramesforCodec();
+    expect(missedFrames).toBe(0);
+  },
+  {
+    retry: 2,
+  }
+);

@@ -17,7 +17,7 @@ const Wrapper: React.FC<{
 	const compositions = useContext(CompositionManager);
 	return (
 		<CanUseRemotionHooksProvider>
-			<RemotionRoot>
+			<RemotionRoot numberOfAudioTags={0}>
 				<CompositionManager.Provider
 					// eslint-disable-next-line react/jsx-no-constructed-context-values
 					value={{

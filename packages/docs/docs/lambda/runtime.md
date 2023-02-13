@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-runtime.png
 id: runtime
 title: Runtime
 slug: /lambda/runtime
+crumb: "Lambda"
 ---
 
 import {DefaultMemorySize} from '../../components/lambda/default-memory-size';
@@ -26,6 +28,20 @@ Note that you probably don't need to increase it - Since the video is rendered b
 ## Storage space
 
 The function has between [512MB and 10GB of storage space](/docs/lambda/disk-size) in total available for video rendering depending on your configuration. Keep in mind that the concatenations of various chunks into one video takes place within a Lambda function, so the space must suffice for both the chunks and the output video.
+
+## Core count / vCPUs
+
+The amount of cores inside a Lambda is dependent on the amount of memory you give it. According to [this research](https://www.sentiatechblog.com/aws-re-invent-2020-day-3-optimizing-lambda-cost-with-multi-threading?utm_source=reddit&utm_medium=social&utm_campaign=day3_lambda), these are the tiers:
+
+| Memory         | vCPUs |
+| -------------- | ----- |
+| 128 - 3008 MB  | 2     |
+| 3009 - 5307 MB | 3     |
+| 5308 - 7076 MB | 4     |
+| 7077 - 8845 MB | 5     |
+| 8846+ MB       | 6     |
+
+You can render multiple frames at once inside a Lambda function by using the [`concurrencyPerLambda`](/docs/lambda/rendermediaonlambda#concurrencyperlambda) option.
 
 ## Chromium
 
@@ -84,6 +100,6 @@ While the set of default fonts that we can include must be kept small in order t
 
 See: [Customize Lambda layers](/docs/lambda/custom-layers) to learn about how you can customize this stack.
 
-## See also
+## See also
 
 - [Customize Lambda layers](/docs/lambda/custom-layers)

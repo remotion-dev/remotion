@@ -10,11 +10,12 @@ import path from 'path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {determineFinalImageFormat} from './determine-image-format';
+import {findEntryPoint} from './entry-point';
 import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
 } from './get-cli-options';
-import {getCompositionId} from './get-composition-id';
+import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import type {DownloadProgress} from './progress-bar';
@@ -30,12 +31,22 @@ import {
 	getUserPassedOutputLocation,
 } from './user-passed-output-location';
 
-export const still = async (remotionRoot: string) => {
+export const still = async (remotionRoot: string, args: string[]) => {
 	const startTime = Date.now();
-	const file = parsedCli._[1];
-	const fullPath = RenderInternals.isServeUrl(file)
-		? file
-		: path.join(process.cwd(), file);
+	const {
+		file,
+		remainingArgs,
+		reason: entryPointReason,
+	} = findEntryPoint(args, remotionRoot);
+
+	if (!file) {
+		Log.error('No entry point specified. Pass more arguments:');
+		Log.error(
+			'   npx remotion render [entry-point] [composition-name] [out-name]'
+		);
+		Log.error('Documentation: https://www.remotion.dev/docs/render');
+		process.exit(1);
+	}
 
 	if (parsedCli.frames) {
 		Log.error(
@@ -59,39 +70,15 @@ export const still = async (remotionRoot: string) => {
 		puppeteerTimeout,
 		port,
 		publicDir,
+		height,
+		width,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'still',
-		codec: 'h264',
+		remotionRoot,
 	});
 
 	Log.verbose('Browser executable: ', browserExecutable);
-
-	const compositionId = getCompositionId();
-
-	const {format: imageFormat, source} = determineFinalImageFormat({
-		cliFlag: parsedCli['image-format'] ?? null,
-		configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
-		downloadName: null,
-		outName: getUserPassedOutputLocation(),
-		isLambda: false,
-	});
-
-	const relativeOutputLocation = getOutputLocation({
-		compositionId,
-		defaultExtension: imageFormat,
-	});
-
-	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(
-		relativeOutputLocation,
-		overwrite
-	);
-
-	Log.info(
-		chalk.gray(
-			`Output = ${relativeOutputLocation}, Format = ${imageFormat} (${source}), Composition = ${compositionId}`
-		)
-	);
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
@@ -103,17 +90,13 @@ export const still = async (remotionRoot: string) => {
 		forceDeviceScaleFactor: scale,
 	});
 
-	mkdirSync(path.join(absoluteOutputLocation, '..'), {
-		recursive: true,
-	});
-
 	const steps: RenderStep[] = [
-		RenderInternals.isServeUrl(fullPath) ? null : ('bundling' as const),
+		RenderInternals.isServeUrl(file) ? null : ('bundling' as const),
 		'rendering' as const,
 	].filter(truthy);
 
 	const {cleanup: cleanupBundle, urlOrBundle} = await bundleOnCliOrTakeServeUrl(
-		{fullPath, remotionRoot, steps, publicDir}
+		{fullPath: file, remotionRoot, steps, publicDir}
 	);
 
 	const puppeteerInstance = await browserInstance;
@@ -133,10 +116,42 @@ export const still = async (remotionRoot: string) => {
 		downloadMap,
 	});
 
-	const composition = comps.find((c) => c.id === compositionId);
-	if (!composition) {
-		throw new Error(`Cannot find composition with ID ${compositionId}`);
-	}
+	const {compositionId, config, reason, argsAfterComposition} =
+		await getCompositionWithDimensionOverride({
+			validCompositions: comps,
+			height,
+			width,
+			args: remainingArgs,
+		});
+	const {format: imageFormat, source} = determineFinalImageFormat({
+		cliFlag: parsedCli['image-format'] ?? null,
+		configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
+		downloadName: null,
+		outName: getUserPassedOutputLocation(argsAfterComposition),
+		isLambda: false,
+	});
+
+	const relativeOutputLocation = getOutputLocation({
+		compositionId,
+		defaultExtension: imageFormat,
+		args: argsAfterComposition,
+		type: 'asset',
+	});
+
+	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(
+		relativeOutputLocation,
+		overwrite
+	);
+
+	mkdirSync(path.join(absoluteOutputLocation, '..'), {
+		recursive: true,
+	});
+
+	Log.info(
+		chalk.gray(
+			`Entry point = ${file} (${entryPointReason}), Output = ${relativeOutputLocation}, Format = ${imageFormat} (${source}), Composition = ${compositionId} (${reason})`
+		)
+	);
 
 	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
 	const renderStart = Date.now();
@@ -182,7 +197,7 @@ export const still = async (remotionRoot: string) => {
 	};
 
 	await renderStill({
-		composition,
+		composition: config,
 		frame: stillFrame,
 		output: absoluteOutputLocation,
 		serveUrl: urlOrBundle,
@@ -209,7 +224,7 @@ export const still = async (remotionRoot: string) => {
 	updateProgress();
 	Log.info();
 
-	const closeBrowserPromise = puppeteerInstance.close();
+	const closeBrowserPromise = puppeteerInstance.close(false);
 
 	Log.info(chalk.green('\nYour still frame is ready!'));
 

@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-troubleshooting-rate-limit.png
 id: rate-limit
 sidebar_label: Rate Limit
 title: AWS Rate Limit Troubleshooting
+crumb: "Lambda Troubleshooting"
 ---
 
 If you get an error message:
@@ -21,7 +23,7 @@ By default, the concurrency limit is 1000 functions per region, however in some 
 
 ## Exception: New accounts using AWS Lambda
 
-According to AWS, "some accounts" which are new to AWS Lambda might get a very low concurrency limit such as 10 when they first start with AWS Lambda. In that case, increase the limit via the AWS console or the Remotion CLI (see below)
+According to AWS, "some accounts" which are new to AWS Lambda might get a very low concurrency limit such as 10 when they first start with AWS Lambda. In that case, increase the limit via the AWS console or the Remotion CLI (see below).
 
 ## See your limits
 
@@ -46,6 +48,8 @@ npx remotion lambda quotas increase
 :::note
 This only works for AWS Root accounts, not the children of an organization. You can still request an increase via the console.
 :::
+
+[See here](/docs/lambda/limits#if-aws-asks-you-for-the-reason) for a default answer if AWS asks why you requested the increase.
 
 ## Unhelpful?
 

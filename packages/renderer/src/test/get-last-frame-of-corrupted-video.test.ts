@@ -1,4 +1,5 @@
 import path from 'path';
+import process from 'process';
 import {test} from 'vitest';
 import {makeDownloadMap} from '../assets/download-map';
 import {getLastFrameOfVideo} from '../extract-frame-from-video';
@@ -21,5 +22,6 @@ test('Get last frame of corrupted video', async () => {
 		specialVCodecForTransparency: 'none',
 		needsResize: null,
 		downloadMap: makeDownloadMap(),
+		remotionRoot: process.cwd(),
 	});
 }, 90000);

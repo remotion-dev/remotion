@@ -31,7 +31,7 @@ export const lambdaDownloadFileWithProgress = async ({
 	const client = getS3Client(region, customCredentials);
 	const command = new GetObjectCommand({
 		Bucket: bucketName,
-		ExpectedBucketOwner: expectedBucketOwner,
+		ExpectedBucketOwner: customCredentials ? undefined : expectedBucketOwner,
 		Key: key,
 	});
 

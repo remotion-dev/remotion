@@ -12,7 +12,10 @@ const testRenderMetadata: RenderMetadata = {
 	framesPerLambda: 20,
 	imageFormat: 'png',
 	type: 'video',
-	inputProps: {},
+	inputProps: {
+		type: 'payload',
+		payload: '{}',
+	},
 	lambdaVersion: '2022-02-14',
 	memorySizeInMb: 2048,
 	outName: undefined,
@@ -21,7 +24,6 @@ const testRenderMetadata: RenderMetadata = {
 	siteId: 'my-site',
 	startedDate: Date.now(),
 	totalChunks: 20,
-	usesOptimizationProfile: false,
 	videoConfig: {
 		defaultProps: {},
 		durationInFrames: 200,
@@ -31,6 +33,9 @@ const testRenderMetadata: RenderMetadata = {
 		width: 1080,
 	},
 	privacy: 'public',
+	everyNthFrame: 1,
+	frameRange: [0, 199],
+	audioCodec: null,
 };
 
 test('Should get a custom outname', () => {
@@ -71,6 +76,8 @@ test('For stills', () => {
 test('Just a custom name', () => {
 	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
+		type: 'still',
+		codec: null,
 		outName: 'justaname.jpeg',
 	};
 	expect(getExpectedOutName(newRenderMetadata, bucketName, null)).toEqual({
@@ -83,6 +90,8 @@ test('Just a custom name', () => {
 test('Should throw on invalid names', () => {
 	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
+		type: 'still',
+		codec: null,
 		outName: '👺.jpeg',
 	};
 	expect(() => {
@@ -93,6 +102,9 @@ test('Should throw on invalid names', () => {
 test('Should allow outName an outname with a slash', () => {
 	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
+		codec: null,
+		audioCodec: null,
+		type: 'still',
 		outName: 'justa/name.jpeg',
 	};
 	expect(getExpectedOutName(newRenderMetadata, bucketName, null)).toEqual({

@@ -1,25 +1,23 @@
-import type {Codec, CodecOrUndefined} from '@remotion/renderer';
+import type {Codec, CodecOrUndefined, FileExtension} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 
-const fileExtensions: Record<string, Codec> = {
-	webm: 'vp8',
-	hevc: 'h265',
-	mp3: 'mp3',
-	mov: 'prores',
-	wav: 'wav',
-	aac: 'aac',
-	mkv: 'h264-mkv',
-	gif: 'gif',
-	mp4: 'h264',
-	m4a: 'aac',
-};
-
-const deriveExtensionFromFilename = (extension: string | null) => {
+const deriveCodecsFromFilename = (
+	extension: string | null
+): {
+	possible: Codec[];
+	default: Codec | null;
+} => {
 	if (extension === null) {
-		return null;
+		return {possible: [], default: null};
 	}
 
-	return fileExtensions[extension] ?? null;
+	return {
+		default:
+			RenderInternals.defaultCodecsForFileExtension[
+				extension as FileExtension
+			] ?? null,
+		possible: RenderInternals.makeFileExtensionMap()[extension] ?? [],
+	};
 };
 
 export const getFinalOutputCodec = ({
@@ -37,55 +35,58 @@ export const getFinalOutputCodec = ({
 		RenderInternals.getExtensionOfFilename(downloadName);
 	const outNameExtension = RenderInternals.getExtensionOfFilename(outName);
 
-	const derivedDownloadCodec = deriveExtensionFromFilename(
-		downloadNameExtension
-	);
-	const derivedOutNameCodec = deriveExtensionFromFilename(outNameExtension);
+	const derivedDownloadCodecs = deriveCodecsFromFilename(downloadNameExtension);
+	const derivedOutNameCodecs = deriveCodecsFromFilename(outNameExtension);
 
 	if (
-		derivedDownloadCodec &&
-		derivedOutNameCodec &&
-		derivedDownloadCodec !== derivedOutNameCodec
+		derivedDownloadCodecs.possible.length > 0 &&
+		derivedOutNameCodecs.possible.length > 0 &&
+		derivedDownloadCodecs.possible.join('') !==
+			derivedOutNameCodecs.possible.join('')
 	) {
 		throw new TypeError(
 			`The download name is ${downloadName} but the output name is ${outName}. The file extensions must match`
 		);
 	}
 
-	if (derivedDownloadCodec) {
-		if (cliFlag && derivedDownloadCodec !== cliFlag) {
+	if (cliFlag) {
+		if (
+			derivedDownloadCodecs.possible.length > 0 &&
+			derivedDownloadCodecs.possible.indexOf(cliFlag) === -1
+		) {
 			throw new TypeError(
-				`The download name is ${downloadName} but --codec=${cliFlag} was passed. The download name implies a codec of ${derivedDownloadCodec} which does not align with the --codec flag.`
+				`The download name is ${downloadName} but --codec=${cliFlag} was passed. The download name implies a codec of ${derivedDownloadCodecs.possible.join(
+					' or '
+				)} which does not align with the --codec flag.`
 			);
 		}
 
+		if (
+			derivedOutNameCodecs.possible.length > 0 &&
+			derivedOutNameCodecs.possible.indexOf(cliFlag) === -1
+		) {
+			throw new TypeError(
+				`The out name is ${outName} but --codec=${cliFlag} was passed. The out name implies a codec of ${derivedOutNameCodecs.possible.join(
+					' or '
+				)} which does not align with the --codec flag.`
+			);
+		}
+
+		return {codec: cliFlag, reason: 'from --codec flag'};
+	}
+
+	if (derivedDownloadCodecs.possible.length > 0) {
 		return {
-			codec: derivedDownloadCodec,
+			codec: derivedDownloadCodecs.default as Codec,
 			reason: 'derived from download name',
 		};
 	}
 
-	if (derivedOutNameCodec) {
-		if (cliFlag && derivedOutNameCodec !== cliFlag) {
-			throw new TypeError(
-				`The out name is ${outName} but --codec=${cliFlag} was passed. The out name implies a codec of ${derivedOutNameCodec} which does not align with the --codec flag.`
-			);
-		}
-
-		if (configFile && derivedOutNameCodec !== configFile) {
-			throw new TypeError(
-				`The out name is ${outName} but ${configFile} was set as the codec in the config file. The out name implies a codec of ${derivedOutNameCodec} which does not align with the codec set in the config file.`
-			);
-		}
-
+	if (derivedOutNameCodecs.possible.length > 0) {
 		return {
-			codec: derivedOutNameCodec,
+			codec: derivedOutNameCodecs.default as Codec,
 			reason: 'derived from out name',
 		};
-	}
-
-	if (cliFlag) {
-		return {codec: cliFlag, reason: 'from --codec flag'};
 	}
 
 	if (configFile) {

@@ -1,5 +1,3 @@
-import type {Codec} from '@remotion/renderer';
-
 export type Loop = number | null;
 
 let currentLoop: Loop = null;
@@ -12,16 +10,6 @@ export const setNumberOfGifLoops = (newLoop: Loop | null) => {
 	currentLoop = newLoop;
 };
 
-export const getAndValidateNumberOfGifLoops = (codec: Codec) => {
-	if (currentLoop === null) {
-		return currentLoop;
-	}
-
-	if (codec !== 'gif') {
-		throw new Error(
-			`The "numberOfGifLoops" setting can only be used for GIFs. The codec is set to ${codec}`
-		);
-	}
-
+export const getNumberOfGifLoops = () => {
 	return currentLoop;
 };

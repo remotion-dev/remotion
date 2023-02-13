@@ -39,7 +39,7 @@ export type SubMenu = {
 	items: ComboboxValue[];
 };
 
-type SelectionItem = {
+export type SelectionItem = {
 	type: 'item';
 	id: string;
 	label: React.ReactNode;
@@ -48,6 +48,7 @@ type SelectionItem = {
 	keyHint: string | null;
 	leftItem: React.ReactNode;
 	subMenu: SubMenu | null;
+	quickSwitcherLabel: string | null;
 };
 
 export type ComboboxValue = DividerItem | SelectionItem;
@@ -67,6 +68,8 @@ export const Combobox: React.FC<{
 		shouldApplyCssTransforms: true,
 	});
 
+	const refresh = size?.refresh;
+
 	const onHide = useCallback(() => {
 		setOpened(false);
 	}, []);
@@ -81,7 +84,13 @@ export const Combobox: React.FC<{
 		const onMouseLeave = () => setIsHovered(false);
 		const onClick = (e: MouseEvent) => {
 			e.stopPropagation();
-			return setOpened((o) => !o);
+			return setOpened((o) => {
+				if (!o) {
+					refresh?.();
+				}
+
+				return !o;
+			});
 		};
 
 		current.addEventListener('mouseenter', onMouseEnter);
@@ -93,7 +102,7 @@ export const Combobox: React.FC<{
 			current.removeEventListener('mouseleave', onMouseLeave);
 			current.removeEventListener('click', onClick);
 		};
-	}, []);
+	}, [refresh]);
 
 	const portalStyle = useMemo((): React.CSSProperties | null => {
 		if (!opened || !size) {
@@ -113,7 +122,6 @@ export const Combobox: React.FC<{
 				  }
 				: {
 						...menuContainerTowardsTop,
-
 						bottom: size.windowSize.height - size.top,
 				  }),
 			left: size.left,

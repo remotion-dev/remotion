@@ -1,6 +1,7 @@
 .containerrow {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-auto-rows: 1fr;
   grid-gap: 15px;
   margin-bottom: 30px;
 }
@@ -9,11 +10,15 @@
   padding: 18px;
   border: 1px solid var(--border-color);
   border-radius: 10px;
+  flex: 1;
 }
 
 .link {
   text-decoration: none !important;
   color: inherit;
+  display: flex;
+  width: 100%;
+  height: 100%;
 }
 
 .link code {

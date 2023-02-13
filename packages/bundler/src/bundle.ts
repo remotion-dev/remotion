@@ -7,6 +7,7 @@ import webpack from 'webpack';
 import {isMainThread} from 'worker_threads';
 import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
+import {readRecursively} from './read-recursively';
 import {webpackConfig} from './webpack-config';
 
 const promisified = promisify(webpack);
@@ -43,6 +44,8 @@ export type LegacyBundleOptions = {
 	publicPath?: string;
 	rootDir?: string;
 	publicDir?: string | null;
+	onPublicDirCopyProgress?: (bytes: number) => void;
+	onSymlinkDetected?: (path: string) => void;
 };
 
 export const getConfig = ({
@@ -74,6 +77,7 @@ export const getConfig = ({
 		entryPoints: [],
 		remotionRoot: resolvedRemotionRoot,
 		keyboardShortcutsEnabled: false,
+		poll: null,
 	});
 };
 
@@ -130,9 +134,10 @@ const findClosestPackageJsonFolder = (currentDir: string): string | null => {
 
 export async function bundle(...args: Arguments): Promise<string> {
 	const actualArgs = convertArgumentsIntoOptions(args);
+	const entryPoint = path.resolve(process.cwd(), actualArgs.entryPoint);
 	const resolvedRemotionRoot =
 		actualArgs?.rootDir ??
-		findClosestPackageJsonFolder(actualArgs.entryPoint) ??
+		findClosestPackageJsonFolder(entryPoint) ??
 		process.cwd();
 
 	const outDir = await prepareOutDir(actualArgs?.outDir ?? null);
@@ -145,7 +150,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 		process.chdir(resolvedRemotionRoot);
 	}
 
-	const {entryPoint, onProgress, ...options} = actualArgs;
+	const {onProgress, ...options} = actualArgs;
 	const [, config] = getConfig({
 		outDir,
 		entryPoint,
@@ -179,8 +184,32 @@ export async function bundle(...args: Arguments): Promise<string> {
 		? path.resolve(resolvedRemotionRoot, options.publicDir)
 		: path.join(resolvedRemotionRoot, 'public');
 	const to = path.join(outDir, 'public');
+
+	let symlinkWarningShown = false;
+	const showSymlinkWarning = (ent: fs.Dirent, src: string) => {
+		if (symlinkWarningShown) {
+			return;
+		}
+
+		const absolutePath = path.join(src, ent.name);
+		if (options.onSymlinkDetected) {
+			options.onSymlinkDetected(absolutePath);
+			return;
+		}
+
+		symlinkWarningShown = true;
+		console.warn(
+			`\nFound a symbolic link in the public folder (${absolutePath}). The symlink will be forwarded into the bundle.`
+		);
+	};
+
 	if (fs.existsSync(from)) {
-		await copyDir(from, to);
+		await copyDir({
+			src: from,
+			dest: to,
+			onSymlinkDetected: showSymlinkWarning,
+			onProgress: (prog) => options.onPublicDirCopyProgress?.(prog),
+		});
 	}
 
 	const html = indexHtml({
@@ -190,6 +219,15 @@ export async function bundle(...args: Arguments): Promise<string> {
 		inputProps: null,
 		remotionRoot: resolvedRemotionRoot,
 		previewServerCommand: null,
+		numberOfAudioTags: 0,
+		publicFiles: readRecursively({
+			folder: '.',
+			startPath: from,
+			staticHash,
+			limit: 1000,
+		}),
+		includeFavicon: false,
+		title: 'Remotion Bundle',
 	});
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 

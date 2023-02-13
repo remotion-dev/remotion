@@ -42,7 +42,10 @@ test('Should make a transparent video', async () => {
 			frameRange: [0, 9],
 			framesPerLambda: 5,
 			imageFormat: 'png',
-			inputProps: {},
+			inputProps: {
+				type: 'payload',
+				payload: '{}',
+			},
 			logLevel: 'warn',
 			maxRetries: 3,
 			outName: 'out.webm',
@@ -64,6 +67,11 @@ test('Should make a transparent video', async () => {
 			webhook: null,
 			audioBitrate: null,
 			videoBitrate: null,
+			forceHeight: null,
+			forceWidth: null,
+			rendererFunctionName: null,
+			bucketName: null,
+			audioCodec: null,
 		},
 		extraContext
 	);
@@ -96,7 +104,10 @@ test('Should make a transparent video', async () => {
 	await new Promise<void>((resolve) => {
 		file.on('close', () => resolve());
 	});
-	const probe = await RenderInternals.execa('ffprobe', [out]);
+	const probe = await RenderInternals.execa(
+		await RenderInternals.getExecutableBinary(null, process.cwd(), 'ffprobe'),
+		[out]
+	);
 	expect(probe.stderr).toMatch(/ALPHA_MODE(\s+): 1/);
 	expect(probe.stderr).toMatch(/Video: vp8, yuv420p/);
 	expect(probe.stderr).toMatch(/Audio: opus, 48000 Hz/);

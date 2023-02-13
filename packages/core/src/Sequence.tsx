@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import {AbsoluteFill} from './AbsoluteFill';
 import {CompositionManager} from './CompositionManager';
-import {getRemotionEnvironment} from './get-environment';
+import {useRemotionEnvironment} from './get-environment';
 import {getTimelineClipName} from './get-timeline-clip-name';
 import {useNonce} from './nonce';
 import {TimelineContext, useTimelinePosition} from './timeline-position-state';
@@ -24,7 +24,7 @@ export type SequenceContextType = {
 
 export const SequenceContext = createContext<SequenceContextType | null>(null);
 
-type LayoutAndStyle =
+export type LayoutAndStyle =
 	| {
 			layout: 'none';
 	  }
@@ -35,7 +35,7 @@ type LayoutAndStyle =
 
 export type SequenceProps = {
 	children: React.ReactNode;
-	from: number;
+	from?: number;
 	durationInFrames?: number;
 	name?: string;
 	showInTimeline?: boolean;
@@ -47,7 +47,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	SequenceProps
 > = (
 	{
-		from,
+		from = 0,
 		durationInFrames = Infinity,
 		children,
 		name,
@@ -65,6 +65,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
 	const nonce = useNonce();
+	const environment = useRemotionEnvironment();
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
 		throw new TypeError(
@@ -141,7 +142,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, [children, name]);
 
 	useEffect(() => {
-		if (getRemotionEnvironment() !== 'preview') {
+		if (environment !== 'preview') {
 			return;
 		}
 
@@ -174,6 +175,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		nonce,
 		showLoopTimesInTimeline,
+		environment,
 	]);
 
 	const endThreshold = cumulatedFrom + from + durationInFrames - 1;

@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-bundle.png
 id: bundle
 title: bundle()
+crumb: "@remotion/bundler"
 ---
 
 _Part of the `@remotion/bundler` package._
@@ -17,6 +19,8 @@ const bundle: (options?: {
   publicPath?: string;
   rootDir?: string;
   publicDir?: string | null;
+  onPublicDirCopyProgress?: (bytes: number) => void;
+  onSymlinkDetected?: (path: string) => void;
 }) => Promise<string>;
 ```
 
@@ -24,7 +28,7 @@ const bundle: (options?: {
 
 ### `entryPoint`
 
-A `string` containing an absolute path of the entry point of a Remotion project. In a default Remotion project created with the template, the entry point is located at `src/index.tsx`.
+A `string` containing an absolute path of the entry point of a Remotion project. [In most Remotion project created with the template, the entry point is located at `src/index.ts`](/docs/terminology#entry-point).
 
 ### `onProgress?`
 
@@ -91,6 +95,18 @@ _Available from v3.2.13_
 
 Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the Remotion root folder.
 
+#### `onPublicDirCopyProgress?`
+
+_Available from v3.3.3_
+
+Reports progress of how many bytes have been written while copying the `public/` directoy. Useful to warn the user if the directory is large that this operation is slow.
+
+#### `onSymlinkDetected?`
+
+_Available from v3.3.3_
+
+Gets called when a symbolic link is detected in the `public/` directory. Since Remotion will forward the symbolic link, it might be useful to display a hint to the user that if the original symbolic link gets deleted, the bundle will also break.
+
 ## Legacy function signature
 
 Remotion versions earlier than v3.2.17 had the following function signature instead:
@@ -113,7 +129,7 @@ const bundle: (
 Example:
 
 ```ts
-await bundle("src/index.tsx", () => console.log(progress * 100 + "% done"), {
+await bundle("src/index.ts", () => console.log(progress * 100 + "% done"), {
   webpackOverride,
 });
 ```

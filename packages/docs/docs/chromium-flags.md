@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-chromium-flags.png
 id: chromium-flags
 title: Chromium flags
+crumb: "Tweaks"
 ---
 
 import {AngleChangelog} from '../components/AngleChangelog';
@@ -32,8 +34,12 @@ import { Config } from "remotion";
 
 // ---cut---
 
-Config.Puppeteer.setChromiumDisableWebSecurity(true);
+Config.setChromiumDisableWebSecurity(true);
 ```
+
+:::note
+Prior to `v3.3.39`, the option was called `Config.Puppeteer.setChromiumDisableWebSecurity()`.
+:::
 
 ## `--ignore-certificate-errors`
 
@@ -56,8 +62,12 @@ import { Config } from "remotion";
 
 // ---cut---
 
-Config.Puppeteer.setChromiumIgnoreCertificateErrors(true);
+Config.setChromiumIgnoreCertificateErrors(true);
 ```
+
+:::note
+Prior to `v3.3.39`, the option was called `Config.Puppeteer.setChromiumIgnoreCertificateErrors()`.
+:::
 
 ## `--disable-headless`
 
@@ -80,8 +90,12 @@ import { Config } from "remotion";
 
 // ---cut---
 
-Config.Puppeteer.setChromiumHeadlessMode(false);
+Config.setChromiumHeadlessMode(false);
 ```
+
+:::note
+Prior to `v3.3.39`, the option was called `Config.Puppeteer.setChromiumHeadlessMode()`.
+:::
 
 ## `--gl`
 
@@ -114,8 +128,12 @@ import { Config } from "remotion";
 
 // ---cut---
 
-Config.Puppeteer.setChromiumOpenGlRenderer("swiftshader");
+Config.setChromiumOpenGlRenderer("swiftshader");
 ```
+
+:::note
+Prior to `v3.3.39`, the option was called `Config.Puppeteer.setChromiumOpenGlRenderer()`.
+:::
 
 ## Need more flags?
 

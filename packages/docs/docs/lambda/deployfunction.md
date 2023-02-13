@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-deployfunction.png
 id: deployfunction
 title: deployFunction()
 slug: /lambda/deployfunction
+crumb: "Lambda API"
 ---
 
 Creates an [AWS Lambda](https://aws.amazon.com/lambda/) function in your AWS account that will be able to render a video in the cloud.
@@ -19,10 +21,10 @@ import { deployFunction } from "@remotion/lambda";
 const { functionName } = await deployFunction({
   region: "us-east-1",
   timeoutInSeconds: 120,
-  memorySizeInMb: 1024,
+  memorySizeInMb: 2048,
   createCloudWatchLogGroup: true,
   architecture: "arm64",
-  diskSizeInMb: 512,
+  diskSizeInMb: 2048,
 });
 console.log(functionName);
 ```
@@ -84,5 +86,6 @@ An object with the following values:
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/deploy-function.ts)
+- [CLI equivalent: npx remotion lambda functions deploy](/docs/lambda/cli/functions#deploy)
 - [deleteFunction()](/docs/lambda/deletefunction)
 - [getFunctions()](/docs/lambda/getfunctions)

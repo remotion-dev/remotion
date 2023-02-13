@@ -42,7 +42,7 @@ const browserInstances: PuppeteerBrowser[] = [];
 export const killAllBrowsers = async () => {
 	for (const browser of browserInstances) {
 		try {
-			await browser.close();
+			await browser.close(true);
 		} catch (err) {}
 	}
 };
@@ -90,11 +90,11 @@ export const openBrowser = async (
 			'--disable-component-extensions-with-background-pages',
 			'--disable-default-apps',
 			'--disable-dev-shm-usage',
-			'--disable-extensions',
 			'--no-proxy-server',
 			"--proxy-server='direct://'",
 			'--proxy-bypass-list=*',
 			'--disable-hang-monitor',
+			'--disable-extensions',
 			'--disable-ipc-flooding-protection',
 			'--disable-popup-blocking',
 			'--disable-prompt-on-repost',

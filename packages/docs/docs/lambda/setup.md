@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-setup.png
 id: setup
 title: Setup
 slug: /lambda/setup
+crumb: "Lambda"
 ---
 
 import Tabs from '@theme/Tabs';
@@ -80,29 +82,40 @@ Your package.json should look like the following:
 - Go to [AWS account IAM Users section](https://console.aws.amazon.com/iamv2/home#/users)
 - Click `Add users`
 - Enter any username, such as `remotion-user`.
-- **Check** the "Access key - Programmatic access" option.
-- **Don't check** the Management console access option. You don't need it.
-- Click "Next: Permissions", then "Next: Tags", then "Next: Review" without changing any settings.
-- Click "Create user", and ignore the warning that might appear.
-- Reveal the Secret access key.
-- Add a `.env` file to your project, and insert the following contents, using the credentials you just copied:
+- **Don't check** the "Enable console access" option. You don't need it.
+- Click "Next".
+- Click "Next" again without changing any settings. You should now be on the "Review and Create" step.
+- Click "Create user".
+
+## 5. Create an access key for the user
+
+- Go to [AWS account IAM Users section](https://console.aws.amazon.com/iamv2/home#/users)
+- Click on the name of the user that was created in step 4.
+- Navigate to the "Security Credentials" tab, and scroll down to the "Access Keys" section.
+- Click the "Create access key" button.
+- Select "Application running on an AWS compute service".
+- Ignore warnings that might appear and check the "I understand the recommendations..." checkbox.
+- Click "Next".
+- Click "Create access key".
+- Add a `.env` file to your project's root and add the credentials you just copied in the following format:
 
 ```txt title=".env"
 REMOTION_AWS_ACCESS_KEY_ID=<Access key ID>
 REMOTION_AWS_SECRET_ACCESS_KEY=<Secret access key>
 ```
 
-## 5. Add permissions to your user
+## 6. Add permissions to your user
 
 - Go to [AWS account IAM Users section](https://console.aws.amazon.com/iamv2/home#/users)
 - Select the user you just created.
-- Click "Add inline policy" on the right of the screen under "Permissions policies".
+- Click "Add inline policy" under the "Add Permissions" dropdown in the "Permissions policies" panel.
 - Click the tab "JSON".
 - Enter in your terminal: `npx remotion lambda policies user` and copy into the AWS text field what gets printed.
-- Give the policy a name. For example `remotion-user-policy`, but it can be anything..
+- Click "Review policy".
+- Give the policy a name. For example `remotion-user-policy`, but it can be anything.
 - Click "Create policy" to confirm.
 
-## 6. Optional: Validate the permission setup
+## 7. Optional: Validate the permission setup
 
 - Run `npx remotion lambda policies validate`
 
@@ -110,7 +123,7 @@ REMOTION_AWS_SECRET_ACCESS_KEY=<Secret access key>
 
 For the following steps, you may execute them on the CLI, or programmatically using the Node.JS APIs.
 
-## 7. Deploy a function
+## 8. Deploy a function
 
 <Tabs
 defaultValue="cli"
@@ -141,7 +154,7 @@ import { deployFunction } from "@remotion/lambda";
 const { functionName } = await deployFunction({
   region: "us-east-1",
   timeoutInSeconds: 120,
-  memorySizeInMb: 1536,
+  memorySizeInMb: 2048,
   createCloudWatchLogGroup: true,
   architecture: "arm64",
 });
@@ -151,7 +164,9 @@ The function name is returned which you'll need for rendering.
 </TabItem>
 </Tabs>
 
-## 8. Deploy a site
+The function consists of necessary binaries and JavaScript code that can take a [serve URL](/docs/terminology#serve-url) and make renders from it. A function is bound to the Remotion version, if you upgrade Remotion, you [need to deploy a new function](/docs/lambda/upgrading). A function does not include your Remotion code, it will be deployed in the next step instead.
+
+## 9. Deploy a site
 
 <Tabs
 defaultValue="cli"
@@ -162,13 +177,13 @@ values={[
 }>
 <TabItem value="cli">
 
-Run the following command to deploy your Remotion project to an S3 bucket. Pass as the last argument the entry file of the project - this is the file where [`registerRoot()`](/docs/register-root) is called.
+Run the following command to deploy your Remotion project to an S3 bucket. Pass as the last argument the [entry point](/docs/terminology#entry-point) of the project.
 
 ```bash
-npx remotion lambda sites create src/index.tsx --site-name=my-video
+npx remotion lambda sites create src/index.ts --site-name=my-video
 ```
 
-A `serveUrl` will be printed pointing to the deployed project.
+A [`serveUrl`](/docs/terminology#serve-url) will be printed pointing to the deployed project.
 
 When you update your Remotion video in the future, redeploy your site. Pass the same [`--site-name`](/docs/lambda/cli/sites#--site-name) to overwrite the previous deploy. If you don't pass [`--site-name`](/docs/lambda/cli/sites#--site-name), a unique URL will be generated on every deploy.
 
@@ -202,7 +217,7 @@ const { bucketName } = await getOrCreateBucket({
 // ---cut---
 const { serveUrl } = await deploySite({
   bucketName,
-  entryPoint: path.resolve(process.cwd(), "src/index.tsx"),
+  entryPoint: path.resolve(process.cwd(), "src/index.ts"),
   region: "us-east-1",
   siteName: "my-video",
 });
@@ -213,7 +228,7 @@ When you update your Remotion video in the future, redeploy your site. Pass the 
 </TabItem>
 </Tabs>
 
-## 9. Check AWS concurrency limit
+## 10. Check AWS concurrency limit
 
 Check the concurrency limit that AWS has given to your account:
 
@@ -223,7 +238,7 @@ npx remotion lambda quotas
 
 By default, it is `1000` concurrent invocations per region. However, new accounts might have a limit [as low as `10`](/docs/lambda/troubleshooting/rate-limit). Each Remotion render may use as much as 200 functions per render concurrently, so if your assigned limit is very low, [you might want to request an increase right away](/docs/lambda/troubleshooting/rate-limit).
 
-## 10. Render a video
+## 11. Render a video
 
 <Tabs
 defaultValue="cli"

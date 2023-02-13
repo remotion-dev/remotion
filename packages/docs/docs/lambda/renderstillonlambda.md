@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-renderstillonlambda.png
 id: renderstillonlambda
 title: renderStillOnLambda()
 slug: /lambda/renderstillonlambda
+crumb: "Lambda API"
 ---
 
 Renders a still image inside a lambda function and writes it to the specified output location.
@@ -15,8 +17,7 @@ If you want to render a still locally instead, use [`renderStill()`](/docs/rende
 ```tsx twoslash
 // @module: esnext
 // @target: es2017
-import { renderStillOnLambda } from "@remotion/lambda";
-// ---cut---
+import { renderStillOnLambda } from "@remotion/lambda/client";
 
 const { estimatedPrice, url, sizeInBytes } = await renderStillOnLambda({
   region: "us-east-1",
@@ -32,6 +33,10 @@ const { estimatedPrice, url, sizeInBytes } = await renderStillOnLambda({
   frame: 10,
 });
 ```
+
+:::note
+Preferrably import this function from `@remotion/lambda/client` to avoid problems [inside serverless functions](/docs/lambda/light-client).
+:::
 
 ## Arguments
 
@@ -100,6 +105,18 @@ _optional - default `{}`_
 
 See [`renderMedia() -> envVariables`](/docs/renderer/render-media#envvariables).
 
+### `forceHeight`
+
+_optional, available from v3.2.40_
+
+Overrides the default composition height.
+
+### `forceWidth`
+
+_optional, available from v3.2.40_
+
+Overrides the default composition width.
+
 ### `scale`
 
 _optional_
@@ -162,6 +179,12 @@ Accepted values:
 :::note
 The default for Lambda is `"swangle"`, but `null` elsewhere.
 :::
+
+### `forceBucketName`
+
+_optional, available from v3.3.42_
+
+Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
 
 ## Return value
 

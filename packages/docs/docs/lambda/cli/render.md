@@ -1,8 +1,10 @@
 ---
+image: /generated/articles-docs-lambda-cli-render.png
 id: render
 sidebar_label: render
 title: "npx remotion lambda render"
 slug: /lambda/cli/render
+crumb: "Lambda CLI Reference"
 ---
 
 import { MinimumFramesPerLambda } from "../../../components/lambda/default-frames-per-lambda";
@@ -12,11 +14,11 @@ Using the `npx remotion lambda render` command, you can render a video in the cl
 The structure of a command is as follows:
 
 ```
-npx remotion lambda render <serve-url> <composition-id> [<output-location>]
+npx remotion lambda render <serve-url> [<composition-id>] [<output-location>]
 ```
 
 - The serve URL is obtained by deploying a project to Remotion using the [`sites create`](/docs/lambda/cli/sites#create) command or calling [`deploySite()`](/docs/lambda/deploysite).
-- The composition ID is the [`id` of your `<Composition/>`](/docs/the-fundamentals#defining-compositions).
+- The [composition ID](/docs/terminology#composition-id). If not specified, the list of compositions will be fetched and you can choose a composition.
 - The `output-location` parameter is optional. If you don't specify it, the video is stored in your S3 bucket. If you specify a location, it gets downloaded to your device in an additional step.
 
 ## Example commands
@@ -120,6 +122,12 @@ _available from v3.2.1_
 
 [`h264` or `h265` or `png` or `vp8` or `mp3` or `aac` or `wav` or `prores`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264`.
 
+### `--audio-codec`
+
+_Available from v3.3.42_
+
+[Set which codec the audio should have.](/docs/config#setaudiocodec) For defaults and possible values, refer to the [Encoding guide](/docs/encoding/#audio-codec).
+
 ### `--audio-bitrate`
 
 _Available from v3.2.32_
@@ -203,3 +211,35 @@ Sets a webhook to be called when the render finishes or fails. [`renderMediaOnLa
 _available from v3.2.30_
 
 Sets a webhook secret for the webhook (see above). [`renderMediaOnLambda() -> webhook.secret`](/docs/lambda/rendermediaonlambda#webhook). To be used together with `--webhook`.
+
+### `--height`
+
+_available from v3.2.40_
+
+[Overrides composition height.](/docs/config#overrideheight)
+
+### `--width`
+
+_available from v3.2.40_
+
+[Overrides composition width.](/docs/config#overridewidth)
+
+### `--function-name`
+
+_available from v3.3.38_
+
+Specify the name of the function which should be used to invoke and orchestrate the render. You only need to pass it if there are multiple functions with different configurations.
+
+### `--renderer-function-name`
+
+_available from v3.3.38_
+
+If specified, this function will be used for rendering the individual chunks. This is useful if you want to use a function with higher or lower power for rendering the chunks than the main orchestration function.
+
+If you want to use this option, the function must be in the same region, the same account and have the same version as the main function.
+
+### `--force-bucket-name`
+
+_available from v3.3.42_
+
+Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.

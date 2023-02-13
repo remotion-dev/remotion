@@ -1,10 +1,11 @@
 ---
+image: /generated/articles-docs-motion-blur-index.png
 title: "@remotion/motion-blur"
 ---
 
 _Available from v3.2.31_
 
-A high order component that creates a motion blur effect.
+Higher order components that create a motion blur and trail effects.
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';

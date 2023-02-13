@@ -1,5 +1,5 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
-import {getRemotionEnvironment} from '../get-environment';
+import {useRemotionEnvironment} from '../get-environment';
 import {Loop} from '../loop';
 import {Sequence} from '../Sequence';
 import {useVideoConfig} from '../use-video-config';
@@ -17,11 +17,20 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	const {startFrom, endAt, ...otherProps} = props;
 	const {loop, ...propsOtherThanLoop} = props;
 	const {fps} = useVideoConfig();
+	const environment = useRemotionEnvironment();
 
 	const {durations, setDurations} = useContext(DurationsContext);
 
 	if (typeof ref === 'string') {
 		throw new Error('string refs are not supported');
+	}
+
+	if (typeof props.src !== 'string') {
+		throw new TypeError(
+			`The \`<Video>\` tag requires a string for \`src\`, but got ${JSON.stringify(
+				props.src
+			)} instead.`
+		);
 	}
 
 	const onDuration = useCallback(
@@ -32,8 +41,12 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	);
 
 	if (loop && props.src && durations[props.src as string] !== undefined) {
+		const naturalDuration = durations[props.src as string] * fps;
+		const playbackRate = props.playbackRate ?? 1;
+		const durationInFrames = Math.floor(naturalDuration / playbackRate);
+
 		return (
-			<Loop durationInFrames={Math.round(durations[props.src as string] * fps)}>
+			<Loop durationInFrames={durationInFrames}>
 				<Video {...propsOtherThanLoop} ref={ref} />
 			</Loop>
 		);
@@ -58,7 +71,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 
 	validateMediaProps(props, 'Video');
 
-	if (getRemotionEnvironment() === 'rendering') {
+	if (environment === 'rendering') {
 		return (
 			<VideoForRendering onDuration={onDuration} {...otherProps} ref={ref} />
 		);
@@ -74,4 +87,11 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	);
 };
 
-export const Video = forwardRef(VideoForwardingFunction);
+const forward = forwardRef as <T, P = {}>(
+	render: (
+		props: P,
+		ref: React.MutableRefObject<T>
+	) => React.ReactElement | null
+) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
+
+export const Video = forward(VideoForwardingFunction);

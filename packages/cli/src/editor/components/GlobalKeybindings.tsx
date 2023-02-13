@@ -20,6 +20,21 @@ export const GlobalKeybindings: React.FC = () => {
 				});
 			},
 			commandCtrlKey: false,
+			preventDefault: true,
+		});
+		const cmdKKey = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'k',
+			callback: () => {
+				setSelectedModal({
+					type: 'quick-switcher',
+					mode: 'compositions',
+					invocationTimestamp: Date.now(),
+				});
+			},
+
+			commandCtrlKey: true,
+			preventDefault: true,
 		});
 
 		const cKey = keybindings.registerKeybinding({
@@ -29,22 +44,27 @@ export const GlobalKeybindings: React.FC = () => {
 				setCheckerboard((c) => !c);
 			},
 			commandCtrlKey: true,
+			preventDefault: true,
 		});
 		const questionMark = keybindings.registerKeybinding({
 			event: 'keypress',
 			key: '?',
 			callback: () => {
 				setSelectedModal({
-					type: 'shortcuts',
+					type: 'quick-switcher',
+					mode: 'docs',
+					invocationTimestamp: Date.now(),
 				});
 			},
 			commandCtrlKey: false,
+			preventDefault: true,
 		});
 
 		return () => {
 			nKey.unregister();
 			cKey.unregister();
 			questionMark.unregister();
+			cmdKKey.unregister();
 		};
 	}, [keybindings, setCheckerboard, setSelectedModal]);
 

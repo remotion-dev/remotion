@@ -41,7 +41,10 @@ test('Should make a distributed GIF', async () => {
 			frameRange: [0, 60],
 			framesPerLambda: 8,
 			imageFormat: 'png',
-			inputProps: {},
+			inputProps: {
+				type: 'payload',
+				payload: '{}',
+			},
 			logLevel: 'warn',
 			maxRetries: 3,
 			outName: 'out.gif',
@@ -61,6 +64,11 @@ test('Should make a distributed GIF', async () => {
 			webhook: null,
 			audioBitrate: null,
 			videoBitrate: null,
+			forceHeight: null,
+			forceWidth: null,
+			rendererFunctionName: null,
+			bucketName: null,
+			audioCodec: null,
 		},
 		extraContext
 	);
@@ -85,6 +93,9 @@ test('Should make a distributed GIF', async () => {
 	await new Promise<void>((resolve) => {
 		file.pipe(createWriteStream('gif.gif')).on('close', () => resolve());
 	});
-	const probe = await RenderInternals.execa('ffprobe', ['gif.gif']);
+	const probe = await RenderInternals.execa(
+		await RenderInternals.getExecutableBinary(null, process.cwd(), 'ffprobe'),
+		['gif.gif']
+	);
 	expect(probe.stderr).toMatch(/Video: gif, bgra, 1080x1080/);
 }, 90000);

@@ -9,8 +9,8 @@ import {callLambda} from '../shared/call-lambda';
 import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
 import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
-import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {getCloudwatchStreamUrl} from '../shared/get-cloudwatch-stream-url';
+import {getCloudwatchStreamUrl} from '../shared/get-aws-urls';
+import {serializeInputProps} from '../shared/serialize-input-props';
 
 export type RenderStillOnLambdaInput = {
 	region: AwsRegion;
@@ -30,6 +30,9 @@ export type RenderStillOnLambdaInput = {
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
 	downloadBehavior?: DownloadBehavior;
+	forceWidth?: number | null;
+	forceHeight?: number | null;
+	forceBucketName?: string;
 };
 
 export type RenderStillOnLambdaOutput = {
@@ -76,16 +79,25 @@ export const renderStillOnLambda = async ({
 	chromiumOptions,
 	scale,
 	downloadBehavior,
+	forceHeight,
+	forceWidth,
+	forceBucketName,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
-	const realServeUrl = await convertToServeUrl(serveUrl, region);
+	const serializedInputProps = await serializeInputProps({
+		inputProps,
+		region,
+		type: 'still',
+		userSpecifiedBucketName: forceBucketName ?? null,
+	});
+
 	try {
 		const res = await callLambda({
 			functionName,
 			type: LambdaRoutines.still,
 			payload: {
 				composition,
-				serveUrl: realServeUrl,
-				inputProps,
+				serveUrl,
+				inputProps: serializedInputProps,
 				imageFormat,
 				envVariables,
 				quality,
@@ -100,6 +112,9 @@ export const renderStillOnLambda = async ({
 				scale: scale ?? 1,
 				downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
 				version: VERSION,
+				forceHeight: forceHeight ?? null,
+				forceWidth: forceWidth ?? null,
+				bucketName: forceBucketName ?? null,
 			},
 			region,
 		});
@@ -114,6 +129,7 @@ export const renderStillOnLambda = async ({
 				method: LambdaRoutines.still,
 				region,
 				renderId: res.renderId,
+				rendererFunctionName: null,
 			}),
 		};
 	} catch (err) {

@@ -15,7 +15,7 @@ import {
 } from '../audio/use-audio-frame';
 import {CompositionManager} from '../CompositionManager';
 import {continueRender, delayRender} from '../delay-render';
-import {getRemotionEnvironment} from '../get-environment';
+import {useRemotionEnvironment} from '../get-environment';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {random} from '../random';
 import {SequenceContext} from '../Sequence';
@@ -35,7 +35,14 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
 	VideoForRenderingProps
 > = (
-	{onError, volume: volumeProp, playbackRate, onDuration, ...props},
+	{
+		onError,
+		volume: volumeProp,
+		allowAmplificationDuringRender,
+		playbackRate,
+		onDuration,
+		...props
+	},
 	ref
 ) => {
 	const absoluteFrame = useTimelinePosition();
@@ -46,6 +53,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
+	const environment = useRemotionEnvironment();
 
 	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
 
@@ -72,6 +80,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		volume: volumeProp,
 		frame: volumePropsFrame,
 		mediaVolume: 1,
+		allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 	});
 
 	useEffect(() => {
@@ -99,6 +108,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			volume,
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
+			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 		});
 
 		return () => unregisterAsset(id);
@@ -112,6 +122,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		frame,
 		absoluteFrame,
 		playbackRate,
+		allowAmplificationDuringRender,
 	]);
 
 	useImperativeHandle(
@@ -222,7 +233,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const {src} = props;
 
 	// If video source switches, make new handle
-	if (getRemotionEnvironment() === 'rendering') {
+	if (environment === 'rendering') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
 			if (process.env.NODE_ENV === 'test') {
@@ -233,7 +244,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			const {current} = videoRef;
 
 			const didLoad = () => {
-				if (current) {
+				if (current?.duration) {
 					onDuration(src as string, current.duration);
 				}
 

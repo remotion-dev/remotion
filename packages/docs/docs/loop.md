@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-loop.png
 id: loop
 title: <Loop>
+crumb: "API"
 ---
 
 import { LoopExamples, BlueSquare } from "../components/LoopExamples/LoopExamples";
@@ -23,6 +25,8 @@ The Loop component is a high order component and accepts, besides it's children,
 - `times` _(optional)_: How many times to loop the content. By default it will be `Infinity`.
 
 - `layout`: _(optional)_: Either `"absolute-fill"` _(default)_ or `"none"` By default, your content will be absolutely positioned. If you would like to disable layout side effects, pass `layout="none"`.
+
+- `style`: _(optional, available from v3.3.4)_: CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
 
 :::info
 Good to know: You can nest loops within each other and they will cascade. For example, a loop that has a duration of 30 frames which is inside a loop that has a duration of 75 will play 2 times. However, nested loops are not currently displayed in the timeline.

@@ -1,4 +1,5 @@
 import type {
+	AudioCodec,
 	BrowserExecutable,
 	Codec,
 	FfmpegExecutable,
@@ -27,11 +28,15 @@ export type CommandLineOptions = {
 	['disable-web-security']: string;
 	['every-nth-frame']: number;
 	['number-of-gif-loops']: number;
+	['number-of-shared-audio-tags']: number;
 	codec: Codec;
 	concurrency: number;
 	timeout: number;
 	config: string;
 	['public-dir']: string;
+	['audio-bitrate']: string;
+	['video-bitrate']: string;
+	['audio-codec']: AudioCodec;
 	crf: number;
 	force: boolean;
 	overwrite: boolean;
@@ -50,9 +55,15 @@ export type CommandLineOptions = {
 	['disable-headless']: boolean;
 	['disable-keyboard-shortcuts']: boolean;
 	muted: boolean;
+	height: number;
+	width: number;
+	runs: number;
+	concurrencies: string;
 	['enforce-audio-track']: boolean;
 	gl: OpenGlRenderer;
 	['package-manager']: string;
+	['webpack-poll']: number;
+	['no-open']: boolean;
 };
 
 export const BooleanFlags = [
@@ -75,55 +86,55 @@ export const BooleanFlags = [
 	'ignore-certificate-errors',
 	'disable-headless',
 	'disable-keyboard-shortcuts',
+	'default-only',
+	'no-open',
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: BooleanFlags,
-});
+}) as CommandLineOptions & {
+	_: string[];
+};
 
 export const parseCommandLine = () => {
 	if (parsedCli['pixel-format']) {
-		Config.Output.setPixelFormat(parsedCli['pixel-format']);
+		Config.setPixelFormat(parsedCli['pixel-format']);
 	}
 
 	if (parsedCli['image-format']) {
-		Config.Rendering.setImageFormat(parsedCli['image-format']);
+		Config.setImageFormat(parsedCli['image-format']);
 	}
 
 	if (parsedCli['browser-executable']) {
-		Config.Puppeteer.setBrowserExecutable(parsedCli['browser-executable']);
+		Config.setBrowserExecutable(parsedCli['browser-executable']);
 	}
 
 	if (parsedCli['ffmpeg-executable']) {
-		Config.Rendering.setFfmpegExecutable(
-			resolve(parsedCli['ffmpeg-executable'])
-		);
+		Config.setFfmpegExecutable(resolve(parsedCli['ffmpeg-executable']));
 	}
 
 	if (parsedCli['number-of-gif-loops']) {
-		Config.Rendering.setNumberOfGifLoops(parsedCli['number-of-gif-loops']);
+		Config.setNumberOfGifLoops(parsedCli['number-of-gif-loops']);
 	}
 
 	if (parsedCli['ffprobe-executable']) {
-		Config.Rendering.setFfprobeExecutable(
-			resolve(parsedCli['ffprobe-executable'])
-		);
+		Config.setFfprobeExecutable(resolve(parsedCli['ffprobe-executable']));
 	}
 
 	if (typeof parsedCli['bundle-cache'] !== 'undefined') {
-		Config.Bundling.setCachingEnabled(parsedCli['bundle-cache'] !== 'false');
+		Config.setCachingEnabled(parsedCli['bundle-cache'] !== 'false');
 	}
 
 	if (parsedCli['disable-web-security']) {
-		Config.Puppeteer.setChromiumDisableWebSecurity(true);
+		Config.setChromiumDisableWebSecurity(true);
 	}
 
 	if (parsedCli['ignore-certificate-errors']) {
-		Config.Puppeteer.setChromiumIgnoreCertificateErrors(true);
+		Config.setChromiumIgnoreCertificateErrors(true);
 	}
 
 	if (parsedCli['disable-headless']) {
-		Config.Puppeteer.setChromiumHeadlessMode(false);
+		Config.setChromiumHeadlessMode(false);
 	}
 
 	if (parsedCli.log) {
@@ -141,11 +152,19 @@ export const parseCommandLine = () => {
 	}
 
 	if (parsedCli.concurrency) {
-		Config.Rendering.setConcurrency(parsedCli.concurrency);
+		Config.setConcurrency(parsedCli.concurrency);
 	}
 
 	if (parsedCli.timeout) {
-		Config.Puppeteer.setTimeoutInMilliseconds(parsedCli.timeout);
+		Config.setTimeoutInMilliseconds(parsedCli.timeout);
+	}
+
+	if (parsedCli.height) {
+		Config.overrideHeight(parsedCli.height);
+	}
+
+	if (parsedCli.width) {
+		Config.overrideWidth(parsedCli.width);
 	}
 
 	if (parsedCli.frames) {
@@ -160,72 +179,76 @@ export const parseCommandLine = () => {
 		Log.warn(
 			'The --png flag has been deprecrated. Use --sequence --image-format=png from now on.'
 		);
-		Config.Output.setImageSequence(true);
-		Config.Rendering.setImageFormat('png');
+		Config.setImageSequence(true);
+		Config.setImageFormat('png');
 	}
 
 	if (parsedCli.sequence) {
-		Config.Output.setImageSequence(true);
+		Config.setImageSequence(true);
 	}
 
 	if (typeof parsedCli.crf !== 'undefined') {
-		Config.Output.setCrf(parsedCli.crf);
+		Config.setCrf(parsedCli.crf);
 	}
 
 	if (parsedCli['every-nth-frame']) {
-		Config.Rendering.setEveryNthFrame(parsedCli['every-nth-frame']);
+		Config.setEveryNthFrame(parsedCli['every-nth-frame']);
 	}
 
 	if (parsedCli.gl) {
-		Config.Puppeteer.setChromiumOpenGlRenderer(parsedCli.gl);
+		Config.setChromiumOpenGlRenderer(parsedCli.gl);
 	}
 
 	if (parsedCli['prores-profile']) {
-		Config.Output.setProResProfile(
+		Config.setProResProfile(
 			String(parsedCli['prores-profile']) as ProResProfile
 		);
 	}
 
 	if (parsedCli.overwrite) {
-		Config.Output.setOverwriteOutput(parsedCli.overwrite);
+		Config.setOverwriteOutput(parsedCli.overwrite);
 	}
 
 	if (typeof parsedCli.quality !== 'undefined') {
-		Config.Rendering.setQuality(parsedCli.quality);
+		Config.setQuality(parsedCli.quality);
 	}
 
 	if (typeof parsedCli.scale !== 'undefined') {
-		Config.Rendering.setScale(parsedCli.scale);
+		Config.setScale(parsedCli.scale);
 	}
 
 	if (typeof parsedCli.port !== 'undefined') {
-		Config.Bundling.setPort(parsedCli.port);
+		Config.setPort(parsedCli.port);
 	}
 
 	if (typeof parsedCli.muted !== 'undefined') {
-		Config.Rendering.setMuted(parsedCli.muted);
+		Config.setMuted(parsedCli.muted);
 	}
 
 	if (typeof parsedCli['disable-keyboard-shortcuts'] !== 'undefined') {
-		Config.Preview.setKeyboardShortcutsEnabled(
+		Config.setKeyboardShortcutsEnabled(
 			!parsedCli['disable-keyboard-shortcuts']
 		);
 	}
 
 	if (typeof parsedCli['enforce-audio-track'] !== 'undefined') {
-		Config.Rendering.setEnforceAudioTrack(parsedCli['enforce-audio-track']);
+		Config.setEnforceAudioTrack(parsedCli['enforce-audio-track']);
 	}
 
 	if (typeof parsedCli['public-dir'] !== 'undefined') {
-		Config.Bundling.setPublicDir(parsedCli['public-dir']);
+		Config.setPublicDir(parsedCli['public-dir']);
+	}
+
+	if (typeof parsedCli['webpack-poll'] !== 'undefined') {
+		Config.setWebpackPollingInMilliseconds(parsedCli['webpack-poll']);
 	}
 
 	if (typeof parsedCli['audio-bitrate'] !== 'undefined') {
-		Config.Output.setAudioBitrate(parsedCli['audio-bitrate']);
+		Config.setAudioBitrate(parsedCli['audio-bitrate']);
 	}
 
 	if (typeof parsedCli['video-bitrate'] !== 'undefined') {
-		Config.Output.setVideoBitrate(parsedCli['video-bitrate']);
+		Config.setVideoBitrate(parsedCli['video-bitrate']);
 	}
 };
 

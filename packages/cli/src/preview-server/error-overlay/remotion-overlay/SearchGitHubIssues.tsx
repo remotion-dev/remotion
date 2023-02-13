@@ -31,6 +31,7 @@ export const SearchGithubIssues: React.FC<{
 			key: 'g',
 			callback: onEditor,
 			commandCtrlKey: true,
+			preventDefault: true,
 		});
 		return () => unregister();
 	}, [canHaveKeyboardShortcuts, openInBrowser, registerKeybinding]);

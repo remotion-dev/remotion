@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-troubleshooting-permissions.png
 id: permissions
 sidebar_label: Permissions
 title: AWS Permissions Troubleshooting
+crumb: "Lambda Troubleshooting"
 ---
 
 If you get an error message saying that something is wrong with your AWS permissions, read this page for troubleshooting ideas.

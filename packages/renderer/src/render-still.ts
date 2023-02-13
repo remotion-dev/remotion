@@ -12,26 +12,28 @@ import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import type {FfmpegExecutable} from './ffmpeg-executable';
+import {findRemotionRoot} from './find-closest-package-json';
 import type {StillImageFormat} from './image-format';
 import {validateNonNullImageFormat} from './image-format';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
 import {getServeUrlWithFallback} from './legacy-webpack-config';
 import type {CancelSignal} from './make-cancel-signal';
+import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {openBrowser} from './open-browser';
 import {prepareServer} from './prepare-server';
-import {provideScreenshot} from './provide-screenshot';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {validateQuality} from './quality';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
+import {takeFrameAndCompose} from './take-frame-and-compose';
 import {validateFrame} from './validate-frame';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
 
 type InnerStillOptions = {
 	composition: SmallTCompMetadata;
-	output: string;
+	output?: string | null;
 	frame?: number;
 	inputProps?: unknown;
 	imageFormat?: StillImageFormat;
@@ -54,6 +56,8 @@ type InnerStillOptions = {
 	downloadMap?: DownloadMap;
 };
 
+type RenderStillReturnValue = {buffer: Buffer | null};
+
 export type RenderStillOptions = InnerStillOptions &
 	ServeUrlOrWebpackBundle & {
 		port?: number | null;
@@ -75,14 +79,16 @@ const innerRenderStill = async ({
 	browserExecutable,
 	timeoutInMilliseconds,
 	chromiumOptions,
-	scale,
+	scale = 1,
 	proxyPort,
 	cancelSignal,
+	downloadMap,
 }: InnerStillOptions & {
+	downloadMap: DownloadMap;
 	serveUrl: string;
 	onError: (err: Error) => void;
 	proxyPort: number;
-}): Promise<void> => {
+}): Promise<RenderStillReturnValue> => {
 	Internals.validateDimension(
 		composition.height,
 		'height',
@@ -111,11 +117,8 @@ const innerRenderStill = async ({
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	validateScale(scale);
 
-	if (typeof output !== 'string') {
-		throw new TypeError('`output` parameter was not passed or is not a string');
-	}
-
-	output = path.resolve(process.cwd(), output);
+	output =
+		typeof output === 'string' ? path.resolve(process.cwd(), output) : null;
 
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
@@ -125,23 +128,25 @@ const innerRenderStill = async ({
 
 	validateQuality(quality);
 
-	if (fs.existsSync(output)) {
-		if (!overwrite) {
-			throw new Error(
-				`Cannot render still - "overwrite" option was set to false, but the output destination ${output} already exists.`
-			);
+	if (output) {
+		if (fs.existsSync(output)) {
+			if (!overwrite) {
+				throw new Error(
+					`Cannot render still - "overwrite" option was set to false, but the output destination ${output} already exists.`
+				);
+			}
+
+			const stat = statSync(output);
+
+			if (!stat.isFile()) {
+				throw new Error(
+					`The output location ${output} already exists, but is not a file, but something else (e.g. folder). Cannot save to it.`
+				);
+			}
 		}
 
-		const stat = statSync(output);
-
-		if (!stat.isFile()) {
-			throw new Error(
-				`The output location ${output} already exists, but is not a file, but something else (e.g. folder). Cannot save to it.`
-			);
-		}
+		ensureOutputDirectory(output);
 	}
-
-	ensureOutputDirectory(output);
 
 	const browserInstance =
 		puppeteerInstance ??
@@ -175,7 +180,7 @@ const innerRenderStill = async ({
 		if (puppeteerInstance) {
 			await page.close();
 		} else {
-			browserInstance.close().catch((err) => {
+			browserInstance.close(true).catch((err) => {
 				console.log('Unable to close browser', err);
 			});
 		}
@@ -231,17 +236,22 @@ const innerRenderStill = async ({
 	});
 	await seekToFrame({frame: stillFrame, page});
 
-	await provideScreenshot({
-		page,
+	const {buffer} = await takeFrameAndCompose({
+		downloadMap,
+		frame: stillFrame,
+		freePage: page,
+		height: composition.height,
+		width: composition.width,
 		imageFormat,
+		scale,
+		output,
 		quality,
-		options: {
-			frame: stillFrame,
-			output,
-		},
+		wantsBuffer: !output,
 	});
 
 	await cleanup();
+
+	return {buffer: output ? null : buffer};
 };
 
 /**
@@ -249,17 +259,19 @@ const innerRenderStill = async ({
  * @description Render a still frame from a composition
  * @link https://www.remotion.dev/docs/renderer/render-still
  */
-export const renderStill = (options: RenderStillOptions): Promise<void> => {
+export const renderStill = (
+	options: RenderStillOptions
+): Promise<RenderStillReturnValue> => {
 	const selectedServeUrl = getServeUrlWithFallback(options);
 
 	const downloadMap = options.downloadMap ?? makeDownloadMap();
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
 
-	const happyPath = new Promise<void>((resolve, reject) => {
+	const happyPath = new Promise<RenderStillReturnValue>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
 
-		let close: (() => void) | null = null;
+		let close: ((force: boolean) => Promise<unknown>) | null = null;
 
 		prepareServer({
 			webpackConfigOrServeUrl: selectedServeUrl,
@@ -269,6 +281,7 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 			ffprobeExecutable: options.ffprobeExecutable ?? null,
 			port: options.port ?? null,
 			downloadMap,
+			remotionRoot: findRemotionRoot(),
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
 				close = closeServer;
@@ -277,6 +290,7 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 					serveUrl,
 					onError: (err) => reject(err),
 					proxyPort: offthreadPort,
+					downloadMap,
 				});
 			})
 
@@ -288,15 +302,15 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 					cleanDownloadMap(downloadMap);
 				}
 
-				return close?.();
+				return close?.(false);
 			});
 	});
 
 	return Promise.race([
 		happyPath,
-		new Promise<void>((_resolve, reject) => {
+		new Promise<RenderStillReturnValue>((_resolve, reject) => {
 			options.cancelSignal?.(() => {
-				reject(new Error('renderStill() got cancelled'));
+				reject(new Error(cancelErrorMessages.renderStill));
 			});
 		}),
 	]);

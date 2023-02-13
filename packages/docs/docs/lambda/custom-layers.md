@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-lambda-custom-layers.png
 title: Custom Layers
 slug: custom-layers
+crumb: "Lambda"
 ---
 
 import Tabs from '@theme/Tabs';
@@ -14,6 +16,10 @@ In some advanced use cases, you want to replace certain parts of the stack:
 - Replace default fonts or emojis (such as Apple Emoji font)
 
 Before you create a custom stack, feel free to contact us to see if Remotion can provide the changes upstream.
+
+Also consider that the AWS Lambda layers may not exceed 250MB extracted, so you need to sacrifice an equal amount of other files.
+
+If you just want to add fonts, we recommend to use [Web fonts](/docs/fonts) instead.
 
 ## Ensure Remotion version
 
