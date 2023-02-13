@@ -3,20 +3,19 @@ import {fullscreenIconSize, ICON_SIZE} from './icons';
 import {VOLUME_SLIDER_WIDTH} from './MediaVolumeSlider';
 import {X_PADDING, X_SPACER} from './PlayerControls';
 
+type Info = {
+	maxTimeLabelWidth: number | null;
+	displayVerticalVolumeSlider: boolean;
+};
+
 export const useVideoControlsResize = ({
 	allowFullscreen: allowFullScreen,
 	playerWidth,
 }: {
 	allowFullscreen: boolean;
 	playerWidth: number;
-}): {
-	maxTimeLabelWidth: number;
-	displayVerticalVolumeSlider: boolean;
-} => {
-	const resizeInfo = useMemo((): {
-		maxTimeLabelWidth: number;
-		displayVerticalVolumeSlider: boolean;
-	} => {
+}): Info => {
+	const resizeInfo = useMemo((): Info => {
 		const playPauseIconSize = ICON_SIZE;
 		const volumeIconSize = ICON_SIZE;
 		const _fullscreenIconSize = allowFullScreen ? fullscreenIconSize : 0;
@@ -51,7 +50,10 @@ export const useVideoControlsResize = ({
 			playerWidth < minWidthForHorizontalDisplay;
 
 		return {
-			maxTimeLabelWidth: maxTimeLabelWidthWithoutNegativeValue,
+			maxTimeLabelWidth:
+				maxTimeLabelWidthWithoutNegativeValue === 0
+					? null
+					: maxTimeLabelWidthWithoutNegativeValue,
 			displayVerticalVolumeSlider,
 		};
 	}, [allowFullScreen, playerWidth]);
