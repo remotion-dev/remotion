@@ -1,8 +1,27 @@
-import React from 'react';
-import {AbsoluteFill, cancelRender, useCurrentFrame} from 'remotion';
+import React, {useEffect, useState} from 'react';
+import {
+	AbsoluteFill,
+	cancelRender,
+	delayRender,
+	useCurrentFrame,
+} from 'remotion';
 
-export const BaseRender: React.FC = () => {
+export const CancelRender: React.FC = () => {
 	const frame = useCurrentFrame();
+	useState(() => delayRender('Rendering...'));
+
+	useEffect(() => {
+		Promise.resolve()
+			.then(() => {
+				// Worst case: Inside a promise without a catch handler
+				// and with a timeout running
+				cancelRender(null);
+			})
+			// And then with a catch handler
+			.catch((err) => {
+				console.log(err);
+			});
+	}, []);
 
 	return (
 		<AbsoluteFill
