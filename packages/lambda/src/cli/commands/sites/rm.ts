@@ -1,7 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import {deleteSite} from '../../../api/delete-site';
-import {getRemotionS3Buckets} from '../../../api/get-buckets';
+import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {getSites} from '../../../api/get-sites';
+import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {confirmCli} from '../../helpers/confirm';
 import {quit} from '../../helpers/quit';
@@ -27,33 +28,14 @@ export const sitesRmSubcommand = async (args: string[]) => {
 	});
 
 	for (const siteName of args) {
-		const {remotionBuckets} = await getRemotionS3Buckets(region);
-
-		if (remotionBuckets.length > 1) {
-			Log.error('You have more than one Remotion Lambda bucket:');
-			for (const bucket of remotionBuckets) {
-				Log.error(`- ${bucket.name}`);
-			}
-
-			Log.error(
-				'You should only have one - delete all but one before continuing.'
-			);
-			quit(1);
-		}
-
-		if (remotionBuckets.length === 0) {
-			Log.error(
-				`You don't have a Remotion Lambda bucket in the ${region} region. Therefore nothing was deleted.`
-			);
-			quit(1);
-		}
+		const bucketName =
+			parsedLambdaCli['force-bucket-name'] ??
+			(await getOrCreateBucket({region})).bucketName;
 
 		const site = deployedSites.sites.find((s) => s.id === siteName.trim());
 		if (!site) {
 			Log.error(
-				`No site ${siteName.trim()} was found in your bucket ${
-					remotionBuckets[0].name
-				}.`
+				`No site ${siteName.trim()} was found in your bucket ${bucketName}.`
 			);
 			return quit(1);
 		}
@@ -66,7 +48,7 @@ export const sitesRmSubcommand = async (args: string[]) => {
 		});
 
 		const {totalSizeInBytes: totalSize} = await deleteSite({
-			bucketName: remotionBuckets[0].name,
+			bucketName,
 			siteName,
 			region,
 			onAfterItemDeleted: ({itemName}) => {

@@ -4,8 +4,6 @@ import React from "react";
 export const OverlayIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
   return (
     <svg
-      width="576"
-      height="512"
       viewBox="0 0 576 512"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

@@ -14,6 +14,7 @@ import {Internals} from 'remotion';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {findEntryPoint} from './entry-point';
+import {getResolvedAudioCodec} from './get-audio-codec';
 import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
@@ -51,10 +52,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		Log.error('Documentation: https://www.remotion.dev/docs/render');
 		process.exit(1);
 	}
-
-	const fullPath = RenderInternals.isServeUrl(file)
-		? file
-		: path.join(process.cwd(), file);
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
@@ -114,14 +111,14 @@ export const render = async (remotionRoot: string, args: string[]) => {
 	});
 
 	const steps: RenderStep[] = [
-		RenderInternals.isServeUrl(fullPath) ? null : ('bundling' as const),
+		RenderInternals.isServeUrl(file) ? null : ('bundling' as const),
 		'rendering' as const,
 		shouldOutputImageSequence ? null : ('stitching' as const),
 	].filter(Internals.truthy);
 
 	const {urlOrBundle, cleanup: cleanupBundle} = await bundleOnCliOrTakeServeUrl(
 		{
-			fullPath,
+			fullPath: file,
 			remotionRoot,
 			steps,
 			publicDir,
@@ -181,17 +178,24 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		scale,
 	});
 
+	const audioCodec = getResolvedAudioCodec();
+
 	const relativeOutputLocation = getOutputFilename({
-		codec,
 		imageSequence: shouldOutputImageSequence,
 		compositionName: compositionId,
-		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec),
+		defaultExtension: RenderInternals.getFileExtensionFromCodec(
+			codec,
+			audioCodec
+		),
 		args: argsAfterComposition,
 	});
 
 	Log.info(
 		chalk.gray(
-			`Entry point = ${file} (${entryPointReason}), Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
+			`Entry point = ${path.relative(
+				process.cwd(),
+				file
+			)} (${entryPointReason}), Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
 		)
 	);
 

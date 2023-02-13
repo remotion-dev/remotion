@@ -18,6 +18,7 @@ import {OffthreadRemoteVideo} from './OffthreadRemoteVideo/OffthreadRemoteVideo'
 import {OrbScene} from './Orb';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
+import {ScalePath} from './ScalePath';
 import {Scripts} from './Scripts';
 import CircleTest from './Shapes/CircleTest';
 import EllipseTest from './Shapes/EllipseTest';
@@ -35,6 +36,8 @@ import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
+import {WarpDemo} from './WarpText';
+import {WarpDemo2} from './WarpText/demo2';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -527,6 +530,30 @@ export const Index: React.FC = () => {
 				<Composition
 					id="path-morph"
 					lazyComponent={() => import('./Paths/PathMorph')}
+					durationInFrames={500}
+					fps={30}
+					height={1080}
+					width={1080}
+				/>
+				<Composition
+					id="scale-path"
+					component={ScalePath}
+					durationInFrames={500}
+					fps={30}
+					height={1080}
+					width={1080}
+				/>
+				<Composition
+					id="path-warp"
+					component={WarpDemo}
+					durationInFrames={500}
+					fps={30}
+					height={1080}
+					width={1080}
+				/>
+				<Composition
+					id="path-warp-2"
+					component={WarpDemo2}
 					durationInFrames={500}
 					fps={30}
 					height={1080}

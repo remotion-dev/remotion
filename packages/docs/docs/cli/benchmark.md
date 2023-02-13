@@ -37,6 +37,12 @@ _optional_
 
 Inherited from [`npx remotion render`](/docs/cli/render#--codec)
 
+### `--audio-codec`
+
+_optional_
+
+Inherited from [`npx remotion render`](/docs/cli/render#--audio-codec)
+
 ### `--crf`
 
 _optional_

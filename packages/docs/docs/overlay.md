@@ -15,10 +15,10 @@ If you want to export a Remotion video to use it as an overlay or transition in 
 ```tsx twoslash title="remotion.config.ts"
 import { Config } from "remotion";
 
-Config.Rendering.setImageFormat("png");
-Config.Output.setPixelFormat("yuva444p10le");
-Config.Output.setCodec("prores");
-Config.Output.setProResProfile("4444");
+Config.setImageFormat("png");
+Config.setPixelFormat("yuva444p10le");
+Config.setCodec("prores");
+Config.setProResProfile("4444");
 ```
 
 and trigger the render with

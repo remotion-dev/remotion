@@ -24,7 +24,7 @@ Remotion can support this higher resolution by setting the [`deviceScaleFactor`]
   ```ts twoslash
   import { Config } from "remotion";
   // ---cut---
-  Config.Rendering.setScale(2);
+  Config.setScale(2);
   ```
 
 ## Allowed values

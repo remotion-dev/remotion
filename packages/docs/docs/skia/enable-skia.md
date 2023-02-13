@@ -10,10 +10,14 @@ A function that modifies the default Webpack configuration to make the necessary
 import { Config } from "remotion";
 import { enableSkia } from "@remotion/skia/enable";
 
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+Config.overrideWebpackConfig((currentConfiguration) => {
   return enableSkia(currentConfiguration);
 });
 ```
+
+:::note
+Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
+:::
 
 If you want to make other configuration changes, you can do so by doing them reducer-style:
 
@@ -21,7 +25,7 @@ If you want to make other configuration changes, you can do so by doing them red
 import { Config } from "remotion";
 import { enableSkia } from "@remotion/skia/enable";
 
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+Config.overrideWebpackConfig((currentConfiguration) => {
   const newConfig = enableSkia(currentConfiguration);
 
   return {
@@ -30,5 +34,9 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
   };
 });
 ```
+
+:::note
+Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
+:::
 
 See the [setup](/docs/skia) to see full instructions on how to setup React Native Skia in Remotion.

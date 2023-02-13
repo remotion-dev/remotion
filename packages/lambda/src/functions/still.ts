@@ -31,6 +31,7 @@ import {
 } from './helpers/expected-out-name';
 import {formatCostsInfo} from './helpers/format-costs-info';
 import {getBrowserInstance} from './helpers/get-browser-instance';
+import {executablePath} from './helpers/get-chromium-executable-path';
 import {getCurrentArchitecture} from './helpers/get-current-architecture';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
@@ -68,14 +69,15 @@ const innerStillHandler = async (
 
 	validateDownloadBehavior(lambdaParams.downloadBehavior);
 	validatePrivacy(lambdaParams.privacy);
-	validateOutname(lambdaParams.outName);
+	validateOutname(lambdaParams.outName, null, null);
 
 	const start = Date.now();
 
-	const [{bucketName}, browserInstance] = await Promise.all([
-		getOrCreateBucket({
-			region: getCurrentRegionInFunction(),
-		}),
+	const [bucketName, browserInstance] = await Promise.all([
+		lambdaParams.bucketName ??
+			getOrCreateBucket({
+				region: getCurrentRegionInFunction(),
+			}).then((b) => b.bucketName),
 		getBrowserInstance(
 			RenderInternals.isEqualOrBelowLogLevel(lambdaParams.logLevel, 'verbose'),
 			lambdaParams.chromiumOptions ?? {}
@@ -139,6 +141,7 @@ const innerStillHandler = async (
 		privacy: lambdaParams.privacy,
 		everyNthFrame: 1,
 		frameRange: [lambdaParams.frame, lambdaParams.frame],
+		audioCodec: null,
 	};
 
 	await lambdaWriteFile({
@@ -171,6 +174,7 @@ const innerStillHandler = async (
 		scale: lambdaParams.scale,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 		downloadMap,
+		browserExecutable: executablePath(),
 	});
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
@@ -259,9 +263,13 @@ export const stillHandler = async (
 					Payload: JSON.stringify(retryPayload),
 				})
 			);
-			const {bucketName} = await getOrCreateBucket({
-				region: getCurrentRegionInFunction(),
-			});
+			const bucketName =
+				params.bucketName ??
+				(
+					await getOrCreateBucket({
+						region: getCurrentRegionInFunction(),
+					})
+				).bucketName;
 
 			// `await` elided on purpose here; using `void` to mark it as intentional
 			// eslint-disable-next-line no-void

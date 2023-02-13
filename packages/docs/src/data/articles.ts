@@ -196,6 +196,13 @@ export const articles = [
     crumb: "API",
   },
   {
+    id: "contributing/bounty",
+    title: "Take and solve bounty issues",
+    relativePath: "docs/contributing/bounty.md",
+    compId: "articles-docs-contributing-bounty",
+    crumb: "Contributing",
+  },
+  {
     id: "contributing/docs",
     title: "Contributing to the documentation",
     relativePath: "docs/contributing/docs.md",
@@ -490,6 +497,13 @@ export const articles = [
     crumb: "Lambda",
   },
   {
+    id: "lambda/bucket-naming",
+    title: "Bucket names in Remotion Lambda",
+    relativePath: "docs/lambda/bucket-naming.md",
+    compId: "articles-docs-lambda-bucket-naming",
+    crumb: "@remotion/lambda",
+  },
+  {
     id: "changelog",
     title: "Prerelease Changelog",
     relativePath: "docs/lambda/changelog.md",
@@ -756,6 +770,13 @@ export const articles = [
     crumb: "Lambda",
   },
   {
+    id: "lambda/multiple-buckets",
+    title: "Multiple buckets in Remotion Lambda",
+    relativePath: "docs/lambda/multiple-buckets.md",
+    compId: "articles-docs-lambda-multiple-buckets",
+    crumb: "@remotion/lambda",
+  },
+  {
     id: "lambda/permissions",
     title: "Permissions",
     relativePath: "docs/lambda/permissions.md",
@@ -831,6 +852,13 @@ export const articles = [
     relativePath: "docs/lambda/speed.md",
     compId: "articles-docs-lambda-speed",
     crumb: "Lambda",
+  },
+  {
+    id: "lambda/sqs",
+    title: "Using Lambda with SQS",
+    relativePath: "docs/lambda/sqs.md",
+    compId: "articles-docs-lambda-sqs",
+    crumb: "@remotion/lambda",
   },
   {
     id: "bucket-disallows-acl",
@@ -1185,6 +1213,13 @@ export const articles = [
     crumb: "@remotion/paths",
   },
   {
+    id: "paths/get-bounding-box",
+    title: "getBoundingBox()",
+    relativePath: "docs/paths/get-bounding-box.md",
+    compId: "articles-docs-paths-get-bounding-box",
+    crumb: "@remotion/paths",
+  },
+  {
     id: "paths/get-length",
     title: "getLength()",
     relativePath: "docs/paths/get-length.md",
@@ -1241,6 +1276,27 @@ export const articles = [
     crumb: "@remotion/paths",
   },
   {
+    id: "paths/parse-path",
+    title: "parsePath()",
+    relativePath: "docs/paths/parse-path.md",
+    compId: "articles-docs-paths-parse-path",
+    crumb: "@remotion/paths",
+  },
+  {
+    id: "paths/reduce-instructions",
+    title: "reduceInstructions()",
+    relativePath: "docs/paths/reduce-instructions.md",
+    compId: "articles-docs-paths-reduce-instructions",
+    crumb: "@remotion/paths",
+  },
+  {
+    id: "paths/reset-path",
+    title: "resetPath()",
+    relativePath: "docs/paths/reset-path.md",
+    compId: "articles-docs-paths-reset-path",
+    crumb: "@remotion/paths",
+  },
+  {
     id: "paths/reverse-path",
     title: "reversePath()",
     relativePath: "docs/paths/reverse-path.md",
@@ -1248,10 +1304,31 @@ export const articles = [
     crumb: "@remotion/paths",
   },
   {
+    id: "paths/scale-path",
+    title: "scalePath()",
+    relativePath: "docs/paths/scale-path.md",
+    compId: "articles-docs-paths-scale-path",
+    crumb: "@remotion/paths",
+  },
+  {
+    id: "paths/serialize-instructions",
+    title: "serializeInstructions()",
+    relativePath: "docs/paths/serialize-instructions.md",
+    compId: "articles-docs-paths-serialize-instructions",
+    crumb: "@remotion/paths",
+  },
+  {
     id: "paths/translate-path",
     title: "translatePath()",
     relativePath: "docs/paths/translate-path.md",
     compId: "articles-docs-paths-translate-path",
+    crumb: "@remotion/paths",
+  },
+  {
+    id: "paths/warp-path",
+    title: "warpPath()",
+    relativePath: "docs/paths/warp-path.md",
+    compId: "articles-docs-paths-warp-path",
     crumb: "@remotion/paths",
   },
   {
@@ -1813,6 +1890,13 @@ export const articles = [
     relativePath: "docs/timeout.md",
     compId: "articles-docs-timeout",
     crumb: "Troubleshooting",
+  },
+  {
+    id: "transforms",
+    title: "Transforms",
+    relativePath: "docs/transforms.md",
+    compId: "articles-docs-transforms",
+    crumb: "The fundamentals",
   },
   {
     id: "transparent-videos",
