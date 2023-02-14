@@ -63,9 +63,9 @@ The speed of the animation. A higher number is faster. Default: `1`.
 
 CSS properties to be applied to the `<div>` that contains the animation.
 
-### `onAnimationLoaded`
+### `onAnimationLoaded` <AvailableFrom v="3.2.29" />
 
-_available from v3.2.29, optional_
+_optional_
 
 Callback that gets invoked when the Lottie animation has been initialized. The Lottie [`AnimationItem`](https://airbnb.io/lottie/#/web?id=usage-1) gets passed as a parameter.
 
