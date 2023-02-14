@@ -74,9 +74,9 @@ _Default_: `false`
 
 Determines whether the animation can shoot over the `to` value. If set to true, if the animation goes over `to`, it will just return the value of `to`.
 
-### durationInFrames
+### durationInFrames <AvailableFrom v="3.0.27" />
 
-_Available from v3.0.27 - optional_
+_optional_
 
 Stretches the animation curve so it is exactly as long as you specify.
 
@@ -96,9 +96,9 @@ const value = spring({
 });
 ```
 
-## `durationRestThreshold`
+## `durationRestThreshold` <AvailableFrom v="3.0.27" />
 
-_Available from v3.0.27 - optional_
+_optional_
 
 How close the animation should be to the end in order to be considered finished for the calculation of the duration. Only has an effect if `durationInFrames` is also specified.
 
