@@ -91,8 +91,7 @@ cd packages/player-example
 pnpm start
 ```
 
-For information about testing, please consult [TESTING.md](Issues and pull requests of all sorts are welcome!
-).
+For information about testing, please consult [TESTING.md](/TESTING.md). Issues and pull requests of all sorts are welcome!
 
 ## Running documentation
 
