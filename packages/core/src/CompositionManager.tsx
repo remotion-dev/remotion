@@ -5,6 +5,7 @@ import React, {
 	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import type {TFolder} from './Folder';
@@ -134,6 +135,7 @@ export const CompositionManagerProvider: React.FC<{
 	// Wontfix, expected to have
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [compositions, setCompositions] = useState<TComposition<any>[]>([]);
+	const currentcompositionsRef = useRef<TComposition<unknown>[]>(compositions);
 	const [currentComposition, setCurrentComposition] = useState<string | null>(
 		null
 	);
@@ -145,17 +147,32 @@ export const CompositionManagerProvider: React.FC<{
 	const [currentCompositionMetadata, setCurrentCompositionMetadata] =
 		useState<BaseMetadata | null>(null);
 
-	const registerComposition = useCallback(<T,>(comp: TComposition<T>) => {
-		setCompositions((comps) => {
-			if (comps.find((c) => c.id === comp.id)) {
-				throw new Error(
-					`Multiple composition with id ${comp.id} are registered.`
-				);
-			}
+	const updateCompositions = useCallback(
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		(updateComps: (comp: TComposition<any>[]) => TComposition<any>[]) => {
+			setCompositions((comps) => {
+				const updated = updateComps(comps);
+				currentcompositionsRef.current = updated;
+				return updated;
+			});
+		},
+		[]
+	);
 
-			return [...comps, comp].slice().sort((a, b) => a.nonce - b.nonce);
-		});
-	}, []);
+	const registerComposition = useCallback(
+		<T,>(comp: TComposition<T>) => {
+			updateCompositions((comps) => {
+				if (comps.find((c) => c.id === comp.id)) {
+					throw new Error(
+						`Multiple composition with id ${comp.id} are registered.`
+					);
+				}
+
+				return [...comps, comp].slice().sort((a, b) => a.nonce - b.nonce);
+			});
+		},
+		[updateCompositions]
+	);
 
 	const registerSequence = useCallback((seq: TSequence) => {
 		setSequences((seqs) => {
@@ -221,10 +238,10 @@ export const CompositionManagerProvider: React.FC<{
 		compositionsRef,
 		() => {
 			return {
-				getCompositions: () => compositions,
+				getCompositions: () => currentcompositionsRef.current,
 			};
 		},
-		[compositions]
+		[]
 	);
 
 	const contextValue = useMemo((): CompositionManagerContext => {
