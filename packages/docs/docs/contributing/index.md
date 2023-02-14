@@ -91,8 +91,7 @@ cd packages/player-example
 pnpm start
 ```
 
-For information about testing, please consult [TESTING.md](Issues and pull requests of all sorts are welcome!
-).
+For information about testing, please consult [TESTING.md](https://github.com/remotion-dev/remotion/blob/main/TESTING.md). Issues and pull requests of all sorts are welcome!
 
 ## Running documentation
 
