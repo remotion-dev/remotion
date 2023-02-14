@@ -68,7 +68,7 @@ import { Img, staticFile, useCurrentFrame } from "remotion";
 const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
 
-  return <Img src={staticFile(`/${frame}.png`)} />;
+  return <Img src={staticFile(`/frame${frame}.png`)} />;
 };
 ```
 
