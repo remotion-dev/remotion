@@ -33,9 +33,9 @@ Inline JSON string isn't supported on Windows because it removes the `"` charact
 
 Specify a location for the Remotion config file.
 
-### `--env-file`
+### `--env-file` <AvailableFrom v="2.2.0" />
 
-Specify a location for a dotenv file. Default `.env`. Available in v2.2 and later.
+Specify a location for a dotenv file. Default `.env`.
 
 ### `--bundle-cache`
 
@@ -53,9 +53,7 @@ If you don't feel like passing command line flags every time, consider creating 
 
 [Set a custom HTTP server port to host the Webpack bundle](/docs/config#setPort). If not defined, Remotion will try to find a free port.
 
-### `--public-dir`
-
-_Available from v3.2.13_
+### `--public-dir` <AvailableFrom v="3.2.13" />
 
 [Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
 

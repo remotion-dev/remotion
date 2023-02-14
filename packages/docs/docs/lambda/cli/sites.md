@@ -64,9 +64,7 @@ Uploads the project to a specific directory and returns a deterministic URL. If 
 npx remotion lambda sites create src/index.ts --site-name=my-project
 ```
 
-### `--force-bucket-name`
-
-_available from v3.3.42_
+### `--force-bucket-name` <AvailableFrom v="3.3.42" />
 
 Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
 
@@ -201,9 +199,7 @@ Removes a site without asking for confirmation.
 npx remotion lambda sites rm abcdef -y
 ```
 
-### `--force-bucket-name`
-
-_available from v3.3.42_
+### `--force-bucket-name` <AvailableFrom v="3.3.42" />
 
 Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
 
@@ -280,8 +276,6 @@ Removes all sites without asking for confirmation.
 npx remotion lambda sites rmall -y
 ```
 
-### `--force-bucket-name`
-
-_available from v3.3.42_
+### `--force-bucket-name` <AvailableFrom v="3.3.42" />
 
 Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
