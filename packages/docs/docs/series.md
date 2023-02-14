@@ -79,9 +79,9 @@ _optional, available from v3.3.4_
 
 CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
 
-### `ref`
+### `ref` <AvailableFrom v="3.3.4" />
 
-_optional, available from v3.3.4_
+_optional_
 
 You can add a [React ref](https://reactjs.org/docs/refs-and-the-dom.html) to a `<Series.Sequence>`. If you use TypeScript, you need to type it with `HTMLDivElement`:
 
