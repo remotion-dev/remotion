@@ -45,16 +45,12 @@ The props [`volume`](/docs/video#volume), [`playbackRate`](/docs/video#playbackr
 
 The props [`onError`](/docs/img#onerror), `className` and `style` are supported and get passed to the underlying HTML element. Remember that during render, this is a `<img>` element, and during preview, this is a `<video>` element.
 
-### `imageFormat`
-
-_Available since v3.0.22_
+### `imageFormat` <AvailableFrom v="3.0.22" />
 
 Either `jpeg` or `png`. Default `jpeg`.  
 With `png`, transparent videos (VP8, VP9, ProRes) can be displayed, however it is around 40% slower, with VP8 videos being [much slower](/docs/slow-method-to-extract-frame).
 
-## `allowAmplificationDuringRender`
-
-_Available from v3.3.17_
+## `allowAmplificationDuringRender` <AvailableFrom v="3.3.17" />
 
 Make values for [`volume`](/docs/video#volume) greater than `1` result in amplification during renders.  
 During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
