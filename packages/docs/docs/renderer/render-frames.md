@@ -93,9 +93,9 @@ A `number` specifying how many render processes should be started in parallel, a
 
 Renamed to `concurrency` in v3.2.17.
 
-### `scale?`
+### `scale?` <AvailableFrom v="2.6.7" />
 
-_number - default: 1 - available from v2.6.7_
+_number - default: 1_
 
 [Scales the output frames by the factor you pass in.](/docs/scaling) For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details.
 
@@ -113,9 +113,9 @@ _optional_
 
 Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
 
-### `muted`
+### `muted` <AvailableFrom v="3.2.1" />
 
-_optional, available since v3.2.1_
+_optional_
 
 Disables audio output. This option may only be set in combination with a video codec and should also be passed to [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video).
 
@@ -131,15 +131,15 @@ _optional_
 
 An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
 
-### `envVariables?`
+### `envVariables?` <AvailableFrom v="2.2.0" />
 
-_optional - Available since v2.2.0_
+_optional_
 
 An object containing key-value pairs of environment variables which will be injected into your Remotion projected and which can be accessed by reading the global `process.env` object.
 
-### `onBrowserLog?`
+### `onBrowserLog?` <AvailableFrom v="3.0.0" />
 
-_optional - Available since v3.0.0_
+_optional_
 
 Gets called when your project calls `console.log` or another method from console. A browser log has three properties:
 
@@ -209,51 +209,51 @@ renderFrames({
 });
 ```
 
-### `ffmpegExecutable?`
+### `ffmpegExecutable?` <AvailableFrom v="3.0.11" />
 
-_optional, available from v3.0.11_
+_optional_
 
 An absolute path overriding the `ffmpeg` executable to use.
 
-### `ffprobeExecutable?`
+### `ffprobeExecutable?` <AvailableFrom v="3.0.17" />
 
-_optional, available from v3.0.17_
+_optional_
 
 An absolute path overriding the `ffprobe` executable to use.
 
-### `browserExecutable?`
+### `browserExecutable?` <AvailableFrom v="3.0.11" />
 
-_optional, available from v3.0.11_
+_optional_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
 
-### `cancelSignal?`
+### `cancelSignal?` <AvailableFrom v="3.0.15" />
 
-_optional, available from v3.0.15_
+_optional_
 
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
-### `onFrameBuffer?`
+### `onFrameBuffer?` <AvailableFrom v="3.0.0" />
 
-_optional, available from 3.0_
+_optional_
 
 If you passed `null` to `outputDir`, this method will be called passing a buffer of the current frame. This is mostly used internally by Remotion to implement [`renderMedia()`](/docs/renderer/render-media) and might have limited usefulness for end users.
 
-### `timeoutInMilliseconds?`
+### `timeoutInMilliseconds?` <AvailableFrom v="2.6.3" />
 
-_optional, available from v2.6.3_
+_optional_
 
 A number describing how long one frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before the [render times out and fails(/docs/timeout). Default: `30000`
 
-### `everyNthFrame`
+### `everyNthFrame` <AvailableFrom v="3.1.0" />
 
-_optional, available from v3.1_
+_optional_
 
 Renders only every nth frame. For example only every second frame, every third frame and so on. Only meant for rendering GIFs. [See here for more details.](/docs/render-as-gif)
 
-### `chromiumOptions?`
+### `chromiumOptions?` <AvailableFrom v="2.6.5" />
 
-_optional, available from v2.6.5_
+_optional_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
