@@ -8,7 +8,7 @@ crumb: "How to"
 
 By invoking `cancelRender()`, Remotion will stop rendering all the frames, and not do any retries.
 
-Pass a `string` or a `Error` (for best stack traces) to `cancelRender()` so you can identify the error when your render failed.
+Pass a `string` or an `Error` (for best stack traces) to `cancelRender()` so you can identify the error when your render failed.
 
 ## Example
 
