@@ -36,11 +36,11 @@ test("Legacy SSR way of rendering videos should still work", async () => {
   const outPath = path.join(tmpDir, "out.mp4");
 
   const { assetsInfo } = await renderFrames({
-    config: reactSvg,
+    composition: reactSvg,
     imageFormat: "jpeg",
     inputProps: {},
     onFrameUpdate: () => undefined,
-    webpackBundle: "https://gleaming-wisp-de5d2a.netlify.app/",
+    serveUrl: "https://gleaming-wisp-de5d2a.netlify.app/",
     concurrency: null,
     frameRange: [0, 10],
     outputDir: framesDir,
