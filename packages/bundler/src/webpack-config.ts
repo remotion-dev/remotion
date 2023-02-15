@@ -1,11 +1,11 @@
 import {createHash} from 'crypto';
 import ReactDOM from 'react-dom';
-import type {WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import {Internals} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
 import type {LoaderOptions} from './esbuild-loader/interfaces';
 import {ReactFreshWebpackPlugin} from './fast-refresh';
 import {jsonStringifyWithCircularReferences} from './stringify-with-circular-references';
+import type {WebpackConfiguration, WebpackOverrideFn} from './types';
 import {getWebpackCacheName} from './webpack-cache';
 import esbuild = require('esbuild');
 

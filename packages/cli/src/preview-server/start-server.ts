@@ -1,11 +1,10 @@
+import type { WebpackOverrideFn} from '@remotion/bundler';
 import {BundlerInternals, webpack} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import http from 'http';
 import os from 'os';
 import path from 'path';
-// eslint-disable-next-line no-restricted-imports
-import type {WebpackOverrideFn} from 'remotion';
 import {ConfigInternals} from '../config';
 import {Log} from '../log';
 import {wdm} from './dev-middleware';

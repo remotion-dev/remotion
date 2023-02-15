@@ -21,6 +21,7 @@ importers:
       '@babel/preset-react': 7.14.5
       '@babel/preset-typescript': 7.15.0
       '@jonny/eslint-config': 3.0.266
+      '@remotion/bundler': 3.3.44
       '@types/node': ^16.7.5
       '@webhotelier/webpack-fast-refresh': 5.1.0
       babel-loader: 8.2.2
@@ -43,6 +44,7 @@ importers:
       webpack: 5.74.0
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
+      '@remotion/bundler': link:../bundler
       '@types/node': 16.10.2
       eslint: 8.25.0
       prettier: 2.7.1
@@ -210,7 +212,6 @@ importers:
       rimraf: ^3.0.2
       typescript: ^4.7.0
       vitest: 0.24.3
-      webpack: 5.74.0
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
       '@testing-library/react': 13.3.0_zpnidt7m3osuk7shl3s4oenomq
@@ -229,7 +230,6 @@ importers:
       rimraf: 3.0.2
       typescript: 4.7.2
       vitest: 0.24.3_jsdom@20.0.1
-      webpack: 5.74.0
 
   packages/create-video:
     specifiers:
@@ -984,6 +984,7 @@ importers:
   packages/skia:
     specifiers:
       '@jonny/eslint-config': 3.0.266
+      '@remotion/bundler': 3.3.44
       '@shopify/react-native-skia': ^0.1.139
       '@types/react': 18.0.26
       '@types/react-native': ^0.69.2
@@ -1000,6 +1001,7 @@ importers:
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
+      '@remotion/bundler': link:../bundler
       '@shopify/react-native-skia': 0.1.139_rlxvagb2l2jceoxbyljoesn5oa
       '@types/react': 18.0.26
       '@types/react-native': 0.69.2

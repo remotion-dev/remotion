@@ -4,11 +4,6 @@
  */
 
 type Concurrency = number | null;
-import type {Configuration} from 'webpack';
-type WebpackConfiguration = Configuration;
-type WebpackOverrideFn = (
-	currentConfiguration: WebpackConfiguration
-) => WebpackConfiguration;
 type BrowserExecutable = string | null;
 type FrameRange = number | [number, number];
 type FfmpegExecutable = string | null;
@@ -28,12 +23,12 @@ type CodecOrUndefined =
 type Crf = number | undefined;
 
 // New config format: Add new options only here.
-type FlatConfig = ObjectConfig['Bundling'] &
-	ObjectConfig['Log'] &
-	ObjectConfig['Preview'] &
-	ObjectConfig['Puppeteer'] &
-	ObjectConfig['Output'] &
-	ObjectConfig['Rendering'] & {
+type FlatConfig = RemotionConfigObject['Bundling'] &
+	RemotionConfigObject['Log'] &
+	RemotionConfigObject['Preview'] &
+	RemotionConfigObject['Puppeteer'] &
+	RemotionConfigObject['Output'] &
+	RemotionConfigObject['Rendering'] & {
 		/**
 		 * Set the audio codec to use for the output video.
 		 * See the Encoding guide in the docs for defaults and available options.
@@ -41,59 +36,14 @@ type FlatConfig = ObjectConfig['Bundling'] &
 		setAudioCodec: (codec: 'pcm-16' | 'aac' | 'mp3' | 'opus') => void;
 	};
 
-// Legacy config format: New options to not need to be added here.
-type ObjectConfig = {
-	/**
-	 * @deprecated New flat config format: You can now replace `Config.Preview.` with `Config.`
-	 */
-	readonly Preview: {
-		/**
-		 * Change the maximum amount of tracks that are shown in the timeline.
-		 * @param maxTracks The maximum amount of timeline tracks that you would like to show.
-		 * @default 15
-		 */
-		readonly setMaxTimelineTracks: (maxTracks: number) => void;
-		/**
-		 * Enable Keyboard shortcuts in the Remotion Preview.
-		 * @param enabled Boolean whether to enable the keyboard shortcuts
-		 * @default true
-		 */
-		readonly setKeyboardShortcutsEnabled: (enableShortcuts: boolean) => void;
-		/**
-		 * Set number of shared audio tags. https://www.remotion.dev/docs/player/autoplay#use-the-numberofsharedaudiotags-property
-		 * @param numberOfAudioTags
-		 * @default 0
-		 */
-		readonly setNumberOfSharedAudioTags: (numberOfAudioTags: number) => void;
-		/**
-		 * Enable Webpack polling instead of file system listeners for hot reloading in the preview.
-		 * This is useful if you are using a remote directory or a virtual machine.
-		 * @param interval
-		 * @default null
-		 */
-		readonly setWebpackPollingInMilliseconds: (interval: number | null) => void;
-		/**
-		 * Whether Remotion should open a browser when starting the Preview.
-		 * @param should
-		 * @default true
-		 */
-		readonly setShouldOpenBrowser: (should: boolean) => void;
-	};
-	/**
-	 * @deprecated New flat config format: You can now replace `Config.Bundling.` with `Config.`
-	 */
-	readonly Bundling: {
+declare global {
+	interface RemotionBundlingOptions {
 		/**
 		 * Specify the entry point so you don't have to specify it in the
 		 * CLI command
 		 */
 		readonly setEntryPoint: (src: string) => void;
-		/**
-		 * Pass in a function which takes the current Webpack config
-		 * and return a modified Webpack configuration.
-		 * Docs: http://remotion.dev/docs/webpack
-		 */
-		readonly overrideWebpackConfig: (fn: WebpackOverrideFn) => void;
+
 		/**
 		 * Whether Webpack bundles should be cached to make
 		 * subsequent renders faster. Default: true
@@ -111,238 +61,285 @@ type ObjectConfig = {
 		 * You can set an absolute path or a relative path that will be resolved from the closest package.json location.
 		 */
 		readonly setPublicDir: (publicDir: string | null) => void;
-	};
-	/**
-	 * @deprecated New flat config format: You can now replace `Config.Log.` with `Config.`
-	 */
-	readonly Log: {
+	}
+	// Legacy config format: New options to not need to be added here.
+	interface RemotionConfigObject {
 		/**
-		 * Set the log level.
-		 * Acceptable values: 'error' | 'warning' | 'info' | 'verbose'
-		 * Default value: 'info'
-		 *
-		 * Set this to 'verbose' to get browser logs and other IO.
+		 * @deprecated New flat config format: You can now replace `Config.Preview.` with `Config.`
 		 */
-		readonly setLevel: (
-			newLogLevel: 'verbose' | 'info' | 'warn' | 'error'
-		) => void;
-	};
-	/**
-	 * @deprecated New flat config format: You can now replace `Config.Puppeteer.` with `Config.`
-	 */
-	readonly Puppeteer: {
+		readonly Preview: {
+			/**
+			 * Change the maximum amount of tracks that are shown in the timeline.
+			 * @param maxTracks The maximum amount of timeline tracks that you would like to show.
+			 * @default 15
+			 */
+			readonly setMaxTimelineTracks: (maxTracks: number) => void;
+			/**
+			 * Enable Keyboard shortcuts in the Remotion Preview.
+			 * @param enabled Boolean whether to enable the keyboard shortcuts
+			 * @default true
+			 */
+			readonly setKeyboardShortcutsEnabled: (enableShortcuts: boolean) => void;
+			/**
+			 * Set number of shared audio tags. https://www.remotion.dev/docs/player/autoplay#use-the-numberofsharedaudiotags-property
+			 * @param numberOfAudioTags
+			 * @default 0
+			 */
+			readonly setNumberOfSharedAudioTags: (numberOfAudioTags: number) => void;
+			/**
+			 * Enable Webpack polling instead of file system listeners for hot reloading in the preview.
+			 * This is useful if you are using a remote directory or a virtual machine.
+			 * @param interval
+			 * @default null
+			 */
+			readonly setWebpackPollingInMilliseconds: (
+				interval: number | null
+			) => void;
+			/**
+			 * Whether Remotion should open a browser when starting the Preview.
+			 * @param should
+			 * @default true
+			 */
+			readonly setShouldOpenBrowser: (should: boolean) => void;
+		};
 		/**
-		 * Specify executable path for the browser to use.
-		 * Default: null, which will make Remotion find or download a version of said browser.
+		 * @deprecated New flat config format: You can now replace `Config.Bundling.` with `Config.`
 		 */
-		readonly setBrowserExecutable: (
-			newBrowserExecutablePath: BrowserExecutable
-		) => void;
+		readonly Bundling: RemotionBundlingOptions;
 		/**
-		 * Set how many milliseconds a frame may take to render before it times out.
-		 * Default: `30000`
+		 * @deprecated New flat config format: You can now replace `Config.Log.` with `Config.`
 		 */
-		readonly setDelayRenderTimeoutInMilliseconds: (
-			newPuppeteerTimeout: number
-		) => void;
+		readonly Log: {
+			/**
+			 * Set the log level.
+			 * Acceptable values: 'error' | 'warning' | 'info' | 'verbose'
+			 * Default value: 'info'
+			 *
+			 * Set this to 'verbose' to get browser logs and other IO.
+			 */
+			readonly setLevel: (
+				newLogLevel: 'verbose' | 'info' | 'warn' | 'error'
+			) => void;
+		};
 		/**
-		 * @deprecated Renamed to `setDelayRenderTimeoutInMilliseconds`.
-		 * Set how many milliseconds a frame may take to render before it times out.
-		 * Default: `30000`
+		 * @deprecated New flat config format: You can now replace `Config.Puppeteer.` with `Config.`
 		 */
-		readonly setTimeoutInMilliseconds: (newPuppeteerTimeout: number) => void;
+		readonly Puppeteer: {
+			/**
+			 * Specify executable path for the browser to use.
+			 * Default: null, which will make Remotion find or download a version of said browser.
+			 */
+			readonly setBrowserExecutable: (
+				newBrowserExecutablePath: BrowserExecutable
+			) => void;
+			/**
+			 * Set how many milliseconds a frame may take to render before it times out.
+			 * Default: `30000`
+			 */
+			readonly setDelayRenderTimeoutInMilliseconds: (
+				newPuppeteerTimeout: number
+			) => void;
+			/**
+			 * @deprecated Renamed to `setDelayRenderTimeoutInMilliseconds`.
+			 * Set how many milliseconds a frame may take to render before it times out.
+			 * Default: `30000`
+			 */
+			readonly setTimeoutInMilliseconds: (newPuppeteerTimeout: number) => void;
+			/**
+			 * Setting deciding whether to disable CORS and other Chrome security features.
+			 * Default: false
+			 */
+			readonly setChromiumDisableWebSecurity: (should: boolean) => void;
+			/**
+			 * Setting whether to ignore any invalid SSL certificates, such as self-signed ones.
+			 * Default: false
+			 */
+			readonly setChromiumIgnoreCertificateErrors: (should: boolean) => void;
+			/**
+			 * If false, will open an actual browser during rendering to observe progress.
+			 * Default: true
+			 */
+			readonly setChromiumHeadlessMode: (should: boolean) => void;
+			/**
+			 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle', 'swiftshader' and 'swangle'.
+			 * Default: 'swangle' in Lambda, null elsewhere.
+			 */
+			readonly setChromiumOpenGlRenderer: (
+				renderer: 'swangle' | 'angle' | 'egl' | 'swiftshader'
+			) => void;
+		};
 		/**
-		 * Setting deciding whether to disable CORS and other Chrome security features.
-		 * Default: false
+		 * @deprecated New flat config format: You can now replace `Config.Rendering.` with `Config.`
 		 */
-		readonly setChromiumDisableWebSecurity: (should: boolean) => void;
+		readonly Rendering: {
+			/**
+			 * Set a custom location for a .env file.
+			 * Default: `.env`
+			 */
+			readonly setDotEnvLocation: (file: string) => void;
+			/**
+			 * Sets how many Puppeteer instances will work on rendering your video in parallel.
+			 * Default: `null`, meaning half of the threads available on your CPU.
+			 */
+			readonly setConcurrency: (newConcurrency: Concurrency) => void;
+			/**
+			 * Set the JPEG quality for the frames.
+			 * Must be between 0 and 100.
+			 * Must be between 0 and 100.
+			 * Default: 80
+			 */
+			readonly setQuality: (q: number | undefined) => void;
+			/** Decide in which image format to render. Can be either 'jpeg' or 'png'.
+			 * PNG is slower, but supports transparency.
+			 */
+			readonly setImageFormat: (format: 'png' | 'jpeg' | 'none') => void;
+			/**
+			 * Render only a subset of a video.
+			 * Pass in a tuple [20, 30] to only render frames 20-30 into a video.
+			 * Pass in a single number `20` to only render a single frame as an image.
+			 * The frame count starts at 0.
+			 */
+			readonly setFrameRange: (newFrameRange: FrameRange | null) => void;
+			/**
+			 * Specify local ffmpeg executable.
+			 * Default: null, which will use ffmpeg available in PATH.
+			 */
+			readonly setFfmpegExecutable: (ffmpegPath: FfmpegExecutable) => void;
+			/**
+			 * Specify local ffprobe executable.
+			 * Default: null, which will use ffprobe available in PATH.
+			 */
+			readonly setFfprobeExecutable: (ffprobePath: FfmpegExecutable) => void;
+			/**
+			 * Scales the output dimensions by a factor.
+			 * Default: 1.
+			 */
+			readonly setScale: (newScale: number) => void;
+			/**
+			 * Specify which frames should be picked for rendering a GIF
+			 * Default: 1, which means every frame
+			 * https://remotion.dev/docs/render-as-gif
+			 */
+			readonly setEveryNthFrame: (frame: number) => void;
+			/**
+			 * Specify the number of Loop a GIF should have.
+			 * Default: null (means GIF will loop infinite)
+			 */
+			readonly setNumberOfGifLoops: (newLoop: Loop) => void;
+			/**
+			 * Disable audio output.
+			 * Default: false
+			 */
+			readonly setMuted: (muted: boolean) => void;
+			/**
+			 * Don't render an audio track if it would be silent.
+			 * Default: true
+			 */
+			readonly setEnforceAudioTrack: (enforceAudioTrack: boolean) => void;
+		};
 		/**
-		 * Setting whether to ignore any invalid SSL certificates, such as self-signed ones.
-		 * Default: false
+		 * @deprecated New flat config format: You can now replace `Config.Output.` with `Config.`
 		 */
-		readonly setChromiumIgnoreCertificateErrors: (should: boolean) => void;
-		/**
-		 * If false, will open an actual browser during rendering to observe progress.
-		 * Default: true
-		 */
-		readonly setChromiumHeadlessMode: (should: boolean) => void;
-		/**
-		 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle', 'swiftshader' and 'swangle'.
-		 * Default: 'swangle' in Lambda, null elsewhere.
-		 */
-		readonly setChromiumOpenGlRenderer: (
-			renderer: 'swangle' | 'angle' | 'egl' | 'swiftshader'
-		) => void;
-	};
-	/**
-	 * @deprecated New flat config format: You can now replace `Config.Rendering.` with `Config.`
-	 */
-	readonly Rendering: {
-		/**
-		 * Set a custom location for a .env file.
-		 * Default: `.env`
-		 */
-		readonly setDotEnvLocation: (file: string) => void;
-		/**
-		 * Sets how many Puppeteer instances will work on rendering your video in parallel.
-		 * Default: `null`, meaning half of the threads available on your CPU.
-		 */
-		readonly setConcurrency: (newConcurrency: Concurrency) => void;
-		/**
-		 * Set the JPEG quality for the frames.
-		 * Must be between 0 and 100.
-		 * Must be between 0 and 100.
-		 * Default: 80
-		 */
-		readonly setQuality: (q: number | undefined) => void;
-		/** Decide in which image format to render. Can be either 'jpeg' or 'png'.
-		 * PNG is slower, but supports transparency.
-		 */
-		readonly setImageFormat: (format: 'png' | 'jpeg' | 'none') => void;
-		/**
-		 * Render only a subset of a video.
-		 * Pass in a tuple [20, 30] to only render frames 20-30 into a video.
-		 * Pass in a single number `20` to only render a single frame as an image.
-		 * The frame count starts at 0.
-		 */
-		readonly setFrameRange: (newFrameRange: FrameRange | null) => void;
-		/**
-		 * Specify local ffmpeg executable.
-		 * Default: null, which will use ffmpeg available in PATH.
-		 */
-		readonly setFfmpegExecutable: (ffmpegPath: FfmpegExecutable) => void;
-		/**
-		 * Specify local ffprobe executable.
-		 * Default: null, which will use ffprobe available in PATH.
-		 */
-		readonly setFfprobeExecutable: (ffprobePath: FfmpegExecutable) => void;
-		/**
-		 * Scales the output dimensions by a factor.
-		 * Default: 1.
-		 */
-		readonly setScale: (newScale: number) => void;
-		/**
-		 * Specify which frames should be picked for rendering a GIF
-		 * Default: 1, which means every frame
-		 * https://remotion.dev/docs/render-as-gif
-		 */
-		readonly setEveryNthFrame: (frame: number) => void;
-		/**
-		 * Specify the number of Loop a GIF should have.
-		 * Default: null (means GIF will loop infinite)
-		 */
-		readonly setNumberOfGifLoops: (newLoop: Loop) => void;
-		/**
-		 * Disable audio output.
-		 * Default: false
-		 */
-		readonly setMuted: (muted: boolean) => void;
-		/**
-		 * Don't render an audio track if it would be silent.
-		 * Default: true
-		 */
-		readonly setEnforceAudioTrack: (enforceAudioTrack: boolean) => void;
-	};
-	/**
-	 * @deprecated New flat config format: You can now replace `Config.Output.` with `Config.`
-	 */
-	readonly Output: {
-		/**
-		 * Set the output file location string. Default: `out/{composition}.{codec}`
-		 */
-		readonly setOutputLocation: (newOutputLocation: string) => void;
-		/**
-		 * If the video file already exists, should Remotion overwrite
-		 * the output? Default: true
-		 */
-		readonly setOverwriteOutput: (newOverwrite: boolean) => void;
-		/**
-		 * Sets the pixel format in FFMPEG.
-		 * See https://trac.ffmpeg.org/wiki/Chroma%20Subsampling for an explanation.
-		 * You can override this using the `--pixel-format` Cli flag.
-		 */
-		readonly setPixelFormat: (
-			format:
-				| 'yuv420p'
-				| 'yuva420p'
-				| 'yuv422p'
-				| 'yuv444p'
-				| 'yuv420p10le'
-				| 'yuv422p10le'
-				| 'yuv444p10le'
-				| 'yuva444p10le'
-		) => void;
-		/**
-		 * @deprecated Use setCodec() and setImageSequence() instead.
-		 * Specify what kind of output you, either `mp4` or `png-sequence`.
-		 */
-		readonly setOutputFormat: (newLegacyFormat: 'mp4' | 'png-sequence') => void;
-		/**
-		 * Specify the codec for stitching the frames into a video.
-		 * Can be `h264` (default), `h265`, `vp8` or `vp9`
-		 */
-		readonly setCodec: (newCodec: CodecOrUndefined) => void;
-		/**
-		 * Set the Constant Rate Factor to pass to FFMPEG.
-		 * Lower values mean better quality, but be aware that the ranges of
-		 * possible values greatly differs between codecs.
-		 */
-		readonly setCrf: (newCrf: Crf) => void;
-		/**
-		 * Set to true if don't want a video but an image sequence as the output.
-		 */
-		readonly setImageSequence: (newImageSequence: boolean) => void;
-		/**
-		 * Overrides the height of a composition
-		 */
-		readonly overrideHeight: (newHeight: number) => void;
-		/**
-		 * Overrides the width of a composition
-		 */
-		readonly overrideWidth: (newWidth: number) => void;
-		/**
-		 * Set the ProRes profile.
-		 * This method is only valid if the codec has been set to 'prores'.
-		 * Possible values: 4444-xq, 4444, hq, standard, light, proxy. Default: 'hq'
-		 * See https://avpres.net/FFmpeg/im_ProRes.html for meaning of possible values.
-		 */
-		readonly setProResProfile: (
-			profile:
-				| '4444-xq'
-				| '4444'
-				| 'hq'
-				| 'standard'
-				| 'light'
-				| 'proxy'
-				| undefined
-		) => void;
-		/**
-		 * Override the arguments that Remotion passes to FFMPEG.
-		 * Consult https://remotion.dev/docs/renderer/render-media#ffmpegoverride before using this feature.
-		 */
-		readonly overrideFfmpegCommand: (
-			command: (info: {
-				type: 'pre-stitcher' | 'stitcher';
-				args: string[];
-			}) => string[]
-		) => void;
+		readonly Output: {
+			/**
+			 * Set the output file location string. Default: `out/{composition}.{codec}`
+			 */
+			readonly setOutputLocation: (newOutputLocation: string) => void;
+			/**
+			 * If the video file already exists, should Remotion overwrite
+			 * the output? Default: true
+			 */
+			readonly setOverwriteOutput: (newOverwrite: boolean) => void;
+			/**
+			 * Sets the pixel format in FFMPEG.
+			 * See https://trac.ffmpeg.org/wiki/Chroma%20Subsampling for an explanation.
+			 * You can override this using the `--pixel-format` Cli flag.
+			 */
+			readonly setPixelFormat: (
+				format:
+					| 'yuv420p'
+					| 'yuva420p'
+					| 'yuv422p'
+					| 'yuv444p'
+					| 'yuv420p10le'
+					| 'yuv422p10le'
+					| 'yuv444p10le'
+					| 'yuva444p10le'
+			) => void;
+			/**
+			 * @deprecated Use setCodec() and setImageSequence() instead.
+			 * Specify what kind of output you, either `mp4` or `png-sequence`.
+			 */
+			readonly setOutputFormat: (
+				newLegacyFormat: 'mp4' | 'png-sequence'
+			) => void;
+			/**
+			 * Specify the codec for stitching the frames into a video.
+			 * Can be `h264` (default), `h265`, `vp8` or `vp9`
+			 */
+			readonly setCodec: (newCodec: CodecOrUndefined) => void;
+			/**
+			 * Set the Constant Rate Factor to pass to FFMPEG.
+			 * Lower values mean better quality, but be aware that the ranges of
+			 * possible values greatly differs between codecs.
+			 */
+			readonly setCrf: (newCrf: Crf) => void;
+			/**
+			 * Set to true if don't want a video but an image sequence as the output.
+			 */
+			readonly setImageSequence: (newImageSequence: boolean) => void;
+			/**
+			 * Overrides the height of a composition
+			 */
+			readonly overrideHeight: (newHeight: number) => void;
+			/**
+			 * Overrides the width of a composition
+			 */
+			readonly overrideWidth: (newWidth: number) => void;
+			/**
+			 * Set the ProRes profile.
+			 * This method is only valid if the codec has been set to 'prores'.
+			 * Possible values: 4444-xq, 4444, hq, standard, light, proxy. Default: 'hq'
+			 * See https://avpres.net/FFmpeg/im_ProRes.html for meaning of possible values.
+			 */
+			readonly setProResProfile: (
+				profile:
+					| '4444-xq'
+					| '4444'
+					| 'hq'
+					| 'standard'
+					| 'light'
+					| 'proxy'
+					| undefined
+			) => void;
+			/**
+			 * Override the arguments that Remotion passes to FFMPEG.
+			 * Consult https://remotion.dev/docs/renderer/render-media#ffmpegoverride before using this feature.
+			 */
+			readonly overrideFfmpegCommand: (
+				command: (info: {
+					type: 'pre-stitcher' | 'stitcher';
+					args: string[];
+				}) => string[]
+			) => void;
 
-		/**
-		 * Set a target audio bitrate to be passed to FFMPEG.
-		 */
-		readonly setAudioBitrate: (bitrate: string | null) => void;
+			/**
+			 * Set a target audio bitrate to be passed to FFMPEG.
+			 */
+			readonly setAudioBitrate: (bitrate: string | null) => void;
 
-		/**
-		 * Set a target video bitrate to be passed to FFMPEG.
-		 * Mutually exclusive with setCrf().
-		 */
-		readonly setVideoBitrate: (bitrate: string | null) => void;
-	};
-};
+			/**
+			 * Set a target video bitrate to be passed to FFMPEG.
+			 * Mutually exclusive with setCrf().
+			 */
+			readonly setVideoBitrate: (bitrate: string | null) => void;
+		};
+	}
+}
 
-export type ConfigType = ObjectConfig & FlatConfig;
+export type ConfigType = RemotionConfigObject & FlatConfig;
 
-export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
+export type {Concurrency};
 
 const conf = {} as unknown as ConfigType;
 
