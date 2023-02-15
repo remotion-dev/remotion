@@ -1,5 +1,5 @@
 import {describe, expect, test} from 'vitest';
-import {measureSpring, spring} from '../spring';
+import {measureSpring, spring} from '../spring/index';
 import {expectToThrow} from './expect-to-throw';
 
 describe('Measure spring should work', () => {

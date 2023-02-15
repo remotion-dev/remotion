@@ -84,7 +84,7 @@ ${
 		<div id="menuportal-5"></div>
 		<div id="remotion-error-overlay"></div>
 		<div id="server-disconnected-overlay"></div>
-		<script type="module" src="${baseDir}previewEntry.js"></script>
+		<script type="module" src="${baseDir}src/previewEntry.tsx"></script>
 	</body>
 </html>
 `.trim();

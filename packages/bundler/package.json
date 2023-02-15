@@ -23,6 +23,7 @@
 	"author": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
+		"@originjs/vite-plugin-commonjs": "^1.0.3",
 		"css-loader": "5.2.7",
 		"esbuild": "0.16.12",
 		"react-refresh": "0.9.0",

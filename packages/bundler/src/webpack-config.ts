@@ -1,3 +1,4 @@
+import {viteCommonjs} from '@originjs/vite-plugin-commonjs';
 import {createHash} from 'crypto';
 import ReactDOM from 'react-dom';
 import type {InlineConfig} from 'vite';
@@ -25,7 +26,7 @@ export const viteConfig = ({
 	remotionRoot: string;
 }): [string, InlineConfig] => {
 	const conf: InlineConfig = {
-		plugins: [progress()],
+		plugins: [progress(), viteCommonjs()],
 		root: remotionRoot,
 		mode: environment,
 		envPrefix: 'REMOTION_',

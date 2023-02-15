@@ -53,6 +53,7 @@ importers:
   packages/bundler:
     specifiers:
       '@jonny/eslint-config': 3.0.266
+      '@originjs/vite-plugin-commonjs': ^1.0.3
       '@types/node': ^16.7.5
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
@@ -78,6 +79,7 @@ importers:
       vite-plugin-progress: ^0.0.6
       vitest: 0.24.3
     dependencies:
+      '@originjs/vite-plugin-commonjs': 1.0.3
       css-loader: 5.2.7_webpack@5.74.0
       esbuild: 0.16.12
       react-refresh: 0.9.0
@@ -449,6 +451,7 @@ importers:
       '@babel/preset-env': 7.12.13
       '@babel/preset-react': 7.12.13
       '@mdx-js/react': ^1.6.21
+      '@originjs/vite-plugin-commonjs': ^1.0.3
       '@react-three/drei': ^9.37.0
       '@remotion/babel-loader': 3.3.44
       '@remotion/bundler': 3.3.44
@@ -496,6 +499,7 @@ importers:
       '@babel/preset-env': 7.12.13_@babel+core@7.18.6
       '@babel/preset-react': 7.12.13_@babel+core@7.18.6
       '@mdx-js/react': 1.6.22_react@18.2.0
+      '@originjs/vite-plugin-commonjs': 1.0.3
       '@react-three/drei': 9.37.0_cpod6d3cr76qxhqbh6bdljlrqm
       '@remotion/babel-loader': link:../babel-loader
       '@remotion/bundler': link:../bundler
@@ -8112,6 +8116,12 @@ packages:
     resolution: {integrity: sha512-7CFlMfpX78PbvGnQZfQ3pD246RGTLITDnLCyYgTOtwNPIdTKMGs/8dJiZA3Fh5vXuZYqu/YHH32GboK7xnZ0ag==}
     dependencies:
       '@octokit/openapi-types': 11.0.0
+    dev: false
+
+  /@originjs/vite-plugin-commonjs/1.0.3:
+    resolution: {integrity: sha512-KuEXeGPptM2lyxdIEJ4R11+5ztipHoE7hy8ClZt3PYaOVQ/pyngd2alaSrPnwyFeOW1UagRBaQ752aA1dTMdOQ==}
+    dependencies:
+      esbuild: 0.14.49
     dev: false
 
   /@polka/url/1.0.0-next.21:

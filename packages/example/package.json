@@ -26,6 +26,7 @@
 		"@babel/preset-env": "7.12.13",
 		"@babel/preset-react": "7.12.13",
 		"@mdx-js/react": "^1.6.21",
+		"@originjs/vite-plugin-commonjs": "^1.0.3",
 		"@react-three/drei": "^9.37.0",
 		"@remotion/babel-loader": "3.3.44",
 		"@remotion/bundler": "3.3.44",

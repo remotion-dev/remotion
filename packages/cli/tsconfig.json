@@ -4,7 +4,10 @@
 		"rootDir": "src",
 		"outDir": "dist",
 		"jsx": "react-jsx",
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"target": "ESNext",
+		"resolveJsonModule": false,
+		"moduleResolution": "node"
 	},
 	"references": [
 		{"path": "../core"},

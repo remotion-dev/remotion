@@ -70,5 +70,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"type": "commonjs"
 }

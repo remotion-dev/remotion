@@ -1,6 +1,5 @@
 import {transform as defaultEsbuildTransform} from 'esbuild';
 import path from 'path';
-import type webpack from 'webpack';
 import type {LoaderOptions} from './interfaces';
 
 const isTsExtensionPtrn = /\.ts$/i;

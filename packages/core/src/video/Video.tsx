@@ -1,6 +1,6 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
 import {useRemotionEnvironment} from '../get-environment';
-import {Loop} from '../loop';
+import {Loop} from '../loop/index';
 import {Sequence} from '../Sequence';
 import {useVideoConfig} from '../use-video-config';
 import {validateMediaProps} from '../validate-media-props';

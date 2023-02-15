@@ -59,7 +59,7 @@ export type BundleState =
 checkMultipleRemotionVersions();
 
 export * from './AbsoluteFill';
-export * from './audio';
+export * from './audio/index';
 export {cancelRender} from './cancel-render';
 export * from './Composition';
 export {SmallTCompMetadata, TAsset, TCompMetadata} from './CompositionManager';
@@ -72,25 +72,25 @@ export * from './freeze';
 export {getStaticFiles, StaticFile} from './get-static-files';
 export * from './IFrame';
 export * from './Img';
-export * from './internals';
+export {Internals} from './internals';
 export * from './interpolate';
 export {interpolateColors} from './interpolate-colors';
-export {Loop} from './loop';
+export {Loop} from './loop/index';
 export {ClipRegion} from './NativeLayers';
 export {prefetch} from './prefetch';
 export {random, RandomSeed} from './random';
 export {registerRoot} from './register-root';
 export {Sequence} from './Sequence';
-export {Series} from './series';
-export * from './spring';
+export {Series} from './series/index';
+export * from './spring/index';
 export {staticFile} from './static-file';
 export * from './Still';
 export type {PlayableMediaTag} from './timeline-position-state';
 export {useCurrentFrame} from './use-current-frame';
 export * from './use-video-config';
 export * from './version';
-export * from './video';
 export * from './video-config';
+export * from './video/index';
 
 export const Experimental = {
 	Clipper,

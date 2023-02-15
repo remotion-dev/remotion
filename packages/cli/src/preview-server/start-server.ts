@@ -38,12 +38,13 @@ export const startServer = async (options: {
 	});
 
 	const liveEventsServer = makeLiveEventsRouter();
+	const root = path.join(__dirname, '..', '..');
 	const viteServer = await BundlerInternals.vite.createServer({
 		...config,
-		root: require.resolve('..'),
+		root: path.join(__dirname, '..', '..'),
 		server: {...config.server, middlewareMode: true},
 		optimizeDeps: {
-			include: [require.resolve('../previewEntry')],
+			include: [path.join(root, 'src', 'previewEntry.tsx')],
 		},
 		appType: 'custom',
 	});
