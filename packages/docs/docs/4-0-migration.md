@@ -33,4 +33,9 @@ Run `npm i `, `yarn` or `pnpm i` respectively afterwards.
 
 When deploying a Lambda, you were able to previously choose between `arm64` and `x86_64` architectures. From v4.0 on, only `arm64` is supported. It should be faster, cheaper and not have any different behaviors than `x86_64`.
 
-**How to upgrade**: Remove the `architecture` option from `estimatePrice()`, `deployFunction()` `:
+**How to upgrade**: Remove the `architecture` option from `estimatePrice()`, `deployFunction()`.
+
+## Moved `onSlowestFrames` API
+
+In V3, `onSlowestFrames` has been a callback function that you could pass to `renderMedia()`.  
+In V4, this API has been moved to the [return type](/docs/renderer/render-media#return-value).
