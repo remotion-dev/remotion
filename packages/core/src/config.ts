@@ -4,11 +4,6 @@
  */
 
 type Concurrency = number | null;
-import type {Configuration} from 'webpack';
-type WebpackConfiguration = Configuration;
-type WebpackOverrideFn = (
-	currentConfiguration: WebpackConfiguration
-) => WebpackConfiguration;
 type BrowserExecutable = string | null;
 type FrameRange = number | [number, number];
 type FfmpegExecutable = string | null;
@@ -88,12 +83,6 @@ type ObjectConfig = {
 		 * CLI command
 		 */
 		readonly setEntryPoint: (src: string) => void;
-		/**
-		 * Pass in a function which takes the current Webpack config
-		 * and return a modified Webpack configuration.
-		 * Docs: http://remotion.dev/docs/webpack
-		 */
-		readonly overrideWebpackConfig: (fn: WebpackOverrideFn) => void;
 		/**
 		 * Whether Webpack bundles should be cached to make
 		 * subsequent renders faster. Default: true
@@ -342,7 +331,7 @@ type ObjectConfig = {
 
 export type ConfigType = ObjectConfig & FlatConfig;
 
-export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
+export type {Concurrency};
 
 const conf = {} as unknown as ConfigType;
 

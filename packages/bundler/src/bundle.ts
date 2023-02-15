@@ -1,16 +1,13 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import type {WebpackOverrideFn} from 'remotion';
-import {promisify} from 'util';
-import webpack from 'webpack';
+import type {RollupOutput} from 'rollup';
+import {build} from 'vite';
 import {isMainThread} from 'worker_threads';
 import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
 import {readRecursively} from './read-recursively';
-import {webpackConfig} from './webpack-config';
-
-const promisified = promisify(webpack);
+import {viteConfig} from './webpack-config';
 
 const prepareOutDir = async (specified: string | null) => {
 	if (specified) {
@@ -38,7 +35,6 @@ const trimTrailingSlash = (p: string): string => {
 };
 
 export type LegacyBundleOptions = {
-	webpackOverride?: WebpackOverrideFn;
 	outDir?: string;
 	enableCaching?: boolean;
 	publicPath?: string;
@@ -49,11 +45,8 @@ export type LegacyBundleOptions = {
 };
 
 export const getConfig = ({
-	entryPoint,
 	outDir,
 	resolvedRemotionRoot,
-	onProgress,
-	options,
 }: {
 	outDir: string;
 	entryPoint: string;
@@ -61,23 +54,11 @@ export const getConfig = ({
 	onProgress?: (progress: number) => void;
 	options?: LegacyBundleOptions;
 }) => {
-	const entry = require.resolve('./renderEntry');
-
-	return webpackConfig({
-		entry,
-		userDefinedComponent: entryPoint,
+	return viteConfig({
 		outDir,
 		environment: 'production',
-		webpackOverride: options?.webpackOverride ?? ((f) => f),
-		onProgress,
-		enableCaching: options?.enableCaching ?? true,
-		maxTimelineTracks: 15,
 		// For production, the variables are set dynamically
-		envVariables: {},
-		entryPoints: [],
 		remotionRoot: resolvedRemotionRoot,
-		keyboardShortcutsEnabled: false,
-		poll: null,
 	});
 };
 
@@ -159,18 +140,13 @@ export async function bundle(...args: Arguments): Promise<string> {
 		options,
 	});
 
-	const output = await promisified([config]);
+	const output = (await build(config)) as RollupOutput;
 	if (isMainThread) {
 		process.chdir(currentCwd);
 	}
 
 	if (!output) {
 		throw new Error('Expected webpack output');
-	}
-
-	const {errors} = output.toJson();
-	if (errors !== undefined && errors.length > 0) {
-		throw new Error(errors[0].message + '\n' + errors[0].details);
 	}
 
 	const baseDir = actualArgs?.publicPath ?? '/';

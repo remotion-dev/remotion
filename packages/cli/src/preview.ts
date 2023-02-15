@@ -144,7 +144,6 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 		remotionRoot,
 		keyboardShortcutsEnabled: ConfigInternals.getKeyboardShortcutsEnabled(),
 		publicDir,
-		webpackOverride: ConfigInternals.getWebpackOverrideFn(),
 		poll: ConfigInternals.getWebpackPolling(),
 		userPassedPublicDir: ConfigInternals.getPublicDir(),
 		hash: staticHash,

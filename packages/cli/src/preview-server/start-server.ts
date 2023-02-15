@@ -1,15 +1,10 @@
-import {BundlerInternals, webpack} from '@remotion/bundler';
+import {BundlerInternals} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import http from 'http';
 import os from 'os';
 import path from 'path';
-// eslint-disable-next-line no-restricted-imports
-import type {WebpackOverrideFn} from 'remotion';
-import {ConfigInternals} from '../config';
 import {Log} from '../log';
-import {wdm} from './dev-middleware';
-import {webpackHotMiddleware} from './hot-middleware';
 import type {LiveEventsServer} from './live-events';
 import {makeLiveEventsRouter} from './live-events';
 import {handleRoutes} from './routes';
@@ -17,7 +12,6 @@ import {handleRoutes} from './routes';
 export const startServer = async (options: {
 	entry: string;
 	userDefinedComponent: string;
-	webpackOverride: WebpackOverrideFn;
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
 	port: number | null;
@@ -37,44 +31,28 @@ export const startServer = async (options: {
 		path.join(os.tmpdir(), 'react-motion-graphics')
 	);
 
-	const [, config] = BundlerInternals.webpackConfig({
-		entry: options.entry,
-		userDefinedComponent: options.userDefinedComponent,
+	const [, config] = BundlerInternals.viteConfig({
 		outDir: tmpDir,
 		environment: 'development',
-		webpackOverride:
-			options?.webpackOverride ?? ConfigInternals.getWebpackOverrideFn(),
-		envVariables: options?.getEnvVariables() ?? {},
-		maxTimelineTracks: options?.maxTimelineTracks ?? 15,
-		entryPoints: [
-			require.resolve('./hot-middleware/client'),
-			require.resolve('./error-overlay/entry-basic.js'),
-		],
 		remotionRoot: options.remotionRoot,
-		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
-		poll: options.poll,
 	});
 
-	const compiler = webpack(config);
-
-	const wdmMiddleware = wdm(compiler);
-	const whm = webpackHotMiddleware(compiler);
-
 	const liveEventsServer = makeLiveEventsRouter();
-
+	const {middlewares} = await BundlerInternals.vite.createServer({
+		...config,
+		root: require.resolve('..'),
+		server: {...config.server, middlewareMode: true},
+		optimizeDeps: {
+			include: [require.resolve('../previewEntry')],
+		},
+		appType: 'custom',
+	});
 	const server = http.createServer((request, response) => {
 		new Promise<void>((resolve) => {
-			wdmMiddleware(request, response, () => {
+			middlewares(request, response, () => {
 				resolve();
 			});
 		})
-			.then(() => {
-				return new Promise<void>((resolve) => {
-					whm(request, response, () => {
-						resolve();
-					});
-				});
-			})
 			.then(() => {
 				return handleRoutes({
 					hash: options.hash,

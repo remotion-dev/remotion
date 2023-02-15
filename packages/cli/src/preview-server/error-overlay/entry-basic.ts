@@ -17,4 +17,5 @@ startReportingRuntimeErrors(() => {
 		});
 	}
 });
+
 mountRemotionOverlay();

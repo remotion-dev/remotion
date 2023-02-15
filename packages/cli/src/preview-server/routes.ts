@@ -43,6 +43,7 @@ const handleFallback = async ({
 	remotionRoot,
 	hash,
 	response,
+	request,
 	getCurrentInputProps,
 	getEnvVariables,
 	publicDir,
@@ -50,6 +51,7 @@ const handleFallback = async ({
 	remotionRoot: string;
 	hash: string;
 	response: ServerResponse;
+	request: IncomingMessage;
 	publicDir: string;
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
@@ -62,24 +64,30 @@ const handleFallback = async ({
 	const packageManager = getPackageManager(remotionRoot, undefined);
 	fetchFolder({publicDir, staticHash: hash});
 
-	response.end(
-		BundlerInternals.indexHtml({
-			staticHash: hash,
-			baseDir: '/',
-			editorName: displayName,
-			envVariables: getEnvVariables(),
-			inputProps: getCurrentInputProps(),
-			remotionRoot,
-			previewServerCommand:
-				packageManager === 'unknown' ? null : packageManager.startCommand,
-			numberOfAudioTags:
-				parsedCli['number-of-shared-audio-tags'] ??
-				getNumberOfSharedAudioTags(),
-			publicFiles: getFiles(),
-			includeFavicon: true,
-			title: 'Remotion Preview',
-		})
+	const template = BundlerInternals.indexHtml({
+		staticHash: hash,
+		baseDir: '/',
+		editorName: displayName,
+		envVariables: getEnvVariables(),
+		inputProps: getCurrentInputProps(),
+		remotionRoot,
+		previewServerCommand:
+			packageManager === 'unknown' ? null : packageManager.startCommand,
+		numberOfAudioTags:
+			parsedCli['number-of-shared-audio-tags'] ?? getNumberOfSharedAudioTags(),
+		publicFiles: getFiles(),
+		includeFavicon: true,
+		title: 'Remotion Preview',
+	});
+
+	console.log(BundlerInternals.vite);
+	const viteTransformed = await BundlerInternals.vite.transformIndexHtml(
+		// TOOD: originalUrl in vite example
+		request.url ?? '/',
+		template
 	);
+	console.log(viteTransformed);
+	response.end();
 };
 
 const handleProjectInfo = async (
@@ -260,5 +268,6 @@ export const handleRoutes = ({
 		getCurrentInputProps,
 		getEnvVariables,
 		publicDir,
+		request,
 	});
 };

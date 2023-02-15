@@ -122,7 +122,6 @@ export const sitesCreateSubcommand = async (
 				updateProgress();
 			},
 			enableCaching: ConfigInternals.getWebpackCaching(),
-			webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
 		},
 		region: getAwsRegion(),
 	});

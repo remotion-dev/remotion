@@ -1,4 +1,3 @@
-import type {WebpackOverrideFn} from 'remotion';
 import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {bundleSite} from '../shared/bundle-site';
@@ -22,7 +21,6 @@ export type DeploySiteInput = {
 	options?: {
 		onBundleProgress?: (progress: number) => void;
 		onUploadProgress?: (upload: UploadDirProgress) => void;
-		webpackOverride?: WebpackOverrideFn;
 		enableCaching?: boolean;
 		publicDir?: string | null;
 		rootDir?: string;
@@ -86,7 +84,6 @@ export const deploySite = async ({
 		}),
 		bundleSite(entryPoint, options?.onBundleProgress ?? (() => undefined), {
 			publicPath: `/${subFolder}/`,
-			webpackOverride: options?.webpackOverride ?? ((f) => f),
 			enableCaching: options?.enableCaching ?? true,
 			publicDir: options?.publicDir,
 			rootDir: options?.rootDir,
