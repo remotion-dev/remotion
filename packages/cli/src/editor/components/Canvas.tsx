@@ -263,7 +263,7 @@ export const Canvas: React.FC = () => {
 		<div ref={ref} style={container}>
 			{size ? <VideoPreview canvasSize={size} /> : null}
 			{isFit ? null : (
-				<div style={resetZoom}>
+				<div style={resetZoom} className="css-reset">
 					<ResetZoomButton onClick={onReset} />
 				</div>
 			)}
