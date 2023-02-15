@@ -1,6 +1,6 @@
-import {Config} from 'remotion';
+import {Config} from '@remotion/cli/config';
 import {webpackOverride} from './src/webpack-override';
 
 Config.setOverwriteOutput(true);
-Config.Bundling.overrideWebpackConfig(webpackOverride);
+Config.overrideWebpackConfig(webpackOverride);
 Config.setPort(8080);

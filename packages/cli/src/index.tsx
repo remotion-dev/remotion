@@ -3,7 +3,6 @@ import minimist from 'minimist';
 import {benchmarkCommand} from './benchmark';
 import {chalk} from './chalk';
 import {listCompositionsCommand} from './compositions';
-import {overrideRemotion} from './config/index';
 import {determineFinalImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
 import {findEntryPoint} from './entry-point';
@@ -34,7 +33,6 @@ import {
 } from './versions';
 
 export const cli = async () => {
-	overrideRemotion();
 	const [command, ...args] = parsedCli._;
 
 	if (parsedCli.help) {
@@ -91,7 +89,6 @@ export const cli = async () => {
 	}
 };
 
-export {ConfigInternals, overrideRemotion} from './config/index';
 export * from './render';
 
 export const CliInternals = {
