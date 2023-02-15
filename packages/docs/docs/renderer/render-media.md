@@ -411,7 +411,9 @@ Before you use this hack, reach out to the Remotion team on [Discord](https://re
 
 Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
 
-### `onSlowestFrames?` <AvailableFrom v="3.2.29" />
+### ~~`onSlowestFrames?`~~
+
+Introduced in v3.2.29, removed from v4.0. `slowestFrames` has been moved to the return type.
 
 Callback function that gets called right before `renderMedia()` resolves.  
 The only argument `slowestFrames` is an array of the 10 slowest frames in the shape of `{frame:<Frame number>, time:<Time to render frame ms>}`. You can use this information to optimise your render times.
@@ -429,7 +431,24 @@ const onSlowestFrames: OnSlowestFrames = (slowestFrames) => {
 
 ## Return Value
 
-_since v3.0.26_
+_**from v4.0.0:**_
+
+The return value is an object with the following properties:
+
+- `buffer`: If `outputLocation` is not specified or `null`, contains a buffer, otherwise `null`.
+- `slowestFrames`: An array of the 10 slowest frames in the shape of `{frame:<Frame number>, time:<Time to render frame ms>}`. You can use this information to optimise your render times.
+
+```ts twoslash
+import type { SlowFrame } from "@remotion/renderer";
+const slowestFrames: SlowFrame[] = [];
+// ---cut---
+console.log("The slowest 10 frames are:");
+for (const slowFrame of slowestFrames) {
+  console.log(`Frame ${slowFrame.frame} (${slowFrame.time}ms)`);
+}
+```
+
+_**from v3.0.26**:_
 
 If `outputLocation` is not specified or `null`, the return value is a Promise that resolves a `Buffer`. If an output location is specified, the return value is a Promise that resolves no value.
 

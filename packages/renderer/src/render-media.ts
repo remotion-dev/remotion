@@ -59,7 +59,6 @@ export type StitchingState = 'encoding' | 'muxing';
 const SLOWEST_FRAME_COUNT = 10;
 
 export type SlowFrame = {frame: number; time: number};
-export type OnSlowestFrames = (frames: SlowFrame[]) => void;
 
 export type RenderMediaOnProgress = (progress: {
 	renderedFrames: number;
@@ -113,7 +112,6 @@ export type RenderMediaOptions = {
 	ffmpegOverride?: FfmpegOverrideFn;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
-	onSlowestFrames?: OnSlowestFrames;
 	disallowParallelEncoding?: boolean;
 	audioCodec?: AudioCodec | null;
 } & ServeUrlOrWebpackBundle &
@@ -184,7 +182,6 @@ export const renderMedia = ({
 	ffmpegOverride,
 	audioBitrate,
 	videoBitrate,
-	onSlowestFrames,
 	audioCodec,
 	...options
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
