@@ -63,7 +63,6 @@ export * from './audio';
 export {cancelRender} from './cancel-render';
 export * from './Composition';
 export {SmallTCompMetadata, TAsset, TCompMetadata} from './CompositionManager';
-export {Config, ConfigType} from './config';
 export {getInputProps} from './config/input-props';
 export {continueRender, delayRender} from './delay-render';
 export * from './easing';
