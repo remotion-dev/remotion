@@ -28,3 +28,10 @@ Upgrade `remotion` and all packages starting with `@remotion` to the latest vers
 ```
 
 Run `npm i `, `yarn` or `pnpm i` respectively afterwards.
+
+## Config file changes
+
+```diff
+- import {Config} from 'remotion';
++ import {Config} from '@remotion/cli/config';
+```
