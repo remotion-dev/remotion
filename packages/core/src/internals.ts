@@ -1,5 +1,3 @@
-import {enableLegacyRemotionConfig} from './config';
-
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -103,7 +101,6 @@ export const Internals = {
 	validateOffthreadVideoImageFormat,
 	CanUseRemotionHooksProvider,
 	CanUseRemotionHooks,
-	enableLegacyRemotionConfig,
 	PrefetchProvider,
 	DurationsContextProvider,
 	IsPlayerContextProvider,
