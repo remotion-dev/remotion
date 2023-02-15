@@ -1,4 +1,3 @@
-import type {Configuration} from 'webpack';
 import {enableLegacyRemotionConfig} from './config';
 
 import {
@@ -112,19 +111,11 @@ export const Internals = {
 	useRemotionEnvironment,
 };
 
-type WebpackConfiguration = Configuration;
-
-type WebpackOverrideFn = (
-	currentConfiguration: WebpackConfiguration
-) => WebpackConfiguration;
-
 export type {
 	TComposition,
 	Timeline,
 	TCompMetadata,
 	TSequence,
-	WebpackOverrideFn,
-	WebpackConfiguration,
 	TAsset,
 	TimelineContextValue,
 	SetTimelineContextValue,

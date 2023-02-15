@@ -97,3 +97,6 @@ export const Experimental = {
 	Null,
 	useIsPlayer,
 };
+
+export type WebpackOverrideFn =
+	"The 'WebpackOverrideFn' has been moved to '@remotion/bundler'. Update your imports and install '@remotion/bundler' if necessary.";

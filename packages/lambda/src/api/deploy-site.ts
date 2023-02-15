@@ -1,4 +1,4 @@
-import type {WebpackOverrideFn} from 'remotion';
+import type {WebpackOverrideFn} from '@remotion/bundler';
 import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {bundleSite} from '../shared/bundle-site';
