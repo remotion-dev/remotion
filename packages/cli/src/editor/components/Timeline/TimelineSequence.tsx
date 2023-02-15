@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {
@@ -7,9 +7,7 @@ import {
 	SEQUENCE_BORDER_WIDTH,
 } from '../../helpers/get-timeline-sequence-layout';
 import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
-import {RichTimelineContext} from '../../state/rich-timeline';
 import {AudioWaveform} from '../AudioWaveform';
-import {Thumbnail} from '../Thumbnail';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {sliderAreaRef} from './timeline-refs';
 import {TimelineVideoInfo} from './TimelineVideoInfo';
@@ -26,8 +24,6 @@ export const TimelineSequence: React.FC<{
 		triggerOnWindowResize: false,
 		shouldApplyCssTransforms: true,
 	});
-
-	const {richTimeline} = useContext(RichTimelineContext);
 
 	const windowWidth = size?.width ?? 0;
 	// If a duration is 1, it is essentially a still and it should have width 0
@@ -70,29 +66,8 @@ export const TimelineSequence: React.FC<{
 		};
 	}, [marginLeft, s.type, width]);
 
-	const row: React.CSSProperties = useMemo(() => {
-		return {
-			flexDirection: 'row',
-			display: 'flex',
-			borderRadius: 5,
-			overflow: 'hidden',
-		};
-	}, []);
-
-	const thumbnailWidth = TIMELINE_LAYER_HEIGHT * (video.width / video.height);
-
 	return (
 		<div key={s.id} style={style} title={s.displayName}>
-			<div style={row}>
-				{richTimeline && s.type === 'sequence' ? (
-					<Thumbnail
-						targetHeight={TIMELINE_LAYER_HEIGHT}
-						targetWidth={thumbnailWidth}
-						composition={video}
-						frameToDisplay={Math.floor(s.from + s.duration / 2)}
-					/>
-				) : null}
-			</div>
 			{s.type === 'audio' ? (
 				<AudioWaveform
 					src={s.src}

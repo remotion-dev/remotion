@@ -28,3 +28,7 @@ Upgrade `remotion` and all packages starting with `@remotion` to the latest vers
 ```
 
 Run `npm i `, `yarn` or `pnpm i` respectively afterwards.
+
+## Rich timeline removed
+
+The option to use a rich timeline has been removed. The timeline is now always in simple mode.
