@@ -21,4 +21,8 @@ export {bundle, BundleOptions, LegacyBundleOptions} from './bundle';
 export {WebpackConfiguration, WebpackOverrideFn} from './types';
 export {webpack};
 
-export type WebpackConfiguration = webpack.Configuration;
+declare global {
+	interface RemotionBundlingOptions {
+		readonly overrideWebpackConfig: (f: WebpackOverrideFn) => void;
+	}
+}
