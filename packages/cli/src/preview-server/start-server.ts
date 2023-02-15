@@ -1,4 +1,4 @@
-import type { WebpackOverrideFn} from '@remotion/bundler';
+import type {WebpackOverrideFn} from '@remotion/bundler';
 import {BundlerInternals, webpack} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
@@ -8,7 +8,6 @@ import path from 'path';
 import {ConfigInternals} from '../config';
 import {Log} from '../log';
 import {wdm} from './dev-middleware';
-import {webpackHotMiddleware} from './hot-middleware';
 import type {LiveEventsServer} from './live-events';
 import {makeLiveEventsRouter} from './live-events';
 import {handleRoutes} from './routes';
@@ -45,10 +44,6 @@ export const startServer = async (options: {
 			options?.webpackOverride ?? ConfigInternals.getWebpackOverrideFn(),
 		envVariables: options?.getEnvVariables() ?? {},
 		maxTimelineTracks: options?.maxTimelineTracks ?? 15,
-		entryPoints: [
-			require.resolve('./hot-middleware/client'),
-			require.resolve('./error-overlay/entry-basic.js'),
-		],
 		remotionRoot: options.remotionRoot,
 		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
 		poll: options.poll,
@@ -57,7 +52,7 @@ export const startServer = async (options: {
 	const compiler = webpack(config);
 
 	const wdmMiddleware = wdm(compiler);
-	const whm = webpackHotMiddleware(compiler);
+	const whm = BundlerInternals.webpackHotMiddleware(compiler);
 
 	const liveEventsServer = makeLiveEventsRouter();
 

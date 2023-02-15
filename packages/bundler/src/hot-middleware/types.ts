@@ -1,4 +1,4 @@
-import type {webpack} from '@remotion/bundler';
+import webpack = require('webpack');
 
 export type HotMiddlewareMessage =
 	| {

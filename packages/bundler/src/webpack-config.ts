@@ -44,7 +44,6 @@ export const webpackConfig = ({
 	enableCaching = true,
 	envVariables,
 	maxTimelineTracks,
-	entryPoints,
 	remotionRoot,
 	keyboardShortcutsEnabled,
 	poll,
@@ -59,7 +58,6 @@ export const webpackConfig = ({
 	envVariables: Record<string, string>;
 	maxTimelineTracks: number;
 	keyboardShortcutsEnabled: boolean;
-	entryPoints: string[];
 	remotionRoot: string;
 	poll: number | null;
 }): [string, WebpackConfiguration] => {
@@ -87,10 +85,8 @@ export const webpackConfig = ({
 			// because setup-environment imports ReactDOM.
 			// If React DOM is imported before Fast Refresh, Fast Refresh does not work
 			environment === 'development'
-				? require.resolve('./fast-refresh/runtime.js')
-				: null,
-			require.resolve('./setup-environment'),
-			...entryPoints,
+				? require.resolve('./preview-setup.js')
+				: require.resolve('./bundle-setup.js'),
 			userDefinedComponent,
 			require.resolve('../react-shim.js'),
 			entry,

@@ -1,4 +1,5 @@
 import {getConfig} from './bundle';
+import {webpackHotMiddleware} from './hot-middleware';
 import {indexHtml} from './index-html';
 import {readRecursively} from './read-recursively';
 import type {WebpackOverrideFn} from './types';
@@ -15,6 +16,7 @@ export const BundlerInternals = {
 	clearCache,
 	getConfig,
 	readRecursively,
+	webpackHotMiddleware,
 };
 
 export {bundle, BundleOptions, LegacyBundleOptions} from './bundle';

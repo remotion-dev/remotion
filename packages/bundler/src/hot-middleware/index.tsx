@@ -4,12 +4,12 @@
  * and rewritten in TypeScript. This file is MIT licensed
  */
 
-import type {webpack} from '@remotion/bundler';
 import type {IncomingMessage, ServerResponse} from 'http';
 import {parse} from 'url';
-import {Log} from '../../log';
+import {Log} from '../../../cli/src/log';
 import type {HotMiddlewareMessage, ModuleMap, WebpackStats} from './types';
 import {hotMiddlewareOptions} from './types';
+import webpack = require('webpack');
 
 const pathMatch = function (url: string, path: string) {
 	try {
