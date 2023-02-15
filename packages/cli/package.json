@@ -19,6 +19,17 @@
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
+	"exports": {
+		".": "./dist/index.js",
+		"./config": "./dist/config/index.js"
+	},
+	"typesVersions": {
+		">=1.0": {
+			"config": [
+				"dist/config/index.d.ts"
+			]
+		}
+	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {

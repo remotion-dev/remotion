@@ -14,7 +14,6 @@ test('getChromiumOpenGlRenderer from old Puppeter Config - egl value', () => {
 });
 
 test('getChromiumOpenGlRenderer, override Puppeter Config - angle value', () => {
-	Config.Puppeteer.setChromiumOpenGlRenderer('egl');
 	Config.setChromiumOpenGlRenderer('angle');
 	expect(getChromiumOpenGlRenderer()).toEqual('angle');
 });
