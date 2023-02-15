@@ -52,7 +52,7 @@ import {
 	setChromiumIgnoreCertificateErrors,
 	setChromiumOpenGlRenderer,
 } from './chromium-flags';
-import {setCodec, setOutputFormat} from './codec';
+import {setCodec} from './codec';
 import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
 import {getCrfOrUndefined, setCrf} from './crf';
@@ -149,7 +149,6 @@ const Output = {
 	setOutputLocation,
 	setOverwriteOutput,
 	setPixelFormat,
-	setOutputFormat,
 	setCodec,
 	setCrf,
 	setImageSequence,

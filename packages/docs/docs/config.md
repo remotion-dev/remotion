@@ -562,6 +562,7 @@ The [command line flag](/docs/cli/render#--width) `--width` will take precedence
 
 ## ~~setOutputFormat()~~
 
+_Removed in v4.0.0_
 _Deprecated_. Use `setCodec()` and `setImageSequence()` instead.
 
 Either `'mp4'` or `'png-sequence'`.
