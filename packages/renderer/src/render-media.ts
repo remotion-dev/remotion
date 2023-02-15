@@ -29,8 +29,6 @@ import {getRealFrameRange} from './get-frame-to-render';
 import type {ImageFormat} from './image-format';
 import {validateSelectedPixelFormatAndImageFormatCombination} from './image-format';
 import {isAudioCodec} from './is-audio-codec';
-import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
-import {getServeUrlWithFallback} from './legacy-webpack-config';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -116,33 +114,11 @@ export type RenderMediaOptions = {
 	onSlowestFrames?: OnSlowestFrames;
 	disallowParallelEncoding?: boolean;
 	audioCodec?: AudioCodec | null;
-} & ServeUrlOrWebpackBundle &
-	ConcurrencyOrParallelism;
-
-type ConcurrencyOrParallelism =
-	| {
-			concurrency?: number | string | null;
-	  }
-	| {
-			/**
-			 * @deprecated This field has been renamed to `concurrency`
-			 */
-			parallelism?: number | null;
-	  };
+	serveUrl: string;
+	concurrency?: number | string | null;
+};
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
-
-const getConcurrency = (others: ConcurrencyOrParallelism) => {
-	if ('concurrency' in others) {
-		return others.concurrency;
-	}
-
-	if ('parallelism' in others) {
-		return others.parallelism;
-	}
-
-	return null;
-};
 
 /**
  *
@@ -209,14 +185,12 @@ export const renderMedia = ({
 		: null;
 
 	validateScale(scale);
-	const concurrency = getConcurrency(options);
 
 	validateFfmpegOverride(ffmpegOverride);
 
 	const everyNthFrame = options.everyNthFrame ?? 1;
 	validateEveryNthFrame(everyNthFrame, codec);
 	const numberOfGifLoops = options.numberOfGifLoops ?? null;
-	const serveUrl = getServeUrlWithFallback(options);
 
 	let stitchStage: StitchingState = 'encoding';
 	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
@@ -401,7 +375,7 @@ export const renderMedia = ({
 	const happyPath = createPrestitcherIfNecessary()
 		.then(() => {
 			const renderFramesProc = renderFrames({
-				config: composition,
+				composition,
 				onFrameUpdate: (
 					frame: number,
 					frameIndex: number,
@@ -411,7 +385,7 @@ export const renderMedia = ({
 					callUpdate();
 					recordFrameTime(frameIndex, timeToRenderInMilliseconds);
 				},
-				concurrency,
+				concurrency: options.concurrency,
 				outputDir,
 				onStart: (data) => {
 					renderedFrames = 0;
@@ -441,7 +415,7 @@ export const renderMedia = ({
 							);
 					  }
 					: undefined,
-				serveUrl,
+				serveUrl: options.serveUrl,
 				dumpBrowserLogs,
 				onBrowserLog,
 				onDownload,

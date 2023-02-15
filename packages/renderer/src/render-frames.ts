@@ -29,8 +29,6 @@ import {
 import {getRealFrameRange} from './get-frame-to-render';
 import type {ImageFormat} from './image-format';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
-import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
-import {getServeUrlWithFallback} from './legacy-webpack-config';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -48,28 +46,6 @@ import {takeFrameAndCompose} from './take-frame-and-compose';
 import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
-
-type ConfigOrComposition =
-	| {
-			/**
-			 * @deprecated This field has been renamed to `composition`
-			 */
-			config: SmallTCompMetadata;
-	  }
-	| {
-			composition: SmallTCompMetadata;
-	  };
-
-type ConcurrencyOrParallelism =
-	| {
-			concurrency?: number | string | null;
-	  }
-	| {
-			/**
-			 * @deprecated This field has been renamed to `concurrency`
-			 */
-			parallelism?: number | null;
-	  };
 
 const MAX_RETRIES_PER_FRAME = 1;
 
@@ -100,37 +76,14 @@ type RenderFramesOptions = {
 	ffprobeExecutable?: FfmpegExecutable;
 	port?: number | null;
 	cancelSignal?: CancelSignal;
+	composition: SmallTCompMetadata;
 	/**
 	 * @deprecated Only for Remotion internal usage
 	 */
 	downloadMap?: DownloadMap;
 	muted?: boolean;
-} & ConfigOrComposition &
-	ConcurrencyOrParallelism &
-	ServeUrlOrWebpackBundle;
-
-const getComposition = (others: ConfigOrComposition) => {
-	if ('composition' in others) {
-		return others.composition;
-	}
-
-	if ('config' in others) {
-		return others.config;
-	}
-
-	return undefined;
-};
-
-const getConcurrency = (others: ConcurrencyOrParallelism) => {
-	if ('concurrency' in others) {
-		return others.concurrency;
-	}
-
-	if ('parallelism' in others) {
-		return others.parallelism;
-	}
-
-	return undefined;
+	concurrency?: number | string | null;
+	serveUrl: string;
 };
 
 const innerRenderFrames = ({
@@ -500,8 +453,7 @@ type CleanupFn = () => void;
 export const renderFrames = (
 	options: RenderFramesOptions
 ): Promise<RenderFramesOutput> => {
-	const composition = getComposition(options);
-	const concurrency = getConcurrency(options);
+	const {composition, concurrency} = options;
 
 	if (!composition) {
 		throw new Error(
@@ -533,8 +485,6 @@ export const renderFrames = (
 			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
 		);
 	}
-
-	const selectedServeUrl = getServeUrlWithFallback(options);
 
 	validateQuality(options.quality);
 	validateScale(options.scale);
@@ -571,7 +521,7 @@ export const renderFrames = (
 			}),
 			Promise.all([
 				prepareServer({
-					webpackConfigOrServeUrl: selectedServeUrl,
+					webpackConfigOrServeUrl: options.serveUrl,
 					onDownload,
 					onError,
 					ffmpegExecutable: options.ffmpegExecutable ?? null,

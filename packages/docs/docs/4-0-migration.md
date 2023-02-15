@@ -54,3 +54,6 @@ const start = getPointAtLength(parts[0], 0);
 const end = getPointAtLength(parts[0], length);
 const tangent = getTangentAtLength(parts[0], length / 2);
 ```
+
+- `webpackBundle` has been removed - rename it to `serveUrl` instead
+- `parallelism` has been removed - rename it to `concurrency` instead

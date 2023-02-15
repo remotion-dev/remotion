@@ -59,7 +59,7 @@ test("Render still with browser instance not open and legacy webpack config", as
 
   await renderStill({
     output: outPath,
-    webpackBundle: "https://gleaming-wisp-de5d2a.netlify.app/",
+    serveUrl: "https://gleaming-wisp-de5d2a.netlify.app/",
     composition: reactSvg,
   });
   expect(existsSync(outPath)).toBe(true);
