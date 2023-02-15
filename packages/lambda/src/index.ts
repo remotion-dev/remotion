@@ -15,7 +15,7 @@ import type {
 	DownloadMediaInput,
 	DownloadMediaOutput,
 } from './api/download-media';
-import {downloadMedia, downloadVideo} from './api/download-media';
+import {downloadMedia} from './api/download-media';
 import type {EstimatePriceInput} from './api/estimate-price';
 import {estimatePrice} from './api/estimate-price';
 import type {GetAwsClientInput, GetAwsClientOutput} from './api/get-aws-client';
@@ -100,7 +100,6 @@ export {
 	deployFunction,
 	deploySite,
 	downloadMedia,
-	downloadVideo,
 	getFunctions,
 	getUserPolicy,
 	getRolePolicy,
