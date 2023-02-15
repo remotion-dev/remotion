@@ -1,3 +1,4 @@
+import type {ViteDevServer} from '@remotion/bundler';
 import {BundlerInternals} from '@remotion/bundler';
 import {createReadStream, statSync} from 'fs';
 import type {IncomingMessage, ServerResponse} from 'http';
@@ -47,6 +48,7 @@ const handleFallback = async ({
 	getCurrentInputProps,
 	getEnvVariables,
 	publicDir,
+	devServer,
 }: {
 	remotionRoot: string;
 	hash: string;
@@ -55,6 +57,7 @@ const handleFallback = async ({
 	publicDir: string;
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
+	devServer: ViteDevServer;
 }) => {
 	const [edit] = await editorGuess;
 	const displayName = getDisplayNameForEditor(edit ? edit.command : null);
@@ -80,14 +83,13 @@ const handleFallback = async ({
 		title: 'Remotion Preview',
 	});
 
-	console.log(BundlerInternals.vite);
-	const viteTransformed = await BundlerInternals.vite.transformIndexHtml(
+	const viteTransformed = await devServer.transformIndexHtml(
 		// TOOD: originalUrl in vite example
 		request.url ?? '/',
 		template
 	);
-	console.log(viteTransformed);
-	response.end();
+
+	response.end(viteTransformed);
 };
 
 const handleProjectInfo = async (
@@ -211,6 +213,7 @@ export const handleRoutes = ({
 	getEnvVariables,
 	remotionRoot,
 	publicDir,
+	viteDevServer,
 }: {
 	hash: string;
 	hashPrefix: string;
@@ -221,6 +224,7 @@ export const handleRoutes = ({
 	getEnvVariables: () => Record<string, string>;
 	remotionRoot: string;
 	publicDir: string;
+	viteDevServer: ViteDevServer;
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -269,5 +273,6 @@ export const handleRoutes = ({
 		getEnvVariables,
 		publicDir,
 		request,
+		devServer: viteDevServer,
 	});
 };

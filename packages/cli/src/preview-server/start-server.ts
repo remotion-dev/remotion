@@ -38,7 +38,7 @@ export const startServer = async (options: {
 	});
 
 	const liveEventsServer = makeLiveEventsRouter();
-	const {middlewares} = await BundlerInternals.vite.createServer({
+	const viteServer = await BundlerInternals.vite.createServer({
 		...config,
 		root: require.resolve('..'),
 		server: {...config.server, middlewareMode: true},
@@ -49,7 +49,7 @@ export const startServer = async (options: {
 	});
 	const server = http.createServer((request, response) => {
 		new Promise<void>((resolve) => {
-			middlewares(request, response, () => {
+			viteServer.middlewares(request, response, () => {
 				resolve();
 			});
 		})
@@ -64,6 +64,7 @@ export const startServer = async (options: {
 					getEnvVariables: options.getEnvVariables,
 					remotionRoot: options.remotionRoot,
 					publicDir: options.publicDir,
+					viteDevServer: viteServer,
 				});
 			})
 			.catch((err) => {

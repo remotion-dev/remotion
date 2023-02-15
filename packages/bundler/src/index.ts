@@ -17,4 +17,5 @@ export const BundlerInternals = {
 	vite,
 };
 
+export type {ViteDevServer} from 'vite';
 export {bundle, BundleOptions, LegacyBundleOptions} from './bundle';
