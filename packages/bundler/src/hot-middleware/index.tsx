@@ -6,7 +6,6 @@
 
 import type {IncomingMessage, ServerResponse} from 'http';
 import {parse} from 'url';
-import {Log} from '../../../cli/src/log';
 import type {HotMiddlewareMessage, ModuleMap, WebpackStats} from './types';
 import {hotMiddlewareOptions} from './types';
 import webpack = require('webpack');
@@ -19,7 +18,10 @@ const pathMatch = function (url: string, path: string) {
 	}
 };
 
-export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
+export const webpackHotMiddleware = (
+	compiler: webpack.Compiler,
+	logInfo: (str: string) => void
+) => {
 	const eventStream: EventStream | null = createEventStream(
 		hotMiddlewareOptions.heartbeat
 	);
@@ -30,7 +32,7 @@ export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
 
 	function onInvalid() {
 		latestStats = null;
-		Log.info('Building...');
+		logInfo('Building...');
 		eventStream?.publish({
 			action: 'building',
 		});

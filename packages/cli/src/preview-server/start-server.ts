@@ -52,7 +52,7 @@ export const startServer = async (options: {
 	const compiler = webpack(config);
 
 	const wdmMiddleware = wdm(compiler);
-	const whm = BundlerInternals.webpackHotMiddleware(compiler);
+	const whm = BundlerInternals.webpackHotMiddleware(compiler, Log.info);
 
 	const liveEventsServer = makeLiveEventsRouter();
 
