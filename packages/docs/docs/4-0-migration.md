@@ -28,3 +28,29 @@ Upgrade `remotion` and all packages starting with `@remotion` to the latest vers
 ```
 
 Run `npm i `, `yarn` or `pnpm i` respectively afterwards.
+
+## Removal of deprecated APIs
+
+- `Config.setOutputFormat()` was deprecated in v1.4 and has now been removed. Use `setImageSequence()` and `setImageFormat()` and `setCodec()` instead.
+
+- `downloadVideo()` does not work anymore, use `downloadMedia()` with the same API instead.
+
+- `<MotionBlur>` has been removed. Use `<Trail>` instead.
+
+- `getParts()` has been removed. Use `getSubpaths()` instead:
+
+```tsx twoslash title="paths.ts"
+import {
+  getLength,
+  getPointAtLength,
+  getSubpaths,
+  getTangentAtLength,
+} from "@remotion/paths";
+
+const path = "M 0 0 L 100 100";
+const parts = getSubpaths(path[0]);
+const length = getLength(parts[0]);
+const start = getPointAtLength(parts[0], 0);
+const end = getPointAtLength(parts[0], length);
+const tangent = getTangentAtLength(parts[0], length / 2);
+```
