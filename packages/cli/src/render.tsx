@@ -330,7 +330,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		remotionRoot,
 	});
 
-	await renderMedia({
+	const {slowestFrames} = await renderMedia({
 		...options,
 		onProgress: (update) => {
 			encodedDoneIn = update.encodedDoneIn;
@@ -343,13 +343,12 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		puppeteerInstance,
 		onDownload,
 		downloadMap,
-		onSlowestFrames: (slowestFrames) => {
-			Log.verbose();
-			Log.verbose(`Slowest frames:`);
-			slowestFrames.forEach(({frame, time}) => {
-				Log.verbose(`Frame ${frame} (${time.toFixed(3)}ms)`);
-			});
-		},
+	});
+
+	Log.verbose();
+	Log.verbose(`Slowest frames:`);
+	slowestFrames.forEach(({frame, time}) => {
+		Log.verbose(`Frame ${frame} (${time.toFixed(3)}ms)`);
 	});
 
 	Log.info();
