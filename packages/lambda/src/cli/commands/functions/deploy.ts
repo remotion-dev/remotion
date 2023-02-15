@@ -3,13 +3,11 @@ import {Log} from '@remotion/cli/dist/log';
 import {VERSION} from 'remotion/version';
 import {deployFunction} from '../../../api/deploy-function';
 import {
-	DEFAULT_ARCHITECTURE,
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	DEFAULT_MEMORY_SIZE,
 	DEFAULT_TIMEOUT,
 } from '../../../shared/constants';
-import {validateArchitecture} from '../../../shared/validate-architecture';
 import {validateCustomRoleArn} from '../../../shared/validate-custom-role-arn';
 import {validateDiskSizeInMb} from '../../../shared/validate-disk-size-in-mb';
 import {validateMemorySize} from '../../../shared/validate-memory-size';
@@ -24,7 +22,6 @@ export const functionsDeploySubcommand = async () => {
 	const timeoutInSeconds = parsedLambdaCli.timeout ?? DEFAULT_TIMEOUT;
 	const memorySizeInMb = parsedLambdaCli.memory ?? DEFAULT_MEMORY_SIZE;
 	const diskSizeInMb = parsedLambdaCli.disk ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB;
-	const architecture = parsedLambdaCli.architecture ?? DEFAULT_ARCHITECTURE;
 	const customRoleArn = parsedLambdaCli['custom-role-arn'] ?? undefined;
 	const createCloudWatchLogGroup = !parsedLambdaCli['disable-cloudwatch'];
 	const cloudWatchLogRetentionPeriodInDays =
@@ -32,7 +29,6 @@ export const functionsDeploySubcommand = async () => {
 
 	validateMemorySize(memorySizeInMb);
 	validateTimeout(timeoutInSeconds);
-	validateArchitecture(architecture);
 	validateDiskSizeInMb(diskSizeInMb);
 	validateCustomRoleArn(customRoleArn);
 	if (!CliInternals.quietFlagProvided()) {
@@ -44,7 +40,6 @@ Memory = ${memorySizeInMb}MB
 Disk size = ${diskSizeInMb}MB
 Timeout = ${timeoutInSeconds}sec
 Version = ${VERSION}
-Architecture = ${architecture}
 CloudWatch Logging Enabled = ${createCloudWatchLogGroup}
 CloudWatch Retention Period = ${cloudWatchLogRetentionPeriodInDays} days
 				`.trim()
@@ -62,7 +57,6 @@ CloudWatch Retention Period = ${cloudWatchLogRetentionPeriodInDays} days
 		timeoutInSeconds,
 		memorySizeInMb,
 		cloudWatchLogRetentionPeriodInDays,
-		architecture,
 		diskSizeInMb,
 		customRoleArn,
 	});

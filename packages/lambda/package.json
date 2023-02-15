@@ -43,7 +43,6 @@
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
 		"@remotion/compositor-linux-arm64-musl": "3.3.44",
-		"@remotion/compositor-linux-x64-musl": "3.3.44",
 		"@remotion/bundler": "3.3.44",
 		"@types/mime-types": "2.1.1",
 		"@types/minimist": "1.2.2",
