@@ -1,4 +1,4 @@
-import type {WebpackConfiguration} from 'remotion';
+import type {WebpackConfiguration} from '@remotion/bundler';
 import type {RuleSetUseItem} from 'webpack';
 
 const envPreset = [
