@@ -32,12 +32,6 @@ function normalDistribution(x: number): number {
 	return Math.exp(-(x ** 2) / 2) / Math.sqrt(2 * Math.PI);
 }
 
-console.log('hi');
-console.log(normalDistribution(-1));
-console.log(normalDistribution(0.5));
-console.log(normalDistribution(1));
-console.log('hi');
-
 export const WarpDemo2 = () => {
 	const [path, setPath] = useState<string | null>(() => null);
 	const ref = useRef<SVGSVGElement>(null);
