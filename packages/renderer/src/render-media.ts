@@ -142,6 +142,11 @@ const getConcurrency = (others: ConcurrencyOrParallelism) => {
 	return null;
 };
 
+type RenderMediaResult = {
+	buffer: Buffer | null;
+	slowestFrames: SlowFrame[];
+};
+
 /**
  *
  * @description Render a video from a composition
@@ -179,7 +184,7 @@ export const renderMedia = ({
 	videoBitrate,
 	audioCodec,
 	...options
-}: RenderMediaOptions): Promise<Buffer | null> => {
+}: RenderMediaOptions): Promise<RenderMediaResult> => {
 	const remotionRoot = findRemotionRoot();
 	validateFfmpeg(ffmpegExecutable ?? null, remotionRoot, 'ffmpeg');
 	validateQuality(options.quality);
@@ -512,8 +517,11 @@ export const renderMedia = ({
 			encodedDoneIn = Date.now() - stitchStart;
 			callUpdate();
 			slowestFrames.sort((a, b) => b.time - a.time);
-			onSlowestFrames?.(slowestFrames);
-			return buffer;
+			const result: RenderMediaResult = {
+				buffer,
+				slowestFrames,
+			};
+			return result;
 		})
 		.catch((err) => {
 			/**
@@ -560,7 +568,7 @@ export const renderMedia = ({
 
 	return Promise.race([
 		happyPath,
-		new Promise<Buffer | null>((_resolve, reject) => {
+		new Promise<RenderMediaResult>((_resolve, reject) => {
 			cancelSignal?.(() => {
 				reject(new Error(cancelErrorMessages.renderMedia));
 			});
