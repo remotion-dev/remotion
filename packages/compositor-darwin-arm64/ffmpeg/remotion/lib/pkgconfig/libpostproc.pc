@@ -1,0 +1,14 @@
+prefix=remotion
+exec_prefix=${prefix}
+libdir=remotion/lib
+includedir=remotion/include
+
+Name: libpostproc
+Description: FFmpeg postprocessing library
+Version: 56.6.100
+Requires: 
+Requires.private: libavutil >= 57.28.100
+Conflicts:
+Libs: -L${libdir}  -lpostproc 
+Libs.private: -lm
+Cflags: -I${includedir}
