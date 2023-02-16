@@ -118,6 +118,8 @@ if (hasCargo()) {
 			stdio: 'inherit',
 			env: {
 				...process.env,
+				FFMPEG_DIR:
+					'/Users/jonathanburger/remotion/packages/compositor-darwin-arm64/ffmpeg/remotion',
 				CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER:
 					nativeArch === 'aarch64-unknown-linux-gnu'
 						? undefined
