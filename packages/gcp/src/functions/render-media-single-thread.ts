@@ -1,5 +1,5 @@
 import * as ff from '@google-cloud/functions-framework';
-import { getCompositionFromBody } from '../helpers/get-composition-from-body';
+import { getCompositionFromBody } from './helpers/get-composition-from-body';
 import { renderMedia } from '@remotion/renderer';
 import { Storage } from '@google-cloud/storage';
 
