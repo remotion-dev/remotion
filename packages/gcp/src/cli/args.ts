@@ -8,6 +8,10 @@ type GCPCommandLineOptions = {
 	['remotion-version']: string | undefined;
 	['service-name']: string;
 	['allow-unauthenticated']: boolean | undefined;
+	y: boolean;
+	yes: boolean;
+	force: boolean;
+	f: boolean;
 };
 
 export const parsedGcpCli = CliInternals.minimist<GCPCommandLineOptions>(
@@ -16,3 +20,9 @@ export const parsedGcpCli = CliInternals.minimist<GCPCommandLineOptions>(
 		boolean: CliInternals.BooleanFlags,
 	}
 );
+
+export const forceFlagProvided =
+	parsedGcpCli.f ||
+	parsedGcpCli.force ||
+	parsedGcpCli.yes ||
+	parsedGcpCli.y;
