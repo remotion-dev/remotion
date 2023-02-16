@@ -1,7 +1,12 @@
 import {getCompositionsOnLambda} from './api/get-compositions-on-lambda';
 import {getFunctions} from './api/get-functions';
+import {getRegions} from './api/get-regions';
 import {getRenderProgress} from './api/get-render-progress';
 import {getSites} from './api/get-sites';
+import {
+	getRolePolicy,
+	getUserPolicy,
+} from './api/iam-validation/suggested-policy';
 import type {PresignUrlInput} from './api/presign-url';
 import {presignUrl} from './api/presign-url';
 import {
@@ -24,5 +29,8 @@ export {
 	getCompositionsOnLambda,
 	presignUrl,
 	getSites,
+	getRolePolicy,
+	getUserPolicy,
+	getRegions,
 };
 export type {AwsRegion, RenderProgress, WebhookPayload, PresignUrlInput};

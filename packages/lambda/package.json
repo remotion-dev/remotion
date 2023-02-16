@@ -62,5 +62,20 @@
 	},
 	"publishConfig": {
 		"access": "public"
+	},
+	"exports": {
+		".": "./dist/index.js",
+		"./defaults": "./dist/defaults.js",
+		"./client": "./dist/client.js"
+	},
+	"typesVersions": {
+		">=1.0": {
+			"defaults": [
+				"dist/defaults.d.ts"
+			],
+			"client": [
+				"dist/client.d.ts"
+			]
+		}
 	}
 }

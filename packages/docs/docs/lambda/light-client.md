@@ -22,6 +22,9 @@ import {
   WebhookPayload,
   presignUrl,
   PresignUrlInput,
+  getRolePolicy,
+  getUserPolicy,
+  getRegions,
 } from "@remotion/lambda/client";
 ```
 
