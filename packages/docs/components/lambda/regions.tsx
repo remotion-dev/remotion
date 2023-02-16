@@ -1,10 +1,10 @@
-import { getRegions } from "@remotion/lambda/client";
+import { AWS_REGIONS } from "@remotion/lambda/regions";
 import React from "react";
 
 export const LambdaRegionList: React.FC = () => {
   return (
     <ul>
-      {getRegions().map((region) => {
+      {AWS_REGIONS.map((region) => {
         return (
           <li key={region}>
             <code>{region}</code>{" "}
