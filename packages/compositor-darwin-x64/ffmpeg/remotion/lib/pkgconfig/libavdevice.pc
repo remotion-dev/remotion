@@ -1,0 +1,14 @@
+prefix=remotion
+exec_prefix=${prefix}
+libdir=remotion/lib
+includedir=remotion/include
+
+Name: libavdevice
+Description: FFmpeg device handling library
+Version: 59.7.100
+Requires: 
+Requires.private: libavfilter >= 8.44.100, libavformat >= 59.27.100, libavcodec >= 59.37.100, libswresample >= 4.7.100, libavutil >= 57.28.100
+Conflicts:
+Libs: -L${libdir}  -lavdevice 
+Libs.private: -framework Foundation -framework AudioToolbox -framework CoreAudio -lm -framework AVFoundation -framework CoreVideo -framework CoreMedia -framework CoreGraphics -framework AudioToolbox -pthread
+Cflags: -I${includedir}
