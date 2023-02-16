@@ -1,4 +1,4 @@
-import { getUserPolicy } from "@remotion/lambda/client";
+import { getUserPolicy } from "@remotion/lambda/policies";
 import React from "react";
 
 export const UserPolicy: React.FC = () => {

@@ -66,12 +66,20 @@
 	"exports": {
 		".": "./dist/index.js",
 		"./defaults": "./dist/defaults.js",
+		"./regions": "./dist/regions.js",
+		"./policies": "./dist/api/iam-validation/suggested-policy.js",
 		"./client": "./dist/client.js"
 	},
 	"typesVersions": {
 		">=1.0": {
 			"defaults": [
 				"dist/defaults.d.ts"
+			],
+			"regions": [
+				"dist/regions.d.ts"
+			],
+			"policies": [
+				"dist/api/iam-validation/suggested-policy.d.ts"
 			],
 			"client": [
 				"dist/client.d.ts"
