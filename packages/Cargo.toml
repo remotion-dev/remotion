@@ -13,6 +13,7 @@ serde = {version =  "1.0.151", features = ["derive"]}
 serde_json = "1.0.89"
 jpeg-decoder = "0.3"
 jpeg-encoder = "0.5.1"
+ffmpeg-next = "5.1.1"
 
 [[bin]]
 name = "compositor"
