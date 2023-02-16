@@ -1,0 +1,14 @@
+prefix=remotion
+exec_prefix=${prefix}
+libdir=remotion/lib
+includedir=remotion/include
+
+Name: libswresample
+Description: FFmpeg audio resampling library
+Version: 4.7.100
+Requires: 
+Requires.private: libavutil >= 57.28.100
+Conflicts:
+Libs: -L${libdir}  -lswresample 
+Libs.private: -lm
+Cflags: -I${includedir}
