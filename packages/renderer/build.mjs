@@ -123,43 +123,44 @@ const copyDestinations = {
 	},
 };
 
-if (hasCargo()) {
-	const nativeArch = getTarget();
-	const archs = process.argv.includes('--all') ? targets : [nativeArch];
-	for (const arch of archs) {
-		const command = `cargo build --release --target=${arch}`;
-		console.log(command);
-		execSync(command, {
-			stdio: 'inherit',
-			env: {
-				...process.env,
-				FFMPEG_DIR: path.join(
-					process.cwd(),
-					copyDestinations[arch].dir,
-					'ffmpeg',
-					'remotion'
-				),
-				CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER:
-					nativeArch === 'aarch64-unknown-linux-gnu'
-						? undefined
-						: 'aarch64-unknown-linux-gnu-gcc',
-				CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER:
-					nativeArch === 'aarch64-unknown-linux-musl'
-						? undefined
-						: 'aarch64-unknown-linux-musl-gcc',
-				CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER:
-					nativeArch === 'x86_64-unknown-linux-gnu'
-						? undefined
-						: 'x86_64-unknown-linux-gnu-gcc',
-				CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER:
-					nativeArch === 'x86_64-unknown-linux-musl'
-						? undefined
-						: 'x86_64-unknown-linux-musl-gcc',
-			},
-		});
-		const copyInstructions = copyDestinations[arch];
-		copyFileSync(copyInstructions.from, copyInstructions.to);
-	}
-} else {
+if (!hasCargo()) {
 	console.log('Environment has no cargo. Skipping Rust builds.');
+	process.exit(0);
+}
+
+const nativeArch = getTarget();
+const archs = process.argv.includes('--all') ? targets : [nativeArch];
+for (const arch of archs) {
+	const command = `cargo build --release --target=${arch}`;
+	console.log(command);
+	execSync(command, {
+		stdio: 'inherit',
+		env: {
+			...process.env,
+			FFMPEG_DIR: path.join(
+				process.cwd(),
+				copyDestinations[arch].dir,
+				'ffmpeg',
+				'remotion'
+			),
+			CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER:
+				nativeArch === 'aarch64-unknown-linux-gnu'
+					? undefined
+					: 'aarch64-unknown-linux-gnu-gcc',
+			CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER:
+				nativeArch === 'aarch64-unknown-linux-musl'
+					? undefined
+					: 'aarch64-unknown-linux-musl-gcc',
+			CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER:
+				nativeArch === 'x86_64-unknown-linux-gnu'
+					? undefined
+					: 'x86_64-unknown-linux-gnu-gcc',
+			CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER:
+				nativeArch === 'x86_64-unknown-linux-musl'
+					? undefined
+					: 'x86_64-unknown-linux-musl-gcc',
+		},
+	});
+	const copyInstructions = copyDestinations[arch];
+	copyFileSync(copyInstructions.from, copyInstructions.to);
 }
