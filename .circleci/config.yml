@@ -1,0 +1,90 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.1.0
+  rust: circleci/rust@1.6.0
+
+jobs:
+  build-linux-x64:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - node/install:
+          node-version: "16.13"
+      - restore_cache:
+          keys:
+            - ffmpeg_source-linux-x64
+      - run: cd packages/renderer
+      - run: node build.mjs
+      - store_artifacts:
+          path: ffmpeg.tar.gz
+      - save_cache:
+          key: ffmpeg_source-linux-x64
+          paths:
+            - ffmpeg
+  build-windows:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - node/install:
+          node-version: "16.13"
+      - restore_cache:
+          keys:
+            - ffmpeg_source-windows
+      - run: cd packages/renderer
+      - run: node build.mjs
+      - store_artifacts:
+          path: ffmpeg.tar.gz
+      - save_cache:
+          key: ffmpeg_source-windows
+          paths:
+            - ffmpeg
+
+  build-linux-arm:
+    machine:
+      image: ubuntu-2004:202101-01
+    resource_class: arm.medium
+    steps:
+      - checkout
+      - node/install:
+          node-version: "16.13"
+      - restore_cache:
+          keys:
+            - ffmpeg_source-linux-arm
+      - run: cd packages/renderer
+      - run: node build.mjs
+      - store_artifacts:
+          path: ffmpeg.tar.gz
+      - save_cache:
+          key: ffmpeg_source-linux-arm
+          paths:
+            - ffmpeg
+
+  build-macos:
+    macos:
+      xcode: 13.4.1
+    steps:
+      - checkout
+      - node/install:
+          node-version: "16.13"
+      - restore_cache:
+          keys:
+            - ffmpeg_source-macos
+      - run: cd packages/renderer
+      - run: node build.mjs
+      - store_artifacts:
+          path: ffmpeg.tar.gz
+      - save_cache:
+          key: ffmpeg_source-macos
+          paths:
+            - ffmpeg
+
+workflows:
+  build_ffmpeg:
+    jobs:
+      - build-linux-x64
+      - build-linux-arm
+      - build-macos
+      - build-windows
