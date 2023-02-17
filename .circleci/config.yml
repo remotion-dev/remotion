@@ -7,7 +7,7 @@ orbs:
 jobs:
   build-linux-x64:
     docker:
-      - image: cimg/rust:1.45-node
+      - image: cimg/rust:1.66-node
     steps:
       - checkout
       - node/install:
@@ -24,7 +24,7 @@ jobs:
             - ffmpeg
   build-windows:
     docker:
-      - image: cimg/rust:1.45-node
+      - image: cimg/rust:1.66-node
     steps:
       - checkout
       - node/install:
