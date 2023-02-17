@@ -33,6 +33,7 @@ jobs:
           keys:
             - ffmpeg_source-windows
       - run: choco install rust
+      - run: choco install nodejs-lts
       - run: cd packages/renderer && node build.mjs
       - store_artifacts:
           path: ffmpeg.tar.gz
