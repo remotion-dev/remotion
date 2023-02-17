@@ -6,7 +6,6 @@ name = "remotion-renderer"
 version = "0.1.0"
 authors = ["Jonny Burger <jonny@remotion.dev>"]
 edition = "2021"
-build = "renderer/rust/build.rs"
 
 [dependencies]
 png = "0.17.7"
