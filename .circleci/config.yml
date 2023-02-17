@@ -15,7 +15,9 @@ jobs:
       - restore_cache:
           keys:
             - ffmpeg_source-linux-x64
-      - run: cd packages/renderer && node build.mjs
+      - run:
+          command: node build.mjs
+          working_directory: packages/renderer
       - store_artifacts:
           path: ffmpeg.tar.gz
       - save_cache:
@@ -32,7 +34,9 @@ jobs:
             - ffmpeg_source-windows
       - run: choco install rust
       - run: choco install nodejs-lts
-      - run: cd packages/renderer && node build.mjs
+      - run:
+          command: node build.mjs
+          working_directory: packages/renderer
       - store_artifacts:
           path: ffmpeg.tar.gz
       - save_cache:
@@ -51,7 +55,9 @@ jobs:
       - restore_cache:
           keys:
             - ffmpeg_source-linux-arm
-      - run: cd packages/renderer && node build.mjs
+      - run:
+          command: node build.mjs
+          working_directory: packages/renderer
       - store_artifacts:
           path: ffmpeg.tar.gz
       - save_cache:
@@ -70,7 +76,9 @@ jobs:
           keys:
             - ffmpeg_source-macos
       - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
-      - run: cd packages/renderer && node build.mjs
+      - run:
+          command: node build.mjs
+          working_directory: packages/renderer
       - store_artifacts:
           path: ffmpeg.tar.gz
       - save_cache:
