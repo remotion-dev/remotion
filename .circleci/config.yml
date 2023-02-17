@@ -15,8 +15,7 @@ jobs:
       - restore_cache:
           keys:
             - ffmpeg_source-linux-x64
-      - run: cd packages/renderer
-      - run: node build.mjs
+      - run: cd packages/renderer && node build.mjs
       - store_artifacts:
           path: ffmpeg.tar.gz
       - save_cache:
@@ -33,8 +32,7 @@ jobs:
       - restore_cache:
           keys:
             - ffmpeg_source-windows
-      - run: cd packages/renderer
-      - run: node build.mjs
+      - run: cd packages/renderer && node build.mjs
       - store_artifacts:
           path: ffmpeg.tar.gz
       - save_cache:
@@ -53,8 +51,7 @@ jobs:
       - restore_cache:
           keys:
             - ffmpeg_source-linux-arm
-      - run: cd packages/renderer
-      - run: node build.mjs
+      - run: cd packages/renderer && node build.mjs
       - store_artifacts:
           path: ffmpeg.tar.gz
       - save_cache:
@@ -72,8 +69,7 @@ jobs:
       - restore_cache:
           keys:
             - ffmpeg_source-macos
-      - run: cd packages/renderer
-      - run: node build.mjs
+      - run: cd packages/renderer && node build.mjs
       - store_artifacts:
           path: ffmpeg.tar.gz
       - save_cache:
