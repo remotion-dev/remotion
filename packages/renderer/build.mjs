@@ -134,12 +134,24 @@ for (const arch of archs) {
 	execSync(
 		`tar xvf ffmpeg/${copyDestinations[arch].ffmpeg_bin} -C ${copyDestinations[arch].dir}`
 	);
+	const link = path.join(
+		process.cwd(),
+		copyDestinations[arch],
+		'ffmpeg',
+		'remotion',
+		'include'
+	);
 	const command = `cargo build --release --target=${arch}`;
 	console.log(command);
 	execSync(command, {
 		stdio: 'inherit',
 		env: {
 			...process.env,
+			REMOTION_FFMPEG_RUST_BINDINGS_OUT_DIR: path.join(
+				process.cwd(),
+				copyDestinations[arch].dir
+			),
+			RUSTFLAGS: `-L ${link}`,
 			FFMPEG_DIR: path.join(
 				process.cwd(),
 				copyDestinations[arch].dir,
