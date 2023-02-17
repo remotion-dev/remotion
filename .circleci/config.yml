@@ -23,8 +23,10 @@ jobs:
           paths:
             - ffmpeg
   build-windows:
-    docker:
-      - image: cimg/rust:1.66-node
+    orbs:
+      win: circleci/windows@2.4.1
+    executor:
+      name: win/default
     steps:
       - checkout
       - node/install:
