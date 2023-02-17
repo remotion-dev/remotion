@@ -7,7 +7,7 @@ orbs:
 jobs:
   build-linux-x64:
     docker:
-      - image: cimg/rust:stable
+      image: cimg/rust:stable
     steps:
       - checkout
       - node/install:
@@ -24,7 +24,7 @@ jobs:
             - ffmpeg
   build-windows:
     docker:
-      - image: cimg/rust:stable
+      image: cimg/rust:stable
     steps:
       - checkout
       - node/install:
@@ -44,7 +44,7 @@ jobs:
     machine:
       image: ubuntu-2004:202101-01
     docker:
-      - image: cimg/rust:stable
+      image: cimg/rust:stable
     resource_class: arm.medium
     steps:
       - checkout
