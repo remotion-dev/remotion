@@ -55,6 +55,7 @@ jobs:
       - restore_cache:
           keys:
             - ffmpeg_source-linux-arm
+      - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
       - run:
           command: node build.mjs
           working_directory: packages/renderer
