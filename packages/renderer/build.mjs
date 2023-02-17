@@ -131,6 +131,9 @@ if (!hasCargo()) {
 const nativeArch = getTarget();
 const archs = process.argv.includes('--all') ? targets : [nativeArch];
 for (const arch of archs) {
+	execSync(
+		`tar xvf ffmpeg/${copyDestinations[arch].ffmpeg_bin} -C ${copyDestinations[arch].dir}`
+	);
 	const command = `cargo build --release --target=${arch}`;
 	console.log(command);
 	execSync(command, {
