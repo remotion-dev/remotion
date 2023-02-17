@@ -2,6 +2,7 @@ import {Log} from './log';
 import {quit} from './helpers/quit';
 import {parsedGcpCli} from './args';
 import {cloudRunCommand, CLOUD_RUN_COMMAND} from './commands/cloud-run';
+import {sitesCommand, SITES_COMMAND} from './commands/sites';
 
 const matchCommand = (args: string[], remotionRoot: string) => {
 	if (parsedGcpCli.help || args.length === 0) {
@@ -11,6 +12,10 @@ const matchCommand = (args: string[], remotionRoot: string) => {
 
 	if (args[0] === CLOUD_RUN_COMMAND) {
 		return cloudRunCommand(args.slice(1));
+	}
+
+	if (args[0] === SITES_COMMAND) {
+		return sitesCommand(args.slice(1), remotionRoot);
 	}
 
 	if (args[0] === 'deploy') {

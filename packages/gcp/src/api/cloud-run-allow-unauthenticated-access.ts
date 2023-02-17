@@ -1,4 +1,4 @@
-import { getCloudRunClient } from './get-cloud-run-client';
+import { getCloudRunClient } from './helpers/get-cloud-run-client';
 
 /**
  * @description Allow unauthenticated access to the Cloud Run service.

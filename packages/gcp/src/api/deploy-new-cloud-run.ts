@@ -2,7 +2,7 @@ import { IService } from './helpers/IService';
 import { validateGcpRegion } from '../shared/validate-gcp-region';
 import { validateServiceName } from '../shared/validate-service-name';
 import { validateProjectID } from '../shared/validate-project-id';
-import { getCloudRunClient } from './get-cloud-run-client';
+import { getCloudRunClient } from './helpers/get-cloud-run-client';
 import { validateRemotionVersion } from '../shared/validate-remotion-version';
 
 export type DeployCloudRunInput = {
