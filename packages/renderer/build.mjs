@@ -14,11 +14,11 @@ function isMusl() {
 const targets = [
 	'aarch64-apple-darwin',
 	'x86_64-apple-darwin',
-	'x86_64-unknown-linux-musl',
 	'x86_64-unknown-linux-gnu',
+	'x86_64-unknown-linux-musl',
+	'x86_64-pc-windows-gnu',
 	'aarch64-unknown-linux-musl',
 	'aarch64-unknown-linux-gnu',
-	'x86_64-pc-windows-gnu',
 ];
 
 export const getTarget = () => {
@@ -132,11 +132,11 @@ const nativeArch = getTarget();
 const archs = process.argv.includes('--all') ? targets : [nativeArch];
 for (const arch of archs) {
 	execSync(
-		`tar xvf ffmpeg/${copyDestinations[arch].ffmpeg_bin} -C ${copyDestinations[arch].dir}`
+		`tar xf ffmpeg/${copyDestinations[arch].ffmpeg_bin} -C ${copyDestinations[arch].dir}`
 	);
 	const link = path.join(
 		process.cwd(),
-		copyDestinations[arch],
+		copyDestinations[arch].dir,
 		'ffmpeg',
 		'remotion',
 		'include'
