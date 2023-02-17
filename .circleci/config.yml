@@ -38,7 +38,7 @@ jobs:
           command: node build.mjs
           working_directory: packages/renderer
           environment:
-            CARGO_NET_GIT_FETCH_WITH_CLI: true
+            CARGO_NET_GIT_FETCH_WITH_CLI: "true"
       - store_artifacts:
           path: ffmpeg.tar.gz
       - save_cache:
