@@ -27,8 +27,6 @@ jobs:
       name: win/default
     steps:
       - checkout
-      - node/install:
-          node-version: "16.13"
       - restore_cache:
           keys:
             - ffmpeg_source-windows
