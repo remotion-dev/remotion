@@ -70,7 +70,7 @@ jobs:
       - restore_cache:
           keys:
             - ffmpeg_source-macos
-      - run: curl https://sh.rustup.rs -sSf | sh
+      - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
       - run: cd packages/renderer && node build.mjs
       - store_artifacts:
           path: ffmpeg.tar.gz
