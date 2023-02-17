@@ -45,8 +45,6 @@ jobs:
     machine:
       image: ubuntu-2004:202101-01
     resource_class: arm.medium
-    docker:
-      - image: cimg/rust:1.66-node
     steps:
       - checkout
       - node/install:
@@ -65,8 +63,6 @@ jobs:
   build-macos:
     macos:
       xcode: 13.4.1
-    docker:
-      - image: cimg/rust:1.66-node
     steps:
       - checkout
       - node/install:
