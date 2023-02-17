@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   node: circleci/node@5.1.0
-  rust: circleci/rust@1.6.0
+  win: circleci/windows@2.4.1
 
 jobs:
   build-linux-x64:
@@ -23,8 +23,6 @@ jobs:
           paths:
             - ffmpeg
   build-windows:
-    orbs:
-      win: circleci/windows@2.4.1
     executor:
       name: win/default
     steps:
