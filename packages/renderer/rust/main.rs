@@ -23,6 +23,8 @@ fn read_stdin_to_string() -> Result<String, std::io::Error> {
 fn main() -> Result<(), std::io::Error> {
     ffmpeg::init().unwrap();
 
+    println!("ffmpeg inited!");
+
     let input = match read_stdin_to_string() {
         Ok(content) => content,
         Err(err) => errors::handle_error(&err),

@@ -12,11 +12,11 @@ function isMusl() {
 }
 
 const targets = [
+	'x86_64-unknown-linux-gnu',
 	'aarch64-apple-darwin',
 	'x86_64-apple-darwin',
-	'x86_64-unknown-linux-gnu',
-	'x86_64-unknown-linux-musl',
 	'x86_64-pc-windows-gnu',
+	'x86_64-unknown-linux-musl',
 	'aarch64-unknown-linux-musl',
 	'aarch64-unknown-linux-gnu',
 ];
@@ -151,6 +151,10 @@ for (const arch of archs) {
 				process.cwd(),
 				copyDestinations[arch].dir
 			),
+			CPATH:
+				arch === 'aarch64-apple-darwin'
+					? '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include'
+					: undefined,
 			RUSTFLAGS: `-L ${link}`,
 			FFMPEG_DIR: path.join(
 				process.cwd(),
@@ -169,7 +173,7 @@ for (const arch of archs) {
 			CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER:
 				nativeArch === 'x86_64-unknown-linux-gnu'
 					? undefined
-					: 'x86_64-unknown-linux-gnu-gcc',
+					: '/Users/jonathanburger/x86_64_toolchain/bin/x86_64-unknown-linux-gnu-gcc',
 			CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER:
 				nativeArch === 'x86_64-unknown-linux-musl'
 					? undefined
