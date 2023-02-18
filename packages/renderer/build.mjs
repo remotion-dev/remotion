@@ -12,13 +12,13 @@ function isMusl() {
 }
 
 const targets = [
+	'x86_64-unknown-linux-musl',
 	'aarch64-unknown-linux-gnu',
 	'x86_64-unknown-linux-gnu',
+	'aarch64-unknown-linux-musl',
 	'aarch64-apple-darwin',
 	'x86_64-apple-darwin',
 	'x86_64-pc-windows-gnu',
-	'x86_64-unknown-linux-musl',
-	'aarch64-unknown-linux-musl',
 ];
 
 export const getTarget = () => {
@@ -89,7 +89,7 @@ const copyDestinations = {
 		from: 'target/aarch64-unknown-linux-musl/release/compositor',
 		to: '../compositor-linux-arm64-musl/compositor',
 		dir: '../compositor-linux-arm64-musl',
-		ffmpeg_bin: 'linux-arm.gz',
+		ffmpeg_bin: 'linux-arm-musl.gz',
 	},
 	'x86_64-unknown-linux-gnu': {
 		from: 'target/x86_64-unknown-linux-gnu/release/compositor',
@@ -101,7 +101,7 @@ const copyDestinations = {
 		from: 'target/x86_64-unknown-linux-musl/release/compositor',
 		to: '../compositor-linux-x64-musl/compositor',
 		dir: '../compositor-linux-x64-musl',
-		ffmpeg_bin: 'linux-x64.gz',
+		ffmpeg_bin: 'linux-x64-musl.gz',
 	},
 	'x86_64-apple-darwin': {
 		from: 'target/x86_64-apple-darwin/release/compositor',
@@ -181,7 +181,7 @@ for (const arch of archs) {
 			CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER:
 				nativeArch === 'aarch64-unknown-linux-musl'
 					? undefined
-					: 'aarch64-unknown-linux-musl-gcc',
+					: 'toolchains/aarch64-musl-toolchain/bin/aarch64-unknown-linux-musl-gcc',
 			CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER:
 				nativeArch === 'x86_64-unknown-linux-gnu'
 					? undefined
@@ -192,7 +192,7 @@ for (const arch of archs) {
 			CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER:
 				nativeArch === 'x86_64-unknown-linux-musl'
 					? undefined
-					: 'x86_64-unknown-linux-musl-gcc',
+					: 'toolchains/x86_64_musl_toolchain/bin/x86_64-unknown-linux-musl-gcc',
 		},
 	});
 	const copyInstructions = copyDestinations[arch];
