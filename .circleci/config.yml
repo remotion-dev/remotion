@@ -34,6 +34,7 @@ jobs:
             - ffmpeg_source-windows
       - run: choco install rust
       - run: choco install nodejs-lts
+      - run: choco install rustup.install
       - run: rustup toolchain install stable-x86_64-pc-windows-gnu
       - run: rustup default stable-x86_64-pc-windows-gnu
       - run:
