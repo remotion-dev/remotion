@@ -1,24 +1,28 @@
 import {execSync} from 'child_process';
 import {existsSync, mkdirSync, unlinkSync, writeFileSync} from 'fs';
 
-const res = await fetch(
-	'https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/x86_64_gnu_toolchain.zip'
-);
+const toolchains = ['x86_64_gnu_toolchain', 'aarch_gnu_toolchain'];
 
-const blob = await res.arrayBuffer();
+for (const toolchain of toolchains) {
+	const res = await fetch(
+		`https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/${toolchain}.zip`
+	);
 
-writeFileSync('x86_64_gnu_toolchain.zip', Buffer.from(blob));
+	const blob = await res.arrayBuffer();
 
-if (!existsSync('toolchains')) {
-	mkdirSync('toolchains');
+	writeFileSync(`${toolchain}.zip`, Buffer.from(blob));
+
+	if (!existsSync('toolchains')) {
+		mkdirSync('toolchains');
+	}
+
+	if (!existsSync('toolchains/' + toolchain)) {
+		mkdirSync('toolchains/' + toolchain);
+	}
+
+	execSync(`tar -xzf ../../${toolchain}.zip`, {
+		cwd: `toolchains/${toolchain}`,
+	});
+
+	unlinkSync(`${toolchain}.zip`);
 }
-
-if (!existsSync('toolchains/x86_64-unknown-linux-gnu')) {
-	mkdirSync('toolchains/x86_64-unknown-linux-gnu');
-}
-
-execSync('tar -xzf ../../x86_64_gnu_toolchain.zip', {
-	cwd: 'toolchains/x86_64-unknown-linux-gnu',
-});
-
-unlinkSync('x86_64_gnu_toolchain.zip');

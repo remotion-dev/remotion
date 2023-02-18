@@ -12,13 +12,13 @@ function isMusl() {
 }
 
 const targets = [
+	'aarch64-unknown-linux-gnu',
 	'x86_64-unknown-linux-gnu',
 	'aarch64-apple-darwin',
 	'x86_64-apple-darwin',
 	'x86_64-pc-windows-gnu',
 	'x86_64-unknown-linux-musl',
 	'aarch64-unknown-linux-musl',
-	'aarch64-unknown-linux-gnu',
 ];
 
 export const getTarget = () => {
@@ -174,7 +174,10 @@ for (const arch of archs) {
 			CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER:
 				nativeArch === 'aarch64-unknown-linux-gnu'
 					? undefined
-					: 'aarch64-unknown-linux-gnu-gcc',
+					: path.join(
+							process.cwd(),
+							'toolchains/aarch_gnu_toolchain/bin/aarch64-unknown-linux-gnu-gcc'
+					  ),
 			CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER:
 				nativeArch === 'aarch64-unknown-linux-musl'
 					? undefined
@@ -184,7 +187,7 @@ for (const arch of archs) {
 					? undefined
 					: path.join(
 							process.cwd(),
-							'toolchains/x86_64-unknown-linux-gnu/bin/x86_64-unknown-linux-gnu-gcc'
+							'toolchains/x86_64_gnu_toolchain/bin/x86_64-unknown-linux-gnu-gcc'
 					  ),
 			CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER:
 				nativeArch === 'x86_64-unknown-linux-musl'
