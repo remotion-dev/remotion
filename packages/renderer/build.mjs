@@ -1,5 +1,5 @@
 import {execSync} from 'child_process';
-import {copyFileSync} from 'fs';
+import {copyFileSync, existsSync} from 'fs';
 import os from 'os';
 import path from 'path';
 
@@ -129,7 +129,16 @@ if (!hasCargo()) {
 }
 
 const nativeArch = getTarget();
-const archs = process.argv.includes('--all') ? targets : [nativeArch];
+
+const all = process.argv.includes('--all');
+if (!existsSync('toolchains')) {
+	throw new Error(
+		'Run "node install-toolchain.mjs" if you want to build all platforms'
+	);
+}
+
+const archs = all ? targets : [nativeArch];
+
 for (const arch of archs) {
 	execSync(
 		`tar xf ffmpeg/${copyDestinations[arch].ffmpeg_bin} -C ${copyDestinations[arch].dir}`
@@ -173,7 +182,10 @@ for (const arch of archs) {
 			CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER:
 				nativeArch === 'x86_64-unknown-linux-gnu'
 					? undefined
-					: '/Users/jonathanburger/x86_64_toolchain/bin/x86_64-unknown-linux-gnu-gcc',
+					: path.join(
+							process.cwd(),
+							'toolchains/x86_64-unknown-linux-gnu/bin/x86_64-unknown-linux-gnu-gcc'
+					  ),
 			CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER:
 				nativeArch === 'x86_64-unknown-linux-musl'
 					? undefined
