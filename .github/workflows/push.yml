@@ -23,10 +23,6 @@ jobs:
           override: true
       - run: |
           corepack enable
-      - uses: Iamshankhadeep/setup-ffmpeg@v1.2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Cache .pnpm-store
         uses: actions/cache@v3.0.11
         with:
@@ -60,10 +56,6 @@ jobs:
           override: true
       - run: |
           corepack enable
-      - uses: Iamshankhadeep/setup-ffmpeg@v1.2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Cache .pnpm-store
         uses: actions/cache@v3.0.11
         with:
@@ -88,22 +80,12 @@ jobs:
         include:
           - os: ubuntu-latest
             node_version: 14
-            ffmpeg_version: 4.4
           - os: windows-latest
             node_version: 14
-            ffmpeg_version: 4.4
           - os: macos-latest
             node_version: 14
-            ffmpeg_version: 4.4
           - os: ubuntu-latest
             node_version: 19
-            ffmpeg_version: 4.4
-          - os: ubuntu-latest
-            node_version: 14
-            ffmpeg_version: 5.0
-          - os: ubuntu-latest
-            node_version: 14
-            ffmpeg_version: 4.1
     steps:
       - uses: actions/checkout@main
       - uses: actions/setup-node@v3
