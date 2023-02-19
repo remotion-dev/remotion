@@ -70,8 +70,7 @@ export const MyVideo = () => {
 };
 ```
 
-You should see two titles appearing after each other. Titles which are not shown during a frame are unmounted.
-This is why the layout did not shift (as it does in HTML) when you added a second title. If you want the titles to overlap in time, use absolute positioning if necessary.
+You should see two titles appearing after each other. Note that titles which are not shown during a frame are unmounted.
 
 ## See also
 
