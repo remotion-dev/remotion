@@ -1,21 +1,16 @@
 import execa from 'execa';
-import type {FfmpegExecutable} from './ffmpeg-executable';
-import {getExecutableBinary} from './ffmpeg-flags';
+import {getExecutablePath} from './compositor/get-executable-path';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 export const createSilentAudio = async ({
-	ffmpegExecutable,
 	numberOfSeconds,
 	outName,
-	remotionRoot,
 }: {
-	ffmpegExecutable: FfmpegExecutable;
 	numberOfSeconds: number;
 	outName: string;
-	remotionRoot: string;
 }) => {
 	await execa(
-		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+		getExecutablePath('ffmpeg'),
 		[
 			'-f',
 			'lavfi',
@@ -28,6 +23,9 @@ export const createSilentAudio = async ({
 			'-ar',
 			String(DEFAULT_SAMPLE_RATE),
 			outName,
-		]
+		],
+		{
+			cwd: getExecutablePath('ffmpeg-cwd'),
+		}
 	);
 };

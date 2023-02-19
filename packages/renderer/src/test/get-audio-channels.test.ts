@@ -19,9 +19,7 @@ test('Get audio channels for video', async () => {
 	expect(existsSync(videoWithoutAudio)).toEqual(true);
 	const channels = await getAudioChannelsAndDuration(
 		downloadMap,
-		videoWithoutAudio,
-		null,
-		process.cwd()
+		videoWithoutAudio
 	);
 	expect(channels).toEqual({channels: 2, duration: 10});
 }, 90000);
@@ -41,9 +39,7 @@ test('Get audio channels for video without music', async () => {
 	expect(existsSync(videoWithAudio)).toEqual(true);
 	const channels = await getAudioChannelsAndDuration(
 		downloadMap,
-		videoWithAudio,
-		null,
-		process.cwd()
+		videoWithAudio
 	);
 	expect(channels.channels).toEqual(0);
 	expect(channels.duration).toBeCloseTo(3.334, 2);
@@ -62,12 +58,7 @@ test('Get audio channels for video with music', async () => {
 		'sound1.mp3'
 	);
 	expect(existsSync(audio)).toEqual(true);
-	const channels = await getAudioChannelsAndDuration(
-		downloadMap,
-		audio,
-		null,
-		process.cwd()
-	);
+	const channels = await getAudioChannelsAndDuration(downloadMap, audio);
 	expect(channels).toEqual({channels: 2, duration: 56.529});
 }, 90000);
 
@@ -76,6 +67,6 @@ test('Throw error if parsing a non video file', () => {
 	const tsFile = path.join(__dirname, '..', 'ffmpeg-flags.ts');
 	expect(existsSync(tsFile)).toEqual(true);
 	expect(() =>
-		getAudioChannelsAndDuration(downloadMap, tsFile, null, process.cwd())
+		getAudioChannelsAndDuration(downloadMap, tsFile)
 	).rejects.toThrow(/Invalid data found when processing input/);
 });

@@ -1,8 +1,7 @@
 import execa from 'execa';
 import path from 'path';
 import type {DownloadMap} from './assets/download-map';
-import type {FfmpegExecutable} from './ffmpeg-executable';
-import {getExecutableBinary} from './ffmpeg-flags';
+import {getExecutablePath} from './compositor/get-executable-path';
 import {guessExtensionForVideo} from './guess-extension-for-media';
 import {truthy} from './truthy';
 
@@ -13,15 +12,7 @@ type Callback = {
 
 let callbacks: Callback[] = [];
 
-const getTemporaryOutputName = async ({
-	src,
-	remotionRoot,
-	ffprobeBinary,
-}: {
-	src: string;
-	remotionRoot: string;
-	ffprobeBinary: string | null;
-}) => {
+const getTemporaryOutputName = async ({src}: {src: string}) => {
 	const parts = src.split(path.sep);
 
 	// If there is no file extension for the video, then we need to temporarily add an extension
@@ -31,8 +22,6 @@ const getTemporaryOutputName = async ({
 		? null
 		: await guessExtensionForVideo({
 				src,
-				remotionRoot,
-				ffprobeBinary,
 		  });
 
 	return parts
@@ -48,24 +37,16 @@ const getTemporaryOutputName = async ({
 
 export const ensurePresentationTimestampWithoutCache = async ({
 	src,
-	remotionRoot,
-	ffmpegExecutable,
-	ffprobeExecutable,
 }: {
 	src: string;
-	remotionRoot: string;
-	ffmpegExecutable: FfmpegExecutable;
-	ffprobeExecutable: FfmpegExecutable;
 }) => {
 	// If there is no file extension for the video, then we need to tempoa
 	const output = await getTemporaryOutputName({
 		src,
-		remotionRoot,
-		ffprobeBinary: ffprobeExecutable,
 	});
 
 	await execa(
-		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+		getExecutablePath('ffmpeg'),
 		[
 			'-i',
 			src,
@@ -77,7 +58,10 @@ export const ensurePresentationTimestampWithoutCache = async ({
 			'copy',
 			output,
 			'-y',
-		]
+		],
+		{
+			cwd: getExecutablePath('ffmpeg-cwd'),
+		}
 	);
 
 	return output;
@@ -86,15 +70,9 @@ export const ensurePresentationTimestampWithoutCache = async ({
 export const ensurePresentationTimestamps = async ({
 	downloadMap,
 	src,
-	remotionRoot,
-	ffmpegExecutable,
-	ffprobeExecutable,
 }: {
 	downloadMap: DownloadMap;
 	src: string;
-	remotionRoot: string;
-	ffmpegExecutable: FfmpegExecutable;
-	ffprobeExecutable: FfmpegExecutable;
 }): Promise<string> => {
 	const elem = downloadMap.ensureFileHasPresentationTimestamp[src];
 	if (elem?.type === 'encoding') {
@@ -113,9 +91,6 @@ export const ensurePresentationTimestamps = async ({
 	downloadMap.ensureFileHasPresentationTimestamp[src] = {type: 'encoding'};
 
 	const output = await ensurePresentationTimestampWithoutCache({
-		ffmpegExecutable,
-		ffprobeExecutable,
-		remotionRoot,
 		src,
 	});
 

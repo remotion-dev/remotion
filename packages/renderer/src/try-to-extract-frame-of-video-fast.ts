@@ -4,22 +4,18 @@ import type {
 	NeedsResize,
 	SpecialVCodecForTransparency,
 } from './assets/download-map';
+import {getExecutablePath} from './compositor/get-executable-path';
 import {determineResizeParams} from './determine-resize-params';
 import {determineVcodecFfmpegFlags} from './determine-vcodec-ffmpeg-flags';
-import type {FfmpegExecutable} from './ffmpeg-executable';
-import {getExecutableBinary} from './ffmpeg-flags';
 import {truthy} from './truthy';
+
 export const tryToExtractFrameOfVideoFast = async ({
-	ffmpegExecutable,
-	remotionRoot,
 	specialVCodecForTransparency,
 	imageFormat,
 	needsResize,
 	src,
 	actualOffset,
 }: {
-	ffmpegExecutable: FfmpegExecutable;
-	remotionRoot: string;
 	imageFormat: OffthreadVideoImageFormat;
 	needsResize: NeedsResize;
 	src: string;
@@ -27,7 +23,7 @@ export const tryToExtractFrameOfVideoFast = async ({
 	actualOffset: string;
 }) => {
 	const {stdout, stderr} = execa(
-		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+		getExecutablePath('ffmpeg'),
 		[
 			'-ss',
 			actualOffset,
@@ -42,7 +38,10 @@ export const tryToExtractFrameOfVideoFast = async ({
 			'image2pipe',
 			...determineResizeParams(needsResize),
 			'-',
-		].filter(truthy)
+		].filter(truthy),
+		{
+			cwd: getExecutablePath('ffmpeg-cwd'),
+		}
 	);
 	if (!stderr) {
 		throw new Error('unexpectedly did not get stderr');

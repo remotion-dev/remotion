@@ -3,23 +3,19 @@
 import execa from 'execa';
 import type {OffthreadVideoImageFormat} from 'remotion';
 import type {SpecialVCodecForTransparency} from './assets/download-map';
+import {getExecutablePath} from './compositor/get-executable-path';
 import {determineResizeParams} from './determine-resize-params';
 import {determineVcodecFfmpegFlags} from './determine-vcodec-ffmpeg-flags';
-import type {FfmpegExecutable} from './ffmpeg-executable';
-import {getExecutableBinary} from './ffmpeg-flags';
 import {truthy} from './truthy';
 export const getFrameOfVideoSlow = async ({
 	src,
 	duration,
-	ffmpegExecutable,
 	imageFormat,
 	specialVCodecForTransparency,
 	needsResize,
 	offset,
 	fps,
-	remotionRoot,
 }: {
-	ffmpegExecutable: FfmpegExecutable;
 	src: string;
 	duration: number;
 	imageFormat: OffthreadVideoImageFormat;
@@ -27,7 +23,6 @@ export const getFrameOfVideoSlow = async ({
 	needsResize: [number, number] | null;
 	offset: number;
 	fps: number | null;
-	remotionRoot: string;
 }): Promise<Buffer> => {
 	console.warn(
 		`\nUsing a slow method to extract the frame at ${duration}ms of ${src}. See https://remotion.dev/docs/slow-method-to-extract-frame for advice`
@@ -50,10 +45,9 @@ export const getFrameOfVideoSlow = async ({
 		'-',
 	].filter(truthy);
 
-	const {stdout, stderr} = execa(
-		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
-		command
-	);
+	const {stdout, stderr} = execa(getExecutablePath('ffmpeg'), command, {
+		cwd: getExecutablePath('ffmpeg-cwd'),
+	});
 
 	if (!stderr) {
 		throw new Error('unexpectedly did not get stderr');
@@ -93,7 +87,6 @@ export const getFrameOfVideoSlow = async ({
 		}
 
 		return getFrameOfVideoSlow({
-			ffmpegExecutable,
 			duration,
 			// Decrement in 10ms increments, or 1 frame (e.g. fps = 25 --> 40ms)
 			offset: offset + (fps === null ? 10 : 1000 / fps),
@@ -102,7 +95,6 @@ export const getFrameOfVideoSlow = async ({
 			specialVCodecForTransparency,
 			needsResize,
 			fps,
-			remotionRoot,
 		});
 	}
 

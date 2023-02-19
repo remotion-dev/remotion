@@ -17,11 +17,10 @@ import {
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
+import {getExecutablePath} from './compositor/get-executable-path';
 import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
 import {validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
-import type {FfmpegExecutable} from './ffmpeg-executable';
-import {getExecutableBinary} from './ffmpeg-flags';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getCodecName} from './get-codec-name';
@@ -42,7 +41,6 @@ import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {truthy} from './truthy';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
-import {validateFfmpeg} from './validate-ffmpeg';
 import {validateBitrate} from './validate-videobitrate';
 
 const packageJsonPath = path.join(__dirname, '..', 'package.json');
@@ -69,8 +67,6 @@ export type StitcherOptions = {
 	onDownload?: RenderMediaOnDownload;
 	proResProfile?: ProResProfile;
 	verbose?: boolean;
-	ffmpegExecutable?: FfmpegExecutable;
-	ffprobeExecutable?: FfmpegExecutable;
 	dir?: string;
 	cancelSignal?: CancelSignal;
 	internalOptions?: {
@@ -94,8 +90,6 @@ const getAssetsData = async ({
 	fps,
 	expectedFrames,
 	verbose,
-	ffmpegExecutable,
-	ffprobeExecutable,
 	onProgress,
 	downloadMap,
 	remotionRoot,
@@ -105,8 +99,6 @@ const getAssetsData = async ({
 	fps: number;
 	expectedFrames: number;
 	verbose: boolean;
-	ffmpegExecutable: FfmpegExecutable | null;
-	ffprobeExecutable: FfmpegExecutable | null;
 	onProgress: (progress: number) => void;
 	downloadMap: DownloadMap;
 	remotionRoot: string;
@@ -137,14 +129,11 @@ const getAssetsData = async ({
 			assetPositions.map(async (asset, index) => {
 				const filterFile = path.join(downloadMap.audioMixing, `${index}.wav`);
 				const result = await preprocessAudioTrack({
-					ffmpegExecutable: ffmpegExecutable ?? null,
-					ffprobeExecutable: ffprobeExecutable ?? null,
 					outName: filterFile,
 					asset,
 					expectedFrames,
 					fps,
 					downloadMap,
-					remotionRoot,
 				});
 				preprocessProgress[index] = 1;
 				updateProgress();
@@ -156,7 +145,6 @@ const getAssetsData = async ({
 	const outName = path.join(downloadMap.audioPreprocessing, `audio.wav`);
 
 	await mergeAudioTrack({
-		ffmpegExecutable: ffmpegExecutable ?? null,
 		files: preprocessed,
 		outName,
 		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
@@ -207,11 +195,6 @@ export const spawnFfmpeg = async (
 
 	Internals.validateFps(options.fps, 'in `stitchFramesToVideo()`', false);
 	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
-	await validateFfmpeg(
-		options.ffmpegExecutable ?? null,
-		remotionRoot,
-		'ffmpeg'
-	);
 
 	const encoderName = getCodecName(codec);
 	const proResProfileName = getProResProfileName(codec, options.proResProfile);
@@ -246,10 +229,7 @@ export const spawnFfmpeg = async (
 		  );
 
 	if (options.verbose) {
-		console.log(
-			'[verbose] ffmpeg',
-			options.ffmpegExecutable ?? 'ffmpeg in PATH'
-		);
+		console.log('[verbose] ffmpeg', getExecutablePath('ffmpeg'));
 		console.log('[verbose] encoder', encoderName);
 		console.log('[verbose] audioCodec', resolvedAudioCodec);
 		console.log('[verbose] pixelFormat', pixelFormat);
@@ -286,8 +266,6 @@ export const spawnFfmpeg = async (
 				fps: options.fps,
 				expectedFrames,
 				verbose: options.verbose ?? false,
-				ffmpegExecutable: options.ffmpegExecutable ?? null,
-				ffprobeExecutable: options.ffprobeExecutable ?? null,
 				onProgress: (prog) => updateProgress(prog, 0),
 				downloadMap: options.assetsInfo.downloadMap,
 				remotionRoot,
@@ -302,11 +280,7 @@ export const spawnFfmpeg = async (
 		}
 
 		const ffmpegTask = execa(
-			await getExecutableBinary(
-				options.ffmpegExecutable ?? null,
-				remotionRoot,
-				'ffmpeg'
-			),
+			getExecutablePath('ffmpeg'),
 			[
 				'-i',
 				audio,
@@ -317,7 +291,8 @@ export const spawnFfmpeg = async (
 				options.audioBitrate ?? '320k',
 				options.force ? '-y' : null,
 				options.outputLocation ?? tempFile,
-			].filter(Internals.truthy)
+			].filter(Internals.truthy),
+			{cwd: getExecutablePath('ffmpeg-cwd')}
 		);
 
 		options.cancelSignal?.(() => {
@@ -420,17 +395,10 @@ export const spawnFfmpeg = async (
 		console.log(finalFfmpegString);
 	}
 
-	const task = execa(
-		await getExecutableBinary(
-			options.ffmpegExecutable ?? null,
-			remotionRoot,
-			'ffmpeg'
-		),
-		finalFfmpegString,
-		{
-			cwd: options.dir,
-		}
-	);
+	const task = execa(getExecutablePath('ffmpeg'), finalFfmpegString, {
+		// TODO: overriden from `options.dir`
+		cwd: getExecutablePath('ffmpeg-cwd'),
+	});
 	options.cancelSignal?.(() => {
 		task.kill();
 	});

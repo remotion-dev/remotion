@@ -13,7 +13,6 @@ import {loadConfig} from './get-config-file-name';
 import {handleCommonError} from './handle-common-errors';
 import {getImageFormat} from './image-formats';
 import {initializeCli} from './initialize-cli';
-import {installCommand, INSTALL_COMMAND} from './install';
 import {lambdaCommand} from './lambda-command';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
@@ -67,8 +66,6 @@ export const cli = async () => {
 			await upgrade(remotionRoot, parsedCli['package-manager']);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot);
-		} else if (command === INSTALL_COMMAND) {
-			await installCommand(remotionRoot, args);
 		} else if (command === 'benchmark') {
 			await benchmarkCommand(remotionRoot, args);
 		} else if (command === 'help') {

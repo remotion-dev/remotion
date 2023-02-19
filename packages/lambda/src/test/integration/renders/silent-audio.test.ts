@@ -91,10 +91,11 @@ test('Should add silent audio if there is no audio', async () => {
 		region: 'eu-central-1',
 	});
 	const probe = await RenderInternals.execa(
-		await RenderInternals.getExecutableBinary(null, process.cwd(), 'ffprobe'),
+		await RenderInternals.getExecutablePath('ffprobe'),
 		['-'],
 		{
 			stdin: file,
+			cwd: RenderInternals.getExecutablePath('ffmpeg-cwd'),
 		}
 	);
 	expect(probe.stderr).toMatch(/Stream #0:0/);

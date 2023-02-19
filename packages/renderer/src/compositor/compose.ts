@@ -32,7 +32,7 @@ export const compose = async ({
 	downloadMap: DownloadMap;
 	output: string;
 }) => {
-	const bin = getExecutablePath();
+	const bin = getExecutablePath('compositor');
 	const hash = getCompositorHash({height, width, layers, imageFormat});
 
 	if (downloadMap.compositorCache[hash]) {

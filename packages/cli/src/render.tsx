@@ -19,7 +19,6 @@ import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
 	getFinalCodec,
-	validateFfmpegCanUseCodec,
 } from './get-cli-options';
 import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {getOutputFilename} from './get-filename';
@@ -74,8 +73,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		quality,
 		browser,
 		browserExecutable,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		scale,
 		chromiumOptions,
 		port,
@@ -90,14 +87,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		remotionRoot,
 	});
 
-	const ffmpegVersion = await RenderInternals.getFfmpegVersion({
-		ffmpegExecutable,
-		remotionRoot,
-	});
-	Log.verbose(
-		'FFMPEG Version:',
-		ffmpegVersion ? ffmpegVersion.join('.') : 'Built from source'
-	);
 	Log.verbose('Browser executable: ', browserExecutable);
 
 	const browserInstance = openBrowser(browser, {
@@ -169,7 +158,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		downloadName: null,
 		outName: getUserPassedOutputLocation(argsAfterComposition),
 	});
-	await validateFfmpegCanUseCodec(codec, remotionRoot);
 
 	RenderInternals.validateEvenDimensionsWithCodec({
 		width: config.width,
@@ -305,8 +293,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			timeoutInMilliseconds: puppeteerTimeout,
 			chromiumOptions,
 			scale,
-			ffmpegExecutable,
-			ffprobeExecutable,
 			browserExecutable,
 			port,
 			downloadMap,

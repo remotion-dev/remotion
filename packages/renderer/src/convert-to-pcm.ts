@@ -1,21 +1,16 @@
 import execa from 'execa';
-import type {FfmpegExecutable} from './ffmpeg-executable';
-import {getExecutableBinary} from './ffmpeg-flags';
+import {getExecutablePath} from './compositor/get-executable-path';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 export const convertToPcm = async ({
-	ffmpegExecutable,
 	input,
 	outName,
-	remotionRoot,
 }: {
-	ffmpegExecutable: FfmpegExecutable;
 	input: string;
 	outName: string;
-	remotionRoot: string;
 }) => {
 	await execa(
-		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+		getExecutablePath('ffmpeg'),
 		[
 			'-i',
 			input,
@@ -24,6 +19,9 @@ export const convertToPcm = async ({
 			'-ar',
 			String(DEFAULT_SAMPLE_RATE),
 			outName,
-		]
+		],
+		{
+			cwd: getExecutablePath('ffmpeg-cwd'),
+		}
 	);
 };
