@@ -1,9 +1,8 @@
-import execa from 'execa';
 import type {DownloadMap} from './assets/download-map';
 import {getAudioChannelsAndDuration} from './assets/get-audio-channels';
 import type {MediaAsset} from './assets/types';
 import {calculateFfmpegFilter} from './calculate-ffmpeg-filters';
-import {getExecutablePath} from './compositor/get-executable-path';
+import {callFf} from './call-ffmpeg';
 import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
 import {pLimit} from './p-limit';
 import {resolveAssetSrc} from './resolve-asset-src';
@@ -50,9 +49,7 @@ const preprocessAudioTrackUnlimited = async ({
 		['-y', outName],
 	].flat(2);
 
-	await execa(getExecutablePath('ffmpeg'), args, {
-		cwd: getExecutablePath('ffmpeg-cwd'),
-	});
+	await callFf('ffmpeg', args);
 
 	cleanup();
 	return outName;

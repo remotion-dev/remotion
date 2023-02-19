@@ -1,5 +1,5 @@
-import execa from 'execa';
 import {Internals} from 'remotion';
+import {callFf} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {getExecutablePath} from './compositor/get-executable-path';
@@ -122,9 +122,7 @@ export const prespawnFfmpeg = (options: PreSticherOptions) => {
 		? options.ffmpegOverride({type: 'pre-stitcher', args: ffmpegString})
 		: ffmpegString;
 
-	const task = execa(getExecutablePath('ffmpeg'), finalFfmpegString, {
-		cwd: getExecutablePath('ffmpeg-cwd'),
-	});
+	const task = callFf('ffmpeg', finalFfmpegString);
 
 	options.signal(() => {
 		task.kill();

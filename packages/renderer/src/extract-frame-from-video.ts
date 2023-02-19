@@ -1,8 +1,7 @@
-import execa from 'execa';
 import type {OffthreadVideoImageFormat} from 'remotion';
+import {RenderInternals} from '.';
 import type {DownloadMap} from './assets/download-map';
 import {getVideoStreamDuration} from './assets/get-video-stream-duration';
-import {getExecutablePath} from './compositor/get-executable-path';
 import {determineResizeParams} from './determine-resize-params';
 import {determineVcodecFfmpegFlags} from './determine-vcodec-ffmpeg-flags';
 import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
@@ -146,8 +145,8 @@ const extractFrameFromVideoFn = async ({
 	}
 
 	const ffmpegTimestamp = frameToFfmpegTimestamp(time);
-	const {stdout, stderr} = execa(
-		getExecutablePath('ffmpeg'),
+	const {stdout, stderr} = RenderInternals.callFf(
+		'ffmpeg',
 		[
 			'-ss',
 			ffmpegTimestamp,
@@ -165,7 +164,6 @@ const extractFrameFromVideoFn = async ({
 		].filter(truthy),
 		{
 			buffer: false,
-			cwd: getExecutablePath('ffmpeg-cwd'),
 		}
 	);
 

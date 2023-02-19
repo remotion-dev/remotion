@@ -1,8 +1,7 @@
-import execa from 'execa';
 import path from 'path';
 import type {DownloadMap} from './assets/download-map';
+import {callFf} from './call-ffmpeg';
 import {chunk} from './chunk';
-import {getExecutablePath} from './compositor/get-executable-path';
 import {convertToPcm} from './convert-to-pcm';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {createSilentAudio} from './create-silent-audio';
@@ -84,9 +83,7 @@ const mergeAudioTrackUnlimited = async ({
 	]
 		.filter(truthy)
 		.flat(2);
-	const task = execa(getExecutablePath('ffmpeg'), args, {
-		cwd: getExecutablePath('ffmpeg-cwd'),
-	});
+	const task = callFf('ffmpeg', args);
 	await task;
 	cleanup();
 };

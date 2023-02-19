@@ -8,7 +8,7 @@ function isMusl() {
 
 export const getExecutablePath = (
 	type: 'compositor' | 'ffmpeg' | 'ffprobe' | 'ffmpeg-cwd'
-) => {
+): string => {
 	const key =
 		type === 'compositor'
 			? 'binaryPath'

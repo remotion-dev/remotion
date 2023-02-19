@@ -1,10 +1,7 @@
-import execa from 'execa';
-import {getExecutablePath} from './compositor/get-executable-path';
+import {callFf} from './call-ffmpeg';
 
 export const guessExtensionForVideo = async ({src}: {src: string}) => {
-	const {stderr} = await execa(getExecutablePath('ffprobe'), [src], {
-		cwd: getExecutablePath('ffmpeg-cwd'),
-	});
+	const {stderr} = await callFf('ffprobe', [src]);
 
 	if (stderr.includes('mp3,')) {
 		return 'mp3';
