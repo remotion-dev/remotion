@@ -140,16 +140,15 @@ if (!existsSync('toolchains') && all) {
 const archs = all ? targets : [nativeArch];
 
 for (const arch of archs) {
+	const ffmpegFolder = path.join(copyDestinations[arch].dir, 'ffmpeg');
+	if (!existsSync(ffmpegFolder)) {
+		mkdirSync(ffmpegFolder);
+	}
+
 	execSync(
-		`tar xf ffmpeg/${copyDestinations[arch].ffmpeg_bin} -C ${copyDestinations[arch].dir}`
+		`tar xf ffmpeg/${copyDestinations[arch].ffmpeg_bin} -C ${ffmpegFolder}`
 	);
-	const link = path.join(
-		process.cwd(),
-		copyDestinations[arch].dir,
-		'ffmpeg',
-		'remotion',
-		'include'
-	);
+	const link = path.join(process.cwd(), ffmpegFolder, 'remotion', 'include');
 	const command = `cargo build --release --target=${arch}`;
 	console.log(command);
 	execSync(command, {
