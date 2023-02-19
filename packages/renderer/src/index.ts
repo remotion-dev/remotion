@@ -4,7 +4,7 @@ import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import {getDefaultAudioCodec, validAudioCodecs} from './audio-codec';
 import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
-import {callFf} from './call-ffmpeg';
+import {callFf, callFfExtraOptions} from './call-ffmpeg';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {checkNodeVersionAndWarnAboutRosetta} from './check-apple-silicon';
 import {DEFAULT_CODEC, validCodecs} from './codec';
@@ -156,6 +156,7 @@ export const RenderInternals = {
 	defaultCodecsForFileExtension,
 	getExecutablePath,
 	callFf,
+	callFfExtraOptions,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

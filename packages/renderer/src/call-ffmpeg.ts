@@ -5,10 +5,11 @@ import {truthy} from './truthy';
 
 export const callFfExtraOptions = () => {
 	return {
-		cwd: getExecutablePath('ffmpeg-cwd'),
 		env:
 			process.platform === 'darwin'
-				? undefined
+				? {
+						DYLD_LIBRARY_PATH: path.join(getExecutablePath('ffmpeg-cwd')),
+				  }
 				: {
 						LD_LIBRARY_PATH: path.join(getExecutablePath('ffmpeg-cwd'), 'lib'),
 				  },
