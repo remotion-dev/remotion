@@ -1,21 +1,25 @@
 import {execSync} from 'child_process';
-import {existsSync, mkdirSync, unlinkSync, writeFileSync} from 'fs';
+import {existsSync, mkdirSync, unlinkSync} from 'fs';
 
 const toolchains = [
 	'x86_64_gnu_toolchain',
 	'aarch_gnu_toolchain',
 	'x86_64_musl_toolchain',
-	'aarch64-musl-toolchain'
+	'aarch64-musl-toolchain',
+];
+
+const unpatched = [
+	'x86_64-apple-darwin',
+	'aarch64-apple-darwin',
+	'x86_64-pc-windows-gnu',
 ];
 
 for (const toolchain of toolchains) {
-	const res = await fetch(
-		`https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/${toolchain}.zip`
+	process.stdout.write(toolchain + '...');
+
+	execSync(
+		`curl https://remotion-ffmpeg-binaries.s3.eu-central-1.amazonaws.com/${toolchain}.zip -o ${toolchain}.zip`
 	);
-
-	const blob = await res.arrayBuffer();
-
-	writeFileSync(`${toolchain}.zip`, Buffer.from(blob));
 
 	if (!existsSync('toolchains')) {
 		mkdirSync('toolchains');
@@ -30,4 +34,9 @@ for (const toolchain of toolchains) {
 	});
 
 	unlinkSync(`${toolchain}.zip`);
+	process.stdout.write('Done.\n');
+}
+
+for (const target of unpatched) {
+	execSync(`rustup target add ${target}`);
 }
