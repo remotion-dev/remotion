@@ -8,10 +8,18 @@ export const callFfExtraOptions = () => {
 		env:
 			process.platform === 'darwin'
 				? {
-						DYLD_LIBRARY_PATH: path.join(getExecutablePath('ffmpeg-cwd')),
+						DYLD_LIBRARY_PATH: path.join(
+							getExecutablePath('ffmpeg-cwd'),
+							'remotion',
+							'lib'
+						),
 				  }
 				: {
-						LD_LIBRARY_PATH: path.join(getExecutablePath('ffmpeg-cwd'), 'lib'),
+						LD_LIBRARY_PATH: path.join(
+							getExecutablePath('ffmpeg-cwd'),
+							'remotion',
+							'lib'
+						),
 				  },
 	};
 };
