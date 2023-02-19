@@ -7,6 +7,7 @@ import {overrideRemotion} from './config/index';
 import {determineFinalImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
 import {findEntryPoint} from './entry-point';
+import {ffmpegCommand, ffprobeCommand} from './ffmpeg';
 import {formatBytes} from './format-bytes';
 import {getCliOptions, getFinalCodec} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
@@ -62,6 +63,10 @@ export const cli = async () => {
 			await render(remotionRoot, args);
 		} else if (command === 'still') {
 			await still(remotionRoot, args);
+		} else if (command === 'ffmpeg') {
+			ffmpegCommand(remotionRoot, process.argv.slice(3));
+		} else if (command === 'ffprobe') {
+			ffprobeCommand(remotionRoot, process.argv.slice(3));
 		} else if (command === 'upgrade') {
 			await upgrade(remotionRoot, parsedCli['package-manager']);
 		} else if (command === VERSIONS_COMMAND) {
