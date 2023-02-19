@@ -396,7 +396,7 @@ export const spawnFfmpeg = async (
 	}
 
 	const task = RenderInternals.callFf('ffmpeg', finalFfmpegString, {
-		// TODO: cwd overriden from `options.dir`
+		cwd: options.dir,
 	});
 	options.cancelSignal?.(() => {
 		task.kill();
