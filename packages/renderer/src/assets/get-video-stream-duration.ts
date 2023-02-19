@@ -1,5 +1,4 @@
-import execa from 'execa';
-import {getExecutablePath} from '../compositor/get-executable-path';
+import {RenderInternals} from '..';
 import {pLimit} from '../p-limit';
 import type {DownloadMap, VideoDurationResult} from './download-map';
 
@@ -58,9 +57,7 @@ export async function getVideoStreamDurationwithoutCache({src}: {src: string}) {
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = await execa(getExecutablePath('ffprobe'), args, {
-		cwd: getExecutablePath('ffmpeg-cwd'),
-	});
+	const task = await RenderInternals.callFf('ffprobe', args);
 
 	const result: VideoDurationResult = parseVideoStreamDuration(task.stdout);
 

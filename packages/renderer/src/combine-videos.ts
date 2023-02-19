@@ -1,6 +1,5 @@
 // Combine multiple video chunks, useful for decentralized rendering
 
-import execa from 'execa';
 import {rmdirSync, rmSync, writeFileSync} from 'fs';
 import {join} from 'path';
 import type {AudioCodec} from './audio-codec';
@@ -8,8 +7,8 @@ import {
 	getDefaultAudioCodec,
 	mapAudioCodecToFfmpegAudioCodecName,
 } from './audio-codec';
+import {callFf} from './call-ffmpeg';
 import type {Codec} from './codec';
-import {getExecutablePath} from './compositor/get-executable-path';
 import {isAudioCodec} from './is-audio-codec';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {truthy} from './truthy';
@@ -47,8 +46,8 @@ export const combineVideos = async (options: Options) => {
 		audioCodec ?? getDefaultAudioCodec({codec, preferLossless: false});
 
 	try {
-		const task = execa(
-			getExecutablePath('ffmpeg'),
+		const task = callFf(
+			'ffmpeg',
 			[
 				isAudioCodec(codec) ? null : '-r',
 				isAudioCodec(codec) ? null : String(fps),
@@ -77,8 +76,7 @@ export const combineVideos = async (options: Options) => {
 				codec === 'h264' ? 'faststart' : null,
 				'-y',
 				output,
-			].filter(truthy),
-			{cwd: getExecutablePath('ffmpeg-cwd')}
+			].filter(truthy)
 		);
 		task.stderr?.on('data', (data: Buffer) => {
 			if (onProgress) {

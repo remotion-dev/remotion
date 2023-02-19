@@ -1,7 +1,6 @@
-import execa from 'execa';
 import path from 'path';
+import {RenderInternals} from '.';
 import type {DownloadMap} from './assets/download-map';
-import {getExecutablePath} from './compositor/get-executable-path';
 import {guessExtensionForVideo} from './guess-extension-for-media';
 import {truthy} from './truthy';
 
@@ -45,24 +44,18 @@ export const ensurePresentationTimestampWithoutCache = async ({
 		src,
 	});
 
-	await execa(
-		getExecutablePath('ffmpeg'),
-		[
-			'-i',
-			src,
-			'-fflags',
-			'+genpts+igndts',
-			'-vcodec',
-			'copy',
-			'-acodec',
-			'copy',
-			output,
-			'-y',
-		],
-		{
-			cwd: getExecutablePath('ffmpeg-cwd'),
-		}
-	);
+	await RenderInternals.callFf('ffmpeg', [
+		'-i',
+		src,
+		'-fflags',
+		'+genpts+igndts',
+		'-vcodec',
+		'copy',
+		'-acodec',
+		'copy',
+		output,
+		'-y',
+	]);
 
 	return output;
 };

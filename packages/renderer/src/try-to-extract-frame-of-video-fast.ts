@@ -1,10 +1,9 @@
-import execa from 'execa';
 import type {OffthreadVideoImageFormat} from 'remotion';
+import {RenderInternals} from '.';
 import type {
 	NeedsResize,
 	SpecialVCodecForTransparency,
 } from './assets/download-map';
-import {getExecutablePath} from './compositor/get-executable-path';
 import {determineResizeParams} from './determine-resize-params';
 import {determineVcodecFfmpegFlags} from './determine-vcodec-ffmpeg-flags';
 import {truthy} from './truthy';
@@ -22,8 +21,8 @@ export const tryToExtractFrameOfVideoFast = async ({
 	specialVCodecForTransparency: SpecialVCodecForTransparency;
 	actualOffset: string;
 }) => {
-	const {stdout, stderr} = execa(
-		getExecutablePath('ffmpeg'),
+	const {stdout, stderr} = RenderInternals.callFf(
+		'ffmpeg',
 		[
 			'-ss',
 			actualOffset,
@@ -38,10 +37,7 @@ export const tryToExtractFrameOfVideoFast = async ({
 			'image2pipe',
 			...determineResizeParams(needsResize),
 			'-',
-		].filter(truthy),
-		{
-			cwd: getExecutablePath('ffmpeg-cwd'),
-		}
+		].filter(truthy)
 	);
 	if (!stderr) {
 		throw new Error('unexpectedly did not get stderr');

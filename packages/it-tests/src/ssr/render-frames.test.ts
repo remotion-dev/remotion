@@ -58,11 +58,7 @@ test("Legacy SSR way of rendering videos should still work", async () => {
     codec: "h264",
   });
   expect(fs.existsSync(outPath)).toBe(true);
-  const probe = await execa(
-    await RenderInternals.getExecutablePath("ffprobe"),
-    [outPath],
-    { cwd: RenderInternals.getExecutablePath("ffmpeg-cwd") }
-  );
+  const probe = await RenderInternals.callFf("ffprobe", [outPath]);
   expect(probe.stderr).toMatch(/Video: h264/);
   await puppeteerInstance.close();
 });

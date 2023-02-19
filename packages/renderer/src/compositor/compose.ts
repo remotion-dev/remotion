@@ -2,6 +2,7 @@ import {spawn} from 'child_process';
 import {createHash} from 'crypto';
 import {copyFile} from 'fs/promises';
 import type {DownloadMap} from '../assets/download-map';
+import {callFfExtraOptions} from '../call-ffmpeg';
 import {getExecutablePath} from './get-executable-path';
 import type {
 	CliInput,
@@ -50,7 +51,7 @@ export const compose = async ({
 	};
 
 	await new Promise<void>((resolve, reject) => {
-		const child = spawn(bin, {cwd: getExecutablePath('ffmpeg-cwd')});
+		const child = spawn(bin, {...callFfExtraOptions()});
 		child.stdin.write(JSON.stringify(payload));
 		child.stdin.end();
 

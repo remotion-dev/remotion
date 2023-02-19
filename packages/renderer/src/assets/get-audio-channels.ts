@@ -1,5 +1,4 @@
-import execa from 'execa';
-import {getExecutablePath} from '../compositor/get-executable-path';
+import {callFf} from '../call-ffmpeg';
 import {pLimit} from '../p-limit';
 import type {
 	AudioChannelsAndDurationResultCache,
@@ -25,9 +24,7 @@ async function getAudioChannelsAndDurationUnlimited(
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = await execa(getExecutablePath('ffprobe'), args, {
-		cwd: getExecutablePath('ffmpeg-cwd'),
-	});
+	const task = await callFf('ffprobe', args);
 
 	const channels = task.stdout.match(/channels=([0-9]+)/);
 	const duration = task.stdout.match(/duration=([0-9.]+)/);

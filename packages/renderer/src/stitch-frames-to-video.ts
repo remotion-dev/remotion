@@ -1,8 +1,8 @@
-import execa from 'execa';
 import fs, {promises} from 'fs';
 import path from 'path';
 import type {TAsset} from 'remotion';
 import {Internals} from 'remotion';
+import {RenderInternals} from '.';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -14,6 +14,7 @@ import {
 	getDefaultAudioCodec,
 	mapAudioCodecToFfmpegAudioCodecName,
 } from './audio-codec';
+import {callFf} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
@@ -279,8 +280,8 @@ export const spawnFfmpeg = async (
 			);
 		}
 
-		const ffmpegTask = execa(
-			getExecutablePath('ffmpeg'),
+		const ffmpegTask = callFf(
+			'ffmpeg',
 			[
 				'-i',
 				audio,
@@ -291,8 +292,7 @@ export const spawnFfmpeg = async (
 				options.audioBitrate ?? '320k',
 				options.force ? '-y' : null,
 				options.outputLocation ?? tempFile,
-			].filter(Internals.truthy),
-			{cwd: getExecutablePath('ffmpeg-cwd')}
+			].filter(Internals.truthy)
 		);
 
 		options.cancelSignal?.(() => {
@@ -395,9 +395,8 @@ export const spawnFfmpeg = async (
 		console.log(finalFfmpegString);
 	}
 
-	const task = execa(getExecutablePath('ffmpeg'), finalFfmpegString, {
-		// TODO: overriden from `options.dir`
-		cwd: getExecutablePath('ffmpeg-cwd'),
+	const task = RenderInternals.callFf('ffmpeg', finalFfmpegString, {
+		// TODO: cwd overriden from `options.dir`
 	});
 	options.cancelSignal?.(() => {
 		task.kill();
