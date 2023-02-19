@@ -1,5 +1,4 @@
 import {chalk} from './chalk';
-import {INSTALL_COMMAND} from './install';
 import {Log} from './log';
 import {VERSIONS_COMMAND} from './versions';
 
@@ -77,9 +76,6 @@ export const printHelp = () => {
 	Log.info(
 		chalk.gray('Prints and validates versions of all Remotion packages.')
 	);
-	Log.info();
-	Log.info(`remotion ${INSTALL_COMMAND} <ffmpeg|ffprobe>`);
-	Log.info(chalk.gray('Installs dependencies of Remotion'));
 	Log.info();
 	Log.info('remotion upgrade');
 	Log.info(chalk.gray('Ensure Remotion is on the newest version.'));

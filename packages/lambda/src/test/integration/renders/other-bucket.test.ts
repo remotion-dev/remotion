@@ -94,10 +94,11 @@ test('Should be able to render to another bucket', async () => {
 		region: 'eu-central-1',
 	});
 	const probe = await RenderInternals.execa(
-		await RenderInternals.getExecutableBinary(null, process.cwd(), 'ffprobe'),
+		await RenderInternals.getExecutablePath('ffprobe'),
 		['-'],
 		{
 			stdin: file,
+			cwd: RenderInternals.getExecutablePath('ffmpeg-cwd'),
 		}
 	);
 	expect(probe.stderr).toMatch(/Stream #0:0/);

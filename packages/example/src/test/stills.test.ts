@@ -33,8 +33,6 @@ test(
 			onError: (err) => {
 				throw err;
 			},
-			ffmpegExecutable: null,
-			ffprobeExecutable: null,
 			downloadMap: RenderInternals.makeDownloadMap(),
 			remotionRoot: process.cwd(),
 		});

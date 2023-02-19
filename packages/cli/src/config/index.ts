@@ -11,10 +11,6 @@ import {
 import {getOutputCodecOrUndefined} from './codec';
 import {getConcurrency} from './concurrency';
 import {getDotEnvLocation} from './env-file';
-import {
-	getCustomFfmpegExecutable,
-	getCustomFfprobeExecutable,
-} from './ffmpeg-executable';
 import {getRange, setFrameRangeFromCli} from './frame-range';
 import {getUserPreferredImageFormat} from './image-format';
 import {getShouldOutputImageSequence} from './image-sequence';
@@ -63,7 +59,6 @@ import {
 import {getEntryPoint, setEntryPoint} from './entry-point';
 import {setDotEnvLocation} from './env-file';
 import {getEveryNthFrame, setEveryNthFrame} from './every-nth-frame';
-import {setFfmpegExecutable, setFfprobeExecutable} from './ffmpeg-executable';
 import {
 	getFfmpegOverrideFunction,
 	setFfmpegOverrideFunction,
@@ -136,8 +131,6 @@ const Rendering = {
 	setQuality,
 	setImageFormat,
 	setFrameRange,
-	setFfmpegExecutable,
-	setFfprobeExecutable,
 	setScale,
 	setEveryNthFrame,
 	setNumberOfGifLoops,
@@ -185,13 +178,11 @@ export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 export const ConfigInternals = {
 	getRange,
 	getOutputCodecOrUndefined,
-	getCustomFfmpegExecutable,
 	getBrowser,
 	getPixelFormat,
 	getProResProfile,
 	getShouldOverwrite,
 	getBrowserExecutable,
-	getCustomFfprobeExecutable,
 	getScale,
 	getServerPort,
 	getChromiumDisableWebSecurity,

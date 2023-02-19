@@ -39,8 +39,11 @@ test("Should be able to render video with scale 2", async () => {
   expect(exists).toBe(true);
 
   const info = await execa(
-    await RenderInternals.getExecutableBinary(null, process.cwd(), "ffprobe"),
-    [outputPath]
+    await RenderInternals.getExecutablePath("ffprobe"),
+    [outputPath],
+    {
+      cwd: RenderInternals.getExecutablePath("ffmpeg-cwd"),
+    }
   );
   const data = info.stderr;
   expect(data).toContain("Video: h264");
@@ -76,8 +79,9 @@ test("Should be able to render video with scale 0.1", async () => {
   expect(exists).toBe(true);
 
   const info = await execa(
-    await RenderInternals.getExecutableBinary(null, process.cwd(), "ffprobe"),
-    [outputPath]
+    await RenderInternals.getExecutablePath("ffprobe"),
+    [outputPath],
+    { cwd: RenderInternals.getExecutablePath("ffmpeg-cwd") }
   );
   const data = info.stderr;
   expect(data).toContain("Video: h264");

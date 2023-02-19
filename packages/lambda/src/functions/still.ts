@@ -110,8 +110,6 @@ const innerStillHandler = async (
 		composition: lambdaParams.composition,
 		inputProps,
 		envVariables: lambdaParams.envVariables,
-		ffmpegExecutable: null,
-		ffprobeExecutable: null,
 		chromiumOptions: lambdaParams.chromiumOptions,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 		port: null,

@@ -16,7 +16,6 @@ import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
-import type {FfmpegExecutable} from './ffmpeg-executable';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
@@ -96,8 +95,6 @@ type RenderFramesOptions = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
-	ffmpegExecutable?: FfmpegExecutable;
-	ffprobeExecutable?: FfmpegExecutable;
 	port?: number | null;
 	cancelSignal?: CancelSignal;
 	/**
@@ -574,8 +571,6 @@ export const renderFrames = (
 					webpackConfigOrServeUrl: selectedServeUrl,
 					onDownload,
 					onError,
-					ffmpegExecutable: options.ffmpegExecutable ?? null,
-					ffprobeExecutable: options.ffprobeExecutable ?? null,
 					port: options.port ?? null,
 					downloadMap,
 					remotionRoot: findRemotionRoot(),

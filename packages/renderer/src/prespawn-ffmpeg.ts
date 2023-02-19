@@ -2,9 +2,8 @@ import execa from 'execa';
 import {Internals} from 'remotion';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
+import {getExecutablePath} from './compositor/get-executable-path';
 import {validateQualitySettings} from './crf';
-import type {FfmpegExecutable} from './ffmpeg-executable';
-import {getExecutableBinary} from './ffmpeg-flags';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
@@ -18,7 +17,6 @@ import {
 } from './pixel-format';
 import type {ProResProfile} from './prores-profile';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
-import {validateFfmpeg} from './validate-ffmpeg';
 
 type PreSticherOptions = {
 	fps: number;
@@ -31,17 +29,13 @@ type PreSticherOptions = {
 	onProgress: (progress: number) => void;
 	proResProfile: ProResProfile | undefined;
 	verbose: boolean;
-	ffmpegExecutable: FfmpegExecutable | undefined;
 	imageFormat: ImageFormat;
 	ffmpegOverride: FfmpegOverrideFn;
 	signal: CancelSignal;
 	videoBitrate: string | null;
 };
 
-export const prespawnFfmpeg = async (
-	options: PreSticherOptions,
-	remotionRoot: string
-) => {
+export const prespawnFfmpeg = (options: PreSticherOptions) => {
 	Internals.validateDimension(
 		options.height,
 		'height',
@@ -65,11 +59,6 @@ export const prespawnFfmpeg = async (
 		scale: 1,
 	});
 	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
-	await validateFfmpeg(
-		options.ffmpegExecutable ?? null,
-		remotionRoot,
-		'ffmpeg'
-	);
 
 	const encoderName = getCodecName(codec);
 	const proResProfileName = getProResProfileName(codec, options.proResProfile);
@@ -81,10 +70,7 @@ export const prespawnFfmpeg = async (
 	const supportsCrf = codec !== 'prores';
 
 	if (options.verbose) {
-		console.log(
-			'[verbose] ffmpeg',
-			options.ffmpegExecutable ?? 'ffmpeg in PATH'
-		);
+		console.log('[verbose] ffmpeg', getExecutablePath('ffmpeg'));
 		console.log('[verbose] encoder', encoderName);
 		console.log('[verbose] pixelFormat', pixelFormat);
 		if (supportsCrf) {
@@ -136,14 +122,9 @@ export const prespawnFfmpeg = async (
 		? options.ffmpegOverride({type: 'pre-stitcher', args: ffmpegString})
 		: ffmpegString;
 
-	const task = execa(
-		await getExecutableBinary(
-			options.ffmpegExecutable ?? null,
-			remotionRoot,
-			'ffmpeg'
-		),
-		finalFfmpegString
-	);
+	const task = execa(getExecutablePath('ffmpeg'), finalFfmpegString, {
+		cwd: getExecutablePath('ffmpeg-cwd'),
+	});
 
 	options.signal(() => {
 		task.kill();

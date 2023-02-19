@@ -9,8 +9,7 @@ import {
 	mapAudioCodecToFfmpegAudioCodecName,
 } from './audio-codec';
 import type {Codec} from './codec';
-import type {FfmpegExecutable} from './ffmpeg-executable';
-import {getExecutableBinary} from './ffmpeg-flags';
+import {getExecutablePath} from './compositor/get-executable-path';
 import {isAudioCodec} from './is-audio-codec';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {truthy} from './truthy';
@@ -24,8 +23,6 @@ type Options = {
 	codec: Codec;
 	fps: number;
 	numberOfGifLoops: number | null;
-	remotionRoot: string;
-	ffmpegExecutable: FfmpegExecutable;
 	audioCodec: AudioCodec | null;
 };
 
@@ -39,8 +36,6 @@ export const combineVideos = async (options: Options) => {
 		codec,
 		fps,
 		numberOfGifLoops,
-		ffmpegExecutable,
-		remotionRoot,
 		audioCodec,
 	} = options;
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
@@ -53,7 +48,7 @@ export const combineVideos = async (options: Options) => {
 
 	try {
 		const task = execa(
-			await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
+			getExecutablePath('ffmpeg'),
 			[
 				isAudioCodec(codec) ? null : '-r',
 				isAudioCodec(codec) ? null : String(fps),
@@ -82,7 +77,8 @@ export const combineVideos = async (options: Options) => {
 				codec === 'h264' ? 'faststart' : null,
 				'-y',
 				output,
-			].filter(truthy)
+			].filter(truthy),
+			{cwd: getExecutablePath('ffmpeg-cwd')}
 		);
 		task.stderr?.on('data', (data: Buffer) => {
 			if (onProgress) {

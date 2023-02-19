@@ -31,8 +31,6 @@ export const listCompositionsCommand = async (
 
 	const {
 		browserExecutable,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		chromiumOptions,
 		envVariables,
 		inputProps,
@@ -55,8 +53,6 @@ export const listCompositionsCommand = async (
 
 	const compositions = await getCompositions(bundled, {
 		browserExecutable,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		chromiumOptions,
 		envVariables,
 		inputProps,

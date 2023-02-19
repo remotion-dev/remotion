@@ -2,18 +2,16 @@ import execa from 'execa';
 import path from 'path';
 import type {DownloadMap} from './assets/download-map';
 import {chunk} from './chunk';
+import {getExecutablePath} from './compositor/get-executable-path';
 import {convertToPcm} from './convert-to-pcm';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {createSilentAudio} from './create-silent-audio';
 import {deleteDirectory} from './delete-directory';
-import type {FfmpegExecutable} from './ffmpeg-executable';
-import {getExecutableBinary} from './ffmpeg-flags';
 import {pLimit} from './p-limit';
 import {tmpDir} from './tmp-dir';
 import {truthy} from './truthy';
 
 type Options = {
-	ffmpegExecutable: FfmpegExecutable;
 	files: string[];
 	outName: string;
 	numberOfSeconds: number;
@@ -22,7 +20,6 @@ type Options = {
 };
 
 const mergeAudioTrackUnlimited = async ({
-	ffmpegExecutable,
 	outName,
 	files,
 	numberOfSeconds,
@@ -32,9 +29,7 @@ const mergeAudioTrackUnlimited = async ({
 	if (files.length === 0) {
 		await createSilentAudio({
 			outName,
-			ffmpegExecutable,
 			numberOfSeconds,
-			remotionRoot,
 		});
 		return;
 	}
@@ -42,9 +37,7 @@ const mergeAudioTrackUnlimited = async ({
 	if (files.length === 1) {
 		await convertToPcm({
 			outName,
-			ffmpegExecutable,
 			input: files[0],
-			remotionRoot,
 		});
 		return;
 	}
@@ -58,7 +51,6 @@ const mergeAudioTrackUnlimited = async ({
 			chunked.map(async (chunkFiles, i) => {
 				const chunkOutname = path.join(tempPath, `chunk-${i}.wav`);
 				await mergeAudioTrack({
-					ffmpegExecutable,
 					files: chunkFiles,
 					numberOfSeconds,
 					outName: chunkOutname,
@@ -70,7 +62,6 @@ const mergeAudioTrackUnlimited = async ({
 		);
 
 		await mergeAudioTrack({
-			ffmpegExecutable,
 			files: chunkNames,
 			numberOfSeconds,
 			outName,
@@ -93,10 +84,9 @@ const mergeAudioTrackUnlimited = async ({
 	]
 		.filter(truthy)
 		.flat(2);
-	const task = execa(
-		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
-		args
-	);
+	const task = execa(getExecutablePath('ffmpeg'), args, {
+		cwd: getExecutablePath('ffmpeg-cwd'),
+	});
 	await task;
 	cleanup();
 };

@@ -1,6 +1,5 @@
 import execa from 'execa';
-import type {FfmpegExecutable} from '../ffmpeg-executable';
-import {getExecutableBinary} from '../ffmpeg-flags';
+import {getExecutablePath} from '../compositor/get-executable-path';
 import {pLimit} from '../p-limit';
 import type {DownloadMap, VideoDurationResult} from './download-map';
 
@@ -49,15 +48,7 @@ export const parseVideoStreamDuration = (stdout: string) => {
 	return result;
 };
 
-export async function getVideoStreamDurationwithoutCache({
-	src,
-	ffprobeExecutable,
-	remotionRoot,
-}: {
-	src: string;
-	ffprobeExecutable: FfmpegExecutable;
-	remotionRoot: string;
-}) {
+export async function getVideoStreamDurationwithoutCache({src}: {src: string}) {
 	const args = [
 		['-v', 'error'],
 		['-select_streams', 'v:0'],
@@ -67,10 +58,7 @@ export async function getVideoStreamDurationwithoutCache({
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = await execa(
-		await getExecutableBinary(ffprobeExecutable, remotionRoot, 'ffprobe'),
-		args
-	);
+	const task = await execa(getExecutablePath('ffprobe'), args);
 
 	const result: VideoDurationResult = parseVideoStreamDuration(task.stdout);
 
@@ -79,9 +67,7 @@ export async function getVideoStreamDurationwithoutCache({
 
 async function getVideoStreamDurationUnlimited(
 	downloadMap: DownloadMap,
-	src: string,
-	ffprobeExecutable: FfmpegExecutable,
-	remotionRoot: string
+	src: string
 ): Promise<VideoDurationResult> {
 	if (downloadMap.videoDurationResultCache[src]) {
 		return downloadMap.videoDurationResultCache[src];
@@ -89,8 +75,6 @@ async function getVideoStreamDurationUnlimited(
 
 	const result: VideoDurationResult = await getVideoStreamDurationwithoutCache({
 		src,
-		ffprobeExecutable,
-		remotionRoot,
 	});
 
 	downloadMap.videoDurationResultCache[src] = result;
@@ -100,16 +84,7 @@ async function getVideoStreamDurationUnlimited(
 
 export const getVideoStreamDuration = (
 	downloadMap: DownloadMap,
-	src: string,
-	ffprobeExecutable: FfmpegExecutable,
-	remotionRoot: string
+	src: string
 ): Promise<VideoDurationResult> => {
-	return limit(() =>
-		getVideoStreamDurationUnlimited(
-			downloadMap,
-			src,
-			ffprobeExecutable,
-			remotionRoot
-		)
-	);
+	return limit(() => getVideoStreamDurationUnlimited(downloadMap, src));
 };

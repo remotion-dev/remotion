@@ -11,7 +11,6 @@ import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
-import type {FfmpegExecutable} from './ffmpeg-executable';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {StillImageFormat} from './image-format';
 import {validateNonNullImageFormat} from './image-format';
@@ -48,8 +47,6 @@ type InnerStillOptions = {
 	scale?: number;
 	onDownload?: RenderMediaOnDownload;
 	cancelSignal?: CancelSignal;
-	ffmpegExecutable?: FfmpegExecutable;
-	ffprobeExecutable?: FfmpegExecutable;
 	/**
 	 * @deprecated Only for Remotion internal usage
 	 */
@@ -277,8 +274,6 @@ export const renderStill = (
 			webpackConfigOrServeUrl: selectedServeUrl,
 			onDownload,
 			onError,
-			ffmpegExecutable: options.ffmpegExecutable ?? null,
-			ffprobeExecutable: options.ffprobeExecutable ?? null,
 			port: options.port ?? null,
 			downloadMap,
 			remotionRoot: findRemotionRoot(),
