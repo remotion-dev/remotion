@@ -58,7 +58,9 @@ export async function getVideoStreamDurationwithoutCache({src}: {src: string}) {
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = await execa(getExecutablePath('ffprobe'), args);
+	const task = await execa(getExecutablePath('ffprobe'), args, {
+		cwd: getExecutablePath('ffmpeg-cwd'),
+	});
 
 	const result: VideoDurationResult = parseVideoStreamDuration(task.stdout);
 
