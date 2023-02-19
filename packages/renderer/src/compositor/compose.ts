@@ -50,7 +50,7 @@ export const compose = async ({
 	};
 
 	await new Promise<void>((resolve, reject) => {
-		const child = spawn(bin);
+		const child = spawn(bin, {cwd: getExecutablePath('ffmpeg-cwd')});
 		child.stdin.write(JSON.stringify(payload));
 		child.stdin.end();
 
