@@ -131,7 +131,7 @@ if (!hasCargo()) {
 const nativeArch = getTarget();
 
 const all = process.argv.includes('--all');
-if (!existsSync('toolchains')) {
+if (!existsSync('toolchains') && all) {
 	throw new Error(
 		'Run "node install-toolchain.mjs" if you want to build all platforms'
 	);
