@@ -49,8 +49,8 @@ Navigate to the [Service Accounts](https://console.cloud.google.com/projectselec
 
 # Available commands from the CLI:
 This command will deploy a cloud-run service, and return the URL of the service. This cloud run service is what will be invoked to render media.  
-## `npx remotion gcp cloud-run deploy`  
-options:  
+## Command: `npx remotion gcp cloud-run deploy`  
+Options:  
 -  --project-id (required): 
     - The project-id is the name of the project in which to deploy the service. The ID can be retrieved by navigating to the [Dashboard](https://console.cloud.google.com/home/dashboard?project=new-remotion-project&supportedpurview=project) screen in Google Cloud Console, and selecting the project from the drop-down menu in the top left corner. The ID is under Project Info in the top left corner.
 -  --service-name (required):
@@ -64,10 +64,10 @@ options:
 -  --overwrite-service (optional, default to false):
     - if an existing service is found with the same name, a prompt will come up asking if a new revision should be deployed. If this flag is set to true, the prompt will be skipped and a new revision will be deployed automatically.
 
-Taking the above into account, a valid command would be:
+Taking the above into account, a valid command would be:  
 `npx remotion gcp cloud-run deploy --service-name=cloud-run-render --project-id=new-remotion-project --remotion-version=3.3.36-alpha --allow-unauthenticated`
 
-## `npx remotion gcp sites create`
+## Command: `npx remotion gcp sites create`
 t.b.c
 
 ### Render media on GCP
