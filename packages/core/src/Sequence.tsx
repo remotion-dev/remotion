@@ -31,6 +31,7 @@ export type LayoutAndStyle =
 	| {
 			layout?: 'absolute-fill';
 			style?: React.CSSProperties;
+			className?: string;
 	  };
 
 export type SequenceProps = {
@@ -203,8 +204,12 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	return (
 		<SequenceContext.Provider value={contextValue}>
-			{content === null ? null : layout === 'absolute-fill' ? (
-				<AbsoluteFill ref={ref} style={defaultStyle}>
+			{content === null ? null : other.layout === 'absolute-fill' ? (
+				<AbsoluteFill
+					ref={ref}
+					style={defaultStyle}
+					className={other.className}
+				>
 					{content}
 				</AbsoluteFill>
 			) : (
