@@ -70,7 +70,8 @@ export const MyVideo = () => {
 };
 ```
 
-You should see two titles appearing after each other. Note that titles which are not shown during a frame are unmounted.
+You should see two titles appearing after each other. Sequences which are not shown during a frame are unmounted.  
+Sequences by default are absolutely positioned - you can use [`layout="none"`](/docs/sequence#layout) to disable that.
 
 ## See also
 
