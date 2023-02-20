@@ -1,9 +1,8 @@
 import type { Dirent } from 'fs';
-import { createReadStream, promises as fs } from 'fs';
+import { createReadStream, promises as fs, statSync } from 'fs';
 import { makeStorageKey } from '../shared/make-storage-key';
 import { getCloudStorageClient } from './helpers/get-cloud-storage-client';
 import path from 'path';
-import { Log } from '../cli/log';
 
 type FileInfo = {
 	name: string;
@@ -87,42 +86,22 @@ export const uploadDir = async ({
 	}
 
 	const cloudStorageClient = getCloudStorageClient()
-
-	const uploadPromises:any[] = [];
-
-	files.map(async (filePath) => {
-		const uploadDestination = makeStorageKey(keyPrefix, localDir, filePath.name);
-		Log.verbose('uploadDestination:', uploadDestination);
-		uploadPromises.push(createReadStream(path.relative(localDir, filePath.name).split(path.sep).join('/'))
-			.pipe(cloudStorageClient.bucket(bucket).file(uploadDestination).createWriteStream())
-			.on('error', function (err: any) {Log.verbose('Upload error: ', err) })
-			.on('progress', function (p: any) {
-				Log.verbose('in Progress:', filePath.name, p.bytesWritten);
-				progresses[filePath.name] = p.bytesWritten ?? 0;
-			})
-			.on('finish', function () {
-				progresses[filePath.name] = filePath.size;
-			}))
+	
+	const uploads = files.map(async (file) => {
+		const path = file.name;
+		const destination = makeStorageKey( keyPrefix, localDir, path )
+		return new Promise((resolve, reject) => {
+			createReadStream(path)
+				.pipe(cloudStorageClient.bucket(bucket).file(destination).createWriteStream())
+				.on("error", error => reject(error))
+				.on('progress', function (p) {
+					progresses[path] = p.bytesWritten ?? 0;
+				})
+				.on('finish', () => resolve("done"))
+		});
 	})
 
-
-	// const uploads = files.map(async (filePath) => {
-	// 	const uploadDestination = makeStorageKey(keyPrefix, localDir, filePath.name);
-	// 	createReadStream(path.relative(localDir, filePath.name).split(path.sep).join('/'))
-	// 		.pipe(cloudStorageClient.bucket(bucket).file(uploadDestination).createWriteStream())
-	// 		.on('error', function (err: any) { })
-	// 		.on('progress', function (p: any) {
-	// 			Log.verbose('in Progress:', filePath.name, p.bytesWritten);
-	// 			progresses[filePath.name] = p.bytesWritten ?? 0;
-	// 		})
-	// 		.on('finish', function () {
-	// 			progresses[filePath.name] = filePath.size;
-	// 		})
-	// })
-
-	// const promise = Promise.all(uploads);
-	const promise = Promise.all(uploadPromises).catch(console.error);
-
+	const promise = Promise.all(uploads);
 
 	const interval = setInterval(() => {
 		onProgress({

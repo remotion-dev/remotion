@@ -54,8 +54,8 @@ export const parseBucketName = (
 	return {region: realRegionFound ?? null};
 };
 
-export const makeBucketName = (region: GcpRegion) => {
-	return `${REMOTION_BUCKET_PREFIX}${region.replace(/-/g, '')}-${randomHash({
+export const makeBucketName = () => {
+	return `${REMOTION_BUCKET_PREFIX}${randomHash({
 		randomInTests: false,
 	})}`;
 };

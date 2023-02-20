@@ -35,7 +35,7 @@ export const getOrCreateBucket = async (
 		return {bucketName: remotionBuckets[0].name};
 	}
 
-	const bucketName = makeBucketName(options.region); // TODO: pretty sure I can remove the region here
+	const bucketName = makeBucketName();
 
 	await createBucket({
 		bucketName,

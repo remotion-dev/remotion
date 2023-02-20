@@ -14,4 +14,4 @@ packages/example/out
 .vercel
 packages/renderer/target
 packages/gcp/src/remotion-lambda-gcp.code-workspace
-sa-key.json
+sa-key*.json
