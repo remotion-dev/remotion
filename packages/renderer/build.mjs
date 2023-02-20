@@ -157,7 +157,8 @@ for (const arch of archs) {
 			...process.env,
 			REMOTION_FFMPEG_RUST_BINDINGS_OUT_DIR: path.join(
 				process.cwd(),
-				copyDestinations[arch].dir
+				copyDestinations[arch].dir,
+				'ffmpeg'
 			),
 			CPATH:
 				arch === 'aarch64-apple-darwin'
