@@ -204,7 +204,9 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	return (
 		<SequenceContext.Provider value={contextValue}>
-			{content === null ? null : other.layout === 'absolute-fill' ? (
+			{content === null ? null : other.layout === 'none' ? (
+				content
+			) : (
 				<AbsoluteFill
 					ref={ref}
 					style={defaultStyle}
@@ -212,8 +214,6 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				>
 					{content}
 				</AbsoluteFill>
-			) : (
-				content
 			)}
 		</SequenceContext.Provider>
 	);
