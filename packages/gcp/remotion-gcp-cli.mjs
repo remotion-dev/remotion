@@ -105,28 +105,11 @@ const bucket = cloudStorageClient.bucket(bucketName)
 const remote_file = bucket.file("new/haloInf.mp4")
 
 console.log('test message')
-// var stats = fs.statSync(firstFilePath)
-// var fileSizeInBytes = stats.size;
 
-// fs.createReadStream(firstFilePath)
-// 	.pipe(remote_file.createWriteStream())
-// 	.on('error', function (err) { })
-// 	.on('progress', function (p) {
-// 		console.log(p, '/', fileSizeInBytes);
-// 		// as percentage
-// 		console.log('percentage progress: ', p.bytesWritten / fileSizeInBytes * 100);
-// 		// { bytesWritten: 67371008, contentLength: '*' }
-// 	})
-// 	.on('finish', function () {
-// 		console.log('completed');
-// 		// The file upload is complete.
-// 	});
+const uploadPromises = [];
+const paths = [firstFilePath, secondFilePath]
 
-async function uploadInParallel(
-	bucket,
-	paths
-) {
-	const uploadPromises = [];
+async function uploadInParallel() {
 	for (const index in paths) {
 		const path = paths[index];
 		const fileSizeInBytes = fs.statSync(path).size;
@@ -142,8 +125,27 @@ async function uploadInParallel(
 				})
 		);
 	}
-	await Promise.all(uploadPromises).catch(console.error);
 }
+// const promise = Promise.all(uploadPromises).catch(console.error);
 
+// uploadInParallel()
+// console.log('before')
+// await promise
+// console.log('after')
 
-await uploadInParallel(bucket, [firstFilePath, secondFilePath]);
+const uploads = paths.map(async (path) => {
+	const fileSizeInBytes = fs.statSync(path).size;
+	return new Promise((resolve, reject) => {
+		fs.createReadStream(path)
+			.pipe(bucket.file(`new/${path}`).createWriteStream())
+			.on("error", error => reject(error))
+			.on('progress', function (p) {
+				console.log(path, `${Math.floor(p.bytesWritten / fileSizeInBytes * 100)}%`);
+			})
+			.on('finish', () => resolve("done"))
+	});
+})
+console.log('before')
+const promise = Promise.all(uploads);
+await promise;
+console.log('after')

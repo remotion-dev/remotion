@@ -56,19 +56,11 @@ export const deploySite = async ({
 
 	const cloudStorageClient = getCloudStorageClient()
 
-	// const filePath = 'path/to/your/file'
-	// const destFileName = 'your-new-file-name';
-	// const uploadOptions = {
-	// 	destination: destFileName
-	// }
-
-	// await cloudStorageClient.bucket(bucketName).upload(entryPoint, uploadOptions);
-
 	// check if bucket exists
 	await cloudStorageClient.bucket(bucketName).get()
 
 	const subFolder = getSitesKey(siteId);
-
+	
 	// gcpLs is a function that lists all files in a bucket
 	const [files, bundled] = await Promise.all([
 		gcpLs({
