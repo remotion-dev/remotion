@@ -385,7 +385,7 @@ export const renderMedia = ({
 		minTime = slowestFrames[slowestFrames.length - 1]?.time ?? minTime;
 	};
 
-	const happyPath = Promise.resolve(() => createPrestitcherIfNecessary())
+	const happyPath = Promise.resolve(createPrestitcherIfNecessary())
 		.then(() => {
 			const renderFramesProc = renderFrames({
 				config: composition,
