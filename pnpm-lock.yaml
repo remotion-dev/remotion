@@ -755,6 +755,8 @@ importers:
       remotion: 3.3.45
       typescript: ^4.7.0
     dependencies:
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
@@ -763,8 +765,6 @@ importers:
       eslint: 8.25.0
       prettier: 2.7.1
       prettier-plugin-organize-imports: 2.3.4_j2odc4yr77iddtreafyicbq5hi
-      react: 18.0.0
-      react-dom: 18.0.0_react@18.0.0
       typescript: 4.7.2
 
   packages/motion-blur:
