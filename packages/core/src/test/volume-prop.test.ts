@@ -1,6 +1,6 @@
 import {describe, expect, test} from 'vitest';
-import {evaluateVolume} from '../volume-prop';
-import {expectToThrow} from './expect-to-throw';
+import {evaluateVolume} from '../volume-prop.js';
+import {expectToThrow} from './expect-to-throw.js';
 
 describe('EvaluateVolume does not throw', () => {
 	test('Volume is undefined', () => {

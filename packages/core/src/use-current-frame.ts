@@ -1,7 +1,7 @@
 import {useContext} from 'react';
-import {CanUseRemotionHooks} from './CanUseRemotionHooks';
-import {SequenceContext} from './Sequence';
-import {useTimelinePosition} from './timeline-position-state';
+import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
+import {SequenceContext} from './Sequence.js';
+import {useTimelinePosition} from './timeline-position-state.js';
 
 /**
  * Get the current frame of the video.

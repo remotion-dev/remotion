@@ -1,7 +1,7 @@
 import React, {useContext, useMemo} from 'react';
-import {SequenceContext} from './Sequence';
-import type {TimelineContextValue} from './timeline-position-state';
-import {TimelineContext} from './timeline-position-state';
+import {SequenceContext} from './Sequence.js';
+import type {TimelineContextValue} from './timeline-position-state.js';
+import {TimelineContext} from './timeline-position-state.js';
 
 type FreezeProps = {
 	frame: number;
