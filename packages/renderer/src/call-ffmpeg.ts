@@ -4,22 +4,20 @@ import {getExecutablePath} from './compositor/get-executable-path';
 import {truthy} from './truthy';
 
 export const callFfExtraOptions = () => {
+	const lib = path.join(getExecutablePath('ffmpeg-cwd'), 'remotion', 'lib');
+
 	return {
 		env:
 			process.platform === 'darwin'
 				? {
-						DYLD_LIBRARY_PATH: path.join(
-							getExecutablePath('ffmpeg-cwd'),
-							'remotion',
-							'lib'
-						),
+						DYLD_LIBRARY_PATH: lib,
+				  }
+				: process.platform === 'win32'
+				? {
+						PATH: `${process.env.PATH};${lib}`,
 				  }
 				: {
-						LD_LIBRARY_PATH: path.join(
-							getExecutablePath('ffmpeg-cwd'),
-							'remotion',
-							'lib'
-						),
+						LD_LIBRARY_PATH: lib,
 				  },
 	};
 };
