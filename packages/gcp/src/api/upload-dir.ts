@@ -1,5 +1,5 @@
 import type { Dirent } from 'fs';
-import { createReadStream, promises as fs, statSync } from 'fs';
+import { createReadStream, promises as fs } from 'fs';
 import { makeStorageKey } from '../shared/make-storage-key';
 import { getCloudStorageClient } from './helpers/get-cloud-storage-client';
 import path from 'path';
@@ -92,7 +92,7 @@ export const uploadDir = async ({
 		const destination = makeStorageKey( keyPrefix, localDir, path )
 		return new Promise((resolve, reject) => {
 			createReadStream(path)
-				.pipe(cloudStorageClient.bucket(bucket).file(destination).createWriteStream())
+				.pipe(cloudStorageClient.bucket(bucket).file(destination).createWriteStream({public: true}))
 				.on("error", error => reject(error))
 				.on('progress', function (p) {
 					progresses[path] = p.bytesWritten ?? 0;

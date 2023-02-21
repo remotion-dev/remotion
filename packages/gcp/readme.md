@@ -49,6 +49,7 @@ Navigate to the [Service Accounts](https://console.cloud.google.com/projectselec
 
 # Available commands from the CLI:
 This command will deploy a cloud-run service, and return the URL of the service. This cloud run service is what will be invoked to render media.  
+<br><br>
 ## Command: `npx remotion gcp cloud-run deploy`  
 Options:  
 -  --project-id (required): 
@@ -67,18 +68,54 @@ Options:
 Taking the above into account, a valid command would be:  
 `npx remotion gcp cloud-run deploy --service-name=cloud-run-render --project-id=new-remotion-project --remotion-version=3.3.36-alpha --allow-unauthenticated`
 
+To view the deployed service, navigate to the [Cloud Run](https://console.cloud.google.com/run) screen in Google Cloud Console, and selecting the project from the drop-down menu in the top left corner.
+- The URL is visible at the top of the screen. This is where to send POST requests for rendering.
+- Revisions are listed under the revisions tab. You can also manage traffic splitting, and view resource limits for each revision.
+- Logs are available under the logs tab. For troubleshooting, it is best to click on the new tab icon to open the Logs Explorer, and then click on Stream Logs in the top right to have a live view of logs.
+- The security tab allows you to manage authentication and authorization for the service. If you set `--allow-unauthenticated` to true, you will see that unauthenticated invocations are allowed.
+
+<br><br>
 ## Command: `npx remotion gcp sites create`
-t.b.c
+Options:  
+-  tbc
 
-### Render media on GCP
-Within the Cloud Run service, you can see the URL of the service. You can run the service by sending a POST request to the URL with the following body example:
+This command will bundle the site and upload it to a GCP bucket. To view storage buckets in your project, navigate to the [Storage](https://console.cloud.google.com/storage/browser) screen in Google Cloud Console, and select the project from the drop-down menu in the top left corner.
 
-#### Body to render media:
+# Render media on GCP
+Within the Cloud Run service, you can see the URL of the service. Distributed rendering is not yet supported, but rendering a still or media in a single-threaded instance is available.
+
+To render a still, send a POST request to the URL with the following body:
+- type: the type of render. For a still, this should be set to `still`.
+- composition: the name of the composition to render. This must be available in the bundle that has been deployed to GCP.
+- serveUrl: the URL of the site that has been deployed to GCP.
+- inputProps: the props to pass to the composition.
+- outputBucket: bucket for the output to be uploaded to. The bucket must exist, and the service account running the service must have access to the bucket.
+- outputFile: The path and filename to upload the output to.
+```
+{
+    "type": "still",
+    "composition": "StillRender",
+    "serveUrl": "https://storage.googleapis.com/remotioncloudrun-n8x4pc7dz3/sites/e97ngid3n3/index.html",
+    "inputProps": {
+      "text": "Created on Cloud Run™️"
+    },
+    "outputBucket": "remotionlambda-test",
+    "outputFile": "outFolder/stillOutput.png"
+}
+```
+
+To render media, send a POST request to the URL with the following body:
+- type: the type of render. For media, this should be set to `media`.
+- composition: the name of the composition to render. This must be available in the bundle that has been deployed to GCP.
+- serveUrl: the URL of the site that has been deployed to GCP.
+- inputProps: the props to pass to the composition.
+- outputBucket: bucket for the output to be uploaded to. The bucket must exist, and the service account running the service must have access to the bucket.
+- outputFile: The path and filename to upload the output to.
 ```
 {
     "type": "media",
     "composition": "HelloWorld",
-    "serveUrl": "https://remotionlambda-11kow3vq6f.s3.us-east-1.amazonaws.com/sites/xmycbufjs3/index.html",
+    "serveUrl": "https://storage.googleapis.com/remotioncloudrun-n8x4pc7dz3/sites/e97ngid3n3/index.html",
     "codec": "h264",
     "inputProps": {
       "titleText": "Welcome to Remotion",
@@ -88,15 +125,26 @@ Within the Cloud Run service, you can see the URL of the service. You can run th
     "outputFile": "outFolder/mediaOutput.mp4"
 }
 ```
-#### Body to render still:
-```
-{
-    "composition": "StillRender",
-    "serveUrl": "https://remotionlambda-11kow3vq6f.s3.us-east-1.amazonaws.com/sites/xmycbufjs3/index.html",
-    "inputProps": {
-      "text": "Created on Cloud Run™️"
-    },
-    "outputBucket": "remotionlambda-test",
-    "outputFile": "outFolder/stillOutput.png"
-}
-```
+
+
+<br><br><br><br>
+# To Do
+### deploy cloud-run command
+- add remotionVersion validation
+- add cpu and memory limit arguments
+- returning error from deployNewCloudRun - typed as any, can I get a type from the protos?
+- sprinkle quietFlagProvided() throughout
+- printCloudRunHelp to be completed
+- when deploying a cloud run instance, should include the remotion version in the revision name
+- add new service account as runner of the service, so the permissions can stay tight.
+- allow outputBucket and outputFile to be optional. After that, update readme with details.
+### create sites command
+- add remotionVersion validation
+- sprinkle quietFlagProvided() throughout
+- printSitesHelp to be completed
+- time for uploading to GCP Storage Bucket is always 0ms
+### getCompositionsOnCloudRun
+- to be created
+
+
+

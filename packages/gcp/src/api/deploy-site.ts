@@ -68,7 +68,7 @@ export const deploySite = async ({
 			prefix: subFolder
 		}),
 		bundleSite(entryPoint, options?.onBundleProgress ?? (() => undefined), {
-			publicPath: `/${subFolder}/`,
+			publicPath: `/${bucketName}/${subFolder}/`,
 			webpackOverride: options?.webpackOverride ?? ((f) => f),
 			enableCaching: options?.enableCaching ?? true,
 			publicDir: options?.publicDir,
