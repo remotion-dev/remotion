@@ -2,11 +2,10 @@
 	"name": "@remotion/player",
 	"version": "3.3.45",
 	"description": "Remotion Player",
-	"main": "dist/esm/index.js",
+	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.js",
 	"sideEffects": false,
-	"type": "module",
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
 		"build": "tsc -d && tsc -d -p tsconfig-cjs.json",

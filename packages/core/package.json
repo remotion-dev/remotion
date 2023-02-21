@@ -2,10 +2,9 @@
 	"name": "remotion",
 	"version": "3.3.45",
 	"description": "Render videos in React",
-	"main": "dist/esm/index.js",
+	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.js",
-	"type": "module",
 	"scripts": {
 		"prepublishOnly": "node ensure-correct-version.js && cp ../../README.md .",
 		"lint": "eslint src --ext ts,tsx",
