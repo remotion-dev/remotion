@@ -1,27 +1,27 @@
-import {calculateCanvasTransformation, calculateScale} from './calculate-scale';
-import {PlayerEventEmitterContext} from './emitter-context';
-import type {CallbackListener, PlayerEventTypes} from './event-emitter';
-import {PlayerEmitter} from './event-emitter';
-import {useHoverState} from './use-hover-state';
-import {usePlayback} from './use-playback';
-import {usePlayer} from './use-player';
-import {updateAllElementsSizes, useElementSize} from './utils/use-element-size';
+import {calculateCanvasTransformation, calculateScale} from './calculate-scale.js';
+import {PlayerEventEmitterContext} from './emitter-context.js';
+import type {CallbackListener, PlayerEventTypes} from './event-emitter.js';
+import {PlayerEmitter} from './event-emitter.js';
+import {useHoverState} from './use-hover-state.js';
+import {usePlayback} from './use-playback.js';
+import {usePlayer} from './use-player.js';
+import {updateAllElementsSizes, useElementSize} from './utils/use-element-size.js';
 
-export {Player, PlayerProps} from './Player';
+export {Player, PlayerProps} from './Player.js';
 export {
 	PlayerMethods,
 	PlayerRef,
 	ThumbnailMethods,
 	ThumbnailRef,
-} from './player-methods';
+} from './player-methods.js';
 export type {
 	RenderFullscreenButton,
 	RenderPlayPauseButton,
-} from './PlayerControls';
-export type {ErrorFallback, RenderLoading, RenderPoster} from './PlayerUI';
-export {Thumbnail} from './Thumbnail';
-export {PreviewSize, Translation} from './utils/preview-size';
-export {Size} from './utils/use-element-size';
+} from './PlayerControls.js';
+export type {ErrorFallback, RenderLoading, RenderPoster} from './PlayerUI.js';
+export {Thumbnail} from './Thumbnail.js';
+export {PreviewSize, Translation} from './utils/preview-size.js';
+export {Size} from './utils/use-element-size.js';
 export type {CallbackListener, PlayerEventTypes as EventTypes};
 
 export const PlayerInternals = {

@@ -1,12 +1,12 @@
 import type {MouseEventHandler, ReactNode} from 'react';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
-import {formatTime} from './format-time';
-import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
-import {MediaVolumeSlider} from './MediaVolumeSlider';
-import {PlayerSeekBar} from './PlayerSeekBar';
-import type {usePlayer} from './use-player';
-import {useVideoControlsResize} from './use-video-controls-resize';
+import {formatTime} from './format-time.js';
+import {FullscreenIcon, PauseIcon, PlayIcon} from './icons.js';
+import {MediaVolumeSlider} from './MediaVolumeSlider.js';
+import {PlayerSeekBar} from './PlayerSeekBar.js';
+import type {usePlayer} from './use-player.js';
+import {useVideoControlsResize} from './use-video-controls-resize.js';
 
 export type RenderPlayPauseButton = (props: {playing: boolean}) => ReactNode;
 export type RenderFullscreenButton = (props: {
