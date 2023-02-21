@@ -73,7 +73,7 @@
 	"typesVersions": {
 		">=1.0": {
 			"version": [
-				"dist/version.d.ts"
+				"dist/esm/version.d.ts"
 			]
 		}
 	}
