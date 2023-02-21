@@ -4,14 +4,14 @@
 import {render} from '@testing-library/react';
 import React from 'react';
 import {describe, expect, test} from 'vitest';
-import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
-import {Freeze} from '../freeze';
-import {Sequence} from '../Sequence';
-import type {TimelineContextValue} from '../timeline-position-state';
-import {TimelineContext} from '../timeline-position-state';
-import {useCurrentFrame} from '../use-current-frame';
-import {expectToThrow} from './expect-to-throw';
-import {WrapSequenceContext} from './wrap-sequence-context';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
+import {Freeze} from '../freeze.js';
+import {Sequence} from '../Sequence.js';
+import type {TimelineContextValue} from '../timeline-position-state.js';
+import {TimelineContext} from '../timeline-position-state.js';
+import {useCurrentFrame} from '../use-current-frame.js';
+import {expectToThrow} from './expect-to-throw.js';
+import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 describe('Prop validation', () => {
 	test('It should throw if Freeze has string as frame prop value', () => {

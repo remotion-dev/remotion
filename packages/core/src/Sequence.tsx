@@ -6,13 +6,13 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import {AbsoluteFill} from './AbsoluteFill';
-import {CompositionManager} from './CompositionManager';
-import {useRemotionEnvironment} from './get-environment';
-import {getTimelineClipName} from './get-timeline-clip-name';
-import {useNonce} from './nonce';
-import {TimelineContext, useTimelinePosition} from './timeline-position-state';
-import {useVideoConfig} from './use-video-config';
+import {AbsoluteFill} from './AbsoluteFill.js';
+import {CompositionManager} from './CompositionManager.js';
+import {useRemotionEnvironment} from './get-environment.js';
+import {getTimelineClipName} from './get-timeline-clip-name.js';
+import {useNonce} from './nonce.js';
+import {TimelineContext, useTimelinePosition} from './timeline-position-state.js';
+import {useVideoConfig} from './use-video-config.js';
 
 export type SequenceContextType = {
 	cumulatedFrom: number;
