@@ -101,6 +101,10 @@ Reports progress of how many bytes have been written while copying the `public/`
 
 Gets called when a symbolic link is detected in the `public/` directory. Since Remotion will forward the symbolic link, it might be useful to display a hint to the user that if the original symbolic link gets deleted, the bundle will also break.
 
+#### `ignoreRegisterRootWarning?` <AvailableFrom v="3.3.46" />
+
+Ignore an error that gets thrown if you pass an entry point file which does not contain `registerRoot`.
+
 ## Legacy function signature
 
 Remotion versions earlier than v3.2.17 had the following function signature instead:
