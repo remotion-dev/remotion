@@ -56,6 +56,8 @@ This component is a high order component, and accepts, besides it's children, th
 
 For how many frames the sequence should be displayed. Children are unmounted if they are not within the time range of display.
 
+Only the last `<Serires.Sequence />` instance is allowed to have the durationInFrames as `Infinity`, rest should have a positive integer.
+
 ### `offset`
 
 _optional_

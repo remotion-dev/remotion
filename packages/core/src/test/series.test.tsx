@@ -325,3 +325,46 @@ test('Should cascade positive offset props', () => {
 	);
 	expect(container.outerHTML).toBe('<div><div>third 0</div></div>');
 });
+
+test('Allow durationInFrames as Infinity for last Series.Sequence', () => {
+	const {container} = renderForFrame(
+		10,
+		<WrapSequenceContext>
+			<Series>
+				<Series.Sequence durationInFrames={5}>
+					<First />
+				</Series.Sequence>
+				<Series.Sequence durationInFrames={5}>
+					<Second />
+				</Series.Sequence>
+				<Series.Sequence durationInFrames={5}>
+					<Third />
+				</Series.Sequence>
+			</Series>{' '}
+		</WrapSequenceContext>
+	);
+	expect(container.outerHTML).toBe('<div><div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; width: 100%; height: 100%; display: flex;"><div>third 0</div></div> </div>');
+});
+
+test('Disallow durationInFrames as Infinity for first n-1 Series.Sequence', () => {
+	expect(() => {
+		renderForFrame(
+			10,
+			<WrapSequenceContext>
+				<Series>
+					<Series.Sequence durationInFrames={5}>
+						<First />
+					</Series.Sequence>
+					<Series.Sequence durationInFrames={Infinity}>
+						<Second />
+					</Series.Sequence>
+					<Series.Sequence durationInFrames={5}>
+						<Third />
+					</Series.Sequence>
+				</Series>{' '}
+			</WrapSequenceContext>
+		);
+	}).toThrow(
+		/The "durationInFrames" prop of a <Series.Sequence \/> component must be an integer, but got Infinity\./
+	);
+});
