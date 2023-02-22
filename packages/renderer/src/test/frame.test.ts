@@ -7,7 +7,7 @@ test('Validate frame', () => {
 	);
 	expect(
 		// @ts-expect-error
-		() => validateFrame('hithere', 100)
+		() => Internals.validateFrame('hithere', 100)
 	).toThrow(/Argument passed for "frame" is not a number: hithere/);
 	expect(() => Internals.validateFrame(3, 1)).toThrow(
 		/Cannot use frame 3: Duration of composition is 1, therefore the highest frame that can be rendered is 0/
