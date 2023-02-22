@@ -129,7 +129,7 @@ export const experts: Expert[] = [
           target={"_blank"}
           href="https://satelllte.notion.site/Remotion-Showcase-5783389861504a5ea2a39fc6fb16c0c8#4f76cb43a15342bda167e0e9a0553895"
         >
-          Music visualization
+          Music visualizations
         </a>
         !<br />
         Check out my{" "}
@@ -198,6 +198,53 @@ export const experts: Expert[] = [
       <div>
         I am an experienced integration developer using Mulesoft, a backend
         developer and on the side frontend and animation enthusiast.
+      </div>
+    ),
+  },
+  {
+    slug: "matthew-mcgillivray",
+    name: "Matt McGillivray",
+    image: "/img/freelancers/umungo.png",
+    website: null,
+    twitter: "ProThatwas",
+    github: "UmungoBungo",
+    linkedin: "in/matthew-mcgillivray-68295a55",
+    email: "m.mcgillivray@outlook.com",
+    since: new Date("2023-01-30").getTime(),
+    description: (
+      <div>
+        <p>
+          I made:{" "}
+          <a target={"_blank"} href="https://thatwas.pro">
+            ThatWas.pro
+          </a>
+          {" and "}
+          <a target={"_blank"} href="https://splitscreen.video">
+            splitscreen.video
+          </a>
+          !
+        </p>
+      </div>
+    ),
+  },
+  {
+    slug: "ray-lotmar",
+    name: "Ray Lotmar",
+    image: "/img/freelancers/ray.jpeg",
+    website: null,
+    twitter: "romrif",
+    github: null,
+    linkedin: "in/raymond-lotmar/",
+    email: "ray@blocklab.ch",
+    since: new Date("2023-01-30").getTime(),
+    description: (
+      <div>
+        I made:{" "}
+        <a target={"_blank"} href="https://www.romrif.com/">
+          Romrif.com
+        </a>
+        ! <br />
+        I build Websites & Videos with Remotion. I&apos;m alway interested in the latest Tech and love building stuff. Feel free to contact me - I&apos;m available for hire.
       </div>
     ),
   },

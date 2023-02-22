@@ -4,11 +4,11 @@
 /* eslint-disable react/jsx-no-constructed-context-values */
 import {render} from '@testing-library/react';
 import {expect, test} from 'vitest';
-import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
-import {Sequence} from '../Sequence';
-import {TimelineContext} from '../timeline-position-state';
-import {useCurrentFrame} from '../use-current-frame';
-import {WrapSequenceContext} from './wrap-sequence-context';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
+import {Sequence} from '../Sequence.js';
+import {TimelineContext} from '../timeline-position-state.js';
+import {useCurrentFrame} from '../use-current-frame.js';
+import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 test('It should calculate the correct offset in nested sequences', () => {
 	const NestedChild = () => {

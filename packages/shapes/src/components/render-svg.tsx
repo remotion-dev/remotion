@@ -1,5 +1,5 @@
+import type {Instruction} from '@remotion/paths';
 import React, {useMemo} from 'react';
-import type {Instruction} from '../utils/instructions';
 
 export type AllShapesProps = Omit<
 	React.SVGProps<SVGPathElement>,
@@ -61,6 +61,23 @@ export const RenderSvg = ({
 								index === 0
 									? instructions[instructions.length - 1]
 									: instructions[index - 1];
+							if (
+								prevInstruction.type === 'V' ||
+								prevInstruction.type === 'H' ||
+								prevInstruction.type === 'a' ||
+								prevInstruction.type === 'Z' ||
+								prevInstruction.type === 't' ||
+								prevInstruction.type === 'q' ||
+								prevInstruction.type === 'l' ||
+								prevInstruction.type === 'c' ||
+								prevInstruction.type === 'm' ||
+								prevInstruction.type === 'h' ||
+								prevInstruction.type === 's' ||
+								prevInstruction.type === 'v'
+							) {
+								return null;
+							}
+
 							const prevX = prevInstruction.x;
 							const prevY = prevInstruction.y;
 							return (

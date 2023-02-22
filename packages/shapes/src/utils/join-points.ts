@@ -1,4 +1,4 @@
-import type {Instruction} from './instructions';
+import type {Instruction} from '@remotion/paths';
 
 const shortenVector = (vector: readonly [number, number], radius: number) => {
 	const [x, y] = vector;
@@ -30,7 +30,7 @@ export const joinPoints = (
 	}
 ) => {
 	return points
-		.map(([x, y], i): Instruction | Instruction[] => {
+		.map(([x, y], i): Instruction[] => {
 			const prevPointIndex = i === 0 ? points.length - 2 : i - 1;
 			const prevPoint = points[prevPointIndex];
 			const nextPointIndex = i === points.length - 1 ? 1 : i + 1;
@@ -43,18 +43,22 @@ export const joinPoints = (
 
 			if (i === 0) {
 				if (edgeRoundness !== null) {
-					return {
-						type: 'M',
-						x: middleOfLine[0],
-						y: middleOfLine[1],
-					};
+					return [
+						{
+							type: 'M',
+							x: middleOfLine[0],
+							y: middleOfLine[1],
+						},
+					];
 				}
 
-				return {
-					type: 'M',
-					x,
-					y,
-				};
+				return [
+					{
+						type: 'M',
+						x,
+						y,
+					},
+				];
 			}
 
 			const prevVector = [x - prevPoint[0], y - prevPoint[1]] as const;
@@ -68,11 +72,13 @@ export const joinPoints = (
 
 			if (edgeRoundness === null) {
 				if (cornerRadius === 0) {
-					return {
-						type: 'L',
-						x,
-						y,
-					};
+					return [
+						{
+							type: 'L',
+							x,
+							y,
+						},
+					];
 				}
 
 				const prevVectorMinusRadius = shortenVector(prevVector, cornerRadius);
@@ -99,8 +105,8 @@ export const joinPoints = (
 								rx: cornerRadius,
 								ry: cornerRadius,
 								xAxisRotation: 0,
-								x: prevVectorLenght[0] + nextVectorMinusRadius[0],
-								y: prevVectorLenght[1] + nextVectorMinusRadius[1],
+								dx: prevVectorLenght[0] + nextVectorMinusRadius[0],
+								dy: prevVectorLenght[1] + nextVectorMinusRadius[1],
 								largeArcFlag: false,
 								sweepFlag: true,
 						  }
@@ -128,15 +134,17 @@ export const joinPoints = (
 				middleOfLine[1] - nextVector[1] * edgeRoundness * 0.5,
 			] as const;
 
-			return {
-				type: 'C',
-				cp1x: controlPoint1[0],
-				cp1y: controlPoint1[1],
-				cp2x: controlPoint2[0],
-				cp2y: controlPoint2[1],
-				x: middleOfLine[0],
-				y: middleOfLine[1],
-			};
+			return [
+				{
+					type: 'C',
+					cp1x: controlPoint1[0],
+					cp1y: controlPoint1[1],
+					cp2x: controlPoint2[0],
+					cp2y: controlPoint2[1],
+					x: middleOfLine[0],
+					y: middleOfLine[1],
+				},
+			];
 		})
 		.flat(1);
 };

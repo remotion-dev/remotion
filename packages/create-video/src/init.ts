@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import execa from 'execa';
 import os from 'os';
+import {createYarnYmlFile} from './add-yarn2-support';
 import {degit} from './degit';
 import {getLatestRemotionVersion} from './latest-remotion-version';
 import {Log} from './log';
@@ -15,6 +16,7 @@ import {
 } from './pkg-managers';
 import {resolveProjectRoot} from './resolve-project-root';
 import {selectTemplate} from './select-template';
+import {yesOrNo} from './yesno';
 
 const binaryExists = (name: string) => {
 	const isWin = os.platform() === 'win32';
@@ -81,9 +83,14 @@ export const init = async () => {
 	}
 
 	if (result.type === 'is-git-repo') {
-		Log.error(`You are already inside a Git repo (${result.location}).`);
-		Log.error('Create a Remotion project somewhere else.');
-		process.exit(1);
+		const should = await yesOrNo({
+			defaultValue: false,
+			question: `You are already inside a Git repo (${result.location}).\nThis might lead to a Git Submodule being created. Do you want to continue? (y/N):`,
+		});
+		if (!should) {
+			Log.error('Aborting.');
+			process.exit(1);
+		}
 	}
 
 	const [projectRoot, folderName] = await resolveProjectRoot();
@@ -101,7 +108,7 @@ export const init = async () => {
 			repoName: selectedTemplate.repoName,
 			dest: projectRoot,
 		});
-		patchReadmeMd(projectRoot, pkgManager);
+		patchReadmeMd(projectRoot, pkgManager, selectedTemplate);
 		const latestVersion = await latestRemotionVersionPromise;
 		patchPackageJson({
 			projectRoot,
@@ -122,6 +129,12 @@ export const init = async () => {
 			selectedTemplate.shortName
 		)} to ${chalk.blueBright(folderName)}. Installing dependencies...`
 	);
+
+	createYarnYmlFile({
+		pkgManager,
+		pkgManagerVersion,
+		projectRoot,
+	});
 
 	if (pkgManager === 'yarn') {
 		Log.info('> yarn');

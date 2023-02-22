@@ -28,6 +28,7 @@ import { audioBufferToDataUrl } from "@remotion/media-utils";
 import { useCallback, useEffect, useState } from "react";
 import {
   Audio,
+  cancelRender,
   continueRender,
   delayRender,
   interpolate,
@@ -69,7 +70,7 @@ export const OfflineAudioBufferExample: React.FC = () => {
   }, [handle, lengthInSeconds]);
 
   useEffect(() => {
-    renderAudio();
+    renderAudio().catch((err) => cancelRender(err));
   }, [renderAudio]);
 
   return audioBuffer ? (

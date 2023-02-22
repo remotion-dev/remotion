@@ -38,7 +38,7 @@ import {getRegions} from './api/get-regions';
 import type {GetRenderInput} from './api/get-render-progress';
 import {getRenderProgress} from './api/get-render-progress';
 import type {GetSitesInput, GetSitesOutput} from './api/get-sites';
-import {getSites} from './api/get-sites';
+import {getSites as deprecatedGetSites} from './api/get-sites';
 import type {
 	SimulatePermissionsInput,
 	SimulatePermissionsOutput,
@@ -48,7 +48,7 @@ import {
 	getRolePolicy,
 	getUserPolicy,
 } from './api/iam-validation/suggested-policy';
-import {presignUrl} from './api/presign-url';
+import {presignUrl as deprecatedPresignUrl} from './api/presign-url';
 import type {
 	RenderMediaOnLambdaInput,
 	RenderMediaOnLambdaOutput,
@@ -84,6 +84,16 @@ const renderMediaOnLambda = deprecatedRenderMediaOnLambda;
  * @deprecated Import this from `@remotion/lambda/client` instead
  */
 const renderStillOnLambda = deprecatedRenderStillOnLambda;
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const presignUrl = deprecatedPresignUrl;
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const getSites = deprecatedGetSites;
 
 export {
 	deleteSite,

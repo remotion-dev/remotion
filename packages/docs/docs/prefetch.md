@@ -56,9 +56,9 @@ The function takes a `src`, which can be a remote URL, an imported asset or an a
 
 ### `options`
 
-#### `method`
+#### `method` <AvailableFrom v="3.2.35" />
 
-_available from v3.2.35 - previously defaulted to `blob-url`_
+_previously defaulted to `blob-url`_
 
 Either `blob-url` or `base64`.
 

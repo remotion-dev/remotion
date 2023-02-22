@@ -15,21 +15,21 @@ import type {
 	TimelineContextValue,
 } from 'remotion';
 import {Composition, Internals} from 'remotion';
-import {PlayerEventEmitterContext} from './emitter-context';
-import {PlayerEmitter} from './event-emitter';
-import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
-import type {PlayerRef} from './player-methods';
+import {PlayerEventEmitterContext} from './emitter-context.js';
+import {PlayerEmitter} from './event-emitter.js';
+import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
+import type {PlayerRef} from './player-methods.js';
 import type {
 	RenderFullscreenButton,
 	RenderPlayPauseButton,
-} from './PlayerControls';
-import type {RenderLoading, RenderPoster} from './PlayerUI';
-import PlayerUI from './PlayerUI';
-import {SharedPlayerContexts} from './SharedPlayerContext';
-import type {PropsIfHasProps} from './utils/props-if-has-props';
-import {validateInOutFrames} from './utils/validate-in-out-frame';
-import {validateInitialFrame} from './utils/validate-initial-frame';
-import {validatePlaybackRate} from './utils/validate-playbackrate';
+} from './PlayerControls.js';
+import type {RenderLoading, RenderPoster} from './PlayerUI.js';
+import PlayerUI from './PlayerUI.js';
+import {SharedPlayerContexts} from './SharedPlayerContext.js';
+import type {PropsIfHasProps} from './utils/props-if-has-props.js';
+import {validateInOutFrames} from './utils/validate-in-out-frame.js';
+import {validateInitialFrame} from './utils/validate-initial-frame.js';
+import {validatePlaybackRate} from './utils/validate-playbackrate.js';
 
 export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 
@@ -310,52 +310,56 @@ const PlayerFn = <T,>(
 	}
 
 	return (
-		<SharedPlayerContexts
-			timelineContext={timelineContextValue}
-			component={component}
-			compositionHeight={compositionHeight}
-			compositionWidth={compositionWidth}
-			durationInFrames={durationInFrames}
-			fps={fps}
-			inputProps={inputProps}
-			numberOfSharedAudioTags={numberOfSharedAudioTags}
-		>
-			<Internals.Timeline.SetTimelineContext.Provider
-				value={setTimelineContextValue}
+		<Internals.IsPlayerContextProvider>
+			<SharedPlayerContexts
+				timelineContext={timelineContextValue}
+				component={component}
+				compositionHeight={compositionHeight}
+				compositionWidth={compositionWidth}
+				durationInFrames={durationInFrames}
+				fps={fps}
+				inputProps={inputProps}
+				numberOfSharedAudioTags={numberOfSharedAudioTags}
 			>
-				<PlayerEventEmitterContext.Provider value={emitter}>
-					<PlayerUI
-						ref={rootRef}
-						renderLoading={renderLoading}
-						autoPlay={Boolean(autoPlay)}
-						loop={Boolean(loop)}
-						controls={Boolean(controls)}
-						errorFallback={errorFallback}
-						style={style}
-						inputProps={passedInputProps}
-						allowFullscreen={Boolean(allowFullscreen)}
-						moveToBeginningWhenEnded={Boolean(moveToBeginningWhenEnded)}
-						clickToPlay={
-							typeof clickToPlay === 'boolean' ? clickToPlay : Boolean(controls)
-						}
-						showVolumeControls={Boolean(showVolumeControls)}
-						doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
-						spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
-						playbackRate={playbackRate}
-						className={className ?? undefined}
-						showPosterWhenUnplayed={Boolean(showPosterWhenUnplayed)}
-						showPosterWhenEnded={Boolean(showPosterWhenEnded)}
-						showPosterWhenPaused={Boolean(showPosterWhenPaused)}
-						renderPoster={renderPoster}
-						inFrame={inFrame ?? null}
-						outFrame={outFrame ?? null}
-						initiallyShowControls={initiallyShowControls ?? true}
-						renderFullscreen={renderFullscreenButton ?? null}
-						renderPlayPauseButton={renderPlayPauseButton ?? null}
-					/>
-				</PlayerEventEmitterContext.Provider>
-			</Internals.Timeline.SetTimelineContext.Provider>
-		</SharedPlayerContexts>
+				<Internals.Timeline.SetTimelineContext.Provider
+					value={setTimelineContextValue}
+				>
+					<PlayerEventEmitterContext.Provider value={emitter}>
+						<PlayerUI
+							ref={rootRef}
+							renderLoading={renderLoading}
+							autoPlay={Boolean(autoPlay)}
+							loop={Boolean(loop)}
+							controls={Boolean(controls)}
+							errorFallback={errorFallback}
+							style={style}
+							inputProps={passedInputProps}
+							allowFullscreen={Boolean(allowFullscreen)}
+							moveToBeginningWhenEnded={Boolean(moveToBeginningWhenEnded)}
+							clickToPlay={
+								typeof clickToPlay === 'boolean'
+									? clickToPlay
+									: Boolean(controls)
+							}
+							showVolumeControls={Boolean(showVolumeControls)}
+							doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
+							spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
+							playbackRate={playbackRate}
+							className={className ?? undefined}
+							showPosterWhenUnplayed={Boolean(showPosterWhenUnplayed)}
+							showPosterWhenEnded={Boolean(showPosterWhenEnded)}
+							showPosterWhenPaused={Boolean(showPosterWhenPaused)}
+							renderPoster={renderPoster}
+							inFrame={inFrame ?? null}
+							outFrame={outFrame ?? null}
+							initiallyShowControls={initiallyShowControls ?? true}
+							renderFullscreen={renderFullscreenButton ?? null}
+							renderPlayPauseButton={renderPlayPauseButton ?? null}
+						/>
+					</PlayerEventEmitterContext.Provider>
+				</Internals.Timeline.SetTimelineContext.Provider>
+			</SharedPlayerContexts>
+		</Internals.IsPlayerContextProvider>
 	);
 };
 

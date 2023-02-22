@@ -5,13 +5,13 @@
 import {render} from '@testing-library/react';
 import React from 'react';
 import {describe, expect, test} from 'vitest';
-import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
-import {Freeze} from '../freeze';
-import type {TimelineContextValue} from '../internals';
-import {Internals} from '../internals';
-import {Sequence} from '../Sequence';
-import {useVideoConfig} from '../use-video-config';
-import {WrapSequenceContext} from './wrap-sequence-context';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
+import {Freeze} from '../freeze.js';
+import type {TimelineContextValue} from '../internals.js';
+import {Internals} from '../internals.js';
+import {Sequence} from '../Sequence.js';
+import {useVideoConfig} from '../use-video-config.js';
+import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 const Inner: React.FC = () => {
 	const config = useVideoConfig();

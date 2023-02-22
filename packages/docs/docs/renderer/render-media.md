@@ -43,9 +43,22 @@ _"h264" (default) | "h265" | "vp8" | "vp9" | "mp3" | "aac" | "wav" | "prores" | 
 
 Choose a suitable codec for your output media. Refer to the [Encoding guide](/docs/encoding) to find the best codec for your use case.
 
-### `audioBitrate?`
+### `audioCodec?`
 
-_string - optional, available from v3.2.32_
+_"pcm-16" | "aac" | "mp3" | "opus", available from v3.3.41_
+
+Choose the encoding of your audio.
+
+- The default is dependent on the chosen `codec`.
+- Choose `pcm-16` if you need uncompressed audio.
+- Not all video containers support all audio codecs.
+- This option takes precedence if the `codec` option also specifies an audio codec.
+
+Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and supported combinations.
+
+### `audioBitrate?` <AvailableFrom v="3.2.32" />
+
+_string - optional_
 
 Specify the target bitrate for the generated video.  
 The syntax for FFMPEGs `-b:v` parameter should be used.  
@@ -54,9 +67,9 @@ This option cannot be set if `--crf` is set.
 Example values: `512K` for 512 kbps, `1M` for 1 Mbps.  
 Default: `320k`
 
-### `videoBitrate?`
+### `videoBitrate?` <AvailableFrom v="3.2.32" />
 
-_string - optional, available from v3.2.32_
+_string - optional_
 
 Specify the target bitrate for the generated video.  
 The syntax for FFMPEGs `-b:v` parameter should be used.  
@@ -102,27 +115,27 @@ _string - optional_
 
 An absolute path overriding the `ffmpeg` executable to use.
 
-### `ffprobeExecutable?`
+### `ffprobeExecutable?` <AvailableFrom v="3.0.17" />
 
-_optional, available from v3.0.17_
+_optional_
 
 An absolute path overriding the `ffprobe` executable to use.
 
-### `browserExecutable?`
+### `browserExecutable?` <AvailableFrom v="3.0.11" />
 
-_optional, available from v3.0.11_
+_optional_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
 
-### `everyNthFrame?`
+### `everyNthFrame?` <AvailableFrom v="3.1.0" />
 
-_optional, available from v3.1_
+_optional_
 
 Renders only every nth frame. For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif)
 
-### `numberOfGifLoops?`
+### `numberOfGifLoops?` <AvailableFrom v="3.1.0" />
 
-_optional, available since v3.1_
+_optional_
 
 [Set the looping behavior.](/docs/config#setnumberofgifloops) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
 
@@ -154,15 +167,15 @@ _number | [number, number] - optional_
 
 Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
 
-### `muted?`
+### `muted?` <AvailableFrom v="3.2.1" />
 
-_boolean - optional - available since v3.2.1_
+_boolean - optional_
 
 If set to true, no audio is being rendered.
 
-### `enforceAudioTrack?`
+### `enforceAudioTrack?` <AvailableFrom v="3.2.1" />
 
-_boolean - optional - available since v3.2.1_
+_boolean - optional_
 
 Render a silent audio track if there wouldn't be any otherwise.
 
@@ -306,21 +319,21 @@ _optional_
 
 A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
-### `cancelSignal?`
+### `cancelSignal?` <AvailableFrom v="3.0.15" />
 
-_optional, available from v3.0.15_
+_optional_
 
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
-### `verbose?`
+### `verbose?` <AvailableFrom v="3.1.6" />
 
-_optional, available from v3.1.6_
+_optional_
 
 Prints debugging output if set to true.
 
-### `chromiumOptions?`
+### `chromiumOptions?` <AvailableFrom v="2.6.5" />
 
-_optional, available from v2.6.5_
+_optional_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
@@ -362,9 +375,9 @@ Accepted values:
 **Default for local rendering**: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
 
-### `ffmpegOverride?`
+### `ffmpegOverride?` <AvailableFrom v="3.2.22" />
 
-_function - optional - available from v3.2.22_
+_function - optional_
 
 Modifies the FFMPEG command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
 
@@ -394,15 +407,11 @@ Using this feature is discouraged. Before using it, we want to make you aware of
 Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
 :::
 
-### `disallowParallelEncoding`
-
-_available from v3.2.29_
+### `disallowParallelEncoding` <AvailableFrom v="3.2.29" />
 
 Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
 
-### `onSlowestFrames?`
-
-_available from v3.2.29_
+### `onSlowestFrames?` <AvailableFrom v="3.2.29" />
 
 Callback function that gets called right before `renderMedia()` resolves.  
 The only argument `slowestFrames` is an array of the 10 slowest frames in the shape of `{frame:<Frame number>, time:<Time to render frame ms>}`. You can use this information to optimise your render times.

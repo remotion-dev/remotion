@@ -1,10 +1,9 @@
-import type {Codec, LogLevel} from '@remotion/renderer';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {Log} from './log';
 import {getOutputLocation} from './user-passed-output-location';
 
 export const getOutputFilename = ({
-	codec,
 	imageSequence,
 	compositionName,
 	defaultExtension,
@@ -13,7 +12,6 @@ export const getOutputFilename = ({
 	indent,
 	logLevel,
 }: {
-	codec: Codec;
 	imageSequence: boolean;
 	compositionName: string;
 	defaultExtension: string;
@@ -26,14 +24,14 @@ export const getOutputFilename = ({
 		return fromUi;
 	}
 
-	let filename = getOutputLocation({
+	const filename = getOutputLocation({
 		compositionId: compositionName,
 		defaultExtension,
 		args,
 		type: imageSequence ? 'sequence' : 'asset',
 	});
 
-	let extension = RenderInternals.getExtensionOfFilename(filename);
+	const extension = RenderInternals.getExtensionOfFilename(filename);
 	if (imageSequence) {
 		if (extension !== null) {
 			throw new Error(
@@ -46,41 +44,11 @@ export const getOutputFilename = ({
 	}
 
 	if (extension === null && !imageSequence) {
-		if (codec === 'h264' || codec === 'h265') {
-			Log.warnAdvanced(
-				{indent, logLevel},
-				'No file extension specified, adding .mp4 automatically.'
-			);
-			filename += '.mp4';
-			extension = 'mp4';
-		}
-
-		if (codec === 'h264-mkv') {
-			Log.warnAdvanced(
-				{indent, logLevel},
-				'No file extension specified, adding .mkv automatically.'
-			);
-			filename += '.mkv';
-			extension = 'mkv';
-		}
-
-		if (codec === 'vp8' || codec === 'vp9') {
-			Log.warnAdvanced(
-				{indent, logLevel},
-				'No file extension specified, adding .webm automatically.'
-			);
-			filename += '.webm';
-			extension = 'webm';
-		}
-
-		if (codec === 'prores') {
-			Log.warnAdvanced(
-				{indent, logLevel},
-				'No file extension specified, adding .mov automatically.'
-			);
-			filename += '.mov';
-			extension = 'mov';
-		}
+		Log.warnAdvanced(
+			{indent, logLevel},
+			`No file extension specified, adding ${defaultExtension} automatically.`
+		);
+		return `${filename}.${defaultExtension}`;
 	}
 
 	return filename;

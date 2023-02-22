@@ -1,6 +1,7 @@
 import execa from 'execa';
 import {downloadFile} from './assets/download-file';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
+import {getDefaultAudioCodec, validAudioCodecs} from './audio-codec';
 import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
@@ -17,11 +18,16 @@ import {
 	getExecutableBinary,
 	getFfmpegVersion,
 } from './ffmpeg-flags';
+import {defaultFileExtensionMap, supportedAudioCodecs} from './file-extensions';
 import {findRemotionRoot} from './find-closest-package-json';
 import {validateFrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
-import {getFileExtensionFromCodec} from './get-extension-from-codec';
+import {
+	defaultCodecsForFileExtension,
+	getFileExtensionFromCodec,
+	makeFileExtensionMap,
+} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
@@ -59,6 +65,7 @@ import {
 } from './wait-for-symbolication-error-to-be-done';
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 export type {DownloadMap} from './assets/download-map';
+export {AudioCodec} from './audio-codec';
 export {Browser} from './browser';
 export {BrowserExecutable} from './browser-executable';
 export {BrowserLog} from './browser-log';
@@ -73,6 +80,7 @@ export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception'
 export {FfmpegExecutable} from './ffmpeg-executable';
 export {FfmpegVersion} from './ffmpeg-flags';
 export type {FfmpegOverrideFn} from './ffmpeg-override';
+export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
 export {getCanExtractFramesFast} from './get-can-extract-frames-fast';
 export {getCompositions} from './get-compositions';
@@ -162,6 +170,12 @@ export const RenderInternals = {
 	combineVideos,
 	getMinConcurrency,
 	getMaxConcurrency,
+	getDefaultAudioCodec,
+	validAudioCodecs,
+	defaultFileExtensionMap,
+	supportedAudioCodecs,
+	makeFileExtensionMap,
+	defaultCodecsForFileExtension,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

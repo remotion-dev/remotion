@@ -1,5 +1,4 @@
 import {RenderInternals} from '@remotion/renderer';
-import {getExecutableBinary} from '@remotion/renderer/src/ffmpeg-flags';
 import {createWriteStream} from 'fs';
 import {VERSION} from 'remotion/version';
 import {afterAll, beforeAll, expect, test} from 'vitest';
@@ -67,6 +66,9 @@ test('Should make a distributed GIF', async () => {
 			videoBitrate: null,
 			forceHeight: null,
 			forceWidth: null,
+			rendererFunctionName: null,
+			bucketName: null,
+			audioCodec: null,
 		},
 		extraContext
 	);
@@ -92,7 +94,7 @@ test('Should make a distributed GIF', async () => {
 		file.pipe(createWriteStream('gif.gif')).on('close', () => resolve());
 	});
 	const probe = await RenderInternals.execa(
-		await getExecutableBinary(null, process.cwd(), 'ffprobe'),
+		await RenderInternals.getExecutableBinary(null, process.cwd(), 'ffprobe'),
 		['gif.gif']
 	);
 	expect(probe.stderr).toMatch(/Video: gif, bgra, 1080x1080/);

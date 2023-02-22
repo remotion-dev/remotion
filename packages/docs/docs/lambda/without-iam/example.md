@@ -97,18 +97,18 @@ Bundling asset cdk-stack/render-function/Code/Stage...
 
 cdk-stack: building assets...
 
-[0%] start: Building 87d5e793cbd198c73c05023515153b142eb2f559e7150579cd2db53362c19b6e:676583371711-us-east-1
-[0%] start: Building 779e5babb0ddf0d17c0faebbe5596b03bcf13785f0b20c4cd0fe0c5e616d5593:676583371711-us-east-1
-[50%] success: Built 87d5e793cbd198c73c05023515153b142eb2f559e7150579cd2db53362c19b6e:676583371711-us-east-1
-[100%] success: Built 779e5babb0ddf0d17c0faebbe5596b03bcf13785f0b20c4cd0fe0c5e616d5593:676583371711-us-east-1
+[0%] start: Building 87d5e793cbd198c73c05023515153b142eb2f559e7150579cd2db53362c19b6e:XXXXXXXXXX-us-east-1
+[0%] start: Building 779e5babb0ddf0d17c0faebbe5596b03bcf13785f0b20c4cd0fe0c5e616d5593:XXXXXXXXXX-us-east-1
+[50%] success: Built 87d5e793cbd198c73c05023515153b142eb2f559e7150579cd2db53362c19b6e:XXXXXXXXXX-us-east-1
+[100%] success: Built 779e5babb0ddf0d17c0faebbe5596b03bcf13785f0b20c4cd0fe0c5e616d5593:XXXXXXXXXX-us-east-1
 
 cdk-stack: assets built
 
 cdk-stack: deploying... [1/1]
-[0%] start: Publishing 87d5e793cbd198c73c05023515153b142eb2f559e7150579cd2db53362c19b6e:676583371711-us-east-1
-[0%] start: Publishing 779e5babb0ddf0d17c0faebbe5596b03bcf13785f0b20c4cd0fe0c5e616d5593:676583371711-us-east-1
-[50%] success: Published 779e5babb0ddf0d17c0faebbe5596b03bcf13785f0b20c4cd0fe0c5e616d5593:676583371711-us-east-1
-[100%] success: Published 87d5e793cbd198c73c05023515153b142eb2f559e7150579cd2db53362c19b6e:676583371711-us-east-1
+[0%] start: Publishing 87d5e793cbd198c73c05023515153b142eb2f559e7150579cd2db53362c19b6e:XXXXXXXXXX-us-east-1
+[0%] start: Publishing 779e5babb0ddf0d17c0faebbe5596b03bcf13785f0b20c4cd0fe0c5e616d5593:XXXXXXXXXX-us-east-1
+[50%] success: Published 779e5babb0ddf0d17c0faebbe5596b03bcf13785f0b20c4cd0fe0c5e616d5593:XXXXXXXXXX-us-east-1
+[100%] success: Published 87d5e793cbd198c73c05023515153b142eb2f559e7150579cd2db53362c19b6e:XXXXXXXXXX-us-east-1
 
  ✅  cdk-stack (no changes)
 
@@ -122,7 +122,7 @@ cdk-stack.region = us-east-1
 cdk-stack.userPoolClientId = 4l5tsda2iu8lqugl73m8hgeb83
 cdk-stack.userPoolId = us-east-1_bVwFsBUGO
 Stack ARN:
-arn:aws:cloudformation:us-east-1:676583371711:stack/cdk-stack/faf43800-9878-11ed-a070-0aacc64c8662
+arn:aws:cloudformation:us-east-1:XXXXXXXXXX:stack/cdk-stack/faf43800-9878-11ed-a070-0aacc64c8662
 
 ```
 

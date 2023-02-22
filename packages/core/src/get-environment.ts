@@ -1,3 +1,5 @@
+import {useIsPlayer} from './is-player.js';
+
 export type RemotionEnvironment =
 	| 'preview'
 	| 'rendering'
@@ -25,4 +27,17 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 	}
 
 	return 'preview';
+};
+
+export const useRemotionEnvironment = (): RemotionEnvironment => {
+	const isPlayer = useIsPlayer();
+	if (isPlayer) {
+		if (process.env.NODE_ENV === 'production') {
+			return 'player-production';
+		}
+
+		return 'player-development';
+	}
+
+	return getRemotionEnvironment();
 };

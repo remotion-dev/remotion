@@ -1,15 +1,15 @@
 {
 	"name": "remotion",
-	"version": "3.3.36",
+	"version": "3.3.45",
 	"description": "Render videos in React",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
-	"sideEffects": false,
+	"main": "dist/cjs/index.js",
+	"types": "dist/cjs/index.d.ts",
+	"module": "dist/esm/index.js",
 	"scripts": {
 		"prepublishOnly": "node ensure-correct-version.js && cp ../../README.md .",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
-		"build": "tsc -d",
+		"build": "tsc -d && tsc -d -p tsconfig-cjs.json",
 		"watch": "tsc -w"
 	},
 	"repository": {
@@ -33,6 +33,7 @@
 		"@types/webpack-env": "^1.16.0",
 		"@vitejs/plugin-react": "^2.0.0",
 		"eslint": "8.25.0",
+		"eslint-plugin-require-extensions": "^0.1.2",
 		"jsdom": "20.0.1",
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
@@ -41,8 +42,7 @@
 		"react-test-renderer": "^18.0.0",
 		"rimraf": "^3.0.2",
 		"typescript": "^4.7.0",
-		"vitest": "0.24.3",
-		"webpack": "5.74.0"
+		"vitest": "0.24.3"
 	},
 	"keywords": [
 		"remotion",
@@ -55,13 +55,24 @@
 		"access": "public"
 	},
 	"exports": {
-		".": "./dist/index.js",
-		"./version": "./dist/version.js"
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/cjs/index.d.ts",
+			"module": "./dist/esm/index.js",
+			"import": "./dist/esm/index.js",
+			"require": "./dist/cjs/index.js"
+		},
+		"./version": {
+			"types": "./dist/cjs/version.d.ts",
+			"module": "./dist/esm/version.js",
+			"import": "./dist/esm/version.js",
+			"require": "./dist/cjs/version.js"
+		}
 	},
 	"typesVersions": {
 		">=1.0": {
 			"version": [
-				"dist/version.d.ts"
+				"dist/esm/version.d.ts"
 			]
 		}
 	}

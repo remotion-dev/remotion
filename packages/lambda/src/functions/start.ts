@@ -31,9 +31,13 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 	}
 
 	const region = getCurrentRegionInFunction();
-	const {bucketName} = await getOrCreateBucket({
-		region: getCurrentRegionInFunction(),
-	});
+	const bucketName =
+		params.bucketName ??
+		(
+			await getOrCreateBucket({
+				region: getCurrentRegionInFunction(),
+			})
+		).bucketName;
 	const realServeUrl = convertToServeUrl({
 		urlOrId: params.serveUrl,
 		region,
@@ -87,6 +91,8 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		videoBitrate: params.videoBitrate,
 		forceHeight: params.forceHeight,
 		forceWidth: params.forceWidth,
+		rendererFunctionName: params.rendererFunctionName,
+		audioCodec: params.audioCodec,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({

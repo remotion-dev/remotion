@@ -1,7 +1,9 @@
 import {
   makeCircle,
   makeEllipse,
+  makePie,
   makeRect,
+  makeStar,
   makeTriangle,
 } from "@remotion/shapes";
 import React from "react";
@@ -52,6 +54,53 @@ export const shapeComponents: ShapeComponent[] = [
     ],
   },
   {
+    shape: "Pie",
+    fn: makePie,
+    params: [
+      {
+        name: "radius",
+        type: "number",
+        description: "The radius of the circle.",
+      },
+      {
+        name: "progress",
+        type: "number",
+        description: (
+          <>
+            The percentage of the circle that is filled. <code>0</code> means
+            fully empty, <code>1</code> means fully filled.
+          </>
+        ),
+      },
+      {
+        name: "counterClockwise",
+        type: "boolean",
+        description:
+          "If set, the circle gets filled counterclockwise instead of clockwise. Default false.",
+      },
+      {
+        name: "closePath",
+        type: "boolean",
+        description: (
+          <>
+            If set to <code>false</code>, no path to the middle of the circle
+            will be drawn, leading to an open arc. Default <code>true</code>.
+          </>
+        ),
+      },
+      {
+        name: "rotation",
+        type: "boolean",
+        description: (
+          <>
+            Add rotation to the path. <code>0</code> means no rotation,{" "}
+            <code>Math.PI * 2</code> means 1 full clockwise rotation{" "}
+          </>
+        ),
+      },
+    ],
+  },
+  {
     shape: "Ellipse",
     fn: makeEllipse,
     params: [
@@ -80,6 +129,27 @@ export const shapeComponents: ShapeComponent[] = [
         name: "direction",
         type: '"left" | "right" | "up" | "down"',
         description: "The direction of the triangle.",
+      },
+    ],
+  },
+  {
+    shape: "Star",
+    fn: makeStar,
+    params: [
+      {
+        name: "points",
+        type: "number",
+        description: "The amount of points of the star.",
+      },
+      {
+        name: "innerRadius",
+        type: "number",
+        description: "The inner radius of the star.",
+      },
+      {
+        name: "outerRadius",
+        type: "number",
+        description: "The outer radius of the star.",
       },
     ],
   },
@@ -290,7 +360,7 @@ export const MakeShapeSeeAlso: React.FC<{
     <ul>
       <li>
         <a
-          href={`/docs/shapes/${shapeComponent.shape.toLowerCase()}`}
+          href={`/docs/shapes/make-${shapeComponent.shape.toLowerCase()}`}
         >{`<${shapeComponent.shape} />`}</a>
       </li>
       <li>

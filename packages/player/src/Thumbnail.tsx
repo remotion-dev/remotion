@@ -13,13 +13,13 @@ import {
 } from 'react';
 import type {CompProps, TimelineContextValue} from 'remotion';
 import {Internals, random} from 'remotion';
-import {ThumbnailEmitterContext} from './emitter-context';
-import {ThumbnailEmitter} from './event-emitter';
-import type {ThumbnailMethods} from './player-methods';
-import type {ErrorFallback, RenderLoading} from './PlayerUI';
-import {SharedPlayerContexts} from './SharedPlayerContext';
-import ThumbnailUI from './ThumbnailUI';
-import type {PropsIfHasProps} from './utils/props-if-has-props';
+import {ThumbnailEmitterContext} from './emitter-context.js';
+import {ThumbnailEmitter} from './event-emitter.js';
+import type {ThumbnailMethods} from './player-methods.js';
+import type {ErrorFallback, RenderLoading} from './PlayerUI.js';
+import {SharedPlayerContexts} from './SharedPlayerContext.js';
+import ThumbnailUI from './ThumbnailUI.js';
+import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 
 type ThumbnailProps<T> = PropsIfHasProps<T> &
 	CompProps<T> & {
@@ -83,26 +83,28 @@ export const ThumbnailFn = <T,>(
 	}, [inputProps]);
 
 	return (
-		<SharedPlayerContexts
-			timelineContext={timelineState}
-			component={Component}
-			compositionHeight={compositionHeight}
-			compositionWidth={compositionWidth}
-			durationInFrames={durationInFrames}
-			fps={fps}
-			inputProps={inputProps}
-			numberOfSharedAudioTags={0}
-		>
-			<ThumbnailEmitterContext.Provider value={emitter}>
-				<ThumbnailUI
-					className={className}
-					errorFallback={errorFallback}
-					inputProps={passedInputProps}
-					renderLoading={renderLoading}
-					style={style}
-				/>
-			</ThumbnailEmitterContext.Provider>
-		</SharedPlayerContexts>
+		<Internals.IsPlayerContextProvider>
+			<SharedPlayerContexts
+				timelineContext={timelineState}
+				component={Component}
+				compositionHeight={compositionHeight}
+				compositionWidth={compositionWidth}
+				durationInFrames={durationInFrames}
+				fps={fps}
+				inputProps={inputProps}
+				numberOfSharedAudioTags={0}
+			>
+				<ThumbnailEmitterContext.Provider value={emitter}>
+					<ThumbnailUI
+						className={className}
+						errorFallback={errorFallback}
+						inputProps={passedInputProps}
+						renderLoading={renderLoading}
+						style={style}
+					/>
+				</ThumbnailEmitterContext.Provider>
+			</SharedPlayerContexts>
+		</Internals.IsPlayerContextProvider>
 	);
 };
 
