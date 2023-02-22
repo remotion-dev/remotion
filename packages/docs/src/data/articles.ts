@@ -1043,6 +1043,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "miscellaneous/automatic-duration",
+    title: "Calculating the duration of a composition automatically",
+    relativePath: "docs/miscellaneous/automatic-duration.md",
+    compId: "articles-docs-miscellaneous-automatic-duration",
+    crumb: "FAQ",
+  },
+  {
     id: "miscellaneous/changing-temp-dir",
     title: "Changing the temporary directory",
     relativePath: "docs/miscellaneous/changing-temp-dir.md",

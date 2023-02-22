@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-miscellaneous-automatic-duration.png
 sidebar_label: Automatic duration
 title: Calculating the duration of a composition automatically
 crumb: "FAQ"
