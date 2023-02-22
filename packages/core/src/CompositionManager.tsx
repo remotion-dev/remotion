@@ -8,7 +8,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import type {TFolder} from './Folder';
+import type {TFolder} from './Folder.js';
 
 export type TComposition<T = unknown> = {
 	width: number;

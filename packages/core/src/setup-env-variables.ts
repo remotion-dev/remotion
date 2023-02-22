@@ -1,4 +1,4 @@
-import {getRemotionEnvironment} from './get-environment';
+import {getRemotionEnvironment} from './get-environment.js';
 
 export const ENV_VARIABLES_ENV_NAME = 'ENV_VARIABLES' as const;
 

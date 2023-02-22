@@ -12,14 +12,14 @@ import {
 	calculateContainerStyle,
 	calculateOuter,
 	calculateOuterStyle,
-} from './calculate-scale';
-import {ErrorBoundary} from './error-boundary';
-import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
-import type {ThumbnailMethods} from './player-methods';
-import type {ErrorFallback, RenderLoading} from './PlayerUI';
-import {useThumbnail} from './use-thumbnail';
-import {IS_NODE} from './utils/is-node';
-import {useElementSize} from './utils/use-element-size';
+} from './calculate-scale.js';
+import {ErrorBoundary} from './error-boundary.js';
+import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
+import type {ThumbnailMethods} from './player-methods.js';
+import type {ErrorFallback, RenderLoading} from './PlayerUI.js';
+import {useThumbnail} from './use-thumbnail.js';
+import {IS_NODE} from './utils/is-node.js';
+import {useElementSize} from './utils/use-element-size.js';
 
 const reactVersion = React.version.split('.')[0];
 if (reactVersion === '0') {

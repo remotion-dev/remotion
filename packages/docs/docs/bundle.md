@@ -51,7 +51,7 @@ _optional_
 A function to override the webpack config reducer-style. Takes a function which gives you the current webpack config which you can transform and return a modified version of it. For example:
 
 ```ts twoslash
-import { WebpackOverrideFn } from "remotion";
+import { WebpackOverrideFn } from "@remotion/bundler";
 // ---cut---
 const webpackOverride: WebpackOverrideFn = (webpackConfig) => {
   return {
