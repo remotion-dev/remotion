@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-restricted-imports
 import {Config as RemotionConfig, Internals} from 'remotion';
 import {getBrowser} from './browser';
 import {getBrowserExecutable} from './browser-executable';
@@ -36,7 +35,6 @@ import {getCurrentPuppeteerTimeout} from './timeout';
 import {getWebpackCaching} from './webpack-caching';
 
 import type {WebpackConfiguration} from '@remotion/bundler';
-// eslint-disable-next-line no-restricted-imports
 import type {ConfigType} from 'remotion';
 import {getAudioCodec, setAudioCodec} from './audio-codec';
 import {
