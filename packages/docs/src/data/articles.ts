@@ -1043,6 +1043,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "miscellaneous/automatic-duration",
+    title: "Calculating the duration of a composition automatically",
+    relativePath: "docs/miscellaneous/automatic-duration.md",
+    compId: "articles-docs-miscellaneous-automatic-duration",
+    crumb: "FAQ",
+  },
+  {
     id: "miscellaneous/changing-temp-dir",
     title: "Changing the temporary directory",
     relativePath: "docs/miscellaneous/changing-temp-dir.md",
@@ -1099,6 +1106,13 @@ export const articles = [
     relativePath: "docs/miscellaneous/ts-aliases.md",
     compId: "articles-docs-miscellaneous-ts-aliases",
     crumb: "How to",
+  },
+  {
+    id: "miscellaneous/video-formats",
+    title: "Which video formats does Remotion support?",
+    relativePath: "docs/miscellaneous/video-formats.md",
+    compId: "articles-docs-miscellaneous-video-formats",
+    crumb: "FAQ",
   },
   {
     id: "motion-blur/camera-motion-blur",

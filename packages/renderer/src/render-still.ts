@@ -26,7 +26,6 @@ import {validateQuality} from './quality';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {takeFrameAndCompose} from './take-frame-and-compose';
-import {validateFrame} from './validate-frame';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
 
@@ -106,7 +105,7 @@ const innerRenderStill = async ({
 		'in the `config` object passed to `renderStill()`'
 	);
 	validateNonNullImageFormat(imageFormat);
-	validateFrame(frame, composition.durationInFrames);
+	Internals.validateFrame(frame, composition.durationInFrames);
 	const stillFrame = convertToPositiveFrameIndex({
 		durationInFrames: composition.durationInFrames,
 		frame,

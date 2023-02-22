@@ -16,21 +16,21 @@ import {
 	calculateContainerStyle,
 	calculateOuter,
 	calculateOuterStyle,
-} from './calculate-scale';
-import {ErrorBoundary} from './error-boundary';
-import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
-import type {PlayerMethods, PlayerRef} from './player-methods';
+} from './calculate-scale.js';
+import {ErrorBoundary} from './error-boundary.js';
+import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
+import type {PlayerMethods, PlayerRef} from './player-methods.js';
 import type {
 	RenderFullscreenButton,
 	RenderPlayPauseButton,
-} from './PlayerControls';
-import {Controls} from './PlayerControls';
-import {useHoverState} from './use-hover-state';
-import {usePlayback} from './use-playback';
-import {usePlayer} from './use-player';
-import {IS_NODE} from './utils/is-node';
-import {useClickPreventionOnDoubleClick} from './utils/use-click-prevention-on-double-click';
-import {useElementSize} from './utils/use-element-size';
+} from './PlayerControls.js';
+import {Controls} from './PlayerControls.js';
+import {useHoverState} from './use-hover-state.js';
+import {usePlayback} from './use-playback.js';
+import {usePlayer} from './use-player.js';
+import {IS_NODE} from './utils/is-node.js';
+import {useClickPreventionOnDoubleClick} from './utils/use-click-prevention-on-double-click.js';
+import {useElementSize} from './utils/use-element-size.js';
 
 export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 export type RenderLoading = (canvas: {
