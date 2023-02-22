@@ -8,24 +8,24 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
-import {getAbsoluteSrc} from '../absolute-src';
+import {getAbsoluteSrc} from '../absolute-src.js';
 import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
-} from '../audio/use-audio-frame';
-import {CompositionManager} from '../CompositionManager';
-import {continueRender, delayRender} from '../delay-render';
-import {getRemotionEnvironment} from '../get-environment';
-import {isApproximatelyTheSame} from '../is-approximately-the-same';
-import {random} from '../random';
-import {SequenceContext} from '../Sequence';
-import {useTimelinePosition} from '../timeline-position-state';
-import {useCurrentFrame} from '../use-current-frame';
-import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
-import {evaluateVolume} from '../volume-prop';
-import {warnAboutNonSeekableMedia} from '../warn-about-non-seekable-media';
-import {getMediaTime} from './get-current-time';
-import type {RemotionVideoProps} from './props';
+} from '../audio/use-audio-frame.js';
+import {CompositionManager} from '../CompositionManager.js';
+import {continueRender, delayRender} from '../delay-render.js';
+import {useRemotionEnvironment} from '../get-environment.js';
+import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
+import {random} from '../random.js';
+import {SequenceContext} from '../Sequence.js';
+import {useTimelinePosition} from '../timeline-position-state.js';
+import {useCurrentFrame} from '../use-current-frame.js';
+import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
+import {evaluateVolume} from '../volume-prop.js';
+import {warnAboutNonSeekableMedia} from '../warn-about-non-seekable-media.js';
+import {getMediaTime} from './get-current-time.js';
+import type {RemotionVideoProps} from './props.js';
 
 type VideoForRenderingProps = RemotionVideoProps & {
 	onDuration: (src: string, durationInSeconds: number) => void;
@@ -53,6 +53,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
+	const environment = useRemotionEnvironment();
 
 	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
 
@@ -232,7 +233,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const {src} = props;
 
 	// If video source switches, make new handle
-	if (getRemotionEnvironment() === 'rendering') {
+	if (environment === 'rendering') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
 			if (process.env.NODE_ENV === 'test') {

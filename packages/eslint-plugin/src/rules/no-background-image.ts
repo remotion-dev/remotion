@@ -33,14 +33,34 @@ export default createRule<Options, MessageIds>({
         if (node.key.type !== "Identifier") {
           return;
         }
+
         if (node.key.name !== "backgroundImage") {
           return;
         }
 
-        context.report({
-          messageId: "BackgroundImage",
-          node,
-        });
+        if (node.value.type === "Literal") {
+          const { value } = node.value;
+          if (typeof value === "string" && value.includes("url(")) {
+            context.report({
+              messageId: "BackgroundImage",
+              node,
+            });
+          }
+        }
+
+        if (node.value.type === "TemplateLiteral") {
+          for (const element of node.value.quasis) {
+            if (element.type !== "TemplateElement") {
+              continue;
+            }
+            if (element.value.raw.includes("url(")) {
+              context.report({
+                messageId: "BackgroundImage",
+                node,
+              });
+            }
+          }
+        }
       },
     };
   },

@@ -125,27 +125,27 @@ _optional - default `true`_
 
 Whether the file should be overwritten if the output already exists.
 
-### `browserExecutable?`
+### `browserExecutable?` <AvailableFrom v="2.3.1" />
 
-_optional, available from v2.3.1_
+_optional_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available.
 
-### `timeoutInMilliseconds?`
+### `timeoutInMilliseconds?` <AvailableFrom v="2.6.3" />
 
-_optional, available from v2.6.3_
+_optional_
 
 A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
-### `cancelSignal?`
+### `cancelSignal?` <AvailableFrom v="3.0.15" />
 
-_optional, available from v3.0.15_
+_optional_
 
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
-### `chromiumOptions?`
+### `chromiumOptions?` <AvailableFrom v="2.6.5" />
 
-_optional, available from v2.6.5_
+_optional_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 

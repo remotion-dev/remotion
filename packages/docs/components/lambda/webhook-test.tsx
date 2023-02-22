@@ -1,9 +1,10 @@
+import type { WebhookPayload } from "@remotion/lambda/client";
 import React, { useCallback, useState } from "react";
 import { BlueButton } from "../layout/Button";
 import { Spinner } from "../Spinner";
 import { CoolInput } from "../TextInput";
 
-// This is a re-implementation of the calculateSignature function 
+// This is a re-implementation of the calculateSignature function
 // used in @remotion/lambda. This version uses the Crypto Web APIs
 // instead of the NodeJS Crypto library and can therefore run in the browser.
 async function calculateSignature(payload: string, secret?: string) {
@@ -62,25 +63,48 @@ export const WebhookTest: React.FC = () => {
       setRequest({});
       setResponseStatus(null);
       setResponse(null);
-      const payload = {
-        result: type,
-        renderId: 'demo-render-id',
-        bucketName: 'demo-bucket-name',
-        expectedBucketOwner: 'demo-bucket-owner',
-        ...((type === 'success') && {
-          outputUrl: 'https://www.example.com',
-          outputFile: 'demo-output.mp4',
-          timeToFinish: 1500,
-        }),
-        lambdaErrors: [],
-        ...((type === 'error') && {
-          errors: [{
-            message: "demo-error-message",
-            name: "demo-error-name",
-            stack: "demo-error-stack",
-          }],
-        })
-      };
+      const payload: WebhookPayload =
+        type === "success"
+          ? {
+              type,
+              renderId: "demo-render-id",
+              bucketName: "demo-bucket-name",
+              expectedBucketOwner: "demo-bucket-owner",
+              outputUrl: "https://www.example.com",
+              outputFile: "demo-output.mp4",
+              timeToFinish: 1500,
+              lambdaErrors: [],
+              costs: {
+                currency: "USD",
+                disclaimer:
+                  "Estimated cost for lambda invocations only. Does not include cost for S3 storage and data transfer.",
+                estimatedCost: 0.01,
+                estimatedDisplayCost: new Intl.NumberFormat("en-US", {
+                  currency: "USD",
+                  currencyDisplay: "narrowSymbol",
+                }).format(0.01),
+              },
+            }
+          : type === "error"
+          ? {
+              errors: [
+                {
+                  message: "demo-error-message",
+                  name: "demo-error-name",
+                  stack: "demo-error-stack",
+                },
+              ],
+              type,
+              renderId: "demo-render-id",
+              bucketName: "demo-bucket-name",
+              expectedBucketOwner: "demo-bucket-owner",
+            }
+          : {
+              type,
+              renderId: "demo-render-id",
+              bucketName: "demo-bucket-name",
+              expectedBucketOwner: "demo-bucket-owner",
+            };
       const stringifiedPayload = JSON.stringify(payload);
       const req: RequestInit = {
         method: "POST",
@@ -92,7 +116,7 @@ export const WebhookTest: React.FC = () => {
             data.secret
           ),
           "X-Remotion-Status": type,
-          "X-Remotion-Mode": 'demo',
+          "X-Remotion-Mode": "demo",
         },
         body: stringifiedPayload,
       };
@@ -167,7 +191,13 @@ export const WebhookTest: React.FC = () => {
         </BlueButton>
       </div>
       {/* results */}
-      {loading ? <div style={{ width: '100%', display: 'flex', justifyContent: 'center'}}><Spinner /></div> : null}
+      {loading ? (
+        <div
+          style={{ width: "100%", display: "flex", justifyContent: "center" }}
+        >
+          <Spinner />
+        </div>
+      ) : null}
       {response ? (
         <>
           <span style={{ paddingBottom: 8 }}>What we sent:</span>

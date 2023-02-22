@@ -1,14 +1,14 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
-import {getRemotionEnvironment} from '../get-environment';
+import {useRemotionEnvironment} from '../get-environment.js';
 import {Loop} from '../loop';
-import {Sequence} from '../Sequence';
-import {useVideoConfig} from '../use-video-config';
-import {validateMediaProps} from '../validate-media-props';
-import {validateStartFromProps} from '../validate-start-from-props';
-import {DurationsContext} from './duration-state';
-import type {RemotionMainVideoProps, RemotionVideoProps} from './props';
-import {VideoForDevelopment} from './VideoForDevelopment';
-import {VideoForRendering} from './VideoForRendering';
+import {Sequence} from '../Sequence.js';
+import {useVideoConfig} from '../use-video-config.js';
+import {validateMediaProps} from '../validate-media-props.js';
+import {validateStartFromProps} from '../validate-start-from-props.js';
+import {DurationsContext} from './duration-state.js';
+import type {RemotionMainVideoProps, RemotionVideoProps} from './props.js';
+import {VideoForDevelopment} from './VideoForDevelopment.js';
+import {VideoForRendering} from './VideoForRendering.js';
 
 const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
@@ -17,6 +17,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	const {startFrom, endAt, ...otherProps} = props;
 	const {loop, ...propsOtherThanLoop} = props;
 	const {fps} = useVideoConfig();
+	const environment = useRemotionEnvironment();
 
 	const {durations, setDurations} = useContext(DurationsContext);
 
@@ -70,7 +71,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 
 	validateMediaProps(props, 'Video');
 
-	if (getRemotionEnvironment() === 'rendering') {
+	if (environment === 'rendering') {
 		return (
 			<VideoForRendering onDuration={onDuration} {...otherProps} ref={ref} />
 		);

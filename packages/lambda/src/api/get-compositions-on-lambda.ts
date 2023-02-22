@@ -1,5 +1,4 @@
-import type {LogLevel} from '@remotion/renderer';
-import type {ChromiumOptions} from '@remotion/renderer/src/open-browser';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import type {TCompMetadata} from 'remotion';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
@@ -16,6 +15,7 @@ export type GetCompositionsOnLambdaInput = {
 	envVariables?: Record<string, string>;
 	logLevel?: LogLevel;
 	timeoutInMilliseconds?: number;
+	forceBucketName?: string;
 };
 
 export type GetCompositionsOnLambdaOutput = TCompMetadata[];
@@ -42,11 +42,13 @@ export const getCompositionsOnLambda = async ({
 	envVariables,
 	logLevel,
 	timeoutInMilliseconds,
+	forceBucketName: bucketName,
 }: GetCompositionsOnLambdaInput): Promise<GetCompositionsOnLambdaOutput> => {
 	const serializedInputProps = await serializeInputProps({
 		inputProps,
 		region,
 		type: 'still',
+		userSpecifiedBucketName: bucketName ?? null,
 	});
 
 	try {
@@ -61,6 +63,7 @@ export const getCompositionsOnLambda = async ({
 				logLevel: logLevel ?? 'info',
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
 				version: VERSION,
+				bucketName: bucketName ?? null,
 			},
 			region,
 		});

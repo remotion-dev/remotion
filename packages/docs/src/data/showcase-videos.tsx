@@ -1334,7 +1334,51 @@ export const showcaseVideos: ShowcaseVideo[] = [
 			"url": "https://polygon.io",
 			"name": "Polygon.io"
 		}
+	},
+	{
+	title: "The Eudaimonia Machine: The Ultimate Productivity Hack?",
+	type: "mux_video",
+	muxId: "LEKN01a35v01OK2vyVxE00LJhm13JtRzJSnTrJjVYQeQtw",
+	description: "This explainer video on the Eudaimonia Machine (featured in Cal Newport's 'Deep Work') was made completely with Remotion.",
+	height: 1080,
+	width: 1920,
+	submittedOn: new Date("01-29-2023"),
+	links: [
+		{
+			type: "source_code",
+			url: "https://github.com/brenjamin/eudaimonia-machine-video",
+		},
+		{
+			type: "video",
+			url: "https://www.youtube.com/watch?v=IyRB3SbGnaY&list=PLliaWoyhTnjF6oQFYjviMGY4zAJHZHS2M",
+		},
+	],
+	author: {
+		"url": "https://www.linkedin.com/in/benjamin-brophy/",
+		"name": "Ben Brophy"
 	}
+},
+	{
+	title: "TVFoodMaps Tik Tok",
+	type: "mux_video",
+	muxId: "5ON0000Gg9ov1z01in02jC02k2xjltp01xg3h9CVfymANi01iE",
+	description: "Video generated from TVFoodMaps lists",
+	height: 1920,
+	width: 1080,
+	submittedOn: new Date("02-11-2023"),
+	links: [
+
+		{
+			type: "website",
+			url: "https://www.tvfoodmaps.com",
+		},
+
+	],
+	author: {
+		"url": "https://twitter.com/tvfoodmaps",
+		"name": "TVFoodMaps"
+	}
+},
 ];
 
 const dateString = (date: Date) =>

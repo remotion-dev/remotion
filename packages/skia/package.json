@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/skia",
-	"version": "3.3.36",
+	"version": "3.3.45",
 	"description": "Utilities for using react-native-skia in Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -21,15 +21,17 @@
 	},
 	"dependencies": {
 		"copy-webpack-plugin": "11",
-		"remotion": "3.3.36"
+		"remotion": "3.3.45"
 	},
 	"peerDependencies": {
+		"@remotion/bundler": "3.3.44",
 		"@shopify/react-native-skia": "^0.1.139",
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
+		"@remotion/bundler": "3.3.45",
 		"@shopify/react-native-skia": "^0.1.139",
 		"@types/react": "18.0.26",
 		"@types/react-native": "^0.69.2",
@@ -38,7 +40,7 @@
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"react": "18.0.0",
 		"react-dom": "18.0.0",
-		"remotion": "3.2.39",
+		"remotion": "3.3.44",
 		"typescript": "^4.7.0"
 	},
 	"keywords": [

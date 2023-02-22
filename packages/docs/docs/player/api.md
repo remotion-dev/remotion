@@ -114,9 +114,9 @@ _optional_
 
 A boolean property defining whether you can play or pause a video using space key. If enabled, playing the video and subsequently pressing the space key pauses and resumes the video. Only works if `controls` is true. Default `true`.
 
-### `moveToBeginningWhenEnded`
+### `moveToBeginningWhenEnded` <AvailableFrom v="3.1.3" />
 
-_optional, available from v3.1.3_
+_optional_
 
 A boolean property defining whether the video position should go back to zero once the video has ended. Only works if `loop` is disabled. Default `true`.
 
@@ -132,21 +132,21 @@ _optional_
 
 A regular `style` prop for a HTMLDivElement. You can pass a different height and width if you would like different dimensions for the player than the original composition dimensions.
 
-### `className`
+### `className` <AvailableFrom v="3.1.3" />
 
-_optional - available since v3.1.3_
+_optional_
 
 A HTML class name to be applied to the container.
 
-### `initialFrame`
+### `initialFrame` <AvailableFrom v="3.1.14" />
 
-_optional - available since v3.1.14_
+_optional_
 
 Start the playback from a specific frame. Default `0`. Once the player is mounted, this property cannot be changed.
 
-### `numberOfSharedAudioTags`
+### `numberOfSharedAudioTags` <AvailableFrom v="2.3.1" />
 
-_optional - available since v.2.3.1_
+_optional_
 
 If you use an [`<Audio />`](/docs/audio) tag, it might not play in some browsers (specifically iOS Safari) due to browser autoplay policies. This is why the Remotion Player pre-mounts a set of audio tags with silent audio that get played upon user interaction. These audio tags can then be used to play real audio later and will not be subject to the autoplay policy of the browser.
 
@@ -216,9 +216,9 @@ const MyApp: React.FC = () => {
 A player needs to be loaded if it contains elements that use React Suspense, or if the `lazyComponent` prop is being used.
 :::
 
-### `renderPoster`
+### `renderPoster` <AvailableFrom v="3.2.14" />
 
-_optional, available from v3.2.14_
+_optional_
 
 A callback function that allows you to return a custom UI that gets overlayed over the player.
 
@@ -259,45 +259,45 @@ const MyApp: React.FC = () => {
 };
 ```
 
-### `showPosterWhenUnplayed`
+### `showPosterWhenUnplayed` <AvailableFrom v="3.2.14" />
 
-_optional, available from v3.2.14_
+_optional_
 
 Render the poster when the video is in its initial state and has not been played yet. Requires [`renderPoster()`](#renderposter) to be set. Default: `false`.
 
-### `showPosterWhenPaused`
+### `showPosterWhenPaused` <AvailableFrom v="3.2.14" />
 
-_optional, available from v3.2.14_
+_optional_
 
 Render the poster when the video is paused. Although considered a paused state, the poster will not render while the user is scrubbing through the video. Requires [`renderPoster()`](#renderposter) to be set. Default: `false`.
 
-### `showPosterWhenEnded`
+### `showPosterWhenEnded` <AvailableFrom v="3.2.14" />
 
-_optional, available from v3.2.14_
+_optional_
 
 Render the poster when the video has ended. Requires [`moveToBeginning`](#movetobeginningwhenended) to be set to `false`. [`renderPoster()`](#renderposter) to be set. Default: `false`.
 
-### `inFrame`
+### `inFrame` <AvailableFrom v="3.2.15" />
 
-_optional, available from v3.2.15_
+_optional_
 
 Limit playback to only play after a certain frame. The video will start from this frame and move to this position once it has ended. Must be an integer, not smaller than `0`, not bigger than [`outFrame`](#outframe) and not bigger than `durationInFrames - 1`. Default `null`, which means the beginning of the video.
 
-### `outFrame`
+### `outFrame` <AvailableFrom v="3.2.15" />
 
-_optional, available from v3.2.15_
+_optional_
 
 Limit playback to only play before a certain frame. The video will end at this frame and move to the beginning once it has ended. Must be an integer, not smaller than `1`, not smaller than [`inFrame`](#inframe) and not bigger than `durationInFrames - 1`. Default `null`, which means the end of the video.
 
-### `initiallyShowControls`
+### `initiallyShowControls` <AvailableFrom v="3.2.24" />
 
-_optional, available from v3.2.24_
+_optional_
 
 If true, the controls flash when the player enters the scene. After 2 seconds without hover, the controls fade out. This is similar to how YouTube does it, and signals to the user that the player is in fact controllable. You can also pass a `number`, with which you can customize the duration in milliseconds. Default `true` since `v3.2.24`, before that unsupported.
 
-### `renderPlayPauseButton`
+### `renderPlayPauseButton` <AvailableFrom v="3.2.32" />
 
-_optional, available from v3.2.32_
+_optional_
 
 Allows you to customize the Play/Pause button of the controls, must be a callback function that returns a valid React element.
 
@@ -334,9 +334,9 @@ export const App: React.FC = () => {
 };
 ```
 
-### `renderFullscreenButton`
+### `renderFullscreenButton` <AvailableFrom v="3.2.32" />
 
-_optional, available from v3.2.32_
+_optional_
 
 Allows you to customise the fullscreen button of the player controls, must return a valid React element. If fullscreen is disabled or not available in a browser, it will not be rendered.
 
@@ -418,9 +418,7 @@ The following methods are available on the player ref:
 
 Pause the video. Nothing happens if the video is already paused.
 
-### `pauseAndReturnToPlayStart()`
-
-_Availabe from v3.0.30_
+### `pauseAndReturnToPlayStart()` <AvailableFrom v="3.0.30" />
 
 If the video is playing, pause it and return to the playback position where the video has last been played.
 
@@ -442,15 +440,11 @@ Gets the current position expressed as the current frame. Divide by the `fps` yo
   
 [Special considerations must be made](https://www.remotion.dev/docs/player/current-time) if you want to display a component that synchronizes with the time of the player.
 
-### `isPlaying()`
-
-_Available from v2.5.7_
+### `isPlaying()` <AvailableFrom v="2.5.7" />
 
 Returns a boolean indicating whether the video is playing.
 
-### `getContainerNode()`
-
-_Available from v2.4.2_
+### `getContainerNode()` <AvailableFrom v="2.4.2" />
 
 Gets the container `HTMLDivElement` of the player. Useful if you'd like to manually attach listeners to the player element.
 
@@ -526,9 +520,7 @@ Requests the video to go to fullscreen. This method throws if the `allowFullscre
 
 Exit fullscreen mode.
 
-### `getScale()`
-
-_available since v3.2.24_
+### `getScale()` <AvailableFrom v="3.2.24" />
 
 Returns a number which says how much the content is scaled down compared to the natural composition size. For example, if the composition is `1920x1080`, but the player is 960px in width, this method would return `0.5`.
 
@@ -643,9 +635,7 @@ Prefer the [`seeked`](#seeked) event if you only want to get time updates during
 
 Prefer the [`frameupdate`](#frameupdate) event if you need an update for every single frame.
 
-### `frameupdate`
-
-_Available from v3.2.27_
+### `frameupdate` <AvailableFrom v="3.2.27" />
 
 Fires whenever the current time has changed, during both playback and seeking.
 
@@ -666,9 +656,7 @@ Prefer the [`seeked`](#seeked) event if you only want to get time updates during
 
 Prefer the [`timeupdate`](#timeupdate) event if you only need periodical updates (at most every 250ms).
 
-### `fullscreenchange`
-
-_Available from v3.2.0_
+### `fullscreenchange` <AvailableFrom v="3.2.0" />
 
 Fires when the player enters or exits fullscreen. By reading `e.detail.isFullscreen` or calling `playerRef.isFullscreen()` you can determine if the player is currently in fullscreen or not.
 

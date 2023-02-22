@@ -14,6 +14,10 @@ export const TableOfContents: React.FC = () => {
           <strong>getGifDurationInSeconds()</strong>
           <div>Get the runtime of a GIF</div>
         </TOCItem>
+        <TOCItem link="/docs/gif/preload-gif">
+          <strong>preloadGif()</strong>
+          <div>Prepare a GIF for displaying in the Player</div>
+        </TOCItem>
       </Grid>
     </div>
   );

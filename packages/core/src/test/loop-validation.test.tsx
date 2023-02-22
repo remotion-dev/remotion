@@ -5,11 +5,11 @@ import {render} from '@testing-library/react';
 import type {ComponentType} from 'react';
 import React, {useContext} from 'react';
 import {describe, expect, test} from 'vitest';
-import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
-import {CompositionManager} from '../CompositionManager';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
+import {CompositionManager} from '../CompositionManager.js';
 import {Loop} from '../loop';
-import {RemotionRoot} from '../RemotionRoot';
-import {expectToThrow} from './expect-to-throw';
+import {RemotionRoot} from '../RemotionRoot.js';
+import {expectToThrow} from './expect-to-throw.js';
 
 const Wrapper: React.FC<{
 	children: React.ReactNode;

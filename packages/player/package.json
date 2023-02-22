@@ -1,14 +1,25 @@
 {
 	"name": "@remotion/player",
-	"version": "3.3.36",
+	"version": "3.3.45",
 	"description": "Remotion Player",
-	"main": "dist/index.js",
+	"main": "dist/cjs/index.js",
+	"types": "dist/cjs/index.d.ts",
+	"module": "dist/esm/index.js",
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"build": "tsc -d",
+		"build": "tsc -d && tsc -d -p tsconfig-cjs.json",
 		"watch": "tsc -w",
 		"prerelease": "cp ../../README.md ."
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/cjs/index.d.ts",
+			"module": "./dist/esm/index.js",
+			"import": "./dist/esm/index.js",
+			"require": "./dist/cjs/index.js"
+		}
 	},
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
@@ -27,7 +38,7 @@
 	],
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"remotion": "3.3.36"
+		"remotion": "3.3.45"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -40,8 +51,9 @@
 		"@types/react": "18.0.26",
 		"@types/react-dom": "18.0.10",
 		"@vitejs/plugin-react": "^2.0.0",
-		"csstype": "^3.0.11",
+		"csstype": "^3.1.1",
 		"eslint": "8.25.0",
+		"eslint-plugin-require-extensions": "^0.1.2",
 		"jsdom": "20.0.1",
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",

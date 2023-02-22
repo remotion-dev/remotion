@@ -1,24 +1,24 @@
 import type {ComponentType, PropsWithChildren} from 'react';
 import React, {Suspense, useContext, useEffect, useMemo} from 'react';
 import {createPortal} from 'react-dom';
-import {AbsoluteFill} from './AbsoluteFill';
-import {CanUseRemotionHooksProvider} from './CanUseRemotionHooks';
-import {CompositionManager} from './CompositionManager';
-import {getInputProps} from './config/input-props';
-import {continueRender, delayRender} from './delay-render';
-import {FolderContext} from './Folder';
-import {getRemotionEnvironment} from './get-environment';
-import {Internals} from './internals';
-import {Loading} from './loading-indicator';
-import {NativeLayersContext} from './NativeLayers';
-import {useNonce} from './nonce';
-import {portalNode} from './portal-node';
-import {useLazyComponent} from './use-lazy-component';
-import {useVideo} from './use-video';
-import {validateCompositionId} from './validation/validate-composition-id';
-import {validateDimension} from './validation/validate-dimensions';
-import {validateDurationInFrames} from './validation/validate-duration-in-frames';
-import {validateFps} from './validation/validate-fps';
+import {AbsoluteFill} from './AbsoluteFill.js';
+import {CanUseRemotionHooksProvider} from './CanUseRemotionHooks.js';
+import {CompositionManager} from './CompositionManager.js';
+import {getInputProps} from './config/input-props.js';
+import {continueRender, delayRender} from './delay-render.js';
+import {FolderContext} from './Folder.js';
+import {useRemotionEnvironment} from './get-environment.js';
+import {Internals} from './internals.js';
+import {Loading} from './loading-indicator.js';
+import {NativeLayersContext} from './NativeLayers.js';
+import {useNonce} from './nonce.js';
+import {portalNode} from './portal-node.js';
+import {useLazyComponent} from './use-lazy-component.js';
+import {useVideo} from './use-video.js';
+import {validateCompositionId} from './validation/validate-composition-id.js';
+import {validateDimension} from './validation/validate-dimensions.js';
+import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
+import {validateFps} from './validation/validate-fps.js';
 
 type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
 
@@ -65,10 +65,14 @@ export const Composition = <T,>({
 
 	const lazy = useLazyComponent(compProps);
 	const nonce = useNonce();
+	const environment = useRemotionEnvironment();
 
 	const canUseComposition = useContext(Internals.CanUseRemotionHooks);
 	if (canUseComposition) {
-		if (typeof window !== 'undefined' && window.remotion_isPlayer) {
+		if (
+			environment === 'player-development' ||
+			environment === 'player-production'
+		) {
 			throw new Error(
 				'<Composition> was mounted inside the `component` that was passed to the <Player>. See https://remotion.dev/docs/wrong-composition-mount for help.'
 			);
@@ -127,11 +131,7 @@ export const Composition = <T,>({
 		parentName,
 	]);
 
-	if (
-		getRemotionEnvironment() === 'preview' &&
-		video &&
-		video.component === lazy
-	) {
+	if (environment === 'preview' && video && video.component === lazy) {
 		const Comp = lazy;
 		const inputProps = getInputProps();
 
@@ -148,11 +148,7 @@ export const Composition = <T,>({
 		);
 	}
 
-	if (
-		getRemotionEnvironment() === 'rendering' &&
-		video &&
-		video.component === lazy
-	) {
+	if (environment === 'rendering' && video && video.component === lazy) {
 		const Comp = lazy;
 		const inputProps = getInputProps();
 

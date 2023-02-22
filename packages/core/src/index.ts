@@ -1,14 +1,16 @@
-import './asset-types';
-import {Clipper} from './Clipper';
-import type {TAsset, TCompMetadata} from './CompositionManager';
-import type {StaticFile} from './get-static-files';
-import {checkMultipleRemotionVersions} from './multiple-versions-warning';
-import type {ClipRegion} from './NativeLayers';
-import {Null} from './Null';
+import './asset-types.js';
+import {Clipper} from './Clipper.js';
+import type {TAsset, TCompMetadata} from './CompositionManager.js';
+import type {StaticFile} from './get-static-files.js';
+import {useIsPlayer} from './is-player.js';
+import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
+import type {ClipRegion} from './NativeLayers.js';
+import {Null} from './Null.js';
 
 declare global {
 	interface Window {
 		ready: boolean;
+		remotion_cancelledError: string | undefined;
 		getStaticCompositions: () => TCompMetadata[];
 		setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
@@ -56,40 +58,45 @@ export type BundleState =
 
 checkMultipleRemotionVersions();
 
-export * from './AbsoluteFill';
+export * from './AbsoluteFill.js';
 export * from './audio';
-export * from './Composition';
-export {SmallTCompMetadata, TAsset, TCompMetadata} from './CompositionManager';
+export {cancelRender} from './cancel-render.js';
+export * from './Composition.js';
+export {SmallTCompMetadata, TAsset, TCompMetadata} from './CompositionManager.js';
 export {Config, ConfigType} from './config';
-export {getInputProps} from './config/input-props';
-export * from './delay-render';
-export * from './easing';
-export * from './Folder';
-export * from './freeze';
-export {getStaticFiles, StaticFile} from './get-static-files';
-export * from './IFrame';
-export * from './Img';
-export * from './internals';
-export * from './interpolate';
-export {interpolateColors} from './interpolate-colors';
+export {getInputProps} from './config/input-props.js';
+export {continueRender, delayRender} from './delay-render.js';
+export * from './easing.js';
+export * from './Folder.js';
+export * from './freeze.js';
+export {getStaticFiles, StaticFile} from './get-static-files.js';
+export * from './IFrame.js';
+export * from './Img.js';
+export * from './internals.js';
+export * from './interpolate.js';
+export {interpolateColors} from './interpolate-colors.js';
 export {Loop} from './loop';
-export {ClipRegion} from './NativeLayers';
-export {prefetch} from './prefetch';
-export {random, RandomSeed} from './random';
-export {registerRoot} from './register-root';
-export {Sequence} from './Sequence';
+export {ClipRegion} from './NativeLayers.js';
+export {prefetch} from './prefetch.js';
+export {random, RandomSeed} from './random.js';
+export {registerRoot} from './register-root.js';
+export {Sequence} from './Sequence.js';
 export {Series} from './series';
 export * from './spring';
-export {staticFile} from './static-file';
-export * from './Still';
-export type {PlayableMediaTag} from './timeline-position-state';
-export {useCurrentFrame} from './use-current-frame';
-export * from './use-video-config';
-export * from './version';
+export {staticFile} from './static-file.js';
+export * from './Still.js';
+export type {PlayableMediaTag} from './timeline-position-state.js';
+export {useCurrentFrame} from './use-current-frame.js';
+export * from './use-video-config.js';
+export * from './version.js';
 export * from './video';
-export * from './video-config';
+export * from './video-config.js';
 
 export const Experimental = {
 	Clipper,
 	Null,
+	useIsPlayer,
 };
+
+export type WebpackOverrideFn =
+	"The 'WebpackOverrideFn' has been moved to '@remotion/bundler'. Update your imports and install '@remotion/bundler' if necessary.";

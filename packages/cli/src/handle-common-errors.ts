@@ -11,7 +11,10 @@ export const handleCommonError = async (err: Error) => {
 		);
 	}
 
-	if (err.message.includes('A delayRender was called')) {
+	if (
+		err.message.includes('A delayRender()') &&
+		err.message.includes('was called but not cleared after')
+	) {
 		Log.info();
 		Log.info('💡 Get help for this issue at https://remotion.dev/docs/timeout');
 	}
@@ -27,6 +30,14 @@ export const handleCommonError = async (err: Error) => {
 		Log.info();
 		Log.info(
 			'💡 Get help for this issue at https://remotion.dev/docs/enametoolong'
+		);
+	}
+
+	if (err.message.includes('Error creating WebGL context')) {
+		Log.info();
+		Log.info('💡 You might need to set the OpenGL renderer to "angle"');
+		Log.info(
+			'💡 Get help for this issue at https://www.remotion.dev/docs/three'
 		);
 	}
 

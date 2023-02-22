@@ -1,10 +1,11 @@
 import {forwardRef, useEffect, useRef, useState} from 'react';
 import {continueRender, delayRender} from 'remotion';
 import {Canvas} from './canvas';
-import {gifCache} from './gif-cache';
+import {manuallyManagedGifCache, volatileGifCache} from './gif-cache';
 import {isCorsError} from './is-cors-error';
 import type {GifState, RemotionGifProps} from './props';
 import {parseWithWorker} from './react-tools';
+import {resolveGifSource} from './resolve-gif-source';
 import {useCurrentGifIndex} from './useCurrentGifIndex';
 
 export const GifForDevelopment = forwardRef<
@@ -24,12 +25,11 @@ export const GifForDevelopment = forwardRef<
 		},
 		ref
 	) => {
-		const resolvedSrc = new URL(
-			src,
-			typeof window === 'undefined' ? undefined : window.location.origin
-		).href;
+		const resolvedSrc = resolveGifSource(src);
 		const [state, update] = useState<GifState>(() => {
-			const parsedGif = gifCache.get(resolvedSrc);
+			const parsedGif =
+				volatileGifCache.get(resolvedSrc) ??
+				manuallyManagedGifCache.get(resolvedSrc);
 
 			if (parsedGif === undefined) {
 				return {
@@ -63,7 +63,7 @@ export const GifForDevelopment = forwardRef<
 				.then((parsed) => {
 					currentOnLoad.current?.(parsed);
 					update(parsed);
-					gifCache.set(resolvedSrc, parsed);
+					volatileGifCache.set(resolvedSrc, parsed);
 					done = true;
 					continueRender(newHandle);
 					continueRender(id);

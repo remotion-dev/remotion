@@ -146,7 +146,7 @@ export const benchmarkCommand = async (
 		process.exit(1);
 	}
 
-	const fullPath = convertEntryPointToServeUrl(file);
+	const fullEntryPoint = convertEntryPointToServeUrl(file);
 
 	const {
 		inputProps,
@@ -166,7 +166,7 @@ export const benchmarkCommand = async (
 		remotionRoot,
 	});
 
-	Log.verbose('Entry point:', file, 'reason:', reason);
+	Log.verbose('Entry point:', fullEntryPoint, 'reason:', reason);
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
@@ -180,7 +180,7 @@ export const benchmarkCommand = async (
 
 	const {urlOrBundle: bundleLocation, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({
-			fullPath,
+			fullPath: fullEntryPoint,
 			publicDir,
 			remotionRoot,
 			steps: ['bundling'],

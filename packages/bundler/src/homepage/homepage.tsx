@@ -27,10 +27,15 @@ const AvailableCompositions: React.FC = () => {
 	const [comps, setComps] = useState<TCompMetadata[] | null>(null);
 
 	useEffect(() => {
+		if (getBundleMode().type !== 'evaluation') {
+			return;
+		}
+
 		let timeout: NodeJS.Timeout | null = null;
 		const check = () => {
 			if (window.ready === true) {
-				setComps(window.getStaticCompositions());
+				const newComps = window.getStaticCompositions();
+				setComps(newComps);
 			} else {
 				timeout = setTimeout(check, 250);
 			}
@@ -64,7 +69,7 @@ const AvailableCompositions: React.FC = () => {
 			{comps === null ? <p>Loading compositions...</p> : null}
 			<ul>
 				{comps === null
-					? null
+					? []
 					: comps.map((c) => {
 							return <li key={c.id}>{c.id}</li>;
 					  })}

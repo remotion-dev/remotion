@@ -51,7 +51,7 @@ _optional_
 A function to override the webpack config reducer-style. Takes a function which gives you the current webpack config which you can transform and return a modified version of it. For example:
 
 ```ts twoslash
-import { WebpackOverrideFn } from "remotion";
+import { WebpackOverrideFn } from "@remotion/bundler";
 // ---cut---
 const webpackOverride: WebpackOverrideFn = (webpackConfig) => {
   return {
@@ -79,9 +79,9 @@ _optional_
 
 The path of the URL where the bundle is going to be hosted. By default it is `/`, meaning that the bundle is going to be hosted at the root of the domain (e.g. `https://localhost:3000/`). In some cases like rendering on Lambda, the public path might be a subdirectory.
 
-#### `rootDir?`
+#### `rootDir?` <AvailableFrom v="3.1.6" />
 
-_optional, available from v3.1.6_
+_optional_
 
 The directory in which the Remotion project is rooted in. This should be set to the directory that contains the `package.json` which installs Remotion. By default, it is the current working directory.
 
@@ -89,21 +89,15 @@ The directory in which the Remotion project is rooted in. This should be set to 
 The current working directory is the directory from which your program gets executed from. It is not the same as the file where bundle() gets called.
 :::
 
-#### `publicDir?`
-
-_Available from v3.2.13_
+#### `publicDir?` <AvailableFrom v="3.2.13" />
 
 Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the Remotion root folder.
 
-#### `onPublicDirCopyProgress?`
-
-_Available from v3.3.3_
+#### `onPublicDirCopyProgress?` <AvailableFrom v="3.3.3" />
 
 Reports progress of how many bytes have been written while copying the `public/` directoy. Useful to warn the user if the directory is large that this operation is slow.
 
-#### `onSymlinkDetected?`
-
-_Available from v3.3.3_
+#### `onSymlinkDetected?` <AvailableFrom v="3.3.3" />
 
 Gets called when a symbolic link is detected in the `public/` directory. Since Remotion will forward the symbolic link, it might be useful to display a hint to the user that if the original symbolic link gets deleted, the bundle will also break.
 

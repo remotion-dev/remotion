@@ -1,7 +1,7 @@
-import {validateSpringDuration} from '../validation/validation-spring-duration';
-import {measureSpring} from './measure-spring';
-import type {SpringConfig} from './spring-utils';
-import {springCalculation} from './spring-utils';
+import {validateSpringDuration} from '../validation/validation-spring-duration.js';
+import {measureSpring} from './measure-spring.js';
+import type {SpringConfig} from './spring-utils.js';
+import {springCalculation} from './spring-utils.js';
 
 /**
  * Calculates a position based on physical parameters, start and end value, and time.
@@ -68,5 +68,5 @@ export function spring({
 	return Math.max(spr.current, to);
 }
 
-export {measureSpring} from './measure-spring';
-export {SpringConfig} from './spring-utils';
+export {measureSpring} from './measure-spring.js';
+export {SpringConfig} from './spring-utils.js';
