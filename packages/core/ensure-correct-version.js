@@ -12,11 +12,18 @@ export const VERSION = '${version}';
 
 fs.writeFileSync(path.resolve(process.cwd(), 'src/version.ts'), src);
 
-cp.execSync('pnpm exec tsc');
+cp.execSync('pnpm build');
 
 const distFile = fs.readFileSync('dist/esm/version.js', 'utf-8');
 
 if (!distFile.includes(version)) {
+	console.log('In dist file, did not include version');
+	process.exit(1);
+}
+
+const distFileCjs = fs.readFileSync('dist/cjs/version.js', 'utf-8');
+
+if (!distFileCjs.includes(version)) {
 	console.log('In dist file, did not include version');
 	process.exit(1);
 }
