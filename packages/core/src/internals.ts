@@ -31,7 +31,10 @@ import {PrefetchProvider} from './prefetch-state.js';
 import {getRoot, waitForRoot} from './register-root.js';
 import {RemotionRoot} from './RemotionRoot.js';
 import {SequenceContext} from './Sequence.js';
-import {ENV_VARIABLES_ENV_NAME, setupEnvVariables} from './setup-env-variables.js';
+import {
+	ENV_VARIABLES_ENV_NAME,
+	setupEnvVariables,
+} from './setup-env-variables.js';
 import type {
 	SetTimelineContextValue,
 	TimelineContextValue,
@@ -41,6 +44,7 @@ import {truthy} from './truthy.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
+import {validateFrame} from './validate-frame.js';
 import {
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
@@ -109,6 +113,7 @@ export const Internals = {
 	IsPlayerContextProvider,
 	useIsPlayer,
 	useRemotionEnvironment,
+	validateFrame,
 };
 
 export type {
