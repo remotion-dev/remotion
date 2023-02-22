@@ -1,7 +1,7 @@
 import {useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
-import {calculateNextFrame} from './calculate-next-frame';
-import {usePlayer} from './use-player';
+import {calculateNextFrame} from './calculate-next-frame.js';
+import {usePlayer} from './use-player.js';
 
 export const usePlayback = ({
 	loop,

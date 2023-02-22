@@ -517,6 +517,8 @@ module.exports = {
         "miscellaneous/typescript-aliases",
         "miscellaneous/render-in-browser",
         "miscellaneous/changing-temp-dir",
+        "miscellaneous/automatic-duration",
+        "miscellaneous/video-formats",
       ],
     },
     {
