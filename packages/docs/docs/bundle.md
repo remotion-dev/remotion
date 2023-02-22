@@ -91,7 +91,7 @@ The current working directory is the directory from which your program gets exec
 
 #### `publicDir?` <AvailableFrom v="3.2.13" />
 
-Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the Remotion root folder.
+Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the [Remotion Root](/docs/terminology#remotion-root). If you pass a relative path, it will be resolved against the [Remotion Root](/docs/terminology#remotion-root).
 
 #### `onPublicDirCopyProgress?` <AvailableFrom v="3.3.3" />
 
