@@ -8,23 +8,23 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {usePreload} from '../prefetch';
-import {random} from '../random';
-import {SequenceContext} from '../Sequence';
-import {useMediaInTimeline} from '../use-media-in-timeline';
+import {usePreload} from '../prefetch.js';
+import {random} from '../random.js';
+import {SequenceContext} from '../Sequence.js';
+import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
 	useMediaPlayback,
-} from '../use-media-playback';
-import {useMediaTagVolume} from '../use-media-tag-volume';
-import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
+} from '../use-media-playback.js';
+import {useMediaTagVolume} from '../use-media-tag-volume.js';
+import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag.js';
 import {
 	useMediaMutedState,
 	useMediaVolumeState,
-} from '../volume-position-state';
-import type {RemotionAudioProps} from './props';
-import {useSharedAudio} from './shared-audio-tags';
-import {useFrameForVolumeProp} from './use-audio-frame';
+} from '../volume-position-state.js';
+import type {RemotionAudioProps} from './props.js';
+import {useSharedAudio} from './shared-audio-tags.js';
+import {useFrameForVolumeProp} from './use-audio-frame.js';
 
 type AudioForDevelopmentProps = RemotionAudioProps & {
 	shouldPreMountAudioTags: boolean;
