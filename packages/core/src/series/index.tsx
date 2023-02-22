@@ -32,7 +32,8 @@ const Series: FC<{
 } = ({children}) => {
 	const childrenValue = useMemo(() => {
 		let startFrame = 0;
-		return Children.map(flattenChildren(children), (child, i) => {
+		let flattenedChildren = flattenChildren(children)
+		return Children.map(flattenedChildren, (child, i) => {
 			const castedChild = child as unknown as
 				| {
 						props: SeriesSequenceProps;
@@ -71,10 +72,13 @@ const Series: FC<{
 				children: _children,
 				...passedProps
 			} = castedChild.props;
-			validateDurationInFrames(
-				durationInFramesProp,
-				`of a <Series.Sequence /> component`
-			);
+
+			if (i != flattenedChildren.length-1 || durationInFramesProp != Infinity) {
+				validateDurationInFrames(
+					durationInFramesProp,
+					`of a <Series.Sequence /> component`
+				);
+			}
 			const offset = castedChild.props.offset ?? 0;
 			if (Number.isNaN(offset)) {
 				throw new TypeError(
