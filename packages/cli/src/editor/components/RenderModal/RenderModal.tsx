@@ -1,4 +1,5 @@
 import type {
+	AudioCodec,
 	Codec,
 	PixelFormat,
 	ProResProfile,
@@ -394,6 +395,7 @@ export const RenderModal: React.FC<{
 				| {
 						type: 'render';
 						codec: Codec;
+						audioCodec: AudioCodec;
 				  }
 		) => {
 			if (options.type === 'still') {
@@ -405,7 +407,8 @@ export const RenderModal: React.FC<{
 			} else {
 				setOutName((prev) => {
 					const codecSuffix = BrowserSafeApis.getFileExtensionFromCodec(
-						options.codec
+						options.codec,
+						options.audioCodec
 					);
 					const newFileName = getStringBeforeSuffix(prev) + '.' + codecSuffix;
 					return newFileName;
@@ -423,7 +426,12 @@ export const RenderModal: React.FC<{
 				setVideoSpecificalCodec(newCodec);
 			}
 
-			setDefaultOutName({type: 'render', codec: newCodec});
+			// TODO: Audio codec is not implemented and hardcoded
+			setDefaultOutName({
+				type: 'render',
+				codec: newCodec,
+				audioCodec: 'pcm-16',
+			});
 		},
 		[renderMode, setDefaultOutName]
 	);
@@ -577,11 +585,21 @@ export const RenderModal: React.FC<{
 		(newRenderMode: RenderType) => {
 			setRenderModeState(newRenderMode);
 			if (newRenderMode === 'audio') {
-				setDefaultOutName({type: 'render', codec: audioCodec});
+				// TODO: Audio codec is not implemented but hardcoded
+				setDefaultOutName({
+					type: 'render',
+					codec: audioCodec,
+					audioCodec: 'pcm-16',
+				});
 			}
 
 			if (newRenderMode === 'video') {
-				setDefaultOutName({type: 'render', codec: videoCodec});
+				// TODO: Audio codec is not implemented but hardcoded
+				setDefaultOutName({
+					type: 'render',
+					codec: videoCodec,
+					audioCodec: 'pcm-16',
+				});
 			}
 
 			if (newRenderMode === 'still') {
