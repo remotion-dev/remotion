@@ -14,7 +14,7 @@ fs.writeFileSync(path.resolve(process.cwd(), 'src/version.ts'), src);
 
 cp.execSync('pnpm exec tsc');
 
-const distFile = fs.readFileSync('dist/version.js', 'utf-8');
+const distFile = fs.readFileSync('dist/esm/version.js', 'utf-8');
 
 if (!distFile.includes(version)) {
 	console.log('In dist file, did not include version');
