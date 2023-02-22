@@ -1,6 +1,6 @@
 ---
 sidebar_label: Automatic duration
-title: Can the duration of a composition be automatically calculated?
+title: Calculating the duration of a composition automatically
 crumb: "FAQ"
 ---
 
