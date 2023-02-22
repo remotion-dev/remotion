@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-restricted-imports
 import type {StaticFile} from 'remotion';
 
 export type EventSourceEvent =

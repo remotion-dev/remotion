@@ -48,7 +48,6 @@ import {tmpDir} from './tmp-dir';
 import {validateConcurrency} from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
-import {validateFrame} from './validate-frame';
 import {
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
@@ -147,7 +146,6 @@ export const RenderInternals = {
 	validCodecs,
 	DEFAULT_PIXEL_FORMAT,
 	validateQuality,
-	validateFrame,
 	DEFAULT_TIMEOUT,
 	DEFAULT_CODEC,
 	isAudioCodec,
