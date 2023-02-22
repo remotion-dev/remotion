@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import {describe, expect, test} from 'vitest';
-import {continueRender, delayRender} from '../delay-render';
+import {continueRender, delayRender} from '../delay-render.js';
 
 describe('Ready Manager tests', () => {
 	let handle: number;

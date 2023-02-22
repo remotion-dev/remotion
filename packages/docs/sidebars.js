@@ -518,6 +518,7 @@ module.exports = {
         "miscellaneous/render-in-browser",
         "miscellaneous/changing-temp-dir",
         "miscellaneous/automatic-duration",
+        "miscellaneous/video-formats",
       ],
     },
     {

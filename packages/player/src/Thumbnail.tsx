@@ -13,13 +13,13 @@ import {
 } from 'react';
 import type {CompProps, TimelineContextValue} from 'remotion';
 import {Internals, random} from 'remotion';
-import {ThumbnailEmitterContext} from './emitter-context';
-import {ThumbnailEmitter} from './event-emitter';
-import type {ThumbnailMethods} from './player-methods';
-import type {ErrorFallback, RenderLoading} from './PlayerUI';
-import {SharedPlayerContexts} from './SharedPlayerContext';
-import ThumbnailUI from './ThumbnailUI';
-import type {PropsIfHasProps} from './utils/props-if-has-props';
+import {ThumbnailEmitterContext} from './emitter-context.js';
+import {ThumbnailEmitter} from './event-emitter.js';
+import type {ThumbnailMethods} from './player-methods.js';
+import type {ErrorFallback, RenderLoading} from './PlayerUI.js';
+import {SharedPlayerContexts} from './SharedPlayerContext.js';
+import ThumbnailUI from './ThumbnailUI.js';
+import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 
 type ThumbnailProps<T> = PropsIfHasProps<T> &
 	CompProps<T> & {
