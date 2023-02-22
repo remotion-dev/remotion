@@ -1,5 +1,5 @@
 import {useContext, useEffect} from 'react';
-import {NativeLayersContext} from './NativeLayers';
+import {NativeLayersContext} from './NativeLayers.js';
 
 export const Null: React.FC = () => {
 	const {setClipRegion} = useContext(NativeLayersContext);

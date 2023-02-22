@@ -53,6 +53,7 @@
 		"@vitejs/plugin-react": "^2.0.0",
 		"csstype": "^3.1.1",
 		"eslint": "8.25.0",
+		"eslint-plugin-require-extensions": "^0.1.2",
 		"jsdom": "20.0.1",
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",

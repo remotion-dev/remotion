@@ -1,7 +1,7 @@
 import React from 'react';
-import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
-import type {CompositionManagerContext} from '../CompositionManager';
-import {CompositionManager} from '../CompositionManager';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
+import type {CompositionManagerContext} from '../CompositionManager.js';
+import {CompositionManager} from '../CompositionManager.js';
 
 const Comp: React.FC = () => null;
 

@@ -1108,6 +1108,13 @@ export const articles = [
     crumb: "How to",
   },
   {
+    id: "miscellaneous/video-formats",
+    title: "Which video formats does Remotion support?",
+    relativePath: "docs/miscellaneous/video-formats.md",
+    compId: "articles-docs-miscellaneous-video-formats",
+    crumb: "FAQ",
+  },
+  {
     id: "motion-blur/camera-motion-blur",
     title: "<CameraMotionBlur>",
     relativePath: "docs/motion-blur/camera-motion-blur.md",
