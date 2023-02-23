@@ -29,7 +29,7 @@ export type SimulatePermissionsOutput = {
 
 /**
  * @description Simulates calls using the AWS Simulator to validate the correct permissions.
- * @link http://remotion.dev/docs/lambda/simulatepermissions
+ * @see [Documentation](http://remotion.dev/docs/lambda/simulatepermissions)
  * @param {AwsRegion} options.region The region which you would like to validate
  * @param {(result: SimulationResult) => void} options.onSimulation The region which you would like to validate
  * @returns {Promise<SimulatePermissionsOutput>} See documentation for detailed response structure.

@@ -15,8 +15,7 @@ const inner = (path: string): string => {
 };
 
 /**
- * Reference a file from the public/ folder.
- * If the file does not appear in the autocomplete, type the path manually.
+ * @description Reference a file from the public/ folder. If the file does not appear in the autocomplete, type the path manually.
  * @see [Documentation](https://www.remotion.dev/docs/staticfile)
  */
 export const staticFile = (path: string) => {
