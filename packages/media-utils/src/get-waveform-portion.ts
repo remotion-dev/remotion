@@ -6,6 +6,11 @@ type Bar = {
 	amplitude: number;
 };
 
+/**
+ * Takes bulky waveform data (for example fetched by getAudioData()) and returns a trimmed and simplified version of it, for simpler visualization.
+ * part of @remotion/media-utils
+ * @see [Documentation](https://www.remotion.dev/docs/get-waveform-portion)
+ */
 export const getWaveformPortion = ({
 	audioData,
 	startTimeInSeconds,

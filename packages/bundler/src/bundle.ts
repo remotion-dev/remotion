@@ -147,6 +147,10 @@ const validateEntryPoint = async (entryPoint: string) => {
 	}
 };
 
+/**
+ * the method bundles a Remotion project using Webpack and prepares it for rendering using renderMedia()
+ * @see [Documentation](https://www.remotion.dev/docs/bundle)
+ */
 export async function bundle(...args: Arguments): Promise<string> {
 	const actualArgs = convertArgumentsIntoOptions(args);
 	const entryPoint = path.resolve(process.cwd(), actualArgs.entryPoint);

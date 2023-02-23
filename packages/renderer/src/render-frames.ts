@@ -497,6 +497,11 @@ const innerRenderFrames = ({
 
 type CleanupFn = () => void;
 
+/**
+ * Renders a series of images using Puppeteer and computes information for mixing audio
+ * part of @remotion/renderer
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/render-frames)
+ */
 export const renderFrames = (
 	options: RenderFramesOptions
 ): Promise<RenderFramesOutput> => {

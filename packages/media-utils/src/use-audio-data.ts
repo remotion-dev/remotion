@@ -3,6 +3,13 @@ import {continueRender, delayRender} from 'remotion';
 import {getAudioData} from './get-audio-data';
 import type {AudioData} from './types';
 
+/**
+ * Wraps the getAudioData() function into a hook and does 3 things:
+ * Keeps the audio data in a state
+ * Wraps the function in a delayRender() / continueRender() pattern.
+ * Handles the case where the component gets unmounted while the fetching is in progress and a React error is thrown.
+ * @see [Documentation](https://www.remotion.dev/docs/use-audio-data)
+ */
 export const useAudioData = (src: string): AudioData | null => {
 	if (!src) {
 		throw new TypeError("useAudioData requires a 'src' parameter");
