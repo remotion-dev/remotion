@@ -6,7 +6,7 @@ crumb: "@remotion/paths"
 
 _Part of the [`@remotion/paths`](/docs/paths) package._
 
-Gets the length of an SVG path. The length must
+Gets the length of an SVG path. The length must be a valid SVG path property.
 
 A number is returned if the path is valid:
 
