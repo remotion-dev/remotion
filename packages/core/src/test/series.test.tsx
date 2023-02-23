@@ -64,7 +64,7 @@ test('Basic series test', () => {
 				<Series.Sequence durationInFrames={5}>
 					<Third />
 				</Series.Sequence>
-			</Series>{' '}
+			</Series>
 		</WrapSequenceContext>
 	);
 	expect(queryByText(/^third\s0$/)).not.toBe(null);
@@ -86,7 +86,7 @@ test('Should support fragments', () => {
 						<Third />
 					</Series.Sequence>
 				</>
-			</Series>{' '}
+			</Series>
 		</WrapSequenceContext>
 	);
 
@@ -180,7 +180,7 @@ test('Should allow whitespace', () => {
 			<Series>
 				<Series.Sequence durationInFrames={10}>
 					<First />
-				</Series.Sequence>{' '}
+				</Series.Sequence>
 				<Series.Sequence durationInFrames={10}>
 					<Second />
 				</Series.Sequence>
@@ -337,13 +337,15 @@ test('Allow durationInFrames as Infinity for last Series.Sequence', () => {
 				<Series.Sequence durationInFrames={5}>
 					<Second />
 				</Series.Sequence>
-				<Series.Sequence durationInFrames={5}>
+				<Series.Sequence durationInFrames={Infinity}>
 					<Third />
 				</Series.Sequence>
-			</Series>{' '}
+			</Series>
 		</WrapSequenceContext>
 	);
-	expect(container.outerHTML).toBe('<div><div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; width: 100%; height: 100%; display: flex;"><div>third 0</div></div> </div>');
+	expect(container.outerHTML).toBe(
+		'<div><div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; width: 100%; height: 100%; display: flex;"><div>third 0</div></div> </div>'
+	);
 });
 
 test('Disallow durationInFrames as Infinity for first n-1 Series.Sequence', () => {
@@ -361,7 +363,7 @@ test('Disallow durationInFrames as Infinity for first n-1 Series.Sequence', () =
 					<Series.Sequence durationInFrames={5}>
 						<Third />
 					</Series.Sequence>
-				</Series>{' '}
+				</Series>
 			</WrapSequenceContext>
 		);
 	}).toThrow(
