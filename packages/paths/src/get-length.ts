@@ -3,7 +3,7 @@
 import {construct} from './helpers/construct';
 
 /**
- * Gets the length of an SVG path. 
+ * @description Gets the length of an SVG path. 
  * @param {string} path A valid SVG path
  * @see [Documentation](https://remotion.dev/docs/paths/get-length)
  */
