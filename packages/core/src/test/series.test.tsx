@@ -344,7 +344,7 @@ test('Allow durationInFrames as Infinity for last Series.Sequence', () => {
 		</WrapSequenceContext>
 	);
 	expect(container.outerHTML).toBe(
-		'<div><div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; width: 100%; height: 100%; display: flex;"><div>third 0</div></div> </div>'
+		'<div><div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; width: 100%; height: 100%; display: flex;"><div>third 0</div></div></div>'
 	);
 });
 
