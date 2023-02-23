@@ -4,6 +4,10 @@ let Root: React.FC | null = null;
 
 let listeners: ((comp: React.FC) => void)[] = [];
 
+/**
+ * This function registers the root component of the Remotion project
+ * @see [Documentation](https://www.remotion.dev/docs/register-root)
+ */
 export const registerRoot = (comp: React.FC) => {
 	if (!comp) {
 		throw new Error(
