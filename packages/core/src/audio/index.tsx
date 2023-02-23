@@ -1,2 +1,2 @@
-export * from './Audio';
-export * from './props';
+export * from './Audio.js';
+export * from './props.js';

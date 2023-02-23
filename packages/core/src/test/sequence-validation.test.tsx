@@ -3,10 +3,10 @@
  */
 import {render} from '@testing-library/react';
 import {describe, expect, test} from 'vitest';
-import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
-import {Sequence} from '../Sequence';
-import {expectToThrow} from './expect-to-throw';
-import {WrapSequenceContext} from './wrap-sequence-context';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
+import {Sequence} from '../Sequence.js';
+import {expectToThrow} from './expect-to-throw.js';
+import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 describe('Composition-validation render should throw with invalid props', () => {
 	describe('Throw with invalid duration props', () => {

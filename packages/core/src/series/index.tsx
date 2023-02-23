@@ -1,9 +1,9 @@
 import type {FC, PropsWithChildren} from 'react';
 import {Children, forwardRef, useMemo} from 'react';
-import type {LayoutAndStyle, SequenceProps} from '../Sequence';
-import {Sequence} from '../Sequence';
-import {validateDurationInFrames} from '../validation/validate-duration-in-frames';
-import {flattenChildren} from './flatten-children';
+import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
+import {Sequence} from '../Sequence.js';
+import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
+import {flattenChildren} from './flatten-children.js';
 
 type SeriesSequenceProps = PropsWithChildren<
 	{

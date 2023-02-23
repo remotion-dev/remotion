@@ -1,3 +1,4 @@
+/* eslint-disable no-bitwise */
 function mulberry32(a: number) {
 	let t = a + 0x6d2b79f5;
 	t = Math.imul(t ^ (t >>> 15), t | 1);

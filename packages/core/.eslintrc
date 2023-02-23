@@ -1,6 +1,4 @@
 {
-	"extends": "@jonny",
-	"rules": {
-		"no-bitwise": "off"
-	}
+	"extends": ["@jonny", "plugin:require-extensions/recommended"],
+	"plugins": ["require-extensions"]
 }
