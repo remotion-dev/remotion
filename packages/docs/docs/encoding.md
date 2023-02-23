@@ -241,11 +241,17 @@ Using the [`--audio-codec`](/docs/config#setaudiocodec) flag, you can set the fo
 
 The container format will be automatically derived based on the file extension.
 
-import {SupportedAudioCodecTable} from '../components/SupportedAudioCodec';
+import {SupportedAudioCodecTable, FileExtensionTable} from '../components/SupportedAudioCodec';
 
 <SupportedAudioCodecTable />
 
 GIFs don't support audio.
+
+## File extensions
+
+Specifying a file extension when rendering media will determine the default codec. You may override the codec using `--codec` as long as the combination is supported in the table above.
+
+<FileExtensionTable />
 
 ## What other settings do you need?
 
