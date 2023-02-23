@@ -2,8 +2,8 @@
  * @vitest-environment jsdom
  */
 /* eslint-disable react/jsx-no-constructed-context-values */
-import {render} from '@testing-library/react';
 import React from 'react';
+import {renderToString} from 'react-dom/server';
 import {expect, test} from 'vitest';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {Series} from '../series';
@@ -27,7 +27,7 @@ const Third = () => {
 };
 
 const renderForFrame = (frame: number, markup: React.ReactNode) => {
-	return render(
+	return renderToString(
 		<CanUseRemotionHooksProvider>
 			<TimelineContext.Provider
 				value={{
@@ -51,7 +51,7 @@ const renderForFrame = (frame: number, markup: React.ReactNode) => {
 };
 
 test('Basic series test', () => {
-	const {queryByText} = renderForFrame(
+	const outerHTML = renderForFrame(
 		10,
 		<WrapSequenceContext>
 			<Series>
@@ -67,11 +67,13 @@ test('Basic series test', () => {
 			</Series>
 		</WrapSequenceContext>
 	);
-	expect(queryByText(/^third\s0$/)).not.toBe(null);
+	expect(outerHTML).toBe(
+		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>third 0</div></div>'
+	);
 });
 
 test('Should support fragments', () => {
-	const {container} = renderForFrame(
+	const outerHtml = renderForFrame(
 		10,
 		<WrapSequenceContext>
 			<Series>
@@ -90,11 +92,14 @@ test('Should support fragments', () => {
 		</WrapSequenceContext>
 	);
 
-	expect(container.outerHTML).not.toBe(null);
+	expect(outerHtml).not.toBe(
+		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>second 1</div></div>'
+	);
 });
 test('Should not allow foreign elements', () => {
 	expect(() => {
-		render(
+		renderForFrame(
+			0,
 			<WrapSequenceContext>
 				<Series>
 					<First />
@@ -104,7 +109,7 @@ test('Should not allow foreign elements', () => {
 	}).toThrow(/only accepts a/);
 });
 test('Should allow layout prop', () => {
-	const {container} = renderForFrame(
+	const outerHTML = renderForFrame(
 		0,
 		<WrapSequenceContext>
 			<Series>
@@ -114,11 +119,11 @@ test('Should allow layout prop', () => {
 			</Series>
 		</WrapSequenceContext>
 	);
-	expect(container.outerHTML).toBe(
-		'<div><div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; width: 100%; height: 100%; display: flex;"><div>first 0</div></div></div>'
+	expect(outerHTML).toBe(
+		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>first 0</div></div>'
 	);
 
-	const {container: withoutLayoutContainer} = renderForFrame(
+	const outerHTML2 = renderForFrame(
 		0,
 		<WrapSequenceContext>
 			<Series>
@@ -128,12 +133,10 @@ test('Should allow layout prop', () => {
 			</Series>
 		</WrapSequenceContext>
 	);
-	expect(withoutLayoutContainer.outerHTML).toBe(
-		'<div><div>first 0</div></div>'
-	);
+	expect(outerHTML2).toBe('<div>first 0</div>');
 });
 test('Should render nothing after the end', () => {
-	const {container} = renderForFrame(
+	const outerHTML = renderForFrame(
 		10,
 		<WrapSequenceContext>
 			<Series>
@@ -143,7 +146,7 @@ test('Should render nothing after the end', () => {
 			</Series>
 		</WrapSequenceContext>
 	);
-	expect(container.outerHTML).toBe('<div></div>');
+	expect(outerHTML).toBe('');
 });
 test('Should throw if invalid or no duration provided', () => {
 	expect(() => {
@@ -174,20 +177,23 @@ test('Should throw if invalid or no duration provided', () => {
 	);
 });
 test('Should allow whitespace', () => {
-	const {queryByText} = renderForFrame(
+	const outerHtml = renderForFrame(
 		11,
 		<WrapSequenceContext>
 			<Series>
 				<Series.Sequence durationInFrames={10}>
 					<First />
-				</Series.Sequence>
+				</Series.Sequence>{' '}
 				<Series.Sequence durationInFrames={10}>
 					<Second />
 				</Series.Sequence>
 			</Series>
 		</WrapSequenceContext>
 	);
-	expect(queryByText(/^second\s1$/g)).not.toBe(null);
+
+	expect(outerHtml).toBe(
+		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>second 1</div></div>'
+	);
 });
 test('Handle empty Series.Sequence', () => {
 	expect(() =>
@@ -206,7 +212,7 @@ test('Handle empty Series.Sequence', () => {
 });
 
 test('Should allow negative overlap prop', () => {
-	const {container} = renderForFrame(
+	const outerHTML = renderForFrame(
 		4,
 		<WrapSequenceContext>
 			<Series>
@@ -219,13 +225,11 @@ test('Should allow negative overlap prop', () => {
 			</Series>
 		</WrapSequenceContext>
 	);
-	expect(container.outerHTML).toBe(
-		'<div><div>first 4</div><div>second 0</div></div>'
-	);
+	expect(outerHTML).toBe('<div>first 4</div><div>second 0</div>');
 });
 
 test('Should allow positive overlap prop', () => {
-	const {container} = renderForFrame(
+	const outerHTML = renderForFrame(
 		5,
 		<WrapSequenceContext>
 			<Series>
@@ -238,7 +242,7 @@ test('Should allow positive overlap prop', () => {
 			</Series>
 		</WrapSequenceContext>
 	);
-	expect(container.outerHTML).toBe('<div></div>');
+	expect(outerHTML).toBe('');
 });
 
 test('Should disallow NaN as offset prop', () => {
@@ -287,7 +291,7 @@ test('Should disallow non-integer numbers as offset prop', () => {
 });
 
 test('Should cascade negative offset props', () => {
-	const {container} = renderForFrame(
+	const outerHTML = renderForFrame(
 		9,
 		<WrapSequenceContext>
 			<Series>
@@ -303,11 +307,11 @@ test('Should cascade negative offset props', () => {
 			</Series>
 		</WrapSequenceContext>
 	);
-	expect(container.outerHTML).toBe('<div><div>third 0</div></div>');
+	expect(outerHTML).toBe('<div>third 0</div>');
 });
 
 test('Should cascade positive offset props', () => {
-	const {container} = renderForFrame(
+	const outerHTML = renderForFrame(
 		11,
 		<WrapSequenceContext>
 			<Series>
@@ -323,11 +327,11 @@ test('Should cascade positive offset props', () => {
 			</Series>
 		</WrapSequenceContext>
 	);
-	expect(container.outerHTML).toBe('<div><div>third 0</div></div>');
+	expect(outerHTML).toBe('<div>third 0</div>');
 });
 
 test('Allow durationInFrames as Infinity for last Series.Sequence', () => {
-	const {container} = renderForFrame(
+	const outerHTML = renderForFrame(
 		10,
 		<WrapSequenceContext>
 			<Series>
@@ -343,8 +347,8 @@ test('Allow durationInFrames as Infinity for last Series.Sequence', () => {
 			</Series>
 		</WrapSequenceContext>
 	);
-	expect(container.outerHTML).toBe(
-		'<div><div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; width: 100%; height: 100%; display: flex;"><div>third 0</div></div></div>'
+	expect(outerHTML).toBe(
+		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>third 0</div></div>'
 	);
 });
 
