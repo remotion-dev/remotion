@@ -5,11 +5,11 @@
 import {render} from '@testing-library/react';
 import React from 'react';
 import {expect, test} from 'vitest';
-import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {Series} from '../series';
-import {TimelineContext} from '../timeline-position-state';
-import {useCurrentFrame} from '../use-current-frame';
-import {WrapSequenceContext} from './wrap-sequence-context';
+import {TimelineContext} from '../timeline-position-state.js';
+import {useCurrentFrame} from '../use-current-frame.js';
+import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 const First = () => {
 	const frame = useCurrentFrame();
