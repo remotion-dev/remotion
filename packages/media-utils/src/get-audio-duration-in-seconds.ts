@@ -43,6 +43,7 @@ const fn = (src: string): Promise<number> => {
  * @async
  * @param src path to the audio file
  * @return {number} duration of the audio file in seconds
+ * @see [Documentation](https://www.remotion.dev/docs/get-audio-duration-in-seconds)
  */
 export const getAudioDurationInSeconds = (src: string) => {
 	return limit(fn, src);

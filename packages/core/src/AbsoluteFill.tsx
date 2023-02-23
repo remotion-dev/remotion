@@ -25,6 +25,7 @@ const AbsoluteFillRefForwarding: React.ForwardRefRenderFunction<
 
 /**
  * An absolutely positioned <div> element with 100% width, height, and a column flex style
- * @link https://www.remotion.dev/docs/absolute-fill
+ * @see [Documentation](https://www.remotion.dev/docs/absolute-fill)
  */
+
 export const AbsoluteFill = forwardRef(AbsoluteFillRefForwarding);

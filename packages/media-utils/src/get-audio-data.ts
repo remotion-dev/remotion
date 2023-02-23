@@ -66,6 +66,11 @@ const fn = async (src: string): Promise<AudioData> => {
 	return metadata;
 };
 
+/**
+ * Takes an audio src, loads it and returns data and metadata for the specified source.
+ * part of @remotion/media-utils
+ * @see [Documentation](https://www.remotion.dev/docs/get-audio-data)
+ */
 export const getAudioData = (src: string) => {
 	return limit(fn, src);
 };
