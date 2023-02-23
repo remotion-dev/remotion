@@ -1934,6 +1934,13 @@ export const articles = [
     crumb: "Common mistakes",
   },
   {
+    id: "troubleshooting/could-not-be-parsed-as-a-value-list",
+    title: "The source provided could not be parsed as a value list",
+    relativePath: "docs/troubleshooting/could-not-be-parsed-as-a-value-list.md",
+    compId: "articles-docs-troubleshooting-could-not-be-parsed-as-a-value-list",
+    crumb: "Browser quirks",
+  },
+  {
     id: "defaultprops-too-big",
     title: "defaultProps too big - could not serialize",
     relativePath: "docs/troubleshooting/defaultprops-too-big.md",
