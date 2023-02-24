@@ -107,6 +107,9 @@ export const createFunction = async ({
 				FunctionName,
 			})
 		);
+		await new Promise<void>((resolve) => {
+			setTimeout(() => resolve(), 1000);
+		});
 		state = getFn.Configuration?.State as string;
 	}
 
