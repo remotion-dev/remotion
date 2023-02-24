@@ -13,3 +13,4 @@ packages/example/out
 .turbo
 .vercel
 packages/renderer/target
+packages/example/sa-key.json

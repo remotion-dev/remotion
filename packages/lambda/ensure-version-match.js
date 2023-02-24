@@ -7,9 +7,9 @@ for (const version of versions) {
 	cp.execSync(`unzip -o ${version} -d extracted`);
 	const contents = fs.readFileSync('extracted/index.js', 'utf-8');
 	fs.rmSync('extracted', {recursive: true});
-	const [, inLambda] = contents.match(/exports\.VERSION = "(.*)"/);
+	const [, inLambda] = contents.match(/VERSION = "(.*)"/);
 
-	const inConstants = fs.readFileSync('../core/dist/version.js', 'utf-8');
+	const inConstants = fs.readFileSync('../core/dist/cjs/version.js', 'utf-8');
 	const [, inPkg] = inConstants.match(/exports\.VERSION = '(.*)'/);
 
 	if (inLambda !== inPkg) {

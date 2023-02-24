@@ -40,6 +40,10 @@ export const setPropsAndEnv = async ({
 		window.remotion_puppeteerTimeout = timeout;
 	}, actualTimeout);
 
+	if (typeof inputProps === 'string') {
+		throw new Error('Input props should be an object, not a string.');
+	}
+
 	if (inputProps) {
 		await page.evaluateOnNewDocument((input: string) => {
 			window.remotion_inputProps = input;

@@ -1,5 +1,5 @@
 import type {StandardLonghandProperties} from 'csstype';
-import type {Size} from './use-element-size';
+import type {Size} from './use-element-size.js';
 
 export const calculatePlayerSize = ({
 	currentSize,
