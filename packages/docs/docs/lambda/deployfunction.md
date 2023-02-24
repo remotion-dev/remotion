@@ -23,7 +23,6 @@ const { functionName } = await deployFunction({
   timeoutInSeconds: 120,
   memorySizeInMb: 2048,
   createCloudWatchLogGroup: true,
-  architecture: "arm64",
   diskSizeInMb: 2048,
 });
 console.log(functionName);
@@ -45,12 +44,6 @@ We recommend a timeout of 120 seconds or lower - remember, Remotion Lambda is th
 ### `memorySizeInMb`
 
 How many megabytes of RAM the Lambda function should have. By default we recommend a value of 2048MB. You may increase or decrease it depending on how memory-consuming your video is. The minimum allowed number is `512`, the maximum allowed number is `10240`. Since the costs of Remotion Lambda is directly proportional to the amount of RAM, we recommend to keep this amount as low as possible.
-
-### `architecture`
-
-_string_
-
-Either `x86_64` or `arm64`. Default: `arm64`
 
 ### `createCloudWatchLogGroup`
 

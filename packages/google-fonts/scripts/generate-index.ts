@@ -41,12 +41,7 @@ const generate = async () => {
     read.typesVersions[">=1.0"][removeWhitespace(unquote(font.family))] = [
       `dist/${removeWhitespace(unquote(font.family))}.d.ts`,
     ];
-    if (!read.exports) read.exports = {};
-    read.exports[
-      `./${removeWhitespace(unquote(font.family))}`
-    ] = `./dist/${removeWhitespace(unquote(font.family))}.js`;
   }
-  read.exports["."] = `./dist/index.js`;
 
   await fs.promises.writeFile(
     packageFilename,
