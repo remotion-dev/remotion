@@ -1,4 +1,4 @@
-import type { WebpackOverrideFn } from 'remotion';
+import type { WebpackOverrideFn } from '@remotion/bundler';
 import { gcpLs, gcpDeleteFile } from '../functions/helpers/io';
 import { bundleSite } from '../shared/bundle-site';
 import { getSitesKey } from '../shared/constants';
