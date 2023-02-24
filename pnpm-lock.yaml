@@ -574,6 +574,7 @@ importers:
       '@remotion/renderer': 3.3.51
       '@types/minimist': 1.2.2
       eslint: 8.25.0
+      prettier: ^2.7.1
       prettier-plugin-organize-imports: ^3.2.2
       remotion: 3.3.51
       ts-node: ^10.8.0
@@ -591,6 +592,7 @@ importers:
       '@remotion/compositor-linux-x64-musl': link:../compositor-linux-x64-musl
       '@types/minimist': 1.2.2
       eslint: 8.25.0
+      prettier: 2.7.1
       prettier-plugin-organize-imports: 3.2.2_j2odc4yr77iddtreafyicbq5hi
       ts-node: 10.8.0_vnj66vw6pmisrnpmmxy72mdbpa
       typescript: 4.7.2
@@ -796,6 +798,8 @@ importers:
       remotion: 3.3.51
       typescript: ^4.7.0
     dependencies:
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
@@ -804,8 +808,6 @@ importers:
       eslint: 8.25.0
       prettier: 2.7.1
       prettier-plugin-organize-imports: 2.3.4_j2odc4yr77iddtreafyicbq5hi
-      react: 18.0.0
-      react-dom: 18.0.0_react@18.0.0
       typescript: 4.7.2
 
   packages/motion-blur:
