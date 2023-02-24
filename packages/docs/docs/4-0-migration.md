@@ -35,3 +35,8 @@ When deploying a Lambda, you were previously able to choose between the `arm64` 
 From v4.0 on, only `arm64` is supported. It should be faster, cheaper and not have any different behavior than `x86_64`.
 
 **How to upgrade**: Remove the `architecture` option from `estimatePrice()` and `deployFunction()`.
+
+## Rich timeline removed
+
+The option to use the "Rich timeline" has been removed due to performance problems.  
+The timeline is now always in simple mode, but supports more timeline layers at once.
