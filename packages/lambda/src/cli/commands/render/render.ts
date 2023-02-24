@@ -3,6 +3,7 @@ import {getCompositions, RenderInternals} from '@remotion/renderer';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {renderMediaOnLambda} from '../../../api/render-media-on-lambda';
+import type {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
 import type {RenderProgress} from '../../../shared/constants';
 import {
 	BINARY_NAME,
@@ -133,6 +134,9 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					secret: parsedLambdaCli['webhook-secret'] ?? null,
 			  }
 			: undefined,
+		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
+		forceBucketName: parsedLambdaCli['force-bucket-name'],
+		audioCodec: CliInternals.parsedCli['audio-codec'],
 	});
 
 	const totalSteps = downloadName ? 6 : 5;
@@ -289,7 +293,13 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 		if (newStatus.fatalErrorEncountered) {
 			Log.error('\n');
+			const uniqueErrors: EnhancedErrorInfo[] = [];
 			for (const err of newStatus.errors) {
+				if (uniqueErrors.find((e) => e.stack === err.stack)) {
+					continue;
+				}
+
+				uniqueErrors.push(err);
 				if (err.explanation) {
 					Log.error(err.explanation);
 				}

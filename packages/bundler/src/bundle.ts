@@ -1,13 +1,13 @@
-import fs from 'fs';
+import fs, {promises} from 'fs';
 import os from 'os';
 import path from 'path';
-import type {WebpackOverrideFn} from 'remotion';
 import {promisify} from 'util';
 import webpack from 'webpack';
 import {isMainThread} from 'worker_threads';
 import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
 import {readRecursively} from './read-recursively';
+import type {WebpackOverrideFn} from './types';
 import {webpackConfig} from './webpack-config';
 
 const promisified = promisify(webpack);
@@ -84,6 +84,7 @@ export const getConfig = ({
 export type BundleOptions = {
 	entryPoint: string;
 	onProgress?: (progress: number) => void;
+	ignoreRegisterRootWarning?: boolean;
 } & LegacyBundleOptions;
 
 type Arguments =
@@ -132,6 +133,20 @@ const findClosestPackageJsonFolder = (currentDir: string): string | null => {
 	return null;
 };
 
+const validateEntryPoint = async (entryPoint: string) => {
+	const contents = await promises.readFile(entryPoint, 'utf8');
+	if (!contents.includes('registerRoot')) {
+		throw new Error(
+			[
+				`You passed ${entryPoint} as your entry point, but this file does not contain "registerRoot".`,
+				'You should use the file that calls registerRoot() as the entry point.',
+				'To ignore this error, pass "ignoreRegisterRootWarning" to bundle().',
+				'This error cannot be ignored on the CLI.',
+			].join(' ')
+		);
+	}
+};
+
 export async function bundle(...args: Arguments): Promise<string> {
 	const actualArgs = convertArgumentsIntoOptions(args);
 	const entryPoint = path.resolve(process.cwd(), actualArgs.entryPoint);
@@ -139,6 +154,10 @@ export async function bundle(...args: Arguments): Promise<string> {
 		actualArgs?.rootDir ??
 		findClosestPackageJsonFolder(entryPoint) ??
 		process.cwd();
+
+	if (!actualArgs.ignoreRegisterRootWarning) {
+		await validateEntryPoint(entryPoint);
+	}
 
 	const outDir = await prepareOutDir(actualArgs?.outDir ?? null);
 

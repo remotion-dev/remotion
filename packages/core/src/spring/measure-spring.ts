@@ -1,6 +1,6 @@
-import {validateFps} from '../validation/validate-fps';
-import type {SpringConfig} from './spring-utils';
-import {springCalculation} from './spring-utils';
+import {validateFps} from '../validation/validate-fps.js';
+import type {SpringConfig} from './spring-utils.js';
+import {springCalculation} from './spring-utils.js';
 
 export function measureSpring({
 	fps,

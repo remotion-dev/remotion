@@ -2,20 +2,35 @@
 	"extends": "@jonny",
 	"rules": {
 		"no-console": "error",
-		"no-restricted-imports": ["error", "remotion"]
+		"no-restricted-imports": [
+			"error",
+			{
+				"patterns": ["@remotion/*/src/*"]
+			}
+		]
 	},
 	"overrides": [
 		{
 			"files": "./src/editor/**",
 			"rules": {
 				"no-console": "off",
-				"no-restricted-imports": ["off"]
+				"no-restricted-imports": [
+					"error",
+					{
+						"patterns": ["@remotion/*/src/*"]
+					}
+				]
 			}
 		},
 		{
 			"files": "./src/preview-server/error-overlay/**",
 			"rules": {
-				"no-restricted-imports": ["off"]
+				"no-restricted-imports": [
+					"error",
+					{
+						"patterns": ["@remotion/*/src/*"]
+					}
+				]
 			}
 		}
 	]

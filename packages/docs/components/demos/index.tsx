@@ -9,7 +9,14 @@ import {
   circleDemo,
   ellipseDemo,
   noiseDemo,
+  opacityDemo,
+  pieDemo,
   rectDemo,
+  rotateDemo,
+  scaleDemo,
+  skewDemo,
+  starDemo,
+  translateDemo,
   triangleDemo,
 } from "./types";
 
@@ -27,6 +34,13 @@ const demos: DemoType[] = [
   rectDemo,
   circleDemo,
   ellipseDemo,
+  starDemo,
+  pieDemo,
+  translateDemo,
+  skewDemo,
+  rotateDemo,
+  scaleDemo,
+  opacityDemo,
 ];
 
 export const Demo: React.FC<{

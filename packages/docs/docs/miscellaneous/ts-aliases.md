@@ -38,7 +38,7 @@ you can add the aliases to Webpack, however you need to add each of them manuall
 import path from "path";
 import { Config } from "remotion";
 
-Config.Bundling.overrideWebpackConfig((config) => {
+Config.overrideWebpackConfig((config) => {
   return {
     ...config,
     resolve: {
@@ -51,6 +51,10 @@ Config.Bundling.overrideWebpackConfig((config) => {
   };
 });
 ```
+
+:::note
+Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
+:::
 
 Remember that in Node.JS APIs, the config file does not apply, so you need to add the Webpack override also to the [`bundle()`](/docs/bundle) and [`deploySite()`](/docs/lambda/deploysite) functions.
 

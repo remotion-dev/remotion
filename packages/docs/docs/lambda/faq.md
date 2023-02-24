@@ -24,7 +24,7 @@ There are three exceptions when it is possible to deploy multiple functions:
 
 ### Do I need to create multiple buckets?
 
-Only one bucket per region is required.
+Only [one bucket per region is recommended](/docs/lambda/multiple-buckets).
 
 ### Do I need to deploy multiple sites?
 

@@ -1,4 +1,4 @@
-import {useIsPlayer} from './is-player';
+import {useIsPlayer} from './is-player.js';
 
 export type RemotionEnvironment =
 	| 'preview'

@@ -1,5 +1,5 @@
+import type {WebpackOverrideFn} from '@remotion/bundler';
 import CopyPlugin from 'copy-webpack-plugin';
-import type {WebpackOverrideFn} from 'remotion';
 
 export const enableSkia: WebpackOverrideFn = (currentConfiguration) => {
 	return {

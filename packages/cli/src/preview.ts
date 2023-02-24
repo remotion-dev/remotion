@@ -92,7 +92,6 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 	}
 
 	const desiredPort = getPort();
-	const fullPath = path.join(process.cwd(), file);
 
 	let inputProps = getInputProps((newProps) => {
 		waitForLiveEventsListener().then((listener) => {
@@ -137,7 +136,7 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 
 	const {port, liveEventsServer} = await startServer({
 		entry: path.resolve(__dirname, 'previewEntry.js'),
-		userDefinedComponent: fullPath,
+		userDefinedComponent: file,
 		getCurrentInputProps: () => inputProps,
 		getEnvVariables: () => envVariables,
 		port: desiredPort,

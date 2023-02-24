@@ -3,6 +3,7 @@ import React from 'react';
 import {Composition, Folder, getInputProps, Still} from 'remotion';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText from './BetaText';
+import {CancelRender} from './CancelRender';
 import {ColorInterpolation} from './ColorInterpolation';
 import {MyCtx, WrappedInContext} from './Context';
 import CorruptVideo from './CorruptVideo';
@@ -17,10 +18,12 @@ import {OffthreadRemoteVideo} from './OffthreadRemoteVideo/OffthreadRemoteVideo'
 import {OrbScene} from './Orb';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
+import {ScalePath} from './ScalePath';
 import {Scripts} from './Scripts';
 import CircleTest from './Shapes/CircleTest';
 import EllipseTest from './Shapes/EllipseTest';
 import RectTest from './Shapes/RectTest';
+import StarTest from './Shapes/StarTest';
 import TriangleTest from './Shapes/TriangleTest';
 import {SkipZeroFrame} from './SkipZeroFrame';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
@@ -33,6 +36,8 @@ import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
+import {WarpDemo} from './WarpText';
+import {WarpDemo2} from './WarpText/demo2';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -53,6 +58,14 @@ export const Index: React.FC = () => {
 					fps={60}
 					height={1080}
 					width={1080}
+				/>
+				<Composition
+					fps={30}
+					id="cancel-render"
+					width={920}
+					height={720}
+					component={CancelRender}
+					durationInFrames={100}
 				/>
 				<Composition
 					id="iframe"
@@ -522,6 +535,30 @@ export const Index: React.FC = () => {
 					height={1080}
 					width={1080}
 				/>
+				<Composition
+					id="scale-path"
+					component={ScalePath}
+					durationInFrames={500}
+					fps={30}
+					height={1080}
+					width={1080}
+				/>
+				<Composition
+					id="path-warp"
+					component={WarpDemo}
+					durationInFrames={500}
+					fps={30}
+					height={1080}
+					width={1080}
+				/>
+				<Composition
+					id="path-warp-2"
+					component={WarpDemo2}
+					durationInFrames={500}
+					fps={30}
+					height={1080}
+					width={1080}
+				/>
 			</Folder>
 			<Folder name="gif">
 				<Composition
@@ -596,6 +633,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="ellipse-test"
 					component={EllipseTest}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="star-test"
+					component={StarTest}
 					width={1200}
 					height={630}
 					fps={30}

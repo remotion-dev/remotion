@@ -100,6 +100,12 @@ Accepted values:
 The default for Lambda is `"swangle"`, but `null` elsewhere.
 :::
 
+### `forceBucketName?`
+
+_available from v3.3.42_
+
+Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
+
 ## Return value
 
 Returns a promise that resolves to an array of available compositions. Example value:
