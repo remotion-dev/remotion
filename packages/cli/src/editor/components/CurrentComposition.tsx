@@ -1,11 +1,8 @@
-import React, {useContext} from 'react';
+import React from 'react';
 import {Internals} from 'remotion';
 import {BACKGROUND, BORDER_COLOR} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {renderFrame} from '../state/render-frame';
-import {RichTimelineContext} from '../state/rich-timeline';
-import {Spacing} from './layout';
-import {Thumbnail} from './Thumbnail';
 
 const container: React.CSSProperties = {
 	minHeight: 70,
@@ -39,32 +36,16 @@ const row: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 };
 
-const targetHeight = 60;
-const targetWidth = (targetHeight * 16) / 9;
-
 export const CurrentComposition = () => {
-	const richTimelineContext = useContext(RichTimelineContext);
 	const video = Internals.useVideo();
 
 	if (!video) {
 		return <div style={container} />;
 	}
 
-	const frameToDisplay = Math.floor(video.durationInFrames / 2);
 	return (
 		<div style={container}>
 			<div style={row}>
-				{richTimelineContext.richTimeline ? (
-					<>
-						<Thumbnail
-							composition={video}
-							targetHeight={targetHeight}
-							targetWidth={targetWidth}
-							frameToDisplay={frameToDisplay}
-						/>
-						<Spacing x={1} />
-					</>
-				) : null}
 				<div>
 					<div style={title}>{video.id}</div>
 					<div style={subtitle}>
