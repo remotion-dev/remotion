@@ -4,7 +4,9 @@ import {
 } from '@aws-sdk/client-cloudwatch-logs';
 import {
 	CreateFunctionCommand,
+	GetFunctionCommand,
 	PutFunctionEventInvokeConfigCommand,
+	PutRuntimeManagementConfigCommand,
 } from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
 import {LOG_GROUP_PREFIX} from '../defaults';
@@ -77,7 +79,6 @@ export const createFunction = async ({
 			FunctionName: functionName,
 			Handler: 'index.handler',
 			Role: customRoleArn ?? defaultRoleName,
-			Runtime: 'nodejs14.x',
 			Description: 'Renders a Remotion video.',
 			MemorySize: memorySizeInMb,
 			Timeout: timeoutInSeconds,
@@ -88,6 +89,7 @@ export const createFunction = async ({
 			EphemeralStorage: {
 				Size: ephemerealStorageInMb,
 			},
+			Runtime: 'nodejs14.x',
 		})
 	);
 	await getLambdaClient(region).send(
@@ -96,6 +98,32 @@ export const createFunction = async ({
 			FunctionName,
 		})
 	);
+
+	let state = 'Pending';
+
+	while (state === 'Pending') {
+		const getFn = await getLambdaClient(region).send(
+			new GetFunctionCommand({
+				FunctionName,
+			})
+		);
+		state = getFn.Configuration?.State as string;
+	}
+
+	try {
+		await getLambdaClient(region).send(
+			new PutRuntimeManagementConfigCommand({
+				FunctionName,
+				UpdateRuntimeOn: 'Manual',
+				RuntimeVersionArn: `arn:aws:lambda:${region}::runtime:69000d3430a08938bcab71617dffcb8ea551a2cbc36c59f38c52a1ea087e461b`,
+			})
+		);
+	} catch (err) {
+		console.log(err);
+		console.warn(
+			'⚠️ Could not lock the runtime version. We recommend to update your policies to prevent your functions from breaking soon: https://remotion.dev/docs/lambda/feb-2023-incident'
+		);
+	}
 
 	return {FunctionName: FunctionName as string};
 };
