@@ -19,7 +19,7 @@ export const gcpCommand = async (remotionRoot: string, args: string[]) => {
 		Log.error('Remotion GCP is not installed.');
 		Log.info('');
 		Log.info('You can install it using:');
-		Log.info(`${installCommand} i @remotion/gcp@${getRemotionVersion()}`);
+		Log.info(`${installCommand} @remotion/gcp@${getRemotionVersion()}`);
 		process.exit(1);
 	}
 };
