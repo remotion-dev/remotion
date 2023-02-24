@@ -1,4 +1,4 @@
-import type {VolumeProp} from '../volume-prop';
+import type {VolumeProp} from '../volume-prop.js';
 
 export type RemotionMainAudioProps = {
 	startFrom?: number;

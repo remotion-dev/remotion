@@ -1,0 +1,23 @@
+{
+  "name": "@remotion/astro-example",
+  "private": true,
+  "type": "module",
+  "version": "3.3.53",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "node build.mjs",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/react": "^2.0.2",
+    "@remotion/player": "3.3.53",
+    "@types/react": "^18.0.10",
+    "@types/react-dom": "^18.0.5",
+    "astro": "^2.0.14",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "remotion": "3.3.53"
+  }
+}
