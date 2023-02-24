@@ -1,6 +1,6 @@
 {
   "name": "@remotion/google-fonts",
-  "version": "3.3.44",
+  "version": "3.3.53",
   "description": "Load Google Fonts in Remotion",
   "scripts": {
     "build": "pnpm run generate && tsc -d",
@@ -10,7 +10,7 @@
   },
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
-    "remotion": "3.3.44"
+    "remotion": "3.3.53"
   },
   "devDependencies": {
     "@types/css-font-loading-module": "^0.0.7",
@@ -4392,6 +4392,108 @@
       ],
       "ZillaSlabHighlight": [
         "dist/ZillaSlabHighlight.d.ts"
+      ],
+      "Alexandria": [
+        "dist/Alexandria.d.ts"
+      ],
+      "ChivoMono": [
+        "dist/ChivoMono.d.ts"
+      ],
+      "FragmentMono": [
+        "dist/FragmentMono.d.ts"
+      ],
+      "GajrajOne": [
+        "dist/GajrajOne.d.ts"
+      ],
+      "Gloock": [
+        "dist/Gloock.d.ts"
+      ],
+      "HankenGrotesk": [
+        "dist/HankenGrotesk.d.ts"
+      ],
+      "IBMPlexSansJP": [
+        "dist/IBMPlexSansJP.d.ts"
+      ],
+      "Labrada": [
+        "dist/Labrada.d.ts"
+      ],
+      "Marhey": [
+        "dist/Marhey.d.ts"
+      ],
+      "MartianMono": [
+        "dist/MartianMono.d.ts"
+      ],
+      "Mynerve": [
+        "dist/Mynerve.d.ts"
+      ],
+      "NotoSansLaoLooped": [
+        "dist/NotoSansLaoLooped.d.ts"
+      ],
+      "NotoSansMendeKikakui": [
+        "dist/NotoSansMendeKikakui.d.ts"
+      ],
+      "NotoSansSignWriting": [
+        "dist/NotoSansSignWriting.d.ts"
+      ],
+      "NotoSansTangsa": [
+        "dist/NotoSansTangsa.d.ts"
+      ],
+      "NotoSerifKhojki": [
+        "dist/NotoSerifKhojki.d.ts"
+      ],
+      "NotoSerifNPHmong": [
+        "dist/NotoSerifNPHmong.d.ts"
+      ],
+      "NotoSerifOriya": [
+        "dist/NotoSerifOriya.d.ts"
+      ],
+      "NotoSerifToto": [
+        "dist/NotoSerifToto.d.ts"
+      ],
+      "PadyakkeExpandedOne": [
+        "dist/PadyakkeExpandedOne.d.ts"
+      ],
+      "Phudu": [
+        "dist/Phudu.d.ts"
+      ],
+      "Rubik80sFade": [
+        "dist/Rubik80sFade.d.ts"
+      ],
+      "RubikGemstones": [
+        "dist/RubikGemstones.d.ts"
+      ],
+      "RubikSprayPaint": [
+        "dist/RubikSprayPaint.d.ts"
+      ],
+      "RubikStorm": [
+        "dist/RubikStorm.d.ts"
+      ],
+      "RubikVinyl": [
+        "dist/RubikVinyl.d.ts"
+      ],
+      "ShantellSans": [
+        "dist/ShantellSans.d.ts"
+      ],
+      "SofiaSans": [
+        "dist/SofiaSans.d.ts"
+      ],
+      "SofiaSansCondensed": [
+        "dist/SofiaSansCondensed.d.ts"
+      ],
+      "SofiaSansExtraCondensed": [
+        "dist/SofiaSansExtraCondensed.d.ts"
+      ],
+      "SofiaSansSemiCondensed": [
+        "dist/SofiaSansSemiCondensed.d.ts"
+      ],
+      "Solitreo": [
+        "dist/Solitreo.d.ts"
+      ],
+      "Sono": [
+        "dist/Sono.d.ts"
+      ],
+      "Unbounded": [
+        "dist/Unbounded.d.ts"
       ]
     }
   },
@@ -5852,6 +5954,40 @@
     "./ZillaSlab": "./dist/ZillaSlab.js",
     "./ZillaSlabHighlight": "./dist/ZillaSlabHighlight.js",
     "./index": "./dist/index.js",
-    ".": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./Alexandria": "./dist/Alexandria.js",
+    "./ChivoMono": "./dist/ChivoMono.js",
+    "./FragmentMono": "./dist/FragmentMono.js",
+    "./GajrajOne": "./dist/GajrajOne.js",
+    "./Gloock": "./dist/Gloock.js",
+    "./HankenGrotesk": "./dist/HankenGrotesk.js",
+    "./IBMPlexSansJP": "./dist/IBMPlexSansJP.js",
+    "./Labrada": "./dist/Labrada.js",
+    "./Marhey": "./dist/Marhey.js",
+    "./MartianMono": "./dist/MartianMono.js",
+    "./Mynerve": "./dist/Mynerve.js",
+    "./NotoSansLaoLooped": "./dist/NotoSansLaoLooped.js",
+    "./NotoSansMendeKikakui": "./dist/NotoSansMendeKikakui.js",
+    "./NotoSansSignWriting": "./dist/NotoSansSignWriting.js",
+    "./NotoSansTangsa": "./dist/NotoSansTangsa.js",
+    "./NotoSerifKhojki": "./dist/NotoSerifKhojki.js",
+    "./NotoSerifNPHmong": "./dist/NotoSerifNPHmong.js",
+    "./NotoSerifOriya": "./dist/NotoSerifOriya.js",
+    "./NotoSerifToto": "./dist/NotoSerifToto.js",
+    "./PadyakkeExpandedOne": "./dist/PadyakkeExpandedOne.js",
+    "./Phudu": "./dist/Phudu.js",
+    "./Rubik80sFade": "./dist/Rubik80sFade.js",
+    "./RubikGemstones": "./dist/RubikGemstones.js",
+    "./RubikSprayPaint": "./dist/RubikSprayPaint.js",
+    "./RubikStorm": "./dist/RubikStorm.js",
+    "./RubikVinyl": "./dist/RubikVinyl.js",
+    "./ShantellSans": "./dist/ShantellSans.js",
+    "./SofiaSans": "./dist/SofiaSans.js",
+    "./SofiaSansCondensed": "./dist/SofiaSansCondensed.js",
+    "./SofiaSansExtraCondensed": "./dist/SofiaSansExtraCondensed.js",
+    "./SofiaSansSemiCondensed": "./dist/SofiaSansSemiCondensed.js",
+    "./Solitreo": "./dist/Solitreo.js",
+    "./Sono": "./dist/Sono.js",
+    "./Unbounded": "./dist/Unbounded.js"
   }
 }

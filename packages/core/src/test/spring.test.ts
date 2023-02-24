@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest';
-import {isApproximatelyTheSame} from '../is-approximately-the-same';
+import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
 import {spring} from '../spring';
 
 test('Basic spring to equal 0', () => {

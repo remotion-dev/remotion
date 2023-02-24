@@ -1,7 +1,7 @@
 import React, {useCallback, useId, useMemo, useRef, useState} from 'react';
 import {Internals, random} from 'remotion';
-import {ICON_SIZE, VolumeOffIcon, VolumeOnIcon} from './icons';
-import {useHoverState} from './use-hover-state';
+import {ICON_SIZE, VolumeOffIcon, VolumeOnIcon} from './icons.js';
+import {useHoverState} from './use-hover-state.js';
 
 const BAR_HEIGHT = 5;
 const KNOB_SIZE = 12;

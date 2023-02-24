@@ -3,13 +3,13 @@
 // for them to be useable
 
 import React, {useMemo} from 'react';
-import {CanUseRemotionHooks} from './CanUseRemotionHooks';
-import {CompositionManager} from './CompositionManager';
-import {NativeLayersContext} from './NativeLayers';
-import {NonceContext} from './nonce';
-import {PreloadContext} from './prefetch-state';
-import {SequenceContext} from './Sequence';
-import {SetTimelineContext, TimelineContext} from './timeline-position-state';
+import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
+import {CompositionManager} from './CompositionManager.js';
+import {NativeLayersContext} from './NativeLayers.js';
+import {NonceContext} from './nonce.js';
+import {PreloadContext} from './prefetch-state.js';
+import {SequenceContext} from './Sequence.js';
+import {SetTimelineContext, TimelineContext} from './timeline-position-state.js';
 
 export function useRemotionContexts() {
 	const compositionManagerCtx = React.useContext(CompositionManager);
