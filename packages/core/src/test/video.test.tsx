@@ -5,10 +5,10 @@ import {render} from '@testing-library/react';
 import type {ComponentType} from 'react';
 import React, {useContext} from 'react';
 import {describe, expect, test} from 'vitest';
-import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
-import {Internals} from '../internals';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
+import {Internals} from '../internals.js';
 import {Video} from '../video';
-import {expectToThrow} from './expect-to-throw';
+import {expectToThrow} from './expect-to-throw.js';
 
 const Wrapper: React.FC<{
 	children: React.ReactNode;

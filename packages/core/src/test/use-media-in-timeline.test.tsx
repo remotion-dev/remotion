@@ -4,12 +4,12 @@
 import type {RefObject} from 'react';
 import React from 'react';
 import {afterAll, beforeAll, expect, test, vitest} from 'vitest';
-import type {CompositionManagerContext} from '../CompositionManager';
-import {Internals} from '../internals';
-import {useMediaInTimeline} from '../use-media-in-timeline';
-import * as useVideoConfigModule from '../use-video-config';
-import {renderHook} from './render-hook';
-import {mockCompositionContext} from './wrap-sequence-context';
+import type {CompositionManagerContext} from '../CompositionManager.js';
+import {Internals} from '../internals.js';
+import {useMediaInTimeline} from '../use-media-in-timeline.js';
+import * as useVideoConfigModule from '../use-video-config.js';
+import {renderHook} from './render-hook.js';
+import {mockCompositionContext} from './wrap-sequence-context.js';
 
 beforeAll(() => {
 	vitest

@@ -6,23 +6,23 @@ import React, {
 	useImperativeHandle,
 	useRef,
 } from 'react';
-import {useFrameForVolumeProp} from '../audio/use-audio-frame';
-import {usePreload} from '../prefetch';
-import {SequenceContext} from '../Sequence';
-import {useMediaInTimeline} from '../use-media-in-timeline';
+import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
+import {usePreload} from '../prefetch.js';
+import {SequenceContext} from '../Sequence.js';
+import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
 	useMediaPlayback,
-} from '../use-media-playback';
-import {useMediaTagVolume} from '../use-media-tag-volume';
-import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
-import {useVideoConfig} from '../use-video-config';
+} from '../use-media-playback.js';
+import {useMediaTagVolume} from '../use-media-tag-volume.js';
+import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag.js';
+import {useVideoConfig} from '../use-video-config.js';
 import {
 	useMediaMutedState,
 	useMediaVolumeState,
-} from '../volume-position-state';
-import type {RemotionVideoProps} from './props';
-import {useAppendVideoFragment} from './video-fragment';
+} from '../volume-position-state.js';
+import type {RemotionVideoProps} from './props.js';
+import {useAppendVideoFragment} from './video-fragment.js';
 
 type VideoForDevelopmentProps = RemotionVideoProps & {
 	onlyWarnForMediaSeekingError: boolean;

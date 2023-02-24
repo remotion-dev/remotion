@@ -5,9 +5,9 @@ import React, {
 	useLayoutEffect,
 	useRef,
 } from 'react';
-import {continueRender, delayRender} from './delay-render';
-import {useRemotionEnvironment} from './get-environment';
-import {usePreload} from './prefetch';
+import {continueRender, delayRender} from './delay-render.js';
+import {useRemotionEnvironment} from './get-environment.js';
+import {usePreload} from './prefetch.js';
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
 	HTMLImageElement,

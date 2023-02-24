@@ -1,17 +1,17 @@
 import type {RefObject} from 'react';
 import {useContext, useEffect, useMemo, useState} from 'react';
-import {useMediaStartsAt} from './audio/use-audio-frame';
-import {CompositionManager} from './CompositionManager';
-import {getAssetDisplayName} from './get-asset-file-name';
-import {useRemotionEnvironment} from './get-environment';
-import {useNonce} from './nonce';
-import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error';
-import {SequenceContext} from './Sequence';
-import type {PlayableMediaTag} from './timeline-position-state';
-import {TimelineContext, usePlayingState} from './timeline-position-state';
-import {useVideoConfig} from './use-video-config';
-import type {VolumeProp} from './volume-prop';
-import {evaluateVolume} from './volume-prop';
+import {useMediaStartsAt} from './audio/use-audio-frame.js';
+import {CompositionManager} from './CompositionManager.js';
+import {getAssetDisplayName} from './get-asset-file-name.js';
+import {useRemotionEnvironment} from './get-environment.js';
+import {useNonce} from './nonce.js';
+import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
+import {SequenceContext} from './Sequence.js';
+import type {PlayableMediaTag} from './timeline-position-state.js';
+import {TimelineContext, usePlayingState} from './timeline-position-state.js';
+import {useVideoConfig} from './use-video-config.js';
+import type {VolumeProp} from './volume-prop.js';
+import {evaluateVolume} from './volume-prop.js';
 
 const didWarn: {[key: string]: boolean} = {};
 
