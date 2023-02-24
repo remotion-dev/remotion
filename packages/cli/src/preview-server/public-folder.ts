@@ -1,7 +1,6 @@
 import {BundlerInternals} from '@remotion/bundler';
 import {existsSync, watch} from 'fs';
 import path from 'path';
-// eslint-disable-next-line no-restricted-imports
 import type {StaticFile} from 'remotion';
 import {envSupportsFsRecursive} from './env-supports-fs-recursive';
 

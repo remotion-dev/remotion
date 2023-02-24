@@ -1,6 +1,6 @@
 // Calculate the `.currentTime` of a video or audio element
 
-import {interpolate} from '../interpolate';
+import {interpolate} from '../interpolate.js';
 
 export const getExpectedMediaFrameUncorrected = ({
 	frame,

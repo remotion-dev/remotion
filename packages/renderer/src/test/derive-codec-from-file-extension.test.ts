@@ -14,7 +14,7 @@ test('Derive codec from file extension', () => {
 		mp4: ['h264', 'h265'],
 		hevc: ['h265'],
 		mp3: ['mp3'],
-		mov: ['prores'],
+		mov: ['h264', 'prores'],
 		mxf: ['prores'],
 		webm: ['vp8', 'vp9'],
 		wav: ['aac', 'mp3', 'wav'],
