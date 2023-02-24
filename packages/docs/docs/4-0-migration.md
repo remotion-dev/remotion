@@ -28,3 +28,10 @@ Upgrade `remotion` and all packages starting with `@remotion` to the latest vers
 ```
 
 Run `npm i `, `yarn` or `pnpm i` respectively afterwards.
+
+## Dropped support for Lambda `architecture`
+
+When deploying a Lambda, you were previously able to choose between the `arm64` and `x86_64` architecture.  
+From v4.0 on, only `arm64` is supported. It should be faster, cheaper and not have any different behavior than `x86_64`.
+
+**How to upgrade**: Remove the `architecture` option from `estimatePrice()` and `deployFunction()`.

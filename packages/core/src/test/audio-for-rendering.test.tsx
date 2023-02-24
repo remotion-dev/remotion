@@ -12,11 +12,11 @@ import {
 	test,
 	vitest,
 } from 'vitest';
-import {AudioForRendering} from '../audio/AudioForRendering';
-import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
-import type {CompositionManagerContext} from '../CompositionManager';
-import {Internals} from '../internals';
-import {expectToThrow} from './expect-to-throw';
+import {AudioForRendering} from '../audio/AudioForRendering.js';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
+import type {CompositionManagerContext} from '../CompositionManager.js';
+import {Internals} from '../internals.js';
+import {expectToThrow} from './expect-to-throw.js';
 
 interface MockCompositionManagerContext {
 	MockProvider: Function;

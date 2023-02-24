@@ -4,8 +4,8 @@
 import type {ComponentType} from 'react';
 import {Composition} from 'remotion';
 import {expect, test} from 'vitest';
-import {Player} from '../index';
-import {HelloWorld, render} from './test-utils';
+import {Player} from '../index.js';
+import {HelloWorld, render} from './test-utils.js';
 
 test('no compositionWidth should give errors', () => {
 	try {

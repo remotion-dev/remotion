@@ -1,5 +1,5 @@
 import React, {forwardRef, useCallback, useState} from 'react';
-import {continueRender, delayRender} from './delay-render';
+import {continueRender, delayRender} from './delay-render.js';
 
 const IFrameRefForwarding: React.ForwardRefRenderFunction<
 	HTMLIFrameElement,

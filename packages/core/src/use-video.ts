@@ -1,5 +1,5 @@
 import {useContext, useMemo} from 'react';
-import {CompositionManager} from './CompositionManager';
+import {CompositionManager} from './CompositionManager.js';
 
 export const useVideo = () => {
 	const context = useContext(CompositionManager);
