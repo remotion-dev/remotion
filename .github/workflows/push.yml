@@ -79,11 +79,11 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            node_version: 14
+            node_version: 16
           - os: windows-latest
-            node_version: 14
+            node_version: 16
           - os: macos-latest
-            node_version: 14
+            node_version: 16
           - os: ubuntu-latest
             node_version: 19
     steps:

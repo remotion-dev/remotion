@@ -14,6 +14,13 @@ export const articles = [
     crumb: "Version Upgrade",
   },
   {
+    id: "4-0-migration",
+    title: "v4.0 Migration",
+    relativePath: "docs/4-0-migration.md",
+    compId: "articles-docs-4-0-migration",
+    crumb: "Version Upgrade",
+  },
+  {
     id: "absolute-fill",
     title: "<AbsoluteFill>",
     relativePath: "docs/absolute-fill.md",
@@ -1932,6 +1939,13 @@ export const articles = [
     relativePath: "docs/troubleshooting/background-image.md",
     compId: "articles-docs-troubleshooting-background-image",
     crumb: "Common mistakes",
+  },
+  {
+    id: "troubleshooting/could-not-be-parsed-as-a-value-list",
+    title: "The source provided could not be parsed as a value list",
+    relativePath: "docs/troubleshooting/could-not-be-parsed-as-a-value-list.md",
+    compId: "articles-docs-troubleshooting-could-not-be-parsed-as-a-value-list",
+    crumb: "Browser quirks",
   },
   {
     id: "defaultprops-too-big",

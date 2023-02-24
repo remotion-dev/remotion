@@ -16,13 +16,13 @@ importers:
   packages/astro-example:
     specifiers:
       '@astrojs/react': ^2.0.2
-      '@remotion/player': 3.3.51
+      '@remotion/player': 3.3.53
       '@types/react': ^18.0.10
       '@types/react-dom': ^18.0.5
       astro: ^2.0.14
       react: ^18.1.0
       react-dom: ^18.1.0
-      remotion: 3.3.51
+      remotion: 3.3.53
     dependencies:
       '@astrojs/react': 2.0.2_ie75ejlwqy5zh3tldgt7pftwcu
       '@remotion/player': link:../player
@@ -41,7 +41,7 @@ importers:
       '@babel/preset-react': 7.14.5
       '@babel/preset-typescript': 7.15.0
       '@jonny/eslint-config': 3.0.266
-      '@remotion/bundler': 3.3.51
+      '@remotion/bundler': 3.3.53
       '@types/node': ^16.7.5
       '@webhotelier/webpack-fast-refresh': 5.1.0
       babel-loader: 8.2.2
@@ -49,7 +49,7 @@ importers:
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
       react-refresh: 0.9.0
-      remotion: 3.3.51
+      remotion: 3.3.53
       typescript: ^4.7.0
       webpack: 5.74.0
     dependencies:
@@ -92,7 +92,7 @@ importers:
       react: ^18.0.0
       react-dom: ^18.0.0
       react-refresh: 0.9.0
-      remotion: 3.3.51
+      remotion: 3.3.53
       style-loader: 2.0.0
       typescript: ^4.7.0
       vitest: 0.24.3
@@ -126,10 +126,10 @@ importers:
   packages/cli:
     specifiers:
       '@jonny/eslint-config': 3.0.266
-      '@remotion/bundler': 3.3.51
-      '@remotion/media-utils': 3.3.51
-      '@remotion/player': 3.3.51
-      '@remotion/renderer': 3.3.51
+      '@remotion/bundler': 3.3.53
+      '@remotion/media-utils': 3.3.53
+      '@remotion/player': 3.3.53
+      '@remotion/renderer': 3.3.53
       '@types/minimist': ^1.2.2
       '@types/node': ^16.7.5
       '@types/prompts': ^2.4.1
@@ -152,7 +152,7 @@ importers:
       prompts: 2.4.1
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.3.51
+      remotion: 3.3.53
       semver: 7.3.5
       source-map: 0.6.1
       typescript: ^4.7.0
@@ -216,7 +216,7 @@ importers:
   packages/core:
     specifiers:
       '@jonny/eslint-config': 3.0.266
-      '@testing-library/react': 13.3.0
+      '@testing-library/react': 14.0.0
       '@types/node': ^16.7.5
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
@@ -224,18 +224,17 @@ importers:
       '@vitejs/plugin-react': ^2.0.0
       eslint: 8.25.0
       eslint-plugin-require-extensions: ^0.1.2
-      jsdom: 20.0.1
+      jsdom: 21.1.0
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      react-test-renderer: ^18.0.0
       rimraf: ^3.0.2
       typescript: ^4.7.0
       vitest: 0.24.3
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
-      '@testing-library/react': 13.3.0_zpnidt7m3osuk7shl3s4oenomq
+      '@testing-library/react': 14.0.0_zpnidt7m3osuk7shl3s4oenomq
       '@types/node': 16.10.2
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
@@ -243,15 +242,14 @@ importers:
       '@vitejs/plugin-react': 2.0.0_vite@3.0.0
       eslint: 8.25.0
       eslint-plugin-require-extensions: 0.1.2_eslint@8.25.0
-      jsdom: 20.0.1
+      jsdom: 21.1.0
       prettier: 2.7.1
       prettier-plugin-organize-imports: 2.3.4_j2odc4yr77iddtreafyicbq5hi
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
-      react-test-renderer: 18.0.0_react@18.0.0
       rimraf: 3.0.2
       typescript: 4.7.2
-      vitest: 0.24.3_jsdom@20.0.1
+      vitest: 0.24.3_jsdom@21.1.0
 
   packages/create-video:
     specifiers:
@@ -313,23 +311,23 @@ importers:
       '@docusaurus/types': 2.2.0
       '@jonny/eslint-config': 3.0.266
       '@mdx-js/react': ^1.6.21
-      '@remotion/babel-loader': 3.3.51
-      '@remotion/bundler': 3.3.51
-      '@remotion/cli': 3.3.51
-      '@remotion/gif': 3.3.51
-      '@remotion/google-fonts': 3.3.51
-      '@remotion/lambda': 3.3.51
-      '@remotion/lottie': 3.3.51
-      '@remotion/media-utils': 3.3.51
-      '@remotion/motion-blur': 3.3.51
-      '@remotion/noise': 3.3.51
-      '@remotion/paths': 3.3.51
-      '@remotion/player': 3.3.51
-      '@remotion/preload': 3.3.51
-      '@remotion/renderer': 3.3.51
-      '@remotion/shapes': 3.3.51
-      '@remotion/skia': 3.3.51
-      '@remotion/three': 3.3.51
+      '@remotion/babel-loader': 3.3.53
+      '@remotion/bundler': 3.3.53
+      '@remotion/cli': 3.3.53
+      '@remotion/gif': 3.3.53
+      '@remotion/google-fonts': 3.3.53
+      '@remotion/lambda': 3.3.53
+      '@remotion/lottie': 3.3.53
+      '@remotion/media-utils': 3.3.53
+      '@remotion/motion-blur': 3.3.53
+      '@remotion/noise': 3.3.53
+      '@remotion/paths': 3.3.53
+      '@remotion/player': 3.3.53
+      '@remotion/preload': 3.3.53
+      '@remotion/renderer': 3.3.53
+      '@remotion/shapes': 3.3.53
+      '@remotion/skia': 3.3.53
+      '@remotion/three': 3.3.53
       '@shopify/react-native-skia': ^0.1.139
       '@splitbee/web': ^0.2.4
       '@swc/core': ^1.3.27
@@ -344,7 +342,7 @@ importers:
       clsx: ^1.1.1
       color-namer: 1.4.0
       copy-text-to-clipboard: ^2
-      create-video: 3.3.51
+      create-video: 3.3.53
       eslint: 8.25.0
       got: ^11
       hls.js: ^0.14.17
@@ -357,7 +355,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0
       remark-shiki-twoslash: ^3.1.0
-      remotion: 3.3.51
+      remotion: 3.3.53
       swc-loader: ^0.2.3
       three: 0.145.0
       typescript: ^4.7.0
@@ -429,7 +427,7 @@ importers:
 
   packages/eslint-config:
     specifiers:
-      '@remotion/eslint-plugin': 3.3.51
+      '@remotion/eslint-plugin': 3.3.53
       '@types/node': 17.0.17
       '@typescript-eslint/eslint-plugin': 5.19.0
       '@typescript-eslint/parser': 5.19.0
@@ -470,27 +468,27 @@ importers:
       '@babel/preset-react': 7.12.13
       '@mdx-js/react': ^1.6.21
       '@react-three/drei': ^9.37.0
-      '@remotion/babel-loader': 3.3.51
-      '@remotion/bundler': 3.3.51
-      '@remotion/cli': 3.3.51
-      '@remotion/eslint-config': 3.3.51
-      '@remotion/eslint-plugin': 3.3.51
-      '@remotion/gif': 3.3.51
-      '@remotion/google-fonts': 3.3.51
-      '@remotion/lambda': 3.3.51
-      '@remotion/lottie': 3.3.51
-      '@remotion/media-utils': 3.3.51
-      '@remotion/paths': 3.3.51
-      '@remotion/renderer': 3.3.51
-      '@remotion/shapes': 3.3.51
-      '@remotion/three': 3.3.51
+      '@remotion/babel-loader': 3.3.53
+      '@remotion/bundler': 3.3.53
+      '@remotion/cli': 3.3.53
+      '@remotion/eslint-config': 3.3.53
+      '@remotion/eslint-plugin': 3.3.53
+      '@remotion/gif': 3.3.53
+      '@remotion/google-fonts': 3.3.53
+      '@remotion/lambda': 3.3.53
+      '@remotion/lottie': 3.3.53
+      '@remotion/media-utils': 3.3.53
+      '@remotion/paths': 3.3.53
+      '@remotion/renderer': 3.3.53
+      '@remotion/shapes': 3.3.53
+      '@remotion/three': 3.3.53
       '@types/babel__core': ^7.1.12
       '@types/babel__template': ^7.4.0
       '@types/express': ^4.17.11
       '@types/node': ^16.7.5
       '@types/opentype.js': ^1.3.4
       '@types/react': 18.0.26
-      '@types/styled-components': ^5.1.1
+      '@types/styled-components': ^5.1.26
       '@types/web': 0.0.78
       '@typescript-eslint/eslint-plugin': 5.18.0
       '@typescript-eslint/parser': 5.18.0
@@ -505,8 +503,9 @@ importers:
       polished: ^4.0.5
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.3.51
-      styled-components: ^5.1.1
+      react-is: ^18.2.0
+      remotion: 3.3.53
+      styled-components: ^5.3.6
       ts-unused-exports: ^7.0.1
       typescript: ^4.7.0
       use-asset: ^1.0.4
@@ -535,7 +534,7 @@ importers:
       '@types/node': 16.10.2
       '@types/opentype.js': 1.3.4
       '@types/react': 18.0.26
-      '@types/styled-components': 5.1.14
+      '@types/styled-components': 5.1.26
       '@types/web': 0.0.78
       babel-loader: 8.2.2_m3opitmgss2x7fiy6klia7uvaa
       lottie-web: 5.9.6
@@ -543,8 +542,9 @@ importers:
       opentype.js: 1.3.4
       polished: 4.1.3
       prettier: 2.7.1
+      react-is: 18.2.0
       remotion: link:../core
-      styled-components: 5.3.1_xwin6kermpfszgjtt7m5i5m4jy
+      styled-components: 5.3.6_7i5myeigehqah43i5u7wbekgba
       ts-unused-exports: 7.0.3_typescript@4.7.2
       typescript: 4.7.2
       use-asset: 1.0.4_react@18.2.0
@@ -574,7 +574,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.3.51
+      remotion: 3.3.53
       typescript: ^4.7.0
       webpack: 5.74.0
     dependencies:
@@ -603,7 +603,7 @@ importers:
       got: ^11
       postcss: ^8.4.18
       prettier: ^2.7.1
-      remotion: 3.3.51
+      remotion: 3.3.53
       ts-node: ^10.8.0
       typescript: ^4.7.0
     dependencies:
@@ -620,14 +620,14 @@ importers:
 
   packages/it-tests:
     specifiers:
-      '@remotion/bundler': 3.3.51
-      '@remotion/cli': 3.3.51
-      '@remotion/lambda': 3.3.51
-      '@remotion/renderer': 3.3.51
+      '@remotion/bundler': 3.3.53
+      '@remotion/cli': 3.3.53
+      '@remotion/lambda': 3.3.53
+      '@remotion/renderer': 3.3.53
       '@types/sharp': ^0.28.5
-      create-video: 3.3.51
+      create-video: 3.3.53
       execa: 5.1.1
-      remotion: 3.3.51
+      remotion: 3.3.53
       sharp: 0.30.6
       typescript: ^4.7.0
       vite: ^4.0.4
@@ -659,11 +659,10 @@ importers:
       '@aws-sdk/lib-storage': 3.215.0
       '@aws-sdk/s3-request-presigner': 3.215.0
       '@jonny/eslint-config': 3.0.266
-      '@remotion/bundler': 3.3.51
-      '@remotion/cli': 3.3.51
-      '@remotion/compositor-linux-arm64-musl': 3.3.51
-      '@remotion/compositor-linux-x64-musl': 3.3.51
-      '@remotion/renderer': 3.3.51
+      '@remotion/bundler': 3.3.53
+      '@remotion/cli': 3.3.53
+      '@remotion/compositor-linux-arm64-musl': 3.3.53
+      '@remotion/renderer': 3.3.53
       '@types/mime-types': 2.1.1
       '@types/minimist': 1.2.2
       '@types/node': ^14.14.14
@@ -673,7 +672,7 @@ importers:
       mime-types: 2.1.34
       prettier: ^2.4.1
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.3.51
+      remotion: 3.3.53
       ts-node: ^10.8.0
       typescript: ^4.7.0
       vitest: ^0.24.3
@@ -698,7 +697,6 @@ importers:
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
       '@remotion/compositor-linux-arm64-musl': link:../compositor-linux-arm64-musl
-      '@remotion/compositor-linux-x64-musl': link:../compositor-linux-x64-musl
       '@types/mime-types': 2.1.1
       '@types/minimist': 1.2.2
       '@types/node': 14.17.20
@@ -723,7 +721,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.3.51
+      remotion: 3.3.53
       typescript: ^4.7.0
       vitest: 0.24.3
     dependencies:
@@ -752,7 +750,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
-      remotion: 3.3.51
+      remotion: 3.3.53
       typescript: ^4.7.0
     dependencies:
       react: 18.0.0
@@ -776,7 +774,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.3.51
+      remotion: 3.3.53
       typescript: ^4.7.0
     dependencies:
       remotion: link:../core
@@ -797,7 +795,7 @@ importers:
       eslint: 8.25.0
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.3.51
+      remotion: 3.3.53
       simplex-noise: 4.0.1
       typescript: ^4.7.0
       vitest: 0.24.3
@@ -847,7 +845,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.3.51
+      remotion: 3.3.53
       typescript: ^4.7.0
       vitest: 0.24.3
       webpack: 5.74.0
@@ -874,18 +872,18 @@ importers:
 
   packages/player-example:
     specifiers:
-      '@remotion/bundler': 3.3.51
-      '@remotion/eslint-config': 3.3.51
-      '@remotion/gif': 3.3.51
-      '@remotion/player': 3.3.51
-      '@remotion/preload': 3.3.51
+      '@remotion/bundler': 3.3.53
+      '@remotion/eslint-config': 3.3.53
+      '@remotion/gif': 3.3.53
+      '@remotion/player': 3.3.53
+      '@remotion/preload': 3.3.53
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
       eslint: ^8.3.0
       next: ^13.1.3
       react: 18.2.0
       react-dom: 18.2.0
-      remotion: 3.3.51
+      remotion: 3.3.53
       typescript: ^4.7.0
     dependencies:
       '@remotion/bundler': link:../bundler
@@ -919,13 +917,13 @@ importers:
   packages/renderer:
     specifiers:
       '@jonny/eslint-config': 3.0.266
-      '@remotion/compositor-darwin-arm64': 3.3.51
-      '@remotion/compositor-darwin-x64': 3.3.51
-      '@remotion/compositor-linux-arm64-gnu': 3.3.51
-      '@remotion/compositor-linux-arm64-musl': 3.3.51
-      '@remotion/compositor-linux-x64-gnu': 3.3.51
-      '@remotion/compositor-linux-x64-musl': 3.3.51
-      '@remotion/compositor-win32-x64-msvc': 3.3.51
+      '@remotion/compositor-darwin-arm64': 3.3.53
+      '@remotion/compositor-darwin-x64': 3.3.53
+      '@remotion/compositor-linux-arm64-gnu': 3.3.53
+      '@remotion/compositor-linux-arm64-musl': 3.3.53
+      '@remotion/compositor-linux-x64-gnu': 3.3.53
+      '@remotion/compositor-linux-x64-musl': 3.3.53
+      '@remotion/compositor-win32-x64-msvc': 3.3.53
       '@testing-library/dom': ^8.16.0
       '@testing-library/react': 13.3.0
       '@types/node': ^16.7.5
@@ -939,7 +937,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.3.51
+      remotion: 3.3.53
       source-map: ^0.8.0-beta.0
       typescript: ^4.7.0
       vitest: 0.24.3
@@ -977,7 +975,7 @@ importers:
   packages/shapes:
     specifiers:
       '@jonny/eslint-config': 3.0.266
-      '@remotion/paths': 3.3.51
+      '@remotion/paths': 3.3.53
       '@testing-library/react': ^13.4.0
       '@types/node': ^16.7.5
       '@types/react': 18.0.26
@@ -1008,7 +1006,7 @@ importers:
   packages/skia:
     specifiers:
       '@jonny/eslint-config': 3.0.266
-      '@remotion/bundler': 3.3.51
+      '@remotion/bundler': 3.3.53
       '@shopify/react-native-skia': ^0.1.139
       '@types/react': 18.0.26
       '@types/react-native': ^0.69.2
@@ -1018,7 +1016,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.3.51
+      remotion: 3.3.53
       typescript: ^4.7.0
     dependencies:
       copy-webpack-plugin: 11.0.0_webpack@5.74.0
@@ -1050,7 +1048,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.3.51
+      remotion: 3.3.53
       three: ^0.145.0
       typescript: ^4.7.0
     dependencies:
@@ -2598,8 +2596,8 @@ packages:
       '@babel/helpers': 7.15.4
       '@babel/parser': 7.15.7
       '@babel/template': 7.15.4
-      '@babel/traverse': 7.15.4
-      '@babel/types': 7.15.6
+      '@babel/traverse': 7.19.1
+      '@babel/types': 7.21.0
       convert-source-map: 1.8.0
       debug: 4.3.4
       gensync: 1.0.0-beta.2
@@ -2685,7 +2683,7 @@ packages:
     resolution: {integrity: sha512-duORpUiYrEpzKIop6iNbjnwKLAKnJ47csTyRACyEmWj0QdUrm5aqNJGHSSEQSUAvNW0ojX0dOmK9dZduvkfeXA==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.19.0
+      '@babel/types': 7.21.0
 
   /@babel/helper-builder-binary-assignment-operator-visitor/7.15.4:
     resolution: {integrity: sha512-P8o7JP2Mzi0SdC6eWr1zF+AEYvrsZa7GSY1lTayjF5XJhVH0kjLYUZPvTMflP7tBgZoe9gIhTa60QwFpqh/E0Q==}
@@ -2926,14 +2924,14 @@ packages:
     resolution: {integrity: sha512-jeAHZbzUwdW/xHgHQ3QmWR4Jg6j15q4w/gCfwZvtqOxoo5DKtLHk8Bsf4c5RZRC7NmLEs+ohkdq8jFefuvIxAA==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.15.6
+      '@babel/types': 7.21.0
     dev: false
 
   /@babel/helper-module-imports/7.18.6:
     resolution: {integrity: sha512-0NFvs3VkuSYbFi1x2Vd6tKrywq+z/cLeYC/RJNFrIX/30Bf5aiGYbtvGXolEktzJH8o5E5KJ3tT+nkxuuZFVlA==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.19.0
+      '@babel/types': 7.21.0
 
   /@babel/helper-module-transforms/7.15.7:
     resolution: {integrity: sha512-ZNqjjQG/AuFfekFTY+7nY4RgBSklgTu970c7Rj3m/JOhIu5KPBUuTA9AY6zaKcUvk4g6EbDXdBnhi35FAssdSw==}
@@ -3160,7 +3158,7 @@ packages:
     resolution: {integrity: sha512-qf9u2WFWVV0MppaL877j2dBtQIDgmidgjGk5VIMw3OadXvYaXn66U1BFlH2t4+t3i+8PhedppRv+i40ABzd+gg==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/helper-validator-identifier': 7.15.7
+      '@babel/helper-validator-identifier': 7.19.1
       chalk: 2.4.2
       js-tokens: 4.0.0
     dev: false
@@ -3178,7 +3176,7 @@ packages:
     resolution: {integrity: sha512-u7stbOuYjaPezCuLj29hNW1v64M2Md2qupEKP1fHc7WdOA3DgLh37suiSrZYY7haUB7iBeQZ9P1uiRF359do3g==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/helper-validator-identifier': 7.18.6
+      '@babel/helper-validator-identifier': 7.19.1
       chalk: 2.4.2
       js-tokens: 4.0.0
 
@@ -5826,23 +5824,6 @@ packages:
       - supports-color
     dev: false
 
-  /@babel/traverse/7.15.4_supports-color@5.5.0:
-    resolution: {integrity: sha512-W6lQD8l4rUbQR/vYgSuCAE75ADyyQvOpFVsvPPdkhf6lATXAsQIG9YdtOcu8BB1dZ0LKu+Zo3c1wEcbKeuhdlA==}
-    engines: {node: '>=6.9.0'}
-    dependencies:
-      '@babel/code-frame': 7.16.0
-      '@babel/generator': 7.15.4
-      '@babel/helper-function-name': 7.15.4
-      '@babel/helper-hoist-variables': 7.15.4
-      '@babel/helper-split-export-declaration': 7.15.4
-      '@babel/parser': 7.15.7
-      '@babel/types': 7.15.6
-      debug: 4.3.4_supports-color@5.5.0
-      globals: 11.12.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
   /@babel/traverse/7.19.1:
     resolution: {integrity: sha512-0j/ZfZMxKukDaag2PtOPDbwuELqIar6lLskVPPJDjXMXjfLb1Obo/1yjxIGqqAJrmfaTIY3z2wFLAQ7qSkLsuA==}
     engines: {node: '>=6.9.0'}
@@ -5859,6 +5840,24 @@ packages:
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
+
+  /@babel/traverse/7.19.1_supports-color@5.5.0:
+    resolution: {integrity: sha512-0j/ZfZMxKukDaag2PtOPDbwuELqIar6lLskVPPJDjXMXjfLb1Obo/1yjxIGqqAJrmfaTIY3z2wFLAQ7qSkLsuA==}
+    engines: {node: '>=6.9.0'}
+    dependencies:
+      '@babel/code-frame': 7.18.6
+      '@babel/generator': 7.19.0
+      '@babel/helper-environment-visitor': 7.18.9
+      '@babel/helper-function-name': 7.19.0
+      '@babel/helper-hoist-variables': 7.18.6
+      '@babel/helper-split-export-declaration': 7.18.6
+      '@babel/parser': 7.19.1
+      '@babel/types': 7.19.0
+      debug: 4.3.4_supports-color@5.5.0
+      globals: 11.12.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
 
   /@babel/types/7.15.6:
     resolution: {integrity: sha512-BPU+7QhqNjmWyDO0/vitH/CuhpV8ZmK1wpKva8nuyNF5MJfuRNWMc+hc14+u9xT93kvykMdncrJT19h74uB1Ig==}
@@ -6677,14 +6676,14 @@ packages:
     resolution: {integrity: sha512-8HqW8EVqjnCmWXVpqAOZf+EGESdkR27odcMMMGefgKXtar00SoYNSryGv//TELI4T3QFsECo78p+0lmalk/CFA==}
     dev: false
 
-  /@emotion/is-prop-valid/0.8.8:
-    resolution: {integrity: sha512-u5WtneEAr5IDG2Wv65yhunPSMLIpuKsbuOktRojfrEiEvRyC85LgPMZI63cr7NUqT8ZIGdSVg8ZKGxIug4lXcA==}
+  /@emotion/is-prop-valid/1.2.0:
+    resolution: {integrity: sha512-3aDpDprjM0AwaxGE09bOPkNxHpBd+kA6jty3RnaEXdweX1DF1U3VQpPYb0g1IStAuK7SVQ1cy+bNBBKp4W3Fjg==}
     dependencies:
-      '@emotion/memoize': 0.7.4
+      '@emotion/memoize': 0.8.0
     dev: false
 
-  /@emotion/memoize/0.7.4:
-    resolution: {integrity: sha512-Ja/Vfqe3HpuzRsG1oBtWTHk2PGZ7GR+2Vz5iYGelAw8dx32K0y7PjVuxK6z1nMpZOqAFsRUPCkK1YjJ56qJlgw==}
+  /@emotion/memoize/0.8.0:
+    resolution: {integrity: sha512-G/YwXTkv7Den9mXDO7AhLWkE3q+I92B+VqAE+dYG4NGPaHZGvt3G8Q0p9vmE+sq7rTGphUbAvmQ9YpbfMQGGlA==}
     dev: false
 
   /@emotion/stylis/0.8.5:
@@ -8995,6 +8994,20 @@ packages:
       pretty-format: 27.2.4
     dev: true
 
+  /@testing-library/dom/9.0.0:
+    resolution: {integrity: sha512-+/TLgKNFsYUshOY/zXsQOk+PlFQK+eyJ9T13IDVNJEi+M+Un7xlJK+FZKkbGSnf0+7E1G6PlDhkSYQ/GFiruBQ==}
+    engines: {node: '>=14'}
+    dependencies:
+      '@babel/code-frame': 7.18.6
+      '@babel/runtime': 7.19.0
+      '@types/aria-query': 5.0.1
+      aria-query: 5.0.0
+      chalk: 4.1.2
+      dom-accessibility-api: 0.5.14
+      lz-string: 1.4.4
+      pretty-format: 27.2.4
+    dev: true
+
   /@testing-library/react/13.1.1_zpnidt7m3osuk7shl3s4oenomq:
     resolution: {integrity: sha512-8mirlAa0OKaUvnqnZF6MdAh2tReYA2KtWVw1PKvaF5EcCZqgK5pl8iF+3uW90JdG5Ua2c2c2E2wtLdaug3dsVg==}
     engines: {node: '>=12'}
@@ -9037,6 +9050,20 @@ packages:
       react-dom: 18.0.0_react@18.0.0
     dev: true
 
+  /@testing-library/react/14.0.0_zpnidt7m3osuk7shl3s4oenomq:
+    resolution: {integrity: sha512-S04gSNJbYE30TlIMLTzv6QCTzt9AqIF5y6s6SzVFILNcNvbV/jU96GeiTPillGQo+Ny64M/5PV7klNYYgv5Dfg==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      react: ^18.0.0
+      react-dom: ^18.0.0
+    dependencies:
+      '@babel/runtime': 7.19.0
+      '@testing-library/dom': 9.0.0
+      '@types/react-dom': 18.0.10
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
+    dev: true
+
   /@tootallnate/once/1.1.2:
     resolution: {integrity: sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==}
     engines: {node: '>= 6'}
@@ -9074,6 +9101,10 @@ packages:
 
   /@types/aria-query/4.2.2:
     resolution: {integrity: sha512-HnYpAE1Y6kRyKM/XkEuiRQhTHvkzMBurTHnpFLYLBGPIylZNPs9jJcuOOYWxPLJCSEtmZT0Y8rHDokKN7rRTig==}
+    dev: true
+
+  /@types/aria-query/5.0.1:
+    resolution: {integrity: sha512-XTIieEY+gvJ39ChLcB4If5zHtPxt3Syj5rgZR+e1ctpmK8NjPf0zFqsz4JpLJT0xla9GFDKjy8Cpu331nrmE1Q==}
     dev: true
 
   /@types/babel__core/7.1.16:
@@ -9508,12 +9539,12 @@ packages:
       '@types/node': 18.11.2
     dev: false
 
-  /@types/styled-components/5.1.14:
-    resolution: {integrity: sha512-d6P1/tyNytqKwam3cQXq7a9uPtovc/mdAs7dBiz1YbDdNIT3X4WmuFU78YdSYh84TXVuhOwezZ3EeKuNBhwsHQ==}
+  /@types/styled-components/5.1.26:
+    resolution: {integrity: sha512-KuKJ9Z6xb93uJiIyxo/+ksS7yLjS1KzG6iv5i78dhVg/X3u5t1H7juRWqVmodIdz6wGVaIApo1u01kmFRdJHVw==}
     dependencies:
       '@types/hoist-non-react-statics': 3.3.1
       '@types/react': 18.0.26
-      csstype: 3.0.9
+      csstype: 3.1.1
     dev: false
 
   /@types/tar/6.1.1:
@@ -10167,7 +10198,7 @@ packages:
   /acorn-globals/7.0.1:
     resolution: {integrity: sha512-umOSDSDrfHbTNPuNpC2NSnnA3LUrqpevPb4T9jRx4MagXNS0rs+gwiTcAvqCRmsD6utzsrzNt+ebm00SNWiC3Q==}
     dependencies:
-      acorn: 8.8.0
+      acorn: 8.8.1
       acorn-walk: 8.2.0
     dev: true
 
@@ -10807,20 +10838,20 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /babel-plugin-styled-components/1.13.2_styled-components@5.3.1:
+  /babel-plugin-styled-components/1.13.2_styled-components@5.3.6:
     resolution: {integrity: sha512-Vb1R3d4g+MUfPQPVDMCGjm3cDocJEUTR7Xq7QS95JWWeksN1wdFRYpD2kulDgI3Huuaf1CZd+NK4KQmqUFh5dA==}
     peerDependencies:
       styled-components: '>= 2'
     dependencies:
-      '@babel/helper-annotate-as-pure': 7.15.4
-      '@babel/helper-module-imports': 7.15.4
+      '@babel/helper-annotate-as-pure': 7.18.6
+      '@babel/helper-module-imports': 7.18.6
       babel-plugin-syntax-jsx: 6.18.0
       lodash: 4.17.21
-      styled-components: 5.3.1_xwin6kermpfszgjtt7m5i5m4jy
+      styled-components: 5.3.6_7i5myeigehqah43i5u7wbekgba
     dev: false
 
   /babel-plugin-syntax-jsx/6.18.0:
-    resolution: {integrity: sha1-CvMqmm4Tyno/1QaeYtew9Y0NiUY=}
+    resolution: {integrity: sha512-qrPaCSo9c8RHNRHIotaufGbuOBN8rtdC4QrrFFc43vyWCCz7Kl7GL1PGaXtMGQZUXrkCjNEgxDfmAuAabr/rlw==}
     dev: false
 
   /babel-plugin-syntax-trailing-function-commas/7.0.0-beta.0:
@@ -11265,7 +11296,7 @@ packages:
     engines: {node: '>=10'}
 
   /camelize/1.0.0:
-    resolution: {integrity: sha1-FkpUg+Yw+kMh5a8HAg5TGDGyYJs=}
+    resolution: {integrity: sha512-W2lPwkBkMZwFlPCXhIlYgxu+7gC/NUlCtdK652DAJ1JdgV0sTrvuPFshNPrFa1TY2JOkLhgdeEBplB4ezEa+xg==}
     dev: false
 
   /caniuse-api/3.0.0:
@@ -12061,7 +12092,7 @@ packages:
     dev: false
 
   /css-color-keywords/1.0.0:
-    resolution: {integrity: sha1-/qJhbcZ2spYmhrOvjb2+GAskTgU=}
+    resolution: {integrity: sha512-FyyrDHZKEjXDpNJYvVsV960FiqQyXc/LlYmsxl2BcdMb2WPx0OGRVgTg55rPSyLSNMqP52R9r8geSp7apN3Ofg==}
     engines: {node: '>=4'}
     dev: false
 
@@ -12167,7 +12198,7 @@ packages:
     dependencies:
       camelize: 1.0.0
       css-color-keywords: 1.0.0
-      postcss-value-parser: 4.1.0
+      postcss-value-parser: 4.2.0
     dev: false
 
   /css-tree/1.1.3:
@@ -12284,10 +12315,6 @@ packages:
     dependencies:
       cssom: 0.3.8
     dev: true
-
-  /csstype/3.0.9:
-    resolution: {integrity: sha512-rpw6JPxK6Rfg1zLOYCSwle2GFOOsnjmDYDaBwEcwoOg4qlsIVCN789VkBZDJAGi4T07gI4YSutR43t9Zz4Lzuw==}
-    dev: false
 
   /csstype/3.1.1:
     resolution: {integrity: sha512-DJR/VvkAvSZW9bTouZue2sSxDwdTN92uHjqeKVm+0dAqdfNykRzQ95tay8aXMBAAPpUiq4Qcug2L7neoRh2Egw==}
@@ -16091,6 +16118,47 @@ packages:
       whatwg-mimetype: 3.0.0
       whatwg-url: 11.0.0
       ws: 8.9.0
+      xml-name-validator: 4.0.0
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+    dev: true
+
+  /jsdom/21.1.0:
+    resolution: {integrity: sha512-m0lzlP7qOtthD918nenK3hdItSd2I+V3W9IrBcB36sqDwG+KnUs66IF5GY7laGWUnlM9vTsD0W1QwSEBYWWcJg==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      canvas: ^2.5.0
+    peerDependenciesMeta:
+      canvas:
+        optional: true
+    dependencies:
+      abab: 2.0.6
+      acorn: 8.8.1
+      acorn-globals: 7.0.1
+      cssom: 0.5.0
+      cssstyle: 2.3.0
+      data-urls: 3.0.2
+      decimal.js: 10.4.2
+      domexception: 4.0.0
+      escodegen: 2.0.0
+      form-data: 4.0.0
+      html-encoding-sniffer: 3.0.0
+      http-proxy-agent: 5.0.0
+      https-proxy-agent: 5.0.1
+      is-potential-custom-element-name: 1.0.1
+      nwsapi: 2.2.2
+      parse5: 7.1.1
+      saxes: 6.0.0
+      symbol-tree: 3.2.4
+      tough-cookie: 4.1.2
+      w3c-xmlserializer: 4.0.0
+      webidl-conversions: 7.0.0
+      whatwg-encoding: 2.0.0
+      whatwg-mimetype: 3.0.0
+      whatwg-url: 11.0.0
+      ws: 8.12.1
       xml-name-validator: 4.0.0
     transitivePeerDependencies:
       - bufferutil
@@ -19970,8 +20038,8 @@ packages:
   /react-is/17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
 
-  /react-is/18.0.0:
-    resolution: {integrity: sha512-yUcBYdBBbo3QiPsgYDcfQcIkGZHfxOaoE6HLSnr1sPzMhdyxusbfKOSUbSd/ocGi32dxcj366PsTj+5oggeKKw==}
+  /react-is/18.2.0:
+    resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
 
   /react-json-view/1.21.3_dhtikzz4vae4grl5s3txc3txzu:
     resolution: {integrity: sha512-13p8IREj9/x/Ye4WI/JpjhoIwuzEgUAtgJZNBJckfzJt1qyh24BdTm6UQNGnyTq9dapQdrqvquZTo3dz1X6Cjw==}
@@ -20191,18 +20259,7 @@ packages:
     dependencies:
       object-assign: 4.1.1
       react: 18.0.0
-      react-is: 18.0.0
-
-  /react-test-renderer/18.0.0_react@18.0.0:
-    resolution: {integrity: sha512-SyZTP/FSkwfiKOZuTZiISzsrC8A80KNlQ8PyyoGoOq+VzMAab6Em1POK/CiX3+XyXG6oiJa1C53zYDbdrJu9fw==}
-    peerDependencies:
-      react: ^18.0.0
-    dependencies:
-      react: 18.0.0
-      react-is: 18.0.0
-      react-shallow-renderer: 16.15.0_react@18.0.0
-      scheduler: 0.21.0
-    dev: true
+      react-is: 18.2.0
 
   /react-textarea-autosize/8.3.3_mibu4szvw4ek6m273klteqcdre:
     resolution: {integrity: sha512-2XlHXK2TDxS6vbQaoPbMOfQ8GK7+irc2fVK6QFIcC8GOnH3zI/v481n+j1L0WaPVvKxwesnY93fEfH++sus2rQ==}
@@ -21988,25 +22045,26 @@ packages:
       inline-style-parser: 0.1.1
     dev: false
 
-  /styled-components/5.3.1_xwin6kermpfszgjtt7m5i5m4jy:
-    resolution: {integrity: sha512-JThv2JRzyH0NOIURrk9iskdxMSAAtCfj/b2Sf1WJaCUsloQkblepy1jaCLX/bYE+mhYo3unmwVSI9I5d9ncSiQ==}
+  /styled-components/5.3.6_7i5myeigehqah43i5u7wbekgba:
+    resolution: {integrity: sha512-hGTZquGAaTqhGWldX7hhfzjnIYBZ0IXQXkCYdvF1Sq3DsUaLx6+NTHC5Jj1ooM2F68sBiVz3lvhfwQs/S3l6qg==}
     engines: {node: '>=10'}
+    requiresBuild: true
     peerDependencies:
       react: '>= 16.8.0'
       react-dom: '>= 16.8.0'
       react-is: '>= 16.8.0'
     dependencies:
-      '@babel/helper-module-imports': 7.15.4
-      '@babel/traverse': 7.15.4_supports-color@5.5.0
-      '@emotion/is-prop-valid': 0.8.8
+      '@babel/helper-module-imports': 7.18.6
+      '@babel/traverse': 7.19.1_supports-color@5.5.0
+      '@emotion/is-prop-valid': 1.2.0
       '@emotion/stylis': 0.8.5
       '@emotion/unitless': 0.7.5
-      babel-plugin-styled-components: 1.13.2_styled-components@5.3.1
+      babel-plugin-styled-components: 1.13.2_styled-components@5.3.6
       css-to-react-native: 3.0.0
       hoist-non-react-statics: 3.3.2
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      react-is: 18.0.0
+      react-is: 18.2.0
       shallowequal: 1.1.0
       supports-color: 5.5.0
     dev: false
@@ -23722,6 +23780,48 @@ packages:
       - terser
     dev: true
 
+  /vitest/0.24.3_jsdom@21.1.0:
+    resolution: {integrity: sha512-aM0auuPPgMSstWvr851hB74g/LKaKBzSxcG3da7ejfZbx08Y21JpZmbmDYrMTCGhVZKqTGwzcnLMwyfz2WzkhQ==}
+    engines: {node: '>=v14.16.0'}
+    hasBin: true
+    peerDependencies:
+      '@edge-runtime/vm': '*'
+      '@vitest/browser': '*'
+      '@vitest/ui': '*'
+      happy-dom: '*'
+      jsdom: '*'
+    peerDependenciesMeta:
+      '@edge-runtime/vm':
+        optional: true
+      '@vitest/browser':
+        optional: true
+      '@vitest/ui':
+        optional: true
+      happy-dom:
+        optional: true
+      jsdom:
+        optional: true
+    dependencies:
+      '@types/chai': 4.3.3
+      '@types/chai-subset': 1.3.3
+      '@types/node': 18.11.2
+      chai: 4.3.6
+      debug: 4.3.4
+      jsdom: 21.1.0
+      local-pkg: 0.4.2
+      strip-literal: 0.4.2
+      tinybench: 2.3.0
+      tinypool: 0.3.0
+      tinyspy: 1.0.2
+      vite: 3.0.0
+    transitivePeerDependencies:
+      - less
+      - sass
+      - stylus
+      - supports-color
+      - terser
+    dev: true
+
   /vitest/0.27.2:
     resolution: {integrity: sha512-y7tdsL2uaQy+KF18AlmNHZe29ukyFytlxrpSTwwmgLE2XHR/aPucJP9FLjWoqjgqFlXzRAjHlFJLU+HDyI/OsA==}
     engines: {node: '>=v14.16.0'}
@@ -23842,6 +23942,13 @@ packages:
   /w3c-xmlserializer/3.0.0:
     resolution: {integrity: sha512-3WFqGEgSXIyGhOmAFtlicJNMjEps8b1MG31NCA0/vOF9+nKMUW1ckhi9cnNHmf88Rzw5V+dwIwsm2C7X8k9aQg==}
     engines: {node: '>=12'}
+    dependencies:
+      xml-name-validator: 4.0.0
+    dev: true
+
+  /w3c-xmlserializer/4.0.0:
+    resolution: {integrity: sha512-d+BFHzbiCx6zGfz0HyQ6Rg69w9k19nviJspaj4yNscGjrHu94sVP+aRm75yEbCh+r2/yR+7q6hux9LVtbuTGBw==}
+    engines: {node: '>=14'}
     dependencies:
       xml-name-validator: 4.0.0
     dev: true
@@ -24385,6 +24492,19 @@ packages:
         optional: true
       utf-8-validate:
         optional: true
+
+  /ws/8.12.1:
+    resolution: {integrity: sha512-1qo+M9Ba+xNhPB+YTWUlK6M17brTut5EXbcBaMRN5pH5dFrXz7lzz1ChFSUq3bOUl8yEvSenhHmYUNJxFzdJew==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+    dev: true
 
   /ws/8.7.0:
     resolution: {integrity: sha512-c2gsP0PRwcLFzUiA8Mkr37/MI7ilIlHQxaEAtd0uNMbVMoy8puJyafRlm0bV9MbGSabUPeLrRRaqIBcFcA2Pqg==}
