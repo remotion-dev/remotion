@@ -154,7 +154,6 @@ To render media, send a POST request to the URL with the following body:
 - add cpu and memory limit arguments
 - returning error from deployNewCloudRun - typed as any, can I get a type from the protos?
 - sprinkle quietFlagProvided() throughout
-- printCloudRunHelp to be completed
 - when deploying a cloud run instance, should include the remotion version in the revision name
 - add new service account as runner of the service, so the permissions can stay tight.
 - allow outputBucket and outputFile to be optional. After that, update readme with details.
@@ -164,6 +163,5 @@ To render media, send a POST request to the URL with the following body:
 
 - add remotionVersion validation
 - sprinkle quietFlagProvided() throughout
-- printSitesHelp to be completed
 - time for uploading to GCP Storage Bucket is always 0ms
 - add LS, RM, RMALL subcommands
