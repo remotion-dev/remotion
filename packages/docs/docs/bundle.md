@@ -91,7 +91,7 @@ The current working directory is the directory from which your program gets exec
 
 #### `publicDir?` <AvailableFrom v="3.2.13" />
 
-Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the Remotion root folder.
+Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the [Remotion Root](/docs/terminology#remotion-root). If you pass a relative path, it will be resolved against the [Remotion Root](/docs/terminology#remotion-root).
 
 #### `onPublicDirCopyProgress?` <AvailableFrom v="3.3.3" />
 
@@ -100,6 +100,10 @@ Reports progress of how many bytes have been written while copying the `public/`
 #### `onSymlinkDetected?` <AvailableFrom v="3.3.3" />
 
 Gets called when a symbolic link is detected in the `public/` directory. Since Remotion will forward the symbolic link, it might be useful to display a hint to the user that if the original symbolic link gets deleted, the bundle will also break.
+
+#### `ignoreRegisterRootWarning?` <AvailableFrom v="3.3.46" />
+
+Ignore an error that gets thrown if you pass an entry point file which does not contain `registerRoot`.
 
 ## Legacy function signature
 

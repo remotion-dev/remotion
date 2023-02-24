@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-restricted-imports
 import type {TCompMetadata} from 'remotion';
 import {Log} from './log';
 import {selectComposition} from './select-composition';
