@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-restricted-imports
 import type {TSequence} from 'remotion';
 import {expect, test} from 'vitest';
 import {calculateTimeline} from '../editor/helpers/calculate-timeline';

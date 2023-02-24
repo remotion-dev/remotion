@@ -1,16 +1,16 @@
 import type {RefObject} from 'react';
 import {useContext, useEffect} from 'react';
-import {useMediaStartsAt} from './audio/use-audio-frame';
-import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error';
+import {useMediaStartsAt} from './audio/use-audio-frame.js';
+import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
 import {
 	TimelineContext,
 	usePlayingState,
 	useTimelinePosition,
-} from './timeline-position-state';
-import {useCurrentFrame} from './use-current-frame';
-import {useVideoConfig} from './use-video-config';
-import {getMediaTime} from './video/get-current-time';
-import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media';
+} from './timeline-position-state.js';
+import {useCurrentFrame} from './use-current-frame.js';
+import {useVideoConfig} from './use-video-config.js';
+import {getMediaTime} from './video/get-current-time.js';
+import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media.js';
 
 export const DEFAULT_ACCEPTABLE_TIMESHIFT = 0.45;
 
