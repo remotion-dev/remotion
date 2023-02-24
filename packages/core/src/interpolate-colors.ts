@@ -4,7 +4,7 @@
  */
 
 /* eslint no-bitwise: 0 */
-import {interpolate} from './interpolate';
+import {interpolate} from './interpolate.js';
 
 type MatcherType = RegExp | undefined;
 

@@ -1,5 +1,5 @@
-import {getRemotionEnvironment} from './get-environment';
-import {truthy} from './truthy';
+import {getRemotionEnvironment} from './get-environment.js';
+import {truthy} from './truthy.js';
 
 if (typeof window !== 'undefined') {
 	window.ready = false;

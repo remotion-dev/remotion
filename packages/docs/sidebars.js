@@ -465,6 +465,7 @@ module.exports = {
         "troubleshooting/rosetta",
         "troubleshooting/loading-root-component",
         "troubleshooting/defaultprops-too-big",
+        "troubleshooting/could-not-be-parsed-as-a-value-list",
       ],
     },
     {
@@ -517,6 +518,8 @@ module.exports = {
         "miscellaneous/typescript-aliases",
         "miscellaneous/render-in-browser",
         "miscellaneous/changing-temp-dir",
+        "miscellaneous/automatic-duration",
+        "miscellaneous/video-formats",
       ],
     },
     {

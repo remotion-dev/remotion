@@ -1,4 +1,4 @@
-import type {Instruction} from '@remotion/paths/dist/helpers/types';
+import type {Instruction} from '@remotion/paths';
 import React, {useMemo} from 'react';
 
 export type AllShapesProps = Omit<
