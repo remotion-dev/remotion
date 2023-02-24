@@ -662,7 +662,6 @@ importers:
       '@remotion/bundler': 3.3.53
       '@remotion/cli': 3.3.53
       '@remotion/compositor-linux-arm64-musl': 3.3.53
-      '@remotion/compositor-linux-x64-musl': 3.3.53
       '@remotion/renderer': 3.3.53
       '@types/mime-types': 2.1.1
       '@types/minimist': 1.2.2
@@ -698,7 +697,6 @@ importers:
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
       '@remotion/compositor-linux-arm64-musl': link:../compositor-linux-arm64-musl
-      '@remotion/compositor-linux-x64-musl': link:../compositor-linux-x64-musl
       '@types/mime-types': 2.1.1
       '@types/minimist': 1.2.2
       '@types/node': 14.17.20
