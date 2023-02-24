@@ -1,6 +1,5 @@
-import type {RenderJob} from './preview-server/render-queue/job';
-// eslint-disable-next-line no-restricted-imports
 import type {StaticFile} from 'remotion';
+import type {RenderJob} from './preview-server/render-queue/job';
 
 export type EventSourceEvent =
 	| {

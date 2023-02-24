@@ -64,3 +64,26 @@ export const SupportedAudioCodecTable = () => {
     </table>
   );
 };
+
+export const FileExtensionTable: React.FC = () => {
+  const extensions = Object.keys(BrowserSafeApis.defaultCodecsForFileExtension);
+
+  return (
+    <table>
+      <tr>
+        <th>File extension</th>
+        <th>Default codec</th>
+      </tr>
+      {extensions.map((e) => {
+        return (
+          <tr key={e}>
+            <td>.{e}</td>
+            <td>
+              <code>{BrowserSafeApis.defaultCodecsForFileExtension[e]}</code>
+            </td>
+          </tr>
+        );
+      })}
+    </table>
+  );
+};
