@@ -1,11 +1,9 @@
-import crypto from 'crypto';
-
 export const makeStorageServeUrl = ({
-	bucketName,
-	subFolder,
+  bucketName,
+  subFolder,
 }: {
-	bucketName: string;
-	subFolder: string;
+  bucketName: string;
+  subFolder: string;
 }): string => {
-	return `https://storage.googleapis.com/${bucketName}/${subFolder}/index.html`;
+  return `https://storage.googleapis.com/${bucketName}/${subFolder}/index.html`;
 };
