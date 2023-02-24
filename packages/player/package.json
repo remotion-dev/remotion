@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player",
-	"version": "3.3.44",
+	"version": "3.3.53",
 	"description": "Remotion Player",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -38,7 +38,7 @@
 	],
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"remotion": "3.3.44"
+		"remotion": "3.3.53"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -53,6 +53,7 @@
 		"@vitejs/plugin-react": "^2.0.0",
 		"csstype": "^3.1.1",
 		"eslint": "8.25.0",
+		"eslint-plugin-require-extensions": "^0.1.2",
 		"jsdom": "20.0.1",
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",

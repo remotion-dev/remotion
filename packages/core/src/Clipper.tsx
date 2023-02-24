@@ -1,6 +1,6 @@
 import type React from 'react';
 import {useContext, useEffect} from 'react';
-import {NativeLayersContext} from './NativeLayers';
+import {NativeLayersContext} from './NativeLayers.js';
 
 export const Clipper: React.FC<{
 	width: number;
