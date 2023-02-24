@@ -4,10 +4,10 @@
 	"description": "GCP alternative to lambda rendering",
 	"main": "dist/index.js",
 	"scripts": {
-		"build": "tsc -d && pnpm run buildContainer",
+		"build": "tsc -d",
 		"buildContainer": "ts-node src/admin/bundle-renderLogic.ts",
 		"start": "functions-framework --target=TypescriptFunction",
-		"prestart": "pnpm run build"
+		"watch": "tsc -w"
 	},
 	"bin": {
 		"remotion-gcp": "remotion-gcp-cli.mjs"
