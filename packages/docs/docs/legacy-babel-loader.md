@@ -66,7 +66,7 @@ When using the Node.JS APIs - [`bundle()`](/docs/bundle) for SSR or [`deploySite
 
 ```ts twoslash title="my-script.js"
 // @filename: ./src/webpack-override.ts
-import { WebpackOverrideFn } from "remotion";
+import { WebpackOverrideFn } from "@remotion/bundler";
 export const webpackOverride: WebpackOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // @target: esnext

@@ -1,6 +1,5 @@
 import type {render} from 'react-dom';
 import ReactDOM from 'react-dom/client';
-// eslint-disable-next-line no-restricted-imports
 import {Internals} from 'remotion';
 import '../styles/styles.css';
 import {Editor} from './editor/components/Editor';

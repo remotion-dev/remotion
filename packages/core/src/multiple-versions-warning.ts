@@ -1,5 +1,5 @@
-import {truthy} from './truthy';
-import {VERSION} from './version';
+import {truthy} from './truthy.js';
+import {VERSION} from './version.js';
 
 export const checkMultipleRemotionVersions = () => {
 	if (typeof globalThis === 'undefined') {
