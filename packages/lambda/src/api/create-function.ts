@@ -74,7 +74,7 @@ export const createFunction = async ({
 			FunctionName: functionName,
 			Handler: 'index.handler',
 			Role: customRoleArn ?? defaultRoleName,
-			Runtime: 'nodejs14.x',
+			Runtime: 'nodejs18.x',
 			Description: 'Renders a Remotion video.',
 			MemorySize: memorySizeInMb,
 			Timeout: timeoutInSeconds,

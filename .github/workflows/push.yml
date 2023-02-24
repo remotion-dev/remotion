@@ -87,22 +87,22 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            node_version: 14
+            node_version: 16
             ffmpeg_version: 4.4
           - os: windows-latest
-            node_version: 14
+            node_version: 16
             ffmpeg_version: 4.4
           - os: macos-latest
-            node_version: 14
+            node_version: 16
             ffmpeg_version: 4.4
           - os: ubuntu-latest
             node_version: 19
             ffmpeg_version: 4.4
           - os: ubuntu-latest
-            node_version: 14
+            node_version: 16
             ffmpeg_version: 5.0
           - os: ubuntu-latest
-            node_version: 14
+            node_version: 16
             ffmpeg_version: 4.1
     steps:
       - uses: actions/checkout@main
