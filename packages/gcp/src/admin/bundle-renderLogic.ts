@@ -13,7 +13,7 @@ const bundleRenderLogic = async () => {
 	(fs.rmSync ?? fs.rmdirSync)(outdir, {recursive: true});
 	fs.mkdirSync(outdir, {recursive: true});
 	const template = require.resolve(
-		path.join(__dirname, '../index')
+		path.join(__dirname, '../functions/index')
 	);
 
 	await BundlerInternals.esbuild.build({
