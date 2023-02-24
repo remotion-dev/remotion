@@ -3,10 +3,15 @@ import {quit} from './helpers/quit';
 import {parsedGcpCli} from './args';
 import {cloudRunCommand, CLOUD_RUN_COMMAND} from './commands/cloud-run';
 import {sitesCommand, SITES_COMMAND} from './commands/sites';
+import {
+	compositionsCommand,
+	COMPOSITIONS_COMMAND,
+} from './commands/compositions';
+import {printHelp} from './help';
 
 const matchCommand = (args: string[], remotionRoot: string) => {
 	if (parsedGcpCli.help || args.length === 0) {
-		// printHelp(); TODO: implement help
+		printHelp();
 		quit(0);
 	}
 
@@ -18,13 +23,17 @@ const matchCommand = (args: string[], remotionRoot: string) => {
 		return sitesCommand(args.slice(1), remotionRoot);
 	}
 
+	if (args[0] === COMPOSITIONS_COMMAND) {
+		return compositionsCommand(args.slice(1), remotionRoot);
+	}
+
 	if (args[0] === 'deploy') {
 		Log.info(`The "deploy" command does not exist.`);
 		Log.info(`Did you mean "cloud-run deploy"?`);
 	}
 
 	Log.error(`Command ${args[0]} not found.`);
-	// printHelp(); TODO: implement help
+	printHelp();
 	quit(1);
 };
 
