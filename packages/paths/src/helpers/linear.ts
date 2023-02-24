@@ -1,12 +1,17 @@
 // Copied from: https://github.com/rveciana/svg-path-properties
 import type {Point, PointProperties} from './types';
 
-export const makeLinearPosition = (
-	x0: number,
-	x1: number,
-	y0: number,
-	y1: number
-) => {
+export const makeLinearPosition = ({
+	x0,
+	x1,
+	y0,
+	y1,
+}: {
+	x0: number;
+	x1: number;
+	y0: number;
+	y1: number;
+}) => {
 	const getTotalLength = () => {
 		return Math.sqrt((x0 - x1) ** 2 + (y0 - y1) ** 2);
 	};

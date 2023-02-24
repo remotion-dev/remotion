@@ -119,7 +119,7 @@ export const getEnvironmentVariables = (
 		const envFile = path.resolve(remotionRoot, configFileSetting);
 		if (!fs.existsSync(envFile)) {
 			Log.error(
-				'You specified a custom .env file using `Config.Rendering.setDotEnvLocation()` in the config file but it could not be found'
+				'You specified a custom .env file using `Config.setDotEnvLocation()` in the config file but it could not be found'
 			);
 			Log.error('We looked for the file at:', envFile);
 			Log.error('Check that your path is correct and try again.');

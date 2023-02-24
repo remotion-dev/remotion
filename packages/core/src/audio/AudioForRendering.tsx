@@ -8,17 +8,17 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
-import {getAbsoluteSrc} from '../absolute-src';
-import {CompositionManager} from '../CompositionManager';
-import {continueRender, delayRender} from '../delay-render';
-import {useRemotionEnvironment} from '../get-environment';
-import {random} from '../random';
-import {SequenceContext} from '../Sequence';
-import {useTimelinePosition} from '../timeline-position-state';
-import {useCurrentFrame} from '../use-current-frame';
-import {evaluateVolume} from '../volume-prop';
-import type {RemotionAudioProps} from './props';
-import {useFrameForVolumeProp} from './use-audio-frame';
+import {getAbsoluteSrc} from '../absolute-src.js';
+import {CompositionManager} from '../CompositionManager.js';
+import {continueRender, delayRender} from '../delay-render.js';
+import {useRemotionEnvironment} from '../get-environment.js';
+import {random} from '../random.js';
+import {SequenceContext} from '../Sequence.js';
+import {useTimelinePosition} from '../timeline-position-state.js';
+import {useCurrentFrame} from '../use-current-frame.js';
+import {evaluateVolume} from '../volume-prop.js';
+import type {RemotionAudioProps} from './props.js';
+import {useFrameForVolumeProp} from './use-audio-frame.js';
 
 type AudioForRenderingProps = RemotionAudioProps & {
 	onDuration: (src: string, durationInSeconds: number) => void;
@@ -51,6 +51,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		volume: volumeProp,
 		playbackRate,
 		allowAmplificationDuringRender,
+		onDuration,
 		...nativeProps
 	} = props;
 
@@ -112,7 +113,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		allowAmplificationDuringRender,
 	]);
 
-	const {src, onDuration} = props;
+	const {src} = props;
 
 	// If audio source switches, make new handle
 	if (environment === 'rendering') {

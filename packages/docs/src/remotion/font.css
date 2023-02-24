@@ -4,3 +4,7 @@
   font-weight: 900;
   font-style: normal;
 }
+
+:root {
+  --background: white;
+}

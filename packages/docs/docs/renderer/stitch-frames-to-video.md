@@ -63,9 +63,22 @@ _optional_
 
 Set a codec. See the [encoding guide](/docs/encoding) for available values and guidance on which one to choose. The default is `h264`.
 
-### `audioBitrate?`
+### `audioCodec?`
 
-_string - optional, available from v3.2.32_
+_"pcm-16" | "aac" | "mp3" | "opus", available from v3.3.41_
+
+Choose the encoding of your audio.
+
+- The default is dependent on the chosen `codec`.
+- Choose `pcm-16` if you need uncompressed audio.
+- Not all video containers support all audio codecs.
+- This option takes precedence if the `codec` option also specifies an audio codec.
+
+Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and supported combinations.
+
+### `audioBitrate?` <AvailableFrom v="3.2.32" />
+
+_string - optional_
 
 Specify the target bitrate for the generated video.  
 The syntax for FFMPEGs `-b:v` parameter should be used.  
@@ -74,9 +87,9 @@ This option cannot be set if `--crf` is set.
 Example values: `512K` for 512 kbps, `1M` for 1 Mbps.  
 Default: `320k`
 
-### `videoBitrate?`
+### `videoBitrate?` <AvailableFrom v="3.2.32" />
 
-_string - optional, available from v3.2.32_
+_string - optional_
 
 Specify the target bitrate for the generated video.  
 The syntax for FFMPEGs `-b:v` parameter should be used.  
@@ -120,15 +133,15 @@ const onDownload = (src: string) => {
 };
 ```
 
-### `numberOfGifLoops?`
+### `numberOfGifLoops?` <AvailableFrom v="3.1.0" />
 
-_optional, available since v3.1_
+_optional_
 
 Set the looping behavior. This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
 
-### `muted?`
+### `muted?` <AvailableFrom v="3.2.1" />
 
-_optional, available since v3.2.1_
+_optional_
 
 Disables audio output. This option may only be set in combination with a video codec and should also be passed to [`renderFrames()`](/docs/renderer/render-frames).
 
@@ -144,21 +157,21 @@ _optional_
 
 A custom FFMPEG executable to be used. By default, a binary called `ffmpeg` will be searched in your `PATH`.
 
-#### `ffprobeExecutable?`
+#### `ffprobeExecutable?` <AvailableFrom v="3.0.17" />
 
-_optional, available from v3.0.17_
+_optional_
 
 An absolute path overriding the `ffprobe` executable to use.
 
-### `cancelSignal?`
+### `cancelSignal?` <AvailableFrom v="3.0.15" />
 
-_optional, available from v3.0.15_
+_optional_
 
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
-### `ffmpegOverride?`
+### `ffmpegOverride?` <AvailableFrom v="3.2.22" />
 
-_function - optional - available from v3.2.22_
+_function - optional_
 
 Modifies the FFMPEG command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
 

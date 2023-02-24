@@ -44,33 +44,31 @@ _optional_
 
 Define custom props that can be retrieved using [`getInputProps()`](/docs/get-input-props) at runtime. Useful for [setting a dynamic duration or dimensions](/docs/dynamic-metadata) for your video.
 
-#### `puppeteerInstance?`
+#### `puppeteerInstance?` <AvailableFrom v="3.0.0" />
 
-_optional - available since v3.0.0_
+_optional_
 
 An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
 
-#### `browserExecutable?`
-
-_optional, available from v2.3.1_
+#### `browserExecutable?` <AvailableFrom v="2.3.1" />
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
 
-#### `ffmpegExecutable?`
+#### `ffmpegExecutable?` <AvailableFrom v="3.0.11" />
 
-_optional, available from v3.0.11_
+_optional_
 
 An absolute path overriding the `ffmpeg` executable to use.
 
-#### `ffprobeExecutable?`
+#### `ffprobeExecutable?` <AvailableFrom v="3.0.17" />
 
-_optional, available from v3.0.17_
+_optional_
 
 An absolute path overriding the `ffprobe` executable to use.
 
-#### `onBrowserLog?`
+#### `onBrowserLog?` <AvailableFrom v="3.0.0" />
 
-_optional - Available since v3.0.0_
+_optional_
 
 Gets called when your project calls `console.log` or another method from console. A browser log has three properties:
 
@@ -141,15 +139,13 @@ getCompositions({
 });
 ```
 
-#### `timeoutInMilliseconds?`
-
-_optional, available from v2.6.3_
+#### `timeoutInMilliseconds?` <AvailableFrom v="2.6.3" />
 
 A number describing how long one frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before the [render times out and fails(/docs/timeout). Default: `30000`
 
-### `chromiumOptions?`
+### `chromiumOptions?` <AvailableFrom v="2.6.5" />
 
-_optional, available from v2.6.5_
+_optional_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 

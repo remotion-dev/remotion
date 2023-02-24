@@ -84,7 +84,7 @@ pnpm i postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
 2. Create a function for overriding the webpack config
 
 ```ts twoslash title="src/enable-tailwind.ts"
-import { WebpackOverrideFn } from "remotion";
+import { WebpackOverrideFn } from "@remotion/bundler";
 
 export const enableTailwind: WebpackOverrideFn = (currentConfiguration) => {
   return {
@@ -133,15 +133,19 @@ export const enableTailwind: WebpackOverrideFn = (currentConfiguration) => {
 
 ```ts twoslash title="remotion.config.ts"
 // @filename: ./src/enable-tailwind.ts
-import { WebpackOverrideFn } from "remotion";
+import { WebpackOverrideFn } from "@remotion/bundler";
 export const enableTailwind: WebpackOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // ---cut---
 import { Config } from "remotion";
 import { enableTailwind } from "./src/enable-tailwind";
 
-Config.Bundling.overrideWebpackConfig(enableTailwind);
+Config.overrideWebpackConfig(enableTailwind);
 ```
+
+:::note
+Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
+:::
 
 4. If you use the [`bundle()` or `deploySite()` Node.JS API, add the Webpack override to it as well](/docs/webpack#when-using-bundle-and-deploysite).
 

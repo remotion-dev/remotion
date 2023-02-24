@@ -1,3 +1,4 @@
+// Keep in sync with create-video
 export const listOfRemotionPackages = [
 	'@remotion/bundler',
 	'@remotion/cli',

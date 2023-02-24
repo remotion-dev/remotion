@@ -1,8 +1,8 @@
 import {useContext} from 'react';
-import {CanUseRemotionHooks} from './CanUseRemotionHooks';
-import {useIsPlayer} from './is-player';
-import {useUnsafeVideoConfig} from './use-unsafe-video-config';
-import type {VideoConfig} from './video-config';
+import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
+import {useIsPlayer} from './is-player.js';
+import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
+import type {VideoConfig} from './video-config.js';
 
 /**
  * Get some info about the context of the video that you are making.

@@ -1,5 +1,5 @@
 import type React from 'react';
-import type {VolumeProp} from '../volume-prop';
+import type {VolumeProp} from '../volume-prop.js';
 
 export type RemotionMainVideoProps = {
 	startFrom?: number;

@@ -7,6 +7,7 @@ test('Should not have disableRemotePlayback props in the <VideoForDevelopment> c
 	const file = path.resolve(
 		process.cwd(),
 		'dist',
+		'esm',
 		'video',
 		'VideoForDevelopment.d.ts'
 	);
@@ -19,6 +20,7 @@ test('Should not have disableRemotePlayback props in the <VideoForRendering> com
 	const file = path.resolve(
 		process.cwd(),
 		'dist',
+		'esm',
 		'video',
 		'VideoForRendering.d.ts'
 	);
@@ -31,6 +33,7 @@ test('Should not have disableRemotePlayback props in the <AudioForDevelopment> c
 	const file = path.resolve(
 		process.cwd(),
 		'dist',
+		'esm',
 		'audio',
 		'AudioForDevelopment.d.ts'
 	);
@@ -43,6 +46,7 @@ test('Should not have disableRemotePlayback props in the <AudioForRendering> com
 	const file = path.resolve(
 		process.cwd(),
 		'dist',
+		'esm',
 		'audio',
 		'AudioForRendering.d.ts'
 	);

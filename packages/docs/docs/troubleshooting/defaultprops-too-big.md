@@ -38,7 +38,13 @@ Example:
 ```tsx twoslash title="❌ Avoid - big data chunk as defaultProps"
 import { AudioData, getAudioData } from "@remotion/media-utils";
 import { useEffect, useState } from "react";
-import { Composition, continueRender, delayRender, staticFile } from "remotion";
+import {
+  cancelRender,
+  Composition,
+  continueRender,
+  delayRender,
+  staticFile,
+} from "remotion";
 
 // MyComp.tsx
 const MyComp: React.FC<{
@@ -59,7 +65,7 @@ const RemotionRoot = () => {
         continueRender(handle);
       })
       .catch((e) => {
-        console.log(e);
+        cancelRender(e);
       });
   }, [handle]);
 
@@ -84,7 +90,13 @@ This can lead to problems because the `audioData` variable can become very big s
 ```tsx twoslash title="✅ Do - Fetch data inside composition"
 import { getAudioData } from "@remotion/media-utils";
 import { useEffect, useState } from "react";
-import { Composition, continueRender, delayRender, staticFile } from "remotion";
+import {
+  cancelRender,
+  Composition,
+  continueRender,
+  delayRender,
+  staticFile,
+} from "remotion";
 
 // MyComp.tsx
 const MyComp: React.FC<{ src: string }> = ({ src }) => {
@@ -98,7 +110,7 @@ const MyComp: React.FC<{ src: string }> = ({ src }) => {
         continueRender(handle);
       })
       .catch((e) => {
-        console.log(e);
+        cancelRender(e);
       });
   }, [handle]);
 

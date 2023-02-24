@@ -7,6 +7,7 @@ import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
+import type {AudioCodec} from './audio-codec';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
@@ -103,6 +104,10 @@ export type RenderMediaOptions = {
 	 * @deprecated Only for Remotion internal usage
 	 */
 	downloadMap?: DownloadMap;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	preferLossless?: boolean;
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
 	ffmpegOverride?: FfmpegOverrideFn;
@@ -110,6 +115,7 @@ export type RenderMediaOptions = {
 	videoBitrate?: string | null;
 	onSlowestFrames?: OnSlowestFrames;
 	disallowParallelEncoding?: boolean;
+	audioCodec?: AudioCodec | null;
 } & ServeUrlOrWebpackBundle &
 	ConcurrencyOrParallelism;
 
@@ -174,6 +180,7 @@ export const renderMedia = ({
 	audioBitrate,
 	videoBitrate,
 	onSlowestFrames,
+	audioCodec,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
 	const remotionRoot = findRemotionRoot();
@@ -189,7 +196,12 @@ export const renderMedia = ({
 	});
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 	if (outputLocation) {
-		validateOutputFilename(codec, getExtensionOfFilename(outputLocation));
+		validateOutputFilename({
+			codec,
+			audioCodec: audioCodec ?? null,
+			extension: getExtensionOfFilename(outputLocation) as string,
+			preferLossless: options.preferLossless ?? false,
+		});
 	}
 
 	const absoluteOutputLocation = outputLocation
@@ -262,7 +274,7 @@ export const renderMedia = ({
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
 				downloadMap.preEncode,
-				'pre-encode.' + getFileExtensionFromCodec(codec)
+				'pre-encode.' + getFileExtensionFromCodec(codec, audioCodec ?? null)
 		  )
 		: null;
 
@@ -468,6 +480,7 @@ export const renderMedia = ({
 					internalOptions: {
 						preEncodedFileLocation,
 						imageFormat,
+						preferLossless: options.preferLossless ?? false,
 					},
 					force: overwrite ?? DEFAULT_OVERWRITE,
 					pixelFormat,
@@ -492,6 +505,7 @@ export const renderMedia = ({
 					ffmpegOverride,
 					audioBitrate,
 					videoBitrate,
+					audioCodec: audioCodec ?? null,
 				}),
 				stitchStart,
 			]);

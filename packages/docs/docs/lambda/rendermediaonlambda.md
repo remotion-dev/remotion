@@ -96,6 +96,20 @@ The option `h264-mkv` has been renamed to just `h264` since `v3.3.34`. Use `h264
 
 See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
 
+### `audioCodec?`
+
+_"pcm-16" | "aac" | "mp3" | "opus", available from v3.3.41_
+
+Choose the encoding of your audio.
+
+- Each Lambda chunk might actually choose an uncompressed codec and convert it in the final encoding stage to prevent audio artifacts.
+- The default is dependent on the chosen `codec`.
+- Choose `pcm-16` if you need uncompressed audio.
+- Not all video containers support all audio codecs.
+- This option takes precedence if the `codec` option also specifies an audio codec.
+
+Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and supported combinations.
+
 ### `forceHeight`
 
 _available from v3.2.40_
@@ -240,7 +254,7 @@ Accepted values:
 The default for Lambda is `swangle`, but `null` elsewhere.
 :::
 
-### `overwrite`
+### `overwrite?`
 
 _available from v3.2.25_
 
@@ -248,7 +262,15 @@ If a custom out name is specified and a file already exists at this key in the S
 
 An existing file at the output S3 key will conflict with the render and must be deleted beforehand. If this setting is `false` and a conflict occurs, an error will be thrown.
 
-### `webhook`
+### `rendererFunctionName?`
+
+_optional, available from v3.3.38_
+
+If specified, this function will be used for rendering the individual chunks. This is useful if you want to use a function with higher or lower power for rendering the chunks than the main orchestration function.
+
+If you want to use this option, the function must be in the same region, the same account and have the same version as the main function.
+
+### `webhook?`
 
 _optional, available from v3.2.30_
 
@@ -273,6 +295,12 @@ const webhook: RenderMediaOnLambdaInput["webhook"] = {
   secret: null,
 };
 ```
+
+### `forceBucketName?`
+
+_optional, available from v3.3.42_
+
+Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
 
 [See here for detailed instructions on how to set up your webhook](/docs/lambda/webhooks).
 

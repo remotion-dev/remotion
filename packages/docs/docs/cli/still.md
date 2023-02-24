@@ -73,9 +73,7 @@ From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 [Set a custom HTTP server port to serve the Webpack bundle](/docs/config#setPort). If not defined, Remotion will try to find a free port.
 
-### `--public-dir`
-
-_Available from v3.2.13_
+### `--public-dir` <AvailableFrom v="3.2.13" />
 
 [Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
 
@@ -95,19 +93,15 @@ Define how long a single frame may take to resolve all [`delayRender()`](/docs/d
 Not to be confused with the [`--timeout` flag when deploying a Lambda function](/docs/lambda/cli/functions#--timeout).
 :::
 
-### `--ignore-certificate-errors`
+### `--ignore-certificate-errors` <AvailableFrom v="2.6.5" />
 
-Results in invalid SSL certificates in Chrome, such as self-signed ones, being ignored. Available since v2.6.5.
+Results in invalid SSL certificates in Chrome, such as self-signed ones, being ignored.
 
-### `--disable-web-security`
-
-_Available since v2.6.5_
+### `--disable-web-security` <AvailableFrom v="2.6.5" />
 
 This will most notably disable CORS in Chrome among other security features.
 
-### `--disable-headless`
-
-_Available since v2.6.5_
+### `--disable-headless` <AvailableFrom v="2.6.5" />
 
 Opens an actual browser during rendering to observe the render.
 

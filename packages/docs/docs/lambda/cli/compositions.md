@@ -77,6 +77,10 @@ Opens an actual browser to observe the composition fetching.
 
 Only prints the composition IDs, separated by a space.
 
+### `--force-bucket-name` <AvailableFrom v="3.3.42" />
+
+Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
+
 ## See also
 
 - [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda)

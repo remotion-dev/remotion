@@ -60,7 +60,7 @@ Remotion supports 5 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9` and `
 Click on a browser compatibility link to see exactly which browsers are supported on caniuse.com.
 :::
 
-You can set a config using [`Config.Output.setCodec()` in the config file](/docs/config#setcodec) or the [`--codec`](/docs/cli) CLI flag.
+You can set a config using [`Config.setCodec()` in the config file](/docs/config#setcodec) or the [`--codec`](/docs/cli) CLI flag.
 
 ## Controlling quality using the CRF setting
 
@@ -150,7 +150,7 @@ VP9
 </tr>
 </table>
 
-You can [set a CRF in the config file using the `Config.Output.setCrf()`](/docs/config#setcrf) function or use the [`--crf`](/docs/cli#flags) command line flag.
+You can [set a CRF in the config file using the `Config.setCrf()`](/docs/config#setcrf) function or use the [`--crf`](/docs/cli#flags) command line flag.
 
 ## Controlling quality using ProRes profile
 
@@ -229,17 +229,29 @@ Higher bitrate means higher quality and higher file size.
 
 You can pass `mp3`, `wav` or `aac` as a codec. If you do it, an audio file will be output in the corresponding format. Quality settings will be ignored.
 
-## Use .mkv container format
-
-You can set the codec to `h264-mkv` to use the mkv container format together with the H264 codec. If you select this option, the audio will be encoded losslessly using the WAV codec.
-
-:::info
-This preset was created for Remotion Lambda, and is optimal for when concatenating multiple video clips into one.
-:::
-
 ## GIFs
 
-You can also [render you video as a GIF](/docs/render-as-gif).
+You can also [render your video as a GIF](/docs/render-as-gif).
+
+## Audio codec
+
+_available from v3.3.42_
+
+Using the [`--audio-codec`](/docs/config#setaudiocodec) flag, you can set the format of the audio that is embedded in the video. Not all codec and audio codec combinations are supported and certain combinations require a certain file extension and container format.
+
+The container format will be automatically derived based on the file extension.
+
+import {SupportedAudioCodecTable, FileExtensionTable} from '../components/SupportedAudioCodec';
+
+<SupportedAudioCodecTable />
+
+GIFs don't support audio.
+
+## File extensions
+
+Specifying a file extension when rendering media will determine the default codec. You may override the codec using `--codec` as long as the combination is supported in the table above.
+
+<FileExtensionTable />
 
 ## What other settings do you need?
 

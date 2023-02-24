@@ -1,12 +1,12 @@
 import type {MouseEventHandler, ReactNode} from 'react';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
-import {formatTime} from './format-time';
-import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
-import {MediaVolumeSlider} from './MediaVolumeSlider';
-import {PlayerSeekBar} from './PlayerSeekBar';
-import type {usePlayer} from './use-player';
-import {useVideoControlsResize} from './use-video-controls-resize';
+import {formatTime} from './format-time.js';
+import {FullscreenIcon, PauseIcon, PlayIcon} from './icons.js';
+import {MediaVolumeSlider} from './MediaVolumeSlider.js';
+import {PlayerSeekBar} from './PlayerSeekBar.js';
+import type {usePlayer} from './use-player.js';
+import {useVideoControlsResize} from './use-video-controls-resize.js';
 
 export type RenderPlayPauseButton = (props: {playing: boolean}) => ReactNode;
 export type RenderFullscreenButton = (props: {
@@ -16,14 +16,33 @@ export type RenderFullscreenButton = (props: {
 export const X_SPACER = 10;
 export const X_PADDING = 12;
 
+const gradientSteps = [
+	0, 0.013, 0.049, 0.104, 0.175, 0.259, 0.352, 0.45, 0.55, 0.648, 0.741, 0.825,
+	0.896, 0.951, 0.987,
+];
+
+const gradientOpacities = [
+	0, 8.1, 15.5, 22.5, 29, 35.3, 41.2, 47.1, 52.9, 58.8, 64.7, 71, 77.5, 84.5,
+	91.9,
+];
+
+const globalGradientOpacity = 1 / 0.7;
+
 const containerStyle: React.CSSProperties = {
 	boxSizing: 'border-box',
 	position: 'absolute',
 	bottom: 0,
 	width: '100%',
-	paddingTop: 10,
+	paddingTop: 40,
 	paddingBottom: 10,
-	background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.4))',
+	backgroundImage: `linear-gradient(to bottom,${gradientSteps
+		.map((g, i) => {
+			return `hsla(0, 0%, 0%, ${g}) ${
+				gradientOpacities[i] * globalGradientOpacity
+			}%`;
+		})
+		.join(', ')}, hsl(0, 0%, 0%) 100%)`,
+	backgroundSize: 'auto 145px',
 	display: 'flex',
 	paddingRight: X_PADDING,
 	paddingLeft: X_PADDING,
@@ -211,7 +230,7 @@ export const Controls: React.FC<{
 			color: 'white',
 			fontFamily: 'sans-serif',
 			fontSize: 14,
-			maxWidth: maxTimeLabelWidth,
+			maxWidth: maxTimeLabelWidth === null ? undefined : maxTimeLabelWidth,
 			overflow: 'hidden',
 			textOverflow: 'ellipsis',
 		};

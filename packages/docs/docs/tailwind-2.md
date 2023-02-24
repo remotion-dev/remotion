@@ -51,7 +51,7 @@ yarn add postcss-loader postcss postcss-preset-env tailwindcss@2 autoprefixer
 ```ts twoslash
 import { Config } from "remotion";
 // ---cut---
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+Config.overrideWebpackConfig((currentConfiguration) => {
   return {
     ...currentConfiguration,
     module: {
