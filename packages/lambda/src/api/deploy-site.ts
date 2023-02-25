@@ -42,7 +42,7 @@ export type DeploySiteOutput = Promise<{
 
 /**
  * @description Deploys a Remotion project to an S3 bucket to prepare it for rendering on AWS Lambda.
- * @link https://remotion.dev/docs/lambda/deploysite
+ * @see [Documentation](https://remotion.dev/docs/lambda/deploysite)
  * @param {AwsRegion} params.region The region in which the S3 bucket resides in.
  * @param {string} params.entryPoint An absolute path to the entry file of your Remotion project.
  * @param {string} params.bucketName The name of the bucket to deploy your project into.
