@@ -81,7 +81,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 };
 
 /**
- * Works just like a regular HTML img tag. When you use the <Img> tag, Remotion will ensure that the image is loaded before rendering the frame.
+ * @description Works just like a regular HTML img tag. When you use the <Img> tag, Remotion will ensure that the image is loaded before rendering the frame.
  * @see [Documentation](https://www.remotion.dev/docs/img)
  */
 export const Img = forwardRef(ImgRefForwarding);

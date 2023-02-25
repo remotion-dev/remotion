@@ -51,7 +51,7 @@ const Fallback: React.FC = () => {
 };
 
 /**
- * This component is used to register a video to make it renderable and make it show in the sidebar, in dev mode.
+ * @description This component is used to register a video to make it renderable and make it show in the sidebar, in dev mode.
  * @see [Documentation](https://www.remotion.dev/docs/composition)
  */
 

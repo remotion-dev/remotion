@@ -31,7 +31,7 @@ const blobToBase64 = function (blob: Blob): Promise<string> {
 };
 
 /**
- * When you call the preFetch() function, an asset will be fetched and kept in memory so it is ready when you want to play it in a <Player>.
+ * @description When you call the preFetch() function, an asset will be fetched and kept in memory so it is ready when you want to play it in a <Player>.
  * @see [Documentation](https://www.remotion.dev/docs/prefetch)
  */
 export const prefetch = (

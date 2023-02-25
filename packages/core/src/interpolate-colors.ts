@@ -473,7 +473,7 @@ const interpolateColorsRGB = (
 };
 
 /**
- * This function allows you to map a range of values to colors using a concise syntax.
+ * @description This function allows you to map a range of values to colors using a concise syntax.
  * @see [Documentation](https://www.remotion.dev/docs/interpolate-colors)
  */
 export const interpolateColors = (

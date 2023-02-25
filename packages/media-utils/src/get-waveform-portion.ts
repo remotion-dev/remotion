@@ -7,8 +7,7 @@ type Bar = {
 };
 
 /**
- * Takes bulky waveform data (for example fetched by getAudioData()) and returns a trimmed and simplified version of it, for simpler visualization.
- * part of @remotion/media-utils
+ * @description Takes bulky waveform data (for example fetched by getAudioData()) and returns a trimmed and simplified version of it, for simpler visualization
  * @see [Documentation](https://www.remotion.dev/docs/get-waveform-portion)
  */
 export const getWaveformPortion = ({

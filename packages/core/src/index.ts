@@ -95,12 +95,12 @@ export * from './video-config.js';
 
 export const Experimental = {
 	/**
-	 * This is a special component that will cause Remotion to only partially capture the frame of the video. 
+	 * @description This is a special component that will cause Remotion to only partially capture the frame of the video. 
 	 * @see [Documentation](https://www.remotion.dev/docs/clipper)
 	 */
 	Clipper,
 	/**
-	 * This is a special component, that, when rendered, will skip rendering the frame altogether.
+	 * @description This is a special component, that, when rendered, will skip rendering the frame altogether.
 	 * @see [Documentation](https://www.remotion.dev/docs/null)
 	 */
 	Null,

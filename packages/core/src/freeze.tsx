@@ -9,7 +9,7 @@ type FreezeProps = {
 };
 
 /**
- * This method freezes all of its children to the frame that you specify as a prop
+ * @description This method freezes all of its children to the frame that you specify as a prop
  * @see [Documentation](https://www.remotion.dev/docs/freeze)
  */
 export const Freeze: React.FC<FreezeProps> = ({frame, children}) => {

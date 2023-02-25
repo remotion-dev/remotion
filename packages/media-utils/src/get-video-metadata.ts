@@ -56,8 +56,7 @@ const fn = (src: string): Promise<VideoMetadata> => {
 };
 
 /**
- * Takes a src to a video, loads it and returns metadata for the specified source.
- * part of @remotion/media-utils
+ * @description Takes a src to a video, loads it and returns metadata for the specified source.
  * @see [Documentation](https://www.remotion.dev/docs/get-video-metadata)
  */
 export const getVideoMetadata = (src: string) => {

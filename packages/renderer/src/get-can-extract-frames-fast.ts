@@ -9,8 +9,7 @@ import {tryToExtractFrameOfVideoFast} from './try-to-extract-frame-of-video-fast
 export const ACCEPTABLE_OFFSET_THRESHOLD = 50;
 
 /**
- * Probes whether frames of a video can be efficiently extracted when using <OffthreadVideo>.
- * part of @remotion/renderer
+ * @description Probes whether frames of a video can be efficiently extracted when using <OffthreadVideo>.
  * @see [Documentation](https://www.remotion.dev/docs/renderer/get-can-extract-frames-fast)
  */
 export const getCanExtractFramesFast = async ({

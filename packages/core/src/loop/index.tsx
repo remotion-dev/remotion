@@ -14,7 +14,7 @@ export type LoopProps = {
 } & LayoutAndStyle;
 
 /**
- * This component allows you to quickly lay out an animation so it repeats itself.
+ * @description This component allows you to quickly lay out an animation so it repeats itself.
  * @see [Documentation](https://www.remotion.dev/docs/loop)
  */
 export const Loop: React.FC<LoopProps> = ({

@@ -1,8 +1,7 @@
 import {audioBufferToWav} from './audio-buffer-to-wav';
 
 /**
- * This API takes an AudioBuffer instance and converts it to a Base 64 Data URL so it can be passed to an <Audio /> tag.
- * part of @remotion/media-utils
+ * @description This API takes an AudioBuffer instance and converts it to a Base 64 Data URL so it can be passed to an <Audio /> tag.
  * @see [Documentation](https://www.remotion.dev/docs/audio-buffer-to-data-url)
  */
 export const audioBufferToDataUrl = (buffer: AudioBuffer) => {
