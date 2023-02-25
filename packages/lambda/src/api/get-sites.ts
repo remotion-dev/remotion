@@ -25,7 +25,6 @@ export type GetSitesOutput = {
 };
 
 /**
- *
  * @description Gets all the deployed sites for a certain AWS region.
  * @see [Documentation](https://remotion.dev/docs/lambda/getsites)
  * @param {AwsRegion} params.region The AWS region that you want to query for.
