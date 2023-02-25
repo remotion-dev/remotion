@@ -4,6 +4,10 @@ import path from 'path';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 
+/**
+ * @description You can retrieve inputs that you pass in, from the command line using --props, or the inputProps parameter if you're using the Node.js API
+ * @see [Documentation](https://www.remotion.dev/docs/get-input-props)
+ */
 export const getInputProps = (onUpdate: (newProps: object) => void): object => {
 	if (!parsedCli.props) {
 		return {};
