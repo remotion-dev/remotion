@@ -90,7 +90,7 @@ const innerGetCompositions = async (
 };
 
 /**
- * @description Gets the compositions defined in a Remotion project based on a webpack bundle. part of @remotion/renderer
+ * @description Gets the compositions defined in a Remotion project based on a Webpack bundle.
  * @see [Documentation](https://www.remotion.dev/docs/renderer/get-compositions)
  */
 export const getCompositions = async (
