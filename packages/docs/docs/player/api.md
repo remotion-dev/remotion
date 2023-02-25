@@ -373,6 +373,12 @@ export const App: React.FC = () => {
 };
 ```
 
+### `alwaysShowControls` <AvailableFrom v="3.3.46" />
+
+_optional_
+
+If true, it's allows you to display fixed player controls and not let them disappear even if the mouse is off the player. Default `false`.
+
 ## `PlayerRef`
 
 You may attach a ref to the player and control it in an imperative manner.
