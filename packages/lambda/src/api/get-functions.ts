@@ -50,8 +50,6 @@ const getAllFunctions = async ({
 };
 
 /**
- *
- *
  * @description Lists Remotion Lambda render functions deployed to AWS Lambda.
  * @see [Documentation](https://remotion.dev/docs/lambda/getfunctions)
  * @param options.region The region of which the functions should be listed.
