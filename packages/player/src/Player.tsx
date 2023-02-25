@@ -63,6 +63,7 @@ export type PlayerProps<T> = {
 	initiallyShowControls?: number | boolean;
 	renderPlayPauseButton?: RenderPlayPauseButton;
 	renderFullscreenButton?: RenderFullscreenButton;
+  alwaysShowControls?: boolean;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -108,6 +109,7 @@ const PlayerFn = <T,>(
 		initiallyShowControls,
 		renderFullscreenButton,
 		renderPlayPauseButton,
+    alwaysShowControls = false,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -355,6 +357,7 @@ const PlayerFn = <T,>(
 							initiallyShowControls={initiallyShowControls ?? true}
 							renderFullscreen={renderFullscreenButton ?? null}
 							renderPlayPauseButton={renderPlayPauseButton ?? null}
+              alwaysShowControls={alwaysShowControls}
 						/>
 					</PlayerEventEmitterContext.Provider>
 				</Internals.Timeline.SetTimelineContext.Provider>
