@@ -13,6 +13,10 @@ export type LoopProps = {
 	children: React.ReactNode;
 } & LayoutAndStyle;
 
+/**
+ * @description This component allows you to quickly lay out an animation so it repeats itself.
+ * @see [Documentation](https://www.remotion.dev/docs/loop)
+ */
 export const Loop: React.FC<LoopProps> = ({
 	durationInFrames,
 	times = Infinity,

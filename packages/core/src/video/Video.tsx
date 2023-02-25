@@ -94,4 +94,8 @@ const forward = forwardRef as <T, P = {}>(
 	) => React.ReactElement | null
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
+/**
+ * @description allows you to include a video file in your Remotion project. It wraps the native HTMLVideoElement.
+ * @see [Documentation](https://www.remotion.dev/docs/video)
+ */
 export const Video = forward(VideoForwardingFunction);

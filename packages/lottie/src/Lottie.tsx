@@ -7,6 +7,10 @@ import {getNextFrame} from './utils';
 import {validateLoop} from './validate-loop';
 import {validatePlaybackRate} from './validate-playbackrate';
 
+/**
+ * @description	Part of the @remotion/lottie package.
+ * @see [Documentation](https://www.remotion.dev/docs/lottie/lottie)
+ */
 export const Lottie = ({
 	animationData,
 	className,

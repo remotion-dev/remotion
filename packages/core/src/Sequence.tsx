@@ -11,7 +11,10 @@ import {CompositionManager} from './CompositionManager.js';
 import {useRemotionEnvironment} from './get-environment.js';
 import {getTimelineClipName} from './get-timeline-clip-name.js';
 import {useNonce} from './nonce.js';
-import {TimelineContext, useTimelinePosition} from './timeline-position-state.js';
+import {
+	TimelineContext,
+	useTimelinePosition,
+} from './timeline-position-state.js';
 import {useVideoConfig} from './use-video-config.js';
 
 export type SequenceContextType = {
@@ -220,7 +223,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 };
 
 /**
- * A component that time-shifts its children and wraps them in an absolutely positioned <div>.
- * @link https://www.remotion.dev/docs/sequence
+ * @description A component that time-shifts its children and wraps them in an absolutely positioned <div>.
+ * @see [Documentation](https://www.remotion.dev/docs/sequence]
  */
 export const Sequence = forwardRef(SequenceRefForwardingFunction);
