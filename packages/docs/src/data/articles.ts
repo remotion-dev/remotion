@@ -700,6 +700,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "lambda/feb-2023-incident",
+    title: "Upgrade your Lambda functions to prevent breakage",
+    relativePath: "docs/lambda/feb-2023-incident.md",
+    compId: "articles-docs-lambda-feb-2023-incident",
+    crumb: "DevOps advisory",
+  },
+  {
     id: "getawsclient",
     title: "getAwsClient()",
     relativePath: "docs/lambda/getawsclient.md",
