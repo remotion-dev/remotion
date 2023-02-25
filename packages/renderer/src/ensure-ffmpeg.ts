@@ -63,10 +63,18 @@ const ensureFfmpegOrFfprobe = async (
 	);
 };
 
+/**
+ * @description Checks if the ffmpeg binary is installed and if it is not, downloads it and puts it into your node_modules folder.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/ensure-ffmpeg)
+ */
 export const ensureFfmpeg = (options?: EnsureFfmpegOptions) => {
 	return ensureFfmpegOrFfprobe('ffmpeg', options);
 };
 
+/**
+ * @description Checks if the ffprobe binary is installed and if it is not, downloads it and puts it into your node_modules folder.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/ensure-ffprobe)
+ */
 export const ensureFfprobe = (options?: EnsureFfmpegOptions) => {
 	return ensureFfmpegOrFfprobe('ffprobe', options);
 };

@@ -22,7 +22,7 @@ export type GetCompositionsOnLambdaOutput = TCompMetadata[];
 
 /**
  * @description Returns the compositions from a serveUrl
- * @link https://remotion.dev/docs/lambda/getcompositionsonlambda
+ * @see [Documentation](https://remotion.dev/docs/lambda/getcompositionsonlambda)
  * @param params.functionName The name of the Lambda function that should be used
  * @param params.serveUrl The URL of the deployed project
  * @param params.inputProps The input props that should be passed while the compositions are evaluated.
