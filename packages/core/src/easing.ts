@@ -3,7 +3,7 @@
 import {bezier} from './bezier.js';
 
 /**
- * The Easing module implements common easing functions. You can use it with the interpolate() API.
+ * @description The Easing module implements common easing functions. You can use it with the interpolate() API.
  * @see [Documentation](https://www.remotion.dev/docs/easing)
  */
 export class Easing {

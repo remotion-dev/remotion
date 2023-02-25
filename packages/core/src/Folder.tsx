@@ -20,7 +20,7 @@ export const FolderContext = createContext<FolderContextType>({
 });
 
 /**
- * By wrapping a <Composition /> inside a <Folder />, you can visually categorize it in your sidebar, should you have many compositions.
+ * @description By wrapping a <Composition /> inside a <Folder />, you can visually categorize it in your sidebar, should you have many compositions.
  * @see [Documentation](https://www.remotion.dev/docs/folder)
  */
 export const Folder: FC<{name: string; children: React.ReactNode}> = ({

@@ -40,7 +40,7 @@ const IFrameRefForwarding: React.ForwardRefRenderFunction<
 };
 
 /**
- * The <IFrame /> can be used like a regular <iframe> HTML tag.
+ * @description The <IFrame /> can be used like a regular <iframe> HTML tag.
  * @see [Documentation](https://www.remotion.dev/docs/iframe)
  */
 export const IFrame = forwardRef(IFrameRefForwarding);

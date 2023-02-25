@@ -12,7 +12,7 @@ export const DELAY_RENDER_CALLSTACK_TOKEN = 'The delayRender was called:';
 const defaultTimeout = 30000;
 
 /**
- * Call this function to tell Remotion to wait before capturing this frame until data has loaded. Use continueRender() to unblock the render.
+ * @description Call this function to tell Remotion to wait before capturing this frame until data has loaded. Use continueRender() to unblock the render.
  * @param label _optional_ A label to identify the call in case it does time out.
  * @returns {number} An identifier to be passed to continueRender().
  * @see [Documentation](https://www.remotion.dev/docs/delay-render)
@@ -57,7 +57,7 @@ export const delayRender = (label?: string): number => {
 };
 
 /**
- * Unblock a render that has been blocked by delayRender()
+ * @description Unblock a render that has been blocked by delayRender()
  * @param handle The return value of delayRender().
  * @see [Documentation](https://www.remotion.dev/docs/continue-render)
  */

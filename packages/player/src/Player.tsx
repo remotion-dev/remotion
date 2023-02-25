@@ -371,7 +371,7 @@ const forward = forwardRef as <T, P = {}>(
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
 /**
- * A component which can be rendered in a regular React App (for example: Create React App, Next.js) to display a Remotion video.
+ * @description A component which can be rendered in a regular React App (for example: Create React App, Next.js) to display a Remotion video.
  * @see [Documentation](https://www.remotion.dev/docs/player/player)
  */
 export const Player = forward(PlayerFn);

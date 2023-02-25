@@ -5,9 +5,10 @@ import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import type {VideoConfig} from './video-config.js';
 
 /**
- * Get some info about the context of the video that you are making.
- * Returns an object containing `fps`, `width`, `height` and `durationInFrames`, all of type `number`.
+ * /**
+ * @description Get some info about the context of the video that you are making.
  * @see [Documentation](https://www.remotion.dev/docs/use-video-config)
+ * @returns Returns an object containing `fps`, `width`, `height` and `durationInFrames`, all of type `number`.
  */
 export const useVideoConfig = (): VideoConfig => {
 	const videoConfig = useUnsafeVideoConfig();

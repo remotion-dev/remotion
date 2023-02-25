@@ -3,7 +3,7 @@ import type {SpringConfig} from './spring-utils.js';
 import {springCalculation} from './spring-utils.js';
 
 /**
- * The function returns how long it takes for a spring animation to settle
+ * @description The function returns how long it takes for a spring animation to settle
  * @see [Documentation](https://www.remotion.dev/docs/measure-spring)
  */
 export function measureSpring({

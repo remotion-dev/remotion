@@ -4,8 +4,7 @@ import {GifForRendering} from './GifForRendering';
 import type {RemotionGifProps} from './props';
 
 /**
- * Displays a GIF that synchronizes with Remotions useCurrentFrame().
- * part of @remotion/gif
+ * @description Displays a GIF that synchronizes with Remotions useCurrentFrame().
  * @see [Documentation](https://www.remotion.dev/docs/gif/gif)
  */
 export const Gif = (props: RemotionGifProps) => {

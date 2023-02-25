@@ -9,7 +9,7 @@ import type {OffthreadVideoProps, RemotionMainVideoProps} from './props.js';
 import {VideoForDevelopment} from './VideoForDevelopment.js';
 
 /**
- * This method imports and displays a video, similar to <Video />. During rendering, it extracts the exact frame from the video and displays it in an <img> tag
+ * @description This method imports and displays a video, similar to <Video />. During rendering, it extracts the exact frame from the video and displays it in an <img> tag
  * @see [Documentation](https://www.remotion.dev/docs/offthreadvideo)
  */
 export const OffthreadVideo: React.FC<
