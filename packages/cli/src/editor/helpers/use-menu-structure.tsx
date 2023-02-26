@@ -11,6 +11,7 @@ import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
 import {inOutHandles} from '../components/TimelineInOutToggle';
 import {Checkmark} from '../icons/Checkmark';
 import {CheckerboardContext} from '../state/checkerboard';
+import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import type {ModalState} from '../state/modals';
 import {ModalsContext} from '../state/modals';
 import {PreviewSizeContext} from '../state/preview-size';
@@ -36,6 +37,9 @@ const ICON_SIZE = 16;
 export const useMenuStructure = (closeMenu: () => void) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
+	const {editorZoomGestures, setEditorZoomGestures} = useContext(
+		EditorZoomGesturesContext
+	);
 	const {richTimeline, setRichTimeline} = useContext(RichTimelineContext);
 	const {size, setSize} = useContext(PreviewSizeContext);
 	const {setSidebarCollapsedState, sidebarCollapsedState} =
@@ -235,6 +239,22 @@ export const useMenuStructure = (closeMenu: () => void) => {
 							quickSwitcherLabel: null,
 						},
 						quickSwitcherLabel: null,
+					},
+					{
+						id: 'editor-zoom-gestures',
+						keyHint: null,
+						label: 'Editor Zoom Gestures',
+						onClick: () => {
+							closeMenu();
+							setEditorZoomGestures((c) => !c);
+						},
+						type: 'item' as const,
+						value: 'editor-zoom-gestures',
+						leftItem: editorZoomGestures ? <Checkmark /> : null,
+						subMenu: null,
+						quickSwitcherLabel: editorZoomGestures
+							? 'Disable Editor Zoom Gestures'
+							: 'Enable Editor Zoom Gestures',
 					},
 					{
 						id: 'timeline-divider-1',
