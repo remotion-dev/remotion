@@ -1,4 +1,4 @@
-import {enableLegacyRemotionConfig} from './config';
+import {enableLegacyRemotionConfig} from './config.js';
 
 import {
 	SharedAudioContext,
