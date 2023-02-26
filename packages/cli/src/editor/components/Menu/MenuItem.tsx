@@ -90,7 +90,7 @@ export const MenuItem: React.FC<{
 		setHovered(false);
 	}, []);
 
-	const onClick = useCallback(() => {
+	const onMenuOpen = useCallback(() => {
 		onItemSelected(id);
 		(document.activeElement as HTMLDivElement).blur();
 	}, [id, onItemSelected]);
@@ -110,7 +110,7 @@ export const MenuItem: React.FC<{
 				tabIndex={tabIndex}
 				onPointerEnter={onPointerEnter}
 				onPointerLeave={onPointerLeave}
-				onClick={onClick}
+				onMouseDown={onMenuOpen}
 				style={containerStyle}
 				type="button"
 			>
