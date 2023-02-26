@@ -16,7 +16,6 @@ import {RichTimelineToggle} from './RichTimelineToggle';
 import {SizeSelector} from './SizeSelector';
 import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
-import { EditorZoomGesturesToggle } from './EditorZoomGesturesToggle';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -68,7 +67,6 @@ export const PreviewToolbar: React.FC = () => {
 			<Spacing x={2} />
 			<LoopToggle loop={loop} setLoop={setLoop} />
 			<CheckboardToggle />
-			<EditorZoomGesturesToggle />
 			<RichTimelineToggle />
 			<TimelineInOutPointToggle />
 			<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
