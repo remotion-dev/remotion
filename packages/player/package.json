@@ -6,6 +6,7 @@
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.js",
 	"sideEffects": false,
+	"type": "module",
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
 		"build": "tsc -d && tsc -d -p tsconfig-cjs.json",
