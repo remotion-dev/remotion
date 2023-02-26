@@ -87,7 +87,7 @@ export const MenuSubItem: React.FC<{
 		};
 	}, [selected]);
 
-	const onClick = useCallback(() => {
+	const onItemTriggered = useCallback(() => {
 		onActionChosen(id);
 	}, [id, onActionChosen]);
 
@@ -133,7 +133,8 @@ export const MenuSubItem: React.FC<{
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			style={style}
-			onClick={onClick}
+			onMouseUp={onItemTriggered}
+			role="button"
 		>
 			<Row>
 				{leaveLeftSpace ? (
