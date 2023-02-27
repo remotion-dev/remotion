@@ -1,8 +1,11 @@
-import { v2, protos } from '@google-cloud/run';
+import type {protos} from '@google-cloud/run';
+import {v2} from '@google-cloud/run';
+import {CliInternals} from '@remotion/cli';
 import fs from 'fs';
-import { validateGcpRegion } from '../shared/validate-gcp-region';
-import { validateServiceName } from '../shared/validate-service-name';
-import { validateProjectID } from '../shared/validate-project-id';
+import {Log} from '../cli/log';
+import {validateGcpRegion} from '../shared/validate-gcp-region';
+import {validateProjectID} from '../shared/validate-project-id';
+import {validateServiceName} from '../shared/validate-service-name';
 
 export type CheckIfServiceExistsInput = {
 	serviceNameToCheck: string;
@@ -25,15 +28,15 @@ export const checkIfServiceExists = async (
 	validateServiceName(options.serviceNameToCheck);
 	validateProjectID(options.projectID);
 
-	const parent = `projects/${options.projectID}/locations/${options.region}`
+	const parent = `projects/${options.projectID}/locations/${options.region}`;
 
-	const { ServicesClient } = v2;
+	const {ServicesClient} = v2;
 
 	const sa_data = fs.readFileSync('./sa-key.json', 'utf8');
-	const sa_json = JSON.parse(sa_data)
+	const sa_json = JSON.parse(sa_data);
 
 	const runClient = new ServicesClient({
-		credentials: sa_json
+		credentials: sa_json,
 	});
 	// Construct request
 	const request = {
@@ -44,12 +47,25 @@ export const checkIfServiceExists = async (
 	try {
 		const iterable = runClient.listServicesAsync(request);
 		for await (const response of iterable) {
-			if (response.name === `${parent}/services/${options.serviceNameToCheck}`) {
-				return response
+			if (
+				response.name === `${parent}/services/${options.serviceNameToCheck}`
+			) {
+				return response;
 			}
 		}
-		return
+
+		return;
 	} catch (e: any) {
-		throw e;
+		if (e.code === 7) {
+			Log.error(
+				CliInternals.chalk.red(
+					`Issue with ${parent}. The project either doesn't exist, or you don't have access to it.
+					`
+				)
+			);
+			throw e;
+		} else {
+			throw e;
+		}
 	}
-}
+};

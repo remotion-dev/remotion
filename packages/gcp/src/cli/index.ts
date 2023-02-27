@@ -1,16 +1,16 @@
-import {Log} from './log';
-import {quit} from './helpers/quit';
 import {parsedGcpCli} from './args';
 import {cloudRunCommand, CLOUD_RUN_COMMAND} from './commands/cloud-run';
-import {sitesCommand, SITES_COMMAND} from './commands/sites';
 import {
 	compositionsCommand,
 	COMPOSITIONS_COMMAND,
 } from './commands/compositions';
+import {sitesCommand, SITES_COMMAND} from './commands/sites';
 import {printHelp} from './help';
+import {quit} from './helpers/quit';
+import {Log} from './log';
 
 const matchCommand = (args: string[], remotionRoot: string) => {
-	if (parsedGcpCli.help || args.length === 0) {
+	if (parsedGcpCli.help || args.length === 0 || args[0] === 'help') {
 		printHelp();
 		quit(0);
 	}
@@ -42,7 +42,7 @@ export const executeCommand = async (args: string[], remotionRoot: string) => {
 		await matchCommand(args, remotionRoot);
 	} catch (err) {
 		const error = err as Error;
-    // catch errors and print a message. Check lambda cli for example
+		// catch errors and print a message. Check lambda cli for example
 
 		Log.error(error.stack);
 		quit(1);

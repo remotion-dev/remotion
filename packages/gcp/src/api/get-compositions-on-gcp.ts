@@ -1,9 +1,7 @@
-import type { TCompMetadata } from 'remotion';
-import {
-	getCompositions
-} from '@remotion/renderer';
+import {getCompositions} from '@remotion/renderer';
+import type {TCompMetadata} from 'remotion';
 
-export type GetCompositionsOnGcpInput = {	serveUrl: string;};
+export type GetCompositionsOnGcpInput = {serveUrl: string};
 
 export type GetCompositionsOnGcpOutput = TCompMetadata[];
 
@@ -14,14 +12,8 @@ export type GetCompositionsOnGcpOutput = TCompMetadata[];
  * @returns The compositions
  */
 export const getCompositionsOnGcp = async ({
-	serveUrl
+	serveUrl,
 }: GetCompositionsOnGcpInput): Promise<GetCompositionsOnGcpOutput> => {
-
-	try {
-		const comps = await getCompositions(serveUrl);
-		return comps;
-	}
-	catch (err) {
-		throw err;
-	}
+	const comps = await getCompositions(serveUrl);
+	return comps;
 };

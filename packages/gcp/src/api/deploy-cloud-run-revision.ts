@@ -1,12 +1,12 @@
-import { IService } from './helpers/IService';
-import { validateGcpRegion } from '../shared/validate-gcp-region';
-import { validateProjectID } from '../shared/validate-project-id';
-import { validateRemotionVersion } from '../shared/validate-remotion-version';
-import { getCloudRunClient } from './helpers/get-cloud-run-client';
+import {validateGcpRegion} from '../shared/validate-gcp-region';
+import {validateProjectID} from '../shared/validate-project-id';
+import {validateRemotionVersion} from '../shared/validate-remotion-version';
+import {getCloudRunClient} from './helpers/get-cloud-run-client';
+import type {IService} from './helpers/IService';
 
 export type DeployCloudRunRevisionInput = {
 	remotionVersion: string;
-	existingService:  IService;
+	existingService: IService;
 	projectID: string;
 	region: string;
 };
@@ -29,7 +29,7 @@ export const deployCloudRunRevision = async (
 
 	// TODO: Add option for CPU and memory limits, and validate
 
-	const cloudRunClient = getCloudRunClient()
+	const cloudRunClient = getCloudRunClient();
 
 	// Construct request
 	const request = {
@@ -37,26 +37,22 @@ export const deployCloudRunRevision = async (
 			name: options.existingService.name,
 			template: {
 				containers: [
-					{ 
+					{
 						image: `us-docker.pkg.dev/remotion-dev/cloud-run/render:${options.remotionVersion}`,
 						resources: {
 							limits: {
 								cpu: '1',
-								memory: '4Gi'
-							}
-						}
-					}
-				]
-			}
-		}
+								memory: '4Gi',
+							},
+						},
+					},
+				],
+			},
+		},
 	};
 	// Run request
-	try {
-		const [operation] = await cloudRunClient.updateService(request);
-		const [response] = await operation.promise();
+	const [operation] = await cloudRunClient.updateService(request);
+	const [response] = await operation.promise();
 
-		return response
-	} catch (e: any) {
-		throw e;
-	}
-}
+	return response;
+};

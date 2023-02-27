@@ -1,4 +1,4 @@
-import { getCloudRunClient } from './helpers/get-cloud-run-client';
+import {getCloudRunClient} from './helpers/get-cloud-run-client';
 
 /**
  * @description Allow unauthenticated access to the Cloud Run service.
@@ -9,22 +9,18 @@ import { getCloudRunClient } from './helpers/get-cloud-run-client';
 export const allowUnauthenticatedAccess = async (
 	serviceName: string
 ): Promise<Boolean> => {
-	const cloudRunClient = getCloudRunClient()
-	try {
-		await cloudRunClient.setIamPolicy({
-			resource: serviceName,
-			policy: {
-				bindings: [
-					{
-						role: 'roles/run.invoker',
-						members: ['allUsers']
-					}
-				]
-			}
-		});
-		
-		return true
-	} catch (e) {
-		throw e;
-	}
-}
+	const cloudRunClient = getCloudRunClient();
+	await cloudRunClient.setIamPolicy({
+		resource: serviceName,
+		policy: {
+			bindings: [
+				{
+					role: 'roles/run.invoker',
+					members: ['allUsers'],
+				},
+			],
+		},
+	});
+
+	return true;
+};
