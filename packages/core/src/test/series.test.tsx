@@ -6,7 +6,7 @@ import React from 'react';
 import {renderToString} from 'react-dom/server';
 import {expect, test} from 'vitest';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
-import {Series} from '../series';
+import {Series} from '../series/index.js';
 import {TimelineContext} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
