@@ -40,3 +40,8 @@ From v4.0 on, only `arm64` is supported. It should be faster, cheaper and not ha
 
 The option to use the "Rich timeline" has been removed due to performance problems.  
 The timeline is now always in simple mode, but supports more timeline layers at once.
+
+## ProRes videos now export uncompressed audio by default
+
+Previously, the `aac` audio codec was the default for ProRes exports. The default is now `pcm_s16le` which stands for uncompressed 16-bit low-endian PCM audio.  
+This change was made since users export ProRes mainly for getting high-quality footage to be further used in video editing programs.
