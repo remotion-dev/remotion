@@ -124,6 +124,7 @@ export const Controls: React.FC<{
 	playerWidth: number;
 	renderPlayPauseButton: RenderPlayPauseButton | null;
 	renderFullscreenButton: RenderFullscreenButton | null;
+	alwaysShowControls: boolean;
 }> = ({
 	durationInFrames,
 	hovered,
@@ -143,6 +144,7 @@ export const Controls: React.FC<{
 	playerWidth,
 	renderPlayPauseButton,
 	renderFullscreenButton,
+	alwaysShowControls,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -184,12 +186,13 @@ export const Controls: React.FC<{
 
 	const containerCss: React.CSSProperties = useMemo(() => {
 		// Hide if playing and mouse outside
-		const shouldShow = hovered || !player.playing || shouldShowInitially;
+		const shouldShow =
+			hovered || !player.playing || shouldShowInitially || alwaysShowControls;
 		return {
 			...containerStyle,
 			opacity: Number(shouldShow),
 		};
-	}, [hovered, shouldShowInitially, player.playing]);
+	}, [hovered, shouldShowInitially, player.playing, alwaysShowControls]);
 
 	useEffect(() => {
 		if (playButtonRef.current && spaceKeyToPlayOrPause) {
