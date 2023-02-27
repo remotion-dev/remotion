@@ -1,5 +1,4 @@
 import React, {
-	createContext,
 	forwardRef,
 	useContext,
 	useEffect,
@@ -11,21 +10,13 @@ import {CompositionManager} from './CompositionManager.js';
 import {useRemotionEnvironment} from './get-environment.js';
 import {getTimelineClipName} from './get-timeline-clip-name.js';
 import {useNonce} from './nonce.js';
+import type {SequenceContextType} from './SequenceContext.js';
+import {SequenceContext} from './SequenceContext.js';
 import {
 	TimelineContext,
 	useTimelinePosition,
 } from './timeline-position-state.js';
 import {useVideoConfig} from './use-video-config.js';
-
-export type SequenceContextType = {
-	cumulatedFrom: number;
-	relativeFrom: number;
-	parentFrom: number;
-	durationInFrames: number;
-	id: string;
-};
-
-export const SequenceContext = createContext<SequenceContextType | null>(null);
 
 export type LayoutAndStyle =
 	| {
