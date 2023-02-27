@@ -243,7 +243,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 					{
 						id: 'editor-zoom-gestures',
 						keyHint: null,
-						label: 'Editor Zoom Gestures',
+						label: 'Zoom and Pan Gestures',
 						onClick: () => {
 							closeMenu();
 							setEditorZoomGestures((c) => !c);
@@ -253,8 +253,8 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						leftItem: editorZoomGestures ? <Checkmark /> : null,
 						subMenu: null,
 						quickSwitcherLabel: editorZoomGestures
-							? 'Disable Editor Zoom Gestures'
-							: 'Enable Editor Zoom Gestures',
+							? 'Disable Zoom and Pan Gestures'
+							: 'Enable Zoom and Pan Gestures',
 					},
 					{
 						id: 'timeline-divider-1',
@@ -624,8 +624,10 @@ export const useMenuStructure = (closeMenu: () => void) => {
 	}, [
 		checkerboard,
 		closeMenu,
+		editorZoomGestures,
 		richTimeline,
 		setCheckerboard,
+		setEditorZoomGestures,
 		setRichTimeline,
 		setSelectedModal,
 		setSidebarCollapsedState,
