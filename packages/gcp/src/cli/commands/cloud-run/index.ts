@@ -1,8 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import {Log} from '@remotion/cli/dist/log';
+import {BINARY_NAME} from '../../../shared/constants';
 import {quit} from '../../helpers/quit';
 import {cloudRunDeploySubcommand, CLOUD_RUN_DEPLOY_SUBCOMMAND} from './deploy';
-import {BINARY_NAME} from '../../../shared/constants';
 
 export const CLOUD_RUN_COMMAND = 'cloud-run';
 

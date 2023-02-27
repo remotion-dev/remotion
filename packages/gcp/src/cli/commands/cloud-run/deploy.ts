@@ -1,19 +1,19 @@
-import { CliInternals } from '@remotion/cli';
-import { Log } from '@remotion/cli/dist/log';
-import { VERSION } from 'remotion/version';
-import { deployNewCloudRun } from '../../../api/deploy-new-cloud-run';
-import { deployCloudRunRevision } from '../../../api/deploy-cloud-run-revision';
-import { allowUnauthenticatedAccess } from '../../../api/cloud-run-allow-unauthenticated-access';
-import { validateServiceName } from '../../../shared/validate-service-name';
-import { validateProjectID } from '../../../shared/validate-project-id';
-import { validateRemotionVersion } from '../../../shared/validate-remotion-version';
-import { validateGcpRegion } from '../../../shared/validate-gcp-region';
-import { validateOverwrite } from '../../../shared/validate-overwrite';
-import { parsedGcpCli } from '../../args';
-import { getGcpRegion } from '../../get-gcp-region';
-import { checkIfServiceExists } from '../../../api/check-if-service-exists';
-import { confirmCli } from '../../helpers/confirm';
-import { quit } from '../../helpers/quit';
+import {CliInternals} from '@remotion/cli';
+import {Log} from '@remotion/cli/dist/log';
+import {VERSION} from 'remotion/version';
+import {checkIfServiceExists} from '../../../api/check-if-service-exists';
+import {allowUnauthenticatedAccess} from '../../../api/cloud-run-allow-unauthenticated-access';
+import {deployCloudRunRevision} from '../../../api/deploy-cloud-run-revision';
+import {deployNewCloudRun} from '../../../api/deploy-new-cloud-run';
+import {validateGcpRegion} from '../../../shared/validate-gcp-region';
+import {validateOverwrite} from '../../../shared/validate-overwrite';
+import {validateProjectID} from '../../../shared/validate-project-id';
+import {validateRemotionVersion} from '../../../shared/validate-remotion-version';
+import {validateServiceName} from '../../../shared/validate-service-name';
+import {parsedGcpCli} from '../../args';
+import {getGcpRegion} from '../../get-gcp-region';
+import {confirmCli} from '../../helpers/confirm';
+import {quit} from '../../helpers/quit';
 
 export const CLOUD_RUN_DEPLOY_SUBCOMMAND = 'deploy';
 
@@ -47,59 +47,63 @@ Overwrite exsting service = ${overwriteService}
 
 	const existingService = await checkIfServiceExists({
 		serviceNameToCheck: serviceName,
-		projectID: projectID,
-		region: region
-	})
+		projectID,
+		region,
+	});
 
 	if (existingService) {
-		const shouldDeployNewRevision = overwriteService || await confirmCli({ delMessage: `Existing service found in ${projectID} project. Deploy new revision? (Y/n)`, allowForceFlag: true });
+		const shouldDeployNewRevision =
+			overwriteService ||
+			(await confirmCli({
+				delMessage: `Existing service found in ${projectID} project. Deploy new revision? (Y/n)`,
+				allowForceFlag: true,
+			}));
 
 		if (shouldDeployNewRevision) {
-			Log.info(
-				CliInternals.chalk.white('Deploying Cloud Run Revision...')
-			);
-			try {
-				const deployRevisionResult = await deployCloudRunRevision({
-					remotionVersion,
-					existingService,
-					projectID,
-					region
-				});
-				// TODO: should somehow check if the new revision was identical to the previous one, and therefore not actually revised
+			Log.info(CliInternals.chalk.white('Deploying Cloud Run Revision...'));
+			const deployRevisionResult = await deployCloudRunRevision({
+				remotionVersion,
+				existingService,
+				projectID,
+				region,
+			});
+			// TODO: should somehow check if the new revision was identical to the previous one, and therefore not actually revised
 
-				if (!deployRevisionResult.name || !deployRevisionResult.uri) {
-					throw new Error(`Failed to deploy revision. Invalid response from Cloud Run 👉 ${deployRevisionResult}`);
-				}
-				Log.info(
-					CliInternals.chalk.blueBright(`
+			if (!deployRevisionResult.name || !deployRevisionResult.uri) {
+				throw new Error(
+					`Failed to deploy revision. Invalid response from Cloud Run 👉 ${deployRevisionResult}`
+				);
+			}
+
+			Log.info(
+				CliInternals.chalk.blueBright(
+					`
 Cloud Run Revision Deployed! 🎉
 Service Name = ${deployRevisionResult.name}
 Cloud Run URL = ${deployRevisionResult.uri}
 Project = ${projectID}
 GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${serviceName}/revisions
-					`.trim())
-				);
+				`.trim()
+				)
+			);
 
-				allowUnauthenticated && await allowUnauthenticatedAccessToService(deployRevisionResult.name)
-			}
-			catch (e: any) {
-				throw e;
+			if (allowUnauthenticated) {
+				await allowUnauthenticatedAccessToService(deployRevisionResult.name);
 			}
 		} else {
-			Log.info(CliInternals.chalk.gray('deploy cancelled'))
-			quit(1) // TODO: Check with Jonny what to pass to quit
+			Log.info(CliInternals.chalk.gray('deploy cancelled'));
+			quit(1); // TODO: Check with Jonny what to pass to quit
 		}
-	} else { // if no existing service, deploy new service
-		Log.info(
-			CliInternals.chalk.white('\nDeploying Cloud Run Service...')
-		);
+	} else {
+		// if no existing service, deploy new service
+		Log.info(CliInternals.chalk.white('\nDeploying Cloud Run Service...'));
 		try {
 			const deployResult = await deployNewCloudRun({
 				remotionVersion,
 				serviceName,
 				projectID,
 				region,
-				overwriteService
+				overwriteService,
 			});
 
 			if (!deployResult.name) {
@@ -113,17 +117,20 @@ GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${servic
 			}
 
 			Log.info(
-				CliInternals.chalk.blueBright(`
+				CliInternals.chalk.blueBright(
+					`
 Cloud Run Deployed! 🎉
 Full Service Name = ${deployResult.name}
 Cloud Run URL = ${deployResult.uri}
 Project = ${projectID}
 GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${serviceName}/revisions
-				`.trim())
+				`.trim()
+				)
 			);
 
-			allowUnauthenticated && await allowUnauthenticatedAccessToService(deployResult.name)
-			// allowUnauthenticated && await allowUnauthenticatedAccess(deployResult.name)
+			if (allowUnauthenticated) {
+				await allowUnauthenticatedAccessToService(deployResult.name);
+			}
 		} catch (e: any) {
 			if (e.code === 6) {
 				Log.error(
@@ -135,9 +142,7 @@ GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${servic
 				throw e;
 			}
 		}
-
 	}
-
 
 	if (CliInternals.quietFlagProvided()) {
 		// Log.info(functionName);
@@ -147,14 +152,17 @@ GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${servic
 async function allowUnauthenticatedAccessToService(serviceName: string) {
 	try {
 		Log.info(
-			CliInternals.chalk.white('\nAllowing unauthenticated access to the Cloud Run service...')
+			CliInternals.chalk.white(
+				'\nAllowing unauthenticated access to the Cloud Run service...'
+			)
 		);
-		await allowUnauthenticatedAccess(serviceName)
+		await allowUnauthenticatedAccess(serviceName);
 		Log.info(
-			CliInternals.chalk.blueBright(`Unauthenticated access granted on ${serviceName}`)
+			CliInternals.chalk.blueBright(
+				`Unauthenticated access granted on ${serviceName}`
+			)
 		);
-	}
-	catch (e) {
+	} catch (e) {
 		Log.error(
 			CliInternals.chalk.red(
 				`Failed to allow unauthenticated access to the Cloud Run service.`
@@ -163,4 +171,3 @@ async function allowUnauthenticatedAccessToService(serviceName: string) {
 		throw e;
 	}
 }
-

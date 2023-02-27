@@ -1,8 +1,8 @@
-import type { Dirent } from 'fs';
-import { createReadStream, promises as fs } from 'fs';
-import { makeStorageKey } from '../shared/make-storage-key';
-import { getCloudStorageClient } from './helpers/get-cloud-storage-client';
+import type {Dirent} from 'fs';
+import {createReadStream, promises as fs} from 'fs';
 import path from 'path';
+import {makeStorageKey} from '../shared/make-storage-key';
+import {getCloudStorageClient} from './helpers/get-cloud-storage-client';
 
 type FileInfo = {
 	name: string;
@@ -41,7 +41,7 @@ export const uploadDir = async ({
 	toUpload: string[];
 }) => {
 	const files = await getFiles(localDir, localDir, toUpload);
-	const progresses: { [key: string]: number } = {};
+	const progresses: {[key: string]: number} = {};
 	for (const file of files) {
 		progresses[file.name] = 0;
 	}
@@ -49,9 +49,9 @@ export const uploadDir = async ({
 	async function getFiles(
 		directory: string,
 		originalDirectory: string,
-		toUpload: string[]
+		filesToUpload: string[]
 	): Promise<FileInfo[]> {
-		const dirents = await fs.readdir(directory, { withFileTypes: true });
+		const dirents = await fs.readdir(directory, {withFileTypes: true});
 		const _files = await Promise.all(
 			dirents
 				.map((dirent): [Dirent, string] => {
@@ -64,42 +64,47 @@ export const uploadDir = async ({
 						return true;
 					}
 
-					if (!toUpload.includes(relative)) {
+					if (!filesToUpload.includes(relative)) {
 						return false;
 					}
 
 					return true;
 				})
 				.map(async ([dirent, res]) => {
-					const { size } = await fs.stat(res);
+					const {size} = await fs.stat(res);
 					return dirent.isDirectory()
-						? getFiles(res, originalDirectory, toUpload)
+						? getFiles(res, originalDirectory, filesToUpload)
 						: [
-							{
-								name: res,
-								size,
-							},
-						];
+								{
+									name: res,
+									size,
+								},
+						  ];
 				})
 		);
 		return _files.flat(1);
 	}
 
-	const cloudStorageClient = getCloudStorageClient()
-	
-	const uploads = files.map(async (file) => {
-		const path = file.name;
-		const destination = makeStorageKey( keyPrefix, localDir, path )
+	const cloudStorageClient = getCloudStorageClient();
+
+	const uploads = files.map((file) => {
+		const filePath = file.name;
+		const destination = makeStorageKey(keyPrefix, localDir, filePath);
 		return new Promise((resolve, reject) => {
-			createReadStream(path)
-				.pipe(cloudStorageClient.bucket(bucket).file(destination).createWriteStream({public: true}))
-				.on("error", error => reject(error))
-				.on('progress', function (p) {
-					progresses[path] = p.bytesWritten ?? 0;
+			createReadStream(filePath)
+				.pipe(
+					cloudStorageClient
+						.bucket(bucket)
+						.file(destination)
+						.createWriteStream({public: true})
+				)
+				.on('error', (error) => reject(error))
+				.on('progress', (p) => {
+					progresses[filePath] = p.bytesWritten ?? 0;
 				})
-				.on('finish', () => resolve("done"))
+				.on('finish', () => resolve('done'));
 		});
-	})
+	});
 
 	const promise = Promise.all(uploads);
 
