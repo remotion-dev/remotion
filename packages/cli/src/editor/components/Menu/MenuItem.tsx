@@ -1,10 +1,12 @@
 import {PlayerInternals} from '@remotion/player';
+import type {SetStateAction} from 'react';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';
+import {isMenuItem, MENU_INITIATOR_CLASSNAME} from './is-menu-item';
 import {getPortal} from './portals';
 import {menuContainerTowardsBottom, outerPortal} from './styles';
 
@@ -33,7 +35,7 @@ export const MenuItem: React.FC<{
 	label: React.ReactNode;
 	id: MenuId;
 	selected: boolean;
-	onItemSelected: (id: MenuId) => void;
+	onItemSelected: (s: SetStateAction<string | null>) => void;
 	onItemHovered: (id: MenuId) => void;
 	onItemQuit: () => void;
 	onPreviousMenu: () => void;
@@ -90,10 +92,37 @@ export const MenuItem: React.FC<{
 		setHovered(false);
 	}, []);
 
-	const onMenuOpen = useCallback(() => {
+	const onPointerDown = useCallback(() => {
 		onItemSelected(id);
-		(document.activeElement as HTMLDivElement).blur();
-	}, [id, onItemSelected]);
+
+		window.addEventListener(
+			'pointerup',
+			(e) => {
+				if (!isMenuItem(e.target as HTMLElement)) {
+					onItemQuit();
+				}
+			},
+			{
+				once: true,
+			}
+		);
+	}, [id, onItemQuit, onItemSelected]);
+
+	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+		(e) => {
+			e.stopPropagation();
+			const isKeyboardInitiated = e.detail === 0;
+
+			if (!isKeyboardInitiated) {
+				return;
+			}
+
+			onItemSelected((p) => {
+				return p === null ? id : null;
+			});
+		},
+		[id, onItemSelected]
+	);
 
 	const outerStyle = useMemo(() => {
 		return {
@@ -110,9 +139,11 @@ export const MenuItem: React.FC<{
 				tabIndex={tabIndex}
 				onPointerEnter={onPointerEnter}
 				onPointerLeave={onPointerLeave}
-				onMouseDown={onMenuOpen}
+				onPointerDown={onPointerDown}
+				onClick={onClick}
 				style={containerStyle}
 				type="button"
+				className={MENU_INITIATOR_CLASSNAME}
 			>
 				{itemName}
 			</button>
