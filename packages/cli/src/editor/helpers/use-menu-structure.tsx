@@ -261,6 +261,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 											<Checkmark />
 										) : null,
 									onClick: () => {
+										closeMenu();
 										setSidebarCollapsedState('responsive');
 									},
 									subMenu: null,
@@ -275,6 +276,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 									leftItem:
 										sidebarCollapsedState === 'expanded' ? <Checkmark /> : null,
 									onClick: () => {
+										closeMenu();
 										setSidebarCollapsedState('expanded');
 									},
 									subMenu: null,
@@ -291,6 +293,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 											<Checkmark />
 										) : null,
 									onClick: () => {
+										closeMenu();
 										setSidebarCollapsedState('collapsed');
 									},
 									subMenu: null,
