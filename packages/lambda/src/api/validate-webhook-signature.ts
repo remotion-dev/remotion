@@ -1,6 +1,6 @@
 /**
  * @description Throws if the signature of the finish webhook is missing or inauthentic
- * @link https://remotion.dev/docs/lambda/validate-webhook-signature
+ * @see [Documentation](https://remotion.dev/docs/lambda/validate-webhook-signature)
  * @param params.secret The secret used for signing the webhook
  * @param params.body The body that was received by the endpoint
  * @param params.signatureHeader The `X-Remotion-Signature` header

@@ -25,6 +25,10 @@ const SeriesSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 const SeriesSequence = forwardRef(SeriesSequenceRefForwardingFunction);
 
+/**
+ * @description with this component, you can easily stitch together scenes that should play sequentially after another.
+ * @see [Documentation](https://www.remotion.dev/docs/series)
+ */
 const Series: FC<{
 	children: React.ReactNode;
 }> & {
