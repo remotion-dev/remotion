@@ -33,7 +33,7 @@ export const GCP_REGIONS = [
 	'us-west1',
 	'us-west2',
 	'us-west3',
-	'us-west4'
+	'us-west4',
 ] as const;
 
-export type GcpRegion = typeof GCP_REGIONS[number];
+export type GcpRegion = (typeof GCP_REGIONS)[number];

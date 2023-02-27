@@ -12,9 +12,7 @@ const bundleRenderLogic = async () => {
 
 	(fs.rmSync ?? fs.rmdirSync)(outdir, {recursive: true});
 	fs.mkdirSync(outdir, {recursive: true});
-	const template = require.resolve(
-		path.join(__dirname, '../functions/index')
-	);
+	const template = require.resolve(path.join(__dirname, '../functions/index'));
 
 	await BundlerInternals.esbuild.build({
 		platform: 'node',
@@ -33,4 +31,4 @@ const bundleRenderLogic = async () => {
 	console.log('distribution bundled.');
 };
 
-bundleRenderLogic()
+bundleRenderLogic();

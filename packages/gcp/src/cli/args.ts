@@ -23,7 +23,4 @@ export const parsedGcpCli = CliInternals.minimist<GCPCommandLineOptions>(
 );
 
 export const forceFlagProvided =
-	parsedGcpCli.f ||
-	parsedGcpCli.force ||
-	parsedGcpCli.yes ||
-	parsedGcpCli.y;
+	parsedGcpCli.f || parsedGcpCli.force || parsedGcpCli.yes || parsedGcpCli.y;
