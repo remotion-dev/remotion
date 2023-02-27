@@ -373,7 +373,7 @@ export const App: React.FC = () => {
 };
 ```
 
-### `alwaysShowControls` <AvailableFrom v="3.3.46" />
+### `alwaysShowControls` <AvailableFrom v="3.3.55" />
 
 _optional_
 
