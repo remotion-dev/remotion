@@ -24,10 +24,11 @@ export const printHelp = () => {
 
 	Log.info();
 	Log.info(`${BINARY_NAME} ${CLOUD_RUN_COMMAND}`);
-	Log.info(CliInternals.chalk.gray('Deploy and manage GCP Cloud Run services.'));
+	Log.info(
+		CliInternals.chalk.gray('Deploy and manage GCP Cloud Run services.')
+	);
 
 	Log.info();
 	Log.info(`${BINARY_NAME} ${SITES_COMMAND}`);
 	Log.info(CliInternals.chalk.gray('Deploy and manage Remotion projects.'));
-
 };

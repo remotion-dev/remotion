@@ -1,15 +1,15 @@
-import type { WebpackOverrideFn } from '@remotion/bundler';
-import { gcpLs, gcpDeleteFile } from '../functions/helpers/io';
-import { bundleSite } from '../shared/bundle-site';
-import { getSitesKey } from '../shared/constants';
-import { getStorageDiffOperations } from '../shared/get-storage-operations';
-import { makeStorageServeUrl } from '../shared/make-storage-url';
-import { randomHash } from '../shared/random-hash';
-import { validateBucketName } from '../shared/validate-bucketname';
-import { validateSiteName } from '../shared/validate-site-name';
-import type { UploadDirProgress } from './upload-dir';
-import { uploadDir } from './upload-dir';
-import { getCloudStorageClient } from './helpers/get-cloud-storage-client';
+import type {WebpackOverrideFn} from '@remotion/bundler';
+import {gcpDeleteFile, gcpLs} from '../functions/helpers/io';
+import {bundleSite} from '../shared/bundle-site';
+import {getSitesKey} from '../shared/constants';
+import {getStorageDiffOperations} from '../shared/get-storage-operations';
+import {makeStorageServeUrl} from '../shared/make-storage-url';
+import {randomHash} from '../shared/random-hash';
+import {validateBucketName} from '../shared/validate-bucketname';
+import {validateSiteName} from '../shared/validate-site-name';
+import {getCloudStorageClient} from './helpers/get-cloud-storage-client';
+import type {UploadDirProgress} from './upload-dir';
+import {uploadDir} from './upload-dir';
 
 export type DeploySiteInput = {
 	entryPoint: string;
@@ -49,23 +49,23 @@ export const deploySite = async ({
 	siteName,
 	options,
 }: DeploySiteInput): DeploySiteOutput => {
-	validateBucketName(bucketName, { mustStartWithRemotion: true });
+	validateBucketName(bucketName, {mustStartWithRemotion: true});
 
 	const siteId = siteName ?? randomHash();
 	validateSiteName(siteId);
 
-	const cloudStorageClient = getCloudStorageClient()
+	const cloudStorageClient = getCloudStorageClient();
 
 	// check if bucket exists
-	await cloudStorageClient.bucket(bucketName).get()
+	await cloudStorageClient.bucket(bucketName).get();
 
 	const subFolder = getSitesKey(siteId);
-	
+
 	// gcpLs is a function that lists all files in a bucket
 	const [files, bundled] = await Promise.all([
 		gcpLs({
 			bucketName,
-			prefix: subFolder
+			prefix: subFolder,
 		}),
 		bundleSite(entryPoint, options?.onBundleProgress ?? (() => undefined), {
 			publicPath: `/${bucketName}/${subFolder}/`,
@@ -76,7 +76,7 @@ export const deploySite = async ({
 		}),
 	]);
 
-	const { toDelete, toUpload, existingCount } = await getStorageDiffOperations({
+	const {toDelete, toUpload, existingCount} = await getStorageDiffOperations({
 		objects: files,
 		bundle: bundled,
 		prefix: subFolder,
@@ -101,7 +101,7 @@ export const deploySite = async ({
 	]);
 
 	return {
-		serveUrl: makeStorageServeUrl({ bucketName, subFolder }),
+		serveUrl: makeStorageServeUrl({bucketName, subFolder}),
 		siteName: siteId,
 		stats: {
 			uploadedFiles: toUpload.length,

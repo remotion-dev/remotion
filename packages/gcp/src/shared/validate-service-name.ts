@@ -17,7 +17,7 @@ export const validateServiceName = (serviceName: unknown) => {
 
 	if (!serviceName.match(/^[a-zA-Z][a-zA-Z0-9-]{0,48}[a-zA-Z0-9]$/g)) {
 		throw new Error(
-			"The `serviceName` must match the RegExp `/^[a-zA-Z][a-zA-Z0-9-]{0,48}[a-zA-Z0-9]$/g`. This means it may only start with a letter, end with a letter or number, and contain up to 49 lowercase letters, numbers or hyphens. You passed: " +
+			'The `serviceName` must match the RegExp `/^[a-zA-Z][a-zA-Z0-9-]{0,48}[a-zA-Z0-9]$/g`. This means it may only start with a letter, end with a letter or number, and contain up to 49 lowercase letters, numbers or hyphens. You passed: ' +
 				serviceName +
 				'. Check for invalid characters.'
 		);

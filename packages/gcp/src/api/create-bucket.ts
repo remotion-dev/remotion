@@ -8,10 +8,10 @@ export const createBucket = async ({
 	region: GcpRegion;
 	bucketName: string;
 }) => {
-	const cloudStorageClient = getCloudStorageClient()
+	const cloudStorageClient = getCloudStorageClient();
 
 	// metadata: https://googleapis.dev/nodejs/storage/latest/global.html#CreateBucketRequest
 	await cloudStorageClient.createBucket(bucketName, {
-		location: region
+		location: region,
 	});
 };
