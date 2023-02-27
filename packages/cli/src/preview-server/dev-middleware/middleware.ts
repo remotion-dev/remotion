@@ -2,14 +2,13 @@ import {RenderInternals} from '@remotion/renderer';
 import type {ReadStream} from 'fs';
 import type {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';
+import querystring from 'querystring';
+import {parse} from 'url';
 import {send, setHeaderForResponse} from './compatible-api';
+import {getPaths} from './get-paths';
 import {parseRange} from './range-parser';
 import {ready} from './ready';
 import type {DevMiddlewareContext} from './types';
-// eslint-disable-next-line no-restricted-imports
-import querystring from 'querystring';
-import {parse} from 'url';
-import {getPaths} from './get-paths';
 
 const cacheStore = new WeakMap();
 

@@ -1,5 +1,5 @@
 import type {SyntheticEvent} from 'react';
-import type {PlayerEmitter} from './event-emitter';
+import type {PlayerEmitter} from './event-emitter.js';
 
 export type ThumbnailMethods = {
 	getContainerNode: () => HTMLDivElement | null;

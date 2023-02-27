@@ -1,5 +1,4 @@
 import {CliInternals} from '@remotion/cli';
-import {Log} from '@remotion/cli/dist/log';
 import {getFunctions} from '../../../api/get-functions';
 import {getAwsRegion} from '../../get-aws-region';
 
@@ -25,11 +24,11 @@ export const functionsLsCommand = async () => {
 
 	if (CliInternals.quietFlagProvided()) {
 		if (functions.length === 0) {
-			Log.info('()');
+			CliInternals.Log.info('()');
 			return;
 		}
 
-		Log.info(functions.map((f) => f.functionName).join(' '));
+		CliInternals.Log.info(functions.map((f) => f.functionName).join(' '));
 		return;
 	}
 
@@ -39,8 +38,8 @@ export const functionsLsCommand = async () => {
 	fetchingOutput.update(
 		`${functions.length} ${pluralized} in the ${region} region`
 	);
-	Log.info();
-	Log.info(
+	CliInternals.Log.info();
+	CliInternals.Log.info(
 		CliInternals.chalk.gray(
 			[
 				'Name'.padEnd(NAME_COLS, ' '),
@@ -53,7 +52,7 @@ export const functionsLsCommand = async () => {
 	);
 
 	for (const datapoint of functions) {
-		Log.info(
+		CliInternals.Log.info(
 			[
 				datapoint.functionName.padEnd(NAME_COLS, ' '),
 				datapoint.version

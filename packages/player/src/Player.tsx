@@ -15,21 +15,21 @@ import type {
 	TimelineContextValue,
 } from 'remotion';
 import {Composition, Internals} from 'remotion';
-import {PlayerEventEmitterContext} from './emitter-context';
-import {PlayerEmitter} from './event-emitter';
-import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
-import type {PlayerRef} from './player-methods';
+import {PlayerEventEmitterContext} from './emitter-context.js';
+import {PlayerEmitter} from './event-emitter.js';
+import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
+import type {PlayerRef} from './player-methods.js';
 import type {
 	RenderFullscreenButton,
 	RenderPlayPauseButton,
-} from './PlayerControls';
-import type {RenderLoading, RenderPoster} from './PlayerUI';
-import PlayerUI from './PlayerUI';
-import {SharedPlayerContexts} from './SharedPlayerContext';
-import type {PropsIfHasProps} from './utils/props-if-has-props';
-import {validateInOutFrames} from './utils/validate-in-out-frame';
-import {validateInitialFrame} from './utils/validate-initial-frame';
-import {validatePlaybackRate} from './utils/validate-playbackrate';
+} from './PlayerControls.js';
+import type {RenderLoading, RenderPoster} from './PlayerUI.js';
+import PlayerUI from './PlayerUI.js';
+import {SharedPlayerContexts} from './SharedPlayerContext.js';
+import type {PropsIfHasProps} from './utils/props-if-has-props.js';
+import {validateInOutFrames} from './utils/validate-in-out-frame.js';
+import {validateInitialFrame} from './utils/validate-initial-frame.js';
+import {validatePlaybackRate} from './utils/validate-playbackrate.js';
 
 export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 
@@ -63,6 +63,7 @@ export type PlayerProps<T> = {
 	initiallyShowControls?: number | boolean;
 	renderPlayPauseButton?: RenderPlayPauseButton;
 	renderFullscreenButton?: RenderFullscreenButton;
+  alwaysShowControls?: boolean;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -108,6 +109,7 @@ const PlayerFn = <T,>(
 		initiallyShowControls,
 		renderFullscreenButton,
 		renderPlayPauseButton,
+    alwaysShowControls = false,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -355,6 +357,7 @@ const PlayerFn = <T,>(
 							initiallyShowControls={initiallyShowControls ?? true}
 							renderFullscreen={renderFullscreenButton ?? null}
 							renderPlayPauseButton={renderPlayPauseButton ?? null}
+              alwaysShowControls={alwaysShowControls}
 						/>
 					</PlayerEventEmitterContext.Provider>
 				</Internals.Timeline.SetTimelineContext.Provider>
@@ -370,4 +373,8 @@ const forward = forwardRef as <T, P = {}>(
 	) => React.ReactElement | null
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
+/**
+ * @description A component which can be rendered in a regular React App (for example: Create React App, Next.js) to display a Remotion video.
+ * @see [Documentation](https://www.remotion.dev/docs/player/player)
+ */
 export const Player = forward(PlayerFn);

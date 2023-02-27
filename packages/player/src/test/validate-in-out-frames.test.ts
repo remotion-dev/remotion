@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest';
-import {validateInOutFrames} from '../utils/validate-in-out-frame';
+import {validateInOutFrames} from '../utils/validate-in-out-frame.js';
 
 test('Validate in out frames', () => {
 	expect(() =>

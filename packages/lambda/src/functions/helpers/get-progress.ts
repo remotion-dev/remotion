@@ -12,7 +12,6 @@ import {
 	renderMetadataKey,
 	rendersPrefix,
 } from '../../shared/constants';
-import {DOCS_URL} from '../../shared/docs-url';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
 import {checkIfRenderExists} from './check-if-render-exists';
@@ -20,7 +19,6 @@ import {getExpectedOutName} from './expected-out-name';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {formatCostsInfo} from './format-costs-info';
 import {getCleanupProgress} from './get-cleanup-progress';
-import {getCurrentArchitecture} from './get-current-architecture';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getEncodingMetadata} from './get-encoding-metadata';
 import {getFinalEncodingStatus} from './get-final-encoding-status';
@@ -33,6 +31,7 @@ import {getRetryStats} from './get-retry-stats';
 import {getTimeToFinish} from './get-time-to-finish';
 import {inspectErrors} from './inspect-errors';
 import {lambdaLs} from './io';
+import {makeTimeoutError} from './make-timeout-error';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 
 export const getProgress = async ({
@@ -170,7 +169,6 @@ export const getProgress = async ({
 			renderMetadata,
 			memorySizeInMb,
 			outputFileMetadata: outputFile,
-			architecture: getCurrentArchitecture(),
 			lambdasInvoked: renderMetadata?.estimatedRenderLambdaInvokations ?? 0,
 			// We cannot determine the ephemeral storage size, so we
 			// overestimate the price, but will only have a miniscule effect (~0.2%)
@@ -240,19 +238,7 @@ export const getProgress = async ({
 
 	const allErrors: EnhancedErrorInfo[] = [
 		isBeyondTimeout
-			? ({
-					attempt: 1,
-					chunk: null,
-					explanation: `The main function timed out after ${timeoutInMilliseconds}ms. Consider increasing the timeout of your function. You can use the "--timeout" parameter when deploying a function via CLI, or the "timeoutInSeconds" parameter when using the deployFunction API. ${DOCS_URL}/docs/lambda/cli/functions#deploy`,
-					frame: null,
-					isFatal: true,
-					s3Location: '',
-					stack: new Error().stack,
-					tmpDir: null,
-					totalAttempts: 1,
-					type: 'stitcher',
-					willRetry: false,
-			  } as EnhancedErrorInfo)
+			? makeTimeoutError({timeoutInMilliseconds, renderMetadata, chunks})
 			: null,
 		...errorExplanations,
 	].filter(Internals.truthy);
