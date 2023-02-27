@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "node build.mjs",
+    "build": "node test.mjs && node test.cjs && node build.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },
