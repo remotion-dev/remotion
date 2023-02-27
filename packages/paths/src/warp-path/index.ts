@@ -21,6 +21,11 @@ const getDefaultInterpolationThreshold = (
 	return longer * 0.01;
 };
 
+/**
+ * @description This function works by splitting SVG instructions into many smaller SVG instructions and then remapping the coordinates of each instruction.
+ * @param {string} path an SVG path string
+ * @see [Documentation](https://www.remotion.dev/docs/paths/warp-path)
+ */
 export const warpPath = (
 	path: string,
 	transformer: WarpPathFn,

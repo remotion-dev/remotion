@@ -6,6 +6,11 @@ export type MakeCircleProps = {
 	radius: number;
 };
 
+/**
+ * @description Generates a circle SVG path.
+ * @param {Number} radius The radius of the circle.
+ * @see [Documentation](https://www.remotion.dev/docs/shapes/make-circle)
+ */
 export const makeCircle = ({radius}: MakeCircleProps): ShapeInfo => {
 	const instructions: Instruction[] = [
 		{

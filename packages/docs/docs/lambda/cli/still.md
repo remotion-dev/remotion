@@ -82,3 +82,11 @@ The file name of the media output as stored in the S3 bucket. By default, it is 
 ### `--quality`
 
 [Value between 0 and 100 for JPEG rendering quality](/docs/config#setquality). Doesn't work when PNG frames are rendered.
+
+### `--ignore-certificate-errors`
+
+Results in invalid SSL certificates in Chrome, such as self-signed ones, being ignored.
+
+### `--disable-web-security`
+
+This will most notably disable CORS in Chrome among other security features.

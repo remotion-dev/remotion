@@ -3,9 +3,9 @@ import {parsePath} from './parse-path';
 import {serializeInstructions} from './serialize-instructions';
 
 /**
- * Removes all relative coordinates from an SVG path and converts them into absolute coordinates.
+ * @description Removes all relative coordinates from an SVG path and converts them into absolute coordinates.
  * @param {string} path A valid SVG path
- * @link https://remotion.dev/docs/paths/normalize-path
+ * @see [Documentation](https://remotion.dev/docs/paths/normalize-path)
  */
 export const normalizePath = (path: string): string => {
 	const instructions = parsePath(path);

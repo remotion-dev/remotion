@@ -119,6 +119,14 @@ export const translateSegments = (
 	});
 };
 
+/**
+ * @description Translates the path by the given x and y coordinates.
+ * @param {string} path the originalSVG path
+ * @param {Number} x the amount of horizontal translation
+ * @param {Number} y the amount of vertical translation
+ * @returns a new string containing a path, if it is valid
+ * @see [Documentation](https://www.remotion.dev/docs/paths/translate-path)
+ */
 export const translatePath = (path: string, x: number, y: number) => {
 	return serializeInstructions(translateSegments(parsePath(path), x, y));
 };
