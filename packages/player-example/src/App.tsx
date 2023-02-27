@@ -18,7 +18,7 @@ import React, {
 import {AbsoluteFill} from 'remotion';
 import {playerExampleComp} from './CarSlideshow';
 import {Loading} from './Loading';
-import { TimeDisplay } from './TimeDisplay';
+import {TimeDisplay} from './TimeDisplay';
 
 const fps = 30;
 
@@ -61,8 +61,8 @@ const ControlsOnly: React.FC<{
 	setInFrame: React.Dispatch<React.SetStateAction<number | null>>;
 	outFrame: number | null;
 	setOutFrame: React.Dispatch<React.SetStateAction<number | null>>;
-  alwaysShowControls: boolean;
-  setAlwaysShowControls: React.Dispatch<React.SetStateAction<boolean>>;
+	alwaysShowControls: boolean;
+	setAlwaysShowControls: React.Dispatch<React.SetStateAction<boolean>>;
 	durationInFrames: number;
 }> = ({
 	playerRef: ref,
@@ -93,8 +93,8 @@ const ControlsOnly: React.FC<{
 	outFrame,
 	setInFrame,
 	setOutFrame,
-  alwaysShowControls,
-  setAlwaysShowControls,
+	alwaysShowControls,
+	setAlwaysShowControls,
 	durationInFrames,
 }) => {
 	const [logs, setLogs] = useState<string[]>(() => []);
@@ -345,13 +345,10 @@ const ControlsOnly: React.FC<{
 			>
 				moveToBeginningWhenEnded = {String(moveToBeginningWhenEnded)}
 			</button>
-      <button
-        type="button"
-        onClick={() => setAlwaysShowControls((l) => !l)}
-      >
-        alwaysShowControls = {String(alwaysShowControls)}
-      </button>
-      <br />
+			<button type="button" onClick={() => setAlwaysShowControls((l) => !l)}>
+				alwaysShowControls = {String(alwaysShowControls)}
+			</button>
+			<br />
 			<button
 				type="button"
 				onClick={() =>
@@ -459,7 +456,7 @@ const PlayerOnly: React.FC<
 		showPosterWhenUnplayed: boolean;
 		inFrame: number | null;
 		outFrame: number | null;
-    alwaysShowControls: boolean;
+		alwaysShowControls: boolean;
 	} & CompProps<any>
 > = ({
 	playerRef,
@@ -476,7 +473,7 @@ const PlayerOnly: React.FC<
 	showPosterWhenUnplayed,
 	inFrame,
 	outFrame,
-  alwaysShowControls,
+	alwaysShowControls,
 	...props
 }) => {
 	const renderLoading: RenderLoading = useCallback(() => {
@@ -535,7 +532,7 @@ const PlayerOnly: React.FC<
 			showPosterWhenPaused={showPosterWhenPaused}
 			inFrame={inFrame}
 			outFrame={outFrame}
-      alwaysShowControls={alwaysShowControls}
+			alwaysShowControls={alwaysShowControls}
 		/>
 	);
 };
@@ -561,7 +558,7 @@ export default ({
 	const [showPosterWhenPaused, setShowPosterWhenPaused] = useState(true);
 	const [inFrame, setInFrame] = useState<number | null>(null);
 	const [outFrame, setOutFrame] = useState<number | null>(null);
-  const [alwaysShowControls, setAlwaysShowControls] = useState(false);
+	const [alwaysShowControls, setAlwaysShowControls] = useState(false);
 
 	const ref = useRef<PlayerRef>(null);
 
@@ -576,7 +573,7 @@ export default ({
 	return (
 		<div style={{margin: '2rem'}}>
 			<PlayerOnly
-        alwaysShowControls={alwaysShowControls}
+				alwaysShowControls={alwaysShowControls}
 				clickToPlay={clickToPlay}
 				{...props}
 				doubleClickToFullscreen={doubleClickToFullscreen}
@@ -615,11 +612,11 @@ export default ({
 				setshowPosterWhenUnplayed={setshowPosterWhenUnplayed}
 				setShowPosterWhenEnded={setShowPosterWhenEnded}
 				setShowPosterWhenPaused={setShowPosterWhenPaused}
-        setAlwaysShowControls={setAlwaysShowControls}
+				setAlwaysShowControls={setAlwaysShowControls}
 				showPosterWhenUnplayed={showPosterWhenUnplayed}
 				showPosterWhenEnded={showPosterWhenEnded}
 				showPosterWhenPaused={showPosterWhenPaused}
-        alwaysShowControls={alwaysShowControls}
+				alwaysShowControls={alwaysShowControls}
 				setInFrame={setInFrame}
 				setOutFrame={setOutFrame}
 				inFrame={inFrame}
