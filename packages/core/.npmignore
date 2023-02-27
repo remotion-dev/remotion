@@ -17,3 +17,6 @@ tsconfig.json
 dist/tsconfig-cjs.tsbuildinfo
 .rollup.cache
 .prettierrc.js
+dist/esm/**.d.ts
+dist/esm/**/**.d.ts
+dist/cjs/test
