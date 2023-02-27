@@ -1,4 +1,4 @@
-import {getRemotionEnvironment} from '../get-environment';
+import {getRemotionEnvironment} from '../get-environment.js';
 
 let didWarnSSRImport = false;
 

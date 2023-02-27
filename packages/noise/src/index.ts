@@ -60,7 +60,7 @@ const generate4DNoise = (seed: string | number) => {
 
 /**
  * @description Creates 2D noise.
- * @link https://remotion.dev/docs/noise/noise-2d
+ * @see [Documentation](https://www.remotion.dev/docs/noise/noise-2d)
  * @param {string | number} seed Seed value for deterministic results
  * @param {number} x First dimensional value
  * @param {number} y Second dimensional value
@@ -76,7 +76,7 @@ export const noise2D = (
 
 /**
  * @description Creates 3D noise.
- * @link https://remotion.dev/docs/noise/noise-3d
+ * @see [Documentation](https://remotion.dev/docs/noise/noise-3d)
  * @param {string | number} seed Seed value for deterministic results
  * @param {number} x First dimensional value
  * @param {number} y Second dimensional value
@@ -92,7 +92,7 @@ export const noise3D = (
 
 /**
  * @description Creates 4D noise.
- * @link https://remotion.dev/docs/noise/noise-4d
+ * @see [Documentation](https://remotion.dev/docs/noise/noise-4d)
  * @param {string | number} seed Seed value for deterministic results
  * @param {number} x First dimensional value
  * @param {number} y Second dimensional value

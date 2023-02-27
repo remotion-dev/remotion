@@ -1,28 +1,22 @@
 import React, {
-	createContext,
 	forwardRef,
 	useContext,
 	useEffect,
 	useMemo,
 	useState,
 } from 'react';
-import {AbsoluteFill} from './AbsoluteFill';
-import {CompositionManager} from './CompositionManager';
-import {useRemotionEnvironment} from './get-environment';
-import {getTimelineClipName} from './get-timeline-clip-name';
-import {useNonce} from './nonce';
-import {TimelineContext, useTimelinePosition} from './timeline-position-state';
-import {useVideoConfig} from './use-video-config';
-
-export type SequenceContextType = {
-	cumulatedFrom: number;
-	relativeFrom: number;
-	parentFrom: number;
-	durationInFrames: number;
-	id: string;
-};
-
-export const SequenceContext = createContext<SequenceContextType | null>(null);
+import {AbsoluteFill} from './AbsoluteFill.js';
+import {CompositionManager} from './CompositionManager.js';
+import {useRemotionEnvironment} from './get-environment.js';
+import {getTimelineClipName} from './get-timeline-clip-name.js';
+import {useNonce} from './nonce.js';
+import type {SequenceContextType} from './SequenceContext.js';
+import {SequenceContext} from './SequenceContext.js';
+import {
+	TimelineContext,
+	useTimelinePosition,
+} from './timeline-position-state.js';
+import {useVideoConfig} from './use-video-config.js';
 
 export type LayoutAndStyle =
 	| {
@@ -31,6 +25,7 @@ export type LayoutAndStyle =
 	| {
 			layout?: 'absolute-fill';
 			style?: React.CSSProperties;
+			className?: string;
 	  };
 
 export type SequenceProps = {
@@ -203,19 +198,23 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	return (
 		<SequenceContext.Provider value={contextValue}>
-			{content === null ? null : layout === 'absolute-fill' ? (
-				<AbsoluteFill ref={ref} style={defaultStyle}>
+			{content === null ? null : other.layout === 'none' ? (
+				content
+			) : (
+				<AbsoluteFill
+					ref={ref}
+					style={defaultStyle}
+					className={other.className}
+				>
 					{content}
 				</AbsoluteFill>
-			) : (
-				content
 			)}
 		</SequenceContext.Provider>
 	);
 };
 
 /**
- * A component that time-shifts its children and wraps them in an absolutely positioned <div>.
- * @link https://www.remotion.dev/docs/sequence
+ * @description A component that time-shifts its children and wraps them in an absolutely positioned <div>.
+ * @see [Documentation](https://www.remotion.dev/docs/sequence]
  */
 export const Sequence = forwardRef(SequenceRefForwardingFunction);

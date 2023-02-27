@@ -1,8 +1,8 @@
 import React from 'react';
-import type {LayoutAndStyle} from '../Sequence';
-import {Sequence} from '../Sequence';
-import {useVideoConfig} from '../use-video-config';
-import {validateDurationInFrames} from '../validation/validate-duration-in-frames';
+import type {LayoutAndStyle} from '../Sequence.js';
+import {Sequence} from '../Sequence.js';
+import {useVideoConfig} from '../use-video-config.js';
+import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
 
 export type LoopProps = {
 	// The duration of the content to be looped
@@ -13,6 +13,10 @@ export type LoopProps = {
 	children: React.ReactNode;
 } & LayoutAndStyle;
 
+/**
+ * @description This component allows you to quickly lay out an animation so it repeats itself.
+ * @see [Documentation](https://www.remotion.dev/docs/loop)
+ */
 export const Loop: React.FC<LoopProps> = ({
 	durationInFrames,
 	times = Infinity,

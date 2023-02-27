@@ -4,7 +4,7 @@
  */
 
 /* eslint no-bitwise: 0 */
-import {interpolate} from './interpolate';
+import {interpolate} from './interpolate.js';
 
 type MatcherType = RegExp | undefined;
 
@@ -472,6 +472,10 @@ const interpolateColorsRGB = (
 	return rgbaColor(r, g, b, a);
 };
 
+/**
+ * @description This function allows you to map a range of values to colors using a concise syntax.
+ * @see [Documentation](https://www.remotion.dev/docs/interpolate-colors)
+ */
 export const interpolateColors = (
 	input: number,
 	inputRange: readonly number[],

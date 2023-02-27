@@ -11,10 +11,10 @@ import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
 import {inOutHandles} from '../components/TimelineInOutToggle';
 import {Checkmark} from '../icons/Checkmark';
 import {CheckerboardContext} from '../state/checkerboard';
+import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import type {ModalState} from '../state/modals';
 import {ModalsContext} from '../state/modals';
 import {PreviewSizeContext} from '../state/preview-size';
-import {RichTimelineContext} from '../state/rich-timeline';
 import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
 import {timelineRef} from '../state/timeline-ref';
@@ -36,7 +36,9 @@ const ICON_SIZE = 16;
 export const useMenuStructure = (closeMenu: () => void) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
-	const {richTimeline, setRichTimeline} = useContext(RichTimelineContext);
+	const {editorZoomGestures, setEditorZoomGestures} = useContext(
+		EditorZoomGesturesContext
+	);
 	const {size, setSize} = useContext(PreviewSizeContext);
 	const {setSidebarCollapsedState, sidebarCollapsedState} =
 		useContext(SidebarContext);
@@ -237,6 +239,22 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						quickSwitcherLabel: null,
 					},
 					{
+						id: 'editor-zoom-gestures',
+						keyHint: null,
+						label: 'Zoom and Pan Gestures',
+						onClick: () => {
+							closeMenu();
+							setEditorZoomGestures((c) => !c);
+						},
+						type: 'item' as const,
+						value: 'editor-zoom-gestures',
+						leftItem: editorZoomGestures ? <Checkmark /> : null,
+						subMenu: null,
+						quickSwitcherLabel: editorZoomGestures
+							? 'Disable Zoom and Pan Gestures'
+							: 'Enable Zoom and Pan Gestures',
+					},
+					{
 						id: 'timeline-divider-1',
 						type: 'divider' as const,
 					},
@@ -261,6 +279,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 											<Checkmark />
 										) : null,
 									onClick: () => {
+										closeMenu();
 										setSidebarCollapsedState('responsive');
 									},
 									subMenu: null,
@@ -275,6 +294,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 									leftItem:
 										sidebarCollapsedState === 'expanded' ? <Checkmark /> : null,
 									onClick: () => {
+										closeMenu();
 										setSidebarCollapsedState('expanded');
 									},
 									subMenu: null,
@@ -291,6 +311,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 											<Checkmark />
 										) : null,
 									onClick: () => {
+										closeMenu();
 										setSidebarCollapsedState('collapsed');
 									},
 									subMenu: null,
@@ -325,22 +346,6 @@ export const useMenuStructure = (closeMenu: () => void) => {
 					{
 						id: 'timeline-divider-3',
 						type: 'divider' as const,
-					},
-					{
-						id: 'rich-timeline',
-						keyHint: null,
-						label: 'Rich timeline',
-						onClick: () => {
-							closeMenu();
-							setRichTimeline((r) => !r);
-						},
-						type: 'item' as const,
-						value: 'rich-timeline',
-						leftItem: richTimeline ? <Checkmark /> : null,
-						subMenu: null,
-						quickSwitcherLabel: richTimeline
-							? 'Timeline: Disable Rich Timeline'
-							: 'Timeline: Enable Rich Timeline',
 					},
 					{
 						id: 'expand-all',
@@ -604,9 +609,9 @@ export const useMenuStructure = (closeMenu: () => void) => {
 	}, [
 		checkerboard,
 		closeMenu,
-		richTimeline,
 		setCheckerboard,
-		setRichTimeline,
+		editorZoomGestures,
+		setEditorZoomGestures,
 		setSelectedModal,
 		setSidebarCollapsedState,
 		setSize,

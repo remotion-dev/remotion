@@ -1,20 +1,19 @@
 import type {MouseEventHandler, ReactNode} from 'react';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
-import {formatTime} from './format-time';
-import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
-import {MediaVolumeSlider} from './MediaVolumeSlider';
-import {PlayerSeekBar} from './PlayerSeekBar';
-import type {usePlayer} from './use-player';
-import {useVideoControlsResize} from './use-video-controls-resize';
+import {formatTime} from './format-time.js';
+import {FullscreenIcon, PauseIcon, PlayIcon} from './icons.js';
+import {MediaVolumeSlider} from './MediaVolumeSlider.js';
+import {PlayerSeekBar} from './PlayerSeekBar.js';
+import type {usePlayer} from './use-player.js';
+import {useVideoControlsResize, X_PADDING} from './use-video-controls-resize.js';
 
 export type RenderPlayPauseButton = (props: {playing: boolean}) => ReactNode;
 export type RenderFullscreenButton = (props: {
 	isFullscreen: boolean;
 }) => ReactNode;
 
-export const X_SPACER = 10;
-export const X_PADDING = 12;
+
 
 const gradientSteps = [
 	0, 0.013, 0.049, 0.104, 0.175, 0.259, 0.352, 0.45, 0.55, 0.648, 0.741, 0.825,
@@ -125,6 +124,7 @@ export const Controls: React.FC<{
 	playerWidth: number;
 	renderPlayPauseButton: RenderPlayPauseButton | null;
 	renderFullscreenButton: RenderFullscreenButton | null;
+	alwaysShowControls: boolean;
 }> = ({
 	durationInFrames,
 	hovered,
@@ -144,6 +144,7 @@ export const Controls: React.FC<{
 	playerWidth,
 	renderPlayPauseButton,
 	renderFullscreenButton,
+	alwaysShowControls,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -185,12 +186,13 @@ export const Controls: React.FC<{
 
 	const containerCss: React.CSSProperties = useMemo(() => {
 		// Hide if playing and mouse outside
-		const shouldShow = hovered || !player.playing || shouldShowInitially;
+		const shouldShow =
+			hovered || !player.playing || shouldShowInitially || alwaysShowControls;
 		return {
 			...containerStyle,
 			opacity: Number(shouldShow),
 		};
-	}, [hovered, shouldShowInitially, player.playing]);
+	}, [hovered, shouldShowInitially, player.playing, alwaysShowControls]);
 
 	useEffect(() => {
 		if (playButtonRef.current && spaceKeyToPlayOrPause) {
