@@ -9,4 +9,4 @@ assert(val === 100);
 assert(Boolean(Player));
 assert(typeof VERSION === "string");
 
-console.log("CommonJS works!");
+console.log("ESM Wallaby works!");

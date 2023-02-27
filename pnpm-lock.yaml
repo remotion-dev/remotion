@@ -20,6 +20,7 @@ importers:
       '@types/react': ^18.0.10
       '@types/react-dom': ^18.0.5
       astro: ^2.0.14
+      esm-wallaby: ^3.2.26
       react: ^18.1.0
       react-dom: ^18.1.0
       remotion: 3.3.54
@@ -29,6 +30,7 @@ importers:
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
       astro: 2.0.14
+      esm-wallaby: 3.2.26
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       remotion: link:../core
@@ -14249,6 +14251,11 @@ packages:
       text-table: 0.2.0
     transitivePeerDependencies:
       - supports-color
+
+  /esm-wallaby/3.2.26:
+    resolution: {integrity: sha512-DtbO0pdJj7kv/abkQ1BjIpk/Rm6vy9ueGcsXuQT7jH6qw6RQby/i/qeVyIcf2pbpAT5UW8PN+dL2YZakTw+URA==}
+    engines: {node: '>=6'}
+    dev: false
 
   /espree/9.3.1:
     resolution: {integrity: sha512-bvdyLmJMfwkV3NCRl5ZhJf22zBFo1y8bYh3VYb+bfzqNB4Je68P2sSuXyuFquzWLebHpNd2/d5uv7yoP9ISnGQ==}
