@@ -14,7 +14,17 @@ The Artifact Regsitry in GCP is a place to store container images. The Remotion-
 
 ## [For now] Manual Upload to Artifact Registry
 
-(write out Gcloud commands)
+Complete a build for the GCP package, so that `gcp/container` contains an up-to-date `dist` folder.
+
+1. Install the GCloud CLI - [Link](https://cloud.google.com/sdk/docs/install)
+2. Init GCloud CLI by running `gcloud init`  
+   a. This will launch a browser for you to authenticate your shell with Google Cloud  
+   b. Within the shell, you should see remotion-dev as a project to use. Select this  
+   c. Typing `gcloud config list` should show that the correct account and project are active
+3. `cd` into the `packages/gcp/container` folder.
+4. Run `gcloud builds submit --tag us-docker.pkg.dev/remotion-dev/cloud-run/render:VERSION` replacing
+   VERSION with the current Remotion version.
+5. Navigate to [Artifact Registry](https://console.cloud.google.com/artifacts/docker/remotion-dev/us/cloud-run/render?project=remotion-dev) to see the new image, with the correct tag.
 
 ## [Future] Build Pipeline
 
