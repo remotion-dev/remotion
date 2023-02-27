@@ -29,3 +29,8 @@ if (!distFileCjs.includes(version)) {
 }
 
 console.log('Updated version to v' + version);
+
+const wrongDistFileExists = fs.existsSync('dist/index.js', 'utf-8');
+if (wrongDistFileExists) {
+	throw new Error('Wrong dist file exists');
+}
