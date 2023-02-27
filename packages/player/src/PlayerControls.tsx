@@ -6,15 +6,14 @@ import {FullscreenIcon, PauseIcon, PlayIcon} from './icons.js';
 import {MediaVolumeSlider} from './MediaVolumeSlider.js';
 import {PlayerSeekBar} from './PlayerSeekBar.js';
 import type {usePlayer} from './use-player.js';
-import {useVideoControlsResize} from './use-video-controls-resize.js';
+import {useVideoControlsResize, X_PADDING} from './use-video-controls-resize.js';
 
 export type RenderPlayPauseButton = (props: {playing: boolean}) => ReactNode;
 export type RenderFullscreenButton = (props: {
 	isFullscreen: boolean;
 }) => ReactNode;
 
-export const X_SPACER = 10;
-export const X_PADDING = 12;
+
 
 const gradientSteps = [
 	0, 0.013, 0.049, 0.104, 0.175, 0.259, 0.352, 0.45, 0.55, 0.648, 0.741, 0.825,

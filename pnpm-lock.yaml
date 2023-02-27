@@ -216,6 +216,7 @@ importers:
   packages/core:
     specifiers:
       '@jonny/eslint-config': 3.0.273
+      '@rollup/plugin-typescript': ^8.2.0
       '@testing-library/react': 14.0.0
       '@types/node': ^16.7.5
       '@types/react': 18.0.26
@@ -230,10 +231,12 @@ importers:
       react: ^18.0.0
       react-dom: ^18.0.0
       rimraf: ^3.0.2
+      rollup: ^2.70.1
       typescript: ^4.7.0
       vitest: 0.24.3
     devDependencies:
       '@jonny/eslint-config': 3.0.273_t54va6jeo5lf3vtqih5uiyrm5e
+      '@rollup/plugin-typescript': 8.5.0_2s5nfqwcf62746iqzotp3mpuy4
       '@testing-library/react': 14.0.0_zpnidt7m3osuk7shl3s4oenomq
       '@types/node': 16.10.2
       '@types/react': 18.0.26
@@ -248,6 +251,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
       rimraf: 3.0.2
+      rollup: 2.76.0
       typescript: 4.7.2
       vitest: 0.24.3_jsdom@21.1.0
 
@@ -834,6 +838,7 @@ importers:
   packages/player:
     specifiers:
       '@jonny/eslint-config': 3.0.273
+      '@rollup/plugin-typescript': ^8.2.0
       '@testing-library/react': 13.1.1
       '@types/node': ^14.14.14
       '@types/react': 18.0.26
@@ -848,6 +853,7 @@ importers:
       react: ^18.0.0
       react-dom: ^18.0.0
       remotion: 3.3.54
+      rollup: ^2.70.1
       typescript: ^4.7.0
       vitest: 0.24.3
       webpack: 5.74.0
@@ -855,6 +861,7 @@ importers:
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.273_t54va6jeo5lf3vtqih5uiyrm5e
+      '@rollup/plugin-typescript': 8.5.0_2s5nfqwcf62746iqzotp3mpuy4
       '@testing-library/react': 13.1.1_zpnidt7m3osuk7shl3s4oenomq
       '@types/node': 14.17.20
       '@types/react': 18.0.26
@@ -868,6 +875,7 @@ importers:
       prettier-plugin-organize-imports: 2.3.4_j2odc4yr77iddtreafyicbq5hi
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
+      rollup: 2.76.0
       typescript: 4.7.2
       vitest: 0.24.3_jsdom@20.0.1
       webpack: 5.74.0
@@ -8867,6 +8875,35 @@ packages:
       zustand: 3.7.2_react@18.0.0
     dev: true
 
+  /@rollup/plugin-typescript/8.5.0_2s5nfqwcf62746iqzotp3mpuy4:
+    resolution: {integrity: sha512-wMv1/scv0m/rXx21wD2IsBbJFba8wGF3ErJIr6IKRfRj49S85Lszbxb4DCo8iILpluTjk2GAAu9CoZt4G3ppgQ==}
+    engines: {node: '>=8.0.0'}
+    peerDependencies:
+      rollup: ^2.14.0
+      tslib: '*'
+      typescript: '>=3.7.0'
+    peerDependenciesMeta:
+      tslib:
+        optional: true
+    dependencies:
+      '@rollup/pluginutils': 3.1.0_rollup@2.76.0
+      resolve: 1.22.1
+      rollup: 2.76.0
+      typescript: 4.7.2
+    dev: true
+
+  /@rollup/pluginutils/3.1.0_rollup@2.76.0:
+    resolution: {integrity: sha512-GksZ6pr6TpIjHm8h9lSQ8pi8BE9VeubNT0OMJ3B5uZJ8pz73NPiqOtCog/x2/QzM1ENChPKxMDhiQuRHsqc+lg==}
+    engines: {node: '>= 8.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0
+    dependencies:
+      '@types/estree': 0.0.39
+      estree-walker: 1.0.1
+      picomatch: 2.3.1
+      rollup: 2.76.0
+    dev: true
+
   /@shopify/react-native-skia/0.1.139_rlxvagb2l2jceoxbyljoesn5oa:
     resolution: {integrity: sha512-p5ZEb1iYlPbpdjWoQ9hBFML29lp77hnlJAdyR49C4S3h9Oe/Gv6B35c5LKshRE2w6B+xLM6ZApl8PSjll5TjDQ==}
     hasBin: true
@@ -9414,6 +9451,10 @@ packages:
     dependencies:
       '@types/estree': 0.0.51
       '@types/json-schema': 7.0.9
+
+  /@types/estree/0.0.39:
+    resolution: {integrity: sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==}
+    dev: true
 
   /@types/estree/0.0.51:
     resolution: {integrity: sha512-CuPgU6f3eT/XgKKPqKd/gLZV1Xmvf1a2R5POBOGQa6uv82xpls89HU5zKeVoyR8XzHd1RGNOlQlvUe3CFkjWNQ==}
@@ -14250,6 +14291,10 @@ packages:
   /estraverse/5.3.0:
     resolution: {integrity: sha512-MMdARuVEQziNTeJD8DgMqmhwR11BRQ/cBP+pLtYdSTnf3MIO8fFeiINEbX36ZdNlfU/7A9f3gUw49B3oQsvwBA==}
     engines: {node: '>=4.0'}
+
+  /estree-walker/1.0.1:
+    resolution: {integrity: sha512-1fMXF3YP4pZZVozF8j/ZLfvnR8NSIljt56UhbZ5PeeDmmGHpgpdwQt7ITlGvYaQukCvuBRMLEiKiYC+oeIg4cg==}
+    dev: true
 
   /estree-walker/3.0.3:
     resolution: {integrity: sha512-7RUKfXgSMMkzt6ZuXmqapOurLGPPfgj6l9uRZ7lRGolvk0y2yocc35LdcxKC5PQZdn2DMqioAQ2NoWcrTKmm6g==}
