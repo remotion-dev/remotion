@@ -1,8 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import {Log} from '@remotion/cli/dist/log';
+import {BINARY_NAME} from '../../../shared/constants';
 import {quit} from '../../helpers/quit';
 import {sitesCreateSubcommand, SITES_CREATE_SUBCOMMAND} from './create';
-import {BINARY_NAME} from '../../../shared/constants';
 
 export const SITES_COMMAND = 'sites';
 
@@ -11,10 +11,10 @@ const printSitesHelp = () => {
 	Log.info();
 	Log.info('Available subcommands:');
 	Log.info('');
+	Log.info(`${BINARY_NAME} ${SITES_COMMAND} ${SITES_CREATE_SUBCOMMAND}`);
 	Log.info(
-		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_CREATE_SUBCOMMAND}`
+		CliInternals.chalk.gray('Creates a new site based on a Remotion project')
 	);
-	Log.info(CliInternals.chalk.gray('Creates a new site based on a Remotion project'));
 };
 
 // TODO: Add LS, RM, RMALL subcommands
