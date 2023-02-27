@@ -7,7 +7,7 @@ import React, {useContext} from 'react';
 import {describe, expect, test} from 'vitest';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {Internals} from '../internals.js';
-import {Video} from '../video';
+import {Video} from '../video/index.js';
 import {expectToThrow} from './expect-to-throw.js';
 
 const Wrapper: React.FC<{

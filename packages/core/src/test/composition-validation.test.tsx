@@ -4,7 +4,7 @@
 import {render} from '@testing-library/react';
 import React from 'react';
 import {describe, expect, test} from 'vitest';
-import {Composition} from '..';
+import {Composition} from '../Composition.js';
 import {RemotionRoot} from '../RemotionRoot.js';
 import {expectToThrow} from './expect-to-throw.js';
 

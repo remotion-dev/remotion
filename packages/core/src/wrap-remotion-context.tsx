@@ -8,8 +8,11 @@ import {CompositionManager} from './CompositionManager.js';
 import {NativeLayersContext} from './NativeLayers.js';
 import {NonceContext} from './nonce.js';
 import {PreloadContext} from './prefetch-state.js';
-import {SequenceContext} from './Sequence.js';
-import {SetTimelineContext, TimelineContext} from './timeline-position-state.js';
+import {SequenceContext} from './SequenceContext.js';
+import {
+	SetTimelineContext,
+	TimelineContext,
+} from './timeline-position-state.js';
 
 export function useRemotionContexts() {
 	const compositionManagerCtx = React.useContext(CompositionManager);

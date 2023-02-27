@@ -14,7 +14,7 @@ fs.writeFileSync(path.resolve(process.cwd(), 'src/version.ts'), src);
 
 cp.execSync('pnpm build');
 
-const distFile = fs.readFileSync('dist/esm/version.js', 'utf-8');
+const distFile = fs.readFileSync('dist/esm/version.mjs', 'utf-8');
 
 if (!distFile.includes(version)) {
 	console.log('In dist file, did not include version');
@@ -32,5 +32,10 @@ console.log('Updated version to v' + version);
 
 const wrongDistFileExists = fs.existsSync('dist/index.js', 'utf-8');
 if (wrongDistFileExists) {
+	throw new Error('Wrong dist file exists');
+}
+
+const wrongDistFileExists2 = fs.existsSync('dist/index.mjs', 'utf-8');
+if (wrongDistFileExists2) {
 	throw new Error('Wrong dist file exists');
 }

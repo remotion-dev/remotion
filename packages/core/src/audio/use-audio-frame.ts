@@ -1,5 +1,5 @@
 import {useContext} from 'react';
-import {SequenceContext} from '../Sequence.js';
+import {SequenceContext} from '../SequenceContext.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 
 export const useMediaStartsAt = () => {
