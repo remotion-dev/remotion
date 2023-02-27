@@ -1,6 +1,6 @@
 import {useContext} from 'react';
 import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
-import {SequenceContext} from './Sequence.js';
+import {SequenceContext} from './SequenceContext.js';
 import {useTimelinePosition} from './timeline-position-state.js';
 
 /**

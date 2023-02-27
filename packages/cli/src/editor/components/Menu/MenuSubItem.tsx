@@ -7,6 +7,7 @@ import {CaretRight} from '../../icons/caret';
 import {useZIndex} from '../../state/z-index';
 import {Flex, Row, Spacing} from '../layout';
 import type {SubMenu} from '../NewComposition/ComboBox';
+import {MENU_ITEM_CLASSNAME} from './is-menu-item';
 import {getPortal} from './portals';
 import {
 	menuContainerTowardsBottom,
@@ -87,7 +88,7 @@ export const MenuSubItem: React.FC<{
 		};
 	}, [selected]);
 
-	const onClick = useCallback(() => {
+	const onItemTriggered = useCallback(() => {
 		onActionChosen(id);
 	}, [id, onActionChosen]);
 
@@ -133,7 +134,9 @@ export const MenuSubItem: React.FC<{
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			style={style}
-			onClick={onClick}
+			onPointerUp={onItemTriggered}
+			role="button"
+			className={MENU_ITEM_CLASSNAME}
 		>
 			<Row>
 				{leaveLeftSpace ? (

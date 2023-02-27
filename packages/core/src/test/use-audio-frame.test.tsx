@@ -8,8 +8,8 @@ import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from '../audio/use-audio-frame.js';
-import type {SequenceContextType} from '../Sequence.js';
-import {SequenceContext} from '../Sequence.js';
+import type {SequenceContextType} from '../SequenceContext.js';
+import {SequenceContext} from '../SequenceContext.js';
 import * as useFrameModule from '../use-current-frame.js';
 import {renderHook} from './render-hook.js';
 

@@ -1,5 +1,5 @@
 import React, {useContext, useMemo} from 'react';
-import {SequenceContext} from './Sequence.js';
+import {SequenceContext} from './SequenceContext.js';
 import type {TimelineContextValue} from './timeline-position-state.js';
 import {TimelineContext} from './timeline-position-state.js';
 
