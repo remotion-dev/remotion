@@ -1,4 +1,4 @@
-import { File } from '@google-cloud/storage';
+import type {File} from '@google-cloud/storage';
 import {readDirectory} from './read-dir';
 
 export const getStorageDiffOperations = async ({

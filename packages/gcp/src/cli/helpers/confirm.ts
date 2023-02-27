@@ -1,7 +1,7 @@
 import {forceFlagProvided} from '../args';
 import {yesOrNo} from './yes-or-no';
 
-export const confirmCli = async ({
+export const confirmCli = ({
 	delMessage,
 	allowForceFlag,
 }: {
@@ -12,5 +12,5 @@ export const confirmCli = async ({
 		return true;
 	}
 
-	return await yesOrNo({question: delMessage, defaultValue: true});
+	return yesOrNo({question: delMessage, defaultValue: true});
 };

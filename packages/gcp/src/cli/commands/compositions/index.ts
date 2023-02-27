@@ -7,10 +7,7 @@ import {Log} from '../../log';
 
 export const COMPOSITIONS_COMMAND = 'compositions';
 
-export const compositionsCommand = async (
-	args: string[],
-	remotionRoot: string
-) => {
+export const compositionsCommand = async (args: string[]) => {
 	const serveUrl = args[0];
 
 	if (!serveUrl) {
@@ -26,7 +23,7 @@ export const compositionsCommand = async (
 	validateServeUrl(serveUrl);
 
 	const comps = await getCompositionsOnGcp({
-		serveUrl
+		serveUrl,
 	});
 
 	CliInternals.printCompositions(comps);

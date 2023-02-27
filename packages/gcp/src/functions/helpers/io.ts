@@ -1,5 +1,5 @@
-import { getCloudStorageClient } from '../../api/helpers/get-cloud-storage-client';
-import { File } from '@google-cloud/storage';
+import type {File} from '@google-cloud/storage';
+import {getCloudStorageClient} from '../../api/helpers/get-cloud-storage-client';
 
 export type GcpLSInput = {
 	bucketName: string;
@@ -9,29 +9,22 @@ export type GcpLsReturnType = Promise<File[]>;
 
 export const gcpLs = async ({
 	bucketName,
-	prefix
+	prefix,
 }: GcpLSInput): GcpLsReturnType => {
-	try {
-		const cloudStorageClient = getCloudStorageClient()
-		const [files] = await cloudStorageClient.bucket(bucketName).getFiles({ prefix, autoPaginate: true });
-		return files;
-	} catch (err) {
-		throw err;
-	}
+	const cloudStorageClient = getCloudStorageClient();
+	const [files] = await cloudStorageClient
+		.bucket(bucketName)
+		.getFiles({prefix, autoPaginate: true});
+	return files;
 };
 
 export const gcpDeleteFile = async ({
 	bucketName,
-	key
+	key,
 }: {
 	bucketName: string;
 	key: string;
 }) => {
-	try {
-		const cloudStorageClient = getCloudStorageClient()
-		await cloudStorageClient.bucket(bucketName).file(key).delete();
-	} catch (err) {
-		throw err;
-	}
-}
-
+	const cloudStorageClient = getCloudStorageClient();
+	await cloudStorageClient.bucket(bucketName).file(key).delete();
+};
