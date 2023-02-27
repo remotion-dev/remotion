@@ -215,3 +215,11 @@ If you want to use this option, the function must be in the same region, the sam
 ### `--force-bucket-name` <AvailableFrom v="3.3.42" />
 
 Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
+
+### `--ignore-certificate-errors`
+
+Results in invalid SSL certificates in Chrome, such as self-signed ones, being ignored.
+
+### `--disable-web-security`
+
+This will most notably disable CORS in Chrome among other security features.
