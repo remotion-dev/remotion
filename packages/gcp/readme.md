@@ -35,7 +35,7 @@ Navigate to the [Service Accounts](https://console.cloud.google.com/projectselec
 - Optional: Enter a description of the service account.
 - Click 'Create and continue' and continue to the next step.
 - Give the Service Account the Owner role. Note - this grants full admin rights and should be refined before the GCP option is live.  
-  ![Grant editor role to service account](readmeImages/createSA.png "Grant editor role to service account")
+  ![Grant editor role to service account](readmeImages/createSA.png 'Grant editor role to service account')
 - Click Done to finish creating the service account.
 
 ### 3. Save a key for the Service Account
@@ -62,7 +62,7 @@ This command will deploy a cloud-run service, and return the URL of the service.
 Options:
 
 - --project-id (required):
-  - The project-id is the name of the project in which to deploy the service. The ID can be retrieved by navigating to the [Dashboard](https://console.cloud.google.com/home/dashboard?project=new-remotion-project&supportedpurview=project) screen in Google Cloud Console, and selecting the project from the drop-down menu in the top left corner. The ID is under Project Info in the top left corner.
+  - The project-id is the name of the project in which to deploy the service. The ID can be retrieved by navigating to the [Dashboard](https://console.cloud.google.com/home/dashboard) screen in Google Cloud Console, and selecting the project from the drop-down menu in the top left corner. The ID is under Project Info in the top left corner.
 - --service-name (required):
   - the name of the Cloud Run service to deploy or update. Service names must be 49 characters or less and must be unique per region and project. A service name cannot be changed later and is publicly visible. The service does not need to exist yet. If it does exist, a new revision will be deployed.
 - --region: the region of the service
