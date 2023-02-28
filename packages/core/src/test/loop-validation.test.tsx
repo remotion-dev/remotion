@@ -7,7 +7,7 @@ import React, {useContext} from 'react';
 import {describe, expect, test} from 'vitest';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {CompositionManager} from '../CompositionManager.js';
-import {Loop} from '../loop';
+import {Loop} from '../loop/index.js';
 import {RemotionRoot} from '../RemotionRoot.js';
 import {expectToThrow} from './expect-to-throw.js';
 

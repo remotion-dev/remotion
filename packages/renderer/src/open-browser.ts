@@ -47,6 +47,10 @@ export const killAllBrowsers = async () => {
 	}
 };
 
+/**
+ * @description Opens a Chrome or Chromium browser instance.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/open-browser)
+ */
 export const openBrowser = async (
 	browser: Browser,
 	options?: {

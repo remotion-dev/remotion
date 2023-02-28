@@ -117,6 +117,10 @@ The directory in which the Remotion project is rooted in. This should be set to 
 The current working directory is the directory from which your program gets executed from. It is not the same as the file where bundle() gets called.
 :::
 
+#### `ignoreRegisterRootWarning?` <AvailableFrom v="3.3.55" />
+
+Ignore an error that gets thrown if you pass an entry point file which does not contain `registerRoot`.
+
 ## Return value
 
 An object with the following values:

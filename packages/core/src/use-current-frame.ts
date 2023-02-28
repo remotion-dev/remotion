@@ -1,12 +1,11 @@
 import {useContext} from 'react';
 import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
-import {SequenceContext} from './Sequence.js';
+import {SequenceContext} from './SequenceContext.js';
 import {useTimelinePosition} from './timeline-position-state.js';
 
 /**
- * Get the current frame of the video.
- * Frames are 0-indexed, meaning the first frame is 0, the last frame is the duration of the composition in frames minus one.
- * @link https://www.remotion.dev/docs/use-current-frame
+ * @description Get the current frame of the video. Frames are 0-indexed, meaning the first frame is 0, the last frame is the duration of the composition in frames minus one.
+ * @see [Documentation](https://remotion.dev/docs/use-current-frame)
  */
 export const useCurrentFrame = (): number => {
 	const canUseRemotionHooks = useContext(CanUseRemotionHooks);

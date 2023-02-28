@@ -148,7 +148,7 @@ const getConcurrency = (others: ConcurrencyOrParallelism) => {
 /**
  *
  * @description Render a video from a composition
- * @link https://www.remotion.dev/docs/renderer/render-media
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/render-media)
  */
 export const renderMedia = ({
 	proResProfile,
