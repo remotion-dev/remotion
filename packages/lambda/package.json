@@ -68,7 +68,8 @@
 		"./defaults": "./dist/defaults.js",
 		"./regions": "./dist/regions.js",
 		"./policies": "./dist/api/iam-validation/suggested-policy.js",
-		"./client": "./dist/client.js"
+		"./client": "./dist/client.js",
+		"./layers": "./dist/shared/hosted-layers.js"
 	},
 	"typesVersions": {
 		">=1.0": {
