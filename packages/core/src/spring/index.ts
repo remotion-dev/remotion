@@ -6,8 +6,8 @@ import type {SpringConfig} from './spring-utils.js';
 import {springCalculation} from './spring-utils.js';
 
 /**
- * Calculates a position based on physical parameters, start and end value, and time.
- * @link https://www.remotion.dev/docs/spring
+ * @description Calculates a position based on physical parameters, start and end value, and time.
+ * @see [Documentation](https://www.remotion.dev/docs/spring)
  * @param {number} frame The current time value. Most of the time you want to pass in the return value of useCurrentFrame.
  * @param {number} fps The framerate at which the animation runs. Pass in the value obtained by `useVideoConfig()`.
  * @param {?Object} config optional object that allows you to customize the physical properties of the animation.

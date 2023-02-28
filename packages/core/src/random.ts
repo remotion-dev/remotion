@@ -23,9 +23,8 @@ function hashCode(str: string) {
 export type RandomSeed = number | string | null;
 
 /**
- * A deterministic pseudo-random number generator.
- * Pass in the same seed and get the same pseudorandom number.
- * See: https://remotion.dev/docs/random
+ * @description A deterministic pseudo-random number generator. Pass in the same seed and get the same pseudorandom number.
+ * @see [Documentation](https://remotion.dev/docs/random)
  */
 export const random = (seed: RandomSeed, dummy?: unknown) => {
 	if (dummy !== undefined) {

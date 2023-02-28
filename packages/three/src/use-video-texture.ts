@@ -18,6 +18,10 @@ const warnAboutRequestVideoFrameCallback = () => {
 	);
 };
 
+/**
+ * @description Allows you to use a video in React Three Fiber that is synchronized with Remotion's useCurrentFrame().
+ * @see [Documentation](https://www.remotion.dev/docs/use-video-texture)
+ */
 export const useVideoTexture = (
 	videoRef: React.RefObject<HTMLVideoElement>
 ): VideoTexture | null => {

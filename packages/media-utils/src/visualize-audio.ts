@@ -11,6 +11,11 @@ type FnParameters = {
 	numberOfSamples: number;
 };
 
+/**
+ * @description Takes in AudioData (preferably fetched by the useAudioData() hook) and processes it in a way that makes visualizing the audio that is playing at the current frame easy.
+ * @description part of @remotion/media-utils
+ * @see [Documentation](https://www.remotion.dev/docs/visualize-audio)
+ */
 const visualizeAudioFrame = ({
 	audioData: metadata,
 	frame,

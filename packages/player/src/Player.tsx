@@ -63,6 +63,7 @@ export type PlayerProps<T> = {
 	initiallyShowControls?: number | boolean;
 	renderPlayPauseButton?: RenderPlayPauseButton;
 	renderFullscreenButton?: RenderFullscreenButton;
+  alwaysShowControls?: boolean;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -108,6 +109,7 @@ const PlayerFn = <T,>(
 		initiallyShowControls,
 		renderFullscreenButton,
 		renderPlayPauseButton,
+    alwaysShowControls = false,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -355,6 +357,7 @@ const PlayerFn = <T,>(
 							initiallyShowControls={initiallyShowControls ?? true}
 							renderFullscreen={renderFullscreenButton ?? null}
 							renderPlayPauseButton={renderPlayPauseButton ?? null}
+              alwaysShowControls={alwaysShowControls}
 						/>
 					</PlayerEventEmitterContext.Provider>
 				</Internals.Timeline.SetTimelineContext.Provider>
@@ -370,4 +373,8 @@ const forward = forwardRef as <T, P = {}>(
 	) => React.ReactElement | null
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
+/**
+ * @description A component which can be rendered in a regular React App (for example: Create React App, Next.js) to display a Remotion video.
+ * @see [Documentation](https://www.remotion.dev/docs/player/player)
+ */
 export const Player = forward(PlayerFn);

@@ -74,6 +74,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		initiallyShowControls: number | boolean;
 		renderPlayPauseButton: RenderPlayPauseButton | null;
 		renderFullscreen: RenderFullscreenButton | null;
+		alwaysShowControls: boolean;
 	}
 > = (
 	{
@@ -101,6 +102,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		initiallyShowControls,
 		renderFullscreen: renderFullscreenButton,
 		renderPlayPauseButton,
+		alwaysShowControls,
 	},
 	ref
 ) => {
@@ -495,6 +497,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					playerWidth={canvasSize?.width ?? 0}
 					renderFullscreenButton={renderFullscreenButton}
 					renderPlayPauseButton={renderPlayPauseButton}
+					alwaysShowControls={alwaysShowControls}
 				/>
 			) : null}
 		</>
