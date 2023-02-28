@@ -12,7 +12,7 @@ import {readFileSync} from 'fs';
 import {LOG_GROUP_PREFIX} from '../defaults';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';
-import {hostedLayers} from '../shared/hosted-layers';
+import {__internal_doNotUsehostedLayers} from '../shared/hosted-layers';
 import type {LambdaArchitecture} from '../shared/validate-architecture';
 import {ROLE_NAME} from './iam-validation/suggested-policy';
 
@@ -82,7 +82,7 @@ export const createFunction = async ({
 			Description: 'Renders a Remotion video.',
 			MemorySize: memorySizeInMb,
 			Timeout: timeoutInSeconds,
-			Layers: hostedLayers[architecture][region].map(
+			Layers: __internal_doNotUsehostedLayers[architecture][region].map(
 				({layerArn, version}) => `${layerArn}:${version}`
 			),
 			Architectures: [architecture],
