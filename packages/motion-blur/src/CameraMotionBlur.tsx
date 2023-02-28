@@ -7,6 +7,10 @@ export type CameraMotionBlurProps = {
 	samples?: number;
 };
 
+/**
+ * @description Produces natural looking motion blur similar to what would be produced by a film camera.
+ * @see [Documentation](https://www.remotion.dev/docs/motion-blur/camera-motion-blur)
+ */
 export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 	children,
 	shutterAngle = 180,

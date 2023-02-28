@@ -2,6 +2,10 @@
 
 import {bezier} from './bezier.js';
 
+/**
+ * @description The Easing module implements common easing functions. You can use it with the interpolate() API.
+ * @see [Documentation](https://www.remotion.dev/docs/easing)
+ */
 export class Easing {
 	static step0(n: number): number {
 		return n > 0 ? 1 : 0;

@@ -59,11 +59,15 @@ export type BundleState =
 checkMultipleRemotionVersions();
 
 export * from './AbsoluteFill.js';
-export * from './audio';
+export * from './audio/index.js';
 export {cancelRender} from './cancel-render.js';
 export * from './Composition.js';
-export {SmallTCompMetadata, TAsset, TCompMetadata} from './CompositionManager.js';
-export {Config, ConfigType} from './config';
+export {
+	SmallTCompMetadata,
+	TAsset,
+	TCompMetadata,
+} from './CompositionManager.js';
+export {Config, ConfigType} from './config.js';
 export {getInputProps} from './config/input-props.js';
 export {continueRender, delayRender} from './delay-render.js';
 export * from './easing.js';
@@ -73,27 +77,35 @@ export {getStaticFiles, StaticFile} from './get-static-files.js';
 export * from './IFrame.js';
 export * from './Img.js';
 export * from './internals.js';
-export * from './interpolate.js';
 export {interpolateColors} from './interpolate-colors.js';
-export {Loop} from './loop';
+export * from './interpolate.js';
+export {Loop} from './loop/index.js';
 export {ClipRegion} from './NativeLayers.js';
 export {prefetch} from './prefetch.js';
 export {random, RandomSeed} from './random.js';
 export {registerRoot} from './register-root.js';
 export {Sequence} from './Sequence.js';
-export {Series} from './series';
-export * from './spring';
+export {Series} from './series/index.js';
+export * from './spring/index.js';
 export {staticFile} from './static-file.js';
 export * from './Still.js';
 export type {PlayableMediaTag} from './timeline-position-state.js';
 export {useCurrentFrame} from './use-current-frame.js';
 export * from './use-video-config.js';
 export * from './version.js';
-export * from './video';
 export * from './video-config.js';
+export * from './video/index.js';
 
 export const Experimental = {
+	/**
+	 * @description This is a special component that will cause Remotion to only partially capture the frame of the video.
+	 * @see [Documentation](https://www.remotion.dev/docs/clipper)
+	 */
 	Clipper,
+	/**
+	 * @description This is a special component, that, when rendered, will skip rendering the frame altogether.
+	 * @see [Documentation](https://www.remotion.dev/docs/null)
+	 */
 	Null,
 	useIsPlayer,
 };

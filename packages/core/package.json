@@ -1,15 +1,15 @@
 {
 	"name": "remotion",
-	"version": "3.3.53",
+	"version": "3.3.56",
 	"description": "Render videos in React",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
-	"module": "dist/esm/index.js",
+	"module": "dist/esm/index.mjs",
 	"scripts": {
 		"prepublishOnly": "node ensure-correct-version.js && cp ../../README.md .",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
-		"build": "tsc -d && tsc -d -p tsconfig-cjs.json",
+		"build": "rollup --config rollup-version.config.js && rollup --config rollup.config.js && tsc -d",
 		"watch": "tsc -w"
 	},
 	"repository": {
@@ -25,7 +25,8 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.266",
+		"@jonny/eslint-config": "3.0.273",
+		"@rollup/plugin-typescript": "^8.2.0",
 		"@testing-library/react": "14.0.0",
 		"@types/node": "^16.7.5",
 		"@types/react": "18.0.26",
@@ -40,6 +41,7 @@
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0",
 		"rimraf": "^3.0.2",
+		"rollup": "^2.70.1",
 		"typescript": "^4.7.0",
 		"vitest": "0.24.3"
 	},
@@ -57,14 +59,14 @@
 		"./package.json": "./package.json",
 		".": {
 			"types": "./dist/cjs/index.d.ts",
-			"module": "./dist/esm/index.js",
-			"import": "./dist/esm/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
 			"require": "./dist/cjs/index.js"
 		},
 		"./version": {
 			"types": "./dist/cjs/version.d.ts",
-			"module": "./dist/esm/version.js",
-			"import": "./dist/esm/version.js",
+			"module": "./dist/esm/version.mjs",
+			"import": "./dist/esm/version.mjs",
 			"require": "./dist/cjs/version.js"
 		}
 	},

@@ -10,7 +10,7 @@ import React, {
 } from 'react';
 import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
-import {SequenceContext} from '../Sequence.js';
+import {SequenceContext} from '../SequenceContext.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
