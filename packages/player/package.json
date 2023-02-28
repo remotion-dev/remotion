@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player",
-	"version": "3.3.54",
+	"version": "3.3.56",
 	"description": "Remotion Player",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -8,7 +8,7 @@
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"build": "node ensure-correct-version.js && rollup --config rollup.config.js && tsc -d -p tsconfig-cjs.json",
+		"build": "node ensure-correct-version.js && rollup --config rollup.config.js && tsc -d",
 		"watch": "tsc -w",
 		"prerelease": "cp ../../README.md ."
 	},
@@ -38,15 +38,15 @@
 	],
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"remotion": "3.3.54"
+		"remotion": "3.3.56"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@rollup/plugin-typescript": "^8.2.0",
 		"@jonny/eslint-config": "3.0.273",
+		"@rollup/plugin-typescript": "^8.2.0",
 		"@testing-library/react": "13.1.1",
 		"@types/node": "^14.14.14",
 		"@types/react": "18.0.26",
