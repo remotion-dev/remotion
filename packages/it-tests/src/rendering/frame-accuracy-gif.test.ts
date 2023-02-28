@@ -35,8 +35,6 @@ const getMissedFramesforCodec = async () => {
     }
   );
 
-  console.log(outputPath);
-
   await RenderInternals.callFf("ffmpeg", [
     "-i",
     outputPath,
