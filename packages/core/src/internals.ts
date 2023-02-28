@@ -1,4 +1,4 @@
-import {enableLegacyRemotionConfig} from './config';
+import {enableLegacyRemotionConfig} from './config.js';
 
 import {
 	SharedAudioContext,
@@ -30,7 +30,7 @@ import {portalNode} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {getRoot, waitForRoot} from './register-root.js';
 import {RemotionRoot} from './RemotionRoot.js';
-import {SequenceContext} from './Sequence.js';
+import {SequenceContext} from './SequenceContext.js';
 import {
 	ENV_VARIABLES_ENV_NAME,
 	setupEnvVariables,

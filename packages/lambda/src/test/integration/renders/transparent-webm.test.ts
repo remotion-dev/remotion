@@ -9,7 +9,6 @@ import {LambdaRoutines, rendersPrefix} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaLs, lambdaReadFile} from '../../../functions/helpers/io';
 import type {LambdaReturnValues} from '../../../shared/return-values';
-import {disableLogs, enableLogs} from '../../disable-logs';
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
@@ -19,11 +18,11 @@ const extraContext = {
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
 beforeAll(() => {
-	disableLogs();
+	// disableLogs();
 });
 
 afterAll(async () => {
-	enableLogs();
+	// enableLogs();
 	await RenderInternals.killAllBrowsers();
 });
 
