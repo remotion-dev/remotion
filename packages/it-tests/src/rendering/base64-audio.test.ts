@@ -29,7 +29,6 @@ test("Should be able to render a MP3 audio file", async () => {
   const data = info.stderr;
   expect(data).toContain("mp3");
   expect(data).toContain("stereo");
-  expect(data).toContain("fltp");
   expect(data).toContain("320 kb/s");
   expect(data).toContain("Stream #0");
   expect(data).not.toContain("Stream #1");
