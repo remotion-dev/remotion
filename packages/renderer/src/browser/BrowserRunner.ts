@@ -102,7 +102,7 @@ export class BrowserRunner {
 				// Cleanup as processes exit.
 				try {
 					if (fs.existsSync(this.#userDataDir)) {
-						await deleteDirectory(this.#userDataDir);
+						deleteDirectory(this.#userDataDir);
 					}
 
 					fulfill();

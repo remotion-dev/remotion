@@ -99,14 +99,20 @@ export type RenderMediaOptions = {
 	port?: number | null;
 	cancelSignal?: CancelSignal;
 	browserExecutable?: BrowserExecutable;
-	verbose?: boolean;
-	/**
-	 * @deprecated Only for Remotion internal usage
-	 */
-	downloadMap?: DownloadMap;
-	/**
-	 * @deprecated Only for Remotion internal usage
-	 */
+	internal?: {
+		/**
+		 * @deprecated Only for Remotion internal usage
+		 */
+		verbose?: boolean;
+		/**
+		 * @deprecated Only for Remotion internal usage
+		 */
+		downloadMap?: DownloadMap;
+		/**
+		 * @deprecated Only for Remotion internal usage
+		 */
+		onCtrlCExit?: (fn: () => void) => void;
+	};
 	preferLossless?: boolean;
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
@@ -228,7 +234,8 @@ export const renderMedia = ({
 	let cancelled = false;
 
 	const renderStart = Date.now();
-	const downloadMap = options.downloadMap ?? makeDownloadMap();
+	const downloadMap = options.internal?.downloadMap ?? makeDownloadMap();
+
 	const {estimatedUsage, freeMemory, hasEnoughMemory} =
 		shouldUseParallelEncoding({
 			height: composition.height,
@@ -239,7 +246,7 @@ export const renderMedia = ({
 		hasEnoughMemory &&
 		canUseParallelEncoding(codec);
 
-	if (options.verbose) {
+	if (options.internal?.verbose) {
 		console.log(
 			'[PRESTITCHER] Free memory:',
 			freeMemory,
@@ -281,6 +288,10 @@ export const renderMedia = ({
 	const outputDir = parallelEncoding
 		? null
 		: fs.mkdtempSync(path.join(os.tmpdir(), 'react-motion-render'));
+
+	if (options.internal?.onCtrlCExit && outputDir) {
+		options.internal.onCtrlCExit(() => deleteDirectory(outputDir));
+	}
 
 	validateEvenDimensionsWithCodec({
 		codec,
@@ -340,7 +351,7 @@ export const renderMedia = ({
 						encodedFrames = frame;
 						callUpdate();
 					},
-					verbose: options.verbose ?? false,
+					verbose: options.internal?.verbose ?? false,
 					ffmpegExecutable,
 					imageFormat,
 					signal: cancelPrestitcher.cancelSignal,
@@ -497,7 +508,7 @@ export const renderMedia = ({
 					},
 					onDownload,
 					numberOfGifLoops,
-					verbose: options.verbose,
+					verbose: options.internal?.verbose,
 					dir: outputDir ?? undefined,
 					cancelSignal: cancelStitcher.cancelSignal,
 					muted: disableAudio,
@@ -551,7 +562,7 @@ export const renderMedia = ({
 			}
 
 			// Clean download map if it was not passed in
-			if (!options?.downloadMap) {
+			if (!options.internal?.downloadMap) {
 				cleanDownloadMap(downloadMap);
 			}
 
