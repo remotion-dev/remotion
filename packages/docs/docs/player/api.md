@@ -373,6 +373,12 @@ export const App: React.FC = () => {
 };
 ```
 
+### `alwaysShowControls` <AvailableFrom v="3.3.55" />
+
+_optional_
+
+If true, displays the player controls at all times even if the mouse is outside the player area. Default `false`.
+
 ## `PlayerRef`
 
 You may attach a ref to the player and control it in an imperative manner.

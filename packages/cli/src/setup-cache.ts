@@ -27,7 +27,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	publicDir: string | null;
 }): Promise<{
 	urlOrBundle: string;
-	cleanup: () => Promise<void>;
+	cleanup: () => void;
 }> => {
 	if (RenderInternals.isServeUrl(fullPath)) {
 		return {

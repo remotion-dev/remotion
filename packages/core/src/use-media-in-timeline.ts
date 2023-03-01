@@ -6,7 +6,7 @@ import {getAssetDisplayName} from './get-asset-file-name.js';
 import {useRemotionEnvironment} from './get-environment.js';
 import {useNonce} from './nonce.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
-import {SequenceContext} from './Sequence.js';
+import {SequenceContext} from './SequenceContext.js';
 import type {PlayableMediaTag} from './timeline-position-state.js';
 import {TimelineContext, usePlayingState} from './timeline-position-state.js';
 import {useVideoConfig} from './use-video-config.js';

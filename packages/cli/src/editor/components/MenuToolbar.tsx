@@ -1,3 +1,4 @@
+import type {SetStateAction} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import {BACKGROUND} from '../helpers/colors';
 import {useMenuStructure} from '../helpers/use-menu-structure';
@@ -24,10 +25,10 @@ const flex: React.CSSProperties = {
 };
 
 export const MenuToolbar: React.FC = () => {
-	const [selected, setSelected] = useState<MenuId | null>(null);
+	const [selected, setSelected] = useState<string | null>(null);
 
 	const itemClicked = useCallback(
-		(itemId: MenuId) => {
+		(itemId: SetStateAction<string | null>) => {
 			setSelected(itemId);
 		},
 		[setSelected]
@@ -58,7 +59,7 @@ export const MenuToolbar: React.FC = () => {
 				return null;
 			}
 
-			return menus[(menus.indexOf(s) + 1) % menus.length];
+			return menus[(menus.indexOf(s as MenuId) + 1) % menus.length];
 		});
 	}, [menus]);
 
@@ -68,11 +69,11 @@ export const MenuToolbar: React.FC = () => {
 				return null;
 			}
 
-			if (menus.indexOf(s) === 0) {
+			if (menus.indexOf(s as MenuId) === 0) {
 				return menus[menus.length - 1];
 			}
 
-			return menus[(menus.indexOf(s) - 1) % menus.length];
+			return menus[(menus.indexOf(s as MenuId) - 1) % menus.length];
 		});
 	}, [menus]);
 

@@ -18,7 +18,9 @@ const prepareOutDir = async (specified: string | null) => {
 		return specified;
 	}
 
-	return fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-graphics'));
+	return fs.promises.mkdtemp(
+		path.join(os.tmpdir(), 'remotion-webpack-bundle-')
+	);
 };
 
 const trimLeadingSlash = (p: string): string => {
@@ -147,6 +149,10 @@ const validateEntryPoint = async (entryPoint: string) => {
 	}
 };
 
+/**
+ * @description The method bundles a Remotion project using Webpack and prepares it for rendering using renderMedia()
+ * @see [Documentation](https://www.remotion.dev/docs/bundle)
+ */
 export async function bundle(...args: Arguments): Promise<string> {
 	const actualArgs = convertArgumentsIntoOptions(args);
 	const entryPoint = path.resolve(process.cwd(), actualArgs.entryPoint);
