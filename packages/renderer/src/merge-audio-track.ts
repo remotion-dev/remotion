@@ -79,7 +79,7 @@ const mergeAudioTrackUnlimited = async ({
 				remotionRoot,
 			});
 		} finally {
-			await deleteDirectory(tempPath);
+			deleteDirectory(tempPath);
 		}
 	}
 
