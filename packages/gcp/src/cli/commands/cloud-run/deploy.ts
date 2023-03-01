@@ -39,7 +39,7 @@ Service Name = ${serviceName}
 Project Name = ${projectID}
 Region = ${region}
 Allow Unauthenticated Access = ${allowUnauthenticated}
-Overwrite exsting service = ${overwriteService}
+Overwrite existing service = ${overwriteService}
 				`.trim()
 			)
 		);
