@@ -14,7 +14,7 @@ npm run build
 The underlying command in package.json is defined as follows:
 
 ```bash
-npx remotion render HelloWorld out/video.mp4
+npx remotion render HelloWorld
 ```
 
 Modify it to select a different video to render, or change its output location.
