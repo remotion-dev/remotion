@@ -1,4 +1,5 @@
 import type {
+	AudioCodec,
 	Browser,
 	BrowserExecutable,
 	CancelSignal,
@@ -26,6 +27,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {chalk} from '../chalk';
+import {registerCleanupJob} from '../cleanup-before-quit';
 import {ConfigInternals} from '../config';
 import type {Loop} from '../config/number-of-gif-loops';
 import {
@@ -93,6 +95,7 @@ export const renderCompFlow = async ({
 	pixelFormat,
 	videoBitrate,
 	numberOfGifLoops,
+	audioCodec,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -124,7 +127,7 @@ export const renderCompFlow = async ({
 	configFileImageFormat: ImageFormat | undefined;
 	quality: number | undefined;
 	onProgress: JobProgressCallback;
-	addCleanupCallback: (cb: () => Promise<void>) => void;
+	addCleanupCallback: (cb: () => void) => void;
 	crf: Crf | null;
 	cancelSignal: CancelSignal | null;
 	uiCodec: Codec | null;
@@ -137,10 +140,13 @@ export const renderCompFlow = async ({
 	proResProfile: ProResProfile | undefined;
 	pixelFormat: PixelFormat;
 	numberOfGifLoops: Loop;
+	// TODO: No UI option for it
+	audioCodec: AudioCodec | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
 	const downloadMap = RenderInternals.makeDownloadMap();
 	addCleanupCallback(() => RenderInternals.cleanDownloadMap(downloadMap));
+	registerCleanupJob(() => RenderInternals.cleanDownloadMap(downloadMap));
 
 	const ffmpegVersion = await RenderInternals.getFfmpegVersion({
 		ffmpegExecutable,
@@ -185,7 +191,9 @@ export const renderCompFlow = async ({
 			logLevel,
 		}
 	);
-	addCleanupCallback(cleanupBundle);
+
+	registerCleanupJob(() => cleanupBundle());
+	addCleanupCallback(() => cleanupBundle());
 
 	const onDownload: RenderMediaOnDownload = (src) => {
 		const id = Math.random();
@@ -207,6 +215,7 @@ export const renderCompFlow = async ({
 	};
 
 	const puppeteerInstance = await browserInstance;
+	registerCleanupJob(() => puppeteerInstance.close(false));
 	addCleanupCallback(() => puppeteerInstance.close(false));
 
 	const comps = await getCompositions(urlOrBundle, {
@@ -247,10 +256,12 @@ export const renderCompFlow = async ({
 	});
 
 	const relativeOutputLocation = getOutputFilename({
-		codec,
 		imageSequence: shouldOutputImageSequence,
 		compositionName: compositionId,
-		defaultExtension: RenderInternals.getFileExtensionFromCodec(codec),
+		defaultExtension: RenderInternals.getFileExtensionFromCodec(
+			codec,
+			audioCodec
+		),
 		args: argsAfterComposition,
 		indent,
 		fromUi: outputLocationFromUI,
@@ -445,7 +456,10 @@ export const renderCompFlow = async ({
 		},
 		puppeteerInstance,
 		onDownload,
-		downloadMap,
+		internal: {
+			onCtrlCExit: registerCleanupJob,
+			downloadMap,
+		},
 		cancelSignal: cancelSignal ?? undefined,
 		onSlowestFrames: (slowestFrames) => {
 			Log.verboseAdvanced({indent, logLevel});

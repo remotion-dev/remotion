@@ -50,7 +50,7 @@ export const processJob = async ({
 	remotionRoot: string;
 	entryPoint: string;
 	onProgress: JobProgressCallback;
-	addCleanupCallback: (cb: () => Promise<void>) => void;
+	addCleanupCallback: (cb: () => void) => void;
 }) => {
 	if (job.type === 'still') {
 		await processStill({
@@ -134,7 +134,7 @@ export const processJobIfPossible = async ({
 		return;
 	}
 
-	const jobCleanups: (() => Promise<void>)[] = [];
+	const jobCleanups: (() => void)[] = [];
 
 	try {
 		updateJob(nextJob.id, (job) => {

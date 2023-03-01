@@ -55,7 +55,7 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		remotionRoot,
 	});
 
-	const jobCleanups: (() => Promise<void>)[] = [];
+	const jobCleanups: (() => void)[] = [];
 
 	try {
 		await renderStillFlow({

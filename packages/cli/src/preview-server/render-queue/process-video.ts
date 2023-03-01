@@ -14,7 +14,7 @@ export const processVideoJob = async ({
 	remotionRoot: string;
 	entryPoint: string;
 	onProgress: JobProgressCallback;
-	addCleanupCallback: (cb: () => Promise<void>) => void;
+	addCleanupCallback: (cb: () => void) => void;
 }) => {
 	if (job.type !== 'video') {
 		throw new Error('Expected video job');
@@ -84,6 +84,8 @@ export const processVideoJob = async ({
 		pixelFormat: job.pixelFormat,
 		videoBitrate: job.videoBitrate,
 		numberOfGifLoops: job.numberOfGifLoops,
+		// TODO
+		audioCodec: null,
 	});
 	// TODO: Accept CLI options
 };
