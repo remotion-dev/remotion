@@ -275,6 +275,7 @@ const renderHandler = async (
 			downloadBehavior: null,
 			customCredentials: null,
 		}),
+		RenderInternals.cleanDownloadMap(downloadMap),
 	]);
 };
 
