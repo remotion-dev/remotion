@@ -126,7 +126,9 @@ export const deploySite = async ({
 		),
 	]);
 
-	rmdirSync(bundled, {recursive: true});
+	if (!process.env.VITEST) {
+		rmdirSync(bundled, {recursive: true});
+	}
 
 	return {
 		serveUrl: makeS3ServeUrl({bucketName, subFolder, region}),
