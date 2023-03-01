@@ -166,12 +166,10 @@ const getAssetsData = async ({
 
 	onProgress(1);
 
-	await Promise.all([
-		deleteDirectory(downloadMap.audioMixing),
-		...preprocessed.map((p) => {
-			return deleteDirectory(p);
-		}),
-	]);
+	deleteDirectory(downloadMap.audioMixing);
+	preprocessed.forEach((p) => {
+		deleteDirectory(p);
+	});
 
 	return outName;
 };
@@ -326,7 +324,7 @@ export const spawnFfmpeg = async (
 		await ffmpegTask;
 		options.onProgress?.(expectedFrames);
 		if (audio) {
-			await deleteDirectory(path.dirname(audio));
+			deleteDirectory(path.dirname(audio));
 		}
 
 		const file = await new Promise<Buffer | null>((resolve, reject) => {
@@ -341,7 +339,7 @@ export const spawnFfmpeg = async (
 				resolve(null);
 			}
 		});
-		await deleteDirectory(options.assetsInfo.downloadMap.stitchFrames);
+		deleteDirectory(options.assetsInfo.downloadMap.stitchFrames);
 
 		return {
 			getLogs: () => '',

@@ -18,7 +18,9 @@ const prepareOutDir = async (specified: string | null) => {
 		return specified;
 	}
 
-	return fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-graphics'));
+	return fs.promises.mkdtemp(
+		path.join(os.tmpdir(), 'remotion-webpack-bundle-')
+	);
 };
 
 const trimLeadingSlash = (p: string): string => {
