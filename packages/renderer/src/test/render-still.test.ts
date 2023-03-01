@@ -42,9 +42,9 @@ test('Returns buffer in promise result', async () => {
 	cleanDownloadMap(downloadMap);
 });
 
-test('Need to pass valid metadata', () => {
+test('Need to pass valid metadata', async () => {
 	const downloadMap = makeDownloadMap();
-	return expect(() =>
+	await expect(() =>
 		renderStill({
 			composition: {
 				width: 1000,
@@ -62,6 +62,7 @@ test('Need to pass valid metadata', () => {
 	).rejects.toThrow(
 		/Cannot use frame 200: Duration of composition is 30, therefore the highest frame that can be rendered is 29/
 	);
+	cleanDownloadMap(downloadMap);
 });
 
 test('Catches invalid image format', () => {

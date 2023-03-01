@@ -79,9 +79,9 @@ test('Get audio channels for video with music', async () => {
 test('Throw error if parsing a non video file', () => {
 	const downloadMap = makeDownloadMap();
 	const tsFile = path.join(__dirname, '..', 'ffmpeg-flags.ts');
-	cleanDownloadMap(downloadMap);
 	expect(existsSync(tsFile)).toEqual(true);
 	expect(() =>
 		getAudioChannelsAndDuration(downloadMap, tsFile, null, process.cwd())
 	).rejects.toThrow(/Invalid data found when processing input/);
+	cleanDownloadMap(downloadMap);
 });
