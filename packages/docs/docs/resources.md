@@ -18,7 +18,6 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Skia](https://github.com/marcusstenbeck/template-skia)
 - [Tailwind](https://github.com/marcusstenbeck/template-tailwind)
 - [Hello World Template with pull request video previews](https://github.com/stoat-dev/example-remotion)
-- [DevContainer Template](https://github.com/openscript/remotion-devcontainer-template)
 
 ## SaaS starter Kits
 
@@ -80,6 +79,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Conference talk in React](https://github.com/pomber/record-talk-with-remotion)
 - [Conference talk in React #2](https://github.com/JonnyBurger/react-summit-talk)
 - [Twitch stinger example](https://github.com/JonnyBurger/ledevevent-stinger)
+- [DevContainer Template](https://github.com/openscript/remotion-devcontainer-template)
 
 ## Videos
 
