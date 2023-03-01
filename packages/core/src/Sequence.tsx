@@ -85,13 +85,6 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	// Infinity is non-integer but allowed!
-	if (durationInFrames % 1 !== 0 && Number.isFinite(durationInFrames)) {
-		throw new TypeError(
-			`The "durationInFrames" of a sequence must be an integer, but got ${durationInFrames}.`
-		);
-	}
-
 	if (typeof from !== 'number') {
 		throw new TypeError(
 			`You passed to the "from" props of your <Sequence> an argument of type ${typeof from}, but it must be a number.`
