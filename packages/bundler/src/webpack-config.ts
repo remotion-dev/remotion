@@ -51,7 +51,7 @@ export const webpackConfig = ({
 }: {
 	entry: string;
 	userDefinedComponent: string;
-	outDir: string;
+	outDir: string | null;
 	environment: 'development' | 'production';
 	webpackOverride: WebpackOverrideFn;
 	onProgress?: (f: number) => void;
@@ -201,7 +201,7 @@ export const webpackConfig = ({
 				: false,
 			output: {
 				...conf.output,
-				path: outDir,
+				...(outDir ? {path: outDir} : {}),
 			},
 			context: remotionRoot,
 		},
