@@ -1,8 +1,12 @@
-export const validateDurationInFrames = (
-	durationInFrames: number,
-	component: string,
-	allowFloats: boolean
-) => {
+export const validateDurationInFrames = ({
+	allowFloats,
+	component,
+	durationInFrames,
+}: {
+	durationInFrames: number;
+	component: string;
+	allowFloats: boolean;
+}) => {
 	if (typeof durationInFrames !== 'number') {
 		throw new Error(
 			`The "durationInFrames" prop ${component} must be a number, but you passed a value of type ${typeof durationInFrames}`
