@@ -8,6 +8,7 @@ import {
 import {mkdirSync} from 'fs';
 import path from 'path';
 import {chalk} from './chalk';
+import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
 import {determineFinalImageFormat} from './determine-image-format';
 import {findEntryPoint} from './entry-point';
@@ -99,9 +100,12 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		{fullPath: file, remotionRoot, steps, publicDir}
 	);
 
+	registerCleanupJob(() => cleanupBundle());
+
 	const puppeteerInstance = await browserInstance;
 
 	const downloadMap = RenderInternals.makeDownloadMap();
+	registerCleanupJob(() => RenderInternals.cleanDownloadMap(downloadMap));
 
 	const comps = await getCompositions(urlOrBundle, {
 		inputProps,
@@ -239,8 +243,4 @@ export const still = async (remotionRoot: string, args: string[]) => {
 	Log.info('-', 'Output can be found at:');
 	Log.info(chalk.cyan(`▶️ ${absoluteOutputLocation}`));
 	await closeBrowserPromise;
-	await RenderInternals.cleanDownloadMap(downloadMap);
-	await cleanupBundle();
-
-	Log.verbose('Cleaned up', downloadMap.assetDir);
 };
