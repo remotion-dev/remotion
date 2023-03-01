@@ -94,10 +94,8 @@ test('Should make a transparent video', async () => {
 	});
 
 	// We create a temporary directory for storing the frames
-	const out = path.join(
-		await fs.promises.mkdtemp(path.join(os.tmpdir(), 'remotion-')),
-		'hithere.webm'
-	);
+	const tmpdir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'remotion-'));
+	const out = path.join(tmpdir, 'hithere.webm');
 	file.pipe(createWriteStream(out));
 
 	await new Promise<void>((resolve) => {
@@ -131,5 +129,6 @@ test('Should make a transparent video', async () => {
 		prefix: rendersPrefix(startRes.renderId),
 	});
 
+	RenderInternals.deleteDirectory(tmpdir);
 	expect(expectFiles.length).toBe(0);
 });
