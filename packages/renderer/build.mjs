@@ -223,7 +223,7 @@ for (const arch of archs) {
 			unlinkSync(path.join(libDir, file));
 		} else if (lstatSync(path.join(libDir, file)).isSymbolicLink()) {
 			unlinkSync(path.join(libDir, file));
-		} else if (file.endsWith('.dylib') && !file.endsWith('100.dylib')) {
+		} else if (file.endsWith('.dylib') && file.split('.').length !== 3) {
 			unlinkSync(path.join(libDir, file));
 		} else if (file.endsWith('.la')) {
 			unlinkSync(path.join(libDir, file));
