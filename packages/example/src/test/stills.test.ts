@@ -26,7 +26,7 @@ test(
 			(c) => c.id === 'react-svg'
 		) as TCompMetadata;
 
-		const folder = path.join(tmpdir(), 'path/to');
+		const folder = path.join(tmpdir(), 'path', 'to');
 		const testOut = path.join(folder, 'still.png');
 
 		const downloadMap = RenderInternals.makeDownloadMap();
@@ -55,8 +55,6 @@ test(
 		).rejects.toThrow(
 			/Cannot use frame 500: Duration of composition is 300, therefore the highest frame that can be rendered is 299/
 		);
-
-		RenderInternals.deleteDirectory(folder);
 
 		await expect(() =>
 			renderStill({
@@ -87,6 +85,7 @@ test(
 		expect(existsSync(testOut)).toBe(true);
 		unlinkSync(testOut);
 		RenderInternals.deleteDirectory(bundled);
+		RenderInternals.deleteDirectory(folder);
 		cleanDownloadMap(downloadMap);
 
 		await close();
