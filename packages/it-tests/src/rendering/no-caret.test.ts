@@ -14,10 +14,12 @@ test("Should not have carets in Remotion versions", async () => {
       continue;
     }
 
-    const packageJson = fs.readFileSync(
-      path.join(packagesDir, pkg, "package.json"),
-      "utf-8"
-    );
+    const packageJsonPath = path.join(packagesDir, pkg, "package.json");
+    if (!fs.existsSync(packageJsonPath)) {
+      continue;
+    }
+
+    const packageJson = fs.readFileSync(packageJsonPath, "utf-8");
     const json = JSON.parse(packageJson);
     if (!json.dependencies) {
       continue;

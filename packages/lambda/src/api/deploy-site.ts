@@ -1,4 +1,5 @@
 import type {WebpackOverrideFn} from '@remotion/bundler';
+import {rmdirSync} from 'fs';
 import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {bundleSite} from '../shared/bundle-site';
@@ -124,6 +125,10 @@ export const deploySite = async ({
 			})
 		),
 	]);
+
+	if (!process.env.VITEST) {
+		rmdirSync(bundled, {recursive: true});
+	}
 
 	return {
 		serveUrl: makeS3ServeUrl({bucketName, subFolder, region}),
