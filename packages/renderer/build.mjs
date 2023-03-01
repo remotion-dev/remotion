@@ -1,5 +1,13 @@
 import {execSync} from 'child_process';
-import {copyFileSync, existsSync, mkdirSync} from 'fs';
+import {
+	copyFileSync,
+	existsSync,
+	lstatSync,
+	mkdirSync,
+	readdirSync,
+	rmSync,
+	unlinkSync,
+} from 'fs';
 import os from 'os';
 import path from 'path';
 
@@ -196,5 +204,57 @@ for (const arch of archs) {
 		},
 	});
 	const copyInstructions = copyDestinations[arch];
+
+	const libDir = path.join(
+		copyDestinations[arch].dir,
+		'ffmpeg',
+		'remotion',
+		'lib'
+	);
+	const binDir = path.join(
+		copyDestinations[arch].dir,
+		'ffmpeg',
+		'remotion',
+		'bin'
+	);
+	const files = readdirSync(libDir);
+	for (const file of files) {
+		if (file.endsWith('.a')) {
+			unlinkSync(path.join(libDir, file));
+		} else if (lstatSync(path.join(libDir, file)).isSymbolicLink()) {
+			unlinkSync(path.join(libDir, file));
+		} else if (file.endsWith('.dylib') && !file.endsWith('100.dylib')) {
+			unlinkSync(path.join(libDir, file));
+		} else if (file.endsWith('.la')) {
+			unlinkSync(path.join(libDir, file));
+		} else if (file.endsWith('.def')) {
+			unlinkSync(path.join(libDir, file));
+		} else if (file.includes('libvpx')) {
+			unlinkSync(path.join(libDir, file));
+		} else if (file.endsWith('.lib')) {
+			unlinkSync(path.join(libDir, file));
+		}
+	}
+
+	const binFiles = readdirSync(binDir);
+	for (const file of binFiles) {
+		if (!file.includes('ffmpeg') && !file.includes('ffprobe')) {
+			unlinkSync(path.join(binDir, file));
+		}
+	}
+
+	rmSync(path.join(libDir, 'pkgconfig'), {recursive: true});
+	rmSync(path.join(copyDestinations[arch].dir, 'ffmpeg', 'remotion', 'share'), {
+		recursive: true,
+	});
+	rmSync(
+		path.join(copyDestinations[arch].dir, 'ffmpeg', 'remotion', 'include'),
+		{
+			recursive: true,
+		}
+	);
+	rmSync(path.join(copyDestinations[arch].dir, 'ffmpeg', 'bindings.rs'), {
+		recursive: true,
+	});
 	copyFileSync(copyInstructions.from, copyInstructions.to);
 }
