@@ -1,6 +1,7 @@
 export const validateDurationInFrames = (
 	durationInFrames: number,
-	component: string
+	component: string,
+	allowFloats: boolean
 ) => {
 	if (typeof durationInFrames !== 'number') {
 		throw new Error(
@@ -14,9 +15,15 @@ export const validateDurationInFrames = (
 		);
 	}
 
-	if (durationInFrames % 1 !== 0) {
+	if (!allowFloats && durationInFrames % 1 !== 0) {
 		throw new TypeError(
 			`The "durationInFrames" prop ${component} must be an integer, but got ${durationInFrames}.`
+		);
+	}
+
+	if (!Number.isFinite(durationInFrames)) {
+		throw new TypeError(
+			`The "durationInFrames" prop ${component} must be finite, but got ${durationInFrames}.`
 		);
 	}
 };

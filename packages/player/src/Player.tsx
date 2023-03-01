@@ -63,7 +63,7 @@ export type PlayerProps<T> = {
 	initiallyShowControls?: number | boolean;
 	renderPlayPauseButton?: RenderPlayPauseButton;
 	renderFullscreenButton?: RenderFullscreenButton;
-  alwaysShowControls?: boolean;
+	alwaysShowControls?: boolean;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -109,7 +109,7 @@ const PlayerFn = <T,>(
 		initiallyShowControls,
 		renderFullscreenButton,
 		renderPlayPauseButton,
-    alwaysShowControls = false,
+		alwaysShowControls = false,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -183,7 +183,8 @@ const PlayerFn = <T,>(
 	);
 	Internals.validateDurationInFrames(
 		durationInFrames,
-		'of the <Player/> component'
+		'of the <Player/> component',
+		false
 	);
 	Internals.validateFps(fps, 'as a prop of the <Player/> component', false);
 
@@ -357,7 +358,7 @@ const PlayerFn = <T,>(
 							initiallyShowControls={initiallyShowControls ?? true}
 							renderFullscreen={renderFullscreenButton ?? null}
 							renderPlayPauseButton={renderPlayPauseButton ?? null}
-              alwaysShowControls={alwaysShowControls}
+							alwaysShowControls={alwaysShowControls}
 						/>
 					</PlayerEventEmitterContext.Provider>
 				</Internals.Timeline.SetTimelineContext.Provider>

@@ -183,7 +183,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	});
 	Internals.validateDurationInFrames(
 		comp.durationInFrames,
-		'passed to a Lambda render'
+		'passed to a Lambda render',
+		false
 	);
 	Internals.validateFps(comp.fps, 'passed to a Lambda render', false);
 	Internals.validateDimension(

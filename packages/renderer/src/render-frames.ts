@@ -530,7 +530,8 @@ export const renderFrames = (
 	);
 	Internals.validateDurationInFrames(
 		composition.durationInFrames,
-		'in the `config` object passed to `renderFrames()`'
+		'in the `config` object passed to `renderFrames()`',
+		false
 	);
 	if (options.quality !== undefined && options.imageFormat !== 'jpeg') {
 		throw new Error(
