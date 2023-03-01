@@ -42,7 +42,7 @@
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
-		"@remotion/bundler": "3.3.44",
+		"@remotion/bundler": "3.3.58",
 		"@remotion/compositor-linux-arm64-musl": "3.3.58",
 		"@remotion/compositor-linux-x64-musl": "3.3.58",
 		"@types/mime-types": "2.1.1",
@@ -58,7 +58,7 @@
 		"zip-lib": "^0.7.2"
 	},
 	"peerDependencies": {
-		"@remotion/bundler": "3.3.44"
+		"@remotion/bundler": "3.3.58"
 	},
 	"publishConfig": {
 		"access": "public"
