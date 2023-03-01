@@ -20,6 +20,7 @@ import {
 import {mkdirSync} from 'fs';
 import path from 'path';
 import {chalk} from '../chalk';
+import {registerCleanupJob} from '../cleanup-before-quit';
 import {determineFinalImageFormat} from '../determine-image-format';
 import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
@@ -99,7 +100,7 @@ export const renderStillFlow = async ({
 	configFileImageFormat: ImageFormat | undefined;
 	onProgress: JobProgressCallback;
 	indentOutput: boolean;
-	addCleanupCallback: (cb: () => Promise<void>) => void;
+	addCleanupCallback: (cb: () => void) => void;
 	cancelSignal: CancelSignal | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
@@ -165,13 +166,15 @@ export const renderStillFlow = async ({
 		}
 	);
 
-	addCleanupCallback(cleanupBundle);
+	registerCleanupJob(() => cleanupBundle());
+	addCleanupCallback(() => cleanupBundle());
 
 	const puppeteerInstance = await browserInstance;
 	addCleanupCallback(() => puppeteerInstance.close(false));
 
 	const downloadMap = RenderInternals.makeDownloadMap();
 
+	registerCleanupJob(() => RenderInternals.cleanDownloadMap(downloadMap));
 	addCleanupCallback(() => RenderInternals.cleanDownloadMap(downloadMap));
 
 	const comps = await getCompositions(urlOrBundle, {

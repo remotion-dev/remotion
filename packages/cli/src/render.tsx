@@ -68,7 +68,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		remotionRoot,
 	});
 
-	const jobCleanups: (() => Promise<void>)[] = [];
+	const jobCleanups: (() => void)[] = [];
 	try {
 		await renderCompFlow({
 			ffmpegExecutable,
@@ -116,6 +116,8 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			pixelFormat,
 			videoBitrate,
 			numberOfGifLoops,
+			// TODO
+			audioCodec: null,
 		});
 	} finally {
 		await Promise.all(jobCleanups.map((c) => c()));
