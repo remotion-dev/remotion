@@ -24,7 +24,7 @@ const matchCommand = (args: string[], remotionRoot: string) => {
 	}
 
 	if (args[0] === COMPOSITIONS_COMMAND) {
-		return compositionsCommand(args.slice(1), remotionRoot);
+		return compositionsCommand(args.slice(1));
 	}
 
 	if (args[0] === 'deploy') {
