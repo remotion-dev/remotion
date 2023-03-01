@@ -101,7 +101,8 @@ export const Composition = <T,>({
 		validateDimension(height, 'height', 'of the <Composition/> component');
 		validateDurationInFrames(
 			durationInFrames,
-			'of the <Composition/> component'
+			'of the <Composition/> component',
+			false
 		);
 
 		validateFps(fps, 'as a prop of the <Composition/> component', false);

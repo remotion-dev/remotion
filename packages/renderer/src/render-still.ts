@@ -105,7 +105,8 @@ const innerRenderStill = async ({
 	);
 	Internals.validateDurationInFrames(
 		composition.durationInFrames,
-		'in the `config` object passed to `renderStill()`'
+		'in the `config` object passed to `renderStill()`',
+		false
 	);
 	validateNonNullImageFormat(imageFormat);
 	Internals.validateFrame(frame, composition.durationInFrames);

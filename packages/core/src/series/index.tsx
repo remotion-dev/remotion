@@ -83,7 +83,8 @@ const Series: FC<{
 			) {
 				validateDurationInFrames(
 					durationInFramesProp,
-					`of a <Series.Sequence /> component`
+					`of a <Series.Sequence /> component`,
+					true
 				);
 			}
 
