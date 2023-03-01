@@ -88,6 +88,7 @@ export const cli = async () => {
 	} catch (err) {
 		Log.info();
 		await handleCommonError(err as Error);
+		cleanupBeforeQuit();
 		process.exit(1);
 	} finally {
 		RenderInternals.unlockErrorSymbolicationLock(errorSymbolicationLock);
