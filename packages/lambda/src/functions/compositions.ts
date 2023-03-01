@@ -72,6 +72,8 @@ export const compositionsHandler = async (
 		downloadMap,
 	});
 
+	RenderInternals.cleanDownloadMap(downloadMap);
+
 	return Promise.resolve({
 		compositions,
 	});
