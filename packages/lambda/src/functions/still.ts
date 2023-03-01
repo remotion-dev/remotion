@@ -216,6 +216,8 @@ const innerStillHandler = async (
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
 
+	RenderInternals.cleanDownloadMap(downloadMap);
+
 	return {
 		output: getOutputUrlFromMetadata(
 			renderMetadata,

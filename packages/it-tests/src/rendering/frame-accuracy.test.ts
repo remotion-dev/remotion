@@ -5,6 +5,7 @@ import path from "path";
 import sharp from "sharp";
 import { random } from "remotion";
 import { expect, test } from "vitest";
+import { RenderInternals } from "@remotion/renderer";
 
 function selectColor(color: string, frame: number) {
   return Math.floor((random(`${color}-${frame}`) * 255) % 255);
@@ -81,6 +82,8 @@ const getMissedFramesforCodec = async (
       missedFrames++;
     }
   }
+  RenderInternals.deleteDirectory(outputPath);
+
   return missedFrames;
 };
 
