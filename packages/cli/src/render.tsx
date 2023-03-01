@@ -204,8 +204,13 @@ export const render = async (remotionRoot: string, args: string[]) => {
 	);
 
 	const outputDir = shouldOutputImageSequence
-		? absoluteOutputFile
-		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
+		? {dir: absoluteOutputFile, cleanup: false}
+		: {
+				dir: await fs.promises.mkdtemp(
+					path.join(os.tmpdir(), 'react-motion-render')
+				),
+				cleanup: true,
+		  };
 
 	Log.verbose('Output dir', outputDir);
 
@@ -289,7 +294,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 					Log.info('\nDownloading asset... ', src);
 				}
 			},
-			outputDir,
+			outputDir: outputDir.dir,
 			serveUrl: urlOrBundle,
 			dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
 				ConfigInternals.Logging.getLogLevel(),
@@ -368,6 +373,9 @@ export const render = async (remotionRoot: string, args: string[]) => {
 	try {
 		await cleanupBundle();
 		await RenderInternals.cleanDownloadMap(downloadMap);
+		if (outputDir.cleanup) {
+			await RenderInternals.deleteDirectory(outputDir.dir);
+		}
 
 		Log.verbose('Cleaned up', downloadMap.assetDir);
 	} catch (err) {
