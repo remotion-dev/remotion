@@ -1,9 +1,10 @@
 import {expect, test} from 'vitest';
-import {makeDownloadMap} from '../assets/download-map';
+import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
 import {renderStill} from '../render-still';
 
-test('Need to pass valid metadata', () => {
-	return expect(() =>
+test('Need to pass valid metadata', async () => {
+	const downloadMap = makeDownloadMap();
+	await expect(() =>
 		renderStill({
 			composition: {
 				width: NaN,
@@ -16,12 +17,14 @@ test('Need to pass valid metadata', () => {
 			frame: 0,
 			output: '/file/output.png',
 			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
-			downloadMap: makeDownloadMap(),
+			downloadMap,
 		})
 	).rejects.toThrow(/not be NaN, but is NaN/);
+	cleanDownloadMap(downloadMap);
 });
 
 test('Returns buffer in promise result', async () => {
+	const downloadMap = makeDownloadMap();
 	const {buffer} = await renderStill({
 		composition: {
 			width: 1000,
@@ -33,12 +36,14 @@ test('Returns buffer in promise result', async () => {
 		},
 		frame: 0,
 		serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
-		downloadMap: makeDownloadMap(),
+		downloadMap,
 	});
-	return expect(buffer?.length).toBeGreaterThan(1000);
+	expect(buffer?.length).toBeGreaterThan(1000);
+	cleanDownloadMap(downloadMap);
 });
 
 test('Need to pass valid metadata', () => {
+	const downloadMap = makeDownloadMap();
 	return expect(() =>
 		renderStill({
 			composition: {
@@ -52,7 +57,7 @@ test('Need to pass valid metadata', () => {
 			frame: 200,
 			output: '/file/output.png',
 			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
-			downloadMap: makeDownloadMap(),
+			downloadMap,
 		})
 	).rejects.toThrow(
 		/Cannot use frame 200: Duration of composition is 30, therefore the highest frame that can be rendered is 29/

@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import {expect, test} from 'vitest';
 import type {DownloadMap} from '../assets/download-map';
-import {makeDownloadMap} from '../assets/download-map';
+import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
 import type {LastFrameOptions} from '../last-frame-from-video-cache';
 import {
 	clearLastFileCache,
@@ -65,4 +65,5 @@ test('Last frame video cache', () => {
 	).toBe(10 * 1024 * 1024);
 
 	clearLastFileCache(downloadMap);
+	cleanDownloadMap(downloadMap);
 });
