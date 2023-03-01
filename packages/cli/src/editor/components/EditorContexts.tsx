@@ -10,6 +10,11 @@ import {
 	loadCheckerboardOption,
 	persistCheckerboardOption,
 } from '../state/checkerboard';
+import {
+	EditorZoomGesturesContext,
+	loadEditorZoomGesturesOption,
+	persistEditorZoomGesturesOption,
+} from '../state/editor-zoom-gestures';
 import {FolderContextProvider} from '../state/folders';
 import {HighestZIndexProvider} from '../state/highest-z-index';
 import type {
@@ -63,6 +68,19 @@ export const EditorContexts: React.FC<{
 		},
 		[]
 	);
+	const [editorZoomGestures, setEditorZoomGesturesState] = useState(() =>
+		loadEditorZoomGesturesOption()
+	);
+	const setEditorZoomGestures = useCallback(
+		(newValue: (prevState: boolean) => boolean) => {
+			setEditorZoomGesturesState((prevState) => {
+				const newVal = newValue(prevState);
+				persistEditorZoomGesturesOption(newVal);
+				return newVal;
+			});
+		},
+		[]
+	);
 	const [richTimeline, setRichTimelineState] = useState(() =>
 		loadRichTimelineOption()
 	);
@@ -88,6 +106,12 @@ export const EditorContexts: React.FC<{
 			setCheckerboard,
 		};
 	}, [checkerboard, setCheckerboard]);
+	const editorZoomGesturesCtx = useMemo(() => {
+		return {
+			editorZoomGestures,
+			setEditorZoomGestures,
+		};
+	}, [editorZoomGestures, setEditorZoomGestures]);
 	const richTimelineCtx = useMemo(() => {
 		return {
 			richTimeline,
@@ -120,37 +144,39 @@ export const EditorContexts: React.FC<{
 		<KeybindingContextProvider>
 			<RichTimelineContext.Provider value={richTimelineCtx}>
 				<CheckerboardContext.Provider value={checkerboardCtx}>
-					<PreviewSizeProvider>
-						<ModalsContext.Provider value={modalsContext}>
-							<Internals.MediaVolumeContext.Provider
-								value={mediaVolumeContextValue}
-							>
-								<Internals.SetMediaVolumeContext.Provider
-									value={setMediaVolumeContextValue}
+					<EditorZoomGesturesContext.Provider value={editorZoomGesturesCtx}>
+						<PreviewSizeProvider>
+							<ModalsContext.Provider value={modalsContext}>
+								<Internals.MediaVolumeContext.Provider
+									value={mediaVolumeContextValue}
 								>
-									<PlayerInternals.PlayerEventEmitterContext.Provider
-										value={emitter}
+									<Internals.SetMediaVolumeContext.Provider
+										value={setMediaVolumeContextValue}
 									>
-										<SidebarContextProvider>
-											<FolderContextProvider>
-												<HighestZIndexProvider>
-													<TimelineInOutContext.Provider
-														value={timelineInOutContextValue}
-													>
-														<SetTimelineInOutContext.Provider
-															value={setTimelineInOutContextValue}
+										<PlayerInternals.PlayerEventEmitterContext.Provider
+											value={emitter}
+										>
+											<SidebarContextProvider>
+												<FolderContextProvider>
+													<HighestZIndexProvider>
+														<TimelineInOutContext.Provider
+															value={timelineInOutContextValue}
 														>
-															{children}
-														</SetTimelineInOutContext.Provider>
-													</TimelineInOutContext.Provider>
-												</HighestZIndexProvider>
-											</FolderContextProvider>
-										</SidebarContextProvider>
-									</PlayerInternals.PlayerEventEmitterContext.Provider>
-								</Internals.SetMediaVolumeContext.Provider>
-							</Internals.MediaVolumeContext.Provider>
-						</ModalsContext.Provider>
-					</PreviewSizeProvider>
+															<SetTimelineInOutContext.Provider
+																value={setTimelineInOutContextValue}
+															>
+																{children}
+															</SetTimelineInOutContext.Provider>
+														</TimelineInOutContext.Provider>
+													</HighestZIndexProvider>
+												</FolderContextProvider>
+											</SidebarContextProvider>
+										</PlayerInternals.PlayerEventEmitterContext.Provider>
+									</Internals.SetMediaVolumeContext.Provider>
+								</Internals.MediaVolumeContext.Provider>
+							</ModalsContext.Provider>
+						</PreviewSizeProvider>
+					</EditorZoomGesturesContext.Provider>
 				</CheckerboardContext.Provider>
 			</RichTimelineContext.Provider>
 		</KeybindingContextProvider>

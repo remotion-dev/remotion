@@ -411,6 +411,7 @@ module.exports = {
         "lambda/custom-destination",
         "lambda/checklist",
         "lambda/webhooks",
+        "lambda/feb-2023-incident",
         {
           type: "category",
           label: "Troubleshooting",

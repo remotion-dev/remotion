@@ -370,7 +370,7 @@ export class BrowserFetcher {
 			await existsAsync(folderPath),
 			`Failed to remove: revision ${revision} is not downloaded`
 		);
-		await deleteDirectory(folderPath);
+		deleteDirectory(folderPath);
 	}
 
 	/**

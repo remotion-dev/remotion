@@ -25,6 +25,10 @@ const SeriesSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 const SeriesSequence = forwardRef(SeriesSequenceRefForwardingFunction);
 
+/**
+ * @description with this component, you can easily stitch together scenes that should play sequentially after another.
+ * @see [Documentation](https://www.remotion.dev/docs/series)
+ */
 const Series: FC<{
 	children: React.ReactNode;
 }> & {
@@ -32,7 +36,7 @@ const Series: FC<{
 } = ({children}) => {
 	const childrenValue = useMemo(() => {
 		let startFrame = 0;
-		const flattenedChildren = flattenChildren(children)
+		const flattenedChildren = flattenChildren(children);
 		return Children.map(flattenedChildren, (child, i) => {
 			const castedChild = child as unknown as
 				| {
@@ -60,7 +64,7 @@ const Series: FC<{
 
 			const debugInfo = `index = ${i}, duration = ${castedChild.props.durationInFrames}`;
 
-			if (!castedChild || !castedChild.props.children) {
+			if (!castedChild?.props.children) {
 				throw new TypeError(
 					`A <Series.Sequence /> component (${debugInfo}) was detected to not have any children. Delete it to fix this error.`
 				);
@@ -73,7 +77,10 @@ const Series: FC<{
 				...passedProps
 			} = castedChild.props;
 
-			if (i !== flattenedChildren.length-1 || durationInFramesProp !== Infinity) {
+			if (
+				i !== flattenedChildren.length - 1 ||
+				durationInFramesProp !== Infinity
+			) {
 				validateDurationInFrames(
 					durationInFramesProp,
 					`of a <Series.Sequence /> component`

@@ -1,14 +1,14 @@
 {
 	"name": "@remotion/player",
-	"version": "3.3.51",
+	"version": "3.3.59",
 	"description": "Remotion Player",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
-	"module": "dist/esm/index.js",
+	"module": "dist/esm/index.mjs",
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"build": "tsc -d && tsc -d -p tsconfig-cjs.json",
+		"build": "node ensure-correct-version.js && rollup --config rollup.config.js && tsc -d",
 		"watch": "tsc -w",
 		"prerelease": "cp ../../README.md ."
 	},
@@ -16,8 +16,8 @@
 		"./package.json": "./package.json",
 		".": {
 			"types": "./dist/cjs/index.d.ts",
-			"module": "./dist/esm/index.js",
-			"import": "./dist/esm/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
 			"require": "./dist/cjs/index.js"
 		}
 	},
@@ -38,14 +38,15 @@
 	],
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"remotion": "3.3.51"
+		"remotion": "3.3.59"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.266",
+		"@jonny/eslint-config": "3.0.273",
+		"@rollup/plugin-typescript": "^8.2.0",
 		"@testing-library/react": "13.1.1",
 		"@types/node": "^14.14.14",
 		"@types/react": "18.0.26",
@@ -59,6 +60,7 @@
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0",
+		"rollup": "^2.70.1",
 		"typescript": "^4.7.0",
 		"vitest": "0.24.3",
 		"webpack": "5.74.0"
