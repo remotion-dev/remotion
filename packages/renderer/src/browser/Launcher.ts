@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as fs from 'fs';
+import fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
@@ -21,8 +21,6 @@ import {assert} from './assert';
 import {Browser} from './Browser';
 import {BrowserFetcher} from './BrowserFetcher';
 import {BrowserRunner} from './BrowserRunner';
-
-const mkdtempAsync = fs.promises.mkdtemp;
 
 import type {PuppeteerNodeLaunchOptions} from './LaunchOptions';
 
@@ -78,7 +76,7 @@ export class ChromeLauncher implements ProductLauncher {
 
 		// Check for the user data dir argument, which will always be set even
 		// with a custom directory specified via the userDataDir option.
-		const userDataDir = await mkdtempAsync(
+		const userDataDir = await fs.promises.mkdtemp(
 			path.join(tmpDir(), 'puppeteer_dev_chrome_profile-')
 		);
 		chromeArguments.push(`--user-data-dir=${userDataDir}`);

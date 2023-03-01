@@ -2,6 +2,7 @@ import {RenderInternals} from '@remotion/renderer';
 import minimist from 'minimist';
 import {benchmarkCommand} from './benchmark';
 import {chalk} from './chalk';
+import {cleanupBeforeQuit, handleCtrlC} from './cleanup-before-quit';
 import {listCompositionsCommand} from './compositions';
 import {overrideRemotion} from './config/index';
 import {determineFinalImageFormat} from './determine-image-format';
@@ -51,6 +52,8 @@ export const cli = async () => {
 	const errorSymbolicationLock =
 		RenderInternals.registerErrorSymbolicationLock();
 
+	handleCtrlC();
+
 	await initializeCli(remotionRoot);
 
 	try {
@@ -86,9 +89,11 @@ export const cli = async () => {
 	} catch (err) {
 		Log.info();
 		await handleCommonError(err as Error);
+		cleanupBeforeQuit();
 		process.exit(1);
 	} finally {
 		RenderInternals.unlockErrorSymbolicationLock(errorSymbolicationLock);
+		cleanupBeforeQuit();
 	}
 };
 

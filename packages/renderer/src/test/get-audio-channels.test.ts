@@ -1,7 +1,7 @@
 import {existsSync} from 'fs';
 import path from 'path';
 import {expect, test} from 'vitest';
-import {makeDownloadMap} from '../assets/download-map';
+import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
 import {getAudioChannelsAndDuration} from '../assets/get-audio-channels';
 
 test('Get audio channels for video', async () => {
@@ -23,6 +23,7 @@ test('Get audio channels for video', async () => {
 		null,
 		process.cwd()
 	);
+	cleanDownloadMap(downloadMap);
 	expect(channels).toEqual({channels: 2, duration: 10});
 }, 90000);
 
@@ -45,6 +46,8 @@ test('Get audio channels for video without music', async () => {
 		null,
 		process.cwd()
 	);
+	cleanDownloadMap(downloadMap);
+
 	expect(channels.channels).toEqual(0);
 	expect(channels.duration).toBeCloseTo(3.334, 2);
 }, 90000);
@@ -68,6 +71,8 @@ test('Get audio channels for video with music', async () => {
 		null,
 		process.cwd()
 	);
+	cleanDownloadMap(downloadMap);
+
 	expect(channels).toEqual({channels: 2, duration: 56.529});
 }, 90000);
 
@@ -78,4 +83,5 @@ test('Throw error if parsing a non video file', () => {
 	expect(() =>
 		getAudioChannelsAndDuration(downloadMap, tsFile, null, process.cwd())
 	).rejects.toThrow(/Invalid data found when processing input/);
+	cleanDownloadMap(downloadMap);
 });
