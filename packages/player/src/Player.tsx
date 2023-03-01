@@ -181,11 +181,11 @@ const PlayerFn = <T,>(
 		'compositionWidth',
 		'of the <Player /> component'
 	);
-	Internals.validateDurationInFrames(
+	Internals.validateDurationInFrames({
 		durationInFrames,
-		'of the <Player/> component',
-		false
-	);
+		component: 'of the <Player/> component',
+		allowFloats: false,
+	});
 	Internals.validateFps(fps, 'as a prop of the <Player/> component', false);
 
 	validateInOutFrames({

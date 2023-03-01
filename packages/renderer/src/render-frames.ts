@@ -528,11 +528,11 @@ export const renderFrames = (
 		'in the `config` object of `renderFrames()`',
 		false
 	);
-	Internals.validateDurationInFrames(
-		composition.durationInFrames,
-		'in the `config` object passed to `renderFrames()`',
-		false
-	);
+	Internals.validateDurationInFrames({
+		durationInFrames: composition.durationInFrames,
+		component: 'in the `config` object passed to `renderFrames()`',
+		allowFloats: false,
+	});
 	if (options.quality !== undefined && options.imageFormat !== 'jpeg') {
 		throw new Error(
 			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
