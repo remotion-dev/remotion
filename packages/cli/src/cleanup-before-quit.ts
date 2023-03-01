@@ -16,5 +16,6 @@ export const handleCtrlC = () => {
 	process.on('SIGINT', () => {
 		Log.info();
 		cleanupBeforeQuit();
+		process.exit(1);
 	});
 };
