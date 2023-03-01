@@ -98,9 +98,9 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	if (from % 1 !== 0) {
+	if (!Number.isFinite(from)) {
 		throw new TypeError(
-			`The "from" prop of a sequence must be an integer, but got ${from}.`
+			`The "from" prop of a sequence must be finite, but got ${from}.`
 		);
 	}
 
