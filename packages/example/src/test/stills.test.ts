@@ -81,6 +81,7 @@ test(
 
 		expect(existsSync(testOut)).toBe(true);
 		unlinkSync(testOut);
+		await RenderInternals.deleteDirectory(bundled);
 
 		await close();
 	},
