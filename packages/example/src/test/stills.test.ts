@@ -4,6 +4,7 @@ import {
 	RenderInternals,
 	renderStill,
 } from '@remotion/renderer';
+import {cleanDownloadMap} from '@remotion/renderer/dist/assets/download-map';
 import {existsSync, unlinkSync} from 'fs';
 import {tmpdir} from 'os';
 import path from 'path';
@@ -27,6 +28,7 @@ test(
 
 		const testOut = path.join(tmpdir(), 'path/to/still.png');
 
+		const downloadMap = RenderInternals.makeDownloadMap();
 		const {port, close} = await RenderInternals.serveStatic(bundled, {
 			onDownload: () => undefined,
 			port: null,
@@ -35,7 +37,7 @@ test(
 			},
 			ffmpegExecutable: null,
 			ffprobeExecutable: null,
-			downloadMap: RenderInternals.makeDownloadMap(),
+			downloadMap,
 			remotionRoot: process.cwd(),
 		});
 
@@ -82,6 +84,7 @@ test(
 		expect(existsSync(testOut)).toBe(true);
 		unlinkSync(testOut);
 		RenderInternals.deleteDirectory(bundled);
+		cleanDownloadMap(downloadMap);
 
 		await close();
 	},
