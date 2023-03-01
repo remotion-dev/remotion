@@ -572,6 +572,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		customCredentials: null,
 	});
+	RenderInternals.cleanDownloadMap(downloadMap);
 
 	await Promise.all([cleanupChunksProm, fs.promises.rm(outfile)]);
 

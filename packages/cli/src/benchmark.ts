@@ -6,6 +6,7 @@ import {
 	renderMedia,
 } from '@remotion/renderer';
 import {chalk} from './chalk';
+import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
@@ -189,6 +190,8 @@ export const benchmarkCommand = async (
 			logLevel: ConfigInternals.Logging.getLogLevel(),
 		});
 
+	registerCleanupJob(() => cleanupBundle());
+
 	const puppeteerInstance = await browserInstance;
 
 	const comps = await getCompositions(bundleLocation, {
@@ -349,6 +352,4 @@ export const benchmarkCommand = async (
 	}
 
 	Log.info();
-
-	await cleanupBundle();
 };

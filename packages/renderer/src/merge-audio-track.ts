@@ -54,31 +54,34 @@ const mergeAudioTrackUnlimited = async ({
 		const chunked = chunk(files, 10);
 		const tempPath = tmpDir('remotion-large-audio-mixing');
 
-		const chunkNames = await Promise.all(
-			chunked.map(async (chunkFiles, i) => {
-				const chunkOutname = path.join(tempPath, `chunk-${i}.wav`);
-				await mergeAudioTrack({
-					ffmpegExecutable,
-					files: chunkFiles,
-					numberOfSeconds,
-					outName: chunkOutname,
-					downloadMap,
-					remotionRoot,
-				});
-				return chunkOutname;
-			})
-		);
+		try {
+			const chunkNames = await Promise.all(
+				chunked.map(async (chunkFiles, i) => {
+					const chunkOutname = path.join(tempPath, `chunk-${i}.wav`);
+					await mergeAudioTrack({
+						ffmpegExecutable,
+						files: chunkFiles,
+						numberOfSeconds,
+						outName: chunkOutname,
+						downloadMap,
+						remotionRoot,
+					});
+					return chunkOutname;
+				})
+			);
 
-		await mergeAudioTrack({
-			ffmpegExecutable,
-			files: chunkNames,
-			numberOfSeconds,
-			outName,
-			downloadMap,
-			remotionRoot,
-		});
-		await deleteDirectory(tempPath);
-		return;
+			await mergeAudioTrack({
+				ffmpegExecutable,
+				files: chunkNames,
+				numberOfSeconds,
+				outName,
+				downloadMap,
+				remotionRoot,
+			});
+			return;
+		} finally {
+			deleteDirectory(tempPath);
+		}
 	}
 
 	const {complexFilterFlag: mergeFilter, cleanup} =

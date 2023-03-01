@@ -1,10 +1,7 @@
 import type {WebpackOverrideFn} from '@remotion/bundler';
 import {BundlerInternals, webpack} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
-import fs from 'fs';
 import http from 'http';
-import os from 'os';
-import path from 'path';
 import {ConfigInternals} from '../config';
 import {Log} from '../log';
 import {wdm} from './dev-middleware';
@@ -32,14 +29,10 @@ export const startServer = async (options: {
 	port: number;
 	liveEventsServer: LiveEventsServer;
 }> => {
-	const tmpDir = await fs.promises.mkdtemp(
-		path.join(os.tmpdir(), 'react-motion-graphics')
-	);
-
 	const [, config] = BundlerInternals.webpackConfig({
 		entry: options.entry,
 		userDefinedComponent: options.userDefinedComponent,
-		outDir: tmpDir,
+		outDir: null,
 		environment: 'development',
 		webpackOverride:
 			options?.webpackOverride ?? ConfigInternals.getWebpackOverrideFn(),
