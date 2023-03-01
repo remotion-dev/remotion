@@ -1,6 +1,5 @@
 import {CliInternals, ConfigInternals} from '@remotion/cli';
 import {existsSync, lstatSync} from 'fs';
-import path from 'path';
 import {Internals} from 'remotion';
 import {deploySite} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
@@ -41,17 +40,16 @@ export const sitesCreateSubcommand = async (
 
 	Log.verbose('Entry point:', file, 'Reason:', reason);
 
-	const absoluteFile = path.join(process.cwd(), file);
-	if (!existsSync(absoluteFile)) {
+	if (!existsSync(file)) {
 		Log.error(
-			`No file exists at ${absoluteFile}. Make sure the path exists and try again.`
+			`No file exists at ${file}. Make sure the path exists and try again.`
 		);
 		quit(1);
 	}
 
-	if (lstatSync(absoluteFile).isDirectory()) {
+	if (lstatSync(file).isDirectory()) {
 		Log.error(
-			`You passed a path ${absoluteFile} but it is a directory. Pass a file instead.`
+			`You passed a path ${file} but it is a directory. Pass a file instead.`
 		);
 		quit(1);
 	}
@@ -112,7 +110,7 @@ export const sitesCreateSubcommand = async (
 	const bundleStart = Date.now();
 
 	const {serveUrl, siteName, stats} = await deploySite({
-		entryPoint: absoluteFile,
+		entryPoint: file,
 		siteName: desiredSiteName,
 		bucketName,
 		options: {
