@@ -78,6 +78,7 @@ const mergeAudioTrackUnlimited = async ({
 				downloadMap,
 				remotionRoot,
 			});
+			return;
 		} finally {
 			deleteDirectory(tempPath);
 		}
