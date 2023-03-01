@@ -53,7 +53,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	ref
 ) => {
 	const {layout = 'absolute-fill'} = other;
-	const [id] = useState(() => String(() => Math.random()));
+	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
 	const {rootId} = useContext(TimelineContext);
 	const cumulatedFrom = parentSequence
