@@ -51,6 +51,8 @@ const start = async () => {
 		remotionRoot: process.cwd(),
 		audioCodec: 'aac',
 	});
+
+	RenderInternals.deleteDirectory(bundled);
 };
 
 start();
