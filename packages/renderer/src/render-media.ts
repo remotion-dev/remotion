@@ -95,13 +95,16 @@ export type RenderMediaOptions = {
 	cancelSignal?: CancelSignal;
 	browserExecutable?: BrowserExecutable;
 	verbose?: boolean;
-	/**
-	 * @deprecated Only for Remotion internal usage
-	 */
-	downloadMap?: DownloadMap;
-	/**
-	 * @deprecated Only for Remotion internal usage
-	 */
+	internal?: {
+		/**
+		 * @deprecated Only for Remotion internal usage
+		 */
+		downloadMap?: DownloadMap;
+		/**
+		 * @deprecated Only for Remotion internal usage
+		 */
+		onCtrlCExit?: (fn: () => void) => void;
+	};
 	preferLossless?: boolean;
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
@@ -219,7 +222,8 @@ export const renderMedia = ({
 	let cancelled = false;
 
 	const renderStart = Date.now();
-	const downloadMap = options.downloadMap ?? makeDownloadMap();
+	const downloadMap = options.internal?.downloadMap ?? makeDownloadMap();
+
 	const {estimatedUsage, freeMemory, hasEnoughMemory} =
 		shouldUseParallelEncoding({
 			height: composition.height,
@@ -272,6 +276,10 @@ export const renderMedia = ({
 	const outputDir = parallelEncoding
 		? null
 		: fs.mkdtempSync(path.join(os.tmpdir(), 'react-motion-render'));
+
+	if (options.internal?.onCtrlCExit && outputDir) {
+		options.internal.onCtrlCExit(() => deleteDirectory(outputDir));
+	}
 
 	validateEvenDimensionsWithCodec({
 		codec,
@@ -534,7 +542,7 @@ export const renderMedia = ({
 			}
 
 			// Clean download map if it was not passed in
-			if (!options?.downloadMap) {
+			if (!options.internal?.downloadMap) {
 				cleanDownloadMap(downloadMap);
 			}
 

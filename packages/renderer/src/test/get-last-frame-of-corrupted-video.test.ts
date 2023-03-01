@@ -1,9 +1,10 @@
 import path from 'path';
 import {test} from 'vitest';
-import {makeDownloadMap} from '../assets/download-map';
+import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
 import {getLastFrameOfVideo} from '../extract-frame-from-video';
 
 test('Get last frame of corrupted video', async () => {
+	const downloadMap = makeDownloadMap();
 	await getLastFrameOfVideo({
 		offset: 0,
 		src: path.join(
@@ -18,6 +19,7 @@ test('Get last frame of corrupted video', async () => {
 		imageFormat: 'png',
 		specialVCodecForTransparency: 'none',
 		needsResize: null,
-		downloadMap: makeDownloadMap(),
+		downloadMap,
 	});
+	cleanDownloadMap(downloadMap);
 }, 90000);
