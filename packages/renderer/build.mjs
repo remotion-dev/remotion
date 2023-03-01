@@ -10,6 +10,7 @@ import {
 } from 'fs';
 import os from 'os';
 import path from 'path';
+import {VERSION} from 'remotion';
 
 const isWin = os.platform() === 'win32';
 const where = isWin ? 'where' : 'which';
@@ -257,4 +258,22 @@ for (const arch of archs) {
 		recursive: true,
 	});
 	copyFileSync(copyInstructions.from, copyInstructions.to);
+
+	execSync('npm pack', {
+		cwd: copyDestinations[arch].dir,
+		stdio: 'ignore',
+	});
+
+	const filename = `remotion-${path.basename(
+		copyDestinations[arch].dir
+	)}-${VERSION}.tgz`;
+	const tgzPath = path.join(
+		process.cwd(),
+		copyDestinations[arch].dir,
+		filename
+	);
+
+	const filesize = lstatSync(tgzPath).size;
+	console.log('Zipped size:', (filesize / 1000000).toFixed(2) + 'MB');
+	unlinkSync(tgzPath);
 }
