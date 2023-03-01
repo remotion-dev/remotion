@@ -99,11 +99,8 @@ export type RenderMediaOptions = {
 	port?: number | null;
 	cancelSignal?: CancelSignal;
 	browserExecutable?: BrowserExecutable;
+	verbose?: boolean;
 	internal?: {
-		/**
-		 * @deprecated Only for Remotion internal usage
-		 */
-		verbose?: boolean;
 		/**
 		 * @deprecated Only for Remotion internal usage
 		 */
@@ -246,7 +243,7 @@ export const renderMedia = ({
 		hasEnoughMemory &&
 		canUseParallelEncoding(codec);
 
-	if (options.internal?.verbose) {
+	if (options.verbose) {
 		console.log(
 			'[PRESTITCHER] Free memory:',
 			freeMemory,
@@ -351,7 +348,7 @@ export const renderMedia = ({
 						encodedFrames = frame;
 						callUpdate();
 					},
-					verbose: options.internal?.verbose ?? false,
+					verbose: options.verbose ?? false,
 					ffmpegExecutable,
 					imageFormat,
 					signal: cancelPrestitcher.cancelSignal,
@@ -508,7 +505,7 @@ export const renderMedia = ({
 					},
 					onDownload,
 					numberOfGifLoops,
-					verbose: options.internal?.verbose,
+					verbose: options.verbose,
 					dir: outputDir ?? undefined,
 					cancelSignal: cancelStitcher.cancelSignal,
 					muted: disableAudio,

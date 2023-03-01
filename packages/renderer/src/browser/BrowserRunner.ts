@@ -97,7 +97,7 @@ export class BrowserRunner {
 
 		this.#closed = false;
 		this.#processClosing = new Promise((fulfill, reject) => {
-			(this.proc as childProcess.ChildProcess).once('exit', async () => {
+			(this.proc as childProcess.ChildProcess).once('exit', () => {
 				this.#closed = true;
 				// Cleanup as processes exit.
 				try {
