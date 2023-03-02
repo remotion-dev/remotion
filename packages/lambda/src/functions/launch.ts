@@ -10,6 +10,7 @@ import type {LambdaPayload, RenderMetadata} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
 	encodingProgressKey,
+	ENCODING_PROGRESS_STEP_SIZE,
 	initalizedMetadataKey,
 	LambdaRoutines,
 	MAX_FUNCTIONS_PER_RENDER,
@@ -384,7 +385,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		lambdaWriteFile({
 			bucketName: params.bucketName,
 			key: encodingProgressKey(params.renderId),
-			body: String(framesEncoded),
+			body: String(Math.round(framesEncoded / ENCODING_PROGRESS_STEP_SIZE)),
 			region: getCurrentRegionInFunction(),
 			privacy: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
@@ -499,7 +500,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	const finalEncodingProgressProm = lambdaWriteFile({
 		bucketName: params.bucketName,
 		key: encodingProgressKey(params.renderId),
-		body: String(frameCount.length),
+		body: String(Math.ceil(frameCount.length / ENCODING_PROGRESS_STEP_SIZE)),
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
