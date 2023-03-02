@@ -78,6 +78,45 @@ const AvailableCompositions: React.FC = () => {
 	);
 };
 
+const TestCORS: React.FC = () => {
+	const [serveUrl, setServeUrl] = useState('');
+	const [result, setResult] = useState('');
+
+	const handleServeUrl = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setServeUrl(e?.target.value); // optional chaining to check if the event param is present
+	};
+
+	const isCORSWorking = async () => {
+		try {
+			const response = await fetch(serveUrl, {mode: 'cors'});
+
+			if (response.ok) {
+				setResult(`CORS is enabled on this URL: ${serveUrl}`);
+			} else {
+				setResult(`This URL - ${serveUrl} has CORS disabled`);
+			}
+		} catch (error) {
+			setResult('Error testing CORS');
+		}
+	};
+
+	return (
+		<div>
+			<h2>Test CORS in any serveURL</h2>
+			{result ? <p className="result">{result}</p> : null}
+			<form>
+				<label htmlFor="serve url">
+					Enter URL
+					<input type="text" value={serveUrl} onChange={handleServeUrl} />
+				</label>
+				<button type="button" onClick={isCORSWorking}>
+					Test CORS
+				</button>
+			</form>
+		</div>
+	);
+};
+
 export const Homepage: React.FC = () => {
 	const url = window.location.origin + window.location.pathname;
 	return (
