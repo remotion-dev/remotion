@@ -82,36 +82,54 @@ const TestCORS: React.FC = () => {
 	const [serveUrl, setServeUrl] = useState('');
 	const [result, setResult] = useState('');
 
-	const handleServeUrl = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setServeUrl(e?.target.value); // optional chaining to check if the event param is present
-	};
+	const handleServeUrl = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			setServeUrl(e.target.value);
+		},
+		[]
+	);
 
-	const isCORSWorking = async () => {
-		try {
-			const response = await fetch(serveUrl, {mode: 'cors'});
+	const isCORSWorking: React.FormEventHandler<HTMLFormElement> = useCallback(
+		async (e) => {
+			e.preventDefault();
+			try {
+				const response = await fetch(serveUrl, {mode: 'cors'});
 
-			if (response.ok) {
-				setResult(`CORS is enabled on this URL: ${serveUrl}`);
-			} else {
-				setResult(`This URL - ${serveUrl} has CORS disabled`);
+				if (response.ok) {
+					setResult(`CORS is enabled on this URL: ${serveUrl}`);
+				} else {
+					setResult(
+						'URL does not support CORS - See DevTools console for more details'
+					);
+				}
+			} catch (error) {
+				setResult(
+					'URL does not support CORS - See DevTools console for more details'
+				);
 			}
-		} catch (error) {
-			setResult('Error testing CORS');
-		}
-	};
+		},
+		[serveUrl]
+	);
 
 	return (
 		<div>
-			<h2>Test CORS in any serveURL</h2>
+			<p>
+				Quickly test if a URL is supported being loaded on origin{' '}
+				<code>{window.location.origin}</code>. Enter the URL of an asset below.
+			</p>
 			{result ? <p className="result">{result}</p> : null}
-			<form>
-				<label htmlFor="serve url">
-					Enter URL
-					<input type="text" value={serveUrl} onChange={handleServeUrl} />
+			<form onSubmit={isCORSWorking}>
+				<label htmlFor="serveurl">
+					<input
+						placeholder="Enter URL"
+						type="text"
+						name="serveurl"
+						value={serveUrl}
+						onChange={handleServeUrl}
+					/>
 				</label>
-				<button type="button" onClick={isCORSWorking}>
-					Test CORS
-				</button>
+				<br />
+				<button type="submit">Test CORS</button>
 			</form>
 		</div>
 	);
@@ -153,6 +171,11 @@ export const Homepage: React.FC = () => {
 				</a>{' '}
 				to read the documentation.
 			</p>
+			<h2>CORS testing tool</h2>
+			<TestCORS />
+			<br />
+			<br />
+			<br />
 		</div>
 	);
 };
