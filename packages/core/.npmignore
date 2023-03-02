@@ -20,3 +20,5 @@ dist/tsconfig-cjs.tsbuildinfo
 dist/esm/**.d.ts
 dist/esm/**/**.d.ts
 dist/cjs/test
+dist/tsconfig-esm.tsbuildinfo
+tsconfig-esm.json
