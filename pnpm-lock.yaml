@@ -80,7 +80,6 @@ importers:
       '@types/node': ^16.7.5
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
-      '@types/webpack-env': ^1.16.0
       '@typescript-eslint/eslint-plugin': 5.18.0
       '@typescript-eslint/parser': 5.18.0
       css-loader: 5.2.7
@@ -111,7 +110,6 @@ importers:
       '@types/node': 16.10.2
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
-      '@types/webpack-env': 1.16.2
       '@typescript-eslint/eslint-plugin': 5.18.0_sjor5xiixfpkviiagy75ykktdy
       '@typescript-eslint/parser': 5.18.0_t54va6jeo5lf3vtqih5uiyrm5e
       eslint: 8.25.0
@@ -138,7 +136,6 @@ importers:
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
       '@types/semver': ^7.3.4
-      '@types/webpack-env': ^1.16.0
       '@typescript-eslint/eslint-plugin': 5.18.0
       '@typescript-eslint/parser': 5.18.0
       better-opn: 2.1.1
@@ -180,7 +177,6 @@ importers:
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
       '@types/semver': 7.3.8
-      '@types/webpack-env': 1.16.2
       '@typescript-eslint/eslint-plugin': 5.18.0_sjor5xiixfpkviiagy75ykktdy
       '@typescript-eslint/parser': 5.18.0_t54va6jeo5lf3vtqih5uiyrm5e
       eslint: 8.25.0
@@ -223,7 +219,6 @@ importers:
       '@types/node': ^16.7.5
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
-      '@types/webpack-env': ^1.16.0
       '@vitejs/plugin-react': ^2.0.0
       eslint: 8.25.0
       eslint-plugin-require-extensions: ^0.1.2
@@ -243,7 +238,6 @@ importers:
       '@types/node': 16.10.2
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
-      '@types/webpack-env': 1.16.2
       '@vitejs/plugin-react': 2.0.0_vite@3.0.0
       eslint: 8.25.0
       eslint-plugin-require-extensions: 0.1.2_eslint@8.25.0
@@ -9816,10 +9810,6 @@ packages:
 
   /@types/web/0.0.78:
     resolution: {integrity: sha512-1Apkpr0zolMDECgtokp9ztApWkdlg4Ey4UJ3sKHAGjCHoiUq1/kBd0lR+JxeHlQVqAC6tike7tUJ9uLbVNwsxQ==}
-
-  /@types/webpack-env/1.16.2:
-    resolution: {integrity: sha512-vKx7WNQNZDyJveYcHAm9ZxhqSGLYwoyLhrHjLBOkw3a7cT76sTdjgtwyijhk1MaHyRIuSztcVwrUOO/NEu68Dw==}
-    dev: true
 
   /@types/ws/8.5.3:
     resolution: {integrity: sha512-6YOoWjruKj1uLf3INHH7D3qTXwFfEsg1kf3c0uDdSBJwfa/llkwIjrAGV7j7mVgGNbzTQ3HiHKKDXl6bJPD97w==}
