@@ -254,7 +254,7 @@ test("Should be able to render a AAC audio file", async () => {
   expect(data).toContain("stereo");
   expect(data).toContain("fltp");
   expect(data).not.toContain("Kevin MacLeod");
-  expect(data).toMatch(/(4|5) kb\/s/);
+  expect(data).toMatch(/28\d kb\/s/);
   expect(data).toContain("Stream #0");
   expect(data).not.toContain("Stream #1");
   fs.unlinkSync(out);
