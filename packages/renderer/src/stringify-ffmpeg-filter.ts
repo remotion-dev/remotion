@@ -4,7 +4,7 @@ import type {AssetVolume} from './assets/types';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 import {truthy} from './truthy';
 
-export type Track = ProcessedTrack & {
+export type FilterWithoutPaddingApplied = ProcessedTrack & {
 	filter: string;
 };
 
@@ -35,7 +35,7 @@ export const stringifyFfmpegFilter = ({
 	playbackRate: number;
 	assetDuration: number | null;
 	allowAmplificationDuringRender: boolean;
-}): Track | null => {
+}): FilterWithoutPaddingApplied | null => {
 	const startInVideoSeconds = startInVideo / fps;
 
 	if (assetDuration && trimLeft >= assetDuration) {

@@ -19,5 +19,7 @@ test('FFMPEG merge filters', () => {
 				outName: '1.wav',
 			},
 		])
-	).toBe('[0:a][1:a]amix=inputs=2[a]');
+	).toBe(
+		'[0:a]300,acopy[padded0];[1:a]600,acopy[padded1];[padded0][padded1]amix=inputs=2:dropout_transition=0:normalize=0[outputaudio]'
+	);
 });

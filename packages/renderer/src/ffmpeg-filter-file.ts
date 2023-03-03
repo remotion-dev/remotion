@@ -4,10 +4,10 @@
 import fs from 'fs';
 import path from 'path';
 import type {DownloadMap} from './assets/download-map';
-import type {Track} from './stringify-ffmpeg-filter';
+import type {FilterWithoutPaddingApplied} from './stringify-ffmpeg-filter';
 
 export const makeFfmpegFilterFile = async (
-	complexFilter: Track,
+	complexFilter: FilterWithoutPaddingApplied,
 	downloadMap: DownloadMap
 ) => {
 	const random = Math.random().toString().replace('.', '');
