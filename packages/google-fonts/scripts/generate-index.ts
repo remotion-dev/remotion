@@ -46,11 +46,19 @@ const generate = async () => {
       `dist/esm/${removeWhitespace(unquote(font.family))}.d.ts`,
     ];
     if (!read.exports) read.exports = {};
-    read.exports[
-      `./${removeWhitespace(unquote(font.family))}`
-    ] = `./dist/esm/${removeWhitespace(unquote(font.family))}.js`;
+    read.exports[`./${removeWhitespace(unquote(font.family))}`] = {
+      require: `./dist/cjs/${removeWhitespace(unquote(font.family))}.cjs`,
+      module: `./dist/esm/${removeWhitespace(unquote(font.family))}.mjs`,
+      import: `./dist/esm/${removeWhitespace(unquote(font.family))}.mjs`,
+      types: `./dist/esm/${removeWhitespace(unquote(font.family))}.d.ts`,
+    };
   }
-  read.exports["."] = `./dist/index.js`;
+  read.exports["."] = {
+    require: `./dist/cjs/index.js`,
+    module: `./dist/esm/index.mjs`,
+    import: `./dist/esm/index.mjs`,
+    types: `./dist/esm/index.d.ts`,
+  };
 
   await fs.promises.writeFile(
     packageFilename,
