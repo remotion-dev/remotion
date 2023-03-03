@@ -1,0 +1,86 @@
+name: Deploy GCP artifact
+run-name: Deploy latest release as an artifact in GCP Artifact Registry
+on:
+  workflow_dispatch:
+jobs:
+  gcp-artifact-upload:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: "read"
+      id-token: "write"
+
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@main
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node_version }}
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - run: |
+          corepack enable
+      - uses: Iamshankhadeep/setup-ffmpeg@v1.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ matrix.ffmpeg_version }}
+
+      - name: Cache .pnpm-store
+        uses: actions/cache@v3.0.11
+        with:
+          path: ~/.pnpm-store
+          key: v2-deps-${{ runner.os }}-node${{ matrix.node_version }}
+
+      - name: Cache node_modules/.cache
+        uses: actions/cache@v3.0.11
+        with:
+          path: node_modules/.cache
+          key: v2-deps-${{ runner.os }}-${{ matrix.ffmpeg_version }}-node${{ matrix.node_version }}-v2
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Cache dist/ folders
+        uses: actions/cache@v3.0.11
+        if: runner.os != 'windows'
+        with:
+          path: packages/**/dist
+          key: dist-${{ runner.os }}-${{ matrix.ffmpeg_version }}-node${{ matrix.node_version }}-v2-bust
+
+      - name: get remotion version
+        id: version
+        uses: notiz-dev/github-action-json-property@release
+        with:
+          path: "packages/gcp/container/package.json"
+          prop_path: "version"
+
+      - run: echo version pulled from package.json":" "${{ steps.version.outputs.prop }}"
+
+      - id: auth
+        name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          token_format: access_token
+          workload_identity_provider: projects/1079363441639/locations/global/workloadIdentityPools/github-id-pool/providers/github-provider
+          service_account: github-action@remotion-dev.iam.gserviceaccount.com
+          access_token_lifetime: 300s
+
+      - name: Login to Artifact Registry
+        uses: docker/login-action@v2
+        with:
+          registry: us-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+
+      - id: docker-push-tagged
+        name: Tag Docker image and push to Google Artifact Registry
+        uses: docker/build-push-action@v4
+        with:
+          context: packages/gcp/container
+          push: true
+          tags: |
+            us-docker.pkg.dev/remotion-dev/cloud-run/render:${{ steps.version.outputs.prop }}
+            us-docker.pkg.dev/remotion-dev/cloud-run/render:latest
