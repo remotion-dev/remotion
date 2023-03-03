@@ -168,7 +168,7 @@ const getAssetsData = async ({
 
 	deleteDirectory(downloadMap.audioMixing);
 	preprocessed.forEach((p) => {
-		deleteDirectory(p);
+		deleteDirectory(p.outName);
 	});
 
 	return outName;
