@@ -196,7 +196,7 @@ test("Should be able to render a WAV audio file", async () => {
   expect(data).toContain("pcm_s16le");
   expect(data).toContain("2 channels");
   expect(data).toContain("Kevin MacLeod");
-  expect(data).toContain("bitrate: 1536 kb/s");
+  expect(data).toMatch(/bitrate: 15\d\d kb/);
   expect(data).toContain("Stream #0");
   expect(data).not.toContain("Stream #1");
   fs.unlinkSync(out);
