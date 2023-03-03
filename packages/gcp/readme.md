@@ -165,3 +165,8 @@ To render media, send a POST request to the URL with the following body:
 - sprinkle quietFlagProvided() throughout
 - time for uploading to GCP Storage Bucket is always 0ms
 - add LS, RM, RMALL subcommands
+
+### Render command
+
+- Create API that just makes a post request to Cloud Run, to perform render
+- Use lambda one for inspiration
