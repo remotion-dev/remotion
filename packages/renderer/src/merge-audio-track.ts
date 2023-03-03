@@ -88,7 +88,12 @@ const mergeAudioTrackUnlimited = async ({
 	}
 
 	const {complexFilterFlag: mergeFilter, cleanup} =
-		await createFfmpegComplexFilter(files, downloadMap);
+		await createFfmpegComplexFilter({
+			filters: files,
+			downloadMap,
+			ffmpegExecutable,
+			remotionRoot,
+		});
 
 	const args = [
 		...files.map((f) => ['-i', f.outName]),
