@@ -399,7 +399,7 @@ export const Index: React.FC = () => {
 					width={1920}
 					height={1080}
 					fps={30}
-					durationInFrames={1500}
+					durationInFrames={720}
 				/>
 				<Composition
 					id="22khz"
