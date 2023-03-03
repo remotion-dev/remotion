@@ -1,29 +1,12 @@
-import execa from 'execa';
-import type {FfmpegExecutable} from './ffmpeg-executable';
-import {getExecutableBinary} from './ffmpeg-flags';
-import {DEFAULT_SAMPLE_RATE} from './sample-rate';
+import {copyFileSync} from 'fs';
+import type {PreprocessedAudioTrack} from './preprocess-audio-track';
 
-export const convertToPcm = async ({
-	ffmpegExecutable,
+export const convertToPcm = ({
 	input,
 	outName,
-	remotionRoot,
 }: {
-	ffmpegExecutable: FfmpegExecutable;
-	input: string;
+	input: PreprocessedAudioTrack;
 	outName: string;
-	remotionRoot: string;
 }) => {
-	await execa(
-		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
-		[
-			'-i',
-			input,
-			'-c:a',
-			'pcm_s16le',
-			'-ar',
-			String(DEFAULT_SAMPLE_RATE),
-			outName,
-		]
-	);
+	copyFileSync(input.outName, outName);
 };

@@ -4,6 +4,16 @@ import type {AssetVolume} from './assets/types';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 import {truthy} from './truthy';
 
+export type Track = ProcessedTrack & {
+	filter: string;
+};
+
+export type ProcessedTrack = {
+	pad_start: string | null;
+	pad_end: number | null;
+	channels: number;
+};
+
 export const stringifyFfmpegFilter = ({
 	trimLeft,
 	trimRight,
@@ -26,7 +36,7 @@ export const stringifyFfmpegFilter = ({
 	playbackRate: number;
 	assetDuration: number | null;
 	allowAmplificationDuringRender: boolean;
-}): string | null => {
+}): Track | null => {
 	const startInVideoSeconds = startInVideo / fps;
 
 	if (assetDuration && trimLeft >= assetDuration) {
@@ -52,38 +62,40 @@ export const stringifyFfmpegFilter = ({
 
 	const padAtEnd = chunkLength - audibleDuration - startInVideoSeconds;
 
-	return (
-		`[0:a]` +
-		[
-			`aformat=sample_fmts=s32:sample_rates=${DEFAULT_SAMPLE_RATE}`,
-			// Order matters! First trim the audio
-			`atrim=${trimLeft.toFixed(6)}:${actualTrimRight.toFixed(6)}`,
-			// then set the tempo
-			calculateATempo(playbackRate),
-			// set the volume if needed
-			// The timings for volume must include whatever is in atrim, unless the volume
-			// filter gets applied before atrim
-			volumeFilter.value === '1'
-				? null
-				: `volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
-			// For n channels, we delay n + 1 channels.
-			// This is because `ffprobe` for some audio files reports the wrong amount
-			// of channels.
-			// This should be fine because FFMPEG documentation states:
-			// "Unused delays will be silently ignored."
-			// https://ffmpeg.org/ffmpeg-filters.html#adelay
+	return {
+		filter:
+			`[0:a]` +
+			[
+				`aformat=sample_fmts=s32:sample_rates=${DEFAULT_SAMPLE_RATE}`,
+				// Order matters! First trim the audio
+				`atrim=${trimLeft.toFixed(6)}:${actualTrimRight.toFixed(6)}`,
+				// then set the tempo
+				calculateATempo(playbackRate),
+				// set the volume if needed
+				// The timings for volume must include whatever is in atrim, unless the volume
+				// filter gets applied before atrim
+				volumeFilter.value === '1'
+					? null
+					: `volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
+				// For n channels, we delay n + 1 channels.
+				// This is because `ffprobe` for some audio files reports the wrong amount
+				// of channels.
+				// This should be fine because FFMPEG documentation states:
+				// "Unused delays will be silently ignored."
+				// https://ffmpeg.org/ffmpeg-filters.html#adelay
+			]
+				.filter(truthy)
+				.join(',') +
+			`[a0]`,
+
+		channels,
+		pad_end:
+			padAtEnd > 0.0000001 ? Math.round(padAtEnd * DEFAULT_SAMPLE_RATE) : null,
+		pad_start:
 			startInVideoSeconds === 0
 				? null
 				: `adelay=${new Array(channels + 1)
 						.fill((startInVideoSeconds * 1000).toFixed(0))
 						.join('|')}`,
-			// Only in the end, we pad to the full length.
-			padAtEnd > 0.0000001
-				? 'apad=pad_len=' + Math.round(padAtEnd * DEFAULT_SAMPLE_RATE)
-				: null,
-		]
-			.filter(truthy)
-			.join(',') +
-		`[a0]`
-	);
+	};
 };
