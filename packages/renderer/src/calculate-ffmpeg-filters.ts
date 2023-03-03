@@ -1,5 +1,6 @@
 import {flattenVolumeArray} from './assets/flatten-volume-array';
 import type {MediaAsset} from './assets/types';
+import type {Track} from './stringify-ffmpeg-filter';
 import {stringifyFfmpegFilter} from './stringify-ffmpeg-filter';
 
 export const calculateFfmpegFilter = ({
@@ -14,7 +15,7 @@ export const calculateFfmpegFilter = ({
 	durationInFrames: number;
 	channels: number;
 	assetDuration: number | null;
-}): string | null => {
+}): Track | null => {
 	if (channels === 0) {
 		return null;
 	}

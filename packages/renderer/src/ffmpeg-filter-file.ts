@@ -4,8 +4,28 @@
 import fs from 'fs';
 import path from 'path';
 import type {DownloadMap} from './assets/download-map';
+import type {Track} from './stringify-ffmpeg-filter';
 
 export const makeFfmpegFilterFile = async (
+	complexFilter: Track,
+	downloadMap: DownloadMap
+) => {
+	const random = Math.random().toString().replace('.', '');
+	const filterFile = path.join(
+		downloadMap.complexFilter,
+		'complex-filter-' + random + '.txt'
+	);
+	await fs.promises.writeFile(filterFile, complexFilter.filter);
+
+	return {
+		file: filterFile,
+		cleanup: () => {
+			fs.unlinkSync(filterFile);
+		},
+	};
+};
+
+export const makeFfmpegFilterFileStr = async (
 	complexFilter: string,
 	downloadMap: DownloadMap
 ) => {
