@@ -76,7 +76,6 @@ const mergeAudioTrackUnlimited = async ({
 					filter: {
 						pad_end: null,
 						pad_start: null,
-						channels: 2,
 					},
 					outName: c,
 				})),

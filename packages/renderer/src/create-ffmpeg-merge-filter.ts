@@ -7,7 +7,7 @@ export const createFfmpegMergeFilter = (inputs: PreprocessedAudioTrack[]) => {
 	const pads = inputs.map((input, index) => {
 		const filters = [
 			input.filter.pad_start ? input.filter.pad_start : null,
-			input.filter.pad_end ? 'apad=pad_len=' + input.filter.pad_end : null,
+			input.filter.pad_end ? input.filter.pad_end : null,
 			'acopy',
 		];
 		return `[${index}:a]${filters.filter(truthy).join(',')}[padded${index}]`;

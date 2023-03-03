@@ -10,8 +10,7 @@ export type Track = ProcessedTrack & {
 
 export type ProcessedTrack = {
 	pad_start: string | null;
-	pad_end: number | null;
-	channels: number;
+	pad_end: string | null;
 };
 
 export const stringifyFfmpegFilter = ({
@@ -87,10 +86,10 @@ export const stringifyFfmpegFilter = ({
 				.filter(truthy)
 				.join(',') +
 			`[a0]`,
-
-		channels,
 		pad_end:
-			padAtEnd > 0.0000001 ? Math.round(padAtEnd * DEFAULT_SAMPLE_RATE) : null,
+			padAtEnd > 0.0000001
+				? 'apad=pad_len=' + Math.round(padAtEnd * DEFAULT_SAMPLE_RATE)
+				: null,
 		pad_start:
 			startInVideoSeconds === 0
 				? null
