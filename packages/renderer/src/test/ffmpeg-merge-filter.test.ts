@@ -6,16 +6,14 @@ test('FFMPEG merge filters', () => {
 		createFfmpegMergeFilter([
 			{
 				filter: {
-					channels: 2,
-					pad_end: 300,
+					pad_end: '300',
 					pad_start: null,
 				},
 				outName: '0.wav',
 			},
 			{
 				filter: {
-					channels: 2,
-					pad_end: 600,
+					pad_end: '600',
 					pad_start: null,
 				},
 				outName: '1.wav',
