@@ -1,12 +1,20 @@
 import type {DownloadMap} from './assets/download-map';
 import {createFfmpegMergeFilter} from './create-ffmpeg-merge-filter';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {makeFfmpegFilterFileStr} from './ffmpeg-filter-file';
 import type {PreprocessedAudioTrack} from './preprocess-audio-track';
 
-export const createFfmpegComplexFilter = async (
-	filters: PreprocessedAudioTrack[],
-	downloadMap: DownloadMap
-): Promise<{
+export const createFfmpegComplexFilter = async ({
+	filters,
+	downloadMap,
+	ffmpegExecutable,
+	remotionRoot,
+}: {
+	filters: PreprocessedAudioTrack[];
+	downloadMap: DownloadMap;
+	ffmpegExecutable: FfmpegExecutable;
+	remotionRoot: string;
+}): Promise<{
 	complexFilterFlag: [string, string] | null;
 	cleanup: () => void;
 }> => {
@@ -14,7 +22,11 @@ export const createFfmpegComplexFilter = async (
 		return {complexFilterFlag: null, cleanup: () => undefined};
 	}
 
-	const complexFilter = createFfmpegMergeFilter(filters);
+	const complexFilter = await createFfmpegMergeFilter({
+		inputs: filters,
+		ffmpegExecutable,
+		remotionRoot,
+	});
 
 	const {file, cleanup} = await makeFfmpegFilterFileStr(
 		complexFilter,
