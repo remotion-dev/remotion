@@ -597,6 +597,7 @@ importers:
 
   packages/google-fonts:
     specifiers:
+      '@rollup/plugin-typescript': ^8.2.0
       '@types/css-font-loading-module': ^0.0.7
       '@types/node': ^18.0.3
       '@types/prettier': ^2.7.1
@@ -604,17 +605,20 @@ importers:
       postcss: ^8.4.18
       prettier: ^2.7.1
       remotion: 3.3.61
+      rollup: ^2.70.1
       ts-node: ^10.8.0
       typescript: ^4.7.0
     dependencies:
       remotion: link:../core
     devDependencies:
+      '@rollup/plugin-typescript': 8.5.0_2s5nfqwcf62746iqzotp3mpuy4
       '@types/css-font-loading-module': 0.0.7
       '@types/node': 18.11.2
       '@types/prettier': 2.7.1
       got: 11.8.5
       postcss: 8.4.18
       prettier: 2.7.1
+      rollup: 2.76.0
       ts-node: 10.8.0_vnj66vw6pmisrnpmmxy72mdbpa
       typescript: 4.7.2
 

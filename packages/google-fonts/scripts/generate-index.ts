@@ -43,12 +43,12 @@ const generate = async () => {
     if (!read.typesVersions) read.typesVersions = {};
     if (!read.typesVersions[">=1.0"]) read.typesVersions[">=1.0"] = {};
     read.typesVersions[">=1.0"][removeWhitespace(unquote(font.family))] = [
-      `dist/${removeWhitespace(unquote(font.family))}.d.ts`,
+      `dist/esm/${removeWhitespace(unquote(font.family))}.d.ts`,
     ];
     if (!read.exports) read.exports = {};
     read.exports[
       `./${removeWhitespace(unquote(font.family))}`
-    ] = `./dist/${removeWhitespace(unquote(font.family))}.js`;
+    ] = `./dist/esm/${removeWhitespace(unquote(font.family))}.js`;
   }
   read.exports["."] = `./dist/index.js`;
 
