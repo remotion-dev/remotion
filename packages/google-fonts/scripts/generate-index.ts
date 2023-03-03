@@ -12,20 +12,24 @@ const generate = async () => {
 
   console.log(`- Generating ${filename}`);
   let output = `export const getAvailableFonts = () => ${JSON.stringify(
-    googleFonts.map((f) => ({
-      fontFamily: unquote(f.family),
-      importName: removeWhitespace(unquote(f.family)),
-    })),
-    null,
-    2
-  )};`;
+    googleFonts.map((f) => {
+      const importName = removeWhitespace(unquote(f.family));
+      return {
+        fontFamily: unquote(f.family),
+        importName,
+        load: `() => import('./${importName}')`,
+      };
+    })
+  )};`.replace(/\"\(\)\s\=\>\s(.*?)\"/g, (e) => {
+    return e.substring(1, e.length - 1);
+  });
 
   //  Format output
   output = prettier.format(output, {
     parser: "typescript",
     singleQuote: true,
     quoteProps: "consistent",
-    printWidth: 180,
+    printWidth: 80,
   });
 
   //  Save

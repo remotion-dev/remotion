@@ -881,6 +881,7 @@ importers:
       '@remotion/bundler': 3.3.61
       '@remotion/eslint-config': 3.3.61
       '@remotion/gif': 3.3.61
+      '@remotion/google-fonts': 3.3.61
       '@remotion/player': 3.3.61
       '@remotion/preload': 3.3.61
       '@types/react': 18.0.26
@@ -895,6 +896,7 @@ importers:
       '@remotion/bundler': link:../bundler
       '@remotion/eslint-config': link:../eslint-config
       '@remotion/gif': link:../gif
+      '@remotion/google-fonts': link:../google-fonts
       '@remotion/player': link:../player
       '@remotion/preload': link:../preload
       '@types/react': 18.0.26
