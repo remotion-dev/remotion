@@ -1,8 +1,8 @@
 import execa from 'execa';
+import {copyFileSync} from 'fs';
 import path from 'path';
 import type {DownloadMap} from './assets/download-map';
 import {chunk} from './chunk';
-import {convertToPcm} from './convert-to-pcm';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {OUTPUT_FILTER_NAME} from './create-ffmpeg-merge-filter';
 import {createSilentAudio} from './create-silent-audio';
@@ -42,10 +42,7 @@ const mergeAudioTrackUnlimited = async ({
 	}
 
 	if (files.length === 1) {
-		convertToPcm({
-			outName,
-			input: files[0],
-		});
+		copyFileSync(files[0].outName, outName);
 		return;
 	}
 
