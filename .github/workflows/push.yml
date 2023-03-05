@@ -16,88 +16,83 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+
+      - name: Check Prettier formatting
+        working-directory: packages
+        run: pnpm run prettier:check
+  lambda-tests:
+    runs-on: ubuntu-latest
+    name: Lambda integration
+    steps:
+      - uses: actions/checkout@main
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
           override: true
+      - run: |
+          corepack enable
+      - uses: Iamshankhadeep/setup-ffmpeg@v1.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check Prettier formatting
-        working-directory: packages
-        run: pnpm run prettier:check
-  # lambda-tests:
-  #   runs-on: ubuntu-latest
-  #   name: Lambda integration
-  #   steps:
-  #     - uses: actions/checkout@main
-  #     - uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 16
-  #     - uses: actions-rs/toolchain@v1
-  #       with:
-  #         profile: minimal
-  #         toolchain: stable
-  #         override: true
-  #     - run: |
-  #         corepack enable
-  #     - uses: Iamshankhadeep/setup-ffmpeg@v1.2
-  #       with:
-  #         token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Cache .pnpm-store
+        uses: actions/cache@v3.0.11
+        with:
+          path: ~/.pnpm-store
+          key: v2-${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
-  #     - name: Cache .pnpm-store
-  #       uses: actions/cache@v3.0.11
-  #       with:
-  #         path: ~/.pnpm-store
-  #         key: v2-${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+      - name: Install
+        run: pnpm install --frozen-lockfile
 
-  #     - name: Install
-  #       run: pnpm install --frozen-lockfile
+      - name: Build
+        run: |
+          pnpm build
+      - name: Test Lambda IT
+        run: |
+          cd packages/it-tests && pnpm run testlambda
+      - name: Test Lambda E2E
+        run: |
+          cd packages/lambda && pnpm run testintegration
+  ssr-tests:
+    runs-on: ubuntu-latest
+    name: SSR integration
+    steps:
+      - uses: actions/checkout@main
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - run: |
+          corepack enable
+      - uses: Iamshankhadeep/setup-ffmpeg@v1.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-  #     - name: Build
-  #       run: |
-  #         pnpm build
-  #     - name: Test Lambda IT
-  #       run: |
-  #         cd packages/it-tests && pnpm run testlambda
-  #     - name: Test Lambda E2E
-  #       run: |
-  #         cd packages/lambda && pnpm run testintegration
-  # ssr-tests:
-  #   runs-on: ubuntu-latest
-  #   name: SSR integration
-  #   steps:
-  #     - uses: actions/checkout@main
-  #     - uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 16
-  #     - uses: actions-rs/toolchain@v1
-  #       with:
-  #         profile: minimal
-  #         toolchain: stable
-  #         override: true
-  #     - run: |
-  #         corepack enable
-  #     - uses: Iamshankhadeep/setup-ffmpeg@v1.2
-  #       with:
-  #         token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Cache .pnpm-store
+        uses: actions/cache@v3.0.11
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}-bust
 
-  #     - name: Cache .pnpm-store
-  #       uses: actions/cache@v3.0.11
-  #       with:
-  #         path: ~/.pnpm-store
-  #         key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}-bust
+      - name: Install
+        run: pnpm install --frozen-lockfile
 
-  #     - name: Install
-  #       run: pnpm install --frozen-lockfile
-
-  #     - name: build
-  #       run: |
-  #         pnpm build
-  #     - name: Test SSR
-  #       timeout-minutes: 5
-  #       run: |
-  #         cd packages/it-tests && pnpm run testssr
-  # build:
+      - name: build
+        run: |
+          pnpm build
+      - name: Test SSR
+        timeout-minutes: 5
+        run: |
+          cd packages/it-tests && pnpm run testssr
+  build:
     name: Build Node ${{ matrix.node_version }} - ffmpeg ${{ matrix.ffmpeg_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
