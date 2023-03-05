@@ -1,12 +1,12 @@
 import * as assert from 'assert';
 import type {ClipRegion} from 'remotion';
 import type {Page} from './browser/BrowserPage';
-import type {StillImageFormat} from './image-format';
+import type {ImageFormatWithoutNone, StillImageFormat} from './image-format';
 import {screenshotTask} from './screenshot-task';
 
 export const screenshot = (options: {
 	page: Page;
-	type: 'png' | 'jpeg';
+	type: ImageFormatWithoutNone;
 	path?: string;
 	quality?: number;
 	omitBackground: boolean;
@@ -14,13 +14,13 @@ export const screenshot = (options: {
 	height: number;
 	clipRegion: ClipRegion | null;
 }): Promise<Buffer | string> => {
-	let screenshotType: 'png' | 'jpeg' | null = null;
+	let screenshotType: ImageFormatWithoutNone | null = null;
 	// options.type takes precedence over inferring the type from options.path
 	// because it may be a 0-length file with no extension created beforehand
 	// (i.e. as a temp file).
 	if (options.type) {
 		assert.ok(
-			options.type === 'png' || options.type === 'jpeg',
+			['png', 'jpeg', 'pdf'].includes(options.type),
 			'Unknown options.type value: ' + options.type
 		);
 		screenshotType = options.type;
@@ -32,6 +32,7 @@ export const screenshot = (options: {
 		if (extension === 'png') screenshotType = 'png';
 		else if (extension === 'jpg' || extension === 'jpeg')
 			screenshotType = 'jpeg';
+		else if (extension === 'pdf') screenshotType = 'pdf';
 		assert.ok(
 			screenshotType,
 			`Unsupported screenshot type for extension \`.${extension}\``

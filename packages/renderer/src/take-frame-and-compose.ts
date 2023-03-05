@@ -60,14 +60,14 @@ export const takeFrameAndCompose = async ({
 	}
 
 	const needsComposing =
-		clipRegion === null
+		clipRegion === null || imageFormat === 'pdf' // TODO figure out what composing does
 			? null
 			: {
 					tmpFile: path.join(
 						downloadMap.compositingDir,
 						`${frame}.${imageFormat}`
 					),
-					finalOutfie:
+					finalOutFile:
 						output ??
 						path.join(
 							downloadMap.compositingDir,
@@ -117,13 +117,13 @@ export const takeFrameAndCompose = async ({
 							},
 					  },
 			].filter(truthy),
-			output: needsComposing.finalOutfie,
+			output: needsComposing.finalOutFile,
 			downloadMap,
 			imageFormat: imageFormat === 'jpeg' ? 'Jpeg' : 'Png',
 		});
 		if (wantsBuffer) {
-			const buffer = await fs.promises.readFile(needsComposing.finalOutfie);
-			await fs.promises.unlink(needsComposing.finalOutfie);
+			const buffer = await fs.promises.readFile(needsComposing.finalOutFile);
+			await fs.promises.unlink(needsComposing.finalOutFile);
 			return {buffer, collectedAssets};
 		}
 	}
