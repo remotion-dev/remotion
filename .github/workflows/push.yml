@@ -8,6 +8,18 @@ name: Install and Test
 env:
   FORCE_COLOR: 1
 jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Check Prettier formatting
+        working-directory: packages
+        run: pnpm run prettier:check
   lambda-tests:
     runs-on: ubuntu-latest
     name: Lambda integration
@@ -80,18 +92,6 @@ jobs:
         timeout-minutes: 5
         run: |
           cd packages/it-tests && pnpm run testssr
-  unit-tests:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-
-      - name: Check Prettier formatting
-        working-directory: packages
-        run: pnpm run prettier:check
   build:
     name: Build Node ${{ matrix.node_version }} - ffmpeg ${{ matrix.ffmpeg_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
