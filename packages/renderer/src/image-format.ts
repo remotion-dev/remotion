@@ -3,11 +3,12 @@
 
 import type {PixelFormat} from './pixel-format';
 
-export const validImageFormats = ['png', 'jpeg', 'none'] as const;
+export const validImageFormats = ['png', 'jpeg', 'pdf', 'none'] as const;
 
 export type ImageFormat = typeof validImageFormats[number];
+export type ImageFormatWithoutNone = Exclude<ImageFormat, 'none'>;
 
-export type StillImageFormat = 'png' | 'jpeg';
+export type StillImageFormat = ImageFormatWithoutNone;
 
 // However, the CLI will override it and use JPEG if suitable.
 export const DEFAULT_IMAGE_FORMAT: ImageFormat = 'png';
@@ -45,7 +46,7 @@ export const validateSelectedPixelFormatAndImageFormatCombination = (
 };
 
 export const validateNonNullImageFormat = (imageFormat: ImageFormat) => {
-	if (imageFormat !== 'jpeg' && imageFormat !== 'png') {
-		throw new TypeError('Image format should be either "png" or "jpeg"');
+	if (!['jpeg', 'png', 'pdf'].includes(imageFormat)) {
+		throw new TypeError('Image format should be either "png", "jpeg" or "pdf"');
 	}
 };
