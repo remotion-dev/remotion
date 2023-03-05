@@ -58,7 +58,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Product Hunt Today](https://github.com/Kamigami55/product-hunt-today)
 - [Remotion Weather](https://github.com/florentpergoud/remotion-weather)
 - [Rewind Table](https://github.com/gregonarash/rewind-table) _(Airtable templates for Remotion)_
-
+- [Conference Speaker Announcement Cards](https://github.com/lyonjs/social-video-generator)
 ## Examples
 
 - [Music with Tone.JS](https://github.com/remotion-dev/tone-js-example)
