@@ -6,7 +6,6 @@ import {truthy} from './truthy';
 export const callFfExtraOptions = () => {
 	const lib = path.join(getExecutablePath('ffmpeg-cwd'), 'remotion', 'lib');
 
-	console.log(`${process.env.PATH};${lib}`);
 	return {
 		env:
 			process.platform === 'darwin'
