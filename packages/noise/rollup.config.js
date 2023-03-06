@@ -11,7 +11,7 @@ export default [
 				sourcemap: false,
 			},
 		],
-		external: ['react', 'remotion', 'react/jsx-runtime'],
+		external: ['react', 'remotion', 'react/jsx-runtime', 'simplex-noise'],
 		plugins: [
 			typescript({
 				tsconfig: 'tsconfig-esm.json',
