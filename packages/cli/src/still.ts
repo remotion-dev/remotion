@@ -35,8 +35,6 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		browserExecutable,
 		chromiumOptions,
 		envVariables,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		height,
 		inputProps,
 		overwrite,
@@ -67,8 +65,6 @@ export const still = async (remotionRoot: string, args: string[]) => {
 			browserExecutable,
 			chromiumOptions,
 			envVariables,
-			ffmpegExecutable,
-			ffprobeExecutable,
 			height,
 			inputProps,
 			overwrite,
@@ -91,6 +87,8 @@ export const still = async (remotionRoot: string, args: string[]) => {
 			cancelSignal: null,
 		});
 	} finally {
+		// TODO: Check whether all temp files are cleaned up
+		// after this change
 		await Promise.all(jobCleanups.map((c) => c()));
 	}
 };

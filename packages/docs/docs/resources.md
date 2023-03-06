@@ -14,9 +14,9 @@ This list tries to compile all templates, libraries, building blocks and example
 - [React Three Fiber](https://github.com/remotion-dev/template-three)
 - [Stills](https://github.com/remotion-dev/template-still)
 - [TTS template](https://github.com/FelippeChemello/Remotion-TTS-Example)
-- [Audiogram](https://github.com/marcusstenbeck/template-audiogram)
-- [Skia](https://github.com/marcusstenbeck/template-skia)
-- [Tailwind](https://github.com/marcusstenbeck/template-tailwind)
+- [Audiogram](https://github.com/marcusstenbeck/remotion-template-audiogram)
+- [Skia](https://github.com/remotion-dev/template-skia)
+- [Tailwind](https://github.com/remotion-dev/template-tailwind)
 - [Hello World Template with pull request video previews](https://github.com/stoat-dev/example-remotion)
 
 ## SaaS starter Kits
@@ -58,7 +58,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Product Hunt Today](https://github.com/Kamigami55/product-hunt-today)
 - [Remotion Weather](https://github.com/florentpergoud/remotion-weather)
 - [Rewind Table](https://github.com/gregonarash/rewind-table) _(Airtable templates for Remotion)_
-
+- [Conference Speaker Announcement Cards](https://github.com/lyonjs/social-video-generator)
 ## Examples
 
 - [Music with Tone.JS](https://github.com/remotion-dev/tone-js-example)

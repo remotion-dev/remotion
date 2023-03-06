@@ -4,20 +4,17 @@ import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import {getDefaultAudioCodec, validAudioCodecs} from './audio-codec';
 import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
+import {callFf, callFfExtraOptions} from './call-ffmpeg';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {checkNodeVersionAndWarnAboutRosetta} from './check-apple-silicon';
 import {DEFAULT_CODEC, validCodecs} from './codec';
 import {combineVideos} from './combine-videos';
+import {getExecutablePath} from './compositor/get-executable-path';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
-import {
-	ffmpegHasFeature,
-	getExecutableBinary,
-	getFfmpegVersion,
-} from './ffmpeg-flags';
 import {defaultFileExtensionMap, supportedAudioCodecs} from './file-extensions';
 import {findRemotionRoot} from './find-closest-package-json';
 import {validateFrameRange} from './frame-range';
@@ -51,7 +48,6 @@ import {
 	validateConcurrency,
 } from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
-import {validateFfmpeg} from './validate-ffmpeg';
 import {
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
@@ -70,14 +66,7 @@ export {BrowserExecutable} from './browser-executable';
 export {BrowserLog} from './browser-log';
 export {Codec, CodecOrUndefined} from './codec';
 export {Crf} from './crf';
-export {
-	ensureFfmpeg,
-	EnsureFfmpegOptions,
-	ensureFfprobe,
-} from './ensure-ffmpeg';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
-export {FfmpegExecutable} from './ffmpeg-executable';
-export {FfmpegVersion} from './ffmpeg-flags';
 export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
@@ -114,9 +103,7 @@ export {validateOutputFilename} from './validate-output-filename';
 
 export const RenderInternals = {
 	ensureLocalBrowser,
-	ffmpegHasFeature,
 	getActualConcurrency,
-	validateFfmpeg,
 	serveStatic,
 	validateEvenDimensionsWithCodec,
 	getFileExtensionFromCodec,
@@ -162,9 +149,7 @@ export const RenderInternals = {
 	cleanDownloadMap,
 	convertToPositiveFrameIndex,
 	findRemotionRoot,
-	getExecutableBinary,
 	validateBitrate,
-	getFfmpegVersion,
 	combineVideos,
 	getMinConcurrency,
 	getMaxConcurrency,
@@ -174,6 +159,9 @@ export const RenderInternals = {
 	supportedAudioCodecs,
 	makeFileExtensionMap,
 	defaultCodecsForFileExtension,
+	getExecutablePath,
+	callFf,
+	callFfExtraOptions,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
