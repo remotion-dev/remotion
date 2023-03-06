@@ -24,8 +24,6 @@ export const processVideoJob = async ({
 	const {
 		publicDir,
 		browserExecutable,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		chromiumOptions,
 		envVariables,
 		inputProps,
@@ -47,8 +45,6 @@ export const processVideoJob = async ({
 		chromiumOptions,
 		entryPointReason: 'same as preview',
 		envVariables,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		height: null,
 		fullEntryPoint,
 		inputProps,

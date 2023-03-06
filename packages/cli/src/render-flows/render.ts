@@ -6,7 +6,6 @@ import type {
 	ChromiumOptions,
 	Codec,
 	Crf,
-	FfmpegExecutable,
 	FfmpegOverrideFn,
 	FrameRange,
 	ImageFormat,
@@ -30,10 +29,7 @@ import {chalk} from '../chalk';
 import {registerCleanupJob} from '../cleanup-before-quit';
 import {ConfigInternals} from '../config';
 import type {Loop} from '../config/number-of-gif-loops';
-import {
-	getAndValidateAbsoluteOutputFile,
-	validateFfmpegCanUseCodec,
-} from '../get-cli-options';
+import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
 import {getOutputFilename} from '../get-filename';
 import {getFinalOutputCodec} from '../get-final-output-codec';
@@ -54,8 +50,6 @@ import {getUserPassedOutputLocation} from '../user-passed-output-location';
 export const renderCompFlow = async ({
 	remotionRoot,
 	fullEntryPoint,
-	ffmpegExecutable,
-	ffprobeExecutable,
 	indent,
 	logLevel,
 	browserExecutable,
@@ -102,8 +96,6 @@ export const renderCompFlow = async ({
 	entryPointReason: string;
 	browserExecutable: BrowserExecutable;
 	chromiumOptions: ChromiumOptions;
-	ffmpegExecutable: FfmpegExecutable;
-	ffprobeExecutable: FfmpegExecutable;
 	logLevel: LogLevel;
 	browser: Browser;
 	scale: number;
@@ -148,15 +140,6 @@ export const renderCompFlow = async ({
 	addCleanupCallback(() => RenderInternals.cleanDownloadMap(downloadMap));
 	registerCleanupJob(() => RenderInternals.cleanDownloadMap(downloadMap));
 
-	const ffmpegVersion = await RenderInternals.getFfmpegVersion({
-		ffmpegExecutable,
-		remotionRoot,
-	});
-	Log.verboseAdvanced(
-		{indent, logLevel},
-		'FFMPEG Version:',
-		ffmpegVersion ? ffmpegVersion.join('.') : 'Built from source'
-	);
 	Log.verboseAdvanced(
 		{indent, logLevel},
 		'Browser executable: ',
@@ -245,8 +228,6 @@ export const renderCompFlow = async ({
 		outName: getUserPassedOutputLocation(argsAfterComposition),
 		uiCodec,
 	});
-
-	await validateFfmpegCanUseCodec(codec, remotionRoot);
 
 	RenderInternals.validateEvenDimensionsWithCodec({
 		width: config.width,
@@ -397,8 +378,6 @@ export const renderCompFlow = async ({
 			timeoutInMilliseconds: puppeteerTimeout,
 			chromiumOptions,
 			scale,
-			ffmpegExecutable,
-			ffprobeExecutable,
 			browserExecutable,
 			port,
 			downloadMap,
@@ -418,8 +397,6 @@ export const renderCompFlow = async ({
 		},
 		crf,
 		envVariables,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		frameRange,
 		inputProps,
 		overwrite,

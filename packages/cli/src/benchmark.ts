@@ -290,8 +290,6 @@ export const benchmarkCommand = async (
 					},
 					crf: configFileCrf,
 					envVariables,
-					ffmpegExecutable,
-					ffprobeExecutable,
 					frameRange: defaultFrameRange,
 					imageFormat: getImageFormat({
 						codec,
