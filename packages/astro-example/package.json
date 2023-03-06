@@ -19,6 +19,8 @@
     "esm-wallaby": "^3.2.26",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
-    "remotion": "3.3.62"
+    "remotion": "3.3.62",
+    "@remotion/lottie": "3.3.62",
+    "@remotion/gif": "3.3.62"
   }
 }
