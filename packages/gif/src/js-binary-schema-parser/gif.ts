@@ -99,9 +99,13 @@ const imageSchema = conditional(
 			},
 			conditional(
 				{
-					lct: readArray(
+					lct: readArray<Frame['image']>(
 						3,
-						(_stream: Stream, _result: unknown, parent: Frame['image']) => {
+						(
+							_stream: Stream,
+							_result: Frame['image'],
+							parent: Frame['image']
+						) => {
 							return 2 ** (parent.descriptor.lct.size + 1);
 						}
 					),
@@ -125,8 +129,11 @@ const textSchema = conditional(
 			{codes: readBytes(2)},
 			{blockSize: readByte()},
 			{
-				preData: (stream: Stream, _result: unknown, parent: Frame['image']) =>
-					readBytes(parent.text.blockSize)(stream),
+				preData: (
+					stream: Stream,
+					_result: unknown,
+					parent: {text: {blockSize: number}}
+				) => readBytes(parent.text.blockSize)(stream),
 			},
 			subBlocksSchema,
 		],

@@ -32,7 +32,7 @@ export const parse = (
 			return resp.arrayBuffer();
 		})
 		.then((buffer) => parseGIF(buffer))
-		.then((gif) => {
+		.then((gif: ParsedGif) => {
 			validateAndFix(gif);
 			return gif;
 		})

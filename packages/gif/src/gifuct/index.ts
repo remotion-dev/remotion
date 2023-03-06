@@ -5,9 +5,9 @@ import {deinterlace} from './deinterlace';
 import {lzw} from './lzw';
 import type {Frame, ParsedFrameWithoutPatch, ParsedGif} from './types';
 
-export const parseGIF = (arrayBuffer: ArrayBuffer) => {
+export const parseGIF = (arrayBuffer: ArrayBuffer): ParsedGif => {
 	const byteData = new Uint8Array(arrayBuffer);
-	return parse(buildStream(byteData), GIF);
+	return parse(buildStream(byteData), GIF) as ParsedGif;
 };
 
 export const decompressFrame = (

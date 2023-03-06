@@ -1,8 +1,7 @@
 /* eslint-disable no-bitwise */
 // Default stream and parsers for Uint8TypedArray data type
 
-import type {Frame} from '../gifuct/types';
-import type {GIF} from './gif';
+import type {GifSchema} from './parser';
 
 export type Stream = {
 	data: Uint8Array;
@@ -47,9 +46,9 @@ export const readUnsigned = (littleEndian: boolean) => (stream: Stream) => {
 export const readArray =
 	<T>(
 		byteSize: number,
-		totalOrFunc: number | ((st: Stream, r: T, p: unknown) => number)
+		totalOrFunc: number | ((st: Stream, r: T, p: T) => number)
 	) =>
-	(stream: Stream, result: T, parent: Frame['image']) => {
+	(stream: Stream, result: T, parent: T) => {
 		const total =
 			typeof totalOrFunc === 'function'
 				? totalOrFunc(stream, result, parent)
@@ -78,7 +77,7 @@ const subBitsTotal = (
 };
 
 export const readBits =
-	(schema: typeof GIF) =>
+	(schema: GifSchema) =>
 	(stream: Stream): Record<string, number | boolean> => {
 		const byte = readByte()(stream);
 		// convert the byte to bit array
@@ -88,7 +87,9 @@ export const readBits =
 		}
 
 		// convert the bit array to values based on the schema
+		// @ts-expect-error
 		return Object.keys(schema).reduce((res, key) => {
+			// @ts-expect-error
 			const def = schema[key];
 			if (def.length) {
 				res[key] = subBitsTotal(bits, def.index, def.length);
