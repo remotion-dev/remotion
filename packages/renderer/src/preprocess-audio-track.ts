@@ -6,6 +6,8 @@ import {callFf} from './call-ffmpeg';
 import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
 import {pLimit} from './p-limit';
 import {resolveAssetSrc} from './resolve-asset-src';
+import {DEFAULT_SAMPLE_RATE} from './sample-rate';
+import type {ProcessedTrack} from './stringify-ffmpeg-filter';
 
 type Options = {
 	outName: string;
@@ -15,13 +17,18 @@ type Options = {
 	downloadMap: DownloadMap;
 };
 
+export type PreprocessedAudioTrack = {
+	outName: string;
+	filter: ProcessedTrack;
+};
+
 const preprocessAudioTrackUnlimited = async ({
 	outName,
 	asset,
 	expectedFrames,
 	fps,
 	downloadMap,
-}: Options): Promise<string | null> => {
+}: Options): Promise<PreprocessedAudioTrack | null> => {
 	const {channels, duration} = await getAudioChannelsAndDuration(
 		downloadMap,
 		resolveAssetSrc(asset.src)
@@ -46,13 +53,14 @@ const preprocessAudioTrackUnlimited = async ({
 		['-ac', '2'],
 		['-filter_script:a', file],
 		['-c:a', 'pcm_s16le'],
+		['-ar', String(DEFAULT_SAMPLE_RATE)],
 		['-y', outName],
 	].flat(2);
 
 	await callFf('ffmpeg', args);
 
 	cleanup();
-	return outName;
+	return {outName, filter};
 };
 
 const limit = pLimit(2);

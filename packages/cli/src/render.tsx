@@ -208,7 +208,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		registerCleanupJob(() => RenderInternals.deleteDirectory(outputDir.dir));
 	}
 
-	Log.verbose('Output dir', outputDir);
+	Log.verbose('Output dir', outputDir.dir);
 
 	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
 	const realFrameRange = RenderInternals.getRealFrameRange(

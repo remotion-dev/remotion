@@ -1,17 +1,19 @@
+import {copyFileSync} from 'fs';
 import path from 'path';
 import type {DownloadMap} from './assets/download-map';
 import {callFf} from './call-ffmpeg';
 import {chunk} from './chunk';
-import {convertToPcm} from './convert-to-pcm';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
+import {OUTPUT_FILTER_NAME} from './create-ffmpeg-merge-filter';
 import {createSilentAudio} from './create-silent-audio';
 import {deleteDirectory} from './delete-directory';
 import {pLimit} from './p-limit';
+import type {PreprocessedAudioTrack} from './preprocess-audio-track';
 import {tmpDir} from './tmp-dir';
 import {truthy} from './truthy';
 
 type Options = {
-	files: string[];
+	files: PreprocessedAudioTrack[];
 	outName: string;
 	numberOfSeconds: number;
 	downloadMap: DownloadMap;
@@ -34,10 +36,7 @@ const mergeAudioTrackUnlimited = async ({
 	}
 
 	if (files.length === 1) {
-		await convertToPcm({
-			outName,
-			input: files[0],
-		});
+		copyFileSync(files[0].outName, outName);
 		return;
 	}
 
@@ -62,7 +61,13 @@ const mergeAudioTrackUnlimited = async ({
 			);
 
 			await mergeAudioTrack({
-				files: chunkNames,
+				files: chunkNames.map((c) => ({
+					filter: {
+						pad_end: null,
+						pad_start: null,
+					},
+					outName: c,
+				})),
 				numberOfSeconds,
 				outName,
 				downloadMap,
@@ -75,13 +80,16 @@ const mergeAudioTrackUnlimited = async ({
 	}
 
 	const {complexFilterFlag: mergeFilter, cleanup} =
-		await createFfmpegComplexFilter(files.length, downloadMap);
+		await createFfmpegComplexFilter({
+			filters: files,
+			downloadMap,
+		});
 
 	const args = [
-		...files.map((f) => ['-i', f]),
+		...files.map((f) => ['-i', f.outName]),
 		mergeFilter,
 		['-c:a', 'pcm_s16le'],
-		['-map', '[a]'],
+		['-map', `[${OUTPUT_FILTER_NAME}]`],
 		['-y', outName],
 	]
 		.filter(truthy)

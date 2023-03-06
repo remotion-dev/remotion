@@ -337,6 +337,11 @@ let enabled = false;
 export const Config = new Proxy(conf, {
 	get(target, prop, receiver) {
 		if (!enabled) {
+			if (typeof document !== 'undefined') {
+				// We are in the browser
+				return {};
+			}
+
 			throw new Error(
 				'To use the Remotion config file, you need to have @remotion/cli installed.\n- Make sure that all versions of Remotion are the same.\n- Make sure that @remotion/cli is installed.\n- Make sure Config is imported from "@remotion/cli", not "remotion".'
 			);

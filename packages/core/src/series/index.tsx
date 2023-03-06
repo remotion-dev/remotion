@@ -81,10 +81,11 @@ const Series: FC<{
 				i !== flattenedChildren.length - 1 ||
 				durationInFramesProp !== Infinity
 			) {
-				validateDurationInFrames(
-					durationInFramesProp,
-					`of a <Series.Sequence /> component`
-				);
+				validateDurationInFrames({
+					durationInFrames: durationInFramesProp,
+					component: `of a <Series.Sequence /> component`,
+					allowFloats: true,
+				});
 			}
 
 			const offset = castedChild.props.offset ?? 0;

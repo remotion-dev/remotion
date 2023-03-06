@@ -80,7 +80,7 @@ export const combineVideos = async (options: Options) => {
 		);
 		task.stderr?.on('data', (data: Buffer) => {
 			if (onProgress) {
-				const parsed = parseFfmpegProgress(data.toString());
+				const parsed = parseFfmpegProgress(data.toString('utf8'));
 				if (parsed !== undefined) {
 					onProgress(parsed);
 				}
