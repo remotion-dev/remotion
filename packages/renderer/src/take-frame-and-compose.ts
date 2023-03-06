@@ -59,8 +59,14 @@ export const takeFrameAndCompose = async ({
 		return {buffer: null, collectedAssets};
 	}
 
+	if (imageFormat === 'pdf' && clipRegion !== null) {
+		throw new Error(
+			"You can only pass a `clip region` if `imageFormat` is 'jpeg' or 'png'."
+		);
+	}
+
 	const needsComposing =
-		clipRegion === null || imageFormat === 'pdf' // TODO figure out what composing does
+		clipRegion === null
 			? null
 			: {
 					tmpFile: path.join(
