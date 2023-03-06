@@ -8,6 +8,8 @@ import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
 import {getExecutableBinary} from './ffmpeg-flags';
 import {pLimit} from './p-limit';
 import {resolveAssetSrc} from './resolve-asset-src';
+import {DEFAULT_SAMPLE_RATE} from './sample-rate';
+import type {ProcessedTrack} from './stringify-ffmpeg-filter';
 
 type Options = {
 	ffmpegExecutable: FfmpegExecutable;
@@ -20,6 +22,11 @@ type Options = {
 	remotionRoot: string;
 };
 
+export type PreprocessedAudioTrack = {
+	outName: string;
+	filter: ProcessedTrack;
+};
+
 const preprocessAudioTrackUnlimited = async ({
 	ffmpegExecutable,
 	ffprobeExecutable,
@@ -29,7 +36,7 @@ const preprocessAudioTrackUnlimited = async ({
 	fps,
 	downloadMap,
 	remotionRoot,
-}: Options): Promise<string | null> => {
+}: Options): Promise<PreprocessedAudioTrack | null> => {
 	const {channels, duration} = await getAudioChannelsAndDuration(
 		downloadMap,
 		resolveAssetSrc(asset.src),
@@ -56,6 +63,7 @@ const preprocessAudioTrackUnlimited = async ({
 		['-ac', '2'],
 		['-filter_script:a', file],
 		['-c:a', 'pcm_s16le'],
+		['-ar', String(DEFAULT_SAMPLE_RATE)],
 		['-y', outName],
 	].flat(2);
 
@@ -65,7 +73,7 @@ const preprocessAudioTrackUnlimited = async ({
 	);
 
 	cleanup();
-	return outName;
+	return {outName, filter};
 };
 
 const limit = pLimit(2);
