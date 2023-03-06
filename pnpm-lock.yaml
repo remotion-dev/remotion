@@ -563,26 +563,27 @@ importers:
   packages/gif:
     specifiers:
       '@jonny/eslint-config': 3.0.266
+      '@rollup/plugin-typescript': ^8.2.0
       '@types/node': ^16.7.5
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
       esbuild: 0.16.12
       eslint: 8.25.0
-      js-binary-schema-parser: ^2.0.3
       lru_map: 0.4.1
       prettier: 2.6.2
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
       remotion: 3.3.62
+      rollup: ^2.70.1
       typescript: ^4.7.0
       webpack: 5.74.0
     dependencies:
-      js-binary-schema-parser: 2.0.3
       lru_map: 0.4.1
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
+      '@rollup/plugin-typescript': 8.5.0_2s5nfqwcf62746iqzotp3mpuy4
       '@types/node': 16.10.2
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
@@ -592,6 +593,7 @@ importers:
       prettier-plugin-organize-imports: 2.3.4_lbsuufegg2dnc4wh6qgf26kgdy
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
+      rollup: 2.76.0
       typescript: 4.7.2
       webpack: 5.74.0_esbuild@0.16.12
 
@@ -16612,10 +16614,6 @@ packages:
       '@sideway/formula': 3.0.0
       '@sideway/pinpoint': 2.0.0
 
-  /js-binary-schema-parser/2.0.3:
-    resolution: {integrity: sha512-xezGJmOb4lk/M1ZZLTR/jaBHQ4gG/lqQnJqdIv4721DMggsa1bDVlHXNeHYogaIEHD9vCRv0fcL4hMA+Coarkg==}
-    dev: false
-
   /js-sdsl/4.1.5:
     resolution: {integrity: sha512-08bOAKweV2NUC1wqTtf3qZlnpOX/R2DU9ikpjOHs0H+ibQv3zpncVQg6um4uYtRtrwIX8M4Nh3ytK4HGlYAq7Q==}
 
@@ -24844,8 +24842,8 @@ packages:
       '@webassemblyjs/ast': 1.11.1
       '@webassemblyjs/wasm-edit': 1.11.1
       '@webassemblyjs/wasm-parser': 1.11.1
-      acorn: 8.8.1
-      acorn-import-assertions: 1.8.0_acorn@8.8.1
+      acorn: 8.8.0
+      acorn-import-assertions: 1.8.0_acorn@8.8.0
       browserslist: 4.21.4
       chrome-trace-event: 1.0.3
       enhanced-resolve: 5.10.0
