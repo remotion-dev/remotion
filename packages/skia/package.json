@@ -2,13 +2,14 @@
 	"name": "@remotion/skia",
 	"version": "3.3.62",
 	"description": "Utilities for using react-native-skia in Remotion",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
+	"main": "dist/cjs/index.js",
+	"types": "dist/cjs/index.d.ts",
+	"module": "dist/esm/index.mjs",
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
-		"build": "tsc -d"
+		"build": "rollup --config rollup-enable.config.js && rollup --config rollup.config.js && tsc -d"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>, William Candillon <wcandillon@gmail.com>",
 	"contributors": [],
@@ -41,6 +42,8 @@
 		"react": "18.0.0",
 		"react-dom": "18.0.0",
 		"remotion": "3.3.58",
+		"rollup": "^2.70.1",
+		"@rollup/plugin-typescript": "^8.2.0",
 		"typescript": "^4.7.0"
 	},
 	"keywords": [
@@ -49,5 +52,27 @@
 	],
 	"publishConfig": {
 		"access": "public"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/cjs/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/cjs/index.js"
+		},
+		"./enable": {
+			"types": "./dist/cjs/enable.d.ts",
+			"module": "./dist/esm/enable.mjs",
+			"import": "./dist/esm/enable.mjs",
+			"require": "./dist/cjs/enable.js"
+		}
+	},
+	"typesVersions": {
+		">=1.0": {
+			"enable": [
+				"dist/esm/enable.d.ts"
+			]
+		}
 	}
 }

@@ -2,6 +2,8 @@ import {WebpackOverrideFn} from '@remotion/bundler';
 import path from 'path';
 type Bundler = 'webpack' | 'esbuild';
 
+console.log(require.resolve('@remotion/skia/enable'));
+
 const WEBPACK_OR_ESBUILD = 'esbuild' as Bundler;
 
 export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
@@ -20,6 +22,7 @@ export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
 
 		return currentConfiguration;
 	})();
+
 	return {
 		...replaced,
 		module: {

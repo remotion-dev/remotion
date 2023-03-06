@@ -3,14 +3,15 @@ import typescript from '@rollup/plugin-typescript';
 
 export default [
 	{
-		input: 'src/version.ts',
+		input: 'src/enable.ts',
 		output: [
 			{
-				file: 'dist/esm/version.mjs',
+				file: 'dist/esm/enable.mjs',
 				format: 'es',
 				sourcemap: false,
 			},
 		],
+		external: ['react', 'copy-webpack-plugin'],
 		plugins: [
 			typescript({
 				tsconfig: 'tsconfig-esm.json',
