@@ -5,7 +5,6 @@ import type {
 	BrowserExecutable,
 	CancelSignal,
 	ChromiumOptions,
-	FfmpegExecutable,
 	ImageFormat,
 	LogLevel,
 	RenderMediaOnDownload,
@@ -53,8 +52,6 @@ export const renderStillFlow = async ({
 	browserExecutable,
 	chromiumOptions,
 	envVariables,
-	ffmpegExecutable,
-	ffprobeExecutable,
 	height,
 	inputProps,
 	overwrite,
@@ -86,8 +83,6 @@ export const renderStillFlow = async ({
 	browserExecutable: BrowserExecutable;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
-	ffmpegExecutable: FfmpegExecutable;
-	ffprobeExecutable: FfmpegExecutable;
 	overwrite: boolean;
 	puppeteerTimeout: number;
 	port: number | null;
@@ -185,8 +180,6 @@ export const renderStillFlow = async ({
 		chromiumOptions,
 		port,
 		browserExecutable,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		downloadMap,
 	});
 
@@ -278,7 +271,6 @@ export const renderStillFlow = async ({
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,
 		scale,
-		ffmpegExecutable,
 		browserExecutable,
 		overwrite,
 		onDownload,

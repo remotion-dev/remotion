@@ -23,8 +23,6 @@ export const processStill = async ({
 	const {
 		publicDir,
 		browserExecutable,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		chromiumOptions,
 		envVariables,
 		inputProps,
@@ -46,8 +44,6 @@ export const processStill = async ({
 		chromiumOptions,
 		entryPointReason: 'same as preview',
 		envVariables,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		height: null,
 		fullEntryPoint,
 		inputProps,
