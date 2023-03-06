@@ -10,6 +10,7 @@ import type {LambdaPayload, RenderMetadata} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
 	encodingProgressKey,
+	ENCODING_PROGRESS_STEP_SIZE,
 	initalizedMetadataKey,
 	LambdaRoutines,
 	MAX_FUNCTIONS_PER_RENDER,
@@ -172,8 +173,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		browserInstance,
 		inputProps: await inputPropsPromise,
 		envVariables: params.envVariables,
-		ffmpegExecutable: null,
-		ffprobeExecutable: null,
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
 		port: null,
@@ -181,10 +180,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		forceHeight: params.forceHeight,
 		forceWidth: params.forceWidth,
 	});
-	Internals.validateDurationInFrames(
-		comp.durationInFrames,
-		'passed to a Lambda render'
-	);
+	Internals.validateDurationInFrames({
+		durationInFrames: comp.durationInFrames,
+		component: 'passed to a Lambda render',
+		allowFloats: false,
+	});
 	Internals.validateFps(comp.fps, 'passed to a Lambda render', false);
 	Internals.validateDimension(
 		comp.height,
@@ -384,7 +384,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		lambdaWriteFile({
 			bucketName: params.bucketName,
 			key: encodingProgressKey(params.renderId),
-			body: String(framesEncoded),
+			body: String(Math.round(framesEncoded / ENCODING_PROGRESS_STEP_SIZE)),
 			region: getCurrentRegionInFunction(),
 			privacy: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
@@ -469,8 +469,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		codec: params.codec,
 		fps,
 		numberOfGifLoops: params.numberOfGifLoops,
-		ffmpegExecutable: null,
-		remotionRoot: process.cwd(),
 		files,
 		outdir,
 		audioCodec: params.audioCodec,
@@ -499,7 +497,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	const finalEncodingProgressProm = lambdaWriteFile({
 		bucketName: params.bucketName,
 		key: encodingProgressKey(params.renderId),
-		body: String(frameCount.length),
+		body: String(Math.ceil(frameCount.length / ENCODING_PROGRESS_STEP_SIZE)),
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,

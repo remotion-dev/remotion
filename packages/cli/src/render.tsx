@@ -42,8 +42,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		quality,
 		browser,
 		browserExecutable,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		scale,
 		chromiumOptions,
 		port,
@@ -71,8 +69,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 	const jobCleanups: (() => void)[] = [];
 	try {
 		await renderCompFlow({
-			ffmpegExecutable,
-			ffprobeExecutable,
 			fullEntryPoint,
 			remotionRoot,
 			browserExecutable,

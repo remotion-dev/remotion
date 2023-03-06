@@ -6,7 +6,6 @@
 type Concurrency = number | null;
 type BrowserExecutable = string | null;
 type FrameRange = number | [number, number];
-type FfmpegExecutable = string | null;
 type Loop = number | null;
 type CodecOrUndefined =
 	| 'h264'
@@ -201,16 +200,6 @@ declare global {
 			 */
 			readonly setFrameRange: (newFrameRange: FrameRange | null) => void;
 			/**
-			 * Specify local ffmpeg executable.
-			 * Default: null, which will use ffmpeg available in PATH.
-			 */
-			readonly setFfmpegExecutable: (ffmpegPath: FfmpegExecutable) => void;
-			/**
-			 * Specify local ffprobe executable.
-			 * Default: null, which will use ffprobe available in PATH.
-			 */
-			readonly setFfprobeExecutable: (ffprobePath: FfmpegExecutable) => void;
-			/**
 			 * Scales the output dimensions by a factor.
 			 * Default: 1.
 			 */
@@ -348,6 +337,11 @@ let enabled = false;
 export const Config = new Proxy(conf, {
 	get(target, prop, receiver) {
 		if (!enabled) {
+			if (typeof document !== 'undefined') {
+				// We are in the browser
+				return {};
+			}
+
 			throw new Error(
 				'To use the Remotion config file, you need to have @remotion/cli installed.\n- Make sure that all versions of Remotion are the same.\n- Make sure that @remotion/cli is installed.\n- Make sure Config is imported from "@remotion/cli", not "remotion".'
 			);

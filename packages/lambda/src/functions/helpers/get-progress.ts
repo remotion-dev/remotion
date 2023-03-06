@@ -120,9 +120,6 @@ export const getProgress = async ({
 		contents.find((c) => c.Key === renderMetadataKey(renderId))
 	);
 
-	const encodingStatus = getEncodingMetadata({
-		exists: contents.find((c) => c.Key === encodingProgressKey(renderId)),
-	});
 	const [renderMetadata, errorExplanations] = await Promise.all([
 		renderMetadataExists
 			? getRenderMetadata({
@@ -221,6 +218,18 @@ export const getProgress = async ({
 		renderId,
 	});
 
+	const frameCount = renderMetadata
+		? RenderInternals.getFramesToRender(
+				renderMetadata.frameRange,
+				renderMetadata.everyNthFrame
+		  ).length
+		: null;
+
+	const encodingStatus = getEncodingMetadata({
+		exists: contents.find((c) => c.Key === encodingProgressKey(renderId)),
+		frameCount: frameCount === null ? 0 : frameCount,
+	});
+
 	const finalEncodingStatus = getFinalEncodingStatus({
 		encodingProgress: encodingStatus,
 		outputFileExists: Boolean(outputFile),
@@ -242,13 +251,6 @@ export const getProgress = async ({
 			: null,
 		...errorExplanations,
 	].filter(Internals.truthy);
-
-	const frameCount = renderMetadata
-		? RenderInternals.getFramesToRender(
-				renderMetadata.frameRange,
-				renderMetadata.everyNthFrame
-		  ).length
-		: null;
 
 	return {
 		framesRendered,

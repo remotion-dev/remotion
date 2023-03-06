@@ -25,7 +25,11 @@ export const Loop: React.FC<LoopProps> = ({
 	...props
 }) => {
 	const {durationInFrames: compDuration} = useVideoConfig();
-	validateDurationInFrames(durationInFrames, 'of the <Loop /> component');
+	validateDurationInFrames({
+		durationInFrames,
+		component: 'of the <Loop /> component',
+		allowFloats: true,
+	});
 
 	if (typeof times !== 'number') {
 		throw new TypeError(
