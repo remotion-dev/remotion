@@ -20,8 +20,7 @@ export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
 
 		return currentConfiguration;
 	})();
-
-	const updated = {
+	return {
 		...replaced,
 		module: {
 			...replaced.module,
@@ -57,6 +56,4 @@ export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
 			},
 		},
 	};
-
-	return updated;
 };
