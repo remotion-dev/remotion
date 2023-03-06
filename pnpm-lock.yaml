@@ -778,6 +778,7 @@ importers:
   packages/motion-blur:
     specifiers:
       '@jonny/eslint-config': 3.0.266
+      '@rollup/plugin-typescript': ^8.2.0
       '@types/react': 18.0.26
       eslint: 8.25.0
       prettier: ^2.7.1
@@ -785,17 +786,20 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0
       remotion: 3.3.62
+      rollup: ^2.70.1
       typescript: ^4.7.0
     dependencies:
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
+      '@rollup/plugin-typescript': 8.5.0_2s5nfqwcf62746iqzotp3mpuy4
       '@types/react': 18.0.26
       eslint: 8.25.0
       prettier: 2.7.1
       prettier-plugin-organize-imports: 2.3.4_j2odc4yr77iddtreafyicbq5hi
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
+      rollup: 2.76.0
       typescript: 4.7.2
 
   packages/noise:
@@ -24852,8 +24856,8 @@ packages:
       '@webassemblyjs/ast': 1.11.1
       '@webassemblyjs/wasm-edit': 1.11.1
       '@webassemblyjs/wasm-parser': 1.11.1
-      acorn: 8.8.0
-      acorn-import-assertions: 1.8.0_acorn@8.8.0
+      acorn: 8.8.1
+      acorn-import-assertions: 1.8.0_acorn@8.8.1
       browserslist: 4.21.4
       chrome-trace-event: 1.0.3
       enhanced-resolve: 5.10.0
