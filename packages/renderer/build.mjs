@@ -230,7 +230,7 @@ for (const arch of archs) {
 			unlinkSync(path.join(libDir, file));
 		} else if (file.endsWith('.def')) {
 			unlinkSync(path.join(libDir, file));
-		} else if (file.includes('libvpx')) {
+		} else if (file.includes('libvpx') && arch !== 'x86_64-pc-windows-gnu') {
 			unlinkSync(path.join(libDir, file));
 		} else if (file.endsWith('.lib')) {
 			unlinkSync(path.join(libDir, file));
