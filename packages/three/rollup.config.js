@@ -16,7 +16,7 @@ export default [
 			'remotion',
 			'react/jsx-runtime',
 			'@react-three/fiber',
-			'three/src/textures/VideoTexture',
+			'three/src/textures/VideoTexture.js',
 		],
 		plugins: [
 			typescript({
