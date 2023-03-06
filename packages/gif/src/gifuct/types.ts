@@ -5,7 +5,7 @@ type Dimensions = {
 	height: number;
 };
 
-type Application = {
+export type Application = {
 	application: {
 		blockSize: number;
 		blocks: number[];
