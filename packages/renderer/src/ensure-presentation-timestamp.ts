@@ -1,6 +1,6 @@
 import path from 'path';
-import {RenderInternals} from '.';
 import type {DownloadMap} from './assets/download-map';
+import {callFf} from './call-ffmpeg';
 import {guessExtensionForVideo} from './guess-extension-for-media';
 import {truthy} from './truthy';
 
@@ -44,7 +44,7 @@ export const ensurePresentationTimestampWithoutCache = async ({
 		src,
 	});
 
-	await RenderInternals.callFf('ffmpeg', [
+	await callFf('ffmpeg', [
 		'-i',
 		src,
 		'-fflags',

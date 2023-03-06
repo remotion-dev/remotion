@@ -1,8 +1,8 @@
 // Uses no seeking, therefore the whole video has to be decoded. This is a last resort and should only happen
 // if the video is corrupted
 import type {OffthreadVideoImageFormat} from 'remotion';
-import {RenderInternals} from '.';
 import type {SpecialVCodecForTransparency} from './assets/download-map';
+import {callFf} from './call-ffmpeg';
 import {determineResizeParams} from './determine-resize-params';
 import {determineVcodecFfmpegFlags} from './determine-vcodec-ffmpeg-flags';
 import {truthy} from './truthy';
@@ -44,7 +44,7 @@ export const getFrameOfVideoSlow = async ({
 		'-',
 	].filter(truthy);
 
-	const {stdout, stderr} = RenderInternals.callFf('ffmpeg', command);
+	const {stdout, stderr} = callFf('ffmpeg', command);
 
 	if (!stderr) {
 		throw new Error('unexpectedly did not get stderr');

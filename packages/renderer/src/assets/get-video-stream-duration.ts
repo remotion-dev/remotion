@@ -1,4 +1,4 @@
-import {RenderInternals} from '..';
+import {callFf} from '../call-ffmpeg';
 import {pLimit} from '../p-limit';
 import type {DownloadMap, VideoDurationResult} from './download-map';
 
@@ -57,7 +57,7 @@ export async function getVideoStreamDurationwithoutCache({src}: {src: string}) {
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = await RenderInternals.callFf('ffprobe', args);
+	const task = await callFf('ffprobe', args);
 
 	const result: VideoDurationResult = parseVideoStreamDuration(task.stdout);
 

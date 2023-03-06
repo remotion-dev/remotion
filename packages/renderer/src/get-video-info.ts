@@ -1,6 +1,6 @@
-import {RenderInternals} from '.';
 import type {DownloadMap, Vp9Result} from './assets/download-map';
 import {calculateDisplayVideoSize} from './calculate-sar-dar-pixels';
+import {callFf} from './call-ffmpeg';
 import {pLimit} from './p-limit';
 
 const limit = pLimit(1);
@@ -10,7 +10,7 @@ export async function getVideoInfoUncached({
 }: {
 	src: string;
 }): Promise<Vp9Result> {
-	const task = await RenderInternals.callFf('ffprobe', [src]);
+	const task = await callFf('ffprobe', [src]);
 
 	const isVp9 = task.stderr.includes('Video: vp9');
 	const isVp8 = task.stderr.includes('Video: vp8');
