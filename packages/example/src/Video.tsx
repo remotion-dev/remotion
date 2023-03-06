@@ -26,6 +26,7 @@ import EllipseTest from './Shapes/EllipseTest';
 import RectTest from './Shapes/RectTest';
 import StarTest from './Shapes/StarTest';
 import TriangleTest from './Shapes/TriangleTest';
+import {SkiaDemo} from './Skia';
 import {SkipZeroFrame} from './SkipZeroFrame';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
@@ -654,6 +655,16 @@ export const Index: React.FC = () => {
 					height={630}
 					fps={30}
 					durationInFrames={150}
+				/>
+			</Folder>
+			<Folder name="skia">
+				<Composition
+					id="SkiaDemo"
+					component={SkiaDemo}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={180}
 				/>
 			</Folder>
 		</>

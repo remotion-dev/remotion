@@ -3,13 +3,19 @@ import typescript from '@rollup/plugin-typescript';
 
 export default [
 	{
-		input: 'src/version.ts',
+		input: 'src/index.ts',
 		output: [
 			{
-				file: 'dist/esm/version.mjs',
+				file: 'dist/esm/index.mjs',
 				format: 'es',
 				sourcemap: false,
 			},
+		],
+		external: [
+			'react',
+			'remotion',
+			'react/jsx-runtime',
+			'@shopify/react-native-skia',
 		],
 		plugins: [
 			typescript({

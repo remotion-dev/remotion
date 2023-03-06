@@ -21,6 +21,8 @@
     "react-dom": "^18.1.0",
     "remotion": "3.3.62",
     "@remotion/lottie": "3.3.62",
-    "@remotion/gif": "3.3.62"
+    "@remotion/motion-blur": "3.3.62",
+    "@remotion/gif": "3.3.62",
+    "@remotion/skia": "3.3.62"
   }
 }
