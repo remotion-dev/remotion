@@ -11,7 +11,7 @@ export default [
 				sourcemap: false,
 			},
 		],
-		external: ['react', 'remotion', 'react/jsx-runtime', 'lru_map'],
+		external: ['react', 'remotion', 'react/jsx-runtime'],
 		plugins: [
 			typescript({
 				tsconfig: 'tsconfig-esm.json',
