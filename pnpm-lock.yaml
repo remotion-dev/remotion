@@ -16,6 +16,8 @@ importers:
   packages/astro-example:
     specifiers:
       '@astrojs/react': ^2.0.2
+      '@remotion/gif': 3.3.62
+      '@remotion/lottie': 3.3.62
       '@remotion/player': 3.3.62
       '@types/react': ^18.0.10
       '@types/react-dom': ^18.0.5
@@ -26,6 +28,8 @@ importers:
       remotion: 3.3.62
     dependencies:
       '@astrojs/react': 2.0.2_ie75ejlwqy5zh3tldgt7pftwcu
+      '@remotion/gif': link:../gif
+      '@remotion/lottie': link:../lottie
       '@remotion/player': link:../player
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
@@ -24848,8 +24852,8 @@ packages:
       '@webassemblyjs/ast': 1.11.1
       '@webassemblyjs/wasm-edit': 1.11.1
       '@webassemblyjs/wasm-parser': 1.11.1
-      acorn: 8.8.1
-      acorn-import-assertions: 1.8.0_acorn@8.8.1
+      acorn: 8.8.0
+      acorn-import-assertions: 1.8.0_acorn@8.8.0
       browserslist: 4.21.4
       chrome-trace-event: 1.0.3
       enhanced-resolve: 5.10.0
