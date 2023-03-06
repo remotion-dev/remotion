@@ -45,3 +45,5 @@ The timeline is now always in simple mode, but supports more timeline layers at 
 
 Previously, the `aac` audio codec was the default for ProRes exports. The default is now `pcm_s16le` which stands for uncompressed 16-bit low-endian PCM audio.  
 This change was made since users export ProRes mainly for getting high-quality footage to be further used in video editing programs.
+
+## No more FFmpeg install, `ffmpegExecutable` option removed
