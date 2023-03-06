@@ -16,7 +16,12 @@ importers:
   packages/astro-example:
     specifiers:
       '@astrojs/react': ^2.0.2
+      '@remotion/gif': 3.3.62
+      '@remotion/lottie': 3.3.62
+      '@remotion/motion-blur': 3.3.62
       '@remotion/player': 3.3.62
+      '@remotion/skia': 3.3.62
+      '@remotion/three': 3.3.62
       '@types/react': ^18.0.10
       '@types/react-dom': ^18.0.5
       astro: ^2.0.14
@@ -26,7 +31,12 @@ importers:
       remotion: 3.3.62
     dependencies:
       '@astrojs/react': 2.0.2_ie75ejlwqy5zh3tldgt7pftwcu
+      '@remotion/gif': link:../gif
+      '@remotion/lottie': link:../lottie
+      '@remotion/motion-blur': link:../motion-blur
       '@remotion/player': link:../player
+      '@remotion/skia': link:../skia
+      '@remotion/three': link:../three
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
       astro: 2.0.14
@@ -481,6 +491,7 @@ importers:
       '@remotion/paths': 3.3.62
       '@remotion/renderer': 3.3.62
       '@remotion/shapes': 3.3.62
+      '@remotion/skia': 3.3.62
       '@remotion/three': 3.3.62
       '@types/babel__core': ^7.1.12
       '@types/babel__template': ^7.4.0
@@ -529,6 +540,7 @@ importers:
       '@remotion/paths': link:../paths
       '@remotion/renderer': link:../renderer
       '@remotion/shapes': link:../shapes
+      '@remotion/skia': link:../skia
       '@remotion/three': link:../three
       '@types/express': 4.17.13
       '@types/node': 16.10.2
@@ -569,7 +581,6 @@ importers:
       '@types/react-dom': 18.0.10
       esbuild: 0.16.12
       eslint: 8.25.0
-      lru_map: 0.4.1
       prettier: 2.6.2
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
@@ -579,7 +590,6 @@ importers:
       typescript: ^4.7.0
       webpack: 5.74.0
     dependencies:
-      lru_map: 0.4.1
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
@@ -716,6 +726,7 @@ importers:
   packages/lottie:
     specifiers:
       '@jonny/eslint-config': 3.0.266
+      '@rollup/plugin-typescript': ^8.2.0
       '@types/node': ^16.7.5
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
@@ -726,6 +737,7 @@ importers:
       react: ^18.0.0
       react-dom: ^18.0.0
       remotion: 3.3.62
+      rollup: ^2.70.1
       typescript: ^4.7.0
       vitest: 0.24.3
     dependencies:
@@ -733,6 +745,7 @@ importers:
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
+      '@rollup/plugin-typescript': 8.5.0_2s5nfqwcf62746iqzotp3mpuy4
       '@types/node': 16.10.2
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
@@ -741,6 +754,7 @@ importers:
       prettier-plugin-organize-imports: 2.3.4_j2odc4yr77iddtreafyicbq5hi
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
+      rollup: 2.76.0
       typescript: 4.7.2
       vitest: 0.24.3
 
@@ -772,6 +786,7 @@ importers:
   packages/motion-blur:
     specifiers:
       '@jonny/eslint-config': 3.0.266
+      '@rollup/plugin-typescript': ^8.2.0
       '@types/react': 18.0.26
       eslint: 8.25.0
       prettier: ^2.7.1
@@ -779,27 +794,32 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0
       remotion: 3.3.62
+      rollup: ^2.70.1
       typescript: ^4.7.0
     dependencies:
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
+      '@rollup/plugin-typescript': 8.5.0_2s5nfqwcf62746iqzotp3mpuy4
       '@types/react': 18.0.26
       eslint: 8.25.0
       prettier: 2.7.1
       prettier-plugin-organize-imports: 2.3.4_j2odc4yr77iddtreafyicbq5hi
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
+      rollup: 2.76.0
       typescript: 4.7.2
 
   packages/noise:
     specifiers:
       '@jonny/eslint-config': ^3.0.266
+      '@rollup/plugin-typescript': ^8.2.0
       '@types/node': ^16.7.5
       eslint: 8.25.0
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
       remotion: 3.3.62
+      rollup: ^2.70.1
       simplex-noise: 4.0.1
       typescript: ^4.7.0
       vitest: 0.24.3
@@ -808,10 +828,12 @@ importers:
       simplex-noise: 4.0.1
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
+      '@rollup/plugin-typescript': 8.5.0_2s5nfqwcf62746iqzotp3mpuy4
       '@types/node': 16.10.2
       eslint: 8.25.0
       prettier: 2.7.1
       prettier-plugin-organize-imports: 2.3.4_j2odc4yr77iddtreafyicbq5hi
+      rollup: 2.76.0
       typescript: 4.7.2
       vitest: 0.24.3
 
@@ -1015,6 +1037,7 @@ importers:
     specifiers:
       '@jonny/eslint-config': 3.0.266
       '@remotion/bundler': 3.3.62
+      '@rollup/plugin-typescript': ^8.2.0
       '@shopify/react-native-skia': ^0.1.139
       '@types/react': 18.0.26
       '@types/react-native': ^0.69.2
@@ -1025,6 +1048,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0
       remotion: 3.3.62
+      rollup: ^2.70.1
       typescript: ^4.7.0
     dependencies:
       copy-webpack-plugin: 11.0.0_webpack@5.74.0
@@ -1032,6 +1056,7 @@ importers:
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
       '@remotion/bundler': link:../bundler
+      '@rollup/plugin-typescript': 8.5.0_2s5nfqwcf62746iqzotp3mpuy4
       '@shopify/react-native-skia': 0.1.139_rlxvagb2l2jceoxbyljoesn5oa
       '@types/react': 18.0.26
       '@types/react-native': 0.69.2
@@ -1040,12 +1065,14 @@ importers:
       prettier-plugin-organize-imports: 2.3.4_j2odc4yr77iddtreafyicbq5hi
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
+      rollup: 2.76.0
       typescript: 4.7.2
 
   packages/three:
     specifiers:
       '@jonny/eslint-config': 3.0.266
       '@react-three/fiber': '>=8.0.0'
+      '@rollup/plugin-typescript': ^8.2.0
       '@types/node': ^14.14.14
       '@types/react': 18.0.26
       '@types/react-reconciler': ^0.26.4
@@ -1057,6 +1084,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0
       remotion: 3.3.62
+      rollup: ^2.70.1
       three: ^0.145.0
       typescript: ^4.7.0
     dependencies:
@@ -1064,6 +1092,7 @@ importers:
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
       '@react-three/fiber': 8.8.10_u3n4asvhgbrwklmocjcudrf5be
+      '@rollup/plugin-typescript': 8.5.0_2s5nfqwcf62746iqzotp3mpuy4
       '@types/node': 14.17.20
       '@types/react': 18.0.26
       '@types/react-reconciler': 0.26.4
@@ -1074,6 +1103,7 @@ importers:
       prettier-plugin-organize-imports: 2.3.4_j2odc4yr77iddtreafyicbq5hi
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
+      rollup: 2.76.0
       three: 0.145.0
       typescript: 4.7.2
 
@@ -17255,10 +17285,6 @@ packages:
     dependencies:
       yallist: 4.0.0
 
-  /lru_map/0.4.1:
-    resolution: {integrity: sha512-I+lBvqMMFfqaV8CJCISjI3wbjmwVu/VyOoU7+qtu9d7ioW5klMgsTTiUOUp+DJvfTTzKXoPbyC6YfgkNcyPSOg==}
-    dev: false
-
   /lz-string/1.4.4:
     resolution: {integrity: sha512-0ckx7ZHRPqb0oUm8zNr+90mtf9DQB60H1wMCjBtfi62Kl3a7JbHob6gA2bC+xRvZoOL+1hzUK8jeuEIQE8svEQ==}
     hasBin: true
@@ -24842,8 +24868,8 @@ packages:
       '@webassemblyjs/ast': 1.11.1
       '@webassemblyjs/wasm-edit': 1.11.1
       '@webassemblyjs/wasm-parser': 1.11.1
-      acorn: 8.8.0
-      acorn-import-assertions: 1.8.0_acorn@8.8.0
+      acorn: 8.8.1
+      acorn-import-assertions: 1.8.0_acorn@8.8.1
       browserslist: 4.21.4
       chrome-trace-event: 1.0.3
       enhanced-resolve: 5.10.0

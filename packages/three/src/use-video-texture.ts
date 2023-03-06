@@ -1,7 +1,7 @@
 import React, {useCallback, useState} from 'react';
 import type {Video} from 'remotion';
 import {continueRender, delayRender, useCurrentFrame} from 'remotion';
-import {VideoTexture} from 'three/src/textures/VideoTexture';
+import type {VideoTexture} from 'three/src/textures/VideoTexture';
 
 export type UseVideoTextureOptions = React.ComponentProps<typeof Video>;
 
@@ -29,19 +29,24 @@ export const useVideoTexture = (
 		delayRender(`Waiting for texture in useVideoTexture() to be loaded`)
 	);
 	const [videoTexture, setVideoTexture] = useState<VideoTexture | null>(null);
+	const [vidText] = useState(
+		() => import('three/src/textures/VideoTexture.js')
+	);
 	const frame = useCurrentFrame();
 
 	const onReady = useCallback(() => {
-		if (!videoRef.current) {
-			throw new Error('Video not ready');
-		}
+		vidText.then(({VideoTexture}) => {
+			if (!videoRef.current) {
+				throw new Error('Video not ready');
+			}
 
-		const vt = new VideoTexture(videoRef.current);
-		videoRef.current.width = videoRef.current.videoWidth;
-		videoRef.current.height = videoRef.current.videoHeight;
-		setVideoTexture(vt);
-		continueRender(loaded);
-	}, [loaded, videoRef]);
+			const vt = new VideoTexture(videoRef.current);
+			videoRef.current.width = videoRef.current.videoWidth;
+			videoRef.current.height = videoRef.current.videoHeight;
+			setVideoTexture(vt);
+			continueRender(loaded);
+		});
+	}, [loaded, vidText, videoRef]);
 
 	React.useEffect(() => {
 		if (!videoRef.current) {
