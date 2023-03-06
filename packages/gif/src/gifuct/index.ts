@@ -1,9 +1,6 @@
-// @ts-expect-error
-import {parse} from 'js-binary-schema-parser';
-// @ts-expect-error
-import {buildStream} from 'js-binary-schema-parser/lib/parsers/uint8';
-// @ts-expect-error
-import GIF from 'js-binary-schema-parser/lib/schemas/gif';
+import {GIF} from '../js-binary-schema-parser/gif';
+import {parse} from '../js-binary-schema-parser/parser';
+import {buildStream} from '../js-binary-schema-parser/uint8-parser';
 import {deinterlace} from './deinterlace';
 import {lzw} from './lzw';
 import type {Frame, ParsedFrameWithoutPatch, ParsedGif} from './types';
