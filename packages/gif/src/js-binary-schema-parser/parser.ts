@@ -1,48 +1,46 @@
-import type {GIF} from './gif';
+import type {ParsedGif} from '../gifuct/types';
 import type {Stream} from './uint8-parser';
 
-export const parse = function parse(stream: Stream, schema: typeof GIF) {
-	const result =
-		arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-	const parent =
-		arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : result;
-
+export const parse = <T extends Record<string, T>>(
+	stream: Stream,
+	schema: GifSchema,
+	result: T = {} as T,
+	parent: T = result
+): GifSchema => {
 	if (Array.isArray(schema)) {
 		schema.forEach((partSchema) => {
 			return parse(stream, partSchema, result, parent);
 		});
-	} else if (typeof schema === 'function') {
-		schema(stream, result, parent, parse);
 	} else {
+		// @ts-expect-error
 		const key = Object.keys(schema)[0];
 
+		// @ts-expect-error
 		if (Array.isArray(schema[key])) {
-			parent[key] = {};
+			// @ts-expect-error
+			parent[key] = {} as T;
+			// @ts-expect-error
 			parse(stream, schema[key], result, parent[key]);
 		} else {
-			parent[key] = schema[key](stream, result, parent, parse);
+			// @ts-expect-error
+			parent[key] = schema[key](stream, result, parent, parse) as T;
 		}
 	}
 
-	return result;
+	return result as unknown as ParsedGif;
 };
 
-export const conditional = (schema: typeof GIF, conditionFunc) => {
-	return function (stream: Stream, result, parent, parse) {
-		if (conditionFunc(stream, result, parent)) {
-			parse(stream, schema, result, parent);
-		}
-	};
-};
-
-export const loop = (schema: typeof GIF, continueFunc) => {
-	return function (stream: Stream, result, parent, parse) {
+export const loop = <R>(
+	schema: GifSchema,
+	continueFunc: (st: Stream, r: R, p: R) => boolean
+) => {
+	return function (stream: Stream, result: R, parent: R, _parse: ParseFn<R>) {
 		const arr = [];
 		let lastStreamPos = stream.pos;
 
 		while (continueFunc(stream, result, parent)) {
-			const newParent = {};
-			parse(stream, schema, result, newParent); // cases when whole file is parsed but no termination is there and stream position is not getting updated as well
+			const newParent = {} as R;
+			_parse(stream, schema, result, newParent); // cases when whole file is parsed but no termination is there and stream position is not getting updated as well
 			// it falls into infinite recursion, null check to avoid the same
 
 			if (stream.pos === lastStreamPos) {
@@ -56,3 +54,16 @@ export const loop = (schema: typeof GIF, continueFunc) => {
 		return arr;
 	};
 };
+
+type ConditionalFunction<T> = (st: Stream, result: T, parent: T) => boolean;
+type ParseFn<T> = (st: Stream, schema: GifSchema, result: T, parent: T) => void;
+
+export type GifSchema = unknown | ParsedGif;
+
+export const conditional =
+	<T>(schema: GifSchema, conditionFunc: ConditionalFunction<T>) =>
+	(stream: Stream, result: T, parent: T, parseFn: ParseFn<T>) => {
+		if (conditionFunc(stream, result, parent)) {
+			parseFn(stream, schema, result, parent);
+		}
+	};
