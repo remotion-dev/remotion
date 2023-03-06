@@ -154,8 +154,6 @@ export const benchmarkCommand = async (
 		inputProps,
 		envVariables,
 		browserExecutable,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		chromiumOptions,
 		port,
 		puppeteerTimeout,
@@ -197,8 +195,6 @@ export const benchmarkCommand = async (
 		envVariables,
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		port,
 		puppeteerInstance,
 	});

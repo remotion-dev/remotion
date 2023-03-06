@@ -65,8 +65,6 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		browserExecutable,
 		chromiumOptions,
 		scale,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		overwrite,
 		puppeteerTimeout,
 		port,
@@ -115,8 +113,6 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		chromiumOptions,
 		port,
 		browserExecutable,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		downloadMap,
 	});
 
@@ -216,7 +212,6 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		chromiumOptions,
 		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
 		scale,
-		ffmpegExecutable,
 		browserExecutable,
 		overwrite,
 		onDownload,

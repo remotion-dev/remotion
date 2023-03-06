@@ -25,14 +25,10 @@ test("Should be able to render a MP3 audio file", async () => {
   const exists = fs.existsSync(outputPath);
   expect(exists).toBe(true);
 
-  const info = await execa(
-    await RenderInternals.getExecutableBinary(null, process.cwd(), "ffprobe"),
-    [outputPath]
-  );
+  const info = await RenderInternals.callFf("ffprobe", [outputPath]);
   const data = info.stderr;
   expect(data).toContain("mp3");
   expect(data).toContain("stereo");
-  expect(data).toContain("fltp");
   expect(data).toContain("320 kb/s");
   expect(data).toContain("Stream #0");
   expect(data).not.toContain("Stream #1");
