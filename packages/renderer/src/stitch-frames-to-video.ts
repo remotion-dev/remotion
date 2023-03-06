@@ -2,7 +2,6 @@ import fs, {promises} from 'fs';
 import path from 'path';
 import type {TAsset} from 'remotion';
 import {Internals} from 'remotion';
-import {RenderInternals} from '.';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -393,7 +392,7 @@ export const spawnFfmpeg = async (
 		console.log(finalFfmpegString);
 	}
 
-	const task = RenderInternals.callFf('ffmpeg', finalFfmpegString, {
+	const task = callFf('ffmpeg', finalFfmpegString, {
 		cwd: options.dir,
 	});
 	options.cancelSignal?.(() => {

@@ -1,4 +1,4 @@
-import {RenderInternals} from '.';
+import {callFf} from './call-ffmpeg';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 export const createSilentAudio = async ({
@@ -8,7 +8,7 @@ export const createSilentAudio = async ({
 	numberOfSeconds: number;
 	outName: string;
 }) => {
-	await RenderInternals.callFf('ffmpeg', [
+	await callFf('ffmpeg', [
 		'-f',
 		'lavfi',
 		'-i',

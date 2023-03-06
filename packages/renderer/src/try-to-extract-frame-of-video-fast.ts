@@ -1,9 +1,9 @@
 import type {OffthreadVideoImageFormat} from 'remotion';
-import {RenderInternals} from '.';
 import type {
 	NeedsResize,
 	SpecialVCodecForTransparency,
 } from './assets/download-map';
+import {callFf} from './call-ffmpeg';
 import {determineResizeParams} from './determine-resize-params';
 import {determineVcodecFfmpegFlags} from './determine-vcodec-ffmpeg-flags';
 import {truthy} from './truthy';
@@ -21,7 +21,7 @@ export const tryToExtractFrameOfVideoFast = async ({
 	specialVCodecForTransparency: SpecialVCodecForTransparency;
 	actualOffset: string;
 }) => {
-	const {stdout, stderr} = RenderInternals.callFf(
+	const {stdout, stderr} = callFf(
 		'ffmpeg',
 		[
 			'-ss',

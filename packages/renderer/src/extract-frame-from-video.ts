@@ -1,7 +1,7 @@
 import type {OffthreadVideoImageFormat} from 'remotion';
-import {RenderInternals} from '.';
 import type {DownloadMap} from './assets/download-map';
 import {getVideoStreamDuration} from './assets/get-video-stream-duration';
+import {callFf} from './call-ffmpeg';
 import {determineResizeParams} from './determine-resize-params';
 import {determineVcodecFfmpegFlags} from './determine-vcodec-ffmpeg-flags';
 import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
@@ -145,7 +145,7 @@ const extractFrameFromVideoFn = async ({
 	}
 
 	const ffmpegTimestamp = frameToFfmpegTimestamp(time);
-	const {stdout, stderr} = RenderInternals.callFf(
+	const {stdout, stderr} = callFf(
 		'ffmpeg',
 		[
 			'-ss',
